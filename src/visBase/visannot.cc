@@ -4,23 +4,39 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.7 2002-04-19 08:58:07 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.8 2002-04-25 10:37:10 kristofer Exp $";
 
 #include "visannot.h"
+#include "vistext.h"
+#include "vissceneobjgroup.h"
+#include "ranges.h"
+#include "samplingdata.h"
+#include "axisinfo.h"
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoIndexedLineSet.h"
 #include "Inventor/nodes/SoCoordinate3.h"
-#include "Inventor/nodes/SoText2.h"
-#include "Inventor/nodes/SoTranslation.h"
 #include "Inventor/nodes/SoDrawStyle.h"
 #include "Inventor/nodes/SoSwitch.h"
+#include "Inventor/nodes/SoPickStyle.h"
 
 
 visBase::Annotation::Annotation()
     : coords( new SoCoordinate3 )
     , textswitch( new SoSwitch )
 {
+    SoPickStyle* pickstyle = new SoPickStyle;
+    addChild( pickstyle );
+    pickstyle->style = SoPickStyle::UNPICKABLE;
+
+    texts += visBase::SceneObjectGroup::create(true);
+    texts += visBase::SceneObjectGroup::create(true);
+    texts += visBase::SceneObjectGroup::create(true);
+    
+    texts[0]->ref();
+    texts[1]->ref();
+    texts[2]->ref();
+
     addChild( coords );
 
     static float pos[8][3] =
@@ -67,33 +83,22 @@ visBase::Annotation::Annotation()
     textswitch->addChild(textgroup);
     textswitch->whichChild = 0;
 
-    texts += new SoText2;
-    texts += new SoText2;
-    texts += new SoText2;
-    textpositions += new SoTranslation;
-    textpositions += new SoTranslation;
-    textpositions += new SoTranslation;
-
-    SoSeparator* text = new SoSeparator;
-    text->addChild( textpositions[0] );
-    text->addChild( texts[0] );
-    textgroup->addChild( text );
-
-    text = new SoSeparator;
-    text->addChild( textpositions[1] );
-    text->addChild( texts[1] );
-    textgroup->addChild( text );
-
-    text = new SoSeparator;
-    text->addChild( textpositions[2] );
-    text->addChild( texts[2] );
-    textgroup->addChild( text );
-
-    texts[0]->justification = SoText2::CENTER;
-    texts[1]->justification = SoText2::CENTER;
-    texts[2]->justification = SoText2::CENTER;
+    textgroup->addChild( texts[0]->getData() );
+    Text* text = Text::create(); texts[0]->addObject( text );
+    textgroup->addChild( texts[1]->getData() );
+    text = Text::create(); texts[1]->addObject( text );
+    textgroup->addChild( texts[2]->getData() );
+    text = Text::create(); texts[2]->addObject( text );
 
     updateTextPos();
+}
+
+
+visBase::Annotation::~Annotation()
+{
+    texts[0]->unRef();
+    texts[1]->unRef();
+    texts[2]->unRef();
 }
 
 
@@ -117,9 +122,12 @@ void visBase::Annotation::setCorner( int idx, float x, float y, float z )
 }
 
 
-void visBase::Annotation::setText( int dim, const char* text )
+void visBase::Annotation::setText( int dim, const char* string )
 {
-    texts[dim]->string = text;
+    visBase::Text* text = getText( dim, 0 );
+    if ( !text ) return;
+
+    text->setText( string );
 }
 
 
@@ -146,28 +154,90 @@ void visBase::Annotation::updateLineStyle()
     drawstyle->linePattern.setValue( pattern );
 }
 
-
-void visBase::Annotation::updateTextPos()
+void  visBase::Annotation::updateTextPos()
 {
-    SbVec3f p0 = coords->point[0];
-    SbVec3f p1 = coords->point[1];
-    SbVec3f tp;
-    tp[0] = (p0[0]+p1[0]) / 2;
-    tp[1] = (p0[1]+p1[1]) / 2;
-    tp[2] = (p0[2]+p1[2]) / 2;
-    textpositions[0]->translation = tp;
-
-    p0 = coords->point[0];
-    p1 = coords->point[3];
-    tp[0] = (p0[0]+p1[0]) / 2;
-    tp[1] = (p0[1]+p1[1]) / 2;
-    tp[2] = (p0[2]+p1[2]) / 2;
-    textpositions[1]->translation = tp;
-
-    p0 = coords->point[0];
-    p1 = coords->point[4];
-    tp[0] = (p0[0]+p1[0]) / 2;
-    tp[1] = (p0[1]+p1[1]) / 2;
-    tp[2] = (p0[2]+p1[2]) / 2;
-    textpositions[2]->translation = tp;
+    updateTextPos( 0 );
+    updateTextPos( 1 );
+    updateTextPos( 2 );
 }
+
+
+void visBase::Annotation::updateTextPos(int textid)
+{
+    int pidx0;
+    int pidx1;
+
+    if ( textid==0)
+    {
+	pidx0 = 0;
+	pidx1 = 1;
+    }
+    else if ( textid==1 )
+    {
+	pidx0 = 0;
+	pidx1 = 3;
+    }
+    else
+    {
+	pidx0 = 0;
+	pidx1 = 4;
+    }
+
+    SbVec3f p0 = coords->point[pidx0];
+    SbVec3f p1 = coords->point[pidx1];
+    SbVec3f tp;
+
+    while ( texts[textid]->size()>1 )
+	texts[textid]->removeObject( texts[textid]->size()-1 );
+
+    tp[0] = (p0[0]+p1[0]) / 2;
+    tp[1] = (p0[1]+p1[1]) / 2;
+    tp[2] = (p0[2]+p1[2]) / 2;
+
+    getText( textid, 0 )->setPosition( Geometry::Pos( tp[0], tp[1], tp[2] ));
+
+    int dim = -1;
+    if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[2]-p1[2])) dim = 0;
+    else if ( mIS_ZERO(p0[2]-p1[2]) && mIS_ZERO(p0[0]-p1[0])) dim = 1;
+    else if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[0]-p1[0])) dim = 2;
+
+    if ( dim>= 0 )
+    {
+	Interval<double> range( p0[dim], p1[dim] );
+	SamplingData<double> sd = AxisInfo::prettySampling(range);
+
+	int idx = 0;
+	while ( true )
+	{
+	    double val = sd.atIndex(idx);
+	    if ( val<= range.start )
+	    {
+		idx++;
+		continue;
+	    }
+
+	    if ( val>range.stop ) break;
+
+	    Text* text = Text::create();
+	    texts[textid]->addObject( text );
+	    Geometry::Pos pos( p0[0], p0[1], p0[2] );
+	    pos[dim] = val;
+	    text->setPosition( pos );
+	    BufferString string = val;
+	    text->setText( string );
+	    idx++;
+	}
+    }
+}
+
+
+visBase::Text* visBase::Annotation::getText( int dim, int textnr )
+{
+    SceneObjectGroup* group = 0;
+    group = texts[dim];
+
+    mDynamicCastGet(visBase::Text*,text,group->getObject(textnr));
+    return text;
+}
+
+    
