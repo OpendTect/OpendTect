@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.9 2003-11-05 13:29:38 arend Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.10 2003-11-05 13:33:04 nanne Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -518,7 +518,7 @@ void SoMeshSurface::stopThreads()
 
 void SoMeshSurface::startThreads( int nrthreads )
 {
-#ifdef __win__
+#ifndef __win__
     SbThreadAutoLock lock( creatorqueMutex );
     weAreStopping = false;
 
