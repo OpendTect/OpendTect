@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.21 2001-12-11 14:24:02 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.22 2002-01-14 07:08:30 nanne Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -201,11 +201,12 @@ void CBVSWriter::writeGeom()
 }
 
 
-void CBVSWriter::newSeg()
+void CBVSWriter::newSeg( bool newinl )
 {
     if ( !trcswritten ) prevbinid_ = curbinid_;
 
-    inldata += new CBVSInfo::SurvGeom::InlineInfo( curbinid_.inl );
+    if ( newinl )
+	inldata += new CBVSInfo::SurvGeom::InlineInfo( curbinid_.inl );
     inldata[inldata.size()-1]->segments +=
 	CBVSInfo::SurvGeom::InlineInfo::Segment(curbinid_.crl,curbinid_.crl,1);
 }
@@ -225,7 +226,7 @@ void CBVSWriter::getBinID()
     {
 	curbinid_ = expldat->binid;
 	if ( !trcswritten || prevbinid_.inl != curbinid_.inl )
-	    newSeg();
+	    newSeg( true );
 	else
 	{
 	    CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata[inldata.size()-1];
@@ -242,7 +243,7 @@ void CBVSWriter::getBinID()
 	    else
 	    {
 		if ( curbinid_.crl != seg.stop + seg.step )
-		    newSeg();
+		    newSeg( false );
 		else
 		    seg.stop = curbinid_.crl;
 	    }

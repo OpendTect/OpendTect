@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.12 2001-11-22 16:53:11 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.13 2002-01-14 07:08:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ private:
 
     void		init(const CBVSInfo&);
     void		getBinID();
-    void		newSeg();
+    void		newSeg(bool);
     bool		writeExplicits();
 
 };
