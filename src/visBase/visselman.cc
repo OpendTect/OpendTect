@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.1 2002-02-26 17:54:21 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.2 2002-02-27 10:37:15 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -27,6 +27,34 @@ visBase::SelectionManager::~SelectionManager()
     node->removeSelectionCallback( visBase::SelectionManager::selectCB, this );
     node->removeDeselectionCallback(visBase::SelectionManager::deSelectCB,this);
     node->unref();
+}
+
+
+visBase::SelectionManager::Policy visBase::SelectionManager::policy() const
+{
+    if ( node->policy.getValue()== SoSelection::SHIFT )
+	return Shift; 
+    if ( node->policy.getValue()== SoSelection::TOGGLE )
+	return Toggle;
+    else
+	return Single;
+}
+
+
+void visBase::SelectionManager::setPolicy( visBase::SelectionManager::Policy p )
+{
+    if ( p==Shift )
+	node->policy.setValue( SoSelection::SHIFT );
+    else if ( p==Toggle )
+	node->policy.setValue( SoSelection::TOGGLE );
+    else
+	node->policy.setValue( SoSelection::SINGLE );
+}
+
+
+void visBase::SelectionManager::deSelectAll()
+{
+    node->deselectAll();
 }
 
 

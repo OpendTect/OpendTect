@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.1 2002-02-26 17:54:40 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.2 2002-02-27 10:37:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,13 @@ public:
 		SelectionManager();
     virtual	~SelectionManager();
 
+    enum Policy { Shift, Toggle, Single };
+    Policy	policy() const;
+    void	setPolicy( Policy );
+
+    void	deSelectAll();
+
+    bool	isSelectable(  const VisualObject& assoc );
     void	notifySelection( const VisualObject& assoc, const CallBack& );
     void	deNotifySelection( const VisualObject& assoc, const CallBack& );
     void	notifyDeSelection( const VisualObject& assoc, const CallBack& );
