@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.12 2003-10-29 17:28:42 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.13 2003-10-30 12:26:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ void uiIOSurface::mkAttribFld()
 					uiLabeledListBox::AboveMid );
     attribfld->box()->rightButtonClicked.notify( 
 	    				mCB(this,uiIOSurface,deSelect) );
+    attribfld->box()->setToolTip( "Right-click to deselect" );
     attribfld->setPrefHeightInChar( cListHeight );
     attribfld->setStretch( 1, 1 );
 }
