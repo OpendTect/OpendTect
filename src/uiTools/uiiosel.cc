@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.10 2001-06-03 15:43:55 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.11 2001-06-26 07:52:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,12 @@ ________________________________________________________________________
 uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
 			bool seled, bool withclear )
 	: uiGroup(p)
-	, withclear_(withclear)
 	, doselcb_(butcb)
 	, selectiondone(this)
+	, specialitems(*new IOPar)
 {
-    if ( withclear ) entries_ += new BufferString;
+    if ( withclear ) addSpecialItem( "" );
+
     inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", seled );
     inp_->box()->selectionchanged.notify( mCB(this,uiIOSelect,selDone) );
     inp_->box()->setPrefWidthInChar( 20 );
@@ -35,12 +36,12 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
 
     setHAlignObj( inp_ );
     setHCentreObj( inp_ );
-    updateFromEntries();
 }
 
 
 uiIOSelect::~uiIOSelect()
 {
+    delete &specialitems;
     deepErase( entries_ );
 }
 
@@ -53,6 +54,10 @@ void uiIOSelect::updateFromEntries()
 	curusrnm = inp_->box()->textOfItem( curitnr );
 
     inp_->box()->empty();
+
+    for ( int idx=0; idx<specialitems.size(); idx++ )
+	inp_->box()->addItem( specialitems.getValue(idx) );
+
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
 	const char* usrnm = userNameFromKey( *entries_[idx] );
@@ -73,6 +78,8 @@ void uiIOSelect::updateFromEntries()
 
 bool uiIOSelect::haveEntry( const char* key ) const
 {
+    if ( specialitems.find(key) ) return true;
+
     for ( int idx=0; idx<entries_.size(); idx++ )
 	if ( *entries_[idx] == key ) return true;
     return false;
@@ -81,7 +88,6 @@ bool uiIOSelect::haveEntry( const char* key ) const
 
 void uiIOSelect::fillPar( IOPar& iopar ) const
 {
-    int startidx = withclear_ ? 1 : 0;
     int lastidx = 0;
     for ( ; ; lastidx++ )
     {
@@ -90,10 +96,10 @@ void uiIOSelect::fillPar( IOPar& iopar ) const
     }
 
     const int sz = nrItems();
-    for ( int idx=startidx; idx<sz; idx++ )
+    for ( int idx=0; idx<sz; idx++ )
     {
 	const char* key = *entries_[idx];
-	if ( iopar.findKeyFor(key) ) continue;
+	if ( specialitems.find(key) || iopar.findKeyFor(key) ) continue;
 
 	lastidx++;
 	iopar.set( IOPar::compKey("I/O Selection",lastidx), key );
@@ -126,6 +132,13 @@ void uiIOSelect::usePar( const IOPar& iopar )
 }
 
 
+void uiIOSelect::addSpecialItem( const char* key, const char* value )
+{
+    if ( !value ) value = key;
+    specialitems.set( key, value );
+}
+
+
 const char* uiIOSelect::getInput() const
 {
     return inp_->box()->getText();
@@ -134,44 +147,53 @@ const char* uiIOSelect::getInput() const
 
 const char* uiIOSelect::getKey() const
 {
-    return entries_.size() ? (const char*)(*entries_[getCurrentItem()]) : "";
+    const int nrspec = specialitems.size();
+    const int curit = getCurrentItem();
+    if ( curit < 0 ) return "";
+    if ( curit < nrspec ) return specialitems.getKey(curit);
+
+    return entries_.size() ? (const char*)(*entries_[curit-nrspec]) : "";
 }
 
 
 void uiIOSelect::setInput( const char* key )
 {
-    const char* usrnm = userNameFromKey( key );
-    if ( !key ) key = "";
-    if ( !usrnm && (!withclear_ || *key ) )
+    if ( specialitems.find(key) )
+    {
+	inp_->box()->setCurrentItem( specialitems.find(key) );
 	return;
+    }
 
-    if ( !usrnm ) usrnm = "";
+    const char* usrnm = userNameFromKey( key );
+    if ( !usrnm ) return;
 
+    const int nrspec = specialitems.size();
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
+	const int boxidx = idx + nrspec;
 	if ( *entries_[idx] == key )
 	{
-	    inp_->box()->setItemText( idx, usrnm );
-	    inp_->box()->setCurrentItem( idx );
+	    inp_->box()->setItemText( boxidx, usrnm );
+	    inp_->box()->setCurrentItem( boxidx );
 	    return;
 	}
     }
 
     entries_ += new BufferString( key );
     inp_->box()->addItem( usrnm );
-    inp_->box()->setCurrentItem( entries_.size() - 1 );
+    inp_->box()->setCurrentItem( nrspec + entries_.size() - 1 );
 }
 
 
 int uiIOSelect::getCurrentItem() const
 {
-    return inp_->box()->currentItem();
+    return inp_->box()->size() ? inp_->box()->currentItem() : -1;
 }
 
 
 void uiIOSelect::setCurrentItem( int idx )
 {
-    inp_->box()->setCurrentItem( idx );
+    if ( idx >= 0 ) inp_->box()->setCurrentItem( idx );
 }
 
 
