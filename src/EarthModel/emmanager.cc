@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.17 2003-07-31 14:37:36 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.18 2003-08-05 15:09:48 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -76,8 +76,6 @@ MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
     if ( !ctio->ioobj ) return -1;
 
     EMObject* obj = EM::EMObject::create( *ctio->ioobj, *this );
-    PtrMan<Executor> exec = obj->saver();
-    exec->execute();
     objects += obj;
     refcounts += 0;
 
