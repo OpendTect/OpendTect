@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.6 2003-05-12 10:59:55 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.7 2003-05-13 15:04:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ class Vector3
 public:
     			Vector3();
     			Vector3( float x, float y, float z );
-    			Vector3( Coord3 origin, Coord3 direction );
+    			Vector3( const Coord3& origin, const Coord3& target );
 
     Vector3		operator+(const Vector3&) const;
     Vector3&		operator+=(const Vector3&);
@@ -142,6 +142,9 @@ public:
 		     			well the points fit to a plane.
 					1 = perfect fit 0 = no fit
 			*/
+
+    bool		operator==(const Plane3&) const;
+    bool		operator!=(const Plane3&) const;
 
     Vector3		normal() const { return Vector3( A, B, C ); }
  
