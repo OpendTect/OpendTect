@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.21 2004-05-06 21:41:45 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.22 2004-05-10 13:26:04 nanne Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,10 @@ public:
     const char*			errMsg() const
     				{ return errmsg[0]
 				    ? (const char*) errmsg : (const char*) 0; }
+
+    static int			sPermanentControlNode;
+    static int			sTemporaryControlNode;
+    static int			sEdgeControlNode;
 
 protected:
     virtual const IOObjContext&	getIOObjContext() const = 0;

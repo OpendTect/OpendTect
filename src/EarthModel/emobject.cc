@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.17 2004-05-06 21:41:50 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.18 2004-05-10 13:25:59 nanne Exp $";
 
 #include "emobject.h"
 
@@ -15,6 +15,11 @@ static const char* rcsID = "$Id: emobject.cc,v 1.17 2004-05-06 21:41:50 kristofe
 #include "ioobj.h"
 #include "ptrman.h"
 #include "ioman.h"
+
+
+int EM::EMObject::sPermanentControlNode	= 0;
+int EM::EMObject::sTemporaryControlNode	= 1;
+int EM::EMObject::sEdgeControlNode	= 2;
 
 EM::EMObject* EM::EMObject::create( const IOObj& ioobj, EM::EMManager& manager )
 {
