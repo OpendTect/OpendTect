@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.16 2002-04-16 14:39:13 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.17 2002-04-18 09:24:33 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -76,8 +76,8 @@ visSurvey::Scene::Scene()
     double transmatrix24 = x[2];
 
     inlcrltransformation->setA(
-	transmatrix11,	transmatrix12,	0,	0,
-	transmatrix21,	transmatrix22,	0,	0,
+	transmatrix11,	transmatrix12,	0,	transmatrix14,
+	transmatrix21,	transmatrix22,	0,	transmatrix24,
 	0,		0,		1,	0,
 	0,		0,		0,	1 );
 
