@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.11 2002-04-11 06:40:35 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.12 2002-04-15 10:05:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,9 +34,9 @@ class Scene;
 class PickSetDisplay : public visBase::VisualObjectImpl
 {
 public:
-    static PickSetDisplay*	create(const visSurvey::Scene& scene)
+    static PickSetDisplay*	create(visSurvey::Scene& scene)
 				mCreateDataObj1arg(PickSetDisplay,
-					const visSurvey::Scene&, scene );
+					visSurvey::Scene&, scene );
 
     int				nrPicks() const;
     Geometry::Pos		getPick( int idx ) const;
@@ -44,9 +44,9 @@ public:
     void			removePick( const Geometry::Pos& );
     void			removeAll();
 
-    float			getInlSz() const { return inlsz; }
-    float			getCrlSz() const { return inlsz; }
-    float			getTSz() const { return inlsz; }
+    float			getXSz() const { return xsz; }
+    float			getYSz() const { return ysz; }
+    float			getZSz() const { return zsz; }
 
     void			setSize( float inl, float crl, float t );
 
@@ -56,17 +56,18 @@ protected:
     virtual		~PickSetDisplay();
 
     void		pickCB( CallBacker* =0 );
+    void		updateCubeSz( CallBacker* =0 );
 
-    float		inlsz;
-    float		crlsz;
-    float		tsz;
+    float		xsz;
+    float		ysz;
+    float		zsz;
 
     int			mousepressid;
     Geometry::Pos	mousepressposition;
 
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
-    const visSurvey::Scene&	scene;
+    visSurvey::Scene&		scene;
 };
 
 };
