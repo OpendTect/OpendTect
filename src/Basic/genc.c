@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.63 2004-12-27 14:54:17 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.64 2004-12-27 15:07:32 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -264,7 +264,8 @@ const char* SearchODFile( const char* fname )
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "SearchODFile for '%s': '%s'", nm ? nm : "(null)", nm);
+	sprintf( dbgbuf, "SearchODFile for '%s': '%s'",
+			 fname ? fname : "(null)", nm);
 	od_debug_message( dbgbuf );
     }
 
