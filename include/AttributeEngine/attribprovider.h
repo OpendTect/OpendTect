@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.3 2005-02-01 14:05:34 kristofer Exp $
+ RCS:           $Id: attribprovider.h,v 1.4 2005-02-01 16:00:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class BasicTask;
 class CubeSampling;
+class SeisRequester;
 namespace Threads { class ThreadWorkManager; };
 
 namespace Attrib
@@ -57,15 +58,17 @@ public:
     void			setDesiredVolume( const CubeSampling& );
     bool			getPossibleVolume(int outp,CubeSampling&) const;
 
-    bool			moveToNextTrace();
+    virtual int			moveToNextTrace();
     BinID			getCurrentPosition() const;
+    virtual bool		setCurrentPosition( const BinID& );
     void			addLocalCompZInterval(const Interval<int>&);
     const Interval<int>&	localCompZInterval() const;
     virtual const DataHolder*	getData( const BinID& relpos );
     virtual const DataHolder*	getDataDontCompute( const BinID& relpos ) const;
 
 protected:
-			Provider( Desc& );
+				Provider( Desc& );
+    virtual SeisRequester*	getSeisRequester();
     static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
 
 
@@ -109,17 +112,6 @@ protected:
 
     BinID				currentbid;
 };
-
-/*
-class StorageProvider : public Provider
-{
-};
-
-
-class CalculatingProvider : public Provider
-{
-};
-*/
 
 
 }; //namespace

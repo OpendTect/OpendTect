@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.2 2005-02-01 14:05:34 kristofer Exp $
+ RCS:           $Id: attribdesc.h,v 1.3 2005-02-01 16:00:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class DescSet;
 class Param;
 
 typedef void(*DescStatusUpdater)(Desc&);
+typedef bool(*DescChecker)(const Desc&);
 
 class InputSpec
 {
@@ -46,7 +47,8 @@ class Desc
 public:
 
 			Desc( const Desc& );
-			Desc( const char* basename,DescStatusUpdater updater=0);
+			Desc( const char* basename,DescStatusUpdater updater=0,
+			      DescChecker=0);
 
     const char*		attribName() const;
     Desc*		clone() const;
@@ -117,6 +119,7 @@ protected:
     DescSet*			ds;
 
     DescStatusUpdater		statusupdater;
+    DescChecker			descchecker;
 };
 
 }; //Namespace
