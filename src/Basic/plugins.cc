@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.32 2004-05-06 14:16:07 macman Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.33 2005-02-07 16:17:05 bert Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
@@ -264,14 +264,26 @@ static void autoLoadPlugins( const char* dirnm,
 static const char* getDefDir( bool instdir )
 {
     static BufferString dnm;
-    FilePath fp(instdir ? GetSoftwareDir() : GetSettingsDir());
-    fp.add(plugindir).add( getHDir() );
+
+    bool fromenv = false;
+    dnm = instdir ? getenv( "OD_APPL_PLUGIN_DIR" )
+		  : getenv( "OD_USER_PLUGIN_DIR" );
+    if ( dnm == "" )
+	dnm = instdir ? GetSoftwareDir() : GetSettingsDir();
+    else
+	fromenv = true;
+
+    FilePath fp( dnm );
+    if ( !fromenv )
+	fp.add( plugindir );
+    fp.add( getHDir() );
     dnm = fp.fullPath();
 
     if( DBG::isOn(DBG_SETTINGS) )
     {
         BufferString msg( "plugins.cc - getDefDir(" );
         msg += instdir ? "inst" : "usr";
+        msg += fromenv ? "/env" : "/def";
         msg += ") -> "; msg += dnm;
 	DBG::message( msg );
     }
