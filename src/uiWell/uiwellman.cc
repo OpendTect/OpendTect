@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.12 2004-01-22 16:08:47 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.13 2004-02-02 15:23:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,17 +120,24 @@ void uiWellMan::selChg( CallBacker* cb )
 }
 
 
-#define mGetReader() \
+#define mInit() \
     if ( !ctio.ioobj ) return; \
-    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read)) \
-    if ( !conn ) return; \
+    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj) \
+    if ( !iostrm ) return; \
+    BufferString fname( iostrm->fileName() ); \
+    if ( !File_isAbsPath(fname) ) \
+    { \
+	fname = IOObjContext::getDataDirName(IOObjContext::WllInf); \
+	fname = File_getFullPath( fname, iostrm->fileName() ); \
+    } \
+ \
     PtrMan<Well::Data> well = new Well::Data; \
-    Well::Reader rdr( conn->fileName(), *well );
+    Well::Reader rdr( fname, *well );
 
 
 void uiWellMan::fillLogsFld()
 {
-    mGetReader()
+    mInit()
     BufferStringSet lognms;
     rdr.getLogInfo( lognms );
 
@@ -138,53 +145,48 @@ void uiWellMan::fillLogsFld()
     for ( int idx=0; idx<lognms.size(); idx++)
 	logsfld->addItem( lognms.get(idx) );
     logsfld->selAll( false );
-    conn->close();
 }
 
 
 #define mErrRet(msg) \
 { uiMSG().error(msg); return; }
-#define mCloseErrRet(msg) \
-{ conn->close(); mErrRet(msg) }
 
 
 void uiWellMan::addMarkers( CallBacker* )
 {
-    mGetReader()
+    mInit()
     if ( !rdr.getD2T() )
-	mCloseErrRet( "Cannot add markers without depth to time model" );
+	mErrRet( "Cannot add markers without depth to time model" );
 
     rdr.getMarkers();
     uiMarkerDlg dlg( this );
     dlg.setMarkerSet( well->markers() );
-    if ( !dlg.go() ) { conn->close(); return; }
+    if ( !dlg.go() ) return;
 
     dlg.getMarkerSet( well->markers() );
-    Well::Writer wtr( conn->fileName(), *well );
+    Well::Writer wtr( fname, *well );
     wtr.putMarkers();
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
     markerschanged.trigger();
-    conn->close();
 }
 
 
 void uiWellMan::addLogs( CallBacker* )
 {
-    mGetReader()
+    mInit()
     if ( !rdr.getD2T() )
-	mCloseErrRet( "Cannot add logs without depth to time model" );
+	mErrRet( "Cannot add logs without depth to time model" );
 
     rdr.getLogs();
     uiLoadLogsDlg dlg( this, *well );
-    if ( !dlg.go() ) { conn->close(); return; }
+    if ( !dlg.go() ) return;
 
-    Well::Writer wtr( conn->fileName(), *well );
+    Well::Writer wtr( fname, *well );
     wtr.putLogs();
     fillLogsFld();
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
-    conn->close();
 }
 
 
@@ -196,23 +198,22 @@ void uiWellMan::removeLogPush( CallBacker* )
 			  "\nDo you wish to continue?") )
 	return;
 
-    mGetReader()
+    mInit()
     rdr.getLogs();
     Well::Log* log = well->logs().remove( logsfld->currentItem() );
     if ( strcmp(log->name(),logsfld->getText()) )
-    { conn->close(); return; }
+	return;
 
     delete log;
     if ( rdr.removeAll(Well::IO::sExtLog) )
     {
-	Well::Writer wtr( conn->fileName(), *well );
+	Well::Writer wtr( fname, *well );
 	wtr.putLogs();
 	fillLogsFld();
     }
 
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
-    conn->close();
 }
 
 
@@ -220,9 +221,9 @@ void uiWellMan::renameLogPush( CallBacker* )
 {
     if ( !logsfld->size() || !logsfld->nrSelected() ) mErrRet("No log selected")
 
-    mGetReader()
+    mInit()
     const int lognr = logsfld->currentItem() + 1;
-    BufferString basenm = File_removeExtension( conn->fileName() );
+    BufferString basenm = File_removeExtension( fname );
     BufferString logfnm = Well::IO::mkFileName( basenm, Well::IO::sExtLog, 
 	    					lognr );
     StreamProvider sp( logfnm );
@@ -230,7 +231,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     bool res = rdr.addLog( *sdi.istrm );
     sdi.close();
     if ( !res ) 
-	mCloseErrRet("Cannot read selected log")
+	mErrRet("Cannot read selected log")
 
     Well::Log& log = well->logs().getLog( 0 );
 
@@ -238,21 +239,20 @@ void uiWellMan::renameLogPush( CallBacker* )
     titl += log.name(); titl += "'";
     uiGenInputDlg dlg( this, titl, "New name",
     			new StringInpSpec(log.name()) );
-    if ( !dlg.go() ) { conn->close(); return; }
+    if ( !dlg.go() ) return;
 
     BufferString newnm = dlg.text();
     if ( logsfld->isPresent(newnm) )
-	mCloseErrRet("Name already in use")
+	mErrRet("Name already in use")
 
     log.setName( newnm );
-    Well::Writer wtr( conn->fileName(), *well );
+    Well::Writer wtr( fname, *well );
     StreamData sdo = sp.makeOStream();
     wtr.putLog( *sdo.ostrm, log );
     sdo.close();
     fillLogsFld();
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
-    conn->close();
 }
 
 
@@ -265,16 +265,20 @@ void uiWellMan::mkFileInfo()
     }
 
     BufferString txt;
-    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read))
-    if ( !conn ) return;
+    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
+    if ( !iostrm ) return;
+    BufferString fname( iostrm->fileName() );
+    if ( !File_isAbsPath(fname) )
+    {
+	fname = IOObjContext::getDataDirName(IOObjContext::WllInf);
+	fname = File_getFullPath( fname, iostrm->fileName() );
+    }
 
-    BufferString fname( conn->fileName() );
     txt += "File location: "; txt += File_getPathOnly( fname );
     txt += "\nFile name: "; txt += File_getFileName( fname );
     txt += "\nFile size: "; txt += getFileSize( fname );
 
     infofld->setText( txt );
-    conn->close();
 }
 
 
