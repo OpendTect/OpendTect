@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.7 2001-10-05 15:47:13 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.8 2001-10-15 16:02:11 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -22,6 +22,7 @@ DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 	"Neural Networks",
 	"Miscellaneous data",
 	"Attribute definitions",
+	"Graphics data",
 	"None",
 	0
 
@@ -36,11 +37,12 @@ static const IOObjContext::StdDirData stddirdata[] = {
 	{ "100060", "NNs", IOObjContext::StdSelTypeNames[5] },
 	{ "100070", "Misc", IOObjContext::StdSelTypeNames[6] },
 	{ "100080", "Attribs", IOObjContext::StdSelTypeNames[7] },
-	{ "", "None", IOObjContext::StdSelTypeNames[8] },
+	{ "100090", "Graphics", IOObjContext::StdSelTypeNames[8] },
+	{ "", "None", IOObjContext::StdSelTypeNames[9] },
 	{ 0, 0, 0 }
 };
 
-int IOObjContext::totalNrStdDirs() { return 8; }
+int IOObjContext::totalNrStdDirs() { return 9; }
 const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 	IOObjContext::StdSelType sst )
 { return stddirdata + (int)sst; }

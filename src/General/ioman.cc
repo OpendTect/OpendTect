@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.14 2001-10-12 16:26:12 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.15 2001-10-15 16:02:11 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -92,7 +92,7 @@ void IOMan::init()
 	    // Apparently, this directory should have been in the survey
 	    // It is not. If it is a basic directory, we do not want to
 	    // continue. Otherwise, we want to create the directory.
-	    if ( idx < 6 ) // 6=Misc, may be an old survey
+	    if ( !idx ) // 0=Seis, if this is missing, why go on?
 	    {
 		BufferString msg( "Corrupt survey: missing directory: " );
 		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
