@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.10 2001-05-09 11:49:35 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.11 2001-05-10 12:51:10 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,8 @@ only if the uiGenInput has not been finalised yet.
 class uiGenInput : public uiGroup
 {
 public:
-			uiGenInput( uiObject* p, const char* disptxt ); 
+			uiGenInput( uiObject* p, const char* disptxt
+				  , const char* inputStr=0 ); 
 
 			uiGenInput( uiObject* p, const char* disptxt,
 			    const DataInpSpec& );
@@ -92,13 +93,15 @@ Returns true, if changes are accepted.
     bool		newSpec(DataInpSpec* nw, int nr);
 
 //! checks if inputs are valid, f.e. within specified range
-    bool		isValid(int nr=0) const;
+    bool		isValid( int nr=0 ) const;
+    bool		isUndef( int nr=0 ) const;
 
-    const char*		text(int nr=0) const;
-    int			getIntValue(int nr=0) const;
-    double		getValue(int nr=0) const;
-    float		getfValue(int nr=0) const;
-    bool		getBoolValue(int nr=0) const;
+    const char*		text(int nr=0, const char* undefVal="") const;
+
+    int			getIntValue( int nr=0, int undefVal=mUndefIntVal) const;
+    double		getValue( int nr=0, double undefVal=mUndefValue ) const;
+    float		getfValue( int nr=0, float undefVal=mUndefValue ) const;
+    bool		getBoolValue( int nr=0, bool undefVal=false ) const;
 
     inline Interval<int> getIInterval() const
 			{ return Interval<int>(getIntValue(0),getIntValue(1)); }
