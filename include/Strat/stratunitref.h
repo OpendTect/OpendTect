@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.5 2004-12-02 14:25:09 bert Exp $
+ RCS:		$Id: stratunitref.h,v 1.6 2005-01-25 16:10:40 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,21 +15,36 @@ ________________________________________________________________________
 
 #include "sets.h"
 #include "compoundkey.h"
+class Property;
+class PropertyRef;
 
 namespace Strat
 {
 
-/*!\brief Reference data for a stratigraphic unit */
+class NodeUnitRef;
+
+/*!\brief Reference data for a stratigraphic unit
+
+  Every stratigraphy is a tree of units. A stratigraphy consists of reference
+  units - every part of the subsurface can be attached to a reference unit.
+
+  If properties for this reference unit have a fixed value or calculation,
+  a property can be added to it. Any concrete unit should use this property
+  rather than define a definition itself. For example, salt units can be
+  defined to have porosity zero here.
+
+ */
 
 class UnitRef
 {
 public:
 
-			UnitRef( UnitRef* up, const char* code,
+			UnitRef( NodeUnitRef* up, const char* code,
 			      const char* descr=0 )
 			: code_(code)
 			, upnode_(up)
 			, desc_(descr)			{}
+    virtual		~UnitRef();
 
     virtual bool	isLeaf() const			= 0;
     CompoundKey		fullCode() const;
@@ -39,27 +54,60 @@ public:
     const BufferString&	description() const		{ return desc_; }
     void		setDescription( const char* d )	{ desc_ = d; }
 
-    UnitRef*		upNode(int skip=0);
-    const UnitRef*	upNode( int skip=0 ) const
+    NodeUnitRef*	upNode(int skip=0);
+    const NodeUnitRef*	upNode( int skip=0 ) const
     			{ return ((UnitRef*)this)->upNode( skip ); }
-    UnitRef*		topNode()
-    			{ return upnode_ ? upnode_->topNode() : this; }
-    const UnitRef*	topNode() const
-    			{ return upnode_ ? upnode_->topNode() : this; }
+    NodeUnitRef*	topNode();
+    const NodeUnitRef*	topNode() const;
 
-    int			level() const
-			{ return upnode_ ? upnode_->level() + 1 : 0; }
+    int			level() const;
     bool		isBelow(const UnitRef*) const;
     			//!< Any number of levels
 
     virtual void	fill(BufferString&) const; //!< Without Unit code
     virtual bool	use(const char*); //!< a string produced by fill()
 
+    void		add( Property* p )
+    			{ properties_ += p; }
+    Property*		property( const PropertyRef* p )
+    			{ return gtProp(p); }
+    const Property*	property( const PropertyRef* p ) const
+    			{ return gtProp(p); }
+
+    //! Iterator. When constructed, returns unit itself. with next() goes
+    //! to first unit.
+    class Iter
+    {
+    public:
+
+	enum Pol	{ All, Nodes, Leaves };
+
+			Iter(const NodeUnitRef&,Pol p=All);
+
+	void		reset();
+	bool		next();
+	UnitRef*	unit()		{ return gtUnit(); }
+	const UnitRef*	unit() const	{ return gtUnit(); }
+
+    protected:
+
+	Pol		pol_;
+	NodeUnitRef*	itnode_;
+	NodeUnitRef*	curnode_;
+	int		curidx_;
+	UnitRef*	gtUnit() const;
+	bool		toNext();
+
+    };
+
 protected:
 
-    UnitRef*		upnode_;
+    NodeUnitRef*	upnode_;
     BufferString	code_;
     BufferString	desc_;
+
+    ObjectSet<Property>	properties_;
+    Property*		gtProp(const PropertyRef* p) const;
 
 };
 
@@ -70,9 +118,10 @@ class NodeUnitRef : public UnitRef
 {
 public:
 
-			NodeUnitRef( UnitRef* up, const char* c,
+			NodeUnitRef( NodeUnitRef* up, const char* c,
 				     const char* d=0 )
 			: UnitRef(up,c,d)		{}
+			~NodeUnitRef();
 
     virtual bool	isLeaf() const			{ return false; }
     static const NodeUnitRef& undef();
@@ -80,9 +129,14 @@ public:
     int			nrRefs() const			{ return refs_.size(); }
     UnitRef&		ref( int idx )			{ return *refs_[idx]; }
     const UnitRef&	ref( int idx ) const		{ return *refs_[idx]; }
+    int			indexOf( const UnitRef* ur ) const
+    						{ return refs_.indexOf(ur); }
 
     UnitRef*		find( const char* code )	{ return fnd(code); }
     const UnitRef*	find( const char* code ) const	{ return fnd(code); }
+
+    void		remove( int uridx ) 
+    			{ UnitRef* r = refs_[uridx]; refs_ -= r; delete r; }
 
 protected:
 
@@ -99,7 +153,7 @@ class LeafUnitRef : public UnitRef
 {
 public:
 
-			LeafUnitRef( UnitRef* up, const char* c,
+			LeafUnitRef( NodeUnitRef* up, const char* c,
 				     int lithidx=-1, const char* d=0 )
 			: UnitRef(up,c,d)
 			, lith_(lithidx)	{}
@@ -117,6 +171,14 @@ protected:
     int			lith_;
 
 };
+
+
+inline int UnitRef::level() const
+{ return upnode_ ? upnode_->level() + 1 : 0; }
+inline NodeUnitRef* UnitRef::topNode()
+{ return upnode_ ? upnode_->topNode() : (NodeUnitRef*)this; }
+inline const NodeUnitRef* UnitRef::topNode() const
+{ return upnode_ ? upnode_->topNode() : (NodeUnitRef*)this; }
 
 
 }; // namespace Strat

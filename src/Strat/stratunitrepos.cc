@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.6 2005-01-20 17:17:30 bert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.7 2005-01-25 16:10:46 bert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -52,13 +52,14 @@ bool Strat::RefTree::addUnit( const char* code, const char* dumpstr )
 
     CompoundKey ck( code );
     UnitRef* par = find( ck.upLevel().buf() );
-    if ( !par )
+    if ( !par || par->isLeaf() )
 	return false;
 
     const bool isleaf = strchr( dumpstr, '`' ); // a bit of a hack, really
     const BufferString ky( ck.key( ck.nrKeys()-1 ) );
-    UnitRef* newun = isleaf ? (UnitRef*)new LeafUnitRef( par, ky )
-			    : (UnitRef*)new NodeUnitRef( par, ky );
+    NodeUnitRef* parnode = (NodeUnitRef*)par;
+    UnitRef* newun = isleaf ? (UnitRef*)new LeafUnitRef( parnode, ky )
+			    : (UnitRef*)new NodeUnitRef( parnode, ky );
     if ( !newun->use(dumpstr) )
 	{ delete newun; return false; }
     return true;
@@ -67,8 +68,21 @@ bool Strat::RefTree::addUnit( const char* code, const char* dumpstr )
 
 void Strat::RefTree::removeEmptyNodes()
 {
-    //TODO implement
-    pErrMsg("Not impl: Strat::RefTree::removeEmptyNodes");
+    Strat::UnitRef::Iter it( *this );
+    ObjectSet<UnitRef> torem;
+    while ( it.next() )
+    {
+	UnitRef* curun = it.unit();
+	if ( !curun->isLeaf() && ((NodeUnitRef*)curun)->nrRefs() < 1 )
+	    torem += curun;
+    }
+
+    for ( int idx=0; idx<torem.size(); idx++ )
+    {
+	UnitRef* un = torem[idx];
+	NodeUnitRef& par = *un->upNode();
+	par.remove( par.indexOf(un) );
+    }
 }
 
 

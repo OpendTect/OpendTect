@@ -4,10 +4,11 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.7 2005-01-20 17:17:30 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.8 2005-01-25 16:10:46 bert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
+#include "property.h"
 #include "separstr.h"
 
 
@@ -67,6 +68,12 @@ bool Strat::Lithology::use( const char* str )
 }
 
 
+Strat::UnitRef::~UnitRef()
+{
+    deepErase( properties_ );
+}
+
+
 void Strat::UnitRef::fill( BufferString& str ) const
 {
     str = desc_;
@@ -100,7 +107,7 @@ bool Strat::LeafUnitRef::use( const char* str )
 }
 
 
-Strat::UnitRef* Strat::UnitRef::upNode( int skip )
+Strat::NodeUnitRef* Strat::UnitRef::upNode( int skip )
 {
     if ( !upnode_ )
 	return 0;
@@ -123,8 +130,26 @@ CompoundKey Strat::UnitRef::fullCode() const
 
 bool Strat::UnitRef::isBelow( const Strat::UnitRef* un ) const
 {
-    if ( !un || !upnode_ ) return false;
+    if ( !un || !upnode_ || un->isLeaf() )
+	return false;
     return upnode_ == un || upnode_->isBelow( un );
+}
+
+
+Property* Strat::UnitRef::gtProp( const PropertyRef* pr ) const
+{
+    for ( int idx=0; idx<properties_.size(); idx++ )
+    {
+	if ( properties_[idx]->ref() == pr )
+	    return const_cast<Property*>( properties_[idx] );
+    }
+    return 0;
+}
+
+
+Strat::NodeUnitRef::~NodeUnitRef()
+{
+    deepErase( refs_ );
 }
 
 
@@ -150,4 +175,84 @@ Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* code ) const
 	}
     }
     return 0;
+}
+
+
+Strat::UnitRef::Iter::Iter( const NodeUnitRef& ur, Pol p )
+	: itnode_(const_cast<NodeUnitRef*>(&ur))
+    	, pol_(p)
+{
+    reset();
+}
+
+
+void Strat::UnitRef::Iter::reset()
+{
+    curidx_ = -1;
+    curnode_ = itnode_;
+    next();
+}
+
+
+Strat::UnitRef* Strat::UnitRef::Iter::gtUnit() const
+{
+    const Strat::UnitRef* ret = curnode_;
+    if ( curnode_ && curidx_ >= 0 )
+	ret = &curnode_->ref( curidx_ );
+
+    return const_cast<Strat::UnitRef*>( ret );
+}
+
+
+bool Strat::UnitRef::Iter::next()
+{
+    while ( toNext() )
+    {
+	if ( pol_ == All )
+	    return true;
+	const UnitRef* curun = unit();
+	if ( (pol_ == Nodes && !curun->isLeaf())
+	  || (pol_ == Leaves && curun->isLeaf()) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+bool Strat::UnitRef::Iter::toNext()
+{
+    if ( !curnode_ ) return false; // At end
+
+    // First see if we can simply take next ref or go down
+    UnitRef* curun = gtUnit();
+    if ( curun->isLeaf() )
+    {
+	if ( curidx_ < curnode_->nrRefs() - 2 )
+	    { curidx_++; return true; }
+    }
+    else
+    {
+	if ( curun != curnode_ )
+	    { curnode_ = (NodeUnitRef*)curun; curidx_ = -1; return true; }
+	else if ( curnode_->nrRefs() > 0 )
+	    { curidx_ = 0; return true; }
+    }
+
+    // OK so this node (and everything below) is done.
+    while ( true )
+    {
+	Strat::NodeUnitRef* par = curnode_->upNode();
+	if ( !par ) break;
+
+	curidx_ = par->indexOf( curnode_ );
+	curnode_ = par;
+	if ( curidx_+1 < par->nrRefs() )
+	    { curidx_++; return true; }
+
+	if ( curnode_ == itnode_ ) break;
+    }
+
+    curnode_ = 0;
+    return false;
 }
