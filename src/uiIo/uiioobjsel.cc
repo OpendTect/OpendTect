@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.51 2003-05-13 15:27:56 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.52 2003-05-14 15:13:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
     listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
-    if ( ctio.ctxt.maydooper )
+    if ( !ismultisel && ctio.ctxt.maydooper )
     {
 	uiButtonGroup* bg = new uiButtonGroup( this, "" );
 	const ioPixmap locpm( GetDataFileName("filelocation.png") );
@@ -83,17 +83,18 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	const ioPixmap ropm( GetDataFileName("readonly.png") );
 	locbut = new uiToolButton( bg, "File loc TB", locpm );
 	renbut = new uiToolButton( bg, "Obj rename TB", renpm );
-	rembut = new uiToolButton( bg, "Remove", rempm );
 	robut = new uiToolButton( bg, "Readonly togg", ropm );
+	rembut = new uiToolButton( bg, "Remove", rempm );
+	robut->setToggleButton( true );
 	locbut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
 	renbut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
-	rembut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
 	robut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
+	rembut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
 	bg->attach( rightOf, listfld );
 	locbut->setToolTip( "Change location on disk" );
 	renbut->setToolTip( "Rename this object" );
-	rembut->setToolTip( "Remove this object" );
 	robut->setToolTip( "Toggle read-only" );
+	rembut->setToolTip( "Remove this object" );
     }
 
     setOkText( "Select" );
@@ -247,8 +248,26 @@ bool uiIOObjSelDlg::renEntry( Translator* tr )
     if ( !dlg.go() ) return false;
 
     BufferString newnm = dlg.text();
-    if ( newnm == ioobj->name() )
+    if ( listfld->box()->isPresent(newnm) )
+    {
+	if ( newnm != ioobj->name() )
+	    uiMSG().error( "Name already in use" );
 	return false;
+    }
+    else
+    {
+	IOObj* ioobj = IOM().getLocal( newnm );
+	if ( ioobj )
+	{
+	    BufferString msg( "This name is already used by a " );
+	    msg += ioobj->translator();
+	    msg += " object";
+	    delete ioobj;
+	    uiMSG().error( msg );
+	    return false;
+	}
+    }
+
     ioobj->setName( newnm );
 
     mDynamicCastGet(IOStream*,iostrm,ioobj)
@@ -354,9 +373,8 @@ bool uiIOObjSelDlg::roEntry( Translator* tr )
     newreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
     if ( oldreadonly == newreadonly )
 	uiMSG().warning( "Could not change the read-only status" );
-    else
-	robut->setOn( newreadonly );
 
+    selChg(0);
     return false;
 }
 
