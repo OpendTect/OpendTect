@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.30 2003-04-17 15:22:10 dgb Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.31 2003-04-23 15:28:13 nanne Exp $
 ________________________________________________________________________
 
 
@@ -72,6 +72,7 @@ public:
     bool			putNewData( AttribSliceSet* );
     				/*!< Becomes mine */
     const AttribSliceSet*	getPrevData() const;
+    void			setSliceIdx(int);
 
     void			turnOn(bool);
     bool			isOn() const;

@@ -4,7 +4,9 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.30 2003-02-27 16:43:42 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.31 2003-04-23 15:29:30 nanne Exp $";
+
+#include <Inventor/nodes/SoSwitch.h>
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -25,13 +27,18 @@ const char* visBase::TextureRect::rectangleidstr = "Rectangle ID";
 const char* visBase::TextureRect::textureidstr = "Texture ID";
 
 visBase::TextureRect::TextureRect()
-    : texture(0)
-    , rectangle( 0 )
+    : rectangle( 0 )
     , manipstartnotifier( this )
     , manipchnotifier( this )
     , manipendsnotifier( this )
+    , textureswitch( new SoSwitch )
 {
-    setTexture( *visBase::Texture2::create() );
+    textureswitch->ref();
+    insertChild( 1, textureswitch );
+
+    visBase::Texture2* text = visBase::Texture2::create();
+    setTexture( *text, 0 );
+    
     useTexture( true );
 
     setRectangle( visBase::Rectangle::create() );
@@ -43,43 +50,56 @@ visBase::TextureRect::~TextureRect()
     if ( rectangle )
     {
 	rectangle->manipStarts()->remove(
-				mCB( this, TextureRect, triggerManipStarts ));
+				mCB(this,TextureRect,triggerManipStarts) );
 	rectangle->manipChanges()->remove(
-				mCB( this, TextureRect, triggerManipChanges ));
+				mCB(this,TextureRect,triggerManipChanges) );
 	rectangle->manipEnds()->remove(
-				mCB( this, TextureRect, triggerManipEnds ));
+				mCB(this,TextureRect,triggerManipEnds) );
 	rectangle->selection()->remove(
-				mCB( this, TextureRect, triggerSel ));
+				mCB(this,TextureRect,triggerSel) );
 	rectangle->deSelection()->remove(
-				mCB( this, TextureRect, triggerDeSel ));
+				mCB(this,TextureRect,triggerDeSel) );
 	rectangle->unRef();
     }
 
-    if ( texture )
+    for ( int idx=0; idx<textureset.size(); idx++ )
     {
-	removeChild( texture->getData() );
-	texture->unRef();
+	visBase::Texture2* text = textureset[idx];
+	textureswitch->removeChild( text->getData() );
+	text->unRef();
     }
+
+    textureswitch->unref();
 }
 
 
-void visBase::TextureRect::setTexture( visBase::Texture2& newtext )
+void visBase::TextureRect::setTexture( visBase::Texture2& newtext, int idx )
 {
-    if ( texture )
+    visBase::Texture2* text = idx < textureset.size() ? textureset[idx] : 0;
+    if ( text )
     {
-	removeChild( texture->getData() );
-	texture->unRef();
+	removeChild( text->getData() );
+	text->unRef();
+    }
+    else
+    {
+	if ( textureset.size() )
+	{
+	    newtext.setResolution( textureset[0]->getResolution() );
+	    newtext.setColorTab( textureset[0]->getColorTab() );
+	}
+	textureset += &newtext;
     }
 
-    texture = &newtext;
-    texture->ref();
-    insertChild( 1, texture->getData() );
+    text = &newtext;
+    text->ref();
+    textureswitch->insertChild( text->getData(), idx );
 }
 
 
-visBase::Texture2& visBase::TextureRect::getTexture()
+visBase::Texture2& visBase::TextureRect::getTexture( int idx )
 {
-    return *texture;
+    return *textureset[idx];
 }
 
 
@@ -124,69 +144,103 @@ visBase::Rectangle& visBase::TextureRect::getRectangle()
 
 void visBase::TextureRect::setColorTab( VisColorTab& ct )
 {
-    texture->setColorTab( ct );
+    for ( int idx=0; idx<textureset.size(); idx++ )
+	textureset[idx]->setColorTab( ct );
 }
 
 
 const visBase::VisColorTab& visBase::TextureRect::getColorTab() const
-{ return texture->getColorTab(); }
+{ return textureset[0]->getColorTab(); }
  
  
 visBase::VisColorTab& visBase::TextureRect::getColorTab()
-{ return texture->getColorTab(); }
+{ return textureset[0]->getColorTab(); }
 
 
 void visBase::TextureRect::setClipRate( float cr )
 {
-    texture->setClipRate( cr );
+    for ( int idx=0; idx<textureset.size(); idx++ )
+	textureset[idx]->setClipRate( cr );
 }
 
 
 float visBase::TextureRect::clipRate() const 
 { 
-    return texture->clipRate();
+    return textureset[0]->clipRate();
 }
 
 
 void  visBase::TextureRect::setAutoScale( bool yn )
 {
-    texture->setAutoScale( yn );
+    for ( int idx=0; idx<textureset.size(); idx++ )
+	textureset[idx]->setAutoScale( yn );
 }
 
 
 bool visBase::TextureRect::autoScale() const
 {
-    return texture->autoScale();
+    return textureset[0]->autoScale();
 }
 
 
 void visBase::TextureRect::useTexture( bool yn )
 {
-    texture->turnOn( yn );
+    for ( int idx=0; idx<textureset.size(); idx++ )
+	textureset[idx]->turnOn( yn );
 }
 
 
 bool visBase::TextureRect::usesTexture() const
 {
-    return texture->isOn();
+    return textureset[0]->isOn();
 }
 
 
-void visBase::TextureRect::setData( const Array2D<float>& data )
+void visBase::TextureRect::clear()
 {
-    texture->setData( &data );
+    while ( textureset.size() > 1 )
+    {
+	const int idx = textureset.size()-1;
+	visBase::Texture2* text = textureset[idx];
+	textureswitch->removeChild( text->getData() );
+	text->unRef();
+	textureset.remove( idx );
+    }
+}
+
+
+void visBase::TextureRect::setData( const Array2D<float>& data, int idx )
+{
+    if ( !idx )
+    {
+	visBase::Texture2* text = textureset[idx];
+	if ( text ) text->setData( &data );
+    }
+    else
+    {
+	visBase::Texture2* text = visBase::Texture2::create();
+	setTexture( *text, idx );
+	text->setData( &data );
+    }
+}
+
+
+void visBase::TextureRect::showTexture( int idx )
+{
+    textureswitch->whichChild = idx < 0 ? SO_SWITCH_NONE : idx;
 }
 
 
 void visBase::TextureRect::setTextureQuality( float q )
 {
-    texture->setTextureQuality( q );
+    for ( int idx=0; idx<textureset.size(); idx++ )
+	textureset[idx]->setTextureQuality( q );
 }
 
 
 float visBase::TextureRect::getTextureQuality() const
 {
-    return texture->getTextureQuality();
+    return textureset[0]->getTextureQuality();
 }
 
 
@@ -198,13 +252,14 @@ int visBase::TextureRect::getNrResolutions() const
 
 void visBase::TextureRect::setResolution( int res )
 {
-    texture->setResolution( res );
+    for ( int idx=0; idx<textureset.size(); idx++ )
+	textureset[idx]->setResolution( res );
 }
 
 
 int visBase::TextureRect::getResolution() const
 {
-    return texture->getResolution();
+    return textureset[0]->getResolution();
 }
 
 
@@ -215,7 +270,7 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     int rectid = rectangle->id();
     par.set( rectangleidstr, rectid );
 
-    int textureid = texture->id();
+    int textureid = textureset[0]->id();
     par.set( textureidstr, textureid );
 
     if ( saveids.indexOf(rectid) == -1 ) saveids += rectid;
@@ -239,7 +294,7 @@ int visBase::TextureRect::usePar( const IOPar& par )
 	if ( !dataobj ) return 0;
 	mDynamicCastGet(Texture2*,texture_,dataobj);
 	if ( !texture_ ) return -1;
-	setTexture( *texture_ );
+	setTexture( *texture_, 0 );
     }
 
     int rectid;
@@ -267,7 +322,7 @@ int visBase::TextureRect::useOldPar( const IOPar& par )
     mDynamicCastGet( VisColorTab*, coltab, dataobj );
     if ( !coltab ) return -1;
 
-    texture->setColorTab( *coltab );
+    textureset[0]->setColorTab( *coltab );
 
     float cliprt = 0.025;
     if ( par.get( "Cliprate", cliprt ) )

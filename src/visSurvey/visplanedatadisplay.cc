@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.47 2003-04-17 15:22:04 dgb Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.48 2003-04-23 15:28:07 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -353,6 +353,13 @@ void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 }
 
 
+void visSurvey::PlaneDataDisplay::setSliceIdx( int idx )
+{
+    if ( !cache || idx >= cache->size() ) return;
+    trect->showTexture( idx );
+}
+
+
 bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 {
     setData( sliceset );
@@ -362,35 +369,43 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 }
 
     
-void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset )
+void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset ) 
 {
     if ( !sliceset ) return;
 
-    const int lsz = (*sliceset)[0]->info().getSize(0);
-    const int zsz = (*sliceset)[0]->info().getSize(1);
-    const int slicesize = (*sliceset)[0]->info().getTotalSz();
-
-    if ( sliceset->direction == AttribSlice::Inl )
+    trect->clear();
+    const int nrslices = sliceset->size();
+    for ( int slcidx=0; slcidx<nrslices; slcidx++ )
     {
-	PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(zsz,lsz);
-	for ( int zidx=0; zidx<zsz; zidx++ )
+	const int lsz = (*sliceset)[slcidx]->info().getSize(0);
+	const int zsz = (*sliceset)[slcidx]->info().getSize(1);
+	const int slicesize = (*sliceset)[slcidx]->info().getTotalSz();
+
+	if ( sliceset->direction == AttribSlice::Inl )
 	{
-	    for ( int lidx=0; lidx<lsz; lidx++ )
+	    PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(zsz,lsz);
+	    for ( int zidx=0; zidx<zsz; zidx++ )
 	    {
-		const float val = (*sliceset)[0]->get( lidx, zidx );
-		datacube->set( zidx, lidx, val );
+		for ( int lidx=0; lidx<lsz; lidx++ )
+		{
+		    const float val = (*sliceset)[slcidx]->get( lidx, zidx );
+		    datacube->set( zidx, lidx, val );
+		}
 	    }
+	    trect->setData( *datacube, slcidx );
 	}
-	trect->setData( *datacube );
-    }
-    else
-    {
-	PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(lsz,zsz);
-	float* data = datacube->getData();
-	memcpy( data, (*sliceset)[0]->getData(), slicesize*sizeof(float) );
-	trect->setData( *datacube );
+	else
+	{
+	    PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(lsz,zsz);
+	    float* data = datacube->getData();
+	    memcpy( data, (*sliceset)[slcidx]->getData(), 
+		    				slicesize*sizeof(float) );
+	    trect->setData( *datacube, slcidx );
+	}
+
     }
 
+    trect->showTexture( 0 );
     trect->useTexture( true );
 }
 

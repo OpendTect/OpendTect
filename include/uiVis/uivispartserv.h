@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.83 2003-03-10 15:51:53 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.84 2003-04-23 15:25:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,7 @@ public:
     const AttribSliceSet*	getCachedData( int id ) const;
     bool			setCubeData( int id, AttribSliceSet* );
     				/*!< data becomes mine */
+    void			setSliceIdx(int,int);
 
     static const int		evGetNewRandomPosData;
     				/*!< Get selSpec with getSelSpec */

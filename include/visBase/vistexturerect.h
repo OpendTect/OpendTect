@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.21 2003-02-27 16:43:49 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.22 2003-04-23 15:29:35 nanne Exp $
 ________________________________________________________________________
 
 
@@ -42,8 +42,8 @@ public:
     NotifierAccess*	manipEnds() { return &manipendsnotifier; }
 
 
-    void		setTexture(Texture2&);
-    Texture2&		getTexture();
+    void		setTexture(Texture2&,int idx=0);
+    Texture2&		getTexture(int idx=0);
 
     void		useTexture(bool);
     bool		usesTexture() const;
@@ -63,7 +63,10 @@ public:
     			/*!< Should be between 0 and 0.5 */
     float		clipRate() const;
 
-    void		setData( const Array2D<float>& );
+    void		setData(const Array2D<float>&,int);
+    void		showTexture(int);
+    void		clear();
+
     void		setTextureQuality(float);
 			/*!< 0 - bad; 1=best */
     float		getTextureQuality() const;
@@ -83,7 +86,8 @@ protected:
     void		triggerManipChanges() { manipchnotifier.trigger(); }
     void		triggerManipEnds() { manipendsnotifier.trigger(); }
 
-    Texture2*		texture;
+    SoSwitch*		textureswitch;
+    ObjectSet<Texture2> textureset;
     Rectangle*		rectangle;
 
     int			useOldPar( const IOPar& );
