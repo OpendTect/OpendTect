@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.67 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.68 2003-01-17 15:20:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -684,6 +684,12 @@ protected:
 
     virtual void	finalise(bool);
 
+private:
+
+    void		initChildren();
+    uiObject*		createChildren();
+    void		layoutChildren(uiObject*);
+
 };
 
 uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
@@ -770,153 +776,171 @@ void uiDialogBody::finalise(bool)
 
     dlgGroup->finalise();
 
-    if( !childrenInited ) 
-    {
-	uiObject* alignObj = dlgGroup->uiObj();
-
-	if ( setup.oktext_ != "" )
-	{
-	    okBut = new uiPushButton( centralWidget_, setup.oktext_ );
-	}
-	if ( setup.canceltext_ != "" )
-	{
-	    cnclBut = new uiPushButton( centralWidget_, setup.canceltext_ );
-	}
-	if ( setup.savebutton_ && setup.savetext_ != "" )
-	{
-	    if( setup.savebutton_ == uiDialog::Setup::PushButton )
-	    {
-		saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_);
-	    }
-	    else
-	    {
-		saveBut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
-		saveBut_cb->setChecked( setup.savechecked_ );
-	    }
-	}
-	if ( setup.helpid_ != "" )
-	{
-	    helpBut = new uiPushButton( centralWidget_, "?" );
-	    helpBut->setPrefWidthInChar( 3 );
-#ifdef __debug__
-	    helpBut->setToolTip( setup.helpid_ );
-#endif
-	}
-        if ( !setup.menubar_ && setup.dlgtitle_ != "" )
-	{
-	    title = new uiLabel( centralWidget_, setup.dlgtitle_ );
-
-	    uiObject* obj = setup.separator_ 
-				? (uiObject*) new uiSeparator(centralWidget_)
-				: (uiObject*) title;
-
-	    if ( obj != title )
-	    {
-		title->attach( centeredAbove, obj );
-		obj->attach( stretchedBelow, title, -2 );
-	    }
-	    if ( setup.mainwidgcentered_ )
-		dlgGroup->attach( centeredBelow, obj );
-	    else
-		dlgGroup->attach( stretchedBelow, obj );
-	}
-
-	if ( setup.separator_ && ( okBut || cnclBut || saveBut_cb || 
-				   saveBut_pb || helpBut) )
-	{
-	    horSepar = new uiSeparator( centralWidget_ );
-	    horSepar->attach( stretchedBelow, dlgGroup, -2 );
-	    alignObj = horSepar;
-	}
-
-	if ( okBut )
-	    okBut->activated.notify( mCB( this, uiDialogBody, accept ));
-	if ( cnclBut )
-	    cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
-	if ( helpBut )
-	    helpBut->activated.notify( mCB( this, uiDialogBody, provideHelp ));
-
-	uiObject* leftbut = okBut;
-	uiObject* rightbut = cnclBut;
-	uiObject* centerbut = 0;
-	uiObject* extrabut1 = 0; uiObject* extrabut2 = 0;
-	uiObject* savebut = saveBut_cb	? (uiObject*)saveBut_cb
-	    				: (uiObject*)saveBut_pb;
-	uiObject* nearokbut = saveBut_cb;
-
-	if ( okBut && !cnclBut )	{ centerbut = okBut; leftbut = 0; }
-	if ( cnclBut && !okBut )	{ centerbut = cnclBut; rightbut = 0; }
-
-	if ( !centerbut )		centerbut = helpBut;
-	else				extrabut1 = helpBut;
-
-	if ( !centerbut )		centerbut = savebut;
-	else if ( !extrabut1 )		extrabut1 = savebut;
-	else 				extrabut2 = savebut;
-
-	// Exception: save checkbox needs to be near OK button.
-	if ( okBut && nearokbut )
-	{
-	    if ( centerbut == nearokbut ) centerbut = 0;
-	    if ( extrabut1 == nearokbut ) extrabut1 = 0;
-	    if ( extrabut2 == nearokbut ) extrabut2 = 0;
-	}
-
-#	define mCommonLayout(but) \
-	    but->attach( ensureBelow, alignObj ); \
-	    but->attach( bottomBorder, 0 )
-
-	if ( leftbut )
-	{
-	    mCommonLayout(leftbut);
-	    leftbut->attach( leftBorder );
-	}
-	if ( rightbut )
-	{
-	    mCommonLayout(rightbut);
-	    rightbut->attach( rightBorder );
-	    if ( leftbut )
-		rightbut->attach( ensureRightOf, leftbut );
-	}
-	if ( centerbut )
-	{
-	    mCommonLayout(centerbut);
-	    centerbut->attach( centeredBelow, horSepar
-			    ? (uiObject*)horSepar
-			    : (uiObject*)centralWidget_->uiObj() );
-	    if ( leftbut )
-		centerbut->attach( ensureRightOf, leftbut );
-	    if ( rightbut )
-		centerbut->attach( ensureLeftOf, rightbut );
-	}
-	if ( extrabut1 )
-	{
-	    mCommonLayout(extrabut1);
-	    extrabut1->attach( rightOf, centerbut );
-	    if ( rightbut )
-		extrabut1->attach( ensureLeftOf, rightbut );
-	}
-	if ( extrabut2 )
-	{
-	    mCommonLayout(extrabut2);
-	    extrabut1->attach( leftOf, centerbut );
-	    if ( leftbut )
-		extrabut2->attach( ensureRightOf, leftbut );
-	}
-	if ( okBut && nearokbut )
-	{
-	    mCommonLayout(nearokbut);
-	    nearokbut->attach( okBut == leftbut ? rightOf : leftOf, okBut );
-	    if ( centerbut != okBut )
-		centerbut->attach( ensureRightOf, nearokbut );
-	}
-
-	childrenInited = true;
-    }
+    if ( !childrenInited ) 
+	initChildren();
 
     finaliseChildren();
 
     mMwHandle.finaliseDone.trigger(mMwHandle);
+}
+
+
+void uiDialogBody::initChildren()
+{
+    uiObject* lowestobject = createChildren();
+    layoutChildren( lowestobject );
+
+    if ( okBut )
+    {
+	okBut->activated.notify( mCB( this, uiDialogBody, accept ));
+	okBut->setDefault();
+    }
+    if ( cnclBut )
+    {
+	cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
+	if ( !okBut )
+	    cnclBut->setDefault();
+    }
+    if ( helpBut )
+	helpBut->activated.notify( mCB( this, uiDialogBody, provideHelp ));
+
+    childrenInited = true;
+}
+
+
+uiObject* uiDialogBody::createChildren()
+{
+    if ( setup.oktext_ != "" )
+	okBut = new uiPushButton( centralWidget_, setup.oktext_ );
+    if ( setup.canceltext_ != "" )
+	cnclBut = new uiPushButton( centralWidget_, setup.canceltext_ );
+
+    if ( setup.savebutton_ && setup.savetext_ != "" )
+    {
+	if( setup.savebutton_ == uiDialog::Setup::PushButton )
+	    saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_);
+	else
+	{
+	    saveBut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
+	    saveBut_cb->setChecked( setup.savechecked_ );
+	}
+    }
+    if ( setup.helpid_ != "" )
+    {
+	helpBut = new uiPushButton( centralWidget_, "?" );
+	helpBut->setPrefWidthInChar( 3 );
+#ifdef __debug__
+	helpBut->setToolTip( setup.helpid_ );
+#endif
+    }
+    if ( !setup.menubar_ && setup.dlgtitle_ != "" )
+    {
+	title = new uiLabel( centralWidget_, setup.dlgtitle_ );
+
+	uiObject* obj = setup.separator_ 
+			    ? (uiObject*) new uiSeparator(centralWidget_)
+			    : (uiObject*) title;
+
+	if ( obj != title )
+	{
+	    title->attach( centeredAbove, obj );
+	    obj->attach( stretchedBelow, title, -2 );
+	}
+	if ( setup.mainwidgcentered_ )
+	    dlgGroup->attach( centeredBelow, obj );
+	else
+	    dlgGroup->attach( stretchedBelow, obj );
+    }
+
+    uiObject* lowestobj = dlgGroup->uiObj();
+    if ( setup.separator_ && ( okBut || cnclBut || saveBut_cb || 
+			       saveBut_pb || helpBut) )
+    {
+	horSepar = new uiSeparator( centralWidget_ );
+	horSepar->attach( stretchedBelow, dlgGroup, -2 );
+	lowestobj = horSepar;
+    }
+
+    return lowestobj;
+}
+
+
+void uiDialogBody::layoutChildren( uiObject* lowestobj )
+{
+    uiObject* leftbut = okBut;
+    uiObject* rightbut = cnclBut;
+    uiObject* centerbut = 0;
+    uiObject* extrabut1 = 0; uiObject* extrabut2 = 0;
+    uiObject* savebut = saveBut_cb ? (uiObject*)saveBut_cb
+				   : (uiObject*)saveBut_pb;
+    uiObject* nearokbut = saveBut_cb;
+
+    if ( okBut && !cnclBut )	{ centerbut = okBut; leftbut = 0; }
+    if ( cnclBut && !okBut )	{ centerbut = cnclBut; rightbut = 0; }
+
+    if ( !centerbut )		centerbut = helpBut;
+    else			extrabut1 = helpBut;
+
+    if ( !centerbut )		centerbut = savebut;
+    else if ( !extrabut1 )	extrabut1 = savebut;
+    else 			extrabut2 = savebut;
+
+    // Exception: save checkbox needs to be near OK button.
+    if ( okBut && nearokbut )
+    {
+	if ( centerbut == nearokbut ) centerbut = 0;
+	if ( extrabut1 == nearokbut ) extrabut1 = 0;
+	if ( extrabut2 == nearokbut ) extrabut2 = 0;
+    }
+
+#	define mCommonLayout(but) \
+	but->attach( ensureBelow, lowestobj ); \
+	but->attach( bottomBorder, 0 )
+
+    if ( leftbut )
+    {
+	mCommonLayout(leftbut);
+	leftbut->attach( leftBorder );
+    }
+    if ( rightbut )
+    {
+	mCommonLayout(rightbut);
+	rightbut->attach( rightBorder );
+	if ( leftbut )
+	    rightbut->attach( ensureRightOf, leftbut );
+    }
+    if ( centerbut )
+    {
+	mCommonLayout(centerbut);
+	centerbut->attach( centeredBelow, horSepar
+			? (uiObject*)horSepar
+			: (uiObject*)centralWidget_->uiObj() );
+	if ( leftbut )
+	    centerbut->attach( ensureRightOf, leftbut );
+	if ( rightbut )
+	    centerbut->attach( ensureLeftOf, rightbut );
+    }
+    if ( extrabut1 )
+    {
+	mCommonLayout(extrabut1);
+	extrabut1->attach( rightOf, centerbut );
+	if ( rightbut )
+	    extrabut1->attach( ensureLeftOf, rightbut );
+    }
+    if ( extrabut2 )
+    {
+	mCommonLayout(extrabut2);
+	extrabut1->attach( leftOf, centerbut );
+	if ( leftbut )
+	    extrabut2->attach( ensureRightOf, leftbut );
+    }
+    if ( okBut && nearokbut )
+    {
+	mCommonLayout(nearokbut);
+	nearokbut->attach( okBut == leftbut ? rightOf : leftOf, okBut );
+	if ( centerbut != okBut )
+	    centerbut->attach( ensureRightOf, nearokbut );
+    }
 }
 
 
