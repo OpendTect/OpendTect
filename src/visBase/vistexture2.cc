@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.26 2004-01-29 10:11:04 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.27 2004-02-02 15:34:20 nanne Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -266,7 +266,6 @@ mCreateFactoryEntry( visBase::Texture2Set );
 visBase::Texture2Set::Texture2Set()
     : textureswitch(new SoSwitch)
     , shareres(true)
-    , sharecoltab(false)
     , sharecolseq(true)
 {
     textureswitch->ref();
@@ -280,6 +279,9 @@ visBase::Texture2Set::~Texture2Set()
 }
 
 
+#define mColTabCB \
+    mCB(this,visBase::Texture2Set,colTabChanged)
+
 void visBase::Texture2Set::addTexture( Texture2* text )
 {
     if ( !text ) return;
@@ -287,13 +289,11 @@ void visBase::Texture2Set::addTexture( Texture2* text )
     {
 	if ( shareres )
 	    text->setResolution( textureset[0]->getResolution() );
-	if ( sharecoltab )
-	    text->setColorTab( textureset[0]->getColorTab() );
 	if ( sharecolseq )
 	    text->getColorTab().setColorSeq( 
 		    		&textureset[0]->getColorTab().colorSeq() );
     }
-	
+
     textureset += text;
     text->ref();
     textureswitch->addChild( text->getInventorNode() );
@@ -324,6 +324,8 @@ void visBase::Texture2Set::removeAll( bool keepfirst )
     {
         const int idx = textureset.size()-1;
         visBase::Texture2* text = textureset[idx];
+	text->getColorTab().rangechange.remove( mColTabCB );
+	text->getColorTab().autoscalechange.remove( mColTabCB );
         textureswitch->removeChild( text->getInventorNode() );
         text->unRef();
         textureset.remove( idx );
@@ -362,4 +364,54 @@ visBase::Texture2* visBase::Texture2Set::activeTexture() const
 SoNode* visBase::Texture2Set::getInventorNode()
 {
     return textureswitch;
+}
+
+
+void visBase::Texture2Set::finishTextures()
+{
+    if ( sharecolseq )
+    {
+	for ( int idx=0; idx<textureset.size(); idx++ )
+	{
+	    visBase::VisColorTab& ct = textureset[idx]->getColorTab();
+	    ct.rangechange.notify( mColTabCB );
+	    ct.autoscalechange.notify( mColTabCB );
+	}
+    }
+}
+
+
+void visBase::Texture2Set::colTabChanged( CallBacker* cb )
+{
+    mDynamicCastGet(visBase::VisColorTab*,ct,cb)
+    if ( !ct ) return;
+    ct->autoscalechange.remove( mColTabCB );
+    ct->rangechange.remove( mColTabCB );
+    int curidx = textureswitch->whichChild.getValue();
+    bool autoscale = ct->autoScale();
+    float cliprate = ct->clipRate();
+    for ( int idx=0; idx<textureset.size(); idx++ )
+    {
+	if ( idx==curidx ) continue;
+	visBase::VisColorTab& coltab = textureset[idx]->getColorTab();
+	coltab.autoscalechange.remove( mColTabCB );
+	coltab.rangechange.remove( mColTabCB );
+	if ( autoscale )
+	{
+	    visBase::VisColorTab* newct = visBase::VisColorTab::create();
+	    textureset[idx]->setColorTab( *newct );
+	    newct->setClipRate( cliprate );
+	    newct->triggerAutoScaleChange();
+	    newct->autoscalechange.notify( mColTabCB );
+	    newct->rangechange.notify( mColTabCB );
+	}
+	else if ( &coltab != ct )
+	{
+	    textureset[idx]->setColorTab( *ct );
+	    ct->triggerRangeChange();
+	}
+    }
+
+    ct->autoscalechange.notify( mColTabCB );
+    ct->rangechange.notify( mColTabCB );
 }

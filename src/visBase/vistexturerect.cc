@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.41 2004-01-29 10:11:04 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.42 2004-02-02 15:34:20 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -199,6 +199,12 @@ void visBase::TextureRect::setColorPars( bool rev, bool useclip,
 const Interval<float>& visBase::TextureRect::getColorDataRange() const
 {
     return textureset->activeTexture()->getColTabMod().getRange();
+}
+
+
+void visBase::TextureRect::finishTextures()
+{
+    textureset->finishTextures();
 }
 
 
