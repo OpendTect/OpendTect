@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.9 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.10 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ uiIOSurface::uiIOSurface( uiParent* p )
 
 uiIOSurface::~uiIOSurface()
 {
+    delete ctio.ioobj; delete &ctio;
 }
 
 

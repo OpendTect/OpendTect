@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.5 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.6 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ uiImportPickSet::uiImportPickSet( uiParent* p )
 
 uiImportPickSet::~uiImportPickSet()
 {
-    delete &ctio;
+    delete ctio.ioobj; delete &ctio;
 }
 
 #define mWarnRet(s) { uiMSG().warning(s); return false; }

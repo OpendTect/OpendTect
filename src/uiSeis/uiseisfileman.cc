@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.28 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.29 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
                                      "Manage seismic cubes",
                                      "103.1.0").nrstatusflds(1))
 	, ctio(*mMkCtxtIOObj(SeisTrc))
-	, ioobj(0)
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     ctio.ctxt.trglobexpr = "CBVS";
@@ -73,16 +72,22 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 }
 
 
+uiSeisFileMan::~uiSeisFileMan()
+{
+    delete &ctio; // NOT ctio.ioobj
+}
+
+
 void uiSeisFileMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
-    ioobj = entrylist->selected();
-    copybut->setSensitive( ioobj && ioobj->implExists(true) );
+    ctio.ioobj = entrylist->selected();
+    copybut->setSensitive( ctio.ioobj && ctio.ioobj->implExists(true) );
     mkFileInfo();
     manipgrp->selChg( cb );
 
     BufferString msg;
-    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ioobj), msg );
+    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ctio.ioobj), msg );
     toStatusBar( msg );
 }
 
@@ -101,7 +106,7 @@ void uiSeisFileMan::postReloc( CallBacker* cb )
 
 void uiSeisFileMan::mkFileInfo()
 {
-    if ( !ioobj )
+    if ( !ctio.ioobj )
     {
 	infofld->setText( "" );
 	return;
@@ -117,7 +122,7 @@ void uiSeisFileMan::mkFileInfo()
     BufferString txt;
     BinIDSampler bs;
     StepInterval<float> zrg;
-    if ( SeisTrcTranslator::getRanges( *ioobj, bs, zrg ) )
+    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, bs, zrg ) )
     {
 	txt = "Inline range: "; mRangeTxt(inl);
 	txt += "\nCrossline range: "; mRangeTxt(crl);
@@ -125,17 +130,18 @@ void uiSeisFileMan::mkFileInfo()
 		mZRangeTxt(zrg.stop); txt += " - "; mZRangeTxt(zrg.step);	
     }
 
-    if ( ioobj->pars().size() )
+    if ( ctio.ioobj->pars().size() )
     {
-	if ( ioobj->pars().hasKey("Type") )
-	{ txt += "\nType: "; txt += ioobj->pars().find( "Type" ); }
+	if ( ctio.ioobj->pars().hasKey("Type") )
+	{ txt += "\nType: "; txt += ctio.ioobj->pars().find( "Type" ); }
 
 	const char* optstr = "Optimized direction";
-	if ( ioobj->pars().hasKey(optstr) )
-	{ txt += "\nOptimized direction: "; txt += ioobj->pars().find(optstr); }
+	if ( ctio.ioobj->pars().hasKey(optstr) )
+	{ txt += "\nOptimized direction: ";
+	    txt += ctio.ioobj->pars().find(optstr); }
     }
 
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
     if ( iostrm )
     {
 	BufferString fname( iostrm->fileName() );
@@ -157,8 +163,8 @@ void uiSeisFileMan::mkFileInfo()
 
 void uiSeisFileMan::copyPush( CallBacker* )
 {
-    if ( !ioobj ) return;
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !ctio.ioobj ) return;
+    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
     if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
 
     MultiID key( iostrm->key() );
@@ -202,9 +208,9 @@ BufferString uiSeisFileMan::getFileSize( const char* filenm )
 
 void uiSeisFileMan::mergePush( CallBacker* )
 {
-    if ( !ioobj ) return;
+    if ( !ctio.ioobj ) return;
 
-    MultiID key( ioobj->key() );
+    MultiID key( ctio.ioobj->key() );
     uiMergeSeis dlg( this );
     dlg.go();
     manipgrp->refreshList( key );

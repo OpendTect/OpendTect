@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.4 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.5 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
 uiWellImportAsc::~uiWellImportAsc()
 {
-    delete &ctio;
+    delete ctio.ioobj; delete &ctio;
 }
 
 

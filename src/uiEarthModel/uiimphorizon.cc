@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.30 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.31 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 
 uiImportHorizon::~uiImportHorizon()
 {
-    delete &ctio;
+    delete ctio.ioobj; delete &ctio;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.4 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.5 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p )
                                      "Manage surfaces",
                                      "103.1.0").nrstatusflds(1))
 	, ctio(*mMkCtxtIOObj(EMHorizon))
-	, ioobj(0)
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
@@ -73,16 +72,22 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p )
 }
 
 
+uiSurfaceMan::~uiSurfaceMan()
+{
+    delete &ctio; // NOT ctio.ioobj
+}
+
+
 void uiSurfaceMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
-    ioobj = entrylist->selected();
+    ctio.ioobj = entrylist->selected();
 
     mkFileInfo();
     manipgrp->selChg( cb );
 
     BufferString msg;
-    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ioobj), msg );
+    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ctio.ioobj), msg );
     toStatusBar( msg );
 }
 
@@ -91,7 +96,7 @@ void uiSurfaceMan::remPush( CallBacker* )
 {
     if ( !attribfld->size() || !attribfld->nrSelected() ) return;
     
-    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
+    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read))
     if ( !conn ) return;
 
     const char* attrnm = attribfld->getText();
@@ -144,7 +149,7 @@ void uiSurfaceMan::postReloc( CallBacker* cb )
 
 void uiSurfaceMan::mkFileInfo()
 {
-    if ( !ioobj )
+    if ( !ctio.ioobj )
     {
 	infofld->setText( "" );
 	return;
@@ -157,12 +162,12 @@ void uiSurfaceMan::mkFileInfo()
     BufferString txt;
     BinIDSampler bs;
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( ioobj->key(), sd );
+    EM::EMM().getSurfaceData( ctio.ioobj->key(), sd );
     fillAttribList( sd.valnames );
     txt = "Inline range: "; mRangeTxt(inl);
     txt += "\nCrossline range: "; mRangeTxt(crl);
 
-    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
+    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read))
     if ( !conn ) return;
 
     BufferString fname( conn->fileName() );

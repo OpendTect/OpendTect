@@ -6,19 +6,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.3 2002-06-20 15:59:45 bert Exp $
+ RCS:           $Id: uimergeseis.h,v 1.4 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "ctxtioobj.h"
 #include "multiid.h"
 
-class SeisRequester;
+class IOObj;
+class IOPar;
 class SeisTrc;
+class CtxtIOObj;
 class uiCheckBox;
 class uiIOObjSel;
+class SeisRequester;
 class uiLabeledListBox;
 class SeisSingleTraceProc;
 
@@ -40,7 +42,7 @@ protected:
     ObjectSet<IOPar>	seliops;
     SeisRequester*	req;
     SeisSingleTraceProc* proc;
-    CtxtIOObj		ctio;
+    CtxtIOObj&		ctio;
     int			inpsz;
     bool		rev;
 

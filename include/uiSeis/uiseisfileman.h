@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.6 2003-05-22 11:10:27 bert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.7 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class uiSeisFileMan : public uiDialog
 {
 public:
 			uiSeisFileMan(uiParent*);
+			~uiSeisFileMan();
 
 protected:
 
@@ -36,7 +37,6 @@ protected:
     uiToolButton*	copybut;
     uiIOObjManipGroup*	manipgrp;
 
-    IOObj*		ioobj;
     CtxtIOObj&		ctio;
 
     void		selChg(CallBacker*);

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.1 2003-08-06 15:10:23 nanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.2 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ class uiSurfaceMan : public uiDialog
 {
 public:
 			uiSurfaceMan(uiParent*);
+			~uiSurfaceMan();
 
 protected:
 
@@ -38,7 +39,6 @@ protected:
     uiToolButton*	rembut;
     uiButtonGroup*	butgrp;
 
-    IOObj*		ioobj;
     CtxtIOObj&		ctio;
 
     void		remPush(CallBacker*);

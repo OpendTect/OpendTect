@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.22 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.23 2003-10-16 09:41:18 bert Exp $";
 
 #include "emmanager.h"
 
@@ -59,15 +59,15 @@ void EM::EMManager::init()
 
 MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
-    CtxtIOObj* ctio = 0;
+    PtrMan<CtxtIOObj> ctio;
     if ( type==EM::EMManager::Hor )
 	ctio = mMkCtxtIOObj(EMHorizon);
     else if ( type==EM::EMManager::Fault )
 	ctio = mMkCtxtIOObj(EMFault);
     else if ( type==EMManager::StickSet )
 	ctio = mMkCtxtIOObj(EMStickSet);
-    else
-	return -1;
+
+    if ( !ctio ) return -1;
 
     ctio->ctxt.forread = false;
     ctio->ioobj = 0;
@@ -77,7 +77,7 @@ MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 
     EMObject* obj = EM::EMObject::create( *ctio->ioobj, *this );
     if ( !obj )
-	return -1;
+	{ delete ctio->ioobj; return -1; }
 
     objects += obj;
     refcounts += 0;
@@ -86,6 +86,7 @@ MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
     if ( saver )
 	saver->execute();
 
+    delete ctio->ioobj;
     return obj->id();
 } 
 

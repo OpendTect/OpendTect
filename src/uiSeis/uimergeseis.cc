@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.14 2003-10-15 15:15:55 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.15 2003-10-16 09:41:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 uiMergeSeis::~uiMergeSeis()
 {
     delete proc;
+    delete ctio.ioobj; delete &ctio;
 }
 
 
