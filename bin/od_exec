@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.39 2004-12-06 14:26:18 dgb Exp $
+# $Id: od_exec,v 1.40 2004-12-06 14:31:31 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -211,14 +211,17 @@ if ( $indosbox == yes ) then
 
 endif
 
-set allargs=""
 more_args:
 
 if ( "$1" != "" ) then
 
     set arg=`echo "$1" | sed 's/ /%/g'`
 
-    set allargs="$allargs $arg"
+    if ( $?allargs ) then
+	set allargs="$allargs $arg"
+    else
+	set allargs="$arg"
+    endif
 
     shift
     goto more_args
