@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: uistereodlg.h,v 1.1 2002-07-15 08:01:00 nanne Exp $
+ RCS:           $Id: uistereodlg.h,v 1.2 2002-08-20 07:42:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,12 @@ class uiSoViewer;
 class uiStereoDlg : public uiDialog
 {
 public:
-			uiStereoDlg(uiParent*,uiSoViewer*);
+			uiStereoDlg(uiParent*,ObjectSet<uiSoViewer>&);
 
 protected:
 
     uiSlider*		sliderfld;
-    uiSoViewer*		vwr;
+    ObjectSet<uiSoViewer> vwrs;
 
     void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);

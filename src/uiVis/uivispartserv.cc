@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.81 2002-08-12 14:21:28 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.82 2002-08-20 07:42:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "vissurvwell.h"
 #include "vissurvhorizon.h"
 #include "visplanedatadisplay.h"
+#include "visvolumedisplay.h"
 #include "visselman.h"
 #include "vismaterial.h"
 #include "viscolortab.h"
@@ -93,7 +94,10 @@ bool uiVisPartServer::deleteAllObjects()
     }
 
     scenes.erase();
+    wells.erase();
+    horizons.erase();
     picks.erase();
+    volumes.erase();
     seisdisps.erase();
 
     return visBase::DM().reInit();
@@ -442,16 +446,26 @@ void uiVisPartServer::setPlanePos( int id )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    if ( !sd ) return;
-    uiSliceSel dlg( appserv().parent(), sd->getCubeSampling( true ),
-		    mCB(this,uiVisPartServer,updatePlanePos) );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    if ( !sd && !vd ) return;
+    const CubeSampling initcs = sd ? sd->getCubeSampling( true )
+				   : vd->getCubeSampling();
+    uiSliceSel dlg( appserv().parent(), initcs,
+		    mCB(this,uiVisPartServer,updatePlanePos), (bool)vd );
     if ( dlg.go() )
     {
 	CubeSampling cs = dlg.getCubeSampling();
-	sd->setCubeSampling( cs );
-	sd->updateAtNewPos();
-	sendEvent( evManipulatorMove );
-	sendEvent( evSelection );
+	if ( sd )
+	{
+	    sd->setCubeSampling( cs );
+	    sd->updateAtNewPos();
+	    sendEvent( evManipulatorMove );
+	    sendEvent( evSelection );
+	}
+	else if ( vd )
+	{
+	    vd->setCubeSampling( cs );
+	}
     }
 }
 
@@ -504,8 +518,11 @@ void uiVisPartServer::setAttribSelSpec( int id, AttribSelSpec& as )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->setAttribSelSpec( as );
 
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd, obj );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,obj)
     if ( hd ) hd->setAttribSelSpec(as);
+
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    if ( vd ) vd->setAttribSelSpec(as);
 }
 
 
@@ -513,7 +530,18 @@ CubeSampling& uiVisPartServer::getCubeSampling( int id, bool manippos )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
-    return sd->getCubeSampling( manippos );
+    if ( sd ) return sd->getCubeSampling( manippos );
+
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    return vd->getCubeSampling();
+}
+
+
+CubeSampling& uiVisPartServer::getPrevCS( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
+    return sd->getPrevCS();
 }
 
 
@@ -523,8 +551,11 @@ AttribSelSpec& uiVisPartServer::getAttribSelSpec(int id)
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
     if ( sd ) return sd->getAttribSelSpec();
 
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd, obj );
-    return hd->getAttribSelSpec();
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,obj);
+    if ( hd ) return hd->getAttribSelSpec();
+
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    return vd->getAttribSelSpec();
 }
 
 
@@ -533,6 +564,15 @@ void uiVisPartServer::putNewData( int id, AttribSlice* slice )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->operationSucceeded( sd->putNewData(slice) );
+}
+
+
+AttribSlice* uiVisPartServer::getPrevData( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
+    if ( sd ) return sd->getPrevData();
+    else return 0;
 }
 
 
@@ -559,13 +599,80 @@ void uiVisPartServer::getDataDisplayIds( int sceneid,
 }
 
 
+int uiVisPartServer::addVolumeDisplay()
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj);
+
+    visSurvey::VolumeDisplay* volume = visSurvey::VolumeDisplay::create();
+    volumes += volume;
+    scene->addInlCrlTObject( volume );
+    setSelObjectId( volume->id() );
+
+    return volume->id();
+}
+
+
+void uiVisPartServer::removeVolumeDisplay( int id )
+{   
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( !vd ) return;
+
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    int objidx = scene->getFirstIdx( vd );
+    scene->removeObject( objidx );
+    volumes -= vd;
+}
+
+
+void uiVisPartServer::getVolumeDisplayIds( int sceneid, TypeSet<int>& ids )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene ) return;
+
+    for ( int idx=0; idx<scene->size(); idx++ )
+    {
+	visBase::SceneObject* obj = scene->getObject( idx );
+	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+	if ( vd )
+	    ids += vd->id();
+    }
+}
+
+
+void uiVisPartServer::getVolumePlaneIds( int id, int& inl, int& crl, int& tsl )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) vd->getPlaneIds( inl, crl, tsl );
+    
+}
+
+
+float uiVisPartServer::getVolumePlanePos( int id, int dim ) const
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) return vd->getPlanePos( dim );
+    return 0;
+}
+
+
+bool uiVisPartServer::isVolumeManipulated( int id ) const
+{
+    return false;
+}
+
+
 int uiVisPartServer::addPickSetDisplay()
 {
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj);
 
-    visSurvey::PickSetDisplay* pickset =
-				visSurvey::PickSetDisplay::create();
+    visSurvey::PickSetDisplay* pickset = visSurvey::PickSetDisplay::create();
     picks += pickset;
     scene->addXYTObject( pickset );
     setSelObjectId( pickset->id() );
@@ -1274,14 +1381,22 @@ bool uiVisPartServer::usesTexture( int id ) const
 }
 
 
-bool uiVisPartServer::setWorkingArea( int sceneid )
+bool uiVisPartServer::setWorkingArea()
 {
     uiWorkAreaDlg dlg( appserv().parent() );
     if ( !dlg.go() ) return false;
 
-    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
-    if ( scene ) scene->updateRange();
+    TypeSet<int> sceneids;
+    getSceneIds( sceneids );
+
+    for ( int ids=0; ids<sceneids.size(); ids++ )
+    {
+        int sceneid = sceneids[ids];
+	visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+	mDynamicCastGet(visSurvey::Scene*,scene,obj)
+	if ( scene ) scene->updateRange();
+    }
+
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.53 2002-08-12 14:21:33 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.54 2002-08-20 07:42:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ class PickSetDisplay;
 class WellDisplay;
 class HorizonDisplay;
 class PlaneDataDisplay;
+class VolumeDisplay;
 };
 
 namespace visBase
@@ -128,11 +129,21 @@ public:
     float		getPlanePos(int) const;
     bool		isPlaneManipulated(int) const;
     void		setAttribSelSpec(int,AttribSelSpec&);
+    CubeSampling&	getPrevCS(int);
     CubeSampling&	getCubeSampling(int,bool manippos);
     AttribSelSpec&	getAttribSelSpec(int);
     void		putNewData(int,AttribSlice*);
+    AttribSlice*	getPrevData(int);
     void		getDataDisplayIds(int,uiVisPartServer::ElementType,
 					  TypeSet<int>&);
+
+			//CubeViewer stuff
+    int			addVolumeDisplay();
+    void		removeVolumeDisplay(int);
+    void		getVolumeDisplayIds(int,TypeSet<int>&);
+    void		getVolumePlaneIds(int,int&,int&,int&);
+    float		getVolumePlanePos(int,int dim) const;
+    bool		isVolumeManipulated(int) const;
 
     			//PickSets stuff
     int                 addPickSetDisplay();
@@ -206,7 +217,7 @@ public:
     bool		usesTexture(int) const;
 
 			//Dialogs
-    bool		setWorkingArea(int);
+    bool		setWorkingArea();
     bool		setZScale();
     void		setMaterial(int);
     void		setPickProps(int);
@@ -236,6 +247,7 @@ protected:
     ObjectSet<visSurvey::WellDisplay>         	wells;
     ObjectSet<visSurvey::HorizonDisplay>       	horizons;
     ObjectSet<visSurvey::Scene>         	scenes;
+    ObjectSet<visSurvey::VolumeDisplay>		volumes;
 
     static const char*	appvelstr;
 };

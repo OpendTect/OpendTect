@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uistereodlg.cc,v 1.1 2002-07-15 08:00:49 nanne Exp $
+ RCS:           $Id: uistereodlg.cc,v 1.2 2002-08-20 07:42:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,10 +14,10 @@ ________________________________________________________________________
 #include "uislider.h"
 
 
-uiStereoDlg::uiStereoDlg( uiParent* p, uiSoViewer* vwr_ )
+uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<uiSoViewer>& vwrs_ )
 	: uiDialog(p, uiDialog::Setup("Stereo viewing","Set stereo offset")
 		      .canceltext(""))
-	, vwr(vwr_)
+	, vwrs(vwrs_)
 {
     sliderfld = new uiSlider( this, "Stereo offset", true );
     sliderfld->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
@@ -28,7 +28,7 @@ uiStereoDlg::uiStereoDlg( uiParent* p, uiSoViewer* vwr_ )
 
 void uiStereoDlg::doFinalise( CallBacker* )
 {
-    float offset = vwr->getStereoOffset();
+    float offset = vwrs[0]->getStereoOffset();
 
     sliderfld->setMinValue( 10 );
     sliderfld->setMaxValue( 1000 );
@@ -41,7 +41,9 @@ bool uiStereoDlg::acceptOK( CallBacker* )
 {
     sliderfld->processInput();
     float slval = sliderfld->getValue();
-    vwr->setStereoOffset( slval );
+    for ( int idx=0; idx<vwrs.size(); idx++ )
+	vwrs[idx]->setStereoOffset( slval );
+
     return true;
 }
 
@@ -49,5 +51,6 @@ bool uiStereoDlg::acceptOK( CallBacker* )
 void uiStereoDlg::sliderMove( CallBacker* )
 {
     float slval = sliderfld->getValue();
-    vwr->setStereoOffset( slval );
+    for ( int idx=0; idx<vwrs.size(); idx++ )
+        vwrs[idx]->setStereoOffset( slval );
 }
