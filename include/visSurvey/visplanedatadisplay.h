@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.29 2003-03-03 15:53:42 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.30 2003-04-17 15:22:10 dgb Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,7 @@ public:
 
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
+    const visBase::VisColorTab&	getColorTab() const;
 
     float			getValue( const Coord3& ) const;
 

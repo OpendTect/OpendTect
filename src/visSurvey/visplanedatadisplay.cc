@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.46 2003-03-24 15:26:28 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.47 2003-04-17 15:22:04 dgb Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -412,6 +412,10 @@ void visSurvey::PlaneDataDisplay::setColorTab( visBase::VisColorTab& ct )
 
 
 visBase::VisColorTab& visSurvey::PlaneDataDisplay::getColorTab()
+{ return trect->getColorTab(); }
+
+
+const visBase::VisColorTab& visSurvey::PlaneDataDisplay::getColorTab() const
 { return trect->getColorTab(); }
 
 
