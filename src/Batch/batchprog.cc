@@ -5,11 +5,12 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.53 2004-02-06 13:04:04 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.54 2004-03-10 16:30:28 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filegen.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.53 2004-02-06 13:04:04 arend E
 #include "mmdefs.h"
 #include "plugins.h"
 #include "strmprov.h"
+#include "ctxtioobj.h"
 #ifndef __msvc__
 #include <unistd.h>
 #include <stdlib.h>
@@ -334,4 +336,44 @@ bool BatchProgram::initOutput()
     if ( stillok_ )
 	PIM().loadAuto( true );
     return stillok_;
+}
+
+
+IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
+					const IOObjContext& ctxt ) const
+{
+    BufferString basekey( bsky ); basekey += ".";
+    BufferString iopkey( basekey );
+    iopkey += "ID";
+    BufferString res = pars().find( iopkey );
+    if ( res == "" )
+    {
+	iopkey = basekey; iopkey += "Name";
+	res = pars().find( iopkey );
+	if ( res == "" )
+	{
+	    *sdout_.ostrm << "Please specify '" << iopkey << "' or ID" << endl;
+	    return 0;
+	}
+	else
+	{
+	    CtxtIOObj ctio( ctxt );
+	    IOM().to( ctio.ctxt.stdSelKey() );
+	    const IOObj* ioob = (*(const IODir*)(IOM().dirPtr()))[res];
+	    if ( ioob )
+		res = ioob->key();
+	    else if ( mknew )
+	    {
+		ctio.setName( res );
+		IOM().getEntry( ctio );
+		if ( ctio.ioobj );
+		    return ctio.ioobj;
+	    }
+	}
+    }
+
+    IOObj* ioobj = IOM().get( MultiID(res.buf()) );
+    if ( !ioobj )
+	*sdout_.ostrm << "Cannot find the specified '" << iopkey << "'" << endl;
+    return ioobj;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.20 2004-01-21 12:45:02 dgb Exp $
+ RCS:		$Id: batchprog.h,v 1.21 2004-03-10 16:30:28 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -21,8 +21,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "genc.h"
 class IOPar;
+class IOObj;
 class Socket;
 class StreamData;
+class IOObjContext;
 
 
 /*!\brief Main object for 'standard' batch programs.
@@ -61,6 +63,9 @@ public:
     int&		argc_r()		{ return *pargc_; }
     int			realArgsStartAt() const	{ return argshift_; }
     BufferStringSet&	cmdLineOpts()	{ return opts_; }
+
+    IOObj*		getIOObjFromPars(const char* keybase,bool mknew,
+					 const IOObjContext& ctxt) const;
 
     			// Socket stuff.
 
