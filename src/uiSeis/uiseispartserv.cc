@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.28 2005-01-18 14:39:45 helene Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.29 2005-02-10 16:03:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,9 +203,10 @@ mnu->setEnabled( list.size() ); \
 
 uiPopupMenu* uiSeisPartServer::createStoredGathersSubMenu( int& mnuid )
 {
-    uiPopupMenu* displaygathermnu = new uiPopupMenu( appserv().parent(),
-		                                  "Display Gathers");
     BufferStringSet ioobjnms = getStoredGathersList();
+    if ( !ioobjnms.size() ) return 0;
+    uiPopupMenu* displaygathermnu = new uiPopupMenu( appserv().parent(),
+		                                     "Display Gather" );
     const int start = 0; const int stop = ioobjnms.size();
     mInsertItems(ioobjnms,displaygathermnu,true);
     return displaygathermnu;
