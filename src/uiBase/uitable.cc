@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.27 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: uitable.cc,v 1.28 2005-03-16 07:35:03 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,9 +70,9 @@ class uiTableBody : public uiObjBodyImpl<uiTable,QTable>
 public:
 
                         uiTableBody( uiTable& handle, uiParent* parnt, 
-				     const char* nm, int nrows, int ncols)
+				     const char* nm, int nrows, int ncols )
 			    : uiObjBodyImpl<uiTable,QTable>( handle, parnt, nm )
-			    , messenger_ (*new i_tableMessenger(this, &handle))
+			    , messenger_ (*new i_tableMessenger(this, &handle ))
 			{
 			    if ( nrows >= 0 ) setLines( nrows + 1 );
 			    if ( ncols >= 0 ) setNumCols( ncols );
@@ -777,43 +777,57 @@ void uiTable::clearTable()
 }
 
 
-bool  uiTable::isRowSelected(int row)
+void uiTable::removeAllSelections()
 {
-    return body_->isRowSelected(row);
+    for ( int idx = 0; idx < body_->numSelections(); ++idx )
+	body_->removeSelection( idx );
 }
 
-bool  uiTable::isColumnSelected(int col)
+
+bool  uiTable::isRowSelected( int row )
 {
-    return body_->isColumnSelected(col);
+    return body_->isRowSelected( row );
 }
+
+
+bool  uiTable::isColumnSelected( int col )
+{
+    return body_->isColumnSelected( col );
+}
+
 
 int   uiTable::currentRow()
 {
     return body_->currentRow();
 }
 
+
 int   uiTable::currentCol()
 {
     return body_->currentRow();
 }
 
-void  uiTable::selectRow(int row)
+
+void  uiTable::selectRow( int row )
 {
-    return body_->selectRow(row);
+    return body_->selectRow( row );
 }
 
-void  uiTable::selectColumn(int col)
+
+void  uiTable::selectColumn( int col )
 {
-    return body_->selectColumn(col);
+    return body_->selectColumn( col );
 }
 
-void uiTable::clearSelection()
+
+void uiTable::ensureCellVisible( int row, int col )
 {
-    body_->clearSelection();
+    body_->ensureCellVisible( row, col );
 }
 
-void uiTable::ensureCellVisible(int row, int col)
+
+void uiTable::setCurrentCell( int row, int col )
 {
-    body_->ensureCellVisible(row, col);
+    body_->setCurrentCell( row, col );
 }
 
