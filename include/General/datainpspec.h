@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.9 2001-05-08 15:38:41 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.10 2001-05-08 16:43:05 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <ranges.h>
 #include <bufstring.h>
-#include <survinfo.h>
+class BinID2Coord;
 
 /*! \brief Specification of input characteristics
 
@@ -319,31 +319,32 @@ public:
 					 , double inline_x = 0
 					 , double crossline_y = 0
 					 , bool withOtherBut=true
-					 , const SurveyInfo& si = SI() )
+					 , const BinID2Coord* b2c=0 )
 			    : DataInpSpec( binIDCoordTp )
 			    , withOtherBut_( withOtherBut )
 			    , inl_x( inline_x )
 			    , crl_y( crossline_y )
 			    , doCoord_( doCoord )
 			    , isRelative_( isRelative )
-			    , surv_( si ) {}
+			    , b2c_( b2c ) {}
 
     virtual DataInpSpec* clone() const  
-			    { return new BinIDCoordInpSpec( *this ); }
+			{ return new BinIDCoordInpSpec( *this ); }
 
     double		value( int idx ) const { return idx ? crl_y : inl_x; }
 
     virtual void	getText( BufferString& dest, int idx ) const
-			    { dest = value(idx); }
+			{ dest = value(idx); }
 
     const char*		otherTxt() const
-			    {
-				if( !withOtherBut_ ) return 0;
-				if( doCoord_ ) { return "Inline/Crossline..."; }
-				return isRelative_? "Distance..." : "Coords...";
-			    }
+			{
+			    if( !withOtherBut_ ) return 0;
+			    if( doCoord_ ) { return "Inline/Xline ..."; }
+			    return isRelative_? "Distance ..." : "Coords ...";
+			}
 
-    const SurveyInfo&	survInf()	{ return surv_;}
+    const BinID2Coord*	binID2Coord() const
+			{ return b2c_; }
 
 protected:
 
@@ -353,7 +354,7 @@ protected:
     bool		doCoord_;
     bool		isRelative_;
     bool		withOtherBut_;
-    const SurveyInfo&	surv_;
+    const BinID2Coord*	b2c_;
 
 };
 

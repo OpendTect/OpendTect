@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.13 2001-05-08 15:48:15 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.14 2001-05-08 16:42:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include <datainpspec.h>
+#include "datainpspec.h"
+#include "survinfo.h"
 
 #define mCheckFinalised() \
     if( ! finalised ) \
@@ -334,6 +335,7 @@ protected:
     uiGroup&		binidGrp;
     uiLineEdit&		inl_x; // inline or x-coordinate
     uiLineEdit&		crl_y; // crossline or y-coordinate
+    const BinID2Coord*	b2c;
 
     uiPushButton*	ofrmBut; // other format: BinId / Coordinates 
     void		otherFormSel(CallBacker*);
@@ -346,6 +348,7 @@ uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
     , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
     , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
     , ofrmBut( 0 )
+    , b2c(0)
 {
     const BinIDCoordInpSpec*spc = dynamic_cast<const BinIDCoordInpSpec*>(spec);
     if( !spc ) return;
@@ -360,13 +363,16 @@ uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
 
 	ofrmBut->attach( rightTo, &crl_y );
     }
+
+    b2c = spc->binID2Coord();
+    if ( !b2c ) b2c = &SI().binID2Coord();
 }
 
 
 void uiBinIDInpFld::otherFormSel(CallBacker* cb)
 {
 // pop dialog box
-// transform using SI()
+// transform using b2c
 // set value
 }
 
