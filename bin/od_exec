@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.7 2002-10-31 13:40:35 dgb Exp $
+# $Id: od_exec,v 1.8 2002-11-26 13:04:51 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -49,12 +49,19 @@ endif
 set niceness=0
 if ( $1 == --nice ) then
 	set niceness=$2
+	set nicecmd=/usr/bin/nice
+	if ( -x /bin/nice ) set nicecmd=/bin/nice
+	if ( ! -x $nicecmd ) then
+		set niceness=0
+	else
+		set nicecmd="$nicecmd -$2"
+	endif
 	shift ; shift
 endif
 
 if ( $niceness == 0 ) then
 	$bindir/$*
 else
-	/usr/bin/nice -$niceness $bindir/$*
+	$nicecmd $bindir/$*
 endif
 exit $status
