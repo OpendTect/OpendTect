@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.32 2002-03-19 12:11:24 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.33 2002-03-21 13:24:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ ________________________________________________________________________
 #define mBody()		mBody_( body() )
 #define mConstBody()	mBody_(const_cast<uiObject*>(this)->body())
 
-#define pbody()		dynamic_cast<uiParentBody*>( body() )
 //#define pbody()		static_cast<uiParentBody*>( body() )
 #define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
 
@@ -48,7 +47,7 @@ void uiParent::addChild( uiObjHandle& child )
     if ( thisuiobj && child == thisuiobj ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
-    uiParentBody* b = pbody();
+    uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
     if ( !b )			
 	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
 
@@ -61,9 +60,8 @@ void uiParent::manageChld( uiObjHandle& child, uiObjectBody& bdy )
     if ( &child == static_cast<uiObjHandle*>(this) ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
-    uiParentBody* b = pbody();
-    if ( !b )			
-	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
+    uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
+    if ( !b )	return;
 
     b->manageChld( child, bdy );
 }
@@ -75,7 +73,7 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
     if ( child == static_cast<uiObjHandle*>(this) ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
-    uiParentBody* b = pbody();
+    uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
     if ( !b )			
 	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
 
