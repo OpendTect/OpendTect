@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.37 2004-06-02 12:31:45 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.38 2004-06-23 10:28:24 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -445,9 +445,6 @@ BinID RandomTrackDisplay::proposeNewPos(int knotnr ) const
 }
 
 
-
-
-
 bool RandomTrackDisplay::isManipulated() const
 {
     return ismanip;
@@ -457,6 +454,7 @@ bool RandomTrackDisplay::isManipulated() const
 void RandomTrackDisplay::acceptManipulation()
 {
     track->moveObjectToDraggerPos();
+    moving.trigger();
 }
 
 
@@ -513,7 +511,6 @@ void RandomTrackDisplay::knotMoved( CallBacker* cb )
     
     selknotidx = sel;
     knotmoving.trigger();
-    moving.trigger();
 }
 
 
