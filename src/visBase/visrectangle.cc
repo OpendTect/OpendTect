@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.41 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.42 2004-08-11 13:15:54 nanne Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -523,8 +523,8 @@ visBase::Rectangle::Rectangle()
     if ( dragger )
     {
 	dragger->changed.notify(
-			mCB(this, Rectangle, moveManipRectangletoDragger ));
-	dragger->finished.notify( mCB(this, Rectangle, moveDraggertoManipRect));
+			mCB(this,Rectangle,moveManipRectangletoDragger) );
+	dragger->finished.notify( mCB(this,Rectangle,moveDraggertoManipRect) );
 
 	// Manip switch & separator
 	manipswitch = new SoSwitch;
@@ -557,7 +557,13 @@ visBase::Rectangle::Rectangle()
 
 visBase::Rectangle::~Rectangle()
 {
-    if (dragger) dragger->unRef();
+    if ( dragger )
+    {
+	dragger->changed.remove(
+			mCB(this,Rectangle,moveManipRectangletoDragger) );
+	dragger->finished.remove( mCB(this,Rectangle,moveDraggertoManipRect) );
+	dragger->unRef();
+    }
 }
 
 
