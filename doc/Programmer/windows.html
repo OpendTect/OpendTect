@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.3 2003-12-11 14:40:36 arend Exp $
+  - RCS:        $Id: windows.html,v 1.4 2003-12-11 14:53:16 arend Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.0]</title>
@@ -179,10 +179,10 @@ Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win 
 You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "Hello.dll" plugin, you should see "Hello World" on the OpendTect console window.
 If you want to load one of the 'ui' plugins, you have to load the corresponding non-ui one first.
 
-<h4>Installing your plugins</h4>
+<a name=installplugins><h4>Installing your plugins</h4>
 
 <p> The plugins are basically installed by copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file. 
-This is the same on Unix and Windows, so please consult the plugins documentation for more details.
+This is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.
 However, there are a few remarks about the location of your personal directory on windows. </p>
 
 <p> Your 'Personal directory' is located at $HOMEDRIVE/$HOMEPATH if this is defined and not "C:\".
