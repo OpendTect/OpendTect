@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.27 2004-10-07 12:03:52 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.28 2004-10-07 16:18:35 nanne Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -479,7 +479,7 @@ bool Seis2DLineSet::rename( const char* lk, const char* newlk )
     }
 
     int existipar = indexOf( newlk );
-    if ( existipar )
+    if ( existipar >= 0 )
     {
 	removeLock();
 	ErrMsg("Cannot rename to existing line key");
