@@ -4,11 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.9 2004-01-30 10:22:19 bert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.10 2004-02-04 08:42:51 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "iopar.h"
 #include "uiprintscenedlg.h"
 #include "uifileinput.h"
 #include "uicombobox.h"
@@ -16,9 +17,19 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "filegen.h"
 #include "uiobj.h"
+#include "uibutton.h"
 #include "uilabel.h"
+#include "uimsg.h"
 
 #include "Inventor/SoOffscreenRenderer.h"
+
+
+const char* uiPrintSceneDlg::horwidthfldstr = "Hor Width";
+const char* uiPrintSceneDlg::vertwidthfldstr = "Vert Width";
+const char* uiPrintSceneDlg::widthunitfldstr = "Width Unit";
+const char* uiPrintSceneDlg::resfldstr = "Resolution";
+const char* uiPrintSceneDlg::filetypefldstr = "File Type";
+const char* uiPrintSceneDlg::filenamefldstr = "File Name";
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 	: uiDialog(p, uiDialog::Setup("Print Scene",
@@ -79,6 +90,44 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 }
 
 
+void uiPrintSceneDlg::fillPar(IOPar& par) const
+{
+    par.set( horwidthfldstr, horwidthfld->getValue() );
+    par.set( vertwidthfldstr, vertwidthfld->getValue() );
+    par.set( widthunitfldstr, widthunitfld->currentItem() );
+    par.set( filetypefldstr, filetypesfld->currentItem() );
+    par.set( resfldstr, resolutionfld->getValue() );
+    par.set( filenamefldstr, fileinputfld->fileName() );
+}
+
+
+bool  uiPrintSceneDlg::usePar( const IOPar& par )
+{
+    int ival;
+
+    if ( par.get( horwidthfldstr, ival ) )
+	horwidthfld->setValue(ival);
+
+    if ( par.get( vertwidthfldstr, ival ) )
+	vertwidthfld->setValue(ival);
+
+    if ( par.get( widthunitfldstr, ival ) )
+	widthunitfld->setCurrentItem(ival);
+
+    if ( par.get( filetypefldstr, ival ) )
+	filetypesfld->setCurrentItem(ival);
+
+    if ( par.get( resfldstr, ival ) )
+	resolutionfld->setValue(ival);
+
+    const char* fname = par[filenamefldstr];
+    if ( fname && *fname )
+	fileinputfld->setFileName(fname);
+
+    return true;
+}
+
+
 void uiPrintSceneDlg::doFinalise( CallBacker* )
 {
 } 
@@ -119,6 +168,12 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !filename || !filename[0] )
     { return false; }
 
+    if ( File_exists(filename) )
+    {
+	if ( !uiMSG().askGoOn("File exists. Overwrite?", true) )
+	    return false;
+    }
+
     int filetypenr = filetypesfld->currentItem();
 
     SbList<SbName> extlist;
@@ -133,5 +188,6 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	uiMSG().error( "Couldn't write to specified file" );
 	return false;
     }
+
     return true;
 }
