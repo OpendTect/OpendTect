@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.5 2001-05-31 12:55:11 windev Exp $
+ RCS:		$Id: strmoper.h,v 1.6 2001-06-07 09:42:38 bert Exp $
 ________________________________________________________________________
 
 */
@@ -25,6 +25,7 @@ bool		readWithRetry(istream&,void*,unsigned int nrbytes,
 bool		writeWithRetry(ostream&,const void*,unsigned int nrbytes,
 			       unsigned int nrretries,unsigned int delay);
 bool		wordFromLine(istream&,char*,int maxnrchars);
+bool		ignoreToEOL(istream&);
 
 
 #endif

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.5 2001-05-22 16:24:19 bert Exp $
+ RCS:		$Id: conn.h,v 1.6 2001-06-07 09:42:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,12 +71,17 @@ public:
 
 			StreamConn();
 			StreamConn(const StreamData&);
-
-			StreamConn(istream*); // My mem man
+				//!< MY stream: this will delete on destruct
+			StreamConn(istream*);
+				//!< MY stream: this will delete on destruct
 			StreamConn(ostream*);
+				//!< MY stream: this will delete on destruct
 			StreamConn(const char*,State);
-			StreamConn(istream&); // Your mem man
-			StreamConn(ostream&);
+				//!< MY stream: this will delete on destruct
+			StreamConn(istream&,bool close_on_delete=false);
+				//!< YOUR stream: this may close only
+			StreamConn(ostream&,bool close_on_delete=false);
+				//!< YOUR stream: this may close only
 
     virtual		~StreamConn();
 
@@ -102,6 +107,7 @@ private:
     StreamData		sd;
     State		state_;
     bool		mine;
+    bool		closeondel;
     char*		fname;
     int			nrretries;
     int			retrydelay;
