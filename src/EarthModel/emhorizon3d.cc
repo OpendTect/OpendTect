@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.44 2004-07-14 15:33:53 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.45 2004-07-20 08:29:50 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -263,11 +263,12 @@ bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick,
 	const Line3 line( Coord3(startrc.row,startrc.col,0),
 	     Coord3(stoprc.row-startrc.row,stoprc.col-startrc.col,0) );
 
-	if ( startrc.row==stoprc.row ) step_.row = 0;
-	else if ( startrc.row>stoprc.row ) step_.row = -step_.row;
+	RowCol iterstep( step_ );
+	if ( startrc.row==stoprc.row ) iterstep.row = 0;
+	else if ( startrc.row>stoprc.row ) iterstep.row = -iterstep.row;
 
-	if ( startrc.col==stoprc.col ) step_.col = 0;
-	else if ( startrc.col>stoprc.col ) step_.col = -step_.col;
+	if ( startrc.col==stoprc.col ) iterstep.col = 0;
+	else if ( startrc.col>stoprc.col ) iterstep.col = -iterstep.col;
 
 	RowCol rowcol = startrc;
 	while ( rowcol != stoprc )
@@ -293,22 +294,22 @@ bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick,
 
 	    float distance = mUndefValue;
 	    RowCol nextstep;
-	    if ( step_.row )
+	    if ( iterstep.row )
 	    {
 		distance = line.distanceToPoint(
-			Coord3(rowcol.row+step_.row, rowcol.col,0) );
+			Coord3(rowcol.row+iterstep.row, rowcol.col,0) );
 		nextstep = rowcol;
-		nextstep.row += step_.row;
+		nextstep.row += iterstep.row;
 	    }
 
-	    if ( step_.col )
+	    if ( iterstep.col )
 	    {
 		float nd = line.distanceToPoint(
-			    Coord3(rowcol.row, rowcol.col+step_.col,0) );
+			    Coord3(rowcol.row, rowcol.col+iterstep.col,0) );
 		if ( nd<distance )
 		{
 		    nextstep = rowcol;
-		    nextstep.col += step_.col;	
+		    nextstep.col += iterstep.col;	
 		}
 	    }
 
