@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.4 2002-05-30 13:49:59 bert Exp $
+# $Id: od_exec,v 1.5 2002-05-30 13:53:17 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -27,7 +27,7 @@ if ( $binsubdir == sun5 ) then
     endif
 endif
 
-set bindir="$dGB_APPL/bin/$HDIR"
+set bindir="$dGB_APPL/bin/$binsubdir"
 
 setenv XAPPLRESDIR	$dGB_APPL/data
 setenv PATH		"${bindir}:${PATH}"
