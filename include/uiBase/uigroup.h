@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.5 2001-05-16 14:58:42 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.6 2001-05-29 11:46:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,13 @@ public:
     void		setBorder( int ); 
     virtual void	clear();
 
-    void		setHAlignObj( uiObject* o ) 	{ hAlignObj = o;}
-    void		setHCentreObj( uiObject* o ) 	{ hCentreObj = o;}
+    uiObject*		hAlignObj()			{ return halignobj; }
+    void		setHAlignObj( uiObject* o ) 	{ halignobj = o;}
+    uiObject*		hCentreObj()			{ return hcentreobj; }
+    void		setHCentreObj( uiObject* o ) 	{ hcentreobj = o;}
+
+
+
 protected:
 
     const QWidget*	qWidget_() const;
@@ -57,8 +62,8 @@ protected:
     virtual void        forceRedraw_( bool deep );
     virtual void	finalise_();
 
-    uiObject*		hCentreObj;
-    uiObject*		hAlignObj;
+    uiObject*		hcentreobj;
+    uiObject*		halignobj;
 
 private:
 
