@@ -7,8 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		8-11-1995
- Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.23 2002-02-19 06:40:20 kristofer Exp $
+ Contents:	Notification and Callbacks
+ RCS:		$Id: callback.h,v 1.24 2002-02-22 10:11:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,7 +307,7 @@ The callback is issued when you call the trigger() method, like:
 buttonclicked.trigger();
 \endcode
 
-The callback can be temporary stopped using disable()/enable() pair,
+The notification can be temporary stopped using disable()/enable() pair,
 or by use of a NotifyStopper, which automatically enables the callback
 when going out of scope.
 
@@ -323,6 +323,7 @@ public:
     void		trigger( T& t )				{ trigger(&t); }
     void		enable( T& t )				{ enable(); }
     void		disable( T& t )				{ disable(); }
+    void		remove( const CallBack& cb )		{ cbs -= cb; }
 
 protected:
 
