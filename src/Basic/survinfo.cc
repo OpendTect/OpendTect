@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.55 2004-06-16 14:54:18 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.56 2004-06-17 11:33:48 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -49,7 +49,7 @@ const char* BinID2Coord::set3Pts( const Coord c[3], const BinID b[2], int xline)
     if ( b[1].inl == b[0].inl )
         return "Need two different in-lines";
     if ( b[0].crl == xline )
-        return "The X-line cannot be the same";
+        return "No Cross-line range present";
 
     BCTransform nxtr, nytr;
     int crld = b[0].crl - xline;
@@ -70,7 +70,7 @@ const char* BinID2Coord::set3Pts( const Coord c[3], const BinID b[2], int xline)
     if ( mIsZero(nytr.c,mDefEps) ) nytr.c = 0;
 
     if ( !nxtr.valid(nytr) )
-	return "The transformation would not be valid";
+	return "Cannot construct a valid transformation matrix from this input";
 
     xtr = nxtr;
     ytr = nytr;
