@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.12 2004-04-01 13:39:50 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.13 2004-05-21 15:19:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,11 @@ HostDataList::HostDataList()
     const char* bhfnm = "BatchHosts";
     if ( getenv("DTECT_BATCH_HOSTS_FILENAME") )
 	bhfnm = getenv("DTECT_BATCH_HOSTS_FILENAME");
+
     BufferString fname( GetDataFileName(bhfnm) );
+
+    if ( getenv("DTECT_BATCH_HOSTS_FILEPATH") )
+	fname = getenv("DTECT_BATCH_HOSTS_FILEPATH");
 
 #ifdef __win__
     readHostFile(fname);
