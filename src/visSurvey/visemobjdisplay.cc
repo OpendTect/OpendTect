@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.6 2005-03-07 11:00:57 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.7 2005-03-10 11:51:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.6 2005-03-07 11:00:57 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.7 2005-03-10 11:51:22 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.6 2005-03-07 11:00:57 cv
 #include "mpeengine.h"
 #include "viscubicbeziersurface.h"
 #include "visevent.h"
+#include "visparametricsurface.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "vistransform.h"
@@ -241,7 +242,12 @@ bool EMObjectDisplay::usesWireframe() const
 	return false;
 
     mDynamicCastGet( const visBase::CubicBezierSurface*, cbs, sections[0] );
-    return cbs->usesWireframe();
+    if ( cbs ) return cbs->usesWireframe();
+
+    mDynamicCastGet( const visBase::ParametricSurface*, ks, sections[0] );
+    if ( ks ) return ks->usesWireframe();
+
+    return false;
 }
 
 
@@ -251,6 +257,9 @@ void EMObjectDisplay::useWireframe( bool yn )
     {
 	mDynamicCastGet(visBase::CubicBezierSurface*,cbs,sections[idx]);
 	if ( cbs ) cbs->useWireframe(yn);
+
+	mDynamicCastGet( visBase::ParametricSurface*, ks, sections[0] );
+	if ( ks ) return ks->useWireframe(yn);
     }
 }
 
@@ -316,6 +325,15 @@ EMObjectDisplay::createSection( Geometry::Element* ge )
 	visBase::CubicBezierSurface* surf =
 	    		visBase::CubicBezierSurface::create();
 	surf->setSurface( *cbs, false, true );
+	return surf;
+    }
+
+    mDynamicCastGet( Geometry::ParametricSurface*, ps, ge );
+    if ( ps )
+    {
+	visBase::ParametricSurface* surf =
+	    		visBase::ParametricSurface::create();
+	surf->setSurface( ps, true );
 	return surf;
     }
 
