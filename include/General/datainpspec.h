@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.30 2002-01-10 11:51:39 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.31 2002-01-10 11:58:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -401,7 +401,7 @@ public:
 			    : DataInpSpec( boolTp )
 			    , truetext( truetxt ), falsetext( falsetxt )
 			    , yn( yesno ) 
-			    { setHSzP( SzPolicySpec::mallvar ); }
+			    { setHSzP( SzPolicySpec::smallvar ); }
 
     virtual bool	isUndef( int idx=0 ) const	{ return false; }
 
