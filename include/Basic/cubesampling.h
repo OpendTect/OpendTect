@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.15 2004-09-16 16:13:37 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.16 2004-09-20 12:04:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ public:
     // int totalNr() was removed because for large surveys, it doesn't
     // fit into an int anymore!!
     inline bool		isEmpty() const
-			{ return (hrg.start.inl == 0 && hrg.stop.inl == 0)
+			{ return (hrg.start.crl == 0 && hrg.stop.crl == 0)
 			      || hrg.isEmpty() || nrZ() < 1; }
     bool		getInterSection(const CubeSampling&,
 	    				CubeSampling&) const;
