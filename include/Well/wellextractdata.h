@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.10 2004-05-26 23:35:56 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.11 2004-05-28 15:54:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ class LogDataExtracter : public ::Executor
 public:
 
     typedef TypeSet<BinIDValue>	BinIDValueSet;
-    enum SamplePol	{ Med, Avg, MostFreq, Nearest };
+    enum SamplePol	{ Avg, Med, MostFreq, Nearest };
     			DeclareEnumUtils(SamplePol)
 
 			LogDataExtracter(const BufferStringSet& ioobjids,

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.17 2004-05-27 11:56:11 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.18 2004-05-28 15:54:21 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -43,7 +43,7 @@ const char* Well::LogDataExtracter::sKeyLogNm = Well::TrackSampler::sKeyLogNm;
 
 DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
 		Well::LogDataExtracter::sKeySamplePol)
-	{ "Median", "Average", "Most frequent", "Nearest sample", 0 };
+	{ "Average", "Median", "Most frequent", "Nearest sample", 0 };
 const char* Well::LogDataExtracter::sKeySamplePol = "Data sampling";
 
 
