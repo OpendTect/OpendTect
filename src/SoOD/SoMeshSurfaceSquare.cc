@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.13 2003-10-22 07:55:20 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.14 2003-10-22 08:30:06 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -819,7 +819,8 @@ void SoMeshSurfaceSquare::addGlueFan( int& coordindexidx, int& normalidx,
     const int nrlowres = lowresci.getLength();
     const int nrhighres = highresci.getLength();
 
-    if ( nrlowres+nrhighres<3 ) return;
+    if ( nrlowres+nrhighres<3 || !nrlowres || !nrhighres )
+	return;
     if ( nrlowres==2 && nrhighres==2 )
     {
 	const float d0 = (coordptr->point[lowresci[1]]-
