@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.12 2004-01-23 12:43:18 dgb Exp $
+  - RCS:        $Id: windows.html,v 1.13 2004-01-27 10:34:31 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.1]</title>
@@ -19,11 +19,15 @@
 
 <a name=external><h2>External installations</h2></a>
 
-<p>The external installations can, in principle, be installed wherever you like. However, it is recommended to use the defaults. Otherwise, one or two configuration files have to be hand-edited.
+<p>
+The external installations can, in principle, be installed wherever you like. However, it is recommended to use the defaults. Otherwise, one or two configuration files have to be hand-edited.
+</p><p>
 If you choose to install some of the external installations elsewhere, it is strongly recommended to make sure that there are no spaces in any paths to external installations, because the make environment has not been prepared to handle these.</p> 
 
 <h3>Cygwin</h3>
-<p>The make system that is used with OpendTect requires some tools like a Unix-shell, sed, awk, etc. Since Cygwin provides all this, we use Cygwin as our shell/work environment, while still creating native Windows executables.</p>
+<p>
+The make system that is used with OpendTect requires some tools like a Unix-shell, sed, awk, etc. Since Cygwin provides all this, we use Cygwin as our shell/work environment, while still creating native Windows executables.
+</p>
 
 
 <h4>Preparing the cygwin installation</h4>
@@ -36,78 +40,88 @@ When you are sure the registry is ok, you can also download the Cygwin installer
 </p>
 
 <h4>Running the cygwin installer</h4>
-
-<p>After a few questions, you can select packages to install. Choose at least the following packages:</p>
+<p>
+After a few questions, you can select packages to install. Choose at least the following packages:
 <ul>
-<ul><b>Development</b>
+<b>Development</b>
+<ul>
 <li>make
 <li>gcc
 <li>gcc-g++
 <li>gcc-mingw
-<li>gcc-mingw-core
-<li>gcc-mingw-g++
 </ul>
-<ul><b>Shells</b>
-<li>tcsh
-</ul>
-<ul><b>Interpreters</b>
+<b>Interpreters</b>
+<ul>
 <li>perl
 <li>gawk
 </ul>
-</ul>
-<p>Also recommended:</p>
+<b>Shells</b>
 <ul>
-<ul><b>Development</b>
+<li>tcsh
+</ul>
+</ul>
+Note that some packages (like gcc-mingw-core and gcc-mingw-g++) are automatically selected when these packages are selected - don't de-select those dependencies.
+</p><p>
+Recommended:
+<ul>
+<b>Development</b>
+<ul>
 <li>cvs</li>
 <li>binutils</li>
 <li>bison (*)</li>
 <li>flex (*)</li>
 <li>doxygen</li>
 </ul>
-<ul><b>Editors</b>
+<b>Editors</b>
+<ul>
 <li>vim (**)
 <li>mc (**) [= Norton Commander clone]
 </ul>
-<ul><b>Archive</b>
+<b>Archive</b>
+<ul>
 <li>zip
 <li>unzip
 </ul>
 </ul>
-
 Note: You can always re-start the cygwin installation program to add additional packages later or to update existing packages.<br>
 (*) Bison and Flex are required to build OpendTect itself.<br>
 (**) You will need an editor that understands unix file format every now and then. If you're familiar with the good old Norton Commander, you might opt for mc, but one of the other editors in (editors) should also do.
 </p><p>
-After the installation, make sure you run the Cygwin (bash) shell at least once so as to make sure that you have a Cygwin home directory to put your development environment on.
+After the installation, make sure you run the Cygwin (bash) shell at least once to make sure that you have a Cygwin home directory to put your development environment on.
 </p>
-
 
 <a name=setup><h2>Setting up the environment</h2></a>
-<p><a href="pmake.html">Pmake</a> is used to build both the system and to build plugins.
-It requires a few environment variables to be setup and it expects a certain directory structure in your ODWork directory.</p>
+<p>
+<a href="pmake.html">Pmake</a> is used to build both the system and plugins.
+It requires a few environment variables to be setup and it expects a certain directory structure in your ODWork directory.
+</p>
 
 <h3>Setup ODWork dir</h3>
-<p>Before you can build anything, you have to setup a work directory (usually called 'ODWork') in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel Env'.
+<p>
+Before you can build anything, you have to setup a work directory (usually called 'ODWork') in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel Env'.
 Note that the OpendTect application window will freeze while the development environment is created.
 'Create Devel. Env.' will also create an init script 'init.bash' in your ODWork directory that can easily be sourced from your .bashrc to setup your environment.
-</p>
-<p>It is strongly recommended to make sure that there are no spaces in the path to your ODWork directory. A good place for your ODWork directory is your cygwin home directory, which is by default at C:\cygwin\home\[user name]. 
+</p><p>
+It is strongly recommended to make sure that there are no spaces in the path to your ODWork directory. A good place for your ODWork directory is your cygwin home directory, which is by default at C:\cygwin\home\[user_name]. 
 The location of this directory can be easily found from a cygwin bash shell:
 <pre>
     cd
     cygpath -w `pwd`
 </pre>
 </p>
+
 <h3>Setup environment variables</h3>
-<p>Now you will have to setup a few environment variables: HDIR, WORK and GNUMAKE. Fortunately, if you have used the 'Create Devel. Env.' menu this can be done with one command (see below).</p>
+<p>
+Now you will have to setup a few environment variables: HDIR, WORK and GNUMAKE. Fortunately, if you have used the 'Create Devel. Env.' menu this can be done with one command (see below).
 <ul>
 <li>HDIR defines the platform you're working on. On windows, this should be set to win.
 <li>GNUMAKE gives the name of gnu make, usually just make or gmake.
 <li>WORK defines where your ODWork directory is.
 </ul>
-<p>Beside setting up these environment variables, you should source either the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base directory.</p>
+Beside setting up these environment variables, you should source either the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base directory.</p>
 
-<p>All this can be done by sourcing one script (if you have used the OpendTect menu to setup the $WORK directory): 'init.bash' (or 'init.csh',if you work with the non-default csh shell). It seems logical to add the relevant script to your .bashrc (or.login for C-shell users).
+</p><p>
+All this can be done by sourcing one script (if you have used the OpendTect menu to setup the $WORK directory): 'init.bash' (or 'init.csh',if you work with the non-default csh shell). It seems logical to add the relevant script to your .bashrc (or.login for C-shell users).
 And, if you have created your ODWork directory in your cygwin home, the line to add to the end of your .bashrc script could look like:
 <pre>
     source ~/ODWork/init.bash
@@ -116,7 +130,8 @@ And, if you have created your ODWork directory in your cygwin home, the line to 
 
 <h3>Building your own plugins</h3>
 <h4>Testing the installation</h4>
-<p>After you setup your environment, open a new cygwin bash shell and go to your ODWork directory (You can start a bash shell from the Windows start menu). If all is well, the alias 'cdw' should bring you directly to your ODWork directory. Then go to the plugins directory and type 'make'. You should see something like this:</p>
+<p>
+After you setup your environment, open a new cygwin bash shell and go to your ODWork directory (You can start a bash shell from the Windows start menu). If all is well, the alias 'cdw' should bring you directly to your ODWork directory. Then go to the plugins directory and type 'make'. You should see something like this:
 <pre>
 $ cd plugins/
 $ make
@@ -141,7 +156,8 @@ Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/uiSeisIOSimple.d
   Done !
 make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
 $</pre>
-<p>The libraries should now be made in $WORK/lib/win. We can check that, like this:</p>
+</p><p>
+The libraries should now be ready in $WORK/lib/win. We can check that, like this:
 <pre>
 $ cdw
 $ cd lib/win/
@@ -153,32 +169,40 @@ Hello.dll*  libuiCoh.dll.a*    uiHello.dll*
 Hello.lib*  libuiHello.dll.a*  uiHello.lib*
 $
 </pre>
+</p><p>
+If anything goes wrong during compile and/or link, the error messages are sent to a file 'lslux' in the source directory. If you want to see these immediately on the command line, set the environment variable OUTSTDOUT to yes, e.g. in your init.bash file:
+<pre>export OUTSTDOUT=yes</pre>
+you can also add this for each make run, then type:
+<pre>make OUTSTDOUT=yes</pre>
+</p>
+
 
 <h4>Testing the newly compiled plugins</h4>
-
-You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "Hello.dll" plugin, you should see "Hello World" on the OpendTect console window.
-If you want to load one of the 'ui' plugins, you have to load the corresponding non-ui one first.
+<p>
+You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "Hello.dll" plugin, you should see "Hello World" on the OpendTect console window. Notes:
+<ul>
+<li>For some reason the manual loading of plugins can fail on the very first attempt with an error message from windows that it is not able to find the plugin. Maybe someone with knowledge about the dark corners of Windows can explain us why. In any case, if you try again it works.
+<li>If you want to load one of the 'ui' plugins, you have to load the corresponding non-ui one first.
+<li>You cannot re-load a plugin. Even more so: once loaded, the DLL remains locked by windows until you exit OpendTect. Thus, if you change any code you'd better exit OpendTect before trying to re-build the plugin. If you don't exit OpendTect you'll get an error message like: 'cannot overwrite .... Permission denied'.
+</ul>
+</p>
 
 <a name=installplugins><h4>Installing your plugins</h4>
 
-<p> The plugins are basically installed by copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file. 
-This is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.
-However, there are a few remarks about the location of your personal directory on windows. </p>
-
-<p> Your 'Personal directory' is located at $HOMEDRIVE/$HOMEPATH if this is defined and is not equal to "C:\".
-Otherwise, the location of the special windows folder "Application Data" is used.
-
-You can find the location of special windows folders using the GetSpecFolder.exe program that you can find in the OpendTect installation directory:
+<p>
+'Installing' a plugin would be making the plugin auto-load at OpendTect startup. Basically, this is done by copying the plugin to the correct plugin subdirectory in either your personal '.od' settings directory or in the program installation directory. After that, you need to create a new ".alo" file, or add the plugin to an existing ".alo" file. 
+The procedure is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.
+</p><p>
+There are a few remarks about the location of your personal directory on windows though. Your 'Personal directory' is located at $HOMEDRIVE/$HOMEPATH if this is defined and is not equal to "C:\".
+Otherwise, the location of the special windows folder "Application Data" is used. You can find the location of special windows folders using the GetSpecFolder.exe program that you can find in the OpendTect installation directory:
 <pre>
 $ cd /cygdrive/c/Program\ Files/OpendTect/bin/win/
 $ ./GetSpecFolder.exe AppData
 C:\Documents and Settings\Administrator\Application Data
 $
 </pre>
-</p>
-
-<p>If you want your personal '.od' settings directory to be somewhere else, you can set the "DTECT_WINHOME" environment variable.</p>
-<p>
+</p><p>
+If you want your personal '.od' settings directory to be somewhere else, you can set the "DTECT_WINHOME" environment variable.
 You would have to set this using "My Computer - properties - advanced - Environment Variables"; otherwise it won't be available when you start OpendTect from the start-menu or the shortcut icons. You can set it to something like 'C:\cygwin\home\Administrator'</p>
 
 <br>
@@ -192,17 +216,12 @@ Just copy the .alo files into the plugins/platform directory
 and copy the actual plugins into the libs subdirectory.
 </p><p>
 In order to do this, we use .tar.gz files on Unix and inno-setup on windows, which can be obtained for free at: <a href="http://www.jrsoftware.org/isinfo.php">jrsoftware.org</a>.
-
 </p><p>
 Because we internally treat Windows as much like Unix as we can, we actually make a .tar.gz file for our windows plugins too, which is extracted to "d:\users\admin\rel\plugins\opendtect-1.1\", which forms the "Source" for Inno-Setup.
-
 </p><p>
-
 As an example, here is the Inno-setup file "dgbsetup.iss" that we use for our own dgb plugins.
 Note that the OpendTect installation directory is stored in the registry and used as 'DefaultDirName':
-
 <pre>
-
 [Setup]
 AppName=OpendTect
 AppVerName=OpendTect 1.1
@@ -220,32 +239,39 @@ LicenseFile=d:\users\admin\rel\opendtect-1.1\LICENSE.txt
 
 [Files]
 Source: d:\users\admin\rel\plugins\opendtect-1.1\*; DestDir: {app}; Flags: recursesubdirs
-
 </pre>
-
-
 </p>
 
 <a name=buildod><h2>Building OpendTect</h2>
-<p>OpendTect relies on a number of external libraries to function. All these external libraries have been properly insulated, so there should be no need to recompile these if you want to build Open d-Tect yourself.</p>
-<p>However, should you really want to, here are some guidelines.
-Beware that especially compiling Coin's <u>SoQt</u> is quite tricky and can take a considerable amount of time and tweaking to get it right.</p>
+<p>
+Building the entire OpendTect system from source is not a task for the weak at heart. Still, it may be useful were it only for the purpose of getting insight in the various modules.
+</p><p>
+OpendTect relies on a number of external libraries to function. All these external libraries have been properly insulated, so there should be no need to recompile these if you want to build OpendTect yourself. What you do need to have is the set of include files that come with the packages COIN and Qt.
+</p><p>
+Should you really want to go this route, read on for some guidelines. Beware that especially compiling Coin's <u>SoQt</u> is quite tricky and can take a considerable amount of time and tweaking to get it right.
+</p>
 
 
 <h3>Qt</h3>
-<p>Qt does not officialy support <u>MinGW</u>, but as of version 3.2.1 it should build out of the box. Since Qt has it's own make-system, it cannot be compiled with cygwin's mingw compiler, so we have to use a native MinGW compiler, which can be downloaded at <a href="http://mingw.org/download.shtml">http://mingw.org/download.shtml</a>.
+<p>
+Qt does not officialy support <u>MinGW</u>, but as of version 3.2.1 it should build out of the box. Since Qt has its own make-system, it cannot be compiled with cygwin's mingw compiler, so we have to use a native MinGW compiler, which can be downloaded at <a href="http://mingw.org/download.shtml">http://mingw.org/download.shtml</a>.
 Make sure that the version number of the gcc compiler you use is the same as the one included in cygwin (i.e. test with gcc --version).
 </p>
 <h3>Pthreads</h3>
-<p>The pthreads-win32 library can be downloaded from <a href="http://sources.redhat.com/pthreads-win32/">http://sources.redhat.com/pthreads-win32/</a>.
-<p>You also might want to check out the faq: <a href="http://sources.redhat.com/pthreads-win32/faq.html">http://sources.redhat.com/pthreads-win32/faq.html</a></p>
-<p>You need to copy the include files into cygwin's mingw include directory (default C:\cygwin\usr\include\mingw), the proper dll (pthreadGC.dll) into the bin directory (default C:\cygwin\bin) and the accompaning import library (libpthreadGC.a) into the mingw lib directory (default C:\cygwin\lib\mingw)</p>
+<p>
+The pthreads-win32 library can be downloaded from <a href="http://sources.redhat.com/pthreads-win32/">http://sources.redhat.com/pthreads-win32/</a>.
+You also might want to check out the faq: <a href="http://sources.redhat.com/pthreads-win32/faq.html">http://sources.redhat.com/pthreads-win32/faq.html</a>
+</p><p>
+You need to copy the include files into cygwin's mingw include directory (default C:\cygwin\usr\include\mingw), the proper dll (pthreadGC.dll) into the bin directory (default C:\cygwin\bin) and the accompaning import library (libpthreadGC.a) into the mingw lib directory (default C:\cygwin\lib\mingw)
+</p>
+
 <h3>Coin</h3>
-<p>Coin does not officially support anything other then VC++.</p>
-<p>However, older versions of Coin required cygwin as a build environment. This was necessary in order to make use of the command-line MSVC compiler, cl.exe, which was called using a wrapper program (wrapmsvc).</p>
-<p>Fortunately, the Coin config scripts can handle the cygwin MinGW compiler (i.e. gcc -mno-cygwin) quite well.</p>
-<p>Coin compiles pretty straightforward, just configure &amp; make from a cygwin shell, making sure the -mno-cygwin is added to the c flags.</p>
-<p>It might be that the libtool complains about not being able to find certain dlls. This cost me a lot of time, until I found out that the required dlls have to be in the search path ($PATH). Passing a -L&lt;path to dll&gt; did not work.</p>
+<p>Coin does not officially support anything other then VC++. However, older versions of Coin required cygwin as a build environment. This was necessary in order to make use of the command-line MSVC compiler, cl.exe, which was called using a wrapper program (wrapmsvc).
+</p><p>
+Fortunately, the Coin config scripts can handle the cygwin MinGW compiler (i.e. gcc -mno-cygwin) quite well. Coin compiles pretty straightforward, just configure &amp; make from a cygwin shell, making sure the -mno-cygwin is added to the c flags.
+</p><p>
+You may find that libtool complains about not being able to find certain dlls. This cost me a lot of time, until I found out that the required dlls have to be in the search path ($PATH). Passing a -L&lt;path to dll&gt; did not work.
+</p>
 
 <br>
 <img src="../hr.png" border=0>

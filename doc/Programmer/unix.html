@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.4 2004-01-22 14:49:07 dgb Exp $
+  - RCS:        $Id: unix.html,v 1.5 2004-01-27 10:34:31 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V1.1]</title>
@@ -138,11 +138,18 @@ Ranlib on libuiSeisIOSimple.a ...
 Creating /users/bert/ODWork/lib/lux/G/libuiSeisIOSimple.so ...
   Done !
 %</pre>
-<p>The libraries should now be created in $WORK/lib/$HDIR (in the example case /users/bert/ODWork/lib/lux/G).
+<p>
+The libraries should now be created in $WORK/lib/$HDIR (in the example case /users/bert/ODWork/lib/lux/G). If anything goes wrong during compile and/or link, the error messages are sent to a file lslux (or lssun5 or lssgi depending on your OS) in the source directory. If you want to see these immediately, set the environment variable OUTSTDOUT to yes. You can also add this for each make run, then type:
+<pre>make OUTSTDOUT=yes</pre>
+</p>
 
 <h4>Testing the newly compiled plugins</h4>
 
+<p>
 You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "libHello.so" plugin, you should see "Hello World" on the OpendTect console window. Note that when plugins depend on other plugins, the order of loading matters.
+</p><p>
+There is no way to un-load a plugin. That means you have to exit OpendTect to test a new version (e.g. after recompile).
+</p>
 
 <a name=installplugins><h4>Installing your plugins</h4>
 
