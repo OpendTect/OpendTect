@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.24 2003-01-28 08:27:19 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.25 2003-02-06 07:46:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,69 +209,8 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 	return false;
     }
 
-    if ( sliceset->direction==AttribSlice::Hor )
-    {
-	const int inlsz = (*sliceset)[0]->info().getSize(0);
-	const int crlsz = (*sliceset)[0]->info().getSize(1);
-	const int zsz = sliceset->size();
-	Array3DImpl<float> datacube( zsz, inlsz, crlsz );
-
-	for ( int zidx=0; zidx<zsz; zidx++ )
-	{
-	    for ( int inl=0; inl<inlsz; inl++ )
-	    {
-		for ( int crl=0; crl<crlsz; crl++ )
-		{
-		    const float val = (*sliceset)[zidx]->get( inl, crl );
-		    datacube.set( zidx, inl, crl, val );
-		}
-	    }
-	}
-
-	cube->setData( &datacube );
-    }
-    else if ( sliceset->direction==AttribSlice::Crl )
-    {
-	const int inlsz = (*sliceset)[0]->info().getSize(0);
-	const int crlsz = sliceset->size();
-	const int zsz = (*sliceset)[0]->info().getSize(1);
-	Array3DImpl<float> datacube( zsz, inlsz, crlsz );
-
-	for ( int zidx=0; zidx<zsz; zidx++ )
-	{
-	    for ( int inl=0; inl<inlsz; inl++ )
-	    {
-		for ( int crl=0; crl<crlsz; crl++ )
-		{
-		    const float val = (*sliceset)[crl]->get( inl, zidx );
-		    datacube.set( zidx, inl, crl, val );
-		}
-	    }
-	}
-
-	cube->setData( &datacube );
-    }
-    else if ( sliceset->direction==AttribSlice::Inl )
-    {
-	const int inlsz = sliceset->size();
-	const int crlsz = (*sliceset)[0]->info().getSize(0);
-	const int zsz = (*sliceset)[0]->info().getSize(1);
-
-	Array3DImpl<float> datacube( zsz, inlsz, crlsz );
-	for ( int zidx=0; zidx<zsz; zidx++ )
-	{
-	    for ( int inl=0; inl<inlsz; inl++ )
-	    {
-		for ( int crl=0; crl<crlsz; crl++ )
-		{
-		    const float val = (*sliceset)[inl]->get( crl, zidx );
-		    datacube.set( zidx, inl, crl, val );
-		}
-	    }
-	}
-
-	cube->setData( &datacube );
-    }
+    PtrMan<Array3D<float> > datacube = sliceset->createArray( 1, 2, 0 );
+    cube->setData( datacube );
 
     delete cache;
     cache = sliceset;
