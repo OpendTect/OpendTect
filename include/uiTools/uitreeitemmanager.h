@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.9 2004-09-14 09:07:22 nanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.10 2004-09-15 06:13:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -114,6 +114,10 @@ protected:
     				/*!<\returns typeid(parentclass).name() */
     virtual bool		init() { return true; }
 				
+    virtual void		prepareForShutdown();
+    				/*!<Override if you want to popup dlg
+				    for saving various things (or similar) */
+    				
     virtual bool		rightClick(uiListViewItem* item);
     virtual bool		anyButtonClick(uiListViewItem* item);
     virtual void		setListViewItem( uiListViewItem* );
