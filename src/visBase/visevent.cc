@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.14 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.15 2004-05-07 14:32:05 dgb Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -122,13 +122,23 @@ visBase::EventCatcher::~EventCatcher()
 
 bool visBase::EventCatcher::isEventHandled() const
 {
+/*
+    For some reason, the action associated with some events
+    is NULL on Mac, which causes an undesired effect...
+*/
+    if ( !node || !node->getAction() ) return true;
+
     return node->isHandled();
 }
 
 
 void visBase::EventCatcher::eventIsHandled()
 {
-    node->setHandled();
+/*
+    For some reason, the action associated with some events
+    is NULL on Mac, which causes an undesired effect...
+*/
+    if ( node && node->getAction() ) node->setHandled();
 }
 
 
