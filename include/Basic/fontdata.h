@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.3 2001-10-05 10:41:08 bert Exp $
+ RCS:           $Id: fontdata.h,v 1.4 2001-10-05 10:41:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ public:
     enum StdSz		{ Control=0, 
 			  GraphicsMed, GraphicsSmall, GraphicsLarge,
 			  ControlSmall, ControlLarge };
-    inline static const char* key( StdSz ss ) const
+    inline static const char* key( StdSz ss )
 			{ return defaultkeys[(int)ss]; }
  
 protected:
