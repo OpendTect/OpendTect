@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.30 2002-01-07 15:57:30 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.31 2002-01-08 07:42:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -605,8 +605,9 @@ void uiDialogBody::finalise()
 		helpBut->attach(rightOf, saveBut);
 	    else if ( (!cnclBut && !okBut) || (cnclBut && okBut) )
 	    {
-		helpBut->attach( centeredBelow,
-				 horSepar ? horSepar : centralWidget_->uiObj());
+		helpBut->attach( centeredBelow, horSepar
+			? (uiObject*) horSepar
+			: (uiObject*) centralWidget_->uiObj());
 		if ( cnclBut ) helpBut->attach( ensureLeftOf, cnclBut );
 		if ( okBut ) helpBut->attach( ensureRightOf, okBut );
 	    }
