@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.3 2002-05-31 10:41:15 bert Exp $
+ RCS:           $Id: uiscaler.cc,v 1.4 2002-05-31 10:54:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 	, basefld(0)
 	, typefld(0)
 {
-    if ( !lbl ) lbl = "Scale values";
+    if ( !lbl ) lbl = linonly ? "Scale values: " : "Scale values";
 
     if ( !linonly )
     {
@@ -34,7 +34,7 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 	typefld->valuechanged.notify( mCB(this,uiScaler,typeSel) );
     }
 
-    ynfld = new uiCheckBox( this, lbl ? lbl : "Scale values" );
+    ynfld = new uiCheckBox( this, lbl );
     ynfld->activated.notify( mCB(this,uiScaler,typeSel) );
     linearfld = new uiGenInput( this, "Shift/Factor", DoubleInpSpec(), 
 				DoubleInpSpec() );
@@ -93,6 +93,9 @@ void uiScaler::typeSel( CallBacker* )
     int typ = typefld ? typefld->getIntValue() : 0;
     if ( !ynfld->isChecked() ) typ = -1;
 
-    linearfld->display( typ == 0 );
+    if ( typefld )
+	linearfld->display( typ == 0 );
+    else
+	linearfld->setSensitive( typ == 0 );
     if ( basefld ) basefld->display( typ > 0 );
 }
