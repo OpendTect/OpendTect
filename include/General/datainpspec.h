@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.25 2001-07-04 13:30:27 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.26 2001-10-09 14:48:18 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -353,7 +353,8 @@ public:
     virtual DataInpSpec* clone() const	{ return new StringInpSpec( *this ); }
     const char*		text() const			{ return str; }
 
-    virtual void	setText( const char* s, int idx ) { str = s; }
+    virtual void	setText( const char* s, int idx ) 
+			    { str = s; isUndef_ = s ? false : true; }
     virtual const char*	text( int idx ) const
 			{
 			    if ( isUndef() )	return "";
