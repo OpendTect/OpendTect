@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.7 2004-05-08 17:47:32 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.8 2004-05-08 22:59:06 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -293,8 +293,11 @@ int Well::LogDataExtracter::nextStep()
 {
     if ( curidx >= ids.size() )
 	return 0;
+    IOObj* ioobj = 0;
+    const BinIDValueSet& bivset = *bivsets[curidx];
+    if ( !bivset.size() ) mRetNext()
 
-    IOObj* ioobj = IOM().get( MultiID(ids.get(curidx)) );
+    ioobj = IOM().get( MultiID(ids.get(curidx)) );
     if ( !ioobj ) mRetNext()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
@@ -307,25 +310,57 @@ int Well::LogDataExtracter::nextStep()
 	timetrack = new Well::Track( wd.track() );
 	timetrack->toTime( *wd.d2TModel() );
     }
+    const Well::Track& track = timesurv ? *timetrack : wd.track();
+    if ( track.size() < 2 ) mRetNext()
 
-    const BinIDValueSet& bivset = *bivsets[curidx];
     TypeSet<float>* newres = new TypeSet<float>;
     ress += newres;
-
-    getData( *bivsets[curidx], timesurv ? *timetrack : wd.track(), *newres );
+    getData( bivset, track, *newres );
 
     mRetNext();
 }
 
 
+#define mGtPos(idx) \
+    biv = bivset[idx]; \
+    bivcoord = SI().transform( biv.binid ); \
+
 void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 				      const Well::Track& track,
 				      TypeSet<float>& res ) const
 {
-    //TODO fill the newres with the right log values
-    // Make use of the fact that // bivset.value (= Z = depth or time)
-    // is sorted
-    // For testing now, just put the input time or depth in output
+    // Find first biv's dah. Assume we can find it on z 
+    // there is a (remote) possibility this is incorrect
+    // - think about horizontal wells!
+    // Luckily, wells are always horizontal or worse near the end.
+    BinIDValue biv; Coord bivcoord;
+    mGtPos(0);
+    float prevz = track.pos( 0 ).z;
+    int hiidx = 0;
+    const double tol = 0.001;
+    for ( int idx=1; idx<track.size(); idx++ )
+    {
+	float curz = track.pos( idx ).z;
+	if ( curz > biv.value + tol )
+	    { hiidx = idx; break; }
+    }
+    if ( hiidx == 0 ) // all track points lower than first biv? Not likely.
+	return;
+
+    float z1 = track.pos( hiidx - 1 ).z;
+    float z2 = track.pos( hiidx ).z;
+    float dah = ( (biv.value-z2) * track.dah(hiidx-1)
+		+ (z1-biv.value) * track.dah(hiidx) )
+	      / (z2 - z1);
+
+    // Now increase dah until we see next biv
+    // This should also work with horizontal or reversing tracks
+    // (unlike the 'finding the first' algorithm)
+
     for ( int idx=0; idx<bivset.size(); idx++ )
-	res += bivset[idx].value;
+    {
+	BinIDValue biv = bivset[idx];
+	//TODO
+	res += biv.value;
+    }
 }
