@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.h,v 1.1 2001-07-27 10:27:49 nanne Exp $
+ RCS:           $Id: uiconvpos.h,v 1.2 2001-11-15 08:08:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 class uiGenInput;
-class uiPushButton;
+class uiToolButton;
 class SurveyInfo;
 
 class uiConvertPos : public uiDialog
@@ -25,8 +25,8 @@ public:
 
 private:
 
-    uiPushButton*       docoordbut;
-    uiPushButton*       dobinidbut;
+    uiToolButton*       docoordbut;
+    uiToolButton*       dobinidbut;
     uiGenInput*         inlfld;
     uiGenInput*         crlfld;
     uiGenInput*         xfld;
