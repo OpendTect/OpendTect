@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.7 2001-09-28 12:06:32 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.8 2001-10-02 15:15:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     const int lbwidth = 250;
     const int mapwdth = 300;
-    const int maphght = 290;
+    const int maphght = 300;
     const int noteshght = 130;
     const int totwdth = lbwidth + mapwdth + 10;
 
