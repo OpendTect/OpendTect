@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.16 2004-04-13 08:04:34 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.17 2004-04-29 10:18:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ bool uiODMain::ensureGoodSurveySetup()
     BufferString errmsg;
     if ( !IOMan::validSurveySetup(errmsg) )
     {
-	cerr << errmsg << endl;
+	std::cerr << errmsg << std::endl;
 	uiMSG().error( errmsg );
 	return false;
     }
