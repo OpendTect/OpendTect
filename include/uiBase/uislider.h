@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.6 2002-04-16 12:50:04 nanne Exp $
+ RCS:           $Id: uislider.h,v 1.7 2002-05-03 11:17:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,23 +24,28 @@ class uiSlider : public uiObject
 public:
 
                         uiSlider(uiParent*, const char* nm="Slider",
-				 bool weditfld=false);
+				 bool weditfld=false,int fact=1,bool log=false);
 
     const char*		text() const;
     int 		getIntValue() const;
     double 		getValue() const;
 
-    void		setText( const char* );
-    void		setValue( int );
-    void		setValue( double );
-    void		setTickMarks( bool yn=true);
+    void		setText(const char*);
+    void		setValue(int);
+    void		setValue(double);
+    void		setTickMarks(bool yn=true);
 
-    int			minValue() const;
-    int			maxValue() const;
-    void		setMinValue( int );
-    void		setMaxValue( int );
+    double		minValue() const;
+    double		maxValue() const;
+    void		setMinValue(double);
+    void		setMaxValue(double);
     int			tickStep() const;
-    void		setTickStep( int );
+    void		setTickStep(int);
+
+    void		setScaleFactor(int fact) 	{ factor = fact; }
+    void		setLogScale(bool yn=true) 	{ logscale = yn; }
+    bool		isLogScale()			{ return logscale; }
+    int			getScaleFactor()		{ return factor; }
 
     uiLineEdit*		editfld;
 
@@ -50,12 +55,17 @@ public:
 private:
 
     mutable BufferString result;
+    int			factor;
+    bool		logscale;
 
     uiSliderBody*	body_;
     uiSliderBody&	mkbody(uiParent*, const char*);
 
     void		editValue(CallBacker*);
     void		sliderMove(CallBacker*);
+
+    double		getRealValue(int) const;
+    int			getSliderValue(double) const;
 
 };
 
@@ -72,8 +82,8 @@ public:
 
 protected:
 
-    uiSlider*	slider;
-    uiLabel*    lbl;
+    uiSlider*		slider;
+    uiLabel*    	lbl;
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.10 2002-04-16 12:49:58 nanne Exp $
+ RCS:           $Id: uislider.cc,v 1.11 2002-05-03 11:17:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "datainpspec.h"
 
 #include <qsize.h> 
+#include <math.h>
 
 
 //------------------------------------------------------------------------------
@@ -50,11 +51,14 @@ uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
 
 //------------------------------------------------------------------------------
 
-uiSlider::uiSlider(  uiParent* parnt, const char* nm, bool witheditfld )
+uiSlider::uiSlider( uiParent* parnt, const char* nm, bool witheditfld,
+		    int fact_, bool log_ )
     : uiObject( parnt, nm, mkbody(parnt, nm) )
     , valueChanged(this)
     , sliderMoved(this)
     , editfld(0)
+    , factor(fact_)
+    , logscale(log_)
 {
     body_->setOrientation( QSlider::Horizontal );
     setTickMarks( true );
@@ -76,6 +80,7 @@ uiSliderBody& uiSlider::mkbody(uiParent* parnt, const char* nm)
 
 const char* uiSlider::text() const
 {
+//  TODO: use getRealValue()
     result = body_->value();
     return (const char*)result;
 }
@@ -83,31 +88,38 @@ const char* uiSlider::text() const
 
 int uiSlider::getIntValue() const
 {
-    return body_->value();
+    return (int)getRealValue( body_->value() );
 }
 
 
 double uiSlider::getValue() const
 {
-    return body_->value();
+    return getRealValue( body_->value() );
 }
 
 
 void uiSlider::setText( const char* t )
 {
-    setValue( atoi(t) );
+    char* endptr;
+    double res = strtod( t, &endptr );
+    int val = getSliderValue( res );
+    body_->setValue( val );
 }
 
 
 void uiSlider::setValue( int i )
 {
-    body_->setValue( i );
+    int val = getSliderValue( (double)i );
+    body_->setValue( val );
+    if ( editfld ) editfld->setValue( i );
 }
 
 
 void uiSlider::setValue( double d )
 {
-    body_->setValue( mNINT(d) );
+    int val = getSliderValue( d );
+    body_->setValue( val );
+    if ( editfld ) editfld->setValue( d );
 }
 
 void uiSlider::setTickMarks( bool yn )
@@ -118,7 +130,7 @@ void uiSlider::setTickMarks( bool yn )
 void uiSlider::sliderMove( CallBacker* )
 {
     if ( !editfld ) return;
-    editfld->setValue( getIntValue() );
+    editfld->setValue( getValue() );
 }
 
 void uiSlider::editValue( CallBacker* )
@@ -126,12 +138,46 @@ void uiSlider::editValue( CallBacker* )
     setValue( editfld->getValue() );
 }
 
-int uiSlider::minValue() const		{ return body_->minValue() ; }
-int uiSlider::maxValue() const		{ return body_->minValue() ; }
-void uiSlider::setMinValue( int m )	{ body_->setMinValue(m); }
-void uiSlider::setMaxValue( int m )	{ body_->setMaxValue(m); }
+double uiSlider::minValue() const		
+{ 
+    return getRealValue( body_->minValue() ); 
+}
+
+double uiSlider::maxValue() const
+{
+    return getRealValue( body_->maxValue() );
+}
+
+void uiSlider::setMinValue( double m )	
+{
+    body_->setMinValue( getSliderValue(m) ); 
+}
+
+void uiSlider::setMaxValue( double m )	
+{ 
+    body_->setMaxValue( getSliderValue(m) ); 
+}
+
 int uiSlider::tickStep() const     	{ return body_->tickInterval() ; }
 void uiSlider::setTickStep ( int s )	{ body_->setTickInterval(s); }
+
+
+double uiSlider::getRealValue( int sliderval ) const
+{
+    double val = (double)sliderval;
+    val /= factor;
+    return logscale ? pow(10,val) : val;
+}
+
+int uiSlider::getSliderValue( double realval ) const
+{
+    if ( realval <= 0 ) return 0;
+
+    double val;
+    val = logscale ? log10(realval) : realval;
+    val *= factor;
+    return (int)val;
+}
 
 
 uiLabeledSlider::uiLabeledSlider( uiParent* p, const char* txt,
