@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.15 2004-09-16 16:13:37 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.16 2004-09-22 16:04:02 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -252,14 +252,18 @@ class SeisCBVS2DLinePutter : public Seis2DLinePutter
 {
 public:
 
-SeisCBVS2DLinePutter( const char* fnm )
+SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
     	: nrwr(0)
 	, fname(getFileName(fnm))
 	, tr(CBVSSeisTrcTranslator::getInstance())
+	, preseldt(DataCharacteristics::Auto)
 {
     tr->setSingleFile( true );
     tr->enforceRegularWrite( false );
     bid.inl = CBVSIOMgr::getFileNr( fnm );
+    const char* fmt = iop.find( "Data storage" );
+    if ( fmt && *fmt )
+	preseldt = eEnum(DataCharacteristics::UserType,fmt);
 }
 
 
@@ -289,6 +293,17 @@ bool put( const SeisTrc& trc )
 	    errmsg += tr->errMsg();
 	    return false;
 	}
+	if ( preseldt != DataCharacteristics::Auto )
+	{
+	    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
+				= tr->componentInfo();
+	    DataCharacteristics dc( preseldt );
+	    for ( int idx=0; idx<ci.size(); idx++ )
+	    {
+		SeisTrcTranslator::TargetComponentData& cd = *ci[idx];
+		cd.datachar = dc;
+	    }
+	}
     }
 
     bool res = tr->write(trc);
@@ -311,6 +326,7 @@ bool put( const SeisTrc& trc )
     BufferString	errmsg;
     CBVSSeisTrcTranslator* tr;
     BinID		bid;
+    DataCharacteristics::UserType preseldt;
 
 };
 
@@ -327,7 +343,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
     if ( !res )
 	mErrRet("Knurft")
 
-    return new SeisCBVS2DLinePutter( res );
+    return new SeisCBVS2DLinePutter( res, iop );
 }
 
 
@@ -357,5 +373,5 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 	iop.set( sKey::FileName, fnm );
     }
 
-    return new SeisCBVS2DLinePutter( fnm.buf() );
+    return new SeisCBVS2DLinePutter( fnm.buf(), iop );
 }

@@ -25,6 +25,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const Seis2DLineKeyProvider* l)
     	, lkp(l)
     	, putter(0)
     	, lineiopar(0)
+    	, lineauxiopar(*new IOPar)
 {
     binids.start.inl = mUndefIntVal;
 }
@@ -46,6 +47,7 @@ void SeisTrcWriter::close()
 	lineiopar = 0;
     }
     SeisStoreAccess::close();
+    delete &lineauxiopar;
 }
 
 
@@ -171,6 +173,7 @@ bool SeisTrcWriter::next2DLine()
 
     lineiopar = new IOPar;
     Seis2DLineSet::setLineKey( *lineiopar, lk );
+    lineiopar->merge( lineauxiopar );
     putter = lset->lineAdder( lineiopar );
     if ( !putter )
     {

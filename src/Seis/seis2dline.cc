@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.21 2004-09-21 07:59:16 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.22 2004-09-22 16:04:02 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -321,9 +321,13 @@ Seis2DLinePutter* Seis2DLineSet::lineAdder( IOPar* newiop ) const
     }
 
     BufferString newlinekey = lineKey( *newiop );
-    int idx = indexOf( lineKey(*newiop) );
-    if ( idx >= 0 )
-	return lineReplacer( idx );
+    int paridx = indexOf( lineKey(*newiop) );
+    if ( paridx >= 0 )
+    {
+	pars_[paridx]->merge( *newiop );
+	*newiop = *pars_[paridx];
+	return lineReplacer( paridx );
+    }
 
     const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
     return liop_->getAdder( *newiop, previop, name() );
@@ -332,10 +336,14 @@ Seis2DLinePutter* Seis2DLineSet::lineAdder( IOPar* newiop ) const
 
 void Seis2DLineSet::commitAdd( IOPar* newiop )
 {
-    if ( !newiop || indexOf( lineKey(*newiop) ) >= 0 )
-	{ delete newiop; return; }
+    if ( !newiop ) return;
 
-    pars_ += newiop;
+    int paridx = indexOf( lineKey(*newiop) );
+    if ( paridx >= 0 )
+	delete pars_.replace( newiop, paridx );
+    else
+	pars_ += newiop;
+
     writeFile();
 }
 

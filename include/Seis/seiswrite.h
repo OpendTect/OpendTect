@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.11 2004-09-03 15:13:14 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.12 2004-09-22 16:04:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
 							 { lkp = l; }
     void		setAttrib( const char* a )	 { attrib = a; }
     			//!< if set, overrules attrib in linekey
+    IOPar&		lineAuxPars()			{ return lineauxiopar; }
 
 protected:
 
@@ -68,6 +69,7 @@ protected:
     BufferString	attrib;
     Seis2DLinePutter*	putter;
     IOPar*		lineiopar;
+    IOPar&		lineauxiopar;
     BufferString	prevlk;
     const Seis2DLineKeyProvider* lkp;
     bool		next2DLine();

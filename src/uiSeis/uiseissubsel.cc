@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.17 2004-09-21 12:53:36 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.18 2004-09-22 16:04:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ void uiSeisSubSel::setInput( const CubeSampling& cs )
 
 void uiSeisSubSel::setInput( const IOObj& ioobj )
 {
+    set2D( SeisTrcTranslator::is2D(ioobj) );
     if ( is2d_ )
 	sel2d->setInput( ioobj );
     else
