@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.15 2004-01-16 13:39:43 bert Exp $
+ RCS:           $Id: uisurvey.h,v 1.16 2004-01-19 15:56:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ protected:
     bool		writeSurveyName(const char*);
     void		selChange();
     void		doCanvas(CallBacker*);
-
+    void		newSurvey();
 };
 
 #endif

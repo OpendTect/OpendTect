@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.53 2004-01-16 13:39:43 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.54 2004-01-19 15:56:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,8 +278,13 @@ bool uiSurvey::survInfoDialog()
     BufferString selnm( listbox->getText() );
     BufferString dgbdata( GetBaseDataDir() );
 
-    uiSurveyInfoEditor dlg( this, survinfo, mCB(this,uiSurvey,updateInfo) );
-    if ( !dlg.go() ) return false;
+    uiSurveyInfoEditor dlg( this, survinfo );
+    dlg.survparchanged.notify( mCB(this,uiSurvey,updateInfo) );
+    if ( !dlg.go() )
+    {
+	dlg.survparchanged.remove( mCB(this,uiSurvey,updateInfo) );
+	return false;
+    }
 
     bool doupd = true;
     if ( dlg.dirnmChanged() )
@@ -287,7 +292,7 @@ bool uiSurvey::survInfoDialog()
         const char* newnm = dlg.dirName();
         if ( *newnm )
         {
-            BufferString newfname(File_getFullPath( dgbdata, newnm ));
+            BufferString newfname( File_getFullPath(dgbdata,newnm) );
             if ( File_exists(newfname) )
             {
                 BufferString errmsg( "Cannot rename directory:\n" );
@@ -299,6 +304,7 @@ bool uiSurvey::survInfoDialog()
             {
                 BufferString fname(File_getFullPath( dgbdata, selnm ));
                 File_rename( fname, newfname );
+		survinfo->dirname = newnm;
                 updateSvyList(); doupd = false;
                 updateSvyFile();
                 selnm = newnm;
@@ -380,7 +386,7 @@ bool uiSurvey::updateSvyFile()
 
     if ( (!ptr || seltxt != ptr ) && !writeSurveyName( seltxt ) )
     {
-        ErrMsg( "Cannot update the .dgbSurvey file in your $HOME" );
+        ErrMsg( "Cannot update the 'survey' file in $HOME/.od/" );
         return false;
     }
     FileNameString fname( File_getFullPath(GetBaseDataDir(),seltxt) );
@@ -389,8 +395,8 @@ bool uiSurvey::updateSvyFile()
         ErrMsg( "Survey directory does not exist anymore" );
         return false;
     }
-    delete SurveyInfo::theinst_;
-    SurveyInfo::theinst_ = SurveyInfo::read( fname );
+
+    newSurvey();
     SetSurveyName( seltxt );
 
     return true;
@@ -402,7 +408,7 @@ bool uiSurvey::writeSurveyName( const char* nm )
     const char* ptr = GetSurveyFileName();
     if ( !ptr )
     {
-        ErrMsg( "Error in survey system. Please check $HOME." );
+        ErrMsg( "Error in survey system. Please check $HOME/.od/" );
         return false;
     }
 
@@ -493,9 +499,7 @@ void uiSurvey::selChange()
 void uiSurvey::updateInfo( CallBacker* cb )
 {
     mDynamicCastGet(uiSurveyInfoEditor*,dlg,cb);
-    if ( dlg )
-	survinfo = dlg->getSurvInfo();
-    else
+    if ( !dlg )
 	getSurvInfo();
 
     mkInfo();
@@ -549,6 +553,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 	return false;
     }
 
+    newSurvey();
     updateViewsGlobal();
     return true;
 }
@@ -610,4 +615,11 @@ void uiSurvey::getSurvInfo()
     BufferString fname( File_getFullPath(GetBaseDataDir(), listbox->getText()));
     delete survinfo;
     survinfo = SurveyInfo::read( fname );
+}
+
+
+void uiSurvey::newSurvey()
+{
+    delete SurveyInfo::theinst_;
+    SurveyInfo::theinst_ = 0;
 }

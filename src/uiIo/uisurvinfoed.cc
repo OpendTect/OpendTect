@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.48 2003-11-11 18:06:03 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.49 2004-01-19 15:56:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,7 @@ int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 }
 
 
-uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_, 
-					const CallBack& appcb )
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     : uiDialog(p,uiDialog::Setup("Survey setup",
 				 "Specify survey parameters","0.3.2")
 				 .nrstatusflds(1))
@@ -63,7 +62,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     survnmfld->attach( alignedBelow, dirnmfld );
 
     pathfld = new uiGenInput( this, "Location on disk",
-	    			StringInpSpec( rootdir ) );
+	    			StringInpSpec(rootdir) );
     pathfld->attach( alignedBelow, survnmfld );
 
 #ifdef __win__
@@ -190,7 +189,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     }
 
     finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
-    survparchanged.notify( appcb );
 }
 
 
@@ -237,6 +235,12 @@ void uiSurveyInfoEditor::setValues()
 	    ic0fld->setValue( b[0] );
 	    ic1fld->setValues( b[0].inl, xline );
 	    ic2fld->setValue( b[1] );
+	    if ( !c[0].x && !c[0].y && !c[1].x && !c[1].y && !c[2].x && !c[2].y)
+	    {
+		c[0] = si.transform( b[0] );
+		c[1] = si.transform( b[1] );
+		c[2] = si.transform( BinID(b[0].inl,xline) );
+	    }
 	    xy0fld->setValue( c[0] );
 	    xy1fld->setValue( c[2] );
 	    xy2fld->setValue( c[1] );
@@ -345,16 +349,9 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     else
         if ( orgdirname != newdirnm ) dirnmch_ = true;
 
-    if ( !survinfo->write( rootdir ) )
+    if ( !survinfo->write(rootdir) )
         uiMSG().error( "Failed to write survey info.\nNo changes committed." );
-    else
-    {
-        delete SurveyInfo::theinst_;
-        SurveyInfo::theinst_ = survinfo;
-    }
     
-    survinfo->dirname = dirnmfld->text();
-
     return true;
 }
 

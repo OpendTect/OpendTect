@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.13 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.14 2004-01-19 15:56:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,16 +45,14 @@ class uiSurveyInfoEditor : public uiDialog
 {
 
 public:
-			uiSurveyInfoEditor(uiParent*,SurveyInfo*,
-					   const CallBack&);
+			uiSurveyInfoEditor(uiParent*,SurveyInfo*);
+
     bool		dirnmChanged() const		{ return dirnmch_; }
     const char*		dirName();
     Notifier<uiSurveyInfoEditor> survparchanged;
-    SurveyInfo*		getSurvInfo()			{ return survinfo; }
 
     static int		addInfoProvider(uiSurvInfoProvider*);
     			
-
 protected:
 
     SurveyInfo*		survinfo;
