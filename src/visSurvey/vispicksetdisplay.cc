@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.23 2002-04-29 09:30:58 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.24 2002-05-03 11:47:00 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -26,6 +26,7 @@ visSurvey::PickSetDisplay::PickSetDisplay( )
     , zsz( 50 )
     , changed( this )
     , VisualObjectImpl( true )
+    , showall(true)
 {
     eventcatcher->ref();
     eventcatcher->setEventType(visBase::MouseClick);
