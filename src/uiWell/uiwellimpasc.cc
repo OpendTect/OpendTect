@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.12 2003-11-10 11:54:35 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.13 2003-11-28 10:51:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,8 @@ bool uiWellImportAsc::doWork()
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
-    if ( !wtr ) mErrRet( "Object is not a well" );
+    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
+	    		 "Another type object with this name already exists." );
 
     if ( !wtr->write(*well,*ctio.ioobj) ) mErrRet( "Cannot write well" );
 
