@@ -6,6 +6,7 @@ if ( $HDIR == lux || $HDIR == sun5 ) then
 endif
 set shallow=no
 set dodeps=yes
+set dodoc=no
 
 source $WORK/Pmake/base/PMinit.csh
 
@@ -18,12 +19,15 @@ else if ( "$1" == "--gdi" ) then
     set mods=.mods.gdi
 else if ( "$1" == "--nodep" ) then
     set dodeps=no
+else if ( "$1" == "--doc" ) then
+    set dodoc=yes
 else if ( "$1" == "--help" ) then
     echo "Usage: make_all [option]"
     echo " --shallow, Do not remove libs"
     echo " --nodep, Do not create deps"
     echo " --dtect, Only make dTect"
     echo " --gdi, Only make GDI"
+    echo " --doc, Create ClassDoc"
     exit 0
 else
     goto do_it
@@ -74,3 +78,11 @@ cd plugins
 make
 cd ../spec
 make
+
+if ( $dodoc == yes ) then
+    cdw
+    make doc MODS=$mods
+    cd data/dTectDoc/Programmer/Generated
+    ./mk_paths_relative
+endif
+
