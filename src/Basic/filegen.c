@@ -5,14 +5,18 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.57 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.58 2004-04-15 13:12:24 macman Exp $";
 
 #include "filegen.h"
 #include "genc.h"
 #include "string2.h"
 #include <stdio.h>
 #include <string.h>
+#ifdef __mac__
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 #include <stdlib.h>
 
 #include <sys/stat.h>
@@ -40,13 +44,17 @@ static struct stat statbuf;
 # ifdef lux
 
 #  include <sys/statfs.h>
-#   define mStatFS statfs
+#  define mStatFS statfs
 
 # else
 
-#  include <sys/statvfs.h>
-#  define mStatFS statvfs
-
+#  ifdef __mac__
+#   include <sys/mount.h>
+#   define mStatFS statfs
+#  else
+#   include <sys/statvfs.h>
+#   define mStatFS statvfs
+#  endif
 # endif
 
  static struct mStatFS fsstatbuf;
@@ -101,7 +109,14 @@ int File_isRemote( const char* fname )
 	|| fsstatbuf.f_type == SMB_SUPER_MAGIC; */
     return fsstatbuf.f_type == 0x6969 || fsstatbuf.f_type == 0x517B;
 # else
+#  ifdef mac
+#ifdef __debug__
+	fprintf(stderr,"File_IsRemote untested. Please verify");
+#endif
+    return fsstatbuf.f_fstypename[0] == 'n' && fsstatbuf.f_fstypename[1] == 'f';
+#  else
     return fsstatbuf.f_basetype[0] == 'n' && fsstatbuf.f_basetype[1] == 'f';
+#  endif
 # endif
 #endif
 }
@@ -138,7 +153,11 @@ int File_getFreeMBytes( const char* dirnm )
 #ifdef lux
 	* fsstatbuf.f_bsize;	/* block size */
 #else
+# ifdef mac
+	* fsstatbuf.f_bsize;	/* fundamental file system block size */
+# else
 	* fsstatbuf.f_frsize;	/* 'real' block size */
+# endif
 #endif
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.11 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: plfdefs.h,v 1.12 2004-04-15 13:12:24 macman Exp $
 ________________________________________________________________________
 
 */
@@ -23,6 +23,7 @@ HDIR can be:
 	sun5		Sun Solaris 5.x
 	sgi		SGI IRIX 6.x
 	win		M$ Windows
+	mac		Apple Mac OSX
 
 Then you get:
 OS type:
@@ -80,6 +81,9 @@ Always defined:
 #ifdef sgi
 # define __unix__ 1
 #endif
+#ifdef mac
+# define __unix__ 1
+#endif
 #ifndef __unix__
 #ifndef __win__
 # warning "Platform not detected. choosing windows"
@@ -132,6 +136,9 @@ Always defined:
 #endif
 #ifdef __win__
 # define __pc__ 1
+#endif
+#ifdef mac
+# define __mac__ 1
 #endif
 
 #ifdef __pc__

@@ -5,12 +5,12 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.8 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.9 2004-04-15 13:12:24 macman Exp $";
 
 #include "timefun.h"
 #include <time.h>
 
-#if defined(sgi) || defined (sun5)
+#if defined(sgi) || defined (sun5) || defined(mac)
 # define __notimeb__ 1
 #endif
 

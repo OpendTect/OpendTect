@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.16 2004-01-08 10:57:11 bert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.17 2004-04-15 13:12:24 macman Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -140,6 +140,13 @@ int Threads::getNrProcessors()
 
 #include <unistd.h>
 
+#ifdef mac
+# include <mach/mach.h>
+# include <mach/mach_host.h>
+# include <mach/host_info.h>
+# include <mach/machine.h>
+#endif
+
 int Threads::getNrProcessors()
 {
     int res;
@@ -150,9 +157,26 @@ int Threads::getNrProcessors()
 
 // also see: www.ks.uiuc.edu/Research/vmd/doxygen/VMDThreads_8C-source.html
 #ifdef sgi
-    int nrprocessors = sysconf(_SC_NPROC_ONLN);
+ 
+   int nrprocessors = sysconf(_SC_NPROC_ONLN);
+
 #else
+# ifdef mac
+
+    host_basic_info_data_t hostInfo;
+    mach_msg_type_number_t infoCount;
+
+    infoCount = HOST_BASIC_INFO_COUNT;
+    host_info( mach_host_self(), HOST_BASIC_INFO, 
+		(host_info_t)&hostInfo, &infoCount);
+
+    int nrprocessors = hostInfo.avail_cpus;
+
+# else
+
     int nrprocessors = sysconf(_SC_NPROCESSORS_ONLN);
+
+# endif
 #endif
 
     int ret;

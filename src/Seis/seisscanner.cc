@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.10 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.11 2004-04-15 13:12:24 macman Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -21,7 +21,10 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.10 2004-04-01 13:39:50 bert 
 #include "stats.h"
 #include "conn.h"
 #include "errh.h"
+
+#ifndef mac
 #include <values.h>
+#endif
 
 
 SeisScanner::SeisScanner( const IOObj& ioobj )

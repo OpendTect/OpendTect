@@ -10,7 +10,11 @@ ___________________________________________________________________
 
 #include "SoIndexedTriangleFanSet.h"
 
-#include "GL/gl.h"
+#ifdef mac
+# include "OpenGL/gl.h"
+#else
+# include "GL/gl.h"
+#endif
 #include <Inventor/SoPrimitiveVertex.h>
 #include <Inventor/actions/SoAction.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -27,7 +31,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoShapeHintsElement.h>
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 
-static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.3 2004-04-15 13:12:24 macman Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 

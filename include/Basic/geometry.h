@@ -7,15 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.15 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: geometry.h,v 1.16 2004-04-15 13:12:24 macman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <gendefs.h>
 
-/*!\brief basic point class */
+namespace Geom
+{
 
+/*!\brief basic point class */
 template <class T>
 class Point
 {
@@ -285,5 +287,5 @@ inline void Rect<T>::fitIn( const Rect<T>& r )
     }
 }
 
-
+}; // namespace Geom
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.13 2004-03-19 14:25:37 nanne Exp $
+ RCS:           $Id: uitable.h,v 1.14 2004-04-15 13:12:24 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
 	int		col;
     };
 
-    typedef Size2D<int>	Size;
+    typedef Geom::Size2D<int>	Size;
 
     enum SelectionMode
     {

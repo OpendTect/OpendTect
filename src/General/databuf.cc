@@ -8,7 +8,11 @@
 
 #include "tracedata.h"
 #include "datachar.h"
+#ifdef mac
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 
 
 bool RawDataArray::isZero() const

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2003
- RCS:           $Id: SoArrow.cc,v 1.2 2003-12-11 16:24:25 nanne Exp $
+ RCS:           $Id: SoArrow.cc,v 1.3 2004-04-15 13:12:24 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,11 @@ ________________________________________________________________________
 
 #include "SoArrow.h"
 
-#include "GL/gl.h"
+#ifdef mac
+# include "OpenGL/gl.h"
+#else
+# include "GL/gl.h"
+#endif
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
 

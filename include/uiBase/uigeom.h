@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uigeom.h,v 1.9 2004-04-15 13:12:24 macman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <geometry.h>
 
-typedef Point<int> uiPoint;
-typedef Point<double> uiWorldPoint;
-typedef Rect<double> uiWorldRect;
+typedef Geom::Point<int> uiPoint;
+typedef Geom::Point<double> uiWorldPoint;
+typedef Geom::Rect<double> uiWorldRect;
 
 class uiSize 
 {
@@ -67,10 +67,10 @@ public:
                         uiRect( int l = 0 , int t = 0, int r = 0 , int b = 0 )
 			    : l_(l), t_(t), r_(r), b_(b)	{}
 
-                        uiRect( Point<int> tl, Point<int> br )
+                        uiRect( uiPoint tl, uiPoint br )
 			    : l_(tl.x()), t_(tl.y()), r_(br.x()), b_(br.y()) {}
 
-                        uiRect( Point<int> tl, int wdt, int hgt, 
+                        uiRect( uiPoint tl, int wdt, int hgt, 
 				bool hgtwdt_in_pics=true )
 			    : l_(tl.x()), t_(tl.y())
 			    , r_(tl.x() + wdt - (hgtwdt_in_pics ? 1 : 0))
