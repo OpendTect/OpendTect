@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.17 2002-09-11 14:39:08 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.18 2002-09-12 10:57:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ protected:
     bool		getNextBinID(BinID&,int&,int&);
     int			getPosNr(const BinID&,int&,int&) const;
     bool		goTo(int posnr,const BinID&,int,int);
+    void		mkPosNrs();
 
 private:
 
@@ -98,6 +99,7 @@ private:
     DataInterpreter<double> dinterp;
     BinIDRange&		bidrg;
     Interval<int>	samprg;
+    TypeSet<int>	posnrs;
 
     bool		readInfo();
     bool		nextPosIdx();

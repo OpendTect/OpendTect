@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.37 2002-09-11 14:39:08 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.38 2002-09-12 10:57:37 bert Exp $";
 
 /*!
 
@@ -125,6 +125,7 @@ bool CBVSReader::readInfo()
     }
 
     curbinid_ = firstbinid;
+    mkPosNrs();
     return true;
 }
 
@@ -407,6 +408,7 @@ int CBVSReader::getPosNr( const BinID& bid,
 		info_.geom.inldata[curinlinfnr];
 	const CBVSInfo::SurvGeom::InlineInfo::Segment* curseg =
 		&curiinf->segments[cursegnr];
+	posnr = posnrs[curinlinfnr];
 	if ( bid.inl != curiinf->inl || !curseg->includes(bid.crl) )
 	{
 	    const int sz = info_.geom.inldata.size();
@@ -414,11 +416,14 @@ int CBVSReader::getPosNr( const BinID& bid,
 	    for ( int iinl=0; iinl<sz; iinl++ )
 	    {
 		curiinf = info_.geom.inldata[iinl];
+		if ( curiinf->inl != bid.inl ) continue;
+
+		posnr = posnrs[curinlinfnr];
 		foundseg = false;
 		for ( int iseg=0; iseg<curiinf->segments.size(); iseg++ )
 		{
 		    curseg = &curiinf->segments[iseg];
-		    if ( curiinf->inl != bid.inl || !curseg->includes(bid.crl) )
+		    if ( !curseg->includes(bid.crl) )
 			posnr += curseg->nrSteps() + 1;
 		    else
 		    {
@@ -440,6 +445,25 @@ int CBVSReader::getPosNr( const BinID& bid,
     }
 
     return posnr;
+}
+
+
+void CBVSReader::mkPosNrs()
+{
+    posnrs.erase(); posnrs += 0;
+
+    const int sz = info_.geom.inldata.size();
+    int posnr = 0;
+    for ( int iinl=0; iinl<sz; iinl++ )
+    {
+	const CBVSInfo::SurvGeom::InlineInfo& curiinf
+	    			= *info_.geom.inldata[iinl];
+
+	for ( int iseg=0; iseg<curiinf.segments.size(); iseg++ )
+	    posnr += curiinf.segments[iseg].nrSteps() + 1;
+
+	posnrs += posnr;
+    }
 }
 
 
