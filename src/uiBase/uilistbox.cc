@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.47 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.48 2003-07-24 14:21:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,6 +196,12 @@ void uiListBox::addItems( const PtrUserIDObjectSet& uids )
 void uiListBox::empty()
 {
     body_->QListBox::clear();
+}
+
+
+void uiListBox::clear()
+{
+    body_->clearSelection();
 }
 
 
