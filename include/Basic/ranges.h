@@ -8,13 +8,20 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.7 2000-08-23 09:06:44 arend Exp $
+ RCS:		$Id: ranges.h,v 1.8 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <gendefs.h>
 
+
+/*!\brief interval of values.
+
+Note that start does not need to be lower than stop. That's why there is a
+sort() method.
+
+*/
 
 template <class T>
 class Interval
@@ -91,6 +98,8 @@ typedef Interval<double> TimeGate;
 typedef Interval<double> DepthGate;
 
 
+/*!\brief Interval with step. */
+
 template <class T>
 class StepInterval : public Interval<T>
 {
@@ -122,6 +131,7 @@ public:
 		}
 
      T		step;
+
 };
 
 

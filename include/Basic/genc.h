@@ -8,16 +8,18 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.3 2000-05-26 10:37:04 bert Exp $
+ RCS:		$Id: genc.h,v 1.4 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
+-*/
+
+/*!
 General utilities:
 * Survey related
 * Data and software directories
 * Two 'PowerOf' functions (1) integer (2) consistent for negative numbers
 * Misc (generally not interesting)
-
--*/
+*/
 
 #ifndef gendefs_H
 #include <gendefs.h>
@@ -28,7 +30,7 @@ extern "C" {
 #endif
 
 const char*	GetProjectVersionName(void);
-		/* dGB-GDI Vx.x */
+		/*!< usually dGB-GDI Vx.x */
 
 /*
 
@@ -42,15 +44,15 @@ const char*	GetProjectVersionName(void);
 */
 const char*	GetSoftwareDir(void);
 const char*	GetDataFileName(const char*);
-		/* Application data in $dGB_APPL/data */
+		/*!< Application data in $dGB_APPL/data */
 
 const char*	GetDataDir(void);
-		/* User data: $dGB_DATA/project */
+		/*!< User data: $dGB_DATA/project */
 
 int		isFinite(double);
 double		IntPowerOf(double,int);
 double		PowerOf(double,double);
-		/* PowerOf(-2,2) returns -4 */
+		/*!< PowerOf(-2,2) returns -4 */
 
 
 /* Misc stuff */
@@ -60,13 +62,6 @@ const char*	errno_message();
 int		get_platform(int);
 void		put_platform(int*);
 void		swap_bytes(void*,int);
-
-#ifdef ibm
-#include <stdio.h>
-extern FILE *popen(const char *, const char *);
-extern int  pclose(FILE *);
-extern int  getpid();
-#endif
 
 
 #ifdef __cpp__

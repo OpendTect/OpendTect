@@ -1,21 +1,23 @@
 #ifndef progressmeter_h
 #define progressmeter_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
- Author:        Kristofer Tingdahl
+ Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.3 2000-08-04 14:35:17 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.4 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include "gendefs.h"
 #include <limits.h>
 class ostream;
 
+
+/*!\brief Textual progress indicator for batch programs. */
 
 class ProgressMeter
 {

@@ -8,8 +8,17 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.4 2000-10-17 16:01:36 bert Exp $
+ RCS:		$Id: separstr.h,v 1.5 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
+
+-*/
+
+#include <bufstring.h>
+
+#define mMaxSepItem 1023
+
+
+/*!\brief list encoded in a string.
 
 SeparString is a list encoded in a string where the items are separated by
 a user chosen separator. The separator in the input is escaped with a backslash.
@@ -18,12 +27,7 @@ A FileMultiString has the back-quote as separator.
 Elements can have any size, but if you use the [] operator they will be cut
 at mMaxSepItem size.
 
--*/
-
-#include <bufstring.h>
-
-#define mMaxSepItem 1023
-
+*/
 
 class SeparString
 {
@@ -56,6 +60,8 @@ private:
 };
 
 
+/*!\brief SeparString with backquotes as separators (for dGB ascii files) */
+
 class FileMultiString : public SeparString
 {
 public:
@@ -64,6 +70,8 @@ public:
 
 };
 
+
+/*!\brief SeparString with dots as separators (for hierarchical constructs) */
 
 class MultiKeyString : public SeparString
 {

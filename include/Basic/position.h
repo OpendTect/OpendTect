@@ -1,20 +1,22 @@
 #ifndef position_H
 #define position_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.2 2000-08-04 16:49:31 bert Exp $
+ RCS:		$Id: position.h,v 1.3 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include <geometry.h>
 
+
+/*!\brief a cartesian coordinate in 2D space. */
 
 class Coord
 {
@@ -44,6 +46,8 @@ public:
 };
 
 
+/*!\brief coordinate and a value. */
+
 class CoordValue
 {
 public:
@@ -60,6 +64,8 @@ public:
     float	value;
 };
 
+
+/*!\brief positioning in a seismic survey: inline/crossline. */
 
 class BinID
 {
@@ -83,6 +89,8 @@ public:
 };
 
 
+/*!\brief BinID and a value. */
+
 class BinIDValue
 {
 public:
@@ -101,5 +109,4 @@ public:
 };
 
 
-/*$-*/
 #endif

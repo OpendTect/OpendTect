@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.2 2000-07-19 09:26:36 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.3 2001-02-13 17:16:09 bert Exp $
 ________________________________________________________________________
 
 This object buffers seismic traces. The traces are not managed, but can be
@@ -29,6 +29,10 @@ class SeisTrcBuf
 {
 public:
 
+			SeisTrcBuf()		{}
+			SeisTrcBuf( const SeisTrcBuf& b )
+						{ b.fill( *this ); }
+
     virtual SeisTrcBuf*	clone() const
 			{ SeisTrcBuf* b = new SeisTrcBuf; fill(*b); return b; }
     void		fill(SeisTrcBuf&) const;
@@ -49,7 +53,8 @@ public:
     void		revert();
 
     void		fill(SeisPacketInfo&) const;
-    void		transferData(FloatList&,int takeeach=1) const;
+    void		transferData(FloatList&,int takeeach=1,
+				     int icomp=0) const;
 
 protected:
 
@@ -67,12 +72,19 @@ class SeisGather : public SeisTrcBuf
 {
 public:
 
+			SeisGather()		{}
+			SeisGather( const SeisTrcBuf& sb )
+			: SeisTrcBuf(sb)	{}
+			SeisGather( const SeisGather& sg )
+			: SeisTrcBuf(sg)	{}
+
     virtual SeisGather*	clone() const
 			{ SeisGather* g = new SeisGather; fill(*g); return g; }
 
-    void		getStack(SeisTrc&,const StepInterval<int>&) const;
+    void		getStack(SeisTrc&,const StepInterval<int>&,
+				 int icomp=0) const;
     XFunction*		getValues(float t,const StepInterval<int>&,
-				  int seisinfoattrnr) const;
+				  int seisinfoattrnr,int icomp=0) const;
 
 protected:
 

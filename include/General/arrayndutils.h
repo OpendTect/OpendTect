@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.6 2000-12-11 10:19:31 dgb Exp $
+ RCS:           $Id: arrayndutils.h,v 1.7 2001-02-13 17:15:57 bert Exp $
 ________________________________________________________________________
 
 
@@ -211,7 +211,7 @@ inline bool ArrayNDWindow::apply( ArrayND<Type>* in, ArrayND<Type>* out_) const
     {
 	for(unsigned long idx = 0; idx < totalSz; idx++)
 	    outdata[idx] = indata[idx] *
-		    *((float*)(window->data+bytesPerSample*idx ));
+		    *((float*)(window->data()+bytesPerSample*idx ));
     }
     else
     {
@@ -222,7 +222,7 @@ inline bool ArrayNDWindow::apply( ArrayND<Type>* in, ArrayND<Type>* out_) const
 	do
 	{
 	    out->set(iter.getPos(), in->get( iter.getPos() ) * 
-		    *((float*)(window->data+bytesPerSample*idx )));
+		    *((float*)(window->data()+bytesPerSample*idx )));
 	    idx++;
 
 	} while ( iter.next() );

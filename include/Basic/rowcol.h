@@ -1,17 +1,19 @@
 #ifndef rowcol_H
 #define rowcol_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.1.1.2 1999-09-16 09:19:10 arend Exp $
+ RCS:		$Id: rowcol.h,v 1.2 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
+
+/*!\brief Object with row and col. */
 
 class RowCol
 {
@@ -34,5 +36,4 @@ public:
 };
 
 
-/*$-*/
 #endif

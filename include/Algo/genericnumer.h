@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.7 2000-06-29 10:20:13 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.8 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include <ranges.h>
 template <class T> class MathFunction;
 
-/*
+/*!>
 Compute z = x convolved with y; i.e.,
 
            ifx+lx-1
@@ -47,6 +47,10 @@ inline void GenericConvolve (int lx, int ifx, const A& x,
     }
 }
 
+
+/*!> similarity is the hyperspace distance between two vectors divided by
+the sum of the lengths */
+
 template <class A, class B>
 inline float similarity( const A& a, const B& b, int sz,
 			 int firstposa=0, int firstposb=0)
@@ -76,28 +80,28 @@ inline float similarity( const A& a, const B& b, int sz,
 float similarity(const MathFunction<float>&,const MathFunction<float>&, 
 		 float x1, float x2, float dist, int sz);
 
-/* 
-findValue - uses parabolic search for the position where a function gets
+/*!> uses parabolic search for the position where a function gets
 a specific value. The target value must be in the interval f(x1) and f(x2).
 There is no use to have a tolerance lower than the square root of the system's
-float-precision.
+float-precision. */
 
-findValueInAperture is similar to findValue, with the difference that
+
+bool findValue(const MathFunction<float>&,float x1,float x2,float& res,
+	       float targetval = 0,float tol=1e-5);
+
+
+/*!> findValueInAperture is similar to findValue, with the difference that
 findValueInAperture searches the solution that is closest to the startx. If no
 solution is found, startx is returned. The parameter dx specifies how big
 intervals should be used when searching for a solution. When a solution is
 found in an interval, a high precision search is started in that interval.
 */
 
-
-bool findValue(const MathFunction<float>&,float x1,float x2,float& res,
-	       float targetval = 0,float tol=1e-5);
-
 float findValueInAperture(const MathFunction<float>&,float startx, 
 	 	const TimeGate& aperture,float dx,float target=0,
 		float tol=1e-5);
 
-/*
+/*!>
 findExtreme - finds a functions minimal or maximum value (specified by bool 
 minima) within the values x1 and x2. 
 f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,

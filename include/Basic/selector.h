@@ -1,20 +1,27 @@
 #ifndef selector_H
 #define selector_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.1.1.2 1999-09-16 09:19:13 arend Exp $
+ RCS:		$Id: selector.h,v 1.2 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include <ranges.h>
+#include <sets.h>
 
+
+/*!\brief interface for classes that select on basis of a key.
+
+Some Selectors may be extensible: you can ask them to include a key value.
+
+*/
 
 template <class T>
 class Selector
@@ -30,8 +37,8 @@ public:
 			}
     virtual Selector<T>* clone() const				= 0;
 
-    virtual int		includes(const T&) const		= 0;
-    virtual int		include(const T&,const char* =0)	{ return NO; }
+    virtual bool	includes(const T&) const		= 0;
+    virtual bool	include(const T&,const char* =0)       { return false; }
 
 protected:
 
@@ -39,6 +46,8 @@ protected:
 
 };
 
+
+/*!\brief Selector selecting only a single value. */
 
 template <class T>
 class SingleSelector : public Selector<T>
@@ -51,10 +60,10 @@ public:
     virtual Selector<T>* clone() const
 			{ return new SingleSelector( val ); }
 
-    virtual int		includes( const T& t ) const
+    virtual bool	includes( const T& t ) const
 			{ return val == t; }
-    virtual int		include( const T& t, const char* )
-			{ val = t; return YES; }
+    virtual bool	include( const T& t, const char* )
+			{ val = t; return true; }
 
     T			val;
 
@@ -65,6 +74,8 @@ protected:
 
 };
 
+
+/*!\brief Selector based on range specification (an Interval). */
 
 template <class T>
 class RangeSelector : public Selector<T>
@@ -78,10 +89,10 @@ public:
     virtual Selector<T>* clone() const
 			{ return new RangeSelector( range.start, range.stop ); }
 
-    virtual int		includes( const T& t ) const
+    virtual bool	includes( const T& t ) const
 			{ return range.includes( t ); }
-    virtual int		include( const T& t, const char* )
-			{ range.include( t ); return YES; }
+    virtual bool	include( const T& t, const char* )
+			{ range.include( t ); return true; }
 
     Interval<T>		range;
 
@@ -93,21 +104,60 @@ protected:
 };
 
 
-/*$@
+/*!\brief Selector based on array. */
+
+template <class T>
+class ArraySelector : public Selector<T>
+{
+public:
+
+			ArraySelector()			{}
+			ArraySelector( const T* v, int s )
+			: vals(v), sz(s)		{}
+
+    virtual const char*	selectorType() const		{ return "Array"; }
+    virtual Selector<T>* clone() const
+			{ return new ArraySelector( vals, sz ); }
+
+    virtual bool	includes( const T& t ) const
+			{
+			    for ( int idx=0; idx<sz; idx++ )
+				{ if ( vals[idx] == t ) return true; }
+			    return false;
+			}
+
+    const T*		vals;
+    int			sz;
+
+protected:
+
+    virtual bool	isEq( const Selector<T>& ss ) const
+			{
+			    const ArraySelector<T>& ass
+				= (const ArraySelector<T>&)ss;
+			    if ( sz != ass.sz ) return false;
+			    for ( int idx=0; idx<sz; idx++ )
+				{ if ( !ss.includes(vals[idx]) ) return false; }
+			    return true;
+			}
+
+};
+
+
+typedef int (*ObjectTypeSelectionFun)(const char*);
+
+int defaultSelector(const char*,const char*);
+/*!<
 Object Type Selection functions determine whether a file type is a match for
 this object. The return values are: \line
 0 - The object has no connection whatsoever with this object type \line
 1 - This type may be the connection to an object I can handle \line
 2 - The type given is exactly a type I can handle \line
 The idea is that each object group defines a selector() function.
-@$*/
 
-// return: 0 = no, 2=right on, 1=connected to
-typedef int (*ObjectTypeSelectionFun)(const char*);
+defaultSelector returns 0 or 2, depending on exact match.
 
-// Will match on exact match or "... File" with "..."
-int defaultSelector(const char*,const char*);
+*/
 
 
-/*$-*/
 #endif

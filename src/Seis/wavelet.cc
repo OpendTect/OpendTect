@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.3 2000-04-17 14:57:49 bert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.4 2001-02-13 17:21:08 bert Exp $";
 
 #include "wavelet.h"
 #include "ascstream.h"
@@ -19,7 +19,7 @@ DefineConcreteClassDef(Wavelet,"Wavelet");
 Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
 	: UserIDObject(nm)
 	, iw(idxfsamp)
-	, dt(mNINT(sr*1e6))
+	, dpos(sr)
 	, sz(0)
 	, samps(0)
 {
@@ -46,7 +46,7 @@ Wavelet::Wavelet( const Wavelet& wv )
 Wavelet& Wavelet::operator =( const Wavelet& wv )
 {
     iw = wv.iw;
-    dt = wv.dt;
+    dpos = wv.dpos;
     reSize( wv.size() );
     if ( sz ) memcpy( samps, wv.samps, sz*sizeof(float) );
     return *this;
@@ -131,7 +131,7 @@ void Wavelet::reSize( int newsz )
 void Wavelet::set( int center, float samplerate )
 {
     iw = -center;
-    dt = mNINT(samplerate*1e6);
+    dpos = samplerate;
 }
 
 
@@ -149,7 +149,7 @@ IOObjContext WaveletTranslator::ioContext()
     ctxt.newonlevel = 1;
     ctxt.needparent = NO;
     ctxt.maychdir = NO;
-    ctxt.selid = "100030";
+    ctxt.selkey = "100030";
 
     return ctxt;
 }

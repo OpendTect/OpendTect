@@ -7,13 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.2 1999-10-18 14:03:07 dgb Exp $
+ RCS:		$Id: iodir.h,v 1.3 2001-02-13 17:15:57 bert Exp $
 ________________________________________________________________________
 
 @$*/
  
-/*@+
-@$*/
  
 #include <ioobj.h>
 #include <selector.h>
@@ -22,7 +20,7 @@ class AliasObjectSet;
 class AliasObject;
 
 
-class IODir : public UnitIDObject
+class IODir : public UserIDObject
 {
 
     friend class	IOMan;
@@ -33,17 +31,18 @@ class IODir : public UnitIDObject
 
 public:
 			IODir(const char*);
-			IODir(const UnitID&);
+			IODir(const MultiID&);
 			~IODir();
     void		reRead();
     bool		bad() const		{ return state_ == Fail; }
+    const MultiID&	key() const		{ return key_; }
 
     const IOObj*	main() const;
     const char*		dirName() const		{ return dirname_; }
 
     const UserIDObjectSet<IOObj>& getObjs() const { return objs_; }
     int			size() const		  { return objs_.size(); }
-    const IOObj*	operator[](const UnitID&) const;
+    const IOObj*	operator[](const MultiID&) const;
     const IOObj*	operator[]( int idx ) const	{ return objs_[idx]; }
     const IOObj*	operator[]( IOObj* o ) const	{ return objs_[o]; }
     const IOObj*	operator[]( const char* str ) const
@@ -53,7 +52,7 @@ public:
 			// after call, IOObj is mine!
     bool		commitChanges(const IOObj*);
 			// after call, pointer may dangle!
-    bool		permRemove(const UnitID&);
+    bool		permRemove(const MultiID&);
     bool		mkUniqueName(IOObj*);
 
     void		setCurrent( const IOObj* obj )
@@ -61,7 +60,7 @@ public:
     const IOObj*	current() const
 			{ return objs_.current(); }
 
-    static IOObj*	getObj(const UnitID&);
+    static IOObj*	getObj(const MultiID&);
     static IOObj*	getMain(const char*);
 
 			// Use this if you know there's no contingency
@@ -74,9 +73,10 @@ private:
     FileNameString	dirname_;
     int			state_;
     int			curid_;
+    MultiID		key_;
 
 			IODir();
-    static bool		create(const char* dirnm,const UnitID&,IOObj* mainobj);
+    static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     bool		build();
 
@@ -86,7 +86,7 @@ private:
     void		operator +=( IOObj* obj )	{ objs_ += obj; }
     void		operator -=( IOObj* obj )	{ objs_ -= obj; }
 
-    UnitID		newId() const;
+    MultiID		newKey() const;
 
     static IOObj*	readOmf(const char*,const char*,IODir*,int,bool&);
 };

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.3 2000-07-27 16:03:25 bert Exp $
+ RCS:		$Id: general.h,v 1.4 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ inline const char* className( const T& t )
 }
 
 
-/* ifdef cpp */
-#endif
+#endif /* ifdef cpp */
 
 #endif

@@ -1,17 +1,17 @@
 #ifndef scaler_h
 #define scaler_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.4 2000-12-14 16:50:22 bert Exp $
+ RCS:		$Id: scaler.h,v 1.5 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include <gendefs.h>
 
@@ -128,6 +128,7 @@ default 0.95.
 Outside the width() boundaries, a 1 / (1 + x^2) function will make
 sure the output will be between -1 and 1. Thus, this scaler acts as a
 reversible squeeze function, with a non-deforming (linear), fast central part.
+
 */
 
 class AsymptScaler : public Scaler

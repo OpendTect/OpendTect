@@ -1,23 +1,34 @@
 #ifndef iopar_H
 #define iopar_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.8 2000-11-27 15:25:02 bert Exp $
+ RCS:		$Id: iopar.h,v 1.9 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
  
 #include <uidobj.h>
 class ascistream;
 class ascostream;
 class Coord;
 class BinID;
+class MultiID;
 class AliasObjectSet;
+
+/*\brief generalised set of parameters of the keyword-value type.
+
+Part of the function of this class is as in an STL map<string,string> .
+Passing a keyword will return the appropriate value.
+
+Tools around this basic idea are paring into other types, key composition,
+reading/writing to/from file, merging, and more.
+
+*/
 
 
 class IOPar : public UserIDObject
@@ -42,7 +53,7 @@ public:
     const char*		getKey(int) const;
     const char*		getValue(int) const;
     bool		setKey(int,const char*);
-			// Will fail if key is empty or already present
+			//!< Will fail if key is empty or already present
     void		setValue(int,const char*);
     void		remove(int);
 
@@ -103,12 +114,14 @@ public:
 
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
+    void		set(const char*,const MultiID&);
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
+    bool		get(const char*,MultiID&) const;
 
     void		add(const char*,const char*);
-			//!< Only to save performance: responsibility for
-			//!< caller to avoid duplicate keys!
+			/*!< Only to save performance: responsibility for
+			     caller to avoid duplicate keys! */
 
 protected:
 

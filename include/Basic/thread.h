@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.3 2000-12-11 12:29:21 dgb Exp $
+ RCS:		$Id: thread.h,v 1.4 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 */
@@ -23,6 +23,15 @@ ________________________________________________________________________
 #endif
 
 class BasicTask;
+
+
+/*!\brief interface to threads that should be portable.
+
+As usual, other thread systems are available but they are as far as we know
+simply too big and dependent.
+
+*/
+
 
 class Threads
 {
@@ -78,16 +87,16 @@ public:
 	bool				setFunction(void (*)(void*));
 	int				start();
 	void				stop(); 
-					// Signals the thread to end and
-					// waits until the thread does
-					// an threadExit().
+					/*!< Signals the thread to end and
+					     waits until the thread does
+					     a threadExit(). */
 
 					Thread();
 					~Thread();
 
 	static void			threadExit( void* =0 );
-					// Should only be called by the 
-					// running thread
+					/*!< Should only be called by the 
+					     running thread */
 
 	bool				exitflag;
 	ConditionVar			exitcond;
@@ -137,5 +146,5 @@ public:
     };
 };
 
-#endif
 
+#endif

@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.1.1.2 1999-09-16 09:33:24 arend Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.2 2001-02-13 17:21:02 bert Exp $";
 
 #include "ioobj.h"
 #include "ctxtioobj.h"
@@ -38,12 +38,12 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 	parentlevel = ct.parentlevel;
 	partrgroup = ct.partrgroup;
 	multi = ct.multi;
-	selid = ct.selid;
+	selkey = ct.selkey;
 	forread = ct.forread;
 	maychdir = ct.maychdir;
 	maydooper = ct.maydooper;
 	ioobjclassid = ct.ioobjclassid;
-	parentid = ct.parentid;
+	parentkey = ct.parentkey;
 	deftransl = ct.deftransl;
     }
     return *this;
@@ -55,11 +55,11 @@ void CtxtIOObj::setObj( IOObj* obj )
     if ( obj == ioobj ) return;
 
     delete ioobj; ioobj = obj;
-    if ( ioobj ) ctxt.parentid = ioobj->parentId();
+    if ( ioobj ) ctxt.parentkey = ioobj->parentKey();
 }
 
 
-int CtxtIOObj::fillObj( UnitID uid )
+int CtxtIOObj::fillObj( const MultiID& uid )
 {
     if ( ioobj && (ctxt.name() == ioobj->name() || ctxt.name() == "") )
 	return 1;

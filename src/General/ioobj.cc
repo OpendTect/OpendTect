@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.3 2000-11-27 15:25:50 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.4 2001-02-13 17:21:02 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -22,8 +22,9 @@ DefineAbstractClassDef(IOObj,"IO Object");
 DefineAbstractClassDef(IOObject,"Factual IO Object");
 
 
-IOObj::IOObj( const char* nm, const char* uid )
-	: UnitIDObject(nm,uid)
+IOObj::IOObj( const char* nm, const char* ky )
+	: UserIDObject(nm)
+	, key_(ky)
 	, dirname_(0)
 	, connclassdef_(0)
 	, opts(0)
@@ -31,8 +32,9 @@ IOObj::IOObj( const char* nm, const char* uid )
 }
 
 
-IOObj::IOObj( IOObj* l, const char* uid )
-	: UnitIDObject(l,uid)
+IOObj::IOObj( IOObj* l, const char* ky )
+	: UserIDObject(l)
+	, key_(ky)
 	, dirname_(0)
 	, connclassdef_(0)
 	, opts(0)
@@ -52,7 +54,7 @@ IOObj::~IOObj()
 void IOObj::copyFrom( const IOObj* obj )
 {
     if ( !obj ) return;
-    setParentId( obj->parentId() );
+    setParentKey( obj->parentKey() );
     setGroup( obj->group() );
     setTranslator( obj->translator() );
     setName( obj->name() );
@@ -66,7 +68,7 @@ void IOObj::copyFrom( const IOObj* obj )
 
 IOObj* IOObj::getParent() const
 {
-    return IODir::getObj( parentId() );
+    return IODir::getObj( parentKey() );
 }
 
 
@@ -92,26 +94,26 @@ void IOObj::mkOpts()
 
 static FileMultiString fms;
 
-IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* diruid )
+IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 {
     if ( atEndOfSection(astream) )
 	astream.next();
     if ( atEndOfSection(astream) )
 	return 0;
-    UnitID myid( diruid );
+    MultiID mykey( dirky );
     if ( *astream.keyWord() == '@' )
     {
 	IOLink* ln = IOLink::get( astream, dirnm );
 	if ( !ln ) return 0;
-	myid += ln->unitID();
-	ln->setUnitID( myid );
+	mykey += ln->key();
+	ln->setKey( mykey );
 	return ln;
     }
 
     UserIDString _name( astream.keyWord() );
     fms = astream.value();
-    myid += fms[0];
-    UnitID parid( fms[1] );
+    mykey += fms[0];
+    MultiID parkey( fms[1] );
     astream.next();
     UserIDString _group( astream.keyWord() );
     fms = astream.value();
@@ -125,10 +127,10 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* diruid )
 	delete tr;
     }
 
-    IOObj* objptr = produce( _typ, _name, myid, NO );
+    IOObj* objptr = produce( _typ, _name, mykey, NO );
     if ( !objptr ) return 0;
 
-    objptr->setParentId( parid );
+    objptr->setParentKey( parkey );
     objptr->setGroup( _group );
     objptr->setTranslator( _trl );
 
@@ -154,19 +156,19 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* diruid )
 }
 
 
-IOObj* IOObj::produce( const char* typ, const char* nm, const char* unid,
+IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 			bool gendef )
 {
     IOObj* objptr = 0;
 
     if ( !nm || !*nm ) nm = "?";
-    UnitID uid( unid );
-    if ( uid == "" ) uid = IOM().dirPtr()->newId();
+    MultiID ky( keyin );
+    if ( ky == "" ) ky = IOM().dirPtr()->newKey();
 
     if ( !strcmp(typ,"Stream") )
-	objptr = new IOStream( nm, uid, gendef );
+	objptr = new IOStream( nm, ky, gendef );
     else if ( !strcmp(typ,"X-Group") )
-	objptr = new IOX( nm, uid, gendef );
+	objptr = new IOX( nm, ky, gendef );
 
     return objptr;
 }
@@ -182,11 +184,11 @@ Translator* IOObj::getTranslator() const
 }
 
 
-IOObj* IOObj::cloneStandAlone() const
+IOObj* IOObj::clone() const
 {
     const IOObj* dataobj = isLink() ? ((IOLink*)this)->link() : this;
     IOObj* newioobj = produce( dataobj->classDef().name(), name(),
-				dataobj->unitID(), NO );
+				dataobj->key(), NO );
     newioobj->copyFrom( dataobj );
     newioobj->setStandAlone( dataobj->dirName() );
     return newioobj;
@@ -210,13 +212,13 @@ int IOObj::put( ascostream& astream ) const
 {
     if ( !isLink() )
     {
-	if ( parentId() == "" )
-	    astream.put( name(), myId() );
+	if ( parentKey() == "" )
+	    astream.put( name(), myKey() );
 	else
 	{
 	    fms = "";
-	    fms += myId();
-	    fms += parentId();
+	    fms += myKey();
+	    fms += parentKey();
 	    astream.put( name(), fms );
 	}
 	fms = translator();
@@ -239,9 +241,9 @@ int IOObj::put( ascostream& astream ) const
 }
 
 
-int IOObj::myId() const
+int IOObj::myKey() const
 {
-    return atoi( unitid.code( unitid.level() ) );
+    return atoi( key_.key( key_.nrKeys()-1 ) );
 }
 
 
@@ -250,20 +252,20 @@ bool areEqual( const IOObj* o1, const IOObj* o2 )
     if ( !o1 && !o2 ) return YES;
     if ( !o1 || !o2 ) return NO;
 
-    return equalIOObj(o1->unitID(),o2->unitID());
+    return equalIOObj(o1->key(),o2->key());
 }
 
 
-static void mkStd( UnitID& id )
+static void mkStd( MultiID& ky )
 {
-    if ( id.code() == "1" ) id = id.parent();
-    if ( id == "" ) id = "0";
+    if ( ky.ID(ky.nrKeys()-1) == 1 ) ky = ky.upLevel();
+    if ( ky == "" ) ky = "0";
 }
 
 
-bool equalIOObj( const UnitID& id1, const UnitID& id2 )
+bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 {
-    UnitID u1( id1 ); UnitID u2( id2 );
-    mkStd( u1 ); mkStd( u2 );
-    return u1 == u2;
+    MultiID k1( ky1 ); MultiID k2( ky2 );
+    mkStd( k1 ); mkStd( k2 );
+    return k1 == k2;
 }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.6 2000-12-14 14:06:40 kristofer Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.7 2001-02-13 17:15:57 bert Exp $
 ________________________________________________________________________
 
 */
@@ -35,11 +35,11 @@ public:
 				    set(idx, templ.get(idx));
 			}
 
-    virtual void	set( int pos, T v ) { *(((T*) dbuf.data)+pos) = v; }
-    virtual T		get( int pos ) const {return *(((T*)dbuf.data)+pos);}
+    virtual void	set( int pos, T v ) { *(((T*) dbuf.data())+pos) = v; }
+    virtual T		get( int pos ) const {return *(((T*)dbuf.data())+pos);}
 			
 
-    T*			getData() const { return (T*)dbuf.data; } 
+    T*			getData() const { return (T*)dbuf.data(); } 
     const Array1DInfo&  info() const { return in; }
 
     void		setSize( int s )
@@ -85,11 +85,11 @@ public:
 			}
 
     virtual void	set( int p0, int p1, T v )
-			{ *(((T*) dbuf.data)+in.getArrayPos(p0,p1)) = v; }
+			{ *(((T*) dbuf.data())+in.getArrayPos(p0,p1)) = v; }
     virtual T		get( int p0, int p1 ) const
-			{ return *(((T*) dbuf.data)+in.getArrayPos(p0,p1)); }
+			{ return *(((T*) dbuf.data())+in.getArrayPos(p0,p1)); }
 
-    T*			getData() const { return (T*)dbuf.data; }
+    T*			getData() const { return (T*)dbuf.data(); }
     const Array2DInfo&  info() const { return in; }
 
     void		setSize( int d0, int d1 )
@@ -145,12 +145,13 @@ public:
 			}
 
     virtual void	set( int p0, int p1, int p2, T v )
-			{ *(((T*) dbuf.data)+in.getArrayPos(p0,p1,p2)) = v; }
+			{ *(((T*) dbuf.data())+in.getArrayPos(p0,p1,p2)) = v; }
     virtual T		get( int p0, int p1, int p2 ) const
-			{ return *(((T*) dbuf.data)+in.getArrayPos(p0,p1,p2)); }
+			{ return *(((T*) dbuf.data())
+				   + in.getArrayPos(p0,p1,p2)); }
 
 
-    T*			getData() const { return (T*)dbuf.data; }
+    T*			getData() const { return (T*)dbuf.data(); }
     const Array3DInfo&	info() const { return in; }
 
     void		setSize( int d0, int d1, int d2 )
@@ -201,12 +202,12 @@ public:
 			{ delete in; }
 
     virtual void	set( const int* pos, T v )
-			{ *(((T*) dbuf.data)+in->getArrayPos(pos)) = v; }
+			{ *(((T*) dbuf.data())+in->getArrayPos(pos)) = v; }
     virtual T		get( const int* pos ) const
-			{ return *(((T*) dbuf.data)+in->getArrayPos(pos)); }
+			{ return *(((T*) dbuf.data())+in->getArrayPos(pos)); }
 
 
-    T*			getData() const { return (T*) dbuf.data; }
+    T*			getData() const { return (T*) dbuf.data(); }
     const ArrayNDInfo&	info() const { return *in; }
 
     void		setSize( const int* d )

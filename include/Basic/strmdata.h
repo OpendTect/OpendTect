@@ -1,18 +1,17 @@
 #ifndef strmdata_H
 #define strmdata_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.2 2000-08-18 19:06:48 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.3 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
- 
+-*/
  
 #include <stdio.h>
 class istream;
@@ -20,9 +19,12 @@ class ostream;
 class stdiobuf;
 
 
-/*$@ StreamData
- Data on stream and underlying stuff.
-@$*/
+/*!\brief holds data to use and close an iostream.
+
+Usualyy created by StreamProvider.
+Need to find out what to do with the pipe in windows.
+
+*/
 
 class StreamData
 {
@@ -30,7 +32,7 @@ public:
 		StreamData() : ispipe(false)	{ init(); }
 
     void	close();
-    int		usable() const;
+    bool	usable() const;
 
     istream*	istrm;
     ostream*	ostrm;
@@ -46,5 +48,4 @@ private:
 };
 
 
-/*$-*/
 #endif

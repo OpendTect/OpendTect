@@ -1,71 +1,76 @@
 #ifndef seisstor_h
 #define seisstor_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.4 2000-11-09 15:52:28 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.5 2001-02-13 17:16:09 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
 
-@$*/
+-*/
 
 
 #include <conn.h>
 #include <seisinfo.h>
+#include <storlayout.h>
 class IOObj;
 class Conn;
 class Executor;
 class SeisTrc;
 class SeisTrcTranslator;
-class StorageLayout;
+class SeisTrcSel;
 
+
+/*!\brief base class for seis reader and writer. */
 
 class SeisStorage
 {
 public:
 
     virtual		~SeisStorage();
+    void		close();
 
     Conn::State		connState() const
 			{ return conn ? conn->state() : Conn::Bad; }
-    const SeisPacketInfo& packetInfo() const
-			{ return spi; }
     const char*		errMsg() const
 			{ return errmsg; }
-    const SeisTrcTranslator* translator() const
-			{ return trl; }
     const IOObj*	ioObj() const
 			{ return ioobj; }
+    void		setIOObj(const IOObj*);
+    SeisTrcTranslator*	translator()
+			{ return trl; }
+    const SeisTrcTranslator* translator() const
+			{ return trl; }
+    int			tracesHandled() const
+			{ return nrtrcs; }
+    const SeisTrcSel*	trcSel() const
+			{ return trcsel; }
+    void		setTrcSel(SeisTrcSel*);
+			//!< This hands over mem management
 
-    virtual Executor*	starter()		= 0;
-    virtual bool	prepareRetry()		= 0;
-    void		close();
     virtual void	usePar(const IOPar&);
 				// After usePar(), check connState()
-				// Do you need starter() executor?
     virtual void	fillPar(IOPar&) const;
+
+    static const char*	sNrTrcs;
 
 protected:
 
 			SeisStorage(const IOObj*);
-    virtual void	init()			= 0;
+    virtual void	init()			{}
+    void		cleanUp(bool alsoioobj=true);
 
-    SeisPacketInfo	spi;
     IOObj*		ioobj;
     Conn*		conn;
+    int			nrtrcs;
     SeisTrcTranslator*	trl;
+    SeisTrcSel*		trcsel;
     BufferString	errmsg;
-
-    const StorageLayout& storageLayout() const;
-
-private:
-
-    void		open(const IOObj*);
 
 };
 

@@ -14,21 +14,16 @@ ________________________________________________________________________
 -*/
 
 
-/*! \brief Mathematical functions
-
-A MathFunction must deliver a value at any position: F(x), a MathXYFunction
-is F(x,y). The positioning needs more precision than the outcome, hence
-the doubles in the position.
-Linear functions have two parameters, ax (steepness, for 2d also ay)
-and a0 (intercept).
-Linear statistics have Line parameters for the regression line, the errors
-and a correlation coefficient. There is no 2D variant yet.
-
-*/
-
-
 #include <position.h>
 
+
+/*!\brief Mathematical function
+
+A MathFunction must deliver a value at any position: F(x).
+The positioning needs more precision than the outcome, hence
+the doubles in the position.
+
+*/
 
 template <class T>
 class MathFunction
@@ -40,6 +35,8 @@ public:
 };
 
 
+/*!\brief a Math Function as in F(x,y). */
+
 template <class T>
 class MathXYFunction
 {
@@ -49,6 +46,8 @@ public:
 
 };
 
+
+/*!\brief Line parameters: steepness and intercept. */
 
 class LinePars : public MathFunction<float>
 {
@@ -62,6 +61,8 @@ public:
     double      a0, ax;
 };
 
+
+/*!\brief Palne parameters: steepnesses and intercept. */
 
 class PlanePars : public MathXYFunction<float>
 {
@@ -77,6 +78,12 @@ public:
 };
 
 
+/*!\brief Linear statistics.
+
+Linear statistics have Line parameters for the regression line, the errors
+and a correlation coefficient. There is no 2D variant yet.
+
+*/
 
 class LinStats
 {

@@ -1,29 +1,28 @@
 #ifndef dirlist_H
 #define dirlist_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		18-4-1996
- RCS:		$Id: dirlist.h,v 1.1.1.2 1999-09-16 09:18:54 arend Exp $
+ RCS:		$Id: dirlist.h,v 1.2 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include <uidobjset.h>
 
 
-/*$@ DirList
-@$*/
+/*!\brief provides file and directory names in a certain directory.  */
 
 class DirList : public UserIDObjectSet<UserIDObject>
 {
 public:
 			DirList(const char*,int dirindic=0);
-				// dirindic > 0: only directories
-				// dirindic < 0: no directories
+				/*!< dirindic > 0: only directories
+				     dirindic < 0: no directories */
 
 			~DirList();
 
@@ -38,5 +37,4 @@ private:
 };
 
 
-/*$-*/
 #endif

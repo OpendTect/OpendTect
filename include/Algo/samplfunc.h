@@ -1,23 +1,24 @@
 #ifndef samplfunc_h
 #define samplfunc_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.4 2000-07-19 09:25:42 bert Exp $
+ RCS:           $Id: samplfunc.h,v 1.5 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-SampledFunction lets any sampled serie comply with MathFunction. If the
-sampled values are periodic (i.e. phase), set the periodic flag and let
-period() return the period ( i.e. 2*pi for phase ).
-
-@$*/
+-*/
 
 #include <mathfunc.h>
 #include <simpnumer.h>
+
+/*!\brief make any sampled series comply with MathFunction.
+If the sampled values are periodic (i.e. phase), set the periodic flag and let
+period() return the period ( i.e. 2*pi for phase ).
+*/
 
 template <class RT,class T>
 class SampledFunction : public MathFunction<RT>
@@ -66,6 +67,9 @@ protected:
 
 };
 
+
+/*!\brief implementation for array-type of SampledFunction */
+
 template <class RT, class T>
 class SampledFunctionImpl : public SampledFunction<RT,T>
 {
@@ -91,6 +95,7 @@ public:
 
 
 protected:
+
     const T&		idxabl;
     int			sz;
     int			firstidx;

@@ -5,12 +5,12 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.8 2000-05-25 15:37:07 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.9 2001-02-13 17:21:08 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
 #include "seistrc.h"
-#include "seiskeys.h"
+#include "seistrcsel.h"
 #include "storlayout.h"
 #include "executor.h"
 #include "iostrm.h"
@@ -26,11 +26,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 
 void SeisTrcReader::init()
 {
-    itrc = 0;
-    icfound = false;
-    new_packet = false;
-    needskip = false;
-    connrisbidnr = false;
+    icfound = new_packet = needskip = rdinited = false;
 }
 
 
@@ -39,25 +35,27 @@ class SeisReadStarter : public Executor
 public:
 
 const char* message() const
-{ return keycr ? keycr->message() : msg; }
+{ return tselst ? tselst->message() : msg; }
 int nrDone() const
-{ return keycr ? keycr->nrDone() : (rdr.conn ? 2 : 1); }
+{ return tselst ? tselst->nrDone() : (rdr.conn ? 2 : 1); }
 const char* nrDoneText() const
-{ return keycr ? keycr->nrDoneText() : "Step"; }
+{ return tselst ? tselst->nrDoneText() : "Step"; }
 int totalNr() const
-{ return keycr ? keycr->totalNr() : 2; }
+{ return tselst ? tselst->totalNr() : 2; }
 
 SeisReadStarter( SeisTrcReader& r )
 	: Executor("Seismic Reader Starter")
 	, rdr(r)
 	, msg("Opening data store")
-	, keycr(((SeisKeyData&)rdr.keyData()).starter())
+	, tselst(0)
 {
+    if ( rdr.trcsel )
+	tselst = rdr.trcsel->starter();
 }
 
 ~SeisReadStarter()
 {
-    delete keycr;
+    delete tselst;
 }
 
 
@@ -65,20 +63,19 @@ int nextStep()
 {
     if ( !rdr.ioObj() )
     {
-	msg = "Bad data from Object Manager";
+	msg = "No info from Object Manager";
 	return -1;
     }
 
-    if ( keycr )
+    if ( tselst )
     {
-	int rv = keycr->nextStep();
+	int rv = tselst->nextStep();
 	if ( rv < 0 ) return rv;
 	if ( rv > 0 ) return rv;
-	delete keycr; keycr = 0;
+	delete tselst; tselst = 0;
 	return 1;
     }
 
-    rdr.connrisbidnr = rdr.ioObj()->isStarConn();
     if ( rdr.connState() != Conn::Read )
     {
 	if ( !rdr.openFirst() )
@@ -101,7 +98,7 @@ int nextStep()
 
     SeisTrcReader&	rdr;
     const char*		msg;
-    Executor*		keycr;
+    Executor*		tselst;
 
 };
 
@@ -112,6 +109,13 @@ Executor* SeisTrcReader::starter()
 }
 
 
+bool SeisTrcReader::multiConn() const
+{
+    return ioobj && ioobj->hasClass(IOStream::classid)
+	&& ((IOStream*)ioobj)->multiConn();
+}
+
+
 bool SeisTrcReader::openFirst()
 {
     trySkipConns();
@@ -119,18 +123,15 @@ bool SeisTrcReader::openFirst()
     if ( !conn || conn->bad() )
     {
 	delete conn; conn = 0;
-	if ( ioobj->multiConn() )
+	if ( multiConn() )
 	{
 	    while ( !conn || conn->bad() )
 	    {
 		delete conn; conn = 0;
-		if ( !ioobj->toNextConnNr() ) break;
+		if ( !((IOStream*)ioobj)->toNextConnNr() ) break;
 		conn = ioobj->getConn( Conn::Read );
 	    }
 	}
-
-	if ( !conn ) { delete ioobj; ioobj = 0; }
-
     }
     return conn ? true : false;
 }
@@ -138,41 +139,33 @@ bool SeisTrcReader::openFirst()
 
 bool SeisTrcReader::initRead()
 {
-    if ( !trl->initRead(spi,*conn) )
+    if ( !trl->initRead(*conn) )
     {
-	delete ioobj; ioobj = 0;
-	delete conn; conn = 0;
 	errmsg = trl->errMsg();
+	cleanUp();
 	return false;
     }
 
     needskip = false;
+    rdinited = true;
     return true;
-}
-
-
-bool SeisTrcReader::prepareRetry()
-{
-    if ( trl ) trl->prepareRetry();
-    return true;
-}
-
-
-const SeisKeyData& SeisTrcReader::keyData() const
-{
-    static SeisKeyData dum_skd;
-    return trl ? trl->keyData() : dum_skd;
-}
-
-
-void SeisTrcReader::setKeyData( const SeisKeyData& skd )
-{
-    if ( trl ) trl->keyData() = skd;
 }
 
 
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
+    if ( !rdinited )
+    {
+	Executor* st = starter();
+	if ( !st->execute(0) )
+	{
+	    errmsg = st->message();
+	    delete st;
+	    return -1;
+	}
+	delete st; 
+    }
+
     bool needsk = needskip; needskip = false;
     if ( needsk )
     {
@@ -183,21 +176,22 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	    return nextConn( ti );
 	}
     }
-    if ( !trl->read(ti) )
+
+    if ( !trl->readInfo(ti) )
     {
-	if ( trl->errMsg() )
+	if ( trl->errMsg() && *trl->errMsg() )
 	    { errmsg = trl->errMsg(); return -1; }
 	return nextConn( ti );
     }
-    finishGetInfo( ti );
+    ti.stack_count = 1;
+    ti.new_packet = false;
 
-    const SeisKeyData& skd = keyData();
-    BinIDSelector* sel = skd.bidsel;
+    const BinIDSelector* sel = trcsel ? trcsel->bidsel : 0;
     int res = 0;
     if ( sel && (res = sel->excludes(ti.binid)) )
     {
 	// Now, we must skip the trace, but ...
-	const StorageLayout& lyo = storageLayout();
+	const StorageLayout& lyo = trl->storageLayout();
 	bool clustinl = lyo.type() == StorageLayout::Inline;
 	bool clustcrl = lyo.type() == StorageLayout::Xline;
 	bool isrange = sel->type() == 0;
@@ -228,12 +222,16 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	return trl->skip() ? 2 : nextConn( ti );
     }
 
-    itrc++;
-    if ( itrc-1 < skd.intv.start
-      || (skd.intv.step > 1 && (itrc-skd.intv.start-1)%skd.intv.step) )
-	return trl->skip() ? 2 : nextConn( ti );
-    else if ( itrc-1 > skd.intv.stop )
-	return 0;
+    nrtrcs++;
+    if ( trcsel )
+    {
+	if ( nrtrcs < trcsel->intv.start
+	  ||    (trcsel->intv.step > 1
+	     && (nrtrcs-trcsel->intv.start-1)%trcsel->intv.step) )
+	    return trl->skip() ? 2 : nextConn( ti );
+	else if ( nrtrcs > trcsel->intv.stop )
+	    return 0;
+    }
 
     // This trace is actually selected
     if ( new_packet )
@@ -252,7 +250,6 @@ bool SeisTrcReader::get( SeisTrc& trc )
     if ( !trl->read(trc) )
     {
 	errmsg = trl->errMsg();
-	trl->clearErr();
 	return false;
     }
     return true;
@@ -262,26 +259,27 @@ bool SeisTrcReader::get( SeisTrc& trc )
 int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
     new_packet = false;
-    if ( !ioobj->multiConn() ) return 0;
+    if ( !multiConn() ) return 0;
+    IOStream* iostrm = (IOStream*)ioobj;
 
     delete conn; conn = 0;
-    if ( !ioobj->toNextConnNr() ) return 0;
+    if ( !iostrm->toNextConnNr() ) return 0;
 
     trySkipConns();
-    conn = ioobj->getConn( Conn::Read );
+    conn = iostrm->getConn( Conn::Read );
 
     while ( !conn || conn->bad() )
     {
 	delete conn; conn = 0;
-	if ( !ioobj->toNextConnNr() ) return 0;
+	if ( !iostrm->toNextConnNr() ) return 0;
 
 	trySkipConns();
-	conn = ioobj->getConn( Conn::Read );
+	conn = iostrm->getConn( Conn::Read );
     }
 
     icfound = false;
 
-    if ( !trl->initRead(spi,*conn) )
+    if ( !trl->initRead(*conn) )
     {
 	errmsg = trl->errMsg();
 	return -1;
@@ -289,10 +287,10 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     int rv = get(ti);
     if ( rv < 1 ) return rv;
 
-    if ( keyData().bidsel && connrisbidnr )
+    if ( trcsel && trcsel->bidsel && iostrm->directNumberMultiConn() )
     {
-	if ( !validBidselRes(keyData().bidsel->excludes(ti.binid),
-			     storageLayout().type() == StorageLayout::Xline) )
+	if ( !validBidselRes( trcsel->bidsel->excludes(ti.binid),
+		      trl->storageLayout().type() == StorageLayout::Xline) )
 	    return nextConn( ti );
     }
 
@@ -305,13 +303,14 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
 void SeisTrcReader::trySkipConns()
 {
-    const SeisKeyData& skd = keyData();
-    if ( !ioobj->multiConn() || !skd.bidsel || !connrisbidnr )
-	return;
+    if ( !multiConn() || !trcsel || !trcsel->bidsel ) return;
+    const BinIDSelector* sel = trcsel->bidsel;
+    IOStream* iostrm = (IOStream*)ioobj;
+    if ( !iostrm->directNumberMultiConn() ) return;
 
-    bool clustcrl = storageLayout().type() == StorageLayout::Xline;
+    bool clustcrl = trl->storageLayout().type() == StorageLayout::Xline;
     BinID binid;
-    BinIDProvider* bp = skd.bidsel->provider();
+    BinIDProvider* bp = sel->provider();
     if ( bp && bp->size() == 0 ) { delete bp; return; }
 
     if ( !bp )	binid = SI().range().start;
@@ -319,38 +318,16 @@ void SeisTrcReader::trySkipConns()
     int& newinlcrl = clustcrl ? binid.crl : binid.inl;
     do
     {
-	newinlcrl = ioobj->connNr();
-	if ( validBidselRes(skd.bidsel->excludes(binid),clustcrl) )
+	newinlcrl = iostrm->connNr();
+	if ( validBidselRes( sel->excludes(binid), clustcrl ) )
 	    return;
 
-    } while ( ioobj->toNextConnNr() );
+    } while ( iostrm->toNextConnNr() );
 }
 
 
-void SeisTrcReader::finishGetInfo( SeisTrcInfo& ti )
-{
-    BinID& binid = ti.binid;
-    if ( binid.inl == 0 && binid.crl == 0 )
-	binid = SI().transform( ti.coord );
-    else if ( !trl->validCoords() )
-	ti.coord = SI().transform( binid );
-
-    ti.stack_count = 1;
-    ti.new_packet = false;
-    ti.starttime += ti.dt * 1e-6 * trl->keyData().sg.start;
-    ti.dt *= trl->step();
-}
-
-
-void SeisTrcReader::usePar( const IOPar& iopar )
-{
-    SeisStorage::usePar( iopar );
-    if ( trl ) trl->keyData().usePar( iopar );
-}
-
- 
 void SeisTrcReader::fillPar( IOPar& iopar ) const
 {
     SeisStorage::fillPar( iopar );
-    if ( trl ) trl->keyData().fillPar( iopar );
+    if ( trl && trl->trcSel() ) trl->trcSel()->fillPar( iopar );
 }

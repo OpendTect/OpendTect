@@ -8,10 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994; 20-10-1995
  Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.2 2000-03-02 15:24:27 bert Exp $
+ RCS:		$Id: enums.h,v 1.3 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
 
-Some utilities surrounding the often needed enum <-> string table.
+-*/
+
+
+/*!\brief Some utilities surrounding the often needed enum <-> string table.
 
 The simple C function getEnum returns the enum (integer) value from a text
 string. The first arg is string you wish to convert to the enum, the second
@@ -32,7 +35,7 @@ The 'Declare' macros should be placed in the public section of the class.
 Example of usage:
 
 in myclass.h:
-
+\code
 #include <enums.h>
 
 class MyClass
@@ -46,15 +49,18 @@ public:
     // rest of class
 
 };
+\endcode
 
 in myclass.cc:
 
+\code
 #include <myclass.h>
 
 DefineEnumNames(MyClass,State,1,"My class state")
 	{ "Good", "Bad", "Not very handsome", 0 };
 DefineEnumNames(MyClass,Type,0,"My class type")
 	{ "Yes", "No", "Not sure", 0 };
+\endcode
 
 Note the '1' in the first one telling the EnumDef that only one character needs
 to be matched when converting string -> enum. The '0' in the second indicates
@@ -62,6 +68,7 @@ that the entire string must match.
 
 This will expand to (added newlines, removed some superfluous stuff:
 
+\code
 class MyClass
 {
 public:
@@ -86,16 +93,18 @@ protected:
 public: 
 
 };
+\endcode
 
 and, in myclass.cc:
 
+\code
 const EnumDef MyClass::StateDef( "Handling state", MyClass::StateNames , 1 );
 const char* MyClass::StateNames[] = 
 	{ "Good", "Bad", "Not very handsome", 0 };
 const EnumDef MyClass::TypeDef( "Decision type", MyClass::TypeNames , 0 );
 const char* MyClass::TypeNames[] = 
 	{ "Yes", "No", "Not sure", 0 };
-
+\endcode
 
 -*/
 
@@ -110,6 +119,8 @@ const char* MyClass::TypeNames[] =
 
 extern "C" { int getEnum(const char*,const char**,int,int); }
 
+
+/*\brief holds data pertinent for a certain enum */
 
 class EnumDef : public UserIDObject
 {
@@ -135,6 +146,8 @@ private:
     int		nrsign;
 };
 
+
+/*\brief provides a generalised reference to a certain enum */
 
 class EnumRef
 {
@@ -197,12 +210,15 @@ inline EnumRef&	EnumRef::operator=( const char* s )
 
 
 
-#define eKey(enm)	(Ppaste(enm,Def).name())
 #define eString(enm,vr)	(Ppaste(enm,Def).convert((int)vr))
+//!< this is the actual enum -> string
 #define eEnum(enm,str)	((enm)Ppaste(enm,Def).convert(str))
+//!< this is the actual string -> enum
+#define eKey(enm)	(Ppaste(enm,Def).name())
+//!< this is the 'pretty name' of the enum
 #define eRef(enm,vr)	(Ppaste(enm,Ref)(vr))
 
-#endif
+#endif /* #ifndef __cpp__ */
 
 
 #endif

@@ -4,13 +4,14 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.9 2000-11-27 15:25:27 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.10 2001-02-13 17:20:58 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
 #include "aobset.h"
 #include "position.h"
 #include "separstr.h"
+#include "multiid.h"
 #include <ctype.h>
 
 static FileMultiString fms;
@@ -414,6 +415,19 @@ bool IOPar::get( const char* s, BinID& binid ) const
 { return get( s, binid.inl, binid.crl ); }
 void IOPar::set( const char* s, const BinID& binid )
 { set( s, binid.inl, binid.crl ); }
+
+bool IOPar::get( const char* s, MultiID& mid ) const
+{
+    const char* res = (*this)[s];
+    if ( !res || !*res ) return false;
+    mid = res;
+    return true;
+}
+
+void IOPar::set( const char* s, const MultiID& mid )
+{
+    return set( s, (const char*)mid );
+}
 
 
 IOPar::IOPar( ascistream& astream, bool withname )

@@ -7,23 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		19-4-2000
- Contents:	Array sorting: heap sort and sort for target index
- RCS:		$Id: sorting.h,v 1.3 2000-11-13 08:54:21 bert Exp $
+ Contents:	Array sorting
+ RCS:		$Id: sorting.h,v 1.4 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
-
-
-sort_array: sort quickly (algorithm taken from xv).
-sort_coupled: sort and remember where it was before sorting.
-
-quickSort is quicker than sort_array for arrays larger than about 100 values.
-
-sortFor sorts the array until the 'itarget' element has exactly the right
-value. The rest of the array must be considered unsorted after the operation,
-although it will generally be better sorted.
 
 -*/
 
 #include <gendefs.h>
+
 
 #define mDoSort(extra_var,extra_action) \
 { \
@@ -37,10 +28,12 @@ although it will generally be better sorted.
 	    } \
 }
 
+/*!> sort quickly (algorithm taken from xv). */
 template <class T>
 inline void sort_array( T* arr, int sz )
 mDoSort(,)
 
+/*!> sort and remember where it was before sorting. */
 template <class T, class IT>
 inline void sort_coupled( T* arr, IT* idxs, int sz )
 mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
@@ -58,10 +51,12 @@ mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 	    } \
 }
 
+/*!> sort quickly (algorithm taken from xv). */
 template <class T>
 inline void sort_idxabl( T& arr, int sz )
 mDoSort(,)
 
+/*!> sort and remember where it was before sorting. */
 template <class T, class IT>
 inline void sort_idxabl_coupled( T& arr, IT* idxs, int sz )
 mDoSort(IT itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
@@ -135,6 +130,9 @@ void insertionSort( T* arr, int istart, int istop )
 
 template <class T> inline
 void sortFor( T* arr, int sz, int itarget )
+/*!> sorts the array until the 'itarget' element has exactly the right
+value. The rest of the array must be considered unsorted after the operation,
+although it will generally be better sorted. */
 {
     int j, k, p = 0, q = sz-1;
 
@@ -153,6 +151,7 @@ void sortFor( T* arr, int sz, int itarget )
 
 template <class T> inline
 void quickSort( T* arr, int sz )
+/*!> is quicker than sort_array for arrays larger than about 100 values. */
 {
     int pstack[NSTACK], qstack[NSTACK], j, k, p, q, top=0;
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.1 2000-03-02 15:24:27 bert Exp $
+ RCS:		$Id: conn.h,v 1.2 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,14 @@ ________________________________________________________________________
 #include <strmdata.h>
 class IOObj;
 
+
+/*!\brief Data connection.
+
+Data can be found in files and data stores. To access these data sources,
+some kind of connection must be set up. This class defines a simple
+interface common to these connections.
+
+*/
 
 class Conn : public DefObject
 {	     hasFactory(Conn)
@@ -41,6 +49,8 @@ public:
 
 };
 
+
+/*!\brief Connection with an underlying iostream. */
 
 class StreamConn : public Conn
 {		   isProducable(StreamConn)
@@ -75,6 +85,7 @@ public:
     const char*		name() const	 { return fname; }
 
 private:
+
     StreamData		sd;
 
     bool		mine;
@@ -85,6 +96,8 @@ private:
 
 };
 
+
+/*!\brief Connection implemented in terms of another Conn object. */
 
 class XConn  : public Conn
 {	       isProducable(XConn)

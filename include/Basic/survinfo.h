@@ -1,17 +1,17 @@
 #ifndef survinfo_H
 #define survinfo_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.2 2000-05-25 15:35:20 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.3 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
  
  
 #include <uidobj.h>
@@ -19,10 +19,12 @@ ________________________________________________________________________
 class ascostream;
 
 
-/*$@ SurveyInfo
- Holds survey general information.
-@$*/
+/*!\brief Holds survey general information.
 
+The surveyinfo is the primary source for ranges and steps. It also provides
+the transformation between inline/xline and coordinates.
+
+*/
 
 class SurveyInfo : public UserIDObject
 {

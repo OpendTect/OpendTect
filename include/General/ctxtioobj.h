@@ -1,20 +1,20 @@
 #ifndef ctxtioobj_H
 #define ctxtioobj_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.2 2000-05-29 10:33:54 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.3 2001-02-13 17:15:57 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
  
  
 #include <uidobj.h>
-#include <unitid.h>
+#include <multiid.h>
 #include <idobj.h>
 class Translator;
 class IOObj;
@@ -30,22 +30,22 @@ public:
     // intrinsics
     const Translator*	trgroup;	// Mandatory, must never be 0
     int			newonlevel;
-    int			crlink;
-    int			needparent;
+    bool		crlink;
+    bool		needparent;
     int			parentlevel;
     const Translator*	partrgroup;	// If !0, parent needed for create
-    UnitID		selid;
-    int			multi;		// If YES, multi allowed
+    MultiID		selkey;
+    bool		multi;		// If true, multi allowed
 
     // this selection only
-    int			forread;
-    int			maychdir;
-    int			maydooper;
+    bool		forread;
+    bool		maychdir;
+    bool		maydooper;
     ClassID		ioobjclassid;	// If specified, only this type
     const char*		deftransl;
 
     // this object only
-    UnitID		parentid;
+    MultiID		parentkey;
 
 
 private:
@@ -66,7 +66,8 @@ public:
 			{ setLinked(&ctxt); }
 
     void		setObj(IOObj*);
-    int			fillObj(UnitID idofdir="");
+    int			fillObj(const MultiID& idofdir=MultiID(""));
+			//!< 0 = fail, 1=existing found, 2=new made
 
     IOObjContext	ctxt;
     IOObj*		ioobj;
@@ -78,14 +79,14 @@ public:
 inline void IOObjContext::init()
 {
     newonlevel		= 0;
-    crlink		= NO;
-    needparent		= NO;
+    crlink		= false;
+    needparent		= false;
     parentlevel		= 0;
     partrgroup		= 0;
-    multi		= NO;
-    forread		= YES;
-    maychdir		= YES;
-    maydooper		= YES;
+    multi		= false;
+    forread		= true;
+    maychdir		= true;
+    maydooper		= true;
     ioobjclassid	= 0;
     deftransl		= 0;
 }

@@ -7,14 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.3 2000-04-17 14:53:42 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.4 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
-
- An asc stream gets/puts data in/from a dGB standard ascii format file.
-
- For input, the maximum size of the keyword is 1023, the max size of the
- value is limited by the line length maximum of USHRT_MAX-1, i.e. 65534.
- If word parsing is used, the limit is 1023 per word.
 
 -*/
 
@@ -33,6 +27,14 @@ class ostream;
 
 typedef char AscStreamHeader[mMaxFileHeadLength+1];
 
+
+/*!\brief dGB standard ascii format file writing.
+
+An ascostream puts data in a dGB standard ascii format file. That means
+it has a dGB standard header and often keyword/value pairs separated by
+a colon.
+
+*/
 
 class ascostream
 {
@@ -81,6 +83,17 @@ private:
 };
 
 
+/*!\brief reading dGB standard ascii format file.
+
+An ascistream gets data from a dGB standard ascii format file. This format
+consists of the dGB header (version, file type, date), and then a number of
+'paragraphs', each separated by a single '!' on a line.
+
+The max size of the value is limited by the line length maximum of
+USHRT_MAX-1, i.e. 65534. If word parsing is used, the limit is 1023 per word.
+
+*/
+
 class ascistream
 {
 public:
@@ -103,6 +116,7 @@ public:
 			{ return filetype; }
     const char*		version() const;
     const char*		nextWord();
+			//!< 'parsing' of the Value string.
     void		toFirstWord()
 			{ curword[0] = '\0'; nextwordptr = valbuf; }
 
@@ -110,7 +124,9 @@ public:
     EntryType		type() const;
     bool		atEOS() const
 			{ return type() > KeyVal; }
+			//!< returns true if at end of segment (='paragraph')
     bool		isTabbed() const	{ return tabbed; }
+			//!< returns whether the line started with a tab
     bool		hasKeyword(const char*) const;
     bool		hasValue(const char*) const;
     int			getVal() const;
@@ -122,6 +138,7 @@ public:
     const char*		keyWord() const		{ return keybuf; }
     const char*		value() const		{ return valbuf; }
 
+			// Who knows, maybe you'll ever need these
     void		setKeyWord( const char* s ) { keybuf = s; }
     void		setValue( const char* s ) { valbuf = s; }
     void		setTabbed( bool yn ) 	{ tabbed = yn; }

@@ -8,10 +8,26 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.12 2000-09-22 10:16:46 bert Exp $
+ RCS:		$Id: callback.h,v 1.13 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
 
 -*/
+
+/*!
+In any OO system callbacks to an unknown client must be possible. To be able
+to do this in for class instances, in C++ the called functions need to be:
+1) member of a certain pre-defined base class
+2) pre-specified in terms of arguments
+The following stuff tries to make sure that the base class can be chosen,
+but a nice 'empty' class is provided here. And, the Capsule mechanism ensures
+that any class can be passed as argument.
+
+There are some analogies with QT's signal/slot mechanism. We think our
+mechanism is more flexible in some ways, less in other ways (those we're not
+interested in).
+
+*/
+
 
 #ifndef CallBacker
 
@@ -31,7 +47,7 @@ typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 #define mCB(obj,clss,fn) CallBack(obj,mCBFn(clss,fn))
 
 
-/*! \brief CallBacks object-oriented.
+/*!\brief CallBacks object-oriented.
 
 If you want a specific class to be the 'callback base class', you must define
 the CallBacker before including this header file. This can
@@ -40,20 +56,6 @@ simply by defining it with #define .
 
 If you don't define it yourself, you'll get the dGB CallBackClass which
 is (almost) empty.
-
-A simple list of CallBacks is also required. Again, define CallBackList if
-needed. In this case, you'll need to support:
-
-1) An 'operator +=' to add a callback to the list
-2) An 'operator -=' to remove a callback from the list
-3) An 'operator [](int)' const that returns the i-th callback in the list.
-4) A method 'size() const' that returns the number of callbacks in the list
-5) A method 'doCall(CallBacker*)' that simply calls all the CallBacks' doCall
-   methods.
-
-If you do not define CallBackList you will get dGB's CallBackSet, which is
-based on a simple dumbed-down implementation a bit like the std lib's vector
-class.
 
 */
 
@@ -84,8 +86,25 @@ protected:
 };
 
 
-#ifndef CallBackList
+/*!\brief List of CallBacks.
 
+A simple list of CallBacks is required. Again, define CallBackList if
+needed. In this case, you'll need to support:
+
+1) An 'operator +=' to add a callback to the list
+2) An 'operator -=' to remove a callback from the list
+3) An 'operator [](int)' const that returns the i-th callback in the list.
+4) A method 'size() const' that returns the number of callbacks in the list
+5) A method 'doCall(CallBacker*)' that simply calls all the CallBacks' doCall
+   methods.
+
+If you do not define CallBackList you will get dGB's CallBackSet, which is
+based on a simple dumbed-down implementation a bit like the std lib's vector
+class.
+
+*/
+
+#ifndef CallBackList
 
 #define CallBackList CallBackSet
 #include <sets.h>
@@ -108,10 +127,11 @@ inline void CallBackSet::doCall( CallBacker* obj )
 #endif
 
 
-/*! \brief A Capsule class to wrap any class into a CallBacker.
+/*!\brief Capsule class to wrap any class into a CallBacker.
 
 for convenience, a CallBacker* is included, so the 'caller' will still be
 available.
+
 */
 
 template <class T>
@@ -125,7 +145,8 @@ public:
     CallBacker*		caller;
 };
 
-/*! \brief Unpack data from capsule
+
+/*!\brief Unpacking data from capsule
 
 If you have a pointer to a capsule cb, this:
 \code
@@ -134,6 +155,15 @@ If you have a pointer to a capsule cb, this:
 would result in the availability of:
 \code
     const uiMouseEvent& ev
+\endcode
+
+If you're interested in the caller, you'll need to get the capsule itself:
+\code
+    mCBCapsuleGet(const uiMouseEvent&,caps,cb)
+\endcode
+would result in the availability of:
+\code
+    CBCapsule<const uiMouseEvent&>* caps
 \endcode
 
 */
@@ -146,21 +176,7 @@ would result in the availability of:
     T var = cb##caps->data
 
 
-/*! \brief Notifier classes help setup a callback handling.
-
-Simply declare a Notifier<T> in the interface, like:
-\code
-Notifier<MyClass>	buttonclicked;
-\endcode
-
-Then users of the class can issue:
-
-\code
-aMyClass.buttonclicked.notify( mCB(this,TheClassOfThis,TheMethodToBeCalled) );
-\endcode
-
-The callback is issued when you call the trigger() method.
-*/
+/*!\brief implementation class for Notifier */
 
 class i_Notifier
 {
@@ -177,6 +193,25 @@ protected:
 
 };
 
+
+/*!\brief class to help setup a callback handling.
+
+Simply declare a Notifier<T> in the interface, like:
+\code
+Notifier<MyClass>	buttonclicked;
+\endcode
+
+Then users of the class can issue:
+
+\code
+aMyClass.buttonclicked.notify( mCB(this,TheClassOfThis,TheMethodToBeCalled) );
+\endcode
+
+The callback is issued when you call the trigger() method, like:
+\code
+buttonclicked.trigger();
+\endcode
+*/
 
 template <class T>
 class Notifier : public i_Notifier
@@ -203,7 +238,7 @@ When non-callbacker data needs to be passed, you can put it in a capsule.
 You'll need to define:
 
 \code
-Notifier<MyClass,const uiMouseEvent&>	mousepress;
+CNotifier<MyClass,const uiMouseEvent&>	mousepress;
 \endcode
 
 */

@@ -1,28 +1,40 @@
 #ifndef ioman_H
 #define ioman_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.2 2000-05-29 10:33:55 bert Exp $
+ RCS:		$Id: ioman.h,v 1.3 2001-02-13 17:15:57 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
  
-/*@+
-@$*/
 
 #include <uidobj.h>
-#include <unitid.h>
+#include <multiid.h>
 #include <sets.h>
 class IOLink;
 class IOParList;
 class IOPar;
 class CtxtIOObj;
 
+
+/*!> Class IOMan manages the Meta-data store for the IOObj's. This info
+is read from the .omf files.
+
+There will be one IOMan available through the gloabal function IOM(). Creating
+more instances is probably not be a good idea, but may work.
+
+A current IODir is maintained. Auxiliary info, not needed for read/write the
+object, but useful info can be stored in .aux files.
+
+Access to the parameter save files (e.g. '.Process_Seismic') is also provided
+through getParList().
+
+*/
 
 class IOMan : public UserIDObject
 {
@@ -32,58 +44,67 @@ class IOMan : public UserIDObject
     friend IOMan&	IOM();
 
 public:
+
     enum State		{ Bad, NeedInit, Good };
-    int			bad() const		{ return state_ != Good; }
+    bool		bad() const		{ return state_ != Good; }
     State		state() const		{ return state_; }
 
-    int			to(const IOLink*);	// NULL -> ".."
-    int			to(const UnitID&);
+    bool		to(const IOLink*);	//!< NULL -> ".."
+    bool		to(const MultiID&);
     void		back();
 
-    // The following functions return a cloned IOObj (=mem man by caller)
-    IOObj*		get(const UnitID&) const;
+    //! The following functions return a cloned IOObj (=mem man by caller)
+    IOObj*		get(const MultiID&) const;
     IOObj*		getIfOnlyOne(const char* trgroupname) const;
     IOObj*		getByName(const char* objname,
 			      const char* partrgname=0,const char* parname=0);
 
     IODir*		dirPtr() const		{ return (IODir*)dirptr; }
-    UnitID		unitID() const;
-    const char*		curDir() const;
+    MultiID		key() const;		//!< of current IODir
+    const char*		curDir() const;		//!< OS dir name
     int			curLevel() const	{ return curlvl; }
     const char*		rootDir() const		{ return rootdir; }
     int			levelOf(const char* dirnm) const;
     const char*		nameOf(const char* uid) const;
 
-    void		getEntry(CtxtIOObj&,UnitID parentid="");
+    void		getEntry(CtxtIOObj&,MultiID parentid="");
+			//!< will create a new entry if necessary
     IOParList*		getParList(const char* typ=0) const;
+			//!< Reads the file on the root of the survey
 
-    IOPar*		getAux(const UnitID&) const;
-    int			putAux(const UnitID&,const IOPar*) const;
-    IOParList*		getAuxList(const UnitID&) const;
-    int			putAuxList(const UnitID&,const IOParList*) const;
-    int			hasAux(const UnitID&) const;
-    int			removeAux(const UnitID&) const;
+    IOPar*		getAux(const MultiID&) const;
+    bool		putAux(const MultiID&,const IOPar*) const;
+    IOParList*		getAuxList(const MultiID&) const;
+    bool		putAuxList(const MultiID&,const IOParList*) const;
+    bool		hasAux(const MultiID&) const;
+    bool		removeAux(const MultiID&) const;
 
-    			~IOMan();
-    static int		newSurvey();
+    static bool		newSurvey();
+			/*!< if an external source has changed
+				the $HOME/.dgbSurvey, force re-read it. */
     static void		setSurvey(const char*);
+			/*!< will remove a possible existing IO manager and
+			     set the survey to 'name', thus bypassing the
+			     $HOME/.dgbSurvey file */
 
 private:
+
     State		state_;
     IODir*		dirptr;
     int			curlvl;
-    UnitID		prevunitid;
+    MultiID		prevkey;
     FileNameString	rootdir;
 
     static IOMan*	theinst_;
 			IOMan();
+    			~IOMan();
     void		init();
     static void		stop();
-    int			setRootDir(const char*);
+    bool		setRootDir(const char*);
 
-    int			setDir(const char*);
-    UnitID		newId() const;
-    int			getAuxfname(const UnitID&,FileNameString&) const;
+    bool		setDir(const char*);
+    MultiID		newKey() const;
+    bool		getAuxfname(const MultiID&,FileNameString&) const;
 
 };
 

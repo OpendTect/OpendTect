@@ -8,11 +8,8 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.5 2000-09-27 15:22:13 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.6 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
-
-Overhead is 4 extra bytes for length and minimum length. Maximum size (no
-warnings) is MAXUSHORT (64k).
 
 -*/
 
@@ -21,23 +18,31 @@ warnings) is MAXUSHORT (64k).
 #include <iostream.h>
 #include <stdlib.h>
 
+
+/*!\brief String with variable length but guaranteed minimum buffer size.
+
+The minimum buffer size makes life easier in worlds where strcpy etc. rule.
+Overhead is 8 extra bytes for length and minimum length.
+
+*/
+
 class BufferString
 {
 public:
    			BufferString( const char* s=0,
-				      unsigned short ml=mMaxUserIDLength )
+				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
 			{ init(); if ( s ) *this = s; }
    			BufferString( int i,
-				      unsigned short ml=mMaxUserIDLength )
+				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
 			{ init(); *this += i; }
    			BufferString( double d,
-				      unsigned short ml=mMaxUserIDLength )
+				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
 			{ init(); *this += d; }
    			BufferString( float f,
-				      unsigned short ml=mMaxUserIDLength )
+				      unsigned int ml=mMaxUserIDLength )
 				: minlen(ml+1)
 			{ init(); *this += f; }
 			BufferString( const BufferString& bs )
@@ -62,8 +67,8 @@ public:
    inline		operator char*() const		{ return (char*)buf; }
    inline char&		operator [](int idx)		{ return buf[idx]; }
    inline const char&	operator [](int idx) const	{ return buf[idx]; }
-   inline unsigned short size() const			{ return strlen(buf); }
-   inline unsigned short bufSize() const
+   inline unsigned int	size() const			{ return strlen(buf); }
+   inline unsigned int	bufSize() const
 			{ return len; }
    inline bool		operator==( const BufferString& s ) const
 			{ return operator ==( s.buf ); }
@@ -83,8 +88,8 @@ public:
 protected:
 
     char*		buf;
-    unsigned short	len;
-    const unsigned short minlen;
+    unsigned int	len;
+    const unsigned int	minlen;
 
 private:
 
@@ -111,7 +116,7 @@ inline BufferString& BufferString::operator=( const char* s )
     if ( buf != s )
     {
 	if ( !s ) s = "";
-	unsigned short newlen = (unsigned short)(strlen(s) + 1);
+	unsigned int newlen = (unsigned int)(strlen(s) + 1);
 	if ( newlen < minlen ) newlen = minlen;
 	if ( newlen != len )
 	    { len = newlen; buf = mREALLOC(buf,len,char); }
@@ -127,15 +132,12 @@ inline BufferString& BufferString::operator +=( const char* s )
 {
     if ( s && *s )
     {
-	unsigned short newlen = (unsigned short)(strlen(s) + strlen(buf)) + 1;
+	unsigned int newlen = (unsigned int)(strlen(s) + strlen(buf)) + 1;
 	if ( newlen < minlen ) newlen = minlen;
 	if ( newlen != len )
 	{
-	    char tmp[len];
-	    strcpy( tmp, buf );
 	    len = newlen;
 	    buf = mREALLOC(buf,len,char);
-	    strcpy( buf, tmp );
 	}
 
 	char* ptr = buf;

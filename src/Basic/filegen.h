@@ -8,12 +8,8 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.4 2000-03-07 08:37:24 bert Exp $
+ RCS:		$Id: filegen.h,v 1.5 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
-
-These functions deliver services related to files. In principle, they shield
-from knowledge of the OS, and could so also be used on non-UNIX platforms.
-Only UNIX is currently implemented, though.
 
 -*/
 
@@ -30,8 +26,13 @@ Only UNIX is currently implemented, though.
 extern "C" {
 #endif
 
+/*!
+These functions deliver services related to files. In principle, they shield
+from knowledge of the OS, and could so also be used on non-UNIX platforms.
+Only UNIX is currently implemented, though.
+*/
 
-/* Functions returning YES/true on success */
+/*! Functions returning YES/true on success */
 int	File_exists(const char*);
 int	File_isEmpty(const char*);
 int	File_isDirectory(const char*);
@@ -39,11 +40,10 @@ int	File_isAbsPath(const char*);
 int	File_createDir(const char*,int mode /* 0755 when 0 passed */);
 int	File_rename(const char* oldname,const char* newname);
 int	File_copy(const char* from,const char* to,int recursive_downward);
-int	File_link(const char* from,const char* to);
 int	File_remove(const char*,int force,int recursive_downward);
 int	File_makeWritable(const char*,int recursive,int yesno);
 
-/*
+/*!
 The following functions return a pointer to the same static buffer, meaning you
 cannot mix them directly!
 */

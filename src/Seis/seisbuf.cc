@@ -4,12 +4,13 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.5 2000-07-22 10:19:58 dgb Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.6 2001-02-13 17:21:08 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "seiswrite.h"
 #include "xfuncimpl.h"
+#include "binidselimpl.h"
 
 
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
@@ -23,34 +24,27 @@ void SeisTrcBuf::insert( SeisTrc* t, int insidx )
 void SeisTrcBuf::fill( SeisTrcBuf& buf ) const
 {
     for ( int idx=0; idx<trcs.size(); idx++ )
-	buf.add( trcs[idx]->clone() );
+	buf.add( new SeisTrc( *trcs[idx] ) );
 }
 
 
 void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 {
     if ( !size() ) return;
-
-    const SeisTrc* trc0 = get( 0 );
-    spi.ns = trc0->size();
-    spi.dt = trc0->info().dt;
-    spi.starttime = trc0->info().starttime;
-
-    spi.range.start = trc0->info().binid;
-    spi.range.stop = trc0->info().binid;
+    spi.range.start = spi.range.stop = get(0)->info().binid;
     for ( int idx=1; idx<size(); idx++ )
 	spi.range.include( get(idx)->info().binid );
 }
 
 
-void SeisTrcBuf::transferData( FloatList& fl, int takeeach ) const
+void SeisTrcBuf::transferData( FloatList& fl, int takeeach, int icomp ) const
 {
     for ( int idx=0; idx<size(); idx+=takeeach )
     {
 	const SeisTrc& trc = *get( idx );
-	const int trcsz = trc.size();
+	const int trcsz = trc.size( icomp );
 	for ( int isamp=0; isamp<trcsz; isamp++ )
-	    fl += trc[isamp];
+	    fl += trc.get( isamp, icomp );
     }
 }
 
@@ -127,9 +121,15 @@ StepInterval<int> SeisGather::getSI( const StepInterval<int>& stpi ) const
 }
 
 
-void SeisGather::getStack( SeisTrc& trc, const StepInterval<int>& stpi ) const
+void SeisGather::getStack( SeisTrc& trc, const StepInterval<int>& stpi,
+			   int icomp ) const
 {
-    trc.reSize(0);
+    const int nrcomp = trc.data().nrComponents();
+    for ( int ic=0; ic<nrcomp; ic++ )
+    {
+	if ( icomp < 0 || ic == icomp )
+	    trc.reSize(0,ic);
+    }
     if ( size() < 1 ) return;
 
     StepInterval<int> si = getSI( stpi );
@@ -137,44 +137,54 @@ void SeisGather::getStack( SeisTrc& trc, const StepInterval<int>& stpi ) const
     if ( sz < 1 ) return;
 
     const SeisTrc* trc1 = get( si.start );
-    if ( sz == 1 ) { trc.copyAll( *trc1 ); return; }
+    if ( sz == 1 ) { trc = *trc1; return; }
 
     const SeisTrc* arr[sz];
     arr[0] = trc1;
-    Interval<float> tmrg( trc1->info().sampleTime(0),
-			  trc1->info().sampleTime(trc1->size()-1) );
-    for ( int idx=si.start+si.step; idx<=si.stop; idx+=si.step )
-    {
-	int nr = (idx - si.start) / si.step;
-	arr[nr] = get( idx );
-	tmrg.include( arr[nr]->info().sampleTime(0) );
-	tmrg.include( arr[nr]->info().sampleTime(arr[nr]->size()-1) );
-    }
-    int nrsamps = mNINT(tmrg.width() / (trc1->info().dt*1.e-6)) + 1;
+    trc.info().sampling = trc1->info().sampling;
 
-    trc.reSize( nrsamps );
-    trc.info().starttime = tmrg.start;
-    trc.info().dt = trc1->info().dt;
-    for ( int isamp=0; isamp<nrsamps; isamp++ )
+    for ( int ic=0; ic<nrcomp; ic++ )
     {
-	float t = trc.info().sampleTime( isamp );
-	float sumvals = 0;
-	int nrvals = 0;
-	for ( int idx=0; idx<sz; idx++ )
+	if ( icomp >= 0 && ic != icomp )
+	    continue;
+
+	Interval<float> tmrg( trc1->samplePos(0,ic),
+			      trc1->samplePos(trc1->size(ic)-1,ic) );
+
+	for ( int idx=si.start+si.step; idx<=si.stop; idx+=si.step )
 	{
-	    if ( arr[idx]->dataPresent(t) )
-	    {
-		sumvals += arr[idx]->getValue( t );
-		nrvals++;
-	    }
+	    int nr = (idx - si.start) / si.step;
+	    arr[nr] = get( idx );
+	    tmrg.include( arr[nr]->samplePos(0,ic) );
+	    tmrg.include( arr[nr]->samplePos(arr[nr]->size(ic)-1,ic) );
 	}
-	trc.set( isamp, nrvals == 0 ? 0 : sumvals / nrvals );
+	int nrsamps = mNINT(tmrg.width() / trc1->info().sampling.step) + 1;
+	if ( ic == 0 ) trc.info().sampling.start = tmrg.start;
+
+	trc.setSampleOffset( trc.info().nearestSample(tmrg.start), ic );
+	trc.reSize( nrsamps, ic );
+
+	for ( int isamp=0; isamp<nrsamps; isamp++ )
+	{
+	    float t = trc.samplePos( isamp, ic );
+	    float sumvals = 0;
+	    int nrvals = 0;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		if ( arr[idx]->dataPresent(t,ic) )
+		{
+		    sumvals += arr[idx]->getValue( t, ic );
+		    nrvals++;
+		}
+	    }
+	    trc.set( isamp, nrvals == 0 ? 0 : sumvals / nrvals, ic );
+	}
     }
 }
 
 
 XFunction* SeisGather::getValues( float t, const StepInterval<int>& stpi,
-				  int attrnr ) const
+				  int attrnr, int icomp ) const
 {
     SegmentXFunction* xf = new SegmentXFunction;
     if ( size() < 1 ) return xf;
@@ -183,8 +193,8 @@ XFunction* SeisGather::getValues( float t, const StepInterval<int>& stpi,
     for ( int idx=si.start; idx<=si.stop; idx+=si.step )
     {
 	const SeisTrc* trc = get( idx );
-	if ( trc->dataPresent(t) )
-	    xf->setValue( trc->info().getAttr(attrnr), trc->getValue(t) );
+	if ( trc->dataPresent(t,icomp) )
+	    xf->setValue( trc->info().getAttr(attrnr), trc->getValue(t,icomp) );
     }
 
     return xf;
@@ -199,7 +209,7 @@ SeisTrcBufWriter::SeisTrcBufWriter( const SeisTrcBuf& b, SeisTrcWriter& w )
 	, nrdone(0)
 {
     if ( trcbuf.size() )
-	starter = writer.starter();
+	starter = writer.starter( *trcbuf.get(0) );
 }
 
 

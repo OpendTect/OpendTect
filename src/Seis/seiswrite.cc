@@ -5,22 +5,23 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.5 2000-11-09 15:54:03 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.6 2001-02-13 17:21:08 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
 #include "seistrc.h"
+#include "seistrcsel.h"
 #include "executor.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "separstr.h"
 #include "storlayout.h"
-#include "binidsel.h"
+#include "binidselimpl.h"
 #include "iopar.h"
 
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 	: SeisStorage(ioob)
-	, binids(0)
+	, binids(*new BinIDRange)
 {
     init();
 }
@@ -28,11 +29,25 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 
 void SeisTrcWriter::init()
 {
-    delete binids; binids = new BinIDRange;
-    starttime = 0;
-    dt = 4000;
-    nrwr = nrwrconn = 0;
-    trace_size = -1;
+    binids.start.inl = -999;
+    nrwrconn = 0;
+    wrinited = false;
+}
+
+
+SeisTrcWriter::~SeisTrcWriter()
+{
+    delete &binids;
+}
+
+
+bool SeisTrcWriter::isMultiComp() const
+{
+    if ( !trl || !trl->componentInfo().size() ) return false;
+    int nrsel = 0;
+    for ( int idx=0; idx<trl->componentInfo().size(); idx++ )
+	if ( trl->componentInfo()[idx]->destidx >= 0 ) nrsel++;
+    return nrsel > 1;
 }
 
 
@@ -41,13 +56,14 @@ class SeisWriteStarter : public Executor
 public:
 
 const char* message() const	{ return msg; }
-int nrDone() const		{ return wr.conn ? 2 : 1; }
-const char* nrDoneText() const	{ return "Step"; }
+int nrDone() const		{ return 0; }
+const char* nrDoneText() const	{ return "Please wait"; }
 
-SeisWriteStarter( SeisTrcWriter& w )
+SeisWriteStarter( SeisTrcWriter& w, const SeisTrc& t )
 	: Executor("Seismic Writer Starter")
 	, wr(w)
 	, msg("Initializing data store")
+	, trc(t)
 {
 }
 
@@ -56,22 +72,11 @@ int nextStep()
 {
     if ( !wr.ioObj() )
     {
-	msg = "Bad data from Object Manager";
+	msg = "No info for Object Manager";
 	return -1;
     }
 
-    if ( wr.connState() != Conn::Write )
-    {
-	if ( !wr.openConn() )
-	{
-	    msg = "Cannot open data storage for write";
-	    return -1;
-	}
-	msg = "Writing global header data";
-	return 1;
-    }
-
-    if ( !wr.initWrite() )
+    if ( !wr.initWrite( trc ) )
     {
 	msg = wr.errMsg();
 	return -1;
@@ -81,14 +86,15 @@ int nextStep()
 }
 
     SeisTrcWriter&	wr;
+    const SeisTrc&	trc;
     const char*		msg;
 
 };
 
 
-Executor* SeisTrcWriter::starter()
+Executor* SeisTrcWriter::starter( const SeisTrc& trc )
 {
-    return new SeisWriteStarter( *this );
+    return new SeisWriteStarter( *this, trc );
 }
 
 
@@ -99,53 +105,63 @@ bool SeisTrcWriter::openConn()
     delete conn;
     conn = ioobj->getConn( Conn::Write );
     if ( !conn || conn->bad() )
-    {
-	delete ioobj; ioobj = 0;
-	delete conn; conn = 0;
-    }
+	{ delete conn; conn = 0; }
 
     return conn ? true : false;
 }
 
 
-bool SeisTrcWriter::initWrite()
+bool SeisTrcWriter::initWrite( const SeisTrc& trc )
 {
-    if ( trl && trl->initWrite(spi,*conn) )
-	return true;
+    if ( !trl )
+    {
+	delete conn; conn = 0;
+	if ( errmsg == "" ) errmsg = "Error initialising data store";
+	return false;
+    }
 
-    delete ioobj; ioobj = 0;
-    delete conn; conn = 0;
-    errmsg = trl ? trl->errMsg() : "Error initialising data store";
-    return false;
+    if ( !handleConn(trc) ) return false;
+    if ( !conn && !openConn() )
+    {
+	if ( errmsg == "" )
+	    errmsg = "No information for output creation";
+	return false;
+    }
+    wrinited = true;
+    return trl->initWrite( *conn, trc );
 }
 
 
-bool SeisTrcWriter::handleConn( const SeisTrcInfo& ti )
+bool SeisTrcWriter::handleConn( const SeisTrc& trc )
 {
-    if ( !ioobj->multiConn() ) return true;
+    if ( !ioobj || !ioobj->hasClass(IOStream::classid) ) return true;
+    IOStream* iostrm = (IOStream*)ioobj;
+    if ( !iostrm->multiConn() ) return conn ? true : openConn();
+    const bool connisbidnr = iostrm->directNumberMultiConn();
 
-    bool neednewpacket = ti.new_packet;
-    const StorageLayout& lyo = storageLayout();
+    const SeisTrcInfo& ti = trc.info();
+    bool neednewpacket = !conn || ti.new_packet;
+    StorageLayout lyo = trl->storageLayout();
     bool clustcrl = lyo.type() == StorageLayout::Xline;
 
-    if ( !neednewpacket && ioobj->isStarConn() )
-	neednewpacket = ioobj->connNr() != (lyo.type() == StorageLayout::Xline
+    if ( !neednewpacket && connisbidnr )
+	neednewpacket = iostrm->connNr() != (lyo.type() == StorageLayout::Xline
 					    ? ti.binid.crl : ti.binid.inl);
 
     if ( !neednewpacket ) return true;
 
+    if ( conn && nrwrconn == 0 )
+	(void)iostrm->implRemove(); // What if it fails? Can't stop.
     delete conn; conn = 0;
-    if ( nrwrconn == 0 )
-	(void)ioobj->implRemove(); // What should we do if it fails? Can't stop.
     nrwrconn = 0;
-    if ( !ioobj->toNextConnNr() ) return false;
+    if ( !iostrm->toNextConnNr() ) return false;
 
-    if ( ioobj->isStarConn() )
+    if ( connisbidnr )
     {
 	int nr = clustcrl ? ti.binid.crl : ti.binid.inl;
-	while ( nr != ioobj->connNr() && ioobj->toNextConnNr() )
+	while ( nr != iostrm->connNr() && iostrm->toNextConnNr() )
 	    ;
-	if ( nr != ioobj->connNr() )
+	if ( nr != iostrm->connNr() )
 	{
 	    errmsg = "Output line "; errmsg += nr;
 	    errmsg += " is not in valid range for output";
@@ -155,59 +171,41 @@ bool SeisTrcWriter::handleConn( const SeisTrcInfo& ti )
 
     if ( !openConn() )
     {
-	if ( ioobj && errmsg == "" ) errmsg = "Cannot create file";
+	if ( errmsg == "" ) errmsg = "Cannot create file";
 	return false;
     }
 
-    return initWrite();
+    return initWrite( trc );
 }
 
 
-bool SeisTrcWriter::prepareRetry()
-{
-    if ( trl ) trl->prepareRetry();
-    return true;
-}
-
-
-bool SeisTrcWriter::put( const SeisTrc& t )
+bool SeisTrcWriter::put( const SeisTrc& trc )
 {
     if ( !trl ) { errmsg = "No translator"; return false; }
-    if ( !handleConn( t.info() ) ) return false;
-
-    const SeisTrc* trc = &t;
-    SeisTrc* made_trc = 0;
-    if ( trace_size <  0 )
+    if ( !wrinited )
     {
-	trace_size = trc->size();
-	starttime = trc->info().starttime;
-	dt = trc->info().dt;
-	binids->start = trc->info().binid;
-	binids->stop = trc->info().binid;
-    }
-    else
-    {
-	binids->include( trc->info().binid );
-	if ( trc->size() != trace_size )
+	Executor* st = starter( trc );
+	if ( !st->execute(0) )
 	{
-	    made_trc = trc->getNew();
-	    made_trc->info() = trc->info();
-	    made_trc->reSize( trace_size );
-	    int copy_size = trace_size;
-	    if ( trace_size > trc->size() )
-	    {
-		made_trc->clear();
-		copy_size = trc->size();
-	    }
-	    for ( int idx=0; idx<copy_size; idx++ )
-		made_trc->set( idx, (*trc)[idx] );
-	    trc = made_trc;
+	    errmsg = st->message();
+	    delete st;
+	    return false;
 	}
+	delete st;
     }
+    else if ( !handleConn( trc ) )
+	return false;
+
+    if ( binids.start.inl == -999 )
+	binids.start = binids.stop = trc.info().binid;
+    else
+	binids.include( trc.info().binid );
 
     bool rv = true;
-    if ( trl->write(*trc) )
-	{ nrwrconn++; nrwr++; }
+    if ( trcsel && !trcsel->intv.includes(nrtrcs) )
+	/* Leave this trace */;
+    else if ( trl->write(trc) )
+	nrwrconn++;
     else
     {
 	errmsg = trl->errMsg();
@@ -215,22 +213,22 @@ bool SeisTrcWriter::put( const SeisTrc& t )
 	rv = false;
     }
 
-    delete made_trc;
+    nrtrcs++;
     return rv;
 }
 
 
 void SeisTrcWriter::fillAuxPar( IOPar& iopar ) const
 {
-    if ( nrwr < 1 ) return;
+    if ( nrtrcs < 1 ) return;
 
     FileMultiString fms;
-    fms += binids->start.inl; fms += binids->start.crl;
-    fms += binids->stop.inl; fms += binids->stop.crl;
+    fms += binids.start.inl; fms += binids.start.crl;
+    fms += binids.stop.inl; fms += binids.stop.crl;
 
     iopar.set( SeisPacketInfo::sBinIDs, fms );
-    iopar.set( SeisPacketInfo::sNrTrcs, nrwr );
-    iopar.set( SeisTrcInfo::sStartTime, starttime * 1000 );
-    iopar.set( SeisTrcInfo::sNrSamples, trace_size );
-    iopar.set( SeisTrcInfo::sSampIntv, ((double)dt) * 0.001 );
+    iopar.set( SeisStorage::sNrTrcs, nrtrcs );
+    iopar.set( SeisTrcInfo::sSamplingInfo, trl->componentInfo()[0]->sd.start,
+					   trl->componentInfo()[0]->sd.step );
+    iopar.set( SeisTrcInfo::sNrSamples, trl->componentInfo()[0]->nrsamples );
 }

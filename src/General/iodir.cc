@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.4 2000-09-27 16:05:00 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.5 2001-02-13 17:21:02 bert Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -32,11 +32,11 @@ IODir::IODir()
 }
 
 
-IODir::IODir( const UnitID& uid )
+IODir::IODir( const MultiID& ky )
 	: state_(Fail)
 	, curid_(0)
 {
-    IOObj* ioobj = getObj( uid );
+    IOObj* ioobj = getObj( ky );
     if ( !ioobj ) return;
     dirname_ = ioobj->dirName();
     delete ioobj;
@@ -68,7 +68,7 @@ const IOObj* IODir::main() const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	IOObj* ioobj = objs_[idx];
-	if ( ioobj->myId() == 1 ) return ioobj;
+	if ( ioobj->myKey() == 1 ) return ioobj;
     }
     return 0;
 }
@@ -107,11 +107,11 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
     ascistream astream( *streamptr );
     astream.next();
     FileMultiString fms( astream.value() );
-    UnitID diruid( fms[0] );
-    if ( diruid == "0" ) diruid = "";
+    MultiID dirky( fms[0] );
+    if ( dirky == "0" ) dirky = "";
     if ( dirptr )
     {
-	dirptr->unitid = diruid;
+	dirptr->key_ = dirky;
 	dirptr->curid_ = atoi(fms[1]);
     }
     astream.next();
@@ -119,16 +119,16 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
     IOObj* retobj = 0;
     while ( astream.type() != ascistream::EndOfFile )
     {
-	IOObj* obj = IOObj::get(astream,dirnm,diruid);
+	IOObj* obj = IOObj::get(astream,dirnm,dirky);
 	if ( !obj || obj->bad() ) { delete obj; continue; }
 
 	found1 = YES;
-	UnitID uid( obj->unitID() );
-	int id = atoi( uid.code( uid.level() ) );
+	MultiID ky( obj->key() );
+	int id = ky.ID( ky.nrKeys()-1 );
 
 	if ( dirptr )
 	{
-	    if ( (*dirptr)[uid] )
+	    if ( (*dirptr)[ky] )
 	    {
 		delete obj;
 		continue;
@@ -156,15 +156,15 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 }
 
 
-IOObj* IODir::getObj( const UnitID& uid )
+IOObj* IODir::getObj( const MultiID& ky )
 {
     FileNameString dirnm( IOM().rootDir() );
-    int lvl = uid.level();
-    for ( int idx=1; idx<=lvl; idx++ )
+    int nrkeys = ky.nrKeys();
+    for ( int idx=0; idx<nrkeys; idx++ )
     {
-	int id = atoi( uid.code(idx) );
+	int id = ky.ID( idx );
 	IOObj* ioobj = doRead( dirnm, 0, id );
-	if ( !ioobj || idx == lvl ) return ioobj;
+	if ( !ioobj || idx == nrkeys-1 ) return ioobj;
 	dirnm = ioobj->dirName();
 	delete ioobj;
     }
@@ -173,13 +173,13 @@ IOObj* IODir::getObj( const UnitID& uid )
 }
 
 
-const IOObj* IODir::operator[]( const UnitID& uid ) const
+const IOObj* IODir::operator[]( const MultiID& ky ) const
 {
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->unitID() == uid
-	  || ( ioobj->isLink() && ((IOLink*)ioobj)->link()->unitID() == uid ) )
+	if ( ioobj->key() == ky
+	  || ( ioobj->isLink() && ((IOLink*)ioobj)->link()->key() == ky ) )
 		return ioobj;
 	
     }
@@ -188,14 +188,14 @@ const IOObj* IODir::operator[]( const UnitID& uid ) const
 }
 
 
-bool IODir::create( const char* dirnm, const UnitID& uid, IOObj* mainobj )
+bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
 {
     if ( !dirnm || !*dirnm || !mainobj ) return NO;
-    mainobj->unitid = uid;
-    mainobj->unitid += getStringFromInt( 0, 1 );
+    mainobj->key_ = ky;
+    mainobj->key_ += getStringFromInt( 0, 1 );
     IODir dir;
     dir.dirname_ = dirnm;
-    dir.unitid = uid;
+    dir.key_ = ky;
 
     dir.objs_ += mainobj;
     dir.state_ = Ok;
@@ -214,7 +214,7 @@ void IODir::reRead()
 }
 
 
-bool IODir::permRemove( const UnitID& uid )
+bool IODir::permRemove( const MultiID& ky )
 {
     reRead();
     if ( bad() ) return NO;
@@ -223,7 +223,7 @@ bool IODir::permRemove( const UnitID& uid )
     for ( int idx=0; idx<sz; idx++ )
     {
 	IOObj* obj = objs_[idx];
-	if ( obj->unitID() == uid )
+	if ( obj->key() == ky )
 	{
 	    *this -= obj;
 	    delete obj;
@@ -238,12 +238,12 @@ bool IODir::commitChanges( const IOObj* ioobj )
 {
     if ( ioobj->isLink() )
     {
-	IOObj* obj = (IOObj*)(*this)[ioobj->unitID()];
+	IOObj* obj = (IOObj*)(*this)[ioobj->key()];
 	if ( obj != ioobj ) obj->copyFrom( ioobj );
 	return doWrite();
     }
 
-    IOObj* clone = ioobj->cloneStandAlone();
+    IOObj* clone = ioobj->clone();
     reRead();
     if ( bad() ) { delete clone; return NO; }
 
@@ -252,7 +252,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
     for ( int idx=0; idx<sz; idx++ )
     {
 	IOObj* obj = objs_[idx];
-	if ( obj->unitID() == clone->unitID() )
+	if ( obj->key() == clone->key() )
 	{
 	    delete objs_.replace( clone, obj );
 	    found = YES;
@@ -270,8 +270,8 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 	reRead();
 	if ( bad() ) return NO;
     }
-    if ( (*this)[ioobj->unitID()] )
-	ioobj->setUnitID( newId() );
+    if ( (*this)[ioobj->key()] )
+	ioobj->setKey( newKey() );
 
     mkUniqueName( ioobj );
     *this += ioobj;
@@ -319,7 +319,7 @@ bool IODir::doWrite() const
     ascostream astream( *streamptr );
     if ( !astream.putHeader( "Object Management file" ) ) mCloseRetNo(streamptr)
     astream.paddingOff();
-    FileMultiString fms( unitid == "" ? "0" : (const char*)unitid );
+    FileMultiString fms( key_ == "" ? "0" : (const char*)key_ );
     fms += curid_;
     astream.put( "ID", fms );
     astream.newParagraph();
@@ -345,9 +345,9 @@ bool IODir::doWrite() const
 }
 
 
-UnitID IODir::newId() const
+MultiID IODir::newKey() const
 {
-    UnitID id = unitid;
+    MultiID id = key_;
     ((IODir*)this)->curid_++;
     id += getStringFromInt( 0, curid_ );
     return id;

@@ -16,10 +16,10 @@
 #include "binidsel.h"
 #include "strmoper.h"
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.2 2000-09-22 16:32:12 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.3 2001-02-13 17:20:58 bert Exp $";
 
 static FixedString<1024> oscommand;
-#define exeCmd(comm) system((const char*)comm) ? NO : YES
+#define exeCmd(comm) system((const char*)comm) ? false : true
 
 DefineClassID(StreamProvider);
 static const char* sStdIO = "$std$IO$";
@@ -28,7 +28,7 @@ static const char* sStdIO = "$std$IO$";
 void StreamData::close()
 {
     if ( fp && fp != stdin && fp != stdout && fp != stderr )
-	if ( ispipe ) pclose(fp); else fclose(fp);
+	{ if ( ispipe ) pclose(fp); else fclose(fp); }
     if ( sb )
 	delete sb;
     if ( istrm && istrm != &cin )
@@ -42,18 +42,16 @@ void StreamData::close()
 
 void StreamData::init()
 {
-    fp = 0; sb = 0; istrm = 0; ostrm = 0;
+    fp = 0; sb = 0; istrm = 0; ostrm = 0; ispipe = false;
 }
 
 
-int StreamData::usable() const
+bool StreamData::usable() const
 {
-    if		( !istrm && !ostrm )				return NO;
-    else if	( istrm && istrm->fail() )			return NO;
-    else if	( ostrm && (ostrm->fail() || ostrm->eof()) )	return NO;
-    else if	( sb && !fp )					return NO;
-
-    return YES;
+    return ( istrm || ostrm )
+	&& ( !istrm || !istrm->bad() )
+	&& ( !ostrm || (!ostrm->bad() && !ostrm->eof()) )
+	&& ( !ispipe || (sb && fp) );
 }
 
 
@@ -65,19 +63,19 @@ StreamProvider::StreamProvider( const char* devname )
 
 StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
 				StreamConn::Type typ )
-	: isbad(NO)
+	: isbad(false)
 	, type_(typ)
 	, hostname(hostnm)
 	, fname(fnm?fnm:sStdIO)
 {
-    if ( fname == "" ) isbad = YES;
+    if ( fname == "" ) isbad = true;
 }
 
 
 void StreamProvider::set( const char* devname )
 {
     type_ = StreamConn::File;
-    isbad = NO;
+    isbad = false;
     blocksize = 0;
     hostname = "";
 
@@ -92,7 +90,7 @@ void StreamProvider::set( const char* devname )
     }
     else if ( !*devname )
     {
-	isbad = YES; fname = "";
+	isbad = true; fname = "";
 	return;
     }
 
@@ -121,16 +119,16 @@ void StreamProvider::set( const char* devname )
 }
 
 
-int StreamProvider::isNormalFile() const
+bool StreamProvider::isNormalFile() const
 {
     return type_ == StreamConn::File && hostname == "";
 }
 
 
-int StreamProvider::rewind() const
+bool StreamProvider::rewind() const
 {
-    if ( isbad ) return NO;
-    else if ( type_ != StreamConn::Device ) return YES;
+    if ( isbad ) return false;
+    else if ( type_ != StreamConn::Device ) return true;
 
     if ( hostname[0] )
 	sprintf( oscommand, "rsh %s \"mt -f %s rewind\"", (const char*)hostname,
@@ -141,10 +139,10 @@ int StreamProvider::rewind() const
 }
 
 
-int StreamProvider::offline() const
+bool StreamProvider::offline() const
 {
-    if ( isbad ) return NO;
-    else if ( type_ != StreamConn::Device ) return YES;
+    if ( isbad ) return false;
+    else if ( type_ != StreamConn::Device ) return true;
 
     if ( hostname[0] )
 	sprintf( oscommand, "rsh %s \"mt -f %s offline\"",
@@ -155,10 +153,10 @@ int StreamProvider::offline() const
 }
 
 
-int StreamProvider::skipFiles( int nr ) const
+bool StreamProvider::skipFiles( int nr ) const
 {
-    if ( isbad ) return NO;
-    if ( type_ != StreamConn::Device ) return NO;
+    if ( isbad ) return false;
+    if ( type_ != StreamConn::Device ) return false;
 
     if ( hostname[0] )
 	sprintf( oscommand, "rsh %s \"mt -f %s fsf %d\"", (const char*)hostname,
@@ -233,7 +231,7 @@ StreamData StreamProvider::makeIStream() const
 	    strcpy( oscommand, (const char*)fname );
 
 	sd.fp = popen( oscommand, "r" );
-	sd.ispipe = YES;
+	sd.ispipe = true;
 	if ( sd.fp )
 	{
 	    sd.sb = new stdiobuf( sd.fp );
@@ -286,7 +284,7 @@ StreamData StreamProvider::makeOStream() const
 	    strcpy( oscommand, (const char*)fname );
 
 	sd.fp = popen( oscommand, "w" );
-	sd.ispipe = YES;
+	sd.ispipe = true;
 	if ( sd.fp )
 	{
 	    sd.sb = new stdiobuf( sd.fp );
@@ -305,9 +303,9 @@ StreamData StreamProvider::makeOStream() const
 }
 
 
-int StreamProvider::exists( int fr ) const
+bool StreamProvider::exists( int fr ) const
 {
-    if ( isbad ) return NO;
+    if ( isbad ) return false;
 
     if ( type_ == StreamConn::Command )
 	return fr;
@@ -323,16 +321,16 @@ int StreamProvider::exists( int fr ) const
 	return i;
     }
     else
-	return fname == sStdIO ? YES : File_exists( (const char*)fname );
+	return fname == sStdIO ? true : File_exists( (const char*)fname );
 }
 
 
-int StreamProvider::remove() const
+bool StreamProvider::remove() const
 {
-    if ( isbad || type_ != StreamConn::File ) return NO;
+    if ( isbad || type_ != StreamConn::File ) return false;
 
     if ( !hostname[0] )
-	return fname == sStdIO ? NO :
+	return fname == sStdIO ? false :
 			File_remove( (const char*)fname, YES, YES );
     else
     {

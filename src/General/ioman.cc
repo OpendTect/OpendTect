@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.3 2000-06-23 14:11:21 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.4 2001-02-13 17:21:02 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -23,7 +23,7 @@ void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }
 extern "C" void SetSurveyName(const char*);
 
 
-int IOMan::newSurvey()
+bool IOMan::newSurvey()
 {
     delete IOMan::theinst_;
     IOMan::theinst_ = 0;
@@ -53,14 +53,14 @@ IOMan::IOMan()
 void IOMan::init()
 {
     state_ = Bad;
-    if ( !to( prevunitid ) ) return;
+    if ( !to( prevkey ) ) return;
 
     state_ = Good;
     curlvl = 0;
 
-    if ( dirPtr()->unitID() == UnitID("-1") ) return;
+    if ( dirPtr()->key() == MultiID("-1") ) return;
 
-    if ( ! (*dirPtr())[UnitID(Translator::sMiscUid)] )
+    if ( ! (*dirPtr())[CompoundKey(Translator::sMiscID)] )
     {
 	FileNameString dirnm = File_getFullPath( rootdir, "Misc" );
 	if ( !File_exists(dirnm) )
@@ -77,19 +77,19 @@ void IOMan::init()
 	    }
 	}
 
-	UnitID uid( Translator::sMiscUid );
-	uid += "1";
-	IOObj* iostrm = new IOStream("Misc",uid);
+	MultiID ky( Translator::sMiscID );
+	ky += "1";
+	IOObj* iostrm = new IOStream("Misc",ky);
 	iostrm->setGroup( "Miscellaneous directory" );
 	iostrm->setTranslator( "dGB" );
 	IOLink* iol = new IOLink( iostrm );
-	iol->unitid = Translator::sMiscUid;
+	iol->key_ = Translator::sMiscID;
 	iol->dirname = iostrm->name();
-	IOObj* previoobj = (IOObj*)(*dirPtr())[UnitID("100060")];
+	IOObj* previoobj = (IOObj*)(*dirPtr())[MultiID("100060")];
 	dirPtr()->objs_ += iol;
 	dirPtr()->objs_.moveAfter( iol, previoobj );
 	dirPtr()->doWrite();
-	to( prevunitid );
+	to( prevkey );
     }
 }
 
@@ -100,68 +100,68 @@ IOMan::~IOMan()
 }
 
 
-int IOMan::setRootDir( const char* dirnm )
+bool IOMan::setRootDir( const char* dirnm )
 {
-    if ( !dirnm || !strcmp(rootdir,dirnm) ) return YES;
-    if ( !File_isDirectory(dirnm) ) return NO;
+    if ( !dirnm || !strcmp(rootdir,dirnm) ) return true;
+    if ( !File_isDirectory(dirnm) ) return false;
     rootdir = dirnm;
     return setDir( rootdir );
 }
 
 
-int IOMan::to( const IOLink* link )
+bool IOMan::to( const IOLink* link )
 {
     if ( !link && curlvl == 0 )
-	return NO;
-    if ( bad() ) return link ? to( link->link()->unitID() ) : to( prevunitid );
+	return false;
+    if ( bad() ) return link ? to( link->link()->key() ) : to( prevkey );
 
     FileNameString fulldir( curDir() );
     const char* dirnm = link ? (const char*)link->dirname : "..";
     fulldir = File_getFullPath( fulldir, dirnm );
-    if ( !File_isDirectory(fulldir) ) return NO;
+    if ( !File_isDirectory(fulldir) ) return false;
 
-    prevunitid = dirptr->unitID();
+    prevkey = dirptr->key();
     return setDir( fulldir );
 }
 
 
-int IOMan::to( const UnitID& uid )
+bool IOMan::to( const MultiID& ky )
 {
-    UnitID unitid;
-    IOObj* refioobj = IODir::getObj( uid );
+    MultiID key;
+    IOObj* refioobj = IODir::getObj( ky );
     if ( !refioobj )
     {
-	unitid = uid.parent();
-	refioobj = IODir::getObj( unitid );
-	if ( !refioobj )		unitid = "";
+	key = ky.upLevel();
+	refioobj = IODir::getObj( key );
+	if ( !refioobj )		key = "";
     }
-    else if ( !refioobj->isLink() )	unitid = uid.parent();
-    else				unitid = uid;
+    else if ( !refioobj->isLink() )	key = ky.upLevel();
+    else				key = ky;
     delete refioobj;
 
-    IODir* newdir = unitid == "" ? new IODir( rootdir ) : new IODir( unitid );
-    if ( !newdir || newdir->bad() ) return NO;
+    IODir* newdir = key == "" ? new IODir( rootdir ) : new IODir( key );
+    if ( !newdir || newdir->bad() ) return false;
 
     if ( dirptr )
     {
-	prevunitid = dirptr->unitID();
+	prevkey = dirptr->key();
 	delete dirptr;
     }
     dirptr = newdir;
     curlvl = levelOf( curDir() );
-    return YES;
+    return true;
 }
 
 
-IOObj* IOMan::get( const UnitID& uid ) const
+IOObj* IOMan::get( const MultiID& ky ) const
 {
     if ( dirptr )
     {
-	const IOObj* ioobj = (*dirptr)[uid];
-	if ( ioobj ) return ioobj->cloneStandAlone();
+	const IOObj* ioobj = (*dirptr)[ky];
+	if ( ioobj ) return ioobj->clone();
     }
 
-    return IODir::getObj( uid );
+    return IODir::getObj( ky );
 }
 
 
@@ -179,7 +179,7 @@ IOObj* IOMan::getIfOnlyOne( const char* tgname ) const
 	}
     }
 
-    return ioobj ? ioobj->cloneStandAlone() : 0;
+    return ioobj ? ioobj->clone() : 0;
 }
 
 
@@ -188,13 +188,13 @@ IOObj* IOMan::getByName( const char* objname,
 {
     if ( !objname || !*objname )
 	return 0;
-    UnitID startuid = dirptr->unitID();
-    to( UnitID("") );
+    MultiID startky = dirptr->key();
+    to( MultiID("") );
 
     bool havepar = partrgname && *partrgname;
     bool parprov = parname && *parname;
     const UserIDObjectSet<IOObj>* ioobjs = &dirptr->getObjs();
-    TypeSet<UnitID> uids;
+    TypeSet<MultiID> kys;
     const IOObj* ioobj;
     for ( int idx=0; idx<ioobjs->size(); idx++ )
     {
@@ -202,7 +202,7 @@ IOObj* IOMan::getByName( const char* objname,
 	if ( !havepar )
 	{
 	    if ( !strcmp(ioobj->name(),objname) )
-		uids += ioobj->unitID();
+		kys += ioobj->key();
 	}
 	else
 	{
@@ -210,7 +210,7 @@ IOObj* IOMan::getByName( const char* objname,
 	    {
 		if ( !parprov || ioobj->name() == parname )
 		{
-		    uids += ioobj->unitID();
+		    kys += ioobj->key();
 		    if ( parprov ) break;
 		}
 	    }
@@ -218,12 +218,12 @@ IOObj* IOMan::getByName( const char* objname,
     }
 
     ioobj = 0;
-    for ( int idx=0; idx<uids.size(); idx++ )
+    for ( int idx=0; idx<kys.size(); idx++ )
     {
-	if ( havepar && !to(uids[idx]) )
+	if ( havepar && !to(kys[idx]) )
 	{
 	    BufferString msg( "Survey is corrupt. Cannot go to dir with ID: " );
-	    msg += uids[idx];
+	    msg += kys[idx];
 	    ErrMsg( msg );
 	    return 0;
 	}
@@ -232,8 +232,8 @@ IOObj* IOMan::getByName( const char* objname,
 	if ( ioobj ) break;
     }
 
-    if ( ioobj ) ioobj = ioobj->cloneStandAlone();
-    to( UnitID(startuid) );
+    if ( ioobj ) ioobj = ioobj->clone();
+    to( MultiID(startky) );
     return (IOObj*)ioobj;
 }
 
@@ -244,8 +244,8 @@ const char* IOMan::nameOf( const char* id ) const
     ret = "";
     if ( !id || !*id ) return ret;
 
-    UnitID uid( id );
-    IOObj* ioobj = get( uid );
+    MultiID ky( id );
+    IOObj* ioobj = get( ky );
     if ( !ioobj ) ret = id;
     else
     {
@@ -264,7 +264,7 @@ const char* IOMan::nameOf( const char* id ) const
 
 void IOMan::back()
 {
-    to( prevunitid );
+    to( prevkey );
 }
 
 
@@ -275,53 +275,53 @@ const char* IOMan::curDir() const
 }
 
 
-UnitID IOMan::unitID() const
+MultiID IOMan::key() const
 {
-    if ( !bad() ) return dirptr->unitID();
-    return UnitID( "" );
+    if ( !bad() ) return dirptr->key();
+    return MultiID( "" );
 }
 
 
-int IOMan::setDir( const char* dirname )
+bool IOMan::setDir( const char* dirname )
 {
     if ( !dirname ) dirname = rootdir;
 
     IODir* newdirptr = new IODir( dirname );
-    if ( !newdirptr ) return NO;
+    if ( !newdirptr ) return false;
     if ( newdirptr->bad() )
     {
 	delete newdirptr;
-	return NO;
+	return false;
     }
 
-    prevunitid = unitID();
+    prevkey = key();
     delete dirptr;
     dirptr = newdirptr;
     curlvl = levelOf( curDir() );
-    return YES;
+    return true;
 }
 
 
-UnitID IOMan::newId() const
+MultiID IOMan::newKey() const
 {
-    if ( bad() ) return UnitID( "" );
-    return dirptr->newId();
+    if ( bad() ) return MultiID( "" );
+    return dirptr->newKey();
 }
 
 
-void IOMan::getEntry( CtxtIOObj& ctio, UnitID parentid )
+void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 {
     ctio.setObj( 0 );
     if ( ctio.ctxt.name() == "" ) return;
 
-    if ( parentid == "" )
-	parentid = ctio.ctxt.parentid;
-    if ( parentid != "" )
-	to( parentid );
-    else if ( ctio.ctxt.selid != ""
+    if ( parentkey == "" )
+	parentkey = ctio.ctxt.parentkey;
+    if ( parentkey != "" )
+	to( parentkey );
+    else if ( ctio.ctxt.selkey != ""
 	   && ( ctio.ctxt.newonlevel != 2
-	     || dirPtr()->main()->unitID().level() < 2 ) )
-	to( ctio.ctxt.selid );
+	     || dirPtr()->main()->key().nrKeys() < 3 ) )
+	to( ctio.ctxt.selkey );
 
     IOObj* ioobj = (*dirPtr())[ctio.ctxt.name()];
     if ( ioobj && ctio.ctxt.trgroup->name() != ioobj->group() )
@@ -332,10 +332,10 @@ void IOMan::getEntry( CtxtIOObj& ctio, UnitID parentid )
 	UserIDString cleanname( ctio.ctxt.name() );
 	char* ptr = cleanname;
 	cleanupString( ptr, NO, *ptr == *sDirSep, YES );
-	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newId(), NO );
+	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newKey(), NO );
 	iostrm->setFileName( cleanname );
 	dirPtr()->mkUniqueName( iostrm );
-	iostrm->setParentId( parentid );
+	iostrm->setParentKey( parentkey );
 	iostrm->setGroup( ctio.ctxt.trgroup->name() );
 	iostrm->setTranslator( ctio.ctxt.deftransl ?
 			    (const char*)ctio.ctxt.deftransl
@@ -353,7 +353,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, UnitID parentid )
 	dirPtr()->addObj( ioobj );
     }
 
-    ctio.setObj( ioobj->cloneStandAlone() );
+    ctio.setObj( ioobj->clone() );
 }
 
 
@@ -382,88 +382,88 @@ IOParList* IOMan::getParList( const char* typ ) const
 }
 
 
-int IOMan::getAuxfname( const UnitID& uid, FileNameString& fn ) const
+bool IOMan::getAuxfname( const MultiID& ky, FileNameString& fn ) const
 {
-    int local = YES;
-    IOObj* ioobj = (IOObj*)(*dirptr)[uid];
-    if ( !ioobj ) { local = NO; ioobj = IODir::getObj( uid ); }
-    if ( !ioobj ) return NO;
+    bool local = true;
+    IOObj* ioobj = (IOObj*)(*dirptr)[ky];
+    if ( !ioobj ) { local = false; ioobj = IODir::getObj( ky ); }
+    if ( !ioobj ) return false;
     fn = File_getFullPath( ioobj->dirName(), ".aux" );
     if ( !local ) delete ioobj;
-    return YES;
+    return true;
 }
 
 
-int IOMan::hasAux( const UnitID& uid ) const
+bool IOMan::hasAux( const MultiID& ky ) const
 {
-    IOParList* iopl = getAuxList( uid );
-    int rv = iopl && (*iopl)[uid] ? YES : NO;
+    IOParList* iopl = getAuxList( ky );
+    bool rv = iopl && (*iopl)[ky];
     delete iopl;
     return rv;
 }
 
 
-IOParList* IOMan::getAuxList( const UnitID& uid ) const
+IOParList* IOMan::getAuxList( const MultiID& ky ) const
 {
     FileNameString fn;
-    if ( !getAuxfname(uid,fn) ) return 0;
+    if ( !getAuxfname(ky,fn) ) return 0;
 
     ifstream strm( fn );
     return new IOParList( strm );
 }
 
 
-int IOMan::putAuxList( const UnitID& uid, const IOParList* iopl ) const
+bool IOMan::putAuxList( const MultiID& ky, const IOParList* iopl ) const
 {
-    if ( !iopl ) return YES;
+    if ( !iopl ) return true;
     FileNameString fn;
-    if ( !getAuxfname(uid,fn) ) return NO;
+    if ( !getAuxfname(ky,fn) ) return false;
 
-    ofstream strm( fn ); if ( strm.fail() ) return NO;
+    ofstream strm( fn ); if ( strm.fail() ) return false;
     return iopl->write( strm );
 }
 
 
-IOPar* IOMan::getAux( const UnitID& uid ) const
+IOPar* IOMan::getAux( const MultiID& ky ) const
 {
-    IOParList* iopl = getAuxList( uid );
-    if ( !iopl ) return new IOPar( uid );
-    IOPar* iopar = (*iopl)[uid];
+    IOParList* iopl = getAuxList( ky );
+    if ( !iopl ) return new IOPar( ky );
+    IOPar* iopar = (*iopl)[ky];
     if ( iopar ) *iopl -= iopar;
-    else	 iopar = new IOPar( uid );
+    else	 iopar = new IOPar( ky );
 
     delete iopl;
     return iopar;
 }
 
 
-int IOMan::putAux( const UnitID& uid, const IOPar* iopar ) const
+bool IOMan::putAux( const MultiID& ky, const IOPar* iopar ) const
 {
-    if ( !iopar ) return YES;
-    IOParList* iopl = getAuxList( uid );
-    if ( !iopl ) return NO;
+    if ( !iopar ) return true;
+    IOParList* iopl = getAuxList( ky );
+    if ( !iopl ) return false;
 
     IOPar* listiopar = (*iopl)[iopar->name()];
     if ( listiopar ) *listiopar = *iopar;
     else	     *iopl += new IOPar( *iopar );
 
-    int rv = putAuxList( uid, iopl );
+    int rv = putAuxList( ky, iopl );
     delete iopl;
     return rv;
 }
 
 
-int IOMan::removeAux( const UnitID& uid ) const
+bool IOMan::removeAux( const MultiID& ky ) const
 {
-    IOParList* iopl = getAuxList( uid );
-    if ( !iopl ) return YES;
-    IOPar* iopar = (*iopl)[uid];
-    if ( !iopar ) { delete iopl; return YES; }
+    IOParList* iopl = getAuxList( ky );
+    if ( !iopl ) return true;
+    IOPar* iopar = (*iopl)[ky];
+    if ( !iopar ) { delete iopl; return true; }
     *iopl -= iopar;
 
     int rv;
     FileNameString fn;
-    getAuxfname( uid, fn );
+    getAuxfname( ky, fn );
     if ( iopl->size() == 0 )
 	rv = File_remove( fn, YES, NO );
     else

@@ -1,145 +1,153 @@
 #ifndef seistrc_h
 #define seistrc_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.4 2000-08-07 20:12:56 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.5 2001-02-13 17:16:09 bert Exp $
 ________________________________________________________________________
 
-A trace is composed of trace info and trace data.
-@$*/
+-*/
 
-#include <datatrc.h>
-#include <databuf.h>
 #include <seisinfo.h>
-#include <idobj.h>
+#include <tracedata.h>
+#include <datachar.h>
+#include <datatrc.h>
+// TODO remove when restructuring finished
+#include <simpnumer.h>
 
 
-class SeisTrc : public DataTrace
-	      , public IDObject
+
+/*!> Seismic traces.
+
+A seismic trace is composed of trace info and trace data. The trace data
+consists of one or more components. These are represented by a set of buffers,
+interpreted by DataInterpreters.
+
+The number of samples of the components may vary, therfore the index of the
+sample at the info().sampling.start can be set to non-zero. The first component
+(icomp==0) has a sampleoffset of zero which cannot be set.
+
+*/
+
+
+class SeisTrc
 {
-
-    friend class	Wavelet;
-    friend class	SeisTrcTranslator;
-
 public:
 
-    virtual SeisTrc*	getNew() const		= 0;
-    SeisTrc*		clone() const
-			{ SeisTrc* t = getNew(); t->copyAll(*this); return t; }
-    virtual bool	copyData(const SeisTrc&);
-    void		copyAll( const SeisTrc& trc )
-			{ copyData(trc); info_ = trc.info_; }
-
-    struct Event	{
-			    Event( float v=mUndefValue, float p=mUndefValue )
-			    : val(v), pos(p) {}
-			    float val, pos;
-			};
-    enum EvType		{ NoEvent, Extr, Max, Min, ZC, ZCNegPos, ZCPosNeg,
-			  GateMax, GateMin };
-			DeclareEnumUtils(EvType);
-
-    virtual		~SeisTrc();
-
-			// Specification
-    virtual bool	set(int,float)		= 0;
-    virtual float	operator[](int) const	= 0;
-    virtual bool	isSUCompat() const	{ return NO; }
-
-			// Implementation
-    int			getIndex( double val ) const
-			{ return info_.nearestSample( val ); }
-    double		getX( int idx ) const
-			{ return info_.starttime + idx * 1e-6 * info_.dt; }
-    float		getValue(double) const;
-    inline int		size() const	{ return data_.size(); };
-    double		start() const	{ return info_.starttime; }
-    double		stop() const	{ return info_.sampleTime(size()-1); }
-    double		step() const	{ return info_.dt * 1.e-6; }
+			SeisTrc( int ns=0, const DataCharacteristics& dc
+			    = DataCharacteristics(DataCharacteristics::Float) )
+			{ data_.addComponent( ns, dc ); }
+			SeisTrc( const SeisTrc& t )
+			: info_(t.info_), data_(t.data_), soffs_(t.soffs_) {}
+    SeisTrc&		operator =( const SeisTrc& t )
+			{ info_ = t.info_; data_ = t.data_; soffs_ = t.soffs_;
+			  return *this; }
 
     SeisTrcInfo&	info()		{ return info_; }
     const SeisTrcInfo&	info() const	{ return info_; }
-    SamplingData	samplingData() const
-			{ return SamplingData(info_.starttime,info_.dt*1e-6 ); }
-    virtual bool	isNull() const;
-    bool		clear()		{ clearData(); return true; }
-    void		clearData()	{ data_.clear(); }
-    inline bool		dataPresent( float t ) const
-			{ return info_.dataPresent(t,size()); }
-    void		gettr(SUsegy&) const;
-    void		puttr(SUsegy&);
+    TraceData&		data()		{ return data_; }
+    const TraceData&	data() const	{ return data_; }
 
-    bool		reSize(int);
-    int			bytesPerSample() const	{return data_.bytesPerSample();}
-    virtual void	getPacketInfo(SeisPacketInfo&) const;
-    SampleGate		sampleGate(const TimeGate&,int check=NO) const;
+    inline int		sampleOffset( int icomp ) const
+			{ return icomp && icomp < soffs_.size()
+				? soffs_[icomp] : 0; }
+    void		setSampleOffset(int icomp,int);
+    inline float	posOffset( int icomp ) const
+			{ return sampleOffset(icomp) * info_.sampling.step; }
 
-    virtual void	stack(const SeisTrc&,int alongref=NO);
-    void		normalize();
-    void		corrNormalize();
-    void		removeDC();
-    void		mute(float,float taperlen);
 
-    Event		find(EvType,TimeGate,int occ=1) const;
-    Interval<float>	getRange() const;
-    float		getFreq(int) const;
+    inline void		set( int idx, float v, int icomp )
+			{ data_.setValue( idx, v, icomp ); }
+    inline float	get( int idx, int icomp ) const
+			{ return data_.getValue( idx, icomp ); }
 
-    const float*	calcImag(const SampleGate&) const;
-    const SampleGate&	imagWin() const		{ return imagwin; }
-				// Optimize extraction:
-				// call calcPhase 'manually' for entire range
-    float		getPhase(int) const;
+    inline int		size( int icomp ) const
+			{ return data_.size( icomp ); }
+    inline double	getX( int idx, int icomp ) const
+			{ return startPos(icomp) + idx * info_.sampling.step; }
+    float		getValue(double,int icomp) const;
 
-    virtual int		nrValues() const		{ return 1; }
-    virtual void	setNrValues(int)		{}
-    virtual bool	set( int idx, float v, int )	{ return set(idx,v); }
-    virtual float	get( int idx, int ) const	{ return (*this)[idx]; }
+    inline bool		isNull( int icomp ) const
+			{ return data_.isZero(icomp); }
+    inline void		zero( int icomp=-1 )
+			{ data_.zero( icomp ); }
+    inline bool		dataPresent( float t, int icomp ) const
+			{ return info_.dataPresent( t, size(icomp),
+						    sampleOffset(icomp)); }
+    inline SamplingData<float>	samplingData( int icomp ) const
+			{ return SamplingData<float>( startPos(icomp),
+						      info_.sampling.step); }
+    inline float	startPos( int icomp ) const
+			{ return info_.sampling.start + posOffset(icomp); }
+    inline float	samplePos( int idx, int icomp ) const
+			{ return info_.samplePos( idx, sampleOffset(icomp) ); }
+    inline int		nearestSample( float pos, int icomp ) const
+			{ return info_.nearestSample(pos,sampleOffset(icomp)); }
+    void		setStartPos(float,int icomp=0);
 
-			// Use on your own responsibility. Will actually
-			// be char*, short*, float* but don't count on it!
-    unsigned char*	rawData()			{ return data_.data; }
-    const unsigned char* rawData() const		{ return data_.data; }
-    float*		imagData()			{ return imag; }
-    const float*	imagData() const		{ return imag; }
+    bool		reSize( int sz, int icomp )
+			{ data_.reSize( sz, icomp ); return data_.allOk(); }
+    SampleGate		sampleGate(const Interval<float>&,bool check,
+				   int icomp) const;
 
 protected:
 
-			SeisTrc(int byts,int ns=0);
-
-    DataBuffer		data_;
+    TraceData		data_;
     SeisTrcInfo		info_;
+    TypeSet<int>	soffs_;
 
-    SampleGate		imagwin;
-    float*		imag;
-
-    void		getPreciseExtreme(Event&,int,int,float,float) const;
-    virtual XFunctionIter* mkIter(bool,bool) const;
-
+// TODO remove when restructuring finished
+    friend void interpolateSampled<SeisTrc,float>(const SeisTrc &,int,float,
+			float&,bool,float,float);
+    int			curcomp;
+// TODO move to public section, change curcomp to 0
+    inline float	operator[]( int i ) const
+			{ return get( i, curcomp ); }
 };
 
-double corr(const SeisTrc&,const SeisTrc&,const SampleGate&,bool alpick=NO);
-double dist(const SeisTrc&,const SeisTrc&,const SampleGate&,bool alpick=NO);
 
+/*!> Seismic traces conforming the DataTrace interface.
 
-class SeisTrcCreater
+One of the components of a SeisTrc can be selected to form a DataTrace.
+
+*/
+
+class SeisDataTrc : public DataTrace
 {
 public:
 
-    virtual SeisTrcCreater*	clone() const		= 0;
-    virtual SeisTrc*		get() const		= 0;
+			SeisDataTrc( SeisTrc& t, int comp=0 )
+			: trc(t), curcomp(comp)		{}
+    void		setComponent( int c )		{ curcomp = c; }
+    int			component() const		{ return curcomp; }
+
+    inline bool		set( int idx, float v )
+			{ trc.data().setValue( idx, v, curcomp ); return true; }
+    inline float	operator[]( int i ) const
+			{ return trc.get( i, curcomp ); }
+    int			getIndex( double val ) const
+			{ return trc.info().nearestSample( val ); }
+    double		getX( int idx ) const
+			{ return trc.getX( idx, curcomp ); }
+    float		getValue( double v ) const
+			{ return trc.getValue( v, curcomp ); }
+
+    inline int		size() const	{ return trc.size( curcomp ); }
+    inline double	step() const	{ return trc.info().sampling.step; }
+    double		start() const	{ return trc.startPos(curcomp); }
+
+protected:
+
+    SeisTrc&		trc;
+    int			curcomp;
+
+    XFunctionIter*	mkIter(bool, bool) const;
 
 };
-
-
-inline int clippedVal( float val, int lim )
-{
-    return val > (float)lim ? lim : (val < -((float)lim) ? -lim : mNINT(val));
-}
 
 
 #endif

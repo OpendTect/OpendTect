@@ -1,21 +1,25 @@
 #ifndef seiswrite_h
 #define seiswrite_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.4 2000-11-09 15:52:28 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.5 2001-02-13 17:16:09 bert Exp $
 ________________________________________________________________________
 
-A SeisTrcWriter writes to a seismic data store. To be able to use the writer,
-you need to execute the starter() executable. Be sure to have set the
-SeisPacketInfo before that. You can fill the info by asking a SeisTrc to do
-that.
+-*/
 
-@$*/
+
+/*!\brief writes to a seismic data store.
+
+Before first usage, the starter() executable will be executed if you don't
+do that separately. If you want to do some component and range selections
+using the SeisTrcTranslator, you must first run the starter yourself.
+
+*/
 
 #include <seisstor.h>
 class BinIDRange;
@@ -29,26 +33,24 @@ class SeisTrcWriter : public SeisStorage
 public:
 
 			SeisTrcWriter(const IOObj*);
-    virtual Executor*	starter();
-    virtual bool	put(const SeisTrc&);
-    virtual bool	prepareRetry();
+			~SeisTrcWriter();
 
-    void		setPacketInfo( const SeisPacketInfo& s ) { spi = s; }
+    virtual Executor*	starter(const SeisTrc&);
+    bool		isMultiComp() const;
+    virtual bool	put(const SeisTrc&);
+
     void		fillAuxPar(IOPar&) const;
 
 protected:
 
     void		init();
-    bool		initWrite();
+    bool		initWrite(const SeisTrc&);
     bool		openConn();
-    bool		handleConn(const SeisTrcInfo&);
+    bool		handleConn(const SeisTrc&);
 
-    BinIDRange*		binids;
-    float		starttime;
-    int			trace_size;
-    unsigned short	dt;
-    int			nrwr;
+    BinIDRange&		binids;
     int			nrwrconn;
+    bool		wrinited;
 
 };
 

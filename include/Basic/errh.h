@@ -8,13 +8,20 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.5 2000-08-15 13:00:17 bert Exp $
+ RCS:		$Id: errh.h,v 1.6 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include <msgh.h>
 #include <bufstring.h>
+
+/*!\brief MsgClass holding an error message.
+
+Programmer errors are only outputed when printProgrammerErrs is true. This
+is set to true by default only if __debug__ is defined.
+
+*/
 
 
 class ErrMsgClass : public MsgClass
@@ -58,7 +65,9 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 }
 
 #define pErrMsg(msg) programmerErrMsg(msg,::className(*this),__FILE__,__LINE__)
+//!< Usual access point for programmer error messages
 #define pFreeFnErrMsg(msg,fn) programmerErrMsg( msg, fn, __FILE__, __LINE__ )
+//!< Usual access point for programmer error messages in free functions
 
 
 #ifdef __prog__

@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.3 2000-05-26 10:37:05 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.4 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
-There are only #define lines, so there is no C-language constraint.
-
 -*/
+
+/*! There are only #define lines, so there is no C-language constraint. */
 
 #include <Pmacros.h>
 
@@ -51,18 +51,6 @@ There are only #define lines, so there is no C-language constraint.
 #define mMALLOC(sz,tp)		(tp*)malloc((sz)*sizeof(tp))
 #define mREALLOC(var,sz,tp)	(tp*)realloc(var,(sz)*sizeof(tp))
 #define mFREE(ptr)		{ if (ptr) free(ptr); ptr = 0; }
-
-#ifdef __cpp__
-#ifdef __debug__
-# ifndef mDBG_STRM
-#  include <iostream.h>
-#  define mDBG_STRM cout
-# endif
-# define mDBG_PR(x) { mDBG_STRM << #x ; mDBG_STRM.flush(); }
-#else
-# define mDBG_PR(x) /* No debugging */
-#endif
-#endif
 
 
 #endif

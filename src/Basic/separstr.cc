@@ -5,7 +5,7 @@
  * FUNCTION : Functions concerning comma separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.3 2000-09-27 16:04:49 bert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.4 2001-02-13 17:20:58 bert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
@@ -28,7 +28,7 @@ SeparString::SeparString( const char* str, char separ )
 const char* SeparString::operator[]( unsigned int elemnr ) const
 {
     char* bufptr = buf;
-    char* repptr = rep;
+    const char* repptr = rep;
     buf[0] = '\0';
 
     while ( *repptr )
@@ -91,7 +91,7 @@ unsigned int SeparString::size() const
     if ( !*rep ) return 0;
 
     unsigned int idx = *rep == sep ? 1 : 0;
-    char* ptr = rep;
+    const char* ptr = rep;
     while ( ptr )
     {
 	idx++;

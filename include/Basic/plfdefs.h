@@ -7,8 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.3 2000-11-29 11:04:47 bert Exp $
+ RCS:		$Id: plfdefs.h,v 1.4 2001-02-13 17:15:45 bert Exp $
 ________________________________________________________________________
+
+*/
+
+
+/*!
 
 For every platform, the HDIR variable should be put in a -D$HDIR by make.
 
@@ -18,13 +23,11 @@ HDIR can be:
 	sun5		Sun Solaris 5.x
 	ibm		IBM AIX 4.x
 	sgi		SGI IRIX 5.x
-	win		Windows 2000
+	win		M$ Windows
 
 OS type:
 
 	__unix__	Unix
-	__sysv__	---- System V
-	__bsd__		---- Berkeley
 	__win__		Windows
 
 Machine:
@@ -37,9 +40,7 @@ Machine:
 Compiler type:
 
 	__gnuc__	GNU gcc
-	__mipsc__	MIPS c
 	__sunc__	Sun c
-	__ibmc__	Ibm C
 
 Language:
 
@@ -50,38 +51,18 @@ Bytes:
 	__little__	little-endian (PC,DEC)
 	__islittle__	'true' if __little__ defined, else 'false'
 
-________________________________________________________________________________
-
 */
 
 
 /*____________________________________________________________________________*/
 /* OS type */
 
-#undef __sysv__
-#undef __bsd__
-#ifdef SYSTYPE_SYSV
-# define __sysv__ 1
-#endif
-#ifdef SVR4
-# undef __sysv__
-# define __sysv__ 1
-#endif
-#ifdef _SVR4
-# undef __sysv__
-# define __sysv__ 1
-#endif
-#ifdef SVR5
-# undef __sysv__
-# define __sysv__ 1
-#endif
-#ifdef SVR6
-# undef __sysv__
-# define __sysv__ 1
-#endif
-
 #undef __unix__
 #undef __win__
+
+#ifdef _MSC_VER
+# define __win__ 1
+#endif
 #ifdef lux
 # define __unix__ 1
 #endif
@@ -95,13 +76,10 @@ ________________________________________________________________________________
 # define __unix__ 1
 #endif
 #ifndef __unix__
+#ifndef __win__
+# warning "Platform not detected. choosing windows"
 # define __win__ 1
 #endif
-
-#ifndef __win__
-# ifndef __sysv__
-#  define __bsd__ 1
-# endif
 #endif
 
 
@@ -177,7 +155,7 @@ ________________________________________________________________________________
 #endif
 #ifdef __GNU_LIBRARY__
 # undef __gnuc__
-# define __gnuc__ 2
+# define __gnuc__ 1
 #endif
 #ifdef sun5
 # ifndef __gnuc__

@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.4 2000-04-17 14:57:10 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.5 2001-02-13 17:21:02 bert Exp $";
 
 #include "iox.h"
 #include "iolink.h"
@@ -16,9 +16,9 @@ static const char* rcsID = "$Id: iox.cc,v 1.4 2000-04-17 14:57:10 bert Exp $";
 DefineConcreteClassDef(IOX,"X-Group");
 
 
-IOX::IOX( const char* nm, const char* uid, bool )
-	: IOObject(nm,uid)
-	, uid("")
+IOX::IOX( const char* nm, const char* ky, bool )
+	: IOObject(nm,ky)
+	, ownkey_("")
 {
     connclassdef_ = &StreamConn::classdef;
 }
@@ -29,15 +29,15 @@ IOX::~IOX()
 }
 
 
-void IOX::setUid( const UnitID& id )
+void IOX::setOwnKey( const MultiID& ky )
 {
-    uid = id;
+    ownkey_ = ky;
 }
 
 
 const ClassDef& IOX::connType() const
 {
-    IOObj* ioobj = IOM().get( uid );
+    IOObj* ioobj = IOM().get( ownkey_ );
     const ClassDef& rv = ioobj ? ioobj->connType() : StreamConn::classdef;
     delete ioobj;
     return rv;
@@ -46,7 +46,7 @@ const ClassDef& IOX::connType() const
 
 bool IOX::bad() const
 {
-    return uid == "";
+    return ownkey_ == "";
 }
 
 
@@ -60,14 +60,14 @@ void IOX::copyFrom( const IOObj* obj )
     if ( obj->hasClass(IOX::classid) )
     {
 	const IOX* trobj = (const IOX*)obj;
-	uid = trobj->uid;
+	ownkey_ = trobj->ownkey_;
     }
 }
 
 
 const char* IOX::fullUserExpr( bool i ) const
 {
-    IOObj* ioobj = IOM().get( uid );
+    IOObj* ioobj = IOM().get( ownkey_ );
     if ( !ioobj ) return "<invalid>";
     const char* s = ioobj->fullUserExpr(i);
     delete ioobj;
@@ -77,7 +77,7 @@ const char* IOX::fullUserExpr( bool i ) const
 
 bool IOX::slowOpen() const
 {
-    IOObj* ioobj = IOM().get( uid );
+    IOObj* ioobj = IOM().get( ownkey_ );
     if ( !ioobj ) return false;
     bool ret = ioobj->slowOpen();
     delete ioobj;
@@ -87,7 +87,7 @@ bool IOX::slowOpen() const
 
 bool IOX::implExists( bool i ) const
 {
-    IOObj* ioobj = IOM().get( uid );
+    IOObj* ioobj = IOM().get( ownkey_ );
     if ( !ioobj ) return false;
     bool yn = ioobj->implExists(i);
     delete ioobj;
@@ -122,13 +122,13 @@ Conn* IOX::getConn( Conn::State rw ) const
 
 IOObj* IOX::getIOObj() const
 {
-    return uid == "" ? 0 : IOM().get( uid );
+    return ownkey_ == "" ? 0 : IOM().get( ownkey_ );
 }
 
 
 int IOX::getFrom( ascistream& stream )
 {
-    uid = stream.value();
+    ownkey_ = stream.value();
     stream.next();
     return YES;
 }
@@ -137,6 +137,6 @@ int IOX::getFrom( ascistream& stream )
 int IOX::putTo( ascostream& stream ) const
 {
     stream.stream() << '$';
-    stream.put( "ID", uid );
+    stream.put( "ID", ownkey_ );
     return YES;
 }

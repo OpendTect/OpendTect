@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.1 2000-08-15 13:00:18 bert Exp $
+ RCS:		$Id: msgh.h,v 1.2 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 */
@@ -16,6 +16,13 @@ ________________________________________________________________________
 #include <callback.h>
 #include <enums.h>
 
+
+/*!\brief class to encapsulate a message to the user.
+
+Along with the message there's also a type. In any case, there's a handler
+for when UsrMsg is called: theCB. If it is not set, messages go to cerr.
+
+*/
 
 class MsgClass : public CallBacker
 {
@@ -35,6 +42,7 @@ public:
 
 
 inline void UsrMsg( const char* msg, MsgClass::Type t=MsgClass::Info )
+//!< Will pass the message to the appropriate destination.
 {
     if ( !MsgClass::theCB.willCall() )
 	cerr << msg << endl;

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.4 2000-09-27 16:04:48 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.5 2001-02-13 17:20:58 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -54,14 +54,14 @@ static char buf[80];
 
 bool Coord::use( const char* str )
 {
-    if ( !str || !*str ) return NO;
+    if ( !str || !*str ) return false;
     strcpy( buf, str );
     char* ptr = strchr( buf, ',' );
-    if ( !ptr ) return NO;
+    if ( !ptr ) return false;
     *ptr++ = '\0';
     x = atof( buf );
     y = atof( ptr );
-    return YES;
+    return true;
 }
 
 
@@ -74,14 +74,14 @@ void BinID::fill( char* str ) const
 
 bool BinID::use( const char* str )
 {
-    if ( !str || !*str ) return NO;
+    if ( !str || !*str ) return false;
     strcpy( buf, str );
     char* ptr = strchr( buf, '/' );
-    if ( !ptr ) return NO;
+    if ( !ptr ) return false;
     *ptr++ = '\0';
     inl = atoi( buf );
     crl = atoi( ptr );
-    return YES;
+    return true;
 }
 
 
@@ -94,11 +94,11 @@ const char* BinIDExcluder::selectorType() const
 bool BinIDProvider::isEqual( const BinIDProvider& bp ) const
 {
     int sz = size();
-    if ( sz != bp.size() ) return NO;
+    if ( sz != bp.size() ) return false;
 
     for ( int idx=0; idx<sz; idx++ )
-	if ( (*this)[idx] != bp[idx] ) return NO;
-    return YES;
+	if ( (*this)[idx] != bp[idx] ) return false;
+    return true;
 }
 
 
@@ -149,7 +149,7 @@ BinIDSelector* BinIDSelector::create( const char* str )
     if ( sz > 4 )
     {
 	const char* el4 = fms[4];
-	if ( *el4 == 'S' ) { hasso = YES; }
+	if ( *el4 == 'S' ) { hasso = true; }
     }
     bool issamp = hasso ? sz > 6 : sz > 4;
     BinIDRange* rg = issamp ? new BinIDSampler : new BinIDRange;
@@ -205,9 +205,9 @@ void BinIDSampler::fillPar( IOPar& iopar ) const
 }
 
 
-int BinIDRange::fillString( char* str ) const
+bool BinIDRange::fillString( char* str ) const
 {
-    if ( !str ) return NO;
+    if ( !str ) return false;
     FileMultiString fms;
     fms += start.inl; fms += stop.inl;
     fms += start.crl; fms += stop.crl;
@@ -218,7 +218,7 @@ int BinIDRange::fillString( char* str ) const
 	fms += stepout.crl;
     }
     strcpy( str, fms );
-    return YES;
+    return true;
 }
 
 
@@ -246,13 +246,13 @@ bool BinIDRange::isEq( const BinIDSelector& b ) const
 }
 
 
-int BinIDRange::include( const BinID& bid, const char* )
+bool BinIDRange::include( const BinID& bid, const char* )
 {
     if ( bid.inl > stop.inl )  stop.inl  = bid.inl;
     if ( bid.inl < start.inl ) start.inl = bid.inl;
     if ( bid.crl > stop.crl )  stop.crl  = bid.crl;
     if ( bid.crl < start.crl ) start.crl = bid.crl;
-    return YES;
+    return true;
 }
 
 
@@ -329,14 +329,14 @@ bool BinIDSampler::isEq( const BinIDSelector& b ) const
 }
 
 
-int BinIDSampler::fillString( char* str ) const
+bool BinIDSampler::fillString( char* str ) const
 {
-    if ( !BinIDRange::fillString(str) ) return NO;
+    if ( !BinIDRange::fillString(str) ) return false;
 
     FileMultiString fms( str );
     fms += step.inl; fms += step.crl;
     strcpy( str, fms );
-    return YES;
+    return true;
 }
 
 
@@ -365,13 +365,13 @@ int BinIDSamplerProv::dirSize( bool inl ) const
 
 int BinIDSamplerProv::size() const
 {
-    return dirSize(YES) * dirSize(NO);
+    return dirSize(true) * dirSize(false);
 }
 
 
 BinID BinIDSamplerProv::operator[]( int idx ) const
 {
-    int nrxl = dirSize( NO );
+    int nrxl = dirSize( false );
     int inlidx = idx / nrxl;
     int crlidx = idx - inlidx * nrxl;
 
@@ -453,14 +453,14 @@ void BinIDTable::fillPar( IOPar& iopar ) const
 
 int BinIDTable::excludes( const BinID& bid ) const
 {
-    bool foundinl = NO; bool foundcrl = NO;
+    bool foundinl = false; bool foundcrl = false;
     for ( int idx=0; idx<binids.size(); idx++ )
     {
 	const BinID& binid = binids[idx];
 	if ( binid == bid ) return 0;
 
-	if ( binid.inl == bid.inl ) foundinl = YES;
-	if ( binid.crl == bid.crl ) foundcrl = YES;
+	if ( binid.inl == bid.inl ) foundinl = true;
+	if ( binid.crl == bid.crl ) foundcrl = true;
     }
 
     int inlval = foundinl ? 1 : 2;   
@@ -493,31 +493,31 @@ int BinIDTable::extreme( bool inl, bool mini ) const
 bool BinIDTable::isEq( const BinIDSelector& b ) const
 {
     const BinIDTable& bt = (const BinIDTable&)b;
-    if ( binids.size() != bt.binids.size() ) return NO;
+    if ( binids.size() != bt.binids.size() ) return false;
     for ( int idx=0; idx<binids.size(); idx++ )
-	if ( !bt.includes(binids[idx]) ) return NO;
-    return YES;
+	if ( !bt.includes(binids[idx]) ) return false;
+    return true;
 }
 
 
-int BinIDTable::includes( const BinID& bid ) const
+bool BinIDTable::includes( const BinID& bid ) const
 {
-    return binids.indexOf(bid) < 0 ? NO : YES;
+    return binids.indexOf(bid) < 0 ? false : true;
 }
 
 
-int BinIDTable::include( const BinID& bid, const char* s )
+bool BinIDTable::include( const BinID& bid, const char* s )
 {
     if ( !includes(bid) )
     {
 	binids += bid;
 	setAnnot( binids.size()-1, s );
     }
-    return YES;
+    return true;
 }
 
 
-int BinIDTable::include( const BinIDTable& bidt )
+bool BinIDTable::include( const BinIDTable& bidt )
 {
     for ( int idx=0; idx<bidt.binids.size(); idx++ )
     {
@@ -526,16 +526,16 @@ int BinIDTable::include( const BinIDTable& bidt )
 	binids += bid;
 	setAnnot( binids.size()-1, bidt.binids.annots[idx] );
     }
-    return YES;
+    return true;
 }
 
 
-int BinIDTable::exclude( const BinID& bid )
+bool BinIDTable::exclude( const BinID& bid )
 {
     int idx = binids.indexOf( bid );
-    if ( idx < 0 ) return NO;
+    if ( idx < 0 ) return false;
     binids.remove( idx ); binids.annots.remove( idx );
-    return YES;
+    return true;
 }
 
 
@@ -610,17 +610,17 @@ const char* BinIDTable::annot( int idx ) const
 }
 
 
-int BinIDTable::setAnnot( int idx, const char* s )
+bool BinIDTable::setAnnot( int idx, const char* s )
 {
     int sz = binids.size();
-    if ( idx < 0 || idx >= sz ) return NO;
+    if ( idx < 0 || idx >= sz ) return false;
 
     char* charptrnull = 0;
     while ( binids.annots.size() < sz )
 	binids.annots += charptrnull;
 
     char*& mys = binids.annots[idx];
-    if ( s == mys ) return YES;
+    if ( s == mys ) return true;
 
     delete [] mys; mys = 0;
     if ( s )
@@ -628,5 +628,5 @@ int BinIDTable::setAnnot( int idx, const char* s )
 	mys = new char [ strlen(s) + 1 ];
 	strcpy( mys, s );
     }
-    return YES;
+    return true;
 }

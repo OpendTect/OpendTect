@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.4 2000-03-07 08:37:06 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.5 2001-02-13 17:20:58 bert Exp $";
 
 #include <stdio.h>
 #include <string.h>
@@ -98,21 +98,6 @@ int File_copy( const char* from, const char* to, int recursive )
     if ( retval ) retval = File_exists( to );
     mFREE(cmd);
     return retval;
-}
-
-
-int File_link( const char* from, const char* to )
-{
-    char cmd[PATH_LENGTH+PATH_LENGTH+10];
-    if ( !from || !to ) return NO;
-    
-    strcpy( cmd, "ln -s " );
-    strcat( cmd, from );
-    strcat( cmd, " " );
-    strcat( cmd, to );
-
-    system( cmd );
-    return File_exists( to ) ? YES : NO;
 }
 
 

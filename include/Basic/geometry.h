@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.12 2000-10-12 15:47:55 bert Exp $
+ RCS:           $Id: geometry.h,v 1.13 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <gendefs.h>
 
+/*!\brief basic point class */
 
 template <class T>
 class Point
@@ -45,6 +46,8 @@ protected:
 
 };
 
+
+/*!\brief basic 2D sizes (width/height) class */
 
 template <class T>
 class Size2D
@@ -83,6 +86,14 @@ protected:
 
 };
 
+
+/*!\brief basic 2D rectangle class
+
+This class is a bit more complicated than would be expected at first sight.
+This is caused by the problem of coordinate system sign. For example, in
+user interfaces, top is a lower number than bottom. But foor normal
+coordinates, this is (of course) not the case.
+*/
 
 template <class T>
 class Rect 

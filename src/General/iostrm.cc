@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.4 2000-04-17 14:57:09 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.5 2001-02-13 17:21:02 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -267,7 +267,7 @@ int IOStream::getFrom( ascistream& stream )
 }
 
 
-bool IOStream::isStarConn() const
+bool IOStream::directNumberMultiConn() const
 {
     if ( !isMulti() ) return NO;
     return strchr(fname,'*') || (writecmd && strchr(*writecmd,'*'));
@@ -360,7 +360,7 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
 	FileNameString inp = nm;
 	char* ptr = inp;
 	nm = "";
-	char wc = isStarConn() ? '*' : '%';
+	char wc = directNumberMultiConn() ? '*' : '%';
 	while ( 1 )
 	{
 	    char* wcptr = strchr( ptr, wc );

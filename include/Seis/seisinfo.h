@@ -7,52 +7,45 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.4 2000-05-25 15:35:27 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.5 2001-02-13 17:16:09 bert Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
 
 @$*/
  
-#include <binidselimpl.h>
-#include <ranges.h>
-#include <fixstring.h>
+#include <samplingdata.h>
+#include <position.h>
 #include <seistype.h>
 #include <enums.h>
+#include <datachar.h>
 class SUsegy;
+class BinIDRange;
+class SeisTrc;
 
 
 class SeisPacketInfo
 {
 public:
-			SeisPacketInfo()
-			: client(defaultclient)
-			, company(defaultcompany)
-			, auxinfo(defaultauxinfo)
-			, wavetype(Seis::P), datatype(Seis::Ampl)
-			, nr(0), ns(0), dt(0), starttime(1e-30)		{}
+			SeisPacketInfo();
+			SeisPacketInfo(const SeisPacketInfo&);
+    SeisPacketInfo&	operator=(const SeisPacketInfo&);
+    virtual		~SeisPacketInfo();
 
     FixedString<32>	client;
     FixedString<32>	company;
     FixedString<180>	auxinfo;
-
-    Seis::WaveType	wavetype;
-    Seis::DataType	datatype;
-
     int			nr;
-    unsigned short	ns;
-    unsigned int	dt;
-    float		starttime;
-    BinIDRange		range;
+    BinIDRange&		range;
 
-    void		fillEmpty(const SeisPacketInfo&);
+    void		clear();
 
-    static const char*	sNrTrcs;
     static const char*	sBinIDs;
 
     static FixedString<32>	defaultclient;
     static FixedString<32>	defaultcompany;
     static FixedString<180>	defaultauxinfo;
+
 };
 
 
@@ -60,39 +53,35 @@ class SeisTrcInfo
 {
 public:
 			SeisTrcInfo()
-			: nr(0), dt(4000)
-			, starttime(0), reftime(mUndefValue)
-			, pick(mUndefValue), pick2(mUndefValue)
+			: nr(0), sampling(0,.004)
+			, refpos(mUndefValue), pick(mUndefValue)
 			, new_packet(NO), stack_count(1)
-			, mute_time(mUndefValue), taper_length(0)
+			, mute_pos(mUndefValue), taper_length(0)
 			, offset(0)
 			{}
 
 	    // persistent
+    SamplingData<float>	sampling;
     int			nr;		// 0
-    float		starttime;
     float		pick;		// 1
-    float		pick2;
-    float		reftime;	// 2
-    unsigned int	dt;		// sample interval in micro-seconds
+    float		refpos;		// 2
     Coord		coord;		// 3 4
     BinID		binid;		// 5 6
-    BinID		binid2;
     float		offset;		// 7
-    float		firstval;
 
-	    // volatile
+	    // temporary
     bool		new_packet;
     int			stack_count;
-    float		mute_time;
+    float		mute_pos;
     float		taper_length;
 
-    int			nearestSample(float t) const;
-    SampleGate		sampleGate(const TimeGate&) const;
-    float		sampleTime(int) const;
-    bool		dataPresent(float t,int trcsize) const;
+    int			nearestSample(float pos,int sampoffs=0) const;
+    float		samplePos( int idx, int sampoffs=0 ) const
+			{ return sampling.atIndex( idx + sampoffs ); }
+    SampleGate		sampleGate(const Interval<float>&,int sampoffs=0) const;
+    bool		dataPresent(float pos,int trcsize,int sampoffs=0) const;
     void		gettr(SUsegy&) const;
-    void		puttr(SUsegy&);
+    void		puttr(const SUsegy&);
 
     static const char*	attrName( int idx )	{ return attrnames[idx]; }
     static int		nrAttrs()		{ return 8; }
@@ -100,8 +89,7 @@ public:
     static const char*	attrnames[];
     double		getAttr(int) const;
 
-    static const char*	sSampIntv;
-    static const char*	sStartTime;
+    static const char*	sSamplingInfo;
     static const char*	sNrSamples;
 };
 

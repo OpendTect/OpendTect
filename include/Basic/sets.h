@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.5 2000-08-04 12:18:28 bert Exp $
+ RCS:		$Id: sets.h,v 1.6 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,15 @@ ________________________________________________________________________
 #include <Vector.h>
 #endif
 
-/*!
+/*!\brief Set of objects
+
 The TypeSet is meant for simple types or small objects that have a copy
 constructor. The `-=' function will only remove the first occurrence that
-matches with the `==' operator.
+matches using the `==' operator. The requirement of the presence of that
+operator is actually not that bad: at least you can't forget it.
+
 */
+
 template <class T>
 class TypeSet
 {
@@ -110,10 +114,13 @@ inline bool operator !=( const TypeSet<T>& a, const TypeSet<T>& b )
 { return !(a == b); }
 
 
-/*!
+/*!\brief Set of pointers to objects
+
 The ObjectSet does not manage the objects, it is just a collection of
 pointers to the the objects.
+
 */
+
 template <class T>
 class ObjectSet
 {
@@ -125,7 +132,6 @@ public:
     void		allowNull(bool yn=true)	{ allow0 = yn; }
     ObjectSet<T>&	operator =( const ObjectSet<T>& os )
 			{ allow0 = os.allow0; copy(os); return *this; }
-    virtual void	erase()			{ objs.erase(); }
 
     virtual int		size() const
 				{ return objs.size(); }
@@ -171,6 +177,10 @@ public:
 				*this += os[idx];
 			}
 
+    virtual void	erase()			{ objs.erase(); }
+    virtual void	remove( int idx )	{ objs.remove(idx); }
+    virtual void	remove( int i1, int i2 ) { objs.remove(i1,i2); }
+
 private:
 
     Vector<void*>	objs;
@@ -188,13 +198,6 @@ inline void deepErase( ObjectSet<T>& os )
 }
 
 template <class T>
-inline void deepCopy( ObjectSet<T>& to, const ObjectSet<T>& from )
-{
-    if ( &to != &from )
-	{ deepErase(to); deepAppend( to, from ); }
-}
-
-template <class T>
 inline void deepAppend( ObjectSet<T>& to, const ObjectSet<T>& from )
 {
     int sz = from.size();
@@ -202,6 +205,12 @@ inline void deepAppend( ObjectSet<T>& to, const ObjectSet<T>& from )
 	to += new T( *from[idx] );
 }
 
+template <class T>
+inline void deepCopy( ObjectSet<T>& to, const ObjectSet<T>& from )
+{
+    if ( &to != &from )
+	{ deepErase(to); deepAppend( to, from ); }
+}
 
-/*$-*/
+
 #endif

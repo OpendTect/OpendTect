@@ -5,12 +5,12 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.1 2000-08-18 19:10:21 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.2 2001-02-13 17:21:02 bert Exp $";
 
 #include "helpview.h"
 #include "settings.h"
 #include "ascstream.h"
-#include "unitid.h"
+#include "multiid.h"
 #include "errh.h"
 #include <fstream.h>
 #include <stdlib.h>
@@ -43,8 +43,8 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
     }
 
     ascistream astream( hstrm );
-    UnitID code[3];
-    UnitID wid;
+    MultiID code[3];
+    MultiID wid;
     int lvl;
     const char* ptr = 0;
     while ( 1 )

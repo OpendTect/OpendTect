@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.2 2000-03-02 15:24:35 bert Exp $
+ RCS:		$Id: timefun.h,v 1.3 2001-02-13 17:15:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,9 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-int		Time_getMilliSeconds(void);	/* From day start */
-const char*	Time_getLocalString(void);
-void		Time_sleep(double);
+int		Time_getMilliSeconds(void);	/*!< From day start */
+const char*	Time_getLocalString(void);	/*!< local time in static buf */
+void		Time_sleep(double);		/*!< in seconds */
 
 #ifdef __cpp__
 }

@@ -5,10 +5,13 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.3 2000-03-03 09:29:30 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.4 2001-02-13 17:21:08 bert Exp $";
 
 #include "seisinfo.h"
+#include "seistrc.h"
 #include "susegy.h"
+#include "binidselimpl.h"
+#include "survinfo.h"
 #include <math.h>
 #include <timeser.h>
 #include <float.h>
@@ -16,6 +19,8 @@ static const char* rcsID = "$Id: seisinfo.cc,v 1.3 2000-03-03 09:29:30 bert Exp 
 FixedString<32>  SeisPacketInfo::defaultclient( getenv("dGB_SEGY_CLIENT") );
 FixedString<32>  SeisPacketInfo::defaultcompany( getenv("dGB_SEGY_COMPANY") );
 FixedString<180> SeisPacketInfo::defaultauxinfo( getenv("dGB_SEGY_AUXINFO") );
+const char* SeisTrcInfo::sSamplingInfo = "Sampling information";
+const char* SeisTrcInfo::sNrSamples = "Nr of samples";
 
 
 DefineEnumNames(Seis,WaveType,0,"Wave type")
@@ -37,11 +42,26 @@ DefineEnumNames(Seis,DataType,0,"Data type")
 	"Other",
 	0
 };
+ 
+DefineEnumNames(Seis::Event,Type,0,"Event type")
+{
+	"None",
+	"Peak or trough",
+	"Peak (Max)",
+	"Trough (Min)",
+	"Zero crossing",
+	"Zero crossing - to +",
+	"Zero crossing + to -",
+	"Largest peak",
+	"Largest trough",
+	0
+};
+
 
 const char* SeisTrcInfo::attrnames[] = {
 	"Trace number",
-	"Pick time",
-	"Reference time",
+	"Pick position",
+	"Reference position",
 	"X-coordinate",
 	"Y-coordinate",
 	"In-line",
@@ -51,25 +71,47 @@ const char* SeisTrcInfo::attrnames[] = {
 };
 
 const char* SeisPacketInfo::sBinIDs = "BinID range";
-const char* SeisPacketInfo::sNrTrcs = "Nr of traces";
-const char* SeisTrcInfo::sSampIntv = "Sample interval (ms)";
-const char* SeisTrcInfo::sStartTime = "Start time (ms)";
-const char* SeisTrcInfo::sNrSamples = "Nr of samples";
 
 
-void SeisPacketInfo::fillEmpty( const SeisPacketInfo& tpi )
+SeisPacketInfo::SeisPacketInfo()
+	: range(*new BinIDRange)
 {
-    if ( !client[0] ) client = tpi.client;
-    if ( !company[0] ) company = tpi.company;
-    if ( !auxinfo[0] ) auxinfo = tpi.auxinfo;
-    if ( !nr ) nr = tpi.nr;
-    if ( !ns ) ns = tpi.ns;
-    if ( !dt ) dt = tpi.dt;
-    if ( starttime < 1e-30 ) starttime = tpi.starttime;
-    else		     starttime = 0;
-    if ( !range.start.inl && !range.start.crl
-      && !range.stop.inl && !range.stop.crl )
-	range = tpi.range;
+    clear();
+}
+
+
+SeisPacketInfo::SeisPacketInfo( const SeisPacketInfo& spi )
+	: range(*new BinIDRange)
+{
+    *this = spi;
+}
+
+
+
+void SeisPacketInfo::clear()
+{
+    client = defaultclient;
+    company = defaultcompany;
+    auxinfo = defaultauxinfo;
+    nr = 0;
+    range = SI().range();
+}
+
+
+SeisPacketInfo& SeisPacketInfo::operator=( const SeisPacketInfo& spi )
+{
+    client = spi.client;
+    company = spi.company;
+    auxinfo = spi.auxinfo;
+    nr = spi.nr;
+    range = spi.range;
+    return *this;
+}
+
+
+SeisPacketInfo::~SeisPacketInfo()
+{
+    delete &range;
 }
 
 
@@ -84,7 +126,7 @@ double SeisTrcInfo::getAttr( int nr ) const
     switch ( nr )
     {
     case 1:	return pick;
-    case 2:	return reftime;
+    case 2:	return refpos;
     case 3:	return coord.x;
     case 4:	return coord.y;
     case 5:	return binid.inl;
@@ -95,24 +137,26 @@ double SeisTrcInfo::getAttr( int nr ) const
 }
 
 
-bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
+bool SeisTrcInfo::dataPresent( float t, int trcsz, int soffs ) const
 {
-    if ( t < starttime || t > sampleTime(trcsz) )
-	return NO;
-    if ( mIsUndefined(mute_time) || t > mute_time )
-	return YES;
-    return NO;
+    float realstartpos = sampling.atIndex( soffs );
+    if ( t < realstartpos || t > samplePos(trcsz-1,soffs) )
+	return false;
+    if ( mIsUndefined(mute_pos) || t > mute_pos )
+	return true;
+    return false;
 }
 
 
-int SeisTrcInfo::nearestSample( float t ) const
+int SeisTrcInfo::nearestSample( float t, int soffs ) const
 {
-    float s = mIsUndefined(t) ? 0 : (t-starttime)*1e6/dt;
+    float s = mIsUndefined(t) ? 0 : (t - sampling.start) / sampling.step;
+    s -= soffs;
     return mNINT(s);
 }
 
 
-SampleGate SeisTrcInfo::sampleGate( const TimeGate& tg ) const
+SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg, int soffs ) const
 {
     static SampleGate sg;
 
@@ -121,18 +165,19 @@ SampleGate SeisTrcInfo::sampleGate( const TimeGate& tg ) const
 	return sg;
 
     Interval<float> vals(
-		mIsUndefined(tg.start) ? 0 : (tg.start-starttime)*1e6/dt,
-		mIsUndefined(tg.stop) ? 0 : (tg.stop-starttime)*1e6/dt );
+	mIsUndefined(tg.start) ? 0 : (tg.start-sampling.start) / sampling.step,
+	mIsUndefined(tg.stop) ? 0 : (tg.stop-sampling.start) / sampling.step );
+    vals.shift( -soffs );
 
     if ( vals.start < vals.stop )
     {
-	sg.start = (int)floor(vals.start);
-	sg.stop =  (int)ceil(vals.stop);
+	sg.start = (int)floor(vals.start+1e-3);
+	sg.stop =  (int)ceil(vals.stop-1e-3);
     }
     else
     {
-	sg.start = (int)ceil(vals.start);
-	sg.stop =  (int)floor(vals.stop);
+	sg.start =  (int)ceil(vals.start-1e-3);
+	sg.stop = (int)floor(vals.stop+1e-3);
     }
 
     if ( sg.start < 0 ) sg.start = 0;
@@ -142,51 +187,40 @@ SampleGate SeisTrcInfo::sampleGate( const TimeGate& tg ) const
 }
 
 
-float SeisTrcInfo::sampleTime( int idx ) const
-{
-    return starttime + idx*dt*1e-6;
-}
-
 
 void SeisTrcInfo::gettr( SUsegy& trc ) const
 {
     trc.tracl = trc.fldr = trc.tracf = nr;
     trc.trid = 1;
-    trc.dt = dt;
-    trc.delrt = (short)mNINT(starttime * 1000);
+    trc.dt = (int)(sampling.step*1e6 + .5);
+    trc.delrt = (short)mNINT(sampling.start * 1000);
 
     SULikeHeader* head = (SULikeHeader*)(&trc);
     head->indic = 123456;
     head->inl = binid.inl;
     head->crl = binid.crl;
-    head->inl2 = binid2.inl;
-    head->crl2 = binid2.crl;
     head->pick = pick;
-    head->pick2 = pick2;
-    head->reftime = reftime;
-    head->starttime = starttime;
+    head->refpos = refpos;
+    head->startpos = sampling.start;
     head->offset = offset;
 }
 
 
-void SeisTrcInfo::puttr( SUsegy& trc )
+void SeisTrcInfo::puttr( const SUsegy& trc )
 {
     nr = trc.tracl;
-    dt = trc.dt;
-    starttime = trc.delrt / 1000.;
+    sampling.step = trc.dt * 1e-6;
+    sampling.start = trc.delrt * .001;
     SULikeHeader* head = (SULikeHeader*)(&trc);
     if ( head->indic == 123456 )
     {
 	binid.inl = head->inl;
 	binid.crl = head->crl;
-	binid2.inl = head->inl2;
-	binid2.crl = head->crl2;
 	pick = head->pick;
-	pick2 = head->pick2;
 	offset = head->offset;
-	reftime = head->reftime;
-	starttime = head->starttime;
-	if ( starttime == 0 )
-	    starttime = trc.delrt * .001;
+	refpos = head->refpos;
+	sampling.start = head->startpos;
+	if ( mIS_ZERO(sampling.start) )
+	    sampling.start = trc.delrt * .001;
     }
 }

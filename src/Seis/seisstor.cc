@@ -5,62 +5,77 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.3 2000-11-09 15:54:03 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.4 2001-02-13 17:21:08 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ioman.h"
+
+const char* SeisStorage::sNrTrcs = "Nr of traces";
 
 
 SeisStorage::SeisStorage( const IOObj* ioob )
 	: conn(0)
 	, trl(0)
 	, ioobj(0)
+	, trcsel(0)
 {
-    open( ioob );
-}
-
-
-void SeisStorage::open( const IOObj* ioob )
-{
-    delete ioobj; ioobj = 0;
-    delete trl; trl = 0;
-    if ( !ioob ) return;
-    ioobj = ioob->cloneStandAlone();
-    trl = (SeisTrcTranslator*)ioobj->getTranslator();
-    if ( !trl )
-	{ delete ioobj; ioobj = 0; }
+    setIOObj( ioob );
 }
 
 
 SeisStorage::~SeisStorage()
 {
-    delete conn;
-    delete trl;
-    delete ioobj;
+    cleanUp( true );
+}
+
+
+void SeisStorage::setIOObj( const IOObj* ioob )
+{
+    close();
+    if ( !ioob ) return;
+    ioobj = ioob->clone();
+    trl = (SeisTrcTranslator*)ioobj->getTranslator();
+    if ( !trl )
+	{ delete ioobj; ioobj = 0; }
+    else
+	trl->setTrcSel( trcsel );
+}
+
+
+void SeisStorage::setTrcSel( SeisTrcSel* tsel )
+{
+    delete trcsel; trcsel = tsel;
+    if ( trl ) trl->setTrcSel( trcsel );
+}
+
+
+void SeisStorage::cleanUp( bool alsoioobj )
+{
+    delete trl; trl = 0;
+    delete conn; conn = 0;
+    nrtrcs = 0;
+    if ( alsoioobj )
+    {
+	delete ioobj; ioobj = 0;
+	delete trcsel; trcsel = 0;
+    }
+    init();
 }
 
 
 void SeisStorage::close()
 {
-    delete conn; conn = 0;
-    delete trl; trl = 0;
-    init();
-}
-
-
-const StorageLayout& SeisStorage::storageLayout() const
-{
-    static StorageLayout dum_slo;
-    return trl ? trl->storageLayout() : dum_slo;
+    cleanUp( false );
 }
 
 
 void SeisStorage::fillPar( IOPar& iopar ) const
 {
-    if ( ioobj ) iopar.set( "ID", ioobj->unitID() );
+    if ( ioobj ) iopar.set( "ID", ioobj->key() );
 }
 
 
@@ -70,12 +85,18 @@ void SeisStorage::usePar( const IOPar& iopar )
     if ( *res )
     {
 	IOObj* ioob = IOM().get( res );
-	if ( ioob && (!ioobj || ioobj->unitID() != ioob->unitID()) )
-	{
-	    close();
-	    open( ioob );
-	}
+	if ( ioob && (!ioobj || ioobj->key() != ioob->key()) )
+	    setIOObj( ioob );
 	delete ioob;
     }
-    if ( trl ) trl->usePar( &iopar );
+
+    if ( !trcsel ) trcsel = new SeisTrcSel;
+    trcsel->usePar( iopar );
+    if ( trcsel->isEmpty() ) { delete trcsel; trcsel = 0; }
+
+    if ( trl )
+    {
+	trl->setTrcSel( trcsel );
+	trl->usePar( &iopar );
+    }
 }

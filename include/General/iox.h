@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.3 2000-02-10 13:01:45 bert Exp $
+ RCS:		$Id: iox.h,v 1.4 2001-02-13 17:15:57 bert Exp $
 ________________________________________________________________________
 
 
@@ -26,11 +26,11 @@ class IOX : public IOObject
     friend class	dIOX;
 
 public:
-			IOX(const char* nm=0,const char* id=0,bool =0);
+			IOX(const char* nm=0,const char* ky=0,bool =0);
     virtual		~IOX();
     bool		bad() const;
 
-    void		setUid(const UnitID&);
+    void		setOwnKey(const MultiID&);
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
     void		genDefaultImpl()		{}
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-    UnitID		uid;
+    MultiID		ownkey_;
 
     int			getFrom(ascistream&);
     int			putTo(ascostream&) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.4 2000-03-02 15:24:54 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.5 2001-02-13 17:15:57 bert Exp $
 ________________________________________________________________________
 
  An IOStream is a file (default), device or command entry in the omf.
@@ -33,20 +33,20 @@ public:
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
-    const char*		hostName() const		{ return hostname; }
-    void		setHostName( const char* hn )	{ hostname = hn; }
     void		genDefaultImpl()		{ genFileName(); }
+
+    const ClassDef&	connType() const;
+    bool		slowOpen() const
+			{ return type_ == StreamConn::Device; }
+    Conn*		getConn(Conn::State) const;
 
     bool		implExists(bool forread) const;
     bool		implRemovable() const;
     bool		implRemove() const;
 
-    const ClassDef&	connType() const;
     bool		multiConn() const
 			{ return isMulti() && curfnr <= fnrs.stop; }
-    Conn*		getConn(Conn::State) const;
-    bool		slowOpen() const
-			{ return type_ == StreamConn::Device; }
+    bool		directNumberMultiConn() const;
     int			connNr() const
 			{ return curfnr; }
     bool		toNextConnNr()
@@ -57,8 +57,9 @@ public:
 			{ return curfnr+fnrs.step; }
     void		resetConnNr()
 			{ curfnr = fnrs.start; }
-    bool		isStarConn() const;
 
+    const char*		hostName() const		{ return hostname; }
+    void		setHostName( const char* hn )	{ hostname = hn; }
     const char*		fileName() const		{ return fname; }
     void		setFileName(const char*);
     void		setExt( const char* ext )	{ extension = ext; }

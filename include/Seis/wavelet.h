@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.1.1.2 1999-09-16 09:22:22 arend Exp $
+ RCS:		$Id: wavelet.h,v 1.2 2001-02-13 17:16:09 bert Exp $
 ________________________________________________________________________
 
 @$*/
  
 #include <defobj.h>
-#include <seistrc.h>
+#include <uidobj.h>
 class IOObj;
 
 class Wavelet : public DefObject
@@ -33,8 +33,8 @@ public:
     int			size() const		{ return sz; }
     float*		samples()		{ return samps; }
     const float*	samples() const		{ return samps; }
-    float		sampleRate() const	{ return dt*1e-6; }
-    unsigned short	suDt() const		{ return dt; }
+    float		sampleRate() const	{ return dpos; }
+    unsigned short	suDt() const	{ return (unsigned short)(dpos*1e6+.5); }
     int			centerSample() const	{ return -iw; }
 
     void		reSize(int); // destroys info present!
@@ -46,7 +46,7 @@ protected:
 
     int			iw;		// The index of the first sample
 					// where the center is 0
-    unsigned short	dt;		// In micro-secs
+    float		dpos;
     float*		samps;
     int			sz;
 
