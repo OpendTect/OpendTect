@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.13 2004-09-07 16:24:01 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.14 2004-09-08 07:45:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	setup.pol2d_ == SeisSelSetup::Only2D ?	"Select output Line Set"
       : (setup.pol2d_ == SeisSelSetup::No2D ?	"Select output Seismic Cube"
 				     :	"Output Seismics") );
-    adaptCtxt( ctio.ctxt, setup.pol2d_ );
 
     if ( setup.subsel_ )
     {
@@ -79,6 +78,7 @@ const CtxtIOObj& uiSeisSelDlg::getCtio( const CtxtIOObj& c,
     {
 	IOObjContext& ctxt = const_cast<IOObjContext&>( c.ctxt );
 	ctxt.trglobexpr = standardTranslSel( s.pol2d_ );
+	adaptCtxt( ctxt, s.pol2d_ );
     }
     return c;
 }
