@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: globexpr.cc,v 1.2 2001-03-26 09:00:11 bert Exp $";
+static const char* rcsID = "$Id: globexpr.cc,v 1.3 2001-03-26 09:29:00 bert Exp $";
 
 #include "globexpr.h"
 
@@ -168,17 +168,12 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg )
     bool matched = false;
     while ( !matched )
     {
-
-        /* a precondition for matching is that the next character
-           in the pattern matches the next character in the text or that
-           the next pattern char is the beginning of a range.  Increment
-           text pointer as we go here */
         if ( nextp == *t || nextp == '[' )
             matched = matches( p, t, errmsg );
 
         /* if the end of text is reached then no match */
         if ( !*t++ )
-	    matched = false;
+	    break;
     }
 
     return matched;
