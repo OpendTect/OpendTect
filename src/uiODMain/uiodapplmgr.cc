@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.55 2004-09-27 10:28:02 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.56 2004-09-29 16:09:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ uiODApplMgr::~uiODApplMgr()
     delete emserv;
     delete wellserv;
     delete wellattrserv;
+    delete &applservice;
 }
 
 void uiODApplMgr::resetServers()

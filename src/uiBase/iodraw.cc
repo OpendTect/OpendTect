@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.10 2004-04-14 14:04:18 nanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.11 2004-09-29 16:06:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,9 +158,9 @@ void ioDrawTool::drawRect ( int x, int y, int w, int h )
 }
 
 
-const Color& ioDrawTool::backgroundColor() const
+Color ioDrawTool::backgroundColor() const
 {
-    return *new Color( mQPainter->backgroundColor().rgb() );
+    return Color( mQPainter->backgroundColor().rgb() );
 }
 
 

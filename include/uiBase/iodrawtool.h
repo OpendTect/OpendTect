@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.8 2004-04-14 14:04:18 nanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.9 2004-09-29 16:06:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iodraw.h"
 #include "uigeom.h"
 #include "sets.h"
+#include "color.h"
 
 class QPaintDevice; 
 class QPaintDeviceMetrics; 
@@ -43,7 +44,7 @@ public:
 
     virtual		~ioDrawTool(); 
 
-    const Color&	backgroundColor() const;
+    Color		backgroundColor() const;
     void		setBackgroundColor(const Color&);
     void		clear(const uiRect* r=0,const Color* c=0);
 
