@@ -3,9 +3,10 @@
  * DATE     : 9-3-1999
 -*/
 
-#include <genericnumer.h>
-#include <math.h>
-#include <mathfunc.h>
+#include "genericnumer.h"
+
+#include "math.h"
+#include "mathfuncsampler.h"
     
 #define ITMAX 100
 #define EPS 3.0e-8
@@ -132,25 +133,17 @@ float findValueInAperture( const MathFunction<float>& func, float startx,
 
 
 float similarity( const MathFunction<float>& a, const MathFunction<float>& b, 
-			 float a1, float b1, float dist, int sz )
+			 float a1, float b1, float dist, int sz, bool normalize)
 {
-    float val1, val2;
-    double sqdist = 0, sq1 = 0, sq2 = 0;
+    MathFunctionSampler<float> sampa(a);
+    MathFunctionSampler<float> sampb(b);
 
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	val1 = a.getValue(a1);
-	val2 = b.getValue(b1);
-	sq1 += val1 * val1;
-	sq2 += val2 * val2;
-	sqdist += (val1-val2) * (val1-val2);
-	
-	a1 += dist;
-	b1 += dist;
-    }
+    sampa.sd.start = a1;
+    sampa.sd.step = dist;
+    sampb.sd.start = b1;
+    sampb.sd.step = dist;
 
-    if ( sq1 + sq2 < 1e-10 ) return 0;
-    return mMAX( 0, 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2))));
+    return similarity( sampa, sampb, sz, normalize, 0, 0 );
 }
 
 
