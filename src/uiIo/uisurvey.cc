@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.22 2002-01-14 15:30:43 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.23 2002-01-21 14:58:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
 #include "uitextedit.h"
+#include "uimain.h"
 #include "strmprov.h"
 
 #include <math.h>
@@ -425,7 +426,28 @@ bool uiSurvey::acceptOK( CallBacker* )
     if ( !updateSvyFile() || !IOMan::newSurvey() )
 	return false;
 
+    updateViewsGlobal();
     return true;
+}
+
+
+void uiSurvey::updateViewsGlobal( CallBacker* )
+{
+    const char* appnm = GetProjectVersionName();
+    if ( GetDgbApplicationCode() == mDgbApplCodeDTECT ) appnm += 4;
+    BufferString capt( appnm );
+
+    const char* usr = GetSoftwareUser();
+    if ( usr && *usr )
+	{ capt += " ["; capt += usr; capt += "]"; }
+
+    if ( SI().name() != "" )
+    {
+	capt += ": ";
+	capt += SI().name();
+    }
+
+    uiMain::setTopLevelCaption( capt );
 }
 
 
