@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.27 2004-05-04 15:35:54 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.28 2004-05-05 14:21:35 nanne Exp $
 ________________________________________________________________________
 
 
@@ -57,6 +57,7 @@ public:
     bool			canResetManipulation() const { return true; }
     void			resetManipulation();
     void			acceptManipulation();
+    BufferString		getManipulationString() const;
 
     int                		nrResolutions() const; 
     BufferString		getResolutionName(int) const;
@@ -119,12 +120,12 @@ public:
     BinID			getClickedPos() const;
     void			removeNearestKnot(int,const BinID&);
 
-    Notifier<RandomTrackDisplay> rightclick;
-    Notifier<RandomTrackDisplay> knotmoving;
     int				getSelKnotIdx() const	{ return selknotidx; }
 
     virtual float               calcDist(const Coord3&) const;
     virtual NotifierAccess*	getMovementNotification() { return &moving; }
+    NotifierAccess*		rightClickNotifier()	 { return &rightclick; }
+    NotifierAccess*		getManipulationNotifier() { return &knotmoving;}
 
     SoNode*			getInventorNode();
 
@@ -166,7 +167,9 @@ protected:
     static const char*		knotprefix;
     static const char*		depthintvstr;
 
-    Notifier<RandomTrackDisplay>  moving;
+    Notifier<RandomTrackDisplay> moving;
+    Notifier<RandomTrackDisplay> knotmoving;
+    Notifier<RandomTrackDisplay> rightclick;
 };
 
 };
