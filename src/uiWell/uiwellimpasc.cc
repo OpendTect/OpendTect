@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.7 2003-10-30 12:24:34 nanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.8 2003-10-31 14:26:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,6 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	    		     uiFileInput::Setup().withexamine() );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
-    feetfld = new uiCheckBox( this, "Depth in feet" );
 
     bool zistime = SI().zIsTime();
     if ( zistime )
@@ -49,15 +48,23 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	d2tfld->attach( alignedBelow, infld );
 
 	tvdfld = new uiCheckBox( this, "Model is TVD" );
-	feetfld->attach( alignedBelow, d2tfld );
-	tvdfld->attach( rightTo, feetfld );
+	tvdfld->attach( alignedBelow, d2tfld );
     }
-    else
-	feetfld->attach( alignedBelow, infld );
+
+    coordfld = new uiGenInput( this, "Surface coordinate",
+	    		       BinIDCoordInpSpec(true) );
+    coordfld->attach( alignedBelow, zistime ? (uiObject*)tvdfld
+	   				    : (uiObject*)infld );
+
+    elevfld = new uiGenInput( this, "Surface elevation", FloatInpSpec() );
+    elevfld->attach( alignedBelow, coordfld );
+
+    unitfld = new uiGenInput( this, "Depth unit", BoolInpSpec("Meter","Feet") );
+    unitfld->attach( alignedBelow, elevfld );
 
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Well" );
-    outfld->attach( alignedBelow, feetfld );
+    outfld->attach( alignedBelow, unitfld );
 
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, outfld );
@@ -69,18 +76,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     idfld->attach( alignedBelow, outfld );
     idfld->attach( ensureBelow, infolbl );
     
-    coordfld = new uiGenInput( this, "Surface coordinate",
-	    		       BinIDCoordInpSpec(true) );
-    coordfld->attach( alignedBelow, idfld );
-
-    uiLabel* crdlbl = new uiLabel( this, "(empty is first track position)" );
-    crdlbl->attach( rightTo, coordfld );
-
-    elevfld = new uiGenInput( this, "Surface elevation", FloatInpSpec() );
-    elevfld->attach( alignedBelow, coordfld );
-
     operfld = new uiGenInput( this, "Operator" );
-    operfld->attach( alignedBelow, elevfld );
+    operfld->attach( alignedBelow, idfld );
     
     statefld = new uiGenInput( this, "State" );
     statefld->attach( alignedBelow, operfld );
@@ -108,20 +105,6 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 bool uiWellImportAsc::doWork()
 {
     PtrMan<Well::Data> well = new Well::Data( outfld->getInput() );
-    Well::AscImporter ascimp( *well );
-
-    const char* fname = infld->fileName();
-    const char* errmsg = ascimp.getTrack( fname, false, feetfld->isChecked() );
-    // TODO: check args
-    if ( errmsg ) mErrRet( errmsg );
-
-    if ( SI().zIsTime() )
-    {
-	fname = d2tfld->fileName();
-	errmsg = ascimp.getD2T( fname, tvdfld->isChecked(), 
-				feetfld->isChecked() );
-	if ( errmsg ) mErrRet( errmsg );
-    }
 
     Well::Info& info = well->info();
     info.uwid = idfld->text();
@@ -129,8 +112,20 @@ bool uiWellImportAsc::doWork()
     info.state = statefld->text();
     info.county = countyfld->text();
     info.surfacecoord = coordfld->getCoord();
-    if ( !info.surfacecoord.x && !info.surfacecoord.y && well->track().size() )
-	info.surfacecoord = well->track().pos(0);
+
+    Well::AscImporter ascimp( *well );
+
+    const char* fname = infld->fileName();
+    const bool zinfeet = !unitfld->getBoolValue();
+    const char* errmsg = ascimp.getTrack( fname, true, zinfeet );
+    if ( errmsg ) mErrRet( errmsg );
+
+    if ( SI().zIsTime() )
+    {
+	fname = d2tfld->fileName();
+	errmsg = ascimp.getD2T( fname, tvdfld->isChecked(), zinfeet );
+	if ( errmsg ) mErrRet( errmsg );
+    }
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())

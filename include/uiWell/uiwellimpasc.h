@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.3 2003-10-16 15:00:34 nanne Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.4 2003-10-31 14:26:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ protected:
 
     uiFileInput*	infld;
     uiFileInput*	d2tfld;
-    uiCheckBox*		feetfld;
+    uiGenInput*		unitfld;
     uiCheckBox*		tvdfld;
     uiGenInput*		idfld;
     uiGenInput*		coordfld;
