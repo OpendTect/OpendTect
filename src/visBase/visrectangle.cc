@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.4 2002-02-26 17:54:21 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.5 2002-02-27 07:20:42 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "visscene.h"
@@ -326,7 +326,7 @@ visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
     : VisualObject( scene_ )
     , origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
-    , orientation( visBase::Rectangle::XY )
+    , orientation_( visBase::Rectangle::XY )
     , localorigotrans( new SoTranslation )
     , localscale( new SoScale )
     , widthscale( new SoScale )
@@ -449,7 +449,7 @@ float visBase::Rectangle::manipOrigo( int dim ) const
 
     float res;
 
-    switch ( orientation )
+    switch ( orientation_ )
     {
     case XY:
 	if ( dim==0 ) res = getStartPos(0, centerpos[0], scale[0] );
@@ -498,7 +498,7 @@ void visBase::Rectangle::setOrientation( visBase::Rectangle::Orientation o )
     break;
     }
 
-    orientation = o;
+    orientation_ = o;
 }
 
 
@@ -561,10 +561,10 @@ void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
     }
     
 
-    startpos = snapPos(2, getStartPos( 2, orientation != XY ? -newz : newz, 0));
+    startpos = snapPos(2, getStartPos( 2, orientation_!=XY ? -newz : newz, 0));
     if ( zrange.includes( startpos ) )
     {
-	z = orientation != XY ? -getCenterCoord( 2, startpos, 0 )
+	z = orientation_ != XY ? -getCenterCoord( 2, startpos, 0 )
 			      : getCenterCoord( 2, startpos, 0 );
     }
 
@@ -700,7 +700,7 @@ float visBase::Rectangle::getStartPos( int dim, float centerpos,
 		 widthscale->scaleFactor.getValue()[dim];
     centerpos -= getWidth( dim, scale )/2;
 
-    switch ( orientation )
+    switch ( orientation_ )
     {
     case XY:
 	centerpos +=origotrans->translation.getValue()[dim];
@@ -731,7 +731,7 @@ float visBase::Rectangle::getStopPos( int dim, float centerpos,
 		 widthscale->scaleFactor.getValue()[dim];
     centerpos += getWidth( dim, scale )/2;
 
-    switch ( orientation )
+    switch ( orientation_ )
     {
     case XY:
 	centerpos +=origotrans->translation.getValue()[dim];
@@ -755,7 +755,7 @@ float visBase::Rectangle::getStopPos( int dim, float centerpos,
 float visBase::Rectangle::getCenterCoord( int dim, float startpos,
 					  float width ) const 
 {
-    switch ( orientation )
+    switch ( orientation_ )
     {
     case XY:
 	startpos -=origotrans->translation.getValue()[dim];

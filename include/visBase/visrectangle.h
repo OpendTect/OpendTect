@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.4 2002-02-26 17:54:40 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.5 2002-02-27 07:20:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -100,6 +100,7 @@ public:
     void		setWidthRange( int dim, const Interval<float>&);
     enum Orientation	{ XY, XZ, YZ };
     void		setOrientation(Orientation);
+    Orientation		orientation() const { return orientation_; }
 
     void		setSnapping(bool n) { snap = n; }
     bool		isSnapping() const { return snap; }
@@ -132,7 +133,7 @@ protected:
     float		getCenterCoord(int dim,float startpos,float wdth) const;
 
     bool		snap;
-    Orientation		orientation;
+    Orientation		orientation_;
 
     StepInterval<float>	xrange;
     StepInterval<float>	yrange;
