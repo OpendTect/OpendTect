@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.19 2004-07-19 13:20:49 arend Exp $
+ RCS:		$Id: strmprov.h,v 1.20 2005-02-23 12:21:02 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,9 +59,12 @@ public:
     bool	setReadOnly(bool yn) const;
     bool	isReadOnly() const;
 
-    StreamData	makeOStream() const;
-		//!< 'inbg' will execute in background if remote
-    StreamData	makeIStream() const;
+    StreamData	makeOStream( bool binary=true ) const;
+		/*!< 'inbg' will execute in background if remote
+		   On win32, binary mode differs from text mode. 
+		    Use binary=false when explicitly reading txt files.
+		 */
+    StreamData	makeIStream( bool binary=true ) const;
 		//!< see makeOStream remark
     bool	executeCommand(bool inbg=false) const;
     		//!< If type is Command, execute command without opening pipe
