@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.1 2002-06-26 22:17:15 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.2 2002-06-28 12:57:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,8 @@ ________________________________________________________________________
 uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool wstp )
 	: uiGroup(p,"Seis transfer pars")
 {
-    subselfld = new uiBinIDSubSel( this, false, true, wstp );
+    subselfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
+	    				.withz(true).withstep(wstp) );
     scfmtfld = new uiSeisFmtScale( this, with_format );
     scfmtfld->attach( alignedBelow, subselfld );
 

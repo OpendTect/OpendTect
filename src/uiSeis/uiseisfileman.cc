@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.8 2002-06-26 16:39:38 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.9 2002-06-28 12:57:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Seismic file management",
-                                     "Remove, rename, locate seismics",
+                                     "Manage seismic cubes",
                                      "0"))
 	, ctio(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 	, ioobj(0)
@@ -75,8 +75,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
   
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( alignedBelow, topgrp );
-    infofld->attach( widthSameAs, topgrp );
     infofld->setPrefHeightInChar( 6 );
+    infofld->setPrefWidthInChar( 50 );
+    topgrp->attach( widthSameAs, infofld );
 
     selChg( this ); 
     setCancelText( "" );

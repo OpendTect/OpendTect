@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.21 2002-06-24 13:12:00 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.22 2002-06-28 12:57:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,8 @@ public:
     void		checkInlRange(Interval<int>&,bool work=true) const;
 			//!< Make sure range is inside
     void		checkCrlRange(Interval<int>&,bool work=true) const;
+			//!< Make sure range is inside
+    void		checkRange(BinIDRange&,bool work=true) const;
 			//!< Make sure range is inside
     void		checkZRange(Interval<double>&,bool work=true) const;
 			//!< Make sure range is inside
