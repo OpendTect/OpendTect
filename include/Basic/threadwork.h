@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.4 2002-09-06 07:50:26 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.5 2002-09-11 06:16:24 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,7 @@ public:
 protected:
 
     void		doWork(CallBacker*);
+    void 		cancelWork(CallBacker*);
     ThreadWorkManager&	manager;
 
     ConditionVar&	controlcond;	//Dont change this order!
