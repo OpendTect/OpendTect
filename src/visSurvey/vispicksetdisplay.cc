@@ -4,15 +4,16 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.28 2002-05-27 06:30:21 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.29 2002-07-25 15:27:55 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
 #include "visdataman.h"
 #include "visplanedatadisplay.h"
 #include "vissceneobjgroup.h"
+#include "vismaterial.h"
 #include "position.h"
-#include "viscube.h"
+#include "vismarker.h"
 #include "geompos.h"
 #include "color.h"
 #include "iopar.h"
@@ -21,13 +22,12 @@ mCreateFactoryEntry( visSurvey::PickSetDisplay );
 
 const char* visSurvey::PickSetDisplay::grpstr = "Group";
 const char* visSurvey::PickSetDisplay::showallstr = "Show all";
+const char* visSurvey::PickSetDisplay::shapestr = "Shape";
 
 visSurvey::PickSetDisplay::PickSetDisplay( )
     : group( visBase::SceneObjectGroup::create() )
     , eventcatcher( visBase::EventCatcher::create() )
-    , xsz( 50 )
-    , ysz( 50 )
-    , zsz( 50 )
+    , initsz( 5 )
     , changed( this )
     , VisualObjectImpl( true )
     , showall(true)
@@ -40,11 +40,11 @@ visSurvey::PickSetDisplay::PickSetDisplay( )
 	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
 
     SPM().appvelchange.notify(	mCB( this, visSurvey::PickSetDisplay,
-				updateCubeSz ));
+				updatePickSz ));
 
     group->ref();
     addChild( group->getData() );
-   
+    picksz = initsz;
 }
 
 
@@ -59,7 +59,7 @@ visSurvey::PickSetDisplay::~PickSetDisplay()
     group->unRef();
 
     SPM().appvelchange.remove(	mCB( this, visSurvey::PickSetDisplay,
-				updateCubeSz ));
+				updatePickSz ));
 }
 
 
@@ -72,10 +72,10 @@ int visSurvey::PickSetDisplay::nrPicks() const
 Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
 {
 
-    mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
-    if ( cube )
+    mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+    if ( marker )
     {
-	return cube->centerPos();
+	return marker->centerPos();
     }
 
     Geometry::Pos res(mUndefValue,mUndefValue,mUndefValue);
@@ -86,12 +86,14 @@ Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
 
 void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
 {
-    visBase::Cube* cube = visBase::Cube::create();
-    cube->setCenterPos( pos );
-    cube->setWidth( Geometry::Pos( xsz, ysz, zsz/SPM().getAppVel()*2) );
-    cube->setMaterial( 0 );
+    visBase::Marker* marker = visBase::Marker::create();
+    marker->setCenterPos( pos );
+    marker->setScale( Geometry::Pos(1, 1, 2/SPM().getAppVel()) );
+    marker->setSize( picksz );
+    marker->setType( (visBase::Marker::Type)getType() );
+    marker->setMaterial( 0 );
 
-    group->addObject( cube );
+    group->addObject( marker );
     changed.trigger();
 }
 
@@ -103,10 +105,10 @@ void visSurvey::PickSetDisplay::showAll(bool yn)
 
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
-	if ( !cube ) continue;
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
 
-	cube->turnOn( true );
+	marker->turnOn( true );
     }
 }
 
@@ -117,16 +119,16 @@ void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
     if ( showall ) return;
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
-	if ( !cube ) continue;
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
 
-	Geometry::Pos pos = SPM().coordXYT2Display(cube->centerPos());
-	cube->turnOn( false );
+	Geometry::Pos pos = SPM().coordXYT2Display(marker->centerPos());
+	marker->turnOn( false );
 	for ( int idy=0; idy<objs.size(); idy++ )
 	{
 	    if ( objs[idy]->calcDist( pos )< dist )
 	    {
-		cube->turnOn(true);
+		marker->turnOn(true);
 		break;
 	    }
 	}
@@ -134,10 +136,56 @@ void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
 }
 
 
-void visSurvey::PickSetDisplay::setSize( float x, float y, float z )
+void visSurvey::PickSetDisplay::setSize( float x )
 {
-    xsz = x; ysz = y; zsz = z;
-    updateCubeSz( 0 );
+    picksz = x; 
+    updatePickSz( 0 );
+}
+
+
+void visSurvey::PickSetDisplay::setColor( const Color& col )
+{
+    (this)->getMaterial()->setColor( col );
+}
+
+
+const Color& visSurvey::PickSetDisplay::getColor() const
+{
+    return (this)->getMaterial()->getColor();
+}
+
+
+void visSurvey::PickSetDisplay::setType( int tp )
+{
+    if ( tp < 0 ) tp = 0;
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
+	marker->setType( (visBase::Marker::Type)tp );
+    }
+}
+
+
+int visSurvey::PickSetDisplay::getType() const
+{
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
+	return (int)marker->getType();
+    }
+
+    return -1;
+}
+
+
+void visSurvey::PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
+{
+    strs += "Cube";
+    strs += "Cone";
+    strs += "Cylinder";
+    strs += "Sphere";
 }
 
 
@@ -145,10 +193,10 @@ void visSurvey::PickSetDisplay::removePick( const Geometry::Pos& pos )
 {
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
-	if ( !cube ) continue;
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
 
-	if ( cube->centerPos() == pos )
+	if ( marker->centerPos() == pos )
 	{
 	    group->removeObject( idx );
 	    changed.trigger();
@@ -246,16 +294,15 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 }
 
 
-void visSurvey::PickSetDisplay::updateCubeSz( CallBacker* cb )
+void visSurvey::PickSetDisplay::updatePickSz( CallBacker* cb )
 {
-    Geometry::Pos nsz( xsz, ysz, zsz/SPM().getAppVel()*2);
-
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
-	if ( !cube ) continue;
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
 
-	cube->setWidth( nsz );
+	marker->setSize( picksz );
+	marker->setScale( Geometry::Pos(1, 1, 2/SPM().getAppVel()) );
     }
 }
 
@@ -268,8 +315,10 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
     par.set( grpstr, grpid );
     par.setYN( showallstr, showall );
 
+    int type = getType();
+    par.set( shapestr, type );
+
     if ( saveids.indexOf( grpid )==-1 ) saveids += grpid;
-    
 }
 
 
@@ -298,16 +347,19 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     if ( !par.getYN( showallstr, shwallpicks ) ) return -1;
     showAll( shwallpicks );
 
+    int type = 0;
+    par.get( shapestr, type );
+
     for ( int idx=0; idx<group->size(); idx++ )
     {
-        mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
-        if ( !cube ) continue;
+        mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+        if ( !marker ) continue;
 
-        const Geometry::Pos pos = cube->width();
-	xsz = pos.x;
-	ysz = pos.y;
-	zsz = pos.z * SPM().getAppVel() / 2;
-	break;
+	marker->setType( (visBase::Marker::Type)type );
+
+        const float markersz = marker->getSize();
+	picksz = markersz;
+//	break;
     }
  
     return 1;

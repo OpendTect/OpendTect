@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.13 2002-07-03 15:09:52 nanne Exp $
+ RCS:           $Id: uislider.cc,v 1.14 2002-07-25 15:27:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ uiSlider::uiSlider( uiParent* parnt, const char* nm, bool witheditfld,
     {
 	valueChanged.notify( mCB(this,uiSlider,sliderMove) );
 	editfld = new uiLineEdit( parnt, FloatInpSpec() );
+	editfld->setHSzPol( uiObject::small );
 	editfld->attach( rightTo, this );
 	editfld->returnPressed.notify( mCB(this,uiSlider,editValue) );
     }

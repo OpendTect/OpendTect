@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.72 2002-07-16 15:18:25 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.73 2002-07-25 15:27:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -561,10 +561,8 @@ int uiVisPartServer::addPickSetDisplay()
     setSelObjectId( pickset->id() );
     pickset->changed.notify( mCB( this, uiVisPartServer, picksChangedCB ));
     if ( picks.size() > 1 && picks[0] )
-    {
-	pickset->setSize( picks[0]->getXSz(), picks[0]->getYSz(), 
-			  picks[0]->getZSz() );
-    }
+	pickset->setSize( picks[0]->getPickSize() ); 
+
     return pickset->id();
 }
 
@@ -593,7 +591,7 @@ bool uiVisPartServer::setPicks(int id, const PickSet& pickset )
     if ( ps->nrPicks() )
 	ps->removeAll();
 
-    ps->getMaterial()->setColor( pickset.color );
+    ps->setColor( pickset.color );
     ps->setName( pickset.name() );
     int nrpicks = pickset.size();
     for ( int idx=0; idx<nrpicks; idx++ )
@@ -706,6 +704,22 @@ bool uiVisPartServer::allPicksShown( int id )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
     return ps ? ps->allShown() : false;
+}
+
+
+int uiVisPartServer::getPickType( int id ) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
+    return ps ? ps->getType() : -1;
+}
+
+
+void uiVisPartServer::setPickType( int id, int type )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
+    if ( ps ) ps->setType( type );
 }
 
 
@@ -1241,7 +1255,7 @@ void uiVisPartServer::setMaterial( int id )
 }
 
 
-void uiVisPartServer::setPickSize( int id )
+void uiVisPartServer::setPickProps( int id )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)

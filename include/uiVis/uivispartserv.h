@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.48 2002-07-10 09:39:26 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.49 2002-07-25 15:27:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,8 @@ public:
     bool		picksetIsPresent(const char*);
     void		showAllPicks(int,bool);
     bool		allPicksShown(int);
+    int			getPickType(int) const;
+    void		setPickType(int,int);
 
     			//Well stuff
     int			addWellDisplay(const MultiID& emwellid);
@@ -200,7 +202,7 @@ public:
     bool		setWorkingArea(int);
     bool		setZScale();
     void		setMaterial(int);
-    void		setPickSize(int);
+    void		setPickProps(int);
 
 protected:
 

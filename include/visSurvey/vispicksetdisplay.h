@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.16 2002-05-08 13:41:04 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.17 2002-07-25 15:27:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -46,9 +46,16 @@ public:
     void			removePick( const Geometry::Pos& );
     void			removeAll();
 
-    float			getXSz() const { return xsz; }
-    float			getYSz() const { return ysz; }
-    float			getZSz() const { return zsz; }
+    float			getInitSize() const	{ return initsz; }
+    float			getPickSize() const 	{ return picksz; }
+    void			setSize(float);
+
+    void			setColor(const Color&);
+    const Color&		getColor() const;
+
+    void			setType(int);
+    int				getType() const;
+    void			getTypeNames(TypeSet<char*>&);
 
     void			showAll(bool yn);
     bool			allShown()		{ return showall; }
@@ -58,29 +65,28 @@ public:
     virtual void                fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int                 usePar( const IOPar& );
 
-    void			setSize( float inl, float crl, float t );
     Notifier<PickSetDisplay>	changed;
 
 protected:
-    virtual		~PickSetDisplay();
+    virtual			~PickSetDisplay();
 
-    void		pickCB( CallBacker* =0 );
-    void		updateCubeSz( CallBacker* = 0);
+    void			pickCB( CallBacker* =0 );
+    void			updatePickSz( CallBacker* = 0);
 
-    float		xsz;
-    float		ysz;
-    float		zsz;
+    float			picksz;
+    const float			initsz;
 
-    bool		showall;
+    bool			showall;
 
-    int			mousepressid;
-    Geometry::Pos	mousepressposition;
+    int				mousepressid;
+    Geometry::Pos		mousepressposition;
 
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
 
-    static const char*	grpstr;
-    static const char*	showallstr;
+    static const char*		grpstr;
+    static const char*		showallstr;
+    static const char*		shapestr;
 };
 
 };

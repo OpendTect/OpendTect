@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.7 2002-04-15 14:34:26 bert Exp $
+ RCS:           $Id: uicolor.cc,v 1.8 2002-07-25 15:27:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* txt,
 	, color_(c)
 	, seltxt_(st)
     	, collbl(0)
+	, colorchanged(this)
 {
     uiPushButton* but = new uiPushButton( this, txt );
     but->activated.notify( mCB(this,uiColorInput,selCol) );
@@ -61,8 +62,11 @@ uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* txt,
 
 void uiColorInput::selCol( CallBacker* )
 {
+    const Color oldcol = color_;
     select( color_, this, seltxt_ );
     collbl->setBackgroundColor( color_ );
+    if ( oldcol != color_ )
+	colorchanged.trigger();
 }
 
 
