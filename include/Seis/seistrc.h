@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.3 2000-07-15 15:23:59 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.4 2000-08-07 20:12:56 bert Exp $
 ________________________________________________________________________
 
 A trace is composed of trace info and trace data.
@@ -52,18 +52,23 @@ public:
     virtual bool	isSUCompat() const	{ return NO; }
 
 			// Implementation
-    int			getIndex(double) const;
-    double		getX(int) const;
+    int			getIndex( double val ) const
+			{ return info_.nearestSample( val ); }
+    double		getX( int idx ) const
+			{ return info_.starttime + idx * 1e-6 * info_.dt; }
     float		getValue(double) const;
-    inline int		size() const		{ return data_.size(); };
-    double		step() const		{ return info().dt * 1.e-6; }
+    inline int		size() const	{ return data_.size(); };
+    double		start() const	{ return info_.starttime; }
+    double		stop() const	{ return info_.sampleTime(size()-1); }
+    double		step() const	{ return info_.dt * 1.e-6; }
 
-    SeisTrcInfo&	info()			{ return info_; }
-    const SeisTrcInfo&	info() const		{ return info_; }
-    SamplingData	samplingData() const;
+    SeisTrcInfo&	info()		{ return info_; }
+    const SeisTrcInfo&	info() const	{ return info_; }
+    SamplingData	samplingData() const
+			{ return SamplingData(info_.starttime,info_.dt*1e-6 ); }
     virtual bool	isNull() const;
-    bool		clear()			{ clearData(); return true; }
-    void		clearData()		{ data_.clear(); }
+    bool		clear()		{ clearData(); return true; }
+    void		clearData()	{ data_.clear(); }
     inline bool		dataPresent( float t ) const
 			{ return info_.dataPresent(t,size()); }
     void		gettr(SUsegy&) const;
