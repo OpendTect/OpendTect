@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.2 2003-12-10 15:32:19 arend Exp $
+  - RCS:        $Id: windows.html,v 1.3 2003-12-11 14:40:36 arend Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.0]</title>
@@ -185,7 +185,9 @@ If you want to load one of the 'ui' plugins, you have to load the corresponding 
 This is the same on Unix and Windows, so please consult the plugins documentation for more details.
 However, there are a few remarks about the location of your personal directory on windows. </p>
 
-<p> Your personal directory is located at $HOMEDRIVE/$HOMEPATH if this is not "C:\". If $HOMEDRIVE/$HOMEPATH is "C:\", or $HOMEDRIVE and/or $HOMEPATH is not set, the location of the special windows folder "Application Data" is used.
+<p> Your 'Personal directory' is located at $HOMEDRIVE/$HOMEPATH if this is defined and not "C:\".
+Otherwise, the location of the special windows folder "Application Data" is used.
+
 You can find the location of special windows folders using the GetSpecFolder.exe program that you can find in the OpendTect installation directory:
 <pre>
 Administrator@dgb18-winxp ~
