@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.3 2002-05-22 09:13:18 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.4 2002-05-23 08:45:02 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -122,13 +122,15 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
+    MultiID wellid;
+    
+    if ( !par.get( earthmodelidstr, wellid ))
+	return -1;
+
+    if ( !setWellId( wellid ) )
+	return -1;
+
     int var;
-    if ( !par.get( earthmodelidstr, var ))
-	return -1;
-
-    if ( !setWellId( var ) )
-	return -1;
-
     if ( par.get( displayattribstr, var ) )
     {
 	displayAttrib( var );
