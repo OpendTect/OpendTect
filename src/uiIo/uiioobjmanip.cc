@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.9 2004-05-13 10:07:51 macman Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.10 2004-05-28 11:11:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,7 +143,13 @@ void uiIOObjManipGroup::refreshList( const MultiID& key )
 
     box->empty();
     for ( int idx=0; idx<entries.size(); idx++ )
+    {
+	IODirEntry* entry = entries[idx];
 	box->addItem( entries[idx]->name() );
+	if ( entry->ioobj == entries.selected() )
+	    box->setCurrentItem( idx );
+    }
+
 }
 
 

@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.11 2004-05-27 15:18:54 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.12 2004-05-28 11:11:25 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.11 2004-05-27 15:18:54 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.12 2004-05-28 11:11:25 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -40,6 +40,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     dtecttb = appl.toolBar();
     dtecttb->setLabel( "OpendTect tools" );
     cointb = appl.newToolBar( "Graphical tools" );
+    mantb = appl.newToolBar( "Manage data" );
 }
 
 
@@ -55,6 +56,7 @@ void uiODMenuMgr::initSceneMgrDepObjs()
 
     fillDtectTB();
     fillCoinTB();
+    fillManTB();
 
     timer.tick.notify( mCB(this,uiODMenuMgr,timerCB) );
 }
@@ -77,6 +79,7 @@ void uiODMenuMgr::storePositions()
 {
     dtecttb->storePosition();
     cointb->storePosition();
+    mantb->storePosition();
 }
 
 
@@ -286,6 +289,22 @@ void uiODMenuMgr::fillDtectTB()
     mAddTB(dtecttb,"attributes.png","Edit attributes",false,manAttrCB);
 }
 
+#undef mAddTB
+#define mAddTB(tb,fnm,txt,togg,fn) \
+    tb->addButton( ioPixmap( GetDataFileName(fnm) ), \
+	    	   mCB(this,uiODMenuMgr,fn), txt, togg )
+
+
+void uiODMenuMgr::fillManTB()
+{
+    mAddTB(mantb,"man_seis.png","Manage seismic data",false,manSeis);
+    mAddTB(mantb,"man_hor.png","Manage horizons",false,manHor);
+#ifdef __debug__
+    mAddTB(mantb,"man_flt.png","Manage faults",false,manFlt);
+#endif
+    mAddTB(mantb,"man_wll.png","Manage well data",false,manWll);
+}
+
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
@@ -416,6 +435,14 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     }
 }
+
+#define mDefManCBFn(typ) \
+    void uiODMenuMgr::man##typ( CallBacker* ) { mDoOp(Man,typ,0); }
+
+mDefManCBFn(Seis)
+mDefManCBFn(Hor)
+mDefManCBFn(Flt)
+mDefManCBFn(Wll)
 
 
 void uiODMenuMgr::timerCB( CallBacker* )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.7 2004-02-17 14:47:20 bert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.8 2004-05-28 11:11:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
 
     uiToolBar*		dtectTB()		{ return dtecttb; }
     uiToolBar*		coinTB()		{ return cointb; }
+    uiToolBar*		manTB()			{ return mantb; }
 
 
     			// Probably not needed by plugins
@@ -81,6 +82,7 @@ protected:
 
     uiToolBar*		dtecttb;
     uiToolBar*		cointb;
+    uiToolBar*		mantb;
 
     void		fillFileMenu();
     void		fillProcMenu();
@@ -90,9 +92,14 @@ protected:
     void		fillHelpMenu();
     void		fillDtectTB();
     void		fillCoinTB();
+    void		fillManTB();
 
     void		handleClick(CallBacker*);
     void		timerCB(CallBacker*);
+    void		manSeis(CallBacker*);
+    void		manHor(CallBacker*);
+    void		manFlt(CallBacker*);
+    void		manWll(CallBacker*);
 
     uiMenuItem*		stereooffitm;
     uiMenuItem*		stereoredcyanitm;
