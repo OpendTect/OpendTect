@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.6 2002-08-19 07:04:21 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.7 2002-09-30 15:39:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	inlfld = new uiLabeledSpinBox( this, "Inline number" );
 	inlfld->box()->setMinValue( SI().range().start.inl );
 	inlfld->box()->setMaxValue( SI().range().stop.inl );
-	inlfld->box()->setStep( SI().step().inl );
+	inlfld->box()->setStep( SI().inlWorkStep() );
 	inlfld->box()->setValue( inlrg.start );
 	inlfld->box()->valueChanged.notify( mCB(this,uiSliceSel,csChanged) );
     }
@@ -61,7 +61,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 					     : (uiGroup*) inlrgfld );
 	crlfld->box()->setMinValue( SI().range().start.crl );
 	crlfld->box()->setMaxValue( SI().range().stop.crl );
-	crlfld->box()->setStep( SI().step().crl );
+	crlfld->box()->setStep( SI().crlWorkStep() );
 	crlfld->box()->setValue( crlrg.start );
 	crlfld->box()->valueChanged.notify( mCB(this,uiSliceSel,csChanged) );
     }
@@ -102,8 +102,8 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 					     : (uiGroup*) zrgfld );
 
 	stepfld = new uiLabeledSpinBox( this, "Step" );
-	int step = !slctyp ? SI().step().inl : 
-		( slctyp == 1 ? SI().step().crl
+	int step = !slctyp ? SI().inlWorkStep() : 
+		( slctyp == 1 ? SI().crlWorkStep()
 			      : (int)(SI().zRange().step*1000+.5) );
 	stepfld->box()->setMinValue( step );
 	stepfld->box()->setStep( step );
@@ -162,7 +162,7 @@ void uiSliceSel::readInput()
 	if ( intv.start > intv.stop )
 	    Swap( intv.start, intv.stop );
 	if ( intv.start == intv.stop )
-	    intv.stop += SI().step().inl;
+	    intv.stop += SI().inlWorkStep();
         cs.hrg.start.inl = intv.start;
         cs.hrg.stop.inl = intv.stop;
     }
@@ -176,7 +176,7 @@ void uiSliceSel::readInput()
 	if ( intv.start > intv.stop )
 	    Swap( intv.start, intv.stop );
 	if ( intv.start == intv.stop )
-	    intv.stop += SI().step().crl;
+	    intv.stop += SI().crlWorkStep();
         cs.hrg.start.crl = intv.start;
         cs.hrg.stop.crl = intv.stop;
     }

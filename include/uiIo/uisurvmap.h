@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.8 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: uisurvmap.h,v 1.9 2002-09-30 15:39:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ uiSurveyMapDlg( uiParent* p )
 
 void doCanvas( CallBacker* )
 {
-    SurveyInfo* survinfo = new SurveyInfo( SI() );
+    SurveyInfo* survinfo = SI().clone();
     uiSurveyMap* survmap = new uiSurveyMap( cv, survinfo );
     survmap->drawMap( survinfo );
 }

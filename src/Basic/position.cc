@@ -4,13 +4,13 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.13 2002-06-21 22:37:04 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.14 2002-09-30 15:39:49 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
 #include "separstr.h"
 #include "iopar.h"
-#include "survinfo.h"
+#include "survinfoimpl.h"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -133,7 +133,8 @@ BinIDSelector* BinIDSelector::create( const IOPar& iopar )
     if ( seltyp == 1 )
     {
 	BinIDSampler* bs = (BinIDSampler*)rg;
-	bs->step = SI().step(false);
+	if ( SI().is3D() )
+	    bs->step = SI3D().step(false);
 	res = iopar[sKeystepinl];
 	if ( res && *res ) bs->step.inl = atoi(res);
 	res = iopar[sKeystepcrl];
@@ -272,20 +273,23 @@ void BinIDRange::shift( const BinID& sh )
 
 int BinIDRangeProv::size() const
 {
-    if ( SI().step(false).inl < 2 && SI().step(false).crl < 2 )
+    if ( SI().is3D()
+      && SI3D().step(false).inl < 2 && SI3D().step(false).crl < 2 )
 	return (br.stop.inl - br.start.inl + 2*br.stepout.inl + 1)
 	     * (br.stop.crl - br.start.crl + 2*br.stepout.crl + 1);
 
     BinIDSampler bs;
     ((BinIDRange&)bs) = br;
-    bs.step = SI().step(false);
+    if ( SI().is3D() )
+	bs.step = SI3D().step(false);
     return BinIDSamplerProv(bs).size();
 }
 
 
 BinID BinIDRangeProv::operator[]( int idx ) const
 {
-    if ( SI().step(false).inl < 2 && SI().step(false).crl < 2 )
+    if ( SI().is3D()
+      && SI3D().step(false).inl < 2 && SI3D().step(false).crl < 2 )
     {
 	int nrxl = br.stop.crl - br.start.crl + 2*br.stepout.crl + 1;
 	int inlidx = idx / nrxl;
@@ -296,14 +300,17 @@ BinID BinIDRangeProv::operator[]( int idx ) const
 
     BinIDSampler bs;
     ((BinIDRange&)bs) = br;
-    bs.step = SI().step(false);
+    if ( SI().is3D() )
+	bs.step = SI3D().step(false);
     return (BinIDSamplerProv(bs))[idx];
 }
 
 
 BinIDSampler::BinIDSampler()
-	: step(SI().step(false))
+	: step(1,1)
 {
+    if ( SI().is3D() )
+	step = SI3D().step(false);
 }
 
 

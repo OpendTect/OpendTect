@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.21 2002-09-19 07:11:44 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.22 2002-09-30 15:39:49 bert Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -60,8 +60,8 @@ void visSurvey::PlaneDataDisplay::setType(Type nt)
     BinID stopbid = SI().range().stop;
     StepInterval<double> vrgd = SI().zRange();
 
-    StepInterval<float> inlrange( startbid.inl, stopbid.inl, SI().step().inl );
-    StepInterval<float> crlrange( startbid.crl, stopbid.crl, SI().step().crl );
+    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlWorkStep() );
+    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlWorkStep() );
     StepInterval<float> vrg( vrgd.start, vrgd.stop, vrgd.step );
 
     float inlspacing = SI().transform(BinID(0,0)).distance(
@@ -149,8 +149,8 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
     BinID stopbid = SI().range().stop;
     StepInterval<double> vrgd = SI().zRange();
 
-    StepInterval<float> inlrange( startbid.inl, stopbid.inl, SI().step().inl );
-    StepInterval<float> crlrange( startbid.crl, stopbid.crl, SI().step().crl );
+    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlWorkStep() );
+    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlWorkStep() );
 
     float inlspacing = SI().transform(BinID(0,0)).distance(
 		       SI().transform( BinID(1,0)));
@@ -369,7 +369,7 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 				: trect->getRectangle().origo().y) );
 
     cs.hrg.stop = cs.hrg.start;
-    cs.hrg.step = SI().step();
+    cs.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
     cs.zrg.start = (manippos
 	    ? trect->getRectangle().manipOrigo().z

@@ -4,16 +4,19 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.30 2002-09-19 07:14:42 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.31 2002-09-30 15:39:49 bert Exp $";
 
-#include "survinfo.h"
+#include "survinfoimpl.h"
 #include "ascstream.h"
 #include "filegen.h"
 #include "separstr.h"
 #include "errh.h"
 #include "strmprov.h"
+#include "keystrs.h"
 
-static const char* sKey = "Survey Info";
+static const char* sKeySI = "Survey Info";
+static const char* sKeyXTransf = "Coord-X-BinID";
+static const char* sKeyYTransf = "Coord-Y-BinID";
 const char* SurveyInfo::sKeyInlRange = "In-line range";
 const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
@@ -28,7 +31,7 @@ const SurveyInfo& SI()
     {
 	if ( SurveyInfo::theinst_ )
 	    delete SurveyInfo::theinst_;
-	SurveyInfo::theinst_ = new SurveyInfo( GetDataDir() );
+	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
     }
     return *SurveyInfo::theinst_;
 }
@@ -90,34 +93,52 @@ BinID BinID2Coord::transform( const Coord& coord ) const
 }
 
 
-SurveyInfo::SurveyInfo( const SurveyInfo& si )
+void SurveyInfo::copyFrom( const SurveyInfo& si )
 {
-    b2c_ = si.b2c_;
     dirname = si.dirname;
     range_ = si.range_; wrange_ = si.wrange_;
     zrange_ = si.zrange_; wzrange_ = si.wzrange_;
-    step_ = si.step_; wstep_ = si.wstep_;
     setName( si.name() );
     valid_ = si.valid_;
-    for ( int idx=0; idx<3; idx++ )
-    {
-	set3binids[idx] = si.set3binids[idx];
-	set3coords[idx] = si.set3coords[idx];
-    }
     wsprojnm_ = si.wsprojnm_;
     wspwd_ = si.wspwd_;
     zistime_ = si.zistime_;
 }
 
 
-SurveyInfo::SurveyInfo( const char* rootdir )
-	: dirname(File_getFileName(rootdir))
-    	, valid_(false)
+void SurveyInfo3D::copyFrom( const SurveyInfo& si )
+{
+    SurveyInfo::copyFrom( si );
+    mDynamicCastGet(const SurveyInfo3D*,si3d,(&si))
+    if ( si3d )
+    {
+	step_ = si3d->step_; wstep_ = si3d->wstep_;
+	b2c_ = si3d->b2c_;
+	for ( int idx=0; idx<3; idx++ )
+	{
+	    set3binids[idx] = si3d->set3binids[idx];
+	    set3coords[idx] = si3d->set3coords[idx];
+	}
+    }
+}
+
+
+SurveyInfo::SurveyInfo()
+	: valid_(false)
     	, zistime_(true)
 {
-    set3binids[2].crl = 0;
-    if ( !rootdir || dirname == "" ) return;
+}
 
+
+SurveyInfo3D::SurveyInfo3D()
+{
+    rdxtr.b = rdytr.c = 1;
+    set3binids[2].crl = 0;
+}
+
+
+SurveyInfo* SurveyInfo::read( const char* rootdir )
+{
     FileNameString fname( File_getFullPath( rootdir, ".survey" ) );
     StreamData sd = StreamProvider( fname ).makeIStream();
 
@@ -128,33 +149,37 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    ErrMsg( "No available survey definition." );
 	errmsgdone = true;
 	sd.close();
-	return;
+	return 0;
     }
     ascistream astream( *sd.istrm );
-    if ( !astream.isOfFileType(sKey) )
+    if ( !astream.isOfFileType(sKeySI) )
     {
 	ErrMsg( "Survey definition file is corrupt!" );
 	errmsgdone = true;
 	sd.close();
-	return;
+	return 0;
     }
     errmsgdone = false;
 
-    BinID2Coord::BCTransform xtr, ytr;
-    xtr.b = 1;
-    ytr.c = 1;
+    astream.next();
+    BufferString keyw = astream.keyWord();
+    SurveyInfo* si = keyw == sKey::Type && *astream.value() == '2'
+		   ? 0 : new SurveyInfo3D;
+	//TODO
+	// ? new SurveyInfo2D : new SurveyInfo3D;
+	if ( !si ) return si;
+
+    si->dirname = File_getFileName( rootdir );
+    if ( !rootdir || si->dirname == "" ) return si;
+
     BinIDRange bir; BinID bid( 1, 1 );
-    while ( !atEndOfSection( astream.next() ) )
+    while ( !atEndOfSection(astream) )
     {
-	BufferString keyw = astream.keyWord();
+	keyw = astream.keyWord();
 	if ( keyw == sNameKey )
-	    setName( astream.value() );
-	else if ( keyw == "Coord-X-BinID" )
-	    setTr( xtr, astream.value() );
-	else if ( keyw == "Coord-Y-BinID" )
-	    setTr( ytr, astream.value() );
+	    si->setName( astream.value() );
 	else if ( keyw == sKeyWSProjName )
-	    wsprojnm_ = astream.value();
+	    si->wsprojnm_ = astream.value();
 	else if ( keyw == sKeyInlRange )
 	{
 	    FileMultiString fms( astream.value() );
@@ -172,84 +197,93 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	else if ( keyw == sKeyZRange )
 	{
 	    FileMultiString fms( astream.value() );
-	    zrange_.start = atof(fms[0]);
-	    zrange_.stop = atof(fms[1]);
-	    zrange_.step = atof(fms[2]);
-	    if ( mIsUndefined(zrange_.step) || mIS_ZERO(zrange_.step) )
-		zrange_.step = 0.004;
+	    si->zrange_.start = atof(fms[0]);
+	    si->zrange_.stop = atof(fms[1]);
+	    si->zrange_.step = atof(fms[2]);
+	    if ( mIsUndefined(si->zrange_.step) || mIS_ZERO(si->zrange_.step) )
+		si->zrange_.step = 0.004;
 	    if ( fms.size() > 3 )
-		zistime_ = *fms[3] != 'D';
-	    zrange_.sort();
+		si->zistime_ = *fms[3] != 'D';
+	    si->zrange_.sort();
 	}
-	else if ( matchString("Set Point",astream.keyWord()) )
-	{
-	    const char* ptr = strchr( astream.keyWord(), '.' );
-	    if ( !ptr ) continue;
-	    int ptidx = atoi( ptr + 1 ) - 1;
-	    if ( ptidx < 0 ) ptidx = 0;
-	    if ( ptidx > 3 ) ptidx = 2;
-	    FileMultiString fms( astream.value() );
-	    if ( fms.size() < 2 ) continue;
-	    set3binids[ptidx].use( fms[0] );
-	    set3coords[ptidx].use( fms[1] );
-	}
+	else
+	    si->handleLineRead( keyw, astream.value() );
+
+	astream.next();
     }
 
     char buf[1024];
     while ( astream.stream().getline(buf,1024) )
     {
-	if ( *((const char*)comment_) )
-	    comment_ += "\n";
-	comment_ += buf;
+	if ( *((const char*)si->comment_) )
+	    si->comment_ += "\n";
+	si->comment_ += buf;
     }
     sd.close();
 
-    if ( set3binids[2].crl == 0 )
-	get3Pts( set3coords, set3binids, set3binids[2].crl );
+    si->setRange( bir, false );
+    si->setStep( bid, false );
+    if ( si->wrapUpRead() )
+	si->valid_ = true;
+    si->wrange_ = si->range_;
+    si->wzrange_ = si->zrange_;
 
-    setRange( bir, false );
-    setStep( bid, false );
-    b2c_.setTransforms( xtr, ytr );
-    valid_ = true;
-    wrange_ = range_; wstep_ = step_; wzrange_ = zrange_;
+    return si;
 }
 
 
-int SurveyInfo::write( const char* basedir ) const
+bool SurveyInfo3D::wrapUpRead()
 {
-    if ( !valid_ ) return NO;
+    wstep_ = step_;
+    if ( set3binids[2].crl == 0 )
+	get3Pts( set3coords, set3binids, set3binids[2].crl );
+    b2c_.setTransforms( rdxtr, rdytr );
+    return b2c_.isValid();
+}
+
+
+void SurveyInfo3D::handleLineRead( const BufferString& keyw, const char* val )
+{
+    if ( keyw == sKeyXTransf )
+	setTr( rdxtr, val );
+    else if ( keyw == sKeyYTransf )
+	setTr( rdytr, val );
+    else if ( matchString("Set Point",(const char*)keyw) )
+    {
+	const char* ptr = strchr( (const char*)keyw, '.' );
+	if ( !ptr ) return;
+	int ptidx = atoi( ptr + 1 ) - 1;
+	if ( ptidx < 0 ) ptidx = 0;
+	if ( ptidx > 3 ) ptidx = 2;
+	FileMultiString fms( val );
+	if ( fms.size() < 2 ) return;
+	set3binids[ptidx].use( fms[0] );
+	set3coords[ptidx].use( fms[1] );
+    }
+}
+
+
+bool SurveyInfo::write( const char* basedir ) const
+{
+    if ( !valid_ ) return false;
 
     FileNameString fname( File_getFullPath(basedir,dirname) );
     fname = File_getFullPath( fname, ".survey" );
 
     StreamData sd = StreamProvider( fname ).makeOStream();
-
-    if ( !sd.ostrm || !sd.usable() ) { sd.close(); return NO; }
+    if ( !sd.ostrm || !sd.usable() ) { sd.close(); return false; }
 
     ostream& strm = *sd.ostrm;
-
     ascostream astream( strm );
-    if ( !astream.putHeader(sKey) ) { sd.close(); return NO; }
+    if ( !astream.putHeader(sKeySI) ) { sd.close(); return false; }
 
     astream.put( sNameKey, name() );
-    putTr( b2c_.getTransform(true), astream, "Coord-X-BinID" );
-    putTr( b2c_.getTransform(false), astream, "Coord-Y-BinID" );
-
     FileMultiString fms;
-    for ( int idx=0; idx<3; idx++ )
-    {
-	SeparString ky( "Set Point", '.' );
-	ky += idx + 1;
-	char buf[80];
-	set3binids[idx].fill( buf ); fms = buf;
-	set3coords[idx].fill( buf ); fms += buf;
-	astream.put( (const char*)ky, (const char*)fms );
-    }
-
-    fms = "";
-    fms += range_.start.inl; fms += range_.stop.inl; fms += step_.inl;
+    fms += range_.start.inl; fms += range_.stop.inl;
+    if ( haveStep() ) fms += getStep( true, false );
     astream.put( sKeyInlRange, fms );
-    fms = ""; fms += range_.start.crl; fms += range_.stop.crl; fms += step_.crl;
+    fms = ""; fms += range_.start.crl; fms += range_.stop.crl;
+    if ( haveStep() ) fms += getStep( false, false );
     astream.put( sKeyCrlRange, fms );
     if ( !mIS_ZERO(zrange_.width()) )
     {
@@ -259,6 +293,8 @@ int SurveyInfo::write( const char* basedir ) const
     }
     if ( wsprojnm_ != "" )
 	astream.put( sKeyWSProjName, wsprojnm_ );
+
+    writeSpecLines( astream );
 
     astream.newParagraph();
     const char* ptr = (const char*)comment_;
@@ -281,143 +317,26 @@ int SurveyInfo::write( const char* basedir ) const
 	strm << '\n';
     }
 
-    int retval = !strm.fail();
+    bool retval = !strm.fail();
     sd.close();
     return retval;
 }
 
 
-void SurveyInfo::setTr( BinID2Coord::BCTransform& tr, const char* str )
+void SurveyInfo3D::writeSpecLines( ascostream& astream ) const
 {
-    FileMultiString fms( str );
-    tr.a = atof(fms[0]); tr.b = atof(fms[1]); tr.c = atof(fms[2]);
-}
-
-
-void SurveyInfo::putTr( const BinID2Coord::BCTransform& tr, ascostream& astream,
-			const char* key ) const
-{
+    putTr( b2c_.getTransform(true), astream, sKeyXTransf );
+    putTr( b2c_.getTransform(false), astream, sKeyYTransf );
     FileMultiString fms;
-    fms += tr.a; fms += tr.b; fms += tr.c;
-    astream.put( key, fms );
-}
-
-
-BinID SurveyInfo::transform( const Coord& c ) const
-{
-    if ( !valid_ ) return BinID(0,0);
-    BinID binid = b2c_.transform( c );
-
-    if ( step_.inl > 1 )
+    for ( int idx=0; idx<3; idx++ )
     {
-	float relinl = binid.inl - range_.start.inl;
-	int nrsteps = (int)(relinl/step_.inl + (relinl>0?.5:-.5));
-	binid.inl = range_.start.inl + nrsteps*step_.inl;
+	SeparString ky( "Set Point", '.' );
+	ky += idx + 1;
+	char buf[80];
+	set3binids[idx].fill( buf ); fms = buf;
+	set3coords[idx].fill( buf ); fms += buf;
+	astream.put( (const char*)ky, (const char*)fms );
     }
-    if ( step_.crl > 1 )
-    {
-	float relcrl = binid.crl - range_.start.crl;
-	int nrsteps = (int)( relcrl / step_.crl + (relcrl>0?.5:-.5));
-	binid.crl = range_.start.crl + nrsteps*step_.crl;
-    }
-
-    return binid;
-}
-
-
-bool SurveyInfo::isReasonable( const BinID& b ) const
-{
-    BinID w( range_.stop.inl - range_.start.inl,
-             range_.stop.crl - range_.start.crl );
-    return b.inl > range_.start.inl - w.inl
-	&& b.inl < range_.stop.inl  + w.crl
-	&& b.crl > range_.start.crl - w.crl
-	&& b.crl < range_.stop.crl  + w.crl;
-}
-
-
-void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
-{
-    if ( set3binids[0].inl )
-    {
-	b[0] = set3binids[0]; c[0] = set3coords[0];
-	b[1] = set3binids[1]; c[1] = set3coords[1];
-	c[2] = set3coords[2]; xline = set3binids[2].crl;
-    }
-    else
-    {
-	b[0] = range_.start; c[0] = transform( b[0] );
-	b[1] = range_.stop; c[1] = transform( b[1] );
-	BinID b2 = range_.stop; b2.inl = b[0].inl;
-	c[2] = transform( b2 ); xline = b2.crl;
-    }
-}
-
-
-const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2], int xline )
-{
-    const char* msg = b2c_.set3Pts( c, b, xline );
-    if ( msg ) return msg;
-
-    set3coords[0].x = c[0].x; set3coords[0].y = c[0].y;
-    set3coords[1].x = c[1].x; set3coords[1].y = c[1].y;
-    set3coords[2].x = c[2].x; set3coords[2].y = c[2].y;
-    set3binids[0] = transform( set3coords[0] );
-    set3binids[1] = transform( set3coords[1] );
-    set3binids[2] = transform( set3coords[2] );
-
-    return 0;
-}
-
-
-static void doSnap( int& idx, int start, int step, int dir )
-{
-    if ( step < 2 ) return;
-    int rel = idx - start;
-    int rest = rel % step;
-    if ( !rest ) return;
- 
-    idx -= rest;
- 
-    if ( !dir ) dir = rest > step / 2 ? 1 : -1;
-    if ( rel > 0 && dir > 0 )      idx += step;
-    else if ( rel < 0 && dir < 0 ) idx -= step;
-}
-
-
-void SurveyInfo::snap( BinID& binid, BinID rounding, bool work ) const
-{
-    const BinIDRange& rg = work ? wrange_ : range_;
-    const BinID& stp = work ? wstep_ : step_;
-    if ( stp.inl == 1 && stp.crl == 1 ) return;
-    doSnap( binid.inl, rg.start.inl, stp.inl, rounding.inl );
-    doSnap( binid.crl, rg.start.crl, stp.crl, rounding.crl );
-}
-
-
-void SurveyInfo::snapStep( BinID& s, BinID rounding, bool work ) const
-{
-    const BinID& stp = work ? wstep_ : step_;
-    if ( s.inl < 0 ) s.inl = -s.inl;
-    if ( s.crl < 0 ) s.crl = -s.crl;
-    if ( s.inl < stp.inl ) s.inl = stp.inl;
-    if ( s.crl < stp.crl ) s.crl = stp.crl;
-    if ( s == stp || (stp.inl == 1 && stp.crl == 1) )
-	return;
-
-    int rest;
-#define mSnapStep(ic) \
-    rest = s.ic % stp.ic; \
-    if ( rest ) \
-    { \
-	int hstep = stp.ic / 2; \
-	bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
-	s.ic -= rest; \
-	if ( upw ) s.ic += stp.ic; \
-    }
-
-    mSnapStep(inl)
-    mSnapStep(crl)
 }
 
 
@@ -460,13 +379,14 @@ void SurveyInfo::setZRange( const Interval<double>& zr, bool work )
 }
 
 
-void SurveyInfo::setStep( const BinID& bid, bool work )
+bool SurveyInfo::isReasonable( const BinID& b ) const
 {
-    BinID& stp = work ? wstep_ : step_;
-    stp = bid;
-    if ( !stp.inl ) stp.inl = 1; if ( !stp.crl ) stp.crl = 1;
-    if ( stp.inl < 0 ) stp.inl = -stp.inl;
-    if ( stp.crl < 0 ) stp.crl = -stp.crl;
+    BinID w( range_.stop.inl - range_.start.inl,
+             range_.stop.crl - range_.start.crl );
+    return b.inl > range_.start.inl - w.inl
+	&& b.inl < range_.stop.inl  + w.crl
+	&& b.crl > range_.start.crl - w.crl
+	&& b.crl < range_.stop.crl  + w.crl;
 }
 
 
@@ -490,6 +410,30 @@ Coord SurveyInfo::minCoord( bool work ) const
     mChkCoord(c);
 
     return minc;
+}
+
+
+#undef mChkCoord
+#define mChkCoord(c) \
+    if ( c.x < maxc.x ) maxc.x = c.x; if ( c.y < maxc.y ) maxc.y = c.y;
+
+Coord SurveyInfo::maxCoord( bool work ) const
+{
+    const BinIDRange& rg = work ? wrange_ : range_;
+
+    Coord maxc = transform( rg.start );
+    Coord c = transform( rg.stop );
+    mChkCoord(c);
+
+    BinID bid( rg.start.inl, rg.stop.crl );
+    c = transform( bid );
+    mChkCoord(c);
+
+    bid = BinID( rg.stop.inl, rg.start.crl );
+    c = transform( bid );
+    mChkCoord(c);
+
+    return maxc;
 }
 
 
@@ -549,4 +493,138 @@ bool SurveyInfo::includes( const BinID bid, const float z, bool work ) const
     bool zin = zrg.includes( z );
 
     return bidin && zin;
+}
+
+
+BinID SurveyInfo3D::transform( const Coord& c ) const
+{
+    if ( !valid_ ) return BinID(0,0);
+    BinID binid = b2c_.transform( c );
+
+    if ( step_.inl > 1 )
+    {
+	float relinl = binid.inl - range_.start.inl;
+	int nrsteps = (int)(relinl/step_.inl + (relinl>0?.5:-.5));
+	binid.inl = range_.start.inl + nrsteps*step_.inl;
+    }
+    if ( step_.crl > 1 )
+    {
+	float relcrl = binid.crl - range_.start.crl;
+	int nrsteps = (int)( relcrl / step_.crl + (relcrl>0?.5:-.5));
+	binid.crl = range_.start.crl + nrsteps*step_.crl;
+    }
+
+    return binid;
+}
+
+
+void SurveyInfo3D::get3Pts( Coord c[3], BinID b[2], int& xline ) const
+{
+    if ( set3binids[0].inl )
+    {
+	b[0] = set3binids[0]; c[0] = set3coords[0];
+	b[1] = set3binids[1]; c[1] = set3coords[1];
+	c[2] = set3coords[2]; xline = set3binids[2].crl;
+    }
+    else
+    {
+	b[0] = range_.start; c[0] = transform( b[0] );
+	b[1] = range_.stop; c[1] = transform( b[1] );
+	BinID b2 = range_.stop; b2.inl = b[0].inl;
+	c[2] = transform( b2 ); xline = b2.crl;
+    }
+}
+
+
+const char* SurveyInfo3D::set3Pts( const Coord c[3], const BinID b[2],
+				   int xline )
+{
+    const char* msg = b2c_.set3Pts( c, b, xline );
+    if ( msg ) return msg;
+
+    set3coords[0].x = c[0].x; set3coords[0].y = c[0].y;
+    set3coords[1].x = c[1].x; set3coords[1].y = c[1].y;
+    set3coords[2].x = c[2].x; set3coords[2].y = c[2].y;
+    set3binids[0] = transform( set3coords[0] );
+    set3binids[1] = transform( set3coords[1] );
+    set3binids[2] = transform( set3coords[2] );
+
+    return 0;
+}
+
+
+static void doSnap( int& idx, int start, int step, int dir )
+{
+    if ( step < 2 ) return;
+    int rel = idx - start;
+    int rest = rel % step;
+    if ( !rest ) return;
+ 
+    idx -= rest;
+ 
+    if ( !dir ) dir = rest > step / 2 ? 1 : -1;
+    if ( rel > 0 && dir > 0 )      idx += step;
+    else if ( rel < 0 && dir < 0 ) idx -= step;
+}
+
+
+void SurveyInfo3D::snap( BinID& binid, BinID rounding, bool work ) const
+{
+    const BinIDRange& rg = work ? wrange_ : range_;
+    const BinID& stp = work ? wstep_ : step_;
+    if ( stp.inl == 1 && stp.crl == 1 ) return;
+    doSnap( binid.inl, rg.start.inl, stp.inl, rounding.inl );
+    doSnap( binid.crl, rg.start.crl, stp.crl, rounding.crl );
+}
+
+
+void SurveyInfo3D::snapStep( BinID& s, BinID rounding, bool work ) const
+{
+    const BinID& stp = work ? wstep_ : step_;
+    if ( s.inl < 0 ) s.inl = -s.inl;
+    if ( s.crl < 0 ) s.crl = -s.crl;
+    if ( s.inl < stp.inl ) s.inl = stp.inl;
+    if ( s.crl < stp.crl ) s.crl = stp.crl;
+    if ( s == stp || (stp.inl == 1 && stp.crl == 1) )
+	return;
+
+    int rest;
+#define mSnapStep(ic) \
+    rest = s.ic % stp.ic; \
+    if ( rest ) \
+    { \
+	int hstep = stp.ic / 2; \
+	bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
+	s.ic -= rest; \
+	if ( upw ) s.ic += stp.ic; \
+    }
+
+    mSnapStep(inl)
+    mSnapStep(crl)
+}
+
+
+void SurveyInfo3D::setStep( const BinID& bid, bool work )
+{
+    BinID& stp = work ? wstep_ : step_;
+    stp = bid;
+    if ( !stp.inl ) stp.inl = 1; if ( !stp.crl ) stp.crl = 1;
+    if ( stp.inl < 0 ) stp.inl = -stp.inl;
+    if ( stp.crl < 0 ) stp.crl = -stp.crl;
+}
+
+
+void SurveyInfo3D::setTr( BinID2Coord::BCTransform& tr, const char* str )
+{
+    FileMultiString fms( str );
+    tr.a = atof(fms[0]); tr.b = atof(fms[1]); tr.c = atof(fms[2]);
+}
+
+
+void SurveyInfo3D::putTr( const BinID2Coord::BCTransform& tr,
+			  ascostream& astream, const char* key ) const
+{
+    FileMultiString fms;
+    fms += tr.a; fms += tr.b; fms += tr.c;
+    astream.put( key, fms );
 }

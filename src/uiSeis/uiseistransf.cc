@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.3 2002-07-31 14:59:38 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.4 2002-09-30 15:39:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool wstp )
 void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 {
     BinIDSampler bs; StepInterval<float> zrg;
-    bs.copyFrom( SI().range() ); bs.step = SI().step();
+    bs.copyFrom( SI().range() );
+    bs.step = BinID( SI().inlStep(), SI().crlStep() );
     assign( zrg, SI().zRange() );
     if ( SeisTrcTranslator::getRanges( ioobj, bs, zrg ) )
 	subselfld->setInput( bs, zrg );

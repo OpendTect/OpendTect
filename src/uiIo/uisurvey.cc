@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.27 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uisurvey.cc,v 1.28 2002-09-30 15:39:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "genc.h"
 #include "ioman.h"
-#include "survinfo.h"
+#include "survinfoimpl.h"
 #include "tuthandle.h"
 #include "uibutton.h"
 #include "uicanvas.h"
@@ -160,7 +160,7 @@ void uiSurvey::newButPushed( CallBacker* )
     from = File_getFullPath( GetSoftwareDir(), "data" );
     from = File_getFullPath( from, "BasicSurvey" );
     delete survinfo;
-    survinfo = new SurveyInfo( from );
+    survinfo = SurveyInfo::read( from );
     survinfo->dirname = "";
     mkInfo();
     if ( !survInfoDialog() )
@@ -297,7 +297,7 @@ bool uiSurvey::updateSvyFile()
         return false;
     }
     delete SurveyInfo::theinst_;
-    SurveyInfo::theinst_ = new SurveyInfo( fname );
+    SurveyInfo::theinst_ = SurveyInfo::read( fname );
     SetSurveyName( seltxt );
 
     return true;
@@ -335,25 +335,31 @@ void uiSurvey::mkInfo()
     {
 	BufferString inlinfo = survinfo->range().start.inl;
 	inlinfo += " - "; inlinfo += survinfo->range().stop.inl;
-	inlinfo += "  step: "; inlinfo += survinfo->step().inl;
+	inlinfo += "  step: "; inlinfo += survinfo->inlStep();
 	
 	BufferString crlinfo = survinfo->range().start.crl;
 	crlinfo += " - "; crlinfo += survinfo->range().stop.crl;
-	crlinfo += "  step: "; crlinfo += survinfo->step().crl;
+	crlinfo += "  step: "; crlinfo += survinfo->crlStep();
 
-	double xinl = survinfo->b2c_.getTransform(true).b;
-	double yinl = survinfo->b2c_.getTransform(false).b;
-	double xcrl = survinfo->b2c_.getTransform(true).c;
-	double ycrl = survinfo->b2c_.getTransform(false).c;
+	if ( survinfo->is3D() )
+	{
+	    const SurveyInfo3D& si = *(SurveyInfo3D*)survinfo;
+	    double xinl = si.b2c_.getTransform(true).b;
+	    double yinl = si.b2c_.getTransform(false).b;
+	    double xcrl = si.b2c_.getTransform(true).c;
+	    double ycrl = si.b2c_.getTransform(false).c;
 
-	double ibsz = double( int( 100*sqrt(xinl*xinl + yinl*yinl)+.5 ) ) / 100;
-	double cbsz = double( int( 100*sqrt(xcrl*xcrl + ycrl*ycrl)+.5 ) ) / 100;
-	BufferString bininfo = "inline: "; bininfo += ibsz;
-	bininfo += "  crossline: "; bininfo += cbsz;
+	    double ibsz = double( int( 100*sqrt(xinl*xinl + yinl*yinl)+.5 ) )
+			/ 100;
+	    double cbsz = double( int( 100*sqrt(xcrl*xcrl + ycrl*ycrl)+.5 ) )
+			/ 100;
+	    BufferString bininfo = "inline: "; bininfo += ibsz;
+	    bininfo += "  crossline: "; bininfo += cbsz;
 
-	irange2->setText( inlinfo );
-	xrange2->setText( crlinfo );
-	binsize2->setText( bininfo );
+	    irange2->setText( inlinfo );
+	    xrange2->setText( crlinfo );
+	    binsize2->setText( bininfo );
+	}
     }
     else
     {
@@ -463,5 +469,5 @@ void uiSurvey::updateViewsGlobal()
 void uiSurvey::getSurvInfo()
 {
     BufferString fname( File_getFullPath(GetBaseDataDir(), listbox->getText()));
-    survinfo = new SurveyInfo( fname );
+    survinfo = SurveyInfo::read( fname );
 }

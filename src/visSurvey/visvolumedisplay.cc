@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.2 2002-08-22 11:07:34 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.3 2002-09-30 15:39:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,7 @@ CubeSampling& visSurvey::VolumeDisplay::getCubeSampling()
     cs->hrg.stop = BinID( mNINT( center_.x + width_.x / 2 ),
 		  	 mNINT( center_.y + width_.y / 2 ) );
 
-    cs->hrg.step = SI().step();
+    cs->hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
     cs->zrg.start = center_.z - width_.z / 2;
     cs->zrg.stop = center_.z + width_.z / 2;

@@ -7,14 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.23 2002-07-30 11:33:26 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.24 2002-09-30 15:39:49 bert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include <binid2coord.h>
 #include <uidobj.h>
 #include <binidselimpl.h>
 class ascostream;
@@ -40,19 +38,23 @@ class SurveyInfo : public UserIDObject
 
 public:
 
-			SurveyInfo(const SurveyInfo&);
+    virtual SurveyInfo*	clone() const			= 0;
+    virtual void	copyFrom(const SurveyInfo&);
+    virtual bool	is3D() const		{ return true; }
 
     const BinIDRange&	range( bool work=true ) const
     			{ return work ? wrange_ : range_; }
-    const BinID&	step( bool work=true ) const
-    			{ return work ? wstep_ : step_; }
     const StepInterval<double>& zRange( bool work=true ) const
     			{ return work ? wzrange_ : zrange_; }
+    virtual bool	haveStep() const		{ return false; }
+    virtual int		getStep(bool inl,bool work=true) const	{ return 1; }
+    inline int		inlStep() const		{ return getStep(true,false); }
+    inline int		crlStep() const		{ return getStep(false,false); }
+    inline int		inlWorkStep() const	{ return getStep(true,true); }
+    inline int		crlWorkStep() const	{ return getStep(false,true); }
 
     void		setWorkRange( const BinIDRange& b )
 			{ setRange( b, true ); }
-    void		setWorkStep( const BinID& b )
-			{ setStep( b, true ); }
     void		setWorkZRange( const Interval<double>& r )
 			{ setZRange( r, true ); }
     void		setWorkZRange( const StepInterval<double>& r )
@@ -78,22 +80,15 @@ public:
 
     const char*		comment() const			{ return comment_; }
 
-    void		snap(BinID&,BinID rounding=BinID(0,0),
-			     bool work=true) const;
+    virtual void	snap(BinID&,BinID rounding=BinID(0,0),
+			     bool work=true) const	= 0;
 			//!< 0 : auto; -1 round downward, 1 round upward
-    void		snapStep(BinID&,BinID rounding=BinID(0,0),
-	    			 bool work=true) const;
-			//!< see snap() for rounding
 
-    inline bool		validTransform() const
-			{ return b2c_.isValid(); }
-    inline Coord	transform( const BinID& b ) const
-			{ return b2c_.transform(b); }
-    BinID		transform(const Coord&) const;
-    void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
-    const BinID2Coord&	binID2Coord() const	{ return b2c_; }
+    virtual Coord	transform(const BinID&) const	= 0;
+    virtual BinID	transform(const Coord&) const	= 0;
 
     Coord		minCoord(bool work=true) const;
+    Coord		maxCoord(bool work=true) const;
     bool		isReasonable(const BinID&) const;
 			//!< Checks if in or near survey
     inline bool		isReasonable( const Coord& c ) const
@@ -115,44 +110,43 @@ public:
     static const char*	sKeyZRange;
     static const char*	sKeyWSProjName;
 
-private:
+protected:
 
-			SurveyInfo(const char*);
-    int			write(const char*) const;
+			SurveyInfo();
+    bool		valid_;
+
+    static SurveyInfo*	read(const char*);
+    bool		write(const char*) const;
 
     UserIDString	dirname;
-    void		setTr(BinID2Coord::BCTransform&,const char*);
-    void		putTr(const BinID2Coord::BCTransform&,	
-				ascostream&,const char*) const;
 
-    BinID2Coord		b2c_;
     bool		zistime_;
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
     BinIDRange		range_, wrange_;
-    BinID		step_, wstep_;
     StepInterval<double> zrange_, wzrange_;
-
-    BinID		set3binids[3];
-    Coord		set3coords[3];
 
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;
     static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
 
     void		setRange(const BinIDRange&,bool);
-    void		setStep(const BinID&,bool);
     void		setZRange(const Interval<double>&,bool);
     void		setZRange(const StepInterval<double>&,bool);
     void		setComment( const char* s )	{ comment_ = s; }
-    const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
-			//!< returns error message or null on success
 
-    bool		valid_;
+    virtual void	setStep(const BinID&,bool)	{}
 
-    friend class	uiSurvey;
-    friend class	uiSurveyInfoEditor;
+    virtual void	handleLineRead(const BufferString&,const char*)	= 0;
+    virtual bool	wrapUpRead()			{ return true; }
+    virtual void	writeSpecLines(ascostream&) const		= 0;
+
+#define mAddSurvInfoFriends \
+    friend class	uiSurvey; \
+    friend class	uiSurveyInfoEditor
+
+			mAddSurvInfoFriends;
 
 };
 
