@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.168 2003-10-17 14:19:03 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.169 2003-10-17 15:01:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,6 +290,8 @@ int uiVisPartServer::addWell( int sceneid, const MultiID& multiid )
     if ( !scene ) return -1;
 
     visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
+    wd->setTransformation( visSurvey::SPM().getUTM2DisplayTransform() );
+
     if ( !wd->setWellId( multiid ) )
     {
 	wd->ref(); wd->unRef();
@@ -301,6 +303,18 @@ int uiVisPartServer::addWell( int sceneid, const MultiID& multiid )
 
     setUpConnections( wd->id() );
     return wd->id();
+}
+
+
+void uiVisPartServer::displayLog( int visid, int selidx, int lognr, 
+				  const Interval<float>& range )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( visid );
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,dobj)
+    if ( !wd ) return;
+
+    wd->displayLog( selidx, lognr, range );
+
 }
 
 
@@ -1399,10 +1413,8 @@ bool uiVisPartServer::setMaterial( int id )
 bool uiVisPartServer::hasColor( int id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(const visSurvey::WellDisplay*,wd,dobj)
     mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj)
-
-    return ( wd || (sd && !sd->usesTexture()) ); 
+    return ( sd && !sd->usesTexture() ); 
 }
 
 
