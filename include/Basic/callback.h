@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.27 2002-09-11 14:39:08 bert Exp $
+ RCS:		$Id: callback.h,v 1.28 2003-01-27 07:22:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,9 +208,9 @@ public:
 protected:
 
     bool		enabled;
-    inline void		enable()				{enabled=true; }
-    inline void		disable()				{enabled=false;}
-
+    inline bool		doEnable(bool newstatus=true)
+    			{bool res=enabled; enabled=newstatus; return res;}
+    			/*!<\return previous status */
 };
 
 
@@ -309,7 +309,7 @@ buttonclicked.trigger();
 \endcode
 
 The notification can be temporary stopped using disable()/enable() pair,
-or by use of a NotifyStopper, which automatically enables the callback
+or by use of a NotifyStopper, which automatically restores the callback
 when going out of scope.
 
 */
@@ -319,9 +319,11 @@ class Notifier : public i_Notifier
 {
 public:
 
-    void		trigger( T& t )				{ trigger(&t); }
-    void		enable( T& t )				{ enable(); }
-    void		disable( T& t )				{ disable(); }
+    void		trigger( T& t )	{ trigger(&t); }
+    bool		enable(bool newstatus=true){return doEnable(newstatus);}
+    			/*!<\return previous status */
+    bool		disable()	{ return doEnable(false);}
+    			/*!<\return previous status */
 
 // protected: (should be used by T class only)
 
@@ -353,17 +355,20 @@ class NotifyStopper
 {
 public:
 			NotifyStopper( NotifierAccess& n ) 
-			: thenotif(n)		{ enable(); }
+			    : thenotif(n)
+			    , oldstatus( n.doEnable(false) )
+			{}
 
-    inline		~NotifyStopper()	{ thenotif.enable();}
+    inline		~NotifyStopper()
+    			{ thenotif.doEnable(oldstatus); }
 
-    inline void		enable()		{ thenotif.disable(); }
-    inline void		disable()		{ thenotif.enable(); }
+    inline void		enable()		{ thenotif.doEnable(false); }
+    inline void		disable()		{ thenotif.doEnable(true); }
 
 protected:
 
     NotifierAccess& 	thenotif;
-
+    bool		oldstatus;
 };
 
 
