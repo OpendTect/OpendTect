@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.3 2003-05-12 08:19:54 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.4 2003-05-22 08:25:21 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -104,8 +104,7 @@ public:
 	    			      TypeSet<EarthModel::PosID>& ) const;
 
    
-    Coord		getCoord( const RowCol& ) const;
-    RowCol		getClosestNode( const Coord& ) const;
+    bool		isLoaded() const;
 
     const Geometry::GridSurface*		getSurface(PatchID) const;
 
