@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.25 2004-06-02 12:25:44 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.26 2004-06-02 12:27:01 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -43,7 +43,6 @@ visBase::RandomTrack::RandomTrack()
     , knotmovement(this)
     , knotnrchange(this)
     , sectionidx(-1)
-    , selknotpos(0,0)
 {
     SoShapeHints* hints = new SoShapeHints;
     hints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;

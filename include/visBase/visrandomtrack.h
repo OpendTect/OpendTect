@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.21 2004-06-02 12:26:18 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.22 2004-06-02 12:27:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -114,7 +114,6 @@ protected:
     Interval<float>		depthrg;
     TypeSet<Coord>		knots;
     int				sectionidx;
-    Coord			selknotpos;
 
     ObjectSet<TriangleStripSet>	sections;
     SoRandomTrackLineDragger*	dragger;
