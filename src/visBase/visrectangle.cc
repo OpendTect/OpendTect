@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.2 2002-02-12 13:37:57 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.3 2002-02-18 13:07:46 kristofer Exp $";
 
 #include "visrectangle.h"
 
@@ -26,7 +26,301 @@ static const char* rcsID = "$Id: visrectangle.cc,v 1.2 2002-02-12 13:37:57 krist
 
 #include "Inventor/actions/SoGetMatrixAction.h"
 
-visBase::Rectangle::Rectangle(bool userxymanip, bool userzmanip)
+
+visBase::RectangleDragger::RectangleDragger()
+    : started( this )
+    , motion( this )
+    , changed( this )
+    , finished( this )
+    , root( new SoSeparator )
+    , manipzdraggertop( new SoTranslate1Dragger )
+    , manipzdraggerright( new SoTranslate1Dragger )
+    , manipzdraggerbottom( new SoTranslate1Dragger )
+    , manipzdraggerleft( new SoTranslate1Dragger )
+    , manipxydragger( new SoTabPlaneDragger )
+    , zdraggerscale( new SoScale )
+    , allowcb( true )
+{
+    SoSeparator* zmanipsep = new SoSeparator;
+    root->addChild( zmanipsep );
+
+    zmanipsep->addChild( zdraggerscale );
+
+    SoRotation* rot = new SoRotation;
+    zmanipsep->addChild( rot );
+    rot->rotation.setValue( SbVec3f( 0,1,0), -M_PI/2 );
+
+    zmanipsep->addChild( manipzdraggertop );
+    manipzdraggertop->addStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggertop->addMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggertop->addValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggertop->addFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    zmanipsep->addChild( manipzdraggerright );
+    manipzdraggerright->addStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggerright->addMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggerright->addValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggerright->addFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    zmanipsep->addChild( manipzdraggerbottom );
+    manipzdraggerbottom->addStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggerbottom->addMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggerbottom->addValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggerbottom->addFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    zmanipsep->addChild( manipzdraggerleft );
+    manipzdraggerleft->addStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggerleft->addMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggerleft->addValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggerleft->addFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    root->addChild( manipxydragger );
+    manipxydragger->addStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipxydragger->addMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipxydragger->addValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipxydragger->addFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    syncronizeDraggers();
+}
+
+
+visBase::RectangleDragger::~RectangleDragger()
+{
+    manipzdraggertop->removeStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggertop->removeMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggertop->removeValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggertop->removeFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    manipzdraggerright->removeStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggerright->removeMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggerright->removeValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggerright->removeFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    manipzdraggerbottom->removeStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggerbottom->removeMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggerbottom->removeValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggerbottom->removeFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+
+    manipzdraggerleft->removeStartCallback(
+	    visBase::RectangleDragger::startCB, this );
+    manipzdraggerleft->removeMotionCallback(
+	    visBase::RectangleDragger::motionCB, this );
+    manipzdraggerleft->removeValueChangedCallback(
+	    visBase::RectangleDragger::valueChangedCB, this );
+    manipzdraggerleft->removeFinishCallback(
+	    visBase::RectangleDragger::finishCB, this );
+}
+
+
+void visBase::RectangleDragger::setCenter( float x, float y, float z )
+{
+    manipxydragger->translation.setValue( x, y, z );
+
+    float xd = manipzdraggertop->translation.getValue()[2] /
+	       zdraggerscale->scaleFactor.getValue()[0];
+    float yd = manipzdraggertop->translation.getValue()[1] /
+	       zdraggerscale->scaleFactor.getValue()[0];
+
+    z /= zdraggerscale->scaleFactor.getValue()[2];
+
+    manipzdraggertop->translation.setValue( z, yd, xd );
+
+    xd = manipzdraggerright->translation.getValue()[2];
+    yd = manipzdraggerright->translation.getValue()[1];
+    manipzdraggerright->translation.setValue( z, yd, xd );
+
+    xd = manipzdraggerbottom->translation.getValue()[2];
+    yd = manipzdraggerbottom->translation.getValue()[1];
+    manipzdraggerbottom->translation.setValue( z, yd, xd );
+
+    xd = manipzdraggerleft->translation.getValue()[2];
+    yd = manipzdraggerleft->translation.getValue()[1];
+    manipzdraggerleft->translation.setValue( z, yd, xd );
+
+    syncronizeDraggers();
+}
+
+
+float visBase::RectangleDragger::center( int dim ) const
+{
+    return manipxydragger->translation.getValue()[dim];
+}
+
+
+void visBase::RectangleDragger::setScale( float x, float y )
+{
+    manipxydragger->scaleFactor.setValue( x, y, 1 );
+}
+
+
+
+float visBase::RectangleDragger::scale( int dim ) const
+{
+    return manipxydragger->scaleFactor.getValue()[dim];
+}
+
+
+void visBase::RectangleDragger::setDraggerSize( float w, float h, float d )
+{
+    zdraggerscale->scaleFactor.setValue( w, h, d );
+    syncronizeDraggers();
+}
+
+
+SoNode* visBase::RectangleDragger::getData()
+{ return root; }
+
+
+
+void visBase::RectangleDragger::syncronizeDraggers()
+{
+    SbVec3f xyscale(1,1,1);
+
+    float x = manipxydragger->translation.getValue()[0] * xyscale[0];
+    float y = manipxydragger->translation.getValue()[1] * xyscale[1];
+
+    SbVec3f zdragscale( zdraggerscale->scaleFactor.getValue() );
+
+    float z = manipzdraggertop->translation.getValue()[0] * zdragscale[2];
+
+    float xscale = manipxydragger->scaleFactor.getValue()[0] * xyscale[0];
+    float yscale = manipxydragger->scaleFactor.getValue()[1] * xyscale[1];
+
+    bool allowcb_bak = allowcb;
+    allowcb = false;
+
+    if ( manipzdraggertop )
+    {
+	manipzdraggertop->translation.setValue( z/zdragscale[2],
+					    (y + 1.1 * yscale)/zdragscale[1],
+					    (-x)/zdragscale[0] );
+	manipzdraggerright->translation.setValue( z/zdragscale[2],
+					    (y)/zdragscale[1],
+					    (-x-1.1*xscale)/zdragscale[0] );
+	manipzdraggerbottom->translation.setValue( z/zdragscale[2],
+					    (y - 1.1 * yscale)/zdragscale[1],
+					    (-x)/zdragscale[0] );
+	manipzdraggerleft->translation.setValue( z/zdragscale[2],
+					    (y)/zdragscale[1],
+					    (-x+1.1*xscale)/zdragscale[0] );
+    }
+
+    if ( manipxydragger )
+    {
+	manipxydragger->translation.setValue( x / xyscale[0],
+					y / xyscale[1], z / xyscale[2] );
+    }
+
+    allowcb = allowcb_bak;
+}
+
+
+void visBase::RectangleDragger::draggerHasMoved( SoDragger* d )
+{
+    if ( !allowcb ) return;
+
+    SoTranslate1Dragger* zd = dynamic_cast<SoTranslate1Dragger*>( d );
+    if ( zd )
+    {
+	if ( zd!=manipzdraggertop )
+	{
+	    float x = manipzdraggertop->translation.getValue()[2];
+	    float y = manipzdraggertop->translation.getValue()[1];
+	    float z = zd->translation.getValue()[0];
+
+	    manipzdraggertop->translation.setValue( z, y, x );
+	}
+
+	if ( zd!=manipzdraggerright )
+	{
+	    float x = manipzdraggerright->translation.getValue()[2];
+	    float y = manipzdraggerright->translation.getValue()[1];
+	    float z = zd->translation.getValue()[0];
+
+	    manipzdraggerright->translation.setValue( z, y, x );
+	}
+
+	if ( zd!=manipzdraggerbottom )
+	{
+	    float x = manipzdraggerbottom->translation.getValue()[2];
+	    float y = manipzdraggerbottom->translation.getValue()[1];
+	    float z = zd->translation.getValue()[0];
+
+	    manipzdraggerbottom->translation.setValue( z, y, x );
+	}
+
+	if ( zd!=manipzdraggerleft )
+	{
+	    float x = manipzdraggerleft->translation.getValue()[2];
+	    float y = manipzdraggerleft->translation.getValue()[1];
+	    float z = zd->translation.getValue()[0];
+
+	    manipzdraggerleft->translation.setValue( z, y, x );
+	}
+    }
+
+    syncronizeDraggers();
+}
+
+
+void visBase::RectangleDragger::startCB(void* obj, SoDragger* )
+{
+    ((visBase::RectangleDragger*) obj)->started.trigger();
+}
+
+
+void visBase::RectangleDragger::motionCB(void* obj, SoDragger* )
+{
+    ((visBase::RectangleDragger*) obj)->motion.trigger();
+}
+
+
+void visBase::RectangleDragger::valueChangedCB(void* obj, SoDragger* d )
+{
+    ((visBase::RectangleDragger*) obj)->draggerHasMoved( d );
+    ((visBase::RectangleDragger*) obj)->changed.trigger();
+}
+
+
+void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
+{
+    ((visBase::RectangleDragger*) obj)->finished.trigger();
+}
+
+
+visBase::Rectangle::Rectangle(bool usermanip)
     : origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
     , orientation( visBase::Rectangle::XY )
@@ -36,9 +330,8 @@ visBase::Rectangle::Rectangle(bool userxymanip, bool userzmanip)
     , planesep( new SoSeparator )
     , plane( new SoFaceSet )
     , manipswitch( 0 )
-    , manipzdragger( 0 )
-    , manipxydragger( 0 )
-    , manipxyscale( 0 )
+    , maniprectswitch( 0 )
+    , dragger( usermanip ? new RectangleDragger : 0 )
     , snap( false )
     , xrange( -mUndefValue, mUndefValue, mUndefValue )
     , yrange( -mUndefValue, mUndefValue, mUndefValue )
@@ -53,11 +346,10 @@ visBase::Rectangle::Rectangle(bool userxymanip, bool userzmanip)
     localorigotrans->translation.setValue( 0.5, 0.5, 0 );
 
     root->addChild( localscale );
-    float localwidth = 10;
+    float localwidth = 2;
     localscale->scaleFactor.setValue(	1.0/localwidth,
 	    				1.0/localwidth,
 					1.0/localwidth );
-
 
     SoCoordinate3* coords = new SoCoordinate3;
     root->addChild( coords );
@@ -87,8 +379,12 @@ visBase::Rectangle::Rectangle(bool userxymanip, bool userzmanip)
     plane->numVertices.set1Value(0, 5);
     registerSelection( plane );
 
-    if ( userzmanip || userxymanip )
+    if ( dragger )
     {
+	dragger->changed.notify(
+			mCB(this, Rectangle, moveManipRectangletoDragger ));
+	dragger->finished.notify( mCB(this, Rectangle, moveDraggertoManipRect));
+
 	// Manip switch & separator
 	manipswitch = new SoSwitch;
 	root->addChild( manipswitch );
@@ -97,70 +393,30 @@ visBase::Rectangle::Rectangle(bool userxymanip, bool userzmanip)
 	manipswitch->addChild( manipsep );
 	manipswitch->whichChild = SO_SWITCH_NONE;
 
-	manipsep->addChild( new SoDrawStyle );
+	manipsep->addChild( dragger->getData() );
 
 	// Manip rectangle
-	SoSeparator* maniprectsep = new SoSeparator;
-	manipsep->addChild( maniprectsep );
-
 	maniprecttrans = new SoTranslation;
-	maniprectsep->addChild( maniprecttrans );
+	manipsep->addChild( maniprecttrans );
 
 	maniprectscale = new SoScale;
-	maniprectsep->addChild( maniprectscale );
+	manipsep->addChild( maniprectscale );
 
 	SoMaterial* maniprectmaterial = new SoMaterial;
-	maniprectsep->addChild( maniprectmaterial );
+	manipsep->addChild( maniprectmaterial );
 	maniprectmaterial->transparency.setValue( 0.5 );
-
 	maniprectswitch = new SoSwitch;
-	maniprectsep->addChild( maniprectswitch );
 	maniprectswitch->addChild( plane );
 	maniprectswitch->whichChild = SO_SWITCH_NONE;
-
-	// Manips
-
-	SoSeparator* manipzsep = new SoSeparator;
-	manipsep->addChild( manipzsep );
-
-	SoSeparator* manipxysep =  new SoSeparator;
-	manipsep->addChild( manipxysep );
-
-
-	if ( userzmanip )
-	{
-	    SoRotation* rot = new SoRotation;
-	    manipzsep->addChild( rot );
-	    rot->rotation.setValue( SbVec3f( 0,1,0), -M_PI/2 );
-
-	    manipzdragger = new SoTranslate1Dragger;
-	    manipzsep->addChild( manipzdragger );
-	    addManipCB( manipzdragger );
-	    manipzdragger->translation.setValue( 0, 1.1*hlocalwidth, 0 );
-	}
-
-	if ( userxymanip )
-	{
-	    manipxyscale = new SoScale;
-	    manipxysep->addChild( manipxyscale );
-
-	    manipxyscale->scaleFactor.setValue( hlocalwidth,
-		    				hlocalwidth, hlocalwidth );
-
-	    manipxydragger = new SoTabPlaneDragger;
-	    manipxysep->addChild( manipxydragger );
-	    addManipCB( manipxydragger );
-	}
+	manipsep->addChild( maniprectswitch );
     }
 }
 
 
 visBase::Rectangle::~Rectangle()
 {
-    if ( manipxydragger ) removeManipCB( manipxydragger );
-    if ( manipzdragger ) removeManipCB( manipzdragger );
-
     unregisterSelection( plane );
+    delete dragger;
 }
 
 
@@ -209,7 +465,7 @@ float visBase::Rectangle::manipOrigo( int dim ) const
 
 void visBase::Rectangle::setWidth( float x, float y )
 {
-    widthscale->scaleFactor.setValue( x, y, (x+y)/2 );
+    widthscale->scaleFactor.setValue( x, y, 1 );
 }
 
 
@@ -259,9 +515,9 @@ void visBase::Rectangle::displayDraggers(bool on)
 }
 
 
-void visBase::Rectangle::moveManipRectangletoDragger()
+void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
 {
-    if ( !manipswitch ) return;
+    if ( !dragger ) return;
 
     float x = maniprecttrans->translation.getValue()[0];
     float y = maniprecttrans->translation.getValue()[1];
@@ -270,26 +526,12 @@ void visBase::Rectangle::moveManipRectangletoDragger()
     float xscale = maniprectscale->scaleFactor.getValue()[0];
     float yscale = maniprectscale->scaleFactor.getValue()[1];
 
-    float newx = x;
-    float newy = y;
-    float newz = z;
+    float newx = dragger->center(0);
+    float newy = dragger->center(1);
+    float newz = dragger->center(2);
 
-    float newxscale = xscale;
-    float newyscale = yscale;
-
-    if ( manipxydragger )
-    {
-	newx = manipxydragger->translation.getValue()[0] *
-	       manipxyscale->scaleFactor.getValue()[0];
-	newy = manipxydragger->translation.getValue()[1] *
-	       manipxyscale->scaleFactor.getValue()[1];
-
-	newxscale = manipxydragger->scaleFactor.getValue()[0];
-	newyscale = manipxydragger->scaleFactor.getValue()[1];
-    }
-
-    if ( manipzdragger )
-	newz = manipzdragger->translation.getValue()[0];
+    float newxscale = dragger->scale(0);
+    float newyscale = dragger->scale(1);
 
     float startpos = snapPos( 0, getStartPos(0, newx, newxscale ));
     float stoppos = snapPos( 0, getStopPos( 0, newx, newxscale ) );
@@ -327,30 +569,35 @@ void visBase::Rectangle::moveManipRectangletoDragger()
 
 void visBase::Rectangle::moveDraggertoManipRect()
 {
-    if ( !manipswitch ) return;
+    if ( !dragger ) return;
 
     float x = maniprecttrans->translation.getValue()[0];
     float y = maniprecttrans->translation.getValue()[1];
     float z = maniprecttrans->translation.getValue()[2];
 
-    SbVec3f xyscale = manipxyscale ? manipxyscale->scaleFactor.getValue() 
-				   : SbVec3f( 1, 1, 1 );
-    float yscale = maniprectscale->scaleFactor.getValue()[1] * xyscale[1];
+    dragger->setCenter( x, y, z );
 
-    bool oldstatus = enableManipCB( false );
-    manipzdragger->translation.setValue( z, y + 1.1 * yscale, -x );
+    float xscale = maniprectscale->scaleFactor.getValue()[0];
+    float yscale = maniprectscale->scaleFactor.getValue()[1];
 
-    manipxydragger->translation.setValue( x / xyscale[0], y / xyscale[1],
-	    				  z / xyscale[2] );
-    manipxydragger->scaleFactor.setValue(
-	    maniprectscale->scaleFactor.getValue());
-    enableManipCB( oldstatus );
+    dragger->setScale( xscale, yscale );
 }
 
 
-bool visBase::Rectangle::moveObjectToManipRect()
+void visBase::Rectangle::setDraggerSize( float w, float h, float d )
 {
-    bool res = false;
+    if ( !dragger ) return;
+
+    w = getScale( 0, w );
+    h = getScale( 0, h );
+
+    dragger->setDraggerSize( w, h, d );
+}
+
+
+
+void visBase::Rectangle::moveObjectToManipRect(CallBacker*)
+{
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
@@ -359,7 +606,6 @@ bool visBase::Rectangle::moveObjectToManipRect()
     if ( origotrans->translation.getValue()!=origopos )
     {
 	origotrans->translation.setValue( origopos );
-	res = true;
     }
 
     float newxwidth = getWidth( 0, scale[0] );
@@ -369,13 +615,10 @@ bool visBase::Rectangle::moveObjectToManipRect()
 	 !mIS_ZERO( newywidth-widthscale->scaleFactor.getValue()[1] ) )
     {
 	widthscale->scaleFactor.setValue(   newxwidth ,
-					    newywidth, (newxwidth+newywidth)/2);
-	res = true;
+					    newywidth, 1);
     }
 
     resetManip();
-
-    return res;
 }
 
 
@@ -406,43 +649,6 @@ void visBase::Rectangle::resetManip()
     maniprecttrans->translation.setValue( 0, 0, 0 );
     maniprectscale->scaleFactor.setValue( 1, 1, 1 );
     moveDraggertoManipRect();
-}
-
-
-
-void visBase::Rectangle::updateDraggers()
-{
-    SbVec3f xyscale = manipxyscale ? manipxyscale->scaleFactor.getValue() 
-				   : SbVec3f( 1, 1, 1 );
-
-    float x = manipxydragger
-		? manipxydragger->translation.getValue()[0] * xyscale[0] : 0;
-    float y = manipxydragger 
-		? manipxydragger->translation.getValue()[1] * xyscale[1] : 0;
-
-    float z = manipzdragger ? manipzdragger->translation.getValue()[0] : 0;
-
-    float yscale = manipxydragger
-			? manipxydragger->scaleFactor.getValue()[1] * xyscale[1]
-			: 2/localscale->scaleFactor.getValue()[1];
-
-    bool oldstatus = enableManipCB( false );
-    if ( manipzdragger )
-    {
-	manipzdragger->enableNotify( false );
-	manipzdragger->translation.setValue( z, y + 1.1 * yscale, -x );
-	manipzdragger->enableNotify( true );
-    }
-
-    if ( manipxydragger )
-    {
-	manipxydragger->enableNotify( false );
-	manipxydragger->translation.setValue( x / xyscale[0],
-					y / xyscale[1], z / xyscale[2] );
-	manipxydragger->enableNotify( true );
-    }
-
-    enableManipCB( oldstatus );
 }
 
 

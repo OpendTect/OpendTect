@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.2 2002-02-12 13:38:08 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.3 2002-02-18 13:07:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "vismanipobj.h"
 #include "visselobj.h"
 #include "ranges.h"
+#include "callback.h"
 
 class SoScale;
 class SoTranslation;
@@ -31,6 +32,49 @@ class SoFaceSet;
 namespace visBase
 {
 
+class RectangleDragger : public SceneObject, public CallBackClass
+{
+public:
+    			RectangleDragger();
+			~RectangleDragger();
+
+    void		setCenter( float, float, float );
+    float		center( int dim ) const;
+    
+    void		setScale( float, float );
+    float		scale( int dim ) const;
+
+    void		setDraggerSize( float w, float h, float d );
+
+    Notifier<RectangleDragger>	started;
+    Notifier<RectangleDragger>	motion;
+    Notifier<RectangleDragger>	changed;
+    Notifier<RectangleDragger>	finished;
+
+    SoNode*		getData();
+
+protected:
+    void		syncronizeDraggers();
+    void		draggerHasMoved( SoDragger* );
+    
+
+    SoSeparator*	root;
+    SoTranslate1Dragger* manipzdraggertop;
+    SoTranslate1Dragger* manipzdraggerright;
+    SoTranslate1Dragger* manipzdraggerbottom;
+    SoTranslate1Dragger* manipzdraggerleft;
+    SoScale*		zdraggerscale;
+
+    SoTabPlaneDragger*	manipxydragger;
+
+    bool		allowcb;
+
+    static void		startCB( void*, SoDragger* );
+    static void		motionCB( void*, SoDragger* );
+    static void		valueChangedCB(void*, SoDragger* );
+    static void		finishCB( void*, SoDragger* );
+};
+
 /*!\brief
     A Rectangle is a rectangle that can be positioned in 3d. It has
     manipulators that can be used to move it around. The rectangle
@@ -41,12 +85,12 @@ namespace visBase
     be snapped.
 */
 
-class Rectangle : public VisualObject, public ManipObject,
+class Rectangle : public VisualObject, public CallBacker,
 		  public SelectableObject
 {
 public:
 
-			Rectangle( bool xymanip, bool zmanip );
+			Rectangle( bool manip );
 			~Rectangle();
     void		setOrigo( float, float, float );
     float		origo( int ) const;
@@ -64,21 +108,14 @@ public:
     bool		isSnapping() const { return snap; }
 
     void		displayDraggers(bool);
+    void		setDraggerSize( float w, float h, float d );
 
-    bool		moveObjectToManipRect();
+
+    void		moveObjectToManipRect(CallBacker* =0);
     void		resetManip();
     bool		isManipRectOnObject() const;
 
 protected:
-
-    void		manipDataChanged()
-			{
-			    updateDraggers();
-			    moveManipRectangletoDragger();
-			}
-    void		manipEnds( bool ) 
-			{  moveDraggertoManipRect(); }
-
 
     void		select(SoPath*) { displayDraggers(true); }
     void		deSelect(SoPath*)
@@ -87,10 +124,8 @@ protected:
 			    moveObjectToManipRect();
 			}
 
-    void		moveManipRectangletoDragger();
+    void		moveManipRectangletoDragger(CallBacker* =0);
     void		moveDraggertoManipRect();
-
-    void		updateDraggers();
 
     float		snapPos(int dim,float pos) const;
     float		getWidth(int dim,float scale) const;
@@ -119,10 +154,7 @@ protected:
 
     // Manip objects:
     SoSwitch*		manipswitch;
-
-    SoTranslate1Dragger* manipzdragger;
-    SoTabPlaneDragger*	manipxydragger;
-    SoScale*		manipxyscale;
+    RectangleDragger*	dragger;
 
     // Manip rectangle
     SoSwitch*		maniprectswitch;
