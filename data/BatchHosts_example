@@ -21,14 +21,19 @@ First port: 37500
 --
 -- Format is:
 --
--- real_hostname: name_in_user_displays
+-- real_hostname: name_in_user_displays [: APPL prefix ] [: DATA prefix ]
 --
 -- The user display hostnames must be unique. If you omit them,
 -- the real hostname will be used for user display.
 --
+-- In case Win32 paths are entered for application or data prefix, use
+-- a ';' instead of a ':' to separate drive from path, like:
+--   c;\Program Files\OpendTect
 --
-work4:	John's machine
+--
+work4:	John's machine : /home/john/opendtect : /users/share/dtectdata
 work5:	Joe's machine
+win32:	Joe's Portable : c;\Program Files\OpendTect : c;\dtectData
 vis1:	vis 1 = SGI/IRIX (16 processors)
 vis2:	vis 2 = SGI/IRIX (8 processors)
 sol28:	The Solaris 2.8 Sun Blade
