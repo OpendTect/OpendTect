@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.2 2005-01-28 16:30:53 kristofer Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.3 2005-02-01 14:05:24 kristofer Exp $";
 
 #include "attribprovider.h"
 
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.2 2005-01-28 16:30:53 kri
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
-#include "attribparser.h"
+#include "attribparam.h"
 #include "basictask.h"
 #include "cubesampling.h"
 #include "errh.h"
@@ -87,7 +87,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 	    return 0;
 	}
 
-	res->setInput( idx, inputprovider, inputdesc->selectedOutput() );
+	res->setInput( idx, inputprovider );
     }
 
     res->unRefNoDelete();
@@ -97,19 +97,14 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 
 Provider::Provider( Desc& nd )
     : desc( nd )
-    , parser( *PF().createParserCopy(nd) )
     , desiredvolume( 0 )
     , outputinterest( nd.nrOutputs(), 0 )
-    , inputprovideroutput( nd.nrInputs(), -1 )
     , outputinlstepout( 0 )
     , outputcrlstepout( 0 )
     , outputzstepout( 0 )
     , threadmanager( 0 )
     , currentbid( -1, -1 )
 {
-    if ( !&parser ) return;
-
-    parser.ref();
     desc.ref();
     inputs.allowNull(true);
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
@@ -119,7 +114,6 @@ Provider::Provider( Desc& nd )
 
 Provider::~Provider()
 {
-    parser.unRef();
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] ) inputs[idx]->unRef();
     inputs.erase();
@@ -133,7 +127,7 @@ Provider::~Provider()
 }
 
 
-bool Provider::isOK() const { return &parser && parser.isOK(); }
+bool Provider::isOK() const { return true; /*&parser && parser.isOK(); */}
 
 
 Desc& Provider::getDesc() { return desc; }
@@ -242,34 +236,40 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
 	    if ( !inputs[inp] )
 		continue;
 
-	    if ( !inputs[inp]->getPossibleVolume( inputprovideroutput[inp],
-						  inputcs ) ) 
+	    TypeSet<int> inputoutput;
+	    if ( !getInputOutput( inp, inputoutput ) )
 		continue;
-
-	    mGetOverallMargin(Interval<int>, inlmargin, InlMargin(inp,out) );
-	    mGetOverallMargin(Interval<int>, crlmargin, CrlMargin(inp,out) );
-	    mGetOverallMargin(Interval<float>, zmargin, ZMargin(inp,out) );
-
-	    inputcs.hrg.start.inl += inlmargin.start;
-	    inputcs.hrg.start.crl += crlmargin.start;
-	    inputcs.hrg.stop.inl += inlmargin.stop;
-	    inputcs.hrg.stop.crl += crlmargin.stop;
-	    inputcs.zrg.start += zmargin.start;
-	    inputcs.zrg.stop += zmargin.stop;
-
-	    if ( !isset )
+	    
+	    for ( int idy=0; idy<inputoutput.size(); idy++ )
 	    {
-		res = inputcs;
-		isset = true;
-		continue;
-	    }
+		if ( !inputs[inp]->getPossibleVolume( idy, inputcs ) ) 
+		    continue;
 
-	    res.hrg.start.inl = mMAX( res.hrg.start.inl, inputcs.hrg.start.inl);
-	    res.hrg.start.crl = mMAX( res.hrg.start.crl, inputcs.hrg.start.crl);
-	    res.hrg.stop.inl = mMIN( res.hrg.stop.inl, inputcs.hrg.stop.inl);
-	    res.hrg.stop.crl = mMIN( res.hrg.stop.crl, inputcs.hrg.stop.crl);
-	    res.zrg.start = mMAX( res.zrg.start, inputcs.zrg.start);
-	    res.zrg.stop = mMIN( res.zrg.stop, inputcs.zrg.stop);
+		mGetOverallMargin(Interval<int>, inlmargin, InlMargin(inp,out));
+		mGetOverallMargin(Interval<int>, crlmargin, CrlMargin(inp,out));
+		mGetOverallMargin(Interval<float>, zmargin, ZMargin(inp,out) );
+
+		inputcs.hrg.start.inl += inlmargin.start;
+		inputcs.hrg.start.crl += crlmargin.start;
+		inputcs.hrg.stop.inl += inlmargin.stop;
+		inputcs.hrg.stop.crl += crlmargin.stop;
+		inputcs.zrg.start += zmargin.start;
+		inputcs.zrg.stop += zmargin.stop;
+
+		if ( !isset )
+		{
+		    res = inputcs;
+		    isset = true;
+		    continue;
+		}
+
+		res.hrg.start.inl=mMAX(res.hrg.start.inl,inputcs.hrg.start.inl);
+		res.hrg.start.crl=mMAX(res.hrg.start.crl,inputcs.hrg.start.crl);
+		res.hrg.stop.inl = mMIN( res.hrg.stop.inl,inputcs.hrg.stop.inl);
+		res.hrg.stop.crl =mMIN( res.hrg.stop.crl, inputcs.hrg.stop.crl);
+		res.zrg.start = mMAX( res.zrg.start, inputcs.zrg.start);
+		res.zrg.stop = mMIN( res.zrg.stop, inputcs.zrg.stop);
+	    }
 	}
     }
 
@@ -325,7 +325,7 @@ const DataHolder* Provider::getData( const BinID& relpos )
 
     if ( !outdata ) return 0;
 
-    if ( !getInputData() )
+    if ( !getInputData(relpos) )
 	return 0;
 
     for ( int idx=0; idx<outputinterest.size(); idx++ )
@@ -384,21 +384,46 @@ const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 }
 
 
-void Provider::setInput( int inp, Provider* np, int providerout )
+bool Provider::getInputData( const BinID& )
+{ return true; }
+
+
+bool Provider::getInputOutput( int input, TypeSet<int>& res ) const
+{
+    res.erase();
+
+    Desc* inputdesc = desc.getInput(input);
+    if ( !inputdesc ) return false;
+
+    res += inputdesc->selectedOutput();
+    return true;
+}
+
+
+void Provider::setInput( int inp, Provider* np )
 {
     if ( inputs[inp] )
     {
-	inputs[inp]->enableOutput( inputprovideroutput[inp], false );
+	TypeSet<int> inputoutputs;
+	if ( getInputOutput( inp, inputoutputs ) )
+	{
+	    for ( int idx=0; idx<inputoutputs.size(); idx++ )
+		inputs[inp]->enableOutput( idx, false );
+	}
 	inputs[inp]->unRef();
     }
 
     inputs.replace( np, inp );
-    inputprovideroutput[inp] = providerout;
     if ( !inputs[inp] )
 	return;
 
     inputs[inp]->ref();
-    inputs[inp]->enableOutput( inputprovideroutput[inp], true );
+    TypeSet<int> inputoutputs;
+    if ( getInputOutput( inp, inputoutputs ) )
+    {
+	for ( int idx=0; idx<inputoutputs.size(); idx++ )
+	    inputs[inp]->enableOutput( idx, true );
+    }
 
     updateInputReqs(inp);
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribfactory.h,v 1.2 2005-01-28 16:30:41 kristofer Exp $
+ RCS:           $Id: attribfactory.h,v 1.3 2005-02-01 14:05:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ namespace Attrib
 {
 
 class Desc;
-class Parser;
 class Provider;
 
 typedef Provider* (*ProviderCreater)(Desc&);
@@ -30,14 +29,14 @@ public:
 			~ProviderFactory();
 			
 			/*Interface from attribs */
-    void		addParser( Parser*, ProviderCreater );
+    void		addDesc( Desc*, ProviderCreater );
 
     Provider*		create( Desc& ) const;
-    Parser*		createParserCopy( Desc& ) const;
+    Desc*		createDescCopy( const char* nm ) const;
 
 protected:
     int				indexOf( const char* ) const;
-    ObjectSet<Parser>		paramsets;
+    ObjectSet<Desc>		descs;
     TypeSet<ProviderCreater>	creaters;
 };
 

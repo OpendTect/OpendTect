@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.2 2005-01-28 16:30:41 kristofer Exp $
+ RCS:           $Id: attribprovider.h,v 1.3 2005-02-01 14:05:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,10 @@ namespace Attrib
 class DataHolder;
 class DataHolderLineBuffer;
 class Desc;
-class Parser;
 class ProviderBasicTask;
+
+
+int getSteeringIndex( const BinID& );
 
 
 class Provider
@@ -66,7 +68,10 @@ protected:
 			Provider( Desc& );
     static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
 
-    virtual bool	getInputData() { return true; }
+
+    virtual bool	getInputOutput( int input, TypeSet<int>& ) const;
+
+    virtual bool	getInputData( const BinID& relpos );
     virtual bool	computeData( const DataHolder&,
 	    			     const BinID& relpos,
 	    			     int t1, int nrsamples ) const
@@ -75,7 +80,7 @@ protected:
     DataHolder*		getDataHolder( const BinID& relpos );
     void		removeDataHolder( const BinID& relpos );
 
-    void		setInput( int input, Provider*, int providerout );
+    void		setInput( int input, Provider* );
     bool		computeDesInputCube( int inp, int out,
 					     CubeSampling& ) const;
     void		updateInputReqs(int input=-1);
@@ -88,9 +93,7 @@ protected:
     virtual Interval<float>*	reqZMargin(int input, int output) const;
 
     ObjectSet<Provider>	inputs;
-    TypeSet<int>	inputprovideroutput;
     Desc&		desc;
-    Parser&		parser;
 
     TypeSet<int>	outputinterest;
     Interval<int>*	outputinlstepout;

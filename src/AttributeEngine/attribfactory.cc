@@ -4,12 +4,12 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribfactory.cc,v 1.2 2005-01-28 16:30:53 kristofer Exp $";
+static const char* rcsID = "$Id: attribfactory.cc,v 1.3 2005-02-01 14:05:24 kristofer Exp $";
 
 #include "attribfactory.h"
 
 #include "attribdesc.h"
-#include "attribparser.h"
+#include "attribparam.h"
 #include "msgh.h"
 
 namespace Attrib
@@ -21,17 +21,17 @@ ProviderFactory::ProviderFactory()
 
 ProviderFactory::~ProviderFactory()
 {
-    for ( int idx=0; idx<paramsets.size(); idx++ )
-	paramsets[idx]->unRef();
+    for ( int idx=0; idx<descs.size(); idx++ )
+	descs[idx]->unRef();
 
-    paramsets.erase();
+    descs.erase();
     creaters.erase();
 }
 
 
-void ProviderFactory::addParser( Parser* nps, ProviderCreater pc )
+void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
 {
-    const int idx = indexOf(nps->name());
+    const int idx = indexOf(nps->attribName());
     if ( idx!=-1 )
     {
 	UsrMsg( "Attribute name does allready exist in factory and is thus not" 
@@ -40,39 +40,37 @@ void ProviderFactory::addParser( Parser* nps, ProviderCreater pc )
     }
 
     nps->ref();
-    paramsets += nps;
+    descs += nps;
     creaters += pc;
 };
 
 
 Provider* ProviderFactory::create( Desc& desc ) const
 {
-    BufferString attribname = Parser::getAttribName( desc.defStr() );
-    const int idx = indexOf(attribname);
+    if ( desc.isSatisfied()>=2 )
+	return 0;
+
+    const int idx = indexOf(desc.attribName());
     if ( idx==-1 ) return 0;
 
-    Parser* ps = paramsets[idx]->clone();
-    if ( !ps ) return 0;
-    ps->ref();
-
-    Provider* provider = 0;
-    if ( ps->parseDefString( desc.defStr() ) )
-	provider = creaters[idx]( desc );
-	
-    ps->unRef();
-    return provider;
+    return creaters[idx]( desc );
 }
 
 
-Parser* ProviderFactory::createParserCopy( Desc& ) const
-{ return 0; }
+Desc* ProviderFactory::createDescCopy( const char* nm ) const
+{
+    const int idx = indexOf(nm);
+    if ( idx==-1 ) return 0;
+
+    return descs[idx]->clone();
+}
 
 
 int ProviderFactory::indexOf( const char* nm ) const
 {
-    for ( int idx=0; idx<paramsets.size(); idx++ )
+    for ( int idx=0; idx<descs.size(); idx++ )
     {
-	if ( !strcmp( paramsets[idx]->name(), nm ) )
+	if ( !strcmp( descs[idx]->attribName(), nm ) )
 	    return idx;
     }
 

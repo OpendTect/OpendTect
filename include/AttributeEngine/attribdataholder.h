@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.1 2005-01-28 16:30:41 kristofer Exp $
+ RCS:           $Id: attribdataholder.h,v 1.2 2005-02-01 14:05:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class SingleDataHolder
 public:
     virtual		~SingleDataHolder() {}
     virtual float	operator[](int) const			= 0;
+    virtual float*	getPtr() { return 0; }
 };
 
 
@@ -44,6 +45,7 @@ public:
     		~SingleDataHolderPtrImpl() { delete [] ptr; }
     		SingleDataHolderPtrImpl( T* ptr_ ) : ptr( ptr_ ) {}
     float	operator[](int idx) const { return ptr[idx]; }
+    float*	getPtr() { return typeid(ptr)==typeid(float*) ? ptr : 0; }
     T*		ptr;
 };
 
