@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.16 2004-02-25 08:42:01 arend Exp $
+  - RCS:        $Id: windows.html,v 1.17 2004-06-02 10:50:55 arend Exp $
   ------------------------------------------------------------------------------
  -->
 
@@ -338,7 +338,8 @@ Windows without recompiling Qt, Coin and SoQt, because beside header files
 Windows also requires import libraries for the dlls to be available when
 linking.
 Since we are not allowed to redistribute some of these import libraries,
-you will have to build Qt, Coin and SoQt yourself which is quite complicated.
+you will have to build Qt, Coin and SoQt yourself which requires two versions
+of the gcc compiler, a pthread library and some tinkering with config files.
 </p><p>
 Therefore, if you want to build OpendTect from scratch, we would like
 to suggest building a Linux version. Both Qt and Coin are freely
@@ -346,13 +347,8 @@ available and build out of the box on Linux, there's no need for two gcc
 compilers and there is also no need for a separate pthread library.
 </p><p>
 Should you really want to build OpendTect on Windows, read on for some
-guidelines. Beware that especially compiling Coin and SoQt is quite
-tricky and can take a considerable amount of time and tweaking to get it
-right, especially since the
-current Coin configure scripts are broken and do not support cygwin/gcc with
-the -mno-cygwin switch required to link to Qt compiled with MinGW.
+guidelines. 
 </p>
-
 
 <h3>Qt</h3>
 <p>
@@ -377,16 +373,22 @@ the bin directory (default C:\cygwin\bin) and the accompaning import library
 (libpthreadGC.a) into the mingw lib directory (default C:\cygwin\lib\mingw)
 </p>
 
-<h3>Coin</h3>
-<p>Coin does not officially support anything other then VC++. However, older
-versions of Coin required cygwin as a build environment. This was necessary in
-order to make use of the command-line MSVC compiler, cl.exe, which was called
-using a wrapper program (wrapmsvc).
+<h3>Coin and friends</h3>
+<p>Coin does not officially support anything other then VC++ on Windows.
+However, older versions of Coin required cygwin as a build environment. 
+This was necessary in order to make use of the command-line MSVC compiler,
+cl.exe, which was called using a wrapper program (wrapmsvc).
 </p><p>
-The previous versions of the Coin config scripts could handle the cygwin MinGW
-compiler (i.e. gcc -mno-cygwin) quite well. Unfortunately, the current version
-is broken such that it requires manual linking of the dlls.
-Note that it is required to compile Coin (and SoQt) with the -mno-cygwin switch,
+The Coin config scripts are prepared for the cygwin compiler, but the
+cygwin/mingw compiler (i.e. gcc -mno-cygwin) requires one minor change, in 
+that the search path for system libraries has to be altered from "/lib /lib/w32api ..." to "/lib/mingw /lib/w32api ..."
+</p><p>
+You can either make this change in aclocal.m4 and re-run autoconf, or you
+can adapt the "configure" script. In aclocal, there's only one line to
+edit, while in the "configure" script there are multiple, so take your pick.
+Note that you have to repeat this exercise in all modules (Coin-2, SoQt and simage).
+</p><p>
+Also note that it is required to compile Coin (and SoQt) with the -mno-cygwin switch,
 which prevents linking to the cygwin dll. Without it you cannot link with Qt
 because that is linked to the the native Windows c libraries, which are not
 compatible with the cygwin c libraries. (You might be able to link with the
@@ -394,130 +396,13 @@ GPL-ed X11 version of Qt under cygwin, but that requires you to run an X-server
 such as cygwin/Xfree86. 
 See: <a href="http://kde-cygwin.sourceforge.net/">kde-cygwin</a>. ).
 </p><p>
-You may also find that libtool complains about not being able to find certain
-dlls. This costed us a lot of time, until we found out that the required dlls
-have to be in the search path ($PATH). Passing a -L&lt;path to dll&gt; did not
-work.
-</p>
 
-<h4>Notes on compiling Coin</h4>
-<p>
-As said, Coin and SoQt have to be compiled with the cygwin gcc using the
--mno-cygwin switch. This worked nicely with the Coin-2 version that we used
-before. However, with the current Coin Version 2.2.1 the build process is
-broken. Here are some notes about how we managed to compile Coin and SoQt.
+One more note: The cygwin-MinGW distribution, which is what is actually used
+when using the -mno-cygwin switch, contains some .la files that have
+bogus directories in them. These files are located in /lib/mingw and should
+either be edited by hand to contain the correct values or should be deleted. 
+
 </p><p>
-When you try to build Coin version 2.2.1, everything compiles just fine
-(except for SoQt 1.0.2, so we've using a previous snapshot), but linking
-is a bit of a nightmare. It seems the configure system/libtool gets confused
-about which libraries to use for the mingw compiler that is actually used by
-"gcc -mno-cygwin".
-</p><p>
-
-So far, we have been able to link Coin by first configuring with the following
-command-line, without setting environment variables for CC or CXX:
-
-<pre>
-./configure --prefix=/users/appman/coin/inst --disable-debug --disable-symbols
---enable-shared --disable-static --enable-vrml97 --enable-threadsafe
---enable-rtti --disable-warnings --disable-dependency-tracking --disable-msvc
---without-x CFLAGS=-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin
--mms-bitfields -mcpu=pentium -march=i386 CPPFLAGS=-O2 -D_LARGEFILE_SOURCE
--D_FILE_OFFSET_BITS=64 -mno-cygwin -mms-bitfields -mcpu=pentium -march=i386
-LDFLAGS=-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin
--mms-bitfields -mcpu=pentium -march=i386 -lstdc++ -lpthreadGC
-</pre>
-
-However, when you try to link this, you get unresolved references because
-it tries to link with gcc libraries in /usr/lib/gcc-lib/i686-pc-cygwin, 
-while it is supposed to link with libraries in /usr/lib/gcc-lib/i686-pc-mingw32.
-</p><p>
-So, we moved i686-pc-cygwin to a temporary dir after configuring (and
-compiling), and replaced that with a symlink to i686-pc-mingw32 and then
-'make' to link.
-</p><p>
-This deliveres a cygcoin dll, although it is explicitely linked with the 
-cygwin dll. This can be resolved by manually re-linking and copying the dll
-after the install has been finished.
-</p><p>
-
-Now, when you try to build SoQt (snapshot with changelog dated Jan 16 15:08)
-using the same settings, you get the following link error:
-
-<pre>
-/bin/bash ../../../libtool --mode=link g++  -O2 -fno-exceptions  -s -O2
--D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin -mms-bitfields
--mcpu=pentium -march=i386 -lstdc++ -lpthreadGC -DCOIN_DLL
--L/home/appman/coin/inst/lib -L/users/appman/qt/rel/lib -o libSoQt.la -rpath
-/users/appman/coin/inst/lib -no-undefined -version-info 21:0:1 SoQt.lo
-SoQtComponent.lo SoQtGLWidget.lo SoAny.lo SoQtCursor.lo SoQtObject.lo
-SoQtCommon.lo SoQtComponentCommon.lo SoQtGLWidgetCommon.lo SoQtRenderArea.lo
- devices/libSoQtDevices.la editors/libSoQtEditors.la engines/libSoGuiEngines.la
- nodes/libSoGuiNodes.la viewers/libSoQtViewers.la widgets/libSoQtWidgets.la
- -lqt-mt -lCoin -lopengl32 -lgdi32 -lwinmm -luser32
-grep: /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
-/usr/bin/sed: can't read /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
-libtool: link: `/GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la' is not a valid libtool archive
-</pre>
-
-So, apparantly it tries to find gcc libraries in /GCC, which aren't there.
-
-If you try to rebuild SoQt with CC and CXX set to gcc/g++ -mno-cygwin, you
-get the same error:
-
-<pre>
-make[8]: Entering directory `/home/appman/coin/build/SoQt/src/Inventor/Qt'
-/bin/bash ../../../libtool --mode=link g++ -mno-cygwin  -O2 -fno-exceptions  -s
--O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin -mms-bitfields
--mcpu=pentium -march=i386 -lstdc++ -lpthreadGC -DCOIN_DLL
--L/home/appman/coin/inst/lib
- -L/users/appman/qt/rel/lib -o libSoQt.la -rpath /users/appman/coin/inst/lib
- -no-undefined -version-info 21:0:1 SoQt.lo SoQtComponent.lo SoQtGLWidget.lo
- SoAny.lo SoQtCursor.lo SoQtObject.lo SoQtCommon.lo SoQtComponentCommon.lo
- SoQtGLWidgetCommon.lo SoQtRenderArea.lo  devices/libSoQtDevices.la
- editors/libSoQtEditors.la
-engines/libSoGuiEngines.la nodes/libSoGuiNodes.la viewers/libSoQtViewers.la
-widgets/libSoQtWidgets.la -lqt-mt -lCoin -lopengl32 -lgdi32 -lwinmm -luser32
-grep: /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
-/usr/bin/sed: can't read /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
-libtool: link: `/GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la' is not a valid libtool archive
-make[8]: *** [libSoQt.la] Error 1
-</pre>
-
-Let's make a directory /GCC/... :
-
-<pre>
-mkdir -p /GCC/gcc-3.3.1-3/.inst/package-gcc/usr
-cd /GCC/gcc-3.3.1-3/.inst/package-gcc/usr
-ln -s /usr/lib/mingw lib
-</pre>
-
-Then, you get a warning from libtool:
-
-<pre>
-libtool: link: warning: `/GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la' seems to be moved
-</pre>
-
-And, an error during linking:
-
-<pre>
-Creating library file: .libs/libSoQt.dll.a
-/usr/lib/gcc-lib/i686-pc-cygwin/3.3.1/libgcc.a(w32-shared-ptr.o)(.text+0x189): undefined reference to `_pthread_atfork'
-</pre>
-
-As you see, somewhere it tries to link to the i686-pc-cygwin libgcc.
-So, we apply the same trick and link /usr/lib/gcc-lib to the mingw one before retrying to link:
-
-<pre>
-27/home/appman/coin/build-> cd /usr/lib/gcc-lib/
-27/usr/lib/gcc-lib-> ls
-i686-pc-cygwin/  i686-pc-mingw32/  kp/
-27/usr/lib/gcc-lib-> mv i686-pc-cygwin/ kp
-27/usr/lib/gcc-lib-> ln -s i686-pc-mingw32 i686-pc-cygwin
-27/usr/lib/gcc-lib->
-</pre>
-<p>
-Then, after re-executing 'make' you finally get a SoQt dll.
 </p>
 <br>
 <img src="../hr.png" border=0>
