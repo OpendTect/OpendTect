@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.18 2004-05-07 12:30:17 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.19 2004-05-07 16:37:30 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -499,6 +499,17 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 	attribstopmnuid = -1;
     }
 
+    cutstartmnuid = menu->getCurrentID();
+    cutstopmnuid = cutstartmnuid;
+    uiPopupMenu* cutmenu = 
+	applMgr()->trackServer()->createTrackerMenu( cutstopmnuid, mid );
+    if ( cutmenu && cutmenu->nrItems() )
+    {
+	menu->addSubMenu( cutmenu );
+	for ( int idx=0; idx<cutstopmnuid-cutstartmnuid; idx++ )
+	    menu->getFreeID();
+    }
+
 #ifdef __debug__
     reloadmnuid = menu->addItem( new uiMenuItem("Reload") );
 #else
@@ -554,6 +565,11 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 	menu->setIsHandled(true);
 	if ( applMgr()->EMServer()->loadAuxData(mid, mnuid-attribstartmnuid) )
 	    applMgr()->handleStoredSurfaceData( displayid );
+    }
+    else if ( mnuid>=cutstartmnuid && mnuid<=cutstopmnuid )
+    {
+	menu->setIsHandled(true);
+	applMgr()->trackServer()->handleTrackerMenu( mnuid, cutstartmnuid, mid);
     }
 }
 
