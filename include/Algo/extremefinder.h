@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.5 2003-12-30 13:11:38 kristofer Exp $
+ RCS:		$Id: extremefinder.h,v 1.6 2004-05-17 06:31:41 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "basictask.h"
+#include "ranges.h"
 #include "sets.h"
 
-template <class T> class Interval;
 template <class T> class MathFunctionND;
 template <class T> class MathFunction;
 
@@ -91,6 +91,75 @@ protected:
     const MathFunction<float>&	func;
     const bool			max;
     const int			itermax;
+};
+
+
+class BisectionExtremeFinder1D : public BasicTask
+{
+public:
+    			BisectionExtremeFinder1D( const MathFunction<float>&,
+					 bool max, int itermax, double tol,
+					 const Interval<double>& startinterval,
+					 const Interval<double>* limitinterval);
+			/*!<\param func		The function, f(x) where the
+						extreme value shoud be found
+			    \param max		Specifies wether a min or max
+			     			value should be found
+			    \param itermax	Maximum number of iterations
+			    \param tol		Tolerance on the function
+			     			variable (x)
+			    \param startinterval The interval of x that the
+			    			search will be inited by.
+			    			Note that the search can go
+						outside of this interval.
+			    \param limitinterval Set to true if only solutions
+			    			within the interval is permitted
+			*/
+
+    virtual		~BisectionExtremeFinder1D();
+
+    void		reStart( const Interval<double>& startinterval,
+				 const Interval<double>* limitinterval);
+    			/*!<
+			    \param startinterval The interval of x that the
+			    			search will be inited by.
+			    			Note that the search can go
+						outside of this interval.
+			    \param limitinterval Set to true if only solutions
+			    			within the interval is permitted
+			*/
+
+    double		extremePos() const;
+    			/*!<\returns The x value of the extreme value */
+    float		extremeVal() const;
+    			/*!<\returns The extreme value */
+
+    int			nrIter() const;
+    			/*!<\returns The number of iterations */
+
+    int			nextStep();
+    			/*!<Will move the current extremePos one step towards
+			    the solution.
+			    \retval 0	Finished
+			    \retval 1	More to do
+			    \retval -1	Error (no extreme found or
+			   		itermax reached The extreme value)
+			*/
+
+protected:
+    Interval<double>*		limits;
+    int				iter;
+    const double 		tol;
+    const bool			max;
+    const int			itermax;
+
+    Interval<double>		current;
+    double			startfuncval;
+    double			stopfuncval;
+    double			centerfuncval;
+
+    bool			isok;
+    const MathFunction<float>&	func;
 };
 
 

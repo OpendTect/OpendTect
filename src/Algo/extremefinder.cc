@@ -8,13 +8,154 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.8 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.9 2004-05-17 06:31:50 kristofer Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
 #include "mathfunc.h"
 #include <math.h>
 
+BisectionExtremeFinder1D::BisectionExtremeFinder1D(
+		  const MathFunction<float>& func_, bool max_,
+		  int itermax_, double tol_, const Interval<double>& sinterval,
+		  const Interval<double>* linterval )
+    : max( max_ )
+    , func( func_ )
+    , itermax( itermax_ )
+    , tol( tol_ )
+    , limits( 0 )
+{
+    reStart( sinterval, linterval );
+}
+
+
+#define mGetFuncVal(x,variable, retval) \
+funcval = func.getValue(x); \
+if ( mIsUndefined(funcval) ) { isok=false; return retval; } \
+variable = max ? -funcval : funcval
+
+
+
+
+void BisectionExtremeFinder1D::reStart( const Interval<double>& sinterval,
+				        const Interval<double>* linterval )
+{
+    float funcval;
+    if ( linterval )
+    {
+	if ( limits ) *limits = *linterval;
+	else limits = new Interval<double>(*linterval);
+    }
+    else if ( limits )
+    {
+	delete limits;
+	limits = 0;
+    }
+
+//Bracket the interval
+    current = sinterval;
+
+    mGetFuncVal( current.start, startfuncval, );
+    mGetFuncVal( current.stop, stopfuncval, );
+    mGetFuncVal( current.center(), centerfuncval, );
+    const double halfwidth = current.width()/2;
+    while ( centerfuncval>startfuncval || centerfuncval>stopfuncval )
+    {
+	if ( startfuncval<stopfuncval )
+	{
+	    current.start -= halfwidth;
+	    if ( limits && !limits->includes(current.start) )
+	    { isok = false; return; }
+
+	    current.stop -= halfwidth;
+
+	    stopfuncval = centerfuncval;
+	    centerfuncval = startfuncval;
+	    mGetFuncVal( current.start, startfuncval, );
+	}
+	else
+	{
+	    current.stop += halfwidth;
+	    if ( limits && !limits->includes(current.stop) )
+	    { isok = false; return; }
+
+	    current.start += halfwidth;
+
+	    startfuncval = centerfuncval;
+	    centerfuncval = stopfuncval;
+	    mGetFuncVal( current.stop, stopfuncval, );
+	}
+    }
+
+    isok = true;
+    iter = 0;
+}
+
+
+BisectionExtremeFinder1D::~BisectionExtremeFinder1D()
+{
+    delete limits;
+}
+
+
+double BisectionExtremeFinder1D::extremePos() const
+{
+    return current.center();
+}
+
+
+float BisectionExtremeFinder1D::extremeVal() const
+{
+    return max ? -centerfuncval : centerfuncval;
+}
+
+
+int BisectionExtremeFinder1D::nrIter() const
+{
+    return iter;
+}
+
+
+int BisectionExtremeFinder1D::nextStep()
+{
+    if ( !isok ) return -1;
+
+    float funcval;
+    double centerpos = current.center();
+    while ( iter<itermax )
+    {
+	const double width = current.width();
+	const double width_4 = width/4;
+	if ( width<tol )
+	    return 0;
+
+	const double firstquartile = centerpos-width_4;
+	const double lastquartile = centerpos+width_4;
+	mGetFuncVal( firstquartile, float firstquartilefuncval, -1 );
+	mGetFuncVal( lastquartile, float lastquartilefuncval, -1 );
+
+	if ( firstquartilefuncval<lastquartilefuncval )
+	{
+	    current.stop = centerpos;
+	    stopfuncval = centerfuncval;
+	    centerpos = firstquartile;
+	    centerfuncval = firstquartilefuncval;
+	}
+	else
+	{
+	    current.start = centerpos;
+	    startfuncval = centerfuncval;
+	    centerpos = lastquartile;
+	    centerfuncval = lastquartilefuncval;
+	}
+
+        iter++;
+    }
+
+    return -1;
+}
+
+   
 #define TINY 1.0e-25
 #define SHIFT(a, b, c, d ) (a)=(b); (b)=(c); (c)=(d);
 #define SIGN(a,b) ((b) > 0.0 ? fabs(a) : -fabs(a))
