@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.15 2001-05-10 12:50:38 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.16 2001-05-25 14:03:26 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <ranges.h>
 #include <bufstring.h>
+#include <string2.h>
+
 class BinID2Coord;
 
 #define mPrefNumWdt	10
@@ -53,7 +55,6 @@ private:
     inline double	value__( double d )	   { return mUndefValue; }
 };
 
-
 /*! \brief Specification of input characteristics
 
 A DataInpSpec is a conceptual specification of intrinsic properties of data.
@@ -77,7 +78,6 @@ public:
 
     virtual DataInpSpec* clone() const			=0;
     virtual int 	nElems() const			{ return 1; }
-    virtual void	getText( BufferString&, int idx=0 ) const =0;
 
     virtual bool	isUndef( int idx=0 ) const	=0;
 
@@ -85,6 +85,29 @@ public:
     int			prefFldWidth() const		{ return pfw_; }
 
     virtual bool	hasLimits() const		{ return false; }
+
+    virtual const char*	text( int idx=0 ) const		=0;
+    virtual void	setText( const char*, int idx=0)=0;
+
+    virtual int		getIntValue( int idx ) const
+			    { return text(idx) ? atoi( text(idx) ) : 0; }
+    virtual double	getValue( int idx ) const
+			    { return text(idx) ? atof( text(idx) ) : 0; }
+    virtual float	getfValue( int idx ) const
+			    { return text(idx) ? atof( text(idx) ) : 0; }
+    virtual bool	getBoolValue( int idx ) const
+			    { return yesNoFromString( text(idx) ); }
+
+    virtual void	setValue( int i, int idx )
+			    { setText( toString( i ),idx); }
+    virtual void	setValue( double d, int idx )
+			    { setText( toString( d ),idx); }
+    virtual void	setValue( float f, int idx )
+			    { setText( toString( f ),idx); }
+    virtual void	setValue( bool b, int idx )
+			    { setText( toString( b ),idx); }
+
+
 protected:
 
     void		setType( Type t ) { tp_ = t; }
@@ -116,7 +139,6 @@ public:
 			    if ( limits_ ) delete limits_;
 			    limits_ = new Interval<T>( r );
 			}
-
 protected:
 
     const Undef<T>	undef;
@@ -143,22 +165,21 @@ public:
     virtual bool	isUndef( int idx=0 ) const	
 			    { return undef.check(value_); }
 
+    virtual void	setText( const char* s, int idx )
+			    { getFromString( value_, s ); }
+
     T			value() const	
 			{
 			    if ( undef.check(value_) ) return undef.value();
 			    return value_;
 			}
 
-    virtual void	getText( BufferString& dest, int idx ) const
-			{
-			    if ( isUndef() )	dest = "";
-			    else		dest = value();
-			}
+    virtual const char*	text( int idx ) const
+			    { return toString( value() ); }
 
 protected:
 
     T			value_;
-
 }; 
 
 
@@ -204,12 +225,18 @@ public:
 			~NumInpIntervalSpec()	{ delete interval_; }
 
     virtual int 	nElems()  const	{ return hasStep() ? 3 : 2; }
-    bool		hasStep() const	{ return stpi()    ? true : false; }
+    inline bool		hasStep() const	{ return stpi()    ? true : false; }
 
     virtual bool	isUndef( int idx=0 ) const
 			{	
 			    if ( !interval_ ) return true;
 			    return undef.check( value_(idx) ); 
+			}
+
+    virtual void	setText( const char* s, int idx )
+			{ 
+			    if ( pt_value_(idx) ) 
+				getFromString( *pt_value_(idx), s ); 
 			}
 
     T			value( int idx=0 ) const
@@ -219,28 +246,38 @@ public:
 			    return retval;
 			}
 
-    virtual void	getText( BufferString& dest, int idx ) const
+    virtual const char*	text( int idx ) const
 			{
-			    if ( isUndef() )	dest = "";
-			    else		dest = value(idx);
+			    if ( isUndef(idx) )	return "";
+			    else		return toString( value(idx) );
 			}
 
 protected:
 
     T			value_( int idx=0 ) const
 			{
-			    if ( !interval_ )	return undef.value();
-			    if ( idx == 0 )	return interval_->start;
-			    if ( idx == 1 )	return interval_->stop;
-			    if ( hasStep() )	return stpi()->step; 
+			    if ( pt_value_(idx) ) return *pt_value_(idx);
 			    return undef.value();
 			}
 
+    T*			pt_value_( int idx=0 ) const
+			{
+			    if ( !interval_ )	return 0;
+			    if ( idx == 0 )	return &interval_->start;
+			    if ( idx == 1 )	return &interval_->stop;
+			    if ( hasStep() )	return &stpi()->step; 
+			    return 0;
+			}
 
     StepInterval<T>*	stpi() const
 			{ return dynamic_cast< StepInterval<T>* > (interval_);}
 
     Interval<T>*	interval_;
+
+private:
+
+    BufferString	value__;
+
 }; 
 
 
@@ -282,12 +319,12 @@ public:
 
     virtual DataInpSpec* clone() const	{ return new StringInpSpec( *this ); }
     const char*		text() const			{ return str; }
-    void		setText( const char* txt )	{ str = txt; }
 
-    virtual void	getText( BufferString& dest, int idx ) const
+    virtual void	setText( const char* s, int idx ) { str = s; }
+    virtual const char*	text( int idx ) const
 			{
-			    if ( isUndef() )	dest = "";
-			    else		dest = str;
+			    if ( isUndef() )	return "";
+			    else		return (const char*) str;
 			}
 protected:
 
@@ -341,8 +378,14 @@ public:
 
     bool		checked() const			{ return yn; }
     void		setChecked( bool yesno )	{ yn=yesno; }
-    virtual void	getText( BufferString& dest, int idx ) const
-			    { dest = yn ? truetext : falsetext; }
+    virtual const char*	text( int idx ) const
+			{ 
+			    return yn ? (const char*) truetext 
+				      : (const char*) falsetext; 
+			}
+
+    virtual void	setText( const char* s, int idx )
+			    { getFromString( yn, s ); }
 
 protected:
 
@@ -381,11 +424,14 @@ public:
     const ObjectSet<BufferString>& strings() const	{ return strings_; }
     void			addString( const char* txt )
 				    { strings_ += new BufferString( txt ); }
-    virtual void		getText( BufferString& dest, int idx ) const
-				{
-				    if ( isUndef() )	dest = "";
-				    else		dest = *strings_[idx];
-				}
+
+    virtual const char*		text( int idx ) const
+				    {
+					if ( isUndef() ) return "";
+					else return (const char*)*strings_[idx];
+				    }
+    virtual void		setText( const char* s, int idx ) 
+				    { if ( strings_[idx] ) *strings_[idx] = s; }
 
 protected:
 
@@ -415,6 +461,9 @@ public:
 
     virtual DataInpSpec* clone() const  
 			{ return new BinIDCoordInpSpec( *this ); }
+
+    virtual int 	nElems()  const	{ return 2; }
+
     double		value( int idx ) const { return idx ? crl_y : inl_x; }
     virtual bool	isUndef( int idx=0 ) const		
 			{ 
@@ -422,11 +471,14 @@ public:
 			    return idx ? mIsUndefined( crl_y )
 				       : mIsUndefined( inl_x );
 			}
-    virtual void	getText( BufferString& dest, int idx ) const
+    virtual const char*	text( int idx ) const
 			{
-			    if ( isUndef() )	dest = "";
-			    else		dest = value( idx );
+			    if ( isUndef() )	return "";
+			    else		return toString( value(idx) );
 			}
+    virtual void	setText( const char* s, int idx ) 
+			    { getFromString( (idx ? crl_y : inl_x), s); }
+
     const char*		otherTxt() const
 			{
 			    if ( !withOtherBut_ ) return 0;
@@ -445,7 +497,6 @@ protected:
     bool		isRelative_;
     bool		withOtherBut_;
     const BinID2Coord*	b2c_;
-
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef string2_H
-#define string2_H
+#ifndef string2_H_
+#define string2_H_
 
 /*@+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: string2.h,v 1.5 2001-05-25 14:03:25 arend Exp $
 ________________________________________________________________________
 -*/
 
@@ -71,6 +71,21 @@ int		yesNoFromString(const char*);
 
 #ifdef __cpp__
 }
+#include <stdlib.h>
+inline const char* toString( double d )	{ return getStringFromDouble(0, d ); }
+inline const char* toString( int i )	{ return getStringFromInt(0, i ); }
+inline const char* toString( float f )	{ return getStringFromFloat(0, f ); }
+inline const char* toString( bool b )	{ return getYesNoString( b ); }
+
+inline void getFromString( double& d, const char* s )
+    { if ( s ) d = atof( s ); else d = mUndefValue; }
+inline void getFromString( float& f, const char* s )
+    { if ( s ) f = atof( s ); else f = mUndefValue; }
+inline void getFromString( int& i, const char* s )
+    { if ( s ) i = atoi( s ); else i = mUndefIntVal; }
+inline void getFromString( bool& b, const char* s )
+    { if ( s ) b = yesNoFromString( s );else s= false; }
+
 #endif
 
 
