@@ -1,7 +1,7 @@
 #---------------------------------------------------------
 # Author: dGB Earth Sciences ( A.H.Bril )
 # Pmake Environment bash initialization shell script
-# $Id: PMinit.sh,v 1.4 2003-10-08 15:18:12 bert Exp $
+# $Id: PMinit.sh,v 1.5 2003-11-25 16:27:52 arend Exp $
 #---------------------------------------------------------
 
 if [ "$PMAKE" = "" ]; then
@@ -20,7 +20,7 @@ PMAKECOMMAND='$GNUMAKE -I$WORK/Pmake -I$PMAKE'
 export PMAKECOMMAND
 alias make="$PMAKECOMMAND"
 
-alias wdir='setenv WORK `pwd`'
+alias wdir='export WORK=`pwd`'
 alias cdw='cd $WORK'
 
 _pmake_dbg_dir_=G
