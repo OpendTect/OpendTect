@@ -5,7 +5,7 @@
  * FUNCTION : Create extra picks from locations file
 -*/
 
-static const char* rcsID = "$Id: extend_locs.cc,v 1.1 2000-01-12 16:51:35 bert Exp $";
+static const char* rcsID = "$Id: extend_locs.cc,v 1.2 2002-10-23 11:48:28 dgb Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -56,19 +56,19 @@ int main( int argc, char** argv )
 	if ( instrm.eof() || !bid.inl ) break;
 	SI().snap( bid, BinID(0,0) );
 	outstrm << bid.inl << '\t' << bid.crl << '\t' << timeval <<'\n';
-	bid.inl -= SI().step().inl;
+	bid.inl -= SI().inlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
 		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
-	bid.inl += SI().step().inl;
-	bid.crl -= SI().step().crl;
+	bid.inl += SI().inlStep();
+	bid.crl -= SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
 		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
-	bid.inl += SI().step().inl;
-	bid.crl += SI().step().crl;
+	bid.inl += SI().inlStep();
+	bid.crl += SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
 		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
-	bid.inl -= SI().step().inl;
-	bid.crl += SI().step().crl;
+	bid.inl -= SI().inlStep();
+	bid.crl += SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
 		<< timeval + (Stat_getRandom()-.5)*20 <<'\n';
     }
