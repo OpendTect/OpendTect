@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.41 2004-01-09 10:20:58 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.42 2004-01-09 12:05:30 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -1328,7 +1328,21 @@ BufferString EM::SurfaceRelation::getPositiveText() const
 {
     BufferString res = " on the ";
     if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
-	res += "positive side";
+    {
+	Coord3 normal;
+	BufferString buff;
+	mDynamicCastGet( EM::Surface*, surf,
+			 EM::EMM().getObject(cuttingsurface) );
+	if ( surf && surf->computeNormal(normal) &&
+	     getDirectionStr(normal,buff))
+	{
+	    res += buff;
+	    res += "ern";
+	}
+	else
+	    res += "positive";
+        res += " side";
+    }
     else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
 	res += "bottom";
 
@@ -1340,7 +1354,21 @@ BufferString EM::SurfaceRelation::getNegativeText() const
 {
     BufferString res = " on the ";
     if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
-	res += "negative side";
+    {
+	Coord3 normal;
+	BufferString buff;
+	mDynamicCastGet( EM::Surface*, surf,
+			 EM::EMM().getObject(cuttingsurface) );
+	if ( surf && surf->computeNormal(normal) &&
+	     getDirectionStr(-normal,buff))
+	{
+	    res += buff;
+	    res += "ern";
+	}
+	else
+	    res += "negative";
+        res += " side";
+    }
     else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
 	res += "top";
 
