@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.31 2004-04-27 11:59:36 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.32 2004-04-28 10:54:38 nanne Exp $
 ________________________________________________________________________
 
 
@@ -102,8 +102,8 @@ public:
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
 
-    Notifier<VolumeDisplay>	slicemoving;
-
+    virtual NotifierAccess*     getMovementNotification() 
+    				{ return &slicemoving; }
 
 protected:
 				~VolumeDisplay();
@@ -137,6 +137,7 @@ protected:
     static const char* 		crosslineshowstr;
     static const char* 		timeshowstr;
 
+    Notifier<VolumeDisplay>	slicemoving;
 };
 
 };
