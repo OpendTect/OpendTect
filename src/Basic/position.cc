@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.30 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.31 2003-11-24 08:33:09 kristofer Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -73,6 +73,9 @@ bool Coord::use( const char* str )
     y = atof( ptr );
     return true;
 }
+
+
+double Coord3::abs() const { return sqrt( x*x + y*y + z*z ); }
 
 
 void Coord3::fill(char* str, const char* start,
@@ -900,52 +903,6 @@ bool BinIDTable::setAnnot( int ifind, const char* s )
     }
     return false;
 }
-
-
-bool Coord3::operator==( const Coord3& b ) const
-{ 
-    const float dx = x-b.x; const float dy = y-b.y; const float dz = z-b.z;
-    return mIS_ZERO(dx) && mIS_ZERO(dy) && mIS_ZERO(dz);
-}
-
-
-bool Coord3::operator!=( const Coord3& b ) const
-{
-    return !(b==*this);
-}
-
-
-bool Coord3::isDefined() const
-{
-    return !mIsUndefined(x) && !mIsUndefined(y) && !mIsUndefined(z);
-}
-
-
-Coord3 Coord3::operator+( const Coord3& p ) const
-{
-    return Coord3( x+p.x, y+p.y, z+p.z );
-}
-
-
-Coord3 Coord3::operator-( const Coord3& p ) const
-{
-    return Coord3( x-p.x, y-p.y, z-p.z );
-}
-
-
-Coord3& Coord3::operator+=( const Coord3& p )
-{
-    x += p.x; y += p.y; z += p.z;
-    return *this;
-}
-
-
-Coord3& Coord3::operator-=( const Coord3& p )
-{
-    x -= p.x; y -= p.y; z -= p.z;
-    return *this;
-}
-
 
 double Coord3::distance( const Coord3& b ) const
 {
