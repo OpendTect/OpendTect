@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.6 2001-05-31 14:09:15 windev Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.7 2001-06-28 10:42:47 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -464,6 +464,8 @@ float SegyTraceheader::postScale( int numbfmt ) const
 
 void SegyTraceheader::fill( SeisTrcInfo& ti ) const
 {
+    static bool shortbid = getenv("dGB_SEGY_SHORT_BINID") ? true : false;
+
     ti.nr = IbmFormat::asInt( buf+0 );
     ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * .001;
     ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * 1.e-6;
@@ -473,8 +475,16 @@ void SegyTraceheader::fill( SeisTrcInfo& ti ) const
     if ( hdef.xcoord != 255 ) ti.coord.x = IbmFormat::asInt( buf+hdef.xcoord-1);
     if ( hdef.ycoord != 255 ) ti.coord.y = IbmFormat::asInt( buf+hdef.ycoord-1);
     ti.binid.inl = ti.binid.crl = 0;
+    if ( shortbid )
+    {
+    if ( hdef.inl != 255 ) ti.binid.inl = IbmFormat::asShort( buf+hdef.inl-1 );
+    if ( hdef.crl != 255 ) ti.binid.crl = IbmFormat::asShort( buf+hdef.crl-1 );
+    }
+    else
+    {
     if ( hdef.inl != 255 ) ti.binid.inl = IbmFormat::asInt( buf+hdef.inl-1 );
     if ( hdef.crl != 255 ) ti.binid.crl = IbmFormat::asInt( buf+hdef.crl-1 );
+    }
     ti.offset = IbmFormat::asInt( buf+36 );
 
     short scalco = IbmFormat::asShort( buf+70 );
