@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.24 2002-07-26 16:23:38 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.25 2002-08-05 11:11:10 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -528,4 +528,12 @@ const char* File_linkTarget( const char* fname )
     static FileNameString pathbuf;
     return File_isLink(fname) && readlink(fname,pathbuf,256) != -1
 	 ? pathbuf : fname;
+}
+
+
+const char* File_getCurrentDir()
+{
+    static FileNameString pathbuf;
+    getcwd( pathbuf, PATH_LENGTH );
+    return pathbuf;
 }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.8 2002-03-15 14:14:04 bert Exp $
+ RCS:		$Id: filegen.h,v 1.9 2002-08-05 11:11:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ const char*	File_getBaseName(const char* filename);
 		/* returns all extensions and path prefixes removed */
 const char*	File_linkTarget(const char* linkname);
 		/* returns what a symbolic link points to */
+const char*	File_getCurrentDir();
 
 
 #ifdef __cpp__
