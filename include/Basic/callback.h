@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.16 2001-05-11 20:29:35 bert Exp $
+ RCS:		$Id: callback.h,v 1.17 2001-07-17 15:25:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,13 +178,24 @@ would result in the availability of:
     T var = cb##caps->data
 
 
-/*!\brief implementation class for Notifier */
+/*!\brief interface class for Notifier */
 
-class i_Notifier
+class NotifierAccess
 {
 public:
 
-    void		notify( const CallBack& cb )	{ cbs += cb; }
+    virtual void	notify(const CallBack&)		=0;
+
+};
+
+
+/*!\brief implementation class for Notifier */
+
+class i_Notifier : public NotifierAccess
+{
+public:
+
+    virtual void	notify( const CallBack& cb )	{ cbs += cb; }
 
 protected:
 
