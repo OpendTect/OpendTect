@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.18 2003-10-17 14:19:01 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.19 2003-10-22 12:37:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class TranslatorGroup;
 /*!\brief Holds the context for selecting and/or creating IOObjs.
 
 Usually, this objects is obtained by calling the ioContext() method of
-a certain Translator group.
+a certain TranslatorGroup.
 
 */
 
@@ -32,7 +32,7 @@ class IOObjContext : public UserIDObject
 {
 public:
 
-    enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NN, Misc, Attr, Mdl,
+    enum StdSelType	{ Seis=0, Surf, Loc, Feat, WllInf, NLA, Misc, Attr, Mdl,
 			  None };
 			DeclareEnumUtils(StdSelType)
 

@@ -1,6 +1,6 @@
-dGB-GDI V2.7
+dTect V1.0
 Object Management file
-Fri Jul 23 17:00:24 1999
+Wed Oct 22 14:00:22 2003
 !
 ID: 0
 !
@@ -14,7 +14,7 @@ ID: 0
 !
 @100050: WellInfo
 !
-@100060: NNs
+@100060: NLAs
 !
 @100070: Misc
 !

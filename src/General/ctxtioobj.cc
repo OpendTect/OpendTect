@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.16 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.17 2003-10-22 12:37:10 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -36,7 +36,7 @@ static const IOObjContext::StdDirData stddirdata[] = {
 	{ "100030", "Locations", IOObjContext::StdSelTypeNames[2] },
 	{ "100040", "Features", IOObjContext::StdSelTypeNames[3] },
 	{ "100050", "WellInfo", IOObjContext::StdSelTypeNames[4] },
-	{ "100060", "NNs", IOObjContext::StdSelTypeNames[5] },
+	{ "100060", "NLAs", IOObjContext::StdSelTypeNames[5] },
 	{ "100070", "Misc", IOObjContext::StdSelTypeNames[6] },
 	{ "100080", "Attribs", IOObjContext::StdSelTypeNames[7] },
 	{ "100090", "Models", IOObjContext::StdSelTypeNames[8] },
@@ -99,7 +99,9 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
     BufferString dirnm = File_getFullPath( datadirnm, sdd->dirnm );
     if ( !File_exists(dirnm) )
     {
-	if ( sst == IOObjContext::Surf )
+	if ( sst == IOObjContext::NLA )
+	    dirnm = File_getFullPath( datadirnm, "NNs" );
+	else if ( sst == IOObjContext::Surf )
 	    dirnm = File_getFullPath( datadirnm, "Grids" );
 	else if ( sst == IOObjContext::Loc )
 	    dirnm = File_getFullPath( datadirnm, "Wavelets" );
@@ -152,10 +154,13 @@ void IOObjContext::fillTrGroup()
 	mCase(Loc,"PickSet Group");
 	mCase(Feat,"Feature set");
 	mCase(WllInf,"Well");
-	mCase(NN,"Neural network");
-	mCase(Misc,"Session setup");
 	mCase(Attr,"Attribute definitions");
+	mCase(Misc,"Session setup");
 	mCase(Mdl,"EarthModel");
+	case IOObjContext::NLA
+	    trgroup = &TranslatorGroup::getGroup( "NonLinear Analysis", true );
+	    if ( trgroup->userName() == "" )
+	    trgroup = &TranslatorGroup::getGroup( "Neural network", true );
 	default:
 	    trgroup = &TranslatorGroup::getGroup( "Seismic Data", true );
 	break;
