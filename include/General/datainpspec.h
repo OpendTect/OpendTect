@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.27 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.28 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,9 @@ ________________________________________________________________________
 #include <ranges.h>
 #include <bufstring.h>
 #include <string2.h>
+#include <sizepolspec.h>
 
 class BinID2Coord;
-
-#define mPrefNumWdt	-1
-#define mUndefWdt	-1	
 
 /*! \brief handles undefined-ness of variables
 
@@ -61,7 +59,7 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-class DataInpSpec
+class DataInpSpec : public SzPolicySpec
 {
 public:
 
@@ -69,8 +67,7 @@ public:
 			       intIntervalTp, floatIntervalTp, doubleIntervalTp,
 			       binIDCoordTp, stringTp, fileNmTp, stringListTp };
 
-			DataInpSpec( Type t , int prefFldWdt )
-			    : tp_(t), pfw_(prefFldWdt) {}
+			DataInpSpec( Type t )	: tp_(t), pfw_(-1) {}
 
     virtual		~DataInpSpec() {}
 
@@ -81,7 +78,8 @@ public:
 
     virtual bool	isUndef( int idx=0 ) const	=0;
 
-    void		setPrefFldWidth( int w )	{ pfw_=w; }
+			//! Preferred field width in characters
+    DataInpSpec&	forcePrefFldWidth( int w )	{ pfw_=w; return *this;}
     int			prefFldWidth() const		{ return pfw_; }
 
     virtual bool	hasLimits() const		{ return false; }
@@ -124,7 +122,7 @@ class NumInpWithLimitsSpec : public DataInpSpec
 {
 public:
 			NumInpWithLimitsSpec(DataInpSpec::Type t ) 
-			    : DataInpSpec( t, mPrefNumWdt ) , limits_(0) {}
+			    : DataInpSpec( t ) , limits_(0) {}
 			NumInpWithLimitsSpec( const NumInpWithLimitsSpec<T>& o )
 			    : DataInpSpec( o ) 
 			    , limits_( o.limits_?new Interval<T>(*o.limits_):0 )
@@ -345,7 +343,7 @@ class StringInpSpec : public DataInpSpec
 {
 public:
 			StringInpSpec( const char* s=0 )
-			    : DataInpSpec( stringTp, mUndefWdt )
+			    : DataInpSpec( stringTp )
 			    , isUndef_(s?false:true), str( s ) {}
 
     virtual bool	isUndef( int idx=0 ) const	{ return isUndef_; }
@@ -397,7 +395,7 @@ class BoolInpSpec : public DataInpSpec
 public:
 			BoolInpSpec( const char* truetxt="Yes"
 				, const char* falsetxt="No" , bool yesno=true )
-			    : DataInpSpec( boolTp, mUndefWdt )
+			    : DataInpSpec( boolTp )
 			    , truetext( truetxt ), falsetext( falsetxt )
 			    , yn( yesno ) {}
 
@@ -442,7 +440,7 @@ class StringListInpSpec : public DataInpSpec
 {
 public:
 				StringListInpSpec( const char** sl=0 )
-				    : DataInpSpec( stringListTp, mUndefWdt )
+				    : DataInpSpec( stringListTp )
 				    , cur_(0)
 				{
 				    if ( !sl ) return;
@@ -451,7 +449,7 @@ public:
 				}
 
 				StringListInpSpec( const StringListInpSpec& oth)
-				    : DataInpSpec( stringListTp, mUndefWdt )
+				    : DataInpSpec( stringListTp )
 				    , cur_(oth.cur_)
 				    { deepCopy( strings_, oth.strings_ ); }
 
@@ -513,9 +511,9 @@ public:
 					 , bool isRelative=false
 					 , double inline_x = mUndefValue
 					 , double crossline_y = mUndefValue
-					 , bool withOtherBut=true
+					 , bool withOtherBut=false
 					 , const BinID2Coord* b2c=0 )
-			    : DataInpSpec( binIDCoordTp, mPrefNumWdt )
+			    : DataInpSpec( binIDCoordTp )
 			    , withOtherBut_( withOtherBut )
 			    , inl_x( inline_x )
 			    , crl_y( crossline_y )

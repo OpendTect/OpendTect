@@ -24,7 +24,8 @@ public:
 				( handle, parnt,nm)
 			    { 
 				setStretch( 1, 0 );
-				setTxtPol( uiObject::medvar ); 
+				setSzPol( SzPolicySpec().setHSzP( 
+						    SzPolicySpec::medvar) );
 			    }
 
     virtual int 	nrTxtLines() const				{ return 1; }

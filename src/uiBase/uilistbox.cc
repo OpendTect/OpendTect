@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.31 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.32 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 {
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
     setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
-    setTxtPol( uiObject::medium );
+    setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium) );
 }
 
 

@@ -21,9 +21,7 @@ public:
                         uiLabelBody(uiLabel& handle, uiParent* parnt,
 				    const char* txt )
 			    : uiObjBodyImpl<uiLabel,QLabel>( handle, parnt,txt )
-			    {
-				setTxtPol( uiObject::variable );
-			    }
+			    {}
 
     virtual int 	nrTxtLines() const		
 			{ 

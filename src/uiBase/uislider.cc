@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.6 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uislider.cc,v 1.7 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
     , messenger_ ( *new i_SliderMessenger( this, &handle ))
 {
     setStretch( 1, 0 );
-    setTxtPol( uiObject::medium ); 
+    setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium) );
 }
 
 

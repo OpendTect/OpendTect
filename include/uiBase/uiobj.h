@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.18 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.19 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uilayout.h"
 #include "color.h"
 #include "errh.h"
+#include <sizepolspec.h>
 
 #include <stdlib.h>
 
@@ -42,10 +43,8 @@ public:
 			uiObject( uiParent* p, const char* nm, uiObjectBody& );
 			~uiObject()			{}
 
-    enum		txtPolicy{ none, small, medium, 
-				   smallvar, medvar, variable };
-    void		setTxtPol( txtPolicy );
-    txtPolicy		txtPol() const;
+    void		setSzPol( const SzPolicySpec& );
+    SzPolicySpec	szPol() const;
 
     void		setToolTip(const char*);
     static void		enableToolTips(bool yn=true);

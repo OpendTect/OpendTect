@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.11 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.12 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,9 +142,8 @@ public:
 					return max ? fnt_maxwdt : fnt_wdt; 
 				    }
 
-    void			setTxtPol( uiObject::txtPolicy p )
-							{ txt_pol = p; }
-    uiObject::txtPolicy		txtPol() const		{ return txt_pol; }
+    void			setSzPol( const SzPolicySpec& p ) { szpol = p; }
+    SzPolicySpec		szPol() const		{ return szpol; }
 
     void			setShrinkAllowed( bool yn ) { allowshrnk = yn; }
     bool			shrinkAllowed()		{ return allowshrnk; }
@@ -194,7 +193,7 @@ private:
     int				fnt_maxwdt;
     QFontMetrics*		fm;
 
-    uiObject::txtPolicy		txt_pol;
+    SzPolicySpec		szpol;
 
     void                	gtFntWdtHgt() const;
     void			getSzHint();

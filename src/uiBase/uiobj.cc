@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.24 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.25 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,11 +119,11 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
 }
 
 
-void uiObject::setTxtPol( txtPolicy p )
-    { mBody()->setTxtPol(p); }
+void uiObject::setSzPol( const SzPolicySpec& p )
+    { mBody()->setSzPol(p); }
 
-uiObject::txtPolicy uiObject::txtPol() const
-    { return mConstBody()->txtPol(); }
+SzPolicySpec uiObject::szPol() const
+    { return mConstBody()->szPol(); }
 
 void uiObject::setToolTip(const char* t)
     { mBody()->setToolTip(t); }
@@ -270,7 +270,6 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , fnt_wdt( 0 )
     , fnt_maxwdt( 0 )
     , fm( 0 )
-    , txt_pol( uiObject::none )
 #ifdef USE_DISPLAY_TIMER
     , displTim( *new Timer("Display timer"))
 { 
@@ -427,14 +426,18 @@ int uiObjectBody::prefHNrPics() const
 	{ 
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
+	    const int baseFldSz = 10; // TODO : to user settings.
+
 	    int pwc=0;
 	    bool var=false; 
-	    switch( txtPol() )
+	    switch( szPol().hSzPol() )
 	    {
-		case uiObject::small:		pwc=10; break;
-		case uiObject::medium:		pwc=21; break;
-		case uiObject::smallvar:	pwc=10; var=true; break;
-		case uiObject::medvar:		pwc=21; var=true; break;
+		case SzPolicySpec::small:    pwc=baseFldSz;     break;
+		case SzPolicySpec::medium:   pwc=2*baseFldSz+1; break;
+		case SzPolicySpec::wide:     pwc=4*baseFldSz+3; break;
+		case SzPolicySpec::smallvar: pwc=baseFldSz;     var=true; break;
+		case SzPolicySpec::medvar:   pwc=2*baseFldSz+1; var=true; break;
+		case SzPolicySpec::widevar:  pwc=4*baseFldSz+3; var=true; break;
 	    }
 
 	    if( !pwc )

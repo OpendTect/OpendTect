@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.12 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.13 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ public:
 			    , idInGroup( 0 )		
 			    { 
 				setText(txt); 
-				setTxtPol( uiObject::smallvar );
+				setSzPol( SzPolicySpec().setHSzP(
+						    SzPolicySpec::smallvar) );
 			    }
 
 			uiButtonTemplBody(uiButton& handle, 
@@ -56,7 +57,8 @@ public:
 			    , idInGroup( 0 )		
 			    { 
 				setText(txt); 
-				setTxtPol( uiObject::smallvar );
+				setSzPol( SzPolicySpec().setHSzP(
+						    SzPolicySpec::smallvar) );
 			    }
 
 #define mHANDLE_OBJ	uiButton

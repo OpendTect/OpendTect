@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.34 2002-01-09 15:42:29 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.35 2002-01-10 11:14:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,10 +112,15 @@ protected:
 				for( int idx=0; idx<nElems(); idx++ )
 				    element(idx).setPrefWidthInChar( pw );
 			    }
-			    else if( nElems() > 1 )
+			    else
 			    {
+				if( spec_.hSzPol()==SzPolicySpec::undef )
+				    spec_.setHSzP( nElems()>1 
+							? SzPolicySpec::small 
+							: SzPolicySpec::medium);
+
 				for( int idx=0; idx<nElems(); idx++ )
-				    element(idx).setTxtPol( uiObject::small );
+				    element(idx).setSzPol(spec_);
 			    } 
 			}
 };
