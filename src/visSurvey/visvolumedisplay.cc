@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.9 2002-11-13 10:42:25 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.10 2002-11-14 13:05:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
-const char* visSurvey::VolumeDisplay::volumestr = "Volume dragger";
+const char* visSurvey::VolumeDisplay::volumestr = "Cube ID";
 
 visSurvey::VolumeDisplay::VolumeDisplay()
     : VisualObject(true)
@@ -41,10 +41,10 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , manipulated(false)
     , slicemoving(this)
 {
-    cube->ref();
     selection()->notify( mCB(this,VolumeDisplay,select));
     deSelection()->notify( mCB(this,VolumeDisplay,deSelect));
 
+    cube->ref();
     cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
     cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
 
@@ -58,7 +58,6 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     SI().snap( prevcs.hrg.stop, BinID(0,0) );
     setCubeSampling( prevcs );
 
-    cube->showBox( true );
     inlid = cube->addSlice( 0 );
     crlid = cube->addSlice( 1 );
     tslid = cube->addSlice( 2 );
@@ -70,6 +69,8 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
     selection()->remove( mCB(this,VolumeDisplay,select));
     deSelection()->remove( mCB(this,VolumeDisplay,deSelect));
 
+    cube->dragger()->motion.remove( mCB(this,VolumeDisplay,manipInMotion) );
+    cube->dragger()->finished.remove( mCB(this,VolumeDisplay,manipFinished) );
     cube->unRef();
 
     delete &as;
@@ -326,9 +327,17 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     mDynamicCastGet(visBase::CubeView*,cv,dataobj);
     if ( !cv ) return -1;
 
+    cube->dragger()->motion.remove( mCB(this,VolumeDisplay,manipInMotion) );
+    cube->dragger()->finished.remove( mCB(this,VolumeDisplay,manipFinished) );
     cube->unRef();
     cube = cv;
     cube->ref();
+    cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
+    cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
+
+    inlid = cube->addSlice( 0 );
+    crlid = cube->addSlice( 1 );
+    tslid = cube->addSlice( 2 );
 
     if ( !as.usePar( par )) return -1;
 
