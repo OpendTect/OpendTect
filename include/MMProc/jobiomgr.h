@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.3 2004-11-05 12:19:20 arend Exp $
+ RCS:		$Id: jobiomgr.h,v 1.4 2004-11-05 12:41:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,15 @@ class FilePath;
 class JobIOHandler;
 template <class T> class ObjQueue;
 
+/*!\brief Encapsulates status message from a running client.
+ *
+ * Running clients report back to the master on a regular basis.
+ * Whenever a client contacts the master, whatever it has
+ * to say is put into a StatusInfo structure.
+ * These are put in a mutexed queue in order to keep a strict separation
+ * between the communication thread and the GUI/manager thread.
+ *
+*/
 class StatusInfo
 {
 public:
