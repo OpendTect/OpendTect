@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.6 2003-10-20 07:18:00 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.7 2003-10-30 12:24:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iostrm.h"
 #include "ctxtioobj.h"
+#include "wellman.h"
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
@@ -44,9 +45,9 @@ static const int grpwidth = 75;
 
 
 uiWellMan::uiWellMan( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Surface file management",
+    : uiDialog(p,uiDialog::Setup("Well file management",
 				 "Manage wells",
-				 "").nrstatusflds(1))
+				 "107.1.0").nrstatusflds(1))
     , ctio(*mMkCtxtIOObj(Well))
 {
     IOM().to( ctio.ctxt.stdSelKey() );
@@ -105,7 +106,8 @@ uiWellMan::~uiWellMan()
 void uiWellMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
-    ctio.ioobj = entrylist->selected();
+    const IOObj* selioobj = entrylist->selected();
+    ctio.setObj( selioobj ? selioobj->clone() : 0 );
 
     mkFileInfo();
     manipgrp->selChg( cb );
@@ -151,12 +153,14 @@ void uiWellMan::addMarkers( CallBacker* )
     rdr.getMarkers();
     uiMarkerDlg dlg( this );
     dlg.setMarkerSet( well->markers() );
-    if ( dlg.go() )
-    {
-	dlg.getMarkerSet( well->markers() );
-	Well::Writer wtr( conn->fileName(), *well );
-	wtr.putMarkers();
-    }
+    if ( !dlg.go() ) return;
+
+    dlg.getMarkerSet( well->markers() );
+    Well::Writer wtr( conn->fileName(), *well );
+    wtr.putMarkers();
+    const MultiID& key = ctio.ioobj->key();
+    if ( Well::MGR().isLoaded(key) )
+	Well::Data* nw = Well::MGR().get(key,true); 
 }
 
 
@@ -168,12 +172,14 @@ void uiWellMan::addLogs( CallBacker* )
 
     rdr.getLogs();
     uiLoadLogsDlg dlg( this, *well );
-    if ( dlg.go() )
-    {
-	Well::Writer wtr( conn->fileName(), *well );
-	wtr.putLogs();
-	fillLogsFld();
-    }
+    if ( !dlg.go() ) return;
+
+    Well::Writer wtr( conn->fileName(), *well );
+    wtr.putLogs();
+    fillLogsFld();
+    const MultiID& key = ctio.ioobj->key();
+    if ( Well::MGR().isLoaded(key) )
+	Well::Data* nw = Well::MGR().get(key,true); 
 }
 
 
@@ -198,6 +204,10 @@ void uiWellMan::removeLogPush( CallBacker* )
 	wtr.putLogs();
 	fillLogsFld();
     }
+
+    const MultiID& key = ctio.ioobj->key();
+    if ( Well::MGR().isLoaded(key) )
+	Well::Data* nw = Well::MGR().get(key,true); 
 }
 
 
