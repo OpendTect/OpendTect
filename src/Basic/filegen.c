@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.14 2001-11-15 15:37:02 windev Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.15 2002-03-15 14:13:53 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -452,4 +452,41 @@ int File_makeWritable( const char* fname, int recursive, int yn )
     return system( cmd ) != -1 ? YES : NO;
 
 #endif
+}
+
+
+int File_isLink( const char* fname )
+{
+#ifdef __win__
+    return NO;
+#else
+    return fname && lstat(fname,&statbuf) >= 0 && S_ISLNK(statbuf.st_mode)
+	 ? YES : NO;
+#endif
+}
+
+
+int File_createLink( const char* from, const char* to )
+{
+#ifdef __win__
+    return NO;
+#else
+    FileNameString cmd;
+    if ( !from || !to || !*from || !*to ) return NO;
+
+    strcpy( cmd, "ln -s " );
+    strcat( cmd, from );
+    strcat( cmd, " " );
+    strcat( cmd, to );
+    if ( system( cmd ) == -1 ) return -1;
+    return File_isLink( to );
+#endif
+}
+
+
+const char* File_linkTarget( const char* fname )
+{
+    static FileNameString pathbuf;
+    return File_isLink(fname) && readlink(fname,pathbuf,256) != -1
+	 ? pathbuf : fname;
 }

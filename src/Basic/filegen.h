@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.7 2001-06-02 15:33:18 bert Exp $
+ RCS:		$Id: filegen.h,v 1.8 2002-03-15 14:14:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,8 @@ extern "C" {
 /*!
 These functions deliver services related to files. In principle, they shield
 from knowledge of the OS, and could so also be used on non-UNIX platforms.
-Only UNIX is currently fully implemented, most notably recursive copy and
-remove are lacking on windows.
+Only UNIX is currently fully implemented, most notably recursive copy/remove
+and links are lacking on windows.
 */
 
 /*! Functions returning YES/true on success */
@@ -43,6 +43,8 @@ int	File_rename(const char* oldname,const char* newname);
 int	File_copy(const char* from,const char* to,int recursive_downward);
 int	File_remove(const char*,int force,int recursive_downward);
 int	File_makeWritable(const char*,int recursive,int yesno);
+int	File_isLink(const char*);
+int	File_createLink(const char* from,const char* to);
 
 /*!
 The following functions return a pointer to the same static buffer, meaning you
@@ -56,6 +58,8 @@ const char*	File_getTempFileName(const char* id_unique_for_process,
 const char*	File_getSimpleTempFileName(const char* extension);
 const char*	File_getBaseName(const char* filename);
 		/* returns all extensions and path prefixes removed */
+const char*	File_linkTarget(const char* linkname);
+		/* returns what a symbolic link points to */
 
 
 #ifdef __cpp__
