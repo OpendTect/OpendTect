@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: iodraw.cc,v 1.4 2001-10-30 15:29:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ void ioDrawTool::drawText ( int x, int y, const char* txt, Alignment al,
     {
 	if( 4*(wdt - overshoot) >=  wdt )
 	    xx -= overshoot;
-	else return;
+//	else return;
     }
     if( xx < 0 )
     {
@@ -101,7 +101,7 @@ void ioDrawTool::drawText ( int x, int y, const char* txt, Alignment al,
     {
 	if( (hgt - overshoot)*4 >= hgt )
 	    yy -= overshoot;
-	else return;
+//	else return;
     }
     if( yy < hgt )
     {
