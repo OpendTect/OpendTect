@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.1 2005-01-06 09:45:32 kristofer Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.2 2005-01-13 09:38:51 kristofer Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -26,7 +26,7 @@ CubicBezierSurface::CubicBezierSurface(const Coord3& p0, const Coord3& p1,
     , rowdirections( 0 )
     , coldirections( 0 )
 {
-     if ( !p0.isDefined() || p1.isDefined() )
+     if ( !p0.isDefined() || !p1.isDefined() )
 	 pErrMsg("Cannot start surface with undefined positions" );
      else
      {
@@ -121,7 +121,7 @@ Coord3 CubicBezierSurface::getKnot( const RCol& rc ) const
     return positions->getData()[index];
 }
 
-#define getDirectionImpl( dirptr, compfunc ) \
+#define mGetDirectionImpl( dirptr, compfunc ) \
     if ( dirptr ) \
     { \
 	const int index = getIndex(rc); \
@@ -138,7 +138,7 @@ Coord3 CubicBezierSurface::getKnot( const RCol& rc ) const
 Coord3 CubicBezierSurface::getRowDirection( const RCol& rc,
 					    bool computeifudf ) const
 {
-    getDirectionImpl( rowdirections, computeRowDirection);
+    mGetDirectionImpl( rowdirections, computeRowDirection);
 }
 
 
@@ -146,7 +146,7 @@ Coord3 CubicBezierSurface::getRowDirection( const RCol& rc,
 Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
 					    bool computeifudf ) const
 {
-    getDirectionImpl( coldirections, computeColDirection);
+    mGetDirectionImpl( coldirections, computeColDirection);
 }
 
 
@@ -156,6 +156,7 @@ Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
 
 
 #define mComputeDirImpl(_rowcol_) \
+    int diff = 2*step._rowcol_; \
     int previndex = getIndex(prev); \
     Coord3 prevcoord = positions->getData()[previndex]; \
     if ( !prevcoord.isDefined() ) previndex==-1; \
@@ -169,14 +170,14 @@ Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
 	previndex=getIndex(rc); \
 	prevcoord = positions->getData()[previndex]; \
 	if ( !prevcoord.isDefined() ) previndex==-1; \
-	prev = rc; \
+	diff = step._rowcol_; \
     } \
     else if ( nextindex==-1) \
     { \
 	nextindex=getIndex(rc); \
 	nextcoord = positions->getData()[nextindex]; \
 	if ( !nextcoord.isDefined() ) nextindex==-1; \
-	next = rc; \
+	diff = step._rowcol_; \
     } \
  \
     if ( previndex==-1 || nextindex==-1 ) \
@@ -185,22 +186,28 @@ Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
     if ( prevcoord.sqDistance(nextcoord)<mEPS ) \
 	return Coord3::udf(); \
  \
-    return (nextcoord-prevcoord)*step._rowcol_/(next._rowcol_-prev._rowcol_)
+    return (nextcoord-prevcoord)*step._rowcol_/diff
 
 
-Coord3 CubicBezierSurface::computeRowDirection( const RCol& rc ) const
+Coord3 CubicBezierSurface::computeColDirection( const RCol& rc ) const
 {
-    RowCol prev( rc.r(), rc.c()-step.col);
-    RowCol next( rc.r(), rc.c()+step.col);
+    const int lastcol = origo.col + (nrCols()-1)*step.col;
+    const RowCol prev( rc.r(), rc.c()==origo.col && circularCols() 
+	    ? lastcol : rc.c()-step.col );
+    const RowCol next( rc.r(), rc.c()==lastcol && circularCols() && nrCols()>2
+	    ? origo.col : rc.c()+step.col);
 
     mComputeDirImpl(col);
 }
 
 
-Coord3 CubicBezierSurface::computeColDirection( const RCol& rc ) const
+Coord3 CubicBezierSurface::computeRowDirection( const RCol& rc ) const
 {
-    RowCol prev( rc.r()-step.row, rc.c());
-    RowCol next( rc.r()-step.row, rc.c());
+    const int lastrow = origo.row + (nrRows()-1)*step.row;
+    const RowCol prev( rc.r()==origo.row && circularRows() 
+	    ? lastrow : rc.r()-step.row, rc.c() );
+    const RowCol next( rc.r()==lastrow && circularRows() 
+	    ? origo.row : rc.r()+step.row, rc.c() );
 
     mComputeDirImpl(row);
 }
