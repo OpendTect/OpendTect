@@ -1,0 +1,9 @@
+#!/bin/csh
+#__Pmake________________________________________________________________________
+#
+# This script returns a temporary file or directory name
+# SCCS %Z%%M%   Version: %I%  Date: %G% - %U%
+#_______________________________________________________________________________
+
+echo "/tmp/pmake_$$"
+exit 0

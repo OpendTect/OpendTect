@@ -1,0 +1,38 @@
+#!/bin/csh
+#__Pmake________________________________________________________________________
+#
+# This script returns a temporary file or directory name
+# SCCS %Z%%M%   Version: %I%  Date: %G% - %U%
+#_______________________________________________________________________________
+
+
+echo "$*"
+
+if ( $#argv < 3 ) then
+	echo "Usage: $0 Input_lib Output_sharedlib Linker_and_flags"
+	exit 1
+endif
+
+set tmpdir=`$PMAKE/bin/get_temp_file_name`
+set inplib=$1
+shift
+set outlib=$1
+shift
+
+if ( ! -r "$inplib" ) then
+	echo "$0 : Input lib $inplib cannot be accessed"
+	exit 1
+endif
+
+if ( ! -d $tmpdir ) mkdir $tmpdir
+if ( ! -d $tmpdir ) then
+	echo "$0 : Cannot create $tmpdir"
+	exit 1
+endif
+
+cd $tmpdir
+ar x $inplib `ar t $inplib`
+$* *.o -o $outlib
+rm -rf $tmpdir
+
+exit 0
