@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.22 2003-01-27 13:16:37 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.23 2003-01-28 08:18:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,7 +157,13 @@ const AttribSelSpec& visSurvey::VolumeDisplay::getAttribSelSpec() const
 
 
 void visSurvey::VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
-{ as = as_; }
+{
+    if ( as==as_ ) return;
+    as = as_;
+    delete cache;
+    cache = 0;
+    cube->useTexture( false );
+}
 
 
 CubeSampling& visSurvey::VolumeDisplay::getCubeSampling(bool manippos)
@@ -268,6 +274,7 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
     delete cache;
     cache = sliceset;
 
+    cube->useTexture( true );
     return true;
 }
 
@@ -364,28 +371,6 @@ void visSurvey::VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
 
 visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab()
 { return cube->getViewerColorTab(); }
-
-
-void visSurvey::VolumeDisplay::setClipRate( float rate )
-{
-    cube->setViewerClipRate( rate );
-    cube->setVolRenClipRate( rate );
-}
-
-
-float visSurvey::VolumeDisplay::clipRate() const
-{ return cube->viewerClipRate(); }
-
-
-void visSurvey::VolumeDisplay::setAutoscale( bool yn )
-{
-    cube->setVolRenAutoScale( yn );
-    cube->setViewerAutoScale( yn );
-}
-
-
-bool visSurvey::VolumeDisplay::autoScale() const
-{ return cube->viewerAutoScale(); }
 
 
 void visSurvey::VolumeDisplay::setMaterial( visBase::Material* nm)
