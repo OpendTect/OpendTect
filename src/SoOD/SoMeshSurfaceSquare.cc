@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.14 2003-10-22 08:30:06 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.15 2003-10-29 13:29:28 nanne Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -66,6 +66,7 @@ SoMeshSurfaceSquare::SoMeshSurfaceSquare()
     , pickcallbacks( 0 )
     , updateglue( true )
     , reshaschanged( false )
+    , currentres(0)
 {
     SO_KIT_CONSTRUCTOR(SoMeshSurfaceSquare);
     isBuiltIn = true;
@@ -324,7 +325,8 @@ int SoMeshSurfaceSquare::computeResolution( SoState* state )
 	    numcells = nextnumcells;
 	}
     }
-	    
+
+    if ( desiredres < -1 ) desiredres = -1;
     return setResolution(desiredres) ? -1 : desiredres;
 }
 
