@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.14 2001-10-19 12:30:56 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.15 2001-10-29 16:00:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ uiSurvey::uiSurvey( uiParent* p )
     mapcanvas->preDraw.notify( mCB(this,uiSurvey,doCanvas) );
     listbox = new uiListBox( selgrp, dirlist );
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
-    listbox->doubleClicked.notify( mCB(this,uiSurvey,editButPushed) );
+    listbox->doubleClicked.notify( mCB(this,uiSurvey,acceptOK) );
     listbox->attach( leftOf, mapcanvas );
 //    listbox->attach( heightSameAs, mapcanvas );
     listbox->setPrefWidth( lbwidth );
@@ -152,22 +152,16 @@ void uiSurvey::newButPushed( CallBacker* )
     survinfo->dirname = "";
     mkInfo();
     if ( !survInfoDialog() )
-    {
-	getSurvInfo();
-	mkInfo();
-	survmap->drawMap( survinfo );
-    }
+	updateInfo();
 }
+
 
 void uiSurvey::editButPushed( CallBacker* )
 {
     if ( !survInfoDialog() )
-    {
-	getSurvInfo();
-	mkInfo();
-	survmap->drawMap( survinfo );
-    }
+	updateInfo();
 }
+
 
 bool uiSurvey::survInfoDialog()
 {
@@ -210,6 +204,7 @@ bool uiSurvey::survInfoDialog()
     return true;
 }
 
+
 void uiSurvey::rmButPushed( CallBacker* )
 {
 
@@ -236,11 +231,13 @@ void uiSurvey::rmButPushed( CallBacker* )
 
 }
 
+
 void uiSurvey::convButPushed( CallBacker* )
 {
     uiConvertPos dlg( this, survinfo );
     dlg.go();
 }
+
 
 void uiSurvey::update()
 {
@@ -349,6 +346,12 @@ void uiSurvey::mkInfo()
 void uiSurvey::selChange()
 {
     writeComments();
+    updateInfo();
+}
+
+
+void uiSurvey::updateInfo()
+{
     getSurvInfo();
     mkInfo();
     survmap->drawMap( survinfo );
