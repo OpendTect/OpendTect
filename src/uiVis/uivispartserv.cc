@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.128 2003-02-14 18:20:09 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.129 2003-02-17 14:16:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -746,11 +746,11 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
     {
 	const visSurvey::PlaneDataDisplay::Type type = pdd->getType();
 	if ( type==visSurvey::PlaneDataDisplay::Inline )
-	    res = pdd->getCubeSampling(false).hrg.start.inl;
+	    res = pdd->getCubeSampling(true).hrg.start.inl;
 	else if ( type==visSurvey::PlaneDataDisplay::Crossline )
-	    res = pdd->getCubeSampling(false).hrg.start.crl;
+	    res = pdd->getCubeSampling(true).hrg.start.crl;
 	else
-	    res = pdd->getCubeSampling(false).zrg.start;
+	    res = pdd->getCubeSampling(true).zrg.start;
     }
 
     mDynamicCastGet(const visSurvey::PickSetDisplay*,ps,dobj);

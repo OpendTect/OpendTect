@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.1 2003-01-27 13:19:06 kristofer Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.2 2003-02-17 14:16:46 nanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -87,7 +87,7 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 
     ColorTable newct = *coltabed->getColorTable();
     newct.scaleTo( Interval<float>( 0, 1 ) );
-    if ( newct.cvs!=colseq.cvs )
+    if ( !(newct == colseq) )
     {
 	seqchange = true;
 	coltab->colorSeq().colors() = newct;
@@ -98,15 +98,18 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
     if ( coltabed->getColorTable()->getInterval() != coltabinterval )
     {
 	rangechange = true;
-	coltab->scaleTo(coltabed->getColorTable()->getInterval());
+	coltabinterval = coltabed->getColorTable()->getInterval();
+	coltab->scaleTo( coltabinterval );
     }
 
-    if ( coltabed->autoScale()!=coltabautoscale ||
-				    coltabcliprate!=coltabed->getClipRate() )
+    if ( coltabed->autoScale() != coltabautoscale ||
+				    coltabcliprate != coltabed->getClipRate() )
     {
 	autoscalechange = true;
-	coltab->setClipRate(coltabed->getClipRate());
-	coltab->setAutoScale(coltabed->autoScale());
+	coltabcliprate = coltabed->getClipRate();
+	coltab->setClipRate( coltabcliprate );
+	coltabautoscale = coltabed->autoScale();
+	coltab->setAutoScale( coltabautoscale );
     }
 
     coltab->rangechange.enable(oldrangechstatus);
