@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.2 2004-08-11 07:40:25 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.3 2004-09-01 12:51:40 nanne Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -147,7 +147,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	? (*auxdata[dataidx])[sectionidx] : 0;
     if ( !sectionauxdata )
     {
-	for ( int idx=auxdata[dataidx]->size(); idx<sectionidx; idx++ )
+	for ( int idx=auxdata[dataidx]->size(); idx<=sectionidx; idx++ )
 	    (*auxdata[dataidx]) += 0;
 
 	const int sz = surface.geometry.getSurface(posid.sectionID())->size();
@@ -182,7 +182,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
-	{ surface.errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
+    { surface.errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
 
     SurfaceIODataSelection& sel = tr->selections();
     int nrauxdata = sel.sd.valnames.size();
