@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.17 2001-11-26 17:08:20 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.18 2002-01-24 21:42:07 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -24,6 +24,7 @@ class SeisTrc;
 class SeisTrcInfo;
 class BinID;
 class BinIDSelector;
+class BinIDSampler;
 class SeisTrcSel;
 class SeisPacketInfo;
 class LinScaler;
@@ -172,6 +173,8 @@ public:
 
     static int		selector(const char*);
     static const IOObjContext&	ioContext();
+    static bool		getRanges(const IOObj&,BinIDSampler&,
+	    			  StepInterval<float>&);
 
 protected:
 

@@ -5,13 +5,14 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.26 2001-11-26 17:10:28 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.27 2002-01-24 21:41:56 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "iopar.h"
+#include "ioobj.h"
 #include "sorting.h"
 #include "separstr.h"
 #include "scaler.h"
@@ -377,4 +378,27 @@ SeisTrc* SeisTrcTranslator::getEmpty()
     else
 	toSupported( dc );
     return new SeisTrc( 0, dc );
+}
+
+
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, BinIDSampler& bs,
+				   StepInterval<float>& zrg )
+{
+    PtrMan<Translator> transl = ioobj.getTranslator();
+    mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
+    if ( !tr ) return false;
+    PtrMan<Conn> conn = ioobj.getConn( Conn::Read );
+    if ( !conn || !tr->initRead(*conn) ) return false;
+
+    const SeisPacketInfo& pinfo = tr->packetInfo();
+    bs.copyFrom( pinfo.binidsampling );
+    bs.step = pinfo.binidsampling.step;
+
+    assign( zrg, SI().zRange() );
+    const ObjectSet<TargetComponentData>& cinfo = tr->componentInfo();
+    if ( !cinfo.size() ) return true;
+
+    const TargetComponentData& cd = *cinfo[0];
+    zrg = cd.sd.interval( cd.nrsamples );
+    return true;
 }
