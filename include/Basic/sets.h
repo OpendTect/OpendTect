@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.16 2002-03-12 16:02:46 bert Exp $
+ RCS:		$Id: sets.h,v 1.17 2002-03-29 17:28:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,8 +104,9 @@ private:
 };
 
 //! We need this because STL has a crazy specialisation of the vector<bool>
-typedef TypeSet<char> BoolTypeSet;
-//!< This sux!
+typedef char BoolTypeSetType;
+typedef TypeSet<BoolTypeSetType> BoolTypeSet;
+//!< This sux, BTW.
 
 
 
