@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.6 2003-01-20 08:34:08 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.7 2003-01-20 09:36:05 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ public:
     Type		getType() const		{ return markertype; }
  
     void		setCenterPos(const Coord3&);
-    Coord3		centerPos() const;
+    Coord3		centerPos(bool displayspace=false) const;
    
     void		setSize(const float);
     float		getSize() const;

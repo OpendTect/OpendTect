@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.5 2003-01-20 08:34:17 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.6 2003-01-20 09:36:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ void visBase::Marker::setCenterPos( const Coord3& pos_ )
 }
 
 
-Coord3 visBase::Marker::centerPos() const
+Coord3 visBase::Marker::centerPos(bool displayspace) const
 {
     Coord3 res;
     SbVec3f pos = position->translation.getValue();
@@ -81,7 +81,8 @@ Coord3 visBase::Marker::centerPos() const
     res.y = pos[1];
     res.z = pos[2];
 
-    if ( transformation ) res = transformation->transformBack( res );
+    if ( !displayspace && transformation )
+	res = transformation->transformBack( res );
 
     return res;
 }
