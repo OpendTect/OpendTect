@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.17 2004-10-05 15:26:19 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.18 2004-10-07 11:27:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,9 +80,12 @@ public:
     Seis2DLinePutter*	linePutter(IOPar*);
     				//!< May return null.
     				//!< will return replacer if linekey exists
-    bool		remove(int);
+    bool		rename(const char* lk,const char* newlk);
+    				//!< Fails if new line key exists
+    				//!< or if LineSet is currently being written
+    bool		remove(const char* lk);
     				//!< Also removes from disk
-    				//!< Fails if set is currently being written
+    				//!< Fails if LineSet is currently being written
 
     bool		getTxtInfo(int,BufferString& uinfo,
 	    			   BufferString& stdinfo) const;

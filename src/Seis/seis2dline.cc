@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.25 2004-10-05 15:26:20 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.26 2004-10-07 11:27:25 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -335,16 +335,17 @@ void Seis2DLineSet::removeLock() const
 
 
 Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
-					const SeisSelData* sd) const
+					const SeisSelData* sd ) const
 {
     if ( !liop_ )
     {
 	ErrMsg("No suitable 2D line extraction object found");
 	return 0;
     }
-    else if ( ipar >= pars_.size() )
+
+    if ( ipar < 0 || ipar >= pars_.size() )
     {
-	ErrMsg("Line number requested out of bounds");
+	ErrMsg("Line number requested not found in Line Set");
 	return 0;
     }
 
@@ -402,19 +403,57 @@ bool Seis2DLineSet::isEmpty( int ipar ) const
 }
 
 
-bool Seis2DLineSet::remove( int ipar )
+bool Seis2DLineSet::remove( const char* lk )
 {
-    if ( ipar > pars_.size() )
-	return false;
-    if ( !waitForLock(true,true) )
-	return false;
+    if ( !waitForLock(false,true) )
+	{ ErrMsg("Cannot remove from Lineset: LineSet locked"); return false; }
+
+    // Critical concurrency section using file lock
+    readFile( true );
+    int ipar = indexOf( lk );
+    if ( ipar < 0 )
+	{ removeLock(); return true; }
 
     IOPar* iop = pars_[ipar];
     if ( liop_ )
 	liop_->removeImpl(*iop);
-
     pars_ -= iop;
     delete iop;
+
+    writeFile();
+    return true;
+}
+
+
+bool Seis2DLineSet::rename( const char* lk, const char* newlk )
+{
+    if ( !newlk || !*newlk )
+	return false;
+
+    if ( !waitForLock(false,true) )
+	{ ErrMsg("Cannot edit Lineset: LineSet locked"); return false; }
+
+    // Critical concurrency section using file lock
+    readFile( true );
+    int ipar = indexOf( lk );
+    if ( ipar < 0 )
+    {
+	removeLock();
+	ErrMsg("Cannot rename non-existent line key");
+	return false;
+    }
+
+    int existipar = indexOf( newlk );
+    if ( existipar )
+    {
+	removeLock();
+	ErrMsg("Cannot rename to existing line key");
+	return false;
+    }
+
+    IOPar* iop = pars_[ipar];
+    setLineKey( *iop, newlk );
+
     writeFile();
     return true;
 }

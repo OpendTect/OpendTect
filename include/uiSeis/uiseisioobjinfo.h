@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.5 2004-10-05 15:26:20 bert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.6 2004-10-07 11:27:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,12 +45,19 @@ public:
     bool		getBPS(int& bps,int icomp=-1) const;
 			//!< max bytes per sample, component -1 => add all
     void		getAttribKeys(BufferStringSet&,bool add=true) const;
-			//!< list of entries like: "100010.6 | En 60"
-			//!< the attr is optional and is only filled for 2D
+    			//!< For 3D: IOObj ID, for 2D: list of ID|attrnm
+
+    			// 2D only
     void		getLineNames( BufferStringSet& b, bool add=true ) const
 				{ getNms(b,add,false); }
     void		getAttribNames( BufferStringSet& b, bool add=true) const
 				{ getNms(b,add,true); }
+    void		getAttribNamesForLine( const char* nm,
+					BufferStringSet& b, bool add=true) const
+				{ getNmsSubSel(nm,b,add,false); }
+    void		getLineNamesWithAttrib( const char* nm,
+					BufferStringSet& b, bool add=true) const
+				{ getNmsSubSel(nm,b,add,true); }
 
     static const char*	sKeyEstMBs;
 
@@ -60,8 +67,8 @@ protected:
     bool		doerrs;
 
     void		getNms(BufferStringSet&,bool,bool) const;
-			//!< For 3D, will add one empty string
-
+    void		getNmsSubSel(const char*,BufferStringSet&,bool,
+	    			     bool) const;
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.19 2004-10-06 14:00:23 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.20 2004-10-07 11:27:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,18 +136,13 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linenm,
 				       CubeSampling& cs, SeisTrcBuf& buf )
 {
     mGet2DLineSet(false)
-    int lineidx = -1;
-    BufferString linekey = Seis2DLineSet::lineKey(linenm,attribnm);
-    for ( int idx=0; idx<lineset.nrLines(); idx++ )
-    {
-	if ( linekey != lineset.lineKey(idx) ) continue;
-	lineidx = idx;
-	break;
-    }
 
-    if ( lineidx < 0 ) return false;
-    lineset.getCubeSampling( cs, lineidx );
-    PtrMan<Executor> exec = lineset.lineFetcher( lineidx, buf );
+    BufferString linekey = Seis2DLineSet::lineKey(linenm,attribnm);
+    int lidx = lineset.indexOf( linekey );
+    if ( lidx < 0 ) return false;
+
+    lineset.getCubeSampling( cs, lidx );
+    PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
     uiExecutor dlg( appserv().parent(), *exec );
     return dlg.go();
 }

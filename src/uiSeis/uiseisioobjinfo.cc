@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.12 2004-10-05 15:26:20 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.13 2004-10-07 11:27:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,18 +243,41 @@ void uiSeisIOObjInfo::getAttribKeys( BufferStringSet& bss, bool add ) const
 }
 
 
+#define mGetLineSet \
+    if ( !add ) bss.erase(); \
+    if ( !isOK() || !is2D() ) return; \
+ \
+    PtrMan<Seis2DLineSet> lset \
+	= new Seis2DLineSet( ctio.ioobj->fullUserExpr(true) ); \
+    if ( lset->nrLines() == 0 ) \
+	return
+
+
 void uiSeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr ) const
 {
-    if ( !add ) bss.erase();
-    if ( !isOK() ) return;
-    if ( !is2D() )
-	{ bss.add( "" ); return; }
-
-    PtrMan<Seis2DLineSet> lset
-	= new Seis2DLineSet( ctio.ioobj->fullUserExpr(true) );
-    if ( lset->nrLines() == 0 )
-	return;
+    mGetLineSet;
 
     for ( int idx=0; idx<lset->nrLines(); idx++ )
 	bss.addIfNew( attr ? lset->attribute(idx) : lset->lineName(idx) );
+}
+
+
+void uiSeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
+				    bool add, bool l4a ) const
+{
+
+    mGetLineSet;
+    if ( !nm || !*nm ) return;
+
+    const BufferString target( nm );
+    for ( int idx=0; idx<lset->nrLines(); idx++ )
+    {
+	const char* lnm = lset->lineName( idx );
+	const char* anm = lset->attribute( idx );
+	const char* requested = l4a ? anm : lnm;
+	const char* listadd = l4a ? lnm : anm;
+
+	if ( target == requested )
+	    bss.addIfNew( listadd );
+    }
 }
