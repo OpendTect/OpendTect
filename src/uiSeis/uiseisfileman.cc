@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.23 2003-03-20 17:07:56 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.24 2003-05-13 15:27:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,7 +164,7 @@ void uiSeisFileMan::removePush( CallBacker* )
 {
     if ( !ioobj ) return;
     int curitm = listfld->currentItem();
-    if ( ioobj->implRemovable() && !uiRmIOObjImpl(*ioobj,false) )
+    if ( !ioobj->implReadOnly() && !uiRmIOObjImpl(*ioobj,false) )
 	return;
 
     entrylist->curRemoved();

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.36 2003-03-20 17:07:56 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.37 2003-05-13 15:27:56 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -576,23 +576,31 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
 }
 
 
+#define mImplStart(fn) \
+    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return false; \
+    mDynamicCastGet(const IOStream*,iostrm,ioobj) \
+    if ( !iostrm ) return false; \
+    if ( iostrm->isMulti() ) \
+	return const_cast<IOStream*>(iostrm)->fn; \
+ \
+    BufferString pathnm = iostrm->dirName(); \
+    BufferString basenm = iostrm->fileName()
+
+#define mImplLoopStart \
+	StreamProvider sp( CBVSIOMgr::getFileName(basenm,nr) ); \
+	sp.addPathIfNecessary( pathnm ); \
+	if ( !sp.exists(true) ) \
+	    return true
+
+
 bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
-    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return false;
-    mDynamicCastGet(const IOStream*,iostrm,ioobj)
-    if ( !iostrm ) return false;
-    if ( iostrm->isMulti() )
-	return iostrm->implRemove();
-
-    BufferString pathnm = iostrm->dirName();
-    BufferString basenm = iostrm->fileName();
+    mImplStart(implRemove());
 
     for ( int nr=0; ; nr++ )
     {
-	StreamProvider sp( CBVSIOMgr::getFileName( basenm, nr ) );
-	sp.addPathIfNecessary( pathnm );
-	if ( !sp.exists(true) )
-	    return true;
+	mImplLoopStart;
+
 	if ( !sp.remove(false) )
 	    return nr ? true : false;
     }
@@ -602,26 +610,31 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj,
 					const char* newnm ) const
 {
-    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return false;
-    mDynamicCastGet(const IOStream*,iostrm,ioobj)
-    if ( !iostrm ) return false;
-    if ( iostrm->isMulti() )
-	return const_cast<IOStream*>(iostrm)->implRename( newnm );
-
-    const BufferString pathnm = iostrm->dirName();
-    const BufferString basenm = iostrm->fileName();
+    mImplStart( implRename(newnm) );
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
     {
-	StreamProvider sp( CBVSIOMgr::getFileName( basenm, nr ) );
-	sp.addPathIfNecessary( pathnm );
-	if ( !sp.exists(true) )
-	    return rv;
+	mImplLoopStart;
 
 	StreamProvider spnew( CBVSIOMgr::getFileName(newnm,nr) );
 	spnew.addPathIfNecessary( pathnm );
 	if ( !sp.rename(spnew.fileName()) )
+	    rv = false;
+    }
+}
+
+
+bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
+{
+    mImplStart( implSetReadOnly(yn) );
+
+    bool rv = true;
+    for ( int nr=0; ; nr++ )
+    {
+	mImplLoopStart;
+
+	if ( !sp.setReadOnly(yn) )
 	    rv = false;
     }
 }

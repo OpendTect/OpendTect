@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.32 2003-03-27 12:49:59 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.33 2003-05-13 15:27:56 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -312,7 +312,7 @@ IOObj* IOMan::getOfGroup( const char* tgname, bool first,
 
 
 IOObj* IOMan::getByName( const char* objname,
-			 const char* partrgname, const char* parname )
+			 const char* pardirname, const char* parname )
 {
     if ( !objname || !*objname )
 	return 0;
@@ -327,7 +327,7 @@ IOObj* IOMan::getByName( const char* objname,
     MultiID startky = dirptr->key();
     to( MultiID("") );
 
-    bool havepar = partrgname && *partrgname;
+    bool havepar = pardirname && *pardirname;
     bool parprov = parname && *parname;
     const UserIDObjectSet<IOObj>* ioobjs = &dirptr->getObjs();
     ObjectSet<MultiID> kys;
@@ -342,7 +342,7 @@ IOObj* IOMan::getByName( const char* objname,
 	}
 	else
 	{
-	    if ( !strcmp(ioobj->group(),partrgname) )
+	    if ( !strncmp(ioobj->group(),pardirname,3) )
 	    {
 		if ( !parprov || ioobj->name() == parname )
 		{

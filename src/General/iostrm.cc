@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.12 2003-03-20 17:07:56 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.13 2003-05-13 15:27:56 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -104,14 +104,28 @@ bool IOStream::implExists( bool fr ) const
 }
 
 
-bool IOStream::implRemovable() const
+bool IOStream::implReadOnly() const
 {
-    if ( type_ != StreamConn::File ) return NO;
-    return isMulti() ? true : implExists(NO);
+    StreamProvider* sp = streamProvider( true );
+    bool ret = sp && sp->isReadOnly();
+    delete sp;
+    return ret;
 }
 
 
 bool IOStream::implRemove() const
+{
+    return implDo( true, false );
+}
+
+
+bool IOStream::implSetReadOnly( bool yn ) const
+{
+    return implDo( false, yn );
+}
+
+
+bool IOStream::implDo( bool dorem, bool yn ) const
 {
     if ( type_ != StreamConn::File ) return NO;
 
@@ -123,8 +137,8 @@ bool IOStream::implRemove() const
     for ( int idx=0; idx<nrfiles; idx++ )
     {
 	fnr = fnrs.start + idx*fnrs.step;
-	StreamProvider* sp = streamProvider( false );
-	bool thisret = sp && sp->remove(false);
+	StreamProvider* sp = streamProvider( true );
+	bool thisret = sp && (dorem ? sp->remove(yn) : sp->setReadOnly(yn));
 	delete sp;
 	if ( !thisret ) ret = false;
     }

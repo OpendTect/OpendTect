@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.50 2003-05-12 16:15:23 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.51 2003-05-13 15:27:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,13 +155,13 @@ void uiIOObjSelDlg::selChg( CallBacker* c )
 	if ( c && nmfld )
 	    nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
     }
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
 
-    locbut->setSensitive( iostrm );
-    robut->setSensitive( iostrm );
-    //TODO set state according ro read-only status
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    const bool ischangable = ioobj && !ioobj->implReadOnly();
+    locbut->setSensitive( iostrm && ischangable );
+    robut->setOn( !ischangable );
     renbut->setSensitive( ioobj );
-    rembut->setSensitive( ioobj );
+    rembut->setSensitive( ischangable );
 }
 
 
@@ -173,11 +173,6 @@ void uiIOObjSelDlg::tbPush( CallBacker* c )
 
     const int curitm = listfld->box()->currentItem();
     MultiID prevkey( ioobj->key() );
-
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( !iostrm && (tb == robut || tb == locbut) )
-	{ pErrMsg("IOStream button but not IOStream!"); return; }
-
     PtrMan<Translator> tr = ioobj->getTranslator();
 
     bool chgd = false;
@@ -189,7 +184,14 @@ void uiIOObjSelDlg::tbPush( CallBacker* c )
 	chgd = renEntry( tr );
     else if ( tb == rembut )
     {
-	chgd = rmEntry( tr ? tr->implRemovable(ioobj) : ioobj->implRemovable());
+	bool exists = tr ? tr->implExists(ioobj,true) : ioobj->implExists(true);
+	bool readonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
+	if ( exists && readonly )
+	{
+	    uiMSG().error( "Entry is not writable.\nPlease change this first.");
+	    return; 
+	}
+	chgd = rmEntry( exists );
 	if ( chgd ) prevkey = "";
     }
     if ( !chgd ) return;
@@ -337,8 +339,24 @@ bool uiIOObjSelDlg::chgEntry( Translator* tr )
 
 bool uiIOObjSelDlg::roEntry( Translator* tr )
 {
-    //TODO implement
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !ioobj ) { pErrMsg("Huh"); return false; }
+
+    bool exists = tr ? tr->implExists(ioobj,true) : ioobj->implExists(true);
+    if ( !exists ) return false;
+
+    bool oldreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
+    bool newreadonly = robut->isOn();
+    if ( oldreadonly == newreadonly ) return false;
+
+    bool res = tr ? tr->implSetReadOnly(ioobj,newreadonly)
+		: ioobj->implSetReadOnly(newreadonly);
+
+    newreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
+    if ( oldreadonly == newreadonly )
+	uiMSG().warning( "Could not change the read-only status" );
+    else
+	robut->setOn( newreadonly );
+
     return false;
 }
 

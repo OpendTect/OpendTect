@@ -10,7 +10,7 @@
 #include "iopar.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.7 2003-03-20 17:07:56 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.8 2003-05-13 15:27:56 bert Exp $";
 
 DefineAbstractClassDef(Translator,"Translator");
 
@@ -89,10 +89,10 @@ bool Translator::implExists( const IOObj* ioobj, int forread ) const
     if ( !ioobj ) return false;
     return ioobj->implExists( forread );
 }
-bool Translator::implRemovable( const IOObj* ioobj ) const
+bool Translator::implReadOnly( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
-    return ioobj->implRemovable();
+    return ioobj->implReadOnly();
 }
 bool Translator::implRemove( const IOObj* ioobj ) const
 {
@@ -103,6 +103,11 @@ bool Translator::implRename( const IOObj* ioobj, const char* newnm ) const
 {
     if ( !ioobj ) return false;
     return const_cast<IOObj*>(ioobj)->implRename( newnm );
+}
+bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
+{
+    if ( !ioobj ) return false;
+    return ioobj->implSetReadOnly( yn );
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.7 2001-08-31 16:38:04 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.8 2003-05-13 15:27:56 bert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"
@@ -90,18 +90,6 @@ bool IOX::implExists( bool i ) const
     bool yn = ioobj->implExists(i);
     delete ioobj;
     return yn;
-}
-
-
-bool IOX::implRemovable() const
-{
-    return false;
-}
-
-
-bool IOX::implRemove() const
-{
-    return false;
 }
 
 

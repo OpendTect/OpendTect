@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.11 2003-03-20 17:07:56 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.12 2003-05-13 15:27:56 bert Exp $
 ________________________________________________________________________
 
 
@@ -44,8 +44,9 @@ public:
     Conn*		getConn(Conn::State) const;
 
     bool		implExists(bool forread) const;
-    bool		implRemovable() const;
+    bool		implReadOnly() const;
     bool		implRemove() const;
+    bool		implSetReadOnly(bool) const;
     bool		implRename(const char*);
 
     bool		multiConn() const
@@ -124,6 +125,7 @@ protected:
     bool		getDev(ascistream&);
     bool		validNr() const
 			{ return curfnr*fnrs.step <= fnrs.stop*fnrs.step; }
+    bool		implDo(bool,bool) const;
 };
 
 

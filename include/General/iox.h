@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.5 2001-10-12 10:41:32 bert Exp $
+ RCS:		$Id: iox.h,v 1.6 2003-05-13 15:27:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,6 @@ public:
     void		genDefaultImpl()		{}
 
     bool		implExists(bool) const;
-    bool		implRemovable() const;
-    bool		implRemove() const;
 
     const ClassDef&	connType() const;
     Conn*		getConn(Conn::State) const;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.10 2003-03-20 17:07:56 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.11 2003-05-13 15:27:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ public:
 
     bool	exists(int forread) const;
     bool	remove(bool recursive=true) const;
+    bool	setReadOnly(bool yn) const;
+    bool	isReadOnly() const;
 
     StreamData	makeOStream(bool inbg=false) const;
 		//!< 'inbg' will execute in background if remote

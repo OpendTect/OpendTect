@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.11 2003-03-20 17:07:56 bert Exp $
+ RCS:		$Id: transl.h,v 1.12 2003-05-13 15:27:56 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -48,9 +48,10 @@ public:
     virtual const IOObjContext&	getContext() const	= 0;
 
     virtual bool		implExists(const IOObj*,int forread) const;
-    virtual bool		implRemovable(const IOObj*) const;
+    virtual bool		implReadOnly(const IOObj*) const;
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*) const;
+    virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
     virtual void		usePar(const IOPar*)	{}
     virtual const UserIDSet*	parSpec(Conn::State) const  { return 0; }

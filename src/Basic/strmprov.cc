@@ -31,7 +31,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.33 2003-03-20 17:07:56 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.34 2003-05-13 15:27:56 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -437,6 +437,12 @@ void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 	oscommand += "&";
 }
 
+#define mRemoteTest(act) \
+    FILE* fp = popen( oscommand, "r" ); \
+    char c; fscanf( fp, "%c", &c ); \
+    pclose( fp ); \
+    act c == '1'
+
 
 bool StreamProvider::exists( int fr ) const
 {
@@ -452,11 +458,7 @@ bool StreamProvider::exists( int fr ) const
     sprintf( oscommand.buf(), "%s %s 'test -%c %s && echo 1'",
 		  (const char*)rshcomm, (const char*)hostname,
 		  fr ? 'r' : 'w', (const char*)fname );
-    FILE* fp = popen( oscommand, "r" );
-    int i = 0;
-    fscanf( fp, "%d", &i );
-    pclose( fp );
-    return i;
+    mRemoteTest(return);
 }
 
 
@@ -467,18 +469,47 @@ bool StreamProvider::remove( bool recursive ) const
     if ( !hostname[0] )
 	return fname == sStdIO || fname == sStdErr ? false :
 		File_remove( (const char*)fname, NO, recursive );
-    else
-    {
-	sprintf( oscommand.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
-		  (const char*)rshcomm,
-		  (const char*)hostname, recursive ? "r" : "",
-		  (const char*)fname );
-	FILE* fp = popen( oscommand, "r" );
-	char c;
-	fscanf( fp, "%c", &c );
-	pclose( fp );
-	return c == '1';
-    }
+
+    sprintf( oscommand.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
+	      (const char*)rshcomm,
+	      (const char*)hostname, recursive ? "r" : "",
+	      (const char*)fname );
+
+    mRemoteTest(return);
+}
+
+
+bool StreamProvider::setReadOnly( bool yn ) const
+{
+    if ( isbad || type_ != StreamConn::File ) return false;
+
+    if ( !hostname[0] )
+	return fname == sStdIO || fname == sStdErr ? false :
+		File_makeWritable( (const char*)fname, NO, yn );
+
+    sprintf( oscommand.buf(), "%s %s 'chmod %s %s && echo 1'",
+	      (const char*)rshcomm,
+	      (const char*)hostname, yn ? "ug+w" : "a-w",
+	      (const char*)fname );
+
+    mRemoteTest(return);
+}
+
+
+bool StreamProvider::isReadOnly() const
+{
+    if ( isbad || type_ != StreamConn::File ) return true;
+
+    if ( !hostname[0] )
+	return fname == sStdIO || fname == sStdErr ? false :
+		!File_isWritable( (const char*)fname );
+
+    sprintf( oscommand.buf(), "%s %s 'test -w %s && echo 1'",
+	      (const char*)rshcomm,
+	      (const char*)hostname,
+	      (const char*)fname );
+
+    mRemoteTest(return !);
 }
 
 
@@ -496,11 +527,7 @@ bool StreamProvider::rename( const char* newnm )
 	    sprintf( oscommand.buf(), "%s %s '/bin/mv -f %s %s && echo 1'",
 		      (const char*)rshcomm, (const char*)hostname,
 		      (const char*)fname, newnm );
-	    FILE* fp = popen( oscommand, "r" );
-	    char c;
-	    fscanf( fp, "%c", &c );
-	    pclose( fp );
-	    rv = c == '1';
+	    mRemoteTest(rv =);
 	}
     }
 
