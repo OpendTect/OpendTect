@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.7 2001-07-27 15:58:23 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.8 2001-12-05 14:44:49 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -236,6 +236,12 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 	{
 	    const CBVSInfo::SurvGeom::InlineInfo::Segment& seg
 				= ii.segments[iseg];
+	    if ( !seg.start && !seg.stop )
+	    {
+		cerr << "Empty segment: " <<ii.inl<< " segment " <<iseg<< endl;
+		continue;
+	    }
+
 	    bidrg.include( BinID(ii.inl,seg.start) );
 	    bidrg.include( BinID(ii.inl,seg.stop) );
 	}

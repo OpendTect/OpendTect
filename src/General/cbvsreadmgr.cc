@@ -5,12 +5,13 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.12 2001-11-14 12:20:57 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.13 2001-12-05 14:44:49 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
 #include "filegen.h"
 #include "strmprov.h"
+#include "survinfo.h"
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )
@@ -101,10 +102,25 @@ bool CBVSReadMgr::addReader( istream* strm )
 
 void CBVSReadMgr::createInfo()
 {
-    if ( readers_.size() == 0 ) return;
+    const int sz = readers_.size();
+    if ( sz == 0 ) return;
     info_ = readers_[0]->info();
+    if ( !info_.geom.step.inl ) // unknown, get from other source
+    {
+	int rdrnr = 1;
+	while ( rdrnr < sz )
+	{
+	    if ( readers_[rdrnr]->info().geom.step.inl )
+	    {
+		info_.geom.step.inl = readers_[rdrnr]->info().geom.step.inl;
+	        break;
+	    }
+	}
+	if ( !info_.geom.step.inl )
+	    info_.geom.step.inl = SI().step().inl;
+    }
 
-    for ( int idx=1; idx<readers_.size(); idx++ )
+    for ( int idx=1; idx<sz; idx++ )
 	if ( !handleInfo(readers_[idx],idx) ) return;
 }
 
@@ -122,7 +138,9 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
     const CBVSInfo& ci = rdr->info();
     if ( ci.nrtrcsperposn != info_.nrtrcsperposn )
 	mErrRet("Number of traces per position")
-    if ( ci.geom.step.inl != info_.geom.step.inl )
+    if ( !info_.geom.fullyrectandreg )
+	const_cast<CBVSInfo&>(ci).geom.step.inl = info_.geom.step.inl;
+    else if ( ci.geom.step.inl != info_.geom.step.inl )
 	mErrRet("In-line number step")
     if ( ci.geom.step.crl != info_.geom.step.crl )
 	mErrRet("Cross-line number step")
