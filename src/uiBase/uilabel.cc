@@ -48,7 +48,9 @@ uiLabelBody& uiLabel::mkbody(uiParent* parnt,const char* txt)
 }
 
 void uiLabel::setText( const char* txt )
-    { body_->setText( QString( txt ) ); }
+{ 
+    body_->setText( QString( txt ) ); 
+}
 
 const char* uiLabel::text()
     { return body_->text(); }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.7 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.8 2002-01-07 13:17:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,7 @@ uiMain& uiMain::theMain()
 
 void uiMain::flushX()        
 { 
-    if( !app )  { pFreeFnErrMsg("Huh?","uiMain::flushX()") ; return; }
+    if( !app )	return; 
     app->flushX(); 
 }
 
@@ -142,7 +142,7 @@ void uiMain::flushX()
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
 { 
-    if( !app )  { pFreeFnErrMsg("Huh?","uiMain::processEvents") ; return; }
+    if( !app )	return; 
     app->processEvents( msec ); 
 }
 

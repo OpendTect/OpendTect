@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.7 2001-11-14 13:06:06 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.8 2002-01-07 13:17:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 
     virtual		~uiButton()		{}
 
-    void		setText(const char*);
+    virtual void	setText(const char*);
     const char*		text();
 
     Notifier<uiButton>	activated;
@@ -83,6 +83,8 @@ public:
 
     bool			isChecked () const;
     void			setChecked ( bool check ) ;
+
+    virtual void		setText(const char*);
 
 private:
 

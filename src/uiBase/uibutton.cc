@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.10 2001-11-14 13:05:58 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.11 2002-01-07 13:17:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,7 +165,9 @@ uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
     { if ( cb ) activated.notify(*cb); }
 
 void uiButton::setText( const char* txt )
-    { mqbut()->setText( QString( txt ) ); }
+{ 
+    mqbut()->setText( QString( txt ) ); 
+}
 
 const char* uiButton::text()
     { return mqbut()->text(); }
@@ -215,7 +217,15 @@ void uiRadioButton::setChecked( bool check )
 
 uiCheckBox::uiCheckBox(uiParent* parnt,const char* nm, const CallBack* cb )
     : uiButton( parnt, nm, cb, mkbody(parnt,nm) )
-{}
+{
+    setPrefWidthInChar( strlen(nm) + 3.5 );
+}
+
+void uiCheckBox::setText( const char* txt )
+{ 
+    mqbut()->setText( QString( txt ) ); 
+    setPrefWidthInChar( strlen(txt) + 3.5 );
+}
 
 uiCheckBoxBody& uiCheckBox::mkbody(uiParent* parnt,const char* txt)
 { 

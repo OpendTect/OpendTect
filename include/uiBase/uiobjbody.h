@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.9 2001-12-19 14:56:09 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.10 2002-01-07 13:17:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,15 +60,11 @@ public:
     int				prefHNrPics() const;
     void			setPrefWidth( int w )      
 				{ 
-				    if( popped_up_ ) 
-					{ pErrMsg("Only use before pop-up");}
 				    pref_char_width = -1;
 				    pref_width_set = w; 
 				}
     void			setPrefWidthInChar( float w )
 				{ 
-				    if( popped_up_ ) 
-					{ pErrMsg("Only use before pop-up");}
 				    pref_width_set = -1;
 				    pref_char_width = w; 
 				}
@@ -76,23 +72,17 @@ public:
     int				prefVNrPics() const;
     void			setPrefHeight( int h )     
 				{ 
-				    if( popped_up_ ) 
-					{ pErrMsg("Only use before pop-up");}
 				    pref_char_height = -1;
 				    pref_height_set = h; 
 				}
     void			setPrefHeightInChar( float h )
 				{ 
-				    if( popped_up_ ) 
-					{ pErrMsg("Only use before pop-up");}
 				    pref_height_set = -1;
 				    pref_char_height = h; 
 				}
 
     void               		setStretch( int hor, int ver ) 
 				{ 
-				    if( popped_up_ ) 
-					{ pErrMsg("Only use before pop-up");}
 				    hStretch = hor; vStretch = ver; 
 				}
 
