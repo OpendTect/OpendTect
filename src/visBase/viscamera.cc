@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.9 2002-10-14 14:24:39 niclas Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.10 2002-12-17 16:08:35 nanne Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -209,8 +209,8 @@ void visBase::Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 
     iopar.set( aspectratiostr, aspectRatio() );
     iopar.set( heightanglestr, heightAngle() );
-    iopar.set( neardistancestr, nearDistance() );
-    iopar.set( fardistancestr, farDistance() );
+    iopar.set( neardistancestr, (int)(nearDistance()+.5) );
+    iopar.set( fardistancestr, (int)(farDistance()+.5) );
     iopar.set( focaldistancestr, focalDistance() );
 }
 
