@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.4 2002-10-07 14:57:30 bert Exp $
+ RCS:           $Id: uicmain.cc,v 1.5 2002-10-16 07:34:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uicmain.h"
 #include "visinventorinit.h"
 #include <Inventor/Qt/SoQt.h>
+#include <Inventor/SoDB.h>
 #include <stdlib.h>
 
 uicMain::uicMain(int argc,char** argv)
@@ -25,6 +26,7 @@ void uicMain::init( QWidget* mw )
 #endif
     SoQt::init(mw);
     visBase::initdGBInventorClasses();
+    SoDB::init();
 }
 
 int uicMain::exec()

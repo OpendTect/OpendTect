@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.61 2002-10-15 06:41:16 niclas Exp $
+ RCS:           $Id: uivispartserv.h,v 1.62 2002-10-16 07:34:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
 			     only for debugging COIN stuff. Should not be used
 			     apart from that
 			*/
+    bool		printScene( int id ) const;
 
     			/* Mouse stuff */
     Coord3		getMousePos(bool xyt) const

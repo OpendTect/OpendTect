@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.94 2002-10-15 06:41:44 niclas Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.95 2002-10-16 07:34:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ ________________________________________________________________________
 #include "uipickszdlg.h"
 #include "uislicesel.h"
 #include "uisellinest.h"
+
+#include "uiprintscenedlg.h"
 
 const int uiVisPartServer::evManipulatorMove   	= 0;
 const int uiVisPartServer::evSelection		= 1;
@@ -252,6 +254,16 @@ bool uiVisPartServer::dumpOI( int id, const char* filename ) const
     return obj->dumpOIgraph( filename );
 }
 
+bool uiVisPartServer::printScene( int id ) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    if ( !obj ) return false;
+
+    
+    uiPrintSceneDlg dlg( appserv().parent(), obj->getData() );
+    return dlg.go();
+}
+ 
 
 void uiVisPartServer::turnOn( int id, bool yn )
 {
