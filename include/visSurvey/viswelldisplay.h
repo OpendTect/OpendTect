@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.7 2003-08-22 11:32:40 nanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.8 2003-09-11 15:07:31 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,8 @@ ________________________________________________________________________
 
 class LineStyle;
 
-namespace visBase { class PolyLine; class DrawStyle; class Text; };
+namespace visBase { class PolyLine; class DrawStyle; class Text; 
+    		    class SceneObjectGroup; };
 
 
 namespace visSurvey
@@ -47,6 +48,10 @@ public:
     void			showWellText(bool);
     bool			isWellTextShown() const;
 
+    void			addMarkers();
+    void			showMarkers(bool);
+    bool			markersShown() const;
+
     virtual void                fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int                 usePar( const IOPar& );
 
@@ -60,6 +65,7 @@ protected:
     visBase::PolyLine*		line;
     visBase::DrawStyle*		drawstyle;
     visBase::Text*		welltxt;
+    visBase::SceneObjectGroup*	markergroup;
 
     static const char*		ioobjidstr;
     static const char*		earthmodelidstr;
