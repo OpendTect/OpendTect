@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.2 2000-08-04 12:18:27 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.3 2000-08-04 14:35:17 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -44,7 +44,7 @@ protected:
     bool		inited;
     bool		finished;
 
-    void		annotate();
+    void		annotate(bool);
 
 }; 
 
