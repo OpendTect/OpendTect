@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: welltransl.h,v 1.1 2003-08-22 11:21:47 nanne Exp $
+ RCS:		$Id: welltransl.h,v 1.2 2003-09-26 11:43:37 nanne Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,11 @@ public:
     static int			selector(const char*);
     static const IOObjContext&	ioContext();
     const char*			defExtension() const { return "well"; }
+
+    virtual bool		implRemove(const IOObj*) const;
+    virtual bool		implRename(const IOObj*,const char*,
+	    				   const CallBack* cb=0) const;
+    virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.3 2003-09-25 11:05:45 bert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.4 2003-09-26 11:43:12 nanne Exp $";
 
 
 #include "welltransl.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: welltransl.cc,v 1.3 2003-09-25 11:05:45 bert Ex
 #include "welldata.h"
 #include "iostrm.h"
 #include "strmprov.h"
+#include "filegen.h"
 
 const IOObjContext& WellTranslator::ioContext()
 {
@@ -37,6 +38,73 @@ int WellTranslator::selector( const char* key )
 {
     int retval = defaultSelector( "Well", key );
     return retval;
+}
+
+#define mImplStart(fn) \
+    if ( !ioobj || strcmp(ioobj->translator(),"dGB") ) return false; \
+    mDynamicCastGet(const IOStream*,iostrm,ioobj) \
+    if ( !iostrm ) return false; \
+\
+    BufferString pathnm = iostrm->dirName(); \
+    BufferString filenm = iostrm->fileName(); \
+    StreamProvider sp( filenm ); \
+    sp.addPathIfNecessary( pathnm ); \
+    if ( !sp.fn ) return false;
+
+
+#define mRemove(ext,nr) \
+{ \
+    StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
+    sp.addPathIfNecessary( pathnm ); \
+    if ( !sp.exists(true) )  return true; \
+    if ( !sp.remove(false) ) return false; \
+}
+
+bool WellTranslator::implRemove( const IOObj* ioobj ) const
+{
+    mImplStart(remove(false));
+
+    BufferString bnm = File_removeExtension( filenm );
+    mRemove(Well::IO::sExtMarkers,0)
+    mRemove(Well::IO::sExtD2T,0)
+    for ( int idx=1; ; idx++ )
+	mRemove(Well::IO::sExtLog,idx)
+
+    return true;
+}
+
+
+#define mRename(ext,nr) \
+{ \
+    StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
+    sp.addPathIfNecessary( pathnm ); \
+    StreamProvider spnew( Well::IO::mkFileName(newbnm,ext,nr) ); \
+    spnew.addPathIfNecessary( pathnm ); \
+    if ( !sp.exists(true) )  return true; \
+    if ( !sp.rename(spnew.fileName(),cb) ) return false; \
+}
+
+bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
+				 const CallBack* cb ) const
+{
+    mImplStart(rename(newnm,cb));
+
+    BufferString bnm = File_removeExtension( filenm );
+    BufferString newbnm = File_removeExtension( newnm );
+    mRename(Well::IO::sExtMarkers,0)
+    mRename(Well::IO::sExtD2T,0)
+
+    for ( int idx=1; ; idx++ )
+	mRename(Well::IO::sExtLog,idx)
+    
+    return true;
+}
+
+
+bool WellTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
+{
+    mImplStart(setReadOnly(ro));
+    return true;
 }
 
 
