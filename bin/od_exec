@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.13 2003-04-25 14:03:47 bert Exp $
+# $Id: od_exec,v 1.14 2003-04-28 10:52:19 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -98,6 +98,7 @@ if ( $extrascript != "" ) then
 	source $extrascript
 endif
 
+if ( $?dGB_DEBUG ) echo "Executing: $xtermcmd $bindir/$* $extraargs "
 
 if ( $niceness == 0 ) then
 	$xtermcmd $bindir/$* $extraargs
