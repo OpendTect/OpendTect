@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.6 2005-03-31 15:20:38 cvsnanne Exp $
+ RCS:           $Id: mpeengine.h,v 1.7 2005-03-31 15:28:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,6 @@ public:
 
 protected:
     int				getFreeID();
-    void			removeObjectCB(CallBacker*);
 
     BufferString		errmsg;
     CubeSampling		activevolume;
