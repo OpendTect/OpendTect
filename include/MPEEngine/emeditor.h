@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.3 2005-01-10 12:13:31 kristofer Exp $
+ RCS:           $Id: emeditor.h,v 1.4 2005-01-17 07:13:05 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,10 +24,11 @@ namespace Geometry { class ElementEditor; };
 namespace MPE
 {
 
-class ObjectEditor
+class ObjectEditor : public CallBackClass
 {
 public:
     			ObjectEditor( EM::EMObject& );
+    			~ObjectEditor();
     const EM::EMObject&	emObject() const { return emobject; }
     virtual void	startEdit();
     virtual void	finishEdit();
@@ -51,17 +52,26 @@ public:
     virtual Coord3	getDirectionPlaneNormal( const EM::PosID& ) const;
     virtual Coord3	getDirection( const EM::PosID& ) const;
 
+    Notifier<ObjectEditor>	editpositionchange;
+    				/*!<Won't trigger on position-changes,
+				    but when new edit positions are avaliable
+				    or editpositions has been removed */
+
 protected:
 
     Geometry::ElementEditor*		getEditor( const EM::SectionID& );
     const Geometry::ElementEditor*	getEditor( const EM::SectionID& ) const;
     virtual Geometry::ElementEditor*	createEditor( const EM::SectionID& )=0;
 
+    void				editPosChangeTrigger(CallBacker*);
+    void				emSectionChange(CallBacker*);
+
     EM::EMObject&			emobject;
     TypeSet<EM::PosID>			changedpids;
 
 private:
     ObjectSet<Geometry::ElementEditor>	geeditors;
+    TypeSet<EM::SectionID>		sections;
 };
 
 

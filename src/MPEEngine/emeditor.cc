@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.4 2005-01-10 12:37:01 kristofer Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.5 2005-01-17 07:13:05 kristofer Exp $";
 
 #include "emeditor.h"
 
@@ -23,7 +23,15 @@ namespace MPE
 
 ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
     : emobject( emobj_ )
+    , editpositionchange( this )
 {}
+
+
+ObjectEditor::~ObjectEditor()
+{
+    deepErase( geeditors );
+    sections.erase();
+}
 
 
 void ObjectEditor::startEdit()
@@ -119,18 +127,17 @@ mGetFunction( getDirection );
 
 Geometry::ElementEditor* ObjectEditor::getEditor( const EM::SectionID& sid )
 {
-    const Geometry::Element* ge =
-	const_cast<const EM::EMObject*>(&emobject)->getElement( sid );
-    if ( !ge ) return 0;
-
-    for ( int idx=0; idx<geeditors.size(); idx++ )
-    {
-	if ( &geeditors[idx]->getElement()==ge )
-	    return geeditors[idx];
-    }
+    const int idx = sections.indexOf(sid);
+    if ( idx!=-1 ) return geeditors[idx];
 
     Geometry::ElementEditor* geeditor = createEditor( sid );
-    if ( geeditor ) geeditors += geeditor;
+    if ( geeditor )
+    {
+	geeditors += geeditor;
+	sections += sid;
+	geeditor->editpositionchange.notify(
+		mCB(this,ObjectEditor,editPosChangeTrigger));
+    }
 
     return geeditor;
 }
@@ -138,13 +145,47 @@ Geometry::ElementEditor* ObjectEditor::getEditor( const EM::SectionID& sid )
 
 const Geometry::ElementEditor* ObjectEditor::getEditor(
 	const EM::SectionID& sid ) const
+{ return const_cast<ObjectEditor*>(this)->getEditor(sid); }
+
+
+
+void ObjectEditor::editPosChangeTrigger(CallBacker*)
+{ editpositionchange.trigger(); }
+
+
+void ObjectEditor::emSectionChange(CallBacker* cb)
 {
-    return const_cast<ObjectEditor*>(this)->getEditor(sid);
+    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    if ( cbdata.event!=EM::EMObjectCallbackData::SectionChange )
+	return;
+
+    const EM::SectionID sectionid = cbdata.pid0.sectionID();
+    const int editoridx = sections.indexOf(sectionid);
+
+    const Geometry::Element* ge =
+	const_cast<const EM::EMObject*>(&emobject)->getElement( sectionid );
+
+    if ( !ge && editoridx!=-1 )
+    {
+	delete geeditors[editoridx];
+	geeditors.remove(editoridx);
+	editpositionchange.trigger();
+    }
+    else if ( ge && editoridx==-1 )
+    {
+	Geometry::ElementEditor* geeditor = createEditor( sectionid );
+	if ( geeditor )
+	{
+	    geeditors += geeditor;
+	    sections += sectionid;
+	    geeditor->editpositionchange.notify(
+		    mCB(this,ObjectEditor,editPosChangeTrigger));
+	}
+    }
 }
 
 
-EditorFactory::EditorFactory( const char* emtype,
-			      EMEditorCreationFunc cf )
+EditorFactory::EditorFactory( const char* emtype, EMEditorCreationFunc cf )
     : createfunc( cf )
     , type( emtype )
 {}
