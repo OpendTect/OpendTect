@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.162 2003-10-06 10:57:00 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.163 2003-10-06 15:58:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,9 +235,29 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
     scene->addObject( sd ); //Must be done before loading surface
     				 //Otherwise the transform won't be set
 
-
     setUpConnections( sd->id() );
     return sd->id();
+}
+
+
+bool uiVisPartServer::loadcreateSurface( int id )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
+    if ( !sd ) return false;
+
+    const MultiID& emsurfid = sd->surfaceId();
+    PtrMan<Executor> exec0 = sd->loadSurface( emsurfid );
+    if ( !exec0 ) return false;
+    uiExecutor dlg0( appserv().parent(), *exec0 );
+    if ( !dlg0.go() ) return false;
+
+    PtrMan<Executor> exec1 = sd->createSurface( emsurfid );
+    if ( !exec1 ) return false;
+    uiExecutor dlg1( appserv().parent(), *exec1 );
+    if ( !dlg1.go() ) return false;
+
+    return true;
 }
 
 
@@ -993,13 +1013,17 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
-	    calculateAttrib( children[idy], false );
-	    calculateColorAttrib( children[idy], false );
+	    int childid = children[idy];
+	    if ( isHorizon(childid) || isFault(childid) ) 
+		loadcreateSurface(childid);
 
-	    if ( hasconnections.indexOf( children[idy] ) >= 0 ) continue;
+	    calculateAttrib( childid, false );
+	    calculateColorAttrib( childid, false );
 
-	    setUpConnections( children[idy] );
-	    hasconnections += children[idy];
+	    if ( hasconnections.indexOf( childid ) >= 0 ) continue;
+
+	    setUpConnections( childid );
+	    hasconnections += childid;
 	}
     }
 

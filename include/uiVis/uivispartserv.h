@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.96 2003-10-06 10:57:19 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.97 2003-10-06 15:59:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,6 +222,7 @@ protected:
 
     bool			dumpOI(int id) const;
     void			toggleDraggers();
+    bool			loadcreateSurface(int);
 
     ObjectSet<visSurvey::Scene>	scenes;
     visSurvey::SurfaceInterpreterDisplay* interpreterdisplay;
