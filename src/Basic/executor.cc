@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.7 2002-03-06 10:30:01 kristofer Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.8 2002-03-06 13:24:55 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -21,7 +21,7 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 {
     if ( !strm )
     {
-	int rv = 1;
+	int rv = MoreToDo;
 	while ( rv )
 	{
 	    rv = nextStep();
@@ -62,10 +62,10 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 	go_on = false;
 	switch( rv )
 	{
-	case -1:
+	case ErrorOccurred:
 	    stream << "Error: " << curmsg << endl;
 	break;
-	case  0:
+	case Finished:
 	    stream << "\nFinished: " << Time_getLocalString() << endl;
 	break;
 	default:
@@ -107,10 +107,10 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 
 
 ExecutorGroup::ExecutorGroup( const char* nm )
-    : Executor( nm )
-    , executors( *new ObjectSet<Executor> )
-    , nrdone( 0 )
-    , currentexec( 0 )
+	: Executor( nm )
+	, executors( *new ObjectSet<Executor> )
+	, nrdone( 0 )
+	, currentexec( 0 )
 {}
 
 
@@ -133,27 +133,24 @@ int ExecutorGroup::nextStep()
     if ( !nrexecs ) return Finished;
 
     int res = executors[currentexec]->nextStep();
-    if ( res==Finished )
+    if ( res == Finished )
     {
-	if ( currentexec<nrexecs-1 )
+	if ( currentexec < nrexecs-1 )
 	{
 	    currentexec++;
 	    res = MoreToDo;
 	}
     }
 
-    nrdone ++;
-
+    nrdone++;
     return res;
 }
 
 
 const char* ExecutorGroup::message() const
 {
-    const int nrexecs = executors.size();
-    if ( !nrexecs ) return  Executor::message();
-
-    return executors[currentexec]->message();
+    return executors.size() ? executors[currentexec]->message()
+			    : Executor::message();
 }
 
 
@@ -161,25 +158,36 @@ int ExecutorGroup::totalNr() const
 {
     const int nrexecs = executors.size();
     if ( !nrexecs ) return Executor::totalNr();
+    if ( ! *((const char*)nrdonetext) )
+	return executors[currentexec]->totalNr();
 
-    int sum = 0;
-
+    int totnr = 0;
     for ( int idx=0; idx<nrexecs; idx++ )
     {
-	int val = executors[idx]->totalNr();
-	if ( val<0 ) return -1;
+	int nr = executors[idx]->totalNr();
+	if ( nr < 0 ) return -1;
 
-	sum += val;
+	totnr += nr;
     }
+    return totnr;
 
-    return sum;
+}
+
+
+int ExecutorGroup::nrDone() const
+{
+    if ( *((const char*)nrdonetext) )
+	return nrdone;
+
+    return executors.size() ? executors[currentexec]->nrDone()
+			    : Executor::nrDone();
 }
 
 
 const char* ExecutorGroup::nrDoneText() const
 {
-    const int nrexecs = executors.size();
-    if ( !nrexecs ) return Executor::nrDoneText();
-
-    return executors[currentexec]->nrDoneText();
+    const char* txt = (const char*)nrdonetext;
+    return *txt ? txt
+		: (executors.size() ? executors[currentexec]->nrDoneText()
+				    : Executor::nrDoneText());
 }
