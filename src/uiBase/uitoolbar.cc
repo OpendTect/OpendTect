@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.10 2002-03-21 14:27:17 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.11 2002-03-21 16:21:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,4 +135,18 @@ void uiToolBar::setStretchableWidget( uiObject* obj )
 {
     if ( !body_->qthing() || !obj ) return;
     body_->qthing()->setStretchableWidget( obj->body()->qwidget() );
+}
+
+
+void uiToolBar::setMovingEnabled( bool yn )
+{
+    if ( !body_->qthing() ) return;
+    body_->qthing()->setMovingEnabled( yn );
+}
+
+
+bool uiToolBar::isMovingEnabled()
+{
+    if ( !body_->qthing() ) return false;
+    return body_->qthing()->isMovingEnabled();
 }

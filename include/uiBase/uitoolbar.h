@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.5 2002-03-21 14:27:25 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.6 2002-03-21 16:21:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
 
     void		addSeparator();
     void		setStretchableWidget(uiObject*);
+    void		setMovingEnabled(bool);
+    bool		isMovingEnabled();
 
 protected:
 
