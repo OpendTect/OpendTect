@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.9 2003-10-31 11:55:13 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.10 2003-11-06 16:16:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ uiWellMan::uiWellMan( uiParent* p )
 				 "Manage wells",
 				 "107.1.0").nrstatusflds(1))
     , ctio(*mMkCtxtIOObj(Well))
+    , markerschanged(this)
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
@@ -160,6 +161,7 @@ void uiWellMan::addMarkers( CallBacker* )
     wtr.putMarkers();
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
+    markerschanged.trigger();
 }
 
 

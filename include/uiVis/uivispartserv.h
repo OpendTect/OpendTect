@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.102 2003-10-29 17:07:02 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.103 2003-11-06 16:17:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
     void			shiftHorizon(int id,float);
     int				addWell(int scene,const MultiID&);
     void			displayLog(int id,int,int);
+    void			refreshMarkers();
 
     int				addInterpreter(int scene);
     void			toogleDirection(int obj);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.174 2003-10-29 17:06:55 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.175 2003-11-06 16:17:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -319,6 +319,24 @@ void uiVisPartServer::displayLog( int id, int selidx, int lognr )
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::WellDisplay*,wd,dobj)
     if ( wd ) wd->displayLog( selidx, lognr );
+}
+
+
+void uiVisPartServer::refreshMarkers()
+{
+    TypeSet<int> sceneids;
+    getChildIds( -1, sceneids );
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	TypeSet<int> visids;
+	getChildIds( sceneids[idx], visids );
+	for ( int idv=0; idv<visids.size(); idv++ )
+	{
+	    visBase::DataObject* dobj = visBase::DM().getObj( visids[idv] );
+	    mDynamicCastGet(visSurvey::WellDisplay*,wd,dobj)
+	    if ( wd ) wd->addMarkers();
+	}
+    }
 }
 
 
