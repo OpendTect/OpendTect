@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.2 2003-09-15 09:19:00 kristofer Exp $";
+static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.3 2003-09-15 09:45:26 bert Exp $";
 
 
 #include "vislevelofdetail.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.2 2003-09-15 09:19:00 k
 
 #include "Inventor/nodes/SoLevelOfDetail.h"
 
-mCreateFactoryEntry( visBase::LevelOfDetail )
+mCreateFactoryEntry( visBase::LevelOfDetail );
 
 
 visBase::LevelOfDetail::LevelOfDetail()
