@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.16 2004-02-12 15:49:34 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.17 2004-03-01 14:32:59 nanne Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -110,7 +110,7 @@ float Well::Log::getValue( float dh ) const
     const int idx2 = idx1 + 1;
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
-    return d1 * val_[idx2] + d2 * val_[idx1] / (d1 + d2);
+    return ( d1*val_[idx2] + d2*val_[idx1] ) / (d1 + d2);
 }
 
 
@@ -120,11 +120,17 @@ void Well::Log::addValue( float z, float val )
     {
 	if ( val < range_.start ) range_.start = val;
 	if ( val > range_.stop ) range_.stop = val;
-	assign( selrange, range_ );
+	assign( selrange_, range_ );
     }
 
     dah_ += z; 
     val_ += val;
+}
+
+
+void Well::Log::setSelValueRange( const Interval<float>& newrg )
+{
+    assign( selrange_, newrg );
 }
 
 
