@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.4 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.5 2004-05-13 10:07:38 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiIOObjManipGroup : public uiButtonGroup
 public:
 			uiIOObjManipGroup(uiListBox*,IODirEntryList&,
 				      const char* default_extension);
-			~uiIOObjManipGroup()		{}
+			~uiIOObjManipGroup();
 
     void		selChg(CallBacker*);
     void		refreshList(const MultiID& selkey);
@@ -51,6 +51,7 @@ protected:
     uiToolButton*	renbut;
     uiToolButton*	rembut;
 
+    bool		gtIOObj();
     void		tbPush(CallBacker*);
     void		relocCB(CallBacker*);
 

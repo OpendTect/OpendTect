@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.8 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.9 2004-05-13 10:07:51 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiListBox* l, IODirEntryList& el,
 	, defext(de)
     	, preRelocation(this)
     	, postRelocation(this)
+    	, ioobj(0)
 {
     const ioPixmap locpm( GetDataFileName("filelocation.png") );
     const ioPixmap renpm( GetDataFileName("renameobj.png") );
@@ -58,9 +59,25 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiListBox* l, IODirEntryList& el,
 }
 
 
+uiIOObjManipGroup::~uiIOObjManipGroup()
+{
+    delete ioobj;
+}
+
+
+bool uiIOObjManipGroup::gtIOObj()
+{
+    delete ioobj;
+    ioobj = entries.selected();
+    if ( !ioobj ) return false;
+    ioobj = ioobj->clone();
+    return true;
+}
+
+
 void uiIOObjManipGroup::selChg( CallBacker* c )
 {
-    ioobj = entries.selected();
+    if ( !gtIOObj() ) return;
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     const bool isexisting = ioobj && ioobj->implExists(true);
     const bool isreadonly = isexisting && ioobj->implReadOnly();
@@ -73,8 +90,7 @@ void uiIOObjManipGroup::selChg( CallBacker* c )
 
 void uiIOObjManipGroup::tbPush( CallBacker* c )
 {
-    ioobj = entries.selected();
-    if ( !ioobj ) return;
+    if ( !gtIOObj() ) return;
     mDynamicCastGet(uiToolButton*,tb,c)
     if ( !tb ) { pErrMsg("CallBacker is not uiToolButton!"); return; }
 
@@ -148,13 +164,13 @@ bool uiIOObjManipGroup::renameEntry( Translator* tr )
     }
     else
     {
-	IOObj* ioobj = IOM().getLocal( newnm );
-	if ( ioobj )
+	IOObj* lioobj = IOM().getLocal( newnm );
+	if ( lioobj )
 	{
 	    BufferString msg( "This name is already used by a " );
-	    msg += ioobj->translator();
+	    msg += lioobj->translator();
 	    msg += " object";
-	    delete ioobj;
+	    delete lioobj;
 	    uiMSG().error( msg );
 	    return false;
 	}
