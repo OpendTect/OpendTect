@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.9 2003-06-05 08:56:04 nanne Exp $
+ RCS:           $Id: uiscaler.cc,v 1.10 2003-06-27 16:06:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ Scaler* uiScaler::getScaler() const
     {
     case 0: {
 	double c = linearfld->getValue(0);
-	double f = linearfld->getValue(1);
+	double f = linearfld->isUndef() ? 1 : linearfld->getValue(1);
 	if ( mIsUndefined(c) ) c = 0;
 	if ( mIsUndefined(f) ) f = 1;
 	scaler = new LinScaler( c, f );
