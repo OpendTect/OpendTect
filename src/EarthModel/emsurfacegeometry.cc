@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.14 2005-03-10 11:48:21 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.15 2005-04-05 10:28:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -826,7 +826,9 @@ bool SurfaceGeometry::setPos( SectionID section, const RowCol& rc,
     changed = true;
 
     TypeSet<PosID> nodeonothersections;
-    meshsurf->setKnot( rc, pos );
+    if ( !meshsurf->setKnot(rc,pos) )
+	return false;
+
     //meshsurf->setFillType( geomrowcol, Geometry::MeshSurface::Filled );
 
 //    if ( !pos.isDefined() )
