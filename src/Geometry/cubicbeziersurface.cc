@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.10 2005-03-18 11:23:06 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.11 2005-03-31 15:21:18 cvsnanne Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -724,21 +724,21 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RCol& rc,
     const Coord3* ptr = positions->getData(); \
     int diff = 2*step._rowcol_; \
     int previndex = getKnotIndex(prev); \
-    if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex==-1; \
+    if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex=-1; \
  \
     int nextindex = getKnotIndex(next); \
-    if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex==-1; \
+    if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex=-1; \
  \
     if ( previndex==-1 ) \
     { \
 	previndex=getKnotIndex(rc); \
-	if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex==-1; \
+	if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex=-1; \
 	diff = step._rowcol_; \
     } \
     else if ( nextindex==-1) \
     { \
 	nextindex=getKnotIndex(rc); \
-	if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex==-1; \
+	if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex=-1; \
 	diff = step._rowcol_; \
     } \
  \
