@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.12 2003-11-03 10:25:40 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.13 2003-11-03 12:02:37 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: helpview.cc,v 1.12 2003-11-03 10:25:40 bert Exp
 
 
 static const char* sMainIndex = "MainIndex";
+static const char* sNotInstHtml = "docnotinst.html";
 BufferString HelpViewer::applnm( "dTect" );
 
 
@@ -62,8 +63,8 @@ static StreamData openHFile( const char* nm, const char* scope )
 {
     FileNameString fnm;
     BufferString subfnm( HelpViewer::subdirNm(scope) );
-    if ( !File_exists(subfnm) )
-	fnm = GetDataFileName( "docnotinst.html" );
+    if ( !File_exists(GetDataFileName(subfnm)) )
+	fnm = GetDataFileName( sNotInstHtml );
     else
     {
 	subfnm = File_getFullPath( subfnm, nm );
@@ -222,7 +223,12 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 
 BufferString HelpViewer::getURLForWinID( const char* winid )
 {
+    BufferString scope( getScope(winid) );
+    BufferString subfnm( HelpViewer::subdirNm(scope) );
+    if ( !File_exists(GetDataFileName(subfnm)) )
+	return BufferString( GetDataFileName(sNotInstHtml) );
+
     BufferString lnm = getLinkNameForWinID( winid );
     if ( lnm == "" ) return lnm;
-    return getURLForLinkName( lnm, getScope(winid) );
+    return getURLForLinkName( lnm, scope );
 }
