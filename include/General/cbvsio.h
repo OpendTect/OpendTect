@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.8 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.9 2004-08-18 14:29:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     virtual void	close() 			= 0;
     int			nrComponents() const		{ return nrcomps_; }
     const BinID&	binID() const			{ return curbinid_; }
+    void		setErrMsg( const char* s )	{ errmsg_ = s; }
 
     static const int	integersize;
     static const int	version;

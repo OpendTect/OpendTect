@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.25 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.26 2004-08-18 14:29:57 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -73,22 +73,26 @@ void VBrickSpec::setStd( bool yn )
 
 
 CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
-			    const PosAuxInfo* pai, VBrickSpec* bs )
+			    const PosAuxInfo* pai, VBrickSpec* bs,
+			    bool sf )
 	: CBVSIOMgr(fnm)
 	, info_(i)
+    	, single_file(sf)
 {
     const int totsamps = info_.nrsamples;
     if ( totsamps < 1 ) return;
 
     VBrickSpec spec; if ( bs ) spec = *bs;
-    if ( spec.nrsamplesperslab < 0
+    if ( single_file
+      || spec.nrsamplesperslab < 0
       || spec.nrsamplesperslab >= totsamps
       || spec.maxnrslabs < 2 )
     {
 	std::ostream* strm = mkStrm();
 	if ( !strm ) return;
 	CBVSWriter* wr = new CBVSWriter( strm, info_, pai );
-	wr->setByteThreshold( 1900000000 );
+	if ( !single_file )
+	    wr->setByteThreshold( 1900000000 );
 	writers_ += wr;
 	endsamps_ += totsamps-1;
 	return;
@@ -134,7 +138,8 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 
 std::ostream* CBVSWriteMgr::mkStrm()
 {
-    BufferString* fname = new BufferString( getFileName(curnr_) );
+    BufferString* fname = new BufferString( single_file ? basefname_
+	    				  : getFileName(curnr_) );
     curnr_++;
     StreamData sd = StreamProvider((const char*)*fname).makeOStream();
 
@@ -236,21 +241,29 @@ bool CBVSWriteMgr::put( void** data )
 	ret = writer->put( data );
 	if ( ret == 1 )
 	{
-	    std::ostream* strm = mkStrm();
-	    if ( !strm ) return false;
+	    if ( single_file )
+	    {
+		ret = -1;
+		writer->setErrMsg( "Cannot write more data to seismic file" );
+	    }
+	    else
+	    {
+		std::ostream* strm = mkStrm();
+		if ( !strm ) return false;
 
-	    if ( info_.geom.fullyrectandreg )
-		info_.geom.start.inl = writer->survGeom().stop.inl
-				     + info_.geom.step.inl;
+		if ( info_.geom.fullyrectandreg )
+		    info_.geom.start.inl = writer->survGeom().stop.inl
+					 + info_.geom.step.inl;
 
-	    writer->forceLineStep( writer->survGeom().step );
-	    CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
-	    writers_ += newwriter;
-	    writers_ -= writer;
-	    delete writer;
-	    writer = newwriter;
+		writer->forceLineStep( writer->survGeom().step );
+		CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
+		writers_ += newwriter;
+		writers_ -= writer;
+		delete writer;
+		writer = newwriter;
 
-	    ret = writer->put( data );
+		ret = writer->put( data );
+	    }
 	}
     }
 

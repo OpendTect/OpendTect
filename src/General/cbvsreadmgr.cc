@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.36 2004-08-05 08:42:34 nanne Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.37 2004-08-18 14:29:57 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -26,7 +26,8 @@ static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 }
 
 
-CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs )
+CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
+			  bool single_file )
 	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
 	, vertical_(false)
@@ -55,7 +56,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs )
     bool alreadyfailed = false;
     for ( int fnr=0; ; fnr++ )
     {
-	BufferString fname = getFileName( fnr );
+	BufferString fname = single_file ? fnm : getFileName(fnr).buf();
 	if ( !File_exists((const char*)fname) )
 	    break;
 
@@ -67,6 +68,8 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs )
 	}
 	else
 	    fnames_ += new BufferString( fname );
+
+	if ( single_file ) break;
     }
 
     if ( !readers_.size() )
