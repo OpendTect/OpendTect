@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.50 2004-09-15 09:08:25 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.51 2004-09-17 15:20:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -598,8 +598,16 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	TypeSet<int> interpreterids;
 	visserv->findObject( typeid(visSurvey::SurfaceInterpreterDisplay), 
 			     interpreterids );
-	trackserv->setInterpreterID( sceneids[0], interpreterids[0] );
-	visserv->setTrackMan( interpreterids[0], trackserv->trackManager() );
+	if ( !interpreterids.size() ) return false;
+	const int interpreterid = interpreterids[0];
+	for ( int idx=0; idx<sceneids.size(); idx++ )
+	    trackserv->setInterpreterID( sceneids[idx], interpreterid );
+	visserv->setTrackMan( interpreterid, trackserv->trackManager() );
+    }
+    else if ( evid == uiTrackingPartServer::evRemoveSurface )
+    {
+	visserv->removeObject( trackserv->displayID(), sceneid );
+	sceneMgr().removeTreeItem( trackserv->displayID() );
     }
     else
 	pErrMsg("Unknown event from trackserv");

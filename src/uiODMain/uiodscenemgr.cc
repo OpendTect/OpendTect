@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.26 2004-09-15 06:46:06 kristofer Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.27 2004-09-17 15:20:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -620,6 +620,17 @@ int uiODSceneMgr::addSurfaceItem( const MultiID& mid, int sceneid, bool ishor )
     }
 
     return -1;
+}
+
+
+void uiODSceneMgr::removeTreeItem( int displayid )
+{
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	Scene& scene = *scenes[idx];
+	uiTreeItem* itm = scene.itemmanager->findChild( displayid );
+	if ( itm ) scene.itemmanager->removeChild( itm );
+    }
 }
 
 
