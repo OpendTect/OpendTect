@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.5 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: pca.h,v 1.6 2003-11-24 08:36:13 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "arrayndimpl.h"
 #include "sets.h"
 #include "trigonometry.h"
 
@@ -37,7 +38,7 @@ public:
     bool				calculate();
 
     float			getEigenValue(int) const;
-    void			getEigenVector(int, TypeSet<float>&) const;
+    template <class IDXABL> void getEigenVector(int, IDXABL&) const;
     void			setThreadWorker ( Threads::ThreadWorkManager* );
 
 protected:
@@ -45,12 +46,16 @@ protected:
     void			tred2( ObjectSet<float>&, int, float[],float[]);
 
     const int			nrvars;
-    Array2D<float>&		covariancematrix;
+    Array2DImpl<float>		covariancematrix;
     ObjectSet<TypeSet<float> >	samples;
     TypeSet<float>		samplesums;
     Threads::ThreadWorkManager*	threadworker;
     ObjectSet<BasicTask>	tasks;
-    TypeSet<float>		eigenvalues;
+    float*			eigenvalues;
+    				/*!<The negation of the eigenval,
+    				    to get the sorting right.
+				*/
+    int*			eigenvecindexes;
 };
 
 
@@ -66,6 +71,13 @@ void PCA::addSample( const IDXABL& sample )
     }
 
     samples += &ownsample;
+}
+
+template <class IDXABL>
+void PCA::getEigenVector(int idy, IDXABL& vec ) const
+{
+    for ( int idx=0; idx<nrvars; idx++ )
+	vec[idx] = covariancematrix.get(idx, eigenvecindexes[idy] );
 }
 
 #endif
