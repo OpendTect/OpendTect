@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.25 2001-10-12 14:32:41 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.26 2001-10-12 16:26:12 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -93,7 +93,6 @@ bool CBVSReader::readInfo()
 		   ? info_.geom.stop.inl : info_.geom.start.inl;
     lastbinid.crl  = info_.geom.step.crl > 0
 		   ? info_.geom.stop.crl : info_.geom.start.crl;
-    curbinid_ = firstbinid;
     if ( info_.geom.fullyrectandreg )
 	nrxlines_ = (lastbinid.crl - firstbinid.crl) / info_.geom.step.crl + 1;
     else
@@ -107,6 +106,7 @@ bool CBVSReader::readInfo()
 	firstbinid.crl = iinf->segments[0].start;
     }
 
+    curbinid_ = firstbinid;
     return true;
 }
 
