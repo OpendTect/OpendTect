@@ -13,12 +13,20 @@ extern "C" {
 #define PI_AUTO_INIT_EARLY	1
 #define PI_AUTO_INIT_LATE	2
 
+typedef struct {
+
+    const char*	creator;
+    const char*	version;
+    const char*	text;
+
+} PluginInfo;
+
 /* C Access. C++ should use PluginManager! */
 
 /*! To be called from program (once for EARLY, once for LATE) */
-void LoadAutoPlugins(int* pargc,char** argv,int inittype);
+void LoadAutoPlugins(int argc,char** argv,int inittype);
 /*! To be called from program if needed */
-bool LoadPlugin(const char* libnm,int* pargc,char** argv);
+bool LoadPlugin(const char* libnm,int argc,char** argv);
 
 
 #ifdef __cpp__
@@ -38,26 +46,37 @@ bool LoadPlugin(const char* libnm,int* pargc,char** argv);
  The signature is:
 
  extern "C" {
- const char* xxxInitPlugin(int*,char**);
+ const char* xxxInitPlugin(int,char**);
  }
 
- An optional extra, if you want the plugin to be loaded automatically at
- startup is:
+ Optional extras.
 
- int xxxGetPluginType(void);
+ 1) If you want the plugin to be loaded automatically at
+ startup define:
+
+ extern "C" int xxxGetPluginType(void);
 
  if not defined, PI_AUTO_INIT_NONE is assumed, which means it will not be loaded
  if not explicitly done so.
 
  Loading from startup is done from $HOME/.odplugins/$HDIR or $dGB_APPL/...
+ The plugins will be loaded in alphabetical order.
+
+ 2) It may be a good idea to define a function:
+
+ extern "C" PluginInfo* xxxGetPluginInfo(void);
+
+ Make sure it returns an object of type PluginManager::Info*. Make sure it
+ points to an existing object (static or made with new/malloc);
+
  */
 
 class PluginManager
 {
 public:
 
-    void			setArgs( int& argc, char** argv )
-				{ argc_ = &argc, argv_ = argv; }
+    void			setArgs( int argc, char** argv )
+				{ argc_ = argc, argv_ = argv; }
     bool			load( const char* libnm )
 				{ return LoadPlugin(libnm,argc_,argv_); }
     void			loadAuto( bool late=true )
@@ -69,22 +88,26 @@ public:
 				{ return loaded_; }
     const char*			userName(const char*) const;
     				//!< returns without 'lib', extension and path
+    const PluginInfo&		getInfo(const char*) const;
 
 private:
 
+    				PluginManager();
     friend PluginManager&	PIM();
 
-    int*			argc_;
+    int				argc_;
     char**			argv_;
     static PluginManager*	theinst_;
     ObjectSet<BufferString>	loaded_;
+    ObjectSet<PluginInfo>	info_;
 
     void			getUsrNm(const char*,BufferString&) const;
+    const char*			getFullName(const char*) const;
 
 public:
 
-    void			addLoaded( const char* s )
-				{ loaded_ += new BufferString( s ); }
+    void			addLoaded( const char* s, PluginInfo* p )
+				{ loaded_ += new BufferString(s); info_ += p; }
     				//!< Don't use.
 };
 

@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.8 2003-10-03 15:22:03 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.9 2003-10-06 14:26:23 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -23,7 +23,8 @@ static const char* plugindir = ".odplugins";
 extern "C" {
 
     typedef int (*VoidIntRetFn)(void);
-    typedef const char* (*ArgcArgvCCRetFn)(int*,char**);
+    typedef const char* (*ArgcArgvCCRetFn)(int,char**);
+    typedef PluginInfo* (*PluginInfoRetFn)(void);
 
 };
 
@@ -56,7 +57,7 @@ static const char* getFnName( const char* libnm, const char* fnend )
 	{ act; if ( handle ) dlclose(handle); return false; }
 #endif
 
-static bool loadPlugin( const char* libnm, int* pargc, char** argv,
+static bool loadPlugin( const char* libnm, int argc, char** argv,
 			int inittype )
 {
     if ( inittype == PI_AUTO_INIT_NONE ) return false;
@@ -96,11 +97,28 @@ static bool loadPlugin( const char* libnm, int* pargc, char** argv,
 			    << getFnName(libnmonly,"InitPlugin")
 			    << " function in " << libnm << endl )
 
-    const char* ret = (*fn2)(pargc,argv);
+    const char* ret = (*fn2)(argc,argv);
     if ( ret )
 	mNotLoadedRet( cerr << libnm << ": " << ret << endl )
 
-    PIM().addLoaded( libnm );
+#ifdef __win__
+    PluginInfoRetFn fn3 = reinterpret_cast<PluginInfoRetFn>
+	    ( GetProcAddress( handle, getFnName(libnmonly,"GetPluginInfo") ) );
+#else
+    PluginInfoRetFn fn3 = (PluginInfoRetFn)dlsym( handle,
+				getFnName(libnmonly,"GetPluginInfo") );
+#endif
+    PluginInfo* piinf = 0;
+    if ( fn3 )
+	piinf = (*fn3)();
+    if ( !piinf )
+    {
+	piinf = new PluginInfo;
+	piinf->creator = piinf->version = piinf->text = "";
+    }
+
+    PIM().addLoaded( libnm, piinf );
+
     if ( getenv( "OD_SHOW_PLUGIN_LOAD" ) )
 	cerr << "Successfully loaded plugin " << libnm << endl;
 
@@ -108,13 +126,13 @@ static bool loadPlugin( const char* libnm, int* pargc, char** argv,
 }
 
 
-extern "C" bool LoadPlugin( const char* libnm, int* pargc, char** argv )
+extern "C" bool LoadPlugin( const char* libnm, int argc, char** argv )
 {
-    return loadPlugin(libnm,pargc,argv,-1);
+    return loadPlugin(libnm,argc,argv,-1);
 }
 
 
-static void loadPlugins( const char* dirnm, int* pargc, char** argv,
+static void loadPlugins( const char* dirnm, int argc, char** argv,
 			 int inittype )
 {
     DirList dl( dirnm, -1 );
@@ -126,12 +144,12 @@ static void loadPlugins( const char* dirnm, int* pargc, char** argv,
 	    continue;
 
 	BufferString fulllibnm = File_getFullPath( dirnm, libnm );
-	loadPlugin( fulllibnm, pargc, argv, inittype );
+	loadPlugin( fulllibnm, argc, argv, inittype );
     }
 }
 
 
-static void loadPIs( const char* dnm, int* pargc, char** argv, int inittype )
+static void loadPIs( const char* dnm, int argc, char** argv, int inittype )
 {
     BufferString dirnm = File_getFullPath( dnm, getHDir() );
     if ( !File_exists(dirnm) )
@@ -139,19 +157,28 @@ static void loadPIs( const char* dnm, int* pargc, char** argv, int inittype )
 
     const BufferString prognm( File_getFileName(argv[0]) );
     BufferString specdirnm = File_getFullPath( dirnm, prognm );
-    loadPlugins( specdirnm, pargc, argv, inittype );
-    loadPlugins( dirnm, pargc, argv, inittype );
+    loadPlugins( specdirnm, argc, argv, inittype );
+    loadPlugins( dirnm, argc, argv, inittype );
 }
 
 
-extern "C" void LoadAutoPlugins( int* pargc, char** argv, int inittype )
+extern "C" void LoadAutoPlugins( int argc, char** argv, int inittype )
 {
     const BufferString homedir( GetHomeDir() );
     BufferString dirnm = File_getFullPath( homedir, plugindir );
-    loadPIs( dirnm, pargc, argv, inittype );
+    loadPIs( dirnm, argc, argv, inittype );
     const BufferString swdir( GetSoftwareDir() );
     dirnm = File_getFullPath( swdir, plugindir );
-    loadPIs( dirnm, pargc, argv, inittype );
+    loadPIs( dirnm, argc, argv, inittype );
+}
+
+
+static char* errargv[] = { "<not set>", 0 };
+
+PluginManager::PluginManager()
+	: argc_(1)
+    	, argv_(errargv)
+{
 }
 
 
@@ -162,22 +189,26 @@ void PluginManager::getUsrNm( const char* libnm, BufferString& nm ) const
 }
 
 
-bool PluginManager::isLoaded( const char* nm )
+const char* PluginManager::getFullName( const char* nm ) const
 {
-    int idx = indexOf( loaded_, nm );
-    if ( idx >= 0 ) return true;
-
     BufferString curnm;
-    for ( idx=0; idx<loaded_.size(); idx++ )
+    for ( int idx=0; idx<loaded_.size(); idx++ )
     {
 	const BufferString& lnm = *loaded_[idx];
-	if ( lnm == nm ) return true;
+	if ( lnm == nm ) return lnm.buf();
 	curnm = File_getFileName(lnm);
-	if ( curnm == nm ) return true;
+	if ( curnm == nm ) return lnm.buf();
 	getUsrNm( lnm, curnm );
-	if ( curnm == nm ) return true;
+	if ( curnm == nm ) return lnm.buf();
     }
-    return false;
+
+    return 0;
+}
+
+
+bool PluginManager::isLoaded( const char* nm )
+{
+    return getFullName(nm) ? true : false;
 }
 
 
@@ -186,4 +217,18 @@ const char* PluginManager::userName( const char* libnm ) const
     static BufferString ret;
     getUsrNm( libnm, ret );
     return ret.buf();
+}
+
+
+const PluginInfo& PluginManager::getInfo( const char* nm ) const
+{
+    static PluginInfo notloadedinfo = { "Not loaded", "", "" };
+
+    const char* fullnm = getFullName( nm );
+    if ( !fullnm ) return notloadedinfo;
+
+    int idx = indexOf( loaded_, fullnm );
+    if ( idx<0 ) return notloadedinfo; // Huh?
+
+    return *info_[idx];
 }
