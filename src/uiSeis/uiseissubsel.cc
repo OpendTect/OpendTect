@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.15 2004-09-16 21:50:26 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.16 2004-09-20 11:49:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,8 +287,6 @@ void uiSeis2DSubSel::selChg( CallBacker* )
     bool disp = !isAll();
     trcrgfld->display( disp );
     zfld->display( disp );
-    if ( lnmsfld )
-	lnmsfld->display( disp );
 }
 
 
@@ -338,20 +336,25 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 {
     const bool isall = isAll();
     iopar.set( sKey::BinIDSel, isall ? sKey::No : sKey::Range );
+
+    BufferString lnm;
+    if ( lnmsfld && lnmsfld->isChecked() )
+	lnm = lnmsfld->text();
+    if ( lnm == "" )
+	iopar.removeWithKey( SeisSelData::sKeyLineKey );
+    else
+	iopar.set( SeisSelData::sKeyLineKey, lnm );
+
+    iopar.set( sKey::FirstInl, 0 );
+    iopar.set( sKey::LastInl, 100000 );
+    iopar.set( sKey::StepCrl, 1 );
+
     if ( !isall )
     {
 	StepInterval<int> trcrg = trcrgfld->getIStepInterval();
 	iopar.set( sKey::FirstCrl, trcrg.start );
 	iopar.set( sKey::LastCrl, trcrg.stop );
 	iopar.set( sKey::StepCrl, trcrg.step );
-
-	BufferString lnm;
-	if ( lnmsfld && lnmsfld->isChecked() )
-	    lnm = lnmsfld->text();
-	if ( lnm == "" )
-	    iopar.removeWithKey( SeisSelData::sKeyLineKey );
-	else
-	    iopar.set( SeisSelData::sKeyLineKey, lnm );
 
 	StepInterval<float> zrg;
 	if ( !getZRange( zrg ) )
