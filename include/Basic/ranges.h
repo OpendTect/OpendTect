@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.30 2005-01-06 08:19:58 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.31 2005-01-09 15:00:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,11 +131,13 @@ public:
     void			setRange( const TT& start, const TT& stop);
     template <class TT> inline
     void			include( const TT& val );
-    inline IntervalND<T>	intersection( const IntervalND<T>& bnd ) const;
+
 protected:
+
     int			ndim;
     Interval<T>*	ranges;
     bool		isset;
+
 };
 
 
@@ -175,28 +177,6 @@ void IntervalND<T>::include( const TT& val )
 	ranges[dim].include(val[dim]);
 
     isset = true;
-}
-
-
-template <class T> inline
-IntervalND<T> IntervalND<T>::intersection( const IntervalND<T>& bnd ) const
-{
-    IntervalND<T> res( ndim );
-    for ( int dim=0; dim<ndim; dim++ )
-    {
-	const Interval<T>& a = getInterval(dim);
-	const Interval<T>& b = bnd.getInterval(dim);
-
-	Interval<T> intersect1d( mMAX(a.start,b.start), mMIN(a.stop,b.stop ));
-
-	if ( intersect1d.start>intersect1d.stop )
-	    return res;
-
-	*res.ranges[dim] = intersect1d;
-    }
-
-    res.isset = true;
-    return res;
 }
 
 
