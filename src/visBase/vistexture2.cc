@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.19 2003-08-29 14:56:17 bert Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.20 2003-08-29 15:46:48 bert Exp $";
 
 #include "vistexture2.h"
 
@@ -112,27 +112,43 @@ void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
 	const float x0pos=x0*x0step;
 	const int x0idx = (int)x0pos;
 	const float x0relpos = x0pos-x0idx;
-	const bool x0onedge = x0idx == 0 || x0idx == x0sz-1;
+	const bool x0m1udf = x0idx == 0;
+	const bool x0p2udf = x0idx >= x0sz-2;
+	const bool x0p1udf = x0idx == x0sz-1;
 
 	for ( int x1=0; x1<x1sz; x1++ )
 	{
 	    const float x1pos = x1*x1step;
 	    const int x1idx = (int)x1pos;
 	    const float x1relpos = x1pos-x1idx;
-	    const bool x1onedge = x1idx == 0 || x1idx == x1sz-1;
+	    const bool x1m1udf = x1idx == 0;
+	    const bool x1p2udf = x1idx >= x1sz-2;
+	    const bool x1p1udf = x1idx == x1sz-1;
 
-	    const float v01 = x0onedge ? udf : newdata->get( x0idx-1, x1idx );
-	    const float v02 = x0onedge ? udf : newdata->get( x0idx-1, x1idx+1 );
-	    const float v10 = x1onedge ? udf : newdata->get( x0idx,   x1idx-1 );
-	    const float v11 = newdata->get( x0idx,   x1idx );
-	    const float v12 = newdata->get( x0idx,   x1idx+1 );
-	    const float v13 = x1onedge ? udf : newdata->get( x0idx,   x1idx+2 );
-	    const float v20 = x1onedge ? udf : newdata->get( x0idx+1, x1idx-1 );
-	    const float v21 = newdata->get( x0idx+1, x1idx );
-	    const float v22 = newdata->get( x0idx+1, x1idx+1 );
-	    const float v23 = x1onedge ? udf : newdata->get( x0idx+1, x1idx+2 );
-	    const float v31 = x0onedge ? udf : newdata->get( x0idx+2, x1idx );
-	    const float v32 = x0onedge ? udf : newdata->get( x0idx+2, x1idx+1 );
+	    const float v01 = x0m1udf ? udf
+		: newdata->get( x0idx-1, x1idx );
+	    const float v02 = x0m1udf || x1p1udf ? udf
+		: newdata->get( x0idx-1, x1idx+1 );
+	    const float v10 = x1m1udf ? udf
+		: newdata->get( x0idx,   x1idx-1 );
+	    const float v11 =
+		  newdata->get( x0idx,   x1idx );
+	    const float v12 = x1p1udf ? udf
+		: newdata->get( x0idx,   x1idx+1 );
+	    const float v13 = x1p2udf ? udf
+		: newdata->get( x0idx,   x1idx+2 );
+	    const float v20 = x0p1udf || x1m1udf ? udf
+		: newdata->get( x0idx+1, x1idx-1 );
+	    const float v21 = x0p1udf ? udf
+		: newdata->get( x0idx+1, x1idx );
+	    const float v22 = x0p1udf || x1p1udf ? udf
+		: newdata->get( x0idx+1, x1idx+1 );
+	    const float v23 = x0p1udf || x1p2udf ? udf
+		: newdata->get( x0idx+1, x1idx+2 );
+	    const float v31 = x0p2udf ? udf
+		: newdata->get( x0idx+2, x1idx );
+	    const float v32 = x0p2udf || x1p1udf ? udf
+		: newdata->get( x0idx+2, x1idx+1 );
 
 	    if ( mIsUndefined(v11) || mIsUndefined(v12) ||
 		 mIsUndefined(v21) || mIsUndefined(v22) )
