@@ -5,12 +5,13 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.4 2001-05-24 21:36:23 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.5 2001-05-27 21:20:53 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
 #include "ascstream.h"
 #include "ioobj.h"
+#include "ptrman.h"
 
 
 bool PickLocation::fromString( const char* s )
@@ -90,7 +91,38 @@ int PickSetTranslator::selector( const char* key )
 }
 
 
-const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn )
+bool PickSetTranslator::retrieve( PickSet& ps, const IOObj* ioobj,
+				  BufferString& bs, const bool* selarr )
+{
+    if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
+    PtrMan<PickSetTranslator> tr
+        = dynamic_cast<PickSetTranslator*>(ioobj->getTranslator());
+    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+    if ( !conn )
+        { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
+    bs = tr->read( ps, *conn, selarr );
+    return bs == "";
+}
+
+
+bool PickSetTranslator::store( const PickSet& ps, const IOObj* ioobj,
+			       BufferString& bs, const bool* selarr )
+{
+    if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
+    PtrMan<PickSetTranslator> tr
+        = dynamic_cast<PickSetTranslator*>(ioobj->getTranslator());
+    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
+    if ( !conn )
+        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
+    bs = tr->write( ps, *conn, selarr );
+    return bs == "";
+}
+
+
+const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn,
+					const bool* selarr )
 {
     if ( !conn.forRead() || !conn.hasClass(StreamConn::classid) )
 	return "Internal error: bad connection";
@@ -107,28 +139,30 @@ const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn )
 
     ps.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
 
-    do
+    for ( int igrp=0; !atEndOfSection(astrm); igrp++ )
     {
-	PickGroup* newpg = new PickGroup( astrm.value() );
+	PickGroup* newpg = selarr && !selarr[igrp] ? 0
+			 : new PickGroup( astrm.value() );
 	PickLocation loc;
 	while ( !atEndOfSection(astrm.next()) )
 	{
 	    if ( !loc.fromString( astrm.keyWord() ) )
 		break;
-	    *newpg += loc;
+	    if ( newpg ) *newpg += loc;
 	}
 	while ( !atEndOfSection(astrm) ) astrm.next();
 	astrm.next();
 
-	ps.add( newpg );
+	if ( newpg ) ps.add( newpg );
+    }
 
-    } while ( !atEndOfSection(astrm) );
 
     return ps.nrGroups() ? 0 : "No valid picks found";
 }
 
 
-const char* dgbPickSetTranslator::write( const PickSet& ps, Conn& conn )
+const char* dgbPickSetTranslator::write( const PickSet& ps, Conn& conn,
+					 const bool* selarr )
 {
     if ( !conn.forWrite() || !conn.hasClass(StreamConn::classid) )
 	return "Internal error: bad connection";
@@ -141,6 +175,8 @@ const char* dgbPickSetTranslator::write( const PickSet& ps, Conn& conn )
 
     for ( int igrp=0; igrp<ps.nrGroups(); igrp++ )
     {
+	if ( selarr && !selarr[igrp] ) continue;
+
 	const PickGroup& pg = *ps.get( igrp );
 	astrm.put( "Ref", pg.name() );
 	char buf[80];
