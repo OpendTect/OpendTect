@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.48 2003-03-21 13:35:11 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.49 2003-04-10 15:10:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -362,7 +362,10 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
 	    }
 	}
 	mDynamicCastGet(IOLink*,iol,ioobj)
-	if ( !ioobj || iol )
+	bool needmore = !ioobj || iol;
+	if ( iol && ctio.ctxt.maychdir && !entrylist->mustChDir() )
+	    needmore = false;
+	if ( needmore )
 	{
 	    IOM().to( iol );
 	    entrylist->fill( IOM().dirPtr() );
