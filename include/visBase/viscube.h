@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.1 2002-02-27 12:40:18 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.2 2002-02-28 07:02:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,8 @@ ________________________________________________________________________
 
 class SoCube;
 class SoTranslation;
+
+namespace Geometry { class Pos; };
 
 namespace visBase
 {
@@ -34,11 +36,11 @@ public:
 
     			Cube(Scene&);
 
-    void		setCenterPos( float, float, float );
-    float		centerPos( int dim ) const;
+    void		setCenterPos( const Geometry::Pos& );
+    Geometry::Pos	centerPos() const;
     
-    void		setWidth( float, float, float );
-    float		width( int dim ) const;
+    void		setWidth( const Geometry::Pos& );
+    Geometry::Pos	width() const;
 
 protected:
 

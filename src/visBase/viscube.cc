@@ -4,9 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.1 2002-02-27 12:40:40 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.2 2002-02-28 07:03:08 kristofer Exp $";
 
 #include "viscube.h"
+#include "geompos.h"
 
 #include "Inventor/nodes/SoCube.h"
 #include "Inventor/nodes/SoSeparator.h"
@@ -24,29 +25,40 @@ visBase::Cube::Cube( visBase::Scene& s )
 }
 
 
-void visBase::Cube::setCenterPos( float x, float y, float z )
+void visBase::Cube::setCenterPos( const Geometry::Pos& pos )
 {
-    position->translation.setValue( x, y, z );
+    position->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
-float visBase::Cube::centerPos( int dim ) const
+Geometry::Pos visBase::Cube::centerPos() const
 {
-    return position->translation.getValue()[dim];
+    Geometry::Pos res;
+    SbVec3f pos = position->translation.getValue();
+
+    res.x = pos[0];
+    res.y = pos[1];
+    res.z = pos[2];
+
+    return res;
 }
 
 
-void visBase::Cube::setWidth( float x, float y, float z )
+void visBase::Cube::setWidth( const Geometry::Pos& n )
 {
-    cube->width.setValue(x);
-    cube->height.setValue(y);
-    cube->depth.setValue(z);
+    cube->width.setValue(n.x);
+    cube->height.setValue(n.y);
+    cube->depth.setValue(n.z);
 }
 
 
-float visBase::Cube::width( int dim ) const
+Geometry::Pos visBase::Cube::width() const
 {
-    if ( !dim ) return cube->width.getValue();
-    if ( dim==1 ) return cube->height.getValue();
-    return cube->depth.getValue();
+    Geometry::Pos res;
+    
+    res.x = cube->width.getValue();
+    res.y = cube->height.getValue();
+    res.z = cube->depth.getValue();
+
+    return res;
 }
