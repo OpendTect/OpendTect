@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.10 2002-05-30 15:02:11 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.11 2002-06-05 23:25:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,10 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "uimsg.h"
 #include "uiscaler.h"
+#include "uibinidsubsel.h"
 #include "gridmods.h"
 #include "scaler.h"
+#include "survinfo.h"
 
 #include "gridread.h"
 #include "valgridtr.h"
@@ -47,8 +49,11 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
                              BoolInpSpec("X/Y","Inl/Crl") );
     xyfld->attach( alignedBelow, infld );
 
+    subselfld = new uiBinIDSubSel( this );
+    subselfld->attach( alignedBelow, xyfld );
+
     scalefld = new uiScaler( this, "Value scaling", true );
-    scalefld->attach( alignedBelow, xyfld );
+    scalefld->attach( alignedBelow, subselfld );
 
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
@@ -65,24 +70,6 @@ uiImportHorizon::~uiImportHorizon()
 #define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-#include "survinfo.h"
-static void prGrd( const Grid* grd )
-{
-    cout << grd->nrCols() << ' ' << grd->nrRows() << endl;
-    for ( int icol=0; icol<grd->nrCols(); icol++ )
-    {
-	for ( int irow=0; irow<grd->nrRows(); irow++ )
-	{
-	    GridNode gn( icol, irow );
-	    Coord c = grd->base.getCoord( gn );
-	    BinID bid =  SI().transform( c );
-	    cout << bid.inl << ' ' << bid.crl << ' '
-		 << grd->getValue( gn ) << endl;
-	}
-    }
-}
-
-
 bool uiImportHorizon::handleAscii()
 {
     bool doxy = xyfld->getBoolValue();
@@ -97,15 +84,14 @@ bool uiImportHorizon::handleAscii()
 	     : (GridTranslator*) new BinIDGridTranslator;
 
     GridReader reader( trans, conn );
+    BinIDRange* bidrg = subselfld->isAll() ? 0 : subselfld->getRange();
+    reader.setRange( bidrg );
     uiExecutor execdlg( this, reader );
     if ( !execdlg.go() ) return false;
 
     Grid* dskgrd = reader.grid();
-    // prGrd( dskgrd );
-
     PtrMan<Grid> grid = dskgrd->cloneTrimmed();
     delete dskgrd;
-    // prGrd( grid );
 
     Scaler* scaler = scalefld->getScaler();
     if ( scaler )
