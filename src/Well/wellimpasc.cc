@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.19 2004-03-01 14:34:17 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.20 2004-03-31 11:12:21 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -104,9 +104,17 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
 
     const float zfac = zinfeet ? 0.3048 : 1;
     float z, val, prevdah = mUndefValue;
+    bool firstpos = true;
+    bool t_in_ms = false;
     while ( *sd.istrm )
     {
 	*sd.istrm >> z >> val;
+	if ( firstpos )
+	{
+	    firstpos = false;
+	    t_in_ms = val > 2 * SI().zRange(false).stop;
+	}
+
 	z *= zfac;
 	if ( !*sd.istrm ) break;
 	if ( istvd )
@@ -115,6 +123,8 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
 	    if ( mIsUndefined(z) ) continue;
 	    prevdah = z;
 	}
+
+	if ( t_in_ms ) val /= 1000;
 	d2t.add( z, val );
     }
 
