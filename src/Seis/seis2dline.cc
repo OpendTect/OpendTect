@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.9 2004-08-31 10:31:33 dgb Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.10 2004-09-02 15:52:47 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -251,22 +251,38 @@ Executor* Seis2DLineGroup::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 }
 
 
-Executor* Seis2DLineGroup::lineAdder( IOPar* newiop,
-				      const SeisTrcBuf& tbuf ) const
+Seis2DLineGroup::Putter* Seis2DLineGroup::lineReplacer( int nr ) const
 {
-    if ( !newiop || !newiop->size() || !tbuf.size() )
+    if ( nr < 0 || nr >= pars_.size() )
+    {
+	ErrMsg("Replace line number out of range");
+	return 0;
+    }
+    else if ( !liop_ )
+    {
+	ErrMsg("No suitable 2D line write object found");
+	return 0;
+    }
+
+    return liop_->getReplacer( *pars_[nr] );
+}
+
+
+Seis2DLineGroup::Putter* Seis2DLineGroup::lineAdder( IOPar* newiop ) const
+{
+    if ( !newiop || !newiop->size() )
     {
 	ErrMsg("No data for line add provided");
 	return 0;
     }
-    if ( !liop_ )
+    else if ( !liop_ )
     {
 	ErrMsg("No suitable 2D line creation object found");
 	return 0;
     }
 
     const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
-    return liop_->getPutter( *newiop, tbuf, previop );
+    return liop_->getAdder( *newiop, previop );
 }
 
 

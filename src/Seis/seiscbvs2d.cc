@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.10 2004-08-27 12:49:25 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.11 2004-09-02 15:52:47 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -247,23 +247,17 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 }
 
 
-#undef mErrRet
-#define mErrRet(s) { msg = s; return -1; }
-
-class SeisCBVS2DLinePutter : public Executor
+class SeisCBVS2DLinePutter : public Seis2DLineGroup::Putter
 {
 public:
 
-SeisCBVS2DLinePutter( const char* fnm, const SeisTrcBuf& b, int linenr )
-    	: Executor("Store 2D line")
-	, tbuf(b)
-	, curnr(0)
-	, fname(fnm)
+SeisCBVS2DLinePutter( const char* fnm )
+    	: nrwr(0)
+	, fname(getFileName(fnm))
 	, tr(CBVSSeisTrcTranslator::getInstance())
-	, msg("Writing traces")
 {
     tr->setSingleFile( true );
-    bid.inl = linenr;
+    bid.inl = CBVSIOMgr::getFileNr( fnm );
 }
 
 
@@ -272,74 +266,73 @@ SeisCBVS2DLinePutter( const char* fnm, const SeisTrcBuf& b, int linenr )
     delete tr;
 }
 
+const char* errMsg() const	{ return errmsg.buf(); }
+int nrWritten() const		{ return nrwr; }
 
-void updTrc()
+
+bool put( const SeisTrc& trc )
 {
-    if ( curnr >= tbuf.size() ) return;
-    trc = const_cast<SeisTrc*>( tbuf.get( curnr ) );
-    bid.crl = trc->info().nr;
-    oldbid = trc->info().binid;
-    trc->info().binid = bid;
-}
+    SeisTrcInfo& info = const_cast<SeisTrcInfo&>( trc.info() );
+    bid.crl = info.nr;
+    const BinID oldbid = info.binid;
+    info.binid = bid;
 
-
-int nextStep()
-{
-    const int lastbufnr = tbuf.size() - 1;
-    int lastnr = curnr + 10;
-    if ( lastnr > lastbufnr ) lastnr = lastbufnr;
-
-    if ( curnr == 0 )
+    if ( nrwr == 0 )
     {
-	if ( tbuf.size() == 0 )
-	    mErrRet("No traces in 2D line")
-	updTrc();
-	bool res = tr->initWrite(new StreamConn(fname.buf(),Conn::Write),*trc);
-	trc->info().binid = oldbid;
+	bool res = tr->initWrite(new StreamConn(fname.buf(),Conn::Write),trc);
 	if ( !res )
-	    mErrRet("Cannot open the output file for 2D line")
+	{
+	    info.binid = oldbid;
+	    errmsg = "Cannot open 2D line file:\n";
+	    errmsg += tr->errMsg();
+	    return false;
+	}
     }
 
-    for ( ; curnr<=lastnr; curnr++ )
+    bool res = tr->write(trc);
+    info.binid = oldbid;
+    if ( res )
+	nrwr++;
+    else
     {
-	updTrc();
-	bool res = tr->write(*trc);
-	trc->info().binid = oldbid;
-	if ( !res )
-	    mErrRet("Error during trace write to 2D line")
+	errmsg = "Cannot write "; errmsg += nrwr + 1;
+	errmsg += getRankPostFix( nrwr + 1 );
+	errmsg += " trace to 2D line file:\n";
+	errmsg += tr->errMsg();
+	return false;
     }
-
-    return curnr >= lastbufnr ? 0 : 1;
+    return true;
 }
 
-const char*		message() const		{ return msg; }
-const char*		nrDoneText() const	{ return "Traces written"; }
-int			nrDone() const		{ return curnr; }
-int			totalNr() const		{ return tbuf.size(); }
-
-    int			curnr;
-    int			inl;
-    const SeisTrcBuf&	tbuf;
+    int			nrwr;
     BufferString	fname;
-    BufferString	msg;
+    BufferString	errmsg;
     CBVSSeisTrcTranslator* tr;
-    SeisTrc*		trc;
     BinID		bid;
-    BinID		oldbid;
 
 };
 
 
 #undef mErrRet
-#define mErrRet(s) { ErrMsg( s ); return 0; }
+#define mErrRet(s) { pErrMsg( s ); return 0; }
 
-Executor* SeisCBVS2DLineIOProvider::getPutter( IOPar& iop,
-					       const SeisTrcBuf& tbuf,
-	                                       const IOPar* previop )
+Seis2DLineGroup::Putter* SeisCBVS2DLineIOProvider::getReplacer(
+				const IOPar& iop )
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
-    if ( tbuf.size() < 1 )
-	mErrRet("No traces to write")
+
+    const char* res = iop.find( sKey::FileName );
+    if ( !res )
+	mErrRet("Knurft")
+
+    return new SeisCBVS2DLinePutter( res );
+}
+
+
+Seis2DLineGroup::Putter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
+						   const IOPar* previop )
+{
+    if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
     BufferString fnm = iop.find( sKey::FileName );
     if ( fnm == "" )
@@ -357,7 +350,5 @@ Executor* SeisCBVS2DLineIOProvider::getPutter( IOPar& iop,
 	iop.set( sKey::FileName, fnm );
     }
 
-    const int lnr = CBVSIOMgr::getFileNr( fnm );
-    fnm = getFileName( fnm );
-    return new SeisCBVS2DLinePutter( fnm, tbuf, lnr );
+    return new SeisCBVS2DLinePutter( fnm.buf() );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.8 2004-08-31 10:31:21 dgb Exp $
+ RCS:		$Id: seis2dline.h,v 1.9 2004-09-02 15:52:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,14 +43,28 @@ public:
     BufferString	lineKey( int idx ) const
     			{ return lineKey( lineName(idx), attribute(idx) ); }
 
+    struct		Putter
+    {
+	virtual		~Putter()			{}
+
+	virtual bool	put(const SeisTrc&)		= 0;
+	//!< Return null on success, err msg on failure
+	virtual const char* errMsg() const		= 0;
+	//!< Only when put returns false
+	virtual int	nrWritten() const		= 0;
+    };
+
     Executor*		lineFetcher(int,SeisTrcBuf&,
 	    			    const SeisSelData* sd=0) const;
     				//!< May return null
-    Executor*		lineAdder(IOPar*,const SeisTrcBuf&) const;
-    				//!< May return null. If OK, call commitAdd
+    Putter*		lineReplacer(int) const;
+    				//!< May return null. When finished: commitAdd
+    Putter*		lineAdder(IOPar*) const;
+    				//!< May return null. When finished: commitAdd
     void		commitAdd(IOPar*);
     				//!< Must be called after successful add
-    void		remove(int); //!< Also removes from disk
+    void		remove(int);
+    				//!< Also removes from disk
 
 
     bool		getTxtInfo(int,BufferString& uinfo,
@@ -94,8 +108,9 @@ public:
     virtual bool	isEmpty(const IOPar&) const		= 0;
     virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,
 	    			   const SeisSelData* sd=0)	= 0;
-    virtual Executor*	getPutter(IOPar&,const SeisTrcBuf&,
-				  const IOPar* prev=0)		= 0;
+    virtual Seis2DLineGroup::Putter* getReplacer(const IOPar&)	= 0;
+    virtual Seis2DLineGroup::Putter* getAdder(IOPar&,const IOPar* prev) = 0;
+
     virtual bool	getTxtInfo(const IOPar&,BufferString&,
 	    			   BufferString&) const		{ return false;}
     virtual bool	getRanges(const IOPar&,StepInterval<int>&,
