@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.19 2002-04-12 09:19:56 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.20 2002-04-18 06:33:37 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -219,6 +219,8 @@ Geometry::Pos visBase::RectangleDragger::center() const
 {
     SbVec3f pos = manipxydragger0->translation.getValue();
     Geometry::Pos res( pos[0], pos[1], pos[2] );
+    pos = manipzdraggerleft->translation.getValue();
+    res.z = pos[0]*zdraggerscale->scaleFactor.getValue()[2];
     return res;
 }
 
@@ -302,9 +304,8 @@ void visBase::RectangleDragger::syncronizeDraggers()
     SbVec3f xydragpos1 = xydragpos0;
     xydragpos1[1] *= -1;
     xydragpos1[2] *= -1;
-    xydragpos1[2] += 0.1;
-
-    xydragpos0[2] += 0.1;
+    xydragpos1[2] += 0.1; //zdraggerscale->scaleFactor.getValue()[2];
+    xydragpos0[2] += 0.1; //zdraggerscale->scaleFactor.getValue()[2];
 
     manipxydragger0->translation.setValue( xydragpos0 );
     manipxydragger1->translation.setValue( xydragpos1 );
