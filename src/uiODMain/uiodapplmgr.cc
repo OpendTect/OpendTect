@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.14 2004-03-04 17:27:42 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.15 2004-03-11 15:31:51 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -539,6 +539,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 bool uiODApplMgr::handleVisServEv( int evid )
 {
     int visid = visserv->getEventObjId();
+    visserv->unlockEvent();
 
     if ( evid == uiVisPartServer::evUpdateTree )
 	sceneMgr().updateTrees();
