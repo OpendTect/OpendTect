@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.6 2002-12-18 12:21:38 arend Exp $
+ RCS:		$Id: batchprog.h,v 1.7 2003-01-08 10:48:25 arend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -40,7 +40,10 @@ public:
     int			argc()			{ return *pargc_; }
     int&		argc_r()		{ return *pargc_; }
 
-    bool		writeStatus( char tag, int, bool force=false );
+    inline bool		writeStatus( char tag, int stat )
+			    { return writeStatus_( tag, stat, true ); }
+    inline bool		updateStatus( char tag, int stat )
+			    { return writeStatus_( tag, stat, false ); }
 
 protected:
 
@@ -70,6 +73,8 @@ protected:
     bool		initOutput();
     void		progKilled(CallBacker*);
     void		killNotify( bool yn );
+
+    bool		writeStatus_( char tag, int, bool force );
 
     int			exitstat_;
     int			timestamp_;
