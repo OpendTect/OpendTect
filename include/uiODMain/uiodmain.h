@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.4 2003-12-28 16:10:23 bert Exp $
+ RCS:           $Id: uiodmain.h,v 1.5 2004-01-07 14:31:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,12 +66,13 @@ protected:
 
     bool		failed;
 
+    virtual bool	closeOK();
+
 private:
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();
     bool		buildUI();
-    bool		closeOk(CallBacker*);
 
     CtxtIOObj*		getUserSessionIOData(bool);
     bool		hasSessionChanged();

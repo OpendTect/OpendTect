@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.7 2004-01-05 14:59:54 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.8 2004-01-07 14:32:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -351,7 +351,7 @@ bool uiODMain::go()
 }
 
 
-bool uiODMain::closeOk( CallBacker* )
+bool uiODMain::closeOK()
 {
     if ( failed ) return true;
 
@@ -374,7 +374,7 @@ bool uiODMain::closeOk( CallBacker* )
 
 void uiODMain::exit()
 {
-    if ( !closeOk(0) ) return;
+    if ( !closeOK() ) return;
 
     uiapp.exit(0);
 }
