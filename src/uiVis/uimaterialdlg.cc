@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.5 2004-03-02 13:29:56 nanne Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.6 2004-03-03 12:43:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,65 +30,64 @@ uiMaterialDlg::uiMaterialDlg( uiParent* p, visBase::Material* mat,
     , shineslider( 0 )
     , transslider( 0 )
 {
-    uiObject* prevslider = 0;
+    uiGroup* prevslider = 0;
 
     if ( ambience )
     {
-	uiSliderExtra* slider = new uiSliderExtra( this, "Ambience" );
-	ambslider = slider->sldr();
-	ambslider->valueChanged.notify( mCB(this,uiMaterialDlg,ambSliderMove) );
-	prevslider = ambslider;
+	uiSliderExtra* se = new uiSliderExtra( this, "Ambience" );
+	ambslider = se->sldr();
+	ambslider->valueChanged.notify( 
+				mCB(this,uiMaterialDlg,ambSliderMove) );
+	prevslider = se;
     }
 
     if ( diffusecolor )
     {
-	uiSliderExtra* slider = new uiSliderExtra( this, "Diffuse color" );
-	diffslider = slider->sldr();
+	uiSliderExtra* se = new uiSliderExtra( this, "Diffuse color" );
+	diffslider = se->sldr();
 	diffslider->valueChanged.notify( 
 				mCB(this,uiMaterialDlg,diffSliderMove) );
-	if ( prevslider ) diffslider->attach( alignedBelow, prevslider );
-	prevslider = diffslider;
+	if ( prevslider ) se->attach( alignedBelow, prevslider );
+	prevslider = se;
     }
 
     if ( specularcolor )
     {
-	uiSliderExtra* slider = new uiSliderExtra( this, "Specular color" );
-	specslider = slider->sldr();
-	specslider->valueChanged.notify(
+	uiSliderExtra* se = new uiSliderExtra( this, "Specular color" );
+	specslider = se->sldr();
+	specslider->valueChanged.notify( 
 				mCB(this,uiMaterialDlg,specSliderMove) );
-	if ( prevslider ) specslider->attach( alignedBelow, prevslider );
-	prevslider = specslider;
-
+	if ( prevslider ) se->attach( alignedBelow, prevslider );
+	prevslider = se;
     }
 
     if ( emmissivecolor )
     {
-	uiSliderExtra* slider = new uiSliderExtra( this, "Emissive color" );
-	emisslider = slider->sldr();
+	uiSliderExtra* se = new uiSliderExtra( this, "Emissive color" );
+	emisslider = se->sldr();
 	emisslider->valueChanged.notify(
 				mCB(this,uiMaterialDlg,emisSliderMove) );
-	if ( prevslider ) emisslider->attach( alignedBelow, prevslider );
-	prevslider = emisslider;
+	if ( prevslider ) se->attach( alignedBelow, prevslider );
+	prevslider = se;
     }
 
     if ( shininess )
     {
-	uiSliderExtra* slider = new uiSliderExtra( this, "Shininess" );
-	shineslider = slider->sldr();
+	uiSliderExtra* se = new uiSliderExtra( this, "Shininess" );
+	shineslider = se->sldr();
 	shineslider->valueChanged.notify( 
 				mCB(this,uiMaterialDlg,shineSliderMove) );
-	if (  prevslider ) shineslider->attach( alignedBelow, prevslider );
-	prevslider = shineslider;
+	if ( prevslider ) se->attach( alignedBelow, prevslider );
+	prevslider = se;
     }
 
     if ( transparency )
     {
-	uiSliderExtra* slider = new uiSliderExtra( this, "Transparency" );
-	transslider = slider->sldr();
-	transslider->valueChanged.notify( 
+	uiSliderExtra* se = new uiSliderExtra( this, "Transparency" );
+	transslider = se->sldr();
+	transslider->valueChanged.notify(
 				mCB(this,uiMaterialDlg,transSliderMove) );
-	if (  prevslider ) transslider->attach( alignedBelow, prevslider );
-	prevslider = transslider;
+	if ( prevslider ) se->attach( alignedBelow, prevslider );
     }
 
     setCancelText( "" );
