@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.h,v 1.1 2002-02-13 08:33:48 arend Exp $
+ RCS:           $Id: uithumbwheel.h,v 1.2 2002-02-13 10:42:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class uiThumbWheelBody;
 
 class uiThumbWheel : public uiObject
 {
+friend class		i_ThumbWheelMessenger;
 public:
 
                         uiThumbWheel( uiParent*, const char* nm="uiThumbWheel",
@@ -38,10 +39,15 @@ public:
     int			step() const;
     void		setStep(int);
 
+    float		lastMoveVal()		{ return lastmv; }
 
     Notifier<uiThumbWheel> wheelPressed;
     Notifier<uiThumbWheel> wheelMoved;
     Notifier<uiThumbWheel> wheelReleased;
+
+protected:
+
+    float               lastmv;
 
 private:
 

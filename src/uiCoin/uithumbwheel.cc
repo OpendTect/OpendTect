@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.cc,v 1.1 2002-02-13 08:33:48 arend Exp $
+ RCS:           $Id: uithumbwheel.cc,v 1.2 2002-02-13 10:42:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ uiThumbWheel::uiThumbWheel(  uiParent* parnt, const char* nm, bool hor )
     , wheelPressed(this)
     , wheelMoved(this)
     , wheelReleased(this)
+    , lastmv( 0 )
 {
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: i_qthumbwhl.h,v 1.1 2002-02-13 08:33:48 arend Exp $
+ RCS:           $Id: i_qthumbwhl.h,v 1.2 2002-02-13 10:42:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,11 @@ private slots:
 
     void 		wheelPressed(void) 
 			{ _receiver->wheelPressed.trigger(*_receiver); }
-    void 		wheelMoved(float)
-			{ _receiver->wheelMoved.trigger(*_receiver); }
+    void 		wheelMoved(float val)
+			{ 
+			    _receiver->lastmv = val;
+			    _receiver->wheelMoved.trigger(*_receiver); 
+			}
     void 		wheelReleased(void)
 			{ _receiver->wheelReleased.trigger(*_receiver); }
 
