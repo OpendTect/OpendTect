@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.5 2003-01-10 10:18:23 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.6 2003-01-16 15:29:20 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: vistexture2.cc,v 1.5 2003-01-10 10:18:23 kristo
 #include "Inventor/nodes/SoGroup.h"
 #include "Inventor/nodes/SoTexture2.h"
 
+
+mCreateFactoryEntry( visBase::Texture2 );
 
 visBase::Texture2::Texture2()
     : x0sz( -1 )
