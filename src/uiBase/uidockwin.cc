@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.13 2004-05-07 14:31:15 macman Exp $
+ RCS:           $Id: uidockwin.cc,v 1.14 2004-05-10 14:09:14 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,11 +68,15 @@ protected:
 	show();
     }
 
-    Timer		redrtimer;
+    static Timer	redrtimer;
+    CallBack		mycallback_;
 #endif
 
 };
 
+#ifdef _machack_
+Timer uiDockWinBody::redrtimer;
+#endif
 
 
 uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt, 
@@ -83,10 +87,13 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
+#ifdef _machack_
+	, mycallback_( mCB(this, uiDockWinBody, redrTimTick) )
+#endif
 {
     if ( *nm ) setCaption( nm );
 #ifdef _machack_
-    redrtimer.tick.notify( mCB(this, uiDockWinBody, redrTimTick) );
+    redrtimer.tick.notify( mycallback_ );
     redrtimer.start( 500, true );
 #endif
 }
@@ -106,6 +113,9 @@ void uiDockWinBody::construct()
 
 uiDockWinBody::~uiDockWinBody( )
 {
+#ifdef _machack_
+    redrtimer.tick.remove( mycallback_ );
+#endif
     //delete centralWidget_;
 }
 
