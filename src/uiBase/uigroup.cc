@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.12 2001-09-18 06:24:45 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.13 2001-09-19 12:16:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ public:
     void		setPrntBody (uiGroupParentBody* pb)
 			    { prntbody_ = pb; }
 
-    virtual int		stretch( bool hor );
+//  virtual int		stretch( bool hor );
 
 protected:
 
@@ -182,12 +182,13 @@ void uiGroupObjBody::reDraw( bool deep )
     uiObjectBody::reDraw( deep ); // calls qWidget().update()
 }
 
+/*
 int uiGroupObjBody::stretch( bool hor )
 {
     int s = uiObjectBody::stretch( hor );
     return s ? s : prntbody_->sumChildrenStretch( hor );
 }
-
+*/
 
 void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
 
