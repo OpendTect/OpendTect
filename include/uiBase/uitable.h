@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.4 2003-04-01 10:08:08 arend Exp $
+ RCS:           $Id: uitable.h,v 1.5 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,22 +36,29 @@ public:
     public:
 
 			Setup()
-			    : rowgrow_(false)
+			    : size_( -1, -1 )
+			    , rowgrow_(false)
 			    , colgrow_(false)
 			    , rowdesc_("Row")
-			    , coldesc_("Column")	{}
+			    , coldesc_("Column")
+			    , fillrow_(true)
+			    , fillcol_(false)	{}
 
 	Setup& size( const Size& s )		{ size_ = s; return *this; }
 	Setup& rowdesc( const char* s )		{ rowdesc_ = s; return *this; }
 	Setup& coldesc( const char* s )		{ coldesc_ = s; return *this; }
 	Setup& rowcangrow( bool s=true )	{ rowgrow_ = s; return *this; }
 	Setup& colcangrow( bool s=true )	{ colgrow_ = s; return *this; }
+	Setup& fillrow( bool s=true )		{ fillrow_ = s; return *this; }
+	Setup& fillcol( bool s=true )		{ fillcol_ = s; return *this; }
 
 	Size		size_;
 	BufferString	rowdesc_;
 	BufferString	coldesc_;
 	bool		rowgrow_;
 	bool		colgrow_;
+	bool		fillrow_; //!< grow cell heights to fill up avail space
+	bool		fillcol_; //!< grow cell widths to fill up avail space
     };
 
                         uiTable(uiParent*, const Setup&,const char* nm="Table");
@@ -65,8 +72,8 @@ public:
 
 
     int			nrRows() const;
-    void		setNrRows( int nr);
     int			nrCols() const;
+    void		setNrRows( int nr);
     void		setNrCols( int nr);
 
     Size		size() const	{ return Size( nrCols(), nrRows() ); }
@@ -76,7 +83,8 @@ public:
 			    setNrRows( s.height() );
 			}
 
-
+    int			columnWidth( int col ) const;
+    int			rowHeight( int row ) const;
     void		setColumnWidth( int col, int w );
     void		setRowHeight( int row, int h );
 
@@ -148,11 +156,16 @@ protected:
     void		clicked_(CallBacker*);
     void		rightClk();
 
+    void		geometrySet_(CallBacker*);
+    void		updateCellSizes(uiSize* sz=0);
+
 
 private:
 
     uiTableBody*	body_;
     uiTableBody&	mkbody(uiParent*, const char*, int, int);
+
+    uiSize		lastsz;
 
 };
 

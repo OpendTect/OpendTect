@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.71 2003-03-24 15:33:57 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.72 2003-04-22 09:49:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ public:
 #define mQWIDGET_BASE   QMainWindow
 #define mQWIDGET_BODY   QMainWindow
 #define UIBASEBODY_ONLY
+#define UIPARENT_BODY_CENTR_WIDGET
 #include                "i_uiobjqtbody.h"
 
 public:
@@ -90,35 +91,6 @@ public:
                         {
 			    MsgClass::theCB = mCB(&uiMSG(),uiMsg,handleMsg);
                             QMainWindow::polish();
-                        }
-
-    uiGroup*		uiCentralWidg()		{ return centralWidget_; }
-
-
-    virtual void        addChild( uiObjHandle& child )
-			{ 
-			    if ( !initing && centralWidget_ ) 
-				centralWidget_->addChild( child );
-			    else
-				uiParentBody::addChild( child );
-			}
-
-    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
-			{ 
-			    if ( !initing && centralWidget_ ) 
-				centralWidget_->manageChld( o, b );
-
-			}
-
-    virtual void  	attachChild ( constraintType tp,
-                                              uiObject* child,
-                                              uiObject* other, int margin,
-					      bool reciprocal )
-                        {
-                            if ( !child || initing ) return;
-
-			    centralWidget_->attachChild( tp, child, other,
-							 margin, reciprocal); 
                         }
 
     void		reDraw( bool deep )
@@ -176,24 +148,11 @@ protected:
 
     virtual void	finalise( bool trigger_finalise_start_stop=true );
 
-    bool		initing;
     bool		exitapponclose_;
-
-    uiGroup*		centralWidget_;
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
     uiToolBar* 		toolbar;
-
-
-
-    virtual const QWidget* managewidg_() const 
-			{ 
-			    if ( !initing ) 
-				return centralWidget_->pbody()->managewidg();
-			    return qwidget_();
-			}
-
 
 private:
 
@@ -231,7 +190,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, popped_up( false )
 	, exitapponclose_( false )
 {
-    if ( *nm ) setCaption( nm );
+    if ( nm && *nm ) setCaption( nm );
     poptimer.tick.notify(mCB(this,uiMainWinBody,popTimTick));
 }
 
@@ -494,11 +453,8 @@ bool uiMainWin::shrinkAllowed()
     { return topGroup() ? topGroup()->shrinkAllowed() : false; }
 
 
-uiObject* uiMainWin::uiObj()
-    { return body_->uiCentralWidg()->uiObj(); }
-
-const uiObject* uiMainWin::uiObj() const
-    { return body_->uiCentralWidg()->uiObj(); }
+uiObject* uiMainWin::mainobject()
+    { return body_->uiCentralWidg()->mainObject(); }
 
 void uiMainWin::toStatusBar( const char* txt, int fldidx )
 {
@@ -864,7 +820,7 @@ uiObject* uiDialogBody::createChildren()
 	    dlgGroup->attach( stretchedBelow, obj );
     }
 
-    uiObject* lowestobj = dlgGroup->uiObj();
+    uiObject* lowestobj = dlgGroup->mainObject();
     if ( setup.separator_ && ( okBut || cnclBut || saveBut_cb || 
 			       saveBut_pb || helpBut) )
     {
@@ -926,7 +882,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	mCommonLayout(centerbut);
 	centerbut->attach( centeredBelow, horSepar
 			? (uiObject*)horSepar
-			: (uiObject*)centralWidget_->uiObj() );
+			: (uiObject*)centralWidget_->mainObject() );
 	if ( leftbut )
 	    centerbut->attach( ensureRightOf, leftbut );
 	if ( rightbut )

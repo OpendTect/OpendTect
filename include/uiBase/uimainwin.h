@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.29 2003-03-24 15:10:47 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.30 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,12 +73,7 @@ public:
     void                close();
     void		toStatusBar(const char*, int fldidx=0 );
 
-    uiObject*		uiObj();
-    const uiObject*	uiObj() const;
-
-    void		shallowRedraw( CallBacker* =0 )		{reDraw(false);}
-    void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
-    void		reDraw(bool deep);
+    virtual void	reDraw(bool deep);
     uiGroup* 		topGroup();
 
     void		setShrinkAllowed( bool yn=true );
@@ -110,9 +105,8 @@ public:
 
 protected:
 
-//    void		doPolish(CallBacker*);
-
 			uiMainWin( const char* );
+    uiObject*		mainobject();
 
     uiMainWinBody*	body_;
 };

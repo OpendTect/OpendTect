@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.7 2003-04-01 10:13:51 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.8 2003-04-22 09:49:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,24 +39,19 @@ public:
 
 class uiTableBody : public uiObjBodyImpl<uiTable,QTable>
 {
-
 public:
 
-                        uiTableBody(uiTable& handle, 
-				  uiParent* parnt=0, 
-				  const char* nm="uiTableBody",
-				  int nrows=0,
-				  int ncols=0)
-    : uiObjBodyImpl<uiTable,QTable>( handle, parnt, nm )
-    , messenger_ (*new i_tableMessenger(this, &handle))
-    {
-	setLines( nrows + 1 );
-	setNumCols(ncols);
-
-    }
+                        uiTableBody( uiTable& handle, uiParent* parnt, 
+				     const char* nm, int nrows, int ncols)
+			    : uiObjBodyImpl<uiTable,QTable>( handle, parnt, nm )
+			    , messenger_ (*new i_tableMessenger(this, &handle))
+			{
+			    if ( nrows >= 0 ) setLines( nrows + 1 );
+			    if ( ncols >= 0 ) setNumCols( ncols );
+			}
 
     virtual 		~uiTableBody()
-			    { deepErase(inputs); delete &messenger_; }
+			    { deepErase( inputs ); delete &messenger_; }
 
     void 		setLines( int prefNrLines )
 			{ 
@@ -69,13 +64,12 @@ public:
 			    }
 
 			    int hs = stretch(true);
-			    if( stretch(false) != 1 )
+			    if ( stretch(false) != 1 )
 				setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-//    virtual uiSize	minimumsize() const; //!< \reimp
     virtual int 	nrTxtLines() const
-			    { return numRows() ? numRows()+1 : 7; }
+			    { return numRows() >= 0 ? numRows()+1 : 7; }
 
     void		setRowLabels( const QStringList &labels )
 			{
@@ -88,6 +82,7 @@ public:
 			       )
 				leftHeader->setLabel( i, *it );
 			}
+
 
     UserInputObj*	mkUsrInputObj( const uiTable::Pos& pos )
 			{
@@ -116,6 +111,7 @@ public:
 			    return 0;
 			}
 
+
     void		delUsrInputObj( const uiTable::Pos& pos )
 			{
 			    QWidget* w = cellWidget( pos.y(), pos.x() );
@@ -129,7 +125,7 @@ public:
 			    }
 
 			    clearCellWidget( pos.y(), pos.x() );
-			    if( inp )	{ inputs -= inp; delete inp; }
+			    if ( inp )	{ inputs -= inp; delete inp; }
 			}
 
 protected:
@@ -154,6 +150,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , colInserted( this )
 {
     clicked.notify( mCB(this,uiTable,clicked_) );
+    setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
     setHSzPol( uiObject::smallvar );
     setVSzPol( uiObject::smallvar );
@@ -172,14 +169,33 @@ uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc)
 uiTable::~uiTable() {}
 
 
+int  uiTable::columnWidth( int c ) const	{ return body_->columnWidth(c);}
+int  uiTable::rowHeight( int r ) const		{ return body_->rowHeight(r);}
+void uiTable::setColumnWidth(int col, int w)	{ body_->setColumnWidth(col,w);}
+void uiTable::setRowHeight( int row, int h )	{ body_->setRowHeight(row,h); }
+
+void uiTable::insertRows(int r, int cnt)	{ body_->insertRows( r, cnt ); }
+void uiTable::insertColumns(int c,int cnt)	{ body_->insertColumns(c,cnt);}
+void uiTable::removeRow( int row )		{ body_->removeRow( row ); }
+void uiTable::removeColumn( int col )		{ body_->removeColumn( col ); }
+
+int  uiTable::nrRows() const			{ return  body_->numRows(); }
+int  uiTable::nrCols() const			{ return body_->numCols(); }
+void uiTable::setNrRows( int nr )		{ body_->setLines( nr + 1 ); }
+void uiTable::setNrCols( int nr )		{ body_->setNumCols( nr ); }
+
+
 void uiTable::setText( const Pos& pos, const char* txt )
     { body_->setText( pos.y(), pos.x(), txt ); }
+
 
 void uiTable::clearCell( const Pos& pos )
     { body_->clearCell( pos.y(), pos.x() ); }
 
+
 void uiTable::setCurrentCell( const Pos& pos )
     { body_->setCurrentCell( pos.y(), pos.x() ); }
+
 
 const char* uiTable::text( const Pos& pos ) const
 {
@@ -190,46 +206,34 @@ const char* uiTable::text( const Pos& pos ) const
     return rettxt_;
 }
 
-int uiTable::nrRows() const
-    { return  body_->numRows(); }
-void uiTable::setNrRows( int nr )
-    { body_->setLines( nr + 1 ); }
-
-int uiTable::nrCols() const
-    { return body_->numCols(); }
-void uiTable::setNrCols( int nr )
-    { body_->setNumCols( nr ); }
-
-
-void uiTable::setColumnWidth( int col, int w )
-    { body_->setColumnWidth( col, w ); }
-void uiTable::setRowHeight( int row, int h )
-    { body_->setRowHeight( row, h ); }
 
 void uiTable::setColumnStretchable( int col, bool stretch )
     { body_->setColumnStretchable( col, stretch ); }
+
+
 void uiTable::setRowStretchable( int row, bool stretch )
     { body_->setRowStretchable( row, stretch ); }
+
+
 bool uiTable::isColumnStretchable( int col ) const
     { return body_->isColumnStretchable(col); }
+
+
 bool uiTable::isRowStretchable( int row ) const
     { return body_->isRowStretchable(row); }
 
-void uiTable::insertRows( int row, int count )
-    { body_->insertRows( row, count ); }
-void uiTable::insertColumns( int col, int count)
-    { body_->insertColumns( col, count ); }
-void uiTable::removeRow( int row )
-    { body_->removeRow( row ); }
-void uiTable::removeColumn( int col )
-    { body_->removeColumn( col ); }
 
 UserInputObj* uiTable::mkUsrInputObj( const Pos& pos )
     { return body_->mkUsrInputObj(pos); }
+
+
 void uiTable::delUsrInputObj( const Pos& pos )
     { body_->delUsrInputObj(pos); }
+
+
 UserInputObj* uiTable::usrInputObj(const Pos& pos)
     { return body_->usrInputObj(pos); }
+
 
 const char* uiTable::rowLabel( int nr ) const
 {
@@ -244,6 +248,8 @@ void uiTable::setRowLabel( int row, const char* label )
 {
     QHeader* topHeader = body_->verticalHeader();
     topHeader->setLabel( row, label );
+
+    //setRowStretchable( row, true );
 }
 
 
@@ -284,6 +290,8 @@ void uiTable::setColumnLabel( int col, const char* label )
 {
     QHeader* topHeader = body_->horizontalHeader();
     topHeader->setLabel( col, label );
+
+    //setColumnStretchable( col, true );
 }
 
 
@@ -328,13 +336,11 @@ void uiTable::setValue( const Pos& p, int i )
 }
 
 
-
-
 void uiTable::clicked_( CallBacker* cb )
 {
     mCBCapsuleUnpack(const uiMouseEvent&,ev,cb);
 
-    if( ev.buttonState() & uiMouseEvent::RightButton )
+    if ( ev.buttonState() & uiMouseEvent::RightButton )
 	rightClk();
 }
 
@@ -378,7 +384,7 @@ void uiTable::rightClk()
 
     Pos cur = notifiedPos();
 
-    if( ret == inscolbef || ret == inscolaft )
+    if ( ret == inscolbef || ret == inscolaft )
     {
 	const int offset = (ret == inscolbef) ? 0 : 1;
 	newpos_ = Pos( cur.x() + offset, cur.y() );
@@ -410,4 +416,83 @@ void uiTable::rightClk()
     }
 
     setCurrentCell( newpos_ );
+    updateCellSizes();
+}
+
+
+void uiTable::geometrySet_( CallBacker* cb )
+{
+//    if ( !mainwin() ||  mainwin()->poppedUp() ) return;
+    mCBCapsuleUnpack(uiRect&,sz,cb);
+
+    uiSize size = sz.getsize();
+    updateCellSizes( &size );
+}
+
+
+void uiTable::updateCellSizes( uiSize* size )
+{
+    if ( size ) lastsz = *size;
+    else	size = &lastsz;
+
+    int nc = nrCols();
+    if ( nc && setup_.fillrow_ )
+    {
+	int width = size->hNrPics();
+	int availwdt = width - body_->verticalHeader()->frameSize().width()
+			 - 2*body_->frameWidth();
+
+	int colwdt = availwdt / nc;
+
+	const int minwdt = uiObject::baseFldSize() * font()->avgWidth();
+
+	if ( colwdt < minwdt ) colwdt = minwdt;
+
+	for ( int idx=0; idx < nc; idx ++ )
+	{
+	    if ( idx < nc-1 )
+		setColumnWidth( idx, colwdt );
+	    else 
+	    {
+		int wdt = availwdt;
+		if ( wdt < minwdt ) wdt = minwdt;
+
+		setColumnWidth( idx, wdt );
+	    }
+	    availwdt -= colwdt;
+	}
+    }
+
+    int nr = nrRows();
+    if ( nr && setup_.fillcol_ )
+    {
+	int height = size->vNrPics();
+	int availhgt = height - body_->horizontalHeader()->frameSize().height()
+			 - 2*body_->frameWidth();
+
+	int rowhgt =  availhgt / nr;
+	int fonthgt = font()->height();
+
+	const int minhgt = fonthgt;
+	const int maxhgt = 3 * fonthgt;
+
+	if ( rowhgt < minhgt ) rowhgt = minhgt;
+	if ( rowhgt > maxhgt ) rowhgt = maxhgt; 
+
+	for ( int idx=0; idx < nr; idx ++ )
+	{
+	    if ( idx < nr-1 )
+		setRowHeight( idx, rowhgt );
+	    else
+	    {
+		int hgt = availhgt;
+		if ( hgt < minhgt ) hgt = minhgt;
+		if ( hgt > maxhgt ) hgt = maxhgt;
+
+		setRowHeight( idx, hgt );
+	    }
+	    availhgt -= rowhgt;
+	}
+    }
+
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.3 2003-02-17 16:29:03 arend Exp $
+ RCS:           $Id: uitabbar.h,v 1.4 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ protected:
 class uiTabBar : public uiObject
 {
 friend class		i_tabbarMessenger;
-friend class		uiTabGroup;
+friend class		uiTabStack;
 public:
 			uiTabBar( uiParent*, const char* nm,
 				  const CallBack* cb =0 );

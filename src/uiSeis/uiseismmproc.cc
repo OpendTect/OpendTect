@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.46 2003-04-03 15:16:24 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.47 2003-04-22 09:51:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 	res = iopar.find( sTmpStorKey );
 	if ( res && File_isDirectory(res) ) tmpstordirfld->setInput( res );
 	tmpstordirfld->selectDirectory( true );
-	sepattach = tmpstordirfld->uiObj();
+	sepattach = tmpstordirfld->mainObject();
     }
 
     if ( sepattach )

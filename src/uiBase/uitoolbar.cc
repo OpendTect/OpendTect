@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.16 2002-12-16 14:46:30 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.17 2003-04-22 09:49:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ void uiToolBar::setSensitive( bool yn )
 { body_->setSensitive( yn ); }
 
 
-void uiToolBar::display( bool yn )
+void uiToolBar::display( bool yn, bool,bool)
 {
     if ( !body_->qthing() ) return;
     if ( yn )	body_->qthing()->show();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.45 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.46 2003-04-22 09:49:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include <iostream>
 #include "errh.h"
 
-#include <uitabgroup.h>
+#include <uitabstack.h>
 
 class uiGroupObjBody;
 class uiGroupParentBody;
@@ -39,10 +39,6 @@ public:
     virtual void	invalidate();
     virtual void	updatedAlignment(layoutMode);
     virtual void	initChildLayout(layoutMode);
-//#define grp_layout__
-#ifdef grp_layout__
-    virtual void	layout( layoutMode m, const int, bool*, bool );
-#endif
 
 protected:
 
@@ -73,17 +69,7 @@ public:
 				    , handle_( handle )
 				    , prntbody_( 0 )			
 				{}
-/*
-				uiGroupObjBody( uiGroupObj& handle, 
-						uiTabGroup* parnt,
-						const char* nm )
-				    : uiObjectBody( 0, nm )
-				    , QFrame( parnt && parnt->body() ?  
-					parnt->body()->qwidget() : 0, nm )
-				    , handle_( handle )
-				    , prntbody_( 0 )			
-				{}
-*/
+
 #define mHANDLE_OBJ     	uiGroupObj
 #define mQWIDGET_BASE		QFrame
 #define mQWIDGET_BODY   	QFrame
@@ -228,14 +214,14 @@ void uiGroupParentBody::setHCentreObj( uiObject* obj )
 */
 
     uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
-    if( objpar && loMngr && loMngr->isChild(objpar->uiObj()) )
+    if( objpar && loMngr && loMngr->isChild(objpar->mainObject()) )
     { // good. the object's parent is a child of this group ;-))
 	if( !objpar->hCentreObj() )
 	    objpar->setHCentreObj(obj);
 
 	if( obj == objpar->hCentreObj() )
 	{
-	    hcentreobj = objpar->uiObj();
+	    hcentreobj = objpar->mainObject();
 	    return;
 	}
     }
@@ -269,14 +255,14 @@ void uiGroupParentBody::setHAlignObj( uiObject* obj )
 #endif
 
     uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
-    if( objpar && loMngr && loMngr->isChild(objpar->uiObj()) )
+    if( objpar && loMngr && loMngr->isChild(objpar->mainObject()) )
     { // good. the object's parent is a child of this group ;-))
 	if( !objpar->hAlignObj() )
 	    objpar->setHAlignObj(obj);
 
 	if( obj == objpar->hAlignObj() )
 	{
-	    halignobj = objpar->uiObj();
+	    halignobj = objpar->mainObject();
 	    return;
 	}
     }
@@ -301,11 +287,6 @@ void uiGroupObjBody::reDraw( bool deep )
 
 int uiGroupObjBody::stretch( bool hor, bool ) const
 {
-#if 0
-    int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
-    return s != mUndefIntVal ? s : 
-	( prntbody_->loMngr ? prntbody_->loMngr->childStretch( hor ) : 0 );
-#else
     int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
     if( s != mUndefIntVal ) return s;
 
@@ -321,7 +302,6 @@ int uiGroupObjBody::stretch( bool hor, bool ) const
 	}
     }
     return 0;
-#endif
 }
 
 i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
@@ -332,8 +312,6 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
 #endif
     i_uiGroupLayoutItem* loitm = 
 			new i_uiGroupLayoutItem( mngr, *this, *prntbody_ );
-
-//    prntbody_->loMngr->setLayoutPosItm( itm );
 
     return loitm ;
 }
@@ -355,12 +333,7 @@ i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr,
 void i_uiGroupLayoutItem::invalidate()
 { 
     i_uiLayoutItem::invalidate(); 
-#if 0
-    for( int idx=0; idx<nLayoutMode; idx++ )
-        horalign[idx]=-1;
-#else
-        horalign[setGeom]=-1;
-#endif
+    horalign[setGeom]=-1;
 }
 
 
@@ -376,21 +349,6 @@ void i_uiGroupLayoutItem::initChildLayout( layoutMode m )
      if( loMngr() ) loMngr()->initChildLayout(m); 
 }
 
-#ifdef grp_layout__
-void i_uiGroupLayoutItem::layout( layoutMode m, const int iteridx, bool* chupd,
-				  bool finalLoop )
-{ 
-    i_uiLayoutItem::layout(m,iteridx, chupd, finalLoop ); 
-
-    uiRect mPos = loMngr()->curpos( m );
-    QRect geom( mPos.left(), mPos.top(),
-                                        mPos.hNrPics(), mPos.vNrPics() );
-
-    //if( bodyLayouted() && bodyLayouted()->isHidden() && loMngr() )
-    if( loMngr() )
-	loMngr()->doLayout( m, geom );
-}
-#endif
 
 i_LayoutMngr* i_uiGroupLayoutItem::loMngr() 
     { return grpprntbody.loMngr; } 
@@ -466,29 +424,6 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     }
 }
 
-/*
-uiGroup::uiGroup( uiTabGroup* p, const char* nm )
-    : uiParent( nm, 0 )
-    , grpobj_( 0 )
-    , body_( 0 )
-{
-
-    grpobj_ =  new uiGroupObj( this,p,nm );
-    uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
-
-#ifdef __debug__
-    if( !grpbdy ) { pErrMsg("Huh") ; return; }
-#endif
-
-    body_ =  new uiGroupParentBody(*this,*grpbdy, 0, nm );
-    setBody( body_ );
-
-    grpobj_->body_->setPrntBody( body_ );
-
-    body_->deleteNotify( mCB(this, uiGroup, bodyDel ) );
-    grpobj_->deleteNotify( mCB(this, uiGroup, uiobjDel ) );
-}
-*/
 uiGroup::~uiGroup()
 {
     if( grpobj_ ) { grpobj_->uigrp_ = 0; delete grpobj_; } 
@@ -513,76 +448,32 @@ void uiGroup::uiobjDel( CallBacker* cb )
     else pErrMsg("huh?");
 }
 
-void uiGroup::display( bool yn, bool shrink, bool maximize )
-{ 
-    finalise();
-    uiObj()->display( yn, shrink, maximize );
-}
-
-void uiGroup::setFocus()		{ uiObj()->setFocus(); }
-
-void uiGroup::setSensitive(bool yn)	{ uiObj()->setSensitive(yn); }
-bool uiGroup::sensitive() const	{ return uiObj()->sensitive(); }
-int  uiGroup::prefHNrPics() const{ return uiObj()->prefHNrPics(); }
-void uiGroup::setPrefWidth( int w )	{ uiObj()->setPrefWidth(w); }
-int  uiGroup::prefVNrPics() const{ return uiObj()->prefVNrPics(); }
-void uiGroup::setPrefHeight( int h )	{ uiObj()->setPrefHeight(h); }
-void uiGroup::setFont( const uiFont& f)	{ uiObj()->setFont(f); }
-void uiGroup::setCaption(const char* c)	{ uiObj()->setCaption(c); }
-void uiGroup::reDraw( bool deep )		{ uiObj()->reDraw( deep ); }
-
 void uiGroup::setShrinkAllowed(bool yn)
 { 
-    uiObjectBody* bdy = dynamic_cast<uiObjectBody*>(uiObj()->body());
+    uiObjectBody* bdy = dynamic_cast<uiObjectBody*>(mainObject()->body());
     if( bdy ) bdy->setShrinkAllowed(yn); 
 }
 
 bool uiGroup::shrinkAllowed()
 { 
-    uiObjectBody* bdy = dynamic_cast<uiObjectBody*>(uiObj()->body());
+    uiObjectBody* bdy = dynamic_cast<uiObjectBody*>(mainObject()->body());
     return bdy ? bdy->shrinkAllowed() : false; 
 }
 
-
-const uiFont* uiGroup::font() const		{ return uiObj()->font(); }
-
-void uiGroup::setPrefWidthInChar( float w ) 
-    { uiObj()->setPrefWidthInChar(w); }
-
-void uiGroup::setPrefHeightInChar( float h )
-    { uiObj()->setPrefHeightInChar(h); }
-
-void uiGroup::setStretch( int hor, int ver )
-    { uiObj()->setStretch( hor, ver ); }
-
-Color uiGroup::backgroundColor() const
-    { return uiObj()->backgroundColor(); }
-
-void uiGroup::setBackgroundColor(const Color& c)
-    { uiObj()->setBackgroundColor(c); }
-
-void uiGroup::attach ( constraintType c, int margin )
-    { uiObj()->attach(c,margin); }
-
-void uiGroup::attach ( constraintType c, uiObject *other, int margin,
+void uiGroup::attach_( constraintType c, uiObject *other, int margin,
 		       bool reciprocal )
 {
     if( (c == heightSameAs ) || (c == widthSameAs ) ) 
     {
 	BufferString msg((c == heightSameAs ) ? "heightSameAs":"widthSameAs" );
 	msg += " not allowed for group ";
-	msg += uiObj()->name();
+	msg += mainObject()->name();
 	pErrMsg(msg); 
 	return;
     }
-    uiObj()->attach(c,other,margin,reciprocal);
+    mainObject()->attach(c,other,margin,reciprocal);
 
 }
-
-
-uiSize uiGroup::actualsize( bool include_border) const	
-    { return uiObj()->actualsize(include_border); }
-
 
 void uiGroup::setIsMain( bool yn )
     { body_->setIsMain( yn ); }
@@ -636,18 +527,7 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
     uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
     body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
 }
-/*
-uiGroupObj::uiGroupObj( uiGroup* bud, uiTabGroup* parnt , const char* nm )
-    : uiObject( 0, nm )
-    , uigrp_( bud )
-{
-    body_= new uiGroupObjBody( *this, parnt, nm );
-    setBody( body_ );
 
-    uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
-    body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
-}
-*/
 
 uiGroupObj::~uiGroupObj()
     { if(uigrp_) { uigrp_->grpobj_ =0; delete uigrp_; }  }

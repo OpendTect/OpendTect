@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.11 2003-03-20 16:22:57 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.12 2003-04-22 09:51:07 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,9 +99,9 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 					     : (uiGroup*) crlrgfld );
     }
 
-    uiObj()->setTabOrder( inlfld ? (uiObject*)inlfld : (uiObject*)inlrgfld, 
+    mainObject()->setTabOrder( inlfld ? (uiObject*)inlfld : (uiObject*)inlrgfld,
 	    		  crlfld ? (uiObject*)crlfld : (uiObject*)crlrgfld );
-    uiObj()->setTabOrder( crlfld ? (uiObject*)crlfld : (uiObject*)crlrgfld, 
+    mainObject()->setTabOrder( crlfld ? (uiObject*)crlfld : (uiObject*)crlrgfld,
 	    		  zfld ? (uiObject*)zfld : (uiObject*)zrgfld );
 
     if ( slctyp < 3 )
@@ -124,9 +124,9 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	stepfld->box()->setMaxValue( width );
 	stepfld->box()->valueChanged.notify( mCB(this,uiSliceSel,stepSel) );
 	stepfld->attach( rightOf, doupdfld );
-	uiObj()->setTabOrder( zfld ? (uiObject*)zfld : (uiObject*)zrgfld,
+	mainObject()->setTabOrder( zfld ? (uiObject*)zfld : (uiObject*)zrgfld,
 			      (uiObject*)doupdfld );
-	uiObj()->setTabOrder( (uiObject*)doupdfld, (uiObject*)stepfld );
+	mainObject()->setTabOrder( (uiObject*)doupdfld, (uiObject*)stepfld );
     }
 
     finaliseDone.notify( mCB(this,uiSliceSel,updateSel) );

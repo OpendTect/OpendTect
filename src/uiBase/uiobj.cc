@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.50 2003-04-01 10:08:08 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.51 2003-04-22 09:49:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,9 @@ ________________________________________________________________________
 #include <qtooltip.h> 
 #include <qfontmetrics.h> 
 #include <qsettings.h> 
+
+int uiObject::basefldsize_ = 10;
+
 
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )
@@ -110,6 +113,10 @@ void uiParent::storePosition()
     k = key; k += "height";
     settings.writeEntry( k, s.height() );
 }
+
+Color uiParent::backgroundColor() const
+    { return mainObject() ? mainObject()->backgroundColor() : Color(); }
+
 
 void uiParent::restorePosition()
 {
@@ -268,19 +275,15 @@ void uiObject::setStretch( int hor, int ver )
 
 
 void uiObject::attach ( constraintType tp, int margin )
-    { mBody()->attach(tp, 0, margin); }
+    { mBody()->attach(tp, (uiObject*)0, margin); }
 
 void uiObject::attach ( constraintType tp, uiObject* other, int margin,
 			bool reciprocal )
     { mBody()->attach(tp, other, margin, reciprocal); }
 
-void uiObject::attach ( constraintType tp, uiGroup* other, int margin,
+void uiObject::attach ( constraintType tp, uiParent* other, int margin,
 			bool reciprocal )
-    { mBody()->attach(tp, other->uiObj(), margin, reciprocal); }
-
-void uiObject::attach ( constraintType tp, uiButtonGroup* other, int margin,
-			bool reciprocal )
-    { mBody()->attach(tp, other->uiObj(), margin, reciprocal); }
+    { mBody()->attach(tp, other, margin, reciprocal); }
 
 /*!
     Moves the \a second widget around the ring of focus widgets so
@@ -348,6 +351,8 @@ uiMainWin* uiObject::mainwin()
 
     return par->mainwin();
 }
+
+int uiObject::baseFldSize()	{ return basefldsize_; }
 
 
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
@@ -544,7 +549,7 @@ int uiObjectBody::prefHNrPics() const
 	{ 
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
-	    const int baseFldSz = 10; // TODO : to user settings.
+	    const int baseFldSz = uiObject::baseFldSize();
 
 	    int pwc=0;
 	    bool var=false; 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.9 2002-11-05 15:13:46 arend Exp $
+ RCS:           $Id: uidockwin.cc,v 1.10 2003-04-22 09:49:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,62 +23,20 @@ public:
 			uiDockWinBody( uiDockWin& handle, uiParent* parnt,
 				       const char* nm );
 
-    void		construct();
-
     virtual		~uiDockWinBody();
+    void		construct();
 
 #define mHANDLE_OBJ     uiDockWin
 #define mQWIDGET_BASE   QDockWindow
 #define mQWIDGET_BODY   QDockWindow
 #define UIBASEBODY_ONLY
+#define UIPARENT_BODY_CENTR_WIDGET
 #include                "i_uiobjqtbody.h"
 
-public:
-
-    uiGroup*		uiCentralWidg()		{ return centralWidget_; }
-
-
-    virtual void        addChild( uiObjHandle& child )
-			{ 
-			    if ( !initing && centralWidget_ ) 
-				centralWidget_->addChild( child );
-			    else
-				uiParentBody::addChild( child );
-			}
-
-    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
-			{ 
-			    if ( !initing && centralWidget_ ) 
-				centralWidget_->manageChld( o, b );
-
-			}
-
-    virtual void  	attachChild ( constraintType tp,
-                                              uiObject* child,
-                                              uiObject* other, int margin,
-					      bool reciprocal )
-                        {
-                            if ( !child || initing ) return;
-
-			    centralWidget_->attachChild( tp, child, other,
-							margin, reciprocal); 
-                        }
 protected:
 
     virtual void	finalise();
 
-    bool		initing;
-
-    uiGroup*		centralWidget_;
-
-protected:
-
-    virtual const QWidget* managewidg_() const 
-			{ 
-			    if ( !initing ) 
-				return centralWidget_->pbody()->managewidg();
-			    return qwidget_();
-			}
 };
 
 
@@ -139,17 +97,10 @@ uiGroup* uiDockWin::topGroup()
 }
 
 
-uiObject* uiDockWin::uiObj()
+uiObject* uiDockWin::mainobject()
 { 
-    return body_->uiCentralWidg()->uiObj(); 
+    return body_->uiCentralWidg()->mainObject(); 
 }
-
-
-const uiObject* uiDockWin::uiObj() const
-{ 
-    return body_->uiCentralWidg()->uiObj(); 
-}
-
 
 void uiDockWin::setHorStretchable( bool yn )
 {
@@ -183,15 +134,6 @@ bool uiDockWin::isResizeEnabled() const
 {
     return body_->isResizeEnabled();
 }
-
-
-void uiDockWin::display( bool yn, bool shrink )
-{ 
-    finalise();
-    uiObj()->display(yn,shrink);
-}
-
-
 
 QDockWindow* uiDockWin::qwidget()
     { return body_; }

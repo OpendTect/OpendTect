@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.30 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.31 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,8 +141,11 @@ public:
 
     virtual int			nrTxtLines() const	{ return -1; }
 
-    void			attach ( constraintType, uiObject *other=0, 
+    void			attach( constraintType, uiObject* other=0, 
 					 int margin=-1, bool reciprocal=true );
+    void			attach( constraintType t, uiParent* other=0, 
+					 int m=-1, bool r=true )
+				    { attach(t,other->mainObject(),m,r ); }
 
     void 			uisetFont( const uiFont& );
     const uiFont*		uifont() const;

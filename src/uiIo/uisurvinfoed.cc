@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.39 2003-03-19 09:14:17 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.40 2003-04-22 09:51:30 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     crlfld = new uiGenInput( rangegrp, "Cross-line range",
 			     IntInpIntervalSpec(true) );
     zfld = new uiGenInput( rangegrp, "Z range", DoubleInpIntervalSpec(true) );
-    rangegrp->setHAlignObj( inlfld->uiObj() );
+    rangegrp->setHAlignObj( inlfld );
     rangegrp->attach( alignedBelow, pathfld ); 
     rangegrp->attach( ensureBelow, rglbl ); 
     if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
@@ -129,7 +129,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
 	xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
 	xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
 	xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
-	crdgrp->setHAlignObj( ic0fld->uiObj() );
+	crdgrp->setHAlignObj( ic0fld );
 	crdgrp->attach( alignedBelow, rangegrp );
 	crdgrp->attach( ensureBelow, coordset );
 	ic1fld->attach( alignedBelow, ic0fld );
@@ -153,7 +153,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
 	ycrlfld->setElemSzPol( uiObject::small );
 	overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
 	overrule->setChecked( false );
-	trgrp->setHAlignObj( xinlfld->uiObj() );
+	trgrp->setHAlignObj( xinlfld );
 	trgrp->attach( alignedBelow, rangegrp );
 	trgrp->attach( ensureBelow, coordset );
 	xinlfld->attach( rightOf, x0fld );

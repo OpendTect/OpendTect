@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.29 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.30 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ class ioPixmap;
 class uiObject : public uiObjHandle
 {
     friend class	uiObjectBody;
+    friend class	i_LayoutItem;
 public:
 			uiObject( uiParent* p, const char* nm );
 			uiObject( uiParent* p, const char* nm, uiObjectBody& );
@@ -169,27 +170,21 @@ public:
     void		attach( constraintType, int margin=-1);
     void		attach( constraintType, uiObject* oth, int margin=-1,
 				bool reciprocal=true);
-    void		attach( constraintType, uiGroup* oth, int margin=-1,
+    void		attach( constraintType, uiParent* oth, int margin=-1,
 				bool reciprocal=true);
-    void		attach( constraintType, uiButtonGroup* oth, int mrg=-1,
-				bool reciprocal=true);
-
 
     static void		setTabOrder( uiObject* first, uiObject* second );
 
     void 		setFont( const uiFont& );
     const uiFont*	font() const;
-
-    uiSize		actualsize( bool include_border = true) const;
-
     void		setCaption( const char* );
 
-			//! setGeometry should be triggered by this's layoutItem
-    void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
 
     void		shallowRedraw( CallBacker* =0 )		{reDraw(false);}
     void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
     void		reDraw( bool deep );
+
+    uiSize		actualsize( bool include_border = true) const;
 
     uiParent*		parent() { return parent_; }
     uiMainWin*		mainwin();
@@ -212,13 +207,19 @@ public:
 			*/
     CNotifier<uiObject,uiRect&>	setGeometry;
 
+    static int		baseFldSize();
+
 protected:
 
                         //! hook. Accepts/denies closing of window.
     virtual bool	closeOK()	{ close.trigger(); return true; } 
 
+			//! setGeometry should be triggered by this's layoutItem
+    void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
+
 private:
 
+    static int		basefldsize_; 
     uiParent*		parent_;
 
 };

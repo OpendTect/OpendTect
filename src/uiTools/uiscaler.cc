@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.5 2002-08-02 10:27:23 bert Exp $
+ RCS:           $Id: uiscaler.cc,v 1.6 2003-04-22 09:51:07 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,8 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 	basefld->attach( alignedBelow, typefld );
     }
 
-    uiObj()->finalising.notify( mCB(this,uiScaler,doFinalise) );
-    setHAlignObj( linearfld->uiObj() );
+    mainObject()->finalising.notify( mCB(this,uiScaler,doFinalise) );
+    setHAlignObj( linearfld );
 }
 
 

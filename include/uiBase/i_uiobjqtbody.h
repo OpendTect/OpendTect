@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: i_uiobjqtbody.h,v 1.3 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: i_uiobjqtbody.h,v 1.4 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,56 @@ protected:
 
 #endif
 
+#ifdef UIPARENT_BODY_CENTR_WIDGET
+
+public:
+
+    uiGroup*		uiCentralWidg()		{ return centralWidget_; }
+
+
+    virtual void        addChild( uiObjHandle& child )
+			{ 
+			    if ( !initing && centralWidget_ ) 
+				centralWidget_->addChild( child );
+			    else
+				uiParentBody::addChild( child );
+			}
+
+    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
+			{ 
+			    if ( !initing && centralWidget_ ) 
+				centralWidget_->manageChld( o, b );
+
+			}
+
+    virtual void  	attachChild ( constraintType tp,
+                                              uiObject* child,
+                                              uiObject* other, int margin,
+					      bool reciprocal )
+                        {
+                            if ( !child || initing ) return;
+
+			    centralWidget_->attachChild( tp, child, other,
+							margin, reciprocal); 
+                        }
+protected:
+
+    bool		initing;
+
+    uiGroup*		centralWidget_;
+
+protected:
+
+    virtual const QWidget* managewidg_() const 
+			{ 
+			    if ( !initing ) 
+				return centralWidget_->pbody()->managewidg();
+			    return qwidget_();
+			}
+#endif
+
+protected:
+
     mHANDLE_OBJ&     	handle()		{ return handle_; }
 
 protected:
@@ -71,4 +121,7 @@ protected:
 #undef mTHIS_QWIDGET
 #ifdef UIBASEBODY_ONLY
 # undef UIBASEBODY_ONLY
+#endif
+#ifdef UIPARENT_BODY_CENTR_WIDGET
+# undef UIPARENT_BODY_CENTR_WIDGET
 #endif

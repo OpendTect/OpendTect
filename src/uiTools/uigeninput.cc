@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.48 2003-01-21 12:50:08 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.49 2003-04-22 09:51:07 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ public:
 			    if ( ob )	return ob;
 
 			    uiGroup* grp = dynamic_cast<uiGroup*>(elem);
-			    if ( grp )	return grp->uiObj(); 
+			    if ( grp )	return grp->mainObject(); 
 
 			    return 0;
 			}
@@ -290,7 +290,7 @@ public:
 			    : uiSimpleInputFld<uiBoolInput>( p, spec, nm )
 			    {}
 
-    virtual uiObject*	mainObj()	{ return &usrinpobj.uiObj(); }
+    virtual uiObject*	mainObj()	{ return usrinpobj.mainObject(); }
 };
 
 
@@ -302,7 +302,7 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="BinID Input Field" );
 
-    virtual uiObject*	mainObj()	{ return binidGrp.uiObj(); }
+    virtual uiObject*	mainObj()	{ return binidGrp.mainObject(); }
 
     virtual int		nElems() const		{ return 2; }
     virtual UserInputObj* element( int idx )	{ return idx ? &crl_y : &inl_x;}
@@ -403,7 +403,7 @@ public:
     virtual int		nElems() const		{ return step ? 3 : 2; }
     virtual UserInputObj* element( int idx=0 )	{ return le(idx); }
 
-    virtual uiObject*	mainObj()		{ return intvalGrp.uiObj(); }
+    virtual uiObject*	mainObj()	{ return intvalGrp.mainObject(); }
 
 protected:
     uiGroup&		intvalGrp;
@@ -636,7 +636,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     , elemszpol( uiObject::undef )
 { 
     inputs += new StringInpSpec( inputStr ); 
-    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt
@@ -651,7 +651,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
-    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -668,7 +668,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
-    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -687,7 +687,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     inputs += inp1.clone();
     inputs += inp2.clone();
     inputs += inp3.clone();
-    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 uiGenInput::~uiGenInput()
@@ -701,7 +701,7 @@ uiGenInput::~uiGenInput()
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
     inputs += inp.clone();
-    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 

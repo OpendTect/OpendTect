@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.10 2003-02-11 09:56:23 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.11 2003-04-22 09:52:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p,
     gfunfld = new uiGenInput( gfgrp, "Coordinates are in",
 	    			BoolInpSpec("m","ft") );
     gfunfld->attach( alignedBelow, gfcommfld );
-    gfgrp->setHAlignObj( gfnmfld->uiObj() );
+    gfgrp->setHAlignObj( gfnmfld );
     gfgrp->attach( alignedBelow, typfld );
 
     outfld = new uiFileInput( this, "Output Ascii file", "", false );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.6 2002-05-14 15:18:03 nanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.7 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,6 @@ public:
 
     virtual		~uiDockWin();
 
-    uiObject*		uiObj();
-    const uiObject*	uiObj() const;
 
     uiGroup* 		topGroup();
 
@@ -43,13 +41,12 @@ public:
     void		setResizeEnabled(bool);
     bool		isResizeEnabled() const;
 
-    void		display( bool yn = true, bool shrink=false );
-
     QDockWindow*	qwidget();
 
 protected:
 
     uiDockWinBody*	body_;
+    virtual uiObject*	mainobject();
 };
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.10 2002-12-16 14:46:40 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.11 2003-04-22 09:49:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,8 +56,10 @@ public:
     void		setSensitive( bool yn );
     			/*!< Works on complete toolbar */
 
-    void		display(bool yn=true);
-			//!< you must call this after all buttons are added
+    virtual void	display(bool yn=true, bool s=false,bool m=false);
+			/*!< you must call this after all buttons are added
+			     s and m are not used.
+			*/
 
     void		addSeparator();
     void		setStretchableWidget(uiObject*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.9 2003-03-24 16:24:39 nanne Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.10 2003-04-22 09:51:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool wstp )
 	    			BoolInpSpec("Discard","Pass") );
     remnullfld->attach( alignedBelow, scfmtfld );
 
-    setHAlignObj( remnullfld->uiObj() );
+    setHAlignObj( remnullfld );
 }
 
 
