@@ -148,7 +148,7 @@ Threads::Thread::~Thread()
 bool Threads::Thread::setFunction( void (nf)(void*)  )
 {
     if ( func ) return false;
-    func = nf;
+    func = (void*) nf;
 
     return true;
 }

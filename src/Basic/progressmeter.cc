@@ -10,6 +10,7 @@ static const char* rcsID = "$Id";
 #include "timefun.h"
 #include <iostream.h>
 #include <values.h>
+#include <stdlib.h>
 
 static const char dispchars[] = ".:=|*#>}ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
