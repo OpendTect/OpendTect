@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.31 2001-12-20 10:39:31 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.32 2002-01-10 08:22:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     entrylist->setName( seltxt );
     listfld = new uiLabeledListBox( this, entrylist->Ptr() );
+    listfld->setStretch( 2, 1 );
     if ( !ctio.ctxt.forread )
     {
 	nmfld = new uiGenInput( this, "Name" );
