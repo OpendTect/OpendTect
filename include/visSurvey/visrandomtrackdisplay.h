@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.25 2004-04-27 12:29:57 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.26 2004-04-30 11:46:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -76,10 +76,24 @@ public:
     Interval<float>		getDataTraceRange() const;
     void			setTraceData( bool color,
 	    				      ObjectSet<SeisTrc>* trcs);
-    
+
+    bool			canAddKnot(int knotnr) const;
+    				/*!< If knotnr<nrKnots the function Checks if
+				     a knot can be added before the
+				     knotnr.
+				     If knotnr==nrKnots, it checks if a knot
+				     can be added.
+				*/
+    void			addKnot(int knotnr);
+    				/*! if knotnr<nrKnots, a knot is added before
+				    the knotnr.
+				    If knotnr==nrKnots, a knot is added at the
+				    end
+				*/
+
+    				
     int				nrKnots() const;
     void			addKnot(const BinID&);
-    void			addKnots(TypeSet<BinID>);
     void			insertKnot(int,const BinID&);
     void			setKnotPos(int,const BinID&);
     BinID			getKnotPos(int) const;
@@ -122,6 +136,8 @@ protected:
 
     void			setRandomTrack(visBase::RandomTrack*);
 
+    BinID			proposeNewPos(int knot) const;
+
     visBase::RandomTrack*	track;
     visBase::Material*		texturematerial;
     AttribSelSpec&		as;
@@ -131,7 +147,9 @@ protected:
     void			setData(const ObjectSet<SeisTrc>&,int datatp=0);
     const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&)
 									const;
-    void			checkPosition(BinID&);
+
+    BinID			snapPosition(const BinID&) const;
+    bool			checkPosition(const BinID&) const;
 
     void			knotMoved(CallBacker*);
     void			knotNrChanged(CallBacker*);
