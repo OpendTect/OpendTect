@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.3 2004-01-13 11:08:08 arend Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.4 2004-01-13 12:24:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,22 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	File_copy( stdomf, omffnm, NO );
 	if ( !File_exists(omffnm) )
 	    mErrRet( "Cannot copy a file to the new directory!" )
+
+        if ( getenv( "DTECT_DEMO_SURVEY") )
+	{
+            const BufferString surveynm( getenv( "DTECT_DEMO_SURVEY" ) );
+            const BufferString todir( File_getFullPath( datadir,
+                                      File_getFileName(surveynm) ) );
+
+            if ( File_isDirectory(surveynm) && !File_exists(todir) )
+	    {
+		if ( uiMSG().askGoOn( 
+			    "Do you want to install the demo survey\n"
+			    "in your new OpendTect Data Root directory?" ) )
+		    File_copy( surveynm, todir, YES );
+	    }
+	}
+
     }
     else if ( !isOK(datadir) )
     {
@@ -148,6 +164,21 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	    if ( !File_exists(omffnm) )
 		mErrRet( "Could not convert the directory.\n"
 			 "Most probably you have no write permissions." )
+
+	    if ( getenv( "DTECT_DEMO_SURVEY") )
+	    {
+		const BufferString surveynm( getenv( "DTECT_DEMO_SURVEY" ) );
+		const BufferString todir( File_getFullPath( datadir,
+					  File_getFileName(surveynm) ) );
+
+		if ( File_isDirectory(surveynm) && !File_exists(todir) )
+		{
+		    if ( uiMSG().askGoOn( 
+			    "Do you want to install the demo survey\n"
+			    "in your OpendTect Data Root directory?" ) )
+			File_copy( surveynm, todir, YES );
+		}
+	    }
 	}
 	else
 	{
