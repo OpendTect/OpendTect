@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.13 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.14 2002-01-15 10:20:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,9 @@ public:
 
     void		setShrinkAllowed( bool yn=true );
     bool		shrinkAllowed();
+
+    bool		poppedUp() const;
+    virtual uiMainWin*	mainwin()				{ return this; }
 
 protected:
 

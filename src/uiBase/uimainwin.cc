@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.36 2002-01-11 11:11:05 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.37 2002-01-15 10:20:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uimenu.h"
 #include "uilabel.h"
+
+#include "timer.h"
 
 
 #include <iostream>
@@ -113,6 +115,10 @@ public:
     virtual void	show() 
 			{
 			    QMainWindow::show();
+
+			    if( poptimer.isActive() ) poptimer.stop();
+				poptimer.start( 1, true );
+
 			    if( modal_ )	
 				looplevel__ = qApp->enter_loop();
 			    else 
@@ -126,6 +132,8 @@ public:
 			    if( modal_ )	qApp->exit_loop();
 			    QMainWindow::hide();
 			}
+
+    bool		poppedUp() const { return popped_up; }
 
 protected:
 
@@ -153,6 +161,11 @@ private:
 
     bool		modal_;
     int			looplevel__;
+
+
+    void 		popTimTick(CallBacker*);
+    Timer		poptimer;
+    bool		popped_up;
 };
 
 
@@ -171,8 +184,11 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, centralWidget_( 0 )
 	, statusbar(0), menubar(0), toolbar(0)  
 	, modal_( modal )
+	, poptimer("Popup timer")
+	, popped_up( false )
 {
     if ( *nm ) setCaption( nm );
+    poptimer.tick.notify(mCB(this,uiMainWinBody,popTimTick));
 }
 
 void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar, 
@@ -183,6 +199,7 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar,
 
     centralWidget_->setIsMain(true);
     centralWidget_->setBorder(10);
+    centralWidget_->setStretch(2,2);
 
     if( wantStatusBar )
     {
@@ -217,6 +234,10 @@ uiMainWinBody::~uiMainWinBody( )
     delete centralWidget_;
 }
 
+void uiMainWinBody::popTimTick(CallBacker*)
+{
+    popped_up = true;
+}
 
 void uiMainWinBody::finalise()
     { centralWidget_->finalise();  finaliseChildren(); }
@@ -266,6 +287,7 @@ uiToolBar* uiMainWin::toolBar()			{ return body_->uitoolbar(); }
 void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
+bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 
@@ -662,7 +684,7 @@ uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
 
     uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
 
-    cw->setStretch( 1, 1 );
+    cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
 
     setTitleText( nm );
@@ -678,7 +700,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     setBody( body_ );
     body_->construct( s.statusbar_, s.menubar_, s.toolbar_ );
     uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
-    cw->setStretch( 1, 1 );
+    cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );
 }

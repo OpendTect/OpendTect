@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.26 2002-01-11 12:20:25 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.27 2002-01-15 10:20:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,18 +231,7 @@ uiMainWin* uiObject::mainwin()
 	return mw;
     }
 
-    while ( 1 )
-    {
-	mDynamicCastGet(uiMainWin*,mw,par)
-	if ( mw ) return mw;
-
-	mDynamicCastGet(uiObject*,uiobj,par);
-	if ( !uiobj ) return 0;
-
-	par = uiobj->parent();
-	if ( !par ) return 0;
-    }
-    return 0;
+    return par->mainwin();
 }
 
 

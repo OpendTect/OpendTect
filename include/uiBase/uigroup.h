@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.16 2002-01-10 10:26:35 nanne Exp $
+ RCS:           $Id: uigroup.h,v 1.17 2002-01-15 10:20:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ public:
 
     //! inernal use only. Tells the layout manager it's a toplevel mngr.
     void		setIsMain( bool ); 
+    virtual uiMainWin*	mainwin() { return uiObj() ? uiObj()->mainwin() : 0; }
 
 //
 protected:

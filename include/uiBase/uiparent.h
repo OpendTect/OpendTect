@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.3 2002-01-08 10:36:08 arend Exp $
+ RCS:           $Id: uiparent.h,v 1.4 2002-01-15 10:20:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class uiObjHandle;
 class uiObjectBody;
 class uiObject;
+class uiMainWin;
 
 
 class uiParent : public uiObjHandle
@@ -31,6 +32,8 @@ public:
     void		manageChld( uiObjHandle&, uiObjectBody& );
     void                attachChild ( constraintType tp, uiObject* child,
 				      uiObject* other, int margin );
+
+    virtual uiMainWin*	mainwin()		{ return 0; }
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.41 2002-01-11 14:33:40 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.42 2002-01-15 10:20:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "i_layout.h"
 #include "i_layoutitem.h"
 #include "uiobjbody.h"
+#include "uimainwin.h"
 
 #include <qlist.h>
 #include <qmenubar.h>
@@ -1227,9 +1228,15 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
     bool isPrefSz=false;
 
-    uiRect mPos = curpos( preferred );
-    if( extRect.width()==mPos.hNrPics() && extRect.left() == mPos.left()) 
-	isPrefSz = true;
+    if( managedBody.uiObjHandle().mainwin()  )
+	isPrefSz = !managedBody.uiObjHandle().mainwin()->poppedUp();
+    else
+    {
+	uiRect mPos = curpos( preferred );
+	if( extRect.width()==mPos.hNrPics() 
+				&& extRect.left() == mPos.left()) 
+	    isPrefSz = true;
+    }
 #if 0
     if( isPrefSz )
 	doLayout( setGeom, targetRect );
