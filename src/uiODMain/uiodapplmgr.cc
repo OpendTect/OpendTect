@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.73 2005-03-17 15:03:30 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.74 2005-03-23 16:05:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -385,14 +385,11 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 {
     if ( visid<0 ) return false;
 
-    /*
     if ( visserv->getAttributeFormat(visid) == 3 )
     {
-	CubeSampling cs = visserv->getCubeSampling( visid );
-	bool res = trackserv->setWorkCube( cs );
-	return res;
+	mpeserv->loadAttribData();
+	return true;
     }
-    */
 
     const AttribSelSpec* as = colordata ? &visserv->getColorSelSpec(visid)->as
 					: visserv->getSelSpec(visid);
