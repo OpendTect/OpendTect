@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.14 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.15 2003-12-12 15:36:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
     sels.selvalues.erase();
 
     int curitm = attribfld ? attribfld->box()->currentItem() : -1;
-    if ( curitm >= 0 )
+    if ( curitm >= 0 && attribfld->box()->isSelected(curitm) )
 	sels.selvalues += curitm;
 }
 
