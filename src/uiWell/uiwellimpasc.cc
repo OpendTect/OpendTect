@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.11 2003-11-07 12:28:54 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.12 2003-11-10 11:54:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 		IOObjContext::getDataDirName(IOObjContext::WllInf) );
 	d2tfld->attach( alignedBelow, infld );
 
-	tvdfld = new uiCheckBox( this, "Model is TVD" );
+	tvdfld = new uiCheckBox( this, "Model is TVDSS" );
 	tvdfld->attach( alignedBelow, d2tfld );
     }
 
@@ -56,7 +56,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     coordfld->attach( alignedBelow, zistime ? (uiObject*)tvdfld
 	   				    : (uiObject*)infld );
 
-    elevfld = new uiGenInput( this, "Surface elevation", FloatInpSpec() );
+    elevfld = new uiGenInput( this, "Elevation above surface", FloatInpSpec() );
     elevfld->attach( alignedBelow, coordfld );
 
     unitfld = new uiGenInput( this, "Depth unit", BoolInpSpec("Meter","Feet") );
