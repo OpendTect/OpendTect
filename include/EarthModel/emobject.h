@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.28 2004-05-25 14:11:07 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.29 2004-06-03 11:15:05 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,7 @@ public:
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
 				       bool addtohistory ) = 0;
+    virtual bool		unSetPos(const EM::PosID&, bool addtohistory );
 
     virtual void		getLinkedPos( const EM::PosID& posid,
 					  TypeSet<EM::PosID>& ) const
