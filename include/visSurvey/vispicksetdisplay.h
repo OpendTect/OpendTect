@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.7 2002-03-20 08:28:10 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.8 2002-03-21 10:27:54 bert Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,6 @@ public:
     Notifier<PickSet>	removedpoint;
 
 protected:
-    		PickSet();
     virtual	~PickSet();
 
     visBase::SceneObjectGroup*	group;
