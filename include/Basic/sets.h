@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.20 2003-05-28 08:42:34 kristofer Exp $
+ RCS:		$Id: sets.h,v 1.21 2003-08-13 13:45:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,7 @@ public:
 				{ return typs.size(); }
     virtual T&		operator[]( int idx ) const
 				{ return (T&)typs[idx]; }
-    virtual T*		get( const T& t ) const
-				{ return indexOf(t) < 0 ? 0 : (T*)&t; }
+
     virtual int		indexOf( const T& typ ) const {
 
 			    const unsigned int sz = size();
@@ -92,8 +91,8 @@ public:
     virtual void	remove( int i1, int i2 )	{ typs.remove(i1,i2); }
     virtual void	insert( int idx, const T& typ )	{ typs.insert(idx,typ);}
 
-    Vector<T>&		vec()				{ return typs.vec(); }
-    const Vector<T>&	vec() const			{ return typs.vec(); }
+    Vector<T>&		vec()				{ return typs; }
+    const Vector<T>&	vec() const			{ return typs; }
     T*			arr()		{ return size() ? &(*this)[0] : 0; }
     const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 
