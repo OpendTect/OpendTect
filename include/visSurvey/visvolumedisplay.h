@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.2 2002-08-22 11:07:34 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.3 2002-10-11 15:27:18 nanne Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "ranges.h"
 
 class AttribSelSpec;
 class CubeSampling;
@@ -31,7 +32,7 @@ namespace visSurvey
 class Scene;
 
 /*!\brief
-    VolumeDisplay is a TextureRect that displays seismics or attributes.
+    VolumeDisplay is a 3DTexture with 3 rectangles that display seismics or attributes.
 */
 
 class VolumeDisplay :  public visBase::VisualObject,
@@ -72,6 +73,8 @@ public:
     float			clipRate() const;
     void			setAutoscale(bool);
     bool			autoScale() const;
+    void			setDataRange(const Interval<float>&);
+    Interval<float>		getDataRange() const;
 
     void                        setMaterial( visBase::Material* );
     const visBase::Material*    getMaterial() const;
@@ -82,6 +85,9 @@ public:
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
 
+    virtual NotifierAccess*	getMovementNotification() { return &moving; }
+    Notifier<VolumeDisplay>	rectmoving;
+
 
 protected:
 				~VolumeDisplay();
@@ -90,6 +96,7 @@ protected:
     void			deSelect();
     void			manipFinished(CallBacker*);
     void			manipInMotion(CallBacker*);
+    void			rectInMotion(CallBacker*);
 
     visBase::CubeView*		cube;
 
@@ -98,6 +105,9 @@ protected:
 
     bool			selected_;
     bool			succeeded_;
+    bool			manipulated;
+
+    Notifier<VolumeDisplay>	moving;
 
     static const char*		volumestr;
 };

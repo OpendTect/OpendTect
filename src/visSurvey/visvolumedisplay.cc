@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.3 2002-09-30 15:39:49 bert Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.4 2002-10-11 15:27:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,11 +33,14 @@ mCreateFactoryEntry( visSurvey::VolumeDisplay );
 const char* visSurvey::VolumeDisplay::volumestr = "Volume box";
 
 visSurvey::VolumeDisplay::VolumeDisplay()
-    : VisualObject( true )
-    , cube( visBase::CubeView::create() )
-    , selected_( false )
+    : VisualObject(true)
+    , cube(visBase::CubeView::create())
+    , selected_(false)
     , as(*new AttribSelSpec)
     , prevcs(*new CubeSampling)
+    , moving(this)
+    , manipulated(false)
+    , rectmoving(this)
 {
     cube->ref();
     selection()->notify( mCB(this,VolumeDisplay,select));
@@ -46,17 +49,23 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
     cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
 
-    setCenter( Geometry::Pos((SI().range().stop.inl + SI().range().start.inl)/2,
-			     (SI().range().stop.crl + SI().range().start.crl)/2,
-			     (SI().zRange().stop + SI().zRange().start)/2 ) );
+    prevcs.hrg.start.inl = (5*SI().range().start.inl+3*SI().range().stop.inl)/8;
+    prevcs.hrg.start.crl = (5*SI().range().start.crl+3*SI().range().stop.crl)/8;
+    prevcs.hrg.stop.inl = (3*SI().range().start.inl+5*SI().range().stop.inl)/8;
+    prevcs.hrg.stop.crl = (3*SI().range().start.crl+5*SI().range().stop.crl)/8;
+    prevcs.zrg.start = ( 5*SI().zRange().start + 3*SI().zRange().stop ) / 8;
+    prevcs.zrg.stop = ( 3*SI().zRange().start + 5*SI().zRange().stop ) / 8;
+    SI().snap( prevcs.hrg.start, BinID(0,0) );
+    SI().snap( prevcs.hrg.stop, BinID(0,0) );
+    setCubeSampling( prevcs );
 
-    setWidth( Geometry::Pos( (SI().range().stop.inl - SI().range().start.inl)/4,
-			     (SI().range().stop.crl - SI().range().start.crl)/4,
-			     (SI().zRange().stop - SI().zRange().start)/4 ) );
-
-    prevcs = getCubeSampling();
-    cube->initPlanes( prevcs );
     cube->showBox( true );
+    cube->inlPlane()->manipChanges()->notify( 
+	    			mCB(this,VolumeDisplay,rectInMotion) );
+    cube->crlPlane()->manipChanges()->notify( 
+	    			mCB(this,VolumeDisplay,rectInMotion) );
+    cube->tslPlane()->manipChanges()->notify( 
+	    			mCB(this,VolumeDisplay,rectInMotion) );
 }
 
 
@@ -111,15 +120,15 @@ float visSurvey::VolumeDisplay::getPlanePos( int dim )
     switch( dim )
     {
 	case 0: {
-	    pos = cube->inlPlane()->getRectangle().manipOrigo();
+	    pos = cube->inlPlane()->manipOrigo();
 	    return pos.x;
 	    } break;
 	case 1: {
-	    pos = cube->crlPlane()->getRectangle().manipOrigo();
+	    pos = cube->crlPlane()->manipOrigo();
 	    return pos.y;
 	    } break;
 	case 2: {
-	    pos = cube->tslPlane()->getRectangle().manipOrigo();
+	    pos = cube->tslPlane()->manipOrigo();
 	    return pos.z;
 	    } break;
 	default:
@@ -131,6 +140,8 @@ float visSurvey::VolumeDisplay::getPlanePos( int dim )
 bool visSurvey::VolumeDisplay::updateAtNewPos()
 {
     succeeded_ = false;
+    moving.trigger();
+    manipulated = false;
     return succeeded_;
 }
 
@@ -181,6 +192,12 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 {
     prevcs = sliceset->sampling;
+    ObjectSet< const Array2D<float> > newset;
+    for ( int idx=0; idx<sliceset->size(); idx++ )
+	newset += (*sliceset)[idx];
+
+    cube->setData( newset, (int)sliceset->direction );
+
     return true;
 }
 
@@ -210,11 +227,16 @@ void visSurvey::VolumeDisplay::deSelect()
 {
     if ( !selected_ ) return;
     selected_ = false;
+
+    
+    if ( manipulated ) updateAtNewPos();
 }
 
 
 void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
 {
+    manipulated = true;
+
     CubeSampling cs = getCubeSampling();
     BinIDRange br;
     br.start = cs.hrg.start;
@@ -222,6 +244,8 @@ void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
     SI().checkRange( br );
     cs.hrg.start = br.start;
     cs.hrg.stop = br.stop;
+    SI().snap( cs.hrg.start, BinID(0,0) );
+    SI().snap( cs.hrg.stop, BinID(0,0) );
 
     Interval<double> intv( cs.zrg.start, cs.zrg.stop );
     SI().checkZRange( intv );
@@ -240,51 +264,57 @@ void visSurvey::VolumeDisplay::manipInMotion( CallBacker* )
 }
 
 
+void visSurvey::VolumeDisplay::rectInMotion( CallBacker* )
+{
+    rectmoving.trigger();
+}
+
+
 void visSurvey::VolumeDisplay::setColorTable( const ColorTable& ctab )
 {
-    cube->inlPlane()->getColorTab().colorSeq().colors() = ctab;
-    cube->inlPlane()->getColorTab().colorSeq().colorsChanged();
+    cube->getColorTab().colorSeq().colors() = ctab;
+    cube->getColorTab().colorSeq().colorsChanged();
 }
 
 
 const ColorTable& visSurvey::VolumeDisplay::getColorTable() const
-{ return cube->inlPlane()->getColorTab().colorSeq().colors(); }
+{ return cube->getColorTab().colorSeq().colors(); }
 
 
 void visSurvey::VolumeDisplay::setClipRate( float rate )
-{
-    cube->inlPlane()->setClipRate( rate );
-    cube->crlPlane()->setClipRate( rate );
-    cube->tslPlane()->setClipRate( rate );
-}
+{ cube->setClipRate( rate ); }
 
 
 float visSurvey::VolumeDisplay::clipRate() const
-{ return cube->inlPlane()->clipRate(); }
+{ return cube->clipRate(); }
 
 
 void visSurvey::VolumeDisplay::setAutoscale( bool yn )
-{
-    cube->inlPlane()->setAutoscale( yn );
-    cube->crlPlane()->setAutoscale( yn );
-    cube->tslPlane()->setAutoscale( yn );
-}
+{ cube->setAutoscale( yn ); }
 
 
 bool visSurvey::VolumeDisplay::autoScale() const
-{ return cube->inlPlane()->autoScale(); }
+{ return cube->autoScale(); }
+
+
+void visSurvey::VolumeDisplay::setDataRange( const Interval<float>& intv )
+{ cube->getColorTab().scaleTo( intv ); }
+
+
+Interval<float> visSurvey::VolumeDisplay::getDataRange() const
+{ return cube->getColorTab().getInterval(); }
 
 
 void visSurvey::VolumeDisplay::setMaterial( visBase::Material* nm)
-{ cube->inlPlane()->setMaterial(nm); }
+{ cube->setMaterial(nm); }
 
 
 const visBase::Material* visSurvey::VolumeDisplay::getMaterial() const
-{ return cube->inlPlane()->getMaterial(); }
+{ return cube->getMaterial(); }
 
 
 visBase::Material* visSurvey::VolumeDisplay::getMaterial()
-{ return cube->inlPlane()->getMaterial(); }
+{ return cube->getMaterial(); }
 
 
 SoNode* visSurvey::VolumeDisplay::getData() 
