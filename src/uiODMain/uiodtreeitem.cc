@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.71 2005-03-11 12:53:26 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.72 2005-03-11 17:00:19 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ ___________________________________________________________________
 #include "visplanedatadisplay.h"
 #include "uiexecutor.h"
 #include "settings.h"
+#include "emhorizon.h"
 
 
 const char* uiODTreeTop::sceneidkey = "Sceneid";
@@ -690,8 +691,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==tracksetupmnuid )
     {
 	menu->setIsHandled(true);
-	const int trackerid = applMgr()->mpeServer()->getTrackerID(mid);
-	applMgr()->mpeServer()->showSetupDlg( trackerid );
+	applMgr()->mpeServer()->showSetupDlg( mid, sectionid );
     }
     else if ( mnuid==reloadmnuid )
     {
@@ -723,12 +723,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == relmnuid )
     {	
 	menu->setIsHandled(true);
-
-	if ( sectionid==-1 )
-	    return;
-
-	const int trackerid = applMgr()->mpeServer()->getTrackerID(mid);
-	applMgr()->mpeServer()->showRelationsDlg(trackerid);
+	applMgr()->mpeServer()->showRelationsDlg( mid, sectionid );
     }
     else if ( mnuid==toggletrackingmnuid )
     {
@@ -1177,12 +1172,9 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	success = applMgr()->EMServer()->selectHorizon(mid);
     else if ( mnuid == 1 )
     {
-	/*
-	uiTrackingPartServer* ts = applMgr()->mpeServer();
-	ts->setSceneID( sceneID() );
-	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
-	ts->addSurfaceTracker( true );
-	*/
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
+	mps->startWizard( EM::Horizon::typeStr(), 0 );
 	return true;
     }
 
