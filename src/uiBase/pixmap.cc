@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.5 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: pixmap.cc,v 1.6 2003-03-07 10:27:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ bool ioPixmap::convertFromArrayRGB( const ArrayRGB & theImage )
     releaseDrawTool();
 
     if( !qpixmap ) qpixmap = new QPixmap;
-    return qpixmap->convertFromImage( theImage.Image() );
+    return qpixmap->convertFromImage( theImage.Image(), Qt::OrderedAlphaDither);
 }    
 
 
