@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.4 2005-03-23 16:01:30 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.5 2005-04-01 15:13:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,12 +100,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
     EM::EMManager& em = EM::EMM();
     mDynamicCastGet(EM::EMObject*,emobj,em.getObject(em.multiID2ObjectID(mid)));
 
-    emvis->setColor( emobj->preferredColor() );
-
     visserv->addObject( emvis, scene, true );
     displayid = emvis->id();
     emvis->setDepthAsAttrib();
-    emvis->useTexture( true );
 
     setUpConnections();
 }
@@ -258,7 +255,7 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
     mDynamicCastGet(const EM::EMObject*,emobj,EM::EMM().getObject(emid))
     if ( !emobj ) return -1;
 
-    return emobj->sectionID(idx);
+    return emobj->sectionID( idx );
 }
 
 
@@ -268,7 +265,16 @@ EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
 	    	    visserv->getObject(displayid))
 
-    return emvis->getSectionID(path);
+    return emvis->getSectionID( path );
+}
+
+
+float uiVisEMObject::getShift() const
+{
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+		    visserv->getObject(displayid))
+    Coord3 shift = emvis->getTranslation();
+    return shift.z;
 }
 
 
@@ -373,17 +379,15 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
 	shift.z = newshift;
 	emvis->setTranslation( shift );
-	if ( emvis->hasStoredAttrib() )
+	if ( !emvis->hasStoredAttrib() )
+	    visserv->calculateAttrib( displayid, false );
+	else
 	{
 	    uiMSG().error( "Cannot calculate this attribute on new location"
 		           "\nDepth will be displayed instead" );
 	    emvis->setDepthAsAttrib();
-	    visserv->triggerTreeUpdate();
 	}
-	else
-	{
-	    visserv->calculateAttrib( displayid, false );
-	}
+	visserv->triggerTreeUpdate();
     }
     else if ( mnuid==removesectionmnuid )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.3 2005-03-23 16:01:37 cvsnanne Exp $
+ RCS:		$Id: uivisemobj.h,v 1.4 2005-04-01 15:13:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,7 @@ public:
     static bool		canHandle(int displayid);
     int			id() const { return displayid; }
 
+    float		getShift() const;
     void		setDepthAsAttrib();
     uiVisMenu&		getNodeMenu() { return nodemenu; }
 
