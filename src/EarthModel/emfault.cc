@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.28 2005-03-14 16:56:29 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.29 2005-03-24 12:09:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,10 @@ const IOObjContext& Fault::getIOObjContext() const
 
 FaultGeometry::FaultGeometry( Fault& flt )
     : SurfaceGeometry(flt)
-{}
+{
+    loadedstep=BinID(1,1);
+    step_ = BinID(1,1);
+}
 
 
 FaultGeometry::~FaultGeometry()
