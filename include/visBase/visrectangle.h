@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.6 2002-02-27 08:42:29 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.7 2002-02-27 08:46:13 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ protected:
     be snapped.
 */
 
-class Rectangle : public VisualObject
+class Rectangle : public VisualObject, public CallBackClass
 {
 public:
 

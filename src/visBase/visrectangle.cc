@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.5 2002-02-27 07:20:42 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.6 2002-02-27 08:46:59 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "visscene.h"
@@ -381,8 +381,6 @@ visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
     planesep->addChild( planewrapper.getData() );
     ((SoFaceSet*)planewrapper.getData())->numVertices.set1Value(0, 5);
     scene.selMan().regSelObject( *this, planewrapper );
-    scene.selMan().notifySelection( *this, mCB( this, Rectangle, select ));
-    scene.selMan().notifyDeSelection( *this, mCB( this, Rectangle, deSelect ));
 
     if ( dragger )
     {
@@ -420,9 +418,6 @@ visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
 
 visBase::Rectangle::~Rectangle()
 {
-    scene.selMan().deNotifySelection( *this, mCB( this, Rectangle, select ));
-    scene.selMan().deNotifyDeSelection( *this, mCB( this, Rectangle, deSelect));
-
     scene.selMan().unRegSelObject( *this );
     delete dragger;
 }
