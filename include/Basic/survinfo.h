@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.34 2003-09-11 15:56:00 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.35 2003-10-28 18:09:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ public:
     void		setZUnit(bool istime,bool un=false);
     			/*!< un=true: meter; un=false: feet; only used
    			     when istime = false; */
-    const char*		getZUnit() const;
+    const char*		getZUnit(bool withbrackets=true) const;
 
     const char*		comment() const			{ return comment_; }
 

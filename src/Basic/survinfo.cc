@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.43 2003-09-11 15:56:01 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.44 2003-10-28 18:08:58 nanne Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -556,14 +556,19 @@ bool SurveyInfo::includes( const BinID bid, const float z, bool work ) const
 }
 
 
-const char* SurveyInfo::getZUnit() const
+const char* SurveyInfo::getZUnit( bool wb ) const
 {
+    static BufferString lbl;
+    if ( wb ) lbl = "(";
     if ( zistime_ )
-	return "ms";
+	lbl += "ms";
     else if ( zinfeet_ )
-	return "ft";
+	lbl += "ft";
     else
-	return "m";
+	lbl += "m";
+    if ( wb ) lbl += ")";
+    
+    return lbl.buf();
 }
 
 
