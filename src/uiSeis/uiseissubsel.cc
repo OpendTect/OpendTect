@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.22 2004-10-11 14:49:57 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.23 2004-10-12 07:33:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,7 +366,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	iopar.set( sKey::LineKey, lnm );
 
     iopar.set( sKey::FirstInl, 0 );
-    iopar.set( sKey::LastInl, mUndefIntValue );
+    iopar.set( sKey::LastInl, mUndefIntVal );
     iopar.set( sKey::StepCrl, 1 );
 
     if ( !isall )

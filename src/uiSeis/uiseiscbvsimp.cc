@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.26 2004-10-11 14:49:57 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.27 2004-10-12 07:33:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "keystrs.h"
 
 #include "uimsg.h"
 #include "uifileinput.h"
