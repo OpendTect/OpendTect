@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.9 2001-05-02 13:50:24 windev Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.10 2001-05-02 15:36:27 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -146,7 +146,6 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
     info_.explinfo.refpos =	*ptr & (unsigned char)16;
 
     explicitnrbytes = 0;
-#ifdef __msvc__
     if ( info_.explinfo.startpos )
 	explicitnrbytes += sizeof(float);
     if ( info_.explinfo.coord )
@@ -157,18 +156,6 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
 	explicitnrbytes += sizeof(float);
     if ( info_.explinfo.refpos )
 	explicitnrbytes += sizeof(float);
-#else
-    if ( info_.explinfo.startpos )
-	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::startpos);
-    if ( info_.explinfo.coord )
-	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::coord);
-    if ( info_.explinfo.offset )
-	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::offset);
-    if ( info_.explinfo.pick )
-	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::pick);
-    if ( info_.explinfo.refpos )
-	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::refpos);
-#endif
 }
 
 
@@ -359,7 +346,6 @@ bool CBVSReader::goTo( const BinID& bid )
     }
     else
     {
-	int segposns = 0;
 	const CBVSInfo::SurvGeom::InlineInfo* curiinf =
 		info_.geom.inldata[curinlinfnr];
 	const CBVSInfo::SurvGeom::InlineInfo::Segment* curseg =
