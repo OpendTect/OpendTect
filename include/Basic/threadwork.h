@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.11 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: threadwork.h,v 1.12 2005-01-27 16:03:25 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,8 @@ public:
     				/*!< Removes the task from queue
 				     and stop it if allready running
 				*/
+
+    int				nrThreads() const { return threads.size(); }
 
     Notifier<ThreadWorkManager>	isidle;
     
