@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.28 2003-09-26 16:24:49 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.29 2003-10-06 15:58:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 				 "Specify horizon parameters","104.0.0"))
     , ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
 {
-    infld = new uiFileInput( this, "Input Ascii file" );
+    infld = new uiFileInput( this, "Input Ascii file", 
+	    		     uiFileInput::Setup().withexamine() );
     infld->setSelectMode( uiFileDialog::ExistingFiles );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
