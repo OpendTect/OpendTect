@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.32 2003-04-25 13:37:50 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.33 2003-05-07 13:09:18 nanne Exp $";
 
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -32,6 +32,7 @@ visBase::TextureRect::TextureRect()
     , manipchnotifier( this )
     , manipendsnotifier( this )
     , textureswitch( new SoSwitch )
+    , curidx(0)
 {
     textureswitch->ref();
     insertChild( 1, textureswitch );
@@ -86,9 +87,9 @@ void visBase::TextureRect::setTexture( visBase::Texture2& newtext, int idx )
     if ( textureset.size() )
     {
 	newtext.setResolution( textureset[0]->getResolution() );
-	newtext.setColorTab( textureset[0]->getColorTab() );
-//	newtext.getColorTab().setColorSeq( 
-//			    &textureset[0]->getColorTab().colorSeq() );
+//	newtext.setColorTab( textureset[0]->getColorTab() );
+	newtext.getColorTab().setColorSeq( 
+			    &textureset[0]->getColorTab().colorSeq() );
     }
     textureset += &newtext;
 
@@ -151,11 +152,11 @@ void visBase::TextureRect::setColorTab( VisColorTab& ct )
 
 
 const visBase::VisColorTab& visBase::TextureRect::getColorTab() const
-{ return textureset[0]->getColorTab(); }
+{ return textureset[curidx]->getColorTab(); }
  
  
 visBase::VisColorTab& visBase::TextureRect::getColorTab()
-{ return textureset[0]->getColorTab(); }
+{ return textureset[curidx]->getColorTab(); }
 
 
 void visBase::TextureRect::setClipRate( float cr )
@@ -167,7 +168,7 @@ void visBase::TextureRect::setClipRate( float cr )
 
 float visBase::TextureRect::clipRate() const 
 { 
-    return textureset[0]->clipRate();
+    return textureset[curidx]->clipRate();
 }
 
 
@@ -180,7 +181,7 @@ void  visBase::TextureRect::setAutoScale( bool yn )
 
 bool visBase::TextureRect::autoScale() const
 {
-    return textureset[0]->autoScale();
+    return textureset[curidx]->autoScale();
 }
 
 
@@ -193,7 +194,7 @@ void visBase::TextureRect::useTexture( bool yn )
 
 bool visBase::TextureRect::usesTexture() const
 {
-    return textureset[0]->isOn();
+    return textureset[curidx]->isOn();
 }
 
 
@@ -229,6 +230,7 @@ void visBase::TextureRect::setData( const Array2D<float>& data, int idx )
 void visBase::TextureRect::showTexture( int idx )
 {
     textureswitch->whichChild = idx < 0 ? SO_SWITCH_NONE : idx;
+    curidx = idx;
 }
 
 
@@ -241,7 +243,7 @@ void visBase::TextureRect::setTextureQuality( float q )
 
 float visBase::TextureRect::getTextureQuality() const
 {
-    return textureset[0]->getTextureQuality();
+    return textureset[curidx]->getTextureQuality();
 }
 
 
@@ -260,7 +262,7 @@ void visBase::TextureRect::setResolution( int res )
 
 int visBase::TextureRect::getResolution() const
 {
-    return textureset[0]->getResolution();
+    return textureset[curidx]->getResolution();
 }
 
 

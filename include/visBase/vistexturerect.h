@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.22 2003-04-23 15:29:35 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.23 2003-05-07 13:09:24 nanne Exp $
 ________________________________________________________________________
 
 
@@ -89,6 +89,7 @@ protected:
     SoSwitch*		textureswitch;
     ObjectSet<Texture2> textureset;
     Rectangle*		rectangle;
+    int			curidx;
 
     int			useOldPar( const IOPar& );
 
