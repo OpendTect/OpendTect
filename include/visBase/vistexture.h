@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.18 2004-04-27 12:10:01 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.19 2004-05-05 11:27:38 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,8 +49,8 @@ public:
     enum		DataType { Color, Transparency,
 				   Hue, Saturation, Brightness, 
 				   Red, Green, Blue };
-    bool		turnOn(bool yn);
-    bool		isOn()	const;
+    virtual bool	turnOn(bool yn);
+    virtual bool	isOn()	const;
     			
     void		setAutoScale(bool yn);
     bool		autoScale() const;
