@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.19 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.20 2003-01-23 16:15:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -242,11 +242,11 @@ void uiSeisFileMan::relocatePush( CallBacker* )
 	return;
     }
 
-    UsrMsg( "Moving cube ..." );
+    toStatusBar( "Moving cube ..." );
     if ( !File_rename(fulloldname,fullnewname) )
     {
 	uiMSG().error( "Could not move cube to new location" );
-	UsrMsg( "" );
+	toStatusBar( "" );
 	return;
     }
 
@@ -282,18 +282,17 @@ void uiSeisFileMan::handleMultiFiles( const char* fulloldname,
 
 	BufferString newfn( CBVSIOMgr::getFileName(fullnewname,inr) );
 	BufferString msg = "Moving part "; msg += inr+1; msg += " ...";
-	UsrMsg( msg );
+	toStatusBar( msg );
 	if ( !File_rename(fnm,newfn) )
 	{
 	    msg = "Move aborted: could not move part "; msg += inr+1;
 	    msg += "\nThe cube data is now partly moved.";
 	    msg += "\nPlease contact system administration to fix the problem";
 	    uiMSG().error( msg );
-	    UsrMsg( "" );
 	    break;
 	}
     }
-    UsrMsg( "" );
+    toStatusBar( "" );
 }
 
 

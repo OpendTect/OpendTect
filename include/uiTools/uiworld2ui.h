@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.2 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.3 2003-01-23 16:15:24 bert Exp $
 ________________________________________________________________________
 
 -*/
 #include "uigeom.h"
-#include "position.h"
+#include "posgeom.h"
 
 class World2UiData
 {
@@ -27,8 +27,8 @@ public:
     inline bool	operator ==( const World2UiData& w2ud ) const
 		{
 		    return sz == w2ud.sz
-		    && Coord(wr.topLeft())     == Coord(w2ud.wr.topLeft())
-		    && Coord(wr.bottomRight()) == Coord(w2ud.wr.bottomRight());
+		    && crd(wr.topLeft())     == crd(w2ud.wr.topLeft())
+		    && crd(wr.bottomRight()) == crd(w2ud.wr.bottomRight());
 		}
     inline bool	operator !=( const World2UiData& w2ud ) const
 		{ return !( *this == w2ud ); }
