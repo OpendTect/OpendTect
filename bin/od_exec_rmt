@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.14 2004-09-27 08:17:00 dgb Exp $
+# $Id: od_exec_rmt,v 1.15 2004-09-29 14:41:39 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -22,6 +22,11 @@ if ( $#argv < 1 ) then
     echo "Usage: $0 remote_host [--rexec remote_shell_command]"
     echo "       [--with-dtect-appl <DTECT_APPL on remote host>"
     echo "       [--with-dtect-data <DTECT_DATA on remote host>"
+    echo "       [--with-remoteuser < user on remote host>"
+    echo "       [--with-remotepass < pass on remote host>"
+    echo "       [--with-data-host <win32 host were data is stored>"
+    echo "       [--with-data-drive <win32 data drive letter>"
+    echo "       [--with-data-share <win32 share name where data is stored>"
     echo "       [--with-local-proc-dir <processing directory on local host>"
     echo "       [--with-remote-proc-dir <processing directory on remote host>"
     echo "       [--transfervars <list of environment vars to transfer> -+-+-"
@@ -37,6 +42,7 @@ set remotepass=""
 if ( $?DTECT_REMOTE_PASS ) then
     set remotepass="$DTECT_REMOTE_PASS"
 endif
+
 set dtectappl="$DTECT_APPL"
 if ( $?DTECT_DATA ) then
     set dtectdata="$DTECT_DATA"
@@ -45,10 +51,7 @@ endif
 set datahost=""
 set datadrive=""
 set datashare=""
-
-set datahost="dgb27"
-set datadrive="w"
-set datashare="dw2k"
+set datapass=""
 
 next_arg:
 
@@ -62,6 +65,18 @@ else if ( $1 == "--remoteuser" ) then
         goto next_arg
 else if ( $1 == "--remotepass" ) then
         set remotepass="$2"
+        shift; shift
+        goto next_arg
+else if ( $1 == "--data-host" ) then
+        set datahost="$2"
+        shift; shift
+        goto next_arg
+else if ( $1 == "--data-drive" ) then
+        set datadrive="$2"
+        shift; shift
+        goto next_arg
+else if ( $1 == "--data-share" ) then
+        set datashare="$2"
         shift; shift
         goto next_arg
 else if ( $1 == "--with-dtect-appl" ) then
@@ -141,16 +156,24 @@ if ( $?COMSPEC ) then
 
 	set transffile="test.vars"
 
-	echo "${transf}" > ${locprocdir}/${transffile}
+	echo "${transf}" > "${locprocdir}/${transffile}"
 
 	set transf=`echo "${remprocdir}/${transffile}" | sed -e 's% %#-#%g'`
 	set procdir2=`echo "${remprocdir}" | sed -e 's% %#-#%g'`
 
-	set transf="$transf $procdir2 $datahost $datadrive $datashare $USERNAME"
+	set usernm=""
+	if ( $?USERNAME ) then
+	    set usernm="$USERNAME"
+	endif
+	if ( $?user ) then
+	    set usernm="$user"
+	endif
+
+	set transf="$transf $procdir2 $datahost $datadrive $datashare $usernm $remotepass"
 
 	set remotehost="\\${remotehost}"
 	net use "${remotehost}" ${remotepass} \
-		"/USER:${remotehost}\${user}" >& /dev/null
+		"/USER:${remotehost}\${usernm}" >& /dev/null
     endif
 endif
 
