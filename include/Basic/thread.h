@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.6 2002-04-10 07:46:07 kristofer Exp $
+ RCS:		$Id: thread.h,v 1.7 2002-04-15 12:04:54 kristofer Exp $
 ________________________________________________________________________
 
 */
 
-#include <gendefs.h>
+#include "gendefs.h"
 
 #ifndef __win__
 #define __pthread__ 1
@@ -21,9 +21,6 @@ ________________________________________________________________________
 #ifdef __pthread__
 #include <pthread.h>
 #endif
-
-class BasicTask;
-
 
 /*!\brief interface to threads that should be portable.
 
@@ -35,119 +32,144 @@ simply too big and dependent.
 
 namespace Threads
 {
+
+/*!\brief
+Is a lock that allows a thread to have exlusive rights to something. It is
+guaranteed that once locked, noone else will be able to lock it before it is
+unlocked. If a thread tries to lock it, it will be postponed until the thread
+that has locked it will unlock it.
+*/
+
 class Mutex
 {
 public:
-				    Mutex();
-				    ~Mutex();	
-    int				lock();
-    int				unlock();
+			Mutex();
+    virtual		~Mutex();	
 
-
-    class Locker
-    {
-    public:
-				    Locker( Mutex& mutex_ );
-				    ~Locker();
-    protected:
-	Mutex&			mutex;
-    };
+    int			lock();
+    int			unlock();
 
 protected:
 
 #ifdef __pthread__
-    pthread_mutex_t 		mutex;
-    pthread_mutexattr_t 		attr;
+    pthread_mutex_t 	mutex;
+    pthread_mutexattr_t	attr;
 #endif
 
 };
+
+
+/*!\brief
+Is an object that is conveniant to use when a mutex should be locked and
+be unlocked automaticly when returning.
+
+Example:
+
+int function()
+{
+    MutexLocker lock( myMutex );
+    //Do whatever you want to do
+}
+*/
+class MutexLocker
+{
+public:
+		MutexLocker( Mutex& mutex_ ) : mutex( mutex_ ) { mutex.lock(); }
+		~MutexLocker() { mutex.unlock(); }
+protected:
+    Mutex&	mutex;
+};
+
+
+/*!\brief
+Is an object that is faciliates many threads to wait for something to happen.
+
+Usage:
+
+From the working thread
+1. lock()
+   You will now be the only one allowed to check weather condition is true
+   (e.g. if new work has arrived).
+
+2. Check condition. If false, call wait(). You will now sleep until someone
+   calls signal(); If you are awakened, check the condition again and go back
+   to sleep if it is false.
+
+3. If condition is true, unlock() and start working. When finished working
+   go back to 1.
+
+It is wise to put an exit flag in the loop, so it's possible to say that we
+are about to quit.
+
+From the manager:
+When you want to change the condition:
+1. lock
+2. set condition (e.g. add more work)
+3. unlock
+4. signal
+
+*/
+
 
 class ConditionVar : public Mutex
 {
 public:
-				    ConditionVar();
-				    ~ConditionVar();
-    int				wait();
+				ConditionVar();
+				~ConditionVar();
 
-    int				unlock(bool);
-    int				unlock();
-    int 				signal(bool);
+    int				wait();
+    int 			signal(bool all);
+    				/*!< If all is true, all threads that have
+				     called wait() will be Notified about the
+				     signal. If all is false, only one thread
+				     will respond.
+				*/
 
 protected:
+
 #ifdef __pthread__
-    pthread_cond_t			cond;
+    pthread_cond_t		cond;
     pthread_condattr_t		condattr;
 #endif
 };
 
+/*!\brief
+is the base class for all threads. Start it by creating it and give it the
+function to run. The function running in the thread must not return. Instead
+it should call threadExit to terminate itself.
+
+The process that has created the thread must call
+*/
+
 class Thread
 {
 public:
-    bool				setFunction(void (*)(void*));
-    int				start();
-    void				stop(); 
-				    /*!< Signals the thread to end and
-					 waits until the thread does
-					 a threadExit(). */
+				Thread(void (*)(void*), void* arg);
 
-				    Thread();
-				    ~Thread();
+    static void			threadExit( void* retval=0 );
+				/*!< Should only be called by the 
+				     running thread */
 
-    static void			threadExit( void* =0 );
-				    /*!< Should only be called by the 
-					 running thread */
+    void			destroy(bool wait, void** retval);
+    				/*!< Delete the thread with this function.
+				    If wait is true, it will wait for the
+				    thread to call threadExit. retval is
+				    only set if wait is true
+				*/
 
-    bool				exitflag;
-    ConditionVar			exitcond;
-private:
-#ifdef __msvc__
-				    void(*func)(void*);
-#else
-    void*				func;
-#endif
+protected:
 #ifdef __pthread__
     pthread_t			id;
 #endif
 
-    void*				ret_val;
-
-    bool				is_running;
-    int				join();
-
+private:
+    friend			Threads::Mutex;
+    				//< Only to avoid stupid compiler msg
+    
+    virtual			~Thread() {}
 };
 				    
 
-class TaskRunner
-{
-public:
-    enum			Status { Idle, Running, Stopped, Finished };
-    Status			status() const;
-    bool			setTask( BasicTask* );
-
-    bool			start();
-    bool			stop();
-
-    int			getLastVal() const { return data.lastval; }
-
-			    TaskRunner();
-			    ~TaskRunner();
-
-    class Data : public Thread
-    {
-    public:
-	bool		stopflag;
-	BasicTask*		task;
-	int 		lastval;
-	Status		stat;
-    };
-
-    Data*			getData();
-
-protected:
-    static void		threadFunc(void*);
-    Data			data;
 };
-};
-
 
 #endif
