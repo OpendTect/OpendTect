@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.1 2003-01-07 10:35:04 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.2 2003-01-08 15:17:32 kristofer Exp $";
 
 #include "vistexturecoords.h"
 
@@ -95,7 +95,6 @@ SoNode* visBase::TextureCoords::getData()
 
 int  visBase::TextureCoords::getFreeIdx()
 {
-    Threads::MutexLocker lock( mutex );
     if ( unusedcoords.size() )
     {
 	const int res = unusedcoords[unusedcoords.size()-1];
