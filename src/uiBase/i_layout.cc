@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.59 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.60 2003-02-26 13:02:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
 			    const char *name, uiObjectBody& mngbdy )
     : QLayout(parnt,0,0,name), UserIDObject(name)
     , minimumDone(false), preferredDone(false), ismain(false)
-    , prefposStored(false)
+    , prefposStorCnt( 2 )
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
 {}
 
@@ -572,7 +572,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 		  managedBody.uiObjHandle().mainwin()->poppedUp() : true;
 
     bool store2prefpos = false;
-    if( !prefposStored || ismain && !popped )
+    if( prefposStorCnt > 0 || ismain && !popped )
     {
 	uiRect mPos = curpos( preferred );
 
@@ -584,7 +584,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
 	if ( hdif < 0 || vdif < 0 ) { cout << "huh!" << endl; }
 
-	store2prefpos = !prefposStored || hdif < 10 && vdif < 10;
+	store2prefpos = prefposStorCnt > 0 || hdif < 10 && vdif < 10;
 
 #ifdef __debug__
 	if( !store2prefpos )
@@ -604,7 +604,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     if( store2prefpos )
     {
 	prefGeometry = extRect;
-	prefposStored = true;
+	if ( prefposStorCnt > 0 ) prefposStorCnt--;
     }
 
     QLayout::setGeometry( extRect );

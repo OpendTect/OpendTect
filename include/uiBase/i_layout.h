@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.30 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.31 2003-02-26 13:02:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,7 +169,7 @@ private:
 
     bool		minimumDone;
     bool		preferredDone;
-    bool		prefposStored;
+    int			prefposStorCnt;
     bool		ismain;
 
     int 		hspacing;

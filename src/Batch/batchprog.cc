@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.31 2003-02-26 08:56:15 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.32 2003-02-26 13:02:26 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -102,7 +102,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	BufferString msg( progName() );
 	msg += ": No parameter file name specified";
 
-	if ( !writeErrorMsg( msg ) ) cerr << msg << endl;
+	writeErrorMsg( msg ); cerr << msg << endl;
 	return;
     }
 
@@ -114,7 +114,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	msg += ": Cannot open parameter file: ";
 	msg += fn;
 
-	if ( !writeErrorMsg( msg ) ) cerr << msg << endl;
+	writeErrorMsg( msg ); cerr << msg << endl;
 	return;
     }
  
@@ -126,7 +126,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	msg += ": Invalid input file: ";
 	msg += fn;
 
-	if ( !writeErrorMsg( msg ) ) cerr << msg << endl;
+	writeErrorMsg( msg ); cerr << msg << endl;
         return;
     }
 
