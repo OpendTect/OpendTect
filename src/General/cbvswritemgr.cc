@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.17 2002-11-28 09:06:50 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.18 2003-05-15 13:45:45 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -246,7 +246,7 @@ bool CBVSWriteMgr::put( void** data )
 		info_.geom.start.inl = writer->survGeom().stop.inl
 				     + info_.geom.step.inl;
 
-	    writer->forceXlineStep( writer->survGeom().step.crl );
+	    writer->forceLineStep( writer->survGeom().step );
 	    CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
 	    writers_ += newwriter;
 	    writers_ -= writer;

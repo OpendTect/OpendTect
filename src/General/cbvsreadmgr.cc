@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.26 2002-12-19 10:49:55 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.27 2003-05-15 13:45:44 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -301,7 +301,7 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
     const CBVSInfo& ci = rdr->info();
     if ( ci.nrtrcsperposn != info_.nrtrcsperposn )
 	mErrRet("Number of traces per position")
-    if ( !info_.geom.fullyrectandreg )
+    if ( !ci.geom.fullyrectandreg )
 	const_cast<CBVSInfo&>(ci).geom.step.inl = info_.geom.step.inl;
     else if ( ci.geom.step.inl != info_.geom.step.inl )
 	mErrRet("In-line number step")

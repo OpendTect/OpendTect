@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.32 2002-11-15 10:56:13 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.33 2003-05-15 13:45:45 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -33,7 +33,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i, const PosAuxInfo* e )
 	, survgeom_(i.geom)
 	, auxnrbytes_(0)
 	, input_rectnreg_(false)
-    	, forcedxlinestep_(0)
+    	, forcedlinestep_(0,0)
 {
     init( i );
 }
@@ -51,7 +51,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 	, auxinfosel_(cw.auxinfosel_)
 	, survgeom_(ci.geom)
 	, auxnrbytes_(0)
-    	, forcedxlinestep_(cw.forcedxlinestep_)
+    	, forcedlinestep_(cw.forcedlinestep_)
 {
     init( ci );
 }
@@ -214,7 +214,7 @@ void CBVSWriter::newSeg( bool newinl )
 
     if ( !trcswritten_ ) prevbinid_ = curbinid_;
 
-    int newstep = forcedxlinestep_ ? forcedxlinestep_ : SI().crlStep();
+    int newstep = forcedlinestep_.crl ? forcedlinestep_.crl : SI().crlStep();
     if ( newinl )
     {
 	if ( goodgeom && inldata_.size() )
@@ -252,7 +252,7 @@ void CBVSWriter::getBinID()
 			= *inldata_[inldata_.size()-1];
 	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =
 				inlinf.segments[inlinf.segments.size()-1];
-	    if ( !forcedxlinestep_ && seg.stop == seg.start )
+	    if ( !forcedlinestep_.crl && seg.stop == seg.start )
 	    {
 		if ( seg.stop != curbinid_.crl )
 		{
@@ -435,6 +435,8 @@ void CBVSWriter::getRealGeometry()
 
     if ( survgeom_.fullyrectandreg )
 	deepErase( survgeom_.inldata );
+    else if ( forcedlinestep_.inl )
+	bids.step.inl = forcedlinestep_.inl;
 
     survgeom_.start = bids.start;
     survgeom_.stop = bids.stop;
