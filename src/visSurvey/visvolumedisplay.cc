@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.19 2003-01-22 11:07:47 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.20 2003-01-23 07:18:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -345,7 +345,7 @@ void visSurvey::VolumeDisplay::setColorTable( visBase::VisColorTab& ctab )
 
 
 visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTable()
-{ return cube->getVolRenColorTab(); }
+{ return cube->getViewerColorTab(); }
 
 
 void visSurvey::VolumeDisplay::setClipRate( float rate )
@@ -436,13 +436,11 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
 
     inlid = cube->addSlice( 0 );
-    visBase::DM().getObj( inlid )->setName("Inline");
-
+    visBase::DM().getObj( inlid )->setName("inline");
     crlid = cube->addSlice( 1 );
-    visBase::DM().getObj( crlid )->setName("Crossline");
-
+    visBase::DM().getObj( crlid )->setName("crossline");
     tslid = cube->addSlice( 2 );
-    visBase::DM().getObj( tslid )->setName("Timeslice");
+    visBase::DM().getObj( tslid )->setName("timeslice");
 
     if ( !as.usePar( par )) return -1;
 
