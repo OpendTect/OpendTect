@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.39 2003-10-01 08:12:33 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.40 2003-10-03 13:50:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,19 +42,17 @@ const char* visSurvey::VolumeDisplay::timeshowstr = "Time shown";
 
 visSurvey::VolumeDisplay::VolumeDisplay()
     : VisualObject(true)
-    , cube(visBase::CubeView::create())
+    , cube(0)
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
     , cache(0)
     , colcache(0)
     , slicemoving(this)
 {
-    cube->ref();
+    setCube( visBase::CubeView::create() );
 
     cube->getMaterial()->setAmbience( 0.8 );
     cube->getMaterial()->setDiffIntensity( 0.8 );
-
-    cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
 
     CubeSampling cs;
     cs.hrg.start.inl = (5*SI().range().start.inl+3*SI().range().stop.inl)/8;
@@ -98,6 +96,21 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
 
     delete cache;
     delete colcache;
+}
+
+
+void visSurvey::VolumeDisplay::setCube( visBase::CubeView* cv )
+{
+    if ( cube )
+    {
+	cube->getBoxManipEnd()->remove(
+				mCB(this,VolumeDisplay,manipMotionFinishCB) );
+	cube->unRef();
+    }
+    
+    cube = cv;
+    cube->ref();
+    cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
 }
 
 
@@ -437,6 +450,7 @@ void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     par.setYN( timeshowstr, cube->isSliceShown(tslid) );
 
     as.fillPar(par);
+    colas.fillPar(par);
 }
 
 
@@ -451,15 +465,9 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
 
     visBase::DataObject* dataobj = visBase::DM().getObj( volid );
     if ( !dataobj ) return 0;
-
     mDynamicCastGet(visBase::CubeView*,cv,dataobj);
     if ( !cv ) return -1;
-
-    cube->getBoxManipEnd()->remove(mCB(this,VolumeDisplay,manipMotionFinishCB));
-    cube->unRef();
-    cube = cv;
-    cube->ref();
-    cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
+    setCube( cv );
 
     const CubeSampling& cs = getCubeSampling(false);
     Coord3 origo( cs.hrg.start.inl, cs.hrg.start.crl, cs.zrg.start );
@@ -494,7 +502,9 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     const int volrenid = cube->getVolRenId();
     visBase::DM().getObj( volrenid )->setName(volrenstr);
 
-    if ( !as.usePar( par )) return -1;
+    if ( !as.usePar(par) ) return -1;
+    colas.usePar( par );
+
     setColorTab( getColorTab() );
 
     return 1;
