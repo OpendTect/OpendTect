@@ -5,13 +5,12 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.5 2001-05-25 18:25:52 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.6 2001-05-31 13:25:39 windev Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
 #include "filegen.h"
-#include <fstream.h>
-
+#include <fstream>
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )

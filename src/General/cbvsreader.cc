@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.16 2001-05-30 13:05:34 dgb Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.17 2001-05-31 13:25:38 windev Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -127,7 +127,7 @@ const char* CBVSReader::check( istream& strm )
     if ( !strm.good() ) mErrRet("Input stream cannot be used")
     if ( strcmp(buf,"dGB") ) mErrRet("File is not in CBVS format")
 
-    unsigned char plf; strm.read( &plf, 1 );
+    char plf; strm.read( &plf, 1 );
     if ( plf > 2 ) mErrRet("File is not in CBVS format")
 
     strm.seekg( 0, ios::beg );
@@ -223,7 +223,7 @@ bool CBVSReader::readComps()
 
 bool CBVSReader::readGeom()
 {
-    unsigned char buf[8*sizeof(double)];
+    char buf[8*sizeof(double)];
     strm_.read( buf, 8*integersize );
     info_.geom.fullyrectandreg = (bool)iinterp.get( buf, 0 );
     info_.nrtrcsperposn = iinterp.get( buf, 1 );
@@ -505,7 +505,7 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
     expldat.offset = 0;
     expldat.pick = expldat.refpos = mUndefValue;
 
-    unsigned char buf[8];
+    char buf[8];
     mGet(startpos)
     mGetCoord()
     mGet(offset)

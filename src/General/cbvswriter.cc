@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.12 2001-05-11 20:28:18 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.13 2001-05-31 13:25:41 windev Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -85,10 +85,10 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
 {
     unsigned char ucbuf[headstartbytes]; memset( ucbuf, 0, headstartbytes );
     ucbuf[0] = 'd'; ucbuf[1] = 'G'; ucbuf[2] = 'B';
-    put_platform( ucbuf+3 );
+    put_platform( ucbuf + 3 );
     ucbuf[4] = version;
     putExplicits( ucbuf + 5 );
-    if ( !strm_.write(ucbuf,headstartbytes) )
+    if ( !strm_.write((const char*)ucbuf,headstartbytes) )
 	mErrRet("Cannot start writing to file")
 
     int sz = info.stdtext.size();
@@ -374,7 +374,7 @@ bool CBVSWriter::writeTrailer()
     buf[1] = 'B';
     buf[2] = 'G';
     buf[3] = 'd';
-    strm_.write( buf, integersize );
+    strm_.write( (const char*)buf, integersize );
 
     return true;
 }

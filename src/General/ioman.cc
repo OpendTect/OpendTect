@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.9 2001-05-07 15:51:32 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.10 2001-05-31 13:25:44 windev Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: ioman.cc,v 1.9 2001-05-07 15:51:32 bert Exp $";
 #include "filegen.h"
 #include "errh.h"
 #include <stdlib.h>
-#include <fstream.h>
+#include <fstream>
 
 IOMan*	IOMan::theinst_	= 0;
 void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }

@@ -5,14 +5,14 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.2 2001-02-13 17:21:02 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.3 2001-05-31 13:25:43 windev Exp $";
 
 #include "helpview.h"
 #include "settings.h"
 #include "ascstream.h"
 #include "multiid.h"
 #include "errh.h"
-#include <fstream.h>
+#include <fstream>
 #include <stdlib.h>
 
 

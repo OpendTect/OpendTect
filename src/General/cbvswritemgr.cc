@@ -5,12 +5,11 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.2 2001-05-25 18:25:52 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.3 2001-05-31 13:25:40 windev Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
-#include <fstream.h>
-
+#include <fstream>
 
 BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
