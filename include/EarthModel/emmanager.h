@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.10 2003-06-03 12:46:12 bert Exp $
+ RCS:		$Id: emmanager.h,v 1.11 2003-07-14 15:01:31 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ namespace EM
 {
 class EMObject;
 class History;
+class SurfaceIOData;
 
 /*!\brief
 
@@ -55,6 +56,8 @@ public:
 
     Executor*		load(const MultiID&);
     bool		isLoaded(const MultiID&) const;
+
+    void		getSurfaceData(const MultiID&,EM::SurfaceIOData&);
 
     void		ref(const MultiID&);
     void		unRef(const MultiID&);

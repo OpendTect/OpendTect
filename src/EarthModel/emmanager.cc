@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.13 2003-06-03 12:46:12 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.14 2003-07-14 15:01:26 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.13 2003-06-03 12:46:12 bert Ex
 #include "emhorizontransl.h"
 #include "emobject.h"
 #include "emwelltransl.h"
+#include "emsurfaceiodata.h"
 #include "errh.h"
 #include "executor.h"
 #include "iodir.h"
@@ -278,8 +279,30 @@ Executor* EM::EMManager::load( const MultiID& id )
 }
 
 
-bool EM::EMManager::isLoaded(const MultiID& id ) const
+bool EM::EMManager::isLoaded( const MultiID& id ) const
 {
     const EMObject* obj = getObject( id );
     return obj ? obj->isLoaded() : false;
+}
+
+
+void EM::EMManager::getSurfaceData( const MultiID& id, EM::SurfaceIOData& sd )
+{
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj ) return;
+
+    const char* grpname = ioobj->group();
+    if ( !strcmp( grpname, EMHorizonTranslator::keyword ))
+    {
+	EM::Horizon* hor = new EM::Horizon( *this, id );
+	dgbEMHorizonTranslator tr;
+	if ( !tr.startRead( *ioobj, *hor ) )
+	    return;
+
+	delete hor;
+	const EM::SurfaceIOData& newsd = tr.selections().sd;
+	sd.rg = newsd.rg;
+	deepCopy( sd.patches, newsd.patches );
+	deepCopy( sd.valnames, newsd.valnames );
+    }
 }
