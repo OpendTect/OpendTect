@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.6 2003-01-20 11:30:35 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.7 2003-01-20 15:35:59 kristofer Exp $";
 
 #include "vissurvobj.h"
 #include "visdataman.h"
@@ -75,7 +75,7 @@ float visSurvey::SurveyParamManager::getZScale() const
 visBase::Transformation*
 visSurvey::SurveyParamManager::getUTM2DisplayTransform()
 {
-    if ( utm2displaytransform )
+    if ( !utm2displaytransform )
 	createTransforms();
 
     return utm2displaytransform;
