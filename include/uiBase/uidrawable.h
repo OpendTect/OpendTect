@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.2 2001-05-02 13:50:11 windev Exp $
+ RCS:           $Id: uidrawable.h,v 1.3 2001-05-02 14:59:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiDrawableObj : public uiObject , public ioDrawArea
 {
     mTFriend		(T,i_drwblQObj);
-mTProtected:
+public:
 			uiDrawableObj( uiObject* parnt, const char* nm )
 			: uiObject( parnt, nm )
 			, preDraw(this)
@@ -33,7 +33,7 @@ mTProtected:
     Notifier<uiDrawableObj> postDraw;
     Notifier<uiDrawableObj> reSized;
 
-protected:
+mProtected:
 
     virtual void	reDrawHandler( uiRect updateArea )	{}
     virtual void	reSizeHandler( uiSize, uiSize )		{}
