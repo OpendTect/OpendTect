@@ -7,9 +7,6 @@
 #include <Inventor/bundles/SoTextureCoordinateBundle.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
 
-#include <Inventor/details/SoLineDetail.h>
-#include <Inventor/details/SoPointDetail.h>
-
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
@@ -299,9 +296,10 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
     SbMatrix invmat = mat.inverse();
 
     nrjoints = 0;
-    int index1 = *cindices++;
-    int index2 = *cindices++;
-    if ( index1<0 || index2<0 || index1>=nrcoords || index2>nrcoords ) return;
+    const int32_t* stopptr = cindices+(nrindex-startindex);
+    int index1 = cindices>=stopptr ? -1 : *cindices++;
+    int index2 = cindices>=stopptr ? -1 : *cindices++;
+    if ( index1<0 || index2<0 ) return;
 
     SbVec3f c1,c2;
     mat.multVecMatrix(celem->get3(index1), c1 );
@@ -322,7 +320,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
 	SbVec3f jointplanenormal;
 	SbBool doreverse = false;;
 	SbVec3f c3;
-	const int index3 = *cindices++;
+	const int index3 = cindices>=stopptr ? -1 : *cindices++;
 	if ( index3>=0 )
 	{
 	    mat.multVecMatrix(celem->get3(index3), c3 );
@@ -464,20 +462,14 @@ void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
     {\
 	pv.setNormal(norm); \
 	pv.setMaterialIndex(m12);\
-	pointDetail.setMaterialIndex(m12); \
 	pv.setPoint(c1[ci1]);\
-	pointDetail.setCoordinateIndex(cis[ci1]); \
 	shapeVertex(&pv);\
 	pv.setPoint(c2[ci2]);\
-	pointDetail.setCoordinateIndex(cis[ci2]); \
 	shapeVertex(&pv);\
 	pv.setMaterialIndex(m34);\
-	pointDetail.setMaterialIndex(m34); \
 	pv.setPoint(c4[ci4]);\
-	pointDetail.setCoordinateIndex(cis[ci4]); \
 	shapeVertex(&pv);\
 	pv.setPoint(c3[ci3]);\
-	pointDetail.setCoordinateIndex(cis[ci3]); \
 	shapeVertex(&pv);\
     }
 
@@ -502,9 +494,6 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 				SoMaterialBindingElement::get(state);
 
     SoPrimitiveVertex pv;
-    SoPointDetail pointDetail;
-    SoLineDetail lineDetail;
-    pv.setDetail(&pointDetail);
 
     while ( curindex<nrcoordindex )
     {
@@ -524,7 +513,7 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	}
 	else
 	{
-	    beginShape(action,TRIANGLE_STRIP, &lineDetail );
+	    beginShape(action,TRIANGLE_STRIP );
 	}
 
 	const int32_t* cis = coordIndex.getValues(curindex);
@@ -593,7 +582,6 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	    }
 
 	    material1 = material2;
-	    lineDetail.incPartIndex();
 	}
 
 	if ( render )
@@ -604,7 +592,6 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	}
 	else
 	{
-	    lineDetail.incLineIndex();
 	    endShape();
 	}
 
