@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.65 2005-01-04 15:02:12 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.66 2005-01-04 15:10:37 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -314,8 +314,8 @@ const char* _GetHomeDir()
     if ( !ptr ) ptr = getCleanWinPath( getenv("DTECT_HOME") ); // should be set
     if ( !ptr )
     {
-	ErrMsg("Warning: No DTECT_HOME nor DTECT_WINHOME set. \n
-		 Falling back to USERPROFILE, APPDATA, etc.");
+	printf( "\nWarning: No DTECT_HOME nor DTECT_WINHOME set. \n"
+	        " Falling back to USERPROFILE, APPDATA, etc.\n" );
     }
     
     if ( !ptr ) ptr = getCleanWinPath( getenv("dGB_HOME") );
