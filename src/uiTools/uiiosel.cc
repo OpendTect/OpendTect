@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.8 2001-05-28 20:56:10 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.9 2001-05-30 16:11:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uifiledlg.h"
 #include "uidset.h"
-#include "separstr.h"
 #include "iopar.h"
 
 
@@ -72,52 +71,53 @@ void uiIOSelect::updateFromEntries()
 }
 
 
+bool uiIOSelect::haveEntry( const char* key ) const
+{
+    for ( int idx=0; idx<entries_.size(); idx++ )
+	if ( *entries_[idx] == key ) return true;
+    return false;
+}
+
+
 void uiIOSelect::fillPar( IOPar& iopar ) const
 {
     int startidx = withclear_ ? 1 : 0;
-    iopar.removeWithKey( "Selection.[0-9]*" );
-    int curidx = getCurrentItem();
-    iopar.set( "Current", curidx - startidx + 1 );
+    int lastidx = 0;
+    for ( ; ; lastidx++ )
+    {
+	if ( !iopar.find( IOPar::compKey("I/O Selection",lastidx+1)) )
+	    break;
+    }
 
     const int sz = nrItems();
     for ( int idx=startidx; idx<sz; idx++ )
     {
-	BufferString buf;
 	const char* key = *entries_[idx];
-	const char* usrnm = idx == curidx ? getInput() : userNameFromKey( key );
-	buf = usrnm; buf += "`"; buf += key;
-	iopar.set( IOPar::compKey("Selection",idx-startidx+1),
-		   (const char*)buf );
+	if ( iopar.findKeyFor(key) ) continue;
+
+	lastidx++;
+	iopar.set( IOPar::compKey("I/O Selection",lastidx), key );
     }
 }
 
 
 void uiIOSelect::usePar( const IOPar& iopar )
 {
-    bool havecur = entries_.size();
-    deepErase( entries_ );
-    if ( withclear_ ) entries_ += new BufferString;
-
-    BufferString bs;
-    for ( int idx=0; ; idx++ )
+    bool havenew = false; BufferString bs;
+    for ( int idx=1; ; idx++ )
     {
-	if ( !iopar.get( IOPar::compKey("Selection",idx), bs ) )
-	    { if ( idx ) break; else continue; }
+	if ( !iopar.get( IOPar::compKey("I/O Selection",idx), bs ) )
+	    break;
 
-	FileMultiString fms( (const char*)bs );
-	const char* key = fms[1];
-	if ( !userNameFromKey(key) ) continue;
+	const char* key = bs;
+	if ( haveEntry(key) || !userNameFromKey(key) ) continue;
 
+	havenew = true;
 	entries_ += new BufferString( key );
     }
-    updateFromEntries();
 
-    if ( !havecur && nrItems() )
-    {
-        int curidx = 0;
-        iopar.get( "Current", curidx );
-        setCurrentItem( curidx - withclear_ ? 0 : 1 );
-    }
+    if ( havenew )
+	updateFromEntries();
 }
 
 
@@ -129,7 +129,7 @@ const char* uiIOSelect::getInput() const
 
 const char* uiIOSelect::getKey() const
 {
-    return *entries_[getCurrentItem()];
+    return entries_.size() ? (const char*)(*entries_[getCurrentItem()]) : "";
 }
 
 
@@ -178,6 +178,7 @@ void uiIOSelect::doSel( CallBacker* )
 
 void uiIOSelect::selDone( CallBacker* )
 {
+    objSel();
     selectiondone.trigger();
 }
 
