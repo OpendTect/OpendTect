@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.4 2001-09-28 12:06:32 bert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.5 2001-11-15 08:13:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiconvpos.h"
+#include "pixmap.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uidialog.h"
@@ -26,14 +27,18 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     crlfld = new uiGenInput( this, "Cross-line", IntInpSpec() );
     xfld = new uiGenInput( this, "X-coordinate", DoubleInpSpec() );
     yfld = new uiGenInput( this, "Y-coordinate", DoubleInpSpec() );
-    docoordbut = new uiPushButton( this, "->" );
+
+    const ioPixmap right( GetDataFileName("rightarrow.png") );
+    const ioPixmap left( GetDataFileName("leftarrow.png") );
+    docoordbut = new uiToolButton( this, "", right );
     docoordbut->activated.notify( mCB(this,uiConvertPos, getCoord) );
-    dobinidbut = new uiPushButton( this, "<-" );
+    dobinidbut = new uiToolButton( this, "", left );
     dobinidbut->activated.notify( mCB(this,uiConvertPos, getBinID) );
+
     crlfld->attach( alignedBelow, inlfld );
-    docoordbut->attach( rightTo, inlfld );
-    dobinidbut->attach( alignedBelow, docoordbut );
-    xfld->attach( rightTo, docoordbut );
+    dobinidbut->attach( rightAlignedAbove, inlfld );
+    docoordbut->attach( rightOf, dobinidbut, 0 );
+    xfld->attach( rightTo, inlfld );
     yfld->attach( alignedBelow, xfld );
     setOkText("Quit");
     setCancelText("");
