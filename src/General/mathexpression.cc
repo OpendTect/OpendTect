@@ -365,7 +365,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( str[idx-1]=='*' ) continue;
 	    if ( str[idx-1]=='/' ) continue;
 	    if ( str[idx-1]=='^' ) continue;
-	    if ( idx > 1 && !caseInsensitiveEqual( &str[idx-1], "e", 1 )
+	    if ( idx > 1 && caseInsensitiveEqual( &str[idx-1], "e", 1 )
 		&& !isalpha(str[idx-2]) ) continue;
 
 	    ArrPtrMan<char> arg0 = new char[len+1];
