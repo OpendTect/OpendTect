@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.3 2002-04-10 08:51:17 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.4 2002-04-29 09:01:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ namespace visBase
 
 */
 
-enum EventType		{ MouseClick, Keyboard, MouseMovement };
+enum EventType		{ Any, MouseClick, Keyboard, MouseMovement };
 
 class EventInfo
 {
@@ -59,9 +59,10 @@ public:
 class EventCatcher : public SceneObject
 {
 public:
-    static EventCatcher*	create(EventType type)
-				mCreateDataObj1arg(EventCatcher,EventType,type);
+    static EventCatcher*	create()
+				mCreateDataObj0arg(EventCatcher);
 
+    void			setEventType( EventType type );
     EventType			eventType() const { return type; }
 
     CNotifier<EventCatcher, const EventInfo&>		eventhappened;
@@ -72,6 +73,9 @@ public:
     void			eventIsHandled();
 
 protected:
+    void			removeCBs();
+    void			setCBs();
+
 				~EventCatcher();
     static void			internalCB( void*, SoEventCallback* );
 

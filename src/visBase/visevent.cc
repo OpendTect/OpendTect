@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.4 2002-04-22 13:20:16 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.5 2002-04-29 09:00:52 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdataman.h"
@@ -15,38 +15,58 @@ static const char* rcsID = "$Id: visevent.cc,v 1.4 2002-04-22 13:20:16 kristofer
 #include "Inventor/events/SoLocation2Event.h"
 #include "Inventor/SoPickedPoint.h"
 
+mCreateFactoryEntry( visBase::EventCatcher );
 
-
-visBase::EventCatcher::EventCatcher( EventType type_ )
+visBase::EventCatcher::EventCatcher()
     : node( new SoEventCallback )
     , eventhappened( this )
-    , type( type_ )
+    , type( Any )
 {
     node->ref();
 
-    if ( type==MouseClick )
+    setCBs();
+}
+
+
+void visBase::EventCatcher::setEventType( EventType type_ )
+{
+    removeCBs();
+    type = type_;
+    setCBs();
+}
+
+
+void visBase::EventCatcher::setCBs()
+{
+    if ( type==MouseClick || type==Any )
 	node->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
 				   internalCB, this );
-    else if ( type==Keyboard )
+    else if ( type==Keyboard || type==Any )
 	node->addEventCallback( SoKeyboardEvent::getClassTypeId(),
 				   internalCB, this );
-    else
+    else if ( type==MouseMovement || type==Any )
 	node->addEventCallback( SoLocation2Event::getClassTypeId(),
+				    internalCB, this );
+}
+
+
+void visBase::EventCatcher::removeCBs()
+{
+    if ( type==MouseClick || type==Any )
+	node->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
 				   internalCB, this );
+    else if ( type==Keyboard || type==Any )
+	node->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
+				   internalCB, this );
+    else if ( type==MouseMovement || type==Any )
+	node->removeEventCallback( SoLocation2Event::getClassTypeId(),
+				    internalCB, this );
 }
 
 
 visBase::EventCatcher::~EventCatcher()
 {
-    if ( type==MouseClick )
-	node->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
-				   internalCB, this );
-    else if ( type==Keyboard )
-	node->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
-				   internalCB, this );
-    else node->removeEventCallback( SoLocation2Event::getClassTypeId(),
-				    internalCB, this );
-
+    removeCBs();
     node->unref();
 }
 
