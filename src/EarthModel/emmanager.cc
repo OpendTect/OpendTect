@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.36 2005-01-06 09:39:57 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.37 2005-01-10 09:57:04 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -260,6 +260,7 @@ Executor* EM::EMManager::loadObject( const MultiID& mid,
 	{
 	    objects += obj;
 	    refcounts += 0;
+	    obj->setID(id);
 	}
     }
 
