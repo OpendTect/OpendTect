@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.31 2003-12-26 19:28:42 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.32 2003-12-30 08:14:37 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -268,6 +268,7 @@ protected:
     				Surface(EMManager&,const EM::ObjectID&);
     				~Surface();
     void			cleanUp();
+    void			removeAuxData();
 
     EM::SubID			getSurfSubID(const RowCol&,
 	    				     const PatchID&) const;
