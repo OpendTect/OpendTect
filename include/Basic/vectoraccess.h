@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.8 2001-04-09 16:38:52 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.9 2001-05-01 16:23:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ Vector& operator =( const Vector& v )
 		blockszidx = v.blockszidx;
 	    }
 	}
-	if ( elems ) memcpy( elems, v.elems, sz*sizeof(T) );
+	if ( elems ) memcpy( elems, v.elems, size()*sizeof(T) );
     }
     return *this;
 }
