@@ -4,14 +4,16 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.5 2002-10-14 13:42:12 niclas Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.6 2003-04-22 11:01:52 kristofer Exp $";
 
 #include "emfault.h"
-#include "ptrman.h"
+
+#include "emfaulttransl.h"
+#include "emhistoryimpl.h"
+#include "geomgridsurfaceimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "emfaulttransl.h"
-#include "geomgridsurfaceimpl.h"
+#include "ptrman.h"
 
 EarthModel::Fault::Fault(EarthModel::EMManager & emm_, const MultiID& mid_)
     : EMObject( emm_, mid_ )
@@ -25,136 +27,42 @@ EarthModel::Fault::~Fault()
 }
 
 
-EarthModel::PosID EarthModel::Fault::setPos(int row, int col,
-					    const Coord3& pos )
+EarthModel::PosID EarthModel::Fault::setPos(const RowCol& node,
+					    const Coord3& pos,
+       					    bool addtohistory	)
 {
     if ( !surface ) surface = new Geometry::GridSurfaceImpl;
-    const RowCol node( row, col );
-    surface->setGridPos( node, pos );
+    const Coord3 oldpos = surface->getGridPos( node );
+    if ( oldpos!=pos )
+    {
+	surface->setGridPos( node, pos );
+	if ( addtohistory )
+	{
+	    const Geometry::PosID posid = surface->getPosId(node);
+	    HistoryEvent* history = new SetPosHistoryEvent( oldpos, pos,
+		    			EarthModel::PosID(id(),0,posid) );
+
+	}
+    }
 	
-    EarthModel::PosID result;
-    result.subid = surface->getPosId(node);
-    result.objid = id();
-    
-    return result;    
+    return EarthModel::PosID( id(), 0, surface->getPosId(node));    
 }    
 
 
-Coord3 EarthModel::Fault::getPos( int row, int col ) const
+bool EarthModel::Fault::setPos( const EarthModel::PosID& posid,
+				const Coord3& newpos, bool addtohistory )
 {
-    const RowCol node( row, col );
-    return surface->getGridPos( node );
+    if ( posid.emObject()!=id() ) return false;
+    setPos( Geometry::GridSurface::getGridNode(posid.subID()), newpos,
+	    addtohistory );
+    return true;
+}
+
+
+Coord3 EarthModel::Fault::getPos(const EarthModel::PosID& posid) const
+{
+    return surface->getPos( posid.subID() );
 }	
-
-
-EarthModel::PosID EarthModel::Fault::addPosOnRow( int row, bool start,
-						  const Coord3& pos )
-{
-    EarthModel::PosID result;
-    if ( !surface ) surface = new Geometry::GridSurfaceImpl;
-    if ( row>=surface->firstRow() || row<=surface->lastRow() )
-    {
-	const int rowid = row-surface->firstRow();
-
-	int col;
-	if ( start ) col = surface->firstCol(rowid)-1;
-	else col = surface->lastCol(rowid)+1;
-
-	const RowCol node( row, col );
-
-	surface->setGridPos( node, pos );
-	result.subid = surface->getPosId(node);
-	result.objid = id();
-    }
-
-    return result;
-}
-    
-EarthModel::PosID EarthModel::Fault::insertPosOnRow( int row, int column,
-						      bool moveup,
-						      const Coord3& pos )
-{
-    EarthModel::PosID result;
-    if ( !surface ) surface = new Geometry::GridSurfaceImpl;
-    if ( row>=surface->firstRow() || row<=surface->lastRow() )
-    {
-	const int rowid = row-surface->firstRow();
-
-	if ( moveup )
-	{
-	    for ( int curcol=surface->lastCol(rowid); curcol>=column; curcol-- )
-	    {
-		RowCol sourceNode( row, curcol );
-		RowCol destNode( row, curcol+1 );
-
-		surface->setGridPos( destNode, surface->getGridPos( sourceNode ) );
-	    }
-	}
-	else
-	{
-  	    for ( int curcol=surface->firstCol(rowid); curcol<=column; curcol++ )
-	    {
-		RowCol sourceNode( row, curcol );
-		RowCol destNode( row, curcol-1 );
-	    }
-	}
-
-	RowCol node( row, column );
-	surface->setGridPos( node, pos );
-	result.subid = surface->getPosId(node);
-	result.objid = id();
-    }
-
-    return result;
-}
-
-
-void EarthModel::Fault::insertRow( int row, bool moveup )
-{   
-    if ( !surface ) surface = new Geometry::GridSurfaceImpl;
-    float undef = surface->undefVal();
-    Coord3 undefpos;
-    undefpos.x = undef;
-    undefpos.y = undef;
-    undefpos.z = undef;
-    
-    if ( moveup )   
-    {	
-	for ( int currow = surface->lastRow(); currow>=row-1; currow-- )
-    	{	
-    	    const int currowid = currow-surface->firstRow();
-	    for ( int curcol = surface->firstCol(currowid); 
-		  curcol<=surface->lastCol(currowid); curcol++ )
-	    {
-		RowCol sourceNode( currow, curcol );
-		RowCol destNode( currow+1, curcol );
-
-		Coord3 sourcePos = surface->getGridPos(sourceNode);
-		surface->setGridPos( destNode, sourcePos );
-		surface->setGridPos( sourceNode, undefpos );
-	    }
-	}
-    }
-    else
-    {	
-	for ( int currow = surface->firstRow(); currow<=row+1; currow++ )
-	{    
-	    const int currowid = currow-surface->firstRow();
-	    for ( int curcol = surface->firstCol(currowid); 
-		     curcol<=surface->lastCol(currowid); curcol++ )
-	    {
-		RowCol sourceNode( currow, curcol );
-		RowCol destNode( currow+1, curcol );
-		    
-		Coord3 sourcePos = surface->getGridPos(sourceNode);
-		surface->setGridPos( destNode, sourcePos );
-		surface->setGridPos( sourceNode, undefpos );
-	    }
-	}
-    }
-
-    surface->shrink();
-}
 
 
 Executor* EarthModel::Fault::loader()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.7 2003-02-03 14:10:34 nanne Exp $
+ RCS:		$Id: emmanager.h,v 1.8 2003-04-22 11:01:38 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class Executor;
 namespace EarthModel
 {
 class EMObject;
+class History;
 
 /*!\brief
 
@@ -34,15 +35,16 @@ class EMManager
 public:
     enum Type		{ Hor, Well, Fault };
 
-
 			EMManager();
 			~EMManager();
+
+    History&		history();
+    const History&	history() const;
 
     void		init();
     const char*		getName(const MultiID&);
 
     MultiID		add(Type,const char* name);
-    			/*! Return the id */
 
     int			nrObjects() const	{ return objects.size(); }
     
@@ -56,6 +58,7 @@ public:
     bool		isLoaded(const MultiID&) const;
 
 protected:
+    History&		history_;
     ObjectSet<EMObject>	objects;
     BufferString	errmsg;
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.13 2002-11-15 10:56:13 bert Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.14 2003-04-22 11:01:38 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ namespace Geometry
     class CompositeGridSurface;
     class TriangleStripSet;
     class Snapped2DSurface;
+    class GridSurface;
 };
 
 
@@ -41,25 +42,27 @@ class EMManager;
 The horizon is made up of one or more grids (so they can overlap at faults).
 The grids are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
-
-The posid is is interpreted such as bit 48-33 gives the gridid while bit
-0-32 gives the id on the grid.
 */
 
 class Horizon : public EMObject
 {
 public:
-    enum FillType	{ Empty, LowLow, LowHigh, HighLow, HighHigh, Full };
-    int			findPos( const RowCol&, TypeSet<PosID>& res ) const;
-    void		addSquare( const RowCol&,
-	    			   float inl0crl0, float inl0crl1,
-				   float inl1crl0, float inl1crl1 );
+    int			nrParts() const;
+    PartID		partID(int idx) const;
+    PartID		addPart(bool addtohistory);
+    bool		addPart(PartID, bool addtohistory);
+    			/*!< Return false if the partid allready exists */
+    			
+    void		removePart(EarthModel::PartID, bool addtohistory);
 
-    static unsigned short	getSurfID(PosID);
-    static unsigned long	getSurfPID(PosID);
-    PosID			getPosID(unsigned short surfid,
-	    				 unsigned long  surfpid ) const;
-    Coord3		getPos(PosID);
+    void		setPos( PartID part, const RowCol&, const Coord3&,
+	    			bool autoconnect, bool addtohistory );
+    Coord3		getPos(const EarthModel::PosID&) const;
+    bool		setPos(const EarthModel::PosID&, const Coord3&,
+	    		       bool addtohistory);
+    
+    int			findPos( const RowCol&,
+	    			 TypeSet<EarthModel::PosID>& res ) const;
 
     Executor*		loader();
     bool		isLoaded() const;
@@ -73,9 +76,7 @@ public:
     Coord		getCoord( const RowCol& ) const;
     RowCol		getClosestNode( const Coord& ) const;
 
-    const Geometry::CompositeGridSurface&	getSurfaces() const
-    						{ return surfaces; }
-    Geometry::CompositeGridSurface&		getSurfaces(){return surfaces;}
+    const Geometry::GridSurface*		getSurface(PartID) const;
 
 protected:
     friend class	EMManager;
@@ -85,6 +86,7 @@ protected:
 
     		Horizon(EMManager&, const MultiID&);
     		~Horizon();
+    void	cleanUp();
 
     void	setTransform( float x1, float y1, float row1, float col1,
 	    		      float x2, float y2, float row2, float col2,
@@ -93,8 +95,12 @@ protected:
     float	a11,a12,a13,a21,a22,a23; //Transformation coords
     float	b11,b12,b13,b21,b22,b23; //Reverse transformation coords
 
-    Geometry::CompositeGridSurface&	surfaces;
+    EarthModel::ObjectID			objid;
+
+    ObjectSet<Geometry::Snapped2DSurface>	surfaces;
+    TypeSet<PartID>				partids;
 };
+
 
 }; // Namespace
 

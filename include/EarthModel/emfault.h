@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.6 2002-10-17 14:20:56 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.7 2003-04-22 11:01:38 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 #include "emobject.h"
 #include "position.h"
+
+class RowCol;
 
 namespace Geometry
 {
@@ -32,22 +34,10 @@ public:
 			Fault( EarthModel::EMManager&, const MultiID &);
 			~Fault();
 
-    PosID		setPos( int row, int col, const Coord3& );
-			/*!<
-			 */
-    Coord3 		getPos( int row, int col ) const;
-    PosID		addPosOnRow( int row, bool start,
-	    			     const Coord3& );
-			/*!< If start==true, adding pos first on row,
-			     else last */
-        
-    PosID		insertPosOnRow( int row, int column, bool moveup,
-					const Coord3& );
-			/*!< If moveup==true, shifting upwards and inserting,
-			  else downwards. */
-		 
-    void		insertRow( int row, bool moveup );
-			/*!< If moveup==true, shifting up. */
+    PosID		setPos( const RowCol&, const Coord3&,bool addtohistory);
+    Coord3 		getPos( const EarthModel::PosID&) const;
+    bool		setPos( const EarthModel::PosID&, const Coord3&,
+				bool addtohistory);
 
     Executor*		loader();
     bool		isLoaded() const { return surface; }

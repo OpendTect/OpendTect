@@ -4,19 +4,21 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.10 2003-02-03 14:10:28 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.11 2003-04-22 11:01:52 kristofer Exp $";
 
 #include "emmanager.h"
-#include "emobject.h"
-#include "ioman.h"
-#include "uidobjset.h"
-#include "iodir.h"
-#include "ptrman.h"
+
 #include "ctxtioobj.h"
-#include "emhorizontransl.h"
-#include "emwelltransl.h"
 #include "emfaulttransl.h"
+#include "emhistory.h"
+#include "emhorizontransl.h"
+#include "emobject.h"
+#include "emwelltransl.h"
 #include "executor.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "ptrman.h"
+#include "uidobjset.h"
 
 
 EarthModel::EMManager& EarthModel::EMM()
@@ -28,6 +30,7 @@ EarthModel::EMManager& EarthModel::EMM()
 }
 
 EarthModel::EMManager::EMManager()
+    : history_( *new EarthModel::History(*this) )
 {
     init();
 }
@@ -36,10 +39,21 @@ EarthModel::EMManager::EMManager()
 EarthModel::EMManager::~EMManager()
 {
     deepErase( objects );
+    delete &history_;
 }
+
+
+const EarthModel::History& EarthModel::EMManager::history() const
+{ return history_; }
+
+
+EarthModel::History& EarthModel::EMManager::history()
+{ return history_; }
+
 
 void EarthModel::EMManager::init()
 { } 
+
 
 MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 				const char* name )

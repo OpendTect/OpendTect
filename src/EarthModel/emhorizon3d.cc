@@ -4,97 +4,194 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.20 2002-10-14 13:42:12 niclas Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.21 2003-04-22 11:01:52 kristofer Exp $";
 
 #include "emhorizon.h"
-#include "geomcompositesurface.h"
-#include "geomtristripset.h"
-#include "emhorizontransl.h"
-#include "executor.h"
-#include "grid.h"
-#include "geom2dsnappedsurface.h"
-#include "survinfo.h"
+
 #include "arrayndimpl.h"
-#include "arrayndutils.h"
-#include "linsolv.h"
-
-
-#include "ptrman.h"
+#include "emhistoryimpl.h"
+#include "emhorizontransl.h"
+#include "emmanager.h"
+#include "executor.h"
+#include "geom2dsnappedsurface.h"
+#include "grid.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "linsolv.h"
+#include "ptrman.h"
 
 EarthModel::Horizon::Horizon(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
-    , surfaces( *new Geometry::CompositeGridSurface )
     , a11( 1 ) , a12( 0 ) , a13( 0 ) , a21( 0 ) , a22( 1 ) , a23( 0 )
     , b11( 1 ) , b12( 0 ) , b13( 0 ) , b21( 0 ) , b22( 1 ) , b23( 0 )
-
-{ }
+{}
 
 
 EarthModel::Horizon::~Horizon()
 {
-    delete &surfaces;
+    cleanUp();
+}
+
+
+int EarthModel::Horizon::nrParts() const
+{
+    return partids.size();
+}
+
+
+EarthModel::PartID EarthModel::Horizon::partID(int idx) const
+{
+    return partids[idx];
+}
+
+
+EarthModel::PartID EarthModel::Horizon::addPart(bool addtohistory)
+{
+    PartID res = 0;
+    while ( partids.indexOf(res)!=-1 ) res++;
+
+    addPart( res, addtohistory );
+    return res;
+}
+
+
+bool EarthModel::Horizon::addPart(PartID partid, bool addtohistory)
+{
+    if ( partids.indexOf(partid) != -1 ) return false;
+
+    partids += partid;
+    Geometry::Snapped2DSurface* newsurf = new Geometry::Snapped2DSurface();
+    RowCol rc00( 0, 0 );
+    RowCol rc10( 1, 0 );
+    RowCol rc11( 1, 1 );
+
+    Coord pos00 = getCoord( rc00 );
+    Coord pos10 = getCoord( rc10 );
+    Coord pos11 = getCoord( rc11 );
+    
+    newsurf->setTransform(  pos00.x, pos00.y, rc00.row, rc00.col,
+			    pos10.x, pos10.y, rc10.row, rc10.col,
+			    pos11.x, pos11.y, rc11.row, rc11.col );
+    surfaces += newsurf;
+
+    if ( addtohistory )
+    {
+	HistoryEvent* history = new HorizonPartEvent( true, id(), partid );
+	manager.history().addEvent( history, 0, 0 );
+    }
+
+    return true;
+}
+
+
+void EarthModel::Horizon::removePart(EarthModel::PartID partid,
+				     bool addtohistory)
+{
+    int idx=partids.indexOf(partid);
+    if ( idx==-1 ) return;
+
+    delete surfaces[idx];
+    surfaces.remove( idx );
+    partids.remove( idx );
+
+    if ( addtohistory )
+    {
+	HistoryEvent* history = new HorizonPartEvent( false, id(), partid );
+	manager.history().addEvent( history, 0, 0 );
+    }
+}
+
+
+void  EarthModel::Horizon::setPos( PartID part, const RowCol& node,
+				   const Coord3& pos, bool autoconnect,
+				   bool addtohistory)
+{
+    int idx=partids.indexOf(part);
+    if ( idx==-1 ) return;
+
+    const Geometry::PosID posid = Geometry::GridSurface::getPosId(node);
+    Geometry::Snapped2DSurface* surface = surfaces[idx];
+    const Coord3 oldpos = surface->getGridPos( node );
+    if ( oldpos==pos ) return;
+
+    TypeSet<EarthModel::PosID> nodeonotherparts;
+    if ( autoconnect )
+	findPos( node, nodeonotherparts );
+
+    surface->setGridPos(node, pos);
+
+    if ( addtohistory )
+    {
+	HistoryEvent* history = new SetPosHistoryEvent( oldpos, pos,
+				    EarthModel::PosID(id(),part,posid) );
+	manager.history().addEvent( history, 0, 0 );
+    }
+
+    if ( !autoconnect ) return;
+
+    for ( int idx=0; idx<nodeonotherparts.size(); idx++ )
+    {
+	const int partsurfidx = partids.indexOf(nodeonotherparts[idx].partID());
+	double otherz = surfaces[partsurfidx]->getGridPos(node).z;
+	
+	if ( mIS_ZERO(otherz-pos.z) )
+	{
+	    if ( !surface->isLinked(posid, surfaces[partsurfidx], posid ))
+	    {
+		surface->setLink( posid, surfaces[partsurfidx], posid, true );
+		// Put to history?
+	    }
+	}
+    }
+}
+
+
+bool EarthModel::Horizon::setPos( const EarthModel::PosID& posid,
+				  const Coord3& newpos, bool addtohistory )
+{
+    if ( posid.emObject()!=id() ) return false;
+
+    setPos( posid.partID(), Geometry::GridSurface::getGridNode(posid.subID()),
+	    newpos, false, addtohistory );
+
+    return true;
+}
+
+
+Coord3 EarthModel::Horizon::getPos(const EarthModel::PosID& posid) const
+{
+    const int surfidx = partids.indexOf( posid.partID() );
+    return surfaces[surfidx]->getPos( posid.subID() );
 }
 
 
 int EarthModel::Horizon::findPos( const RowCol& rowcol,
 				  TypeSet<PosID>& res ) const
 {
-    res.erase();
-
-    const int nrsubsurf = surfaces.nrSubSurfaces();
+    TypeSet<Coord3> respos;
+    const int nrsubsurf = nrParts();
     for ( unsigned short surface=0; surface<nrsubsurf; surface++ )
     {
-	Coord3 pos = surfaces.getGridPos( surface, rowcol );
-	if ( !pos.isDefined() ) continue;
+	Geometry::GridSurface* gridsurf = surfaces[surface];
+	if ( !gridsurf->isDefined( rowcol ) )
+	    continue;
 
-	unsigned long surfpid = Geometry::GridSurface::getPosId( rowcol );
+	Coord3 pos = gridsurf->getGridPos( rowcol );
+	EarthModel::SubID subid = Geometry::GridSurface::getPosId( rowcol );
 
 	for ( int idx=0; idx<res.size(); idx++ )
 	{
-	    if ( surfpid!=getSurfPID(res[idx]) ) continue;
+	    if ( subid!=res[idx].subID() )
+		continue;
 
-	    unsigned short tmpsurf = getSurfID(res[idx]);
-	    Coord3 tmppos = surfaces.getPos( tmpsurf, surfpid );
-	    if ( mIS_ZERO( tmppos.z-pos.z ) ) continue;
+	    if ( mIS_ZERO( respos[idx].z-pos.z ) ) continue;
 
-	    PosID pid = getPosID( surface, surfpid );
-	    res += pid;
+	    res += PosID(id(), partID(surface), subid );
+	    respos += pos;
 	}
     }
 
     return res.size();
-}
-
-
-void EarthModel::Horizon::addSquare( const RowCol& rowcol,
-				     float inl0crl0z, float inl0crl1z,
-				     float inl1crl0z, float inl1crl1z )
-{
-    surfaces.addSquare( rowcol, inl0crl0z, inl0crl1z, inl1crl0z, inl1crl1z );
-}
-
-
-unsigned short EarthModel::Horizon::getSurfID( PosID posid )
-{
-    return (posid.subid>>32) & 0x0000FFFF;
-}
-
-
-unsigned long EarthModel::Horizon::getSurfPID( PosID posid )
-{
-    return posid.subid & 0x00000000FFFFFFFFl;
-}
-
-
-EarthModel::PosID EarthModel::Horizon::getPosID( unsigned short surfid,
-						 unsigned long  surfpid ) const
-{
-    PosID res;
-    res.subid = ( ((unsigned long long) surfid)<<32 ) + surfpid;
-    res.objid = id();
-    return res;
 }
 
 
@@ -115,7 +212,7 @@ Executor* EarthModel::Horizon::loader()
 
 bool  EarthModel::Horizon::isLoaded() const
 {
-    return surfaces.nrSubSurfaces();
+    return nrParts();
 }
 
 
@@ -136,8 +233,7 @@ Executor* EarthModel::Horizon::saver()
 
 bool EarthModel::Horizon::import( const Grid& grid )
 {
-    while ( surfaces.nrSubSurfaces() ) surfaces.removeSubSurface( 0 );
-    surfaces.addSubSurface();
+    cleanUp();
 
     const int nrrows = grid.nrRows();
     const int nrcols = grid.nrCols();
@@ -154,6 +250,8 @@ bool EarthModel::Horizon::import( const Grid& grid )
 		  coord01.x, coord01.y, node01.row, node01.col,
 		  coord10.x, coord10.y, node10.row, node10.col );
 
+    const EarthModel::PartID part = addPart(true);
+
     for ( int row=0; row<nrrows; row++ )
     {
 	for ( int col=0; col<nrcols; col++ )
@@ -163,21 +261,7 @@ bool EarthModel::Horizon::import( const Grid& grid )
 	    float val = grid.getValue( gridnode );
 
 	    Coord3 pos(coord.x, coord.y, val );
-	    surfaces.getSurfaces()[0]->setGridPos( gridnode, pos );
-	}
-    }
-
-    for ( int row=0; row<nrrows-1; row++ )
-    {
-	for ( int col=0; col<nrcols-1; col++ )
-	{
-	    GridNode gn00( col, row );
-	    GridNode gn01( col, row+1 );
-	    GridNode gn10( col+1, row );
-	    GridNode gn11( col+1, row+1 );
-
-	    surfaces.getSurfaces()[0]->setFillType( gn00,
-					Geometry::GridSurface::Filled );
+	    setPos( part, gridnode, pos, false, true );
 	}
     }
 
@@ -199,16 +283,30 @@ RowCol EarthModel::Horizon::getClosestNode( const Coord& pos ) const
 }
 
 
+const Geometry::GridSurface* EarthModel::Horizon::getSurface(PartID partid)const
+{
+    const int idx = partids.indexOf( partid );
+    return idx==-1 ? 0 : surfaces[idx];
+}
+
+
+
+void EarthModel::Horizon::cleanUp()
+{
+    deepErase( surfaces );
+}
+
+
 void EarthModel::Horizon::setTransform(
     float x1, float y1, float i0_1, float i1_1,
     float x2, float y2, float i0_2, float i1_2,
     float x3, float y3, float i0_3, float i1_3 )
 {
-    for ( int idx=0; idx<surfaces.nrSubSurfaces(); idx++ )
+    for ( int idx=0; idx<surfaces.size(); idx++ )
     {
-	surfaces.getSurfaces()[idx]->setTransform( x1, y1, i0_1, i1_1,
-						   x2, y2, i0_2, i1_2,
-						   x3, y3, i0_3, i1_3 );
+	surfaces[idx]->setTransform(   x1, y1, i0_1, i1_1,
+				       x2, y2, i0_2, i1_2,
+				       x3, y3, i0_3, i1_3 );
     }
 
     Array2DImpl<double> A(3,3);
