@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.1 2004-03-02 13:39:00 bert Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.2 2004-03-11 08:09:42 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,8 +58,8 @@ int main( int argc, char ** argv )
     uiMain app( argc, argv );
 
 #ifdef __win__
-    if ( File_isLink( url ) )
-	url = File_linkTarget(url);
+    if ( File_isLink( fnm ) )
+	fnm = const_cast<char*>(File_linkTarget(fnm));
 #endif
 
     uiFileBrowser* fb = new uiFileBrowser( 0,
