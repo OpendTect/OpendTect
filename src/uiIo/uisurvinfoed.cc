@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.49 2004-01-19 15:56:32 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.50 2004-02-26 16:25:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,8 +84,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     {
 	for ( int idx=0; idx<survInfoProvs().size(); idx++ )
 	{
-	    BufferString txt( "Fetch setup from " );
-	    txt += survInfoProvs()[idx]->name();
+	    BufferString txt( survInfoProvs()[idx]->usrText() );
 	    txt += " ...";
 	    uiPushButton* newpb = new uiPushButton( this, txt );
 	    sipbuts += newpb;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.14 2004-01-19 15:56:37 nanne Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.15 2004-02-26 16:25:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,13 +25,21 @@ class uiLabel;
 class Coord;
 
 
-/*\brief Interface for survey info provider - typically from workstations */
+/*\brief Interface for survey info provider
+
+  The survey setup can be delivered by scanning files (SEG-Y) or by querying
+  data stores like SeisWorks and GeoFrame. Another idea not implemented may be
+  to read a simple ascii file. In any case, this is the interface. The
+  implementation should be added to the factory using 
+  uiSurveyInfoEditor::addInfoProvider.
+ 
+ */
 
 class uiSurvInfoProvider
 {
 public:
 
-    virtual const char*		name() const		= 0;
+    virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
     virtual bool		getInfo(uiDialog*,BinIDSampler&,
 	    				StepInterval<double>&,
@@ -52,6 +60,7 @@ public:
     Notifier<uiSurveyInfoEditor> survparchanged;
 
     static int		addInfoProvider(uiSurvInfoProvider*);
+    			//!< See uiSurvInfoProvider class comments
     			
 protected:
 

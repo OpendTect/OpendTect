@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.11 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.12 2004-02-26 16:25:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiseissegyimpexp.h"
 #include "uiseiscbvsimp.h"
 #include "uiseisfileman.h"
+#include "uisegysip.h"
 #include "uimsg.h"
 #include "seistrctr.h"
 #include "ptrman.h"
@@ -22,6 +23,8 @@ ________________________________________________________________________
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     	: uiApplPartServer(a)
 {
+    uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid );
+    uiSurveyInfoEditor::addInfoProvider( sip );
 }
 
 
