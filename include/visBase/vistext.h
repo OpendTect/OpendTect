@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.1 2002-04-22 13:37:48 kristofer Exp $
+ RCS:		$Id: vistext.h,v 1.2 2002-04-25 12:03:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ class Text : public VisualObjectImpl
 {
 public:
     enum		Justification { Left, Right, Center };
-    Text*		create()
+    static Text*	create()
 			mCreateDataObj0arg(Text);
 
     Geometry::Pos	position() const;
@@ -50,13 +50,11 @@ public:
 
 protected:
 			~Text();
-
     SoTranslation*	textpos;
     SoFont*		font;
     SoText2*		text;
 };
 
 }; // Namespace
-
 
 #endif
