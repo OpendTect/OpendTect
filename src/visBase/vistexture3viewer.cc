@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.1 2002-11-08 12:21:17 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.2 2002-11-08 12:43:16 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -96,11 +96,13 @@ visBase::MovableTextureSlice::MovableTextureSlice()
     : rotation( new SoRotation )
     , dragger( new SoTranslateRectangleDragger )
     , group( new SoGroup )
+    , texturecoords( new SoTextureCoordinate3 )
     , dim_( 0 )
 {
     addChild( rotation );
     addChild( dragger );
     group->ref();
+    group->addChild( texturecoords );
     fieldsensor =
 	new SoFieldSensor( &visBase::MovableTextureSlice::fieldsensorCB, this );
     fieldsensor->attach( &dragger->translation );
@@ -122,6 +124,8 @@ void visBase::MovableTextureSlice::setDim( int nd )
     if ( !nd ) rotation->rotation.setValue( SbVec3f( 1, 0, 0 ), 0 );
     else if ( nd==1 ) rotation->rotation.setValue( SbVec3f( 0, 0, 1 ), M_PI_2 );
     else rotation->rotation.setValue( SbVec3f( 0, 1, 0 ), M_PI_2 );
+
+    fieldsensorCB( this, 0 );
 }
 
 
