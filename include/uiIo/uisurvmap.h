@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.2 2001-08-13 07:00:12 nanne Exp $
+ RCS:           $Id: uisurvmap.h,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiworld2ui.h"
 
 #include "uidialog.h"
+#include "draw.h"
+#include "iodrawtool.h"
 
 
 class uiSurveyMap
