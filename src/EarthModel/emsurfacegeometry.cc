@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.11 2005-01-28 13:31:16 bert Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.12 2005-01-28 16:14:55 nanne Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -42,7 +42,7 @@ SurfaceGeometry::SurfaceGeometry( Surface& surf_ )
     , shift(0)
     , changed( 0 )
     , surface( surf_ )
-{ }
+{}
 
 
 SurfaceGeometry::~SurfaceGeometry()
@@ -698,6 +698,8 @@ SectionID SurfaceGeometry::cloneSection( SectionID sectionid )
     }
 
     surface.edgelinesets.cloneEdgeLineSet( sectionid, res );
+    surface.relations.cloneSectionRelation( sectionid, res );
+
     return res;
 }
 

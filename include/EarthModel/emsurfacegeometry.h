@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.7 2005-01-28 13:31:16 bert Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.8 2005-01-28 16:15:02 nanne Exp $
 ________________________________________________________________________
 
 
@@ -128,16 +128,18 @@ public:
     static RowCol	subID2RowCol( const EM::SubID& );
     static EM::SubID	rowCol2SubID( const RowCol& );
 
-    void	getRange(StepInterval<int>&,bool rowdir) const;
-    void	getRange(const EM::SectionID&,
-	    		 StepInterval<int>&,bool rowdir) const;
-    bool	getMeshRowCol(const EM::SubID&,RowCol&, const SectionID&) const;
-		/*!< Converts EM::SubID to rowcol that is used
-		     on the Geometry::MeshSurface */
-    bool	getMeshRowCol(const RowCol&,RowCol&, const SectionID&) const;
-		/*!< Converts input RowCol(in surface domain)
-		     to a RowCol that is used on the Geometry::MeshSurface
-		*/
+    void		getRange(StepInterval<int>&,bool rowdir) const;
+    void		getRange(const EM::SectionID&,
+	    			 StepInterval<int>&,bool rowdir) const;
+    bool		getMeshRowCol(const EM::SubID&,RowCol&, 
+	    			      const SectionID&) const;
+			/*!< Converts EM::SubID to a RowCol that is used
+			     on the Geometry::MeshSurface */
+    bool		getMeshRowCol(const RowCol&,RowCol&,
+	    			      const SectionID&) const;
+			/*!< Converts input RowCol(in surface domain)
+			     to a RowCol that is used on the 
+			     Geometry::MeshSurface */
 
 public:
     virtual int	findPos(const EM::SectionID&,const Interval<float>& x,
@@ -234,8 +236,7 @@ public:
 
 protected:
 
-    virtual Geometry::MeshSurface*
-	createSectionSurface(const SectionID&) const =0;
+    virtual Geometry::MeshSurface*	createSectionSurface(const SectionID&) const =0;
 
     EM::SubID			getSurfSubID(const RowCol&,
 	    				     const SectionID&) const;
@@ -243,11 +244,12 @@ protected:
 					     const SectionID&) const;
 
     void			getMeshCoords( const EM::PosID&,
-	    			    Coord3& c00, Coord3& c10,
-				    Coord3& c01, Coord3& c11,
-				    bool& c00def, bool& c10def,
-				    bool& c01def, bool& c11def,
-				   const FloatMathFunction* depthconv=0)const;
+					       Coord3& c00, Coord3& c10,
+					       Coord3& c01, Coord3& c11,
+					       bool& c00def, bool& c10def,
+					       bool& c01def, bool& c11def,
+					       const FloatMathFunction* t2d=0)
+									const;
 
     Surface&				surface;
 
