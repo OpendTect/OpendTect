@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.25 2003-02-06 07:46:13 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.26 2003-02-06 15:43:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,9 +13,7 @@ ________________________________________________________________________
 #include "visvolumedisplay.h"
 
 #include "viscubeview.h"
-#include "vistexturerect.h"
 #include "vistexture3viewer.h"
-#include "visrectangle.h"
 #include "cubesampling.h"
 #include "attribsel.h"
 #include "attribslice.h"
