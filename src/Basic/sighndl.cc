@@ -2,14 +2,14 @@
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
- Author:        A.H. Lammertink
- Date:          25/05/2000
- RCS:           $Id: sighndl.cc,v 1.4 2002-04-15 15:29:33 bert Exp $
+ Author:        A.H. Bril
+ Date:          June 2000
+ RCS:           $Id: sighndl.cc,v 1.5 2002-06-26 16:34:41 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.4 2002-04-15 15:29:33 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.5 2002-06-26 16:34:41 bert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.3 2002-06-21 22:37:04 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.4 2002-06-26 16:34:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,53 +16,125 @@ ________________________________________________________________________
 #include "iodir.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
+#include "ptrman.h"
+#include "survinfo.h"
 #include "filegen.h"
 
 #include "uimsg.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
+#include "uiseistransf.h"
+#include "uiexecutor.h"
 
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
-	: uiDialog(p,"Make CBVS cube available")
-	, ctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
+	: uiDialog(p,"Import CBVS cube")
+	, inctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
+	, outctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 {
-    setTitleText( "Create CBVS cube definition" );
+    init( false );
+}
 
-    inpfld = new uiFileInput( this, "(First) CBVS file name", GetDataDir(),
-	   			true, "*.cbvs;;*" );
-    inpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,inpSel) );
 
-    StringListInpSpec spec;
-    spec.addString( "Input data cube" );
-    spec.addString( "Generated attribute cube" );
-    spec.addString( "Steering cube" );
-    typefld = new uiGenInput( this, "Cube type", spec );
-    typefld->attach( alignedBelow, inpfld );
+uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
+	: uiDialog(p,"Copy cube data")
+	, inctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
+	, outctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
+{
+    if ( ioobj ) inctio_.ioobj = ioobj->clone();
+    init( true );
+}
 
-    ctio_.ctxt.forread = false;
-    ctio_.ctxt.trglobexpr = "CBVS";
-    IOM().to( ctio_.ctxt.stdSelKey() );
-    seissel = new uiIOObjSel( this, ctio_, "Cube name" );
-    seissel->attach( alignedBelow, typefld );
+
+void uiSeisImpCBVS::init( bool fromioobj )
+{
+    finpfld = 0; modefld = typefld = 0; oinpfld = 0;
+    setTitleText( fromioobj ? "Specify transfer parameters"
+	    		    : "Create CBVS cube definition" );
+
+    if ( fromioobj )
+    {
+	inctio_.ctxt.forread = true;
+	inctio_.ctxt.trglobexpr = "CBVS";
+	oinpfld = new uiIOObjSel( this, inctio_, "Input data" );
+	oinpfld->selectiondone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
+    }
+    else
+    {
+	finpfld = new uiFileInput( this, "(First) CBVS file name", GetDataDir(),
+				    true, "*.cbvs;;*" );
+	finpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
+
+	StringListInpSpec spec;
+	spec.addString( "Input data cube" );
+	spec.addString( "Generated attribute cube" );
+	spec.addString( "Steering cube" );
+	typefld = new uiGenInput( this, "Cube type", spec );
+	typefld->attach( alignedBelow, finpfld );
+
+	modefld = new uiGenInput( this, "Import mode",
+				  BoolInpSpec("Copy the data","Use in-place") );
+	modefld->attach( alignedBelow, typefld );
+	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
+    }
+
+    transffld = new uiSeisTransfer( this, true );
+    transffld->attach( alignedBelow, modefld ? modefld : oinpfld );
+
+    outctio_.ctxt.forread = false;
+    outctio_.ctxt.trglobexpr = "CBVS";
+    IOM().to( outctio_.ctxt.stdSelKey() );
+    seissel = new uiIOObjSel( this, outctio_, "Cube name" );
+    seissel->attach( alignedBelow, transffld );
 }
 
 
 uiSeisImpCBVS::~uiSeisImpCBVS()
 {
-    delete ctio_.ioobj;
-    delete &ctio_;
+    delete outctio_.ioobj; delete &outctio_;
+    delete inctio_.ioobj; delete &inctio_;
 }
 
 
-void uiSeisImpCBVS::inpSel( CallBacker* )
+IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
+{
+    IOStream* iostrm = new IOStream( "tmp", "100010.9999" );
+    iostrm->setGroup( outctio_.ctxt.trgroup->name() );
+    iostrm->setTranslator( outctio_.ctxt.trglobexpr );
+    iostrm->setFileName( inp );
+    return iostrm;
+}
+
+
+void uiSeisImpCBVS::modeSel( CallBacker* )
+{
+    if ( modefld )
+	transffld->display( modefld->getBoolValue() );
+}
+
+
+void uiSeisImpCBVS::oinpSel( CallBacker* )
+{
+    if ( outctio_.ioobj )
+	transffld->updateFrom( *outctio_.ioobj );
+}
+
+
+void uiSeisImpCBVS::finpSel( CallBacker* )
 {
     const char* out = seissel->getInput();
     if ( *out ) return;
-    BufferString inp = inpfld->text();
-    if ( inp == "" ) return;
+    BufferString inp = finpfld->text();
+    if ( !*(const char*)inp ) return;
+
+    if ( !File_isEmpty(inp) )
+    {
+	PtrMan<IOObj> ioobj = getfInpIOObj( inp );
+	transffld->updateFrom( *ioobj );
+    }
+
     inp = File_getFileName( inp );
-    if ( inp == "" ) return;
+    if ( !*(const char*)inp ) return;
 
     // convert underscores to spaces
     char* ptr = inp.buf();
@@ -89,27 +161,51 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 {
     if ( !seissel->commitInput(true) )
     {
-	uiMSG().error( "Please choose a name for the cube" );
+	uiMSG().error( "Please choose a valid name for the cube" );
 	return false;
     }
-    const char* fname = inpfld->text();
-    if ( !fname || !*fname )
+
+    const bool dolink = modefld && !modefld->getBoolValue();
+    if ( oinpfld )
     {
-	uiMSG().error( "Please select the input filename" );
-	return false;
+	if ( !oinpfld->commitInput(false) )
+	{
+	    uiMSG().error( "Please select an input cube" );
+	    return false;
+	}
+    }
+    else
+    {
+	const char* fname = finpfld->text();
+	if ( !fname || !*fname )
+	{
+	    uiMSG().error( "Please select the input filename" );
+	    return false;
+	}
+	const int seltyp = typefld->getIntValue();
+	if ( !seltyp )
+	    outctio_.ioobj->pars().removeWithKey( "Type" );
+	else
+	    outctio_.ioobj->pars().set( "Type",
+				     seltyp == 1 ? "Attribute" : "Steering" );
+
+	outctio_.ioobj->setTranslator( "CBVS" );
+	if ( !dolink )
+	    inctio_.setObj( getfInpIOObj(fname) );
+	else
+	{
+	    mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj);
+	    iostrm->setFileName( fname );
+	}
     }
 
-    const int seltyp = typefld->getIntValue();
-    if ( !seltyp )
-	ctio_.ioobj->pars().removeWithKey( "Type" );
-    else
-	ctio_.ioobj->pars().set( "Type",
-	    			 seltyp == 1 ? "Attribute" : "Steering" );
+    IOM().dirPtr()->commitChanges( outctio_.ioobj );
+    if ( dolink )
+	return true;
 
-    ctio_.ioobj->setTranslator( "CBVS" );
-    mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj);
-    if ( iostrm )
-	iostrm->setFileName( fname );
-    IOM().dirPtr()->commitChanges( ctio_.ioobj );
-    return true;
+    PtrMan<Executor> stp = transffld->getTrcProc( inctio_.ioobj, outctio_.ioobj,
+	   			"Import CBVS seismic cube", "Loading data" );
+
+    uiExecutor dlg( this, *stp );
+    return dlg.go() == 1;
 }

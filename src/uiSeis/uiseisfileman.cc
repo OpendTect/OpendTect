@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.6 2002-06-20 10:56:06 arend Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.7 2002-06-26 16:34:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uimergeseis.h"
+#include "uiseiscbvsimp.h"
 #include "uifiledlg.h"
 #include "uitextedit.h"
 #include "seistrctr.h"
@@ -43,31 +44,39 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     IOM().to( ctio.ctxt.stdSelKey() );
     ctio.ctxt.trglobexpr = "CBVS";
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
-    listfld = new uiListBox( this, entrylist->Ptr() );
+
+    uiGroup* topgrp = new uiGroup( this, "Top things" );
+    listfld = new uiListBox( topgrp, entrylist->Ptr() );
     listfld->setHSzPol( uiObject::medvar );
     listfld->selectionChanged.notify( mCB(this,uiSeisFileMan,selChg) );
 
-    rembut = new uiPushButton( this, "Remove ..." );
+    uiGroup* butgrp = new uiGroup( topgrp, "Action buttons" );
+    butgrp->attach( rightOf, listfld );
+    rembut = new uiPushButton( butgrp, "Remove ..." );
     rembut->activated.notify( mCB(this,uiSeisFileMan,removePush) );
-    rembut->attach( rightOf, listfld );
-    renamebut = new uiPushButton( this, "Rename ..." );
+    renamebut = new uiPushButton( butgrp, "Rename ..." );
     renamebut->activated.notify( mCB(this,uiSeisFileMan,renamePush) );
     renamebut->attach( alignedBelow, rembut );
-    relocbut = new uiPushButton( this, "Location ..." );
+    relocbut = new uiPushButton( butgrp, "Location ..." );
     relocbut->activated.notify( mCB(this,uiSeisFileMan,relocatePush) );
     relocbut->attach( alignedBelow, renamebut );
-    mergebut = new uiPushButton( this, "Merge ..." );
+    mergebut = new uiPushButton( butgrp, "Merge ..." );
     mergebut->activated.notify( mCB(this,uiSeisFileMan,mergePush) );
     mergebut->attach( alignedBelow, relocbut );
+    copybut = new uiPushButton( butgrp, "Copy ..." );
+    copybut->activated.notify( mCB(this,uiSeisFileMan,copyPush) );
+    copybut->attach( alignedBelow, mergebut );
 
     rembut->attach( widthSameAs, relocbut );
     renamebut->attach( widthSameAs, relocbut );
     mergebut->attach( widthSameAs, relocbut );
+    copybut->attach( widthSameAs, relocbut );
+    listfld->attach( heightSameAs, butgrp );
   
     infofld = new uiTextEdit( this, "File Info", true );
-    infofld->attach( alignedBelow, listfld );
-    infofld->setPrefHeightInChar( 5 );
-    infofld->setPrefWidthInChar( 40 );
+    infofld->attach( alignedBelow, topgrp );
+    infofld->attach( widthSameAs, topgrp );
+    //infofld->setPrefHeightInChar( 6 );
 
     selChg( this ); 
     setCancelText( "" );
@@ -192,9 +201,9 @@ void uiSeisFileMan::renamePush( CallBacker* )
 	{
 	    PtrMan<IOObj> locioobj = IOM().get( key );
 	    handleMultiFiles( fulloldname, locioobj->fullUserExpr(true) );
-	    refreshList( curitm );
 	}
     }
+    refreshList( curitm );
 }
 
 
@@ -238,6 +247,19 @@ void uiSeisFileMan::relocatePush( CallBacker* )
     int curitm = listfld->currentItem();
     if ( IOM().dirPtr()->commitChanges( ioobj ) )
 	refreshList( curitm );
+}
+
+
+void uiSeisFileMan::copyPush( CallBacker* )
+{
+    if ( !ioobj ) return;
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
+
+    const int curitm = listfld->currentItem();
+    uiSeisImpCBVS dlg( this, iostrm );
+    dlg.go();
+    refreshList( curitm );
 }
 
 

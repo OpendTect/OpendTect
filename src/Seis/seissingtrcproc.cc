@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.7 2002-06-24 15:40:05 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.8 2002-06-26 16:34:41 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -129,6 +129,12 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
 	    delete rdr_;
 	    return false;
 	}
+	if ( wrr_->ioObj()->key() == rdr_->ioObj()->key() )
+	{
+	    curmsg_ = "Input and output are the same.";
+	    delete rdr_;
+	    return false;
+	}
 
 	if ( is.size() && is[idx] )
 	{
@@ -205,8 +211,9 @@ static void scaleTrc( SeisTrc& trc, Scaler& sclr )
 
 int SeisSingleTraceProc::nextStep()
 {
-    if ( !rdrset_[currentobj_] || !wrr_ )
+    if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_] || !wrr_ )
 	return -1;
+
     else if ( starter_ )
     {
 	int rv = starter_->doStep();

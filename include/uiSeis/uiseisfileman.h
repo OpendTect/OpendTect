@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.2 2002-06-14 13:09:50 bert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.3 2002-06-26 16:34:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ protected:
     uiPushButton*	renamebut;
     uiPushButton*	relocbut;
     uiPushButton*	mergebut;
+    uiPushButton*	copybut;
 
     IOObj*		ioobj;
     CtxtIOObj&		ctio;
@@ -45,6 +46,7 @@ protected:
     void		renamePush(CallBacker*);
     void		mergePush(CallBacker*);
     void		relocatePush(CallBacker*);
+    void		copyPush(CallBacker*);
     void		refreshList(int);
     void		mkFileInfo();
     void		handleMultiFiles(const char*,const char*);

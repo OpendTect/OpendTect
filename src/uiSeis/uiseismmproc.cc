@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.23 2002-06-20 08:49:55 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.24 2002-06-26 16:34:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     	, jmfinished(false)
 	, logvwer(0)
 {
-    setCancelText( "Quit" );
-    setOkText( getenv("dGB_JMDUMP") ? "Push for JM file dump": "" );
+    setCancelText( "Abort" );
+    setOkText( "Finish Now" );
     delay = 500;
 
     const char* res = iop.find( "Target value" );
@@ -184,6 +184,7 @@ void uiSeisMMProc::execFinished()
     }
     else
     {
+	stopRunningJobs();
 	updateCurMachs();
 	SeisMMJobMan* newjm = new SeisMMJobMan( *jm );
 	const int nrlines = newjm->totalNr();
@@ -270,17 +271,7 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
     if ( res == 2 )
 	return false;
 
-    const int nrleft = usedmachfld->box()->size();
-    if ( nrleft )
-    {
-	statusBar()->message( "Stopping running jobs" );
-	for ( int idx=0; idx<nrleft; idx++ )
-	{
-	    usedmachfld->box()->setCurrentItem(0);
-	    stopPush( 0 );
-	}
-	statusBar()->message( "" );
-    }
+    stopRunningJobs();
 
     if ( res == 0 )
     {
@@ -294,6 +285,22 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
     }
 
     return true;
+}
+
+
+void uiSeisMMProc::stopRunningJobs()
+{
+    const int nrleft = usedmachfld->box()->size();
+    if ( nrleft )
+    {
+	statusBar()->message( "Stopping running jobs" );
+	for ( int idx=0; idx<nrleft; idx++ )
+	{
+	    usedmachfld->box()->setCurrentItem(0);
+	    stopPush( 0 );
+	}
+	statusBar()->message( "" );
+    }
 }
 
 
@@ -357,48 +364,66 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
 }
 
 
-//DEBUG only
 #include "seissingtrcproc.h"
 #include <fstream.h>
 
 bool uiSeisMMProc::acceptOK(CallBacker*)
 {
-    BufferString dumpfname( GetDataDir() );
-    dumpfname = File_getFullPath( dumpfname, "Proc" );
-    dumpfname = File_getFullPath( dumpfname, "mmbatch_dump.txt" );
-    ofstream ostrm( dumpfname );
-    ostream* strm = &cerr;
-    if ( ostrm.fail() )
-	cerr << "Cannot open dump file '" << dumpfname << "'" << endl;
-    else
-    {
-	cerr << "Writing to dump file '" << dumpfname << "'" << endl;
-	strm = &ostrm;
-    }
-
-    *strm << "Multi-machine-batch dump at " << Time_getLocalString() << endl;
-    if ( !jm )
-    {
-	*strm << "No Job Manager. Therefore, data transfer is busy, or "
-		  "should have already finished" << endl;
-	if ( !task_ )
-	    { *strm << "No task_ either. Huh?" << endl; return false; }
-	mDynamicCastGet(SeisSingleTraceProc*,stp,task_)
-	if ( !stp )
-	    *strm << "Huh? task_ should really be a SeisSingleTraceProc!\n"; 
-	else
-	    *strm << "SeisSingleTraceProc:\n"
-		   << stp->nrDone() << "/" << stp->totalNr() << endl
-		   << stp->message() << endl;
+    if ( finished )
+	return true;
+    if ( jmfinished ) // Transferring data!
 	return false;
+
+    int res = 0;
+    if ( usedmachfld->box()->size() )
+    {
+	const char* msg = "This will stop processing and start data transfer"
+	    		  " now.\n\nDo you want to continue?";
+	if ( !uiMSG().askGoOn(msg) )
+	    return false;
     }
 
-    if ( task_ != jm )
-	*strm << "task_ != jm . Why?" << endl;
+    bool mkdump = true;
+    if ( mkdump )
+    {
 
-    jm->dump( *strm );
+	// Stop during operation. Create a dump
+	BufferString dumpfname( GetDataDir() );
+	dumpfname = File_getFullPath( dumpfname, "Proc" );
+	dumpfname = File_getFullPath( dumpfname, "mmbatch_dump.txt" );
+	ofstream ostrm( dumpfname );
+	ostream* strm = &cerr;
+	if ( ostrm.fail() )
+	    cerr << "Cannot open dump file '" << dumpfname << "'" << endl;
+	else
+	{
+	    cerr << "Writing to dump file '" << dumpfname << "'" << endl;
+	    strm = &ostrm;
+	}
 
-    timerTick( 0 );
-    cerr << "Re-started, just in case ..." << endl;
+	*strm << "Multi-machine-batch dump at " << Time_getLocalString() << endl;
+	if ( !jm )
+	{
+	    *strm << "No Job Manager. Therefore, data transfer is busy, or "
+		      "should have already finished" << endl;
+	    if ( !task_ )
+		{ *strm << "No task_ either. Huh?" << endl; return false; }
+	    mDynamicCastGet(SeisSingleTraceProc*,stp,task_)
+	    if ( !stp )
+		*strm << "Huh? task_ should really be a SeisSingleTraceProc!\n"; 
+	    else
+		*strm << "SeisSingleTraceProc:\n"
+		       << stp->nrDone() << "/" << stp->totalNr() << endl
+		       << stp->message() << endl;
+	    return false;
+	}
+
+	if ( task_ != jm )
+	    *strm << "task_ != jm . Why?" << endl;
+
+	jm->dump( *strm );
+    }
+
+    execFinished();
     return false;
 }
