@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.39 2002-08-02 10:27:23 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.40 2002-08-02 13:38:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	, nmfld(0)
 	, ioobj(0)
 	, ismultisel(multisel && ctio.ctxt.forread)
-	, initoutpnm(false)
 {
-    finaliseStart.notify( mCB(this,uiIOObjSelDlg,selChg) );
-
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
     nm += ctio.ctxt.trgroup->name();
@@ -122,7 +119,7 @@ const IOObj* uiIOObjSelDlg::selected( int objnr ) const
 
 void uiIOObjSelDlg::selChg( CallBacker* c )
 {
-    if ( ismultisel || initoutpnm ) return;
+    if ( ismultisel ) return;
 
     entrylist->setCurrent( listfld->box()->currentItem() );
     ioobj = entrylist->selected();
@@ -284,10 +281,7 @@ bool uiIOObjSelDlg::createEntry( const char* seltxt )
 void uiIOObjSelDlg::setInitOutputName( const char* nm )
 {
     if ( nmfld ) 
-    {
 	nmfld->setText( nm );
-	initoutpnm = true;
-    }
 }
 
 

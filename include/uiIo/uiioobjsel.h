@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.22 2002-06-24 15:01:39 nanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.23 2002-08-02 13:39:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,6 @@ protected:
     IODirEntryList*	entrylist;
     IOObj*		ioobj;
     bool		ismultisel;
-    bool		initoutpnm;
 
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
