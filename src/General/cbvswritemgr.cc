@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.16 2002-11-28 08:11:18 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.17 2002-11-28 09:06:50 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -101,21 +101,23 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	return;
     }
 
-    int nrwrs = totsamps / spec.nrsamplesperslab;
-    int extrasamps = totsamps % spec.nrsamplesperslab;
-    if ( extrasamps ) nrwrs++;
-    if ( nrwrs > spec.maxnrslabs )
-	nrwrs = spec.maxnrslabs;
-    spec.nrsamplesperslab = totsamps / nrwrs;
-    extrasamps = totsamps - nrwrs * spec.nrsamplesperslab;
+    int nrnormsamps = totsamps - 1;
+    int nrnormwrs = nrnormsamps / spec.nrsamplesperslab;
+    int extrasamps = nrnormsamps % spec.nrsamplesperslab;
+    if ( extrasamps ) nrnormwrs++;
+    if ( nrnormwrs > spec.maxnrslabs )
+	nrnormwrs = spec.maxnrslabs;
+    spec.nrsamplesperslab = nrnormsamps / nrnormwrs;
+    if ( spec.nrsamplesperslab < 1 )
+	spec.nrsamplesperslab = 1;
+    extrasamps = nrnormsamps - nrnormwrs * spec.nrsamplesperslab;
 
     CBVSInfo inf( info_ );
-    for ( int endsamp = -1, startsamp=0;
-	    startsamp<totsamps;
-	    startsamp=endsamp+1 )
+    for ( int endsamp, startsamp=0; startsamp<totsamps; startsamp=endsamp+1 )
     {
-	endsamp = startsamp + spec.nrsamplesperslab - 1;
-	if ( extrasamps )
+	endsamp = startsamp == 0 ? 0 : startsamp + spec.nrsamplesperslab - 1;
+
+	if ( startsamp && extrasamps )
 	    { endsamp++; extrasamps--; }
 	if ( endsamp >= totsamps ) endsamp = totsamps-1;
 
