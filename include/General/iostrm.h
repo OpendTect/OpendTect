@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.1.1.2 1999-09-16 09:20:04 arend Exp $
+ RCS:		$Id: iostrm.h,v 1.2 2000-01-24 16:34:57 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -16,8 +16,9 @@ ________________________________________________________________________
 @$*/
  
 #include <ioobject.h>
-#include <strmprov.h>
+#include <conn.h>
 #include <ranges.h>
+class StreamProvider;
 
 
 /*$@ IOStream
@@ -32,6 +33,7 @@ public:
 			IOStream(const char* nm=0,const char* id=0,bool =0);
     virtual		~IOStream();
     bool		bad() const;
+    StreamConn::Type	type() const			{ return type_; }
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
@@ -43,17 +45,23 @@ public:
     bool		implRemovable() const;
     bool		implRemove() const;
 
+    const ClassDef&	connType() const;
     bool		multiConn() const
-			{ return ismulti && curidx <= fnrs.stop; }
-    Conn*		conn(Conn::State) const;
-    Conn*		nextConn(Conn::State) const;
-    void		skipConn() const;
-    int			connNr() const			{ return curidx; }
-    bool		isPercConn() const;
+			{ return isMulti() && curfnr <= fnrs.stop; }
+    Conn*		getConn(Conn::State) const;
+    int			connNr() const
+			{ return curfnr; }
+    bool		toNextConnNr()
+			{ curfnr += fnrs.step; return validNr(); }
+    int			lastConnNr() const
+			{ return fnrs.stop; }
+    int			nextConnNr() const
+			{ return curfnr+fnrs.step; }
+    void		resetConnNr()
+			{ curfnr = fnrs.start; }
+    bool		isStarConn() const;
 
-    StreamConn::Type	type() const			{ return type_; }
-
-    const char*		fileName() const;
+    const char*		fileName() const		{ return fname; }
     void		setFileName(const char*);
     void		setExt( const char* ext )	{ extension = ext; }
     void		genFileName();
@@ -73,12 +81,12 @@ public:
     void		setRewind( bool yn )		{ rew = yn; }
     bool		rewindTape() const		{ return rew; }
 
-    void		setMulti( bool im )		{ ismulti = im; }
     int			zeroPadding() const		{ return padzeros; }
     void		setZeroPadding( int zp )	{ padzeros = zp; }
     StepInterval<int>&	fileNumbers()			{ return fnrs; }
 
 protected:
+
     int			getFrom(ascistream&);
     int			putTo(ascostream&) const;
 
@@ -94,14 +102,17 @@ protected:
     int			blocksize;
     int			skipfiles;
     bool		rew;
-    bool		ismulti;
     int			padzeros;
     StepInterval<int>	fnrs;
-    int			curidx;
+    int			curfnr;
 
     StreamConn::Type	type_;
 
     bool		getDev(ascistream&);
+    bool		isMulti() const
+			{ return fnrs.start != fnrs.stop; }
+    bool		validNr() const
+			{ return curfnr*fnrs.step <= fnrs.stop*fnrs.step; }
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.1.1.2 1999-09-16 09:22:05 arend Exp $
+ RCS:		$Id: seisread.h,v 1.2 2000-01-24 16:35:08 bert Exp $
 ________________________________________________________________________
 
 A SeisTrcReader reads from a seismic data store. If you don't want all of the data,
@@ -21,7 +21,6 @@ this sequence is at your own risk.
 @$*/
 
 #include <seisstor.h>
-class StorageLayout;
 class SeisKeyData;
 
 
@@ -35,7 +34,6 @@ public:
 			SeisTrcReader(const IOObj* =0);
     Executor*		starter();
 
-    const StorageLayout& storageLayout() const;
     void		setKeyData(const SeisKeyData&);
     const SeisKeyData&	keyData() const;
 
@@ -62,13 +60,18 @@ protected:
     bool		icfound;
     bool		new_packet;
     bool		needskip;
+    bool		connrisbidnr;
 
     void		init();
     bool		openFirst();
     bool		initRead();
-    void		trySkipFiles(bool);
+    void		trySkipConns();
     int			nextConn(SeisTrcInfo&);
     void		finishGetInfo(SeisTrcInfo&);
+
+    bool		validBidselRes( int r, bool clcrl ) const
+			{ return r == 0 || (clcrl && r != 5 && r != 2)
+				        || (!clcrl && r != 1 && r != 4); }
 
 };
 

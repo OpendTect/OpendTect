@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.1.1.2 1999-09-16 09:33:37 arend Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.2 2000-01-24 16:35:50 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -24,10 +24,9 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 	, skipfiles(0)
 	, rew(NO)
 	, padzeros(0)
-	, fnrs(1,1,1)
+	, fnrs(0,0,1)
 	, type_(StreamConn::File)
-	, ismulti(NO)
-	, curidx(-999)
+	, curfnr(0)
 {
     connclassdef_ = &StreamConn::classdef;
     if ( mkdef ) genFileName();
@@ -37,6 +36,12 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 IOStream::~IOStream()
 {
     delete writecmd;
+}
+
+
+const ClassDef& IOStream::connType() const
+{
+    return StreamConn::classdef;
 }
 
 
@@ -57,37 +62,32 @@ void IOStream::copyFrom( const IOObj* obj )
 	const IOStream* iosobj = (const IOStream*)obj;
 	hostname = iosobj->hostname;
 	padzeros = iosobj->padzeros;
-	fnrs = iosobj->fnrs;
 	fname = iosobj->fname;
 	writecmd = iosobj->writecmd ? new FileNameString(*iosobj->writecmd) : 0;
 	type_ = iosobj->type_;
-	ismulti = iosobj->ismulti;
 	blocksize = iosobj->blocksize;
 	skipfiles = iosobj->skipfiles;
 	rew = iosobj->rew;
-	curidx = iosobj->curidx;
+	fnrs = iosobj->fnrs;
+	curfnr = iosobj->curfnr;
     }
 }
 
 
 const char* IOStream::fullUserExpr( bool forread ) const
 {
-    const FileNameString* ptr = &fname;
-    if ( !forread && writecmd )
-	ptr = writecmd;
+    StreamProvider* sp = streamProvider( forread );
+    if ( !sp ) return "<bad>";
 
-    static FixedString<300> buf;
-    buf = "";
-    if ( *((char*)hostname) )
-    {
-	buf = hostname;
-	buf += ":";
-    }
-    if ( type_ == StreamConn::Command )
-	buf += "@";
+    static char* ret = 0;
+    delete [] ret;
 
-    buf += *ptr;
-    return buf;
+    const char* s = sp->fullName();
+    ret = new char [strlen(s)+1];
+    strcpy( ret, s );
+
+    delete sp;
+    return ret;
 }
 
 
@@ -118,10 +118,11 @@ bool IOStream::implRemove() const
 }
 
 
-Conn* IOStream::conn( Conn::State rw ) const
+Conn* IOStream::getConn( Conn::State rw ) const
 {
     bool fr = rw == Conn::Read;
-    if ( curidx == -999 ) ((IOStream*)this)->curidx = fnrs.start;
+    if ( !validNr() ) return 0;
+
     StreamProvider* sp = streamProvider( fr );
     if ( !sp ) return 0;
 
@@ -145,30 +146,6 @@ Conn* IOStream::conn( Conn::State rw ) const
 
     delete sp;
     return s;
-}
-
-
-Conn* IOStream::nextConn( Conn::State rw ) const
-{
-    if ( !ismulti || !fnrs.step ) return 0;
-    Conn* retconn = 0;
-    while ( !retconn )
-    {
-	((IOStream*)this)->curidx += fnrs.step;
-	if ( (fnrs.step > 0 && curidx > fnrs.stop)
-	  || (fnrs.step < 0 && curidx < fnrs.stop) ) break;
-	retconn = conn( rw );
-    }
-    return retconn;
-}
-
-
-void IOStream::skipConn() const
-{
-    if ( curidx == -999 )
-	((IOStream*)this)->curidx = fnrs.start;
-    else
-	((IOStream*)this)->curidx += fnrs.step;
 }
 
 
@@ -199,12 +176,6 @@ void IOStream::setWriter( const char* str )
     if ( !writecmd ) writecmd = new FileNameString( str );
     else if ( *writecmd == str ) return;
     *writecmd = str;
-}
-
-
-const char* IOStream::fileName() const
-{
-    return fname;
 }
 
 
@@ -241,20 +212,22 @@ int IOStream::getFrom( ascistream& stream )
 	hostname = stream.valstr;
 	stream.next();
     }
+    if ( !strcmp(kw,"Extension") )
+    {
+	extension = stream.valstr;
+	stream.next();
+    }
     if ( !strcmp(kw,"Multi") )
     {
-	ismulti = YES;
 	FileMultiString fms( stream.valstr );
 	fnrs.start = atoi(fms[0]);
 	fnrs.stop = atoi(fms[1]);
 	fnrs.step = atoi(fms[2]); if ( fnrs.step == 0 ) fnrs.step = 1;
 	if ( ( fnrs.start < fnrs.stop && fnrs.step < 0 )
 	  || ( fnrs.stop < fnrs.start && fnrs.step > 0 ) )
-	{
-	    int tmp;
-	    mSWAP(fnrs.start,fnrs.stop,tmp);
-        }
+	    Swap( fnrs.start, fnrs.stop );
 	padzeros = atoi(fms[3]);
+	curfnr = fnrs.start;
 	stream.next();
     }
 
@@ -278,10 +251,10 @@ int IOStream::getFrom( ascistream& stream )
 }
 
 
-bool IOStream::isPercConn() const
+bool IOStream::isStarConn() const
 {
-    if ( !ismulti ) return NO;
-    return !strchr(fname,'*') && (!writecmd || !strchr(*writecmd,'*'));
+    if ( !isMulti() ) return NO;
+    return strchr(fname,'*') || (writecmd && strchr(*writecmd,'*'));
 }
 
 
@@ -305,8 +278,11 @@ bool IOStream::getDev( ascistream& stream )
 
 int IOStream::putTo( ascostream& stream ) const
 {
-    if ( hostname[0] ) stream.put( "$Hostname", hostname );
-    if ( ismulti )
+    if ( hostname[0] )
+	stream.put( "$Hostname", hostname );
+    if ( extension[0] )
+	stream.put( "$Extension", extension );
+    if ( isMulti() )
     {
 	FileMultiString fms;
 	fms += fnrs.start;
@@ -345,11 +321,11 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
     FileNameString nm( type_ == StreamConn::Command && !fr
 			? writer() : (const char*)fname );
 
-    bool doins = ismulti && (strchr(nm,'*') || strchr(nm,'%'));
+    bool doins = isMulti() && (strchr(nm,'*') || strchr(nm,'%'));
     if ( doins )
     {
 	char numb[80], numbstr[80]; numbstr[0] = '\0';
-	sprintf( numb, "%d", curidx );
+	sprintf( numb, "%d", curfnr );
 	if ( padzeros )
 	{
 	    int len = strlen( numb );
@@ -361,7 +337,7 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
 	FileNameString inp = nm;
 	char* ptr = inp;
 	nm = "";
-	char wc = isPercConn() ? '%' : '*';
+	char wc = isStarConn() ? '*' : '%';
 	while ( 1 )
 	{
 	    char* wcptr = strchr( ptr, wc );

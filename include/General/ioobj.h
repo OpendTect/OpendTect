@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.1.1.2 1999-09-16 09:20:01 arend Exp $
+ RCS:		$Id: ioobj.h,v 1.2 2000-01-24 16:34:56 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -29,20 +29,23 @@ class IOObj : public DefObject
     friend class	IOLink;
 
 public:
+
     virtual		~IOObj();
     virtual bool	bad() const			= 0;
-    virtual bool	isLink() const			{ return NO; }
-    virtual bool	multiConn() const		{ return NO; }
-
+    virtual bool	isLink() const			{ return false; }
     virtual void	copyFrom(const IOObj*)		= 0;
-
-    virtual Conn*	conn(Conn::State) const		= 0;
-    virtual bool	hasConn( const ClassDef& cd ) const
+    virtual bool	hasConnDef( const ClassDef& cd ) const
 			{ return &cd == connclassdef_; }
-    virtual Conn*	nextConn(Conn::State) const	{ return 0; }
+
+    virtual const ClassDef& connType() const		= 0;
+    virtual bool	multiConn() const		{ return false; }
+    virtual Conn*	getConn(Conn::State) const		= 0;
     virtual int		connNr() const			{ return 0; }
-    virtual void	skipConn() const		{}
-    virtual bool	isPercConn() const		{ return 0; }
+    virtual bool	toNextConnNr()			{ return false; }
+    virtual int		lastConnNr() const		{ return 0; }
+    virtual int		nextConnNr() const		{ return 0; }
+    virtual void	resetConnNr()			{}
+    virtual bool	isStarConn() const		{ return 0; }
 
     virtual const UnitID& parentId() const		= 0;
     virtual void	setParentId(const char*)	= 0;
@@ -55,20 +58,20 @@ public:
     virtual bool	implExists(bool forread) const	= 0;
     virtual bool	implRemovable() const		= 0;
     virtual bool	implRemove() const		= 0;
-    virtual bool	removeQuery() const		{ return NO; }
+    virtual bool	removeQuery() const		{ return false; }
     virtual void	genDefaultImpl()		{}
 
     virtual int		setName(const char*);
     virtual const char*	dirName() const;
     IOObj*		getParent() const;
     IOObj*		cloneStandAlone() const;
-    bool		isStandAlone() const	{ return dirname_ ? YES : NO; }
+    bool		isStandAlone() const { return dirname_ ? true : false; }
     void		setStandAlone(const char* dirnm);
     IOPar*		trOpts() const			{ return opts; }
     void		mkOpts();
 
     static IOObj*	produce(const char*,const char* nm=0,const char* uid=0,
-				bool initdefaults=YES);
+				bool initdefaults=true);
 
     Translator*		getTranslator() const;
 

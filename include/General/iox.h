@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.1.1.2 1999-09-16 09:20:05 arend Exp $
+ RCS:		$Id: iox.h,v 1.2 2000-01-24 16:34:58 bert Exp $
 ________________________________________________________________________
 
 
@@ -34,13 +34,13 @@ public:
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
     void		genDefaultImpl()		{}
-    bool		hasConn(const ClassDef&) const;
 
     bool		implExists(bool) const;
     bool		implRemovable() const;
     bool		implRemove() const;
 
-    Conn*		conn(Conn::State) const;
+    const ClassDef&	connType() const;
+    Conn*		getConn(Conn::State) const;
     IOObj*		getIOObj() const;
 
 protected:

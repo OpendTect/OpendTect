@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.1.1.2 1999-09-16 09:33:38 arend Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.2 2000-01-24 16:35:51 bert Exp $";
 
 #include "iox.h"
 #include "iolink.h"
@@ -35,11 +35,10 @@ void IOX::setUid( const UnitID& id )
 }
 
 
-bool IOX::hasConn( const ClassDef& cd ) const
+const ClassDef& IOX::connType() const
 {
     IOObj* ioobj = IOM().get( uid );
-    if ( !ioobj ) return &cd == connclassdef_;
-    bool rv = ioobj->hasConn( cd );
+    const ClassDef& rv = ioobj ? ioobj->connType() : StreamConn::classdef;
     delete ioobj;
     return rv;
 }
@@ -98,12 +97,14 @@ bool IOX::implRemove() const
 }
 
 
-Conn* IOX::conn( Conn::State rw ) const
+Conn* IOX::getConn( Conn::State rw ) const
 {
     IOObj* ioobj = getIOObj();
     if ( !ioobj ) return 0;
-    Conn* conn = ioobj->conn( rw );
+
+    Conn* conn = ioobj->getConn( rw );
     delete ioobj;
+
     conn->ioobj = (IOObj*)this;
     return conn;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.1.1.2 1999-09-16 09:22:17 arend Exp $
+ RCS:		$Id: seiswrite.h,v 1.2 2000-01-24 16:35:10 bert Exp $
 ________________________________________________________________________
 
 A SeisTrcWriter writes to a seismic data store. To be able to use the writer,
@@ -38,15 +38,16 @@ public:
 protected:
 
     void		init();
-    bool		openFirst();
     bool		initWrite();
-    bool		nextConn();
+    bool		openConn();
+    bool		handleConn(const SeisTrcInfo&);
 
     BinIDRange*		binids;
     float		starttime;
     int			nrsamps;
     unsigned short	dt;
-    int			ntrcs;
+    int			nrwr;
+    int			nrwrconn;
 
 };
 
