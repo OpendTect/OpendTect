@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.1 2004-08-09 14:09:31 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.2 2004-08-11 07:40:25 nanne Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -47,7 +47,7 @@ void SurfaceAuxData::removeAll()
     for ( int idx=0; idx<auxdata.size(); idx++ )
     {
 	if ( !auxdata[idx] ) continue;
-	deepEraseArr( *auxdata[idx] );
+	deepErase( *auxdata[idx] );
     }
 
     deepErase( auxdata );
@@ -151,7 +151,8 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	    (*auxdata[dataidx]) += 0;
 
 	const int sz = surface.geometry.getSurface(posid.sectionID())->size();
-	(*auxdata[dataidx]) += new TypeSet<float>(sz,mUndefValue),
+	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue), 
+				   sectionidx );
 	sectionauxdata = (*auxdata[dataidx])[sectionidx];
     }
 
