@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.3 2003-12-04 17:16:02 kristofer Exp $
+ RCS:		$Id: extremefinder.h,v 1.4 2003-12-23 11:25:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,16 +16,14 @@ ________________________________________________________________________
 #include "basictask.h"
 #include "sets.h"
 
-template<class T> class Interval;
-template<class T> class MathFunctionND;
-template<class T> class MathFunction;
+template <class T> class Interval;
+template <class T> class MathFunctionND;
+template <class T> class MathFunction;
 
 /*!\brief Finds extreme values in MathFunctions
 
-Implementations is inspired from Numerical Recipies, where it is called
-"Brent's Method in one dimension"
+Implementation of Brent's Method in one dimension.
 
-\note The implementation is not tested (yet) 030512.
 */
 
 class ExtremeFinder1D : public BasicTask
@@ -41,17 +39,22 @@ public:
 			    \param itermax	Maximum number of iterations
 			    \param tol		Tolerance on the function
 			     			variable (x)
-			    \param interval	The interval of x that will be
-			    			searched
-			*/
-
-    void		reStart( const Interval<double>& interval );
-    			/*!<
-			    \param interval	The interval of x that will be
-			    			searched
+			    \param interval	The interval of x that the
+			    			search will be inited by.
+			    			Note that the search can go
+						outside of this interval.
 			*/
 
     virtual		~ExtremeFinder1D();
+
+    void		reStart( const Interval<double>& interval );
+    			/*!<
+			    \param interval	The interval of x that the
+			    			search will be inited by.
+			    			Note that the search can go
+						outside of this interval.
+			*/
+
     double		extremePos() const;
     			/*!<\returns The x value of the extreme value */
     float		extremeVal() const;
@@ -61,19 +64,20 @@ public:
     			/*!<\returns The number of iterations */
 
     int			nextStep();
-    			/*<!\retval 0	Finished
+    			/*!<Will move the current extremePos one step towards
+			    the solution.
+			    \retval 0	Finished
 			    \retval 1	More to do
 			    \retval -1	Error (no extreme found or
 			   		itermax reached The extreme value)
 			*/
 
-
 protected:
-    double 		ax,bx,cx;
-    double		e, d;
-    double		a, b;
-    double		u, w, v, x;
-    float		fw, fv, fx;
+    double 			ax,bx,cx;
+    double			e, d;
+    double			a, b;
+    double			u, w, v, x;
+    float			fw, fv, fx;
 
     int				iter;
     const double 		tol;
@@ -85,8 +89,7 @@ protected:
 
 /*!\brief Finds the nearest local extreme position in ND's
 
-Implementations is inspired from Numerical Recipies, where the method is
-called "Powell's Quadratically Convergent Method"
+Implementation of Powell's Quadratically Convergent Method
 
 \note The implementation is not tested (yet) 030512.
 */
