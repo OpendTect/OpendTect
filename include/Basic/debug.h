@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.8 2004-11-29 10:57:25 bert Exp $
+ RCS:		$Id: debug.h,v 1.9 2004-12-15 16:45:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ namespace DBG
     void		message( const char* ); // default: to stdout
     void		message( int flag, const char* msg );
 			   // { if ( isOn(flag) ) message(msg); }
+    void		putProgInfo(int,char**); //!< one line; more if isOn()
 };
 
 extern "C" {
@@ -49,6 +50,7 @@ extern "C" {
 int			od_debug_isOn( int flag );
 void			od_debug_message( const char* msg );
 void			od_debug_messagef( int flag, const char* msg );
+void			od_debug_putProgInfo(int,char**);
 
 # ifdef __cpp__
 }
