@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.1.1.2 1999-09-16 09:35:25 arend Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.2 2000-01-24 16:46:07 bert Exp $";
 
 #include "wavelet.h"
 #include "ascstream.h"
@@ -74,7 +74,7 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
     if ( !tr ) return 0;
     Wavelet* newwv = 0;
 
-    Conn* connptr = ioobj->conn( Conn::Read );
+    Conn* connptr = ioobj->getConn( Conn::Read );
     if ( connptr && !connptr->bad() )
     {
 	newwv = new Wavelet;
@@ -100,7 +100,7 @@ int Wavelet::put( const IOObj* ioobj ) const
     if ( !tr ) return NO;
     int retval = NO;
 
-    Conn* connptr = ioobj->conn( Conn::Write );
+    Conn* connptr = ioobj->getConn( Conn::Write );
     if ( connptr && !connptr->bad() )
     {
 	if ( tr->write( this, *connptr ) )

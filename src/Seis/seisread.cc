@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.1.1.2 1999-09-16 09:35:14 arend Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.2 2000-01-24 16:46:04 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -29,6 +29,8 @@ void SeisTrcReader::init()
     itrc = 0;
     icfound = NO;
     new_packet = NO;
+    needskip = NO;
+    connrisbidnr = NO;
 }
 
 
@@ -76,6 +78,7 @@ int nextStep()
 	return 1;
     }
 
+    rdr.connrisbidnr = rdr.ioObj()->isStarConn();
     if ( rdr.connState() != Conn::Read )
     {
 	if ( !rdr.openFirst() )
@@ -111,12 +114,23 @@ Executor* SeisTrcReader::starter()
 
 bool SeisTrcReader::openFirst()
 {
-    trySkipFiles( NO );
-    conn = ioobj->conn( Conn::Read );
+    trySkipConns();
+    conn = ioobj->getConn( Conn::Read );
     if ( !conn || conn->bad() )
     {
-	delete ioobj; ioobj = 0;
 	delete conn; conn = 0;
+	if ( ioobj->multiConn() )
+	{
+	    while ( !conn || conn->bad() )
+	    {
+		delete conn; conn = 0;
+		if ( !ioobj->toNextConnNr() ) break;
+		conn = ioobj->getConn( Conn::Read );
+	    }
+	}
+
+	if ( !conn ) { delete ioobj; ioobj = 0; }
+
     }
     return conn ? YES : NO;
 }
@@ -134,13 +148,6 @@ bool SeisTrcReader::initRead()
 
     needskip = NO;
     return YES;
-}
-
-
-const StorageLayout& SeisTrcReader::storageLayout() const
-{
-    static StorageLayout dum_slo;
-    return trl ? trl->storageLayout() : dum_slo;
 }
 
 
@@ -192,9 +199,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	    if ( lyo.isCont() )
 	    {
 		// ... maybe we can stop now
-		if ( isrange && icfound
-		  && ( (clustinl && res != 5 && res != 2)
-		    || (clustcrl && res != 1 && res != 4) ) )
+		if ( isrange && icfound && !validBidselRes(res,clustcrl) )
 		    return 0;
 	    }
 	    else
@@ -253,10 +258,12 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
       || (keyData().bidsel && keyData().bidsel->size() == 0) )
 	return 0;
 
-    trySkipFiles( YES );
-    delete conn;
-    conn = ioobj->nextConn( Conn::Read );
-    if ( !conn || conn->bad() ) return 0;
+    delete conn; conn = 0;
+    if ( !ioobj->toNextConnNr() ) return 0;
+    trySkipConns();
+
+    conn = ioobj->getConn( Conn::Read );
+    if ( !conn || conn->bad() ) { delete conn; conn = 0; return 0; }
     icfound = NO;
 
     if ( !trl->initRead(spi,*conn) )
@@ -265,48 +272,39 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	return -1;
     }
     int rv = get(ti);
-    if ( rv >0 )
+    if ( rv < 1 ) return rv;
+
+    if ( keyData().bidsel && connrisbidnr )
     {
-	if ( rv == 2 )	new_packet = YES;
-	else		ti.new_packet = YES;
+	if ( !validBidselRes(keyData().bidsel->excludes(ti.binid),
+			     storageLayout().type() == StorageLayout::Xline) )
+	    return nextConn( ti );
     }
+
+    if ( rv == 2 )	new_packet = YES;
+    else		ti.new_packet = YES;
 
     return rv;
 }
 
 
-void SeisTrcReader::trySkipFiles( bool fornext )
+void SeisTrcReader::trySkipConns()
 {
     const SeisKeyData& skd = keyData();
-    if ( !ioobj->multiConn() || (skd.bidsel && skd.bidsel->size() == 0) )
+    if ( !ioobj->multiConn() || !skd.bidsel || skd.bidsel->size() == 0
+      || !connrisbidnr )
 	return;
 
-    // Skipping can be done with '*' stream conns only
-    const StorageLayout& lyo = storageLayout();
-    bool clustinl = lyo.type() == StorageLayout::Inline;
-    bool clustcrl = lyo.type() == StorageLayout::Xline;
-    if ( skd.bidsel && ioobj->multiConn() && (clustinl || clustcrl)
-      && ioobj->hasClass(IOStream::classid)
-      && !((IOStream*)ioobj)->isPercConn() )
+    bool clustcrl = storageLayout().type() == StorageLayout::Xline;
+    BinID binid = (*skd.bidsel)[0];
+    int& newinlcrl = clustcrl ? binid.crl : binid.inl;
+    do
     {
-	IOStream* iostrm = (IOStream*)ioobj;
-	StepInterval<int>& si = iostrm->fileNumbers();
-	BinID binid = (*skd.bidsel)[0];
-	int& newinlcrl = clustinl ? binid.inl : binid.crl;
-	int connr = iostrm->connNr();
-	if ( connr < 0 ) connr = si.start;
-	newinlcrl = connr + (fornext ? si.step : 0);
-	while( newinlcrl <= si.stop )
-	{
-	    int res = skd.bidsel->excludes( binid );
-	    if ( res == 0 || (clustcrl && res != 5 && res != 2)
-			  || (clustinl && res != 1 && res != 4) )
-		break;
-	    iostrm->skipConn();
-	    newinlcrl = iostrm->connNr() + si.step;
-	}
-	if ( !fornext ) iostrm->skipConn();
-    }
+	newinlcrl = ioobj->connNr();
+	if ( validBidselRes(skd.bidsel->excludes(binid),clustcrl) )
+	    return;
+
+    } while ( ioobj->toNextConnNr() );
 }
 
 

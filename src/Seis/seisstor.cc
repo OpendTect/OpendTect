@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.1.1.2 1999-09-16 09:35:18 arend Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.2 2000-01-24 16:46:05 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -48,6 +48,13 @@ void SeisStorage::close()
 {
     delete conn; conn = 0;
     init();
+}
+
+
+const StorageLayout& SeisStorage::storageLayout() const
+{
+    static StorageLayout dum_slo;
+    return trl ? trl->storageLayout() : dum_slo;
 }
 
 
