@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.8 2004-02-27 16:51:24 nanne Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.9 2004-03-02 13:57:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,8 @@ void uiButtonGroup::selectButton( int id )
 
 int uiButtonGroup::selectedId() const
 {
-    return grpobj_->body_->selectedId();
+    QButton* selbut = grpobj_->body_->selected();
+    return grpobj_->body_->id( selbut );
 }
 
 
