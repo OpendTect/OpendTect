@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.5 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: visboxdragger.h,v 1.6 2002-11-15 08:55:52 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,9 +15,9 @@ ________________________________________________________________________
 
 #include "visobject.h"
 
-class SoTranslation;
 class SoTabBoxDragger;
 class SoDragger;
+class SoSwitch;
 class Coord3;
 
 namespace visBase
@@ -35,6 +35,9 @@ public:
     void			setWidth(const Coord3&);
     Coord3			width() const;
 
+    void			turnOn(bool yn);
+    bool			isOn() const;
+
     Notifier<BoxDragger>	started;
     Notifier<BoxDragger>	motion;
     Notifier<BoxDragger>	changed;
@@ -50,7 +53,7 @@ protected:
     static void			valueChangedCB(void*, SoDragger* );
     static void			finishCB( void*, SoDragger* );
 
-    SoSeparator*		root;
+    SoSwitch*			onoff;
     SoTabBoxDragger*		boxdragger;
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.4 2002-11-08 15:02:19 kristofer Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.5 2002-11-15 08:55:45 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoSeparator.h"
+#include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/draggers/SoTabBoxDragger.h"
 
 mCreateFactoryEntry( visBase::BoxDragger );
@@ -23,10 +23,11 @@ visBase::BoxDragger::BoxDragger()
     , motion( this )
     , changed( this )
     , finished( this )
-    , root( new SoSeparator )
+    , onoff( new SoSwitch )
     , boxdragger( new SoTabBoxDragger )
 {
-    root->addChild( boxdragger );
+    onoff->addChild( boxdragger );
+    onoff->ref();
     boxdragger->addStartCallback(
 	    visBase::BoxDragger::startCB, this );
     boxdragger->addMotionCallback(
@@ -48,6 +49,8 @@ visBase::BoxDragger::~BoxDragger()
 	    visBase::BoxDragger::valueChangedCB, this );
     boxdragger->removeFinishCallback(
 	    visBase::BoxDragger::finishCB, this );
+
+    onoff->unref();
 }
 
 
@@ -77,8 +80,20 @@ Coord3 visBase::BoxDragger::width() const
 }
 
 
+void visBase::BoxDragger::turnOn( bool yn )
+{
+    onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
+}
+
+
+bool visBase::BoxDragger::isOn() const
+{
+    return !onoff->whichChild.getValue();
+}
+
+
 SoNode* visBase::BoxDragger::getData()
-{ return root; }
+{ return onoff; }
 
 
 void visBase::BoxDragger::startCB( void* obj, SoDragger* )
