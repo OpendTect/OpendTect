@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.7 2004-01-23 09:39:41 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.8 2004-01-23 11:29:26 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "filegen.h"
 #include "strmprov.h"
+#include "uimain.h"
 
 
 extern "C" { const char* GetBaseDataDir(); }
@@ -66,6 +67,23 @@ const char* getCygDir()
 
 #endif
 
+static void showProgDoc()
+{
+
+    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
+
+    getstarted = File_getFullPath( getstarted,
+#ifdef __win__
+						"windows.html"
+#else
+						"unix.html"
+#endif
+    );
+
+    HelpViewer::doHelp( getstarted, 
+		    "Get started with OpendTect development" );
+}
+
 
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
@@ -76,6 +94,7 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 	, workdirfld(0)
 	, basedirfld(0)
 {
+
     const char* titltxt =
     "For OpendTect development you'll need a $WORK dir\n"
     "Please specify where this directory should be created.";
@@ -111,13 +130,14 @@ bool uiCrDevEnv::isOK( const char* d )
 #undef mErrRet
 #define mErrRet(s) { uiMSG().error(s); return; }
 
+#define mShowDoc() { if ( !docshown ) { showProgDoc(); docshown = true; } }
+
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
 
     BufferString oldworkdir(getenv("WORK"));
     const bool oldok = isOK( oldworkdir );
-
-
+    bool docshown=false;
 
     const char* cygwin = 0;
 
@@ -130,9 +150,14 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	BufferString msg;
 	msg = "You do not seem to have cygwin installed.\n";
 	msg += "Do you want to start the cygwin installer now to install it?";
+	msg += "\n\nWARNING: You will have to exit dTect when the Cygwin ";
+	msg += "installer has been started.";
+	msg += "\n Please make sure that all your work has been saved.";
 
 	if ( uiMSG().askGoOn(msg) )
 	{
+	    mShowDoc();
+
 	    BufferString cmd( "@" );
 	    cmd += getenv ("COMSPEC");
 	    cmd += " /c start \"Install Cygwin\" /D\"";
@@ -146,10 +171,19 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    StreamProvider( cmd ).executeCommand( true );
 
 	    const char* restart =
-		"Please restart 'Create Dev env' after you finished "
-                "installing cygwin";
+		"Please start a cygwin shell after installing cygwin to "
+		"initialise cygwin. Then restart OpendTect and re-select "
+                " 'Create Dev env'."
+                "\n\nPlease consult the documentation "
+                "to see which packages need to be installed."
+		"\n\nOpendTect will exit now.";
 
 	    uiMSG().message(restart);
+
+	    if( uiMain::theMain().topLevel() )
+		uiMain::theMain().topLevel()->close();
+	    else
+		uiMain::theMain().exit();
 
 	    return;
 	}
@@ -251,19 +285,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     uiMSG().message(aboutto);
 
-
-    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
-
-    getstarted = File_getFullPath( getstarted,
-#ifdef __win__
-						"windows.html"
-#else
-						"unix.html"
-#endif
-    );
-
-    HelpViewer::doHelp( getstarted, "Get started with OpendTect development" );
-
+    mShowDoc();
 
     BufferString cmd( "@'" );
     cmd += GetSoftwareDir();
