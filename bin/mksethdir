@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: mksethdir,v 1.1 2003-06-13 14:15:36 arend Exp $
+# $Id: mksethdir,v 1.2 2003-06-18 13:51:09 arend Exp $
 #
 # dGB-GDI HDIR variable setup
 # usage from a csh-script:
@@ -38,6 +38,10 @@ if ( $binsubdir == sun5 ) then
 		&& ( "$v" == "8" || "$v" == "9" ) ) then
 	    set binsubdir=sol28
 	endif
+    endif
+else if ( $binsubdir == lux ) then
+    if ( -d $ROOT_DIR/bin/lux24 ) then
+	set binsubdir=lux24
     endif
 endif
 
