@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.5 2002-04-29 07:07:00 kristofer Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.6 2002-04-30 09:00:21 kristofer Exp $";
 
 #include "vistransform.h"
 #include "Inventor/nodes/SoMatrixTransform.h"
@@ -41,7 +41,7 @@ Geometry::Pos visBase::Transformation::transform(const Geometry::Pos& pos) const
     const SbVec3f src( pos.x, pos.y, pos.z );
     SbVec3f dst;
 
-    transform_->matrix.getValue().multMatrixVec( src, dst );
+    transform_->matrix.getValue().multVecMatrix( src, dst );
 
     return Geometry::Pos( dst[0], dst[1], dst[2] );
 }
@@ -54,7 +54,7 @@ Geometry::Pos visBase::Transformation::transformBack(
     SbVec3f dst;
 
     SbMatrix inverse = transform_->matrix.getValue().inverse();
-    inverse.multMatrixVec( src, dst );
+    inverse.multVecMatrix( src, dst );
 
     return Geometry::Pos( dst[0], dst[1], dst[2] );
 }
