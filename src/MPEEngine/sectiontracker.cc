@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.3 2005-01-20 08:50:09 kristofer Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.4 2005-03-11 16:55:15 cvsnanne Exp $";
 
 #include "sectiontracker.h"
 
@@ -23,9 +23,10 @@ namespace MPE
 SectionTracker::SectionTracker( SectionSourceSelector* selector__,
 				SectionExtender* extender__,
 				SectionAdjuster* adjuster__ )
-    : selector_( selector__ )
-    , extender_( extender__ )
-    , adjuster_( adjuster__ )
+    : selector_(selector__)
+    , extender_(extender__)
+    , adjuster_(adjuster__)
+    , enabadjuster(true)
 {
     init();
 }
@@ -99,4 +100,4 @@ mGet( SectionAdjuster, adjuster, adjuster_ )
 const char* SectionTracker::errMsg() const
 { return errmsg[0] ? (const char*) errmsg : 0; }
 
-}; //Namespace
+}; // namespace MPE
