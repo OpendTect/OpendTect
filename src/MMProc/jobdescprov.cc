@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.3 2004-11-11 11:35:57 bert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.4 2004-11-29 13:21:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,8 @@ InlineSplitJobDescProv::~InlineSplitJobDescProv()
 
 void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 {
+    rg.step = 0;
+
     if ( *(const char*)singlekey_ )
 	inpiopar_.get( singlekey_, rg.start, rg.stop, rg.step );
     else
