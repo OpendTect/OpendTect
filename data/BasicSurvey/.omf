@@ -1,0 +1,28 @@
+dGB-GDI V2.7
+Object Management file
+Fri Jul 23 17:00:24 1999
+!
+ID: 0
+!
+@100010: Seismics
+!
+@100020: Grids
+!
+@100030: Wavelets
+!
+@100040: Features
+!
+@100050: Logs
+!
+@100060: NNs
+!
+@100070: Misc
+!
+Survey root: 1
+Survey Info: dGB`Stream
+$Name: .survey
+!
+Basic acoustic dictionary: 2
+Framework Dictionary: dGB`Stream
+$Name: BasicAcDict
+!
