@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.1 2002-05-16 14:19:03 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.2 2002-05-21 09:46:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 namespace Geometry
 {
-    class Snapped2DSurface;
+    class CompositeGridSurface;
     class TriangleStripSet;
 };
 
@@ -48,7 +48,7 @@ public:
     int			findPos( int inl, int crl, TypeSet<PosID>& res ) const;
     void		addSquare( int inl, int crl,
 	    			   float inl0crl0, float inl0crl1,
-				   float inl1crl0, float inl1crl1, FillType );
+				   float inl1crl0, float inl1crl1 );
 
     static unsigned short	getSurfID(PosID);
     static unsigned long	getSurfPID(PosID);
@@ -58,16 +58,16 @@ public:
 
 
     Executor*		loader();
-    bool		isLoaded() const { return surfaces.size(); }
+    bool		isLoaded() const;
     Executor*		saver();
 
+    Executor*		tableLoader(bool inlcrl, bool depthintime);
+
     void		getTriStrips( Geometry::TriangleStripSet* ) const;
-
-    ObjectSet<Geometry::Snapped2DSurface>&	getSurfaces()
+    const Geometry::CompositeGridSurface&	getSurfaces() const
     						{ return surfaces; }
+    Geometry::CompositeGridSurface&		getSurfaces(){return surfaces;}
 
-    const ObjectSet<const Geometry::Snapped2DSurface>&	getSurfaces() const
-	    { return (ObjectSet<const Geometry::Snapped2DSurface>&) surfaces; }
 protected:
     			friend EMManager;
 			friend EMObject;
@@ -76,7 +76,7 @@ protected:
     			~Horizon();
 
 
-    ObjectSet<Geometry::Snapped2DSurface>	surfaces;	
+    Geometry::CompositeGridSurface&	surfaces;	
 };
 
 }; // Namespace
