@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.37 2003-12-26 19:28:22 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.38 2003-12-30 08:14:05 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -88,16 +88,6 @@ EM::Surface::~Surface()
 
 void EM::Surface::cleanUp()
 {
-    deepErase( auxdatanames );
-    deepErase( auxdatainfo );
-    for ( int idx=0; idx<auxdata.size(); idx++ )
-    {
-	if ( !auxdata[idx] ) continue;
-	deepErase( *auxdata[idx] );
-    }
-
-    deepErase( auxdata );
-
     deepErase( surfaces );
     deepErase( patchnames );
     patchids.erase();
@@ -109,6 +99,20 @@ void EM::Surface::cleanUp()
     delete colinterval;
     rowinterval = 0;
     colinterval = 0;
+}
+
+
+void EM::Surface::removeAuxData()
+{
+    deepErase( auxdatanames );
+    deepErase( auxdatainfo );
+    for ( int idx=0; idx<auxdata.size(); idx++ )
+    {
+	if ( !auxdata[idx] ) continue;
+	deepErase( *auxdata[idx] );
+    }
+
+    deepErase( auxdata );
 }
 
 
@@ -458,7 +462,7 @@ bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
 	Coord3 normal;
 	if ( computeNormal( normal, nodes[idx], time2depthfunc ) )
 	{
-	    normal += normal;
+	    normals += normal;
 	}
     }
 
@@ -503,7 +507,7 @@ char EM::Surface::whichSide( const Coord3& timepos,
 	return 0;
 
     const double cosangle = meshnormal.dot(centertopos/centertoposlen);
-    if ( cosangle<0.5 )
+    if ( fabs(cosangle)<0.5 )
     {
 	float maxdist = -1;
 	if ( c00def )
@@ -705,24 +709,12 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
     if ( autoconnect )
 	findPos( geomrowcol, nodeonotherpatches );
 
-    const int auxdataindex = surface->indexOf( geomrowcol );
-
     surface->setMeshPos( geomrowcol, pos );
     surface->setFillType( geomrowcol, Geometry::MeshSurface::Filled );
 
-    if ( auxdataindex==-1 )
-    {
-	const int newauxdataindex = surface->indexOf( geomrowcol );
-	for ( int idx=0; idx<nrAuxData(); idx++ )
-	{
-	    if ( !auxdata[idx] ) continue;
-
-	    TypeSet<float>* dataptr = (*auxdata[idx])[patchindex];
-	    if ( !dataptr ) continue;
-
-	    dataptr->insert( newauxdataindex, mUndefValue );
-	}
-    }
+    removeAuxData();
+    if ( !pos.isDefined() )
+	surface->shrink();
 
     if ( autoconnect )
     {
