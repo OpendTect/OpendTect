@@ -1,0 +1,115 @@
+dTect V1.0
+Attribute definitions
+Thu Oct 30 11:36:59 2003
+!
+Attribute Descriptions
+0.Definition: 100010.3
+0.UserRef: All Seismic data
+0.Type: Stored
+0.Hidden: No
+0.Datatype: Amplitude
+0.Selected Attrib: 0
+1.Definition: Frequency gate=[-32,32] normalize=No window=CosTaper5 dumptofile=No
+1.UserRef: Q factor
+1.Type: Extracted
+1.Hidden: No
+1.Datatype: Other
+1.Input.0: 0
+1.Input.1: 14
+1.Selected Attrib: 7
+2.Definition: Energy gate=[-20,20]
+2.UserRef: Energy
+2.Type: Extracted
+2.Hidden: No
+2.Datatype: Other
+2.Input.0: 0
+2.Selected Attrib: 0
+4.Definition: Convolve kernel=Laplacian shape=Sphere size=3
+4.UserRef: Laplace (edge)
+4.Type: Extracted
+4.Hidden: No
+4.Datatype: Other
+4.Input.0: 0
+4.Selected Attrib: 0
+5.Definition: DipFilter size=9 type=LowPass maxvel=2000.000000 filterazi=No taperlen=10.000000
+5.UserRef: Velocity fan
+5.Type: Extracted
+5.Hidden: No
+5.Datatype: Amplitude
+5.Input.0: 0
+5.Selected Attrib: 0
+10.Definition: Math expression=x0-x1 steering=No pos0=0,0 pos1=0,0
+10.UserRef: Math difference stack
+10.Type: Extracted
+10.Hidden: No
+10.Datatype: Amplitude
+10.Input.0: 0
+10.Input.1: 4
+10.Selected Attrib: 0
+11.Definition: VolumeStatistics nrvolumes=1 stepout=2,2 shape=Ellipse gate=[0,0] steering=No
+11.UserRef: Amplitude variance
+11.Type: Extracted
+11.Hidden: No
+11.Datatype: Other
+11.Input.0: 0
+11.Selected Attrib: 2
+12.Definition: VolumeStatistics nrvolumes=1 stepout=2,2 shape=Ellipse gate=[0,0] steering=No
+12.UserRef: Amplitude average
+12.Type: Extracted
+12.Hidden: No
+12.Datatype: Amplitude
+12.Input.0: 0
+12.Selected Attrib: 0
+13.Definition: Position stepout=2,2 gate=[0,0] oper=Min steering=No
+13.UserRef: Edge Preserving filter (TLE Feb 2002)
+13.Type: Extracted
+13.Hidden: No
+13.Datatype: Other
+13.Input.0: 11
+13.Input.1: 12
+13.Selected Attrib: 0
+14.Definition: Hilbert halflen=30
+14.UserRef: _All lines_imag
+14.Type: Extracted
+14.Hidden: Yes
+14.Datatype: Amplitude
+14.Input.0: 0
+14.Selected Attrib: 0
+15.Definition: Frequency gate=[-32,32] normalize=No window=CosTaper5 dumptofile=No
+15.UserRef: Frequency
+15.Type: Extracted
+15.Hidden: No
+15.Datatype: Other
+15.Input.0: 0
+15.Input.1: 14
+15.Selected Attrib: 0
+16.Definition: Similarity gate=[-32,32] pos0=-1,0 pos1=1,0 extension=90 steering=No normalize=No
+16.UserRef: Similarity
+16.Type: Extracted
+16.Hidden: No
+16.Datatype: Other
+16.Input.0: 0
+16.Selected Attrib: 0
+17.Definition: Similarity gate=[-32,32] stepout=1,1 extension=Cube steering=No normalize=No
+17.UserRef: Cube similarity
+17.Type: Extracted
+17.Hidden: No
+17.Datatype: Other
+17.Input.0: 0
+17.Selected Attrib: 0
+18.Definition: Convolve kernel=Prewitt
+18.UserRef: Prewitt (gradient)
+18.Type: Extracted
+18.Hidden: No
+18.Datatype: Other
+18.Input.0: 0
+18.Selected Attrib: 2
+21.Definition: Convolve kernel=Laplacian shape=Sphere size=3
+21.UserRef: Laplace on similarity
+21.Type: Extracted
+21.Hidden: No
+21.Datatype: Other
+21.Input.0: 16
+21.Selected Attrib: 0
+MaxNrKeys: 21
+!
