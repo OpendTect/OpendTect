@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.1 2003-01-08 14:15:36 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.2 2003-01-09 09:11:30 kristofer Exp $";
 
 #include "vistexture3.h"
 
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: vistexture3.cc,v 1.1 2003-01-08 14:15:36 kristo
 
 #include "Inventor/nodes/SoGroup.h"
 #include "Inventor/nodes/SoTexture3.h"
+
+mCreateFactoryEntry( visBase::Texture3 );
 
 visBase::Texture3::Texture3()
     : x0sz( -1 )
@@ -26,7 +28,9 @@ visBase::Texture3::Texture3()
 {
     root->ref();
     root->addChild( texture );
-
+    texture->wrapR = SoTexture3::CLAMP;
+    texture->wrapS = SoTexture3::CLAMP;
+    texture->wrapT = SoTexture3::CLAMP;
 }
 
 
