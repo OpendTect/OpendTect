@@ -85,10 +85,14 @@ bool findValue( const MathFunction& func, float x1, float x2, float& res,
 #undef EPS
 
 float findValueInAperture( const MathFunction& func, float startx, 
-			      float aperture, float dx, float target, float tol)
+			   const TimeGate& aperture, float dx, float target,
+			   float tol)
 {
+    float aperturecenter = (aperture.start + aperture.stop) / 2;
+    const float halfaperture = aperture.stop - aperturecenter;
+    startx += (aperture.start + aperture.stop) / 2;
+
     bool centerispositive = target - func.getValue( startx ) > 0;
-    const float halfaperture = aperture / 2;
   
     float dist = dx; 
     bool negativefound = false;
