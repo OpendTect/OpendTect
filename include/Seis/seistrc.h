@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.12 2001-11-08 09:58:26 kristofer Exp $
+ RCS:		$Id: seistrc.h,v 1.13 2002-01-30 07:57:15 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,7 @@ public:
 			{ return trc.info().nearestSample( val ); }
     double		getX( int idx ) const
 			{ return trc.getX( idx, curcomp ); }
-    float		getValue( float v ) const
+    float		getValue( double v ) const
 			{ return trc.getValue( v, curcomp ); }
 
     inline int		size() const	{ return trc.size( curcomp ); }
