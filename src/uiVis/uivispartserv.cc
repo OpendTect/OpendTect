@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.36 2002-05-02 14:16:26 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.37 2002-05-03 09:41:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,6 @@ const int uiVisPartServer::evGetNewData    	= 4;
 const int uiVisPartServer::evSelectableStatusCh = 5;
 const int uiVisPartServer::evMouseMove		= 6;
 
-const char* uiVisPartServer::ioparprefix = "Vis";
-
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , viewmode(false)
@@ -94,11 +92,7 @@ bool uiVisPartServer::deleteAllObjects()
 void uiVisPartServer::usePar( const IOPar& par )
 {
     deleteAllObjects();
-
-    PtrMan<IOPar> iopar = par.subselect( ioparprefix );
-    if ( !iopar ) return;
-
-    visBase::DM().usePar( *iopar );
+    visBase::DM().usePar( par );
 
     TypeSet<int> sceneids;
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
@@ -131,14 +125,12 @@ void uiVisPartServer::usePar( const IOPar& par )
 
 void uiVisPartServer::fillPar( IOPar& par ) const
 {
-    IOPar localpar;
     TypeSet<int> storids;
 
     for ( int idx=0; idx<scenes.size(); idx++ )
 	storids += scenes[idx]->id();
 
-    visBase::DM().fillPar(localpar, storids);
-    par.mergeComp( localpar, ioparprefix );
+    visBase::DM().fillPar(par, storids);
 }
 
 

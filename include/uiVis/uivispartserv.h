@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.27 2002-05-02 14:16:57 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.28 2002-05-03 09:41:33 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,8 +176,6 @@ protected:
     ObjectSet<visSurvey::PickSetDisplay>	picks;
     ObjectSet<visSurvey::PlaneDataDisplay>	seisdisps;
     ObjectSet<visSurvey::Scene>         	scenes;
-
-    static const char*	ioparprefix;
 };
 
 #endif
