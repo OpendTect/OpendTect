@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.10 2003-08-13 13:40:32 arend Exp $
+ RCS:           $Id: uitextedit.h,v 1.11 2003-08-28 08:16:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ public:
 
 protected:
 
+    BufferString	textsrc;
     BufferString	lastlink_;
     bool		cangoforw_;
     bool		cangobackw_;

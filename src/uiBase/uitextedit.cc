@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.21 2003-05-07 09:38:33 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.22 2003-08-28 08:16:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,12 +225,11 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 
 QTextEdit& uiTextBrowser::qte()				{ return *body_; }
 
-static BufferString thesrc;
 
 const char* uiTextBrowser::source() const
 { 
     if ( forceplaintxt_ )
-	return thesrc;
+	return textsrc;
 
     result = (const char*)body_->source();
     return (const char*)result;
@@ -241,7 +240,7 @@ void uiTextBrowser::setSource( const char* src )
 {
     if ( forceplaintxt_ )
     {
-	thesrc = src;
+	textsrc = src;
 	readFromFile( src );
     }
     else
@@ -264,7 +263,7 @@ void uiTextBrowser::home()
 void uiTextBrowser::reload()
 {
     if ( forceplaintxt_ )
-	setSource(thesrc);
+	setSource( textsrc );
 
     body_->reload();
 }
