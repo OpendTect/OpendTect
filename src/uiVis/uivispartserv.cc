@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.70 2002-07-09 12:35:56 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.71 2002-07-10 09:39:27 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -926,7 +926,7 @@ void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
 void uiVisPartServer::setHorizonRes( int id, int res )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj);
     if ( !hor ) return;
 
     hor->setResolution(res);
@@ -936,10 +936,30 @@ void uiVisPartServer::setHorizonRes( int id, int res )
 int uiVisPartServer::getHorizonRes(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj);
     if ( !hor ) return -1;
 
     return hor->getResolution();
+}
+
+
+void uiVisPartServer::setHorizonNrTriPerPixel( int id, float res )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj);
+    if ( !hor ) return;
+
+    hor->setNrTriPerPixel(res);
+}
+
+
+float uiVisPartServer::getHorizonNrTriPerPixel(int id) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj);
+    if ( !hor ) return mUndefValue;
+
+    return hor->getNrTriPerPixel();
 }
 
 

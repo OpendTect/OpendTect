@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.47 2002-07-09 12:35:23 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.48 2002-07-10 09:39:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,6 +166,8 @@ public:
     void		setHorizonRes(int, int res );
     			//!< 0 is automatic.
     int			getHorizonRes(int) const;
+    void		setHorizonNrTriPerPixel(int id, float);
+    float		getHorizonNrTriPerPixel(int id) const;
     int			getNrHorizonRes(int) const;
     BufferString	getHorizonResText(int,int) const;
 
