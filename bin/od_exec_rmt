@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.22 2004-11-09 13:03:50 arend Exp $
+# $Id: od_exec_rmt,v 1.23 2004-11-10 12:12:23 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -188,19 +188,15 @@ if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt.bat+=+' \
 		     | sed -e "s% %\\ %g" -e 's%+=+%""%g'`
 
-	if ( $?DTECT_DEBUG) then
-	    set prelogin=`unsetenv DTECT_DEBUG; \
-		    "${DTECT_APPL}/bin/win/SearchODFile" od_prepare.bat \
-		    | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
+	set prescript=`"${DTECT_APPL}/bin/win/SearchODFile" od_prepare.bat \
+		     | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
 
+	if ( $?DTECT_DEBUG) then
 	    echo cmd /c \
-	       "${prelogin} ${remotehost} _none_ _none_ ${usernm} ${remotepass}"
-	else
-	    set prelogin=`"${DTECT_APPL}/bin/win/SearchODFile" od_prepare.bat \
-		    | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
+		"${prescript} $remotehost _none_ _none_ $usernm $remotepass"
 	endif
 
-        cmd /c "${prelogin} ${remotehost} _none_ _none_ ${usernm} ${remotepass}"
+        cmd /c "${prescript} $remotehost _none_ _none_ $usernm $remotepass"
 
 	set remotehost="\\${remotehost}"
 

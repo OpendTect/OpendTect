@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.15 2004-11-10 10:37:15 arend Exp $
+# $Id: od_do_rmt,v 1.16 2004-11-10 12:12:23 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -79,25 +79,32 @@ if ( "$HDIR" == "win" ) then
 
     set prescript=""
     if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
-	set prescript=`"$DTECT_APPL/bin/$HDIR/SearchODFile" od_prepare.bat`
+	set prescript=`"${DTECT_APPL}/bin/$HDIR/SearchODFile" od_prepare.bat \
+		 | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
     endif
 
     if ( -e "$prescript" ) then
-        set prescr=`cygpath -w "$prescript"`
-	cmd /c "$prescr" $datahost $datadrive $datashare $usernm $datapass
+	if ( $?DTECT_DEBUG) then
+	    echo cmd /c \
+		"$prescript $datahost $datadrive $datashare $usernm $datapass"
+	endif
+
+	cmd /c "$prescript $datahost $datadrive $datashare $usernm $datapass"
     endif
+    
 endif
 
-
-endif
 
 if ( $?DTECT_DEBUG ) then
 
     set logfile=/tmp/oddebug$$.log
-    if ( $?TMP ) then
-	set logfile="$TMP/oddebug$$.log"
-    else if ( $?TEMP ) then
-	set logfile="$TEMP/oddebug$$.log"
+    touch "$logfile" >& /dev/null
+    if ( ! -e "$logfile" ) then
+	if ( $?TMP ) then
+	    set logfile="$TMP/oddebug$$.log"
+	else if ( $?TEMP ) then
+	    set logfile="$TEMP/oddebug$$.log"
+	endif
     endif
 
     echo "logging to $logfile"
@@ -124,6 +131,12 @@ if ( $?DTECT_DEBUG ) then
 	echo "$0 : DISPLAY = $DISPLAY" >> $logfile
     else
 	echo "$0 : DISPLAY = <empty>" >> $logfile
+    endif
+
+    if ( $?prescript ) then
+	echo "$0 : prescript = $prescript" >> $logfile
+    else
+	echo "$0 : prescript = <empty>" >> $logfile
     endif
 
     echo "$0 : $DTECT_APPL/bin/od_exec $*" >> $logfile
