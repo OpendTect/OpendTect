@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.16 2004-09-20 12:04:01 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.17 2004-09-22 08:14:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,8 @@ struct HorSampling
 
     void		init(bool settoSI=true);
     			//!< Sets to survey values or zeros (step 1)
+    void		set2DDef();
+    			//!< Sets ranges to 0-maxint
     void		normalise();
     			//!< Makes sure start<stop and steps are non-zero
 
@@ -101,6 +103,8 @@ public:
 
     void		init(bool settoSI=true);
     			//!< Sets to survey values or zeros (step 1)
+    void		set2DDef();
+    			//!< Sets to survey zrange and hrg.set2DDef
     void		normalise();
     			//!< Makes sure start<stop and steps are non-zero
 
