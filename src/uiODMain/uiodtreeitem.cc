@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.67 2005-02-08 09:20:41 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.68 2005-02-10 16:04:34 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -553,11 +553,11 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiVisMenu*,menu,cb);
 
+    const AttribSelSpec* as = visserv->getSelSpec(displayid);
     attribstartmnuid = attribstopmnuid = depthvalmnuid = -1;
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
-	const AttribSelSpec* as = visserv->getSelSpec(displayid);
 	/*
 	attribstartmnuid = menu->getCurrentID();
 	const bool hasauxdata = as && as->id() == -1;
@@ -579,7 +579,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     }
 
     tracksetupmnuid = toggletrackingmnuid = trackmnuid = -1;
-    addsectionmnuid = extendsectionmnuid = relmnuid = storemnuid = -1;
+    addsectionmnuid = extendsectionmnuid = relmnuid = savemnuid = -1;
 
     uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
     if ( uilistviewitem->isChecked() && trackmnu )
@@ -639,14 +639,15 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    }
 	}
 
-	if ( applMgr()->EMServer()->isChanged(mid) )
-	{
-	    uiMenuItem* storemenuitem = new uiMenuItem( "Save" );
-	    storemnuid = menu->addItem( storemenuitem );
-	}
+	uiMenuItem* storemenuitem = new uiMenuItem( "Save" );
+	savemnuid = menu->addItem( storemenuitem );
+	storemenuitem->setEnabled( applMgr()->EMServer()->isChanged(mid) );
     }
 
-    storeasmnuid = menu->addItem( new uiMenuItem("Save as ...") );
+    uiMenuItem* saveattritm = new uiMenuItem("Save attribute ...");
+    saveattrmnuid = menu->addItem( saveattritm );
+    saveattritm->setEnabled( as && as->id() >= 0 );
+    
 
 #ifdef __debug__
     reloadmnuid = menu->addItem( new uiMenuItem("Reload") );
@@ -670,15 +671,15 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( menu->getPath() )
 	section = uivissurf->getSection( menu->getPath() );
 
-    if ( mnuid==storeasmnuid )
+    if ( mnuid==saveattrmnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->storeSurface(displayid, true);
+	applMgr()->storeSurface( displayid, true );
     }
-    else if ( mnuid==storemnuid )
+    else if ( mnuid==savemnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->storeSurface(displayid, false);
+	applMgr()->storeSurface( displayid, false );
     }
     else if ( mnuid==trackmnuid )
     {
@@ -1480,7 +1481,8 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
 				    createStoredGathersSubMenu( gathersstopid );
 	for ( int idx=gathersstartid; idx<=gathersstopid; idx++ )
 	    menu->getFreeID();
-	menu->addSubMenu(displaygathermnu,-500);
+	if ( displaygathermnu )
+	    menu->addSubMenu(displaygathermnu,-500);
     }
 }
 
@@ -1689,9 +1691,7 @@ bool uiODSceneTreeItem::showSubMenu()
     else if ( mnuid==mDumpIV )
 	visserv->dumpOI( displayid );
     else if ( mnuid==mSubMnuSnapshot )
-    {
 	viewer()->renderToFile();
-    }
 
     return true;
 }
