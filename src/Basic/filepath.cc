@@ -4,14 +4,12 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.8 2004-11-10 13:07:58 arend Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.9 2004-11-16 15:01:00 dgb Exp $";
 
 #include "filepath.h"
 #include <iostream>
 
-#ifdef __win__
-# include "wingetspec.h"
-#endif
+#include "winutils.h"
 
 const char* FilePath::sPrefSep = ":";
 #ifdef __win__
@@ -261,59 +259,14 @@ BufferString FilePath::getTempName( const char* ext )
     return fname;
 }
 
-static const char* drvstr="/cygdrive/";
-
-static BufferString getCleanUnxPath( const char* path )
-{
-    BufferString buf; buf = path;
-    char* ptr = buf.buf();
-    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
-    replaceCharacter( ptr, '\\' , '/' );
-    replaceCharacter( ptr, ';' , ':' );
-
-    char* drivesep = strstr( ptr, ":" );
-    if ( !drivesep ) return ptr;
-    *drivesep = '\0';
-
-    BufferString res;
-    res = drvstr;
-    *ptr = tolower(*ptr);
-    res += ptr;
-    res += ++drivesep;
-
-    return res;
-}
-
-static BufferString getCleanWinPath( const char* path )
-{
-    BufferString ret(path);
-    replaceCharacter( ret.buf(), ';' , ':' );
-
-    BufferString buf( ret );
-    char* ptr = buf.buf();
-
-    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
-
-    char* cygdrv = strstr( ptr, drvstr );
-    if ( cygdrv )
-    {
-	char* drv = cygdrv + strlen( drvstr );
-	char* buffer = ret.buf();
-
-	*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
-	ret += ++drv;
-    }
-
-    replaceCharacter( ret.buf(), '/', '\\' );
-
-    return ret;
-}
 
 BufferString FilePath::mkCleanPath(const char* path, Style stl)
 {
     if ( stl == Local )		stl = __iswin__ ? Windows : Unix;
 
-    if ( stl == Windows )	return getCleanWinPath( path ) ;
-    else			return getCleanUnxPath( path ) ;
-}
+    BufferString ret;
+    if ( stl == Windows )	ret = getCleanWinPath( path ) ;
+    else			ret = getCleanUnxPath( path ) ;
 
+    return ret;
+}

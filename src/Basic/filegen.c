@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.60 2004-11-05 20:16:08 dgb Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.61 2004-11-16 15:01:00 dgb Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: filegen.c,v 1.60 2004-11-05 20:16:08 dgb Exp $"
 #include <dirent.h>
 
 #ifdef __win__
-#include "wingetspec.h"
+#include "winutils.h"
 #endif
 static struct stat statbuf;
 
@@ -482,10 +482,6 @@ int File_createLink( const char* from, const char* to )
 #endif
 }
 
-
-#ifdef __win__
-extern const char* getWinLinkTarget( const char * fname );
-#endif
 
 const char* File_linkTarget( const char* fname )
 {
