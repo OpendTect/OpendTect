@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.2 2001-08-24 10:03:20 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.3 2001-09-18 06:24:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ public:
 
     void               		setStretch( int hor, int ver )
 				    { horStretch = hor; verStretch = ver; }
-    int				stretch( bool hor )
+    virtual int			stretch( bool hor )
 				    { return hor ? horStretch : verStretch; }
 
     virtual bool		isSingleLine() const { return false; }

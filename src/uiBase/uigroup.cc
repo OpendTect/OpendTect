@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.11 2001-08-30 10:49:59 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.12 2001-09-18 06:24:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
     void		setPrntBody (uiGroupParentBody* pb)
 			    { prntbody_ = pb; }
 
+    virtual int		stretch( bool hor );
 
 protected:
 
@@ -83,6 +84,7 @@ protected:
 
     virtual void	finalise_();
 };
+
 
 class uiGroupParentBody : public uiParentBody
 { 	
@@ -122,6 +124,19 @@ public:
     uiObject*		hCentreObj()			{ return hcentreobj; }
     void		setHCentreObj( uiObject* o ) 	{ hcentreobj = o;}
 
+    int			sumChildrenStretch( bool hor )
+			{
+			    int sum=0;
+			    for( int idx=0; idx<children.size(); idx++ )
+			    {
+				mDynamicCastGet(uiObjectBody*,chbody, 
+							children[idx]->body());
+
+				if ( chbody ) sum += chbody->stretch(hor);
+			    }
+
+			    return sum;
+			}
 
     virtual int		minTextWidgetHeight() const
 			{
@@ -166,6 +181,13 @@ void uiGroupObjBody::reDraw( bool deep )
     prntbody_->loMngr->forceChildrenRedraw( this, deep ); 
     uiObjectBody::reDraw( deep ); // calls qWidget().update()
 }
+
+int uiGroupObjBody::stretch( bool hor )
+{
+    int s = uiObjectBody::stretch( hor );
+    return s ? s : prntbody_->sumChildrenStretch( hor );
+}
+
 
 void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
 
