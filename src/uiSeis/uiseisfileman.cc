@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.13 2002-11-21 08:57:29 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.14 2002-11-21 15:12:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,10 +305,19 @@ BufferString uiSeisFileMan::getFileSize( const char* filenm )
 	totalsz += (double)File_getKbSize( fullnm );
     }
 
-    if ( totalsz > 1048576 )
-    { szstr += (float)(int(totalsz/10485.76))/100; szstr += " (Gb)"; }
-    else if ( totalsz > 1024 )
-    { szstr += (float)(int(totalsz/10.24))/100; szstr += " (Mb)"; }
+    if ( totalsz > 1024 )
+    {
+        bool doGb = totalsz > 1048576;
+	int nr = doGb ? (int)(totalsz/10485.76+.5) : (int)(totalsz/10.24+.5);
+	szstr += nr/100; 
+	int rest = nr%100; 
+	szstr += rest < 10 ? ".0" : "."; szstr += rest;
+	szstr += doGb ? " (Gb)" : " (Mb)";
+    }
+    else if ( !totalsz )
+    {
+	szstr += File_isEmpty(filenm) ? "-" : "< 1 (kB)";
+    }
     else
     { szstr += totalsz; szstr += " (kB)"; }
 
