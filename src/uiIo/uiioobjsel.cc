@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.40 2002-08-02 13:38:59 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.41 2002-08-05 12:53:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     listfld = new uiLabeledListBox( this, entrylist->Ptr() );
     if ( ismultisel )
 	listfld->box()->setMultiSelect( true );
-    listfld->box()->setFieldWidth( listfld->box()->optimumFieldWidth() );
+    listfld->box()->setPrefWidthInChar( 
+		listfld->box()->optimumFieldWidth(20,60) );
 
     if ( !ctio.ctxt.forread )
     {
@@ -66,7 +67,6 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	nmfld->attach( alignedBelow, listfld );
     }
 
-    listfld->box()->setHSzPol( uiObject::medvar );
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
     listfld->box()->rightButtonClicked.notify(mCB(this,uiIOObjSelDlg,rightClk));
     listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
