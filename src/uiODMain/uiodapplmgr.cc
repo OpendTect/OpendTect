@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.60 2004-10-08 15:03:45 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.61 2004-10-19 10:59:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -746,12 +746,17 @@ bool uiODApplMgr::handleVisServEv( int evid )
 
 bool uiODApplMgr::handleNLAServEv( int evid )
 {
-    if ( evid == uiNLAPartServer::evPrepareWrite )
+    if ( evid == uiNLAPartServer::evIs2D )
+    {
+	const AttribDescSet* ads = attrserv->curDescSet();
+	return ads ? ads->is2D() : false;
+    }
+    else if ( evid == uiNLAPartServer::evPrepareWrite )
     {
 	// Before NLA model can be written, the AttribSet's IOPar must be
 	// made available as it almost certainly needs to be stored there.
 	const AttribDescSet* ads = attrserv->curDescSet();
-	if ( !ads ) return true;
+	if ( !ads ) return false;
 	IOPar& iopar = nlaserv->modelPars();
 	iopar.clear();
 	ads->fillPar( iopar );
@@ -779,7 +784,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// * All cubes - between []
 	attrserv->getPossibleOutputs( nlaserv->inputNames() );
 	if ( nlaserv->inputNames().size() == 0 )
-	    { uiMSG().error( "No usable input" ); return true; }
+	    { uiMSG().error( "No usable input" ); return false; }
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput )
     {
@@ -795,13 +800,13 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Query the server and make sure the relevant data is extracted
 	// Put data in the training and test feature sets
 
-	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return true; }
+	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return false; }
 	ObjectSet<BinIDValueSet> bivss;
 	if ( nlaserv->willDoExtraction() )
 	{
 	    nlaserv->getBinIDValueSets( bivss );
 	    if ( !bivss.size() )
-		{ uiMSG().error("No valid data locations found"); return true; }
+		{ uiMSG().error("No valid data locations found"); return false;}
 	}
 	ObjectSet<FeatureSet> fss;
 	bool extrres = attrserv->extractFeatures( nlaserv->creationDesc(),
