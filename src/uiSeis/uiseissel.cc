@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.26 2004-10-20 14:44:28 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.27 2005-03-07 09:32:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "iodirentry.h"
 #include "survinfo.h"
 #include "seistrcsel.h"
 #include "cubesampling.h"
@@ -40,6 +41,8 @@ static void mkKvals( const IOObjContext& ctxt, BufferString& keyvals )
 
 static void resetKeyVals( const IOObjContext& ct, const BufferString& kyvals )
 {
+    if ( !ct.includekeyval ) return;
+
     IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
     ctxt.ioparkeyval[0] = kyvals;
     char* ptr = strchr( ctxt.ioparkeyval[0].buf(), '`' );
@@ -51,6 +54,8 @@ static void resetKeyVals( const IOObjContext& ct, const BufferString& kyvals )
 static void adaptCtxt( IOObjContext& ctxt, Pol2D pol,
 			const BufferString& orgkeyvals )
 {
+    if ( !ctxt.includekeyval ) return;
+
     BufferString& deftr = const_cast<IOObjContext*>(&ctxt)->deftransl;
     if ( pol == Only2D )
 	deftr = "2D";
@@ -74,13 +79,13 @@ static void adaptCtxt( IOObjContext& ctxt, Pol2D pol,
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& setup )
-	: uiIOObjSelDlg(p,getCtio(c,setup),"")
+	: uiIOObjSelDlg(p,getCtio(c,setup),"",false)
 	, subsel(0)
 	, attrfld(0)
 {
     mkKvals( ctio.ctxt, orgkeyvals );
-    const char* ttxt = setup.pol2d_ == No2D ? "Select Cube" : "Select Line Set";
-    if ( setup.pol2d_ == Both2DAnd3D )
+    const char* ttxt = p2d == No2D ? "Select Cube" : "Select Line Set";
+    if ( p2d == Both2DAnd3D )
 	ttxt = ctio.ctxt.forread ? "Select Input seismics"
 	    			 : "Select Output Seismics";
     setTitleText( ttxt );
@@ -94,7 +99,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    subsel->usePar( *ctio.iopar );
     }
 
-    if ( setup.selattr_ && setup.pol2d_ != No2D )
+    if ( setup.selattr_ && p2d != No2D )
     {
 	if ( ctio.ctxt.forread )
 	    attrfld = new uiGenInput( this, "Attribute", StringListInpSpec() );
@@ -131,12 +136,13 @@ const char* uiSeisSelDlg::standardTranslSel( Pol2D pol2d )
 const CtxtIOObj& uiSeisSelDlg::getCtio( const CtxtIOObj& c,
 					const SeisSelSetup& s )
 {
+    p2d = s.pol2d_;
     if ( s.stdtrs_ )
     {
 	IOObjContext& ctxt = const_cast<IOObjContext&>( c.ctxt );
-	ctxt.trglobexpr = standardTranslSel( s.pol2d_ );
+	ctxt.trglobexpr = standardTranslSel( p2d );
 	BufferString kvs; mkKvals( c.ctxt, kvs );
-	adaptCtxt( ctxt, s.pol2d_, kvs );
+	adaptCtxt( ctxt, p2d, kvs );
     }
     return c;
 }
