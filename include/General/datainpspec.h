@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.40 2002-05-29 15:00:44 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.41 2002-07-25 14:09:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -486,19 +486,28 @@ public:
 			    : DataInpSpec( DataTypeImpl<const char*>
 						    (DataType::list) )
 			    , cur_(0)
-			    {
-				if ( !sl ) return;
-				while( *sl )
-				    strings_ += new BufferString( *sl++ );
-			    }
+			{
+			    if ( !sl ) return;
+			    while( *sl )
+				strings_ += new BufferString( *sl++ );
+			}
+
+			StringListInpSpec( TypeSet<char*> sl )
+			    : DataInpSpec( DataTypeImpl<const char*>
+							(DataType::list) )
+			    , cur_(0)
+			{
+			    for ( int idx=0; idx<sl.size(); idx++ )
+				strings_ += new BufferString( sl[idx] );
+			}
 
 			StringListInpSpec( const StringListInpSpec& oth)
 			    : DataInpSpec( oth )
 			    , cur_(oth.cur_)
-			    { deepCopy( strings_, oth.strings_ ); }
+			{ deepCopy( strings_, oth.strings_ ); }
 
 			~StringListInpSpec()
-			    { deepErase(strings_); }
+			{ deepErase(strings_); }
 
     virtual bool	isUndef( int idx=0 ) const	
 			    { return !(strings_.size() && cur_ >= 0); }
