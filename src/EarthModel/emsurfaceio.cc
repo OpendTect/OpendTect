@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.18 2003-08-26 09:48:31 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.19 2003-09-12 06:41:19 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -510,8 +510,8 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
     , ioobj( ioobj_ ? ioobj_->clone() : 0 )
     , surface( surface_ )
     , par( *new IOPar("Surface parameters" ))
-    , writerowrange( 0 )
-    , writecolrange( 0 )
+    , writerowrange( new StepInterval<int> )
+    , writecolrange( new StepInterval<int> )
     , nrdone( 0 )
     , patchindex( 0 )
     , oldpatchindex( -1 )
@@ -541,6 +541,9 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	if ( auxDataName(idx) )
 	    auxdatasel += idx;
     }
+
+    surface.getRange( *writerowrange, true );
+    surface.getRange( *writecolrange, false );
 }
 
 
