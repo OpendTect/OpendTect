@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.75 2004-11-11 13:02:38 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.76 2004-12-23 15:15:37 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -434,9 +434,9 @@ const AttribSelSpec* PlaneDataDisplay::getSelSpec() const
 void PlaneDataDisplay::setSelSpec( const AttribSelSpec& as_ )
 {
     as = as_;
-    delete cache;
-    cache = 0;
-    trect->useTexture( false );
+//  delete cache;
+//  cache = 0;
+//  trect->useTexture( false );
     setName( as.userRef() );
 }
 
