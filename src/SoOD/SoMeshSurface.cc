@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.7 2003-10-15 07:35:42 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.8 2003-10-27 16:00:11 nanne Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -363,7 +363,7 @@ void SoMeshSurface::makeFirstSquare( int row, int col )
     square->origo.set1Value(0, firstrow);
     square->origo.set1Value(1, firstcol);
     square->sizepower = partSizePower.getValue();
-    square->addPickCB( pickCB, this );
+//  square->addPickCB( pickCB, this );
     if ( texturerangeisset )
 	square->setTextureRange( texturefirstrow, texturefirstcol,
 				 texturelastrow, texturelastcol );
@@ -385,7 +385,7 @@ void SoMeshSurface::addSquareRow( bool start )
 	square->origo.set1Value(0, row);
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
-	square->addPickCB( pickCB, this );
+//	square->addPickCB( pickCB, this );
 	if ( texturerangeisset )
 	    square->setTextureRange( texturefirstrow, texturefirstcol,
 				     texturelastrow, texturelastcol );
@@ -433,7 +433,7 @@ void SoMeshSurface::addSquareCol( bool start )
 	square->origo.set1Value(0, row);
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
-	square->addPickCB( pickCB, this );
+//	square->addPickCB( pickCB, this );
 	if ( texturerangeisset )
 	    square->setTextureRange( texturefirstrow, texturefirstcol,
 				     texturelastrow, texturelastcol );
