@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.13 2003-11-24 08:54:54 kristofer Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.14 2004-08-19 09:29:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ bool uiImportLMKFault::handleAscii()
 	mErrRet( dlg.lastMsg() );
     }
 
-    PtrMan<Executor> saveexec = fault->saver();
+    PtrMan<Executor> saveexec = fault->geometry.saver();
     uiExecutor savedlg( this, *saveexec );
     if ( !savedlg.go() )
     {

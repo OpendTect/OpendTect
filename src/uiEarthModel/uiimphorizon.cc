@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.38 2004-07-14 15:36:25 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.39 2004-08-19 09:29:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,11 +124,9 @@ bool uiImportHorizon::handleAscii()
 	if ( !grid )
 	    mErrRetUnRef( "No valid grid specified." );
 
-	Scaler* scaler = scalefld->getScaler();
-
-	if ( !scaler )
-	    grid->ensureContainsValidZValues();
-	else
+	grid->ensureContainsValidZValues();
+	const Scaler* scaler = scalefld->getScaler();
+	if ( scaler )
 	{
 	    GridIter* it = grid->gridIter();
 	    it->doUndef( false );
@@ -150,7 +148,13 @@ bool uiImportHorizon::handleAscii()
 	conn->close();
     }
 
-    PtrMan<Executor> exec = horizon->saver();
+    PtrMan<Executor> exec = horizon->geometry.saver();
+    if ( !exec )
+    {
+	horizon->unRef();
+	return false;
+    }
+
     uiExecutor dlg( this, *exec );
     bool rv = dlg.execute();
     if ( !doDisplay() )
