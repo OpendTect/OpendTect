@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.49 2004-12-06 17:15:04 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.50 2004-12-06 20:16:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uimergeseis.h"
 #include "uiseiscbvsimp.h"
+#include "uiseis2dgeom.h"
 #include "uiioobjmanip.h"
 #include "uitextedit.h"
 #include "pixmap.h"
@@ -162,10 +163,8 @@ void uiSeisFileMan::mergeDump2DPush( CallBacker* )
     const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
     if ( is2d )
     {
-	/*TODO
-	uiSeisDump2DGeom dlg( this, *ctio.ioobj );
+	uiSeisDump2DGeom dlg( this, ctio.ioobj );
 	dlg.go();
-	*/
     }
     else
     {
