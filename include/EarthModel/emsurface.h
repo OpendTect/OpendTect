@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.28 2003-12-09 19:55:44 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.29 2003-12-17 15:45:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,7 @@ namespace EM
 {
 class EMManager;
 class SurfaceIODataSelection;
+class SurfaceRelation;
 
 /*!\brief
 The horizon is made up of one or more meshes (so they can overlap at faults).
@@ -82,6 +83,7 @@ public:
     int			nrPatches() const;
     PatchID		patchID(int idx) const;
     PatchID		patchID(const char*) const;
+    bool		hasPatch(const PatchID&) const;
     const char*		patchName(const PatchID&) const;
     PatchID		addPatch(const char* nm, bool addtohistory);
     bool		addPatch(const char* nm, PatchID, bool addtohistory);
@@ -201,12 +203,17 @@ public:
     bool	findClosestNodes(TopList<float,EM::PosID>& res,
 	    			const Coord3& pos,
 				const MathFunction<float>* depthconv=0) const;
+    bool	findClosestNodes(const EM::PatchID&,
+	    			TopList<float,EM::PosID>& res,
+	    			const Coord3& pos,
+				const MathFunction<float>* depthconv=0) const;
     bool	findClosestMesh(EM::PosID& res, const Coord3& pos,
 				const MathFunction<float>* depthconv=0) const;
 
     bool	computeMeshNormal( Coord3& res, const EM::PosID&, 
-	    			   const MathFunction<float>* dconv=0) const;
-
+	    			const MathFunction<float>* dconv=0) const;
+    bool	computeNormal( Coord3& res, const EM::PosID& posid,
+	    			const MathFunction<float>* dconv=0) const;
     bool	computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
 				const MathFunction<float>* depthconv=0) const;
 		/*!< Computes an aproximation of the orientation of a
@@ -245,6 +252,9 @@ public:
 		  \retval	-1	The negative side
 		  \retval	-2	Side could not be determined
 		*/
+
+    ObjectSet<SurfaceRelation>	relations;
+
 protected:
     friend class		EMManager;
     friend class		EMObject;
@@ -258,8 +268,11 @@ protected:
     EM::SubID			getSurfSubID(const Geometry::PosID&,
 					     const PatchID&) const;
 
-    void			getMeshCoords( const EM::PosID&, Coord3& c00,
-	    			    Coord3& c10, Coord3& c01, Coord3& c11,
+    void			getMeshCoords( const EM::PosID&,
+	    			    Coord3& c00, Coord3& c10,
+				    Coord3& c01, Coord3& c11,
+				    bool& c00def, bool& c10def,
+				    bool& c01def, bool& c11def,
 				   const MathFunction<float>* depthconv=0)const;
 
     virtual Geometry::MeshSurface*	createPatchSurface(const PatchID&) 
@@ -282,6 +295,34 @@ protected:
     float 			shift;
 };
 
+
+class SurfaceRelation
+{
+public:
+		SurfaceRelation()
+		    : cuttedsurface( -1 )
+		    , cuttedpatch( -1 )
+		    , cuttingsurface( -1 )
+		    , positiveside( true )
+		{}
+
+
+    EM::ObjectID	cuttedsurface;
+    EM::PatchID		cuttedpatch;
+    EM::ObjectID	cuttingsurface;
+
+    bool		positiveside;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    BufferString	getUserString() const;
+
+protected:
+    static const char*	cuttedsurfacestr;
+    static const char*	cuttedpatchstr;
+    static const char*	cuttingsurfacestr;
+    static const char*	positivesidestr;
+};
 
 }; // Namespace
 
