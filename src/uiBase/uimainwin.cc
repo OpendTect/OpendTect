@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.22 2001-12-31 13:40:03 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.23 2002-01-04 14:45:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "msgh.h"
 #include "errh.h"
+#include "helpview.h"
 #include "uimsg.h"
 
 #include "uibody.h"
@@ -316,8 +317,8 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 class uiDialogBody : public uiMainWinBody
 { 	
 public:
-			uiDialogBody( uiDialog& handle, uiParent*, const char*, 
-				      bool, bool, bool,bool);
+			uiDialogBody(uiDialog&,uiParent*,const char*, 
+				      bool, bool,bool,bool,const char*);
 
     int			exec(); 
 
@@ -367,6 +368,7 @@ public:
                             if ( !child || initing ) return;
 			    dlgGroup->attachChild( tp, child, other, margin); 
                         }
+    void		provideHelp(CallBacker*);
 
 protected:
 
@@ -386,11 +388,13 @@ protected:
     BufferString	cnclText;
     BufferString	saveText;
     BufferString	titleText;
+    BufferString	helpId;
     bool		separ;
     bool		withmenubar;
 
     uiPushButton*	okBut;
     uiPushButton*	cnclBut;
+    uiPushButton*	helpBut;
     uiCheckBox*		saveBut;
     uiSeparator*	horSepar;
     uiLabel*		title;
@@ -404,15 +408,16 @@ protected:
 
 uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm, 
 			    bool modal, bool separator, bool withmb, 
-			    bool withtb )
+			    bool withtb, const char* hid )
     : uiMainWinBody(handle,parnt,nm,modal)
     , dlgGroup( 0 )
     , okText("Ok"), cnclText("Cancel"), saveText(""), titleText("")
-    , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), title( 0 )
+    , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), helpBut( 0 ), title( 0 )
     , reslt( 0 )
     , separ( separator ), horSepar( 0 )
     , childrenInited(false)
     , withmenubar(withmb)
+    , helpId(hid)
 {
 }
 
@@ -480,11 +485,14 @@ void uiDialogBody::finalise()
     {
 	uiObject* alignObj = dlgGroup->uiObj();
 
-	if( okText != "" ) okBut = new uiPushButton( centralWidget_, okText );
-	if( cnclText != "" ) cnclBut = 
-				new uiPushButton( centralWidget_, cnclText );
-	if( saveText != "" ) saveBut = 
-				new uiCheckBox( centralWidget_, saveText );
+	if ( okText != "" )
+	    okBut = new uiPushButton( centralWidget_, okText );
+	if ( cnclText != "" )
+	    cnclBut = new uiPushButton( centralWidget_, cnclText );
+	if ( saveText != "" )
+	    saveBut = new uiCheckBox( centralWidget_, saveText );
+	if ( helpId != "" )
+	    helpBut = new uiPushButton( centralWidget_, "?" );
 
         if ( !withmenubar )
 	{
@@ -496,7 +504,7 @@ void uiDialogBody::finalise()
 	    dlgGroup->attach( stretchedBelow, sep );
 	}
 
-	if( separ && (okBut || cnclBut || saveBut ))
+	if ( separ && (okBut || cnclBut || saveBut || helpBut) )
 	{
 	    horSepar = new uiSeparator( centralWidget_ );
 	    horSepar->attach( stretchedBelow, dlgGroup, -2 );
@@ -545,6 +553,23 @@ void uiDialogBody::finalise()
 	    saveBut->attach( bottomBorder, 0 );
 	}
 
+	if ( helpBut )
+	{
+	    if ( saveBut )
+		helpBut->attach(rightOf, saveBut);
+	    else if ( cnclBut )
+	    {
+		helpBut->attach( leftOf, cnclBut );
+		if ( okBut ) helpBut->attach( ensureRightOf, okBut );
+	    }
+	    else if ( okBut )
+		helpBut->attach( rightOf, okBut );
+
+
+	    helpBut->attach( bottomBorder, 0 );
+	    helpBut->activated.notify( mCB( this, uiDialogBody, provideHelp ));
+	}
+
 	childrenInited = true;
     }
 
@@ -553,16 +578,24 @@ void uiDialogBody::finalise()
     mHandle.finaliseDone.trigger(mHandle);
 }
 
+
+void uiDialogBody::provideHelp( CallBacker* )
+{
+    HelpViewer::use( HelpViewer::getURLForWinID(helpId) );
+}
+
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
-		    bool wantMBar, bool wantSBar, bool wantTBar)
-: uiMainWin( nm )
-, finaliseStart( this )
-, finaliseDone( this )
+		    bool wantMBar, bool wantSBar, bool wantTBar,
+		    const char* hid)
+	: uiMainWin( nm )
+	, finaliseStart( this )
+	, finaliseDone( this )
 {
 
-    body_= new uiDialogBody( *this, parnt, nm, modal, sep, wantMBar, wantTBar );
+    body_= new uiDialogBody( *this, parnt, nm, modal, sep,
+	    			wantMBar, wantTBar, hid );
     setBody( body_ );
     body_->construct( wantSBar, wantMBar, wantTBar );
 
