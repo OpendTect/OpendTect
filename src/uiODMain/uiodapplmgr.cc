@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.62 2004-10-27 14:36:59 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.63 2004-11-09 10:05:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,7 +240,7 @@ void uiODApplMgr::createSurfOutput()
     if ( nlaserv )
 	nlaid = nlaserv->modelId();
     uiAttrSurfaceOut dlg( &appl, *attrserv->curDescSet(), 
-	    		  &nlaserv->getModel(), nlaid );
+	    		  nlaserv ? &nlaserv->getModel() : 0, nlaid );
     dlg.go();
 }
 
