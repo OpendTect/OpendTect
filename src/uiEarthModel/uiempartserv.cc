@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.16 2003-07-29 13:03:09 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.17 2003-08-01 10:08:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,8 +56,8 @@ bool uiEMPartServer::ioHorizon( uiEMPartServer::ExternalType t, bool imp )
 {
     if ( t != Ascii && !IdealConn::haveIdealServices() &&
 	 !uiMSG().askGoOn( "Sorry, workstation connection not available. "
-			    "\nPlease setup remote workstation access trough a"
-			    "Solaris workstation, use a Solaris workstation "
+			    "\nPlease setup remote workstation access through a"
+			    "\nSolaris workstation, use a Solaris workstation "
 			    "directly, or use Ascii.\n\n"
 			    "Do you wish to see the dialog anyway?" ) )
 	return false;
@@ -138,12 +138,12 @@ bool uiEMPartServer::storeSurface( const MultiID& id )
 }
 
 
-bool uiEMPartServer::getDataVal( const MultiID& id, 
+bool uiEMPartServer::getDataVal( const MultiID& emid, 
 				 ObjectSet< TypeSet<BinIDZValue> >& data, 
 				 BufferString& attrnm )
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(emid))
     if ( !hor ) return false;
 
     if ( !hor->nrAuxData() )
@@ -161,6 +161,7 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 	data += new TypeSet<BinIDZValue>;
 	TypeSet<BinIDZValue>& res = *data[0];
 
+	EM::PosID posid( emid, patchid );
 	const int nrnodes = gridsurf->size();
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
@@ -169,7 +170,7 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 	    const BinID bid = SI().transform(coord);
 	    const RowCol emrc( bid.inl, bid.crl );
 	    const EM::SubID subid = hor->rowCol2SubID( emrc );
-	    const EM::PosID posid( id, patchid, subid );
+	    posid.setSubID( subid );
 	    const float auxvalue = hor->getAuxDataVal(dataidx,posid);
 
 	    res += BinIDZValue(bid,auxvalue,auxvalue);
@@ -180,12 +181,12 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 }
 
 
-void uiEMPartServer::setDataVal( const MultiID& id, 
+void uiEMPartServer::setDataVal( const MultiID& emid, 
 				 ObjectSet< TypeSet<BinIDZValue> >& data,
        				 const char* attrnm )
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(emid))
     if ( !hor ) return;
 
     for ( int idx=0; idx<hor->nrAuxData(); idx++ )
@@ -202,12 +203,13 @@ void uiEMPartServer::setDataVal( const MultiID& id,
 	const EM::PatchID patchid = hor->patchID( patchidx );
 	TypeSet<BinIDZValue>& bidzvals = *data[patchidx];
 
+	EM::PosID posid( emid, patchid );
 	for ( int idx=0; idx<bidzvals.size(); idx++ )
 	{
 	    BinIDZValue bidzv = bidzvals[idx];
 	    RowCol rc( bidzv.binid.inl, bidzv.binid.crl );
 	    EM::SubID subid = hor->rowCol2SubID( rc );
-	    EM::PosID posid( id, patchid, subid );
+	    posid.setSubID( subid );
 	    hor->setAuxDataVal( dataidx, posid, bidzv.value );
 	}
     }
