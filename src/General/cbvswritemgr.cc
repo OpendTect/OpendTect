@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.11 2002-07-25 21:48:44 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.12 2002-07-26 10:03:08 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -47,8 +47,16 @@ CBVSIOMgr::~CBVSIOMgr()
 }
 
 
+CBVSWriteMgr::BrickSpec::BrickSpec()
+{
+    bool dobrick = GetDgbApplicationCode() == mDgbApplCodeDTECT;
+    nrsamplesperslab = dobrick ? 80 : -1;
+    maxnrslabs = 20;
+}
+
+
 CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
-			    const PosAuxInfo* pai, int nspb )
+			    const PosAuxInfo* pai, CBVSWriteMgr::BrickSpec* bs )
 	: CBVSIOMgr(fnm)
 	, info_(i)
 {
@@ -56,7 +64,10 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
     const int totsamps = cinf0.nrsamples;
     if ( totsamps < 1 ) return;
 
-    if ( nspb < 0 || nspb >= totsamps )
+    BrickSpec spec; if ( bs ) spec = *bs;
+    if ( spec.nrsamplesperslab < 0
+      || spec.nrsamplesperslab >= totsamps
+      || spec.maxnrslabs < 2 )
     {
 	ostream* strm = mkStrm();
 	if ( !strm ) return;
@@ -67,18 +78,20 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	return;
     }
 
-    int nrwrs = totsamps / nspb;
-    int extrasamps = totsamps % nspb;
+    int nrwrs = totsamps / spec.nrsamplesperslab;
+    int extrasamps = totsamps % spec.nrsamplesperslab;
     if ( extrasamps ) nrwrs++;
-    nspb = totsamps / nrwrs;
-    extrasamps = totsamps - nrwrs * nspb;
+    if ( nrwrs > spec.maxnrslabs )
+	nrwrs = spec.maxnrslabs;
+    spec.nrsamplesperslab = totsamps / nrwrs;
+    extrasamps = totsamps - nrwrs * spec.nrsamplesperslab;
 
     CBVSInfo inf( info_ );
     for ( int endsamp = -1, startsamp=0;
 	    startsamp<totsamps;
 	    startsamp=endsamp+1 )
     {
-	endsamp = startsamp + nspb - 1;
+	endsamp = startsamp + spec.nrsamplesperslab - 1;
 	if ( extrasamps )
 	    { endsamp++; extrasamps--; }
 	if ( endsamp >= totsamps ) endsamp = totsamps-1;
