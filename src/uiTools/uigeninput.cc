@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.31 2001-10-09 14:47:39 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.32 2001-10-15 10:09:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -740,10 +740,10 @@ void uiGenInput::doFinalise()
 	clrbut->activated.notify( mCB(this,uiGenInput,doClear) );
     }
 
-    setReadOnly( ro );
     deepErase( inputs ); // have been copied to fields.
-
     finalised = true;
+
+    setReadOnly( ro );
 
     if ( withchk ) checkBoxSel(0);	// sets elements (non-)sensitive
 }
@@ -765,16 +765,8 @@ void uiGenInput::setReadOnly( bool yn, int nr )
 
 void uiGenInput::setFldsSensible( bool yn, int nr )
 {
-    if( !finalised ) 
-    { 
-	if( nr<0 ) ro = yn; 
-	return; 
-    }
-
     if ( nr >= 0  )
         { if ( nr<flds.size() && flds[nr] ) flds[nr]->setSensitive(yn); return;}
-
-    ro = yn;
 
     for( int idx=0; idx < flds.size(); idx++ )
         flds[idx]->setSensitive( yn );
