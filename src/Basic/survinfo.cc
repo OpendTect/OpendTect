@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.14 2001-10-05 10:39:58 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.15 2001-10-29 17:36:21 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -21,8 +21,12 @@ const char* SurveyInfo::sKeyZRange = "Z range";
 SurveyInfo* SurveyInfo::theinst_;
 const SurveyInfo& SI()
 {
-    if ( !SurveyInfo::theinst_ )
+    if ( !SurveyInfo::theinst_ || !SurveyInfo::theinst_->valid_ )
+    {
+	if ( SurveyInfo::theinst_ )
+	    delete SurveyInfo::theinst_;
 	SurveyInfo::theinst_ = new SurveyInfo( GetDataDir() );
+    }
     return *SurveyInfo::theinst_;
 }
 
@@ -91,6 +95,7 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     zrange_ = si.zrange_;
     step_ = si.step_;
     setName( si.name() );
+    valid_ = si.valid_;
     for ( int idx=0; idx<3; idx++ )
     {
 	set3binids[idx] = si.set3binids[idx];
@@ -100,7 +105,8 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
 
 
 SurveyInfo::SurveyInfo( const char* rootdir )
-	: dirname(File_getFileName(rootdir))
+	: dirname(File_getFileName(rootdir?rootdir:"/"))
+    	, valid_(false)
 {
     set3binids[2].crl = 0;
 
@@ -182,11 +188,14 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     setRange( bir );
     setStep( bid );
     b2c_.setTransforms( xtr, ytr );
+    valid_ = true;
 }
 
 
 int SurveyInfo::write( const char* basedir ) const
 {
+    if ( !valid_ ) return NO;
+
     FileNameString fname( File_getFullPath(basedir,dirname) );
     fname = File_getFullPath( fname, ".survey" );
     ofstream strm( fname );
@@ -264,6 +273,7 @@ void SurveyInfo::putTr( const BinID2Coord::BCTransform& tr, ascostream& astream,
 
 BinID SurveyInfo::transform( const Coord& c ) const
 {
+    if ( !valid_ ) return BinID(0,0);
     BinID binid = b2c_.transform( c );
 
     if ( step_.inl > 1 )

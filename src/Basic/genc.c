@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.10 2001-10-25 13:26:39 windev Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.11 2001-10-29 17:36:21 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -20,16 +20,43 @@ static const char* rcsID = "$Id: genc.c,v 1.10 2001-10-25 13:26:39 windev Exp $"
 #include <float.h>
 #endif
 
-int dgb_application_code = 1; // 1 = GDI, 2 = dTect
-int GetSurveyName_reRead = NO;
 static FileNameString filenamebuf;
 static FileNameString surveyname;
-static int surveynameinited = NO;
+static int surveynamedirty = NO;
+static int dgb_application_code = mDgbApplCodeGDI;
+
+
+int GetDgbApplicationCode()
+{
+    return dgb_application_code;
+}
+
+
+int SurveyNameDirty()
+{
+    return surveynamedirty;
+}
+
+
+void SetSurveyNameDirty()
+{
+    surveynamedirty = 1;
+}
+
+
+void SetDgbApplicationCode( int newnr )
+{
+    if ( dgb_application_code == newnr ) return;
+
+    dgb_application_code = newnr;
+    surveynamedirty = 1;
+}
 
 
 const char* GetSoftwareDir()
 {
-    const char* dir = dgb_application_code == 2 ? getenv( "dTECT_APPL" ) : 0;
+    const char* dir = dgb_application_code == mDgbApplCodeDTECT
+		    ? getenv( "dTECT_APPL" ) : 0;
     if ( !dir ) dir = getenv( "dGB_APPL" );
     return dir;
 }
@@ -47,7 +74,8 @@ const char* GetDataFileName( const char* fname )
 
 const char* GetSoftwareUser()
 {
-    const char* ptr = dgb_application_code == 2 ? getenv( "dTECT_USER" ) : 0;
+    const char* ptr = dgb_application_code == mDgbApplCodeDTECT
+		    ? getenv( "dTECT_USER" ) : 0;
     if ( !ptr ) ptr = getenv( "dGB_USER" );
     return ptr;
 }
@@ -94,8 +122,7 @@ const char* GetSurveyFileName()
 void SetSurveyName( const char* newnm )
 {
     strcpy( surveyname, newnm );
-    surveynameinited = 1;
-    GetSurveyName_reRead = NO;
+    surveynamedirty = 0;
 }
 
 
@@ -105,7 +132,7 @@ const char* GetSurveyName()
     FILE* fp;
     const char* fnm;
 
-    if ( GetSurveyName_reRead || !surveynameinited )
+    if ( surveynamedirty )
     {
 	fnm = GetSurveyFileName();
 	if ( !fnm ) return 0;
@@ -120,7 +147,7 @@ const char* GetSurveyName()
 	if ( surveyname[len-1] == '\n' ) surveyname[len-1] = '\0';
 
 	fclose( fp );
-	surveynameinited = YES;
+	surveynamedirty = 0;
     }
     return surveyname;
 }
@@ -128,7 +155,8 @@ const char* GetSurveyName()
 
 const char* GetBaseDataDir()
 {
-    const char* ptr = dgb_application_code == 2 ? getenv( "dTECT_DATA" ) : 0;
+    const char* ptr = dgb_application_code == mDgbApplCodeDTECT
+		    ? getenv( "dTECT_DATA" ) : 0;
     if ( !ptr ) ptr = getenv( "dGB_DATA" );
     return ptr;
 }

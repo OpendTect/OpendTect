@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.16 2001-10-16 08:58:02 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.17 2001-10-29 17:36:21 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -22,7 +22,6 @@ IOMan*	IOMan::theinst_	= 0;
 void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }
 extern "C" void SetSurveyName(const char*);
 extern "C" const char* GetBaseDataDir();
-extern "C" { extern int dgb_application_code; }
 
 
 static void clearSelHists()
@@ -143,7 +142,8 @@ extern "C" const char* GetSurveyFileName();
     { errmsg = str; return false; }
 #define mErrRetNotGDIDir(fname) \
     { \
-        errmsg = dgb_application_code == 2 ? "$dTECT_DATA=" : "$dGB_DATA="; \
+        errmsg = GetDgbApplicationCode() == mDgbApplCodeDTECT \
+	       ? "$dTECT_DATA=" : "$dGB_DATA="; \
         errmsg += GetBaseDataDir(); \
         errmsg += "\nThis is not a dGB data storage directory."; \
         return false; \
@@ -159,7 +159,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     FileNameString fname;
     if ( !GetBaseDataDir() )
     {
-	if ( dgb_application_code == 2 )
+	if ( GetDgbApplicationCode() == mDgbApplCodeDTECT )
 	    mErrRet("Please set the environment variable dTECT_DATA.")
 	else
 	    mErrRet("Please set the environment variable dGB_DATA.")
