@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.11 2003-02-03 08:21:56 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.12 2003-07-08 09:50:19 jeroen Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -195,6 +195,45 @@ int visBase::Camera::usePar( const IOPar& iopar )
     return 1;
 }
 
+Coord3 visBase::Camera::centerFrustrum()
+{
+   
+    float distancetopoint = ((( farDistance() - nearDistance() ) / 2) +
+                                 nearDistance() );
+    Coord3 orientation;
+    float angle;
+    getOrientation(orientation, angle);
+    float vectorlength = ( sqrt (( orientation.x * orientation.x ) +
+                                 ( orientation.y * orientation.y ) +
+                                 ( orientation.z * orientation.z )));
+     
+    Coord3 currentposition = position();
+    Coord3 position (((( distancetopoint / vectorlength ) * orientation.x ) +
+	                 currentposition.x ),
+                     ((( distancetopoint / vectorlength ) * orientation.y ) +
+	                 currentposition.y ),
+                     ((( distancetopoint / vectorlength ) * orientation.z ) +
+                         currentposition.z ));
+    return position;
+
+}
+
+float visBase::Camera::frustrumRadius()
+{
+
+    float distancetopoint = ((( farDistance() - nearDistance() ) / 2) +
+	                        nearDistance() );
+    float widthangle = ( heightAngle() * aspectRatio() );
+    float height = ( farDistance()  *
+                   ( tan(( heightAngle() * 180) / M_PI) / 2 ));
+    float width  = ( farDistance()  *
+                   ( tan(( widthangle * 180) / M_PI ) / 2 ));
+    float distance = farDistance() - distancetopoint;
+    float radius = ( sqrt (( distance * distance ) +
+                           ( width * width ) +
+                           ( height * height )));
+    return radius;		
+}
 
 void visBase::Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {

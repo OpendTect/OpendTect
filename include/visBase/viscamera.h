@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.11 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: viscamera.h,v 1.12 2003-07-08 09:49:55 jeroen Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,8 @@ public:
     SoNode*		getData();
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
+    Coord3 		centerFrustrum();
+    float		frustrumRadius();
 protected:
 
     virtual		~Camera();
