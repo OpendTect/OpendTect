@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.38 2004-07-19 12:31:50 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.39 2004-09-27 08:20:25 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,26 +243,19 @@ void uiFullBatchDialog::addStdFields()
 	dogrp->attach( ensureBelow, sep );
     }
 
-#ifdef MULTI_MACHINE
     singmachfld = new uiGenInput( dogrp, "Submit to",
 	    		BoolInpSpec("Single machine","Multiple machines") );
     singmachfld->valuechanged.notify( mCB(this,uiFullBatchDialog,singTogg) );
-#endif
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
     parfnamefld = new uiFileInput( dogrp, txt, uiFileInput::Setup(singparfname)
 					       .forread(false)
 					       .filter("*.par;;*") );
-#ifdef MULTI_MACHINE
     parfnamefld->attach( alignedBelow, singmachfld );
 
     dogrp->setHAlignObj( singmachfld );
-#else
-    dogrp->setHAlignObj( parfnamefld );
-#endif
 }
 
-#ifdef MULTI_MACHINE
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
     const BufferString inpfnm = parfnamefld->fileName();
@@ -272,7 +265,6 @@ void uiFullBatchDialog::singTogg( CallBacker* cb )
     else if ( !issing && inpfnm == singparfname )
 	parfnamefld->setFileName( multiparfname );
 }
-#endif
 
 bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 {
@@ -283,12 +275,8 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     else if ( !FilePath(inpfnm).isAbsolute() )
 	getProcFilename( inpfnm, inpfnm );
 
-    const bool issing = 
-#ifdef MULTI_MACHINE
-			singmachfld->getBoolValue();
-#else
-			true;
-#endif
+    const bool issing = singmachfld->getBoolValue();
+
     IOParList* iopl;
     if ( redo_ )
     {
@@ -369,6 +357,26 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 
 bool uiFullBatchDialog::multiLaunch( const char* fnm )
 {
+#ifdef __aap__
+    BufferString comm( "@" );
+    comm += GetExecScript( false );
+
+    comm += "\"";
+    comm += multiprognm ;       comm += "\" ";
+    comm += procprognm;         comm += " \"";
+    comm += fnm;
+    comm += "\"";
+
+
+    if ( !StreamProvider( comm ).executeCommand(false) )
+    {
+        uiMSG().error( "Cannot start multi-machine program" );
+        return false;
+    }
+    return true;
+
+#else
+
     BufferString comm( multiprognm );	comm += " ";
     comm += procprognm;			comm += " \"";
     comm += fnm; 
@@ -378,6 +386,9 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 	{ uiMSG().error( "Cannot start multi-machine program" ); return false;}
 
     return true;
+
+#endif
+
 }
 
 

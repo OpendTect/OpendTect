@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.10 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.11 2004-09-27 08:19:17 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 #ifndef __win__
-# define MULTI_MACHINE
 # define HAVE_OUTPUT_OPTIONS
 #endif
 
@@ -81,18 +80,14 @@ protected:
 
     void		doButPush(CallBacker*);
 
-#ifdef MULTI_MACHINE
     void		singTogg(CallBacker*);
-#endif
 
     bool		singLaunch(const IOParList&,const char*);
     bool		multiLaunch(const char*);
     bool		distrLaunch(CallBacker*,const char*);
     bool		acceptOK(CallBacker*);
 
-#ifdef MULTI_MACHINE
     uiGenInput*		singmachfld;
-#endif
     uiFileInput*	parfnamefld;
 
     bool		redo_; //!< set to true only for re-start

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.7 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.8 2004-09-27 08:20:25 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,10 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include <stdlib.h>
+
+#ifdef __win__
+# include "getspec.h"
+#endif
 
 
 extern "C" { const char* GetBaseDataDir(); }
@@ -138,7 +142,9 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
     if ( !File_exists(datadir) )
     {
 #ifdef __win__
-	if ( !strncasecmp("C:\\Program Files", datadir, 16)
+	BufferString progfiles=GetSpecialFolderLocation(CSIDL_PROGRAM_FILES);
+
+	if ( !strncasecmp(progfiles, datadir, strlen(progfiles))
 	  || strstr( datadir, "Program Files" )
 	  || strstr( datadir, "program files" )
 	  || strstr( datadir, "PROGRAM FILES" ) )
@@ -191,30 +197,32 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	}
     }
 
-    const char* demosurvnm = getenv( "DTECT_DEMO_SURVEY" );
-    if ( trycpdemosurv && demosurvnm && File_isDirectory(demosurvnm) )
+    if ( trycpdemosurv && getenv( "DTECT_DEMO_SURVEY" ) )
     {
-	FilePath fp( datadir );
-	fp.add( FilePath(demosurvnm).fileName() );
-	const BufferString todir( fp.fullPath() );
-	if ( !File_exists(todir) )
+	FilePath demosurvnm( GetSoftwareDir() );
+	demosurvnm.add( getenv("DTECT_DEMO_SURVEY") );
+
+	if ( File_isDirectory(demosurvnm.fullPath()) )
 	{
-	    if ( uiMSG().askGoOn( 
-		    "Do you want to install the demo survey\n"
-		    "in your OpendTect Data Root directory?" ) )
-		File_copy( demosurvnm, todir, YES );
+	    FilePath fp( datadir );
+	    fp.add( FilePath(demosurvnm).fileName() );
+	    const BufferString todir( fp.fullPath() );
+	    if ( !File_exists(todir) )
+	    {
+		if ( uiMSG().askGoOn( 
+			"Do you want to install the demo survey\n"
+			"in your OpendTect Data Root directory?" ) )
+		    File_copy( demosurvnm.fullPath(), todir, YES );
+	    }
 	}
     }
 
     // OK - we're (almost) certain that the directory exists and is valid
     const bool haveenv = getenv("DTECT_DATA") || getenv( "dGB_DATA" )
-#ifdef __win__
-		      || getenv( "DTECT_WINDATA" ) || getenv( "dGB_WINDATA" )
-#endif
 	;
     if ( haveenv )
 #ifdef __win__
-	setEnvVar( "DTECT_WINDATA", datadir.buf() );
+	setEnvVar( "DTECT_DATA", getUnixPath(datadir.buf()) );
 #else
 	setEnvVar( "DTECT_DATA", datadir.buf() );
 #endif
