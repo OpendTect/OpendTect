@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.36 2004-05-25 12:18:32 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.37 2004-05-26 15:06:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -283,6 +283,8 @@ public:
     void			removeHingeLine(int, bool addtohistory);
     CNotifier<Surface,int>	hingelinechange;
 
+    bool			isChanged(int) const { return changed; }
+    void			resetChangedFlag() { changed=false; }
 
 protected:
     friend class		EMManager;
@@ -323,6 +325,8 @@ protected:
     Interval<int>*		rowinterval;
     Interval<int>*		colinterval;
     float 			shift;
+
+    bool			changed;
 
     ObjectSet<HingeLine>	hingelines;
 };

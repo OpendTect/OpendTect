@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.30 2004-05-25 14:11:01 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.31 2004-05-26 15:06:10 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -428,7 +428,10 @@ int EM::dgbSurfaceReader::nextStep()
 	    }
 	}
 
-	return ExecutorGroup::nextStep();
+	int res = ExecutorGroup::nextStep();
+	if ( !res )
+	    surface->resetChangedFlag();
+	return res;
     }
 
     std::istream& strm = conn->iStream();
@@ -826,7 +829,11 @@ int EM::dgbSurfaceWriter::nextStep()
     }
 
     if ( patchindex>=patchsel.size() )
-	return ExecutorGroup::nextStep();
+    {
+	const int res = ExecutorGroup::nextStep();
+	if ( !res ) const_cast<EM::Surface*>(&surface)->resetChangedFlag();
+	return res;
+    }
 
     std::ostream& stream = conn->oStream();
 

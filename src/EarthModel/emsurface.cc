@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.48 2004-05-25 12:18:29 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.49 2004-05-26 15:06:10 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -113,6 +113,7 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     , patchchnotifier( this )
     , hingelinechange( this )
     , shift(0)
+    , changed( 0 )
 {
     auxdatanames.allowNull(true);
     auxdatainfo.allowNull(true);
@@ -678,6 +679,7 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
     }
 
     patchchnotifier.trigger(patchid,this);
+    changed = true;
     return true;
 }
 
@@ -712,6 +714,7 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
     }
 
     patchchnotifier.trigger(patchid,this);
+    changed = true;
 }
 
 
@@ -737,7 +740,10 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
 	manager.history().addEvent( history, 0, 0 );
     }
 
+
     if ( oldpos==pos ) return true;
+
+    changed = true;
 
     TypeSet<EM::PosID> nodeonotherpatches;
     if ( autoconnect )
@@ -1177,6 +1183,7 @@ int EM::Surface::addAuxData( const char* name )
     for ( int idx=0; idx<nrPatches(); idx++ )
 	(*newauxdata) += 0;
 
+    changed = true;
     return auxdatanames.size()-1;
 }
 
@@ -1189,6 +1196,7 @@ void EM::Surface::removeAuxData( int dataidx )
     deepEraseArr( *auxdata[dataidx] );
     delete auxdata[dataidx];
     auxdata.replace( 0, dataidx );
+    changed = true;
 }
 
 
@@ -1203,6 +1211,7 @@ void EM::Surface::removeAllAuxdata()
     }
 
     deepErase( auxdata );
+    changed = true;
 }
 
 
@@ -1244,6 +1253,7 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
     }
 
     (*patchauxdata)[subidx] = val;
+    changed = true;
 }
 
 
@@ -1344,6 +1354,7 @@ int EM::Surface::addHingeLine(HingeLine* hl, bool addtohistory)
     const int res = hingelines.size();
     hingelines += hl;
     hingelinechange.trigger(res);
+    changed = true;
     return res;
 }
 
@@ -1353,6 +1364,7 @@ void EM::Surface::removeHingeLine(int idx, bool addtohistory)
     HingeLine* hl = hingelines[idx];
     hingelines.replace(0,idx);
     delete hl;
+    changed = true;
     hingelinechange.trigger(idx);
 }
 
