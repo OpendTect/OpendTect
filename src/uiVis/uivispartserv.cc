@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.93 2002-10-11 15:54:38 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.94 2002-10-15 06:41:44 niclas Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ ________________________________________________________________________
 #include "surfaceinfo.h"
 #include "thread.h"
 #include "survinfo.h"
-#include "geompos.h"
 #include "uidset.h"
 #include "draw.h"
 #include "color.h"
@@ -517,7 +516,7 @@ float uiVisPartServer::getPlanePos( int id ) const
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
     if ( pdd )
     {	
-        Geometry::Pos geompos = pdd->textureRect().getRectangle().manipOrigo();
+        Coord3 geompos = pdd->textureRect().getRectangle().manipOrigo();
         return pdd->getType()==visSurvey::PlaneDataDisplay::Inline ? geompos.x :
 	     pdd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y
 	    							    : geompos.z;
@@ -525,7 +524,7 @@ float uiVisPartServer::getPlanePos( int id ) const
     mDynamicCastGet(visBase::Rectangle*,rect,obj)
     if ( rect )
     {
-	Geometry::Pos geompos = rect->manipOrigo();
+	Coord3 geompos = rect->manipOrigo();
 	if ( rect->orientation() == visBase::Rectangle::XY )
 	    return (float)(int(geompos.z));
 	else if ( rect->orientation() == visBase::Rectangle::XZ )
@@ -544,8 +543,8 @@ bool uiVisPartServer::isPlaneManipulated( int id ) const
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
     if ( !pdd ) return false;
 
-    Geometry::Pos manippos = pdd->textureRect().getRectangle().manipOrigo();
-    Geometry::Pos rectpos = pdd->textureRect().getRectangle().origo();
+    Coord3 manippos = pdd->textureRect().getRectangle().manipOrigo();
+    Coord3 rectpos = pdd->textureRect().getRectangle().origo();
     if ( manippos!=rectpos ) return true;
     return false;
 }
@@ -772,7 +771,7 @@ bool uiVisPartServer::setPicks(int id, const PickSet& pickset )
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	Coord crd( pickset[idx].pos );
-	ps->addPick( Geometry::Pos(crd.x,crd.y,pickset[idx].z) );
+	ps->addPick( Coord3(crd.x,crd.y,pickset[idx].z) );
     }
 
     return true;
@@ -812,7 +811,7 @@ void uiVisPartServer::getPickSetData( const char* nm, PickSet& pickset )
     pickset.color.setTransparency( 0 );
     for ( int idx=0; idx<visps->nrPicks(); idx++ )
     {
-	Geometry::Pos pos = visps->getPick( idx );
+	Coord3 pos = visps->getPick( idx );
 	pickset += PickLocation( pos.x, pos.y, pos.z );
     }
 }

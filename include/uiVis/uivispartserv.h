@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.60 2002-09-23 10:39:47 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.61 2002-10-15 06:41:16 niclas Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "thread.h"
-#include "geompos.h"
 #include "position.h"
 
 class UserIDSet;
@@ -93,7 +92,7 @@ public:
 			*/
 
     			/* Mouse stuff */
-    Geometry::Pos	getMousePos(bool xyt) const
+    Coord3		getMousePos(bool xyt) const
     			{ return xyt ? xytmousepos : inlcrlmousepos; }
     			/*!< If !xyt mouse pos will be in inl, crl, t */
     float		getMousePosVal() const { return mouseposval; }
@@ -248,8 +247,8 @@ protected:
     Threads::Mutex&	eventmutex;
     int			eventobjid;
 
-    Geometry::Pos	xytmousepos;
-    Geometry::Pos	inlcrlmousepos;
+    Coord3		xytmousepos;
+    Coord3		inlcrlmousepos;
     float		mouseposval;
 
     ObjectSet<visSurvey::PickSetDisplay>	picks;
