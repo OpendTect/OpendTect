@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.5 2003-04-23 12:11:21 arend Exp $
+ RCS:           $Id: uitabstack.cc,v 1.6 2003-04-23 12:14:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,6 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
 
 void uiTabStack::tabSel( CallBacker* cb )
 {
-cout << "o" << endl;
     int id = tabbar_->currentTabId();
     uiGroup* selgrp = page( id );
     ObjectSet<uiTab>& tabs = tabbar_->tabs_;
