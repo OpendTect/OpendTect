@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.20 2002-04-16 11:04:57 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.21 2002-04-16 13:32:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -596,8 +596,11 @@ void uiVisPartServer::picksChangedCB(CallBacker*)
 
 void uiVisPartServer::showPosCB( CallBacker* )
 {
+    int id = getSelObjectId();
+    if ( id<0 ) return;
+
     Threads::MutexLocker lock( eventmutex );
-    eventobjid = getSelObjectId();
+    eventobjid = id;
     sendEvent( evShowPosition );
 }
 
