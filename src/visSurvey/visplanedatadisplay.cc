@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.24 2002-10-14 15:10:08 niclas Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.25 2002-11-01 01:17:35 bert Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -417,7 +417,7 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSlice* attrslice )
 	return false;
     }
 
-    if ( trect->getRectangle().manipOrigo() != trect->getRectangle().origo() )
+    if ( !(trect->getRectangle().manipOrigo() == trect->getRectangle().origo()))
 	trect->getRectangle().moveObjectToManipRect();
     
     trect->setData( *attrslice );
