@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.2 2004-11-18 16:15:23 bert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.3 2004-12-23 10:33:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,17 +15,6 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "seistrc.h"
 #include "segytr.h"
-/*
-#include "seisscanner.h"
-#include "segythdef.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "iopar.h"
-#include "strmprov.h"
-#include "filepath.h"
-#include "ptrman.h"
-#include "survinfo.h"
-*/
 
 #include "uidialog.h"
 #include "uitextedit.h"
@@ -128,7 +117,7 @@ bool rejectOK()
 void outInfo( const char* txt )
 {
 #ifdef __debug__
-    if ( txt && *txt ) UsrMsg( txt );
+    if ( txt && *txt ) std::cerr << txt << std::endl;
 #endif
 }
 
