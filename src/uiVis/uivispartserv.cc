@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.97 2002-10-30 15:31:10 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.98 2002-11-01 01:40:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -568,8 +568,7 @@ bool uiVisPartServer::isPlaneManipulated( int id ) const
 
     Coord3 manippos = pdd->textureRect().getRectangle().manipOrigo();
     Coord3 rectpos = pdd->textureRect().getRectangle().origo();
-    if ( manippos!=rectpos ) return true;
-    return false;
+    return !(manippos == rectpos);
 }
 
 
