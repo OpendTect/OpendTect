@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.41 2003-02-17 12:50:00 nanne Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.42 2003-02-26 14:38:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 	avmachfld->box()->addItem( nm );
     }
 
+    avmachfld->setPrefWidthInChar( 30 );
+
     addbut = new uiPushButton( machgrp, ">> Add >>" );
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
     addbut->attach( centeredRightOf, avmachfld );
@@ -150,6 +152,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Machine handling" );
     usedmachfld = new uiLabeledListBox( usedmachgrp, "Used hosts", false,
 				        uiLabeledListBox::AboveMid );
+    usedmachfld->setPrefWidthInChar( 30 );
+
     stopbut = new uiPushButton( usedmachgrp, "Stop" );
     stopbut->activated.notify( mCB(this,uiSeisMMProc,stopPush) );
     stopbut->attach( alignedBelow, usedmachfld );
@@ -182,7 +186,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     progrfld->setPrefHeightInChar( 7 );
 
     progbar = new uiProgressBar( this, "", jm->totalNr(), 0 );
-    progbar->attach( widthSameAs, machgrp );
+    progbar->attach( widthSameAs, progrfld );
     progbar->attach( alignedBelow, progrfld );
 }
 
