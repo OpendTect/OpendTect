@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.12 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.13 2003-11-07 17:02:54 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -169,12 +169,20 @@ float Well::D2TModel::getTime( float dh ) const
     int idx1;
     if ( findFPPos(dah_,dah_.size(),dh,-1,idx1) )
 	return t_[idx1];
-    else if ( idx1 < 0 || idx1 == dah_.size()-1 )
+    else if ( dah_.size() < 2 )
 	return mUndefValue;
+    else if ( idx1 < 0 || idx1 == dah_.size()-1 )
+    {
+	// Extrapolate. Not very correct I guess.
+	int idx0 = idx1 < 0 ? 1 : idx1;
+	const float v = (dah_[idx0] - dah_[idx0-1]) / (t_[idx0] - t_[idx0-1]);
+	idx0 = idx1 < 0 ? 0 : idx1;
+	return t_[idx0] + v * ( dh - dah_[idx0] );
+    }
 
     const int idx2 = idx1 + 1;
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
-    //TODO not time-correct
+    //TODO not a time-correct average.
     return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
 }
