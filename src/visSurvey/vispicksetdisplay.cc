@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.41 2003-01-24 14:56:42 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.42 2003-02-14 15:20:07 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.41 2003-01-24 14:56:42
 #include "vissceneobjgroup.h"
 #include "vissurvsurf.h"
 #include "visplanedatadisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "vistransform.h"
 #include "visvolumedisplay.h"
 
@@ -35,8 +36,8 @@ const char* visSurvey::PickSetDisplay::sizestr = "Size";
 visSurvey::PickSetDisplay::PickSetDisplay()
     : group( visBase::SceneObjectGroup::create() )
     , eventcatcher( visBase::EventCatcher::create() )
-    , initsz(5)
-    , picktype(0)
+    , initsz(3)
+    , picktype(3)
     , changed(this)
     , VisualObjectImpl(true)
     , showall(true)
@@ -300,7 +301,9 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 		    if ( typeid(*pickedobj) ==
 				typeid(visSurvey::PlaneDataDisplay) ||
 		         typeid(*pickedobj) ==
-				typeid(visSurvey::SurfaceDisplay) )
+				typeid(visSurvey::SurfaceDisplay) ||
+			 typeid(*pickedobj) == 
+			 	typeid(visSurvey::RandomTrackDisplay) )
 		    {
 			validpicksurface = true;
 			break;
@@ -332,7 +335,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 }
 
 
-void visSurvey::PickSetDisplay::updatePickSz( CallBacker* cb )
+void visSurvey::PickSetDisplay::updatePickSz( CallBacker* )
 {
     for ( int idx=0; idx<group->size(); idx++ )
     {
