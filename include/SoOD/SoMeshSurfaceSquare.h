@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceSquare.h,v 1.7 2003-10-21 18:26:40 kristofer Exp $
+ RCS:		$Id: SoMeshSurfaceSquare.h,v 1.8 2003-10-21 18:46:06 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "Inventor/nodekits/SoBaseKit.h"
 #include "Inventor/fields/SoMFInt32.h"
 #include "Inventor/fields/SoSFShort.h"
+#include "Inventor/SbLinear.h"
 
 
 class SbBox3f;
@@ -164,6 +165,9 @@ private:
     SoFieldSensor*		sizePowerSensor;
     static void			sizePowerCB( void*, SoSensor* );
     int				sidesize;
+
+    SbVec2s			extension;
+    				//is updated & valid if bbox cache is valid
 };
 
 #endif

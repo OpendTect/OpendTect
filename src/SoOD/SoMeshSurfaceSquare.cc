@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.11 2003-10-21 18:27:07 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.12 2003-10-21 18:46:10 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -296,16 +296,16 @@ int SoMeshSurfaceSquare::computeResolution( SoState* state )
 	const float complexity =
 			SbClamp(SoComplexityElement::get(state), 0.0f, 1.0f);
 	const float wantednumcells =
-	    		complexity*screensize[0]*screensize[1] / 32;
+	    		complexity*screensize[0]*screensize[1] / 16;
 
-	int numcells = 4;
+	int numcells = extension[0]*extension[1];
 	const int numres = sizepower.getValue();
-	for ( ; desiredres<numres-1; desiredres++ )
+	for ( desiredres=numres-1; desiredres>=0; desiredres-- )
 	{
-	    if ( numcells>wantednumcells )
+	    if ( numcells<wantednumcells )
 		break;
 
-	    numcells *=4;
+	    numcells /=4;
 	}
     }
 	    
@@ -1033,16 +1033,21 @@ void SoMeshSurfaceSquare::computeBBox()
 {
     if ( !bboxcache )
     {
+	extension = SbVec2s( 0, 0 );
 	bboxcache = new SbBox3f;
-	const int nrcoords = coordptr->point.getNum();
-	for ( int idx=0; idx<nrcoords; idx++ )
+	int idx=0;
+	for ( int relrow=0; relrow<=sidesize; relrow++ )
 	{
-	    const SbVec3f point = coordptr->point[idx];
-	    const float x = point[0];
-	    if ( x>9.99999e29 && x<1.00001e30 )
-		continue;
+	    for ( int relcol=0; relcol<=sidesize; relcol++ )
+	    {
+		const SbVec3f point = coordptr->point[idx++];
+		if ( SoMeshSurface::isUndefined(point) )
+		    continue;
 
-	    bboxcache->extendBy( point );
+		bboxcache->extendBy( point );
+		if ( relrow>extension[0] ) extension[0]=relrow;
+		if ( relcol>extension[1] ) extension[1]=relcol;
+	    }
 	}
     }
 }
