@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.9 2002-07-01 09:33:05 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.10 2002-07-31 14:59:38 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -32,6 +32,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 	, totnr_(-1)
     	, trcsperstep_(10)
     	, scaler_(0)
+    	, skipnull_(false)
 {
     outtrc_ = intrc_;
 
@@ -77,6 +78,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 	, totnr_(-1)
     	, trcsperstep_(10)
     	, scaler_(0)
+    	, skipnull_(false)
 {
     outtrc_ = intrc_;
 
@@ -256,7 +258,21 @@ int SeisSingleTraceProc::nextStep()
 
 	if ( !rdrset_[currentobj_]->get(*intrc_) )
 	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
-	proccb_.doCall( this );
+
+	if ( skipnull_ )
+	{
+	    const int nrcomps = intrc_->data().nrComponents();
+	    for ( int icomp=0; icomp<nrcomps; icomp++ )
+	    {
+		if ( !intrc_->isNull(icomp) )
+		    break;
+		if ( icomp == nrcomps-1 )
+		    skipcurtrc_ = true;
+	    }
+	}
+
+	if ( !skipcurtrc_ )
+	    proccb_.doCall( this );
 	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
 	if ( scaler_ )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.6 2002-07-01 09:33:05 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.7 2002-07-31 14:59:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ public:
 			{ if ( totnr_ < 0 ) totnr_ = nr; }
     void		setScaler(Scaler*);
     			//!< Scaler becomes mine.
+    void		skipNullTraces( bool yn=true )	{ skipnull_ = yn; }
 
 protected:
 
@@ -92,6 +93,7 @@ protected:
     int			currentobj_;
     int			nrobjs_;
     Scaler*		scaler_;
+    bool		skipnull_;
 
     virtual void	wrapUp();
     void		nextObj();

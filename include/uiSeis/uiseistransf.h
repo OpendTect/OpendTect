@@ -6,16 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.1 2002-06-26 22:17:15 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.2 2002-07-31 14:59:38 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 class IOObj;
-class uiSeisFmtScale;
-class uiBinIDSubSel;
 class Executor;
+class uiGenInput;
+class uiBinIDSubSel;
+class uiSeisFmtScale;
 
 
 class uiSeisTransfer : public uiGroup
@@ -33,6 +34,7 @@ public:
 
     uiBinIDSubSel*	subselfld;
     uiSeisFmtScale*	scfmtfld;
+    uiGenInput*		remnullfld;
 
 };
 

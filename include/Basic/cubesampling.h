@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.3 2002-04-05 15:15:14 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.4 2002-07-31 14:59:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ struct HorSampling
 			{ return (stop.crl-start.crl) / step.crl + 1; }
     inline int		totalNr() const
 			{ return nrInl() * nrCrl(); }
+    inline bool		isEmpty() const
+			{ return nrInl() < 1 || nrCrl() < 1; }
 
     void		init();
     			//!< Sets to survey values
@@ -88,7 +90,10 @@ public:
     inline int		nrInl() const		{ return hrg.nrInl(); }
     inline int		nrCrl() const		{ return hrg.nrCrl(); }
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
-    inline int		totalNr() const		{ return hrg.totalNr() * nrZ();}
+    // int totalNr() was removed because for large surveys, it doesn't
+    // fit into an int anymore!!
+    inline bool		isEmpty() const
+			{ return hrg.isEmpty() || nrZ() < 1; }
     bool		getInterSection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty

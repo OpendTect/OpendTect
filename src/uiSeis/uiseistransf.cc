@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.2 2002-06-28 12:57:29 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.3 2002-07-31 14:59:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,11 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool wstp )
     scfmtfld = new uiSeisFmtScale( this, with_format );
     scfmtfld->attach( alignedBelow, subselfld );
 
-    setHAlignObj( subselfld->uiObj() );
+    remnullfld = new uiGenInput( this, "Null traces",
+	    			BoolInpSpec("Discard","Pass") );
+    remnullfld->attach( alignedBelow, scfmtfld );
+
+    setHAlignObj( remnullfld->uiObj() );
 }
 
 
@@ -58,6 +62,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj* inobj, const IOObj* outobj,
     PtrMan<BinIDProvider> prov = brg->provider();
     stp->setTotalNrIfUnknown( prov->size() );
     stp->setScaler( scfmtfld->getScaler() );
+    stp->skipNullTraces( remnullfld->getBoolValue() );
 
     return stp;
 }
