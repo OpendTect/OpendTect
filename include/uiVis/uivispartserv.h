@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.94 2003-09-30 06:38:25 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.95 2003-09-30 12:37:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,8 +67,6 @@ public:
 
     int				addInterpreter( int scene );
     void			toogleDirection(int obj);
-
-    int				addSurfEditor(int scid, Geometry::GridSurface&);
 
     void			removeObject(int id,int sceneid);
 

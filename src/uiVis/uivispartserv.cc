@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.159 2003-09-30 06:38:27 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.160 2003-09-30 12:36:55 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -1518,26 +1518,6 @@ bool uiVisPartServer::isInterpreter(int id) const
     if ( !interpreterdisplay ) return false;
 
     return interpreterdisplay->id()==id;
-}
-
-
-int uiVisPartServer::addSurfEditor( int sceneid, Geometry::GridSurface& surf )
-{
-    visSurvey::Scene* scene = getScene( sceneid );
-    if ( !scene ) return -1;
-
-
-    visBase::EditableGridSurface* surfed=visBase::EditableGridSurface::create();
-    surfed->setTransformation( visSurvey::SPM().getUTM2DisplayTransform() );
-    PtrMan<Executor> exec = surfed->setSurface( surf );
-    uiExecutor uiexec(appserv().parent(), *exec );
-    if ( !uiexec.execute() )
-	return -1;
-
-    scene->addObject( surfed );
-
-    setUpConnections( surfed->id() );
-    return surfed->id();
 }
 
 
