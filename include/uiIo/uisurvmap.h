@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.5 2001-08-24 13:32:41 kristofer Exp $
+ RCS:           $Id: uisurvmap.h,v 1.6 2001-10-16 06:16:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ void drawMap( SurveyInfo* survinfo )
     if ( !survinfo->rangeUsable() ) { dt.endDraw(); return; }
 
     dt.setPenColor( Color::Black );
-    dt.setFont( uiFontList::get(FontData::defaultKeys()[3]) ); // Graphics large
+    dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsLarge)) ); 
     Alignment al = Alignment(Alignment::Middle,Alignment::Stop);
     const char* txt = survinfo->name();
     int w = dt.getDevWidth(); int h = dt.getDevHeight();
@@ -84,7 +84,7 @@ void drawMap( SurveyInfo* survinfo )
     }
 
     dt.setPenColor( Color::Black );
-    dt.setFont( uiFontList::get(FontData::defaultKeys()[2]) ); // Graphics small
+    dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
     BufferString ann;
     for ( int idx=0; idx<4; idx++ )
     {
