@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.20 2005-01-21 07:52:05 duntao Exp $
+ RCS:           $Id: uitable.h,v 1.21 2005-01-27 09:05:19 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,6 +178,7 @@ public:
     void		selectRow(int row);
     void 		selectColumn(int col);
     void		clearSelection();
+    void 		ensureCellVisible(int row, int col);
     
     const char*		rowLabel(int) const;
     const char*		rowLabel( const RowCol& rc ) const

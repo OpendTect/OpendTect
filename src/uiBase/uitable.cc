@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.24 2005-01-21 07:49:26 duntao Exp $
+ RCS:           $Id: uitable.cc,v 1.25 2005-01-27 09:05:52 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -801,5 +801,10 @@ void  uiTable::selectColumn(int col)
 void uiTable::clearSelection()
 {
     body_->clearSelection();
+}
+
+void uiTable::ensureCellVisible(int row, int col)
+{
+    body_->ensureCellVisible(row, col);
 }
 
