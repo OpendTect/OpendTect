@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.13 2002-09-03 08:35:00 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.14 2003-07-21 14:56:05 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -46,7 +46,7 @@ SegyTxtHeader::SegyTxtHeader()
 	txt[i80+1] = cbuf[0]; txt[i80+2] = cbuf[1];
     }
 
-    FixedString<70> buf;
+    FileNameString buf;
     buf = "Created by: ";
     buf += Settings::common()[ "Company" ];
     putAt( 1, 6, 75, buf );
@@ -86,7 +86,7 @@ void SegyTxtHeader::setUserInfo( const char* txt )
 {
     if ( !txt || !*txt ) return;
 
-    FixedString<80> buf;
+    FileNameString buf;
     int lnr = 16;
     while ( lnr < 35 )
     {
@@ -107,7 +107,7 @@ void SegyTxtHeader::setUserInfo( const char* txt )
 void SegyTxtHeader::setPosInfo( int xcoordbyte, int ycoordbyte,
 				int inlbyte, int crlbyte )
 {
-    FixedString<32> buf;
+    UnitIDString buf;
     buf = "Byte positions:";
     putAt( 5, 6, 6+buf.size(), buf );
     buf = "X-coordinate: "; buf += xcoordbyte;
@@ -126,6 +126,24 @@ void SegyTxtHeader::setPosInfo( int xcoordbyte, int ycoordbyte,
 	buf += " / "; buf += crlbyte;
     }
     putAt( 36, 6, 75, buf );
+}
+
+
+void SegyTxtHeader::setStartPos( float sp )
+{
+    UnitIDString buf;
+    if ( mIS_ZERO(sp) )
+	buf.setTo( ' ' );
+    else
+    {
+	buf = "First sample ";
+	buf += SI().zIsTime() ? "time (s" : "depth (";
+	if ( !SI().zIsTime() )
+	    buf += SI().zInFeet() ? "ft" : "m";
+	buf += "): ";
+	buf += sp;
+    }
+    putAt( 37, 6, 75, buf );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.6 2002-09-03 08:35:00 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.7 2003-07-21 14:56:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
  
     void	setUserInfo(const char*);
     void	setPosInfo(int,int,int,int);
+    void	setStartPos(float);
     void	getText(BufferString&);
 
     void	putAt(int,int,int,const char*);
