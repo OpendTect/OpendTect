@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.204 2004-05-05 15:48:11 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.205 2004-05-06 12:16:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "iopar.h"
 #include "uivismenu.h"
+#include "uicolor.h"
 
 
 const int uiVisPartServer::evUpdateTree =	0;
@@ -190,32 +191,6 @@ NotifierAccess& uiVisPartServer::removeAllNotifier()
 {
     return visBase::DM().removeallnotify;
 }
-
-/*
-void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
-{
-    TypeSet<int> sceneids;
-    getChildIds( -1, sceneids );
-    for ( int ids=0; ids<sceneids.size(); ids++ )
-    {
-	TypeSet<int> visids;
-	getChildIds( sceneids[ids], visids );
-	for ( int idv=0; idv<visids.size(); idv++ )
-	{
-	    int visid = visids[idv];
-	    if ( isHorizon( visid ) )
-	    {
-		BufferString attrnm( "" );
-		const AttribSelSpec* as = getSelSpec( visid );
-		if ( as ) attrnm = as->userRef();
-		hinfos += new SurfaceInfo( getObjectName(visid), 
-					   getMultiID(visid), visid, attrnm );
-	    }
-	}
-    }
-}
-
-*/
 
 
 const MultiID* uiVisPartServer::getMultiID( int id ) const
@@ -388,67 +363,6 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getManipulationString() : BufferString("");
-/*
-    BufferString res;
-    if ( pdd )
-    {
-	const visSurvey::PlaneDataDisplay::Type type = pdd->getType();
-	if ( type==visSurvey::PlaneDataDisplay::Inline )
-	{
-	    res = "Inline: ";
-	    res += pdd->getCubeSampling(true).hrg.start.inl;
-	}
-	else if ( type==visSurvey::PlaneDataDisplay::Crossline )
-	{
-	    res = "Crossline: ";
-	    res += pdd->getCubeSampling(true).hrg.start.crl;
-	}
-	else
-	{
-	    res = SI().zIsTime() ? "Time: " : "Depth: ";
-	    float val = pdd->getCubeSampling(true).zrg.start;
-	    res += SI().zIsTime() ? mNINT(val * 1000) : val;
-	}
-    }
-
-    if ( psd )
-    {
-	res = "Nr of picks: ";
-	res += psd->nrPicks();
-    }
-
-    if ( rtd )
-    {
-	int knotidx = rtd->getSelKnotIdx();
-	if ( knotidx >= 0 )
-	{
-	    BinID binid  = rtd->getManipKnotPos( knotidx );
-	    res = "Node "; res += knotidx;
-	    res += " Inl/Crl: ";
-	    res += binid.inl; res += "/"; res += binid.crl;
-	}
-    }
-
-    if ( sd )
-    {
-	float shift = sd->getShift();
-	if ( shift )
-	{
-	    res = "Horizon shift: ";
-	    res += shift; res += " "; res += SI().getZUnit();
-	}
-    }
-
-    mDynamicCastGet(const visBase::MovableTextureSlice*,mts,obj)
-    if ( mts )
-    {
-	int dim = mts->dim();
-	res = !dim ? "Inline: " : ( dim == 1 ? "Crossline: " : "Time: " );
-	res += getTreeInfo( id );
-    }
-
-    return res;
-    */
 }
 
 
@@ -1102,8 +1016,8 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     else if ( mnuid==changecolormnusel )
     {
 	Color col = vo->getMaterial()->getColor();
-	//if ( select( col, appserv().parent(), "Color selection", false ) )
-	vo->getMaterial()->setColor( col );
+	if ( select( col, appserv().parent(), "Color selection", false ) )
+	    vo->getMaterial()->setColor( col );
     }
     else if ( mnuid==changematerialmnusel )
 	setMaterial(id);
