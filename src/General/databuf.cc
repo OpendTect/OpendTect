@@ -8,25 +8,7 @@
 
 #include "tracedata.h"
 #include "datachar.h"
-#include "raw3ddata.h"
-#include "binidselimpl.h"
 #include <malloc.h>
-
-
-RawCubeData::RawCubeData()
-	: hrg(*new BinIDSampler)
-	, zrg(*new StepInterval<float>)
-	, inlwise(true)
-{
-}
-
-
-RawCubeData::~RawCubeData()
-{
-    delete &hrg;
-    delete &zrg;
-    deepErase(*this);
-}
 
 
 bool RawDataArray::isZero() const
