@@ -4,12 +4,22 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.1 2002-04-25 13:42:47 kristofer Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.2 2002-04-29 08:46:14 kristofer Exp $";
 
 #include "visdrawstyle.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoDrawStyle.h"
 
+DefineEnumNames( visBase::DrawStyle, Style, 1, "Style" )
+{ "Filled", "Lines", "Points", "Invisible", 0 };
+
+mCreateFactoryEntry( visBase::DrawStyle );
+
+
+const char* visBase::DrawStyle::linestylestr = "Line Style";
+const char* visBase::DrawStyle::drawstylestr = "Draw Style";
+const char* visBase::DrawStyle::pointsizestr = "Point Size";
 
 visBase::DrawStyle::DrawStyle()
     : drawstyle( new SoDrawStyle )
@@ -85,4 +95,37 @@ void visBase::DrawStyle::updateLineStyle()
     drawstyle->linePattern.setValue( pattern );
 }
 
+int visBase::DrawStyle::usePar( const IOPar& par )
+{
+    const char* linestylepar = par.find( linestylestr );
+    if ( !linestylepar ) return -1;
 
+    linestyle.fromString( linestylepar );
+    updateLineStyle();
+
+    const char* stylepar = par.find( drawstylestr );
+    if ( !stylepar ) return -1;
+
+    int enumid = getEnumDef( stylepar, StyleNames, 0, 1, -1 );
+    if ( enumid<0 ) return -1;
+
+    setDrawStyle( (Style) enumid );
+
+    float pointsize;
+    if ( !par.get( pointsizestr, pointsize ) )
+	return -1;
+    setPointSize( pointsize );
+
+    return 1;
+}
+
+
+void visBase::DrawStyle::fillPar( IOPar& par ) const
+{
+    BufferString linestyleval;
+    linestyle.toString( linestyleval );
+    par.set( linestylestr, linestyleval );
+
+    par.set( drawstylestr, StyleNames[(int) getDrawStyle()] );
+    par.set( pointsizestr, getPointSize() );
+}
