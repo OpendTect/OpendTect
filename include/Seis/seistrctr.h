@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.15 2001-10-18 16:21:45 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.16 2001-10-18 19:20:31 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -212,6 +212,8 @@ private:
 
     int*		inpfor_;
     int			nrout_;
+
+    void		enforceBounds(const SeisTrc*);
 
 };
 

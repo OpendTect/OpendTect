@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.21 2001-10-18 16:21:33 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.22 2001-10-18 19:20:42 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -159,45 +159,53 @@ bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
     {
 	inpcds[idx] = cds[ selComp(idx) ];
 	outcds[idx] = tarcds[ selComp(idx) ];
-	if ( trc )
-	{
-	    //!< Need to make sure we write what is available
-	    const float eps = 1e-7;
-
-	    const float reqstop = outcds[idx]->sd.start
-				+ outcds[idx]->sd.step * outcds[idx]->nrsamples;
-	    const float avstop = trc->samplePos( trc->size(idx)-1, idx );
-	    bool neednewnrsamples = avstop+eps > reqstop;
-
-	    const float startpos = trc->startPos(idx);
-	    if ( outcds[idx]->sd.start+eps < startpos )
-	    {
-		outcds[idx]->sd.start = startpos;
-	        neednewnrsamples = true;
-	    }
-	    else if ( mIS_ZERO(outcds[idx]->sd.start-startpos) )
-		outcds[idx]->sd.start = startpos;
-
-	    const float step = trc->info().sampling.step;
-	    if ( outcds[idx]->sd.step+eps < step )
-	    {
-		outcds[idx]->sd.step = step;
-	        neednewnrsamples = true;
-	    }
-	    else if ( mIS_ZERO(outcds[idx]->sd.step-step) )
-		outcds[idx]->sd.step = step;
-
-	    if ( neednewnrsamples )
-	    {
-		float fnrsamps = (avstop - outcds[idx]->sd.start)
-				 / outcds[idx]->sd.step + 1 + eps;
-		outcds[idx]->nrsamples = (int)fnrsamps;
-	    }
-	}
     }
 
     errmsg = 0;
+    enforceBounds( trc );
     return commitSelections_();
+}
+
+
+void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
+{
+    const float eps = 1e-7;
+
+    for ( int idx=0; idx<nrout_; idx++ )
+    {
+	SamplingData<float> sd;
+	sd.start = trc ? trc->startPos( idx ) : inpcds[idx]->sd.start;
+	sd.step = trc ? trc->info().sampling.step : inpcds[idx]->sd.step;
+	int sz = trc ? trc->size( idx ) : inpcds[idx]->nrsamples;
+
+	const float reqstop = outcds[idx]->sd.start
+			    + outcds[idx]->sd.step * outcds[idx]->nrsamples;
+	const float avstop = sd.start + sd.step * (sz-1);
+	bool neednewnrsamples = avstop+eps > reqstop;
+
+	if ( outcds[idx]->sd.start+eps < sd.start )
+	{
+	    outcds[idx]->sd.start = sd.start;
+	    neednewnrsamples = true;
+	}
+	else if ( mIS_ZERO(outcds[idx]->sd.start-sd.start) )
+	    outcds[idx]->sd.start = sd.start;
+
+	if ( outcds[idx]->sd.step+eps < sd.step )
+	{
+	    outcds[idx]->sd.step = sd.step;
+	    neednewnrsamples = true;
+	}
+	else if ( mIS_ZERO(outcds[idx]->sd.step-sd.step) )
+	    outcds[idx]->sd.step = sd.step;
+
+	if ( neednewnrsamples )
+	{
+	    float fnrsamps = (avstop - outcds[idx]->sd.start)
+			     / outcds[idx]->sd.step + 1 + eps;
+	    outcds[idx]->nrsamples = (int)fnrsamps;
+	}
+    }
 }
 
 
