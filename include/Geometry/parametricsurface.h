@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.2 2005-01-13 09:40:02 kristofer Exp $
+RCS:           $Id: parametricsurface.h,v 1.3 2005-01-13 11:59:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,9 +49,9 @@ public:
     virtual bool		isKnotDefined( const RCol& ) const;
     bool			hasSupport(const RCol&) const;
 
-    Coord3		getPosition( int64_t pid ) const;
-    bool		setPosition( int64_t pid, const Coord3& pos );
-    bool		isDefined( int64_t pid ) const;
+    Coord3		getPosition( int64 pid ) const;
+    bool		setPosition( int64 pid, const Coord3& pos );
+    bool		isDefined( int64 pid ) const;
 
     bool		isAtEdge( const RCol& ) const;
 

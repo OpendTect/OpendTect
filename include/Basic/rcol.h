@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.6 2005-01-06 08:28:50 kristofer Exp $
+ RCS:		$Id: rcol.h,v 1.7 2005-01-13 11:59:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,9 @@ ________________________________________________________________________
 /*!\brief Object with row and col, which are accesable through r() and c(). */
 
 #include "gendefs.h"
+#include "plftypes.h"
 
 #include <math.h>
-#include <stdint.h>
 
 template <class T> class TypeSet;
 
@@ -34,8 +34,8 @@ public:
     virtual int&	c() 				= 0;
     virtual int		c() const			= 0;
 
-    inline int64_t	getSerialized() const;
-    inline void		setSerialized( int64_t );
+    inline int64	getSerialized() const;
+    inline void		setSerialized( int64 );
 
     const RCol&		operator+=( const RCol& rc )
 			{ r() += rc.r(); c() += rc.c(); return *this; }
@@ -110,18 +110,18 @@ clss	operator/( int denominator ) const \
 	{ return clss( row/denominator, col/denominator ); }
 
 
-inline int64_t RCol::getSerialized() const
+inline int64 RCol::getSerialized() const
 {
-    return (((uint64_t) r() )<<32)+
-	    ((uint64_t) c() &  0xFFFFFFFF);
+    return (((uint64) r() )<<32)+
+	    ((uint64) c() &  0xFFFFFFFF);
 }
 
 
 
-inline void RCol::setSerialized( int64_t serialized )
+inline void RCol::setSerialized( int64 serialized )
 {
     r() = serialized>>32;
-    c() = (int32_t) (serialized & 0xFFFFFFFF);
+    c() = (int32) (serialized & 0xFFFFFFFF);
 }
 
 

@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.20 2005-01-06 08:28:02 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.21 2005-01-13 11:59:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "rcol.h"
-#include "plftypes.h"
 
 
 /*!\brief Object with row and col. */
@@ -25,7 +24,7 @@ class RowCol : public RCol
 public:
 		RowCol( int row_, int col_ ) : row(row_), col(col_)	{}
 		RowCol( const RCol& rc ) : row( rc.r() ), col ( rc.c() )			{}
-		RowCol( const int64_t& ser ) { setSerialized(ser); }
+		RowCol( const int64& ser ) { setSerialized(ser); }
 		RowCol() : row( 0 ), col ( 0 )			{}
 
     int&	r() { return row; }
