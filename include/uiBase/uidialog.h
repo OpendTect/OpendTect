@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.10 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.11 2001-10-15 10:58:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,8 @@ public:
     void		setSeparator( bool yn );
     bool		separator();
 
-    Notifier<uiDialog>	finalising;
+    Notifier<uiDialog>	finaliseStart; //! triggered when about to start finalising
+    Notifier<uiDialog>	finaliseDone;  //! triggered when finalising finished
 
 protected:
 
