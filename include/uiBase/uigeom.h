@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.6 2002-05-23 16:31:16 arend Exp $
+ RCS:           $Id: uigeom.h,v 1.7 2003-01-08 11:41:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ typedef Rect<double> uiWorldRect;
 class uiSize 
 {
 public:
-			uiSize()		{} 
+			uiSize() : hnp_(0), vnp_(0) {} 
 
 			//! inpixels=true : w and h are in pixels
 			uiSize( int wdt , int hgt, bool inpixels )
