@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.3 2002-10-11 15:27:18 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.4 2002-10-14 15:10:53 niclas Exp $
 ________________________________________________________________________
 
 
@@ -43,10 +43,10 @@ public:
     static VolumeDisplay*	create()
 				mCreateDataObj0arg(VolumeDisplay);
 
-    void			setCenter( const Geometry::Pos& );
-    Geometry::Pos		center() const;
-    void			setWidth( const Geometry::Pos& );
-    Geometry::Pos		width() const;
+    void			setCenter( const Coord3& );
+    Coord3			center() const;
+    void			setWidth( const Coord3& );
+    Coord3			width() const;
 
     void			showBox(bool yn);
     void			resetManip();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.8 2002-07-30 08:06:10 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.9 2002-10-14 15:10:53 niclas Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "callback.h"
+#include "position.h"
 
 namespace Geometry { class Pos; };
 namespace visBase { class Transformation; };
@@ -29,7 +30,7 @@ namespace visSurvey
 class SurveyObject 
 {
 public:
-    virtual float		calcDist( const Geometry::Pos& ) const
+    virtual float		calcDist( const Coord3& ) const
     					{ return mUndefValue; }
 
     virtual NotifierAccess*	getMovementNotification() { return 0; }
@@ -45,10 +46,10 @@ public:
     float			getAppVel() const
 				{ return displaytransform ? appvel : defappvel;}
 
-    Geometry::Pos		coordDispl2XYT( const Geometry::Pos& ) const;
-    Geometry::Pos		coordDispl2XYZ( const Geometry::Pos& ) const;
-    Geometry::Pos		coordXYT2Display( const Geometry::Pos& ) const;
-    Geometry::Pos		coordXYT2XYZ( const Geometry::Pos& ) const;
+    Coord3		coordDispl2XYT( const Coord3& ) const;
+    Coord3		coordDispl2XYZ( const Coord3& ) const;
+    Coord3		coordXYT2Display( const Coord3& ) const;
+    Coord3		coordXYT2XYZ( const Coord3& ) const;
 
     const visBase::Transformation*	getDisplayTransform() const;
     const visBase::Transformation*	getAppvelTransform() const;

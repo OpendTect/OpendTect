@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.35 2002-08-05 15:38:18 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.36 2002-10-14 15:10:08 niclas Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.35 2002-08-05 15:38:18
 #include "position.h"
 #include "vismarker.h"
 #include "viscube.h"
-#include "geompos.h"
 #include "color.h"
 #include "iopar.h"
 #include "survinfo.h"
@@ -75,7 +74,7 @@ int visSurvey::PickSetDisplay::nrPicks() const
 }
 
 
-Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
+Coord3 visSurvey::PickSetDisplay::getPick( int idx ) const
 {
 
     mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
@@ -84,19 +83,19 @@ Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
 	return marker->centerPos();
     }
 
-    Geometry::Pos res(mUndefValue,mUndefValue,mUndefValue);
+    Coord3 res(mUndefValue,mUndefValue,mUndefValue);
 
     return res;
 }
 
 
-void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
+void visSurvey::PickSetDisplay::addPick( const Coord3& pos )
 {
     visBase::Marker* marker = visBase::Marker::create();
     group->addObject( marker );
 
     marker->setCenterPos( pos );
-    marker->setScale( Geometry::Pos(1, 1, 2/SPM().getAppVel()) );
+    marker->setScale( Coord3(1, 1, 2/SPM().getAppVel()) );
     marker->setSize( picksz );
     marker->setType( (visBase::Marker::Type)picktype );
     marker->setMaterial( 0 );
@@ -131,7 +130,7 @@ void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
 	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
 	if ( !marker ) continue;
 
-	Geometry::Pos pos = SPM().coordXYT2Display(marker->centerPos());
+	Coord3 pos = SPM().coordXYT2Display(marker->centerPos());
 	marker->turnOn( false );
 	for ( int idy=0; idy<objs.size(); idy++ )
 	{
@@ -199,7 +198,7 @@ void visSurvey::PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
 }
 
 
-void visSurvey::PickSetDisplay::removePick( const Geometry::Pos& pos )
+void visSurvey::PickSetDisplay::removePick( const Coord3& pos )
 {
     for ( int idx=0; idx<group->size(); idx++ )
     {
@@ -302,13 +301,13 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 
 		if ( validpicksurface )
 		{
-		    Geometry::Pos newpos = eventinfo.pickedpos;
+		    Coord3 newpos = eventinfo.pickedpos;
 
 		    if ( mIS_ZERO( newpos.x-mousepressposition.x ) &&
 			 mIS_ZERO( newpos.y-mousepressposition.y ) &&
 			 mIS_ZERO( newpos.z-mousepressposition.z ) )
 		    {
-			Geometry::Pos realpos = SPM().coordDispl2XYT( newpos );
+			Coord3 realpos = SPM().coordDispl2XYT( newpos );
 			addPick( realpos );
 		    }
 		}
@@ -328,7 +327,7 @@ void visSurvey::PickSetDisplay::updatePickSz( CallBacker* cb )
 	if ( !marker ) continue;
 
 	marker->setSize( picksz );
-	marker->setScale( Geometry::Pos(1, 1, 2/SPM().getAppVel()) );
+	marker->setScale( Coord3(1, 1, 2/SPM().getAppVel()) );
     }
 }
 
@@ -345,7 +344,7 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
     {
 	const SceneObject* so = group->getObject( idx );
         mDynamicCastGet(const visBase::Marker*, marker, so );
-	Geometry::Pos pos = marker->centerPos();
+	Coord3 pos = marker->centerPos();
 	BufferString key = pickprefixstr; key += idx;
 	par.set( key, pos.x, pos.y, pos.z );
     }
@@ -388,7 +387,7 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     
     for ( int idx=0; idx<nopicks; idx++ )
     {
-	Geometry::Pos pos;
+	Coord3 pos;
 	BufferString key = pickprefixstr; key += idx;
 	if ( !par.get( key, pos.x, pos.y, pos.z ) )
 	    return -1;
@@ -417,7 +416,7 @@ int visSurvey::PickSetDisplay::useOldPar( const IOPar& par )
     {
         mDynamicCastGet(visBase::Cube*, cube, sogrp->getObject( idx ) );
         if ( !cube ) continue;
-	Geometry::Pos pos = cube->centerPos();
+	Coord3 pos = cube->centerPos();
 	addPick( pos );
     }
 

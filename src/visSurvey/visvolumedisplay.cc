@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.4 2002-10-11 15:27:12 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.5 2002-10-14 15:10:08 niclas Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "visboxdragger.h"
 #include "vistexturerect.h"
 #include "visrectangle.h"
-#include "geompos.h"
 #include "cubesampling.h"
 #include "attribsel.h"
 #include "attribslice.h"
@@ -81,19 +80,19 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
 }
 
 
-void visSurvey::VolumeDisplay::setCenter( const Geometry::Pos& pos )
+void visSurvey::VolumeDisplay::setCenter( const Coord3& pos )
 { cube->setCenter( pos ); }
 
 
-Geometry::Pos visSurvey::VolumeDisplay::center() const
+Coord3 visSurvey::VolumeDisplay::center() const
 { return cube->center(); }
 
 
-void visSurvey::VolumeDisplay::setWidth( const Geometry::Pos& pos )
+void visSurvey::VolumeDisplay::setWidth( const Coord3& pos )
 { cube->setWidth( pos ); }
 
 
-Geometry::Pos visSurvey::VolumeDisplay::width() const
+Coord3 visSurvey::VolumeDisplay::width() const
 { return cube->width(); }
 
 
@@ -116,7 +115,7 @@ void visSurvey::VolumeDisplay::getPlaneIds( int& inlid, int& crlid, int& tslid )
 
 float visSurvey::VolumeDisplay::getPlanePos( int dim )
 {
-    Geometry::Pos pos;
+    Coord3 pos;
     switch( dim )
     {
 	case 0: {
@@ -156,8 +155,8 @@ void visSurvey::VolumeDisplay::setAttribSelSpec( AttribSelSpec& as_ )
 
 CubeSampling& visSurvey::VolumeDisplay::getCubeSampling()
 {
-    Geometry::Pos center_ = center();
-    Geometry::Pos width_ = width();
+    Coord3 center_ = center();
+    Coord3 width_ = width();
 
     CubeSampling* cs = new CubeSampling;
     cs->hrg.start = BinID( mNINT( center_.x - width_.x / 2 ),
@@ -177,11 +176,11 @@ CubeSampling& visSurvey::VolumeDisplay::getCubeSampling()
 
 void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 {
-    Geometry::Pos width( cs.hrg.stop.inl - cs.hrg.start.inl,
+    Coord3 width( cs.hrg.stop.inl - cs.hrg.start.inl,
 			 cs.hrg.stop.crl - cs.hrg.start.crl, 
 			 cs.zrg.stop - cs.zrg.start );
     setWidth( width );
-    Geometry::Pos center( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
+    Coord3 center( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
 			  (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
 			  (cs.zrg.stop + cs.zrg.start) / 2 );
     setCenter( center );

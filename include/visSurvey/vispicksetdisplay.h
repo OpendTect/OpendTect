@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.20 2002-08-02 11:49:50 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.21 2002-10-14 15:10:53 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
-#include "geompos.h"
 #include "vissurvobj.h"
 
 class Color;
@@ -41,9 +40,9 @@ public:
 				mCreateDataObj0arg(PickSetDisplay);
 
     int				nrPicks() const;
-    Geometry::Pos		getPick( int idx ) const;
-    void			addPick( const Geometry::Pos& );
-    void			removePick( const Geometry::Pos& );
+    Coord3			getPick( int idx ) const;
+    void			addPick( const Coord3& );
+    void			removePick( const Coord3& );
     void			removeAll();
 
     float			getInitSize() const	{ return initsz; }
@@ -82,7 +81,7 @@ protected:
     bool			showall;
 
     int				mousepressid;
-    Geometry::Pos		mousepressposition;
+    Coord3		        mousepressposition;
 
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;

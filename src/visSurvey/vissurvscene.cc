@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.40 2002-10-03 14:13:37 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.41 2002-10-14 15:10:08 niclas Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -194,11 +194,11 @@ bool visSurvey::Scene::isAnnotShown() const
 }
 
 
-Geometry::Pos visSurvey::Scene::getMousePos( bool xyt ) const
+Coord3 visSurvey::Scene::getMousePos( bool xyt ) const
 {
    if ( xyt ) return xytmousepos;
    
-   Geometry::Pos res = xytmousepos;
+   Coord3 res = xytmousepos;
    BinID binid = SI().transform( Coord( res.x, res.y ));
 
    res.x = binid.inl;
@@ -510,7 +510,7 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 
     xytmousepos = SPM().coordDispl2XYT(eventinfo.pickedpos);
 
-    Geometry::Pos inlcrl = xytmousepos;
+    Coord3 inlcrl = xytmousepos;
     BinID binid = SI().transform( Coord( xytmousepos.x, xytmousepos.y ));
     inlcrl.x = binid.inl;
     inlcrl.y = binid.crl;

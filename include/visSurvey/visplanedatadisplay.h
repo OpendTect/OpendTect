@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.14 2002-10-09 11:29:32 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.15 2002-10-14 15:10:53 niclas Exp $
 ________________________________________________________________________
 
 
@@ -48,8 +48,8 @@ public:
     void			setType(Type type);
     Type			getType() const { return type; }
 
-    void			setOrigo( const Geometry::Pos& );
-    void			setWidth( const Geometry::Pos& );
+    void			setOrigo( const Coord3& );
+    void			setWidth( const Coord3& );
     				//!< Will only use the two coords that are valid
 
     void			resetDraggerSizes( float appvel );
@@ -82,7 +82,7 @@ public:
     void			setDataRange(const Interval<float>&);
     Interval<float>		getDataRange() const;
 
-    float			getValue( const Geometry::Pos& ) const;
+    float			getValue( const Coord3& ) const;
 
     void			setMaterial( visBase::Material* );
     const visBase::Material*	getMaterial() const;
@@ -96,7 +96,7 @@ public:
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
 
-    virtual float		calcDist( const Geometry::Pos& ) const;
+    virtual float		calcDist( const Coord3& ) const;
     virtual NotifierAccess*	getMovementNotification() { return &moving; }
 
     const char*			getResName(int);

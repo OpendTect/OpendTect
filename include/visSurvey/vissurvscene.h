@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.22 2002-07-31 11:09:40 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.23 2002-10-14 15:10:53 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visscene.h"
-#include "geompos.h"
+#include "position.h"
 
 namespace visBase
 {
@@ -61,7 +61,7 @@ public:
     bool			isAnnotShown() const;
 
     Notifier<Scene>		mouseposchange;
-    Geometry::Pos		getMousePos( bool xyt ) const;
+    Coord3			getMousePos( bool xyt ) const;
     				/*! If ont xyt it is inlcrlt */
     float			getMousePosValue() const { return mouseposval;}
 
@@ -81,7 +81,7 @@ protected:
     visBase::Annotation*		annot;
     visBase::EventCatcher*		eventcatcher;
 
-    Geometry::Pos		xytmousepos;
+    Coord3			xytmousepos;
     float			mouseposval;
 
     static const char*		displobjprefixstr;
