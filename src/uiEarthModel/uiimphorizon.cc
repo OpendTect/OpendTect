@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.15 2002-06-28 12:57:29 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.16 2002-07-22 10:26:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,10 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 	, ctio(*new CtxtIOObj(EarthModelHorizonTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Ascii file");
-    BufferString dirnm( GetDataDir() );
-    dirnm = File_getFullPath( dirnm, "Surfaces" );
+    BufferString datadirnm( GetDataDir() );
+    BufferString dirnm = File_getFullPath( datadirnm, "Surfaces" );
+    if ( !File_exists( dirnm ) )
+	dirnm = File_getFullPath( datadirnm, "Grids" );
     infld->setDefaultSelectionDir( dirnm );
 
     xyfld = new uiGenInput( this, "Positions in:",
@@ -93,6 +95,9 @@ bool uiImportHorizon::handleAscii()
     Grid* dskgrd = reader.grid();
     PtrMan<Grid> grid = dskgrd->cloneTrimmed();
     delete dskgrd;
+
+    if ( !grid )
+	mErrRet( "No valid grid specified." );
 
     Scaler* scaler = scalefld->getScaler();
 
