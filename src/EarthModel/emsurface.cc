@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.64 2004-08-09 14:09:31 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.65 2004-08-18 13:58:27 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -179,6 +179,12 @@ void Surface::resetChangedFlag()
 
 bool Surface::isLoaded() const
 { return geometry.isLoaded(); }
+
+
+Executor* Surface::saver() { return geometry.saver(); }
+
+
+Executor* Surface::loader() { return geometry.loader(); }
 
 
 bool Surface::usePar( const IOPar& par )
