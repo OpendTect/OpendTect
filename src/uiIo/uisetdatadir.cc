@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.1 2004-01-12 15:02:44 bert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.2 2004-01-12 16:18:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	if ( oldok )
 	{
 	    titltxt = 
-		  "Locate a data storage directory\n"
+		  "Locate an OpendTect Data Root directory\n"
 		  "or specify a new directory name to create";
 	    basedirnm = olddatadir;
 	}
@@ -44,8 +44,8 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	{
 	    titltxt = 
 		  "OpendTect needs a place to store its data.\n"
-		  "The current OpendTect data storage directory is invalid.\n"
-		  "* Locate a valid data storage directory\n"
+		  "The current OpendTect Data Root is invalid.\n"
+		  "* Locate a valid data root directory\n"
 		  "* Or specify a new directory name to create";
 
 	    oddirnm = File_getFileName( olddatadir );
@@ -55,11 +55,11 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     else
     {
 	titltxt =
-	"OpendTect needs a place to store its data.\n"
-	"You have not yet specified a location for this datastore,\n"
+	"OpendTect needs a place to store its data: the OpendTect Data Root.\n"
+	"You have not yet specified a location for it,\n"
 	"and there is no 'DTECT_DATA or dGB_DATA' set in your environment.\n\n"
-	"Please specify where the OpendTect Data Directory should\n"
-	"be created or select an existing OpendTect data directory."
+	"Please specify where the OpendTect Data Root should\n"
+	"be created or select an existing OpendTect Data Root."
 #ifndef __win__
 	"\n\nNote that you can still put surveys and "
 	"individual cubes on other disks;\nbut this is where the "
@@ -71,7 +71,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     }
     setTitleText( titltxt );
 
-    const char* basetxt = oldok ? "OpendTect Data Storage Directory"
+    const char* basetxt = oldok ? "OpendTect Data Root Directory"
 				: "Location";
     basedirfld = new uiFileInput( this, basetxt,
 				  uiFileInput::Setup(basedirnm).directories() );
@@ -155,8 +155,8 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	    if ( File_exists(seisdir) )
 	    {
 		BufferString probdatadir( File_getPathOnly(datadir) );
-		BufferString msg( "This seems to be a project directory.\n" );
-		msg += "We need the directory containing the project dirs.\n"
+		BufferString msg( "This seems to be a survey directory.\n" );
+		msg += "We need the directory containing the survey dirs.\n"
 			"Do you want to correct your input to\n"; 
 		msg += probdatadir;
 		msg += " ...?";
