@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.5 2001-04-25 23:34:57 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ ________________________________________________________________________
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mNINT(x)		( (int)((x)>0 ? (x)+.5 : (x)-.5) )
+#define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
+#define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 
 #ifndef mEPSILON
 #define mEPSILON		(1e-10)
