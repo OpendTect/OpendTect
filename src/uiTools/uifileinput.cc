@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.20 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.21 2004-01-12 15:02:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,11 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     if ( setup.withexamine_ )
 	examinebut = new uiPushButton( this, "Examine ...", 
 					mCB(this,uiFileInput,examineFile) );
+    if ( setup.dirs_ )
+    {
+	selmodset = true;
+	selmode = uiFileDialog::DirectoryOnly;
+    }
 
     mainObject()->finaliseDone.notify( mCB(this,uiFileInput,isFinalised) );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uifileinput.h,v 1.13 2004-01-12 15:01:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,16 +39,19 @@ public:
 			    , filter_("")
 			    , forread_(true)
 			    , withexamine_(false)
+			    , dirs_(false)
 			    {}
 	BufferString	fnm;
 	BufferString	filter_;
 	bool		forread_;
 	bool		withexamine_;
+	bool		dirs_;
 	
-	#define mSetVar(var,val) var=val; return *this;
-	Setup&		filter(const char* s)	  { mSetVar(filter_,s) }
-	Setup&		forread(bool yn=true)	  { mSetVar(forread_,yn) }
-	Setup&		withexamine(bool yn=true) { mSetVar(withexamine_,yn) }
+	#define mSetVar(var,val) var=val; return *this
+	Setup&		filter(const char* s)	  { mSetVar(filter_,s); }
+	Setup&		forread(bool yn=true)	  { mSetVar(forread_,yn); }
+	Setup&		withexamine(bool yn=true) { mSetVar(withexamine_,yn); }
+	Setup&		directories(bool yn=true) { mSetVar(dirs_,yn); }
     };
 
     			uiFileInput(uiParent*,const char* seltxt,
@@ -67,11 +70,11 @@ public:
     uiFileDialog::Mode	selectMode() const		
 			{ 
 			    return selmodset ? selmode 
-					: (forread ? uiFileDialog::ExistingFile 
-						   : uiFileDialog::AnyFile); 
+				 : (forread  ? uiFileDialog::ExistingFile 
+					     : uiFileDialog::AnyFile); 
 			}
     void		setSelectMode( uiFileDialog::Mode m) 
-			    { selmodset=true;  selmode= m; }
+			    { selmodset = true;  selmode = m; }
 
 protected:
 
