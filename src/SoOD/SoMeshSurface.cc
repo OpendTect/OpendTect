@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.15 2004-11-09 13:12:28 dgb Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.16 2004-11-09 13:21:28 dgb Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -31,11 +31,11 @@ static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.15 2004-11-09 13:12:28 dgb
 #include "Inventor/threads/SbThread.h"
 #include "Inventor/misc/SoChildList.h"
 
-#ifdef __win__
-#define _no_threads_
+#ifdef win
+#define _no_threads_ 1
 #endif
-#ifdef __mac__
-#define _no_threads__
+#ifdef mac
+#define _no_threads_ 1
 #endif
 
 SO_NODE_SOURCE(SoMeshSurface);
