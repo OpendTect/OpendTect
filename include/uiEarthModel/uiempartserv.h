@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.13 2003-08-11 11:23:23 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.14 2003-08-22 11:27:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
+#include "ranges.h"
 class BinIDRange;
 class BinIDValue;
 class BinIDZValue;
@@ -20,6 +21,7 @@ class BufferString;
 class MultiID;
 class uiPopupMenu;
 class SurfaceInfo;
+class BinID;
 
 namespace EM { class SurfaceIODataSelection; };
 
@@ -45,15 +47,15 @@ public:
     int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&,
 	    				     bool);
     bool		importWellTrack();
-    bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importLMKFault();
     bool		selectFault(MultiID&);
     bool		loadSurface(const MultiID&,
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
-    void		getSurfaceDef(const MultiID&, 
-	    			      ObjectSet< TypeSet<BinIDValue> >&, 
-				      const BinIDRange*) const;
+    void		getSurfaceDef(const ObjectSet<MultiID>&,
+	    			      TypeSet<BinID>&,
+				      TypeSet<Interval<float> >&,
+				      const BinIDRange* br=0) const;
 
     bool		storeSurface(const MultiID&);
     void		setDataVal(const MultiID&,

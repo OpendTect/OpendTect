@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.19 2003-08-13 10:13:49 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.20 2003-08-22 11:25:16 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -13,7 +13,6 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.19 2003-08-13 10:13:49 nanne E
 #include "emhistory.h"
 #include "emhorizontransl.h"
 #include "emobject.h"
-#include "emwelltransl.h"
 #include "emsurfaceiodata.h"
 #include "errh.h"
 #include "executor.h"
@@ -64,8 +63,6 @@ MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 	ctio = new CtxtIOObj(EMHorizonTranslator::ioContext());
     else if ( type==EM::EMManager::Fault )
 	ctio = new CtxtIOObj(EMFaultTranslator::ioContext());
-    else if ( type==EM::EMManager::Well )
-	ctio = new CtxtIOObj(EMWellTranslator::ioContext());
     else
 	return -1;
 
@@ -209,8 +206,6 @@ EM::EMObject* EM::EMManager::getTempObj( EM::EMManager::Type type )
 	res = new EM::Horizon( *this, -1 );
     else if ( type==EM::EMManager::Fault )
 	res = new EM::Fault( *this, -1 );
-    else if ( type==EM::EMManager::Well )
-	res = new EM::Well( *this, -1 );
 
     return res;
 }

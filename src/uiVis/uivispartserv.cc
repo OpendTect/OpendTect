@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.153 2003-07-29 13:24:07 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.154 2003-08-22 11:29:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -254,31 +254,28 @@ void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 		BufferString attrnm( "" );
 		const AttribSelSpec* as = getSelSpec( visid );
 		if ( as ) attrnm = as->userRef();
-		hinfos += new SurfaceInfo( getObjectName(visid), "", visid,
-		       attrnm );
+		hinfos += new SurfaceInfo( getObjectName(visid), 
+					   getMultiID(visid), visid, attrnm );
 	    }
 	}
     }
 }
 
 
-int uiVisPartServer::addWell( int sceneid, const MultiID& emwellid )
+int uiVisPartServer::addWell( int sceneid, const MultiID& multiid )
 {
     visSurvey::Scene* scene = getScene( sceneid );
     if ( !scene ) return -1;
 
     visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
-    if ( !wd->setWellId( emwellid ) )
+    if ( !wd->setWellId( multiid ) )
     {
 	wd->ref(); wd->unRef();
-	pErrMsg( "EarthModel em does not exist" );
+	pErrMsg( wd->errMsg() );
 	return -1;
     }
 
-    if ( wd->depthIsT() )
-	scene->addObject( wd );
-    else
-	scene->addObject( wd );
+    scene->addObject( wd );
 
     setUpConnections( wd->id() );
     return wd->id();

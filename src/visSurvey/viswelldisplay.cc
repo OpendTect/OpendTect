@@ -4,33 +4,36 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.13 2003-06-03 12:46:12 bert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.14 2003-08-22 11:31:39 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
 #include "visdrawstyle.h"
 #include "vistext.h"
-#include "emmanager.h"
-#include "emwell.h"
+#include "welldata.h"
+#include "welltransl.h"
+#include "welltrack.h"
+#include "welld2tmodel.h"
 #include "iopar.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "executor.h"
 #include "ptrman.h"
+#include "survinfo.h"
 
 
 mCreateFactoryEntry( visSurvey::WellDisplay );
 
-const char* visSurvey::WellDisplay::earthmodelidstr = "EarthModel ID";
-const char* visSurvey::WellDisplay::displayattribstr = "Attrib";
-const char* visSurvey::WellDisplay::colortableidstr = "ColorTable";
-const char* visSurvey::WellDisplay::linestylestr = "Line style";
-const char* visSurvey::WellDisplay::showwellnmstr = "Show name";
+const char* visSurvey::WellDisplay::earthmodelidstr 	= "EarthModel ID";
+const char* visSurvey::WellDisplay::ioobjidstr		= "IOObj ID";
+const char* visSurvey::WellDisplay::linestylestr 	= "Line style";
+const char* visSurvey::WellDisplay::showwellnmstr 	= "Show name";
 
 
 visSurvey::WellDisplay::WellDisplay()
     : line( visBase::PolyLine::create() )
     , drawstyle( visBase::DrawStyle::create() )
     , welltxt( visBase::Text::create() )
-    , displayedattrib( -1 )
     , wellid( -1 )
 {
     drawstyle->ref();
@@ -51,63 +54,46 @@ visSurvey::WellDisplay::~WellDisplay()
     line->unRef();
     removeChild( drawstyle->getData() );
     drawstyle->unRef();
-
-    if ( EM::EMM().getObject( wellid ) )
-	EM::EMM().unRef( wellid );
 }
 
+
+#define mErrRet(s) { errmsg = s; return false; }
 
 bool visSurvey::WellDisplay::setWellId( const MultiID& multiid )
 {
-    const EM::EMManager& em = EM::EMM();
+    Well::Data wd; //TODO
+    PtrMan<IOObj> ioobj = IOM().get( multiid );
+    if ( !ioobj ) mErrRet( "Cannot find object in objectmanager" );
 
-    mDynamicCastGet( const EM::Well*, well, em.getObject( multiid ) );
-    if ( !well ) return false;
+    PtrMan<Translator> t = ioobj->getTranslator();
+    mDynamicCastGet(WellTranslator*,wtr,t.ptr())
+    if ( !wtr ) mErrRet( "Object is not a well" );
+
+    if ( !wtr->read(wd,*ioobj) ) mErrRet( "Cannot read well" );
+    
+    const Well::D2TModel* d2t = wd.d2TModel();
+    const bool zistime = SI().zIsTime();
+    if ( zistime && !d2t ) mErrRet( "No depth to time model defined" );
 
     while ( line->size() ) line->removePoint( 0 );
-    displayedattrib = -1;
-
-    if ( EM::EMM().getObject( wellid ) )
-	EM::EMM().unRef( wellid );
-
     wellid = multiid;
-    well->ref();
+    setName( wd.name() );
 
-    setName( well->name() );
+    if ( wd.track().size() < 1 ) return true;
+    Coord3 pt;
+    for ( int idx=0; idx<wd.track().size(); idx++ )
+    {
+	pt = wd.track().pos( idx );
+	if ( zistime )
+	    pt.z = d2t->getTime( wd.track().dah(idx) );
+	line->addPoint( pt );
+    }
 
-    if ( well->nrKnots() < 1 ) return true;
-    for ( int idx=0; idx<well->nrKnots(); idx++ )
-	line->addPoint( well->getKnot( idx ) );
-
-    welltxt->setText( well->name() );
-    welltxt->setPosition( well->getKnot(0) );
+    welltxt->setText( wd.name() );
+    welltxt->setPosition( line->getPoint(0) ); //TODO
     welltxt->setJustification( visBase::Text::Center );
 
     return true;
-}
-
-
-int  visSurvey::WellDisplay::nrAttribs() const
-{
-    const EM::EMManager& em = EM::EMM();
-    mDynamicCastGet( const EM::Well*, well, em.getObject( wellid ) );
-    return well ? well->nrValues() : -1;
-}
-
-
-const char* visSurvey::WellDisplay::getAttribName(int idx) const
-{
-    const EM::EMManager& em = EM::EMM();
-    mDynamicCastGet( const EM::Well*, well, em.getObject( wellid ) );
-    return well ? well->valueName(idx) : 0;
-}
-
-
-bool visSurvey::WellDisplay::depthIsT() const
-{
-    const EM::EMManager& em = EM::EMM();
-    mDynamicCastGet( const EM::Well*, well, em.getObject( wellid ) );
-    return well ? well->zIsTime() : true;
 }
 
 
@@ -140,8 +126,6 @@ void visSurvey::WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     par.set( earthmodelidstr, wellid );
-    par.set( displayattribstr, displayedattrib );
-    // par.set( colortableidstr, 
     
     BufferString linestyle;
     drawstyle->lineStyle().toString( linestyle );
@@ -161,22 +145,8 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
     if ( !par.get( earthmodelidstr, newwellid ))
 	return -1;
 
-    EM::EMManager& em = EM::EMM();
-    if ( !em.isLoaded( newwellid ) )
-    {
-	PtrMan<Executor> exec = em.load( newwellid );
-	if ( !exec ) return -1;
-	exec->execute();
-    }
-	
     if ( !setWellId( newwellid ) )
 	return -1;
-
-    int var;
-    if ( par.get( displayattribstr, var ) )
-    {
-	displayAttrib( var );
-    }
 
     BufferString linestyle;
     if ( par.get( linestylestr, linestyle ) )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.6 2003-01-21 16:09:41 kristofer Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.7 2003-08-22 11:32:40 nanne Exp $
 ________________________________________________________________________
 
 
@@ -41,15 +41,6 @@ public:
     bool			setWellId( const MultiID& );
     const MultiID&		wellId() const { return wellid; }
 
-    int				nrAttribs() const;
-    const char*			getAttribName( int ) const;
-    void			displayAttrib( int ) {}
-    				//!< -1 = none
-    				//!< TODO: Implement!!
-    int				displayedAttrib() const { return -1; }
-
-    bool			depthIsT() const;
-
     const LineStyle&		lineStyle() const;
     void			setLineStyle( const LineStyle& lst );
 
@@ -63,19 +54,17 @@ public:
     visBase::Transformation*	getTransformation();
 
 protected:
-    virtual		~WellDisplay();
+    virtual			~WellDisplay();
 
-    int 		displayedattrib;
-    MultiID		wellid;
-    visBase::PolyLine*	line;
-    visBase::DrawStyle*	drawstyle;
-    visBase::Text*	welltxt;
+    MultiID			wellid;
+    visBase::PolyLine*		line;
+    visBase::DrawStyle*		drawstyle;
+    visBase::Text*		welltxt;
 
-    static const char*	earthmodelidstr;
-    static const char*	displayattribstr;
-    static const char*	colortableidstr;
-    static const char*	linestylestr;
-    static const char*	showwellnmstr;
+    static const char*		ioobjidstr;
+    static const char*		earthmodelidstr;
+    static const char*		linestylestr;
+    static const char*		showwellnmstr;
 };
 
 };
