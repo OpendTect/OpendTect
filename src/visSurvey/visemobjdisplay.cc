@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.15 2005-04-01 15:05:56 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.16 2005-04-04 11:12:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.15 2005-04-01 15:05:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.16 2005-04-04 11:12:04 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -559,6 +559,18 @@ void EMObjectDisplay::setResolution( int res )
 int EMObjectDisplay::getColTabID() const
 {
     return coltab_->id();
+}
+
+
+void EMObjectDisplay::getMousePosInfo( const Coord3& pos, float& val,
+				       BufferString& info ) const
+{
+    info = ""; val = pos.z;
+    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    if ( !emobject ) return;
+    
+    info = emobject->getTypeStr(); info += ": "; info += name();
+    if ( !sections.size() || as.id() < -1 ) return;
 }
 
 

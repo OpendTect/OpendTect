@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.9 2005-03-31 15:17:34 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.10 2005-04-04 11:12:11 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -77,6 +77,10 @@ public:
     int				getResolution() const;
     void			setResolution(int);
     				/*!< 0 is automatic */
+
+    bool			allowPicks() const	{ return true; }
+    void			getMousePosInfo(const Coord3& pos,float& val,
+						BufferString& info) const;
 
     int				getColTabID() const;
 
