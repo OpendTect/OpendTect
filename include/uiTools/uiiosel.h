@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.2 2001-04-27 16:49:09 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.3 2001-04-30 14:59:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class uiLabeledComboBox;
 class uiPushButton;
 class IOPar;
 
+
 /*! \brief UI element for selection of data objects
 
 */
@@ -25,6 +26,7 @@ class IOPar;
 class uiIOSelect : public uiGroup
 {
 public:
+
 			uiIOSelect(uiObject*,const CallBack& do_selection,
 				   const char* txt,
 				   bool selection_editable=true,
@@ -35,22 +37,23 @@ public:
 			{ seldonecb_ = cb; }
 
     const char*		getInput() const;
-    void		setInput(const char*);
+    const char*		getKey() const;
+    void		setInput(const char* key);
+			//!< Will fetch user name using userNameFromKey
 
-    int			nrItems() const;
-    int			getItem() const;
-    const char*		getItemText(int) const;
+    int			nrItems() const		 { return entries_.size(); }
+    int			getCurrentItem() const;
     void		setCurrentItem(int);
-    void		setItems(const UserIDSet&);
+    const char*		getItem( int idx ) const { return *entries_[idx]; }
 
-    virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
 protected:
 
     CallBack		doselcb_;
     CallBack		seldonecb_;
-    UserIDSet&		inpsels_;
+    ObjectSet<BufferString>	entries_;
     bool		withclear_;
 
     uiLabeledComboBox*	inp_;
@@ -58,8 +61,15 @@ protected:
 
     void		doSel(CallBacker*);
     void		selDone(CallBacker*);
+			//!< Subclass must call it - base class can't
+			//!< determine whether a selection was successful.
 
-    void		setCurrentFromIOPar(const IOPar &);
+    virtual const char*	userNameFromKey( const char* s ) const	{ return s; }
+			//!< If 0 returned, then if possible,
+			//!< that entry is not entered in the entries_.
+
+    void		updateFromEntries();
+
 
 };
 
