@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.2 2002-04-08 20:58:14 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.3 2002-05-13 14:34:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,18 @@ const char* HostData::shortestName() const
 	    { len = aliases_[idx]->size(); ishortest = idx; }
 
     return (const char*)(ishortest < 0 ? name_ : *aliases_[ishortest]);
+}
+
+
+const char* HostData::name() const
+{
+    const char* shortnm = shortestName();
+    if ( *shortnm != 'l' ) return shortnm;
+
+    if ( strcmp(shortnm,"loghost") && strcmp(shortnm,"localhost") )
+	return shortnm;
+
+    return localHostName();
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.13 2002-05-02 13:47:51 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.14 2002-05-13 14:34:40 bert Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -223,33 +223,25 @@ void visBase::Annotation::updateTextPos(int textid)
     if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[2]-p1[2])) dim = 0;
     else if ( mIS_ZERO(p0[2]-p1[2]) && mIS_ZERO(p0[0]-p1[0])) dim = 1;
     else if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[0]-p1[0])) dim = 2;
+    if ( dim < 0 ) return;
 
-    if ( dim>= 0 )
+    Interval<double> range( p0[dim], p1[dim] );
+    SamplingData<double> sd = AxisInfo::prettySampling(range);
+
+    int idx = 0;
+    for ( int idx=0; ; idx++ )
     {
-	Interval<double> range( p0[dim], p1[dim] );
-	SamplingData<double> sd = AxisInfo::prettySampling(range);
+	double val = sd.atIndex(idx);
+	if ( val <= range.start )	continue;
+	else if ( val>range.stop )	break;
 
-	int idx = 0;
-	while ( true )
-	{
-	    double val = sd.atIndex(idx);
-	    if ( val<= range.start )
-	    {
-		idx++;
-		continue;
-	    }
-
-	    if ( val>range.stop ) break;
-
-	    Text* text = Text::create();
-	    scales[textid]->addObject( text );
-	    Geometry::Pos pos( p0[0], p0[1], p0[2] );
-	    pos[dim] = val;
-	    text->setPosition( pos );
-	    BufferString string = val;
-	    text->setText( string );
-	    idx++;
-	}
+	Text* text = Text::create();
+	scales[textid]->addObject( text );
+	Geometry::Pos pos( p0[0], p0[1], p0[2] );
+	pos[dim] = val;
+	text->setPosition( pos );
+	BufferString string = val;
+	text->setText( string );
     }
 }
 

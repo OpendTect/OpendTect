@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.13 2002-05-09 17:50:35 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.14 2002-05-13 14:34:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 				      uiLabeledListBox::AboveMid );
     HostDataList hdl;
     for ( int idx=0; idx<hdl.size(); idx++ )
-	avmachfld->box()->addItem( hdl[idx]->shortestName() );
+	avmachfld->box()->addItem( hdl[idx]->name() );
 
     addbut = new uiPushButton( machgrp, ">> Add >>" );
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
