@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.12 2005-02-15 13:25:08 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.13 2005-02-28 16:37:50 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,8 @@ public:
 				threadmutex.unlock();
 			    }
 
-    int			port() { return sockprov_ ? sockprov_->port() : -1; }
+    bool		ready()	{ return port() > 0; }
+    int			port()	{ return sockprov_ ? sockprov_->port() : -1; }
 
     void		addJobDesc( const HostData& hd, int descnr )
 			    {
@@ -307,7 +308,26 @@ void JobIOHandler::doDispatch( CallBacker* )
 JobIOMgr::JobIOMgr( int firstport, int niceval )
     : iohdlr_( *new JobIOHandler(firstport) )
     , niceval_( niceval )
-{}
+{
+    for ( int count=0; count < 10 && !iohdlr_.ready(); count++ )
+	{ Time_sleep( 0.1 ); }
+
+    if ( mDebugOn )
+    {
+	BufferString msg("JobIOMgr::JobIOMgr ");
+	if( iohdlr_.ready() )
+	{ 
+	    msg += "ready and listening to port ";
+	    msg += iohdlr_.port();
+	}
+	else
+	{
+	    msg += "NOT ready (yet). Clients might not be able to connect.";
+	}
+
+	DBG::message(msg);
+    }
+}
 
 JobIOMgr::~JobIOMgr()
 { delete &iohdlr_; }
