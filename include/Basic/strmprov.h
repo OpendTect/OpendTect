@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.18 2004-05-24 11:57:26 arend Exp $
+ RCS:		$Id: strmprov.h,v 1.19 2004-07-19 13:20:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,9 +59,9 @@ public:
     bool	setReadOnly(bool yn) const;
     bool	isReadOnly() const;
 
-    StreamData	makeOStream(bool inbg=false) const;
+    StreamData	makeOStream() const;
 		//!< 'inbg' will execute in background if remote
-    StreamData	makeIStream(bool inbg=false) const;
+    StreamData	makeIStream() const;
 		//!< see makeOStream remark
     bool	executeCommand(bool inbg=false) const;
     		//!< If type is Command, execute command without opening pipe
@@ -99,7 +99,7 @@ protected:
     bool		isbad;
     StreamConn::Type	type_;
 
-    void		mkOSCmd(bool,bool) const;
+    void		mkOSCmd(bool) const;
 
 };
 
