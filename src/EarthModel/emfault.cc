@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.3 2002-09-20 06:39:44 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.4 2002-09-25 12:01:47 kristofer Exp $";
 
 #include "emfault.h"
 #include "ptrman.h"
@@ -28,6 +28,7 @@ EarthModel::Fault::~Fault()
 EarthModel::PosID EarthModel::Fault::setPos(int row, int col,
 					    const Geometry::Pos& pos )
 {
+    if ( !surface ) surface = new Geometry::GridSurfaceImpl;
     const RowCol node( row, col );
     surface->setGridPos( node, pos );
 	
@@ -50,6 +51,7 @@ EarthModel::PosID EarthModel::Fault::addPosOnRow( int row, bool start,
 						  const Geometry::Pos& pos )
 {
     EarthModel::PosID result;
+    if ( !surface ) surface = new Geometry::GridSurfaceImpl;
     if ( row>=surface->firstRow() || row<=surface->lastRow() )
     {
 	const int rowid = row-surface->firstRow();
@@ -73,6 +75,7 @@ EarthModel::PosID EarthModel::Fault::insertPosOnRow( int row, int column,
 						      const Geometry::Pos& pos )
 {
     EarthModel::PosID result;
+    if ( !surface ) surface = new Geometry::GridSurfaceImpl;
     if ( row>=surface->firstRow() || row<=surface->lastRow() )
     {
 	const int rowid = row-surface->firstRow();
@@ -108,6 +111,7 @@ EarthModel::PosID EarthModel::Fault::insertPosOnRow( int row, int column,
 
 void EarthModel::Fault::insertRow( int row, bool moveup )
 {   
+    if ( !surface ) surface = new Geometry::GridSurfaceImpl;
     float undef = surface->undefVal();
     Geometry::Pos undefpos;
     undefpos.x = undef;
