@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.14 2001-05-31 15:09:08 windev Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.15 2001-06-01 07:04:19 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -14,9 +14,9 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "bufstring.h"
+#include "filegen.h"
 
-#include <fstream>
-#include <stdio.h>
+#include <fstream.h>
 
 template <class T>
 class ArrayNDMemStor : public ArrayND<T>::LinearStorage
@@ -101,10 +101,8 @@ public:
 		ArrayNDFileStor( int nsz )
 		    : sz( nsz )
 		    , file( 0 )
-		    , name("Dummy")
-		{
-		    tmpnam(name.buf());
-		}
+		    , name(File_getSimpleTempFileName("tmp"))
+		{ }
 
     inline	~ArrayNDFileStor()
 		{
