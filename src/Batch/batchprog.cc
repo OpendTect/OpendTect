@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.27 2003-01-06 15:38:06 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.28 2003-01-08 10:46:57 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -118,10 +118,16 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
 BatchProgram::~BatchProgram()
 {
-    if( exitstat_ == mSTAT_UNDEF ) 
+    if ( sdout_.ostrm )
+    {
+	*sdout_.ostrm << "Exiting BatchProgram." << endl;
+	sdout_.ostrm->flush();
+    }
+
+    if ( exitstat_ == mSTAT_UNDEF ) 
 	exitstat_ = stillok_ ? mSTAT_DONE : mSTAT_ERROR;
 
-    writeStatus( mEXIT_STATUS, exitstat_, true );
+    writeStatus( mEXIT_STATUS, exitstat_ );
 
     killNotify( false );
 
@@ -140,8 +146,14 @@ const char* BatchProgram::progName() const
 
 void BatchProgram::progKilled( CallBacker* )
 {
+    if ( sdout_.ostrm )
+    {
+	*sdout_.ostrm << "BatchProgram Killed." << endl;
+	sdout_.ostrm->flush();
+    }
+
     exitstat_ = mSTAT_KILLED;
-    writeStatus( mEXIT_STATUS, exitstat_, true );
+    writeStatus( mEXIT_STATUS, exitstat_ );
     killNotify( false );
 }
 
@@ -157,16 +169,17 @@ void BatchProgram::killNotify( bool yn )
 }
 
 
-bool BatchProgram::writeStatus( char tag , int status, bool force )
+bool BatchProgram::writeStatus_( char tag , int status, bool force )
 {
-    if( !usesock_ ) return true;
+    if ( !usesock_ ) return true;
 
-    if( !force && (Time_getMilliSeconds() - timestamp_ < 1000 ) )
+    int elapsed = Time_getMilliSeconds() - timestamp_;
+    if ( !force && elapsed > 0 && elapsed < 1000  )
 	return true;
 
     timestamp_ = Time_getMilliSeconds();
 
-    if( Socket* sock = mkSocket() )
+    if ( Socket* sock = mkSocket() )
     {
 	sock->writetag( tag, jobid_, status );
 
@@ -177,12 +190,27 @@ bool BatchProgram::writeStatus( char tag , int status, bool force )
 	if ( masterinfo != mRSP_ACK )
 	{
 	    // TODO : handle requests from master
-	    if( masterinfo == mRSP_REQ_STOP ) exit( 0 );
+	    if ( masterinfo == mRSP_REQ_STOP ) 
+	    {
+		if ( sdout_.ostrm )
+		{
+		    *sdout_.ostrm << "Exiting on request of Master." << endl;
+		    sdout_.ostrm->flush();
+		}
+		exit( -1 );
+	    }
 
 	    ret = false;
 	}
 
 	delete sock;
+
+	if ( !ret && sdout_.ostrm )
+	{
+	    *sdout_.ostrm << "Error writing status to Master." << endl;
+	    sdout_.ostrm->flush();
+	}
+
 	return ret;
     }
 
@@ -193,7 +221,7 @@ bool BatchProgram::writeStatus( char tag , int status, bool force )
 
 Socket* BatchProgram::mkSocket()
 {
-    if( !usesock_ ) return 0;
+    if ( !usesock_ ) return 0;
 
     return new Socket( masterhost_, masterport_ );
 }
@@ -201,8 +229,15 @@ Socket* BatchProgram::mkSocket()
 bool BatchProgram::initOutput()
 {
     stillok_ = false;
-    if ( !writeStatus( mPID_TAG, getPID(), true ) )
+    if ( !writeStatus( mPID_TAG, getPID() ) )
+    {
+	if ( sdout_.ostrm )
+	{
+	    *sdout_.ostrm << "Could not write status. Exiting." << endl;
+	    sdout_.ostrm->flush();
+	}
 	exit( 0 );
+    }
 
     const char* res = pars()["Log file"];
     if ( !*res || !strcmp(res,"stdout") ) res = 0;
