@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.34 2004-10-28 14:14:54 nanne Exp $
+ RCS:           $Id: uicombobox.cc,v 1.35 2004-11-19 14:03:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,10 +175,10 @@ bool uiComboBox::update_( const DataInpSpec& spec )
     mDynamicCastGet(const StringListInpSpec*,spc,&spec)
     if ( !spc ) { return false; }
 
+    empty();
     int cursel = spc->getIntValue();
     if ( cursel >= 0 && cursel < spc->strings().size() )
     {
-	empty();
 	addItems( spc->strings() );
 	setCurrentItem( cursel );
 	return true;
