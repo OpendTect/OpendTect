@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.25 2003-01-03 17:51:26 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.26 2003-01-06 14:42:37 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -67,6 +67,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
     	, masterport_(0)
 	, usesock_( false )
 	, timestamp_( Time_getMilliSeconds() )
+	, exitstat_( mSTAT_UNDEF )
 {
     const char* fn = argv_[1];
     if ( fn && !strcmp(fn,"-bg") )
