@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.13 2002-10-28 22:29:11 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.14 2002-10-29 11:30:55 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -105,7 +105,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	    dumpsd.ostrm = new ostringstream( dumpstring );
 #else
 	    if ( !dumpstr ) dumpstr = new char [ 32768 ];
-	    dumpsd.ostrm = new ostrstream( dumpstr );
+	    dumpsd.ostrm = new ostrstream( dumpstr, 32768 );
 #endif
 	}
 	else
