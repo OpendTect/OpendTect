@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.15 2001-11-20 15:02:33 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.16 2001-11-22 15:34:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -342,6 +342,7 @@ protected:
     BufferString	saveText;
     BufferString	titleText;
     bool		separ;
+    bool		withmenubar;
 
     uiPushButton*	okBut;
     uiPushButton*	cnclBut;
@@ -357,7 +358,7 @@ protected:
 
 
 uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm, 
-			    bool modal, bool separator, bool withmenubar )
+			    bool modal, bool separator, bool withmb )
     : uiMainWinBody(handle,parnt,nm,modal)
     , dlgGroup( 0 )
     , okText("Ok"), cnclText("Cancel"), saveText(""), titleText("")
@@ -365,6 +366,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm,
     , reslt( 0 )
     , separ( separator ), horSepar( 0 )
     , childrenInited(false)
+    , withmenubar(withmb)
 {
 }
 
@@ -438,12 +440,15 @@ void uiDialogBody::finalise()
 	if( saveText != "" ) saveBut = 
 				new uiCheckBox( centralWidget_, saveText );
 
-	title = new uiLabel( centralWidget_, titleText );
-	uiSeparator* sep = new uiSeparator( centralWidget_ );
+        if ( !withmenubar )
+	{
+	    title = new uiLabel( centralWidget_, titleText );
+	    uiSeparator* sep = new uiSeparator( centralWidget_ );
 
-	title->attach( centeredAbove, sep );
-	sep->attach( stretchedBelow, title, -2 );
-	dlgGroup->attach( stretchedBelow, sep );
+	    title->attach( centeredAbove, sep );
+	    sep->attach( stretchedBelow, title, -2 );
+	    dlgGroup->attach( stretchedBelow, sep );
+	}
 
 	if( separ && (okBut || cnclBut || saveBut ))
 	{
