@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.7 2002-04-12 06:31:29 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.8 2002-04-17 08:07:56 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.7 2002-04-12 06:31:29 kri
 #include "dataclipper.h"
 #include "visdataman.h"
 #include "viscolortab.h"
+#include "ptrman.h"
 
 #include "Inventor/nodes/SoTexture2.h"
 #include "Inventor/nodes/SoSeparator.h"
@@ -185,16 +186,17 @@ void visBase::TextureRect::updateTexture()
     int ssize = data->info().getSize( isinl ? 0 : 1 );
     int tsize = data->info().getSize( isinl ? 1 : 0 );
 
-    unsigned char imagedata[ssize*tsize*4];
+    ArrPtrMan<unsigned char> imagedata = new unsigned char[ssize*tsize*4];
 
     int idx=0;
-    
+    float val;
+    Color color;
     for ( int t=0; t<tsize; t++ )
     {
 	for ( int s=0; s<ssize; s++ )
 	{
-	    float val = isinl ? data->get( s, t ) : data->get( t, s );
-	    const Color color = colortable->color(val);
+	    val = isinl ? data->get( s, t ) : data->get( t, s );
+	    color = colortable->color(val);
 	    imagedata[idx++] = color.r();
 	    imagedata[idx++] = color.g();
 	    imagedata[idx++] = color.b();
