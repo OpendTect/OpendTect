@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.13 2001-05-07 13:53:53 windev Exp $
+ RCS:		$Id: arraynd.h,v 1.14 2001-05-07 13:58:25 arend Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -21,6 +21,7 @@ to the constructor.
 
 #include <gendefs.h>
 #include <arrayndinfo.h>
+#include <ptrman.h>
 
 #define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
 #define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
@@ -143,8 +144,8 @@ const T* ArrayND<T>::get1D( const int* i ) const
 
     int ndim = info().getNDim();
 
-    ArrPtrMan<int> posi = new int[ndim];
-    memcpy(pos.buf(),i,sizeof(int)*(ndim-1));
+    ArrPtrMan<int> pos = new int[ndim];
+    memcpy(pos,i,sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;
     
