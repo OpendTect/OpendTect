@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.3 2005-03-14 16:44:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.4 2005-03-17 14:52:28 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -53,13 +53,9 @@ bool EMTracker::trackSections( const TrackPlane& plane )
     for ( int idx=0; idx<emobject->nrSections(); idx++ )
     {
 	const EM::SectionID sectionid = emobject->sectionID(idx);
-	SectionTracker* sectiontracker = getSectionTracker(sectionid);
+	SectionTracker* sectiontracker = getSectionTracker(sectionid,true);
 	if ( !sectiontracker )
-	{
-	    int trackeridx = addSectionTracker( sectionid );
-	    if ( trackeridx < 0 ) continue;
-	    sectiontracker = sectiontrackers[trackeridx];
-	}
+	    continue;
 
 	sectiontracker->reset();
 	sectiontracker->selector()->setTrackPlane( plane );
@@ -86,20 +82,6 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 }
 
 
-int EMTracker::addSectionTracker( EM::SectionID sid )
-{
-    SectionTracker* sectiontracker = createSectionTracker( sid );
-    if ( !sectiontracker || !sectiontracker->init() )
-    {
-	delete sectiontracker;
-	return -1;
-    }
-
-    sectiontrackers += sectiontracker;
-    return sectiontrackers.size()-1;
-}
-
-
 bool EMTracker::trackIntersections( const TrackPlane& )
 { return true; }
 
@@ -108,7 +90,7 @@ const char* EMTracker::errMsg() const
 { return errmsg[0] ? (const char*) errmsg : 0; }
 
 
-SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid )
+SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
 {
     for ( int idx=0; idx<sectiontrackers.size(); idx++ )
     {
@@ -116,10 +98,21 @@ SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid )
 	    return sectiontrackers[idx];
     }
 
-    return 0;
+    if ( !create ) return 0;
+
+    SectionTracker* sectiontracker = createSectionTracker( sid );
+    if ( !sectiontracker || !sectiontracker->init() )
+    {
+	delete sectiontracker;
+	return 0;
+    }
+
+    sectiontrackers += sectiontracker;
+    return sectiontracker;
 }
 
 
+// TrackerFactory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 TrackerFactory::TrackerFactory( const char* emtype, EMTrackerCreationFunc func )
     : type( emtype )
