@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.15 2003-11-21 08:50:52 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.16 2004-03-04 17:27:42 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -23,10 +23,13 @@ void SeisTrcBuf::insert( SeisTrc* t, int insidx )
 }
 
 
-void SeisTrcBuf::fill( SeisTrcBuf& buf ) const
+void SeisTrcBuf::copyInto( SeisTrcBuf& buf ) const
 {
     for ( int idx=0; idx<trcs.size(); idx++ )
-	buf.add( new SeisTrc( *trcs[idx] ) );
+    {
+	SeisTrc* trc = trcs[idx];
+	buf.add( buf.owner_ ? new SeisTrc(*trc) : trc );
+    }
 }
 
 
@@ -47,6 +50,16 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 	    { spi.binidsampling.step.inl = bid.inl - pbid.inl; doneinl = true; }
 	if ( !donecrl && bid.crl != pbid.crl )
 	    { spi.binidsampling.step.crl = bid.crl - pbid.crl; donecrl = true; }
+    }
+}
+
+
+void SeisTrcBuf::add( SeisTrcBuf& tb )
+{
+    for ( int idx=0; idx<tb.size(); idx++ )
+    {
+	SeisTrc* trc = tb.get( idx );
+	add( owner_ && trc ? new SeisTrc(*trc) : trc );
     }
 }
 
@@ -177,11 +190,17 @@ int SeisTrcBuf::find( const BinID& binid ) const
 
 int SeisTrcBuf::find( SeisTrc* trc ) const
 {
+    if ( !trc ) return -1;
+
+    int tryidx = probableIdx( trc->info().binid );
+    if ( trcs[tryidx] == trc ) return tryidx;
+
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( ((SeisTrcBuf*)this)->get(idx) == trc )
 	    return idx;
     }
+
     return -1;
 }
 

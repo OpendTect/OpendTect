@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.4 2004-03-02 17:40:37 bert Exp $
+ RCS:		$Id: seisscanner.h,v 1.5 2004-03-04 17:27:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class IOObj;
 class SeisTrc;
 class BinIDSampler;
 class SeisTrcReader;
+class PosGeomDetector;
 
 #define mMaxNrDistribVals 50000
 
@@ -58,45 +59,24 @@ protected:
     int			nextStep();
 
     bool		first_trace;
-    bool		first_position;
     int			chnksz;
     mutable int		totalnr;
     int			expectedcrls;
     int			nrcrlsthisline;
     SeisTrc&		trc;
     SeisTrcReader&	reader;
+    PosGeomDetector&	geomdtector;
     mutable BufferString curmsg;
 
     SamplingData<float>	sampling;
     unsigned int	nrsamples;
-    unsigned int	nrvalidtraces;
     unsigned int	nrnulltraces;
-    unsigned int	nrtrcsperposn;
-    unsigned int	nrlines;
     unsigned int	nrdistribvals;
     float		distribvals[mMaxNrDistribVals];
-    unsigned int	tracesthisposition;
     Interval<int>	nonnullsamplerg;
-
-    BinID		longestinlstart, longestinlstop;
-    BinID		curlinestart, curlinestop;
-    BinID		mininlbinid, maxinlbinid;
-    Coord		longestinlstartcoord, longestinlstopcoord;
-    Coord		curlinestartcoord, curlinestopcoord;
-    Coord		mininlbinidcoord, maxinlbinidcoord;
-
-    StepInterval<int>	inlrg, crlrg;
-    Interval<double>	xrg, yrg;
     Interval<float>	valrg;
-
-    BinID		prevbid;
-    BinID		nonstdnrtrcsbid;
     BinID		invalidsamplebid;
     int			invalidsamplenr;
-    bool		inlgapsfound, crlgapsfound;
-    int			firstinlgapbefore;
-    BinID		firstcrlgapbefore;
-    bool		varcrlstart, varcrlend;
 
     void		init();
     void		wrapUp();

@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.6 2004-03-02 17:40:37 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.7 2004-03-04 17:27:42 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.6 2004-03-02 17:40:37 bert E
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "binidselimpl.h"
-#include "binid2coord.h"
+#include "posgeomdetector.h"
 #include "strmprov.h"
 #include "sorting.h"
 #include "filegen.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.6 2004-03-02 17:40:37 bert E
 SeisScanner::SeisScanner( const IOObj& ioobj )
     	: Executor( "Scan seismic volume file(s)" )
     	, reader(*new SeisTrcReader(&ioobj))
+    	, geomdtector(*new PosGeomDetector)
 	, trc(*new SeisTrc)
     	, chnksz(10)
     	, totalnr(-2)
@@ -38,23 +39,21 @@ SeisScanner::SeisScanner( const IOObj& ioobj )
 
 SeisScanner::~SeisScanner()
 {
-    delete &reader;
     delete &trc;
+    delete &geomdtector;
+    delete &reader;
 }
 
 
 void SeisScanner::init()
 {
+    geomdtector.reInit();
     curmsg = "Scanning";
-    first_trace = true;
-    nrvalidtraces = nrnulltraces = nrlines = 0;
-    nrtrcsperposn = tracesthisposition = 1;
+    nrnulltraces = 0;
     nrdistribvals = nrcrlsthisline = expectedcrls = 0;
     invalidsamplenr = -1;
     nonnullsamplerg.start = MAXINT;
     nonnullsamplerg.stop = 0;
-    inlgapsfound = crlgapsfound = varcrlstart = varcrlend = false;
-    nonstdnrtrcsbid.inl = -999;
     invalidsamplebid.inl = -999;
     valrg.start = mUndefValue;
 }
@@ -74,7 +73,7 @@ const char* SeisScanner::nrDoneText() const
 
 int SeisScanner::nrDone() const
 {
-    return reader.tracesHandled();
+    return geomdtector.nrpositions;
 }
 
 
@@ -101,53 +100,13 @@ int SeisScanner::totalNr() const
 bool SeisScanner::getSurvInfo( BinIDSampler& bs, StepInterval<double>& zrg,
 			       Coord crd[3] ) const
 {
-    if ( nrvalidtraces < 3 )
-    {
-	curmsg = "Not enough valid traces found";
-	return false;
-    }
+    const char* msg = geomdtector.getSurvInfo( bs, crd );
+    if ( msg )
+	{ curmsg = msg; return false; }
 
-    bs.start.inl = inlrg.start; bs.stop.inl = inlrg.stop;
-    bs.step.inl = inlrg.step;
-    bs.start.crl = crlrg.start; bs.stop.crl = crlrg.stop;
-    bs.step.crl = crlrg.step;
     zrg.start = sampling.atIndex( nonnullsamplerg.start );
     zrg.stop = sampling.atIndex( nonnullsamplerg.stop );
     zrg.step = sampling.step;
-
-    if ( inlrg.start == inlrg.stop )
-    {
-	curmsg = "Only one in-line in data";
-	return false;
-    }
-    else if ( crlrg.start == crlrg.stop )
-    {
-	curmsg = "Only one cross-line in data";
-	return false;
-    }
-
-    // Setup the inl/crl vs coord things via longest inline
-    const bool usemin = longestinlstart.inl - mininlbinid.inl
-		      > maxinlbinid.inl - longestinlstart.inl;
-    Coord c[3];
-    BinID b[2];
-    c[0] = longestinlstartcoord;
-    b[0] = longestinlstart;
-    c[1] = usemin ? mininlbinidcoord : maxinlbinidcoord;
-    b[1] = usemin ? mininlbinid : maxinlbinid;
-    c[2] = longestinlstopcoord;
-    BinID2Coord b2c;
-    const char* msg = b2c.set3Pts( c, b, longestinlstop.crl );
-    if ( msg )
-    {
-	curmsg = msg;
-	return false;
-    }
-
-    // Now calculate what the coords would have been on the corners
-    crd[0] = b2c.transform( bs.start );
-    crd[1] = b2c.transform( bs.stop );
-    crd[2] = b2c.transform( BinID(bs.start.inl,bs.stop.crl) );
 
     return true;
 }
@@ -166,6 +125,7 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.set( "Z step", sampling.step );
     iopar.set( "Z start in file", sampling.start );
     iopar.set( "Z stop in file", zRange().stop );
+
     iopar.set( "Number of samples in file", (int)nrsamples );
     if ( nonnullsamplerg.start != 0 )
 	iopar.set( "First non-zero sample", nonnullsamplerg.start + 1 );
@@ -173,50 +133,10 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.set( "Last non-zero sample", nonnullsamplerg.stop + 1 );
 
     iopar.add( "->", "Global stats" );
-    iopar.set( "Number of non-null traces", (int)nrvalidtraces );
     iopar.set( "Number of null traces", (int)nrnulltraces );
-    if ( nrtrcsperposn != 1 )
-    {
-	iopar.set( "Number of traces per position", (int)nrvalidtraces );
-	if ( nonstdnrtrcsbid.inl > 0 )
-	{
-	    iopar.set( "First change in number of traces per position found at",
-		       nonstdnrtrcsbid );
-	}
-    }
-    iopar.set( "Number of inlines", (int)nrlines );
-    iopar.set( "First inline", inlrg.start );
-    iopar.set( "Last inline", inlrg.stop );
-    iopar.set( "Step inline", inlrg.step );
-    iopar.setYN( "Gaps in inline numbers", inlgapsfound );
-    if ( inlgapsfound )
-	iopar.set( "First inline gap found before", firstinlgapbefore );
-    iopar.set( "First crossline", crlrg.start );
-    iopar.set( "Last crossline", crlrg.stop );
-    iopar.set( "Step crossline", crlrg.step );
-    iopar.setYN( "Gaps in crossline numbers", inlgapsfound );
-    if ( crlgapsfound )
-	iopar.set( "First crossline gap found before", firstcrlgapbefore );
-    iopar.setYN( "Lines start at variable crossline numbers", varcrlstart );
-    iopar.setYN( "Lines end at variable crossline numbers", varcrlend );
-    if ( varcrlstart || varcrlend )
-	iopar.set( "Longest in-line.Number", longestinlstart.inl );
-
-    iopar.add( "->", "Survey setup" );
+    geomdtector.report( iopar );
     BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
-    if ( !getSurvInfo(bs,zrg,crd) )
-	iopar.add( "Error", curmsg );
-    else
-    {
-	iopar.set( "Position.1", bs.start );
-	iopar.set( "Coordinate.1", crd[0] );
-	iopar.set( "Position.2", bs.stop );
-	iopar.set( "Coordinate.2", crd[1] );
-	iopar.set( "Position.3", BinID(bs.start.inl,bs.stop.crl) );
-	iopar.set( "Coordinate.3", crd[2] );
-    }
-    iopar.set( "Bounding coordinate.Minimum", Coord(xrg.start,yrg.start) );
-    iopar.set( "Bounding box coordinates.Maximum", Coord(xrg.stop,yrg.stop) );
+    getSurvInfo(bs,zrg,crd);
     iopar.set( "Z.start", zrg.start );
     iopar.set( "Z.stop", zrg.stop );
     iopar.set( "Z.step", zrg.step );
@@ -316,11 +236,12 @@ int SeisScanner::nextStep()
 	    if ( res != 0 )
 	    {
 		curmsg = "Error during read of trace header after ";
-		if ( !prevbid.inl )
-		    "opening file";
+		if ( !geomdtector.prevbid.inl )
+		    curmsg += "opening file";
 		else
 		{
-		    curmsg += prevbid.inl; curmsg += "/"; curmsg += prevbid.crl;
+		    curmsg += geomdtector.prevbid.inl; curmsg += "/";
+		    curmsg += geomdtector.prevbid.crl;
 		}
 	    }
 	    wrapUp();
@@ -343,7 +264,6 @@ int SeisScanner::nextStep()
 		handleFirstTrc();
 	    else
 		handleTrc();
-	    nrvalidtraces++;
 	}
     }
 
@@ -363,101 +283,17 @@ void SeisScanner::handleFirstTrc()
     first_trace = false;
     sampling = trc.info().sampling;
     nrsamples = trc.size(0);
-    longestinlstart = longestinlstop = mininlbinid = maxinlbinid
-	= curlinestart = curlinestop
-	= trc.info().binid;
-    longestinlstartcoord = longestinlstopcoord = mininlbinidcoord
-	= maxinlbinidcoord = curlinestartcoord = curlinestopcoord
-	= trc.info().coord;
-    inlrg.start = inlrg.stop = mininlbinid.inl;
-    crlrg.start = crlrg.stop = mininlbinid.crl;
-    inlrg.step = crlrg.step = 0;
-    xrg.start = xrg.stop = mininlbinidcoord.x;
-    yrg.start = yrg.stop = mininlbinidcoord.y;
-    prevbid = mininlbinid;
-    nrlines++;
     nrcrlsthisline = 1;
+    geomdtector.add( trc.info().binid, trc.info().coord );
 }
 
 
 void SeisScanner::handleTrc()
 {
-    const BinID& curbid = trc.info().binid;
-    if ( curbid == prevbid )
-    {
-	if ( first_position )
-	    nrtrcsperposn++;
-	else
-	{
-	    tracesthisposition++;
-	    if ( tracesthisposition > nrtrcsperposn )
-	    {
-		if ( nonstdnrtrcsbid.inl != -999 )
-		    nonstdnrtrcsbid = curbid;
-	    }
-	}
-    }
+    if ( geomdtector.add(trc.info().binid,trc.info().coord) != mInlChange )
+	nrcrlsthisline++;
     else
     {
-	first_position = false;
-	if ( tracesthisposition != nrtrcsperposn )
-	    nonstdnrtrcsbid = prevbid;
-	else
-	    handleBinIDChange();
-	tracesthisposition = 1;
-    }
-
-    prevbid = curbid;
-}
-
-
-void SeisScanner::handleBinIDChange()
-{
-    const BinID& curbid = trc.info().binid;
-    const Coord& curcoord = trc.info().coord;
-
-    inlrg.include( curbid.inl ); crlrg.include( curbid.crl );
-    xrg.include( curcoord.x ); yrg.include( curcoord.y );
-
-    if ( curbid.inl != prevbid.inl )
-    {
-	nrlines++;
-	int step = curbid.inl - prevbid.inl;
-	if ( step < 0 ) step = -step;
-	if ( nrlines == 2 )
-	    inlrg.step = step;
-	else if ( step != inlrg.step )
-	{
-	    if ( step < inlrg.step ) inlrg.step = step;
-	    inlgapsfound = true;
-	    firstinlgapbefore = curbid.inl;
-	}
-
-	if ( mininlbinid.inl > curbid.inl )
-	    { mininlbinid = curbid; mininlbinidcoord = curcoord; }
-	if ( maxinlbinid.inl < curbid.inl )
-	    { maxinlbinid = curbid; maxinlbinidcoord = curcoord; }
-
-	if ( curlinestop.crl - curlinestart.crl
-		> longestinlstop.crl - longestinlstart.crl )
-	{
-	    longestinlstart = curlinestart; longestinlstop = curlinestop;
-	    longestinlstartcoord = curlinestartcoord;
-	    longestinlstopcoord = curlinestopcoord;
-	}
-
-	if ( nrlines > 1 )
-	{
-	    if (   curbid.crl != longestinlstart.crl
-		&& curbid.crl != longestinlstop.crl )
-		varcrlstart = true;
-	    if (   prevbid.crl != longestinlstart.crl
-		&& prevbid.crl != longestinlstop.crl )
-		varcrlend = true;
-	}
-
-	curlinestart = curlinestop = curbid;
-	curlinestartcoord = curlinestopcoord = curcoord;
 	if ( expectedcrls > 0 && expectedcrls != nrcrlsthisline )
 	{
 	    totalnr -= expectedcrls - nrcrlsthisline;
@@ -466,34 +302,16 @@ void SeisScanner::handleBinIDChange()
 	}
 	nrcrlsthisline = 1;
     }
-    else
-    {
-	if ( curlinestart.crl > curbid.crl )
-	    { curlinestart.crl = curbid.crl; curlinestartcoord = curcoord; }
-	if ( curlinestop.crl < curbid.crl )
-	    { curlinestop.crl = curbid.crl; curlinestopcoord = curcoord; }
-
-	int step = curbid.crl - prevbid.crl;
-	if ( step < 0 ) step = -step;
-	if ( !crlrg.step )
-	    crlrg.step = step;
-	else if ( step != crlrg.step )
-	{
-	    if ( step < crlrg.step ) crlrg.step = step;
-	    crlgapsfound = true;
-	    firstcrlgapbefore = curbid;
-	}
-    }
 }
 
 
 bool SeisScanner::doValueWork()
 {
     const bool adddistribvals = nrdistribvals < mMaxNrDistribVals;
-    float thresh = 1. / (1. + 0.01 * nrvalidtraces);
+    float thresh = 1. / (1. + 0.01 * geomdtector.nrpositions);
     const bool selected_trc = !adddistribvals
 			   && Stat_getRandom() < 0.01;
-    unsigned int selsieve = (unsigned int)(1. + 0.01 * nrvalidtraces);
+    unsigned int selsieve = (unsigned int)(1. + 0.01 * geomdtector.nrpositions);
     if ( selsieve > 10 ) selsieve = 10;
     float sievethresh = 1. / selsieve;
 

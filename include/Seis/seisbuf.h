@@ -7,12 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.7 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.8 2004-03-04 17:27:42 bert Exp $
 ________________________________________________________________________
-
-This object buffers seismic traces. The traces are not managed, but can be
-destroyed with deepErase(). A SeisGather is a buffer in which the traces are
-somehow related.
 
 */
 
@@ -25,29 +21,38 @@ class BinID;
 class SeisTrcWriter;
 
 
+/*!\brief set of seismic traces.
+  
+By default, the traces are not managed, but can be destroyed with deepErase().
+buffer in which the traces are somehow related.
+*/
+
 class SeisTrcBuf
 {
 public:
 
-			SeisTrcBuf()		{}
+			SeisTrcBuf( bool ownr=false )
+				: owner_(ownr)	{}
 			SeisTrcBuf( const SeisTrcBuf& b )
-						{ b.fill( *this ); }
+			    	: owner_(b.owner_) { b.copyInto( *this ); }
+    virtual		~SeisTrcBuf()		{ if ( owner_ ) deepErase(); }
+    void		setIsOwner( bool yn )	{ owner_ = yn; }
+    bool		isOwner() const		{ return owner_; }
 
-    virtual SeisTrcBuf*	clone() const
-			{ SeisTrcBuf* b = new SeisTrcBuf; fill(*b); return b; }
-    void		fill(SeisTrcBuf&) const;
+    void		copyInto(SeisTrcBuf&) const;
+    virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
 
     void		deepErase()		{ ::deepErase(trcs); }
-    void		erase()			{ trcs.erase(); }
+    void		erase()
+    			{
+			    if ( owner_ ) deepErase();
+			    else trcs.erase();
+			}
 
     int			size() const		{ return trcs.size(); }
     void		insert(SeisTrc*,int);
     void		add( SeisTrc* t )	{ trcs += t; }
-    void		add( SeisTrcBuf& tb )
-			{
-			    for ( int idx=0; idx<tb.size(); idx++ )
-				add( tb.get(idx) );
-			}
+    void		add(SeisTrcBuf&);	//!< shallow copy if not owner
 
     int			find(const BinID&) const;
     int			find(SeisTrc*) const;
@@ -60,6 +65,7 @@ public:
     void		fill(SeisPacketInfo&) const;
     void		transferData(FloatList&,int takeeach=1,
 				     int icomp=0) const;
+    			//!< makes a copy of data
 
     void		revert();
     bool		isSorted(bool ascend=true,int siattrnr=6) const;
@@ -73,6 +79,7 @@ public:
 protected:
 
     ObjectSet<SeisTrc>	trcs;
+    bool		owner_;
 
     int			probableIdx(const BinID&) const;
 
@@ -80,6 +87,8 @@ protected:
 
 
 class XFunction;
+
+/*!\brief SeisTrcBuf in which the traces are somehow related. */
 
 class SeisGather : public SeisTrcBuf
 {
@@ -92,7 +101,7 @@ public:
 			: SeisTrcBuf(sg)	{}
 
     virtual mPolyRet(SeisTrcBuf,SeisGather)* clone() const
-			{ SeisGather* g = new SeisGather; fill(*g); return g; }
+			{ return new SeisGather(*this);}
 
     void		getStack(SeisTrc&,const StepInterval<int>&,
 				 int icomp=0) const;
@@ -105,6 +114,8 @@ protected:
 
 };
 
+
+/*!\brief Executor writing the traces in a SeisTrcBuf. */
 
 class SeisTrcBufWriter : public Executor
 {

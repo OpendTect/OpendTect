@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.81 2004-03-01 13:27:06 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.82 2004-03-04 17:27:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ ________________________________________________________________________
 #endif
 
 #include <qlayout.h>
+
+#include "dtect.xpm"
 
 
 class uiMainWinBody : public uiParentBody
@@ -421,7 +423,8 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
     body_->construct( nrstatusflds, wantMBar, wantTBar );
-//    body_->uiCentralWidg()->setBorder(10);
+    if ( !parnt )
+	setIcon( dtect_xpm_data, "OpendTect" );
 }
 
 

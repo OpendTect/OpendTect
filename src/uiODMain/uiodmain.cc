@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.13 2004-01-26 13:01:36 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.14 2004-03-04 17:27:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "settings.h"
 #include "plugins.h"
 #include "odsessionfact.h"
-#include "dtect.xpm"
 
 static const int cCTHeight = 200;
 
@@ -77,7 +76,6 @@ uiODMain::uiODMain( uicMain& a )
     	, sessionSave(this)
     	, sessionRestore(this)
 {
-    setIcon( dtect_xpm_data, "OpendTect" );
     uiMSG().setMainWin( this );
     uiapp.setTopLevel( this );
 
