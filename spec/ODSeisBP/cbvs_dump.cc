@@ -18,7 +18,7 @@ static const char* rcsID = "$Id";
 #include "survinfo.h"
 #include "iopar.h"
 #include "strmprov.h"
-#include <iostream.h>
+#include <iostream>
 #include <math.h>
 
 #include "batchprog.h"
