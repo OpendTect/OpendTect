@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.2 2004-10-27 11:59:45 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.3 2004-10-27 14:56:39 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -44,6 +44,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     if ( !res ) res = "Output.1.Seismic ID";
     seisoutkey_ = res;
 
+    res = iopar_.find( res );
     IOObj* outioobj = IOM().get( res );
     if ( !outioobj )
 	errmsg_ = "Cannot find specified output seismic ID";
@@ -71,7 +72,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	for ( int idx=0; idx<ls.nrLines(); idx++ )
 	    nms.addIfNew( ls.lineName(idx) );
     }
-    return new KeyReplaceJobDescProv( iopar_, sKey::LineKey, nms );
+    return new KeyReplaceJobDescProv( iopar_, "Output.1.Line key", nms );
 }
 
 
@@ -141,8 +142,8 @@ JobRunner* SeisJobExecProv::getRunner()
 BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 {
     const bool havepth = pth && *pth;
-    FilePath fp( havepth ? GetDataDir() : pth );
-    if ( havepth )
+    FilePath fp( havepth ? pth : GetDataDir() );
+    if ( !havepth )
 	fp.add( "Seismics" );
 
     BufferString stordir = "Proc_";

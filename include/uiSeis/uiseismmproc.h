@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.22 2004-10-27 11:59:45 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.23 2004-10-27 14:56:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ protected:
     IOParList&		iopl;
     IOObj*		targetioobj;
     BufferString	progname;
+    int			nrcyclesdone;
 
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;
@@ -73,6 +74,7 @@ protected:
 
     void		startWork(CallBacker*);
     void		setNiceNess();
+    void		updateAliveDisp();
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.69 2004-10-27 11:59:45 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.70 2004-10-27 14:56:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -323,7 +323,20 @@ static int getSecs( const char* txt )
 
 void uiSeisMMProc::doCycle( CallBacker* )
 {
+    nrcyclesdone++;
+
     setNiceNess();
+    updateAliveDisp();
+
+    timer->start( 250, true );
+}
+
+
+void uiSeisMMProc::updateAliveDisp()
+{
+    static const int nrdispstrs = 4;
+    static const char* dispstrs[] = { "o..", ".o.", "..o", ".o." };
+    statusBar()->message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
 }
 
 
@@ -351,6 +364,8 @@ void uiSeisMMProc::addPush( CallBacker* )
     const int nrmach = lb ? lb->size() : 1;
     if ( nrmach < 1 ) return;
     const int nrsel = lb ? lb->nrSelected() : 1;
+    if ( nrsel < 1 )
+	mErrRet("Please select one or more hosts")
 
     for ( int idx=0; idx<nrmach; idx++ )
     {
@@ -358,6 +373,8 @@ void uiSeisMMProc::addPush( CallBacker* )
 
 	if ( !jobrunner )
 	    startWork(0);
+	if ( !jobrunner )
+	    continue;
 
 	BufferString hnm = lb ? lb->textOfItem( idx ) : hdl[0]->name();
 	char* ptr = strchr( hnm.buf(), ' ' );
