@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.67 2004-05-19 12:18:17 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.68 2004-06-17 10:55:46 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -65,6 +65,8 @@ PlaneDataDisplay::~PlaneDataDisplay()
 {
     SPM().zscalechange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
     trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
+    trect->getColorTab().sequencechange.remove(
+				mCB(this,PlaneDataDisplay,coltabChanged) );
     trect->unRef();
     delete &as;
     delete &colas;
@@ -79,12 +81,16 @@ void PlaneDataDisplay::setTextureRect( visBase::TextureRect* tr )
     if ( trect )
     {
 	trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged));
+	trect->getColorTab().sequencechange.remove(
+				mCB(this,PlaneDataDisplay,coltabChanged) );
 	trect->unRef();
     }
 
     trect = tr;
     trect->ref();
     trect->manipChanges()->notify( mCB(this,PlaneDataDisplay,manipChanged) );
+    trect->getColorTab().sequencechange.notify( 
+	    			mCB(this,PlaneDataDisplay,coltabChanged) );
 }
 
 
@@ -290,6 +296,16 @@ void PlaneDataDisplay::appVelChCB( CallBacker* )
 void PlaneDataDisplay::manipChanged( CallBacker* )
 {
     moving.trigger();
+}
+
+
+void PlaneDataDisplay::coltabChanged( CallBacker* )
+{
+    // Hack for correct transparency display
+    bool manipshown = isManipulatorShown();
+    if ( manipshown ) return;
+    showManipulator( true );
+    showManipulator( false );
 }
 
 

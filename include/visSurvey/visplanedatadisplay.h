@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.48 2004-05-27 13:52:17 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.49 2004-06-17 10:55:51 nanne Exp $
 ________________________________________________________________________
 
 
@@ -128,6 +128,7 @@ protected:
     void			setData(const AttribSliceSet*,int datatype=0);
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
+    void			coltabChanged(CallBacker*);
     CubeSampling		getCubeSampling(bool manippos) const;
 
     visBase::TextureRect*	trect;
