@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.23 2004-10-28 15:01:47 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.24 2004-11-09 13:13:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,7 @@ void uiWellMan::fillLogsFld()
     wellrdr->getLogInfo( lognms );
     for ( int idx=0; idx<lognms.size(); idx++)
 	logsfld->addItem( lognms.get(idx) );
-    logsfld->selAll( false );
+    logsfld->selectAll( false );
 }
 
 

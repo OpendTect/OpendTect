@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.25 2004-10-22 14:37:52 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.26 2004-11-09 13:13:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -341,7 +341,7 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
 
     logsfld->box()->empty();
     logsfld->box()->addItems( lfi.lognms );
-    logsfld->box()->selAll( true );
+    logsfld->box()->selectAll( true );
 
     BufferString lbl( "(" ); lbl += lfi.zunitstr.buf(); lbl += ")";
     unitlbl->setText( lbl );

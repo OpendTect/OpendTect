@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.58 2004-10-07 16:16:57 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.59 2004-11-09 13:13:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ void uiListBox::setSelected( int idx, bool yn )
 }
 
 
-void uiListBox::selAll( bool yn )
+void uiListBox::selectAll( bool yn )
 {
     if ( body_->selectionMode() != QListBox::Extended ) return;
 

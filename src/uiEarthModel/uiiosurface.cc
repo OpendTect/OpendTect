@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.25 2004-10-27 15:22:25 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.26 2004-11-09 13:13:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
     sectionfld->box()->empty();
     for ( int idx=0; idx<sections.size(); idx++ )
 	sectionfld->box()->addItem( sections[idx]->buf() );
-    sectionfld->box()->selAll( true );
+    sectionfld->box()->selectAll( true );
 }
 
 

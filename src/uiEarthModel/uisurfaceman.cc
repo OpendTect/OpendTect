@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.21 2004-10-28 15:01:54 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.22 2004-11-09 13:13:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
     attribfld->empty();
     for ( int idx=0; idx<strs.size(); idx++)
 	attribfld->addItem( strs[idx]->buf() );
-    attribfld->selAll( false );
+    attribfld->selectAll( false );
 }
 
 
