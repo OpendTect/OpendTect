@@ -1,0 +1,130 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ Author:        A.H. Lammertink
+ Date:          25/05/2000
+ RCS:           $Id: uicombobox.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+________________________________________________________________________
+
+-*/
+
+#include <uicombobox.h>
+#include <uilabel.h>
+#include <uidobjset.h>
+
+#include <i_qcombobox.h>
+#include <i_qobjwrap.h>
+
+#include <qsize.h> 
+
+typedef i_QObjWrapper<QComboBox> i_QComboBox;
+
+//------------------------------------------------------------------------------
+
+uiComboBox::uiComboBox(  uiObject* parnt, const char* nm, bool ac )
+	: uiWrapObj<i_QComboBox>(new i_QComboBox(*this,nm,parnt,false),parnt,nm)
+						//false: no read/write
+	, _messenger ( *new i_comboMessenger( mQtThing(), this ))
+	, cur_id( -1 )
+{
+    mQtThing()->setAutoCompletion( ac );
+}
+
+uiComboBox::uiComboBox(  uiObject* parnt, const UserIDSet& uids, bool ac )
+	: uiWrapObj<i_QComboBox>(new i_QComboBox(*this,(const char*)uids.name(),
+			  parnt,false), parnt, (const char*)uids.name() )
+						//false: no read/write
+	, _messenger ( *new i_comboMessenger( mQtThing(), this ))
+	, cur_id( -1 )
+{
+    mQtThing()->setAutoCompletion( ac );
+    for ( int idx=0; idx<uids.size(); idx++ )
+	mQtThing()->insertItem( QString( uids[idx]->name() ), idx );
+    cur_id = size() - 1;
+}
+
+uiComboBox::~uiComboBox()
+{}
+
+const QWidget* 	uiComboBox::qWidget_() const 	{ return mQtThing(); } 
+
+int uiComboBox::currentItem() const
+{
+    return mQtThing()->currentItem();
+}
+
+const char* uiComboBox::textOf( int idx ) const
+{
+    const_cast<uiComboBox*>(this)->rettxt = (const char*)mQtThing()->text(idx);
+    return (const char*)rettxt;
+}
+
+
+int uiComboBox::size() const
+{
+    return mQtThing()->count();
+}
+
+void uiComboBox::setCurrentItem( const char* txt )
+{
+    const int sz = mQtThing()->count();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( mQtThing()->text(idx) == txt )
+	    mQtThing()->setCurrentItem( idx );
+    }
+}
+
+void uiComboBox::setCurrentItem( int index )
+{
+    mQtThing()->setCurrentItem( index );
+}
+
+int uiComboBox::insertItem( const char* text ) 
+//!< \return index of new inserted item. 
+{ 
+    int id = getNewId();
+    mQtThing()->insertItem( QString( text ), id );
+    return id;
+}
+
+
+int uiComboBox::insertItems( const char** textList ) 
+//!< last element in textList array must be NULL pointer. 
+//!< \return index of first inserted item. 
+{   int first_id = 0;
+    int i = 0;
+    const char* pt_cur = textList[ 0 ];
+    if( pt_cur )
+    {  
+        first_id = insertItem( pt_cur );
+        pt_cur = textList[ ++i ];
+
+	while( pt_cur ) 
+	{
+	    insertItem( pt_cur );
+	    pt_cur = textList[ ++i ]; 
+	}
+    }
+    return first_id;
+}
+
+
+uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const char* txt,
+					const char* nm, bool ac )
+	: uiGroup(p,"Labeled combobox")
+{
+    cb = new uiComboBox( this, nm, ac );
+    labl = new uiLabel( this, txt, cb );
+    setHAlignObj( cb );
+}
+
+
+uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const UserIDSet& s, bool ac )
+	: uiGroup(p,"Labeled combobox")
+{
+    cb = new uiComboBox( this, s, ac );
+    labl = new uiLabel( this, s.name(), cb );
+    setHAlignObj( cb );
+}
