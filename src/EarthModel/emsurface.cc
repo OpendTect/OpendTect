@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.7 2003-06-05 14:08:11 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.8 2003-06-17 13:33:48 kristofer Exp $";
 
 #include "emsurface.h"
 
@@ -24,8 +24,13 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.7 2003-06-05 14:08:11 kristofe
 
 EM::Surface::Surface(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
+    , step( SI().getStep(true, false), SI().getStep(false,false))
+    , loadedstep( SI().getStep(true, false), SI().getStep(false,false))
+    , rowinterval( 0 )
+    , colinterval( 0 )
 {
     auxdatanames.allowNull(true);
+    auxdatainfo.allowNull(true);
     auxdata.allowNull(true);
 }
 
@@ -48,21 +53,40 @@ EM::PatchID EM::Surface::patchID( int idx ) const
 }
 
 
-EM::PatchID EM::Surface::addPatch( bool addtohistory )
+const char* EM::Surface::patchName( const EM::PatchID& patchid ) const
+{
+    int idx = patchids.indexOf(patchid);
+    const char* res = idx!=-1 ? patchnames[idx]->buf() : 0;
+    return  res && !*res ? res : 0;
+}
+
+
+EM::PatchID EM::Surface::addPatch( const char* nm, bool addtohistory )
 {
     PatchID res = 0;
     while ( patchids.indexOf(res)!=-1 ) res++;
 
-    addPatch( res, addtohistory );
+    addPatch( nm, res, addtohistory );
     return res;
 }
 
 
-bool EM::Surface::addPatch( PatchID patchid, bool addtohistory )
+bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
 {
     if ( patchids.indexOf(patchid) != -1 ) return false;
 
+    BufferString name;
     patchids += patchid;
+    if ( nm )
+	name = nm;
+    else
+    {
+	name = "Patch ";
+	name += patchid;
+    }
+
+    patchnames += new BufferString(name);
+
     Geometry::GridSurface* newsurf = createPatchSurface();
     surfaces += newsurf;
 
@@ -76,7 +100,8 @@ bool EM::Surface::addPatch( PatchID patchid, bool addtohistory )
 
     if ( addtohistory )
     {
-	HistoryEvent* history = new SurfacePatchEvent( true, id(), patchid );
+	HistoryEvent* history = new SurfacePatchEvent( true, id(),
+							patchid, name );
 	manager.history().addEvent( history, 0, 0 );
     }
 
@@ -89,9 +114,13 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
     int idx=patchids.indexOf(patchid);
     if ( idx==-1 ) return;
 
+    BufferString name = *patchnames[idx];
+
     delete surfaces[idx];
     surfaces.remove( idx );
     patchids.remove( idx );
+    delete patchnames[idx];
+    patchnames.remove( idx );
 
     for ( int idy=0; idy<nrAuxData(); idy++ )
     {
@@ -104,23 +133,28 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 
     if ( addtohistory )
     {
-	HistoryEvent* history = new SurfacePatchEvent( false, id(), patchid );
+	HistoryEvent* history = new SurfacePatchEvent( false, id(),
+							patchid, name );
 	manager.history().addEvent( history, 0, 0 );
     }
 }
 
 
-void EM::Surface::setPos( PatchID patch, const RowCol& node,
+bool EM::Surface::setPos( PatchID patch, const EM::SubID& subid,
 				   const Coord3& pos, bool autoconnect,
 				   bool addtohistory)
 {
+    RowCol node;
+    if ( !getGridRowCol( subid, node ) )
+	return false;
+
     int patchindex=patchids.indexOf(patch);
-    if ( patchindex==-1 ) return;
+    if ( patchindex==-1 ) return false;
 
     const Geometry::PosID posid = Geometry::GridSurface::getPosID(node);
     Geometry::GridSurface* surface = surfaces[patchindex];
     const Coord3 oldpos = surface->getGridPos( node );
-    if ( oldpos==pos ) return;
+    if ( oldpos==pos ) return true;
 
     TypeSet<EM::PosID> nodeonotherpatches;
     if ( autoconnect )
@@ -152,7 +186,7 @@ void EM::Surface::setPos( PatchID patch, const RowCol& node,
 	manager.history().addEvent( history, 0, 0 );
     }
 
-    if ( !autoconnect ) return;
+    if ( !autoconnect ) return true;
 
     for ( int idx=0; idx<nodeonotherpatches.size(); idx++ )
     {
@@ -169,6 +203,8 @@ void EM::Surface::setPos( PatchID patch, const RowCol& node,
 	    }
 	}
     }
+
+    return true;
 }
 
 
@@ -177,17 +213,18 @@ bool EM::Surface::setPos( const EM::PosID& posid, const Coord3& newpos,
 {
     if ( posid.emObject()!=id() ) return false;
 
-    setPos( posid.patchID(), Geometry::GridSurface::getGridNode(posid.subID()),
-	    newpos, false, addtohistory );
-
-    return true;
+    return setPos( posid.patchID(), posid.subID(), newpos, false,addtohistory);
 }
 
 
 Coord3 EM::Surface::getPos( const EM::PosID& posid ) const
 {
     const int surfidx = patchids.indexOf( posid.patchID() );
-    return surfaces[surfidx]->getPos( posid.subID() );
+    RowCol geomnode;
+    if ( !getGridRowCol( posid.subID(), geomnode ) )
+	return Coord3( mUndefValue, mUndefValue, mUndefValue );
+
+    return surfaces[surfidx]->getGridPos( geomnode );
 }
 
 
@@ -203,7 +240,7 @@ int EM::Surface::findPos( const RowCol& rowcol,
 	    continue;
 
 	Coord3 pos = gridsurf->getGridPos( rowcol );
-	EM::SubID subid = Geometry::GridSurface::getPosID( rowcol );
+	EM::SubID subid = rowCol2SubID( rowcol );
 
 	for ( int idx=0; idx<res.size(); idx++ )
 	{
@@ -261,7 +298,7 @@ int EM::Surface::findPos( const CubeSampling& cs,
 		 nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
 		continue;
 
-	    EM::PosID posid( id(), patchids[idx], nodes[idy] );
+	    EM::PosID posid( id(), patchids[idx], getSurfSubID(nodes[idy]) );
 
 	    TypeSet<EM::PosID> clones;
 	    getLinkedPos( posid, clones );
@@ -294,7 +331,7 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 				int maxradius, bool circle ) const
 {
     ObjectSet< TypeSet<EM::PosID> > neigbors;
-    const RowCol start = Geometry::GridSurface::getGridNode(posid_.subID());
+    const RowCol start = subID2RowCol(posid_.subID());
     neigbors += new TypeSet<EM::PosID>( 1, posid_ );
 
     for ( int idx=0; idx<neigbors.size(); idx++ )
@@ -302,8 +339,7 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 	for ( int idz=0; idz<neigbors[idx]->size(); idz++ )
 	{
 	    EM::PosID currentposid = (*neigbors[idx])[idz];
-	    const RowCol rowcol =
-		     Geometry::GridSurface::getGridNode(currentposid.subID());
+	    const RowCol rowcol = subID2RowCol(currentposid.subID());
 
 	    for ( int row=-1; row<=1; row++ )
 	    {
@@ -333,7 +369,7 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 		    const EM::PosID
 			    neighborposid(currentposid.emObject(),
 			    currentposid.patchID(),
-			    Geometry::GridSurface::getPosID(neighborrowcol) );
+			    rowCol2SubID(neighborrowcol) );
 
 		    for ( int idy=0; idy<neigbors.size(); idy++ )
 		    {
@@ -385,7 +421,7 @@ void EM::Surface::getLinkedPos( const EM::PosID& posid,
         return; //TODO: Implement handling for this case
 
     const EM::SubID subid = posid.subID();
-    const RowCol rowcol = Geometry::GridSurface::getGridNode(subid);
+    const RowCol rowcol = subID2RowCol(subid);
     const Geometry::GridSurface* owngridsurf = getSurface( posid.patchID() );
 
     const int nrsubsurf = nrPatches();
@@ -406,6 +442,48 @@ bool EM::Surface::isLoaded() const
 }
 
 
+RowCol EM::Surface::loadedStep() const
+{
+    return loadedstep;
+}
+
+
+void EM::Surface::setTranslatorData( const RowCol& step_,
+					const RowCol& loadedstep_,
+					const RowCol& origo_,
+					const Interval<int>* rowrange_,
+					const Interval<int>* colrange_ )
+{
+    step = step_;
+    loadedstep = loadedstep_;
+    origo = origo_;
+    delete rowinterval;
+    delete colinterval;
+    rowinterval = rowrange_ ? new Interval<int>( *rowrange_ ) : 0;
+    colinterval = colrange_ ? new Interval<int>( *colrange_ ) : 0;
+}
+
+
+
+
+RowCol EM::Surface::subID2RowCol( const EM::SubID& subid )
+{
+    return long2rc(subid);
+}
+
+
+EM::SubID EM::Surface::rowCol2SubID( const RowCol& rc )
+{
+    return rc2long(rc);
+}
+
+
+bool EM::Surface::isFullResolution() const
+{
+    return loadedstep==step;
+}
+
+
 int EM::Surface::nrAuxData() const
 {
     return auxdatanames.size();
@@ -423,9 +501,21 @@ const char* EM::Surface::auxDataName(int dataidx) const
 }
 
 
-int EM::Surface::addAuxData(const char* name)
+const char* EM::Surface::auxDataInfo(int dataidx) const
+{
+    if ( auxdatainfo[dataidx] )
+    {
+	return *auxdatainfo[dataidx];
+    }
+
+    return 0;
+}
+
+
+int EM::Surface::addAuxData(const char* name, const char* info)
 {
     auxdatanames += new BufferString( name );
+    auxdatainfo += info ? new BufferString( info ) : 0;
     ObjectSet<TypeSet<float> >* newauxdata = new ObjectSet<TypeSet<float> >;
     auxdata += newauxdata;
     newauxdata->allowNull(true);
@@ -441,6 +531,8 @@ void EM::Surface::removeAuxData( int dataidx )
 {
     delete auxdatanames[dataidx];
     auxdatanames.replace( 0, dataidx );
+    delete auxdatainfo[dataidx];
+    auxdatainfo.replace( 0, dataidx );
 
     deepEraseArr( *auxdata[dataidx] );
     delete auxdata[dataidx];
@@ -485,6 +577,32 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
 }
 
 
+bool EM::Surface::getGridRowCol( const EM::SubID& posid,
+			     RowCol& nodeid ) const
+{
+    const RowCol emrowcol = subID2RowCol(posid) - origo;
+    if ( emrowcol.row%loadedstep.row || emrowcol.col%loadedstep.col )
+	return false;
+
+    nodeid = emrowcol/loadedstep;
+    return true;
+}
+
+
+EM::SubID EM::Surface::getSurfSubID( const RowCol& nodeid ) const
+{
+    return rowCol2SubID( origo+nodeid*loadedstep );
+}
+
+
+EM::SubID EM::Surface::getSurfSubID( const Geometry::PosID& gposid ) const
+{
+    const RowCol& nodeid = Geometry::GridSurface::getGridNode(gposid);
+    return getSurfSubID( nodeid );
+}
+
+
+
 const Geometry::GridSurface* EM::Surface::getSurface( PatchID patchid )const
 {
     const int idx = patchids.indexOf( patchid );
@@ -496,6 +614,7 @@ const Geometry::GridSurface* EM::Surface::getSurface( PatchID patchid )const
 void EM::Surface::cleanUp()
 {
     deepErase( auxdatanames );
+    deepErase( auxdatainfo );
     for ( int idx=0; idx<auxdata.size(); idx++ )
     {
 	if ( !auxdata[idx] ) continue;
@@ -504,7 +623,12 @@ void EM::Surface::cleanUp()
 
     deepErase( auxdata );
 
-    
     deepErase( surfaces );
+    deepErase( patchnames );
     patchids.erase();
+
+    delete rowinterval;
+    delete colinterval;
+    rowinterval = 0;
+    colinterval = 0;
 }
