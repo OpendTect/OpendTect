@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.20 2002-06-21 16:02:41 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.21 2002-11-21 15:21:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     void		clear()			{ setCurrentItem( 0 ); }
     void		empty(bool withclear=false);
     virtual void	processInput()		{}
+    void		setReadOnly(bool readonly=true);
 
     void		doSel(CallBacker*);
     			//!< Called by 'Select ...' button push.
