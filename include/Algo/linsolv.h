@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: linsolv.h,v 1.4 2002-04-17 13:44:47 bert Exp $
+ RCS:           $Id: linsolv.h,v 1.5 2002-10-31 17:24:43 kristofer Exp $
 ________________________________________________________________________
 
 LinSolver - Solves linear systems of equations on the form A*x=B. A is
@@ -16,9 +16,10 @@ vector of the size N.
 @$
 */
 
-#include <math.h>
-#include <string.h>
-#include <arrayndimpl.h>
+#include "math.h"
+#include "string.h"
+#include "arrayndimpl.h"
+#include "sets.h"
 #define TINY 1.0e-20
 
 template <class T>
