@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.56 2004-10-07 19:04:14 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.57 2004-11-09 10:06:08 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -346,7 +346,10 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 
     TypeSet<int> sceneids;
     visserv->getChildIds(-1,sceneids);
-    if ( sceneids.size()>1 )
+    bool doshare = false;
+    Settings::common().getYN( IOPar::compKey("dTect","Share elements"), 
+	    		      doshare );
+    if ( doshare && sceneids.size()>1 )
     {
 	sharefirstmnuid = menu->getCurrentID();
 	uiPopupMenu* sharemnu = new uiPopupMenu( menu->getParent(),
