@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.5 2003-01-08 12:48:48 nanne Exp $
+ RCS:           $Id: uitextedit.h,v 1.6 2003-02-12 10:30:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ friend class		i_BrowserMessenger;
 public:
 
                         uiTextBrowser( uiParent* parnt, 
-				    const char* nm="uiBrowser" );
+				       const char* nm="uiBrowser",
+				       bool forcePlainText=true );
 
     const char*		source() const;
     void		setSource( const char* ); 
@@ -109,7 +110,7 @@ protected:
 private:
 
     uiTextBrowserBody*	body_;
-    uiTextBrowserBody&	mkbody(uiParent*, const char* );
+    uiTextBrowserBody&	mkbody(uiParent*, const char*, bool );
 };
 
 #endif
