@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.9 2002-08-26 13:03:49 bert Exp $
+ RCS:		$Id: thread.h,v 1.10 2002-08-28 12:09:18 bert Exp $
 ________________________________________________________________________
 
 */
@@ -150,7 +150,8 @@ is the base class for all threads. Start it by creating it and give it the
 function or CallBack to execute. The function running in the thread must not
 return. Instead it should call threadExit to terminate itself.
 
-The process that has created the thread must call destroy().
+The process that has created the thread must call destroy() or detach().
+
 
 */
 
@@ -158,19 +159,27 @@ class Thread
 {
 public:
 
-				Thread(void (*)(void*), void* arg);
+				Thread(void (*)(void*));
 				Thread(const CallBack&);
 
-    static void			threadExit(void* retval=0);
+    static void			threadExit();
 				/*!< Should only be called by the 
 				     running thread */
 
-    void			destroy(bool wait,void** retval);
+    void			stop();
     				/*!< Delete the thread with this function.
-				    If wait is true, it will wait for the
-				    thread to call threadExit. retval is
-				    only set if wait is true
+				    Will wait for the thread to call threadExit.
 				*/
+
+    void			detach();
+    				/*!< Will make sure the threads resouces are
+				     released once the thread calls threadExit.
+				     Will return immidiately.
+				*/
+
+    unsigned long int		ID() const
+				{ return (unsigned long int)id; }
+    				//!< debugging purposes
 
 protected:
 
@@ -185,7 +194,26 @@ private:
     
     virtual			~Thread()	{}
 };
-				    
+
+
+#define mThreadDeclaredMutexedVar(T,var) \
+    T			var; \
+    Threads::Mutex	var##mutex
+
+#define mThreadMutexedSet(var,newval) \
+    var##mutex.lock(); \
+    var = newval; \
+    var##mutex.unlock()
+
+#define mThreadMutexedGet(retvar,var) \
+    var##mutex.lock(); \
+    retvar = var; \
+    var##mutex.unlock()
+
+#define mThreadMutexedGetVar(T,retvar,var) \
+    var##mutex.lock(); \
+    T retvar = var; \
+    var##mutex.unlock()
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.6 2002-08-26 13:03:37 bert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.7 2002-08-28 12:09:18 bert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -78,11 +78,11 @@ int Threads::ConditionVar::signal(bool all)
 }
 
 
-Threads::Thread::Thread( void (func)(void*), void* data )
+Threads::Thread::Thread( void (func)(void*) )
     	: id(0)
 {
 #ifdef __pthread__
-    pthread_create( &id, 0, (void* (*)(void*)) func, data );
+    pthread_create( &id, 0, (void* (*)(void*)) func, 0 );
 #endif
 }
 
@@ -99,30 +99,32 @@ Threads::Thread::Thread( const CallBack& cb )
     	: id(0)
 {
     if ( !cb.willCall() ) return;
-    static CallBack lcb( cb );
 #ifdef __pthread__
-    pthread_create( &id, 0, thread_exec_fn, &lcb );
+    pthread_create( &id, 0, thread_exec_fn, (void*)(&cb) );
 #endif
 }
 
 
-void Threads::Thread::destroy(bool wait, void** ret_val)
+void Threads::Thread::stop()
 {
 #ifdef __pthread__
-    if ( wait )
-	pthread_join( id, ret_val );
-    else
-    {
-	pthread_detach( id );
-    }
+    pthread_join( id, 0 );
     delete this;
 #endif
 }
 
 
-void Threads::Thread::threadExit( void* rv )
+void Threads::Thread::detach()
 {
 #ifdef __pthread__
-    pthread_exit( rv );
+    pthread_detach( id );
+#endif
+}
+
+
+void Threads::Thread::threadExit()
+{
+#ifdef __pthread__
+    pthread_exit( 0 );
 #endif
 }
