@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.23 2004-05-04 16:03:56 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.24 2004-05-05 15:49:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "vissurvstickset.h"
 #include "visinterpret.h"
 #include "vishingeline.h"
+#include "uitrackingman.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -86,6 +87,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     wellserv = new uiWellPartServer( applservice );
     wellattrserv = new uiWellAttribPartServer( applservice );
     trackserv = new uiTrackingPartServer( applservice );
+    trackserv->setAttribDescSet( attrserv->curDescSet() );
 }
 
 
@@ -574,8 +576,11 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     else if ( evid == uiTrackingPartServer::evShowManager )
     {
 	int interpreterid = trackserv->interpreterID( sceneid );
-//	visserv->launchTrackingManager( interpreterid, 
-//					trackserv->trackManager() );
+	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,
+					visserv->getObject(interpreterid))
+	uiTrackingMan* dlg = new uiTrackingMan( &appl, *sid, 
+						trackserv->trackManager() );
+	dlg->go();
     }
     else if ( evid == uiTrackingPartServer::evGetData )
     {
