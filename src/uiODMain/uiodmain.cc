@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.28 2004-12-06 09:23:28 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.29 2004-12-15 16:03:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,7 +212,7 @@ bool uiODMain::hasSessionChanged()
 void uiODMain::saveSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( false );
-    if ( !ctio ) mDelCtioRet()
+    if ( !ctio ) { delete ctio; return; }
     ODSession sess; cursession = &sess;
     if ( !updateSession() ) mDelCtioRet()
     BufferString bs;
@@ -227,7 +227,7 @@ void uiODMain::saveSession()
 void uiODMain::restoreSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( true );
-    if ( !ctio ) mDelCtioRet()
+    if ( !ctio ) { delete ctio; return; }
     ODSession sess; BufferString bs;
     if ( !ODSessionTranslator::retrieve(sess,ctio->ioobj,bs) )
 	{ uiMSG().error( bs ); mDelCtioRet(); }
