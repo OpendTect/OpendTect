@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.2 2004-01-12 16:18:03 bert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.3 2004-01-13 11:08:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,10 +121,10 @@ bool uiSetDataDir::acceptOK( CallBacker* )
     if ( !File_exists(datadir) )
     {
 #ifdef __win__
-	if ( !strncasecmp("C:\\Program Files", dirnm, 16)
-	  || strstr( dirnm, "Program Files" )
-	  || strstr( dirnm, "program files" )
-	  || strstr( dirnm, "PROGRAM FILES" ) )
+	if ( !strncasecmp("C:\\Program Files", datadir, 16)
+	  || strstr( datadir, "Program Files" )
+	  || strstr( datadir, "program files" )
+	  || strstr( datadir, "PROGRAM FILES" ) )
 	    mErrRet( "Please do not try to use 'Program Files' for data.\n"
 		     "A directory like 'My Documents' would be good." )
 #endif
