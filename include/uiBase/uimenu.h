@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uimenu.h,v 1.2 2001-04-24 10:52:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,21 +33,22 @@ class QObject;
 
 class uiMenuData  
 {
-protected:
-			uiMenuData();
 public:
+
     virtual		~uiMenuData();
     
-    void		insertItem( uiMenuItem*, int index=-1 );
-    void                insertItem( const char* text, const CallBack& cb, 
-				    int index=-1 );
-    void		insertItem( uiPopupMenu*, int index=-1 );
+    void		insertItem(uiMenuItem*,int idx=-1);
+    void                insertItem(const char* text, const CallBack& cb, 
+				   int idx=-1);
+    void		insertItem(uiPopupMenu*,int idx=-1);
 
-    void 		insertSeparator( int index=-1 );
+    void 		insertSeparator(int idx=-1);
 
     virtual QMenuData& 	qMenuData() = 0;
 
 protected:
+			uiMenuData();
+
     UserIDObjectSet<UserIDObject> itms;
 
 };
@@ -55,8 +56,8 @@ protected:
 
 class uiMenuItem : public UserIDObject
 {
-friend class uiMenuData;
-friend class i_MenuMessenger;
+    friend class	uiMenuData;
+    friend class	i_MenuMessenger;
 
 public:
 			uiMenuItem( const char* nm="uiMenuItem" );
@@ -75,6 +76,7 @@ public:
     void 		setChecked( bool yn );
 
 protected:
+
     //! Handler called from Qt.
     virtual void        notifyHandler() 	{ Notifier(); }
 
@@ -84,11 +86,15 @@ protected:
     i_MenuMessenger&	_messenger;
     int			id;
     uiMenuData*		parent;
+
 };
 
 class uiMenuBar : public uiMenuData, public uiNoWrapObj<QMenuBar>
-{ friend class uiMainWin;
+{
+    friend class	uiMainWin;
+
 public:                        
+
     virtual QMenuData& 	qMenuData();
 
 protected:
@@ -101,7 +107,8 @@ protected:
 
 class uiPopupMenu : public uiMenuData, public uiWrapObj<i_QPopupMenu>
 {
-friend class uiMenuData;
+    friend class	uiMenuData;
+
 public:                        
 			uiPopupMenu(  uiObject* parnt,
                                     const char* nm="uiPopupMenu");
@@ -112,10 +119,11 @@ public:
     void		setCheckable( bool yn );
 
 protected:
+
     const QWidget*	qWidget_() const;
 
     int			id;
-//    uiMenuData*		parent;
+
 };
 
 #endif

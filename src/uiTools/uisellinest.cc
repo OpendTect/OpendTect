@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.2 2001-01-24 12:59:00 arend Exp $
+ RCS:           $Id: uisellinest.cc,v 1.3 2001-04-24 10:53:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uicombobox.h"
 #include "uicolor.h"
+#include "uidset.h"
 
 
 uiSelLineStyle::uiSelLineStyle( uiObject* p, const LineStyle& l,

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.3 2001-01-24 12:58:46 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.4 2001-04-24 10:53:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "uimain.h"
 #include "settings.h"
-#include "uidobjset.h"
+#include "uidset.h"
 #include "uidialog.h"
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -366,7 +366,7 @@ const char* uiSelFonts::resultFor( const char* str )
     for ( int idx=0; idx<sels.size(); idx++ )
     {
 	if ( sels[idx]->label()->name() == str )
-	    return sels[idx]->box()->currentText();
+	    return sels[idx]->box()->getText();
     }
 
     return uiFontList::key(0);

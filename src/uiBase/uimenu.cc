@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uimenu.cc,v 1.2 2001-04-24 10:53:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,8 @@ ________________________________________________________________________
 
 
 uiMenuData::uiMenuData()
-{}
+{
+}
 
 
 uiMenuData::~uiMenuData()
@@ -31,99 +32,95 @@ uiMenuData::~uiMenuData()
 }
 
 
-void uiMenuData::insertItem( uiMenuItem* it, int index )
+void uiMenuData::insertItem( uiMenuItem* it, int idx )
 {
     it->id = qMenuData().insertItem( QString( it->name() ), 
-			 &it->_messenger, SLOT( activated() ), 0, -1, index );
+			 &it->_messenger, SLOT( activated() ), 0, -1, idx );
     it->parent=this;
     itms += it;
 }
 
 /*!
-    \brief Insert a menu item by menu-text and CallBack.
+    \brief Add a menu item by menu-text and CallBack.
 
     If you want to be able to specify a callback flexibly, construct
     a uiMenuItem by hand and insert this into the menu. Then you can
     add callbacks at any time to the uiMenuItem.
 
 */
-void uiMenuData::insertItem( const char* text, const CallBack& cb, int index )
+void uiMenuData::insertItem( const char* text, const CallBack& cb, int idx )
 { 
     uiMenuItem* it = new uiMenuItem( text, cb );
-    insertItem ( it, index ); 
+    insertItem ( it, idx ); 
     itms += it;
 } 
 
-void uiMenuData::insertItem( uiPopupMenu* it, int index )
+
+void uiMenuData::insertItem( uiPopupMenu* it, int idx )
 {
     it->id = qMenuData().insertItem( QString( it->name() ), it->mQtThing(),
-				     -1, index);
-//    it->parent=this;
+				     -1, idx);
     itms += it;
 }
 
-void uiMenuData:: insertSeparator( int index ) 
-{ qMenuData().insertSeparator( index ); }
+
+void uiMenuData:: insertSeparator( int idx ) 
+{
+    qMenuData().insertSeparator( idx );
+}
+
 
 uiMenuItem::uiMenuItem( const char* nm ) 
     : UserIDObject( nm )
     , _messenger( *new i_MenuMessenger( this ) )
     , id( 0 ) 
-{}
+{
+}
+
 
 uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
-    : UserIDObject( nm )
-    , _messenger( *new i_MenuMessenger( this ) )
-    , id( 0 ) 
+	: UserIDObject( nm )
+	, _messenger( *new i_MenuMessenger( this ) )
+	, id( 0 ) 
 { 
     notifyCBL += cb; 
 }
 
-uiMenuItem::~uiMenuItem() { delete &_messenger; }
+uiMenuItem::~uiMenuItem()
+{
+    delete &_messenger;
+}
 
 
 bool uiMenuItem::isEnabled () const
-{ return parent->qMenuData().isItemEnabled( id ); }
-
-
+    { return parent->qMenuData().isItemEnabled( id ); }
 void uiMenuItem::setEnabled ( bool yn )
-{ parent->qMenuData().setItemEnabled( id, yn ); }
-
-
+    { parent->qMenuData().setItemEnabled( id, yn ); }
 bool uiMenuItem::isChecked () const
-{ return parent->qMenuData().isItemChecked( id ); }
-
-
+    { return parent->qMenuData().isItemChecked( id ); }
 void uiMenuItem::setChecked( bool yn )
-{ parent->qMenuData().setItemChecked( id, yn ); }
-
+    { parent->qMenuData().setItemChecked( id, yn ); }
 void uiMenuItem::set( const char* txt )
-{
-    parent->qMenuData().changeItem ( id, QString(txt) );
-}
+    { parent->qMenuData().changeItem ( id, QString(txt) ); }
+
 
 uiMenuBar::uiMenuBar( uiMainWin* parnt, const char* nm, QMenuBar& qThing )
-: uiNoWrapObj<QMenuBar>( &qThing, parnt, nm, false ) 
-{}
+	: uiNoWrapObj<QMenuBar>( &qThing, parnt, nm, false ) 
+{
+}
 
 const QWidget* 	uiMenuBar::qWidget_() const 	{ return mQtThing(); } 
-
-QMenuData& uiMenuBar::qMenuData() { return *mQtThing(); }
+QMenuData& uiMenuBar::qMenuData()		{ return *mQtThing(); }
 
 
 uiPopupMenu::uiPopupMenu( uiObject* parnt, const char* nm )
-: uiWrapObj<i_QPopupMenu>( new i_QPopupMenu( *(uiObject*)this, 
-			    parnt ? &parnt->clientQWidget() : 0, nm ), 
-	 parnt, nm ) 
-{}
+	: uiWrapObj<i_QPopupMenu>( new i_QPopupMenu( *(uiObject*)this, 
+				     parnt ? &parnt->clientQWidget() : 0, nm ), 
+				     parnt, nm ) 
+{
+}
 
 const QWidget* 	uiPopupMenu::qWidget_() const 	{ return mQtThing(); } 
-
-QMenuData& uiPopupMenu::qMenuData() 
-    { return *mQtThing(); }
-
-bool uiPopupMenu::isCheckable() 
-    { return mQtThing()->isCheckable(); }
-
-void uiPopupMenu::setCheckable(bool yn) 
-    { return mQtThing()->setCheckable(yn); }
+QMenuData& uiPopupMenu::qMenuData()		{ return *mQtThing(); }
+bool uiPopupMenu::isCheckable()		{ return mQtThing()->isCheckable(); }
+void uiPopupMenu::setCheckable(bool yn) { return mQtThing()->setCheckable(yn); }

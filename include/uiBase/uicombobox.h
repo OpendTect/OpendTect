@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.2 2001-04-24 10:52:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,34 +26,33 @@ friend class i_comboMessenger;
 friend i_QComboBox;
 public:
 
-			uiComboBox( uiObject*,const char* nm="Combo Box",
-				    bool autoComplete=true);
-			uiComboBox(uiObject*,const UserIDSet&,bool ac=true);
-
+			uiComboBox(uiObject*,const char* nm="Combo Box",
+				   bool editable=false);
+			uiComboBox(uiObject*,const UserIDSet&,
+				   bool editable=false);
     virtual 		~uiComboBox();
 
-    virtual bool        isSingleLine() const { return true; }
-
     void                notify( const CallBack& cb ) { notifyCBL += cb; }
-    //!< Triggered when selection has changed. 
+			//!< Triggered when selection has changed. 
 
+    const char*		getText() const;
+    int			size() const;
+
+    bool		isPresent(const char*) const;
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
-    const char*		textOf(int) const;
-    const char*		currentText() const
-			{ return textOf( currentItem() ); }
-    int			size() const;
-    
+    const char*		textOfItem(int) const;
 
-    int			insertItem( const char* text ); 
-    int			insertItems( const char** textList ); 
+    void		clear();
+    void		addItem(const char*); 
+    void		addItems(const char**); 
+    void		addItems(const UserIDSet&);
 
-    int			getCurId() const	{ return cur_id; }
-    //!< \return current Id, which equals the number of items in the box - 1.
-    // UNLESS items have been removed, but that's not supported.
+    virtual bool        isSingleLine() const { return true; }
 
 protected:
+
     const QWidget*	qWidget_() const;
 
     virtual void        notifyHandler() //!< Handler called from Qt.
@@ -64,10 +63,6 @@ protected:
 private:
 
     i_comboMessenger&    _messenger;
-
-    int			cur_id;
-    int			getNewId() { return ++cur_id; }
-
     BufferString	rettxt;
 
 };
@@ -78,8 +73,8 @@ class uiLabeledComboBox : public uiGroup
 public:
 		uiLabeledComboBox( uiObject*,const char* txt,
 				   const char* nm="Labeled Combobox",
-				   bool autoComplete=true);
-		uiLabeledComboBox(uiObject*,const UserIDSet&,bool ac=true);
+				   bool editable=false);
+		uiLabeledComboBox(uiObject*,const UserIDSet&,bool ed=false);
 
     uiComboBox*	box()		{ return cb; }
     uiLabel*	label()		{ return labl; }
