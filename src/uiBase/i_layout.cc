@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.61 2003-03-05 12:09:02 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.62 2003-03-05 14:02:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
     , minimumDone(false), preferredDone(false), ismain(false)
     , prefposStored( false )
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
-    , poptimer( *new Timer ), popped_up( false )
+    , poptimer( *new Timer ), popped_up( false ) , timer_running( false )
 {
     poptimer.tick.notify(mCB(this,i_LayoutMngr,popTimTick));
 }
@@ -641,7 +641,7 @@ void i_LayoutMngr::doLayout( layoutMode lom, const QRect &externalRect )
 
 void i_LayoutMngr::layoutChildren( layoutMode lom, bool finalLoop )
 {
-    touchPoptimer();
+    startPoptimer();
 
     int iternr;
 
@@ -772,9 +772,9 @@ void i_LayoutMngr::popTimTick(CallBacker*)
 }
 
 
-void i_LayoutMngr::touchPoptimer()
+void i_LayoutMngr::startPoptimer()
 {
-    if ( popped_up ) return;
+    if ( timer_running || popped_up ) return;
 
     if ( managedBody.uiObjHandle().mainwin()  )
 	managedBody.uiObjHandle().mainwin()->touch();
@@ -783,5 +783,6 @@ void i_LayoutMngr::touchPoptimer()
 	poptimer.stop();
 
     poptimer.start( 100, true );
+    timer_running = true;
 }
 

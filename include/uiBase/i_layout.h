@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.32 2003-03-05 12:09:34 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.33 2003-03-05 14:02:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,10 +179,11 @@ private:
 
     uiObjectBody& 	managedBody;
 
-    void		touchPoptimer();
+    void		startPoptimer();
     void		popTimTick(CallBacker*);
     Timer&		poptimer;
     bool		popped_up;
+    bool		timer_running;
 
 };
 
