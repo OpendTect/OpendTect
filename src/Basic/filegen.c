@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.45 2003-11-11 16:26:02 arend Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.46 2003-11-11 16:52:31 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -55,7 +55,7 @@ static const char* dirsep = sDirSep;
 
 int File_exists( const char* fname )
 {
-#ifdef __msvc__
+#ifdef __win__
     return fname && *fname && PathFileExists( fname );
 #else
     return fname && *fname && stat(fname,&statbuf) >= 0 ? YES : NO;
@@ -65,7 +65,7 @@ int File_exists( const char* fname )
 
 int File_isEmpty( const char* fname )
 {
-#ifdef __msvc__
+#ifdef __win__
     return !File_exists( fname );
 #else
     return !fname || stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? YES : NO;
@@ -75,7 +75,7 @@ int File_isEmpty( const char* fname )
 
 int File_isDirectory( const char* dirname )
 {
-#ifdef __msvc__
+#ifdef __win__
     return PathIsDirectory( dirname );
 #else
     if ( !dirname || !*dirname || !File_exists(dirname) ) return 0;
@@ -166,7 +166,9 @@ int File_getKbSize( const char* fnm )
 
     if ( !File_exists(fnm) )
 	return 0;
-
+#ifdef __win__
+    stat(fname,&statbuf);
+#endif
     res *= statbuf.st_size;
     return (int)(res + .5);
 
