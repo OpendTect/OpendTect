@@ -4,14 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.41 2002-10-14 15:10:08 niclas Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.42 2002-10-23 09:43:17 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "vistransform.h"
-#include "position.h"
 #include "vissurvpickset.h"
 #include "vissurvsurf.h"
 #include "survinfo.h"

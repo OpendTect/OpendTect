@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistristripset.h,v 1.6 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: vistristripset.h,v 1.7 2002-10-23 09:41:55 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
-#include "callback.h"
 
 class Coord3;
 class SoCoordinate3;
@@ -23,12 +22,9 @@ class SoMaterial;
 class SoIndexedTriangleStripSet;
 class CallBacker;
 
-namespace Geometry
-{
-    class TriangleStripSet;
-    class Pos;
-};
 
+namespace Geometry
+{ class TriangleStripSet; };
 
 namespace visBase
 {

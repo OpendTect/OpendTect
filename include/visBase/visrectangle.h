@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.26 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: visrectangle.h,v 1.27 2002-10-23 09:41:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -26,8 +26,6 @@ class SoTranslate1Dragger;
 class SoFaceSet;
 class SoDragger;
 
-namespace Geometry { class Pos; };
-
 
 namespace visBase
 {
@@ -38,49 +36,49 @@ public:
     static RectangleDragger*	create()
 				mCreateDataObj0arg(RectangleDragger);
 
-    void		setCenter( const Coord3& );
-    Coord3	center() const;
+    void			setCenter( const Coord3& );
+    Coord3			center() const;
     
-    void		setScale( float, float );
-    float		scale( int dim ) const;
+    void			setScale( float, float );
+    float			scale( int dim ) const;
 
-    void		setDraggerSize( float w, float h, float d );
-    Coord3	getDraggerSize() const;
+    void			setDraggerSize( float w, float h, float d );
+    Coord3			getDraggerSize() const;
 
-    void		showTabs(bool);
-    bool		tabsShown() const;
+    void			showTabs(bool);
+    bool			tabsShown() const;
 
     Notifier<RectangleDragger>	started;
     Notifier<RectangleDragger>	motion;
     Notifier<RectangleDragger>	changed;
     Notifier<RectangleDragger>	finished;
 
-    SoNode*		getData();
+    SoNode*			getData();
 
 protected:
-			~RectangleDragger();
+				~RectangleDragger();
 
-    void		syncronizeDraggers();
-    void		draggerHasMoved( SoDragger* );
+    void			syncronizeDraggers();
+    void			draggerHasMoved( SoDragger* );
     
 
-    SoSeparator*	root;
-    SoTranslate1Dragger* manipzdraggertop;
-    SoTranslate1Dragger* manipzdraggerright;
-    SoTranslate1Dragger* manipzdraggerbottom;
-    SoTranslate1Dragger* manipzdraggerleft;
-    SoScale*		zdraggerscale;
+    SoSeparator*		root;
+    SoTranslate1Dragger* 	manipzdraggertop;
+    SoTranslate1Dragger* 	manipzdraggerright;
+    SoTranslate1Dragger* 	manipzdraggerbottom;
+    SoTranslate1Dragger* 	manipzdraggerleft;
+    SoScale*			zdraggerscale;
 
-    SoTabPlaneDragger*	manipxydragger0;
-    SoTabPlaneDragger*	manipxydragger1;
-    SoSwitch*		tabswitch;
+    SoTabPlaneDragger*		manipxydragger0;
+    SoTabPlaneDragger*		manipxydragger1;
+    SoSwitch*			tabswitch;
 
-    bool		allowcb;
+    bool			allowcb;
 
-    static void		startCB( void*, SoDragger* );
-    static void		motionCB( void*, SoDragger* );
-    static void		valueChangedCB(void*, SoDragger* );
-    static void		finishCB( void*, SoDragger* );
+    static void			startCB( void*, SoDragger* );
+    static void			motionCB( void*, SoDragger* );
+    static void			valueChangedCB(void*, SoDragger* );
+    static void			finishCB( void*, SoDragger* );
 };
 
 /*!\brief
@@ -100,8 +98,8 @@ public:
 			mCreateDataObj0arg(Rectangle);
 
     void		setOrigo( const Coord3& );
-    Coord3	origo() const;
-    Coord3	manipOrigo() const;
+    Coord3		origo() const;
+    Coord3		manipOrigo() const;
 
     void		setWidth( float, float );
     float		width( int ) const;

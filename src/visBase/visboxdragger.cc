@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.2 2002-10-14 14:24:39 niclas Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.3 2002-10-23 09:41:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visboxdragger.h"
+#include "position.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoSeparator.h"

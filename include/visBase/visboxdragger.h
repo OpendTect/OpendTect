@@ -7,20 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.2 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: visboxdragger.h,v 1.3 2002-10-23 09:41:55 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
-#include "position.h"
 
 class SoTranslation;
 class SoTabBoxDragger;
 class SoDragger;
-
-namespace Geometry { class Pos; };
+class Coord3;
 
 namespace visBase
 {

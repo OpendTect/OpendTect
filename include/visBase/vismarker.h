@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.3 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: vismarker.h,v 1.4 2002-10-23 09:41:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,8 +19,6 @@ ________________________________________________________________________
 class SoTranslation;
 class SoGroup;
 class SoScale;
-
-namespace Geometry { class Pos; };
 
 namespace visBase
 {

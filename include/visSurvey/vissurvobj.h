@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.9 2002-10-14 15:10:53 niclas Exp $
+ RCS:		$Id: vissurvobj.h,v 1.10 2002-10-23 09:42:06 nanne Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "callback.h"
 #include "position.h"
 
-namespace Geometry { class Pos; };
 namespace visBase { class Transformation; };
 namespace visSurvey
 {
@@ -46,10 +45,10 @@ public:
     float			getAppVel() const
 				{ return displaytransform ? appvel : defappvel;}
 
-    Coord3		coordDispl2XYT( const Coord3& ) const;
-    Coord3		coordDispl2XYZ( const Coord3& ) const;
-    Coord3		coordXYT2Display( const Coord3& ) const;
-    Coord3		coordXYT2XYZ( const Coord3& ) const;
+    Coord3			coordDispl2XYT( const Coord3& ) const;
+    Coord3			coordDispl2XYZ( const Coord3& ) const;
+    Coord3			coordXYT2Display( const Coord3& ) const;
+    Coord3			coordXYT2XYZ( const Coord3& ) const;
 
     const visBase::Transformation*	getDisplayTransform() const;
     const visBase::Transformation*	getAppvelTransform() const;

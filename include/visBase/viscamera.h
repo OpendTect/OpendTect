@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.9 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: viscamera.h,v 1.10 2002-10-23 09:41:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoPerspectiveCamera;
-namespace Geometry { class Pos; };
 
 namespace visBase
 {

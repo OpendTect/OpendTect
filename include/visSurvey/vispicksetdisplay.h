@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.21 2002-10-14 15:10:53 niclas Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.22 2002-10-23 09:42:06 nanne Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,6 @@ class Color;
 class IOPar;
 
 namespace visBase { class SceneObjectGroup; class EventCatcher; };
-namespace Geometry { class Pos; }
 
 namespace visSurvey
 {

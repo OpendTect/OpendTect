@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.12 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: visannot.h,v 1.13 2002-10-23 09:41:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -21,8 +21,6 @@ ________________________________________________________________________
 class SoSwitch;
 class SoCoordinate3;
 class AxisInfo;
-
-namespace Geometry { class Pos; };
 
 namespace visBase
 {
