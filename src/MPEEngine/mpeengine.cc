@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.5 2005-01-11 13:42:49 kristofer Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.6 2005-01-17 14:51:31 kristofer Exp $";
 
 #include "mpeengine.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.5 2005-01-11 13:42:49 kristofe
 #include "emobject.h"
 #include "emtracker.h"
 #include "geomelement.h"
+#include "survinfo.h"
 
 
 #define mRetErr( msg, retval ) { errmsg = msg; return retval; }
@@ -32,6 +33,7 @@ namespace MPE
 
 Engine::Engine()
     : seedpropertychange( this )
+    , activevolume( getDefaultActiveVolume() )
 {
     trackers.allowNull(true);
 }
@@ -322,6 +324,24 @@ void Engine::addEditorFactory( EditorFactory* nef )
 
     editorfactories += nef;
 }
+
+
+CubeSampling Engine::getDefaultActiveVolume()
+{
+    CubeSampling cs;
+    cs.hrg.start.inl=(5*SI().inlRange(true).start+3*SI().inlRange(true).stop)/8;
+    cs.hrg.start.crl=(5*SI().crlRange(true).start+3*SI().crlRange(true).stop)/8;
+    cs.hrg.stop.inl =(3*SI().inlRange(true).start+5*SI().inlRange(true).stop)/8;
+    cs.hrg.stop.crl =(3*SI().crlRange(true).start+5*SI().crlRange(true).stop)/8;
+    cs.zrg.start = (5*SI().zRange(true).start+3*SI().zRange(true).stop)/ 8;
+    cs.zrg.stop = (3*SI().zRange(true).start+5*SI().zRange(true).stop)/8;
+    SI().snap( cs.hrg.start, BinID(0,0) );
+    SI().snap( cs.hrg.stop, BinID(0,0) );
+    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
+    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
+    return cs;
+}
+
 
 }; //namespace
 
