@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.3 2003-04-29 15:45:53 bert Exp $
+ RCS:           $Id: uiselsimple.cc,v 1.4 2003-09-05 12:36:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ void uiSelectFromList::init( const char** strs, int nr, const char* cur )
     if ( cur && *cur ) selfld->setCurrentItem( cur );
     else	       selfld->setCurrentItem( 0 );
 
-    selfld->doubleClicked.notify( mCB(this,uiSelectFromList,acceptOK) );
+    selfld->doubleClicked.notify( mCB(this,uiDialog,accept) );
 }
 
 
