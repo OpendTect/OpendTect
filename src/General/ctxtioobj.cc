@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.3 2001-04-13 11:50:04 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.4 2001-05-04 20:16:29 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -36,7 +36,7 @@ static const IOObjContext::StdDirData stddirdata[] = {
 	{ "100060", "NNs", IOObjContext::StdSelTypeNames[5] },
 	{ "100070", "Misc", IOObjContext::StdSelTypeNames[6] },
 	{ "100080", "Attribs", IOObjContext::StdSelTypeNames[7] },
-	{ "0", "None", IOObjContext::StdSelTypeNames[8] },
+	{ "", "None", IOObjContext::StdSelTypeNames[8] },
 	{ 0, 0, 0 }
 };
 
