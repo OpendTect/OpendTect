@@ -4,4 +4,4 @@ ARGSA=`echo $* | awk -f $PMAKE/bin/mocconv.awk`
 ARGS="$ARGSA"
 export ARGS
 
-$QTDIR/bin/win/moc $ARGS
+$OD_QTDIR/bin/win/moc $ARGS
