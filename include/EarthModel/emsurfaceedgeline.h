@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.12 2004-10-07 05:55:30 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.13 2005-01-03 16:30:21 nanne Exp $
 ________________________________________________________________________
 
 
@@ -334,18 +334,18 @@ protected:
 class EdgeLineManager : public CallBackClass
 {
 public:
-    			EdgeLineManager( Surface& );
-    virtual		~EdgeLineManager();
-    EdgeLineSet*	getEdgeLineSet( const EM::SectionID&, bool create );
-    const EdgeLineSet*	getEdgeLineSet( const EM::SectionID& ) const;
-    void		cloneEdgeLineSet( const EM::SectionID& src,
-	    				  const EM::SectionID& dst );
-    void		removeSection( const SectionID& );
-    void		removeLineSet( const SectionID& );
-    void		removeAll();
+    				EdgeLineManager(Surface&);
+    virtual			~EdgeLineManager();
+    EdgeLineSet*		getEdgeLineSet(const EM::SectionID&,bool cr);
+    const EdgeLineSet*		getEdgeLineSet(const EM::SectionID&) const;
+    void			cloneEdgeLineSet(const EM::SectionID& src,
+	    				  	 const EM::SectionID& dst);
+    void			removeSection(const SectionID&);
+    void			removeLineSet(const SectionID&);
+    void			removeAll();
 
-    void		fillPar( IOPar& ) const;
-    bool		usePar( const IOPar& );
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
     CNotifier<EdgeLineManager,SectionID>	addremovenotify;
 
@@ -353,6 +353,8 @@ protected:
     static const char*		sectionkey;
     Surface&			surface;
     ObjectSet<EdgeLineSet>	linesets;
+
+    void			updateEL(CallBacker*);
 };
 
 };
