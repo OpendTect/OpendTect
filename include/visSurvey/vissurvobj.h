@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.21 2004-04-28 10:52:52 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.22 2004-04-29 07:02:38 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,9 @@ public:
     const char*			errMsg() const		    { return errmsg; }
 
     virtual void		getChildren( TypeSet<int>& ) const;
+
+    virtual bool		canDuplicate() const;
+    virtual SurveyObject*	duplicate() const;
 
     virtual void		showManipulator(bool yn);
     virtual bool		isManipulatorShown() const;

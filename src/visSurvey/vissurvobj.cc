@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.14 2004-04-28 10:52:17 nanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.15 2004-04-29 07:02:34 kristofer Exp $";
 
 #include "vissurvobj.h"
 
@@ -24,6 +24,14 @@ float visSurvey::SurveyParamManager::defzscale = 2;
 
 void visSurvey::SurveyObject::getChildren( TypeSet<int>& ) const
 {}
+
+
+bool visSurvey::SurveyObject::canDuplicate() const
+{ return false; }
+
+
+visSurvey::SurveyObject* visSurvey::SurveyObject::duplicate() const
+{ return 0; }
 
 
 void visSurvey::SurveyObject::showManipulator(bool yn) {}
