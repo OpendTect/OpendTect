@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.17 2002-07-25 15:27:55 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.18 2002-07-31 11:27:58 nanne Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,7 @@ protected:
     void			pickCB( CallBacker* =0 );
     void			updatePickSz( CallBacker* = 0);
 
+    int				picktype;
     float			picksz;
     const float			initsz;
 
@@ -87,6 +88,7 @@ protected:
     static const char*		grpstr;
     static const char*		showallstr;
     static const char*		shapestr;
+    static const char*		sizestr;
 };
 
 };

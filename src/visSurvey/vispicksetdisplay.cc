@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.31 2002-07-30 06:28:03 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.32 2002-07-31 11:27:51 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -24,13 +24,15 @@ mCreateFactoryEntry( visSurvey::PickSetDisplay );
 const char* visSurvey::PickSetDisplay::grpstr = "Group";
 const char* visSurvey::PickSetDisplay::showallstr = "Show all";
 const char* visSurvey::PickSetDisplay::shapestr = "Shape";
+const char* visSurvey::PickSetDisplay::sizestr = "Size";
 
-visSurvey::PickSetDisplay::PickSetDisplay( )
+visSurvey::PickSetDisplay::PickSetDisplay()
     : group( visBase::SceneObjectGroup::create() )
     , eventcatcher( visBase::EventCatcher::create() )
-    , initsz( 5 )
-    , changed( this )
-    , VisualObjectImpl( true )
+    , initsz(5)
+    , picktype(0)
+    , changed(this)
+    , VisualObjectImpl(true)
     , showall(true)
 {
     eventcatcher->ref();
@@ -88,13 +90,14 @@ Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
 void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
 {
     visBase::Marker* marker = visBase::Marker::create();
+    group->addObject( marker );
+
     marker->setCenterPos( pos );
     marker->setScale( Geometry::Pos(1, 1, 2/SPM().getAppVel()) );
     marker->setSize( picksz );
-    marker->setType( (visBase::Marker::Type)getType() );
+    marker->setType( (visBase::Marker::Type)picktype );
     marker->setMaterial( 0 );
 
-    group->addObject( marker );
     changed.trigger();
 }
 
@@ -165,6 +168,7 @@ void visSurvey::PickSetDisplay::setType( int tp )
 	if ( !marker ) continue;
 	marker->setType( (visBase::Marker::Type)tp );
     }
+    picktype = tp;
 }
 
 
@@ -334,6 +338,8 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
 
     int type = getType();
     par.set( shapestr, type );
+    par.set( sizestr, picksz );
+
 
     if ( saveids.indexOf( grpid )==-1 ) saveids += grpid;
 }
@@ -367,16 +373,18 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     int type = 0;
     par.get( shapestr, type );
 
+    float markersize = 5;
+    par.get( sizestr, markersize );
+    setSize( markersize );
+    picksz = markersize;
+
     for ( int idx=0; idx<group->size(); idx++ )
     {
         mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
         if ( !marker ) continue;
 
 	marker->setType( (visBase::Marker::Type)type );
-
-        const float markersz = marker->getSize();
-	picksz = markersz;
-//	break;
+	marker->setSize( markersize );
     }
  
     return 1;
