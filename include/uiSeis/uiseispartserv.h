@@ -1,5 +1,5 @@
-#ifndef uiseisman_h
-#define uiseisman_h
+#ifndef uiseispartserv_h
+#define uiseispartserv_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.11 2004-10-06 14:00:23 bert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.12 2004-10-21 15:42:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class BufferString;
 class BufferStringSet;
 class CubeSampling;
+class Line2DGeometry;
 class MultiID;
 class SeisTrcBuf;
 
@@ -36,10 +37,12 @@ public:
 
     bool		select2DSeis(MultiID&,bool with_attr=false);
     bool		select2DLines(const MultiID&,BufferStringSet&);
-    void		get2DLineSetName(const MultiID&,BufferString&);
-    void		get2DStoredAttribs(const MultiID&,const char*,
-	    				   BufferStringSet&);
-    bool		create2DOutput(const MultiID&,const char*,const char*,
+    bool		get2DLineGeometry(const MultiID& mid,const char* linenm,
+					  Line2DGeometry&) const;
+    void		get2DLineSetName(const MultiID&,BufferString&) const;
+    void		get2DStoredAttribs(const MultiID&,const char* linenm,
+	    				   BufferStringSet&) const;
+    bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
 
     bool		mergeSeis();

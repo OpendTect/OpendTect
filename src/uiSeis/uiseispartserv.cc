@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.24 2004-10-15 15:31:59 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.25 2004-10-21 15:42:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 
 
 void uiSeisPartServer::get2DLineSetName( const MultiID& mid, 
-					   BufferString& setname )
+					 BufferString& setname ) const
 {
     mGet2DLineSet()
     setname = lineset.name();
@@ -110,22 +110,32 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
 }
 
 
+bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
+					  const char* linenm,
+					  Line2DGeometry& geom ) const
+{
+    mGet2DLineSet(false)
+    int lineidx = lineset.indexOf( linenm );
+    if ( lineidx < 0 ) return false;
+    return lineset.getGeometry( lineidx, geom );
+}
+
+
 void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid, 
 					   const char* linenm,
-					   BufferStringSet& attribs )
+					   BufferStringSet& attribs ) const
 {
     uiSeisIOObjInfo objinfo( mid );
     objinfo.getAttribNamesForLine( linenm, attribs );
 }
 
 
-bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linenm,
-				       const char* attribnm, 
+bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 				       CubeSampling& cs, SeisTrcBuf& buf )
 {
     mGet2DLineSet(false)
 
-    int lidx = lineset.indexOf( LineKey(linenm,attribnm) );
+    int lidx = lineset.indexOf( linekey );
     if ( lidx < 0 ) return false;
 
     lineset.getCubeSampling( cs, lidx );
