@@ -1,5 +1,5 @@
-#ifndef uiMenu_H
-#define uiMenu_H
+#ifndef uimenu_h
+#define uimenu_h
 
 /*+
 ________________________________________________________________________
@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.16 2003-03-12 16:23:19 arend Exp $
+ RCS:           $Id: uimenu.h,v 1.17 2003-08-11 11:21:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uihandle.h>
-#include <uidobjset.h>
+#include "uihandle.h"
+#include "uidobjset.h"
 
 class uiParent;
 class uiMainWin;
@@ -37,11 +37,14 @@ public:
 				~uiMenuData();
 
     int				nrItems() const;
-    int				insertItem(uiMenuItem*,int idx=-1);
+    int				insertItem(uiMenuItem*,int id=-1,int idx=-1);
     int				insertItem(const char* text, const CallBack& cb,
-					   int idx=-1);
-    int				insertItem(uiPopupMenu*,int idx=-1);
+					   int id=-1,int idx=-1);
+    int				insertItem(uiPopupMenu*,int id=-1,int idx=-1);
     void			insertSeparator(int idx=-1);
+
+    int				idAt(int idx) const;
+    int				indexOf(int id) const;
 
 protected:
 
@@ -68,19 +71,20 @@ public:
 				//! sets a new text 2b displayed
     void			setText(const char*);
 
-    bool			isEnabled()			const;
-    void			setEnabled( bool yn );
-    bool			isChecked()			const;
-    void 			setChecked( bool yn );
+    bool			isEnabled() const;
+    void			setEnabled(bool);
+    bool			isChecked() const;
+    void 			setChecked(bool);
 
     Notifier<uiMenuItem>	activated;
 
     int				id() const			{ return id_; }
+    int				index() const;
 
 protected:
 
-    void 			setId( int i )                  { id_ = i; }
-    void			setMenu( uiMenuDataBody* m )	{ menu_ = m; }
+    void 			setId(int i)			{ id_ = i; }
+    void			setMenu(uiMenuDataBody* m)	{ menu_ = m; }
 
     i_MenuMessenger*		messenger()		{ return &messenger_; }
     uiMenuDataBody*             menu_;
@@ -101,9 +105,8 @@ protected:
                                 uiPopupItem( uiPopupMenu& menu, const char* nm);
 public:
 
-    bool                        isCheckable();
-    void                        setCheckable( bool yn );
-
+    bool                        isCheckable() const;
+    void                        setCheckable(bool);
 };
 
 
@@ -138,8 +141,14 @@ public:
 					     const char* nm="uiPopupMenu");
 				~uiPopupMenu();
 
-    bool			isCheckable();
-    void			setCheckable( bool yn );
+    bool			isCheckable() const;
+    void			setCheckable(bool);
+
+    bool			isEnabled() const;
+    void			setEnabled(bool);
+
+    bool			isChecked() const;
+    void			setChecked(bool);
 
 				/*! \brief pops-up at mouse position
 
@@ -151,11 +160,11 @@ public:
     int				exec(); 
 
     uiPopupItem&		item()			{ return item_; }
+    const uiPopupItem&		item() const		{ return item_; }
 
 private:
 
     uiPopupItem&		item_;
-
 };
 
 #endif
