@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.11 2003-11-07 12:22:03 bert Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.12 2004-02-23 12:16:12 nanne Exp $";
 
 #include "vissurvobj.h"
 #include "visdataman.h"
@@ -34,10 +34,9 @@ visSurvey::SurveyParamManager::SurveyParamManager()
     , zscaletransform( 0 )
     , inlcrl2displaytransform( 0 )
     , zscale( 0 )
-    , zfactor( SI().zIsTime() ? 1000 : 1 )
 {
     visBase::DM().removeallnotify.notify(
-	    mCB( this, SurveyParamManager, removeTransforms ));
+	    mCB(this,SurveyParamManager,removeTransforms) );
 }
 
 
@@ -120,6 +119,7 @@ void visSurvey::SurveyParamManager::createTransforms()
     Coord startpos = SI().transform( startbid );
     Coord stoppos = SI().transform( stopbid );
     Coord firstinlinestoppos = SI().transform( firstinlinestopbid );
+    const float zfactor = SI().zFactor();
 
     utm2displaytransform->setA(
 			    1,      0,      0,      -startpos.x,
@@ -190,10 +190,4 @@ void visSurvey::SurveyParamManager::removeTransforms(CallBacker*)
     }
 
     zscale = 1;
-}
-
-
-float visSurvey::SurveyObject::zFactor() const
-{
-    return SI().zIsTime() ? 1000 : 1;
 }

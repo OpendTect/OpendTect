@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.18 2004-02-17 16:22:34 bert Exp $
+ RCS:		$Id: vissurvobj.h,v 1.19 2004-02-23 12:15:45 nanne Exp $
 ________________________________________________________________________
 
 
@@ -32,8 +32,6 @@ public:
 
     virtual NotifierAccess*	getMovementNotification()   { return 0; }
     virtual bool		isInlCrl() const	    { return false; }
-
-    float			zFactor() const;
 
     const char*			errMsg() const		    { return errmsg; }
 
@@ -76,7 +74,6 @@ protected:
     void			removeTransforms(CallBacker*);
     
     float			zscale;
-    float			zfactor;
     visBase::Transformation*	utm2displaytransform;
     visBase::Transformation*	zscaletransform;
     visBase::Transformation*	inlcrl2displaytransform;

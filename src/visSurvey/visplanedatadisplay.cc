@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.60 2004-02-02 15:36:25 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.61 2004-02-23 12:16:12 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -177,7 +177,7 @@ void PlaneDataDisplay::resetDraggerSizes( float appvel )
 
     float draggerdiameter = 0.2 * baselength;
     float draggerlength =  baselength * 0.2;
-    const float zfact = zFactor();
+    const float zfact = SI().zFactor();
 
     if ( type==Inline )
     {

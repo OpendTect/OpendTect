@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.29 2004-02-12 13:16:18 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.30 2004-02-23 12:16:12 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -40,11 +40,14 @@ const char* WellDisplay::log2rgstr	 = "Logrange 2";
 const char* WellDisplay::log1colorstr	 = "Logcolor 1";
 const char* WellDisplay::log2colorstr	 = "Logcolor 2";
 
+#define mMeter2Feet(val) \
+   val /= 0.3048;
 
 WellDisplay::WellDisplay()
     : well(0)
     , wellid(-1)
     , zistime(SI().zIsTime())
+    , zinfeet(SI().zInFeet())
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -99,6 +102,9 @@ bool WellDisplay::setWellId( const MultiID& multiid )
 	pt = wd->track().pos( idx );
 	if ( zistime )
 	    pt.z = d2t->getTime( wd->track().dah(idx) );
+	else if ( zinfeet )
+	    mMeter2Feet(pt.z);
+
 	if ( !mIsUndefined(pt.z) )
 	    track += pt;
     }
@@ -137,6 +143,8 @@ void WellDisplay::addMarkers()
 
 	if ( zistime )
 	    pos.z = wd->d2TModel()->getTime( wellmarker->dah );
+	else if ( zinfeet )
+	    mMeter2Feet(pos.z)
 
 	well->addMarker( pos, wellmarker->color, wellmarker->name() );
     }
@@ -196,6 +204,8 @@ void WellDisplay::displayLog( int logidx, int lognr,
 
 	if ( zistime )
 	    pos.z = wd->d2TModel()->getTime( dah );
+	else if ( zinfeet )
+	    mMeter2Feet(pos.z)
 
 	if ( !sizrg.includes(pos.z) )
 	{

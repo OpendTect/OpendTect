@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.13 2003-11-07 12:21:55 bert Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.14 2004-02-23 12:15:45 nanne Exp $
 ________________________________________________________________________
 
 
@@ -87,6 +87,7 @@ protected:
 
     MultiID			wellid;
     const bool			zistime;
+    const bool			zinfeet;
 
     BufferString		log1nm;
     BufferString		log2nm;
