@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.62 2005-03-18 11:22:38 cvsarend Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.63 2005-03-22 14:17:01 cvsarend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -193,7 +193,9 @@ int File_isWritable( const char* fnm )
     FileNameString cmd;
     if ( !File_exists(fnm) ) return 0;
 
-    return access( fnm, W_OK );
+    int acc =  access( fnm, W_OK );
+
+    return !acc;
 }
 
 
