@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.1 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uitextedit.h,v 1.2 2001-10-04 10:38:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
 
     void		setText( const char* );
     void		append( const char* ); 
+
+    const char*		text();
 
     static int          defaultWidth()		    { return defaultWidth_; }
     static void         setDefaultWidth( int w )    { defaultWidth_ = w; }
