@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.17 2003-02-26 16:33:15 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.18 2003-03-13 12:22:42 nanne Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,10 @@ protected:
     static const char*		inlineposstr;
     static const char*		crosslineposstr;
     static const char*		timeposstr;
+    static const char*		inlineshowstr;
+    static const char* 		crosslineshowstr;
+    static const char* 		timeshowstr;
+
 };
 
 };
