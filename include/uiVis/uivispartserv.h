@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.110 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.111 2004-02-19 12:42:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,6 +272,13 @@ protected:
   3D visualisation in the way that the user wants.
 
   The uiVisPartServer is a rather big class, that could use a bit of redesign.
+  Main task of this server is adding and removing scene objects and 
+  transfer of data to be displayed. All supported scene objects are defined
+  in the visSurvey module.
+
+  A lot of user interaction is done via popupmenus. Each object has its own
+  visualisation options. These options and corresponding actions are managed 
+  by the uiVisMenu class.
 
   */
 

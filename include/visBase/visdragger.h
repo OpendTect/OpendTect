@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.4 2004-01-05 09:43:47 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.5 2004-02-19 12:42:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,11 @@ class SoDragger;
 class SoGroup;
 
 
-/*! \brief Class for simple draggers
-*/
-
 namespace visBase
 {
+
+/*! \brief Class for simple draggers
+*/
 
 class Transformation;
 

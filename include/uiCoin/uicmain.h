@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.h,v 1.3 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uicmain.h,v 1.4 2004-02-19 12:42:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,10 @@ protected:
 
  As both COIN and Qt are covered with our interfaces, we also had to cover
  the SoQt part with the uiCoin module.
+
+ The core class in this module is the uiSoViewer class, derived from COIN's
+ SoQtExaminerViewer. This is the window where the scene will be rendered.
+ Other classes handle viewer related issues, like keybindings and stereoviewing.
 
 */
 

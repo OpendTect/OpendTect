@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.17 2004-02-17 10:58:52 bert Exp $
+ RCS:		$Id: emobject.h,v 1.18 2004-02-19 12:42:07 nanne Exp $
 ________________________________________________________________________
 
 
@@ -97,8 +97,13 @@ protected:
   A big part of this module deals with surfaces of some kind. Horizons, faults,
   and sets of (fault-)sticks each have their own peculiarities.
 
+  Most interesting classes:
+
+  - EM::EMObject, base class for the EarthModel objects
+  - EM::EMManager, responsible for the loading and deleting of the objects
+
   Earth models have the nasty habit of changing over time. Therefore, edit
-  history matters are handled by the EMHistory objects.
+  history matters are handled by the EM::History objects.
 
 */
 

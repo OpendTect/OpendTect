@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: expfact.h,v 1.1 2003-12-16 15:44:03 nanne Exp $
+ RCS:           $Id: expfact.h,v 1.2 2004-02-19 12:42:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "expspectrum.h"
 #include "expvardip.h"
 #include "expwavelet1d.h"
+#include "expinstdip.h"
 
 class ExperimentalAttribFactory
 {
@@ -42,6 +43,7 @@ static int addAttribs()
     AF().add( new PCADipAttrib::Parameters, false );
     AF().add( new TraceSpectrumAttrib::Parameters, false );
     AF().add( new Wavelet1DAttrib::Parameters, false );
+    AF().add( new InstantDipAttrib::Parameters, false );
     return 0;
 }
 
