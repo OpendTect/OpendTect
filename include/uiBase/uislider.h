@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.7 2002-05-03 11:17:36 nanne Exp $
+ RCS:           $Id: uislider.h,v 1.8 2002-07-03 15:09:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
     bool		isLogScale()			{ return logscale; }
     int			getScaleFactor()		{ return factor; }
 
-    uiLineEdit*		editfld;
+    void		processInput();
 
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
@@ -57,6 +57,8 @@ private:
     mutable BufferString result;
     int			factor;
     bool		logscale;
+
+    uiLineEdit*		editfld;
 
     uiSliderBody*	body_;
     uiSliderBody&	mkbody(uiParent*, const char*);

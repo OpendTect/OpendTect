@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.12 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uislider.cc,v 1.13 2002-07-03 15:09:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,8 +133,14 @@ void uiSlider::sliderMove( CallBacker* )
     editfld->setValue( getValue() );
 }
 
+void uiSlider::processInput()
+{
+    if ( editfld ) editValue(0);
+}
+
 void uiSlider::editValue( CallBacker* )
 {
+    if ( !editfld ) return;
     setValue( editfld->getValue() );
 }
 
