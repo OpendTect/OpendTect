@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.56 2004-12-23 15:08:29 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.57 2005-01-06 09:54:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
 BufferString uiEMPartServer::getName(const MultiID& mid) const
 {
     EM::EMManager& em = EM::EMM();
-    return em.name(em.multiID2ObjectID(mid));
+    return em.objectName(em.multiID2ObjectID(mid));
 }
 
 
@@ -146,15 +146,15 @@ bool uiEMPartServer::createFault(MultiID& id, const char* nm )
 
 bool uiEMPartServer::createSurface( MultiID& id, bool ishor, const char* name )
 {
-    EM::EMManager::Type tp = ishor ? EM::EMManager::Hor : EM::EMManager::Fault;
-    if ( EM::EMM().getID(tp,name) != -1 )
+    const char* type = ishor ? EM::Horizon::typeStr() : EM::Fault::typeStr();
+    if ( EM::EMM().findObject(type,name) != -1 )
     {
 	if ( !uiMSG().askGoOn( "An object with that name does allready exist."
 				" Overwrite?", true ) )
 	    return false;
     }
 	
-    EM::ObjectID objid = EM::EMM().add( tp, name );
+    EM::ObjectID objid = EM::EMM().createObject( type, name );
     if ( objid==-1 )
     {
 	uiMSG().error("Could not create object with that name");
@@ -209,7 +209,7 @@ bool uiEMPartServer::selectStickSet( MultiID& multiid )
     if ( em.getObject(objid) )
 	return true;
 
-    PtrMan<Executor> loadexec = em.load(multiid);
+    PtrMan<Executor> loadexec = em.loadObject(multiid);
     if ( !loadexec)
 	mErrRet( IOM().nameOf(multiid) );
 
@@ -237,7 +237,7 @@ bool uiEMPartServer::createStickSet( MultiID& id )
 	if ( !dlg.go() )
 	    break;
 
-	if ( EM::EMM().getID(EM::EMManager::StickSet, dlg.text()) != -1 )
+	if ( EM::EMM().findObject(EM::StickSet::typeStr(), dlg.text()) != -1 )
 	{
 	    if ( !uiMSG().askGoOn(
 			"An object with that name does allready exist."
@@ -245,7 +245,7 @@ bool uiEMPartServer::createStickSet( MultiID& id )
 		continue;
 	}
 
-	id = EM::EMM().add( EM::EMManager::StickSet, dlg.text() );
+	id = EM::EMM().createObject( EM::StickSet::typeStr(), dlg.text() );
 	if ( id.ID(0)==-1 )
 	{
 	    uiMSG().error("Could not create object with that name");
@@ -491,7 +491,7 @@ bool uiEMPartServer::loadSurface( const MultiID& id,
     if ( em.getObject(objid) )
 	return true;
 
-    PtrMan<Executor> exec = em.load( id, newsel );
+    PtrMan<Executor> exec = em.loadObject( id, newsel );
     if ( !exec ) mErrRet( IOM().nameOf(id) );
     EM::EMM().ref( objid );
     uiExecutor exdlg( appserv().parent(), *exec );
@@ -515,13 +515,11 @@ bool uiEMPartServer::importLMKFault()
 
 void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 {
-    int nrobjects = EM::EMM().nrObjects();
-    for ( int idx=0; idx<nrobjects; idx++ )
+    EM::EMManager& em = EM::EMM();
+    for ( int idx=0; idx<em.nrLoadedObjects(); idx++ )
     {
-	EM::EMManager& em = EM::EMM();
-	mDynamicCastGet(EM::Horizon*,hor,em.getEMObject(idx))
-	if ( hor )
-	    hinfos += new SurfaceInfo( hor->name(), hor->id() );
+	mDynamicCastGet(EM::Horizon*,hor,em.getObject(em.objectID(idx)));
+	if ( hor ) hinfos += new SurfaceInfo( hor->name(), hor->id() );
     }
 }
 

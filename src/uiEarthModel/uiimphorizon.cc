@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.41 2004-12-17 12:31:09 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.42 2005-01-06 09:53:22 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ bool uiImportHorizon::handleAscii()
 
     const char* horizonnm = outfld->getInput();
     EM::EMManager& em = EM::EMM();
-    emobjid = em.add( EM::EMManager::Hor, horizonnm );
+    emobjid = em.createObject( EM::Horizon::typeStr(), horizonnm );
     mDynamicCastGet( EM::Horizon*, horizon, em.getObject(emobjid) );
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );

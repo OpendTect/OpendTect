@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.33 2004-12-17 12:31:09 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.34 2005-01-06 09:54:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,8 @@ bool uiExportHorizon::writeAscii()
 
     BufferString basename = outfld->fileName();
 
-    PtrMan<EM::EMObject> obj = EM::EMM().getTempObj( EM::EMManager::Hor );
+    PtrMan<EM::EMObject> obj =
+			EM::EMM().createTempObject( EM::Horizon::typeStr() );
     mDynamicCastGet(EM::Horizon*,hor,obj.ptr())
     if ( !hor ) return false;
 
