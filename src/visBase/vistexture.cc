@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.9 2003-01-28 08:00:06 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.10 2003-02-04 09:10:36 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -410,4 +410,15 @@ void visBase::Texture::makeColorTables()
 }
 
 
+int visBase::Texture::nextPower2( int nr, int minnr, int maxnr ) const
+{
+    if ( nr > maxnr )
+	return maxnr;
+
+    int newnr = minnr;
+    while ( nr > newnr )
+	newnr *= 2;
+
+    return newnr;
+}
 

@@ -8,13 +8,15 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.7 2003-01-28 08:00:06 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.8 2003-02-04 09:10:36 nanne Exp $";
 
 #include "vistexture3.h"
-
 #include "arrayndimpl.h"
+#include "simpnumer.h"
+
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoTexture3.h"
+
 
 mCreateFactoryEntry( visBase::Texture3 );
 
@@ -55,19 +57,91 @@ void visBase::Texture3::setData( const Array3D<float>* newdata )
 	return;
     }
 
-    int x0 = newdata->info().getSize( 0 );
-    int x1 = newdata->info().getSize( 1 );
-    int x2 = newdata->info().getSize( 2 );
+    const int datax0sz = newdata->info().getSize( 0 );
+    const int datax1sz = newdata->info().getSize( 1 );
+    const int datax2sz = newdata->info().getSize( 2 );
 
-    // TODO resize data
-    setTextureSize( x0, x1, x2 );
+    int newx0 = nextPower2( datax0sz, 64, 256 );
+    int newx1 = nextPower2( datax1sz, 64, 256 );
+    int newx2 = nextPower2( datax2sz, 64, 256 );
+    setTextureSize( newx0, newx1, newx2 );
 
-    const int totalsz = x0*x1*x2;
-    float* datacopy = new float[totalsz];
+    Array3DInfoImpl newsize( x0sz, x1sz, x2sz );
+    const int cachesz = newsize.getTotalSz();
+    float* resized = new float[cachesz];
+	
+    const float x0step = (datax0sz-1)/(float)(x0sz-1);
+    const float x1step = (datax1sz-1)/(float)(x1sz-1);
+    const float x2step = (datax2sz-1)/(float)(x2sz-1);
+    
+    int idx=0;
+    float val000, val001, val010, val011, val100, val101, val110, val111;
+    for ( int x0=0; x0<x0sz; x0++ )
+    {
+	const float x0pos=x0*x0step;
+	const int x0idx = (int)x0pos;
+	const bool x0onedge = x0pos+1==datax0sz;
+	const float x0relpos = x0pos-x0idx;
 
-    memcpy( datacopy, newdata->getData(), totalsz*sizeof(float) );
+	for ( int x1=0; x1<x1sz; x1++ )
+	{
+	    const float x1pos=x1*x1step;
+	    const int x1idx = (int) x1pos;
+	    const bool x1onedge = x1pos+1==datax1sz;
+	    const float x1relpos = x1pos-x1idx;
 
-    setResizedData( datacopy, totalsz );
+	    for ( int x2=0; x2<x2sz; x2++ )
+	    {
+		const float x2pos=x2*x2step;
+		const int x2idx = (int) x2pos;
+		const bool x2onedge = x2pos+1==datax2sz;
+		const float x2relpos = x2pos-x2idx;
+
+		val000 = newdata->get( x0idx, x1idx, x2idx );
+		if ( !x1onedge )
+		    val010 = newdata->get( x0idx, x1idx+1, x2idx );
+		if ( !x2onedge )
+		    val001 = newdata->get( x0idx, x1idx, x2idx+1 );
+		if ( !x1onedge && !x2onedge )
+		    val011 = newdata->get( x0idx, x1idx+1, x2idx+1 );
+		if ( !x0onedge )
+		    val100 = newdata->get( x0idx+1, x1idx, x2idx );
+		if ( !x0onedge && !x1onedge )
+		    val110 = newdata->get( x0idx+1, x1idx+1, x2idx );
+		if ( !x0onedge && !x2onedge )
+		    val101 = newdata->get( x0idx+1, x1idx, x2idx+1 );
+		if ( !x0onedge && !x1onedge && !x2onedge )
+		    val111 = newdata->get( x0idx+1, x1idx+1, x2idx+1 );
+
+		float val = 0;
+		if ( x0onedge && x1onedge && x2onedge )
+		    val = val000;
+		else if ( x0onedge && x1onedge )
+		    val = linearInterpolate( val000, val001, x2relpos );
+		else if ( x0onedge && x2onedge )
+		    val = linearInterpolate( val000, val010, x1relpos );
+		else if ( x1onedge && x2onedge )
+		    val = linearInterpolate( val000, val100, x0relpos );
+		else if ( x0onedge )
+		    val = linearInterpolate2D( val000, val001, val010, val011,
+					       x1relpos, x2relpos );
+		else if ( x1onedge )
+		    val = linearInterpolate2D( val000, val001, val100, val101,
+					       x0relpos, x2relpos );
+		else if ( x2onedge )
+		    val = linearInterpolate2D( val000, val010, val100, val110,
+					       x0relpos, x1relpos );
+		else 
+		    val = linearInterpolate3D( val000, val001, val010, val011,
+					       val100, val101, val110, val111,
+					       x0relpos, x1relpos, x2relpos );
+
+		resized[newsize.getMemPos(x0,x1,x2)] = val;
+	    }
+	}
+    }
+
+    setResizedData( resized, cachesz );
 }
 
 
@@ -81,4 +155,3 @@ unsigned char* visBase::Texture3::getTexturePtr()
 
 void visBase::Texture3::finishEditing()
 { texture->images.finishEditing(); }
-

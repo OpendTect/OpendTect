@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.5 2003-01-28 07:59:44 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.6 2003-02-04 09:10:43 nanne Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ protected:
     			~Texture();
     void		setResizedData( float*, int sz );
     			/*!< Is taken over by me */
+    int			nextPower2(int,int,int) const;
 
     virtual unsigned char* getTexturePtr()				= 0;
     virtual void	finishEditing()					= 0;
