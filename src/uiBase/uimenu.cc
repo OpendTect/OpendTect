@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.21 2004-08-25 11:27:49 nanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.22 2004-09-09 12:49:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,6 +318,15 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
 {
     setMenuBody ( new uiMenuDataBody( *this, parnt, 
                               *new QPopupMenu(parnt->body()->qwidget(),nm ) ));
+    item_.setMenu( body_ );
+}
+
+
+uiPopupMenu::uiPopupMenu( uiParent* parnt, QPopupMenu* qmnu, const char* nm )
+    : uiMenuData(nm,0)
+    , item_(*new uiPopupItem(*this,nm))
+{
+    setMenuBody( new uiMenuDataBody(*this,parnt,*qmnu) );
     item_.setMenu( body_ );
 }
 

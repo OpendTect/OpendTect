@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.22 2004-08-25 11:27:55 nanne Exp $
+ RCS:           $Id: uimenu.h,v 1.23 2004-09-09 12:49:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ class i_MenuMessenger;
 
 
 class QMenuBar;
+class QPopupMenu;
+
 
 class uiMenuData : public uiObjHandle
 {
@@ -158,8 +160,12 @@ class uiPopupMenu : public uiMenuData
 {
 
 public:                        
-				uiPopupMenu( uiParent* parnt,
-					     const char* nm="uiPopupMenu");
+				uiPopupMenu(uiParent* parnt,
+					    const char* nm="uiPopupMenu");
+				uiPopupMenu(uiParent* parnt,
+					    QPopupMenu* qmnu,
+					    const char* nm="uiPopupMenu");
+
 				~uiPopupMenu();
 
     bool			isCheckable() const;
