@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.6 2001-11-12 13:51:00 nanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.7 2002-01-07 10:20:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ protected:
     void		editButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		convButPushed(CallBacker*);
+    void		tutButPushed(CallBacker*);
     void 		getSurvInfo();
     bool		survInfoDialog();
     void		updateSvyList();

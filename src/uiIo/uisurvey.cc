@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.20 2001-11-12 13:50:50 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.21 2002-01-07 10:20:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "ioman.h"
 #include "survinfo.h"
+#include "tuthandle.h"
 #include "uibutton.h"
 #include "uicanvas.h"
 #include "uiconvpos.h"
@@ -36,11 +37,9 @@ extern "C" const char* GetBaseDataDir();
 extern "C" void SetSurveyName(const char*);
 
 uiSurvey::uiSurvey( uiParent* p )
-	: uiDialog(p,"Survey setup")
-
+	: uiDialog(p,uiDialog::Setup("Survey selection",
+		   "Select and setup survey","0.3.1"))
 {
-    setTitleText( "Setup and select the survey" );
-
     const int lbwidth = 250;
     const int mapwdth = 300;
     const int maphght = 300;
@@ -85,6 +84,13 @@ uiSurvey::uiSurvey( uiParent* p )
     convbut = new uiPushButton( selgrp, "X/Y <-> I/C ..." );
     convbut->activated.notify( mCB(this,uiSurvey,convButPushed) );
     convbut->attach( rightAlignedBelow, mapcanvas );
+    uiButton* tutbut = 0;
+    if ( GetDgbApplicationCode() == mDgbApplCodeGDI )
+    {
+	tutbut = new uiPushButton( selgrp, "Get Tutorial" );
+	tutbut->attach( centeredBelow, listbox );
+	tutbut->activated.notify( mCB(this,uiSurvey,tutButPushed) );
+    }
 
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->setPrefWidth( totwdth );
@@ -209,9 +215,9 @@ void uiSurvey::rmButPushed( CallBacker* )
 {
 
     BufferString selnm( listbox->getText() );
-    BufferString msg( "This will remove the entire survey:\n\n" );
+    BufferString msg( "This will remove the entire survey:\n\t" );
     msg += selnm;
-    msg += "\n\nAre you sure you wish to continue?";
+    msg += "\nAre you sure you wish to continue?";
     if ( !uiMSG().askGoOn( msg ) ) return;
 
     msg = File_getFullPath( GetBaseDataDir(), selnm );
@@ -236,6 +242,16 @@ void uiSurvey::convButPushed( CallBacker* )
 {
     uiConvertPos dlg( this, survinfo );
     dlg.go();
+}
+
+
+void uiSurvey::tutButPushed( CallBacker* )
+{
+    TutHandling tuthl;
+    if ( !tuthl.copyTut() ) return;
+
+    updateSvyList();
+    tuthl.fillTut();
 }
 
 
