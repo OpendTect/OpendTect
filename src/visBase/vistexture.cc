@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.24 2003-10-19 13:53:08 bert Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.25 2003-10-23 11:18:18 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -616,14 +616,16 @@ int visBase::Texture::usePar( const IOPar& par )
     setColorTab( *coltab );
 
     int ctmid = -1;
-    par.get( coltabmodstr, ctmid );
-    dataobj = DM().getObj( ctmid );
-    if ( !dataobj ) return 0;
-    mDynamicCastGet(VisColTabMod*,ctm,dataobj)
-    if ( !ctm ) return -1;
-    coltabmod->unRef();
-    coltabmod = ctm;
-    coltabmod->ref();
+    if ( par.get( coltabmodstr, ctmid ) )
+    {
+	dataobj = DM().getObj( ctmid );
+	if ( !dataobj ) return 0;
+	mDynamicCastGet(VisColTabMod*,ctm,dataobj)
+	if ( !ctm ) return -1;
+	coltabmod->unRef();
+	coltabmod = ctm;
+	coltabmod->ref();
+    }
 
     int newres = 0;
     par.get( resolutionstr, newres );
