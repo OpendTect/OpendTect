@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.8 2002-05-02 14:20:09 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.9 2002-05-07 12:09:51 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,8 +43,6 @@ public:
     static PlaneDataDisplay*	create()
 				mCreateDataObj0arg(PlaneDataDisplay);
 
-    void			setNewDataCallBack( const CallBack );
-
     void			setType(Type type);
     Type			getType() const { return type; }
 
@@ -58,7 +56,7 @@ public:
     void			showDraggers(bool yn);
     void			resetManip();
 
-    bool			getNewTextureData();
+    bool			updateAtNewPos();
     CubeSampling&		getCubeSampling(bool manippos=true);
     AttribSelSpec&		getAttribSelSpec();
     void			setAttribSelSpec(AttribSelSpec&);
@@ -83,6 +81,9 @@ public:
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
 
+    virtual float		calcDist( const Geometry::Pos& ) const;
+    virtual NotifierAccess*	getMovementNotification() { return &moving; }
+
 protected:
 				~PlaneDataDisplay();
     void			appVelChCB( CallBacker* );
@@ -95,10 +96,11 @@ protected:
     Type			type;
     CubeSampling&		cs;
     AttribSelSpec&		as;
-    CallBack			newdatacb;
 
     bool			selected_;
     bool			succeeded_;
+
+    Notifier<PlaneDataDisplay>	moving;
 
     static const char*		trectstr;
 };
