@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Overview of programmer doc
-  - RCS:	$Id: overview.html,v 1.7 2003-11-02 10:17:06 bert Exp $
+  - RCS:	$Id: overview.html,v 1.8 2003-11-14 17:07:34 bert Exp $
  -->
 
 <body background="../backg.png"><title>Overview [OpendTect Programmer's manual V1.0]</title>
@@ -33,7 +33,7 @@ OpendTect:
 <p>
 OpendTect is a C++-based environement. A couple of years ago, C++ was declared dead by many as a result of the Java hype. In some areas, Java is indeed far better suited. In our part of the world (geosciences, in particular geophysics-related), we don't think Java can match the advantages of C++: Fast yet flexible, Low-level yet supporting high-level OO constructs. And, we would be terrified having to program without templates.
 </p><p>
-That doesn't mean that programming in C++ automagically delivers good software, and neither that performance comes easy. That's some of the things that can be reached by a good design.
+That doesn't mean that programming in C++ automagically delivers good software, and neither that performance comes easy. Those are some of the things that can be reached by a good design.
 </p>
 
 <a name=design_principles><h3>Design principles</h3></a>
@@ -54,9 +54,9 @@ The last two are, [cough] of our own making. <a name=dif>DIF</a> ensures that th
 <p>
 When services from another package (Qt, COIN, FFTW, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
 </p><p>
-There is however more to it. External services tend to be designed for much more general purposes than what is needed by OpendTect. Furthermore, some services that will be very important for us won't be available. Also, we may not like the form in which the services are presented (e.g. the FFTW stuff is in C). And, the data structures used in the external package seldomly fit nicely with ours.
+There is however more to it. External services tend to be designed for much more general purposes than what is needed by OpendTect. Furthermore, some services that will be very important for us won't be available. And, we may not like the form in which the services are presented (e.g. the FFTW stuff is in C); moreover, the data structures used in the external package seldomly fit nicely with ours.
 </p><p>
-To overcome all this, and get a nice insulation at the same time, all external services are embedded in services layer that:
+To overcome all this, and get a nice insulation at the same time, all external services are embedded in service layers that:
 <ul>
 <li>Do exactly what we need
 <li>Don't expose the external package's header files
@@ -98,7 +98,7 @@ In any case, <code>Basic</code> handles basic stuff like file-related, extra str
 </p><p>
 The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <code>Grid</code> etc. will be recognised by a geoscientist. Leaves us with <code>Attrib</code> and <code>AttribEng</code>, the seismic attribute modules, and the <code>Features</code> module.
 </p><p>
-The <code>Features</code> module implements a concept of (sets of) vectors where each vector has a position and each vector row has a name. This is what is needed to hold many N-dimensional data analysis problem.
+The <code>Features</code> module implements a concept of (sets of) vectors where each vector has a position and each vector row has a name. This is what is needed to hold the data for many N-dimensional data analysis problems.
 </p><p>
 For seismic attributes, a separation is made between the engine and the structure of the attributes (<code>AttribEng</code>), and the implementation of the various standard attributes (<code>Attrib</code>).
 </p>

@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.14 2003-11-03 13:25:06 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.15 2003-11-14 17:07:34 bert Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -66,7 +66,7 @@ extern "C" const char* InitHelloPlugin( int, char** )
     return 0; // All OK - no error messages
 }
 </code></pre>
-You'll find this example plugin in the plugins directory. Those 6 lines are enough to constitue a plugin for OpendTect. The Makefile to build the plugin looks like this:
+You'll find this example plugin in the plugins directory. Those 6 lines are enough to constitute a plugin for OpendTect. The Makefile to build the plugin looks like this:
 <pre><code>SRC.cc := hellopi.cc
 PLUGIN := yes
 include make.od.Defaults
