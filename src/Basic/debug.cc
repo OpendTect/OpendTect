@@ -4,17 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.11 2004-12-16 09:48:08 bert Exp $
+ RCS:           $Id: debug.cc,v 1.12 2004-12-16 10:34:22 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.11 2004-12-16 09:48:08 bert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.12 2004-12-16 10:34:22 bert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
 #include "bufstring.h"
 #include "timefun.h"
+#include "filepath.h"
+#include "genc.h"
 
 #include <iostream>
 #include <fstream>
@@ -96,15 +98,26 @@ void message( int flag, const char* msg )
 void putProgInfo( int argc, char** argv )
 {
     const bool ison = isOn( DBG_PROGSTART );
-    if ( ison ) message( "\n---------" );
 
     BufferString msg;
-    msg += argv[0]; msg += " started at "; msg += Time_getLocalString();
+    if ( ison )
+    {
+	msg = "\n---------\n";
+	msg += argv[0];
+    }
+    else
+    {
+	FilePath fp( argv[0] );
+	msg = fp.fileName();
+    }
+    msg += " started on "; msg += getHostName();
+    msg += " at "; msg += Time_getLocalString();
     if ( !ison ) msg += "\n";
     message( msg );
     if ( !ison ) return;
 
-    msg = "Platform: ";
+    msg = "PID: "; msg += getPID();
+    msg += "; Platform: ";
 #ifdef lux
     msg += "Linux";
 # ifdef lux64
@@ -128,7 +141,7 @@ void putProgInfo( int argc, char** argv )
 #endif
 
 #ifdef __GNUC__
-    msg += ", gcc ";
+    msg += "; gcc ";
     msg += __GNUC__; msg += "."; msg += __GNUC_MINOR__;
     msg += "."; msg += __GNUC_PATCHLEVEL__;
 #endif

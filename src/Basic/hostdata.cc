@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.23 2004-11-10 14:19:13 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.24 2004-12-16 10:34:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,7 @@ ________________________________________________________________________
 
 const char* HostData::localHostName()
 {
-    static char ret[256];   
-    gethostname( ret, 256 );
-    return ret;
+    return getHostName();
 }
 
 

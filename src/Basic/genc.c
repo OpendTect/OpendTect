@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.60 2004-12-10 15:26:51 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.61 2004-12-16 10:34:22 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -98,7 +98,7 @@ const char* GetSoftwareDir()
     if ( !dir )
     {
 	TCHAR szPath[_MAX_PATH];
-	if( GetModuleFileName(NULL,szPath,_MAX_PATH) ) 
+	if ( GetModuleFileName(NULL,szPath,_MAX_PATH) ) 
 //.....
 // TODO  : extract DTECT_APPL from full executable path.
 
@@ -142,7 +142,7 @@ const char* GetSoftwareDir()
 	static FileNameString progname;
 	strcpy( progname, getenv("DTECT_ARGV0") );
 
-	if( !*progname ) return 0;
+	if ( !*progname ) return 0;
 
 
 	char* chptr1 = progname;
@@ -160,7 +160,7 @@ const char* GetSoftwareDir()
 	dir = progname;
     }
 
-    if( od_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSoftwareDir: %s\n", dir );
@@ -208,7 +208,7 @@ const char* GetExecScript( int remote )
 
     strcpy( progname, mkFullPath(progname, "od_exec") );
 
-    if( remote )
+    if ( remote )
 	strcat( progname, "_rmt" );
 
     strcat( progname, "' " );
@@ -287,7 +287,7 @@ const char* GetSoftwareUser()
     if ( !ptr ) ptr = getenv( "DTECT_USER" );
     if ( !ptr ) ptr = getenv( "dGB_USER" );
 
-    if( od_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSoftwareUser: %s\n", ptr ? ptr : "Not set" );
@@ -330,7 +330,7 @@ const char* _GetHomeDir()
     strcpy( home, getenv("HOMEDRIVE") );
     strcat( home, getenv("HOMEPATH") );
 
-    if( strcmp( home, "" ) && strcmp( home, "c:\\" ) && strcmp( home, "C:\\" ) 
+    if ( strcmp( home, "" ) && strcmp( home, "c:\\" ) && strcmp( home, "C:\\" ) 
 	&& File_isDirectory( home ) ) // Apparantly, home has been set...
     {
 	return home;
@@ -392,7 +392,7 @@ const char* GetSettingsDir(void)
 	else if ( !File_createDir(ptr,0) ) ptr = 0;
     }
 
-    if( od_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSettingsDir: %s\n", ptr );
@@ -437,7 +437,7 @@ const char* GetPersonalDir(void)
 
 #endif
 
-    if( od_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetPersonalDir: %s\n", ptr );
@@ -468,7 +468,7 @@ const char* GetSurveyFileName()
 	inited = YES;
     }
 
-    if( od_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSurveyFileName: %s\n", sfname );
@@ -497,7 +497,7 @@ const char* GetSurveyName()
 	fnm = GetSurveyFileName();
 	if ( !fnm )
 	{
-	    if( od_debug_isOn(DBG_SETTINGS) )
+	    if ( od_debug_isOn(DBG_SETTINGS) )
 	    {
 		char buf[255];
 		sprintf(buf,
@@ -510,7 +510,7 @@ const char* GetSurveyName()
 	fp = fopen( fnm, "r" );
 	if ( !fp )
 	{
-	    if( od_debug_isOn(DBG_SETTINGS) )
+	    if ( od_debug_isOn(DBG_SETTINGS) )
 	    {
 		char buf[255];
 		sprintf(buf,
@@ -530,7 +530,7 @@ const char* GetSurveyName()
 	surveynamedirty = 0;
     }
 
-    if( od_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSurveyName: %s\n", surveyname );
@@ -584,7 +584,7 @@ const char* GetDataDir()
 
     strcpy( filenamebuf, mkFullPath(basedir,survnm) );
 
-    if( od_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetDataDir: %s\n", filenamebuf );
@@ -630,6 +630,14 @@ int getPID()
 }
 
 
+const char* getHostName()
+{
+    static char ret[256];
+    gethostname( ret, 256 );
+    return ret;
+}
+
+
 int setEnvVar( const char* env, const char* val )
 {
     char* buf;
@@ -647,6 +655,9 @@ int setEnvVar( const char* env, const char* val )
 
 int exitProgram( int ret )
 {
+    if ( od_debug_isOn(DBG_PROGSTART) )
+	printf( "\nexitProgram (PID: %d) at %s\n",
+		getPID(), Time_getLocalString() );
 
 #ifdef __win__
 

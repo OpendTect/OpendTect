@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.22 2004-05-06 14:19:17 macman Exp $
+ RCS:           $Id: uimain.cc,v 1.23 2004-12-16 10:34:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "uifont.h"
 #include "errh.h"
-#include "debug.h"
+#include "debugmasks.h"
 #include "settings.h"
 #include "qapplication.h"
 
@@ -93,7 +93,7 @@ uiMain::uiMain( QApplication* qapp )
 }
 
 
-void uiMain::init(QApplication* qap, int argc, char **argv )
+void uiMain::init( QApplication* qap, int argc, char **argv )
 {
     if ( app ) 
     {
@@ -106,7 +106,7 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setDesktopSettingsAware( FALSE );
 
-    if ( DBG::isOn() && !qap )
+    if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
     if( qap ) 
@@ -114,7 +114,7 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
     else
 	app = new QApplication( argc, argv );
 
-    if ( DBG::isOn() && !qap )
+    if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "... done." );
 
     qInstallMsgHandler( myMessageOutput );
