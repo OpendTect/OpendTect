@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.20 2001-12-09 09:29:30 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.21 2001-12-11 14:24:02 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -67,7 +67,8 @@ void CBVSWriter::init( const CBVSInfo& i )
 	  errmsg_ = "Internal error"; return; }
 
     if ( expldat && survgeom.fullyrectandreg
-      && !explinfo.startpos && !explinfo.coord && !explinfo.offset
+      && !explinfo.startpos && !explinfo.coord
+      && !explinfo.offset && !explinfo.azimuth
       && !explinfo.pick && !explinfo.refpos )
 	expldat = 0;
 
@@ -141,6 +142,7 @@ void CBVSWriter::putExplicits( unsigned char* ptr ) const
     mDoMemb(offset,4)
     mDoMemb(pick,8)
     mDoMemb(refpos,16)
+    mDoMemb(azimuth,32)
 }
 
 
@@ -324,6 +326,7 @@ bool CBVSWriter::writeExplicits()
     mDoWrExpl(offset)
     mDoWrExpl(pick)
     mDoWrExpl(refpos)
+    mDoWrExpl(azimuth)
 
     return buf || strm_.good();
 }

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.7 2001-05-11 20:28:21 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.8 2001-12-11 14:24:02 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -90,6 +90,7 @@ const char* SeisTrcInfo::attrnames[] = {
 	"In-line",
 	"Cross-line",
 	"Offset",
+	"Azimuth",
 	0
 };
 
@@ -152,6 +153,7 @@ double SeisTrcInfo::getAttr( int nr ) const
     case 5:	return binid.inl;
     case 6:	return binid.crl;
     case 7:	return offset;
+    case 8:	return azimuth;
     default:	return nr;
     }
 }
@@ -223,6 +225,7 @@ void SeisTrcInfo::gettr( SUsegy& trc ) const
     head->refpos = refpos;
     head->startpos = sampling.start;
     head->offset = offset;
+    head->azimuth = azimuth;
 }
 
 
@@ -238,6 +241,7 @@ void SeisTrcInfo::puttr( const SUsegy& trc )
 	binid.crl = head->crl;
 	pick = head->pick;
 	offset = head->offset;
+	azimuth = head->azimuth;
 	refpos = head->refpos;
 	sampling.start = head->startpos;
 	if ( mIS_ZERO(sampling.start) )

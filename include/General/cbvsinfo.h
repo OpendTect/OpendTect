@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.10 2001-06-28 21:17:19 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.11 2001-12-11 14:24:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,11 +96,13 @@ public:
     {
 		ExplicitInfo()
 		: startpos(false), coord(false)
-		, offset(false), pick(false), refpos(false)	{}
+		, offset(false), azimuth(false)
+		, pick(false), refpos(false)	{}
 
 	bool	startpos;
 	bool	coord;
 	bool	offset;
+	bool	azimuth;
 	bool	pick;
 	bool	refpos;
     };
@@ -124,6 +126,7 @@ public:
 	float	startpos;
 	Coord	coord;
 	float	offset;
+	float	azimuth;
 	float	pick;
 	float	refpos;
     };

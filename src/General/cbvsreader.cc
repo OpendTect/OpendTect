@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.30 2001-12-09 09:29:30 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.31 2001-12-11 14:24:02 bert Exp $";
 
 /*!
 
@@ -171,6 +171,7 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
     info_.explinfo.offset =	*ptr & (unsigned char)4;
     info_.explinfo.pick =	*ptr & (unsigned char)8;
     info_.explinfo.refpos =	*ptr & (unsigned char)16;
+    info_.explinfo.azimuth =	*ptr & (unsigned char)32;
 
     explicitnrbytes = 0;
     if ( info_.explinfo.startpos )
@@ -178,6 +179,8 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
     if ( info_.explinfo.coord )
 	explicitnrbytes += sizeof(Coord);
     if ( info_.explinfo.offset )
+	explicitnrbytes += sizeof(float);
+    if ( info_.explinfo.azimuth )
 	explicitnrbytes += sizeof(float);
     if ( info_.explinfo.pick )
 	explicitnrbytes += sizeof(float);
@@ -548,7 +551,7 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
     expldat.binid = curbinid_;
     expldat.coord = info_.geom.b2c.transform( curbinid_ );
     expldat.startpos = info_.compinfo[0]->sd.start;
-    expldat.offset = 0;
+    expldat.offset = expldat.azimuth = 0;
     expldat.pick = expldat.refpos = mUndefValue;
 
     char buf[2*sizeof(double)];
@@ -557,6 +560,7 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
     mGet(offset)
     mGet(pick)
     mGet(refpos)
+    mGet(azimuth)
 
     hinfofetched = true;
     return strm_.good();

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.10 2001-07-06 11:40:39 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.11 2001-12-11 14:24:02 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -422,6 +422,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     IbmFormat::putInt( ti.nr, buf+16 ); // put number at 'ep'
     IbmFormat::putShort( 1, buf+28 );
     IbmFormat::putInt( mNINT(ti.offset), buf+36 );
+    IbmFormat::putInt( mNINT(ti.azimuth*1e6), buf+40 );
     IbmFormat::putShort( -10, buf+70 ); // scalco
     if ( mIsUndefined(ti.coord.x) )
     {

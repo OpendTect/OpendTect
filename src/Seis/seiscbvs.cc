@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.14 2001-12-06 14:13:45 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.15 2001-12-11 14:24:02 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -334,6 +334,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     ti.sampling.step = outcds[0]->sd.step;
     ti.coord = expldat.coord;
     ti.offset = expldat.offset;
+    ti.azimuth = expldat.azimuth;
     ti.pick = expldat.pick;
     ti.refpos = expldat.refpos;
 
@@ -418,8 +419,8 @@ bool CBVSSeisTrcTranslator::startWrite()
 
     CBVSInfo info;
     info.explinfo.startpos = info.explinfo.coord = 
-    info.explinfo.offset = info.explinfo.pick = 
-    info.explinfo.refpos = true;
+    info.explinfo.offset = info.explinfo.azimuth =
+    info.explinfo.pick = info.explinfo.refpos = true;
     info.geom.fullyrectandreg = false;
     info.geom.b2c = SI().binID2Coord();
     info.stdtext = pinfo.stdinfo;
@@ -443,6 +444,7 @@ bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
     expldat.startpos = trc.info().sampling.start;
     expldat.coord = trc.info().coord;
     expldat.offset = trc.info().offset;
+    expldat.azimuth = trc.info().azimuth;
     expldat.pick = trc.info().pick;
     expldat.refpos = trc.info().refpos;
 
