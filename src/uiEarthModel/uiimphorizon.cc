@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.8 2002-05-24 14:39:14 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.9 2002-05-24 14:47:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,6 @@ bool uiImportHorizon::handleAscii()
 
     Grid* dskgrd = reader.grid();
     // prGrd( dskgrd );
-    cout << endl << endl;
 
     PtrMan<Grid> grid = dskgrd->cloneTrimmed();
     delete dskgrd;
