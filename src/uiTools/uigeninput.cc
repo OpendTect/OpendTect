@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.3 2001-02-16 17:02:21 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.4 2001-05-02 07:39:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,8 +86,8 @@ public:
 				spec->getText( tmp );
 				li.setText( tmp );
 
-				const StringInp* dsc 
-				    = dynamic_cast< const StringInp* >(spec);
+				const StringInpSpec* dsc 
+				    = dynamic_cast<const StringInpSpec*>(spec);
 
 				int pw = dsc ? dsc->prefWidth() : -1;
 				if( pw >= 0 ) li.setPrefWidthInChar( pw );
@@ -141,7 +141,7 @@ uiBoolInputField::uiBoolInputField( uiObject* p, const DataInpSpec* spec=0,
 				    const char* nm="Bool Input Field" ) 
     : butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
 {
-    const BoolInp* spc = dynamic_cast< const BoolInp* >(spec);
+    const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(spec);
     if( !spc ) { butOrGrp = new uiGroup(p,nm); return; }
 
     yn=spc->checked();

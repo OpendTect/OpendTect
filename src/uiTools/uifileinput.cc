@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.3 2001-02-16 17:02:20 arend Exp $
+ RCS:           $Id: uifileinput.cc,v 1.4 2001-05-02 07:39:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 uiFileInput::uiFileInput( uiObject* p, const char* txt, const char* fnm,
 			  bool fr, const char* filt )
-	: uiGenInput( p, txt, FileNameInp(fnm) )
+	: uiGenInput( p, txt, FileNameInpSpec(fnm) )
 	, forread(fr)
 	, fname( fnm )
 	, filter(filt)
