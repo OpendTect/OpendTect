@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.186 2004-01-09 16:28:00 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.187 2004-01-15 15:39:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -410,11 +410,19 @@ void uiVisPartServer::setPickSetData( int id, const PickSet& pickset )
     if ( !psd ) return;
 
     psd->removeAll();
+    bool hasdir = false;
     int nrpicks = pickset.size();
     for ( int idx=0; idx<nrpicks; idx++ )
     {
-	Coord3 pos( pickset[idx].pos, pickset[idx].z );
-	psd->addPick( pos, pickset[idx].dir );
+	const PickLocation& loc = pickset[idx];
+	psd->addPick( Coord3(loc.pos,loc.z), loc.dir );
+	hasdir = loc.hasDir();
+    }
+    
+    if ( hasdir ) //show Arrows
+    {
+	TypeSet<char*> types; psd->getTypeNames( types ); 
+	psd->setType( types.size()-1 );
     }
 }
 
@@ -1339,6 +1347,11 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 	res = selectColorAttrib( id );
 	
     if ( !res ) return res;
+    if ( !colorspec.datatype )
+    {
+	removeColorData( id );
+	return true;
+    }
 
     Threads::MutexLocker lock( eventmutex );
     eventobjid = id;
@@ -1351,6 +1364,9 @@ void uiVisPartServer::removeColorData( int id )
 {
     mDynamicCastAll();
     if ( pdd ) pdd->putNewData( 0, true );
+    else if ( rtd ) rtd->putNewData( 0, true );
+    else if ( sd ) sd->putNewData( 0, true );
+    else if ( vd ) vd->putNewData( 0, true );
 }
 
 
