@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.35 2003-04-24 15:01:55 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.36 2003-08-14 12:54:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 
 #include <math.h>
+#include <fstream>
 
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
@@ -471,6 +472,24 @@ bool uiSurvey::acceptOK( CallBacker* )
 void uiSurvey::updateViewsGlobal()
 {
     BufferString capt( GetProjectVersionName() );
+    BufferString fnm( GetSoftwareDir() );
+    fnm = File_getFullPath( fnm, ".rel" );
+    if ( File_exists(fnm) )
+    {
+	char* ptr = strrchr( capt.buf(), 'V' );
+	if ( ptr )
+	{
+	    char vstr[80];
+	    ifstream strm( fnm );
+	    strm.getline( vstr, 80 );
+	    if ( vstr[0] )
+	    {
+		*ptr++ = '\0';
+		capt += vstr;
+	    }
+	}
+    }
+
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
 	{ capt += " ["; capt += usr; capt += "]"; }
