@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.44 2003-03-03 15:54:10 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.45 2003-03-05 12:01:56 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -312,7 +312,7 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 
     float zrg0 = manippos ? trect->getRectangle().manipOrigo().z
 			  : trect->getRectangle().origo().z;
-    cubesampl.zrg.start = (float)(int)(1000*zrg0) / 1000;
+    cubesampl.zrg.start = (float)(int)(1000*zrg0+.5) / 1000;
     cubesampl.zrg.stop = cubesampl.zrg.start;
 
     if ( trect->getRectangle().orientation()==visBase::Rectangle::XY )
