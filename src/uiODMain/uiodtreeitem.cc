@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.51 2004-09-27 09:34:03 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.52 2004-09-30 15:31:03 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -572,8 +572,11 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
     if ( uilistviewitem->isChecked() && trackmnu )
     {
-	if ( applMgr()->EMServer()->isFullResolution(mid) && 
-	     applMgr()->trackServer()->getTrackerID(mid)==-1 )
+	const Coord3& pickedpos = menu->getPickedPos();
+	const bool hastracker = applMgr()->trackServer()->getTrackerID(mid)>=0;
+
+	if ( pickedpos.isDefined() && !hastracker &&
+	     applMgr()->EMServer()->isFullResolution(mid) )
 	{
 	    trackmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Start tracking ..."), 
@@ -582,7 +585,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    toggletrackingmnuid = -1;
 	    addsectionmnuid = -1;
 	}
-	else
+	else if ( hastracker )
 	{
 	    trackmnuid = -1;
 
@@ -645,6 +648,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
+    EM::SectionID section = -1;
+    if ( uivissurf->nrSections()==1 )
+	section = uivissurf->getSection( 0 );
+    else if ( menu->getPath() )
+	section = uivissurf->getSection( menu->getPath() );
+
     if ( mnuid==storeasmnuid )
     {
 	menu->setIsHandled(true);
@@ -657,20 +666,20 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==trackmnuid )
     {
+	menu->setIsHandled(true);
+	if ( section < 0 ) return;
+
+	if ( !uivissurf->isHorizon(displayid) && !uivissurf->isFault(displayid))
+	    return;
+
+	applMgr()->trackServer()->setDisplayID( displayid );
 	applMgr()->trackServer()->setSceneID( sceneID() );
-	if ( uivissurf->isHorizon(displayid) )
-	{
-	    applMgr()->trackServer()->setDisplayID( displayid );
-	    applMgr()->trackServer()->trackExistingSurface( mid, true );
-	}
-	else if ( uivissurf->isFault(displayid) )
-	{
-	    applMgr()->trackServer()->setDisplayID( displayid );
-	    applMgr()->trackServer()->trackExistingSurface( mid, false );
-	}
+	applMgr()->trackServer()->trackExistingSurface( mid, section, 
+			menu->getPickedPos(), uivissurf->isHorizon(displayid) );
     }
     else if ( mnuid==tracksetupmnuid )
     {
+	menu->setIsHandled(true);
 	applMgr()->trackServer()->showSetup( mid );
     }
     else if ( mnuid==reloadmnuid )
@@ -690,6 +699,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==depthvalmnuid )
     {
+	menu->setIsHandled(true);
 	uivissurf->showDepthValues();
 	updateColumnText(0);
     }
@@ -702,11 +712,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == relmnuid )
     {	
 	menu->setIsHandled(true);
-	EM::SectionID section = -1;
-	if ( uivissurf->nrSections()==1 )
-	    section = uivissurf->getSection(0);
-	else if ( menu->getPath() )
-	    section = uivissurf->getSection(menu->getPath());
 
 	if ( section==-1 )
 	    return;
@@ -716,11 +721,13 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==toggletrackingmnuid )
     {
+	menu->setIsHandled(true);
 	applMgr()->trackServer()->enableTracking(mid,
 		!applMgr()->trackServer()->isTrackingEnabled(mid));
     }
     else if ( mnuid==addsectionmnuid )
     {
+	menu->setIsHandled(true);
 	bool ishor = uivissurf->isHorizon( displayid );
 	applMgr()->trackServer()->setDisplayID( displayid );
 	applMgr()->trackServer()->addNewSection( mid, ishor );
