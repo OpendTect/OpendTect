@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.2 2002-02-09 14:13:04 kristofer Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.3 2002-04-16 08:45:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,8 @@ bool uiSeisPartServer::isAvailable( uiSeisPartServer::ExternalType t ) const
 bool uiSeisPartServer::ioSeis( uiSeisPartServer::ExternalType t, bool forread )
 {
 #ifndef sun5
-    if ( !uiMSG().askGoOn( "Sorry, workstation connection not available on "
+    if ( t != uiSeisPartServer::SegY
+      && !uiMSG().askGoOn( "Sorry, workstation connection not available on "
 			    "this platform.\nPlease import from a "
 			    "Solaris workstation or use SEG-Y.\n\n"
 			    "Do you wish to see the dialog anyway?" ) )
