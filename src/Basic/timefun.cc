@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.2 2000-03-02 15:29:00 bert Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.3 2000-03-03 12:05:20 bert Exp $";
 
 #include "timefun.h"
 #include <time.h>
@@ -71,12 +71,14 @@ const char* Time_getLocalString( void )
 
 void Time_sleep( double s )
 {
+#ifdef __notimeb__
+
+    if ( s > 0 ) sleep( mNINT(s) );
+
+#else
+
     struct timespec ts;
     if ( s <= 0 ) return;
-
-#ifdef sun5
-    sleep( mNINT(s) );
-#else
 
     ts.tv_sec = (time_t)s;
     ts.tv_nsec = (long)((((double)s - ts.tv_sec) * 1000000000L) + .5);
