@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.56 2003-05-23 12:24:12 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.57 2003-05-25 17:12:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,7 +143,15 @@ void uiIOObjSelDlg::selChg( CallBacker* cb )
 	ioobj = entrylist->selected();
 	if ( cb && nmfld )
 	    nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
-	toStatusBar( ioobj ? ioobj->fullUserExpr(ctio.ctxt.forread) : "" );
+	BufferString nm( ioobj ? ioobj->fullUserExpr(ctio.ctxt.forread) : "" );
+	int len = nm.size();
+	if ( len > 44 )
+	{
+	    BufferString tmp( nm );
+	    nm = "....";
+	    nm += tmp.buf() + len - 40;
+	}
+	toStatusBar( nm );
     }
 
     manipgrp->selChg( cb );
