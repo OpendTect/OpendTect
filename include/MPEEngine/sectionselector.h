@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselector.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:           $Id: sectionselector.h,v 1.2 2005-01-18 12:57:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ public:
 
     virtual void	reset() { selpos.erase(); }
 
-    virtual void	selectNodes( const MPE::TrackPlane& ) {}
+    virtual void	setTrackPlane( const MPE::TrackPlane& ) {}
 
     int			nextStep() { return 0; }
     const char*		errMsg() const  { return errmsg[0] ? errmsg : 0; }

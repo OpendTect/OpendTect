@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.1 2005-01-06 09:25:21 kristofer Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.2 2005-01-18 12:57:13 kristofer Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -30,7 +30,7 @@ BinIDSurfaceSourceSelector::BinIDSurfaceSourceSelector(
 {}
 
 
-void BinIDSurfaceSourceSelector::selectNodes( const MPE::TrackPlane& plane )
+void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 {
     if ( !plane.isVertical() )
 	return;
@@ -69,7 +69,7 @@ TubeSurfaceSourceSelector::TubeSurfaceSourceSelector(
 {}
 
 
-void TubeSurfaceSourceSelector::selectNodes( const MPE::TrackPlane& plane )
+void TubeSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 {
     if ( !plane.isVertical() )
 	return;
