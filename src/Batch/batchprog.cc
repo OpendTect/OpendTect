@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.59 2004-04-28 21:30:59 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.60 2004-05-06 14:14:58 macman Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -301,7 +301,16 @@ bool BatchProgram::initOutput()
 #ifndef __win__
     if ( res && !strcmp(res,"window") )
     {
-	FileNameString comm( "@view_progress " );
+
+#ifdef __mac__ 
+        // Mac requires full path in order to support GUI apps
+	BufferString comm( "@'" );
+	comm += FilePath(GetBinDir()).add("mac")
+			    .add("view_progress").fullPath();
+	comm += "' ";
+#else
+	BufferString comm( "@view_progress " );
+#endif
 	comm += getPID();
 	StreamProvider sp( comm );
 	sdout_ = sp.makeOStream();
