@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.76 2002-08-01 10:15:38 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.77 2002-08-01 15:30:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -879,6 +879,7 @@ int uiVisPartServer::addHorizonDisplay( const MultiID& emhorid )
 	return -1;
     }
 
+    horizon->setZValues();
     horizons += horizon; 
 
     scene->addDisplayObject( horizon );
