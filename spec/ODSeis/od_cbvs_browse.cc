@@ -9,6 +9,7 @@
 #include "strmprov.h"
 #include <iostream.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "prog.h"
 defineTranslatorGroup(SeisTrc,"Seismic Data");
@@ -17,23 +18,43 @@ defineTranslator(CBVS,SeisTrc,"CBVS");
 
 static void putComps( const ObjectSet<BasicComponentInfo>& cinfo )
 {
-    cout << "Data is written on a "
+    cerr << "Data is written on a "
 	 << (cinfo[0]->datachar.littleendian ? "little" : "big")
 	 << " endian machine." << endl;
 
     for ( int idx=0; idx<cinfo.size(); idx++ )
     {
 	const BasicComponentInfo& bci = *cinfo[idx];
-	cout << "\nComponent '" << (const char*)bci.name() << ':' << endl;
-	cout << "Data Characteristics: "
+	cerr << "\nComponent '" << (const char*)bci.name() << ':' << endl;
+	cerr << "Data Characteristics: "
 	     << (bci.datachar.isInteger() ? "Integer" : "Floating point") <<' ';
 	if ( bci.datachar.isInteger() )
-	     cout << (bci.datachar.isSigned() ? "(Signed) " : "(Unsigned) ");
-	cout << (int)bci.datachar.nrBytes() << " bytes" << endl;
-	cout << "Z/T start: " << bci.sd.start
+	     cerr << (bci.datachar.isSigned() ? "(Signed) " : "(Unsigned) ");
+	cerr << (int)bci.datachar.nrBytes() << " bytes" << endl;
+	cerr << "Z/T start: " << bci.sd.start
 	     << " step: " << bci.sd.step << endl;
-	cout << "Number of samples: " << bci.nrsamples << '\n' << endl;
+	cerr << "Number of samples: " << bci.nrsamples << '\n' << endl;
     }
+}
+
+
+static void getInt( int& i )
+{
+    char buf[80];
+
+    char* ptr;
+    do
+    {
+	ptr = buf;
+	cin.getline( ptr, 80 );
+	while ( *ptr && isspace(*ptr) ) ptr++;
+    }
+    while ( ! *ptr );
+
+    char* endptr = ptr + 1;
+    while ( *endptr && !isspace(*endptr) ) endptr++;
+    *endptr = '\0';
+    i = atoi( ptr );
 }
 
 int main( int argc, char** argv )
@@ -64,24 +85,24 @@ int main( int argc, char** argv )
     const CBVSReadMgr& mgr = *tri.readMgr();
     const int nrreaders = mgr.nrReaders();
     if ( nrreaders > 1 )
-	cout << "\nCube is stored in " << nrreaders << " files" << endl;
-    cout << "\n";
+	cerr << "\nCube is stored in " << nrreaders << " files" << endl;
+    cerr << "\n";
     const CBVSInfo& info = mgr.info();
     if ( info.nrtrcsperposn > 1 )
-	cout << info.nrtrcsperposn << " traces per position" << endl;
+	cerr << info.nrtrcsperposn << " traces per position" << endl;
 
     const ObjectSet<BasicComponentInfo>& cinfo = info.compinfo;
     putComps( cinfo );
 
-    cout << "The cube is " << (info.geom.fullyrectandreg ? "100% rectangular."
+    cerr << "The cube is " << (info.geom.fullyrectandreg ? "100% rectangular."
 				: "irregular.") << endl;
-    cout << "In-line range: " << info.geom.start.inl << " - "
+    cerr << "In-line range: " << info.geom.start.inl << " - "
 	 << info.geom.stop.inl << " (step "
 	 << info.geom.step.inl << ")." << endl;
-    cout << "X-line range: " << info.geom.start.crl << " - "
+    cerr << "X-line range: " << info.geom.start.crl << " - "
 	 << info.geom.stop.crl << " (step "
 	 << info.geom.step.crl << ")." << endl;
-    cout << endl;
+    cerr << endl;
 
     SeisTrc trc;
     BinID bid;
@@ -89,7 +110,7 @@ int main( int argc, char** argv )
     const int nrcomps = cinfo.size();
     while ( 1 )
     {
-	cout << "\nExamine In-line ( 0 to stop ): "; cin >> bid.inl;
+	cerr << "\nExamine In-line ( 0 to stop ): "; getInt( bid.inl );
 	if ( !bid.inl ) return 0;
 
 	if ( info.geom.fullyrectandreg )
@@ -97,7 +118,7 @@ int main( int argc, char** argv )
 	    bid.crl = info.geom.start.crl;
 	    if ( !info.geom.includes(bid) )
 	    {
-		cout << "The inline range is " << info.geom.start.inl
+		cerr << "The inline range is " << info.geom.start.inl
 		     << " - " << info.geom.stop.inl << " step "
 		     << info.geom.step.inl << endl;
 		continue;
@@ -109,55 +130,55 @@ int main( int argc, char** argv )
 			= info.geom.getInfoFor( bid.inl );
 	    if ( !inlinf )
 	    {
-		cout << "This inline is not present in the cube" << endl;
+		cerr << "This inline is not present in the cube" << endl;
 		continue;
 	    }
-	    cout << "Xline range available: ";
+	    cerr << "Xline range available: ";
 	    for ( int idx=0; idx<inlinf->segments.size(); idx++ )
 	    {
-		cout << inlinf->segments[idx].start << " - "
+		cerr << inlinf->segments[idx].start << " - "
 		     << inlinf->segments[idx].stop;
 		if ( idx < inlinf->segments.size()-1 )
-		    cout << " and ";
+		    cerr << " and ";
 	    }
-	    cout << endl;
+	    cerr << endl;
 	}
 
-	cout << "X-line: "; cin >> bid.crl;
+	cerr << "X-line: "; getInt( bid.crl );
 
 	if ( !tri.goTo( bid ) )
-	    { cout << "Position not in data" << endl; continue; }
+	    { cerr << "Position not in data" << endl; continue; }
 	if ( !tri.read(trc) )
-	    { cout << "Cannot read trace!" << endl; continue; }
+	    { cerr << "Cannot read trace!" << endl; continue; }
 
 	if ( !mIS_ZERO(trc.info().pick) && !mIsUndefined(trc.info().pick) )
-	    cout << "Pick position: " << trc.info().pick << endl;
+	    cerr << "Pick position: " << trc.info().pick << endl;
 	if ( !mIS_ZERO(trc.info().refpos) && !mIsUndefined(trc.info().refpos) )
-	    cout << "Reference position: " << trc.info().refpos << endl;
+	    cerr << "Reference position: " << trc.info().refpos << endl;
 	if ( !mIS_ZERO(trc.info().offset) && !mIsUndefined(trc.info().offset) )
-	    cout << "Offset: " << trc.info().offset << endl;
+	    cerr << "Offset: " << trc.info().offset << endl;
 
 	while ( 1 )
 	{
-	    cout << "Print samples ( 1 - " << trc.size(0) << " )." << endl;
-	    cout << "From ( 0 to stop ): ";
-	    cin >> samps.start;
+	    cerr << "Print samples ( 1 - " << trc.size(0) << " )." << endl;
+	    cerr << "From ( 0 to stop ): ";
+	    getInt( samps.start );
 	    if ( samps.start < 1 ) break;
 
-	    cout << "To: "; cin >> samps.stop;
-	    cout << "Step: "; cin >> samps.step;
+	    cerr << "To: "; getInt( samps.stop );
+	    cerr << "Step: "; getInt( samps.step );
 	    if ( samps.step < 1 ) samps.step = 1;
 	    if ( samps.start < 1 ) samps.start = 1;
 	    if ( samps.stop > trc.size(0) ) samps.stop = trc.size(0);
-	    cout << endl;
+	    cerr << endl;
 	    for ( int isamp=samps.start; isamp<=samps.stop; isamp+=samps.step )
 	    {
-		cout << isamp << '\t';
+		cerr << isamp << '\t';
 		for ( int icomp=0; icomp<nrcomps; icomp++ )
 		    cout << trc.get( isamp-1, icomp )
 			 << (icomp == nrcomps-1 ? '\n' : '\t');
 	    }
-	    cout << endl;
+	    cerr << endl;
 	}
     }
 }
