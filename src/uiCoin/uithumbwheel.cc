@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.cc,v 1.2 2002-02-13 10:42:31 arend Exp $
+ RCS:           $Id: uithumbwheel.cc,v 1.3 2002-02-13 12:35:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
                         uiThumbWheelBody( uiThumbWheel& handle,
 				  uiParent* parnt, const char* nm, bool hor);
 
-    virtual int 	nrTxtLines() const			{ return 1; }
+    //virtual int 	nrTxtLines() const			{ return 1; }
 
 private:
 
@@ -40,9 +40,23 @@ uiThumbWheelBody::uiThumbWheelBody( uiThumbWheel& handle,uiParent* parnt,
     , messenger_ ( *new i_ThumbWheelMessenger( this, &handle ))
 {
     //setStretch( 0, 0 );
-    setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::small ) );
+//    setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::small ) );
     setOrientation( hor ? SoQtThumbWheel::Horizontal 
 			: SoQtThumbWheel::Vertical );
+
+    if( hor ) 
+    {
+	setPrefWidth(90);
+	setPrefHeight(25);
+    }
+    else
+    {
+	setPrefHeight(90);
+	setPrefWidth(25);
+    }
+
+    setRangeBoundaryHandling(SoQtThumbWheel::ACCUMULATE);
+
 }
 
 
