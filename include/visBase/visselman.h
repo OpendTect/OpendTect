@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.13 2004-04-14 09:42:11 nanne Exp $
+ RCS:		$Id: visselman.h,v 1.14 2004-05-13 09:19:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -55,8 +55,6 @@ public:
     void			deSelectAll() { deSelectAll( true ); }
 
     const TypeSet<int>&		selected() const { return selectedids; }
-
-    void			rightClicked(int id);
 
     CNotifier<SelectionManager,int>	selnotifer;
     CNotifier<SelectionManager,int>	deselnotifer;
