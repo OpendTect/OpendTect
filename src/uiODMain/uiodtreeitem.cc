@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.23 2004-05-24 16:37:40 bert Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.24 2004-05-26 12:37:47 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -479,9 +479,13 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
     mGetTrackingBoolean(dotrack);    
     if ( dotrack )
     {
-	storemnuid = menu->addItem( new uiMenuItem("Store ...") );
+	storemnuid = menu->addItem( new uiMenuItem("Store") );
+	storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
 	trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
 	tracksetupmnuid = menu->addItem( new uiMenuItem("Change setup ...") );
+	uiMenuItem* tracktooglemnuitem = new uiMenuItem("Enable tracking");
+	toogletrackingmnuid = menu->addItem(tracktooglemnuitem);
+	tracktooglemnuitem->setChecked(applMgr()->trackServer()->isTrackingEnabled(mid));
     }
     else
     {
@@ -520,11 +524,23 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 	cutstopmnuid = cutstartmnuid;
 	uiPopupMenu* cutmenu = 
 	    applMgr()->trackServer()->createTrackerMenu( cutstopmnuid, mid,
-		    					 section );
+		    					 section, false );
 	if ( cutmenu && cutmenu->nrItems() )
 	{
 	    menu->addSubMenu( cutmenu );
 	    for ( int idx=0; idx<cutstopmnuid-cutstartmnuid; idx++ )
+		menu->getFreeID();
+	}
+
+	terminatestartmnuid = menu->getCurrentID();
+	terminatestopmnuid = terminatestartmnuid;
+	uiPopupMenu* terminatemenu = 
+	    applMgr()->trackServer()->createTrackerMenu( terminatestopmnuid,mid,
+		    					 section, true );
+	if ( terminatemenu && terminatemenu->nrItems() )
+	{
+	    menu->addSubMenu( terminatemenu );
+	    for ( int idx=0; idx<terminatestopmnuid-terminatestartmnuid; idx++ )
 		menu->getFreeID();
 	}
     }
@@ -532,6 +548,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
     {
 	cutstartmnuid = -1;
 	cutstopmnuid = -1;
+	terminatestartmnuid = -1;
+	terminatestopmnuid = -1;
     }
 
 #ifdef __debug__
@@ -552,18 +570,29 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 
     uiVisPartServer* visserv = applMgr()->visServer();
 	
-    if ( mnuid==storemnuid )
+    if ( mnuid==storeasmnuid )
     {
 	menu->setIsHandled(true);
 	applMgr()->storeSurface(displayid);
+    }
+    else if ( mnuid==storemnuid )
+    {
+	menu->setIsHandled(true);
+	pErrMsg("Not Implemented yet");
     }
     else if ( mnuid==trackmnuid )
     {
 	applMgr()->trackServer()->setSceneID( sceneID() );
 	if ( uivissurf->isHorizon(displayid) )
-	    applMgr()->trackServer()->trackHorizon( mid, false );
+	{
+	    applMgr()->trackServer()->setDisplayID(displayid);
+	    applMgr()->trackServer()->addHorizonTracker( mid, false );
+	}
 	else if ( uivissurf->isFault(displayid) )
-	    applMgr()->trackServer()->trackFault( mid, false );
+	{
+	    applMgr()->trackServer()->setDisplayID(displayid);
+	    applMgr()->trackServer()->addFaultTracker( mid, false );
+	}
     }
     else if ( mnuid==tracksetupmnuid )
     {
@@ -603,7 +632,27 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 	    return;
 
 	applMgr()->trackServer()->handleTrackerMenu(mnuid,cutstartmnuid,mid,
-				  		    section);
+				  		    section,false);
+    }
+    else if ( mnuid>=terminatestartmnuid && mnuid<=terminatestopmnuid )
+    {	
+	menu->setIsHandled(true);
+	EM::PatchID section = -1;
+	if ( uivissurf->nrSections()==1 )
+	    section = uivissurf->getSection(0);
+	else if ( menu->getPath() )
+	    section = uivissurf->getSection(menu->getPath());
+
+	if ( section==-1 )
+	    return;
+
+	applMgr()->trackServer()->handleTrackerMenu(mnuid,terminatestartmnuid,
+		mid, section,true);
+    }
+    else if ( mnuid==toogletrackingmnuid )
+    {
+	applMgr()->trackServer()->enableTracking(mid,
+		!applMgr()->trackServer()->isTrackingEnabled(mid));
     }
 }
 
@@ -835,7 +884,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     else if ( mnuid == 1 )
     {
 	applMgr()->trackServer()->setSceneID( sceneID() );
-	applMgr()->trackServer()->trackFault( "", true );
+	applMgr()->trackServer()->addFaultTracker( "", true );
 	return true;
     }
 
@@ -889,7 +938,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     else if ( mnuid == 1 )
     {
 	applMgr()->trackServer()->setSceneID( sceneID() );
-	applMgr()->trackServer()->trackHorizon( "", true );
+	applMgr()->trackServer()->addHorizonTracker( "", true );
 	return true;
     }
 
