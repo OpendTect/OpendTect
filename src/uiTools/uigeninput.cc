@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.56 2003-05-23 15:01:36 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.57 2003-10-20 12:42:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -894,11 +894,14 @@ void uiGenInput::setTitleText( const char* txt )
 
 
 void uiGenInput::setChecked( bool yn )
-    { checked_ = yn; if ( cbox ) cbox->setChecked( yn ); }
+{
+    checked_ = yn; 
+    if ( cbox ) cbox->setChecked( yn ); 
+}
 
 
 bool uiGenInput::isChecked()
-    { return checked_; }
+{ return checked_; }
 
 
 void uiGenInput::checkBoxSel( CallBacker* cb )
@@ -916,12 +919,14 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
 
     if ( selbut ) selbut->setSensitive( elemsens );
     if ( clrbut ) clrbut->setSensitive( elemsens );
+    checked.trigger(cb);
 }
 
+
 void uiGenInput::doSelect_( CallBacker* cb )
-    { doSelect( cb ); }
+{ doSelect(cb); }
 
 
 void uiGenInput::doClear( CallBacker* )
-    { clear(); }
+{ clear(); }
 
