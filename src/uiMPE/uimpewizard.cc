@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.1 2005-03-11 16:59:03 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.2 2005-03-14 16:50:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,14 +75,18 @@ bool Wizard::processPage1()
     const char* newobjnm = namefld->text();
     if ( !*newobjnm )
 	mErrRet( "Please provide name" )
+    if ( newObjectPresent(newobjnm) )
+    {
+	if ( !uiMSG().askGoOn("An object with that name does already exist."
+			      " Overwrite?",true) )
+	    return false;
+    }
 
-    int trackid = mpeserv->addTracker( trackertype, newobjnm );
-    MultiID mid = mpeserv->getTrackerMultiID( trackid );
-    EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
-    setupgrp->setType( objid, 0 );
-
-    curmid = mid;
-    currentfinished = false;
+    if ( engine().interactionseeds.size() )
+    {
+	displayPage(1,false); // skip seedpicking step
+	return addTracker( newobjnm );
+    }
 
     colorfld->setColor( Color::drawDef(defcolnr++) );
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
@@ -116,13 +120,14 @@ uiGroup* Wizard::createPage2()
 
 bool Wizard::processPage2()
 {
+    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
     if ( !engine().interactionseeds.size() )
     {
-	uiMSG().error( "You did not create any seedpoints" );
-	return false;
+	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	mErrRet( "You did not create any seedpoints" );
     }
 
-    return true;
+    return addTracker( namefld->text() );
 }
 
 
@@ -195,7 +200,7 @@ void Wizard::nextPage( CallBacker* )
 {
     const int pageidx = currentPageIdx();
     bool res = true;
-    switch( pageidx )
+    switch ( pageidx )
     {
 	case 0: res = processPage1(); break;
 	case 1: res = processPage2(); break;
@@ -224,6 +229,28 @@ void Wizard::finishWizard( CallBacker* )
 {
     nextPage(0);
 //  mpeserv->finishAll();
+}
+
+
+bool Wizard::newObjectPresent( const char* objnm ) const
+{
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    PtrMan<IOObj> ioobj = IOM().getLocal( objnm );
+    return ioobj;
+}
+
+
+bool Wizard::addTracker( const char* objnm )
+{
+    const int trackid = mpeserv->addTracker( trackertype, objnm );
+    if ( trackid < 0 ) return false;
+
+    MultiID mid = mpeserv->getTrackerMultiID( trackid );
+    EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
+    setupgrp->setType( objid, 0 );
+    curmid = mid;
+    currentfinished = false;
+    return true;
 }
 
 

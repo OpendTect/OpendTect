@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.1 2005-03-11 16:58:27 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.h,v 1.2 2005-03-14 16:50:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ protected:
     bool			processPage3();
     bool			processPage4();
 
+    bool			addTracker(const char* objnm);
+    bool			newObjectPresent(const char* objnm) const;
     void			updateDialogTitle();
 
     void			stickSetChange(CallBacker*);
