@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.6 2002-12-27 16:15:17 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.7 2003-03-13 14:23:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,8 @@ public:
     const char*		fileType() const
 			{ return filetype; }
     const char*		version() const;
+    int			majorVersion() const;
+    int			minorVersion() const;
     const char*		nextWord();
 			//!< 'parsing' of the Value string.
     void		toFirstWord()
