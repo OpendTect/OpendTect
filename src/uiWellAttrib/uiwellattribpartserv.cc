@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.cc,v 1.1 2004-03-01 14:29:43 nanne Exp $
+ RCS:           $Id: uiwellattribpartserv.cc,v 1.2 2004-03-18 10:13:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ bool uiWellAttribPartServer::selectAttribute( const MultiID& wellid )
     BufferString fname( sp.fileName() );
     Well::Writer wtr( fname, *wd );
    
-    int lognr = wd->logs().size();
+    int lognr = dlg.newLogIdx() + 1;
     BufferString logfnm = wtr.getFileName( Well::IO::sExtLog, lognr );
     StreamProvider splog( logfnm );
     StreamData sdo = splog.makeOStream();

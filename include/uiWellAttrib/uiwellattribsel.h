@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.h,v 1.1 2004-03-01 14:29:50 nanne Exp $
+ RCS:           $Id: uiwellattribsel.h,v 1.2 2004-03-18 10:13:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
 						const NLAModel* mdl=0);
 				~uiWellAttribSel();
 
+    int				newLogIdx() const	{ return newlogidx; }
 
 protected:
 
@@ -46,6 +47,9 @@ protected:
     void			selDone(CallBacker*);
     void			setDefaultRange(bool);
     virtual bool		acceptOK(CallBacker*);
+    int				getLogIdx(const char*);
+
+    int				newlogidx;
 };
 
 

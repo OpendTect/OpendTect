@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.2 2004-03-12 11:55:06 nanne Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.3 2004-03-18 10:13:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd_,
     , attrset(as)
     , nlamodel(mdl)
     , wd(wd_)
+    , newlogidx(-1)
 {
     attribfld = new uiAttrSel( this, &attrset );
     attribfld->setNLAModel( nlamodel );
@@ -117,6 +118,15 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     bool zinft = SI().zInFeet();
     SI().pars().getYN( uiWellPartServer::unitstr, zinft );
 
+    const char* lognm = lognmfld->text();
+    int logidx = getLogIdx( lognm );
+    if ( logidx >= 0 )
+    {
+	BufferString msg( "Log: '" ); msg += lognm;
+	msg += "' is already present.\nDo you wish to overwrite this log?";
+	if ( !uiMSG().askGoOn(msg) ) return false;
+    }
+
     TypeSet<BinIDZValues> positions;
     TypeSet<float> mdset;
     StepInterval<float> intv = rangefld->getFStepInterval();
@@ -150,7 +160,6 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     bool ret = uiexec.go();
     if ( !ret ) return false;
 
-    const char* lognm = lognmfld->text();
     Well::Log* newlog = new Well::Log( lognm );
     for ( int idx=0; idx<mdset.size(); idx++ )
     {
@@ -158,6 +167,44 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 	newlog->addValue( mdset[idx], vals.size() ? vals[0] : mUndefValue );
     }
 
-    wd.logs().add( newlog );
-    return ret;
+    const Interval<float>& valrg = newlog->valueRange();
+    if ( !valrg.width() || mIsUndefined(valrg.start) 
+	    		|| mIsUndefined(-valrg.stop) )
+    {
+	if ( !valrg.width() )
+	    uiMSG().error( "No values collected" );
+	delete newlog;
+	return false;
+    }
+
+    if ( logidx < 0 )
+    {
+	wd.logs().add( newlog );
+	newlogidx = wd.logs().size() - 1;
+    }
+    else
+    {
+	Well::Log& log = wd.logs().getLog( logidx );
+	while ( log.size() )
+	    log.removeValue(0);
+	for ( int idx=0; idx<newlog->size(); idx++ )
+	    log.addValue( newlog->dah(idx), newlog->value(idx) );
+	delete newlog;
+	newlogidx = logidx;
+    }
+
+    return true;
+}
+
+
+int uiWellAttribSel::getLogIdx( const char* lognm )
+{
+    for ( int idx=0; idx<wd.logs().size(); idx++ )
+    {
+	const Well::Log& log = wd.logs().getLog(idx);
+	if ( !strcmp(log.name(),lognm) )
+	    return idx;
+    }
+
+    return -1;
 }
