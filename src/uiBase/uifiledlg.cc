@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.20 2004-12-10 15:23:07 dgb Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.21 2005-01-25 13:30:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ int uiFileDialog::go()
 
     QStringList list = fd->selectedFiles();
     fn = list.size() ? list[0] : fd->selectedFile();
+    selectedfilter = fd->selectedFilter();
 
 #ifdef __win__
     replaceCharacter( fn.buf(), '/', '\\' );

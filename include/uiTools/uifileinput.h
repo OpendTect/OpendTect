@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.16 2004-05-27 12:42:13 macman Exp $
+ RCS:           $Id: uifileinput.h,v 1.17 2005-01-25 13:31:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
 			    { defseldir = nm; }
     void		setFilter( const char* fltr )
 			    { newfltr = true; selfltr = fltr; }
+    const char*		selectedFilter() const		{ return selfltr; }
+
     const char*		fileName();
     void		getFileNames(BufferStringSet&) const;
 

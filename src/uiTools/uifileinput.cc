@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.26 2004-05-27 12:42:13 macman Exp $
+ RCS:           $Id: uifileinput.cc,v 1.27 2005-01-25 13:31:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ void uiFileInput::doSelect( CallBacker* )
     if ( !dlg.go() )
 	return;
 
+    selfltr = dlg.selectedFilter();
     BufferString oldfname( fname );
     BufferString newfname;
     if ( selmode == uiFileDialog::ExistingFiles )
