@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.19 2002-01-04 16:16:49 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.20 2002-01-04 23:45:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,25 @@ class uiGroup;
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
 
+It is meant to be the base class for 'normal' dialog windows.
+
 */
+
+
 class uiDialog : public uiMainWin
 { 	
-// impl: uimainwin.cc
-friend class uiDialogBody;
+    // impl: uimainwin.cc
+    friend class	uiDialogBody;
 
 public:
+
+    /*!\brief description of properties of dialog.
+     
+	For convenience, the 'set' functions return a reference to the object.
+	This allows constructions like:
+	Setup P( "xx", "yy", "zz" ).oktext("").canceltext("Quit").modal(false);
+	This is _very_ helpful when a uiDialog base class is constructed.
+     */
 
     class Setup
     {
@@ -33,30 +45,29 @@ public:
 			Setup( const char* window_title,
 			       const char* dialog_title,
 			       const char* help_id )
-			: wintitle(window_title)
-			, dlgtitle(dialog_title)
-			, helpid(help_id)
-			, oktext("Ok")
-			, canceltext("Cancel")
-			, modal(true)
-			, savebutton(false)
-			, separator(true)
-			, menubar(false)
-			, toolbar(false)
-			, statusbar(false)		{}
+			: wintitle_(window_title), dlgtitle_(dialog_title)
+			, helpid_(help_id), savetext_("Save defaults")
+			, oktext_("Ok"), canceltext_("Cancel")
+			, modal_(true)
+			, savebutton_(false), separator_(true)
+			, menubar_(false), toolbar_(false), statusbar_(false)
+			{}
 
-	BufferString	wintitle;
-	BufferString	dlgtitle;
-	BufferString	helpid;
-	BufferString	oktext;
-	BufferString	canceltext;
-	BufferString	savetext;
-	bool		modal;
-	bool		savebutton;
-	bool		separator;
-	bool		menubar;
-	bool		toolbar;
-	bool		statusbar;
+	BufferString	wintitle_, dlgtitle_, helpid_;
+	BufferString	savetext_, oktext_, canceltext_;
+	bool		modal_, savebutton_, separator_;
+	bool		menubar_, toolbar_, statusbar_;
+
+	Setup&	savetext( const char* s )   { savetext_ = s;    return *this; }
+	Setup&	oktext( const char* s )     { oktext_ = s;      return *this; }
+	Setup&	canceltext( const char* s ) { canceltext_ = s;  return *this; }
+	Setup&	modal( bool yn=true )       { modal_ = yn;      return *this; }
+	Setup&	savebutton( bool yn=true )  { savebutton_ = yn; return *this; }
+	Setup&	separator( bool yn=true )   { separator_ = yn;  return *this; }
+	Setup&	menubar( bool yn=true )     { menubar_ = yn;    return *this; }
+	Setup&	toolbar( bool yn=true )     { toolbar_ = yn;    return *this; }
+	Setup&	statusbar( bool yn=true )   { statusbar_ = yn;  return *this; }
+
     };
 
 			uiDialog(uiParent*,const Setup&);
@@ -88,13 +99,15 @@ public:
     void		setTitleText( const char* txt );
     bool		saveButtonChecked();
 
-			//! Separator between central dialog and Ok/Cancel bar?
     void		setSeparator( bool yn );
-    bool		separator();
+			//!< Separator between central dialog and Ok/Cancel bar?
+    bool		separator() const;
     uiGroup*		topGroup();
 
-    Notifier<uiDialog>	finaliseStart; //! triggered when about to start finalising
-    Notifier<uiDialog>	finaliseDone;  //! triggered when finalising finished
+    Notifier<uiDialog>	finaliseStart;
+    			//!< triggered when about to start finalising
+    Notifier<uiDialog>	finaliseDone;
+    			//!< triggered when finalising finished
 
 protected:
 
