@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.12 2003-07-10 10:07:23 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.13 2003-07-14 15:00:07 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -562,7 +562,7 @@ int EM::Surface::addAuxData( const char* name )
     newauxdata->allowNull(true);
 
     for ( int idx=0; idx<nrPatches(); idx++ )
-	newauxdata += 0;
+	(*newauxdata) += 0;
 
     return auxdatanames.size()-1;
 }
@@ -588,7 +588,7 @@ float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
     const TypeSet<float>* patchauxdata = (*auxdata[dataidx])[patchidx];
     if ( !patchauxdata ) return mUndefValue;
 
-    const int subidx = surfaces[patchidx]->indexOf(posid.subID());
+    const int subidx = surfaces[patchidx]->indexOf( posid.subID() );
     if ( subidx==-1 ) return mUndefValue;
     return (*patchauxdata)[subidx];
 }
@@ -596,12 +596,14 @@ float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
 
 void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
 {
-    if ( auxdata[dataidx] ) return;
+    if ( !auxdata[dataidx] ) return;
 
     const int patchidx = patchids.indexOf(posid.patchID());
     if ( patchidx==-1 ) return;
 
-    const int subidx = surfaces[patchidx]->indexOf(posid.subID());
+    RowCol rc;
+    getGridRowCol( posid.subID(), rc );
+    const int subidx = surfaces[patchidx]->indexOf( rc );
     if ( subidx==-1 ) return;
 
     TypeSet<float>* patchauxdata = (*auxdata[dataidx])[patchidx];

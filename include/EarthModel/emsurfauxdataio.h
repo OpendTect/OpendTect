@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.2 2003-06-19 12:34:41 kristofer Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.3 2003-07-14 15:00:35 nanne Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ public:
     static const char*	infostr;
     static const char*	intdatacharstr;
     static const char*	floatdatacharstr;
+    static const char*	filetypestr;
 
     static BufferString	createHovName(const char* base, int idx );
 

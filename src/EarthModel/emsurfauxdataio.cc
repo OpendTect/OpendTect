@@ -20,12 +20,14 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.4 2003-07-07 15:12:38 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.5 2003-07-14 14:58:59 nanne Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
 const char* EM::dgbSurfDataWriter::intdatacharstr = "Int data";
 const char* EM::dgbSurfDataWriter::floatdatacharstr = "Float data";
+const char* EM::dgbSurfDataWriter::filetypestr = "Surface aux data";
+
 
 EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 				    const BinIDSampler* sel_, bool binary_,
@@ -38,6 +40,7 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     , sel( sel_ )
     , patchindex( 0 )
     , binary( binary_ )
+    , nrdone(0)
 {
     IOPar par( "Surface Data" );
     par.set( attrnmstr, surf.auxDataName(dataidx) );
@@ -60,7 +63,7 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     if ( !(*stream) ) return;
 
     ascostream astream( *stream );
-
+    astream.putHeader( filetypestr );
     par.putTo( astream );
 
     int nrnodes = 0;
@@ -106,7 +109,7 @@ int EM::dgbSurfDataWriter::nextStep()
 	    const Geometry::GridSurface* gridsurf = surf.getSurface(patchid);
 
 	    const int nrnodes = gridsurf->size();
-	    for ( int idy=0; idy<nrnodes; idx++ )
+	    for ( int idy=0; idy<nrnodes; idy++ )
 	    {
 		EM::SubID subid = gridsurf->getPosID(idy);
 		Coord3 coord = gridsurf->getPos( subid );
@@ -114,7 +117,7 @@ int EM::dgbSurfDataWriter::nextStep()
 		if ( sel && sel->excludes(SI().transform(coord)) )
 		    continue;
 
-		const EM::PosID posid( surf.id(), patchid, subid);
+		const EM::PosID posid( surf.id(), patchid, subid );
 		const float auxvalue = surf.getAuxDataVal(dataidx,posid);
 		if ( mIsUndefined( auxvalue ) )
 		    continue;
@@ -185,7 +188,7 @@ bool EM::dgbSurfDataWriter::writeFloat(float val)
 
 
 EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
-    : Executor( "Aux data writer" )
+    : Executor( "Aux data reader" )
     , stream( new ifstream(filename) )
     , subidinterpreter( 0 )
     , datainterpreter( 0 )
@@ -194,11 +197,16 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     , surf( 0 )
     , patchindex( 0 )
     , error( true )
+    , nrdone(0)
+    , valsleftonpatch(0)
 {
     if ( !(*stream) )
 	return;
 
     ascistream astream( *stream );
+    if ( !astream.isOfFileType(dgbSurfDataWriter::filetypestr) )
+        return;
+
     const IOPar par( astream );
     if ( !par.get( dgbSurfDataWriter::attrnmstr, dataname ) )
 	return;
@@ -247,6 +255,7 @@ const char* EM::dgbSurfDataReader::dataInfo() const
 void EM::dgbSurfDataReader::setSurface( EM::Surface& surf_ )
 {
     surf = & surf_;
+    dataidx = surf->addAuxData( dataname );
 }
 
 
@@ -280,7 +289,7 @@ int EM::dgbSurfDataReader::nextStep()
 
 	int subid;
 	float val;
-	if ( !readLong(subid) && !readFloat(val) )
+	if ( !readLong(subid) || !readFloat(val) )
 	    return ErrorOccurred;
 
 	surf->setAuxDataVal( dataidx,

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.10 2003-07-10 10:07:44 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.11 2003-07-14 15:00:07 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -648,8 +648,8 @@ int EM::dgbSurfaceWriter::nextStep()
 	    if ( auxdatasel[idx]>=surface.nrAuxData() )
 		continue;
 
-	    const char* fnm = dgbSurfDataWriter::createHovName( 
-		    			conn->fileName(),auxdatasel[idx]);
+	    BufferString fnm( dgbSurfDataWriter::createHovName( 
+		    			conn->fileName(),auxdatasel[idx]) );
 	    add( new dgbSurfDataWriter(surface,auxdatasel[idx],0,binary,fnm) ); 
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
@@ -701,7 +701,7 @@ int EM::dgbSurfaceWriter::nextStep()
 		if ( firstrow<writerowrange->start )
 		    firstrow = writerowrange->start;
 
-		if ( lastrow>writerowrange->start )
+		if ( lastrow>writerowrange->stop )
 		    lastrow = writerowrange->stop;
 
 		firstrow = writerowrange->snap( firstrow );
