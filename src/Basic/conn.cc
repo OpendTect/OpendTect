@@ -5,16 +5,13 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.2 2000-03-16 14:36:42 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.3 2001-03-27 11:58:10 bert Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
 #include "strmoper.h"
 #include <fstream.h>
 
-
-DefineEnumNames(Conn,State,0,"Connection Type")
-	{ "Bad", "Read", "Write", "Read/Write", 0 };
 
 DefineEnumNames(StreamConn,Type,0,"Type")
 	{ "File", "Device", "Command", 0 };
@@ -24,11 +21,11 @@ StreamConn::StreamConn()
 	: mine(true)
 	, nrretries(0)
 	, retrydelay(0)
+	, state_(Bad)
 {
-    state_ = Bad;
     fname = new char[1024];
     *fname = '\0';
-};
+}
 
 
 StreamConn::~StreamConn()
@@ -50,9 +47,9 @@ StreamConn::StreamConn( istream* s )
 	: mine(true), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
+	, state_(Read)
 {
     sd.istrm = s;
-    state_ = Read;
     (void)bad();
 }
 
@@ -61,9 +58,9 @@ StreamConn::StreamConn( ostream* s )
 	: mine(true), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
+	, state_(Write)
 {
     sd.ostrm = s;
-    state_ = Write;
     (void)bad();
 }
 
@@ -83,9 +80,9 @@ StreamConn::StreamConn( istream& s )
 	: mine(false), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
+	, state_(Read)
 {
     sd.istrm = &s;
-    state_ = Read;
     (void)bad();
 }
 
@@ -94,9 +91,9 @@ StreamConn::StreamConn( ostream& s )
 	: mine(false), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
+	, state_(Write)
 {
     sd.ostrm = &s;
-    state_ = Write;
     (void)bad();
 }
 
@@ -105,8 +102,8 @@ StreamConn::StreamConn( const char* nm, State s )
 	: mine(false), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
+	, state_(s)
 {
-    state_ = s;
     if ( nm && *nm )
     {
 	fname = new char[ strlen(nm) + 1 ];
