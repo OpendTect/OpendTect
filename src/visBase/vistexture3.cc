@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.2 2003-01-09 09:11:30 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.3 2003-01-09 09:57:17 kristofer Exp $";
 
 #include "vistexture3.h"
 
@@ -31,6 +31,8 @@ visBase::Texture3::Texture3()
     texture->wrapR = SoTexture3::CLAMP;
     texture->wrapS = SoTexture3::CLAMP;
     texture->wrapT = SoTexture3::CLAMP;
+
+    texture->model = SoTexture3::MODULATE;
 }
 
 
