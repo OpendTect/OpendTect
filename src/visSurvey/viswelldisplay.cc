@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.31 2004-03-01 14:36:02 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.32 2004-03-31 06:45:01 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -247,12 +247,20 @@ void WellDisplay::displayLog( const char* lognm,
 }
 
 
+void WellDisplay::setLogColor( const Color& col, int lognr )
+{ well->setLogColor( col, lognr ); }
+
+
 const Color& WellDisplay::logColor( int lognr ) const
 { return well->logColor( lognr ); }
 
 
-void WellDisplay::setLogColor( const Color& col, int lognr )
-{ well->setLogColor( col, lognr ); }
+void WellDisplay::setLogLineWidth( float width, int lognr )
+{ well->setLogLineWidth( width, lognr ); }
+
+
+float WellDisplay::logLineWidth( int lognr ) const
+{ return well->logLineWidth( lognr ); }
 
 
 void WellDisplay::setLogWidth( int width )

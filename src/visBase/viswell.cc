@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.10 2004-01-05 09:43:23 kristofer Exp $
+ RCS:           $Id: viswell.cc,v 1.11 2004-03-31 06:43:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,6 +271,18 @@ const Color& Well::logColor( int lognr ) const
     const int b = mNINT(col[2]*255);
     color.set( (unsigned char)r, (unsigned char)g, (unsigned char)b );
     return color;
+}
+
+
+void Well::setLogLineWidth( float width, int lognr )
+{
+    log->setLineWidth( width, lognr );
+}
+
+
+float Well::logLineWidth( int lognr ) const
+{
+    return log->lineWidth( lognr );
 }
 
 

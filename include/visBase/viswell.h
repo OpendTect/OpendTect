@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.5 2004-01-05 09:43:47 kristofer Exp $
+ RCS:           $Id: viswell.h,v 1.6 2004-03-31 06:43:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
 					   int);
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
+    void			setLogLineWidth(float,int);
+    float			logLineWidth(int) const;
     void			setLogWidth(int);
     int				logWidth() const;
     void			showLogs(bool);
