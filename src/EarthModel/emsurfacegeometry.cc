@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.1 2004-08-09 14:09:31 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.2 2004-08-20 07:53:59 kristofer Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.1 2004-08-09 14:09:31 
 #include "emsurfacerelations.h"
 #include "emsurfaceauxdata.h"
 
-#include "emhingeline.h"
+#include "emsurfaceedgeline.h"
 #include "emhistoryimpl.h"
 #include "emmanager.h"
 #include "geomgridsurface.h"

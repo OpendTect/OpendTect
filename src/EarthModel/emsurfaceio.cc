@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.39 2004-08-13 10:57:17 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.40 2004-08-20 07:53:59 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.39 2004-08-13 10:57:17 nanne
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
-#include "emhingeline.h"
+#include "emsurfaceedgeline.h"
 #include "emsurfauxdataio.h"
 #include "filegen.h"
 #include "geommeshsurface.h"
