@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.67 2005-01-10 10:02:33 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.68 2005-02-04 16:16:40 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -853,7 +853,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    FeatureSet fswrite;
 	    attrserv->curDescSet()->fillPar( fswrite.pars() );
 	    const char* res = nlaserv->transferData( fss, fswrite );
-	    if ( res && *res )
+	    if ( res && *res && strcmp(res,"User cancel") )
 		uiMSG().warning( res );
 	}
 	deepErase(fss);

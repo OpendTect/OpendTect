@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.14 2005-02-02 16:02:48 duntao Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.15 2005-02-04 16:16:40 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,8 +87,7 @@ void uiNLAPartServer::getBinIDValueSets(
 }
 
 
-static void addFSToSets( ObjectSet<BinIDValueSet>& bivsets,
-			 const FeatureSet& fs )
+static void addFSToSets( ObjectSet<BinIDValueSet>& bivsets, FeatureSet& fs )
 {
     const int nrdescs = fs.descs().size();
     BinIDValueSet* bvs = new BinIDValueSet( nrdescs + 1, true );
@@ -102,6 +101,7 @@ static void addFSToSets( ObjectSet<BinIDValueSet>& bivsets,
 	    vals[iv+1] = vec[iv];
 	bvs->add( vec.fvPos(), vals );
     }
+    fs.erase();
 }
 
 
@@ -181,10 +181,9 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
     if ( res ) return res;
 
     FeatureSet& fstrain = fsTrain();
-    FeatureSet& fstest = fsTest();
-
     addFSToSets( bivsets, fstrain );
-    addFSToSets( bivsets, fstest );
+    FeatureSet& fstest = fsTest();
+    addFSToSets( bivsets, fsTest() );
 
     BufferStringSet colnames;
     colnames.add( SI().getZUnit(false) );
@@ -203,7 +202,6 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	return "User cancel";
     }
 
-    fstrain.erase(); fstest.erase();
     putBivSetToFS( *bivsets[0], fstrain );
     putBivSetToFS( *bivsets[1], fstest );
 
