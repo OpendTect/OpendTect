@@ -8,12 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.7 2003-01-23 11:58:17 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.8 2003-01-27 13:13:15 kristofer Exp $";
 
 #include "vistexture.h"
 
 #include "arrayndimpl.h"
-#include "dataclipper.h"
 #include "simpnumer.h"
 #include "viscolortab.h"
 #include "visthread.h"
@@ -30,14 +29,12 @@ visBase::Texture::Texture()
     : datacache( 0 )
     , indexcache( 0 )
     , cachesize( 0 )
-    , dataclipper( *new DataClipper( 0.05) )
     , threadworker( 0 )
     , colortab(0)
     , red( new unsigned char[NRCOLORS] )
     , green( new unsigned char[NRCOLORS] )
     , blue( new unsigned char[NRCOLORS] )
     , trans( new unsigned char[NRCOLORS] )
-    , autoscale( true )
     , usetrans( true )
     , histogram( NRCOLORS, 0 )
 {
@@ -52,7 +49,6 @@ visBase::Texture::~Texture()
     delete [] red;
     delete [] green;
     delete [] blue;
-    delete &dataclipper;
     setThreadWorker( 0 );
     colortab->unRef();
 }
@@ -60,14 +56,12 @@ visBase::Texture::~Texture()
 
 void visBase::Texture::setAutoScale( bool yn )
 {
-    autoscale = yn;
-    if ( autoscale )
-	clipData();
+    colortab->setAutoScale( yn );
 }
 
 
 bool visBase::Texture::autoScale() const
-{ return autoscale; }
+{ return colortab->autoScale(); }
 
 
 void visBase::Texture::setColorTab( VisColorTab& newct )
@@ -78,12 +72,15 @@ void visBase::Texture::setColorTab( VisColorTab& newct )
 		mCB( this, visBase::Texture, colorTabChCB ));
 	colortab->sequencechange.remove(
 		mCB( this, visBase::Texture, colorSeqChCB ));
+	colortab->autoscalechange.remove(
+		mCB( this, visBase::Texture, autoscaleChCB ));
 	colortab->unRef();
     }
 
     colortab = &newct;
     colortab->rangechange.notify( mCB( this, visBase::Texture, colorTabChCB ));
     colortab->sequencechange.notify( mCB( this, visBase::Texture,colorSeqChCB));
+    colortab->autoscalechange.notify(mCB( this,visBase::Texture,autoscaleChCB));
     colortab->ref();
     colortab->setNrSteps(NRCOLORS-1);
     makeColorTables();
@@ -99,14 +96,12 @@ visBase::VisColorTab& visBase::Texture::getColorTab()
 
 void visBase::Texture::setClipRate( float nv )
 {
-    dataclipper.setClipRate( nv );
-    makeColorIndexes();
-    makeTexture();
+    colortab->setClipRate( nv );
 }
 
 
 float visBase::Texture::clipRate() const
-{ return dataclipper.clipRate(); }
+{ return colortab->clipRate(); }
 
 
 const TypeSet<float>& visBase::Texture::getHistogram() const
@@ -160,7 +155,7 @@ void visBase::Texture::setResizedData( float* newdata, int sz )
     datacache = newdata;
     cachesize = sz;
 
-    if ( autoscale )
+    if ( colortab->autoScale() )
     {
 	clipData();		// Will trigger cbs so everything is updated
     }
@@ -187,13 +182,16 @@ void visBase::Texture::colorSeqChCB(CallBacker*)
 }
 
 
+void visBase::Texture::autoscaleChCB(CallBacker*)
+{
+    clipData();
+}
+
+
 void visBase::Texture::clipData()
 {
     if ( !datacache ) return;
-
-    dataclipper.putData( datacache, cachesize );
-    dataclipper.calculateRange();
-    colortab->scaleTo( dataclipper.getRange() );
+    colortab->scaleTo( datacache, cachesize );
 }
 
 
@@ -391,7 +389,7 @@ void visBase::Texture::makeColorTables()
 	red[idx] = color.r();
 	green[idx] = color.g();
 	blue[idx] = color.b();
-    trans[idx] = 255-color.t();
+	trans[idx] = 255-color.t();
     }
 }
 
