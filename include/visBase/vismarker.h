@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.10 2003-11-28 15:40:03 nanne Exp $
+ RCS:		$Id: vismarker.h,v 1.11 2003-12-11 16:28:16 nanne Exp $
 ________________________________________________________________________
 
 
@@ -17,10 +17,11 @@ ________________________________________________________________________
 #include "position.h"
 #include "enums.h"
 
-class SoTranslation;
 class SoGroup;
-class SoShape;
 class SoMarkerScale;
+class SoRotation;
+class SoShape;
+class SoTranslation;
 
 namespace visBase
 {
@@ -39,7 +40,7 @@ public:
     static Marker*	create()
 			mCreateDataObj(Marker);
 
-    enum Type		{ Cube, Cone, Cylinder, Sphere, Arrow, Cross };
+    enum Type		{ Cube, Cone, Cylinder, Sphere, Arrow };
     			DeclareEnumUtils(Type);
 
     void		setType(Type);
@@ -53,6 +54,11 @@ public:
 
     void		setScale(const Coord3&);
 
+    void		setRotation(const Coord3&,float);
+    void		setDirection(const Coord3&);
+    const Coord3&	getDirection() const		{ return direction; }
+    void		setLength(float);
+
     void		setTransformation( Transformation* );
     Transformation*	getTransformation();
     
@@ -65,6 +71,8 @@ protected:
 
     SoMarkerScale*	markerscale;
     SoShape*		shape;
+    SoRotation*		rotation;
+    Coord3		direction;
 
     Type		markertype;
 

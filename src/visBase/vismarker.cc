@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.9 2003-11-28 15:40:55 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.10 2003-12-11 16:28:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,13 +16,13 @@ ________________________________________________________________________
 
 #include "SoMarkerScale.h"
 #include "SoArrow.h"
-#include <Inventor/nodes/SoTranslation.h>
-#include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoCylinder.h>
 #include <Inventor/nodes/SoCone.h>
-#include <Inventor/nodes/SoText3.h>
+#include <Inventor/nodes/SoRotation.h>
+
+#include <math.h>
 
 mCreateFactoryEntry( visBase::Marker );
 
@@ -35,19 +35,21 @@ DefineEnumNames(visBase::Marker,Type,0,"Marker type")
     "Cylinder",
     "Sphere",
     "Arrow",
-    "Cross",
     0
 };
 
 
 visBase::Marker::Marker()
     : VisualObjectImpl(true)
-    , markertype( Cube )
-    , transformation( 0 )
-    , markerscale( new SoMarkerScale )
-    , shape( 0 )
+    , markertype(Cube)
+    , transformation(0)
+    , rotation(new SoRotation)
+    , markerscale(new SoMarkerScale)
+    , shape(0)
+    , direction(0,0,0)
 {
     addChild( markerscale );
+    addChild( rotation );
     setType( markertype );
 
 //  Creation only used for being able to read old session files with Cubes
@@ -96,22 +98,17 @@ void visBase::Marker::setType( Type type )
 	} break;
     case Cone:
 	shape = new SoCone;
+	setRotation( Coord3(1,0,0), M_PI/2 );
 	break;
     case Cylinder:
 	shape = new SoCylinder;
+	setRotation( Coord3(1,0,0), M_PI/2 );
 	break;
     case Sphere:
 	shape = new SoSphere;
 	break;
     case Arrow:
 	shape = new SoArrow;
-	break;
-    case Cross:
-	{
-	    SoText3* xshape = new SoText3;
-	    xshape->string.setValue( "x" );
-	    shape = xshape;
-	}
 	break;
     }
 
@@ -136,6 +133,40 @@ float visBase::Marker::getSize() const
 void visBase::Marker::setScale( const Coord3& pos )
 {
     markerscale->scaleFactor.setValue( pos.x, pos.y, pos.z );
+}
+
+
+void visBase::Marker::setRotation( const Coord3& vec, float angle )
+{
+    rotation->rotation.setValue( SbVec3f(vec[0],vec[1],vec[2]), angle );
+}
+
+
+void visBase::Marker::setDirection( const Coord3& dir )
+{
+    mDynamicCastGet(SoArrow*,arrow,shape)
+    if ( !arrow ) return;
+
+    direction = dir;
+    SbVec3f orgdir( 1, 0, 0 );
+    SbVec3f newdir( dir[0], dir[1], dir[2] );
+    float length = newdir.length();
+
+    newdir.normalize();
+    SbVec3f rot = orgdir.cross( newdir );
+    float angle = acos( orgdir.dot(newdir) );
+    if ( rot.sqrLength() > 0 )
+	rotation->rotation.setValue( rot, angle );
+
+    setLength( length );
+}
+
+
+void visBase::Marker::setLength( float length )
+{
+    mDynamicCastGet(SoArrow*,arrow,shape)
+    if ( arrow )
+	arrow->lineLength.setValue( length );
 }
 
 
