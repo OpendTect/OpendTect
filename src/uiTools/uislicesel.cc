@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.17 2004-05-03 16:05:32 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.18 2004-06-21 10:09:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,8 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
     isvol = type == 3;
     
     Interval<int> inlrg( cs_.hrg.start.inl, cs_.hrg.stop.inl );
-    inl0fld = new uiLabeledSpinBox( this, "Inline range" );
+    BufferString label( isinl ? "Inline nr" : "Inline range" );
+    inl0fld = new uiLabeledSpinBox( this, label );
     setBoxValues( inl0fld->box(), SI().inlRange(), inlrg.start );
     inl1fld = new uiSpinBox( this );
     setBoxValues( inl1fld, SI().inlRange(), inlrg.stop );
@@ -41,7 +42,8 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
     inl1fld->display( !isinl );
 
     Interval<int> crlrg( cs_.hrg.start.crl, cs_.hrg.stop.crl );
-    crl0fld = new uiLabeledSpinBox( this, "Xline range" );
+    label = iscrl ? "Xline nr" : "Xline range";
+    crl0fld = new uiLabeledSpinBox( this, label );
     setBoxValues( crl0fld->box(), SI().crlRange(), crlrg.start );
     crl0fld->attach( alignedBelow, inl0fld );
     crl1fld = new uiSpinBox( this );
@@ -51,9 +53,10 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 
     const float zfact( SI().zIsTime() ? 1000 : 1 );
     Interval<int> zrg( mNINT(cs_.zrg.start*zfact), mNINT(cs_.zrg.stop*zfact) );
-    BufferString zstr( SI().zIsTime() ? "Time range " : "Depth range " );
-    zstr += SI().getZUnit();
-    z0fld = new uiLabeledSpinBox( this, zstr );
+    label = SI().zIsTime() ? "Time " : "Depth ";
+    if ( !istsl ) label += "range ";
+    label += SI().getZUnit();
+    z0fld = new uiLabeledSpinBox( this, label );
     StepInterval<int> totzrg = 
 	    StepInterval<int>( mNINT(SI().zRange().start*zfact),
 			       mNINT(SI().zRange().stop*zfact),
