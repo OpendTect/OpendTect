@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.37 2002-05-03 09:41:26 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.38 2002-05-03 11:52:22 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -540,6 +540,24 @@ bool uiVisPartServer::picksetIsPresent( const char* psname )
 
     return false;
 }
+
+
+void uiVisPartServer::showAllPicks( int id, bool showall )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
+    if ( ps )
+        ps->showAll( showall );
+}
+
+
+bool uiVisPartServer::allPicksShown( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
+    return ps ? ps->allShown() : false;
+}
+
 
 
 bool uiVisPartServer::canSetColorSeq( int id ) const
