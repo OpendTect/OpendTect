@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.14 2004-05-04 15:37:55 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.15 2004-05-06 10:13:02 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ___________________________________________________________________
 #include "uilistview.h"
 #include "uibinidtable.h"
 #include "uivismenu.h"
-#include "uitrackingdlg.h"
 #include "uisoviewer.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -480,8 +479,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
     editmnuid = menu->addItem( edititem );
     edititem->setChecked( sd->editingEnabled() );
 
-    undoredomnuid = menu->addItem( new uiMenuItem("Undo/Redo ..."));
-
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
@@ -579,11 +576,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 	sd->turnOnWireFrame( !sd->isWireFrameOn() );
     else if ( mnuid==editmnuid )
 	sd->enableEditing( !sd->editingEnabled() );
-    else if ( mnuid==undoredomnuid )
-    {
-	uiTrackingDlg dlg( getUiParent() );
-	dlg.go();
-    }
     else if ( mnuid>=attribstartmnuid && mnuid<=attribstopmnuid )
     {
 	menu->setIsHandled(true);
