@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.40 2002-05-06 09:43:59 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.41 2002-05-06 10:08:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ uiVisPartServer::~uiVisPartServer()
 {
     visBase::DM().selMan().selnotifer.remove(
 	    mCB(this,uiVisPartServer,selectObjCB) );
+    visBase::DM().selMan().deselnotifer.remove(
+	    mCB(this,uiVisPartServer,deselectObjCB) );
     delete &eventmutex;
 }
 
@@ -91,7 +93,6 @@ bool uiVisPartServer::deleteAllObjects()
 
 void uiVisPartServer::usePar( const IOPar& par )
 {
-    deleteAllObjects();
     visBase::DM().usePar( par );
 
     TypeSet<int> sceneids;
