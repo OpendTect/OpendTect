@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.19 2002-03-08 16:23:13 nanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.20 2002-03-27 13:00:53 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -96,6 +96,28 @@ ColorTable& ColorTable::operator=(const ColorTable& n )
     uselist = n.uselist;
 
     return *this;
+}
+
+
+bool ColorTable::operator==( const ColorTable& ct ) const
+{
+    bool res = false;
+    if ( ct.name() != name() ||
+	 ct.getInterval() != getInterval() ||
+	 ct.undefcolor != undefcolor ||
+	 ct.markcolor != markcolor )		return false;
+	 
+    if ( ct.cvs.size() != cvs.size() ) return false;
+    else
+    {
+	for ( int idx=0; idx<cvs.size(); idx++ )
+	{
+	    if ( cvs[idx].value != ct.cvs[idx].value ||
+		 cvs[idx].color != ct.cvs[idx].color )		return false;
+	}
+    }
+
+    return true;
 }
 
 
