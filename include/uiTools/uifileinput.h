@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.13 2004-01-12 15:01:55 bert Exp $
+ RCS:           $Id: uifileinput.h,v 1.14 2004-03-19 14:36:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
 	Setup&		forread(bool yn=true)	  { mSetVar(forread_,yn); }
 	Setup&		withexamine(bool yn=true) { mSetVar(withexamine_,yn); }
 	Setup&		directories(bool yn=true) { mSetVar(dirs_,yn); }
+        #undef mSetVar
     };
 
     			uiFileInput(uiParent*,const char* seltxt,
