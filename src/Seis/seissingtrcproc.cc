@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.18 2004-08-24 16:24:57 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.19 2004-09-07 16:24:01 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -176,6 +176,8 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 void SeisSingleTraceProc::nextObj()
 {
     rdrset_[currentobj_]->prepareWork();
+    if ( wrr_->is2D() )
+	wrr_->setLineKeyProvider( rdrset_[currentobj_]->lineKeyProvider() );
     return;
 }
 

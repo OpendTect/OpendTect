@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.26 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.27 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
     Notifier<uiIOSelect> selectiondone;
 
     const char*		labelText() const;
+    void		setLabelText(const char*);
 
 protected:
 

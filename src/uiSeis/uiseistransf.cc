@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.23 2004-09-06 16:14:07 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.24 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,18 @@ int uiSeisTransfer::maxBytesPerSample() const
     DataCharacteristics dc(
 	    (DataCharacteristics::UserType)scfmtfld->getFormat() );
     return (int)dc.nrBytes();
+}
+
+
+uiSeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
+{
+    int ntr = selfld->expectedNrTraces();
+    uiSeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(), ntr,
+				   maxBytesPerSample() );
+    if ( is2d )
+	si.expectednrtrcs = ntr;
+
+    return si;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.11 2004-06-28 16:00:05 bert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.12 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,14 @@ void uiSeisFmtScale::updFldsForType( CallBacker* )
 	if ( imptypefld ) imptypefld->setValue( 0 );
     }
     scalefld->setSensitive( !issteer );
-    if ( imptypefld ) imptypefld->setSensitive( !issteer );
     if ( optimfld ) optimfld->display( !is2d );
+    if ( imptypefld )
+    {
+	if ( is2d )
+	    imptypefld->display( false );
+	else
+	    imptypefld->setSensitive( !issteer );
+    }
 }
 
 
@@ -114,7 +120,7 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 
 void uiSeisFmtScale::updateIOObj( IOObj* ioobj ) const
 {
-    if ( !ioobj ) return;
+    if ( !ioobj || is2d ) return;
 
     const int tp = getFormat();
     ioobj->pars().set( "Data storage", DataCharacteristics::UserTypeNames[tp] );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.6 2004-08-27 10:07:33 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.7 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,10 +81,10 @@ bool uiSeisIOObjInfo::provideUserInfo() const
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();
     if ( !t )
-	{ pFreeFnErrMsg("No Translator","provideUserInfo"); return true; }
+	{ pErrMsg("No Translator"); return true; }
     mDynamicCastGet(CBVSSeisTrcTranslator*,tr,t.ptr());
     if ( !tr )
-	{ pFreeFnErrMsg("Non-CBVS entry","provideUserInfo"); return true; }
+	{ return true; }
 
     Conn* conn = ctio.ioobj->getConn( Conn::Read );
     if ( !conn || !tr->initRead(conn) )
@@ -115,6 +115,9 @@ int uiSeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 	return -1;
     }
 
+    if ( si.expectednrtrcs < 0 )
+	return -1;
+
     int overhead = sttr->bytesOverheadPerTrace();
     delete tr;
     double sz = si.expectednrsamps;
@@ -132,8 +135,16 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SpaceInfo& si ) const
 
     const int szmb = expectedMBs( si );
     const int avszmb = GetFreeMBOnDisk( ctio.ioobj );
-    if ( szmb > avszmb )
+    if ( avszmb == 0 )
     {
+	if ( !doerrs ) return false;
+	if ( !uiMSG().askGoOn( "The output disk seems to be full.\n"
+		    		"Do you want to continue?" ) )
+	    return false;
+    }
+    else if ( szmb > avszmb )
+    {
+	if ( !doerrs ) return false;
 	BufferString msg( "The new cube size may exceed the space "
 			   "available on disk:\n" );
 	if ( avszmb == 0 )
@@ -144,7 +155,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SpaceInfo& si ) const
 	    msg += " MB\nAvailable on disk: "; msg += avszmb;
 	    msg += " MB";
 	}
-	msg += "\nDo you wish to continue?";
+	msg += "\nDo you want to continue?";
 	if ( !uiMSG().askGoOn( msg ) )
 	    return false;
     }

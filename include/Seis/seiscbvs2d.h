@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seiscbvs2d.h,v 1.4 2004-09-03 15:13:14 bert Exp $
+ RCS:		$Id: seiscbvs2d.h,v 1.5 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     Executor*		getFetcher(const IOPar&,SeisTrcBuf&,
 	    			   const SeisSelData* sd=0);
     Seis2DLinePutter*	getReplacer(const IOPar&);
-    Seis2DLinePutter*	getAdder(IOPar&,const IOPar*);
+    Seis2DLinePutter*	getAdder(IOPar&,const IOPar*,const char*);
 
     bool		getTxtInfo(const IOPar&,BufferString&,
 	    			   BufferString&) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.12 2004-09-06 16:14:07 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.13 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,11 +366,22 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 
 bool uiSeis2DSubSel::getRange( StepInterval<int>& trg ) const
 {
+    trg.start = 0;
     const char* res = trcrgfld->text( 1 );
-    if ( !res || !*res )
-	{ trg.stop = mUndefIntVal; return false; }
-
-    trg = trcrgfld->getIStepInterval();
+    if ( isAll() || !res || !*res )
+    {
+	trg.stop = mUndefIntVal;
+	return false;
+    }
+    else
+    {
+	trg = trcrgfld->getIStepInterval();
+	if ( trg.start > 0 )
+	{
+	    trg.start -= 1;
+	    if ( !mIsUndefInt(trg.stop) ) trg.stop -= 1;
+	}
+    }
     return true;
 }
 
@@ -414,8 +425,10 @@ bool uiSeis2DSubSel::getZRange( Interval<float>& zrg ) const
 
 int uiSeis2DSubSel::expectedNrTraces() const
 {
-    StepInterval<int> trg; getRange( trg );
-    return mIsUndefInt(trg.stop) ? -1 : trg.nrSteps() + 1;
+    StepInterval<int> trg;
+    if ( getRange(trg) )
+	return mIsUndefInt(trg.stop) ? -1 : trg.nrSteps() + 1;
+    return -1;
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.8 2004-08-23 09:50:12 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.9 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
     virtual void	usePar(const IOPar&);
 
     static const char*	standardTranslSel(int pol2d);
-    			//!< returns "CBVS`2D" for pol2d == 0
+    			//!< returns "CBVS`2D" for pol2d == Both2DAnd3D
 
 protected:
 
@@ -47,8 +47,8 @@ class uiSeisSel : public uiIOObjSel
 {
 public:
 
-			uiSeisSel(uiParent*,CtxtIOObj&,const char* txt,
-				  const SeisSelSetup&,bool wthclear=false);
+			uiSeisSel(uiParent*,CtxtIOObj&,const SeisSelSetup&,
+				  bool wthclear=false);
 			~uiSeisSel();
 
     virtual bool	fillPar(IOPar&) const;

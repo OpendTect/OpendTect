@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.12 2004-08-27 10:07:33 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.13 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uiseissubsel.h"
 #include "uiseisioobjinfo.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
+#include "uilabel.h"
 #include "uigeninput.h"
 #include "ctxtioobj.h"
 #include "iopar.h"
@@ -23,12 +25,29 @@ ________________________________________________________________________
 #include "seistrctr.h"
 
 
+static void adaptCtxt( const IOObjContext& ctxt, SeisSelSetup::Pol2D pol )
+{
+    BufferString deftr( ctxt.trglobexpr );
+    char* ptr = strchr( deftr.buf(), '`' );
+    if ( ptr ) *ptr = '\0';
+    const_cast<IOObjContext*>(&ctxt)->deftransl
+		    = (deftr == "") ? "CBVS" : deftr;
+}
+
+
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& setup )
 	: uiIOObjSelDlg(p,getCtio(c,setup),"Seismic data selection")
 	, subsel(0)
 {
-    setTitleText( setup.seltxt_ );
+    if ( ctio.ctxt.forread )
+	setTitleText( "Select input seismic data"  );
+    else
+	setTitleText( 
+	setup.pol2d_ == SeisSelSetup::Only2D ?	"Select output Line Set"
+      : (setup.pol2d_ == SeisSelSetup::No2D ?	"Select output Seismic Cube"
+				     :	"Output Seismics") );
+    adaptCtxt( ctio.ctxt, setup.pol2d_ );
 
     if ( setup.subsel_ )
     {
@@ -43,16 +62,13 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     replaceFinaliseCB( mCB(this,uiSeisSelDlg,fillFlds) );
 }
 
+static const char* trglobexprs[] = { "2D", "CBVS`2D", "CBVS" };
 
 const char* uiSeisSelDlg::standardTranslSel( int pol2d )
 {
-    static FileMultiString fms;
-    fms = "";
-    if ( pol2d != SeisSelSetup::Only2D )
-	fms += "CBVS";
-    if ( pol2d != SeisSelSetup::No2D )
-	fms += "2D";
-    return fms.buf();
+    int nr = pol2d == SeisSelSetup::Only2D ? 0
+		    : (pol2d == SeisSelSetup::No2D ? 2 : 1);
+    return trglobexprs[nr];
 }
 
 
@@ -106,14 +122,14 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
-uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const char* txt,
-		      const SeisSelSetup& s, bool wclr )
-	: uiIOObjSel( p, c,
-		txt ? txt : (c.ctxt.forread?"Input seismics":"Output seismics"),
-		wclr, s.seltxt_ )
+uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
+		      bool wclr )
+	: uiIOObjSel( p, c, (c.ctxt.forread?"Input Seismics":"Store as Cube"),
+		      wclr )
 	, iopar(*new IOPar)
 	, setup(s)
 {
+    set2DPol( setup.pol2d_ );
 }
 
 
@@ -162,6 +178,14 @@ void uiSeisSel::set2DPol( SeisSelSetup::Pol2D pol )
 	    updateInput();
 	}
     }
+    BufferString disptxt = labelText();
+    BufferString newdisptxt = ctio.ctxt.forread ? "Input Seismics" :
+	(pol == SeisSelSetup::Only2D ? "Store in Line Set"
+      : (pol == SeisSelSetup::No2D ? "Store as Cube" : "Output Seismics") );
+    if ( newdisptxt != disptxt )
+	setLabelText( newdisptxt );
+
+    adaptCtxt( ctio.ctxt, pol );
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.33 2004-09-03 15:13:14 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.34 2004-09-07 16:24:01 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -290,8 +290,15 @@ bool SeisTrcReader::get( SeisTrc& trc )
 
 BufferString SeisTrcReader::lineKey() const
 {
-    return curlinenr >= 0 && lgrp && lgrp->nrLines() > curlinenr
-	 ? lgrp->lineKey( curlinenr ) : BufferString("");
+    if ( lgrp )
+    {
+	if ( curlinenr >= 0 && lgrp->nrLines() > curlinenr )
+	    return lgrp->lineKey( curlinenr );
+    }
+    else if ( ioobj )
+	return ioobj->name();
+
+    return BufferString("");
 }
 
 

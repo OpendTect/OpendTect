@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.36 2004-08-25 14:42:13 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.37 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -198,9 +198,14 @@ public:
 
     static bool		getRanges(const MultiID&,CubeSampling&);
     static bool		getRanges(const IOObj&,CubeSampling&);
-    static  bool	is2D(const IOObj&);
+    static bool		is2D(const IOObj&,bool only_internal=false);
 
     static const char*	sKeyIs2D;
+
+    void		enforceRegularWrite( bool yn )
+    			{ enforce_regular_write = yn; }
+    void		enforceSurvinfoWrite( bool yn )
+    			{ enforce_survinfo_write = yn; }
 
 protected:
 
@@ -242,14 +247,15 @@ protected:
     SeisTrcBuf&		trcblock_;
     virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
 
+    bool		enforce_regular_write;
+    bool		enforce_survinfo_write;
+
 private:
 
     int*		inpfor_;
     int			nrout_;
     int			prevnr_;
     int			lastinlwritten;
-    bool		enforce_regular_write;
-    bool		enforce_survinfo_write;
 
     void		enforceBounds();
     bool		writeBlock();

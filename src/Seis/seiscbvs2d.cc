@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.12 2004-09-03 15:13:14 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.13 2004-09-07 16:24:01 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -257,6 +257,7 @@ SeisCBVS2DLinePutter( const char* fnm )
 	, tr(CBVSSeisTrcTranslator::getInstance())
 {
     tr->setSingleFile( true );
+    tr->enforceRegularWrite( false );
     bid.inl = CBVSIOMgr::getFileNr( fnm );
 }
 
@@ -330,7 +331,8 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
 
 
 Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
-						   const IOPar* previop )
+						      const IOPar* previop,
+						      const char* lgrpnm )
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
@@ -341,7 +343,11 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName));
 	else
 	{
-	    fnm = iop.name(); fnm += ".cbvs";
+	    if ( lgrpnm && *lgrpnm )
+		fnm = lgrpnm;
+	    else
+		fnm = iop.name();
+	    fnm += ".cbvs";
 	    cleanupString( fnm.buf(), NO, YES, YES );
 	}
 	const char* prevfnm = previop ? previop->find(sKey::FileName) : 0;

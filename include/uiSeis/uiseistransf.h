@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.13 2004-09-06 16:14:07 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.14 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "uiseisioobjinfo.h"
 class IOObj;
 class Executor;
 class uiGenInput;
@@ -45,6 +46,7 @@ public:
     SeisResampler*	getResampler() const; //!< may return null
 
     int			maxBytesPerSample() const;
+    uiSeisIOObjInfo::SpaceInfo spaceInfo() const;
 
     bool		removeNull() const;
 

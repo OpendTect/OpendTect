@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.23 2004-09-06 16:14:07 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.24 2004-09-07 16:24:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,8 +63,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	inctio_.ctxt.forread = true;
 	inctio_.ctxt.trglobexpr = "CBVS";
-	oinpfld = new uiSeisSel( this, inctio_, "Input data",
-				 SeisSelSetup(true) );
+	oinpfld = new uiSeisSel( this, inctio_, SeisSelSetup() );
 	oinpfld->selectiondone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
     }
     else
@@ -95,7 +94,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.stdSelKey() );
-    outfld = new uiSeisSel( this, outctio_, "Cube name", SeisSelSetup(false) );
+    outfld = new uiSeisSel( this, outctio_, SeisSelSetup() );
     outfld->attach( alignedBelow, transffld );
 }
 
