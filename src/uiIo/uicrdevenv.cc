@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.4 2004-01-22 15:18:04 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.5 2004-01-22 16:19:40 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,8 +90,8 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
     workdirfld->attach( alignedBelow, basedirfld );
 
 #ifdef __win__
-    cyginstfld = new uiGenInput( this, 0,
-			     BoolInpSpec("Setup cygwin",0,cygwin&&*cygwin) );
+    cyginstfld = new uiGenInput( this, "Start Cygwin Installer",
+			     BoolInpSpec( "Yes", "No", !(cygwin && *cygwin) ) );
 
     cyginstfld->attach( alignedBelow, workdirfld );
 #endif
@@ -211,10 +211,20 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	"- for upto a few minutes.\n\n"
 	"Meanwhile, please take a look at the developers documentation."
     ;
+
+
     uiMSG().message(aboutto);
 
     BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
-    getstarted = File_getFullPath( getstarted, "getstarted.html" );
+
+    getstarted = File_getFullPath( getstarted,
+#ifdef __win__
+						"windows.html"
+#else
+						"unix.html"
+#endif
+    );
+
     HelpViewer::doHelp( getstarted, "Get started with OpendTect development" );
 
     BufferString cmd( "@'" );
