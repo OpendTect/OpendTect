@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture2.cc,v 1.32 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vistexture2.cc,v 1.33 2005-03-11 12:25:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,6 +366,12 @@ Texture2* Texture2Set::activeTexture() const
 {
     int idx = textureswitch->whichChild.getValue();
     return getTexture(idx);
+}
+
+
+int Texture2Set::activeTextureNr() const
+{
+    return  textureswitch->whichChild.getValue();
 }
 
 

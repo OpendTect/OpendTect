@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.11 2005-02-04 14:31:34 kristofer Exp $
+ RCS:		$Id: vistexture2.h,v 1.12 2005-03-11 12:25:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -96,6 +96,7 @@ public:
     Texture2*		getTexture(int) const;
     void		setActiveTexture(int); 
     Texture2*		activeTexture() const;
+    int			activeTextureNr() const;
     void		finishTextures(); //!< For post texturecreating calls
 
     void		shareResolution(bool yn)	{ shareres = yn; }
