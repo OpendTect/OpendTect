@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.20 2002-08-20 07:40:01 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.21 2002-09-19 07:11:44 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -476,4 +476,29 @@ void visSurvey::PlaneDataDisplay::deSelect()
 	trect->getRectangle().moveObjectToManipRect();
     else
 	trect->getRectangle().resetManip();
+}
+
+
+const char* visSurvey::PlaneDataDisplay::getResName( int res )
+{
+    if ( res == 1 ) return "Moderate";
+    if ( res == 2 ) return "High";
+    else return "Default";
+}
+
+
+void visSurvey::PlaneDataDisplay::setResolution( int res )
+{
+    trect->setResolution( res );
+}
+
+
+int visSurvey::PlaneDataDisplay::getResolution() const
+{
+    return trect->getResolution();
+}
+
+int visSurvey::PlaneDataDisplay::getNrResolutions() const
+{
+    return trect->getNrResolutions();
 }

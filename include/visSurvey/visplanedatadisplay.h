@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.12 2002-08-22 11:07:34 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.13 2002-09-19 07:11:52 nanne Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,11 @@ public:
 
     virtual float		calcDist( const Geometry::Pos& ) const;
     virtual NotifierAccess*	getMovementNotification() { return &moving; }
+
+    const char*			getResName(int);
+    void			setResolution(int);
+    int				getResolution() const;
+    int				getNrResolutions() const;
 
 protected:
 				~PlaneDataDisplay();
