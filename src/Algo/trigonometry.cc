@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.11 2003-05-12 09:19:36 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.12 2003-05-12 11:00:00 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -313,18 +313,18 @@ void Plane3::set( const Coord3& a, const Coord3& b, const Coord3& c )
 }
 
 
-void Plane3::set( const TypeSet<Coord3>& pts, float* confidence )
+float Plane3::set( const TypeSet<Coord3>& pts )
 {
     const int nrpts = pts.size();
     if ( nrpts<3 )
     {
 	A = 0; B=0; C=0; D=0;
-	return;
+	return 0;
     }
     if ( nrpts==3 )
     {
 	set( pts[0], pts[1], pts[2] );
-	return;
+	return 1;
     }
 
     PCA pca(3);
@@ -364,11 +364,11 @@ void Plane3::set( const TypeSet<Coord3>& pts, float* confidence )
 	eigen = eigen0;
     }
     else
-	return;
+	return 0;
 
     Vector3 normal( normalvec[0], normalvec[1], normalvec[2] );
     set( normal, midpt );
-    if ( confidence ) *confidence = 1-eigen/eigensum;
+    return 1-eigen/eigensum;
 }
 
 

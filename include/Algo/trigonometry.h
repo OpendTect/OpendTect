@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.5 2003-05-12 09:18:44 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.6 2003-05-12 10:59:55 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -137,12 +137,10 @@ public:
     void		set( const Vector3& normal, const Coord3& );
     void		set( const Vector3&, const Vector3& );
     void		set( const Coord3&, const Coord3&, const Coord3& );
-    void		set( const TypeSet<Coord3>&, float* confidence=0 );
-    			/*!< \param confidence	If given, a value between 0-1
-			 * 			will be returned that indicates
-						how well the points fit
-						to a plane. 1 = perfect fit
-						0 = no fit
+    float		set( const TypeSet<Coord3>& );
+    			/*!< \returns	a value between 0-1 that indicates how
+		     			well the points fit to a plane.
+					1 = perfect fit 0 = no fit
 			*/
 
     Vector3		normal() const { return Vector3( A, B, C ); }
