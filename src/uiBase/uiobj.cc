@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.3 2001-05-16 14:57:25 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.4 2001-05-29 11:45:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,7 +205,7 @@ void uiObject::setCaption( const char* str )
 
 int uiObject::borderSpace() const
 {
-    return  mLayoutMngr() ? mLayoutMngr()->borderSpace() : 0;
+    return mLayoutMngr() ? mLayoutMngr()->borderSpace() : 10;
 }
 
 

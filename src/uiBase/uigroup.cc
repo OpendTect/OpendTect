@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.5 2001-05-16 14:57:22 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.6 2001-05-29 11:45:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 uiGroup::uiGroup( uiParent* parnt, const char* nm, int border, int spacing)
 : uiWrapObj<i_QWidget>( new i_QWidget ( *this, parnt, nm ), parnt, nm, true )
 , loMngr( *new i_LayoutMngr( this,  border, spacing )) 
-, hAlignObj( 0 ), hCentreObj( 0 )
+, halignobj( 0 ), hcentreobj( 0 )
 {}
 
 /*!
@@ -31,7 +31,7 @@ uiGroup::uiGroup( const char* nm, uiParent* parnt, int spacing, int border )
 : uiWrapObj<i_QWidget>( new i_QWidget(*this,parnt?&parnt->qWidget():0,nm), 
 	  parnt, nm, false )
 , loMngr( *new i_LayoutMngr( this , border, spacing )) 
-, hAlignObj( 0 ), hCentreObj( 0 )
+, halignobj( 0 ), hcentreobj( 0 )
 {}
 
 
@@ -81,7 +81,7 @@ int uiGroup::horCentre() const
     int offs = mLayoutItm->loMngr().pos().left() + mLayoutItm->pos().left();
     int border = loMngr.borderSpace();
 
-    if( hCentreObj ) return hCentreObj->horCentre() + offs + border;
+    if( hcentreobj ) return hcentreobj->horCentre() + offs + border;
 
     return (mLayoutItm->loMngr().pos().left() + 
             mLayoutItm->loMngr().pos().right()  ) / 2;
@@ -93,6 +93,6 @@ int uiGroup::horAlign() const
     int offs = mLayoutItm->loMngr().pos().left() + mLayoutItm->pos().left();
     int border = loMngr.borderSpace();
 
-    if( hAlignObj ) return hAlignObj->horAlign() + offs + border;
+    if( halignobj ) return halignobj->horAlign() + offs + border;
     return offs;
 }

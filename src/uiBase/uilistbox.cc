@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.13 2001-05-28 15:52:11 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.14 2001-05-29 11:45:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,15 +51,15 @@ QSize i_QListBox::sizeHint() const
 		: sz > 7 ? 7 : (sz < 3 ? 3 : sz);
 
     // if biggest string is over 20 chars, grow box to max 40 chars.
-    const int fontmaxpixwidth = mFont->maxWidth();
-    const int maxwdth = 40 * fontmaxpixwidth;
-    int pixwidth = nrchars * fontmaxpixwidth;
+    const int fontavgpixwidth = mFont->avgWidth();
+    const int maxwdth = 40 * fontavgpixwidth;
+    int pixwidth = nrchars * fontavgpixwidth;
     if ( !ptClient->fieldWdt )
     {
 	QListBoxItem* itm = item( 0 );
 	for ( int idx=0; itm; itm = item(++idx) )
 	{
-	    const int pixw = mFont->width( itm->text() ) + 2 * fontmaxpixwidth;
+	    const int pixw = mFont->width( itm->text() ) + 2 * fontavgpixwidth;
 	    if ( pixw > pixwidth )
 		pixwidth = pixw > maxwdth ? maxwdth : pixw;
 	}
