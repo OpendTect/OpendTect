@@ -1,7 +1,5 @@
 #!/bin/csh
 
-s/\/dsk\/d44\/dgb\/data\/dTectDoc\/Programmer\/Generated/../g
-
 foreach tf ( *.tag )
 	set dir=$tf:r
 	cd $dir
