@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.23 2004-01-19 08:38:55 nanne Exp $
+  - RCS:	$Id: plugins.html,v 1.24 2004-01-22 14:49:07 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.1]</title>
@@ -220,9 +220,9 @@ The <code>Coh</code> plugin handles the 'Real Work' part. If we start with the p
     return PI_AUTO_INIT_EARLY;
 }</code></pre>
 </p><p>
-The above is one of the three 'special' plugin functions that determine how OpendTect will deal with the plugin. The GetxxxxPluginType() function is used for detemining whether and when to <a href=#autoload>auto-load</a> the plugin.
+The above is one of the three 'special' plugin functions that determine how OpendTect will deal with the plugin. The GetxxxxPluginType() function is used for determining whether and when to <a href=#autoload>auto-load</a> the plugin.
 </p><p>
-This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined and LATE, which is typical for UI plugins that want to start working when most of the widgets are already created.
+This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined) and LATE, which is typical for UI plugins that want to start working when all objects have already been created.
 </p><p>
 A few lines further we get:
 <pre><code>extern "C" PluginInfo* GetCohPluginInfo()
@@ -230,7 +230,7 @@ A few lines further we get:
     static PluginInfo retpii = {
         "Coherency",
         "dGB - Kristofer Tingdahl and Bert Bril",
-        "1.0.1",
+        "1.1.1",
         "Coherency attribute plugin.\n\n"
         "Usage of Coherency may be subject to patent laws!" };
     return &retpii;
@@ -318,6 +318,7 @@ xxxxAttrib::Task::set( float start, int nrsamples, float step_,
 
 <p> 
 When your machine has multiple processors, the <code>getFastestSz()</code> function can be of importance. E.g. on a two processor machine, there will be two tasks, one for the lower part of the trace and one for the higher part of the trace. The more porcessors you have the smaller the number of samples per part will be. A minimum number of samples per part can be specified by <code>getFastestSz()</code>, the default value is 25 samples. 
+</p><p>
 Now it's time for the <code>nextStep()</code> function to do it's work. This is the place where you define the mathematics for calculating the attribute. This function is called for each trace of your output cube.
 </p>
 
@@ -345,7 +346,7 @@ Further on the specific uiAttrdescEd methods, we take the example of <code>uiCoh
 <p></p>
 The <code>fillParsFromScreen</code> method's implementation follows similar patterns. Noteworthy is the use of the change tracker to update the pars - this allows the set editor to figure out whether the attribute set was changed (and subsequently warn the user when no save has beeen done). Note that for getting the data from the screen, there are two methods: <code>fillParsFromScreen</code> and <code>fillDescFromScreen</code>. Where <code>fillParsFromScreen</code> only retrieves the data for the <code>AttribParameterForm</code>, <code>fillDescFromScreen</code> fills the rest of the <code>AttribDesc</code>, which are the input and output selections.
 <p></p>
-The funny thing is that uicoh.cc stops without 'doing' anything. That's because the attribute set editor object is 'doing' everything. Some people will want to call this an example of the 'Holliwood principle' - "Don't call us - we'll call you".
+The funny thing is that uicoh.cc stops without 'doing' anything. That's because the attribute set editor object is 'doing' everything. Some people will want to call this an example of the <i>Hollywood principle</i> - 'Don't call us - we'll call you'.
 <p></p>
 Anyway, lastly, the uicohpi.cc is dead simple. It's a LATE plugin because you'd want the rest of the UI already in place. The only interesting part is the part where the new <code>AttrDescEd</code> is added to the <code>uiAttribFactory</code>. Of course first a new helper class (<code>uiCoherencyAttrDescEdCreater</code>) must be created using the <code>mDeclAttrDescEd</code> macro.
 </p>
@@ -399,7 +400,7 @@ Otherwise, the location of the special windows folder "Application Data" is used
 Once you have located (and/or made) the directory where the plugins should be stored, you have 3 options of installing the plugins:
 </p>
 <li>Just install them in the $HDIR subdir.</li>
-<li>Make a subdir 'libs' to contain the plugins and use .alo files. (V1.0.3 and up)</li>
+<li>Make a subdir 'libs' to contain the plugins and use .alo files.</li>
 <li>Make a subdir '&lt;program name&gt;' for each program that uses the plugin and install the plugins there.</li>
 </p><p>
 The first option causes the plugins to be loaded in all programs that support OpendTect plugins, 
@@ -410,14 +411,14 @@ while the last option requires managing multiple copies of the plugins under Win
 
 <p>
 Auto LOad files are simple text files that tell a program which plugins it is supposed to load from the 'libs' directory.
-Since OpendTect contains multiple programs, each program has its own set of .alo files '&lt;program name&gt;.*.alo', while the plugins can be shared between multiple programs.
+Since OpendTect contains multiple programs, each program has its own set of .alo files '&lt;program name&gt;.*.alo', while the plugins can be shared between multiple programs. OpendTect will scan for any file with this naming convention. So odmain.john.alo is perfectly OK.
 
 </p><p>
 
-Since there are multiple vendors and/or plugin sets, each vendor can make his own .alo files. DtectMain, for example, will look at any file named dtectmain.*.alo. For this example, the default plugins are specified by dtectmain.base.alo, while dgb's plugins are specified by dtectmain.dgb.alo. This way, each vendor can make his own .alo files, without interfering with others.
+Since there are multiple vendors and/or plugin sets, each vendor can make his own .alo files. DtectMain, for example, will look at any file named odmain.*.alo. For this example, the default plugins are specified by odmain.base.alo, while dgb's plugins are specified by odmain.dgb.alo. This way, each vendor can make his own .alo files, without interfering with others.
 
 </p><p>
-An .alo file is nothing more then a simple list of plugins, without extensions. For example, this is what dtectmain.base.alo files look like:
+An .alo file is nothing more then a simple list of plugins, without extensions. For example, this is what odmain.base.alo files look like:
 </p>
 
 <pre><code>
@@ -460,6 +461,7 @@ For more info on this, see the <a href="windows.html#dist">windows</a> documenta
   <a href="index.html">Index</a>
 | <a href="overview.html">Overview</a>
 | <a href="pmake.html">Pmake</a>
+| <a href="unix.html">UNIX</a>
 | <a href="windows.html">MS Windows</a>
 | <a href="http://www.opendtect.org">opendtect.org</a>
 </center>
