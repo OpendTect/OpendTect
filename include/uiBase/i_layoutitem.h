@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.5 2001-09-21 09:58:11 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.6 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
 
     uiSize			actualSize( bool include_border = true) const;
 
-    inline const i_LayoutMngr& 	mngr() const 	{ return mngr_; } 
+    inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; } 
 
     inline const uiRect& 	pos(layoutMode m) const	{ return layoutpos[m];}
     inline uiRect&		pos(layoutMode m)	{ return layoutpos[m];}
@@ -93,6 +93,8 @@ protected:
 				    { return mQLayoutItem_.widget(); }
 
     uiRect			layoutpos[ nLayoutMode ];
+
+    inline i_LayoutMngr& 	mngr()			{ return mngr_; } 
 
 private:
 

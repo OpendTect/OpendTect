@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.17 2001-09-21 14:56:42 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.18 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,8 @@ ________________________________________________________________________
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-//! Wrapper around QLayoutItems that have been wrapped by a i_QObjWrp wrapper and therefore have a reference to a uiObject.
+
+
 class i_uiGroupLayoutItem : public i_uiLayoutItem
 {
 public:
@@ -35,7 +36,6 @@ public:
 protected:
 
     uiGroupParentBody&	grpprntbody;
-
 };
 
 
@@ -67,8 +67,6 @@ public:
 			    { prntbody_ = pb; }
 
     virtual int		stretch( bool hor, bool ) const;
-
-    virtual bool	prefSzIsMin() const 	{ return false; }
 
 protected:
 
@@ -165,13 +163,8 @@ void uiGroupObjBody::reDraw( bool deep )
 int uiGroupObjBody::stretch( bool hor, bool ) const
 {
     int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
-//#define CLUTCH
-#ifdef CLUTCH
-    return s;
-#else
     return s != mUndefIntVal ? s : 
 	( prntbody_->loMngr ? prntbody_->loMngr->childStretch( hor ) : 0 );
-#endif
 }
 
 i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
@@ -203,13 +196,14 @@ i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr,
 
 int i_uiGroupLayoutItem::horAlign(layoutMode m) const 
 {
-    int offs = mngr().pos(m).left() + pos(m).left();
+    int	offs = mngr().pos(m).left() + pos(m).left();
+
     int border = grpprntbody.loMngr->borderSpace();
 
     if( grpprntbody.halignobj )
     {
 	const i_LayoutItem* halignitm = 0;
-	mDynamicCastGet(uiObjectBody*,halobjbody, grpprntbody.halignobj->body());
+	mDynamicCastGet(uiObjectBody*,halobjbody,grpprntbody.halignobj->body());
 
 	if( halobjbody ) halignitm = halobjbody->layoutItem();
 
@@ -222,7 +216,7 @@ int i_uiGroupLayoutItem::horAlign(layoutMode m) const
 
 int i_uiGroupLayoutItem::horCentre(layoutMode m) const 
 { 
-    int offs = mngr().pos(m).left() + pos(m).left();
+    int	offs = mngr().pos(m).left() + pos(m).left();
     int border = grpprntbody.loMngr->borderSpace();
 
     if( grpprntbody.hcentreobj )
@@ -237,9 +231,6 @@ int i_uiGroupLayoutItem::horCentre(layoutMode m) const
 
     return ( mngr().pos(m).left() + mngr().pos(m).right() ) / 2;
 }
-
-
-
 
 uiGroup::uiGroup( uiParent* p, const char* nm, int border, int spacing, 
 		  bool manage)
@@ -269,9 +260,9 @@ void uiGroup::setFocus()		{ uiObj()->setFocus(); }
 
 void uiGroup::setSensitive(bool yn)	{ uiObj()->setSensitive(yn); }
 bool uiGroup::sensitive() const	{ return uiObj()->sensitive(); }
-int  uiGroup::preferredWidth() const{ return uiObj()->preferredWidth(); }
+int  uiGroup::prefHNrPics() const{ return uiObj()->prefHNrPics(); }
 void uiGroup::setPrefWidth( int w )	{ uiObj()->setPrefWidth(w); }
-int  uiGroup::preferredHeight() const{ return uiObj()->preferredHeight(); }
+int  uiGroup::prefVNrPics() const{ return uiObj()->prefVNrPics(); }
 void uiGroup::setPrefHeight( int h )	{ uiObj()->setPrefHeight(h); }
 void uiGroup::setFont( const uiFont& f)	{ uiObj()->setFont(f); }
 void uiGroup::setCaption(const char* c)	{ uiObj()->setCaption(c); }

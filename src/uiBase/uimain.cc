@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.6 2001-09-13 12:55:09 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.7 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,5 +150,5 @@ void uiMain::processEvents( int msec )
 uiSize uiMain::desktopSize()
 {
     QWidget *d = QApplication::desktop();
-    return uiSize ( d->width(), d->height() ); 
+    return uiSize ( d->width()-1, d->height()-1 ); 
 }

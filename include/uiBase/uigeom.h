@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uigeom.h,v 1.2 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,11 +93,21 @@ public:
 			    return false;
 			} 
 
-    inline void 	setWidth( int ref ) 
-			{ setRight( left() + ref ); }
-    inline void 	setHeight( int ref ) 
-			{ setBottom( top() + ref ); }
 
+    inline int          hNrPics() const		{ return width()  + 1; }
+    inline int          vNrPics() const		{ return height() + 1; }
+			//! nr of pics should be > 0 
+    inline void		setHNrPics( int np )	
+			    { setRight( left() + mMAX( 1, np ) - 1 ); }
+			//! nr of pics should be > 0 
+    inline void		setVNrPics( int np )	
+			    { setBottom( top() + mMAX( 1, np ) - 1 ); }
+
+
+    inline void 	setWidth( int ref ) 
+			{ setRight( left() + mMAX( 0,ref ) ); }
+    inline void 	setHeight( int ref ) 
+			{ setBottom( top() + mMAX( 0,ref ) ); }
 };
 
 

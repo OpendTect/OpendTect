@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.22 2001-09-26 14:07:49 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.23 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,8 +72,8 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 }
 
 
-/* TODO: over-ride uiObjectBody::preferredWidth() 
-and uiObjectBody::preferredHeight() instead of sizeHint.
+/* TODO: over-ride uiObjectBody::prefHNrPics() 
+and uiObjectBody::prefVNrPics() instead of sizeHint.
 
 Do something like:
 

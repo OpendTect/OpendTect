@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.14 2001-09-20 13:26:17 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.15 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ widget already present).
 class i_LayoutMngr : public QLayout, public UserIDObject
 {
     friend class	i_LayoutItem;
+ //   friend class	i_uiGroupLayoutItem;
 
 public:
 
@@ -119,33 +120,9 @@ public:
 	
     bool 		attach ( constraintType, QWidget&, QWidget*, int);
 
-/*! \brief sets layout item where position is stored. 
-    A Layout manager needs positioning storage for itself. In case we're 
-    managing a uiGroup, this info is already there in the assicated 
-    layoutitem for that group. So, we have to use that position.
-*/
-#if 0
-    void		setLayoutPosItm( i_LayoutItem* itm );
-
-    const uiRect&	pos(layoutMode m) const	
-                        { return const_cast<i_LayoutMngr*>(this)->pos(m); }
-
-    uiRect&		pos(layoutMode m)
-			{ 
-			    if( !layoutpos )
-			    {
-				pErrMsg("no layout position info");
-				layoutpos = new uiRect[nLayoutMode];
-			    }
-			    return layoutpos[m]; 
-			}
-
-#else
 
     const uiRect&	pos(layoutMode m) const	{ return layoutpos[m]; }
     uiRect&		pos(layoutMode m)	{ return layoutpos[m]; }
-
-#endif
 
     void		forceChildrenRedraw( uiObjectBody*, bool deep );
     void		childrenClear( uiObject* );
@@ -158,25 +135,25 @@ public:
     int			horSpacing() const 	    { return spacing(); }
     int			verSpacing() const 
 			{ int s = spacing(); return s > 3 ? s-2 : 2; }
-protected:
+
+private:
 
     void 		setGeometry( const QRect& );
  
-private:
-
-    void 		doLayout( layoutMode m, const QRect& );
     inline void 	doLayout( layoutMode m, const QRect& r ) const 
                         { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
+    void 		doLayout( layoutMode m, const QRect& );
 
+    void 		layoutChildren( layoutMode m );
     void 		moveChildrenTo( int , int, layoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, 
 					int&, int&, int&, int& );
-    bool		tryToGrowItem( resizeItem&, const QRect&);
+    bool		tryToGrowItem( resizeItem&, const int, const int, 
+				       const int, const int, const QRect&);
     void		resizeTo( const QRect& );
     void		childrenCommitGeometrySet();
 
     uiRect 		childrenRect( layoutMode m );
-    void 		layoutChildren( layoutMode m );
 
     QList<i_LayoutItem>	childrenList;
 

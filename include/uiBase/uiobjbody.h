@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.5 2001-09-21 14:56:42 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.6 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
     void			uisetSensitive(bool yn=true);
     bool			uisensitive() const;
 
-    virtual int			preferredWidth() const;
+    virtual int			prefHNrPics() const;
     void			setPrefWidth( int w )      
 				{ 
 				    pref_char_width = -1;
@@ -66,7 +66,7 @@ public:
 				    pref_char_width = w; 
 				}
 
-    virtual int			preferredHeight() const;
+    virtual int			prefVNrPics() const;
     void			setPrefHeight( int h )     
 				{ 
 				    pref_char_height = -1;
@@ -124,8 +124,6 @@ public:
 								uiObjHandle()); 
 				    finalise_();
 				}
-
-    virtual bool		prefSzIsMin() const	{ return true; }  
 
 protected:
 

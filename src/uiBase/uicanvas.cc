@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.11 2001-09-21 13:54:24 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.12 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,14 +141,12 @@ protected:
 uiRect uiScrollViewBody::visibleArea() const
 {
 
-#if 0
     uiSize vpSize = actualSize(false);
-#else
-    QSize vpSize = clipper()->size();
-#endif
+
     uiPoint tl( contentsX(), contentsY() );
     return uiRect( tl.x(), tl.y(), 
-		   tl.x()+vpSize.width(), tl.y()+vpSize.height() );
+		   tl.x()+ vpSize.width(), 
+		   tl.y()+ vpSize.height() );
 }
 
 
@@ -169,11 +167,11 @@ void uiScrollViewBody::drawContents ( QPainter * p, int clipx,
 void uiScrollViewBody::resizeEvent( QResizeEvent *QREv )
 {
     const QSize& os = QREv->oldSize();
-    uiSize oldSize( os.width(), os.height() );
+    uiSize oldSize( os.width()-1, os.height()-1 );
 
     const QSize& ns = QREv->size();
-    uiSize nwSize( ns.width() - 2 * frameWidth(), 
-                   ns.height() - 2 * frameWidth() );
+    uiSize nwSize( ns.width() - 1 - 2 * frameWidth(), 
+                   ns.height()- 1 - 2 * frameWidth() );
 
     handleResizeEvent( QREv,  oldSize, nwSize );
 

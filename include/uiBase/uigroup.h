@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.10 2001-08-24 10:03:20 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.11 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,10 +72,10 @@ public:
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
 
-    int			preferredWidth() const;
+    int			prefHNrPics() const;
     void                setPrefWidth( int w );
     void                setPrefWidthInChar( float w );
-    int			preferredHeight() const;
+    int			prefVNrPics() const;
     void		setPrefHeight( int h );
     void		setPrefHeightInChar( float h );
     void                setStretch( int hor, int ver );

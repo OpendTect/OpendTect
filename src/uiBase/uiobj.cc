@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.11 2001-09-20 08:30:59 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.12 2001-09-26 14:47:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,8 +161,8 @@ bool uiObject::sensitive() const
     { return mConstBody()->uisensitive(); }
 
 
-int uiObject::preferredWidth() const
-    { return mConstBody()->preferredWidth(); }
+int uiObject::prefHNrPics() const
+    { return mConstBody()->prefHNrPics(); }
 
 
 void uiObject::setPrefWidth( int w )
@@ -173,8 +173,8 @@ void uiObject::setPrefWidthInChar( float w )
      { mBody()->setPrefWidthInChar(w); }
 
 
-int uiObject::preferredHeight() const
-    { return mConstBody()->preferredHeight(); }
+int uiObject::prefVNrPics() const
+    { return mConstBody()->prefVNrPics(); }
 
 
 void uiObject::setPrefHeight( int h )
@@ -274,8 +274,8 @@ void uiObjectBody::uiHide(bool shrink)
 	else
 	{
 	    finalise();
-	    cached_pref_width  = preferredWidth();
-	    cached_pref_height = preferredHeight();
+	    cached_pref_width  = prefHNrPics();
+	    cached_pref_height = prefVNrPics();
 	}
 	is_hidden = true; // not before call to preferredXX !!
     }
@@ -326,8 +326,8 @@ void uiObjectBody::uisetBackgroundColor( const Color& c )
 #endif
 
 
-int uiObjectBody::preferredWidth() const
-{   // Also look at uiComboBox::preferredWidth() when changing this method.
+int uiObjectBody::prefHNrPics() const
+{   // Also look at uiComboBox::prefHNrPics() when changing this method.
 
     mChkmLayout();
     if( is_hidden ) return cached_pref_width;
@@ -354,24 +354,24 @@ int uiObjectBody::preferredWidth() const
 }
 
 
-int uiObjectBody::preferredHeight() const
+int uiObjectBody::prefVNrPics() const
 { 
     mChkmLayout();
     if( pref_height >= 0 ) return pref_height;
     if( pref_char_height >= 0 ) 
 	{ return mNINT( pref_char_height * (float)uifont()->height() ); }
 
-    int prfHgt = is_hidden ? cached_pref_height 
+    int prfvnp = is_hidden ? cached_pref_height 
 			   : layoutItem_->sizeHint().height(); 
 
     if( isSingleLine() && parent_ )
     {
 	int min_height =  parent_->minTextWidgetHeight();
-	if( min_height >= 0  && prfHgt <= min_height ) 
+	if( min_height >= 0  && prfvnp <= min_height ) 
 	    return min_height;
     }
 
-    return prfHgt;
+    return prfvnp;
 
 }
 
