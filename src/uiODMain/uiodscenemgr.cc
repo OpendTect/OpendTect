@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.28 2004-09-22 10:20:12 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.29 2004-09-22 14:31:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,9 @@ ________________________________________________________________________
 #include "uithumbwheel.h"
 #include "uigeninputdlg.h"
 #include "uitreeitemmanager.h"
-#include "uivissurface.h"
 
 #include "ptrman.h"
 #include "survinfo.h"
-#include "settings.h"
 #include "scene.xpm"
 
 static const int cWSWidth = 600;
@@ -60,14 +58,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tics->addCreater( new uiODRandomLineTreeItemCreater, 4000 );
     tics->addCreater( new uiODPickSetTreeItemCreater, 5000 );
     tics->addCreater( new uiODHorizonTreeItemCreater, 6000);
-
-    bool dotrack = false;
-    mGetTrackingBoolean(dotrack);
-    if ( dotrack )
-	tics->addCreater( new uiODFaultTreeItemCreater, 7000 );
-
+    tics->addCreater( new uiODFaultTreeItemCreater, 7000 );
     tics->addCreater( new uiODWellTreeItemCreater, 8000 );
-
 
     wsp->setPrefWidth( cWSWidth );
     wsp->setPrefHeight( cWSHeight );
