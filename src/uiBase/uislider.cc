@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.4 2001-08-24 12:45:04 kristofer Exp $
+ RCS:           $Id: uislider.cc,v 1.5 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,3 +98,11 @@ void uiSlider::setTickMarks( bool yn )
 {
     body_->setTickmarks ( yn ? QSlider::Below : QSlider::NoMarks );
 }
+
+int uiSlider::minValue() const         { return body_->minValue() ; }
+int uiSlider::maxValue() const         { return body_->minValue() ; }
+void uiSlider::setMinValue( int m )    { body_->setMinValue(m); }
+void uiSlider::setMaxValue( int m )    { body_->setMaxValue(m); }
+int uiSlider::step() const             { return body_->lineStep() ; }
+void uiSlider::setStep ( int s )       { body_->setLineStep(s); }
+

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.4 2001-08-24 12:45:04 kristofer Exp $
+ RCS:           $Id: uispinbox.cc,v 1.5 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,32 +80,20 @@ const char* uiSpinBox::text() const
 }
 
 
-int uiSpinBox::getIntValue() const
-{
-    return body_->value();
-}
+int uiSpinBox::getIntValue() const	{ return body_->value(); }
+double uiSpinBox::getValue() const	
+    { return static_cast<double>( body_->value() ); }
 
+void uiSpinBox::setText( const char* t )	{ setValue( atoi(t) ); }
 
-double uiSpinBox::getValue() const
-{
-    return body_->value();
-}
+void uiSpinBox::setValue( int i )	{ body_->setValue( i ); }
+void uiSpinBox::setValue( double d )	{ body_->setValue( mNINT(d) ); }
 
+int uiSpinBox::minValue() const		{ return body_->minValue() ; }
+int uiSpinBox::maxValue() const		{ return body_->minValue() ; }
+void uiSpinBox::setMinValue( int m )	{ body_->setMinValue(m); }
+void uiSpinBox::setMaxValue( int m )	{ body_->setMaxValue(m); }
+int uiSpinBox::step() const		{ return body_->lineStep() ; }
+void uiSpinBox::setStep ( int s )	{ body_->setLineStep(s); }
 
-void uiSpinBox::setText( const char* t )
-{
-    setValue( atoi(t) );
-}
-
-
-void uiSpinBox::setValue( int i )
-{
-    body_->setValue( i );
-}
-
-
-void uiSpinBox::setValue( double d )
-{
-    body_->setValue( mNINT(d) );
-}
 

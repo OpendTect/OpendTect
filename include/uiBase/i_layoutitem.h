@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.1 2001-08-23 15:02:41 windev Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.2 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ protected:
     void			attach( constraintType, 
 					i_LayoutItem *other, int margin);
 
-    virtual uiObject*		objLayouted()		{ return 0; }
+    virtual uiObject*		obj2Layout()		{ return 0; }
     virtual uiObjectBody*	bodyLayouted()		{ return 0; }
 
     inline QLayoutItem&		mQLayoutItem()		{ return mQLayoutItem_;}
@@ -115,7 +115,7 @@ public:
 				return i_LayoutItem::minimumSize();
 			    }
 
-    virtual uiObject*	  objLayouted()	{ return &uiObjBody_.uiObjHandle(); }
+    virtual uiObject*	  obj2Layout()	{ return &uiObjBody_.uiObjHandle(); }
     virtual uiObjectBody* bodyLayouted(){ return &uiObjBody_; }
 
 protected:

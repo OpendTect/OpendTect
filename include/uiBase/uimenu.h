@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uimenu.h,v 1.5 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,6 +116,9 @@ public:
 protected:
 				uiMenuBar( uiMainWin* parnt, const char* nm, 
 					   QMenuBar& );
+
+    void 			reDraw(bool deep=true);
+
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.2 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uispinbox.h,v 1.3 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,12 @@ public:
     void		setValue( int );
     void		setValue( double );
 
+    int			minValue() const;
+    int			maxValue() const;
+    void		setMinValue( int );
+    void		setMaxValue( int );
+    int			step() const;
+    void		setStep( int );
 
     Notifier<uiSpinBox>	valueChanged;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.8 2001-08-24 08:33:05 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.9 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,8 +148,6 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar)
     {   
 	QMenuBar* myBar =  menuBar();
 
-bool tl = myBar->isTopLevel();
-
 	if( myBar )
 	    mMenuBar = new uiMenuBar( &handle(), "MainWindow MenuBar handle", 
 				      *myBar);
@@ -194,6 +192,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     body_= new uiMainWinBody( *this, parnt, nm ); 
     setBody( body_ );
     body_->construct(wantSBar,wantMBar);
+    body_->uiCentralWidg()->setBorder(10);
 }
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }

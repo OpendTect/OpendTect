@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.6 2001-08-24 08:32:56 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.7 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 
 protected:
 
-    void		doPolish(CallBacker*);
+//    void		doPolish(CallBacker*);
 
 
 private:

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.11 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: i_layout.cc,v 1.12 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,16 +77,16 @@ void i_LayoutItem::commitGeometrySet()
 {
     uiRect mPos = pos_[ setGeom ];
 
-    if( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
+    if( obj2Layout() ) obj2Layout()->triggerSetGeometry( this, mPos );
 
 //#define DEBUG_LAYOUT 
 #ifdef DEBUG_LAYOUT
 
     BufferString msg;
-    if( objLayouted() )
+    if( obj2Layout() )
     {   
 	msg = "setting geometry on: ";
-	msg +=  objLayouted()->name();
+	msg +=  obj2Layout()->name();
 	msg += "; top: ";
         msg += mPos.top();
         msg += " left: ";
@@ -117,10 +117,10 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
     int preferred_width;
     int preferred_height;
 
-    if( objLayouted() )
+    if( obj2Layout() )
     {
-	preferred_width  = objLayouted()->preferredWidth();
-	preferred_height = objLayouted()->preferredHeight();
+	preferred_width  = obj2Layout()->preferredWidth();
+	preferred_height = obj2Layout()->preferredHeight();
     }
     else
     {
@@ -132,7 +132,7 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
 
     BufferString msg;
     msg = "initLayout on ";
-    msg+= objLayouted() ? const_cast<char*>((const char*)objLayouted()->name()) : "UNKNOWN";      
+    msg+= obj2Layout() ? const_cast<char*>((const char*)obj2Layout()->name()) : "UNKNOWN";      
     msg+= "  mngrTop: ";
     msg+= mngrTop;
     msg+= "  mngrLeft: ";
@@ -654,7 +654,7 @@ void i_LayoutMngr::childrenClear( uiObject* cb )
     while ( (curChld = childIter.current()) )
     {
         ++childIter;
-	uiObject* cl = curChld->objLayouted();
+	uiObject* cl = curChld->obj2Layout();
 	if( cl && cl != cb ) cl->clear();
     }
 }

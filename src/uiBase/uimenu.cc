@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uimenu.cc,v 1.5 2001-08-24 14:23:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,7 +202,10 @@ uiMenuBar::uiMenuBar( uiMainWin* parnt, const char* nm, QMenuBar& qThing )
     setMenuBody( new uiMenuDataBody( *this, parnt, qThing ) ); 
 }
 
-
+void uiMenuBar::reDraw( bool deep )
+{
+    if ( body_->bar() ) body_->bar()->update();
+}
 
 
 
@@ -234,6 +237,9 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
 {
     setMenuBody ( new uiMenuDataBody( *this, parnt, 
                               *new QPopupMenu(parnt->body()->qwidget(),nm ) ));
+
+    item_.setMenu( body_ );
+
 }
 
 uiPopupMenu::~uiPopupMenu() { delete &item_; }
