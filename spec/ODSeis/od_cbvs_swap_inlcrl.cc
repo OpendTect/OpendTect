@@ -5,6 +5,7 @@
 #include "iostrm.h"
 #include "strmprov.h"
 #include "progressmeter.h"
+#include "survinfo.h"
 #include "filegen.h"
 #include "ptrman.h"
 #include <iostream>
