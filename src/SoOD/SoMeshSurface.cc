@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.2 2003-10-03 09:54:33 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.3 2003-10-08 07:44:10 kristofer Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -93,27 +93,6 @@ void SoMeshSurface::setPos( int row, int col, const SbVec3f& pos,
     const int index = getSquareIndex( row, col );
     if ( index>=0 )
 	getSquare(index)->setPos( row, col, pos, rowinfo, colinfo );
-
-    if ( !(row%squaresize ) )
-    {
-	int prevrowindex = getSquareIndex(row-1, col);
-	if ( prevrowindex>=0 )
-	    getSquare(prevrowindex)->setPos(row,col,pos,rowinfo,colinfo);
-
-	if ( !(col%squaresize ) )
-	{
-	    const int prevrowcolindex = getSquareIndex(row-1, col-1);
-	    if ( prevrowcolindex>=0 )
-		getSquare(prevrowcolindex)->setPos(row,col,pos,rowinfo,colinfo);
-	}
-    }
-
-    if ( !(col%squaresize ) )
-    {
-	int prevcolindex = getSquareIndex(row, col-1);
-	if ( prevcolindex>=0 )
-	    getSquare(prevcolindex)->setPos(row,col,pos,rowinfo,colinfo);
-    }
 }
 
 

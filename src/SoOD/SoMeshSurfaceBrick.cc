@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.1 2003-09-30 12:59:18 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.2 2003-10-08 07:44:10 kristofer Exp $";
 
 
 #include "SoMeshSurfaceBrick.h"
@@ -67,6 +67,7 @@ void SoMeshSurfaceBrick::build()
 
     bool atnextrow = true;
     coordIndex.deleteValues(0);
+    normalIndex.deleteValues(0);
     int nrcrds = 0;
     int idx00, idx10,nidx00,nidx10;
 

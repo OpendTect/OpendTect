@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.4 2003-10-03 09:54:33 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.5 2003-10-08 07:44:10 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -64,6 +64,7 @@ SoMeshSurfaceSquare::SoMeshSurfaceSquare()
     , showwire( true )
     , showtri( true )
     , pickcallbacks( 0 )
+    , updateglue( true )
 {
     SO_KIT_CONSTRUCTOR(SoMeshSurfaceSquare);
     isBuiltIn = true;
@@ -162,12 +163,16 @@ void SoMeshSurfaceSquare::setPos( int row, int col, const SbVec3f& np,
 	{
 	    delete bboxcache;
 	    bboxcache = 0;
+	    updateglue = true;
 	}
 	else
 	{
 	    bboxcache->extendBy(np);
 	}
     }
+
+    if ( SoMeshSurface::isUndefined( coordptr->point[index]) )
+	updateglue = true;
 
     coordptr->point.set1Value(index,np);
 
@@ -346,6 +351,29 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 
     const int relrow = row-startrow;
     const int relcol = col-startcol;
+    if ( relrow==sidesize || relcol==sidesize )
+    {
+	const int index = getCoordIndex( row, col );
+
+	if ( neigbors[5] && relcol==sidesize )
+	{
+	    const SbVec3f np = neigbors[5]->getPos(row,col);
+	    if ( SoMeshSurface::isUndefined(np) ||
+		    SoMeshSurface::isUndefined( coordptr->point[index]) )
+		updateglue = true;
+
+	    coordptr->point.set1Value(index,np);
+	}
+	else if ( neigbors[7] && relrow==sidesize )
+	{
+	    const SbVec3f np = neigbors[7]->getPos(row,col);
+	    if ( SoMeshSurface::isUndefined(np) ||
+		    SoMeshSurface::isUndefined( coordptr->point[index]) )
+		updateglue = true;
+
+	    coordptr->point.set1Value(index,np);
+	}
+    }
 
     const int nrres = sizepower.getValue();
     for ( int idx=0; idx<nrres; idx++ )
@@ -394,17 +422,27 @@ void SoMeshSurfaceSquare::setNeighbor( int relrow, int relcol,
 				   SoMeshSurfaceSquare* part, bool callback )
 {
     const int index = getNeigborIndex(relrow,relcol);
-    if ( neigbors[getNeigborIndex(relrow,relcol)] )
-    {
-	for ( int idx=0; SoMeshSurfaceBrick* brick=getBrick(idx); idx++ )
-	{
-	    brick->invalidate();
-	    getWire(idx)->invalidate();
-	}
-    }
-
     neigbors[getNeigborIndex(relrow,relcol)] = part;
 
+    if ( relrow==1 )
+    {
+	const int row = origo[0]+sidesize;
+	for ( int idx=0; idx<sidesize; idx++ )
+	{
+	    const int col = origo[1]+idx;
+	    touch( row, col );
+	}
+    }
+    else if ( relcol==1 )
+    {
+	const int col = origo[1]+sidesize;
+	for ( int idx=0; idx<sidesize; idx++ )
+	{
+	    const int row = origo[0]+idx;
+	    touch( row, col );
+	}
+    }
+	    
     if ( callback ) part->setNeighbor( -relrow, -relcol, this, false );
 }
 
@@ -459,10 +497,11 @@ void SoMeshSurfaceSquare::updateGlue()
     if ( origo[0] == end[0] || origo[1] == end[1] )
 	return;
 
-    if ( (neigbors[5] && neigbors[5]->hasResolutionChanged()) ||
+    if ( updateglue || (neigbors[5] && neigbors[5]->hasResolutionChanged()) ||
 	 (neigbors[7] && neigbors[7]->hasResolutionChanged()) ||
 	 hasResolutionChanged() )
     {
+	updateglue = false;
 	glueptr->coordIndex.deleteValues(0);
 	glueptr->normalIndex.deleteValues(0);
 
