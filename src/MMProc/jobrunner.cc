@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.13 2004-11-11 16:04:07 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.14 2004-11-15 14:04:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,17 +187,20 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 
     FilePath basefp( getBaseFilePath(ji,hd) );
 
+
     notifyji = &ji;
     ji.hostdata_ = &hd;
+    ji.state_ = JobInfo::Working;
+    ji.timestamp_ = 0;
+
     if ( !iomgr().startProg( prog_, iop, basefp, ji, rshcomm_ ) )
     {
 	ji.state_ = JobInfo::Failed;
-	iomgr().fetchMsg(ji.curmsg_);
+	if ( iomgr().peekMsg() ) iomgr().fetchMsg(ji.curmsg_);
 	jobFailed.trigger();
 	return false;
     }
 
-    ji.state_ = JobInfo::Working;
     jobStarted.trigger();
     return true;
 }
@@ -375,19 +378,27 @@ void JobRunner::updateJobInfo()
 	handleStatusInfo( *si );
 	delete si;
     }
+
     for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
     {
 	JobInfo& ji = *jobinfos_[ijob];
 
-	if ( !ji.timestamp_ ) ji.timestamp_ = Time_getMilliSeconds();
-
-	int elapsed = Time_getMilliSeconds() - ji.timestamp_; 
-
-	if ( ji.state_ == JobInfo::Working && elapsed > timeout_ )
+	if ( isAssigned(ji)  )
 	{
-	    ji.state_ = JobInfo::Failed;
-	    if ( ji.hostdata_ )
-		iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+	    if ( !ji.timestamp_ ) ji.timestamp_ = Time_getMilliSeconds();
+
+	    int elapsed = Time_getMilliSeconds() - ji.timestamp_; 
+
+	    if ( elapsed > timeout_ )
+	    {
+		notifyji = &ji;
+		ji.state_ = JobInfo::Failed;
+		ji.curmsg_ = "Timed out.";
+		jobFailed.trigger();
+		
+		if ( ji.hostdata_ )
+		    iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+	    }
 	}
     }
 }
@@ -399,8 +410,7 @@ void JobRunner::showMachStatus( BufferStringSet& res ) const
     {
 	JobInfo& ji = *jobinfos_[ijob];
 
-	bool active = ji.state_ == JobInfo::Working ||
-			ji.state_ == JobInfo::Paused;
+	bool active = isAssigned(ji);
 	    
 	if ( active && ji.hostdata_ )
 	{
