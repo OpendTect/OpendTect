@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.6 2002-03-21 16:21:31 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.7 2002-04-17 06:57:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,8 +43,12 @@ protected:
 			uiToolBar( const char* nm, QToolBar& );
 public:
 
-    void 		addButton( const ioPixmap&, const CallBack& cb, 
-				   const char* nm="ToolBarButton" );
+    int 		addButton( const ioPixmap&, const CallBack& cb, 
+				   const char* nm="ToolBarButton",
+				   bool toggle=false );
+
+    void		turnOn( int idx, bool yn );
+    			/*!< Does only work on toggle-buttons */
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added

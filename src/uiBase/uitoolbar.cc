@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.11 2002-03-21 16:21:52 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.12 2002-04-17 06:57:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,10 @@ public:
 			~uiToolBarBody()	{ deepErase(receivers); }
 
 
-    void 		addButton( const ioPixmap&, const CallBack& cb, 
-				   const char* nm="ToolBarButton" );
+    int 		addButton( const ioPixmap&, const CallBack& cb, 
+				   const char* nm="ToolBarButton",
+				   bool toggle=false );
+    void		turnOn(int idx, bool yn );
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
@@ -53,11 +55,12 @@ protected:
 
 private:
     ObjectSet<i_QToolButReceiver> receivers; // for deleting
+    ObjectSet<QToolButton>	  buttons;
 };
 
 
-void uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
-			      const char* nm)
+int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
+			      const char* nm, bool toggle )
 {
 #if 0 
 
@@ -69,11 +72,20 @@ void uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
     QToolButton* but= new QToolButton( *pm.Pixmap(), QString(nm), QString::null,
                            br,  SLOT(buttonPressed()),qthing(), nm );
 
+    if ( toggle ) but->setToggleButton( true );
+
     receivers += br;
+    buttons += but;
 
     br->pressed.notify( cb );
-
+    return buttons.size()-1;
 #endif
+}
+
+
+void uiToolBarBody::turnOn( int idx, bool yn )
+{
+    buttons[idx]->setOn( yn );
 }
 
 
@@ -112,8 +124,12 @@ uiToolBar* uiToolBar::getNew( QMainWindow& main, const char* nm, ToolBarDock d,
 }
 
 
-void uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,const char* nm)
-    { body_->addButton(pm,cb,nm); }
+int uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,
+			 const char* nm, bool toggle)
+{ return body_->addButton(pm,cb,nm,toggle); }
+
+void uiToolBar::turnOn( int idx, bool yn )
+{ body_->turnOn( idx, yn ); }
 
 
 void uiToolBar::display( bool yn )
