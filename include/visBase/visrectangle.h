@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.5 2002-02-27 07:20:56 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.6 2002-02-27 08:42:29 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ protected:
     be snapped.
 */
 
-class Rectangle : public VisualObject, public CallBacker
+class Rectangle : public VisualObject
 {
 public:
 
@@ -114,13 +114,6 @@ public:
     bool		isManipRectOnObject() const;
 
 protected:
-
-    void		select() { displayDraggers(true); }
-    void		deSelect()
-			{
-			    displayDraggers(false);
-			    moveObjectToManipRect();
-			}
 
     void		moveManipRectangletoDragger(CallBacker* =0);
     void		moveDraggertoManipRect();
