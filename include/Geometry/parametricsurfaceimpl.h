@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurfaceimpl.h,v 1.2 2005-01-13 09:39:32 kristofer Exp $
+RCS:           $Id: parametricsurfaceimpl.h,v 1.3 2005-01-14 13:10:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ for ( int idx=0; new##variable && idx<curnrrows; idx++ ) \
     { \
 	if ( idy==colidx ) \
 	{ \
-	    if ( idy==curnrrows || !idy ) \
+	    if ( idy==curnrcols || !idy ) \
 		new##variable->set(idx,idy, udf ); \
 	    else \
 	    { \
