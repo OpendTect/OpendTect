@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.12 2002-04-29 09:25:28 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.13 2002-04-30 11:45:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,7 @@ public:
 				     Parse everything else and retry later.
 				*/
 
-    virtual void		fillPar( IOPar& ) const { return; }
+    virtual void		fillPar( IOPar& ) const;
 			
 protected:
     friend			SelectionManager;
@@ -83,6 +83,8 @@ protected:
 private:
     int				id_;
     BufferString*		name_;
+
+    static const char*		typestr;
 };
 
 
