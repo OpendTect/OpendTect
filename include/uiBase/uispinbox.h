@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.3 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uispinbox.h,v 1.4 2001-10-03 09:03:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
+#include <uigroup.h>
 
 class uiSpinBoxBody;
+class uiLabel;
 
 class uiSpinBox : public uiObject
 {
@@ -52,6 +54,23 @@ private:
 
     uiSpinBoxBody*	body_;
     uiSpinBoxBody&	mkbody(uiParent*, const char*);
+
+};
+
+
+class uiLabeledSpinBox : public uiGroup
+{
+public:
+                uiLabeledSpinBox( uiParent*,const char* txt,
+                                   const char* nm="Labeled Spinbox");
+
+    uiSpinBox*  	box()			{ return sb; }
+    uiLabel*    	label()			{ return lbl; }
+
+protected:
+
+    uiSpinBox*	sb;
+    uiLabel*    lbl;
 
 };
 

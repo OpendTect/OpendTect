@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.5 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uispinbox.cc,v 1.6 2001-10-03 09:03:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uispinbox.h"
+#include "uilabel.h"
 
 #include "i_qspinbox.h"
 #include "uiobjbody.h"
@@ -97,3 +98,11 @@ int uiSpinBox::step() const		{ return body_->lineStep() ; }
 void uiSpinBox::setStep ( int s )	{ body_->setLineStep(s); }
 
 
+uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt,
+				    const char* nm )
+	: uiGroup(p,"Labeled spinBox")
+{
+    sb = new uiSpinBox( this, nm );
+    lbl = new uiLabel( this, txt, sb );
+    setHAlignObj( sb );
+}
