@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.4 2004-02-04 08:43:12 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,9 @@ class uiPrintSceneDlg : public uiDialog
 public:
 			uiPrintSceneDlg(uiParent*,SoNode*);
 
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
 protected:
 
     uiFileInput*	fileinputfld;
@@ -37,6 +40,14 @@ protected:
 
     void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
+
+    static const char*	horwidthfldstr;
+    static const char*	vertwidthfldstr;
+    static const char*	widthunitfldstr;
+    static const char*	resfldstr;
+    static const char*	filetypefldstr;
+    static const char*	filenamefldstr;
+
 };
 
 #endif
