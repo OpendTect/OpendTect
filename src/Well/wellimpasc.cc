@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.7 2003-09-26 15:06:32 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.8 2003-10-16 14:34:50 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -37,12 +37,14 @@ Well::AscImporter::~AscImporter()
 	if ( !sd.usable() ) \
 	    return "Cannot open input file"
 
-const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf )
+const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf, 
+					 bool zinfeet )
 {
     mOpenFile( fnm );
 
     Coord3 c, c0, prevc;
     float dah = 0;
+    const float zfac = zinfeet ? 0.3048 : 1;
     char buf[1024]; char valbuf[256];
     while ( *sd.istrm )
     {
@@ -54,6 +56,7 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf )
 	if ( !*ptr ) break;
 	ptr = getNextWord( ptr, valbuf );
 	c.z = atof( valbuf );
+	c.z *= zfac;
 	if ( c.distance(c0) < 1 ) break;
 
 	if ( wd.track().size() == 0 )
@@ -75,7 +78,8 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf )
 }
 
 
-const char* Well::AscImporter::getD2T( const char* fnm, bool istvd )
+const char* Well::AscImporter::getD2T( const char* fnm, bool istvd, 
+				       bool zinfeet )
 {
     mOpenFile( fnm );
 
@@ -84,10 +88,12 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd )
     Well::D2TModel& d2t = *wd.d2TModel();
     d2t.erase();
 
+    const float zfac = zinfeet ? 0.3048 : 1;
     float z, val, prevdah = mUndefValue;
     while ( *sd.istrm )
     {
 	*sd.istrm >> z >> val;
+	z *= zfac;
 	if ( !*sd.istrm ) break;
 	if ( istvd )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.4 2003-08-26 15:37:35 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.5 2003-10-16 14:35:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -33,8 +33,9 @@ public:
 			AscImporter( Data& d ) : wd(d)		{}
 			~AscImporter();
 
-    const char*		getTrack(const char*,bool first_is_surface);
-    const char*		getD2T(const char*,bool istvd);
+    const char*		getTrack(const char*,bool first_is_surface,
+	    			 bool depthinfeet=false);
+    const char*		getD2T(const char*,bool istvd,bool depthinfeet=false);
 
     class LasFileInfo
     {
