@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.13 2002-06-05 14:24:45 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.14 2002-06-08 10:19:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,7 +231,6 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     comm += " "; comm += progname;
     comm += " -bg "; comm += tfname;
 
-    bool rv = false;
     if ( !StreamProvider( comm ).executeCommand(dormt) )
     {
 	uiMSG().error( "Cannot start batch program" );
