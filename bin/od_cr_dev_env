@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.8 2003-12-10 09:53:53 arend Exp $
+# $Id: od_cr_dev_env,v 1.9 2003-12-12 15:40:57 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -45,7 +45,7 @@ fi
 
 cd "$outdir"
 
-for item in plugins include Pmake
+for item in plugins src include Pmake
 do 
     cp -a "$inpdir/$item" .
 
