@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.1 2003-05-13 14:12:56 kristofer Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.2 2003-05-22 08:31:20 kristofer Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
@@ -34,9 +34,9 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
     , cx( interval.stop )
     , tol( tol_ )
 {
-    float fa = func.getValue( ax );
-    float fb = func.getValue( bx );
-    float fc = func.getValue( cx );
+    float fa = max ? -func.getValue( ax ) : func.getValue( ax );
+    float fb = max ? -func.getValue( bx ) : func.getValue( bx );
+    float fc = max ? -func.getValue( cx ) : func.getValue( cx );
 
     if ( fb>fa )
     {
@@ -46,7 +46,7 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
 	mSWAP(fb,fa,fdummy)
 
 	cx=bx+GOLD*(bx-ax);
-	fc = func.getValue( cx );
+	fc = max ? -func.getValue( cx ) : func.getValue( cx );
 	while ( fb>fc )
 	{
 	    const double r =(bx-ax)*(fb-fc);
@@ -57,7 +57,7 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
 	    float fq;
 	    if ( (bx-q)*(q-cx) > 0.0 )
 	    {
-		fq = func.getValue( q );
+		fq = max ? -func.getValue( q ) : func.getValue( q );
 		if ( fq<fc )
 		{
 		    ax = bx;
@@ -74,26 +74,26 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
 		}
 
 		q = cx+GOLD*(cx-bx);
-		fq = func.getValue( q );
+		fq = max ? -func.getValue( q ) : func.getValue( q );
 	    }
 	    else if ( (cx-q)*(q-ulim) > 0.0 )
 	    {
-		fq = func.getValue( q );
+		fq = max ? -func.getValue( q ) : func.getValue( q );
 		if ( fq<fc)
 		{
 		    SHIFT(bx,cx,q,cx+GOLD*(cx-bx));
-		    SHIFT(fb,fc,fq,func.getValue(q) );
+		    SHIFT(fb,fc,fq,max ? -func.getValue(q):func.getValue(q) );
 		}
 	    }
 	    else if ( (q-ulim)*(ulim-cx)>=0.0 )
 	    {
 		q = ulim;
-		fq = func.getValue( q );
+		fq = max ? -func.getValue( q ) : func.getValue( q );
 	    }
 	    else
 	    {
 		q = cx+GOLD*(cx-bx);
-		fq = func.getValue( q );
+		fq = max ? -func.getValue( q ) : func.getValue( q );
 	    }
 
 	    SHIFT(ax,bx,cx,q);
@@ -115,7 +115,7 @@ double ExtremeFinder1D::extremePos() const
 
 float ExtremeFinder1D::extremeVal() const
 {
-    return fx;
+    return max ? -fx : fx;
 }
 
 
@@ -132,7 +132,7 @@ int ExtremeFinder1D::nextStep()
 	a = mMIN(ax,cx);
 	b = mMAX(ax,cx);
 	x=w=v=bx;
-	fw=fv=fx=func.getValue(x);
+	fw=fv=fx= max ? -func.getValue( x ) : func.getValue( x );
     }
 
     const double xm = 0.5*(a+b);
@@ -174,7 +174,7 @@ int ExtremeFinder1D::nextStep()
     }
 
     u = fabs(d)>=tol1 ? x+d : x+SIGN(tol1,d);
-    const float fu = func.getValue( u );
+    const float fu = max ? -func.getValue( u ) : func.getValue( u );
     if ( fu<fx )
     {
 	if ( u>=x )
