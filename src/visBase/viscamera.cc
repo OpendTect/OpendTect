@@ -4,10 +4,9 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.8 2002-05-21 09:57:43 nanne Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.9 2002-10-14 14:24:39 niclas Exp $";
 
 #include "viscamera.h"
-#include "geompos.h"
 #include "iopar.h"
 
 mCreateFactoryEntry( visBase::Camera );
@@ -37,16 +36,16 @@ SoNode* visBase::Camera::getData()
 { return camera; }
 
 
-void visBase::Camera::setPosition(const Geometry::Pos& pos)
+void visBase::Camera::setPosition(const Coord3& pos)
 {
     camera->position.setValue( pos.x, pos.y, pos.z );
 }
 
 
-Geometry::Pos visBase::Camera::position() const
+Coord3 visBase::Camera::position() const
 {
     SbVec3f pos = camera->position.getValue();
-    Geometry::Pos res;
+    Coord3 res;
     res.x = pos[0];
     res.y = pos[1];
     res.z = pos[2];
@@ -54,13 +53,13 @@ Geometry::Pos visBase::Camera::position() const
 }
 
 
-void visBase::Camera::setOrientation( const Geometry::Pos& dir, float angle )
+void visBase::Camera::setOrientation( const Coord3& dir, float angle )
 {
     camera->orientation.setValue( dir.x, dir.y, dir.z, angle );
 }
 
 
-void visBase::Camera::getOrientation( Geometry::Pos& dir, float& angle )
+void visBase::Camera::getOrientation( Coord3& dir, float& angle )
 {
     SbVec3f axis;
     camera->orientation.getValue( axis, angle);
@@ -70,14 +69,14 @@ void visBase::Camera::getOrientation( Geometry::Pos& dir, float& angle )
 }
 
 
-void visBase::Camera::pointAt(const Geometry::Pos& pos)
+void visBase::Camera::pointAt(const Coord3& pos)
 {
     camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ));
 }
 
 
-void visBase::Camera::pointAt(const Geometry::Pos& pos,
-			      const Geometry::Pos& upvector)
+void visBase::Camera::pointAt(const Coord3& pos,
+			      const Coord3& upvector)
 {
     camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ),
 	    	     SbVec3f( upvector.x, upvector.y, upvector.z ));
@@ -169,7 +168,7 @@ int visBase::Camera::usePar( const IOPar& iopar )
     int res = SceneObject::usePar( iopar );
     if ( res != 1 ) return res;
 
-    Geometry::Pos pos;
+    Coord3 pos;
     if ( iopar.get( posstr, pos.x, pos.y, pos.z ) )
 	setPosition( pos );
 
@@ -200,7 +199,7 @@ int visBase::Camera::usePar( const IOPar& iopar )
 void visBase::Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     SceneObject::fillPar( iopar, saveids );
-    Geometry::Pos pos = position();
+    Coord3 pos = position();
     iopar.set( posstr, pos.x, pos.y, pos.z );
     
     SbVec3f axis;

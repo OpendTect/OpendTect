@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vispolyline.cc,v 1.2 2002-04-26 13:00:08 kristofer Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.3 2002-10-14 14:24:39 niclas Exp $";
 
 #include "vispolyline.h"
 
@@ -28,7 +28,7 @@ visBase::PolyLine::PolyLine()
 int visBase::PolyLine::size() const { return coords->point.getNum(); }
 
 
-void visBase::PolyLine::addPoint( const Geometry::Pos& pos )
+void visBase::PolyLine::addPoint( const Coord3& pos )
 {
     int idx = size();
     coords->point.setNum( idx+1 );
@@ -37,7 +37,7 @@ void visBase::PolyLine::addPoint( const Geometry::Pos& pos )
 }
 
 
-void visBase::PolyLine::insertPoint( int idx, const Geometry::Pos& pos )
+void visBase::PolyLine::insertPoint( int idx, const Coord3& pos )
 {
     if ( idx==size() ) return addPoint( pos );
 
@@ -47,16 +47,16 @@ void visBase::PolyLine::insertPoint( int idx, const Geometry::Pos& pos )
 }
 
 
-Geometry::Pos visBase::PolyLine::getPoint( int idx ) const 
+Coord3 visBase::PolyLine::getPoint( int idx ) const 
 {
     if ( idx<size() && idx>=0 )
     {
 	SbVec3f pos = coords->point[idx];
-	Geometry::Pos res ( pos[0], pos[1], pos[2] );
+	Coord3 res ( pos[0], pos[1], pos[2] );
 	return res;
     }
 
-    return Geometry::Pos( mUndefValue, mUndefValue, mUndefValue );
+    return Coord3( mUndefValue, mUndefValue, mUndefValue );
 }
 
 

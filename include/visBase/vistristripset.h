@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistristripset.h,v 1.5 2002-05-27 06:36:40 kristofer Exp $
+ RCS:		$Id: vistristripset.h,v 1.6 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "callback.h"
 
+class Coord3;
 class SoCoordinate3;
 class SoSwitch;
 class SoMaterial;
@@ -57,7 +58,7 @@ public:
 			     coord[n]
 			*/
 
-    void		getPositions( TypeSet<Geometry::Pos>& ) const;
+    void		getPositions( TypeSet<Coord3>& ) const;
 
     void		setColorTab( VisColorTab* );
     const VisColorTab*	getColorTab() const { return colortable; }

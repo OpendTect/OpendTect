@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.2 2002-04-26 13:00:57 kristofer Exp $
+ RCS:		$Id: vispolyline.h,v 1.3 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
-#include "geompos.h"
+#include "position.h"
 
 class SoLineSet;
 class SoCoordinate3;
@@ -34,9 +34,9 @@ public:
 			mCreateDataObj0arg(PolyLine);
 
     int 		size() const;
-    void		addPoint( const Geometry::Pos& pos );
-    void		insertPoint( int idx, const Geometry::Pos& );
-    Geometry::Pos	getPoint( int ) const;
+    void		addPoint( const Coord3& pos );
+    void		insertPoint( int idx, const Coord3& );
+    Coord3		getPoint( int ) const;
     void		removePoint( int );
 
 protected:

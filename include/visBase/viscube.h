@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.7 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.8 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "position.h"
 
 class SoCube;
 class SoTranslation;
@@ -36,11 +37,11 @@ public:
     static Cube*	create()
 			mCreateDataObj0arg(Cube);
 
-    void		setCenterPos( const Geometry::Pos& );
-    Geometry::Pos	centerPos() const;
+    void		setCenterPos( const Coord3& );
+    Coord3		centerPos() const;
     
-    void		setWidth( const Geometry::Pos& );
-    Geometry::Pos	width() const;
+    void		setWidth( const Coord3& );
+    Coord3		width() const;
 
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;

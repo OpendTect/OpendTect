@@ -4,13 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.1 2002-08-20 07:34:18 nanne Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.2 2002-10-14 14:24:39 niclas Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visboxdragger.h"
-#include "geompos.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoSeparator.h"
@@ -51,31 +50,31 @@ visBase::BoxDragger::~BoxDragger()
 }
 
 
-void visBase::BoxDragger::setCenter( const Geometry::Pos& pos_ )
+void visBase::BoxDragger::setCenter( const Coord3& pos_ )
 {
-    Geometry::Pos pos( pos_ );
+    Coord3 pos( pos_ );
     boxdragger->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
-Geometry::Pos visBase::BoxDragger::center() const
+Coord3 visBase::BoxDragger::center() const
 {
     SbVec3f pos = boxdragger->translation.getValue();
-    Geometry::Pos res( pos[0], pos[1], pos[2] );
+    Coord3 res( pos[0], pos[1], pos[2] );
     return res;
 }
 
 
-void visBase::BoxDragger::setScale( const Geometry::Pos& pos )
+void visBase::BoxDragger::setScale( const Coord3& pos )
 {
     boxdragger->scaleFactor.setValue( pos.x/2, pos.y/2, pos.z/2 );
 }
 
 
-Geometry::Pos visBase::BoxDragger::scale() const
+Coord3 visBase::BoxDragger::scale() const
 {
     SbVec3f pos = boxdragger->scaleFactor.getValue();
-    Geometry::Pos res( pos[0]*2, pos[1]*2, pos[2]*2 );
+    Coord3 res( pos[0]*2, pos[1]*2, pos[2]*2 );
     return res;
 }
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.7 2002-05-27 08:41:32 kristofer Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.8 2002-10-14 14:24:39 niclas Exp $";
 
 #include "vistristripset.h"
 #include "geomposlist.h"
@@ -109,7 +109,7 @@ void visBase::TriangleStripSet::setValues( const float* newdata )
 
 
 void visBase::TriangleStripSet::getPositions(
-					TypeSet<Geometry::Pos>& table ) const
+					TypeSet<Coord3>& table ) const
 {
     table.erase();
     const int sz = coords->point.getNum();
@@ -118,7 +118,7 @@ void visBase::TriangleStripSet::getPositions(
     {
 	SbVec3f pos = coords->point[idx];
 
-	Geometry::Pos res( pos[0], pos[1], pos[2] );
+	Coord3 res( pos[0], pos[1], pos[2] );
 	table += res;
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.25 2002-10-11 14:49:50 nanne Exp $
+ RCS:		$Id: visrectangle.h,v 1.26 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "ranges.h"
+#include "position.h"
 
 class SoScale;
 class SoTranslation;
@@ -37,14 +38,14 @@ public:
     static RectangleDragger*	create()
 				mCreateDataObj0arg(RectangleDragger);
 
-    void		setCenter( const Geometry::Pos& );
-    Geometry::Pos	center() const;
+    void		setCenter( const Coord3& );
+    Coord3	center() const;
     
     void		setScale( float, float );
     float		scale( int dim ) const;
 
     void		setDraggerSize( float w, float h, float d );
-    Geometry::Pos	getDraggerSize() const;
+    Coord3	getDraggerSize() const;
 
     void		showTabs(bool);
     bool		tabsShown() const;
@@ -98,9 +99,9 @@ public:
     static Rectangle*	create()
 			mCreateDataObj0arg(Rectangle);
 
-    void		setOrigo( const Geometry::Pos& );
-    Geometry::Pos	origo() const;
-    Geometry::Pos	manipOrigo() const;
+    void		setOrigo( const Coord3& );
+    Coord3	origo() const;
+    Coord3	manipOrigo() const;
 
     void		setWidth( float, float );
     float		width( int ) const;
@@ -117,7 +118,7 @@ public:
     void		displayDraggers(bool);
     void		displayTabs(bool);
     void		setDraggerSize( float w, float h, float d );
-    Geometry::Pos	getDraggerSize() const;
+    Coord3		getDraggerSize() const;
 
 
     void		moveObjectToManipRect();

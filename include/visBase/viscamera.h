@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.8 2002-05-21 09:57:34 nanne Exp $
+ RCS:		$Id: viscamera.h,v 1.9 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "vissceneobj.h"
+#include "position.h"
 
 class SoPerspectiveCamera;
 namespace Geometry { class Pos; };
@@ -33,15 +34,15 @@ public:
     static Camera*	create()
 			mCreateDataObj0arg( Camera );
 
-    void		setPosition(const Geometry::Pos&);
-    Geometry::Pos	position() const;
+    void		setPosition(const Coord3&);
+    Coord3		position() const;
 
-    void		pointAt(const Geometry::Pos&);
-    void		pointAt(const Geometry::Pos& pos,
-	    			const Geometry::Pos& upvector );
-    void		setOrientation( const Geometry::Pos& dirvector,
+    void		pointAt(const Coord3&);
+    void		pointAt(const Coord3& pos,
+	    			const Coord3& upvector );
+    void		setOrientation( const Coord3& dirvector,
 					float angle );
-    void		getOrientation( Geometry::Pos& dirvector,
+    void		getOrientation( Coord3& dirvector,
 					float& angle );
 
     void		setAspectRatio( float );

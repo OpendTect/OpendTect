@@ -4,10 +4,9 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.32 2002-10-11 14:49:44 nanne Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.33 2002-10-14 14:24:39 niclas Exp $";
 
 #include "visrectangle.h"
-#include "geompos.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoScale.h"
@@ -189,12 +188,12 @@ visBase::RectangleDragger::~RectangleDragger()
 }
 
 
-void visBase::RectangleDragger::setCenter( const Geometry::Pos& pos_ )
+void visBase::RectangleDragger::setCenter( const Coord3& pos_ )
 {
     bool allowcb_bak = allowcb;
     allowcb = false;
 
-    Geometry::Pos pos( pos_ );
+    Coord3 pos( pos_ );
 
     manipxydragger0->translation.setValue( pos.x, pos.y, pos.z );
 
@@ -224,10 +223,10 @@ void visBase::RectangleDragger::setCenter( const Geometry::Pos& pos_ )
 }
 
 
-Geometry::Pos visBase::RectangleDragger::center() const
+Coord3 visBase::RectangleDragger::center() const
 {
     SbVec3f pos = manipxydragger0->translation.getValue();
-    Geometry::Pos res( pos[0], pos[1], pos[2] );
+    Coord3 res( pos[0], pos[1], pos[2] );
     pos = manipzdraggerleft->translation.getValue();
     res.z = pos[0]*zdraggerscale->scaleFactor.getValue()[2];
     return res;
@@ -265,10 +264,10 @@ void visBase::RectangleDragger::setDraggerSize( float w, float h, float d )
 }
 
 
-Geometry::Pos visBase::RectangleDragger::getDraggerSize() const
+Coord3 visBase::RectangleDragger::getDraggerSize() const
 {
     SbVec3f pos = zdraggerscale->scaleFactor.getValue();
-    Geometry::Pos res( pos[0], pos[1], pos[2] );
+    Coord3 res( pos[0], pos[1], pos[2] );
     return res;
 }
 
@@ -558,7 +557,7 @@ int visBase::Rectangle::usePar( const IOPar& iopar )
     if ( iopar.get( orientationstr, ori ) )
 	setOrientation( (Orientation) ori );
 
-    Geometry::Pos pos;
+    Coord3 pos;
     if ( iopar.get( origostr, pos.x, pos.y, pos.z ) )
 	setOrigo( pos );
 
@@ -601,7 +600,7 @@ void visBase::Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 
     iopar.set( orientationstr, (int)orientation() );
 
-    Geometry::Pos pos = origo();
+    Coord3 pos = origo();
     iopar.set( origostr, pos.x, pos.y, pos.z );
     iopar.set( widthstr, width(0), width(1) );
 
@@ -612,35 +611,35 @@ void visBase::Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( xwidhtrange, wxrange.start, wxrange.stop );
     iopar.set( ywidhtrange, wyrange.start, wyrange.stop );
 
-    Geometry::Pos draggersize = getDraggerSize();
+    Coord3 draggersize = getDraggerSize();
     iopar.set( draggersizestr, draggersize.x, draggersize.y, draggersize.z );
 
     iopar.setYN( snappingstr, isSnapping() );
 }
 
 
-void visBase::Rectangle::setOrigo( const Geometry::Pos& np )
+void visBase::Rectangle::setOrigo( const Coord3& np )
 {
     origotrans->translation.setValue( np.x, np.y, np.z );
 }
 
 
-Geometry::Pos visBase::Rectangle::origo() const
+Coord3 visBase::Rectangle::origo() const
 {
     SbVec3f pos = origotrans->translation.getValue();
-    Geometry::Pos res( pos[0], pos[1], pos[2] );
+    Coord3 res( pos[0], pos[1], pos[2] );
     return res;
 }
 
 
-Geometry::Pos visBase::Rectangle::manipOrigo() const
+Coord3 visBase::Rectangle::manipOrigo() const
 {
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
     SbVec3f origopos;
 
-    Geometry::Pos res;
+    Coord3 res;
 
     switch ( orientation_ )
     {
@@ -733,7 +732,7 @@ void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
     float xscale = maniprectscale->scaleFactor.getValue()[0];
     float yscale = maniprectscale->scaleFactor.getValue()[1];
 
-    Geometry::Pos newpos = dragger->center();
+    Coord3 newpos = dragger->center();
     float newx = newpos.x; float newy = newpos.y; float newz = newpos.z;
 
     float newxscale = dragger->scale(0);
@@ -777,7 +776,7 @@ void visBase::Rectangle::moveDraggertoManipRect()
 {
     if ( !dragger ) return;
 
-    Geometry::Pos newpos;
+    Coord3 newpos;
 
     newpos.x = maniprecttrans->translation.getValue()[0];
     newpos.y = maniprecttrans->translation.getValue()[1];
@@ -803,9 +802,9 @@ void visBase::Rectangle::setDraggerSize( float w, float h, float d )
 }
 
 
-Geometry::Pos visBase::Rectangle::getDraggerSize() const
+Coord3 visBase::Rectangle::getDraggerSize() const
 {
-    Geometry::Pos res = dragger->getDraggerSize();
+    Coord3 res = dragger->getDraggerSize();
 
     res.x = getWidth( 0, res.x );
     res.y = getWidth( 1, res.y );

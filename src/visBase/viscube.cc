@@ -4,10 +4,9 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.10 2002-05-08 14:36:53 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.11 2002-10-14 14:24:39 niclas Exp $";
 
 #include "viscube.h"
-#include "geompos.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoCube.h"
@@ -28,15 +27,15 @@ visBase::Cube::Cube()
 }
 
 
-void visBase::Cube::setCenterPos( const Geometry::Pos& pos )
+void visBase::Cube::setCenterPos( const Coord3& pos )
 {
     position->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
-Geometry::Pos visBase::Cube::centerPos() const
+Coord3 visBase::Cube::centerPos() const
 {
-    Geometry::Pos res;
+    Coord3 res;
     SbVec3f pos = position->translation.getValue();
 
     res.x = pos[0];
@@ -47,7 +46,7 @@ Geometry::Pos visBase::Cube::centerPos() const
 }
 
 
-void visBase::Cube::setWidth( const Geometry::Pos& n )
+void visBase::Cube::setWidth( const Coord3& n )
 {
     cube->width.setValue(n.x);
     cube->height.setValue(n.y);
@@ -55,9 +54,9 @@ void visBase::Cube::setWidth( const Geometry::Pos& n )
 }
 
 
-Geometry::Pos visBase::Cube::width() const
+Coord3 visBase::Cube::width() const
 {
-    Geometry::Pos res;
+    Coord3 res;
     
     res.x = cube->width.getValue();
     res.y = cube->height.getValue();
@@ -72,7 +71,7 @@ int visBase::Cube::usePar( const IOPar& iopar )
     int res = VisualObjectImpl::usePar( iopar );
     if ( res != 1 ) return res;
 
-    Geometry::Pos pos;
+    Coord3 pos;
     if ( !iopar.get( centerposstr, pos.x, pos.y, pos.z ) )
 	return -1;
 
@@ -91,7 +90,7 @@ void visBase::Cube::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( iopar, saveids );
 
-    Geometry::Pos pos = centerPos();
+    Coord3 pos = centerPos();
     iopar.set( centerposstr, pos.x, pos.y, pos.z );
 
     pos = width();

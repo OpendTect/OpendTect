@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.2 2002-07-29 07:29:49 nanne Exp $
+ RCS:		$Id: vismarker.h,v 1.3 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "position.h"
 
 class SoTranslation;
 class SoGroup;
@@ -42,8 +43,8 @@ public:
 
     enum Type		{ Cube, Cone, Cylinder, Sphere, Cross, Star };
 
-    void		setCenterPos(const Geometry::Pos&);
-    Geometry::Pos	centerPos() const;
+    void		setCenterPos(const Coord3&);
+    Coord3		centerPos() const;
    
     void		setType(Type);
     Type		getType() const		{ return markertype; }
@@ -51,7 +52,7 @@ public:
     void		setSize(const float);
     float		getSize() const;
 
-    void		setScale(const Geometry::Pos&);
+    void		setScale(const Coord3&);
 
     int			usePar(const IOPar&);
     void		fillPar(IOPar&,TypeSet<int>&) const;

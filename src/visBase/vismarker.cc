@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.3 2002-08-01 13:20:11 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.4 2002-10-14 14:24:39 niclas Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "vismarker.h"
 #include "visshapescale.h"
 #include "viscube.h"
-#include "geompos.h"
 #include "iopar.h"
 
 #include <Inventor/nodes/SoTranslation.h>
@@ -61,15 +60,15 @@ visBase::Marker::~Marker()
 }
 
 
-void visBase::Marker::setCenterPos( const Geometry::Pos& pos )
+void visBase::Marker::setCenterPos( const Coord3& pos )
 {
     position->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
-Geometry::Pos visBase::Marker::centerPos() const
+Coord3 visBase::Marker::centerPos() const
 {
-    Geometry::Pos res;
+    Coord3 res;
     SbVec3f pos = position->translation.getValue();
 
     res.x = pos[0];
@@ -124,7 +123,7 @@ float visBase::Marker::getSize() const
 }
 
 
-void visBase::Marker::setScale( const Geometry::Pos& pos )
+void visBase::Marker::setScale( const Coord3& pos )
 {
     scale->scaleFactor.setValue( pos.x, pos.y, pos.z );
 }
@@ -135,7 +134,7 @@ int visBase::Marker::usePar( const IOPar& iopar )
     int res = VisualObjectImpl::usePar( iopar );
     if ( res != 1 ) return res;
 
-    Geometry::Pos pos;
+    Coord3 pos;
     if ( !iopar.get( centerposstr, pos.x, pos.y, pos.z ) )
         return -1;
     setCenterPos( pos );
@@ -148,7 +147,7 @@ void visBase::Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( iopar, saveids );
 
-    Geometry::Pos pos = centerPos();
+    Coord3 pos = centerPos();
     iopar.set( centerposstr, pos.x, pos.y, pos.z );
 }
 

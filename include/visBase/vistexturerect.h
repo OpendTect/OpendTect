@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.14 2002-10-11 15:01:31 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.15 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
@@ -15,10 +15,11 @@ ________________________________________________________________________
 
 
 #include "visobject.h"
-#include "geompos.h"
 
 
 template <class T> class Array2D;
+
+class Coord3;
 class DataClipper;
 
 class SoTexture2;
@@ -45,7 +46,7 @@ public:
     static TextureRect*	create()
 			mCreateDataObj0arg( TextureRect );
 
-    float		getValue( const Geometry::Pos& ) const;
+    float		getValue( const Coord3& ) const;
 
     NotifierAccess*	manipStarts() { return &manipstartnotifier; }
     NotifierAccess*	manipChanges() { return &manipchnotifier; }

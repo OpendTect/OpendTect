@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.5 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.6 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "vissceneobj.h"
 #include "position.h"
-#include "geompos.h"
 
 class SoEventCallback;
 
@@ -43,7 +42,7 @@ public:
 				*/
 
     TypeSet<int>		pickedobjids;    
-    Geometry::Pos		pickedpos;
+    Coord3			pickedpos;
     					
     int				key;
     				/*!< Only set if type==Keyboard */

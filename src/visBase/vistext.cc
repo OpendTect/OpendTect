@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.6 2002-05-27 14:20:04 nanne Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.7 2002-10-14 14:24:39 niclas Exp $";
 
 
 #include "vistext.h"
@@ -37,14 +37,14 @@ visBase::Text::~Text()
 {}
 
 
-Geometry::Pos visBase::Text::position() const
+Coord3 visBase::Text::position() const
 {
     SbVec3f pos = textpos->translation.getValue();
-    return Geometry::Pos( pos[0], pos[1], pos[2] );
+    return Coord3( pos[0], pos[1], pos[2] );
 }
 
 
-void visBase::Text::setPosition(const Geometry::Pos& pos )
+void visBase::Text::setPosition(const Coord3& pos )
 {
     textpos->translation.setValue( pos.x, pos.y, pos.z );
 }
@@ -103,7 +103,7 @@ void visBase::Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
-    Geometry::Pos pos = position();
+    Coord3 pos = position();
     par.set( positionstr, pos.x, pos.y, pos.z );
 
     par.set( justificationstr, (int) justification() );
@@ -117,7 +117,7 @@ int visBase::Text::usePar( const IOPar& par )
     int res = VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    Geometry::Pos pos;
+    Coord3 pos;
     if ( !par.get( positionstr, pos.x, pos.y, pos.z ) )
 	return -1;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.11 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.12 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 
 #include "visobject.h"
+#include "position.h"
 #include "sets.h"
 
 class SoSwitch;
@@ -46,7 +47,7 @@ public:
     bool			isScaleShown() const;
 
     void			setCorner( int, float, float, float );
-    Geometry::Pos		getCorner( int ) const;
+    Coord3			getCorner( int ) const;
     void			setText( int dim, const char * );
 
     void			fillPar( IOPar&, TypeSet<int>& ) const;

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.14 2002-05-13 14:34:40 bert Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.15 2002-10-14 14:24:39 niclas Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -159,10 +159,10 @@ void visBase::Annotation::setCorner( int idx, float x, float y, float z )
 }
 
 
-Geometry::Pos  visBase::Annotation::getCorner( int idx ) const
+Coord3  visBase::Annotation::getCorner( int idx ) const
 {
     SbVec3f pos = coords->point[idx];
-    Geometry::Pos res( pos[0], pos[1], pos[2] );
+    Coord3 res( pos[0], pos[1], pos[2] );
 
     return res;
 }
@@ -217,7 +217,7 @@ void visBase::Annotation::updateTextPos(int textid)
     tp[2] = (p0[2]+p1[2]) / 2;
 
     ((visBase::Text*)texts->getObject(textid))
-			->setPosition( Geometry::Pos( tp[0], tp[1], tp[2] ));
+			->setPosition( Coord3( tp[0], tp[1], tp[2] ));
 
     int dim = -1;
     if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[2]-p1[2])) dim = 0;
@@ -237,7 +237,7 @@ void visBase::Annotation::updateTextPos(int textid)
 
 	Text* text = Text::create();
 	scales[textid]->addObject( text );
-	Geometry::Pos pos( p0[0], p0[1], p0[2] );
+	Coord3 pos( p0[0], p0[1], p0[2] );
 	pos[dim] = val;
 	text->setPosition( pos );
 	BufferString string = val;
@@ -266,7 +266,7 @@ void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	key = cornerprefixstr;
 	key += idx;
 
-	Geometry::Pos pos = getCorner( idx );
+	Coord3 pos = getCorner( idx );
 
 	par.set( key, pos.x, pos.y, pos.z );
     }

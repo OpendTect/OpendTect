@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.1 2002-08-20 07:34:53 nanne Exp $
+ RCS:		$Id: visboxdragger.h,v 1.2 2002-10-14 14:25:26 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "position.h"
 
 class SoTranslation;
 class SoTabBoxDragger;
@@ -30,11 +31,11 @@ public:
     static BoxDragger*		create()
 				mCreateDataObj0arg(BoxDragger);
 
-    void			setCenter(const Geometry::Pos&);
-    Geometry::Pos		center() const;
+    void			setCenter(const Coord3&);
+    Coord3			center() const;
     
-    void			setScale(const Geometry::Pos&);
-    Geometry::Pos		scale() const;
+    void			setScale(const Coord3&);
+    Coord3			scale() const;
 
     Notifier<BoxDragger>	started;
     Notifier<BoxDragger>	motion;

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.23 2002-10-11 15:01:25 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.24 2002-10-14 14:24:39 niclas Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -97,12 +97,12 @@ visBase::TextureRect::~TextureRect()
 }
 
 
-float visBase::TextureRect::getValue( const Geometry::Pos& pos ) const
+float visBase::TextureRect::getValue( const Coord3& pos ) const
 {
     if ( !data ) return mUndefValue;
 
     visBase::Rectangle::Orientation orientation = rectangle->orientation();
-    Geometry::Pos origo = rectangle->origo();
+    Coord3 origo = rectangle->origo();
     Coord localpos;		
 
     if ( orientation==visBase::Rectangle::XY )

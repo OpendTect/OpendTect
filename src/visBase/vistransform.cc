@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.7 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.8 2002-10-14 14:24:39 niclas Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -40,19 +40,19 @@ void visBase::Transformation::setA( float a11, float a12, float a13, float a14,
 }
 
 
-Geometry::Pos visBase::Transformation::transform(const Geometry::Pos& pos) const
+Coord3 visBase::Transformation::transform(const Coord3& pos) const
 {
     const SbVec3f src( pos.x, pos.y, pos.z );
     SbVec3f dst;
 
     transform_->matrix.getValue().multVecMatrix( src, dst );
 
-    return Geometry::Pos( dst[0], dst[1], dst[2] );
+    return Coord3( dst[0], dst[1], dst[2] );
 }
 
 
-Geometry::Pos visBase::Transformation::transformBack(
-						const Geometry::Pos& pos) const
+Coord3 visBase::Transformation::transformBack(
+						const Coord3& pos) const
 {
     const SbVec3f src( pos.x, pos.y, pos.z );
     SbVec3f dst;
@@ -60,7 +60,7 @@ Geometry::Pos visBase::Transformation::transformBack(
     SbMatrix inverse = transform_->matrix.getValue().inverse();
     inverse.multVecMatrix( src, dst );
 
-    return Geometry::Pos( dst[0], dst[1], dst[2] );
+    return Coord3( dst[0], dst[1], dst[2] );
 }
 
 
