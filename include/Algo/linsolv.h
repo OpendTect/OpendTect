@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: linsolv.h,v 1.1 2000-03-22 13:41:01 bert Exp $
+ RCS:           $Id: linsolv.h,v 1.2 2000-12-11 10:19:32 dgb Exp $
 ________________________________________________________________________
 
 LinSolver - Solves linear systems of equations on the form A*x=B. A is
@@ -45,20 +45,13 @@ protected:
 
 template <class T> inline
 LinSolver<T>::LinSolver( const Array2D<T>& A )
-    : croutsmatrix ( A.size().getSize(0),  A.size().getSize(1) )
-    , croutsidx ( new int[A.size().getSize(0)] )
-    , n ( A.size().getSize(0) )
+    : croutsmatrix ( A )
+    , croutsidx ( new int[A.info().getSize(0)] )
+    , n ( A.info().getSize(0) )
     , ready_( false )
     , parity( true )
 {
-    memcpy( croutsmatrix.getData(), A.getData(),
-	    sizeof(T) * A.size().getTotalSz() );
-
-    croutsmatrix.dataUpdated();
-    croutsmatrix.unlockData();
-    A.unlockData();
-
-    if ( A.size().getSize(0) != A.size().getSize(1) )
+    if ( A.info().getSize(0) != A.info().getSize(1) )
 	return;
 
     int imax;
@@ -70,7 +63,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 	T big=0;
 	for ( int j=0; j<n; j++ )
 	{
-	    T temp = fabs( croutsmatrix.getVal(i,j) );
+	    T temp = fabs( croutsmatrix.get(i,j) );
 	    if ( temp > big)
 		big=temp;
 	}
@@ -88,23 +81,23 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
     {
 	for (int i=0; i<j; i++ )
 	{
-	    T sum=croutsmatrix.getVal(i,j);
+	    T sum=croutsmatrix.get(i,j);
 	    for ( int k=0; k<i; k++ )
-		sum -=  croutsmatrix.getVal(i,k) * croutsmatrix.getVal(k,j);
+		sum -=  croutsmatrix.get(i,k) * croutsmatrix.get(k,j);
 
-	    croutsmatrix.setVal(i,j,sum);
+	    croutsmatrix.set(i,j,sum);
 	}
 
 	T big=0.0;
 	for ( int i=j; i<n; i++ )
 	{
-	    T sum=croutsmatrix.getVal(i,j);
+	    T sum=croutsmatrix.get(i,j);
 	    for ( int k=0; k<j; k++ )
 	    {
-		sum -=  croutsmatrix.getVal(i,k)*croutsmatrix.getVal(k,j);
+		sum -=  croutsmatrix.get(i,k)*croutsmatrix.get(k,j);
 	    }
 
-	    croutsmatrix.setVal(i,j,sum);
+	    croutsmatrix.set(i,j,sum);
 
 	    T dum = vv[i]*fabs(sum);
 
@@ -120,9 +113,9 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 	{
 	    for ( int k=0; k<n; k++ )
 	    {
-		T dum=croutsmatrix.getVal(imax,k);
-		croutsmatrix.setVal(imax,k,croutsmatrix.getVal(j,k));
-		croutsmatrix.setVal(j,k,dum);
+		T dum=croutsmatrix.get(imax,k);
+		croutsmatrix.set(imax,k,croutsmatrix.get(j,k));
+		croutsmatrix.set(j,k,dum);
 	    }
 
 	    parity = !parity;
@@ -131,15 +124,15 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
 	croutsidx[j]=imax;
 
-	if ( mIS_ZERO(croutsmatrix.getVal(j,j) ) )
-	    croutsmatrix.setVal(j,j,TINY);
+	if ( mIS_ZERO(croutsmatrix.get(j,j) ) )
+	    croutsmatrix.set(j,j, TINY);
 
 	if ( j != n-1 )
 	{
-	    T dum=1.0/(croutsmatrix.getVal(j,j));
+	    T dum=1.0/(croutsmatrix.get(j,j));
 
 	    for ( int i=j+1; i<n; i++ )
-		croutsmatrix.setVal(i,j,dum * croutsmatrix.getVal(i,j));
+		croutsmatrix.set(i,j,dum * croutsmatrix.get(i,j));
 	}
     }
 
@@ -175,7 +168,7 @@ void LinSolver<T>::apply( const T* b, T* x ) const
 	{
 	    for ( int j=ii; j<=i-1; j++ )
 	    {
-		sum -= croutsmatrix.getVal(i,j)*x[j];
+		sum -= croutsmatrix.get(i,j)*x[j];
 	    }
 	}
 	else if ( !mIS_ZERO(sum) )
@@ -188,9 +181,9 @@ void LinSolver<T>::apply( const T* b, T* x ) const
     {
 	T sum=x[i];
 	for ( int j=i+1; j<n; j++ )
-	    sum -= croutsmatrix.getVal(i,j)*x[j];
+	    sum -= croutsmatrix.get(i,j)*x[j];
 
-	x[i]=sum/croutsmatrix.getVal(i,i);
+	x[i]=sum/croutsmatrix.get(i,i);
     }
 
 }

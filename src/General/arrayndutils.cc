@@ -6,48 +6,13 @@
 
 #include <arrayndutils.h>
 
-ArrayNDIter::ArrayNDIter( const ArrayNDSize& sz_ )
-    : sz ( sz_ )
-    , position( sz_.getNDim(), 0 )
-{ }
-
-bool ArrayNDIter::next()
-{
-    return inc( position.size() - 1 );
-}
-
-
-int ArrayNDIter::operator[](int dim) const
-{
-    return position[dim];
-}
-
-
-bool ArrayNDIter::inc( int dim )
-{
-    position[dim] ++;
-
-    if ( position[dim] >= sz.getSize(dim))
-    {
-	if ( dim )
-	{
-	    position[dim] = 0;
-	    return inc( dim-1 );
-	}
-	else
-	    return false;
-    }
-
-    return true;
-}
-	    
 
 DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")
 { "Box", "Hamming", "Hanning", "Blackman", "Barlett",
   "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
 
-ArrayNDWindow::ArrayNDWindow( const ArrayNDSize& sz_,
+ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz_,
 				ArrayNDWindow::WindowType type_ )
     : size ( sz_ )
     , type ( type_ )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.4 2000-06-23 14:09:46 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.5 2000-12-11 10:19:31 dgb Exp $
 ________________________________________________________________________
 
 */
@@ -15,265 +15,229 @@ ________________________________________________________________________
 #include <databuf.h> 
 #include <arraynd.h>
 
-class Array1DSizeImpl : public Array1DSize
-{
-public:
 
-    Array1DSizeImpl*	clone() const	{ return new Array1DSizeImpl(*this); }
-
-			Array1DSizeImpl(int nsz=0); 
-			Array1DSizeImpl(const Array1DSize&);
-
-    int         	getSize(int dim) const; 
-    bool        	setSize(int dim,int nsz);
-
-    unsigned long 	getArrayPos(const TypeSet<int>&) const;
-    bool          	validPos(const TypeSet<int>&) const;
-    
-    unsigned long	getArrayPos(int) const;
-    bool		validPos( int p ) const
-			{ return p < 0 || p >= sz ? NO : YES; }
-
-protected:
-
-    int			sz;
-
-};
-
-
-class Array2DSizeImpl : public Array2DSize
-{
-public:
-
-    Array2DSizeImpl*	clone() const	{ return new Array2DSizeImpl(*this); }
-
-                        Array2DSizeImpl(int sz0=0, int sz1=0);
-			Array2DSizeImpl(const Array2DSize&);
-
-    int                 getSize(int dim) const;
-    bool                setSize(int dim,int nsz);
-
-    unsigned long       getArrayPos(const TypeSet<int>&) const;
-    unsigned long	getArrayPos(int,int) const; 
-
-    bool                validPos(const TypeSet<int>&) const;
-    bool                validPos(int,int) const;
-
-
-protected:
-
-    int                 sz[2];
-
-    unsigned long       calcTotalSz() const;
-
-};
-
-
-class Array3DSizeImpl : public Array3DSize
-{
-public:
-
-    Array3DSizeImpl*	clone() const	{ return new Array3DSizeImpl(*this); }
-
-                        Array3DSizeImpl(int sz0=0, int sz1=0, int sz2=0);
-                        Array3DSizeImpl(const Array3DSize&);
-
-    int                 getSize(int dim) const; 
-    bool                setSize(int dim,int nsz);
-
-    unsigned long       getArrayPos(const TypeSet<int>&) const;
-    unsigned long       getArrayPos(int,int,int) const; 
-
-    bool                validPos(const TypeSet<int>&) const;
-    bool                validPos(int,int,int) const;
-
-protected:
-
-    int                 sz[3];
-
-    unsigned long       calcTotalSz() const;
-
-};  
-
-
-class ArrayNDSizeImpl : public ArrayNDSize
-{
-public:
-
-    ArrayNDSizeImpl*	clone() const	{ return new ArrayNDSizeImpl(*this); }
-
-                        ArrayNDSizeImpl(int ndim);
-			ArrayNDSizeImpl(const ArrayNDSize&);
-                        ArrayNDSizeImpl(const ArrayNDSizeImpl&);
-
-			~ArrayNDSizeImpl();
-
-    int                 getNDim() const;
-    int                 getSize(int dim) const;
-    bool                setSize(int dim,int nsz);
-
-    unsigned long       getArrayPos(const TypeSet<int>&) const;
-    bool                validPos(const TypeSet<int>&) const;
-
-protected:
-
-    TypeSet<int>&	sizes;
-
-    unsigned long       calcTotalSz() const;
-
-};
-
-
-template <class Type> class Array1DImpl : public Array1D<Type>
+template <class T> class Array1DImpl : public Array1D<T>
 {
 public:
 			Array1DImpl(int nsz)
-			: sz(nsz)
-			, dbuf(sz.getTotalSz(), sizeof(Type), NO)    {}
+			    : in(nsz)
+			    , dbuf(in.getTotalSz(), sizeof(T), false)    {}
+			Array1DImpl(const Array1D<T>& templ)
+			    : in(templ.info()) 
+			    , dbuf(in.getTotalSz(), sizeof(T), false)
+			{
+			    int nr = in.getTotalSz();
 
-    virtual Type	getValOff( unsigned off ) const
-			{ return *(((Type*) dbuf.data)+off); }
+			    if ( templ.getData() )
+				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+			    else
+				for ( int idx=0; idx<nr; idx++ )
+				    set(idx, templ.get(idx));
+			}
 
-    virtual void	setValOff( unsigned off, Type val )
-			{ *(((Type*) dbuf.data)+off) = val; }
+    virtual void	set( int pos, T v ) { *(((T*) dbuf.data)+pos) = v; }
+    virtual T		get( int pos ) const {return *(((T*)dbuf.data)+pos);}
+			
 
-    Type*               getData() const
-                            { return (Type*)dbuf.data; } 
-    const Array1DSize&  size() const
-                            { return sz; }
+    T*			getData() const { return (T*)dbuf.data; } 
+    const Array1DInfo&  info() const { return in; }
 
     void		setSize( int s )
-			{ sz.setSize(0,s); dbuf.reSize(sz.getTotalSz()); }
+			{ in.setSize(0,s); dbuf.reSize(in.getTotalSz()); }
 
 protected:
 
     // Don't change the order of these attributes!
-    Array1DSizeImpl	sz;
+    Array1DInfoImpl	in;
     DataBuffer 		dbuf;
-
 };
 
 
-template <class Type> class Array2DImpl : public Array2D<Type>
+template <class T> class Array2DImpl : public Array2D<T>
 {
 public:
 			Array2DImpl(int sz0, int sz1)
- 			: sz(sz0,sz1)
-                        , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {}
-                        Array2DImpl( const Array2DSize& nsz )
-                        : sz( nsz )
-                        , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {} 
+			    : in(sz0,sz1)
+			    , dbuf(in.getTotalSz(),sizeof(T),false)    {}
+			Array2DImpl( const Array2DInfo& nsz )
+			    : in( nsz )
+			    , dbuf(in.getTotalSz(),sizeof(T),false)    {} 
+			Array2DImpl( const Array2D& templ )
+			    : in( templ.info() )
+			    , dbuf(in.getTotalSz(),sizeof(T),false)
+			{
+			    if ( templ.getData() )
+			    {
+				int nr = in.getTotalSz();
+				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+			    }
+			    else
+			    {
+				int sz0 = in.getSize(0);
+				int sz1 = in.getSize(1);
 
-    virtual Type	getValOff( unsigned off ) const
-			{ return *(((Type*) dbuf.data)+off); }
+				for ( int id0=0; id0<sz0; id0++ )
+				{
+				    for ( int id1=0; id1<sz1; id1++ )
+					set(id0,id1,templ.get(id0,id1));
+				}
+			    }
+			}
 
-    virtual void	setValOff( unsigned off, Type val )
-			{ *(((Type*) dbuf.data)+off) = val; }
+    virtual void	set( int p0, int p1, T v )
+			{ *(((T*) dbuf.data)+in.getArrayPos(p0,p1)) = v; }
+    virtual T		get( int p0, int p1 ) const
+			{ return *(((T*) dbuf.data)+in.getArrayPos(p0,p1)); }
 
-    Type*               getData() const
-                            { return (Type*)dbuf.data; }
-    virtual int		getStorageDim() const			{ return 1; }
-    Type*		getStorage( int idx ) const
-			{ return getData()+sz.getArrayPos(idx,0); }
-
-    const Array2DSize&  size() const
-                            { return sz; }
+    T*			getData() const { return (T*)dbuf.data; }
+    const Array2DInfo&  info() const { return in; }
 
     void		setSize( int d0, int d1 )
-			{ sz.setSize(0,d0); sz.setSize(1,d1);
-			  dbuf.reSize(sz.getTotalSz()); }
+			{
+			    in.setSize(0,d0);
+			    in.setSize(1,d1);
+			    dbuf.reSize(in.getTotalSz());
+			}
 
 protected:
 
     // Don't change the order of these attributes!
-    Array2DSizeImpl	sz;	
+    Array2DInfoImpl	in;	
     DataBuffer		dbuf;
 
 };
 
 
-template <class Type> class Array3DImpl : public Array3D<Type>
+template <class T> class Array3DImpl : public Array3D<T>
 {
 public:
-                        Array3DImpl( int sz0, int sz1, int sz2 )
-                        : sz(sz0,sz1,sz2)
-                        , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {}
-                        Array3DImpl( const Array3DSize& nsz )
-                        : sz(nsz)
-                        , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {}
+			Array3DImpl( int sz0, int sz1, int sz2 )
+			    : in(sz0,sz1,sz2)
+			    , dbuf(in.getTotalSz(),sizeof(T),false)    {}
+			Array3DImpl( const Array3DInfo& nsz )
+			    : in(nsz)
+			    , dbuf(in.getTotalSz(),sizeof(T),false)    {}
+			Array3DImpl( const Array3D& templ )
+			    : in( templ.info() )
+			    , dbuf(in.getTotalSz(),sizeof(T),false)
+			{
+			    if ( templ.getData() )
+			    {
+				int nr = in.getTotalSz();
+				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+			    }
+			    else
+			    {
+				int sz0 = in.getSize(0);
+				int sz1 = in.getSize(1);
+				int sz2 = in.getSize(2);
 
-    virtual Type	getValOff( unsigned off ) const
-			{ return *(((Type*) dbuf.data)+off); }
+				for ( int id0=0; id0<sz0; id0++ )
+				{
+				    for ( int id1=0; id1<sz1; id1++ )
+				    {
+					for ( int id2=0; id2<sz2; id2++ )
+					    set(id0,id1,id2,
+						templ.get(id0,id1,id2));
+				    }
+				}
+			    }
+			}
 
-    virtual void	setValOff( unsigned off, Type val )
-			{ *(((Type*) dbuf.data)+off) = val; }
+    virtual void	set( int p0, int p1, int p2, T v )
+			{ *(((T*) dbuf.data)+in.getArrayPos(p0,p1,p2)) = v; }
+    virtual T		get( int p0, int p1, int p2 ) const
+			{ return *(((T*) dbuf.data)+in.getArrayPos(p0,p1,p2)); }
 
-    Type*               getData() const
-                            { return (Type*)dbuf.data; }
-    virtual int		getStorageDim() const			{ return 2; }
-    Type*		getStorage( int idx0, int idx1 ) const
-			{ return getData()+sz.getArrayPos(idx0,idx1,0); }
-    const Array3DSize&	size() const
-			    { return sz; }
+
+    T*			getData() const { return (T*)dbuf.data; }
+    const Array3DInfo&	info() const { return in; }
 
     void		setSize( int d0, int d1, int d2 )
-			{ sz.setSize(0,d0); sz.setSize(1,d1); sz.setSize(2,d2);
-			  dbuf.reSize(sz.getTotalSz()); }
+			{
+			    in.setSize(0,d0);
+			    in.setSize(1,d1);
+			    in.setSize(2,d2);
+			    dbuf.reSize(in.getTotalSz());
+			}
 protected:
 
     // Don't change the order of these attributes!
-    Array3DSizeImpl     sz;
+    Array3DInfoImpl     in;
     DataBuffer          dbuf;
 
 };
 
 
-template <class Type> class ArrayNDImpl : public ArrayND<Type>
+template <class T> class ArrayNDImpl : public ArrayND<T>
 {
 public:
-                        ArrayNDImpl( const ArrayNDSize& nsz)
-                        : sz(nsz)
-                        , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {}
+    static ArrayND<T>*	create( const ArrayNDInfo& nsz );
 
-    virtual Type	getValOff( unsigned off ) const
-			{ return *(((Type*) dbuf.data)+off); }
-
-    virtual void	setValOff( unsigned off, Type val )
-			{ *(((Type*) dbuf.data)+off) = val; }
-
-    void                setVal( const TypeSet<int>& pos, Type val )
-			    { setValOff(sz.getArrayPos(pos), val); }
-    Type                getVal( const TypeSet<int>& pos ) const
-                            { return getValOff(sz.getArrayPos(pos)); }
-
-    Type*               getData() const
-                            { return (Type*) dbuf.data; }
-    virtual int		getStorageDim() const
-			{ return sz.getNDim() - 1; }
-    virtual Type*	getStorage( const TypeSet<int>& pos ) const
+			ArrayNDImpl( const ArrayNDInfo& nsz)
+			    : in(nsz.clone())
+			    , dbuf(nsz.getTotalSz(),sizeof(T),false)	{}
+			ArrayNDImpl( const ArrayND<T>& templ)
+			    : in(templ.info().clone())
+			    , dbuf(in->getTotalSz(),sizeof(T),false)
 			{
-			    TypeSet<int> p = pos;
-			    while ( p.size() < sz.getNDim() ) p += 0;
-			    p[sz.getNDim()-1] = 0;
-			    return getData()+sz.getArrayPos(p);
+			    if ( templ.getData() )
+			    {
+				int nr = in.getTotalSz();
+				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+			    }
+			    else
+			    {
+				ArrayNDIter iter( *in );
+
+				do
+				{
+				    set(iter.getPos(), templ.get(iter.getPos));
+				} while ( next() );
+			    }
 			}
-    const ArrayNDSize&	size() const
-			    { return sz; }
 
-    void		setSize( const TypeSet<int> d )
+			~ArrayNDImpl()
+			{ delete in; }
+
+    virtual void	set( const int* pos, T v )
+			{ *(((T*) dbuf.data)+in->getArrayPos(pos)) = v; }
+    virtual T		get( const int* pos ) const
+			{ return *(((T*) dbuf.data)+in->getArrayPos(pos)); }
+
+
+    T*			getData() const { return (T*) dbuf.data; }
+    const ArrayNDInfo&	info() const { return *in; }
+
+    void		setSize( const int* d )
 			{
-			    int ndim = sz.getNDim();
+			    int ndim = in->getNDim();
 			    for ( int idx=0; idx<ndim; idx++ )
-				{ if ( idx<d.size() ) sz.setDim(idx,d[idx]); }
-			    dbuf.reSize(sz.getTotalSz());
+			    { in->setSize(idx,d[idx]); }
+			    dbuf.reSize(in->getTotalSz());
 			}
 
 protected:
 
     // Don't change the order of these attributes!
-    ArrayNDSizeImpl     sz;
+    ArrayNDInfo*	in;
     DataBuffer          dbuf;
 
 }; 
+
+
+template <class T> inline
+ArrayND<T>* ArrayNDImpl<T>::create( const ArrayNDInfo& nsz )
+{
+    int ndim = nsz.getNDim();
+
+    if ( ndim==1 ) return new Array1DImpl<T>( nsz.getSize(0));
+    if ( ndim==2 ) return new Array2DImpl<T>( nsz.getSize(0),nsz.getSize(1));
+    if ( ndim==3 ) return new Array3DImpl<T>( nsz.getSize(0),
+						 nsz.getSize(1),
+						 nsz.getSize(2));
+
+    return new ArrayNDImpl<T>( nsz );
+}
 
 #endif

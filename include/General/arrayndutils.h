@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.5 2000-11-24 10:11:54 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.6 2000-12-11 10:19:31 dgb Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include <arraynd.h>
 #include <enums.h>
 #include <databuf.h>
-#include <arrayndimpl.h>
+#include <arraynd.h>
 #include <mathfunc.h>
 #include <math.h>
 
@@ -33,52 +33,44 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
 
     T avg = 0;
 
-    if ( out_ && in->size() != out_->size() ) return false;
+    if ( out_ && in->info() != out_->info() ) return false;
 
-    const int sz = in->size().getTotalSz();
+    const int sz = in->info().getTotalSz();
 
     T* inpptr = in->getData();
-
-    for ( int idx=0; idx<sz; idx++ )
-	avg += inpptr[idx]; 
-
-    in->unlockData();
-
-    avg /= sz;
-
     T* outptr = out->getData();
 
-    for ( int idx=0; idx<sz; idx++ )
-	outptr[idx] = inpptr[idx] - avg;
+    if ( inpptr && outptr )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	    avg += inpptr[idx]; 
 
-    out->dataUpdated();
-    out->unlockData();
+	avg /= sz;
+
+	for ( int idx=0; idx<sz; idx++ )
+	    outptr[idx] = inpptr[idx] - avg;
+    }
+    else
+    {
+	ArrayNDIter iter( in->info() );
+
+	do
+	{
+	    avg += in->get( iter.getPos() );
+	} while ( iter.next() );
+
+	iter.reset();
+	avg /= sz;
+
+	do
+	{
+	    out->set(iter.getPos(), in->get( iter.getPos() ) - avg); 
+
+	} while ( iter.next() );
+    }
 
     return true;
 }
-
-/* ArrayNDIter is an object that is able to iterate through all samples in a 
-   ArrayND. It will stand on the first position when initiated, and move to
-   the second at the fist call to next(). next() will return false when
-   no more positions are avaliable
-*/
-
-class ArrayNDIter
-{
-public:
-				ArrayNDIter( const ArrayNDSize& );
-
-    bool			next();
-
-    const TypeSet<int>&		getPos() const { return position; }
-    int				operator[](int) const;
-
-protected:
-    bool			inc(int);
-
-    TypeSet<int>		position;
-    const ArrayNDSize&		sz;
-};
 
 /* ArrayNDWindow will taper the N-dimentional ArrayND with a windowFunction.
    Usage is straightforwar- construct and use. If apply()'s second argument is
@@ -95,7 +87,7 @@ public:
 			 CosTaper10, CosTaper20 };
 			DeclareEnumUtils(WindowType);
 
-			ArrayNDWindow( const ArrayNDSize&,
+			ArrayNDWindow( const ArrayNDInfo&,
 					ArrayNDWindow::WindowType = Hamming );
 
 			~ArrayNDWindow();
@@ -103,7 +95,7 @@ public:
     bool		setType( ArrayNDWindow::WindowType );
     bool		setType( const char* );
 
-    bool		resize( const ArrayNDSize& );
+    bool		resize( const ArrayNDInfo& );
 
     template <class Type> bool	apply(  ArrayND<Type>* in,
 					ArrayND<Type>* out=0) const;
@@ -111,7 +103,7 @@ public:
 protected:
 
     DataBuffer*			window;
-    ArrayNDSizeImpl		size;
+    ArrayNDInfoImpl		size;
     WindowType			type;
 
     bool			buildWindow( );
@@ -204,24 +196,37 @@ inline bool ArrayNDWindow::apply( ArrayND<Type>* in, ArrayND<Type>* out_) const
 {
     ArrayND<Type>* out = out_ ? out_ : in; 
 
-    if ( out_ && in->size() != out_->size() ) return false;
+    if ( out_ && in->info() != out_->info() ) return false;
 
-    if ( in->size() != size) return false;
+    if ( in->info() != size) return false;
 
     unsigned long totalSz = size.getTotalSz();
 
-    Type* inData = in->getData();
-    Type* outData = out->getData();
+    Type* indata = in->getData();
+    Type* outdata = out->getData();
 
     int bytesPerSample = window->bytesPerSample();
 
-    for(unsigned long idx = 0; idx < totalSz; idx++)
-        outData[idx] = inData[idx] *
-                *((float*)(window->data+bytesPerSample*idx ));
+    if ( indata && outdata )
+    {
+	for(unsigned long idx = 0; idx < totalSz; idx++)
+	    outdata[idx] = indata[idx] *
+		    *((float*)(window->data+bytesPerSample*idx ));
+    }
+    else
+    {
+	ArrayNDIter iter( size );
 
-    out->dataUpdated();
-    out->unlockData();
-    in->unlockData();
+	int idx = 0;
+	
+	do
+	{
+	    out->set(iter.getPos(), in->get( iter.getPos() ) * 
+		    *((float*)(window->data+bytesPerSample*idx )));
+	    idx++;
+
+	} while ( iter.next() );
+    }
 
     return true;
 }
@@ -231,7 +236,7 @@ inline T Array3DInterpolate( const Array3D<T>& array,
 		      float p0, float p1, float p2,
 		      bool posperiodic = false )
 {
-    const Array3DSize& size = array.size();
+    const Array3DInfo& size = array.info();
 
     int intpos0 = mNINT( p0 );
     float dist0 = p0 - intpos0;
@@ -276,14 +281,14 @@ inline T Array3DInterpolate( const Array3D<T>& array,
 			 !prevpos2 || prevpos2 > size.getSize(2) -3 ))
     {
 	return linearInterpolate3D(
-            array.getVal( prevpos0  , prevpos1  , prevpos2  ),
-	    array.getVal( prevpos0  , prevpos1  , prevpos2+1),
-	    array.getVal( prevpos0  , prevpos1+1, prevpos2  ),
-            array.getVal( prevpos0  , prevpos1+1, prevpos2+1),
-            array.getVal( prevpos0+1, prevpos1  , prevpos2  ),
-            array.getVal( prevpos0+1, prevpos1  , prevpos2+1),
-            array.getVal( prevpos0+1, prevpos1+1, prevpos2  ),
-            array.getVal( prevpos0+1, prevpos1+1, prevpos2+1),
+            array.get( prevpos0  , prevpos1  , prevpos2  ),
+	    array.get( prevpos0  , prevpos1  , prevpos2+1),
+	    array.get( prevpos0  , prevpos1+1, prevpos2  ),
+            array.get( prevpos0  , prevpos1+1, prevpos2+1),
+            array.get( prevpos0+1, prevpos1  , prevpos2  ),
+            array.get( prevpos0+1, prevpos1  , prevpos2+1),
+            array.get( prevpos0+1, prevpos1+1, prevpos2  ),
+            array.get( prevpos0+1, prevpos1+1, prevpos2+1),
 	    dist0, dist1, dist2 );
     }
 
@@ -312,88 +317,88 @@ inline T Array3DInterpolate( const Array3D<T>& array,
     if ( posperiodic ) lastpos2 = dePeriodize( lastpos2, size.getSize(2) );
 
     return polyInterpolate3D (  
-            array.getVal( firstpos0  , firstpos1  , firstpos2 ),
-            array.getVal( firstpos0  , firstpos1  , prevpos2  ),
-            array.getVal( firstpos0  , firstpos1  , nextpos2  ),
-            array.getVal( firstpos0  , firstpos1  , lastpos2  ),
+            array.get( firstpos0  , firstpos1  , firstpos2 ),
+            array.get( firstpos0  , firstpos1  , prevpos2  ),
+            array.get( firstpos0  , firstpos1  , nextpos2  ),
+            array.get( firstpos0  , firstpos1  , lastpos2  ),
 
-            array.getVal( firstpos0  , prevpos1   , firstpos2 ),
-            array.getVal( firstpos0  , prevpos1   , prevpos2  ),
-            array.getVal( firstpos0  , prevpos1   , nextpos2  ),
-            array.getVal( firstpos0  , prevpos1   , lastpos2  ),
+            array.get( firstpos0  , prevpos1   , firstpos2 ),
+            array.get( firstpos0  , prevpos1   , prevpos2  ),
+            array.get( firstpos0  , prevpos1   , nextpos2  ),
+            array.get( firstpos0  , prevpos1   , lastpos2  ),
 
-            array.getVal( firstpos0  , nextpos1   , firstpos2 ),
-            array.getVal( firstpos0  , nextpos1   , prevpos2  ),
-            array.getVal( firstpos0  , nextpos1   , nextpos2  ),
-            array.getVal( firstpos0  , nextpos1   , lastpos2  ),
+            array.get( firstpos0  , nextpos1   , firstpos2 ),
+            array.get( firstpos0  , nextpos1   , prevpos2  ),
+            array.get( firstpos0  , nextpos1   , nextpos2  ),
+            array.get( firstpos0  , nextpos1   , lastpos2  ),
 
-            array.getVal( firstpos0  , lastpos1   , firstpos2 ),
-            array.getVal( firstpos0  , lastpos1   , prevpos2  ),
-            array.getVal( firstpos0  , lastpos1   , nextpos2  ),
-            array.getVal( firstpos0  , lastpos1   , lastpos2  ),
-
-
-            array.getVal( prevpos0  , firstpos1  , firstpos2 ),
-            array.getVal( prevpos0  , firstpos1  , prevpos2  ),
-            array.getVal( prevpos0  , firstpos1  , nextpos2  ),
-            array.getVal( prevpos0  , firstpos1  , lastpos2  ),
-
-            array.getVal( prevpos0  , prevpos1   , firstpos2 ),
-            array.getVal( prevpos0  , prevpos1   , prevpos2  ),
-            array.getVal( prevpos0  , prevpos1   , nextpos2  ),
-            array.getVal( prevpos0  , prevpos1   , lastpos2  ),
-
-            array.getVal( prevpos0  , nextpos1   , firstpos2 ),
-            array.getVal( prevpos0  , nextpos1   , prevpos2  ),
-            array.getVal( prevpos0  , nextpos1   , nextpos2  ),
-            array.getVal( prevpos0  , nextpos1   , lastpos2  ),
-
-            array.getVal( prevpos0  , lastpos1   , firstpos2 ),
-            array.getVal( prevpos0  , lastpos1   , prevpos2  ),
-            array.getVal( prevpos0  , lastpos1   , nextpos2  ),
-            array.getVal( prevpos0  , lastpos1   , lastpos2  ),
+            array.get( firstpos0  , lastpos1   , firstpos2 ),
+            array.get( firstpos0  , lastpos1   , prevpos2  ),
+            array.get( firstpos0  , lastpos1   , nextpos2  ),
+            array.get( firstpos0  , lastpos1   , lastpos2  ),
 
 
-            array.getVal( nextpos0  , firstpos1  , firstpos2 ),
-            array.getVal( nextpos0  , firstpos1  , prevpos2  ),
-            array.getVal( nextpos0  , firstpos1  , nextpos2  ),
-            array.getVal( nextpos0  , firstpos1  , lastpos2  ),
+            array.get( prevpos0  , firstpos1  , firstpos2 ),
+            array.get( prevpos0  , firstpos1  , prevpos2  ),
+            array.get( prevpos0  , firstpos1  , nextpos2  ),
+            array.get( prevpos0  , firstpos1  , lastpos2  ),
 
-            array.getVal( nextpos0  , prevpos1   , firstpos2 ),
-            array.getVal( nextpos0  , prevpos1   , prevpos2  ),
-            array.getVal( nextpos0  , prevpos1   , nextpos2  ),
-            array.getVal( nextpos0  , prevpos1   , lastpos2  ),
+            array.get( prevpos0  , prevpos1   , firstpos2 ),
+            array.get( prevpos0  , prevpos1   , prevpos2  ),
+            array.get( prevpos0  , prevpos1   , nextpos2  ),
+            array.get( prevpos0  , prevpos1   , lastpos2  ),
 
-            array.getVal( nextpos0  , nextpos1   , firstpos2 ),
-            array.getVal( nextpos0  , nextpos1   , prevpos2  ),
-            array.getVal( nextpos0  , nextpos1   , nextpos2  ),
-            array.getVal( nextpos0  , nextpos1   , lastpos2  ),
+            array.get( prevpos0  , nextpos1   , firstpos2 ),
+            array.get( prevpos0  , nextpos1   , prevpos2  ),
+            array.get( prevpos0  , nextpos1   , nextpos2  ),
+            array.get( prevpos0  , nextpos1   , lastpos2  ),
 
-            array.getVal( nextpos0  , lastpos1   , firstpos2 ),
-            array.getVal( nextpos0  , lastpos1   , prevpos2  ),
-            array.getVal( nextpos0  , lastpos1   , nextpos2  ),
-            array.getVal( nextpos0  , lastpos1   , lastpos2  ),
+            array.get( prevpos0  , lastpos1   , firstpos2 ),
+            array.get( prevpos0  , lastpos1   , prevpos2  ),
+            array.get( prevpos0  , lastpos1   , nextpos2  ),
+            array.get( prevpos0  , lastpos1   , lastpos2  ),
 
 
-            array.getVal( lastpos0  , firstpos1  , firstpos2 ),
-            array.getVal( lastpos0  , firstpos1  , prevpos2  ),
-            array.getVal( lastpos0  , firstpos1  , nextpos2  ),
-            array.getVal( lastpos0  , firstpos1  , lastpos2  ),
+            array.get( nextpos0  , firstpos1  , firstpos2 ),
+            array.get( nextpos0  , firstpos1  , prevpos2  ),
+            array.get( nextpos0  , firstpos1  , nextpos2  ),
+            array.get( nextpos0  , firstpos1  , lastpos2  ),
 
-            array.getVal( lastpos0  , prevpos1   , firstpos2 ),
-            array.getVal( lastpos0  , prevpos1   , prevpos2  ),
-            array.getVal( lastpos0  , prevpos1   , nextpos2  ),
-            array.getVal( lastpos0  , prevpos1   , lastpos2  ),
+            array.get( nextpos0  , prevpos1   , firstpos2 ),
+            array.get( nextpos0  , prevpos1   , prevpos2  ),
+            array.get( nextpos0  , prevpos1   , nextpos2  ),
+            array.get( nextpos0  , prevpos1   , lastpos2  ),
 
-            array.getVal( lastpos0  , nextpos1   , firstpos2 ),
-            array.getVal( lastpos0  , nextpos1   , prevpos2  ),
-            array.getVal( lastpos0  , nextpos1   , nextpos2  ),
-            array.getVal( lastpos0  , nextpos1   , lastpos2  ),
+            array.get( nextpos0  , nextpos1   , firstpos2 ),
+            array.get( nextpos0  , nextpos1   , prevpos2  ),
+            array.get( nextpos0  , nextpos1   , nextpos2  ),
+            array.get( nextpos0  , nextpos1   , lastpos2  ),
 
-            array.getVal( lastpos0  , lastpos1   , firstpos2 ),
-            array.getVal( lastpos0  , lastpos1   , prevpos2  ),
-            array.getVal( lastpos0  , lastpos1   , nextpos2  ),
-            array.getVal( lastpos0  , lastpos1   , lastpos2  ),
+            array.get( nextpos0  , lastpos1   , firstpos2 ),
+            array.get( nextpos0  , lastpos1   , prevpos2  ),
+            array.get( nextpos0  , lastpos1   , nextpos2  ),
+            array.get( nextpos0  , lastpos1   , lastpos2  ),
+
+
+            array.get( lastpos0  , firstpos1  , firstpos2 ),
+            array.get( lastpos0  , firstpos1  , prevpos2  ),
+            array.get( lastpos0  , firstpos1  , nextpos2  ),
+            array.get( lastpos0  , firstpos1  , lastpos2  ),
+
+            array.get( lastpos0  , prevpos1   , firstpos2 ),
+            array.get( lastpos0  , prevpos1   , prevpos2  ),
+            array.get( lastpos0  , prevpos1   , nextpos2  ),
+            array.get( lastpos0  , prevpos1   , lastpos2  ),
+
+            array.get( lastpos0  , nextpos1   , firstpos2 ),
+            array.get( lastpos0  , nextpos1   , prevpos2  ),
+            array.get( lastpos0  , nextpos1   , nextpos2  ),
+            array.get( lastpos0  , nextpos1   , lastpos2  ),
+
+            array.get( lastpos0  , lastpos1   , firstpos2 ),
+            array.get( lastpos0  , lastpos1   , prevpos2  ),
+            array.get( lastpos0  , lastpos1   , nextpos2  ),
+            array.get( lastpos0  , lastpos1   , lastpos2  ),
 	    dist0, dist1, dist2 );
 } 
 
@@ -403,11 +408,11 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
 		   const TypeSet<int>& copypos,
 		   bool srcperiodic=false )
 {
-    const ArrayNDSize& destsz = dest.size(); 
-    const ArrayNDSize& srcsz = src.size(); 
+    const ArrayNDInfo& destsz = dest.info(); 
+    const ArrayNDInfo& srcsz = src.info(); 
 
     const int ndim = destsz.getNDim();
-    if ( ndim != srcsz.getNDim() || ndim != copypos.size() ) return false;
+    if ( ndim != srcsz.getNDim() || ndim != copypos.info() ) return false;
 
     for ( int idx=0; idx<ndim; idx++ )
     {
@@ -429,7 +434,7 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
 		    dePeriodize( srcposition[idx], srcsz.getSize(idx) );
 	}
 
-	dest.setVal( destposition.getPos(), src.getVal( srcposition ) );
+	dest( destposition.getPos()) = src.get( srcposition );
 		
     } while ( destposition.next() );
 
@@ -442,8 +447,8 @@ inline bool Array3DCopy( Array3D<T>& dest, const Array3D<T>& src,
 		   int p0, int p1, int p2,
 		   bool srcperiodic=false )
 {
-    const ArrayNDSize& destsz = dest.size(); 
-    const ArrayNDSize& srcsz = src.size(); 
+    const ArrayNDInfo& destsz = dest.info(); 
+    const ArrayNDInfo& srcsz = src.info(); 
 
     const int destsz0 = destsz.getSize(0);
     const int destsz1 = destsz.getSize(1);
@@ -470,7 +475,7 @@ inline bool Array3DCopy( Array3D<T>& dest, const Array3D<T>& src,
 	{
 	    for ( int id2=0; id2<destsz2; id2++ )
 	    {
-		ptr[idx++] = src.getVal( dePeriodize(id0 + p0, srcsz0),
+		ptr[idx++] = src.get( dePeriodize(id0 + p0, srcsz0),
 					 dePeriodize(id1 + p1, srcsz1), 
 					 dePeriodize(id2 + p2, srcsz2));
 
@@ -486,11 +491,11 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
 		   const TypeSet<int>& pastepos,
 		   bool destperiodic=false )
 {
-    const ArrayNDSize& destsz = dest.size(); 
-    const ArrayNDSize& srcsz = src.size(); 
+    const ArrayNDInfo& destsz = dest.info(); 
+    const ArrayNDInfo& srcsz = src.info(); 
 
     const int ndim = destsz.getNDim();
-    if ( ndim != srcsz.getNDim() || ndim != pastepos.size() ) return false;
+    if ( ndim != srcsz.getNDim() || ndim != pastepos.info() ) return false;
 
     for ( int idx=0; idx<ndim; idx++ )
     {
@@ -515,7 +520,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
 		    dePeriodize( destposition[idx], destsz.getSize(idx) );
 	}
 
-	dest.setVal( destposition, ptr[ptrpos++] );
+	dest( destposition ) =  ptr[ptrpos++];
 		
     } while ( srcposition.next() );
 
@@ -528,8 +533,8 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 		   int p0, int p1, int p2,
 		   bool destperiodic=false )
 {
-    const ArrayNDSize& destsz = dest.size(); 
-    const ArrayNDSize& srcsz = src.size(); 
+    const ArrayNDInfo& destsz = dest.info(); 
+    const ArrayNDInfo& srcsz = src.info(); 
 
     const int srcsz0 = srcsz.getSize(0);
     const int srcsz1 = srcsz.getSize(1);
@@ -549,7 +554,7 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 
 
     int idx = 0;
-    T* ptr = src.getData();
+    const T* ptr = src.getData();
 
     for ( int id0=0; id0<srcsz0; id0++ )
     {
@@ -557,9 +562,9 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 	{
 	    for ( int id2=0; id2<srcsz2; id2++ )
 	    {
-		dest.setVal( dePeriodize( id0 + p0, destsz0),
-			     dePeriodize( id1 + p1, destsz1),
-			     dePeriodize( id2 + p2, destsz2), ptr[idx++] );
+		dest.set( dePeriodize( id0 + p0, destsz0),
+		      dePeriodize( id1 + p1, destsz1),
+		      dePeriodize( id2 + p2, destsz2), ptr[idx++]);
 	    }
 	}
     }

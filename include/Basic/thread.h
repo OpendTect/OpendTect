@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.1 1999-11-16 16:05:41 kristofer Exp $
+ RCS:		$Id: thread.h,v 1.2 2000-12-11 10:19:28 dgb Exp $
 ________________________________________________________________________
 
 */
@@ -24,46 +24,125 @@ ________________________________________________________________________
 #define pthread
 #endif
 
+
 #ifdef pthread
 #include <pthread.h>
+#endif
 
-class Thread
+class BasicTask;
+
+class Threads
 {
 public:
     class Mutex
     {
     public:
-		Mutex()
-		{ pthread_mutex_init( &mutex, &attr );}
-		~Mutex() { pthread_mutex_destroy( &mutex ); }
+					Mutex();
+					~Mutex();	
+	int				lock();
+	int				unlock();
 
-	int	lock() { return pthread_mutex_lock( &mutex ); }
-	int	unlock() { return pthread_mutex_unlock( &mutex ); }
 
-protected:
-	pthread_mutex_t mutex;	
-	pthread_mutexattr_t attr;
-
-    };
-
-    class MutexLocker
-    {
-    public:
-				MutexLocker( Thread::Mutex& mutex_ )
-				: mutex( mutex_ )
-				{ mutex.lock(); }
-
-				~MutexLocker()
-				{ mutex.unlock(); }
+	class Locker
+	{
+	public:
+					Locker( Threads::Mutex& mutex_ );
+					~Locker();
+	protected:
+	    Threads::Mutex&		mutex;
+	};
 
     protected:
-	Thread::Mutex&		mutex;
-    };
-};
 
+#ifdef pthread
+        pthread_mutex_t 		mutex;
+        pthread_mutexattr_t 		attr;
 #endif
 
-// Place other non-pthread platforms here
+    };
+
+    class ConditionVar : public Threads::Mutex
+    {
+    public:
+					ConditionVar();
+					~ConditionVar();
+	int				wait();
+
+	int				unlock(bool);
+	int				unlock();
+	int 				signal(bool);
+
+    protected:
+#ifdef pthread
+	pthread_cond_t			cond;
+	pthread_condattr_t		condattr;
+#endif
+    };
+
+    class Thread
+    {
+    public:
+	bool				setFunction(void (*)(void*));
+	int				start();
+	void				stop(); 
+					// Signals the thread to end and
+					// waits until the thread does
+					// an threadExit().
+
+					Thread();
+					~Thread();
+
+	static void			threadExit( void* =0 );
+					// Should only be called by the 
+					// running thread
+
+	bool				exitflag;
+	ConditionVar			exitcond;
+    private:
+	void*				func;
+#ifdef pthread
+	pthread_t			id;
+#endif
+
+	void*				ret_val;
+
+	bool				is_running;
+	int				join();
+
+    };
+					
+
+    class TaskRunner
+    {
+    public:
+	enum			Status { Idle, Running, Stopped, Finished };
+	Status			status() const;
+	bool			setTask( BasicTask* );
+
+	bool			start();
+	bool			stop();
+
+	int			getLastVal() const { return data.lastval; }
+
+				TaskRunner();
+				~TaskRunner();
+
+	class Data : public Thread
+	{
+	public:
+	    bool		stopflag;
+	    BasicTask*		task;
+	    int 		lastval;
+	    Status		stat;
+	};
+
+	Data*			getData();
+
+    protected:
+	static void		threadFunc(void*);
+	Data			data;
+    };
+};
 
 #endif
 

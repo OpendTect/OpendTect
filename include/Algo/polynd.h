@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: polynd.h,v 1.1 2000-03-22 13:41:01 bert Exp $
+ RCS:           $Id: polynd.h,v 1.2 2000-12-11 10:19:32 dgb Exp $
 ________________________________________________________________________
 
 PolynomialND is a N-dimensional polynomial with arbitary orders in each
@@ -26,16 +26,16 @@ template <class T>
 class PolynomialND
 {
 public:
-    			PolynomialND( const ArrayNDSize& );
+    			PolynomialND( const ArrayNDInfo& );
     			~PolynomialND( );
 
     bool		fit( const ArrayND<T>& );
 
-    void		setCoeff( TypeSet<int>& pos, T val )
-			{ coeffs.setVal( pos, val ); }
+    void		setCoeff( const int* pos, T val )
+			{ coeffs(pos) = val; }
 
-    T			getCoeff( TypeSet<int>& pos ) const
-			{ return coeffs.getVal( pos ); }
+    T			getCoeff( const int* pos ) const
+			{ return coeffs.get( pos ); }
 
     T			getValue( const TypeSet<float>& ) const;
     T			getValue3D( float x0, float x1, float x2 ) const;
@@ -47,7 +47,7 @@ protected:
 
 
 template <class T>
-PolynomialND<T>::PolynomialND( const ArrayNDSize& size_ )
+PolynomialND<T>::PolynomialND( const ArrayNDInfo& size_ )
     : coeffs( size_ )
     , solver( 0 )
 {}
@@ -61,9 +61,9 @@ PolynomialND<T>::~PolynomialND( )
 template <class T> inline
 T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
 {
-    ArrayNDIter coeffiter( coeffs.size() );
+    ArrayNDIter coeffiter( coeffs.info() );
 
-    const int ndim = coeffs.size().getNDim();
+    const int ndim = coeffs.info().getNDim();
 
     T res = 0;
 
@@ -76,7 +76,7 @@ T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
 	    posproduct *= intpow( pos[idx], coeffiter[idx] );
 	}
      
-	res += posproduct * coeffs.getVal( coeffiter.getPos() );
+	res += posproduct * coeffs.get( coeffiter.getPos() );
     } while ( coeffiter.next() );
 
     return res;
@@ -85,7 +85,7 @@ T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
 template <class T> inline
 T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 {
-    const ArrayNDSize& size = coeffs.size();
+    const ArrayNDInfo& size = coeffs.info();
     if ( size.getNDim() != 3 || size.getTotalSz() != 64 )
     {
 	TypeSet<float> pos( 3 );
@@ -185,7 +185,6 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 		ptr[62] * p0_3 * p1_3 * p2_2 +
 		ptr[63] * p0_3 * p1_3 * p2_3;
 
-    coeffs.unlockData();
     return res;
 }
 
@@ -193,7 +192,7 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 template<class T>
 bool PolynomialND<T>::fit( const ArrayND<T>& input )
 {
-    const int totalsz = input.size().getTotalSz();
+    const int totalsz = input.info().getTotalSz();
 
     if ( !solver || solver->size() != totalsz )
     {
@@ -201,13 +200,13 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 
 	Array2DImpl<T> poscoeffs(totalsz,totalsz);
 
-	ArrayNDIter positer( input.size() );
-	const int ndim = input.size().getNDim();
+	ArrayNDIter positer( input.info() );
+	const int ndim = input.info().getNDim();
 	int row = 0; 
 	do
 	{
 	    int col = 0;	
-	    ArrayNDIter powiter( input.size() );
+	    ArrayNDIter powiter( input.info() );
 	
 	    do
 	    {
@@ -217,7 +216,7 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
 		    coeff *= intpow( positer[idx], powiter[idx] );
 		}
 	    
-		poscoeffs.setVal(row,col, coeff);
+		poscoeffs.set(row,col, coeff);
 		col++;
 	    } while ( powiter.next() );
 
@@ -230,10 +229,6 @@ bool PolynomialND<T>::fit( const ArrayND<T>& input )
     }
 
     solver->apply( input.getData(), coeffs.getData() );
-
-    coeffs.dataUpdated();
-    input.unlockData();
-    coeffs.unlockData();
 
     return true;
 }
