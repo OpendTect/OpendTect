@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.198 2004-05-03 16:04:43 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.199 2004-05-03 18:50:06 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -962,6 +962,8 @@ void uiVisPartServer::setUpConnections( int id )
     uiVisMenu* menu = getMenu(id,true);
     menu->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+    if ( so && so->rightClickNotifier() )
+       so->rightClickNotifier()->notify(mCB(this,uiVisPartServer,rightClickCB));
 }
 
 
@@ -977,7 +979,19 @@ void uiVisPartServer::removeConnections( int id )
     menus.remove(mnufactidx);
     menu->createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
     menu->handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
+    if ( so && so->rightClickNotifier() )
+       so->rightClickNotifier()->remove(mCB(this,uiVisPartServer,rightClickCB));
     menu->unRef();
+}
+
+
+void uiVisPartServer::rightClickCB( CallBacker* cb )
+{
+    const int selobjid = getSelObjectId();
+    if ( selobjid==-1 )
+	return;
+
+    showMenu( selobjid );
 }
 
 
