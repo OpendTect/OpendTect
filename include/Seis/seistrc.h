@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.2 2000-03-02 15:25:36 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.3 2000-07-15 15:23:59 bert Exp $
 ________________________________________________________________________
 
 A trace is composed of trace info and trace data.
@@ -30,9 +30,9 @@ public:
 
     virtual SeisTrc*	getNew() const		= 0;
     SeisTrc*		clone() const
-			{ SeisTrc* t = getNew(); t->copy(*this); return t; }
+			{ SeisTrc* t = getNew(); t->copyAll(*this); return t; }
     virtual bool	copyData(const SeisTrc&);
-    void		copy( const SeisTrc& trc )
+    void		copyAll( const SeisTrc& trc )
 			{ copyData(trc); info_ = trc.info_; }
 
     struct Event	{
@@ -55,19 +55,20 @@ public:
     int			getIndex(double) const;
     double		getX(int) const;
     float		getValue(double) const;
-    XFunctionIter*	iter(int bw=NO) const;
+    inline int		size() const		{ return data_.size(); };
+    double		step() const		{ return info().dt * 1.e-6; }
 
     SeisTrcInfo&	info()			{ return info_; }
     const SeisTrcInfo&	info() const		{ return info_; }
     SamplingData	samplingData() const;
     virtual bool	isNull() const;
+    bool		clear()			{ clearData(); return true; }
     void		clearData()		{ data_.clear(); }
     inline bool		dataPresent( float t ) const
 			{ return info_.dataPresent(t,size()); }
     void		gettr(SUsegy&) const;
     void		puttr(SUsegy&);
 
-    inline int		size() const		{ return data_.size(); };
     bool		reSize(int);
     int			bytesPerSample() const	{return data_.bytesPerSample();}
     virtual void	getPacketInfo(SeisPacketInfo&) const;
@@ -112,6 +113,7 @@ protected:
     float*		imag;
 
     void		getPreciseExtreme(Event&,int,int,float,float) const;
+    virtual XFunctionIter* mkIter(bool,bool) const;
 
 };
 

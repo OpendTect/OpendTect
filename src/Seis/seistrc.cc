@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.3 2000-03-03 15:42:40 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.4 2000-07-15 15:24:49 bert Exp $";
 
 #include "seistrc.h"
 #include "susegy.h"
@@ -145,35 +145,65 @@ SampleGate SeisTrc::sampleGate( const TimeGate& tg, int check ) const
 class SeisTrcIter : public XFunctionIter
 {
 public:
-SeisTrcIter( SeisTrc* xf, int bw ) : XFunctionIter(xf,bw)
+SeisTrcIter( SeisTrc* xf, bool bw, bool isc ) : XFunctionIter(xf,bw,isc)
 {
     reset();
 }
 
-void reset()
+inline void reset()
 {
-    idx_ = 0;
-    if ( tr()->size() ) idx_ = bw_ ? tr()->size() : 1;
+    idx_ = tr()->size();
+    if ( idx_ && !bw_ ) idx_ = 1;
 }
 
-double x() const { return tr()->info().starttime
-			+ (idx_-1)*1e-6*tr()->info().dt; }
-float y() const  { return idx_ > 0 ? (*tr())[idx_-1] : mUndefValue; }
-int next()
+inline double x() const
 {
-    if ( idx_ > 0 ) idx_ += bw_ ? -1 : 1;
-    if ( idx_ > tr()->size() ) idx_ = 0;
+    return tr()->info().starttime + (idx_-1)*1e-6*tr()->info().dt;
+}
+
+inline float y() const
+{
+    return idx_ ? (*tr())[idx_-1] : 0;
+}
+
+bool next()
+{
+    if ( !idx_ ) return false;
+
+    if ( bw_ ) idx_--;
+    else if ( ++idx_ > tr()->size() ) idx_ = 0;
+
     return idx_;
 }
 
-SeisTrc* tr() const { return (SeisTrc*)func_; }
+bool setValue( float v )
+{
+    if ( !idx_ || !canSet() ) return false;
+
+    tr()->set( idx_-1, v );
+
+    return idx_;
+}
+
+bool remove( float v )
+{
+    if ( !idx_ || !canSet() ) return false;
+
+    for ( int idx=idx_; idx<tr()->size(); idx++ )
+	tr()->set( idx-1, (*tr())[idx] );
+
+    return true;
+}
+
+inline const	SeisTrc* tr() const	{ return (SeisTrc*)func_; }
+inline		SeisTrc* tr()		{ return (SeisTrc*)func_; }
 
 };
 
 
-XFunctionIter* SeisTrc::iter( int bw ) const
+XFunctionIter* SeisTrc::mkIter( bool bw, bool isc ) const
 {
-    return new SeisTrcIter( (SeisTrc*)this, bw );
+    return new SeisTrcIter( const_cast<SeisTrc*>(this), bw, isc );
 }
 
 
