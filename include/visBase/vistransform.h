@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.8 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: vistransform.h,v 1.9 2003-09-19 09:21:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,15 @@ class Transformation : public SceneObject
 public:
     static Transformation*	create()
 				mCreateDataObj(Transformation);
+
+    void		setRotation( const Coord3& vec, float angle );
+    void		setTranslation( const Coord3& );
+    Coord3		getTranslation() const;
+
+    void		setScale( const Coord3& );
+    Coord3		getScale() const;
+
+    void		reset();
 
     void		setA( float a11, float a12, float a13, float a14,
 	    		      float a21, float a22, float a23, float a24,
