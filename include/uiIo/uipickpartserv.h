@@ -1,5 +1,5 @@
-#ifndef uiseisman_h
-#define uiseisman_h
+#ifndef uipickpartserv_h
+#define uipickpartserv_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.4 2002-03-25 16:00:24 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.5 2002-04-02 11:25:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
