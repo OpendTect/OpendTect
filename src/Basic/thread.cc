@@ -9,13 +9,12 @@ static const char* rcsID = "$Id";
 #include <thread.h>
 #include <basictask.h>
 
-/*-------------------------------------------------------------------------*/
-/* Platform dependent implementations					   */
-/*-------------------------------------------------------------------------*/
+//
+//! Platform dependent implementations
 
 Threads::Mutex::Mutex()
 {
-#ifdef pthread
+#ifdef __pthread__
     pthread_mutexattr_init( &attr );
     pthread_mutex_init( &mutex, &attr );
 #endif
@@ -23,7 +22,7 @@ Threads::Mutex::Mutex()
 
 Threads::Mutex::~Mutex()
 {
-#ifdef pthread
+#ifdef __pthread__
     pthread_mutex_destroy( &mutex );
     pthread_mutexattr_destroy( &attr );
 #endif
@@ -31,15 +30,15 @@ Threads::Mutex::~Mutex()
 
 int Threads::Mutex::lock()
 { 
-#ifdef pthread
-    return pthread_mutex_lock( &mutex ); }
+#ifdef __pthread__
+    return pthread_mutex_lock( &mutex ); 
 #endif
     return 0;
 }
 
 int Threads::Mutex::unlock()
 {
-#ifdef pthread
+#ifdef __pthread__
     return pthread_mutex_unlock( &mutex );
 #endif
     return 0;
@@ -49,7 +48,7 @@ int Threads::Mutex::unlock()
 
 Threads::ConditionVar::ConditionVar()
 {
-#ifdef pthread
+#ifdef __pthread__
     pthread_condattr_init( &condattr );
     pthread_cond_init( &cond, &condattr );
 #endif
@@ -57,7 +56,7 @@ Threads::ConditionVar::ConditionVar()
 
 Threads::ConditionVar::~ConditionVar()
 {
-#ifdef pthread
+#ifdef __pthread__
     pthread_cond_destroy( &cond );
     pthread_condattr_destroy( &condattr );
 #endif
@@ -66,7 +65,7 @@ Threads::ConditionVar::~ConditionVar()
 
 int Threads::ConditionVar::wait()
 {
-#ifdef pthread
+#ifdef __pthread__
     return pthread_cond_wait( &cond, &mutex );
 #endif
     return 0;
@@ -75,7 +74,7 @@ int Threads::ConditionVar::wait()
 
 int Threads::ConditionVar::signal(bool all)
 {
-#ifdef pthread
+#ifdef __pthread__
     return all 	? pthread_cond_broadcast( &cond )
 		: pthread_cond_signal( &cond );
 #endif
@@ -87,7 +86,7 @@ int Threads::ConditionVar::signal(bool all)
 int Threads::Thread::start()
 {
    is_running = true;
-#ifdef pthread
+#ifdef __pthread__
    return pthread_create( &id, 0, (void* (*)(void*)) func, this );
 #endif
     return 0;
@@ -96,7 +95,7 @@ int Threads::Thread::start()
 
 int Threads::Thread::join()
 {
-#ifdef pthread
+#ifdef __pthread__
     return pthread_join( id, &ret_val );
 #endif
     return 0;
@@ -105,15 +104,14 @@ int Threads::Thread::join()
 
 void Threads::Thread::threadExit( void* rv )
 {
-#ifdef pthread
+#ifdef __pthread__
     pthread_exit( rv );
 #endif
 }
 
 
-/*-------------------------------------------------------------------------*/
-/* Platform independent implementations					   */
-/*-------------------------------------------------------------------------*/
+//
+//! Platform independent implementations
 
 Threads::Mutex::Locker::Locker( Threads::Mutex& mutex_ )
     : mutex( mutex_ )
