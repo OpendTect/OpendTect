@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.4 2004-08-19 16:11:35 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.5 2004-08-23 16:12:39 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.4 2004-08-19 16:11:35 bert Ex
 #include "filegen.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "ioobj.h"
 #include "errh.h"
 
 const char* Seis2DLineGroup::sKeyAttrib = "Attribute";
@@ -41,9 +42,8 @@ class TwoDSeisTrcTranslator : public SeisTrcTranslator
 
     const char*		defExtension() const            { return "2ds"; }
     bool		implRemove(const IOObj*) const;
-    bool		implRename(const IOObj*,const char*,
-				   const CallBack* cb=0) const;
-    bool		implSetReadOnly(const IOObj*,bool) const;
+    bool		initRead_(); // supporting getRanges()
+    bool		initWrite_(const SeisTrc&)	{ return false; }
 
 };
 
@@ -52,21 +52,54 @@ defineTranslator(TwoD,SeisTrc,"2D");
 
 bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
-    return SeisTrcTranslator::implRemove(ioobj); //TODO
+    if ( !ioobj ) return true;
+    BufferString fnm( ioobj->fullUserExpr(true) );
+    Seis2DLineGroup lg( fnm );
+    const int nrlines = lg.nrLines();
+    for ( int iln=0; iln<nrlines; iln++ )
+	lg.remove( 0 );
+    File_remove( fnm, NO );
+    return true;
 }
 
 
-bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
-				   const CallBack* cb ) const
+bool TwoDSeisTrcTranslator::initRead_()
 {
-    return SeisTrcTranslator::implRename(ioobj,newnm,cb); //TODO
+    if ( !conn->ioobj )
+	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
+    BufferString fnm( conn->ioobj->fullUserExpr(true) );
+    if ( !File_exists(fnm) ) return false;
+    Seis2DLineGroup lg( fnm );
+    lg.getTxtInfo( 0, pinfo->usrinfo, pinfo->stdinfo );
+    const int nrlines = lg.nrLines();
+    if ( nrlines < 1 )
+	{ errmsg = "No lines"; return false; }
+
+    StepInterval<int> trg; StepInterval<float> zrg;
+    if ( !lg.getRanges(0,trg,zrg) )
+	{ errmsg = "No range info"; return false; }
+    StepInterval<int> newtrg; StepInterval<float> newzrg;
+    for ( int iln=1; iln<nrlines; iln++ )
+    {
+	if ( lg.getRanges(iln,newtrg,newzrg) )
+	{
+	    if ( newtrg.stop > trg.stop ) trg.stop = newtrg.stop;
+	    if ( newtrg.step < trg.step ) trg.step = newtrg.step;
+	    if ( newzrg.start < zrg.start ) zrg.start = newzrg.start;
+	    if ( newzrg.stop > zrg.stop ) zrg.stop = newzrg.stop;
+	    if ( newzrg.step < zrg.step ) zrg.step = newzrg.step;
+	}
+    }
+
+    insd.start = zrg.start;
+    insd.step = zrg.step;
+    innrsamples = (int)((zrg.stop-zrg.start) / zrg.step + 1.5);
+    pinfo->inlrg.start = pinfo->crlrg.start = 0;
+    pinfo->inlrg.stop = nrlines - 1; pinfo->crlrg.stop = trg.stop;
+    pinfo->inlrg.step = 1; pinfo->crlrg.step = trg.step;
+    return true;
 }
 
-
-bool TwoDSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
-{
-    return SeisTrcTranslator::implSetReadOnly(ioobj,yn); //TODO
-}
 
 //------
 
@@ -198,7 +231,8 @@ Seis2DLineIOProvider* Seis2DLineGroup::getLiop( const IOPar& iop ) const
 }
 
 
-Executor* Seis2DLineGroup::lineFetcher( int ipar, SeisTrcBuf& tbuf ) const
+Executor* Seis2DLineGroup::lineFetcher( int ipar, SeisTrcBuf& tbuf,
+					const SeisSelData* sd) const
 {
     Seis2DLineIOProvider* liop = getLiop( ipar );
     if ( !liop )
@@ -207,7 +241,7 @@ Executor* Seis2DLineGroup::lineFetcher( int ipar, SeisTrcBuf& tbuf ) const
 	return 0;
     }
 
-    return liop->getFetcher( *pars_[ipar], tbuf );
+    return liop->getFetcher( *pars_[ipar], tbuf, sd );
 }
 
 
@@ -245,14 +279,33 @@ bool Seis2DLineGroup::isEmpty( int ipar ) const
 }
 
 
-void Seis2DLineGroup::remove( int idx )
+void Seis2DLineGroup::remove( int ipar )
 {
-    if ( idx > pars_.size() ) return;
+    if ( ipar > pars_.size() ) return;
+    Seis2DLineIOProvider* liop = getLiop( ipar );
+    IOPar* iop = pars_[ipar];
+    if ( liop )
+	liop->removeImpl(*iop);
 
-    IOPar* iop = pars_[idx];
     pars_ -= iop;
     delete iop;
     writeFile();
+}
+
+
+bool Seis2DLineGroup::getTxtInfo( int ipar, BufferString& uinf,
+				  BufferString& stdinf ) const
+{
+    const Seis2DLineIOProvider* liop = getLiop( ipar );
+    return liop ? liop->getTxtInfo(*pars_[ipar],uinf,stdinf) : false;
+}
+
+
+bool Seis2DLineGroup::getRanges( int ipar, StepInterval<int>& sii,
+				 StepInterval<float>& sif ) const
+{
+    const Seis2DLineIOProvider* liop = getLiop( ipar );
+    return liop ? liop->getRanges(*pars_[ipar],sii,sif) : false;
 }
 
 

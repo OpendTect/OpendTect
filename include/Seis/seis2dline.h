@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.3 2004-08-18 14:32:55 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.4 2004-08-23 16:12:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class IOPar;
 class Executor;
 class SeisTrcBuf;
+class SeisSelData;
 class Seis2DLineIOProvider;
 
 
@@ -38,13 +39,20 @@ public:
     const char*		lineName(int) const;	//!< returns pars_[idx]->name()
     const char*		attribute(int) const;
 
-    Executor*		lineFetcher(int,SeisTrcBuf&) const;
+    Executor*		lineFetcher(int,SeisTrcBuf&,
+	    			    const SeisSelData* sd=0) const;
     				//!< May return null
     Executor*		lineAdder(IOPar*,const SeisTrcBuf&) const;
     				//!< May return null. If OK, call commitAdd
     void		commitAdd(IOPar*);
     				//!< Must be called after successful add
-    void		remove(int);
+    void		remove(int); //!< Also removes from disk
+
+
+    bool		getTxtInfo(int,BufferString& uinfo,
+	    			   BufferString& stdinfo) const;
+    bool		getRanges(int,StepInterval<int>& trcrg,
+	    			  StepInterval<float>& zrg) const;
 
     static const char*	sKeyAttrib;
     static const char*	sKeyDefAttrib;
@@ -74,14 +82,22 @@ public:
     virtual		~Seis2DLineIOProvider()			{}
 
     virtual bool	isEmpty(const IOPar&) const		= 0;
-    virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&)	= 0;
+    virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,
+	    			   const SeisSelData* sd=0)	= 0;
     virtual Executor*	getPutter(IOPar&,const SeisTrcBuf&,
 				  const IOPar* prev=0)		= 0;
+    virtual bool	getTxtInfo(const IOPar&,BufferString&,
+	    			   BufferString&) const		{ return false;}
+    virtual bool	getRanges(const IOPar&,StepInterval<int>&,
+	    			   StepInterval<float>&) const	{ return false;}
 
-    const BufferString	type;
     virtual bool	isUsable(const IOPar&) const;
     static const char*	sKeyType;
     static const char*	sKeyLineNr;
+
+    virtual void	removeImpl(const IOPar&) const		= 0;
+
+    const BufferString	type;
 
 protected:
 

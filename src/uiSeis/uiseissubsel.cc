@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.6 2004-08-23 09:50:12 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.7 2004-08-23 16:12:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,9 @@ uiSeisSubSel::uiSeisSubSel( uiParent* p )
     sel2d = new uiSeis2DSubSel( this );
     sel3d = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 				     .withtable(false).withz(true) );
-    setHAlignObj( sel3d );
+    sel3d->attach( alignedWith, sel2d );
+
+    setHAlignObj( sel2d );
     mainObject()->finaliseDone.notify( mCB(this,uiSeisSubSel,typChg) );
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.10 2004-08-23 09:50:12 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.11 2004-08-23 16:12:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,8 +85,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     {
 	subsel->set2D( SeisTrcTranslator::is2D(*ioobj) );
 	StepInterval<int> inlrg, crlrg; StepInterval<float> zrg;
-	if ( !uiSeisIOObjInfo(*ioobj,ctio.ctxt.forread)
-				.getRanges(inlrg,crlrg,zrg) )
+	if ( !uiSeisIOObjInfo(*ioobj,false).getRanges(inlrg,crlrg,zrg) )
 	    return;
 
 	subsel->setInput( zrg );

@@ -4,11 +4,12 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.4 2004-08-19 16:11:35 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.5 2004-08-23 16:12:39 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
 #include "seistrc.h"
+#include "seistrcsel.h"
 #include "seisbuf.h"
 #include "cbvsio.h"
 #include "executor.h"
@@ -62,6 +63,59 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
 }
 
 
+static CBVSSeisTrcTranslator* gtTransl( const char* fnm, BufferString* msg=0 )
+{
+    CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
+    tr->setSingleFile( true );
+    if ( msg ) *msg = "";
+    if ( !tr->initRead(new StreamConn(fnm,Conn::Read)) )
+    {
+	if ( msg ) *msg = tr->errMsg();
+	delete tr; tr = 0;
+    }
+    return tr;
+}
+
+
+bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOPar& iop,
+		BufferString& uinf, BufferString& stdinf ) const
+{
+    if ( !isUsable(iop) ) return true;
+
+    BufferString fnm = getCBVSFileName( iop, getLineNr(&iop) );
+    CBVSSeisTrcTranslator* tr = gtTransl( fnm );
+    if ( !tr ) return false;
+
+    const SeisPacketInfo& pinf = tr->packetInfo();
+    uinf = pinf.usrinfo;
+    stdinf = pinf.stdinfo;
+    return true;
+}
+
+
+bool SeisCBVS2DLineIOProvider::getRanges( const IOPar& iop,
+		StepInterval<int>& trcrg, StepInterval<float>& zrg ) const
+{
+    if ( !isUsable(iop) ) return true;
+
+    BufferString fnm = getCBVSFileName( iop, getLineNr(&iop) );
+    CBVSSeisTrcTranslator* tr = gtTransl( fnm );
+    if ( !tr ) return false;
+
+    const SeisPacketInfo& pinf = tr->packetInfo();
+    trcrg = pinf.crlrg; zrg = pinf.zrg;
+    return true;
+}
+
+
+void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
+{
+    if ( !isUsable(iop) ) return;
+    BufferString fnm = getCBVSFileName( iop, getLineNr(&iop) );
+    File_remove( fnm.buf(), NO );
+}
+
+
 #undef mErrRet
 #define mErrRet(s) { msg = s; return -1; }
 
@@ -69,22 +123,39 @@ class SeisCBVS2DLineGetter : public Executor
 {
 public:
 
-SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b )
+SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
     	: Executor("Load 2D line")
 	, tbuf(b)
 	, curnr(0)
 	, totnr(0)
 	, fname(fnm)
-	, tr(CBVSSeisTrcTranslator::getInstance())
 	, msg("Reading traces")
+	, seldata(0)
+	, trcstep(1)
 {
-    tr->setSingleFile( true );
+    tr = gtTransl( fname, &msg );
+    if ( !tr ) return;
+
+    if ( sd.type_ != SeisSelData::None )
+    {
+	seldata = new SeisSelData( sd );
+	seldata->type_ = SeisSelData::Range;
+	seldata->inlrg_.start = 0;
+	seldata->inlrg_.stop = mUndefIntVal;
+	if ( sd.type_ == SeisSelData::TrcNrs )
+	{
+	    assign( seldata->crlrg_, seldata->trcrg_ );
+	    trcstep = seldata->trcrg_.step;
+	}
+	tr->setSelData( seldata );
+    }
 }
 
 
 ~SeisCBVS2DLineGetter()
 {
     delete tr;
+    delete seldata;
 }
 
 
@@ -97,12 +168,17 @@ void addTrc( SeisTrc* trc )
 
 int nextStep()
 {
+    if ( !tr ) return -1;
+
     if ( curnr == 0 )
     {
-	if ( !tr->initRead(new StreamConn(fname.buf(),Conn::Read)) )
-	    mErrRet(tr->errMsg())
 	const SeisPacketInfo& pinf = tr->packetInfo();
 	totnr = tr->packetInfo().crlrg.nrSteps() + 1;
+	if ( seldata )
+	{
+	    int nrsel = seldata->crlrg_.width() / trcstep + 1;
+	    if ( nrsel < totnr ) totnr = nrsel;
+	}
     }
 
     int lastnr = curnr + 10;
@@ -117,6 +193,12 @@ int nextStep()
 	    return 0;
 	}
 	addTrc( trc );
+
+	for ( int idx=1; idx<trcstep; idx++ )
+	{
+	    if ( !tr->skip() )
+		return 0;
+	}
     }
 
     return 1;
@@ -133,6 +215,8 @@ int			totalNr() const		{ return totnr; }
     BufferString	fname;
     BufferString	msg;
     CBVSSeisTrcTranslator* tr;
+    SeisSelData*	seldata;
+    int			trcstep;
 
 };
 
@@ -141,7 +225,8 @@ int			totalNr() const		{ return totnr; }
 #define mErrRet(s) { errmsg = s; return 0; }
 
 Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
-						SeisTrcBuf& tbuf )
+						SeisTrcBuf& tbuf,
+						const SeisSelData* sd )
 {
     const int lnr = getLineNr( &iop );
     BufferString fnm = getCBVSFileName( iop, lnr );
@@ -154,7 +239,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
     }
 
     const_cast<IOPar&>(iop).set( sKeyLineNr, lnr ); // just to be sure
-    return new SeisCBVS2DLineGetter( fnm, tbuf );
+    return new SeisCBVS2DLineGetter( fnm, tbuf, sd ? *sd : SeisSelData() );
 }
 
 
