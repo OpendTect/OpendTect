@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.19 2004-08-09 14:09:31 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.20 2004-10-28 14:05:38 nanne Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -281,6 +281,9 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 EM::dgbSurfDataReader::~dgbSurfDataReader()
 {
     delete stream;
+    delete intinterpreter;
+    delete longlonginterpreter;
+    delete floatinterpreter;
 }
 
 
