@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.36 2004-01-21 10:19:07 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.37 2004-01-21 12:47:41 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -432,6 +432,9 @@ void exitProgram( int ret )
 {
 
 #ifdef __win__
+
+#define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
+
     // open process
     HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, getPID() );
     if ( isBadHandle( hProcess ) )
