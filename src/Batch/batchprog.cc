@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.33 2003-02-26 13:43:27 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.34 2003-03-06 15:06:31 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.33 2003-02-26 13:43:27 arend E
 #endif
 #include <fstream>
 
+#define mErrStrm (sdout_.ostrm ? *sdout_.ostrm : cerr)
 
 BatchProgram* BatchProgram::inst_;
 
@@ -149,11 +150,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
 BatchProgram::~BatchProgram()
 {
-    if ( sdout_.ostrm )
-    {
-	*sdout_.ostrm << "Exiting BatchProgram." << endl;
-	sdout_.ostrm->flush();
-    }
+    mErrStrm << "Finished batch processing." << endl;
 
     if ( exitstat_ == mSTAT_UNDEF ) 
 	exitstat_ = stillok_ ? mSTAT_DONE : mSTAT_ERROR;
@@ -178,11 +175,7 @@ const char* BatchProgram::progName() const
 
 void BatchProgram::progKilled( CallBacker* )
 {
-    if ( sdout_.ostrm )
-    {
-	*sdout_.ostrm << "BatchProgram Killed." << endl;
-	sdout_.ostrm->flush();
-    }
+    mErrStrm << "BatchProgram Killed." << endl;
 
     exitstat_ = mSTAT_KILLED;
     writeStatus( mEXIT_STATUS, exitstat_ );
@@ -206,53 +199,56 @@ void BatchProgram::killNotify( bool yn )
 }
 
 
+
 bool BatchProgram::writeStatus_( char tag , int status, bool force )
 {
-    if ( !usesock_ ) return true;
+    // if ( !usesock_ ) return true;
 
     int elapsed = Time_getMilliSeconds() - timestamp_;
-    if ( !force && elapsed > 0 && elapsed < 1000  )
+    if ( elapsed < 0 )
+    {
+	mErrStrm << "sys: Elapsed time seems to be negative!" << endl;
+	force = true;
+    }
+
+    if ( !force && elapsed < 1000 )
 	return true;
 
     timestamp_ = Time_getMilliSeconds();
 
-    if ( Socket* sock = mkSocket() )
+    if ( !usesock_ ) return true;
+
+    Socket* sock = mkSocket();
+    if ( !sock )
     {
-	sock->writetag( tag, jobid_, status );
-
-	bool ret = true;
-
-	char masterinfo;
-	ret = sock->readtag( masterinfo );
-	if ( masterinfo != mRSP_ACK )
-	{
-	    // TODO : handle requests from master
-	    if ( masterinfo == mRSP_REQ_STOP ) 
-	    {
-		if ( sdout_.ostrm )
-		{
-		    *sdout_.ostrm << "Exiting on request of Master." << endl;
-		    sdout_.ostrm->flush();
-		}
-		exit( -1 );
-	    }
-
-	    ret = false;
-	}
-
-	delete sock;
-
-	if ( !ret && sdout_.ostrm )
-	{
-	    *sdout_.ostrm << "Error writing status to Master." << endl;
-	    sdout_.ostrm->flush();
-	}
-
-	return ret;
+	mErrStrm << "sys: Cannot create socket!" << endl;
+	return false;
     }
 
-    return false;
+    sock->writetag( tag, jobid_, status );
 
+    bool ret = true;
+
+    char masterinfo;
+    ret = sock->readtag( masterinfo );
+    if ( masterinfo != mRSP_ACK )
+    {
+	// TODO : handle requests from master
+	if ( masterinfo == mRSP_REQ_STOP ) 
+	{
+	    mErrStrm << "Exiting on request of Master." << endl;
+	    exit( -1 );
+	}
+
+	ret = false;
+    }
+
+    delete sock;
+
+    if ( !ret )
+	mErrStrm << "Error writing status to Master." << endl;
+
+    return ret;
 }
 
 
@@ -281,11 +277,7 @@ bool BatchProgram::initOutput()
     stillok_ = false;
     if ( !writeStatus( mPID_TAG, getPID() ) )
     {
-	if ( sdout_.ostrm )
-	{
-	    *sdout_.ostrm << "Could not write status. Exiting." << endl;
-	    sdout_.ostrm->flush();
-	}
+	mErrStrm << "Could not write status. Exiting." << endl;
 	exit( 0 );
     }
 
