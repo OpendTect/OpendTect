@@ -11,7 +11,6 @@ if ( $#argv < 3 ) then
 	exit 1
 endif
 
-set tmpdir=`$PMAKE/bin/get_temp_file_name`
 
 
 set inplibs=""
@@ -35,52 +34,34 @@ set outlib=$1
 shift
 
 
-if ( $HDIR == "win" ) then
-    set deffile=$1
-    shift
-endif
-
-if ( ! -d $tmpdir ) mkdir $tmpdir
-if ( ! -d $tmpdir ) then
-	echo "$0 : Cannot create $tmpdir"
-	exit 1
-endif
-
-cd $tmpdir
-
-foreach lib ( $inplibs )
-	ar x $lib `ar t $lib`
-end
-
 if ( $HDIR != "win") then
+    set tmpdir=`$PMAKE/bin/get_temp_file_name`
+
+    if ( ! -d $tmpdir ) mkdir $tmpdir
+    if ( ! -d $tmpdir ) then
+	    echo "$0 : Cannot create $tmpdir"
+	    exit 1
+    endif
+
+    cd $tmpdir
+
+    foreach lib ( $inplibs )
+	    ar x $lib `ar t $lib`
+    end
 
     #echo "Executing:" $* *.o -o $outlib
     $* *.o -o $outlib
     cd /tmp
 
+    rm -rf $tmpdir
+
 else
 
-    pwd
-
-    #echo "implib: " $inplib 
-    #echo o2dll.sh $* -o $outlib *.o
-    #o2dll.sh $* -o $outlib *.o
-
-    # o2dll.sh -o aap *.o -L/cygdrive/d/users/admin/work/bin/win/so -lmsvcrt -L/c/work/appman/fftw/lib -lfftw3f -lstdc++ -lpthreadGC -lshlwapi -lwsock32
-
-    #    echo "Generating def file"
-
-	#/usr/local/bin/dlltool-wrap --add-indirect --export-all-symbols \
-    #    dlltool --add-indirect --export-all-symbols \
-    #	    --output-def $deffile *.o
-
-
-    echo "Executing:" $* *.o -o $outlib
-    $* *.o -o $outlib
+    echo "Executing:" $* -o $outlib
+    $* -o $outlib
 
 endif
 
-rm -rf $tmpdir
 
 
 exit 0
