@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.29 2005-02-10 16:03:34 nanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.30 2005-02-28 14:49:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,15 +219,14 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, BinID bid )
     PtrMan<IOObj> ioobj = IOM().getLocal( ioobjnms.get(mnuid) );
     if ( !ioobj )
     { 
-	uiMSG().error("No valid gather selected"); 
+	uiMSG().error( "No valid gather selected" ); 
 	return false;
     }
 
     SeisPSReader* rdr = SPSIOPF().getReader( *ioobj, bid.inl );
     if ( !rdr )
     {
-	uiMSG().error("This data type can't be handeled,\n"
-		      "please use CBVS data");
+	uiMSG().error( "This Pre-Stack data store cannot be handeled" );
         return false;
     }
     
@@ -239,11 +238,9 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, BinID bid )
     }
     
     SeisSectionViewer svw;
-    svw.title = "Seismic Gather for inline'";
-    svw.title += bid.inl;
-    svw.title += "' and crossline '";
-    svw.title += bid.crl;
-    svw.title += "'";
+    svw.title = "Gather from ["; svw.title += ioobj->name();
+    svw.title += "] at ";
+    svw.title += bid.inl; svw.title += "/"; svw.title += bid.crl;
     svw.minimal = true;
     
     PtrMan<Executor> exec = svw.preparer();
