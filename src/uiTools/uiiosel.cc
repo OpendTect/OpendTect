@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.12 2001-07-13 22:03:34 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.13 2001-07-18 16:17:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ bool uiIOSelect::haveEntry( const char* key ) const
 }
 
 
-void uiIOSelect::fillPar( IOPar& iopar ) const
+bool uiIOSelect::fillPar( IOPar& iopar ) const
 {
     int lastidx = 0;
     for ( ; ; lastidx++ )
@@ -104,6 +104,7 @@ void uiIOSelect::fillPar( IOPar& iopar ) const
 	lastidx++;
 	iopar.set( IOPar::compKey("I/O Selection",lastidx), key );
     }
+    return true;
 }
 
 
