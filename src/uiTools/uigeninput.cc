@@ -1,10 +1,10 @@
-/*+
+eckBoxSel/*+
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.53 2003-05-16 11:07:25 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.54 2003-05-16 11:17:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -903,6 +903,7 @@ bool uiGenInput::isChecked()
 
 void uiGenInput::checkBoxSel( CallBacker* cb )
 {
+    if ( !cbox ) return;
     const bool elemsens = cbox->sensitive() && cbox->isChecked();
 
     for ( int idx=0; idx<flds.size(); idx++ )
