@@ -119,15 +119,15 @@ MathExpression* MathExpression::parse( const char* input )
 
     while ( str[0] == '(' && str[len-1]==')' )
     {
-	int parenslevel = 0;
+	int localparenslevel = 0;
 	bool removeparens = true;
 
 	for ( int idx=1; idx<len-1; idx++ )
 	{
-	    if ( str[idx]=='(' ) parenslevel++;
-	    if ( str[idx]==')' ) parenslevel--;
+	    if ( str[idx]=='(' ) localparenslevel++;
+	    if ( str[idx]==')' ) localparenslevel--;
 
-	    if ( parenslevel<0 )
+	    if ( localparenslevel<0 )
 	    {
 		removeparens=false;
 		break;
