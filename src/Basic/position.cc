@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.26 2003-05-19 10:41:08 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.27 2003-09-10 12:48:19 kristofer Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -875,6 +875,18 @@ bool Coord3::operator!=( const Coord3& b ) const
 bool Coord3::isDefined() const
 {
     return !mIsUndefined(x) && !mIsUndefined(y) && !mIsUndefined(z);
+}
+
+
+Coord3 Coord3::operator+( const Coord3& p ) const
+{
+    return Coord3( x+p.x, y+p.y, z+p.z );
+}
+
+
+Coord3 Coord3::operator-( const Coord3& p ) const
+{
+    return Coord3( x-p.x, y-p.y, z-p.z );
 }
 
 

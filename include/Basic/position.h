@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.16 2003-06-17 13:52:16 kristofer Exp $
+ RCS:		$Id: position.h,v 1.17 2003-09-10 12:48:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,10 @@ public:
 		{ return idx ? (idx==1 ? y : z) : x; }
     double	operator[]( int idx ) const
 		{ return idx ? (idx==1 ? y : z) : x; }
+
+    Coord3	operator+(const Coord3&) const;
+    Coord3	operator-(const Coord3&) const;
+
 
     Coord3&	operator+=(const Coord3&);
     Coord3&	operator-=(const Coord3&);
