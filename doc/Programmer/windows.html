@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.1 2003-11-28 15:04:29 bert Exp $
+  - RCS:        $Id: windows.html,v 1.2 2003-12-10 15:32:19 arend Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.0]</title>
@@ -19,16 +19,20 @@
 
 <a name=external><h2>External installations</h2></a>
 
+<p>The external installations can, in principle, be installed wherever you like. However, it is recommended to use the defaults. Otherwise, one or two configuration files have to be hand-edited.
+If you choose to install some of the external installations elsewhere, it is strongly recommended to make sure that there are no spaces in any paths to external installations, because the make environment has not been prepared to handle these.</p> 
+
 <a name=mingw><h3>MinGW</h3></a>
 
 <p>First, download MinGW from <a href="http://mingw.org/download.shtml">http://mingw.org/download.shtml</a>.
 The easiest way to install is to download the MinGW auto-extracting executable, MinGW-&lt;version&gt;.exe. This file is approximately 14 MB. After download, just run the installer.
 Optionally, you can install gdb 6.0, which can be downloaded at: <a href="http://gd.tuwien.ac.at/gnu/mingw/?fisel=gG">http://gd.tuwien.ac.at/gnu/mingw/?fisel=gG</a></p>
-<p>It is recommended to install mingw at its default location: c:\MinGW</p>
+<p>If you did not install mingw at its default location "C:\MinGW",  you have to set the environment variable MINGWHOME at some point. The easiest thing is to postpone this until after creating your ODWork environment and manually edit the generated init.bash or init.csh script(s).
+</p>
+
 <h3>Cygwin</h3>
 <p>Since MinGW only provides a compiler and we also need tools like a Unix-shell, sed, awk, etc., we use Cygwin as our shell/work environment.</p>
-<p>Download the Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a> and run it.
-At a certain point, you can select where to install cygwin. It is recommended to use the default : C:\cygwin</p>
+<p>Download the Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a> and run it.</p>
 <p>After a few questions, you can select packages to install. Choose at least the following packages:</p>
 <ul>
 <li>make (development)</li>
@@ -39,47 +43,73 @@ At a certain point, you can select where to install cygwin. It is recommended to
 <p>Also recommended:</p>
 <ul>
 <li>cvs (development)</li>
+<li>binutils (development)</li>
+<li>bizon (development) (*)</li>
+<li>flex (development) (*)</li>
+<li>doxygen (development)</li>
+<li>vim (editors) (**)</li>
+<li>mc (editors) (**) = Norton Commander clone</li>
+<li>openssh (net)</li>
 <li>zip (archive)</li>
 <li>unzip (archive)</li>
-<li>bizon (dev) (*)</li>
-<li>flex (dev) (*)</li>
-<li>doxygen (dev)</li>
-<li>vim (editors)</li>
-<li>openssh (net)</li>
 </ul>
+
+Note: You can always re-start the cygwin installation program to add additional packages later or to update existing packages.
+
+<p>
+It is possible that cygwin complains about not being able to find '/tmp'. This is caused by the cygwin mount table not being properly initialised, possibly due to the use of cygwin tools from within OpenDtect.
+The problem can be resolved as follows:
+</p>
+
+<li> delete the following registry keys using the registry editor:</li>
+<pre>
+    HKEY_CURRENT_USER\Software\Cygnus Solutions
+    HKEY_LOCAL_MACHINE\SOFTWARE\Cygnus Solutions
+</pre>
+<li> delete cygwin icon from the desktop and cygwin directory from start menu. </li>
+<li> delete cygwin installation directory. </li>
+<li> reboot </li>
+<li> re-install cygwin </li>
+
+
 <p>(*) Bison and Flex are required to build OpendTect itself.</p>
+<p>(**) You will need an editor that understands unix file format every now and then. If you're familiar with the good old Norton Commander, you might opt for mc, but one of the other editors in (editors) should also do. Another possibility is to use the dos2unix and unix2dos utilities provided with MinGW, so you can use your own favorite editor. </p>
 
 
 <a name=setup><h2>Setting up the environment</h2></a>
 <p><a href="pmake.html">Pmake</a> is used to build both the system and to build plugins.
-It requires a few environment variables to be setup and it expects a certain directory structure in your work directory.</p>
-<h3>Setup work dir</h3>
-<p>Before you can build anything, you have to setup the work directory in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Development Environment'.</p>
-<p>It is strongly recommended to make sure that there are no spaces in the path to your work directory.</p>
-<h3>Setup environment variables</h3>
-<p>Once you have successfully created ODWork directory, you have to setup a few environment variables: HDIR, WORK, MINGWHOME and GNUMAKE.</p>
-<p>HDIR defines the platform you're working on. On windows, this should be set to win.</p>
-<p>MINGWHOME defines the location of the MinGW compiler.</p>
-<p>GNUMAKE gives the name of gnu make, usually just make or gmake. If you don't set GNUMAKE, Pmake expects gnu make to be named gmake and expects it in your search path.</p>
-<p>WORK defines where your work directory is. Pmake expects a certain directory structure there, so it is best to use the script below to set it up and copy the relevant parts from your program installation into your work directory.</p>
-<p>IMPORTANT: WORK <b>has</b> to be a full path, starting with /cygdrive. Otherwise, it won't work.</p>
-<p>Beside setting up these environment variables, you should source either the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base directory.</p>
-<p>In case you are working with bash, you could add something like the following to your .bashrc which is located in what cygwin sees as your home directory, which should be at /home/&lt;login name&gt;:</p>
+It requires a few environment variables to be setup and it expects a certain directory structure in your ODWork directory.</p>
+<h3>Setup ODWork dir</h3>
+<p>Before you can build anything, you have to setup the ODWork directory in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Development Environment'.
+This will also create an init script 'init.bash' that can easily be sourced from your .bashrc to setup your environment. 
+</p>
+<p>It is strongly recommended to make sure that there are no spaces in the path to your ODWork directory. A good place for your ODWork directory is your cygwin home directory, which is by default at C:\cygwin\home\[user name]. 
+The location of this directory can be easily found from a cygwin bash shell:
 <pre>
-export WORK="/cygdrive/c/home/Administrator/work"
-export MINGWHOME=/cygdrive/c/MinGW
+    cd
+    cygpath -w `pwd`
+</pre>
+</p>
+<h3>Setup environment variables</h3>
+<p>Once you have successfully created your ODWork directory, you have to setup a few environment variables: HDIR, WORK, MINGWHOME and GNUMAKE.</p>
 
-export HDIR=win
-export GNUMAKE=make
+<li>HDIR defines the platform you're working on. On windows, this should be set to win.</li>
+<li>MINGWHOME defines the location of the MinGW compiler.</li>
+<li>GNUMAKE gives the name of gnu make, usually just make or gmake.</li>
+<li>WORK defines where your ODWork directory is.</li>
 
-source "$WORK/Pmake/base/PMinit.sh"</pre>
-<p>Fortunately, if you have followed our instructions well, you can set the entire environment with a single setup script that is generated in the new ODWork directory. The coice is betwee 'init.bash' or 'init.csh', depending on the shell you want to work in.</p>
-<p>You may have to edit the location of your MinGW compiler; the init scripts assume it is at /cygdrive/c/MinGW.</p>
-<h4>Setting up OpendTect paths</h4>
-<p>As an extra, one can add the OpendTect win executable paths to your search path from your .bashrc, so you can directly start dtect from your bash shell (using start_dtect.csh). This is already done in the generated init scripts.
-As you can see the location of the OpendTect base directory is stored in the windows registry and can be read from a bash script (i.e. your .bashrc). Using this location, we can setup the right search path.</p>
+<p>Beside setting up these environment variables, you should source either the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base directory.</p>
+
+<p>If you have followed our instructions well, you can set the entire environment with a single setup script that is generated in the new ODWork directory. You can source the 'init.bash' script from your .bashrc (or 'init.csh',if you work with the non-default csh shell). 
+If you have created your ODWork directory in your cygwin home, you can simple add the following line to the end of your .bashrc script:
+<pre>
+    source ~/ODWork/init.bash
+</pre>
+</p>
+<p>You may have to edit the location of your MinGW compiler in the script if it is not installed in C:\MinGW.</p>
+
 <h4>Checking the MinGW installation</h4>
-<p>It is important that MinGW is in your search path (and that it comes before the cygwin binary path $cygwin/bin if you have installed the cygwin gcc compiler&amp;friends). You can either set the path under cygwin in your .bashrc (bash) or your .login (csh) or use "My Computer - properties - advanced - Environment Variables" to edit the Path environment variable from Windows.</p>
+<p>It is important that MinGW is in your search path (and that it comes before the cygwin binary path $cygwin/bin if you have installed the cygwin gcc compiler&amp;friends). You can either set the path under cygwin in your .bashrc (bash) or your .login (csh) or use "My Computer - properties - advanced - Environment Variables" to edit the Path environment variable from Windows. If you use the init.bash (or init.csh) script, you don't have to do anything; the MinGW path is added to the pad for you.</p>
 <p>To see if your path is correctly set, you can retrieve the version of the C compiler and see if the result contains the word mingw:</p>
 <pre>
 ~$gcc --version
@@ -96,44 +126,44 @@ This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre>
 <h3>Building your own plugins</h3>
 <h4>Testing the installation</h4>
-<p>After you setup your environment, open a new cygwin bash shell and go to your work directory. If all is well, the alias 'cwd' should bring you directly to your work directory. Then go to the plugins directory and type 'make'. You should see something like this:</p>
+<p>After you setup your environment, open a new cygwin bash shell and go to your ODWork directory. If all is well, the alias 'cwd' should bring you directly to your ODWork directory. Then go to the plugins directory and type 'make'. You should see something like this:</p>
 <pre>
 $ cd plugins/
 
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/work/plugins
+Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
 $ make
-make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/work/plugins/Hello'
+make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/Hello'
   Making Hello / Microsoft Windows (Nov 27 13:18:33) DEBUG=no.
 Compiling hellopi.cc ...
 Ranlib on Hello.lib ...
-Creating /cygdrive/c/cygwin/home/Administrator/work/lib/win/O/Hello.dll ...
+Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/Hello.dll ...
   Done !
-make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/work/plugins/Hello'
+make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/Hello'
 
 &lt;snip&gt;
 
-make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/work/plugins/uiSeisIOSimple'
+make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
   Making uiSeisIOSimple / Microsoft Windows (Nov 27 13:19:14) DEBUG=no.
 Compiling seisiosimple.cc ...
 Compiling uiseisiosimple.cc ...
 Compiling uiseisiosimplepi.cc ...
 Ranlib on uiSeisIOSimple.lib ...
-Creating /cygdrive/c/cygwin/home/Administrator/work/lib/win/O/uiSeisIOSimple.dll
+Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/uiSeisIOSimple.dll
  ...
   Done !
-make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/work/plugins/uiSeisIOSimple'
+make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
 
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/work/plugins
+Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
 $</pre>
 <p>The libraries should now be made in $WORK/lib/win. We can check that, like this:</p>
 <pre>
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/work/plugins
+Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
 $ cdw
 
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/work
+Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork
 $ cd lib/win/
 
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/work/lib/win
+Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win
 $ ls
 Coh.dll*    O@                 libuiSeisIOSimple.dll.a*  uiSeisIOSimple.dll*
 Coh.lib*    libCoh.dll.a*      uiCoh.dll*                uiSeisIOSimple.lib*
@@ -141,8 +171,40 @@ G@          libHello.dll.a*    uiCoh.lib*
 Hello.dll*  libuiCoh.dll.a*    uiHello.dll*
 Hello.lib*  libuiHello.dll.a*  uiHello.lib*
 
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/work/lib/win $
+Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win $
 </pre>
+
+<h4>Testing the newly compiled plugins</h4>
+
+You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "Hello.dll" plugin, you should see "Hello World" on the OpendTect console window.
+If you want to load one of the 'ui' plugins, you have to load the corresponding non-ui one first.
+
+<h4>Installing your plugins</h4>
+
+<p> The plugins are basically installed by copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file. 
+This is the same on Unix and Windows, so please consult the plugins documentation for more details.
+However, there are a few remarks about the location of your personal directory on windows. </p>
+
+<p> Your personal directory is located at $HOMEDRIVE/$HOMEPATH if this is not "C:\". If $HOMEDRIVE/$HOMEPATH is "C:\", or $HOMEDRIVE and/or $HOMEPATH is not set, the location of the special windows folder "Application Data" is used.
+You can find the location of special windows folders using the GetSpecFolder.exe program that you can find in the OpendTect installation directory:
+<pre>
+Administrator@dgb18-winxp ~
+$ cd /cygdrive/c/Program\ Files/OpendTect/bin/win/
+
+Administrator@dgb18-winxp /cygdrive/c/Program Files/OpendTect/bin/win
+$ ./GetSpecFolder.exe AppData
+C:\Documents and Settings\Administrator\Application Data
+
+Administrator@dgb18-winxp /cygdrive/c/Program Files/OpendTect/bin/win
+$
+</pre>
+</p>
+
+<p>If you want the '.od' settings directory to be somewhere else, you can set the "DTECT_WINHOME" environment variable.</p>
+<p>
+You would have to set this using "My Computer - properties - advanced - Environment Variables"; otherwise it won't be available when you start OpendTect from the start-menu or the shortcut icons. You can set it to something like 'C:\cygwin\home\Administrator'</p>
+
+
 
 
 <a name=buildod><h2>Building OpendTect</h2>
@@ -153,12 +215,12 @@ Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/work/lib/win $
 <h3>Pthreads</h3>
 <p>The pthreads-win32 library can be downloaded from <a href="http://sources.redhat.com/pthreads-win32/">http://sources.redhat.com/pthreads-win32/</a>.
 <p>You also might want to check out the faq: <a href="http://sources.redhat.com/pthreads-win32/faq.html">http://sources.redhat.com/pthreads-win32/faq.html</a></p>
-<p>You need to copy the include files into the MinGW include directory (default c:\MinGW\include) and the proper dll with accompaning import library (pthreadGC.dll and libpthreadGC.a) into  the MinGW lib directory (default c:\MinGW\lib)</p>
+<p>You need to copy the include files into the MinGW include directory (default C:\MinGW\include) and the proper dll with accompaning import library (pthreadGC.dll and libpthreadGC.a) into  the MinGW lib directory (default C:\MinGW\lib)</p>
 <h3>Coin</h3>
 <p>Coin does not officially support anything other then VC++.</p>
 <p>However, older versions of Coin required cygwin as a build environment. This was necessary in order to make use of the command-line MSVC compiler, cl.exe, which was called using a wrapper program (wrapmsvc).</p>
 <p>Fortunately, the Coin config scripts can handle MinGW quite well. Only in the case of <u>SoQt</u> we have to revert to using a wrapper script that converts cygwin's paths into Windows paths before calling the mingw compiler.</p>
-<p>You can find the wrapper script in the Pmake/base/bin/win directory, either in your work directory or in the installation directory (c:\Program files\OpendTect\bin\win by default).</p>
+<p>You can find the wrapper script in the Pmake/base/bin/win directory, either in your ODWork directory or in the installation directory (C:\Program files\OpendTect\bin\win by default).</p>
 <p>Coin itself and simage both compile pretty straightforward without the wrapper scripts, just configure &amp; make from a cygwin shell (make sure the MinGW compiler is in your path..).</p>
 <p>It might be that the libtool complains about not being able to find certain dlls. This cost me a lot of time, until I found out that the required dlls have to be in the search path ($PATH). Passing a -L&lt;path to dll&gt; did not work.</p>
 <p>Compiling <u>SoQt</u> is a little trickier. This really needs the wrapper script to convert cygwin paths to win32 ones. When running configure from a c-shell, you need something like:</p>
