@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.3 2002-04-30 11:38:39 kristofer Exp $
+ RCS:		$Id: vistext.h,v 1.4 2002-04-30 11:44:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "geompos.h"
+#include "bufstring.h"
 
 class SoText2;
 class SoFont;
@@ -39,7 +40,7 @@ public:
     Geometry::Pos	position() const;
     void		setPosition( const Geometry::Pos& );
 
-    const char*		getText() const;
+    BufferString	getText() const;
     void		setText(const char*);
 
     float		size() const;

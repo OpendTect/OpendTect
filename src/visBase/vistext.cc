@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.3 2002-04-30 11:38:50 kristofer Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.4 2002-04-30 11:45:05 kristofer Exp $";
 
 
 #include "vistext.h"
@@ -50,11 +50,12 @@ void visBase::Text::setPosition(const Geometry::Pos& pos )
 }
 
 
-const char* visBase::Text::getText() const
+BufferString visBase::Text::getText() const
 {
     SbString val;
     text->string.get( val );
-    return val.getString();
+    BufferString res = val.getString();
+    return res;
 }
 
 
