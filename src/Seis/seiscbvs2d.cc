@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.9 2004-08-27 12:12:33 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.10 2004-08-27 12:49:25 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -165,8 +165,8 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
 
 void addTrc( SeisTrc* trc )
 {
+    trc->info().nr = trc->info().binid.crl;
     trc->info().binid = SI().transform( trc->info().coord );
-    trc->info().nr = linenr;
     tbuf.add( trc );
 }
 
@@ -276,11 +276,12 @@ SeisCBVS2DLinePutter( const char* fnm, const SeisTrcBuf& b, int linenr )
 void updTrc()
 {
     if ( curnr >= tbuf.size() ) return;
-    bid.crl = curnr;
     trc = const_cast<SeisTrc*>( tbuf.get( curnr ) );
+    bid.crl = trc->info().nr;
     oldbid = trc->info().binid;
     trc->info().binid = bid;
 }
+
 
 int nextStep()
 {
