@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.21 2002-04-19 06:17:06 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.22 2002-04-23 07:41:02 nanne Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -29,6 +29,8 @@ static const char* rcsID = "$Id: visrectangle.cc,v 1.21 2002-04-19 06:17:06 kris
 #include "Inventor/draggers/SoTranslate1Dragger.h"
 
 #include "Inventor/actions/SoGetMatrixAction.h"
+
+#include <math.h>
 
 
 visBase::RectangleDragger::RectangleDragger()
@@ -786,13 +788,16 @@ void visBase::Rectangle::moveObjectToManipRect(CallBacker*)
 bool visBase::Rectangle::isManipRectOnObject() const
 {
     bool res = true;
+    float eps = 1e-5;
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
     SbVec3f origopos( manipOrigo().x, manipOrigo().y, manipOrigo().z );
 
-    if ( origotrans->translation.getValue()!=origopos )
-    res = false;
+    if ( origotrans->translation.getValue()[0] != origopos[0] ||
+	 origotrans->translation.getValue()[1] != origopos[1] ||
+	 fabs(origotrans->translation.getValue()[2]-origopos[2]) > eps )
+	res = false;
 
     float newxwidth = getWidth( 0, scale[0] );
     float newywidth = getWidth( 1, scale[1] );
