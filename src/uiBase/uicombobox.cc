@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.10 2001-05-09 11:49:36 arend Exp $
+ RCS:           $Id: uicombobox.cc,v 1.11 2001-05-10 06:53:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ bool uiComboBox::isPresent( const char* txt ) const
 
 const char* uiComboBox::textOfItem( int idx ) const
 {
-    if ( idx < 0 ) return "";
+    if ( idx < 0 || idx >= mQtThing()->count() ) return "";
     const_cast<uiComboBox*>(this)->rettxt = (const char*)mQtThing()->text(idx);
     return (const char*)rettxt;
 }
@@ -105,15 +105,17 @@ void uiComboBox::setCurrentItem( const char* txt )
     }
 }
 
-void uiComboBox::setCurrentItem( int index )
+void uiComboBox::setCurrentItem( int idx )
 {
-    mQtThing()->setCurrentItem( index );
+    if ( idx >= 0 && idx < mQtThing()->count() )
+	mQtThing()->setCurrentItem( idx );
 }
 
 
 void uiComboBox::setItemText( int idx, const char* txt )
 {
-    mQtThing()->changeItem( QString(txt), idx );
+    if ( idx >= 0 && idx < mQtThing()->count() )
+	mQtThing()->changeItem( QString(txt), idx );
 }
 
 

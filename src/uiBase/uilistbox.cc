@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.10 2001-05-08 08:20:12 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.11 2001-05-10 06:53:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,9 +113,10 @@ int uiListBox::size() const
 }
 
 
-bool uiListBox::isSelected ( int index ) const
+bool uiListBox::isSelected ( int idx ) const
 {
-    return mQtThing()->isSelected( index );
+    if ( idx < 0 || idx >= mQtThing()->count() ) return false;
+    return mQtThing()->isSelected( idx );
 }
 
 void uiListBox::addItem( const char* text ) 
@@ -159,7 +160,7 @@ bool uiListBox::isPresent( const char* txt ) const
 
 const char* uiListBox::textOfItem( int idx ) const
 {
-    if ( idx < 0 ) return "";
+    if ( idx < 0 || idx >= mQtThing()->count() ) return "";
     const_cast<uiListBox*>(this)->rettxt = (const char*)mQtThing()->text(idx);
     return (const char*)rettxt;
 }
@@ -181,9 +182,10 @@ void uiListBox::setCurrentItem( const char* txt )
     }
 }
 
-void uiListBox::setCurrentItem( int index )
+void uiListBox::setCurrentItem( int idx )
 {
-    mQtThing()->setCurrentItem( index );
+    if ( idx >= 0 && idx < mQtThing()->count() )
+	mQtThing()->setCurrentItem( idx );
 }
 
 
@@ -202,23 +204,3 @@ uiSize uiListBox::minimumSize() const
 
     return uiSize ( totWidth , totHeight );
 }
-
-//-----------------------------------------------------------------------------
-//  Documentation 
-//-----------------------------------------------------------------------------
-
-/*!
-    \fn int uiListBox::lastSelected() 
-
-    \return index of last selected item.
-    \retval  0 when no selection has taken place yet.
-    \retval -1 when the selection set of a multi ListBox was changed.
-*/
-
-
-/*! \fn QSize i_QListBox::sizeHint() const
-    \reimp
-    Computes preferred size by looking at the items in the list.
-    If the uiClient object has a fieldWdt and/or a nLines value set, 
-    then that overrides.
-*/
