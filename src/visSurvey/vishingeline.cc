@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.7 2004-08-20 07:54:06 kristofer Exp $
+ RCS:           $Id: vishingeline.cc,v 1.8 2004-09-03 09:20:56 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emmanager.h"
 #include "settings.h"
-#include "trackingedgeline.h"
+#include "emsurfaceedgelineimpl.h"
 #include "viscoord.h"
 #include "visevent.h"
 #include "vismaterial.h"
@@ -182,22 +182,22 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 					edgeline->getSegment(segmentidx);
 	    int materialindex = 0;
 	    bool showsegment = true;
-	    if ( dynamic_cast<const Tracking::TerminationEdgeLineSegment*>(
+	    if ( dynamic_cast<const EM::TerminationEdgeLineSegment*>(
 						    edgelinesegment) )
 	    {
 		materialindex = mStopColor;
 		showsegment = false;
 	    }
-	    else if ( dynamic_cast<const Tracking::SurfaceConnectLine*>
+	    else if ( dynamic_cast<const EM::SurfaceConnectLine*>
 						    (edgelinesegment) )
 	    {
-		mDynamicCastGet( const Tracking::SurfaceConnectLine*,
+		mDynamicCastGet( const EM::SurfaceConnectLine*,
 				    connline, edgelinesegment );
 		materialindex = mConnectColor;
 		showsegment =
 		    connline->getSection()<connline->connectingSection();
 	    }
-	    else if ( dynamic_cast<const Tracking::SurfaceCutLine*>
+	    else if ( dynamic_cast<const EM::SurfaceCutLine*>
 						    (edgelinesegment) )
 	    {
 		materialindex = mCutColor;
