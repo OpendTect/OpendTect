@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.4 2002-03-15 15:29:20 arend Exp $
+ RCS:           $Id: uifiledlg.h,v 1.5 2002-06-11 12:25:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,7 @@ class QFileDialog;
 class uiFileDialog : public UserIDObject
 {
 public:
-    //! ToolBar Dock Identifier
-    /*
-        Toolbars can be created on docks,
-    */
+    //! File selection mode
     enum Mode
     {
 	AnyFile,	/*!< The name of a file, whether it exists or not. */

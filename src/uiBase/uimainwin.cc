@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.53 2002-04-26 13:24:05 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.54 2002-06-11 12:25:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -527,17 +527,54 @@ public:
     void		setCancelText( const char* txt );
 			//!< cancel button disabled when set to empty
     void		enableSaveButton( const char* txt )
-			    { setup.savetext_ = txt; setup.savebutton_ = true; }
+			    { 
+				setup.savetext_ = txt; 
+				setup.savebutton_ = uiDialog::Setup::CheckBox; 
+			    }
     void		setSaveButtonChecked( bool yn )
 			    { setup.savechecked_ = yn;
-			      if ( saveBut ) saveBut->setChecked(yn); }
-    void		setSaveButtonSensitive( bool yn )
-			    { if ( saveBut ) saveBut->setSensitive(yn); }
+			      if ( saveBut_cb ) saveBut_cb->setChecked(yn); }
+    void		setButtonSensitive( uiDialog::Button but, bool yn )
+			    { 
+				switch ( but )
+				{
+				case uiDialog::OK     :
+				    if ( okBut ) okBut->setSensitive(yn); 
+				break;
+				case uiDialog::CANCEL :
+				    if ( cnclBut ) cnclBut->setSensitive(yn); 
+				break;
+				case uiDialog::SAVE   : 
+				    if ( saveBut_cb )
+					saveBut_cb->setSensitive(yn); 
+				    if ( saveBut_pb )
+					saveBut_pb->setSensitive(yn); 
+				break;
+				case uiDialog::HELP   : 
+				    if ( helpBut ) helpBut->setSensitive(yn); 
+				break;
+				}
+			    }
 
     void		setTitleText( const char* txt );
 
     bool		saveButtonChecked() const;
-    uiCheckBox*		saveButton()			{ return saveBut; }
+    uiButton*		button( uiDialog::Button but ) 
+			    { 
+				switch ( but )
+				{
+				case uiDialog::OK     : return okBut;
+				break;
+				case uiDialog::CANCEL : return cnclBut;
+				break;
+				case uiDialog::SAVE   : 
+				    return saveBut_cb ? saveBut_cb : saveBut_pb;
+				break;
+				case uiDialog::HELP   : return helpBut;
+				break;
+				}
+				return 0;
+			    }
 
 			//! Separator between central dialog and Ok/Cancel bar?
     void		setSeparator( bool yn )	  { setup.separator_ = yn; }
@@ -590,7 +627,10 @@ protected:
     uiPushButton*	okBut;
     uiPushButton*	cnclBut;
     uiPushButton*	helpBut;
-    uiCheckBox*		saveBut;
+
+    uiCheckBox*		saveBut_cb;
+    uiPushButton*	saveBut_pb;
+
     uiSeparator*	horSepar;
     uiLabel*		title;
 
@@ -605,8 +645,8 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
     : uiMainWinBody(handle,parnt,s.wintitle_,s.modal_)
     , dlgGroup( 0 )
     , setup( s )
-    , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), helpBut( 0 ), title( 0 )
-    , reslt( 0 )
+    , okBut( 0 ), cnclBut( 0 ), saveBut_cb( 0 ),  saveBut_pb( 0 )
+    , helpBut( 0 ), title( 0 ) , reslt( 0 )
     , childrenInited(false)
 {
 }
@@ -657,7 +697,7 @@ void uiDialogBody::setCancelText( const char* txt )
 
 bool uiDialogBody::saveButtonChecked() const
 { 
-    return saveBut ? saveBut->isChecked() : false;
+    return saveBut_cb ? saveBut_cb->isChecked() : false;
 }
 
 
@@ -698,8 +738,15 @@ void uiDialogBody::finalise()
 	}
 	if ( setup.savebutton_ && setup.savetext_ != "" )
 	{
-	    saveBut = new uiCheckBox( centralWidget_, setup.savetext_ );
-	    saveBut->setChecked( setup.savechecked_ );
+	    if( setup.savebutton_ == uiDialog::Setup::PushButton )
+	    {
+		saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_);
+	    }
+	    else
+	    {
+		saveBut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
+		saveBut_cb->setChecked( setup.savechecked_ );
+	    }
 	}
 	if ( setup.helpid_ != "" && GetDgbApplicationCode() == mDgbApplCodeGDI )
 	{
@@ -726,7 +773,8 @@ void uiDialogBody::finalise()
 		dlgGroup->attach( stretchedBelow, obj );
 	}
 
-	if ( setup.separator_ && (okBut || cnclBut || saveBut || helpBut) )
+	if ( setup.separator_ && ( okBut || cnclBut || saveBut_cb || 
+				   saveBut_pb || helpBut) )
 	{
 	    horSepar = new uiSeparator( centralWidget_ );
 	    horSepar->attach( stretchedBelow, dlgGroup, -2 );
@@ -767,17 +815,24 @@ void uiDialogBody::finalise()
 
 	}
 
-	if( saveBut && !helpBut )
+	if( (saveBut_cb || saveBut_pb) && !helpBut )
 	{
 	    if( okBut )
-		saveBut->attach(rightTo, okBut);
+	    {
+		if ( saveBut_cb ) saveBut_cb->attach(rightTo, okBut);
+		if ( saveBut_pb ) saveBut_pb->attach(rightTo, okBut);
+	    }
 	    if( cnclBut )
-		cnclBut->attach(ensureRightOf, saveBut);
+		cnclBut->attach(ensureRightOf, 
+				    saveBut_cb ? saveBut_cb : saveBut_pb);
 
-	    saveBut->attach( bottomBorder, 0 );
+	    if( saveBut_cb )
+		saveBut_cb->attach( bottomBorder, 0 );
+	    else
+		saveBut_pb->attach( bottomBorder, 0 );
 	}
 
-	if ( helpBut && !saveBut )
+	if ( helpBut && !saveBut_cb && !saveBut_pb )
 	{
 	    if ( (!cnclBut && !okBut) || (cnclBut && okBut) )
 	    {
@@ -797,15 +852,15 @@ void uiDialogBody::finalise()
 	    helpBut->activated.notify( mCB( this, uiDialogBody, provideHelp ));
 	}
 
-	if ( helpBut && saveBut )
+	if ( helpBut && saveBut_cb )
 	{
-	    saveBut->attach( centeredBelow, horSepar
+	    saveBut_cb->attach( centeredBelow, horSepar
 		     ? (uiObject*) horSepar
                      : (uiObject*) centralWidget_->uiObj() );
-	    helpBut->attach(rightTo, saveBut);
+	    helpBut->attach(rightTo, saveBut_cb);
 
 	    if ( cnclBut ) helpBut->attach( ensureLeftOf, cnclBut );
-	    if ( okBut ) saveBut->attach( rightTo, okBut );
+	    if ( okBut ) saveBut_cb->attach( rightTo, okBut );
 	}
 
 	childrenInited = true;
@@ -852,9 +907,10 @@ void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
 void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
-void uiDialog::setSaveButtonSensitive(bool s) 
-					   { mBody->setSaveButtonSensitive(s); }
-void uiDialog::setSaveButtonChecked(bool b)  { mBody->setSaveButtonChecked(b); }
-bool uiDialog::saveButtonChecked() const { return mBody->saveButtonChecked(); }
+void uiDialog::setButtonSensitive(uiDialog::Button b, bool s) 
+					    { mBody->setButtonSensitive(b,s); }
+void uiDialog::setSaveButtonChecked(bool b) { mBody->setSaveButtonChecked(b); }
+bool uiDialog::saveButtonChecked() const{ return mBody->saveButtonChecked(); }
+uiButton* uiDialog::button(Button b)	{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }

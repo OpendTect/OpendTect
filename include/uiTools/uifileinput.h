@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.7 2001-12-06 09:36:53 nanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.8 2002-06-11 12:25:24 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigeninput.h"
+#include "uifiledlg.h"
 
 /*! \brief A file-name input. 
 
@@ -30,10 +31,19 @@ public:
 
     void		setFileName(const char*);
     void		setDefaultSelectionDir( const char* nm )
-			{ defseldir = nm; }
+			    { defseldir = nm; }
     void		setFilter( const char* fltr )
-			{ newfltr = true; selfltr = fltr; }
+			    { newfltr = true; selfltr = fltr; }
     const char*		fileName();
+
+    uiFileDialog::Mode	selectMode() const		
+			{ 
+			    return selmodset ? selmode 
+					: (forread ? uiFileDialog::ExistingFile 
+						   : uiFileDialog::AnyFile); 
+			}
+    void		setSelectMode( uiFileDialog::Mode m) 
+			    { selmodset=true;  selmode= m; }
 
 protected:
 
@@ -43,6 +53,9 @@ protected:
     BufferString	filter;
     BufferString	defseldir;
     BufferString	selfltr;
+
+    bool		selmodset;
+    uiFileDialog::Mode  selmode;
 
     virtual void	doSelect(CallBacker*);
 

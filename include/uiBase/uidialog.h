@@ -7,14 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.27 2002-01-30 15:46:35 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.28 2002-06-11 12:25:24 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 #include "bufstring.h"
+
+#include "errh.h"
 class uiGroup;
+class uiButton;
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
@@ -42,6 +45,9 @@ public:
     class Setup
     {
     public:
+
+    enum                SaveButType { None, CheckBox, PushButton };
+
 			Setup( const char* window_title,
 			       const char* dialog_title =0,
 			       const char* help_id =0 )
@@ -50,7 +56,7 @@ public:
 			, helpid_(help_id), savetext_("Save defaults")
 			, oktext_("Ok"), canceltext_("Cancel")
 			, modal_(true)
-			, savebutton_(false), separator_(true)
+			, savebutton_(None), separator_(true)
 			, menubar_(false), toolbar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
 			, fixedsize_(false)
@@ -58,15 +64,17 @@ public:
 
 	BufferString	wintitle_, dlgtitle_, helpid_;
 	BufferString	savetext_, oktext_, canceltext_;
-	bool		modal_, savebutton_, separator_, savechecked_;
+	bool		modal_, separator_, savechecked_;
 	bool		menubar_, toolbar_, mainwidgcentered_, fixedsize_;
+	SaveButType	savebutton_;
 	int		nrstatusflds_;
 
 	Setup&	savetext( const char* s )   { savetext_ = s;    return *this; }
 	Setup&	oktext( const char* s )     { oktext_ = s;      return *this; }
 	Setup&	canceltext( const char* s ) { canceltext_ = s;  return *this; }
 	Setup&	modal( bool yn=true )       { modal_ = yn;      return *this; }
-	Setup&	savebutton( bool yn=true )  { savebutton_ = yn; return *this; }
+	Setup&	savebutton( SaveButType tp=CheckBox )
+					    { savebutton_ = tp; return *this; }
 	Setup&	separator( bool yn=true )   { separator_ = yn;  return *this; }
 	Setup&	menubar( bool yn=true )     { menubar_ = yn;    return *this; }
 	Setup&	toolbar( bool yn=true )     { toolbar_ = yn;    return *this; }
@@ -78,6 +86,8 @@ public:
 	Setup&	fixedsize( bool yn=true )  { fixedsize_ = yn; return *this; }
 
     };
+
+    enum                Button { OK, SAVE, CANCEL, HELP };
 
 			uiDialog(uiParent*,const Setup&);
 
@@ -94,6 +104,18 @@ public:
 
     void		setCaption( const char* txt );
 
+    uiButton*		button( Button but );
+    void		setButtonText( Button but, const char* txt )
+			{
+			    switch ( but )
+			    {
+			    case OK	: setOkText( txt ); break;
+			    case CANCEL	: setCancelText( txt ); break;
+			    case SAVE	: enableSaveButton( txt ); break;
+			    case HELP	: pErrMsg("can't set txt on help but");
+			    }
+			}
+
 			//! OK button disabled when set to empty
     void		setOkText( const char* txt );
 			//! cancel button disabled when set to empty
@@ -102,7 +124,7 @@ public:
     void		enableSaveButton( const char* txt="Save defaults" );
 			//! title text. Default equal to name
 
-    void		setSaveButtonSensitive(bool);
+    void		setButtonSensitive( Button, bool);
     void		setSaveButtonChecked(bool);
     void		setTitleText( const char* txt );
     bool		saveButtonChecked() const;
