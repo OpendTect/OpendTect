@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.25 2004-05-12 18:20:47 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.26 2004-05-13 12:03:03 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -90,6 +90,7 @@ public:
     static int			sPermanentControlNode;
     static int			sTemporaryControlNode;
     static int			sEdgeControlNode;
+    static int			sTerminationNode;
 
 protected:
     virtual const IOObjContext&	getIOObjContext() const = 0;
