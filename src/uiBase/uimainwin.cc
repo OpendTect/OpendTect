@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.29 2002-01-07 13:53:19 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.30 2002-01-07 15:57:30 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -268,6 +268,7 @@ uiToolBar* uiMainWin::toolBar()			{ return body_->uitoolbar(); }
 void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
+uiGroup* uiMainWin::topGroup()		{ return body_->uiCentralWidg(); }
 
 uiObject* uiMainWin::uiObj()
     { return body_->uiCentralWidg()->uiObj(); }
@@ -685,4 +686,3 @@ void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
 bool uiDialog::saveButtonChecked()	{ return mBody->saveButtonChecked(); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
-uiGroup* uiDialog::topGroup()			{return mBody->uiCentralWidg();}

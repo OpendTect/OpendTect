@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.11 2001-12-17 10:47:55 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.12 2002-01-07 15:57:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiStatusBar;
 class uiToolBar;
 class uiMenuBar;
 class uiObject;
+class uiGroup;
 class QWidget;
 
 class uiMainWin : public uiParent
@@ -54,6 +55,8 @@ public:
     void		shallowRedraw( CallBacker* =0 )		{reDraw(false);}
     void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
     void		reDraw(bool deep);
+    uiGroup* 		topGroup();
+
 
 protected:
 
