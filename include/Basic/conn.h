@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.2 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: conn.h,v 1.3 2001-03-27 11:59:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,21 +31,30 @@ interface common to these connections.
 class Conn : public DefObject
 {	     hasFactory(Conn)
 public:
+
     enum State		{ Bad, Read, Write };
-			DeclareEnumUtilsWithVar(State,state)
 
-			Conn()	: state_(Bad), ioobj(0)	{}
-    virtual		~Conn()				{}
+			Conn()	: ioobj(0)	{}
+    virtual		~Conn()			{}
 
-    bool		forRead() const		{ return state_ == Read; }
-    bool		forWrite() const	{ return state_ == Write; }
+    virtual State	state() const		= 0;
+    virtual bool	bad() const		{ return state() == Bad; }
+    virtual bool	forRead() const		{ return state() == Read; }
+    virtual bool	forWrite() const	{ return state() == Write; }
 
-    virtual int		nrRetries()		{ return 0; }
-    virtual int		retryDelay()		{ return 0; }
+    virtual int		nrRetries() const	{ return 0; }
+    virtual int		retryDelay() const	{ return 0; }
 
-    virtual bool	bad() const		= 0;
+
+    inline Conn*	conn()			{ return gtConn(); }
+    inline const Conn*	conn() const		{ return gtConn(); }
+			//!< Returns the actual connection doing the work
 
     IOObj*		ioobj;
+
+protected:
+
+    virtual Conn*	gtConn() const	{ return const_cast<Conn*>(this); }
 
 };
 
@@ -55,6 +64,7 @@ public:
 class StreamConn : public Conn
 {		   isProducable(StreamConn)
 public:
+
     enum Type		{ File, Device, Command };
 			DeclareEnumUtils(Type)
 
@@ -73,6 +83,7 @@ public:
     ostream&		oStream() const  { return (ostream&)*sd.ostrm; }
     FILE*		fp() const	 { return (FILE*)sd.fp; }
 
+    virtual State	state() const		{ return state_; }
     virtual int		nrRetries() const	{ return nrretries; }
     virtual int		retryDelay() const	{ return retrydelay; }
     void		setNrRetries( int n )	{ nrretries = n; }
@@ -87,10 +98,9 @@ public:
 private:
 
     StreamData		sd;
-
+    State		state_;
     bool		mine;
     char*		fname;
-
     int			nrretries;
     int			retrydelay;
 
@@ -101,16 +111,31 @@ private:
 
 class XConn  : public Conn
 {	       isProducable(XConn)
+
+    friend class	IOX;
+
 public:
-			XConn() : conn(0)	{}
-			~XConn()		{ delete conn; }
-    virtual bool	bad() const		{ return conn ? NO : YES; }
-    virtual int		nrRetries() const	{ return conn->nrRetries(); }
-    virtual int		retryDelay() const	{ return conn->retryDelay(); }
+			XConn()
+			: conn_(0), mine_(true)		{}
+			~XConn()
+			{ if ( mine_ ) delete conn_; }
+
+    virtual State	state() const
+			{ return conn_ ? conn_->state() : Conn::Bad; }
+    virtual int		nrRetries() const
+			{ return conn_ ? conn_->nrRetries() : 0; }
+    virtual int		retryDelay() const
+			{ return conn_ ? conn_->retryDelay() : 0; }
+
+    void		setConn( Conn* c, bool becomesmine=true )
+			{ delete conn_; conn_ = c; mine_ = becomesmine; }
 
 protected:
 
-    Conn*		conn;
+    Conn*		conn_;
+    bool		mine_;
+
+    Conn*		gtConn() const	{ return const_cast<Conn*>(conn_); }
 
 };
 
