@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.1 2004-03-01 14:29:43 nanne Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.2 2004-03-12 11:55:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,9 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     const Well::D2TModel* d2t = wd.d2TModel();
     if ( zistime && !d2t ) mErrRet( "No depth to time model defined" );
     
+    bool zinft = SI().zInFeet();
+    SI().pars().getYN( uiWellPartServer::unitstr, zinft );
+
     TypeSet<BinIDZValues> positions;
     TypeSet<float> mdset;
     StepInterval<float> intv = rangefld->getFStepInterval();
@@ -121,7 +124,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
-	if ( SI().zInFeet() ) md *= 0.3048;
+	if ( zinft ) md *= 0.3048;
 	Coord3 pos = wd.track().getPos( md );
 	BinID bid = SI().transform( pos );
 	if ( !bid.inl && !bid.crl ) continue;
