@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.8 2002-01-10 12:12:03 nanne Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.9 2002-03-15 16:28:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,12 +36,13 @@ protected:
 
     SurveyInfo*		survinfo;
     UserIDString	orgdirname;
-    FileNameString	rootdir;
+    const FileNameString rootdir;
     BufferString	survnm;
     BufferString	dirnm;
 
     uiGenInput*		survnmfld;
     uiGenInput*		dirnmfld;
+    uiGenInput*		pathfld;
     uiGenInput*		inlfld;
     uiGenInput*		crlfld;
     uiGenInput*		zfld;
@@ -60,8 +61,6 @@ protected:
     uiGenInput*		coordset;
     uiGroup*		crdgrp;
     uiGroup*		trgrp;
-    uiLabel*		labelcs;
-    uiLabel*		labeltr;
     uiCheckBox*		overrule;
     uiPushButton*	applybut;
 
@@ -71,11 +70,12 @@ protected:
     bool		setCoords();
     bool		setRelation();
     bool		appButPushed();
-    void		wsbutPush( CallBacker* );
-    void		chgSetMode( CallBacker* );
+    void		wsbutPush(CallBacker*);
+    void		pathbutPush(CallBacker*);
+    void		chgSetMode(CallBacker*);
     bool		acceptOK(CallBacker*);
-    void		doFinalise();
-    void		setInl1Fld( CallBacker* );
+    void		doFinalise(CallBacker*);
+    void		setInl1Fld(CallBacker*);
 };
 
 #endif

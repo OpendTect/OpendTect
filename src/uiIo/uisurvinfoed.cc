@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.27 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.28 2002-03-15 16:27:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uisurvey.h"
 #include "uiidealdata.h"
 #include "uimsg.h"
+#include "uifiledlg.h"
 
 extern "C" const char* GetBaseDataDir();
 
@@ -42,13 +43,20 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     survnmfld = new uiGenInput( this, "Survey name", StringInpSpec( survnm ) );
     dirnmfld = new uiGenInput( this, "Directory name", 
 			       StringInpSpec( orgdirname ) );
-    BufferString nm = "( "; nm += rootdir; nm += "/ )";
-    uiLabel* dirnm = new uiLabel( this, nm );
     dirnmfld->attach( alignedBelow, survnmfld );
-    dirnm->attach( rightOf, dirnmfld );
+
+    pathfld = new uiGenInput( this, "Path", StringInpSpec( rootdir ) );
+    pathfld->attach( alignedBelow, dirnmfld );
+    uiButton* pathbut;
+    if ( !orgdirname.size() )
+    {
+	pathbut = new uiPushButton( this, "Select" );
+	pathbut->attach( rightOf, pathfld );
+	pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
+    }
 
     uiSeparator* horsep1 = new uiSeparator( this );
-    horsep1->attach( stretchedBelow, dirnmfld, -2 );
+    horsep1->attach( stretchedBelow, pathfld, -2 );
 
     BufferString txt( "Fetch setup from " );
     txt += IdealConn::guessedType() == IdealConn::SW
@@ -57,7 +65,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     if ( IdealConn::haveIdealServices() )
     {
 	wsbut = new uiPushButton( this, txt );
-	wsbut->attach( alignedBelow, dirnmfld );
+	wsbut->attach( alignedBelow, pathfld );
 	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
     }
 
@@ -92,7 +100,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     crdgrp = new uiGroup( this, "Coordinate settings" );
     ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
 			     BinIDCoordInpSpec() ); 
-    ic0fld->valuechanged.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
+    ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
     ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line",
 			     BinIDCoordInpSpec()  );
     ic2fld = new uiGenInput( crdgrp, "In-line/Cross-line not on above in-line",
@@ -198,12 +206,21 @@ bool uiSurveyInfoEditor::appButPushed()
 }
 
 
-void uiSurveyInfoEditor::doFinalise()
+void uiSurveyInfoEditor::doFinalise( CallBacker* )
 {
+    if ( orgdirname.size() )
+    {
+	BufferString from = File_getFullPath( rootdir, orgdirname );
+	BufferString path = File_getPathOnly( File_linkTarget( from ) );
+	pathfld->setText( path );
+	pathfld->setReadOnly( true );
+    }
+
     if ( survinfo->rangeUsable() ) setValues();
 
     chgSetMode(0);
-    if( ic1fld->uiObj() ) ic1fld->uiObj()->setSensitive( false );
+//  if( ic1fld->uiObj() ) ic1fld->uiObj()->setSensitive( false );
+    ic1fld->setReadOnly( true, 0 );
 }
 
 
@@ -221,7 +238,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	from = File_getFullPath( GetSoftwareDir(), "data" );
 	from = File_getFullPath( from, "BasicSurvey" );
 
-	BufferString to( rootdir );
+	BufferString to( pathfld->text() );
 	to = File_getFullPath( to, newdirnm );
 	if ( File_exists(to) )
 	{
@@ -239,6 +256,15 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
 	File_makeWritable( to, YES, YES );
 	survinfo->dirname = dirnmfld->text();
+	BufferString link = File_getFullPath( rootdir, newdirnm ); 
+	if ( link != to )
+	    if ( !File_createLink( to, link ) )
+	    {
+		BufferString msg( "Cannot create link from \n" );
+		msg += to; msg += " to \n"; msg += link;
+		uiMSG().error( msg ); 
+		return false;
+	    }
     }
     else
         if ( orgdirname != newdirnm ) dirnmch_ = true;
@@ -375,6 +401,14 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
 
     survinfo->setWSProjName( SI().getWSProjName() );
     survinfo->setWSPwd( SI().getWSPwd() );
+}
+
+
+void uiSurveyInfoEditor::pathbutPush( CallBacker* )
+{
+    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, rootdir );
+    if ( dlg.go() )
+	pathfld->setText( dlg.fileName() );
 }
 
 
