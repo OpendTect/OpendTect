@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.47 2003-01-24 14:37:59 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.48 2003-01-24 14:56:50 nanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -206,6 +206,8 @@ Coord3 visSurvey::Scene::getMousePos( bool xyt ) const
 
 void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
+    visBase::SceneObject::fillPar( par, saveids );
+
     int kid = 0;
     while ( getObject(kid++)!= zscaletransform )
 	;
@@ -253,6 +255,20 @@ int visSurvey::Scene::usePar( const IOPar& par )
     res = visBase::SceneObject::usePar( par );
 
     if ( res!=1 ) return res;
+
+    int nrkids = 0;
+    par.get( nokidsstr, nrkids );
+    for ( int idx=0; idx<nrkids; idx++ )
+    {
+	BufferString key = kidprefix;
+	key += idx;
+	int objid;
+	if ( !par.get( key, objid ) ) return -1;
+	visBase::DataObject* dobj = visBase::DM().getObj( objid );
+	if ( !dobj ) return 0;
+	mDynamicCastGet(visBase::SceneObject*,so,dobj);
+	if ( so ) addObject( so );
+    }
 
     bool txtshown = true;
     par.getYN( annottxtstr, txtshown );
