@@ -6,15 +6,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.4 2002-11-12 15:14:51 kristofer Exp $
+ RCS:           $Id: uislicesel.h,v 1.5 2003-08-12 14:38:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "ranges.h"
 
 class uiLabeledSpinBox;
-class uiGenInput;
+class uiSpinBox;
 class CubeSampling;
 class uiPushButton;
 class uiCheckBox;
@@ -37,18 +38,21 @@ protected:
     void			stepSel(CallBacker*);
     void			readInput();
     bool			acceptOK(CallBacker*);
+    void			setBoxValues(uiSpinBox*,
+	    				     const StepInterval<int>&, int );
 
-    uiLabeledSpinBox*           inlfld;
-    uiLabeledSpinBox*           crlfld;
-    uiLabeledSpinBox*           zfld;
-    uiGenInput*                 inlrgfld;
-    uiGenInput*                 crlrgfld;
-    uiGenInput*                 zrgfld;
+    uiLabeledSpinBox*           inl0fld;
+    uiLabeledSpinBox*           crl0fld;
+    uiLabeledSpinBox*           z0fld;
+    uiSpinBox*			inl1fld;
+    uiSpinBox*			crl1fld;
+    uiSpinBox*			z1fld;
     uiCheckBox*			doupdfld;
     uiLabeledSpinBox*		stepfld;
 
     CubeSampling&		cs;
     Notifier<uiSliceSel>	cschanged;
+    bool			isinl,iscrl,istsl,isvol;
 
     Threads::Mutex&		updatemutex;
 };
