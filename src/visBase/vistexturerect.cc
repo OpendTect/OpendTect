@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.13 2002-04-23 06:17:09 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.14 2002-04-24 08:22:02 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -226,6 +226,7 @@ void visBase::TextureRect::clipData()
     int nrvalues = data->info().getTotalSz();
 
     DataClipper clipper( cliprate );
+    clipper.setApproxNrValues( nrvalues );
     clipper.putData( data->getData(), nrvalues );
     clipper.calculateRange();
 
