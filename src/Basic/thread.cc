@@ -4,11 +4,14 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.13 2002-11-12 15:13:53 kristofer Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.14 2003-06-10 13:50:19 arend Exp $";
 
 #include "thread.h"
 #include "callback.h"
 #include "errno.h"
+
+#include "debug.h"
+#include "debugmasks.h"
 
 #include "settings.h"		// Only for getNrProcessors
 
@@ -143,13 +146,28 @@ void Threads::Thread::threadExit()
 #endif
 }
 
+#define dbg_nr_proc() \
+    if ( DBG::isOn( DBG_MT ) )  \
+    { \
+	BufferString msg( "Number of Processors found: " ); \
+	msg += ret; \
+	DBG::message( msg ); \
+    }
+
 
 #ifdef __win__
 int Threads::getNrProcessors()
 {
-    int res = 2;
-    Settings::common().get("Nr Processors", res );
+    int res = 1;
+
+    if ( !Settings::common().get("Nr Processors", res ) )
+    {
+	struct _SYSTEM_INFO sysinfo;
+	GetSystemInfo(&sysinfo);
+	res = sysinfo.dwNumberOfProcessors; /* total number of CPUs */
+    }
     return res;
+
 }
 #else
 
@@ -170,11 +188,20 @@ int Threads::getNrProcessors()
     int nrprocessors = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
 
+    int ret;
+    if ( maxnrproc==-1 && nrprocessors==-1 ) ret= 2;
+    else if ( maxnrproc==-1 ) ret= nrprocessors;
+    else if ( nrprocessors==-1 ) ret= maxnrproc;
+    else  ret= mMIN(nrprocessors,maxnrproc);
 
-    if ( maxnrproc==-1 && nrprocessors==-1 ) return 2;
-    else if ( maxnrproc==-1 ) return nrprocessors;
-    else if ( nrprocessors==-1 ) return maxnrproc;
-    return mMIN(nrprocessors,maxnrproc);
+    if ( DBG::isOn( DBG_MT ) ) 
+    {
+	BufferString msg( "Number of Processors found: " );
+	msg += ret;
+	DBG::message( msg );
+    }
+
+    return ret;
 }
 
 #endif
