@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.15 2002-02-14 07:16:37 nanne Exp $
+ RCS:		$Id: sets.h,v 1.16 2002-03-12 16:02:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ constructor. The `-=' function will only remove the first occurrence that
 matches using the `==' operator. The requirement of the presence of that
 operator is actually not that bad: at least you can't forget it.
 
+Do not make TypeSet<bool>. Use the BoolTypeSet typedef. See Vector for details.
+
 */
 
 template <class T>
@@ -44,6 +46,7 @@ public:
 				{ append( t ); }
     virtual		~TypeSet()
 				{}
+    TypeSet<T>&		operator =( const TypeSet<T>& ts ) { return copy(ts); }
 
     virtual int		size() const
 				{ return typs.size(); }
@@ -77,7 +80,6 @@ public:
 			    return *this;
 
 			}
-    TypeSet<T>&		operator =( const TypeSet<T>& ts ) { return copy(ts); }
     virtual void	append( const TypeSet<T>& ts ) {
 
 			    const unsigned int sz = ts.size();
@@ -85,14 +87,15 @@ public:
 				*this += ts[idx];
 			}
 
-    virtual void	erase()
-				{ typs.erase(); }
-    virtual void	remove( int idx )
-				{ typs.remove(idx); }
-    virtual void	remove( int i1, int i2 )
-				{ typs.remove(i1,i2); }
-    virtual void	insert( int idx, const T& typ )
-				{ typs.insert(idx,typ); }
+    virtual void	erase()				{ typs.erase(); }
+    virtual void	remove( int idx )		{ typs.remove(idx); }
+    virtual void	remove( int i1, int i2 )	{ typs.remove(i1,i2); }
+    virtual void	insert( int idx, const T& typ )	{ typs.insert(idx,typ);}
+
+    Vector<T>&		vec()				{ return typs.vec(); }
+    const Vector<T>&	vec() const			{ return typs.vec(); }
+    T*			arr()		{ return size() ? &(*this)[0] : 0; }
+    const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 
 private:
 
@@ -100,13 +103,18 @@ private:
 
 };
 
+//! We need this because STL has a crazy specialisation of the vector<bool>
+typedef TypeSet<char> BoolTypeSet;
+//!< This sux!
+
+
 
 template <class T>
 inline bool operator ==( const TypeSet<T>& a, const TypeSet<T>& b )
 {
     if ( a.size() != b.size() ) return false;
 
-    int sz = a.size();
+    const int sz = a.size();
     for ( int idx=0; idx<sz; idx++ )
 	if ( !(a[idx] == b[idx]) ) return false;
 
@@ -116,6 +124,27 @@ inline bool operator ==( const TypeSet<T>& a, const TypeSet<T>& b )
 template <class T>
 inline bool operator !=( const TypeSet<T>& a, const TypeSet<T>& b )
 { return !(a == b); }
+
+
+//! append allowing a different type to be merged into set
+template <class T,class S>
+inline void append( TypeSet<T>& to, const TypeSet<S>& from )
+{
+    const int sz = from.size();
+    for ( int idx=0; idx<sz; idx++ )
+	to += from[idx];
+}
+
+
+//! copy from different possibly different type into set
+//! Note that there is no optimisation for equal size, as in member function.
+template <class T,class S>
+inline void copy( TypeSet<T>& to, const TypeSet<S>& from )
+{
+    if ( &to == &from ) return;
+    to.erase();
+    append( to, from );
+}
 
 
 /*!\brief Set of pointers to objects
@@ -183,8 +212,7 @@ public:
 			    if ( idx < 0 )
 				objs.moveToStart( (void*)newptr );
 			    else
-				objs.moveAfter( (void*)newptr,
-						(void*)(*this)[idx] );
+				objs.moveAfter( (void*)newptr, objs[idx] );
 			}
     virtual void	copy( const ObjectSet<T>& os ) {
 
@@ -210,6 +238,7 @@ private:
 };
 
 
+//! empty the ObjectSet deleting all objects pointed to.
 template <class T>
 inline void deepErase( ObjectSet<T>& os )
 {
@@ -218,23 +247,25 @@ inline void deepErase( ObjectSet<T>& os )
     os.erase();
 }
 
-template <class T>
-inline void deepAppend( ObjectSet<T>& to, const ObjectSet<T>& from )
+
+//! append copies of one set's objects to another ObjectSet.
+template <class T,class S>
+inline void deepAppend( ObjectSet<T>& to, const ObjectSet<S>& from )
 {
     const int sz = from.size();
     for ( int idx=0; idx<sz; idx++ )
 	to += from[idx] ? new T( *from[idx] ) : 0;
 }
 
-template <class T>
-inline void deepCopy( ObjectSet<T>& to, const ObjectSet<T>& from )
+
+//! fill an ObjectSet with copies of the objects in the other set.
+template <class T,class S>
+inline void deepCopy( ObjectSet<T>& to, const ObjectSet<S>& from )
 {
-    if ( &to != &from )
-    {
-	deepErase(to);
-	to.allowNull(from.nullAllowed());
-	deepAppend( to, from );
-    }
+    if ( &to == &from ) return;
+    deepErase(to);
+    to.allowNull(from.nullAllowed());
+    deepAppend( to, from );
 }
 
 

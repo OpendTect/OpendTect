@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.5 2001-05-31 12:55:07 windev Exp $
+ RCS:           $Id: progressmeter.h,v 1.6 2002-03-12 16:02:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
     unsigned long	update(unsigned long auxdisp=ULONG_MAX);
     unsigned long	operator++();
     void		reset();
+    void		resetDist();
     void		finish();
 
 protected:

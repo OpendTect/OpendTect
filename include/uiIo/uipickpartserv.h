@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.1 2002-02-08 22:00:56 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.2 2002-03-12 16:02:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 
     PickSetGroup&	group()				{ return psg; }
     UserIDSet&		availableSets()			{ return avsets; }
-    const TypeSet<bool>& selectedSets() const		{ return selsets; }
+    const BoolTypeSet& selectedSets() const		{ return selsets; }
     MultiID&		psgID()				{ return psgid; }
 
 protected:
@@ -45,7 +45,7 @@ protected:
     PickSetGroup&	psg;
     MultiID		psgid;
     UserIDSet		avsets;
-    TypeSet<bool>	selsets;
+    BoolTypeSet		selsets;
 
 };
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.25 2002-02-22 11:21:00 kristofer Exp $
+ RCS:		$Id: callback.h,v 1.26 2002-03-12 16:02:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,6 +232,7 @@ to 'publish' event notification abilities.
 
 #define NamedNotifierList NamedNotifierSet
 #include <sets.h>
+#include <string>
 
 class NamedNotifierSet
 {
@@ -240,13 +241,13 @@ public:
 				{ deepErase( names ); }
 
     void			add( const char* nm, NotifierAccess& na )
-				{ names += new BufferString(nm); notifs += &na;}
+				{ names += new string(nm); notifs += &na;}
     NotifierAccess*		find(const char*) const;
 
 protected:
 
     ObjectSet<NotifierAccess>	notifs;
-    ObjectSet<BufferString>	names;
+    ObjectSet<string>		names;
 
 };
 
