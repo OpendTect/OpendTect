@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.21 2004-05-27 11:56:11 bert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.22 2004-06-17 09:07:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -380,6 +380,11 @@ void uiWellMan::mkFileInfo()
     {	txt += "\n"; txt += key; txt += ": "; txt += str; }
 
     Well::Info& info = welldata->info();
+    BufferString crdstr; info.surfacecoord.fill( crdstr.buf() );
+    BufferString bidstr; SI().transform(info.surfacecoord).fill( bidstr.buf() );
+    BufferString posstr( bidstr ); posstr += " "; posstr += crdstr;
+    mAddWellInfo(Well::Info::sKeycoord,posstr)
+    mAddWellInfo(Well::Info::sKeyelev,BufferString(info.surfaceelev))
     mAddWellInfo(Well::Info::sKeyuwid,info.uwid)
     mAddWellInfo(Well::Info::sKeyoper,info.oper)
     mAddWellInfo(Well::Info::sKeystate,info.state)
