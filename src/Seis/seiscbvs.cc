@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.24 2002-07-26 15:33:59 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.25 2002-09-25 07:18:38 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.24 2002-07-26 15:33:59 bert Exp
 #include "uidset.h"
 #include "survinfo.h"
 #include "strmprov.h"
+#include "separstr.h"
 #include "filegen.h"
 
 
@@ -544,7 +545,23 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
 
     res = iopar->find( "Optimized direction" );
     if ( res && *res )
+    {
 	brickspec.setStd( *res == 'H' );
+	if ( *res == 'H' && *res && *(res+1) == '`' )
+	{
+	    FileMultiString fms( res + 2 );
+	    const int sz = fms.size();
+	    int tmp = atoi( fms[0] );
+	    if ( tmp > 0 )
+		brickspec.nrsamplesperslab = tmp < 100000 ? tmp : 100000;
+	    if ( sz > 1 )
+	    {
+		tmp = atoi( fms[1] );
+		if ( tmp > 0 )
+		    brickspec.maxnrslabs = tmp;
+	    }
+	}
+    }
 }
 
 
