@@ -6,7 +6,7 @@ Workstation Access Specification
 
 -- Note: set the environment variable dGB_WORKSTATIONLINK_HOST if you
 -- wish to select host 1 or higher.
--- Example: setenv dGB_WORKSTATIONLINK_HOST 1
+-- Example: setenv dGB_WORKSTATIONLINK_HOST dgb14
 
 Number of Hosts: 2
 
