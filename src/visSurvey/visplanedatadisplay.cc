@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.33 2003-01-21 16:09:48 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.34 2003-01-24 11:31:08 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -495,7 +495,7 @@ visBase::Material* visSurvey::PlaneDataDisplay::getMaterial()
 SoNode* visSurvey::PlaneDataDisplay::getData() { return trect->getData(); }
 
 
-const char* visSurvey::PlaneDataDisplay::getResName( int res )
+const char* visSurvey::PlaneDataDisplay::getResName( int res ) const
 {
     if ( res == 1 ) return "Moderate";
     if ( res == 2 ) return "High";
