@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.15 2004-01-22 15:16:57 dgb Exp $
+# $Id: od_cr_dev_env,v 1.16 2004-01-22 16:01:34 dgb Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -102,5 +102,6 @@ cp "$inpdir/.rel.od.doc" .
 
 if [ $instcyg = 1 ]; then
     batfile=`cygpath -w "${inpdir}/bin/win/instcyg.bat"`
+    cd "${inpdir}\\bin\\win"
     cmd /E:off /c start "$batfile"
 fi
