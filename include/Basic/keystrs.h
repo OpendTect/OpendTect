@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.2 2002-03-27 08:18:09 bert Exp $
+ RCS:		$Id: keystrs.h,v 1.3 2002-03-28 16:52:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ namespace sKey
     extern const char*	Value		mImpl("Value");
     extern const char*	FileName	mImpl("File name");
     extern const char*	IOSelection	mImpl("I/O Selection");
+    extern const char*	Pars		mImpl("Parameters");
 
     extern const char*	Minimum		mImpl("Minimum");
     extern const char*	Maximum		mImpl("Maximum");
