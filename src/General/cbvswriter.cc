@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.26 2002-07-25 21:48:44 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.27 2002-07-25 21:50:11 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -316,13 +316,11 @@ int CBVSWriter::put( void** cdat, int offs )
 
 bool CBVSWriter::writeAuxInfo()
 {
-    if ( !auxinfo ) return true;
-
     DataBuffer* buf = 0;
     buf = new DataBuffer( bytesperwrite, 1 );
     dbufs += buf;
 
-    if ( buf && auxnrbytes )
+    if ( buf && auxinfo && auxnrbytes )
     {
 	unsigned char* ptr = buf->data();
 
