@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.21 2003-01-16 15:33:01 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.22 2003-01-17 16:23:16 nanne Exp $
 ________________________________________________________________________
 
 
@@ -100,7 +100,8 @@ public:
     virtual int			usePar( const IOPar& );
 
     virtual float		calcDist( const Coord3& ) const;
-    virtual NotifierAccess*	getMovementNotification() { return &moving; }
+    virtual NotifierAccess*	getMovementNotification() { return &newdata; }
+    Notifier<PlaneDataDisplay>	moving;
 
     const char*			getResName(int);
     void			setResolution(int);
@@ -109,7 +110,8 @@ public:
 
 protected:
 				~PlaneDataDisplay();
-    void			appVelChCB( CallBacker* );
+    void			appVelChCB(CallBacker*);
+    void			manipChanged(CallBacker*);
 
     void			select();
     void			deSelect();
@@ -124,7 +126,7 @@ protected:
     bool			selected_;
     bool			succeeded_;
 
-    Notifier<PlaneDataDisplay>	moving;
+    Notifier<PlaneDataDisplay>	newdata;
 
     static const char*		trectstr;
 };

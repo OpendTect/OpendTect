@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.29 2003-01-16 15:32:22 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.30 2003-01-17 16:23:07 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -29,20 +29,22 @@ mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
 const char* visSurvey::PlaneDataDisplay::trectstr = "Texture rectangle";
 
 visSurvey::PlaneDataDisplay::PlaneDataDisplay()
-    : VisualObject( true )
-    , trect( visBase::TextureRect::create() )
-    , selected_( false )
+    : VisualObject(true)
+    , trect(visBase::TextureRect::create())
+    , selected_(false)
     , cache(0)
     , as(*new AttribSelSpec)
     , cs(*new CubeSampling)
-    , moving( this )
+    , newdata(this)
+    , moving(this)
 {
     trect->ref();
-    selection()->notify( mCB(this,PlaneDataDisplay,select));
-    deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect));
+    selection()->notify( mCB(this,PlaneDataDisplay,select) );
+    deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect) );
 
     trect->getMaterial()->setAmbience( 0.8 );
     trect->getMaterial()->setDiffIntensity( 0.8 );
+    trect->manipChanges()->notify( mCB(this,PlaneDataDisplay,manipChanged) );
 
     setType( Inline );
 
@@ -50,7 +52,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     trect->getRectangle().setSnapping( true );
     trect->useTexture( false );
 
-    SPM().appvelchange.notify(  mCB(this,PlaneDataDisplay,appVelChCB));
+    SPM().appvelchange.notify( mCB(this,PlaneDataDisplay,appVelChCB) );
 }
 
 
@@ -267,9 +269,15 @@ float visSurvey::PlaneDataDisplay::calcDist( const Coord3& pos ) const
 }
 
 
-void visSurvey::PlaneDataDisplay::appVelChCB( CallBacker* cb )
+void visSurvey::PlaneDataDisplay::appVelChCB( CallBacker* )
 {
     resetDraggerSizes( SPM().getAppVel() );
+}
+
+
+void visSurvey::PlaneDataDisplay::manipChanged( CallBacker* )
+{
+    moving.trigger();
 }
 
 
@@ -350,7 +358,7 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 bool visSurvey::PlaneDataDisplay::updateAtNewPos()
 {
     succeeded_ = false;
-    moving.trigger();
+    newdata.trigger();
     return succeeded_;
 }
 
