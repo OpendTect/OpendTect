@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.3 2000-05-25 15:36:39 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.4 2000-09-27 16:04:48 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -44,10 +44,8 @@ double Coord::distance( const Coord& coord ) const
 void Coord::fill( char* str ) const
 {
     if ( !str ) return;
-    strcpy( str, "(" );
-    strcat( str, getStringFromDouble("%lg",x) );
-    strcat( str, "," );
-    strcat( str, getStringFromDouble("%lg",y) );
+    strcpy( str, "(" ); strcat( str, getStringFromDouble(0,x) );
+    strcat( str, "," ); strcat( str, getStringFromDouble(0,y) );
     strcat( str, ")" );
 }
 
@@ -216,7 +214,7 @@ int BinIDRange::fillString( char* str ) const
     if ( stepout.inl || stepout.crl )
     {
 	fms += "S";
-	strcat( (char*)fms, getStringFromInt("%d",stepout.inl) );
+	strcat( (char*)fms, getStringFromInt(0,stepout.inl) );
 	fms += stepout.crl;
     }
     strcpy( str, fms );

@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.3 2000-04-17 14:57:04 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.4 2000-09-27 16:05:00 bert Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -192,7 +192,7 @@ bool IODir::create( const char* dirnm, const UnitID& uid, IOObj* mainobj )
 {
     if ( !dirnm || !*dirnm || !mainobj ) return NO;
     mainobj->unitid = uid;
-    mainobj->unitid += getStringFromInt( "%d", 1 );
+    mainobj->unitid += getStringFromInt( 0, 1 );
     IODir dir;
     dir.dirname_ = dirnm;
     dir.unitid = uid;
@@ -349,6 +349,6 @@ UnitID IODir::newId() const
 {
     UnitID id = unitid;
     ((IODir*)this)->curid_++;
-    id += getStringFromInt( "%d", curid_ );
+    id += getStringFromInt( 0, curid_ );
     return id;
 }

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.6 2000-08-08 18:25:21 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.7 2000-09-27 16:04:47 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -299,38 +299,52 @@ void IOPar::set( const char* keyw, const char* vals )
 
 void IOPar::set( const char* keyw, int val )
 {
-    set( keyw, getStringFromInt("%d",val) );
+    set( keyw, getStringFromInt(0,val) );
+}
+
+
+void IOPar::set( const char* keyw, float val )
+{
+    set( keyw, mIsUndefined(val) ? sUndefValue
+				 : getStringFromFloat(0,val) );
 }
 
 
 void IOPar::set( const char* keyw, double val )
 {
-    set( keyw, mIsUndefined(val) ? sUndefValue
-				 : getStringFromDouble("%lg",val) );
+    set( keyw, mIsUndefined(val) ? sUndefValue : getStringFromDouble(0,val) );
 }
 
 
 void IOPar::set( const char* s, int i1, int i2 )
 {
-    fms = getStringFromInt("%d",i1);
-    fms.add( getStringFromInt("%d",i2) );
+    fms = getStringFromInt(0,i1);
+    fms.add( getStringFromInt(0,i2) );
+    set( s, fms );
+}
+
+
+void IOPar::set( const char* s, float f1, float f2 )
+{
+    fms = mIsUndefined(f1) ? sUndefValue : getStringFromFloat(0,f1);
+    fms.add( mIsUndefined(f2) ? sUndefValue : getStringFromFloat(0,f2) );
     set( s, fms );
 }
 
 
 void IOPar::set( const char* s, double d1, double d2 )
 {
-    fms = mIsUndefined(d1) ? sUndefValue : getStringFromDouble("%lf",d1);
-    fms.add( mIsUndefined(d2) ? sUndefValue : getStringFromDouble("%lf",d2) );
+    fms = mIsUndefined(d1) ? sUndefValue : getStringFromDouble(0,d1);
+    fms.add( mIsUndefined(d2) ? sUndefValue : getStringFromDouble(0,d2) );
     set( s, fms );
 }
 
 
 void IOPar::set( const char* s, int i1, int i2, int i3 )
 {
-    fms = getStringFromInt("%d",i1);
-    fms.add( getStringFromInt("%d",i2) );
-    fms.add( getStringFromInt("%d",i3) );
+    fms = getStringFromInt(0,i1);
+    fms.add( getStringFromInt(0,i2) );
+    fms.add( getStringFromInt(0,i3) );
     set( s, fms );
 }
 

@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.3 2000-04-18 10:16:07 bert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.4 2000-09-27 16:04:46 bert Exp $";
 
 #include "ascstream.h"
 #include "unitscale.h"
@@ -91,10 +91,8 @@ bool ascostream::put( const char* keyword, float value, const MeasureUnit* mu )
 {
     if ( !mIsUndefined(value) )
     {
-	putKeyword( keyword );
 	if ( mu ) value = mu->fromSI( value );
-	stream() << value;
-	stream() << '\n';
+	return put( keyword, getStringFromFloat(0,value) );
     }
     return stream().good();
 }
@@ -105,7 +103,7 @@ bool ascostream::put( const char* keyword, double value, const MeasureUnit* mu )
     if ( !mIsUndefined(value) )
     {
 	if ( mu ) value = mu->fromSI( value );
-	return put( keyword, getStringFromDouble("%lg",value) );
+	return put( keyword, getStringFromDouble(0,value) );
     }
     return stream().good();
 }

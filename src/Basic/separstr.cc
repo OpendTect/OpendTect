@@ -5,7 +5,7 @@
  * FUNCTION : Functions concerning comma separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.2 2000-05-01 10:39:31 bert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.3 2000-09-27 16:04:49 bert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
@@ -104,13 +104,20 @@ unsigned int SeparString::size() const
 
 SeparString& SeparString::operator +=( int i )
 {
-    *this += getStringFromInt( "%d", i );
+    *this += getStringFromInt( 0, i );
+    return *this;
+}
+
+
+SeparString& SeparString::operator +=( float f )
+{
+    *this += getStringFromFloat( 0, f );
     return *this;
 }
 
 
 SeparString& SeparString::operator +=( double d )
 {
-    *this += getStringFromDouble( "%lg", d );
+    *this += getStringFromDouble( 0, d );
     return *this;
 }
