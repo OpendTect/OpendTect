@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.1 2004-12-06 20:16:13 bert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.2 2004-12-10 16:57:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,13 +13,16 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
+#include "seis2dline.h"
 #include "uiseissel.h"
 #include "uigeninput.h"
 #include "uifileinput.h"
 #include "uiseisioobjinfo.h"
+#include "uiexecutor.h"
 #include "uimsg.h"
 #include "ctxtioobj.h"
 #include "survinfo.h"
+#include "strmprov.h"
 #include "ioobj.h"
 
 static const BufferStringSet emptylnms;
@@ -46,10 +49,13 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     lnmsfld->setWithCheck( true );
     lnmsfld->attach( alignedBelow, seisfld );
 
+    incnrfld = new uiGenInput( this, "Start with trace number", BoolInpSpec() );
+    incnrfld->attach( alignedBelow, lnmsfld );
+
     zfld = new uiGenInput( this, "Add Z value",
 	    		   FloatInpSpec(SI().zRange().start) );
     zfld->setWithCheck( true );
-    zfld->attach( alignedBelow, lnmsfld );
+    zfld->attach( alignedBelow, incnrfld );
 
     outfld = new uiFileInput( this, "Output file",
 	    			uiFileInput::Setup().forread(false) );
@@ -91,8 +97,22 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         uiMSG().error( "Please enter the output file name" );
         return false;
     }
+    StreamData sd = StreamProvider( fnm ).makeOStream();
+    if ( !sd.usable() )
+    {
+        uiMSG().error( "Cannot open the output file" );
+        return false;
+    }
 
-    //TODO
-    uiMSG().message( "Sorry - not implemented yet" );
-    return true;
+    const float zval = zfld->isChecked() ? zfld->getfValue() : mUndefValue;
+    const bool incnr = incnrfld->getBoolValue();
+    const char* lk = lnmsfld->isChecked() ? lnmsfld->text() : 0;
+    Seis2DLineSet ls( ctio.ioobj->fullUserExpr(true) );
+
+    Executor* dmper = ls.geometryDumper( *sd.ostrm, incnr, zval, lk );
+    uiExecutor dlg( this, *dmper );
+    bool rv = dlg.go();
+
+    delete dmper; sd.close();
+    return rv;
 }

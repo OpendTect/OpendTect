@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.24 2004-11-19 13:24:27 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.25 2004-12-10 16:57:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,12 +99,17 @@ public:
     void		getAvailableAttributes(BufferStringSet&) const;
 
     bool		getGeometry(int,Line2DGeometry&) const;
+    Executor*		geometryDumper(std::ostream&,bool inc_nr,
+	    				float z_val=mUndefValue,
+	    				const char* linekey=0) const;
+
     Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,
 	    			    const SeisSelData* sd=0) const;
     				//!< May return null
     Seis2DLinePutter*	linePutter(IOPar*);
     				//!< May return null.
     				//!< will return replacer if linekey exists
+
     bool		rename(const char* lk,const char* newlk);
     				//!< Fails if new line key exists
     				//!< or if LineSet is currently being written

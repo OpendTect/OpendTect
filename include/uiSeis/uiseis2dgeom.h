@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uiseis2dgeom.h,v 1.1 2004-12-06 20:16:13 bert Exp $
+ RCS:           $Id: uiseis2dgeom.h,v 1.2 2004-12-10 16:57:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ protected:
 
     uiSeisSel*		seisfld;
     uiGenInput*		lnmsfld;
+    uiGenInput*		incnrfld;
     uiGenInput*		zfld;
     uiFileInput*	outfld;
 

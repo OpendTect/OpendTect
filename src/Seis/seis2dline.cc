@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.35 2004-11-19 13:24:27 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.36 2004-12-10 16:57:41 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -581,4 +581,112 @@ bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
     }
 
     return false;
+}
+
+
+class Seis2DGeomDumper : public Executor
+{
+public:
+
+Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
+		  const char* lk )
+	: Executor("Geometry extraction")
+	, ls(l)
+	, strm(o)
+	, incnr(inr)
+	, curidx(-1)
+	, totalnr(-1)
+	, zval(z)
+	, incz(!mIsUndefined(z))
+{
+    lastidx = ls.nrLines() - 1;
+    if ( lastidx < 0 )
+    {
+	curmsg = "No lines in line set";
+	return;
+    }
+
+    curidx = 0;
+    if ( lk && *lk )
+    {
+	curidx = ls.indexOf( lk );
+	if ( curidx < 0 )
+	{
+	    curmsg = "Line key not found in line set";
+	    return;
+	}
+	lastidx = curidx;
+    }
+
+    totalnr = lastidx - curidx + 1;
+    curmsg = "Extracting geometry";
+}
+
+const char* message() const	{ return curmsg.buf(); }
+const char* nrDoneText() const	{ return "Lines handled"; }
+int nrDone() const		{ return curidx; }
+int totalNr() const		{ return totalnr; }
+
+int nextStep()
+{
+    if ( curidx < 0 )
+	return ErrorOccurred;
+    if ( !strm.good() )
+    {
+	curmsg = "Cannot write to file";
+	return ErrorOccurred;
+    }
+
+    Line2DGeometry geom;
+    if ( !ls.getGeometry(curidx,geom) )
+    {
+	curmsg = "Couldn't get geometry for '";
+	curmsg += ls.lineKey( curidx );
+	curmsg += "'";
+	return totalnr == 1 ? ErrorOccurred
+	    		    : (curidx == lastidx ? Finished : WarningAvailable);
+    }
+
+    BufferString outstr;
+    for ( int idx=0; idx<geom.posns.size(); idx++ )
+    {
+	const Line2DPos& pos = geom.posns[idx];
+	outstr = "";
+	if ( incnr )
+	    { outstr += pos.nr; outstr += "\t"; }
+	outstr += pos.coord.x; outstr += "\t";
+	outstr += pos.coord.y;
+	if ( incz )
+	    { outstr += "\t"; outstr += zval; }
+	strm << outstr << '\n';
+    }
+    strm.flush();
+
+    if ( !strm.good() )
+    {
+	curmsg = "Error during write to file";
+	return ErrorOccurred;
+    }
+
+    curidx++;
+    return curidx > lastidx ? Finished : MoreToDo;
+}
+
+    const Seis2DLineSet&	ls;
+    std::ostream&		strm;
+    const bool			incz;
+    const float			zval;
+    bool			incnr;
+    int				curidx;
+    int				lastidx;
+    int				totalnr;
+    BufferString		curmsg;
+
+};
+
+
+Executor* Seis2DLineSet::geometryDumper( std::ostream& strm, bool incnr,
+					 float z, const char* lk ) const
+{
+    return new Seis2DGeomDumper( *this, strm, incnr, z, lk );
 }
