@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.2 2001-05-04 10:09:01 windev Exp $
+ RCS:           $Id: uimain.cc,v 1.3 2001-05-16 14:57:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,30 +39,6 @@ uiMain::uiMain( int argc, char **argv )
     app->setStyle( new QCDEStyle() );
     font_ = 0;
 
-#if 0
-
-    QPalette p( QColor( 75, 123, 130 ) );
-    p.setColor( QPalette::Active, QColorGroup::Base, QColor( 55, 77, 78 ) );
-    p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( 55, 77, 78 ) );
-    p.setColor( QPalette::Disabled, QColorGroup::Base, QColor( 55, 77, 78 ) );
-    p.setColor( QPalette::Active, QColorGroup::Highlight, Qt::white );
-    p.setColor( QPalette::Active, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
-    p.setColor( QPalette::Inactive, QColorGroup::Highlight, Qt::white );
-    p.setColor( QPalette::Inactive, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
-    p.setColor( QPalette::Disabled, QColorGroup::Highlight, Qt::white );
-    p.setColor( QPalette::Disabled, QColorGroup::HighlightedText, QColor( 55, 77, 78 ) );
-    p.setColor( QPalette::Active, QColorGroup::Foreground, Qt::white );
-    p.setColor( QPalette::Active, QColorGroup::Text, Qt::white );
-    p.setColor( QPalette::Active, QColorGroup::ButtonText, Qt::white );
-    p.setColor( QPalette::Inactive, QColorGroup::Foreground, Qt::white );
-    p.setColor( QPalette::Inactive, QColorGroup::Text, Qt::white );
-    p.setColor( QPalette::Inactive, QColorGroup::ButtonText, Qt::white );
-    p.setColor( QPalette::Disabled, QColorGroup::Foreground, Qt::lightGray );
-    p.setColor( QPalette::Disabled, QColorGroup::Text, Qt::lightGray );
-    p.setColor( QPalette::Disabled, QColorGroup::ButtonText, Qt::lightGray );
-    app->setPalette( p, TRUE );
-#endif
-
     setFont( *font() , true );
 
     bool enab = true;
@@ -76,6 +52,10 @@ uiMain::uiMain( int argc, char **argv )
 	uiObject::enableToolTips( false );
 }
 
+uiMain::uiMain( QApplication* app_  )
+{
+    app = app_;
+}
 
 uiMain::~uiMain()
 {
@@ -85,13 +65,15 @@ uiMain::~uiMain()
 
 
 int uiMain::exec()          			
-{ 
+{
+    if( !app )  { pErrMsg("Huh?") ; return -1; }
     return app->exec(); 
 }
 
 
 void uiMain::setTopLevel( uiMainWin* obj )
 {
+    if( !app )  { pErrMsg("Huh?") ; return; }
     mainobj = obj;
     app->setMainWidget( &obj->qWidget() ); 
 }
@@ -100,12 +82,14 @@ void uiMain::setTopLevel( uiMainWin* obj )
 void uiMain::setFont( const uiFont& font, bool PassToChildren )
 {   
     font_ = &font;
+    if( !app )  { pErrMsg("Huh?") ; return; }
     app->setFont( font_->qFont(), PassToChildren ); 
 }
 
 
 void uiMain::exit ( int retcode ) 
 { 
+    if( !app )  { pErrMsg("Huh?") ; return; }
     app->exit( retcode ); 
 }
 /*!<
@@ -132,9 +116,23 @@ const uiFont* uiMain::font()
     return font_; 
 }
 
+uiMain& uiMain::theMain()
+{ 
+    if( themain ) return *themain; 
+    if ( !qApp ) 
+    { 
+	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()"); 
+	QApplication::exit( -1 );
+    }
+
+    themain = new uiMain( qApp );
+    return *themain;
+}
+
 
 void uiMain::flushX()        
 { 
+    if( !app )  { pFreeFnErrMsg("Huh?","uiMain::flushX()") ; return; }
     app->flushX(); 
 }
 
@@ -142,6 +140,7 @@ void uiMain::flushX()
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
 { 
+    if( !app )  { pFreeFnErrMsg("Huh?","uiMain::processEvents") ; return; }
     app->processEvents( msec ); 
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.3 2001-05-04 11:25:07 windev Exp $
+ RCS:           $Id: uimainwin.cc,v 1.4 2001-05-16 14:57:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ ________________________________________________________________________
 #include <qpopupmenu.h>
 #endif
 
-uiMainWin::uiMainWin( uiObject* parnt, const char* nm , bool wantStatusBar, bool wantMenuBar)
+uiMainWin::uiMainWin( uiParent* parnt, const char* nm , bool wantStatusBar, 
+		      bool wantMenuBar)
 	: uiObject( parnt, nm )
 	, mLoMngr( 0 )
 	, mQtThing(new i_QMainWindow(*this,
@@ -89,7 +90,7 @@ void uiMainWin::qThingDel( i_QObjWrp* qth )
 }
 
 
-const uiObject& uiMainWin::clientWidget_() const
+const uiParent& uiMainWin::clientWidget_() const
 { 
     return mCentralWidget; 
 }

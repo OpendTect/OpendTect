@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uicolor.h,v 1.2 2001-05-16 14:58:36 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiObject;
 
-bool  	select( Color&, uiObject* parnt=0, const char* nm=0); 
+bool  	select( Color&, uiParent* parnt=0, const char* nm=0); 
 	/*!< \brief pops a selector box to select a new color 
              \return true if new color selected
 	*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.4 2001-05-04 11:25:00 windev Exp $
+ RCS:           $Id: i_qbutton.h,v 1.5 2001-05-16 14:58:30 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ class i_QButtWrapper : public i_QObjWrapper<T>
 {
 public:
                         i_QButtWrapper( uiButton& client,
-                                        uiObject* parnt=0, const char* name=0 )
+                                        uiParent* parnt=0, const char* name=0 )
                         : i_QObjWrapper<T>( client, parnt, name )
                         , _messenger ( this, &client )
                         , idInGroup(0) {}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.2 2001-04-24 10:52:48 bert Exp $
+ RCS:           $Id: uimenu.h,v 1.3 2001-05-16 14:58:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,8 +110,8 @@ class uiPopupMenu : public uiMenuData, public uiWrapObj<i_QPopupMenu>
     friend class	uiMenuData;
 
 public:                        
-			uiPopupMenu(  uiObject* parnt,
-                                    const char* nm="uiPopupMenu");
+			uiPopupMenu( uiObject* parnt,
+                                     const char* nm="uiPopupMenu");
 
     virtual QMenuData& 	qMenuData();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uicanvas.h,v 1.2 2001-05-16 14:58:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiCanvasABC : public uiDrawableObj
     friend class 	i_ScrollableCanvas;
 
 public:
-                        uiCanvasABC(uiObject*,const char *nm="uiCanvasABC");
+                        uiCanvasABC(uiParent*,const char *nm="uiCanvasABC");
     virtual             ~uiCanvasABC() {};
 
     static int          getDefaultWidth()          { return defaultWidth; }

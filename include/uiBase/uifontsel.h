@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          25/9/2000
- RCS:           $Id: uifontsel.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uifontsel.h,v 1.2 2001-05-16 14:58:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiLabeledComboBox;
 class UserIDSet;
 
 
-bool	select( uiFont&, uiObject* parnt=0, const char* nm=0 );
+bool	select( uiFont&, uiParent* parnt=0, const char* nm=0 );
 	/*!< \brief pops a selector box to select a new font
 	     \return true if new font selected
 	*/
@@ -28,7 +28,7 @@ class uiSetFonts : public uiDialog
 {
 public:
 
-		uiSetFonts(uiObject*,const char*);
+		uiSetFonts(uiParent*,const char*);
 
 protected:
 
@@ -43,7 +43,7 @@ class uiSelFonts : public uiDialog
 {
 public:
 
-		uiSelFonts(uiObject*,const char*);
+		uiSelFonts(uiParent*,const char*);
 		~uiSelFonts();
 
     void	add(const char* str,const char* stdfontkey);

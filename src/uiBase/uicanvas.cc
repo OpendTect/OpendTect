@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.3 2001-04-10 07:10:04 bert Exp $
+ RCS:           $Id: uicanvas.cc,v 1.4 2001-05-16 14:57:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ int uiCanvasABC::defaultHeight = 400;
 
 //------ ui (client) widgets impl.  --------
 
-uiCanvasABC::uiCanvasABC( uiObject* parnt, const char *nm )
+uiCanvasABC::uiCanvasABC( uiParent* parnt, const char *nm )
 	: uiDrawableObj( parnt, nm ) 
 {
     setStretch( 2, 2 );

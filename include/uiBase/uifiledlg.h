@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uifiledlg.h,v 1.2 2001-05-16 14:58:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class QFileDialog;
 class uiFileDialog : public UserIDObject
 {
 public:
-                        uiFileDialog( uiObject* = 0, 
+                        uiFileDialog( uiParent* = 0, 
 				      bool forread = true,
 				      const char* fname = 0,
 				      const char* filter = 0,

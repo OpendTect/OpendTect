@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.3 2001-02-16 17:01:37 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.4 2001-05-16 14:58:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ protected:
     void                Notifier()     { notifyCBL.doCall(this); }
     CallBackList        notifyCBL;
 
-    bool		add2LM(uiObject*) const;
+    bool		add2LM(uiParent*) const;
 
 };
 

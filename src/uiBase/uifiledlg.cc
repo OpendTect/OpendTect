@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.2 2001-05-16 14:57:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "i_qobjwrap.h" 
 #include <qfiledialog.h> 
 
-uiFileDialog::uiFileDialog( uiObject* parnt, bool forread,
+uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* filter,
 			    const char* caption )
 	: UserIDObject( "uiFileDialog" )

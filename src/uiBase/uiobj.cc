@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.2 2001-02-16 17:02:06 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.3 2001-05-16 14:57:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 
 
-uiObject::uiObject( uiObject* parnt, const char* nm )
+uiObject::uiObject( uiParent* parnt, const char* nm )
     : UserIDObject( nm )
     , parent_( parnt )
     , horStretch( 0 )
@@ -152,7 +152,7 @@ int uiObject::preferredHeight() const
 
     if( isSingleLine() )
     {
-	int min_height =  mLayoutMngr()->minTxtWidgHgt();
+	int min_height =  mLayoutMngr() ? mLayoutMngr()->minTxtWidgHgt() : 0;
 	if( min_height >= 0  && prfHgt <= min_height ) 
 	    return min_height;
     }

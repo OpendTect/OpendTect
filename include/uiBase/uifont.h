@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.2 2001-01-26 09:54:02 arend Exp $
+ RCS:           $Id: uifont.h,v 1.3 2001-05-16 14:58:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,13 +16,13 @@ ________________________________________________________________________
 class QFont;
 class QFontMetrics;
 class Settings;
-class uiObject;
+class uiParent;
 class UserIDSet;
 
 class uiFont 
 {			//!< font stuff that needs Qt.
 
-    friend bool		select(uiFont&,uiObject*,const char*); 
+    friend bool		select(uiFont&,uiParent*,const char*); 
     friend class	uiFontList;
 
 protected:

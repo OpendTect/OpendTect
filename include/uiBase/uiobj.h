@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.7 2001-05-04 10:08:56 windev Exp $
+ RCS:           $Id: uiobj.h,v 1.8 2001-05-16 14:58:46 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "uiparent.h"
 #include "uidobj.h"
 #include "uilayout.h"
 #include "uigeom.h"
@@ -36,7 +37,7 @@ class Timer;
 
 template <class T> class i_QObjWrapper;
 
-class uiObject : public UserIDObject 
+class uiObject : public UserIDObject, public uiParent 
 {
 friend class 		i_LayoutMngr;
 friend class 		i_LayoutItem;
@@ -46,7 +47,7 @@ friend class 		uiMainWin;
 mTFriend		(T, i_QObjWrapper );
 
 protected:
-			uiObject( uiObject* parnt = 0, 
+			uiObject( uiParent* parnt = 0, 
 				  const char* nm = "uiObject" );
 
 public:
@@ -96,35 +97,7 @@ public:
 
     virtual bool	isSingleLine() const { return false; }
 
-    inline QWidget&	qWidget() 
-			{ 
-			    if( ! qWidget_() ) 
-			    {
-				pErrMsg("FATAL: no qWidget_!");
-				exit(-1);
-			    }
-			    return *const_cast<QWidget*>(qWidget_()); 
-			}
-    inline const QWidget& qWidget() const
-			{ 
-			    if( ! qWidget_() )
-			    {
-				pErrMsg("FATAL: no qWidget_!");
-				exit(-1);
-			    }
-			    return *qWidget_(); 
-			}
-
     virtual void	qThingDel( i_QObjWrp* qth )  =0;
-
-    inline uiObject& 	clientWidget()
-			{ return const_cast<uiObject&>(clientWidget_()); }
-    inline const uiObject& clientWidget() const{ return clientWidget_(); }
-
-    inline QWidget&	clientQWidget() 
-			{  return clientWidget().qWidget(); }
-    inline const QWidget& clientQWidget() const
-			{ return clientWidget().qWidget(); }
 
     bool		attach ( constraintType, uiObject *other=0, 
 				 int margin=-1 );
@@ -141,10 +114,6 @@ public:
     void		deepRedraw( CallBacker* =0 )	{ forceRedraw_(true); }
 
 mProtected:
-
-    virtual const QWidget*	qWidget_() const 	= 0;
-    virtual const uiObject& clientWidget_()const	{ return *this; }
-
 
     virtual bool	closeOK() { return true; } 
                         //!< hook. Accepts/denies closing of window.
@@ -179,7 +148,7 @@ mProtected:
     virtual void	finalise_()
 			    { finalised= true; }
 
-    uiObject*       	parent_;
+    uiParent*       	parent_;
     i_uiLayoutItem*	mLayoutItm; //!< initialised in c'tor of i_LayoutItem
 
     int			horStretch;
@@ -208,7 +177,17 @@ template <class P, class C>
 class uiMltplObj : public P
 {
 public:
+
                         uiMltplObj( C* qthng, uiObject* parnt=0, 
+				    const char* nm=0, bool addToMngr = true )
+                        : P( parnt, nm )
+			, qtThing( qthng )
+                        {
+			    if( qthng && addToMngr && prntLayoutMngr() )
+				prntLayoutMngr()->add( qthng );
+			}
+
+                        uiMltplObj( C* qthng, uiParent* parnt=0, 
 				    const char* nm=0, bool addToMngr = true )
                         : P( parnt, nm )
 			, qtThing( qthng )
@@ -238,6 +217,10 @@ class uiMltplWrapObj : public uiMltplObj<P,C>
 {
 public:
                         uiMltplWrapObj( C* qthng, uiObject* parnt=0, 
+					const char* nm=0, bool addToMngr=true)
+			: uiMltplObj<P,C>(qthng, parnt, nm, addToMngr ){}
+
+                        uiMltplWrapObj( C* qthng, uiParent* parnt=0, 
 					const char* nm=0, bool addToMngr=true)
 			: uiMltplObj<P,C>(qthng, parnt, nm, addToMngr ){}
 
@@ -273,6 +256,11 @@ template <class T>
 class uiNoWrapObj : public uiMltplObj< uiObject , T >
 {
 public:
+                        uiNoWrapObj( T* qthng, uiParent* parnt, const char* nm, 
+			       bool addToMngr=true )
+                        : uiMltplObj<uiObject,T>( qthng, parnt, nm, addToMngr )
+                        {}
+
                         uiNoWrapObj( T* qthng, uiObject* parnt, const char* nm, 
 			       bool addToMngr=true )
                         : uiMltplObj<uiObject,T>( qthng, parnt, nm, addToMngr )
@@ -286,12 +274,21 @@ template <class T>
 class uiWrapObj : public uiMltplWrapObj< uiObject , T >
 {
 public:
+
                         uiWrapObj( T* qthng, 
 				   uiObject* parnt, const char* nm, 
 				   bool addToMngr=true )
                         : uiMltplWrapObj<uiObject, T> 
 					    ( qthng, parnt, nm, addToMngr )
                         {}
+
+                        uiWrapObj( T* qthng, 
+				   uiParent* parnt, const char* nm, 
+				   bool addToMngr=true )
+                        : uiMltplWrapObj<uiObject, T> 
+					    ( qthng, parnt, nm, addToMngr )
+                        {}
+
 
 
 };

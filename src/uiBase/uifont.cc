@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.5 2001-05-04 10:09:00 windev Exp $
+ RCS:           $Id: uifont.cc,v 1.6 2001-05-16 14:57:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,7 @@ int uiFont::ascent() const
 }
 
 
-bool select( uiFont& fnt, uiObject* parnt, const char* nm )
+bool select( uiFont& fnt, uiParent* parnt, const char* nm )
 {
     bool ok;
   
@@ -298,7 +298,7 @@ void uiFontList::update( Settings& settings )
 }
 
 
-uiSetFonts::uiSetFonts( uiObject* p, const char* nm )
+uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
 	: uiDialog(p,nm)
 {
     cnclText = "";
@@ -332,7 +332,7 @@ void uiSetFonts::butPushed( CallBacker* obj )
 
 
 
-uiSelFonts::uiSelFonts( uiObject* p, const char* nm )
+uiSelFonts::uiSelFonts( uiParent* p, const char* nm )
 	: uiDialog(p,nm)
 	, ids(*new UserIDSet)
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.4 2001-05-03 10:30:51 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.5 2001-05-16 14:57:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include <iostream.h>
 #include "errh.h"
 
-uiGroup::uiGroup( uiObject* parnt, const char* nm, int border, int spacing)
+uiGroup::uiGroup( uiParent* parnt, const char* nm, int border, int spacing)
 : uiWrapObj<i_QWidget>( new i_QWidget ( *this, parnt, nm ), parnt, nm, true )
 , loMngr( *new i_LayoutMngr( this,  border, spacing )) 
 , hAlignObj( 0 ), hCentreObj( 0 )
@@ -27,7 +27,7 @@ uiGroup::uiGroup( uiObject* parnt, const char* nm, int border, int spacing)
      Avoids referring to uiMainWin or uiDialog's mCentralWidget 
      trough calling of clientQWidget() on prnt in construction of i_QWidget.
 */
-uiGroup::uiGroup( const char* nm, uiObject* parnt, int spacing, int border )
+uiGroup::uiGroup( const char* nm, uiParent* parnt, int spacing, int border )
 : uiWrapObj<i_QWidget>( new i_QWidget(*this,parnt?&parnt->qWidget():0,nm), 
 	  parnt, nm, false )
 , loMngr( *new i_LayoutMngr( this , border, spacing )) 

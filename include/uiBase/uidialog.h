@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.4 2001-04-13 11:52:37 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.5 2001-05-16 14:58:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ mTemplTypeDefT( i_QObjWrapper, QWidget, i_QWidget )
 class uiDialog : public uiWrapObj<i_QDialog>
 { 	
 public:
-			uiDialog( uiObject* =0, const char* nm="uiDialog", 
+			uiDialog( uiParent* =0, const char* nm="uiDialog", 
 				  bool modal=true, bool separator=true,
 				  int border=0, int spacing=10);
     virtual		~uiDialog();
@@ -79,7 +79,7 @@ protected:
     virtual i_LayoutMngr* prntLayoutMngr() 	{ return 0; } 
 			//!< a dialog is not managed by a parent's manager
 
-    virtual const uiObject& clientWidget_() const;
+    virtual const uiParent& clientWidget_() const;
 
     virtual bool	rejectOK(CallBacker*){ return true;}//!< confirm reject 
     virtual bool	acceptOK(CallBacker*){ return true;}//!< confirm accept 
@@ -110,15 +110,5 @@ protected:
     uiLabel*		title;
 
 };
-
-
-class uiDialogCreater
-{
-public:
-
-    virtual uiDialog*	create(uiObject*,IOPar&)		= 0;
-
-};
-
 
 #endif
