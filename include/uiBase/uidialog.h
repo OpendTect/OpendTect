@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.31 2003-01-15 15:34:35 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.32 2003-06-30 15:35:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
     enum                Button { OK, SAVE, CANCEL, HELP };
 
 			uiDialog(uiParent*,const Setup&);
+    const Setup&	setup() const;
 
     int			go(); 
 
