@@ -4,18 +4,142 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.12 2004-02-23 12:16:12 nanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.13 2004-04-27 11:58:50 kristofer Exp $";
 
 #include "vissurvobj.h"
+
+#include "arrayndimpl.h"
+#include "attribslice.h"
+#include "iopar.h"
+#include "linsolv.h"
+#include "seistrc.h"
+#include "survinfo.h"
 #include "visdataman.h"
 #include "vistransform.h"
-#include "survinfo.h"
-#include "arrayndimpl.h"
-#include "linsolv.h"
-#include "iopar.h"
+
 
 const char* visSurvey::SurveyParamManager::zscalestr = "Z Scale";
 float visSurvey::SurveyParamManager::defzscale = 2;
+
+
+void visSurvey::SurveyObject::getChildren( TypeSet<int>& ) const
+{}
+
+
+void visSurvey::SurveyObject::showManipulator(bool yn) {}
+
+
+bool visSurvey::SurveyObject::isManipulatorShown() const
+{ return false; }
+
+
+bool visSurvey::SurveyObject::isManipulated() const
+{ return false; }
+
+
+bool visSurvey::SurveyObject::canResetManipulation() const
+{ return false; }
+
+
+void visSurvey::SurveyObject::resetManipulation()
+{  }
+
+
+void visSurvey::SurveyObject::acceptManipulation()
+{  }
+
+
+bool visSurvey::SurveyObject::hasColor() const
+{ return false; }
+
+
+bool visSurvey::SurveyObject::hasMaterial() const
+{ return false; }
+
+
+int visSurvey::SurveyObject::nrResolutions() const
+{ return 1; }
+
+
+BufferString visSurvey::SurveyObject::getResolutionName(int idx) const
+{ return BufferString(idx); }
+
+
+int visSurvey::SurveyObject::getResolution() const
+{ return 0; }
+
+
+void visSurvey::SurveyObject::setResolution(int)
+{}
+
+
+
+int visSurvey::SurveyObject::getAttributeFormat() const
+{ return -1; }
+
+
+bool visSurvey::SurveyObject::hasColorAttribute() const
+{ return false; }
+
+
+const AttribSelSpec* visSurvey::SurveyObject::getSelSpec() const
+{ return 0; }
+
+
+const ColorAttribSel* visSurvey::SurveyObject::getColorSelSpec() const
+{ return 0; }
+
+
+void visSurvey::SurveyObject::setSelSpec( const AttribSelSpec& )
+{}
+
+
+void visSurvey::SurveyObject::setColorSelSpec( const ColorAttribSel& )
+{}
+
+
+const TypeSet<float>* visSurvey::SurveyObject::getHistogram() const
+{ return 0; }
+
+
+int visSurvey::SurveyObject::getColTabID() const { return -1; }
+
+
+CubeSampling visSurvey::SurveyObject::getCubeSampling() const
+{
+    CubeSampling cs;
+    return cs;
+} 
+
+
+bool visSurvey::SurveyObject::setDataVolume( bool, AttribSliceSet* slc)
+{ delete slc; return true; }
+
+
+const AttribSliceSet* visSurvey::SurveyObject::getCacheVolume( bool ) const
+{ return 0; }
+
+
+void visSurvey::SurveyObject::getDataTraceBids(TypeSet<BinID>&) const
+{}
+
+
+Interval<float> visSurvey::SurveyObject::getDataTraceRange() const
+{ return Interval<float>(0,0); }
+
+
+void visSurvey::SurveyObject::setTraceData( bool, ObjectSet<SeisTrc>* trcs)
+{ if ( trcs ) deepErase( *trcs ); }
+
+
+void visSurvey::SurveyObject::getDataRandomPos(
+	ObjectSet< TypeSet<BinIDZValues> >&) const
+{}
+
+
+void visSurvey::SurveyObject::setRandomPosData(bool,
+	const ObjectSet<const TypeSet<const BinIDZValues> >* vals )
+{}
 
 
 visSurvey::SurveyParamManager& visSurvey::SPM()
