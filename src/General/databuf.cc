@@ -177,7 +177,7 @@ void TraceData::addComponent( int ns, const DataCharacteristics& dc,
 
 void TraceData::delComponent( int icomp )
 {
-    if ( icomp < 1 || icomp >= nrcomp_ ) return;
+    if ( icomp < 0 || icomp >= nrcomp_ ) return;
 
     DataBuffer** newdata = nrcomp_ > 1 ? new DataBuffer* [nrcomp_-1] : 0;
     TraceDataInterpreter** newinterp = nrcomp_ > 1
