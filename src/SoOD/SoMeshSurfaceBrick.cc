@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.6 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.7 2004-07-26 13:04:37 kristofer Exp $";
 
 
 #include "SoMeshSurfaceBrick.h"
@@ -46,7 +46,7 @@ SoMeshSurfaceBrick::SoMeshSurfaceBrick()
     SO_NODE_ADD_FIELD(sideSize,(32));
     SO_NODE_ADD_FIELD(spacing,(1));
 
-    textureCoordIndex.connectFrom( &coordIndex );
+    //textureCoordIndex.connectFrom( &coordIndex );
 }
 
 
