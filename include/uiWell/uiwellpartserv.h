@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.2 2003-10-16 15:01:37 nanne Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.3 2003-10-17 15:00:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 
 class MultiID;
+template <class T> class Interval;
 
 /*! \brief Service provider for application level - Wells */
 
@@ -34,7 +35,8 @@ public:
     void			manageWells();
     bool			selectWells(ObjectSet<MultiID>&);
 
-    void			selectLogs(const MultiID&,int&);
+    void			selectLogs(const MultiID&,int&,int&,
+	    				   Interval<float>&);
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.2 2003-10-17 14:19:04 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.3 2003-10-17 15:00:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "wellimpasc.h"
 #include "welldata.h"
 #include "wellmarker.h"
+#include "welllog.h"
+#include "welllogset.h"
 
 
 
@@ -185,16 +187,49 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 
 // ==================================================================
 
-uiLogSelDlg::uiLogSelDlg( uiParent* p, const BufferStringSet& strs )
+uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
     : uiDialog(p,uiDialog::Setup("Display Well logs",
 				 "Select log",""))
+    , logset(logs)
 {
     logsfld = new uiLabeledListBox( this, "Select Log" );
-    logsfld->box()->addItems( strs );
+    logsfld->box()->setHSzPol( uiObject::wide );
+    logsfld->box()->selectionChanged.notify( mCB(this,uiLogSelDlg,logSel) );
+    logsfld->box()->setSelected(0);
+    for ( int idx=0; idx<logs.size(); idx++ )
+	logsfld->box()->addItem( logs.getLog(idx).name() );
+
+    rangefld = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
+    rangefld->attach( alignedBelow, logsfld );
+
+    dispfld = new uiGenInput( this, "Display", BoolInpSpec("Left","Right") );
+    dispfld->attach( alignedBelow, rangefld );
+}
+
+
+void uiLogSelDlg::logSel( CallBacker* )
+{
+    const int logidx = logsfld->box()->currentItem();
+    if ( logidx < 0 || logidx >= logset.size() )
+	return;
+
+    rangefld->setValue( logset.getLog(logidx).range() );
+}
+
+
+int uiLogSelDlg::logNumber() const
+{
+    return dispfld->getBoolValue() ? 1 : 2;
 }
 
 
 int uiLogSelDlg::selectedLog() const
 {
     return logsfld->box()->currentItem();
+}
+
+
+Interval<float> uiLogSelDlg::selRange() const
+{
+    return rangefld->getFInterval();
 }
