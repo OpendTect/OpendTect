@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.3 2001-02-13 17:15:46 bert Exp $
+ RCS:           $Id: ptrman.h,v 1.4 2001-03-21 11:02:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
 
     T*				operator=( T* ptr_ )
 				{ erase(); ptr = ptr_; return ptr; }
+
+    bool			operator!() const { return !ptr; }
 
 
 private:
