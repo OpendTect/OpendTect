@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.3 2005-03-11 16:56:32 cvsnanne Exp $
+ RCS:           $Id: emtracker.h,v 1.4 2005-03-14 16:43:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
     virtual bool		trackSections(const TrackPlane&);
     virtual bool		trackIntersections(const TrackPlane&);
 
+    int				addSectionTracker(EM::SectionID);
     SectionTracker*		getSectionTracker(EM::SectionID);
 
     const char*			errMsg() const;

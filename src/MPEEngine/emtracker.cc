@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.2 2005-01-20 08:49:14 kristofer Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.3 2005-03-14 16:44:19 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -23,9 +23,9 @@ static const char* rcsID = "$Id: emtracker.cc,v 1.2 2005-01-20 08:49:14 kristofe
 namespace MPE 
 {
 
-EMTracker::EMTracker( EM::EMObject* emo)
-    : isenabled ( true )
-    , emobject( emo )
+EMTracker::EMTracker( EM::EMObject* emo )
+    : isenabled (true)
+    , emobject(emo)
 {}
 
 
@@ -56,21 +56,14 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	SectionTracker* sectiontracker = getSectionTracker(sectionid);
 	if ( !sectiontracker )
 	{
-	    sectiontracker = createSectionTracker( sectionid );
-	    if ( !sectiontracker || !sectiontracker->init() )
-	    {
-		delete sectiontracker;
-		continue;
-	    }
-
-	    sectiontrackers += sectiontracker;
+	    int trackeridx = addSectionTracker( sectionid );
+	    if ( trackeridx < 0 ) continue;
+	    sectiontracker = sectiontrackers[trackeridx];
 	}
 
 	sectiontracker->reset();
-
 	sectiontracker->selector()->setTrackPlane( plane );
 	sectiontracker->extender()->setDirection( plane.motion() );
-
 	sectiontracker->select();
 
 	if ( !sectiontracker->extend() || !sectiontracker->adjust() )
@@ -93,15 +86,29 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 }
 
 
+int EMTracker::addSectionTracker( EM::SectionID sid )
+{
+    SectionTracker* sectiontracker = createSectionTracker( sid );
+    if ( !sectiontracker || !sectiontracker->init() )
+    {
+	delete sectiontracker;
+	return -1;
+    }
 
-bool EMTracker::trackIntersections( const TrackPlane& ) { return true; }
+    sectiontrackers += sectiontracker;
+    return sectiontrackers.size()-1;
+}
+
+
+bool EMTracker::trackIntersections( const TrackPlane& )
+{ return true; }
 
 
 const char* EMTracker::errMsg() const
 { return errmsg[0] ? (const char*) errmsg : 0; }
 
 
-SectionTracker* EMTracker::getSectionTracker(EM::SectionID sid)
+SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid )
 {
     for ( int idx=0; idx<sectiontrackers.size(); idx++ )
     {
@@ -120,12 +127,12 @@ TrackerFactory::TrackerFactory( const char* emtype, EMTrackerCreationFunc func )
 {}
 
 
-const char* TrackerFactory::emObjectType() const { return type; } 
+const char* TrackerFactory::emObjectType() const
+{ return type; } 
 
 
 EMTracker* TrackerFactory::create( EM::EMObject* emobj ) const
 { return createfunc( emobj ); }
 
 
-
-};  //namespace
+}; // namespace MPE
