@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.20 2002-01-04 23:45:55 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.21 2002-01-07 13:53:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,12 +51,13 @@ public:
 			, modal_(true)
 			, savebutton_(false), separator_(true)
 			, menubar_(false), toolbar_(false), statusbar_(false)
+			, mainwidgcentered_( false )
 			{}
 
 	BufferString	wintitle_, dlgtitle_, helpid_;
 	BufferString	savetext_, oktext_, canceltext_;
 	bool		modal_, savebutton_, separator_;
-	bool		menubar_, toolbar_, statusbar_;
+	bool		menubar_, toolbar_, statusbar_, mainwidgcentered_;
 
 	Setup&	savetext( const char* s )   { savetext_ = s;    return *this; }
 	Setup&	oktext( const char* s )     { oktext_ = s;      return *this; }
@@ -67,6 +68,8 @@ public:
 	Setup&	menubar( bool yn=true )     { menubar_ = yn;    return *this; }
 	Setup&	toolbar( bool yn=true )     { toolbar_ = yn;    return *this; }
 	Setup&	statusbar( bool yn=true )   { statusbar_ = yn;  return *this; }
+	Setup&	mainwidgcentered( bool yn=false ) 
+				    { mainwidgcentered_ = yn; return *this; }
 
     };
 

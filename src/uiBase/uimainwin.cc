@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.28 2002-01-07 13:17:01 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.29 2002-01-07 13:53:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -394,6 +394,7 @@ protected:
     bool		separ;
     bool		withmenubar;
     bool		withsavebut;
+    bool		mainwidgcentered;
 
     uiPushButton*	okBut;
     uiPushButton*	cnclBut;
@@ -421,6 +422,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm,
     , childrenInited(false)
     , withmenubar(withmb)
     , withsavebut(false)
+    , mainwidgcentered( false )
     , helpId(hid)
 {
 }
@@ -438,6 +440,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
     , withmenubar(s.menubar_)
     , withsavebut(s.savebutton_)
     , helpId(s.helpid_)
+    , mainwidgcentered( s.mainwidgcentered_ )
 {
 }
 
@@ -536,7 +539,10 @@ void uiDialogBody::finalise()
 
 	    title->attach( centeredAbove, sep );
 	    sep->attach( stretchedBelow, title, -2 );
-	    dlgGroup->attach( stretchedBelow, sep );
+	    if( mainwidgcentered )
+		dlgGroup->attach( centeredBelow, sep );
+	    else
+		dlgGroup->attach( stretchedBelow, sep );
 	}
 
 	if ( separ && (okBut || cnclBut || saveBut || helpBut) )
