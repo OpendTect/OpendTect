@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.30 2003-02-27 16:44:40 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.31 2003-03-04 16:15:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,7 +197,7 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 	return false;
     }
 
-    PtrMan<Array3D<float> > datacube = sliceset->createArray( 1, 2, 0 );
+    PtrMan<Array3D<float> > datacube = sliceset->createArray( 0, 1, 2 );
     cube->setData( datacube );
 
     delete cache;
