@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.40 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.41 2004-05-06 14:16:07 macman Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -25,8 +25,11 @@ static const char* rcsID = "$Id: genc.c,v 1.40 2004-04-01 13:39:50 bert Exp $";
 # define sDirSep	"\\"
 #endif
 
-#include "debugmasks.h"
+#ifdef __mac__
+# include <CoreServices/CoreServices.h>
+#endif
 
+#include "debugmasks.h"
 static FileNameString surveyname;
 static int surveynamedirty = YES;
 static const char* dirsep = sDirSep;
@@ -75,25 +78,65 @@ const char* GetSoftwareDir()
 #ifdef __win__
     dir = getenv( "DTECT_WINAPPL" );
     if ( !dir ) dir = getenv( "dGB_WINAPPL" );
+
+#if 0
+    if ( !dir )
+    {
+	TCHAR szPath[_MAX_PATH];
+	if( GetModuleFileName(NULL,szPath,_MAX_PATH) ) 
+//.....
+// TODO  : extract DTECT_APPL from full executable path.
+
+    }
+#endif
+
 #else
     dir = getenv( "DTECT_APPL" );
     if ( !dir ) dir = getenv( "dGB_APPL" );
 #endif
 
+#ifdef __mac__
+    if ( !dir )
+    {	// Get location of 'bundle'
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef url = CFBundleCopyBundleURL(mainBundle);
+	CFStringRef cfStr = CFURLCopyPath(url);
+
+	const char* bundlepath =
+	    CFStringGetCStringPtr(cfStr, CFStringGetSystemEncoding());
+
+	static FileNameString progname;
+	strcpy( progname, bundlepath );
+
+	if ( *progname )
+	{
+	    dir = progname;
+
+	    FileNameString envstr;
+	    strcpy( envstr, "DTECT_APPL=" );
+	    strcat( envstr, progname );
+	    putenv( envstr );
+	}
+    }
+#endif
+
+#ifdef __lux__
+// TODO : use /proc/self/exe symlink to find full path to current running exe
+#endif
 
     if ( !dir )
     {
-	if ( !getenv("dGB_ARGV0") ) return 0;
+	if ( !getenv("DTECT_ARGV0") ) return 0;
 
 	static FileNameString progname;
-	strcpy( progname, getenv("dGB_ARGV0") );
+	strcpy( progname, getenv("DTECT_ARGV0") );
 
 	if( !*progname ) return 0;
 
 
 	char* chptr1 = progname;
 	char* chptr2 = chptr1;
-	while ( chptr2 = strstr( chptr1 + 3 , "bin" ) )
+	while ( chptr2 = strstr( chptr1 + 1 , "bin" ) )
 	    chptr1 = chptr2;
 
 	if ( !chptr1 ) return 0;
@@ -117,16 +160,47 @@ const char* GetSoftwareDir()
 }
 
 
+const char* GetBinDir()
+{
+    static FileNameString bindir;
+
+    strcpy( bindir, GetSoftwareDir() );
+
+#ifdef __mac__
+    strcpy( bindir, mkFullPath(bindir, "Contents/MacOS" ) );
+#else
+    strcpy( bindir, mkFullPath(bindir, "bin") );
+#endif
+
+    return bindir;
+}
+
+
+const char* GetFullPathForExec( const char* exec )
+{
+    static FileNameString progname;
+
+    strcat( progname, GetBinDir() );
+
+    if ( exec && *exec )
+	strcpy( progname, mkFullPath(progname, exec) );
+
+    return progname;
+}
+
+
 const char* GetExecScript( int remote )
 {
     static FileNameString progname;
 
     strcpy( progname, "'" );
-    strcat( progname, GetSoftwareDir() );
-    strcpy( progname, mkFullPath(progname, "bin") );
-#ifdef __win__
+
+    strcat( progname, GetBinDir() );
+
+# ifdef __win__
     strcpy( progname, mkFullPath(progname, "win") );
-#endif
+# endif
+
     strcpy( progname, mkFullPath(progname, "od_exec") );
 
     if( remote )

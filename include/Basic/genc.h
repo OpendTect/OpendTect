@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.16 2004-01-21 10:19:07 dgb Exp $
+ RCS:		$Id: genc.h,v 1.17 2004-05-06 14:16:18 macman Exp $
 ________________________________________________________________________
 
 
@@ -57,6 +57,16 @@ const char*	GetProjectVersionName(void);
 
 */
 const char*	GetSoftwareDir(void);
+
+
+/*! Location of binaries on local platform
+
+    GetSoftwareDir()/bin		on *nix
+    GetSoftwareDir()\bin		on win32
+    GetSoftwareDir()/Contents/MacOS	on Mac OS X
+
+*/
+const char*	GetBinDir(void);
 
 
 /*! Location of launch script for external programs

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.31 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.32 2004-05-06 14:16:07 macman Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
@@ -182,7 +182,11 @@ static void loadALOPlugins( const char* dnm, const char* fnm,
 #ifdef __win__
 	BufferString libnm = buf; libnm += ".dll";
 #else
+# ifdef __mac__
+	BufferString libnm = "lib"; libnm += buf; libnm += ".dylib";
+# else
 	BufferString libnm = "lib"; libnm += buf; libnm += ".so";
+# endif
 #endif
 	if ( !PIM().isLoaded(libnm) )
 	{
