@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.4 2000-03-10 16:00:54 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.5 2000-11-09 15:54:03 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -30,9 +30,9 @@ void SeisTrcWriter::init()
 {
     delete binids; binids = new BinIDRange;
     starttime = 0;
-    nrsamps = 0;
     dt = 4000;
     nrwr = nrwrconn = 0;
+    trace_size = -1;
 }
 
 
@@ -110,15 +110,13 @@ bool SeisTrcWriter::openConn()
 
 bool SeisTrcWriter::initWrite()
 {
-    if ( !trl || !trl->initWrite(spi,*conn) )
-    {
-	delete ioobj; ioobj = 0;
-	delete conn; conn = 0;
-	errmsg = trl ? trl->errMsg() : "Error initialising data store";
-	return false;
-    }
+    if ( trl && trl->initWrite(spi,*conn) )
+	return true;
 
-    return true;
+    delete ioobj; ioobj = 0;
+    delete conn; conn = 0;
+    errmsg = trl ? trl->errMsg() : "Error initialising data store";
+    return false;
 }
 
 
@@ -147,7 +145,12 @@ bool SeisTrcWriter::handleConn( const SeisTrcInfo& ti )
 	int nr = clustcrl ? ti.binid.crl : ti.binid.inl;
 	while ( nr != ioobj->connNr() && ioobj->toNextConnNr() )
 	    ;
-	if ( nr != ioobj->connNr() ) return false;
+	if ( nr != ioobj->connNr() )
+	{
+	    errmsg = "Output line "; errmsg += nr;
+	    errmsg += " is not in valid range for output";
+	    return false;
+	}
     }
 
     if ( !openConn() )
@@ -167,29 +170,53 @@ bool SeisTrcWriter::prepareRetry()
 }
 
 
-bool SeisTrcWriter::put( const SeisTrc& trc )
+bool SeisTrcWriter::put( const SeisTrc& t )
 {
-    if ( !handleConn( trc.info() ) ) return false;
+    if ( !trl ) { errmsg = "No translator"; return false; }
+    if ( !handleConn( t.info() ) ) return false;
 
-    if ( !trl->write(trc) )
+    const SeisTrc* trc = &t;
+    SeisTrc* made_trc = 0;
+    if ( trace_size <  0 )
     {
-	errmsg = trl->errMsg();
-	return false;
+	trace_size = trc->size();
+	starttime = trc->info().starttime;
+	dt = trc->info().dt;
+	binids->start = trc->info().binid;
+	binids->stop = trc->info().binid;
     }
-
-    nrwrconn++;
-    if ( ++nrwr > 1 )
-	binids->include( trc.info().binid );
     else
     {
-	starttime = trc.info().starttime;
-	nrsamps = trc.size();
-	dt = trc.info().dt;
-	binids->start = trc.info().binid;
-	binids->stop = trc.info().binid;
+	binids->include( trc->info().binid );
+	if ( trc->size() != trace_size )
+	{
+	    made_trc = trc->getNew();
+	    made_trc->info() = trc->info();
+	    made_trc->reSize( trace_size );
+	    int copy_size = trace_size;
+	    if ( trace_size > trc->size() )
+	    {
+		made_trc->clear();
+		copy_size = trc->size();
+	    }
+	    for ( int idx=0; idx<copy_size; idx++ )
+		made_trc->set( idx, (*trc)[idx] );
+	    trc = made_trc;
+	}
     }
 
-    return true;
+    bool rv = true;
+    if ( trl->write(*trc) )
+	{ nrwrconn++; nrwr++; }
+    else
+    {
+	errmsg = trl->errMsg();
+	delete trl; trl = 0;
+	rv = false;
+    }
+
+    delete made_trc;
+    return rv;
 }
 
 
@@ -204,6 +231,6 @@ void SeisTrcWriter::fillAuxPar( IOPar& iopar ) const
     iopar.set( SeisPacketInfo::sBinIDs, fms );
     iopar.set( SeisPacketInfo::sNrTrcs, nrwr );
     iopar.set( SeisTrcInfo::sStartTime, starttime * 1000 );
-    iopar.set( SeisTrcInfo::sNrSamples, nrsamps );
+    iopar.set( SeisTrcInfo::sNrSamples, trace_size );
     iopar.set( SeisTrcInfo::sSampIntv, ((double)dt) * 0.001 );
 }
