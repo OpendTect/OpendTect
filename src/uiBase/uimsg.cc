@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.13 2003-01-16 16:07:36 arend Exp $
+ RCS:           $Id: uimsg.cc,v 1.14 2003-05-02 14:43:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,20 +27,14 @@ uiMsg* uiMsg::theinst_ = 0;
 
 uiMsg::uiMsg()
 	: uimainwin_(0)
-	, parent_(0)
 {
 }
 
-
-void uiMsg::setParent( QWidget* p )
+uiMainWin* uiMsg::setMainWin( uiMainWin* m )
 {
-    parent_ = p;
-}
-
-
-void uiMsg::setMainWin( uiMainWin* m )
-{
+    uiMainWin* old = uimainwin_;
     uimainwin_ = m;
+    return old;
 }
 
 
@@ -64,8 +58,8 @@ void uiMsg::handleMsg( CallBacker* cb )
 
 uiStatusBar* uiMsg::statusBar()
 {
-    uiMainWin* mw = uimainwin_ ? uimainwin_ 
-			       : uiMainWin::gtUiWinIfIsBdy( parent_ );
+    uiMainWin* mw = uimainwin_;/* ? uimainwin_ 
+			       : uiMainWin::gtUiWinIfIsBdy( parent_ );*/
 
     if ( !mw || !mw->statusBar() )
 	mw = uiMainWin::activeWindow();
@@ -79,8 +73,6 @@ uiStatusBar* uiMsg::statusBar()
 
 QWidget* uiMsg::popParnt()
 {
-    if ( parent_ )	return parent_;
-
     uiMainWin* mw = uiMainWin::activeWindow();
     if ( !mw ) mw = uimainwin_;
     if ( !mw ) mw = uiMain::theMain().topLevel();

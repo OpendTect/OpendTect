@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.19 2003-03-05 12:59:33 bert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.20 2003-05-02 14:43:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,15 +17,13 @@ ________________________________________________________________________
 
 #include <qstringlist.h>
 
-#define WORK_AROUND
-#ifdef WORK_AROUND
 #include <strmprov.h>
 #include <strmdata.h>
 #include <ascstream.h>
-#endif
 
 int uiTextEditBase::defaultWidth_	= 600;
 int uiTextEditBase::defaultHeight_	= 400;
+
 
 uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
@@ -39,6 +37,69 @@ const char* uiTextEditBase::text() const
     result = (const char*)qte().text();
     return (const char*)result;
 }
+
+
+void uiTextEditBase::readFromFile( const char* src )
+{
+    StreamData sd = StreamProvider( src ).makeIStream();
+    if ( !sd.istrm || sd.istrm->fail() )
+	{ sd.close(); return; }
+
+    BufferString contents;
+    BufferString newcontents;
+
+    char buf[1024]; int lines_left = 131072;
+    int nrnewlines = 0;
+    while ( 1 )
+    {
+	if ( !sd.istrm->getline(buf,1024) )
+	    break;
+	lines_left--;
+	if ( lines_left < 0 )
+	{
+	    newcontents += "\n--------File exceeds 131072 lines -----";
+	    break;
+	}
+	{
+	    newcontents += buf;
+	    newcontents += "\n";
+	}
+	nrnewlines++;
+	if ( nrnewlines == 100 )
+	{
+	    contents += newcontents;
+	    newcontents = "";
+	    nrnewlines = 0;
+	}
+    }
+    if ( newcontents != "" )
+	contents += newcontents;
+
+    sd.close();
+
+    setText( contents );
+}
+
+
+bool uiTextEditBase::saveToFile( const char* src )
+{
+    StreamData sd = StreamProvider( src ).makeOStream();
+    if ( !sd.ostrm || sd.ostrm->fail() )
+	{ sd.close(); return false; }
+
+    BufferString contents = text();
+
+    *sd.ostrm << contents;
+
+    sd.close();
+
+    setText( contents );
+
+    return true;
+}
+
+
+
 
 
 
@@ -158,16 +219,13 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 
 QTextEdit& uiTextBrowser::qte()				{ return *body_; }
 
-#ifdef WORK_AROUND
 static BufferString thesrc;
-#endif
 
 const char* uiTextBrowser::source() const
 { 
-#ifdef WORK_AROUND
     if ( forceplaintxt_ )
 	return thesrc;
-#endif
+
     result = (const char*)body_->source();
     return (const char*)result;
 }
@@ -175,51 +233,13 @@ const char* uiTextBrowser::source() const
 
 void uiTextBrowser::setSource( const char* src )
 {
-#ifdef WORK_AROUND
     if ( forceplaintxt_ )
     {
-	StreamData sd = StreamProvider( src ).makeIStream();
-	if ( !sd.istrm || sd.istrm->fail() )
-	    { sd.close(); return; }
-
 	thesrc = src;
-	BufferString contents;
-	BufferString newcontents;
-
-	char buf[1024]; int lines_left = 131072;
-	int nrnewlines = 0;
-	while ( 1 )
-	{
-	    if ( !sd.istrm->getline(buf,1024) )
-		break;
-	    lines_left--;
-	    if ( lines_left < 0 )
-	    {
-		newcontents += "\n--------File exceeds 131072 lines -----";
-		break;
-	    }
-	    {
-		newcontents += buf;
-		newcontents += "\n";
-	    }
-	    nrnewlines++;
-	    if ( nrnewlines == 100 )
-	    {
-		contents += newcontents;
-		newcontents = "";
-		nrnewlines = 0;
-	    }
-	}
-	if ( newcontents != "" )
-	    contents += newcontents;
-
-	sd.close();
-
-	body_->setText( QString((const char*)contents) );
+	readFromFile( src );
     }
     else
-#endif
-    body_->setSource(src);
+	body_->setSource(src);
 }
 
 
@@ -237,10 +257,9 @@ void uiTextBrowser::home()
 
 void uiTextBrowser::reload()
 {
-#ifdef WORK_AROUND
     if ( forceplaintxt_ )
 	setSource(thesrc);
-#endif
+
     body_->reload();
 }
 

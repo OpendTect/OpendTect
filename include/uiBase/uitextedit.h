@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.7 2003-02-27 11:39:12 arend Exp $
+ RCS:           $Id: uitextedit.h,v 1.8 2003-05-02 14:43:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
 
     void		setText( const char* );
     void		append( const char* ); 
+    void		readFromFile( const char* );
+    bool		saveToFile( const char* );
 
     const char*		text() const;
 

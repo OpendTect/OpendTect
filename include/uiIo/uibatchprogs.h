@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.2 2003-04-28 13:04:56 bert Exp $
+ RCS:           $Id: uibatchprogs.h,v 1.3 2003-05-02 14:44:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ protected:
     void		progSel(CallBacker*);
     void		exButPush(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		filenmUpd(CallBacker*);
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.2 2003-04-28 13:04:56 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.3 2003-05-02 14:44:10 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,11 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     if ( browser )
 	browser->setFileName( fnm );
     else
-	browser = new uiFileBrowser( this, fnm );
+    {
+	browser = new uiFileBrowser( this, uiFileBrowser::Setup(fnm)
+							.readonly(false) );
+	browser->newfilenm.notify( mCB(this,uiBatchProgLaunch,filenmUpd) );
+    }
     browser->show();
 }
 
@@ -282,3 +286,23 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     StreamProvider sp( comm );
     return sp.executeCommand( true );
 }
+
+
+void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
+{
+    mDynamicCastGet(uiFileBrowser*,fb,cb)
+    if ( !fb ) return;
+
+    const int selidx = progfld->box()->currentItem();
+
+    ObjectSet<uiGenInput>& inplst = *inps[selidx];
+    for ( int iinp=0; iinp<inplst.size(); iinp++ )
+    {
+	uiGenInput* inp = inplst[iinp];
+	mDynamicCastGet(uiFileInput*,finp,inp)
+	BufferString val;
+	if ( finp )
+	    finp->setText( fb->name() );
+    }
+}
+

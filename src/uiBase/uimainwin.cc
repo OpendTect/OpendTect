@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.72 2003-04-22 09:49:48 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.73 2003-05-02 14:43:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,8 @@ public:
 
 			    if( poptimer.isActive() )
 				poptimer.stop();
+
+			    popped_up = false;
 			    poptimer.start( 100, true );
 
 			    if( modal_ )	
@@ -130,7 +132,9 @@ public:
 
 			    if( poptimer.isActive() )
 				poptimer.stop();
-			    poptimer.start( 100, true );
+
+			    if ( !popped_up )
+				poptimer.start( 100, true );
 
 			    return true;
 			}

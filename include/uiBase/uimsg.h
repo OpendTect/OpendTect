@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.9 2003-04-28 10:53:50 arend Exp $
+ RCS:           $Id: uimsg.h,v 1.10 2003-05-02 14:43:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,7 @@ public:
     int		askGoOnAfter(const char*,const char* cnclmsg=0,
 	    		     const char* cn=0);
 
-    void	setParent(QWidget*);
-    void	setMainWin(uiMainWin*);
+    uiMainWin*	setMainWin(uiMainWin*);	//!< return old
 
     uiStatusBar* statusBar();
 
@@ -55,7 +54,6 @@ protected:
 private:
 
     uiMainWin*	uimainwin_;
-    QWidget*	parent_;
 };
 
 
