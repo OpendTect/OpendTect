@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.60 2003-08-05 08:27:11 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.61 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	statusBar()->setTxtAlign( 0, uiStatusBar::Right );
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
-    nm += ctio.ctxt.trgroup->name();
+    nm += ctio.ctxt.trgroup->userName();
     if ( ismultisel ) nm += "(s)";
     setTitleText( nm );
 
@@ -269,7 +269,7 @@ bool uiIOObjSelDlg::createEntry( const char* seltxt )
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
 			bool wclr, const char* st, const char* buttxt )
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
-		      txt ? txt : (const char*)c.ctxt.trgroup->name(), 
+		      txt ? txt : (const char*)c.ctxt.trgroup->userName(), 
 		      wclr, buttxt )
 	, ctio(c)
 	, forread(c.ctxt.forread)

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.30 2003-10-03 06:31:43 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.31 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,9 +121,9 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
 
 bool uiEMPartServer::selectStickSet( MultiID& id )
 {
-   CtxtIOObj ctio( EMStickSetTranslator::ioContext() );
-   ctio.ctxt.forread = true;
-   uiIOObjSelDlg dlg( appserv().parent(), ctio );
+   PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMStickSet);
+   ctio->ctxt.forread = true;
+   uiIOObjSelDlg dlg( appserv().parent(), *ctio );
    if ( !dlg.go() ) return false;
 
     id = dlg.ioObj()->key();
@@ -331,9 +331,9 @@ void uiEMPartServer::setDataVal( const MultiID& emid,
 
 bool uiEMPartServer::selectFault( MultiID& id )
 {
-    CtxtIOObj ctio( EMFaultTranslator::ioContext() );
-    ctio.ctxt.forread = true;
-    uiIOObjSelDlg dlg( appserv().parent(), ctio );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMFault);
+    ctio->ctxt.forread = true;
+    uiIOObjSelDlg dlg( appserv().parent(), *ctio );
     if ( !dlg.go() ) return false;
 
     id = dlg.ioObj()->key();

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.36 2003-09-26 16:24:49 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.37 2003-10-15 15:15:54 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -24,9 +24,9 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.36 2003-09-26 16:24:49 bert Ex
 #include <math.h>
 
 
-int SeisTrcTranslator::selector( const char* key )
+int SeisTrcTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( classdef.name(), key );
+    int retval = defaultSelector( theInst().userName(), key );
     if ( retval ) return retval;
 
     if ( defaultSelector("Integration Framework",key)
@@ -38,12 +38,12 @@ int SeisTrcTranslator::selector( const char* key )
 }
 
 
-const IOObjContext& SeisTrcTranslator::ioContext()
+const IOObjContext& SeisTrcTranslatorGroup::ioContext()
 {
     static IOObjContext* ctxt = 0;
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( Translator::groups()[listid] );
+	ctxt = new IOObjContext( &theInst() );
 	ctxt->crlink = false;
 	ctxt->needparent = false;
 	ctxt->stdseltype = IOObjContext::Seis;
@@ -66,8 +66,8 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 }
 
 
-SeisTrcTranslator::SeisTrcTranslator( const char* nm, const ClassDef* cd )
-	: Translator(nm,cd)
+SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
+	: Translator(nm,unm)
 	, conn(0)
 	, errmsg(0)
 	, inpfor_(0)
@@ -401,10 +401,8 @@ bool SeisTrcTranslator::dumpBlock()
 }
 
 
-void SeisTrcTranslator::usePar( const IOPar* iopar )
+void SeisTrcTranslator::usePar( const IOPar& iopar )
 {
-    if ( !iopar ) return;
-
     int nr = 0;
     BufferString nrstr;
     while ( 1 )
@@ -414,7 +412,7 @@ void SeisTrcTranslator::usePar( const IOPar* iopar )
 	nr++;
 
 	BufferString keystr = SurveyInfo::sKeyZRange; keystr += nrstr;
-	const char* res = iopar->find( (const char*)keystr );
+	const char* res = iopar.find( (const char*)keystr );
 	if ( !res )
 	{
 	    if ( nr > 1 )	break;
@@ -423,13 +421,13 @@ void SeisTrcTranslator::usePar( const IOPar* iopar )
 	storediopar.set( keystr, res );
 
 	keystr = "Name"; keystr += nrstr;
-	const char* nm = iopar->find( (const char*)keystr );
+	const char* nm = iopar.find( (const char*)keystr );
 	storediopar.set( "Name", nm );
 
 	keystr = "Index"; keystr += nrstr;
-	storediopar.set( keystr, iopar->find( (const char*)keystr ) );
+	storediopar.set( keystr, iopar.find( (const char*)keystr ) );
 	keystr = "Data characteristics"; keystr += nrstr;
-	storediopar.set( keystr, iopar->find( (const char*)keystr ) );
+	storediopar.set( keystr, iopar.find( (const char*)keystr ) );
     }
 }
 
@@ -544,7 +542,7 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
     }
 
     if ( ((forread && c->forRead()) || (!forread && c->forWrite()) )
-      && &c->classDef() == &connClassDef() )
+      && !strcmp(c->connType(),connType()) )
 	conn = c;
     else
     {

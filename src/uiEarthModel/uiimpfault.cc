@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.8 2003-09-26 21:40:31 bert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.9 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ ________________________________________________________________________
 uiImportLMKFault::uiImportLMKFault( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Import Landmark Fault",
 				     "Specify fault parameters","104.1.2"))
-	, ctio(*new CtxtIOObj(EMFaultTranslator::ioContext()))
+	, ctio(*mMkCtxtIOObj(EMFault))
 {
     infld = new uiFileInput( this, "Input Landmark file" );
     infld->setDefaultSelectionDir(
@@ -79,12 +79,12 @@ bool uiImportLMKFault::handleAscii()
 
     fault->ref();
 
-    lmkEMFaultTranslator translator;
+    PtrMan<lmkEMFaultTranslator> transl = lmkEMFaultTranslator::getInstance();
     ifstream* stream = new ifstream( infld->fileName(), ios::in | ios::binary );
     Conn* conn = new StreamConn( stream );
 
     PtrMan<Executor> exec =
-	translator.reader( *fault,conn,formatfilefld->fileName()); 
+	transl->reader( *fault, conn, formatfilefld->fileName() ); 
 
     if ( !exec )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.14 2003-08-11 13:15:53 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.15 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ public:
     			//!< Will fill in '*' or '%'
     void		genDefaultImpl()		{ genFileName(); }
 
-    const ClassDef&	connType() const;
+    const char*		connType() const;
     bool		slowOpen() const
 			{ return type_ == StreamConn::Device; }
     Conn*		getConn(Conn::State) const;

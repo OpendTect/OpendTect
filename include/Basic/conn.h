@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.7 2001-08-31 16:38:18 bert Exp $
+ RCS:		$Id: conn.h,v 1.8 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ interface common to these connections.
 
 */
 
-class Conn : public DefObject
-{	     hasFactory(Conn)
+class Conn
+{
 public:
 
     enum State		{ Bad, Read, Write, RW };
@@ -37,10 +37,12 @@ public:
     virtual		~Conn()			{}
 
     virtual State	state() const		= 0;
+    virtual const char*	connType() const	= 0;
     virtual bool	bad() const		{ return state() == Bad; }
     virtual bool	forRead() const		{ return (int)state() % 2; }
     virtual bool	forWrite() const	{ return (int)state() >= Write;}
     virtual void	close()			{}
+    virtual bool	isStream() const	{ return false; }
 
     virtual int		nrRetries() const	{ return 0; }
     virtual int		retryDelay() const	{ return 0; }
@@ -63,7 +65,7 @@ protected:
 /*!\brief Connection implemented in terms of another Conn object. */
 
 class XConn  : public Conn
-{	       isProducable(XConn)
+{
 
     friend class	IOX;
 
@@ -85,6 +87,9 @@ public:
 			  conn_ = c; mine_ = becomesmine; }
     void		close()
 			{ if ( conn_ ) conn_->close(); }
+
+    const char*		connType() const	{ return sType; }
+    static const char*	sType;
 
 protected:
 

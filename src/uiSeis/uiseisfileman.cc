@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.27 2003-05-22 11:10:27 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.28 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "iodir.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "iopar.h"
 #include "cbvsio.h"
 #include "ctxtioobj.h"
 #include "uilistbox.h"
@@ -36,7 +37,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Seismic file management",
                                      "Manage seismic cubes",
                                      "103.1.0").nrstatusflds(1))
-	, ctio(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
+	, ctio(*mMkCtxtIOObj(SeisTrc))
 	, ioobj(0)
 {
     IOM().to( ctio.ctxt.stdSelKey() );

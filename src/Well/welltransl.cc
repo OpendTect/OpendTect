@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.4 2003-09-26 11:43:12 nanne Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.5 2003-10-15 15:15:54 bert Exp $";
 
 
 #include "welltransl.h"
@@ -16,13 +16,13 @@ static const char* rcsID = "$Id: welltransl.cc,v 1.4 2003-09-26 11:43:12 nanne E
 #include "strmprov.h"
 #include "filegen.h"
 
-const IOObjContext& WellTranslator::ioContext()
+const IOObjContext& WellTranslatorGroup::ioContext()
 {
     static IOObjContext* ctxt = 0;
 
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( Translator::groups()[listid] );
+	ctxt = new IOObjContext( &theInst() );
 	ctxt->crlink = false;
 	ctxt->newonlevel = 1;
 	ctxt->needparent = false;
@@ -34,9 +34,9 @@ const IOObjContext& WellTranslator::ioContext()
 }
 
 
-int WellTranslator::selector( const char* key )
+int WellTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( "Well", key );
+    int retval = defaultSelector( theInst().userName(), key );
     return retval;
 }
 

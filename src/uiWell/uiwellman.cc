@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.2 2003-09-10 15:23:41 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.3 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ uiWellMan::uiWellMan( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Surface file management",
 				 "Manage wells",
 				 "").nrstatusflds(1))
-    , ctio(*new CtxtIOObj(WellTranslator::ioContext()))
+    , ctio(*mMkCtxtIOObj(Well))
     , ioobj(0)
 {
     IOM().to( ctio.ctxt.stdSelKey() );

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.7 2003-08-11 13:15:53 bert Exp $
+ RCS:		$Id: iox.h,v 1.8 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 
     bool		implExists(bool) const;
 
-    const ClassDef&	connType() const;
+    const char*		connType() const;
     Conn*		getConn(Conn::State) const;
     bool		slowOpen() const;
     IOObj*		getIOObj() const;

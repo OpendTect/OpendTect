@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.35 2003-08-25 10:31:12 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.36 2003-10-15 15:15:54 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -28,9 +28,9 @@ extern "C" const char* GetBaseDataDir();
 
 static void clearSelHists()
 {
-    const UserIDObjectSet<Translator>& grps = Translator::groups();
+    const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
     const int sz = grps.size();
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<grps.size(); idx++ )
 	grps[idx]->clearSelHist();
 }
 
@@ -480,7 +480,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 
     IOObj* ioobj = dirPtr()->findObj( ctio.ctxt.name() );
     ctio.ctxt.fillTrGroup();
-    if ( ioobj && ctio.ctxt.trgroup->name() != ioobj->group() )
+    if ( ioobj && ctio.ctxt.trgroup->userName() != ioobj->group() )
 	ioobj = 0;
 
     if ( !ioobj )
@@ -488,17 +488,19 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newKey(), NO );
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setParentKey( parentkey );
-	iostrm->setGroup( ctio.ctxt.trgroup->name() );
-	BufferString trnm( ctio.ctxt.deftransl != "" ?
-			   (const char*)ctio.ctxt.deftransl
-			 : (const char*)ctio.ctxt.trgroup->defs()[0]->name() );
+	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
+	const Translator* tr = ctio.ctxt.trgroup->templates().size() ?
+	    			ctio.ctxt.trgroup->templates()[0] : 0;
+	BufferString trnm( ctio.ctxt.deftransl != ""
+			 ? ctio.ctxt.deftransl.buf()
+			 : (tr ? tr->userName().buf() : "") );
 	iostrm->setTranslator( trnm );
 
 	// Generate the right filename
-	Translator* tr = ctio.ctxt.trgroup->make( trnm );
-	const char* fnm = generateFileName( tr, ctio.ctxt.name() );
+	Translator* tmptr = ctio.ctxt.trgroup->make( trnm );
+	const char* fnm = generateFileName( tmptr, ctio.ctxt.name() );
 	iostrm->setFileName( fnm );
-	delete tr;
+	delete tmptr;
 
 	ioobj = iostrm;
 	if ( ctio.ctxt.crlink )

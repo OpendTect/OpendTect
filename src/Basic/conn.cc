@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.12 2003-10-01 18:36:18 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.13 2003-10-15 15:15:54 bert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -25,13 +25,12 @@ DefineEnumNames(MsgClass,Type,1,"Message type")
 
 UsrIoMsg* UsrIoMsg::theUsrIoMsg_ = 0;
 
-defineFactory(Conn,"Connection");
-defineProducable(StreamConn,Conn,"Stream");
-defineProducable(XConn,Conn,"X-Object");
-
 
 DefineEnumNames(StreamConn,Type,0,"Type")
 	{ "File", "Device", "Command", 0 };
+
+const char* XConn::sType = "X-Object";
+const char* StreamConn::sType = "Stream";
 
 
 StreamConn::StreamConn()

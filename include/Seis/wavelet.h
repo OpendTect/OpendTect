@@ -1,30 +1,29 @@
 #ifndef wavelet_H
 #define wavelet_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.5 2003-08-11 09:33:38 bert Exp $
+ RCS:		$Id: wavelet.h,v 1.6 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
  
-#include <defobj.h>
-#include <uidobj.h>
+#include "uidobj.h"
+#include "transl.h"
+class Conn;
 class IOObj;
 
-class Wavelet : public DefObject
-	      , public UserIDObject
-{		isUidConcreteDefObject(Wavelet)
+
+class Wavelet : public UserIDObject
+{
 public:
 			Wavelet(const char* nm=0,int idxfsamp=0,float sr=0.004);
-			Wavelet(istream&);
 			Wavelet(const Wavelet&);
     Wavelet&		operator=(const Wavelet&);
-    int			write(ostream&) const;
     virtual		~Wavelet();
 
     static Wavelet*	get(const IOObj*);
@@ -53,23 +52,21 @@ protected:
 };
 
 
-#include <transl.h>
-#include <ctxtioobj.h>
-class Conn;
+class WaveletTranslatorGroup : public TranslatorGroup
+{			       isTranslatorGroup(Wavelet)
+public:
+    			mDefEmptyTranslatorGroupConstructor(Wavelet)
 
+    const char*		 defExtension() const		{ return "wvlt"; }
+};
 
 class WaveletTranslator : public Translator
-{			  isTranslatorGroup(Wavelet)
+{
 public:
-			WaveletTranslator( const char* nm = 0 )
-			: Translator(nm)		{}
-    virtual		~WaveletTranslator()		{}
+			mDefEmptyTranslatorBaseConstructor(Wavelet)
 
-    virtual int		read(Wavelet*,Conn&)		{ return NO; }
-    virtual int		write(const Wavelet*,Conn&)	{ return NO; }
-
-    static int		selector(const char*);
-    static const IOObjContext&	ioContext();
+    virtual int		read(Wavelet*,Conn&)		= 0;
+    virtual int		write(const Wavelet*,Conn&)	= 0;
 
 };
 
@@ -78,6 +75,7 @@ public:
 class dgbWaveletTranslator : public WaveletTranslator
 {			     isTranslator(dgb,Wavelet)
 public:
+    			mDefEmptyTranslatorConstructor(dgb,Wavelet)
 
     int			read(Wavelet*,Conn&);
     int			write(const Wavelet*,Conn&);

@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.10 2003-09-25 11:05:45 bert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.11 2003-10-15 15:15:54 bert Exp $";
 
 #include "wavelet.h"
 #include "wvltfact.h"
@@ -13,8 +13,7 @@ static const char* rcsID = "$Id: wavelet.cc,v 1.10 2003-09-25 11:05:45 bert Exp 
 #include "streamconn.h"
 #include "ioobj.h"
 #include "errh.h"
-
-DefineConcreteClassDef(Wavelet,"Wavelet");
+#include "ptrman.h"
 
 
 Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
@@ -24,15 +23,6 @@ Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
 	, sz(0)
 	, samps(0)
 {
-}
-
-
-Wavelet::Wavelet( istream& stream )
-	: iw(0)
-{
-    dgbWaveletTranslator tr;
-    StreamConn strm( stream );
-    tr.read( this, strm );
 }
 
 
@@ -57,14 +47,6 @@ Wavelet& Wavelet::operator =( const Wavelet& wv )
 Wavelet::~Wavelet()
 {
     delete [] samps;
-}
-
-
-int Wavelet::write( ostream& stream ) const
-{
-    dgbWaveletTranslator tr;
-    StreamConn strm( stream );
-    return tr.write( this, strm );
 }
 
 
@@ -143,13 +125,13 @@ void Wavelet::transform( float constant, float factor )
 }
 
 
-const IOObjContext& WaveletTranslator::ioContext()
+const IOObjContext& WaveletTranslatorGroup::ioContext()
 {
     static IOObjContext* ctxt = 0;
 
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( Translator::groups()[listid] );
+	ctxt = new IOObjContext( &theInst() );
 	ctxt->crlink = NO;
 	ctxt->newonlevel = 1;
 	ctxt->needparent = NO;
@@ -161,9 +143,9 @@ const IOObjContext& WaveletTranslator::ioContext()
 }
 
 
-int WaveletTranslator::selector( const char* key )
+int WaveletTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( classdef.name(), key );
+    int retval = defaultSelector( theInst().userName(), key );
     if ( retval ) return retval;
 
     if ( defaultSelector("Wavelet directory",key)
@@ -179,11 +161,10 @@ static char* sSampRate	= "Sample Rate";
 
 int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 {
-    if ( !conn.forRead() )				return NO;
-    else if ( !conn.hasClass(StreamConn::classid) )	return NO;
+    if ( !conn.forRead() || !conn.isStream() )	return NO;
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    if ( !astream.isOfFileType(WaveletTranslator::classDef().name()) )
+    if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
 	return NO;
 
     int iw = 0; float sr = 0.004;
@@ -209,11 +190,10 @@ int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 
 int dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
 {
-    if ( !conn.forWrite() )				return NO;
-    else if ( !conn.hasClass(StreamConn::classid) )	return NO;
+    if ( !conn.forWrite() || !conn.isStream() )	return NO;
 
     ascostream astream( ((StreamConn&)conn).oStream() );
-    UserIDString head( WaveletTranslator::classDef().name() );
+    UserIDString head( mTranslGroupName(Wavelet) );
     head += " file";
     if ( !astream.putHeader( head ) ) return NO;
 

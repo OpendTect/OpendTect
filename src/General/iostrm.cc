@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.15 2003-05-22 11:10:27 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.16 2003-10-15 15:15:54 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -30,7 +30,6 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 	, nrretries(0)
 	, retrydelay(0)
 {
-    connclassdef_ = &StreamConn::classdef;
     if ( mkdef ) genFileName();
 }
 
@@ -41,9 +40,9 @@ IOStream::~IOStream()
 }
 
 
-const ClassDef& IOStream::connType() const
+const char* IOStream::connType() const
 {
-    return StreamConn::classdef;
+    return StreamConn::sType;
 }
 
 

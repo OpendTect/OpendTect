@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.17 2003-08-28 08:19:50 nanne Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.18 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	: uiDialog(p,Setup("Import CBVS cube",
 		    	   "Specify import parameters",
 			   "103.0.1"))
-	, inctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
-	, outctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
+	, inctio_(*mMkCtxtIOObj(SeisTrc))
+	, outctio_(*mMkCtxtIOObj(SeisTrc))
 {
     init( false );
 }
@@ -41,8 +41,8 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	: uiDialog(p,Setup("Copy cube data",
 		    	   "Specify copy parameters",
 			   "103.1.1"))
-	, inctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
-	, outctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
+	, inctio_(*mMkCtxtIOObj(SeisTrc))
+	, outctio_(*mMkCtxtIOObj(SeisTrc))
 {
     if ( ioobj ) inctio_.ioobj = ioobj->clone();
     init( true );
@@ -106,7 +106,7 @@ uiSeisImpCBVS::~uiSeisImpCBVS()
 IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
 {
     IOStream* iostrm = new IOStream( "tmp", "100010.9999" );
-    iostrm->setGroup( outctio_.ctxt.trgroup->name() );
+    iostrm->setGroup( outctio_.ctxt.trgroup->userName() );
     iostrm->setTranslator( outctio_.ctxt.trglobexpr );
     iostrm->setFileName( inp );
     return iostrm;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.3 2003-03-19 16:21:59 bert Exp $
+ RCS:		$Id: streamconn.h,v 1.4 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,10 @@ public:
 
     const char*		fileName() const	{ return sd.fileName(); }
     void		setFileName( const char* s ) { sd.setFileName(s); }
+
+    const char*		connType() const	{ return sType; }
+    bool		isStream() const	{ return true; }
+    static const char*	sType;
 
 private:
 

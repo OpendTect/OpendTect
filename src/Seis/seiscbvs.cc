@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.39 2003-05-22 11:10:27 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.40 2003-10-15 15:15:54 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -24,12 +24,11 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.39 2003-05-22 11:10:27 bert Exp
 #include "filegen.h"
 
 
-UserIDSet CBVSSeisTrcTranslator::datatypeparspec(
-		DataCharacteristics::UserTypeNames,"Data storage");
+const IOPar& CBVSSeisTrcTranslator::datatypeparspec = new IOPar( "CBVS option");
 
 
-CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
-	: SeisTrcTranslator(nm)
+CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
+	: SeisTrcTranslator(nm,unm)
 	, headerdone(false)
 	, donext(false)
 	, forread(true)
@@ -545,16 +544,31 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 }
 
 
-void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
+const IOPar* CBVSSeisTrcTranslator::parSpec( Conn::State ) const
+{
+    if ( !datatypeparspec.size() )
+    {
+	FileNameString fms;
+	const char* ptr = DataCharacteristics::UserTypeNames[0];
+	for ( int idx=0; DataCharacteristics::UserTypeNames[idx]
+		     && *DataCharacteristics::UserTypeNames[idx]; idx++ )
+	    fms += DataCharacteristics::UserTypeNames[idx];
+	IOPar& ps = const_cast<IOPar&>( datatypeparspec );
+	ps.set( "Data storage", fms );
+    }
+    return &datatypeparspec;
+}
+
+
+void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 {
     SeisTrcTranslator::usePar( iopar );
-    if ( !iopar ) return;
 
-    const char* res = iopar->find( (const char*)datatypeparspec.name() );
+    const char* res = iopar.find( datatypeparspec.getKey(0) );
     if ( res && *res )
 	preseldatatype = (DataCharacteristics::UserType)(*res-'0');
 
-    res = iopar->find( "Optimized direction" );
+    res = iopar.find( "Optimized direction" );
     if ( res && *res )
     {
 	brickspec.setStd( *res == 'H' );

@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.15 2003-08-13 10:21:17 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.16 2003-10-15 15:15:54 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -50,7 +50,7 @@ const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 { return stddirdata + (int)sst; }
 
 
-IOObjContext::IOObjContext( const Translator* trg, const char* prefname )
+IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 	: UserIDObject(prefname)
 	, trgroup(trg)
 {
@@ -116,7 +116,7 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
 void IOObjContext::fillPar( IOPar& iopar ) const
 {
     iopar.set( "Name", (const char*)name() );
-    iopar.set( "Translator group", trgroup ? (const char*)trgroup->name() :"" );
+    iopar.set( "Translator group", trgroup ? trgroup->userName().buf() :"" );
     iopar.set( "Data type", eString(IOObjContext::StdSelType,stdseltype) );
     iopar.set( "Level for new objects", newonlevel );
     iopar.setYN( "Create new directory", crlink );
@@ -124,7 +124,7 @@ void IOObjContext::fillPar( IOPar& iopar ) const
     iopar.setYN( "Entries in other directories", maychdir );
     iopar.setYN( "Parent needed", needparent );
     iopar.set( "Translator group parent", partrgroup
-			? (const char*)partrgroup->name() : "" );
+			? partrgroup->userName().buf() : "" );
     iopar.set( "Parent level", parentlevel );
     iopar.setYN( "Selection.For read", forread );
     iopar.setYN( "Selection.Allow operations", maydooper );
@@ -143,7 +143,7 @@ void IOObjContext::fillTrGroup()
 
 #define mCase(typ,str) \
     case IOObjContext::typ: \
-	trgroup = Translator::groups()[str]; \
+	trgroup = &TranslatorGroup::getGroup( str, true ); \
     break
 
     switch ( stdseltype )
@@ -157,7 +157,7 @@ void IOObjContext::fillTrGroup()
 	mCase(Attr,"Attribute definitions");
 	mCase(Mdl,"EarthModel");
 	default:
-	    trgroup = Translator::groups()["Seismic Data"];
+	    trgroup = &TranslatorGroup::getGroup( "Seismic Data", true );
 	break;
     }
 }
@@ -168,7 +168,7 @@ void IOObjContext::usePar( const IOPar& iopar )
     const char* res = iopar.find( "Name" );
     if ( res ) setName( res );
     res = iopar.find( "Translator group" );
-    if ( res ) trgroup = Translator::groups()[res];
+    if ( res ) trgroup = &TranslatorGroup::getGroup( res, true );
     res = iopar.find( "Data type" );
     if ( res ) stdseltype = eEnum(IOObjContext::StdSelType,res);
     fillTrGroup();
@@ -180,7 +180,7 @@ void IOObjContext::usePar( const IOPar& iopar )
     iopar.getYN( "Parent needed", needparent );
 
     res = iopar.find( "Translator group parent" );
-    if ( res ) partrgroup = Translator::groups()[res];
+    if ( res ) partrgroup = &TranslatorGroup::getGroup( res, true );
 
     iopar.get( "Parent level", parentlevel );
     iopar.getYN( "Selection.For read", forread );
@@ -205,12 +205,12 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
     if ( trgroup )
     {
 	// check if the translator is present at all
-	const ClassDefList& defs = trgroup->defs();
-	for ( int idx=0; idx<defs.size(); idx++ )
+	const ObjectSet<const Translator>& trs = trgroup->templates();
+	for ( int idx=0; idx<trs.size(); idx++ )
 	{
-	    if ( defs[idx]->name() == ioobj.translator() )
+	    if ( trs[idx]->userName() == ioobj.translator() )
 		break;
-	    else if ( idx == defs.size() - 1 )
+	    else if ( idx == trs.size() - 1 )
 		return false;
 	}
     }

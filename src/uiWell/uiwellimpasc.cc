@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.3 2003-09-08 13:07:54 nanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.4 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
 				 "Specify well parameters","104.2.0"))
-    , ctio(*new CtxtIOObj(WellTranslator::ioContext()))
+    , ctio(*mMkCtxtIOObj(Well))
 {
     infld = new uiFileInput( this, "Input Ascii file", 
 	    		     uiFileInput::Setup().withexamine() );

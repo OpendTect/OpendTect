@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.14 2003-05-22 11:10:27 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.15 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,10 +58,10 @@ public:
     virtual bool	bad() const			= 0;
     virtual bool	isLink() const			{ return false; }
     virtual void	copyFrom(const IOObj*)		= 0;
-    virtual bool	hasConnDef( const ClassDef& cd ) const
-			{ return &cd == connclassdef_; }
+    virtual bool	hasConnType( const char* s ) const
+			{ return s && !strcmp(s,connType()); }
 
-    virtual const ClassDef& connType() const		= 0;
+    virtual const char*	connType() const		= 0;
     virtual Conn*	getConn(Conn::State) const	= 0;
     virtual bool	slowOpen() const		{ return false; }
 
@@ -106,7 +106,6 @@ public:
 protected:
 
     FileNameString*	dirname_;
-    const ClassDef*	connclassdef_;
     IOLink*		mylink_;
     MultiID		key_;
 

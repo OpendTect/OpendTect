@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.8 2003-05-13 15:27:56 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.9 2003-10-15 15:15:54 bert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"
@@ -21,7 +21,6 @@ IOX::IOX( const char* nm, const char* ky, bool )
 	: IOObject(nm,ky)
 	, ownkey_("")
 {
-    connclassdef_ = &StreamConn::classdef;
 }
 
 
@@ -36,9 +35,9 @@ void IOX::setOwnKey( const MultiID& ky )
 }
 
 
-const ClassDef& IOX::connType() const
+const char* IOX::connType() const
 {
-    return XConn::classdef;
+    return XConn::sType;
 }
 
 

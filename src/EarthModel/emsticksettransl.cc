@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.3 2003-09-30 12:16:57 kristofer Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.4 2003-10-15 15:15:54 bert Exp $";
 
 #include "emsticksettransl.h"
 
@@ -16,11 +16,12 @@ static const char* rcsID = "$Id: emsticksettransl.cc,v 1.3 2003-09-30 12:16:57 k
 #include "survinfo.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "iopar.h"
 #include "ascstream.h"
 
 #include <fstream>
 
-const char* EMStickSetTranslator::keyword = "StickSet";
+const char* EMStickSetTranslatorGroup::keyword = "StickSet";
 
 const char* lmkEMStickSetTranslator::pointtypestr = "FAULT_PTYPE";
 const char* lmkEMStickSetTranslator::xstr = "FAULT_X";
@@ -33,13 +34,13 @@ const char* lmkEMStickSetTranslator::distancunitestr="FAULT_DISTANCE_UNIT";
 const char* lmkEMStickSetTranslator::lineidstr="FAULT_LINEID";
 const char* lmkEMStickSetTranslator::tracestr="FAULT_TRACE";
 
-const IOObjContext& EMStickSetTranslator::ioContext()
+const IOObjContext& EMStickSetTranslatorGroup::ioContext()
 {
     static IOObjContext* ctxt = 0;
 
     if ( !ctxt )
     {
-	ctxt = new IOObjContext( Translator::groups()[listid] );
+	ctxt = new IOObjContext( &theInst() );
 	ctxt->crlink = false;
 	ctxt->newonlevel = 1;
 	ctxt->needparent = false;
@@ -51,10 +52,9 @@ const IOObjContext& EMStickSetTranslator::ioContext()
 }
 
 
-int EMStickSetTranslator::selector( const char* key )
+int EMStickSetTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( EMStickSetTranslator::keyword, key );
-    return retval;
+    return defaultSelector( keyword, key );
 }
 
 
@@ -220,7 +220,7 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
 	return;
     }
 
-    if ( !conn->forRead() || !conn->hasClass(StreamConn::classid) )
+    if ( !conn->forRead() || !conn->isStream() )
     {
 	msg = "Internal error: Bad connection";
 	error = true;

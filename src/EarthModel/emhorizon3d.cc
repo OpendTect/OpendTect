@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.34 2003-10-10 10:10:12 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.35 2003-10-15 15:15:54 bert Exp $";
 
 #include "emhorizon.h"
 
@@ -76,11 +76,11 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    dgbEMHorizonTranslator tr;
-    if ( !tr.startRead(*ioobj) )
-	{ errmsg = tr.errMsg(); return 0; }
+    PtrMan<EMHorizonTranslator> tr = mTranslCreate(EMHorizon,mDGBKey);
+    if ( !tr || !tr->startRead(*ioobj) )
+	{ errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
 
-    EM::SurfaceIODataSelection& sel = tr.selections();
+    EM::SurfaceIODataSelection& sel = tr->selections();
     if ( newsel )
     {
 	sel.rg = newsel->rg;
@@ -90,8 +90,8 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
 
     if ( attridx < 0 )
     {
-	Executor* exec = tr.reader( *this );
-	errmsg = tr.errMsg();
+	Executor* exec = tr->reader( *this );
+	errmsg = tr->errMsg();
 	return exec;
     }
 
@@ -128,11 +128,11 @@ Executor* EM::Horizon::saver( const EM::SurfaceIODataSelection* newsel,
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    dgbEMHorizonTranslator tr;
-    if ( !tr.startWrite(*this) )
-	{ errmsg = tr.errMsg(); return 0; }
+    PtrMan<EMHorizonTranslator> tr = mTranslCreate(EMHorizon,mDGBKey);
+    if ( !tr || !tr->startWrite(*this) )
+	{ errmsg = tr ? tr->errMsg() : "No Translator"; return 0; }
 
-    EM::SurfaceIODataSelection& sel = tr.selections();
+    EM::SurfaceIODataSelection& sel = tr->selections();
     if ( newsel )
     {
 	sel.rg = newsel->rg;
@@ -167,8 +167,8 @@ Executor* EM::Horizon::saver( const EM::SurfaceIODataSelection* newsel,
     }
     else
     {
-	Executor* exec = tr.writer(*ioobj);
-	errmsg = tr.errMsg();
+	Executor* exec = tr->writer(*ioobj);
+	errmsg = tr->errMsg();
 	return exec;
     }
 }

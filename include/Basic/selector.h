@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.4 2002-01-01 23:05:45 bert Exp $
+ RCS:		$Id: selector.h,v 1.5 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,22 +150,6 @@ protected:
     bool		valsmine;
 
 };
-
-
-typedef int (*ObjectTypeSelectionFun)(const char*);
-
-int defaultSelector(const char*,const char*);
-/*!<
-Object Type Selection functions determine whether a file type is a match for
-this object. The return values are: \line
-0 - The object has no connection whatsoever with this object type \line
-1 - This type may be the connection to an object I can handle \line
-2 - The type given is exactly a type I can handle \line
-The idea is that each object group defines a selector() function.
-
-defaultSelector returns 0 or 2, depending on exact match.
-
-*/
 
 
 #endif

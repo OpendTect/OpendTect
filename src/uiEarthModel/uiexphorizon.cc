@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.18 2003-10-01 06:34:28 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.19 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,11 +124,11 @@ bool uiExportHorizon::writeAscii()
     mDynamicCastGet(EM::Horizon*,hor,obj.ptr())
     if ( !hor ) return false;
 
-    dgbEMHorizonTranslator tr;
-    tr.startRead( *infld->selIOObj() );
-    EM::SurfaceIODataSelection& sels = tr.selections();
+    PtrMan<dgbEMHorizonTranslator> tr = dgbEMHorizonTranslator::getInstance();
+    tr->startRead( *infld->selIOObj() );
+    EM::SurfaceIODataSelection& sels = tr->selections();
     infld->getSelection( sels );
-    PtrMan<Executor> exec = tr.reader( *hor );
+    PtrMan<Executor> exec = tr->reader( *hor );
     if ( !exec ) mErrRet( "Cannot read selected horizon" );
 
     uiExecutor dlg( this, *exec );

@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.19 2003-05-27 13:17:43 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.20 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
 
 -*/
 
-#include <seistrctr.h>
-#include <tracedata.h>
-#include <cbvsinfo.h>
+#include "seistrctr.h"
+#include "tracedata.h"
+#include "cbvsinfo.h"
 class CBVSReadMgr;
 class CBVSWriteMgr;
 class VBrickSpec;
@@ -27,7 +27,7 @@ class CBVSSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(CBVS,SeisTrc)
 public:
 
-			CBVSSeisTrcTranslator(const char* nm=0);
+			CBVSSeisTrcTranslator(const char*,const char*);
 			~CBVSSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&);
@@ -38,9 +38,8 @@ public:
     bool		goTo(const BinID&);
     virtual int		bytesOverheadPerTrace() const	{ return 52; }
 
-    const UserIDSet*	parSpec(Conn::State) const
-			{ return &datatypeparspec; }
-    virtual void	usePar(const IOPar*);
+    const IOPar*	parSpec(Conn::State) const;
+    virtual void	usePar(const IOPar&);
 
     const CBVSReadMgr*	readMgr() const			{ return rdmgr; }
     BinID2Coord		getTransform() const;
@@ -91,7 +90,7 @@ protected:
 
 private:
 
-    static UserIDSet	datatypeparspec;
+    static const IOPar&	datatypeparspec;
 
     void		calcSamps();
     void		destroyVars();

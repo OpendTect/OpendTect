@@ -7,18 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.4 2002-06-20 15:59:45 bert Exp $
+ RCS:           $Id: iodirentry.h,v 1.5 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <multiid.h>
-#include <selector.h>
-#include <uidobjset.h>
-class Translator;
+#include "multiid.h"
+#include "uidobjset.h"
 class IOObj;
 class IODir;
 class IOObjContext;
+class TranslatorGroup;
 
 /*!\brief needed for manipulation. Used by user interface IOObj management. */
 
@@ -40,7 +39,7 @@ class IODirEntryList : public UserIDObjectSet<IODirEntry>
 {
 public:
 			IODirEntryList(IODir*,const IOObjContext&);
-			IODirEntryList(IODir*,const Translator*,bool,
+			IODirEntryList(IODir*,const TranslatorGroup*,bool,
 					const char* translator_globexpr=0);
 			~IODirEntryList();
 
@@ -52,9 +51,8 @@ public:
     bool		canChDir();
     void		sort();
 
-    MultiID			lastiokey;
-    ObjectTypeSelectionFun	trsel;
-    IOObjContext&		ctxt;
+    MultiID		lastiokey;
+    IOObjContext&	ctxt;
 
 };
 

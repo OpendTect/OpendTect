@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.7 2003-02-18 16:32:21 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.8 2003-10-15 15:15:54 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -102,7 +102,7 @@ void SeisStorage::usePar( const IOPar& iopar )
     if ( trl )
     {
 	trl->setTrcSel( trcsel );
-	trl->usePar( &iopar );
+	trl->usePar( iopar );
     }
 
     iopar.get( "Selected component", selcomp );

@@ -6,89 +6,157 @@
 -*/
 
 #include "transl.h"
+#include "streamconn.h"
+#include "ctxtioobj.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "errh.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.10 2003-09-25 11:05:45 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.11 2003-10-15 15:15:54 bert Exp $";
 
-DefineAbstractClassDef(Translator,"Translator");
 
-UserIDObjectSet<Translator>& Translator::groups()
+int defaultSelector( const char* mytyp, const char* typ )
 {
-    static UserIDObjectSet<Translator>* grps = 0;
-    if ( !grps )
-	grps = new UserIDObjectSet<Translator>( "Object type" );
-    return *grps;
-}
+    if ( !mytyp && !typ ) return 2;
+    if ( !mytyp || !typ ) return 0;
 
+    if ( !strcmp(mytyp,typ) ) return 2;
 
-void Translator::dumpGroups( ostream& strm )
-{
-    const UserIDObjectSet<Translator>& grps = Translator::groups();
-    for ( int igrp=0; igrp<grps.size(); igrp++ )
-    {
-	const Translator* trg = grps[igrp];
-	strm << trg->name() << endl;
-	const ClassDefList& cdefs = trg->defs();
-	for ( int idx=0; idx<cdefs.size(); idx++ )
-	{
-	    const ClassDef* cd = cdefs[idx];
-	    Translator* tr = (Translator*)cd->getNew();
-	    strm << "\t" << tr->connClassDef().name()
-		 << " :\t" << cd->name() << endl;
-	    delete tr;
-	}
-	strm << endl;
-    }
-}
-
-
-Translator* Translator::produce( const char* grp, const char* nm )
-{
-    if ( !nm || !*nm ) return 0;
-
-    const UserIDObjectSet<Translator>& grps = Translator::groups();
-    for ( int igrp=0; igrp<grps.size(); igrp++ )
-    {
-	const Translator* trg = grps[igrp];
-	if ( trg->name() == grp )
-	    return trg->make( nm );
-    }
     return 0;
 }
 
 
-Translator* Translator::trProd( const char* nm ) const
+TranslatorGroup::~TranslatorGroup()
 {
-    if ( !nm || !*nm ) return 0;
-    
-    const ClassDefList& cds = defs();
-
-    // Full match is always welcome
-    ClassDef* cd = cds[nm];
-    Translator* tr = (Translator*)(cd ? cd->getNew() : 0);
-    if ( tr ) return tr;
-
-    // Now try to match only given string - may be part of full name
-    for ( int idx=0; idx<cds.size(); idx++ )
-    {
-	if ( matchString(nm,cds[idx]->name()) )
-	{
-	    if ( cd ) // more than one match
-		return 0;
-	    cd = cds[idx];
-	}
-    }
-    return cd ? (Translator*)cd->getNew() : 0;
+    delete selhist_;
+    for ( int idx=0; idx<templs_.size(); idx++ )
+	delete const_cast<Translator*>( templs_[idx] );
 }
 
 
-IOPar& Translator::mkSelHist( const char* nm )
+ObjectSet<TranslatorGroup>& TranslatorGroup::getGroups()
 {
-    BufferString parnm = nm;
-    parnm += " selection history";
-    return *new IOPar( parnm );
+    static ObjectSet<TranslatorGroup>* allgrps = 0;
+    if ( !allgrps )
+	allgrps = new ObjectSet< TranslatorGroup >;
+    return *allgrps;
+}
+
+
+int TranslatorGroup::add( Translator* tr )
+{
+    if ( !tr ) return -1;
+
+    tr->setGroup( this );
+    templs_ += tr;
+
+    return templs_.size() - 1;
+}
+
+
+class EmptyTrGroup : public TranslatorGroup
+{
+public:
+
+   EmptyTrGroup() : TranslatorGroup("",""), ctxt(0,"")	{}
+   const IOObjContext& ioCtxt() const		{ return ctxt; }
+   int objSelector( const char* ) const		{ return mObjSelUnrelated; }
+
+   IOObjContext ctxt;
+
+};
+
+
+TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
+{
+    const ObjectSet<TranslatorGroup>& grps = groups();
+    static EmptyTrGroup emptygrp;
+
+    if ( !nm || !*nm )
+	{ pFreeFnErrMsg("nm empty","getGroup"); return emptygrp; }
+
+    for ( int idx=0; idx<grps.size(); idx++ )
+    {
+	if ( (user  && grps[idx]->userName() == nm)
+	  || (!user && grps[idx]->clssName() == nm) )
+	    return *grps[idx];
+    }
+
+    pFreeFnErrMsg( "Requested trgroup doesn't exist", "getGroup" );
+    return emptygrp;
+}
+
+
+TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
+{
+    getGroups() += newgrp;
+    return *newgrp;
+}
+
+
+bool TranslatorGroup::hasConnType( const char* ct ) const
+{
+    for ( int idx=0; idx<templs_.size(); idx++ )
+    {
+	if ( !strcmp(templs_[idx]->connType(),ct) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+Translator* TranslatorGroup::make( const char* nm ) const
+{
+    if ( !nm || !*nm ) return 0;
+
+    const Translator* tr = 0;
+    for ( int idx=0; idx<templs_.size(); idx++ )
+    {
+	if ( templs_[idx]->userName() == nm )
+	    { tr = templs_[idx]; break; }
+    }
+
+    if ( !tr )
+    {
+	// Now try to match only given string - may be part of full name
+	for ( int idx=0; idx<templs_.size(); idx++ )
+	{
+	    if ( matchString(nm,templs_[idx]->userName().buf()) )
+	    {
+		if ( tr ) // more than one match
+		    return 0;
+		tr = templs_[idx];
+	    }
+	}
+    }
+
+    return tr ? tr->getNew() : 0;
+}
+
+
+const char* Translator::connType() const
+{
+    return StreamConn::sType;
+}
+
+
+IOPar& TranslatorGroup::selHist()
+{
+    if ( !selhist_ )
+    {
+	BufferString parnm = userName();
+	parnm += " selection history";
+	selhist_ = new IOPar( parnm );
+    }
+    return *selhist_;
+}
+
+
+void TranslatorGroup::clearSelHist()
+{
+    if ( selhist_ ) selhist_->clear();
 }
 
 
@@ -117,17 +185,4 @@ bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
     if ( !ioobj ) return false;
     return ioobj->implSetReadOnly( yn );
-}
-
-
-bool Translator::hasConnDef( const ClassDef& cd ) const
-{
-    for ( int itr=0; itr<defs().size(); itr++ )
-    {
-	const ClassDef* def = defs()[itr];
-	Translator* tr = (Translator*)def->getNew();
-	if ( tr->conndef_ == &cd ) { delete tr; return true; }
-	delete tr;
-    }
-    return false;
 }

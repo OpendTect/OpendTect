@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.29 2003-10-06 15:58:06 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.30 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ ________________________________________________________________________
 uiImportHorizon::uiImportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
 				 "Specify horizon parameters","104.0.0"))
-    , ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
+    , ctio(*mMkCtxtIOObj(EMHorizon))
 {
     infld = new uiFileInput( this, "Input Ascii file", 
 	    		     uiFileInput::Setup().withexamine() );
@@ -101,8 +101,8 @@ bool uiImportHorizon::handleAscii()
 	    mErrRetUnRef( "Bad connection" );
 	    
 	GridTranslator* trans =
-	    doxy ? (GridTranslator*) new CoordGridTranslator
-		 : (GridTranslator*) new BinIDGridTranslator;
+	    doxy ? (GridTranslator*)CoordGridTranslator::getInstance()
+		 : (GridTranslator*)BinIDGridTranslator::getInstance();
 
 	GridReader reader( trans, conn );
 	BinIDRange* bidrg = subselfld->isAll() ? 0 : subselfld->getRange();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.2 2003-09-08 13:07:54 nanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.3 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ bool uiWellPartServer::ioWell( uiWellPartServer::ExternalType t, bool imp )
 
 bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 {
-    CtxtIOObj* ctio = new CtxtIOObj( WellTranslator::ioContext() );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt.forread = true;
     uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;

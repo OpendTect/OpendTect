@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.3 2003-08-25 10:31:12 bert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.4 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Surface file management",
                                      "Manage surfaces",
                                      "103.1.0").nrstatusflds(1))
-	, ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
+	, ctio(*mMkCtxtIOObj(EMHorizon))
 	, ioobj(0)
 {
     IOM().to( ctio.ctxt.stdSelKey() );

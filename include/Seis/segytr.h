@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.10 2003-07-25 07:09:56 bert Exp $
+ RCS:		$Id: segytr.h,v 1.11 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -23,13 +23,13 @@ class SEGYSeisTrcTranslator : public SegylikeSeisTrcTranslator
 {			      isTranslator(SEGY,SeisTrc)
 public:
 
-			SEGYSeisTrcTranslator(const char* nm=0);
+			SEGYSeisTrcTranslator(const char*,const char*);
 			~SEGYSeisTrcTranslator();
 
     int			dataBytes() const;
 
     void		toSupported(DataCharacteristics&) const;
-    void		usePar(const IOPar*);
+    void		usePar(const IOPar&);
 
     void		dumpToString( bool yn=true )	{ do_string_dump = yn; }
     bool		dumpingDone() const		{ return itrc >= 5; }

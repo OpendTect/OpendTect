@@ -7,19 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.25 2003-05-27 13:17:43 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.26 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
 
 -*/
 
-#include <transl.h>
-#include <ctxtioobj.h>
-#include <basiccompinfo.h>
-#include <streamconn.h>
+#include "transl.h"
+#include "ctxtioobj.h"
+#include "basiccompinfo.h"
 
 class BinID;
+class Coord;
 class SeisTrc;
 class LinScaler;
 class SeisTrcSel;
@@ -71,8 +71,15 @@ advantage, so then the flag will be ignored.
 */
 
 
+class SeisTrcTranslatorGroup : public TranslatorGroup
+{				isTranslatorGroup(SeisTrc)
+public:
+    			mDefEmptyTranslatorGroupConstructor(SeisTrc)
+};
+
+
 class SeisTrcTranslator : public Translator
-{			  isTranslatorGroup(SeisTrc)
+{
 public:
 
     /*!\brief Information for one component
@@ -127,8 +134,7 @@ public:
     };
 
 
-			SeisTrcTranslator(const char* nm=0,
-			      const ClassDef* cd=&StreamConn::classdef);
+			SeisTrcTranslator(const char*,const char*);
     virtual		~SeisTrcTranslator();
 
 			/*! Init functions must be called, because
@@ -166,7 +172,7 @@ public:
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
     virtual void	toSupported( DataCharacteristics& ) const {}
 			//!< change the input to a supported characteristic
-    virtual void	usePar(const IOPar*);
+    virtual void	usePar(const IOPar&);
     static bool		getRanges(const IOObj&,BinIDSampler&,
 	    			  StepInterval<float>&);
 
@@ -185,9 +191,6 @@ public:
 
     virtual void	cleanUp();
     			//!< Prepare for new initialisation.
-
-    static int		selector(const char*);
-    static const IOObjContext&	ioContext();
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.8 2003-08-15 13:19:42 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.9 2003-10-15 15:15:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ const int cListHeight = 5;
 
 uiIOSurface::uiIOSurface( uiParent* p )
     : uiGroup(p,"Surface selection")
-    , ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
+    , ctio(*mMkCtxtIOObj(EMHorizon))
     , patchfld(0)
     , attribfld(0)
     , rgfld(0)

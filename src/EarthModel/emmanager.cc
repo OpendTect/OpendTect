@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.21 2003-09-09 16:06:12 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.22 2003-10-15 15:15:54 bert Exp $";
 
 #include "emmanager.h"
 
@@ -61,11 +61,11 @@ MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
     CtxtIOObj* ctio = 0;
     if ( type==EM::EMManager::Hor )
-	ctio = new CtxtIOObj(EMHorizonTranslator::ioContext());
+	ctio = mMkCtxtIOObj(EMHorizon);
     else if ( type==EM::EMManager::Fault )
-	ctio = new CtxtIOObj(EMFaultTranslator::ioContext());
+	ctio = mMkCtxtIOObj(EMFault);
     else if ( type==EMManager::StickSet )
-	ctio = new CtxtIOObj(EMStickSetTranslator::ioContext());
+	ctio = mMkCtxtIOObj(EMStickSet);
     else
 	return -1;
 
@@ -281,13 +281,13 @@ void EM::EMManager::getSurfaceData( const MultiID& id, EM::SurfaceIOData& sd )
     if ( !ioobj ) return;
 
     const char* grpname = ioobj->group();
-    if ( !strcmp( grpname, EMHorizonTranslator::keyword ))
+    if ( !strcmp( grpname, EMHorizonTranslatorGroup::keyword ))
     {
-	dgbEMHorizonTranslator tr;
-	if ( !tr.startRead( *ioobj ) )
+	PtrMan<EMHorizonTranslator> tr = mTranslCreate(EMHorizon,mDGBKey);
+	if ( !tr->startRead( *ioobj ) )
 	    return;
 
-	const EM::SurfaceIOData& newsd = tr.selections().sd;
+	const EM::SurfaceIOData& newsd = tr->selections().sd;
 	sd.rg = newsd.rg;
 	deepCopy( sd.patches, newsd.patches );
 	deepCopy( sd.valnames, newsd.valnames );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsticksettransl.h,v 1.2 2003-09-15 12:43:31 kristofer Exp $
+ RCS:		$Id: emsticksettransl.h,v 1.3 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 
@@ -22,20 +22,28 @@ ________________________________________________________________________
 typedef EM::StickSet EMStickSet;
 
 
-class EMStickSetTranslator : public Translator
-{			isTranslatorGroup(EMStickSet)
+class EMStickSetTranslatorGroup : public TranslatorGroup
+{				  isTranslatorGroup(EMStickSet)
 public:
-    			EMStickSetTranslator( const char* nm = 0 )
-			    : Translator( nm )			{}
+    				mDefEmptyTranslatorGroupConstructor(EMStickSet)
 
-    virtual		~EMStickSetTranslator() {}
+    const char*			defExtension() const { return "stickset"; }
+
+    static const char*		keyword;
+};
+
+
+class EMStickSetTranslator : public Translator
+{
+public:
+			mDefEmptyTranslatorBaseConstructor(EMStickSet)
 
     virtual Executor*	reader( EM::StickSet&, Conn*,
-	   			const char* formatfilename ) { return 0; }
+	   			const char* formatfilename )	= 0;
     			/*!< Executor is managed by client. 
 			     Conn becomes mine! */ 
     virtual Executor*	writer(const EM::StickSet&,Conn*,
-	   			const char* formatfilename ){ return 0; }
+	   			const char* formatfilename )	= 0;
     			/*!< Executor is managed by client. 
 			     Conn becomes mine! */ 
 
@@ -43,33 +51,13 @@ public:
     static Executor*	writer(const EM::StickSet&,const IOObj*,
 	    			BufferString& errmsg );
 
-    static int			selector( const char* );
-    static const IOObjContext&	ioContext();
-    const char*			defExtension() const { return "stickset"; }
-
-    static const char*		keyword;
-
 };
-
-/*
-class dgbEMStickSetTranslator : public EMStickSetTranslator
-{			isTranslator(dgb,EMStickSet)
-public:
-
-    virtual Executor*	reader( EM::StickSet&, Conn*,
-	   			const char* formatfilename );
-    virtual Executor*	writer( const EM::StickSet&, Conn*,
-	   			const char* formatfilename );
-
-    BufferString	warningmsg;
-};
-
-*/
 
 
 class lmkEMStickSetTranslator : public EMStickSetTranslator
-{			isTranslator(lmk, EMStickSet)
+{				isTranslator(lmk,EMStickSet)
 public:
+    			mDefEmptyTranslatorConstructor(lmk,EMStickSet)
 
     virtual Executor*	reader( EM::StickSet&, Conn*,
 	   			const char* formatfilename );

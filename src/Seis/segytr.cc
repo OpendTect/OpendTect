@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.20 2003-08-11 13:15:54 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.21 2003-10-15 15:15:54 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -35,8 +35,8 @@ static const char* nth_to_dump_str = getenv("dGB_NR_SEGY_HEADERS_TO_DUMP");
 static int nr_trc_headers_to_dump = nth_to_dump_str ? atoi(nth_to_dump_str) : 5;
 
 
-SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
-	: SegylikeSeisTrcTranslator(nm)
+SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
+	: SegylikeSeisTrcTranslator(nm,unm)
 	, numbfmt(0)
 	, dumpsd(*new StreamData)
 	, itrc(0)
@@ -239,20 +239,19 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 }
 
 
-void SEGYSeisTrcTranslator::usePar( const IOPar* iopar )
+void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
 {
-    if ( !iopar ) return;
     SegylikeSeisTrcTranslator::usePar( iopar );
 
-    const char* res = (*iopar)[ sNumberFormat ];
+    const char* res = iopar[ sNumberFormat ];
     if ( *res )
 	numbfmt = isdigit(*res) ? *res - '0' : 0;
 
-    iopar->get( sExternalNrSamples, ext_nr_samples );
-    iopar->get( sExternalCoordScaling, ext_coord_scaling );
-    iopar->get( sExternalTimeShift, ext_time_shift );
-    iopar->get( sExternalSampleRate, ext_sample_rate );
-    iopar->getYN( sUseLiNo, use_lino );
+    iopar.get( sExternalNrSamples, ext_nr_samples );
+    iopar.get( sExternalCoordScaling, ext_coord_scaling );
+    iopar.get( sExternalTimeShift, ext_time_shift );
+    iopar.get( sExternalSampleRate, ext_sample_rate );
+    iopar.getYN( sUseLiNo, use_lino );
 }
 
 

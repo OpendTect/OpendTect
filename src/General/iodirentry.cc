@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.6 2002-06-20 15:59:45 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.7 2003-10-15 15:15:54 bert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -47,11 +47,10 @@ const UserIDString& IODirEntry::name() const
 }
 
 
-IODirEntryList::IODirEntryList( IODir* id, const Translator* tr, bool maycd,
-				const char* f )
+IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
+				bool maycd, const char* f )
 	: UserIDObjectSet<IODirEntry>(
 		id && id->main() ? (const char*)id->main()->name() : "Objects" )
-	, trsel(tr->getSelector())
 	, ctxt(*new IOObjContext(tr))
 {
     ctxt.maychdir = maycd;
@@ -64,7 +63,6 @@ IODirEntryList::IODirEntryList( IODir* id, const Translator* tr, bool maycd,
 IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ct )
 	: UserIDObjectSet<IODirEntry>(
 		id && id->main() ? (const char*)id->main()->name() : "Objects" )
-	, trsel(ct.trgroup->getSelector())
 	, ctxt(*new IOObjContext(ct))
 {
     fill( id );
@@ -96,10 +94,11 @@ void IODirEntryList::fill( IODir* iodir )
 	IOObj* ioobj = ioobjs[idx];
 
 	int selres = 2;
-	if ( trsel )
+	if ( ctxt.trgroup )
 	{
-	    selres = trsel( ioobj->group() );
-	    if ( !selres || (selres == 1 && !ioobj->isLink()) )
+	    selres = ctxt.trgroup->objSelector( ioobj->group() );
+	    if ( selres == mObjSelUnrelated
+	      || (selres == mObjSelRelated && !ioobj->isLink()) )
 		continue;
 	}
 	if ( ctxt.validIOObj(*ioobj) )

@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.11 2003-05-22 11:10:27 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.12 2003-10-15 15:15:54 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -29,7 +29,6 @@ IOObj::IOObj( const char* nm, const char* ky )
 	: UserIDObject(nm)
 	, key_(ky)
 	, dirname_(0)
-	, connclassdef_(0)
 	, pars_(*new IOPar)
 {
 }
@@ -39,11 +38,8 @@ IOObj::IOObj( IOObj* l, const char* ky )
 	: UserIDObject(l)
 	, key_(ky)
 	, dirname_(0)
-	, connclassdef_(0)
 	, pars_(*new IOPar)
 {
-    if ( l )
-	connclassdef_ = l->connclassdef_;
 }
 
 
@@ -114,9 +110,14 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     UserIDString _typ( fms[1] );
     if ( ! *(const char*)_typ )
     {
-	Translator* tr = Translator::produce( _group, _trl );
+	TranslatorGroup& grp = TranslatorGroup::getGroup( _group, true );
+	if ( grp.userName() != _group )
+	    return 0;
+
+	Translator* tr = grp.make( _trl );
 	if ( !tr ) return 0;
-	_typ = tr->connClassDef().name();
+
+	_typ = tr->connType();
 	delete tr;
     }
 
@@ -171,7 +172,11 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 
 Translator* IOObj::getTranslator() const
 {
-    Translator* tr = Translator::produce( group(), translator() );
+    TranslatorGroup& grp = TranslatorGroup::getGroup( group(), true );
+    if ( grp.userName() != group() )
+	return 0;
+
+    Translator* tr = grp.make( translator() );
     if ( !tr ) return 0;
 
     if ( pars_.size() ) tr->usePar( &pars_ );

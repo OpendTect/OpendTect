@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.16 2002-09-17 13:26:12 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.17 2003-10-15 15:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include <multiid.h>
 #include <idobj.h>
 #include <enums.h>
-class Translator;
 class IOObj;
 class IOPar;
+class TranslatorGroup;
 
 /*!\brief Holds the context for selecting and/or creating IOObjs.
 
@@ -38,7 +38,8 @@ public:
 			DeclareEnumUtils(StdSelType)
 
 
-			IOObjContext(const Translator*,const char* prefname=0);
+			IOObjContext(const TranslatorGroup*,
+				     const char* prefname=0);
 			//!< defaults: see init() below
 			IOObjContext(const IOObjContext&);
 			IOObjContext(const IOPar&);
@@ -46,12 +47,12 @@ public:
 
     //! intrinsics
     StdSelType		stdseltype;
-    const Translator*	trgroup;	//!< Mandatory, must never be 0
+    const TranslatorGroup* trgroup;	//!< Mandatory, must never be 0
     int			newonlevel;	//!< level 0 is survey dir
     bool		crlink;		//!< Create subdir with new entry
     bool		needparent;	//!< Does object have a 'parent'
     int			parentlevel;	//!< On what level can parent be found
-    const Translator*	partrgroup;	//!< If !0, parent needed for create
+    const TranslatorGroup* partrgroup;	//!< If !0, parent needed for create
     bool		multi;		//!< If true, multi allowed
     bool		maychdir;	//!< If not, only select from curdir
 
