@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.41 2002-01-18 18:04:31 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.42 2002-01-22 11:57:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,8 +176,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, UserIDObject( nm )
 	, QMainWindow( parnt && parnt->body() ?  parnt->body()->qwidget() : 0, 
 		       nm, 
-//		       modal ?  WType_TopLevel | WShowModal| WGroupLeader :
-		       modal ?  WType_TopLevel | WShowModal :
+		       modal ?  WType_TopLevel | WShowModal| WGroupLeader :
 				WType_TopLevel )
 	, handle_( handle__ )
 	, initing( true )
@@ -699,7 +698,6 @@ uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
 
     cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
-
     setTitleText( nm );
 }
 
@@ -713,6 +711,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     setBody( body_ );
     body_->construct( s.statusbar_, s.menubar_, s.toolbar_ );
     uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
+
     cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );
