@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.14 2003-01-27 13:16:27 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.15 2003-01-28 08:18:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -76,10 +76,6 @@ public:
 
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
-    void			setClipRate(float);
-    float			clipRate() const;
-    void			setAutoscale(bool);
-    bool			autoScale() const;
 
     void                        setMaterial( visBase::Material* );
     				/*!< Does not affect the volren */
