@@ -2,10 +2,10 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt_file,v 1.1 2004-10-05 11:29:39 dgb Exp $
+# $Id: od_do_rmt_file,v 1.2 2004-10-05 14:18:05 dgb Exp $
 #
 # remote execution script for passing arguments file to od_do_rmt
 #_______________________________________________________________________________
 
 
-./bin/od_do_rmt `cat $1`
+./bin/od_do_rmt `cat $1`  >& /dev/null &

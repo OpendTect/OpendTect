@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.17 2004-10-05 11:29:39 dgb Exp $
+# $Id: od_exec_rmt,v 1.18 2004-10-05 14:18:05 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -184,6 +184,12 @@ if ( $?COMSPEC ) then
 	set remotehost="\\${remotehost}"
 	net use "${remotehost}" ${remotepass} \
 		"/USER:${remotehost}\${usernm}" >& /dev/null
+
+	if ( ! $?DTECT_DEBUG ) then
+	    ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} \
+		 $transf >& /dev/null
+	    exit $status 
+	endif
     endif
 endif
 
