@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.3 2005-01-26 07:55:04 nanne Exp $
+ RCS:		$Id: mathproperty.h,v 1.4 2005-01-26 16:16:11 bert Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ protected:
 class IndirectProperty : public Property
 {
 public:
-    			IndirectProperty( const Property* pr )
+    			IndirectProperty( Property* pr )
 			: Property(pr->ref()), pr_(pr)	{}
 
     virtual float	value() const
