@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.3 2003-10-08 09:56:21 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.4 2003-10-13 09:03:03 kristofer Exp $";
 
 
 #include "SoMeshSurfaceBrick.h"
@@ -242,15 +242,40 @@ void SoMeshSurfaceBrick::expandStrip( int rowidx, int colidx, int& nrcrds,
 
     if ( idx11>=0 )
     {
-	createTriangle( nrcrds, idx11, nidx11, -1, -1 );
+	if ( atnextrow )
+	{
+	    if ( nrcrds && coordIndex[nrcrds-1]!=-1 )
+		mEndStrip();
+
+	    if ( idx00>=0 && idx10>=0 )
+	    {
+		createTriangle( nrcrds, idx10, nidx10,
+					idx00, nidx00, idx11, nidx11 );
+	    }
+	}
+	else
+	{
+	    createTriangle( nrcrds, idx11, nidx11, -1, -1 );
+	}
     }
     else if ( idx01>=0 )
     {
-	createTriangle( nrcrds, idx01, nidx01, -1, -1 );
-    }
+	if ( !atnextrow )
+	{
+	    if ( nrcrds && coordIndex[nrcrds-1]!=-1 )
+		mEndStrip();
 
-    if ( nrcrds && coordIndex[nrcrds-1] != -1 )
-	mEndStrip()
+	    if ( idx00>=0 && idx10>=0 )
+	    {
+		createTriangle( nrcrds, idx01, nidx01,
+					idx00, nidx00, idx10, nidx10 );
+	    }
+	}
+	else
+	{
+	    createTriangle( nrcrds, idx01, nidx01, -1, -1 );
+	}
+    }
 
     idx00 = idx01;
     idx10 = idx11;
