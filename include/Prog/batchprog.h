@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.1.1.2 1999-09-16 09:21:23 arend Exp $
+ RCS:		$Id: batchprog.h,v 1.2 2002-04-12 21:37:34 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -58,6 +58,7 @@ protected:
     IOPar*		iopar_;
 
     bool		initOutput();
+    bool		writePid(int);
 
 };
 
