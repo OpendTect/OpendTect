@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.9 2000-09-21 11:48:23 bert Exp $
+ RCS:		$Id: callback.h,v 1.10 2000-09-22 09:59:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,41 @@ inline void CallBackSet::doCall( CallBacker* obj )
 #endif
 
 
+/*! \brief A Capsule class to wrap any class into a CallBacker.
+
+for convenience, a CallBacker* is included, so the 'caller' will still be
+available.
+*/
+
+template <class T>
+class CBCapsule : public CallBacker
+{
+public:
+			CBCapsule( T d, CallBacker* c )
+			: data(d), caller(c)	{}
+
+    T			data;
+    CallBacker*		caller;
+};
+
+/*! \brief Unpack data from capsule
+
+If you have a pointer to a capsule cb, this:
+\code
+    mCBCapsuleUnpack(const uiMouseEvent&,ev,cb)
+\endcode
+would result in the availability of:
+\code
+    const uiMouseEvent& ev
+\endcode
+
+*/
+
+#define mCBCapsuleUnpack(T,var,cb) \
+    CBCapsule<T>* cb##caps = dynamic_cast< CBCapsule<T> >( cb ); \
+    T var = cb##caps->data
+
+
 /*! \brief Notifier classes help setup a callback handling.
 
 Simply declare a Notifier<T> in the interface, like:
@@ -156,6 +191,41 @@ protected:
     inline void		trigger(CallBacker* c=0){ cbs.doCall(c ? c : cber); }
 
 };
+
+
+/*! \brief Notifier with automatic capsule creation.
+
+When non-callbacker data needs to be passed, you can put it in a capsule.
+
+You'll need to define:
+
+\code
+Notifier<MyClass,const uiMouseEvent&>	mousepress;
+\endcode
+
+*/
+
+template <class T,class C>
+class CNotifier : public i_Notifier
+{
+    friend		T;
+
+public:
+
+    void		trigger( C c, T& t )		{ trigger(c,&t); }
+
+protected:
+
+			CNotifier( T* cb )	{ cber = cb; }
+
+    inline void		trigger( C c=0, CallBacker* cb=0 )
+			{
+			    CBCapsule<C> caps( c, cb ? cb : cber );
+			    cbs.doCall( &caps );
+			}
+
+};
+
 
 
 #endif
