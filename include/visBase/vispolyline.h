@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vispolyline.h,v 1.9 2004-07-23 12:58:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,10 +49,19 @@ class IndexedPolyLine	: public IndexedShape
 public:
     static IndexedPolyLine*	create()
 				mCreateDataObj(IndexedPolyLine);
-
-protected:
-    SoIndexedLineSet*	lineset;
 };
+
+
+class IndexedPolyLine3D	: public IndexedShape
+{
+public:
+    static IndexedPolyLine3D*	create()
+				mCreateDataObj(IndexedPolyLine3D);
+
+    float			getRadius() const;
+    void			setRadius(float);
+};
+
 
 }; // Namespace
 

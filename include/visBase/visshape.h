@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.9 2004-05-17 06:14:36 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.10 2004-07-23 12:58:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -157,18 +157,22 @@ public:
 
     int			nrCoordIndex() const;
     void		setCoordIndex(int pos, int idx );
+    void		removeCoordIndexAfter(int);
     int			getCoordIndex(int) const;
 
     int			nrTextureCoordIndex() const;
     void		setTextureCoordIndex(int pos, int idx );
+    void		removeTextureCoordIndexAfter(int);
     int			getTextureCoordIndex(int) const;
 
     int			nrNormalIndex() const;
     void		setNormalIndex( int pos, int idx );
+    void		removeNormalIndexAfter(int);
     int			getNormalIndex(int) const;
 
     int			nrMaterialIndex() const;
     void		setMaterialIndex( int pos, int idx );
+    void		removeMaterialIndexAfter(int);
     int			getMaterialIndex(int) const;
 
 private:
