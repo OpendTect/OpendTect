@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.64 2002-12-16 15:58:42 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.65 2003-01-13 12:34:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,11 +149,7 @@ public:
 
     void		close();
 
-    virtual void	hide() 
-			{
-			    if( modal_ )	qApp->exit_loop();
-			    QMainWindow::hide();
-			}
+    virtual void	hide();
 
     bool		poppedUp() const { return popped_up; }
 
@@ -300,10 +296,15 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 	mMwHandle.finaliseDone.trigger(mMwHandle);
 }
 
+void uiMainWinBody::hide()
+{
+    mMwHandle.windowClosed.trigger(mMwHandle);
+    if( modal_ )	qApp->exit_loop();
+    QMainWindow::hide();
+}
 
 void uiMainWinBody::close()
 {
-    mMwHandle.windowClosed.trigger(mMwHandle);
     hide();
     if ( exitapponclose_ )	qApp->quit();
 }
