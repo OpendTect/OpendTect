@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.1 2005-01-26 09:15:22 kristofer Exp $
+ RCS:           $Id: attribprovider.h,v 1.2 2005-01-28 16:30:41 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,20 +17,28 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 
+class BasicTask;
 class CubeSampling;
+namespace Threads { class ThreadWorkManager; };
 
 namespace Attrib
 {
 
+class DataHolder;
+class DataHolderLineBuffer;
 class Desc;
+class Parser;
+class ProviderBasicTask;
 
 
 class Provider
 {  mRefCountImpl(Provider);
+    friend			class ProviderBasicTask;
 public:
     static Provider*		create( Desc& );
 				/*!< Creates the provider and all off it's
 				     inputs and the input's inputs, and so on */
+    virtual bool		isOK() const;
 
     const Desc&			getDesc() const;
     Desc&			getDesc();
@@ -44,20 +52,30 @@ public:
     const Interval<float>*	outputZStepout() const;
     void			setOutputZStepout( const Interval<float>& );
 
-    void		setDesiredVolume( const CubeSampling& );
-    bool		getPossibleVolume( int output, CubeSampling& ) const;
+    void			setDesiredVolume( const CubeSampling& );
+    bool			getPossibleVolume(int outp,CubeSampling&) const;
 
-    bool		moveToNextTrace();
-    BinID		getCurrentPosition() const;
-    void		addLocalComputeZInterval( const Interval<float>& );
-    Interval<float>*	localComputeZInterval() const;
-    float*		computeData( const BinID& relpos );
+    bool			moveToNextTrace();
+    BinID			getCurrentPosition() const;
+    void			addLocalCompZInterval(const Interval<int>&);
+    const Interval<int>&	localCompZInterval() const;
+    virtual const DataHolder*	getData( const BinID& relpos );
+    virtual const DataHolder*	getDataDontCompute( const BinID& relpos ) const;
 
 protected:
 			Provider( Desc& );
     static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
-    void		setInput( int input, Provider*, int providerout );
 
+    virtual bool	getInputData() { return true; }
+    virtual bool	computeData( const DataHolder&,
+	    			     const BinID& relpos,
+	    			     int t1, int nrsamples ) const
+    			{ return false; }
+
+    DataHolder*		getDataHolder( const BinID& relpos );
+    void		removeDataHolder( const BinID& relpos );
+
+    void		setInput( int input, Provider*, int providerout );
     bool		computeDesInputCube( int inp, int out,
 					     CubeSampling& ) const;
     void		updateInputReqs(int input=-1);
@@ -72,6 +90,7 @@ protected:
     ObjectSet<Provider>	inputs;
     TypeSet<int>	inputprovideroutput;
     Desc&		desc;
+    Parser&		parser;
 
     TypeSet<int>	outputinterest;
     Interval<int>*	outputinlstepout;
@@ -79,7 +98,13 @@ protected:
     Interval<float>*	outputzstepout;
     CubeSampling*	desiredvolume;
 
-    Interval<float>	localcomputezinterval;
+    Interval<int>	localcomputezinterval;
+
+    Threads::ThreadWorkManager*		threadmanager;
+    ObjectSet<BasicTask>		computetasks;
+    DataHolderLineBuffer*		linebuffer;
+
+    BinID				currentbid;
 };
 
 /*

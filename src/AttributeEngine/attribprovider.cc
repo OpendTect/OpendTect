@@ -4,18 +4,50 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.1 2005-01-26 09:15:22 kristofer Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.2 2005-01-28 16:30:53 kristofer Exp $";
 
 #include "attribprovider.h"
 
+#include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
+#include "attriblinebuffer.h"
+#include "attribparser.h"
+#include "basictask.h"
 #include "cubesampling.h"
 #include "errh.h"
+#include "survinfo.h"
+#include "threadwork.h"
 
 
 namespace Attrib
 {
+
+class ProviderBasicTask : public BasicTask
+{
+public:
+		ProviderBasicTask( const Provider& p )
+		    : provider( p ) {}
+
+    void	setScope( const DataHolder* res_, const BinID& relpos_,
+	    		  int t1_, int nrsamples_ )
+		{ res = res_; relpos=relpos_; t1=t1_; nrsamples=nrsamples_; }
+
+    int		nextStep()
+    		{
+		    if ( !res ) return 0;
+		    return provider.computeData(*res,relpos,t1,nrsamples)?0:-1;
+		}
+
+protected:
+
+    const Provider&		provider;
+    const DataHolder*		res;
+    BinID			relpos;
+    int				t1;
+    int				nrsamples;
+};
+
 
 
 Provider* Provider::create( Desc& desc )
@@ -65,13 +97,19 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 
 Provider::Provider( Desc& nd )
     : desc( nd )
+    , parser( *PF().createParserCopy(nd) )
     , desiredvolume( 0 )
     , outputinterest( nd.nrOutputs(), 0 )
     , inputprovideroutput( nd.nrInputs(), -1 )
     , outputinlstepout( 0 )
     , outputcrlstepout( 0 )
     , outputzstepout( 0 )
+    , threadmanager( 0 )
+    , currentbid( -1, -1 )
 {
+    if ( !&parser ) return;
+
+    parser.ref();
     desc.ref();
     inputs.allowNull(true);
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
@@ -81,12 +119,21 @@ Provider::Provider( Desc& nd )
 
 Provider::~Provider()
 {
+    parser.unRef();
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] ) inputs[idx]->unRef();
     inputs.erase();
 
     desc.unRef();
+
+    delete threadmanager;
+    deepErase( computetasks );
+
+    delete linebuffer;
 }
+
+
+bool Provider::isOK() const { return &parser && parser.isOK(); }
 
 
 Desc& Provider::getDesc() { return desc; }
@@ -230,9 +277,11 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
 }
 
 
-void Provider::addLocalComputeZInterval( const Interval<float>& ni )
+void Provider::addLocalCompZInterval( const Interval<int>& ni )
 {
     localcomputezinterval.include( ni, false );
+
+    const float dz = SI().zRange(true).step;
 
     for ( int out=0; out<outputinterest.size(); out++ )
     {
@@ -243,12 +292,95 @@ void Provider::addLocalComputeZInterval( const Interval<float>& ni )
 	    if ( !inputs[inp] )
 		continue;
 
+	    Interval<int> inputrange( ni );
 	    mGetOverallMargin(Interval<float>, inpzrg, ZMargin(inp,out) );
-	    inpzrg.start += ni.start;
-	    inpzrg.stop += ni.stop;
-	    inputs[inp]->addLocalComputeZInterval(inpzrg);
+	    inputrange.start += (int) (inpzrg.start/dz-0.5);
+	    inputrange.stop += (int) (inpzrg.stop/dz+0.5);
+
+	    inputs[inp]->addLocalCompZInterval(inputrange);
 	}
     }
+}
+
+
+const Interval<int>& Provider::localCompZInterval() const
+{ return localcomputezinterval; }
+
+
+const DataHolder* Provider::getData( const BinID& relpos )
+{
+    const DataHolder* constres = getDataDontCompute(relpos);
+    if ( constres )
+    {
+	//Todo check range
+	return constres;
+    }
+
+    if ( !linebuffer ) linebuffer = new DataHolderLineBuffer;
+
+    DataHolder* outdata =
+        linebuffer->createDataHolder( currentbid+relpos,
+				      localcomputezinterval.start,
+				      localcomputezinterval.width()+1 );
+
+    if ( !outdata ) return 0;
+
+    if ( !getInputData() )
+	return 0;
+
+    for ( int idx=0; idx<outputinterest.size(); idx++ )
+    {
+	while ( outdata->size()<=idx ) (*outdata) += 0;
+	if ( outputinterest[idx]<=0 ) 
+	{
+	    if ( (*outdata)[idx] )
+	    {
+		delete (*outdata)[idx];
+		outdata->replace( 0, idx );
+	    }
+
+	    continue;
+	}
+
+	if ( !(*outdata)[idx] )
+	{
+	    float* ptr = new float[outdata->nrsamples];
+	    outdata->replace( new SingleDataHolderPtrImpl<float>(ptr), idx );
+	}
+    }
+
+    const int t1 = outdata->t1;
+    const int nrsamples = outdata->nrsamples;
+
+    bool success = false;
+    if ( threadmanager )
+    {
+	if ( !computetasks.size() )
+	{
+	    for ( int idx=0; idx<threadmanager->nrThreads(); idx++)
+		computetasks += new ProviderBasicTask(*this);
+	}
+
+	//TODO Divide task
+
+	success = threadmanager->addWork(computetasks);
+    }
+    else
+	success = computeData( *outdata, relpos, t1, nrsamples );
+
+    if ( !success )
+    {
+	linebuffer->removeDataHolder( currentbid+relpos );
+	return 0;
+    }
+
+    return outdata;
+}
+
+
+const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
+{
+    return linebuffer ? linebuffer->getDataHolder(currentbid+relpos) : 0;
 }
 
 
