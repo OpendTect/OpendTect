@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.20 2004-05-03 08:42:35 nanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.21 2004-08-25 11:27:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,11 @@ ________________________________________________________________________
 #include "uiparentbody.h"
 #include "uiobjbody.h"
 #include "uibody.h"
-#include "uimainwin.h"
 
-#include "qmenudata.h"
-#include "qmenubar.h"
-#include "qpopupmenu.h"
-#include "qcursor.h"
+#include <qmenudata.h>
+#include <qmenubar.h>
+#include <qpopupmenu.h>
+#include <qcursor.h>
 
 
 
@@ -263,17 +262,20 @@ uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
 			*new QMenuBar(parnt->body()->qwidget(),nm ) ));
 }
 
-uiMenuBar::uiMenuBar( uiMainWin* parnt, const char* nm, QMenuBar& qThing )
+
+uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm, QMenuBar& qThing )
     : uiMenuData( nm, 0 )
 { 
     setMenuBody( new uiMenuDataBody( *this, parnt, qThing ) ); 
 }
+
 
 void uiMenuBar::reDraw( bool deep )
 {
     if ( body_->bar() ) 
 	body_->bar()->update();
 }
+
 
 void uiMenuBar::setIcon( const QPixmap& pm )
 {

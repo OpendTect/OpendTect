@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.21 2004-05-03 08:42:27 nanne Exp $
+ RCS:           $Id: uimenu.h,v 1.22 2004-08-25 11:27:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uihandle.h"
 
 class uiParent;
-class uiMainWin;
 
 class uiMenuItem;
 class uiPopupMenu;
@@ -148,7 +147,7 @@ public:
 
 protected:
 				uiMenuBar( uiParent* parnt, const char* nm );
-				uiMenuBar( uiMainWin* parnt, const char* nm, 
+				uiMenuBar( uiParent* parnt, const char* nm, 
 					   QMenuBar& );
 
     void 			reDraw(bool deep=true);
