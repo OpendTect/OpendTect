@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.5 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.6 2004-08-16 16:25:03 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "binidselimpl.h"
+#include "cubesampling.h"
 #include "bufstringset.h"
 
 
@@ -35,7 +35,7 @@ public:
     void		use(const Surface&);
 
     BufferString	dbinfo;
-    BinIDSampler	rg;
+    HorSampling		rg;
     BufferStringSet	valnames;
     BufferStringSet	sections;
 
@@ -51,7 +51,7 @@ public:
 
     const SurfaceIOData&	sd;
 
-    BinIDSampler		rg;
+    HorSampling			rg;
     TypeSet<int>		selvalues; // Indexes in sd.valnames
     TypeSet<int>		selsections; // Indexes in sd.sections
 
