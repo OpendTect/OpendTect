@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Platform dependent types
- RCS:		$Id: plftypes.h,v 1.1 2004-12-17 11:58:54 bert Exp $
+ RCS:		$Id: plftypes.h,v 1.2 2004-12-17 12:24:25 bert Exp $
 ________________________________________________________________________
 
 */
@@ -31,8 +31,8 @@ ________________________________________________________________________
 # define int64 int64_t
 # define uint64 uint64_t
 #else
-# define int64 SET_THIS_AREND
-# define uint64 SET_THIS_TOO_AREND
+# define int64 TODO_AREND_see_Basic_plftypes_h
+# define uint64 TODO_AREND_see_Basic_plftypes_h
 #endif
 
 
