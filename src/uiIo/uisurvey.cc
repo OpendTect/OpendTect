@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.9 2001-10-04 15:40:50 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.10 2001-10-05 10:10:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ uiSurvey::uiSurvey( uiParent* p )
     horsep1->attach( ensureBelow, selgrp );
 
     uiGroup* infogrp = new uiGroup( this, "Survey information" );
+    infogrp->setFont( uiFontList::get(FontData::defaultKeys()[2]) ); 
     infogrp->attach( alignedBelow, selgrp );
     infogrp->attach( ensureBelow, horsep1 );
     infogrp->setPrefWidth( totwdth );
@@ -346,14 +347,21 @@ void uiSurvey::mkInfo()
 
 void uiSurvey::selChange()
 {
-    BufferString txt = notes->text();
-    survinfo->setComment( txt );
-    if ( !survinfo->write( getenv("dGB_DATA") ) )
-        ErrMsg( "Failed to write survey info.\nNo changes committed." );
-
+    writeComments();
     getSurvInfo();
     mkInfo();
     survmap->drawMap( survinfo );
+}
+
+
+void uiSurvey::writeComments()
+{
+    BufferString txt = notes->text();
+    if ( txt == survinfo->comment() ) return;
+
+    survinfo->setComment( txt );
+    if ( !survinfo->write( getenv("dGB_DATA") ) )
+        ErrMsg( "Failed to write survey info.\nNo changes committed." );
 }
 
 
@@ -368,6 +376,7 @@ void uiSurvey::doCanvas( CallBacker* c )
 
 bool uiSurvey::acceptOK( CallBacker* )
 {
+    writeComments();
     GetSurveyName_reRead = true;
     if ( !updateSvyFile() || !IOMan::newSurvey() )
 	return false;
