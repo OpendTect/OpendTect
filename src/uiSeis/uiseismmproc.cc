@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.59 2003-11-12 12:57:04 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.60 2004-03-03 11:07:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,10 +70,12 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 {
     const IOPar& iopar = *iopl[0];
     const char* res = iopar.find( "Target value" );
-    BufferString txt( "Multi-Machine Processing " );
+    caption = "Processing";
     if ( res && *res )
-	{ txt += "'"; txt += res; txt += "' "; }
-    setTitleText( txt );
+    { caption += " '"; caption += res; caption += "'"; }
+    setCaption( caption );
+
+    setTitleText( "Multi-Machine Processing" );
     res = iopar.find( "Estimated MBs" );
     if ( res ) estmbs = atoi( res );
 
@@ -501,6 +503,12 @@ void uiSeisMMProc::prepareNextCycle( int msecs )
     {
 	progbar->setTotalSteps( totsteps );
 	progbar->setProgress( nrdone );
+
+	const float fpct = 100. * ((float)nrdone) / totsteps;
+	int pct = (int)fpct; if ( pct > 100 ) pct = 100;
+	BufferString newcap( "[" ); newcap += pct; newcap += "%] ";
+	newcap += caption;
+	setCaption( newcap );
     }
 
     tim.start( delay, true );

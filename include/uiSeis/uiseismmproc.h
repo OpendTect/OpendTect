@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.20 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.21 2004-03-03 11:07:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ protected:
     IOObj*		targetioobj;
     BufferString	rshcomm;
     BufferString	tmpstordir;
+    BufferString	caption;	
     Timer&		tim;
     IOParList&		iopl;
     int			delay;
