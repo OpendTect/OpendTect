@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.11 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.12 2005-01-10 08:28:24 helene Exp $";
 
 #include <arrayndutils.h>
 
@@ -104,7 +104,8 @@ bool ArrayNDWindow::buildWindow()
 	    {
 		int sz =  size.getSize(idx);
 		int halfsz = sz / 2;
-		float distval = ((float) (position[idx] - halfsz) / halfsz);
+		float distval = (halfsz==0) ? 0 :
+		    		( (float) (position[idx] - halfsz) / halfsz );
 		dist += distval * distval;
 	    }
 
