@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisresampler.cc,v 1.2 2004-09-20 16:17:37 bert Exp $";
+static const char* rcsID = "$Id: seisresampler.cc,v 1.3 2004-09-21 12:53:51 bert Exp $";
 
 #include "seisresampler.h"
 #include "cubesampling.h"
@@ -84,6 +84,7 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 
     const int nrsamps = worktrc.size(0);
     worktrc.info() = intrc.info();
+    worktrc.info().sampling.start = cs.zrg.start;
     worktrc.info().sampling.step = cs.zrg.step;
     for ( int icomp=0; icomp<worktrc.data().nrComponents(); icomp++ )
     {
