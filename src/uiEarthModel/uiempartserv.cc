@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.24 2003-08-22 11:27:06 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.25 2003-08-26 11:53:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -337,27 +337,62 @@ void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
     if ( !hor ) return;
     hor->ref();
 
+    EM::Horizon* hor2 = 0;
+    if ( selhorids.size() > 1 )
+    {
+	hor2 = (EM::Horizon*)(em.getObject(*selhorids[1]));
+	hor2->ref();
+    }
+
     bidset.erase();
     zrgset.erase();
-    const int nrsubsurf = hor->nrPatches();
-    for ( int idx=0; idx<nrsubsurf; idx++ )
+
+    BinID step( SI().inlStep(), SI().crlStep() );
+
+    for ( int inl=br->start.inl; inl<br->stop.inl; inl+=step.inl )
     {
-	const Geometry::GridSurface* grdsurf = 
-	    				hor->getSurface(hor->patchID(idx));
-	const int nrrows = grdsurf->nrRows();
-	for ( int row=0; row<nrrows; row++ )
+	for ( int crl=br->start.crl; crl<br->stop.crl; crl+=step.crl )
 	{
-	    const int nrcols = grdsurf->nrCols( row );
-	    for ( int col=0; col<nrcols; col++ )
+	    RowCol rc(inl,crl);
+	    TypeSet<Coord3> z1pos, z2pos;
+	    hor->getPos( rc, z1pos );
+	    if ( !z1pos.size() ) continue;
+
+	    if ( !hor2 )
 	    {
-		const RowCol rc(row,col);
-		Coord3 pos = grdsurf->getGridPos( rc );
-		BinID bid = SI().transform( pos );
-		if ( br && br->excludes(bid) )
-		    continue;
+		for ( int posidx=0; posidx<z1pos.size(); posidx++ )
+		{
+		    bidset += BinID(inl,crl);
+		    zrgset += Interval<float>(z1pos[posidx].z,z1pos[posidx].z);
+		}
+	    }
+	    else
+	    {
+		hor2->getPos( rc, z2pos );
+		if ( !z2pos.size() ) continue;
+
+		Interval<float> zintv;
+		float dist = 999999;
+		for ( int z1idx=0; z1idx<z1pos.size(); z1idx++ )
+		{
+		    for ( int z2idx=0; z2idx<z2pos.size(); z2idx++ )
+		    {
+			float dist_ = z2pos[z2idx].z - z1pos[z1idx].z;
+			if ( fabs(dist_) < dist )
+			{
+			    zintv.start = z1pos[z1idx].z;
+			    zintv.stop = z2pos[z2idx].z;
+			}
+		    }
+		}
+
+		zintv.sort();
+		bidset += BinID(inl,crl);
+		zrgset += zintv;
 	    }
 	}
     }
-
+    
     hor->unRef();
+    if ( hor2 ) hor2->unRef();
 }
