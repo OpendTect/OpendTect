@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.123 2004-05-07 12:27:58 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.124 2004-05-10 11:56:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,28 +21,22 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "attribsel.h"
 
-class SeisTrc;
-class PickSet;
-class ColorTable;
-class uiPopupMenu;
-class SurfaceInfo;
 class AttribSliceSet;
 class BufferStringSet;
-
-namespace visBase
-{
-    class DataObject;
-};
-
-namespace visSurvey
-{
-class Scene;
-};
-
-namespace Threads { class Mutex; };
-namespace Geometry { class GridSurface; };
-
+class ColorTable;
+class PickSet;
+class SeisTrc;
+class SurfaceInfo;
+class uiPopupMenu;
+class uiTrackingMan;
 class uiVisMenu;
+
+namespace visBase   { class DataObject; };
+namespace visSurvey { class Scene; };
+namespace Threads   { class Mutex; };
+namespace Geometry  { class GridSurface; };
+namespace Tracking  { class TrackManager; };
+
 
 
 /*! \brief The Visualisation Part Server */
@@ -195,6 +189,13 @@ public:
     int				duplicateObject(int id,int sceneid);
     				/*!< \returns id of new object */
 
+    				// Tracking stuff
+    int				addInterpreter(int,Tracking::TrackManager&);
+    void			showTrackingManager(int,
+	    					Tracking::TrackManager&);
+    void			trackmanDlgClosed(CallBacker*);
+    uiTrackingMan*		trackdlg;
+
     bool			dumpOI(int id) const;
     
     bool			usePar(const IOPar&);
@@ -257,6 +258,7 @@ protected:
     int				changecolormnusel;
     int				changematerialmnusel;
     int				firstresmnusel;
+    int				trackmanmnuid;
 
     static const char*		workareastr;
     static const char*		appvelstr;

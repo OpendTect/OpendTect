@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.210 2004-05-09 20:08:28 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.211 2004-05-10 11:55:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "uivismenu.h"
 #include "uicolor.h"
+#include "uitrackingman.h"
+#include "visinterpret.h"
 
 
 const int uiVisPartServer::evUpdateTree =	0;
@@ -52,6 +54,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventobjid(-1)
     , eventmutex(*new Threads::Mutex)
     , mouseposval( mUndefValue )
+    , trackdlg(0)
 {
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -1022,6 +1025,15 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 
 	menu->addSubMenu( resmnu, 5000 );
     }
+
+    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,so);
+    if ( sid && !trackdlg )
+    {
+	uiVisMenu* menu = getMenu( sid->id(), false );
+	trackmanmnuid = menu->addItem( new uiMenuItem("Show manager") );
+    }
+    else
+	trackmanmnuid = -1;
 }
 
 
@@ -1050,7 +1062,37 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     else if ( firstresmnusel!=-1 && mnuid>=firstresmnusel &&
 	    mnuid-firstresmnusel<so->nrResolutions() )
 	so->setResolution(mnuid-firstresmnusel);
+    else if ( mnuid==trackmanmnuid )
+    {
+	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,so)
+	if ( sid && sid->trackMan() )
+	    showTrackingManager( sid->id(), *sid->trackMan() );
+    }
 }
 
 
+int uiVisPartServer::addInterpreter( int sceneid, Tracking::TrackManager& tm )
+{
+    visSurvey::SurfaceInterpreterDisplay* sid =
+				visSurvey::SurfaceInterpreterDisplay::create();
+    sid->setTrackMan( tm );
+    sid->turnOn( false );
+    addObject( sid, sceneid, true );
+    return sid->id();
+}
 
+
+void uiVisPartServer::showTrackingManager( int id, Tracking::TrackManager& tm )
+{
+    delete trackdlg;
+    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,getObject(id))
+    trackdlg = new uiTrackingMan( appserv().parent(), *sid, tm );
+    trackdlg->windowClosed.notify( mCB(this,uiVisPartServer,trackmanDlgClosed));
+    trackdlg->go();
+}
+
+
+void uiVisPartServer::trackmanDlgClosed( CallBacker* )
+{
+    delete trackdlg; trackdlg = 0;
+}
