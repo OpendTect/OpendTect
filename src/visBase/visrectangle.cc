@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.29 2002-05-08 07:58:00 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.30 2002-05-08 08:09:48 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -428,6 +428,7 @@ const char* visBase::Rectangle::yrangestr = "YRange";
 const char* visBase::Rectangle::zrangestr = "ZRange";
 const char* visBase::Rectangle::xwidhtrange = "XWidth";
 const char* visBase::Rectangle::ywidhtrange = "YWidth";
+const char* visBase::Rectangle::draggersizestr = "DraggerSize";
 const char* visBase::Rectangle::snappingstr = "Snapping";
 
 visBase::Rectangle::Rectangle()
@@ -563,6 +564,10 @@ int visBase::Rectangle::usePar( const IOPar& iopar )
     if ( iopar.get( ywidhtrange, range.start, range.stop ))
 	setWidthRange( 1, wrange );
 
+    float w, h, d;
+    if ( iopar.get( draggersizestr, w, h, d ) )
+	setDraggerSize( w, h, d );
+
     bool snap;
     if ( iopar.getYN( snappingstr, snap ) )
 	setSnapping( snap );
@@ -587,6 +592,9 @@ void visBase::Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 
     iopar.set( xwidhtrange, wxrange.start, wxrange.stop );
     iopar.set( ywidhtrange, wyrange.start, wyrange.stop );
+
+    Geometry::Pos draggersize = getDraggerSize();
+    iopar.set( draggersizestr, draggersize.x, draggersize.y, draggersize.z );
 
     iopar.setYN( snappingstr, isSnapping() );
 }
