@@ -8,14 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.6 2003-11-24 08:36:35 kristofer Exp $";
 
 
 #include "pca.h"
 
-#include "arrayndimpl.h"
 #include "basictask.h"
 #include "errh.h"
+#include "sorting.h"
 #include "thread.h"
 #include "threadwork.h"
 
@@ -69,9 +69,11 @@ int PCACovarianceCalculator::nextStep()
 
 PCA::PCA( int nrvars_ )
     : nrvars( nrvars_ )
-    , covariancematrix( *new Array2DImpl<float>( nrvars_, nrvars_ ) )
+    , covariancematrix( nrvars_, nrvars_ )
     , samplesums( nrvars_, 0 )
     , threadworker( 0 )
+    , eigenvecindexes( new int[nrvars_] )
+    , eigenvalues( new float[nrvars_] )
 {
     for ( int row=0; row<nrvars; row++ )
     {
@@ -87,8 +89,9 @@ PCA::PCA( int nrvars_ )
 PCA::~PCA()
 {
     clearAllSamples();
-    delete &covariancematrix;
     deepErase( tasks );
+    delete [] eigenvecindexes;
+    delete [] eigenvalues;
 }
 
 
@@ -299,24 +302,20 @@ bool PCA::calculate()
     if ( !tqli( d, e, nrvars, a ) )
 	return false;
 
-    eigenvalues.erase();
+    for ( int idx=0; idx<nrvars; idx++ )
+    {
+	//Store the negative number to get the sorting right
+	eigenvalues[idx] = -d[idx+1];		
+	eigenvecindexes[idx] = idx;
+    }
 
-    for ( int idx=1; idx<=nrvars; idx++ )
-	eigenvalues += d[idx];
+    sort_idxabl_coupled( eigenvalues, eigenvecindexes, nrvars );
 
     return true;
 }
 
 
-float PCA::getEigenValue(int idx) const { return eigenvalues[idx]; }
-
-
-void PCA::getEigenVector(int idy, TypeSet<float>& res ) const
-{
-    res.erase();
-    for ( int idx=0; idx<nrvars; idx++ )
-	res += covariancematrix.get(idx, idy );
-}
+float PCA::getEigenValue(int idx) const { return -eigenvalues[idx]; }
 
 
 void PCA::setThreadWorker( Threads::ThreadWorkManager* nv )
