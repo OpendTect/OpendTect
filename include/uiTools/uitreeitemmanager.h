@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.6 2004-04-29 14:54:43 kristofer Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.7 2004-04-30 12:10:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -182,20 +182,28 @@ class uiTreeFactorySet : public CallBacker
 public:
 					uiTreeFactorySet();
 					~uiTreeFactorySet();
-    void				addFactory(uiTreeItemFactory* ptr);
+    void				addFactory(uiTreeItemFactory* ptr,
+	    					   int placementindex=-1 );
 					/*!<\param ptr	pointer to new factory.
 							Object is managed by me.
+					    \param placementindex
+					    		Indicates how the
+							created treeitems should
+							be placed when making
+							a new tree.
 					*/
     void				remove( const char* );
 
     int					nrFactories() const;
     const uiTreeItemFactory*		getFactory( int idx ) const;
+    int					getPlacementIdx(int idx) const;
 
     CNotifier<uiTreeFactorySet,int>	addnotifier;
     CNotifier<uiTreeFactorySet,int>	removenotifier;
 
 protected:
     ObjectSet<uiTreeItemFactory>	factories;
+    TypeSet<int>			placementidxs;
 };
 
 

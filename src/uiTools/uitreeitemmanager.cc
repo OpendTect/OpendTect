@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.8 2004-04-29 14:54:24 kristofer Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.9 2004-04-30 12:10:44 kristofer Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -313,9 +313,10 @@ uiTreeFactorySet::~uiTreeFactorySet()
 }
 
 
-void uiTreeFactorySet::addFactory(uiTreeItemFactory* ptr)
+void uiTreeFactorySet::addFactory(uiTreeItemFactory* ptr, int placement)
 {
     factories += ptr;
+    placementidxs += placement;
     addnotifier.trigger(factories.size()-1);
 }
 
@@ -338,6 +339,7 @@ void uiTreeFactorySet::remove( const char* nm )
     removenotifier.trigger(index);
     delete factories[index];
     factories.remove(index);
+    placementidxs.remove(index);
 }
 
 
@@ -351,3 +353,7 @@ const uiTreeItemFactory* uiTreeFactorySet::getFactory(int idx) const
 {
     return idx<nrFactories() ? factories[idx] : 0;
 }
+
+
+int uiTreeFactorySet::getPlacementIdx(int idx) const
+{ return placementidxs[idx]; }
