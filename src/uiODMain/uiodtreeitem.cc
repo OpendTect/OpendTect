@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.53 2004-10-01 12:39:40 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.54 2004-10-06 15:33:12 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -572,8 +572,10 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
     if ( uilistviewitem->isChecked() && trackmnu )
     {
-	applMgr()->trackServer()->setSceneID( sceneID() );
-	applMgr()->trackServer()->setDisplayID( displayid );
+	uiTrackingPartServer* ts = applMgr()->trackServer();
+	ts->setSceneID( sceneID() );
+	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
+	ts->setDisplayID( displayid );
 
 	EM::SectionID section = -1;
 	if ( uivissurf->nrSections()==1 )
