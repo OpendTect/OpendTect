@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.9 2001-05-04 11:25:10 windev Exp $
+ RCS:           $Id: uigeninput.cc,v 1.10 2001-05-08 11:25:04 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,10 +239,10 @@ public:
 			    { if(idx) crl_y.setText(t); else inl_x.setText(t); }
 
 protected:
-
+    // don't change order of these 3 attributes!
+    uiGroup&		binidGrp;
     uiLineEdit&		inl_x; // inline or x-coordinate
     uiLineEdit&		crl_y; // crossline or y-coordinate
-    uiGroup&		binidGrp;
 
     uiPushButton*	ofrmBut; // other format: BinId / Coordinates 
     void		otherFormSel(CallBacker*);
@@ -251,15 +251,22 @@ protected:
 
 uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
 			      const char* nm ) 
-    : inl_x( *new uiLineEdit(p,0,nm) ), crl_y( *new uiLineEdit(p,0,nm) )
-    , binidGrp( *new uiGroup(p,nm) ) , ofrmBut( 0 )
+    : binidGrp( *new uiGroup(p,nm) )
+    , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
+    , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
+    , ofrmBut( 0 )
 {
     const BinIDCoordInpSpec* spc 
 			    = dynamic_cast< const BinIDCoordInpSpec* >(spec);
     if( !spc ) return;
 
-    ofrmBut = new uiPushButton( p, spc->otherTxt() );
+    ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt() );
     ofrmBut->notify( mCB(this,uiBinIDInpFld,otherFormSel) );
+
+    binidGrp.setHAlignObj( &inl_x );
+
+    crl_y.attach( rightTo, &inl_x );
+    ofrmBut->attach( rightTo, &crl_y );
 
 }
 
@@ -312,8 +319,8 @@ template<class T>
 uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec* spec,
 				    const char* nm) 
     : intvalGrp( *new uiGroup(p,nm) ) 
-    , start( *new uiLineEdit(p,0,nm) )
-    , stop( *new uiLineEdit(p,0,nm) )
+    , start( *new uiLineEdit(&intvalGrp,0,nm) )
+    , stop( *new uiLineEdit(&intvalGrp,0,nm) )
     , step( 0 )
 {
     const NumInpIntervalSpec<T>* spc = 
@@ -325,9 +332,14 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec* spec,
 
     if( spc-> hasStep() )
     {
-	step = new uiLineEdit(p,0,nm);
+	step = new uiLineEdit(&intvalGrp,0,nm);
 	step->setValue(spc->value(2));
     }
+
+    intvalGrp.setHAlignObj( &start );
+
+    stop.attach( rightTo, &start );
+    if( step ) step->attach( rightTo, &stop );
 }
 
 /*!
@@ -489,12 +501,10 @@ DataInpSpec* uiGenInput::getInput( int nr )
 void uiGenInput::finalise_()
 {
     uiGroup::finalise_();
-    uiObject *lastElem = 0;
-    if( inputs.size() )
-    {
-	lastElem = &createInpFld( inputs[0] ).uiObj();
-	setHAlignObj( lastElem );
-    }
+    if( !inputs.size() )	{ pErrMsg("No inputs specified :("); return; }
+
+    uiObject * lastElem = &createInpFld( inputs[0] ).uiObj();
+    setHAlignObj( lastElem );
 
     if( withchk )
     {
