@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.37 2002-01-15 10:20:12 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.38 2002-01-17 21:33:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -557,19 +557,23 @@ void uiDialogBody::finalise()
 	    helpBut = new uiPushButton( centralWidget_, "?" );
 	    helpBut->setPrefWidthInChar( 3 );
 	}
-        if ( !withmenubar )
+        if ( !withmenubar && titleText != "" )
 	{
 	    title = new uiLabel( centralWidget_, titleText );
 	    title->setPrefWidthInChar( titleText.size() + 2 ); 
 
-	    uiSeparator* sep = new uiSeparator( centralWidget_ );
+	    uiObject* obj = separ ? new uiSeparator( centralWidget_ )
+				  : title;
 
-	    title->attach( centeredAbove, sep );
-	    sep->attach( stretchedBelow, title, -2 );
-	    if( mainwidgcentered )
-		dlgGroup->attach( centeredBelow, sep );
+	    if ( obj != title )
+	    {
+		title->attach( centeredAbove, obj );
+		obj->attach( stretchedBelow, title, -2 );
+	    }
+	    if ( mainwidgcentered )
+		dlgGroup->attach( centeredBelow, obj );
 	    else
-		dlgGroup->attach( stretchedBelow, sep );
+		dlgGroup->attach( stretchedBelow, obj );
 	}
 
 	if ( separ && (okBut || cnclBut || saveBut || helpBut) )
