@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.14 2003-02-27 16:43:42 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.15 2003-03-07 13:11:57 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -67,7 +67,17 @@ visBase::Texture::~Texture()
     delete [] green;
     delete [] blue;
     setThreadWorker( 0 );
-    colortab->unRef();
+    if ( colortab )
+    {
+	colortab->rangechange.remove(
+		mCB( this, visBase::Texture, colorTabChCB ));
+	colortab->sequencechange.remove(
+		mCB( this, visBase::Texture, colorSeqChCB ));
+	colortab->autoscalechange.remove(
+		mCB( this, visBase::Texture, autoscaleChCB ));
+	colortab->unRef();
+    }
+
     onoff->unref();
 }
 
