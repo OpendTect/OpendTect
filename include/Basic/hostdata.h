@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.2 2002-04-08 20:58:41 bert Exp $
+ RCS:           $Id: hostdata.h,v 1.3 2002-05-13 14:34:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,10 +24,11 @@ public:
 				: name_(nm)	{}
     virtual			~HostData()	{ deepErase(aliases_); }
 
-    const char*			name() const	{ return officialName(); }
+    const char*			name() const;
     const char*			officialName() const
 				{ return (const char*)name_; }
     const char*			shortestName() const;
+
     int				nrAliases() const
 				{ return aliases_.size(); }
     const char*			alias( int idx ) const
