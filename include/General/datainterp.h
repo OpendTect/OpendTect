@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.4 2001-05-21 12:45:07 bert Exp $
+ RCS:		$Id: datainterp.h,v 1.5 2003-06-18 10:56:08 bert Exp $
 ________________________________________________________________________
 
 */
@@ -58,7 +58,7 @@ public:
 			{ return di.getfn != getfn; }
     inline bool		isSUCompat() const
 			{ return getfn == &DataInterpreter::getF; }
-    inline int		nrBytes() const;
+    int			nrBytes() const;
     DataCharacteristics	dataChar() const;
 
 protected:
