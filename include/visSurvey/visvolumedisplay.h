@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.1 2002-08-20 07:39:28 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.2 2002-08-22 11:07:34 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,8 @@ ________________________________________________________________________
 
 class AttribSelSpec;
 class CubeSampling;
-class AttribSlice;
+class AttribSliceSet;
+class ColorTable;
 
 namespace Geometry { class Pos; }
 namespace visBase { class CubeView; };
@@ -46,26 +47,35 @@ public:
     void			setWidth( const Geometry::Pos& );
     Geometry::Pos		width() const;
 
-    void			showDraggers(bool yn);
+    void			showBox(bool yn);
     void			resetManip();
     void			getPlaneIds(int&,int&,int&);
     float			getPlanePos(int);
 
     bool			updateAtNewPos();
-    CubeSampling&		getCubeSampling();
-    void			setCubeSampling(const CubeSampling&);
     AttribSelSpec&		getAttribSelSpec();
     void			setAttribSelSpec(AttribSelSpec&);
-    bool			putNewData( AttribSlice* );
+    CubeSampling&		getCubeSampling();
+    CubeSampling&		getPrevCubeSampling()	{ return prevcs; }
+    void			setCubeSampling(const CubeSampling&);
+    bool			putNewData( AttribSliceSet* );
+    AttribSliceSet*		getPrevData();
     void			operationSucceeded( bool yn=true )
 				{ succeeded_ = yn; }
 
     void			turnOn(bool);
     bool			isOn() const;
 
-    void                        setMaterial( visBase::Material* ) {}
-    const visBase::Material*    getMaterial() const 		{ return 0; }
-    visBase::Material*          getMaterial() 			{ return 0; }
+    void			setColorTable(const ColorTable&);
+    const ColorTable&		getColorTable() const;
+    void			setClipRate(float);
+    float			clipRate() const;
+    void			setAutoscale(bool);
+    bool			autoScale() const;
+
+    void                        setMaterial( visBase::Material* );
+    const visBase::Material*    getMaterial() const;
+    visBase::Material*          getMaterial();
 
     SoNode*			getData();
 
@@ -84,6 +94,7 @@ protected:
     visBase::CubeView*		cube;
 
     AttribSelSpec&		as;
+    CubeSampling&		prevcs;
 
     bool			selected_;
     bool			succeeded_;

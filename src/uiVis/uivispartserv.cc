@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.82 2002-08-20 07:42:11 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.83 2002-08-22 11:07:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,6 +209,8 @@ uiVisPartServer::ObjectType uiVisPartServer::getObjectType( int id ) const
     if ( well ) return WellDisplay;
     mDynamicCastGet(const visSurvey::HorizonDisplay*, hor, dobj );
     if ( hor ) return HorizonDisplay;
+    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) return VolumeDisplay;
 
 
     return Unknown;
@@ -261,8 +263,11 @@ void uiVisPartServer::setViewMode(bool yn)
 
     visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
-
     if ( sd ) sd->showDraggers(!yn);
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    if ( vd ) vd->showBox( !yn );
+    mDynamicCastGet(visBase::TextureRect*,rect,obj)
+    if ( rect ) rect->getRectangle().displayDraggers( !yn );
 }
 
 
@@ -531,17 +536,18 @@ CubeSampling& uiVisPartServer::getCubeSampling( int id, bool manippos )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
     if ( sd ) return sd->getCubeSampling( manippos );
-
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     return vd->getCubeSampling();
 }
 
 
-CubeSampling& uiVisPartServer::getPrevCS( int id )
+CubeSampling& uiVisPartServer::getPrevCubeSampling( int id )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
-    return sd->getPrevCS();
+    if ( sd ) return sd->getPrevCubeSampling();
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    return vd->getPrevCubeSampling();
 }
 
 
@@ -624,6 +630,23 @@ void uiVisPartServer::removeVolumeDisplay( int id )
     int objidx = scene->getFirstIdx( vd );
     scene->removeObject( objidx );
     volumes -= vd;
+}
+
+
+void uiVisPartServer::putNewVolData( int id, AttribSliceSet* sliceset )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) vd->putNewData( sliceset );
+}
+
+
+AttribSliceSet* uiVisPartServer::getPrevVolData( int id )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) return vd->getPrevData();
+    else return 0;
 }
 
 
@@ -1415,6 +1438,8 @@ void uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,obj);
     if ( !vo ) return;
 
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    if ( vd ) return;
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj);
     if ( pdd || (hor&&hor->usesTexture()))
@@ -1425,8 +1450,8 @@ void uiVisPartServer::setMaterial( int id )
     }
     else
     {
-	uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), true, true,
-			   false, false, false, true );
+	uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), true, 
+			   true, false, false, false, true );
 	dlg.go();
     }
 }
@@ -1450,7 +1475,11 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     {
 	visBase::DataObject* obj = visBase::DM().getObj( sel );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
-	if ( sd ) sd->showDraggers(true);
+	if ( sd ) sd->showDraggers( true );
+	mDynamicCastGet(visBase::TextureRect*,rect,obj)
+	if ( rect ) rect->getRectangle().displayDraggers( true );
+	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+	if ( vd ) vd->showBox( true );
     }
 
     Threads::MutexLocker lock( eventmutex );
@@ -1466,7 +1495,11 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     {
 	visBase::DataObject* obj = visBase::DM().getObj( oldsel );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
-	if ( sd ) sd->showDraggers(false);
+	if ( sd ) sd->showDraggers( false );
+	mDynamicCastGet(visBase::TextureRect*,rect,obj)
+	if ( rect ) rect->getRectangle().displayDraggers( false );
+	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+	if ( vd ) vd->showBox( false );
     }
 
     Threads::MutexLocker lock( eventmutex );

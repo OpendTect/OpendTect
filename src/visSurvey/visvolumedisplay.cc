@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.1 2002-08-20 07:39:21 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.2 2002-08-22 11:07:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,12 +20,13 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "attribslice.h"
 #include "arrayndimpl.h"
-#include "position.h"
 #include "survinfo.h"
 #include "visselman.h"
 #include "visdataman.h"
 #include "sorting.h"
 #include "iopar.h"
+#include "colortab.h"
+#include "viscolortab.h"
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
@@ -36,6 +37,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , cube( visBase::CubeView::create() )
     , selected_( false )
     , as(*new AttribSelSpec)
+    , prevcs(*new CubeSampling)
 {
     cube->ref();
     selection()->notify( mCB(this,VolumeDisplay,select));
@@ -52,79 +54,9 @@ visSurvey::VolumeDisplay::VolumeDisplay()
 			     (SI().range().stop.crl - SI().range().start.crl)/4,
 			     (SI().zRange().stop - SI().zRange().start)/4 ) );
 
-    cube->initPlanes( getCubeSampling() );
+    prevcs = getCubeSampling();
+    cube->initPlanes( prevcs );
     cube->showBox( true );
-}
-
-
-void visSurvey::VolumeDisplay::setCenter( const Geometry::Pos& pos )
-{
-    cube->setCenter( pos );
-}
-
-
-Geometry::Pos visSurvey::VolumeDisplay::center() const
-{
-    return cube->center();
-}
-
-
-void visSurvey::VolumeDisplay::setWidth( const Geometry::Pos& pos )
-{
-    cube->setWidth( pos );
-}
-
-
-Geometry::Pos visSurvey::VolumeDisplay::width() const
-{
-    return cube->width();
-}
-
-
-void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
-{
-    visBase::VisualObject::fillPar( par, saveids );
-    int volid = cube->id();
-    par.set( volumestr, volid );
-
-    if ( saveids.indexOf( volid )==-1 ) saveids += volid;
-
-    as.fillPar(par);
-}
-
-
-int visSurvey::VolumeDisplay::usePar( const IOPar& par )
-{
-    int res =  visBase::VisualObject::usePar( par );
-    if ( res!=1 ) return res;
-
-    int volid;
-    if ( !par.get( volumestr, volid ))
-	return -1;
-
-    visBase::DataObject* dataobj = visBase::DM().getObj( volid );
-    if ( !dataobj ) return 0;
-
-    mDynamicCastGet(visBase::CubeView*,cv,dataobj);
-    if ( !cv ) return -1;
-
-    cube->unRef();
-    cube = cv;
-    cube->ref();
-
-    if ( !as.usePar( par )) return -1;
-
-    return 1;
-}
-    
-
-void visSurvey::VolumeDisplay::showDraggers(bool yn)
-{
-}
-
-
-void visSurvey::VolumeDisplay::resetManip()
-{
 }
 
 
@@ -136,6 +68,63 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
     cube->unRef();
 
     delete &as;
+    delete &prevcs;
+}
+
+
+void visSurvey::VolumeDisplay::setCenter( const Geometry::Pos& pos )
+{ cube->setCenter( pos ); }
+
+
+Geometry::Pos visSurvey::VolumeDisplay::center() const
+{ return cube->center(); }
+
+
+void visSurvey::VolumeDisplay::setWidth( const Geometry::Pos& pos )
+{ cube->setWidth( pos ); }
+
+
+Geometry::Pos visSurvey::VolumeDisplay::width() const
+{ return cube->width(); }
+
+
+void visSurvey::VolumeDisplay::showBox( bool yn )
+{ cube->showBox( yn ); }
+
+
+void visSurvey::VolumeDisplay::resetManip()
+{
+}
+
+
+void visSurvey::VolumeDisplay::getPlaneIds( int& inlid, int& crlid, int& tslid )
+{
+    inlid = cube->inlPlane()->id();
+    crlid = cube->crlPlane()->id();
+    tslid = cube->tslPlane()->id();
+}
+
+
+float visSurvey::VolumeDisplay::getPlanePos( int dim )
+{
+    Geometry::Pos pos;
+    switch( dim )
+    {
+	case 0: {
+	    pos = cube->inlPlane()->getRectangle().manipOrigo();
+	    return pos.x;
+	    } break;
+	case 1: {
+	    pos = cube->crlPlane()->getRectangle().manipOrigo();
+	    return pos.y;
+	    } break;
+	case 2: {
+	    pos = cube->tslPlane()->getRectangle().manipOrigo();
+	    return pos.z;
+	    } break;
+	default:
+	    return 0;
+    }
 }
 
 
@@ -185,23 +174,29 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 			  (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
 			  (cs.zrg.stop + cs.zrg.start) / 2 );
     setCenter( center );
+    cube->initPlanes( cs );
 }
 
 
-bool visSurvey::VolumeDisplay::putNewData( AttribSlice* attrslice )
+bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 {
+    prevcs = sliceset->sampling;
     return true;
 }
 
 
-void visSurvey::VolumeDisplay::turnOn(bool n) { cube->turnOn(n); }
+AttribSliceSet* visSurvey::VolumeDisplay::getPrevData()
+{
+    return 0;
+}
+
+
+void visSurvey::VolumeDisplay::turnOn(bool n) 
+{ cube->turnOn(n); }
 
 
 bool visSurvey::VolumeDisplay::isOn() const 
 { return cube->isOn(); }
-
-
-SoNode* visSurvey::VolumeDisplay::getData() { return cube->getData(); }
 
 
 void visSurvey::VolumeDisplay::select()
@@ -245,33 +240,92 @@ void visSurvey::VolumeDisplay::manipInMotion( CallBacker* )
 }
 
 
-void visSurvey::VolumeDisplay::getPlaneIds( int& inlid, int& crlid, int& tslid )
+void visSurvey::VolumeDisplay::setColorTable( const ColorTable& ctab )
 {
-    inlid = cube->inlPlane()->id();
-    crlid = cube->crlPlane()->id();
-    tslid = cube->tslPlane()->id();
+    cube->inlPlane()->getColorTab().colorSeq().colors() = ctab;
+    cube->inlPlane()->getColorTab().colorSeq().colorsChanged();
 }
 
 
-float visSurvey::VolumeDisplay::getPlanePos( int dim )
+const ColorTable& visSurvey::VolumeDisplay::getColorTable() const
+{ return cube->inlPlane()->getColorTab().colorSeq().colors(); }
+
+
+void visSurvey::VolumeDisplay::setClipRate( float rate )
 {
-    Geometry::Pos pos;
-    switch( dim )
-    {
-	case 0: {
-	    pos = cube->inlPlane()->getRectangle().manipOrigo();
-	    return pos.x;
-	    } break;
-	case 1: {
-	    pos = cube->crlPlane()->getRectangle().manipOrigo();
-	    return pos.y;
-	    } break;
-	case 2: {
-	    pos = cube->tslPlane()->getRectangle().manipOrigo();
-	    return pos.z;
-	    } break;
-	default:
-	    return 0;
-    }
+    cube->inlPlane()->setClipRate( rate );
+    cube->crlPlane()->setClipRate( rate );
+    cube->tslPlane()->setClipRate( rate );
 }
+
+
+float visSurvey::VolumeDisplay::clipRate() const
+{ return cube->inlPlane()->clipRate(); }
+
+
+void visSurvey::VolumeDisplay::setAutoscale( bool yn )
+{
+    cube->inlPlane()->setAutoscale( yn );
+    cube->crlPlane()->setAutoscale( yn );
+    cube->tslPlane()->setAutoscale( yn );
+}
+
+
+bool visSurvey::VolumeDisplay::autoScale() const
+{ return cube->inlPlane()->autoScale(); }
+
+
+void visSurvey::VolumeDisplay::setMaterial( visBase::Material* nm)
+{ cube->inlPlane()->setMaterial(nm); }
+
+
+const visBase::Material* visSurvey::VolumeDisplay::getMaterial() const
+{ return cube->inlPlane()->getMaterial(); }
+
+
+visBase::Material* visSurvey::VolumeDisplay::getMaterial()
+{ return cube->inlPlane()->getMaterial(); }
+
+
+SoNode* visSurvey::VolumeDisplay::getData() 
+{ return cube->getData(); }
+
+
+void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
+{
+    visBase::VisualObject::fillPar( par, saveids );
+    int volid = cube->id();
+    par.set( volumestr, volid );
+
+    if ( saveids.indexOf( volid )==-1 ) saveids += volid;
+
+    as.fillPar(par);
+}
+
+
+int visSurvey::VolumeDisplay::usePar( const IOPar& par )
+{
+    int res =  visBase::VisualObject::usePar( par );
+    if ( res!=1 ) return res;
+
+    int volid;
+    if ( !par.get( volumestr, volid ))
+	return -1;
+
+    visBase::DataObject* dataobj = visBase::DM().getObj( volid );
+    if ( !dataobj ) return 0;
+
+    mDynamicCastGet(visBase::CubeView*,cv,dataobj);
+    if ( !cv ) return -1;
+
+    cube->unRef();
+    cube = cv;
+    cube->ref();
+
+    if ( !as.usePar( par )) return -1;
+
+    return 1;
+}
+    
+
 

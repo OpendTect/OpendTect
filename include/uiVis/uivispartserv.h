@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.54 2002-08-20 07:42:10 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.55 2002-08-22 11:07:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class CallBack;
 class CubeSampling;
 class AttribSelSpec;
 class AttribSlice;
+class AttribSliceSet;
 class IOPar;
 class MultiID;
 class BinIDRange;
@@ -79,7 +80,7 @@ public:
 
     enum ElementType    { Inline, Crossline, Timeslice };
     enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay, WellDisplay,
-    			  HorizonDisplay };
+    			  HorizonDisplay, VolumeDisplay };
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
     const char*		getObjectName(int);
@@ -129,7 +130,7 @@ public:
     float		getPlanePos(int) const;
     bool		isPlaneManipulated(int) const;
     void		setAttribSelSpec(int,AttribSelSpec&);
-    CubeSampling&	getPrevCS(int);
+    CubeSampling&	getPrevCubeSampling(int);
     CubeSampling&	getCubeSampling(int,bool manippos);
     AttribSelSpec&	getAttribSelSpec(int);
     void		putNewData(int,AttribSlice*);
@@ -137,9 +138,11 @@ public:
     void		getDataDisplayIds(int,uiVisPartServer::ElementType,
 					  TypeSet<int>&);
 
-			//CubeViewer stuff
+			//VolumeDisplay stuff
     int			addVolumeDisplay();
     void		removeVolumeDisplay(int);
+    void		putNewVolData(int,AttribSliceSet*);
+    AttribSliceSet*	getPrevVolData(int);
     void		getVolumeDisplayIds(int,TypeSet<int>&);
     void		getVolumePlaneIds(int,int&,int&,int&);
     float		getVolumePlanePos(int,int dim) const;
