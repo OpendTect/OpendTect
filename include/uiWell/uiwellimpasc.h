@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.1 2003-08-26 15:25:52 nanne Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.2 2003-09-08 13:08:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
+class uiCheckBox;
 class uiFileInput;
+class uiGenInput;
 class uiIOObjSel;
 
 
@@ -29,8 +31,16 @@ public:
 
 protected:
 
-    uiIOObjSel*		outfld;
     uiFileInput*	infld;
+    uiFileInput*	d2tfld;
+    uiCheckBox*		tvdfld;
+    uiGenInput*		idfld;
+    uiGenInput*		coordfld;
+    uiGenInput*		elevfld;
+    uiGenInput*		operfld;
+    uiGenInput*		statefld;
+    uiGenInput*		countyfld;
+    uiIOObjSel*		outfld;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();

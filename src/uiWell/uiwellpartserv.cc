@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.1 2003-08-29 07:25:01 nanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.2 2003-09-08 13:07:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiwellpartserv.h"
 #include "uiwellimpasc.h"
+#include "uiwellman.h"
 #include "welltransl.h"
 #include "multiid.h"
 #include "ioobj.h"
@@ -53,7 +54,7 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 {
     CtxtIOObj* ctio = new CtxtIOObj( WellTranslator::ioContext() );
     ctio->ctxt.forread = true;
-    uiIOObjSelDlg dlg( appserv().parent(), *ctio );
+    uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;
 
     deepErase( wellids );
@@ -67,4 +68,6 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 
 void uiWellPartServer::manageWells()
 {
+    uiWellMan dlg( appserv().parent() );
+    dlg.go();
 }
