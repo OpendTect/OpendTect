@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.2 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.3 2001-08-30 10:49:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,6 @@ protected:
     void			layout ();
 
     void 			updated() const	{ mngr_.childUpdated();}
-    int				horSpacing() const { return mngr_.horSpacing();}
-    int				verSpacing() const { return mngr_.verSpacing();}
 
     void			attach( constraintType, 
 					i_LayoutItem *other, int margin);

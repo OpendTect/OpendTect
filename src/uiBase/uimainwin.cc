@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.9 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.10 2001-08-30 10:49:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ public:
                                               uiObject* child,
                                               uiObject* other, int margin )
                         {
-                            if ( !child || !other || initing ) return;
+                            if ( !child || initing ) return;
 
 			    centralWidget_->attachChild( tp, child, other,
 							margin); 

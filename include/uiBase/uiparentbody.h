@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.1 2001-08-23 15:02:41 windev Exp $
+ RCS:           $Id: uiparentbody.h,v 1.2 2001-08-30 10:49:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,6 @@ public:
 
     virtual int			minTextWidgetHeight() const 	{ return 30; }
     virtual void 		setMinTextWidgetHeight(int h=10) const {}
-    virtual int			borderSpace() const		{ return 10; }
 
     virtual void 		finalise()		{ finaliseChildren(); }
     void      			finaliseChildren();	// body: uiobj.cc

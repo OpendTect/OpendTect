@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.10 2001-08-24 10:03:20 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.11 2001-08-30 10:49:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,9 +144,9 @@ protected:
 				      uiObject* child,
 				      uiObject* other, int margin )
 			{ 
-			    if ( !child || !other ) return;
+			    if ( !child  ) return;
 			    loMngr->attach( tp, *child->body()->qwidget(),
-					    other->body()->qwidget(), margin );
+				other ? other->body()->qwidget() : 0, margin );
 			}
 
     virtual const QWidget* qwidget_() const    { return objbody_.qwidget(); }

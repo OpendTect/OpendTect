@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.15 2001-08-30 08:22:40 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.16 2001-08-30 10:49:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,8 +198,8 @@ void i_LayoutItem::layout()
 {
 //    if ( !constrList ) return;
 
-#define mHorSpacing (constr->margin >= 0 ? constr->margin :  horSpacing())
-#define mVerSpacing (constr->margin >= 0 ? constr->margin :  verSpacing())
+#define mHorSpacing (constr->margin >= 0 ? constr->margin : mngr_.horSpacing())
+#define mVerSpacing (constr->margin >= 0 ? constr->margin : mngr_.verSpacing())
 
     uiRect& mPos = pos();
 

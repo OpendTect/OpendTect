@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.11 2001-08-29 15:08:10 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.12 2001-08-30 10:49:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,17 +118,17 @@ public:
     inline const uiRect& pos() const { return pos_[curMode()]; }
     void		forceChildrenRedraw( uiObjectBody*, bool deep );
     void		childrenClear( uiObject* );
-    int			borderSpace() const	    { return margin(); }
     void		setMinTxtWidgHgt( int h )   { mintxtwidgethgt=h; }
     int			minTxtWidgHgt() const       { return mintxtwidgethgt; }
 
+    int			borderSpace() const	    { return margin(); }
+    int			horSpacing() const 	    { return spacing(); }
+    int			verSpacing() const 
+			{ int s = spacing(); return s > 3 ? s-2 : 2; }
 protected:
 
     void 		setGeometry( const QRect& );
     void		childUpdated() 		{ a_child_updated = true; }
-    int			horSpacing() const 	{ return spacing(); }
-    int			verSpacing() const 
-			{ int s = spacing(); return s > 3 ? s-2 : 2; }
     void		setMode( layoutMode m ) { curmode = m; } 
     inline void 	setMode( layoutMode m  ) const 
                         { const_cast<i_LayoutMngr*>(this)->setMode(m); }
