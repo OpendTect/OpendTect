@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.34 2004-06-23 15:19:15 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.35 2004-06-25 06:58:01 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -513,18 +513,18 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    tracktooglemnuitem->setChecked(
 		    applMgr()->trackServer()->isTrackingEnabled(mid));
 	}
-
 /*
 	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
 	storemnuid = menu->addItem( storemenuitem );
 	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid) );
 */
-	storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
     }
     else
     {
 	storemnuid = trackmnuid = tracksetupmnuid = -1;
     }
+
+    storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
 
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
@@ -578,7 +578,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	if ( terminatemenu && terminatemenu->nrItems() )
 	{
 	    menu->addSubMenu( terminatemenu );
-	    for ( int idx=0; idx<terminatestopmnuid-terminatestartmnuid+1; idx++ )
+	    int stopidx = terminatestopmnuid-terminatestartmnuid+1;
+	    for ( int idx=0; idx<stopidx; idx++ )
 		menu->getFreeID();
 	}
     }
