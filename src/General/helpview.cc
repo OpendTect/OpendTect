@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.7 2003-01-15 15:34:35 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.8 2003-09-26 16:24:48 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -17,10 +17,15 @@ static const char* rcsID = "$Id: helpview.cc,v 1.7 2003-01-15 15:34:35 bert Exp 
 
 
 static const char* sMainIndex = "MainIndex";
+BufferString HelpViewer::applnm( "dTect" );
 
-static const char* subdirNm()
+
+const char* HelpViewer::subdirNm()
 {
-    return GetDgbApplicationCode() == mDgbApplCodeDTECT ? "dTectDoc" : "GDIDoc";
+    static char ret[20];
+    strcpy( ret, applnm );
+    strcat( ret, "Doc" );
+    return ret;
 }
 
 
@@ -39,10 +44,10 @@ void HelpViewer::use( const char* url, const char* wintitl )
     cmd = File_getFullPath( cmd, "dgb_exec" );
     cmd += " HtmlViewer \"";
     cmd += url; cmd += "\" ";
-    if ( !wintitl )
-	wintitl = GetDgbApplicationCode() == mDgbApplCodeDTECT
-	    	? "dTect_Documentation" : "GDI_Documentation";
-    cmd += wintitl;
+    if ( wintitl )
+	cmd += wintitl;
+    else
+	{ cmd += applnm; cmd += "_Documentation"; }
     StreamProvider strmprov( cmd );
     if ( !strmprov.executeCommand(false) )
     {
@@ -55,7 +60,7 @@ void HelpViewer::use( const char* url, const char* wintitl )
 
 static StreamData openHFile( const char* nm )
 {
-    BufferString subfnm( subdirNm() );
+    BufferString subfnm( HelpViewer::subdirNm() );
     subfnm = File_getFullPath( subfnm, nm );
     FileNameString fnm = GetDataFileName( subfnm );
 

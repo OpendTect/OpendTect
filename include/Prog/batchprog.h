@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.12 2003-09-11 15:56:00 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.13 2003-09-26 16:24:48 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -15,12 +15,30 @@ ________________________________________________________________________
  
 */
 
-#include <uidobj.h>
-#include <mmdefs.h>
+#include "prog.h"
+#include "uidobj.h"
+#include "mmdefs.h"
 class IOPar;
 class Socket;
 class StreamData;
 
+
+/*!\brief Main object for 'standard' batch programs.
+
+  Most 'interesting' batch programs need a lot of parameters to do the work.
+  In dTect, these accept a 'parameter file', with all the info needed in
+  IOPar format, i.e. keyword/value pairs.
+
+  This object takes over the details of reading that file, extracting
+  'standard' components from the parameters, opening sockets, etc. etc.
+
+  To use the object, instead of defining a function 'main', you should define
+  the function 'BatchProgram::go'.
+
+  If you need argc and/or argv outside go(), the BP() singleton instance can
+  be accessed.
+
+*/
 
 class BatchProgram : public UserIDObject
 {
@@ -42,13 +60,18 @@ public:
     int			realArgsStartAt() const	{ return argshift_; }
     ObjectSet<BufferString>& cmdLineOpts()	{ return opts_; }
 
+    			// Socket stuff.
+
+			//! write status over sock if sock avail.
     inline bool		writeStatus( char tag, int stat, const char* errmsg=0 )
 			    { return writeStatus_( tag, stat, errmsg, true ); }
+			//! update status over sock if sock avail.
     inline bool		updateStatus( char tag, int stat, const char* errmsg=0 )
 			    { return writeStatus_( tag, stat, errmsg, false ); }
 
 			//! write error msg over sock if sock avail.
     bool		writeErrorMsg( const char* msg );
+			//! pause requested (via socket) by master?
     bool		pauseRequested()	{ return pausereq_; }
 
 protected:

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.35 2003-09-25 11:05:45 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.36 2003-09-26 16:24:49 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -48,13 +48,8 @@ const IOObjContext& SeisTrcTranslator::ioContext()
 	ctxt->needparent = false;
 	ctxt->stdseltype = IOObjContext::Seis;
 	ctxt->multi = true;
-	if ( GetDgbApplicationCode() == mDgbApplCodeGDI )
-	    ctxt->newonlevel = 2;
-	else
-	{
-	    ctxt->newonlevel = 1;
-	    ctxt->maychdir = false;
-	}
+	ctxt->newonlevel = 1;
+	ctxt->maychdir = false;
     }
 
     return *ctxt;

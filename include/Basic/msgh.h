@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.3 2003-04-28 10:53:00 arend Exp $
+ RCS:		$Id: msgh.h,v 1.4 2003-09-26 16:24:47 bert Exp $
 ________________________________________________________________________
 
 */
@@ -78,16 +78,6 @@ protected:
 
 
 inline UsrIoMsg* TheUIOMsg()	{ return UsrIoMsg::theUsrIoMsg_; }
-
-#ifdef __prog__
-
-CallBack MsgClass::theCB;
-DefineEnumNames(MsgClass,Type,1,"Message type")
-	{ "Information", "Message", "Warning", "Error", "PE", 0 };
-
-UsrIoMsg* UsrIoMsg::theUsrIoMsg_=0;
-
-#endif
 
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.27 2003-08-28 08:18:34 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.28 2003-09-26 16:24:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "uiscaler.h"
 #include "uibutton.h"
 #include "uibinidsubsel.h"
-#include "gridmods.h"
+#include "grid.h"
 #include "scaler.h"
 #include "survinfo.h"
 
@@ -122,9 +122,15 @@ bool uiImportHorizon::handleAscii()
 	    grid->ensureContainsValidZValues();
 	else
 	{
-	    GridScaler grdsc( grid, scaler );
-	    uiExecutor scdlg( this, grdsc );
-	    scdlg.go();
+	    GridIter* it = grid->gridIter();
+	    it->doUndef( false );
+	    while ( it->valid() )
+	    {
+		grid->setValue( it->node(),
+				scaler->scale( grid->getValue(it->node()) ) );
+		it->next();
+	    }
+	    delete it;
 	}
 
 	PtrMan<Executor> horimp = horizon->import( *grid, idx );

@@ -24,6 +24,10 @@ public:
     			//!< Jan 2003: no real internet-URLs yet, just filenames
     			//!< Pass url==null for main help index for app.
 
+
+    static BufferString	applnm; // Determines subdir from data/ directory
+    static const char*	subdirNm(); // applnm + "Doc"
+
 };
 
 #endif

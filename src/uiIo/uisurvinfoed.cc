@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.43 2003-07-25 16:58:48 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.44 2003-09-26 16:24:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,18 +89,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
 
-    bool isdtect = GetDgbApplicationCode() == mDgbApplCodeDTECT;
     timefld = new uiRadioButton( rangegrp, "msec" );
     timefld->setChecked( true );
     timefld->attach( alignedBelow, zfld );
     timefld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
     meterfld = new uiRadioButton( rangegrp, "meter" );
     meterfld->attach( rightTo, timefld );
-    meterfld->setSensitive( isdtect );
     meterfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
     feetfld = new uiRadioButton( rangegrp, "feet" );
     feetfld->attach( rightTo,meterfld );
-    feetfld->setSensitive( isdtect );
     feetfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
     uiLabel* unitlbl = new uiLabel( rangegrp, "Unit" );
     unitlbl->attach( leftOf, timefld );

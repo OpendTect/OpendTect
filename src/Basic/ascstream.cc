@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.7 2003-03-13 14:23:49 bert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.8 2003-09-26 16:24:48 bert Exp $";
 
 #include "ascstream.h"
 #include "unitscale.h"
@@ -14,6 +14,28 @@ static const char* rcsID = "$Id: ascstream.cc,v 1.7 2003-03-13 14:23:49 bert Exp
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
+
+static BufferString* projvernm = 0;
+
+extern "C" const char* GetProjectVersionName()
+{
+    if ( !projvernm )
+    {
+	projvernm = new BufferString( "dTect" );
+	*projvernm += " V";
+	*projvernm += mODMajorVersion;
+	*projvernm += ".";
+	*projvernm += mODMinorVersion;
+    }
+    return projvernm->buf();
+}
+
+
+extern "C" void SetProjectVersionName( const char* s )
+{
+    GetProjectVersionName();
+    *projvernm = s;
+}
 
 
 ascostream::~ascostream()

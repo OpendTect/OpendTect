@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.6 2003-05-22 11:10:27 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.7 2003-09-26 16:24:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,8 +130,8 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
 uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Run batch program",
 		   "Specify batch program and parameters","0.1.5"))
-	, pil(*new BatchProgInfoList(
-		GetDgbApplicationCode() == mDgbApplCodeGDI ? "GDI" : "d-Tect"))
+	, pil(*new BatchProgInfoList( strchr(GetProjectVersionName(),'T')
+		    	? "d-Tect" : "GDI"))
 	, progfld(0)
 	, browser(0)
 	, exbut(0)
@@ -213,6 +213,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 uiBatchProgLaunch::~uiBatchProgLaunch()
 {
     if ( browser ) browser->reject(0);
+    delete &pil;
 }
 
 

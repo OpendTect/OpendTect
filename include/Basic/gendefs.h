@@ -8,12 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.20 2003-09-25 08:48:44 arend Exp $
+ RCS:		$Id: gendefs.h,v 1.21 2003-09-26 16:24:47 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 /*! There are only #define lines, so there is no C-language constraint. */
+
+#define mODMajorVersion		1
+#define mODMinorVersion		0
 
 #include <Pmacros.h>
 

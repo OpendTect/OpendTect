@@ -7,34 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.8 2003-09-25 11:05:45 bert Exp $
+ RCS:		$Id: prog.h,v 1.9 2003-09-26 16:24:48 bert Exp $
 ________________________________________________________________________
+
+ Include this file in any executable program you make. The file is actually
+ pretty empty ....
 
 -*/
 
 #include "plugins.h"
 
-#ifdef __cpp__
-
-#include "errh.h"
-#include "connfact.h"
-
-#ifndef __nosighndl__
-#include <sighndl.h>
-SignalHandling SignalHandling::theinst_;
-#endif
-
-
-extern "C" {
-
-#endif
-
-extern const char*	_g_pvn_();
-const char*		GetProjectVersionName()		{ return _g_pvn_(); }
-extern void		SetDgbApplicationCode(int);
-
-#ifdef __cpp__
-}
-#endif
 
 #endif

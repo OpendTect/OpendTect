@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.11 2002-12-09 11:19:38 nanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.12 2003-09-26 16:24:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiSurvey : public uiDialog
 {
 
 public:
-			uiSurvey(uiParent*);
+			uiSurvey(uiParent*,bool isgdi=false);
 			~uiSurvey();
 
     static void		updateViewsGlobal();

@@ -8,18 +8,17 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.9 2001-10-29 17:36:48 bert Exp $
+ RCS:		$Id: genc.h,v 1.10 2003-09-26 16:24:47 bert Exp $
 ________________________________________________________________________
 
--*/
 
-/*!
-General utilities:
-* Survey related
+Some general utilities, that need to be accessible in many places:
+
 * Data and software directories
-* Two 'PowerOf' functions (1) integer (2) consistent for negative numbers
+* A few 'math' thingies
 * Misc (generally not interesting)
-*/
+
+-*/
 
 #ifndef gendefs_H
 #include <gendefs.h>
@@ -30,36 +29,40 @@ extern "C" {
 #endif
 
 const char*	GetProjectVersionName(void);
-		/*!< usually dGB-GDI Vx.x or dGB-dTect Vx.x */
-
-#define		mDgbApplCodeGDI 1
-#define		mDgbApplCodeDTECT 2
-int		GetDgbApplicationCode(void);
-
+		/*!< "dTect Vx.x" */
 
 /*
 
+ Where to get data and application data is linked to environment variables.
+ For example, the project data is searched in:
+ DTECT_WINDATA (windows only)
+ dGB_WINDATA (windows only)
+ DTECT_DATA
+ dGB_DATA
+ in that order.
+
  GetSoftwareDir : returns the full path of the root of where the executables,
 		  program data, etc. is located.
- GetSoftwareUser: returns the value as set int dGB_USER or dTECT_USER. On
- 		  windows this may be linked to the login name.
+ GetSoftwareUser: returns the value as set in DTECT_USER (or dGB_USER, etc.).
+ 		  This may be null - in fact it is most often null!
  GetUserDir     : returns the full path of the root of where the user data
 		  files will be located.
- Both functions return a pointer to the same static buffer of
- length PATH_LENGTH.
+
+ Beware that all functions will likely return a pointer to _the_ _same_ static
+ buffer of length PATH_LENGTH!
 
 */
 const char*	GetSoftwareDir(void);
-		/*!< Directory of the installed software = $dGB|dTECT_APPL */
+		/*!< Directory of the installed software = $dGB|DTECT_APPL */
 const char*	GetSoftwareUser(void);
-		/*!< $dGB|dTECT_USER */
+		/*!< $dGB|DTECT_USER */
 const char*	GetHomeDir(void);
 		/*!< $HOME / $HOMEDRIVE/$HOMEPATH */
 const char*	GetDataFileName(const char*);
-		/*!< Application data file in $dGB|dTECT_APPL/data */
+		/*!< Application data file in $dGB|DTECT_APPL/data */
 
 const char*	GetDataDir(void);
-		/*!< User data: $dGB|dTECT_DATA/project */
+		/*!< User data: $dGB|DTECT_DATA/project */
 
 int		isFinite(double);
 		/*!< Returns 0 for infinite, NaN, and that sort of crap */
@@ -71,16 +74,16 @@ double		PowerOf(double,double);
 
 /* Misc stuff */
 const char*	errno_message();
-		/* Will not return meaningful string on Windows */
+		/*!< Will not return meaningful string on Windows */
 
 void		put_platform(unsigned char*);
-		/*!< Platform for binary data. 0 = SunSparc, 1 = Win/Linux,
-		   2 = SGI(Irix) */
+		/*!< Puts into single byte: 0 = Sun/SGI, 1 = Win/Linux */
 
 void		swap_bytes(void*,int nbytes);
+		/*!< nbytes=2,4,... e.g. nbytes=4: abcd becomes cdab */
 
 int		getPID();
-		/* returns process ID */
+		/*!< returns process ID */
 
 
 #ifdef __cpp__

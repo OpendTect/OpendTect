@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.16 2003-09-25 08:48:44 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.17 2003-09-26 16:24:48 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -23,13 +23,6 @@ static const char* rcsID = "$Id: genc.c,v 1.16 2003-09-25 08:48:44 arend Exp $";
 static FileNameString filenamebuf;
 static FileNameString surveyname;
 static int surveynamedirty = YES;
-static int dgb_application_code = mDgbApplCodeGDI;
-
-
-int GetDgbApplicationCode()
-{
-    return dgb_application_code;
-}
 
 
 int SurveyNameDirty()
@@ -44,32 +37,19 @@ void SetSurveyNameDirty()
 }
 
 
-void SetDgbApplicationCode( int newnr )
-{
-    dgb_application_code = newnr;
-}
-
-
 const char* GetSoftwareDir()
 {
+    const char* dir = 0;
 #ifdef __win__
 
-    const char* dir = getenv( "dGB_WINAPPL" );
-
-    if ( !dir ) dir = getenv( "dGB_APPL" );
-
-    if ( !dir )
-	dir = dgb_application_code == mDgbApplCodeDTECT ?
-		    getenv( "dTECT_WINAPPL" ) : getenv( "GDI_WINAPPL" );
-#else
-
-    const char* dir = getenv( "dGB_APPL" );
+    dir = getenv( "DTECT_WINAPPL" );
+    if ( !dir ) dir = getenv( "dGB_WINAPPL" );
 
 #endif
 
-    if ( !dir )
-	dir = dgb_application_code == mDgbApplCodeDTECT ?
-		    getenv( "dTECT_APPL" ) : getenv( "GDI_APPL" );
+    if ( !dir ) dir = getenv( "DTECT_APPL" );
+    if ( !dir ) dir = getenv( "dGB_APPL" );
+
     return dir;
 }
 
@@ -85,24 +65,16 @@ const char* GetDataFileName( const char* fname )
 
 const char* GetSoftwareUser()
 {
+    const char* ptr = 0;
 #ifdef __win__
 
-    const char* ptr = getenv( "dGB_WINUSER" );
-
-    if ( !ptr ) ptr = getenv( "dGB_USER" );
-
-    if ( !ptr )
-	ptr = dgb_application_code == mDgbApplCodeDTECT ?
-	    	getenv( "dTECT_WINUSER" ) : getenv( "GDI_WINUSER" );
-#else
-
-    const char* ptr = getenv( "dGB_USER" );
+    ptr = getenv( "DTECT_WINUSER" );
+    if ( !ptr ) ptr = getenv( "dGB_WINUSER" );
 
 #endif
 
-    if ( !ptr )
-	ptr = dgb_application_code == mDgbApplCodeDTECT ?
-	    	getenv( "dTECT_USER" ) : getenv( "GDI_USER" );
+    if ( !ptr ) ptr = getenv( "DTECT_USER" );
+    if ( !ptr ) ptr = getenv( "dGB_USER" );
 
     return ptr;
 }
@@ -110,19 +82,26 @@ const char* GetSoftwareUser()
 const char* GetHomeDir()
 {
 #ifdef __win__
-    const char* ptr = getenv( "dGB_WINHOME" );
-    if( ptr ) return ptr;
 
     static FileNameString home = "";
-    if( !*home )
+
+    const char* ptr = getenv( "DTECT_WINHOME" );
+    if ( !ptr ) ptr = getenv( "dGB_WINHOME" );
+
+    if ( ptr && *ptr ) return ptr;
     {
 	strcpy( home, getenv("HOMEDRIVE") );
 	strcat( home, getenv("HOMEPATH") );
     }
     return home;
+
 #else
-    const char* ptr = getenv( "HOME" );
+
+    const char* ptr = getenv( "DTECT_HOME" );
+    if ( !ptr ) ptr = getenv( "dGB_HOME" );
+    if ( !ptr ) ptr = getenv( "HOME" );
     return ptr;
+
 #endif
 }
 
@@ -185,25 +164,17 @@ const char* GetSurveyName()
 
 const char* GetBaseDataDir()
 {
+    const char* dir = 0;
 #ifdef __win__
 
-    const char* dir = getenv( "dGB_WINDATA" );
-
-    if ( !dir ) dir = getenv( "dGB_DATA" );
-
-    if ( !dir )
-	dir = dgb_application_code == mDgbApplCodeDTECT ?
-		    getenv( "dTECT_WINDATA" ) : getenv( "GDI_WINDATA" );
-
-#else
-
-    const char* dir = getenv( "dGB_DATA" );
+    dir = getenv( "DTECT_WINDATA" );
+    if ( !dir ) dir = getenv( "dGB_WINDATA" );
 
 #endif
 
-    if ( !dir )
-	dir = dgb_application_code == mDgbApplCodeDTECT ?
-		    getenv( "dTECT_DATA" ) : getenv( "GDI_DATA" );
+    if ( !dir ) dir = getenv( "DTECT_DATA" );
+    if ( !dir ) dir = getenv( "dGB_DATA" );
+
     return dir;
 }
 
@@ -240,7 +211,7 @@ void swap_bytes( void* p, int n )
 
 void put_platform( unsigned char* ptr )
 {
-#ifdef lux
+#if defined(lux) || defined(__win__)
     *ptr = 1;
 #else
     *ptr = 0;
@@ -253,8 +224,7 @@ void put_platform( unsigned char* ptr )
 
 int getPID()
 {
-    return
-	getpid();
+    return getpid();
 }
 
 

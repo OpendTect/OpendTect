@@ -1,7 +1,7 @@
 #---------------------------------------------------------
 # Author: dGB Earth Sciences ( A.H.Bril )
 # Pmake Environment bash initialization shell script
-# $Id: PMinit.sh,v 1.2 2003-09-15 09:42:26 kristofer Exp $
+# $Id: PMinit.sh,v 1.3 2003-09-26 16:24:47 bert Exp $
 #---------------------------------------------------------
 
 if [ "$PMAKE" = "" ]; then
@@ -16,7 +16,8 @@ if [ "$GNUMAKE" = "" ]; then
     GNUMAKE="gmake"; export GNUMAKE
 fi
 
-PMAKECOMMAND='$GNUMAKE -I$WORK/Pmake -I$PMAKE'; export PMAKECOMMAND
+PMAKECOMMAND='$GNUMAKE -I$WORK/Pmake -I$PMAKE MKSHAREDLIB=yes'
+export PMAKECOMMAND
 alias make="$PMAKECOMMAND"
 
 alias wdir='setenv WORK `pwd`'

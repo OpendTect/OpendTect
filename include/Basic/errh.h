@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.6 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: errh.h,v 1.7 2003-09-26 16:24:47 bert Exp $
 ________________________________________________________________________
 
 */
@@ -68,18 +68,6 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 //!< Usual access point for programmer error messages
 #define pFreeFnErrMsg(msg,fn) programmerErrMsg( msg, fn, __FILE__, __LINE__ )
 //!< Usual access point for programmer error messages in free functions
-
-
-#ifdef __prog__
-
-bool ErrMsgClass::printProgrammerErrs =
-# ifdef __debug__
-	true;
-# else
-	false;
-# endif
-
-#endif
 
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.37 2003-08-25 10:31:12 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.38 2003-09-26 16:24:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ extern "C" const char* GetSurveyFileName();
 extern "C" const char* GetBaseDataDir();
 extern "C" void SetSurveyName(const char*);
 
-uiSurvey::uiSurvey( uiParent* p )
+uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	: uiDialog(p,uiDialog::Setup("Survey selection",
 		   "Select and setup survey","0.3.1"))
 {
@@ -92,7 +92,7 @@ uiSurvey::uiSurvey( uiParent* p )
     convbut->activated.notify( mCB(this,uiSurvey,convButPushed) );
     convbut->attach( rightAlignedBelow, mapcanvas );
     uiButton* tutbut = 0;
-    if ( GetDgbApplicationCode() == mDgbApplCodeGDI )
+    if ( isgdi )
     {
 	static const char* tutdirnm = "Tutorial";
 	const bool direxists = dirlist->indexOf(tutdirnm) >= 0;

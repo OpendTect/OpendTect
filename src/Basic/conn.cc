@@ -5,12 +5,26 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.10 2003-03-19 16:21:59 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.11 2003-09-26 16:24:48 bert Exp $";
 
 #include "conn.h"
+#include "errh.h"
 #include "strmprov.h"
 #include "strmoper.h"
 #include <fstream>
+
+bool ErrMsgClass::printProgrammerErrs =
+# ifdef __debug__
+    true;
+# else
+    false;
+# endif
+
+CallBack MsgClass::theCB;
+DefineEnumNames(MsgClass,Type,1,"Message type")
+	{ "Information", "Message", "Warning", "Error", "PE", 0 };
+
+UsrIoMsg* UsrIoMsg::theUsrIoMsg_ = 0;
 
 
 DefineEnumNames(StreamConn,Type,0,"Type")
