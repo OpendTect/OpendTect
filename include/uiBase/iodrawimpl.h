@@ -7,36 +7,29 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawimpl.h,v 1.1 2001-08-23 15:02:41 windev Exp $
+ RCS:           $Id: iodrawimpl.h,v 1.2 2003-05-15 14:17:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <iodraw.h>
-#include <iodrawtool.h>
+#include "iodraw.h"
+
+class ioDrawTool;
+class QPaintDevice;
 
 class ioDrawAreaImpl : public ioDrawArea
 {
 public:
 			ioDrawAreaImpl() : mDrawTool(0)	{}
-    virtual		~ioDrawAreaImpl()		{ delete mDrawTool; }
+    virtual		~ioDrawAreaImpl();
 
-    virtual ioDrawTool*	drawTool_( int x0, int y0 )
-			    {
-				 if ( mDrawTool ) 
-				     mDrawTool->setOrigin( x0, y0 );
-				 else
-				     mDrawTool = 
-					new ioDrawTool(mQPaintDevice(),x0,y0);
-				 return mDrawTool; 
-			    };
+    virtual ioDrawTool*	drawTool_( int x0, int y0 );
 
 protected:
 
     virtual QPaintDevice* mQPaintDevice()		=0;
 
-    void		releaseDrawTool() 
-			    { if( mDrawTool ) {delete mDrawTool; mDrawTool=0;} }
+    void		releaseDrawTool(); 
 
 private:
 
