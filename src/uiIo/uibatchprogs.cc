@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.1 2003-04-25 14:03:47 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.2 2003-04-28 13:04:56 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibatchprogs.h"
+#include "uifilebrowser.h"
 #include "uifileinput.h"
 #include "uicombobox.h"
 #include "uitextedit.h"
+#include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "ascstream.h"
@@ -20,6 +22,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "filegen.h"
 #include "iopar.h"
+#include "errh.h"
 #include <fstream>
 
 
@@ -126,6 +129,8 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	, pil(*new BatchProgInfoList(
 		GetDgbApplicationCode() == mDgbApplCodeGDI ? "GDI" : "d-Tect"))
 	, progfld(0)
+	, browser(0)
+	, exbut(0)
 {
     if ( pil.size() < 1 )
     {
@@ -182,10 +187,28 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	    }
 	    (*inplst) += newinp;
 	}
+	if ( bpi.exampleinput != "" )
+	{
+	    if ( !exbut )
+	    {
+		exbut = new uiPushButton( this, "Show example input ...",
+				mCB(this,uiBatchProgLaunch,exButPush) );
+		if ( inplst->size() )
+		    exbut->attach( alignedBelow, (*inplst)[inplst->size()-1] );
+	    }
+	    else if ( inplst->size() )
+		exbut->attach( ensureBelow, (*inplst)[inplst->size()-1] );
+	}
     }
 
 
     finaliseDone.notify( mCB(this,uiBatchProgLaunch,progSel) );
+}
+
+
+uiBatchProgLaunch::~uiBatchProgLaunch()
+{
+    if ( browser ) browser->reject(0);
 }
 
 
@@ -201,6 +224,27 @@ void uiBatchProgLaunch::progSel( CallBacker* )
 	for ( int iinp=0; iinp<inplst.size(); iinp++ )
 	    inplst[iinp]->display( ilst == selidx );
     }
+
+    if ( exbut )
+	exbut->display( bpi.exampleinput != "" );
+}
+
+
+void uiBatchProgLaunch::exButPush( CallBacker* )
+{
+    const int selidx = progfld->box()->currentItem();
+    const BatchProgInfo& bpi = *pil[selidx];
+    if ( bpi.exampleinput == "" )
+	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
+    BufferString fnm( GetDataFileName(bpi.exampleinput) );
+    if ( File_isEmpty(fnm) )
+	{ pErrMsg("Installation problem"); return; }
+
+    if ( browser )
+	browser->setFileName( fnm );
+    else
+	browser = new uiFileBrowser( this, fnm );
+    browser->show();
 }
 
 

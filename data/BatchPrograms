@@ -28,7 +28,7 @@ process_attrib: d-Tect
 	Comment: Is used by d-Tect for batch output
 !
 segy2su: GDI
-	Arg: O`Words`Extra options
+	Arg: O`Words`Program arguments
 	Comment: Run this program without optional arguments to see the options
 	Comment: Use this utility only if the standard SEG-Y reading doesn't have the options you need
 !
