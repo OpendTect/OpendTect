@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.17 2002-11-14 13:19:06 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.18 2002-11-25 15:12:58 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -15,6 +15,8 @@ static const char* rcsID = "$Id: position.cc,v 1.17 2002-11-14 13:19:06 kristofe
 #include <string.h>
 #include <stdio.h>
 #include <values.h>
+#include <ptrman.h>
+#include <errh.h>
 
 const char* BinIDSelector::sKeyseltyp   = "BinID selection";
 const char* BinIDSelector::sKeyseltyps[]=
@@ -192,6 +194,38 @@ void BinIDSelector::fillPar( IOPar& iopar ) const
 	iopar.set( sKeysoinl, so.inl );
 	iopar.set( sKeysocrl, so.crl );
     }
+}
+
+
+BinIDSelector* BinIDRange::_usePar( const IOPar& iopar )
+{
+    BinIDSelector* bs = create( iopar );
+    if ( !bs || bs->type() > 1 ) { delete bs; return 0; }
+
+    mDynamicCastGet(BinIDRange*,br,bs)
+    if ( !br ) { pErrMsg("Huh"); delete bs; return 0; }
+
+    copyFrom( *br );
+    return bs;
+}
+
+
+bool BinIDRange::usePar( const IOPar& iopar )
+{
+    PtrMan<BinIDSelector> bs = _usePar( iopar );
+    return bs ? true : false;
+}
+
+
+bool BinIDSampler::usePar( const IOPar& iopar )
+{
+    PtrMan<BinIDSelector> bsel = _usePar( iopar );
+    if ( !bsel ) return false;
+
+    mDynamicCastGet(BinIDSampler*,bs,bsel.ptr())
+    if ( !bs ) return true;
+    step = bs->step;
+    return true;
 }
 
 
