@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.6 2004-09-07 09:19:19 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.7 2004-09-15 14:10:13 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -1130,7 +1130,7 @@ int EdgeLine::cutLineBy( const RowCol& start, const RowCol& stop,
 
     setRemoveZeroSegments(didremovesegments);
 
-    return startseg+1;
+    return (startseg+1)%segments.size();
 }
 
 
