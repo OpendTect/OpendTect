@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.5 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: fontdata.h,v 1.6 2003-11-10 13:51:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,10 +63,10 @@ public:
     static void		setDefaultWeight( Weight w )      { defaultweight = w; }
     static void		setDefaultItalic( bool yn )      { defaultitalic = yn; }
 
-    static const char* const* universalFamilies() { return universalfamilies; }
+    static const char* const* universalFamilies();
 			//!< array of strings with null as last element
 
-    static const char* const* defaultKeys() { return defaultkeys; }
+    static const char* const* defaultKeys();
 			//!< array of strings with null as last element
 
     enum StdSz		{ Control=0, 
