@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.3 2002-03-12 14:41:27 arend Exp $
+ RCS:           $Id: uitreeview.h,v 1.4 2002-03-18 15:31:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,7 @@ public:
 
 			//! item last notified. See notifiers below
     uiListViewItem*	itemNotified()		{ return lastitemnotified; }
+    void		unNotify()		{ lastitemnotified = 0; }
 
     Notifier<uiListView> selectionChanged;
     Notifier<uiListView> currentChanged;
