@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.28 2002-09-11 14:39:08 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.29 2002-12-04 15:16:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 
     addbut = new uiPushButton( machgrp, ">> Add >>" );
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
-    addbut->attach( rightOf, avmachfld );
+    addbut->attach( centeredRightOf, avmachfld );
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Machine handling" );
     usedmachfld = new uiLabeledListBox( usedmachgrp, "Used hosts", false,
@@ -94,7 +94,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     vwlogbut->activated.notify( mCB(this,uiSeisMMProc,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
-    usedmachgrp->attach( rightOf, addbut );
+    usedmachgrp->attach( ensureRightOf, addbut );
     machgrp->setHAlignObj( addbut );
     machgrp->attach( alignedBelow, tmpstordirfld );
     machgrp->attach( ensureBelow, sep );
