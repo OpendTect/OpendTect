@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.4 2001-05-16 14:58:34 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.5 2001-05-30 16:36:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,9 +130,6 @@ public:
 
     virtual QButton&    qButton(); 
 
-
-    bool 		usesBigPixmap () const;
-    bool 		usesTextLabel () const;
 
 protected:
 
