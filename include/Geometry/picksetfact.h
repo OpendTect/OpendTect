@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksetfact.h,v 1.3 2001-05-28 20:57:01 bert Exp $
+ RCS:		$Id: picksetfact.h,v 1.4 2001-07-26 09:44:34 windev Exp $
 ________________________________________________________________________
 
 -*/
 
+#include <prog.h>
 #include <picksettr.h>
 
 defineTranslatorGroup(PickSet,"Pick Set");

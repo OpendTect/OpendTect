@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.2 2001-07-06 11:41:43 bert Exp $
+ RCS:		$Id: prog.h,v 1.3 2001-07-26 09:44:35 windev Exp $
 ________________________________________________________________________
 
 @$*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include <gendefs.h>
 
 #ifdef __cpp__
+
+#include <transl.h>
+mDefTranslatorGroups
 
 #include <errh.h>
 #include <connfact.h>

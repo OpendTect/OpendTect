@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.5 2001-06-03 15:44:24 bert Exp $
+ RCS:		$Id: transl.h,v 1.6 2001-07-26 09:45:20 windev Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -95,5 +95,8 @@ IOPar& clss##Translator::selhist = mkSelHist(prnm)
 defineProducable(spec##clss##Translator,clss##Translator,prnm); \
 
 
-/*$-*/
+#define mDefTranslatorGroups \
+	UserIDObjectSet<Translator> Translator::groups_( "Object type" );
+
+
 #endif
