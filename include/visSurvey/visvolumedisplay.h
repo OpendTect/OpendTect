@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.8 2002-11-15 08:16:18 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.9 2002-11-15 16:09:59 nanne Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,8 @@ protected:
     void			deSelect();
     void			manipFinished(CallBacker*);
     void			manipInMotion(CallBacker*);
+    void			initSlice(int);
+    void			sliceMoving(CallBacker*);
 
     visBase::CubeView*		cube;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.10 2002-11-14 13:05:41 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.11 2002-11-15 16:09:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "viscubeview.h"
 #include "visboxdragger.h"
 #include "vistexturerect.h"
+#include "vistexture3viewer.h"
 #include "visrectangle.h"
 #include "cubesampling.h"
 #include "attribsel.h"
@@ -59,8 +60,11 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     setCubeSampling( prevcs );
 
     inlid = cube->addSlice( 0 );
+    initSlice( inlid );
     crlid = cube->addSlice( 1 );
+    initSlice( crlid );
     tslid = cube->addSlice( 2 );
+    initSlice( tslid );
 }
 
 
@@ -222,8 +226,6 @@ void visSurvey::VolumeDisplay::deSelect()
 
 void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
 {
-    manipulated = true;
-
     CubeSampling cs = getCubeSampling();
     BinIDRange br;
     br.start = cs.hrg.start;
@@ -238,6 +240,8 @@ void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
     SI().checkZRange( intv );
     cs.zrg.start = (float)intv.start;
     cs.zrg.stop = (float)intv.stop;
+
+    manipulated = !(prevcs == cs);
     
     setCubeSampling( cs );
     cube->resetDragger();
@@ -246,6 +250,24 @@ void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
 
 void visSurvey::VolumeDisplay::manipInMotion( CallBacker* )
 {
+}
+
+
+void visSurvey::VolumeDisplay::initSlice( int sliceid )
+{
+    DataObject* dobj = visBase::DM().getObj( sliceid );
+    mDynamicCastGet(visBase::MovableTextureSlice*,ts,dobj);
+    if ( ts )
+    {
+	ts->setMaterial( cube->getMaterial() );
+	ts->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
+    }
+}
+
+
+void visSurvey::VolumeDisplay::sliceMoving( CallBacker* )
+{
+    slicemoving.trigger();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.64 2002-10-30 15:31:16 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.65 2002-11-15 16:08:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,6 +247,7 @@ protected:
 
     Threads::Mutex&	eventmutex;
     int			eventobjid;
+    int			cbobjid;
 
     Coord3		xytmousepos;
     Coord3		inlcrlmousepos;

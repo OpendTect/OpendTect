@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.101 2002-11-14 13:05:26 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.102 2002-11-15 16:08:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , viewmode(false)
     , eventobjid(-1)
+    , cbobjid(-1)
     , eventmutex(*new Threads::Mutex)
     , mouseposval( mUndefValue )
 {
@@ -561,6 +562,13 @@ float uiVisPartServer::getPlanePos( int id ) const
         return pdd->getType()==visSurvey::PlaneDataDisplay::Inline ? geompos.x :
 	    pdd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y
 	    							   : geompos.z;
+    }
+    if ( cbobjid > 0 )
+    {
+	obj = visBase::DM().getObj( cbobjid );
+	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+	if ( vd )
+	    return vd->getPlanePos( id );
     }
 
     return 0;
@@ -1592,8 +1600,11 @@ void uiVisPartServer::picksChangedCB(CallBacker*)
 }
 
 
-void uiVisPartServer::manipMoveCB( CallBacker* )
+void uiVisPartServer::manipMoveCB( CallBacker* cb )
 {
+    mDynamicCastGet(visBase::VisualObject*,vo,cb);
+    cbobjid = vo ? vo->id() : -1;
+
     int id = getSelObjectId();
     if ( id<0 ) return;
 
