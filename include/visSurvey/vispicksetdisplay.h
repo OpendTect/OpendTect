@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.6 2002-03-14 14:27:48 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.7 2002-03-20 08:28:10 nanne Exp $
 ________________________________________________________________________
 
 
@@ -42,11 +42,14 @@ public:
     void		removePick( const Geometry::Pos& );
     void		removeAll();
 
-    float	getInlSz() const { return inlsz; }
-    float	getCrlSz() const { return inlsz; }
-    float	getTSz() const { return inlsz; }
+    float		getInlSz() const { return inlsz; }
+    float		getCrlSz() const { return inlsz; }
+    float		getTSz() const { return inlsz; }
 
-    void	setSize( float inl, float crl, float t );
+    void		setSize( float inl, float crl, float t );
+
+    Notifier<PickSet>	addedpoint;
+    Notifier<PickSet>	removedpoint;
 
 protected:
     		PickSet();
