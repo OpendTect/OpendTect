@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.114 2004-04-14 09:43:02 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.115 2004-04-27 12:00:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,38 +49,73 @@ class uiVisMenuFactory;
 
 class uiVisPartServer : public uiApplPartServer
 {
-    friend class 		uiVisMenu;
+    friend class 	uiVisMenu;
 
 public:
-				uiVisPartServer(uiApplService&);
-				~uiVisPartServer();
+			uiVisPartServer(uiApplService&);
+			~uiVisPartServer();
 
-    void			unlockEvent();
-    				/*!< This function _must_ be called after
-				     the object has sent an event to unlock
-				     the object. */
-    int				getEventObjId() const;
+    const char*		name() const;
+    			/*<\returns the partservers name */
+    NotifierAccess&	removeAllNotifier();
+    			/*<\Returns a notifier that is triggered
+			            when the entire visualization is
+				    closed. All visBase::DataObjects
+				    must then be unrefed.
+			*/
 
-    const char*			name() const;
-    void			setObjectName(int,const char*);
-    const char*			getObjectName(int) const;
+    visBase::DataObject* getObject( int id ) const;
+    void		addObject( visBase::DataObject*, int sceneid,
+				   bool saveinsessions  );
+    void		shareObject( int sceneid, int id );
+    void		findObject( const type_info&, TypeSet<int>& );
+    void		removeObject( visBase::DataObject*,int sceneid);
+    void		removeObject(int id,int sceneid);
+    void		setObjectName(int,const char*);
+    const char*		getObjectName(int) const;
 
-    int				addScene();
-    void			removeScene(int);
+    int			addScene();
+    void		removeScene(int);
 
-    uiVisMenuFactory*		getMenuFactory(const char* typespec );
+    void		getChildIds(int id,TypeSet<int>&) const;
+			/*!< Gets a scenes' children or a volumes' parts
+			     If id==-1, it will give the ids of the
+			     scenes */
 
-    void			shareObject( int sceneid, int id );
+    int			getAttributeFormat(int id) const;
+   			/*!\retval 0 volume
+  			   \retval 1 traces
+		           \retval 2 random positions */
+    const AttribSelSpec* getSelSpec(int id) const;
+    const ColorAttribSel* getColorSelSpec(int id) const;
+    void		setSelSpec(int id, const AttribSelSpec&);
+    void		setColorSelSpec(int id, const ColorAttribSel& );
+    
+			//Volume data stuff
+    CubeSampling	getCubeSampling(int id) const;
+    const AttribSliceSet* getCachedData(int id,bool color) const;
+    bool		setCubeData(int id, bool color,AttribSliceSet*);
+    			/*!< data becomes mine */
 
-    void			findObject( const type_info&, TypeSet<int>& );
-    visBase::DataObject*	getObject( int id );
-    void			addObject( visBase::DataObject*, int sceneid,
-					   bool saveinsessions  );
-    void			removeObject( visBase::DataObject*,
-	    				      int sceneid );
-    void			removeObject(int id,int sceneid);
+    			//Trace data
+    void		getDataTraceBids(int id, TypeSet<BinID>&) const;
+    Interval<float>	getDataTraceRange(int id) const;
+    void		setTraceData(int id, bool color, ObjectSet<SeisTrc>* );
+			//!< Traces become mine
 
-    NotifierAccess&		removeAllNotifier();
+    			//Random position data
+    void		getRandomPosDataPos(int id,
+				    ObjectSet<TypeSet<BinIDZValues> >&,
+				    bool inclvals=false) const;
+    			/*!< Content of objectset becomes callers */
+    void		setRandomPosData(int id, bool color, const ObjectSet<
+	    			const TypeSet<const BinIDZValues> >* );
+    			/*!< The data should have exactly the same
+			     structure as the positions given in
+			     getRandomPosDataPos */
+
+    bool		showMenu( int id );
+    uiVisMenuFactory*	getMenuFactory(int id, bool create=true);
 
     int				addInlCrlTsl(int scene,int type);
     int				addRandomLine(int scene);
@@ -109,11 +144,16 @@ public:
     bool			handleSubMenuSel(int mnu,int scene,int id);
 
     				//Events and their functions
+    void			unlockEvent();
+    				/*!< This function _must_ be called after
+				     the object has sent an event to unlock
+				     the object. */
+    int				getEventObjId() const;
+    				/*<\returns the id that triggered the event */
+    int				getEventAttrNr() const;
+				/*<\returns the attr that triggered the event*/
+
     static const int		evUpdateTree;
-    void			getChildIds(int id,TypeSet<int>&) const;
-				/*!< Gets a scenes' children or a volumes' parts
-				     If id==-1, it will give the ids of the
-				     scenes */
     BufferString		getTreeInfo(int id) const;
     BufferString		getDisplayName(int) const;
 
@@ -140,33 +180,9 @@ public:
     static const int		evGetNewData;
     				/*<! Get the id with getEventObjId() */
     				/*!< Get selSpec with getSelSpec */
-    const CubeSampling*		getCubeSampling(int) const;
-    				/*!< Should only be called as a direct 
-				     reply to evGetNewCubeData */
-    const AttribSliceSet*	getCachedData(int,bool) const;
     bool			calculateAttrib(int id,bool newsel);
-    bool			setCubeData(int,AttribSliceSet*,
-	    				    bool colordata=false);
-    				/*!< data becomes mine */
+    bool			calculateColorAttrib(int,bool);
     void			showTexture(int,int);
-
-    void			getRandomPosDataPos(int,
-				    ObjectSet<TypeSet<BinIDZValues> >&,
-				    bool inclvals=false) const;
-    				/*!< Content of objectset becomes callers */
-    void			setRandomPosData(int, const ObjectSet<
-	    				const TypeSet<const BinIDZValues> >*,
-					bool colordata=false);
-    				/*!< The data should have exactly the same
-				     structure as the positions given in
-				     getRandomPosDataPos */
-
-    void			getRandomTrackPositions(int id,
-	    						TypeSet<BinID>&) const;
-    const Interval<float>	getRandomTraceZRange(int id) const;
-    void			setRandomTrackData(int,ObjectSet<SeisTrc>*,
-	    					   bool colordata=false);
-    				//!< Traces become mine
 
     static const int		evMouseMove;
     Coord3			getMousePos(bool xyt) const;
@@ -175,15 +191,10 @@ public:
 
 
     static const int		evSelectAttrib;
-    void			setSelSpec(const AttribSelSpec&);
-    				/*!< Should only be called as a direct 
-				     reply to evSelectAttrib */
 
     static const int		evSelectColorAttrib;
     static const int		evGetColorData;
-    const ColorAttribSel*	getColorSelSpec(int) const;
     void			setColorSelSpec(const ColorAttribSel&);
-    void			setColorSelSpec(int,const ColorAttribSel&);
     void			setColorData(int,AttribSliceSet*);
     void			resetColorDataType(int);
 
@@ -202,12 +213,11 @@ public:
     const TypeSet<float>*	getHistogram(int) const;
 
 				//General stuff
-    const AttribSelSpec*	getSelSpec(int) const;
-    void			setSelSpec(int,const AttribSelSpec&);
     bool			deleteAllObjects();
     void			setZScale();
     bool			setWorkingArea();
     void			setViewMode(bool yn);
+    bool			isViewMode() const;
     void			turnOn(int,bool);
     bool			isOn(int) const;
 
@@ -220,6 +230,9 @@ public:
 
 protected:
 
+    void			createMenuCB(CallBacker*);
+    void			handleMenuCB(CallBacker*);
+
     visSurvey::Scene*		getScene(int);
     const visSurvey::Scene*	getScene(int) const;
 
@@ -227,7 +240,6 @@ protected:
 
     bool			hasColorAttrib(int) const;
     bool			selectColorAttrib(int);
-    bool			calculateColorAttrib(int,bool);
     void			removeColorData(int);
 
     bool			isMovable(int id) const;
@@ -277,6 +289,11 @@ protected:
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
 
+    int				selcolorattrmnusel;
+    int				resetmanipmnusel;
+    int				changecolormnusel;
+    int				changematerialmnusel;
+    int				firstresmnusel;
 
     static const char*		workareastr;
     static const char*		appvelstr;

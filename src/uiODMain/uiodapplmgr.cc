@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.15 2004-03-11 15:31:51 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.16 2004-04-27 12:00:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,7 @@ bool uiODApplMgr::selectAttrib( int id )
     AttribSelSpec myas( *as );
     bool selok = attrserv->selectAttrib( myas );
     if ( selok )
-	visserv->setSelSpec( myas );
+	visserv->setSelSpec( id, myas );
 
     return selok;
 }
@@ -331,28 +331,7 @@ void uiODApplMgr::renamePickset( int id )
 }
 
 
-bool uiODApplMgr::createSubMenu( uiPopupMenu& mnu, int mnuid, int visid,
-				 int type )
-{
-    switch ( type )
-    {
-    case 0:
-	return attrserv->createAttribSubMenu( mnu, mnuid, 
-					      *visserv->getSelSpec(visid) );
-    case 1:
-    {
-	const AttribSelSpec* as = visserv->getSelSpec(visid);
-	const bool hasauxdata = as && as->id() == -1;
-	return emserv->createAuxDataSubMenu( mnu, mnuid, 
-					     visserv->getMultiID(visid),
-	       				     hasauxdata	);
-    } break;
-    };
-
-    return false;
-}
-
-
+/*
 bool uiODApplMgr::handleSubMenu( int mnuid, int visid, int type )
 {
     bool selok = false;
@@ -384,30 +363,105 @@ bool uiODApplMgr::handleSubMenu( int mnuid, int visid, int type )
 
     return selok;
 }
+*/
 
 
 bool uiODApplMgr::getNewData( int visid, bool colordata )
 {
+    if ( visid<0 ) return false;
+    
+    AttribSelSpec as(*(colordata ? &visserv->getColorSelSpec(visid)->as
+					: visserv->getSelSpec(visid)));
+    
+    if ( as.id()!=-1 ) attrserv->updateSelSpec( as );
+    if ( as.id()<-1 && !colordata)
+    {
+	uiMSG().error( "Cannot find selected attribute" );
+	return false;
+    } 
+    
+    if ( as.isNLA() && !colordata )
+    {
+	if ( nlaserv && nlaserv->isClassification() )
+	    visserv->setClipRate( visid, 0 );
+    }
+
     bool res = false;
-    if ( visserv->isInlCrlTsl(visid,0) || visserv->isInlCrlTsl(visid,1) ||
-	 visserv->isInlCrlTsl(visid,2) || visserv->isVolView(visid) )
-	res =  getNewCubeData( visid, colordata );
-    else if ( visserv->isHorizon(visid) || visserv->isFault(visid) )
-	res =  getNewSurfData( visid, colordata );
-    else if ( visserv->isRandomLine(visid) )
-	res =  getNewRandomLineData( visid, colordata );
+    switch ( visserv->getAttributeFormat(visid) )
+    {
+	case 0:
+	{
+	    if ( as.id()<-1 && colordata )
+	    { visserv->setCubeData(visid, true, 0 ); return true; }
+
+	    const AttribSliceSet* prevset =
+				visserv->getCachedData( visid, colordata );
+
+	    CubeSampling cs = visserv->getCubeSampling( visid );
+	    AttribSliceSet* slices = attrserv->createOutput(cs,as,prevset);
+
+	    if ( !slices ) return false;
+	    visserv->setCubeData( visid, colordata, slices );
+	    res = true;
+	    break;
+	}
+	case 1:
+	{
+	    if ( as.id()<-1 && colordata )
+	    { visserv->setTraceData(visid,true,0); return true; }
+
+	    const Interval<float> zrg = visserv->getDataTraceRange( visid );
+	    TypeSet<BinID> bids;
+	    visserv->getDataTraceBids( visid, bids );
+	    ObjectSet<SeisTrc> data;
+	    if ( !attrserv->createOutput( bids, zrg, data, as ) )
+		return false;
+	    
+	    visserv->setTraceData( visid, colordata, &data );
+
+	    return true;
+	}
+	case 2:
+	{
+	    if ( as.id()<-1 && colordata )
+	    { visserv->setRandomPosData(visid,true,0); return true; }
+
+	    if ( as.id() == -1 )
+	    {
+		bool selok = emserv->loadAuxData( 
+		    visserv->getMultiID(visid), as.userRef() );
+		if ( selok ) handleStoredSurfaceData( visid );
+		else uiMSG().error( "Cannot find stored data" );
+		return selok;
+	    }
+
+	    ObjectSet< TypeSet<BinIDZValues> > data;
+	    visserv->getRandomPosDataPos( visid, data );
+	    if ( !attrserv->createOutput(data,as) )
+		return false;
+
+	    const ObjectSet< const TypeSet<const BinIDZValues> >& to_pass =
+		reinterpret_cast< const ObjectSet< 
+			    const TypeSet< const BinIDZValues > >& >(data);
+	    visserv->setRandomPosData( visid, colordata, &to_pass );
+
+	    deepErase( data );
+
+	    return true;
+	}
+    }
 
     setHistogram( visid );
     return res;
 }
 
-
+/*
 bool uiODApplMgr::evaluateAttribute( int visid )
 {
     if ( visserv->isInlCrlTsl(visid,-1) )
     {
-	const CubeSampling* cs = visserv->getCubeSampling( visid );
-	visserv->setCubeData( visid, attrserv->createSliceSet(*cs) );
+	const CubeSampling cs = visserv->getCubeSampling( visid );
+	visserv->setCubeData( visid, attrserv->createSliceSet(cs) );
     }
     else if ( visserv->isHorizon(visid) )
     {
@@ -428,6 +482,7 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 
     return true;
 }
+*/
 
 
 bool uiODApplMgr::handleEvent( const uiApplPartServer* ps, int evid )
@@ -713,7 +768,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	int visid = visserv->getEventObjId();
 	AttribSelSpec as( "Evaluation" );
 	visserv->setSelSpec( visid, as );
-	if ( !evaluateAttribute( visid ) )
+	if ( !getNewData( visid, false ) )
 	    return false;
 	sceneMgr().updateTrees();
     }
@@ -730,89 +785,21 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 }
 
 
-#define mGetCheckSelSpec( func ) \
-    AttribSelSpec as = colordata ? visserv->getColorSelSpec(visid)->as \
-				 : *visserv->getSelSpec(visid); \
-    if ( as.id() != -1 ) attrserv->updateSelSpec( as ); \
-    if ( as.id() < -1 ) \
-    { \
-	if ( colordata ) { visserv->func; return true; } \
-	else \
-	{ uiMSG().error( "Cannot find selected attribute" ); return false; } \
-    } \
-    if ( as.isNLA() && !colordata ) \
-    { \
-	if ( nlaserv && nlaserv->isClassification() ) \
-	    visserv->setClipRate( visid, 0 ); \
-    }
-
-
+/*
 bool uiODApplMgr::getNewCubeData( int visid, bool colordata )
 {
-    if ( visid < 0 ) return false;
-
-    mGetCheckSelSpec( setCubeData(visid,0,true) );
-
-    const AttribSliceSet* prevset = visserv->getCachedData( visid, colordata );
-
-    const CubeSampling& cs = *visserv->getCubeSampling( visid );
-    AttribSliceSet* slices = attrserv->createOutput( cs, as, prevset );
-
-    if ( !slices ) return false;
-    visserv->setCubeData( visid, slices, colordata );
-
-    return true;
 }
 
 
 bool uiODApplMgr::getNewSurfData( int visid, bool colordata )
 {
-    if ( visid < 0 ) return false;
-
-    mGetCheckSelSpec( setRandomPosData(visid,0,true) );
-    if ( as.id() == -1 )
-    {
-	bool selok = emserv->loadAuxData( 
-		visserv->getMultiID(visid), as.userRef() );
-	if ( selok )
-	    handleStoredSurfaceData( visid );
-	else
-	    uiMSG().error( "Cannot find stored data" );
-	return selok;
-    }
-
-    ObjectSet< TypeSet<BinIDZValues> > data;
-    visserv->getRandomPosDataPos( visid, data );
-    if ( !attrserv->createOutput(data,as) )
-	return false;
-
-    const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
-	reinterpret_cast< const ObjectSet< 
-			const TypeSet< const BinIDZValues > >& >( data );
-    visserv->setRandomPosData( visid, &to_pass, colordata );
-
-    deepErase( data );
-
-    return true;
 }
 
 
 bool uiODApplMgr::getNewRandomLineData( int visid, bool colordata )
 {
-    if ( visid < 0 ) return false;
-    mGetCheckSelSpec( setRandomTrackData(visid,0,true) );
-
-    TypeSet<BinID> bids;
-    const Interval<float> zrg = visserv->getRandomTraceZRange( visid );
-    visserv->getRandomTrackPositions( visid, bids );
-    ObjectSet<SeisTrc> data;
-    if ( !attrserv->createOutput( bids, zrg, data, as ) )
-	return false;
-    
-    visserv->setRandomTrackData( visid, &data, colordata );
-
-    return true;
 }
+*/
 
 
 void uiODApplMgr::handleStoredSurfaceData( int visid )
@@ -826,7 +813,7 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
     const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
 	reinterpret_cast< const ObjectSet< 
 			const TypeSet< const BinIDZValues > >& >( data );
-    visserv->setRandomPosData( visid, &to_pass );
+    visserv->setRandomPosData( visid, false, &to_pass );
 
     deepErase( data );
     visserv->shiftHorizon( visid, shift );
@@ -846,6 +833,4 @@ void uiODApplMgr::modifyColorTable( int visid )
 
 
 void uiODApplMgr::setHistogram( int visid )
-{
-    appl.colTabEd().setHistogram( visserv->getHistogram(visid) );
-}
+{ appl.colTabEd().setHistogram( visserv->getHistogram(visid) ); }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.8 2004-03-01 14:39:39 nanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.9 2004-04-27 12:00:29 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,17 +105,18 @@ public:
     bool		setPickSetDirs(int);
     void		renamePickset(int);
 	// Menu
-    bool		createSubMenu(uiPopupMenu&,int mnuid,int visid,int tp);
-    bool		handleSubMenu(int mnuid,int visid,int tp);
+    //bool		createSubMenu(uiPopupMenu&,int mnuid,int visid,int tp);
+    //bool		handleSubMenu(int mnuid,int visid,int tp);
 
 
     // Work. Don't use unless expert.
     bool		getNewData(int visid,bool);
-    bool		evaluateAttribute(int visid);
+    //bool		evaluateAttribute(int visid);
     void		resetServers();
     void		modifyColorTable(int);
     void		manSurvCB( CallBacker* )	{ manageSurvey(); }
     void		manAttrCB( CallBacker* )	{ manageAttributes(); }
+    void		handleStoredSurfaceData(int);
 
 protected:
 
@@ -144,10 +145,9 @@ protected:
     bool		handleNLAServEv(int);
     bool		handleAttribServEv(int);
 
-    bool		getNewCubeData(int visid,bool);
-    bool		getNewSurfData(int,bool);
-    bool		getNewRandomLineData(int,bool);
-    void		handleStoredSurfaceData(int);
+    //bool		getNewCubeData(int visid,bool);
+    //bool		getNewSurfData(int,bool);
+    //bool		getNewRandomLineData(int,bool);
 
     void		setHistogram(int);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.191 2004-04-14 09:42:48 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.192 2004-04-27 11:59:53 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,8 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,deselectObjCB) );
     delete &eventmutex;
 
-    deepErase(menufactories);
+    for ( int idx=0; idx<menufactories.size(); idx++ )
+	menufactories[idx]->unRef();
 }
 
 
@@ -153,16 +154,26 @@ void uiVisPartServer::removeScene( int sceneid )
 }
 
 
-uiVisMenuFactory* uiVisPartServer::getMenuFactory(const char* typespec)
+bool uiVisPartServer::showMenu( int id )
+{
+    uiVisMenuFactory* menu = getMenuFactory( id, false );
+    return menu ? menu->executeMenu() : true;
+}
+
+
+uiVisMenuFactory* uiVisPartServer::getMenuFactory(int visid, bool create)
 {
     for ( int idx=0; idx<menufactories.size(); idx++ )
     {
-	if ( menufactories[idx]->canHandle( typespec ) )
+	if ( menufactories[idx]->canHandle(visid) )
 	    return menufactories[idx];
     }
+    
+    if ( !create ) return 0;
 
-    uiVisMenuFactory* res = new uiVisMenuFactory(appserv().parent(),typespec);
+    uiVisMenuFactory* res = new uiVisMenuFactory(appserv().parent(),visid);
     menufactories += res;
+    res->ref();
     return res;
 }
 
@@ -186,7 +197,7 @@ void uiVisPartServer::findObject( const type_info& ti, TypeSet<int>& res )
 }
 
 
-visBase::DataObject* uiVisPartServer::getObject( int id )
+visBase::DataObject* uiVisPartServer::getObject( int id ) const
 {
     mDynamicCastGet(visBase::DataObject*, so, visBase::DM().getObj(id) );
     return so;
@@ -199,6 +210,11 @@ void uiVisPartServer::addObject( visBase::DataObject* so, int sceneid,
     mDynamicCastGet(visSurvey::Scene*, scene, visBase::DM().getObj(sceneid) );
     scene->addObject( so );
     //TODO: Handle saveinsessions
+
+
+    uiVisMenuFactory* menufact = getMenuFactory(so->id(),true);
+    menufact->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
+    menufact->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 }
 
 
@@ -535,8 +551,6 @@ int uiVisPartServer::getSelObjectId() const
 void uiVisPartServer::setSelObjectId( int id )
 {
     visBase::DM().selMan().select( id );
-    if ( !viewmode )
-	toggleDraggers();
 }
 
 
@@ -575,17 +589,16 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
 	return;
     }
 
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd )
-    {
-	int inl, crl, tsl;
-	vd->getPlaneIds( inl, crl, tsl );
-	childids += inl;
-	childids += crl;
-	childids += tsl;
-	childids += vd->getVolRenId();
-    }
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,getObject(id));
+    if ( survobj )
+	survobj->getChildren( childids );
+}
+
+
+int uiVisPartServer::getAttributeFormat(int id) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,getObject(id));
+    return survobj ? survobj->getAttributeFormat() : -1;
 }
 
 
@@ -740,37 +753,34 @@ bool uiVisPartServer::isStickSet( int id ) const
 }
 
 
-const CubeSampling* uiVisPartServer::getCubeSampling( int id ) const
+CubeSampling uiVisPartServer::getCubeSampling( int id ) const
 {
-    mDynamicCastAllConst();
-    if ( pdd ) return &pdd->getCubeSampling(true);
-    if ( vd ) return &vd->getCubeSampling();
-
-    return 0;
+    CubeSampling res;
+    mDynamicCastGet( const visSurvey::SurveyObject*, survobj, getObject(id) );
+    if ( survobj ) res = survobj->getCubeSampling();
+    return res;
 }
 
 
-const AttribSliceSet* uiVisPartServer::getCachedData( int id, 
-						      bool colordata ) const
+const AttribSliceSet* uiVisPartServer::getCachedData( int id,
+						      bool color ) const
 {
-    mDynamicCastAllConst()
-    if ( pdd ) return pdd->getCachedData( colordata );
-    if ( vd ) return vd->getCachedData( colordata );
-    return 0;
+    mDynamicCastGet( const visSurvey::SurveyObject*, survobj, getObject(id) );
+    return survobj ? survobj->getCacheVolume(color) : 0;
 }
 
 
-bool uiVisPartServer::setCubeData( int id, AttribSliceSet* sliceset,
-       				   bool colordata )
+bool uiVisPartServer::setCubeData( int id, bool color, AttribSliceSet* sliceset)
 {
     if ( !sliceset ) return false;
+    mDynamicCastGet( visSurvey::SurveyObject*, survobj, getObject(id) );
+    if ( !survobj )
+    {
+	delete sliceset;
+	return false;
+    }
 
-    mDynamicCastAll();
-    if ( pdd ) return pdd->putNewData( sliceset, colordata );
-    if ( vd ) return vd->putNewData( sliceset, colordata );
-
-    delete sliceset;
-    return false;
+    return survobj->setDataVolume( color, sliceset );
 }
 
 
@@ -795,39 +805,37 @@ void uiVisPartServer::getRandomPosDataPos( int id,
 }
 
 
-void uiVisPartServer::setRandomPosData( int id,
-		    const ObjectSet<const TypeSet<const BinIDZValues> >* nd,
-       		    bool colordata )
+void uiVisPartServer::setRandomPosData( int id, bool color,
+		    const ObjectSet<const TypeSet<const BinIDZValues> >* nd )
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
-    if ( sd ) sd->putNewData( nd, colordata );
+    if ( !nd ) return;
+    mDynamicCastGet( visSurvey::SurveyObject*, survobj, getObject(id) );
+    if ( !survobj )
+	return;
+
+    survobj->setRandomPosData( color, nd );
 }
 
 
-void uiVisPartServer::getRandomTrackPositions( int id, 
-						TypeSet<BinID>& bids ) const
+void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj)
-    if ( rtd ) rtd->getDataPositions( bids );
+    mDynamicCastGet( visSurvey::SurveyObject*, survobj, getObject(id) );
+    if ( survobj ) survobj->getDataTraceBids( bids );
 }
 	
 
-const Interval<float> uiVisPartServer::getRandomTraceZRange( int id ) const
+Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj)
-    return rtd ? rtd->getManipDepthInterval() : Interval<float>(0,0);
+    mDynamicCastGet( visSurvey::SurveyObject*, survobj, getObject(id) );
+    if ( survobj ) return survobj->getDataTraceRange();
+    return Interval<float>(0,0);
 }
 
 
-void uiVisPartServer::setRandomTrackData( int id, ObjectSet<SeisTrc>* data,
-       					  bool colordata )
+void uiVisPartServer::setTraceData( int id, bool color,ObjectSet<SeisTrc>* data)
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj)
-    if ( rtd ) rtd->putNewData( data, colordata );
+    mDynamicCastGet( visSurvey::SurveyObject*, survobj, getObject(id) );
+    if ( survobj ) survobj->setTraceData( color, data );
 }
 
 
@@ -840,10 +848,6 @@ BufferString uiVisPartServer::getMousePosVal() const
     return mIsUndefined(mouseposval) ? BufferString("") 
 				     : BufferString(mouseposval);
 }
-
-
-void uiVisPartServer::setSelSpec( const AttribSelSpec& as )
-{ attribspec = as; }
 
 
 BufferString uiVisPartServer::getInteractionMsg( int id ) const
@@ -914,33 +918,22 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 
 int uiVisPartServer::getColTabId( int id ) const
 {
-    mDynamicCastAllConst();
-    if ( pdd ) return pdd->getColorTab().id();
-    if ( vd ) return vd->getColorTab().id();
-    if ( rtd ) return rtd->getColorTab().id();
-    if ( sd ) return sd->getColorTab().id();
-
-    return -1;
+    mDynamicCastGet(visSurvey::SurveyObject*, so, getObject(id) );
+    return so ? so->getColTabID() : -1;
 }
 
 
 void uiVisPartServer::setClipRate( int id, float cr )
 {
-    visBase::DataObject* obj = visBase::DM().getObj( getColTabId(id) );
-    mDynamicCastGet(visBase::VisColorTab*,coltab,obj)
+    mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(getColTabId(id)));
     if ( coltab ) coltab->setClipRate( cr );
 }
 
 
 const TypeSet<float>* uiVisPartServer::getHistogram( int id ) const
 {
-    mDynamicCastAllConst();
-    if ( pdd ) return &pdd->getHistogram();
-    if ( vd ) return &vd->getHistogram();
-    if ( rtd ) return &rtd->getHistogram();
-    if ( sd ) return &sd->getHistogram();
-
-    return 0;
+    mDynamicCastGet(visSurvey::SurveyObject*, so, getObject(id) );
+    return so ? so->getHistogram() : 0;
 }
 
 
@@ -949,13 +942,8 @@ int uiVisPartServer::getEventObjId() const { return eventobjid; }
 
 const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 {
-    mDynamicCastAllConst();
-    if ( pdd ) return &pdd->getAttribSelSpec();
-    if ( sd ) return &sd->getAttribSelSpec();
-    if ( vd ) return &vd->getAttribSelSpec();
-    if ( rtd ) return &rtd->getAttribSelSpec();
-
-    return 0;
+    mDynamicCastGet( visSurvey::SurveyObject*, survobj, getObject(id) );
+    return survobj ? survobj->getSelSpec() : 0;
 }
 
 
@@ -983,6 +971,9 @@ void uiVisPartServer::setViewMode(bool yn)
 }
 
 
+bool uiVisPartServer::isViewMode() const { return viewmode; }
+
+
 void uiVisPartServer::toggleDraggers()
 {
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
@@ -1000,8 +991,8 @@ void uiVisPartServer::toggleDraggers()
 	    if ( pdd ) pdd->showDraggers(isdraggeron);
 	    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
 	    if ( vd ) vd->showBox(isdraggeron);
-	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-	    if ( rtd ) rtd->showDragger(isdraggeron);
+	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
+	    if ( so ) so->showManipulator(isdraggeron);
 	}
     }
 }
@@ -1235,6 +1226,13 @@ mGetScene( const );
 
 void uiVisPartServer::removeObject( int id, int sceneid )
 {
+    uiVisMenuFactory* menufact = getMenuFactory(id,false);
+    int mnufactidx = menufactories.indexOf(menufact);
+    menufactories.remove(mnufactidx);
+    menufact->unRef();
+
+    menufact->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
+    menufact->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
     removeConnections( id );
 
     visSurvey::Scene* scene = getScene( sceneid );
@@ -1256,39 +1254,33 @@ bool uiVisPartServer::hasAttrib( int id ) const
 bool uiVisPartServer::selectAttrib( int id )
 {
     eventmutex.lock();
-    bool selected = sendEvent( evSelectAttrib );
-
-    if ( !selected ) return false;
-
-    const AttribSelSpec myattribspec( attribspec );
-    setSelSpec( id, myattribspec );
-    eventmutex.lock();
     eventobjid = id;
-    sendEvent( evUpdateTree );
-
+    sendEvent( evSelectAttrib );
     return true;
 }
 
 
 void uiVisPartServer::setSelSpec( int id, const AttribSelSpec& myattribspec )
 {
-    mDynamicCastAll();
-    if ( vd ) vd->setAttribSelSpec( myattribspec );
-    if ( rtd ) rtd->setAttribSelSpec( myattribspec );
-    if ( pdd ) pdd->setAttribSelSpec( myattribspec );
-    if ( sd ) sd->setAttribSelSpec( myattribspec );
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,getObject(id));
+    if ( survobj ) survobj->setSelSpec(myattribspec);
 }
 
 
 bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 {
-    mDynamicCastAll();
+    bool newattrib = false;
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,getObject(id));
+    if ( !survobj ) return false;
 
-    const AttribSelSpec* as = getSelSpec( id );
+    const AttribSelSpec* as = survobj->getSelSpec();
     if ( !as ) return false;
-    bool res = true;
-    if ( newselect || ( as->id() < 0 && !sd ) )
-	res = selectAttrib( id );
+    if ( newselect || ( as->id() < 0 ) )
+    {
+	if ( !selectAttrib( id ) ) return false;
+	newattrib = true;
+    }
+    /*
     else if ( sd && as->id() < 0 )
     {
 	const char* usrref = as->userRef();
@@ -1298,18 +1290,16 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 	    return true;
 	}
     }
-	
-    if ( !res ) return res;
+    */
 
-    res = false;
-    if ( vd || pdd || rtd || sd )
-    {
-	eventmutex.lock();
-	eventobjid = id;
-	res = sendEvent( evGetNewData );
-    }
+    if ( !newattrib && !survobj->isManipulated() )
+	return true;
 
-    if ( res ) acceptManipulation( id );
+    bool res = false;
+    eventmutex.lock();
+    eventobjid = id;
+    res = sendEvent( evGetNewData );
+    if ( res ) survobj->acceptManipulation();
     return res;
 }
 
@@ -1323,23 +1313,15 @@ bool uiVisPartServer::hasColorAttrib( int id ) const
 
 const ColorAttribSel* uiVisPartServer::getColorSelSpec( int id ) const
 {
-    mDynamicCastAllConst();
-    if ( pdd ) return &pdd->getColorSelSpec();
-    if ( rtd ) return &rtd->getColorSelSpec();
-    if ( vd ) return &vd->getColorSelSpec();
-    if ( sd ) return &sd->getColorSelSpec();
-
-    return 0;
+    mDynamicCastGet( const visSurvey::SurveyObject*, survobj, getObject(id) );
+    return survobj ? survobj->getColorSelSpec() : 0;
 }
 
 
 void uiVisPartServer::setColorSelSpec( int id, const ColorAttribSel& myas )
 {
-    mDynamicCastAll();
-    if ( pdd ) pdd->setColorSelSpec( myas );
-    if ( rtd ) rtd->setColorSelSpec( myas );
-    if ( vd ) vd->setColorSelSpec( myas );
-    if ( sd ) sd->setColorSelSpec( myas );
+    mDynamicCastGet( visSurvey::SurveyObject*, survobj, getObject(id) );
+    if ( survobj ) survobj->setColorSelSpec( myas );
 }
 
 
@@ -1351,11 +1333,12 @@ void uiVisPartServer::setColorSelSpec( const ColorAttribSel& myas )
 
 void uiVisPartServer::resetColorDataType( int id )
 {
-    mDynamicCastAll();
-    if ( pdd ) pdd->getColorSelSpec().datatype = 0;
-    if ( rtd ) rtd->getColorSelSpec().datatype = 0;
-    if ( vd ) vd->getColorSelSpec().datatype = 0;
-    if ( sd ) sd->getColorSelSpec().datatype = 0;
+    const ColorAttribSel* css = getColorSelSpec(id);
+    if ( !css ) return;
+
+    ColorAttribSel myselspec( *css );
+    myselspec.datatype = 0;
+    setColorSelSpec(myselspec);
 }
 
 
@@ -1391,11 +1374,16 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 
 void uiVisPartServer::removeColorData( int id )
 {
-    mDynamicCastAll();
-    if ( pdd ) pdd->putNewData( 0, true );
-    else if ( rtd ) rtd->putNewData( 0, true );
-    else if ( sd ) sd->putNewData( 0, true );
-    else if ( vd ) vd->putNewData( 0, true );
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
+    switch ( so->getAttributeFormat() )
+    {
+	case 0:
+	    so->setDataVolume( true, 0 );
+	case 1:
+	    so->setTraceData( true, 0 );
+	case 2:
+	    so->setRandomPosData( true, 0 );
+    }
 }
 
 
@@ -1558,9 +1546,8 @@ void uiVisPartServer::acceptManipulation( int id )
 	vd->setCubeSampling( vd->getCubeSampling(true) );
 	vd->resetManip();
     }
-
     else if ( rtd )
-	rtd->acceptManip();
+	rtd->acceptManipulation();
 }
 
 
@@ -1607,8 +1594,10 @@ void uiVisPartServer::removeConnections( int id )
 void uiVisPartServer::selectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sel,cb);
-    if ( !viewmode )
-	toggleDraggers();
+    visBase::DataObject* dobj = visBase::DM().getObj( sel );
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,dobj);
+    if ( !viewmode && survobj )
+	survobj->showManipulator(true);
 
     eventmutex.lock();
     eventobjid = sel;
@@ -1619,17 +1608,25 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 void uiVisPartServer::deselectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,oldsel,cb);
-    if ( isManipulated(oldsel) )
+    visBase::DataObject* dobj = visBase::DM().getObj( oldsel );
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,dobj);
+    if ( survobj )
+    {
+	calculateAttrib( oldsel, false );
+
+	if ( !viewmode )
+	    survobj->showManipulator(false);
+    }
+    // Old stuff, should be removed
+    else if ( isManipulated(oldsel) )
     {
 	if ( hasAttrib(oldsel) )
 	    calculateAttrib( oldsel, false );
 	if ( hasColorAttrib(oldsel) )
 	    calculateColorAttrib( oldsel, false );
+	if ( !viewmode )
+	    toggleDraggers();
     }
-
-    if ( !viewmode )
-	toggleDraggers();
-
 
     eventmutex.lock();
     eventobjid = oldsel;
@@ -1669,4 +1666,75 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 	sendEvent( evMouseMove );
     }
 }
+
+
+void uiVisPartServer::createMenuCB(CallBacker* cb)
+{
+    mDynamicCastGet( uiVisMenuFactory*, menu, cb );
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(menu->id()));
+    mDynamicCastGet( visBase::VisualObject*, vo, getObject(menu->id()));
+    if ( !so ) return;
+
+    selcolorattrmnusel = so->hasColorAttribute()
+	?  menu->addItem(new uiMenuItem("Select color attribute ...")) 
+	: -1;
+
+    resetmanipmnusel = so->isManipulated() && so->canResetManipulation()
+	? menu->addItem(new uiMenuItem("Reset Manipulation"))
+	: -1;
+
+    changecolormnusel = so->hasColor()
+	? menu->addItem(new uiMenuItem("Color..."))
+	: -1;
+
+    changematerialmnusel = so->hasMaterial()
+	? menu->addItem(new uiMenuItem("Properties"))
+	: -1;
+
+    if ( so->nrResolutions()>1 )
+    {
+	uiPopupMenu* resmnu = new uiPopupMenu( menu->getParent(),"Resolution");
+	for ( int idx=0; idx<so->nrResolutions(); idx++ )
+	{
+	    int mid = menu->getFreeIdx();
+	    uiMenuItem* itm = new uiMenuItem(so->getResolutionName(idx));
+	    resmnu->insertItem(itm, mid);
+	    itm->setChecked(idx==so->getResolution());
+	    if ( !idx ) firstresmnusel = mid;
+	}
+
+	menu->addItem( resmnu );
+    }
+}
+
+
+void uiVisPartServer::handleMenuCB(CallBacker* cb)
+{
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    if ( mnuid==-1 ) return;
+
+    mDynamicCastGet( uiVisMenuFactory*, menu, caller );
+    const int id = menu->id();
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
+    mDynamicCastGet( visBase::VisualObject*, vo, getObject(id));
+    if ( !so ) return;
+    
+    if ( mnuid==selcolorattrmnusel )
+	calculateColorAttrib( id, true );
+    else if ( mnuid==resetmanipmnusel )
+	so->resetManipulation();
+    else if ( mnuid==changecolormnusel )
+    {
+	Color col = vo->getMaterial()->getColor();
+	//if ( select( col, appserv().parent(), "Color selection", false ) )
+	vo->getMaterial()->setColor( col );
+    }
+    else if ( mnuid==changematerialmnusel )
+	setMaterial(id);
+    else if ( firstresmnusel!=-1 && mnuid>=firstresmnusel &&
+	    mnuid-firstresmnusel<so->nrResolutions() )
+	so->setResolution(mnuid-firstresmnusel);
+}
+
+
 

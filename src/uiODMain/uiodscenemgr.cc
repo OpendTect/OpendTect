@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.12 2004-03-05 07:48:07 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.13 2004-04-27 12:00:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -442,19 +442,19 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     if ( getenv("DTECT_SHOW_TRACKINGITEMS") )
     {
-	scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
+	//scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
 	scn.itemmanager->addChild( new uiODFaultFactoryTreeItem );
     }
-    scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
     scn.itemmanager->addChild( new uiODHorizonFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
     scn.itemmanager->addChild( new uiODRandomLineFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODVolumeFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODTimesliceFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODCrosslineFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODInlineFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODSceneTreeItem(scn.sovwr->getTitle(),
-						 scn.sovwr->sceneId() ) );
+    //scn.itemmanager->addChild( new uiODVolumeFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODTimesliceFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODCrosslineFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODInlineFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODSceneTreeItem(scn.sovwr->getTitle(),
+						 //scn.sovwr->sceneId() ) );
     scn.lv->display();
     scn.treeWin()->display();
 }
@@ -544,7 +544,7 @@ void uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	scene.itemmanager->addChild( new uiODPickSetTreeItem(ps) );
+	//scene.itemmanager->addChild( new uiODPickSetTreeItem(ps) );
     }
 }
 
@@ -556,7 +556,7 @@ void uiODSceneMgr::addHorizonItem( const MultiID& mid, int sceneid )
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	scene.itemmanager->addChild( new uiODHorizonTreeItem(mid) );
+	//scene.itemmanager->addChild( new uiODHorizonTreeItem(mid) );
     }
 }
 
