@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.11 2001-09-02 21:47:57 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.12 2001-09-18 14:49:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,10 +51,10 @@ public:
     void		setZRange(const Interval<double>&);
     void		setZRange(const StepInterval<double>&);
 
-    bool		rangeUsable() const
+    inline bool		rangeUsable() const
 			{ return range_.start.inl && range_.stop.inl
 			      && range_.start.crl && range_.stop.crl; }
-    bool		zRangeUsable() const
+    inline bool		zRangeUsable() const
 			{ return !mIS_ZERO(zrange_.width()); }
 
     void		setComment( const char* s )	{ comment_ = s; }
@@ -68,13 +68,17 @@ public:
     inline Coord	transform( const BinID& b ) const
 			{ return b2c_.transform(b); }
     BinID		transform(const Coord&) const;
-    inline void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
+    void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
 			//!< returns error message or null on success
 
     const BinID2Coord&	binID2Coord() const	{ return b2c_; }
 
     Coord		minCoord() const;
+    bool		isReasonable(const BinID&) const;
+			//!< Checks if in or near survey
+    inline bool		isReasonable( const Coord& c ) const
+			{ return isReasonable( transform(c) ); }
 
     static const char*	sKeyInlRange;
     static const char*	sKeyCrlRange;
