@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.5 2005-01-06 09:36:53 kristofer Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.6 2005-01-13 12:35:07 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -61,7 +61,6 @@ public:
     			/*!< Return false if the sectionid allready exists */
     void		removeSection(EM::SectionID,bool addtohistory);
     SectionID		cloneSection(EM::SectionID);
-    CNotifier<SurfaceGeometry,const SectionID&>	sectionchnotifier;
 
     bool		setPos(const SectionID&,const RowCol&,
 			       const Coord3&,bool autoconnect,bool addtoh);
