@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.1 2002-02-06 22:30:19 kristofer Exp $
+ RCS:		$Id: vissceneobj.h,v 1.2 2002-02-09 13:38:42 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "sets.h"
 
 class SoNode;
-class SoSeparator;
+class SoGroup;
 
 namespace visBase
 {
@@ -38,7 +38,7 @@ public:
 class SceneObjectGroup : public SceneObject
 {
 public:
-				SceneObjectGroup();
+				SceneObjectGroup(bool separate=true);
     virtual			~SceneObjectGroup();
 
     int				addObject( SceneObject* );
@@ -50,7 +50,7 @@ public:
 
 protected:
 
-    SoSeparator*		root;
+    SoGroup*			root;
     ObjectSet<SceneObject>	objects;
 
 };
