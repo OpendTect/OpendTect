@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: mksethdir,v 1.7 2004-05-06 15:22:40 dgb Exp $
+# $Id: mksethdir,v 1.8 2004-08-27 10:42:40 dgb Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:
@@ -29,7 +29,7 @@ if ( ! $?HDIR ) then
     set sethdirstr="setenv HDIR $HDIR; "
 endif
 
-set ROOT_DIR=$1
+set ROOT_DIR="$1"
 if ( $ROOT_DIR == "" ) then
     if ( $?DTECT_APPL ) then
         set ROOT_DIR="$DTECT_APPL"
@@ -53,7 +53,7 @@ else if ( $binsubdir == lux ) then
     endif
 endif
 
-if ( ! -d $ROOT_DIR/bin/$binsubdir ) then
+if ( ! -d "$ROOT_DIR/bin/$binsubdir" ) then
     set binsubdir=$HDIR
 endif
 
