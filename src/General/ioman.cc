@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.21 2002-03-14 13:45:40 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.22 2002-04-08 20:58:14 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -454,23 +454,32 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 
     if ( !ioobj )
     {
-	UserIDString cleanname( ctio.ctxt.name() );
-	char* ptr = cleanname.buf();
-	cleanupString( ptr, NO, *ptr == *sDirSep, YES );
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newKey(), NO );
-	iostrm->setFileName( cleanname );
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setParentKey( parentkey );
 	iostrm->setGroup( ctio.ctxt.trgroup->name() );
-	iostrm->setTranslator( ctio.ctxt.deftransl != "" ?
-			    (const char*)ctio.ctxt.deftransl
-			  : (const char*)ctio.ctxt.trgroup->defs()[0]->name() );
-	while ( File_exists( iostrm->fileName() ) )
+	BufferString trnm( ctio.ctxt.deftransl != "" ?
+			   (const char*)ctio.ctxt.deftransl
+			 : (const char*)ctio.ctxt.trgroup->defs()[0]->name() );
+	iostrm->setTranslator( trnm );
+
+	// Generate the right filename
+	Translator* tr = ctio.ctxt.trgroup->make( trnm );
+	int subnr = 0;
+	BufferString cleanname( ctio.ctxt.name() );
+	char* ptr = cleanname.buf();
+	cleanupString( ptr, NO, *ptr == *sDirSep, YES );
+	BufferString fnm;
+	for ( int subnr=0; ; subnr++ )
 	{
-	     FileNameString fname( iostrm->fileName() );
-	     fname += "X";
-	     iostrm->setFileName( fname );
+	    fnm = cleanname;
+	    if ( subnr ) fnm += subnr;
+	    if ( tr && tr->defExtension() )
+		{ fnm += "."; fnm += tr->defExtension(); }
+	    if ( !File_exists(fnm) ) break;
 	}
+	iostrm->setFileName( fnm );
+	delete tr;
 
 	ioobj = iostrm;
 	if ( ctio.ctxt.crlink )

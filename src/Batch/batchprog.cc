@@ -5,13 +5,14 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.9 2002-01-29 11:13:02 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.10 2002-04-08 20:58:13 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filegen.h"
+#include "timefun.h"
 #ifndef __msvc__
 #include <unistd.h>
 #endif
@@ -34,6 +35,7 @@ int Execute_batch( int* pargc, char** argv )
 	    cerr << argv[0] <<  "cannot fork:\n" << errno_message() << endl;
 	case 0: break;
 	default:
+	    Time_sleep( 0.1 );
 	    return 0;
 	break;
 	}
@@ -112,7 +114,21 @@ const char* BatchProgram::progName() const
 
 bool BatchProgram::initOutput()
 {
-    const char* res = pars()["Log file"];
+    const char* res = pars()[ "Process info file" ];
+    if ( *res )
+    {
+	StreamData sd = StreamProvider(res).makeOStream();
+	if ( !sd.usable() )
+	{
+	    cerr << name() << ": Cannot write process ID file:\n"
+		 << res << endl;
+	    exit( 0 );
+	}
+	*sd.ostrm << getPID() << endl;
+	sd.close();
+    }
+
+    res = pars()["Log file"];
     if ( !*res || !strcmp(res,"stdout") ) res = 0;
  
 #ifndef __win__
