@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.36 2003-10-23 12:20:05 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.37 2003-10-28 18:08:19 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.36 2003-10-23 12:20:05 nanne
 
 EM::Horizon::Horizon(EMManager& man, const MultiID& id_)
     : Surface( man, id_ )
+    , shift(0)
     , a11( 1 ) , a12( 0 ) , a13( 0 ) , a21( 0 ) , a22( 1 ) , a23( 0 )
     , b11( 1 ) , b12( 0 ) , b13( 0 ) , b21( 0 ) , b22( 1 ) , b23( 0 )
 {}
