@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.30 2002-04-23 06:02:07 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.31 2002-04-24 15:11:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,11 @@ ________________________________________________________________________
 #include "uidset.h"
 #include "color.h"
 #include "colortab.h"
+#include "settings.h"
 
 #include "uizscaledlg.h"
 #include "uimaterialdlg.h"
+#include "uislicesel.h"
 
 #include "cubesampling.h"
 #include "attribsel.h"
@@ -205,11 +207,13 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 	: ( etp == Crossline ?	visSurvey::PlaneDataDisplay::Crossline
 			     :	visSurvey::PlaneDataDisplay::Timeslice );
 
-    visSurvey::PlaneDataDisplay* sd = visSurvey::PlaneDataDisplay::create( type, *scene,
-				     mCB( this, uiVisPartServer, getDataCB ));
+    visSurvey::PlaneDataDisplay* sd = visSurvey::PlaneDataDisplay::create( type,
+	*scene, mCB( this, uiVisPartServer, getDataCB ));
     seisdisps += sd; 
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
-    coltab->colorSeq().loadFromStorage("Red-White-Black");
+    BufferString ctname = "Red-White-Black";
+    mSettUse(get,"dTect.Color table","Name",ctname);
+    coltab->colorSeq().loadFromStorage( ctname );
     sd->textureRect().setColorTab( coltab );
     sd->textureRect().manipChanges()->notify(
 	    				mCB(this,uiVisPartServer,manipMoveCB));
@@ -248,15 +252,37 @@ void uiVisPartServer::resetManipulation( int id )
 }
 
 
-float uiVisPartServer::getPlanePos(int id) const
+void uiVisPartServer::setPlanePos( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
+    if ( !sd ) return;
+    CubeSampling* cs = &sd->getCubeSampling( true );
+    uiSliceSel dlg( appserv().parent(), cs );
+    if ( dlg.go() )
+    {
+	Geometry::Pos width( cs->hrg.stop.inl - cs->hrg.start.inl, 
+			     cs->hrg.stop.crl - cs->hrg.start.crl,
+			     cs->zrg.stop - cs->zrg.start );
+	sd->setWidth( width );
+	Geometry::Pos origo(cs->hrg.start.inl,cs->hrg.start.crl,cs->zrg.start);
+	sd->setOrigo( origo );
+	sendEvent( evManipulatorMove );
+	sendEvent( evGetNewData );
+	sendEvent( evSelection );
+    }
+}
+
+
+float uiVisPartServer::getPlanePos( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( !sd ) return 0;
     Geometry::Pos geompos = sd->textureRect().getRectangle().manipOrigo();
-    return	sd->getType()==visSurvey::PlaneDataDisplay::Inline ? geompos.x :
-		sd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y:
-		geompos.z;
+    return   sd->getType()==visSurvey::PlaneDataDisplay::Inline ? geompos.x :
+	     sd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y :
+	     geompos.z;
 }
 
 

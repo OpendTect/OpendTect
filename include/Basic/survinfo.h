@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.17 2002-04-18 09:50:18 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.18 2002-04-24 15:11:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,12 @@ public:
     const StepInterval<double>& zRange() const	{ return zrange_; }
     void		setZRange(const Interval<double>&);
     void		setZRange(const StepInterval<double>&);
+    void		checkInlRange(Interval<int>&) const;
+			//!< Check if range is inside surveyrange
+    void		checkCrlRange(Interval<int>&) const;
+			//!< Check if range is inside surveyrange
+    void		checkZRange(Interval<double>&) const;
+			//!< Check if range is inside surveyrange
 
     inline bool		rangeUsable() const
 			{ return range_.start.inl && range_.stop.inl

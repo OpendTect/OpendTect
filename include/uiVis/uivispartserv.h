@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.22 2002-04-23 06:02:13 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.23 2002-04-24 15:11:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     int			addDataDisplay(uiVisPartServer::ElementType);
     void		removeDataDisplay(int);
     void		resetManipulation( int );
+    void		setPlanePos(int);
     float		getPlanePos(int) const;
     bool		isPlaneManipulated(int) const;
     void		setAttribSelSpec(int,AttribSelSpec&);
