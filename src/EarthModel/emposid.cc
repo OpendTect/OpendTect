@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.5 2003-07-10 09:55:00 kristofer Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.6 2003-08-25 06:56:17 kristofer Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
@@ -18,7 +18,7 @@ const char* EM::PosID::subidstr = "Sub ID";
 
 RowCol EM::PosID::getRowCol() const
 {
-    return long2rc(subID());
+    return longlong2rc(subID());
 }
 
 
@@ -26,7 +26,7 @@ void EM::PosID::fillPar( IOPar& par ) const
 {
     par.set( emobjstr, emobj );
     par.set( patchstr, patch );
-    par.set( subidstr, (long long) subid );
+    par.set( subidstr, subid );
 }
 
 

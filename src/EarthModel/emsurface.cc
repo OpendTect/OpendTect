@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.20 2003-08-06 15:13:14 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.21 2003-08-25 06:56:17 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -529,13 +529,13 @@ void EM::Surface::setTranslatorData( const RowCol& step_,
 
 RowCol EM::Surface::subID2RowCol( const EM::SubID& subid )
 {
-    return long2rc(subid);
+    return longlong2rc(subid);
 }
 
 
 EM::SubID EM::Surface::rowCol2SubID( const RowCol& rc )
 {
-    return rc2long(rc);
+    return rc2longlong(rc);
 }
 
 
