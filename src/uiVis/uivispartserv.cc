@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.146 2003-04-23 15:27:58 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.147 2003-05-02 16:16:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -865,6 +865,8 @@ bool uiVisPartServer::isInlCrlTsl( int id, int type ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
+    if ( pdd && type < 0 ) return true;
+
     visSurvey::PlaneDataDisplay::Type pddtype =
 	!type ? visSurvey::PlaneDataDisplay::Inline
 	      : ( type == 1 ? visSurvey::PlaneDataDisplay::Crossline
