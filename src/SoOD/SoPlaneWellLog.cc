@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.6 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.7 2003-11-11 11:46:36 dgb Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -50,7 +50,7 @@ SoPlaneWellLog::SoPlaneWellLog()
 	    		     topSeparator, ,false);
 
     SO_KIT_ADD_CATALOG_ENTRY(group1,SoSeparator,false,
-	    		     line1Switch,group2,false);
+	    		     line1Switch, ,false);
     SO_KIT_ADD_CATALOG_ENTRY(col1,SoBaseColor,false,
 	    		     group1,coords1,false);
     SO_KIT_ADD_CATALOG_ENTRY(coords1,SoCoordinate3,false,
