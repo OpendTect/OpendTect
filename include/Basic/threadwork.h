@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.2 2002-04-17 10:12:26 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.3 2002-08-26 13:03:49 bert Exp $
 ________________________________________________________________________
 
 
@@ -33,8 +33,10 @@ not call it, but it might introduce delays when exiting the program.
 class ThreadTask
 {
 public:
+
     virtual		~ThreadTask();
-    virtual int		run( WorkThread* ) = 0;
+    virtual int		run(WorkThread*) = 0;
+
 };
 
 
@@ -47,8 +49,10 @@ class WorkThread
 {
 public:
     enum		Status { Idle, Running, Finished, Stopped };
+
     			WorkThread( ThreadWorkManager& );
     			~WorkThread();
+
     			// Interface from running thread
     void		checkForExit();
 
@@ -59,6 +63,7 @@ public:
     int			getRetVal();
 
 protected:
+
     void static		threadfunc( void* );
     void		threadFunc();
     ThreadWorkManager&	manager;
@@ -70,6 +75,7 @@ protected:
 
     ConditionVar&	exitcond;	//Dont change this order!
     Thread*		thread;
+
 };
 
 
@@ -91,7 +97,9 @@ public:
 
     				/* Interface from threads */
     void			imFinished( WorkThread* );
+
 protected:
+
     ObjectSet<ThreadTask>	workload;
     ObjectSet<WorkThread>	threads;
 

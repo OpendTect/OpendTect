@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.8 2002-04-17 10:07:37 kristofer Exp $
+ RCS:		$Id: thread.h,v 1.9 2002-08-26 13:03:49 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include "gendefs.h"
+class CallBack;
 
 #ifndef __win__
 #define __pthread__ 1
@@ -32,10 +33,11 @@ simply too big and dependent.
 
 namespace Threads
 {
+
 #ifdef __pthread__
-static bool isThreadsImplemented() {return true; }
+    static bool		isThreadsImplemented()	{ return true; }
 #else
-static bool isThreadsImplemented() {return false; }
+    static bool		isThreadsImplemented()	{ return false; }
 #endif
 
 /*!\brief
@@ -65,8 +67,8 @@ protected:
 
 
 /*!\brief
-Is an object that is conveniant to use when a mutex should be locked and
-be unlocked automaticly when returning.
+Is an object that is convenient to use when a mutex should be locked and
+unlocked automaticly when returning.
 
 Example:
 
@@ -79,10 +81,14 @@ int function()
 class MutexLocker
 {
 public:
-		MutexLocker( Mutex& mutex_ ) : mutex( mutex_ ) { mutex.lock(); }
-		~MutexLocker() { mutex.unlock(); }
+			MutexLocker( Mutex& mutex_ )
+			    : mutex( mutex_ )	{ mutex.lock(); }
+			~MutexLocker()		{ mutex.unlock(); }
+
 protected:
-    Mutex&	mutex;
+
+    Mutex&		mutex;
+
 };
 
 
@@ -136,26 +142,30 @@ protected:
     pthread_cond_t		cond;
     pthread_condattr_t		condattr;
 #endif
+
 };
 
 /*!\brief
 is the base class for all threads. Start it by creating it and give it the
-function to run. The function running in the thread must not return. Instead
-it should call threadExit to terminate itself.
+function or CallBack to execute. The function running in the thread must not
+return. Instead it should call threadExit to terminate itself.
 
-The process that has created the thread must call
+The process that has created the thread must call destroy().
+
 */
 
 class Thread
 {
 public:
-				Thread(void (*)(void*), void* arg);
 
-    static void			threadExit( void* retval=0 );
+				Thread(void (*)(void*), void* arg);
+				Thread(const CallBack&);
+
+    static void			threadExit(void* retval=0);
 				/*!< Should only be called by the 
 				     running thread */
 
-    void			destroy(bool wait, void** retval);
+    void			destroy(bool wait,void** retval);
     				/*!< Delete the thread with this function.
 				    If wait is true, it will wait for the
 				    thread to call threadExit. retval is
@@ -163,15 +173,17 @@ public:
 				*/
 
 protected:
+
 #ifdef __pthread__
     pthread_t			id;
 #endif
 
 private:
+
     friend			Threads::Mutex;
-    				//< Only to avoid stupid compiler msg
+    				//< Only to avoid a stupid compiler msg
     
-    virtual			~Thread() {}
+    virtual			~Thread()	{}
 };
 				    
 
