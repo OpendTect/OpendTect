@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.1 2003-01-15 11:24:10 niclas Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.2 2003-01-29 11:39:50 niclas Exp $";
 
 
 #include "houghtransform.h"
@@ -94,6 +94,7 @@ PlaneFrom3DSpaceHoughTransform::PlaneFrom3DSpaceHoughTransform()
     , paramspace( 0 )
     , normals( 0 )
     , datainfo( 0 )
+    , cliprate( 0.7 )
 {}
 		
 		

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.1 2003-01-15 11:22:42 niclas Exp $
+ RCS:		$Id: houghtransform.h,v 1.2 2003-01-29 11:40:24 niclas Exp $
 ________________________________________________________________________
 
 */
@@ -60,7 +60,7 @@ public:
     void			setClipRate( float );
     				/*!< Between 0-1. For instance, cliprate 0.6 
 				     will set Data with the 60% highest 
-				     values of indata.
+				     values of indata. Default is 0.7
 				*/
 				     
     float			clipRate() const;
