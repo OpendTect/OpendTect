@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.59 2002-05-27 08:28:21 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.60 2002-05-27 11:31:46 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -457,13 +457,16 @@ void uiVisPartServer::setAttribSelSpec( int id, AttribSelSpec& as )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->setAttribSelSpec( as );
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd, obj );
+    if ( hd ) hd->setAttribSelSpec(as);
 }
 
 
 CubeSampling& uiVisPartServer::getCubeSampling( int id, bool manippos )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
     return sd->getCubeSampling( manippos );
 }
 
@@ -471,8 +474,11 @@ CubeSampling& uiVisPartServer::getCubeSampling( int id, bool manippos )
 AttribSelSpec& uiVisPartServer::getAttribSelSpec(int id)
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    return sd->getAttribSelSpec();
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
+    if ( sd ) return sd->getAttribSelSpec();
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd, obj );
+    return hd->getAttribSelSpec();
 }
 
 
@@ -820,22 +826,6 @@ void uiVisPartServer::removeHorizonDisplay( int id )
 	scene->removeObject( objidx );
 	horizons -= hor;
     }
-}
-
-
-AttribSelSpec& uiVisPartServer::getHorAttrSelSpec( int id )
-{
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    return hor->getAttribSelSpec();
-}
-
-
-void uiVisPartServer::setHorAttrSelSpec( int id, AttribSelSpec& as )
-{
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    if ( hor ) hor->setAttribSelSpec( as );
 }
 
 

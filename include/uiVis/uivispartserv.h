@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.40 2002-05-27 06:34:32 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.41 2002-05-27 11:31:12 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,8 +152,6 @@ public:
     			// Horizon stuff
     int			addHorizonDisplay(const MultiID& emhorid);
     void		removeHorizonDisplay( int );
-    AttribSelSpec&	getHorAttrSelSpec(int);
-    void		setHorAttrSelSpec(int,AttribSelSpec&);
     void		getHorAttribPos(int,ObjectSet<TypeSet<BinIDValue> >&);
     			//!< The data in the objset is managed by caller
     void		putNewHorData(int,const ObjectSet<const float>& );
