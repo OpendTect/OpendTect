@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.64 2004-10-22 14:38:05 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.65 2004-11-12 15:13:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -656,6 +656,9 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
     CubeSampling cs; Coord crd[3];
     if ( !sip->getInfo(dlg,cs,crd) )
 	return;
+
+    if ( mIsUndefined(cs.zrg.start) )
+	cs.zrg = survinfo->zRange(false);
 
     survinfo->setRange(cs,false);
     BinID bid[2];
