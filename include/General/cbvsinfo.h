@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.14 2002-07-24 17:08:12 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.15 2002-08-01 13:31:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ public:
 	int			excludes(const BinID&) const;
 	inline bool		includes( const BinID& bid ) const
 				{ return !excludes(bid); }
+	bool			includesInline(int) const;
 	bool			toNextInline(BinID&) const;
 	bool			toNextBinID(BinID&) const;
 	void			clean()
