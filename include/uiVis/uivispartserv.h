@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.138 2005-04-05 15:30:31 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.139 2005-04-06 10:55:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,7 @@ public:
     void		fetchSurfaceData(int,ObjectSet<BinIDValueSet>&) const;
     void		stuffSurfaceData(int,bool forcolordata,
 					 const ObjectSet<BinIDValueSet>*);
+    void		readAuxData(int);
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,
 	    			 const Coord3& = Coord3::udf());

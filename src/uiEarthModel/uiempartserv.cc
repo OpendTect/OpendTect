@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.61 2005-03-14 12:14:31 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.62 2005-04-06 10:54:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,17 +138,12 @@ bool uiEMPartServer::isFullResolution(const MultiID& mid) const
 }
 
 
-bool uiEMPartServer::selectHorizon(MultiID& id)
-{ return selectSurface(id, true ); }
+bool  uiEMPartServer::createHorizon( MultiID& id, const char* nm )
+{ return createSurface( id, true, nm ); }
 
 
-bool  uiEMPartServer::createHorizon(MultiID& id, const char* nm )
-{ return createSurface(id, true, nm ); }
-
-
-bool uiEMPartServer::createFault(MultiID& id, const char* nm )
-{ return createSurface(id, false, nm ); }
-
+bool uiEMPartServer::createFault( MultiID& id, const char* nm )
+{ return createSurface( id, false, nm ); }
 
 
 bool uiEMPartServer::createSurface( MultiID& id, bool ishor, const char* name )
@@ -181,7 +176,11 @@ bool uiEMPartServer::createSurface( MultiID& id, bool ishor, const char* name )
 }
 
 
-bool uiEMPartServer::selectFault(MultiID& id)
+bool uiEMPartServer::selectHorizon( MultiID& id )
+{ return selectSurface( id, true ); }
+
+
+bool uiEMPartServer::selectFault( MultiID& id )
 { return selectSurface(id, false ); }
 
 
@@ -326,36 +325,6 @@ bool uiEMPartServer::loadAuxData( const MultiID& id )
 }
 
 
-int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx, 
-					  const MultiID& id, bool hasauxdata )
-{
-    mDynamicCastAll()
-    if ( !surface ) return 0;
-
-    const char* curval = surface->auxdata.auxDataName( 0 );
-    EM::SurfaceIOData sd;
-    em.getSurfaceData( id, sd );
-
-    const int nritems = sd.valnames.size();
-    uiPopupMenu* popmnu = new uiPopupMenu( appserv().parent(), "Surface data" );
-    mnu.insertItem( popmnu );
-    popmnu->setEnabled( nritems );
-
-    for ( int idx=0; idx<nritems; idx++ )
-    {
-	const BufferString& nm = *sd.valnames[idx];
-	uiMenuItem* itm = new uiMenuItem( nm );
-	popmnu->insertItem( itm, startidx+idx );
-	bool docheck = hasauxdata && nm == curval;
-	itm->setChecked( docheck );
-	if ( docheck )
-	    popmnu->setChecked( true );
-    }
-
-    return nritems;
-}
-
-
 bool uiEMPartServer::storeObject( const MultiID& id, bool storeas )
 {
     mDynamicCastAll()
@@ -372,10 +341,8 @@ bool uiEMPartServer::storeObject( const MultiID& id, bool storeas )
 	EM::SurfaceIODataSelection sel( sd );
 	dlg.getSelection( sel );
 
-	bool auxdataonly = dlg.auxDataOnly();
 	const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
-	exec = auxdataonly ? surface->auxdata.auxDataSaver( 0 ) 
-	    		   : surface->geometry.saver( &sel, &key );
+	exec = surface->geometry.saver( &sel, &key );
     }
     else
 	exec = object->saver();
@@ -388,11 +355,23 @@ bool uiEMPartServer::storeObject( const MultiID& id, bool storeas )
 }
 
 
-bool uiEMPartServer::storeAuxData( const MultiID& id )
+bool uiEMPartServer::storeAuxData( const MultiID& id, bool storeas )
 {
     mDynamicCastAll()
     if ( !surface ) return false;
-    PtrMan<Executor> exgrp = surface->auxdata.auxDataSaver(-1);
+
+    int dataidx = -1;
+    int fileidx = -1;
+    if ( storeas )
+    {
+	uiStoreAuxData dlg( appserv().parent(), *surface );
+	if ( !dlg.go() ) return false;
+
+	dataidx = 0;
+	fileidx = dlg.getDataFileIdx();
+    }
+
+    PtrMan<Executor> exgrp = surface->auxdata.auxDataSaver( dataidx, fileidx );
     uiExecutor exdlg( appserv().parent(), *exgrp );
     return exdlg.go();
 }

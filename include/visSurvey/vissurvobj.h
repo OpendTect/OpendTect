@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.35 2005-04-05 15:30:11 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.36 2005-04-06 10:55:11 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -135,6 +135,7 @@ public:
     virtual void		stuffData(bool forcolordata,
 	    				  const ObjectSet<BinIDValueSet>*) {}
     				/*!< Every patch should have a BinIDValueSet */
+    virtual void		readAuxData()	{}
 
     static float		sDefMaxDist;
 

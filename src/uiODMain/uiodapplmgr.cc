@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.75 2005-04-05 15:30:48 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.76 2005-04-06 10:54:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,31 +310,6 @@ bool uiODApplMgr::selectColorAttrib( int id )
 }
 
 
-void uiODApplMgr::storeSurface( int visid, bool storeas )
-{
-    if ( storeas )
-    {
-	ObjectSet<BinIDValueSet> bivs;
-	visserv->fetchSurfaceData( visid, bivs );
-	const AttribSelSpec* as = visserv->getSelSpec( visid );
-	BufferString dispname( as ? as->userRef() : 0 );
-	if ( as && as->isNLA() )
-	{
-	    dispname = as->objectRef();
-	    const char* nodenm = as->userRef();
-	    if ( IOObj::isKey(as->userRef()) )
-		nodenm = IOM().nameOf( as->userRef(), false );
-	    dispname += " ("; dispname += nodenm; dispname += ")";
-	}
-
-	if ( as && as->id() >= 0 )
-	    emserv->setAuxData( *visserv->getMultiID(visid), bivs, dispname );
-    }
-
-    emserv->storeObject( *visserv->getMultiID(visid), storeas );
-}
-
-
 void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv->selectWells( wellids ); }
 void uiODApplMgr::selectHorizon( MultiID& emhorid )
@@ -436,9 +411,15 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    if ( myas.id() == AttribSelSpec::otherAttrib )
 	    {
 		bool selok = emserv->loadAuxData( 
-		    *visserv->getMultiID(visid), myas.userRef() );
-		if ( selok ) handleStoredSurfaceData( visid );
-		else uiMSG().error( "Cannot find stored data" );
+				*visserv->getMultiID(visid), myas.userRef() );
+		if ( !selok )
+		    uiMSG().error( "Cannot find stored data" );
+		else
+		{
+		    visserv->readAuxData( visid );
+		    visserv->selectTexture( visid, 0 );
+		}
+		
 		return selok;
 	    }
 
@@ -450,7 +431,15 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 		return false;
 	    }
 
-	    visserv->stuffSurfaceData( visid, colordata, &data );
+	    if ( colordata )
+		visserv->stuffSurfaceData( visid, colordata, &data );
+	    else
+	    {
+		emserv->setAuxData( *visserv->getMultiID(visid), data,
+				    myas.userRef() );
+		visserv->readAuxData( visid );
+	    }
+
 	    deepErase( data );
 	    return true;
 	}
@@ -489,10 +478,7 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 	attrserv->getTargetAttribNames( attribnms );
 	emserv->setAuxData( *visserv->getMultiID(visid), data, attribnms );
 	deepErase( data );
-/*
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
-	sd->updateTexture();
-	*/
+	visserv->readAuxData( visid );
     }
     else
     {
@@ -931,28 +917,6 @@ void uiODApplMgr::pageUpDownPressed( bool up )
     const int visid = visserv->getEventObjId();
     visserv->selectNextTexture( visid, up );
     modifyColorTable( visid );
-    sceneMgr().updateTrees();
-}
-
-
-void uiODApplMgr::handleStoredSurfaceData( int visid )
-{
-    BufferString attrnm;
-    float shift = 0;
-    ObjectSet<BinIDValueSet> data;
-    if ( !emserv->getDataVal(*visserv->getMultiID(visid),data,attrnm,shift) )
-	return;
-
-    AttribSelSpec myas( attrnm, AttribSelSpec::otherAttrib );
-    visserv->setSelSpec( visid, myas );
-    visserv->stuffSurfaceData( visid, false, &data );
-    deepErase( data );
-/*
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
-    sd->setShift( shift );
-    */
-
-    setHistogram( visid );
     sceneMgr().updateTrees();
 }
 

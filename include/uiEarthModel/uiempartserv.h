@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.32 2005-01-10 12:45:26 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.33 2005-04-06 10:54:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,9 +51,6 @@ public:
     bool		loadAuxData(const MultiID&);
     bool		loadAuxData(const MultiID&,int);
     bool		loadAuxData(const MultiID&,const char*);
-    int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&,
-	    				     bool);
-    			/*<\returns number of items added */
 
     bool		importLMKFault();
 
@@ -68,8 +65,8 @@ public:
 	    			      BinIDValueSet&,
 				      const BinIDRange* br=0) const;
 
-    bool		storeObject(const MultiID&,bool storeas);
-    bool		storeAuxData(const MultiID&);
+    bool		storeObject(const MultiID&,bool storeas=false);
+    bool		storeAuxData(const MultiID&,bool storeas=false);
     void		setAuxData(const MultiID&,
 	    			   ObjectSet<BinIDValueSet>&,const char*);
     void		setAuxData(const MultiID&,

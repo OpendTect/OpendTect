@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.20 2005-04-05 15:31:08 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.21 2005-04-06 10:54:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,17 +92,14 @@ public:
     void			setFonts();
 
     // Tree menu services
-	// Selections
+    // Selections
     void			selectWells(ObjectSet<MultiID>&);
     void			selectHorizon(MultiID&);
     void			selectFault(MultiID&);
     void			selectStickSet(MultiID&);
     bool			selectAttrib(int);
     bool			selectColorAttrib(int);
-	// Surfaces
-    void			storeSurface(int, bool store_as );
-    void			handleStoredSurfaceData(int);
-	// PickSets
+    // PickSets
     const Color&		getPickColor();
     void			getPickSetGroup(PickSetGroup& psg);
     bool			storePickSets();

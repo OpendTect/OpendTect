@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.8 2003-12-18 12:45:15 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.9 2005-04-06 10:54:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class IOObj;
+class uiGenInput;
 class uiSurfaceRead;
 class uiSurfaceWrite;
 class MultiID;
@@ -29,20 +30,13 @@ class uiWriteSurfaceDlg : public uiDialog
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&);
 
-    bool		auxDataOnly() const;
-    bool		surfaceOnly() const;
-    bool		surfaceAndData() const;
     void		getSelection(EM::SurfaceIODataSelection&);
     IOObj*		ioObj() const;
 
 protected:
+    uiSurfaceWrite*	iogrp_;
+    const EM::Surface&	surface_;
 
-    int			auxdataidx;
-
-    uiSurfaceWrite*	iogrp;
-    const EM::Surface&	surf;
-
-    bool		checkIfAlreadyPresent(const char*);
     bool		acceptOK(CallBacker*);
 };
 
@@ -56,11 +50,25 @@ public:
     void		getSelection(EM::SurfaceIODataSelection&);
 
 protected:
-
-    uiSurfaceRead*	iogrp;
-
+    uiSurfaceRead*	iogrp_;
     bool		acceptOK(CallBacker*);
 };
 
+
+class uiStoreAuxData : public uiDialog
+{
+public:
+    			uiStoreAuxData(uiParent*,const EM::Surface&);
+
+    int			getDataFileIdx() const	{ return auxdataidx_; }
+
+protected:
+    uiGenInput*		attrnmfld_;
+    const EM::Surface&	surface_;
+
+    int			auxdataidx_;
+    bool		checkIfAlreadyPresent(const char*);
+    bool		acceptOK(CallBacker*);
+};
 
 #endif

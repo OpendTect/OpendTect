@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.14 2004-12-17 12:31:09 bert Exp $
+ RCS:           $Id: uiiosurface.h,v 1.15 2005-04-06 10:54:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,18 +74,9 @@ class uiSurfaceWrite : public uiIOSurface
 public:
 			uiSurfaceWrite(uiParent*,const EM::Surface&,bool);
 
-    const char*		auxDataName() const;
-    bool		saveAuxDataOnly() const;
-    bool		surfaceOnly() const;
-    bool		surfaceAndData() const;
-
     virtual bool	processInput();
 
 protected:
-    void		savePush(CallBacker*);
-
-    uiGenInput*		attrnmfld;
-    uiGenInput*		savefld;
 };
 
 
@@ -93,7 +84,6 @@ class uiSurfaceRead : public uiIOSurface
 {
 public:
     			uiSurfaceRead(uiParent*,bool,bool showattribfld=true);
-			~uiSurfaceRead();
 
     virtual bool	processInput();
 

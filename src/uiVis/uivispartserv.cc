@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.254 2005-04-05 15:30:24 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.255 2005-04-06 10:54:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -344,8 +344,7 @@ void uiVisPartServer::fetchSurfaceData( int id,
     uiCursorChanger cursorlock( uiCursor::Wait );
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so )
-	so->fetchData( bivs );
+    if ( so ) so->fetchData( bivs );
 }
 
 
@@ -354,8 +353,14 @@ void uiVisPartServer::stuffSurfaceData( int id, bool color,
 {
     uiCursorChanger cursorlock( uiCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so )
-	so->stuffData( color, bp );
+    if ( so ) so->stuffData( color, bp );
+}
+
+
+void uiVisPartServer::readAuxData( int id )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->readAuxData();
 }
 
 

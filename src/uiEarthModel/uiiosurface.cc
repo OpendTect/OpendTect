@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.28 2004-12-17 12:31:09 bert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.29 2005-04-06 10:54:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,42 +190,22 @@ void uiIOSurface::attrSel( CallBacker* )
 
 
 
-
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
 				bool ishor )
     : uiIOSurface(p,ishor)
-    , savefld(0)
 {
-    if ( surf_.auxdata.nrAuxData() )
-    {
-	attrnmfld = new uiGenInput( this, "Attribute" );
-	attrnmfld->setText( surf_.auxdata.auxDataName(0) );
-
-	savefld = new uiGenInput( this, "Save", 
-	    		BoolInpSpec("Attribute only","Surface and attribute") );
-	savefld->attach( alignedBelow, attrnmfld );
-	savefld->valuechanged.notify( mCB(this,uiSurfaceWrite,savePush) );
-    }
-
     if ( surf_.geometry.nrSections() > 1 )
-    {
 	mkSectionFld( false );
-	if ( savefld ) sectionfld->attach( alignedBelow, savefld );
-    }
 
     mkRangeFld();
     if ( sectionfld )
 	rgfld->attach( alignedBelow, sectionfld );
-    else if ( savefld )
-	rgfld->attach( alignedBelow, savefld );
 
     mkObjFld( "Output Surface", false );
     objfld->attach( alignedBelow, rgfld );
 
     fillFields( surf_.multiID() );
     setHAlignObj( rgfld );
-
-    savePush(0);
 }
 
 
@@ -237,44 +217,13 @@ bool uiSurfaceWrite::processInput()
 	return false;
     }
 
-    if ( !saveAuxDataOnly() && !objfld->commitInput( true ) )
+    if ( !objfld->commitInput(true) )
     {
 	uiMSG().error( "Please select output" );
 	return false;
     }
 
     return true;
-}
-
-
-const char* uiSurfaceWrite::auxDataName() const
-{
-    return attrnmfld->text();
-}
-
-
-void uiSurfaceWrite::savePush( CallBacker* )
-{
-    if ( savefld )
-	objfld->display( !savefld->getBoolValue() );
-}
-
-
-bool uiSurfaceWrite::saveAuxDataOnly() const
-{
-    return savefld ? savefld->getBoolValue() : false;
-}
-
-
-bool uiSurfaceWrite::surfaceOnly() const
-{
-    return !savefld;
-}
-
-
-bool uiSurfaceWrite::surfaceAndData() const
-{
-    return savefld ? !savefld->getBoolValue() : false;
 }
 
 
@@ -300,11 +249,6 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, bool ishor, bool showattribfld )
 	    				       : (uiObject*)sectionfld );
 
     setHAlignObj( rgfld );
-}
-
-
-uiSurfaceRead::~uiSurfaceRead()
-{
 }
 
 

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.76 2005-04-05 15:31:47 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.77 2005-04-06 10:54:40 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -473,17 +473,15 @@ bool uiODEarthModelSurfaceTreeItem::init()
     delete uivisemobj;
     if ( displayid!=-1 )
     {
-	uivisemobj = new uiVisEMObject( getUiParent(), displayid,
-				      applMgr()->visServer() );
+	uivisemobj = new uiVisEMObject( getUiParent(), displayid, visserv );
 	if ( !uivisemobj->isOK() )
 	    mDelRet;
 
-	mid = *applMgr()->visServer()->getMultiID(displayid);
+	mid = *visserv->getMultiID(displayid);
     }
     else
     {
-	uivisemobj = new uiVisEMObject( getUiParent(), mid, sceneID(),
-				      applMgr()->visServer() );
+	uivisemobj = new uiVisEMObject( getUiParent(), mid, sceneID(), visserv);
 	displayid = uivisemobj->id();
 	if ( !uivisemobj->isOK() )
 	    mDelRet;
@@ -550,22 +548,10 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiVisMenu*,menu,cb);
 
     const AttribSelSpec* as = visserv->getSelSpec(displayid);
-    attribstartmnuid = attribstopmnuid = depthvalmnuid = -1;
+    multidatamnuid = depthvalmnuid = -1;
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
-	/*
-	attribstartmnuid = menu->getCurrentID();
-	const bool hasauxdata = as && as->id() == -1;
-	int nraddeditems = applMgr()->EMServer()->createAuxDataSubMenu(
-				*attrmnu, attribstartmnuid, mid, hasauxdata );
-
-	for ( int idx=0; idx<nraddeditems; idx++ )
-	    menu->getFreeID();
-
-	attribstopmnuid = menu->getCurrentID()-1;
-	*/
-
 	multidatamnuid = attrmnu->insertItem( 
 					new uiMenuItem("Surface data ...") );
 
@@ -668,12 +654,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==saveattrmnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->storeSurface( displayid, true );
+	applMgr()->EMServer()->storeAuxData( mid, true );
     }
     else if ( mnuid==savemnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->storeSurface( displayid, false );
+	applMgr()->EMServer()->storeObject( mid, false );
     }
     else if ( mnuid==trackmnuid )
     {
@@ -698,8 +684,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !applMgr()->EMServer()->loadSurface(mid) )
 	    return;
 
-	uivisemobj = new uiVisEMObject( getUiParent(), mid, sceneID(),
-				      applMgr()->visServer() );
+	uivisemobj = new uiVisEMObject( getUiParent(), mid, sceneID(), visserv);
 	displayid = uivisemobj->id();
     }
     else if ( mnuid==depthvalmnuid )
@@ -707,12 +692,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	uivisemobj->setDepthAsAttrib();
 	updateColumnText(0);
-    }
-    else if ( mnuid>=attribstartmnuid && mnuid<=attribstopmnuid )
-    {
-	menu->setIsHandled(true);
-	if ( applMgr()->EMServer()->loadAuxData(mid,mnuid-attribstartmnuid) )
-	    applMgr()->handleStoredSurfaceData( displayid );
     }
     else if ( mnuid == relmnuid )
     {	
@@ -742,6 +721,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	const bool res = applMgr()->EMServer()->loadAuxData(mid);
 	if ( !res ) return;
 	uivisemobj->readAuxData();
+	visserv->selectTexture( displayid, 0 );
 	ODMainWin()->sceneMgr().updateTrees();
     }
 }
