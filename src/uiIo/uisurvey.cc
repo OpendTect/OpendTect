@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.12 2001-10-17 13:38:10 arend Exp $
+ RCS:           $Id: uisurvey.cc,v 1.13 2001-10-17 14:04:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,9 @@ uiSurvey::uiSurvey( uiParent* p )
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
     listbox->doubleClicked.notify( mCB(this,uiSurvey,editButPushed) );
     listbox->attach( leftOf, mapcanvas );
-    listbox->attach( heightSameAs, mapcanvas );
+//    listbox->attach( heightSameAs, mapcanvas );
     listbox->setPrefWidth( lbwidth );
-    listbox->setStretch( 1, 1 );
+    listbox->setStretch( 1, 2 );
 
     newbut = new uiPushButton( selgrp, "New ..." );
     newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
