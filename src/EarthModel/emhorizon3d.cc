@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.48 2004-08-09 14:09:31 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.49 2004-08-18 15:09:57 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -196,13 +196,13 @@ HorizonGeometry::HorizonGeometry( Surface& surf )
 {}
 
 
-bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick, 
-				   float velocity )
+bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
+				       const SectionID& sid, float velocity )
 {
-    if ( !nrSections() ) addSection( "", true );
+    SectionID sectionid = sid;
+    if ( !nrSections() || !hasSection(sid) ) 
+	sectionid = addSection( "", true );
 
-    const SectionID sectionid = sectionID(0);
-    
     const float idealdistance = 25; // TODO set this in some intelligent way
 
     for ( int idx=0; idx<stick.size()-1; idx++ )

@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.19 2004-08-09 14:09:31 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.20 2004-08-18 15:09:57 nanne Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -31,13 +31,16 @@ FaultGeometry::FaultGeometry(Fault& flt)
 {}
 
 
-bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick, float velocity )
+bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick, 
+				     const SectionID& sid, float velocity )
 {
     if ( stick.size() < 2 ) return false;
 
-    if ( !nrSections() ) addSection( "", true );
+    SectionID sectionid = sid;
+    if ( !nrSections() || !hasSection(sid) ) 
+	sectionid = addSection( "", true );
+
     setTranslatorData( RowCol(1,1), RowCol(1,1), RowCol(0,0), 0, 0 );
-    const SectionID sectionid = sectionID(0);
     const float idealdistance = 25; // TODO set this in some intelligent way
     RowCol rowcol(0,0);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.33 2004-08-09 14:09:31 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.34 2004-08-18 15:09:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -82,7 +82,8 @@ public:
     static EM::SubID		getSubID(const BinID&);
     static RowCol		getRowCol(const BinID&);
 
-    bool			createFromStick(const TypeSet<Coord3>&,float);
+    bool			createFromStick(const TypeSet<Coord3>&,
+	    					const SectionID&,float);
 
 protected:
     Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;

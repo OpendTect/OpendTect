@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.2 2004-08-13 13:24:13 kristofer Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.3 2004-08-18 15:09:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -223,7 +223,8 @@ public:
     bool			isChanged(int) const { return changed; }
     void			resetChangedFlag() { changed=false; }
 
-    virtual bool		createFromStick(const TypeSet<Coord3>&,float)
+    virtual bool		createFromStick(const TypeSet<Coord3>&,
+	    					const SectionID&,float)
     				{ return false; }
 
     virtual bool		usePar( const IOPar& );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.19 2004-08-09 14:09:31 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.20 2004-08-18 15:09:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,8 @@ public:
     			FaultGeometry( EM::Fault& );
 
 protected:
-    bool			createFromStick(const TypeSet<Coord3>&,float);
+    bool			createFromStick(const TypeSet<Coord3>&,
+	    					const SectionID&,float);
     Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
 };
 
