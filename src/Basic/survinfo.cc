@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.46 2003-12-19 08:58:42 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.47 2004-01-08 14:32:32 kristofer Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -76,7 +76,9 @@ Coord BinID2Coord::transform( const BinID& binid ) const
 }
 
 
-BinID BinID2Coord::transform( const Coord& coord ) const
+BinID BinID2Coord::transform( const Coord& coord,
+				const StepInterval<int>* inlrg,
+				const StepInterval<int>* crlrg) const
 {
     static BinID binid;
     static double x, y;
@@ -88,7 +90,8 @@ BinID BinID2Coord::transform( const Coord& coord ) const
     y = coord.y - ytr.a;
     double di = (x*ytr.c - y*xtr.c) / det;
     double dc = (y*xtr.b - x*ytr.b) / det;
-    binid.inl = mNINT(di); binid.crl = mNINT(dc);
+    binid.inl = inlrg ? inlrg->snap(di) : mNINT(di);
+    binid.crl = crlrg ? crlrg->snap(dc) : mNINT(dc);
 
     return binid;
 }
@@ -583,22 +586,9 @@ void SurveyInfo::setZUnit( bool istime, bool meter )
 BinID SurveyInfo3D::transform( const Coord& c ) const
 {
     if ( !valid_ ) return BinID(0,0);
-    BinID binid = b2c_.transform( c );
-
-    if ( step_.inl > 1 )
-    {
-	float relinl = binid.inl - range_.start.inl;
-	int nrsteps = (int)(relinl/step_.inl + (relinl>0?.5:-.5));
-	binid.inl = range_.start.inl + nrsteps*step_.inl;
-    }
-    if ( step_.crl > 1 )
-    {
-	float relcrl = binid.crl - range_.start.crl;
-	int nrsteps = (int)( relcrl / step_.crl + (relcrl>0?.5:-.5));
-	binid.crl = range_.start.crl + nrsteps*step_.crl;
-    }
-
-    return binid;
+    StepInterval<int> inlrange( range_.start.inl, range_.stop.inl, step_.inl );
+    StepInterval<int> crlrange( range_.start.crl, range_.stop.crl, step_.crl );
+    return b2c_.transform( c, &inlrange, &crlrange );
 }
 
 
