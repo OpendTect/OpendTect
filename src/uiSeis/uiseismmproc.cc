@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.81 2004-11-11 22:11:27 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.82 2004-11-22 13:01:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,6 +247,7 @@ uiSeisMMProc::~uiSeisMMProc()
     delete timer;
 
     delete &hdl;
+    iopl.deepErase();
     delete &iopl;
 }
 
@@ -301,7 +302,6 @@ void uiSeisMMProc::startWork( CallBacker* )
     iopl.deepErase();
     iopl += new IOPar( jobprov->pars() );
     iopl.write();
-    iopl.deepErase();
 
     setOkText( "Finish Now" );
     setCancelText( "Abort" );
