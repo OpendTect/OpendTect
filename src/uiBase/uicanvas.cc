@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.13 2001-10-10 15:26:43 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.14 2001-10-17 14:39:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,8 @@ public:
 				//uiObjectBody::reDraw( deep ); 
 				//viewport()->update();
 				//updateContents();
-				repaintContents(true);
+				//repaintContents(true);
+				updateContents();
 			    }
 protected:
 
