@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.15 2002-04-11 06:40:11 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.16 2002-04-25 13:42:47 kristofer Exp $";
 
 #include "visobject.h"
 #include "vismaterial.h"
@@ -14,7 +14,6 @@ static const char* rcsID = "$Id: visobject.cc,v 1.15 2002-04-11 06:40:11 kristof
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/nodes/SoDrawStyle.h"
 
 const char* visBase::VisualObjectImpl::materialidstr = "Material ID";
 const char* visBase::VisualObjectImpl::isonstr = "Is on";
@@ -29,7 +28,6 @@ visBase::VisualObject::VisualObject( bool selectable_ )
 visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
     : root( new SoSeparator )
     , onoff( new SoSwitch )
-    , drawstyle( new SoDrawStyle )
     , material( 0 )
     , VisualObject( selectable_ )
 {

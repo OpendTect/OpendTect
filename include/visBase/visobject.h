@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.14 2002-04-11 06:40:05 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.15 2002-04-25 13:42:13 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,6 @@ ________________________________________________________________________
 class SoSeparator;
 class SoNode;
 class SoSwitch;
-class SoDrawStyle;
 
 namespace visBase
 {
@@ -90,8 +89,6 @@ protected:
     virtual		~VisualObjectImpl();
 
     SoSwitch*		onoff;
-    SoDrawStyle*	drawstyle;
-
     Material*		material;
 
 private:
