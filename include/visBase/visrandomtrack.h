@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.16 2003-07-01 14:25:46 nanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.17 2003-10-06 10:52:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,7 @@ public:
     int				getSectionIdx() const {return sectionidx;}
     Coord			getClickedPos() const    { return selknotpos; }
 
-    void			setData(int sectn,const Array2D<float>&,int tp);
+    void			setData(int sectn,const Array2D<float>*,int tp);
     				/*!< section ranges from 0 to nrKnots-2 */
 
     void			setColorPars(bool,bool,const Interval<float>&);
