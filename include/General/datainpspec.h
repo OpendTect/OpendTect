@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.38 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.39 2002-03-22 10:20:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -376,7 +376,7 @@ protected:
 
 typedef NumInpIntervalSpec<int>		IntInpIntervalSpec;
 typedef NumInpIntervalSpec<float>	FloatInpIntervalSpec;
-typedef NumInpIntervalSpec<int>		DoubleInpIntervalSpec;
+typedef NumInpIntervalSpec<double>		DoubleInpIntervalSpec;
 
 
 /*! \brief Specifications for character string inputs. */
