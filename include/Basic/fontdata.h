@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.6 2003-11-10 13:51:13 arend Exp $
+ RCS:           $Id: fontdata.h,v 1.7 2003-11-10 14:39:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ public:
     static Weight	enumWeight(int);
 
 			FontData( int ptsz=defaultpointsize,
-				  const char* fam=defaultfamily,
+				  const char* fam=defaultFamily(),
 				  Weight wght=defaultweight,
 				  bool ital=defaultitalic )
                         : family_(fam)
@@ -33,7 +33,7 @@ public:
 			, weight_(wght)
 			, italic_(ital)		{}
 			FontData( const char* s )
-			: family_(defaultfamily)
+			: family_(defaultFamily())
 			, pointsize_(defaultpointsize)
 			, weight_(defaultweight)
 			, italic_(defaultitalic)
@@ -53,10 +53,10 @@ public:
     void		setWeight( Weight w )	{ weight_= w; }
     void		setItalic( bool yn )	{ italic_ = yn; }
 
-    static const char*	defaultFamily()		{ return defaultfamily; }
-    static int		defaultPointSize()	{ return defaultpointsize; }
-    static Weight	defaultWeight()		{ return defaultweight; }
-    static bool		defaultItalic()		{ return defaultitalic; }
+    static const char*	defaultFamily();
+    static int		defaultPointSize();
+    static Weight	defaultWeight();
+    static bool		defaultItalic();
 
     static void		setDefaultFamily( const char* f ) { defaultfamily = f; }
     static void		setDefaultPointSize( int ps ) { defaultpointsize = ps; }
