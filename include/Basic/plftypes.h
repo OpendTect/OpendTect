@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Platform dependent types
- RCS:		$Id: plftypes.h,v 1.2 2004-12-17 12:24:25 bert Exp $
+ RCS:		$Id: plftypes.h,v 1.3 2004-12-17 12:38:43 bert Exp $
 ________________________________________________________________________
 
 */
@@ -22,7 +22,11 @@ ________________________________________________________________________
 # endif
 #endif
 
-/* 32 bits int is standard. Only use if you want to emphasise the 32-bitness */
+/* 16 bits short is standard. Only use to emphasise the 16-bitness */
+#define int16 short
+#define uint16 unsigned short
+
+/* 32 bits int is standard. Only use to emphasise the 32-bitness */
 #define int32 int
 #define uint32 unsigned int
 
