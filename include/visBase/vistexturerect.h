@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.12 2002-09-19 07:13:39 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.13 2002-10-09 11:30:54 nanne Exp $
 ________________________________________________________________________
 
 
@@ -92,7 +92,6 @@ public:
 protected:
     void		updateTexture();
     void		clipData();
-    int			nextPower2(float);
 
     void		triggerManipStarts() { manipstartnotifier.trigger(); }
     void		triggerManipChanges() { manipchnotifier.trigger(); }
@@ -110,6 +109,7 @@ protected:
     float		cliprate;
     Array2D<float>*	data;
     int			resolution;
+
 private:
 			~TextureRect();
 
