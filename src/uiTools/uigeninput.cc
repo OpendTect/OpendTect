@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.23 2001-07-17 09:42:31 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.24 2001-07-17 11:14:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -470,7 +470,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
     stop.setText( spec.text(1) );
     if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,"Step",nm);
+	step = new uiLineEdit(&intvalGrp,"","Step");
 	step->textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
 	step->setText( spec.text(2) );
     }
