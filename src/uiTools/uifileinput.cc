@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.10 2002-06-11 12:25:24 arend Exp $
+ RCS:           $Id: uifileinput.cc,v 1.11 2002-06-21 16:02:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,14 @@ void uiFileInput::doSelect( CallBacker* )
     uiFileDialog dlg( this, forread, fname, filter );
 
     if ( selmodset )	dlg.setMode( selmode );
-    if ( dlg.go() )	setFileName( dlg.fileName() );
+    if ( dlg.go() )
+    {
+	BufferString oldfname( fname );
+	BufferString newfname( dlg.fileName() );
+	setFileName( newfname );
+	if ( newfname != oldfname )
+	    valuechanged.trigger( *this );
+    }
 }
 
 

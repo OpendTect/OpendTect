@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.24 2002-05-16 07:40:29 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.25 2002-06-21 16:02:41 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -94,9 +94,9 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
 {
     b2c_ = si.b2c_;
     dirname = si.dirname;
-    range_ = si.range_;
-    zrange_ = si.zrange_;
-    step_ = si.step_;
+    range_ = si.range_; wrange_ = si.wrange_;
+    zrange_ = si.zrange_; wzrange_ = si.wzrange_;
+    step_ = si.step_; wstep_ = si.wstep_;
     setName( si.name() );
     valid_ = si.valid_;
     for ( int idx=0; idx<3; idx++ )
@@ -146,29 +146,30 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     BinIDRange bir; BinID bid( 1, 1 );
     while ( !atEndOfSection( astream.next() ) )
     {
-	if ( astream.hasKeyword(sNameKey) )
+	BufferString keyw = astream.keyWord();
+	if ( keyw == sNameKey )
 	    setName( astream.value() );
-	else if ( astream.hasKeyword("Coord-X-BinID") )
+	else if ( keyw == "Coord-X-BinID" )
 	    setTr( xtr, astream.value() );
-	else if ( astream.hasKeyword("Coord-Y-BinID") )
+	else if ( keyw == "Coord-Y-BinID" )
 	    setTr( ytr, astream.value() );
-	else if ( astream.hasKeyword(sKeyWSProjName) )
+	else if ( keyw == sKeyWSProjName )
 	    wsprojnm_ = astream.value();
-	else if ( astream.hasKeyword(sKeyInlRange) )
+	else if ( keyw == sKeyInlRange )
 	{
 	    FileMultiString fms( astream.value() );
 	    bir.start.inl = atoi(fms[0]);
 	    bir.stop.inl = atoi(fms[1]);
 	    bid.inl = atoi(fms[2]);
 	}
-	else if ( astream.hasKeyword(sKeyCrlRange) )
+	else if ( keyw == sKeyCrlRange )
 	{
 	    FileMultiString fms( astream.value() );
 	    bir.start.crl = atoi(fms[0]);
 	    bir.stop.crl = atoi(fms[1]);
 	    bid.crl = atoi(fms[2]);
 	}
-	else if ( astream.hasKeyword(sKeyZRange) )
+	else if ( keyw == sKeyZRange )
 	{
 	    FileMultiString fms( astream.value() );
 	    zrange_.start = atof(fms[0]);
@@ -201,15 +202,16 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    comment_ += "\n";
 	comment_ += buf;
     }
+    sd.close();
 
     if ( set3binids[2].crl == 0 )
 	get3Pts( set3coords, set3binids, set3binids[2].crl );
 
-    setRange( bir );
-    setStep( bid );
+    setRange( bir, false );
+    setStep( bid, false );
     b2c_.setTransforms( xtr, ytr );
     valid_ = true;
-    sd.close();
+    wrange_ = range_; wstep_ = step_; wzrange_ = zrange_;
 }
 
 
@@ -327,7 +329,10 @@ bool SurveyInfo::isReasonable( const BinID& b ) const
 {
     BinID w( range_.stop.inl - range_.start.inl,
              range_.stop.crl - range_.start.crl );
-    return b.inl > range_.start.inl - w.inl && b.crl < range_.stop.crl + w.crl;
+    return b.inl > range_.start.inl - w.inl
+	&& b.inl < range_.stop.inl  + w.crl
+	&& b.crl > range_.start.crl - w.crl
+	&& b.crl < range_.stop.crl  + w.crl;
 }
 
 
@@ -380,32 +385,35 @@ static void doSnap( int& idx, int start, int step, int dir )
 }
 
 
-void SurveyInfo::snap( BinID& binid, BinID rounding ) const
+void SurveyInfo::snap( BinID& binid, BinID rounding, bool work ) const
 {
-    if ( step_.inl == 1 && step_.crl == 1 ) return;
-    doSnap( binid.inl, range_.start.inl, step_.inl, rounding.inl );
-    doSnap( binid.crl, range_.start.crl, step_.crl, rounding.crl );
+    const BinIDRange& rg = work ? wrange_ : range_;
+    const BinID& stp = work ? wstep_ : step_;
+    if ( stp.inl == 1 && stp.crl == 1 ) return;
+    doSnap( binid.inl, rg.start.inl, stp.inl, rounding.inl );
+    doSnap( binid.crl, rg.start.crl, stp.crl, rounding.crl );
 }
 
 
-void SurveyInfo::snapStep( BinID& stp, BinID rounding ) const
+void SurveyInfo::snapStep( BinID& s, BinID rounding, bool work ) const
 {
-    if ( stp.inl < 0 ) stp.inl = -stp.inl;
-    if ( stp.crl < 0 ) stp.crl = -stp.crl;
-    if ( stp.inl < step_.inl ) stp.inl = step_.inl;
-    if ( stp.crl < step_.crl ) stp.crl = step_.crl;
-    if ( stp == step_ || (step_.inl == 1 && step_.crl == 1) )
+    const BinID& stp = work ? wstep_ : step_;
+    if ( s.inl < 0 ) s.inl = -s.inl;
+    if ( s.crl < 0 ) s.crl = -s.crl;
+    if ( s.inl < stp.inl ) s.inl = stp.inl;
+    if ( s.crl < stp.crl ) s.crl = stp.crl;
+    if ( s == stp || (stp.inl == 1 && stp.crl == 1) )
 	return;
 
     int rest;
 #define mSnapStep(ic) \
-    rest = stp.ic % step_.ic; \
+    rest = s.ic % stp.ic; \
     if ( rest ) \
     { \
-	int hstep = step_.ic / 2; \
+	int hstep = stp.ic / 2; \
 	bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
-	stp.ic -= rest; \
-	if ( upw ) stp.ic += step_.ic; \
+	s.ic -= rest; \
+	if ( upw ) s.ic += stp.ic; \
     }
 
     mSnapStep(inl)
@@ -413,60 +421,66 @@ void SurveyInfo::snapStep( BinID& stp, BinID rounding ) const
 }
 
 
-void SurveyInfo::setRange( const BinIDRange& br )
+void SurveyInfo::setRange( const BinIDRange& br, bool work )
 {
-    range_.start = br.start;
-    range_.stop = br.stop;
+    BinIDRange& rg = work ? wrange_ : range_;
+    rg.start = br.start;
+    rg.stop = br.stop;
     if ( br.start.inl > br.stop.inl )
     {
-	range_.start.inl = br.stop.inl;
-	range_.stop.inl = br.start.inl;
+	rg.start.inl = br.stop.inl;
+	rg.stop.inl = br.start.inl;
     }
     if ( br.start.crl > br.stop.crl )
     {
-	range_.start.crl = br.stop.crl;
-	range_.stop.crl = br.start.crl;
+	rg.start.crl = br.stop.crl;
+	rg.stop.crl = br.start.crl;
     }
 }
 
 
-void SurveyInfo::setZRange( const StepInterval<double>& zr )
+void SurveyInfo::setZRange( const StepInterval<double>& zr, bool work )
 {
-    zrange_ = zr;
-    zrange_.sort();
+    StepInterval<double>& rg = work ? wzrange_ : zrange_;
+    rg = zr;
+    rg.sort();
 }
 
 
-void SurveyInfo::setZRange( const Interval<double>& zr )
+void SurveyInfo::setZRange( const Interval<double>& zr, bool work )
 {
-    assign( zrange_, zr );
-    zrange_.sort();
+    StepInterval<double>& rg = work ? wzrange_ : zrange_;
+    assign( rg, zr );
+    rg.sort();
 }
 
 
-void SurveyInfo::setStep( const BinID& bid )
+void SurveyInfo::setStep( const BinID& bid, bool work )
 {
-    step_ = bid;
-    if ( !step_.inl ) step_.inl = 1; if ( !step_.crl ) step_.crl = 1;
-    if ( step_.inl < 0 ) step_.inl = -step_.inl;
-    if ( step_.crl < 0 ) step_.crl = -step_.crl;
+    BinID& stp = work ? wstep_ : step_;
+    stp = bid;
+    if ( !stp.inl ) stp.inl = 1; if ( !stp.crl ) stp.crl = 1;
+    if ( stp.inl < 0 ) stp.inl = -stp.inl;
+    if ( stp.crl < 0 ) stp.crl = -stp.crl;
 }
 
 
 #define mChkCoord(c) \
     if ( c.x < minc.x ) minc.x = c.x; if ( c.y < minc.y ) minc.y = c.y;
 
-Coord SurveyInfo::minCoord() const
+Coord SurveyInfo::minCoord( bool work ) const
 {
-    Coord minc = transform( range_.start );
-    Coord c = transform( range_.stop );
+    const BinIDRange& rg = work ? wrange_ : range_;
+
+    Coord minc = transform( rg.start );
+    Coord c = transform( rg.stop );
     mChkCoord(c);
 
-    BinID bid( range_.start.inl, range_.stop.crl );
+    BinID bid( rg.start.inl, rg.stop.crl );
     c = transform( bid );
     mChkCoord(c);
 
-    bid = BinID( range_.stop.inl, range_.start.crl );
+    bid = BinID( rg.stop.inl, rg.start.crl );
     c = transform( bid );
     mChkCoord(c);
 
@@ -474,20 +488,26 @@ Coord SurveyInfo::minCoord() const
 }
 
 
-void SurveyInfo::checkInlRange( Interval<int>& intv ) const
+void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 {
-    if ( intv.start < range_.start.inl ) intv.start = range_.start.inl;
-    if ( intv.stop > range_.stop.inl )   intv.stop = range_.stop.inl;
+    const BinIDRange& rg = work ? wrange_ : range_;
+    intv.sort();
+    if ( intv.start < rg.start.inl ) intv.start = rg.start.inl;
+    if ( intv.stop > rg.stop.inl )   intv.stop = rg.stop.inl;
 }
 
-void SurveyInfo::checkCrlRange( Interval<int>& intv ) const
+void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
-    if ( intv.start < range_.start.crl ) intv.start = range_.start.crl;
-    if ( intv.stop > range_.stop.crl )   intv.stop = range_.stop.crl;
+    const BinIDRange& rg = work ? wrange_ : range_;
+    intv.sort();
+    if ( intv.start < rg.start.crl ) intv.start = rg.start.crl;
+    if ( intv.stop > rg.stop.crl )   intv.stop = rg.stop.crl;
 }
 
-void SurveyInfo::checkZRange( Interval<double>& intv ) const
+void SurveyInfo::checkZRange( Interval<double>& intv, bool work ) const
 {
-    if ( intv.start < zrange_.start ) intv.start = zrange_.start;
-    if ( intv.stop > zrange_.stop )   intv.stop = zrange_.stop;
+    const StepInterval<double>& rg = work ? wzrange_ : zrange_;
+    intv.sort();
+    if ( intv.start < rg.start ) intv.start = rg.start;
+    if ( intv.stop > rg.stop )   intv.stop = rg.stop;
 }

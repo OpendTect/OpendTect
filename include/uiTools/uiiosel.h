@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.19 2002-04-24 16:07:23 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.20 2002-06-21 16:02:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
     const char*		getKey() const;
     void		setInput(const char* key);
 			//!< Will fetch user name using userNameFromKey
+    void		setInputText(const char*);
+    			//!< As if user typed it manually
 
     int			nrItems() const;
     int			getCurrentItem() const;

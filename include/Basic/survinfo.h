@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.19 2002-05-16 07:40:28 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.20 2002-06-21 16:02:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,11 @@ class ascostream;
 The surveyinfo is the primary source for ranges and steps. It also provides
 the transformation between inline/xline and coordinates.
 
-Note: the Z range step is there only for user information. It should not be
-used further because different cubes have different sample rates.
+Note: the Z range step is only a default. It should not be used further
+because different cubes have different sample rates.
+
+The ranges are defined for two cubes: the entire survey, and a 'working area'.
+Normally, you'll want to have the working area.
 
 */
 
@@ -43,19 +46,28 @@ public:
 
 			SurveyInfo(const SurveyInfo&);
 
-    const BinIDRange&	range() const		{ return range_; }
-    void		setRange(const BinIDRange&);
-    const BinID&	step() const		{ return step_; }
-    void		setStep(const BinID&);
-    const StepInterval<double>& zRange() const	{ return zrange_; }
-    void		setZRange(const Interval<double>&);
-    void		setZRange(const StepInterval<double>&);
-    void		checkInlRange(Interval<int>&) const;
-			//!< Check if range is inside surveyrange
-    void		checkCrlRange(Interval<int>&) const;
-			//!< Check if range is inside surveyrange
-    void		checkZRange(Interval<double>&) const;
-			//!< Check if range is inside surveyrange
+    const BinIDRange&	range( bool work=true ) const
+    			{ return work ? wrange_ : range_; }
+    const BinID&	step( bool work=true ) const
+    			{ return work ? wstep_ : step_; }
+    const StepInterval<double>& zRange( bool work=true ) const
+    			{ return work ? wzrange_ : zrange_; }
+
+    void		setWorkRange( const BinIDRange& b )
+			{ setRange( b, true ); }
+    void		setWorkStep( const BinID& b )
+			{ setStep( b, true ); }
+    void		setWorkZRange( const Interval<double>& r )
+			{ setZRange( r, true ); }
+    void		setWorkZRange( const StepInterval<double>& r )
+			{ setZRange( r, true ); }
+
+    void		checkInlRange(Interval<int>&,bool work=true) const;
+			//!< Make sure range is inside
+    void		checkCrlRange(Interval<int>&,bool work=true) const;
+			//!< Make sure range is inside
+    void		checkZRange(Interval<double>&,bool work=true) const;
+			//!< Make sure range is inside
 
     inline bool		rangeUsable() const
 			{ return range_.start.inl && range_.stop.inl
@@ -64,12 +76,13 @@ public:
 			{ return !mIS_ZERO(zrange_.width()); }
     inline bool		zIsTime() const			{ return zistime_; }
 
-    void		setComment( const char* s )	{ comment_ = s; }
     const char*		comment() const			{ return comment_; }
 
-    void		snap(BinID&,BinID rounding=BinID(0,0)) const;
+    void		snap(BinID&,BinID rounding=BinID(0,0),
+			     bool work=true) const;
 			//!< 0 : auto; -1 round downward, 1 round upward
-    void		snapStep(BinID&,BinID rounding=BinID(0,0)) const;
+    void		snapStep(BinID&,BinID rounding=BinID(0,0),
+	    			 bool work=true) const;
 			//!< see snap() for rounding
 
     inline bool		validTransform() const
@@ -78,12 +91,10 @@ public:
 			{ return b2c_.transform(b); }
     BinID		transform(const Coord&) const;
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
-    const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
-			//!< returns error message or null on success
 
     const BinID2Coord&	binID2Coord() const	{ return b2c_; }
 
-    Coord		minCoord() const;
+    Coord		minCoord(bool work=true) const;
     bool		isReasonable(const BinID&) const;
 			//!< Checks if in or near survey
     inline bool		isReasonable( const Coord& c ) const
@@ -116,14 +127,13 @@ private:
 				ascostream&,const char*) const;
 
     BinID2Coord		b2c_;
-    BinIDRange		range_;
-    BinID		step_;
-    StepInterval<double> zrange_;
     bool		zistime_;
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
-    bool		valid_;
+    BinIDRange		range_, wrange_;
+    BinID		step_, wstep_;
+    StepInterval<double> zrange_, wzrange_;
 
     BinID		set3binids[3];
     Coord		set3coords[3];
@@ -131,6 +141,16 @@ private:
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;
     static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
+
+    void		setRange(const BinIDRange&,bool);
+    void		setStep(const BinID&,bool);
+    void		setZRange(const Interval<double>&,bool);
+    void		setZRange(const StepInterval<double>&,bool);
+    void		setComment( const char* s )	{ comment_ = s; }
+    const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
+			//!< returns error message or null on success
+
+    bool		valid_;
 
 };
 

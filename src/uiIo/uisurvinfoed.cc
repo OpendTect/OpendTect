@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.31 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.32 2002-06-21 16:02:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,15 +154,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 
 void uiSurveyInfoEditor::setValues()
 {
-    const BinIDRange br = survinfo->range();
-    const BinID bs = survinfo->step();
+    const BinIDRange br = survinfo->range( false );
+    const BinID bs = survinfo->step( false );
     StepInterval<int> inlrg( br.start.inl, br.stop.inl, bs.inl );
     StepInterval<int> crlrg( br.start.crl, br.stop.crl, bs.crl );
     inlfld->setValue( inlrg );
     crlfld->setValue( crlrg );
     if ( survinfo->zRangeUsable() )
     {
-	StepInterval<double> zrg = survinfo->zRange();
+	StepInterval<double> zrg = survinfo->zRange( false );
 	zfld->setValue( zrg );
     }
 
@@ -305,7 +305,7 @@ bool uiSurveyInfoEditor::setRanges()
     BinIDRange br;
     br.start.inl = irg.start; br.start.crl = crg.start;
     br.stop.inl = irg.stop;   br.stop.crl = crg.stop;
-    survinfo->setRange( br );
+    survinfo->setRange( br, true ); survinfo->setRange( br, false );
     if ( !survinfo->rangeUsable() )
     { 
 	uiMSG().error( "Please specify inline/crossline ranges" ); 
@@ -313,7 +313,7 @@ bool uiSurveyInfoEditor::setRanges()
     }
 
     StepInterval<double> zrs( zfld->getDStepInterval() );
-    survinfo->setZRange( zrs );
+    survinfo->setZRange( zrs, true ); survinfo->setZRange( zrs, false );
     if ( !survinfo->zRangeUsable() )
     {
 	uiMSG().error( "Please specify time range" );
@@ -322,7 +322,7 @@ bool uiSurveyInfoEditor::setRanges()
 
     BinID bs( irg.step, crg.step );
     if ( !bs.inl ) bs.inl = 1; if ( !bs.crl ) bs.crl = 1;
-    survinfo->setStep( bs );
+    survinfo->setStep( bs, true ); survinfo->setStep( bs, false );
 
     return true;
 }
@@ -395,9 +395,9 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
     if ( !conn.getSurveySetup(bs,zrg,crd) )
 	{ uiMSG().error(conn.errMsg()); return; }
 
-    survinfo->setRange( bs );
-    survinfo->setStep( bs.step );
-    survinfo->setZRange( zrg );
+    survinfo->setRange(bs,true); survinfo->setRange(bs,false);
+    survinfo->setStep(bs.step,true); survinfo->setStep(bs.step,false);
+    survinfo->setZRange(zrg,true); survinfo->setZRange(zrg,false);
     BinID bid[2];
     bid[0].inl = bs.start.inl; bid[0].crl = bs.start.crl;
     bid[1].inl = bs.stop.inl; bid[1].crl = bs.stop.crl;
