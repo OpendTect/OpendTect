@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.11 2002-04-26 13:00:57 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.12 2002-04-29 09:25:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,9 @@ ________________________________________________________________________
 class SoNode;
 class IOPar;
 class BufferString;
+
+namespace visBase { class DataObject; }
+typedef visBase::DataObject* (*FactPtr)(void);
 
 namespace visBase
 {
@@ -34,6 +37,8 @@ on the inherited classes should thus be protected.
 class DataObject : public CallBackClass
 {
 public:
+
+    virtual const char*		getClassName() const { return "Not impl"; }
 
     int				id() const { return id_; }
     const char*			name() const;
@@ -81,7 +86,6 @@ private:
 };
 
 
-typedef DataObject* (*FactPtr)(void);
 
 class FactoryEntry
 {
@@ -104,16 +108,19 @@ public:
 
 };
 
-#define _mCreateDataObj(clss,args) 	\
-{					\
-    clss* res = new clss args;		\
-    res->init();			\
-    return res;				\
-}					\
-private:				\
-    clss(const clss&);			\
-    clss& operator =(const clss&);	\
-    static visBase::FactoryEntry	__factoryentry; \
+#define _mCreateDataObj(clss,args) 				\
+{								\
+    clss* res = new clss args;					\
+    res->init();						\
+    return res;							\
+}								\
+private:							\
+    clss(const clss&);						\
+    clss& operator =(const clss&);				\
+    static visBase::FactoryEntry	__factoryentry;		\
+public:								\
+    virtual const char*	getClassName() const 			\
+	{ return __factoryentry.name; }				\
 protected:
 /*
     visBase::FactoryEntry& _fe() const { return __factoryentry; }	\
@@ -154,6 +161,6 @@ public:
 
 #define mCreateFactoryEntry( clss )				\
     visBase::FactoryEntry clss::__factoryentry(			\
-	    (FactPtr) clss::create, typeid( clss ).name())
+	    (FactPtr) clss::create, #clss)
 
 #endif
