@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.5 2001-09-28 12:06:32 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.6 2001-10-15 11:18:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,8 +118,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 
     if ( survinfo->rangeUsable() ) setValues();
 
-    finalising.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
-
+    finaliseStop.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
 
 
@@ -183,7 +182,7 @@ bool uiSurveyInfoEditor::appButPushed()
 
 void uiSurveyInfoEditor::doFinalise()
 {
-    ic1fld->setFldsSensible( false, 0 );
+    ic1fld->setFldsSensible( true, 0 );
 }
 
 
