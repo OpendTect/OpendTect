@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.13 2004-05-24 14:28:36 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.14 2004-07-08 09:59:04 dgb Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ public:
 			~LasFileInfo()		{ deepErase(lognms); }
 
 	BufferStringSet	lognms;
-	Interval<float>	zrg; // In local units (see zunitstr)
+	Interval<float>	zrg;
 	float		undefval;
 	BufferString	zunitstr;
 
