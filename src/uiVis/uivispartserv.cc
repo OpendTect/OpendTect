@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.126 2003-02-11 09:57:25 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.127 2003-02-14 07:56:14 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "vissurvsurf.h"
 #include "vissurvwell.h"
 #include "visvolumedisplay.h"
+#include "visvolrender.h"
 #include "visrandomtrackdisplay.h"
 #include "uiexecutor.h"
 #include "uifiledlg.h"
@@ -1182,7 +1183,15 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 void uiVisPartServer::turnOn( int id, bool yn )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visBase::VisualObject*,so,obj)
+    mDynamicCastGet(visBase::VolRender*,vr,obj);
+    if ( yn && vr && !vr->isInited() )
+    {
+	PtrMan<Executor> exec = vr->init();
+	uiExecutor uiexec(appserv().parent(), *exec );
+	uiexec.go();
+    }
+
+    mDynamicCastGet(visBase::VisualObject*,so,obj);
     if ( so ) so->turnOn( yn );
 }
 
