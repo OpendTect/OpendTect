@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		24-11-1995
- RCS:		$Id: wellfact.h,v 1.2 2003-09-11 15:56:00 bert Exp $
+ RCS:		$Id: wellfact.h,v 1.3 2003-09-16 11:40:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,5 @@ defineTranslatorGroup(Well,"Well");
 defineTranslator(dgb,Well,mDGBKey);
 
 //- Module dependencies
-# include "picksetfact.h"
 
 #endif

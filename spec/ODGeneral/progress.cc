@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "progressmeter.h"
+#include "prog.h"
 
 const int chunksz = 1024;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.5 2003-08-13 11:14:12 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.6 2003-09-16 11:40:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "ioparlist.h"
 #include "seisfact.h"
+#include "picksetfact.h"
 #ifdef __msvc__
 #else
 #include <unistd.h>
