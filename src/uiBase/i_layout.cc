@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.9 2001-06-07 21:24:07 windev Exp $
+ RCS:           $Id: i_layout.cc,v 1.10 2001-06-07 21:50:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ uiSize i_LayoutItem::actualSize( bool include_border ) const
 {
     uiSize sz= pos_[setGeom].size();
     if ( include_border ) return sz;
-    mDynamicCastGet(uiScrollView*,sv,uiClient())
+    mDynamicCastGet(const uiScrollView*,sv,uiClient())
     if ( !sv ) return sz;
 
     int fw = sv->frameWidth();
