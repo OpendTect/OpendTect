@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.62 2004-08-26 10:31:59 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.63 2004-11-26 09:54:11 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -355,8 +355,8 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
 			      const char* nm ) 
     : uiInputFld( p, spec )
     , binidGrp( *new uiGroup(p,nm) )
-    , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
-    , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
+    , inl_x( *new uiLineEdit(&binidGrp,0,nm,false) )
+    , crl_y( *new uiLineEdit(&binidGrp,0,nm,false) )
     , ofrmBut( 0 )
     , b2c(0)
     , valueChanged(this)
@@ -465,8 +465,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
 				    const char* nm) 
     : uiInputFld( p, spec )
     , intvalGrp( *new uiGroup(p,nm) ) 
-    , start( *new uiLineEdit(&intvalGrp,0,nm) )
-    , stop( *new uiLineEdit(&intvalGrp,0,nm) )
+    , start( *new uiLineEdit(&intvalGrp,0,nm,false) )
+    , stop( *new uiLineEdit(&intvalGrp,0,nm,false) )
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&spec)
@@ -488,7 +488,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
 
     if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,"",nm);
+	step = new uiLineEdit(&intvalGrp,"",nm,false);
 
 	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
 	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
