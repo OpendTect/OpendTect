@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.14 2002-01-23 14:22:18 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.15 2002-03-26 10:01:14 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -57,6 +57,13 @@ void PickLocation::toString( char* str )
 			strcpy( str, getStringFromDouble(0,pos.x) );
     strcat( str, " " ); strcat( str, getStringFromDouble(0,pos.y) );
     strcat( str, " " ); strcat( str, getStringFromFloat(0,z) );
+}
+
+
+PickSet::PickSet( const char* nm )
+	: UserIDObject(nm)
+	, color(Color::NoColor)
+{
 }
 
 
@@ -214,13 +221,17 @@ const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
     {
 	PickSet* newps = selarr && !selarr[ips] ? 0
 			 : new PickSet( astrm.value() );
+	astrm.next();
+	if ( astrm.hasKeyword("Color") )
+	    newps->color.use( astrm.value() );
 	PickLocation loc;
-	while ( !atEndOfSection(astrm.next()) )
+	while ( !atEndOfSection(astrm) )
 	{
 	    if ( !loc.fromString( astrm.keyWord() ) )
 		break;
 	    loc.z *= zfac;
 	    if ( newps ) *newps += loc;
+	    astrm.next();
 	}
 	while ( !atEndOfSection(astrm) ) astrm.next();
 	astrm.next();
@@ -252,6 +263,11 @@ const char* dgbPickSetGroupTranslator::write( const PickSetGroup& psg, Conn& con
 	const PickSet& ps = *psg.get( iset );
 	astrm.put( "Ref", ps.name() );
 	char buf[80];
+	if ( ps.color != Color::NoColor )
+	{
+	    ps.color.fill( buf );
+	    astrm.put( "Color", buf );
+	}
 	for ( int iloc=0; iloc<ps.size(); iloc++ )
 	{
 	    ps[iloc].toString( buf );
