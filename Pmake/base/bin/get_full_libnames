@@ -1,0 +1,32 @@
+#!/bin/csh
+#__Pmake________________________________________________________________________
+#
+# This script returns the full libname for a given link directive
+# SCCS %Z%%M%   Version: %I%  Date: %G% - %U%
+#_______________________________________________________________________________
+
+if ( ! $?MAIN ) set MAIN=$WORK
+
+set libsubd=$1
+shift
+
+foreach inp ( $* )
+	set lib=$inp
+	if ( `echo $inp|awk -f $PMAKE/check.1.awk` == 1 ) then
+	    if( $HDIR == "win" ) then
+		set lib=`echo $inp|awk -f $PMAKE/check.2.awk`.lib
+	    else
+		set lib=lib`echo $inp|awk -f $PMAKE/check.2.awk`.a
+	    endif
+	else
+		set lib=$lib:t
+	endif
+
+	if ( ! -e $WORK/lib/$libsubd/$lib ) then
+		echo "$MAIN/lib/$libsubd/$lib"
+	else
+		echo "$WORK/lib/$libsubd/$lib"
+	endif
+end
+
+exit 0
