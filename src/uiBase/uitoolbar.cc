@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.3 2001-06-07 21:24:15 windev Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.4 2001-08-15 10:47:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "pixmap.h"
 #include <qtoolbar.h>
+#include <qmainwindow.h>
 #include <qtoolbutton.h>
 #include <qapplication.h>
 
