@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.13 2002-04-11 06:40:20 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.14 2002-04-11 09:11:44 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -22,8 +22,8 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.13 2002-04-11 06:40:20
 visSurvey::PickSetDisplay::PickSetDisplay( const visSurvey::Scene& scene_ )
     : group( visBase::SceneObjectGroup::create(true) )
     , eventcatcher( visBase::EventCatcher::create(visBase::MouseClick) )
-    , inlsz( 5 )
-    , crlsz( 5 )
+    , inlsz( 50 )
+    , crlsz( 50 )
     , tsz( 0.05 )
     , changed( this )
     , scene( scene_ )
