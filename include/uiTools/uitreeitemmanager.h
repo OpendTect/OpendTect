@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.5 2004-04-13 08:11:26 nanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.6 2004-04-29 14:54:43 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,10 @@ public:
 				*/
     virtual void		removeChild( uiTreeItem* );
     virtual const uiTreeItem*	findChild( const char* name ) const;
+    				/*!<Finds a child in the tree below
+				    this item.
+				*/
+    virtual const uiTreeItem*	findChild( int selkey ) const;
     				/*!<Finds a child in the tree below
 				    this item.
 				*/
