@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.14 2002-05-08 09:13:27 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.15 2002-05-08 11:35:26 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -302,6 +302,13 @@ int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
 
     trect->getRectangle().setSnapping( true );
     trect->useTexture( false );
+
+    if ( trect->getRectangle().orientation() == visBase::Rectangle::YZ )
+	type = Inline;
+    else if ( trect->getRectangle().orientation() == visBase::Rectangle::XZ )
+	type = Crossline;
+    else
+	type = Timeslice;
 
     if ( !as.usePar( par )) return -1;
 
