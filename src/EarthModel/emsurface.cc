@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.47 2004-05-17 06:17:13 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.48 2004-05-25 12:18:29 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -111,11 +111,13 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     , rowinterval(0)
     , colinterval(0)
     , patchchnotifier( this )
+    , hingelinechange( this )
     , shift(0)
 {
     auxdatanames.allowNull(true);
     auxdatainfo.allowNull(true);
     auxdata.allowNull(true);
+    hingelines.allowNull();
 }
 
 
@@ -1334,6 +1336,24 @@ void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
     }
 
     rg.step = rowdir ? loadedStep().row : loadedStep().col;
+}
+
+
+int EM::Surface::addHingeLine(HingeLine* hl, bool addtohistory)
+{
+    const int res = hingelines.size();
+    hingelines += hl;
+    hingelinechange.trigger(res);
+    return res;
+}
+
+
+void EM::Surface::removeHingeLine(int idx, bool addtohistory)
+{
+    HingeLine* hl = hingelines[idx];
+    hingelines.replace(0,idx);
+    delete hl;
+    hingelinechange.trigger(idx);
 }
 
 /*

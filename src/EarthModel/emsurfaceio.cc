@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.28 2004-04-28 21:30:59 bert Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.29 2004-05-25 12:18:30 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -366,7 +366,7 @@ int EM::dgbSurfaceReader::nextStep()
 
     if ( patchindex>=patchids.size() )
     {
-	deepErase( surface->hingelines );
+	while ( surface->nrHingeLines() ) surface->removeHingeLine(0,false);
 	int nrhingelines = 0;
 	par->get( nrhingelinestr, nrhingelines );
 	for ( int idx=0; idx<nrhingelines; idx++ )
@@ -384,7 +384,7 @@ int EM::dgbSurfaceReader::nextStep()
 	    }
 
 	    if ( surface->hasPatch(hingeline->getSection()) )
-		surface->hingelines += hingeline;
+		surface->addHingeLine( hingeline, false );
 	    else
 		delete hingeline;
 	}
@@ -573,12 +573,17 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	    auxdatasel += idx;
     }
 
-    par.set( EM::dgbSurfaceReader::nrhingelinestr, surface.hingelines.size() );
-    for ( int idx=0; idx<surface.hingelines.size(); idx++ )
+    par.set( EM::dgbSurfaceReader::nrhingelinestr, surface.nrHingeLines() );
+    int hingeid = 0;
+    for ( int idx=0; idx<surface.nrHingeLines(); idx++ )
     {
-	BufferString key = EM::dgbSurfaceReader::hingelineprefixstr; key += idx;
+	if ( !surface.hingeLine(idx) )
+	    continue;
+
+	BufferString key = EM::dgbSurfaceReader::hingelineprefixstr;
+	key += hingeid++;
 	IOPar relpar;
-	surface.hingelines[idx]->fillPar(relpar);
+	surface.hingeLine(idx)->fillPar(relpar);
 	par.mergeComp( relpar, key );
     }
 
