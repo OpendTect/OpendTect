@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.8 2003-05-22 11:10:27 bert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.9 2003-10-31 09:48:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt )
     {
 	optimfld = new uiGenInput( this, "Optimize horizontal slice access",
 				   BoolInpSpec() );
+	optimfld->setValue( false );
 	optimfld->attach( alignedBelow, scalefld );
     }
 
