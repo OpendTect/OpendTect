@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.20 2002-07-08 14:58:30 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.21 2002-10-28 22:05:35 bert Exp $
 ________________________________________________________________________
 
 
@@ -76,7 +76,7 @@ public:
     bool			dumpOIgraph( const char* filename );
 
 protected:
-    friend			SelectionManager;
+    friend class		SelectionManager;
     virtual void		triggerSel() {}
     virtual void		triggerDeSel() {}
     
@@ -84,7 +84,7 @@ protected:
     virtual			~DataObject();
     void			init();
 
-    friend			DataManager;
+    friend class		DataManager;
     void			remove() { delete this; }
     				/* Should only be called by DataManager */
 private:

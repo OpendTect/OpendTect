@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.10 2002-05-08 07:33:04 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.11 2002-10-28 22:05:35 bert Exp $
 ________________________________________________________________________
 
 
@@ -71,7 +71,7 @@ protected:
     bool		removeAll(int nriterations=1000);
     			/*!< Will remove everything.  */
 
-    friend		DataObject;
+    friend class	DataObject;
 
     int			addObj( DataObject* );
 			/*!< Returns id. If it already exist in the db, the
