@@ -4,12 +4,12 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.1 2003-12-15 17:29:43 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.2 2004-01-05 15:40:20 bert Exp $";
 
-#include "stratunit.h"
+#include "stratunitref.h"
 
 
-Strat::Unit* Strat::Unit::upNode( int skip )
+Strat::UnitRef* Strat::UnitRef::upNode( int skip )
 {
     if ( !upnode_ )
 	return 0;
@@ -18,7 +18,7 @@ Strat::Unit* Strat::Unit::upNode( int skip )
 }
 
 
-CompoundKey Strat::Unit::fullCode() const
+CompoundKey Strat::UnitRef::fullCode() const
 {
     CompoundKey kc;
 
@@ -30,7 +30,7 @@ CompoundKey Strat::Unit::fullCode() const
 }
 
 
-bool Strat::Unit::isBelow( const Strat::Unit* un ) const
+bool Strat::UnitRef::isBelow( const Strat::UnitRef* un ) const
 {
     if ( !un || !upnode_ ) return false;
     return upnode_ == un || upnode_->isBelow( un );
