@@ -1,12 +1,19 @@
 #!/bin/csh
 
-foreach tf ( *.tag )
+if ( $#argv == 0 ) then
+	set tagfils=`echo *.tag`
+else
+	set tagfils="$*"
+endif
+
+foreach tf ( $tagfils )
 	set dir=$tf:r
 	cd $dir
 	echo -n "$dir "
 
 	foreach fil ( *.html )
 		echo -n "."
+
 		sed 's/\/dsk\/d44\/dgb\/data\/dTectDoc\/Programmer\/Generated/../g' $fil > $fil.tmp
 		mv $fil.tmp $fil
 
