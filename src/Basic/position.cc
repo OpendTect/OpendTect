@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.44 2005-01-06 08:53:37 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.45 2005-02-23 10:09:25 cvskris Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -95,6 +95,9 @@ double Coord3::abs() const
 {
     return sqrt( x*x + y*y + z*z );
 }
+
+
+double Coord3::sqAbs() const { return x*x + y*y + z*z; }
 
 
 void Coord3::fill(char* str, const char* start,
