@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.9 2004-03-26 16:50:45 bert Exp $
+ RCS:           $Id: uiodmain.h,v 1.10 2004-04-13 08:04:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ private:
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();
     bool		buildUI();
+    void		initScene();
 
     CtxtIOObj*		getUserSessionIOData(bool);
     bool		updateSession();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.15 2004-03-26 16:50:45 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.16 2004-04-13 08:04:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return false;
 
+    odmain->initScene();
     odmain->go();
     delete odmain;
     return 0;
@@ -138,7 +139,6 @@ bool uiODMain::buildUI()
     scenemgr = new uiODSceneMgr( this );
     menumgr = new uiODMenuMgr( this );
     menumgr->initSceneMgrDepObjs();
-    scenemgr->initMenuMgrDepObjs();
 
     ctabwin = new uiDockWin( this, "Color Table" );
     moveDockWindow( *ctabwin, uiMainWin::Left, 0 );
@@ -149,6 +149,12 @@ bool uiODMain::buildUI()
     ctabed->attach(hCentered);
 
     return true;
+}
+
+
+void uiODMain::initScene()
+{
+    scenemgr->initMenuMgrDepObjs();
 }
 
 
