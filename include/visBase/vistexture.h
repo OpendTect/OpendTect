@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.10 2003-02-27 16:43:49 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.11 2003-05-28 09:46:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,11 +17,13 @@ ________________________________________________________________________
 
 class DataClipper;
 class BasicTask;
-class visBaseTextureColorIndexMaker;
-class SoSwitch;
-class SoGroup;
-class SoComplexity;
+class Color;
 class IOPar;
+class LinScaler;
+class SoComplexity;
+class SoGroup;
+class SoSwitch;
+class visBaseTextureColorIndexMaker;
 
 namespace visBase
 {
@@ -42,6 +44,8 @@ If ThreadWorker is set, it utilizes mt processing.
 class Texture : public SceneObject
 {
 public:
+    enum		DataType { Color, Transparency,
+				   Hue, Saturation, Brightness };
     bool		turnOn( bool yn );
     bool		isOn()	const;
     			
@@ -78,7 +82,7 @@ public:
 protected:
     			Texture();
     			~Texture();
-    void		setResizedData( float*, int sz );
+    void		setResizedData( float*, int sz, DataType );
     			/*!< Is taken over by me */
     int			nextPower2(int,int,int) const;
 
@@ -101,9 +105,16 @@ private:
     void		makeTexture();
     void		makeColorTables();
 
-    float*		datacache;
+    ObjectSet<float>	datacache;
     unsigned char*	indexcache;
     int			cachesize;
+
+    TypeSet<LinScaler>	datascales;
+			/*!<\note The first entry is not used since
+				  the color range is in the coltab
+			*/
+
+    ::Color*		colortabcolors;
 
     unsigned char*	red;
     unsigned char*	green;

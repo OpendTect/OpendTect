@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.16 2003-05-27 15:26:49 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.17 2003-05-28 09:46:38 kristofer Exp $";
 
 #include "vistexture2.h"
 
@@ -47,14 +47,14 @@ void visBase::Texture2::setTextureSize( int x0, int x1 )
 }
 
 
-void visBase::Texture2::setData( const Array2D<float>* newdata )
+void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
 {
     if ( !newdata )
     {
 	x0sz = -1;
 	x1sz = -1;
 
-	setResizedData( 0, 0 );
+	setResizedData( 0, 0, sel );
 	return;
     }
 
@@ -128,12 +128,7 @@ void visBase::Texture2::setData( const Array2D<float>* newdata )
 	}
     }
 
-    setResizedData( resized, cachesz );
-}
-
-
-void visBase::Texture2::setColorData( const Array2D<float>* colordata ,int sel )
-{
+    setResizedData( resized, cachesz, sel );
 }
 
 

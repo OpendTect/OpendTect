@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture3.h,v 1.3 2003-01-28 07:59:44 kristofer Exp $
+ RCS:		$Id: vistexture3.h,v 1.4 2003-05-28 09:46:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,21 @@ public:
 
     void		setTextureSize(int, int, int );
 
-    void		setData( const Array3D<float>* );
+    void		setData( const Array3D<float>*, DataType=Color );
+    			/*!< Sets data to texture.
+			\param sel=Color	Sets color on texture
+			\param sel=Transperancy Sets transperencydata,
+						colortable transperancy will
+						be overridden.
+			\param sel=Hue		The hue of the colortable is
+						multiplied with the data.
+			\param sel=Saturation	The saturation of the
+						colortable is multiplied with
+						the data.
+			\param sel=Brightness	The brightness of the
+						colortable is multiplied with
+						the data.
+			*/
 
 protected:
     			~Texture3();

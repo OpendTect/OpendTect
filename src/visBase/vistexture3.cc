@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.11 2003-03-13 12:20:48 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.12 2003-05-28 09:46:38 kristofer Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -49,11 +49,11 @@ void visBase::Texture3::setTextureSize( int x0, int x1, int x2 )
 }
 
 
-void visBase::Texture3::setData( const Array3D<float>* newdata )
+void visBase::Texture3::setData( const Array3D<float>* newdata, DataType sel )
 {
     if ( !newdata )
     {
-	setResizedData( 0, 0 );
+	setResizedData( 0, 0, sel );
 	return;
     }
 
@@ -144,7 +144,7 @@ void visBase::Texture3::setData( const Array3D<float>* newdata )
 	}
     }
 
-    setResizedData( resized, cachesz );
+    setResizedData( resized, cachesz, sel );
 }
 
 

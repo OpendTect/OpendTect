@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.5 2003-05-27 15:26:53 nanne Exp $
+ RCS:		$Id: vistexture2.h,v 1.6 2003-05-28 09:46:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -37,12 +37,21 @@ public:
 
     void		setTextureSize(int, int );
 
-    void		setData( const Array2D<float>* );
-    void		setColorData(const Array2D<float>*,int sel);
-    			/*!< sets second dataset that will be used for setting
-    			     the transparency,whiteness,brightness or color
-			     (specified by sel). */
-			     
+    void		setData(const Array2D<float>*,DataType sel=Color);
+    			/*!< Sets data to texture.
+			\param sel=Color	Sets color on texture
+			\param sel=Transperancy Sets transperencydata,
+						colortable transperancy will
+						be overridden.
+			\param sel=Hue		The hue of the colortable is
+						multiplied with the data.
+			\param sel=Saturation	The saturation of the
+						colortable is multiplied with
+						the data.
+			\param sel=Brightness	The brightness of the
+						colortable is multiplied with
+						the data.
+			*/
 
 protected:
     			~Texture2();

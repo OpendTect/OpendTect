@@ -8,18 +8,20 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.16 2003-05-22 14:39:43 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.17 2003-05-28 09:46:38 kristofer Exp $";
 
 #include "vistexture.h"
 
 #include "arrayndimpl.h"
-#include "simpnumer.h"
-#include "viscolortab.h"
-#include "visthread.h"
 #include "basictask.h"
-#include "thread.h"
-#include "visdataman.h"
+#include "dataclipper.h"
 #include "iopar.h"
+#include "scaler.h"
+#include "simpnumer.h"
+#include "thread.h"
+#include "viscolortab.h"
+#include "visdataman.h"
+#include "visthread.h"
 
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoGroup.h"
@@ -34,15 +36,11 @@ const char* visBase::Texture::texturequalitystr = "Texture quality";
 const char* visBase::Texture::resolutionstr = "Resolution";
 
 visBase::Texture::Texture()
-    : datacache( 0 )
-    , indexcache( 0 )
+    : indexcache( 0 )
     , cachesize( 0 )
     , threadworker( 0 )
     , colortab(0)
-    , red( new unsigned char[NRCOLORS] )
-    , green( new unsigned char[NRCOLORS] )
-    , blue( new unsigned char[NRCOLORS] )
-    , trans( new unsigned char[NRCOLORS] )
+    , colortabcolors( new ::Color[NRCOLORS] )
     , usetrans( true )
     , resolution(0)
     , histogram( NRCOLORS, 0 )
@@ -50,6 +48,13 @@ visBase::Texture::Texture()
     , texturegrp( new SoGroup )
     , quality( new SoComplexity )
 {
+    datacache.allowNull(true);
+    for ( int idx=0; idx<5; idx++ )
+    {
+	datacache += 0;
+	datascales += LinScaler( 0, 1 );
+    }
+
     onoff->ref();
     onoff->addChild( texturegrp );
     texturegrp->insertChild( quality, 0 );
@@ -61,11 +66,9 @@ visBase::Texture::Texture()
 
 visBase::Texture::~Texture()
 {
-    delete [] datacache;
+    deepEraseArr( datacache );
     delete [] indexcache;
-    delete [] red;
-    delete [] green;
-    delete [] blue;
+    delete [] colortabcolors;
     setThreadWorker( 0 );
     if ( colortab )
     {
@@ -195,18 +198,19 @@ SoNode* visBase::Texture::getData()
 { return onoff; }
 
 
-void visBase::Texture::setResizedData( float* newdata, int sz )
+void visBase::Texture::setResizedData( float* newdata, int sz, DataType dt_ )
 {
-    delete [] datacache;
+    const int dt = (int) dt_;
+    delete [] datacache[dt];
     if ( !newdata )
     {
-	datacache = 0;
+	datacache.replace(0, dt);
 	makeColorIndexes();
 	makeTexture();
 	return;
     }
 
-    datacache = newdata;
+    datacache.replace( newdata, dt );
     cachesize = sz;
 
     if ( colortab->autoScale() )
@@ -244,8 +248,20 @@ void visBase::Texture::autoscaleChCB(CallBacker*)
 
 void visBase::Texture::clipData()
 {
-    if ( !datacache ) return;
-    colortab->scaleTo( datacache, cachesize );
+    DataClipper clipper( colortab->clipRate() );
+    for ( int idx=Texture::Transparency; idx<=Texture::Brightness; idx++ )
+    {
+	if ( !datacache[idx] )
+	    continue;
+
+	clipper.putData(datacache[idx], cachesize );
+	clipper.calculateRange();
+	datascales[idx].factor = 1.0/clipper.getRange().width();
+	datascales[idx].constant = -clipper.getRange().start;
+    }
+
+    if ( datacache[Texture::Color] )
+	colortab->scaleTo( datacache[Texture::Color], cachesize );
 }
 
 
@@ -281,7 +297,7 @@ void visBase::Texture::makeColorIndexes()
     delete [] indexcache;
     indexcache = 0;
 
-    if ( !datacache ) return;
+    if ( !datacache[Texture::Color] ) return;
 
     if ( !colorindexers.size() )
     {
@@ -305,7 +321,7 @@ void visBase::Texture::makeColorIndexes()
 	    maker->stop = cachesize;
 
 	maker->indexcache = indexcache;
-	maker->datacache = datacache;
+	maker->datacache = datacache[Texture::Color];
 	maker->colortab = colortab;
     }
 
@@ -352,31 +368,86 @@ class visBaseTextureMaker : public BasicTask
 public:
     unsigned char*		indexcache;
     unsigned char*		texture;
-    unsigned char*		red;
-    unsigned char*		green;
-    unsigned char*		blue;
-    unsigned char*		trans;
+    ::Color*			colortabcolors;
+    TypeSet<LinScaler>*		datascales;
+    const float*		transdata;
+    const float*		huedata;
+    const float*		saturationdata;
+    const float*		brightnessdata;
 
     int				start;
     int				stop;
     bool			usetrans;
 protected:
-    int		nextStep()
+    int	nextStep()
+	{
+	    texture += start*(usetrans ? 4 : 3);
+	    int pos = 0;
+	    for ( int idx=start; idx<stop; idx++ )
+	    {
+		unsigned char coltabpos = indexcache[idx];
+		Color col = colortabcolors[coltabpos];
+
+		if ( huedata || saturationdata || brightnessdata )
 		{
-		    texture += start*(usetrans ? 4 : 3);
-		    int pos = 0;
-		    for ( int idx=start; idx<stop; idx++ )
+		    unsigned char h, s, v;
+		    col.getHSV(h,s,v);
+		    if ( huedata )
 		    {
-			unsigned char coltabpos = indexcache[idx];
-			texture[pos++] = red[coltabpos];
-			texture[pos++] = green[coltabpos];
-			texture[pos++] = blue[coltabpos];
-			if ( usetrans )
-			    texture[pos++] = trans[coltabpos];
+			float th = h * (*datascales)[visBase::Texture::Hue]
+					.scale(huedata[idx]);
+
+			if ( th<0 ) th=0;
+			else if ( th>255 ) th=255;
+
+			h = mNINT(th);
+		    }
+		    if ( saturationdata )
+		    {
+			float ts = s *
+			    	(*datascales)[visBase::Texture::Saturation]
+				    .scale(saturationdata[idx]);
+			if ( ts<0 ) ts=0;
+			else if ( ts>255 ) ts=255;
+			s = mNINT(ts);
+		    }
+		    if ( brightnessdata )
+		    {
+			float tv = v *
+			    (*datascales)[visBase::Texture::Brightness]
+				    .scale(brightnessdata[idx]);
+			if ( tv<0 ) tv=0;
+			else if ( tv>255 ) tv=255;
+			v = mNINT(tv);
 		    }
 
-		    return 0;
+		    col.setHSV(h,s,v);
 		}
+
+		texture[pos++] = col.r();
+		texture[pos++] = col.g();
+		texture[pos++] = col.b();
+
+		if ( usetrans )
+		{
+		    if ( transdata )
+		    {
+			int trans =
+			    mNINT((*datascales)[visBase::Texture::Transparency]
+			    .scale(transdata[idx] ));
+			if ( trans<0 ) trans=0;
+			else if ( trans>255 ) trans=255;
+			texture[pos++] = trans;
+		    }
+		    else
+		    {
+			texture[pos++] = 255-col.t();
+		    }
+		}
+	    }
+
+	    return 0;
+	}
 };
 
 
@@ -394,10 +465,7 @@ void visBase::Texture::makeTexture()
 	for ( int idx=0; idx<Threads::getNrProcessors(); idx++ )
 	{
 	    visBaseTextureMaker* maker = new visBaseTextureMaker;
-	    maker->red = red;
-	    maker->green = green;
-	    maker->blue = blue;
-	    maker->trans = trans;
+	    maker->colortabcolors = colortabcolors;
 
 	    texturemakers += maker;
 	}
@@ -418,6 +486,11 @@ void visBase::Texture::makeTexture()
 	maker->indexcache = indexcache;
 	maker->texture = texture;
 	maker->usetrans = usetrans;
+	maker->datascales = &datascales;
+	maker->transdata = datacache[Transparency];
+	maker->huedata = datacache[Hue];
+	maker->saturationdata = datacache[Saturation];
+	maker->brightnessdata = datacache[Brightness];
     }
 
 
@@ -441,13 +514,7 @@ void visBase::Texture::makeTexture()
 void visBase::Texture::makeColorTables()
 {
     for ( int idx=0; idx<NRCOLORS; idx++ )
-    {
-	Color color = colortab->tableColor( idx );
-	red[idx] = color.r();
-	green[idx] = color.g();
-	blue[idx] = color.b();
-	trans[idx] = 255-color.t();
-    }
+	colortabcolors[idx] = colortab->tableColor( idx );
 }
 
 
