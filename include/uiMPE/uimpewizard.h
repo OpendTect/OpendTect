@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.4 2005-03-24 16:32:17 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.h,v 1.5 2005-04-05 06:41:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ protected:
 
     uiColorInput*		colorfld;
     uiLabeledSpinBox*		markerszbox;
+    uiLabeledSpinBox*		linewidthbox;
 
     uiSetupSel*			setupgrp;
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.19 2005-04-01 15:01:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.20 2005-04-05 06:41:45 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -34,6 +34,9 @@ Engine::Engine()
     : seedpropertychange( this )
     , trackplanechange( this )
     , activevolumechange( this )
+    , seedsize( 4 )
+    , seedlinewidth( 3 )
+    , seedcolor( Color::White )
 {
     setActiveVolume( getDefaultActiveVolume() );
     trackers.allowNull(true);

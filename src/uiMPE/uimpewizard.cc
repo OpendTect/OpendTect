@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.4 2005-03-24 16:32:05 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.5 2005-04-05 06:41:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,10 +111,15 @@ uiGroup* Wizard::createPage2()
     colorfld->colorchanged.notify( mCB(this,Wizard,stickSetChange) );
     colorfld->attach( alignedBelow, lbl );
     
-    markerszbox = new uiLabeledSpinBox( grp, "size" );
+    markerszbox = new uiLabeledSpinBox( grp, "Size" );
     markerszbox->attach( rightTo, colorfld );
-    markerszbox->box()->setValue( 3 );
+    markerszbox->box()->setValue( MPE::engine().seedsize );
     markerszbox->box()->valueChanged.notify( mCB(this,Wizard,stickSetChange) );
+
+    linewidthbox = new uiLabeledSpinBox( grp, "Line width" );
+    linewidthbox->attach( rightTo, markerszbox );
+    linewidthbox->box()->setValue( MPE::engine().seedlinewidth );
+    linewidthbox->box()->valueChanged.notify( mCB(this,Wizard,stickSetChange) );
 
     return grp;
 }
@@ -196,6 +201,7 @@ void Wizard::stickSetChange( CallBacker* )
 {
     engine().seedcolor = colorfld->color();
     engine().seedsize = markerszbox->box()->getValue();
+    engine().seedlinewidth = linewidthbox->box()->getValue();
     engine().seedpropertychange.trigger();
 }
 

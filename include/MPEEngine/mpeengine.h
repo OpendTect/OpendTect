@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.7 2005-03-31 15:28:35 cvsnanne Exp $
+ RCS:           $Id: mpeengine.h,v 1.8 2005-04-05 06:41:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
     ObjectSet<Geometry::Element> interactionseeds;
     Color			seedcolor;
     int				seedsize;
+    int				seedlinewidth;
     Notifier<Engine>		seedpropertychange;
 
     bool			trackAtCurrentPlane();

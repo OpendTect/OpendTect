@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.7 2005-03-09 16:44:38 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.8 2005-04-05 06:41:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 
 #include "attribsel.h"
+#include "draw.h"
 #include "emmanager.h"
 #include "emhistory.h"
 #include "mpeengine.h"
@@ -187,6 +188,8 @@ void uiMPEMan::seedPropertyChangeCB( CallBacker* )
 
     seededitor->getMaterial()->setColor( MPE::engine().seedcolor );
     seededitor->setSeedSize( MPE::engine().seedsize );
+    LineStyle ls( LineStyle::Solid, MPE::engine().seedlinewidth );
+    seededitor->setLineStyle( ls );
 }
 
 
