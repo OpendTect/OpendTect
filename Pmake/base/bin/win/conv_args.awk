@@ -42,7 +42,7 @@ BEGIN { FS=" "; isprog=0; outfil=""; link=1; linkflags=""; compileflags="" }
             close( tmp );
             $0=keep;
         }
-        else if( $i ~ /^\/c\// || $i ~ /^\/cygdrive/  || $i ~ /^\/tmp/ )
+        else if( $i ~ /^\/c\// || $i ~ /^\/d\// || $i ~ /^\/cygdrive/  || $i ~ /^\/tmp/ )
         {
             keep = $0;
 
