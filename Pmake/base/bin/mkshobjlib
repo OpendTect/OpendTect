@@ -7,7 +7,7 @@
 
 
 if ( $#argv < 3 ) then
-	echo "Usage: $0 Input_lib Output_sharedlib Linker_and_flags"
+	echo "Usage: $0 Input_lib Output_sharedlib [win: deffile] Linker_and_flags"
 	exit 1
 endif
 
@@ -16,6 +16,11 @@ set inplib=$1
 shift
 set outlib=$1
 shift
+
+if ( $HDIR == "win" ) then
+    set deffile=$1
+    shift
+endif
 
 if ( ! -r "$inplib" ) then
 	echo "$0 : Input lib $inplib cannot be accessed"
@@ -30,7 +35,32 @@ endif
 
 cd $tmpdir
 ar x $inplib `ar t $inplib`
-$* *.o -o $outlib
-rm -rf $tmpdir
+
+if ( $HDIR == "win") then
+pwd
+
+#echo "implib: " $inplib 
+#echo o2dll.sh $* -o $outlib *.o
+#o2dll.sh $* -o $outlib *.o
+
+# o2dll.sh -o aap *.o -L/cygdrive/d/users/admin/work/bin/win/so -lmsvcrt -L/c/work/appman/fftw/lib -lfftw3f -lstdc++ -lpthreadGC -lshlwapi -lwsock32
+
+#    echo "Generating def file"
+
+    #/usr/local/bin/dlltool-wrap --add-indirect --export-all-symbols \
+#    dlltool --add-indirect --export-all-symbols \
+#	    --output-def $deffile *.o
+
+
+    echo "Executing:" $* *.o -o $outlib
+    $* *.o -o $outlib
+
+else
+    #echo "Executing:" $* *.o -o $outlib
+    $* *.o -o $outlib
+endif
+
+#rm -rf $tmpdir
+
 
 exit 0
