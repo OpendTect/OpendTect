@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.18 2002-09-30 15:16:23 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.19 2002-12-10 12:03:01 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ public:
     inline T	atIndex( int idx ) const
 		{ return Interval<T>::atIndex(idx,step); }
     inline int	getIndex( const T& t ) const
-		{ return getIndex( t, step ); }
+		{ return Interval<T>::getIndex( t, step ); }
     inline int	nearestIndex( const T& x ) const
 		{ return Interval<T>::nearestIndex( x, step ); }
 
