@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.10 2004-05-27 10:07:10 bert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.11 2004-09-10 07:54:54 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "welldahobj.h"
-#include "color.h"
 
 namespace Well
 {
