@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.49 2004-05-26 15:06:10 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.50 2004-05-28 15:01:38 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -1268,7 +1268,8 @@ bool EM::Surface::getMeshRowCol( const RowCol& emrowcol, RowCol& meshrowcol,
        				 const PatchID& patchid ) const
 {
     const int idx = patchids.indexOf( patchid );
-    RowCol origo = origos.size() ? origos[idx] : RowCol(0,0);
+    RowCol origo = idx<origos.size() ? origos[idx] :
+		   (origos.size() ? origos[0] : RowCol(0,0) );
     const RowCol relrowcol = emrowcol - origo;
     if ( relrowcol.row%loadedstep.row || relrowcol.col%loadedstep.col )
 	return false;
@@ -1282,7 +1283,8 @@ EM::SubID EM::Surface::getSurfSubID( const RowCol& nodeid,
 				     const PatchID& patchid ) const
 {
     const int idx = patchids.indexOf( patchid );
-    RowCol origo = origos.size() ? origos[idx] : RowCol(0,0);
+    RowCol origo = idx<origos.size() ? origos[idx] :
+	(origos.size() ? origos[0] : RowCol(0,0) );
     return rowCol2SubID( origo+nodeid*loadedstep );
 }
 
