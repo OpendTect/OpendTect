@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.27 2004-05-07 16:43:52 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.28 2004-05-10 11:57:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "vissurvstickset.h"
 #include "visinterpret.h"
 #include "vishingeline.h"
-#include "uitrackingman.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -174,6 +173,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	{
 	case Man:	emserv->manageSurfaces(false);	break;
 	}
+    break;
     case Wll:
 	switch ( at )
 	{
@@ -512,12 +512,8 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     int sceneid = trackserv->sceneID();
     if ( evid == uiTrackingPartServer::evAddInterpreter )
     {
-	visSurvey::SurfaceInterpreterDisplay* sid = 
-	    	visSurvey::SurfaceInterpreterDisplay::create();
-	sid->setTrackMan( trackserv->trackManager() );
-	sid->turnOn( false );
-	visserv->addObject( sid, sceneid, true );
-	trackserv->setInterpreterID( sceneid, sid->id() );
+	int id = visserv->addInterpreter( sceneid, trackserv->trackManager() );
+	trackserv->setInterpreterID( sceneid, id );
     }
     else if ( evid == uiTrackingPartServer::evAddSurface )
     {
@@ -583,13 +579,8 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     }
     else if ( evid == uiTrackingPartServer::evShowManager )
     {
-	int interpreterid = trackserv->interpreterID( sceneid );
-	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,
-					visserv->getObject(interpreterid))
-//	sid->turnOn( true );
-	uiTrackingMan* dlg = new uiTrackingMan( &appl, *sid, 
-						trackserv->trackManager() );
-	dlg->go();
+	int id = trackserv->interpreterID( sceneid );
+	visserv->showTrackingManager( id, trackserv->trackManager() );
     }
     else if ( evid == uiTrackingPartServer::evGetData )
     {
