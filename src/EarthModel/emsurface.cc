@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.22 2003-08-26 11:51:58 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.23 2003-09-24 09:19:17 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -64,7 +64,7 @@ void EM::SurfaceIODataSelection::setDefault()
 
 EM::Surface::Surface(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
-    , step( SI().getStep(true, false), SI().getStep(false,false))
+    , step_( SI().getStep(true, false), SI().getStep(false,false))
     , loadedstep( SI().getStep(true, false), SI().getStep(false,false))
     , rowinterval( 0 )
     , colinterval( 0 )
@@ -422,15 +422,15 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 	    EM::PosID currentposid = (*neigbors[idx])[idz];
 	    const RowCol rowcol = subID2RowCol(currentposid.subID());
 
-	    for ( int row=-step.row; row<=step.row; row+=step.row )
+	    for ( int row=-step_.row; row<=step_.row; row+=step_.row )
 	    {
-		for ( int col=-step.col; col<=step.col; col+=step.col )
+		for ( int col=-step_.col; col<=step_.col; col+=step_.col )
 		{
 		    if ( !row && !col ) continue;
 
 		    const RowCol neighborrowcol(rowcol.row+row,rowcol.col+col);
-		    const int drow = abs(neighborrowcol.row-start.row)/step.row;
-		    const int dcol = abs(neighborrowcol.col-start.col)/step.col;
+		    const int drow =abs(neighborrowcol.row-start.row)/step_.row;
+		    const int dcol =abs(neighborrowcol.col-start.col)/step_.col;
 
 		    if ( drow>maxradius || dcol>maxradius )
 			continue;
@@ -523,13 +523,19 @@ RowCol EM::Surface::loadedStep() const
 }
 
 
-void EM::Surface::setTranslatorData( const RowCol& step_,
+RowCol EM::Surface::step() const
+{
+    return step_;
+}
+
+
+void EM::Surface::setTranslatorData( const RowCol& step__,
 					const RowCol& loadedstep_,
 					const RowCol& origo_,
 					const Interval<int>* rowrange_,
 					const Interval<int>* colrange_ )
 {
-    step = step_;
+    step_ = step__;
     loadedstep = loadedstep_;
     origos += origo_;
     delete rowinterval;
@@ -553,7 +559,7 @@ EM::SubID EM::Surface::rowCol2SubID( const RowCol& rc )
 
 bool EM::Surface::isFullResolution() const
 {
-    return loadedstep == step;
+    return loadedstep == step_;
 }
 
 

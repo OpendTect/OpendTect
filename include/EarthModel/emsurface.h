@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.17 2003-08-26 11:51:52 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.18 2003-09-24 09:19:10 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -156,6 +156,7 @@ public:
 
     const Geometry::GridSurface*		getSurface(PatchID) const;
     RowCol		loadedStep() const;
+    RowCol		step() const;
     void		setTranslatorData( const RowCol& step,
 	    				   const RowCol& loadedstep,
 					   const RowCol& origo,
@@ -218,7 +219,7 @@ protected:
     BufferString			dbinfo;
 
     RowCol				loadedstep;
-    RowCol				step;
+    RowCol				step_;
     TypeSet<RowCol>			origos;
 
     Interval<int>*			rowinterval;
