@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.10 2003-10-08 10:33:01 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.11 2003-10-10 10:13:24 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -30,8 +30,12 @@ extern "C" {
 
 static const char* getHDir()
 {
+#ifdef __win__
+    return "win";
+#else
     const char* ret = getenv( "binsubdir" );
     return ret ? ret : getenv( "HDIR" );
+#endif
 }
 
 
@@ -39,7 +43,9 @@ static const char* getFnName( const char* libnm, const char* fnend )
 {
     static BufferString ret;
 
-    if ( *libnm == 'l' && *(libnm+1) == 'i' && *(libnm+2) == 'b' )
+    if ( (*libnm     == 'l' || *libnm     == 'L')
+      && (*(libnm+1) == 'i' || *(libnm+1) == 'I')
+      && (*(libnm+2) == 'b' || *(libnm+2) == 'B') )
 	libnm += 3;
     ret = libnm;
     char* ptr = strchr( ret.buf(), '.' );
@@ -52,10 +58,16 @@ static const char* getFnName( const char* libnm, const char* fnend )
 #ifdef __win__
 # define mNotLoadedRet(act) \
 	{ if ( handle ) FreeLibrary(handle); return false; }
+# define mFnGettter GetProcAddress
 #else
 # define mNotLoadedRet(act) \
 	{ act; if ( handle ) dlclose(handle); return false; }
+# define mFnGettter dlsym
 #endif
+
+#define mGetFn(typ,fn,nm) \
+	typ fn = (typ)mFnGettter( handle, getFnName(libnmonly,nm) )
+
 
 static bool loadPlugin( const char* libnm, int argc, char** argv,
 			int inittype )
@@ -74,24 +86,12 @@ static bool loadPlugin( const char* libnm, int argc, char** argv,
     const BufferString libnmonly = File_getFileName(libnm);
     if ( inittype > 0 )
     {
-#ifdef __win__
-	VoidIntRetFn fn = reinterpret_cast <VoidIntRetFn>
-	    (GetProcAddress (handle, getFnName(libnmonly,"GetPluginType")) );
-#else
-	VoidIntRetFn fn = (VoidIntRetFn)dlsym( handle,
-				getFnName(libnmonly,"GetPluginType") );
-#endif
+	mGetFn(VoidIntRetFn,fn,"GetPluginType");
 	if ( !fn || inittype != (*fn)() )
-	    mNotLoadedRet(;); // not an error: just not the right time to load
+	    mNotLoadedRet(;); // not an error: just not auto or not now
     }
 
-#ifdef __win__
-    ArgcArgvCCRetFn fn2 = reinterpret_cast<ArgcArgvCCRetFn>
-		( GetProcAddress( handle, getFnName(libnmonly,"InitPlugin") ) );
-#else
-    ArgcArgvCCRetFn fn2 = (ArgcArgvCCRetFn)dlsym( handle,
-				getFnName(libnmonly,"InitPlugin") );
-#endif
+    mGetFn(ArgcArgvCCRetFn,fn2,"InitPlugin");
     if ( !fn2 )
 	mNotLoadedRet( cerr << "Cannot find "
 			    << getFnName(libnmonly,"InitPlugin")
@@ -101,13 +101,7 @@ static bool loadPlugin( const char* libnm, int argc, char** argv,
     if ( ret )
 	mNotLoadedRet( cerr << libnm << ": " << ret << endl )
 
-#ifdef __win__
-    PluginInfoRetFn fn3 = reinterpret_cast<PluginInfoRetFn>
-	    ( GetProcAddress( handle, getFnName(libnmonly,"GetPluginInfo") ) );
-#else
-    PluginInfoRetFn fn3 = (PluginInfoRetFn)dlsym( handle,
-				getFnName(libnmonly,"GetPluginInfo") );
-#endif
+    mGetFn(PluginInfoRetFn,fn3,"GetPluginInfo");
     PluginInfo* piinf = 0;
     if ( fn3 )
 	piinf = (*fn3)();
