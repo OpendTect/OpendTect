@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.26 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.27 2002-10-03 13:32:23 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -579,9 +579,9 @@ int CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
     {
 	StreamProvider sp( CBVSIOMgr::getFileName( basenm, nr ) );
 	sp.addPathIfNecessary( pathnm );
-	if ( !sp.exists(YES) )
+	if ( !sp.exists(true) )
 	    return YES;
-	if ( !sp.remove() )
+	if ( !sp.remove(false) )
 	    return nr ? YES : NO;
     }
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.5 2002-09-20 13:51:51 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.6 2002-10-03 13:32:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,10 +97,11 @@ static void writeGF( ostream& strm, const BinIDZValue& bizv,
 		     const Coord& crd, int segid )
 {
     static char buf[mDataGFLineLen+2];
-    float crl = bizv.binid.crl;
+    const float crl = bizv.binid.crl;
+    const float val = mIsUndefined(bizv.value) ? 3.4028235E+38 : bizv.value;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, bizv.z*1000, crl, crl, bizv.binid.crl,
-	     bizv.value, bizv.binid.inl, "" );
+	     val, bizv.binid.inl, "" );
     buf[96] = buf[97] = 'X';
     strm << buf;
 }

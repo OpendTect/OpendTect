@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.24 2002-09-30 15:39:49 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.25 2002-10-03 13:32:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
  
 #include <uidobj.h>
 #include <binidselimpl.h>
+#include <iosfwd>
 class ascostream;
 
 
@@ -37,6 +38,8 @@ class SurveyInfo : public UserIDObject
     friend const SurveyInfo&	SI();
 
 public:
+
+    virtual		~SurveyInfo()			{}
 
     virtual SurveyInfo*	clone() const			= 0;
     virtual void	copyFrom(const SurveyInfo&);
@@ -118,7 +121,8 @@ protected:
     static SurveyInfo*	read(const char*);
     bool		write(const char*) const;
 
-    UserIDString	dirname;
+    BufferString	datadir;
+    BufferString	dirname;
 
     bool		zistime_;
     BufferString	comment_;
@@ -138,9 +142,10 @@ protected:
 
     virtual void	setStep(const BinID&,bool)	{}
 
-    virtual void	handleLineRead(const BufferString&,const char*)	= 0;
-    virtual bool	wrapUpRead()			{ return true; }
-    virtual void	writeSpecLines(ascostream&) const		= 0;
+    virtual void	handleLineRead(const BufferString&,const char*)	{}
+    virtual bool	wrapUpRead()				{ return true; }
+    virtual void	writeSpecLines(ascostream&) const	{}
+    virtual bool	wrapUpWrite(ostream&,const char*) const	{ return true; }
 
 #define mAddSurvInfoFriends \
     friend class	uiSurvey; \

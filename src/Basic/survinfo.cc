@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.31 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.32 2002-10-03 13:32:23 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -93,8 +93,23 @@ BinID BinID2Coord::transform( const Coord& coord ) const
 }
 
 
+SurveyInfo::SurveyInfo()
+	: valid_(false)
+    	, zistime_(true)
+{
+}
+
+
+SurveyInfo3D::SurveyInfo3D()
+{
+    rdxtr.b = rdytr.c = 1;
+    set3binids[2].crl = 0;
+}
+
+
 void SurveyInfo::copyFrom( const SurveyInfo& si )
 {
+    datadir = si.datadir;
     dirname = si.dirname;
     range_ = si.range_; wrange_ = si.wrange_;
     zrange_ = si.zrange_; wzrange_ = si.wzrange_;
@@ -110,36 +125,21 @@ void SurveyInfo3D::copyFrom( const SurveyInfo& si )
 {
     SurveyInfo::copyFrom( si );
     mDynamicCastGet(const SurveyInfo3D*,si3d,(&si))
-    if ( si3d )
+    if ( !si3d ) return;
+
+    step_ = si3d->step_; wstep_ = si3d->wstep_;
+    b2c_ = si3d->b2c_;
+    for ( int idx=0; idx<3; idx++ )
     {
-	step_ = si3d->step_; wstep_ = si3d->wstep_;
-	b2c_ = si3d->b2c_;
-	for ( int idx=0; idx<3; idx++ )
-	{
-	    set3binids[idx] = si3d->set3binids[idx];
-	    set3coords[idx] = si3d->set3coords[idx];
-	}
+	set3binids[idx] = si3d->set3binids[idx];
+	set3coords[idx] = si3d->set3coords[idx];
     }
 }
 
 
-SurveyInfo::SurveyInfo()
-	: valid_(false)
-    	, zistime_(true)
+SurveyInfo* SurveyInfo::read( const char* survdir )
 {
-}
-
-
-SurveyInfo3D::SurveyInfo3D()
-{
-    rdxtr.b = rdytr.c = 1;
-    set3binids[2].crl = 0;
-}
-
-
-SurveyInfo* SurveyInfo::read( const char* rootdir )
-{
-    FileNameString fname( File_getFullPath( rootdir, ".survey" ) );
+    FileNameString fname( File_getFullPath( survdir, ".survey" ) );
     StreamData sd = StreamProvider( fname ).makeIStream();
 
     static bool errmsgdone = false;
@@ -164,13 +164,11 @@ SurveyInfo* SurveyInfo::read( const char* rootdir )
     astream.next();
     BufferString keyw = astream.keyWord();
     SurveyInfo* si = keyw == sKey::Type && *astream.value() == '2'
-		   ? 0 : new SurveyInfo3D;
-	//TODO
-	// ? new SurveyInfo2D : new SurveyInfo3D;
-	if ( !si ) return si;
+		   ? new SurveyInfo2D : new SurveyInfo3D;
 
-    si->dirname = File_getFileName( rootdir );
-    if ( !rootdir || si->dirname == "" ) return si;
+    si->datadir = File_getPathOnly( survdir );
+    si->dirname = File_getFileName( survdir );
+    if ( !survdir || si->dirname == "" ) return si;
 
     BinIDRange bir; BinID bid( 1, 1 );
     while ( !atEndOfSection(astream) )
@@ -318,6 +316,8 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     bool retval = !strm.fail();
+    if ( retval )
+	retval = wrapUpWrite( strm, basedir );
     sd.close();
     return retval;
 }

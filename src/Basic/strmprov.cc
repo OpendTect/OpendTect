@@ -33,7 +33,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.26 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.27 2002-10-03 13:32:23 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -453,18 +453,19 @@ bool StreamProvider::exists( int fr ) const
 }
 
 
-bool StreamProvider::remove() const
+bool StreamProvider::remove( bool recursive ) const
 {
     if ( isbad || type_ != StreamConn::File ) return false;
 
     if ( !hostname[0] )
 	return fname == sStdIO ? false :
-			File_remove( (const char*)fname, YES, YES );
+			File_remove( (const char*)fname, YES, recursive );
     else
     {
-	sprintf( oscommand.buf(), "%s %s '/bin/rm -f %s && echo 1'",
+	sprintf( oscommand.buf(), "%s %s '/bin/rm -%sf %s && echo 1'",
 		  (const char*)rshcomm,
-		  (const char*)hostname, (const char*)fname );
+		  (const char*)hostname, recursive ? "r" : "",
+		  (const char*)fname );
 	FILE* fp = popen( oscommand, "r" );
 	char c;
 	fscanf( fp, "%c", &c );
