@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.7 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: welllog.h,v 1.8 2004-02-12 15:49:46 bert Exp $
 ________________________________________________________________________
 
 
@@ -41,12 +41,16 @@ public:
     const Interval<float>& range() const		{ return range_; }
     Interval<float>	selrange;
 
+    const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
+    void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
+    static const char*	sKeyUnitLbl;
 
 protected:
 
     TypeSet<float>	dah_;
     TypeSet<float>	val_;
     Interval<float>	range_;
+    BufferString	unitmeaslbl_;
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.7 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.8 2004-02-12 15:49:46 bert Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class AscImporter
 {
 public:
 
-			AscImporter( Data& d ) : wd(d)		{}
+			AscImporter( Data& d ) : wd(d), useconvs_(false) {}
 			~AscImporter();
 
     const char*		getTrack(const char*,bool first_is_surface,
@@ -58,11 +58,18 @@ public:
     const char*		getLogs(istream& lasstrm,const LasFileInfo&,
 	    			bool istvd=true);
 
+    bool		willConvertToSI() const		{ return useconvs_; }
+    			//!< Note that depth is always converted
+    void		setConvertToSI( bool yn )	{ useconvs_ = yn; }
+    			//!< Note that depth is always converted
+
 protected:
 
     Data&		wd;
 
+    mutable BufferStringSet	unitmeasstrs;
     mutable ObjectSet<MeasureUnit>	convs;
+    bool		useconvs_;
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
 
