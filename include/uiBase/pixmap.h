@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: pixmap.h,v 1.5 2003-09-08 13:02:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class QPixmap;
 class QPaintDevice;
 
 class ArrayRGB;
+class Color;
 
 //! off-screen pixel-based paint device
 class ioPixmap : public UserIDObject , public ioDrawAreaImpl
@@ -48,6 +49,8 @@ public:
 
     QPixmap* 		Pixmap()		{ return qpixmap; }
     const QPixmap*  	Pixmap() const		{ return qpixmap; }
+
+    void		fill(const Color&);
 
     int			width();
     int         	height();

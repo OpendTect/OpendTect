@@ -4,20 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.6 2003-03-07 10:27:45 arend Exp $
+ RCS:           $Id: pixmap.cc,v 1.7 2003-09-08 13:03:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <pixmap.h>
-#include <errh.h>
+#include "pixmap.h"
+#include "errh.h"
 
-#include <color.h>
-#include <arraynd.h>
-#include <arrayndimpl.h>
-#include <arrayrgb.h>
+#include "color.h"
+#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "arrayrgb.h"
 
 #include <qpixmap.h>
+#include <qcolor.h>
 
 ioPixmap::ioPixmap( const ArrayRGB& anImage )
 {
@@ -59,17 +60,23 @@ bool ioPixmap::convertFromArrayRGB( const ArrayRGB & theImage )
 }    
 
 
-QPaintDevice*  ioPixmap::mQPaintDevice()
+QPaintDevice* ioPixmap::mQPaintDevice()
     { return qpixmap; }
 
 
 int ioPixmap::width()
 {
-    { return qpixmap->width(); }
+    return qpixmap->width();
 }
 
 
 int ioPixmap::height()
 {
-    { return qpixmap->height(); }
+    return qpixmap->height();
+}
+
+
+void ioPixmap::fill( const Color& col )
+{
+    qpixmap->fill( QColor(col.r(),col.g(),col.b()) );
 }
