@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.11 2003-07-04 13:32:33 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.12 2003-07-10 10:07:23 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -221,8 +221,8 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
 
     if ( addtohistory )
     {
-	HistoryEvent* history = new SetPosHistoryEvent( oldpos, pos,
-				    EM::PosID(id(),patch,posid) );
+	HistoryEvent* history = new SetPosHistoryEvent( pos, oldpos,
+				    EM::PosID(id(),patch,subid) );
 	manager.history().addEvent( history, 0, 0 );
     }
 
