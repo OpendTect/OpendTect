@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.3 2003-08-25 15:10:12 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.4 2003-08-26 09:39:53 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -43,15 +43,28 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf )
 
     Coord3 c, c0, prevc;
     float dah = 0;
+    char buf[1024]; char valbuf[256];
     while ( *sd.istrm )
     {
-	*sd.istrm >> c.x >> c.y >> c.z;
-	if ( !*sd.istrm || c.distance(c0) < 1 ) break;
+	sd.istrm->getline( buf, 1024 );
+	const char* ptr = getNextWord( buf, valbuf );
+	c.x = atof( valbuf );
+	ptr = getNextWord( ptr, valbuf );
+	c.y = atof( valbuf );
+	if ( !*ptr ) break;
+	ptr = getNextWord( ptr, valbuf );
+	c.z = atof( valbuf );
+	if ( c.distance(c0) < 1 ) break;
 
 	if ( wd.track().size() == 0 )
 	    prevc = tosurf ?
 		    Coord3(wd.info().surfacecoord,wd.info().surfaceelev) : c;
-	dah += c.distance( prevc );
+
+	ptr = getNextWord( ptr, valbuf );
+	if ( *ptr )
+	    dah = atof( ptr );
+	else
+	    dah += c.distance( prevc );
 
 	wd.track().addPoint( c, c.z, dah );
     }

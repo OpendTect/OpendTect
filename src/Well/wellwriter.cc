@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.1 2003-08-21 15:47:15 bert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.2 2003-08-26 09:39:53 bert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -87,10 +87,10 @@ bool Well::Writer::putTrack( ostream& strm ) const
     for ( int idx=0; idx<wd.track().size(); idx++ )
     {
 	const Coord3& c = wd.track().pos(idx);
-	strm << wd.track().dah(idx) << '\t';
 	BufferString bs( c.x ); strm << bs << '\t';
 	bs = c.y; strm << bs << '\t';
-	bs = c.z; strm << bs << '\n';
+	bs = c.z; strm << bs << '\t';
+	strm << wd.track().dah(idx) << '\n';
     }
     return strm.good();
 }
