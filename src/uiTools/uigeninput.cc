@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.14 2001-05-08 16:42:54 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.15 2001-05-09 11:49:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,12 +53,16 @@ programmer to decide.
 class uiDataInpFld : public CallBacker
 {
 public:
-                        uiDataInpFld() {}
+                        uiDataInpFld( const DataInpSpec& spec ) 
+			: spec_( *spec.clone() ) {}
 
     virtual const char* text( int idx ) const =0;
 
     virtual int		nElems()			{ return 1; }
-    virtual bool	isValid(int elemidx)	const	{ return true; }
+    virtual uiObject&	element( int  )			{ return uiObj(); }
+
+    virtual bool	isValid(int elemidx)	const	
+			    { return true; } // TODO implement
 
     virtual int         getIntValue( int idx )	const	=0;
     virtual double      getValue( int idx )	const	=0;
@@ -81,6 +85,27 @@ public:
 
     virtual void	changeNotify( const CallBack& cb ) = 0;
 
+    DataInpSpec&	spec() { return spec_; }
+
+    bool                update( const DataInpSpec* nw )
+                        {
+                            if(spec_.type() != nw->type()) return false;
+                            return update_(nw);
+                        }
+protected:
+
+    virtual bool        update_( const DataInpSpec* )
+			   { return false; } // TODO: implement
+
+    DataInpSpec&	spec_;
+
+    void		init()
+			{
+			    int pw = spec_.prefFldWidth();
+			    if(pw>=0) 
+				for( int idx=0; idx<nElems(); idx++ )
+				    element(idx).setPrefWidthInChar( pw );
+			}
 };
 
 /*! \brief Text oriented data input field.
@@ -93,7 +118,8 @@ Converts everything to and from a string.
 class uiTextInpFld : public uiDataInpFld
 {
 public:
-                        uiTextInpFld() {}
+                        uiTextInpFld( const DataInpSpec& spec )
+			: uiDataInpFld( spec ) {}
 
     virtual int         getIntValue( int idx ) const
 			    { return text(idx) ? atoi( text(idx) ) : 0; }
@@ -128,8 +154,9 @@ converts everything formats to and from int
 class uiIntInpField : public uiDataInpFld
 {
 public:
-                        uiIntInpField( int clearValue=0 )
-			    : clear_(clearValue) {}
+                        uiIntInpField(const DataInpSpec& spec,int clearValue=0)
+                        : uiDataInpFld( spec )
+			, clear_(clearValue) {}
 
     virtual const char* text( int idx ) const
 			    { return getStringFromInt(0, getIntValue(idx)); }
@@ -170,22 +197,18 @@ class uiLineInpFld : public uiTextInpFld
 {
 public:
 			uiLineInpFld( uiObject* p, 
-					 const DataInpSpec* spec=0,
+					 const DataInpSpec& spec,
 					 const char* nm="Line Edit Field" ) 
-			: li( *new uiLineEdit(p,0,nm) ) 
+			    : uiTextInpFld( spec )
+			    , li( *new uiLineEdit(p,0,nm) ) 
 			{
-			    if( spec )
+			    if( !spec.isUndef() )
 			    {
 				BufferString tmp;
-				spec->getText( tmp );
+				spec.getText( tmp );
 				li.setText( tmp );
-
-				const StringInpSpec* dsc 
-				    = dynamic_cast<const StringInpSpec*>(spec);
-
-				int pw = dsc ? dsc->prefWidth() : -1;
-				if( pw >= 0 ) li.setPrefWidthInChar( pw );
 			    }
+			    init();
 			}
 
     virtual const char*	text(int idx) const		{ return li.text(); }
@@ -204,8 +227,8 @@ class uiBoolInpFld : public uiIntInpField
 public:
 
 			uiBoolInpFld( uiObject* p, 
-					 const DataInpSpec* spec=0,
-					 const char* nm="Bool Input Field" );
+				      const DataInpSpec& spec,
+				      const char* nm="Bool Input Field" );
 
     virtual const char*	text(int idx) const{ return yn ? truetxt : falsetxt; }
     virtual void        setText( const char* t, int idx)	
@@ -244,11 +267,12 @@ protected:
 
 };
 
-uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec* spec, const char* nm)
-    : butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true ), changed( this )
+uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec& spec, const char* nm)
+    :uiIntInpField( spec )
+    , butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true ), changed( this )
 {
-    const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(spec);
-    if( !spc ) { butOrGrp = new uiGroup(p,nm); return; }
+    const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(&spec);
+    if( !spc ) { pErrMsg("huh?");butOrGrp = new uiGroup(p,nm); return; }
 
     yn=spc->checked(); initClear();
 
@@ -284,6 +308,8 @@ uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec* spec, const char* nm)
     grp_->setHAlignObj( rb1 );
 
     setValue( yn );
+
+    init();
 }
 
 
@@ -315,10 +341,13 @@ class uiBinIDInpFld : public uiTextInpFld
 public:
 
 			uiBinIDInpFld( uiObject* p, 
-					 const DataInpSpec* spec=0,
+					 const DataInpSpec& spec,
 					 const char* nm="BinID Input Field" );
 
-    virtual uiObject&	uiObj()				{ return binidGrp; }
+    virtual uiObject&	uiObj()			{ return binidGrp; }
+
+    virtual int		nElems()		{ return 2; }
+    virtual uiObject&	element( int idx  )	{ return idx ? crl_y : inl_x; }
 
     virtual const char*	text(int idx) const		
 			    { return idx ? crl_y.text() : inl_x.text(); }
@@ -342,17 +371,23 @@ protected:
 
 };
 
-uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
+uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec& spec,
 			      const char* nm ) 
-    : binidGrp( *new uiGroup(p,nm) )
+    : uiTextInpFld( spec )
+    , binidGrp( *new uiGroup(p,nm) )
     , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
     , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
     , ofrmBut( 0 )
     , b2c(0)
 {
-    const BinIDCoordInpSpec*spc = dynamic_cast<const BinIDCoordInpSpec*>(spec);
-    if( !spc ) return;
+    const BinIDCoordInpSpec*spc = dynamic_cast<const BinIDCoordInpSpec*>(&spec);
+    if( !spc ){ pErrMsg("huh"); return; }
 
+    if( !spec.isUndef() )
+    {
+	inl_x.setValue(spc->value(0));
+	crl_y.setValue(spc->value(1));
+    }
     binidGrp.setHAlignObj( &inl_x );
     crl_y.attach( rightTo, &inl_x );
 
@@ -366,11 +401,14 @@ uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
 
     b2c = spc->binID2Coord();
     if ( !b2c ) b2c = &SI().binID2Coord();
+
+    init();
 }
 
 
 void uiBinIDInpFld::otherFormSel(CallBacker* cb)
 {
+// TODO  implement:
 // pop dialog box
 // transform using b2c
 // set value
@@ -382,10 +420,11 @@ class uiIntervalInpFld : public uiTextInpFld
 public:
 
 			uiIntervalInpFld( uiObject* p, 
-					 const DataInpSpec* spec=0,
+					 const DataInpSpec& spec,
 					 const char* nm="Bool Input Field" );
 
-    //virtual bool        getBoolValue() const	{ return yn; }
+    virtual int		nElems()		{ return step ? 3 : 2; }
+    virtual uiObject&	element( int idx  )	{ return *le(idx); }
 
     virtual uiObject&	uiObj()			{ return intvalGrp; }
 
@@ -400,7 +439,6 @@ public:
 			    stop.textChanged.notify(cb); 
 			    if(step) step->textChanged.notify(cb); 
 			}
-protected:
 protected:
     uiGroup&		intvalGrp;
 
@@ -421,30 +459,40 @@ protected:
 };
 
 template<class T>
-uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec* spec,
+uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec& spec,
 				    const char* nm) 
-    : intvalGrp( *new uiGroup(p,nm) ) 
+    : uiTextInpFld( spec )
+    , intvalGrp( *new uiGroup(p,nm) ) 
     , start( *new uiLineEdit(&intvalGrp,0,nm) )
     , stop( *new uiLineEdit(&intvalGrp,0,nm) )
     , step( 0 )
 {
     const NumInpIntervalSpec<T>* spc = 
-			dynamic_cast< const NumInpIntervalSpec<T>* >(spec);
-    if(!spc) return;
+			dynamic_cast< const NumInpIntervalSpec<T>* >(&spec);
+    if(!spc) { pErrMsg("huh"); return; }
 
-    start.setValue(spc->value(0));
-    stop.setValue(spc->value(1));
-
-    if( spc-> hasStep() )
-    {
-	step = new uiLineEdit(&intvalGrp,0,nm);
-	step->setValue(spc->value(2));
+    if( spc->hasLimits() ) 
+    { 
+	// TODO: implement check for limits
     }
 
+    if( !spec.isUndef() )
+    {
+	start.setValue(spc->value(0));
+	stop.setValue(spc->value(1));
+
+	if( spc-> hasStep() )
+	{
+	    step = new uiLineEdit(&intvalGrp,0,nm);
+	    step->setValue(spc->value(2));
+	}
+    }
     intvalGrp.setHAlignObj( &start );
 
     stop.attach( rightTo, &start );
     if( step ) step->attach( rightTo, &stop );
+
+    init();
 }
 
 
@@ -452,22 +500,17 @@ class uiStrLstInpFld : public uiIntInpField
 {
 public:
 			uiStrLstInpFld( uiObject* p, 
-					 const DataInpSpec* spec=0,
+					 const DataInpSpec& spec,
 					 const char* nm="Line Edit Field" ) 
-			: cbb( *new uiComboBox(p,0,nm) ) 
+			    : uiIntInpField( spec )
+			    , cbb( *new uiComboBox(p,nm) ) 
 			{
-			    if( spec )
-			    {
-				const StringListInpSpec* dsc = 
-				   dynamic_cast<const StringListInpSpec*>(spec);
+			    const StringListInpSpec* spc = 
+				dynamic_cast<const StringListInpSpec*>(&spec);
+			    if( !spc ) { pErrMsg("Huh") ; return; }
 
-				if(!dsc) { pErrMsg("huh?") ; return; }
-
-				cbb.addItems( dsc->strings() );
-
-				int pw = dsc ? dsc->prefWidth() : -1;
-				if( pw >= 0 ) cbb.setPrefWidthInChar( pw );
-			    }
+			    cbb.addItems( spc->strings() );
+			    init();
 			}
 
     virtual const char*	text(int idx) const		{ return cbb.getText();}
@@ -494,70 +537,64 @@ creates a new InpFld and attaches it rightTo the last one
 already present in 'flds'.
 
 */
-uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
+uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 {
     uiDataInpFld* fld;
 
-    if( !desc )
-	{ fld = new uiLineInpFld( this ); }
-    else
+    switch( desc.type() )
     {
-	switch( desc->type() )
-	{
-	    case DataInpSpec::stringTp:
-	    case DataInpSpec::fileNmTp:
-		{
-		    fld = new uiLineInpFld( this, desc ); 
-		}
-		break;
+	case DataInpSpec::stringTp:
+	case DataInpSpec::fileNmTp:
+	    {
+		fld = new uiLineInpFld( this, desc ); 
+	    }
+	    break;
 
-	    case DataInpSpec::floatTp:
-	    case DataInpSpec::doubleTp:
-	    case DataInpSpec::intTp:
-		{
-		    fld = new uiLineInpFld( this, desc ); 
-		    fld->uiObj().setPrefWidthInChar( 10 );
-		}
-		break;
+	case DataInpSpec::floatTp:
+	case DataInpSpec::doubleTp:
+	case DataInpSpec::intTp:
+	    {
+		fld = new uiLineInpFld( this, desc ); 
+	    }
+	    break;
 
-	    case DataInpSpec::boolTp:
-		{
-		    fld = new uiBoolInpFld( this, desc ); 
-		}
-		break;
+	case DataInpSpec::boolTp:
+	    {
+		fld = new uiBoolInpFld( this, desc ); 
+	    }
+	    break;
 
-	    case DataInpSpec::intIntervalTp:
-		{
-		    fld = new uiIntervalInpFld<int>( this, desc ); 
-		}
-		break;
-	    case DataInpSpec::floatIntervalTp:
-		{
-		    fld = new uiIntervalInpFld<float>( this, desc ); 
-		}
-		break;
-	    case DataInpSpec::doubleIntervalTp:
-		{
-		    fld = new uiIntervalInpFld<double>( this, desc ); 
-		}
-		break;
+	case DataInpSpec::intIntervalTp:
+	    {
+		fld = new uiIntervalInpFld<int>( this, desc ); 
+	    }
+	    break;
+	case DataInpSpec::floatIntervalTp:
+	    {
+		fld = new uiIntervalInpFld<float>( this, desc ); 
+	    }
+	    break;
+	case DataInpSpec::doubleIntervalTp:
+	    {
+		fld = new uiIntervalInpFld<double>( this, desc ); 
+	    }
+	    break;
 
-	    case DataInpSpec::binIDCoordTp:
-		{
-		    fld = new uiBinIDInpFld( this, desc ); 
-		}
-		break;
-	    case DataInpSpec::stringListTp:
-		{
-		    fld = new uiStrLstInpFld( this, desc ); 
-		}
-		break;
-	    default:
-		{
-		    fld = new uiLineInpFld( this, desc ); 
-		}
-		break;
-	}
+	case DataInpSpec::binIDCoordTp:
+	    {
+		fld = new uiBinIDInpFld( this, desc ); 
+	    }
+	    break;
+	case DataInpSpec::stringListTp:
+	    {
+		fld = new uiStrLstInpFld( this, desc ); 
+	    }
+	    break;
+	default:
+	    {
+		fld = new uiLineInpFld( this, desc ); 
+	    }
+	    break;
     }
 
     uiObject* other= flds.size() ? &flds[ flds.size()-1 ]->uiObj() : 0;
@@ -635,11 +672,17 @@ void uiGenInput::addInput( const DataInpSpec& inp )
 }
 
 
-DataInpSpec* uiGenInput::getInput( int nr )  
+const DataInpSpec* uiGenInput::spec( int nr ) const
 { 
     if( finalised ) 
-	{ pErrMsg("Don't use when already finalised") ; return 0; }
+	return( nr >= 0 && nr<flds.size() && flds[nr] ) ? &flds[nr]->spec(): 0;
     return ( nr<inputs.size() && inputs[nr] ) ? inputs[nr] : 0;
+}
+
+bool uiGenInput::newSpec(DataInpSpec* nw, int nr)
+{
+    return ( nr >= 0 && nr<flds.size() && flds[nr] ) 
+	    ? flds[nr]->update(nw) : false; 
 }
 
 
@@ -649,7 +692,7 @@ void uiGenInput::finalise_()
     uiGroup::finalise_();
     if( !inputs.size() )	{ pErrMsg("No inputs specified :("); return; }
 
-    uiObject * lastElem = &createInpFld( inputs[0] ).uiObj();
+    uiObject * lastElem = &createInpFld( *inputs[0] ).uiObj();
     setHAlignObj( lastElem );
 
     if( withchk )
@@ -666,7 +709,7 @@ void uiGenInput::finalise_()
     }
 
     for( int i=1; i<inputs.size(); i++ )
-	lastElem = &createInpFld( inputs[i] ).uiObj();
+	lastElem = &createInpFld( *inputs[i] ).uiObj();
 
     if( selText != "" )
     {
@@ -683,7 +726,7 @@ void uiGenInput::finalise_()
     }
 
     setReadOnly( ro );
-    deepErase( inputs );
+    deepErase( inputs ); // have been copied to fields.
 }
 
 

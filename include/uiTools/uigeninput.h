@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.9 2001-05-08 15:38:42 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.10 2001-05-09 11:49:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,15 +69,27 @@ public:
 
     void		addInput( const DataInpSpec& );
 
-/*! \brief gives access to the input specs if not yet finalised.
+/*! \brief gives access to the actual spec of an input field.
 
-It is preferred to construct and manipulate a DataInpSpec before
-construction of a uiGenInput, because you probably have to dynamic
-cast the DataInpSpec* to it's specific child when using getInput.
-Don't use when already finalised (i.e. popped up).
+When the uiGenInput is being finalised, the actual input fields are 
+constructed. The fields make a clone of their input spec,
+which are used for range checking, etc.
+
+The purpose of this is to be able to store the actual current spec's, 
+instead of the intial specs, which might have been updated with newSpec(). 
+For example, limits might have been set/changed.
+
+\sa  bool newSpec(DataInpSpec* nw, int nr)
+ 
+*/
+    const DataInpSpec*	spec( int nr ) const;
+
+/*! \brief makes it possible to change the actual spec for an input field.
+
+Returns true, if changes are accepted.
 
 */
-    DataInpSpec*	getInput( int nr );
+    bool		newSpec(DataInpSpec* nw, int nr);
 
 //! checks if inputs are valid, f.e. within specified range
     bool		isValid(int nr=0) const;
@@ -170,8 +182,13 @@ protected:
     void 		inpFldChanged(CallBacker*);
 
 			//! DataInpField factory
-    uiDataInpFld& 	createInpFld(const DataInpSpec* =0);
+    uiDataInpFld& 	createInpFld(const DataInpSpec&);
     virtual void	finalise_();
+    inline DataInpSpec*	spec( int nr )
+			{
+			    return const_cast<DataInpSpec*>
+				( ((const uiGenInput*)this)->spec(nr) );
+			}
 
 private:
 
