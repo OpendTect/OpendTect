@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.169 2003-10-17 15:01:53 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.170 2003-10-20 10:23:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -884,6 +884,7 @@ const TypeSet<float>* uiVisPartServer::getHistogram( int id ) const
     if ( pdd ) return &pdd->getHistogram();
     if ( vd ) return &vd->getHistogram();
     if ( rtd ) return &rtd->getHistogram();
+    if ( sd ) return &sd->getHistogram();
 
     return 0;
 }
