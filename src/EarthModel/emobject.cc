@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.15 2004-05-04 10:02:06 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.16 2004-05-06 12:31:08 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -80,7 +80,7 @@ MultiID EM::EMObject::multiID() const
 }
 
 
-void EM::EMObject::setPosAttrib( EM::PosID& pid, int attr, bool yn )
+void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 {
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
@@ -101,7 +101,7 @@ void EM::EMObject::setPosAttrib( EM::PosID& pid, int attr, bool yn )
 	}
 	else if ( !yn )
 	{
-	    posids.remove(idy);
+	    posids.removeFast(idy);
 	    if ( !posids.size() )
 	    {
 		delete posattribs[idx];
@@ -113,7 +113,7 @@ void EM::EMObject::setPosAttrib( EM::PosID& pid, int attr, bool yn )
 }
 
 
-bool EM::EMObject::isPosAttrib( EM::PosID& pid, int attr ) const
+bool EM::EMObject::isPosAttrib( const EM::PosID& pid, int attr ) const
 {
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )

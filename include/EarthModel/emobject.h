@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.19 2004-05-04 10:02:01 nanne Exp $
+ RCS:		$Id: emobject.h,v 1.20 2004-05-06 12:31:11 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,9 @@ public:
 				     linked to the posid given
 				*/
     				
-    virtual void		setPosAttrib( EM::PosID&, int attr, bool yn );
-    virtual bool		isPosAttrib(EM::PosID&, int attr) const;
+    virtual void		setPosAttrib( const EM::PosID&,
+	    					int attr, bool yn );
+    virtual bool		isPosAttrib(const EM::PosID&, int attr) const;
     virtual const char*		posAttribName(int) const;
     virtual int			nrPosAttribs() const;
     virtual int			addPosAttribName(const char*);
