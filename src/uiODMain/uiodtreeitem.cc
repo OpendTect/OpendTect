@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.73 2005-03-15 16:55:12 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.74 2005-03-23 16:05:32 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -541,6 +541,9 @@ BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 }
 
 
+#define mIsObject(typestr) \
+    !strcmp(uivisemobj->getObjectType(displayid),typestr)
+
 void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
@@ -574,20 +577,17 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     tracksetupmnuid = toggletrackingmnuid = trackmnuid = -1;
     addsectionmnuid = extendsectionmnuid = relmnuid = savemnuid = -1;
 
-	/*
-    uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
+    uiPopupMenu* trackmnu = menu->getMenu( uiVisEMObject::trackingmenutxt );
     if ( uilistviewitem->isChecked() && trackmnu )
     {
-	uiTrackingPartServer* ts = applMgr()->mpeServer();
-	ts->setSceneID( sceneID() );
-	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
-	ts->setDisplayID( displayid );
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
 
 	EM::SectionID section = -1;
 	if ( uivisemobj->nrSections()==1 )
-	    section = uivisemobj->getSection(0);
+	    section = uivisemobj->getSectionID(0);
 	else if ( menu->getPath() )
-	    section = uivisemobj->getSection( menu->getPath() );
+	    section = uivisemobj->getSectionID( menu->getPath() );
 
 	const Coord3& pickedpos = menu->getPickedPos();
 	const bool hastracker = applMgr()->mpeServer()->getTrackerID(mid)>=0;
@@ -601,8 +601,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	}
 	else if ( hastracker && section != -1 )
 	{
-
-	    if ( uivisemobj->isHorizon(displayid) )
+	    if ( mIsObject(EM::Horizon::typeStr()) )
 	    {
 		addsectionmnuid = menu->getFreeID();
 		trackmnu->insertItem( new uiMenuItem("Add section ..."),
@@ -622,10 +621,11 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    uiMenuItem* tracktogglemnuitem = new uiMenuItem("Enable tracking");
 	    toggletrackingmnuid = menu->getFreeID();
 	    trackmnu->insertItem( tracktogglemnuitem, toggletrackingmnuid );
+	    const int trackerid = applMgr()->mpeServer()->getTrackerID( mid );
 	    tracktogglemnuitem->setChecked(
-		    applMgr()->mpeServer()->isTrackingEnabled(mid) );
+		    applMgr()->mpeServer()->isTrackingEnabled(trackerid) );
 
-	    if ( uivisemobj->isHorizon(displayid) )
+	    if ( mIsObject(EM::Horizon::typeStr()) )
 	    {
 		relmnuid = menu->getFreeID();
 		trackmnu->insertItem( new uiMenuItem("Relations ..."), 
@@ -637,7 +637,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	savemnuid = menu->addItem( storemenuitem );
 	storemenuitem->setEnabled( applMgr()->EMServer()->isChanged(mid) );
     }
-	*/
 
     uiMenuItem* saveattritm = new uiMenuItem("Save attribute ...");
     saveattrmnuid = menu->addItem( saveattritm );
@@ -678,16 +677,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==trackmnuid )
     {
-	/*
 	menu->setIsHandled(true);
 	if ( sectionid < 0 ) return;
 
-	if ( !uivisemobj->isHorizon(displayid) && !uivisemobj->isFault(displayid))
-	    return;
-
-	applMgr()->mpeServer()->trackExistingSurface( mid, sectionid, 
-							menu->getPickedPos() );
-							*/
+	applMgr()->mpeServer()->addTracker( mid, menu->getPickedPos() );
     }
     else if ( mnuid==tracksetupmnuid )
     {

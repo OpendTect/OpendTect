@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.3 2005-02-17 10:50:52 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.4 2005-03-23 16:01:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,7 @@ ________________________________________________________________________
 #include "vismpeeditor.h"
 //#include "vishingeline.h"
 
-//const char* uiVisSurface::trackingmenutxt = "Tracking";
-
+const char* uiVisEMObject::trackingmenutxt = "Tracking";
 
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
@@ -251,7 +250,8 @@ int uiVisEMObject::nrSections() const
     return emobj->nrSections();
 }
 
-EM::SectionID uiVisEMObject::getSectionID(int idx) const
+
+EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 {
     const MultiID* mid = visserv->getMultiID( displayid );
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
@@ -262,7 +262,7 @@ EM::SectionID uiVisEMObject::getSectionID(int idx) const
 }
 
 
-EM::SectionID uiVisEMObject::getSectionID(const TypeSet<int>* path) const
+EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
 {
     if ( !path ) return -1;
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
@@ -302,35 +302,27 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
 	    	    visserv->getObject(displayid))
 
-    uiMenuItem* colitm = new uiMenuItem("Use single color");
+    uiMenuItem* colitm = new uiMenuItem( "Use single color" );
     singlecolmnuid = menu->addItem( colitm );
     colitm->setChecked( !emvis->usesTexture() );
 
-    bool dotrack = true;
-//  mGetTrackingBoolean(dotrack);
-    if ( dotrack )
-    {
-	uiPopupMenu* trackmnu = new uiPopupMenu( uiparent, "Enable Tracking" );
-	menu->addSubMenu( trackmnu );
-	
-	uiMenuItem* edititem = new uiMenuItem( "Edit" );
-	editmnuid = menu->getFreeID();
-	trackmnu->insertItem( edititem, editmnuid );
-	edititem->setChecked( emvis->isEditingEnabled() );
-
-	uiMenuItem* wireframeitem = new uiMenuItem("Wireframe");
-	wireframemnuid = menu->getFreeID();
-	trackmnu->insertItem( wireframeitem, wireframemnuid );
-	wireframeitem->setChecked( emvis->usesWireframe() );
-    }
-    else
-    {
-	editmnuid=-1;
-    }
-
     shiftmnuid = !strcmp(getObjectType(displayid),EM::Horizon::typeStr())
-	? menu->addItem( new uiMenuItem("Shift ..."), 100 )
+	? menu->addItem( new uiMenuItem("Shift ...") )
 	: -1;
+
+    uiPopupMenu* trackmnu = new uiPopupMenu( uiparent, 
+	    				     uiVisEMObject::trackingmenutxt );
+    menu->addSubMenu( trackmnu );
+    
+    uiMenuItem* edititem = new uiMenuItem( "Edit" );
+    editmnuid = menu->getFreeID();
+    trackmnu->insertItem( edititem, editmnuid );
+    edititem->setChecked( emvis->isEditingEnabled() );
+
+    uiMenuItem* wireframeitem = new uiMenuItem("Wireframe");
+    wireframemnuid = menu->getFreeID();
+    trackmnu->insertItem( wireframeitem, wireframemnuid );
+    wireframeitem->setChecked( emvis->usesWireframe() );
 
     const MultiID* mid = visserv->getMultiID( displayid );
     if ( !mid ) return;

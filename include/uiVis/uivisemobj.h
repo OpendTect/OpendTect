@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.2 2005-02-17 10:50:52 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.3 2005-03-23 16:01:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -21,10 +21,6 @@ class uiParent;
 class uiVisMenu;
 class uiVisPartServer;
 class MultiID;
-
-
-#define mGetTrackingBoolean(param) \
-Settings::common().getYN(IOPar::compKey("dTect","Enable Tracking"),param)
 
 
 class uiVisEMObject : public CallBackClass
@@ -50,7 +46,7 @@ public:
     EM::SectionID	getSectionID(int idx) const;
     EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;
 
-    //static const char*	trackingmenutxt;
+    static const char*	trackingmenutxt;
 
 protected:
     void		setUpConnections();
