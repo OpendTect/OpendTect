@@ -5,12 +5,12 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.4 2001-05-22 16:23:48 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.5 2001-05-31 12:55:11 windev Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
 #include "strmoper.h"
-#include <fstream.h>
+#include <fstream>
 
 
 DefineEnumNames(StreamConn,Type,0,"Type")

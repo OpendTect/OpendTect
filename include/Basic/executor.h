@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-7-1996
  Contents:	Executor
- RCS:		$Id: executor.h,v 1.2 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: executor.h,v 1.3 2001-05-31 12:55:04 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uidobj.h>
 #include <basictask.h>
-class ostream;
+#include <iosfwd>
 
 /*!\brief specification to enable chunkwise execution a process.
 

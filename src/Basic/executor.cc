@@ -5,12 +5,12 @@
  * FUNCTION : functions
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.2 2000-06-23 14:11:07 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.3 2001-05-31 12:55:13 windev Exp $";
 
 #include "executor.h"
 #include "timefun.h"
 #include "errh.h"
-#include <iostream.h>
+#include <iostream>
 
 
 bool Executor::execute( ostream* strm, bool isfirst, bool islast )

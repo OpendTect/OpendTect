@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.5 2001-03-30 10:50:43 bert Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.6 2001-05-31 12:55:20 windev Exp $";
 
 #include "timefun.h"
 #include <time.h>
@@ -15,9 +15,10 @@ static const char* rcsID = "$Id: timefun.cc,v 1.5 2001-03-30 10:50:43 bert Exp $
 #endif
 
 #ifndef __notimeb__
-# ifndef __win__
-#  include <sys/timeb.h>
+# ifdef __win__
+#  include <windows.h>
 # endif
+# include <sys/timeb.h>
 #endif
 
 #ifdef __notimeb__

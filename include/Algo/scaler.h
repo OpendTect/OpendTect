@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.7 2001-05-02 14:04:08 arend Exp $
+ RCS:		$Id: scaler.h,v 1.8 2001-05-31 12:55:09 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,12 @@ ________________________________________________________________________
 #define sLogScaler	"Logarithmic"
 #define sExpScaler	"Exponential"
 #define sAsymptScaler	"Asymptotic"
+
+#ifdef __msvc__
+# define 	mDuplicate	duplicate_
+#else
+# define 	mDuplicate	duplicate
+#endif
 
 /*!\brief Scaling of floating point numbers.
 
@@ -55,6 +61,10 @@ public:
 			: constant(c), factor(f)	{}
     virtual cloneTp*	duplicate() const
 			{ return new LinScaler(constant,factor); }
+#ifdef __msvc__
+    virtual LinScaler*	duplicate_() const
+			{ return new LinScaler(constant,factor); }
+#endif
     const char*		type() const			{ return sLinScaler; }
 
     double		scale(double) const;
@@ -87,6 +97,10 @@ public:
     const char*		type() const			{ return sLogScaler; }
     virtual cloneTp*	duplicate() const
 			{ return new LogScaler(ten); }
+#ifdef __msvc__
+    virtual LogScaler*	duplicate_() const
+			{ return new LogScaler(ten); }
+#endif
 
     double		scale(double) const;
     double		unScale(double) const;
@@ -112,6 +126,10 @@ public:
     const char*		type() const			{ return sExpScaler; }
     virtual cloneTp*	duplicate() const
 			{ return new ExpScaler(ten); }
+#ifdef __msvc__
+    virtual ExpScaler*	duplicate_() const
+			{ return new ExpScaler(ten); }
+#endif
 
     double		scale(double) const;
     double		unScale(double) const;
@@ -148,6 +166,10 @@ public:
     const char*		type() const		{ return sAsymptScaler; }
     virtual cloneTp*	duplicate() const
 			{ return new AsymptScaler(center_,width_,linedge_); }
+#ifdef __msvc__
+    virtual AsymptScaler* duplicate_() const
+			{ return new AsymptScaler(center_,width_,linedge_); }
+#endif
 
     double		scale(double) const;
     double		unScale(double) const;

@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.3 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.4 2001-05-31 12:55:10 windev Exp $
 ________________________________________________________________________
 
 -*/
  
 #include <stdio.h>
-class istream;
-class ostream;
+#include <iosfwd>
+
 class stdiobuf;
 
 

@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.4 2000-09-27 16:04:46 bert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.5 2001-05-31 12:55:10 windev Exp $";
 
 #include "ascstream.h"
 #include "unitscale.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: ascstream.cc,v 1.4 2000-09-27 16:04:46 bert Exp
 #include "timefun.h"
 #include <string.h>
 #include <stdlib.h>
-#include <iostream.h>
+#include <iostream>
 
 
 ascostream::~ascostream()

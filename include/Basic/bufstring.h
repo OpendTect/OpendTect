@@ -8,16 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.12 2001-05-04 20:48:35 dgb Exp $
+ RCS:		$Id: bufstring.h,v 1.13 2001-05-31 12:55:03 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <string.h>
 #include <string2.h>
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
-
 
 /*!\brief String with variable length but guaranteed minimum buffer size.
 

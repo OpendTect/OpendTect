@@ -5,13 +5,13 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.8 2001-05-02 14:04:57 arend Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.9 2001-05-31 12:55:17 windev Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"
 #include "timefun.h"
 #include "errh.h"
-#include <iostream.h>
+#include <iostream>
 
 
 istream* openInputStream( const char* fname )
@@ -89,7 +89,7 @@ bool readWithRetry( istream& strm, void* ptr, unsigned int nrbytes,
     {
 	if ( strm.eof() ) return false;
 
-	unsigned char* cp = (unsigned char*)ptr + strm.gcount();
+	char* cp = (char*)ptr + strm.gcount();
 	for ( int idx=0; idx<nrretries; idx++ )
 	{
 	    BufferString msg( "Soft error during read. Retrying after " );

@@ -4,14 +4,14 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.7 2001-05-18 13:36:33 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.8 2001-05-31 12:55:19 windev Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
 #include "filegen.h"
 #include "separstr.h"
 #include "errh.h"
-#include <fstream.h>
+#include <fstream>
 
 static const char* sKey = "Survey Info";
 SurveyInfo* SurveyInfo::theinst_;

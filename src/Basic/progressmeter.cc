@@ -8,7 +8,7 @@ static const char* rcsID = "$Id";
 
 #include "progressmeter.h"
 #include "timefun.h"
-#include <iostream.h>
+#include <iostream>
 #include <values.h>
 #include <stdlib.h>
 

@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.10 2001-05-25 23:31:01 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.11 2001-05-31 12:55:14 windev Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -22,6 +22,7 @@ static struct stat statbuf;
 #else
 #include <windows.h>
 #include <shlwapi.h>
+#include <time.h>
 #endif
 
 static const char* dirsep = sDirSep;

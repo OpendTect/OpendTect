@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.5 2001-05-31 12:55:07 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 #include <limits.h>
-class ostream;
+#include <iosfwd>
 
 
 /*!\brief Textual progress indicator for batch programs. */

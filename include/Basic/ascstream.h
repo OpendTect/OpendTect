@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.4 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.5 2001-05-31 12:55:02 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <bufstring.h>
 #include <limits.h>
+#include <iosfwd>
+
 class MeasureUnit;
-class istream;
-class ostream;
 
 #define mParagraphMarker	"!"
 #define mKeyValSepar		':'

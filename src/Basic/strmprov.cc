@@ -9,18 +9,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <fstream.h>
+#include <fstream>
+
 #ifdef __msvc__
+# include <windows.h>
+//# include <stdiostr.h>   // can't use with namespaces
+# define popen _popen
+# define pclose _pclose
 #else
-#include <stdiostream.h>
+# include <stdiostream.h>
 #endif
+
 #include "strmprov.h"
 #include "filegen.h"
 #include "string2.h"
 #include "binidsel.h"
 #include "strmoper.h"
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.5 2001-05-02 13:50:21 windev Exp $";
+
+static const char* rcsID = "$Id: strmprov.cc,v 1.6 2001-05-31 12:55:18 windev Exp $";
 
 static FixedString<1024> oscommand;
 #define exeCmd(comm) system((const char*)comm) ? false : true
