@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.2 2000-02-24 13:44:21 bert Exp $
+ RCS:		$Id: ranges.h,v 1.3 2000-05-24 14:57:43 dgb Exp $
 ________________________________________________________________________
 
 @$*/
@@ -93,7 +93,7 @@ public:
 		}
     virtual void sort( bool asc=YES )
 		{
-		    Interval::sort(asc);
+		    Interval<T>::sort(asc);
 		    if ( (asc && step < 0) || (!asc && step > 0) )
 			step = -step;
 		}
