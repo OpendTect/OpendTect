@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.9 2005-01-25 17:27:22 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.10 2005-01-26 11:48:31 bert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -230,13 +230,20 @@ bool Strat::UnitRef::Iter::toNext()
     UnitRef* curun = gtUnit();
     if ( curun->isLeaf() )
     {
-	if ( curidx_ < curnode_->nrRefs() - 2 )
+	if ( curidx_ < curnode_->nrRefs() - 1 )
 	    { curidx_++; return true; }
     }
     else
     {
 	if ( curun != curnode_ )
-	    { curnode_ = (NodeUnitRef*)curun; curidx_ = -1; return true; }
+	{
+	    curnode_ = (NodeUnitRef*)curun;
+	    if ( curnode_->nrRefs() > 0 )
+	    {
+		curidx_ = 0;
+		return true;
+	    }
+	}
 	else if ( curnode_->nrRefs() > 0 )
 	    { curidx_ = 0; return true; }
     }
@@ -249,7 +256,7 @@ bool Strat::UnitRef::Iter::toNext()
 
 	curidx_ = par->indexOf( curnode_ );
 	curnode_ = par;
-	if ( curidx_+1 < par->nrRefs() )
+	if ( curidx_ < par->nrRefs() - 1 )
 	    { curidx_++; return true; }
 
 	if ( curnode_ == itnode_ ) break;
