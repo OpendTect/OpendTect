@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.4 2000-03-09 17:11:34 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.5 2000-03-10 13:10:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,12 @@ ________________________________________________________________________
 extern
 #endif
 
-	int defaultAllocBlockSize
+	unsigned int defaultAllocBlockSize
 
 #ifdef __prog__
-				    = 16
+						= 16
 #endif
-;
+						    ;
 
 
 template <class T>
@@ -37,7 +37,7 @@ public:
 Vector()	: sz(0), allocsz(0), elems(0),
 		  allocblocksize(defaultAllocBlockSize)	{}
 
-Vector( int n )
+Vector( unsigned int n )
 	: sz(0), allocsz(0), elems(0), allocblocksize(defaultAllocBlockSize)
 {
     sz = allocsz = 0;
@@ -45,7 +45,7 @@ Vector( int n )
     if ( elems ) { sz = allocsz = n; }
 }
 
-Vector( int n, const T& t )
+Vector( unsigned int n, const T& t )
 	: sz(0), allocsz(0), allocblocksize(defaultAllocBlockSize)
 {
     elems = (T*)malloc(n*sizeof(T));
@@ -67,7 +67,7 @@ Vector& operator =( const Vector& v )
 {
     if ( &v != this )
     {
-	allocblocksize = v.allocblocksize;
+	*((unsigned int*)(&allocblocksize)) = v.allocblocksize;
 	if ( sz != v.sz )
 	{
 	    if ( elems ) free( elems );
@@ -87,7 +87,7 @@ Vector& operator =( const Vector& v )
 
     T&		operator[](int idx)		{ return elems[idx]; }
     const T&	operator[](int idx) const	{ return elems[idx]; }
-    int		size() const			{ return sz; }
+    unsigned int size() const			{ return sz; }
 
 void push_back(const T& t)
 {
@@ -113,7 +113,7 @@ void erase( const T& t )
 	{ if ( *(elems+idx) == t ) { remove( idx ); return; } }
 }
 
-void remove( int idx )
+void remove( unsigned int idx )
 {
     if ( idx<0 || idx>=sz ) return;
     sz--;
@@ -126,7 +126,7 @@ void remove( int idx )
     }
 }
 
-void remove( int i1, int i2 )
+void remove( unsigned int i1, unsigned int i2 )
 {
     if ( i1 == i2 ) { remove( i1 ); return; }
     if ( i1 > i2 ) Swap( i1, i2 );
@@ -139,7 +139,7 @@ void remove( int i1, int i2 )
     if ( !sz ) erase();
     else
     {
-	int prevallocsz = allocsz;
+	unsigned int prevallocsz = allocsz;
 	allocsz = sz % allocblocksize
 		? ((sz/allocblocksize)+1)*allocblocksize
 		: allocsz = sz;
@@ -148,7 +148,7 @@ void remove( int i1, int i2 )
     }
 }
 
-void swap( int i, int j )
+void swap( unsigned int i, unsigned int j )
 {
     ::Swap( elems[i], elems[j] );
 }
@@ -183,10 +183,10 @@ void moveToStart( const T& t )
 
 private:
 
-    int		sz;
-    int		allocsz;
-    int		allocblocksize;
-    T*		elems;
+    unsigned int	sz;
+    unsigned int	allocsz;
+    const unsigned int	allocblocksize;
+    T*			elems;
 
 };
 
