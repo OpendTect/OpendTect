@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.5 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: scaler.h,v 1.6 2001-05-02 13:49:58 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,10 +49,11 @@ public:
 
 class LinScaler : public Scaler
 {
+#define cloneTp		mPolyRet(Scaler,LinScaler)
 public:
 			LinScaler( double c=0, double f=1 )
 			: constant(c), factor(f)	{}
-    virtual LinScaler*	duplicate() const
+    virtual cloneTp*	duplicate() const
 			{ return new LinScaler(constant,factor); }
     const char*		type() const			{ return sLinScaler; }
 
@@ -69,6 +70,8 @@ public:
     
     double		constant;
     double		factor;
+
+#undef cloneTp
 };
 
 
@@ -77,11 +80,12 @@ public:
 
 class LogScaler : public Scaler
 {
+#define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
 			LogScaler( bool t = YES )
 			: ten(t)			{}
     const char*		type() const			{ return sLogScaler; }
-    virtual LogScaler*	duplicate() const
+    virtual cloneTp*	duplicate() const
 			{ return new LogScaler(ten); }
 
     double		scale(double) const;
@@ -92,6 +96,7 @@ public:
 			{ return ten==b.ten; }
     
     bool		ten;
+#undef cloneTp
 };
 
 
@@ -100,11 +105,12 @@ public:
 
 class ExpScaler : public Scaler
 {
+#define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
 			ExpScaler( bool t = YES )
 			: ten(t)			{}
     const char*		type() const			{ return sExpScaler; }
-    virtual ExpScaler*	duplicate() const
+    virtual cloneTp*	duplicate() const
 			{ return new ExpScaler(ten); }
 
     double		scale(double) const;
@@ -116,6 +122,7 @@ public:
 			{ return ten==b.ten; }
     
     bool		ten;
+#undef cloneTp
 };
 
 
@@ -133,12 +140,13 @@ reversible squeeze function, with a non-deforming (linear), fast central part.
 
 class AsymptScaler : public Scaler
 {
+#define cloneTp		mPolyRet(Scaler,AsymptScaler)
 public:
 			AsymptScaler( double c=0, double w=1, double l=0.95 )
 			: center_(c), width_(w), linedge_(l), factor(1)
 						{ set(c,w,l); }
     const char*		type() const		{ return sAsymptScaler; }
-    virtual AsymptScaler* duplicate() const
+    virtual cloneTp*	duplicate() const
 			{ return new AsymptScaler(center_,width_,linedge_); }
 
     double		scale(double) const;
@@ -163,6 +171,7 @@ protected:
     double		linedge_;
 
     double		factor;
+#undef cloneTp
 };
 
 

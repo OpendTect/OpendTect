@@ -8,13 +8,17 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.10 2001-04-18 14:45:29 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.11 2001-05-02 13:50:01 windev Exp $
 ________________________________________________________________________
 
 */
 
 #include <general.h>
 #include <math.h>
+
+#ifndef M_PI
+# define M_PI           3.14159265358979323846  /* pi */
+#endif
 
 /*!
  linearInterpolate: regular sampling/generalised

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.7 2001-04-20 15:42:10 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.8 2001-05-02 13:50:04 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,11 @@ public:
 			, scaler(0)			{}
 			CBVSComponentInfo(const CBVSComponentInfo& cci )
 			: BasicComponentInfo(cci)
-			, scaler(cci.scaler?cci.scaler->duplicate():0)	{}
+			, scaler(cci.scaler
+			  ? mPolyRetDownCast(LinScaler*,cci.scaler->duplicate())
+			  : 0) 
+			{}
+
     virtual		~CBVSComponentInfo()
 			{ delete scaler; scaler = 0; }
     CBVSComponentInfo&	operator =( const BasicComponentInfo& cci )
@@ -41,8 +45,8 @@ public:
 			    if ( cbcci )
 			    {
 				delete scaler;
-				scaler = cbcci->scaler
-				       ? cbcci->scaler->duplicate() : 0;
+				scaler = cbcci->scaler ? mPolyRetDownCast(
+				    LinScaler*, cbcci->scaler->duplicate()) : 0;
 			    }
 			    return *this;
 			}
@@ -106,7 +110,7 @@ public:
 				//!< of actually written, which is put
 				//!< in trailer.
 
-	void			merge(const CBVSInfo::SurvGeom&);
+	void			merge(const SurvGeom&);
 	InlineInfo*		getInfoFor(int inl);
 				//!< returns 0 in case of regular
 	void			reCalcBounds();
@@ -114,7 +118,7 @@ public:
     protected:
 
 	void			toIrreg();
-	void			mergeIrreg(const CBVSInfo::SurvGeom&);
+	void			mergeIrreg(const SurvGeom&);
 
     };
 
@@ -140,6 +144,13 @@ public:
 	BinID	binid;
 		//!< For write: must be filled if SurvGeom::fullyrectandreg
 		//!< is false. For read will be filled always.
+
+/*
+    The size of the following data structures must be known in
+    CBVSReader::getExplicits. When changing the type of one of these attributes,
+    make sure to also change the corresponding parts in the __msvc__ part of 
+    CBVSReader::getExplicits.
+*/
 	float	startpos;
 	Coord	coord;
 	float	offset;

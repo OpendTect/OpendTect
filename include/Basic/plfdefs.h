@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.4 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: plfdefs.h,v 1.5 2001-05-02 13:49:50 windev Exp $
 ________________________________________________________________________
 
 */
@@ -41,6 +41,7 @@ Compiler type:
 
 	__gnuc__	GNU gcc
 	__sunc__	Sun c
+	__msvc__	Microsoft Visual C++
 
 Language:
 
@@ -150,6 +151,7 @@ Bytes:
 
 #undef __gnu__
 #undef __sunc__
+#undef __msvc__
 #ifdef lux
 # define __gnuc__ 1
 #endif
@@ -161,6 +163,9 @@ Bytes:
 # ifndef __gnuc__
 #  define __sunc__ 1
 # endif
+#endif
+#ifdef _MSC_VER
+# define __msvc__ 1
 #endif
 
 

@@ -6,9 +6,13 @@
 
 static const char* rcsID = "$Id";
 
-#include <mathexpressionimpl.h>
-#include <ctype.h>
+#include "mathexpressionimpl.h"
+#include "ctype.h"
+#include "bufstring.h"
 
+#ifndef M_PI
+# define M_PI           3.14159265358979323846  /* pi */
+#endif
 
 const char* MathExpression::getVariableStr( int var ) const
 {
@@ -76,7 +80,7 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 MathExpression* MathExpression::parse( const char* input )
 {
     int len = strlen( input );
-    char str[len+1];
+    BufferString str( len+1 );
 
     int pos = 0;
     for ( int idx=0; idx<len; idx++ )
@@ -108,10 +112,10 @@ MathExpression* MathExpression::parse( const char* input )
 	if ( !removebracket )
 	    break;
 
-	char tmp[len+1];
-	strcpy( tmp, &str[1] );
+	BufferString tmp(len+1);
+	tmp  = &str[1]; 
 	tmp[len-2] = 0;
-	strcpy( str, tmp );
+	str = tmp;
 
 	len = strlen( str );
     }
@@ -122,8 +126,8 @@ MathExpression* MathExpression::parse( const char* input )
 	 str[0] == '|' && str[1] != '|' &&
 	 str[len-1] == '|' && str[len-2] != '|' )
     {
-	char tmp[len+1];
-	strcpy( tmp, &str[1] );
+	BufferString tmp(len+1);
+	tmp  = &str[1]; 
 	tmp[len-2] = 0;
 
 	MathExpression* inp = parse( tmp );
@@ -162,8 +166,8 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len+1];
-	    strcpy( arg0, str );
+	    BufferString arg0(len+1);
+	    arg0 = str; 
 	    arg0[idx] = 0;
 
 	    for ( int idy=idx; idy<len; idy++ )
@@ -188,8 +192,8 @@ MathExpression* MathExpression::parse( const char* input )
 		    MathExpression* inp0 = parse( arg0 );
 		    if ( !inp0 ) return 0;
 
-		    char arg1[len+1];
-		    strcpy( arg1, &str[idx+1] );
+		    BufferString arg1(len+1);
+		    arg1 = &str[idx+1];
 		    arg1[idy-idx-1] = 0;
 
 		    MathExpression* inp1 = parse( arg1 );
@@ -199,8 +203,8 @@ MathExpression* MathExpression::parse( const char* input )
 			return 0;
 		    }
 
-		    char arg2[len+1];
-		    strcpy( arg2, &str[idy+1] );
+		    BufferString arg2(len+1);
+		    arg2 = &str[idy+1];
 
 		    MathExpression* inp2 = parse( arg2 );
 		    if ( !inp2 )
@@ -245,16 +249,16 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len+1];
-	    strcpy( arg0, str );
+	    BufferString arg0(len+1);
+	    arg0 = str;
 	    arg0[idx] = 0;
 
 	    MathExpression* inp0 = parse( arg0 );
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len+1];
-	    strcpy( arg1, &str[idx+2] );
+	    BufferString arg1(len+1);
+	    arg1 = &str[idx+2];
 
 	    MathExpression* inp1 = parse( arg1 );
 
@@ -304,8 +308,8 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( (str[idx]=='=' || str[idx]=='!') && str[idx+1] != '=' )
 		continue;
 
-	    char arg0[len+1];
-	    strcpy( arg0, str );
+	    BufferString arg0(len+1);
+	    arg0 = str;
 	    arg0[idx] = 0;
 
 	    MathExpression* inp0 = parse( arg0 );
@@ -313,8 +317,8 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( !inp0 ) return 0;
 
 	    bool twochars = str[idx+1] == '=' ? true : false;
-	    char arg1[len+1];
-	    strcpy( arg1, &str[idx+1+twochars] );
+	    BufferString arg1(len+1);
+	    arg1 = &str[idx+1+(twochars?1:0)];
 
 	    MathExpression* inp1 = parse( arg1 );
 
@@ -380,16 +384,16 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( str[idx-1]=='/' ) continue;
 	    if ( str[idx-1]=='^' ) continue;
 
-	    char arg0[len+1];
-	    strcpy( arg0, str );
+	    BufferString arg0(len+1);
+	    arg0 = str;
 	    arg0[idx] = 0;
 
 	    MathExpression* inp0 = parse( arg0 );
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len+1];
-	    strcpy( arg1, &str[idx+1] );
+	    BufferString arg1(len+1);
+	    arg1 = &str[idx+1];
 
 	    MathExpression* inp1 = parse( arg1 );
 
@@ -432,16 +436,16 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len+1];
-	    strcpy( arg0, str );
+	    BufferString arg0(len+1);
+	    arg0 = str;
 	    arg0[idx] = 0;
 
 	    MathExpression* inp0 = parse( arg0 );
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len+1];
-	    strcpy( arg1, &str[idx+1] );
+	    BufferString arg1(len+1);
+	    arg1 = &str[idx+1];
 
 	    MathExpression* inp1 = parse( arg1 );
 
@@ -485,16 +489,16 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len+1];
-	    strcpy( arg0, str );
+	    BufferString arg0(len+1);
+	    arg0 = str;
 	    arg0[idx] = 0;
 
 	    MathExpression* inp0 = parse( arg0 );
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len+1];
-	    strcpy( arg1, &str[idx+1] );
+	    BufferString arg1(len+1);
+	    arg1 = &str[idx+1];
 
 	    MathExpression* inp1 = parse( arg1 );
 
@@ -522,8 +526,8 @@ MathExpression* MathExpression::parse( const char* input )
 
     if ( !strncmp( str, "sqrt(", 5 ) && str[len-1] == ')' )
     {
-	char arg0[len-5];
-	strcpy( arg0, str+5 );
+	BufferString arg0(len-5);
+	arg0 = str[5];
 	arg0[len-6] = 0;
 
 	MathExpression* inp0 = parse( arg0 );
@@ -554,8 +558,8 @@ MathExpression* MathExpression::parse( const char* input )
 
 	if ( !inp0 ) return 0;
 
-	char arg1[len+1];
-	strcpy( arg1, str+4 );
+	BufferString arg1(len+1);
+	arg1 = str[4];
 	arg1[len-5] = 0;
 
 	MathExpression* inp1 = parse( arg1 );
@@ -579,8 +583,8 @@ MathExpression* MathExpression::parse( const char* input )
     // ln (Natural log)  &  log (10log)
     if ( !strncmp( str, "ln(", 3 ) && str[len-1] == ')' )
     {
-	char arg0[len-3];
-	strcpy( arg0, str+3 );
+	BufferString arg0(len-3);
+	arg0 = str[3];
 	arg0[len-4] = 0;
 
 	MathExpression* inp = parse( arg0 );
@@ -596,8 +600,8 @@ MathExpression* MathExpression::parse( const char* input )
 
     if ( !strncmp( str, "log(", 4 ) && str[len-1] == ')' )
     {
-	char arg0[len-4];
-	strcpy( arg0, str+4 );
+	BufferString arg0(len-4);
+	arg0 = str[4];
 	arg0[len-5] = 0;
 
 	MathExpression* inp = parse( arg0 );
@@ -614,8 +618,8 @@ MathExpression* MathExpression::parse( const char* input )
 //  sin(), cos(), tan()
     if ( !strncmp( str, "sin(", 4 ) && str[len-1] == ')' )
     {
-	char arg0[len-4];
-	strcpy( arg0, str+4 );
+	BufferString arg0(len-4);
+	arg0 = str[4];
 	arg0[len-5] = 0;
 
 	MathExpression* inp = parse( arg0 );
@@ -631,8 +635,8 @@ MathExpression* MathExpression::parse( const char* input )
 
     if ( !strncmp( str, "cos(", 4 ) && str[len-1] == ')' )
     {
-	char arg0[len-4];
-	strcpy( arg0, str+4 );
+	BufferString arg0(len-4);
+	arg0 = str[4];
 	arg0[len-5] = 0;
 
 	MathExpression* inp = parse( arg0 );
@@ -648,8 +652,8 @@ MathExpression* MathExpression::parse( const char* input )
 
     if ( !strncmp( str, "tan(", 4 ) && str[len-1] == ')' )
     {
-	char arg0[len-4];
-	strcpy( arg0, str+4 );
+	BufferString arg0(len-4);
+	arg0 = str[4];
 	arg0[len-5] = 0;
 
 	MathExpression* inp = parse( arg0 );

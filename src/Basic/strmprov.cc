@@ -5,18 +5,22 @@
  * FUNCTION : Stream Provider functions
 -*/
 
+#include "Pmacros.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fstream.h>
+#ifdef __msvc__
+#else
 #include <stdiostream.h>
+#endif
 #include "strmprov.h"
 #include "filegen.h"
 #include "string2.h"
 #include "binidsel.h"
 #include "strmoper.h"
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.4 2001-03-30 08:52:55 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.5 2001-05-02 13:50:21 windev Exp $";
 
 static FixedString<1024> oscommand;
 #define exeCmd(comm) system((const char*)comm) ? false : true

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.8 2001-04-20 15:41:13 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.9 2001-05-02 13:50:24 windev Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -57,8 +57,8 @@ bool CBVSReader::readInfo()
     errmsg_ = check( strm_ );
     if ( errmsg_ ) return false;
 
-    unsigned char buf[headstartbytes];
-    strm_.read( buf, headstartbytes );
+    BufferString buf(headstartbytes);
+    strm_.read( buf.buf(), headstartbytes );
 
     DataCharacteristics dc;
     dc.littleendian = buf[3] != 0;
@@ -69,16 +69,16 @@ bool CBVSReader::readInfo()
     iinterp.set( dc );
 
     // const int version = (int)buf[4];
-    getExplicits( buf+5 );
+    getExplicits( (const unsigned char *)buf.buf()+5 );
     // const int nrbytesinheader = iinterp.get( buf+8 );
 
-    strm_.read( buf, integersize );
+    strm_.read( buf.buf(), integersize );
     getText( iinterp.get(buf,0), info_.stdtext );
 
     if ( !readComps() || !readGeom() )
 	return false;
 
-    strm_.read( buf, 2 * integersize );
+    strm_.read( buf.buf(), 2 * integersize );
     info_.seqnr = iinterp.get( buf, 0 );
     getText( iinterp.get(buf,1), info_.usertext );
     removeTrailingBlanks( info_.usertext.buf() );
@@ -108,10 +108,9 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
 {
     if ( nrchar > 0 )
     {
-	char usrtxt[nrchar+1];
-	strm_.read( usrtxt, nrchar );
-	usrtxt[nrchar] = '\0';
-	txt = usrtxt;
+	txt.setBufSize(nrchar+1);
+	strm_.read( txt.buf(), nrchar );
+	txt[nrchar] = '\0';
     }
 }
 
@@ -147,6 +146,18 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
     info_.explinfo.refpos =	*ptr & (unsigned char)16;
 
     explicitnrbytes = 0;
+#ifdef __msvc__
+    if ( info_.explinfo.startpos )
+	explicitnrbytes += sizeof(float);
+    if ( info_.explinfo.coord )
+	explicitnrbytes += sizeof(Coord);
+    if ( info_.explinfo.offset )
+	explicitnrbytes += sizeof(float);
+    if ( info_.explinfo.pick )
+	explicitnrbytes += sizeof(float);
+    if ( info_.explinfo.refpos )
+	explicitnrbytes += sizeof(float);
+#else
     if ( info_.explinfo.startpos )
 	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::startpos);
     if ( info_.explinfo.coord )
@@ -157,6 +168,7 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
 	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::pick);
     if ( info_.explinfo.refpos )
 	explicitnrbytes += sizeof(CBVSInfo::ExplicitData::refpos);
+#endif
 }
 
 
@@ -166,7 +178,13 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
 
 bool CBVSReader::readComps()
 {
+#ifdef __msvc__
+    BufferString mscbuf(4*integersize);
+    #define ucbuf mscbuf.buf()
+#else
     unsigned char ucbuf[4*integersize];
+#endif
+
     strm_.read( ucbuf, integersize );
     nrcomps_ = iinterp.get( ucbuf, 0 );
     if ( nrcomps_ < 1 ) mErrRet("Corrupt CBVS format: No components defined")
@@ -254,29 +272,29 @@ bool CBVSReader::readGeom()
 bool CBVSReader::readTrailer()
 {
     strm_.seekg( -3, ios::end );
-    char buf[3*integersize];
-    strm_.read( buf, 3 ); buf[3] = '\0';
+    BufferString buf(3*integersize);
+    strm_.read( buf.buf(), 3 ); buf[3] = '\0';
     if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
     
     strm_.seekg( -4-integersize, ios::end );
-    strm_.read( buf, integersize );
+    strm_.read( buf.buf(), integersize );
     int nrbytes = iinterp.get( buf, 0 );
 
     strm_.seekg( -4-integersize-nrbytes, ios::end );
-    strm_.read( buf, integersize );
+    strm_.read( buf.buf(), integersize );
     const int nrinl = iinterp.get( buf, 0 );
     if ( nrinl == 0 ) mErrRet("No traces in file")
 
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
-	strm_.read( buf, 2 * integersize );
+	strm_.read( buf.buf(), 2 * integersize );
 	CBVSInfo::SurvGeom::InlineInfo* iinf
 		= new CBVSInfo::SurvGeom::InlineInfo(
 						iinterp.get( buf, 0 ) );
 	const int nrseg = iinterp.get( buf, 1 );
 	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
-	    strm_.read( buf, 3 * integersize );
+	    strm_.read( buf.buf(), 3 * integersize );
 	    iinf->segments += CBVSInfo::SurvGeom::InlineInfo::Segment(
 		iinterp.get(buf,0), iinterp.get(buf,1), iinterp.get(buf,2) );
 	}
@@ -533,7 +551,7 @@ bool CBVSReader::fetch( void** bufs, const Interval<int>* samps )
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps[icomp].start )
 	    strm_.seekg( samps[icomp].start*bps, ios::cur );
-	strm_.read( bufs[icomp],
+	strm_.read( (char*)bufs[icomp],
 		(samps[icomp].stop-samps[icomp].start+1) * bps );
 	if ( samps[icomp].stop < compinfo->nrsamples-1 )
 	    strm_.seekg( (compinfo->nrsamples-samps[icomp].stop-1)*bps,

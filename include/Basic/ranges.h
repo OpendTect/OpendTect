@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.9 2001-02-19 11:28:42 bert Exp $
+ RCS:		$Id: ranges.h,v 1.10 2001-05-02 13:49:57 windev Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <gendefs.h>
+#include <general.h>
 
 
 /*!\brief interval of values.
@@ -79,7 +79,7 @@ public:
     virtual void sort( bool asc=true )
 		{
 		    if ( (asc && stop<start) || (!asc && start<stop) )
-			Swap(start,stop);
+			 Swap(start,stop);
 		}
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: thread.h,v 1.5 2001-05-02 13:50:02 windev Exp $
 ________________________________________________________________________
 
 */
@@ -48,10 +48,10 @@ public:
 	class Locker
 	{
 	public:
-					Locker( Threads::Mutex& mutex_ );
+					Locker( Mutex& mutex_ );
 					~Locker();
 	protected:
-	    Threads::Mutex&		mutex;
+	    Mutex&			mutex;
 	};
 
     protected:
@@ -63,7 +63,7 @@ public:
 
     };
 
-    class ConditionVar : public Threads::Mutex
+    class ConditionVar : public Mutex
     {
     public:
 					ConditionVar();
@@ -101,7 +101,11 @@ public:
 	bool				exitflag;
 	ConditionVar			exitcond;
     private:
+#ifdef __msvc__
+					void(*func)(void*);
+#else
 	void*				func;
+#endif
 #ifdef __pthread__
 	pthread_t			id;
 #endif

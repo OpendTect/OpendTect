@@ -148,7 +148,12 @@ Threads::Thread::~Thread()
 bool Threads::Thread::setFunction( void (nf)(void*)  )
 {
     if ( func ) return false;
+
+#ifdef __msvc__
+    func = nf;
+#else
     func = (void*) nf;
+#endif
 
     return true;
 }

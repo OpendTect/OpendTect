@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.8 2001-03-26 09:00:11 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.9 2001-05-02 13:50:16 windev Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: filegen.c,v 1.8 2001-03-26 09:00:11 bert Exp $"
 #include <dirent.h>
 static struct stat statbuf;
 #else
+#include <windows.h>
 #include <shlwapi.h>
 #endif
 
@@ -286,7 +287,8 @@ int File_copy( const char* from, const char* to, int recursive )
     if ( !File_exists(from) ) return YES;
     if ( recursive )
 	{ fprintf(stderr,"File_copy recursive not impl\n"); return NO; }
-    return CopyFile( from, to, false );
+
+    return CopyFile( from, to, FALSE );
 
 #else
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.4 2001-04-21 15:36:33 bert Exp $
+ RCS:		$Id: datachar.h,v 1.5 2001-05-02 13:50:06 windev Exp $
 ________________________________________________________________________
 
 */
@@ -64,11 +64,9 @@ public:
 			mDeclConstr(signed char,true,true)
 			mDeclConstr(short,true,true)
 			mDeclConstr(int,true,true)
-			mDeclConstr(long long,true,true)
 			mDeclConstr(unsigned char,true,false)
 			mDeclConstr(unsigned short,true,false)
 			mDeclConstr(unsigned int,true,false)
-			mDeclConstr(unsigned long long,true,false)
 			mDeclConstr(float,false,true)
 			mDeclConstr(double,false,true)
 

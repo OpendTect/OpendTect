@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.3 2001-02-16 17:01:34 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.4 2001-05-02 13:50:09 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ protected:
     int			verSpacing() const 	{ return spacing(); }
     void		setMode( layoutMode m ) { curmode = m; } 
     inline void 	setMode( layoutMode m  ) const 
-                        { return const_cast<i_LayoutMngr*>(this)->setMode(m); }
+                        { const_cast<i_LayoutMngr*>(this)->setMode(m); }
 
     int&		mintextwidgetheight();
  
@@ -102,7 +102,7 @@ protected:
 private:
     void 		doLayout( const QRect& );
     inline void 	doLayout( const QRect& r ) const 
-                        { return const_cast<i_LayoutMngr*>(this)->doLayout(r); }
+                        { const_cast<i_LayoutMngr*>(this)->doLayout(r); }
 
     uiRect 		childrenRect();
     void 		layoutChildren(int* iterLeft =0);
@@ -164,7 +164,7 @@ protected:
     void		initLayout ( int mngrTop, int mngrLeft );
     void		layout ();
 
-    void 		updated() const		{ return mngr.childUpdated(); }
+    void 		updated() const		{ mngr.childUpdated(); }
     int			horSpacing() const	{ return mngr.horSpacing(); }
     int			verSpacing() const	{ return mngr.verSpacing(); }
 

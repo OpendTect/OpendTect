@@ -4,12 +4,17 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.1.1.2 1999-09-16 09:32:23 arend Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.2 2001-05-02 13:50:14 windev Exp $";
 
 #include "dirlist.h"
 #include "filegen.h"
+
+#ifdef win
+#else
 #include <unistd.h>
 #include <dirent.h>
+#endif
+
 
 
 DirList::DirList( const char* dirname, int dirindic )

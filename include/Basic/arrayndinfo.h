@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.2 2001-02-19 17:17:36 bert Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.3 2001-05-02 13:50:03 windev Exp $
 ________________________________________________________________________
 
 An ArrayNDInfo contains the information about the size of ArrayND, and
@@ -91,9 +91,10 @@ public:
 
 class Array1DInfoImpl : public Array1DInfo
 {
+#define cloneTp		mPolyRet(ArrayNDInfo,Array1DInfoImpl)
 public:
-
-    Array1DInfoImpl*	clone() const	{ return new Array1DInfoImpl(*this); }
+    cloneTp*		clone() const
+			{ return new Array1DInfoImpl(*this); }
 
 			Array1DInfoImpl(int nsz=0); 
 			Array1DInfoImpl(const Array1DInfo&);
@@ -112,14 +113,16 @@ protected:
 
     int			sz;
 
+#undef cloneTp
 };
 
 
 class Array2DInfoImpl : public Array2DInfo
 {
+#define cloneTp		mPolyRet(ArrayNDInfo,Array2DInfoImpl)
 public:
 
-    Array2DInfoImpl*	clone() const	{ return new Array2DInfoImpl(*this); }
+    cloneTp*		clone() const	{ return new Array2DInfoImpl(*this); }
 
 			Array2DInfoImpl(int sz0=0, int sz1=0);
 			Array2DInfoImpl(const Array2DInfo&);
@@ -140,14 +143,16 @@ protected:
 
     unsigned long       calcTotalSz() const;
 
+#undef cloneTp
 };
 
 
 class Array3DInfoImpl : public Array3DInfo
 {
+#define cloneTp		mPolyRet(ArrayNDInfo,Array3DInfoImpl)
 public:
 
-    Array3DInfoImpl*	clone() const	{ return new Array3DInfoImpl(*this); }
+    cloneTp*		clone() const	{ return new Array3DInfoImpl(*this); }
 
 			Array3DInfoImpl(int sz0=0, int sz1=0, int sz2=0);
 			Array3DInfoImpl(const Array3DInfo&);
@@ -167,6 +172,7 @@ protected:
 
     unsigned long       calcTotalSz() const;
 
+#undef cloneTp
 };  
 
 

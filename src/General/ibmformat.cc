@@ -5,9 +5,10 @@
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID = "$Id: ibmformat.cc,v 1.1 2001-02-13 17:48:40 bert Exp $";
+static const char* rcsID = "$Id: ibmformat.cc,v 1.2 2001-05-02 13:50:29 windev Exp $";
 
 #include "ibmformat.h"
+#include <string.h>
 
 #define mcBuf ((const unsigned char*)buf)
 #define mBuf ((unsigned char*)buf)

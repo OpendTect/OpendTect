@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.5 2001-04-25 23:34:57 kristofer Exp $
+ RCS:		$Id: gendefs.h,v 1.6 2001-05-02 13:49:56 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,5 +54,18 @@ ________________________________________________________________________
 #define mREALLOC(var,sz,tp)	(tp*)realloc(var,(sz)*sizeof(tp))
 #define mFREE(ptr)		{ if (ptr) free(ptr); ptr = 0; }
 
+
+#ifdef __msvc__
+# define for 				if(0);else for
+# define mPolyRet(base,clss)		base
+# define mPolyRetDownCast(clss,var)	dynamic_cast<clss>(var)
+# define mTFriend(T,clss)
+# define mTProtected			public
+#else
+# define mPolyRet(base,clss)		clss
+# define mPolyRetDownCast(clss,var)	var
+# define mTFriend(T,clss)		template <class T> friend clss<T>
+# define mTProtected			protected
+#endif
 
 #endif

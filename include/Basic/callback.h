@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.13 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: callback.h,v 1.14 2001-05-02 13:49:54 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,12 +256,17 @@ protected:
 
 			CNotifier( T* cb )	{ cber = cb; }
 
-    inline void		trigger( C c=0, CallBacker* cb=0 )
+    inline void		trigger( CallBacker* cb=0 )
+			{ 
+			    C c;
+			    trigger(c,cb);
+			}
+
+    inline void		trigger( C c, CallBacker* cb=0 )
 			{
 			    CBCapsule<C> caps( c, cb ? cb : cber );
 			    cbs.doCall( &caps );
 			}
-
 };
 
 

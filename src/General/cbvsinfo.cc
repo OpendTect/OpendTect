@@ -5,14 +5,14 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.1 2001-04-20 15:45:26 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.2 2001-05-02 13:50:23 windev Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
 
 
 CBVSInfo::SurvGeom& CBVSInfo::SurvGeom::operator =(
-			const CBVSInfo::SurvGeom::SurvGeom& sg )
+			const CBVSInfo::SurvGeom& sg )
 {
     fullyrectandreg = sg.fullyrectandreg;
     start = sg.start;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.7 2001-02-27 17:09:14 bert Exp $
+ RCS:		$Id: sets.h,v 1.8 2001-05-02 13:50:00 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,9 @@ class TypeSet
 {
 public:
 			TypeSet() {}
-			TypeSet( int nr, T typ=0 ) {
 
+			TypeSet( int nr, T typ )
+			{
 			    for ( int idx=0; idx<nr; idx++ )
 				typs.push_back(typ);
 			}
@@ -147,7 +148,7 @@ public:
     virtual int		indexOf( const T* ptr ) const {
 
 			    for ( int idx=0; idx<size(); idx++ )
-				if ( objs[idx] == ptr ) return idx;
+				if ( (T*)objs[idx] == ptr ) return idx;
 			    return -1;
 			}
     virtual ObjectSet<T>& operator +=( T* ptr ) {

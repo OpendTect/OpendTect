@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uidrawable.h,v 1.2 2001-05-02 13:50:11 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,8 @@ ________________________________________________________________________
 
 class uiDrawableObj : public uiObject , public ioDrawArea
 {
-template <class T>
-   friend class		i_drwblQObj;
-
-public:
+    mTFriend		(T,i_drwblQObj);
+mTProtected:
 			uiDrawableObj( uiObject* parnt, const char* nm )
 			: uiObject( parnt, nm )
 			, preDraw(this)

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.3 2001-02-16 17:01:41 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.4 2001-05-02 13:50:12 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ friend class 		i_LayoutItem;
 friend class 		i_uiLayoutItem; 
 friend class 		uiGroup;
 friend class 		uiMainWin;
-template <class T> friend i_QObjWrapper<T>;
+mTFriend		(T , i_QObjWrapper);
 
 protected:
 			uiObject( uiObject* parnt = 0, 
@@ -139,7 +139,7 @@ public:
     void		shallowRedraw( CallBacker* =0 )	{ forceRedraw_(false); }
     void		deepRedraw( CallBacker* =0 )	{ forceRedraw_(true); }
 
-protected:
+mTProtected:
 
     virtual const QWidget*	qWidget_() const 	= 0;
     virtual const uiObject& clientWidget_()const	{ return *this; }
