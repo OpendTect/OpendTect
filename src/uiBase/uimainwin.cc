@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.40 2002-01-18 14:27:39 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.41 2002-01-18 18:04:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -371,10 +371,13 @@ public:
 			//!< cancel button disabled when set to empty
     void		enableSaveButton( const char* txt )
 			    { saveText = txt; withsavebut = true; }
+    void		setSaveButtonChecked( bool yn )
+			    { saveChecked = yn;
+			      if ( saveBut ) saveBut->setChecked(yn); }
 
     void		setTitleText( const char* txt );
 
-    bool		saveButtonChecked();
+    bool		saveButtonChecked() const;
     uiCheckBox*		saveButton()			{ return saveBut; }
 
 			//! Separator between central dialog and Ok/Cancel bar?
@@ -424,6 +427,7 @@ protected:
     bool		separ;
     bool		withmenubar;
     bool		withsavebut;
+    bool		saveChecked;
     bool		mainwidgcentered;
 
     uiPushButton*	okBut;
@@ -452,6 +456,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm,
     , childrenInited(false)
     , withmenubar(withmb)
     , withsavebut(false)
+    , saveChecked(false)
     , mainwidgcentered( false )
     , helpId(hid)
 {
@@ -469,6 +474,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
     , childrenInited(false)
     , withmenubar(s.menubar_)
     , withsavebut(s.savebutton_)
+    , saveChecked(s.savechecked_)
     , helpId(s.helpid_)
     , mainwidgcentered( s.mainwidgcentered_ )
 {
@@ -509,7 +515,7 @@ void uiDialogBody::setCancelText( const char* txt )
 }
 
 
-bool uiDialogBody::saveButtonChecked()
+bool uiDialogBody::saveButtonChecked() const
 { 
     return saveBut ? saveBut->isChecked() : false;
 }
@@ -551,7 +557,10 @@ void uiDialogBody::finalise()
 	    cnclBut = new uiPushButton( centralWidget_, cnclText );
 	}
 	if ( withsavebut && saveText != "" )
+	{
 	    saveBut = new uiCheckBox( centralWidget_, saveText );
+	    saveBut->setChecked( saveChecked );
+	}
 	if ( helpId != "" && GetDgbApplicationCode() == mDgbApplCodeGDI )
 	{
 	    helpBut = new uiPushButton( centralWidget_, "?" );
@@ -722,6 +731,7 @@ void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
 void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
-bool uiDialog::saveButtonChecked()	{ return mBody->saveButtonChecked(); }
+void uiDialog::setSaveButtonChecked(bool b)  { mBody->setSaveButtonChecked(b); }
+bool uiDialog::saveButtonChecked() const { return mBody->saveButtonChecked(); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
