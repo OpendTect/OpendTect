@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.17 2003-02-11 10:01:10 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.18 2003-02-19 16:09:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,5 +270,6 @@ void uiPickPartServer::setMisclassSet( const TypeSet<BinIDZValue>& bzvs )
     }
 
     psg.clear();
+    psg.setName( sMisClassStr );
     psg.add( pickset );
 }
