@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.1 2000-07-11 13:32:27 bert Exp $
+ RCS:           $Id: geometry.h,v 1.2 2000-07-14 14:59:53 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,13 @@ public:
 
     inline Point<T>	topLeft() const 		{ return topLeft_; }
     inline Point<T>	bottomRight() const 		{ return bottomRight_; }
+    inline Point<T>	centre() const 		
+                        { return Point<T>
+				 (
+				    ( ( topLeft_.x() + bottomRight_.x() ) / 2 ),
+				    ( ( topLeft_.y() + bottomRight_.y() ) / 2 ) 
+				 ); 
+                        }
     inline void		setTopLeft( Point<T> tl )	{ topLeft_ = tl; }
     inline void		setBottomRight( Point<T> br )	{ bottomRight_ = br; }
 
