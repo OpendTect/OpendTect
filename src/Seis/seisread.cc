@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.49 2004-11-12 11:37:24 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.50 2004-11-16 17:20:44 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -168,10 +168,17 @@ bool SeisTrcReader::initRead( Conn* conn )
 	cleanUp();
 	return false;
     }
+    const int nrcomp = trl->componentInfo().size();
+    if ( nrcomp < 1 )
+    {
+	// Why didn't the translator return false?
+	errmsg = "Internal: no data components found";
+	cleanUp();
+	return false;
+    }
 
     // Make sure the right component(s) are selected.
     // If all else fails, take component 0.
-    const int nrcomp = trl->componentInfo().size();
     bool foundone = false;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
