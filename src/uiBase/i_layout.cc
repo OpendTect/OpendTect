@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.65 2003-03-24 16:02:39 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.66 2003-04-02 11:30:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -584,7 +584,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
 	store2prefpos = !prefposStored || hdif < 10 && vdif < 10;
 
-#ifdef __debug__
+#ifdef __extensive_debug__
 	if( !store2prefpos )
 	{
 	    cout << "setGeometry called with wrong size on: ";
