@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.32 2003-02-18 16:32:21 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.33 2003-04-04 09:58:22 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -205,43 +205,68 @@ bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
 
 void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 {
-    const float eps = 1e-6;
+    static const float eps = SeisTrc::snapdist;
 
     for ( int idx=0; idx<nrout_; idx++ )
     {
-	SamplingData<float> sd;
-	sd.start = trc ? trc->startPos( idx ) : inpcds[idx]->sd.start;
-	sd.step = trc ? trc->info().sampling.step : inpcds[idx]->sd.step;
+	SamplingData<float> avsd;
+	avsd.start = trc ? trc->startPos( idx ) : inpcds[idx]->sd.start;
+	avsd.step = trc ? trc->info().sampling.step : inpcds[idx]->sd.step;
 	int sz = trc ? trc->size( idx ) : inpcds[idx]->nrsamples;
 
-	const float reqstop = outcds[idx]->sd.start
-			    + outcds[idx]->sd.step * (outcds[idx]->nrsamples-1);
-	const float avstop = sd.start + sd.step * (sz-1);
-	bool neednewnrsamples = avstop+eps < reqstop;
+	Interval<float> reqintv;
+	reqintv.start = outcds[idx]->sd.start;
+	reqintv.stop = reqintv.start
+		     + outcds[idx]->sd.step * (outcds[idx]->nrsamples-1);
+	const float avstop = avsd.start + avsd.step * (sz-1);
+	if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
 
-	if ( outcds[idx]->sd.start+eps < sd.start )
-	{
-	    outcds[idx]->sd.start = sd.start;
-	    neednewnrsamples = true;
-	}
-	else if ( mIS_ZERO(outcds[idx]->sd.start-sd.start) )
-	    outcds[idx]->sd.start = sd.start;
+	if ( reqintv.start < avsd.start )
+	    reqintv.start = avsd.start;
+	if ( reqintv.stop > avstop )
+	    reqintv.stop = avstop;
 
-	if ( outcds[idx]->sd.step+eps < sd.step )
+	// If requested start not on a sample, make sure it is
+	// First, the start time:
+	float sampdist = (reqintv.start - avsd.start) / avsd.step;
+	int intdist = mNINT(sampdist);
+	if ( !trc )
 	{
-	    outcds[idx]->sd.step = sd.step;
-	    neednewnrsamples = true;
+	    sampdist -= intdist;
+	    if ( sampdist < -eps || sampdist > eps )
+	    {
+		// Reading and not on sample: read more to allow interpolation
+		sampdist += intdist - 1.5;
+		intdist = sampdist < 0 ? 0 : mNINT(sampdist);
+	    }
 	}
-	else if ( mIS_ZERO(outcds[idx]->sd.step-sd.step) )
-	    outcds[idx]->sd.step = sd.step;
+	reqintv.start = avsd.start + avsd.step * intdist;
 
-	if ( neednewnrsamples )
+	// Then, the stop time:
+	sampdist = (avstop - reqintv.stop) / avsd.step;
+	intdist = mNINT(sampdist);
+	if ( !trc )
 	{
-	    const float stop = avstop+eps < reqstop ? avstop : reqstop;
-	    float fnrsamps = (stop - outcds[idx]->sd.start)
-			     / outcds[idx]->sd.step + 1 + eps;
-	    outcds[idx]->nrsamples = (int)fnrsamps;
+	    sampdist -= intdist;
+	    if ( sampdist < -eps || sampdist > eps )
+	    {
+		// Reading and not on sample: read more to allow interpolation
+		sampdist += intdist - 1.5;
+		intdist = sampdist < 0 ? 0 : mNINT(sampdist);
+	    }
 	}
+	reqintv.stop = avstop - avsd.step * intdist;
+
+	if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
+
+	float reqstep = outcds[idx]->sd.step;
+	sampdist = reqstep / avsd.step;
+	intdist = (int)(sampdist + eps);
+	outcds[idx]->sd.step = avsd.step * intdist;
+	outcds[idx]->sd.start = reqintv.start;
+	float fnrsamps = (reqintv.stop - reqintv.start) / outcds[idx]->sd.step
+	    		+ 1;
+	outcds[idx]->nrsamples = (int)(fnrsamps + eps);
     }
 }
 
