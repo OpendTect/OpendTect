@@ -4,22 +4,35 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.7 2002-04-25 13:52:00 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.8 2002-04-29 09:24:26 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
 #include "visselman.h"
+#include "iopar.h"
+#include "ptrman.h"
 
 #include "Inventor/SoPath.h"
 
-visBase::DataManager visBase::DataManager::manager;
 
-visBase::DataManager& visBase::DM() { return visBase::DataManager::manager; }
+const char* visBase::DataManager::freeidstr = "Free ID";
+const char* visBase::DataManager::selmanprefix = "SelMan";
+const char* visBase::DataManager::typestr = "Type";
+
+visBase::DataManager& visBase::DM()
+{
+    static visBase::DataManager* manager = 0;
+
+    if ( !manager ) manager = new visBase::DataManager;
+
+    return *manager;
+}
 
 
 visBase::DataManager::DataManager()
     : freeid( 0 )
     , selman( *new SelectionManager )
+    , fact( *new Factory )
 {
     reInit();
 }
@@ -29,6 +42,7 @@ visBase::DataManager::~DataManager()
 {
     bool res = removeAll();
     delete &selman;
+    delete &fact;
 }
 
 
@@ -39,11 +53,50 @@ bool visBase::DataManager::reInit()
 
 
 void visBase::DataManager::fillPar( IOPar& par ) const
-{}
+{
+    IOPar selmanpar;
+    selman.fillPar( selmanpar );
+    par.mergeComp( selmanpar, selmanprefix );
+
+    par.set(freeidstr, freeid );
+
+    for ( int idx=0; idx<objects.size(); idx++ )
+    {
+	IOPar dataobjpar;
+	dataobjpar.set( typestr, objects[idx]->getClassName() );
+	objects[idx]->fillPar( dataobjpar );
+	BufferString idstr = ids[idx];
+
+	par.mergeComp( dataobjpar, idstr );
+    }
+}
 
 
-void visBase::DataManager::usePar( const IOPar& par )
-{}
+bool visBase::DataManager::usePar( const IOPar& par )
+{
+    reInit();
+
+    if ( !par.get( freeidstr, freeid )) return false;
+
+    TypeSet<int> lefttodo;
+    for ( int idx=0; idx<freeid; idx++ )
+	lefttodo += idx;
+
+    while ( lefttodo.size() )
+    {
+	for ( int idx=0; idx<lefttodo.size(); idx++ )
+	{
+	    PtrMan<IOPar> iopar = par.subselect( lefttodo[idx] );
+	    if ( !iopar )
+	    {
+		lefttodo.remove( idx );
+		idx--;
+		continue;
+	    }
+	}
+    }
+    return true;
+}
 
 
 bool visBase::DataManager::removeAll(int nriterations)
