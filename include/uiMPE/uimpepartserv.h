@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.1 2005-01-06 12:01:29 kristofer Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.2 2005-03-11 16:58:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,60 +48,67 @@ namespace MPE
 class uiMPEPartServer : public uiApplPartServer
 {
 public:
-			uiMPEPartServer(uiApplService&, const AttribDescSet*);
-			~uiMPEPartServer();
-    void		setCurrentAttribDescSet(const AttribDescSet*);
+				uiMPEPartServer(uiApplService&,
+						const AttribDescSet*);
+				~uiMPEPartServer();
+    void			setCurrentAttribDescSet(const AttribDescSet*);
 
-    const char*		name() const		{ return "MPE";}
+    const char*			name() const		{ return "MPE";}
 
-    int			getTrackerID(const MultiID&) const;
-    int			getTrackerID(const char* name) const;
-    void		getTrackerTypes(BufferStringSet&) const;
-    int			addTracker( const char* trackertype );
-			/*!<\note Eventual seeds become mine */
-    int			addTracker(const MultiID&);
+    int				getTrackerID(const MultiID&) const;
+    int				getTrackerID(const char* name) const;
+    void			getTrackerTypes(BufferStringSet&) const;
+    int				addTracker(const char* trackertype,
+	    				   const char* name);
+				/*!<\note Eventual seeds become mine */
+    int				addTracker(const MultiID&);
 
-    MultiID		getTrackerMultiID( int trackerid ) const;
+    MultiID			getTrackerMultiID(int trackerid) const;
 
-    bool		canAddSeed( int trackerid ) const;
-    void		addSeed( int trackerid );
-			/*!<\note Eventual seeds become mine */
+    bool			startWizard(const char* tracktype,int startpg);
+    bool			canAddSeed(int trackerid) const;
+    void			addSeed(int trackerid);
+				/*!<\note Eventual seeds become mine */
 
-    void		enableTracking( int trackerid, bool yn );
-    bool		isTrackingEnabled( int trackerid ) const;
+    void			enableTracking(int trackerid,bool yn);
+    bool			isTrackingEnabled(int trackerid) const;
 
-    void		showSetupDlg( int trackerid );
-    void		showRelationsDlg( int trackerid );
+    void			showSetupDlg(const MultiID&,EM::SectionID);
+    void			showRelationsDlg(const MultiID&,EM::SectionID);
 
-    int			activeTrackerID() const;
-    			/*!< returns the trackerid of the last event */
+    int				activeTrackerID() const;
+    				/*!< returns the trackerid of the last event */
 
     static const int		evGetAttribData;
     const AttribSelSpec*	getAttribSelSpec() const;
     CubeSampling		getAttribCube(const AttribSelSpec&) const;
-    const AttribSliceSet*	getAttribCache( const AttribSelSpec& ) const;
-    void			setAttribData( const AttribSelSpec&,
-	    				       AttribSliceSet* );
+    const AttribSliceSet*	getAttribCache(const AttribSelSpec&) const;
+    void			setAttribData(const AttribSelSpec&,
+	    				      AttribSliceSet*);
     				/*!<\note Slices become mine */
 
     static const int		evStartSeedPick;
     static const int		evEndSeedPick;
-    void			setSeed( ObjectSet<Geometry::Element>& );
+    void			setSeed(ObjectSet<Geometry::Element>&);
     				/*!<\note Seeds become mine */
 
     static const int		evAddTreeObject;
     				/*!<Get trackerid via activeTrackerID */
 
-    void			fillPar( IOPar& ) const;
-    bool			usePar( const IOPar& );
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+
 protected:
     void			loadAttribData();
 
     const AttribDescSet*	attrset;
+    MPE::Wizard*		wizard;
 
 				//Interaction variables
     const AttribSelSpec*	eventattrselspec;
     int				activetrackerid;
+
+    friend class		MPE::Wizard;
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.3 2005-01-13 09:51:18 kristofer Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.4 2005-03-11 16:59:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ ________________________________________________________________________
 //#include "trigonometry.h"
 //#include "emsurfaceedgelineimpl.h"
 
-//#include "uitrackingwizard.h"
-//#include "uitrackingsetupdlg.h"
+#include "uimpewizard.h"
+#include "uimpesetup.h"
 #include "uimsg.h"
 #include "uicursor.h"
 //#include "uidialog.h"
@@ -61,13 +61,16 @@ const int uiMPEPartServer::evAddTreeObject	= 3;
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const AttribDescSet* ads )
     : uiApplPartServer(a)
     , attrset( ads )
+    , wizard(0)
 {
     MPE::initStandardClasses();
 }
 
 
 uiMPEPartServer::~uiMPEPartServer()
-{ }
+{
+    delete wizard;
+}
 
 
 void uiMPEPartServer::setCurrentAttribDescSet( const AttribDescSet* ads )
@@ -95,13 +98,13 @@ int uiMPEPartServer::getTrackerID( const MultiID& mid ) const
 
 
 
-int uiMPEPartServer::getTrackerID(const char* name) const
+int uiMPEPartServer::getTrackerID( const char* name ) const
 {
     return MPE::engine().getTrackerByObject(name);
 }
 
 
-void uiMPEPartServer::getTrackerTypes(BufferStringSet& res) const
+void uiMPEPartServer::getTrackerTypes( BufferStringSet& res ) const
 { MPE::engine().getAvaliableTrackerTypes(res); }
 
 
@@ -127,9 +130,9 @@ int uiMPEPartServer::addTracker(const MultiID&)
 }
 
 
-int uiMPEPartServer::addTracker( const char* trackertype )
+int uiMPEPartServer::addTracker( const char* trackertype, const char* name )
 {
-    activetrackerid = MPE::engine().addTracker("New object", trackertype );
+    activetrackerid = MPE::engine().addTracker( name, trackertype );
     if ( activetrackerid==-1 )
 	uiMSG().error( MPE::engine().errMsg() );
     else
@@ -214,52 +217,43 @@ const AttribSelSpec* uiMPEPartServer::getAttribSelSpec() const
 { return eventattrselspec; }
 
 
-/*
-bool uiMPEPartServer::startWizard( int startidx )
+
+bool uiMPEPartServer::startWizard( const char* typestr, int startidx )
 {
-    csfromsticks.init( false );
-    csfromsticks.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-    csfromsticks.zrg.step = SI().zRange(false).step;
+//  csfromsticks.init( false );
+//  csfromsticks.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+//  csfromsticks.zrg.step = SI().zRange(false).step;
 
     delete wizard;
-    wizard = new Tracking::Wizard( appserv().parent(), this );
+    wizard = new MPE::Wizard( appserv().parent(), this );
     wizard->startAt( startidx );
-    wizard->setType( curtype == uiMPEPartServer::Hor );
+    wizard->setTrackingType( typestr );
     wizard->go();
     return true;
 }
-*/
 
 
-void uiMPEPartServer::showSetupDlg( int trackerid )
+void uiMPEPartServer::showSetupDlg( const MultiID& mid, EM::SectionID sid )
 {
-    /*
-    const int tid = getTrackerID( mid );
-    Tracking::Tracker* tracker = tid < 0 ? 0 : trackman.getTracker( tid );
-    if ( !tracker ) 
-    { uiMSG().error( "Cannot find setup for this surface" ); return; }
-
-    const EM::ObjectID id = EM::EMM().multiID2ObjectID( mid );
-    const bool ishor = EM::EMM().type( id ) == EM::EMManager::Hor;
-
+    EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
     uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
     dlg.setOkText( "Dismiss" );
     dlg.setCancelText("");
     dlg.setHelpID( "108.0.1" );
-    Tracking::uiSetupGroup* grp = new Tracking::uiSetupGroup( &dlg, attrset );
-    grp->setType( ishor );
-    grp->setTracker( tracker );
+    MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset );
+    grp->setType( objid, sid );
     if ( dlg.go() )
     {
-	getData();
-	sendEvent( evShowManager );
+//	getData();
+//	sendEvent( evShowManager );
     }
-    */
 }
 
 
-void uiMPEPartServer::showRelationsDlg( int trackerid )
-{}
+void uiMPEPartServer::showRelationsDlg( const MultiID& mid, EM::SectionID sid )
+{
+    EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
+}
 
 
 void uiMPEPartServer::setAttribData( const AttribSelSpec& spec,
