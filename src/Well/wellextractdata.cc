@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.9 2004-05-09 15:17:12 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.10 2004-05-09 22:37:13 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -328,10 +328,6 @@ int Well::LogDataExtracter::nextStep()
 }
 
 
-#define mGtPos(idx) \
-    biv = bivset[idx]; \
-    bivcoord = SI().transform( biv.binid ); \
-
 void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 				      const Well::Data& wd,
 				      const Well::Track& track,
@@ -355,8 +351,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
     if ( bividx >= bivset.size() ) // Duh. All data below track.
 	return;
 
-    BinIDValue biv; Coord bivcoord;
-    int hiidx = -1;
+    BinIDValue biv( bivset[bividx] );
     for ( trackidx=1; trackidx<track.size(); trackidx++ )
     {
 	if ( track.pos(trackidx).z > biv.value - tol )
@@ -367,6 +362,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 
     for ( ; bividx<bivset.size(); bividx++ )
     {
+	biv = bivset[bividx];
 	float z2 = track.pos( trackidx ).z;
 	while ( biv.value > z2 )
 	{
