@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.5 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.6 2001-03-23 11:27:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ protected:
     void		init();
     bool		initWrite(const SeisTrc&);
     bool		openConn();
-    bool		handleConn(const SeisTrc&);
+    bool		handleConn(const SeisTrc&,bool nxt=true);
 
     BinIDRange&		binids;
     int			nrwrconn;
