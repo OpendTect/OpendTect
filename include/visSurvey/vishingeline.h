@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.2 2004-05-25 12:24:55 kristofer Exp $
+ RCS:           $Id: vishingeline.h,v 1.3 2004-07-23 13:01:36 kristofer Exp $
 ________________________________________________________________________
 
           
@@ -15,29 +15,29 @@ ________________________________________________________________________
 
 #include "visobject.h"
 
-namespace visBase { class PolyLine; class DrawStyle; class Transformation; };
-namespace EM { class HingeLine; };
+namespace visBase { class IndexedPolyLine3D; class DrawStyle; class Transformation; };
+namespace EM { class EdgeLineSet; };
 
 namespace visSurvey
 {
 
-class HingeLineDisplay : public visBase::VisualObjectImpl
+class EdgeLineSetDisplay : public visBase::VisualObjectImpl
 {
 public:
-    static HingeLineDisplay*	create()
-				mCreateDataObj(HingeLineDisplay);
+    static EdgeLineSetDisplay*	create()
+				mCreateDataObj(EdgeLineSetDisplay);
 
-    void			setHingeLine(const EM::HingeLine*);
-    bool			setHingeLine(int);
-    const EM::HingeLine*	getHingeLine() const { return hingeline; }
+    void			setEdgeLineSet(const EM::EdgeLineSet*);
+    bool			setEdgeLineSet(int);
+    const EM::EdgeLineSet*	getEdgeLineSet() const { return edgelineset; }
     void			setTransformation(visBase::Transformation*);
     visBase::Transformation*	getTransformation();
 
 protected:
-    				~HingeLineDisplay();
-    void			updateHingeLineChangeCB(CallBacker*);
-    const EM::HingeLine*	hingeline;
-    ObjectSet<visBase::PolyLine> polylines;
+    				~EdgeLineSetDisplay();
+    void			updateEdgeLineSetChangeCB(CallBacker*);
+    const EM::EdgeLineSet*	edgelineset;
+    ObjectSet<visBase::IndexedPolyLine3D> polylines;
     visBase::Transformation*	transformation;
     visBase::DrawStyle*		drawstyle;
 };
