@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.3 2001-02-16 17:02:04 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.4 2001-05-03 12:14:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,13 @@ void uiLineEdit::setText( const char* t )
 {
     mQtThing()->setText( QString( t ));
     mQtThing()->setCursorPosition( 0 );
+}
+
+
+void uiLineEdit::setValue( int i )
+{
+    BufferString s=i;
+    setText( s );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.5 2001-05-03 10:30:52 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.6 2001-05-03 12:14:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,6 +137,8 @@ public:
 				if( t == truetxt ) yn = true;
 				else if( t == falsetxt ) yn = false;
 				else yn = yesNoFromString(t);
+
+				setValue(yn);
 			    }
 
     virtual bool        getBoolValue() const	{ return yn; }
@@ -221,8 +223,6 @@ void uiBoolInpFld::setValue( bool b )
     rb2->setChecked(!yn); 
 }
 
-#ifdef NEWTYPES
-
 
 class uiBinIDInpFld : public uiDataInpFld
 {
@@ -232,28 +232,36 @@ public:
 					 const DataInpSpec* spec=0,
 					 const char* nm="BinID Input Field" );
 
-    virtual uiObject&	uiObj()				{ return *binidGrp; }
+    virtual uiObject&	uiObj()				{ return binidGrp; }
 
     virtual const char*	text(int idx) const		
-			    { return idx ? xl_y.text() : il_x.text(); }
+			    { return idx ? crl_y.text() : inl_x.text(); }
     virtual void        setText( const char* t,int idx)
-			    { if(idx) xl_y.setText(t); else il_x.setText(t); }
+			    { if(idx) crl_y.setText(t); else inl_x.setText(t); }
 
 protected:
 
-    uiLineEdit&		il_x; // inline or x-coordinate
-    uiLineEdit&		xl_y; // crossline or y-coordinate
+    uiLineEdit&		inl_x; // inline or x-coordinate
+    uiLineEdit&		crl_y; // crossline or y-coordinate
+    uiGroup&		binidGrp;
 
-    uiObject*		binidGrp;
+    uiPushButton*	ofrmBut; // other format: BinId / Coordinates 
     void		otherFormSel(CallBacker*);
 
-    uiPushButton*	ofrmBut;
 };
 
 uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
 			      const char* nm ) 
-    : binidGrp( 0 ) , ofrmBut( 0 ), il_x( 0 ), xl_y( 0 )
+    : inl_x( *new uiLineEdit(p,0,nm) ), crl_y( *new uiLineEdit(p,0,nm) )
+    , binidGrp( *new uiGroup(p,nm) ) , ofrmBut( 0 )
 {
+    const BinIDCoordInpSpec* spc 
+			    = dynamic_cast< const BinIDCoordInpSpec* >(spec);
+    if( !spc ) return;
+
+    ofrmBut = new uiPushButton( p, spc->otherTxt() );
+    ofrmBut->notify( mCB(this,uiBinIDInpFld,otherFormSel) );
+
 }
 
 
@@ -262,10 +270,6 @@ void uiBinIDInpFld::otherFormSel(CallBacker* cb)
 // pop dialog box
 // transform using SI()
 // set value
-}
-
-void uiBinIDInpFld::setValue( bool b )
-{ 
 }
 
 template<class T>
@@ -280,72 +284,53 @@ public:
     //virtual bool        getBoolValue() const	{ return yn; }
     virtual void        setValue( T val );
 
-    virtual uiObject&	uiObj()			{ return *intvalGrp; }
+    virtual uiObject&	uiObj()			{ return intvalGrp; }
 
     virtual const char*	text(int idx) const		
 			    { return  le(idx) ? le(idx)->text() : 0; }
     virtual void        setText( const char* t,int idx)	
 			    { if(le(idx)) le(idx)->setText(t); }
-    virtual uiObject&	uiObj()			{ return *intvalGrp; }
 
 protected:
+    uiGroup&		intvalGrp;
+
     uiLineEdit&		start;
     uiLineEdit&		stop;
     uiLineEdit*		step;
 
-    uiLineEdit*		le(idx)
+    inline const uiLineEdit* le( int idx ) const 
+			{ 
+			    return const_cast<uiLineEdit*>
+				(const_cast<uiIntervalInpFld*>(this)->le(idx));
+			}
+    uiLineEdit*		le( int idx ) 
 			{ 
 			    if( idx>1 ) return step;
 			    return idx ? &stop : &start;
 			}
-
-    uiObject*		intvalGrp;
-
 };
 
-uiIntervalInpFld::uiIntervalInpFld( uiObject* p, const DataInpSpec* spec=0,
+template<class T>
+uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec* spec=0,
 				    const char* nm="Bool Input Field" ) 
-    : intvalGrp( 0 ) , cb( 0 ), eqBut( 0 )
+    : intvalGrp( *new uiGroup(p,nm) ) 
+    , start( *new uiLineEdit(p,0,nm) )
+    , stop( *new uiLineEdit(p,0,nm) )
+    , step( 0 )
 {
-    const FloatInpIntervalSpec* spc = 
-			dynamic_cast< const FloatInpIntervalSpec* >(spec);
+    const NumInpIntervalSpec<T>* spc = 
+			dynamic_cast< const NumInpIntervalSpec<T>* >(spec);
+    if(!spc) return;
 
+    start.setValue(spc->value(0));
+    stop.setValue(spc->value(1));
 
-    if( !spc ) { intvalGrp = new uiGroup(p,nm); return; }
-
-    yn=spc->checked();
-    truetxt = spc->trueFalseTxt(true);
-    falsetxt = spc->trueFalseTxt(false);
-
-    if( truetxt == "" )
-    { 
-	cb = new uiCheckBox( p, nm ); 
-	intvalGrp = cb;
-	setValue( yn );
-	return; 
+    if( spc-> hasStep() )
+    {
+	step = new uiLineEdit(p,0,nm);
+	step->setValue(spc->value(2));
     }
-
-    if( falsetxt == "" )
-    { 
-	cb = new uiCheckBox( p, truetxt );
-	intvalGrp = cb;
-	setValue( yn );
-	return; 
-    }
-
-    // we have two labelTxt()'s, so we'll make radio buttons
-    uiGroup* grp_ = new uiGroup( p, nm ); 
-    intvalGrp = grp_;
-
-    eqBut = new uiRadioButton( intvalGrp, truetxt );
-    eqBut->notify( mCB(this,uiIntervalInpFld,equivSel) );
-
-    eqBut->attach( rightTo, hasStep ? step : stop );
-    grp_->setHAlignObj( start );
-
-    setValue( yn );
 }
-#endif
 
 /*!
 
@@ -383,7 +368,6 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
 		    fld = new uiBoolInpFld( this, desc ); 
 		}
 		break;
-#ifdef NEWTYPES
 
 	    case DataInpSpec::intIntervalTp:
 		{
@@ -406,13 +390,12 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
 		    fld = new uiBinIDInpFld( this, desc ); 
 		}
 		break;
-
+#ifdef TODO
 	    case DataInpSpec::stringListTp:
 		{
 		    fld = new uiStrLstInpFld( this, desc ); 
 		}
 		break;
-
 #endif
 	    default:
 		{

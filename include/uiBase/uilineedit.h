@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.2 2001-01-26 09:54:06 arend Exp $
+ RCS:           $Id: uilineedit.h,v 1.3 2001-05-03 12:14:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     double 		getValue() const;
 
     void		setText( const char* );
+    void		setValue( int );
     void		setValue( float );
     void		setValue( double );
 

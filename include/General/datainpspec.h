@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.3 2001-05-03 10:30:43 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.4 2001-05-03 12:14:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
     Type		type() const { return tp_; }
 
     virtual DataInpSpec* clone() const =0;
-    virtual int 	nElems()				{ return 1; }
+    virtual int 	nElems() const				{ return 1; }
     virtual void	getText( BufferString&, int idx=0 ) const =0;
 
 protected:
@@ -141,22 +141,25 @@ public:
 
 			~NumInpIntervalSpec()	{ delete interval_; }
 
-    virtual int 	nElems()	{ return hasStep() ? 3 : 2; }
-    bool		hasStep()	{ return stpi() ? TRUE : FALSE; }
+    virtual int 	nElems() const	{ return hasStep() ? 3 : 2; }
+    bool		hasStep() const	{ return stpi() ? true : false; }
+
+    T			value( int idx=0 ) const
+			{
+			    if( !interval_ ) return (T)0;
+
+			    if( !idx ) return interval_->start;
+			    if( idx == 1 ) return interval_->start;
+			    if( hasStep() ) return stpi()->step; 
+			    return (T)0;
+			}
 
     virtual void	getText( BufferString& dest, int idx ) const
-			{
-			    if( !idx )
-				{ dest = interval_.start ; return; }
-			    if( idx == 1 )
-				{ dest = interval_.start ; return; }
-
-			    if( hasStep() ) dest = stpi()->step; 
-			}
+			    { dest = value( idx ); }
 
 protected:
 
-    StepInterval<T>*	stpi()
+    StepInterval<T>*	stpi() const
 			{ return dynamic_cast< StepInterval<T>* > (interval_);}
 
     Interval<T>*	interval_;
@@ -309,8 +312,12 @@ class BinIDCoordInpSpec : public DataInpSpec
 public:
 			BinIDCoordInpSpec( bool doCoord=false
 					 , bool isRelative=false
+					 , double inline_x = 0
+					 , double crossline_y = 0
 					 , const SurveyInfo& si = SI() )
 			    : DataInpSpec( binIDCoordTp )
+			    , inl_x( inline_x )
+			    , crl_y( crossline_y )
 			    , doCoord_( doCoord )
 			    , isRelative_( isRelative )
 			    , surv_( si ) {}
@@ -318,20 +325,28 @@ public:
     virtual DataInpSpec* clone() const  
 			    { return new BinIDCoordInpSpec( *this ); }
 
+    double		value( int idx ) const { return idx ? crl_y : inl_x; }
+
     virtual void	getText( BufferString& dest, int idx ) const
+			    { dest = value(idx); }
+
+    const char*		otherTxt() const
 			    {
-				if( doCoord_ )
-				    { dest = "Inline/Crossline"; return; }
-				dest = isRelative_ ? "Distance" : "Coords";
+				if( doCoord_ ) { return "Inline/Crossline"; }
+				return isRelative_ ? "Distance" : "Coords";
 			    }
 
     const SurveyInfo&	survInf()	{ return surv_;}
 
 protected:
 
+    double		inl_x;
+    double		crl_y;
+
     bool		doCoord_;
     bool		isRelative_;
     const SurveyInfo&	surv_;
+
 };
 
 #endif
