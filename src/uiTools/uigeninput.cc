@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.30 2001-08-30 10:49:59 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.31 2001-10-09 14:47:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -800,60 +800,33 @@ void uiGenInput::clear( int nr )
 		? flds[idxes[nr].fldidx]->fn(idxes[nr].subidx) : undefval; \
     }
 
-#define mFromLE_g(fn,var ) \
-    var uiGenInput::fn( int nr, var undefVal ) const \
-    { \
-	if ( !finalised )\
-	{\
-	    int inpidx=0; int elemidx=nr;\
-	    while(  elemidx>=0 && inpidx<inputs.size() && inputs[inpidx]\
-		    && elemidx>=inputs[inpidx]->nElems() )\
-	    {\
-		elemidx -= inputs[inpidx]->nElems();\
-		inpidx++;\
-	    }\
-	    return inpidx<inputs.size() && inputs[inpidx] \
-		    ? inputs[inpidx]->fn(elemidx) : undefVal; \
-	}\
-	\
-	return nr<idxes.size() && flds[idxes[nr].fldidx] \
-		? flds[idxes[nr].fldidx]->fn(idxes[nr].subidx) : undefVal; \
-    }
-
-#define mFromLE_s(fn,typ,var) \
-    void uiGenInput::fn( typ var, int nr ) \
-    { \
-	if ( !finalised )\
-	{\
-	    int inpidx=0; int elemidx=nr;\
-	    while(  elemidx>=0 && inpidx<inputs.size() && inputs[inpidx]\
-		    && elemidx>=inputs[inpidx]->nElems() )\
-	    {\
-		elemidx -= inputs[inpidx]->nElems();\
-		inpidx++;\
-	    }\
-	    if ( inpidx<inputs.size() && inputs[inpidx] )\
-		inputs[inpidx]->setValue( var, elemidx );\
-	    return;\
-	}\
-	\
-	if ( nr<idxes.size() && flds[idxes[nr].fldidx] )\
-	    flds[idxes[nr].fldidx]->fn( var, idxes[nr].subidx ); \
-    }
-
 mFromLE_o(isValid,bool,false )
 mFromLE_o(isUndef,bool,true )
 
-mFromLE_g(text,const char* )
-mFromLE_g(getIntValue,int )
-mFromLE_g(getValue,double )
-mFromLE_g(getfValue,float )
-mFromLE_g(getBoolValue,bool )
-mFromLE_s(setText,const char*,s)
-mFromLE_s(setValue,int,i)
-mFromLE_s(setValue,float,f)
-mFromLE_s(setValue,double,d)
-mFromLE_s(setValue,bool,yn)
+#define g_func	text
+#define s_func	setText
+#define gs_type const char*
+#include "fromlegs.h"
+
+#define g_func	getIntValue
+#define s_func	setValue
+#define gs_type int
+#include "fromlegs.h"
+
+#define g_func	getValue
+#define s_func	setValue
+#define gs_type double
+#include "fromlegs.h"
+
+#define g_func	getfValue
+#define s_func	setValue
+#define gs_type float
+#include "fromlegs.h"
+
+#define g_func	getBoolValue
+#define s_func	setValue
+#define gs_type bool
+#include "fromlegs.h"
 
 
 const char* uiGenInput::titleText()
