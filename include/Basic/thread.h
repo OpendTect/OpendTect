@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.13 2002-09-11 14:39:08 bert Exp $
+ RCS:		$Id: thread.h,v 1.14 2002-09-12 05:30:04 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -115,8 +115,8 @@ From the manager:
 When you want to change the condition:
 1. lock
 2. set condition (e.g. add more work)
-3. unlock
-4. signal
+3. signal
+4. unlock
 
 */
 
