@@ -1,12 +1,41 @@
-@ECHO OFF
+ECHO OFF
 ::______________________________________________________________________________
 ::
 :: This script collects information on the OpendTect installation setup,
 :: the data area and the system on which it is run.
 ::
-:: CVS: $Id: collect_support_info.bat,v 1.1 2004-01-30 14:45:46 arend Exp $
+:: CVS: $Id: collect_support_info.bat,v 1.2 2004-10-08 14:52:47 dgb Exp $
 ::______________________________________________________________________________
 ::
+
+
+:: Should be set by installer
+cd %DTECT_WINAPPL%
+
+:: Get cygwin directory, if installed
+if exist .\bin\win\GetCygdir.exe goto getcygdir
+
+ :: else
+
+:nocygwin
+
+ for /F "tokens=*" %%i in ('cd') do set CYGWINDIR=%%i
+ set CYGWINDIR=%CYGWINDIR%\bin\win\sys
+ goto doit
+
+:getcygdir
+
+ for /F "tokens=*" %%i in ('.\bin\win\GetCygdir.exe') do set CYGWINDIR=%%i
+ set CYGWINDIR=%CYGWINDIR%\bin
+
+ if exist %CYGWINDIR%\tcsh.exe goto doit
+ goto nocygwin
+
+:doit
+
+set PATH=%CYGWINDIR%;%DTECT_WINAPPL%\bin\win\sys;%PATH%
+:: the cygwin stuff is now in our PATH
+
 
 :: =============================================================================
 :: Determine temporary directory for storing output file
@@ -47,16 +76,6 @@ echo ====================================================== >> "%outfil%"
 echo. >> "%outfil%"
 
 
-:: Get Current directory
-for /F "tokens=* " %%A in ('cd') do set startdir=%%A
-echo Current Directory = %startdir% >> "%outfil%"
-
-path %startdir%%startdir%\win;%startdir%\win\sys;%PATH%
-
-:: Get install dir from registry
-for /F "tokens=2* delims=	 " %%A in ('reg query "HKLM\Software\OpendTect\Base\Settings\Path"') do set DTECT_WINAPPL=%%B
-
-
 echo                       --------- >> "%outfil%"
 echo ====================================================== >> "%outfil%"
 echo  DOS/CMD Environment >> "%outfil%"
@@ -71,7 +90,7 @@ echo  Calling csh script >> "%outfil%"
 echo ------------------------------------------------------ >> "%outfil%"
 echo                       --------- >> "%outfil%"
 
-csh.exe "%startdir%\win\collect_support_info.csh" "%outfil%"
+tcsh.exe "%DTECT_WINAPPL%\bin\win\collect_support_info.csh" "%outfil%"
 
 unix2dos -q "%outfil%"
 
