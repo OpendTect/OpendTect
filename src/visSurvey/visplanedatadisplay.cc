@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.68 2004-06-17 10:55:46 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.69 2004-06-23 10:33:37 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -284,6 +284,13 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     float crldiff = inlcrldist.crl * crldist;
 
     return sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
+}
+
+
+float PlaneDataDisplay::maxDist() const
+{
+    float maxzdist = SI().zFactor()*SPM().getZScale()*SI().zRange().step / 2;
+    return type == Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
 }
 
 
