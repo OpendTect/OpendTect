@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.4 2001-08-24 13:33:08 kristofer Exp $
+ RCS:           $Id: uisurvey.cc,v 1.5 2001-09-06 10:12:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,18 +38,11 @@ uiSurvey::uiSurvey( uiParent* p )
 	: uiDialog(p,"Survey selection")
 
 {
-    newbut = new uiPushButton( this, "New" );
-    newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
-    editbut = new uiPushButton( this, "Edit" );
-    editbut->activated.notify( mCB(this,uiSurvey,editButPushed) );
-    editbut->attach( rightOf, newbut );
-    rmbut = new uiPushButton( this, "Remove" );
-    rmbut->activated.notify( mCB(this,uiSurvey,rmButPushed) );
-    rmbut->attach( rightOf, editbut );
-    convbut = new uiPushButton( this, "X/Y <-> I/C" );
-    convbut->activated.notify( mCB(this,uiSurvey,convButPushed) );
-    convbut->attach( rightTo, rmbut );
-    convbut->attach( rightBorder );
+    const int lbwidth = 250;
+    const int mapwdth = 300;
+    const int maphght = 290;
+    const int noteshght = 130;
+    const int totwdth = lbwidth + mapwdth + 10;
 
     const char* ptr = getenv( "dGB_DATA" );
     if ( !ptr ) return;
@@ -64,27 +57,40 @@ uiSurvey::uiSurvey( uiParent* p )
     }
 
     uiGroup* selgrp = new uiGroup( this, "Survey selection" );
-    selgrp->attach( alignedBelow, newbut );
     mapcanvas = new uiCanvas( selgrp, "Survey map" );
-    mapcanvas->setPrefHeight( 300 );
-    mapcanvas->setPrefWidth( 300 );
+    mapcanvas->setPrefHeight( maphght );
+    mapcanvas->setPrefWidth( mapwdth );
     mapcanvas->setStretch( 0, 0 );
     mapcanvas->preDraw.notify( mCB(this,uiSurvey,doCanvas) );
     listbox = new uiListBox( selgrp, dirlist );
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
-//  listbox->doubleclick.notify( mCB(this,uiSurvey,editButPushed) );
+    listbox->doubleClicked.notify( mCB(this,uiSurvey,editButPushed) );
     listbox->attach( leftOf, mapcanvas );
     listbox->attach( heightSameAs, mapcanvas );
-    listbox->attach( widthSameAs, mapcanvas );
+    listbox->setPrefWidth( lbwidth );
     listbox->setStretch( 0, 0 );
 
+    newbut = new uiPushButton( selgrp, "New ..." );
+    newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
+    newbut->attach( alignedBelow, listbox );
+    rmbut = new uiPushButton( selgrp, "Remove ..." );
+    rmbut->activated.notify( mCB(this,uiSurvey,rmButPushed) );
+    rmbut->attach( rightAlignedBelow, listbox );
+    editbut = new uiPushButton( selgrp, "Edit ..." );
+    editbut->activated.notify( mCB(this,uiSurvey,editButPushed) );
+    editbut->attach( alignedBelow, mapcanvas );
+    convbut = new uiPushButton( selgrp, "X/Y <-> I/C ..." );
+    convbut->activated.notify( mCB(this,uiSurvey,convButPushed) );
+    convbut->attach( rightAlignedBelow, mapcanvas );
+
     uiSeparator* horsep1 = new uiSeparator( this );
-    horsep1->attach( stretchedBelow, selgrp );
+    horsep1->setPrefWidth( totwdth );
+    horsep1->attach( ensureBelow, selgrp );
 
     uiGroup* infogrp = new uiGroup( this, "Survey information" );
     infogrp->attach( alignedBelow, selgrp );
     infogrp->attach( ensureBelow, horsep1 );
-    infogrp->attach( widthSameAs, selgrp );
+    infogrp->setPrefWidth( totwdth );
     uiLabel* irange1 = new uiLabel( infogrp, "In-line range:" );
     uiLabel* xrange1 = new uiLabel( infogrp, "Cross-line range:" );
     uiLabel* zrange1 = new uiLabel( infogrp, "Time range (s):" );
@@ -103,14 +109,15 @@ uiSurvey::uiSurvey( uiParent* p )
     binsize2->attach( rightOf, binsize1 );
    
     uiSeparator* horsep2 = new uiSeparator( this );
-    horsep2->attach( stretchedBelow, infogrp );
+    horsep2->attach( ensureBelow, infogrp );
+    horsep2->setPrefWidth( totwdth );
 
     uiLabel* notelbl = new uiLabel( this, "Notes:" );
     notelbl->attach( alignedBelow, horsep2 );
     notes = new uiTextEdit( this, "Notes" );
     notes->attach( alignedBelow, notelbl);
-    notes->attach( widthSameAs, selgrp );
-    notes->setPrefHeight( 200 );
+    notes->setPrefHeight( noteshght );
+    notes->setPrefWidth( totwdth );
    
     getSurvInfo(); 
     mkInfo();
