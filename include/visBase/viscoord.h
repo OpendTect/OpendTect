@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.4 2003-01-09 09:13:55 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.5 2003-01-20 08:35:29 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -26,10 +26,14 @@ namespace Threads { class Mutex; };
 
 namespace visBase
 {
-
+class Transformation;
 
 /*!\brief
-A set of coordinates.
+A set of coordinates. The coordinates will be transformed by the
+transformation before given to Coin, and transformed back when doing a
+getPos. 
+\note The object will not react to changes in the transformation when it is
+set
 */
 
 class Coordinates : public SceneObject
@@ -40,9 +44,17 @@ public:
 			mCreateDataObj(Coordinates);
     friend		class CoordinatesBuilder;
 
+    void		setTransformation( Transformation* );
+    			/*!<\note All existing
+			     coords will be recalculated back from the old
+			     transformation and transformed by the new one.
+			 */
+
+    Transformation*	getTransformation();
+
     int			size(bool includedelete=false) const;
     int			addPos( const Coord3& );
-    Coord3		getPos( int ) const;
+    Coord3		getPos( int, bool scenespace=false ) const;
     void		setPos( int,  const Coord3& );
     void		removePos( int );
 
@@ -56,6 +68,7 @@ protected:
      SoCoordinate3*	coords;
      TypeSet<int>	unusedcoords;
      Threads::Mutex&	mutex;
+     Transformation*	transformation;
 };
 
 /*

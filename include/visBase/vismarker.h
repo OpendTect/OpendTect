@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.5 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.6 2003-01-20 08:34:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class SoScale;
 namespace visBase
 {
 class ShapeScale;
+class Transformation;
 
 /*!\brief
 
@@ -37,25 +38,27 @@ public:
     static Marker*	create()
 			mCreateDataObj(Marker);
 
-			~Marker();
-
     enum Type		{ Cube, Cone, Cylinder, Sphere, Cross, Star };
-
-    void		setCenterPos(const Coord3&);
-    Coord3		centerPos() const;
-   
     void		setType(Type);
     Type		getType() const		{ return markertype; }
  
+    void		setCenterPos(const Coord3&);
+    Coord3		centerPos() const;
+   
     void		setSize(const float);
     float		getSize() const;
 
     void		setScale(const Coord3&);
 
+    void		setTransformation( Transformation* );
+    Transformation*	getTransformation();
+    
     int			usePar(const IOPar&);
     void		fillPar(IOPar&,TypeSet<int>&) const;
 
 protected:
+			~Marker();
+    Transformation*	transformation;
 
     ShapeScale*		shapescale;
     SoTranslation*	position;

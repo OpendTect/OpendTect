@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.18 2002-07-30 11:29:26 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.19 2003-01-20 08:31:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class SoSwitch;
 namespace visBase
 {
 class Material;
+class Transformation;
 
 /*!\brief
     Base class for all objects that are visual on the scene.
@@ -35,11 +36,19 @@ public:
     virtual bool		isOn() const				= 0;
 
     virtual void		setMaterial( Material* )		= 0;
-    virtual const Material*	getMaterial() const			= 0;
     virtual Material*		getMaterial()				= 0;
 
-    void			setSelectable( bool yn ) { isselectable=yn; }
+    virtual void		setTransformation( Transformation* );
+    				/*< Makes it possible to let the object
+				    transform its coords before giving them
+				    to OI.
+				    \note This is only a stub, you must
+					  implement it if you need it
+				*/
+    virtual Transformation*	getTransformation();
+    				/*<\brief Only a stub, returs zero */
 
+    void			setSelectable( bool yn ) { isselectable=yn; }
     bool			selectable() const { return isselectable; }
     NotifierAccess*		selection() { return &selnotifier; }
     NotifierAccess*		deSelection() { return &deselnotifier; }

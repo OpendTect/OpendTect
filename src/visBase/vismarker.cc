@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.4 2002-10-14 14:24:39 niclas Exp $
+ RCS:           $Id: vismarker.cc,v 1.5 2003-01-20 08:34:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "visshapescale.h"
 #include "viscube.h"
 #include "iopar.h"
+#include "vistransform.h"
 
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoRotationXYZ.h>
@@ -36,6 +37,7 @@ visBase::Marker::Marker()
     , scale( new SoScale )
     , shapescale( visBase::ShapeScale::create() )
     , markertype( Cube )
+    , transformation( 0 )
 {
     addChild( position );
     addChild( group );
@@ -57,11 +59,15 @@ visBase::Marker::Marker()
 visBase::Marker::~Marker()
 {
     group->unref();
+    if ( transformation ) transformation->unRef();
 }
 
 
-void visBase::Marker::setCenterPos( const Coord3& pos )
+void visBase::Marker::setCenterPos( const Coord3& pos_ )
 {
+    Coord3 pos( pos_ );
+
+    if ( transformation ) pos = transformation->transform( pos );
     position->translation.setValue( pos.x, pos.y, pos.z );
 }
 
@@ -74,6 +80,8 @@ Coord3 visBase::Marker::centerPos() const
     res.x = pos[0];
     res.y = pos[1];
     res.z = pos[2];
+
+    if ( transformation ) res = transformation->transformBack( res );
 
     return res;
 }
@@ -127,6 +135,20 @@ void visBase::Marker::setScale( const Coord3& pos )
 {
     scale->scaleFactor.setValue( pos.x, pos.y, pos.z );
 }
+
+
+void visBase::Marker::setTransformation( visBase::Transformation* nt )
+{
+    const Coord3 pos = centerPos();
+    if ( transformation ) transformation->unRef();
+    transformation = nt;
+    if ( transformation ) transformation->ref();
+    setCenterPos( pos );
+}
+
+
+visBase::Transformation* visBase::Marker::getTransformation()
+{ return transformation; }
 
 
 int visBase::Marker::usePar( const IOPar& iopar )

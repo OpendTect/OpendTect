@@ -4,13 +4,15 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.21 2002-07-30 11:29:14 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.22 2003-01-20 08:31:45 kristofer Exp $";
 
 #include "visobject.h"
-#include "vistransform.h"
-#include "vismaterial.h"
-#include "visdataman.h"
+
+#include "errh.h"
 #include "iopar.h"
+#include "visdataman.h"
+#include "vismaterial.h"
+#include "vistransform.h"
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoSwitch.h"
@@ -26,8 +28,21 @@ visBase::VisualObject::VisualObject( bool selectable_ )
 
 
 visBase::VisualObject::~VisualObject()
-{
+{ }
+
+
+void visBase::VisualObject::setTransformation( Transformation* )
+{   
+    pErrMsg("Not implemented");
+}   
+    
+
+visBase::Transformation* visBase::VisualObject::getTransformation()
+{   
+    return 0;
 }
+
+
 
 
 visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
