@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.17 2005-04-05 15:29:54 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.18 2005-04-06 10:51:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.17 2005-04-05 15:29:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.18 2005-04-06 10:51:37 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.17 2005-04-05 15:29:54 c
 #include "vismpeeditor.h"
 #include "vistransform.h"
 #include "viscolortab.h"
+#include "survinfo.h"
 
 #include "emsurface.h"
 #include "emsurfaceauxdata.h"
@@ -612,6 +613,19 @@ void EMObjectDisplay::getMousePosInfo( const Coord3& pos, float& val,
     
     info = emobject->getTypeStr(); info += ": "; info += name();
     if ( !sections.size() || as.id() < -1 ) return;
+
+    mDynamicCastGet(const EM::Surface*,emsurface,emobject)
+    if ( !emsurface || !emsurface->auxdata.nrAuxData() )
+	return;
+    const RowCol rc( SI().transform(pos) );
+    EM::PosID posid( emsurface->id(), 0, rc.getSerialized() );
+    for ( int idx=0; idx<emsurface->nrSections(); idx++ )
+    {
+	posid.setSectionID( emsurface->sectionID(idx) );
+	val = emsurface->auxdata.getAuxDataVal( curtextureidx, posid );
+	if ( !mIsUndefined(val) )
+	    break;
+    }
 }
 
 
