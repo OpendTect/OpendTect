@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.20 2001-06-26 07:51:50 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.21 2001-06-26 15:00:47 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -400,12 +400,8 @@ bool CBVSReader::nextPosIdx()
 	posidx = 0;
 
     if ( !posidx )
-    {
-	if ( curbinid_ == lastbinid )
-	    return false;
+	return getNextBinID( curbinid_, true );
 
-	curbinid_ = nextBinID();
-    }
     return true;
 }
 
@@ -436,10 +432,20 @@ bool CBVSReader::skip( bool tonextpos )
 
 BinID CBVSReader::nextBinID() const
 {
-    if ( curbinid_ == lastbinid )
-	return BinID(0,0);
+    BinID bid;
+    const_cast<CBVSReader*>(this)->getNextBinID( bid, false );
+    return bid;
+}
 
-    BinID bid = curbinid_;
+
+bool CBVSReader::getNextBinID( BinID& bid, bool set_vars )
+{
+    if ( curbinid_ == lastbinid )
+	{ bid = BinID(0,0); return false; }
+
+    if ( &bid != &curbinid_ )
+	bid = curbinid_;
+
     if ( info_.geom.fullyrectandreg )
     {
 	bid.crl += info_.geom.step.crl;
@@ -449,7 +455,7 @@ BinID CBVSReader::nextBinID() const
 	    bid.inl += info_.geom.step.inl;
 	    if ( !bidrg.includes(bid) )
 		// Huh?
-		return BinID(0,0);
+		{ bid = BinID(0,0); return false; }
 	}
     }
     else
@@ -461,23 +467,29 @@ BinID CBVSReader::nextBinID() const
 	bid.crl += curseg->step;
 	if ( !curseg->includes(bid.crl) )
 	{
-	    const_cast<int&>(cursegnr) ++;
-	    if ( cursegnr >= inlinf->segments.size() )
+	    int newsegnr = cursegnr+1;
+	    if ( newsegnr < inlinf->segments.size() )
+		bid.crl = inlinf->segments[newsegnr].start;
+	    else
 	    {
-		const_cast<int&>(cursegnr) = 0;
-		const_cast<int&>(curinlinfnr) ++;
-		if ( curinlinfnr >= info_.geom.inldata.size() )
+		newsegnr = 0;
+		int newinlinfnr = curinlinfnr + 1;
+		if ( newinlinfnr >= info_.geom.inldata.size() )
 		    // Huh?
-		    return BinID(0,0);
-		inlinf = info_.geom.inldata[curinlinfnr];
-		curseg = &inlinf->segments[cursegnr];
+		    { bid = BinID(0,0); return false; }
+		if ( set_vars )
+		    curinlinfnr = newinlinfnr;
+		inlinf = info_.geom.inldata[newinlinfnr];
+		curseg = &inlinf->segments[newsegnr];
 		bid.inl = inlinf->inl;
 		bid.crl = curseg->start;
 	    }
+	    if ( set_vars )
+		cursegnr = newsegnr;
 	}
     }
 
-    return bid;
+    return true;
 }
 
 
