@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.14 2004-10-11 14:49:56 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.15 2004-10-14 10:32:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,9 @@ ________________________________________________________________________
 
 /*!\brief writes to a seismic data store.
 
-Before first usage, the starter() executable will be executed if you don't
+Before first usage, the prepareWork() will be called if you don't
 do that separately. If you want to do some component and range selections
-using the SeisTrcTranslator, you must first run the starter yourself.
+using the SeisTrcTranslator (3D only), you must first do prepareWork.
 
 */
 
@@ -47,6 +47,8 @@ public:
     const LineKeyProvider* lineKeyProvider() const { return lkp; }
     void		setLineKeyProvider( const LineKeyProvider* l )
 							 { lkp = l; }
+    			//!< If no lineKeyProvider set,
+    			//!< seldata's linekey will be used
     void		setAttrib( const char* a )	 { attrib = a; }
     			//!< if set, overrules attrib in linekey
     IOPar&		lineAuxPars()			{ return lineauxiopar; }
