@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.15 2003-05-05 11:53:31 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.16 2003-05-22 08:24:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,6 @@ class Horizon : public EarthModel::Surface
 {
 public:
     Executor*		loader();
-    bool		isLoaded() const;
     Executor*		saver();
 
     bool		import( const Grid& );
