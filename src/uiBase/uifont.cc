@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.11 2001-09-28 12:06:32 bert Exp $
+ RCS:           $Id: uifont.cc,v 1.12 2002-01-07 15:47:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidset.h"
 #include "uidialog.h"
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uilabel.h"
 
@@ -303,18 +304,17 @@ void uiFontList::update( Settings& settings )
 
 
 uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
-	: uiDialog(p,"Fonts")
+	: uiDialog(p,uiDialog::Setup("Fonts",nm,"0.2.2").mainwidgcentered(true))
 {
-    setTitleText( nm );
-
     setCancelText( "" );
     uiFontList::initialise();
     const ObjectSet<uiFont>& fonts = uiFontList::fonts;
+    uiButtonGroup* butgrp = new uiButtonGroup( this, "" );
     for ( int idx=0; idx<fonts.size(); idx++ )
     {
-	uiButton* but = new uiPushButton( this, (const char*)fonts[idx]->key());
+	uiButton* but = new uiPushButton( butgrp, 
+					  (const char*)fonts[idx]->key());
         but->activated.notify( mCB(this,uiSetFonts,butPushed) );
-	if( idx ) but->attach( centeredBelow, buttons[idx-1]);
 	buttons += but;
     }
 }
@@ -339,11 +339,9 @@ void uiSetFonts::butPushed( CallBacker* obj )
 
 
 uiSelFonts::uiSelFonts( uiParent* p, const char* nm )
-	: uiDialog(p,"Fonts")
+	: uiDialog(p,uiDialog::Setup("Fonts",nm,"0.2.2"))
 	, ids(*new UserIDSet)
 {
-    setTitleText( nm );
-
     uiFontList::listKeys( ids );
 }
 
