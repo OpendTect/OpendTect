@@ -30,14 +30,26 @@ do_it:
 if ( $shallow == no ) then
     cdl
     echo "Removing all libs from " `pwd`
-    \rm *.a
+    if ( $HDIR == win ) then
+	\rm *.lib
+	\rm *.dll
+	\rm *.dll.a
+    else
+	\rm *.a
+    endif
     ln -s ../*.a .
 endif
 
 cdw
 dvs update
 if ( $dodeps == yes ) then
-    if ( `hostname` == $MAIN_DGB_HOST ) then
+
+    set docpdeps=0
+
+    if ( `hostname` == $MAIN_DGB_HOST ) set docpdeps=1
+    if ( $HDIR == win ) set docpdeps=1
+
+    if( $docpdeps == 1 ) then
 	make dep MODS=$mods
 	cd plugins ; make dep
 	cd ../spec ; make dep
