@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.33 2002-01-15 11:21:02 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.34 2002-01-15 14:21:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -301,6 +301,7 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
     ObjectSet<BufferString> txts;
     BufferString s( txt );
     char* ptr = s.buf();
+    if( !ptr || !*ptr ) return;
     while ( 1 )
     {
 	char* nlptr = strchr( ptr, '\n' );
