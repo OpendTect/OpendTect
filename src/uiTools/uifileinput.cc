@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.24 2004-05-07 12:55:25 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.25 2004-05-12 14:49:31 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ void uiFileInput::setFileName( const char* s )
 
 void uiFileInput::enableExamine( bool yn )
 {
-    examinebut->setSensitive( yn );
+    if ( examinebut ) examinebut->setSensitive( yn );
 }
 
 
