@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.20 2002-08-02 10:27:23 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.21 2002-12-13 15:19:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
     virtual void	clear()			{ setCurrentItem(0); }
 
     void		empty();
+    void		removeItem(int);
     void		addItem(const char*,bool embedded=false); 
     			//!< embedded = put [...] around text
     void		addItems(const char**); 
