@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.3 2003-10-17 15:00:36 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.4 2003-10-21 16:33:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,6 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
     logsfld = new uiLabeledListBox( this, "Select Log" );
     logsfld->box()->setHSzPol( uiObject::wide );
     logsfld->box()->selectionChanged.notify( mCB(this,uiLogSelDlg,logSel) );
-    logsfld->box()->setSelected(0);
     for ( int idx=0; idx<logs.size(); idx++ )
 	logsfld->box()->addItem( logs.getLog(idx).name() );
 
@@ -204,6 +203,8 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
 
     dispfld = new uiGenInput( this, "Display", BoolInpSpec("Left","Right") );
     dispfld->attach( alignedBelow, rangefld );
+
+    logsfld->box()->setCurrentItem(0);
 }
 
 
