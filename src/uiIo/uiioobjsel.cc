@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.18 2001-09-02 12:29:05 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.19 2001-09-10 20:46:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     listfld->rightButtonClicked.notify( mCB(this,uiIOObjSelDlg,rightClk) );
 
     setOkText( "Select" );
-    selChg(0);
+    selChg( this );
 }
 
 
@@ -80,7 +80,7 @@ void uiIOObjSelDlg::selChg( CallBacker* c )
 {
     entrylist->setCurrent( listfld->currentItem() );
     ioobj = entrylist->selected();
-    if ( nmfld )
+    if ( c && nmfld )
 	nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
 }
 
@@ -145,6 +145,9 @@ bool uiIOObjSelDlg::rmEntry()
     entrylist->curRemoved();
     IOM().removeAux( ioobj->key() );
     IOM().dirPtr()->permRemove( ioobj->key() );
+    ioobj = entrylist->selected();
+    if ( ioobj )
+	listfld->setCurrentItem( (const char*)ioobj->name() );
     return true;
 }
 
