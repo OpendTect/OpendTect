@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.20 2002-04-22 14:41:03 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.21 2002-04-22 15:36:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public:
     			/* Mouse stuff */
     Geometry::Pos	getMousePos() const { return mousepos; }
     void		setMousePosDomain( bool xyt ) { mouseposinxyt=xyt; }
+    bool		isMousePosDomainXYT() const { return mouseposinxyt; }
     			/*!< If !xyt mouse pos will be in inl, crl, t */
     float		getMousePosVal() const { return mouseposval; }
 
