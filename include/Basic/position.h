@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.22 2003-11-24 08:21:03 kristofer Exp $
+ RCS:		$Id: position.h,v 1.23 2003-12-15 10:14:56 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
 
     inline Coord3	operator+(const Coord3&) const;
     inline Coord3	operator-(const Coord3&) const;
+    inline Coord3	operator-() const;
     inline Coord3	operator*(double) const;
     inline Coord3	operator/(double) const;
 
@@ -222,6 +223,12 @@ inline Coord3 Coord3::operator+( const Coord3& p ) const
 inline Coord3 Coord3::operator-( const Coord3& p ) const
 {
     return Coord3( x-p.x, y-p.y, z-p.z );
+}
+
+
+inline Coord3 Coord3::operator-() const
+{
+    return Coord3( -x, -y, -z );
 }
 
 
