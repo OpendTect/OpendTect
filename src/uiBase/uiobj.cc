@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.9 2001-08-24 10:03:20 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.10 2001-08-30 08:45:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,7 +256,11 @@ void uiObjectBody::uiShow()
 }
 
 
-void uiBody::uiHide( bool )		{ qwidget()->hide(); }
+/*
+    Do a finalise() in uiHide, so that the preferred sizes are known before
+    actually hiding.
+*/
+void uiBody::uiHide( bool )		{ finalise(); qwidget()->hide(); }
 
 void uiObjectBody::uiHide(bool shrink)
 {
@@ -269,6 +273,7 @@ void uiObjectBody::uiHide(bool shrink)
 	}
 	else
 	{
+	    finalise();
 	    cached_pref_width  = preferredWidth();
 	    cached_pref_height = preferredHeight();
 	}
