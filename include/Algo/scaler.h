@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.3 2000-12-14 16:23:53 bert Exp $
+ RCS:		$Id: scaler.h,v 1.4 2000-12-14 16:50:22 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -20,7 +20,11 @@ ________________________________________________________________________
 #define sExpScaler	"Exponential"
 #define sAsymptScaler	"Asymptotic"
 
-/*!\brief scaling floating points.
+/*!\brief Scaling of floating point numbers.
+
+Scaler is an interface for scaling and scaling back numbers. Also, string I/O
+is defined, aswell as a factory (Scaler::get).
+
 */
 
 class Scaler
@@ -40,7 +44,7 @@ public:
 };
 
 
-/*!\brief linear scaling
+/*!\brief Linear scaling
 */
 
 class LinScaler : public Scaler
@@ -68,6 +72,9 @@ public:
 };
 
 
+/*!\brief Logarithmic scaling, base e or ten.
+*/
+
 class LogScaler : public Scaler
 {
 public:
@@ -87,6 +94,9 @@ public:
     bool		ten;
 };
 
+
+/*!\brief Exponential scaling, base e or ten.
+*/
 
 class ExpScaler : public Scaler
 {
@@ -109,6 +119,17 @@ public:
 };
 
 
+/*!\brief Asymptotic or 'Squeeze' scaling, with a linear (main) part.
+
+This scaler scales between -1 and 1. Between center()-width()
+and center()+width() this will happen linearly. The value at width() will be
+linedge(). Therefore, linedge should be set to a value near 1, like the
+default 0.95.
+Outside the width() boundaries, a 1 / (1 + x^2) function will make
+sure the output will be between -1 and 1. Thus, this scaler acts as a
+reversible squeeze function, with a non-deforming (linear), fast central part.
+*/
+
 class AsymptScaler : public Scaler
 {
 public:
@@ -124,15 +145,15 @@ public:
     const char*		toString() const;
     void		fromString(const char*);
 
-    bool		operator==( const AsymptScaler& b ) const
+    inline bool		operator==( const AsymptScaler& b ) const
 			{ return mIS_ZERO(center_-b.center_)
 			      && mIS_ZERO(width_-b.width_)
 			      && mIS_ZERO(linedge_-b.linedge_); }
 
     void		set(double,double,double);
-    double		center() const		{ return center_; }
-    double		width() const		{ return width_; }
-    double		linedge() const		{ return linedge_; }
+    inline double	center() const		{ return center_; }
+    inline double	width() const		{ return width_; }
+    inline double	linedge() const		{ return linedge_; }
 
 protected:
 
