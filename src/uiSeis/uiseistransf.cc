@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.5 2002-11-01 09:48:06 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.6 2002-11-01 12:09:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj* inobj, const IOObj* outobj,
 # include <sstream>
 #else
 # include <strstream>
+# include <strings.h>
 #endif
 
 
