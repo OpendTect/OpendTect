@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.12 2004-06-01 05:25:15 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.13 2004-06-02 09:21:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,13 @@ public:
 		    depending on if row/col of the object is negative, zero or
 		    positive. 
 		*/
+
+    bool	isNeighborTo( const RowCol&,
+	    		      const RowCol& step=RowCol(1,1),
+			      bool eightconnectivity=true ) const;
+    		/*!<\returns true if the object is a neighbor with the 
+		     provided RowCol. The neighborhood is defined with either
+		     eight- or four-connectivity */
 
     int		row;
     int		col;
