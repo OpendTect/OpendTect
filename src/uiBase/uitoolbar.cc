@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.20 2004-09-13 09:40:46 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.21 2004-09-14 06:36:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
 				   const char* nm="ToolBarButton",
 				   bool toggle=false );
     void		turnOn(int idx, bool yn );
+    bool		isOn(int idx ) const;
     void		setSensitive(int idx, bool yn );
     void		setSensitive(bool yn);
     void		setToolTip(int,const char*);
@@ -105,6 +106,12 @@ int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
 void uiToolBarBody::turnOn( int idx, bool yn )
 {
     buttons[idx]->setOn( yn );
+}
+
+
+bool uiToolBarBody::isOn( int idx ) const
+{
+    return buttons[idx]->isOn();
 }
 
 
@@ -174,6 +181,10 @@ void uiToolBar::setLabel( const char* lbl )
 
 void uiToolBar::turnOn( int idx, bool yn )
 { body_->turnOn( idx, yn ); }
+
+
+bool uiToolBar::isOn( int idx ) const
+{ return body_->isOn( idx ); }
 
 
 void uiToolBar::setSensitive( int idx, bool yn )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.14 2004-09-13 09:40:40 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.15 2004-09-14 06:36:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
 
     void		setToolTip(int,const char*);
     void		turnOn( int idx, bool yn );
+    			/*!< Does only work on toggle-buttons */
+    bool		isOn( int idx ) const;
     			/*!< Does only work on toggle-buttons */
     void		setSensitive( int idx, bool yn );
     			/*!< Does only work on toggle-buttons */
