@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.11 2004-01-23 13:29:37 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.12 2004-01-27 10:47:28 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,16 +30,13 @@ extern "C" { const char* GetBaseDataDir(); }
 #include <winreg.h>
 #include <iostream>
 
-const char* getCygDir()
+
+const char* getRegKey( HKEY hKeyRoot, const char* subkey, const char* Value )
 {
     static BufferString answer;
 
-    HKEY hKeyRoot = HKEY_LOCAL_MACHINE;
-    LPCTSTR subkey="SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
-    LPTSTR Value="native";
-
-    BYTE* Value_data = new BYTE[80];
-    DWORD Value_size = 80;
+    BYTE* Value_data = new BYTE[256];
+    DWORD Value_size = 256;
 
     HKEY hKeyNew=0;
     DWORD retcode=0;
@@ -56,13 +53,29 @@ const char* getCygDir()
 
 
     answer = (const char*) Value_data;
-    if ( !File_isDirectory(answer) ) return 0;
-
-
-    BufferString bindir = File_getFullPath(answer,"bin");
-    if ( !File_isDirectory(bindir) ) return 0;
 
     return answer;
+}
+
+const char* getCygDir()
+{
+    const char* cygdir = getRegKey( HKEY_LOCAL_MACHINE, 
+			"SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/",
+			"native" );
+
+    if ( !File_isDirectory(cygdir) )
+    {
+	const char* cygdir = getRegKey( HKEY_CURRENT_USER, 
+			    "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/",
+			    "native" );
+    }
+
+    if ( !File_isDirectory(cygdir) ) return 0;
+
+    BufferString bindir = File_getFullPath(cygdir,"bin");
+    if ( !File_isDirectory(bindir) ) return 0;
+
+    return cygdir;
 }
 
 #endif
@@ -150,22 +163,37 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if( !cygwin )
     {
 	const char* msg =
-	    "It seems you do not have Cygwin installed."
+	    "Cygwin installation not found."
 	    "Please close OpendTect and use the Cygwin installer\n"
 	    "you can find in the start-menu under"
 	    "\"Start-Programs-OpendTect-Install Cygwin\""
+	    "\nIf you are sure you have cygwin installed, "
+	    "you can safely continue."
 	    "\n\nDo you want to continue anyway?";
 
 	if ( ! uiMSG().askGoOn(msg) )
 	{
-	    uiMSG().message( "Please run the Cygwin (bash) shell "
-			     "at least once after the installation.\n\n"
-			     "This will make sure you have a Cygwin home "
-			     "directory for your work environment.\n\n"
-			     "Please refer to the documentation to see which "
-			     "packages to install" );
+	    const char* closemsg = 
+		"Please run the Cygwin (bash) shell "
+		"at least once after the installation.\n\n"
+		"This will make sure you have a Cygwin home "
+		"directory for your work environment.\n\n"
+		"Please refer to the documentation that will pop up to "
+		"see which packages to install." 
+		"\n\nIt is required to close OpendTect before installing"
+		"Cygwin.\nDo you want to close OpendTect now?";
+
+	    bool close = uiMSG().askGoOn( closemsg );
 
 	    showProgrDoc();
+
+	    if ( close )
+	    {
+		if( uiMain::theMain().topLevel() )
+		   uiMain::theMain().topLevel()->close();
+		else
+		   uiMain::theMain().exit();
+	    }
 
 	    return;
 	}
