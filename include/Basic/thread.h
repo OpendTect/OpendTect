@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.7 2002-04-15 12:04:54 kristofer Exp $
+ RCS:		$Id: thread.h,v 1.8 2002-04-17 10:07:37 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -32,6 +32,11 @@ simply too big and dependent.
 
 namespace Threads
 {
+#ifdef __pthread__
+static bool isThreadsImplemented() {return true; }
+#else
+static bool isThreadsImplemented() {return false; }
+#endif
 
 /*!\brief
 Is a lock that allows a thread to have exlusive rights to something. It is
