@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.8 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.9 2003-07-08 09:48:51 jeroen Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,9 @@ namespace visBase
 
 */
 
+class Detail;
+
+    
 enum EventType		{ Any, MouseClick, Keyboard, MouseMovement };
 
 class EventInfo
@@ -44,7 +47,8 @@ public:
     TypeSet<int>		pickedobjids;    
     Coord3			pickedpos;
     Coord3			localpickedpos;
-    					
+    Detail*			detail;
+    
     int				key;
     				/*!< Only set if type==Keyboard */
 
