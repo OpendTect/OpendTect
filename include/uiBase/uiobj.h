@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.32 2003-05-22 12:49:30 nanne Exp $
+ RCS:           $Id: uiobj.h,v 1.33 2003-10-03 06:23:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,6 +140,7 @@ public:
     void		display( bool yn = true, bool shrink=false,
 				 bool maximised=false );
     void		setFocus();
+    bool		hasFocus() const;
 
     const Color&	backgroundColor() const;
     void                setBackgroundColor(const Color&);

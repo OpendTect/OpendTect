@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.2 2003-05-22 12:49:17 nanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.3 2003-10-03 06:22:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,20 +124,18 @@ void uiObjectBody::doDisplay(CallBacker*)
 
 
 void uiObjectBody::uisetFocus()
-{ 
-    qwidget()->setFocus();
-}
+{ qwidget()->setFocus(); }
+
+bool uiObjectBody::uihasFocus() const
+{ return qwidget() ? qwidget()->hasFocus() : false; }
+
 
 void uiObjectBody::uisetSensitive( bool yn )
-{
-    qwidget()->setEnabled( yn );
-}
-
+{ qwidget()->setEnabled( yn ); }
 
 bool uiObjectBody::uisensitive() const
-{
-    return qwidget()->isEnabled();
-}
+{ return qwidget() ? qwidget()->isEnabled() : false; }
+
 
 void uiObjectBody::reDraw( bool deep )
 {

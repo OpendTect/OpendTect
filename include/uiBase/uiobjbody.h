@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.33 2003-05-22 12:49:30 nanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.34 2003-10-03 06:23:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     void 			display(bool yn=true,bool shrink=false,
 					 bool maximised=false);
     void			uisetFocus();
+    bool			uihasFocus() const;
     bool			uiCloseOK() { return uiObjHandle().closeOK(); }
     bool			isDisplayed() const { return display_; }
 

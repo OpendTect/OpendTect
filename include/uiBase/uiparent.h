@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.9 2003-05-22 12:49:31 nanne Exp $
+ RCS:           $Id: uiparent.h,v 1.10 2003-10-03 06:23:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
 			    { finalise(); mIfMO()->display(yn,shrk,maximize); }
 
     void		setFocus()                { mIfMO()->setFocus(); }
+    bool		hasFocus() const	  { mRetMO(hasFocus,false); }
+
     void		setSensitive(bool yn=true){ mIfMO()->setSensitive(yn); }
     bool		sensitive() const	  { mRetMO(sensitive,false); }
 

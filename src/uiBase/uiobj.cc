@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.53 2003-05-22 12:49:17 nanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.54 2003-10-03 06:22:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,8 +217,11 @@ void uiObject::display( bool yn, bool shrink, bool maximise )
     mBody()->display(yn,shrink,maximise); 
 }
 
-void uiObject::setFocus()			{ mBody()->uisetFocus();}
-
+void uiObject::setFocus()			
+    { mBody()->uisetFocus(); }
+    
+bool uiObject::hasFocus() const			
+    { return mConstBody()->uihasFocus(); }
 
 
 const Color& uiObject::backgroundColor() const	
