@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.23 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.24 2004-10-21 15:45:58 dgb Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -19,6 +19,94 @@ static const char* rcsID = "$Id: helpview.cc,v 1.23 2004-04-27 15:51:15 bert Exp
 
 #ifdef __win__
 # include <windows.h>
+# include <ctype.h>
+
+
+static bool GetBrowser( BufferString& defaultBrowser, BufferString& browserArgs)
+{
+    defaultBrowser = "";
+    browserArgs = "";
+
+    #define BSIZE 256
+    static char vbuff[BSIZE];
+    static char arg[32];
+    UCHAR  *value = (UCHAR *)vbuff;
+    UCHAR  name[BSIZE];
+    HKEY  mykey;
+    DWORD  keyNameSize;
+    DWORD  keyValSize;
+    LONG  ret;
+    char  *keyName = "HTTP\\shell\\open\\command";
+    DWORD  keyType;
+
+
+    ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keyName, NULL,
+			KEY_ALL_ACCESS, &mykey);
+
+    if (ret != ERROR_SUCCESS)
+    {
+	//pErrMsg("Can't find registery key for browser?");
+	return(FALSE);
+    }
+
+    memset(value, 0, sizeof(value));
+
+    for (int ii = 0; ; ii++)
+    {
+	keyValSize = BSIZE;
+	keyNameSize = BSIZE;
+	ret = RegEnumValue( mykey, ii, (char *)name, &keyNameSize, NULL,
+			    &keyType, (UCHAR *)value, &keyValSize);
+
+	if ( ret != ERROR_SUCCESS )
+	    break;
+
+	if ( *name )         // If this isn't the default
+	    continue;        //    Then don't use it
+
+	char* chr = (char *)value;
+
+	// Replace all quotes with spaces
+	while (1)
+	{
+	    if ((chr = strchr(chr, '"')) == NULL)
+		break;
+	    *chr++ = ' ';
+	}
+
+
+	// Remove everything from '%' on
+	if ((chr = strchr((LPCSTR)value, '%')) != NULL)
+	    *chr = '\0';       //
+
+
+	// Move all chars after '.exe' to argument buffers
+
+	chr = strstr((LPCSTR)value, ".exe");
+	if (!chr)
+	    chr = strstr((LPCSTR)value, ".EXE");
+	if (!chr)         // No '.exe' string in file name
+	    break;
+
+	chr += 4;         // Bump past ".exe"
+	if (*chr)         // If any command tail
+	{
+	    strcpy(arg, chr);      // Copy command tail to argument buffer
+	    *chr = '\0';       // NULL terminate command
+	    browserArgs = (char *)arg;    // Save arguments
+	}
+	if (*value == (UCHAR)' ')
+	    value++;
+
+	// Get --> default browser exe file
+	defaultBrowser = (const char *)value;
+    }
+
+    RegCloseKey(mykey);
+
+    return ( defaultBrowser != "" );
+}
+
 #endif
 
 static const char* sMainIndex = "MainIndex";
@@ -47,7 +135,16 @@ void HelpViewer::use( const char* url, const char* wintitl )
 
 #ifdef __win__
 
-    HINSTANCE ret = ShellExecute(NULL,"open",_url,NULL,NULL,SW_NORMAL);
+    BufferString browser;
+    BufferString args;
+    GetBrowser( browser, args );
+
+    args += " \"file://";
+    replaceCharacter( _url.buf(), '\\' , '/' );
+    args += _url;
+    args += "\"";
+
+    HINSTANCE ret = ShellExecute( NULL, NULL, browser, args, NULL, SW_NORMAL);
     int err = (int) ret;
 
     if ( err > 32 ) return;
