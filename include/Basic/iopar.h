@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.19 2003-03-19 16:21:59 bert Exp $
+ RCS:		$Id: iopar.h,v 1.20 2003-03-21 09:01:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,13 @@ public:
     inline bool		get( const char* k, double& v1,
 	    		     double& v2, double& v3, double& v4 ) const
 			{ return getSc(k,v1,v2,v3,v4,1,false); }
+
+    bool		get(const char*, TypeSet<int>& ) const;
+    bool		get(const char*, TypeSet<long long>& ) const;
+    bool		get(const char*, TypeSet<unsigned long long>& ) const;
+    bool		get(const char*, TypeSet<double>& ) const;
+    bool		get(const char*, TypeSet<float>& ) const;
+
     bool		getSc(const char*,float&,float sc,
 			      bool set_undef_if_not_found) const;
 			//!< get with a scale applied
@@ -160,6 +167,12 @@ public:
     void		set(const char*,const BufferString&);
     void		set(const char*,const BufferString&,
 	    				const BufferString&);
+
+    void		set(const char*, const TypeSet<int>& );
+    void		set(const char*, const TypeSet<long long>& );
+    void		set(const char*, const TypeSet<unsigned long long>& );
+    void		set(const char*, const TypeSet<double>& );
+    void		set(const char*, const TypeSet<float>& );
 
     void		add(const char*,const char*);
 			/*!< Only to save performance: responsibility for

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.26 2003-03-19 16:21:59 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.27 2003-03-21 09:01:52 kristofer Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -260,13 +260,53 @@ void IOPar::add( const char* nm, const char* val )
 }
 
 
-bool IOPar::get( const char* s, int& i ) const
-{
-    const char* ptr = (*this)[s];
-    if ( ptr && *ptr ) { i = atoi(ptr); return true; }
-    return false;
+#define get1Val( type, convfunc ) \
+bool IOPar::get( const char* s, type& res ) const \
+{ \
+    const char* ptr = (*this)[s];\
+    if ( ptr && *ptr )\
+    {\
+	char* endptr;\
+	type tmpval = convfunc;\
+	if ( ptr==endptr) return false;\
+	res = tmpval;\
+    } \
+\
+    return false;\
 }
 
+get1Val(int,strtol(ptr, &endptr, 0));
+
+#define mGetMulti( type, function ) \
+bool IOPar::get( const char* s, TypeSet<type>& res ) const\
+{ \
+    const char* ptr = (*this)[s]; \
+    if ( !ptr || !*ptr ) return false;\
+\
+    FileMultiString fms(ptr);\
+    if ( fms.size()<res.size() ) return false;\
+\
+    TypeSet<type> tmpres(res);\
+    for ( int idx=0; idx<res.size(); idx++ )\
+    {\
+	ptr = fms[idx];\
+	if ( !ptr || !*ptr ) return false;\
+\
+    	char* endptr;	\
+	tmpres += function; \
+	if ( ptr==endptr ) return false;\
+    }\
+\
+    res = tmpres;\
+\
+    return true; \
+}
+
+mGetMulti( int, strtol(ptr, &endptr, 0) );
+mGetMulti( long long, strtoll(ptr, &endptr, 0) );
+mGetMulti( unsigned long long, strtoull(ptr, &endptr, 0) );
+mGetMulti( double, strtod(ptr, &endptr ) );
+mGetMulti( float, strtod(ptr, &endptr ) );
 
 bool IOPar::get( const char* s, int& i1, int& i2 ) const
 {
@@ -526,23 +566,42 @@ void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 }
 
 
-void IOPar::set( const char* keyw, int val )
-{
-    set( keyw, getStringFromInt(0,val) );
+#define mSetMulti(type, tostringfunc ) \
+void IOPar::set( const char* keyw, const TypeSet<type>& vals ) \
+{\
+    if ( !vals.size() ) return;\
+\
+    type val = vals[0];\
+    FileMultiString fms( tostringfunc );\
+\
+    const int nrvals = vals.size();\
+\
+    for ( int idx=1; idx<nrvals; idx++ )\
+    {\
+	val = vals[idx];\
+	fms += tostringfunc;\
+    }\
+\
+    set( keyw, fms );\
 }
 
 
-void IOPar::set( const char* keyw, float val )
-{
-    set( keyw, mIsUndefined(val) ? sUndefValue
-				 : getStringFromFloat(0,val) );
-}
+mSetMulti( int, getStringFromInt(0,val) );
+mSetMulti( float, getStringFromFloat(0,val) );
+mSetMulti( double, getStringFromDouble(0,val) );
+mSetMulti( long long, getStringFromLongLong(0,val) );
+mSetMulti( unsigned long long, getStringFromUnsignedLongLong(0,val) );
 
 
-void IOPar::set( const char* keyw, double val )
-{
-    set( keyw, mIsUndefined(val) ? sUndefValue : getStringFromDouble(0,val) );
+#define mSet1Val( type, tostringfunc ) \
+void IOPar::set( const char* keyw, type val ) \
+{\
+    set( keyw, tostringfunc(0,val) );\
 }
+
+mSet1Val( int, getStringFromInt );
+mSet1Val( float, mIsUndefined(val) ? sUndefValue : getStringFromFloat );
+mSet1Val( double, mIsUndefined(val) ? sUndefValue : getStringFromDouble);
 
 
 void IOPar::set( const char* s, int i1, int i2 )
