@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.88 2002-09-20 11:15:43 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.89 2002-09-23 10:39:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1078,7 +1078,8 @@ void uiVisPartServer::putNewSurfData( int id,
 }
 
 
-void uiVisPartServer::getSurfaceIds( int sceneid, TypeSet<int>& ids ) const
+void uiVisPartServer::getSurfaceIds( int sceneid, ObjectType type, 
+				     TypeSet<int>& ids ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( sceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -1088,19 +1089,20 @@ void uiVisPartServer::getSurfaceIds( int sceneid, TypeSet<int>& ids ) const
     {
 	visBase::SceneObject* obj = scene->getObject( idx );
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,hd,obj)
-	if ( hd )
+	if ( hd && type == getObjectType( hd->id() ) )
 	    ids += hd->id();
     }
 }
 
 
-void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos ) const
+void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
+				      ObjectType type ) const
 {
     TypeSet<int> sceneids; getSceneIds( sceneids );
     for ( int ids=0; ids<sceneids.size(); ids++ )
     {
 	const int sceneid = sceneids[ids];
-	TypeSet<int> horids; getSurfaceIds( sceneid, horids );
+	TypeSet<int> horids; getSurfaceIds( sceneid, type, horids );
 	for ( int idh=0; idh<horids.size(); idh++ )
 	{
 	    const int horid = horids[idh];
@@ -1110,39 +1112,14 @@ void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos ) const
 }
 
 
-void uiVisPartServer::getSurfaceNames( ObjectSet<BufferString>& nms ) const
+void uiVisPartServer::getSurfaceNames( ObjectSet<BufferString>& nms, 
+				       ObjectType type ) const
 {
     deepErase( nms );
     ObjectSet<SurfaceInfo> hinfos;
-    getSurfaceInfo( hinfos );
+    getSurfaceInfo( hinfos, type );
     for ( int idx=0; idx<hinfos.size(); idx++ )
 	nms += new BufferString( hinfos[idx]->name );
-}
-
-
-int uiVisPartServer::getSurfaceID( const char* horname, int nr ) const
-{
-    TypeSet<int> sceneids;
-    getSceneIds( sceneids );
-
-    for ( int ids=0; ids<sceneids.size(); ids++ )
-    {
-        const int sceneid = sceneids[ids];
-        TypeSet<int> horids;
-        getSurfaceIds( sceneid, horids );
-        for ( int idh=0; idh<horids.size(); idh++ )
-        {
-            const int horid = horids[idh];
-	    if ( !strcmp(horname,getObjectName(horid)) )
-	    {
-		nr--;
-		if ( nr < 0 )
-		    return horid;
-	    }
-	}
-    }
-
-    return -1;
 }
 
 

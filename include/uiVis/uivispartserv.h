@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.59 2002-09-20 11:15:51 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.60 2002-09-23 10:39:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,10 +186,11 @@ public:
     void		getSurfAttribValues(int,TypeSet<float>&) const;
     void		putNewSurfData(int,
 	    			      const ObjectSet< TypeSet<BinIDZValue> >&);
-    void		getSurfaceIds(int,TypeSet<int>&) const;
-    void		getSurfaceInfo(ObjectSet<SurfaceInfo>&) const;
-    void		getSurfaceNames(ObjectSet<BufferString>&) const;
-    int			getSurfaceID(const char*,int nr) const;
+    void		getSurfaceIds(int,ObjectType,TypeSet<int>&) const;
+    void		getSurfaceInfo(ObjectSet<SurfaceInfo>&,ObjectType) 
+									const;
+    void		getSurfaceNames(ObjectSet<BufferString>&,ObjectType) 
+									const;
     void		setSurfaceNrTriPerPixel(int id, float);
     float		getSurfaceNrTriPerPixel(int id) const;
 
