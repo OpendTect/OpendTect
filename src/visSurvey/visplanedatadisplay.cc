@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.39 2003-02-13 12:18:30 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.40 2003-02-19 15:35:31 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -399,6 +399,15 @@ void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 
 bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 {
+    setData( sliceset );
+    delete cache;
+    cache = sliceset;
+    return true;
+}
+
+    
+void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset )
+{
     const int lsz = (*sliceset)[0]->info().getSize(0);
     const int zsz = (*sliceset)[0]->info().getSize(1);
     const int slicesize = (*sliceset)[0]->info().getTotalSz();
@@ -425,11 +434,6 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
     }
 
     trect->useTexture( true );
-
-    delete cache;
-    cache = sliceset;
-
-    return true;
 }
 
 
@@ -463,7 +467,7 @@ float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const
     if ( type == Timeslice )
     {
 	if ( fabs(pos.z-origo.z)> 1e-3 )
-	return mUndefValue;
+	    return mUndefValue;
 	// x=inl y=crl
 	localpos.x = pos.x-origo.x;
 	localpos.y = pos.y-origo.y;
@@ -474,7 +478,7 @@ float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const
     else if ( type == Crossline )
     {
 	if ( fabs(pos.y-origo.y)> 1e-3 )
-	return mUndefValue;
+	    return mUndefValue;
 	// x=inline y=depth
 	localpos.x = pos.x-origo.x;
 	localpos.y = pos.z-origo.z;
@@ -485,7 +489,7 @@ float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const
     else
     {
 	if ( fabs(pos.x-origo.x)> 1e-3 )
-	return mUndefValue;
+	    return mUndefValue;
 	// x=crossline y=depth
 	localpos.x = pos.y-origo.y;
 	localpos.y = pos.z-origo.z;
@@ -494,8 +498,8 @@ float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const
 	localpos.y /= trect->getRectangle().width(0);
     }
 
-    if ( localpos.x>1 || localpos.y>1 )
-    return mUndefValue;
+    if ( localpos.x > 1 || localpos.y > 1 || localpos.x < 0 || localpos.y < 0 )
+	return mUndefValue;
 
     localpos.x *= ((*cache)[0]->info().getSize(0)-1);
     localpos.y *= ((*cache)[0]->info().getSize(1)-1);
@@ -530,6 +534,7 @@ const char* visSurvey::PlaneDataDisplay::getResName( int res ) const
 void visSurvey::PlaneDataDisplay::setResolution( int res )
 {
     trect->setResolution( res );
+    setData( cache );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.7 2003-02-14 11:50:04 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.8 2003-02-19 15:34:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,9 @@ public:
     float		clipRate() const;
     			/*!< Relayed to colortable */
 
+    void		setResolution(int res)		{ resolution = res; }
+    int			getResolution() const		{ return resolution; }
+
     const TypeSet<float>& getHistogram() const;
 
     void		setUseTransperancy(bool yn);
@@ -81,6 +84,8 @@ protected:
     SoSwitch*		onoff;
     SoGroup*		texturegrp;
     SoComplexity*	quality;
+
+    int			resolution;
 
 private:
     void		colorTabChCB( CallBacker* );

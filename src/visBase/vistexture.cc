@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.11 2003-02-14 11:49:54 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.12 2003-02-19 15:33:57 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -37,6 +37,7 @@ visBase::Texture::Texture()
     , blue( new unsigned char[NRCOLORS] )
     , trans( new unsigned char[NRCOLORS] )
     , usetrans( true )
+    , resolution(0)
     , histogram( NRCOLORS, 0 )
     , onoff( new SoSwitch )
     , texturegrp( new SoGroup )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.18 2003-02-14 11:50:04 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.19 2003-02-19 15:34:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ public:
     float		getTextureQuality() const;
     void		setResolution(int);
     int			getNrResolutions() const;
-    int			getResolution() const	{ return resolution; }
+    int			getResolution() const;
 
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );
@@ -88,8 +88,6 @@ protected:
 
     Texture2*		texture;
     Rectangle*		rectangle;
-
-    int			resolution;
 
 private:
 			~TextureRect();

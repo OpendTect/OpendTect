@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.27 2003-02-13 12:18:46 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.28 2003-02-19 15:35:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -105,6 +105,7 @@ protected:
 				~PlaneDataDisplay();
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
+    void			setData(const AttribSliceSet*);
 
     visBase::TextureRect*	trect;
 

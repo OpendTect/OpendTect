@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.27 2003-02-14 11:49:54 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.28 2003-02-19 15:33:57 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -32,7 +32,6 @@ visBase::TextureRect::TextureRect()
     , manipstartnotifier( this )
     , manipchnotifier( this )
     , manipendsnotifier( this )
-    , resolution(0)
 {
     setTexture( *visBase::Texture2::create() );
     useTexture( true );
@@ -184,7 +183,7 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( texturequalitystr, getTextureQuality() );
     par.set( rectangleidstr, rectid );
     par.setYN( usestexturestr, usesTexture() );
-    par.set( resolutionstr, resolution );
+    par.set( resolutionstr, getResolution() );
 
     if ( saveids.indexOf( rectid )==-1 ) saveids += rectid;
 }
@@ -197,7 +196,7 @@ int visBase::TextureRect::usePar( const IOPar& par )
 
     int newres = 0;
     par.get( resolutionstr, newres );
-    resolution = newres;
+    setResolution( newres );
 
     float texturequality;
     if ( !par.get( texturequalitystr, texturequality )) return -1;
@@ -246,5 +245,11 @@ int visBase::TextureRect::getNrResolutions() const
 
 void visBase::TextureRect::setResolution( int res )
 {
-    resolution = res;
+    texture->setResolution( res );
+}
+
+
+int visBase::TextureRect::getResolution() const
+{
+    return texture->getResolution();
 }

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.12 2003-02-14 11:49:54 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.13 2003-02-19 15:33:57 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -68,8 +68,13 @@ void visBase::Texture2::setData( const Array2D<float>* newdata )
     const int datax0size = newdata->info().getSize(0);
     const int datax1size = newdata->info().getSize(1);
 
-    int newx0 = nextPower2( datax0size, 128, 2048 );
-    int newx1 = nextPower2( datax1size, 128, 2048 );
+    int newx0 = datax0size;
+    int newx1 = datax1size;
+    if ( resolution )
+    {
+	newx0 = nextPower2( datax0size, 128, 1024 ) * resolution;
+	newx1 = nextPower2( datax1size, 128, 1024 ) * resolution;
+    }
     setTextureSize( newx0, newx1 );
 
     Array2DInfoImpl newsize(  x0sz, x1sz );
