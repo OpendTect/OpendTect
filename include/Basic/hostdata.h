@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.11 2004-06-30 13:01:08 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.12 2004-09-27 08:14:15 dgb Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
+#include "genc.h"
 
 
 /*\brief Host name and aliases */
@@ -28,9 +29,17 @@ public:
 
     const char*			name() const	{ return (const char*)name_; }
     const char*			applPrefix() const
-				    { return (const char*)appl_prefix; }
+				{
+				    if ( appl_prefix == "" )
+					return GetSoftwareDir(); 
+				    return (const char*)appl_prefix;
+				}
     const char*			dataPrefix() const
-				    { return (const char*)data_prefix; }
+				{
+				    if ( data_prefix == "" )
+					return GetBaseDataDir(); 
+				    return (const char*)data_prefix;
+				}
     int				nrAliases() const
 				{ return aliases_.size(); }
     const char*			alias( int idx ) const

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.14 2004-07-14 12:18:08 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.15 2004-09-27 08:13:51 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ HostDataList::HostDataList()
     if ( getenv("DTECT_BATCH_HOSTS_FILENAME") )
 	bhfnm = getenv("DTECT_BATCH_HOSTS_FILENAME");
 
-    BufferString fname( GetDataFileName(bhfnm) );
+    BufferString fname( SearchConfigFile(bhfnm) );
 
     if ( getenv("DTECT_BATCH_HOSTS_FILEPATH") )
 	fname = getenv("DTECT_BATCH_HOSTS_FILEPATH");
@@ -90,6 +90,26 @@ HostDataList::HostDataList()
     }
 #endif
     handleLocal();
+}
+
+
+static const char* cleanUpPath( char* path )
+{
+    char* ptr = (char*) path;
+    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+    replaceCharacter( ptr, '\\' , '/' );
+    replaceCharacter( ptr, ';' , ':' );
+
+    char* drivesep = strstr( ptr, ":" );
+    if ( !drivesep ) return ptr;
+    *drivesep = '\0';
+
+    static BufferString res;
+    res = "/cygdrive/";
+    res += ptr;
+    res += ++drivesep;
+
+    return res;
 }
 
 
@@ -129,20 +149,10 @@ bool HostDataList::readHostFile( const char* fname )
 		newhd->aliases_ += new BufferString( val[0] );
 
 	    if ( val[1] && *val[1] )
-	    {
-		char* ptr = (char*)val[1];
-		skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
-		replaceCharacter( ptr, ';' , ':' );
-		newhd->appl_prefix = ptr;
-	    }
+		newhd->appl_prefix = cleanUpPath( (char*)val[1] );
 
 	    if ( val[2] && *val[2] )
-	    {
-		char* ptr = (char*)val[2];
-		skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
-		replaceCharacter( ptr, ';' , ':' );
-		newhd->data_prefix = ptr;
-	    }
+		newhd->data_prefix = cleanUpPath( (char*)val[2] );
 	}
 	*this += newhd;
     }
