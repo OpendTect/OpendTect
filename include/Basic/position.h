@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.4 2001-04-11 15:55:58 bert Exp $
+ RCS:		$Id: position.h,v 1.5 2001-12-24 15:02:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,18 @@ public:
 
     BinID	binid;
     float	value;
+};
+
+
+class CoordTransform
+{
+public:
+
+    virtual		~CoordTransform()	{}
+
+    virtual Coord	getTransXY(const Coord&)= 0;
+    virtual Coord	getTrueXY(const Coord&)	= 0;
+
 };
 
 
