@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.6 2001-03-30 08:52:58 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.7 2001-04-13 11:50:04 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -60,34 +60,58 @@ void IOMan::init()
 
     if ( dirPtr()->key() == MultiID("-1") ) return;
 
-    if ( ! (*dirPtr())[MultiID(Translator::sMiscID)] )
+    int nrstddirdds = IOObjContext::totalNrStdDirs();
+    const IOObjContext::StdDirData* prevdd = 0;
+    bool needwrite = false;
+    for ( int idx=0; idx<nrstddirdds; idx++ )
     {
-	FileNameString dirnm = File_getFullPath( rootdir, "Misc" );
+	const IOObjContext::StdDirData* dd
+		= IOObjContext::getStdDirData( (IOObjContext::StdSelType)idx );
+	if ( (*dirPtr())[MultiID(dd->id)] ) { prevdd = dd; continue; }
+
+	FileNameString basicdirnm = GetDataFileName( "BasicSurvey" );
+	basicdirnm = File_getFullPath( basicdirnm, dd->dirnm );
+	if ( !File_exists(basicdirnm) )
+	    // Apparently, the application doesn't need such a directory
+	    { prevdd = dd; continue; }
+
+	FileNameString dirnm = File_getFullPath( rootdir, dd->dirnm );
 	if ( !File_exists(dirnm) )
 	{
-	    FileNameString basicdirnm = GetDataFileName( "BasicSurvey" );
-	    basicdirnm = File_getFullPath( basicdirnm, "Misc" );
-	    if ( !File_copy(basicdirnm,dirnm,YES) )
+	    // Apparently, this directory should have been in the survey
+	    // It is not. If it is a basic directory, we do not want to
+	    // continue. Otherwise, we want to create the directory.
+	    if ( idx < 6 ) // 6=Misc, may be an old survey
+	    {
+		BufferString msg( "Corrupt survey: missing directory: " );
+		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
+	    }
+	    else if ( !File_copy(basicdirnm,dirnm,YES) )
 	    {
 		BufferString msg( "Cannot create directory: " );
-		msg += dirnm;
-		ErrMsg( msg );
-		state_ = Bad;
-		return;
+		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
 	    }
 	}
 
-	MultiID ky( Translator::sMiscID );
+	MultiID ky( dd->id );
 	ky += "1";
-	IOObj* iostrm = new IOStream("Misc",ky);
-	iostrm->setGroup( "Miscellaneous directory" );
+	IOObj* iostrm = new IOStream(dd->dirnm,ky);
+	iostrm->setGroup( dd->desc );
 	iostrm->setTranslator( "dGB" );
 	IOLink* iol = new IOLink( iostrm );
-	iol->key_ = Translator::sMiscID;
+	iol->key_ = dd->id;
 	iol->dirname = iostrm->name();
-	IOObj* previoobj = (IOObj*)(*dirPtr())[MultiID("100060")];
+	const IOObj* previoobj = prevdd ? (*dirPtr())[prevdd->id]
+					: dirPtr()->main();
 	dirPtr()->objs_ += iol;
-	dirPtr()->objs_.moveAfter( iol, previoobj );
+	dirPtr()->objs_.moveAfter( iol, const_cast<IOObj*>(previoobj) );
+
+	prevdd = dd;
+	needwrite = true;
+    }
+
+    if ( needwrite )
+    {
 	dirPtr()->doWrite();
 	to( prevkey );
     }
@@ -318,10 +342,10 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 	parentkey = ctio.ctxt.parentkey;
     if ( parentkey != "" )
 	to( parentkey );
-    else if ( ctio.ctxt.selkey != ""
+    else if ( ctio.ctxt.hasStdSelType()
 	   && ( ctio.ctxt.newonlevel != 2
 	     || dirPtr()->main()->key().nrKeys() < 3 ) )
-	to( ctio.ctxt.selkey );
+	to( ctio.ctxt.stdSelKey() );
 
     IOObj* ioobj = (*dirPtr())[ctio.ctxt.name()];
     if ( ioobj && ctio.ctxt.trgroup->name() != ioobj->group() )
@@ -337,7 +361,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setParentKey( parentkey );
 	iostrm->setGroup( ctio.ctxt.trgroup->name() );
-	iostrm->setTranslator( ctio.ctxt.deftransl ?
+	iostrm->setTranslator( ctio.ctxt.deftransl != "" ?
 			    (const char*)ctio.ctxt.deftransl
 			  : (const char*)ctio.ctxt.trgroup->defs()[0]->name() );
 	while ( File_exists( iostrm->fileName() ) )

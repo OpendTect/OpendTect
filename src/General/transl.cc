@@ -9,13 +9,10 @@
 #include "ioobj.h"
 #include <iostream.h>
 
-static const char* rcsID = "$Id: transl.cc,v 1.2 2001-02-13 17:21:02 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.3 2001-04-13 11:50:04 bert Exp $";
 
 DefineAbstractClassDef(Translator,"Translator");
 UserIDObjectSet<Translator> Translator::groups_( "Object type displayed" );
-
-const char* Translator::sMiscKey = "Misc";
-const char* Translator::sMiscID = "100070";
 
 
 void Translator::dumpGroups( ostream& strm )

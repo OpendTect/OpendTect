@@ -125,8 +125,8 @@ void TraceData::copyFrom( const TraceData& td )
     while ( nrcomp_ > td.nrcomp_ )
 	delComponent( nrcomp_ - 1 );
     while ( nrcomp_ < td.nrcomp_ )
-	addComponent( td.size(nrcomp_), td.data_[nrcomp_]->bytesPerSample(),
-		      nrcomp_ );
+	addComponent( td.size(nrcomp_), td.getInterpreter(nrcomp_)->dataChar(),
+		      false );
 
     for ( int idx=0; idx<nrcomp_; idx++ )
     {

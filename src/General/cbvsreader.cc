@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.6 2001-04-06 16:38:19 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.7 2001-04-13 11:50:04 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -185,6 +185,8 @@ bool CBVSReader::readComps()
 	    newinf->datatype = iinterp.get( ucbuf, 0 );
 	strm_.read( ucbuf, sizeof(unsigned short) );
 	    newinf->datachar.set( *((unsigned short*)ucbuf) );
+	strm_.read( ucbuf, sizeof(unsigned short) );
+	    // reserved for compression type
 	strm_.read( ucbuf, sizeof(float) );
 	    newinf->sd.start = finterp.get( ucbuf, 0 );
 	strm_.read( ucbuf, sizeof(float) );
@@ -365,36 +367,40 @@ bool CBVSReader::goTo( const BinID& bid )
 }
 
 
-void CBVSReader::nextPosIdx()
+bool CBVSReader::nextPosIdx()
 {
     posidx++;
     if ( posidx >= info_.nrtrcsperposn )
 	posidx = 0;
+
+    if ( !posidx )
+    {
+	if ( curbinid_ == lastbinid )
+	    return false;
+
+	curbinid_ = nextBinID();
+    }
+    return true;
 }
 
 
 bool CBVSReader::skip( bool tonextpos )
 {
     if ( hinfofetched ) 
-    hinfofetched = false;
+	hinfofetched = false;
+    else if ( !nextPosIdx() )
+	return false;
 
     streampos onetrcoffs = explicitnrbytes + bytespertrace;
     streampos posadd = onetrcoffs;
-    nextPosIdx();
 
     if ( posidx && tonextpos )
     {
 	while ( posidx )
 	{
 	    posadd += onetrcoffs;
-	    nextPosIdx();
+	    if ( !nextPosIdx() ) return false;
 	}
-    }
-
-    if ( !posidx )
-    {
-	if ( curbinid_ == lastbinid ) return false;
-	curbinid_ = nextBinID();
     }
 
     lastposfo += posadd;
@@ -462,7 +468,6 @@ BinID CBVSReader::nextBinID() const
 bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
 {
     if ( strmclosed_ || hinfofetched ) return true;
-    nextPosIdx();
 
     expldat.binid = curbinid_;
     expldat.coord = info_.geom.b2c.transform( curbinid_ );
