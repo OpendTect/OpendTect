@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.8 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.9 2002-03-19 08:38:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include <uiobjbody.h>
 #include <qtextedit.h> 
 #include <i_qtxtbrowser.h>
+
+#include <qstringlist.h>
 
 int uiTextEditBase::defaultWidth_	= 600;
 int uiTextEditBase::defaultHeight_	= 400;
@@ -73,7 +75,9 @@ uiTextEdit::uiTextEdit(uiParent* parnt, const char* nm, bool ro)
 
 uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 { 
+//    QStringList _path(".");
     body_= new uiTextEditBody( *this, parnt, nm, ro );
+//    body_->mimeSourceFactory()->setFilePath( _path );
     return *body_; 
 }
 
@@ -101,7 +105,6 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
 				const char* nm )
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
 {
-    setTextFormat(Qt::PlainText); 
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
     setPrefHeight( handle.defaultHeight() );
