@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.4 2005-01-21 13:09:38 kristofer Exp $
+ RCS:           $Id: uimpeman.cc,v 1.5 2005-02-17 11:19:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "uispinbox.h"
 #include "uibutton.h"
-#include "visinterpret.h"
 #include "vismaterial.h"
 #include "visselman.h"
 #include "visdataman.h"
@@ -398,7 +397,7 @@ void uiMPEMan::mouseEraseMode( CallBacker* )
     for ( int idx=0; idx<surfvisids.size(); idx++ )
     {
 	mDynamicCastGet( visSurvey::SurfaceDisplay*, sd,
-		visBase::DM().getObj(surfvisids[idx]));
+		visBase::DM().getObject(surfvisids[idx]));
 	if ( !sd->getEditor() ) continue;
 
 	sd->getEditor()->setEraseWithMouse(ison);
