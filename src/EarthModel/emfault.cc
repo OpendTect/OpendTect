@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.16 2004-07-14 15:33:53 nanne Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.17 2004-07-19 11:24:12 nanne Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -35,6 +35,7 @@ bool EM::Fault::createFromStick( const TypeSet<Coord3>& stick, float velocity )
     if ( stick.size() < 2 ) return false;
 
     if ( !nrPatches() ) addPatch( "", true );
+    setTranslatorData( RowCol(1,1), RowCol(1,1), RowCol(0,0), 0, 0 );
     const EM::PatchID patchid = patchID(0);
     const float idealdistance = 25; // TODO set this in some intelligent way
     RowCol rowcol(0,0);
