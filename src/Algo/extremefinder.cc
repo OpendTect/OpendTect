@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.4 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.5 2003-12-04 17:15:34 kristofer Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
@@ -24,16 +24,30 @@ static const char* rcsID = "$Id: extremefinder.cc,v 1.4 2003-11-07 12:21:57 bert
 
 ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
 		  int itermax_, double tol_, const Interval<double>& interval )
-    : iter( 0 )
-    , max( max_ )
+    : max( max_ )
     , func( func_ )
     , itermax( itermax_ )
-    , e( 0 )
-    , ax( interval.start )
-    , bx( interval.center() )
-    , cx( interval.stop )
     , tol( tol_ )
 {
+    reStart( interval );
+}
+
+
+#define mInitReturn \
+    a = mMIN(ax,cx); \
+    b = mMAX(ax,cx); \
+    x=w=v=bx; \
+    fw=fv=fx= max ? -func.getValue( x ) : func.getValue( x ); \
+    return
+
+void ExtremeFinder1D::reStart( const Interval<double>& interval )
+{
+    ax = interval.start;
+    bx = interval.center();
+    cx = interval.stop;
+    iter = 0;
+    e = 0;
+
     float fa = max ? -func.getValue( ax ) : func.getValue( ax );
     float fb = max ? -func.getValue( bx ) : func.getValue( bx );
 
@@ -64,13 +78,13 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
 		bx = q;
 		fa=fb;
 		fb=fq;
-		return;
+		mInitReturn;
 	    }
 	    else if ( fq>fb )
 	    {
 		cx = q;
 		fc = fq;
-		return;
+		mInitReturn;
 	    }
 
 	    q = cx+GOLD*(cx-bx);
@@ -99,6 +113,8 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
 	SHIFT(ax,bx,cx,q);
 	SHIFT(fa,fb,fc,fq);
     }
+
+    mInitReturn;
 }
 
 
@@ -126,14 +142,6 @@ int ExtremeFinder1D::nrIter() const
 
 int ExtremeFinder1D::nextStep()
 {
-    if ( !iter )
-    {
-	a = mMIN(ax,cx);
-	b = mMAX(ax,cx);
-	x=w=v=bx;
-	fw=fv=fx= max ? -func.getValue( x ) : func.getValue( x );
-    }
-
     const double xm = 0.5*(a+b);
     const double tol1 = tol*fabs(x)*mEPSILON;   
     const double tol2 = 2*tol1;

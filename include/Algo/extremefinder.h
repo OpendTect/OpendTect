@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.2 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: extremefinder.h,v 1.3 2003-12-04 17:16:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,12 @@ public:
 			    \param itermax	Maximum number of iterations
 			    \param tol		Tolerance on the function
 			     			variable (x)
+			    \param interval	The interval of x that will be
+			    			searched
+			*/
+
+    void		reStart( const Interval<double>& interval );
+    			/*!<
 			    \param interval	The interval of x that will be
 			    			searched
 			*/
