@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.24 2004-05-05 15:49:37 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.25 2004-05-06 18:56:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -514,6 +514,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	visSurvey::SurfaceInterpreterDisplay* sid = 
 	    	visSurvey::SurfaceInterpreterDisplay::create();
 	sid->setTrackMan( trackserv->trackManager() );
+	sid->turnOn( false );
 	visserv->addObject( sid, sceneid, true );
 	trackserv->setInterpreterID( sceneid, sid->id() );
     }
@@ -578,6 +579,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	int interpreterid = trackserv->interpreterID( sceneid );
 	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,
 					visserv->getObject(interpreterid))
+	sid->turnOn( true );
 	uiTrackingMan* dlg = new uiTrackingMan( &appl, *sid, 
 						trackserv->trackManager() );
 	dlg->go();
