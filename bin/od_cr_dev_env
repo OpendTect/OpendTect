@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.13 2004-01-07 14:51:47 arend Exp $
+# $Id: od_cr_dev_env,v 1.14 2004-01-16 13:41:18 dgb Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -89,6 +89,7 @@ for fil in init.bash init.csh
 do
     sed -e "s%__WORK__%$outdir%" \
         -e "s%__hdir__%$HDIR%" \
+        -e "s%__DTECTAPPL__DIR__%$DTECT_APPL%" \
         "$inpdir/.$fil" > $fil
 done
 
