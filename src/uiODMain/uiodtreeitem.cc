@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.37 2004-07-20 14:01:43 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.38 2004-07-23 13:00:32 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -545,7 +545,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 		    applMgr()->trackServer()->isTrackingEnabled(mid) );
 	}
 
-	EM::PatchID section = -1;
+	EM::SectionID section = -1;
 	if ( uivissurf->nrSections()==1 )
 	    section = uivissurf->getSection(0);
 	else if ( menu->getPath() )
@@ -654,7 +654,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == cutmnuid || mnuid == terminatemnuid )
     {	
 	menu->setIsHandled(true);
-	EM::PatchID section = -1;
+	EM::SectionID section = -1;
 	if ( uivissurf->nrSections()==1 )
 	    section = uivissurf->getSection(0);
 	else if ( menu->getPath() )

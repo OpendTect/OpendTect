@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.18 2004-07-14 15:36:25 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.19 2004-07-23 13:00:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,13 +184,13 @@ void uiSurfaceMan::mkFileInfo()
     txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; txt += getFileSize( fname );
 
-    if ( sd.patches.size() > 1 )
+    if ( sd.sections.size() > 1 )
     {
-	txt += "\nNr of patches: "; txt += sd.patches.size();
-	for ( int idx=0; idx<sd.patches.size(); idx++ )
+	txt += "\nNr of sections: "; txt += sd.sections.size();
+	for ( int idx=0; idx<sd.sections.size(); idx++ )
 	{
 	    txt += "\n\tPatch "; txt += idx+1; txt += ": "; 
-	    txt += sd.patches[idx]->buf();
+	    txt += sd.sections[idx]->buf();
 	}
     }
 

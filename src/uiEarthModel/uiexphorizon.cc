@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.29 2004-07-14 15:36:25 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.30 2004-07-23 13:00:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,12 +149,12 @@ bool uiExportHorizon::writeAscii()
 
     const float zfac = SI().zIsTime() ? 1000 : 1;
     const int nrattribs = hor->nrAuxData();
-    TypeSet<int>& patches = sels.selpatches;
-    for ( int idx=0; idx<patches.size(); idx++ )
+    TypeSet<int>& sections = sels.selsections;
+    for ( int idx=0; idx<sections.size(); idx++ )
     {
-	const int patchidx = patches[idx];
+	const int sectionidx = sections[idx];
 	BufferString fname( basename ); 
-	if ( patchidx )
+	if ( sectionidx )
 	{ fname += "^"; fname += idx; }
 
 	StreamData sdo = StreamProvider( fname ).makeOStream();
@@ -168,11 +168,11 @@ bool uiExportHorizon::writeAscii()
 	    initGF( *sdo.ostrm, gfnmfld->text(), gfunfld->getBoolValue(), 
 		    gfcommfld->text() );
 
-	const EM::PatchID patchid = hor->patchID( patchidx );
-	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
+	const EM::SectionID sectionid = hor->sectionID( sectionidx );
+	const Geometry::MeshSurface* meshsurf = hor->getSurface( sectionid );
 	EM::PosID posid(
 		EM::EMManager::multiID2ObjectID(infld->selIOObj()->key()),
-		patchid );
+		sectionid );
 	const int nrnodes = meshsurf->size();
 	BufferString str;
 	for ( int idy=0; idy<nrnodes; idy++ )

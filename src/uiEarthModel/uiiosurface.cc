@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.21 2004-07-21 13:20:37 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.22 2004-07-23 13:00:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ const int cListHeight = 5;
 uiIOSurface::uiIOSurface( uiParent* p, bool ishor )
     : uiGroup(p,"Surface selection")
     , ctio( ishor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault))
-    , patchfld(0)
+    , sectionfld(0)
     , attribfld(0)
     , rgfld(0)
 {
@@ -54,13 +54,13 @@ void uiIOSurface::mkAttribFld()
 }
 
 
-void uiIOSurface::mkPatchFld( bool labelabove )
+void uiIOSurface::mkSectionFld( bool labelabove )
 {
-    patchfld = new uiLabeledListBox( this, "Available patches", true,
+    sectionfld = new uiLabeledListBox( this, "Available patches", true,
 				     labelabove ? uiLabeledListBox::AboveMid 
 				     		: uiLabeledListBox::LeftTop );
-    patchfld->setPrefHeightInChar( cListHeight );
-    patchfld->setStretch( 1, 1 );
+    sectionfld->setPrefHeightInChar( cListHeight );
+    sectionfld->setStretch( 1, 1 );
 }
 
 
@@ -94,7 +94,7 @@ void uiIOSurface::fillFields( const MultiID& id )
     }
 
     fillAttribFld( sd.valnames );
-    fillPatchFld( sd.patches );
+    fillSectionFld( sd.sections );
     fillRangeFld( sd.rg );
 }
 
@@ -109,14 +109,14 @@ void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 }
 
 
-void uiIOSurface::fillPatchFld( const BufferStringSet& patches )
+void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 {
-    if ( !patchfld ) return;
+    if ( !sectionfld ) return;
 
-    patchfld->box()->empty();
-    for ( int idx=0; idx<patches.size(); idx++ )
-	patchfld->box()->addItem( patches[idx]->buf() );
-    patchfld->box()->selAll( true );
+    sectionfld->box()->empty();
+    for ( int idx=0; idx<sections.size(); idx++ )
+	sectionfld->box()->addItem( sections[idx]->buf() );
+    sectionfld->box()->selAll( true );
 }
 
 
@@ -137,12 +137,12 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 	sels.rg = *smpl;
     }
 
-    sels.selpatches.erase();
-    int nrpatches = patchfld ? patchfld->box()->size() : 1;
-    for ( int idx=0; idx<nrpatches; idx++ )
+    sels.selsections.erase();
+    int nrsections = sectionfld ? sectionfld->box()->size() : 1;
+    for ( int idx=0; idx<nrsections; idx++ )
     {
-	if ( nrpatches == 1 || patchfld->box()->isSelected(idx) )
-	    sels.selpatches += idx;
+	if ( nrsections == 1 || sectionfld->box()->isSelected(idx) )
+	    sels.selsections += idx;
     }
 
     sels.selvalues.erase();
@@ -188,15 +188,15 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 	savefld->valuechanged.notify( mCB(this,uiSurfaceWrite,savePush) );
     }
 
-    if ( surf_.nrPatches() > 1 )
+    if ( surf_.nrSections() > 1 )
     {
-	mkPatchFld( false );
-	if ( savefld ) patchfld->attach( alignedBelow, savefld );
+	mkSectionFld( false );
+	if ( savefld ) sectionfld->attach( alignedBelow, savefld );
     }
 
     mkRangeFld();
-    if ( patchfld )
-	rgfld->attach( alignedBelow, patchfld );
+    if ( sectionfld )
+	rgfld->attach( alignedBelow, sectionfld );
     else if ( savefld )
 	rgfld->attach( alignedBelow, savefld );
 
@@ -212,7 +212,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 
 bool uiSurfaceWrite::processInput()
 {
-    if ( patchfld && !patchfld->box()->nrSelected() )
+    if ( sectionfld && !sectionfld->box()->nrSelected() )
     {
 	uiMSG().error( "Please select at least one patch" );
 	return false;
@@ -265,20 +265,20 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, bool ishor, bool showattribfld )
 {
     mkObjFld( "Input Surface", true );
 
-    mkPatchFld( showattribfld );
+    mkSectionFld( showattribfld );
 
     if ( showattribfld )
     {
 	mkAttribFld();
 	attribfld->attach( alignedBelow, objfld );
-	patchfld->attach( rightTo, attribfld );
+	sectionfld->attach( rightTo, attribfld );
     }
     else
-	patchfld->attach( alignedBelow, objfld );
+	sectionfld->attach( alignedBelow, objfld );
 
     mkRangeFld();
     rgfld->attach( alignedBelow, showattribfld ? (uiObject*)attribfld
-	    				       : (uiObject*)patchfld );
+	    				       : (uiObject*)sectionfld );
 
     setHAlignObj( rgfld );
 }
@@ -291,7 +291,7 @@ uiSurfaceRead::~uiSurfaceRead()
 
 bool uiSurfaceRead::processInput()
 {
-    if ( patchfld && !patchfld->box()->nrSelected() )
+    if ( sectionfld && !sectionfld->box()->nrSelected() )
     {
 	uiMSG().error( "Please select at least one patch" );
 	return false;

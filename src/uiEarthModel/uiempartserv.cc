@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.48 2004-07-21 13:20:37 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.49 2004-07-23 13:00:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,8 +159,8 @@ bool uiEMPartServer::createSurface( MultiID& id, bool ishor, const char* name )
     emsurf->ref();
     id = emsurf->multiID();
 
-    if ( !emsurf->nrPatches() )
-	emsurf->addPatch(0,true);
+    if ( !emsurf->nrSections() )
+	emsurf->addSection(0,true);
 
     emsurf->unRefNoDel();
 
@@ -362,15 +362,15 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
     shift = hor->getShift();
 
     deepErase( data );
-    for ( int patchidx=0; patchidx<hor->nrPatches(); patchidx++ )
+    for ( int sectionidx=0; sectionidx<hor->nrSections(); sectionidx++ )
     {
-	const EM::PatchID patchid = hor->patchID( patchidx );
-	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
+	const EM::SectionID sectionid = hor->sectionID( sectionidx );
+	const Geometry::MeshSurface* meshsurf = hor->getSurface( sectionid );
 
 	BinIDValueSet& res = *new BinIDValueSet( 1+1, false );
 	data += &res;
 
-	EM::PosID posid( objid, patchid );
+	EM::PosID posid( objid, sectionid );
 	const int nrnodes = meshsurf->size();
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
@@ -400,12 +400,12 @@ void uiEMPartServer::setDataVal( const MultiID& id,
     hor->removeAllAuxdata();
     int	dataidx = hor->addAuxData( attrnm );
 
-    for ( int patchidx=0; patchidx<data.size(); patchidx++ )
+    for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
     {
-	const EM::PatchID patchid = hor->patchID( patchidx );
-	BinIDValueSet& bivs = *data[patchidx];
+	const EM::SectionID sectionid = hor->sectionID( sectionidx );
+	BinIDValueSet& bivs = *data[sectionidx];
 
-	EM::PosID posid( objid, patchid );
+	EM::PosID posid( objid, sectionid );
 	BinIDValueSet::Pos pos;
 	float z, val; BinID bid;
 	while ( bivs.next(pos) )

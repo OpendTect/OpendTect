@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.11 2003-12-18 12:45:15 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.12 2004-07-23 12:59:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,18 +45,18 @@ protected:
 			uiIOSurface(uiParent*,bool ishor);
 
     void		fillFields(const MultiID&);
-    void		fillPatchFld(const BufferStringSet&);
+    void		fillSectionFld(const BufferStringSet&);
     void		fillAttribFld(const BufferStringSet&);
     void		fillRangeFld(const BinIDSampler&);
 
     void		mkAttribFld();
-    void		mkPatchFld(bool);
+    void		mkSectionFld(bool);
     void		mkRangeFld();
     void		mkObjFld(const char*,bool);
 
     void		objSel(CallBacker*);
 
-    uiLabeledListBox*	patchfld;
+    uiLabeledListBox*	sectionfld;
     uiLabeledListBox*	attribfld;
     uiBinIDSubSel*	rgfld;
     uiIOObjSel*		objfld;
