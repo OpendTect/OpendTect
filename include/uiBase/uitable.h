@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.6 2003-04-23 12:31:11 arend Exp $
+ RCS:           $Id: uitable.h,v 1.7 2003-04-23 12:33:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
 			    , coldesc_("Column")
 			    , fillrow_(true)
 			    , fillcol_(false)
-			    , minrowhgt_( 1.2 )
+			    , minrowhgt_( 1 )
 			    , maxrowhgt_( 3 )
 			    , mincolwdt_( uiObject::baseFldSize() )
 			    , maxcolwdt_( 2.3 * uiObject::baseFldSize() )
