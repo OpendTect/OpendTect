@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.5 2003-06-20 12:40:41 bert Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.6 2003-06-25 09:34:32 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -767,11 +767,11 @@ int EM::dgbSurfaceWriter::nextStep()
 	colcoords.remove(idx);
     }
 
-    if ( !writeInt(stream,nrcols,nrcols?tab:eol) )
+    if ( !writeInt(stream,colcoords.size(),colcoords.size()?tab:eol) )
 	return ErrorOccurred;
 
 
-    if ( nrcols )
+    if ( colcoords.size() )
     {
 	if ( !writeInt(stream,firstcol,tab) )
 	    return ErrorOccurred;
