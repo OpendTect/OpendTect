@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.21 2002-11-21 15:21:30 nanne Exp $
+ RCS:           $Id: uiiosel.h,v 1.22 2002-11-26 08:23:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,8 @@ public:
 
 			uiIOSelect(uiParent*,const CallBack& do_selection,
 				   const char* txt,
-				   bool withclear=false);
+				   bool withclear=false,
+				   const char* buttontxt="Select ...");
 			~uiIOSelect();
 
     const char*		getInput() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.29 2002-11-21 15:21:22 nanne Exp $
+ RCS:           $Id: uiiosel.cc,v 1.30 2002-11-26 08:23:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ IOPar& uiIOFileSelect::tmpstoragehistory =
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
-			bool withclear )
+			bool withclear, const char* buttontxt )
 	: uiGroup(p)
 	, doselcb_(butcb)
 	, selectiondone(this)
@@ -39,7 +39,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
     inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", true );
     inp_->box()->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
 
-    selbut_ = new uiPushButton( this, "Select ..." );
+    selbut_ = new uiPushButton( this, buttontxt );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
     selbut_->attach( rightOf, inp_ );
 

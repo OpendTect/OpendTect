@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.23 2002-08-02 13:39:04 nanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.24 2002-11-26 08:23:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,8 @@ class uiIOObjSel : public uiIOSelect
 public:
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
 				   bool wthclear=false,
-				   const char* selectionlabel=0);
+				   const char* selectionlabel=0,
+				   const char* buttontxt="Select ...");
 			~uiIOObjSel();
 
     bool		commitInput(bool mknew);

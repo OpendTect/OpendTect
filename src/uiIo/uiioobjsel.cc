@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.41 2002-08-05 12:53:09 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.42 2002-11-26 08:23:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,9 +286,10 @@ void uiIOObjSelDlg::setInitOutputName( const char* nm )
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
-			bool wclr, const char* st )
+			bool wclr, const char* st, const char* buttxt )
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
-		     txt ? txt : (const char*)c.ctxt.trgroup->name(), wclr )
+		      txt ? txt : (const char*)c.ctxt.trgroup->name(), 
+		      wclr, buttxt )
 	, ctio(c)
 	, forread(c.ctxt.forread)
 	, seltxt(st)
