@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.8 2002-04-10 07:40:58 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.9 2002-04-10 08:24:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -45,10 +45,10 @@ public:
     void			unRef() const;
 
     virtual bool		selectable() const { return false; }
-    void			select();
+    void			select() const;
     				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
-    void			deSelect();
+    void			deSelect() const;
     				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
     bool			isSelected() const;
