@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.34 2003-01-03 17:51:26 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.35 2003-01-06 10:32:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,9 +55,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     	, nrcyclesdone(0)
     	, tmpstordirfld(0)
 {
-    statusBar()->addMsgFld( "Message", uiStatusBar::Left, 4 );
-    statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 4 );
-    statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 2 );
+    statusBar()->addMsgFld( "Message", uiStatusBar::Left, 20 );
+    statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 20 );
+    statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 10 );
     statusBar()->addMsgFld( "Activity", uiStatusBar::Left, 1 );
     tim.tick.notify( mCB(this,uiSeisMMProc,doCycle) );
 
@@ -343,9 +343,9 @@ void uiSeisMMProc::prepareNextCycle( int msecs )
     const int nrdone = task->nrDone();
     BufferString str; str += nrdone;
     sb.message( str, 2 );
-    static const int nrdispstrs = 8;
+    static const int nrdispstrs = 4;
     static const char* dispstrs[]
-	= { ">", " >", "  >", "   >", "   <", "  <", " <", "<" };
+	= { "o..", ".o.", "..o", ".o." };
     if ( task == jm )
 	sb.message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
     else
