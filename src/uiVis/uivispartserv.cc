@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.224 2004-06-14 09:25:57 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.225 2004-06-18 15:48:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,8 @@ uiVisPartServer::~uiVisPartServer()
 
     for ( int idx=0; idx<menus.size(); idx++ )
 	menus[idx]->unRef();
+
+    delete trackdlg;
 }
 
 
