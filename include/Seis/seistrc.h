@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.6 2001-02-19 11:28:47 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.7 2001-02-28 15:00:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include <tracedata.h>
 #include <datachar.h>
 #include <datatrc.h>
-// TODO remove when restructuring finished
-#include <simpnumer.h>
-
+class Interpolator1D;
 
 
 /*!> Seismic traces.
@@ -40,12 +38,11 @@ public:
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
 					    = DataCharacteristics() )
+			: soffs_(0), intpols_(0)
 			{ data_.addComponent( ns, dc ); }
 			SeisTrc( const SeisTrc& t )
-			: info_(t.info_), data_(t.data_), soffs_(t.soffs_) {}
-    SeisTrc&		operator =( const SeisTrc& t )
-			{ info_ = t.info_; data_ = t.data_; soffs_ = t.soffs_;
-			  return *this; }
+			: soffs_(0), intpols_(0)	{ *this = t; }
+    SeisTrc&		operator =(const SeisTrc& t);
 
     SeisTrcInfo&	info()		{ return info_; }
     const SeisTrcInfo&	info() const	{ return info_; }
@@ -53,8 +50,8 @@ public:
     const TraceData&	data() const	{ return data_; }
 
     inline int		sampleOffset( int icomp ) const
-			{ return icomp && icomp < soffs_.size()
-				? soffs_[icomp] : 0; }
+			{ return soffs_ && icomp && icomp < soffs_->size()
+				? (*soffs_)[icomp] : 0; }
     void		setSampleOffset(int icomp,int);
     inline float	posOffset( int icomp ) const
 			{ return sampleOffset(icomp) * info_.sampling.step; }
@@ -69,7 +66,12 @@ public:
 			{ return data_.size( icomp ); }
     inline double	getX( int idx, int icomp ) const
 			{ return startPos(icomp) + idx * info_.sampling.step; }
-    float		getValue(double,int icomp) const;
+    float		getValue(float,int icomp) const;
+    const Interpolator1D* interpolator( int icomp=0 ) const;
+			//!< May return null!
+    void		setInterpolator(Interpolator1D*,int icomp=0);
+			//!< Passed Interpolator1D becomes mine
+			//!< setData() will be called with appropriate args.
 
     inline bool		isNull( int icomp ) const
 			{ return data_.isZero(icomp); }
@@ -98,15 +100,9 @@ protected:
 
     TraceData		data_;
     SeisTrcInfo		info_;
-    TypeSet<int>	soffs_;
+    TypeSet<int>*	soffs_;
+    ObjectSet<Interpolator1D>* intpols_;
 
-// TODO remove when restructuring finished
-    friend void interpolateSampled<SeisTrc,float>(const SeisTrc &,int,float,
-			float&,bool,float,float);
-    int			curcomp;
-// TODO move to public section, change curcomp to 0
-    inline float	operator[]( int i ) const
-			{ return get( i, curcomp ); }
 };
 
 
@@ -133,7 +129,7 @@ public:
 			{ return trc.info().nearestSample( val ); }
     double		getX( int idx ) const
 			{ return trc.getX( idx, curcomp ); }
-    float		getValue( double v ) const
+    float		getValue( float v ) const
 			{ return trc.getValue( v, curcomp ); }
 
     inline int		size() const	{ return trc.size( curcomp ); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.1 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.2 2001-02-28 15:00:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ public:
     void		print(ostream&) const;
 
     unsigned short	nrSamples() const;
-    void		putNrSamples(unsigned short);
+    void		putSampling(SamplingData<float>,unsigned short);
 
     void		use(const SeisTrcInfo&);
     void		fill(SeisTrcInfo&) const;

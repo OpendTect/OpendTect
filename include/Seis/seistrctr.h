@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.4 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.5 2001-02-28 15:00:56 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -151,11 +151,13 @@ public:
 			   will be generated according to the example trace. */
 
     SeisPacketInfo&			packetInfo()	{ return pinfo; }
-    ObjectSet<TargetComponentData>&	componentInfo()	{ return tarcds; }
     const SeisTrcSel*			trcSel()	{ return trcsel; }
+    ObjectSet<TargetComponentData>&	componentInfo()	{ return tarcds; }
+    void				useInputSampling( bool yn=true )
+					{ useinpsd = yn; }
+
     void		setTrcSel( const SeisTrcSel* t ) { trcsel = t; }
 			/*!< This SeisTrcSel is seen as a hint ... */
-
     bool		commitSelections();
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
@@ -189,6 +191,7 @@ protected:
     Conn*		conn;
     const char*		errmsg;
     SeisPacketInfo&	pinfo;
+    bool		useinpsd;
 
     const SeisTrcSel*			trcsel;
     ObjectSet<ComponentData>		cds;
