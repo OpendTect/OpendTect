@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.19 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.20 2004-09-27 08:13:23 dgb Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: iostrm.cc,v 1.19 2003-11-07 12:21:57 bert Exp $
 #include "strmprov.h"
 #include "separstr.h"
 #include "string2.h"
+#include "filepath.h"
 
 class IOStreamProducer : public IOObjProducer
 {
@@ -370,8 +371,21 @@ int IOStream::putTo( ascostream& stream ) const
     switch( type_ )
     {
     case StreamConn::File:
-	stream.put( "$Name", fname );
+    {
+	FilePath fp( fname );
+	BufferString cleanfnm( fp.fullPath() );
+	int offs = 0;
+	if ( fp.isAbsolute() )
+	{
+	    FilePath fpdir( dirName() );
+	    BufferString head( fp.dirUpTo( fpdir.nrLevels() - 1 ) );
+	    if ( head == fpdir.fullPath() )
+		offs = head.size()+1;
+	}
+
+	stream.put( "$Name", cleanfnm.buf() + offs );
 	return YES;
+    }
     case StreamConn::Command:
 	stream.put( "$Reader", fname );
 	stream.put( "$Writer", writecmd ? *writecmd : fname );
