@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.17 2003-02-07 16:11:37 bert Exp $
+ RCS:           $Id: uibutton.cc,v 1.18 2003-03-03 15:30:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,14 +226,11 @@ void uiRadioButton::setChecked( bool check )
 
 uiCheckBox::uiCheckBox( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
-{
-    setPrefWidthInChar( strlen(nm) + 3.5 );
-}
+{}
 
 void uiCheckBox::setText( const char* txt )
 { 
     mqbut()->setText( QString( txt ) ); 
-    setPrefWidthInChar( strlen(txt) + 3.5 );
 }
 
 uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
