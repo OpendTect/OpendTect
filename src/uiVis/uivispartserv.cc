@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.135 2003-03-04 12:21:44 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.136 2003-03-04 16:40:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "vissurvwell.h"
 #include "visvolumedisplay.h"
 #include "visvolrender.h"
+#include "vistexture3viewer.h"
 #include "visrandomtrackdisplay.h"
 #include "uiexecutor.h"
 #include "uifiledlg.h"
@@ -790,6 +791,23 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
     if ( sd )
 	res = sd->getTimeShift();
 
+    mDynamicCastGet(const visBase::MovableTextureSlice*,mts,dobj)
+    if ( mts )
+    {
+	TypeSet<int> volids;
+	visBase::DM().getIds( typeid(visSurvey::VolumeDisplay), volids );
+	for ( int idx=0; idx<volids.size(); idx++ )
+	{
+	    visBase::DataObject* obj = visBase::DM().getObj( volids[idx] );
+	    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+	    if ( !vd ) continue;
+	    int inlid, crlid, tslid;
+	    vd->getPlaneIds( inlid, crlid, tslid );
+	    if ( id == inlid || id == crlid || id == tslid )
+		res += vd->getPlanePos( id );
+	}
+    }
+
     return res;
 }
 
@@ -1039,6 +1057,14 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 	    res = "Horizon shift: ";
 	    res += shift; res += " (ms)";
 	}
+    }
+
+    mDynamicCastGet(const visBase::MovableTextureSlice*,mts,dobj)
+    if ( mts )
+    {
+	int dim = mts->dim();
+	res = !dim ? "Inline: " : ( dim == 1 ? "Crossline: " : "Time: " );
+	res += getTreeInfo( id );
     }
 
     return res;
