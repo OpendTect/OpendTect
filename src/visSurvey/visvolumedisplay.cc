@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.27 2003-02-07 08:47:02 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.28 2003-02-07 09:24:59 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -401,6 +401,7 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     visBase::DM().getObj( volrenid )->setName(volrenstr);
 
     if ( !as.usePar( par )) return -1;
+    setColorTab( getColorTab() );
 
     return 1;
 }
