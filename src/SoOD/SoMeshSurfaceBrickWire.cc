@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrickWire.cc,v 1.3 2003-10-08 09:56:21 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrickWire.cc,v 1.4 2003-10-08 11:54:42 kristofer Exp $";
 
 
 #include "SoMeshSurfaceBrickWire.h"
@@ -61,11 +61,12 @@ void SoMeshSurfaceBrickWire::build()
 	    const int coordindex = getCoordIndex(rowidx, colidx);
 	    if ( isUndefined(coords[coordindex] ))
 	    {
-		if ( !nrcrds || coordIndex[nrcrds-1]==-1 )
-		    continue;
-
-		coordIndex.set1Value( nrcrds, -1);
-		nrcrds++;
+		if ( nrcrds && coordIndex[nrcrds-1]!=-1 )
+		{
+		    coordIndex.set1Value( nrcrds, -1);
+		    nrcrds++;
+		}
+		continue;
 	    }
 
 	    if ( (!nrcrds || coordIndex[nrcrds-1]==-1) &&
@@ -93,11 +94,12 @@ void SoMeshSurfaceBrickWire::build()
 	    const int coordindex = getCoordIndex(rowidx, colidx);
 	    if ( isUndefined(coords[coordindex] ))
 	    {
-		if ( !nrcrds || coordIndex[nrcrds-1]==-1 )
-		    continue;
-
-		coordIndex.set1Value( nrcrds, -1);
-		nrcrds++;
+		if ( nrcrds && coordIndex[nrcrds-1]!=-1 )
+		{
+		    coordIndex.set1Value( nrcrds, -1);
+		    nrcrds++;
+		}
+		continue;
 	    }
 
 	    if ( (!nrcrds || coordIndex[nrcrds-1]==-1) &&
