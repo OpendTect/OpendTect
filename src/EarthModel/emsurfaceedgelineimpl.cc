@@ -8,7 +8,9 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.1 2004-09-03 09:23:22 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.2 2004-09-07 06:20:49 kristofer Exp $";
+
+
 
 #include "emsurfaceedgelineimpl.h"
 
@@ -16,6 +18,8 @@ static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.1 2004-09-03 09:23
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacerelations.h"
+#include "executor.h"
+#include "iopar.h"
 #include "mathfunc.h"
 #include "ranges.h"
 #include "sorting.h"
@@ -32,6 +36,9 @@ mEdgeLineSegmentFactoryEntry( TerminationEdgeLineSegment );
 mEdgeLineSegmentFactoryEntry( SurfaceConnectLine );
 mEdgeLineSegmentFactoryEntry( SurfaceCutLine );
 
+const char* SurfaceConnectLine::connectingsectionstr = "Connecting Segment";
+const char* SurfaceCutLine::cuttingobjectstr = "Cutting Surface";
+const char* SurfaceCutLine::possidestr = "Cut Positive Side";
 
 bool SurfaceConnectLine::internalIdenticalSettings(
 					const EdgeLineSegment& els ) const
@@ -47,6 +54,23 @@ bool SurfaceConnectLine::isNodeOK(const RowCol& rc)
 {
     return EdgeLineSegment::isNodeOK(rc) &&
 	   surface.geometry.isDefined(connectingsection,rc);
+}
+
+
+void SurfaceConnectLine::fillPar(IOPar& par) const
+{
+    EdgeLineSegment::fillPar(par);
+    par.set(connectingsectionstr,connectingsection);
+}
+
+
+bool SurfaceConnectLine::usePar(const IOPar& par)
+{
+    int dummy;
+    const bool res = EdgeLineSegment::usePar(par) &&
+		     par.get(connectingsectionstr,dummy);
+    if ( res ) connectingsection = dummy;
+    return res;
 }
 
 
@@ -796,5 +820,40 @@ float SurfaceCutLine::computeScore( const RowCol& rc, bool& changescorepos,
 
     return score;
 }
+
+void SurfaceCutLine::fillPar(IOPar& par) const
+{
+    EdgeLineSegment::fillPar(par);
+    par.set(cuttingobjectstr,cuttingsurface->multiID());
+    par.setYN(possidestr,cutonpositiveside);
+}
+
+
+bool SurfaceCutLine::usePar(const IOPar& par)
+{
+    if ( !EdgeLineSegment::usePar(par) ||
+	    !par.getYN(possidestr,cutonpositiveside))
+	return false;
+
+    MultiID mid;
+    if ( !par.get(cuttingobjectstr,mid) )
+	return false;
+
+    const EM::ObjectID id = EM::EMM().multiID2ObjectID( mid );
+    mDynamicCastGet(EM::Surface*,surface,EM::EMM().getObject(id));
+    if ( !surface || !surface->isLoaded() )
+    {
+	PtrMan<Executor> loader = EM::EMM().load(mid,0);
+	if ( loader ) loader->execute();
+
+	surface = dynamic_cast<EM::Surface*>(EM::EMM().getObject(id));
+	if ( !surface || !surface->isLoaded() )
+	    return false;
+    }
+
+    cuttingsurface = surface;
+    return true;
+}
+
 
 } //namespace

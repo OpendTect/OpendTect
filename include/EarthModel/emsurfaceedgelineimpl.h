@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.2 2004-09-03 13:18:46 kristofer Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.3 2004-09-07 06:20:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,11 @@ public:
 			{ connectingsection = ns; }
     EM::SectionID	connectingSection() const { return connectingsection; }
 
+    void		fillPar(IOPar& par) const;
+    bool		usePar( const IOPar&);
+
 protected:
+    static const char*	connectingsectionstr;
     EM::SectionID	connectingsection;
     bool	internalIdenticalSettings(const EM::EdgeLineSegment&) const;
 
@@ -103,6 +107,9 @@ public:
 					       bool negate,
 					       bool usecaching );
 
+    void		fillPar(IOPar& par) const;
+    bool		usePar( const IOPar&);
+
 protected:
     bool	internalIdenticalSettings(const EM::EdgeLineSegment&) const;
     void		removeCache();
@@ -122,6 +129,10 @@ protected:
     const MathFunction<float>*	t2d;
     const EM::Surface*	cuttingsurface;
     bool		cutonpositiveside;
+
+    static const char*	cuttingobjectstr;
+    static const char*	possidestr;
+
 };
 
 
