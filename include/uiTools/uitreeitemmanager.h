@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.8 2004-06-23 15:18:16 nanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.9 2004-09-14 09:07:22 nanne Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,7 @@ public:
     virtual int			selectionKey() const { return -1; }
     virtual bool		select();
     				/*!<Selects this item */
+    virtual void		setChecked(bool yn);
 				 
     virtual bool		addChild( uiTreeItem* child );
     				/*!<Adds a child. If the child does not fit
