@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.10 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.11 2002-03-12 07:01:31 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -54,6 +54,10 @@ public:
     SoNode*		getData();
 
 protected:
+    void		addChild( SoNode* );
+    void		insertChild( int pos, SoNode* );
+    void		removeChild( SoNode* );
+
 			VisualObjectImpl();
     virtual		~VisualObjectImpl();
     SoSeparator*	root;
