@@ -35,13 +35,14 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.43 2003-11-10 10:41:14 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.44 2003-11-10 16:55:43 arend Exp $";
 
 static FixedString<1024> oscommand;
 
 const char* StreamProvider::sStdIO = "Std-IO";
 const char* StreamProvider::sStdErr = "Std-Err";
 
+const char**  BinIDSelector::keyseltyps() { return sKeyseltyps; }
 
 bool ExecOSCmd( const char* comm, bool inbg )
 {
