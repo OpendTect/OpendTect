@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.68 2005-02-04 16:16:40 duntao Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.69 2005-02-08 16:56:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,14 +32,14 @@ ________________________________________________________________________
 #include "attribslice.h"
 #include "attribsel.h"
 #include "seisbuf.h"
-#include "binidvalset.h"
+#include "posvecdataset.h"
+#include "featset.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "errh.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "featset.h"
 #include "helpview.h"
 #include "filegen.h"
 #include "ptrman.h"
@@ -850,27 +850,39 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	deepErase( bivss );
 	if ( extrres )
 	{
-	    FeatureSet fswrite;
-	    attrserv->curDescSet()->fillPar( fswrite.pars() );
-	    const char* res = nlaserv->transferData( fss, fswrite );
+	    ObjectSet<PosVecDataSet> vdss;
+	    for ( int idx=0; idx<fss.size(); idx++ )
+	    {
+		PosVecDataSet* vds = new PosVecDataSet;
+		fss[idx]->fill( *vds );
+		vdss += vds;
+	    }
+
+	    attrserv->curDescSet()->fillPar( nlaserv->storePars() );
+	    const char* res = nlaserv->prepareInputData( vdss );
 	    if ( res && *res && strcmp(res,"User cancel") )
 		uiMSG().warning( res );
+	    deepErase(vdss);
 	}
 	deepErase(fss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass )
     {
-	const FeatureSet& fsmc = nlaserv->fsMCA();
+	const BinIDValueSet& bvsmc = nlaserv->vdsMCA().data();
 	BinIDValueSet mcpicks( 2, true );
-	for ( int idx=0; idx<fsmc.size(); idx++ )
+	BinID bid; float vals[bvsmc.nrVals()];
+	BinIDValueSet::Pos pos;
+	while ( bvsmc.next(pos) )
 	{
-	    const FeatureVec& fv = *fsmc[idx];
-	    const float conf = fv[2];
+	    bvsmc.get( pos, bid, vals );
+	    const float conf = vals[3];
 	    if ( mIsUndefined(conf) )
 		continue;
 
-	    if ( fv[0] != fv[1] )
-		mcpicks.add( fv.fvPos(), fv.fvPos().ver, conf );
+	    const int actualclass = mNINT(vals[1]);
+	    const int predclass = mNINT(vals[2]);
+	    if ( actualclass != predclass )
+		mcpicks.add( bid, vals[0], conf );
 	}
 	pickserv->setMisclassSet( mcpicks );
 	PickSetGroup& psg = pickserv->group();
