@@ -178,7 +178,7 @@ int SoPerspectiveSel::whichToTraverse(SoAction *action)
   vec.normalize();
 
   int n = this->perspectives.getNum();
-  float minangle=1e30;
+  float maxangle=-1;
   int mini;
 
   for ( int i=0; i<n; i++)
@@ -186,18 +186,10 @@ int SoPerspectiveSel::whichToTraverse(SoAction *action)
       SbVec3f pvec = this->perspectives[i];
       pvec.normalize();
 
-      float angle = pvec.dot(vec);
-      if ( !i || angle<minangle )
+      float cosangle = fabs(pvec.dot(vec));
+      if ( !i || cosangle>maxangle )
       {
-	  minangle = angle;
-	  mini = i;
-      }
-
-      SbVec3f oppositevec = -pvec;
-      angle = oppositevec.dot(vec);
-      if ( !i || angle<minangle )
-      {
-	  minangle = angle;
+	  maxangle = cosangle;
 	  mini = i;
       }
   }
