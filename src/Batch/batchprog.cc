@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.17 2002-09-11 14:39:08 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.18 2002-11-27 16:21:04 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -90,7 +90,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
     strm.close();
     if ( parlist.size() == 0 )
     {
-        cerr << argv_[0] << ": Invalid input file" << endl;
+        cerr << argv_[0] << ": Invalid input file: " << fn << endl;
         return;
     }
 

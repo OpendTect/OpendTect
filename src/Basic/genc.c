@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.13 2001-11-07 17:15:27 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.14 2002-11-27 16:21:04 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -193,17 +193,11 @@ void swap_bytes( void* p, int n )
 
 void put_platform( unsigned char* ptr )
 {
-    *ptr =
-
-#ifdef sun5
-	0;
-#endif
-#ifdef sgi
-	2;
+#ifdef lux
+    *ptr = 1;
 #else
-	1;
+    *ptr = 0;
 #endif
-
 }
 
 #ifdef __msvc__
