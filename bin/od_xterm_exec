@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_xterm_exec,v 1.6 2004-09-22 13:33:41 dgb Exp $
+# $Id: od_xterm_exec,v 1.7 2004-10-20 15:34:14 arend Exp $
 #
 # script to run in xterm for od_exec
 #_______________________________________________________________________________
@@ -15,7 +15,7 @@ if ( $?DTECT_DEBUG ) then
     set askclose=1
 endif
 
-if ( $?DTECT_ALWAYS_ASKCLOSE ) then
+if ( $?DTECT_ASK_CLOSE ) then
     set askclose=1
 endif
 
