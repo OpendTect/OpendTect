@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.9 2002-11-26 13:29:17 dgb Exp $
+# $Id: od_exec,v 1.10 2003-02-19 12:04:35 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -31,6 +31,51 @@ if ( ! -d $dGB_APPL/bin/$binsubdir ) then
 endif
 
 set bindir="$dGB_APPL/bin/$binsubdir"
+set niceness=0
+set extrascript=""
+set xtermcmd=""
+
+next_arg:
+
+if ( $1 == --nice ) then
+
+	set niceness=$2
+	set nicecmd=/usr/bin/nice
+	if ( -x /bin/nice ) set nicecmd=/bin/nice
+	if ( ! -x $nicecmd ) then
+		set niceness=0
+	else
+		set nicecmd="$nicecmd -$2"
+	endif
+	shift ; shift
+
+	goto next_arg
+
+else if ( $1 == --prescript ) then
+
+	set extrascript="$2"
+	if ( ! -e $extrascript ) then
+	    if ( -e $dGB_APPL/bin/$extrascript ) then
+		set extrascript="$dGB_APPL/bin/$extrascript"
+	    else if ( -e $dGB_APPL/bin/$binsubdir/$extrascript ) then
+		set extrascript="$dGB_APPL/bin/$binsubdir/$extrascript"
+	    endif
+	endif
+
+	shift ; shift
+
+	goto next_arg
+
+else if ( $1 == --inxterm ) then
+
+	set xtermcmd="xterm -bg blue -fg black -e"
+	shift
+
+	goto next_arg
+
+endif
+
+
 if ( ! -d $bindir ) then
 	echo "Fatal error: Cannot start program because directory:"
 	echo "$bindir"
@@ -47,22 +92,16 @@ else
 endif
 unsetenv QTDIR
 
-set niceness=0
-if ( $1 == --nice ) then
-	set niceness=$2
-	set nicecmd=/usr/bin/nice
-	if ( -x /bin/nice ) set nicecmd=/bin/nice
-	if ( ! -x $nicecmd ) then
-		set niceness=0
-	else
-		set nicecmd="$nicecmd -$2"
-	endif
-	shift ; shift
+
+if ( $extrascript != "" ) then
+	source $extrascript
 endif
 
+
 if ( $niceness == 0 ) then
-	$bindir/$*
+	$xtermcmd $bindir/$*
 else
-	$nicecmd $bindir/$*
+	$xtermcmd $nicecmd $bindir/$*
 endif
+
 exit $status
