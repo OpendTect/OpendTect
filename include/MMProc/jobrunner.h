@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.14 2005-03-30 11:19:22 cvsarend Exp $
+ RCS:		$Id: jobrunner.h,v 1.15 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,8 +124,9 @@ protected:
     int				niceval_;
     int				firstport_;
     BufferString		rshcomm_;
-    int				maxhostfailures_;
-    int				maxjobfailures_;
+    int				maxhostfailures_; //!< host failrs B4 host bad
+    int				maxjobfailures_;  //!< job related job failrs
+    int				maxjobhstfails_;  //!< host related job failrs
     int				jobtimeout_; 
     int				hosttimeout_;
 

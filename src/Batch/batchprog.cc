@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.71 2005-03-30 11:19:23 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.72 2005-03-31 15:25:53 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -169,8 +169,20 @@ BatchProgram::~BatchProgram()
 {
     infoMsg( "Finished batch processing." );
 
-    if( comm ) comm->sendState( stillok ? MMSockCommunic::Done
-				        : MMSockCommunic::HostError, true );
+    if( comm )
+    {
+	MMSockCommunic::State s = comm->state();
+
+	bool isSet =  s == MMSockCommunic::Done 
+	           || s == MMSockCommunic::JobError
+		   || s == MMSockCommunic::HostError;
+
+	if ( !isSet )
+	    comm->setState( stillok ? MMSockCommunic::Done
+				    : MMSockCommunic::HostError );
+
+       	comm->sendState( true );
+    }
 
     killNotify( false );
 
@@ -194,7 +206,12 @@ void BatchProgram::progKilled( CallBacker* )
 {
     infoMsg( "BatchProgram Killed." );
 
-    if ( comm ) comm->sendState( MMSockCommunic::Killed, true );
+    if ( comm ) 
+    {
+	comm->setState( MMSockCommunic::Killed );
+	comm->sendState( true );
+    }
+
     killNotify( false );
 
 #ifdef __debug__

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.27 2004-12-30 11:28:25 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.28 2005-03-31 15:25:53 cvsarend Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -352,6 +352,14 @@ bool put( const SeisTrc& trc )
 	return false;
     }
     return true;
+}
+
+bool close()
+{
+    if ( !tr ) return true;
+    bool ret = tr->close();
+    if ( ret ) errmsg = tr->errMsg();
+    return ret; 
 }
 
     int			nrwr;

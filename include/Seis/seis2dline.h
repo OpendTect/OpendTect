@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.28 2005-03-24 16:52:46 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.29 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,13 @@ public:
     virtual		~Seis2DLinePutter()	{}
 
     virtual bool	put(const SeisTrc&)	= 0;
+    //!< Return fase on success, err msg on failure
+    virtual bool	close()			= 0;
     //!< Return null on success, err msg on failure
     virtual const char* errMsg() const		= 0;
-    //!< Only when put returns false
+    //!< Only when put or close returns false
     virtual int	nrWritten() const		= 0;
+    
 };
 
 

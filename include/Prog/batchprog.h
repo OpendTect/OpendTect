@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.26 2005-03-30 11:19:22 cvsarend Exp $
+ RCS:		$Id: batchprog.h,v 1.27 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -153,8 +153,6 @@ inline const BatchProgram& BP() { return *BatchProgram::inst; }
 
 
 /*! \brief Multi-machine socket communicator
- *
- *  
  * 
  */ 
 class MMSockCommunic
@@ -166,17 +164,19 @@ public:
 			MMSockCommunic( const char* host, int port,
 					BatchProgram& );
 
-    bool		ok()	{ return stillok; }
-    const char*		peekMsg() const { return msg_; }
-    const char*		getMsg()	{ msg__=msg_; msg_=""; return msg__; }
+    bool		ok()		{ return stillok; }
+    const char*		errMsg()	{ return errmsg; }
+
+    State		state()	const	{ return stat; }
+    void		setState( State s ) { stat = s; }
 			
-    bool		updateState( State s )
-			    { bool ret = sendState_(s); mReturn(ret) }
+    bool		updateState()
+			    { bool ret = sendState_(stat); mReturn(ret) }
     bool		updateProgress( int p )
 			    { bool ret = sendProgress_(p); mReturn(ret) }
 			    
-    bool		sendState( State s, bool isexit=false )
-			    { mTryMaxtries( sendState_(s,isexit) ) }
+    bool		sendState(  bool isexit=false )
+			    { mTryMaxtries( sendState_(stat,isexit) ) }
     bool		sendProgress( int p )
 			    { mTryMaxtries( sendProgress_(p) ) }
 
@@ -192,8 +192,8 @@ protected:
     BufferString	masterhost;
     int			masterport;
     bool		stillok;
-    BufferString	msg_;
-    BufferString	msg__;
+    State		stat;
+    BufferString	errmsg;
 
     Socket*		mkSocket();
 
@@ -214,8 +214,8 @@ private:
 
     void		setErrMsg( const char* m )
 			{
-			    msg_ = ("["); msg_ += getPID(); msg_ += "]: ";
-			    msg_ += m;
+			    errmsg = ("["); errmsg += getPID(); errmsg += "]: ";
+			    errmsg += m;
 			}
 
     int			timestamp;

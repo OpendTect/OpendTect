@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.15 2004-10-14 10:32:30 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.16 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 			SeisTrcWriter(const IOObj*,
 				      const LineKeyProvider* r=0);
 			~SeisTrcWriter();
-    void		close();
+    virtual bool	close();
 
     bool		prepareWork(const SeisTrc&);
     virtual bool	put(const SeisTrc&);

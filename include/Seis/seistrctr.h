@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.40 2005-02-03 15:43:49 kristofer Exp $
+ RCS:		$Id: seistrctr.h,v 1.41 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -170,7 +170,7 @@ public:
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     bool		write(const SeisTrc&);
 
-    void		close();
+    bool		close();
     const char*		errMsg() const			{ return errmsg; }
 
     virtual bool	inlCrlSorted() const		{ return true; }

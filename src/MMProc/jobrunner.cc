@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.19 2005-03-30 11:19:23 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.20 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,15 @@ ________________________________________________________________________
 #include <iostream>
 
 #define mDebugOn        (DBG::isOn(DBG_MM))
+
+#define mAddDebugMsg( ji ) \
+    msg += "\n Job failed "; msg += ji.jobfailures_; \
+    msg += " times due to job related problems."; \
+    msg += "\n and "; msg += ji.hstfailures_; \
+    msg += " times due to host related problems."; \
+    msg += "\n Last executed on host: "; msg += ji.hostdata_->name(); \
+    msg += "\n Status: "; msg += ji.statusmsg_; \
+    msg += "\n Info: "; msg += ji.infomsg_;
 
 
 static BufferString tmpfnm_base;
@@ -56,6 +65,8 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 				    ? getenv("DTECT_MAX_HOSTFAIL") : "2") )
     	, maxjobfailures_(	atoi( getenv("DTECT_MAX_JOBFAIL")
 				    ? getenv("DTECT_MAX_JOBFAIL") : "2") )
+    	, maxjobhstfails_(	atoi( getenv("DTECT_MAX_JOBHSTF")
+				    ? getenv("DTECT_MAX_JOBHSTF") : "7") )
 	, preJobStart(this)
 	, postJobStart(this)
 	, jobFailed(this)
@@ -165,15 +176,43 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 {
     if ( hostStatus(&hfi) == HostFailed ) return HostBad;
 
-    if ( ji.failures_ > maxjobfailures_ )
+    if ( ji.jobfailures_ > maxjobfailures_ || ji.hstfailures_ > maxjobhstfails_)
     {
+	ji.infomsg_ = " Too many failures -- Job Bad"; 
+	curjobinfo_ = &ji;
+	msgAvail.trigger();
+    
+	if ( mDebugOn )
+	{
+	    BufferString msg("----\nJobRunner::startJob : job ");
+	    msg += ji.descnr_;	msg += " is bad.";
+	    mAddDebugMsg( ji )
+	    DBG::message(msg);
+	}
+   
 	jobinfos_ -= &ji; failedjobs_ += &ji;
 	return JobBad;
     }
 
     if ( !runJob(ji,hfi.hostdata_) )
     {
+	if ( mDebugOn )
+	{
+	    BufferString msg("----\nJobRunner::startJob: could not start job ");
+	    msg += ji.descnr_; msg += " on host "; msg += ji.hostdata_->name();
+	    mAddDebugMsg( ji )
+	    DBG::message(msg);
+	}
+
 	return hostStatus(&hfi) == HostFailed ? HostBad : NotStarted;
+    }
+
+    if ( mDebugOn )
+    {
+	BufferString msg("----\nJobRunner::startJob : started job ");
+	msg += ji.descnr_; msg += " on host "; msg += ji.hostdata_->name();
+	mAddDebugMsg( ji )
+	DBG::message(msg);
     }
 
     return Started;
@@ -208,24 +247,32 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
     curjobinfo_ = &ji;
     ji.state_ = reason;
 
+    HostNFailInfo* hfi = 0;
     if ( ji.hostdata_ ) 
     {
-	if ( reason == JobInfo::JobFailed ) ji.failures_++;
+	hfi = hostNFailInfoFor( ji.hostdata_ );
 
-	HostNFailInfo* hfi = hostNFailInfoFor( ji.hostdata_ );
-	if ( hfi ) hfi->nrfailures_++;
+	if ( reason == JobInfo::JobFailed ) ji.jobfailures_++;
+	else
+	{
+	    ji.hstfailures_++;
+	    if ( hfi ) hfi->nrfailures_++;
+	}
     }
 
     if ( mDebugOn )
     {
-	BufferString msg("JobRunner::failedJob : ");
+	BufferString msg("----\nJobRunner::failedJob : ");
 	if ( ji.state_ == JobInfo::HostFailed ) msg += "host failed. ";
 	if ( ji.state_ == JobInfo::JobFailed ) msg += "job failed. ";
-	msg += "\n Job failed "; msg += ji.failures_; msg += " times ";
-	msg += "\n Failed on host: "; msg += ji.hostdata_->name();
-	msg += "\n Status: "; msg += ji.statusmsg_;
-	msg += "\n Info: "; msg += ji.infomsg_;
-
+	if ( hfi )
+	{
+	    msg += "\n Host failed "; msg += hfi->nrfailures_; msg += " times ";
+	    msg += "\n Host started ";
+	    msg += (Time_getMilliSeconds() - hfi->starttime_)/1000;
+	    msg += " seconds ago.";
+	}
+	mAddDebugMsg( ji )
 	DBG::message(msg);
     }
     
@@ -580,7 +627,17 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     }
 
     if ( ji->infomsg_.size() ) // not already handled by failedJob()
+    {
+	if ( mDebugOn )
+	{
+	    BufferString msg("----\nJobRunner::handleStatusInfo: info for job");
+	    msg += ji->descnr_;	msg += " : "; 
+	    mAddDebugMsg( (*ji) )
+	    DBG::message(msg);
+	}
+  
 	msgAvail.trigger();
+    }
 }
 
 

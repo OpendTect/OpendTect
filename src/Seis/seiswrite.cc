@@ -38,10 +38,16 @@ SeisTrcWriter::~SeisTrcWriter()
 }
 
 
-void SeisTrcWriter::close()
+bool SeisTrcWriter::close()
 {
+    bool ret = true;
+    if ( putter )
+	{ ret = putter->close(); if ( !ret ) errmsg = putter->errMsg(); }
+
     delete putter; putter= 0;
-    SeisStoreAccess::close();
+    ret &= SeisStoreAccess::close();
+
+    return ret;
 }
 
 

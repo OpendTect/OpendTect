@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobinfo.h,v 1.5 2005-03-30 11:19:22 cvsarend Exp $
+ RCS:		$Id: jobinfo.h,v 1.6 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,14 +34,16 @@ public:
 			    , state_(ToDo)
 			    , statusmsg_("Scheduled")
 			    , infomsg_("")
-			    , failures_(0)
+			    , jobfailures_(0)
+			    , hstfailures_(0)
 			    , hostdata_(0)
 			    , osprocid_(-1)
 			    , timestamp_(0){}
 
     int			descnr_;	//!< JobdescProv's job number
     State		state_;
-    int			failures_;
+    int			jobfailures_;	//!< Failures probably caused by job
+    int			hstfailures_;	//!< Failures probably caused by host
     int			nrdone_;
     int			osprocid_;	//!< OS process ID
     BufferString	statusmsg_;	

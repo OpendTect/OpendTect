@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.14 2005-03-30 11:19:23 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.15 2005-03-31 15:25:53 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,9 +292,11 @@ void JobIOHandler::doDispatch( CallBacker* )
 		errmsg = statstr[3];
 
 		char response = getRespFor( jobid, hostnm );
-
-		statusqueue_.add( new StatusInfo( tag, jobid, status, errmsg,
-					    hostnm, Time_getMilliSeconds()) );
+		if ( response != mRSP_STOP )
+		{
+		    statusqueue_.add( new StatusInfo( tag, jobid, status,
+				      errmsg, hostnm, Time_getMilliSeconds()) );
+		}
 
 		sock_->writetag( response );
 	    }
