@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.3 2002-01-29 15:04:45 bert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.4 2002-01-30 12:23:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uigroup.h"
 #include "uistatusbar.h"
+#include "uifont.h"
 #include "prog.h"
 #include "sighndl.h"
 #include <iostream.h>
@@ -74,6 +75,9 @@ uiProgressViewer::uiProgressViewer( uiParent* p, istream& s, int i )
 
     txtfld = new uiTextEdit( this, "", true );
     txtfld->setPrefHeightInChar(6);
+    uiFont& fnt = uiFontList::add( "Non-prop",
+	    FontData(FontData::defaultPointSize(),"Courier") );
+    txtfld->setFont( fnt );
 
     tim = new Timer( "Progress" );
     tim->tick.notify( mCB(this,uiProgressViewer,doWork) );
