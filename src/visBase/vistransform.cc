@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2002
- RCS:           $Id: vistransform.cc,v 1.16 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vistransform.cc,v 1.17 2005-03-09 11:53:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,28 +139,32 @@ void Transformation::setA( const SbMatrix& matrix )
 
 Coord3 Transformation::transform( const Coord3& pos ) const
 {
-    const SbVec3f src( pos.x, pos.y, pos.z );
-    SbVec3f dst;
+    SbVec3f res( pos.x, pos.y, pos.z );
+    transform( res );
+    if ( mIsUndefined(pos.z) ) res[2] = mUndefValue;
 
-    transform_->matrix.getValue().multVecMatrix( src, dst );
-    if ( mIsUndefined(pos.z) )
-	dst[2] = mUndefValue;
+    return Coord3( res[0], res[1], res[2] );
+}
 
-    return Coord3( dst[0], dst[1], dst[2] );
+
+void Transformation::transform( SbVec3f& res ) const
+{ transform_->matrix.getValue().multVecMatrix( res, res ); } 
+
+
+void Transformation::transformBack( SbVec3f& res ) const
+{
+    SbMatrix inverse = transform_->matrix.getValue().inverse();
+    inverse.multVecMatrix( res, res );
 }
 
 
 Coord3 Transformation::transformBack( const Coord3& pos ) const
 {
-    const SbVec3f src( pos.x, pos.y, pos.z );
-    SbVec3f dst;
+    SbVec3f res( pos.x, pos.y, pos.z );
+    transformBack( res );
+    if ( mIsUndefined(pos.z) ) res[2] = mUndefValue;
 
-    SbMatrix inverse = transform_->matrix.getValue().inverse();
-    inverse.multVecMatrix( src, dst );
-    if ( mIsUndefined(pos.z) )
-	dst[2] = mUndefValue;
-
-    return Coord3( dst[0], dst[1], dst[2] );
+    return Coord3( res[0], res[1], res[2] );
 }
 
 

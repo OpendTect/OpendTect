@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.12 2004-01-08 17:53:05 kristofer Exp $
+ RCS:		$Id: vistransform.h,v 1.13 2005-03-09 11:53:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class SoMatrixTransform;
 class SbMatrix;
+class SbVec3f;
 
 namespace visBase
 {
@@ -60,6 +61,8 @@ public:
 
     Coord3		transform( const Coord3& ) const;
     Coord3		transformBack(  const Coord3& ) const;
+    void		transform( SbVec3f& ) const;
+    void		transformBack( SbVec3f& ) const;
 
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );
