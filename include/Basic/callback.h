@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.20 2001-07-20 10:44:29 windev Exp $
+ RCS:		$Id: callback.h,v 1.21 2001-08-20 07:17:54 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,6 +176,11 @@ would result in the availability of:
 #define mCBCapsuleUnpack(T,var,cb) \
     mCBCapsuleGet(T,cb##caps,cb) \
     T var = cb##caps->data
+
+#define mCBCapsuleUnpackWithCaller(T,var,cber,cb) \
+    mCBCapsuleGet(T,cb##caps,cb) \
+    T var = cb##caps->data; \
+    CallBacker* cber = cb##caps->caller
 
 
 /*!\brief interface class for Notifier. See comments there. */
