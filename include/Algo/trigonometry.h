@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.11 2003-12-27 10:20:04 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.12 2004-01-05 15:18:14 nanne Exp $
 ________________________________________________________________________
 
 
@@ -41,20 +41,28 @@ Computes an average of a number of vectors using:
 Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
 			      bool checkforundefs );
 
-class Quarternion
+
+/*!\brief Quaternion is an extension to complex numbers
+
+ A Quaternion is represented by the equation:<br>
+ q = s + xi + yj + zk <br>
+ where: i*i = j*j = k*k = -1.
+*/
+
+class Quaternion
 {
 public:
-    			Quarternion( float s, float x, float y, float z );
-			Quarternion( float s, const Vector3& vec );
+    			Quaternion( float s, float x, float y, float z );
+			Quaternion( float s, const Vector3& vec );
 
-    Quarternion 	operator+( const Quarternion& ) const;
-    Quarternion& 	operator+=( const Quarternion& );
-    Quarternion 	operator-( const Quarternion& ) const;
-    Quarternion& 	operator-=( const Quarternion& );
-    Quarternion 	operator*( const Quarternion& ) const;
-    Quarternion& 	operator*=( const Quarternion& );
+    Quaternion		operator+( const Quaternion& ) const;
+    Quaternion& 	operator+=( const Quaternion& );
+    Quaternion		operator-( const Quaternion& ) const;
+    Quaternion& 	operator-=( const Quaternion& );
+    Quaternion		operator*( const Quaternion& ) const;
+    Quaternion& 	operator*=( const Quaternion& );
 
-    Quarternion		inverse() const;
+    Quaternion		inverse() const;
 
     float		s;
     Vector3		vec;
@@ -149,5 +157,32 @@ public:
     float		C;
     float		D;
 };
+
+
+/*!\brief Represents a point in spherical coordinates
+  The angle phi lies in the horizontal plane, theta in the vertical plane.
+*/
+
+class Sphere
+{
+public:
+			Sphere(float r=0,float t=0,float p=0)
+			    : radius(r),theta(t),phi(p) {}
+			    
+			Sphere(const Coord3& crd)
+			    : radius(crd.x),theta(crd.y),phi(crd.z) {}
+
+    float		radius;
+    float		theta;
+    float		phi;
+};
+
+
+    Sphere		cartesian2Spherical(const Coord3&,bool math);
+    			/*!< math=true: transformation done in math-system
+			     math=false: transformation done in geo-system */
+    Coord3		spherical2Cartesian(const Sphere&,bool math);
+    			/*!< math=true: transformation done in math-system
+			     math=false: transformation done in geo-system */
 
 #endif

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.19 2003-12-27 10:19:48 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.20 2004-01-05 15:18:07 nanne Exp $";
 
 #include "trigonometry.h"
 
@@ -110,25 +110,25 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 }
 
 
-Quarternion::Quarternion( float s_, float x, float y, float z )
+Quaternion::Quaternion( float s_, float x, float y, float z )
     : vec( x, y, z )
     , s( s_ )
 { }
 
 
-Quarternion::Quarternion( float s_, const Vector3& vec_ )
+Quaternion::Quaternion( float s_, const Vector3& vec_ )
     : vec( vec_ )
     , s( s_ )
 {}
 
 
-Quarternion Quarternion::operator+( const Quarternion& b ) const
+Quaternion Quaternion::operator+( const Quaternion& b ) const
 {
-    return Quarternion( s+b.s, vec+b.vec);
+    return Quaternion( s+b.s, vec+b.vec);
 }
 
 
-Quarternion& Quarternion::operator+=( const Quarternion& b )
+Quaternion& Quaternion::operator+=( const Quaternion& b )
 {
     (*this) = (*this) + b;
     return *this;
@@ -136,13 +136,13 @@ Quarternion& Quarternion::operator+=( const Quarternion& b )
 
 
 
-Quarternion Quarternion::operator-( const Quarternion& b ) const
+Quaternion Quaternion::operator-( const Quaternion& b ) const
 {
-    return Quarternion( s-b.s, vec-b.vec);
+    return Quaternion( s-b.s, vec-b.vec);
 }
 
 
-Quarternion& Quarternion::operator-=( const Quarternion& b )
+Quaternion& Quaternion::operator-=( const Quaternion& b )
 {
     (*this) = (*this) - b;
     return *this;
@@ -151,23 +151,23 @@ Quarternion& Quarternion::operator-=( const Quarternion& b )
 
 
 
-Quarternion Quarternion::operator*( const Quarternion& b ) const
+Quaternion Quaternion::operator*( const Quaternion& b ) const
 {
-    return Quarternion( s*b.s-vec.dot(b.vec),
+    return Quaternion( s*b.s-vec.dot(b.vec),
 	    s*b.vec + b.s*vec + vec.cross(b.vec));
 }
 
 
-Quarternion& Quarternion::operator*=( const Quarternion& b )
+Quaternion& Quaternion::operator*=( const Quaternion& b )
 {
     (*this) = (*this) * b;
     return *this;
 }
 
 
-Quarternion Quarternion::inverse() const
+Quaternion Quaternion::inverse() const
 {
-    return Quarternion( s, Vector3( -vec.x, -vec.y, -vec.z ));
+    return Quaternion( s, Vector3( -vec.x, -vec.y, -vec.z ));
 }
 
 Line3::Line3() {}
@@ -392,10 +392,40 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
 }
 
 	
+Sphere cartesian2Spherical( const Coord3& crd, bool math )
+{
+    float theta, phi;
+    float rad = sqrt( crd.x*crd.x + crd.y*crd.y + crd.z*crd.z );
+    if ( math )
+    {
+	theta = rad ? acos( crd.z / rad ) : 0;
+	phi = atan2( crd.y, crd.x );
+    }
+    else
+    {
+	theta = rad ? asin( crd.z / rad ) : 0;
+	phi = atan2( crd.x, crd.y );
+    }
+
+    return Sphere(rad,theta,phi);
+}
 
 
-    
-    
+Coord3 spherical2Cartesian( const Sphere& sph, bool math )
+{
+    float x, y, z;
+    if ( math )
+    {
+	x = sph.radius * cos(sph.phi) * sin(sph.theta);
+	y = sph.radius * sin(sph.phi) * sin(sph.theta);
+	z = sph.radius * cos(sph.theta);
+    }
+    else
+    {
+	x = sph.radius * sin(sph.phi) * cos(sph.theta);
+	y = sph.radius * cos(sph.phi) * cos(sph.theta);
+	z = sph.radius * sin(sph.theta);
+    }
 
-    
-
+    return Coord3(x,y,z);
+}
