@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.20 2004-08-18 15:09:57 nanne Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.21 2004-08-27 15:29:41 kristofer Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -73,11 +73,20 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 	    const Coord3 newpos( SI().transform(newprojectedbid),
 				 newprojectedpos.z/(velocity/2) );
 	    setPos( sectionid, rowcol, newpos, false, true );
+	    if ( idy==1 )
+	    {
+		surface.setPosAttrib(
+			PosID(surface.id(), sectionid, rowCol2SubID(rowcol)),
+			EMObject::sPermanentControlNode, true);
+	    }
 	    istimestick ? rowcol.row++ : rowcol.col++;
 	}
 
 	Coord3 crd( SI().transform(stopbid), stoppos.z/(velocity/2) );
 	setPos( sectionid, rowcol, crd, false, true );
+	surface.setPosAttrib( PosID(surface.id(), sectionid,
+		    	      rowCol2SubID(rowcol)),
+			      EMObject::sPermanentControlNode, true);
 	istimestick ? rowcol.row++ : rowcol.col++;
     }
 
