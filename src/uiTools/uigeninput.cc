@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.64 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.65 2005-01-19 16:20:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -894,13 +894,14 @@ UserInputObj* uiGenInput::element( int nr )
 
 DataInpSpec* uiGenInput::getInputSpecAndIndex( const int nr, int& idx ) const
 {
-    int inpidx=0; int elemidx=nr;
-    while(  elemidx>=0 && inpidx<inputs.size() && inputs[inpidx]
-	    && elemidx>=inputs[inpidx]->nElems() )
+    int inpidx=0; idx=nr;
+    while(  idx>=0 && inpidx<inputs.size() && inputs[inpidx]
+	    && idx>=inputs[inpidx]->nElems() )
     {
-	elemidx -= inputs[inpidx]->nElems();
+	idx -= inputs[inpidx]->nElems();
 	inpidx++;
     }
+
     return inpidx<inputs.size() && inputs[inpidx] ? inputs[inpidx] : 0;
 }
 
