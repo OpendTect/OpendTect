@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.10 2001-04-23 14:36:43 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.11 2001-05-01 15:37:09 arend Exp $
 ________________________________________________________________________
 
 
@@ -16,10 +16,10 @@ ________________________________________________________________________
 #include <enums.h>
 #include <databuf.h>
 #include <arraynd.h>
+#include <arrayndslice.h>
 #include <mathfunc.h>
 #include <math.h>
 #include <iostrm.h>
-
 
 template <class T>
 inline void operator<<( ostream& strm, const ArrayND<T>& array )
@@ -40,13 +40,12 @@ inline void operator<<( ostream& strm, const ArrayND<T>& array )
 
 
 
-/*
-removeBias( ) - removes the DC component from an ArrayND. If no output is
-		given, removeBias( ) will store the result in the input
-		ArrayND.
+/*! \brief Removes the DC component from an ArrayND.
+
+If no output is given, removeBias( ) will store the result in the input
+ArrayND.
+
 */
-
-
 template <class T>
 inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
 {
@@ -93,14 +92,15 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
     return true;
 }
 
-/* ArrayNDWindow will taper the N-dimentional ArrayND with a windowFunction.
-   Usage is straightforwar- construct and use. If apply()'s second argument is
-   omitted, the result will be placed in the input array. apply() will return
-   false if input-, output- and window-size are not equal.
-   The only requirement on the windowfunction is that it should give full taper
-   at x=+-1 and no taper when x=0. Feel free to implement more functions!!
-*/
+/*! \brief Tapers the N-dimentional ArrayND with a windowFunction.
 
+Usage is straightforward- construct and use. If apply()'s second argument is
+omitted, the result will be placed in the input array. apply() will return
+false if input-, output- and window-size are not equal.
+The only requirement on the windowfunction is that it should give full taper
+at x=+-1 and no taper when x=0. Feel free to implement more functions!!
+
+*/
 class ArrayNDWindow
 {
 public:
@@ -601,4 +601,64 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
 
     return true;
 }
+
+/*! \brief Calculates the average over an Array2D
+
+*/
+template <class T>
+inline bool avg( Array2D<T>* in, Array1D<T>* out_ = 0, int loopDim=1 )
+{
+
+
+
+    slice.setPos( loopDim, 0 );
+    slice.init();
+
+    slice.setPos( loopDim, fetchIdx );
+    real* vec = slice.getData();
+
+
+    ArrayND<T>* out = out_ ? out_ : in; 
+
+    T avg = 0;
+
+    if ( out_ && in->info() != out_->info() ) return false;
+
+    const int sz = in->info().getTotalSz();
+
+    T* inpptr = in->getData();
+    T* outptr = out->getData();
+
+    if ( inpptr && outptr )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	    avg += inpptr[idx]; 
+
+	avg /= sz;
+
+	for ( int idx=0; idx<sz; idx++ )
+	    outptr[idx] = inpptr[idx] - avg;
+    }
+    else
+    {
+	ArrayNDIter iter( in->info() );
+
+	do
+	{
+	    avg += in->get( iter.getPos() );
+	} while ( iter.next() );
+
+	iter.reset();
+	avg /= sz;
+
+	do
+	{
+	    out->set(iter.getPos(), in->get( iter.getPos() ) - avg); 
+
+	} while ( iter.next() );
+    }
+
+    return true;
+}
+
 #endif

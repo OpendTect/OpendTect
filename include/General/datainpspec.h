@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.1 2001-05-01 09:29:29 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.2 2001-05-01 15:37:10 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <ranges.h>
 #include <bufstring.h>
+#include <survinfo.h>
 
 /*! \brief Specification of input characteristics
 
@@ -21,19 +22,23 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-
 class DataInpSpec
 {
 public:
 
     enum		Type { None, intTp, floatTp, doubleTp, boolTp, 
-			       stringTp, fileNmTp };
+			       intIntervalTp, floatIntervalTp, doubleIntervalTp,
+			       binIdCoordTp, stringTp, fileNmTp, stringListTp };
 
 			DataInpSpec( Type t = None) { tp_ = t; }
+
+    virtual		~DataInpSpec() {}
+
     Type		type() const { return tp_; }
 
     virtual DataInpSpec* clone() const =0;
-    virtual void	getText( BufferString& ) const =0;
+    virtual int 	nElems()				{ return 1; }
+    virtual void	getText( BufferString&, int idx=0 ) const =0;
 
 protected:
 
@@ -43,73 +48,160 @@ protected:
 };
 
 
+
+/*! \brief Specifications for inputs that optionally lie a specified range
+*/
+template <class T>
+class NumInpWithLimitsSpec : public DataInpSpec
+{
+public:
+			NumInpWithLimitsSpec(DataInpSpec::Type t ) 
+			    : DataInpSpec( t ), limits_(0) {}
+
+			NumInpWithLimitsSpec( const NumInpWithLimitsSpec<T>& o )
+			    : DataInpSpec( o ), limits_(0) {}
+
+			~NumInpWithLimitsSpec()		{ delete limits_; }
+
+    const Interval<T>*	limits()			{ return limits_; }
+    void		setLimits( const Interval<T>& r)
+			    {
+				if( limits_ ) delete limits_;
+				limits_ = new Interval<T>( r );
+			    }
+
+protected:
+
+    Interval<T>*	limits_;
+};
+
+
 /*! \brief Specifications for numerical inputs
 */
 template <class T>
-class NumInp : public DataInpSpec
+class NumInpSpec : public NumInpWithLimitsSpec<T>
 {
 public:
-			NumInp(DataInpSpec::Type t, T val ) 
-			    : DataInpSpec( t ), rng(0), value_( val ) {}
+			NumInpSpec(DataInpSpec::Type t, T val ) 
+			    : NumInpWithLimitsSpec<T>( t ), value_( val ) {}
 
-			NumInp( const NumInp<T>& o )
-			    : DataInpSpec( o ), rng(0), value_( o.value_ )
-			    { if( o.rng ) setRange( *o.rng ); }
+			NumInpSpec( const NumInpSpec<T>& o )
+			    : NumInpWithLimitsSpec<T>( o )
+			    , value_( o.value_ ) {}
 
-    const Interval<T>*	range() { return rng; }
-    void		setRange( const Interval<T>& r)
-			    {
-				if( rng ) delete rng;
-				rng = new Interval<T>( r );
-			    }
     T			value() const { return value_; }
 
-    virtual void	getText( BufferString& dest) const
+    virtual void	getText( BufferString& dest, int idx ) const
 			    { dest = value(); }
 
 protected:
 
-    Interval<T>*	rng;
     T			value_;
-
 }; 
 
 
 #define mDefNumInpClass( clssNm, type ) \
-    class  clssNm : public NumInp<type>\
+    class  clssNm : public NumInpSpec<type>\
     {\
     public:\
-			clssNm( type var=0 ) : NumInp<type>( type##Tp, var ) {}\
+			clssNm( type var=0 ) \
+			    : NumInpSpec<type>( type##Tp, var )	{}\
 			clssNm( const clssNm& o ) \
-			: NumInp<type>(o)	{} \
+			    : NumInpSpec<type>(o)		{} \
      \
     virtual clssNm*	clone() const \
 			{ return new clssNm( *this ); } \
     };
 
 /*! \brief Specifications for float inputs.  */
-mDefNumInpClass( FloatInp, float )
+mDefNumInpClass( FloatInpSpec, float )
 
 /*! \brief Specifications for double inputs.  */
-mDefNumInpClass( DoubleInp, double )
+mDefNumInpClass( DoubleInpSpec, double )
 
 /*! \brief Specifications for integer inputs.  */
-mDefNumInpClass( IntInp, int )
+mDefNumInpClass( IntInpSpec, int )
 
+#undef mDefNumInpClass
+
+/*! \brief Specifications for numerical intervals
+*/
+template <class T>
+class NumInpIntervalSpec : public NumInpWithLimitsSpec<T>
+{
+public:
+			NumInpIntervalSpec(DataInpSpec::Type t,
+			    Interval<T>* interval=0 ) 
+			    : NumInpWithLimitsSpec<T>( t )
+			    , interval_( interval ) {}
+
+			NumInpIntervalSpec( const NumInpIntervalSpec<T>& o )
+			    : NumInpWithLimitsSpec<T>( o )
+			    , interval_( o.interval_ ){}
+
+			~NumInpIntervalSpec()	{ delete interval_; }
+
+    virtual int 	nElems()	{ return hasStep() ? 3 : 2; }
+    bool		hasStep()	{ return stpi() ? TRUE : FALSE; }
+
+    virtual void	getText( BufferString& dest, int idx ) const
+			{
+			    if( !idx )
+				{ dest = interval_.start ; return; }
+			    if( idx == 1 )
+				{ dest = interval_.start ; return; }
+
+			    if( hasStep() ) dest = stpi()->step; 
+			}
+
+protected:
+
+    Interval<T>*	stpi()
+			{ return dynamic_cast< StepInterval<T>* > (interval_);}
+
+    Interval<T>*	interval_;
+
+}; 
+
+
+#define mDefIntervalClass( clssNm, type ) \
+    class  clssNm : public NumInpIntervalSpec<type>\
+    {\
+    public:\
+			clssNm( Interval<type>* var=0 ) \
+			: NumInpIntervalSpec<type>( type##IntervalTp, var ) {}\
+			clssNm( const clssNm& o ) \
+			: NumInpIntervalSpec<type>(o)	{} \
+     \
+    virtual clssNm*	clone() const \
+			{ return new clssNm( *this ); } \
+    };
+
+/*! \brief Specifications for float inputs.  */
+mDefIntervalClass( FloatInpIntervalSpec, float )
+
+/*! \brief Specifications for double inputs.  */
+mDefIntervalClass( DoubleInpIntervalSpec, double )
+
+/*! \brief Specifications for integer inputs.  */
+mDefIntervalClass( IntInpIntervalSpec, int )
+
+#undef mDefIntervalClass
 
 /*! \brief Specifications for character string inputs.
 */
-class StringInp : public DataInpSpec
+class StringInpSpec : public DataInpSpec
 {
 public:
-			StringInp( const char* s=0, int prefWdt=-1 );
+			StringInpSpec( const char* s=0, int prefWdt=-1 )
+			    : DataInpSpec( stringTp ), str( s ), pw( prefWdt ){}
 
-    virtual DataInpSpec* clone() const	{ return new StringInp( *this ); }
+    virtual DataInpSpec* clone() const	{ return new StringInpSpec( *this ); }
     const char*		text() const	{ return str; }
     void		setText( const char* txt) { str = txt; }
     int			prefWidth() const { return pw; }
 
-    virtual void	getText( BufferString& dest) const
+    virtual void	getText( BufferString& dest, int idx ) const
 			    { dest = str; }
 protected:
 
@@ -119,13 +211,15 @@ protected:
 
 /*! \brief Specifications for file-name inputs.
 */
-class FileNameInp : public StringInp
+class FileNameInpSpec : public StringInpSpec
 {
 public:
-			FileNameInp( const char* fname=0, int prefWdt=-1 );
+			FileNameInpSpec( const char* fname=0, int prefWdt=-1 )
+			    : StringInpSpec( fname, prefWdt )
+			    { setType( fileNmTp ); }
 
     virtual DataInpSpec* clone() const  
-			    { return new FileNameInp( *this ); }
+			    { return new FileNameInpSpec( *this ); }
 };
 
 
@@ -140,17 +234,17 @@ It does not change the underlying true/false texts.
 
 */
 
-class BoolInp : public DataInpSpec
+class BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInp( const char* truetxt="Yes"
+			BoolInpSpec( const char* truetxt="Yes"
 				, const char* falsetxt="No" , bool yesno=true )
 			    : DataInpSpec( boolTp )
 			    , truetext( truetxt ), falsetext( falsetxt )
 			    , yn( yesno ) {}
 
     virtual DataInpSpec* clone() const  
-			    { return new BoolInp( *this ); }
+			    { return new BoolInpSpec( *this ); }
 
     const char*		trueFalseTxt( bool tf = true ) const
 			    { return tf ? truetext : falsetext; }
@@ -160,7 +254,7 @@ public:
     bool		checked() const			{ return yn; }
     void		setChecked( bool yesno )	{ yn=yesno; }
 
-    virtual void	getText( BufferString& dest) const
+    virtual void	getText( BufferString& dest, int idx ) const
 			    { dest = yn ? truetext : falsetext; }
 
 protected:
@@ -168,6 +262,76 @@ protected:
     BufferString	truetext;
     BufferString	falsetext;
     bool		yn;
+};
+
+
+
+
+/*! \brief Specifications for list of character string inputs.
+*/
+class stringListInpSpec : public DataInpSpec
+{
+public:
+				stringListInpSpec( const char** sl=0
+					     , int prefWdt=-1 )
+				    : DataInpSpec( stringTp )
+				    ,pw( prefWdt )
+				    { 
+					const char** s=sl;
+					while( *s++ )
+					    strings_ += new BufferString(*s);
+				    }
+
+				~stringListInpSpec() { deepErase(strings_); }
+
+    virtual DataInpSpec*	clone() const	
+				    { return new stringListInpSpec( *this ); }
+
+    const ObjectSet<BufferString>& strings() const	{ return strings_; }
+    void			addString( const char* txt) 
+				    { strings_ += new BufferString( txt); }
+
+    int				prefWidth() const	{ return pw; }
+
+    virtual void		getText( BufferString& dest, int idx ) const
+				    { dest = *strings_[idx]; }
+protected:
+
+    ObjectSet<BufferString>	strings_;
+    int				pw;
+};
+
+
+/*! \brief Specifications for BinId/Coordinate inputs.
+*/
+class binIdCoordInpSpec : public DataInpSpec
+{
+public:
+			binIdCoordInpSpec( bool doCoord=false
+					 , bool isRelative=false
+					 , const SurveyInfo& si = SI() )
+			    : DataInpSpec( binIdCoordTp )
+			    , doCoord_( doCoord )
+			    , isRelative_( isRelative )
+			    , surv_( si ) {}
+
+    virtual DataInpSpec* clone() const  
+			    { return new binIdCoordInpSpec( *this ); }
+
+    virtual void	getText( BufferString& dest, int idx ) const
+			    {
+				if( doCoord_ )
+				    { dest = "Inline/Crossline"; return; }
+				dest = isRelative_ ? "Distance" : "Coords";
+			    }
+
+    const SurveyInfo&	survInf()	{ return surv_;}
+
+protected:
+
+    bool		doCoord_;
+    bool		isRelative_;
+    const SurveyInfo&	surv_;
 };
 
 #endif
