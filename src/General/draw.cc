@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.10 2001-05-14 13:21:50 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.11 2002-01-08 15:56:41 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -17,6 +17,9 @@ The main chunk is color table related.
 #include "iopar.h"
 #include "settings.h"
 #include "uidset.h"
+#include "ascstream.h"
+#include "ptrman.h"
+#include <fstream>
 
 // First some implementations for a couple of header files ...
 
@@ -77,19 +80,8 @@ const char* ColorVal::sKey = "Value-Color";
 const char* ColorTable::sKeyName = "Color table name";
 const char* ColorTable::sKeyMarkColor = "Marker color";
 const char* ColorTable::sKeyUdfColor = "Undef color";
-
-DefineEnumNames(ColorTable,Type,0,"Color table name")
-{
-	"Red-White-Blue",
-	"Grey scales",
-	"Blue-Green-Magenta",
-	"White-Yellow-Red",
-	"Blue-Cyan-WYR",
-	"Blue-White-Blue",
-	"Black/White",
-	"UserDefined",
-	0
-};
+bool ColorTable::tabparsinited = false;
+ObjectSet<IOPar> ColorTable::tabpars;
 
 
 void ColorTable::calcList( int nritems )
@@ -221,26 +213,14 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 
 void ColorTable::usePar( const IOPar& iopar )
 {
-    setName( "" );
-    const char* nm = iopar[sNameKey];
-    if ( nm && *nm )
-    {
-	Type t = eEnum(ColorTable::Type,nm);
-	if ( t != (Type)0 || !strcmp(nm,TypeNames[0]) )
-	    ColorTable::get( eEnum(ColorTable::Type,nm), *this,
-			     Interval<float>(0,1) );
-	else
-	    type_ = UserDefined;
-    }
-
+    const char* res = iopar.find( sNameKey );
+    if ( res ) setName( res );
     getfromPar( iopar, markcolor, sKeyMarkColor );
     getfromPar( iopar, undefcolor, sKeyUdfColor );
 
-    TypeSet<ColorVal> newcvs;
-    int idx = -1;
-    while ( 1 )
+    cvs.erase();
+    for ( int idx=0; ; idx++ )
     {
-	idx++;
 	BufferString key( ColorVal::sKey );
 	key += "."; key += idx;
 	Color col;
@@ -251,43 +231,60 @@ void ColorTable::usePar( const IOPar& iopar )
 	    continue;
 	}
 
-	newcvs += ColorVal( col, val );
+	cvs += ColorVal( col, val );
     }
+}
 
-    if ( newcvs.size() > 1 )
-    {
-	setName( nm );
-	cvs = newcvs;
-    }
+
+void ColorTable::initTabs()
+{
+    ifstream strm( GetDataFileName("ColTabs") );
+    if ( !strm ) return;
+    ascistream astrm( strm );
+    IOPar iopar( astrm, true );
+    add( iopar, 0, &tabpars );
 }
 
 
 void ColorTable::getNames( UserIDSet& names )
 {
     names.deepErase();
-    names.setName( "Color table" );
+    names.setName( "Color tables" );
 
-    int idx = 0;
-    while ( idx < (int)UserDefined )
-	names.add( TypeNames[idx++] );
+    PtrMan<IOPar> iopar = Settings::common().subselect( names.name() );
+    if ( iopar && iopar->size() )
+	add( *iopar, &names, 0 );
+
+    if ( !tabparsinited ) initTabs();
+    for ( int idx=0; idx<tabpars.size(); idx++ )
+	names.add( tabpars[idx]->find( sNameKey ) );
+
     names.setCurrent(0);
+}
 
-    IOPar* iopar = Settings::common().subselect( names.name() );
-    if ( !iopar || !iopar->size() ) { delete iopar; return; }
 
-    idx = 0;
-    while ( 1 )
+void ColorTable::add( const IOPar& iopar, UserIDSet* names,
+			ObjectSet<IOPar>* pars )
+{
+    for ( int idx=0; ; idx++ )
     {
-	idx++;
-	BufferString key; key += idx;
-	IOPar* ctiopar = iopar->subselect( key );
-	if ( !ctiopar || !ctiopar->size() ) { delete ctiopar; return; }
-	
-	const char* res = (*ctiopar)[sNameKey];
+	IOPar* ctiopar = iopar.subselect( idx );
+	if ( !ctiopar || !ctiopar->size() )
+	{
+	    if ( !idx ) continue;
+	    delete ctiopar;
+	    break;
+	}
+
+	const char* res = ctiopar->find( sNameKey );
 	if ( res && *res )
-	    names.add( res );
+	{
+	    if ( names )
+		{ names->add( res ); delete ctiopar; }
+	    else
+		*pars += ctiopar;
+	}
     }
-    names.setCurrent(0);
 }
 
 
@@ -295,32 +292,49 @@ void ColorTable::get( const char* nm, ColorTable& ct )
 {
     if ( !nm || !*nm ) return;
 
-    int idx = 0;
-    while ( idx < (int)UserDefined )
+    PtrMan<IOPar> iopar = Settings::common().subselect( "Color table" );
+    if ( iopar && iopar->size() )
     {
-	if ( !strcmp(TypeNames[idx],nm) )
-	    get( (Type)idx, ct, Interval<float>(0,1) );
-	idx++;
-    }
-
-    IOPar* iopar = Settings::common().subselect( "Color table" );
-    if ( !iopar || !iopar->size() ) { delete iopar; return; }
-
-    idx = 0;
-    while ( 1 )
-    {
-	idx++;
-	BufferString key; key += idx;
-	IOPar* ctiopar = iopar->subselect( key );
-	if ( !ctiopar || !ctiopar->size() ) { delete ctiopar; return; }
-	
-	const char* res = (*ctiopar)[sNameKey];
-	if ( !strcmp(res,nm) )
+	for ( int idx=0; ; idx++ )
 	{
-	    ct.type_ = UserDefined;
-	    ct.usePar( *ctiopar );
+	    PtrMan<IOPar> ctiopar = iopar->subselect( idx );
+	    if ( !ctiopar || !ctiopar->size() )
+	    {
+		if ( !idx ) continue;
+		break;
+	    }
+	    
+	    const char* res = (*ctiopar)[sNameKey];
+	    if ( !strcmp(res,nm) )
+	    {
+		ct.usePar( *ctiopar );
+		return;
+	    }
 	}
     }
+
+    if ( !tabparsinited ) initTabs();
+    for ( int idx=0; idx<tabpars.size(); idx++ )
+    {
+	const IOPar& iop = *tabpars[idx];
+	if ( !strcmp(nm,iop[sNameKey]) )
+	{
+	    ct.usePar( iop );
+    	    return;
+	}
+    }
+
+    //NEXT version remove
+    if ( !strcmp(nm,"Blue-Green-Magenta") )
+	get( "Rainbow", ct );
+    else if ( !strcmp(nm,"White-Yellow-Red") )
+	get( "SunRise", ct );
+    else if ( !strcmp(nm,"Blue-Cyan-WYR") )
+	get( "Pastel", ct );
+    else if ( !strcmp(nm,"Blue-White-Blue") )
+	get( "Blue Spirit", ct );
+    else if ( !strcmp(nm,"Black/White") )
+	get( "Black&White", ct );
 }
 
 
@@ -329,183 +343,13 @@ void ColorTable::fillPar( IOPar& iopar ) const
     iopar.set( sKeyName, name() );
     iopar.set( sKeyMarkColor, markcolor.r(), markcolor.g(), markcolor.b() );
     iopar.set( sKeyUdfColor, undefcolor.r(), undefcolor.g(), undefcolor.b() );
-    if ( type_ == UserDefined )
+    for ( int idx=0; idx<cvs.size(); idx++ )
     {
-	for ( int idx=0; idx<cvs.size(); idx++ )
-	{
-	    FileMultiString fms;
-	    fms += cvs[idx].color.r();
-	    fms += cvs[idx].color.g();
-	    fms += cvs[idx].color.b();
-	    fms += cvs[idx].value;
-	    iopar.set( ColorVal::sKey, fms );
-	}
+	FileMultiString fms;
+	fms += cvs[idx].color.r();
+	fms += cvs[idx].color.g();
+	fms += cvs[idx].color.b();
+	fms += cvs[idx].value;
+	iopar.set( ColorVal::sKey, fms );
     }
-}
-
-
-void ColorTable::get( ColorTable::Type typ, ColorTable& ct,
-			const Interval<float>& intv )
-{
-    ct.type_ = typ;
-    switch ( typ )
-    {
-    case ColorTable::RWB:	getRWB( ct, intv );		break;
-    case ColorTable::Greys:	getGreys( ct, intv );		break;
-    case ColorTable::BCGYRM:	getBCGYRM( ct, intv );		break;
-    case ColorTable::WYR:	getWYR( ct, intv );		break;
-    case ColorTable::BCWYR:	getBCWYR( ct, intv );		break;
-    case ColorTable::BWB:	getBWB( ct, intv );		break;
-    case ColorTable::BlackWhite: getBlackWhite( ct, intv );	break;
-    }
-}
-
-
-void ColorTable::set( ColorTable::Type t )
-{
-    type_ = t;
-    setName( ColorTable::TypeNames[t] );
-}
-
-
-void ColorTable::getRWB( ColorTable& ct, const Interval<float>& intv )
-{
-    ct.set( ColorTable::RWB );
-    ct.cvs.erase();
-    if ( intv.start > intv.stop )
-    {
-	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-	ct.cvs += ColorVal( Color(255,255,255), (intv.start+intv.stop)/2 );
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
-    }
-    else
-    {
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
-	ct.cvs += ColorVal( Color(255,255,255), (intv.start+intv.stop)/2 );
-	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-    }
-    ct.undefcolor = Color( 200, 200, 200 );
-    ct.markcolor = Color( 0, 200, 0 );
-}
-
-
-void ColorTable::getWYR( ColorTable& ct, const Interval<float>& intv )
-{
-    ct.set( ColorTable::WYR );
-    ct.cvs.erase();
-    if ( intv.start > intv.stop )
-    {
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
-	ct.cvs += ColorVal( Color(255,255,  0), (intv.start+intv.stop)/2 );
-	ct.cvs += ColorVal( Color(255,255,255), intv.start );
-    }
-    else
-    {
-	ct.cvs += ColorVal( Color(255,255,255), intv.start );
-	ct.cvs += ColorVal( Color(255,255,  0), (intv.start+intv.stop)/2 );
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
-    }
-    ct.undefcolor = Color( 200, 200, 200 );
-    ct.markcolor = Color( 0, 200, 0 );
-}
-
-
-void ColorTable::getBCWYR( ColorTable& ct, const Interval<float>& intv )
-{
-    ct.set( ColorTable::BCWYR );
-    ct.cvs.erase();
-    float step = intv.width() / 4.;
-    if ( intv.start > intv.stop )
-    {
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
-	ct.cvs += ColorVal( Color(255,255,  0), intv.start+3*step );
-	ct.cvs += ColorVal( Color(255,255,255), intv.start+2*step );
-	ct.cvs += ColorVal( Color(  0,255,255), intv.start+  step );
-	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-    }
-    else
-    {
-	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-	ct.cvs += ColorVal( Color(  0,255,255), intv.start+  step );
-	ct.cvs += ColorVal( Color(255,255,255), intv.start+2*step );
-	ct.cvs += ColorVal( Color(255,255,  0), intv.start+3*step );
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
-    }
-    ct.undefcolor = Color( 200, 200, 200 );
-    ct.markcolor = Color( 0, 0, 0 );
-}
-
-
-void ColorTable::getGreys( ColorTable& ct, const Interval<float>& intv )
-{
-    ct.set( ColorTable::Greys );
-    ct.cvs.erase();
-    if ( intv.start > intv.stop )
-    {
-	ct.cvs += ColorVal( Color(255,255,255), intv.stop );
-	ct.cvs += ColorVal( Color(  0,  0,  0), intv.start );
-    }
-    else
-    {
-	ct.cvs += ColorVal( Color(  0,  0,  0), intv.start );
-	ct.cvs += ColorVal( Color(255,255,255), intv.stop );
-    }
-    ct.undefcolor = Color( 255, 255, 200 );
-    ct.markcolor = Color( 200, 0, 0 );
-}
-
-
-void ColorTable::getBWB( ColorTable& ct, const Interval<float>& intv )
-{
-    ct.set( ColorTable::BWB );
-    ct.cvs.erase();
-    ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-    ct.cvs += ColorVal( Color(255,255,255), (intv.start+intv.stop)*.5 );
-    ct.cvs += ColorVal( Color(  0,  0,255), intv.stop );
-    ct.undefcolor = Color( 200, 200, 200 );
-    ct.markcolor = Color( 0, 200, 0 );
-}
-
-
-void ColorTable::getBlackWhite( ColorTable& ct, const Interval<float>& intv )
-{
-    ct.set( ColorTable::BlackWhite );
-    ct.cvs.erase();
-    Interval<float> iv = intv;
-    iv.sort();
-    float half = (iv.start + iv.stop) * .5;
-    ct.cvs += ColorVal( Color(0,0,0), iv.start );
-    ct.cvs += ColorVal( Color(0,0,0), half - mEPSILON );
-    ct.cvs += ColorVal( Color(255,255,255), half + mEPSILON );
-    ct.cvs += ColorVal( Color(255,255,255), iv.stop );
-    ct.markcolor = Color( 0, 0, 0 );
-    ct.undefcolor = Color( 255, 255, 255 );
-}
-
-
-void ColorTable::getBCGYRM( ColorTable& ct, const Interval<float>& intv )
-{
-    ct.set( ColorTable::BCGYRM );
-    ct.cvs.erase();
-    float step = intv.width() / 5.;
-    if ( intv.start > intv.stop )
-    {
-	ct.cvs += ColorVal( Color(255,  0,255), intv.stop );
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.start+4   *step );
-	ct.cvs += ColorVal( Color(255,255,  0), intv.start+2.75*step );
-	ct.cvs += ColorVal( Color(  0,255,  0), intv.start+2   *step );
-	ct.cvs += ColorVal( Color(  0,255,255), intv.start+1.25*step );
-	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-    }
-    else
-    {
-	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-	ct.cvs += ColorVal( Color(  0,255,255), intv.start+1.25*step );
-	ct.cvs += ColorVal( Color(  0,255,  0), intv.start+2*step );
-	ct.cvs += ColorVal( Color(255,255,  0), intv.start+2.75*step );
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.start+4*step );
-	ct.cvs += ColorVal( Color(255,  0,255), intv.stop );
-    }
-    ct.undefcolor = Color( 200, 200, 200 );
-    ct.markcolor = Color( 0, 0, 0 );
 }
