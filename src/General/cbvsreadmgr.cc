@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.3 2001-05-11 20:28:17 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.4 2001-05-23 07:54:59 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -138,11 +138,17 @@ int CBVSReadMgr::nextRdrNr( int rdrnr ) const
 BinID CBVSReadMgr::nextBinID() const
 {
     int rdrnr = curnr_;
-    BinID ret(0,0);
-    while ( ret == BinID(0,0) && rdrnr > 0 )
+    BinID ret = readers_[rdrnr]->nextBinID();
+    while ( 1 )
     {
+	if ( ret != BinID(0,0) )
+	    return ret;
+	else
+	{
+	    rdrnr = nextRdrNr( rdrnr );
+	    if ( rdrnr < 1 ) break;
+	}
 	ret = readers_[rdrnr]->nextBinID();
-	rdrnr = nextRdrNr( rdrnr );
     }
 
     return ret;
