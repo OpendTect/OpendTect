@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.42 2003-10-20 13:13:24 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.43 2003-10-21 08:54:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -344,7 +344,7 @@ void uiSurvey::updateSvyList()
     dirlist->sort();
     if ( !dirlist->size() ) updateInfo(0);
     listbox->empty();
-    listbox->addItems( dirlist );
+    listbox->addItems( *dirlist );
 }
 
 
