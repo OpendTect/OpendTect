@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.47 2004-06-03 14:54:51 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.48 2004-09-03 14:32:23 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -528,6 +528,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 	BufferString trnm( ctio.ctxt.deftransl != ""
 			 ? ctio.ctxt.deftransl.buf()
 			 : (tr ? tr->userName().buf() : "") );
+	if ( trnm == "" )
+	    trnm = ctio.ctxt.stdseltype == IOObjContext::Seis ? "CBVS" : "dGB";
 	iostrm->setTranslator( trnm );
 
 	// Generate the right filename
