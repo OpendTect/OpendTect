@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.43 2002-01-22 13:05:21 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.44 2002-01-23 10:41:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -379,6 +379,8 @@ public:
     void		setSaveButtonChecked( bool yn )
 			    { saveChecked = yn;
 			      if ( saveBut ) saveBut->setChecked(yn); }
+    void		setSaveButtonSensitive( bool yn )
+			    { if ( saveBut ) saveBut->setSensitive(yn); }
 
     void		setTitleText( const char* txt );
 
@@ -736,6 +738,8 @@ void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
 void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
+void uiDialog::setSaveButtonSensitive(bool s) 
+					   { mBody->setSaveButtonSensitive(s); }
 void uiDialog::setSaveButtonChecked(bool b)  { mBody->setSaveButtonChecked(b); }
 bool uiDialog::saveButtonChecked() const { return mBody->saveButtonChecked(); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
