@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.10 2004-07-23 12:58:17 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.11 2004-08-05 08:53:30 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -175,8 +175,14 @@ public:
     void		removeMaterialIndexAfter(int);
     int			getMaterialIndex(int) const;
 
+
+    int			rightClickClosestCoordIndex() { return rightclickidx; }
+
 private:
+
+    void		triggerRightClick(const EventInfo*);
     SoIndexedShape*	indexedshape;
+    int			rightclickidx;
 };
 
 };

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.13 2004-07-23 12:57:43 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.14 2004-08-05 08:53:07 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: visshape.cc,v 1.13 2004-07-23 12:57:43 kristofe
 #include "iopar.h"
 #include "viscoord.h"
 #include "visdataman.h"
+#include "visdetail.h"
+#include "visevent.h"
 #include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexture2.h"
@@ -387,3 +389,16 @@ setGetIndex( CoordIndex, coordIndex );
 setGetIndex( TextureCoordIndex, textureCoordIndex );
 setGetIndex( NormalIndex, normalIndex );
 setGetIndex( MaterialIndex, materialIndex );
+
+
+void visBase::IndexedShape::triggerRightClick(const EventInfo* ei)
+{
+    if ( ei )
+    {
+	mDynamicCastGet(  FaceDetail * const, facedetail, ei->detail );
+	rightclickidx = facedetail->getClosestIdx(getCoordinates(),
+						  ei->localpickedpos );
+    }
+
+    VisualObject::triggerRightClick(ei);
+}
