@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.10 2004-11-09 12:36:20 arend Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.11 2004-11-10 09:58:40 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,6 +221,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
     const bool haveenv = getenv("DTECT_DATA") || getenv( "dGB_DATA" )
 	;
     if ( haveenv )
+    {
 #ifdef __win__
 	FilePath dtectdatafp( datadir.buf() );
 	
@@ -228,6 +229,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 #else
 	setEnvVar( "DTECT_DATA", datadir.buf() );
 #endif
+    }
 
     Settings::common().set( "Default DATA directory", datadir );
     if ( !Settings::common().write() )
