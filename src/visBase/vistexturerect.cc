@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.18 2002-05-06 12:15:37 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.19 2002-05-09 05:20:51 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -66,8 +66,28 @@ visBase::TextureRect::TextureRect()
 
 visBase::TextureRect::~TextureRect()
 {
-    rectangle->unRef();
-    colortable->unRef();
+    if ( rectangle )
+    {
+	rectangle->manipStarts()->remove(
+				mCB( this, TextureRect, triggerManipStarts ));
+	rectangle->manipChanges()->remove(
+				mCB( this, TextureRect, triggerManipChanges ));
+	rectangle->manipEnds()->remove(
+				mCB( this, TextureRect, triggerManipEnds ));
+	rectangle->selection()->remove(
+				mCB( this, TextureRect, triggerSel ));
+	rectangle->deSelection()->remove(
+				mCB( this, TextureRect, triggerDeSel ));
+	rectangle->unRef();
+    }
+
+    if ( colortable )
+    {
+	colortable->change.remove(
+				mCB( this,visBase::TextureRect, updateTexture));
+	colortable->unRef();
+    }
+
     delete data;
 }
 
