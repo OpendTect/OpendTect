@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.26 2004-05-06 22:03:40 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.27 2004-05-07 16:43:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -347,6 +347,13 @@ void uiODApplMgr::renamePickset( int id )
 bool uiODApplMgr::getNewData( int visid, bool colordata )
 {
     if ( visid<0 ) return false;
+
+    if ( visserv->getAttributeFormat(visid) == 3 )
+    {
+	CubeSampling cs = visserv->getCubeSampling( visid );
+	bool res = trackserv->setWorkCube( cs );
+	return res;
+    }
     
     AttribSelSpec as(*(colordata ? &visserv->getColorSelSpec(visid)->as
 					: visserv->getSelSpec(visid)));
@@ -426,11 +433,6 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    deepErase( data );
 
 	    return true;
-	}
-	case 3:
-	{
-	    CubeSampling cs = visserv->getCubeSampling( visid );
-	    res = trackserv->setWorkCube( cs );
 	}
     }
 
@@ -530,7 +532,13 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	    			  : emserv->createFault( mid, nm );
 	if ( !success ) return false;
 	trackserv->setNewSurfaceID( mid );
-	sceneMgr().addSurfaceItem( mid, sceneid, addhorizon );
+	int sdid = sceneMgr().addSurfaceItem( mid, sceneid, addhorizon );
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
+			visserv->getObject(sdid))
+	sd->useTexture( false );
+	sd->setColor( ssd->getColor() );
+	sd->turnOnWireFrame(true);
+	sd->setResolution( sd->nrResolutions()-1 );
 	sceneMgr().updateTrees();
     }
     else if ( evid == uiTrackingPartServer::evSelStickSet )
@@ -578,7 +586,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	int interpreterid = trackserv->interpreterID( sceneid );
 	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,
 					visserv->getObject(interpreterid))
-	sid->turnOn( true );
+//	sid->turnOn( true );
 	uiTrackingMan* dlg = new uiTrackingMan( &appl, *sid, 
 						trackserv->trackManager() );
 	dlg->go();
