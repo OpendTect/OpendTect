@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.11 2002-11-21 17:10:37 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.12 2003-01-24 15:57:55 arend Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
@@ -23,6 +23,7 @@ class SUsegy;
 class SeisTrc;
 class PosAuxInfo;
 class BinIDSampler;
+class IOPar;
 
 /*!\brief Information for a packet of seismics, AKA tape header info */
 
@@ -77,6 +78,9 @@ public:
     int			stack_count;
     float		mute_pos;
     float		taper_length;
+
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
     int			nearestSample(float pos,int sampoffs=0) const;
     float		samplePos( int idx, int sampoffs=0 ) const

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.12 2002-11-21 17:10:09 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.13 2003-01-24 15:57:55 arend Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: seisinfo.cc,v 1.12 2002-11-21 17:10:09 bert Exp
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filegen.h"
+#include "iopar.h"
 #include <math.h>
 #include <timeser.h>
 #include <float.h>
@@ -170,6 +171,37 @@ bool SeisTrcInfo::dataPresent( float t, int trcsz, int soffs ) const
     if ( mIsUndefined(mute_pos) || t > mute_pos )
 	return true;
     return false;
+}
+
+
+void SeisTrcInfo::usePar( const IOPar& iopar )
+{
+    iopar.get( attrnames[0], nr );
+    iopar.get( attrnames[1], pick );
+    iopar.get( attrnames[2], refpos );
+    iopar.get( attrnames[3], coord.x );
+    iopar.get( attrnames[4], coord.y );
+    iopar.get( attrnames[5], binid.inl );
+    iopar.get( attrnames[6], binid.crl );
+    iopar.get( attrnames[7], offset );
+    iopar.get( attrnames[8], azimuth );
+
+    iopar.get( sSamplingInfo, sampling.start, sampling.step );
+}
+
+void SeisTrcInfo::fillPar( IOPar& iopar ) const
+{
+    iopar.set( attrnames[0], nr );
+    iopar.set( attrnames[1], pick );
+    iopar.set( attrnames[2], refpos );
+    iopar.set( attrnames[3], coord.x );
+    iopar.set( attrnames[4], coord.y );
+    iopar.set( attrnames[5], binid.inl );
+    iopar.set( attrnames[6], binid.crl );
+    iopar.set( attrnames[7], offset );
+    iopar.set( attrnames[8], azimuth );
+
+    iopar.set( sSamplingInfo, sampling.start, sampling.step );
 }
 
 

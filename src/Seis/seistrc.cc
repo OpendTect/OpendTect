@@ -5,11 +5,12 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.11 2001-11-08 12:01:19 kristofer Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.12 2003-01-24 15:57:55 arend Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
 #include "interpol1d.h"
+#include "socket.h"
 #include <math.h>
 #include <float.h>
 
@@ -187,6 +188,88 @@ void SeisTrc::setStartPos( float pos, int icomp )
 	setSampleOffset( icomp, mNINT(offs) );
     }
 }
+
+#define mErrRet(msg) \
+    { \
+	if ( errbuf )	{ *errbuf=msg; } \
+	else		{ sock.writeErrorMsg(msg); } \
+	return false; \
+    } 
+
+#define mSockErrRet() \
+    { \
+	if ( errbuf )	{ *errbuf=sock.errMsg(); } \
+	return false; \
+    } 
+
+bool SeisTrc::putTo(Socket& sock, BufferString* errbuf) const
+{
+
+/*
+    IOPar par;
+    info().fillPar( par );
+    // write trace info.
+
+*/
+
+    int nrcomps = data_.nrComponents();
+
+    if ( !sock.write( nrcomps ) ) mSockErrRet();
+
+    for( int idx=0; idx< data_.nrComponents(); idx++ )
+    {
+	DataCharacteristics dc = data_.getInterpreter(idx)->dataChar();
+	unsigned char c1,c2; dc.dump(c1,c2);
+	if ( !sock.writetags( c1, c2 ) ) mSockErrRet();
+
+
+	const DataBuffer* buf = data_.getComponent( idx );
+	int nrbytes = buf->size() * buf->bytesPerSample();
+	if ( !sock.write( nrbytes ) ) mSockErrRet();
+
+	const unsigned char* rawdata = buf->data();
+
+	if ( !sock.writedata( rawdata, nrbytes ) ) mSockErrRet();
+    }
+
+    return true;
+}
+
+
+bool SeisTrc::getFrom(Socket& sock, BufferString* errbuf)
+{
+    int totalcmps = data().nrComponents();
+    for ( int idx=0; idx < totalcmps; idx++ )
+	data().delComponent(0);
+
+    if ( data().nrComponents() )
+	{ mErrRet( "Could not clear trace buffers" ); }
+
+    int nrcomps;
+    if( !sock.read( nrcomps ) ) { mSockErrRet(); }
+
+    for (int idx=0; idx<nrcomps; idx++ )
+    {
+	unsigned char c1,c2;
+	if( !sock.readtags( (char)c1, (char)c2 ) ) { mSockErrRet(); }
+
+	DataCharacteristics dc(c1,c2);
+
+	int nrbytes;
+	if( !sock.read( nrbytes ) ) { mSockErrRet(); }
+
+	int nrsamples = nrbytes / (int)dc.nrBytes();
+	data().addComponent(nrsamples,dc);
+
+	unsigned char* dest = data().getComponent(idx)->data();
+	if ( !dest ) { mErrRet("Could not create buffer for trace data."); }
+
+	int bytesread = sock.readdata( (void*)dest, nrbytes );
+	if( bytesread != nrbytes ) { mSockErrRet(); }
+    }
+
+    return true;
+} 
 
 
 class SeisDataTrcIter : public XFunctionIter

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.13 2002-01-30 07:57:15 kristofer Exp $
+ RCS:		$Id: seistrc.h,v 1.14 2003-01-24 15:57:55 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include <datatrc.h>
 #include <scaler.h>
 class Interpolator1D;
-
+class Socket;
 
 /*!> Seismic traces.
 
@@ -113,6 +113,11 @@ public:
 			  return data_.allOk(); }
     SampleGate		sampleGate(const Interval<float>&,bool check,
 				   int icomp) const;
+
+    //! If !errbuf, errors are handled trough the socket
+    bool		putTo(Socket&, BufferString* errbuf=0) const;
+    //! If !errbuf, errors are handled trough the socket
+    bool		getFrom(Socket&, BufferString* errbuf=0);
 
 protected:
 
