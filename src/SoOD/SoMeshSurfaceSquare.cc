@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.17 2003-12-03 15:46:55 dgb Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.18 2003-12-04 16:00:18 nanne Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -45,7 +45,7 @@ static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.17 2003-12-03 15:46:
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>
 
-#include "Inventor/sensors/SoFieldSensor.h"
+#include <Inventor/sensors/SoFieldSensor.h>
 
 
 SO_KIT_SOURCE(SoMeshSurfaceSquare);
@@ -1086,7 +1086,7 @@ void SoMeshSurfaceSquare::pickCB( void* ptr, SoEventCallback* ecb )
     thisp->pickedrow = closestidx/(thisp->sidesize+1)+thisp->origo[0];
     thisp->pickedcol = closestidx%(thisp->sidesize+1)+thisp->origo[1];
 
-    ecb->setHandled();
+//  ecb->setHandled();
     thisp->pickcallbacks->invokeCallbacks(thisp);
 }
 
