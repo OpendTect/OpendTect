@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.6 2002-04-24 22:18:56 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.7 2002-04-25 21:18:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "hostdata.h"
 #include "iopar.h"
+#include <stdlib.h>
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
@@ -158,6 +159,7 @@ void uiSeisMMProc::updateCurMachs()
 {
     ObjectSet<BufferString> machs;
     jm->getActiveMachines( machs );
+    sort( machs );
     int curit = usedmachfld->box()->currentItem();
     usedmachfld->box()->empty();
     bool havemachs = machs.size();
@@ -200,8 +202,8 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
 	}
 	jm->cleanup();
     }
-    return true;
 
+    return true;
 }
 
 
