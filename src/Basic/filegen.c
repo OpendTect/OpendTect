@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.12 2001-08-31 15:44:40 windev Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.13 2001-11-15 14:03:23 windev Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -205,7 +205,7 @@ const char* File_getBaseName( const char* fullpath )
 
 #ifdef __win__
 
-	PathRemoveExtension( fname );
+    PathRemoveExtension( fname );
 
 #else
 
@@ -224,17 +224,16 @@ const char* File_getTempFileName( const char* id, const char* ext, int full )
 {
     static FileNameString pathbuf;
 
-
 #ifdef __win__
 
-	static FileNameString tmppath;
+    static FileNameString tmppath;
 
-	if( full )
-		GetTempPath( PATH_LENGTH, tmppath );
-	else
-		sprintf( tmppath, "" );
+    if( full )
+	    GetTempPath( PATH_LENGTH, tmppath );
+    else
+	    sprintf( tmppath, "" );
 
-	GetTempFileName( tmppath, "dgb", 0, pathbuf );
+    GetTempFileName( tmppath, "dgb", 0, pathbuf );
 
 #else
 
@@ -324,9 +323,27 @@ int File_copy( const char* from, const char* to, int recursive )
     if ( !File_exists(from) ) return YES;
 
     if ( recursive )
-	{ 
-		fprintf(stderr,"File_copy recursive not impl\n"); return NO; 
-	}
+    { 
+
+	char* cmd;
+	int len, retval;
+	if ( !from || !*from || !to || !*to ) return NO;
+	if ( !File_exists(from) ) return YES;
+
+	len = strlen( from ) + strlen( to ) + 25;
+	cmd = mMALLOC(len,char);
+	
+	strcpy( cmd, "xcopy /E /I /Q /H /K " );
+	strcat( cmd, " " );
+	strcat( cmd, from );
+	strcat( cmd, " " );
+	strcat( cmd, to );
+
+	retval = system( cmd ) != -1 ? YES : NO;
+	if ( retval ) retval = File_exists( to );
+	mFREE(cmd);
+	return retval;
+    }
 
     return CopyFile( from, to, FALSE );
 
@@ -365,7 +382,25 @@ int File_remove( const char* fname, int force, int recursive )
 	if ( !File_exists(fname) ) return YES;
 
     if ( recursive )
-	{ fprintf(stderr,"File_remove recursive not impl\n"); return NO; }
+    { 
+	char* cmd;
+	int len, retval;
+	if ( !fname ) return NO;
+	if ( !File_exists(fname) ) return YES;
+
+	len = strlen( fname ) + 30;
+	cmd = mMALLOC(len,char);
+
+	if ( !recursive )
+	    return unlink((char*)fname) ? NO : YES;
+
+	strcpy( cmd, "rd /S /Q " );
+
+	retval = system( cmd ) ? NO : YES;
+	if ( retval && File_exists( fname ) ) retval = NO;
+	mFREE(cmd);
+	return retval;
+    }
 
     return DeleteFile( fname );
 
@@ -402,7 +437,12 @@ int File_makeWritable( const char* fname, int recursive, int yn )
 
 #ifdef __win__
 
-    return YES;
+    FileNameString cmd;
+    strcpy( cmd, "attrib " );
+    strcat( cmd, yn ? " -R " : " +R " );
+    strcat( cmd, fname );
+    if ( recursive ) strcat( cmd, " /S ");
+    return system( cmd ) != -1 ? YES : NO;
 
 #else
 
