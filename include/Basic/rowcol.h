@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.8 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: rowcol.h,v 1.9 2003-12-29 08:03:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
 		{ return RowCol( row+rc.row, col+rc.col ); }
     RowCol	operator-( const RowCol& rc ) const
 		{ return RowCol( row-rc.row, col-rc.col ); }
+    RowCol	operator+() const { return RowCol( +row, +col ); }
+    RowCol	operator-() const { return RowCol( -row, -col ); }
     RowCol	operator*( const RowCol& rc ) const
 		{ return RowCol( row*rc.row, col*rc.col ); }
     RowCol	operator/( const RowCol& rc ) const
