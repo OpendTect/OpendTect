@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.1 2004-09-21 12:39:17 kristofer Exp $
+ RCS:		$Id: rcol.h,v 1.2 2004-09-21 13:00:24 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 
-/*!\brief Object with row and col. */
+/*!\brief Object with row and col, which are accesable through r() and c(). */
 
 template <class T> class TypeSet;
 
@@ -37,11 +37,13 @@ public:
 			{ r() *= factor; c() *= factor;  return *this; } 
     const RCol&		operator/=( const RCol& rc )
 			{ r() /= rc.r(); c() /= rc.c();  return *this; } 
+    const RCol&		operator=( const RCol& rc )
+			{ r()=rc.r(); c() = rc.c(); return *this; }
 
     bool		operator==( const RCol& rc ) const
 			{ return r()==rc.r() && c()==rc.c(); }
     bool		operator!=( const RCol& rc ) const
-			{ return ! (*this==rc); }
+			{ return !(*this==rc); }
 
     bool		isNeighborTo( const RCol&, const RCol& step,
 	    			      bool eightconnectivity=true ) const;
@@ -62,19 +64,30 @@ public:
 			      0,0 to the object and the vector going from 0,0
 			      to rc in the counterclockwise direction.*/
 
-    int			distanceSq(const RCol& rc ) const
-			{
-			    int rdiff = r()-rc.r();
-			    int cdiff = c()-rc.c();
-			    return rdiff*rdiff+cdiff*cdiff;
-			}
+    int			distanceSq(const RCol& rc ) const;
+    			/*!<\returns the square of the distance between this
+			  	     object and the provided one. The square
+				     distance is easier to compute than the
+				     real one, so if the distance only should
+				     be compared with other distances, the
+				     comparison can equally well be done
+				     on squared distances. */
 
     template <class T>
-    inline static void 	makeLine( const RCol& start, const RCol& stop,
+    inline static bool 	makeLine( const RCol& start, const RCol& stop,
 				  TypeSet<T>& output, const RCol& step );
-
+    			/*!< Makes a line from start to stop and stores it in
+			     output. The function will fail if start or stop
+			     is not reachable with the given step.
+			 */
 };
 
+
+/*!\brief Object that builds a line from start in the direction of dir with
+  	  a step. The line is built in an iterative way, so it is possible
+	  to check after everystep if the line should continue (e.g. check if
+	  it has bumped into something.
+*/
 
 template <class T>
 class RColLineBuilder
@@ -83,9 +96,10 @@ public:
     			RColLineBuilder( const RCol& start,
 					   const RCol& dir,
 					   const RCol& step,
-					   bool stopafterdir,
 					   TypeSet<T>& line);
    int			nextStep();
+   			/*!<\returns 1 if the extension went well, -1 if
+			     	       the direction is zero. */
 
 protected:
    float		distToLine( const RCol& rc ) const;
@@ -93,21 +107,19 @@ protected:
    const T		dir;
    const T		step;
    const float		dirlen;
-   bool			stop;
    TypeSet<T>&	line;
 };
 
 
 template <class T> inline
 RColLineBuilder<T>::RColLineBuilder( const RCol& start_,
-	const RCol& dir_, const RCol& step_, bool stopafterdir,
+	const RCol& dir_, const RCol& step_, 
 	TypeSet<T>& line_)
    : start( start_ )
    , dir( dir_ )
    , step( step_ )
-   , stop( stopafterdir )
    , line( line_ )
-   , dirlen( sqrt(dir_.row*dir_.row+dir_.col*dir_.col))
+   , dirlen( sqrt(dir_.r()*dir_.r()+dir_.c()*dir_.c()))
 {}
 
 
@@ -115,10 +127,7 @@ template <class T> inline
 int RColLineBuilder<T>::nextStep()
 {
     if ( !dir.r() && !dir.c() )
-    {
-	pErrMsg("No direction" );
 	return -1;
-    }
 
     T bestrc;
     if ( line.size() )
@@ -159,7 +168,7 @@ int RColLineBuilder<T>::nextStep()
 	bestrc = start;
 
     line += bestrc;
-    return stop && bestrc==start+dir? 0 : 1;
+    return 1;
 }
 
 
@@ -171,15 +180,24 @@ float RColLineBuilder<T>::distToLine( const RCol& rc ) const
 
 
 template <class T> inline
-void RCol::makeLine( const RCol& start, const RCol& stop,
+bool RCol::makeLine( const RCol& start, const RCol& stop,
 		     TypeSet<T>& output, const RCol& step )
 {
+    if ( start.r()%step.r()!=stop.r()%step.r() ||
+	 start.c()%step.c()!=stop.c()%step.c() )
+	return false;
+
     output.erase();
     if ( start==stop )
-    { output += start; return; }
+    { output += start; return true; }
 
-    RColLineBuilder<T> builder( start, stop-start, step, true, output );
-    while ( builder.nextStep() ) ;
+    T dir = stop;
+    dir -= start;
+
+    RColLineBuilder<T> builder( start, dir, step, output );
+
+    while ( builder.nextStep()>0 && output[output.size()-1]!=stop );
+    return true;
 }
 
 
