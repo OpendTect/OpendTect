@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.12 2004-07-23 12:59:49 kristofer Exp $
+ RCS:           $Id: uiiosurface.h,v 1.13 2004-08-17 09:46:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,8 @@ class uiBinIDSubSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledListBox;
-class BinIDSampler;
 class CtxtIOObj;
+class HorSampling;
 class IODirEntryList;
 class IOObj;
 class MultiID;
@@ -47,7 +47,7 @@ protected:
     void		fillFields(const MultiID&);
     void		fillSectionFld(const BufferStringSet&);
     void		fillAttribFld(const BufferStringSet&);
-    void		fillRangeFld(const BinIDSampler&);
+    void		fillRangeFld(const HorSampling&);
 
     void		mkAttribFld();
     void		mkSectionFld(bool);

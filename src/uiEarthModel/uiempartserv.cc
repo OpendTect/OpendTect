@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.53 2004-08-17 06:41:29 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.54 2004-08-17 09:46:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "survinfo.h"
 #include "binidvalset.h"
+#include "binidselimpl.h"
 #include "surfaceinfo.h"
 #include "cubesampling.h"
 #include "uiimphorizon.h"

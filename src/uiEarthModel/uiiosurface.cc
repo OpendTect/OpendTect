@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.23 2004-08-09 14:09:31 kristofer Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.24 2004-08-17 09:46:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 }
 
 
-void uiIOSurface::fillRangeFld( const BinIDSampler& bids )
+void uiIOSurface::fillRangeFld( const HorSampling& bids )
 {
     if ( !rgfld ) return;
 
@@ -133,9 +133,8 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 {
     if ( rgfld )
     {
-	const BinIDRange* rg = rgfld->getRange();
-	mDynamicCastGet(const BinIDSampler*,smpl,rg);
-	sels.rg = *smpl;
+	CubeSampling cs; rgfld->getSampling( cs );
+	sels.rg = cs.hrg;
     }
 
     sels.selsections.erase();
