@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.6 2005-01-17 14:51:31 kristofer Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.7 2005-01-18 12:55:54 kristofer Exp $";
 
 #include "mpeengine.h"
 
@@ -36,6 +36,13 @@ Engine::Engine()
     , activevolume( getDefaultActiveVolume() )
 {
     trackers.allowNull(true);
+    const int startinl = SI().inlRange(true).snap(
+	(activevolume.hrg.start.inl+activevolume.hrg.start.crl)/2);
+    const BinID startbid(startinl, activevolume.hrg.start.crl );
+    const BinID stopbid(startinl, activevolume.hrg.stop.crl );
+	    	   
+    trackplane = TrackPlane( startbid, stopbid, activevolume.zrg.start,
+	    		     activevolume.zrg.stop );
 }
 
 
