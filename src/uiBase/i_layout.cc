@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.13 2001-08-29 15:08:20 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.14 2001-08-29 15:48:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -607,7 +607,7 @@ void i_LayoutMngr::addItem( QLayoutItem *qItem )
 QSize i_LayoutMngr::minimumSize() const
 {
     setMode( minimum ); 
-    if ( !minimumDone ) 
+ //   if ( !minimumDone ) 
     { 
 	doLayout( QRect() ); 
 	const_cast<i_LayoutMngr*>(this)->minimumDone=true; 
@@ -619,7 +619,7 @@ QSize i_LayoutMngr::minimumSize() const
 QSize i_LayoutMngr::sizeHint() const
 {
     setMode( preferred ); 
-    if ( !preferredDone )
+//    if ( !preferredDone )
     { 
 	doLayout( QRect() ); 
 	const_cast<i_LayoutMngr*>(this)->preferredDone=true; 
@@ -687,8 +687,8 @@ void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
-    if( extRect == prevGeometry ) return;
-    prevGeometry = extRect;
+//    if( extRect == prevGeometry ) return;
+//    prevGeometry = extRect;
 
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
