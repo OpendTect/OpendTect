@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.2 2002-02-28 07:16:57 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.3 2002-02-28 14:37:24 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "vissceneobjgroup.h"
@@ -17,8 +17,8 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.2 2002-02-28 07:16:57 
 visSurvey::PickSet::PickSet( visSurvey::Scene& scene_, int system )
     : group( new visBase::SceneObjectGroup( true, true ) )
     , scene( scene_ )
-    , inlsz( 11 )
-    , crlsz( 11 )
+    , inlsz( 5 )
+    , crlsz( 5 )
     , tsz( 0.05 )
     , color( *new Color )
 {
