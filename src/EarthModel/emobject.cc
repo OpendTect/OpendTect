@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.29 2004-07-23 12:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.30 2004-07-23 15:35:14 nanne Exp $";
 
 #include "emobject.h"
 
@@ -301,7 +301,7 @@ void EM::EMObject::fillPar( IOPar& par ) const
 	}
 
 	BufferString patchkey = attribkey;
-	patchkey += posattrprefixstr;
+	patchkey += posattrsectionstr;
 	BufferString subidkey = attribkey;
 	subidkey += posattrposidstr;
 
