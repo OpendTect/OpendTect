@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.31 2004-04-27 15:51:14 bert Exp $
+ RCS:		$Id: callback.h,v 1.32 2004-08-04 12:08:14 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -361,10 +361,11 @@ public:
 			{}
 
     inline		~NotifyStopper()
-    			{ thenotif.doEnable(oldstatus); }
+    			{ restore(); }
 
     inline void		enable()		{ thenotif.doEnable(false); }
     inline void		disable()		{ thenotif.doEnable(true); }
+    inline void		restore()		{ thenotif.doEnable(oldstatus);}
 
 protected:
 
