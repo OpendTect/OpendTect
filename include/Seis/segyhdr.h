@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.10 2005-02-10 16:34:32 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.11 2005-03-22 14:50:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ public:
 
     unsigned char*	buf;
     bool		needswap;
-    SegyTraceheaderDef	hdef;
+    SegyTraceheaderDef&	hdef;
     int			seqnr;
 
 protected:
