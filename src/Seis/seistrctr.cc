@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.33 2003-04-04 09:58:22 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.34 2003-04-29 15:20:51 arend Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -262,6 +262,7 @@ void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 	float reqstep = outcds[idx]->sd.step;
 	sampdist = reqstep / avsd.step;
 	intdist = (int)(sampdist + eps);
+	if ( intdist < 1 ) intdist = 1;
 	outcds[idx]->sd.step = avsd.step * intdist;
 	outcds[idx]->sd.start = reqintv.start;
 	float fnrsamps = (reqintv.stop - reqintv.start) / outcds[idx]->sd.step
