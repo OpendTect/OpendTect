@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.8 2003-10-30 12:38:40 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.9 2003-10-31 11:55:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,8 +159,7 @@ void uiWellMan::addMarkers( CallBacker* )
     Well::Writer wtr( conn->fileName(), *well );
     wtr.putMarkers();
     const MultiID& key = ctio.ioobj->key();
-    if ( Well::MGR().isLoaded(key) )
-	Well::Data* nw = Well::MGR().get(key,true); 
+    Well::MGR().reload( key );
 }
 
 
@@ -178,8 +177,7 @@ void uiWellMan::addLogs( CallBacker* )
     wtr.putLogs();
     fillLogsFld();
     const MultiID& key = ctio.ioobj->key();
-    if ( Well::MGR().isLoaded(key) )
-	Well::Data* nw = Well::MGR().get(key,true); 
+    Well::MGR().reload( key );
 }
 
 
@@ -206,8 +204,7 @@ void uiWellMan::removeLogPush( CallBacker* )
     }
 
     const MultiID& key = ctio.ioobj->key();
-    if ( Well::MGR().isLoaded(key) )
-	Well::Data* nw = Well::MGR().get(key,true); 
+    Well::MGR().reload( key );
 }
 
 
@@ -247,6 +244,8 @@ void uiWellMan::renameLogPush( CallBacker* )
     wtr.putLog( *sdo.ostrm, log );
     sdo.close();
     fillLogsFld();
+    const MultiID& key = ctio.ioobj->key();
+    Well::MGR().reload( key );
 }
 
 
@@ -294,4 +293,3 @@ BufferString uiWellMan::getFileSize( const char* filenm )
 
     return szstr;
 }
-
