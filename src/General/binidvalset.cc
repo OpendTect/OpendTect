@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.1 2004-07-22 16:14:07 bert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.2 2004-08-27 16:00:53 bert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -121,24 +121,43 @@ void BinIDValueSet::append( const BinIDValueSet& bvs )
 }
 
 
+static void ignoreName( std::istream& strm )
+{
+    while ( isspace(strm.peek()) && strm )
+	strm.ignore(1);
+
+    if ( strm.peek() == '"' )
+    {
+	strm.ignore(1);
+	while ( strm.peek() != '"' && strm )
+	    strm.ignore(1);
+	strm.ignore(1);
+    }
+}
+
+
 bool BinIDValueSet::getFrom( std::istream& strm )
 {
     BinID bid( 0, mUndefIntVal); char buf[1024]; TypeSet<float> vals;
     int idx = 0;
+    ignoreName( strm );
     while ( wordFromLine(strm,buf,1024) )
     {
 	if ( idx == 0 )		bid.inl = atoi( buf );
 	else if ( idx == 1 )	bid.crl = atoi( buf );
 	else			vals += atof( buf );
+	idx++;
     }
     if ( mIsUndefInt(bid.crl) ) return false;
 
     empty();
     setNrVals( vals.size() );
+    add( bid, vals.arr() );
 
     while ( strm.good() )
     {
 	bid.inl = bid.crl = 0;
+	ignoreName( strm );
 	strm >> bid.inl >> bid.crl;
 	if ( bid.inl == 0 && bid.crl == 0 )
 	    return true;
