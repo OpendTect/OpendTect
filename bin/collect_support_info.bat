@@ -1,0 +1,85 @@
+@ECHO OFF
+::______________________________________________________________________________
+::
+:: This script collects information on the OpendTect installation setup,
+:: the data area and the system on which it is run.
+::
+:: CVS: $Id: collect_support_info.bat,v 1.1 2004-01-30 14:45:46 arend Exp $
+::______________________________________________________________________________
+::
+
+:: =============================================================================
+:: Determine temporary directory for storing output file
+:: =============================================================================
+
+if "%USERPROFILE%"=="" goto tmp
+set outfil=%USERPROFILE%\supportinfo.txt
+goto printoutfile
+
+:tmp
+if "%TMP%"=="" goto temp
+set outfil=%TMP%\supportinfo.txt
+goto printoutfile
+
+:temp
+if "%TEMP%"=="" goto notemp 
+set outfil=%TEMP%\supportinfo.txt
+goto printoutfile
+
+:notemp
+set outfil=C:\supportinfo.txt
+
+:printoutfile
+echo ===========================================================================
+echo                            OpendTect Support Info
+echo                            ----------------------
+echo. 
+echo   Collecting data. Output will be in: 
+echo. 
+echo           %outfil%
+echo. 
+echo ===========================================================================
+
+
+echo ====================================================== > "%outfil%"
+echo  OpendTect Support Info file. >> "%outfil%"
+echo ====================================================== >> "%outfil%"
+echo. >> "%outfil%"
+
+
+:: Get Current directory
+for /F "tokens=* " %%A in ('cd') do set startdir=%%A
+echo Current Directory = %startdir% >> "%outfil%"
+
+path %startdir%%startdir%\win;%startdir%\win\sys;%PATH%
+
+:: Get install dir from registry
+for /F "tokens=2* delims=	 " %%A in ('reg query "HKLM\Software\OpendTect\Base\Settings\Path"') do set DTECT_WINAPPL=%%B
+
+
+echo                       --------- >> "%outfil%"
+echo ====================================================== >> "%outfil%"
+echo  DOS/CMD Environment >> "%outfil%"
+echo ------------------------------------------------------ >> "%outfil%"
+echo                       --------- >> "%outfil%"
+set >> "%outfil%"
+
+
+echo                       --------- >> "%outfil%"
+echo ====================================================== >> "%outfil%"
+echo  Calling csh script >> "%outfil%"
+echo ------------------------------------------------------ >> "%outfil%"
+echo                       --------- >> "%outfil%"
+
+csh.exe "%startdir%\win\collect_support_info.csh" "%outfil%"
+
+unix2dos -q "%outfil%"
+
+echo ===========================================================================
+echo Done. Support Info written to:
+echo. 
+echo           %outfil%
+echo. 
+echo ===========================================================================
+
+pause
