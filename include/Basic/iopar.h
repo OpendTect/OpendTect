@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.4 2000-08-08 14:16:18 bert Exp $
+ RCS:		$Id: iopar.h,v 1.5 2000-08-08 18:25:06 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -45,6 +45,7 @@ public:
     void		mergeComp(const IOPar&,const char*);
     const char*		findKey(const char*) const;
 			// First matching, null if none
+    void		removeWithKey(const char*);
 
     const char*		operator[](const char*) const;
     bool		get(const char*,int&) const;

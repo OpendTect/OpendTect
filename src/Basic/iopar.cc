@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.5 2000-08-08 14:14:27 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.6 2000-08-08 18:25:21 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -137,6 +137,18 @@ const char* IOPar::findKey( const char* s ) const
     }
 
     return 0;
+}
+
+
+void IOPar::removeWithKey( const char* key )
+{
+    AliasObject* aob = pars_[key];
+    while ( aob )
+    {
+	pars_ -= aob;
+	delete aob->obj; delete aob;
+	aob = pars_[key];
+    }
 }
 
 
