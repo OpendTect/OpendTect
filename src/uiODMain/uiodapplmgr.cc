@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.64 2004-12-06 09:23:28 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.65 2004-12-16 16:31:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -561,11 +561,11 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     }
     else if ( evid == uiTrackingPartServer::evAddSurface )
     {
-	bool addhorizon = trackserv->isHorizon();
+	const bool addhorizon = trackserv->isHorizon();
 	const char* nm = trackserv->surfaceName();
 	MultiID mid;
-	bool success = addhorizon ? emserv->createHorizon( mid, nm )
-	    			  : emserv->createFault( mid, nm );
+	const bool success = addhorizon ? emserv->createHorizon( mid, nm )
+					: emserv->createFault( mid, nm );
 	if ( !success ) return false;
 	trackserv->setNewSurfaceID( mid );
 	int sdid = sceneMgr().addSurfaceItem( mid, sceneid, addhorizon );
@@ -580,15 +580,22 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	sd->setResolution( sd->nrResolutions()-1 );
 	sceneMgr().updateTrees();
     }
-    else if ( evid == uiTrackingPartServer::evChangeStickSet )
+    else if ( evid == uiTrackingPartServer::evSelectStickSet )
     {
-	const bool issel = trackserv->stickSetSelected();
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
 			visserv->getObject(trackserv->displayID()));
-	sd->getEditor()->selectSeedStick( issel );
+	sd->getEditor()->selectSeedStick( true );
+	sceneMgr().disabTree( sceneid, true );
+	menuMgr().enableMenuBar( false );
+	menuMgr().dtectTB()->setSensitive( false );
+	menuMgr().manTB()->setSensitive( false );
+    }
+    else if ( evid == uiTrackingPartServer::evChangeStickSet )
+    {
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
+			visserv->getObject(trackserv->displayID()));
 	sd->getEditor()->setSeedStickStyle( trackserv->lineStyle(),
 					    trackserv->markerStyle() );
-	sceneMgr().disabTree( sceneid, issel );
     }
     else if ( evid == uiTrackingPartServer::evCheckStickSet )
     {
@@ -603,7 +610,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	const int surfid = trackserv->displayID();
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
 			visserv->getObject(surfid));
-	if ( !surfid ) return false;
+	if ( !sd ) return false;
 
 	TypeSet<Coord3> stick;
 	sd->getEditor()->getSeedStick( stick );
@@ -643,6 +650,13 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     {
 	visserv->removeObject( trackserv->displayID(), sceneid );
 	sceneMgr().removeTreeItem( trackserv->displayID() );
+    }
+    else if ( evid == uiTrackingPartServer::evWizardFinished )
+    {
+	sceneMgr().disabTree( sceneid, false );
+	menuMgr().enableMenuBar( true );
+	menuMgr().dtectTB()->setSensitive( true );
+	menuMgr().manTB()->setSensitive( true );
     }
     else
 	pErrMsg("Unknown event from trackserv");
