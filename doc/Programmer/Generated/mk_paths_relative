@@ -1,0 +1,19 @@
+#!/bin/csh
+
+s/\/dsk\/d44\/dgb\/data\/dTectDoc\/Programmer\/Generated/../g
+
+foreach tf ( *.tag )
+	set dir=$tf:r
+	cd $dir
+	echo -n "$dir "
+
+	foreach fil ( *.html )
+		echo -n "."
+		sed 's/\/dsk\/d44\/dgb\/data\/dTectDoc\/Programmer\/Generated/../g' $fil > $fil.tmp
+		mv $fil.tmp $fil
+
+	end
+
+	echo ""
+	cd ..
+end
