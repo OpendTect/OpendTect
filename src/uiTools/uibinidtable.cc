@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.4 2003-03-12 16:24:11 arend Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.5 2003-09-08 13:04:29 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -69,8 +69,8 @@ void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
     for ( int idx=0; idx<nrbids; idx++ )
     {
 	const BinID bid = bids[idx];
-	table->setText( uiTable::Pos(0,idx), BufferString(bid.inl) );
-	table->setText( uiTable::Pos(1,idx), BufferString(bid.crl) );
+	table->setText( uiTable::RowCol(idx,0), BufferString(bid.inl) );
+	table->setText( uiTable::RowCol(idx,1), BufferString(bid.crl) );
     }
 }
 
@@ -81,8 +81,8 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	BinID bid(0,0);
-	BufferString inlstr = table->text(uiTable::Pos(0,idx));
-	BufferString crlstr = table->text(uiTable::Pos(1,idx));
+	BufferString inlstr = table->text(uiTable::RowCol(idx,0));
+	BufferString crlstr = table->text(uiTable::RowCol(idx,1));
 	if ( !(*inlstr) || !(*crlstr) )
 	    continue;
 	bid.inl = atoi(inlstr);
