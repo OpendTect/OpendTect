@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellman.cc,v 1.1 2003-08-27 10:19:39 bert Exp $";
+static const char* rcsID = "$Id: wellman.cc,v 1.2 2003-08-27 12:26:05 bert Exp $";
 
 #include "welldata.h"
 #include "wellman.h"
@@ -15,7 +15,36 @@ static const char* rcsID = "$Id: wellman.cc,v 1.1 2003-08-27 10:19:39 bert Exp $
 
 Well::Man* Well::Man::mgr_ = 0;
 
+
+Well::Man::~Man()
+{
+    deepErase( wells_ );
+    deepErase( keys_ );
+}
+
+
+void Well::Man::add( const MultiID& key, Well::Data* wll )
+{
+    wells_ += wll;
+    keys_ += new MultiID( key );
+}
+
+
+Well::Data* Well::Man::release( const MultiID& key )
+{
+    const int idx = indexOf( keys_, key );
+    if ( idx < 0 ) return 0;
+
+    delete keys_[idx];
+    keys_.remove( idx );
+    Well::Data* w = wells_[idx];
+    wells_.remove( idx );
+    return w;
+}
+
+
 #define mErrRet(s) { delete tr; delete wd; msg_ = s; return 0; }
+
 
 Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 {
@@ -48,10 +77,7 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
     if ( mustreplace )
 	delete wells_.replace( wd, wllidx );
     else
-    {
-	wells_ += wd;
-	keys_ += new MultiID( key );
-    }
+	add( key, wd );
 
     delete tr;
     return wd;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellman.h,v 1.1 2003-08-27 10:19:39 bert Exp $
+ RCS:		$Id: wellman.h,v 1.2 2003-08-27 12:26:05 bert Exp $
 ________________________________________________________________________
 
 
@@ -27,8 +27,14 @@ class Man
 {
 public:
 
+    			~Man();
 
     Data*		get(const MultiID&,bool force_reload=false);
+    void		add(const MultiID&,Data*);
+    			//!< Data becomes mine
+    Data*		release(const MultiID&);
+    			//!< Data becomes yours
+
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
     ObjectSet<MultiID>&	keys()			{ return keys_; }
