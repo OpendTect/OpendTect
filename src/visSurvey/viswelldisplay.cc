@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.25 2003-11-07 15:20:29 bert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.26 2004-01-05 09:45:07 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -56,7 +56,7 @@ WellDisplay::WellDisplay()
 
 WellDisplay::~WellDisplay()
 {
-    removeChild( well->getData() );
+    removeChild( well->getInventorNode() );
     well->unRef();
 
     SPM().zscalechange.remove(
@@ -68,13 +68,13 @@ void WellDisplay::setWell( visBase::Well* well_ )
 {
     if ( well )
     {
-	removeChild( well->getData() );
+	removeChild( well->getInventorNode() );
 	well->unRef();
     }
 
     well = well_;    
     well->ref();
-    addChild( well->getData() );
+    addChild( well->getInventorNode() );
 }
 
 

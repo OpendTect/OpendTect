@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.28 2003-12-11 16:30:00 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.29 2004-01-05 09:45:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class IOPar;
 
 namespace visBase
 {
-    class SceneObjectGroup;
+    class DataObjectGroup;
     class EventCatcher;
     class Transformation;
 };
@@ -95,7 +95,7 @@ protected:
     int				mousepressid;
     Coord3		        mousepressposition;
 
-    visBase::SceneObjectGroup*	group;
+    visBase::DataObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
 
     visBase::Transformation*	transformation;

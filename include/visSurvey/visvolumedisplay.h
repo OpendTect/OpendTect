@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.28 2003-11-24 10:52:04 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.29 2004-01-05 09:45:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -98,7 +98,7 @@ public:
 
     int				getVolRenId() const;
     bool			isVolRenShown() const;
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );

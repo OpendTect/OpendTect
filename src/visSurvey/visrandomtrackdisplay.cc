@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.28 2003-12-11 09:43:37 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.29 2004-01-05 09:45:06 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -554,8 +554,8 @@ visBase::Material* visSurvey::RandomTrackDisplay::getMaterial()
 { return track->getMaterial(); }
 
 
-SoNode* visSurvey::RandomTrackDisplay::getData()
-{ return track->getData(); }
+SoNode* visSurvey::RandomTrackDisplay::getInventorNode()
+{ return track->getInventorNode(); }
 
 
 void visSurvey::RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids )

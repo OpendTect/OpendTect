@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.53 2003-12-17 11:06:38 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.54 2004-01-05 09:45:07 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -93,13 +93,13 @@ void visSurvey::Scene::addUTMObject( visBase::VisualObject* obj )
 }
 
 
-void visSurvey::Scene::addInlCrlTObject( visBase::SceneObject* obj )
+void visSurvey::Scene::addInlCrlTObject( visBase::DataObject* obj )
 {
-    visBase::SceneObjectGroup::addObject( obj );
+    visBase::DataObjectGroup::addObject( obj );
 }
 
 
-void  visSurvey::Scene::addObject( visBase::SceneObject* sobj )
+void  visSurvey::Scene::addObject( visBase::DataObject* sobj )
 {
     mDynamicCastGet( SurveyObject*, survobj, sobj );
     if ( survobj && survobj->getMovementNotification() )
@@ -125,7 +125,7 @@ void  visSurvey::Scene::addObject( visBase::SceneObject* sobj )
 
 void visSurvey::Scene::removeObject( int idx )
 {
-    SceneObject* obj = getObject( idx );
+    DataObject* obj = getObject( idx );
     mDynamicCastGet( SurveyObject*, survobj, obj );
     if ( survobj && survobj->getMovementNotification() )
     {
@@ -133,7 +133,7 @@ void visSurvey::Scene::removeObject( int idx )
 		mCB( this,visSurvey::Scene,filterPicks ));
     }
 
-    SceneObjectGroup::removeObject( idx );
+    DataObjectGroup::removeObject( idx );
 }
 
 
@@ -188,7 +188,7 @@ Coord3 visSurvey::Scene::getMousePos( bool xyt ) const
 
 void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::SceneObject::fillPar( par, saveids );
+    visBase::DataObject::fillPar( par, saveids );
 
     int kid = 0;
     while ( getObject(kid++)!= zscaletransform )
@@ -239,7 +239,7 @@ int visSurvey::Scene::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 // End of old session format
 
-    res = visBase::SceneObjectGroup::usePar( par );
+    res = visBase::DataObjectGroup::usePar( par );
     if ( res!=1 ) return res;
 
     bool txtshown = true;
@@ -319,27 +319,27 @@ int visSurvey::Scene::useOldPar( const IOPar& par )
 
     for ( int idx=0; idx<displobjids.size(); idx++ )
     {
-	mDynamicCastGet( visBase::SceneObject*, so,
+	mDynamicCastGet( visBase::DataObject*, so,
 	    visBase::DM().getObj( displobjids[idx] ));
 	if ( so ) addObject( so );
     }
 
     for ( int idx=0; idx<xyzobjids.size(); idx++ )
     {
-	mDynamicCastGet( visBase::SceneObject*, so,
+	mDynamicCastGet( visBase::DataObject*, so,
 	    visBase::DM().getObj( xyzobjids[idx] ));
 	if ( so ) addObject( so );
     }
 
     for ( int idx=0; idx<xytobjids.size(); idx++ )
     {
-	mDynamicCastGet( visBase::SceneObject*, so,
+	mDynamicCastGet( visBase::DataObject*, so,
 	    visBase::DM().getObj( xytobjids[idx] ));
 	if ( so ) addObject( so );
     }
     for ( int idx=0; idx<inlcrlobjids.size(); idx++ )
     {
-	mDynamicCastGet( visBase::SceneObject*, so,
+	mDynamicCastGet( visBase::DataObject*, so,
 	    visBase::DM().getObj( inlcrlobjids[idx] ));
 	if ( so ) addObject( so );
     }
@@ -353,13 +353,13 @@ void visSurvey::Scene::setup()
     setAmbientLight( 1 );
 
     eventcatcher = visBase::EventCatcher::create();
-    visBase::SceneObjectGroup::addObject( eventcatcher );
+    visBase::DataObjectGroup::addObject( eventcatcher );
     eventcatcher->setEventType( visBase::MouseMovement );
     eventcatcher->eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
 
-    visBase::SceneObjectGroup::addObject(
+    visBase::DataObjectGroup::addObject(
 	    	const_cast<visBase::Transformation*>(zscaletransform));
-    visBase::SceneObjectGroup::addObject(
+    visBase::DataObjectGroup::addObject(
 	    const_cast<visBase::Transformation*>(inlcrl2displtransform) );
 
     annot = visBase::Annotation::create();

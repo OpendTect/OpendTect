@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.39 2003-11-24 10:52:04 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.40 2004-01-05 09:45:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -101,7 +101,7 @@ public:
     const visBase::TextureRect&	textureRect() const { return *trect; }
     visBase::TextureRect&	textureRect() { return *trect; }
 
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );

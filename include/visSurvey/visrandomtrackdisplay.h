@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.22 2003-11-24 10:52:04 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.23 2004-01-05 09:45:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -110,7 +110,7 @@ public:
     virtual float               calcDist(const Coord3&) const;
     virtual NotifierAccess*	getMovementNotification() { return &moving; }
 
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);

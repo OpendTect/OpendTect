@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.46 2003-12-11 16:29:55 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.47 2004-01-05 09:45:06 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.46 2003-12-11 16:29:55
 #include "visdataman.h"
 #include "vismarker.h"
 #include "vismaterial.h"
-#include "vissceneobjgroup.h"
+#include "visdatagroup.h"
 #include "vissurvsurf.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
@@ -35,7 +35,7 @@ const char* visSurvey::PickSetDisplay::shapestr = "Shape";
 const char* visSurvey::PickSetDisplay::sizestr = "Size";
 
 visSurvey::PickSetDisplay::PickSetDisplay()
-    : group( visBase::SceneObjectGroup::create() )
+    : group( visBase::DataObjectGroup::create() )
     , eventcatcher( visBase::EventCatcher::create() )
     , initsz(3)
     , picktype(3)
@@ -46,7 +46,7 @@ visSurvey::PickSetDisplay::PickSetDisplay()
 {
     eventcatcher->ref();
     eventcatcher->setEventType(visBase::MouseClick);
-    addChild( eventcatcher->getData() );
+    addChild( eventcatcher->getInventorNode() );
 
     eventcatcher->eventhappened.notify(
 	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
@@ -55,7 +55,7 @@ visSurvey::PickSetDisplay::PickSetDisplay()
 				updatePickSz ));
 
     group->ref();
-    addChild( group->getData() );
+    addChild( group->getInventorNode() );
     picksz = initsz;
 }
 
@@ -65,9 +65,9 @@ visSurvey::PickSetDisplay::~PickSetDisplay()
 
     eventcatcher->eventhappened.remove(
 	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
-    removeChild( eventcatcher->getData() );
+    removeChild( eventcatcher->getInventorNode() );
     eventcatcher->unRef();
-    removeChild( group->getData() );
+    removeChild( group->getInventorNode() );
     group->unRef();
 
     SPM().zscalechange.remove(	mCB( this, visSurvey::PickSetDisplay,
@@ -365,7 +365,7 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
 
     for ( int idx=0; idx<nrpicks; idx++ )
     {
-	const SceneObject* so = group->getObject( idx );
+	const DataObject* so = group->getObject( idx );
         mDynamicCastGet(const visBase::Marker*, marker, so );
 	BufferString key = pickprefixstr; key += idx;
 	Coord3 pos = marker->centerPos();
@@ -442,7 +442,7 @@ int visSurvey::PickSetDisplay::useOldPar( const IOPar& par )
     visBase::DataObject* dataobj = visBase::DM().getObj( grpid );
     if ( !dataobj ) return 0;
 
-    mDynamicCastGet( visBase::SceneObjectGroup*, sogrp, dataobj );
+    mDynamicCastGet( visBase::DataObjectGroup*, sogrp, dataobj );
     if ( !sogrp ) return -1;
 
     for ( int idx=0; idx<sogrp->size(); idx++ )

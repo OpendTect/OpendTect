@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.43 2003-12-11 09:43:37 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.44 2004-01-05 09:45:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -435,8 +435,8 @@ int visSurvey::VolumeDisplay::getVolRenId() const
 { return cube->getVolRenId(); }
 
 
-SoNode* visSurvey::VolumeDisplay::getData() 
-{ return cube->getData(); }
+SoNode* visSurvey::VolumeDisplay::getInventorNode() 
+{ return cube->getInventorNode(); }
 
 
 bool visSurvey::VolumeDisplay::isVolRenShown() const

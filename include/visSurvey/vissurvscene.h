@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.28 2003-11-24 10:52:04 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.29 2004-01-05 09:45:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -62,7 +62,7 @@ public:
     static Scene*		create()
 				mCreateDataObj(Scene);
 
-    virtual void		addObject( visBase::SceneObject* );
+    virtual void		addObject( visBase::DataObject* );
     				/*!< If the object is a visSurvey::SurveyObject
 				     it will ask if it's an inlcrl-object or
 				     not. If it's not an
@@ -70,7 +70,7 @@ public:
 				     displaydomain
 				*/
     void			addUTMObject( visBase::VisualObject* );
-    void			addInlCrlTObject( visBase::SceneObject* );
+    void			addInlCrlTObject( visBase::DataObject* );
 
     virtual void		removeObject( int idx );
 

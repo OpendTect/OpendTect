@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.106 2003-12-17 11:05:42 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.107 2004-01-05 09:46:12 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class BufferStringSet;
 
 namespace visBase
 {
-    class SceneObject;
+    class DataObject;
 };
 
 namespace visSurvey
@@ -59,13 +59,13 @@ public:
     int				addScene();
     void			removeScene(int);
 
-    void			shareObject(int sceneid,int id);
+    void			shareObject( int sceneid, int id );
 
     void			findObject( const type_info&, TypeSet<int>& );
-    visBase::SceneObject*	getObject( int id );
-    void			addObject( visBase::SceneObject*, int sceneid,
+    visBase::DataObject*	getObject( int id );
+    void			addObject( visBase::DataObject*, int sceneid,
 					   bool saveinsessions  );
-    void			removeObject( visBase::SceneObject*,
+    void			removeObject( visBase::DataObject*,
 	    				      int sceneid );
     void			removeObject(int id,int sceneid);
 

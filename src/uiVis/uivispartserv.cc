@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.184 2003-12-29 08:38:41 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.185 2004-01-05 09:46:30 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     visSurvey::Scene* scene = getScene( sceneid );
     if ( !scene ) return;
 
-    mDynamicCastGet(visBase::SceneObject*, so, visBase::DM().getObj( id ) )
+    mDynamicCastGet(visBase::DataObject*, so, visBase::DM().getObj( id ) )
     if ( !so ) return;
 
     scene->addObject( so );
@@ -164,14 +164,14 @@ void uiVisPartServer::findObject( const type_info& ti, TypeSet<int>& res )
 }
 
 
-visBase::SceneObject* uiVisPartServer::getObject( int id )
+visBase::DataObject* uiVisPartServer::getObject( int id )
 {
-    mDynamicCastGet(visBase::SceneObject*, so, visBase::DM().getObj(id) );
+    mDynamicCastGet(visBase::DataObject*, so, visBase::DM().getObj(id) );
     return so;
 }
 
 
-void uiVisPartServer::addObject( visBase::SceneObject* so, int sceneid,
+void uiVisPartServer::addObject( visBase::DataObject* so, int sceneid,
 			         bool saveinsessions  )
 {
     mDynamicCastGet(visSurvey::Scene*, scene, visBase::DM().getObj(sceneid) );
@@ -180,7 +180,7 @@ void uiVisPartServer::addObject( visBase::SceneObject* so, int sceneid,
 }
 
 
-void uiVisPartServer::removeObject( visBase::SceneObject* so, int sceneid )
+void uiVisPartServer::removeObject( visBase::DataObject* so, int sceneid )
 {
     removeObject( so->id(), sceneid );
 }
@@ -959,7 +959,7 @@ void uiVisPartServer::toggleDraggers()
 
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
-	    visBase::SceneObject* obj = scene->getObject( objidx );
+	    visBase::DataObject* obj = scene->getObject( objidx );
 	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode;
 
 	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
