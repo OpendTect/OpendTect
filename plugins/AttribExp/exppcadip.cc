@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: exppcadip.cc,v 1.4 2003-03-24 15:25:26 nanne Exp $";
+static const char* rcsID = "$Id: exppcadip.cc,v 1.5 2003-04-16 10:42:34 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -310,7 +310,6 @@ int PCADipAttrib::Task::nextStep()
     ArrPtrMan<int>	timepos = new int[maxnrsamples];
 
     int pos = 0;
-    float curt = t1;
     for ( int idt=sg.start; idt<=sg.stop; idt++ )
     {
 	for ( int idi=-stepout.inl; idi<=stepout.inl; idi++ )
@@ -346,6 +345,7 @@ int PCADipAttrib::Task::nextStep()
 
     for ( int idx=0; idx<nrtimes; idx++ )
     {
+	const float curt = t1 + idx*step;
 	pos = 0;
         for ( int idt=sg.start; idt<=sg.stop; idt++ )
         {
@@ -406,8 +406,6 @@ int PCADipAttrib::Task::nextStep()
 
 	if ( inldips ) inldips[idx] = inldip;
 	if ( crldips ) crldips[idx] = crldip;
-
-	curt += step;
     }
 
     return 0;

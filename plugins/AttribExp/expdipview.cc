@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdipview.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
+static const char* rcsID = "$Id: expdipview.cc,v 1.3 2003-04-16 10:42:34 nanne Exp $";
 
 
 #include "expdipview.h"
@@ -82,10 +82,9 @@ int DipViewAttrib::Task::nextStep()
 
     BinID aspect = calculator.aspect;
 
-    float curt = t1;
-
     for ( int idx=0; idx<nrtimes; idx++ )
     {
+	const float curt = t1 + idx*step;
 	float inldipval = inldip->getValue(curt,inlattrib) / M_360_2_PI;
 	float crldipval = crldip->getValue(curt,crlattrib) / M_360_2_PI;
 
@@ -122,8 +121,6 @@ int DipViewAttrib::Task::nextStep()
 	float val = 1 - (a3*a4+b3*b4+c3*c4)/ sqrt( (a3*a3+b3*b3+c3*c3) *
 					  (a4*a4+b4*b4+c4*c4 ));	
 	outp[idx] = val > 0 ? val : 0;
-
-	curt += step;
     }
 
     return 0;

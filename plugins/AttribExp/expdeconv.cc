@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdeconv.cc,v 1.3 2003-03-24 15:25:25 nanne Exp $";
+static const char* rcsID = "$Id: expdeconv.cc,v 1.4 2003-04-16 10:42:34 nanne Exp $";
 
 #define mEPSILON 1E-9
 
@@ -222,10 +222,9 @@ int DeConvolveAttrib::Task::nextStep()
     const int inldipattrib = inp->inldipattrib;
     const int crldipattrib = inp->crldipattrib;
 
-    float curt=t1;
-
     for ( int pos=0; pos<nrtimes; pos++ )
     {
+	const float curt = t1+pos*step;
 	for ( int idx=-neighbourhood.inl; idx<=neighbourhood.inl; idx++ )
 	{
 	    for ( int idy=-neighbourhood.crl; idy<=neighbourhood.crl; idy++ )
@@ -333,7 +332,6 @@ int DeConvolveAttrib::Task::nextStep()
 	    out1[pos] = spectrumoutput->get(midpos).real();
 	}
 
-	curt += step;
     }
     
     return 0;

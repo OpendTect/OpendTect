@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expnearsubtract.cc,v 1.3 2003-03-24 15:25:26 nanne Exp $";
+static const char* rcsID = "$Id: expnearsubtract.cc,v 1.4 2003-04-16 10:42:34 nanne Exp $";
 
 #include "expnearsubtract.h"
 #include "attribprovider.h"
@@ -122,10 +122,9 @@ int NearSubtractAttrib::Task::nextStep()
     bool usedip = calculator.usedip;
     bool relampl = calculator.relampl;
 
-    float curt = t1;
-
     for ( int idx=0; idx<nrtimes; idx++ )
     {
+	const float curt = t1 + idx*step;
 	float t2 = curt;
 
 	if ( usedip )
@@ -146,8 +145,6 @@ int NearSubtractAttrib::Task::nextStep()
 	}
 	else
 	    outp[idx] = diff;
-
-	curt += step;
     }
 
     return 0;
