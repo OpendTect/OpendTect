@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.42 2004-01-29 10:14:28 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.43 2004-04-27 11:59:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -85,8 +85,7 @@ public:
     bool			isOn() const;
 
     void			setColorSelSpec(const ColorAttribSel&);
-    ColorAttribSel&		getColorSelSpec();
-    const ColorAttribSel&	getColorSelSpec() const;
+    const ColorAttribSel*	getColorSelSpec() const;
 
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
@@ -114,7 +113,7 @@ public:
     int				getResolution() const;
     int				getNrResolutions() const;
 
-    const TypeSet<float>&	getHistogram() const;
+    const TypeSet<float>*	getHistogram() const;
 
 protected:
 				~PlaneDataDisplay();

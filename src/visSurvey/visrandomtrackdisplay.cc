@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.29 2004-01-05 09:45:06 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.30 2004-04-27 11:59:32 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -91,8 +91,8 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     
     track->setDraggerSize( Coord3( baselen/50, baselen/50,
 	    			   survinterval.width()/50 ));
-    showDragger(true);
-    showDragger(false);
+    showManipulator(true);
+    showManipulator(false);
 }
 
 
@@ -130,28 +130,12 @@ void visSurvey::RandomTrackDisplay::setRandomTrack( visBase::RandomTrack* rt )
 }
 
 
-AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec()
-{ return as; }
-
-
-const AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec() const
-{ return as; }
-
-
-void visSurvey::RandomTrackDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
+void visSurvey::RandomTrackDisplay::setSelSpec( const AttribSelSpec& as_ )
 {
     as = as_;
     track->useTexture( false );
     setName( as.userRef() );
 }
-
-
-ColorAttribSel& visSurvey::RandomTrackDisplay::getColorSelSpec()
-{ return colas; }
-
-
-const ColorAttribSel& visSurvey::RandomTrackDisplay::getColorSelSpec() const
-{ return colas; }
 
 
 void visSurvey::RandomTrackDisplay::setColorSelSpec( const ColorAttribSel& as_ )
@@ -166,15 +150,8 @@ void visSurvey::RandomTrackDisplay::setDepthInterval(
 }
 
 
-const Interval<float> visSurvey::RandomTrackDisplay::getDepthInterval() const
-{ return track->getDepthInterval(); }
-
-
-const Interval<float>
-visSurvey::RandomTrackDisplay::getManipDepthInterval() const
-{
-    return track->getDraggerDepthInterval();
-}
+Interval<float> visSurvey::RandomTrackDisplay::getDataTraceRange() const
+{ return track->getDraggerDepthInterval(); }
 
 
 int visSurvey::RandomTrackDisplay::nrKnots() const
@@ -221,7 +198,7 @@ BinID visSurvey::RandomTrackDisplay::getManipKnotPos( int knotidx ) const
 }
 
 
-void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& bidset )
+void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& bidset ) const
 {
     const int nrknots = track->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
@@ -269,15 +246,16 @@ void visSurvey::RandomTrackDisplay::removeAllKnots()
     }
 
 
-void visSurvey::RandomTrackDisplay::getDataPositions( TypeSet<BinID>& bids )
+void visSurvey::RandomTrackDisplay::getDataTraceBids(
+				    TypeSet<BinID>& bids ) const
 {
-    deepErase( bidsset );
+    deepErase( const_cast<RandomTrackDisplay*>(this)->bidsset );
     TypeSet<BinID> bidset;
     getAllKnotPos( bidset );
     for ( int idx=1; idx<bidset.size(); idx++ )
     {
 	TypeSet<BinID>* bset = new TypeSet<BinID>;
-	bidsset += bset;
+	const_cast<RandomTrackDisplay*>(this)->bidsset += bset;
 	BinID start = bidset[idx-1];
 	BinID stop = bidset[idx];
 	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlWorkStep() + 1);
@@ -292,19 +270,19 @@ void visSurvey::RandomTrackDisplay::getDataPositions( TypeSet<BinID>& bids )
 }
 
 
-bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>* trcset,
-					        bool colordata )
+void visSurvey::RandomTrackDisplay::setTraceData( bool colordata,
+						  ObjectSet<SeisTrc>* trcset )
 {
     if ( !trcset )
     {
 	const int nrsections = bidsset.size();
 	for ( int snr=0; snr<nrsections; snr++ )
 	    track->setData(snr,0,0);
-	return true;
+	return;
     }
     
     const int nrtrcs = trcset->size();
-    if ( !nrtrcs ) return false;
+    if ( !nrtrcs ) return;
 
     if ( colordata )
     {
@@ -318,20 +296,19 @@ bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>* trcset,
     {
 	deepErase( colcache );
 	colcache = *trcset;
-	return true;
+	return;
     }
 
     deepErase( cache );
     cache = *trcset;
     ismanip = false;
-    return true;
 }
 
 
 void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset,
 					     int datatype )
 {
-    const Interval<float> zrg = getManipDepthInterval();
+    const Interval<float> zrg = getDataTraceRange();
     const float step = trcset[0]->info().sampling.step;
     const int nrsamp = mNINT( zrg.width() / step ) + 1;
 
@@ -395,17 +372,24 @@ bool visSurvey::RandomTrackDisplay::isManipulated() const
 }
 
  
-void visSurvey::RandomTrackDisplay::acceptManip()
+void visSurvey::RandomTrackDisplay::acceptManipulation()
 {
     track->moveObjectToDraggerPos();
 }
 
 
-void visSurvey::RandomTrackDisplay::showDragger( bool yn )
+void visSurvey::RandomTrackDisplay::resetManipulation()
+{
+    track->moveDraggerToObjectPos();
+    ismanip = false;
+}
+
+
+void visSurvey::RandomTrackDisplay::showManipulator( bool yn )
 { track->showDragger( yn ); }
 
 
-bool visSurvey::RandomTrackDisplay::isDraggerShown() const
+bool visSurvey::RandomTrackDisplay::isManipulatorShown() const
 { return track->isDraggerShown(); }
  
 
@@ -429,8 +413,8 @@ const visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab() const
 { return track->getColorTab(); }
 
 
-const TypeSet<float>& visSurvey::RandomTrackDisplay::getHistogram() const
-{ return track->getHistogram(); }
+const TypeSet<float>* visSurvey::RandomTrackDisplay::getHistogram() const
+{ return &track->getHistogram(); }
 
 
 void visSurvey::RandomTrackDisplay::rightClicked( CallBacker* )
@@ -455,7 +439,7 @@ void visSurvey::RandomTrackDisplay::knotNrChanged( CallBacker* )
 	return;
 
     TypeSet<BinID> bids;
-    getDataPositions( bids );
+    getDataTraceBids( bids );
     setData( cache );
 }
 
@@ -484,21 +468,22 @@ int visSurvey::RandomTrackDisplay::getResolution() const
 }
 
 
-const char* visSurvey::RandomTrackDisplay::getResName( int res ) const
+BufferString visSurvey::RandomTrackDisplay::getResolutionName( int res ) const
 {
+    const char* name;
     if ( res == 1 ) 
-	return "Moderate";
+	name = "Moderate";
     else if ( res == 2 ) 
-	return "High";
+	name = "High";
     else 
-	return "Default";
+	name = "Default";
+
+    return BufferString(name);
 }
 
 
-int visSurvey::RandomTrackDisplay::getNrResolutions() const
-{
-    return 3;
-}
+int visSurvey::RandomTrackDisplay::nrResolutions() const
+{ return 3; }
 
 
 int visSurvey::RandomTrackDisplay::getSectionIdx() const
@@ -566,7 +551,7 @@ void visSurvey::RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids )
     int trackid = track->id();
     par.set( trackstr, trackid );
 
-    const Interval<float> depthrg = getDepthInterval();
+    const Interval<float> depthrg = track->getDepthInterval();
     par.set( depthintvstr, depthrg.start, depthrg.stop );
 
     int nrknots = nrKnots();
@@ -644,7 +629,7 @@ int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
     if ( !as.usePar(par) ) return -1;
     colas.usePar( par );
 
-    showDragger(true);
-    showDragger(false);
+    showManipulator(true);
+    showManipulator(false);
     return 1;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.30 2004-01-09 16:27:17 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.31 2004-04-27 11:59:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -77,8 +77,7 @@ public:
     const AttribSliceSet*	getCachedData(bool) const;
     float			getValue(const Coord3&) const;
 
-    ColorAttribSel&		getColorSelSpec();
-    const ColorAttribSel&	getColorSelSpec() const;
+    const ColorAttribSel*	getColorSelSpec() const;
     void			setColorSelSpec(const ColorAttribSel&);
 
     void			turnOn(bool);
@@ -87,7 +86,7 @@ public:
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
     const visBase::VisColorTab&	getColorTab() const;
-    const TypeSet<float>& 	getHistogram() const;
+    const TypeSet<float>* 	getHistogram() const;
 
     void                        setMaterial( visBase::Material* );
     				/*!< Does not affect the volren */

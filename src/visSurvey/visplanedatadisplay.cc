@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.61 2004-02-23 12:16:12 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.62 2004-04-27 11:59:32 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -321,11 +321,9 @@ void PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 }
 
 
-ColorAttribSel& PlaneDataDisplay::getColorSelSpec()
-{ return colas; }
+const ColorAttribSel* PlaneDataDisplay::getColorSelSpec() const
+{ return &colas; }
 
-const ColorAttribSel& PlaneDataDisplay::getColorSelSpec() const
-{ return colas; }
 
 void PlaneDataDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 { colas = as_; }
@@ -573,9 +571,9 @@ int PlaneDataDisplay::getNrResolutions() const
 }
 
 
-const TypeSet<float>& PlaneDataDisplay::getHistogram() const
+const TypeSet<float>* PlaneDataDisplay::getHistogram() const
 {
-    return trect->getHistogram();
+    return &trect->getHistogram();
 }
 
 

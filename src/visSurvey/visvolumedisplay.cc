@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.45 2004-01-09 16:27:08 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.46 2004-04-27 11:59:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,12 +182,8 @@ void VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 }
 
 
-ColorAttribSel& VolumeDisplay::getColorSelSpec()
-{ return colas; }
-
-
-const ColorAttribSel& VolumeDisplay::getColorSelSpec() const
-{ return colas; }
+const ColorAttribSel* VolumeDisplay::getColorSelSpec() const
+{ return &colas; }
 
 
 void VolumeDisplay::setColorSelSpec( const ColorAttribSel& as_ )
@@ -417,8 +413,8 @@ visBase::VisColorTab& VolumeDisplay::getColorTab()
 { return cube->getViewerColorTab(); }
 
 
-const TypeSet<float>& VolumeDisplay::getHistogram() const
-{ return cube->getHistogram(); }
+const TypeSet<float>* VolumeDisplay::getHistogram() const
+{ return &cube->getHistogram(); }
 
 
 void VolumeDisplay::setMaterial( visBase::Material* nm)

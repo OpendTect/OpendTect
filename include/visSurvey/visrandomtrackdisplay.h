@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.23 2004-01-05 09:45:08 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.24 2004-04-27 11:59:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,22 +46,36 @@ class RandomTrackDisplay :  public visBase::VisualObject,
 			  public visSurvey::SurveyObject
 {
 public:
-    bool			isInlCrl() const { return true; }
-
     static RandomTrackDisplay*	create()
 				mCreateDataObj(RandomTrackDisplay);
 
-    void			setAttribSelSpec(const AttribSelSpec&);
-    AttribSelSpec&		getAttribSelSpec();
-    const AttribSelSpec&	getAttribSelSpec() const;
+    bool			isInlCrl() const { return true; }
 
-    ColorAttribSel&             getColorSelSpec();
-    const ColorAttribSel&       getColorSelSpec() const;
+    void			showManipulator(bool yn);
+    bool			isManipulatorShown() const;
+    bool			isManipulated() const;
+    bool			canResetManipulation() const { return true; }
+    void			resetManipulation();
+    void			acceptManipulation();
+
+    int                		nrResolutions() const; 
+    BufferString		getResolutionName(int) const;
+    int				getResolution() const;
+    void			setResolution(int);
+
+    bool			hasMaterial() const { return true; }
+
+    int				getAttributeFormat() const { return 1; }
+    bool			hasColorAttribute() const { return true; }
+    const AttribSelSpec*	getSelSpec() const { return &as; }
+    const ColorAttribSel*	getColorSelSpec() const { return &colas; }
+    void			setSelSpec( const AttribSelSpec& );
     void                        setColorSelSpec(const ColorAttribSel&);
 
-    void			setDepthInterval(const Interval<float>&);
-    const Interval<float>	getDepthInterval() const;
-    const Interval<float>	getManipDepthInterval() const;
+    void			getDataTraceBids(TypeSet<BinID>&) const;
+    Interval<float>		getDataTraceRange() const;
+    void			setTraceData( bool color,
+	    				      ObjectSet<SeisTrc>* trcs);
     
     int				nrKnots() const;
     void			addKnot(const BinID&);
@@ -70,34 +84,23 @@ public:
     void			setKnotPos(int,const BinID&);
     BinID			getKnotPos(int) const;
     BinID			getManipKnotPos(int) const;
-    void			getAllKnotPos(TypeSet<BinID>&);
+    void			getAllKnotPos(TypeSet<BinID>&) const;
     void			removeKnot(int);
     void			removeAllKnots();
-    bool			isManipulated() const;
-    void			acceptManip();
 
-    void			getDataPositions(TypeSet<BinID>&);
-    bool			putNewData(ObjectSet<SeisTrc>*,bool);
     float			getValue(const Coord3&) const;
 
-    void			showDragger(bool);
-    bool			isDraggerShown() const;
     void			turnOn(bool);
     bool			isOn() const;
 
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
     const visBase::VisColorTab&	getColorTab() const;
-    const TypeSet<float>&	getHistogram() const;
+    const TypeSet<float>*	getHistogram() const;
 
     void                        setMaterial( visBase::Material* );
     const visBase::Material*    getMaterial() const;
     visBase::Material*          getMaterial();
-
-    void			setResolution(int);
-    int				getResolution() const;
-    const char*			getResName(int) const;
-    int				getNrResolutions() const;
 
     int				getSectionIdx() const;
     BinID			getClickedPos() const;
@@ -117,6 +120,7 @@ public:
 
 protected:
 				~RandomTrackDisplay();
+    void			setDepthInterval(const Interval<float>&);
 
     void			setRandomTrack(visBase::RandomTrack*);
 
