@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.4 2005-01-20 08:45:05 kristofer Exp $
+ RCS:           $Id: mpeengine.h,v 1.5 2005-03-09 16:39:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,14 +17,13 @@ ________________________________________________________________________
 #include "color.h"
 #include "cubesampling.h"
 #include "emposid.h"
-#include "sets.h"
 #include "trackplane.h"
 
 class AttribSelSpec;
 class AttribSliceSet;
+class BufferStringSet;
 class CubeSampling;
 class MultiID;
-class BufferStringSet;
 
 namespace EM { class EMObject; };
 namespace Geometry { class Element; };
@@ -41,61 +40,63 @@ class ObjectEditor;
 class Engine : public CallBackClass
 {
 public:
-    			Engine();
-    virtual		~Engine();
+    				Engine();
+    virtual			~Engine();
 
-    const CubeSampling&	activeVolume() const;
-    void		setActiveVolume(const CubeSampling&);
-    static CubeSampling	getDefaultActiveVolume();
-    Notifier<Engine>	activevolumechange;
+    const CubeSampling&		activeVolume() const;
+    void			setActiveVolume(const CubeSampling&);
+    static CubeSampling		getDefaultActiveVolume();
+    Notifier<Engine>		activevolumechange;
 
-    const TrackPlane&	trackPlane() const;
-    bool		setTrackPlane( const TrackPlane&, bool track );
-    Notifier<Engine>	trackplanechange;
+    const TrackPlane&		trackPlane() const;
+    bool			setTrackPlane(const TrackPlane&,bool track);
+    Notifier<Engine>		trackplanechange;
 
-    ObjectSet<Geometry::Element>	interactionseeds;
-    Color				seedcolor;
-    int					seedsize;
-    Notifier<Engine>			seedpropertychange;
+    ObjectSet<Geometry::Element> interactionseeds;
+    Color			seedcolor;
+    int				seedsize;
+    Notifier<Engine>		seedpropertychange;
 
-    bool		trackAtCurrentPlane();
+    bool			trackAtCurrentPlane();
 
-    void		getAvaliableTrackerTypes(BufferStringSet&)const;
+    void			getAvaliableTrackerTypes(BufferStringSet&)const;
 
-    int			highestTrackerID() const;
-    const EMTracker*	getTracker( int idx ) const;
-    EMTracker*		getTracker( int idx );
-    int			getTrackerByObject( const EM::ObjectID& ) const;
-    int			getTrackerByObject( const char* ) const;
-    int			addTracker( EM::EMObject* );
-    int			addTracker( const char* objectname,
-				    const char* trackername);
-    void		removeTracker( int idx );
+    int				highestTrackerID() const;
+    const EMTracker*		getTracker(int idx) const;
+    EMTracker*			getTracker(int idx);
+    int				getTrackerByObject(const EM::ObjectID&) const;
+    int				getTrackerByObject(const char*) const;
+    int				addTracker(EM::EMObject*);
+    int				addTracker(const char* objectname,
+					   const char* trackername);
+    void			removeTracker(int idx);
 
-    			/*Attribute stuff */
-    void		getNeededAttribs(ObjectSet<const AttribSelSpec>&) const;
-    CubeSampling	getAttribCube(const AttribSelSpec&) const;
-    const AttribSliceSet* getAttribCache( const AttribSelSpec& ) const;
-    bool		setAttribData(const AttribSelSpec&, AttribSliceSet*);
+    				/*Attribute stuff */
+    void			getNeededAttribs(
+	    				ObjectSet<const AttribSelSpec>&) const;
+    CubeSampling		getAttribCube(const AttribSelSpec&) const;
+    const AttribSliceSet*	getAttribCache(const AttribSelSpec&) const;
+    bool			setAttribData(const AttribSelSpec&,
+	    				      AttribSliceSet*);
 
-    			/*Editors */
-    ObjectEditor*	getEditor( const EM::ObjectID&, bool create );
+    				/*Editors */
+    ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
 
-    			/*Factories */
-    void		addTrackerFactory( TrackerFactory* );
-    void		addEditorFactory( EditorFactory* );
+    				/*Factories */
+    void			addTrackerFactory(TrackerFactory*);
+    void			addEditorFactory(EditorFactory*);
 
-    const char*		errMsg() const;
+    const char*			errMsg() const;
 
-    void		fillPar( IOPar& ) const {}
-    bool		usePar( const IOPar& ) { return true; }
+    void			fillPar(IOPar&) const		{}
+    bool			usePar(const IOPar&)		{ return true; }
 
 protected:
-    int			getFreeID();
-    BufferString	errmsg;
+    int				getFreeID();
+    BufferString		errmsg;
 
-    CubeSampling	activevolume;
-    TrackPlane		trackplane;
+    CubeSampling		activevolume;
+    TrackPlane			trackplane;
 
     ObjectSet<EMTracker>	trackers;
     ObjectSet<ObjectEditor>	editors;
