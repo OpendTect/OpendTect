@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.2 2005-01-10 15:27:03 kristofer Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.3 2005-01-11 08:36:43 kristofer Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -273,7 +273,14 @@ bool CubicBezierCurve::isCircular() const
 bool CubicBezierCurve::setCircular(bool yn)
 {
     if ( positions.size()<3 ) return false;
-    iscircular=yn;
+    if ( iscircular!=yn )
+    {
+	iscircular=yn;
+	TypeSet<GeomPosID> affectedpids;
+	affectedpids += firstparam;
+	affectedpids += firstparam + (positions.size()-1)*paramstep;
+	triggerMovement( affectedpids );
+    }
 
     return true;
 }
@@ -289,10 +296,17 @@ Coord3 CubicBezierCurve::computeDirection( GeomPosID param ) const
     }
 
     int idx0 = idx-1, idx1 = idx+1;
+    int diff = 2;
     if ( !idx )
+    {
 	idx0 = isCircular() ? positions.size()-1 : 0;
+	diff--;
+    }
     else if ( idx==positions.size()-1 )
+    {
 	idx1 = isCircular() ? 0 : positions.size()-1;
+	diff--;
+    }
    
     const Coord3& c0 = positions[idx0];
     const Coord3& c1 = positions[idx1];
@@ -300,7 +314,7 @@ Coord3 CubicBezierCurve::computeDirection( GeomPosID param ) const
     if ( c0.distance(c1)<mEPS )
 	return Coord3::udf();
 
-    return (c1-c0)/(idx1-idx0)*directioninfluence;
+    return (c1-c0)/(diff)*directioninfluence;
 }
 
 
