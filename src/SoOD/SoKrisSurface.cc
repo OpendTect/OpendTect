@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.7 2005-03-10 15:10:39 cvskris Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.8 2005-03-10 15:11:15 cvskris Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -176,7 +176,8 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
     for ( int rowidx=0; rowidx<sidesize; rowidx++ )
     {
 	const int row = rowidx+rowstart;
-	if ( row>= nrrows )
+	const int nextrow = row+1;
+	if ( nextrow>=nrrows )
 	    return;
 
 	const int currowstart = row*nrcols+colstart;
@@ -366,7 +367,7 @@ void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
 	    isopen = true;
 	}
 
-	mb.send(miptr&&index<nmi?miptr[index]:0,true);
+	mb.send(miptr?(index<nmi?miptr[index]:miptr[nmi-1]):0,true);
 	glNormal3fv(normals[ni[idx]].getValue());
 #if __debug__
 	if ( index>=nc )
