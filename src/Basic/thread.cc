@@ -4,9 +4,10 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.5 2002-04-15 12:08:12 kristofer Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.6 2002-08-26 13:03:37 bert Exp $";
 
 #include "thread.h"
+#include "callback.h"
 
 Threads::Mutex::Mutex()
 {
@@ -77,10 +78,30 @@ int Threads::ConditionVar::signal(bool all)
 }
 
 
-Threads::Thread::Thread(void (func)(void*), void* data )
+Threads::Thread::Thread( void (func)(void*), void* data )
+    	: id(0)
 {
 #ifdef __pthread__
     pthread_create( &id, 0, (void* (*)(void*)) func, data );
+#endif
+}
+
+
+static void* thread_exec_fn( void* obj )
+{
+    CallBack* cbptr = reinterpret_cast<CallBack*>( obj );
+    cbptr->doCall( 0 );
+    return 0;
+}
+
+
+Threads::Thread::Thread( const CallBack& cb )
+    	: id(0)
+{
+    if ( !cb.willCall() ) return;
+    static CallBack lcb( cb );
+#ifdef __pthread__
+    pthread_create( &id, 0, thread_exec_fn, &lcb );
 #endif
 }
 
@@ -105,5 +126,3 @@ void Threads::Thread::threadExit( void* rv )
     pthread_exit( rv );
 #endif
 }
-
-
