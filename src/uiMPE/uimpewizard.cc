@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.5 2005-04-05 06:41:45 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.6 2005-04-05 06:59:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ uiGroup* Wizard::createPage2()
 
     linewidthbox = new uiLabeledSpinBox( grp, "Line width" );
     linewidthbox->attach( rightTo, markerszbox );
+    linewidthbox->box()->setInterval(1,10,1);
     linewidthbox->box()->setValue( MPE::engine().seedlinewidth );
     linewidthbox->box()->valueChanged.notify( mCB(this,Wizard,stickSetChange) );
 
