@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.22 2002-05-07 07:11:15 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.23 2002-05-08 07:58:13 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -44,6 +44,7 @@ public:
     float		scale( int dim ) const;
 
     void		setDraggerSize( float w, float h, float d );
+    Geometry::Pos	getDraggerSize() const;
 
     Notifier<RectangleDragger>	started;
     Notifier<RectangleDragger>	motion;
@@ -111,6 +112,7 @@ public:
 
     void		displayDraggers(bool);
     void		setDraggerSize( float w, float h, float d );
+    Geometry::Pos	getDraggerSize() const;
 
 
     void		moveObjectToManipRect();
