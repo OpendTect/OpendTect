@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.5 2003-04-24 09:15:27 bert Exp $
+ RCS:		$Id: prog.h,v 1.6 2003-08-20 10:09:20 bert Exp $
 ________________________________________________________________________
 
 @$*/
 
-#include <gendefs.h>
+#include <plugins.h>
 
 #ifdef __cpp__
 
