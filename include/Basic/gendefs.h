@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.9 2001-05-04 10:08:51 windev Exp $
+ RCS:		$Id: gendefs.h,v 1.10 2001-05-10 07:43:30 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ ________________________________________________________________________
 #define mUndefValue		1e30
 #define mIsUndefined(x)		(((x)>9.99999e29)&&((x)<1.00001e30))
 #define sUndefValue		"1e30"
+#define mUndefIntVal		2109876543
 
 #define sMinimumKey		"Minimum"
 #define sMaximumKey		"Maximum"
@@ -57,7 +58,8 @@ ________________________________________________________________________
 
 #ifdef __msvc__
   // warning C4355: 'this' : used in base member initializer list
-# pragma warning( disable : 4355 )
+  // warning C4003: not enough actual parameters for macro 
+# pragma warning( disable : 4355 4003 )
 
 # define for 				if(0);else for
 # define mPolyRet(base,clss)		base
