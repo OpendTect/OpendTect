@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.9 2002-04-26 13:00:08 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.10 2002-04-29 09:01:38 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -22,14 +22,15 @@ visBase::Scene::Scene()
     : SceneObjectGroup( true )
     , selroot( new SoGroup )
     , environment( new SoEnvironment )
-    , mouseevents( *EventCatcher::create( visBase::MouseClick) )
+    , mouseevents( *EventCatcher::create() )
     , mousedownid( -1 )
 {
+
     selroot->ref();
     selroot->addChild( environment );
     selroot->addChild( SceneObjectGroup::getData() );
     selroot->addChild( mouseevents.getData() );
-
+    mouseevents.setEventType( visBase::MouseClick );
     mouseevents.eventhappened.notify( mCB( this, visBase::Scene, mousePickCB ));
 }
 
