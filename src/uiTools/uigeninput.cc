@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.51 2003-04-23 08:13:56 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.52 2003-04-23 15:07:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -641,7 +641,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     , elemszpol( uiObject::undef )
 { 
     inputs += new StringInpSpec( inputStr ); 
-    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt
@@ -656,7 +656,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
-    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -673,7 +673,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
-    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -692,7 +692,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     inputs += inp1.clone();
     inputs += inp2.clone();
     inputs += inp3.clone();
-    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 uiGenInput::~uiGenInput()
@@ -706,7 +706,7 @@ uiGenInput::~uiGenInput()
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
     inputs += inp.clone();
-    mainObject()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+    mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -786,13 +786,21 @@ void uiGenInput::setReadOnly( bool yn, int nr )
 	flds[idx]->setReadOnly( yn );
 }
 
-void uiGenInput::setFldsSensible( bool yn, int nr )
-{
-    if ( nr >= 0  )
-        { if ( nr<flds.size() && flds[nr] ) flds[nr]->setSensitive(yn); return;}
 
-    for( int idx=0; idx < flds.size(); idx++ )
-        flds[idx]->setSensitive( yn );
+void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
+{
+    if ( elemnr < 0 && fldnr < 0 )
+    {
+	uiGroup::setSensitive( yn );
+	return;
+    }
+
+    for ( int idx=0; idx<flds.size(); idx++ )
+    {
+	if ( fldnr >= 0 && fldnr != idx ) continue;
+
+	flds[idx]->setSensitive( yn, elemnr );
+    }
 }
 
 
@@ -895,7 +903,7 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
 {
     checked_ = cbox->isChecked();
 
-    setFldsSensible( isChecked() );
+    setSensitive( isChecked() );
 
     if ( selbut ) selbut->setSensitive( isChecked() );
     if ( clrbut ) clrbut->setSensitive( isChecked() );
