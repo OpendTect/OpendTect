@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.16 2001-06-02 12:40:50 windev Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.17 2001-06-02 15:33:06 bert Exp $
 ________________________________________________________________________
 
 */
@@ -43,56 +43,59 @@ protected:
 };
 
 
+#define mChunkSz 1024
+#define mNonConstMem(x) const_cast<ArrayNDFileStor*>(this)->x
+
 template <class T>
 class ArrayNDFileStor : public ArrayND<T>::LinearStorage
 {
 public:
 
-    bool	isOK() const { return file; }
+    bool	isOK() const { return strm; }
 
-    T		get(int pos) const
+#undef mChckStrm
+#define mChckStrm \
+    if ( strm->fail() ) \
+	{ mNonConstMem(close()); mNonConstMem(stream_fail) = true; return 0; }
+
+    T		get( int pos ) const
 		{
-		    if ( !file ) ((ArrayNDFileStor*) this)->open();
-		    if ( !file ) return 0;
+		    if ( !strm ) const_cast<ArrayNDFileStor*>(this)->open();
+		    if ( !strm ) return 0;
 
-		    file->seekg(pos*sizeof(T), ios::beg );
-		    if ( file->fail() )
-		    {
-			((ArrayNDFileStor*) this)->close();
-			return 0;
-		    }
+		    strm->seekg(pos*sizeof(T), ios::beg );
+		    mChckStrm
 
 		    T res;
-		    file->read( (char *)&res, sizeof(T));
-		    if ( file->fail() )
-		    {
-			((ArrayNDFileStor*) this)->close();
-			return 0;
-		    }
+		    strm->read( (char *)&res, sizeof(T));
+		    mChckStrm
 
 		    return res;
 		}
 
-    void	set(int pos, T val ) 
+#undef mChckStrm
+#define mChckStrm \
+    if ( strm->fail() ) { close(); stream_fail = true; return; }
+
+    void	set( int pos, T val ) 
 		{
-		    if ( !file ) open();
-		    if ( !file ) return;
+		    if ( !strm ) open();
+		    if ( !strm ) return;
 
-		    file->seekp( pos*sizeof(T), ios::beg );
-		    if ( file->fail() )
-		    {
-			close();
-			return;
-		    }
+		    strm->seekp( pos*sizeof(T), ios::beg );
+		    mChckStrm
 
-		    file->write( (const char *)&val, sizeof(T));
+		    strm->write( (const char *)&val, sizeof(T));
+		    mChckStrm
 		}
 
     const T*	getData() const { return 0; }
 
     void	setSize( int nsz )
 		{
-		    if ( file ) close();
+		    if ( strm ) close();
+		    sz = nsz;
+		    open_failed = stream_fail = false;
 		    open();
 		}
 
@@ -100,80 +103,67 @@ public:
 
 		ArrayNDFileStor( int nsz )
 		    : sz( nsz )
-		    , file( 0 )
+		    , strm( 0 )
 		    , name(File_getSimpleTempFileName("tmp"))
+		    , open_failed(false)
+		    , stream_fail(false)
 		{ }
 
     inline	~ArrayNDFileStor()
 		{
 		    close();
-		    remove( name );
+		    File_remove( name, 0, 0 );
 		}
 private:
+
+#undef mChckStrm
+#define mChckStrm \
+    if ( strm->fail() ) { close(); open_failed = stream_fail = true; return; }
+
     void	open()
 		{
-		    if ( file ) close();
-		    file = new fstream(name, fstream::binary
-						| fstream::out
-						| fstream::app
-						| fstream::trunc );
+		    if ( strm ) close();
+		    else if ( open_failed || stream_fail ) return;
 
-		    if ( file->fail() )
+		    strm = new fstream( name, fstream::binary
+					    | fstream::out
+					    | fstream::app
+					    | fstream::trunc );
+		    mChckStrm
+
+		    char tmp[mChunkSz*sizeof(T)];
+		    memset( tmp, 0, mChunkSz*sizeof(T) );
+		    for ( int idx=0; idx<sz; idx+=mChunkSz )
 		    {
-			close();
-			return;
+			if ( (sz-idx)/mChunkSz )
+			    strm->write( tmp, mChunkSz*sizeof(T) );
+			else if ( sz-idx )
+			    strm->write( tmp, (sz-idx)*sizeof(T) );
+
+			mChckStrm
 		    }
 
-		    T tmp[1000];
-
-		    for ( int idx=0; idx<sz; idx++ )
-		    {
-			if ( (sz-idx)/1000 )
-			{
-			    file->write((const char*)&tmp, sizeof(T)*1000);
-			    if ( file->fail() )
-			    {
-				close();
-				return;
-			    }
-
-			    idx += 999;
-			}
-			else
-			{
-			    file->write((char*)&tmp, sizeof(T)*(sz-idx));
-			    if ( file->fail() )
-			    {
-				close();
-				return;
-			    }
-
-			    idx = sz-1;
-			}
-		    }
-
-		    file->close();
-		    file->open(name, fstream::binary
-					| fstream::out
-					| fstream::in );
-		    if ( file->fail() )
-		    {
-			close();
-			return;
-		    }
+		    strm->close();
+		    strm->open( name, fstream::binary
+				    | fstream::out
+				    | fstream::in );
+		    mChckStrm
 		}
+#undef mChckStrm
 
     void	close()
 		{
-		    file->close();
-		    delete file;
-		    file = 0;
+		    strm->close(); delete strm; strm = 0;
 		}
 
 protected:
-    fstream*	file;
+
+    fstream*	strm;
     BufferString name;
     int		sz;
+    bool	open_failed;
+    bool	stream_fail;
+
 };
 
 
