@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.17 2002-01-25 13:32:58 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.18 2002-01-29 09:55:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ public:
 				    pref_width_  = 0;
 				    pref_height_ = 0;
 				}
+    float			prefWidthInCharSet() const 
+				    { return pref_char_width; }
     void			setPrefWidthInChar( float w )
 				{ 
 				    if( itemInited() )
@@ -99,6 +101,8 @@ public:
 				    pref_width_  = 0;
 				    pref_height_ = 0;
 				}
+    float			prefHeightInCharSet() const 
+				    { return pref_char_height; }
     void			setPrefHeightInChar( float h )
 				{ 
 				    if( itemInited() )
@@ -210,6 +214,7 @@ public:
 
 
     bool			isHidden()		{ return is_hidden; }
+    bool			itemInited() const;
 
 protected:
 
@@ -226,8 +231,6 @@ protected:
 
     int				hStretch;
     int				vStretch;
-
-    bool			itemInited() const;
 
 private:
 

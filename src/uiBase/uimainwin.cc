@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.44 2002-01-23 10:41:06 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.45 2002-01-29 09:55:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -511,7 +511,10 @@ void uiDialogBody::setTitleText( const char* txt )
     if( title ) 
     { 
 	title->setText(txt); 
-	title->setPrefWidthInChar( strlen(txt) + 2 ); 
+	uiObjectBody* tb = dynamic_cast<uiObjectBody*>( title->body() ); 
+	if( tb && !tb->itemInited() )
+	    title->setPrefWidthInChar( 
+		    mMAX( tb->prefWidthInCharSet(), strlen(txt) + 2 )); 
     }
 }
 
