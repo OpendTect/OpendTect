@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.25 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.26 2004-04-14 09:56:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 
 #include <qtextedit.h> 
+#include <iostream>
 
 int uiTextEditBase::defaultWidth_	= 640;
 int uiTextEditBase::defaultHeight_	= 480;
