@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          25/9/2000
- RCS:           $Id: uifontsel.h,v 1.3 2001-11-20 12:17:19 arend Exp $
+ RCS:           $Id: uifontsel.h,v 1.4 2002-01-08 11:27:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ class uiSelFonts : public uiDialog
 {
 public:
 
-		uiSelFonts(uiParent*,const char*);
+		uiSelFonts(uiParent*,const char*,const char*);
 		~uiSelFonts();
 
     void	add(const char* str,const char* stdfontkey);

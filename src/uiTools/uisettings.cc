@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.2 2002-01-04 15:50:49 nanne Exp $
+ RCS:           $Id: uisettings.cc,v 1.3 2002-01-08 11:25:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,13 +18,11 @@ ________________________________________________________________________
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm )
-	: uiDialog(p,nm,true,true,false,false,false,"0.2.1")
+	: uiDialog(p,uiDialog::Setup(nm,"Specify GDI settings","0.2.1"))
 	, setts(*new Settings)
 	, items("Item")
 	, curidx(0)
 {
-    setTitleText( "Specify GDI settings" );
-
     for ( int idx=0; idx<setts.size(); idx++ )
     {
 	const char* nm = setts.getKey(idx);
