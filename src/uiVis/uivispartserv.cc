@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.87 2002-09-19 14:54:10 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.88 2002-09-20 11:15:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "vistexturerect.h"
 #include "visobject.h"
 #include "uiexecutor.h"
+#include "emmanager.h"
+#include "emfault.h"
 
 #include "uimsg.h"
 
@@ -208,7 +210,13 @@ uiVisPartServer::ObjectType uiVisPartServer::getObjectType( int id ) const
     mDynamicCastGet(const visSurvey::WellDisplay*, well, dobj );
     if ( well ) return WellDisplay;
     mDynamicCastGet(const visSurvey::SurfaceDisplay*, hd, dobj );
-    if ( hd ) return SurfaceDisplay;
+    if ( hd )
+    {
+	MultiID surfid = hd->surfaceId();
+	mDynamicCastGet(const EarthModel::Fault*,f,
+					EarthModel::EMM().getObject(surfid));
+	return f ? FaultDisplay : HorizonDisplay;
+    }
     mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
     if ( vd ) return VolumeDisplay;
 

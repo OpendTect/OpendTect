@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.58 2002-09-19 14:53:49 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.59 2002-09-20 11:15:51 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ public:
 
     enum ElementType    { Inline, Crossline, Timeslice };
     enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay, WellDisplay,
-    			  SurfaceDisplay, VolumeDisplay };
+    			  HorizonDisplay, FaultDisplay, VolumeDisplay };
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
     const char*		getObjectName(int) const;
