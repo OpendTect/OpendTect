@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.51 2004-01-14 15:45:37 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.52 2004-01-15 16:10:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     datarootbut->attach( centeredBelow, listbox );
 
     convbut = new uiPushButton( rightgrp, "X/Y <-> I/C ...",
-	    			mCB(this,uiSurvey,editButPushed) );
+	    			mCB(this,uiSurvey,convButPushed) );
     convbut->attach( centeredBelow, mapcanvas );
     uiButton* tutbut = 0;
     if ( isgdi )
