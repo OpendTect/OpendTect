@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.15 2003-02-20 22:33:17 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.16 2003-04-03 13:11:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,10 +114,10 @@ public:
     SampleGate		sampleGate(const Interval<float>&,bool check,
 				   int icomp) const;
 
-    //! If !errbuf, errors are handled trough the socket
-    bool		putTo(Socket&, BufferString* errbuf=0) const;
-    //! If !errbuf, errors are handled trough the socket
-    bool		getFrom(Socket&, BufferString* errbuf=0);
+    //! If !err, errors are handled trough the socket. withinfo : send info too.
+    bool		putTo(Socket&,bool withinfo, BufferString* err=0) const;
+    //! If !err, errors are handled trough the socket.
+    bool		getFrom(Socket&, BufferString* err=0);
 
 protected:
 

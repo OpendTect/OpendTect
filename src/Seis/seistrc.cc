@@ -5,12 +5,13 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.14 2003-02-20 22:33:17 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.15 2003-04-03 13:11:36 arend Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
 #include "interpol1d.h"
 #include "socket.h"
+#include "iopar.h"
 #include <math.h>
 #include <float.h>
 
@@ -218,18 +219,18 @@ void SeisTrc::setStartPos( float pos, int icomp )
 	return false; \
     } 
 
-bool SeisTrc::putTo(Socket& sock, BufferString* errbuf) const
+bool SeisTrc::putTo(Socket& sock, bool withinfo, BufferString* errbuf) const
 {
+    if ( !sock.write( withinfo ) ) mSockErrRet();
 
-/*
-    IOPar par;
-    info().fillPar( par );
-    // write trace info.
-
-*/
+    if ( withinfo )
+    {
+	IOPar infpar;
+	info().fillPar(infpar);
+	if ( !sock.write( infpar ) ) { mSockErrRet(); }
+    }
 
     int nrcomps = data_.nrComponents();
-
     if ( !sock.write( nrcomps ) ) mSockErrRet();
 
     for( int idx=0; idx< data_.nrComponents(); idx++ )
@@ -252,7 +253,7 @@ bool SeisTrc::putTo(Socket& sock, BufferString* errbuf) const
 }
 
 
-bool SeisTrc::getFrom(Socket& sock, BufferString* errbuf)
+bool SeisTrc::getFrom( Socket& sock, BufferString* errbuf )
 {
     int totalcmps = data().nrComponents();
     for ( int idx=0; idx < totalcmps; idx++ )
@@ -261,18 +262,27 @@ bool SeisTrc::getFrom(Socket& sock, BufferString* errbuf)
     if ( data().nrComponents() )
 	{ mErrRet( "Could not clear trace buffers" ); }
 
-    int nrcomps;
-    if( !sock.read( nrcomps ) ) { mSockErrRet(); }
+    bool withinfo;
+    if ( !sock.read( withinfo ) ) { mSockErrRet(); }
+    if ( withinfo )
+    {
+	IOPar infpar;
+	if ( !sock.read( infpar ) ) { mSockErrRet(); }
+	info().usePar(infpar);
+    }
 
-    for (int idx=0; idx<nrcomps; idx++ )
+    int nrcomps;
+    if ( !sock.read( nrcomps ) ) { mSockErrRet(); }
+
+    for ( int idx=0; idx<nrcomps; idx++ )
     {
 	unsigned char c1,c2;
-	if( !sock.readtags( (char)c1, (char)c2 ) ) { mSockErrRet(); }
+	if ( !sock.readtags( (char)c1, (char)c2 ) ) { mSockErrRet(); }
 
 	DataCharacteristics dc(c1,c2);
 
 	int nrbytes;
-	if( !sock.read( nrbytes ) ) { mSockErrRet(); }
+	if ( !sock.read( nrbytes ) ) { mSockErrRet(); }
 
 	int nrsamples = nrbytes / (int)dc.nrBytes();
 	data().addComponent(nrsamples,dc);
@@ -281,7 +291,7 @@ bool SeisTrc::getFrom(Socket& sock, BufferString* errbuf)
 	if ( !dest ) { mErrRet("Could not create buffer for trace data."); }
 
 	int bytesread = sock.readdata( (void*)dest, nrbytes );
-	if( bytesread != nrbytes ) { mSockErrRet(); }
+	if ( bytesread != nrbytes ) { mSockErrRet(); }
     }
 
     return true;
