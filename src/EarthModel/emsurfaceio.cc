@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.23 2003-11-24 08:39:52 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.24 2003-12-15 16:02:45 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -129,20 +129,20 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	}
     }
 
-    int dc[2];
-    if ( par->get(intdatacharstr, dc[0], dc[1] ))
+    BufferString dc;
+    if ( par->get(intdatacharstr,dc) )
     {
 	DataCharacteristics writtendatachar;
-	writtendatachar.set( dc[0], dc[1] );
+	writtendatachar.set( dc.buf() );
 	intinterpreter = new DataInterpreter<int>( writtendatachar );
 
-	if ( !par->get(floatdatacharstr, dc[0], dc[1]))
+	if ( !par->get(floatdatacharstr,dc) )
 	{
 	    error = true;
 	    return;
 	}
 
-	writtendatachar.set( dc[0], dc[1] );
+	writtendatachar.set( dc.buf() );
 	floatinterpreter = new DataInterpreter<double>( writtendatachar );
     }
 
@@ -508,14 +508,14 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 
     if ( binary )
     {
+	BufferString dc;
 	int dummy;
-	unsigned char dc[2];
-	DataCharacteristics(dummy).dump(dc[0], dc[1]);
-	par.set(EM::dgbSurfaceReader::intdatacharstr, (int) dc[0],(int)dc[1]);
+	DataCharacteristics(dummy).toString( dc.buf() );
+	par.set( EM::dgbSurfaceReader::intdatacharstr, dc );
 
 	float fdummy;
-	DataCharacteristics(fdummy).dump(dc[0], dc[1]);
-	par.set(EM::dgbSurfaceReader::floatdatacharstr, (int) dc[0],(int)dc[1]);
+	DataCharacteristics(fdummy).toString( dc.buf() );
+	par.set( EM::dgbSurfaceReader::floatdatacharstr, dc );
     }
 
     for ( int idx=0; idx<nrPatches(); idx++ )

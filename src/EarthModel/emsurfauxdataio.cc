@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.13 2003-11-12 12:57:04 bert Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.14 2003-12-15 16:02:45 nanne Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.13 2003-11-12 12:57:04 b
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
 const char* EM::dgbSurfDataWriter::intdatacharstr = "Int data";
+const char* EM::dgbSurfDataWriter::longlongdatacharstr = "Long long data";
 const char* EM::dgbSurfDataWriter::floatdatacharstr = "Float data";
 const char* EM::dgbSurfDataWriter::filetypestr = "Surface aux data";
 const char* EM::dgbSurfDataWriter::shiftstr = "Shift";
@@ -49,14 +50,19 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 
     if ( binary )
     {
-	int dummy;
-	unsigned char dc[2];
-	DataCharacteristics(dummy).dump(dc[0], dc[1]);
-	par.set(intdatacharstr, (int) dc[0],(int)dc[1]);
-					 
+	BufferString dc;
+
+	int idummy;
+	DataCharacteristics(idummy).toString( dc.buf() );
+	par.set( intdatacharstr, dc );
+
+	long long lldummy;
+	DataCharacteristics(lldummy).toString( dc.buf() );
+	par.set( longlongdatacharstr, dc );
+
 	float fdummy;
-	DataCharacteristics(fdummy).dump(dc[0], dc[1]);
-	par.set(floatdatacharstr, (int) dc[0],(int)dc[1]);
+	DataCharacteristics(fdummy).toString( dc.buf() );
+	par.set( floatdatacharstr, dc );
     }
 
     StreamData sd = StreamProvider( filename ).makeOStream();
@@ -102,7 +108,7 @@ int EM::dgbSurfDataWriter::nextStep()
 	    }
 	    else
 	    {
-		if ( !writeLong(surf.nrPatches()))
+		if ( !writeInt(surf.nrPatches()))
 		    return ErrorOccurred;
 	    }
 
@@ -132,7 +138,7 @@ int EM::dgbSurfDataWriter::nextStep()
 		values += auxvalue;
 	    }
 
-	    if ( !writeLong( patchid ) || !writeLong(subids.size()))
+	    if ( !writeInt( patchid ) || !writeInt(subids.size()))
 		return ErrorOccurred;
 	}
 
@@ -172,10 +178,10 @@ BufferString EM::dgbSurfDataWriter::createHovName( const char* base, int idx )
 }
 
 
-bool EM::dgbSurfDataWriter::writeLong( long val )
+bool EM::dgbSurfDataWriter::writeInt( int val )
 {
     if ( binary )
-	stream->write((char*) &val, sizeof(val));
+	stream->write( (char*) &val, sizeof(val) );
     else
 	(*stream) << val << '\n' ;
 
@@ -186,7 +192,7 @@ bool EM::dgbSurfDataWriter::writeLong( long val )
 bool EM::dgbSurfDataWriter::writeLongLong( long long val )
 {
     if ( binary )
-	stream->write((char*) &val, sizeof(val));
+	stream->write( (char*) &val, sizeof(val) );
     else
 	(*stream) << val << '\n' ;
 
@@ -197,7 +203,7 @@ bool EM::dgbSurfDataWriter::writeLongLong( long long val )
 bool EM::dgbSurfDataWriter::writeFloat( float val )
 {
     if ( binary )
-	stream->write((char*) &val ,sizeof(val));
+	stream->write( (char*) &val ,sizeof(val) );
     else
 	(*stream) << val << '\n';
 
@@ -207,8 +213,9 @@ bool EM::dgbSurfDataWriter::writeFloat( float val )
 
 EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     : Executor( "Aux data reader" )
-    , subidinterpreter( 0 )
-    , datainterpreter( 0 )
+    , intinterpreter( 0 )
+    , longlonginterpreter( 0 )
+    , floatinterpreter( 0 )
     , chunksize( 100 )
     , dataidx( -1 )
     , surf( 0 )
@@ -239,18 +246,22 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 
     par.get( dgbSurfDataWriter::shiftstr, shift );
 
-    int dc[2];
-    if ( par.get(EM::dgbSurfDataWriter::intdatacharstr, dc[0], dc[1] ))
+    BufferString dc;
+    if ( par.get(EM::dgbSurfDataWriter::intdatacharstr,dc) )
     {
 	DataCharacteristics writtendatachar;
-	writtendatachar.set( dc[0], dc[1] );
-	subidinterpreter = new DataInterpreter<int>( writtendatachar );
+	writtendatachar.set( dc.buf() );
+	intinterpreter = new DataInterpreter<int>( writtendatachar );
+
+	if ( !par.get(EM::dgbSurfDataWriter::longlongdatacharstr,dc) )
+	{ error = true; return; }
+	writtendatachar.set( dc.buf() );
+	longlonginterpreter = new DataInterpreter<long long>( writtendatachar );
 					     
-	if ( !par.get(EM::dgbSurfDataWriter::floatdatacharstr, dc[0], dc[1]))
-	    return;
-						     
-	writtendatachar.set( dc[0], dc[1] );
-	datainterpreter = new DataInterpreter<float>( writtendatachar );
+	if ( !par.get(EM::dgbSurfDataWriter::floatdatacharstr,dc) )
+	{ error = true; return; }
+	writtendatachar.set( dc.buf() );
+	floatinterpreter = new DataInterpreter<float>( writtendatachar );
     }
 
     error = false;
@@ -302,12 +313,12 @@ int EM::dgbSurfDataReader::nextStep()
 	    }
 	    else
 	    {
-		if ( !readLong(nrpatches) )
+		if ( !readInt(nrpatches) )
 		    return ErrorOccurred;
 	    }
 
 	    int cp;
-	    if ( !readLong(cp) || !readLong(valsleftonpatch))
+	    if ( !readInt(cp) || !readInt(valsleftonpatch))
 		return ErrorOccurred;
 
 	    currentpatch = cp;
@@ -342,21 +353,28 @@ int EM::dgbSurfDataReader::totalNr() const
     return totalnr;
 }
 
-bool EM::dgbSurfDataReader::readLong(int& res)
+bool EM::dgbSurfDataReader::readInt( int& res )
 {
-    (*stream) >> res;
+    if ( intinterpreter )
+    {
+	char buf[sizeof(res)];
+	stream->read(buf,sizeof(res));
+	res = intinterpreter->get(buf,0);
+    }
+    else
+	(*stream) >> res;
 
     return (*stream);
 }
 
 
-bool EM::dgbSurfDataReader::readLongLong( long long& res)
+bool EM::dgbSurfDataReader::readLongLong( long long& res )
 {
-    if ( subidinterpreter )
+    if ( longlonginterpreter )
     {
 	char buf[sizeof(res)];
 	stream->read(buf,sizeof(res));
-	res = subidinterpreter->get(buf,0);
+	res = longlonginterpreter->get(buf,0);
     }
     else
 	(*stream) >> res;
@@ -367,11 +385,11 @@ bool EM::dgbSurfDataReader::readLongLong( long long& res)
 
 bool EM::dgbSurfDataReader::readFloat(float& res)
 {
-    if ( datainterpreter )
+    if ( floatinterpreter )
     {
 	char buf[sizeof(res)];
 	stream->read(buf,sizeof(res));
-	res = datainterpreter->get(buf,0);
+	res = floatinterpreter->get(buf,0);
     }
     else
 	(*stream) >> res;
