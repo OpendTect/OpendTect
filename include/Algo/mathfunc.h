@@ -47,6 +47,17 @@ public:
 };
 
 
+/*!\brief a Math Function as in F(x,y,z). */
+template <class T>
+class MathXYZFunction
+{
+public:
+
+    virtual T		getValue(const Coord3&) const	= 0;
+
+};
+
+
 /*!\brief Line parameters: steepness and intercept. */
 
 class LinePars : public MathFunction<float>
