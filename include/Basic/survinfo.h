@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.13 2001-10-29 17:36:48 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.14 2002-01-03 23:40:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,9 +80,15 @@ public:
     inline bool		isReasonable( const Coord& c ) const
 			{ return isReasonable( transform(c) ); }
 
+    const char*		getWSProjName() const
+			{ return wsprojnm_; }
+    void		setWSProjName( const char* nm ) const
+			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }
+
     static const char*	sKeyInlRange;
     static const char*	sKeyCrlRange;
     static const char*	sKeyZRange;
+    static const char*	sKeyWSProjName;
 
 private:
 
@@ -99,6 +105,7 @@ private:
     BinID		step_;
     StepInterval<double> zrange_;
     BufferString	comment_;
+    BufferString	wsprojnm_;
     bool		valid_;
 
     BinID		set3binids[3];
