@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.13 2002-01-04 15:54:43 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.14 2002-01-04 17:55:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uisurvey.h"
-#include "uiidealsurvsetup.h"
+#include "uiidealdata.h"
 #include "uimsg.h"
 
 extern "C" const char* GetBaseDataDir();
@@ -50,7 +50,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     uiButton* wsbut = 0;
     if ( IdealConn::guessedType() == IdealConn::SW )
     {
-	wsbut = new uiPushButton( this, "Fetch setup from SeisWorks ..." );
+	BufferString txt( "Fetch setup from " );
+	txt += IdealConn::guessedType() == IdealConn::SW
+	     ? "SeisWorks ..." : "GeoFrame ...";
+	wsbut = new uiPushButton( this, txt );
 	wsbut->attach( alignedBelow, dirnmfld );
 	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
     }
@@ -320,12 +323,33 @@ bool uiSurveyInfoEditor::setRelation()
 }
 
 
+class uiIdealSurvSetup : public uiDialog
+{
+public:
+
+uiIdealSurvSetup( uiParent* p, IdealConn::Type t )
+    : uiDialog( p, uiDialog::Setup("Survey setup",
+				   "Select cube to retrieve survey setup",0) )
+{
+    iddfld = new uiIdealData( p, t );
+}
+
+bool acceptOK()
+{
+    return iddfld->fetchInput();
+}
+
+    uiIdealData* iddfld;
+
+};
+
+
 void uiSurveyInfoEditor::wsbutPush( CallBacker* )
 {
-    uiIdealSurvSetup dlg( this );
+    uiIdealSurvSetup dlg( this, IdealConn::guessedType() );
     if ( !dlg.go() ) return;
 
-    const IdealConn& conn = dlg.conn();
+    const IdealConn& conn = dlg.iddfld->conn();
     BinIDSampler bs; StepInterval<double> zrg;
     ObjectSet<Coord> coords; ObjectSet<BinID> binids;
     if ( !conn.getSurveySetup(bs,zrg,coords,binids) )
