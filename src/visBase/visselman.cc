@@ -4,12 +4,11 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.5 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.6 2002-03-11 10:53:40 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
 #include "visdataman.h"
-#include "visselobj.h"
 
 #include "Inventor/nodes/SoSelection.h"
 #include "Inventor/SoPath.h"
