@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.5 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.6 2002-05-27 14:20:04 nanne Exp $";
 
 
 #include "vistext.h"
@@ -92,7 +92,7 @@ void visBase::Text::setJustification( Justification just )
 {
     if ( just==Center )
 	text->justification.setValue( SoText2::CENTER );
-    if ( just==Left )
+    else if ( just==Left )
 	text->justification.setValue( SoText2::LEFT );
     else
 	text->justification.setValue( SoText2::RIGHT );
