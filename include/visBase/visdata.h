@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.30 2004-05-13 07:38:51 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.31 2004-05-15 13:15:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ public:
     virtual NotifierAccess*	selection() 		{ return 0; }
     virtual NotifierAccess*	deSelection() 		{ return 0; }
     virtual NotifierAccess*	rightClicked()		{ return 0; }
-
+    virtual const TypeSet<int>*	rightClickedPath() const{ return 0; }
 
     virtual void		setTransformation( Transformation* );
     				/*!< All positions going from the outside
@@ -104,7 +104,7 @@ protected:
     friend class		Scene;
     virtual void		triggerSel()		{}
     virtual void		triggerDeSel()		{}
-    virtual void		triggerRightClick()	{}
+    virtual void		triggerRightClick(const TypeSet<int>* path=0) {}
     
 				DataObject();
     virtual			~DataObject();
