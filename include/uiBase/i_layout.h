@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.5 2001-05-03 10:30:44 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.6 2001-05-21 14:20:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,24 +45,47 @@ const int nLayoutMode = 3;
 /*!
     This is our own layout manager for Qt. It manages widgets, etc. using
     constraints like "rightOf" etc.
+
+Because the i_LayoutMngr is a QLayout, it can be used by 
+QWidgets to automatically add new children to the manager when they are 
+constructed with a QWidget (with layout) as parent. 
+
+The actual adding to a manager is is done using QEvents.
+Whenever a QObject inserts a new child, it posts a ChildInserted event
+to itself. However, a QLayout constructor installs an event filter on its 
+parent, and it registers itself to the parent as its layouter 
+(setWidgetLayout), so future calls to the parent's sizeHint(), etc. are 
+redirected to this new layoutmanager.
+
+If setAutoAdd() is called on a layoutmanager, and the layout manager is 
+"topLevel", i.e. THE manager for a certain widget, then whenever a new
+widget is constructed with the manager's parent widget as parent,
+the new widget is automatically added (by Qt) to the manager by the manager's 
+eventfilter, using 'addItem( new QWidgetItem( w ) )'. 
+Unfortunately, Qt does not call addItem before the main application loop
+is running. This results to the problem that no attachments can be used until 
+the main loop is running when we let Qt handle the addItem() calls. 
+Therefore, we explicitily call addItem() on the correct layout manager at 
+construction uiObjects. AutoAdd is also enabled in case someone wants to 
+eses native Qt methods. (Multiple insertion is protected. Manager checks if 
+widget already present).
+
+
 */
 class i_LayoutMngr : public QLayout, public UserIDObject
 {
     friend class	i_LayoutItem;
 
 public:
-			i_LayoutMngr( uiObject* parnt, 
-				      int border, 
-				      int space,
-				      const char* name=0 );
+			i_LayoutMngr( uiObject* parnt, int border, int space,
+				      const char* name=0, bool autoAdd=true );
+//				      const char* name, bool autoAdd );
 
 //! constructor for if parnt doesn't know it's widget yet (constr. uiDialog)
-			i_LayoutMngr( QWidget* prntWidg,
-				      uiObject* parnt, 
-				      int border, 
-				      int space,
-				      const char* name=0 );
-
+			i_LayoutMngr( QWidget* prntWidg, uiObject* parnt, 
+				      int border, int space,
+				      const char* name=0, bool autoAdd=true );
+//				      const char* name, bool autoAdd );
 
     virtual		~i_LayoutMngr();
  
