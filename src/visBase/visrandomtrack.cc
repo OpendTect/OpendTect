@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.7 2003-02-14 18:22:22 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.8 2003-02-25 07:18:33 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -18,10 +18,19 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.7 2003-02-14 18:22:22 nan
 #include "vistristripset.h"
 #include "viscoord.h"
 #include "vistexturecoords.h"
+#include "visdataman.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoScale.h"
 #include "Inventor/nodes/SoMaterial.h"
+
+
+const char* visBase::RandomTrack::nrknotsstr = "Nr. Knots";
+const char* visBase::RandomTrack::knotprefix = "Knot ";
+const char* visBase::RandomTrack::textureidstr = "Texture ID";
+const char* visBase::RandomTrack::depthintvstr = "Depth Interval";
+const char* visBase::RandomTrack::draggersizestr = "DraggerSize";
 
 
 mCreateFactoryEntry( visBase::RandomTrack );
@@ -191,6 +200,16 @@ void visBase::RandomTrack::setDraggerSize( const Coord3& nz )
 }
 
 
+Coord3 visBase::RandomTrack::getDraggerSize() const
+{
+    SoScale* size =
+	dynamic_cast<SoScale*>(dragger->getPart( "subDraggerScale", true ));
+    SbVec3f pos = size->scaleFactor.getValue();
+    Coord3 res( pos[0], pos[1], pos[2] );
+    return res;
+}
+
+
 void visBase::RandomTrack::setClipRate( float nc )
 {
     const int nrsections = sections.size();
@@ -269,6 +288,8 @@ void visBase::RandomTrack::rebuild()
 	    strip->getTexture2()->setColorTab( 
 		    sections[0]->getTexture2()->getColorTab() );
 	    strip->setMaterial( sections[0]->getMaterial() );
+	    strip->getTexture2()->setResolution( 
+		    sections[0]->getTexture2()->getResolution() );
 	}
 
 	TextureCoords* texturecoords = TextureCoords::create();
@@ -341,3 +362,90 @@ void visBase::RandomTrack::motionCB(void* data,
     visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
     myself->knotmovement.trigger( dragger->getMovingKnot() );
 }
+
+
+void visBase::RandomTrack::setResolution( int res )
+{
+    for ( int idx=0; sections.size(); idx++ )
+	sections[idx]->getTexture2()->setResolution( res );
+}
+
+
+int visBase::RandomTrack::getResolution() const
+{
+    return sections[0]->getTexture2()->getResolution();
+}
+
+
+void visBase::RandomTrack::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    Texture2* texture = sections[0]->getTexture2();
+    int textureid = texture->id();
+    par.set( textureidstr, textureid );
+
+    par.set( depthintvstr, depthrg.start, depthrg.stop );
+
+    Coord3 size = getDraggerSize();
+    par.set( draggersizestr, size.x, size.y, size.z );
+
+    int nrknots = knots.size();
+    par.set( nrknotsstr, nrknots );
+
+    BufferString key;
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	key = knotprefix;
+	key += idx;
+	Coord pos = knots[idx];
+	par.set( key, pos.x, pos.y );
+    }
+	
+    if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
+}
+
+
+int visBase::RandomTrack::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res != 1 ) return res;
+
+    Coord3 size(1,1,1);
+    par.get( draggersizestr, size.x, size.y, size.z );
+    setDraggerSize( size );
+
+    Interval<float> intv(0,1);
+    par.get( depthintvstr, intv.start, intv.stop );
+    setDepthInterval( intv );
+
+    int nrknots = 0;
+    par.get( nrknotsstr, nrknots );
+
+    BufferString key;
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	key = knotprefix;
+	key += idx;
+	Coord pos;
+	par.get( key, pos.x, pos.y );
+	if ( idx < 2 )
+	    setKnotPos( idx, pos );
+	else
+	    addKnot( pos );
+    }
+
+    int textureid;
+    if ( !par.get( textureidstr, textureid ) ) return -1;
+    DataObject* dataobj = DM().getObj( textureid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet(Texture2*,texture_,dataobj);
+    if ( !texture_ ) return -1;
+
+    for ( int idx=0; idx<sections.size(); idx++ )
+        sections[idx]->setTexture2( texture_ );
+
+    return 1;
+}
+
+

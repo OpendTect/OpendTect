@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.7 2003-02-14 18:22:29 nanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.8 2003-02-25 07:18:48 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class SoRandomTrackLineDragger;
 template <class T> class Array2D;
+class IOPar;
 
 
 namespace visBase
@@ -58,6 +59,7 @@ public:
     				/*!< sets limits for dragging */
 
     void			setDraggerSize( const Coord3& );
+    Coord3			getDraggerSize() const;
 
     void			setClipRate( float );
     float			clipRate() const;
@@ -68,6 +70,9 @@ public:
     void			setColorTab( VisColorTab& );
     VisColorTab&		getColorTab();
 
+    void			setResolution(int);
+    int				getResolution() const;
+
     void			setMaterial( Material* );
     Material*			getMaterial();
 
@@ -77,6 +82,15 @@ public:
 
     CNotifier<RandomTrack,int>	knotmovement;
     				/*!< Sends the index of the knot moving */
+
+    static const char*		nrknotsstr;
+    static const char*		knotprefix;
+    static const char*		textureidstr;
+    static const char*		draggersizestr;
+    static const char*		depthintvstr;
+    
+    virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual int			usePar( const IOPar& );
 
 protected:
     				~RandomTrack();

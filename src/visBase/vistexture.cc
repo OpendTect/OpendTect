@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.12 2003-02-19 15:33:57 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.13 2003-02-25 07:18:33 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.12 2003-02-19 15:33:57 nanne 
 #include "visthread.h"
 #include "basictask.h"
 #include "thread.h"
+#include "visdataman.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoGroup.h"
@@ -25,6 +27,8 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.12 2003-02-19 15:33:57 nanne 
 
 #define NRCOLORS 256
 
+
+const char* visBase::Texture::colortabstr = "ColorTable ID";
 
 visBase::Texture::Texture()
     : datacache( 0 )
@@ -443,3 +447,32 @@ int visBase::Texture::nextPower2( int nr, int minnr, int maxnr ) const
     return newnr;
 }
 
+
+void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    SceneObject::fillPar( par, saveids );
+
+    int ctid = colortab->id();
+    par.set( colortabstr, ctid );
+
+    if ( saveids.indexOf(ctid) == -1 ) saveids += ctid;
+}
+
+
+int visBase::Texture::usePar( const IOPar& par )
+{
+    int res = SceneObject::usePar( par );
+    if ( res != 1 ) return res;
+
+    int coltabid;
+    if ( !par.get( colortabstr, coltabid ) ) return -1;
+    DataObject* dataobj = DM().getObj( coltabid );
+    if ( !dataobj ) return 0;
+    
+    mDynamicCastGet(VisColorTab*,coltab,dataobj);
+    if ( !coltab ) return -1;
+
+    setColorTab( *coltab );
+
+    return 1;
+}

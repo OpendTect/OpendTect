@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.8 2003-02-19 15:34:09 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.9 2003-02-25 07:18:48 nanne Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ class visBaseTextureColorIndexMaker;
 class SoSwitch;
 class SoGroup;
 class SoComplexity;
+class IOPar;
 
 namespace visBase
 {
@@ -63,13 +64,16 @@ public:
     void		setUseTransperancy(bool yn);
     bool		usesTransperancy() const;
 
-    void		setThreadWorker( ThreadWorker* );
+    void		setThreadWorker(ThreadWorker*);
     ThreadWorker*	getThreadWorker();
 
     void		setTextureQuality(float);
     float		getTextureQuality() const;
 
     SoNode*		getData();
+
+    virtual void        fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int         usePar(const IOPar&);
 
 protected:
     			Texture();
@@ -114,6 +118,8 @@ private:
     ObjectSet<visBaseTextureColorIndexMaker> colorindexers;
     ObjectSet<BasicTask> texturemakers;
     ThreadWorker*	threadworker;
+
+    static const char*	colortabstr;
 };
 
 };
