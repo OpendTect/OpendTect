@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.62 2004-04-27 11:59:32 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.63 2004-04-27 14:02:04 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -267,7 +267,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	else if ( binid.crl>planeorigo.y+width1 )
 	    inlcrldist.crl = mNINT( binid.crl-planeorigo.y-width1);
 
-	zdiff = (planeorigo.z - xytpos.z) * SPM().getZScale();
+	zdiff = (planeorigo.z - xytpos.z) * SI().zFactor() * SPM().getZScale();
     }
 
     const float inldist =
