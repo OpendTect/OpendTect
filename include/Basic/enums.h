@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994; 20-10-1995
  Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.6 2003-11-11 09:58:04 arend Exp $
+ RCS:		$Id: enums.h,v 1.7 2003-12-23 15:57:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,41 +69,64 @@ that the entire string must match.
 This will expand to (added newlines, removed some superfluous stuff:
 
 \code
+
 class MyClass
 {
 public:
 
-    enum State	{ Good, Bad, Ugly };
-    static EnumRef StateRef( State& _e_ ) { return EnumRef((int&)_e_,StateDef);}
-    static const EnumDef StateDef;
-    static const char* StateNames[]; 
-
-    enum Type   { Yes, No, Maybe };
-    Type type() const { return type_; }
-    void setType( Type  _e_) { type_ = _e_; }
-    EnumRef   typeRef  () const { return EnumRef( (int&)type_, TypeDef ); }
-    static EnumRef TypeRef( Type& _e_ ) { return EnumRef((int&)_e_,TypeDef); }
-    static const EnumDef TypeDef;
-    static const char* TypeNames[];
+    enum			State { Good, Bad, Ugly };
+    staticEnumRef		StateRef(State&);
+    static const EnumDef&	StateDef();
+    static const char**		StateNamesGet();
+    static const char*		StateNames[];
 
 protected:
 
-    Type type_;
+    static const EnumDef	StateDef_;
 
-public: 
+public:
+
+    enum			Type { Yes, No, Maybe };
+    Type			type() const { return type_; }
+    void			setType(Type _e _) { type_ = _e_; }
+    EnumRef			typeRef() const
+				    { return EnumRef( (int&)type_, TypeDef_ ); }
+    static EnumRef		TypeRef(Type&);
+    static const EnumDef&	TypeDef();
+    static const char**		TypeNamesGet();
+    static const char*		TypeNames[];
+
+protected:
+
+    static const EnumDef	TypeDef_;
+
+    Type			type_;
 
 };
+
 \endcode
 
 and, in myclass.cc:
 
 \code
-const EnumDef MyClass::StateDef( "Handling state", MyClass::StateNames , 1 );
-const char* MyClass::StateNames[] = 
-	{ "Good", "Bad", "Not very handsome", 0 };
-const EnumDef MyClass::TypeDef( "Decision type", MyClass::TypeNames , 0 );
-const char* MyClass::TypeNames[] = 
-	{ "Yes", "No", "Not sure", 0 };
+
+EnumRef MyClass::StateRef(State& _e_) { return EnumRef((int&)_e_, StateDef_); }
+
+const EnumDef& MyClass::StateDef()    { return StateDef_; }
+const EnumDef MyClass::StateDef_      ("My class state",MyClass::Statenames,1);
+
+const char* MyClass::Statenames[] =
+        { "Good", "Bad", "Not very handsome", 0 };
+
+
+EnumRef MyClass::TypeRef(Type& _e_) { return EnumRef( (int&)_e_, TypeDef_ ); }
+
+const EnumDef& MyClass::TypeDef()   { return TypeDef_; }
+const EnumDef MyClass::TypeDef_     ( "My class type", MyClass::Typenames, 0 );
+
+const char* MyClass::Typenames[] =
+        { "Yes", "No", "Not sure", 0 };
+
 \endcode
 
 -*/
@@ -179,15 +202,19 @@ private:
 #define DeclareEnumUtils(enm) \
 public: \
     static EnumRef enm##Ref(enm&); \
-    static const EnumDef enm##Def; \
-    static const char* enm##Names[];
+    static const EnumDef& enm##Def(); \
+    static const char* enm##Names[];\
+    static const char** enm##NamesGet();\
+protected: \
+    static const EnumDef enm##Def_; \
+public:
 
 #define DeclareEnumUtilsWithVar(enm,varnm) \
 public: \
     enm varnm() const { return varnm##_; } \
     void set##enm(enm _e_) { varnm##_ = _e_; } \
     EnumRef varnm##Ref() const \
-    { return EnumRef( (int&)varnm##_, enm##Def ); } \
+    { return EnumRef( (int&)varnm##_, enm##Def_ ); } \
     DeclareEnumUtils(enm) \
 protected: \
     enm varnm##_; \
@@ -195,11 +222,14 @@ public:
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
 EnumRef clss::enm##Ref( enm& _e_ ) \
-    { return EnumRef( (int&)_e_, enm##Def ); } \
-const EnumDef clss::enm##Def \
+    { return EnumRef( (int&)_e_, enm##Def_ ); } \
+const EnumDef& clss::enm##Def() \
+    { return enm##Def_; } \
+const EnumDef clss::enm##Def_ \
 	( prettynm, clss::enm##Names, deflen ); \
+const char** clss::enm##NamesGet() \
+    { return enm##Names; }  \
 const char* clss::enm##Names[] =
-
 
 inline EnumRef&	EnumRef::operator=( const char* s )
 {
@@ -214,11 +244,11 @@ inline EnumRef&	EnumRef::operator=( const char* s )
 
 
 
-#define eString(enm,vr)	(enm##Def.convert((int)vr))
+#define eString(enm,vr)	(enm##Def().convert((int)vr))
 //!< this is the actual enum -> string
-#define eEnum(enm,str)	((enm)enm##Def.convert(str))
+#define eEnum(enm,str)	((enm)enm##Def().convert(str))
 //!< this is the actual string -> enum
-#define eKey(enm)	(enm##Def.name())
+#define eKey(enm)	(enm##Def().name())
 //!< this is the 'pretty name' of the enum
 #define eRef(enm,vr)	(enm##Ref(vr))
 
