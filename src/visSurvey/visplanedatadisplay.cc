@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.19 2002-07-08 05:43:03 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.20 2002-08-20 07:40:01 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -30,6 +30,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject( true )
     , trect( visBase::TextureRect::create() )
     , selected_( false )
+    , prevcs(*new CubeSampling)
     , cs(*new CubeSampling)
     , as(*new AttribSelSpec)
     , moving( this )
@@ -419,8 +420,16 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSlice* attrslice )
     
     trect->setData( *attrslice );
     trect->useTexture( true );
+
+    prevcs = getCubeSampling();
     
     return true;
+}
+
+
+AttribSlice* visSurvey::PlaneDataDisplay::getPrevData()
+{
+    return (AttribSlice*)trect->get2DData();
 }
 
 
