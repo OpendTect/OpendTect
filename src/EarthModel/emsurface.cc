@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.31 2003-12-08 16:31:02 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.32 2003-12-08 21:27:59 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -623,23 +623,26 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
 	}
     }
 
-    if ( !autoconnect ) return true;
-
-    for ( int idx=0; idx<nodeonotherpatches.size(); idx++ )
+    if ( autoconnect )
     {
-	const int patchsurfidx =
-	    patchids.indexOf(nodeonotherpatches[idx].patchID());
-	double otherz = surfaces[patchsurfidx]->getMeshPos(geomrowcol).z;
-	
-	if ( mIS_ZERO(otherz-pos.z) )
+	for ( int idx=0; idx<nodeonotherpatches.size(); idx++ )
 	{
-	    if ( !surface->isLinked(posid, surfaces[patchsurfidx], posid ))
+	    const int patchsurfidx =
+		patchids.indexOf(nodeonotherpatches[idx].patchID());
+	    double otherz = surfaces[patchsurfidx]->getMeshPos(geomrowcol).z;
+	    
+	    if ( mIS_ZERO(otherz-pos.z) )
 	    {
-		surface->setLink( posid, surfaces[patchsurfidx], posid, true );
-		// Put to history?
+		if ( !surface->isLinked(posid, surfaces[patchsurfidx], posid ))
+		{
+		    surface->setLink(posid,surfaces[patchsurfidx],posid,true);
+		    // Put to history?
+		}
 	    }
 	}
     }
+
+    poschnotifier.trigger( EM::PosID( id(), patch, rowCol2SubID(surfrc)), this);
 
     return true;
 }
