@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.14 2002-11-21 17:10:37 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.15 2002-12-18 10:16:42 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -42,6 +42,7 @@ public:
     virtual void	usePar(const IOPar*);
 
     const CBVSReadMgr*	readMgr() const			{ return rdmgr; }
+    BinID2Coord		getTransform() const;
 
     virtual int		implRemove(const IOObj*) const;
     virtual const char*	defExtension() const		{ return "cbvs"; }

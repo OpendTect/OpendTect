@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.34 2002-10-14 07:00:33 niclas Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.35 2002-12-18 10:16:42 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -142,16 +142,14 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     FileNameString fname( File_getFullPath( survdir, ".survey" ) );
     StreamData sd = StreamProvider( fname ).makeIStream();
 
-    static bool errmsgdone = false;
     if ( !sd.istrm || sd.istrm->fail() )
     {
-	if ( !errmsgdone && dowarnings_ )
-	    ErrMsg( "No available survey definition." );
-	errmsgdone = true;
 	sd.close();
 	return new SurveyInfo3D;
     }
+
     ascistream astream( *sd.istrm );
+    static bool errmsgdone = false;
     if ( !astream.isOfFileType(sKeySI) )
     {
 	ErrMsg( "Survey definition file is corrupt!" );

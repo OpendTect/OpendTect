@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.27 2002-11-15 10:56:13 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.28 2002-12-18 10:16:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,15 @@ public:
 
     bool		isValid() const		{ return valid_; }
 
+    			// These fns are commonly not used ...
+    void		setRange(const BinIDRange&,bool);
+    void		setZRange(const Interval<double>&,bool);
+    void		setZRange(const StepInterval<double>&,bool);
+    void		setComment( const char* s )	{ comment_ = s; }
+
+    virtual void	setStep(const BinID&,bool)	{}
+    static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
+
 protected:
 
 			SurveyInfo();
@@ -135,14 +144,6 @@ protected:
 
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;
-    static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
-
-    void		setRange(const BinIDRange&,bool);
-    void		setZRange(const Interval<double>&,bool);
-    void		setZRange(const StepInterval<double>&,bool);
-    void		setComment( const char* s )	{ comment_ = s; }
-
-    virtual void	setStep(const BinID&,bool)	{}
 
     virtual void	handleLineRead(const BufferString&,const char*)	{}
     virtual bool	wrapUpRead()				{ return true; }

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.29 2002-11-21 17:10:09 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.30 2002-12-18 10:16:42 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -446,6 +446,14 @@ bool CBVSSeisTrcTranslator::skip( int )
     donext = false;
     headerdone = false;
     return true;
+}
+
+
+BinID2Coord CBVSSeisTrcTranslator::getTransform() const
+{
+    if ( !rdmgr || !rdmgr->nrReaders() )
+	return SI().is3D() ? SI3D().binID2Coord() : BinID2Coord();
+    return rdmgr->info().geom.b2c;
 }
 
 
