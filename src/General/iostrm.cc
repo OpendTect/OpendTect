@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.8 2003-02-18 16:32:21 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.9 2003-02-19 16:47:49 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -148,14 +148,14 @@ Conn* IOStream::getConn( Conn::State rw ) const
     }
 
     StreamConn*	s = 0;
-    if ( fr )	s = new StreamConn( sp->makeIStream() );
-    else	s = new StreamConn( sp->makeOStream() );
-    if ( s )
-    {
-	s->ioobj = (IOObj*)this;
-	s->setNrRetries( nrretries );
-	s->setRetryDelay( retrydelay );
-    }
+    StreamData sd( fr ? sp->makeIStream() : sp->makeOStream() );
+    if ( !sd.usable() )
+	return 0;
+
+    s = new StreamConn( sd );
+    s->ioobj = (IOObj*)this;
+    s->setNrRetries( nrretries );
+    s->setRetryDelay( retrydelay );
 
     delete sp;
     return s;

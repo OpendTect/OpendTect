@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.22 2002-12-13 12:49:32 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.23 2003-02-19 16:47:49 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -268,16 +268,16 @@ bool IOPar::get( const char* s, int& i ) const
 bool IOPar::get( const char* s, int& i1, int& i2 ) const
 {
     const char* ptr = (*this)[s];
+    bool havedata = false;
     if ( ptr && *ptr )
     {
 	FileMultiString fms = ptr;
 	ptr = fms[0];
-	if ( *ptr ) i1 = atoi( ptr );
+	if ( *ptr ) { i1 = atoi( ptr ); havedata = true; }
 	ptr = fms[1];
-	if ( *ptr ) i2 = atoi( ptr );
-	return true;
+	if ( *ptr ) { i2 = atoi( ptr ); havedata = true; }
     }
-    return false;
+    return havedata;
 }
 
 
@@ -339,10 +339,7 @@ bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float& f4,
     double d1, d2, d3, d4;
     if ( getSc( s, d1, d2, d3, d4, sc, udf ) )
     {
-	f1 = (float)d1;
-	f2 = (float)d2;
-	f3 = (float)d3;
-	f4 = (float)d4;
+	f1 = (float)d1; f2 = (float)d2; f3 = (float)d3; f4 = (float)d4;
 	return true;
     }
     return false;
@@ -354,12 +351,14 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 		 bool udf ) const
 {
     const char* ptr = (*this)[s];
+    bool havedata = false;
     if ( udf || *ptr )
     {
 	FileMultiString fms = ptr;
 	ptr = fms[0];
 	if ( *ptr )
 	{
+	    havedata = true;
 	    d1 = atof( ptr );
 	    if ( !mIsUndefined(d1) ) d1 *= sc;
 	}
@@ -369,15 +368,14 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 	ptr = fms[1];
 	if ( *ptr )
 	{
+	    havedata = true;
 	    d2 = atof( ptr );
 	    if ( !mIsUndefined(d2) ) d2 *= sc;
 	}
 	else if ( udf )
 	    d2 = mUndefValue;
-
-	return true;
     }
-    return false;
+    return havedata;
 }
 
 
@@ -385,6 +383,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 		 bool udf ) const
 {
     const char* ptr = (*this)[s];
+    bool havedata = false;
     if ( udf || *ptr )
     {
 	FileMultiString fms = ptr;
@@ -393,6 +392,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 	{
 	    d1 = atof( ptr );
 	    if ( !mIsUndefined(d1) ) d1 *= sc;
+	    havedata = true;
 	}
 	else if ( udf )
 	    d1 = mUndefValue;
@@ -402,6 +402,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 	{
 	    d2 = atof( ptr );
 	    if ( !mIsUndefined(d2) ) d2 *= sc;
+	    havedata = true;
 	}
 	else if ( udf )
 	    d2 = mUndefValue;
@@ -411,13 +412,12 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 	{
 	    d3 = atof( ptr );
 	    if ( !mIsUndefined(d3) ) d3 *= sc;
+	    havedata = true;
 	}
 	else if ( udf )
 	    d3 = mUndefValue;
-
-	return true;
     }
-    return false;
+    return havedata;
 }
 
 
@@ -425,12 +425,14 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 		   double& d4, double sc, bool udf ) const
 {
     const char* ptr = (*this)[s];
+    bool havedata = false;
     if ( udf || *ptr )
     {
 	FileMultiString fms = ptr;
 	ptr = fms[0];
 	if ( *ptr )
 	{
+	    havedata = true;
 	    d1 = atof( ptr );
 	    if ( !mIsUndefined(d1) ) d1 *= sc;
 	}
@@ -440,6 +442,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	ptr = fms[1];
 	if ( *ptr )
 	{
+	    havedata = true;
 	    d2 = atof( ptr );
 	    if ( !mIsUndefined(d2) ) d2 *= sc;
 	}
@@ -449,6 +452,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	ptr = fms[2];
 	if ( *ptr )
 	{
+	    havedata = true;
 	    d3 = atof( ptr );
 	    if ( !mIsUndefined(d3) ) d3 *= sc;
 	}
@@ -458,33 +462,32 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	ptr = fms[3];
 	if ( *ptr )
 	{
+	    havedata = true;
 	    d4 = atof( ptr );
 	    if ( !mIsUndefined(d4) ) d4 *= sc;
 	}
 	else if ( udf )
 	    d4 = mUndefValue;
-
-	return true;
     }
-    return false;
+    return havedata;
 }
 
 
 bool IOPar::get( const char* s, int& i1, int& i2, int& i3 ) const
 {
     const char* ptr = (*this)[s];
+    bool havedata = false;
     if ( ptr && *ptr )
     {
 	FileMultiString fms = ptr;
 	ptr = fms[0];
-	if ( *ptr ) i1 = atoi( ptr );
+	if ( *ptr ) { i1 = atoi( ptr ); havedata = true; }
 	ptr = fms[1];
-	if ( *ptr ) i2 = atoi( ptr );
+	if ( *ptr ) { i2 = atoi( ptr ); havedata = true; }
 	ptr = fms[2];
-	if ( *ptr ) i3 = atoi( ptr );
-	return true;
+	if ( *ptr ) { i3 = atoi( ptr ); havedata = true; }
     }
-    return false;
+    return havedata;
 }
 
 

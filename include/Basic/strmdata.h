@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.6 2002-12-03 14:51:39 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.7 2003-02-19 16:47:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,10 +28,11 @@ Need to find out what to do with the pipe in windows.
 class StreamData
 {
 public:
-		StreamData() : ispipe(false)	{ init(); }
+		StreamData()			{ init(); }
 
     void	close();
     bool	usable() const;
+    void	clearWithoutClose()		{ init(); }
 
     istream*	istrm;
     ostream*	ostrm;
@@ -41,7 +42,8 @@ public:
 
 private:
 
-    void	init();
+    inline void	init()
+		{ fp = 0; istrm = 0; ostrm = 0; ispipe = false; }
 
 };
 

@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.8 2001-08-30 16:16:05 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.9 2003-02-19 16:47:49 bert Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
@@ -53,12 +53,14 @@ StreamConn::StreamConn( ostream* s )
 }
 
 
-StreamConn::StreamConn( const StreamData& strmdta )
+StreamConn::StreamConn( StreamData& strmdta )
 	: sd(strmdta), mine(true), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
 	, closeondel(false)
 {
+    strmdta.clearWithoutClose();
+
     if		( !sd.usable() )	state_ = Bad;
     else if	( sd.istrm )		state_ = Read;
     else if	( sd.ostrm )		state_ = Write;

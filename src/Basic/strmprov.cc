@@ -31,7 +31,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.29 2002-12-13 17:05:55 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.30 2003-02-19 16:47:49 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -66,12 +66,6 @@ void StreamData::close()
     }
 
     init();
-}
-
-
-void StreamData::init()
-{
-    fp = 0; istrm = 0; ostrm = 0; ispipe = false;
 }
 
 

@@ -20,6 +20,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 	, binids(*new BinIDRange)
     	, nrtrcs(0)
     	, nrwritten(0)
+    	, started(false)
 {
     binids.start.inl = -999;
 }
@@ -62,12 +63,13 @@ int nextStep()
 
     fullImplRemove( *wr.ioObj() );
 
-    if ( !wr.ensureRightConn(trc) )
+    if ( !wr.ensureRightConn(trc,true) )
     {
 	msg = wr.errMsg();
     	return -1;
     }
 
+    wr.started = true;
     return 0;
 }
 
@@ -84,7 +86,7 @@ Executor* SeisTrcWriter::starter( const SeisTrc& trc )
 }
 
 
-Conn* SeisTrcWriter::crConn( int inl )
+Conn* SeisTrcWriter::crConn( int inl, bool first )
 {
     if ( !ioobj )
 	{ errmsg = "No data from object manager"; return 0; }
@@ -94,7 +96,7 @@ Conn* SeisTrcWriter::crConn( int inl )
 	mDynamicCastGet(IOStream*,iostrm,ioobj)
 	if ( iostrm->directNumberMultiConn() )
 	    iostrm->setConnNr( inl );
-	else
+	else if ( !first )
 	    iostrm->toNextConnNr();
     }
 
@@ -124,7 +126,7 @@ bool SeisTrcWriter::startWrite( Conn* conn, const SeisTrc& trc )
 }
 
 
-bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc )
+bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 {
     bool neednewconn = !trl->curConn();
 
@@ -138,7 +140,7 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc )
 
     if ( neednewconn )
     {
-	Conn* conn = crConn( trc.info().binid.inl );
+	Conn* conn = crConn( trc.info().binid.inl, first );
 	if ( !conn || !startWrite(conn,trc) )
 	    return false;
     }
@@ -149,11 +151,22 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc )
 
 bool SeisTrcWriter::put( const SeisTrc& trc )
 {
+    if ( !started )
+    {
+	SeisWriteStarter* ex = new SeisWriteStarter( *this, trc );
+	if ( !ex->execute() )
+	{
+	    errmsg = ex->msg; delete ex;
+	    return false;
+	}
+	delete ex;
+    }
+
     nrtrcs++;
     if ( trcsel && !trcsel->intv.includes(nrtrcs) )
 	return true;
 
-    if ( !ensureRightConn(trc) )
+    if ( !ensureRightConn(trc,false) )
 	return false;
     else if ( !trl->write(trc) )
     {

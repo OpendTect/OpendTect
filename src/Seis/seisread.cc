@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.17 2003-02-18 16:32:21 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.18 2003-02-19 16:47:49 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -25,7 +25,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 
 void SeisTrcReader::init()
 {
-    icfound = new_packet = needskip = rdinited = forcefloats = false;
+    icfound = new_packet = needskip = started = forcefloats = false;
 }
 
 
@@ -98,6 +98,7 @@ int nextStep()
 	    tarcds[idx]->datachar = DataCharacteristics();
     }
 
+    rdr.started = true;
     return 0;
 }
 
@@ -178,24 +179,28 @@ bool SeisTrcReader::initRead( Conn* conn )
     }
 
     needskip = false;
-    rdinited = true;
+    return true;
+}
+
+
+bool SeisTrcReader::doStart()
+{
+    Executor* st = starter();
+    if ( !st->execute(0) )
+    {
+	errmsg = st->message();
+	delete st;
+	return false;
+    }
+    delete st; 
     return true;
 }
 
 
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
-    if ( !rdinited )
-    {
-	Executor* st = starter();
-	if ( !st->execute(0) )
-	{
-	    errmsg = st->message();
-	    delete st;
-	    return -1;
-	}
-	delete st; 
-    }
+    if ( !started && !doStart() )
+	return -1;
 
     bool needsk = needskip; needskip = false;
     if ( needsk )
@@ -259,6 +264,9 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
+    if ( !started && !doStart() )
+	return false;
+
     if ( !trl->read(trc) )
     {
 	errmsg = trl->errMsg();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.1 2001-08-31 16:38:18 bert Exp $
+ RCS:		$Id: streamconn.h,v 1.2 2003-02-19 16:47:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ public:
 			DeclareEnumUtils(Type)
 
 			StreamConn();
-			StreamConn(const StreamData&);
-				//!< MY stream: this will delete on destruct
+			StreamConn(StreamData&);
+				//!< MY stream: Input StreamData will be zero-ed
 			StreamConn(istream*);
 				//!< MY stream: this will delete on destruct
 			StreamConn(ostream*);
