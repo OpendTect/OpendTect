@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.15 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uitable.cc,v 1.16 2004-03-19 14:27:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,15 +140,17 @@ private:
 
 
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
-    : uiObject( p, nm, mkbody(p,nm,s.size_.height(),s.size_.width()) )
-    , setup_( s )
-    , valueChanged( this )
-    , clicked( this )
-    , rightClicked( this )
-    , leftClicked( this )
-    , doubleClicked( this )
-    , rowInserted( this )
-    , colInserted( this )
+    : uiObject(p,nm,mkbody(p,nm,s.size_.height(),s.size_.width()))
+    , setup_(s)
+    , valueChanged(this)
+    , clicked(this)
+    , rightClicked(this)
+    , leftClicked(this)
+    , doubleClicked(this)
+    , rowInserted(this)
+    , colInserted(this)
+    , rowDeleted(this)
+    , colDeleted(this)
 {
     clicked.notify( mCB(this,uiTable,clicked_) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
@@ -159,7 +161,10 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 //    setStretch( s.colgrow_ ? 2 : 1, s.rowgrow_ ? 2 : 1 );
 
     setSelectionMode( s.selmode_ );
-
+    if ( s.defrowlbl_ )
+	setDefaultRowLabels();
+    if ( s.defcollbl_ )
+	setDefaultColLabels();
 }
 
 
@@ -173,21 +178,57 @@ uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc)
 uiTable::~uiTable() {}
 
 
+void uiTable::setDefaultRowLabels()
+{
+    const int nrrows = nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	BufferString lbl( setup_.rowdesc_ ); lbl += " ";
+	lbl += idx+1;
+	setRowLabel( idx, lbl );
+    }
+}
+
+
+void uiTable::setDefaultColLabels()
+{
+    const int nrcols = nrCols();
+    for ( int idx=0; idx<nrcols; idx++ )
+    {
+	BufferString lbl( setup_.coldesc_ ); lbl += " ";
+	lbl += idx+1;
+	setColumnLabel( idx, lbl );
+    }
+}
+
+#define updateRow() if ( setup_.defrowlbl_ ) setDefaultRowLabels();
+#define updateCol() if ( setup_.defcollbl_ ) setDefaultColLabels();
+
 int  uiTable::columnWidth( int c ) const	{ return body_->columnWidth(c);}
 int  uiTable::rowHeight( int r ) const		{ return body_->rowHeight(r);}
 void uiTable::setColumnWidth(int col, int w)	{ body_->setColumnWidth(col,w);}
 void uiTable::setRowHeight( int row, int h )	{ body_->setRowHeight(row,h); }
 
-void uiTable::insertRows(int r, int cnt)	{ body_->insertRows( r, cnt ); }
-void uiTable::insertColumns(int c,int cnt)	{ body_->insertColumns(c,cnt);}
-void uiTable::removeRow( int row )		{ body_->removeRow( row ); }
-void uiTable::removeColumn( int col )		{ body_->removeColumn( col ); }
+void uiTable::insertRows(int r, int cnt)	
+{ body_->insertRows( r, cnt ); updateRow() }
+
+void uiTable::insertColumns(int c,int cnt)	
+{ body_->insertColumns(c,cnt); updateCol() }
+
+void uiTable::removeRow( int row )		
+{ body_->removeRow( row ); updateRow() }
+
+void uiTable::removeColumn( int col )
+{ body_->removeColumn( col );  updateCol() }
+
+void uiTable::setNrRows( int nr )
+{ body_->setLines( nr + 1 ); updateRow() }
+
+void uiTable::setNrCols( int nr )
+{ body_->setNumCols( nr );  updateCol() }
 
 int  uiTable::nrRows() const			{ return  body_->numRows(); }
 int  uiTable::nrCols() const			{ return body_->numCols(); }
-void uiTable::setNrRows( int nr )		{ body_->setLines( nr + 1 ); }
-void uiTable::setNrCols( int nr )		{ body_->setNumCols( nr ); }
-
 
 void uiTable::setText( const RowCol& rc, const char* txt )
     { body_->setText( rc.row, rc.col, txt ); }
@@ -275,7 +316,10 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
 
 const Color uiTable::getColor( const RowCol& rc ) const
 {
-    QColor qcol( text(rc) );
+    BufferString coltxt = text(rc);
+    if ( !*coltxt ) coltxt = "white";
+	
+    QColor qcol( coltxt.buf() );
     return Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
@@ -492,14 +536,18 @@ void uiTable::rightClk()
 	newcell_ = RowCol( cur.row, cur.col + offset );
 	insertColumns( newcell_ );
 
-	BufferString label( newcell_.col );
-	setColumnLabel( newcell_, label );
+	if ( !setup_.defcollbl_ )
+	{
+	    BufferString label( newcell_.col );
+	    setColumnLabel( newcell_, label );
+	}
 
 	colInserted.trigger();
     }
     else if ( ret == delcol )
     {
 	removeColumn( cur.col );
+	colDeleted.trigger();
     }
     else if ( ret == insrowbef || ret == insrowaft  )
     {
@@ -507,14 +555,18 @@ void uiTable::rightClk()
 	newcell_ = RowCol( cur.row + offset, cur.col );
 	insertRows( newcell_ );
 
-	BufferString label( newcell_.row );
-	setRowLabel( newcell_, label );
+	if ( !setup_.defrowlbl_ )
+	{
+	    BufferString label( newcell_.row );
+	    setRowLabel( newcell_, label );
+	}
 
 	rowInserted.trigger();
     }
     else if ( ret == delrow )
     {
 	removeRow( cur.row );
+	rowDeleted.trigger();
     }
 
     setCurrentCell( newcell_ );
