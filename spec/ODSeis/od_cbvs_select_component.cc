@@ -1,3 +1,11 @@
+/*+
+ * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * AUTHOR   : A.H. Bril
+ * DATE     : 2000
+-*/
+
+static const char* rcsID = "$Id";
+
 #include "seistrc.h"
 #include "seiscbvs.h"
 #include "conn.h"

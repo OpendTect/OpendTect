@@ -1,7 +1,12 @@
-#include "winterminate.h"
-//#include <vdmdbg.h>
+/*+
+ * AUTHOR   : Arend Lammertink
+ * DATE     : Aug 2003
+ * SOURCE   : http://support.microsoft.com/default.aspx?scid=http://support.microsoft.com:80/support/kb/articles/Q178/8/93.ASP&NoWebContent=1
+-*/
 
-// source : http://support.microsoft.com/default.aspx?scid=http://support.microsoft.com:80/support/kb/articles/Q178/8/93.ASP&NoWebContent=1
+#include "winterminate.h"
+static const char* rcsID = "$Id";
+
 
 typedef struct
 {

@@ -1,3 +1,17 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ Author:        K. Tingdahl
+ Date:          2001
+ RCS:           $Id: templ_costransimpl.h,v 1.2 2003-11-07 10:04:25 bert Exp $
+________________________________________________________________________
+
+ This is part of another include file. Do not protect against multiple
+ inclusion.
+
+-*/
+
 #define invroot2 0.7071067814
 
 template<class T> inline

@@ -1,5 +1,16 @@
 #ifndef SO_TRANSLATERECTANGLEDRAGGER_IV_H
 #define SO_TRANSLATERECTANGLEDRAGGER_IV_H
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ Author:	Kristofer Tingdahl
+ Date:		4-11-2002
+ RCS:		$Id: SoTranslateRectangleDraggerGeom.h,v 1.2 2003-11-07 10:04:25 bert Exp $
+________________________________________________________________________
+
+
+-*/
 
 const char SoTranslateRectangleDragger::geombuffer[] =
   "#Inventor V2.1 ascii\n"

@@ -1,3 +1,17 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ Author:        K. Tingdahl
+ Date:          2001
+ RCS:           $Id: templ_wavlttransimpl.h,v 1.2 2003-11-07 10:04:25 bert Exp $
+________________________________________________________________________
+
+ This is part of another include file. Do not protect against multiple
+ inclusion.
+
+-*/
+
 template <class T> inline
 void transform1Dt( const T* in, T* out, int space ) const
 {

@@ -1,11 +1,11 @@
 /*+
- * NAME     : %M%
+ * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 3-5-1994
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.6 2001-05-31 12:55:20 windev Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.7 2003-11-07 10:04:25 bert Exp $";
 
 #include "timefun.h"
 #include <time.h>

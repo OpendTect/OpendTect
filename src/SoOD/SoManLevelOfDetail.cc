@@ -1,3 +1,9 @@
+/*+
+ * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * AUTHOR   : Kristofer Tingdahl
+ * DATE     : Sep 2000
+-*/
+
 #include <SoManLevelOfDetail.h>
 
 #include <Inventor/actions/SoGetBoundingBoxAction.h>
