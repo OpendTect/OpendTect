@@ -37,4 +37,7 @@ Input seismic.BinID selection: Range
 -- The next entry is necessary when the first in-line only contains a single
 -- trace AND the following inlines have descending X-line numbers.
 -- Reversed X-line: Yes
+-- The next entry is necessary when the actual crossline step is different
+-- from the survey setup
+-- X-line step: 2
 !
