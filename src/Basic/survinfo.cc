@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.10 2001-08-22 22:34:29 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.11 2001-09-02 21:48:13 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -14,8 +14,11 @@ static const char* rcsID = "$Id: survinfo.cc,v 1.10 2001-08-22 22:34:29 bert Exp
 #include <fstream>
 
 static const char* sKey = "Survey Info";
-SurveyInfo* SurveyInfo::theinst_;
+const char* SurveyInfo::sKeyInlRange = "In-line range";
+const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
+const char* SurveyInfo::sKeyZRange = "Z range";
 
+SurveyInfo* SurveyInfo::theinst_;
 const SurveyInfo& SI()
 {
     if ( !SurveyInfo::theinst_ )
@@ -127,21 +130,21 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    setTr( xtr, astream.value() );
 	else if ( astream.hasKeyword("Coord-Y-BinID") )
 	    setTr( ytr, astream.value() );
-	else if ( astream.hasKeyword("In-line range") )
+	else if ( astream.hasKeyword(sKeyInlRange) )
 	{
 	    FileMultiString fms( astream.value() );
 	    bir.start.inl = atoi(fms[0]);
 	    bir.stop.inl = atoi(fms[1]);
 	    bid.inl = atoi(fms[2]);
 	}
-	else if ( astream.hasKeyword("Cross-line range") )
+	else if ( astream.hasKeyword(sKeyCrlRange) )
 	{
 	    FileMultiString fms( astream.value() );
 	    bir.start.crl = atoi(fms[0]);
 	    bir.stop.crl = atoi(fms[1]);
 	    bid.crl = atoi(fms[2]);
 	}
-	else if ( astream.hasKeyword("Z range") )
+	else if ( astream.hasKeyword(sKeyZRange) )
 	{
 	    FileMultiString fms( astream.value() );
 	    zrange_.start = atof(fms[0]);
@@ -207,14 +210,14 @@ int SurveyInfo::write( const char* basedir ) const
 
     fms = "";
     fms += range_.start.inl; fms += range_.stop.inl; fms += step_.inl;
-    astream.put( "In-line range", fms );
+    astream.put( sKeyInlRange, fms );
     fms = ""; fms += range_.start.crl; fms += range_.stop.crl; fms += step_.crl;
-    astream.put( "Cross-line range", fms );
+    astream.put( sKeyCrlRange, fms );
     if ( !mIS_ZERO(zrange_.width()) )
     {
 	fms = ""; fms += zrange_.start; fms += zrange_.stop;
 	fms += zrange_.step;
-	astream.put( "Z range", fms );
+	astream.put( sKeyZRange, fms );
     }
 
     astream.newParagraph();
