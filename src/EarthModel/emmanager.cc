@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.5 2002-05-22 11:20:33 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.6 2002-05-23 07:24:47 kristofer Exp $";
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -60,6 +60,7 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 	Horizon* hor = new Horizon( *this, key );
 	PtrMan<Executor> exec = hor->saver();
 	exec->execute();
+	objects += hor;
 
 	return key;
     }
@@ -79,6 +80,8 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 	EarthModel::Well* well = new EarthModel::Well( *this, key );
 	PtrMan<Executor> exec = well->saver();
 	exec->execute();
+
+	objects += well;
 
 	return key;
     }
