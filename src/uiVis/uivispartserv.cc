@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.195 2004-04-29 14:51:22 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.196 2004-04-29 16:13:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -535,8 +535,6 @@ void uiVisPartServer::toggleDraggers()
 	    visBase::DataObject* obj = scene->getObject( objidx );
 	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode;
 
-	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-	    if ( pdd ) pdd->showDraggers(isdraggeron);
 	    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
 	    if ( vd ) vd->showBox(isdraggeron);
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
@@ -923,7 +921,7 @@ bool uiVisPartServer::setPosition( int id )
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( !pdd && !vd ) return false;
 
-    const CubeSampling initcs = pdd ? pdd->getCubeSampling( true )
+    const CubeSampling initcs = pdd ? pdd->getCubeSampling()
 				    : vd->getCubeSampling();
     uiSliceSel dlg( appserv().parent(), initcs,
 		    mCB(this,uiVisPartServer,updatePlanePos), (bool)vd );
@@ -1010,12 +1008,13 @@ bool uiVisPartServer::dumpOI( int id ) const
 
 bool uiVisPartServer::resetManipulation( int id )
 {
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( so ) so->resetManipulation();
+
     visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( pdd ) pdd->resetManip();
     if ( vd ) vd->resetManip();
-    return vd || pdd;
+    return so || vd;
 }
 
 
