@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.2 2002-06-21 16:02:41 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.3 2002-06-21 22:37:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,13 +24,13 @@ ________________________________________________________________________
 
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
-	: uiDialog(p,"Import CBVS format file")
+	: uiDialog(p,"Make CBVS cube available")
 	, ctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 {
-    setTitleText( "Import CBVS cube " );
+    setTitleText( "Create CBVS cube definition" );
 
-    inpfld = new uiFileInput( this, "(First) CBSV file name", GetDataDir(),
-	   			true, "*.cbvs *" );
+    inpfld = new uiFileInput( this, "(First) CBVS file name", GetDataDir(),
+	   			true, "*.cbvs;;*" );
     inpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,inpSel) );
 
     StringListInpSpec spec;
@@ -40,15 +40,11 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
     typefld = new uiGenInput( this, "Cube type", spec );
     typefld->attach( alignedBelow, inpfld );
 
-    modefld = new uiGenInput( this, "Import mode",
-	    			    BoolInpSpec("Copy","Point-to") );
-    modefld->attach( alignedBelow, typefld );
-
     ctio_.ctxt.forread = false;
     ctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( ctio_.ctxt.stdSelKey() );
     seissel = new uiIOObjSel( this, ctio_, "Cube name" );
-    seissel->attach( alignedBelow, modefld );
+    seissel->attach( alignedBelow, typefld );
 }
 
 
@@ -75,6 +71,7 @@ void uiSeisImpCBVS::inpSel( CallBacker* )
 	if ( *ptr == '_' ) *ptr = ' ';
 	ptr++;
     }
+
     // remove .cbvs extension
     ptr--;
     if ( *ptr == 's' && *(ptr-1) == 'v' && *(ptr-2) == 'b'
@@ -103,24 +100,16 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     }
 
     const int seltyp = typefld->getIntValue();
-    int nrcomp = 1;
-
     if ( !seltyp )
 	ctio_.ioobj->pars().removeWithKey( "Type" );
     else
 	ctio_.ioobj->pars().set( "Type",
 	    			 seltyp == 1 ? "Attribute" : "Steering" );
 
-    if ( !modefld->getBoolValue() )
-    {
-	ctio_.ioobj->setTranslator( "CBVS" );
-	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj);
-	if ( iostrm )
-	    iostrm->setFileName( fname );
-	IOM().dirPtr()->commitChanges( ctio_.ioobj );
-	return true;
-    }
-
-    uiMSG().error( "Not implemented yet" );
-    return false;
+    ctio_.ioobj->setTranslator( "CBVS" );
+    mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj);
+    if ( iostrm )
+	iostrm->setFileName( fname );
+    IOM().dirPtr()->commitChanges( ctio_.ioobj );
+    return true;
 }

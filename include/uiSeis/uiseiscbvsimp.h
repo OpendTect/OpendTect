@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.2 2002-06-21 16:02:41 bert Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.3 2002-06-21 22:37:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,10 +31,10 @@ protected:
 
     uiFileInput*	inpfld;
     uiGenInput*		typefld;
-    uiGenInput*		modefld;
     uiIOObjSel*		seissel;
 
     void		inpSel(CallBacker*);
+
     bool		acceptOK(CallBacker*);
 
 };

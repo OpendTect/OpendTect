@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.12 2002-01-17 14:19:06 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.13 2002-06-21 22:37:04 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -121,7 +121,7 @@ BinIDSelector* BinIDSelector::create( const IOPar& iopar )
 
     BinIDRange* rg = seltyp == 0 ? new BinIDRange
 				 : (BinIDRange*)new BinIDSampler;
-    rg->start = SI().range().start; rg->stop = SI().range().stop;
+    rg->start = SI().range(false).start; rg->stop = SI().range(false).stop;
     res = iopar[sKeyfinl];
     if ( res && *res ) rg->start.inl = atoi(res);
     res = iopar[sKeyfcrl];
@@ -133,7 +133,7 @@ BinIDSelector* BinIDSelector::create( const IOPar& iopar )
     if ( seltyp == 1 )
     {
 	BinIDSampler* bs = (BinIDSampler*)rg;
-	bs->step = SI().step();
+	bs->step = SI().step(false);
 	res = iopar[sKeystepinl];
 	if ( res && *res ) bs->step.inl = atoi(res);
 	res = iopar[sKeystepcrl];
@@ -272,20 +272,20 @@ void BinIDRange::shift( const BinID& sh )
 
 int BinIDRangeProv::size() const
 {
-    if ( SI().step().inl < 2 && SI().step().crl < 2 )
+    if ( SI().step(false).inl < 2 && SI().step(false).crl < 2 )
 	return (br.stop.inl - br.start.inl + 2*br.stepout.inl + 1)
 	     * (br.stop.crl - br.start.crl + 2*br.stepout.crl + 1);
 
     BinIDSampler bs;
     ((BinIDRange&)bs) = br;
-    bs.step = SI().step();
+    bs.step = SI().step(false);
     return BinIDSamplerProv(bs).size();
 }
 
 
 BinID BinIDRangeProv::operator[]( int idx ) const
 {
-    if ( SI().step().inl < 2 && SI().step().crl < 2 )
+    if ( SI().step(false).inl < 2 && SI().step(false).crl < 2 )
     {
 	int nrxl = br.stop.crl - br.start.crl + 2*br.stepout.crl + 1;
 	int inlidx = idx / nrxl;
@@ -296,13 +296,13 @@ BinID BinIDRangeProv::operator[]( int idx ) const
 
     BinIDSampler bs;
     ((BinIDRange&)bs) = br;
-    bs.step = SI().step();
+    bs.step = SI().step(false);
     return (BinIDSamplerProv(bs))[idx];
 }
 
 
 BinIDSampler::BinIDSampler()
-	: step(SI().step())
+	: step(SI().step(false))
 {
 }
 

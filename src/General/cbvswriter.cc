@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.23 2002-02-18 21:29:09 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.24 2002-06-21 22:37:04 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -205,7 +205,7 @@ void CBVSWriter::newSeg( bool newinl )
 {
     if ( !trcswritten ) prevbinid_ = curbinid_;
 
-    int newstep = SI().step().crl;
+    int newstep = SI().step(false).crl;
     if ( newinl )
     {
 	if ( inldata.size() )
@@ -414,7 +414,7 @@ void CBVSWriter::getRealGeometry()
 	    bids.include( BinID(inlinf.inl,seg.stop) );
 	}
     }
-    if ( !bids.step.inl ) bids.step.inl = SI().step().inl;
+    if ( !bids.step.inl ) bids.step.inl = SI().step(false).inl;
 
     if ( survgeom.fullyrectandreg )
 	deepErase( survgeom.inldata );

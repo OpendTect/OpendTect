@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.13 2001-12-05 14:44:49 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.14 2002-06-21 22:37:04 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -117,7 +117,7 @@ void CBVSReadMgr::createInfo()
 	    }
 	}
 	if ( !info_.geom.step.inl )
-	    info_.geom.step.inl = SI().step().inl;
+	    info_.geom.step.inl = SI().step(false).inl;
     }
 
     for ( int idx=1; idx<sz; idx++ )

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.11 2001-12-11 14:24:02 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.12 2002-06-21 22:37:04 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -51,7 +51,7 @@ SegyTxtHeader::SegyTxtHeader()
     buf += Settings::common()[ "Company" ];
     putAt( 1, 6, 75, buf );
     putAt( 2, 6, 75, SI().name() );
-    BinID bid = SI().range().start;
+    BinID bid = SI().range(false).start;
     Coord coord = SI().transform( bid );
     coord.x = fabs(coord.x); coord.y = fabs(coord.y);
     if ( !mIS_ZERO(bid.inl-coord.x) && !mIS_ZERO(bid.crl-coord.x)
@@ -61,11 +61,12 @@ SegyTxtHeader::SegyTxtHeader()
 	coord = SI().transform( bid );
 	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
 	putAt( 12, 6, 75, buf );
-	bid.crl = SI().range().stop.crl;
+	bid.crl = SI().range(false).stop.crl;
 	coord = SI().transform( bid );
 	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
 	putAt( 13, 6, 75, buf );
-	bid.inl = SI().range().stop.inl; bid.crl = SI().range().start.crl;
+	bid.inl = SI().range(false).stop.inl;
+	bid.crl = SI().range(false).start.crl;
 	coord = SI().transform( bid );
 	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
 	putAt( 14, 6, 75, buf );
