@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.3 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uicolor.h,v 1.4 2002-02-15 14:55:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,15 +17,16 @@ ________________________________________________________________________
 
 class uiObject;
 
-bool  	select( Color&, uiParent* parnt=0, const char* nm=0); 
-	/*!< \brief pops a selector box to select a new color 
+	/*! \brief pops a selector box to select a new color 
              \return true if new color selected
 	*/
+bool  	select( Color&, uiParent* parnt=0, const char* nm=0,
+		bool withtransp=false); 
 
 
+//! \brief This button will have the selected color as background color.
 class uiColorInput : public uiPushButton
 {
-//!< \brief This button will have the selected color as background color.
 public:
 
 			uiColorInput(uiParent*,const Color&,

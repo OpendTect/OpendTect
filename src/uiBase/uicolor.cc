@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uicolor.cc,v 1.5 2002-02-15 14:55:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,27 +14,28 @@ ________________________________________________________________________
 #include "uibody.h"
 #include "qcolordialog.h"
 
-bool select( Color& col, uiParent* parnt, const char* nm )
+bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
   
     bool ok;
     QRgb rgb;
 
-#ifdef SUPPORT_TRANSPARENCY
-    rgb = QColorDialog::getRgba( (QRgb) col.rgb(), &ok, 
-		  parnt ? parnt->body()->qwidget() : 0, nm );
-#else
-    QColor newcol = QColorDialog::getColor( QColor((QRgb) col.rgb()) , 
-		  parnt ? parnt->body()->qwidget() : 0, nm );
-
-    ok = newcol.isValid();
-    rgb = newcol.rgb(); 
-#endif
-
-    if( ok ) 
-    { 
-	col.setRgb( rgb );
+    if ( withtransp )
+    {
+	rgb = QColorDialog::getRgba( (QRgb) col.rgb(), &ok, 
+		      parnt ? parnt->body()->qwidget() : 0, nm );
     }
+    else
+    {
+	QColor newcol = QColorDialog::getColor( QColor((QRgb) col.rgb()) , 
+		      parnt ? parnt->body()->qwidget() : 0, nm );
+
+	ok = newcol.isValid();
+	rgb = newcol.rgb(); 
+    }
+
+    if ( ok )	{ col.setRgb( rgb ); }
+
     return ok;
 }
 
