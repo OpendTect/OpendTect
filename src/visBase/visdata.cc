@@ -4,13 +4,16 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.7 2002-04-29 09:12:40 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.8 2002-04-30 11:45:53 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
 #include "visselman.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoNode.h"
+
+const char* visBase::DataObject::typestr = "Type";
 
 
 const char* visBase::DataObject::name() const
@@ -66,6 +69,12 @@ void visBase::DataObject::deSelect() const
 
 bool visBase::DataObject::isSelected() const
 { return selectable() && DM().selMan().selected().indexOf( id()) != -1; }
+
+
+void visBase::DataObject::fillPar( IOPar& par ) const
+{
+    par.set( typestr, getClassName() );
+}
 
 
 void visBase::DataObject::init()
