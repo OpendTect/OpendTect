@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.38 2002-05-24 08:35:40 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.39 2002-05-24 10:09:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,8 @@ public:
     void		removeHorizonDisplay( int );
     AttribSelSpec&	getHorAttrSelSpec(int);
     void		setHorAttrSelSpec(int,AttribSelSpec&);
-    void		getHorAttribValues(int,TypeSet<BinIDValue>&);
+    void		getHorAttribPos(int,TypeSet<BinIDValue>&);
+    void		putNewHorData(int,const TypeSet<float>&);
     void		getHorizonIds(int,TypeSet<int>&);
 
 			//ColorSeqs

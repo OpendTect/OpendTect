@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.56 2002-05-24 08:35:33 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.57 2002-05-24 10:09:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -839,23 +839,21 @@ void uiVisPartServer::setHorAttrSelSpec( int id, AttribSelSpec& as )
 }
 
 
-void uiVisPartServer::getHorAttribValues( int id, TypeSet<BinIDValue>& bidvset )
+void uiVisPartServer::getHorAttribPos( int id, TypeSet<BinIDValue>& bidvset )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    if ( hor ) hor->getAttribValues( bidvset );
+    if ( hor ) hor->getAttribPos( bidvset );
 }
 
 
-/*
-TODO: make this work
-void uiVisPartServer::putNewHorData( int id, )
+void uiVisPartServer::putNewHorData( int id, const TypeSet<float>& newdata )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    if ( hor ) hor->putNewData();
+    if ( hor ) hor->putNewData( newdata );
 }
-*/
+
 
 void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
 {
