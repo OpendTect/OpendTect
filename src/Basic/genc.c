@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.55 2004-11-29 10:57:25 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.56 2004-12-08 11:39:43 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -344,7 +344,7 @@ const char* _GetHomeDir()
 const char* GetSettingsDir(void)
 { // NOTE: recompile SearchODFile in spec/General when making changes here...
 
-    const char* ptr = getenv( "OD_SETTINGS_DIR" );
+    const char* ptr = getenv( "DTECT_SETTINGS" );
 
 #ifndef __win__
 
