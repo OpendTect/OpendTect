@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.51 2004-09-17 15:20:49 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.52 2004-09-20 12:08:01 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -574,6 +574,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	TypeSet<Coord3> stick;
 	sd->getEditor()->getSeedStick( stick );
 	trackserv->createSeedFromStick( stick );
+	storeSurface( surfid, false );
 	trackserv->calcInterpreterCube( stick );
 	sd->setColor( sd->getEditor()->getSeedStickColor() );
 	sd->getEditor()->enableSeedStick( false );
