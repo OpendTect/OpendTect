@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.40 2002-01-11 13:34:01 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.41 2002-01-11 14:33:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -1042,7 +1042,9 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     int oldbtm = itmGeometry.bottom();
 
     if( hdir && itm.nhiter>0
-        && ( (itm.hStr>1) || (abs(itm.hDelta+hdir) < abs(maxhdelt)))
+        && ( (itm.hStr>1) 
+	    || ((itm.hStr==1) && (abs(itm.hDelta+hdir) < abs(maxhdelt)))
+	   )
         &&!( (hdir>0) && 
 	     ( itmGeometry.right() > targetRect.right() )
 	   )
@@ -1057,7 +1059,9 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     }   
     
     if( vdir && itm.nviter>0 
-        && ( (itm.vStr>1) || abs(itm.vDelta+vdir) < abs(maxvdelt))
+        && ( (itm.vStr>1) 
+            || ((itm.vStr==1) && (abs(itm.vDelta+vdir) < abs(maxvdelt)))
+	   )
         &&!( (vdir>0) && 
 	       ( itmGeometry.bottom() > targetRect.bottom() ) )
         &&!( (vdir<0) && 
