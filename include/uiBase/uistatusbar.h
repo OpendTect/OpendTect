@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.5 2002-04-23 09:57:20 bert Exp $
+ RCS:           $Id: uistatusbar.h,v 1.6 2002-04-23 13:30:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,12 @@ public:
 	    			  const char* tooltip =0,
 				  TxtAlign al=Left,
 	    			  int stretch=1);
+
+    int			addMsgFld(const char* tooltip,
+				  TxtAlign al=Left,
+	    			  int stretch=1);
+
     void		setToolTip(int,const char*);
-    void		setStretch(int,int);
     void		setTxtAlign(int,TxtAlign);
     void		setLabelTxt(int,const char*);
 
