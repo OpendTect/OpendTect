@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.118 2004-04-30 12:30:13 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.119 2004-05-03 16:04:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,8 +107,7 @@ public:
 
     			//Random position data
     void		getRandomPosDataPos(int id,
-				    ObjectSet<TypeSet<BinIDZValues> >&,
-				    bool inclvals=false) const;
+				    ObjectSet<TypeSet<BinIDZValues> >&) const;
     			/*!< Content of objectset becomes callers */
     void		setRandomPosData(int id, bool color, const ObjectSet<
 	    			const TypeSet<const BinIDZValues> >* );
