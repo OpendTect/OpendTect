@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.4 2003-04-10 11:26:47 bert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.5 2003-05-26 09:21:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,8 @@ bool uiImportLMKFault::handleAscii()
     if ( !fault )
 	mErrRet( "Cannot create fault" );
 
+    fault->ref();
+
     lmkEarthModelFaultTranslator translator;
     ifstream* stream = new ifstream( infld->fileName(), ios::in | ios::binary );
     Conn* conn = new StreamConn( stream );
@@ -84,16 +86,28 @@ bool uiImportLMKFault::handleAscii()
     PtrMan<Executor> exec =
 	translator.reader( *fault,conn,formatfilefld->fileName()); 
 
-    if ( !exec ) mErrRet( "Cannot import fault" );
+    if ( !exec )
+    {
+	fault->unRef();
+	mErrRet( "Cannot import fault" );
+    }
 
     uiExecutor dlg( this, *exec );
     if ( !dlg.go() )
+    {
+	fault->unRef();
 	mErrRet( dlg.lastMsg() );
+    }
 
     PtrMan<Executor> saveexec = fault->saver();
     uiExecutor savedlg( this, *saveexec );
     if ( !savedlg.go() )
+    {
+	fault->unRef();
 	mErrRet( savedlg.lastMsg() );
+    }
+
+    fault->unRef();
 
     return true;
 }

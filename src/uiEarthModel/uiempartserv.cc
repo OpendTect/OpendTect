@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.11 2003-05-23 12:25:00 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.12 2003-05-26 09:21:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,12 +63,15 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
     {
 	PtrMan<Executor> exec = EarthModel::EMM().load( id );
 	if ( !exec ) mErrRet( dlg.ioObj()->name() );
+	EarthModel::EMM().ref( id );
 	uiExecutor exdlg( appserv().parent(), *exec );
 	if ( exdlg.go() <= 0 )
 	{
-	    EarthModel::EMM().removeObject( id );
+	    EarthModel::EMM().unRef( id );
 	    return false;
 	}
+
+	EarthModel::EMM().unRefNoDel( id );
     }
 
     return true;
@@ -134,12 +137,15 @@ bool uiEMPartServer::selectFault( MultiID& id )
     {
 	PtrMan<Executor> exec = EarthModel::EMM().load( id );
 	if ( !exec ) mErrRet( dlg.ioObj()->name() );
+	EarthModel::EMM().ref( id );
 	uiExecutor exdlg( appserv().parent(), *exec );
 	if ( exdlg.go() <= 0 )
 	{
-	    EarthModel::EMM().removeObject( id );
+	    EarthModel::EMM().unRef( id );
 	    return false;
 	}
+
+	EarthModel::EMM().unRefNoDel( id );
     }
 
     return true;
@@ -173,6 +179,7 @@ void uiEMPartServer::getSurfaceDef( const MultiID& id,
     EarthModel::EMManager& em = EarthModel::EMM();
     mDynamicCastGet(EarthModel::Horizon*,hor,em.getObject(id))
     if ( !hor ) return;
+    hor->ref();
 
     deepErase( bidvset );
     const int nrsubsurf = hor->nrPatches();
@@ -203,4 +210,6 @@ void uiEMPartServer::getSurfaceDef( const MultiID& id,
 	    }
 	}
     }
+
+    hor->unRef();
 }
