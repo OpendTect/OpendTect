@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.71 2003-01-15 09:31:25 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.72 2003-01-21 08:30:45 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,36 +18,21 @@ ________________________________________________________________________
 #include "thread.h"
 #include "position.h"
 
-class UserIDSet;
-class PickSet;
-class PickSetGroup;
-class Color;
-class ColorTable;
-class CallBack;
-class CubeSampling;
-class AttribSelSpec;
-class AttribSlice;
+#include "cubesampling.h"
+#include "attribsel.h"
+
+class SeisTrc;
+
 class AttribSliceSet;
-class IOPar;
-class MultiID;
-class BinIDRange;
-class SurfaceInfo;
+class PickSet;
+class uiPopupMenu;
+class ColorTable;
+class UserIDSet;
 
 namespace visSurvey
 {
 class Scene;
-class PickSetDisplay;
-class WellDisplay;
-class SurfaceDisplay;
-class PlaneDataDisplay;
-class VolumeDisplay;
 class SurfaceInterpreterDisplay;
-};
-
-namespace visBase
-{
-    class Material;
-    class ColorSequence;
 };
 
 namespace Threads { class Mutex; };
@@ -59,223 +44,191 @@ namespace Geometry { class GridSurface; };
 class uiVisPartServer : public uiApplPartServer
 {
 public:
-			uiVisPartServer(uiApplService&);
-			~uiVisPartServer();
-    const char*		name() const		{ return "Visualisation"; }
+				uiVisPartServer(uiApplService&);
+				~uiVisPartServer();
+    const char*			name() const;
+    void			setObjectName(int,const char*);
+    const char*			getObjectName(int) const;
 
-    			//Events and their functions
-    static const int	evManipulatorMove;
-    static const int	evSelection;
-    static const int	evDeSelection;
-    static const int	evPicksChanged;
-    static const int	evGetNewData;
-    static const int	evSelectableStatusCh;
-    static const int	evMouseMove;
-    int			getEventObjId() const { return eventobjid; }
-    			/* Tells which object the event is about */
+    int				addScene();
+    void			removeScene(int id);
 
-    			//General stuff
-    bool		deleteAllObjects();
+    int				addInlCrlTsl(int scene,int type);
+    int				addRandomLine(int scene);
+    int				addVolView(int scene);
+    int				addSurface(int scene, const MultiID& );
+    int				addWell(int scene, const MultiID& emwellid );
 
-    bool		usePar( const IOPar& );
-    void		fillPar( IOPar& ) const;
+    int				addSurfTrackerCube( int scene );
+    				/*!< Get position with getCubeSampling */
+    int				addSurfTrackProposal(Geometry::GridSurface&);
 
-    enum ElementType    { Inline, Crossline, Timeslice };
-    enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay, WellDisplay,
-    			  HorizonDisplay, FaultDisplay, VolumeDisplay };
-    ObjectType		getObjectType( int ) const;
-    void		setObjectName(int,const char*);
-    const char*		getObjectName(int) const;
+    int				addPickSet(int scene, const PickSet& pickset );
+    void			getAllPickSets(UserIDSet&);
+    void			getPickSetData( int id, PickSet& pickset )const;
 
-    bool		dumpOI( int id, const char* filename ) const;
-    			/*!< Writes out all display data to a file. This is
-			     only for debugging COIN stuff. Should not be used
-			     apart from that
-			*/
+    void			getVolumePlaneIds(int,int&,int&,int&);
+    float			getVolumePlanePos(int,int) const;
 
-    			/* Mouse stuff */
-    Coord3		getMousePos(bool xyt) const
-    			{ return xyt ? xytmousepos : inlcrlmousepos; }
-    			/*!< If !xyt mouse pos will be in inl, crl, t */
-    float		getMousePosVal() const { return mouseposval; }
+    MultiID			getMultiID( int id ) const;
+	
+    int				getSelObjectId() const;
+    void			setSelObjectId(int);
 
-    void		turnOn(int,bool);
-    bool		isOn(int);
-    void		setViewMode(bool yn);
-    void		showAnnotText(int,bool);
-    bool		isAnnotTextShown(int);
-    void		showAnnotScale(int,bool);
-    bool		isAnnotScaleShown(int);
-    void		showAnnot(int,bool);
-    bool		isAnnotShown(int);
+    void			makeSubMenu( uiPopupMenu&, int scene, int id);
+    				/*!< Gives menu ids from 1024 and above */
+    bool			handleSubMenuSel( int mnu, int scene, int id);
 
-    			// Selection
-    bool		isSelectable(int) const;
-    void		makeSelectable(int, bool yn );
-    void		setSelObjectId(int);
-    			//!< set to -1 if you want toedeselect
-    int			getSelObjectId() const;
+    				//Events and their functions
+    static const int		evAddItem;
+    static const int		evUpdateTree;
+    void			getChildIds( int id, TypeSet<int>& ) const;
+				/*!< Gets a scenes' children or a volumes' parts
+				     If id==-1, it will give the ids of the
+				     scenes */
+    BufferString		getTreeInfo(int id) const;
+    BufferString		getAttribName(int id) const;
+    bool			isInlCrlTsl(int,int) const;
+    bool			isVolView(int) const;
+    bool			isRandomLine(int) const;
+    bool			isHorizon(int) const;
+    bool			isFault(int) const;
+    bool			isWell(int) const;
+    bool			isPickSet(int) const;
 
-    			// Scene Stuff
-    int			addScene();
-    void		removeScene(int);
-    void		setSelSceneId(int id)	{ selsceneid = id; }
-    int			getSelSceneId()		{ return selsceneid; }
-    void		getSceneIds(TypeSet<int>&) const;
+    static const int		evSelection;
+    				/*<! Get the id with getEventObjId() */
 
-			//DataDisplay stuff
-    int			addDataDisplay(uiVisPartServer::ElementType);
-    int			duplicateDisplay(int);
-    void		removeDataDisplay(int);
-    void		resetManipulation( int );
-    void		setPlanePos(int);
-    void		updatePlanePos(CallBacker*);
-    float		getPlanePos(int) const;
-    bool		isPlaneManipulated(int) const;
-    void		setAttribSelSpec(int,AttribSelSpec&);
-    CubeSampling&	getPrevCubeSampling(int);
-    CubeSampling&	getCubeSampling(int,bool manippos);
-    const AttribSelSpec&	getAttribSelSpec(int) const;
-    void		putNewData(int,AttribSliceSet*);
-    const AttribSliceSet*	getPrevData(int) const;
-    void		getDataDisplayIds(int,uiVisPartServer::ElementType,
-					  TypeSet<int>&);
+    static const int		evDeSelection;
+    				/*<! Get the id with getEventObjId() */
 
-			//VolumeDisplay stuff
-    int			addVolumeDisplay();
-    void		removeVolumeDisplay(int);
-    void		putNewVolData(int,AttribSliceSet*);
-    AttribSliceSet*	getPrevVolData(int);
-    void		getVolumeDisplayIds(int,TypeSet<int>&);
-    void		getVolumePlaneIds(int,int&,int&,int&);
-    float		getVolumePlanePos(int,int dim) const;
-    bool		isVolumeManipulated(int) const;
-    int			addVolRen(int);
+    static const int		evGetNewCubeData;
+    				/*<! Get the id with getEventObjId() */
+    				/*!< Get selSpec with getSelSpec */
+    const CubeSampling*		getCubeSampling( int id ) const;
+    				/*!< Should only be called as a direct 
+				     reply to evGetNewCubeData */
+    const AttribSliceSet*	getCachedData( int id ) const;
+    bool			setCubeData( int id, AttribSliceSet* );
+    				/*!< data becomes mine */
 
-    			//PickSets stuff
-    int                 addPickSetDisplay();
-    void                removePickSetDisplay(int);
-    bool		setPicks(int, const PickSet&);
-    void		getAllPickSets(UserIDSet&);
-    void		getPickSetData(const char*,PickSet&);
-    void		getPickSetIds(int,TypeSet<int>&);
-    int 		nrPicks(int);
-    bool		picksetIsPresent(const char*);
-    void		showAllPicks(int,bool);
-    bool		allPicksShown(int);
-    int			getPickType(int) const;
-    void		setPickType(int,int);
+    static const int		evGetNewRandomPosData;
+    				/*!< Get selSpec with getSelSpec */
+    				/*<! Get the id with getEventObjId() */
+    void			getRandomPosDataPos( int id,
+				    ObjectSet<TypeSet<BinIDZValue> >& ) const;
+    				/*!< Content of objectset becomes callers */
+    void			setRandomPosData( int id, const ObjectSet
+				   <const TypeSet<const BinIDZValue> >&);
+    				/*!< The data should have exactly the same
+				     structure as the positions given in
+				     getRandomPosDataPos */
 
-    			//Well stuff
-    int			addWellDisplay(const MultiID& emwellid);
-    void		removeWellDisplay(int);
-    int			getNrWellAttribs(int) const;
-    const char*		getWellAttribName(int, int idx) const;
-    void		displayWellAttrib(int, int idx);
-    int			displayedWellAttrib(int) const;
-    void		modifyLineStyle(int);
-    void		showWellText(int,bool);
-    bool		isWellTextShown(int) const;
-    void		getWellIds(int,TypeSet<int>&);
+    static const int		evGetRandomTracePosData;
+    				/*<! Get the id with getEventObjId() */
+    				/*!< Get selSpec with getSelSpec */
+    void			getRandomTrackPositions(int id,
+	    						TypeSet<BinID>&) const;
+    const Interval<float>	getRandomTraceZRange( int id ) const;
+    void			setRandomTrackData( int id,
+	    						ObjectSet<SeisTrc>& );
+    				/*!< Traces becomes mine */
 
-    			// Surface stuff
-    int			addSurfaceDisplay(const MultiID& emhorid);
-    void		removeSurfaceDisplay( int );
-    void		getSurfAttribData(int,
-	    				 ObjectSet< TypeSet<BinIDZValue> >&,
-	    				 bool posonly,
-					 const BinIDRange* br=0) const;
-    			//!< The data in the objset will be managed by caller
-    void		getSurfAttribValues(int,TypeSet<float>&) const;
-    void		putNewSurfData(int,
-			  const ObjectSet<const TypeSet<const BinIDZValue> >&);
-    void		getSurfaceIds(int,ObjectType,TypeSet<int>&) const;
-    void		getSurfaceInfo(ObjectSet<SurfaceInfo>&,ObjectType) 
-									const;
-    void		getSurfaceNames(ObjectSet<BufferString>&,ObjectType) 
-									const;
-    void		setSurfaceNrTriPerPixel(int id, float);
-    float		getSurfaceNrTriPerPixel(int id) const;
+    static const int		evMouseMove;
+    Coord3			getMousePos(bool xyt) const;
+				/*!< If !xyt mouse pos will be in inl, crl, t */
+    BufferString		getMousePosVal() const;
 
-			// Resolution
-    void		setResolution(int, int res );
-    			//!< 0 is automatic.
-    int			getResolution(int) const;
-    int			getNrResolutions(int) const;
-    BufferString	getResolutionText(int,int) const;
 
-			//Interpretation stuff
-    void		showSurfTrackerCube(bool yn, int sceneid=-1);
-    bool		isSurfTrackerCubeShown(int sceneid=-1) const;
-    int			getSurfTrackerCube(bool create=false);
-    CubeSampling	surfTrackerCubeSampling();
+    static const int		evSelectAttrib;
+    void			setSelSpec(const AttribSelSpec&);
+    				/*!< Should only be called as a direct 
+				     reply to evSelectAttrib */
+    void			selectionOK(bool yn) { attrselected = yn; }
 
-    int			addSurfTracker( Geometry::GridSurface& );
-    void		removeSurfTracker( int surf );
+    static const int		evInteraction;
+    				/*<! Get the id with getEventObjId() */
+    BufferString		getInteractionMsg(int id) const;
+    				/*!< Returns dragger position or
+				     Nr positions in picksets */
 
-			//ColorSeqs
-    bool		canSetColorSeq(int) const;
-    void		modifyColorSeq(int, const ColorTable&);
-    const ColorTable&   getColorSeq(int) const;
-    void		shareColorSeq(int toid, int fromid );
+    				// ColorTable stuff
+    bool			usesColTab(int) const;
+    void			modifyColorSeq(int,const ColorTable&);
+    const ColorTable&		getColorSeq(int) const;
+    void			setClipRate(int,float);
+    float			getClipRate(int) const;
+    void			setAutoscale(int,bool);
+    bool			getAutoscale(int) const;
+    void			setDataRange(int,const Interval<float>&);
+    Interval<float>		getDataRange(int) const;
 
-    			//Ranges
-    bool		canSetRange(int) const;
-    void		setClipRate(int,float);
-    float		getClipRate(int) const;
-    void		setAutoscale(int,bool);
-    bool		getAutoscale(int) const;
-    void		setDataRange(int,const Interval<float>&);
-    Interval<float>	getDataRange(int) const;
-    void		shareRange(int toid, int fromid );
-    			//!<Includes colorsequence
 
-    			//Material
-    bool		canSetColor(int) const;
-    void		modifyColor( int, const Color&);
-    Color		getColor(int) const;
-    void		shareColor(int toid, int fromid );
-    void		useTexture(int,bool);
-    bool		usesTexture(int) const;
+				//General stuff
+    int				getEventObjId() const;
+    const AttribSelSpec*	getSelSpec( int id ) const;
+    bool			deleteAllObjects();
+    void			setZScale();
+    bool			setWorkingArea();
+    void			setViewMode(bool yn);
+    void			turnOn(int,bool);
+    bool			isOn(int) const;
 
-			//Dialogs
-    bool		setWorkingArea();
-    bool		setZScale();
-    void		setMaterial(int);
-    void		setPickProps(int);
+    bool			usePar( const IOPar& );
+    void			fillPar( IOPar& ) const;
 
 protected:
 
-    void		selectObjCB(CallBacker*);
-    void		deselectObjCB(CallBacker*);
-    void		picksChangedCB(CallBacker*);
-    void		manipMoveCB(CallBacker*);
-    void		getDataCB(CallBacker*);
-    void		mouseMoveCB(CallBacker*);
+    visSurvey::Scene*		getScene( int id );
+    const visSurvey::Scene*	getScene( int id ) const;
+    void			removeObject( int id, int sceneid );
 
-    const CallBack	appcb;
-    int			selsceneid;
-    bool		viewmode;
+    bool			hasAttrib( int id ) const;
+    bool			selectAttrib( int id );
+    bool			calculateAttrib( int id );
 
-    Threads::Mutex&	eventmutex;
-    int			eventobjid;
-    int			cbobjid;
+    bool			isMovable( int id ) const;
+    bool			setPosition( int id );
 
-    Coord3		xytmousepos;
-    Coord3		inlcrlmousepos;
-    float		mouseposval;
+    bool			isManipulated( int id ) const;
+    bool			resetManipulation( int id );
 
-    ObjectSet<visSurvey::PickSetDisplay>	picks;
-    ObjectSet<visSurvey::PlaneDataDisplay>	seisdisps;
-    ObjectSet<visSurvey::WellDisplay>         	wells;
-    ObjectSet<visSurvey::SurfaceDisplay>       	surfaces;
-    ObjectSet<visSurvey::Scene>         	scenes;
-    ObjectSet<visSurvey::VolumeDisplay>		volumes;
-    visSurvey::SurfaceInterpreterDisplay*	surftracker;
+    bool			hasMaterial( int id ) const;
+    bool			setMaterial( int id );
+
+    bool			hasDuplicate(int) const;
+    bool			duplicateObject(int,int);
     
-    
-    static const char*	workareastr;
-    static const char*	appvelstr;
+    void			setUpConnections( int id );
+    				/*!< Should set all cbs for the object */
+    bool			dumpOI( int id ) const;
+
+    ObjectSet<visSurvey::Scene>	scenes;
+    visSurvey::SurfaceInterpreterDisplay* interpreterdisplay;
+
+    AttribSelSpec		attribspec;
+    				/* For temporary use when sending 
+				   evSelectAttrib events */
+
+    Coord3			xytmousepos;
+    Coord3			inlcrlmousepos;
+    float			mouseposval;
+
+    bool			viewmode;
+    Threads::Mutex&		eventmutex;
+    int				eventobjid;
+    bool			attrselected;
+
+    void			selectObjCB(CallBacker*);
+    void			deselectObjCB(CallBacker*);
+    void			interactionCB(CallBacker*);
+    void			mouseMoveCB(CallBacker*);
+    void			updatePlanePos(CallBacker*);
+    void			getDataCB(CallBacker*);
+
+
+    static const char*		workareastr;
+    static const char*		appvelstr;
 };
 
 #endif
