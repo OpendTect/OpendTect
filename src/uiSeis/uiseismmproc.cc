@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.11 2002-05-08 12:25:39 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.12 2002-05-08 14:47:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,13 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 {
     setCancelText( "Quit" );
     setOkText( "" );
-    setTitleText("");
     delay = 500;
+
+    const char* res = iop.find( "Target value" );
+    BufferString txt;
+    if ( res && *res )
+	{ txt = "< "; txt += res; txt += " >"; }
+    setTitleText( txt );
 
     tmpstordirfld = new uiIOFileSelect( this, "Temporary storage directory",
 	    				false, jm->tempStorageDir() );
