@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.15 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.16 2003-12-24 15:18:38 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -107,7 +107,7 @@ void SegyTxtHeader::setUserInfo( const char* txt )
 void SegyTxtHeader::setPosInfo( int xcoordbyte, int ycoordbyte,
 				int inlbyte, int crlbyte )
 {
-    UnitIDString buf;
+    BufferString buf;
     buf = "Byte positions:";
     putAt( 5, 6, 6+buf.size(), buf );
     buf = "X-coordinate: "; buf += xcoordbyte;
@@ -131,10 +131,8 @@ void SegyTxtHeader::setPosInfo( int xcoordbyte, int ycoordbyte,
 
 void SegyTxtHeader::setStartPos( float sp )
 {
-    UnitIDString buf;
-    if ( mIS_ZERO(sp) )
-	buf.setTo( ' ' );
-    else
+    BufferString buf;
+    if ( !mIS_ZERO(sp) )
     {
 	buf = "First sample ";
 	buf += SI().zIsTime() ? "time (s" : "depth (";

@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-#include "Pmacros.h"
+#include "gendefs.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,10 +22,8 @@
 # endif
 #endif
 
-#if __GNUC__ > 2
-# include <ext/stdio_filebuf.h>
-# define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
-#endif
+#include <ext/stdio_filebuf.h>
+#define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
 
 #include "strmprov.h"
 #include "filegen.h"
@@ -36,7 +34,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.48 2003-12-10 09:56:55 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.49 2003-12-24 15:18:38 bert Exp $";
 
 static FixedString<1024> oscommand;
 
