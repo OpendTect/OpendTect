@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.3 2003-10-08 07:44:10 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.4 2003-10-08 09:55:19 kristofer Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -237,13 +237,15 @@ void SoMeshSurface::GLRender( SoGLRenderAction* action )
 		const int existingindex = creationquebricks.find( brick );
 		if ( existingindex!=-1 )
 		{
-		    if ( existingindex==creationquebricks.getLength()-1 )
-			continue;
-
-		    creationquebricks[existingindex] = 0;
+		    if ( existingindex!=creationquebricks.getLength()-1 )
+		    {
+			creationquebricks[existingindex] = 0;
+			creationquebricks.push( brick );
+		    }
 		}
+		else
+		    creationquebricks.push( brick );
 
-		creationquebricks.push( brick );
 		creationcondvar->wakeOne();
 	    }
 	}

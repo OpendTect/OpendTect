@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.5 2003-10-08 07:44:10 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.6 2003-10-08 09:55:44 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -351,7 +351,9 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 
     const int relrow = row-startrow;
     const int relcol = col-startcol;
-    if ( relrow==sidesize || relcol==sidesize )
+    if ( relrow>=0 && relrow<=sidesize &&
+	 relcol>=0 && relcol<=sidesize && 
+	 (relrow==sidesize || relcol==sidesize) )
     {
 	const int index = getCoordIndex( row, col );
 
@@ -815,13 +817,24 @@ void SoMeshSurfaceSquare::sizePowerCB( void* object, SoSensor* )
     square->sidesize = sidesize;
     const int numcoords = (sidesize+1)*(sidesize+1);
 
-    square->coordptr->point.deleteValues(0);
+    square->coordptr->point.setNum(numcoords);
+    square->texturecoordptr->point.setNum(numcoords);
+    SbVec3f* coordptr = square->coordptr->point.startEditing();
+    SbVec2f* tcoordptr = square->texturecoordptr->point.startEditing();
+
+    const SbVec3f udefval(  SoMeshSurface::undefVal(),
+	    		    SoMeshSurface::undefVal(),
+			    SoMeshSurface::undefVal() );
+    const SbVec2f udefval2( 0, 0 );
     for ( int idx=0; idx<numcoords; idx++ )
     {
-	square->coordptr->point.set1Value( idx, SbVec3f(1e30,1e30,1e30) );
-	square->texturecoordptr->point.set1Value( idx, SbVec2f(0,0) );
+	coordptr[idx] = udefval;
+	tcoordptr[idx] = udefval2;
     }
-    
+
+    square->coordptr->point.finishEditing();
+    square->texturecoordptr->point.finishEditing();
+
     square->triswitchptr->removeAllChildren();
     square->wireswitchptr->removeAllChildren();
     for ( int idx=0; idx<square->sizepower.getValue(); idx++ )
