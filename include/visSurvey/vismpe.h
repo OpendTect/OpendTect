@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.6 2005-03-23 16:00:26 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.7 2005-04-04 11:18:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -79,6 +79,7 @@ protected:
 
     void			setTexture(visBase::Texture3*);
     void			updateTextureCoords();
+    void			setDraggerCenter(bool alldims);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 

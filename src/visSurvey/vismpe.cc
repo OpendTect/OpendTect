@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.8 2005-03-24 16:25:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.9 2005-04-04 11:18:30 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -101,9 +101,9 @@ MPEDisplay::MPEDisplay()
     dragger_->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
 
     engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
-    engine_.trackplanechange.notify( 
-				mCB(this,MPEDisplay,updateDraggerPosition) );
-    updateDraggerPosition(0);
+//  engine_.trackplanechange.notify( 
+//				mCB(this,MPEDisplay,updateDraggerPosition) );
+    setDraggerCenter( true );
     updateBoxPosition(0);
 }
 
@@ -111,8 +111,8 @@ MPEDisplay::MPEDisplay()
 MPEDisplay::~MPEDisplay()
 {
     engine_.activevolumechange.remove( mCB(this,MPEDisplay,updateBoxPosition) );
-    engine_.trackplanechange.remove( 
-				mCB(this,MPEDisplay,updateDraggerPosition) );
+//  engine_.trackplanechange.remove( 
+//				mCB(this,MPEDisplay,updateDraggerPosition) );
 
     setSceneEventCatcher( 0 );
 
@@ -135,6 +135,7 @@ void MPEDisplay::setCubeSampling( CubeSampling cs )
     			    (cs.hrg.stop.crl+cs.hrg.start.crl)/2,
     			    cs.zrg.center() );
     boxdragger_->setCenter( newcenter );
+    setDraggerCenter( true );
 }
 
 
@@ -245,6 +246,8 @@ void MPEDisplay::setTexture( visBase::Texture3* nt )
     texture_ = nt;
     if ( texture_ )
 	draggerrect_->insertObject( 0, (DataObject*)texture_ );
+
+    updateTextureCoords();
 }
 
 
@@ -324,6 +327,8 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 	engine_.setActiveVolume( newcube );
 	manipulated_ = true;
     }
+
+    setDraggerCenter( true );
 }
 
 
@@ -474,7 +479,13 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 }
 
 
-void MPEDisplay::updateDraggerPosition( CallBacker* )
+void MPEDisplay::updateDraggerPosition( CallBacker* cb )
+{
+    setDraggerCenter( false );
+}
+
+
+void MPEDisplay::setDraggerCenter( bool alldims )
 {
     NotifyStopper stop( dragger_->changed );
     const CubeSampling& cs = engine_.trackPlane().boundingBox();
@@ -486,9 +497,9 @@ void MPEDisplay::updateDraggerPosition( CallBacker* )
 
     const Coord3 newcenter((cs.hrg.stop.inl+cs.hrg.start.inl)/2,
 			   (cs.hrg.stop.crl+cs.hrg.start.crl)/2,
-			   cs.zrg.center() );
-    if ( newcenter!=dragger_->center() )
-	dragger_->setCenter( newcenter );
+			   cs.zrg.center());
+    if ( newcenter != dragger_->center() )
+	dragger_->setCenter( newcenter, alldims );
 }
 
 
