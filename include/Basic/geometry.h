@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.9 2000-08-15 10:23:01 bert Exp $
+ RCS:           $Id: geometry.h,v 1.10 2000-09-20 10:44:53 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 
     inline bool		operator ==( const Size2D<T>& s ) const
 			{ return s.width_ == width_ && s.height_ == height_; }
-    inline bool		operator !=( const Size2D<T>& p ) const
+    inline bool		operator !=( const Size2D<T>& s ) const
 			{ return s.width_ != width_ || s.height_ != height_; }
 
     inline T		width() const		{ return width_; }
