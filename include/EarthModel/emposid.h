@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.7 2003-06-17 12:47:47 kristofer Exp $
+ RCS:		$Id: emposid.h,v 1.8 2003-08-01 09:14:29 nanne Exp $
 ________________________________________________________________________
 
 
@@ -38,12 +38,15 @@ class PosID
 {
 public:
     				PosID( ObjectID emobj,
-				       PatchID patch,
-				       SubID subid );
+				       PatchID patch=0,
+				       SubID subid=0);
 
     const ObjectID&		emObject() const;
-    const PatchID&		patchID() const;
-    const SubID&		subID() const;
+    PatchID			patchID() const;
+    SubID			subID() const;
+    void			setObjectID(const ObjectID&);
+    void			setPatchID(PatchID);
+    void			setSubID(SubID);
 
     RowCol			getRowCol() const;
     				/*!< Should not be used, only for db
@@ -58,6 +61,7 @@ public:
     bool			usePar( const IOPar& );
 
 protected:
+
     ObjectID			emobj;
     PatchID			patch;
     SubID			subid;
@@ -88,13 +92,19 @@ inline const ObjectID& PosID::emObject() const
 { return emobj; }
 
 
-inline const PatchID& PosID::patchID() const
+inline PatchID PosID::patchID() const
 { return patch; }
 
 
-inline const SubID& PosID::subID() const
+inline SubID PosID::subID() const
 { return subid; }
 
+inline void PosID::setObjectID( const ObjectID& id )
+{ emobj = id; }
+inline void PosID::setPatchID( PatchID id )
+{ patch = id; }
+inline void PosID::setSubID( SubID id )
+{ subid = id; }
 
 
 }; // Namespace
