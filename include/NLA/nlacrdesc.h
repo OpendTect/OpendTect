@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.4 2004-05-04 15:51:29 bert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.5 2005-01-31 16:03:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,15 +44,12 @@ public:
     inline bool		isSupervised() const	{ return design.isSupervised();}
 
     const char*		transferData(const ObjectSet<FeatureSet>&,
-				FeatureSet& train, FeatureSet& test,
-				FeatureSet* fswrite=0) const;
-			//!< If fswrite not supplied, one will be made
-			//!< if necessary.
+				FeatureSet& train, FeatureSet& test) const;
 
 protected:
 
-    int			addFeatData(FeatureSet&,FeatureSet&,FeatureSet*,
-				    const FeatureSet& fs,int,int) const;
+    int			addFeatData(FeatureSet&,FeatureSet&,const FeatureSet&,
+	    			    int,int) const;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.10 2004-10-19 10:59:25 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.11 2005-01-31 16:03:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ protected:
     FeatureSet&		fsmc;
     BufferStringSet	inpnms;
 
+    void		writeToFS(FeatureSet&,const MultiID&);
 };
 
 

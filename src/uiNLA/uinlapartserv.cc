@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.11 2004-10-19 10:59:25 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.12 2005-01-31 16:03:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,14 @@ ________________________________________________________________________
 #include "welltransl.h"
 #include "wellextractdata.h"
 #include "featset.h"
+#include "featsettr.h"
 #include "binidvalset.h"
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "debug.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "ptrman.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -136,5 +140,39 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	deepErase( bivsets );
     }
 
-    return crdesc.transferData( fss, fsTrain(), fsTest(), &fswrite );
+    const char* res = crdesc.transferData( fss, fsTrain(), fsTest() );
+    if ( res ) return res;
+
+    //TODO allow user to view and edit data here
+
+    if ( crdesc.doextraction && crdesc.fsid != "" )
+	writeToFS( fswrite, crdesc.fsid );
+
+    return 0;
+}
+
+
+#define mErrRet(s) { ErrMsg(s); return; }
+
+void uiNLAPartServer::writeToFS( FeatureSet& fswrite, const MultiID& fsid )
+{
+    const FeatureSet& fstrain = fsTrain();
+    fswrite.copyStructure( fstrain );
+
+    PtrMan<IOObj> ioobj = IOM().get( fsid );
+    if ( !ioobj )
+	mErrRet( "Cannot initialise training set storage ..." );
+    ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
+    if ( !fswrite.startPut(ioobj) )
+	mErrRet( "Cannot open training set storage ..." );
+
+    FeatureVec fv( FVPos(0,0) );
+    for ( int idx=0; idx<fstrain.size(); idx++ )
+	{ fstrain.get( fv ); fswrite.put( fv ); }
+
+    const FeatureSet& fstest = fsTest();
+    for ( int idx=0; idx<fstest.size(); idx++ )
+	{ fstest.get( fv ); fswrite.put( fv ); }
+
+    fswrite.close();
 }

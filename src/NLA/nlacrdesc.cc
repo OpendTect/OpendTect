@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.5 2004-05-07 16:15:34 bert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.6 2005-01-31 16:03:19 bert Exp $";
 
 #include "nlacrdesc.h"
 #include "featset.h"
@@ -43,10 +43,8 @@ void NLACreationDesc::clear()
 }
 
 
-const char* NLACreationDesc::transferData(
-	const ObjectSet<FeatureSet>& fss,
-	FeatureSet& fstrain, FeatureSet& fstest,
-	FeatureSet* fswrin ) const
+const char* NLACreationDesc::transferData( const ObjectSet<FeatureSet>& fss,
+	FeatureSet& fstrain, FeatureSet& fstest ) const
 {
     fstrain.erase(); fstest.erase();
     const char* res = 0;
@@ -55,7 +53,6 @@ const char* NLACreationDesc::transferData(
 	{ return "Internal: No input Feature Sets to transfer data from"; }
 
     bool writevecs = doextraction && fsid != "";
-    FeatureSet* fswrite = writevecs ? (fswrin ? fswrin : new FeatureSet) : 0;
 
     // For direct prediction, the sets are ready. If not, add a FeatureDesc
     // for each output node
@@ -67,30 +64,10 @@ const char* NLACreationDesc::transferData(
     }
     fstest.copyStructure( fstrain );
 
-    if ( writevecs )
-    {
-        fswrite->copyStructure( fstrain );
-        PtrMan<IOObj> ioobj = IOM().get( fsid );
-        if ( !ioobj )
-        {
-            writevecs = false;
-            res = "Cannot initialise training set storage ...";
-        }
-        else
-        {
-	    ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
-            if ( !fswrite->startPut(ioobj) )
-            {
-                writevecs = false;
-                res = "Cannot open training set storage!";
-            }
-        }
-    }
-
     // Get the data into train and test set
     for ( int idx=0; idx<fss.size(); idx++ )
     {
-        if ( !addFeatData(fstrain,fstest,fswrite,*fss[idx],nrout,idx) )
+        if ( !addFeatData(fstrain,fstest,*fss[idx],nrout,idx) )
         {
             BufferString msg( "No values collected for '" );
             msg += IOM().nameOf( *outids[idx] );
@@ -104,8 +81,6 @@ const char* NLACreationDesc::transferData(
 	}
 	 
     }
-    if ( writevecs ) fswrite->close();
-    if ( fswrite != fswrin ) delete fswrite;
 
     if ( res && *res ) return res;
 
@@ -129,8 +104,7 @@ const char* NLACreationDesc::transferData(
 
 
 int NLACreationDesc::addFeatData( FeatureSet& fstrain,
-				FeatureSet& fstest,
-				FeatureSet* fswrite, const FeatureSet& fs,
+				FeatureSet& fstest, const FeatureSet& fs,
 				int nrout, int iout ) const
 {
     FeatureVec fvin( FVPos(0,0) );
@@ -150,8 +124,6 @@ int NLACreationDesc::addFeatData( FeatureSet& fstrain,
 	FeatureSet& addset = Stat_getRandom() < ratiotst ? fstest : fstrain;
 	addset += newfv;
 	nradded++;
-	if ( fswrite )
-	    fswrite->put( *newfv );
     }
     return nradded;
 }
