@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.5 2003-04-22 09:49:42 arend Exp $
+ RCS:           $Id: uitable.h,v 1.6 2003-04-23 12:31:11 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,13 @@ public:
 			    , rowdesc_("Row")
 			    , coldesc_("Column")
 			    , fillrow_(true)
-			    , fillcol_(false)	{}
+			    , fillcol_(false)
+			    , minrowhgt_( 1.2 )
+			    , maxrowhgt_( 3 )
+			    , mincolwdt_( uiObject::baseFldSize() )
+			    , maxcolwdt_( 2.3 * uiObject::baseFldSize() )
+
+	{}
 
 	Setup& size( const Size& s )		{ size_ = s; return *this; }
 	Setup& rowdesc( const char* s )		{ rowdesc_ = s; return *this; }
@@ -51,6 +57,10 @@ public:
 	Setup& colcangrow( bool s=true )	{ colgrow_ = s; return *this; }
 	Setup& fillrow( bool s=true )		{ fillrow_ = s; return *this; }
 	Setup& fillcol( bool s=true )		{ fillcol_ = s; return *this; }
+	Setup& maxrowhgt( float s )		{ maxrowhgt_= s; return *this; }
+	Setup& minrowhgt( float s )		{ minrowhgt_= s; return *this; }
+	Setup& maxcolwdt( float s )		{ maxcolwdt_= s; return *this; }
+	Setup& mincolwdt( float s )		{ mincolwdt_= s; return *this; }
 
 	Size		size_;
 	BufferString	rowdesc_;
@@ -59,6 +69,10 @@ public:
 	bool		colgrow_;
 	bool		fillrow_; //!< grow cell heights to fill up avail space
 	bool		fillcol_; //!< grow cell widths to fill up avail space
+	float		minrowhgt_; //!< expressed in multiples of font height
+	float		maxrowhgt_; //!< expressed in multiples of font height
+	float		mincolwdt_; //!< times average font width
+	float		maxcolwdt_; //!< times average font width
     };
 
                         uiTable(uiParent*, const Setup&,const char* nm="Table");

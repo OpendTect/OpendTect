@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.9 2003-04-23 10:43:21 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.10 2003-04-23 12:31:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -444,8 +444,8 @@ void uiTable::updateCellSizes( uiSize* size )
 
 	int colwdt = availwdt / nc;
 
-	const int minwdt = uiObject::baseFldSize() * font()->avgWidth();
-	const int maxwdt = 2 * minwdt;
+	const int minwdt = (int)(setup_.mincolwdt_ * (float)font()->avgWidth());
+	const int maxwdt = (int)(setup_.maxcolwdt_ * (float)font()->avgWidth());
 
 	if ( colwdt < minwdt ) colwdt = minwdt;
 	if ( colwdt > maxwdt ) colwdt = maxwdt;
@@ -474,10 +474,10 @@ void uiTable::updateCellSizes( uiSize* size )
 			 - 2*body_->frameWidth();
 
 	int rowhgt =  availhgt / nr;
-	int fonthgt = font()->height();
+	const float fonthgt = (float)font()->height();
 
-	const int minhgt = fonthgt;
-	const int maxhgt = 3 * fonthgt;
+	const int minhgt = (int)(setup_.minrowhgt_ * fonthgt);
+	const int maxhgt = (int)(setup_.maxrowhgt_ * fonthgt);
 
 	if ( rowhgt < minhgt ) rowhgt = minhgt;
 	if ( rowhgt > maxhgt ) rowhgt = maxhgt; 
