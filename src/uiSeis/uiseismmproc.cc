@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.14 2002-05-13 14:34:40 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.15 2002-05-14 21:30:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,15 +225,14 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
 
     if ( !running ) return true;
 
-    if ( finished )
-	msg = "Do you want to discard log files?";
-    else
+    int res = 0;
+    if ( !finished )
     {
 	msg = "This will stop all processing!\n\n";
 	msg += "Do you want to remove already processed data?";
+	res = uiMSG().askGoOnAfter( msg );
     }
 
-    int res = uiMSG().askGoOnAfter( msg );
     if ( res == 2 )
 	return false;
 
@@ -272,25 +271,20 @@ void uiSeisMMProc::addPush( CallBacker* )
 }
 
 
-int uiSeisMMProc::getCurMach( BufferString& mach ) const
+bool uiSeisMMProc::getCurMach( BufferString& mach ) const
 {
     int curit = usedmachfld->box()->currentItem();
-    if ( curit < 0 ) return -1;
+    if ( curit < 0 ) return false;
 
     mach = usedmachfld->box()->textOfItem(curit);
-    int occ = 0;
-    for( int idx=0; idx<curit-1; idx++ )
-	if ( mach == usedmachfld->box()->textOfItem(idx) )
-	    occ++;
-
-    return occ;
+    return true;
 }
 
 
 void uiSeisMMProc::stopPush( CallBacker* )
 {
     BufferString mach;
-    if ( getCurMach(mach) < 0 ) { pErrMsg("Can't find machine"); return; }
+    if ( !getCurMach(mach) ) { pErrMsg("Can't find machine"); return; }
     jm->removeHost( mach );
     updateCurMachs();
 }
@@ -299,11 +293,10 @@ void uiSeisMMProc::stopPush( CallBacker* )
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
     BufferString mach;
-    int occ = getCurMach( mach );
-    if ( occ < 0 ) return;
+    if ( !getCurMach(mach) ) return;
 
     BufferString fname;
-    if ( !jm->getLogFileName(mach,occ,fname) )
+    if ( !jm->getLogFileName(mach,fname) )
 	mErrRet("Cannot find log file")
 
     delete logvwer;
