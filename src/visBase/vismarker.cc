@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.1 2002-07-25 15:25:45 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.2 2002-07-29 07:30:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,12 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visBase::Marker );
 
+const char* visBase::Marker::centerposstr = "Center Pos";
+
 
 visBase::Marker::Marker()
-    : group( new SoGroup )
+    : VisualObjectImpl(true)
+    , group( new SoGroup )
     , position( new SoTranslation )
     , scale( new SoScale )
     , shapescale( visBase::ShapeScale::create() )
@@ -125,6 +128,14 @@ void visBase::Marker::setScale( const Geometry::Pos& pos )
 
 int visBase::Marker::usePar( const IOPar& iopar )
 {
+    int res = VisualObjectImpl::usePar( iopar );
+    if ( res != 1 ) return res;
+
+    Geometry::Pos pos;
+    if ( !iopar.get( centerposstr, pos.x, pos.y, pos.z ) )
+        return -1;
+    setCenterPos( pos );
+
     shapescale->usePar( iopar );
     return 1;
 }
@@ -132,6 +143,11 @@ int visBase::Marker::usePar( const IOPar& iopar )
 
 void visBase::Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
+    VisualObjectImpl::fillPar( iopar, saveids );
+
+    Geometry::Pos pos = centerPos();
+    iopar.set( centerposstr, pos.x, pos.y, pos.z );
+
     shapescale->fillPar( iopar, saveids );
 }
 
