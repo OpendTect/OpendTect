@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.121 2004-05-04 09:50:17 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.122 2004-05-06 15:15:45 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,6 +137,7 @@ public:
     			/*<\returns the id that triggered the event */
 
     static const int	evUpdateTree;
+    void		triggerTreeUpdate();
 
     static const int	evSelection;
     			/*<! Get the id with getEventObjId() */

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.205 2004-05-06 12:16:24 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.206 2004-05-06 15:15:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,6 +152,13 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     if ( !dobj ) return;
 
     scene->addObject( dobj );
+    eventmutex.lock();
+    sendEvent( evUpdateTree );
+}
+
+
+void uiVisPartServer::triggerTreeUpdate()
+{
     eventmutex.lock();
     sendEvent( evUpdateTree );
 }
