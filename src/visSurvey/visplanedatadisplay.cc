@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.58 2004-01-09 16:27:08 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.59 2004-01-29 10:14:22 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -119,20 +119,21 @@ void PlaneDataDisplay::setRanges( const StepInterval<float>& irg,
 					     const StepInterval<float>& zrg,
        					     bool manip )
 {
+    visBase::Rectangle& rect = trect->getRectangle();
     if ( type==Inline )
     {
-	trect->getRectangle().setOrientation( visBase::Rectangle::YZ );
-	trect->getRectangle().setRanges( zrg, crg, irg, manip );
+	rect.setOrientation( visBase::Rectangle::YZ );
+	rect.setRanges( zrg, crg, irg, manip );
     }
     else if ( type==Crossline )
     {
-	trect->getRectangle().setOrientation( visBase::Rectangle::XZ );
-	trect->getRectangle().setRanges( irg, zrg, crg, manip );
+	rect.setOrientation( visBase::Rectangle::XZ );
+	rect.setRanges( irg, zrg, crg, manip );
     }
     else
     {
-	trect->getRectangle().setOrientation( visBase::Rectangle::XY );
-	trect->getRectangle().setRanges( irg, crg, zrg, manip );
+	rect.setOrientation( visBase::Rectangle::XY );
+	rect.setRanges( irg, crg, zrg, manip );
     }
 }
 
@@ -332,40 +333,32 @@ void PlaneDataDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 
 CubeSampling& PlaneDataDisplay::getCubeSampling( bool manippos )
 {
+    visBase::Rectangle& rect = trect->getRectangle();
     CubeSampling& cubesampl = manippos ? manipcs : cs;
-    cubesampl.hrg.start = BinID( mNINT(manippos
-				? trect->getRectangle().manipOrigo().x
-				: trect->getRectangle().origo().x),
-		  	  mNINT(manippos
-				? trect->getRectangle().manipOrigo().y
-				: trect->getRectangle().origo().y) );
-
+    cubesampl.hrg.start = 
+	BinID( mNINT(manippos ? rect.manipOrigo().x : rect.origo().x),
+	       mNINT(manippos ? rect.manipOrigo().y : rect.origo().y) );
     cubesampl.hrg.stop = cubesampl.hrg.start;
     cubesampl.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-    float zrg0 = manippos ? trect->getRectangle().manipOrigo().z
-			  : trect->getRectangle().origo().z;
+    float zrg0 = manippos ? rect.manipOrigo().z : rect.origo().z;
     cubesampl.zrg.start = (float)(int)(1000*zrg0+.5) / 1000;
     cubesampl.zrg.stop = cubesampl.zrg.start;
 
-    if ( trect->getRectangle().orientation()==visBase::Rectangle::XY )
+    if ( rect.orientation()==visBase::Rectangle::XY )
     {
-	cubesampl.hrg.stop.inl += 
-			mNINT(trect->getRectangle().width(0,manippos));
-	cubesampl.hrg.stop.crl += 
-	    		mNINT(trect->getRectangle().width(1,manippos));
+	cubesampl.hrg.stop.inl += mNINT(rect.width(0,manippos));
+	cubesampl.hrg.stop.crl += mNINT(rect.width(1,manippos));
     }
-    else if ( trect->getRectangle().orientation()==visBase::Rectangle::XZ )
+    else if ( rect.orientation()==visBase::Rectangle::XZ )
     {
-	cubesampl.hrg.stop.inl += 
-	    		mNINT(trect->getRectangle().width(0,manippos));
-	cubesampl.zrg.stop += trect->getRectangle().width(1,manippos);
+	cubesampl.hrg.stop.inl += mNINT(rect.width(0,manippos));
+	cubesampl.zrg.stop += rect.width(1,manippos);
     }
     else
     {
-	cubesampl.hrg.stop.crl += 
-	    		mNINT(trect->getRectangle().width(1,manippos));
-	cubesampl.zrg.stop += trect->getRectangle().width(0,manippos);
+	cubesampl.hrg.stop.crl += mNINT(rect.width(1,manippos));
+	cubesampl.zrg.stop += rect.width(0,manippos);
     }
 
     return cubesampl;
@@ -385,7 +378,7 @@ void PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 }
 
 
-void PlaneDataDisplay::setSliceIdx( int idx )
+void PlaneDataDisplay::showTexture( int idx )
 {
     if ( !cache || idx >= cache->size() ) return;
     trect->showTexture( idx );
@@ -417,17 +410,19 @@ bool PlaneDataDisplay::putNewData( AttribSliceSet* sliceset, bool colordata )
 
 void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype ) 
 {
-    trect->clear();
-
     if ( !sliceset )
     {
 	trect->setData( 0, 0, 0 );
 	return;
     }
 
+    trect->removeAllTextures( true );
     const int nrslices = sliceset->size();
     for ( int slcidx=0; slcidx<nrslices; slcidx++ )
     {
+	if ( slcidx )
+	    trect->addTexture();
+
 	const int lsz = (*sliceset)[slcidx]->info().getSize(0);
 	const int zsz = (*sliceset)[slcidx]->info().getSize(1);
 	const int slicesize = (*sliceset)[slcidx]->info().getTotalSz();
@@ -453,7 +448,6 @@ void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype )
 		    				slicesize*sizeof(float) );
 	    trect->setData( datacube, slcidx, datatype );
 	}
-
     }
 
     trect->showTexture( 0 );

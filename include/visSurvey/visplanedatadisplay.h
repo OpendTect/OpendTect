@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.41 2004-01-09 16:27:17 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.42 2004-01-29 10:14:28 nanne Exp $
 ________________________________________________________________________
 
 
@@ -79,7 +79,7 @@ public:
     bool			putNewData(AttribSliceSet*,bool);
     				/*!< Becomes mine */
     const AttribSliceSet*	getCachedData(bool colordata=false) const;
-    void			setSliceIdx(int);
+    void			showTexture(int);
 
     void			turnOn(bool);
     bool			isOn() const;
