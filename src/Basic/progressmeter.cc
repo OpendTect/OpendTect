@@ -38,7 +38,7 @@ ProgressMeter::~ProgressMeter()
 void ProgressMeter::finish()
 {
     if ( !finished )
-	{ annotate(); finished = true; }
+	{ annotate(false); finished = true; }
 }
 
 
@@ -78,13 +78,13 @@ unsigned long ProgressMeter::update( unsigned long a )
     }
 
     if ( relprogress == dist*rowlen ) 
-	annotate();
+	annotate(true);
 
     return progress;
 }
 	
 
-void ProgressMeter::annotate()
+void ProgressMeter::annotate( bool withrate )
 {
     zeropoint = progress;
 
@@ -97,7 +97,7 @@ void ProgressMeter::annotate()
     // Show rate
     int newtime = Time_getMilliSeconds();
     int tdiff = newtime - oldtime;
-    if ( tdiff > 0 )
+    if ( withrate && tdiff > 0 )
     {
 	int permsec = (int)((1.e6 * dist * rowlen) / tdiff + .5);
 	strm << " (" << permsec * .001 << "/s)";
