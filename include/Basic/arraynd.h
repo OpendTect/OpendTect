@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.15 2001-07-19 12:59:54 kristofer Exp $
+ RCS:		$Id: arraynd.h,v 1.16 2001-09-20 16:09:06 bert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -31,39 +31,42 @@ template <class T>
 class ArrayND 
 {
 public:
-    class					LinearStorage;
 
-						// Read specs
-    virtual T	                		get( const int* ) const	= 0;
+    virtual				~ArrayND()	{}
 
-    inline const LinearStorage*			getStorage() const
-						{ return getStorage_(); }
+    class				LinearStorage;
 
-    inline const T*				getData() const
-						{ return getData_(); }
-    virtual const T*				get1D(const int*) const;
-    virtual int					get1DDim() const;
+					// Read specs
+    virtual T	                	get( const int* ) const	= 0;
 
-						// Write specs
-    virtual bool				isSettable() const
-						{ return true; }
-    virtual void				set( const int*, T )	= 0;
+    inline const LinearStorage*		getStorage() const
+					{ return getStorage_(); }
 
-    inline LinearStorage*			getStorage();
-    inline T*					getData();
-    virtual T*					get1D( const int* i );
+    inline const T*			getData() const
+					{ return getData_(); }
+    virtual const T*			get1D(const int*) const;
+    virtual int				get1DDim() const;
 
-    virtual const ArrayNDInfo&			info() const		= 0;
-    virtual bool				canSetInfo() const
-    						{ return false; }
-    						/*!< You might not be able to
-						     change nr dimension, check
-						     canChangeNrDims() if you
-						     want to do that. */
-    virtual bool				canChangeNrDims() const
-    						{ return false; }
-    virtual bool				setInfo( ArrayNDInfo& )
-						{ return false; }
+					// Write specs
+    virtual bool			isSettable() const
+					{ return true; }
+    virtual void			set( const int*, T )	= 0;
+
+    inline LinearStorage*		getStorage();
+    inline T*				getData();
+    virtual T*				get1D( const int* i );
+
+    virtual const ArrayNDInfo&		info() const		= 0;
+    virtual bool			canSetInfo() const
+    					{ return false; }
+    					/*!< You might not be able to
+					     change nr dimension, check
+					     canChangeNrDims() if you
+					     want to do that. */
+    virtual bool			canChangeNrDims() const
+    					{ return false; }
+    virtual bool			setInfo( ArrayNDInfo& )
+					{ return false; }
 
     class LinearStorage
     {
@@ -91,15 +94,14 @@ public:
 
 protected:
  
-    virtual const LinearStorage*	getStorage_() const { return 0; }
+    virtual const LinearStorage* getStorage_() const { return 0; }
 
-    const T*				getData_() const
-					{
-					    if ( getStorage_() )
-						return getStorage()->getData();
-					    return 0;
-					}
-
+    const T*			getData_() const
+				{
+				    if ( getStorage_() )
+					return getStorage()->getData();
+				    return 0;
+				}
 
 };
 
@@ -108,12 +110,14 @@ template <class T>
 class Array1D : public ArrayND<T>
 {
 public: 
+
     virtual void		set(int,T)				= 0;
     virtual T			get(int) const				= 0;
     void			set(const int* pos,T v) { set( pos[0], v ); }
     T	                	get(const int* pos) const {return get(pos[0]);}
 
     virtual const mPolyArray1DInfoTp& info() const = 0;
+
 };
 
 
