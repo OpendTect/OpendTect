@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.3 2003-12-04 13:35:33 arend Exp $
+# $Id: od_cr_dev_env,v 1.4 2003-12-04 13:43:32 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -114,3 +114,4 @@ do
         "$inpdir/.$fil" > $fil
 done
 
+cp "$inpdir/.rel.od.doc" .
