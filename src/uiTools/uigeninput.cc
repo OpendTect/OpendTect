@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.12 2001-05-08 15:38:43 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.13 2001-05-08 15:48:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -510,7 +510,7 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
 	    case DataInpSpec::intTp:
 		{
 		    fld = new uiLineInpFld( this, desc ); 
-		    fld->uiObj().setPrefWidthInChar( 15 );
+		    fld->uiObj().setPrefWidthInChar( 10 );
 		}
 		break;
 
