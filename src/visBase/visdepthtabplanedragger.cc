@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.5 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.6 2004-05-19 10:14:59 kristofer Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -94,6 +94,11 @@ void visBase::DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
     {
 	sizes[0] = scale; sizes[1] = scale; sizes[2] = scale;
     }
+}
+
+void visBase::DepthTabPlaneDragger::removeScaleTabs()
+{
+    dragger->setPart("scaleTabs", 0 );
 }
 
 

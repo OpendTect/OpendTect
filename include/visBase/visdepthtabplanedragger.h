@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.4 2004-05-19 10:14:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,9 @@ class DepthTabPlaneDragger : public VisualObjectImpl
 public:
     static DepthTabPlaneDragger*	create()
 					mCreateDataObj(DepthTabPlaneDragger);
+    void				removeScaleTabs();
+    					/*!\note once removed, they cannot be
+					    restored */
 
     void			setCenter( const Coord3&, bool alldims = true );
     				/*!< \param alldims if true, it updates the
