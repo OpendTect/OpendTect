@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.32 2003-06-30 15:35:04 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.33 2003-08-13 13:40:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 			, dlgtitle_(dialog_title ? dialog_title : window_title)
 			, helpid_(help_id), savetext_("Save defaults")
 			, oktext_("Ok"), canceltext_("Cancel")
-			, modal_(true)
+			, modal_(true) // if no parent given, always non-modal
 			, savebutton_(None), separator_(true)
 			, menubar_(false), toolbar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
