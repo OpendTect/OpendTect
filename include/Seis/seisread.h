@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.2 2000-01-24 16:35:08 bert Exp $
+ RCS:		$Id: seisread.h,v 1.3 2000-03-02 15:25:31 bert Exp $
 ________________________________________________________________________
 
 A SeisTrcReader reads from a seismic data store. If you don't want all of the data,
@@ -53,6 +53,8 @@ public:
 
     void		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
+
+    virtual bool	prepareRetry();
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.1.1.2 1999-09-16 09:22:14 arend Exp $
+ RCS:		$Id: seistrctr.h,v 1.2 2000-03-02 15:25:37 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -46,14 +46,17 @@ public:
 			// Init functions are mandatory
 			// Conn object must be always available
     virtual bool	initRead( SeisPacketInfo&, Conn& c )
-			{ conn = &c; return NO; }
+			{ conn = 0; if ( !c.forRead() ) return false;
+			  conn = &c; return true; }
     virtual bool	initWrite( const SeisPacketInfo&, Conn& c )
-			{ conn = &c; return YES; }
+			{ conn = 0; if ( !c.forWrite() ) return false;
+			  conn = &c; return true; }
     virtual bool	read(SeisTrcInfo&)		{ return NO; }
     virtual bool	read(SeisTrc&)			{ return NO; }
     virtual bool	skip(unsigned short ns=0)	{ return NO; }
     virtual bool	write(const SeisTrc&)		{ return NO; }
     const char*		errMsg() const			{ return errmsg; }
+    virtual void	prepareRetry()			{}
 
     SeisKeyData&	keyData()			{ return keys; }
     inline int		step() const

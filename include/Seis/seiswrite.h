@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.2 2000-01-24 16:35:10 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.3 2000-03-02 15:25:38 bert Exp $
 ________________________________________________________________________
 
 A SeisTrcWriter writes to a seismic data store. To be able to use the writer,
@@ -31,6 +31,7 @@ public:
 			SeisTrcWriter(const IOObj*);
     virtual Executor*	starter();
     virtual bool	put(const SeisTrc&);
+    virtual bool	prepareRetry();
 
     void		setPacketInfo( const SeisPacketInfo& s ) { spi = s; }
     void		fillAuxPar(IOPar&) const;

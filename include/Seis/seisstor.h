@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.2 2000-01-24 16:35:09 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.3 2000-03-02 15:25:33 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -43,6 +43,7 @@ public:
 			{ return ioobj; }
 
     virtual Executor*	starter()		= 0;
+    virtual bool	prepareRetry()		= 0;
     void		close();
     virtual void	usePar(const IOPar&);
 				// After usePar(), check connState()

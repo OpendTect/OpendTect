@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.1.1.2 1999-09-16 09:22:11 arend Exp $
+ RCS:		$Id: seistrc.h,v 1.2 2000-03-02 15:25:36 bert Exp $
 ________________________________________________________________________
 
 A trace is composed of trace info and trace data.
@@ -127,6 +127,12 @@ public:
     virtual SeisTrc*		get() const		= 0;
 
 };
+
+
+inline int clippedVal( float val, int lim )
+{
+    return val > (float)lim ? lim : (val < -((float)lim) ? -lim : mNINT(val));
+}
 
 
 #endif
