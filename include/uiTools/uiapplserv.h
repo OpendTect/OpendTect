@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.1 2002-02-08 22:00:56 bert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.2 2002-02-11 16:03:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,12 +24,14 @@ class uiApplService : public UserIDObject
 {
 public:
 			uiApplService( const char* nm = 0 )
-			: UserIDObject(nm)			{}
+			: UserIDObject(nm)				{}
 			//!< The name is the application name
 
-    virtual uiParent*	parent() const				= 0;
-    virtual void	eventOccurred(uiApplPartServer*,int)	= 0;
-
+    virtual uiParent*	parent() const					= 0;
+    virtual void	eventOccurred(uiApplPartServer*,int evid)	= 0;
+    			//!< The evid will be specific for each partserver
+    virtual void*	getObject(uiApplPartServer*,int)		= 0;
+    			//!< The actual type is a protocol with the partserver
 };
 
 
@@ -54,8 +56,10 @@ public:
     uiApplService&	appserv()		{ return uias_; }
     const uiApplService& appserv() const	{ return uias_; }
 
-    void		sendEvent( int ev )
-    			{ appserv().eventOccurred(this,ev); }
+    void		sendEvent( int evid )
+    			{ appserv().eventOccurred(this,evid); }
+    void*		getObject( int objid )
+			{ appserv().getObject(this,objid); }
 
 protected:
 
