@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.6 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: mathexpression.h,v 1.7 2004-01-13 13:15:25 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,8 @@ ________________________________________________________________________
 The expression can consist of constants, variables, operators and standard
 mathematical functions.
 A constant can be any number like 3, -5, 3e-5, or pi. Everything that does
-not start with a digit is treated as a variable. An operator can be either:
+not start with a digit and is not an operator is treated as a variable.
+An operator can be either:
 
 +, -, *, /, ^,  >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat, 
 or |abs|
@@ -53,10 +54,10 @@ public:
 
     virtual MathExpression*	clone() const = 0;
 
-				MathExpression(int nrinputs);
     virtual			~MathExpression();
 
 protected:
+				MathExpression(int nrinputs);
 
     int				getNrInputs() const { return inputs.size(); }
     bool			setInput( int, MathExpression* );
