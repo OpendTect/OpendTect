@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visboxdragger.h,v 1.9 2003-12-19 09:00:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,7 @@ public:
 
 protected:
 				~BoxDragger();
+    void			setOwnShapeHints();
 
     static void			startCB( void*, SoDragger* );
     static void			motionCB( void*, SoDragger* );

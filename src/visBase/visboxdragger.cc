@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.7 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.8 2003-12-19 09:00:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,13 +12,18 @@ ________________________________________________________________________
 #include "visboxdragger.h"
 #include "ranges.h"
 #include "iopar.h"
+#include "survinfoimpl.h"
 
-#include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/draggers/SoTabBoxDragger.h"
+#include <Inventor/draggers/SoTabBoxDragger.h>
+#include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoShapeHints.h>
 
 mCreateFactoryEntry( visBase::BoxDragger );
 
-visBase::BoxDragger::BoxDragger()
+namespace visBase
+{
+
+BoxDragger::BoxDragger()
     : started( this )
     , motion( this )
     , changed( this )
@@ -39,10 +44,13 @@ visBase::BoxDragger::BoxDragger()
 	    visBase::BoxDragger::valueChangedCB, this );
     boxdragger->addFinishCallback(
 	    visBase::BoxDragger::finishCB, this );
+
+    setOwnShapeHints();
+
 }
 
 
-visBase::BoxDragger::~BoxDragger()
+BoxDragger::~BoxDragger()
 {
     boxdragger->removeStartCallback(
 	    visBase::BoxDragger::startCB, this );
@@ -60,35 +68,58 @@ visBase::BoxDragger::~BoxDragger()
 }
 
 
-void visBase::BoxDragger::setCenter( const Coord3& pos )
+void BoxDragger::setOwnShapeHints()
+{
+    SoShapeHints* myHints = new SoShapeHints;
+    myHints->shapeType = SoShapeHints::SOLID;
+    myHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+    if ( SI().is3D() )
+    {
+	SurveyInfo3D::Orientation orient = SI3D().getOrientation();
+	if ( orient == SurveyInfo3D::CounterClockwise )
+	    myHints->vertexOrdering = SoShapeHints::CLOCKWISE;
+    }
+    
+    SoDragger* child;
+    const char* tabstr( "tabPlane" );
+    for ( int i = 1; i <= 6; i++ )
+    {
+	BufferString str( tabstr ); str += i;
+	child = (SoDragger*)boxdragger->getPart( str.buf(), false );
+	child->setPart( "scaleTabHints", myHints );
+    }
+}
+
+
+void BoxDragger::setCenter( const Coord3& pos )
 {
     boxdragger->translation.setValue( pos.x, pos.y, pos.z );
     prevcenter = pos;
 }
 
 
-Coord3 visBase::BoxDragger::center() const
+Coord3 BoxDragger::center() const
 {
     SbVec3f pos = boxdragger->translation.getValue();
     return Coord3( pos[0], pos[1], pos[2] );
 }
 
 
-void visBase::BoxDragger::setWidth( const Coord3& pos )
+void BoxDragger::setWidth( const Coord3& pos )
 {
     boxdragger->scaleFactor.setValue( pos.x/2, pos.y/2, pos.z/2 );
     prevwidth = pos;
 }
 
 
-Coord3 visBase::BoxDragger::width() const
+Coord3 BoxDragger::width() const
 {
     SbVec3f pos = boxdragger->scaleFactor.getValue();
     return Coord3( pos[0]*2, pos[1]*2, pos[2]*2 );
 }
 
 
-void visBase::BoxDragger::setSpaceLimits( const Interval<float>& x,
+void BoxDragger::setSpaceLimits( const Interval<float>& x,
 					  const Interval<float>& y,
 					  const Interval<float>& z)
 {
@@ -106,37 +137,37 @@ void visBase::BoxDragger::setSpaceLimits( const Interval<float>& x,
 }
 
 
-void visBase::BoxDragger::turnOn( bool yn )
+void BoxDragger::turnOn( bool yn )
 {
     onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
-bool visBase::BoxDragger::isOn() const
+bool BoxDragger::isOn() const
 {
     return !onoff->whichChild.getValue();
 }
 
 
-SoNode* visBase::BoxDragger::getData()
+SoNode* BoxDragger::getData()
 { return onoff; }
 
 
-void visBase::BoxDragger::startCB( void* obj, SoDragger* )
+void BoxDragger::startCB( void* obj, SoDragger* )
 {
-    ( (visBase::BoxDragger*)obj )->started.trigger();
+    ( (BoxDragger*)obj )->started.trigger();
 }
 
 
-void visBase::BoxDragger::motionCB( void* obj, SoDragger* )
+void BoxDragger::motionCB( void* obj, SoDragger* )
 {
-    ( (visBase::BoxDragger*)obj )->motion.trigger();
+    ( (BoxDragger*)obj )->motion.trigger();
 }
 
 
-void visBase::BoxDragger::valueChangedCB( void* obj, SoDragger* )
+void BoxDragger::valueChangedCB( void* obj, SoDragger* )
 {
-    visBase::BoxDragger* thisp = (visBase::BoxDragger*) obj;
+    BoxDragger* thisp = (BoxDragger*)obj;
     const Coord3 center = thisp->center();
     const Coord3 width = thisp->width();
 
@@ -165,12 +196,14 @@ void visBase::BoxDragger::valueChangedCB( void* obj, SoDragger* )
     thisp->prevcenter = center;
     thisp->prevwidth = width;
 
-    ( (visBase::BoxDragger*)obj )->changed.trigger();
+    ( (BoxDragger*)obj )->changed.trigger();
 }
 
 
-void visBase::BoxDragger::finishCB( void* obj, SoDragger* )
+void BoxDragger::finishCB( void* obj, SoDragger* )
 {
-    ( (visBase::BoxDragger*)obj )->finished.trigger();
+    ( (BoxDragger*)obj )->finished.trigger();
 }
 
+
+}; // namespace visBase

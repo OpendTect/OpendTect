@@ -4,31 +4,29 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.35 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.36 2003-12-19 09:00:19 nanne Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
+#include "survinfoimpl.h"
 
-#include "Inventor/nodes/SoScale.h"
-#include "Inventor/nodes/SoTranslation.h"
-#include "Inventor/nodes/SoRotation.h"
-#include "Inventor/nodes/SoSeparator.h"
-#include "Inventor/nodes/SoCoordinate3.h"
-#include "Inventor/nodes/SoFaceSet.h"
-#include "Inventor/nodes/SoNormal.h"
-#include "Inventor/nodes/SoNormalBinding.h"
-#include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/nodes/SoDrawStyle.h"
-#include "Inventor/nodes/SoMaterial.h"
-#include "Inventor/nodes/SoShapeHints.h"
-#include "Inventor/nodes/SoTexture2.h"
-#include "Inventor/nodes/SoGroup.h"
+#include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoRotation.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoFaceSet.h>
+#include <Inventor/nodes/SoNormal.h>
+#include <Inventor/nodes/SoNormalBinding.h>
+#include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/nodes/SoMaterial.h>
+#include <Inventor/nodes/SoShapeHints.h>
+#include <Inventor/nodes/SoTexture2.h>
+#include <Inventor/nodes/SoGroup.h>
 
-
-#include "Inventor/draggers/SoTabPlaneDragger.h"
-#include "Inventor/draggers/SoTranslate1Dragger.h"
-
-#include "Inventor/actions/SoGetMatrixAction.h"
+#include <Inventor/draggers/SoTabPlaneDragger.h>
+#include <Inventor/draggers/SoTranslate1Dragger.h>
 
 #include <math.h>
 
@@ -127,6 +125,8 @@ visBase::RectangleDragger::RectangleDragger()
 
     tabswitch->whichChild = 0;
     syncronizeDraggers();
+
+    setOwnShapeHints();
 }
 
 
@@ -185,6 +185,23 @@ visBase::RectangleDragger::~RectangleDragger()
 	    visBase::RectangleDragger::valueChangedCB, this );
     manipxydragger1->removeFinishCallback(
 	    visBase::RectangleDragger::finishCB, this );
+}
+
+
+void visBase::RectangleDragger::setOwnShapeHints()
+{
+    SoShapeHints* myHints = new SoShapeHints;
+    myHints->shapeType = SoShapeHints::SOLID;
+    myHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+    if ( SI().is3D() )
+    {
+        SurveyInfo3D::Orientation orient = SI3D().getOrientation();
+        if ( orient == SurveyInfo3D::CounterClockwise )
+            myHints->vertexOrdering = SoShapeHints::CLOCKWISE;
+    }
+
+    manipxydragger0->setPart( "scaleTabHints", myHints );
+    manipxydragger1->setPart( "scaleTabHints", myHints );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.30 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visrectangle.h,v 1.31 2003-12-19 09:00:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,7 @@ public:
 protected:
 				~RectangleDragger();
 
+    void			setOwnShapeHints();
     void			syncronizeDraggers();
     void			draggerHasMoved( SoDragger* );
     
