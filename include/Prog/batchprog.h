@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.4 2002-12-10 16:23:30 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.5 2002-12-17 15:08:35 arend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -16,9 +16,10 @@ ________________________________________________________________________
 */
 
 #include <uidobj.h>
+#include <mmdefs.h>
 class IOPar;
 class StreamData;
-class SocketProvider;
+class Socket;
 
 
 class BatchProgram : public UserIDObject
@@ -30,8 +31,6 @@ public:
     const char*		arg( int idx ) const	{ return argv_[idx+argshift_]; }
     const char*		fullPath() const	{ return fullpath_; }
     const char*		progName() const;
-    SocketProvider*	sockProv() const	{ return sockprov_; }
-    			//!< Made when "OpenSocket" requested in IOPar
 
 			//! This method must be defined by user
     bool		go(ostream& log_stream);
@@ -40,6 +39,8 @@ public:
     char**		argv()			{ return argv_; }
     int			argc()			{ return *pargc_; }
     int&		argc_r()		{ return *pargc_; }
+
+    bool		writeStatus( char tag, int );
 
 protected:
 
@@ -59,11 +60,18 @@ protected:
     bool		inbg_;
     StreamData&		sdout_;
     IOPar*		iopar_;
-    SocketProvider*	sockprov_;
+
+    Socket*		mkSocket();
+    BufferString	masterhost_;
+    int			masterport_;
+    bool		usesock_;
+    int			jobid_;
 
     bool		initOutput();
-    bool		writePid(int);
     void		progKilled(CallBacker*);
+    void		killNotify( bool yn );
+
+    int			exitstat_;
 
 };
 
