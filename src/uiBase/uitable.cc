@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.4 2003-03-12 16:22:25 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.5 2003-03-31 16:26:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,6 +151,15 @@ void uiTable::removeColumn( int col )
     { body_->removeColumn( col ); }
 
 
+const char* uiTable::rowLabel( int nr ) const
+{
+    static BufferString ret;
+    QHeader* topHeader = body_->verticalHeader();
+    ret = topHeader->label( nr );
+    return ret;
+}
+
+
 void uiTable::setRowLabel( int row, const char* label )
 {
     QHeader* topHeader = body_->verticalHeader();
@@ -179,6 +188,15 @@ void uiTable::setRowLabels( const ObjectSet<BufferString>& labels )
 
     for ( int i=0; i<labels.size(); i++ )
         setRowLabel( i, *labels[i] );
+}
+
+
+const char* uiTable::columnLabel( int nr ) const
+{
+    static BufferString ret;
+    QHeader* topHeader = body_->horizontalHeader();
+    ret = topHeader->label( nr );
+    return ret;
 }
 
 

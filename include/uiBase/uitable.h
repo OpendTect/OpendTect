@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.2 2003-03-12 16:23:19 arend Exp $
+ RCS:           $Id: uitable.h,v 1.3 2003-03-31 16:26:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,12 +96,18 @@ public:
     void		removeColumn( const Pos& p )
 			    { removeColumn( p.x() ); }
 
+    const char*		rowLabel(int) const;
+    const char*		rowLabel( const Pos& p ) const
+			    { return rowLabel(p.y()); }
     void		setRowLabel( int row, const char* label );
     void		setRowLabels( const char** labels );
     void		setRowLabels( const ObjectSet<BufferString>& labels );
     void		setRowLabel( const Pos& p, const char* label )
 			    { setRowLabel( p.y(), label ); }
 
+    const char*		columnLabel(int) const;
+    const char*		columnLabel( const Pos& p ) const
+			    { return columnLabel(p.x()); }
     void		setColumnLabel( int col, const char* label );
     void		setColumnLabels( const char** labels );
     void		setColumnLabels( const ObjectSet<BufferString>& labels);
