@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.11 2002-09-06 07:49:22 kristofer Exp $
+ RCS:		$Id: thread.h,v 1.12 2002-09-09 13:10:40 bert Exp $
 ________________________________________________________________________
 
 */
 
-#include "gendefs.h"
-class CallBack;
+#include "callback.h"
 
 #ifndef __win__
 #define __pthread__ 1
@@ -193,6 +192,8 @@ private:
     				//< Only to avoid a stupid compiler msg
     
     virtual			~Thread()	{}
+    CallBack			cb;
+
 };
 
 int getNrProcessors();

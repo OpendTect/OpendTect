@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.8 2002-09-06 07:49:00 kristofer Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.9 2002-09-09 13:10:32 bert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -97,8 +97,9 @@ static void* thread_exec_fn( void* obj )
 }
 
 
-Threads::Thread::Thread( const CallBack& cb )
+Threads::Thread::Thread( const CallBack& cbin )
     	: id(0)
+    	, cb(cbin)
 {
     if ( !cb.willCall() ) return;
 #ifdef __pthread__
