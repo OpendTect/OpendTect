@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.5 2004-09-09 09:26:53 kristofer Exp $
+ RCS:		$Id: color.h,v 1.6 2004-09-28 09:57:31 kristofer Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -61,6 +61,9 @@ public:
 				 | ( (unsigned int)(g_&0xff) <<  8 )
 				 |		   (b_&0xff);
                         }
+
+    inline Color	complementaryColor() const
+			{ return Color(255-r(), 255-g(), 255-b(), t() ); }
 
     inline void         setRgb( unsigned int rgb_  )
                         { col_ = rgb_; }
