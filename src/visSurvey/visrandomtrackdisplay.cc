@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.16 2003-03-10 15:50:42 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.17 2003-03-12 15:43:56 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -319,7 +319,7 @@ float visSurvey::RandomTrackDisplay::getValue( const Coord3& pos ) const
 
 bool visSurvey::RandomTrackDisplay::isManipulated() const
 {
-    return false; // return ismanip;
+    return ismanip;
 }
 
  
