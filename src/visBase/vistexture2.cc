@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.14 2003-03-13 12:20:48 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.15 2003-05-01 13:07:20 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -108,12 +108,17 @@ void visBase::Texture2::setData( const Array2D<float>* newdata )
 	    if ( !x0onedge && !x1onedge )
 		val11 = newdata->get( x0idx+1, x1idx+1 );
 
+	    const bool x0undef = (mIsUndefined(val00) && mIsUndefined(val01)) ||
+				 (mIsUndefined(val10) && mIsUndefined(val11));
+	    const bool x1undef = (mIsUndefined(val00) && mIsUndefined(val10)) ||
+				 (mIsUndefined(val01) && mIsUndefined(val11));
+
 	    float val = 0;
-	    if ( x0onedge && x1onedge )
+	    if ( (x0onedge && x1onedge) || (x0undef && x1undef) )
 		val = val00;
-	    else if ( x0onedge )
+	    else if ( x0onedge || x0undef )
 		val = linearInterpolate( val00, val01, x1relpos );
-	    else if ( x1onedge )
+	    else if ( x1onedge || x1undef )
 		val = linearInterpolate( val00, val10, x0relpos );
 	    else
 		val = linearInterpolate2D( val00, val01, val10, val11,
