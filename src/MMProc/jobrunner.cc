@@ -4,12 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.1 2004-10-25 07:26:20 bert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.2 2004-10-25 11:58:59 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "jobrunner.h"
+#include "jobinfo.h"
+#include "jobdescprov.h"
+#include "hostdata.h"
+#include "filepath.h"
+#include "filegen.h"
 #include "iopar.h"
 #include <iostream>
 
@@ -35,16 +40,16 @@ static int tmpfile_nr = mkTmpFileNr();
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
 	, descprov_(p)
-    	, nrhostattempts_(2)
-    	, nrjobattempts_(2)
+    	, maxhostfailures_(2)
+    	, maxjobfailures_(2)
     	, rshcomm_("rsh")
 	, niceval_(19)
-	, portnr_(19063)
+	, firstport_(19163)
     	, prog_(cmd)
 {
     FilePath fp( GetDataDir() );
-    fpproc.add( "Proc" ).add( tmpfnm_base );
-    BufferString procdir_ = fpproc.fullPath();
+    fp.add( "Proc" ).add( tmpfnm_base );
+    BufferString procdir_ = fp.fullPath();
     procdir_ += "_"; procdir_ += tmpfile_nr;
     tmpfile_nr++;
 
@@ -63,13 +68,8 @@ JobHostInfo* JobRunner::jobHostInfoFor( const HostData& hd ) const
     const JobHostInfo* jhi = 0;
 
     for ( int idx=0; idx<hostinfo_.size(); idx++ )
-	if ( &hostinfo_[idx]->hostdata == &hd )
+	if ( &hostinfo_[idx]->hostdata_ == &hd )
 	    { jhi = hostinfo_[idx]; break; }
-
-    if ( !jhi )
-	for ( int idx=0; idx<failedhosts_.size(); idx++ )
-	    if ( &failedhosts_[idx]->hostdata == &hd )
-		{ jhi = failedhosts_[idx]; break; }
 
     return const_cast<JobHostInfo*>( jhi );
 }
@@ -78,19 +78,30 @@ JobHostInfo* JobRunner::jobHostInfoFor( const HostData& hd ) const
 bool JobRunner::addHost( const HostData& hd )
 {
     JobHostInfo* jhi = jobHostInfoFor( hd );
-    if ( !jhi )
-	jhi = new HostDataInfo( hd );
-    else if ( failedhosts_.indexOf(jhi) >= 0 )
-    {
-	// Is failed, but apparently need to try again ...
-	failedhosts_ -= jhi;
-	jhi->failures_ = 0;
-    }
+    const bool isnew = !jhi;
+    if ( isnew )
+	jhi = new JobHostInfo( hd );
+    else if ( isFailed(jhi) )
+	jhi->nrfailures_ = 0;
     else
-	// already in 'good hosts' ...
-	return false;
+	return true; // host already in use
 
-    // First go for new jobs
+    bool res = assignJob( *jhi );
+    if ( isnew )
+    {
+	if ( res )
+	    hostinfo_ += jhi;
+	else
+	    delete jhi;
+    }
+
+    return res;
+}
+
+
+bool JobRunner::assignJob( JobHostInfo& jhi )
+{
+    // First go for new jobs, then try failed
     for ( int tryfailed=0; tryfailed<2; tryfailed++ )
     {
 	for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
@@ -103,34 +114,34 @@ bool JobRunner::addHost( const HostData& hd )
 	    else if ( !isnew )
 		continue;
 
-	    hostinfo_ += hdi;
-	    StartRes res = startJob( ji, *hdi );
-	    if ( res == HostSucks || res == Started )
-		return res == Started;
+	    StartRes res = startJob( ji, jhi );
+	    if ( res == HostBad )
+		return false;
+	    else if ( res == Started )
+		return true;
 	}
     }
 
-    delete jhi;
     return false;
 }
 
 
-StartRes JobRunner::startJob( JobInfo& ji, JobHostInfo& jhi )
+JobRunner::StartRes JobRunner::startJob( JobInfo& ji, JobHostInfo& jhi )
 {
-    ji.attempts++;
-    if ( ji.attempts > nrjobattempts_ )
+    ji.attempts_++;
+    if ( ji.attempts_ > maxjobfailures_ )
     {
 	jobinfos_ -= &ji; failedjobs_ += &ji;
-	return JobSucks;
+	return JobBad;
     }
 
     if ( !runJob(ji,jhi.hostdata_) )
     {
-	jhi.nrfailed_++;
-	return jhi.nrfailed_ > nrhostattempts_ ? HostSucks : NotStarted;
+	jhi.nrfailures_++;
+	return jhi.nrfailures_ > maxhostfailures_ ? HostBad : NotStarted;
     }
 
-    jhi.nrfailed_ = 0;
+    jhi.nrfailures_ = 0;
     return Started;
 }
 
@@ -168,8 +179,7 @@ JobInfo* JobRunner::currentJob( const JobHostInfo* jhi ) const
     for ( int idx=0; idx<jobinfos_.size(); idx++ )
     {
 	const JobInfo* ji = jobinfos_[idx];
-	if ( ji->hostdata_ == &jhi->hostdata_
-	  && (ji->state_ == JobInfo::Working || ji->state_ == JobInfo::Paused) )
+	if ( ji->hostdata_ == &jhi->hostdata_ && isAssigned(idx) )
 	    return const_cast<JobInfo*>( ji );
     }
     return 0;
@@ -197,9 +207,10 @@ void JobRunner::pauseHost( int hnr, bool yn )
     JobInfo* ji = currentJob( hostinfo_[hnr] );
     if ( !ji ) return;
 
-    //TODO pause or un-pause
     if ( ji->state_ == JobInfo::Working && yn )
+	; //TODO pause
     else if ( ji->state_ == JobInfo::Paused && !yn )
+	; //TODO un-pause
 }
 
 
@@ -207,8 +218,32 @@ bool JobRunner::isPaused( int hnr ) const
 {
     if ( hnr < 0 || hnr >= hostinfo_.size() )
 	return false;
-    JobInfo* ji = currentJob( hostinfo_[hnr] );
+    const JobInfo* ji = currentJob( hostinfo_[hnr] );
     return ji ? ji->state_ == JobInfo::Paused : false;
+}
+
+
+bool JobRunner::isAssigned( int hnr ) const
+{
+    if ( hnr < 0 || hnr >= hostinfo_.size() )
+	return false;
+    const JobInfo* ji = currentJob( hostinfo_[hnr] );
+    return !ji ? false
+	 : ji->state_ == JobInfo::Paused || ji->state_ == JobInfo::Working;
+}
+
+
+bool JobRunner::isFailed( int hnr ) const
+{
+    return hnr < 0 || hnr >= hostinfo_.size() ? true
+	 : isFailed( hostinfo_[hnr] );
+}
+
+
+
+bool JobRunner::isFailed( const JobHostInfo* jhi ) const
+{
+    return jhi ? jhi->nrfailures_ > maxhostfailures_ : true;
 }
 
 
@@ -232,6 +267,7 @@ int JobRunner::jobsInProgress() const
 	    nr++;
     }
     return nr;
+}
 
 
 const char* JobRunner::message() const
@@ -249,7 +285,7 @@ const char* JobRunner::nrDoneMessage() const
 bool JobRunner::haveIncomplete() const
 {
     for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
-	if ( jobinfos_[ijob]->state_ != JobInfo::Complete )
+	if ( jobinfos_[ijob]->state_ != JobInfo::Completed )
 	    return true;
     return false;
 }
@@ -268,13 +304,12 @@ int JobRunner::doCycle()
     for ( int ih=0; ih<hinf.size(); ih++ )
     {
 	JobHostInfo* jhi = hinf[ih];
+	if ( isFailed(jhi) )
+	    continue;
+
 	JobInfo* ji = currentJob( jhi );
 	if ( !ji )
-	{
-	    hostinfo_ -= jhi;
-	    if ( !addHost(jhi->hostdata_) )
-		hostinfo_ += jhi;
-	}
+	    assignJob( *jhi );
     }
 
     return haveIncomplete() ? MoreToDo : Finished;

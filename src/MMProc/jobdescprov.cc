@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.1 2004-10-25 07:26:20 bert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.2 2004-10-25 11:58:59 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mmwpprov.h"
+#include "jobdescprov.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
