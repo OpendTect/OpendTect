@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.13 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uispinbox.cc,v 1.14 2004-02-02 15:21:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,13 +71,40 @@ QString uiSpinBoxBody::mapValueToText( int v )
 
 uiSpinBox::uiSpinBox(  uiParent* parnt, const char* nm )
     : uiObject( parnt,nm,mkbody(parnt,nm) )
-    , valueChanged(this)				{}
+    , valueChanged(this)
+    , dosnap(false)
+{
+    valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
+}
+
+
+uiSpinBox::~uiSpinBox()
+{
+    valueChanged.remove( mCB(this,uiSpinBox,snapToStep) );
+}
+
+
+void uiSpinBox::snapToStep( CallBacker* )
+{
+    if ( !dosnap ) return;
+    const int curvalue = getIntValue();
+    const int diff = curvalue - minValue();
+    const int step_ = step();
+    if ( diff%step_ )
+    {
+	float ratio = diff / (float)step_;
+	const float newval = minValue() + mNINT(ratio)*step_;
+	setValue( newval );
+    }
+}
+
 
 uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
 { 
     body_= new uiSpinBoxBody(*this,parnt, nm);
     return *body_; 
 }
+
 
 const char* uiSpinBox::text() const
 {
@@ -93,28 +120,37 @@ void uiSpinBox::setInterval( StepInterval<int> intv )
     setStep( intv.step ? intv.step : 1 );
 }
 
+
 StepInterval<int> uiSpinBox::getInterval() const
 {
     return StepInterval<int>(minValue(),maxValue(),step());
 }
 
 
-int uiSpinBox::getIntValue() const	{ return body_->value(); }
+int uiSpinBox::getIntValue() const		{ return body_->value(); }
 double uiSpinBox::getValue() const	
     { return static_cast<double>( body_->value() ); }
 
 void uiSpinBox::setText( const char* t )	{ setValue( atoi(t) ); }
 
-void uiSpinBox::setValue( int i )	{ body_->setValue( i ); }
-void uiSpinBox::setValue( double d )	{ body_->setValue( mNINT(d) ); }
+void uiSpinBox::setValue( int i )		{ body_->setValue( i ); }
+void uiSpinBox::setValue( double d )		{ body_->setValue( mNINT(d) ); }
 
-int uiSpinBox::minValue() const		{ return body_->minValue() ; }
-int uiSpinBox::maxValue() const		{ return body_->maxValue() ; }
-void uiSpinBox::setMinValue( int m )	{ body_->setMinValue(m); }
-void uiSpinBox::setMaxValue( int m )	{ body_->setMaxValue(m); }
-int uiSpinBox::step() const		{ return body_->lineStep() ; }
-void uiSpinBox::setStep( int s )	{ body_->setLineStep(s); }
+int uiSpinBox::minValue() const			{ return body_->minValue(); }
+int uiSpinBox::maxValue() const			{ return body_->maxValue(); }
+void uiSpinBox::setMinValue( int m )		{ body_->setMinValue(m); }
+void uiSpinBox::setMaxValue( int m )		{ body_->setMaxValue(m); }
 
+int uiSpinBox::step() const			{ return body_->lineStep(); }
+
+void uiSpinBox::setStep( int s, bool dosnap_ )		
+{ 
+    body_->setLineStep(s);
+    if ( dosnap_ ) snapToStep(0);
+}
+
+
+//------------------------------------------------------------------------------
 
 uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt,
 				    const char* nm )

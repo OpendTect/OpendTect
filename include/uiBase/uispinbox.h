@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uispinbox.h,v 1.7 2004-02-02 15:21:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,10 @@ class uiLabel;
 class uiSpinBox : public uiObject
 {
 friend class		uiSpinBoxBody;
-public:
 
+public:
                         uiSpinBox(uiParent*, const char* nm="SpinBox");
+			~uiSpinBox();
 
     const char*		text() const;
     int 		getIntValue() const;
@@ -44,7 +45,11 @@ public:
     void		setMinValue(int);
     void		setMaxValue(int);
     int			step() const;
-    void		setStep(int);
+    void		setStep(int,bool dosnap_=false);
+    			/*!< if dosnap_ is true, value in spinbox will be 
+    				snapped to a value equal to N*step */
+
+    void		doSnap(bool yn)			{ dosnap = yn; }
 
     Notifier<uiSpinBox>	valueChanged;
 
@@ -61,23 +66,25 @@ private:
     uiSpinBoxBody*	body_;
     uiSpinBoxBody&	mkbody(uiParent*, const char*);
 
+    bool		dosnap; /*!< If true, value in spinbox will be snapped 
+				  to a value equal to N*step. */
+    void		snapToStep(CallBacker*);
 };
 
 
 class uiLabeledSpinBox : public uiGroup
 {
 public:
-                uiLabeledSpinBox( uiParent*,const char* txt,
-                                   const char* nm="Labeled Spinbox");
+                	uiLabeledSpinBox(uiParent*,const char* txt,
+					 const char* nm="Labeled Spinbox");
 
     uiSpinBox*  	box()			{ return sb; }
     uiLabel*    	label()			{ return lbl; }
 
 protected:
 
-    uiSpinBox*	sb;
-    uiLabel*    lbl;
-
+    uiSpinBox*		sb;
+    uiLabel*    	lbl;
 };
 
 #endif
