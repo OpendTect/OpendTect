@@ -7,16 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.3 2002-02-18 13:07:53 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.4 2002-02-26 17:54:40 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-
 #include "visobject.h"
-#include "vismanipobj.h"
-#include "visselobj.h"
 #include "ranges.h"
 #include "callback.h"
 
@@ -27,6 +24,7 @@ class SoTabPlaneDragger;
 class SoRotation;
 class SoTranslate1Dragger;
 class SoFaceSet;
+class SoDragger;
 
 
 namespace visBase
@@ -85,12 +83,11 @@ protected:
     be snapped.
 */
 
-class Rectangle : public VisualObject, public CallBacker,
-		  public SelectableObject
+class Rectangle : public VisualObject, public CallBacker
 {
 public:
 
-			Rectangle( bool manip );
+			Rectangle( Scene&, bool manip );
 			~Rectangle();
     void		setOrigo( float, float, float );
     float		origo( int ) const;
@@ -117,8 +114,8 @@ public:
 
 protected:
 
-    void		select(SoPath*) { displayDraggers(true); }
-    void		deSelect(SoPath*)
+    void		select() { displayDraggers(true); }
+    void		deSelect()
 			{
 			    displayDraggers(false);
 			    moveObjectToManipRect();
@@ -150,7 +147,8 @@ protected:
     SoScale*		localscale;
     SoScale*		widthscale;
     SoSeparator*	planesep;
-    SoFaceSet*		plane;
+
+    SceneObjectWrapper	planewrapper;
 
     // Manip objects:
     SoSwitch*		manipswitch;

@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.5 2002-02-25 14:15:05 nanne Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.6 2002-02-26 17:54:21 kristofer Exp $";
 
 #include "visobject.h"
 #include "colortab.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: visobject.cc,v 1.5 2002-02-25 14:15:05 nanne Ex
 #include "Inventor/nodes/SoMaterialBinding.h"
 #include "Inventor/nodes/SoGroup.h"
 
-visBase::VisualObject::VisualObject()
+visBase::VisualObject::VisualObject( Scene& scene_ )
     : root( new SoSeparator )
     , onoff( new SoSwitch )
     , material( new SoSwitch )
@@ -32,6 +32,7 @@ visBase::VisualObject::VisualObject()
     , shininess( 0.2 )
     , transparency( 0 )
     , colortable( 0 )
+    , scene( scene_ )
 {
     onoff->ref();
     onoff->addChild( root );

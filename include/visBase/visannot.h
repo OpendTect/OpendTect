@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.2 2002-02-07 14:15:33 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.3 2002-02-26 17:54:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ class Annotation : public VisualObject
 {
 public:
 
-				Annotation();
+				Annotation( Scene &);
     void			setCorner( int, float, float, float );
     void			setText( int dim, const char * );
     void			setLineStyle( const LineStyle& );

@@ -5,11 +5,11 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.1 2002-02-26 13:32:54 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.2 2002-02-26 17:54:21 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
-#include "visselobj.h"
+#include "visselman.h"
 #include "vissceneman.h"
 
 #include "Inventor/nodes/SoSeparator.h"

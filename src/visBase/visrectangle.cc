@@ -4,9 +4,11 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.3 2002-02-18 13:07:46 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.4 2002-02-26 17:54:21 kristofer Exp $";
 
 #include "visrectangle.h"
+#include "visscene.h"
+#include "visselman.h"
 
 #include "Inventor/nodes/SoScale.h"
 #include "Inventor/nodes/SoTranslation.h"
@@ -320,15 +322,16 @@ void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
 }
 
 
-visBase::Rectangle::Rectangle(bool usermanip)
-    : origotrans( new SoTranslation )
+visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
+    : VisualObject( scene_ )
+    , origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
     , orientation( visBase::Rectangle::XY )
     , localorigotrans( new SoTranslation )
     , localscale( new SoScale )
     , widthscale( new SoScale )
     , planesep( new SoSeparator )
-    , plane( new SoFaceSet )
+    , planewrapper( new SoFaceSet )
     , manipswitch( 0 )
     , maniprectswitch( 0 )
     , dragger( usermanip ? new RectangleDragger : 0 )
@@ -375,9 +378,11 @@ visBase::Rectangle::Rectangle(bool usermanip)
     nbind->value = SoNormalBinding::PER_FACE;
 
     root->addChild( planesep );
-    planesep->addChild( plane );
-    plane->numVertices.set1Value(0, 5);
-    registerSelection( plane );
+    planesep->addChild( planewrapper.getData() );
+    ((SoFaceSet*)planewrapper.getData())->numVertices.set1Value(0, 5);
+    scene.selMan().regSelObject( *this, planewrapper );
+    scene.selMan().notifySelection( *this, mCB( this, Rectangle, select ));
+    scene.selMan().notifyDeSelection( *this, mCB( this, Rectangle, deSelect ));
 
     if ( dragger )
     {
@@ -406,7 +411,7 @@ visBase::Rectangle::Rectangle(bool usermanip)
 	manipsep->addChild( maniprectmaterial );
 	maniprectmaterial->transparency.setValue( 0.5 );
 	maniprectswitch = new SoSwitch;
-	maniprectswitch->addChild( plane );
+	maniprectswitch->addChild( planewrapper.getData() );
 	maniprectswitch->whichChild = SO_SWITCH_NONE;
 	manipsep->addChild( maniprectswitch );
     }
@@ -415,7 +420,10 @@ visBase::Rectangle::Rectangle(bool usermanip)
 
 visBase::Rectangle::~Rectangle()
 {
-    unregisterSelection( plane );
+    scene.selMan().deNotifySelection( *this, mCB( this, Rectangle, select ));
+    scene.selMan().deNotifyDeSelection( *this, mCB( this, Rectangle, deSelect));
+
+    scene.selMan().unRegSelObject( *this );
     delete dragger;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.4 2002-02-12 12:16:51 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.5 2002-02-26 17:54:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,8 @@ class ColorTable;
 
 namespace visBase
 {
+class Scene;
+
 /*!\brief
     Base class for all objects that are visual on the scene.
 */
@@ -33,7 +35,7 @@ namespace visBase
 class VisualObject : public SceneObject
 {
 public:
-			VisualObject();
+			VisualObject(Scene&);
     virtual		~VisualObject();
     void		turnOn(bool);
     bool		isOn() const;
@@ -73,6 +75,7 @@ protected:
     SoMaterial*		colortablematerial;
     bool		usecolortable;
 
+    Scene&		scene;
 };
 
 };

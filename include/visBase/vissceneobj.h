@@ -1,5 +1,5 @@
-#ifndef visscene_h
-#define visscene_h
+#ifndef vissceneobj_h
+#define vissceneobj_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.2 2002-02-09 13:38:42 kristofer Exp $
+ RCS:		$Id: vissceneobj.h,v 1.3 2002-02-26 17:54:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,22 @@ public:
 
     virtual		~SceneObject()		{}
     virtual SoNode*	getData()		= 0;
+    const SoNode*	getData() const;
+
+};
+
+
+class SceneObjectWrapper : public SceneObject
+{
+public:
+    			SceneObjectWrapper( SoNode* n );
+
+    virtual		~SceneObjectWrapper();
+
+    SoNode*		getData() { return node; }
+
+protected:
+    SoNode*		node;
 
 };
 
@@ -50,8 +66,9 @@ public:
 
 protected:
 
-    SoGroup*			root;
     ObjectSet<SceneObject>	objects;
+private:
+    SoGroup*			root;
 
 };
 
