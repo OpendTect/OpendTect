@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.14 2004-05-11 12:19:26 kristofer Exp $
+ RCS:           $Id: viswell.cc,v 1.15 2004-05-24 08:14:27 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,14 +98,17 @@ Well::~Well()
 
 void Well::setTrack( const TypeSet<Coord3>& pts )
 {
-    while ( track->size() )
+    while ( track->size()>pts.size() )
 	track->removePoint( 0 );
 
     track->setTransformation( transformation );
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	const Coord3& crd = pts[idx];
-	track->addPoint( crd );
+	if ( idx>=track->size() )
+	    track->addPoint( crd );
+	else
+	    track->setPoint( idx, crd );
     }
 }
 
