@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.3 2002-05-22 07:50:04 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.4 2002-05-22 10:59:36 nanne Exp $";
 
 #include "emobject.h"
 #include "emhorizontransl.h"
@@ -41,5 +41,5 @@ EarthModel::EMObject::EMObject( EMManager& emm_, const MultiID& id__ )
 BufferString EarthModel::EMObject::name() const
 {
     PtrMan<IOObj> ioobj = IOM().get( id_ );
-    return BufferString( ioobj ? ioobj->name() : "");
+    return ioobj ? ioobj->name() : BufferString("");
 }
