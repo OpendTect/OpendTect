@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.7 2003-04-14 08:41:51 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.8 2003-04-14 09:00:09 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -115,9 +115,9 @@ Vector3 operator*( float f, const Vector3& b )
 }
 
 
-ObjectSet<Vector3>* makeSphereVectorSet( double dradius )
+TypeSet<Vector3>* makeSphereVectorSet( double dradius )
 {
-    ObjectSet<Vector3>& vectors(*new ObjectSet<Vector3>);
+    TypeSet<Vector3>& vectors(*new TypeSet<Vector3>);
 
 
     const int nrdips = mNINT(M_PI_2/dradius)+1;
@@ -138,7 +138,7 @@ ObjectSet<Vector3>* makeSphereVectorSet( double dradius )
 	for ( int aziidx=0; aziidx<nrazi; aziidx++ )
 	{
 	    double azi = aziidx*dazi;
-	    vectors += new Vector3( cos(azi)*radius, sin(azi)*radius, sin(dip));
+	    vectors += Vector3( cos(azi)*radius, sin(azi)*radius, sin(dip));
 	}
     }
 
