@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.10 2001-04-27 16:48:45 bert Exp $
+ RCS:		$Id: iopar.h,v 1.11 2001-04-30 14:07:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class Coord;
 class BinID;
 class MultiID;
 class AliasObjectSet;
+class BufferString;
 
 /*\brief generalised set of parameters of the keyword-value type.
 
@@ -75,8 +76,9 @@ public:
 			{ return find(s) ? true : false; }
     const char*		findKeyFor(const char*,int nr=0) const;
 				//!< returns null if value not found
-    void		removeWithKey(const char*);
-				//!< removes all entries with this key
+    void		removeWithKey(const char* globexpression);
+				//!< removes all entries with key matching
+				//!< this glob expression
 
     const char*		operator[](const char*) const;
 			//!< returns empty string if not found
@@ -118,9 +120,11 @@ public:
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
     void		set(const char*,const MultiID&);
+    void		set(const char*,const BufferString&);
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
     bool		get(const char*,MultiID&) const;
+    bool		get(const char*,BufferString&) const;
 
     void		add(const char*,const char*);
 			/*!< Only to save performance: responsibility for
