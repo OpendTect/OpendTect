@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.5 2001-06-02 14:28:28 windev Exp $
+ RCS:		$Id: strmdata.h,v 1.6 2002-12-03 14:51:39 bert Exp $
 ________________________________________________________________________
 
 -*/
  
+#include "gendefs.h"
 #include <stdio.h>
 #include <iosfwd>
 
