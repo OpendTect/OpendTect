@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.8 2004-02-04 15:11:24 arend Exp $
+# $Id: od_do_rmt,v 1.9 2004-02-12 15:50:49 bert Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -35,28 +35,37 @@ endif
 do_rest:
 
 if ( -e $DTECT_APPL/bin/init_dtect ) then
+    if ( $?DTECT_DEBUG ) echo "$0 : sourcing $DTECT_APPL/bin/init_dtect"
     source $DTECT_APPL/bin/init_dtect
 endif
 
 if ( $?DTECT_DEBUG ) then
 
     set logfile=/tmp/oddebug$$.log
-    echo "DTECT_DATA = $DTECT_DATA" > $logfile
-    echo "DTECT_USER = $DTECT_USER" >> $logfile
-    echo "DTECT_APPL = $DTECT_APPL" >> $logfile
-    if ( $?LD_LIBRARY_PATH ) then
-	echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH" >> $logfile
+    echo "$0 : DTECT_DATA = $DTECT_DATA" > $logfile
+    echo "$0 : DTECT_APPL = $DTECT_APPL" >> $logfile
+    if ( $?DTECT_USER ) then
+	echo "$0 : DTECT_USER = $DTECT_USER" >> $logfile
     else
-	echo "No LD_LIBRARY_PATH set!" >> $logfile
+	echo "$0 : DTECT_USER = <empty>" >> $logfile
+    endif
+    if ( $?LD_LIBRARY_PATH ) then
+	echo "$0 : LD_LIBRARY_PATH = $LD_LIBRARY_PATH" >> $logfile
+    else
+	echo "$0 : LD_LIBRARY_PATH = <empty>" >> $logfile
     endif
     if ( $?LM_LICENSE_FILE ) then
-	echo "LM_LICENSE_FILE = $LM_LICENSE_FILE" >> $logfile
+	echo "$0 : LM_LICENSE_FILE = $LM_LICENSE_FILE" >> $logfile
     else
-	echo "No LM_LICENSE_FILE set!" >> $logfile
+	echo "$0 : LM_LICENSE_FILE = <empty>" >> $logfile
     endif
-    echo "DISPLAY = $DISPLAY" >> $logfile
-    echo "$DTECT_APPL/bin/od_exec $*" >> $logfile
+    if ( $?DISPLAY ) then
+	echo "$0 : DISPLAY = $DISPLAY" >> $logfile
+    else
+	echo "$0 : DISPLAY = <empty>" >> $logfile
+    endif
 
+    echo "$0 : $DTECT_APPL/bin/od_exec $*" >> $logfile
     $DTECT_APPL/bin/od_exec $* >> $logfile
 
 else
