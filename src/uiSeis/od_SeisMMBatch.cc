@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.8 2003-09-25 11:05:46 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.9 2003-09-26 21:40:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,6 @@ ________________________________________________________________________
 
 int main( int argc, char ** argv )
 {
-    SetDgbApplicationCode( mDgbApplCodeDTECT );
-
     int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
 	
     if ( argc+bgadd < 3 )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.54 2003-08-13 13:47:59 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.55 2003-09-26 21:40:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,6 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "executor.h"
 #include "ptrman.h"
-#include "lic.h"
 #include <stdlib.h>
 
 const char* sTmpStorKey = "Temporary storage directory";
@@ -74,13 +73,6 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     setTitleText( txt );
     res = iopar.find( "Estimated MBs" );
     if ( res ) estmbs = atoi( res );
-
-    if ( LM().check(Licenser::VolOut) != getPID() )
-    {
-	new uiLabel( this, LM().errMsg() );
-	setOkText( "Dismiss" ); setCancelText( "" );
-	return;
-    }
 
     statusBar()->addMsgFld( "Message", uiStatusBar::Left, 20 );
     statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 20 );

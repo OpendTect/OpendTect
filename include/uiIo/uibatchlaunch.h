@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.6 2003-04-25 14:03:47 bert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.7 2003-09-26 21:40:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,6 @@ public:
 			~uiBatchLaunch();
 
     void		setParFileName( const char* fnm ) { parfname = fnm; }
-    void		setLicFeat( int lf )		  { licfeat = lf; }
-    			//!< Fill with a Licenser::Feat if necessary
-    			//!< to get a certificate into IOPar
 
 protected:
 
@@ -42,7 +39,6 @@ protected:
     BufferString	progname;
     BufferString	parfname;
     BufferString	rshcomm;
-    int			licfeat;
     int			nicelvl;
 
     uiFileInput*	filefld;
@@ -61,11 +57,6 @@ protected:
 
 class uiFullBatchDialog : public uiDialog
 {
-public:
-
-    void		setLicFeat( int lf )		  { licfeat = lf; }
-    			//!< See uiBatchLaunch::setLicFeat comment
-
 protected:
 
     			uiFullBatchDialog(uiParent*,const char* wintxt,
@@ -95,7 +86,6 @@ protected:
     uiFileInput*	parfnamefld;
 
     bool		redo_; //!< set to true only for re-start
-    int			licfeat;
 
 };
 

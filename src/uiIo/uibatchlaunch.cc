@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.25 2003-08-28 08:18:21 nanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.26 2003-09-26 21:40:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ioparlist.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "lic.h"
 #include "hostdata.h"
 #include "filegen.h"
 
@@ -62,7 +61,6 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 	, hostname(hn)
 	, progname(pn)
 	, opts("Output to")
-	, licfeat((int)Licenser::UdfFeat)
 {
     finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
     HostDataList hdl;
@@ -161,12 +159,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     if ( fname == "" ) fname = "/dev/null";
     IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
     if ( iop )
-    {
 	iop->set( "Log file", fname );
-	if ( licfeat != (int)Licenser::UdfFeat
-	  && LM().check((Licenser::Feat)licfeat) )
-	    LM().setCert( *iop );
-    }
 
     if ( selected() == 3 )
     {
@@ -226,7 +219,6 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* t,
 	, procprognm(ppn?ppn:"process_attrib")
 	, multiprognm(mpn?mpn:"SeisMMBatch")
     	, redo_(false)
-	, licfeat((int)Licenser::UdfFeat)
 {
     getProcFilename( sSingBaseNm, singparfname );
     getProcFilename( sMultiBaseNm, multiparfname );
@@ -311,7 +303,6 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 {
     uiBatchLaunch dlg( this, iopl, 0, procprognm, false );
     dlg.setParFileName( fnm );
-    dlg.setLicFeat( licfeat );
     return dlg.go();
 }
 

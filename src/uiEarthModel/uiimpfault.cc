@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.7 2003-08-28 08:18:34 nanne Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.8 2003-09-26 21:40:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiscaler.h"
 #include "uibinidsubsel.h"
-#include "gridmods.h"
 #include "scaler.h"
 #include "survinfo.h"
 
