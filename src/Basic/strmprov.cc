@@ -25,13 +25,13 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.7 2001-06-02 14:29:06 windev Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.8 2001-06-26 07:51:28 bert Exp $";
 
 static FixedString<1024> oscommand;
 #define exeCmd(comm) system((const char*)comm) ? false : true
 
 DefineClassID(StreamProvider);
-static const char* sStdIO = "$std$IO$";
+const char* StreamProvider::sStdIO = "Std-IO";
 
 
 void StreamData::close()
@@ -86,10 +86,7 @@ void StreamProvider::set( const char* devname )
     blocksize = 0;
     hostname = "";
 
-    if ( !devname
-      || !strcmp(devname,"stdin")
-      || !strcmp(devname,"stdio")
-      || !strcmp(devname,"stdout") )
+    if ( !devname || !strcmp(devname,sStdIO) )
     {
 	type_ = StreamConn::File;
 	fname = sStdIO;
@@ -184,7 +181,7 @@ const char* StreamProvider::fullName() const
 	oscommand += hostname;
 	oscommand += ":";
     }
-    oscommand += fname == sStdIO ? "stdio" : (const char*)fname;
+    oscommand += (const char*)fname;
 
     return oscommand;
 }
@@ -193,10 +190,11 @@ const char* StreamProvider::fullName() const
 void StreamProvider::addPathIfNecessary( const char* path )
 {
     if ( isbad ) return;
-    if ( type_ != StreamConn::File || !path || ! *path
+    if ( type_ != StreamConn::File
+      || !path || ! *path
+      || fname == sStdIO
       || File_isAbsPath(fname) )
 	return;
-    else if ( fname == sStdIO ) return;
 
     FileNameString pth( path );
     fname = File_getFullPath( pth, fname );
@@ -206,51 +204,52 @@ void StreamProvider::addPathIfNecessary( const char* path )
 StreamData StreamProvider::makeIStream() const
 {
     StreamData sd;
-    if ( isbad ) return sd;
-    if ( !*(const char*)fname ) return sd;
-
-    if ( type_ == StreamConn::Command || hostname[0] )
+    if ( isbad || !*(const char*)fname )
+	return sd;
+    if ( fname == sStdIO )
     {
-	if ( hostname[0] )
-	{
-	    switch ( type_ )
-	    {
-	    case StreamConn::Device:
-		if ( blocksize )
-		    sprintf( oscommand.buf(), "rsh %s dd if=%s ibs=%ld",
-				(const char*)hostname, (const char*)fname,
-				blocksize );
-		else
-		    sprintf( oscommand.buf(), "rsh %s dd if=%s",
-				(const char*)hostname, (const char*)fname );
-	    break;
-	    case StreamConn::Command:
-		sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
-					(const char*)fname );
-	    break;
-	    case StreamConn::File:
-		sprintf( oscommand.buf(), "rsh %s cat %s",
-				(const char*)hostname, (const char*)fname );
-	    break;
-	    }
-	}
-	else
-	    strcpy( oscommand.buf(), (const char*)fname );
-
-	sd.fp = popen( oscommand, "r" );
-	sd.ispipe = true;
-#ifndef __msvc__
-	if ( sd.fp )
-	    sd.istrm = new ifstream( fileno(sd.fp) );
-#endif
+	sd.istrm = &cin;
+	return sd;
     }
+    if ( type_ != StreamConn::Command && !hostname[0] )
+    {
+	if ( File_exists(fname) )
+	    sd.istrm = new ifstream( fname );
+	return sd;
+    }
+
+    if ( !hostname[0] )
+	oscommand = (const char*)fname;
     else
     {
-	if ( fname == sStdIO )
-	    sd.istrm = &cin;
-	else if ( File_exists(fname) )
-	    sd.istrm = new ifstream( fname );
+	switch ( type_ )
+	{
+	case StreamConn::Device:
+	    if ( blocksize )
+		sprintf( oscommand.buf(), "rsh %s dd if=%s ibs=%ld",
+			    (const char*)hostname, (const char*)fname,
+			    blocksize );
+	    else
+		sprintf( oscommand.buf(), "rsh %s dd if=%s",
+			    (const char*)hostname, (const char*)fname );
+	break;
+	case StreamConn::Command:
+	    sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
+				    (const char*)fname );
+	break;
+	case StreamConn::File:
+	    sprintf( oscommand.buf(), "rsh %s cat %s",
+			    (const char*)hostname, (const char*)fname );
+	break;
+	}
     }
+
+    sd.fp = popen( oscommand, "r" );
+    sd.ispipe = true;
+#ifndef __msvc__
+    if ( sd.fp )
+	sd.istrm = new ifstream( fileno(sd.fp) );
+#endif
 
     return sd;
 }
@@ -259,50 +258,51 @@ StreamData StreamProvider::makeIStream() const
 StreamData StreamProvider::makeOStream() const
 {
     StreamData sd;
-    if ( isbad ||  !*(const char*)fname ) return sd;
-
-    if ( type_ == StreamConn::Command || hostname[0] )
+    if ( isbad ||  !*(const char*)fname )
+	return sd;
+    else if ( fname == sStdIO )
     {
-	if ( hostname[0] )
-	{
-	    switch ( type_ )
-	    {
-	    case StreamConn::Device:
-		if ( blocksize )
-		    sprintf( oscommand.buf(), "rsh %s dd of=%s obs=%ld",
-				      (const char*)hostname, (const char*)fname,
-					blocksize );
-		else
-		    sprintf( oscommand.buf(), "rsh %s dd of=%s",
-				    (const char*)hostname, (const char*)fname );
-	    break;
-	    case StreamConn::Command:
-		sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
-					(const char*)fname );
-	    break;
-	    case StreamConn::File:
-		sprintf( oscommand.buf(), "rsh %s tee %s > /dev/null",
-				  (const char*)hostname, (const char*)fname );
-	    break;
-	    }
-	}
-	else
-	    strcpy( oscommand.buf(), (const char*)fname );
-
-	sd.fp = popen( oscommand, "w" );
-	sd.ispipe = true;
-#ifndef __msvc__
-	if ( sd.fp )
-	    sd.ostrm = new ofstream( fileno(sd.fp) );
-#endif
+	sd.ostrm = &cout;
+	return sd;
     }
+    if ( type_ != StreamConn::Command && !hostname[0] )
+    {
+	sd.ostrm = new ofstream( fname );
+	return sd;
+    }
+
+    if ( !hostname[0] )
+	oscommand = (const char*)fname;
     else
     {
-	if ( fname == sStdIO )
-	    sd.ostrm = &cout;
-	else
-	    sd.ostrm = new ofstream( fname );
+	switch ( type_ )
+	{
+	case StreamConn::Device:
+	    if ( blocksize )
+		sprintf( oscommand.buf(), "rsh %s dd of=%s obs=%ld",
+				  (const char*)hostname, (const char*)fname,
+				    blocksize );
+	    else
+		sprintf( oscommand.buf(), "rsh %s dd of=%s",
+				(const char*)hostname, (const char*)fname );
+	break;
+	case StreamConn::Command:
+	    sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
+				    (const char*)fname );
+	break;
+	case StreamConn::File:
+	    sprintf( oscommand.buf(), "rsh %s tee %s > /dev/null",
+			      (const char*)hostname, (const char*)fname );
+	break;
+	}
     }
+
+    sd.fp = popen( oscommand, "w" );
+    sd.ispipe = true;
+#ifndef __msvc__
+    if ( sd.fp )
+	sd.ostrm = new ofstream( fileno(sd.fp) );
+#endif
 
     return sd;
 }
@@ -315,18 +315,16 @@ bool StreamProvider::exists( int fr ) const
     if ( type_ == StreamConn::Command )
 	return fr;
 
-    if ( hostname[0] )
-    {
-	sprintf( oscommand.buf(), "rsh %s 'test -%c %s && echo 1'",
-		  (const char*)hostname, fr ? 'r' : 'w', (const char*)fname );
-	FILE* fp = popen( oscommand, "r" );
-	int i = 0;
-	fscanf( fp, "%d", &i );
-	pclose( fp );
-	return i;
-    }
-    else
+    if ( !hostname[0] )
 	return fname == sStdIO ? true : File_exists( (const char*)fname );
+
+    sprintf( oscommand.buf(), "rsh %s 'test -%c %s && echo 1'",
+	      (const char*)hostname, fr ? 'r' : 'w', (const char*)fname );
+    FILE* fp = popen( oscommand, "r" );
+    int i = 0;
+    fscanf( fp, "%d", &i );
+    pclose( fp );
+    return i;
 }
 
 
