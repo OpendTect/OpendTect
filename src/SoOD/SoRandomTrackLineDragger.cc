@@ -8,11 +8,9 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.7 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.8 2004-03-05 10:21:15 nanne Exp $";
 
 #include "SoRandomTrackLineDragger.h"
-
-#include "errh.h"
 
 #include "Inventor/draggers/SoDragPointDragger.h"
 #include "Inventor/nodes/SoCoordinate3.h"
@@ -210,10 +208,7 @@ void SoRandomTrackLineDragger::dragStart(SoDragger* dragger_)
     }
 
     if ( draggerid==-1 )
-    {
-	pErrMsg("Hue!");
 	return;
-    }
 
     movingknot = draggerid/2;
 
@@ -241,10 +236,7 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
     }
 
     if ( draggerid==-1 )
-    {
-	pErrMsg("Hue!");
 	return;
-    }
 
     const bool istop = !(draggerid%2);
     movingknot = draggerid/2;
@@ -258,11 +250,13 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
 			xyzSnap(2,newpos_[1]*scalefactor[2]) );
     bool ischanged = false;
 
+#define mIsZero(x) ( x < 1e-10 && x > -1e-10 )
+
     if ( istop )
     {
 	const float z0val = z0.getValue();
 	const float z1val = z1.getValue();
-	if ( !mIS_ZERO(z0val-newpos[2]) && !mIS_ZERO(newpos[2]-z1val) &&
+	if ( !mIsZero(z0val-newpos[2]) && !mIsZero(newpos[2]-z1val) &&
 		newpos[2]<z1val)
 	{
 	    SbBool enabled = z0.enableNotify(false);
@@ -275,7 +269,7 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
     {
 	const float z0val = z0.getValue();
 	const float z1val = z1.getValue();
-	if ( !mIS_ZERO(z1val-newpos[2]) && !mIS_ZERO(z0val-newpos[2])
+	if ( !mIsZero(z1val-newpos[2]) && !mIsZero(z0val-newpos[2])
 		&& newpos[2]>z0val)
 	{
 	    SbBool enabled = z1.enableNotify(false);
@@ -292,7 +286,7 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
 	if ( idx==movingknot ) continue;
 
 	const SbVec2f oldpos = knots[idx];
-	if ( mIS_ZERO(oldpos[0]-newpos[0]) && mIS_ZERO(oldpos[1]-newpos[1]) )
+	if ( mIsZero(oldpos[0]-newpos[0]) && mIsZero(oldpos[1]-newpos[1]) )
 	{
 	    changexy = false;
 	    break;
@@ -302,7 +296,7 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
     const SbVec2f oldpos = knots[movingknot];
 
     if ( changexy &&
-	   (!mIS_ZERO( oldpos[0]-newpos[0])||!mIS_ZERO( oldpos[1]-newpos[1])))
+	   ( !mIsZero(oldpos[0]-newpos[0]) || !mIsZero(oldpos[1]-newpos[1]) ) )
     {
 	SbBool enabled = knots.enableNotify(false);
 	knots.set1Value( movingknot, SbVec2f( newpos[0], newpos[1] ));
