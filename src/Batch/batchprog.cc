@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.50 2004-01-06 15:14:25 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.51 2004-01-22 08:20:32 dgb Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -331,8 +331,6 @@ bool BatchProgram::initOutput()
     }
 
     stillok_ = sdout_.usable();
-    if ( stillok_ )
-	PIM().loadAuto( true );
 
     return stillok_;
 }
