@@ -1,0 +1,13 @@
+dGB-dTect V1.4
+Remote Workstation Access Definitions
+Wed Feb 19 13:30:27 2003
+!
+PreferredMethod: Socket
+Available.1: SeisWorks
+Host.1: dgb14
+Script.1: /users/appman/bin/set_sw_env.csh
+TransferVariable.1.1: OW_PMPATH
+TransferVariable.1.2: SELECTED_SURVEY
+Available.2: GeoFrame
+Host.2: dgb26
+Script.2: /users/appman/bin/set_gf_env.csh
