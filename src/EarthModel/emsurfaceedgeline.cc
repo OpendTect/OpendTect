@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.3 2004-08-30 14:45:04 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.4 2004-08-31 12:12:04 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -1430,12 +1430,12 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 
     StepInterval<int> rowrange;
     surface.geometry.getRange( rowrange, true );
-    if ( rowrange.width()<2 )
+    if ( rowrange.width(false)<2 )
 	return false;
 
     StepInterval<int> colrange;
     surface.geometry.getRange( colrange, false );
-    if ( colrange.width()<2 )
+    if ( colrange.width(false)<2 )
 	return false;
 
     for ( int row=rowrange.start; row<=rowrange.stop; row+=rowrange.step )
