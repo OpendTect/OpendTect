@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.5 2003-10-28 11:13:50 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.6 2003-10-30 12:24:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,9 @@ ________________________________________________________________________
 #include "wellmarker.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "uiwellpartserv.h"
+#include "survinfo.h"
+#include "iopar.h"
 
 
 
@@ -34,7 +37,9 @@ static const int maxnrrows = 10;
 static const int initnrrows = 5;
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Well Markers","Define marker properties"))
+    : uiDialog(p,uiDialog::Setup("Well Markers",
+				 "Define marker properties",
+				 "107.1.1"))
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 	    				       .rowcangrow(), "Table" );
@@ -44,8 +49,12 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p )
     table->rowInserted.notify( mCB(this,uiMarkerDlg,markerAdded) );
     table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
 
+    bool zinft = false;
+    SI().pars().getYN( uiWellPartServer::unitstr, zinft );
     feetfld = new uiCheckBox( this, "Depth in feet" );
+    feetfld->setChecked( zinft );
     feetfld->attach( alignedBelow, table );
+    
 
     markerAdded(0);
 }
@@ -72,7 +81,6 @@ void uiMarkerDlg::mouseClick( CallBacker* )
     if ( select(newcol,this,"Marker color") )
 	table->setColor( rc, newcol );
 }
-
 
 
 void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
@@ -114,6 +122,14 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 }
 
 
+bool uiMarkerDlg::acceptOK( CallBacker* )
+{
+    SI().pars().setYN( uiWellPartServer::unitstr, feetfld->isChecked() );
+    SI().savePars();
+    return true;
+}
+
+
 
 // ==================================================================
 
@@ -122,7 +138,7 @@ static const float defundefval = -999.25;
 
 
 uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
-    : uiDialog(p,uiDialog::Setup("Logs","Define log parameters",""))
+    : uiDialog(p,uiDialog::Setup("Logs","Define log parameters","107.1.2"))
     , wd(wd_)
 {
     lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
@@ -189,7 +205,7 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 
 uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
     : uiDialog(p,uiDialog::Setup("Display Well logs",
-				 "Select log",""))
+				 "Select log","107.2.0"))
     , logset(logs)
 {
     logsfld = new uiLabeledListBox( this, "Select Log" );
