@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlamodel.h,v 1.1 2003-10-02 14:41:08 bert Exp $
+ RCS:		$Id: nlamodel.h,v 1.2 2003-10-06 07:42:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,9 @@ public:
     virtual void			dump(BufferString&) const	= 0;
     					//!< 'serialise' - without the pars()
 
-    virtual const char*			nlaType() const	{ return "NN"; }
+    virtual const char*			nlaType( bool compact=true ) const
+    					{ return compact ? "NN"
+					    		 : "Neural Network"; }
 
 };
 
