@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.10 2002-05-02 06:57:04 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.11 2002-05-02 12:34:17 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -112,6 +112,8 @@ visBase::FactoryEntry::FactoryEntry( FactPtr funcptr_,
 
 visBase::DataObject* visBase::Factory::create( const char* nm )
 {
+    if ( !nm ) return 0;
+
     for ( int idx=0; idx<entries.size(); idx++ )
     {
 	if ( !strcmp( nm, entries[idx]->name )) return entries[idx]->create();
