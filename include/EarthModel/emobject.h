@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.5 2002-05-22 07:50:24 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.6 2003-04-22 11:00:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,12 @@ public:
     virtual			~EMObject( ) {}
     const MultiID&		id() const { return id_; }
     BufferString		name() const;
+
+    virtual Coord3		getPos(const EarthModel::PosID&) const = 0;
+    virtual bool		setPos(const EarthModel::PosID&,
+	    			       const Coord3&,
+				       bool addtohistory ) = 0;
+
     CNotifier<EMObject, PosID>	poschnotifier;
 
     virtual Executor*		loader() { return 0; }
