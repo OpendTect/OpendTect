@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.16 2004-02-12 16:24:25 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.17 2004-02-12 16:38:37 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -310,7 +310,7 @@ const char* Well::AscImporter::getLogs( istream& strm,
 	    BufferString unlbl;
 	    if ( convs[globidx] )
 	    {
-		if ( idx == 0 || useconvs_ )
+		if ( useconvs_ )
 		    unlbl = "Converted to SI from ";
 		unlbl += unitmeasstrs.get( globidx );
 	    }
