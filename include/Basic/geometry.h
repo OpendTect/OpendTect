@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.10 2000-09-20 10:44:53 arend Exp $
+ RCS:           $Id: geometry.h,v 1.11 2000-10-12 10:49:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,13 @@ public:
     inline void 	setRight( T val )	{ bottomRight_.setX( val ); }
     inline void 	setBottom( T val )	{ bottomRight_.setY( val ); }
 
+    //! Makes sure top < bottom, and left < right. If not, swappes l/r cq t/b 
+    void		checkCorners()
+			{ 
+			    if( left() > right() ) swapHor(); 
+			    if( top()  > bottom()) swapVer(); 
+			}
+
     inline Size2D<T>	size() const { return Size2D<T>( width(), height() ); }
     inline		operator Size2D<T>() const	{ return size(); }
     inline void 	zero()	{ topLeft_.zero(); bottomRight_.zero(); }
@@ -164,14 +171,27 @@ public:
 
 protected:
 
-    Point<T> 	topLeft_;
-    Point<T>	bottomRight_;
+    inline void		swapHor() 
+			{ 
+			    T t = topLeft_.x(); 
+			    topLeft_.setX( bottomRight_.x() );
+			    bottomRight_.setX( t );
+			}
+    inline void		swapVer() 
+			{ 
+			    T t = topLeft_.y(); 
+			    topLeft_.setY( bottomRight_.y() );
+			    bottomRight_.setY( t );
+			}
 
-    inline bool	revX() const		{ return left() > right(); }
-    inline bool	revY() const		{ return bottom() > top(); }
+    Point<T>		topLeft_;
+    Point<T>		bottomRight_;
 
-    inline bool	xOutside(T) const;
-    inline bool	yOutside(T) const;
+    inline bool		revX() const		{ return left() > right(); }
+    inline bool		revY() const		{ return bottom() > top(); }
+
+    inline bool		xOutside(T) const;
+    inline bool		yOutside(T) const;
 };
 
 
