@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.17 2001-07-25 09:34:17 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.18 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,14 +32,18 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
     if ( withclear ) addSpecialItem( "" );
 
     inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", true );
-    inp_->box()->selectionchanged.notify( mCB(this,uiIOSelect,selDone) );
+    inp_->box()->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
     inp_->box()->setPrefWidthInChar( 20 );
+
     selbut_ = new uiPushButton( this, "Select ..." );
-    selbut_->notify( mCB(this,uiIOSelect,doSel) );
+    selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
     selbut_->attach( rightOf, inp_ );
 
-    setHAlignObj( inp_ );
-    setHCentreObj( inp_ );
+    setHAlignObj( inp_->uiObj() );
+    setHCentreObj( inp_->uiObj() );
+
+    uiObj()->finalising.notify( mCB(this,uiIOSelect,doFinalise) );
+
 }
 
 
@@ -50,9 +54,8 @@ uiIOSelect::~uiIOSelect()
 }
 
 
-void uiIOSelect::finalise_()
+void uiIOSelect::doFinalise()
 {
-    uiGroup::finalise_();
     updateFromEntries();
 }
 
