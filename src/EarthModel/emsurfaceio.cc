@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.20 2003-09-30 12:55:27 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.21 2003-10-01 13:36:39 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -383,20 +383,6 @@ int EM::dgbSurfaceReader::nextStep()
     const int nrcols = readInt(strm);
     if ( !strm ) return ErrorOccurred;
     const int firstcol = nrcols ? readInt(strm) : 0;
-
-    int versionnr = 1;
-    par->get( versionstr, versionnr );
-    if ( !nrdone && versionnr == 1 && readrowrange && rcconv )
-    {
-	const RowCol rc0 = rcconv->get( RowCol(firstrow,firstcol) );
-	const RowCol rc1 = rcconv->get( RowCol(nrrows-1,nrcols-1) ); 
-
-	Interval<int> filerowrg( rc0.row, rc1.row );
-	Interval<int> filecolrg( rc0.col, rc1.col );
-	filerowrg.sort(); filecolrg.sort();
-	assign( *readrowrange, filerowrg );
-	assign( *readcolrange, filecolrg );
-    }
 
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
