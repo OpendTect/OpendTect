@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.40 2003-09-15 10:59:52 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.41 2003-09-25 08:48:44 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -38,7 +38,7 @@ int Execute_batch( int* pargc, char** argv )
 
     if ( BP().inbg_ )
     {
-#ifndef __msvc__
+#ifndef __win__
 	switch ( fork() )
 	{
 	case -1:

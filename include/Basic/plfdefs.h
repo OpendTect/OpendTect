@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.6 2001-10-25 13:17:30 windev Exp $
+ RCS:		$Id: plfdefs.h,v 1.7 2003-09-25 08:48:44 arend Exp $
 ________________________________________________________________________
 
 */
@@ -61,7 +61,7 @@ Bytes:
 #undef __unix__
 #undef __win__
 
-#ifdef _MSC_VER
+#ifdef win
 # define __win__ 1
 #endif
 #ifdef lux
@@ -158,7 +158,7 @@ Bytes:
 #ifdef lux
 # define __gnuc__ 1
 #endif
-#ifdef __GNU_LIBRARY__
+#ifdef __GNUC__
 # undef __gnuc__
 # define __gnuc__ 1
 #endif
@@ -167,8 +167,10 @@ Bytes:
 #  define __sunc__ 1
 # endif
 #endif
-#ifdef _MSC_VER
-# define __msvc__ 1
+#ifdef win
+# ifndef __gnuc__
+#  define __msvc__ 1
+# endif
 #endif
 
 

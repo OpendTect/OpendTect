@@ -9,7 +9,7 @@ static const char* rcsID = "$Id";
 #include "progressmeter.h"
 #include "timefun.h"
 #include <iostream>
-#include <values.h>
+#include <limits.h>
 #include <stdlib.h>
 
 static const char dispchars[] = ".:=|*#>}ABCDEFGHIJKLMNOPQRSTUVWXYZ";

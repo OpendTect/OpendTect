@@ -33,7 +33,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.37 2003-08-25 10:31:12 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.38 2003-09-25 08:48:44 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -152,12 +152,21 @@ void StreamProvider::set( const char* devname )
     fname = ptr;
 
 #ifndef __msvc__
+
     // separate hostname from filename
     ptr = strchr( fname.buf(), ':' );
     if ( ptr )
     {
-	*ptr++ = '\0';
-	hostname = fname;
+#ifdef __win__ // non-msvc compiler, like MinGw
+	// if only one char before the ':', it must be a drive letter.
+	if( ptr == fname.buf() + 1 )
+	    ptr = fname.buf();
+	else
+#endif
+	{
+	    *ptr++ = '\0';
+	    hostname = fname;
+	}
     }
     else
 #endif
@@ -268,12 +277,11 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
 	if ( File_exists(fname) )
-#ifdef __msvc__
+#ifdef __win__
 /*
     comp.lang.c++ 2000/03/14 Re: Question of fstream 
     conclusion: use binary mode, and windows will read&write unix format
 */
-
 	    // should work the same on win & unix, but, you never know.
 	    sd.istrm = new ifstream( fname, ios_base::in | ios_base::binary );
 #else
@@ -342,7 +350,7 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-#ifdef __msvc__
+#ifdef __win__
         // should work the same on win & unix, but, you never know.
 	sd.ostrm = new ofstream( fname, ios_base::out|ios_base::binary );
 #else

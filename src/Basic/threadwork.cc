@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.11 2003-03-06 11:18:56 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.12 2003-09-25 08:48:44 arend Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -103,12 +103,16 @@ Threads::WorkThread::~WorkThread()
 
 void Threads::WorkThread::doWork( CallBacker* )
 {
+#ifndef __win__
+
     sigset_t newset;
     sigemptyset(&newset);
     sigaddset(&newset,SIGINT);
     sigaddset(&newset,SIGQUIT);
     sigaddset(&newset,SIGKILL);
     pthread_sigmask(SIG_BLOCK, &newset, 0 );
+
+#endif
 
     controlcond.lock();
     while ( true )

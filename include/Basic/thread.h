@@ -7,19 +7,21 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.15 2002-11-12 15:13:57 kristofer Exp $
+ RCS:		$Id: thread.h,v 1.16 2003-09-25 08:48:44 arend Exp $
 ________________________________________________________________________
 
 */
 
 #include "callback.h"
 
-#ifndef __win__
+#ifndef __msvc__
 #define __pthread__ 1
 #endif
 
 #ifdef __pthread__
 #include <pthread.h>
+// win
+#undef small
 #endif
 
 /*!\brief interface to threads that should be portable.

@@ -3,13 +3,17 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.5 2003-09-17 15:17:06 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.6 2003-09-25 08:48:44 arend Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
 #include "dirlist.h"
 
+#ifdef __win__
+#include <Windows.h>
+#else
 #include <dlfcn.h>
+#endif
 #include <iostream>
 
 PluginManager* PluginManager::theinst_ = 0;
@@ -48,24 +52,43 @@ static bool loadPlugin( const char* libnm, int* pargc, char** argv,
 {
     if ( inittype == PI_AUTO_INIT_NONE ) return false;
 
+#ifdef __win__
+    HMODULE handle = LoadLibrary ( libnm );
+#else
     void* handle = dlopen( libnm, RTLD_GLOBAL | RTLD_NOW );
     if ( !handle )
     {
 	cerr << dlerror() << endl;
 	return false;
     }
+#endif
 
     const BufferString libnmonly = File_getFileName(libnm);
     if ( inittype > 0 )
     {
+
+#ifdef __win__
+    VoidIntRetFn fn = reinterpret_cast <VoidIntRetFn>
+	    (GetProcAddress (handle, getFnName(libnmonly,"GetPluginType")) );
+
+	if ( !fn || inittype != (*fn)() )
+	    { FreeLibrary(handle); return false; }
+#else
+
 	VoidIntRetFn fn = (VoidIntRetFn)dlsym( handle,
 				getFnName(libnmonly,"GetPluginType") );
 	if ( !fn || inittype != (*fn)() )
 	    { dlclose(handle); return false; }
+#endif
     }
 
+#ifdef __win__
+    ArgcArgvCCRetFn fn2 = reinterpret_cast<ArgcArgvCCRetFn>
+		( GetProcAddress( handle, getFnName(libnmonly,"InitPlugin") ) );
+#else
     ArgcArgvCCRetFn fn2 = (ArgcArgvCCRetFn)dlsym( handle,
 				getFnName(libnmonly,"InitPlugin") );
+#endif
     bool rv = false;
     if ( !fn2 )
 	cerr << "Cannot find InitPlugin() function in "
@@ -83,7 +106,11 @@ static bool loadPlugin( const char* libnm, int* pargc, char** argv,
 	}
     }
 
+#ifdef __win__
+    FreeLibrary(handle);
+#else
     dlclose(handle);
+#endif
     return rv;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.6 2003-09-16 11:40:52 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.7 2003-09-25 08:48:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ int main( int argc, char ** argv )
     sdin.close();
     parlist.setFileName( fnm );
 
-#ifndef __msvc__
+#ifndef __win__
     if ( bgadd )
     {
 	switch ( fork() )

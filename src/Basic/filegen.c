@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.38 2003-08-25 10:31:12 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.39 2003-09-25 08:48:44 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -91,16 +91,20 @@ int File_isAbsPath( const char* fname )
 
 int File_isRemote( const char* fname )
 {
+#ifdef __win__
+    return NO;
+#else
     if ( !File_exists(fname)
       || mStatFS(fname,&fsstatbuf) )
 	return NO;
 
-#ifdef lux
+# ifdef lux
     /* return fsstatbuf.f_type == NFS_SUPER_MAGIC
 	|| fsstatbuf.f_type == SMB_SUPER_MAGIC; */
     return fsstatbuf.f_type == 0x6969 || fsstatbuf.f_type == 0x517B;
-#else
+# else
     return fsstatbuf.f_basetype[0] == 'n' && fsstatbuf.f_basetype[1] == 'f';
+# endif
 #endif
 }
 
@@ -181,6 +185,8 @@ const char* File_getFullPath( const char* path, const char* filename )
 
     PathAppend( (char*)pathbuf, filename );
 
+    return pathbuf;
+
 #else
 
     while ( matchString("..",(const char*)pathbuf) )
@@ -201,9 +207,9 @@ const char* File_getFullPath( const char* path, const char* filename )
 
     strcat( chptr, filename );
 
-#endif
-
     return chptr;
+
+#endif
 }
 
 
@@ -618,9 +624,13 @@ int File_createLink( const char* from, const char* to )
 
 const char* File_linkTarget( const char* fname )
 {
+#ifdef __win__
+    return 0;
+#else
     static FileNameString pathbuf;
     return File_isLink(fname) && readlink(fname,pathbuf,256) != -1
 	 ? pathbuf : fname;
+#endif
 }
 
 

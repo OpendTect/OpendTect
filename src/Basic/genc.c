@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.15 2003-03-27 12:49:59 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.16 2003-09-25 08:48:44 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -52,7 +52,21 @@ void SetDgbApplicationCode( int newnr )
 
 const char* GetSoftwareDir()
 {
+#ifdef __win__
+
+    const char* dir = getenv( "dGB_WINAPPL" );
+
+    if ( !dir ) dir = getenv( "dGB_APPL" );
+
+    if ( !dir )
+	dir = dgb_application_code == mDgbApplCodeDTECT ?
+		    getenv( "dTECT_WINAPPL" ) : getenv( "GDI_WINAPPL" );
+#else
+
     const char* dir = getenv( "dGB_APPL" );
+
+#endif
+
     if ( !dir )
 	dir = dgb_application_code == mDgbApplCodeDTECT ?
 		    getenv( "dTECT_APPL" ) : getenv( "GDI_APPL" );
@@ -71,16 +85,34 @@ const char* GetDataFileName( const char* fname )
 
 const char* GetSoftwareUser()
 {
+#ifdef __win__
+
+    const char* ptr = getenv( "dGB_WINUSER" );
+
+    if ( !ptr ) ptr = getenv( "dGB_USER" );
+
+    if ( !ptr )
+	ptr = dgb_application_code == mDgbApplCodeDTECT ?
+	    	getenv( "dTECT_WINUSER" ) : getenv( "GDI_WINUSER" );
+#else
+
     const char* ptr = getenv( "dGB_USER" );
+
+#endif
+
     if ( !ptr )
 	ptr = dgb_application_code == mDgbApplCodeDTECT ?
 	    	getenv( "dTECT_USER" ) : getenv( "GDI_USER" );
+
     return ptr;
 }
 
 const char* GetHomeDir()
 {
-#ifdef __msvc__
+#ifdef __win__
+    const char* ptr = getenv( "dGB_WINHOME" );
+    if( ptr ) return ptr;
+
     static FileNameString home = "";
     if( !*home )
     {
@@ -153,7 +185,22 @@ const char* GetSurveyName()
 
 const char* GetBaseDataDir()
 {
+#ifdef __win__
+
+    const char* dir = getenv( "dGB_WINDATA" );
+
+    if ( !dir ) dir = getenv( "dGB_DATA" );
+
+    if ( !dir )
+	dir = dgb_application_code == mDgbApplCodeDTECT ?
+		    getenv( "dTECT_WINDATA" ) : getenv( "GDI_WINDATA" );
+
+#else
+
     const char* dir = getenv( "dGB_DATA" );
+
+#endif
+
     if ( !dir )
 	dir = dgb_application_code == mDgbApplCodeDTECT ?
 		    getenv( "dTECT_DATA" ) : getenv( "GDI_DATA" );

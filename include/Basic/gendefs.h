@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.19 2002-09-11 14:39:08 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.20 2003-09-25 08:48:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,11 +60,14 @@ ________________________________________________________________________
 
 #endif
 
+#ifdef __win__
+# include <stdio.h>
+#endif
 
 #ifdef __msvc__
 
-# include <windefs.h>
 # include <stdlib.h>
+# include <windefs.h>
 # define PATH_LENGTH			_MAX_PATH
 
 # define mPolyRet(base,clss)		base

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.8 2003-02-05 12:53:31 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.9 2003-09-25 08:48:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,12 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "ascstream.h"
 #include "errh.h"
-#include <netdb.h>
 #include <unistd.h>
+#ifdef __win__
+# include <windows.h>
+#else
+# include <netdb.h>
+#endif
 
 
 const char* HostData::localHostName()
@@ -55,6 +59,10 @@ HostDataList::HostDataList()
     if ( getenv("dGB_BATCH_HOSTS_FILENAME") )
 	bhfnm = getenv("dGB_BATCH_HOSTS_FILENAME");
     BufferString fname( GetDataFileName(bhfnm) );
+
+#ifdef __win__
+    readHostFile(fname);
+#else
     if ( !readHostFile(fname) )
     {
 	sethostent(0);
@@ -74,7 +82,7 @@ HostDataList::HostDataList()
 	endhostent();
 	realaliases_ = true;
     }
-
+#endif
     handleLocal();
 }
 

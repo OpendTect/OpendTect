@@ -4,12 +4,12 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.4 2001-10-25 13:26:39 windev Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.5 2003-09-25 08:48:44 arend Exp $";
 
 #include "dirlist.h"
 #include "filegen.h"
 
-#ifdef win
+#ifdef __win__
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -34,7 +34,7 @@ void DirList::update()
     WIN32_FIND_DATA	dat;
     HANDLE		mhndl;
 
-    BufferString dirnm = dir;
+    BufferString dirnm = dir.buf();
     dirnm += "\\*";
 
     mhndl = FindFirstFile( (const char*)dirnm, &dat );

@@ -4,18 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.12 2003-03-11 14:24:25 arend Exp $
+ RCS:           $Id: sighndl.cc,v 1.13 2003-09-25 08:48:44 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.12 2003-03-11 14:24:25 arend Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.13 2003-09-25 08:48:44 arend Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "errh.h"
 
+#ifdef __win__
+# include "winterminate.h"
+#endif
 
 void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
@@ -64,21 +67,28 @@ SignalHandling::SignalHandling()
 
     // Fatal stuff
     mCatchSignal( SIGINT );	/* Interrupt */
-    mCatchSignal( SIGQUIT );	/* Quit */
     mCatchSignal( SIGILL );	/* Illegal instruction */
-    mCatchSignal( SIGTRAP );	/* Trace trap */
-    mCatchSignal( SIGIOT );	/* IOT instruction */
     mCatchSignal( SIGABRT );	/* Used by ABORT (IOT) */
     mCatchSignal( SIGFPE );	/* Floating point */
-    mCatchSignal( SIGBUS );	/* Bus error */
     mCatchSignal( SIGSEGV );	/* Segmentation fault */
     mCatchSignal( SIGTERM );	/* Software termination */
+
+#ifdef __win__
+
+    mCatchSignal( SIGBREAK );	/* Control-break */
+
+#else
+
+    mCatchSignal( SIGQUIT );	/* Quit */
+    mCatchSignal( SIGTRAP );	/* Trace trap */
+    mCatchSignal( SIGIOT );	/* IOT instruction */
+    mCatchSignal( SIGBUS );	/* Bus error */
     mCatchSignal( SIGXCPU );	/* Cpu time limit exceeded */
     mCatchSignal( SIGXFSZ );	/* File size limit exceeded */
-#ifdef sun5
+# ifdef sun5
     mCatchSignal( SIGEMT );	/* Emulator trap */
     mCatchSignal( SIGSYS );	/* Bad arg system call */
-#endif
+# endif
 
     // Stuff to ignore
     mCatchSignal( SIGURG );	/* Urgent condition */
@@ -87,11 +97,12 @@ SignalHandling::SignalHandling()
     mCatchSignal( SIGVTALRM );	/* Virtual time alarm */
     mCatchSignal( SIGPROF );	/* Profiling timer alarm */
     mCatchSignal( SIGWINCH );	/* Window changed size */
-#ifdef sun5
+
+# ifdef sun5
     mCatchSignal( SIGPOLL );	/* I/O is possible on a channel */
-#else
+# else
     mCatchSignal( SIGIO );
-#endif
+# endif
 
     // Have to handle
     mCatchSignal( SIGALRM );	/* Alarm clock */
@@ -101,9 +112,11 @@ SignalHandling::SignalHandling()
     mCatchSignal( SIGPIPE );	/* Write on a pipe, no one listening */
     mCatchSignal( SIGHUP );	/* Hangup */
 
-#ifndef sgi 
+# ifndef sgi 
     /* SGI seens to use SIGCLD when starting child processes, f.e. system() */
     mCatchSignal( SIGCLD );	/* Child status changed */
+# endif
+
 #endif
 
     }
@@ -113,14 +126,19 @@ void SignalHandling::handle( int signalnr )
 {
     switch( signalnr )
     {
-    case SIGINT: case SIGQUIT: case SIGILL: case SIGTRAP:
-    case SIGABRT: case SIGFPE: case SIGBUS: case SIGSEGV:
-    case SIGTERM: case SIGXCPU: case SIGXFSZ:
+    case SIGINT: case SIGFPE: case SIGSEGV: case SIGTERM:
+    case SIGILL: case SIGABRT:
+#ifdef __win__
+    case SIGBREAK:
+#else
+    case SIGQUIT: case SIGTRAP: case SIGBUS: case SIGXCPU: case SIGXFSZ:
+#endif
 #ifdef sun5
     case SIGEMT: case SIGSYS:
 #endif
 					theinst_.doKill( signalnr );	break;
 
+#ifndef __win__
     case SIGSTOP: case SIGTSTP:		theinst_.doStop( signalnr );	return; 
     case SIGCONT:			theinst_.doCont();		return;
 
@@ -128,7 +146,7 @@ void SignalHandling::handle( int signalnr )
     case SIGPIPE:			theinst_.handleConn();		break;
     case SIGCLD:			theinst_.handleChld();		break;
     case SIGHUP:			theinst_.handleReInit();	break;
-
+#endif
     }
 
     // re-set signal
@@ -207,13 +225,21 @@ void SignalHandling::doStop( int signalnr )
 {
     mReleaseSignal( signalnr );
     stopcbs.doCall( this );
+#ifdef __win__
+    raise( signalnr );
+#else
     kill( getPID(), signalnr );
+#endif
 }
 
 
 void SignalHandling::stopProcess( int pid, bool friendly )
 {
+#ifdef __win__
+    TerminateApp( pid, 0 );
+#else
     kill( pid, friendly ? SIGTERM : SIGKILL );
+#endif
 }
 
 
@@ -239,7 +265,9 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
 
 void SignalHandling::doCont()
 {
+#ifndef __win__
     mCatchSignal( SIGSTOP );
+#endif
     contcbs.doCall( this );
 }
 
