@@ -1,30 +1,30 @@
 @echo off
 ::
 :: OpenTect remote startup script for window<->windows using rcmd
-:: $Id: od_dormt.bat,v 1.8 2004-11-18 11:11:31 dgb Exp $
+:: $Id: od_dormt.bat,v 1.9 2005-04-06 13:36:14 cvsarend Exp $
 ::______________________________________________________________________________
 
 cd %DTECT_WINAPPL%
 
+set HDIR=win
+
+:: Get dir of cygwin utils shipped with OpendTect
+for /F "tokens=*" %%i in ('cd') do set ODSYSDIR=%%i
+set ODSYSDIR=%ODSYSDIR%\bin\win\sys
+set PATH=%ODSYSDIR%;%ODSYSDIR%\dlls;%PATH%
+
+set CSHEXE=tcsh.exe
+set CSHCMD=tcsh -f
 
 :: Get cygwin directory, if installed
-if exist .\bin\win\GetCygdir.exe goto getcygdir
-
- :: else
-
-:nocygwin
-
- for /F "tokens=*" %%i in ('cd') do set CYGWINDIR=%%i
- set CYGWINDIR=%CYGWINDIR%\bin\win\sys
- goto doit
-
-:getcygdir
+if not exist .\bin\win\GetCygdir.exe goto doit
 
  for /F "tokens=*" %%i in ('.\bin\win\GetCygdir.exe') do set CYGWINDIR=%%i
  set CYGWINDIR=%CYGWINDIR%\bin
 
- if exist %CYGWINDIR%\tcsh.exe goto doit
- goto nocygwin
+ if not exist %CYGWINDIR% goto doit
+
+  set PATH=%CYGWINDIR%;%PATH%
 
 :doit
 

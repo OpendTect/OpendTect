@@ -4,7 +4,7 @@
 :: This script collects information on the OpendTect installation setup,
 :: the data area and the system on which it is run.
 ::
-:: CVS: $Id: collect_support_info.bat,v 1.6 2005-01-12 12:00:02 dgb Exp $
+:: CVS: $Id: collect_support_info.bat,v 1.7 2005-04-06 13:36:14 cvsarend Exp $
 ::______________________________________________________________________________
 ::
 
@@ -23,7 +23,7 @@ cd %DTECT_WINAPPL%\bin
 :: Get dir of cygwin utils shipped with OpendTect
 for /F "tokens=*" %%i in ('cd') do set ODSYSDIR=%%i
 set ODSYSDIR=%ODSYSDIR%\win\sys
-set PATH=%ODSYSDIR%;%PATH%
+set PATH=%ODSYSDIR%;%ODSYSDIR%\dlls;%PATH%
 
 set CSHEXE=tcsh.exe
 set CSHCMD=tcsh -f
