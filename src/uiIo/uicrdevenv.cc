@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.8 2004-01-23 11:29:26 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.9 2004-01-23 12:39:15 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ const char* getCygDir()
 
 #endif
 
-static void showProgDoc()
+static void showProgrDoc()
 {
 
     BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
@@ -130,7 +130,7 @@ bool uiCrDevEnv::isOK( const char* d )
 #undef mErrRet
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-#define mShowDoc() { if ( !docshown ) { showProgDoc(); docshown = true; } }
+#define mShowDoc() { if ( !docshown ) { showProgrDoc(); docshown = true; } }
 
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
@@ -147,44 +147,19 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     if( !cygwin )
     {
-	BufferString msg;
-	msg = "You do not seem to have cygwin installed.\n";
-	msg += "Do you want to start the cygwin installer now to install it?";
-	msg += "\n\nWARNING: You will have to exit dTect when the Cygwin ";
-	msg += "installer has been started.";
-	msg += "\n Please make sure that all your work has been saved.";
+	const char* msg =
+	    "It seems you do not have Cygwin installed."
+	    "Please close OpendTect and use the Cygwin installer\n"
+	    "you can find in the start-menu under"
+	    "\"Start-Programs-OpendTect-Install Cygwin\""
+	    "\n\nDo you want to continue anyway?";
 
-	if ( uiMSG().askGoOn(msg) )
+	if ( ! uiMSG().askGoOn(msg) )
 	{
-	    mShowDoc();
-
-	    BufferString cmd( "@" );
-	    cmd += getenv ("COMSPEC");
-	    cmd += " /c start \"Install Cygwin\" /D\"";
-
-	    BufferString path = GetSoftwareDir();
-	    path = File_getFullPath( path, "bin" );
-	    path = File_getFullPath( path, "win" );
-	    cmd += path;
-	    cmd +=  "\" /MIN instcyg.bat";
-
-	    StreamProvider( cmd ).executeCommand( true );
-
-	    const char* restart =
-		"Please start a cygwin shell after installing cygwin to "
-		"initialise cygwin. Then restart OpendTect and re-select "
-                " 'Create Dev env'."
-                "\n\nPlease consult the documentation "
-                "to see which packages need to be installed."
-		"\n\nOpendTect will exit now.";
-
-	    uiMSG().message(restart);
-
-	    if( uiMain::theMain().topLevel() )
-		uiMain::theMain().topLevel()->close();
-	    else
-		uiMain::theMain().exit();
-
+	    uiMSG().message( "Please run the Cygwin (bash) shell"
+			     "at least once after the installation.\n\n"
+			     "This will make sure you have a Cygwin home "
+			     "directory for your work environment." );
 	    return;
 	}
     }
@@ -195,8 +170,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     if ( oldworkdir != "" )
     {
-	BufferString msg;
-	msg = "Your current work directory (";
+	BufferString msg = "Your current work directory (";
 	msg += oldworkdir;
 	msg += oldok ?  ") seems to be Ok.\n" :
 			") does not seem to be a valid work directory.\n";
@@ -226,7 +200,19 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 		basedirnm = File_getFullPath( basedirnm, getenv("USER") );
 
 	    if ( !File_isDirectory(basedirnm) )
-		basedirnm = GetPersonalDir();
+	    {
+		const char* msg =
+		"You have installed Cygwin but you have never used it.\n"
+		"Unfortunately, this means you have no Cygwin home directory.\n"
+		"\nWe advise to close OpendTect and start a Cygwin shell.\n"
+		"Then use this utility again.\n"
+		"\nDo you still wish to continue?";
+
+		if ( !uiMSG().askGoOn(msg) )
+		    return;
+
+		basedirnm = "C:\\";
+	    }
 	}
 
 	// pop dialog
