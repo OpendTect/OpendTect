@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.65 2002-05-31 10:28:10 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.66 2002-06-27 08:53:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "settings.h"
 
 #include "uizscaledlg.h"
+#include "uiworkareadlg.h"
 #include "uimaterialdlg.h"
 #include "uipickszdlg.h"
 #include "uislicesel.h"
@@ -1097,6 +1098,18 @@ bool uiVisPartServer::usesTexture( int id ) const
     if ( hd ) return hd->usesTexture();
 
     return false;
+}
+
+
+bool uiVisPartServer::setWorkingArea( int sceneid )
+{
+    uiWorkAreaDlg dlg( appserv().parent() );
+    if ( !dlg.go() ) return false;
+
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( scene ) scene->updateRange();
+    return true;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.44 2002-05-31 10:28:16 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.45 2002-06-27 08:53:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,6 +183,7 @@ public:
     bool		usesTexture(int) const;
 
 			//Dialogs
+    bool		setWorkingArea(int);
     bool		setZScale();
     void		setMaterial(int);
     void		setPickSize(int);
