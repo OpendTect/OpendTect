@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.2 2002-12-30 12:49:30 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.3 2003-01-07 19:04:44 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -324,18 +324,16 @@ float Plane3::distanceToPoint( const Coord3& point ) const
 
 bool Plane3::intersectWith( const Line3& b, Coord3& res ) const
 {
-    const float t = -( A*b.x0 + B*b.y0 + C*b.z0 + D ) / 
-		     ( b.alpha*A + b.beta*B + b.gamma*C );
-    
-    if ( mIS_ZERO(t) )
+    const float denominator = ( b.alpha*A + b.beta*B + b.gamma*C );
+    if ( mIS_ZERO( denominator ) )
 	return false;
-    else
-    {
-    	Coord3 intersect( b.x0+b.alpha*t, b.y0+b.beta*t, b.z0+b.gamma*t ); 
-    	res = intersect;
+
+    const float t = -( A*b.x0 + B*b.y0 + C*b.z0 + D ) / denominator;
     
-    	return true;
-    }
+    Coord3 intersect( b.x0+b.alpha*t, b.y0+b.beta*t, b.z0+b.gamma*t ); 
+    res = intersect;
+
+    return true;
 }
 
 
