@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.11 2002-05-17 10:05:38 nanne Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.12 2002-05-17 15:00:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class IOObjContext : public UserIDObject
 {
 public:
 
-    enum StdSelType	{ Seis=0, Grd, Wvlt, Feat, WellInfo, NN, Misc, Attr,
+    enum StdSelType	{ Seis=0, Surf, Loc, Feat, WellInfo, NN, Misc, Attr,
 			  Graph, None };
 			DeclareEnumUtils(StdSelType)
 

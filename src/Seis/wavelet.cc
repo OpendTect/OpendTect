@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.7 2001-10-18 09:37:33 windev Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.8 2002-05-17 15:00:24 bert Exp $";
 
 #include "wavelet.h"
 #include "ascstream.h"
@@ -153,7 +153,7 @@ const IOObjContext& WaveletTranslator::ioContext()
 	ctxt->newonlevel = 1;
 	ctxt->needparent = NO;
 	ctxt->maychdir = NO;
-	ctxt->stdseltype = IOObjContext::Wvlt;
+	ctxt->stdseltype = IOObjContext::Seis;
     }
 
     return *ctxt;
@@ -165,7 +165,8 @@ int WaveletTranslator::selector( const char* key )
     int retval = defaultSelector( classdef.name(), key );
     if ( retval ) return retval;
 
-    if ( defaultSelector("Wavelet directory",key) ) return 1;
+    if ( defaultSelector("Wavelet directory",key)
+      || defaultSelector("Seismic directory",key) ) return 1;
     return 0;
 }
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.18 2002-04-23 06:17:29 nanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.19 2002-05-17 15:00:24 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -103,8 +103,8 @@ const IOObjContext& PickSetGroupTranslator::ioContext()
 	ctxt->crlink = false;
 	ctxt->newonlevel = 1;
 	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Misc;
+	ctxt->maychdir = true;
+	ctxt->stdseltype = IOObjContext::Loc;
     }
 
     return *ctxt;
@@ -113,7 +113,13 @@ const IOObjContext& PickSetGroupTranslator::ioContext()
 
 int PickSetGroupTranslator::selector( const char* key )
 {
-    return defaultSelector( classdef.name(), key );
+    int retval = defaultSelector( classdef.name(), key );
+    if ( retval ) return retval;
+
+    if ( defaultSelector("Miscellaneous directory",key)
+      || defaultSelector("Locations directory",key) ) return 1;
+
+    return 0;
 }
 
 
