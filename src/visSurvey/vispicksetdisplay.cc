@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.29 2002-07-25 15:27:55 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.30 2002-07-29 07:35:03 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -230,8 +230,17 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 
 	if ( eventinfo.pickedobjids.size() )
 	{
-	    mousepressid = eventinfo.pickedobjids[0];
-	    mousepressposition = eventinfo.pickedpos;
+	    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+	    {
+		visBase::DataObject* dataobj =
+		    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+
+		if ( dataobj->selectable() )
+		{
+		    mousepressid = eventinfo.pickedobjids[idx];
+		    mousepressposition = eventinfo.pickedpos;
+		}
+	    }
 	}
 
 	eventcatcher->eventIsHandled();
