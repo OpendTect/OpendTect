@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.14 2004-04-15 13:12:24 macman Exp $
+ RCS:           $Id: uitable.h,v 1.15 2004-05-24 09:01:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,8 +131,14 @@ public:
 
     int			columnWidth( int col ) const;
     int			rowHeight( int row ) const;
+
+			//! col == -1 : set left margin width
     void		setColumnWidth( int col, int w );
+    void		setColumnWidthInChar( int col, float w );
+
+			//! row == -1 : set top margin height
     void		setRowHeight( int row, int h );
+    void		setRowHeightInChar( int row, float h );
 
     void		setColumnStretchable( int col, bool stretch );
     void		setRowStretchable( int row, bool stretch );

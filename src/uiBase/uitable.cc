@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.16 2004-03-19 14:27:35 nanne Exp $
+ RCS:           $Id: uitable.cc,v 1.17 2004-05-24 09:02:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,8 +206,30 @@ void uiTable::setDefaultColLabels()
 
 int  uiTable::columnWidth( int c ) const	{ return body_->columnWidth(c);}
 int  uiTable::rowHeight( int r ) const		{ return body_->rowHeight(r);}
-void uiTable::setColumnWidth(int col, int w)	{ body_->setColumnWidth(col,w);}
-void uiTable::setRowHeight( int row, int h )	{ body_->setRowHeight(row,h); }
+
+void uiTable::setColumnWidth(int col, int w)	
+{
+    if ( col == -1 ) return body_->setLeftMargin(w);
+    body_->setColumnWidth(col,w);
+}
+
+void uiTable::setColumnWidthInChar(int col, float w)	
+{
+    float wdt = w * body_->fontWdt();
+    setColumnWidth( col, mNINT(wdt) );
+}
+
+void uiTable::setRowHeight( int row, int h )
+{
+    if ( row == -1 ) return body_->setTopMargin(h);
+    body_->setRowHeight(row,h);
+}
+
+void uiTable::setRowHeightInChar(int row, float h)	
+{
+    float hgt = h * body_->fontHgt();
+    setColumnWidth( row, mNINT(hgt) );
+}
 
 void uiTable::insertRows(int r, int cnt)	
 { body_->insertRows( r, cnt ); updateRow() }
