@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.5 2003-01-21 16:10:00 kristofer Exp $
+ RCS:		$Id: vispolyline.h,v 1.6 2003-09-09 16:25:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,7 @@ public:
     int 		size() const;
     void		addPoint( const Coord3& pos );
     Coord3		getPoint( int ) const;
+    void		setPoint( int, const Coord3& );
     void		removePoint( int );
 
 protected:

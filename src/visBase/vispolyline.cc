@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vispolyline.cc,v 1.4 2003-01-21 16:10:08 kristofer Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.5 2003-09-09 16:25:36 kristofer Exp $";
 
 #include "vispolyline.h"
 
@@ -25,7 +25,14 @@ int visBase::PolyLine::size() const { return coords->size(); }
 
 void visBase::PolyLine::addPoint( const Coord3& pos )
 {
-    coords->addPos( pos );
+    setPoint( size(), pos );
+}
+
+
+void visBase::PolyLine::setPoint(int idx, const Coord3& pos )
+{
+    if ( idx>size() ) return;
+    coords->setPos( idx, pos );
     lineset->numVertices.setValue( size() );
 }
 
