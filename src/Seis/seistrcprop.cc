@@ -5,13 +5,14 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.1 2001-02-13 17:48:41 bert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.2 2001-06-05 11:49:45 windev Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
 #include "susegy.h"
 #include "simpnumer.h"
 #include "timeser.h"
+#include "ptrman.h"
 #include <math.h>
 #include <float.h>
 
@@ -326,7 +327,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
 float SeisTrcPropCalc::getPhase( int isamp ) const
 {
     int quadsz = 1 + 2 * mHalfHilbertLength;
-    float trcdata[ quadsz ];
+    ArrPtrMan<float> trcdata = new float[ quadsz ];
     int start = isamp - mHalfHilbertLength;
     int stop = isamp + mHalfHilbertLength;
     const int sz = trc.size(curcomp);
@@ -335,7 +336,7 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
         int trcidx = idx < 0 ? 0 : (idx>=sz ? sz-1 : idx);
         trcdata[idx-start] = trc.get( trcidx, curcomp );
     }
-    float quadtrc[ quadsz ];
+    ArrPtrMan<float> quadtrc = new float[ quadsz ];
     Hilbert( quadsz, trcdata, quadtrc );
 
     float q = quadtrc[mHalfHilbertLength];

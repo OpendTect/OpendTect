@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.13 2001-05-25 18:26:01 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.14 2001-06-05 11:49:47 windev Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.13 2001-05-25 18:26:01 bert Ex
 #include "sorting.h"
 #include "separstr.h"
 #include "scaler.h"
+#include "ptrman.h"
 
 
 int SeisTrcTranslator::selector( const char* key )
@@ -118,7 +119,8 @@ bool SeisTrcTranslator::commitSelections()
     const int sz = tarcds.size();
     if ( sz < 1 ) return false;
 
-    int selnrs[sz], inpnrs[sz];
+    ArrPtrMan<int> selnrs = new int[sz];
+    ArrPtrMan<int> inpnrs = new int[sz];
     int nrsel = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -140,7 +142,7 @@ bool SeisTrcTranslator::commitSelections()
 	inpfor_[0] = inpnrs[0];
     else
     {
-	sort_coupled( selnrs, inpnrs, nrsel );
+	sort_coupled( (int*)selnrs, (int*)inpnrs, nrsel );
 	for ( int idx=0; idx<nrout_; idx++ )
 	    inpfor_[idx] = inpnrs[idx];
     }
@@ -272,7 +274,7 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
     newcd->sd = s;
     newcd->nrsamples = ns;
     newcd->datachar = dc;
-    newcd->scaler = sc ? sc->duplicate() : 0;
+    newcd->scaler = sc ? (LinScaler*)sc->duplicate() : 0;
     cds += newcd;
     bool isl = newcd->datachar.littleendian;
     newcd->datachar.littleendian = __islittle__;

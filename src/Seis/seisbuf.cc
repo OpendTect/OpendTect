@@ -4,13 +4,14 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.6 2001-02-13 17:21:08 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.7 2001-06-05 11:49:43 windev Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "seiswrite.h"
 #include "xfuncimpl.h"
 #include "binidselimpl.h"
+#include "ptrman.h"
 
 
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
@@ -139,7 +140,7 @@ void SeisGather::getStack( SeisTrc& trc, const StepInterval<int>& stpi,
     const SeisTrc* trc1 = get( si.start );
     if ( sz == 1 ) { trc = *trc1; return; }
 
-    const SeisTrc* arr[sz];
+    ArrPtrMan<const SeisTrc*> arr = new const SeisTrc*[sz];
     arr[0] = trc1;
     trc.info().sampling = trc1->info().sampling;
 

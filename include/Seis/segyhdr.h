@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.3 2001-03-19 10:18:25 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.4 2001-06-05 11:49:31 windev Exp $
 ________________________________________________________________________
 
 -*/
  
 #include <seisinfo.h>
 #include <segythdef.h>
-class ostream;
+#include <iosfwd>
 class BufferString;
 
 #define SegyTxtHeaderLength		3200
