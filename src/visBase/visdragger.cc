@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.7 2004-08-05 07:04:00 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.8 2004-08-30 12:55:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,9 +43,14 @@ Dragger::Dragger()
     positiontransform->ref();
     separator->addChild( positiontransform->getInventorNode() );
     setDraggerType( Translate );
-    setRotation( Coord3(0,1,0), -M_PI/2 );
+    setDefaultRotation();
 }
 
+
+void Dragger::setDefaultRotation()
+{
+    setRotation( Coord3(0,1,0), -M_PI_2 );
+}
 
 Dragger::~Dragger()
 {
