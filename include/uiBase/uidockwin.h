@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.4 2002-03-19 12:11:24 arend Exp $
+ RCS:           $Id: uidockwin.h,v 1.5 2002-03-21 12:51:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ public:
 				   const char* nm="uiDockWin" );
 
     virtual		~uiDockWin();
-
 
     uiObject*		uiObj();
     const uiObject*	uiObj() const;

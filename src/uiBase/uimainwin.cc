@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.48 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.49 2002-03-21 12:51:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,12 @@ ________________________________________________________________________
 #include <qstatusbar.h>
 #include <qapplication.h>
 #include <qdockwindow.h>
+
+#ifdef SUPPORT_PERSISTENCE
+// for positions of dock area's
+#include <qdockarea.h>
+#include <qfile.h>
+#endif
 
 #ifdef __msvc__
 #include <qpopupmenu.h>
@@ -148,6 +154,13 @@ public:
 
     static Qt::Dock	qdock( uiMainWin::Dock );
 
+    void 		uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock d );
+
+#ifdef SUPPORT_PERSISTENCE
+    void		storePositions();
+    void		restorePositions();
+#endif
+
 protected:
 
     virtual void	finalise();
@@ -179,6 +192,11 @@ private:
     void 		popTimTick(CallBacker*);
     Timer		poptimer;
     bool		popped_up;
+
+
+    ObjectSet<uiDockWin>	_wins2move;
+    TypeSet<uiMainWin::Dock>	_docks4wins;
+    void			moveDockWindows();
 };
 
 
@@ -255,11 +273,16 @@ uiMainWinBody::~uiMainWinBody( )
 void uiMainWinBody::popTimTick(CallBacker*)
 {
     popped_up = true;
+
+    moveDockWindows();
+//    restorePositions();
 }
 
 void uiMainWinBody::finalise()
-    { centralWidget_->finalise();  finaliseChildren(); }
-
+{
+    centralWidget_->finalise();
+    finaliseChildren();
+}
 
 
 uiStatusBar* uiMainWinBody::uistatusbar()
@@ -279,6 +302,82 @@ uiToolBar* uiMainWinBody::uitoolbar()
     if ( !toolbar ) pErrMsg("No toolBar. See uiMainWinBody's constructor"); 
     return toolbar;
 }
+
+void uiMainWinBody::uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock d )
+{
+    _wins2move += &dwin;
+    _docks4wins += d;
+
+    moveDockWindows();
+}
+
+void uiMainWinBody::moveDockWindows()
+{
+    if ( !poppedUp() ) return;
+
+    for( int idx=0; idx< _wins2move.size(); idx++ )
+	moveDockWindow( _wins2move[idx]->qwidget() , qdock( _docks4wins[idx]) );
+
+    _wins2move.erase();
+    _docks4wins.erase();
+}
+
+#ifdef SUPPORT_PERSISTENCE
+void uiMainWinBody::storePositions()
+{
+#ifdef USE_FILE
+    QFile outfil( "/tmp/qpositions.txt");
+    outfil.open( IO_WriteOnly );
+    QTextStream ts( &outfil );
+#else
+    static QString str;
+    str="";
+    QTextStream ts( &str, IO_WriteOnly  );
+#endif
+
+    QDockArea* dck = leftDock();
+    if ( dck ) { ts << *dck; }
+
+    dck = rightDock();
+    if ( dck ) { ts << *dck; }
+
+    dck = topDock();
+    if ( dck ) { ts << *dck; }
+
+    dck = bottomDock();
+    if ( dck ) { ts << *dck; }
+
+#ifdef USE_FILE
+    outfil.close();
+#else
+    cout << str;
+#endif
+}
+
+void uiMainWinBody::restorePositions()
+{
+storePositions();
+
+    QFile infil( "/tmp/qpositions.txt");
+    infil.open( IO_ReadOnly );
+    QTextStream ts( &infil );
+
+    QDockArea* dck = leftDock();
+    if ( dck ) { ts >> *dck; }
+
+    dck = rightDock();
+    if ( dck ) { ts >> *dck; }
+
+    dck = topDock();
+    if ( dck ) { ts >> *dck; }
+
+    dck = bottomDock();
+    if ( dck ) { ts >> *dck; }
+
+    infil.close();
+storePositions();
+}
+#endif
 
 Qt::Dock uiMainWinBody::qdock( uiMainWin::Dock d )
 {
@@ -327,9 +426,7 @@ void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d )
-{
-    body_->moveDockWindow( dwin.qwidget() , uiMainWinBody::qdock(d) );
-}
+    { body_->uimoveDockWindow( dwin , d ); }
 
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
@@ -378,6 +475,7 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 
     return &_mwb->handle();
 }
+
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
