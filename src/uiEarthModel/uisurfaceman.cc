@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.22 2004-11-09 13:13:58 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.23 2004-12-22 12:09:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,13 +35,13 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
 {
     createDefaultUI( hor ? "hor" : "flt" );
 
-    attribfld = new uiListBox( topgrp, "Calculated attributes" );
+    attribfld = new uiListBox( topgrp, "Calculated attributes", true );
     attribfld->attach( rightTo, manipgrp );
     attribfld->setToolTip( "Calculated attributes" );
 
     uiManipButGrp* butgrp = new uiManipButGrp( topgrp );
     butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiSurfaceMan,remPush),
-		       "Remove this attribute" );
+		       "Remove selected attribute(s)" );
     butgrp->attach( rightTo, attribfld );
 
     selChg( this ); 
@@ -55,37 +55,41 @@ uiSurfaceMan::~uiSurfaceMan()
 
 void uiSurfaceMan::remPush( CallBacker* )
 {
-    if ( !attribfld->size() || !attribfld->nrSelected() ) return;
+    BufferStringSet attribnms;
+    attribfld->getSelectedItems( attribnms );
+    if ( !attribnms.size() || 
+	    !uiMSG().askGoOn("All selected attributes will be removed.\n"
+			     "Do you want to continue?") )
+	return;
    
     mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
     if ( !iostrm ) return;
     StreamProvider sp( iostrm->fileName() );
     sp.addPathIfNecessary( iostrm->dirName() );
 
-    const char* attrnm = attribfld->getText();
-    int gap = 0;
-    for ( int idx=0; ; idx++ )
+    for ( int ida=0; ida<attribnms.size(); ida++ )
     {
-	if ( gap > 100 ) return;
-
-	BufferString fnm(
-		EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx) );
-	if ( File_isEmpty(fnm) )
-	{ gap++; continue; }
-
-	EM::dgbSurfDataReader rdr( fnm );
-	BufferString datanm = rdr.dataName();
-	if ( datanm == attrnm )
+	int gap = 0;
+	for ( int idx=0; ; idx++ )
 	{
-	    BufferString msg( "Remove attribute: '" );
-	    msg += datanm; msg += "'?";
-	    if ( uiMSG().askGoOn( msg ) )
-		File_remove( (const char*)fnm, NO );
+	    if ( gap > 100 ) return;
 
-	    selChg(this);
-	    return;
+	    BufferString fnm(
+		    EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx) );
+	    if ( File_isEmpty(fnm) )
+	    { gap++; continue; }
+
+	    EM::dgbSurfDataReader rdr( fnm );
+	    BufferString datanm = rdr.dataName();
+	    if ( datanm == attribnms.get(ida) )
+	    {
+		File_remove( (const char*)fnm, NO );
+		break;
+	    }
 	}
     }
+
+    selChg( this );
 }
 
 
