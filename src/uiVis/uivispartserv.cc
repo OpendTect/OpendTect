@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.44 2002-05-07 14:42:15 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.45 2002-05-08 08:08:12 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "visrectangle.h"
 #include "vistexturerect.h"
 #include "visobject.h"
+#include "errh.h"
 
 #include "uimsg.h"
 
@@ -93,7 +94,8 @@ bool uiVisPartServer::deleteAllObjects()
 
 void uiVisPartServer::usePar( const IOPar& par )
 {
-    visBase::DM().usePar( par );
+    if ( !visBase::DM().usePar( par ) )
+	pErrMsg( "Could not parse session");
 
     TypeSet<int> sceneids;
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
@@ -317,6 +319,7 @@ void uiVisPartServer::removeScene( int sceneid )
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     scene->mouseposchange.remove(
 		mCB( this, uiVisPartServer, mouseMoveCB ) );
+    scene->unRef();
     scenes -= scene;
 }
 

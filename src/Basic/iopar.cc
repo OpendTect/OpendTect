@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.19 2002-03-18 14:07:05 kristofer Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.20 2002-05-08 08:11:41 kristofer Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -290,7 +290,7 @@ bool IOPar::getSc( const char* s, double& d, double sc, bool udf ) const
 bool IOPar::getSc( const char* s, float& f1, float& f2, float sc,
 		   bool udf ) const
 {
-    double d1=f1, d2=f2;
+    double d1, d2;
     if ( getSc( s, d1, d2, sc, udf ) )
 	{ f1 = (float)d1; f2 = (float)d2; return true; }
     return false;
@@ -300,7 +300,7 @@ bool IOPar::getSc( const char* s, float& f1, float& f2, float sc,
 bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float sc,
 		   bool udf ) const
 {
-    double d1=f1, d2=f2, d3=f3;
+    double d1, d2, d3;
     if ( getSc( s, d1, d2, d3, sc, udf ) )
 	{ f1 = (float)d1; f2 = (float)d2; f3 = (float)d3; return true; }
     return false;
@@ -310,7 +310,7 @@ bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float sc,
 bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float& f4,
 		   float sc, bool udf ) const
 {
-    double d1=f1, d2=f2, d3=f3, d4=f4;
+    double d1, d2, d3, d4;
     if ( getSc( s, d1, d2, d3, sc, udf ) )
     {
 	f1 = (float)d1;
