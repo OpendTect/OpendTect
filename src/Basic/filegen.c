@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.55 2004-01-16 13:48:02 nanne Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.56 2004-01-22 13:55:40 dgb Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -506,6 +506,10 @@ int File_rename( const char* from, const char* to )
 	 
     }
 # endif
+
+    if ( ret )
+	ret = File_exists( to );
+
     return ret;
 
 #else
