@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.11 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uidockwin.cc,v 1.12 2004-05-07 09:41:25 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,12 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiparentbody.h"
 
-
 #include <qdockwindow.h>
+
+#ifdef __mac__
+# define _machack_
+# include "timer.h"
+#endif
 
 class uiDockWinBody : public uiParentBody
 		    , public QDockWindow
@@ -37,6 +41,28 @@ protected:
 
     virtual void	finalise();
 
+#ifdef _machack_
+
+// the doc windows are not correctly drawn on the mac at pop-up
+
+    virtual void        resizeEvent( QResizeEvent* ev )
+    {
+	static int count=0;
+	QDockWindow::resizeEvent(ev);
+
+	if ( redrtimer.isActive() ) redrtimer.stop();
+	redrtimer.start( 300, true );
+    }
+
+    void		redrTimTick( CallBacker* cb )
+    {
+	hide();
+	show();
+    }
+
+    Timer		redrtimer;
+#endif
+
 };
 
 
@@ -51,6 +77,10 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
 	, centralWidget_( 0 )
 {
     if ( *nm ) setCaption( nm );
+#ifdef _machack_
+    redrtimer.tick.notify( mCB(this, uiDockWinBody, redrTimTick) );
+    redrtimer.start( 500, true );
+#endif
 }
 
 void uiDockWinBody::construct()
