@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellman.cc,v 1.2 2003-08-27 12:26:05 bert Exp $";
+static const char* rcsID = "$Id: wellman.cc,v 1.3 2003-10-30 12:24:59 nanne Exp $";
 
 #include "welldata.h"
 #include "wellman.h"
@@ -81,5 +81,11 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 
     delete tr;
     return wd;
+}
 
+
+bool Well::Man::isLoaded( const MultiID& key ) const
+{
+    const int wllidx = indexOf( keys_, key );
+    return wllidx >= 0;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellman.h,v 1.2 2003-08-27 12:26:05 bert Exp $
+ RCS:		$Id: wellman.h,v 1.3 2003-10-30 12:25:13 nanne Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,7 @@ public:
     			//!< Data becomes mine
     Data*		release(const MultiID&);
     			//!< Data becomes yours
+    bool		isLoaded(const MultiID&) const;
 
     const char*		errMsg() const		{ return msg_; }
     ObjectSet<Data>&	wells()			{ return wells_; }
