@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.35 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.36 2003-10-23 12:20:05 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -87,6 +87,8 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
 	sel.selvalues = newsel->selvalues;
 	sel.selpatches = newsel->selpatches;
     }
+    else
+	sel.selvalues.erase();
 
     if ( attridx < 0 )
     {
