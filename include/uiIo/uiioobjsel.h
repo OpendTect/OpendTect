@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.16 2001-09-28 12:06:44 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.17 2001-10-08 16:12:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ class uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const char* transl_glob_expr=0,
 				      const char* seltxt=0);
 			~uiIOObjSelDlg();
 
@@ -86,7 +85,6 @@ class uiIOObjSel : public uiIOSelect
 public:
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
 				   bool wthclear=false,
-				   const char* transl_globexpr=0,
 				   const char* selectionlabel=0);
 			~uiIOObjSel();
 
@@ -107,7 +105,6 @@ protected:
 
     CtxtIOObj&		ctio;
     bool		forread;
-    BufferString	trglobexpr;
     BufferString	seltxt;
 
     void		doObjSel(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.2 2001-07-18 16:12:01 bert Exp $
+ RCS:           $Id: iodirentry.h,v 1.3 2001-10-08 16:12:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,9 @@ ________________________________________________________________________
 class Translator;
 class IOObj;
 class IODir;
+class IOObjContext;
 
-/*!\brief needed for manipulation. Used by user interface IOObj management.
-
-*/
+/*!\brief needed for manipulation. Used by user interface IOObj management. */
 
 class IODirEntry : public UserIDObject
 {
@@ -35,9 +34,12 @@ public:
 };
 
 
+/*!\brief list of dir entries. */
+
 class IODirEntryList : public UserIDObjectSet<IODirEntry>
 {
 public:
+			IODirEntryList(IODir*,const IOObjContext&);
 			IODirEntryList(IODir*,const Translator*,bool,
 					const char* translator_globexpr=0);
 			~IODirEntryList();
@@ -54,6 +56,9 @@ public:
     ObjectTypeSelectionFun	trsel;
     bool			maychgdir;
     BufferString		trfilt;
+    BufferString		iopkey;
+    BufferString		iopval;
+    bool			inciopkey;
 
 };
 

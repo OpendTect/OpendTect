@@ -6,12 +6,14 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.3 2001-07-26 09:38:13 windev Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.4 2001-10-08 16:12:28 bert Exp $";
 
 #include "iodirentry.h"
+#include "ctxtioobj.h"
 #include "transl.h"
 #include "iodir.h"
 #include "ioman.h"
+#include "iopar.h"
 #include "globexpr.h"
 
 #include "errh.h"
@@ -52,6 +54,21 @@ IODirEntryList::IODirEntryList( IODir* id, const Translator* tr, bool maycd,
 	, trsel(tr->getSelector())
 	, maychgdir(maycd)
 	, trfilt(f)
+	, inciopkey(false)
+{
+    fill( id );
+}
+
+
+IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ctxt )
+	: UserIDObjectSet<IODirEntry>(
+		id && id->main() ? (const char*)id->main()->name() : "Objects" )
+	, trsel(ctxt.trgroup->getSelector())
+	, maychgdir(ctxt.maychdir)
+	, trfilt(ctxt.trglobexpr)
+	, iopkey(ctxt.ioparkeyval[0])
+	, iopval(ctxt.ioparkeyval[1])
+	, inciopkey(ctxt.includekeyval)
 {
     fill( id );
 }
@@ -91,6 +108,20 @@ void IODirEntryList::fill( IODir* iodir )
 	{
 	    if ( !ge.matches( ioobj->translator() ) )
 		continue;
+	}
+	if ( *((const char*)iopkey) )
+	{
+	    IOPar* iop = ioobj->trOpts();
+	    if ( !iop && inciopkey )
+		continue;
+	    if ( iop )
+	    {
+		const char* res = iop->find( (const char*)iopkey );
+		if ( !res && inciopkey )
+		    continue;
+		if ( res && inciopkey == (iopval != res) )
+		    continue;
+	    }
 	}
 
         *this += new IODirEntry( ioobj, selres, maychgdir );
