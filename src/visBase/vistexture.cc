@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.1 2003-01-08 14:15:36 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.2 2003-01-09 09:10:39 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -304,7 +304,7 @@ void visBase::Texture::makeTexture()
     for ( int idx=0; idx<texturemakers.size(); idx++ )
     {
 	visBaseTextureMaker* maker =
-	   reinterpret_cast<visBaseTextureMaker*>(colorindexers[idx]);
+	   reinterpret_cast<visBaseTextureMaker*>(texturemakers[idx]);
 	maker->start = border;
 	border += cachesize/colorindexers.size();
 	if ( idx<colorindexers.size()-1 )
@@ -343,7 +343,7 @@ void visBase::Texture::makeColorTables()
 	red[idx] = color.r();
 	green[idx] = color.g();
 	blue[idx] = color.b();
-	trans[idx] = color.t();
+    trans[idx] = 255-color.t();
     }
 }
 
