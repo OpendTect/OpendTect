@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.30 2002-05-08 08:09:48 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.31 2002-05-08 13:42:28 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -549,20 +549,20 @@ int visBase::Rectangle::usePar( const IOPar& iopar )
 
     StepInterval<float> range;
     if ( iopar.get( xrangestr, range.start, range.stop, range.step ) )
-	setRange( 0, range );
+	xrange = range;
 
     if ( iopar.get( yrangestr, range.start, range.stop, range.step ) )
-	setRange( 1, range );
+	yrange = range;
 
     if ( iopar.get( zrangestr, range.start, range.stop, range.step ) )
-	setRange( 2, range );
+	zrange = range;
 
     Interval<float> wrange;
-    if ( iopar.get( xwidhtrange, range.start, range.stop ))
-	setWidthRange( 0, wrange );
+    if ( iopar.get( xwidhtrange, wrange.start, wrange.stop ))
+	wxrange = wrange;
 
-    if ( iopar.get( ywidhtrange, range.start, range.stop ))
-	setWidthRange( 1, wrange );
+    if ( iopar.get( ywidhtrange, wrange.start, wrange.stop ))
+	wyrange = wrange;
 
     float w, h, d;
     if ( iopar.get( draggersizestr, w, h, d ) )
