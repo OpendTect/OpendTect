@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
- Author:        A.H. Lammertink
- Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.15 2001-07-20 09:04:24 bert Exp $
+ Author:        A.H. Bril
+ Date:          start of 2001
+ RCS:           $Id: uiiosel.cc,v 1.16 2001-07-20 16:17:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,10 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uidset.h"
 #include "iopar.h"
+#include "filegen.h"
+
+IOPar& uiIOFileSelect::ixtablehistory = *new IOPar("IXTable selection history");
+IOPar& uiIOFileSelect::devicehistory = *new IOPar("Device selection history");
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
@@ -93,8 +97,9 @@ bool uiIOSelect::haveEntry( const char* key ) const
 }
 
 
-bool uiIOSelect::fillPar( IOPar& iopar ) const
+void uiIOSelect::updateHistory( IOPar& iopar ) const
 {
+    // Find the last key already present
     int lastidx = 0;
     for ( ; ; lastidx++ )
     {
@@ -102,20 +107,20 @@ bool uiIOSelect::fillPar( IOPar& iopar ) const
 	    break;
     }
 
-    const int sz = nrItems();
-    for ( int idx=0; idx<sz; idx++ )
+    // Add the entries
+    const int nrentries = entries_.size();
+    for ( int idx=0; idx<nrentries; idx++ )
     {
 	const char* key = *entries_[idx];
-	if ( specialitems.find(key) || iopar.findKeyFor(key) ) continue;
+	if ( iopar.findKeyFor(key) ) continue;
 
 	lastidx++;
 	iopar.set( IOPar::compKey("I/O Selection",lastidx), key );
     }
-    return true;
 }
 
 
-void uiIOSelect::usePar( const IOPar& iopar )
+void uiIOSelect::getHistory( const IOPar& iopar )
 {
     checkState();
     bool haveold = inp_->box()->size();
@@ -272,4 +277,19 @@ void uiIOFileSelect::doFileSel( CallBacker* c )
 	setInput( fd.fileName() );
 	selDone( 0 );
     }
+}
+
+
+bool uiIOFileSelect::fillPar( IOPar& iopar ) const
+{
+    const char* res = getInput();
+    iopar.set( "File name", res );
+    return res && *res && File_exists(res);
+}
+
+
+void uiIOFileSelect::usePar( const IOPar& iopar )
+{
+    const char* res = iopar.find( "File name" );
+    if ( res ) setInput( res );
 }

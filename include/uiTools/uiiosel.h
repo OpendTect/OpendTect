@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.12 2001-07-20 09:04:31 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.13 2001-07-20 16:17:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,8 +43,8 @@ public:
     void		addSpecialItem(const char* key,const char* value=0);
 			//!< If value is null, add value same as key
 
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    virtual void	updateHistory(IOPar&) const;
+    virtual void	getHistory(const IOPar&);
 
     void		clear()			{ setCurrentItem( 0 ); }
     virtual void	processInput()		{}
@@ -91,6 +91,13 @@ public:
 					bool withclear=false);
 
     void		setFilter( const char* f )	{ filter = f; }
+
+    bool		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
+
+			// Some standard types of files
+    static IOPar&	ixtablehistory;
+    static IOPar&	devicehistory;
 
 protected:
 
