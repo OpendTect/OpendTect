@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.46 2003-01-24 07:40:47 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.47 2003-01-24 14:37:59 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -440,8 +440,12 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 
     if ( !validpicksurface ) return;
 
+    Coord3 displayspacepos =
+	SPM().getZScaleTransform()->transformBack(eventinfo.pickedpos);
+
+
     xytmousepos =
-	SPM().getUTM2DisplayTransform()->transformBack(eventinfo.pickedpos);
+	SPM().getUTM2DisplayTransform()->transformBack(displayspacepos);
 
     Coord3 inlcrl = xytmousepos;
     BinID binid = SI().transform( Coord( xytmousepos.x, xytmousepos.y ));
