@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.8 2003-09-26 11:41:22 nanne Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.9 2003-10-03 06:24:42 nanne Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -98,7 +98,7 @@ const char* Well::Reader::rdHdr( istream& strm, const char* fileky ) const
 	ErrMsg( msg );
 	return 0;
     }
-    static BufferString ver; ver = astrm.version();
+    static BufferString ver; ver = astrm.projName();
     return ver.buf();
 }
 
@@ -136,7 +136,7 @@ bool Well::Reader::getInfo( istream& strm ) const
     const char* ver = rdHdr( strm, sKeyWell );
     if ( !ver || !*ver || !*(ver+1) )
 	return false;
-    if ( *ver < '2' && *(ver+2) < '6' )
+    if ( !strcmp(ver,"dGB-dTect") )
 	return getOldTimeWell(strm);
 
     ascistream astrm( strm, NO );
