@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.2 2000-01-24 16:34:57 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.3 2000-02-10 13:01:44 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -49,6 +49,8 @@ public:
     bool		multiConn() const
 			{ return isMulti() && curfnr <= fnrs.stop; }
     Conn*		getConn(Conn::State) const;
+    bool		slowOpen() const
+			{ return type_ == StreamConn::Device; }
     int			connNr() const
 			{ return curfnr; }
     bool		toNextConnNr()

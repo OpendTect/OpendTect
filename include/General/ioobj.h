@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.2 2000-01-24 16:34:56 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.3 2000-02-10 13:01:43 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -38,8 +38,9 @@ public:
 			{ return &cd == connclassdef_; }
 
     virtual const ClassDef& connType() const		= 0;
+    virtual Conn*	getConn(Conn::State) const	= 0;
     virtual bool	multiConn() const		{ return false; }
-    virtual Conn*	getConn(Conn::State) const		= 0;
+    virtual bool	slowOpen() const		{ return false; }
     virtual int		connNr() const			{ return 0; }
     virtual bool	toNextConnNr()			{ return false; }
     virtual int		lastConnNr() const		{ return 0; }

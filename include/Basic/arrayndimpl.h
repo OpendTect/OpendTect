@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.2 1999-10-18 14:03:03 dgb Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.3 2000-02-10 13:01:37 bert Exp $
 ________________________________________________________________________
 
 */
@@ -131,6 +131,12 @@ public:
 			: sz(nsz)
 			, dbuf(sz.getTotalSz(), sizeof(Type), NO)    {}
 
+    virtual Type	getValOff( unsigned off ) const
+			{ return *(((Type*) dbuf.data)+off); }
+
+    virtual void	setValOff( unsigned off, Type val )
+			{ *(((Type*) dbuf.data)+off) = val; }
+
     Type*               getData() const
                             { return (Type *)dbuf.data; } 
     const Array1DSize&  size() const
@@ -157,6 +163,12 @@ public:
                         Array2DImpl( const Array2DSize& nsz )
                         : sz( nsz )
                         , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {} 
+
+    virtual Type	getValOff( unsigned off ) const
+			{ return *(((Type*) dbuf.data)+off); }
+
+    virtual void	setValOff( unsigned off, Type val )
+			{ *(((Type*) dbuf.data)+off) = val; }
 
     Type*               getData() const
                             { return (Type*)dbuf.data; }
@@ -186,6 +198,12 @@ public:
                         : sz(nsz)
                         , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {}
 
+    virtual Type	getValOff( unsigned off ) const
+			{ return *(((Type*) dbuf.data)+off); }
+
+    virtual void	setValOff( unsigned off, Type val )
+			{ *(((Type*) dbuf.data)+off) = val; }
+
     Type*               getData() const
                             { return (Type*)dbuf.data; }
     const Array3DSize&	size() const
@@ -209,6 +227,12 @@ public:
                         ArrayNDImpl( const ArrayNDSize& nsz)
                         : sz(nsz)
                         , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {}
+
+    virtual Type	getValOff( unsigned off ) const
+			{ return *(((Type*) dbuf.data)+off); }
+
+    virtual void	setValOff( unsigned off, Type val )
+			{ *(((Type*) dbuf.data)+off) = val; }
 
     void                setVal( const TypeSet<int>& pos, Type val )
 			    { setValOff(sz.getArrayPos(pos), val); }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.2 1999-10-18 14:03:02 dgb Exp $
+ RCS:		$Id: arraynd.h,v 1.3 2000-02-10 13:01:36 bert Exp $
 ________________________________________________________________________
 
 */
@@ -94,11 +94,16 @@ public:
     virtual			~ArrayND()	{}
 
     virtual Type		getValOff( unsigned long off ) const
-				{ return *(Type*)(getData()+off); }
+				{
+				    Type res = *(Type*)(getData()+off);
+				    unlockData();
+				    return res;
+				}
     virtual void		setValOff(unsigned long off, Type val)
                                 {
 				    *(Type*)(getData()+off) = val;
 				    dataUpdated();
+				    unlockData();
 				}
 
     virtual Type                getVal( const TypeSet<int>& pos ) const
@@ -108,6 +113,7 @@ public:
 
     virtual Type*		getData() const			= 0;
     virtual void		dataUpdated()			{}
+    virtual void		unlockData() const		{}
 
     virtual const ArrayNDSize&	size() const			= 0;
 
