@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.7 2004-09-15 14:10:13 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.8 2004-09-16 08:03:41 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -68,6 +68,10 @@ EdgeLineSegment::~EdgeLineSegment()
 
     delete notifier;
 }
+
+
+bool EdgeLineSegment::shouldSurfaceTrack(int,const RowCol& trackdir) const
+{ return true; }
 
 
 bool EdgeLineSegment::haveIdenticalSettings( const EdgeLineSegment& seg ) const

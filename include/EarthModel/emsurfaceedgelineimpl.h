@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.3 2004-09-07 06:20:46 kristofer Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.4 2004-09-16 08:04:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,8 @@ public:
 						const EM::SectionID& sect )
 			: EdgeLineSegment( surf, sect ) {}
 
-    virtual bool    shouldTrack(int) const { return false; }
+    virtual bool    shouldSurfaceTrack(int,const RowCol&) const
+    			{ return false; }
 };
 
 
@@ -39,7 +40,7 @@ public:
 			SurfaceConnectLine( EM::Surface& surf,
 					    const EM::SectionID& sect )
 			    : EdgeLineSegment( surf, sect ) {}
-    virtual bool	shouldTrack(int) const { return false; }
+    virtual bool	shouldSurfaceTrack(int,const RowCol&) const { return false; }
     bool		isNodeOK(const RowCol&);
 
     void		setConnectingSection(const EM::SectionID& ns )
@@ -65,8 +66,8 @@ public:
 
     bool		canTrack() const { return cuttingsurface; }
     const EM::Surface*	cuttingSurface() const { return cuttingsurface; }
-    virtual bool	shouldTrack(int) const;
-    virtual bool	shouldExpand() const { return true; }
+    virtual bool	shouldSurfaceTrack(int,const RowCol& trackdir) const;
+    virtual bool	shouldSurfaceExpand() const { return true; }
 
     static float	getMeshDist();
 

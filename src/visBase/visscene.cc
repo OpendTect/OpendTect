@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.19 2004-09-14 12:17:36 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.20 2004-09-16 08:06:49 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -26,8 +26,8 @@ visBase::Scene::Scene()
 {
     selroot->ref();
     selroot->addChild( environment );
-    selroot->addChild( DataObjectGroup::getInventorNode() );
     selroot->addChild( events.getInventorNode() );
+    selroot->addChild( DataObjectGroup::getInventorNode() );
     events.nothandled.notify( mCB(this,visBase::Scene,mousePickCB) );
 }
 
@@ -127,6 +127,7 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
 	}
     }
 
-    events.eventIsHandled();
+    //Note:
+    //Don't call setHandled, since that will block all other event-catchers
 }
 
