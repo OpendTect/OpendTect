@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.28 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.29 2005-01-13 08:57:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,9 +100,8 @@ Returns true, if changes are accepted.
 
     bool		isUndef( int nr=0 ) const;
 
-//#define mGetArgs(type)	int nr=0, type undefVal=UndefValues<type>::undefVal()
-#define mGetArgs(type)	int nr, type undefVal
-    
+#define mGetArgs(type)	int nr=0, type undefVal=UndefValues<type>::undefVal()
+
     const char*		text( mGetArgs(const char*) ) const;
     const char*		text( const char* undefVal)  const
 			    { return text(0,undefVal); }
