@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.131 2003-02-26 13:31:56 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.132 2003-02-27 16:46:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -628,6 +628,7 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	    }
 
 	    setSelObjectId( rtd->id() );
+	    calculateAttrib( rtd->id(), false );
 	}
 
 	return true;
@@ -727,9 +728,11 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	uiGenInputDlg dlg( appserv().parent(), "Specify horizon shift", 
 			   "Shift (ms)", inpspec );
 	if ( dlg.go() )
+	{
 	    sd->setTimeShift( dlg.getfValue() );
+	    calculateAttrib( sd->id(), false );
+	}
 
-	calculateAttrib( sd->id(), false );
 	sendEvent( evInteraction );
     }
 
@@ -1506,16 +1509,12 @@ bool uiVisPartServer::hasMaterial( int id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
 
-    mDynamicCastGet(const visSurvey::Scene*,scene,dobj);
-    if ( scene ) return false;
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj);
+    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj);
+    mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dobj);
+    mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj);
 
-    mDynamicCastGet(const visSurvey::PickSetDisplay*,ps,dobj);
-    if ( ps ) return false;
-
-    mDynamicCastGet(const visSurvey::WellDisplay*,wd,dobj);
-    if ( wd ) return false;
-
-    return true;
+    return ( pdd || vd || rtd || sd );
 }
 
 
@@ -1528,7 +1527,8 @@ bool uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj);
-    if ( pdd || vd || (sd && sd->usesTexture()) )
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj);
+    if ( pdd || vd || rtd || (sd && sd->usesTexture()) )
     {
 	uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), true,
 	       		   true, false, false, false, true );
