@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.16 2002-12-10 11:32:24 bert Exp $
+ RCS:		$Id: iopar.h,v 1.17 2002-12-13 12:49:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,9 @@ public:
     void		putTo(ascostream&,bool withname=true) const;
 			~IOPar();
 			IOPar(const IOPar&);
-    IOPar&		operator=(const IOPar&);
+    IOPar&		operator =(const IOPar&);
+    bool		operator ==( const IOPar& iop ) const
+			{ return isEqual(iop); }
 
 			// serialisation
     void		getFrom(const char*);
@@ -59,6 +61,7 @@ public:
     void		setValue(int,const char*);
     void		remove(int);
 
+    bool		isEqual(const IOPar&,bool include_order=false) const;
     void		clear();
 			//!< remove all entries
     void		merge(const IOPar&);
