@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.15 2001-05-30 13:51:56 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.16 2001-05-30 16:10:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,7 +144,7 @@ void uiListBox::addItems( const char** textList )
 void uiListBox::addItems( const PtrUserIDObjectSet& uids )
 {
     int curidx = currentItem();
-    if ( uids.currentIndex() >= 0 ) curidx = size() + uids.currentIndex() - 1;
+    if ( uids.currentIndex() >= 0 ) curidx = size() + uids.currentIndex();
     for ( int idx=0; idx<uids.size(); idx++ )
 	mQtThing()->insertItem( QString( uids[idx]->name() ), -1 );
     setCurrentItem( curidx );
