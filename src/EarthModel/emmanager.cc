@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.29 2004-01-02 13:07:47 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.30 2004-05-21 10:18:40 bert Exp $";
 
 #include "emmanager.h"
 
@@ -291,31 +291,45 @@ Executor* EM::EMManager::load( const MultiID& mid,
 }
 
 
-void EM::EMManager::getSurfaceData( const MultiID& id,
+const char* EM::EMManager::getSurfaceData( const MultiID& id,
 				    EM::SurfaceIOData& sd )
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return id == "" ? 0 : "Object Manager cannot find surface";
 
     const char* grpname = ioobj->group();
     if ( !strcmp(grpname,EMHorizonTranslatorGroup::keyword) )
     {
 	PtrMan<EMHorizonTranslator> tr = mTranslCreate(EMHorizon,mDGBKey);
 	if ( !tr->startRead( *ioobj ) )
-	    return;
+	{
+	    static BufferString msg;
+	    msg = tr->errMsg();
+	    if ( msg == "" )
+		{ msg = "Cannot read '"; msg += ioobj->name(); msg += "'"; }
+
+	    return msg.buf();
+	}
 
 	const EM::SurfaceIOData& newsd = tr->selections().sd;
 	sd.rg = newsd.rg;
 	deepCopy( sd.patches, newsd.patches );
 	deepCopy( sd.valnames, newsd.valnames );
+	return 0;
     }
     else if ( !strcmp(grpname,EMFaultTranslatorGroup::keyword) )
     {
 	PtrMan<EMFaultTranslator> tr = mTranslCreate(EMFault,mDGBKey);
 
 	sd.patches.add( "[1]" );
-// 	TODO: implement all SurfaceIOData related functions in EMFaultTranslator
+	//TODO implement SurfaceIOData related funcs in EMFaultTranslator
+	pErrMsg("TODO implement SurfaceIOData funcs in EMFaultTranslator");
+	return 0;
     }
+
+    pErrMsg("(read surface): unknown tr group");
+    return 0;
 }
 
 
