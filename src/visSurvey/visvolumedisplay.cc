@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.31 2003-03-04 16:15:47 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.32 2003-03-06 13:00:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,9 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     cs.zrg.stop = ( 3*SI().zRange().start + 5*SI().zRange().stop ) / 8;
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
+    float z0 = SI().zRange().snap( cs.zrg.start ); cs.zrg.start = z0;
+    float z1 = SI().zRange().snap( cs.zrg.stop ); cs.zrg.stop = z1;
+    
     setCubeSampling( cs );
 
     inlid = cube->addSlice( 0, (cs.hrg.start.inl+cs.hrg.stop.inl)/2 );
@@ -273,6 +276,8 @@ void visSurvey::VolumeDisplay::manipMotionFinishCB( CallBacker* )
     CubeSampling cs = getCubeSampling(true);
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
+    float z0 = SI().zRange().snap( cs.zrg.start ); cs.zrg.start = z0;
+    float z1 = SI().zRange().snap( cs.zrg.stop ); cs.zrg.stop = z1;
 
     const Interval<int> inlrange( SI().range(true).start.inl,
 				  SI().range(true).stop.inl );
@@ -402,7 +407,7 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     visBase::DM().getObj( inlid )->setName(inlinestr);
 
     pos = origo.y;
-    par.get( inlineposstr, pos );
+    par.get( crosslineposstr, pos );
     crlid = cube->addSlice( 1, pos );
     visBase::DM().getObj( crlid )->setName(crosslinestr);
 
