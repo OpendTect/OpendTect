@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.3 2002-11-11 08:13:20 kristofer Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.4 2002-11-11 10:34:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,12 +49,13 @@ public:
     static Texture3Viewer*	create()
 				mCreateDataObj0arg(Texture3Viewer);
 
-    int			getNrSlices() const;
     int			addSlice(int dim,float origpos=0);
-    void		removeSlice(int);
 
-    void		showSlice(int,bool yn);
-    bool		isSliceShown(int) const;
+    int			getNrObjects() const;
+    void		removeObject(int);
+
+    void		showObject(int,bool yn);
+    bool		isObjectShown(int) const;
 
     void		setTexture( SoTexture3* );
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.4 2002-11-11 08:12:24 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.5 2002-11-11 10:34:20 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -14,10 +14,12 @@ static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.4 2002-11-11 08:12:24 
 #include "Inventor/nodes/SoTexture3.h"
 #include "Inventor/nodes/SoGroup.h"
 #include "Inventor/nodes/SoTextureCoordinate3.h"
+#include "Inventor/nodes/SoShapeHints.h"
 #include "SoTranslateRectangleDragger.h"
 
-mCreateFactoryEntry( visBase::MovableTextureSlice );
 mCreateFactoryEntry( visBase::Texture3Viewer );
+mCreateFactoryEntry( visBase::MovableTextureSlice );
+mCreateFactoryEntry( visBase::Texture3Slice );
 
 visBase::Texture3Viewer::Texture3Viewer()
     : texture( 0 )
@@ -29,13 +31,13 @@ visBase::Texture3Viewer::Texture3Viewer()
 visBase::Texture3Viewer::~Texture3Viewer()
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
-	removeSlice( idx );
+	removeObject( idx );
 
     if ( texture ) texture->unref();
 }
 
 
-int visBase::Texture3Viewer::getNrSlices() const
+int visBase::Texture3Viewer::getNrObjects() const
 { return textureobjects.size(); }
 
 
@@ -51,7 +53,7 @@ int visBase::Texture3Viewer::addSlice( int dim, float origpos )
     return slice->id();
 } 
 
-void visBase::Texture3Viewer::removeSlice( int idnumber )
+void visBase::Texture3Viewer::removeObject( int idnumber )
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -67,7 +69,7 @@ void visBase::Texture3Viewer::removeSlice( int idnumber )
 }
 
 
-void visBase::Texture3Viewer::showSlice( int idnumber, bool yn )
+void visBase::Texture3Viewer::showObject( int idnumber, bool yn )
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -80,7 +82,7 @@ void visBase::Texture3Viewer::showSlice( int idnumber, bool yn )
 }
 
 
-bool visBase::Texture3Viewer::isSliceShown( int idnumber ) const
+bool visBase::Texture3Viewer::isObjectShown( int idnumber ) const
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -118,6 +120,10 @@ visBase::Texture3Slice::Texture3Slice()
     , dim_( 0 )
 {
     addChild( texturecoords );
+    SoShapeHints* hints = new SoShapeHints;
+    hints->vertexOrdering.setValue( SoShapeHints::CLOCKWISE );
+    hints->shapeType.setValue( SoShapeHints::UNKNOWN_SHAPE_TYPE );
+    addChild( hints );
     addChild( coords );
     setUpCoords();
     addChild( faces );
