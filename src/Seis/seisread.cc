@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.7 2000-03-30 08:59:55 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.8 2000-05-25 15:37:07 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -262,9 +262,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
 int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
     new_packet = false;
-    if ( !ioobj->multiConn()
-      || (keyData().bidsel && keyData().bidsel->size() == 0) )
-	return 0;
+    if ( !ioobj->multiConn() ) return 0;
 
     delete conn; conn = 0;
     if ( !ioobj->toNextConnNr() ) return 0;
@@ -308,12 +306,16 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 void SeisTrcReader::trySkipConns()
 {
     const SeisKeyData& skd = keyData();
-    if ( !ioobj->multiConn() || !skd.bidsel || skd.bidsel->size() == 0
-      || !connrisbidnr )
+    if ( !ioobj->multiConn() || !skd.bidsel || !connrisbidnr )
 	return;
 
     bool clustcrl = storageLayout().type() == StorageLayout::Xline;
-    BinID binid = (*skd.bidsel)[0];
+    BinID binid;
+    BinIDProvider* bp = skd.bidsel->provider();
+    if ( bp && bp->size() == 0 ) { delete bp; return; }
+
+    if ( !bp )	binid = SI().range().start;
+    else	binid = (*bp)[0];
     int& newinlcrl = clustcrl ? binid.crl : binid.inl;
     do
     {

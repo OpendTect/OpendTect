@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.1.1.2 1999-09-16 09:19:21 arend Exp $
+ RCS:		$Id: survinfo.h,v 1.2 2000-05-25 15:35:20 bert Exp $
 ________________________________________________________________________
 
 @$*/
  
  
 #include <uidobj.h>
-#include <binidsel.h>
+#include <binidselimpl.h>
 class ascostream;
 
 

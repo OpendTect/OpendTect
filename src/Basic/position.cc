@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.2 2000-03-10 13:09:02 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.3 2000-05-25 15:36:39 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -29,7 +29,6 @@ const char* BinIDSelector::sKeystepcrl  = "Step Cross-line";
 const char* BinIDSelector::sKeywellpos	= "Well positions";
 const char* BinIDSelector::sKeywellgrp	= "Well Group";
 const char* BinIDSelector::sKeyreparea	= "Use representative area";
-const char* BinIDSelector::sKeydist	= "Maximum distance";
 const char* BinIDSelector::sKeytab	= "Table";
 const char* BinIDSelector::sKeyfname	= "File name";
 
@@ -84,6 +83,23 @@ bool BinID::use( const char* str )
     *ptr++ = '\0';
     inl = atoi( buf );
     crl = atoi( ptr );
+    return YES;
+}
+
+
+const char* BinIDExcluder::selectorType() const
+{
+    return "BinID";
+}
+
+
+bool BinIDProvider::isEqual( const BinIDProvider& bp ) const
+{
+    int sz = size();
+    if ( sz != bp.size() ) return NO;
+
+    for ( int idx=0; idx<sz; idx++ )
+	if ( (*this)[idx] != bp[idx] ) return NO;
     return YES;
 }
 
@@ -191,17 +207,6 @@ void BinIDSampler::fillPar( IOPar& iopar ) const
 }
 
 
-bool BinIDProvider::isEqual( const BinIDProvider& bp ) const
-{
-    int sz = size();
-    if ( sz != bp.size() ) return NO;
-
-    for ( int idx=0; idx<sz; idx++ )
-	if ( (*this)[idx] != bp[idx] ) return NO;
-    return YES;
-}
-
-
 int BinIDRange::fillString( char* str ) const
 {
     if ( !str ) return NO;
@@ -253,41 +258,41 @@ int BinIDRange::include( const BinID& bid, const char* )
 }
 
 
-int BinIDRange::size() const
-{
-    if ( SI().step().inl < 2 && SI().step().crl < 2 )
-	return (stop.inl - start.inl + 2*stepout.inl + 1)
-	     * (stop.crl - start.crl + 2*stepout.crl + 1);
-
-    BinIDSampler bs;
-    ((BinIDRange&)bs) = *this;
-    bs.step = SI().step();
-    return bs.size();
-}
-
-
-BinID BinIDRange::operator[]( int idx ) const
-{
-    if ( SI().step().inl < 2 && SI().step().crl < 2 )
-    {
-	int nrxl = stop.crl - start.crl + 2*stepout.crl + 1;
-	int inlidx = idx / nrxl;
-	int crlidx = idx - inlidx * nrxl;
-	return BinID( start.inl - stepout.inl + inlidx,
-		      start.crl - stepout.crl + crlidx );
-    }
-
-    BinIDSampler bs;
-    ((BinIDRange&)bs) = *this;
-    bs.step = SI().step();
-    return bs[idx];
-}
-
-
 void BinIDRange::shift( const BinID& sh )
 {
     start.inl += sh.inl; stop.inl += sh.inl;
     start.crl += sh.crl; stop.crl += sh.crl;
+}
+
+
+int BinIDRangeProv::size() const
+{
+    if ( SI().step().inl < 2 && SI().step().crl < 2 )
+	return (br.stop.inl - br.start.inl + 2*br.stepout.inl + 1)
+	     * (br.stop.crl - br.start.crl + 2*br.stepout.crl + 1);
+
+    BinIDSampler bs;
+    ((BinIDRange&)bs) = br;
+    bs.step = SI().step();
+    return BinIDSamplerProv(bs).size();
+}
+
+
+BinID BinIDRangeProv::operator[]( int idx ) const
+{
+    if ( SI().step().inl < 2 && SI().step().crl < 2 )
+    {
+	int nrxl = br.stop.crl - br.start.crl + 2*br.stepout.crl + 1;
+	int inlidx = idx / nrxl;
+	int crlidx = idx - inlidx * nrxl;
+	return BinID( br.start.inl - br.stepout.inl + inlidx,
+		      br.start.crl - br.stepout.crl + crlidx );
+    }
+
+    BinIDSampler bs;
+    ((BinIDRange&)bs) = br;
+    bs.step = SI().step();
+    return (BinIDSamplerProv(bs))[idx];
 }
 
 
@@ -326,63 +331,6 @@ bool BinIDSampler::isEq( const BinIDSelector& b ) const
 }
 
 
-int BinIDSampler::ovLap( bool inl ) const
-{
-    int st = inl ? step.inl : step.crl;
-    return st ? (inl?stepout.inl:stepout.crl) * 2 + 1 - st : 0;
-}
-
-
-int BinIDSampler::dirSize( bool inl ) const
-{
-    int so = inl ? stepout.inl : stepout.crl;
-    if ( ovLap(inl) >= 0 )
-	return inl ? stop.inl-start.inl+1 + 2*so : stop.crl-start.crl+1 + 2*so;
-
-    int st = inl ? step.inl : step.crl;
-    if ( !st ) st = 1;
-    int sz = (inl ? stop.inl-start.inl : stop.crl-start.crl) / st + 1;
-    if ( sz < 0 ) sz = -sz;
-    return sz * (so*2 + 1);
-}
-
-
-int BinIDSampler::size() const
-{
-    return dirSize(YES) * dirSize(NO);
-}
-
-
-BinID BinIDSampler::operator[]( int idx ) const
-{
-    int nrxl = dirSize( NO );
-    int inlidx = idx / nrxl;
-    int crlidx = idx - inlidx * nrxl;
-
-    BinID ret;
-    if ( ovLap(YES) >= 0 )
-	ret.inl = start.inl - stepout.inl + inlidx;
-    else
-    {
-	int blksz = stepout.inl*2 + 1;
-	int nblks = inlidx / blksz;
-	int inblk = inlidx - nblks * blksz;
-	ret.inl = start.inl + nblks * step.inl + inblk - stepout.inl;
-    }
-    if ( ovLap(NO) >= 0 )
-	ret.crl = start.crl - stepout.crl + crlidx;
-    else
-    {
-	int blksz = stepout.crl*2 + 1;
-	int nblks = crlidx / blksz;
-	int inblk = crlidx - nblks * blksz;
-	ret.crl = start.crl + nblks * step.crl + inblk - stepout.crl;
-    }
-
-    return ret;
-}
-
-
 int BinIDSampler::fillString( char* str ) const
 {
     if ( !BinIDRange::fillString(str) ) return NO;
@@ -394,18 +342,99 @@ int BinIDSampler::fillString( char* str ) const
 }
 
 
+int BinIDSamplerProv::ovLap( bool inl ) const
+{
+    int st = inl ? step.inl : step.crl;
+    return st ? (inl?br.stepOut().inl:br.stepOut().crl) * 2 + 1 - st : 0;
+}
+
+
+int BinIDSamplerProv::dirSize( bool inl ) const
+{
+    int so = inl ? br.stepOut().inl : br.stepOut().crl;
+    if ( ovLap(inl) >= 0 )
+	return inl ? br.stop.inl-br.start.inl+1 + 2*so
+		   : br.stop.crl-br.start.crl+1 + 2*so;
+
+    int st = inl ? step.inl : step.crl;
+    if ( !st ) st = 1;
+    int sz = (inl ? br.stop.inl-br.start.inl
+		  : br.stop.crl-br.start.crl) / st + 1;
+    if ( sz < 0 ) sz = -sz;
+    return sz * (so*2 + 1);
+}
+
+
+int BinIDSamplerProv::size() const
+{
+    return dirSize(YES) * dirSize(NO);
+}
+
+
+BinID BinIDSamplerProv::operator[]( int idx ) const
+{
+    int nrxl = dirSize( NO );
+    int inlidx = idx / nrxl;
+    int crlidx = idx - inlidx * nrxl;
+
+    BinID ret;
+    if ( ovLap(true) >= 0 )
+	ret.inl = br.start.inl - br.stepOut().inl + inlidx;
+    else
+    {
+	int blksz = br.stepOut().inl*2 + 1;
+	int nblks = inlidx / blksz;
+	int inblk = inlidx - nblks * blksz;
+	ret.inl = br.start.inl + nblks * step.inl + inblk - br.stepOut().inl;
+    }
+    if ( ovLap(false) >= 0 )
+	ret.crl = br.start.crl - br.stepOut().crl + crlidx;
+    else
+    {
+	int blksz = br.stepOut().crl*2 + 1;
+	int nblks = crlidx / blksz;
+	int inblk = crlidx - nblks * blksz;
+	ret.crl = br.start.crl + nblks * step.crl + inblk - br.stepOut().crl;
+    }
+
+    return ret;
+}
+
+
 class BinIDTableImpl : public TypeSet<BinID>
 {
 public:
 	BinIDTableImpl() : TypeSet<BinID>( 0, BinID(0,0) ) {}
+	BinIDTableImpl(const BinIDTableImpl&);
 
 	TypeSet<char*>	annots;
 };
 
 
-BinIDTable::BinIDTable( double d )
-	: dist(d)
-	, binids(*new BinIDTableImpl)
+BinIDTableImpl::BinIDTableImpl( const BinIDTableImpl& b )
+	: TypeSet<BinID>(b)
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const char* s = b.annots[idx];
+	char* news = s ? new char [ strlen(s)+1 ] : 0;
+	if ( news ) strcpy( news, s );
+	annots += news;
+    }
+}
+
+
+BinIDTable::BinIDTable()
+	: binids(*new BinIDTableImpl)
+	, stepout(0,0)
+{
+}
+
+
+BinIDTable::BinIDTable( const BinIDTable& bt )
+	: binids(*new BinIDTableImpl(bt.binids))
+	, stepout(bt.stepout)
+	, fname(bt.fname)
 {
 }
 
@@ -421,22 +450,6 @@ void BinIDTable::fillPar( IOPar& iopar ) const
 {
     BinIDSelector::fillPar( iopar );
     iopar.set( BinIDSelector::sKeyfname, fname );
-}
-
-
-static char* charptrnull = 0;
-
-BinIDTable* BinIDTable::clone() const
-{
-    BinIDTable* tab = new BinIDTable( dist );
-    for ( int idx=0; idx<binids.size(); idx++ )
-    {
-	tab->binids += binids[idx];
-	tab->binids.annots += charptrnull;
-	tab->setAnnot( idx, binids.annots[idx] );
-    }
-
-    return tab;
 }
 
 
@@ -482,8 +495,8 @@ int BinIDTable::extreme( bool inl, bool mini ) const
 bool BinIDTable::isEq( const BinIDSelector& b ) const
 {
     const BinIDTable& bt = (const BinIDTable&)b;
-    if ( size() != bt.size() ) return NO;
-    for ( int idx=0; idx<size(); idx++ )
+    if ( binids.size() != bt.binids.size() ) return NO;
+    for ( int idx=0; idx<binids.size(); idx++ )
 	if ( !bt.includes(binids[idx]) ) return NO;
     return YES;
 }
@@ -528,25 +541,6 @@ int BinIDTable::exclude( const BinID& bid )
 }
 
 
-int BinIDTable::size() const
-{
-    return binids.size();
-}
-
-
-BinID BinIDTable::operator[]( int idx ) const
-{
-    return binids[idx];
-}
-
-
-void BinIDTable::shift( const BinID& bid )
-{
-    for ( int idx=0; idx<binids.size(); idx++ )
-	binids[idx] += bid;
-}
-
-
 void BinIDTable::clear()
 {
     for ( int idx=0; idx<binids.size(); idx++ )
@@ -558,10 +552,10 @@ void BinIDTable::clear()
 
 const char* BinIDTable::annotFor( const BinID& bid ) const
 {
-    int sz = size();
+    int sz = binids.size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( (*this)[idx] == bid ) return annot( idx );
+	if ( binids[idx] == bid ) return annot( idx );
     }
     return 0;
 }
@@ -593,6 +587,25 @@ void BinIDTable::setStepOut( const BinID& so, BinID step )
 }
 
 
+int BinIDTable::size() const
+{
+    return binids.size();
+}
+
+
+BinID BinIDTable::operator[]( int idx ) const
+{
+    return binids[idx];
+}
+
+
+void BinIDTable::shift( const BinID& bid )
+{
+    for ( int idx=0; idx<binids.size(); idx++ )
+	binids[idx] += bid;
+}
+
+
 const char* BinIDTable::annot( int idx ) const
 {
     return idx < binids.annots.size() ? binids.annots[idx] : 0;
@@ -601,8 +614,10 @@ const char* BinIDTable::annot( int idx ) const
 
 int BinIDTable::setAnnot( int idx, const char* s )
 {
-    int sz = size();
+    int sz = binids.size();
     if ( idx < 0 || idx >= sz ) return NO;
+
+    char* charptrnull = 0;
     while ( binids.annots.size() < sz )
 	binids.annots += charptrnull;
 

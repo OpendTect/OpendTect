@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.3 2000-03-03 09:28:59 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.4 2000-05-25 15:35:27 bert Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
 
 @$*/
  
-#include <binidsel.h>
+#include <binidselimpl.h>
 #include <ranges.h>
 #include <fixstring.h>
 #include <seistype.h>
