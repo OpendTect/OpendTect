@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.23 2002-05-08 07:58:13 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.24 2002-05-08 08:00:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -175,6 +175,7 @@ protected:
     static const char*	zrangestr;
     static const char*	xwidhtrange;
     static const char*	ywidhtrange;
+    static const char*	draggersizestr;
     static const char*	snappingstr;
 };
 
