@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.53 2004-10-01 12:29:06 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.54 2004-11-11 13:02:45 nanne Exp $
 ________________________________________________________________________
 
 
@@ -134,6 +134,7 @@ protected:
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     CubeSampling		getCubeSampling(bool manippos) const;
+    void			checkCubeSampling(const CubeSampling&);
 
     visBase::TextureRect*	trect;
 
@@ -143,6 +144,9 @@ protected:
 
     AttribSliceSet*             cache;
     AttribSliceSet*             colcache;
+
+    BinID			curicstep;
+    float			curzstep;
 
     static const char*		trectstr;
     Notifier<PlaneDataDisplay>	moving;

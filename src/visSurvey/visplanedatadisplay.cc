@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.74 2004-10-01 12:29:21 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.75 2004-11-11 13:02:38 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -42,6 +42,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
     , moving(this)
+    , curicstep(SI().inlStep(),SI().crlStep())
+    , curzstep(SI().zRange(true).step)
 {
     setTextureRect( visBase::TextureRect::create() );
 
@@ -474,6 +476,9 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs_ )
     Coord3 origo(cs_.hrg.start.inl,cs_.hrg.start.crl,cs_.zrg.start);
     setOrigo( origo );
 
+    curicstep = cs_.hrg.step;
+    curzstep = cs_.zrg.step;
+
     moving.trigger();
 }
 
@@ -486,11 +491,12 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos ) const
 	BinID( mNINT(manippos ? rect.manipOrigo().x : rect.origo().x),
 	       mNINT(manippos ? rect.manipOrigo().y : rect.origo().y) );
     cubesampl.hrg.stop = cubesampl.hrg.start;
-    cubesampl.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+    cubesampl.hrg.step = curicstep;
 
     float zrg0 = manippos ? rect.manipOrigo().z : rect.origo().z;
     cubesampl.zrg.start = (float)(int)(1000*zrg0+.5) / 1000;
     cubesampl.zrg.stop = cubesampl.zrg.start;
+    cubesampl.zrg.step = curzstep;
 
     if ( rect.orientation()==visBase::Rectangle::XY )
     {
@@ -550,6 +556,7 @@ void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype )
 	if ( slcidx )
 	    trect->addTexture();
 
+	checkCubeSampling( sliceset->sampling );
 	PtrMan< Array2D<float> > datacube = createArray( sliceset, slcidx );
 	trect->setData( datacube, slcidx, datatype );
     }
@@ -557,6 +564,27 @@ void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype )
     trect->finishTextures();
     trect->showTexture( 0 );
     trect->useTexture( true );
+}
+
+#define mSetRg( var, ic ) cs.hrg.var.ic = datacs.hrg.var.ic
+void PlaneDataDisplay::checkCubeSampling( const CubeSampling& datacs )
+{
+    bool setnewcs = false;
+    CubeSampling cs = getCubeSampling(true);
+    if ( cs.hrg.step.inl != datacs.hrg.step.inl )
+    { mSetRg(start,inl); mSetRg(stop,inl); mSetRg(step,inl); setnewcs = true; }
+
+    if ( cs.hrg.step.crl != datacs.hrg.step.crl )
+    { mSetRg(start,crl); mSetRg(stop,crl); mSetRg(step,crl); setnewcs = true; }
+
+    if ( cs.zrg.step != datacs.zrg.step )
+    {  assign( cs.zrg, datacs.zrg ); setnewcs = true; } 
+
+    if ( setnewcs )
+    {
+	setCubeSampling( cs );
+	resetManipulation();
+    }
 }
 
 
@@ -569,7 +597,7 @@ void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype )
 Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset, 
 					       int slcidx ) const
 {
-    CubeSampling cs = getCubeSampling(true);
+    CubeSampling cs = getCubeSampling( true );
     CubeSampling datacs = sliceset->sampling;
 
     const int nrinl = cs.nrInl();
@@ -686,7 +714,7 @@ bool PlaneDataDisplay::isOn() const
 void PlaneDataDisplay::getMousePosInfo( const Coord3& pos_, float& val, 
 					BufferString& info ) const
 {
-    info = "";
+    info = getManipulationString();
     if ( !cache ) { val = mUndefValue; return; }
     const BinID bid = SI().transform(pos_);
 
