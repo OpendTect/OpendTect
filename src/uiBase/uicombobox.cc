@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.16 2001-07-23 10:30:23 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.17 2001-08-16 11:05:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,9 @@ void uiComboBox::empty()
 
 const char* uiComboBox::getText() const
 {
-    return mQtThing()->currentText();
+    static QString ret;
+    ret = mQtThing()->currentText();
+    return ret;
 }
 
 
