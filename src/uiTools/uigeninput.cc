@@ -1,10 +1,10 @@
-eckBoxSel/*+
+/*+
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.54 2003-05-16 11:17:58 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.55 2003-05-16 11:19:23 arend Exp $
 ________________________________________________________________________
 
 -*/
