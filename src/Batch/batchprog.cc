@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.67 2004-11-29 12:52:36 nanne Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.68 2004-11-29 12:58:29 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -151,7 +151,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 #ifdef __debug__
 	const char* oldsnm = IOM().surveyName();
 	if ( !oldsnm ) oldsnm = "<empty>";
-	std::cerr << "Using survey: " << res << " instead of "
+	std::cerr << "Using survey from par file: " << res << ". was: "
 	    	  << oldsnm << std::endl;
 #endif
 	IOMan::setSurvey( res );
