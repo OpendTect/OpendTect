@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.2 2002-05-08 08:02:09 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.3 2002-05-09 05:27:27 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,13 +34,15 @@ uiSliceSel::uiSliceSel( uiParent* p, CubeSampling* cs )
     Interval<int> crlintv( cs->hrg.start.crl, cs->hrg.stop.crl );
     crlrgfld = new uiGenInput( this, "Xline range",
                 IntInpIntervalSpec(crlintv) );
-    crlrgfld->attach( alignedBelow, slctyp ? inlrgfld : inlfld );
+    crlrgfld->attach( alignedBelow, slctyp
+	    			? (uiGroup*) inlrgfld : (uiGroup*) inlfld );
     crlfld = new uiLabeledSpinBox( this, "Xline number" );
     crlfld->attach( alignedBelow, inlrgfld );
 
     Interval<int> zrg((int)(cs->zrg.start*1000+.5),(int)(cs->zrg.stop*1000+.5));
     zrgfld = new uiGenInput( this, "Time range (ms)", IntInpIntervalSpec(zrg) );
-    zrgfld->attach( alignedBelow, slctyp == 1 ? crlfld : crlrgfld );
+    zrgfld->attach( alignedBelow, slctyp == 1
+	    			? (uiGroup*) crlfld : (uiGroup*) crlrgfld );
     zfld = new uiLabeledSpinBox( this, "Slice time (ms)" );
     zfld->attach( alignedBelow, crlrgfld );
 
