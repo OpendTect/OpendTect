@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.54 2004-01-08 15:30:49 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.55 2004-01-16 13:48:02 nanne Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -628,7 +628,7 @@ int File_remove( const char* fname, int recursive )
 
     char* cmd = 0;
     char* ptr;
-    int len, retval, islink;
+    int len, retval;
     FileNameString targ_fname;
 
     if ( !File_exists(fname) )
@@ -641,7 +641,6 @@ int File_remove( const char* fname, int recursive )
     cmd = mMALLOC(len,char);
     strcpy( cmd, "/bin/rm -rf '" );
 
-    islink = File_isLink(fname) ? YES : NO;
     if ( File_isLink(fname) ) 
     {
 	strcpy( targ_fname, File_linkTarget(fname) );
@@ -650,7 +649,7 @@ int File_remove( const char* fname, int recursive )
 	    ptr = cmd + strlen(cmd);
 	    strcat( cmd, targ_fname );
 	    strcat( cmd, "'" );
-	    if ( !system(cmd) || File_exists(targ_fname) )
+	    if ( system(cmd)<0 || File_exists(targ_fname) )
 		mRet(NO)
 	    *ptr = '\0';
 	}
