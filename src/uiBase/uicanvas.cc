@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.16 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.17 2002-05-23 16:31:16 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,8 @@ uiRect uiScrollViewBody::visibleArea() const
     uiSize vpSize = actualSize(false);
 
     uiPoint tl( contentsX(), contentsY() );
-    return uiRect( tl, vpSize.hNrPics(), vpSize.vNrPics() );
+    return uiRect( tl, mMAX( visibleWidth(), vpSize.hNrPics()),
+                       mMAX( visibleHeight(), vpSize.vNrPics()) );
 }
 
 
