@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.6 2002-11-12 08:24:36 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.7 2002-11-12 09:06:32 nanne Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -31,7 +31,10 @@ visBase::Texture3Viewer::Texture3Viewer()
 visBase::Texture3Viewer::~Texture3Viewer()
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
-	removeObject( idx );
+    {
+	if ( textureobjects[idx] )
+	    removeObject( textureobjects[idx]->id() );
+    }
 
     if ( texture ) texture->unref();
 }
