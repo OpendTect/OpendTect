@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.11 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uimsg.h,v 1.12 2004-12-20 12:16:15 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class QWidget;
 
 class uiMsg : public UsrIoMsg
 {
-    friend class uiMainWinBody;
+    friend class uiMain;
     friend uiMsg& uiMSG();
 
 public:
