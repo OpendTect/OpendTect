@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.15 2004-11-17 16:20:14 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.16 2004-11-18 12:26:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,6 +142,8 @@ bool JobRunner::assignJob( JobHostInfo& jhi )
 
 JobRunner::StartRes JobRunner::startJob( JobInfo& ji, JobHostInfo& jhi )
 {
+    if ( isFailed(&jhi) ) return HostBad;
+
     ji.attempts_++;
     if ( ji.attempts_ > maxjobfailures_ )
     {
@@ -151,8 +153,7 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, JobHostInfo& jhi )
 
     if ( !runJob(ji,jhi.hostdata_) )
     {
-	jhi.nrfailures_++;
-	return jhi.nrfailures_ > maxhostfailures_ ? HostBad : NotStarted;
+	return isFailed(&jhi) ? HostBad : NotStarted;
     }
 
     return Started;
@@ -403,7 +404,7 @@ void JobRunner::updateJobInfo()
 		notifyji = &ji;
 		ji.state_ = JobInfo::Failed;
 		ji.curmsg_ = "Timed out.";
-		jobFailed.trigger();
+		mJobFailed();
 		
 		if ( ji.hostdata_ )
 		    iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
