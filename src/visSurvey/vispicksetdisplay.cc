@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.55 2004-05-11 12:20:04 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.56 2004-05-24 13:59:30 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
@@ -53,7 +53,7 @@ visSurvey::PickSetDisplay::PickSetDisplay()
 
     group->ref();
     addChild( group->getInventorNode() );
-    setSize(initsz);
+    setScreenSize(initsz);
 }
 
 
@@ -112,7 +112,7 @@ void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
     marker->setTransformation( transformation );
     marker->setCenterPos( pos );
     marker->setDirection( dir );
-    marker->setSize( picksz );
+    marker->setScreenSize( picksz );
     marker->setType( (MarkerStyle3D::Type)picktype );
     marker->setMaterial( 0 );
 
@@ -219,7 +219,7 @@ void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
 }
 
 
-void visSurvey::PickSetDisplay::setSize( float newsize )
+void visSurvey::PickSetDisplay::setScreenSize( float newsize )
 {
     picksz = newsize;
     for ( int idx=0; idx<group->size(); idx++ )
@@ -227,7 +227,7 @@ void visSurvey::PickSetDisplay::setSize( float newsize )
 	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
 	if ( !marker ) continue;
 
-	marker->setSize( picksz );
+	marker->setScreenSize( picksz );
     }
 }
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.37 2004-05-24 08:13:42 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.38 2004-05-24 13:59:30 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -78,7 +78,7 @@ void WellDisplay::setWell( visBase::Well* well_ )
 void WellDisplay::fullRedraw( CallBacker* )
 {
     //TODO : Time to depth model or track has changed
-    Well::Data* wd = Well::MGR().get( wellid, true );
+    Well::Data* wd = Well::MGR().get( wellid, false );
     
     const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
@@ -94,13 +94,15 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     TypeSet<Coord3> trackpos;
     Coord3 pt;
+    StepInterval<double> sizrg;
+    assign( sizrg, SI().zRange() );
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	pt = track.pos( idx );
 	if ( zinfeet )
 	    mMeter2Feet(pt.z);
 
-	if ( !mIsUndefined(pt.z) )
+	if ( !mIsUndefined(pt.z) && sizrg.includes(pt.z) )
 	    trackpos += pt;
     }
     if ( !trackpos.size() )
@@ -110,7 +112,11 @@ void WellDisplay::fullRedraw( CallBacker* )
     well->setWellName( wd->name(), trackpos[0] );
     updateMarkers(0);
 
-    return;
+    if ( log1nm.size() )
+	displayLog(log1nm, log1rg, 1 );
+
+    if ( log2nm.size())
+	displayLog(log2nm, log2rg, 2 );
 }
 
 
@@ -171,11 +177,11 @@ void WellDisplay::updateMarkers( CallBacker* )
 }
 
 
-void WellDisplay::setMarkerSize( int sz )
-{ well->setMarkerSize( sz ); }
+void WellDisplay::setMarkerScreenSize( int sz )
+{ well->setMarkerScreenSize( sz ); }
 
-int WellDisplay::markerSize() const
-{ return well->markerSize(); }
+int WellDisplay::markerScreenSize() const
+{ return well->markerScreenSize(); }
 
 
 #define mShowFunction( showObj, objShown ) \
@@ -188,6 +194,9 @@ bool WellDisplay::objShown() const \
 { \
     return well->objShown(); \
 }
+
+bool WellDisplay::canShowMarkers() const
+{ return well->canShowMarkers(); }
 
 mShowFunction( showWellName, wellNameShown )
 mShowFunction( showMarkers, markersShown )
