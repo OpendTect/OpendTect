@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.15 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.16 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.1 2001-07-27 10:25:42 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
-#include "uitextview.h"
+#include "uitextedit.h"
 
 #include <fstream>
 
@@ -38,17 +38,17 @@ uiSurvey::uiSurvey( uiParent* p )
 
 {
     newbut = new uiPushButton( this, "New" );
-    newbut->notify( mCB(this,uiSurvey,newButPushed) );
+    newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
     editbut = new uiPushButton( this, "Edit" );
-    editbut->notify( mCB(this,uiSurvey,editButPushed) );
+    editbut->activated.notify( mCB(this,uiSurvey,editButPushed) );
     editbut->attach( rightOf, newbut );
     rmbut = new uiPushButton( this, "Remove" );
-    rmbut->notify( mCB(this,uiSurvey,rmButPushed) );
+    rmbut->activated.notify( mCB(this,uiSurvey,rmButPushed) );
     rmbut->attach( rightOf, editbut );
     convbut = new uiPushButton( this, "X/Y <-> I/C" );
-    convbut->notify( mCB(this,uiSurvey,convButPushed) );
+    convbut->activated.notify( mCB(this,uiSurvey,convButPushed) );
     convbut->attach( rightTo, rmbut );
-    convbut->attach( rightBorder, 0, borderSpace() );
+    convbut->attach( rightBorder );
 
     const char* ptr = getenv( "dGB_DATA" );
     if ( !ptr ) return;
@@ -70,7 +70,7 @@ uiSurvey::uiSurvey( uiParent* p )
     mapcanvas->setStretch( 0, 0 );
     mapcanvas->preDraw.notify( mCB(this,uiSurvey,doCanvas) );
     listbox = new uiListBox( selgrp, dirlist );
-    listbox->notify( mCB(this,uiSurvey,selChange) );
+    listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
 //  listbox->doubleclick.notify( mCB(this,uiSurvey,editButPushed) );
     listbox->attach( leftOf, mapcanvas );
     listbox->attach( heightSameAs, mapcanvas );
@@ -106,14 +106,14 @@ uiSurvey::uiSurvey( uiParent* p )
 
     uiLabel* notelbl = new uiLabel( this, "Notes:" );
     notelbl->attach( alignedBelow, horsep2 );
-    notes = new uiTextView( this, "Notes" );
+    notes = new uiTextEdit( this, "Notes" );
     notes->attach( alignedBelow, notelbl);
     notes->attach( widthSameAs, selgrp );
     notes->setPrefHeight( 200 );
    
     getSurvInfo(); 
     mkInfo();
-    okText = "Select";
+    setOkText( "Select" );
 }
 
 
