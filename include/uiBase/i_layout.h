@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.31 2003-02-26 13:02:26 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.32 2003-03-05 12:09:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include <qrect.h>
 
 class resizeItem;
+class Timer;
 
 //!  internal enum used to determine in which direction a widget can be stretched and to check which outer limit must be checked
 enum stretchLimitTp { left=1, right=2, above=4, below=8, 
@@ -169,7 +170,7 @@ private:
 
     bool		minimumDone;
     bool		preferredDone;
-    int			prefposStorCnt;
+    bool		prefposStored;
     bool		ismain;
 
     int 		hspacing;
@@ -177,6 +178,12 @@ private:
     int 		borderspc;
 
     uiObjectBody& 	managedBody;
+
+    void		touchPoptimer();
+    void		popTimTick(CallBacker*);
+    Timer&		poptimer;
+    bool		popped_up;
+
 };
 
 #endif 
