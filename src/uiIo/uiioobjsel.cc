@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.4 2001-05-07 15:51:35 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.5 2001-05-07 16:36:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiObject* p, const CtxtIOObj& c )
 	: uiDialog(p)
 	, ctio(c)
 	, nmfld(0)
+	, ioobj(0)
 {
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
@@ -131,5 +132,6 @@ void uiIOObjSel::doObjSel( CallBacker* )
     {
 	ctio.setObj( dlg.ioObj()->clone() );
 	updateInput();
+	selDone( 0 );
     }
 }
