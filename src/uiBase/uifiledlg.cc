@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.11 2002-10-08 08:36:29 bert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.12 2003-01-20 14:31:11 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifiledlg.h"
 #include "filegen.h"
+#include "uiparentbody.h"
 
 
 #define private public
@@ -60,6 +61,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 	, filter_( filter )
 	, caption_( caption )
 	, oktxt_( "Select" )
+	, parnt_( parnt )
 {
     if( !caption || !*caption )
 	caption_ = forread ? "Open" : "Save As";
@@ -74,6 +76,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 	, filter_( filter )
 	, caption_( caption )
 	, oktxt_( "Select" )
+	, parnt_( parnt )
 {}
 
 
@@ -88,8 +91,11 @@ int uiFileDialog::go()
 	    fname_ = GetHomeDir();
     }
 
+    QWidget* qp =0;
+    if( parnt_ )
+    { qp = parnt_->pbody() ? parnt_->pbody()->managewidg() : 0; }
 
-    dgbQFileDialog* fd = new dgbQFileDialog( 0, name(), TRUE );
+    dgbQFileDialog* fd = new dgbQFileDialog( qp, name(), TRUE );
 
     fd->setMode( qmodeForUiMode(mode_) );
     fd->setFilters( QString(filter_) );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.15 2003-01-14 13:44:48 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.16 2003-01-20 14:31:11 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,4 +139,15 @@ bool uiLineEdit::update( const DataInpSpec& spec )
     setText( spec.text() );
     return true;
 }
+
+void uiLineEdit::home()
+{
+    body_->home( false );
+}
+
+void uiLineEdit::end()
+{
+    body_->end( false );
+}
+
 
