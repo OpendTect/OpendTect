@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.67 2004-10-21 13:09:02 dgb Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.68 2004-10-21 13:17:52 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 	addbut->attach( alignedBelow, usedmachfld );
 	stopbut->attach( rightOf, addbut );
 
-    	machgrp->setHAlignObj( usedmachfld );
+    	machgrp->setHAlignObj( stopbut );
     }
 
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
@@ -244,13 +244,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 
     finaliseDone.notify( mCB(this,uiSeisMMProc,jrpSel) );
 
-    if( multihost )
-    {
-	jrppolgrp->setHAlignObj( jrpstartfld );
-	jrppolgrp->attach( alignedBelow, machgrp );
-    }
-    else
-	jrppolgrp->attach( ensureBelow, machgrp );
+    if ( multihost )	jrppolgrp->setHAlignObj( jrpstartfld );
+    else		jrppolgrp->setHAlignObj( jrppolselfld );
+
+    jrppolgrp->attach( alignedBelow, machgrp );
 
     sep = new uiSeparator( this, "Hor sep 2", true );
     sep->attach( stretchedBelow, jrppolgrp );
