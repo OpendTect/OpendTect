@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.cc,v 1.2 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uigeninputdlg.cc,v 1.3 2003-12-22 14:39:36 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
+uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
 			      const char* fldtxt, DataInpSpec* spec )
-	: uiDialog(p,Setup("Input data",dlgtitle))
+	: uiGroup(p,"Input data")
 	, entries(new ObjectSet<uiGenInputDlgEntry>)
 {
     *entries += new uiGenInputDlgEntry( fldtxt, spec );
@@ -25,16 +25,16 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 }
 
 
-uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
+uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
 			      ObjectSet<uiGenInputDlgEntry>* e )
-	: uiDialog(p,Setup("Input data",dlgtitle))
+	: uiGroup(p,"Input data")
 	, entries(e?e : new ObjectSet<uiGenInputDlgEntry>)
 {
     build();
 }
 
 
-void uiGenInputDlg::build()
+void uiGenInputGrp::build()
 {
     if ( !entries->size() )
     {
@@ -55,19 +55,19 @@ void uiGenInputDlg::build()
 }
 
 
-const char* uiGenInputDlg::text( int idx )
+const char* uiGenInputGrp::text( int idx )
 { return flds[idx]->text( 0 ); }
-int uiGenInputDlg::getIntValue( int idx )
+int uiGenInputGrp::getIntValue( int idx )
 { return flds[idx]->getIntValue( 0 ); }
-float uiGenInputDlg::getfValue( int idx )
+float uiGenInputGrp::getfValue( int idx )
 { return flds[idx]->getfValue( 0 ); }
-double uiGenInputDlg::getValue( int idx )
+double uiGenInputGrp::getValue( int idx )
 { return flds[idx]->getValue( 0 ); }
-bool uiGenInputDlg::getBoolValue( int idx )
+bool uiGenInputGrp::getBoolValue( int idx )
 { return flds[idx]->getBoolValue( 0 ); }
 
 
-bool uiGenInputDlg::acceptOK( CallBacker* )
+bool uiGenInputGrp::acceptOK( CallBacker* )
 {
     for ( int idx=0; idx<entries->size(); idx++ )
     {
@@ -89,4 +89,45 @@ bool uiGenInputDlg::acceptOK( CallBacker* )
     }
 
     return true;
+}
+
+
+
+uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
+			      const char* fldtxt, DataInpSpec* spec )
+	: uiDialog(p,Setup("Input data",dlgtitle))
+{
+    group = new uiGenInputGrp( p, dlgtitle, fldtxt, spec );
+}
+
+
+uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
+			      ObjectSet<uiGenInputDlgEntry>* e )
+	: uiDialog(p,Setup("Input data",dlgtitle))
+{
+    group = new uiGenInputGrp( p, dlgtitle, e );
+}
+
+
+const char* uiGenInputDlg::text( int idx )
+{ return group->text(idx); }
+int uiGenInputDlg::getIntValue( int idx )
+{ return group->getIntValue( idx ); }
+float uiGenInputDlg::getfValue( int idx )
+{ return group->getfValue( idx ); }
+double uiGenInputDlg::getValue( int idx )
+{ return group->getValue( idx ); }
+bool uiGenInputDlg::getBoolValue( int idx )
+{ return group->getBoolValue( idx ); }
+
+
+int uiGenInputDlg::nrFlds() const
+{ return group->nrFlds(); }
+uiGenInput* uiGenInputDlg::getFld(int idx)
+{ return group->getFld(idx); }
+
+
+bool uiGenInputDlg::acceptOK( CallBacker* cb )
+{
+    return group->acceptOK( cb );
 }

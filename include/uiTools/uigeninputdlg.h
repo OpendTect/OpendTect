@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uigeninputdlg.h,v 1.3 2003-12-22 14:39:38 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "uigroup.h"
 #include "datainpspec.h"
 class uiGenInput;
 
@@ -36,6 +37,41 @@ public:
 };
 
 
+class uiGenInputGrp : public uiGroup
+{
+public:
+			uiGenInputGrp(uiParent*,const char* dlgtitle,
+					const char* fldtxt,DataInpSpec* s=0);
+			    //!< DataInpSpec becomes mine
+			uiGenInputGrp(uiParent*,const char* dlgtitle,
+				      ObjectSet<uiGenInputDlgEntry>*);
+			    //!< the ObjectSet becomes mine.
+			~uiGenInputGrp()	{ deepErase(*entries); }
+
+    const char*		text(int i=0);
+    int			getIntValue(int i=0);
+    float		getfValue(int i=0);
+    double		getValue(int i=0);
+    bool		getBoolValue(int i=0);
+
+    int			nrFlds() const		{ return flds.size(); }
+    uiGenInput*		getFld( int idx=0 )	{ return flds[idx]; }
+
+    bool		acceptOK(CallBacker*);
+
+protected:
+
+    ObjectSet<uiGenInput>		flds;
+    ObjectSet<uiGenInputDlgEntry>*	entries;
+
+private:
+
+    void		build();
+
+};
+
+
+
 /*!\brief dialog with only uiGenInputs */
 
 class uiGenInputDlg : public uiDialog
@@ -47,7 +83,6 @@ public:
 			uiGenInputDlg(uiParent*,const char* dlgtitle,
 				      ObjectSet<uiGenInputDlgEntry>*);
 			    //!< the ObjectSet becomes mine.
-			~uiGenInputDlg()	{ deepErase(*entries); }
 
     const char*		text(int i=0);
     int			getIntValue(int i=0);
@@ -55,20 +90,12 @@ public:
     double		getValue(int i=0);
     bool		getBoolValue(int i=0);
 
-    int			nrFlds() const		{ return flds.size(); }
-    uiGenInput*		getFld( int idx=0 )	{ return flds[idx]; }
+    int			nrFlds() const;
+    uiGenInput*		getFld( int idx=0 );
 
 protected:
-
-    ObjectSet<uiGenInput>		flds;
-    ObjectSet<uiGenInputDlgEntry>*	entries;
-
     bool		acceptOK(CallBacker*);
-
-private:
-
-    void		build();
-
+    uiGenInputGrp*	group;
 };
 
 
