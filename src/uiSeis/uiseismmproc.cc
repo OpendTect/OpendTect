@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.19 2002-06-07 14:20:14 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.20 2002-06-07 15:00:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,6 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
     usedmachgrp->attach( rightOf, addbut );
-    avmachfld->attach( heightSameAs, usedmachgrp );
     machgrp->setHAlignObj( addbut );
     machgrp->attach( alignedBelow, jobgrp );
     machgrp->attach( ensureBelow, sep );
