@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.34 2002-01-15 08:57:18 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.35 2002-01-24 15:27:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,11 @@ public:
 			       intIntervalTp, floatIntervalTp, doubleIntervalTp,
 			       binIDCoordTp, stringTp, fileNmTp, stringListTp };
 
-			DataInpSpec( Type t )	: tp_(t), pfw_(-1) {}
+			DataInpSpec( Type t )
+			    : SzPolicySpec(), tp_(t), pfw_(-1) {}
+
+			DataInpSpec( const DataInpSpec& o )
+			    : SzPolicySpec(o), tp_(o.tp_), pfw_(o.pfw_) {}
 
     virtual		~DataInpSpec() {}
 
@@ -404,6 +408,13 @@ public:
 			    , yn( yesno ) 
 			    { setHSzP( SzPolicySpec::smallvar ); }
 
+			BoolInpSpec( const BoolInpSpec& oth)
+			    : DataInpSpec( oth )
+			    , truetext( oth.truetext )
+			    , falsetext( oth.falsetext )
+			    , yn( oth.yn ) 
+			    {}
+
     virtual bool	isUndef( int idx=0 ) const	{ return false; }
 
     virtual DataInpSpec* clone() const  
@@ -459,7 +470,6 @@ public:
 				    : DataInpSpec( oth )
 				    , cur_(oth.cur_)
 				{ 
-				    setHSzP(SzPolicySpec::medvar); 
 				    deepCopy( strings_, oth.strings_ ); 
 				}
 

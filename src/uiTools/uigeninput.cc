@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.37 2002-01-16 15:26:59 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.38 2002-01-24 15:27:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,6 +255,13 @@ public:
 			    else yn = yesNoFromString(t);
 
 			    setValue(yn);
+			}
+
+    virtual int		nElems()		{ return cb ? 1 : 2; }
+    virtual uiObject&	element( int idx  )	
+			{ 
+			    if( cb ) return *cb;
+			    return idx ? *rb2 : *rb1; 
 			}
 
     virtual bool	isUndef(int) const		{ return false; }
