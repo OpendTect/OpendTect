@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.15 2002-04-25 13:42:13 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.16 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,8 +46,9 @@ public:
 
     virtual int			usePar( const IOPar& iopar )
 				{ return SceneObject::usePar(iopar); }
-    virtual void		fillPar( IOPar& iopar ) const
-				{ SceneObject::fillPar( iopar );}
+    virtual void		fillPar( IOPar& iopar,
+	    				 TypeSet<int>& saveids ) const
+				{ SceneObject::fillPar( iopar, saveids );}
 
 protected:
     void		triggerSel()
@@ -78,7 +79,7 @@ public:
     SoNode*		getData();
 
     virtual int		usePar( const IOPar& iopar );
-    virtual void	fillPar( IOPar& iopar ) const;
+    virtual void	fillPar( IOPar& iopar, TypeSet<int> & ) const;
 protected:
     void		addChild( SoNode* );
     void		insertChild( int pos, SoNode* );

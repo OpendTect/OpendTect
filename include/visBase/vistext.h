@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.4 2002-04-30 11:44:47 kristofer Exp $
+ RCS:		$Id: vistext.h,v 1.5 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,7 @@ public:
     Justification	justification() const;
     void		setJustification( Justification );
 
-    void		fillPar( IOPar& ) const;
+    void		fillPar( IOPar&, TypeSet<int>& ) const;
     int			usePar( const IOPar& );
 
 protected:

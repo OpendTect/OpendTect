@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.5 2002-04-29 07:06:45 kristofer Exp $
+ RCS:		$Id: vistransform.h,v 1.6 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,9 @@ public:
 
     Geometry::Pos	transform( const Geometry::Pos& ) const;
     Geometry::Pos	transformBack(  const Geometry::Pos& ) const;
+
+    virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual int		usePar( const IOPar& );
     
     SoNode*		getData();
 private:
@@ -56,6 +59,8 @@ private:
 
 
     SoMatrixTransform*	transform_;
+
+    static const char*	matrixstr;
 };
 
 };

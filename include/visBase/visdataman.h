@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.7 2002-04-30 09:01:00 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.8 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ public:
 			     and reinitialized.
 			*/
 
-    void		fillPar( IOPar& ) const;
+    void		fillPar( IOPar&, TypeSet<int> & ) const;
     bool		usePar( const IOPar& );
 
     void		ref( int id );
@@ -89,7 +89,6 @@ protected:
 
     static const char*		freeidstr;
     static const char*		selmanprefix;
-    static const char*		typestr;
 };
 
 DataManager& DM();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.20 2002-04-26 12:46:29 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.21 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -122,7 +122,7 @@ public:
     NotifierAccess*	manipEnds();
 
     int			usePar( const IOPar& );
-    void		fillPar( IOPar& ) const;
+    void		fillPar( IOPar&, TypeSet<int>& ) const;
 
 protected:
 			~Rectangle();

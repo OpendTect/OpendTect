@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.4 2002-04-29 09:01:17 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.5 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -72,6 +72,9 @@ public:
     bool			isEventHandled() const;
     void			eventIsHandled();
 
+    void			fillPar( IOPar&, TypeSet<int>& ) const;
+    int				usePar( const IOPar& );
+
 protected:
     void			removeCBs();
     void			setCBs();
@@ -81,6 +84,8 @@ protected:
 
     EventType			type;
     SoEventCallback*		node;
+
+    static const char*		eventtypestr;
 };
 
 }; // Namespace

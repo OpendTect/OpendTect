@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.8 2002-03-18 14:45:35 kristofer Exp $
+ RCS:		$Id: vissceneobj.h,v 1.9 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ public:
 
     virtual int		usePar( const IOPar& iopar )
     			{ return DataObject::usePar(iopar); }
-    virtual void	fillPar( IOPar& iopar ) const
-    			{ DataObject::fillPar( iopar );}
+    virtual void	fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+    			{ DataObject::fillPar( iopar, saveids );}
 };
 
 };

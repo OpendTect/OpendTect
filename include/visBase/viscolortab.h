@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.5 2002-04-26 08:11:01 kristofer Exp $
+ RCS:		$Id: viscolortab.h,v 1.6 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ public:
     void			triggerChange() { change.trigger(); }
 
     int				usePar( const IOPar& );
-    void			fillPar( IOPar& ) const;
+    void			fillPar( IOPar&, TypeSet<int>& ) const;
 
 protected:
     virtual		~VisColorTab();

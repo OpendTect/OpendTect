@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.2 2002-04-29 08:45:58 kristofer Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.3 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
     const LineStyle&	lineStyle() const { return linestyle; }
 
     int			usePar( const IOPar& );
-    void		fillPar( IOPar& ) const;
+    void		fillPar( IOPar&, TypeSet<int>& ) const;
 
     SoNode*		getData();
 private:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.5 2002-03-21 12:51:37 arend Exp $
+ RCS:		$Id: viscamera.h,v 1.6 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -59,7 +59,7 @@ public:
 
     SoNode*		getData();
     int			usePar( const IOPar& );
-    void		fillPar( IOPar& ) const;
+    void		fillPar( IOPar&, TypeSet<int>& ) const;
 protected:
 
     virtual		~Camera();

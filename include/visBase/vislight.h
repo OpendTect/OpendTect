@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.3 2002-03-20 20:41:37 bert Exp $
+ RCS:		$Id: vislight.h,v 1.4 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -38,11 +38,17 @@ public:
     float		intensity() const;
 
     SoNode*		getData();
+
+    virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual int		usePar( const IOPar& );
 protected:
     			Light(SoLight* light_);
     virtual		~Light();
 
     SoLight*		light;	
+
+    static const char*	isonstr;
+    static const char*	intensitystr;
 };
 
 /*!\brief
@@ -57,6 +63,13 @@ public:
 
     void		setPosition(float,float,float);
     float		position(int dim) const;
+
+    void		fillPar( IOPar&, TypeSet<int>& ) const;
+    int			usePar( const IOPar& );
+
+protected:
+    static const char*	positionstr;
+
 };
 
 
@@ -73,6 +86,13 @@ public:
 
     void		setDirection(float,float,float);
     float		direction(int dim) const;
+
+    void		fillPar( IOPar&, TypeSet<int>& ) const;
+    int			usePar( const IOPar& );
+
+protected:
+    static const char*	directionstr;
+
 };
 
 /*!\brief
@@ -99,6 +119,15 @@ public:
     void		setDropOffRate(float);
     			// 0=smooth, 1=sharp
     float		dropOffRate() const;
+
+    void		fillPar( IOPar&, TypeSet<int>& ) const;
+    int			usePar( const IOPar& );
+
+protected:
+    static const char*	directionstr;
+    static const char*	positionstr;
+    static const char*	coneanglestr;
+    static const char*	dropoffratestr;
 };
 
 };

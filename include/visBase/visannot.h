@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.10 2002-04-29 09:26:21 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.11 2002-04-30 14:13:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,8 @@ ________________________________________________________________________
 class SoSwitch;
 class SoCoordinate3;
 class AxisInfo;
+
+namespace Geometry { class Pos; };
 
 namespace visBase
 {
@@ -44,7 +46,11 @@ public:
     bool			isScaleShown() const;
 
     void			setCorner( int, float, float, float );
+    Geometry::Pos		getCorner( int ) const;
     void			setText( int dim, const char * );
+
+    void			fillPar( IOPar&, TypeSet<int>& ) const;
+    int				usePar( const IOPar& );
 
 protected:
     				~Annotation();
@@ -59,6 +65,11 @@ protected:
     
     SoSwitch*			textswitch;
     SoSwitch*			scaleswitch;
+
+    static const char*		textprefixstr;
+    static const char*		cornerprefixstr;
+    static const char*		showtextstr;
+    static const char*		showscalestr;
 };
 
 };
