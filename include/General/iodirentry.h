@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.1 2001-04-27 16:48:51 bert Exp $
+ RCS:           $Id: iodirentry.h,v 1.2 2001-07-18 16:12:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,8 @@ public:
 class IODirEntryList : public UserIDObjectSet<IODirEntry>
 {
 public:
-			IODirEntryList(IODir*,const Translator*,bool);
+			IODirEntryList(IODir*,const Translator*,bool,
+					const char* translator_globexpr=0);
 			~IODirEntryList();
 
     void		fill(IODir*);
@@ -52,6 +53,7 @@ public:
     MultiID			lastiokey;
     ObjectTypeSelectionFun	trsel;
     bool			maychgdir;
+    BufferString		trfilt;
 
 };
 
