@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.4 2002-06-26 16:34:40 bert Exp $
+ RCS:		$Id: prog.h,v 1.5 2003-04-24 09:15:27 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -34,6 +34,7 @@ extern "C" {
 
 extern const char*	_g_pvn_();
 const char*		GetProjectVersionName()		{ return _g_pvn_(); }
+extern void		SetDgbApplicationCode(int);
 
 #ifdef __cpp__
 }
