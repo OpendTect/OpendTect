@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.13 2004-05-21 15:19:24 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.14 2004-07-14 12:18:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "ascstream.h"
 #include "errh.h"
+#include "separstr.h"
 #include <iostream>
 # include <unistd.h>
 #ifdef __win__
@@ -121,7 +122,28 @@ bool HostDataList::readHostFile( const char* fname )
     {
 	HostData* newhd = new HostData( astrm.keyWord() );
 	if ( *astrm.value() )
-	    newhd->aliases_ += new BufferString( astrm.value() );
+	{
+	    SeparString val( astrm.value(), ':' );
+
+	    if ( val[0] && *val[0] )
+		newhd->aliases_ += new BufferString( val[0] );
+
+	    if ( val[1] && *val[1] )
+	    {
+		char* ptr = (char*)val[1];
+		skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+		replaceCharacter( ptr, ';' , ':' );
+		newhd->appl_prefix = ptr;
+	    }
+
+	    if ( val[2] && *val[2] )
+	    {
+		char* ptr = (char*)val[2];
+		skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+		replaceCharacter( ptr, ';' , ':' );
+		newhd->data_prefix = ptr;
+	    }
+	}
 	*this += newhd;
     }
 
