@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.29 2003-04-22 09:19:07 kristofer Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.30 2003-04-22 10:05:57 kristofer Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -275,6 +275,7 @@ bool IOPar::get( const char* s, type& res ) const \
 
 get1Val(int,strtol(ptr, &endptr, 0));
 get1Val(long long,strtoll(ptr, &endptr, 0));
+get1Val(unsigned long long,strtoull(ptr, &endptr, 0));
 
 #define mGetMulti( type, function ) \
 bool IOPar::get( const char* s, TypeSet<type>& res ) const\
@@ -600,6 +601,7 @@ void IOPar::set( const char* keyw, type val ) \
 
 mSet1Val( int, getStringFromInt );
 mSet1Val( long long, getStringFromLongLong );
+mSet1Val( unsigned long long, getStringFromUnsignedLongLong );
 mSet1Val( float, mIsUndefined(val) ? sUndefValue : getStringFromFloat );
 mSet1Val( double, mIsUndefined(val) ? sUndefValue : getStringFromDouble);
 
