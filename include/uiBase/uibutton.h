@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.11 2003-05-12 10:03:20 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.12 2003-05-13 15:34:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,10 @@ public:
 
     bool			isOn();
     void			setOn( bool yn=true );
+
+    void			setToggleButton( bool yn=true);
+    bool			isToggleButton();
+
 
 private:
 
