@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.7 2004-05-07 16:15:34 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.8 2004-05-10 16:00:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	    bivsets += bivset;
 	    for ( int ivec=0; ivec<fs.size(); ivec++ )
 	    {
-		const FVPos& fvp = fs[idx]->fvPos();
+		const FVPos& fvp = fs[ivec]->fvPos();
 		*bivset += BinIDValue( fvp.inl, fvp.crl, fvp.ver );
 	    }
 	}
@@ -120,12 +120,13 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	    {
 		FeatureSet& fs = *fss[idx];
 		TypeSet<float>& res = *lde.results()[idx];
+		const int ressz = res.size();
 		fs.descs() += new FeatureDesc( outnm );
 
 		for ( int ivec=0; ivec<fs.size(); ivec++ )
 		{
-		    FeatureVec& fv = *fs[idx];
-		    fv += res[ivec];
+		    FeatureVec& fv = *fs[ivec];
+		    fv += ivec >= ressz ? mUndefValue : res[ivec];
 		}
 	    }
 	}

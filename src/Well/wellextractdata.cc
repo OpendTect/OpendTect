@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.11 2004-05-10 11:12:58 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.12 2004-05-10 16:00:23 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -299,6 +299,10 @@ int Well::LogDataExtracter::nextStep()
 {
     if ( curidx >= ids.size() )
 	return 0;
+
+    TypeSet<float>* newres = new TypeSet<float>;
+    ress += newres;
+
     IOObj* ioobj = 0;
     const BinIDValueSet& bivset = *bivsets[curidx];
     if ( !bivset.size() ) mRetNext()
@@ -320,8 +324,6 @@ int Well::LogDataExtracter::nextStep()
     if ( track.size() < 2 ) mRetNext()
     if ( !wr.getLogs() ) mRetNext()
     
-    TypeSet<float>* newres = new TypeSet<float>;
-    ress += newres;
     getData( bivset, wd, track, *newres );
 
     mRetNext();
@@ -333,6 +335,9 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 				      const Well::Track& track,
 				      TypeSet<float>& res ) const
 {
+    // The order in 'res' is important. We can stop early, but we cannot
+    // leave out undefs.
+
     int wlidx = wd.logs().indexOf( lognm );
     if ( wlidx < 0 )
 	return;
@@ -349,9 +354,9 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
     const float tol = 0.001;
     float z1 = track.pos(trackidx).z;
     while ( bividx < bivset.size() && bivset[bividx].value < z1 - tol )
-	bividx++;
+	{ res += mUndefValue; bividx++; }
     if ( bividx >= bivset.size() ) // Duh. All data below track.
-	return;
+	{ res.erase(); return; }
 
     BinIDValue biv( bivset[bividx] );
     for ( trackidx=1; trackidx<track.size(); trackidx++ )
@@ -371,10 +376,11 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	    trackidx++;
 	    if ( trackidx >= track.size() )
 		return;
+	    z2 = track.pos( trackidx ).z;
 	}
 	z1 = track.pos( trackidx - 1 ).z;
-	float dah = ( (biv.value-z2) * track.dah(trackidx-1)
-		    + (z1-biv.value) * track.dah(trackidx) )
+	float dah = ( (z2-biv.value) * track.dah(trackidx-1)
+		    + (biv.value-z1) * track.dah(trackidx) )
 		  / (z2 - z1);
 	float vel = timesurv ? wd.d2TModel()->getVelocity(dah) : 1;
 	addValAtDah( dah, wl, vel, res );
@@ -391,9 +397,9 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
     int bividx = 0; int trackidx = 0;
     const float tol = 0.001;
     while ( bividx<bivset.size() && mIsUndefined(bivset[bividx].value) )
-	bividx++;
+	{ res += mUndefValue; bividx++; }
     if ( bividx >= bivset.size() || !track.size() )
-	return;
+	{ res.erase(); return; }
 
     BinIDValue biv( bivset[bividx] );
     const float dahstep = SI().zRange().step / 2;
@@ -428,14 +434,9 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 					  float vel, TypeSet<float>& res ) const
 {
-    float val;
-    if ( samppol == Nearest )
-	val = wl.getValue( dah );
-    else
-	val = calcVal( wl, dah, SI().zRange().step * vel );
-
-    if ( !mIsUndefined(val) )
-	res += val;
+    float val = samppol == Nearest ? wl.getValue( dah )
+				   : calcVal(wl,dah,SI().zRange().step*vel);
+    res += val;
 }
 
 
@@ -446,12 +447,15 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     TypeSet<float> vals;
     for ( int idx=0; idx<wl.size(); idx++ )
     {
-	if ( rg.includes(wl.dah(idx)) )
+	float dah = wl.dah( idx );
+	if ( rg.includes(dah) )
 	{
 	    float val = wl.value(idx);
 	    if ( !mIsUndefined(val) )
 		vals += wl.value(idx);
 	}
+	else if ( dah > rg.stop )
+	    break;
     }
     if ( vals.size() < 1 ) return mUndefValue;
     if ( vals.size() == 1 ) return vals[0];
