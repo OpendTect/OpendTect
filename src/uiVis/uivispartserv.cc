@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.38 2002-05-03 11:52:22 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.39 2002-05-03 15:50:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -291,6 +291,14 @@ int uiVisPartServer::addScene()
 }
 
 
+void uiVisPartServer::getSceneIds( TypeSet<int>& sceneids )
+{
+    sceneids.erase();
+    for ( int idx=0; idx<scenes.size(); idx++ )
+	sceneids += scenes[idx]->id();
+}
+
+
 int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 {
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
@@ -426,6 +434,29 @@ void uiVisPartServer::putNewData( int id, AttribSlice* slice )
 }
 
 
+void uiVisPartServer::getDataDisplayIds( int sceneid, 
+	uiVisPartServer::ElementType etp, TypeSet<int>& ids )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene ) return;
+
+    visSurvey::PlaneDataDisplay::Type type =
+	    etp == Inline ?	visSurvey::PlaneDataDisplay::Inline
+	: ( etp == Crossline ?	visSurvey::PlaneDataDisplay::Crossline
+			     :	visSurvey::PlaneDataDisplay::Timeslice );
+
+    for ( int idx=0; idx<scene->size(); idx++ )
+    {
+	visBase::SceneObject* obj = scene->getObject( idx );
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
+	if ( !sd ) continue;
+	if ( type == sd->getType() )
+	    ids += sd->id();
+    }
+}
+
+
 int uiVisPartServer::addPickSetDisplay()
 {
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
@@ -513,6 +544,22 @@ void uiVisPartServer::getPickSetData( const char* nm, PickSet& pickset )
     {
 	Geometry::Pos pos = visps->getPick( idx );
 	pickset += PickLocation( pos.x, pos.y, pos.z );
+    }
+}
+
+
+void uiVisPartServer::getPickSetIds( int sceneid, TypeSet<int>& ids )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene ) return;
+
+    for ( int idx=0; idx<scene->size(); idx++ )
+    {
+	visBase::SceneObject* obj = scene->getObject( idx );
+	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,obj)
+	if ( psd )
+	    ids += psd->id();
     }
 }
 
