@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.3 2004-01-12 13:20:10 kristofer Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.4 2004-01-12 13:50:33 kristofer Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -28,8 +28,16 @@ DataType DataInpSpec::type() const
 { return tp_; }
 
 
+int DataInpSpec::nElems() const
+{ return 1; }
+
+
 bool DataInpSpec::preferEmpty() const
 { return prefempty_; }
+
+
+void DataInpSpec::setPrefEmpty(bool yn)
+{ prefempty_=yn; }
 
 
 bool DataInpSpec::hasLimits() const
@@ -338,7 +346,7 @@ DataInpSpec* BinIDCoordInpSpec::clone() const
 { return new BinIDCoordInpSpec( *this ); }
 
 
-int BinIDCoordInpSpec:: nElems()  const { return 2; }
+int BinIDCoordInpSpec::nElems()  const { return 2; }
 
 
 double BinIDCoordInpSpec::value( int idx ) const
