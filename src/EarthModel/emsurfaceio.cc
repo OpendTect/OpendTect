@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.40 2004-08-20 07:53:59 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.41 2004-11-12 09:13:24 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -188,6 +188,9 @@ EM::dgbSurfaceReader::~dgbSurfaceReader()
     delete rcconv;
     delete readrowrange;
     delete readcolrange;
+
+    delete intinterpreter;
+    delete floatinterpreter;
 }
 
 
