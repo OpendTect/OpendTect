@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.13 2002-07-08 14:58:56 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.14 2003-01-20 11:29:13 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -26,14 +26,6 @@ const SoNode* visBase::DataObject::getData() const
 
 const char* visBase::DataObject::name() const
 {
-    const SoNode* node = getData();
-    if ( node )
-    {
-	const char* name_ = node->getName();
-	if ( !name_ || !name_[0]) return 0;
-	return name_;
-    }
-
     if ( !name_ || !(*name_)[0]) return 0;
     return (const char*)*name_;
 }
@@ -43,10 +35,7 @@ void visBase::DataObject::setName( const char* nn )
 {
     SoNode* node = getData();
     if ( node )
-    {
 	node->setName( nn );
-	return;
-    }
 
     if ( !name_ ) name_ = new BufferString;
     
