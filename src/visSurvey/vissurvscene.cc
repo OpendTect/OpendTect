@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.6 2002-02-28 13:09:43 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.7 2002-03-06 07:39:45 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "vistransform.h"
@@ -142,7 +142,7 @@ visSurvey::Scene::Scene()
 
 
 visSurvey::Scene::~Scene()
-{ }
+{}
 
 
 int visSurvey::Scene::addXYZObject( SceneObject* obj )
@@ -169,6 +169,36 @@ int visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
     if ( visobj ) visobj->regForSelection();
 
     return inlcrloffset + inlcrlworld->addObject( obj );
+}
+
+
+int visSurvey::Scene::size() const
+{
+    return visBase::SceneObjectGroup::size() +
+	   inlcrlworld->size() + xytworld->size();
+}
+
+
+int visSurvey::Scene::getId(int target) const
+{
+    int res = SceneObjectGroup::getId( target );
+    if ( res<0 )
+	res = xytworld->getId( target-=visBase::SceneObjectGroup::size() );
+    if ( res<0 )
+	res = inlcrlworld->getId( target-xytworld->size() );
+
+    return res;
+}
+
+
+visBase::SceneObject* visSurvey::Scene::getObject( int id )
+{
+    if ( id >=inlcrloffset )
+	return inlcrlworld->getObject( id-inlcrloffset );
+    if ( id>=xytidoffset )
+	return xytworld->getObject( id-xytidoffset);
+
+    return visBase::SceneObjectGroup::getObject( id );
 }
 
 
