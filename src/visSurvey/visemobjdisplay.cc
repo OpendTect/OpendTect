@@ -4,17 +4,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.7 2005-03-10 11:51:22 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.8 2005-03-11 12:23:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.7 2005-03-10 11:51:22 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.8 2005-03-11 12:23:08 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
 
 #include "attribsel.h"
+#include "binidvalset.h"
 #include "cubicbeziersurface.h"
 #include "emmanager.h"
 #include "emobject.h"
@@ -163,15 +164,22 @@ bool EMObjectDisplay::updateFromEM()
 
 void EMObjectDisplay::useTexture(bool yn)
 {
-    usestexture = yn;
     if ( usesTexture()==yn )
 	return;
 
-    Color newcolor = yn ? Color::White : nontexturecol;
+    usestexture = yn;
+
     if ( yn ) nontexturecol = getMaterial()->getColor();
+    getMaterial()->setColor( yn ? Color::White : nontexturecol );
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {
+	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	if ( psurf )
+	{
+	    if ( psurf->nrTextures() )
+		psurf->selectActiveTexture(0);
+	}
 	//TODO: DynamicCast and set texture
     }
 }
@@ -208,10 +216,75 @@ void EMObjectDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 
 void EMObjectDisplay::setDepthAsAttrib()
 {
-    pErrMsg("Not impl");
+    ObjectSet<BinIDValueSet> positions;
+    fetchData(positions);
+
+    if ( !positions.size() ) return;
+
+    for ( int idx=0; idx<positions.size(); idx++ )
+    {
+	if ( positions[idx]->nrVals()!=2 )
+	    positions[idx]->setNrVals(2);
+
+	BinIDValueSet::Pos pos;
+	while ( positions[idx]->next(pos,true) )
+	{
+	    float* vals = positions[idx]->getVals(pos);
+	    vals[1] = vals[0];
+	}
+    }
+
+    stuffData( false, &positions );
 }
 
 
+void EMObjectDisplay::fetchData(ObjectSet<BinIDValueSet>& data) const
+{
+    deepErase( data );
+
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	data += new BinIDValueSet( 1, false );
+	BinIDValueSet& res = *data[idx];
+	psurf->getDataPositions(res,true);
+    }
+}
+
+
+void EMObjectDisplay::stuffData( bool forcolordata,
+				 const ObjectSet<BinIDValueSet>* data )
+{
+    if ( forcolordata )
+	return;
+
+    if ( !data || !data->size() )
+    {
+	for ( int idx=0; idx<sections.size(); idx++ )
+	{
+	    mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	    psurf->setTextureData( 0 );
+	}
+	return;
+    }
+
+    int idx = 0;
+    for ( ; idx<data->size(); idx++ )
+    {
+	if ( idx>=sections.size() ) break;
+
+	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	psurf->setTextureData( (*data)[idx], forcolordata ? colas.datatype : 0);
+    }
+
+    for ( ; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	psurf->setTextureData( 0 );
+    }
+}
+
+	
 bool EMObjectDisplay::hasStoredAttrib() const
 {
     const char* ref = as.userRef();
