@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.25 2004-11-15 17:32:30 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.26 2004-11-19 13:24:27 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -131,7 +131,8 @@ class SeisCBVS2DLineGetter : public Executor
 {
 public:
 
-SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
+SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
+		      const SeisSelData& sd )
     	: Executor("Load 2D line")
 	, tbuf(b)
 	, curnr(0)
@@ -141,6 +142,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
 	, seldata(0)
 	, trcstep(1)
 	, linenr(CBVSIOMgr::getFileNr(fnm))
+	, trcsperstep(ntps)
 {
     tr = gtTransl( fname, false, &msg );
     if ( !tr ) return;
@@ -194,7 +196,7 @@ int nextStep()
 	}
     }
 
-    int lastnr = curnr + 10;
+    int lastnr = curnr + trcsperstep;
     for ( ; curnr<lastnr; curnr++ )
     {
 	SeisTrc* trc = new SeisTrc;
@@ -232,6 +234,7 @@ int			totalNr() const		{ return totnr; }
     SeisSelData*	seldata;
     int			trcstep;
     const int		linenr;
+    const int		trcsperstep;
 
 };
 
@@ -275,7 +278,7 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
 
 
 Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
-						SeisTrcBuf& tbuf,
+						SeisTrcBuf& tbuf, int ntps,
 						const SeisSelData* sd )
 {
     BufferString fnm = getFileName(iop);
@@ -287,7 +290,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 	return 0;
     }
 
-    return new SeisCBVS2DLineGetter( fnm, tbuf, sd ? *sd : SeisSelData() );
+    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps, sd ? *sd : SeisSelData());
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.34 2004-11-10 10:44:00 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.35 2004-11-19 13:24:27 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -328,7 +328,7 @@ bool Seis2DLineSet::getGeometry( int ipar, Line2DGeometry& geom ) const
 }
 
 
-Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
+Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf, int ntps,
 					const SeisSelData* sd ) const
 {
     if ( !liop_ )
@@ -343,7 +343,7 @@ Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 	return 0;
     }
 
-    return liop_->getFetcher( *pars_[ipar], tbuf, sd );
+    return liop_->getFetcher( *pars_[ipar], tbuf, ntps, sd );
 }
 
 

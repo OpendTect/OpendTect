@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seiscbvs2d.h,v 1.6 2004-10-20 16:12:33 bert Exp $
+ RCS:		$Id: seiscbvs2d.h,v 1.7 2004-11-19 13:24:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
     bool		isEmpty(const IOPar&) const;
 
     bool		getGeometry(const IOPar&,Line2DGeometry&) const;
-    Executor*		getFetcher(const IOPar&,SeisTrcBuf&,
+    Executor*		getFetcher(const IOPar&,SeisTrcBuf&,int,
 	    			   const SeisSelData* sd=0);
     Seis2DLinePutter*	getReplacer(const IOPar&);
     Seis2DLinePutter*	getAdder(IOPar&,const IOPar*,const char*);

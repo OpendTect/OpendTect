@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.50 2004-11-16 17:20:44 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.51 2004-11-19 13:24:27 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -402,14 +402,15 @@ bool SeisTrcReader::mkNextFetcher()
 	return false;
 
     prev_inl = mUndefIntVal;
-    fetcher = lset->lineFetcher( curlinenr, *tbuf, seldata );
+    fetcher = lset->lineFetcher( curlinenr, *tbuf, 1, seldata );
     return fetcher;
 }
 
 
 bool SeisTrcReader::readNext2D()
 {
-    if ( tbuf->size() ) return true;
+    if ( tbuf->size() )
+	tbuf->deepErase();
 
     int res = fetcher->doStep();
     if ( res == Executor::ErrorOccurred )
@@ -419,9 +420,6 @@ bool SeisTrcReader::readNext2D()
     }
     else if ( res == 0 )
     {
-	delete fetcher; fetcher = 0;
-	if ( tbuf->size() ) return true;
-
 	if ( !mkNextFetcher() )
 	    return false;
 	return readNext2D();
@@ -436,12 +434,11 @@ bool SeisTrcReader::readNext2D()
 
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
-    if ( (mNeedNextFetcher() && !mkNextFetcher())
-      || !readNext2D() )
+    if ( !fetcher && !mkNextFetcher() )
 	return errmsg == "" ? 0 : -1;
 
-    if ( inforead && tbuf->size() )
-	delete tbuf->remove(0);
+    if ( !readNext2D() )
+	return errmsg == "" ? 0 : -1;
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf->get( 0 )->info();
@@ -462,9 +459,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 
 bool SeisTrcReader::get2D( SeisTrc& trc )
 {
-    if ( mNeedNextFetcher() && !get2D(trc.info()) )
-	return false;
-    else if ( !inforead && !readNext2D() )
+    if ( !inforead && !get2D(trc.info()) )
 	return false;
 
     inforead = false;
@@ -473,6 +468,7 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
     trc.copyDataFrom( *buftrc, -1, forcefloats );
+
     delete tbuf->remove(0);
     return true;
 }

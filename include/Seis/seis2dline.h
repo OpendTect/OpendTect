@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.23 2004-11-10 10:44:00 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.24 2004-11-19 13:24:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ public:
     void		getAvailableAttributes(BufferStringSet&) const;
 
     bool		getGeometry(int,Line2DGeometry&) const;
-    Executor*		lineFetcher(int,SeisTrcBuf&,
+    Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,
 	    			    const SeisSelData* sd=0) const;
     				//!< May return null
     Seis2DLinePutter*	linePutter(IOPar*);
@@ -154,7 +154,7 @@ public:
     virtual bool	isEmpty(const IOPar&) const		= 0;
     virtual bool	getGeometry(const IOPar&,
 	    			    Line2DGeometry&) const	= 0;
-    virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,
+    virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,int,
 	    			   const SeisSelData* sd=0)	= 0;
     virtual Seis2DLinePutter* getReplacer(const IOPar&)	= 0;
     virtual Seis2DLinePutter* getAdder(IOPar&,const IOPar* prev,
