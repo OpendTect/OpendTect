@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.4 2002-09-19 14:59:07 kristofer Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.5 2002-09-20 13:51:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,12 +39,17 @@ protected:
 
     uiLabeledListBox*	inbox;
     uiFileInput*	outfld;
-    uiGenInput*		xyfld;
+    uiGenInput*		typfld;
     uiGenInput*		zfld;
+    uiGenInput*		gfnmfld;
+    uiGenInput*		gfcommfld;
+    uiGenInput*		gfunfld;
+    uiGroup*		gfgrp;
     uiLabel*		attrlbl;
 
     virtual bool	acceptOK(CallBacker*);
     void		selChg(CallBacker*);
+    void		typChg(CallBacker*);
 
     const ObjectSet<SurfaceInfo>&	hinfos_;
     int					selinfo_;
