@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.9 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vismarker.h,v 1.10 2003-11-28 15:40:03 nanne Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "position.h"
+#include "enums.h"
 
 class SoTranslation;
 class SoGroup;
@@ -38,7 +39,9 @@ public:
     static Marker*	create()
 			mCreateDataObj(Marker);
 
-    enum Type		{ Cube, Cone, Cylinder, Sphere, Cross, Star };
+    enum Type		{ Cube, Cone, Cylinder, Sphere, Arrow, Cross };
+    			DeclareEnumUtils(Type);
+
     void		setType(Type);
     Type		getType() const		{ return markertype; }
  

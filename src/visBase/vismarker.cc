@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.8 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: vismarker.cc,v 1.9 2003-11-28 15:40:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "vistransform.h"
 
-#include <SoMarkerScale.h>
+#include "SoMarkerScale.h"
+#include "SoArrow.h"
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoCube.h>
@@ -26,6 +27,17 @@ ________________________________________________________________________
 mCreateFactoryEntry( visBase::Marker );
 
 const char* visBase::Marker::centerposstr = "Center Pos";
+
+DefineEnumNames(visBase::Marker,Type,0,"Marker type")
+{
+    "Cube",
+    "Cone",
+    "Cylinder",
+    "Sphere",
+    "Arrow",
+    "Cross",
+    0
+};
 
 
 visBase::Marker::Marker()
@@ -91,18 +103,14 @@ void visBase::Marker::setType( Type type )
     case Sphere:
 	shape = new SoSphere;
 	break;
+    case Arrow:
+	shape = new SoArrow;
+	break;
     case Cross:
 	{
 	    SoText3* xshape = new SoText3;
 	    xshape->string.setValue( "x" );
 	    shape = xshape;
-	}
-	break;
-    case Star:
-	{
-	    SoText3* oshape = new SoText3;
-	    oshape->string.setValue( "*" );
-	    shape = oshape;
 	}
 	break;
     }
