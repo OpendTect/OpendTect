@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.14 2002-03-18 14:21:28 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.15 2002-03-18 14:45:41 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -438,9 +438,10 @@ visBase::Rectangle::~Rectangle()
 }
 
 
-bool visBase::Rectangle::usePar( const IOPar& iopar )
+int visBase::Rectangle::usePar( const IOPar& iopar )
 {
-    if ( !VisualObjectImpl::usePar( iopar ) ) return false;
+    int res = VisualObjectImpl::usePar( iopar );
+    if ( res != 1 ) return res;
 
     int ori;
     if ( iopar.get( orientationstr, ori ) )
@@ -475,7 +476,7 @@ bool visBase::Rectangle::usePar( const IOPar& iopar )
     if ( iopar.getYN( snappingstr, snap ) )
 	setSnapping( snap );
 
-    return true;
+    return 1;
 }
 
 

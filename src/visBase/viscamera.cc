@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.2 2002-03-18 14:21:28 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.3 2002-03-18 14:45:41 kristofer Exp $";
 
 #include "viscamera.h"
 #include "geompos.h"
@@ -118,9 +118,10 @@ float visBase::Camera::focalDistance() const
 }
 
 
-bool visBase::Camera::usePar( const IOPar& iopar )
+int visBase::Camera::usePar( const IOPar& iopar )
 {
-    if ( !SceneObject::usePar( iopar ) ) return false;
+    int res = SceneObject::usePar( iopar );
+    if ( res != 1 ) return res;
 
     Geometry::Pos pos;
     if ( iopar.get( posstr, pos.x, pos.y, pos.z ) )
@@ -146,7 +147,7 @@ bool visBase::Camera::usePar( const IOPar& iopar )
     if ( iopar.get( focaldistancestr, val ))
 	setFocalDistance( val );
 
-    return true;
+    return 1;
 }
 
 

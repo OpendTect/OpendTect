@@ -5,11 +5,12 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.12 2002-03-12 07:01:26 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.13 2002-03-18 14:45:41 kristofer Exp $";
 
 #include "visobject.h"
 #include "vismaterial.h"
 #include "visdataman.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoSwitch.h"
@@ -79,3 +80,26 @@ void visBase::VisualObjectImpl::insertChild( int pos, SoNode* nn )
 
 void visBase::VisualObjectImpl::removeChild( SoNode* n )
 { root->removeChild( n ); }
+
+
+int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
+{
+    int res = VisualObject::usePar(iopar);
+    if ( res != 1 ) return res;
+
+    int matid;
+    if ( iopar.get( materialidstr, matid ) )
+    {
+	DataObject* mat = visBase::DM().getObj( matid );
+	if ( !mat ) return 0;
+	if ( typeid(*mat)!=typeid(Material) ) return -1;
+
+	setMaterial( (Material*) mat );
+    }
+
+    bool isonsw;
+    if ( iopar.getYN( isonstr, isonsw ) )
+	turnOn( isonsw );
+
+    return 1;
+}

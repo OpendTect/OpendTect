@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.2 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: viscamera.h,v 1.3 2002-03-18 14:45:35 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,11 +16,13 @@ ________________________________________________________________________
 #include "vissceneobj.h"
 
 class SoPerspectiveCamera;
+namespace Geometry { class Pos; };
 
 namespace visBase
 {
 
 /*!\brief
+
 
 
 */
@@ -31,10 +33,10 @@ public:
     static Camera*	create()
 			mCreateDataObj0arg( Camera );
 
-    void		setPosition(float,float,float);
-    float		position(int dim) const;
+    void		setPosition(const Geometry::Pos&);
+    Geometry::Pos	position() const;
 
-    void		pointAt(float,float,float);
+    void		pointAt(const Geometry::Pos&);
 
     void		setAspectRatio( float );
     float		aspectRatio() const;
@@ -52,13 +54,24 @@ public:
     float		focalDistance() const;
 
     SoNode*		getData();
+    int			usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
 protected:
+
 
     			Camera();
     virtual		~Camera();
 
 
     SoPerspectiveCamera*	camera;
+
+    static const char*	posstr;
+    static const char*	orientationstr;
+    static const char*	aspectratiostr;
+    static const char*	heightanglestr;
+    static const char*	neardistancestr;
+    static const char*	fardistancestr;
+    static const char*	focaldistancestr;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.12 2002-03-12 07:11:18 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.13 2002-03-18 14:45:35 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,11 @@ public:
     virtual void		setMaterial( Material* )		= 0;
     virtual const Material*	getMaterial() const			= 0;
     virtual Material*		getMaterial()				= 0;
+
+    virtual int		usePar( const IOPar& iopar )
+			{ return SceneObject::usePar(iopar); }
+    virtual void	fillPar( IOPar& iopar ) const
+			{ SceneObject::fillPar( iopar );}
 };
 
 
@@ -53,6 +58,8 @@ public:
 
     SoNode*		getData();
 
+    virtual int		usePar( const IOPar& iopar );
+    virtual void	fillPar( IOPar& iopar ) const;
 protected:
     void		addChild( SoNode* );
     void		insertChild( int pos, SoNode* );
@@ -68,6 +75,9 @@ protected:
 
 private:
     SoSeparator*	root;
+
+    static const char*	materialidstr;
+    static const char*	isonstr;
 };
 
 };

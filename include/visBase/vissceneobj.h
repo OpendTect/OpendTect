@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.7 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: vissceneobj.h,v 1.8 2002-03-18 14:45:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,10 @@ public:
     virtual SoNode*	getData()		= 0;
     const SoNode*	getData() const;
 
+    virtual int		usePar( const IOPar& iopar )
+    			{ return DataObject::usePar(iopar); }
+    virtual void	fillPar( IOPar& iopar ) const
+    			{ DataObject::fillPar( iopar );}
 };
 
 };
