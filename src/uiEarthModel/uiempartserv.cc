@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.26 2003-09-09 16:04:39 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.27 2003-09-16 09:41:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -348,6 +348,23 @@ bool uiEMPartServer::loadSurface( const MultiID& id,
     if ( hor )
     {
 	PtrMan<Executor> exec = hor->loader( newsel );
+	if ( !exec ) mErrRet( IOM().nameOf(id) );
+	EM::EMM().ref( id );
+	uiExecutor exdlg( appserv().parent(), *exec );
+	if ( exdlg.go() <= 0 )
+	{
+	    EM::EMM().unRef( id );
+	    return false;
+	}
+
+	EM::EMM().unRefNoDel( id );
+	return true;
+    }
+
+    mDynamicCastGet(EM::Fault*,fault,em.getObject(id))
+    if ( fault )
+    {
+	PtrMan<Executor> exec = fault->loader( newsel );
 	if ( !exec ) mErrRet( IOM().nameOf(id) );
 	EM::EMM().ref( id );
 	uiExecutor exdlg( appserv().parent(), *exec );
