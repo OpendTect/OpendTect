@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.41 2004-01-29 10:50:24 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.42 2004-02-02 10:50:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -416,7 +416,8 @@ void uiEMPartServer::setDataVal( const MultiID& id,
 	    RowCol rc( bidzv.binid.inl, bidzv.binid.crl );
 	    EM::SubID subid = hor->rowCol2SubID( rc );
 	    posid.setSubID( subid );
-	    hor->setAuxDataVal( dataidx, posid, bidzv.values[0] );
+	    float val = bidzv.values.size() ? bidzv.values[0] : mUndefValue;
+	    hor->setAuxDataVal( dataidx, posid, val );
 	}
     }
 }
