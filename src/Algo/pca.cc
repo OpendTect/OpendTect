@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.2 2002-12-30 12:49:30 kristofer Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.3 2003-01-06 20:35:46 kristofer Exp $";
 
 
 #include "pca.h"
@@ -48,14 +48,17 @@ int PCACovarianceCalculator::nextStep()
 {
     const int nrsamples = samples.size();
     float sum = 0;
+    const float rowavg = samplesums[row]/nrsamples;
+    const float colavg = samplesums[col]/nrsamples;
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	TypeSet<float>& sample = *(samples[idx]);
-	sum = sample[row] * sample[col];
+	sum += (sample[row]-rowavg) *
+	       (sample[col]-colavg);
     }
 
-    const float cov = (nrsamples*sum - samplesums[row]*samplesums[col]) / 
-		      (nrsamples*(nrsamples-1));
+    const float cov = sum/(nrsamples-1);
 
     covariancematrix.set( row, col, cov );
     if ( row!=col ) covariancematrix.set(col, row, cov );
@@ -68,7 +71,7 @@ PCA::PCA( int nrvars_ )
     : nrvars( nrvars_ )
     , covariancematrix( *new Array2DImpl<float>( nrvars_, nrvars_ ) )
     , samplesums( nrvars_, 0 )
-    , threadworker( new Threads::ThreadWorkManager(Threads::getNrProcessors()) )
+    , threadworker( 0 )
 {
     for ( int row=0; row<nrvars; row++ )
     {
@@ -81,12 +84,10 @@ PCA::PCA( int nrvars_ )
 }
 
 
-
 PCA::~PCA()
 {
     clearAllSamples();
     delete &covariancematrix;
-    delete threadworker;
     deepErase( tasks );
 }
 
@@ -98,164 +99,202 @@ void PCA::clearAllSamples()
 }
 
 
-void PCA::calculate()
-{
-    threadworker->addWork( tasks );
-    deepErase( tasks );
-
-    // Now, get the eigenvalues
-   
-    float d[nrvars],e[nrvars];
-    ObjectSet<float> a;
-
-    float* ptr = covariancematrix.getData();
-    for ( int idx=0; idx<nrvars; idx++ )
-	a += ptr+idx*nrvars;
-
-    for (int i=nrvars; i>=1; i--)
-    {
-	const int l=i-1;
-	float h(0), scale(0);
-	if ( l )
-	{
-	    for ( int k=0; k<=l; k++ )
-		scale += fabs(a[i][k]);
-	    if ( scale==0.0 )
-		e[i]=a[i][l];
-	    else 
-	    {
-		for ( int k=0;k<=l;k++)
-		{
-		    a[i][k] /= scale;
-		    h += a[i][k]*a[i][k];
-		}
-
-		float f=a[i][l];
-		float g = f>0 ? -sqrt(h) : sqrt(h);
-		e[i]=scale*g;
-		h -= f*g;
-		a[i][l]=f-g;
-		f=0.0;
-		for ( int j=0; j<=l; j++ )
-		{
-		    a[j][i]=a[i][j]/h;
-		    g=0.0;
-		    for ( int k=0; k<=j; k++ )
-			g += a[j][k]*a[i][k];
-		    for ( int k=j+1; k<=l; k++)
-			g += a[k][j]*a[i][k];
-		    e[j]=g/h;
-		    f += e[j]*a[i][j];
-		}
-
-		float hh=f/(h+h);
-		for ( int j=0; j<=l; j++)
-		{
-		    f=a[i][j];
-		    e[j]=g=e[j]-hh*f;
-		    for ( int k=0; k<=j; k++)
-			a[j][k] -= (f*e[k]+g*a[i][k]);
-		}
-	    }
-	}
-	else
-	    e[i]=a[i][l];
-
-	d[i]=h;
-    }
-
-    d[1]=0.0;
-    e[1]=0.0;
-
-    for ( int i=0; i<nrvars; i++)
-    {
-	int l=i-1;
-	if ( d[i] )
-	{
-	    for ( int j=0; j<=l; j++)
-	    {
-		float g=0.0;
-		for ( int k=0; k<=l; k++)
-		    g += a[i][k]*a[k][j];
-		for ( int k=0; k<=l; k++)
-		    a[k][j] -= g*a[k][i];
-	    }
-	}
-
-	d[i]=a[i][i];
-	a[i][i]=1.0;
-
-	for (int j=0; j<=l; j++)
-	    a[j][i]=a[i][j]=0.0;
-    }
-
-
 #define SIGN(a,b) ((b)<0 ? -fabs(a) : fabs(a))
-    
-    for ( int i=1; i<nrvars; i++) e[i-1]=e[i];
-    e[nrvars]=0.0;
 
-    for ( int l=0; l<=nrvars; l++)
+void PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
+{
+    for ( int idx=2;idx<=n;idx++) e[idx-1]=e[idx];
+
+    e[n]=0.0;
+    for ( int idx=1; idx<=n; idx++)
     {
-	int iter=0;
-	int m;
+	int iter = 0;
+	int idy;
 	do
 	{
-	    for ( m=l; m<nrvars-1; m++)
+	    for ( idy=idx; idy<=n-1; idy++)
 	    {
-		float dd=fabs(d[m])+fabs(d[m+1]);
-		if ( fabs(e[m])+dd == dd) break;
+		const float dd = fabs(d[idy])+fabs(d[idy+1]);
+		if ( fabs(e[idy])+dd == dd ) break;
 	    }
-	    if ( m != l)
+
+	    if ( idy!=idx )
 	    {
-		if (iter++ == 30) pErrMsg("Too many iterations");
-		float g=(d[l+1]-d[l])/(2.0*e[l]);
-		float r=sqrt((g*g)+1.0);
-		g=d[m]-d[l]+e[l]/(g+SIGN(r,g));
-		float s=1.0,c=1.0;
-		float p=0.0;
-		for ( int i=m-1; i>=l; i--)
+		if ( iter++==30) pErrMsg("Too many iterations");
+
+		float g = (d[idx+1]-d[idx])/(2.0*e[idx]);
+		float r = sqrt((g*g)+1.0);
+		g = d[idy]-d[idx]+e[idx]/(g+SIGN(r,g));
+
+		float c = 1;
+		float s = 1;
+		float p = 0;
+		for ( int idz=idy-1; idz>=idx; idz-- )
 		{
-		    float f=s*e[i];
-		    float b=c*e[i];
-		    if (fabs(f) >= fabs(g))
+		    float f = s*e[idz];
+		    const float b = c*e[idz];
+		    if ( fabs(f)>=fabs(g) )
 		    {
-			c=g/f;
-			r=sqrt((c*c)+1.0);
-			e[i+1]=f*r;
+			c= g/f;
+			r = sqrt((c*c)+1.0);
+			e[idz+1] = f*r;
 			c *= (s=1.0/r);
 		    }
 		    else
 		    {
-			s=f/g;
-			r=sqrt((s*s)+1.0);
-			e[i+1]=g*r;
+			s = f/g;
+			r = sqrt((s*s)+1.0);
+			e[idz+1] = g*r;
 			s *= (c=1.0/r);
 		    }
-		    g=d[i+1]-p;
-		    r=(d[i]-g)*s+2.0*c*b;
-		    p=s*r;
-		    d[i+1]=g+p;
-		    g=c*r-b;
-
-		    for ( int k=0; k<nrvars; k++)
+		    g = d[idz+1]-p;
+		    r = (d[idz]-g)*s+2.0*c*b;
+		    p = s*r;
+		    d[idz+1] = g+p;
+		    g = c*r-b;
+		    /* Next loop can be omitted if eigenvectors not wanted */
+		    for ( int idu=1; idu<=n; idu++)
 		    {
-			f=a[k][i+1];
-			a[k][i+1]=s*a[k][i]+c*f;
-			a[k][i]=c*a[k][i]-s*f;
+			f = z[idu][idz+1];
+			z[idu][idz+1] = s*z[idu][idz]+c*f;
+			z[idu][idz] = c*z[idu][idz]-s*f;
 		    }
 		}
-
-		d[l]=d[l]-p;
-		e[l]=g;
-		e[m]=0.0;
+		d[idx] = d[idx]-p;
+		e[idx] = g;
+		e[idy] = 0.0;
 	    }
-	} while (m != l);
+	} while (idy != idx);
     }
+}
+
+
+void PCA::tred2( ObjectSet<float>& a, int n, float d[], float e[])
+{
+    float f, g;
+
+    for ( int idx=n; idx>=2; idx--)
+    {
+	const int last = idx-1;
+	float scale = 0;
+	float h = 0;
+
+	if ( last>1 )
+	{
+	    for ( int idy=1;idy<=last;idy++)
+		scale += fabs(a[idx][idy]);
+
+	    if ( scale==0.0 )
+		e[idx] = a[idx][last];
+	    else
+	    {
+		for ( int idy=1; idy<=last; idy++)
+		{
+		    a[idx][idy] /= scale;
+		    h += a[idx][idy]*a[idx][idy];
+		}
+		f = a[idx][last];
+		g = f>0 ? -sqrt(h) : sqrt(h);
+		e[idx] = scale*g;
+		h -= f*g;
+		a[idx][last] = f-g;
+		f = 0.0;
+		for ( int idy=1; idy<=last; idy++)
+		{
+		    /* Next statement can be omitted if eigenvectors not wanted */
+		    a[idy][idx]=a[idx][idy]/h;
+		    g=0.0;
+		    for ( int idz=1; idz<=idy; idz++)
+			g += a[idy][idz]*a[idx][idz];
+
+		    for ( int idz=idy+1;idz<=last;idz++)
+			g += a[idz][idy]*a[idx][idz];
+
+		    e[idy]=g/h;
+		    f += e[idy]*a[idx][idy];
+		}
+
+		const float hh = f/(h+h);
+		for ( int idy=1; idy<=last; idy++)
+		{
+		    f = a[idx][idy];
+		    e[idy] = g = e[idy]-hh*f;
+		    for ( int idz=1; idz<=idy; idz++)
+		    {
+			a[idy][idz] -= (f*e[idz]+g*a[idx][idz]);
+		    }
+		}
+	    }
+	}
+	else
+	    e[idx] = a[idx][last];
+	d[idx] = h;
+    }
+    /* Next statement can be omitted if eigenvectors not wanted */
+    d[1] = 0.0;
+    e[1] = 0.0;
+    /* Contents of this loop can be omitted if eigenvectors not
+		    wanted except for statement d[i]=a[i][i]; */
+    for ( int idx=1; idx<=n; idx++)
+    {
+	const int last = idx-1;
+	if ( d[idx] )
+	{
+	    for ( int idy=1; idy<=last; idy++)
+	    {
+		g=0.0;
+		for ( int idz=1; idz<=last; idz++)
+		{
+		    g += a[idx][idz]*a[idz][idy];
+		}
+
+		for ( int idz=1; idz<=last; idz++)
+		{
+		    a[idz][idy] -= g*a[idz][idx];
+		}
+	    }
+	}
+
+	d[idx] = a[idx][idx];
+	a[idx][idx] = 1.0;
+	for ( int idy=1; idy<=last; idy++)
+	{
+	    a[idy][idx] = a[idx][idy] = 0.0;
+	}
+    }
+}
+
+
+void PCA::calculate()
+{
+    if ( threadworker ) threadworker->addWork( tasks );
+    else
+    {
+	const int nrtasks=tasks.size();
+	for ( int idx=0; idx<nrtasks; idx++ )
+	{
+	    while ( tasks[idx]->doStep()>0 )
+		;
+	}
+    }
+
+
+    // Now, get the eigenvalues
+   
+    float d[nrvars+1],e[nrvars+1];
+    ObjectSet<float> a;
+
+    float* ptr = covariancematrix.getData();
+    a += ptr;	//Dummy to get counting right
+    for ( int idx=0; idx<nrvars; idx++ )
+	a += ptr+idx*nrvars-1;
+
+    tred2( a, nrvars, d, e );
+    tqli( d, e, nrvars, a );
 
     eigenvalues.erase();
 
-    for ( int idx=0; idx<nrvars; idx++ )
+    for ( int idx=1; idx<=nrvars; idx++ )
 	eigenvalues += d[idx];
 }
 
@@ -268,4 +307,10 @@ void PCA::getEigenVector(int idy, TypeSet<float>& res ) const
     res.erase();
     for ( int idx=0; idx<nrvars; idx++ )
 	res += covariancematrix.get(idx, idy );
+}
+
+
+void PCA::setThreadWorker( Threads::ThreadWorkManager* nv )
+{
+    threadworker = nv;
 }
