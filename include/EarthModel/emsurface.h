@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.11 2003-07-08 11:28:50 jeroen Exp $
+ RCS:		$Id: emsurface.h,v 1.12 2003-07-29 13:09:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -132,8 +132,10 @@ public:
     			/*!<\return The dataidx of the new data.
 				    The index is persistent in runtime.
 			*/
-				
+
+    void		setAuxDataName(int,const char*);    
     void		removeAuxData( int dataidx);
+    void		removeAllAuxdata();
     float		getAuxDataVal(int dataidx,const EM::PosID& posid) const;
     void		setAuxDataVal(int dataidx, const EM::PosID& posid,
 				      float value );

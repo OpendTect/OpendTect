@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.14 2003-07-16 10:00:01 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.15 2003-07-29 13:09:34 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -117,7 +117,7 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
 
     BufferString name;
     patchids += patchid;
-    if ( nm )
+    if ( nm && *nm )
 	name = nm;
     else
     {
@@ -545,12 +545,19 @@ int EM::Surface::nrAuxData() const
 }
 
 
-const char* EM::Surface::auxDataName(int dataidx) const
+const char* EM::Surface::auxDataName( int dataidx ) const
 {
     if ( auxdatanames[dataidx] )
 	return *auxdatanames[dataidx];
 
     return 0;
+}
+
+
+void EM::Surface::setAuxDataName( int dataidx, const char* name )
+{
+    if ( auxdatanames[dataidx] )
+	auxdatanames.replace( new BufferString(name), dataidx );
 }
 
 
@@ -579,10 +586,24 @@ void EM::Surface::removeAuxData( int dataidx )
 }
 
 
+void EM::Surface::removeAllAuxdata()
+{
+    deepErase( auxdatanames );
+    deepErase( auxdatainfo );
+    for ( int idx=0; idx<auxdata.size(); idx++ )
+    {
+	if ( !auxdata[idx] ) continue;
+	deepErase( *auxdata[idx] );
+    }
+
+    deepErase( auxdata );
+}
+
+
 float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
 {
     if ( !auxdata[dataidx] ) return mUndefValue;
-    const int patchidx = patchids.indexOf(posid.patchID());
+    const int patchidx = patchids.indexOf( posid.patchID() );
     if ( patchidx==-1 ) return mUndefValue;
 
     const TypeSet<float>* patchauxdata = (*auxdata[dataidx])[patchidx];
@@ -600,7 +621,7 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
 {
     if ( !auxdata[dataidx] ) return;
 
-    const int patchidx = patchids.indexOf(posid.patchID());
+    const int patchidx = patchids.indexOf( posid.patchID() );
     if ( patchidx==-1 ) return;
 
     RowCol geomrc; 
