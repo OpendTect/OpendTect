@@ -662,9 +662,9 @@ MathExpression* MathExpression::parse( const char* input )
 
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( (!idx&&isdigit(str[idx])) || !isalnum(str[idx]))
+	if ( (!idx&&isdigit(str[idx])) || !isalnum(str[idx]) )
 	{
-	    isvariable = false;
+	    isvariable = str[idx] == '_' ? true : false;
 	    break;
 	}
     }
