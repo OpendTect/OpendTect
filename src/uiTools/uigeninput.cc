@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.7 2001-05-03 13:20:58 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.8 2001-05-04 11:25:04 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ public:
 			}
 
     virtual const char*	text(int idx) const		{ return li.text(); }
-    virtual void        setText( const char* t,int idx)	{ return li.setText(t);}
+    virtual void        setText( const char* t,int idx)	{ li.setText(t);}
     virtual uiObject&	uiObj()				{ return li; }
 
 protected:
@@ -159,8 +159,7 @@ protected:
     uiRadioButton*	rb2;
 };
 
-uiBoolInpFld::uiBoolInpFld( uiObject* p, const DataInpSpec* spec=0,
-				    const char* nm="Bool Input Field" ) 
+uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec* spec, const char* nm)
     : butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
 {
     const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(spec);
@@ -310,8 +309,8 @@ protected:
 };
 
 template<class T>
-uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec* spec=0,
-				    const char* nm="Bool Input Field" ) 
+uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec* spec,
+				    const char* nm) 
     : intvalGrp( *new uiGroup(p,nm) ) 
     , start( *new uiLineEdit(p,0,nm) )
     , stop( *new uiLineEdit(p,0,nm) )
@@ -421,6 +420,7 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
 
 uiGenInput::uiGenInput( uiObject* p, const char* disptxt)
     : uiGroup( p, disptxt )
+    , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), changed( this )
@@ -430,6 +430,7 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt)
 uiGenInput::uiGenInput( uiObject* p, const char* disptxt
 	    , const DataInpSpec& inp1 )
     : uiGroup( p, disptxt )
+    , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), changed( this )
@@ -442,6 +443,7 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
 uiGenInput::uiGenInput( uiObject* p, const char* disptxt
 	    , const DataInpSpec& inp1 , const DataInpSpec& inp2 )
     : uiGroup( p, disptxt )
+    , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), changed( this )
@@ -456,6 +458,7 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
 	    , const DataInpSpec& inp1, const DataInpSpec& inp2 
 	    , const DataInpSpec& inp3 )
     : uiGroup( p, disptxt )
+    , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), changed( this )

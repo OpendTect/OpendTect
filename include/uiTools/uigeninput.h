@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.7 2001-05-03 10:30:48 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.8 2001-05-04 11:25:01 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,7 @@ Don't use when already finalised (i.e. popped up).
 protected:
 
     ObjectSet<uiDataInpFld>	flds;
-    TypeSet<FieldIdx>		idxes;
+    TypeSet<FieldIdx>&		idxes;
 
     BufferString	selText;
     bool		withchk;

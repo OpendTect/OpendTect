@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.3 2001-05-04 10:08:53 windev Exp $
+ RCS:           $Id: i_qbutton.h,v 1.4 2001-05-04 11:25:00 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,14 @@ ________________________________________________________________________
 
 #include <uibutton.h>
 #include <i_qobjwrap.h>
+
+#ifdef __msvc__
+#include <qpushbutton.h>
+#include <qradiobutton.h>
+#include <qcheckbox.h>
+#include <qtoolbutton.h>
+#include <qbuttongroup.h>
+#endif
 
 //! Help class, because templates can not use signals/slots
 /*!

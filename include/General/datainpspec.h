@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.4 2001-05-03 12:14:23 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.5 2001-05-04 11:24:59 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ protected:
 			clssNm( const clssNm& o ) \
 			    : NumInpSpec<type>(o)		{} \
      \
-    virtual clssNm*	clone() const \
+    virtual DataInpSpec* clone() const \
 			{ return new clssNm( *this ); } \
     };
 
@@ -176,7 +176,7 @@ protected:
 			clssNm( const clssNm& o ) \
 			: NumInpIntervalSpec<type>(o)	{} \
      \
-    virtual clssNm*	clone() const \
+    virtual DataInpSpec* clone() const \
 			{ return new clssNm( *this ); } \
     };
 
