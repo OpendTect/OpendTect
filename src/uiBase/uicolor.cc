@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.5 2002-02-15 14:55:25 arend Exp $
+ RCS:           $Id: uicolor.cc,v 1.6 2002-02-21 09:24:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,5 +54,12 @@ uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* st,
 void uiColorInput::pushed( CallBacker* )
 {
     select( color_, parent(), seltxt_ );
+    setBackgroundColor( color_ );
+}
+
+
+void uiColorInput::setColor( Color& col )
+{
+    color_ = col;
     setBackgroundColor( color_ );
 }

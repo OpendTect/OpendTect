@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.4 2002-02-15 14:55:25 arend Exp $
+ RCS:           $Id: uicolor.h,v 1.5 2002-02-21 09:24:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
 				     const char* buttxt="Color ...");
 
     const Color&	color() const	{ return color_; }
+
+    void		setColor( Color& col_ );
 
 protected:
 
