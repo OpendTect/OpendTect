@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: pickset.h,v 1.2 2001-05-14 13:58:07 bert Exp $
+ RCS:		$Id: pickset.h,v 1.3 2001-05-24 15:40:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 		{ return !(*this == pl); }
 
     bool	fromString(const char*);
+    void	toString(char*);
 
     Coord	pos;
     float	z;
@@ -47,10 +48,11 @@ class PickGroup : public TypeSet<PickLocation>
 {
 public:
 
-		PickGroup( float v=0 )
-		: val(v)		{}
+			PickGroup( float v=0 )
+			: val(v)		{}
 
-    float	val;
+    float		val;
+    BufferString	userref;
 
 };
 
