@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.18 2004-05-03 16:03:44 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.19 2004-05-07 12:32:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -591,30 +591,37 @@ void uiODSceneMgr::disabTree( int sceneid, bool yn )
 }
 
 
-void uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
+int uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
 {
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	//scene.itemmanager->addChild( new uiODPickSetTreeItem(ps) );
+	uiODPickSetTreeItem* itm = new uiODPickSetTreeItem( ps );
+	scene.itemmanager->addChild( itm );
+	return itm->displayID();
     }
+
+    return -1;
 }
 
 
-void uiODSceneMgr::addSurfaceItem( const MultiID& mid, int sceneid, bool ishor )
+int uiODSceneMgr::addSurfaceItem( const MultiID& mid, int sceneid, bool ishor )
 {
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	uiTreeItem* itm;
+	uiODEarthModelSurfaceTreeItem* itm;
 	if ( ishor ) itm = new uiODHorizonTreeItem(mid);
 	else itm = new uiODFaultTreeItem(mid);
 	scene.itemmanager->addChild( itm );
+	return itm->displayID();
     }
+
+    return -1;
 }
 
 
