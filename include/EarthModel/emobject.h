@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.11 2003-06-03 12:46:12 bert Exp $
+ RCS:		$Id: emobject.h,v 1.12 2003-07-11 08:15:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,12 @@ public:
     virtual Executor*		loader() { return 0; }
     virtual bool		isLoaded() const {return false;}
     virtual Executor*		saver() { return 0; }
+    virtual bool		isChanged( int what=-1 ) const { return false; }
+    				/*!<\param what	Says what the query is about.
+						-1 mean any change, all other
+						figures are dependent on impl.
+				*/
+				
 
     const char*			errMsg() const
     				{ return errmsg[0]
