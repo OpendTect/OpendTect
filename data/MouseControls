@@ -1,0 +1,26 @@
+dGB-dTect V1.4
+Mouse/Key settings
+Thu Jun 13 20:59:49 2002
+!
+Default : Default
+!
+Name	: Default
+Rotate  : Left`None
+Pan     : Middle`None
+Zoom    : Middle`Control
+!
+Name	: GeoFrame
+Rotate  : Middle`None
+Pan     : Right`None
+Zoom    : Left`None
+!
+Name	: Landmark
+Rotate	: Left`None
+Pan	: Middle`None
+Zoom	: Middle`Control
+!
+Name	: 2-Button-mouse
+Rotate  : Left`None
+Pan     : Right`None
+Zoom    : Right`Control
+!
