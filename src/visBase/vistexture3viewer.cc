@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.2 2002-11-08 12:43:16 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.3 2002-11-08 13:39:30 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -164,19 +164,19 @@ void visBase::MovableTextureSlice::fieldsensorCB( void* inst, SoSensor* )
     float pos = myself->position();
     if ( !myself->dim_ )
     {
-	myself->texturecoords->point.set1Value( 0, SbVec3f( (pos+1)/2, 0, 0 ));
-	myself->texturecoords->point.set1Value( 1, SbVec3f( (pos+1)/2, 0, 1 ));
-	myself->texturecoords->point.set1Value( 2, SbVec3f( (pos+1)/2, 1, 1 ));
-	myself->texturecoords->point.set1Value( 3, SbVec3f( (pos+1)/2, 1, 0 ));
-	myself->texturecoords->point.set1Value( 4, SbVec3f( (pos+1)/2, 0, 0 ));
+	myself->texturecoords->point.set1Value( 0, SbVec3f( (pos+1)/2, 0, 1 ));
+	myself->texturecoords->point.set1Value( 1, SbVec3f( (pos+1)/2, 0, 0 ));
+	myself->texturecoords->point.set1Value( 2, SbVec3f( (pos+1)/2, 1, 0 ));
+	myself->texturecoords->point.set1Value( 3, SbVec3f( (pos+1)/2, 1, 1 ));
+	myself->texturecoords->point.set1Value( 4, SbVec3f( (pos+1)/2, 0, 1 ));
     }
     else if ( myself->dim_==1 )
     {
-	myself->texturecoords->point.set1Value( 0, SbVec3f( 0, -(pos-1)/2, 0 ));
-	myself->texturecoords->point.set1Value( 1, SbVec3f( 0, -(pos-1)/2, 1 ));
-	myself->texturecoords->point.set1Value( 2, SbVec3f( 1, -(pos-1)/2, 1 ));
-	myself->texturecoords->point.set1Value( 3, SbVec3f( 1, -(pos-1)/2, 0 ));
-	myself->texturecoords->point.set1Value( 4, SbVec3f( 0, -(pos-1)/2, 0 ));
+	myself->texturecoords->point.set1Value( 0, SbVec3f( 1, (pos+1)/2, 1 ));
+	myself->texturecoords->point.set1Value( 1, SbVec3f( 1, (pos+1)/2, 0 ));
+	myself->texturecoords->point.set1Value( 2, SbVec3f( 0, (pos+1)/2, 0 ));
+	myself->texturecoords->point.set1Value( 3, SbVec3f( 0, (pos+1)/2, 1 ));
+	myself->texturecoords->point.set1Value( 4, SbVec3f( 1, (pos+1)/2, 1 ));
     }
     else
     {
