@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.16 2003-12-24 15:18:38 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.17 2004-03-01 15:18:18 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -72,6 +72,13 @@ SegyTxtHeader::SegyTxtHeader()
 	putAt( 14, 6, 75, buf );
     }
 
+    if ( !SI().zIsTime() )
+    {
+	buf = "Depth survey: 1 SEG-Y millisec = 1 ";
+	buf += SI().getZUnit(false);
+	putAt( 18, 6, 75, buf.buf() );
+    }
+
     putAt( 38, 6, 75, "Geodetic datum: No data available" );
 }
 
@@ -135,11 +142,9 @@ void SegyTxtHeader::setStartPos( float sp )
     if ( !mIS_ZERO(sp) )
     {
 	buf = "First sample ";
-	buf += SI().zIsTime() ? "time (s" : "depth (";
-	if ( !SI().zIsTime() )
-	    buf += SI().zInFeet() ? "ft" : "m";
-	buf += "): ";
-	buf += sp;
+	buf += SI().zIsTime() ? "time " : "depth ";
+	buf += SI().getZUnit(); buf += ": ";
+	buf += sp * SI().zFactor();
     }
     putAt( 37, 6, 75, buf );
 }
@@ -414,7 +419,8 @@ void SegyTraceheader::putSampling( SamplingData<float> sd, unsigned short ns )
     float drt = sd.start * 1000;
     short delrt = (short)mNINT(drt);
     IbmFormat::putShort( delrt, buf+108 );
-    IbmFormat::putUnsignedShort( (unsigned short)(sd.step*1e6+.5), buf+116 );
+    IbmFormat::putUnsignedShort( (unsigned short)
+	    			 (sd.step*1e3*SI().zFactor()+.5), buf+116 );
     IbmFormat::putUnsignedShort( ns, buf+114 );
 }
 
@@ -469,14 +475,16 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	else
 	    IbmFormat::putInt( ti.binid.crl, buf+hdef.crl-1 );
     }
+
+    const float fac = SI().zFactor();
     if ( !mIsUndefined(ti.pick) && hdef.pick != 255 )
-	IbmFormat::putInt( mNINT(ti.pick*1000), buf+hdef.pick-1 );
+	IbmFormat::putInt( mNINT(ti.pick*fac), buf+hdef.pick-1 );
 
     // Absolute priority, therefore possibly overwriting previous
-    float drt = ti.sampling.start * 1000;
+    float drt = ti.sampling.start * fac;
     short delrt = (short)mNINT(drt);
     IbmFormat::putShort( delrt, buf+108 );
-    IbmFormat::putUnsignedShort( (unsigned short)(ti.sampling.step*1e6+.5),
+    IbmFormat::putUnsignedShort( (unsigned short)(ti.sampling.step*fac*1e3+.5),
 				 buf+116 );
 }
 
@@ -493,10 +501,11 @@ float SegyTraceheader::postScale( int numbfmt ) const
 void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 {
     ti.nr = IbmFormat::asInt( buf+0 );
-    ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * .001;
-    ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * 1.e-6;
+    const float fac = 1. / SI().zFactor();
+    ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * fac;
+    ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * fac * 0.001;
     ti.pick = ti.refpos = mUndefValue;
-    if ( hdef.pick != 255 ) ti.pick = IbmFormat::asInt( buf+hdef.pick ) * .001;
+    if ( hdef.pick != 255 ) ti.pick = IbmFormat::asInt( buf+hdef.pick ) * fac;
     ti.coord.x = ti.coord.y = 0;
     if ( hdef.xcoord != 255 ) ti.coord.x = IbmFormat::asInt( buf+hdef.xcoord-1);
     if ( hdef.ycoord != 255 ) ti.coord.y = IbmFormat::asInt( buf+hdef.ycoord-1);

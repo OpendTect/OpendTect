@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.54 2004-03-01 13:27:06 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.55 2004-03-01 15:18:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->attach( stretchedBelow, pathfld, -2 );
 
-    uiObject* prevobj = pathfld->attachObj();
+    uiPushButton* prevbut = 0;
     if ( survInfoProvs().size() )
     {
 	for ( int idx=0; idx<survInfoProvs().size(); idx++ )
@@ -123,9 +123,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	    txt += " ...";
 	    uiPushButton* newpb = new uiPushButton( this, txt );
 	    sipbuts += newpb;
-	    newpb->attach( idx == 0 ? alignedBelow : rightOf, prevobj );
+	    if ( prevbut )
+		newpb->attach( rightOf, prevbut );
+	    else
+	    {
+		newpb->attach( alignedBelow, pathfld );
+		newpb->attach( ensureBelow, horsep1 );
+	    }
 	    newpb->activated.notify( mCB(this,uiSurveyInfoEditor,sipbutPush) );
-	    prevobj = newpb;
+	    prevbut = newpb;
 	}
     }
 
@@ -141,7 +147,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     rangegrp->setHAlignObj( inlfld );
     rangegrp->attach( alignedBelow, pathfld ); 
     rangegrp->attach( ensureBelow, rglbl ); 
-    if ( prevobj ) rangegrp->attach( ensureBelow, prevobj ); 
+    if ( prevbut ) rangegrp->attach( ensureBelow, prevbut ); 
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
 
@@ -603,6 +609,8 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 {
     int sipidx = sipbuts.indexOf( cb );
     if ( sipidx < 0 ) { pErrMsg("Huh?"); return; }
+
+    survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
 
     uiSurvInfoProvider* sip = survInfoProvs()[sipidx];
     PtrMan<uiDialog> dlg = sip->dialog( this );
