@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.15 2001-12-05 15:10:45 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.16 2001-12-07 17:43:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ public:
 
     void		reject( CallBacker* cb =0);
     void		accept( CallBacker* cb =0);
-    void		done( CallBacker* cb =0);
+    void		done(int ret=0);
+    			//!< 0=Cancel, 1=OK, other=user defined
 
     void		setSpacing( int ); 
     void		setBorder( int ); 
@@ -64,7 +65,7 @@ protected:
 
     virtual bool        rejectOK(CallBacker*){ return true;}//!< confirm reject 
     virtual bool        acceptOK(CallBacker*){ return true;}//!< confirm accept 
-    virtual bool        doneOK(CallBacker*){ return true; } //!< confirm exit 
+    virtual bool        doneOK(int)	     { return true; } //!< confirm exit 
 };
 
 #endif
