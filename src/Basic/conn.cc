@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.5 2001-05-31 12:55:11 windev Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.6 2001-06-07 09:40:52 bert Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
@@ -22,6 +22,7 @@ StreamConn::StreamConn()
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Bad)
+	, closeondel(false)
 {
     fname = new char[1024];
     *fname = '\0';
@@ -33,6 +34,7 @@ StreamConn::StreamConn( istream* s )
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Read)
+	, closeondel(false)
 {
     sd.istrm = s;
     (void)bad();
@@ -44,6 +46,7 @@ StreamConn::StreamConn( ostream* s )
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Write)
+	, closeondel(false)
 {
     sd.ostrm = s;
     (void)bad();
@@ -54,6 +57,7 @@ StreamConn::StreamConn( const StreamData& strmdta )
 	: sd(strmdta), mine(true), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
+	, closeondel(false)
 {
     if		( !sd.usable() )	state_ = Bad;
     else if	( sd.istrm )		state_ = Read;
@@ -61,22 +65,24 @@ StreamConn::StreamConn( const StreamData& strmdta )
 }
 
 
-StreamConn::StreamConn( istream& s )
+StreamConn::StreamConn( istream& s, bool cod )
 	: mine(false), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Read)
+	, closeondel(cod)
 {
     sd.istrm = &s;
     (void)bad();
 }
 
 
-StreamConn::StreamConn( ostream& s )
+StreamConn::StreamConn( ostream& s, bool cod )
 	: mine(false), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Write)
+	, closeondel(cod)
 {
     sd.ostrm = &s;
     (void)bad();
@@ -84,10 +90,11 @@ StreamConn::StreamConn( ostream& s )
 
 
 StreamConn::StreamConn( const char* nm, State s )
-	: mine(false), fname(0)
+	: mine(true), fname(0)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(s)
+	, closeondel(false)
 {
     if ( nm && *nm )
     {
@@ -145,16 +152,19 @@ void StreamConn::close()
 {
     if ( mine )
 	sd.close();
-    else if ( state_ == Read && sd.istrm && sd.istrm != &cin )
+    else if ( closeondel )
     {
-	ifstream* s = dynamic_cast<ifstream*>( sd.istrm );
-	if ( s ) s->close();
-    }
-    else if ( state_ == Write && sd.ostrm
-	   && sd.ostrm != &cout && sd.ostrm != &cerr )
-    {
-	ofstream* s = dynamic_cast<ofstream*>( sd.ostrm );
-	if ( s ) s->close();
+	if ( state_ == Read && sd.istrm && sd.istrm != &cin )
+	{
+	    ifstream* s = dynamic_cast<ifstream*>( sd.istrm );
+	    if ( s ) s->close();
+	}
+	else if ( state_ == Write && sd.ostrm
+	       && sd.ostrm != &cout && sd.ostrm != &cerr )
+	{
+	    ofstream* s = dynamic_cast<ofstream*>( sd.ostrm );
+	    if ( s ) s->close();
+	}
     }
 }
 

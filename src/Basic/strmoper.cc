@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.9 2001-05-31 12:55:17 windev Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.10 2001-06-07 09:40:52 bert Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"
@@ -135,4 +135,19 @@ bool wordFromLine( istream& strm, char* ptr, int maxnrchars )
 
     *ptr = '\0';
     return ptr != start;
+}
+
+
+bool ignoreToEOL( istream& strm )
+{
+    int c;
+    while ( 1 )
+    {
+	c = strm.peek();
+	if ( !strm.good() || c == '\n' )
+	     break;
+	strm.ignore( 1 );
+    }
+    strm.ignore( 1 );
+    return strm.good();
 }
