@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: pickset.h,v 1.4 2001-05-24 21:37:36 bert Exp $
+ RCS:		$Id: pickset.h,v 1.5 2001-09-06 11:32:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ public:
 
 			PickSet( const char* nm=0 )
 			: UserIDObject(nm)		{}
+			~PickSet()		{ deepErase(groups); }
 
     int			nrGroups() const	{ return groups.size(); }
     PickGroup*		get( int nr )		{ return groups[nr]; }
@@ -70,6 +71,8 @@ public:
     void		add(PickGroup*&);
 			//!< PickGroup becomes mine. Will merge if necessary.
 			//!< So PickGroup may be deleted (will be set to null)
+    void		remove( int idx )
+			{ delete groups[idx]; groups.remove(idx); }
 
 protected:
 
