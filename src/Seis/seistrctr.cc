@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.8 2001-04-17 11:39:39 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.9 2001-04-21 15:37:48 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -59,6 +59,8 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const ClassDef* cd )
 	, errmsg(0)
 	, inpfor_(0)
 	, nrout_(0)
+	, inpcds(0)
+	, outcds(0)
 	, pinfo(*new SeisPacketInfo)
 	, storediopar(*new IOPar)
 	, useinpsd(false)
@@ -79,6 +81,8 @@ void SeisTrcTranslator::cleanUp()
     deepErase( cds );
     deepErase( tarcds );
     delete [] inpfor_; inpfor_ = 0;
+    delete [] inpcds; inpcds = 0;
+    delete [] outcds; outcds = 0;
 }
 
 
@@ -133,6 +137,14 @@ bool SeisTrcTranslator::commitSelections()
 	sort_coupled( selnrs, inpnrs, nrsel );
 	for ( int idx=0; idx<nrout_; idx++ )
 	    inpfor_[idx] = inpnrs[idx];
+    }
+
+    inpcds = new ComponentData* [nrout_];
+    outcds = new TargetComponentData* [nrout_];
+    for ( int idx=0; idx<nrout_; idx++ )
+    {
+	inpcds[idx] = cds[ selComp(idx) ];
+	outcds[idx] = tarcds[ selComp(idx) ];
     }
 
     errmsg = 0;
@@ -227,6 +239,23 @@ void SeisTrcTranslator::useStoredPar()
 	nr++;
     }
 }
+
+
+void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
+{
+    for ( int idx=0; idx<nrout_; idx++ )
+    {
+        TraceData& td = trc.data();
+        if ( td.nrComponents() <= idx )
+            td.addComponent( actualsz, tarcds[ inpfor_[idx] ]->datachar );
+        else
+        {
+            td.setComponent( tarcds[ inpfor_[idx] ]->datachar, idx );
+            td.reSize( actualsz, idx );
+        }
+    }
+}
+
 
 
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
