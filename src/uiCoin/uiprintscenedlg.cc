@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.8 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.9 2004-01-30 10:22:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "filegen.h"
 #include "uiobj.h"
+#include "uilabel.h"
 
 #include "Inventor/SoOffscreenRenderer.h"
 
@@ -23,7 +24,28 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 	: uiDialog(p, uiDialog::Setup("Print Scene",
 		    		      "Enter filename and fileformat","50.0.1"))
 	, scene(scene_)
+    	, horwidthfld(0)
 {
+    PtrMan<SoOffscreenRenderer> r =
+	new SoOffscreenRenderer(*(new SbViewportRegion));
+    const int nrfiletypes = r->getNumWriteFiletypes();
+    BufferStringSet filetypes;
+    for ( int idx=0; idx<nrfiletypes; idx++ )
+    {
+	SbList<SbName> extlist;
+	SbString fullname, description;
+	r->getWriteFiletypeInfo( idx, extlist, fullname, description );
+	filetypes.addIfNew( fullname.getString() );
+    }
+
+    if ( filetypes.size() == 0 )
+    {
+	new uiLabel( this,
+	    "No output file types found.\n"
+	    "Probably, there is no valid 'libsimage.so' installed." );
+	return;
+    }
+
     horwidthfld = new uiGenInput( this, "Size", IntInpSpec(800) );
     horwidthfld->setElemSzPol( uiObject::small );
 
@@ -43,18 +65,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 
     filetypesfld = new uiComboBox(this, "Filetypes" );
     filetypesfld->attach( alignedBelow, resolutionfld );
-
-    PtrMan<SoOffscreenRenderer> r =
-	new SoOffscreenRenderer(*(new SbViewportRegion));
-    int num = r->getNumWriteFiletypes();
-
-    for ( int idx=0; idx<num; idx++ )
-    {
-	SbList<SbName> extlist;
-	SbString fullname, description;
-	r->getWriteFiletypeInfo(idx, extlist, fullname, description);
-	filetypesfld->addItem( (const char*) fullname.getString() );
-    }
+    for ( int idx=0; idx<filetypes.size(); idx++ )
+	filetypesfld->addItem( filetypes.get(idx) );
 
     fileinputfld = new uiFileInput( this, "Select filename",
 				    uiFileInput::Setup().forread(false) );
@@ -68,10 +80,14 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 
 
 void uiPrintSceneDlg::doFinalise( CallBacker* )
-{ } 
+{
+} 
+
 
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
+    if ( !horwidthfld ) return true;
+
     double horwidth = horwidthfld->getValue();
     double vertwidth = vertwidthfld->getValue();
     int widthunit = widthunitfld->currentItem();
