@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.14 2003-08-28 11:14:02 bert Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.15 2003-10-15 09:50:17 nanne Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -198,4 +198,7 @@ unsigned char* visBase::Texture3::getTexturePtr()
 
 
 void visBase::Texture3::finishEditing()
-{ texture->images.finishEditing(); }
+{
+    texture->images.finishEditing(); 
+    texture->touch();
+}
