@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.1 2002-05-16 14:19:03 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.2 2002-05-16 15:35:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,8 @@ public:
     virtual Executor*		saver() { return 0; }
 
     const char*			errMsg() const
-    				{ return errmsg[0] ? errmsg : 0; }
+    				{ return errmsg[0]
+				    ? (const char*) errmsg : (const char*) 0; }
 
 protected:
     unsigned short		id_;
