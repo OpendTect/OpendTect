@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.12 2002-11-22 16:54:32 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.13 2002-11-25 15:26:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "colortab.h"
 #include "viscolortab.h"
+#include "vismaterial.h"
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
@@ -46,6 +47,8 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     deSelection()->notify( mCB(this,VolumeDisplay,deSelect));
 
     cube->ref();
+    cube->getMaterial()->setAmbience( 0.8 );
+
     cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
     cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
 

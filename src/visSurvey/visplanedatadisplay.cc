@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.25 2002-11-01 01:17:35 bert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.26 2002-11-25 15:26:26 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -41,7 +41,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     selection()->notify( mCB(this,PlaneDataDisplay,select));
     deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect));
 
-    trect->getMaterial()->setAmbience( 0.6 );
+    trect->getMaterial()->setAmbience( 0.8 );
     trect->getMaterial()->setDiffIntensity( 0.8 );
 
     setType( Inline );
