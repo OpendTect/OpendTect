@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.39 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.40 2003-11-07 14:35:48 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -74,7 +74,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	, nrout_(0)
 	, inpcds(0)
 	, outcds(0)
-	, pinfo(*new SeisPacketInfo)
+	, pinfo(0)
 	, storediopar(*new IOPar)
 	, useinpsd(false)
 	, trcsel(0)
@@ -91,7 +91,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
-    delete &pinfo;
+    delete pinfo;
     delete &storediopar;
     delete &trcblock_;
 }
@@ -109,7 +109,7 @@ void SeisTrcTranslator::cleanUp()
     nrout_ = 0;
     errmsg = 0;
     useinpsd = false;
-    pinfo = SeisPacketInfo();
+    delete pinfo; pinfo = 0;
 }
 
 
@@ -121,9 +121,17 @@ void SeisTrcTranslator::close()
 }
 
 
+SeisPacketInfo& SeisTrcTranslator::packetInfo()
+{
+    if ( !pinfo ) pinfo = new SeisPacketInfo;
+    return *pinfo;
+}
+
+
 bool SeisTrcTranslator::initRead( Conn* c )
 {
     cleanUp();
+    pinfo = new SeisPacketInfo;
     if ( !initConn(c,true)
       || !initRead_() )
     {
@@ -139,6 +147,7 @@ bool SeisTrcTranslator::initRead( Conn* c )
 bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 {
     cleanUp();
+    pinfo = new SeisPacketInfo;
     if ( !initConn(c,false)
       || !initWrite_( trc ) )
     {
@@ -194,6 +203,8 @@ bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
     }
 
     errmsg = 0;
+    if ( !pinfo ) pinfo = new SeisPacketInfo;
+
     enforceBounds( trc );
     return commitSelections_();
 }

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.23 2003-11-07 12:22:03 bert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.24 2003-11-07 14:35:48 bert Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -186,6 +186,8 @@ void WellDisplay::displayLog( int logidx, int lognr,
 
     Well::Track& track = wd->track();
     TypeSet<Coord3Value> crdvals;
+    const StepInterval<double> sizrg;
+    assign( sizrg, SI().zRange() );
     for ( int idx=0; idx<logsz; idx++ )
     {
 	Coord3 pos = track.getPos( log.dah(idx) );
@@ -193,6 +195,13 @@ void WellDisplay::displayLog( int logidx, int lognr,
 
 	if ( zistime )
 	    pos.z = wd->d2TModel()->getTime( pos.z );
+
+	if ( !sizrg.includes(pos.z) )
+	{
+	    if ( pos.z > sizrg.stop ) break;
+	    continue;
+	}
+
 	Coord3Value cv( pos, log.value(idx) );
 	crdvals += cv;
     }

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.9 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.10 2003-11-07 14:35:48 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.9 2003-11-07 12:21:58 bert Ex
 #include "filegen.h"
 #include "strmprov.h"
 #include "unitscale.h"
+#include "survinfo.h"
 #include <fstream>
 
 inline static StreamData getSD( const char* fnm )
@@ -43,6 +44,7 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
     mOpenFile( fnm );
 
     Coord3 c, c0, prevc;
+    Coord3 surfcoord;
     float dah = 0;
     const float zfac = zinfeet ? 0.3048 : 1;
     char buf[1024]; char valbuf[256];
@@ -60,8 +62,16 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
 	if ( c.distance(c0) < 1 ) break;
 
 	if ( wd.track().size() == 0 )
-	    prevc = tosurf ?
-		    Coord3(wd.info().surfacecoord,wd.info().surfaceelev) : c;
+	{
+	    surfcoord = c;
+	    if ( SI().isReasonable( wd.info().surfacecoord ) )
+	    {
+		surfcoord.x = wd.info().surfacecoord.x;
+		surfcoord.y = wd.info().surfacecoord.y;
+	    }
+	    surfcoord.z = -wd.info().surfaceelev;
+	}
+	prevc = tosurf ? surfcoord : c;
 
 	ptr = getNextWord( ptr, valbuf );
 	if ( *ptr )

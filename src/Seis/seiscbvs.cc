@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.43 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.44 2003-11-07 14:35:48 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -136,12 +136,12 @@ bool CBVSSeisTrcTranslator::initRead_()
 	addComp( cinf.datachar, cinf.sd, cinf.nrsamples, cinf.name(),
 		 cinf.scaler, cinf.datatype );
     }
-    pinfo.usrinfo = info.usertext;
-    pinfo.stdinfo = info.stdtext;
-    pinfo.nr = info.seqnr;
-    pinfo.binidsampling.start = info.geom.start;
-    pinfo.binidsampling.stop = info.geom.stop;
-    pinfo.binidsampling.step = info.geom.step;
+    pinfo->usrinfo = info.usertext;
+    pinfo->stdinfo = info.stdtext;
+    pinfo->nr = info.seqnr;
+    pinfo->binidsampling.start = info.geom.start;
+    pinfo->binidsampling.stop = info.geom.stop;
+    pinfo->binidsampling.step = info.geom.step;
     return true;
 }
 
@@ -478,8 +478,8 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.geom.fullyrectandreg = false;
     if ( SI().is3D() )
 	info.geom.b2c = SI3D().binID2Coord();
-    info.stdtext = pinfo.stdinfo;
-    info.usertext = pinfo.usrinfo;
+    info.stdtext = pinfo->stdinfo;
+    info.usertext = pinfo->usrinfo;
     for ( int idx=0; idx<nrSelComps(); idx++ )
 	info.compinfo += new BasicComponentInfo(*outcds[idx]);
 

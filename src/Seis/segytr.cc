@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.23 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.24 2003-11-07 14:35:48 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -90,8 +90,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     if ( numbfmt < 1 || numbfmt > 6 )
 	numbfmt = 1;
 
-    txthead.getText( pinfo.usrinfo );
-    pinfo.nr = binhead.lino;
+    txthead.getText( pinfo->usrinfo );
+    pinfo->nr = binhead.lino;
     binhead_ns = binhead.hns;
     binhead_dpos = binhead.hdt * 1e-6;
 
@@ -183,7 +183,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     if ( dofilloffsazim )
 	fillOffsAzim( ti, trhead.getCoord(true,ext_coord_scaling),
 			  trhead.getCoord(false,ext_coord_scaling) );
-    if ( use_lino ) ti.binid.inl = pinfo.nr;
+    if ( use_lino ) ti.binid.inl = pinfo->nr;
     float scfac = trhead.postScale( numbfmt );
     if ( mIS_ZERO(1-scfac) )
 	curtrcscale = 0;
@@ -206,7 +206,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     numbfmt = nrFormatFor( storinterp->dataChar() );
 
     SegyTxtHeader txthead;
-    txthead.setUserInfo( pinfo.usrinfo );
+    txthead.setUserInfo( pinfo->usrinfo );
     txthead.setPosInfo( hdef.xcoord, hdef.ycoord, hdef.inl, hdef.crl );
     txthead.setStartPos( outcd->sd.start );
     txthead.setEbcdic();
@@ -215,7 +215,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
     SegyBinHeader binhead;
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
-    binhead.lino = pinfo.nr;
+    binhead.lino = pinfo->nr;
     binhead.reno = 1;
     binhead.hns = (short)outcd->nrsamples;
     binhead.hdt = (short)(outcd->sd.step*1e6 + .5);
