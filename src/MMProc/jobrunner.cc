@@ -4,18 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.3 2004-10-27 11:59:45 bert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.4 2004-11-02 16:05:21 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "jobrunner.h"
 #include "jobinfo.h"
+#include "jobiohdlr.h"
 #include "jobdescprov.h"
 #include "hostdata.h"
 #include "filepath.h"
 #include "filegen.h"
 #include "iopar.h"
+#include "jobiomgr.h"
+#include "mmdefs.h"
 #include <iostream>
 
 static BufferString tmpfnm_base;
@@ -30,21 +33,16 @@ static int mkTmpFileNr()
                                                                                 
 static int tmpfile_nr = mkTmpFileNr();
 
-#define mMkFname(ext) \
-    fname = ""; \
-    fname += machine ? machine->name() : ""; \
-    fname += "_"; fname += jobid_; fname += ext; \
-    fname = FilePath( basename ).add( fname ).fullPath()
-
 
 JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
+	, iomgr__(0)
 	, descprov_(p)
     	, maxhostfailures_(2)
     	, maxjobfailures_(2)
     	, rshcomm_("rsh")
 	, niceval_(19)
-	, firstport_(19163)
+	, firstport_(19636)
     	, prog_(cmd)
 {
     FilePath fp( GetDataDir() );
@@ -68,6 +66,7 @@ JobRunner::~JobRunner()
     deepErase( jobinfos_ );
     deepErase( hostinfo_ );
     deepErase( failedjobs_ );
+    delete iomgr__;
 }
 
 
@@ -154,30 +153,30 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, JobHostInfo& jhi )
 }
 
 
+JobIOMgr& JobRunner::iomgr()
+{
+    if ( !iomgr__ ) iomgr__ = new JobIOMgr(firstport_, niceval_);
+    return *iomgr__;
+}
+
 bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 {
     IOPar iop; descprov_->getJob( ji.descnr_, iop );
-    ji.osprocid_ = startProg( hd, iop, ji.descnr_, ji.curmsg_ );
-    if ( ji.osprocid_ < 0 )
+
+    BufferString basenm( hd.name() );
+    basenm += "_"; basenm += ji.descnr_;
+
+    FilePath basefp( procdir_ ); basefp.add( basenm );
+
+    if ( !iomgr().startProg( prog_, hd, iop, basefp, ji ) )
     {
 	ji.state_ = JobInfo::Failed;
+	iomgr().fetchMsg(ji.curmsg_);
 	return false;
     }
 
     ji.state_ = JobInfo::Working;
     ji.hostdata_ = &hd;
-    return true;
-}
-
-
-bool JobRunner::startProg( const HostData& hd, IOPar& iop, int jid,
-			   BufferString& msg )
-{
-    FilePath fp( procdir_ ); fp.add( hd.name() );
-    BufferString basenm = fp.fullPath();
-    basenm += "_"; basenm += jid;
-    //TODO add .par and .log and do remote stuff. Then do it.
-
     return true;
 }
 
@@ -289,6 +288,11 @@ const char* JobRunner::nrDoneMessage() const
     return "Jobs completed";
 }
 
+void JobRunner::setNiceNess( int n )
+{
+    niceval_ = n;
+    if ( iomgr__ ) iomgr__->setNiceNess(n);
+}
 
 bool JobRunner::haveIncomplete() const
 {
@@ -301,8 +305,7 @@ bool JobRunner::haveIncomplete() const
 
 int JobRunner::doCycle()
 {
-    //TODO
-    // getNewJobInfo();
+    updateJobInfo();
 
     if ( !haveIncomplete() )
 	return Finished;
@@ -322,3 +325,112 @@ int JobRunner::doCycle()
 
     return haveIncomplete() ? MoreToDo : Finished;
 }
+
+
+
+void JobRunner::updateJobInfo()
+{
+    ObjQueue<StatusInfo>& queue = iomgr().statusQueue();
+
+    while( StatusInfo* si = queue.next() )
+    {
+	handleStatusInfo( *si );
+	delete si;
+    }
+/*
+    for ( int idx=0; idx<jobds_.size(); idx++ )
+    {
+	int elapsed = Time_getMilliSeconds() - jobds_[idx]->timestamp_; 
+
+	if ( elapsed > timeout )
+	{
+	    jobds_[idx]->ctrlstat_ = mSTAT_TIMEOUT;
+
+	    if ( HostData* mach = jobds_[idx]->machine )
+	    {
+		if ( mach->status >= 0 ) mach->status = -1;
+		else mach->status--;
+	    }
+	}
+
+    }
+*/
+}
+
+
+
+void JobRunner::handleStatusInfo( StatusInfo& si )
+{
+    JobInfo* ji = gtJob( si.descnr );
+    if ( !ji ) return;
+
+    if ( si.msg.size() ) ji->curmsg_ = si.msg;
+    ji->timestamp_ = si.timestamp;
+
+    switch( si.tag )
+    {
+    case mPID_TAG :
+	ji->osprocid_ = si.status;
+    break;
+    case mPROC_STATUS :
+	ji->nrdone_ = si.status;
+    break;
+    case mCTRL_STATUS :
+        switch( si.status )
+	{
+	    case mSTAT_INITING:
+	    case mSTAT_WORKING:
+	    case mSTAT_ERROR:
+	    case mSTAT_PAUSED:
+	    case mSTAT_FINISHED:
+
+		// TODO
+	    ;	
+	}
+    
+    break;
+    case mEXIT_STATUS :
+        switch( si.status )
+	{
+	case mSTAT_DONE:
+	    ji->state_ = JobInfo::Completed;
+	break;
+
+	case mSTAT_ERROR:
+	case mSTAT_KILLED: 
+	    ji->state_ = JobInfo::Failed;
+	break;
+
+	default:
+	    ji->curmsg_ = "Unknown exit status received.";
+	    ji->state_ = JobInfo::Failed;
+	break;
+	}
+    break;
+    }
+/*
+    if ( ji->machine && ji->machine->status < 0 )
+	ji->machine->status = 0;
+*/
+}
+
+
+JobInfo* JobRunner::gtJob( int descnr )
+{
+    JobInfo* ret =0;
+
+    for ( int idx=0; idx<jobinfos_.size(); idx++ )
+	if ( jobinfos_[idx]->descnr_ == descnr )
+	    ret = jobinfos_[idx];
+
+    if ( !ret )
+    {
+	for ( int idx=0; idx<failedjobs_.size(); idx++ )
+	    if ( failedjobs_[idx]->descnr_ == descnr )
+		ret = failedjobs_[idx];
+    }
+	
+
+    return ret;
+}
+

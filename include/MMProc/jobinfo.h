@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobinfo.h,v 1.2 2004-10-25 11:59:24 bert Exp $
+ RCS:		$Id: jobinfo.h,v 1.3 2004-11-02 16:05:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class HostData;
 
 class JobInfo
 {
+    friend class	JobRunner;
 public:
 
     enum State		{ ToDo, Working, Paused, Completed, Failed };
@@ -38,10 +39,15 @@ public:
     int			descnr_;	//!< JobdescProv's job number
     State		state_;
     int			attempts_;
+    int			nrdone_;
     int			osprocid_;	//!< OS process ID
     BufferString	curmsg_;	//!< If Failed error message
 
     const HostData*	hostdata_;	//!< Host currently working on job
+
+protected:
+
+    int			timestamp_;
 };
 
 

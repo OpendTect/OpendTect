@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id: mmdefs.h,v 1.6 2004-03-17 14:48:25 arend Exp $
+ RCS:		$Id: mmdefs.h,v 1.7 2004-11-02 16:05:38 arend Exp $
 ________________________________________________________________________
 
 Defines for multimachine status tags and codes
@@ -33,7 +33,7 @@ Defines for multimachine status tags and codes
 #define mSTAT_TIMEOUT	-3
 
 #define mIsOk( stat )		( stat >= 0 && stat <= mSTAT_PAUSED  )
-#define mIsError( stat )	( stat < 0 && stat >= mSTAT_TIMEOUT  )
+#define mIsError( stat )	( stat < 0 || stat > mSTAT_PAUSED  )
 
 
 // Master Control tag

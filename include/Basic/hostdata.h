@@ -7,14 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.13 2004-10-05 14:19:53 dgb Exp $
+ RCS:           $Id: hostdata.h,v 1.14 2004-11-02 16:05:38 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
 #include "genc.h"
+#include "filepath.h"
 
+class HostDataList;
+
+#define mRetNoneIfEmpty( bs ) \
+    if ( bs == "" ) return "_none_"; \
+    return bs;
 
 /*\brief Host name and aliases */
 
@@ -22,50 +28,78 @@ class HostData
 {
 public:
 
-    				HostData( const char* nm, bool iswin=false )
-				: name_(nm), status(0) , nrdone(0), nrfail(0)
-				, iswin_(iswin) {}
+    enum PathType	{ Appl, Data };
 
-    virtual			~HostData()	{ deepErase(aliases_); }
+protected:
+    			HostData( const char* nm, bool iswin=false )
+			: name_(nm)
+			, iswin_(iswin)
+			, datahost_(0)
+			, localhd_(0) {}
+public:
+    			HostData( const char* nm, const HostData& localhost,
+				  bool iswin=false )
+			: name_(nm)
+			, iswin_(iswin)
+			, datahost_(0)
+			, localhd_(&localhost) {}
 
-    const char*			name() const	{ return (const char*)name_; }
+    virtual		~HostData()	{ deepErase(aliases_); }
 
-    int				nrAliases() const
-				{ return aliases_.size(); }
-    const char*			alias( int idx ) const
-				{ return (const char*)(*aliases_[idx]); }
-    bool			isKnownAs(const char*) const;
-    				//!< true if name or an alias matches
-    void			addAlias(const char*);
-    				//!< only adds if !isKnownAs
+    const char*		name() const	{ return (const char*)name_; }
 
-    bool			isWin() const	{ return iswin_; }
-    const char*			applPrefix() const
-				{
-				    if ( applprefix_ != "" ) return applprefix_;
-				    return 0;
-				}
-    const char*			dataPrefix() const
-				{
-				    if ( dataprefix_ != "" ) return dataprefix_;
-				    return 0;
-				}
+    int			nrAliases() const
+			{ return aliases_.size(); }
+    const char*		alias( int idx ) const
+			{ return (const char*)(*aliases_[idx]); }
+    bool		isKnownAs(const char*) const;
+    			//!< true if name or an alias matches
+    void		addAlias(const char*);
+    			//!< only adds if !isKnownAs
 
-    static const char*		localHostName();
+    bool		isWin() const 		{ return iswin_; }
+    FilePath::Style	pathStyle() const
+			    {
+				return iswin_ ? FilePath::Windows
+					      : FilePath::Unix;
+			    }
+			//! As is on remote host.
+    const FilePath&	prefixFilePath( PathType pt ) const
+			    { return pt == Appl ? appl_pr_ : data_pr_; }
 
-    int				status; 
-    int				nrdone;
-    int				nrfail;
+    FilePath		convPath( PathType pt, const FilePath&,
+				  const HostData* from = 0 ) const;
+    FilePath		convPath( PathType pt, const char* fn,
+				  const HostData* from = 0 ) const
+			    { return convPath(pt, fn, from ); }
+
+    static const char*	localHostName();
+    void		setLocalHost( const HostData& hd )
+			{ localhd_ = &hd; }
+    const HostData&	localHost() const
+    			{ return localhd_ ? *localhd_ : *this; }
+
+    //! Windows only
+    HostData*		dataHost() const	{ return datahost_; }
+    const char*		dataDrive() const	{ mRetNoneIfEmpty(datadrive_) }
+    const char*		dataShare() const	{ mRetNoneIfEmpty(datashare_) }
+    const char*		pass() const		{ mRetNoneIfEmpty(pass_) }
 
 protected:
 
-    BufferString		name_;
-    BufferStringSet		aliases_;
-    bool			iswin_;
-    BufferString		applprefix_;
-    BufferString		dataprefix_;
+    BufferString	name_;
+    BufferStringSet	aliases_;
+    bool		iswin_;
+    FilePath		appl_pr_;
+    FilePath		data_pr_;
+    const HostData*	localhd_;
 
-    friend class		HostDataList;
+    HostData*		datahost_;
+    BufferString	datadrive_;
+    BufferString	datashare_;
+    BufferString	pass_;
+
+    friend class	HostDataList;
 
 };
 
@@ -79,51 +113,12 @@ protected:
 class HostDataList : public ObjectSet<HostData>
 {
 public:
-			HostDataList();
-    virtual		~HostDataList()	{ deepErase(*this); }
+			HostDataList( bool readhostfile=true );
+    virtual		~HostDataList()		{ deepErase(*this); }
 
     int			defNiceLevel() const	{ return defnicelvl_; }
     int			firstPort() const	{ return portnr_; }
     const char*		rshComm() const		{ return rshcomm_; }
-
-    //! Windows only
-    const char*		dataHost() const	{ return datahost_; }
-    const char*		dataDrive() const	{ return datadrive_; }
-    const char*		dataShare() const	{ return datashare_; }
-    const char*		remotePass() const	{ return remotepass_; }
-
-    const char*		applPrefix( const HostData& host ) const
-			{
-			    if ( host.applPrefix() ) 
-				return  host.applPrefix();
-
-			    const char* prefx = host.isWin() ?
-				win_appl_prefix_ : unx_appl_prefix_;
-
-			    if ( !prefx || !*prefx )
-				return GetSoftwareDir(); 
-
-			    return prefx;
-			}
-
-    const char*		dataPrefix( const HostData& host ) const
-			{
-			    if ( host.dataPrefix() ) 
-				return  host.dataPrefix();
-
-			    const char* prefx = host.isWin() ?
-				win_data_prefix_ : unx_data_prefix_;
-
-			    if ( !prefx || !*prefx )
-				return GetSoftwareDir(); 
-
-			    return prefx;
-			}
-
-    const char*		getRemoteDataFileName( const char* fn,
-					const HostData& host, bool native );
-    const char*		getRemoteDataDir(  const HostData& host, bool native );
-    const char*		getRemoteApplDir(  const HostData& host, bool native );
 
 protected:
 
@@ -131,10 +126,10 @@ protected:
     BufferString	rshcomm_;
     int			defnicelvl_;
     int			portnr_;
-    BufferString	win_appl_prefix_;
-    BufferString	unx_appl_prefix_;
-    BufferString	win_data_prefix_;
-    BufferString	unx_data_prefix_;
+    FilePath		win_appl_pr_;
+    FilePath		unx_appl_pr_;
+    FilePath		win_data_pr_;
+    FilePath		unx_data_pr_;
     BufferString	datahost_;
     BufferString	datadrive_;
     BufferString	datashare_;
@@ -144,5 +139,6 @@ protected:
     bool		readHostFile(const char*);
 };
 
+#undef mRetNoneIfEmpty
 
 #endif

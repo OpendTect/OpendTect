@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.3 2004-10-27 11:59:45 bert Exp $
+ RCS:		$Id: jobrunner.h,v 1.4 2004-11-02 16:05:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ class HostData;
 class JobInfo;
 class JobHostInfo;
 class JobDescProv;
+class JobIOMgr;
+class StatusInfo;
 
 class JobHostInfo
 {
@@ -68,13 +70,16 @@ public:
     const char*			nrDoneMessage() const;
 
     				// Set these before first step
-    void			setFirstPort( int n )	{ firstport_ = n; }
+    void			setFirstPort( int n )	    { firstport_ = n; }
     void			setRshComm( const char* s ) { rshcomm_ = s; }
-    void			setProg( const char* s ) { prog_ = s; }
+    void			setProg( const char* s )    { prog_ = s; }
     				// Set this anytime
-    void			setNiceNess( int n )	{ niceval_ = n; }
+    void			setNiceNess( int n );
 
 protected:
+
+    JobIOMgr&			iomgr();
+    JobIOMgr*			iomgr__;
 
     JobDescProv*		descprov_;
     ObjectSet<JobInfo>		jobinfos_;
@@ -92,12 +97,14 @@ protected:
     int				doCycle();
     JobHostInfo*		jobHostInfoFor(const HostData&) const;
 
+    void			updateJobInfo();
+    void 			handleStatusInfo( StatusInfo& );
+    JobInfo* 			gtJob( int descnr );
+
     enum StartRes		{ Started, NotStarted, JobBad, HostBad };
-    StartRes			startJob(JobInfo&,JobHostInfo&);
+    StartRes			startJob( JobInfo& ji, JobHostInfo& jhi );
     bool			runJob(JobInfo&,const HostData&);
     bool			assignJob(JobHostInfo&);
-    bool			startProg(const HostData&,IOPar&,int,
-	    				  BufferString&);
     bool			haveIncomplete() const;
     bool			isFailed(const JobHostInfo*) const;
 
