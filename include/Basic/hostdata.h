@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.14 2004-11-02 16:05:38 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.15 2004-11-03 16:20:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,13 @@ ________________________________________________________________________
 #include "filepath.h"
 
 class HostDataList;
+class ShareData;
 
 #define mRetNoneIfEmpty( bs ) \
     if ( bs == "" ) return "_none_"; \
     return bs;
 
 /*\brief Host name and aliases */
-
 class HostData
 {
 public:
@@ -34,19 +34,20 @@ protected:
     			HostData( const char* nm, bool iswin=false )
 			: name_(nm)
 			, iswin_(iswin)
-			, datahost_(0)
-			, localhd_(0) {}
+			, localhd_(0)
+			, sharedata_(0)	{}
 public:
     			HostData( const char* nm, const HostData& localhost,
 				  bool iswin=false )
 			: name_(nm)
 			, iswin_(iswin)
-			, datahost_(0)
-			, localhd_(&localhost) {}
+			, localhd_(&localhost)
+			, sharedata_(0)	{}
 
     virtual		~HostData()	{ deepErase(aliases_); }
 
     const char*		name() const	{ return (const char*)name_; }
+    const char*		pass() const	{ mRetNoneIfEmpty(pass_) }
 
     int			nrAliases() const
 			{ return aliases_.size(); }
@@ -79,11 +80,7 @@ public:
     const HostData&	localHost() const
     			{ return localhd_ ? *localhd_ : *this; }
 
-    //! Windows only
-    HostData*		dataHost() const	{ return datahost_; }
-    const char*		dataDrive() const	{ mRetNoneIfEmpty(datadrive_) }
-    const char*		dataShare() const	{ mRetNoneIfEmpty(datashare_) }
-    const char*		pass() const		{ mRetNoneIfEmpty(pass_) }
+    const ShareData*	shareData() const	{ return sharedata_; }
 
 protected:
 
@@ -92,16 +89,47 @@ protected:
     bool		iswin_;
     FilePath		appl_pr_;
     FilePath		data_pr_;
+    BufferString	pass_;
     const HostData*	localhd_;
+    const ShareData*	sharedata_;
 
-    HostData*		datahost_;
-    BufferString	datadrive_;
-    BufferString	datashare_;
+    friend class	HostDataList;
+};
+
+
+/*\brief Describes shared drive and host. Mostly win32. */
+class ShareData
+{
+public:
+			ShareData( const HostData* hst=0 ) : host_(hst) {}
+
+    const HostData*	host() const	{ return host_; }
+    const char*		hostName() const
+			{
+			    if ( host() ) return host()->name(); 
+			    return "_none_";
+			}
+
+    // Windows only
+    const char*		drive() const	{ mRetNoneIfEmpty(drive_) }
+    const char*		share() const	{ mRetNoneIfEmpty(share_) }
+    const char*		pass() const
+			{
+			    if ( pass_ != "" ) return pass_;
+			    if ( host() ) return host()->pass(); 
+			    return "_none_";
+			}
+protected:
+
+
+    const HostData*	host_;
+    BufferString	drive_;
+    BufferString	share_;
     BufferString	pass_;
 
     friend class	HostDataList;
-
 };
+
 
 
 /*\brief List of host names in the system
@@ -109,7 +137,6 @@ protected:
   The first entry will be the local host.
  
  */
-
 class HostDataList : public ObjectSet<HostData>
 {
 public:
@@ -130,10 +157,7 @@ protected:
     FilePath		unx_appl_pr_;
     FilePath		win_data_pr_;
     FilePath		unx_data_pr_;
-    BufferString	datahost_;
-    BufferString	datadrive_;
-    BufferString	datashare_;
-    BufferString	remotepass_;
+    ShareData		sharedata_;
 
     void		handleLocal();
     bool		readHostFile(const char*);

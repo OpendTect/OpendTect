@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.1 2004-11-02 16:05:21 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.2 2004-11-03 16:20:16 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,14 +197,13 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 	cmd.addFilePathFlag( "--with-remote-file-base",
 	    machine.convPath(HostData::Data, basefp), FilePath::Unix );
 
-	if ( machine.isWin()  )
+	if ( machine.isWin() && machine.shareData() )
 	{
-	    cmd.addFlag( "--data-host", machine.dataHost() ? 
-			 machine.dataHost()->name() : "_none_");
-	    cmd.addFlag( "--data-drive", machine.dataDrive() );
-	    cmd.addFlag( "--data-share", machine.dataShare() );
-	    cmd.addFlag( "--remotepass", machine.dataHost() ? 
-		    machine.dataHost()->pass() : machine.pass() );
+	    const ShareData& sd = *machine.shareData();
+	    cmd.addFlag( "--data-host", sd.hostName() );
+	    cmd.addFlag( "--data-drive", sd.drive() );
+	    cmd.addFlag( "--data-share", sd.share() );
+	    cmd.addFlag( "--remotepass", sd.pass() );
 	}
     }
 

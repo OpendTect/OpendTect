@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.19 2004-11-02 16:05:21 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.20 2004-11-03 16:20:16 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,6 +160,8 @@ bool HostDataList::readHostFile( const char* fname )
 	ErrMsg( msg ); sd.close(); return false;
     }
 
+    BufferString sharehost;
+    
     if ( atEndOfSection(astrm) ) astrm.next();
     while ( !atEndOfSection(astrm) )
     {
@@ -169,22 +171,23 @@ bool HostDataList::readHostFile( const char* fname )
 	    defnicelvl_ = astrm.getVal();
 	if ( astrm.hasKeyword("First port") )
 	    portnr_ = astrm.getVal();
-	if ( astrm.hasKeyword("Win data prefix") )
-	    win_data_pr_.set( (char*) astrm.value() );
-	if ( astrm.hasKeyword("Unx data prefix") )
-	    unx_data_pr_.set( (char*) astrm.value() );
 	if ( astrm.hasKeyword("Win appl prefix") )
 	    win_appl_pr_.set( (char*) astrm.value() );
 	if ( astrm.hasKeyword("Unx appl prefix") )
 	    unx_appl_pr_.set( (char*) astrm.value() );
+	if ( astrm.hasKeyword("Win data prefix") )
+	    win_data_pr_.set( (char*) astrm.value() );
+	if ( astrm.hasKeyword("Unx data prefix") )
+	    unx_data_pr_.set( (char*) astrm.value() );
+
 	if ( astrm.hasKeyword("Data host") )
-	    datahost_ = astrm.value();
+	    sharehost = astrm.value();  // store in a temporary
 	if ( astrm.hasKeyword("Data drive") )
-	    datadrive_ = astrm.value();
+	    sharedata_.drive_ = astrm.value();
 	if ( astrm.hasKeyword("Data share") )
-	    datashare_ = astrm.value();
+	    sharedata_.share_ = astrm.value();
 	if ( astrm.hasKeyword("Password") )
-	    remotepass_ = astrm.value();
+	    sharedata_.pass_ = astrm.value();
 
 	astrm.next();
     }
@@ -215,31 +218,36 @@ bool HostDataList::readHostFile( const char* fname )
 	    else 
 		newhd->appl_pr_ = newhd->iswin_ ? win_appl_pr_ : unx_appl_pr_;
 
-/* Datahost kan niet als string gezet worden als de host waar het over
- * gaat nog niet aangemaakt is ...
-	    
 	    if ( val[4] && *val[4] )
-		newhd->datahost_ = (char*)val[4];
+		newhd->pass_ = (char*)val[4];
 	    else if ( newhd->iswin_ )
-		newhd->datahost_ = datahost_;
+		newhd->pass_ = sharedata_.pass_;
 
-	    if ( val[5] && *val[5] )
-		newhd->datadrive_ = (char*)val[5];
-	    else if ( newhd->iswin_ )
-		newhd->datadrive_ = datadrive_;
-
-	    if ( val[6] && *val[6] )
-		newhd->datashare_ = (char*)val[6];
-	    else if ( newhd->iswin_ )
-		newhd->datashare_ = datashare_;
-	    
-	    if ( val[7] && *val[7] )
-		newhd->pass_ = (char*)val[7];
-	    else if ( newhd->iswin_ )
-		newhd->pass_ = pass_;
-*/
 	}
 	*this += newhd;
+    }
+
+    int sz = size(); 
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	HostData* hd = (*this)[idx];
+	if ( hd->isKnownAs(sharehost) )
+	{
+	    sharedata_.host_ = hd;
+	    break;
+	}
+    }
+    static bool complain = true;
+    if ( sharehost.size() && !sharedata_.host_ && complain )
+    {
+	BufferString msg("No host ");
+	msg += sharehost;
+	msg += "  found in ";
+	msg += fname;
+	msg += ". Multi machine batch processing might not work as expected.";
+
+	ErrMsg( msg );
+	complain = false;
     }
 
     sd.close();
@@ -328,31 +336,6 @@ void HostDataList::handleLocal()
 	    for ( int idx=0; idx<hd->aliases_.size(); idx++ )
 		lochd.addAlias( *hd->aliases_[idx] );
 	    delete hd;
-	}
-    }
-
-    if( datahost_ != "" )
-    {
-	HostData* dh = 0; 
-	int sz = size();
-
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    HostData* hd = (*this)[idx];
-
-	    if ( hd->isKnownAs(datahost_) )
-	    {
-		dh = hd;
-		break;
-	    }
-	} 
-
-	if ( dh )
-	{
-	    for ( int idx=0; idx<sz; idx++ )
-	    {
-		(*this)[idx]->datahost_ = dh;
-	    }
 	}
     }
 }
