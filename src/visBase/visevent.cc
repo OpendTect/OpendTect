@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.7 2002-11-07 07:42:59 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.8 2002-12-24 13:25:44 nanne Exp $";
 
 #include "visevent.h"
 #include "visdataman.h"
@@ -114,12 +114,12 @@ SoNode* visBase::EventCatcher::getData()
 { return node; }
 
 
-void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
+void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 {
     visBase::EventCatcher* eventcatcher = (visBase::EventCatcher*) userdata;
     if ( eventcatcher->isEventHandled() ) return;
 
-    const SoEvent* event = node->getEvent();
+    const SoEvent* event = evcb->getEvent();
 
     visBase::EventInfo eventinfo;
 
@@ -131,7 +131,7 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
     eventinfo.mousepos.x = mousepos[0];
     eventinfo.mousepos.y = mousepos[1];
 
-    const SoPickedPoint* pickedpoint = node->getPickedPoint();
+    const SoPickedPoint* pickedpoint = evcb->getPickedPoint();
     if ( pickedpoint && pickedpoint->isOnGeometry() )
     {
 	const SoPath* path = pickedpoint->getPath();
