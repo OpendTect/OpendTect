@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.7 2005-03-24 16:28:13 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.8 2005-03-25 15:39:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 class Executor;
 
-
+namespace EM { class EMManager; }
 namespace Geometry { class Element; }
 
 namespace visSurvey
@@ -58,8 +58,11 @@ public:
     const ColorAttribSel*	getColorSelSpec() const;
     void			setSelSpec(const AttribSelSpec&);
     void			setColorSelSpec(const ColorAttribSel&);
-    bool			hasColor() const;
     void			setDepthAsAttrib();
+
+    bool			hasColor() const;
+    void			setColor(Color);
+    Color			getColor() const;
 
     void			fetchData( ObjectSet<BinIDValueSet>&) const;
     void			stuffData( bool forcolordata,
@@ -97,9 +100,9 @@ protected:
 
     ObjectSet<visBase::VisualObject>	sections;
     TypeSet<EM::SectionID>		sectionids;
-    
-    MultiID				mid;
 
+    EM::EMManager&			em;
+    MultiID				mid;
     MPEEditor*				editor;
 
     Color				nontexturecol;

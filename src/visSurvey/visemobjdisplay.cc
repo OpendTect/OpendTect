@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.12 2005-03-24 16:28:02 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.13 2005-03-25 15:38:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.12 2005-03-24 16:28:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.13 2005-03-25 15:38:59 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -35,6 +35,7 @@ namespace visSurvey
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
+    , em(EM::EMM())
     , mid(-1)
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
@@ -98,7 +99,6 @@ void EMObjectDisplay::removeAll()
     sections.erase();
     sectionids.erase();
 
-    EM::EMManager& em = EM::EMM();
     EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(mid));
     if ( emobject ) emobject->unRef();
     if ( editor ) editor->unRef();
@@ -113,7 +113,6 @@ void EMObjectDisplay::removeAll()
 
 bool EMObjectDisplay::setEMObject( const MultiID& newmid )
 {
-    EM::EMManager& em = EM::EMM();
     EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(newmid));
     if ( !emobject ) return false;
 
@@ -129,7 +128,6 @@ bool EMObjectDisplay::updateFromEM()
 { 
     if ( sections.size() ) removeAll();
 
-    EM::EMManager& em = EM::EMM();
     EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(mid));
     if ( !emobject ) return false;
 
@@ -153,7 +151,7 @@ bool EMObjectDisplay::updateFromEM()
 	sectionids += sectionid;
     }
 
-    const EM::ObjectID objid = EM::EMM().multiID2ObjectID(mid);
+    const EM::ObjectID objid = em.multiID2ObjectID(mid);
     if ( MPE::engine().getEditor(objid,false) )
 	enableEditing(true);
 
@@ -179,9 +177,8 @@ void EMObjectDisplay::useTexture( bool yn )
 	if ( psurf )
 	{
 	    if ( psurf->nrTextures() )
-		psurf->selectActiveTexture(0);
+		psurf->selectActiveTexture( yn ? 0 : -1 );
 	}
-	//TODO: DynamicCast and set texture
     }
 }
 
@@ -193,6 +190,28 @@ bool EMObjectDisplay::usesTexture() const
 bool EMObjectDisplay::hasColor() const
 {
     return !usesTexture();
+}
+
+
+void EMObjectDisplay::setColor( Color col )
+{
+    nontexturecol = col;
+    getMaterial()->setColor( col );
+    useTexture(false);
+
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    if ( emobject )
+    {
+	const bool wasenabled = emobject->notifier.disable();
+	emobject->setPreferredColor( nontexturecol );
+	emobject->notifier.enable( wasenabled );
+    }
+}
+
+
+Color EMObjectDisplay::getColor() const
+{
+    return nontexturecol;
 }
 
 
@@ -354,7 +373,7 @@ void EMObjectDisplay::enableEditing( bool yn )
 {
     if ( yn && !editor )
     {
-	const EM::ObjectID objid = EM::EMM().multiID2ObjectID(mid);
+	const EM::ObjectID objid = em.multiID2ObjectID(mid);
 	MPE::ObjectEditor* mpeeditor = MPE::engine().getEditor(objid,true);
 
 	if ( !mpeeditor ) return;
