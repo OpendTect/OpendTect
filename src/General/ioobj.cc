@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.5 2001-07-06 11:40:37 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.6 2001-08-27 12:56:03 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -163,7 +163,8 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 
     if ( !nm || !*nm ) nm = "?";
     MultiID ky( keyin );
-    if ( ky == "" ) ky = IOM().dirPtr()->newKey();
+    if ( ky == "" && IOM().dirPtr() )
+	ky = IOM().dirPtr()->newKey();
 
     if ( !strcmp(typ,"Stream") )
 	objptr = new IOStream( nm, ky, gendef );
