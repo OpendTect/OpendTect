@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.31 2004-12-23 15:08:24 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.32 2005-01-10 12:45:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     bool		exportHorizon();
 
     BufferString	getName(const MultiID&) const;
+    const char*		getType(const MultiID&) const;
     bool		isChanged(const MultiID&) const;
     bool		isFullResolution(const MultiID&) const;
 
