@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.25 2003-12-17 15:46:20 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.26 2003-12-18 15:55:46 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -62,7 +62,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     auxdataexecs.allowNull(true);
     if ( !conn || !conn->forRead()  )
     {
-	msg = "Cannot open input horizon file";
+	msg = "Cannot open input surface file";
 	error = true;
 	return;
     }
@@ -141,6 +141,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 
 	if ( !par->get(floatdatacharstr,dc) )
 	{
+	    msg = parseerrorstr;
 	    error = true;
 	    return;
 	}
@@ -312,7 +313,13 @@ int EM::dgbSurfaceReader::totalNr() const
 
 int EM::dgbSurfaceReader::nextStep()
 {
-    if ( error || !surface ) return ErrorOccurred;
+    if ( error || !surface )
+    {
+	if ( !surface ) 
+	    msg = "Internal: No Surface Set";
+
+	return ErrorOccurred;
+    }
 
     if ( !nrdone )
     {
@@ -387,11 +394,16 @@ int EM::dgbSurfaceReader::nextStep()
 
     istream& strm = conn->iStream();
 
+    static const char* readerrmsg = "Unexpected end of file";
+
     if ( patchindex!=oldpatchindex )
     {
 	nrrows = readInt(strm);
 	if ( !strm )
+	{
+	    msg = readerrmsg;
 	    return ErrorOccurred;
+	}
 
 	if ( nrrows )
 	    firstrow = readInt(strm);
@@ -411,7 +423,11 @@ int EM::dgbSurfaceReader::nextStep()
     const int filerow = firstrow+rowindex*rowrange.step;
 
     const int nrcols = readInt(strm);
-    if ( !strm ) return ErrorOccurred;
+    if ( !strm )
+    {
+	msg = readerrmsg;
+	return ErrorOccurred;
+    }
     const int firstcol = nrcols ? readInt(strm) : 0;
 
     for ( int colindex=0; colindex<nrcols; colindex++ )
@@ -690,13 +706,14 @@ int EM::dgbSurfaceWriter::totalNr() const
 int EM::dgbSurfaceWriter::nextStep()
 {
     if ( !ioobj ) { msg = "No object info"; return -1; }
+    static const char* writeerror = "Cannot write surface";
 
     if ( !nrdone )
     {
 	conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Write));
 	if ( !conn )
 	{
-	    msg = "Cannot open output horizon file";
+	    msg = "Cannot open output surface file";
 	    return ErrorOccurred;
 	}
 
@@ -779,7 +796,10 @@ int EM::dgbSurfaceWriter::nextStep()
 	}
 
 	if ( !writeInt(stream,nrrows,nrrows ? tab : eol ) )
+	{
+	    msg = writeerror;
 	    return ErrorOccurred;
+	}
 
 	if ( !nrrows )
 	{
@@ -789,7 +809,10 @@ int EM::dgbSurfaceWriter::nextStep()
 	}
 
 	if ( !writeInt(stream,firstrow,eol) )
+	{
+	    msg = writeerror;
 	    return ErrorOccurred;
+	}
 
 	oldpatchindex = patchindex;
 	rowindex = 0;
@@ -831,13 +854,19 @@ int EM::dgbSurfaceWriter::nextStep()
     }
 
     if ( !writeInt(stream,colcoords.size(),colcoords.size()?tab:eol) )
+    {
+	msg = writeerror;
 	return ErrorOccurred;
+    }
 
 
     if ( colcoords.size() )
     {
 	if ( !writeInt(stream,firstcol,tab) )
+	{
+	    msg = writeerror;
 	    return ErrorOccurred;
+	}
 
 	for ( int idx=0; idx<colcoords.size(); idx++ )
 	{
@@ -846,11 +875,17 @@ int EM::dgbSurfaceWriter::nextStep()
 	    {
 		if ( !writeFloat(stream,pos.x,tab) ||
 			!writeFloat(stream,pos.y,tab))
+		{
+		    msg = writeerror;
 		    return ErrorOccurred;
+		}
 	    }
 
 	    if ( !writeFloat(stream,pos.z,idx!=colcoords.size()-1?eoltab:eol) )
+	    {
+		msg = writeerror;
 		return ErrorOccurred;
+	    }
 	}
     }
 	    
