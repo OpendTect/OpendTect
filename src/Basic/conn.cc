@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.9 2003-02-19 16:47:49 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.10 2003-03-19 16:21:59 bert Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
@@ -24,13 +24,11 @@ StreamConn::StreamConn()
 	, state_(Bad)
 	, closeondel(false)
 {
-    fname = new char[1024];
-    *fname = '\0';
 }
 
 
 StreamConn::StreamConn( istream* s )
-	: mine(true), fname(0)
+	: mine(true)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Read)
@@ -42,7 +40,7 @@ StreamConn::StreamConn( istream* s )
 
 
 StreamConn::StreamConn( ostream* s )
-	: mine(true), fname(0)
+	: mine(true)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Write)
@@ -54,12 +52,12 @@ StreamConn::StreamConn( ostream* s )
 
 
 StreamConn::StreamConn( StreamData& strmdta )
-	: sd(strmdta), mine(true), fname(0)
+	: mine(true)
 	, nrretries(0)
 	, retrydelay(0)
 	, closeondel(false)
 {
-    strmdta.clearWithoutClose();
+    strmdta.transferTo(sd);
 
     if		( !sd.usable() )	state_ = Bad;
     else if	( sd.istrm )		state_ = Read;
@@ -68,7 +66,7 @@ StreamConn::StreamConn( StreamData& strmdta )
 
 
 StreamConn::StreamConn( istream& s, bool cod )
-	: mine(false), fname(0)
+	: mine(false)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Read)
@@ -80,7 +78,7 @@ StreamConn::StreamConn( istream& s, bool cod )
 
 
 StreamConn::StreamConn( ostream& s, bool cod )
-	: mine(false), fname(0)
+	: mine(false)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(Write)
@@ -92,33 +90,27 @@ StreamConn::StreamConn( ostream& s, bool cod )
 
 
 StreamConn::StreamConn( const char* nm, State s )
-	: mine(true), fname(0)
+	: mine(true)
 	, nrretries(0)
 	, retrydelay(0)
 	, state_(s)
 	, closeondel(false)
 {
-    if ( nm && *nm )
-    {
-	fname = new char[ strlen(nm) + 1 ];
-	strcpy( fname, nm );
-    }
-
     switch ( state_ )
     {
     case Read:
-	if ( !fname ) sd.istrm = &cin;
+	if ( !nm || !*nm ) sd.istrm = &cin;
 	else
 	{
-	    StreamProvider sp( fname );
+	    StreamProvider sp( nm );
 	    sd = sp.makeIStream();
 	}
     break;
     case Write:
-	if ( !fname ) sd.ostrm = &cout;
+	if ( !nm || !*nm ) sd.ostrm = &cout;
 	else
 	{
-	    StreamProvider sp( fname );
+	    StreamProvider sp( nm );
 	    sd = sp.makeOStream();
 	}
     break;
@@ -132,7 +124,6 @@ StreamConn::StreamConn( const char* nm, State s )
 
 StreamConn::~StreamConn()
 {
-    delete [] fname;
     close();
 }
 

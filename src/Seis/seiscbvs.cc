@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.34 2003-02-21 11:51:26 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.35 2003-03-19 16:21:59 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -93,7 +93,16 @@ void CBVSSeisTrcTranslator::destroyVars()
 bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 {
     if ( !conn || !conn->ioobj )
-	{ errmsg = "Cannot reconstruct file name"; return false; }
+    {
+	if ( !conn )
+	    { errmsg = "Cannot reconstruct file name"; return false; }
+
+	mDynamicCastGet(StreamConn*,strmconn,conn)
+	if ( !strmconn )
+	    { errmsg = "Wrong connection from Object Manager"; return false; }
+	fnm = strmconn->fileName();
+	return true;
+    }
 
     mDynamicCastGet(IOStream*,iostrm,conn->ioobj)
     if ( !iostrm )

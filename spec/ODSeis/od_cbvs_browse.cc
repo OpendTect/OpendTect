@@ -78,11 +78,7 @@ int main( int argc, char** argv )
     }
 
     CBVSSeisTrcTranslator tri;
-    StreamConn* inconn = new StreamConn( fname, Conn::Read );
-    IOStream inioobj( "cin" );
-    inioobj.setFileName( fname );
-    inconn->ioobj = &inioobj;
-    if ( !tri.initRead(inconn) )
+    if ( !tri.initRead( new StreamConn(fname,Conn::Read) ) )
 	{ cerr << tri.errMsg() << endl;  return 1; }
 
     cerr << "\n";

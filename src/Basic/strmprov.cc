@@ -31,7 +31,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.31 2003-02-25 10:32:47 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.32 2003-03-19 16:21:59 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -52,6 +52,14 @@ bool ExecOSCmd( const char* comm )
 }
 
 
+StreamData& StreamData::operator =( const StreamData& sd )
+{
+    if ( this != &sd )
+	copyFrom( sd );
+    return *this;
+}
+
+
 void StreamData::close()
 {
     if ( istrm && istrm != &cin )
@@ -66,13 +74,36 @@ void StreamData::close()
     if ( fp && fp != stdin && fp != stdout && fp != stderr )
 	{ if ( ispipe ) pclose(fp); else fclose(fp); }
 
-    init();
+    initStrms();
 }
 
 
 bool StreamData::usable() const
 {
     return ( istrm || ostrm ) && ( !ispipe || fp );
+}
+
+
+void StreamData::copyFrom( const StreamData& sd )
+{
+    istrm = sd.istrm; ostrm = sd.ostrm;
+    fp = sd.fp; ispipe = sd.ispipe;
+    setFileName( sd.fnm );
+}
+
+
+void StreamData::transferTo( StreamData& sd )
+{
+    sd.copyFrom( *this );
+    initStrms();
+}
+
+
+void StreamData::setFileName( const char* f )
+{
+    delete [] fnm;
+    fnm = f ? new char [strlen(f)+1] : 0;
+    if ( fnm ) strcpy( fnm, f );
 }
 
 
@@ -224,7 +255,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
 
 StreamData StreamProvider::makeIStream( bool inbg ) const
 {
-    StreamData sd;
+    StreamData sd; sd.setFileName( fname );
     if ( isbad || !*(const char*)fname )
 	return sd;
     if ( fname == sStdIO || fname == sStdErr )
@@ -294,7 +325,7 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
 
 StreamData StreamProvider::makeOStream( bool inbg ) const
 {
-    StreamData sd;
+    StreamData sd; sd.setFileName( fname );
     if ( isbad ||  !*(const char*)fname )
 	return sd;
     else if ( fname == sStdIO )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.2 2003-02-19 16:47:49 bert Exp $
+ RCS:		$Id: streamconn.h,v 1.3 2003-03-19 16:21:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,22 +42,29 @@ public:
 
     virtual		~StreamConn();
 
-    istream&		iStream() const  { return (istream&)*sd.istrm; }
-    ostream&		oStream() const  { return (ostream&)*sd.ostrm; }
-    FILE*		fp() const	 { return (FILE*)sd.fp; }
+    istream&		iStream() const
+    				{ return *const_cast<istream*>(sd.istrm); }
+    ostream&		oStream() const
+    				{ return *const_cast<ostream*>(sd.ostrm); }
+    FILE*		fp() const
+    				{ return const_cast<FILE*>(sd.fp); }
+    StreamData&		streamData() const
+				{ return *const_cast<StreamData*>(&sd); }
 
     virtual State	state() const		{ return state_; }
+    virtual bool	bad() const;
+
     virtual int		nrRetries() const	{ return nrretries; }
     virtual int		retryDelay() const	{ return retrydelay; }
     void		setNrRetries( int n )	{ nrretries = n; }
     void		setRetryDelay( int n )	{ retrydelay = n; }
-
     bool		doIO(void*,unsigned int nrbytes);
     void		clearErr();
 
-    virtual bool	bad() const;
-    const char*		name() const	 { return fname; }
     void		close();
+
+    const char*		fileName() const	{ return sd.fileName(); }
+    void		setFileName( const char* s ) { sd.setFileName(s); }
 
 private:
 
@@ -65,7 +72,6 @@ private:
     State		state_;
     bool		mine;
     bool		closeondel;
-    char*		fname;
     int			nrretries;
     int			retrydelay;
 

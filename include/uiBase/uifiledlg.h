@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.7 2003-01-20 14:31:21 arend Exp $
+ RCS:           $Id: uifiledlg.h,v 1.8 2003-03-19 16:21:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,17 +29,15 @@ public:
 	ExistingFiles	/*!< The names of zero or more existing files. */
     };
 
-                        uiFileDialog( uiParent* = 0, 
-				      bool forread = true,
-				      const char* fname = 0,
-				      const char* filter = 0,
-				      const char* caption = 0 );
+                        uiFileDialog(uiParent*,bool forread,
+				     const char* fname = 0,
+				     const char* filter = 0,
+				     const char* caption = 0 );
 
-                        uiFileDialog( uiParent* = 0, 
-				      Mode mode = AnyFile,
-				      const char* fname = 0,
-				      const char* filter = 0,
-				      const char* caption = 0 );
+                        uiFileDialog(uiParent*,Mode mode = AnyFile,
+				     const char* fname = 0,
+				     const char* filter = 0,
+				     const char* caption = 0 );
 
     const char*		fileName() const	{ return fn; }
     int                 go();

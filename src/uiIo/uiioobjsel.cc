@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.45 2003-03-06 15:08:56 arend Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.46 2003-03-19 16:21:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,11 +12,13 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "iodirentry.h"
 #include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "uilistbox.h"
+#include "uifiledlg.h"
 #include "uimsg.h"
 #include "uimenu.h"
 #include "ioman.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "iolink.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -137,9 +139,21 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
     bool chgd = false;
     if ( ioobj )
     {
+	uiPopupMenu* mnu = new uiPopupMenu( this, "Action" );
+
+	uiMenuItem* renit = new uiMenuItem( "Rename ..." );
+	mnu->insertItem( renit );
+
+	mDynamicCastGet(IOStream*,iostrm,ioobj)
+	uiMenuItem* fnmit = 0;
+	if ( iostrm )
+	{
+	    fnmit = new uiMenuItem( "File name ..." );
+	    mnu->insertItem( fnmit );
+	}
+
 	PtrMan<Translator> tr = ioobj->getTranslator();
 	bool rmabl = tr ? tr->implRemovable(ioobj) : ioobj->implRemovable();
-	uiPopupMenu* mnu = new uiPopupMenu( this, "Action" );
 	BufferString mnutxt( "Remove" );
 	if ( rmabl ) mnutxt += " ...";
 	uiMenuItem* rmit = new uiMenuItem( mnutxt );
@@ -150,10 +164,15 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
 	{
 	    if ( ret == rmit->id() )
 		chgd = rmEntry( tr, rmabl );
+	    else if ( ret == renit->id() )
+		chgd = renEntry();
+	    else if ( fnmit && ret == fnmit->id() )
+		chgd = chgEntry( tr );
 	}
     }
     if ( !chgd ) return;
 
+    entrylist->fill( IOM().dirPtr() );
     if ( prevcur >= entrylist->size() ) prevcur--;
     entrylist->setCurrent( prevcur );
     ioobj = entrylist->selected();
@@ -162,34 +181,90 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
 }
 
 
+bool uiIOObjSelDlg::renEntry()
+{
+    BufferString titl( "Rename '" );
+    titl += ioobj->name(); titl += "'";
+    uiGenInputDlg dlg( this, titl, "New name",
+	    		new StringInpSpec(ioobj->name()) );
+    if ( !dlg.go() ) return false;
+
+    BufferString newnm = dlg.text();
+    if ( newnm == ioobj->name() ) return false;
+
+    ioobj->setName( newnm );
+    IOM().commitChanges( *ioobj );
+    return true;
+}
+
+
+bool uiIOObjSelDlg::rmImpl( Translator* tr, IOObj& ioob, bool askexist )
+{
+    BufferString mess = "Remove ";
+    if ( askexist ) mess += " existing ";
+    mess += "'";
+    if ( !ioob.isLink() )
+	{ mess += ioob.fullUserExpr(true); mess += "'?"; }
+    else
+    {
+	FileNameString fullexpr( ioob.fullUserExpr(true) );
+	mess += File_getFileName(fullexpr);
+	mess += "'\n- and everything in it! - ?";
+    }
+    if ( !uiMSG().askGoOn(mess) )
+	return false;
+
+    bool rmd = tr ? tr->implRemove(&ioob) : ioob.implRemove();
+    if ( !rmd )
+    {
+	BufferString mess = "Could not remove '";
+	mess += ioob.fullUserExpr(true); mess += "'";
+	uiMSG().warning( mess );
+    }
+    return true;
+}
+
+
 bool uiIOObjSelDlg::rmEntry( Translator* tr, bool rmabl )
 {
-    if ( rmabl )
-    {
-	BufferString mess( "Remove '" );
-	if ( !ioobj->isLink() )
-	    { mess += ioobj->fullUserExpr(YES); mess += "'?"; }
-	else
-	{
-	    FileNameString fullexpr( ioobj->fullUserExpr(YES) );
-	    mess += File_getFileName(fullexpr);
-	    mess += "'\n- and everything in it! - ?";
-	}
-	if ( !uiMSG().askGoOn(mess) )
-	    return false;
-
-	bool rmd = tr ? tr->implRemove(ioobj) : ioobj->implRemove();
-	if ( !rmd )
-	{
-	    mess = "Could not remove '";
-	    mess += ioobj->fullUserExpr(YES); mess += "'";
-	    uiMSG().warning( mess );
-	}
-    }
+    if ( rmabl && ! rmImpl( tr, *ioobj, false ) )
+	return false;
 
     entrylist->curRemoved();
     IOM().permRemove( ioobj->key() );
-    entrylist->fill( IOM().dirPtr() );
+    return true;
+}
+
+
+bool uiIOObjSelDlg::chgEntry( Translator* tr )
+{
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    BufferString caption( "New file name for '" );
+    caption += ioobj->name(); caption += "'";
+    BufferString oldfnm( iostrm->fullUserExpr(true) );
+    uiFileDialog dlg( this, uiFileDialog::AnyFile, oldfnm, 0, caption );
+    if ( !dlg.go() ) return false;
+
+    IOStream chiostrm;
+    chiostrm.copyFrom( iostrm );
+    BufferString newfnm( dlg.fileName() );
+    chiostrm.setFileName( newfnm );
+
+    bool implexist = tr ? tr->implExists(iostrm,true) :iostrm->implExists(true);
+    if ( implexist )
+    {
+	bool oldimplexist = tr ? tr->implExists(&chiostrm,true)
+			       : chiostrm.implExists(true);
+	if ( oldimplexist )
+	{
+	    if ( !rmImpl( tr, chiostrm, true ) )
+		return false;
+	    File_rename( oldfnm, newfnm );
+	}
+    }
+
+    iostrm->setFileName( newfnm );
+    IOM().commitChanges( *iostrm );
     return true;
 }
 

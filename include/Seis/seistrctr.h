@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.23 2003-02-18 16:32:21 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.24 2003-03-19 16:21:59 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -134,14 +134,13 @@ public:
 			/*! Init functions must be called, because
 			     Conn object must be always available */
     bool		initRead(Conn*);
-			/*!< After call, component and packet info will
-			   be available. Note that Conn MUST have IOObj* */
+			/*!< After call, component and packet info will be
+			 available. Note that Conn may need to have an IOObj* */
     bool		initWrite(Conn*,const SeisTrc&);
 			/*!< After call, default component and packet info
 			   will be generated according to the example trace.
-			   Note that Conn MUST have IOObj* */
+			   Note that Conn may need to have an IOObj* */
     Conn*		curConn()			{ return conn; }
-    			//!< Translator may replace your initial Conn!!!
 
     SeisPacketInfo&			packetInfo()	{ return pinfo; }
     const SeisTrcSel*			trcSel()	{ return trcsel; }

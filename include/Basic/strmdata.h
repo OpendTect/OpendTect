@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.7 2003-02-19 16:47:49 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.8 2003-03-19 16:21:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,22 +28,34 @@ Need to find out what to do with the pipe in windows.
 class StreamData
 {
 public:
-		StreamData()			{ init(); }
+
+		StreamData() : fnm(0)		{ initStrms(); }
+		~StreamData()			{ delete [] fnm; }
+		StreamData( const StreamData& sd )
+		: fnm(0)			{ copyFrom( sd ); }
+    StreamData&	operator =(const StreamData&);
+    void	transferTo(StreamData&);	//!< retains fileName()
 
     void	close();
     bool	usable() const;
-    void	clearWithoutClose()		{ init(); }
+
+    void	setFileName(const char*);
+    const char*	fileName() const		{ return fnm; }
+    						//!< Beware: may be NULL
 
     istream*	istrm;
     ostream*	ostrm;
-
     FILE*	fp;
     bool	ispipe;
 
+protected:
+
+    char*	fnm;
+    void	copyFrom(const StreamData&);
+
 private:
 
-    inline void	init()
-		{ fp = 0; istrm = 0; ostrm = 0; ispipe = false; }
+    inline void	initStrms() { fp = 0; istrm = 0; ostrm = 0; ispipe = false; }
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.25 2003-03-05 12:01:05 nanne Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.26 2003-03-19 16:21:59 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -515,6 +515,17 @@ void IOPar::set( const char* keyw, const char* vals )
 }
 
 
+void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
+{
+    FileMultiString fms( vals1 ); fms += vals2;
+    AliasObject* par = pars_[keyw];
+    if ( !par )
+	add( keyw, fms );
+    else
+	par->obj->setName( fms );
+}
+
+
 void IOPar::set( const char* keyw, int val )
 {
     set( keyw, getStringFromInt(0,val) );
@@ -636,9 +647,26 @@ bool IOPar::get( const char* s, BufferString& bs ) const
 }
 
 
+bool IOPar::get( const char* s, BufferString& bs1, BufferString& bs2 ) const
+{
+    const char* res = find( s );
+    if ( !res ) return false;
+    FileMultiString fms( res );
+    bs1 = fms[0]; bs2 = fms[1];
+    return true;
+}
+
+
 void IOPar::set( const char* s, const BufferString& bs )
 {
     set( s, (const char*)bs );
+}
+
+
+void IOPar::set( const char* s, const BufferString& bs1,
+				const BufferString& bs2 )
+{
+    set( s, (const char*)bs1, (const char*)bs2 );
 }
 
 

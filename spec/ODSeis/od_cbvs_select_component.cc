@@ -37,11 +37,7 @@ int main( int argc, char** argv )
 	fname = File_getFullPath( fname, argv[2] );
     }
     CBVSSeisTrcTranslator tri;
-    StreamConn* inconn = new StreamConn( fname, Conn::Read );
-    IOStream ioobj( "tmp" );
-    ioobj.setFileName( fname );
-    inconn->ioobj = &ioobj;
-    if ( !tri.initRead(inconn) )
+    if ( !tri.initRead(new StreamConn(fname,Conn::Read)) )
         { cerr << tri.errMsg() << endl;  return 1; }
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci = tri.componentInfo();
@@ -56,11 +52,8 @@ int main( int argc, char** argv )
 	fname = File_getCurrentDir();
 	fname = File_getFullPath( fname, argv[3] );
     }
-    CBVSSeisTrcTranslator tro;
-    StreamConn* outconn = new StreamConn( fname, Conn::Write );
-    ioobj.setFileName( fname );
-    outconn->ioobj = &ioobj;
 
+    CBVSSeisTrcTranslator tro;
     SeisTrc trc;
     SeisTrc& outtrc = selcomp < 0 ? *new SeisTrc : trc;
     int nrwr = 0;
@@ -84,7 +77,7 @@ int main( int argc, char** argv )
 	if ( selcomp < 0 )
 	    outtrc.info() = trc.info();
 
-	if ( !nrwr && !tro.initWrite( outconn, outtrc ) )
+	if ( !nrwr && !tro.initWrite(new StreamConn(fname,Conn::Write),outtrc) )
 	    { cerr << "Cannot start write!" << endl;  return 1; }
 
 	if ( !tro.write(outtrc) )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.24 2002-11-26 08:23:11 nanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.25 2003-03-19 16:21:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,12 @@ protected:
     void		rightClk(CallBacker*);
 
     virtual bool	createEntry(const char*);
+
     bool		rmEntry(Translator*,bool);
+    bool		renEntry();
+    bool		chgEntry(Translator*);
+
+    bool		rmImpl(Translator*,IOObj&,bool);
 };
 
 

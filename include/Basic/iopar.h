@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.18 2003-03-04 16:59:34 bert Exp $
+ RCS:		$Id: iopar.h,v 1.19 2003-03-19 16:21:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,11 +133,17 @@ public:
     bool		getYN(const char*,bool&,char c=0) const;
     inline bool		isTrue( const char* key, char c=0 ) const
 			{ bool b = false; return getYN(key,b,c) && b; }
+    bool		get(const char*,BinID&) const;
+    bool		get(const char*,Coord&) const;
+    bool		get(const char*,MultiID&) const;
+    bool		get(const char*,BufferString&) const;
+    bool		get(const char*,BufferString&,BufferString&) const;
 
     void		set(const char*,const char*);
     void		set(const char*,int);
     void		set(const char*,float);
     void		set(const char*,double);
+    void		set(const char*,const char*,const char*);
     void		set(const char*,int,int);
     void		set(const char*,float,float);
     void		set(const char*,float,float,float);
@@ -152,10 +158,8 @@ public:
     void		set(const char*,const Coord&);
     void		set(const char*,const MultiID&);
     void		set(const char*,const BufferString&);
-    bool		get(const char*,BinID&) const;
-    bool		get(const char*,Coord&) const;
-    bool		get(const char*,MultiID&) const;
-    bool		get(const char*,BufferString&) const;
+    void		set(const char*,const BufferString&,
+	    				const BufferString&);
 
     void		add(const char*,const char*);
 			/*!< Only to save performance: responsibility for

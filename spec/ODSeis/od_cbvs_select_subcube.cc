@@ -40,11 +40,7 @@ int main( int argc, char** argv )
 	fname = File_getFullPath( fname, argv[2] );
     }
     CBVSSeisTrcTranslator tri;
-    StreamConn* inconn = new StreamConn( fname, Conn::Read );
-    IOStream ioobj( "tmp" );
-    ioobj.setFileName( fname );
-    inconn->ioobj = &ioobj;
-    if ( !tri.initRead(inconn) )
+    if ( !tri.initRead(new StreamConn(fname,Conn::Read)) )
         { cerr << tri.errMsg() << endl;  return 1; }
 
     fname = argv[3];
@@ -54,9 +50,6 @@ int main( int argc, char** argv )
 	fname = File_getFullPath( fname, argv[3] );
     }
     CBVSSeisTrcTranslator tro;
-    StreamConn* outconn = new StreamConn( fname, Conn::Write );
-    ioobj.setFileName( fname );
-    outconn->ioobj = &ioobj;
 
     FileMultiString fms( argv[1] );
     SeisTrcSel tsel;
@@ -103,7 +96,7 @@ int main( int argc, char** argv )
 	if ( !nrwr )
 	{
 	    tro.packetInfo() = tri.packetInfo();
-	    if ( !tro.initWrite( outconn, trc ) )
+	    if ( !tro.initWrite(new StreamConn(fname,Conn::Write),trc) )
 		{ cerr << "Cannot start write!" << endl;  return 1; }
 	    for ( int idx=0; idx<nrincomp; idx++ )
 		tro.componentInfo()[idx]->setName( ci[idx]->name() );
