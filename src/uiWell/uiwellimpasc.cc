@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.8 2003-10-31 14:26:32 nanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.9 2003-11-06 16:15:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ bool uiWellImportAsc::doWork()
     info.state = statefld->text();
     info.county = countyfld->text();
     info.surfacecoord = coordfld->getCoord();
+    info.surfaceelev = elevfld->getValue();
 
     Well::AscImporter ascimp( *well );
 
