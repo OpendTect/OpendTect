@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.1 2001-07-27 10:27:49 nanne Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.2 2001-07-31 09:53:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ protected:
     void		chgSetMode( CallBacker* );
     bool		acceptOK(CallBacker*);
     void		finalise_();
+    void		setInl1Fld( CallBacker* );
 };
 
 #endif

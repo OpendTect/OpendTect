@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.1 2001-07-27 10:25:42 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.2 2001-07-31 09:53:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     coordgrp = new uiGroup( this, "Coordinate settings" );
     ic0fld = new uiGenInput( coordgrp, "First In-line/Cross-line",
 	    		     IntInpSpec(), IntInpSpec() );
+    ic0fld->changed.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
     ic1fld = new uiGenInput( coordgrp, "Cross-line on above in-line",
 			     IntInpSpec(), IntInpSpec() );
     ic2fld = new uiGenInput( coordgrp, 
@@ -160,7 +161,6 @@ bool uiSurveyInfoEditor::appButPushed()
     {
 	if ( !setCoords() ) return false;
 
-	ic1fld->setValue( ic0fld->getIntValue(0), 0 );
 	x0fld->setValue( survinfo->b2c_.getTransform(true).a );
 	xinlfld->setValue( survinfo->b2c_.getTransform(true).b );
 	xcrlfld->setValue( survinfo->b2c_.getTransform(true).c );
@@ -232,12 +232,14 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     return true;
 }
 
+
 const char* uiSurveyInfoEditor::dirName()
 {
     orgdirname = dirnmfld->text();
     cleanupString( orgdirname.buf(), NO, NO, YES );
     return orgdirname;
 }
+
 
 bool uiSurveyInfoEditor::setRanges()
 {
@@ -262,6 +264,7 @@ bool uiSurveyInfoEditor::setRanges()
     return true;
 }
 
+
 bool uiSurveyInfoEditor::setCoords()
 {    
     BinID b[2]; Coord c[3]; int xline;
@@ -277,6 +280,7 @@ bool uiSurveyInfoEditor::setCoords()
 
     return true;
 }
+
 
 bool uiSurveyInfoEditor::setRelation()
 {
@@ -294,8 +298,15 @@ bool uiSurveyInfoEditor::setRelation()
     return true;
 }
 
+
 void uiSurveyInfoEditor::chgSetMode( CallBacker* )
 {
     coordgrp->display( coordset->getBoolValue() );
     trgrp->display( !coordset->getBoolValue() );
+}
+
+
+void uiSurveyInfoEditor::setInl1Fld( CallBacker* )
+{
+    ic1fld->setText( ic0fld->text(0), 0 );
 }
