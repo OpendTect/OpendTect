@@ -9,9 +9,14 @@ In-line byte             :	5
 Cross-line byte          :	21
 X-coord byte             :	73
 Y-coord byte             :	77
-Font.def.Control         :	helvetica`12`Bold`No
-Font.def.Graphics small  :	helvetica`10`Bold`No
-Font.def.Graphics medium :	helvetica`12`Bold`No
-Font.def.Graphics large  :	helvetica`14`Bold`No
+Font.def.Control         :	Helvetica`11`Normal`No
+Font.def.Small control	 : 	Helvetica`8`Normal`No
+Font.def.Large control	 : 	Helvetica`12`Normal`No
+Font.def.Graphics small  :	Helvetica`10`Normal`No
+Font.def.Graphics medium :	Helvetica`12`Normal`No
+Font.def.Graphics large  :	Helvetica`14`Bold`No
 Ui.ToolTips.enable       :	Yes
+dTect.Dump OI Menu	 :	No
+dTect.Color table.Name	 :	Red-White-Black
+dTect.MouseControls.Default :	Default
 !
