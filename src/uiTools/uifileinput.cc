@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.7 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uifileinput.cc,v 1.8 2001-10-18 14:01:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ void uiFileInput::setFileName( const char* s )
 void uiFileInput::doSelect( CallBacker* )
 {
     fname = text();
+    if ( fname == "" ) fname = defseldir;
     uiFileDialog dlg( this, forread, fname, filter );
     if ( dlg.go() )
 	setFileName( dlg.fileName() );
