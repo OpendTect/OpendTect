@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.68 2005-02-10 16:04:34 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.69 2005-03-02 11:14:25 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1473,6 +1473,7 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     int type = menu->getMenuType();
+    gathersstartid = gathersstopid = -1;
     if ( type == 1 )
     {
 	gathersstartid = menu->getFreeID();
