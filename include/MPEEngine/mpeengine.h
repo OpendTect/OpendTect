@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.3 2005-01-17 14:51:29 kristofer Exp $
+ RCS:           $Id: mpeengine.h,v 1.4 2005-01-20 08:45:05 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,9 +47,11 @@ public:
     const CubeSampling&	activeVolume() const;
     void		setActiveVolume(const CubeSampling&);
     static CubeSampling	getDefaultActiveVolume();
+    Notifier<Engine>	activevolumechange;
 
     const TrackPlane&	trackPlane() const;
     bool		setTrackPlane( const TrackPlane&, bool track );
+    Notifier<Engine>	trackplanechange;
 
     ObjectSet<Geometry::Element>	interactionseeds;
     Color				seedcolor;
