@@ -4,14 +4,18 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoShapeScale.cc,v 1.1 2002-07-12 07:31:41 kristofer Exp $";
+static const char* rcsID = "$Id: SoShapeScale.cc,v 1.2 2002-12-04 14:14:01 kristofer Exp $";
 
 
 #include "SoShapeScale.h"
 
+#include "gendefs.h"
+#include "trigonometry.h"
+
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoRotation.h>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
@@ -23,10 +27,13 @@ SO_KIT_SOURCE(SoShapeScale);
 SoShapeScale::SoShapeScale(void) 
 {
     SO_KIT_CONSTRUCTOR(SoShapeScale);
-    SO_KIT_ADD_FIELD(active, (TRUE));
+    SO_KIT_ADD_FIELD(doscale, (TRUE));
+    SO_KIT_ADD_FIELD(dorotate, (TRUE));
     SO_KIT_ADD_FIELD(projectedSize, (5.0f));
     
     SO_KIT_ADD_CATALOG_ENTRY(topSeparator, SoSeparator, FALSE, this, "", FALSE);
+    SO_KIT_ADD_CATALOG_ENTRY(rotation, SoRotation, FALSE, topSeparator,
+	    		     scale, FALSE);
     SO_KIT_ADD_CATALOG_ENTRY(scale, SoScale, FALSE, topSeparator, shape, FALSE);
     SO_KIT_ADD_CATALOG_ABSTRACT_ENTRY(shape, SoNode, SoCube, TRUE, topSeparator,
 	   			      "", TRUE);
@@ -36,8 +43,7 @@ SoShapeScale::SoShapeScale(void)
 
 
 SoShapeScale::~SoShapeScale()
-{
-}
+{ }
 
 
 void SoShapeScale::initClass(void)
@@ -51,31 +57,66 @@ void SoShapeScale::initClass(void)
 }
 
 
-static void update_scale(SoScale * scale, const SbVec3f & v)
+static void update_scale(SoScale* scale, const SbVec3f & v)
 {
-    if (scale->scaleFactor.getValue() != v) { scale->scaleFactor = v; }
+    if (scale->scaleFactor.getValue() != v)
+    {
+	bool oldnotify = scale->enableNotify( false );
+	scale->scaleFactor = v;
+	oldnotify = scale->enableNotify( oldnotify );
+    }
 }
 
 
 void SoShapeScale::GLRender(SoGLRenderAction * action)
 {
-    SoState * state = action->getState();
+    if ( !doscale.getValue() && !dorotate.getValue() )
+	return inherited::GLRender(action);
+
+    SoState* state = action->getState();
     
-    SoScale * scale = (SoScale*) this->getAnyPart(SbName("scale"), TRUE);
-    if (!this->active.getValue())
-    {
-	update_scale(scale, SbVec3f(1.0f, 1.0f, 1.0f));
-    }
-    else
+    SoScale* scalenode = (SoScale*) getAnyPart(SbName("scale"), true);
+    SoRotation* rotnode = (SoRotation*) getAnyPart(SbName("rotation"), true);
+
+    const SbMatrix &mat = SoModelMatrixElement::get(state);
+    const SbViewVolume & vv = SoViewVolumeElement::get(state);
+    const SbVec3f localcenter(0.0f, 0.0f, 0.0f);
+    SbVec3f worldcenter;
+    mat.multVecMatrix(localcenter, worldcenter);
+
+
+    if ( doscale.getValue() )
     {
 	const SbViewportRegion & vp = SoViewportRegionElement::get(state);
-	const SbViewVolume & vv = SoViewVolumeElement::get(state);
-	SbVec3f center(0.0f, 0.0f, 0.0f);
-	float nsize = this->projectedSize.getValue() /
+	float nsize = projectedSize.getValue() /
 	    		float(vp.getViewportSizePixels()[1]);
-	SoModelMatrixElement::get(state).multVecMatrix(center, center);
-	float scalefactor = vv.getWorldToScreenScale(center, nsize);
-	update_scale(scale, SbVec3f(scalefactor, scalefactor, scalefactor));
+
+	float scalefactor = vv.getWorldToScreenScale(worldcenter, nsize);
+	update_scale(scalenode, SbVec3f(scalefactor, scalefactor, scalefactor));
+    }
+
+    if ( dorotate.getValue() )
+    {
+	SbVec3f tovec = (vv.getProjectionPoint() - worldcenter);
+	SbVec3f localfrom( 0, 1, 0 );
+	SbVec3f worldfrom;
+	mat.multVecMatrix(localfrom, worldfrom);
+	Vector3 worldfromvec( worldfrom[0], worldfrom[1],  worldfrom[2] );
+	Vector3 worldtovec( tovec[0], tovec[1],  tovec[2] );
+	Vector3 rotationaxis = worldfromvec.cross( worldtovec );
+	float angle = acos(worldfromvec.dot( worldtovec ));
+
+	if ( mIS_ZERO( rotationaxis.abs() ) )
+	{
+	    rotationaxis.x = 1;
+	}
+
+	SbRotation rotation(
+		SbVec3f(rotationaxis.x,rotationaxis.y,rotationaxis.z), -angle );
+
+	bool oldnotify = rotnode->enableNotify( false );
+	rotnode->rotation.setValue( rotation );
+	rotnode->enableNotify( oldnotify );
     }
 
     inherited::GLRender(action);
