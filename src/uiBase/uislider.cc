@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uislider.cc,v 1.4 2001-08-24 12:45:04 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ void uiSlider::setValue( int i )
 
 void uiSlider::setValue( double d )
 {
-    body_->setValue( d );
+    body_->setValue( mNINT(d) );
 }
 
 void uiSlider::setTickMarks( bool yn )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.6 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uicanvas.cc,v 1.7 2001-08-24 12:45:04 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -244,7 +244,7 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent * e )
 		rbidx--;
 
 	    rubber.setWidth( rbidx*xfac );
-	    rubber.setHeight( rbidx * aspectrat*yfac );
+	    rubber.setHeight( mNINT(rbidx * aspectrat*yfac) );
 	}
 	else
 	{
