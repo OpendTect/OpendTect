@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.5 2001-09-06 10:12:13 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.6 2001-09-26 14:07:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -360,7 +360,8 @@ void uiSurvey::doCanvas( CallBacker* c )
 
 bool uiSurvey::acceptOK( CallBacker* )
 {
-    if ( !updateSvyFile() ) return false;
+    if ( !updateSvyFile() || !IOMan::newSurvey() )
+	return false;
     GetSurveyName_reRead = true;
 
     return true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.21 2001-09-25 12:27:43 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.22 2001-09-26 14:07:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -298,18 +298,63 @@ uiLabeledListBox::uiLabeledListBox( uiParent* p, const PtrUserIDObjectSet& s,
 
 void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
 {
+    setHAlignObj( lb );
 
-    labl = new uiLabel( this, txt );
+    ObjectSet<BufferString> txts;
+    BufferString s( txt );
+    char* ptr = s.buf();
+    while ( 1 )
+    {
+	txts += new BufferString( ptr );
+	ptr = strchr( ptr, '\n' );
+	if ( !ptr ) break;
+
+	*ptr++ = '\0';
+    }
+    if ( txts.size() < 1 ) return;
+
+    bool last1st = pos > RightTop && pos < BelowLeft;
+    ptr = last1st ? txts[txts.size()-1]->buf() : txts[0]->buf();
+
+    labl = new uiLabel( this, ptr );
+    constraintType lblct = alignedBelow;
     switch ( pos )
     {
-    case LeftTop:	lb->attach( rightOf, labl );		break;
-    case RightTop:	labl->attach( rightOf, lb );		break;
-    case AboveLeft:	lb->attach( alignedBelow, labl );	break;
-    case AboveMid:	lb->attach( centeredBelow, labl );	break;
-    case AboveRight:	lb->attach( rightAlignedBelow, labl );	break;
-    case BelowLeft:	labl->attach( alignedBelow, lb );	break;
-    case BelowMid:	labl->attach( centeredBelow, lb );	break;
-    case BelowRight:	labl->attach( rightAlignedBelow, lb );	break;
+    case LeftTop:
+	lb->attach( rightOf, labl );		lblct = rightAlignedBelow;
+    break;
+    case RightTop:
+	labl->attach( rightOf, lb );		lblct = alignedBelow;
+    break;
+    case AboveLeft:
+	lb->attach( alignedBelow, labl );	lblct = alignedAbove;
+    break;
+    case AboveMid:
+	lb->attach( centeredBelow, labl );	lblct = centeredAbove;
+    break;
+    case AboveRight:
+	lb->attach( rightAlignedBelow, labl );	lblct = rightAlignedAbove;
+    break;
+    case BelowLeft:
+	labl->attach( alignedBelow, lb );	lblct = alignedBelow;
+    break;
+    case BelowMid:
+	labl->attach( centeredBelow, lb );	lblct = centeredBelow;
+    break;
+    case BelowRight:
+	labl->attach( rightAlignedBelow, lb );	lblct = rightAlignedBelow;
+    break;
     }
-    setHAlignObj( lb );
+
+    int nrleft = txts.size() - 1;
+    uiLabel* last = labl;
+    while ( nrleft )
+    {
+	uiLabel* cur = new uiLabel( this, (last1st
+			? txts[nrleft-1] : txts[txts.size()-nrleft])->buf() );
+	cur->attach( lblct, last );
+	last = cur;
+    }
+
+    deepErase( txts );
 }
