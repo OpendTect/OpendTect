@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.11 2003-04-23 13:11:02 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.12 2003-06-27 16:04:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -330,12 +330,49 @@ int uiTable::getIntValue( const Pos& p ) const
     return convertTo<int>( text(p) );
 }
 
+
+double uiTable::getValue( const Pos& p ) const
+{
+    if ( usrInputObj(p) )
+	return usrInputObj(p)->getValue();
+
+    return convertTo<double>( text(p) );
+}
+
+
+float uiTable::getfValue( const Pos& p ) const
+{
+    if ( usrInputObj(p) )
+	return usrInputObj(p)->getfValue();
+
+    return convertTo<float>( text(p) );
+}
+
+
 void uiTable::setValue( const Pos& p, int i )
 {
     if ( usrInputObj(p) )
 	usrInputObj(p)->setValue(i);
 
     setText(p, convertTo<const char*>(i) );
+}
+
+
+void uiTable::setValue( const Pos& p, float f )
+{
+    if ( usrInputObj(p) )
+	usrInputObj(p)->setValue(f);
+
+    setText( p, convertTo<const char*>(f) );
+}
+
+
+void uiTable::setValue( const Pos& p, double d )
+{
+    if ( usrInputObj(p) )
+	usrInputObj(p)->setValue(d);
+
+    setText( p, convertTo<const char*>(d) );
 }
 
 

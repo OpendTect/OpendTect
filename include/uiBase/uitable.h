@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.8 2003-04-23 13:11:08 arend Exp $
+ RCS:           $Id: uitable.h,v 1.9 2003-06-27 16:04:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,8 +169,12 @@ public:
     const UserInputObj*	usrInputObj(const Pos& p ) const
 			  { return const_cast<uiTable*>(this)->usrInputObj(p); }
 
-    int			getIntValue( const Pos& p ) const;
-    void		setValue( const Pos& p, int i );
+    int			getIntValue(const Pos&) const;
+    double		getValue(const Pos&) const;
+    float		getfValue(const Pos&) const;
+    void		setValue(const Pos&,int);
+    void		setValue(const Pos&,float);
+    void		setValue(const Pos&,double);
 
     void		setSelectionMode( SelectionMode );
     void		editCell( const Pos& p, bool replace=false );
