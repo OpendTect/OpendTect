@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.3 2003-01-09 09:57:17 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.4 2003-01-10 10:18:23 kristofer Exp $";
 
 #include "vistexture3.h"
 
@@ -48,6 +48,12 @@ void visBase::Texture3::setTextureSize( int x0, int x1, int x2 )
 
 void visBase::Texture3::setData( const Array3D<float>* newdata )
 {
+    if ( !newdata )
+    {
+	setResizedData( 0, 0 );
+	return;
+    }
+
     x0sz = newdata->info().getSize( 0 );
     x1sz = newdata->info().getSize( 1 );
     x2sz = newdata->info().getSize( 2 );
@@ -67,6 +73,12 @@ SoNode* visBase::Texture3::getData()
 
 void visBase::Texture3::setTexture(const unsigned char* imagedata)
 {
+    if ( !imagedata )
+    {
+	texture->images.setValue( SbVec3s( 0, 0, 0 ), 3, 0 );
+	return;
+    }
+
     texture->images.setValue( SbVec3s( x0sz, x1sz, x2sz ),
 	    		     usesTransperancy() ? 4 : 3, imagedata );
 }

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.2 2003-01-09 09:10:39 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.3 2003-01-10 10:18:23 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -141,6 +141,14 @@ visBase::ThreadWorker* visBase::Texture::getThreadWorker()
 void visBase::Texture::setResizedData( float* newdata, int sz )
 {
     delete [] datacache;
+    if ( !newdata )
+    {
+	datacache = 0;
+	makeColorIndexes();
+	makeTexture();
+	return;
+    }
+
     datacache = newdata;
     cachesize = sz;
 
@@ -201,8 +209,10 @@ protected:
 
 void visBase::Texture::makeColorIndexes()
 {
+    delete [] indexcache;
+    indexcache = 0;
+
     if ( !datacache ) return;
-    if ( indexcache ) delete [] indexcache;
 
     if ( !colorindexers.size() )
     {
@@ -281,6 +291,12 @@ protected:
 
 void visBase::Texture::makeTexture()
 {
+    if ( !indexcache )
+    {
+	setTexture( 0 );
+	return;
+    }
+
     const int nrcomponents = usetrans ? 4 : 3;
 
     ArrPtrMan<unsigned char> texture =
