@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.5 2003-06-10 06:55:32 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.6 2003-06-17 13:52:50 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,11 +42,36 @@ public:
     int		operator!=( const RowCol& rc ) const
 		{ return ! (rc == *this); }
 
-
     int		row;
     int		col;
 
 };
+
+
+inline long rc2long( const RowCol& rc )
+{
+    return (((unsigned long) rc.row)<<16)+
+	    ((unsigned long) rc.col & 0xFFFF);
+}
+
+
+inline long long rc2longlong( const RowCol& rc )
+{
+    return (((unsigned long long) rc.row)<<32)+
+	    ((unsigned long long) rc.col & 0xFFFFFFFF);
+}
+
+
+inline RowCol longlong2rc( const long long& ll )
+{
+    return RowCol( ll>>32, ll& 0xFFFFFFFF );
+}
+
+
+inline RowCol long2rc( const long& ll )
+{
+    return RowCol( ll>>16, ll& 0xFFFF );
+}
 
 
 #endif
