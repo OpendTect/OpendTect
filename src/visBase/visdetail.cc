@@ -4,7 +4,7 @@
  * DATE     : 23-06-2003
 -*/
 
-static const char* rcsID = "$Id: visdetail.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visdetail.cc,v 1.3 2004-08-05 08:51:58 kristofer Exp $";
 
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>
@@ -23,8 +23,8 @@ DetailType Detail::getDetailType()
 }
 
 
-int FaceDetail::getClosestIdx( Coordinates* coordinates,
-       			   Coord3 pickedpoint )
+int FaceDetail::getClosestIdx( const Coordinates* coordinates,
+       			   const Coord3& pickedpoint )
 {
     const int nrpoints = facedetail->getNumPoints();
     if ( !nrpoints ) return -1;
