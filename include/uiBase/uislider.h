@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.4 2002-04-04 13:04:54 nanne Exp $
+ RCS:           $Id: uislider.h,v 1.5 2002-04-15 14:34:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiSlider : public uiObject
 {
 public:
 
-                        uiSlider(uiParent*, const char* nm="Line Edit");
+                        uiSlider(uiParent*, const char* nm="Slider");
 
     const char*		text() const;
     int 		getIntValue() const;
@@ -37,8 +37,8 @@ public:
     int			maxValue() const;
     void		setMinValue( int );
     void		setMaxValue( int );
-    int			step() const;
-    void		setStep( int );
+    int			tickStep() const;
+    void		setTickStep( int );
 
 
     Notifier<uiSlider>	valueChanged;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.8 2002-04-04 13:04:43 nanne Exp $
+ RCS:           $Id: uislider.cc,v 1.9 2002-04-15 14:34:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,15 +101,15 @@ void uiSlider::setValue( double d )
 
 void uiSlider::setTickMarks( bool yn )
 {
-    body_->setTickmarks ( yn ? QSlider::Below : QSlider::NoMarks );
+    body_->setTickmarks ( yn ? QSlider::Above : QSlider::NoMarks );
 }
 
-int uiSlider::minValue() const         { return body_->minValue() ; }
-int uiSlider::maxValue() const         { return body_->minValue() ; }
-void uiSlider::setMinValue( int m )    { body_->setMinValue(m); }
-void uiSlider::setMaxValue( int m )    { body_->setMaxValue(m); }
-int uiSlider::step() const             { return body_->tickInterval() ; }
-void uiSlider::setStep ( int s )       { body_->setTickInterval(s); }
+int uiSlider::minValue() const		{ return body_->minValue() ; }
+int uiSlider::maxValue() const		{ return body_->minValue() ; }
+void uiSlider::setMinValue( int m )	{ body_->setMinValue(m); }
+void uiSlider::setMaxValue( int m )	{ body_->setMaxValue(m); }
+int uiSlider::tickStep() const     	{ return body_->tickInterval() ; }
+void uiSlider::setTickStep ( int s )	{ body_->setTickInterval(s); }
 
 
 uiLabeledSlider::uiLabeledSlider( uiParent* p, const char* txt,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.1 2001-05-14 13:22:24 bert Exp $
+ RCS:		$Id: color.h,v 1.2 2002-04-15 14:34:43 bert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -62,6 +62,8 @@ public:
 
     inline void         setRgb( unsigned int rgb_  )
                         { col_ = rgb_; }
+    inline void		setTransparency( unsigned char t_ )
+			{ set( r(), g(), b(), t_ ); }
 
     void		fill(char*) const;
     bool		use(const char*);

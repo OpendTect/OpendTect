@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.34 2002-04-12 19:04:55 nanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.35 2002-04-15 14:34:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -370,7 +370,6 @@ void uiObjectBody::uisetBackgroundColor( const Color& c )
 {
     QPalette p = qwidget()->palette();
     p.setColor( QColorGroup::Background, QColor( QRgb( c.rgb() ))  );
-    p.setColor( QColorGroup::Button, QColor( QRgb( c.rgb() ))  );
     qwidget()->setPalette( p );
 }
 

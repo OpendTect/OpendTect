@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.2 2002-04-12 07:10:54 kristofer Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.3 2002-04-15 14:34:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ void uiMaterialDlg::doFinalise( CallBacker* )
     {
 	ambslider->sldr()->setMinValue( cMinVal );
 	ambslider->sldr()->setMaxValue( cMaxVal );
-	ambslider->sldr()->setStep( cStepVal );
+	ambslider->sldr()->setTickStep( cStepVal );
 	ambslider->sldr()->setValue( material->getAmbience()*100 );
     }
 
@@ -107,7 +107,7 @@ void uiMaterialDlg::doFinalise( CallBacker* )
     {
 	diffslider->sldr()->setMinValue( cMinVal );
 	diffslider->sldr()->setMaxValue( cMaxVal );
-	diffslider->sldr()->setStep( cStepVal );
+	diffslider->sldr()->setTickStep( cStepVal );
 	diffslider->sldr()->setValue( material->getDiffIntensity()*100 );
     }
 
@@ -115,7 +115,7 @@ void uiMaterialDlg::doFinalise( CallBacker* )
     {
 	specslider->sldr()->setMinValue( cMinVal );
 	specslider->sldr()->setMaxValue( cMaxVal );
-	specslider->sldr()->setStep( cStepVal );
+	specslider->sldr()->setTickStep( cStepVal );
 	specslider->sldr()->setValue( material->getSpecIntensity()*100 );
     }
 
@@ -123,7 +123,7 @@ void uiMaterialDlg::doFinalise( CallBacker* )
     {
 	emisslider->sldr()->setMinValue( cMinVal );
 	emisslider->sldr()->setMaxValue( cMaxVal );
-	emisslider->sldr()->setStep( cStepVal );
+	emisslider->sldr()->setTickStep( cStepVal );
 	emisslider->sldr()->setValue( material->getEmmIntensity()*100 );
     }
 
@@ -131,7 +131,7 @@ void uiMaterialDlg::doFinalise( CallBacker* )
     {
 	shineslider->sldr()->setMinValue( cMinVal );
 	shineslider->sldr()->setMaxValue( cMaxVal );
-	shineslider->sldr()->setStep( cStepVal );
+	shineslider->sldr()->setTickStep( cStepVal );
 	shineslider->sldr()->setValue( material->getShininess()*100 );
     }
 
@@ -139,7 +139,7 @@ void uiMaterialDlg::doFinalise( CallBacker* )
     {
 	transslider->sldr()->setMinValue( cMinVal );
 	transslider->sldr()->setMaxValue( cMaxVal );
-	transslider->sldr()->setStep( cStepVal );
+	transslider->sldr()->setTickStep( cStepVal );
 	transslider->sldr()->setValue( material->getTransparency()*100 );
     }
 }

@@ -4,14 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.6 2002-02-21 09:24:49 nanne Exp $
+ RCS:           $Id: uicolor.cc,v 1.7 2002-04-15 14:34:26 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicolor.h"
-#include "uiparent.h"
+#include "uibutton.h"
 #include "uibody.h"
+#include "uilabel.h"
 #include "qcolordialog.h"
 
 bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
@@ -40,26 +41,33 @@ bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 }
 
 
-uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* st,
-			    const char* txt )
-	: uiPushButton( p, txt )
+uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* txt,
+			    const char* lbltxt, const char* st )
+	: uiGroup(p,"Color input")
 	, color_(c)
 	, seltxt_(st)
+    	, collbl(0)
 {
-    setBackgroundColor( color_ );
-    activated.notify( mCB(this,uiColorInput,pushed) );
+    uiPushButton* but = new uiPushButton( this, txt );
+    but->activated.notify( mCB(this,uiColorInput,selCol) );
+    collbl = new uiLabel( this, "   ", but );
+    collbl->setBackgroundColor( color_ );
+    if ( lbltxt && *lbltxt )
+	new uiLabel( this, lbltxt, collbl );
+
+    setHAlignObj( collbl );
 }
 
 
-void uiColorInput::pushed( CallBacker* )
+void uiColorInput::selCol( CallBacker* )
 {
-    select( color_, parent(), seltxt_ );
-    setBackgroundColor( color_ );
+    select( color_, this, seltxt_ );
+    collbl->setBackgroundColor( color_ );
 }
 
 
 void uiColorInput::setColor( Color& col )
 {
     color_ = col;
-    setBackgroundColor( color_ );
+    collbl->setBackgroundColor( color_ );
 }
