@@ -8,13 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.29 2004-01-13 07:57:24 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.30 2004-01-26 08:22:19 nanne Exp $";
 
 #include "vistexture.h"
 
 #include "arrayndimpl.h"
 #include "basictask.h"
-#include "dataclipper.h"
 #include "iopar.h"
 #include "scaler.h"
 #include "simpnumer.h"
@@ -315,7 +314,6 @@ void visBase::Texture::autoscaleChCB(CallBacker*)
 
 void visBase::Texture::clipData()
 {
-    DataClipper clipper( colortab->clipRate() );
     if ( colordatacache )
 	coltabmod->setScale( colordatacache, cachesize );
 
