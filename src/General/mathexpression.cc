@@ -6,12 +6,8 @@
 
 static const char* rcsID = "$Id";
 
-#ifndef mISSPACE
-#define mISSPACE( c ) ( c == ' ' || c == '\t' )
-#endif
-
-#include <ctype.h>
 #include <mathexpressionimpl.h>
+#include <ctype.h>
 
 
 const char* MathExpression::getVariableStr( int var ) const
@@ -85,7 +81,7 @@ MathExpression* MathExpression::parse( const char* input )
     int pos = 0;
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( !mISSPACE(input[idx]) )
+	if ( !isspace(input[idx]) )
 	    str[pos++] = input[idx];
 	str[pos] = 0;
     }
@@ -262,7 +258,7 @@ MathExpression* MathExpression::parse( const char* input )
 
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( (!idx&&isdigit(str[idx])) || !isascii(str[idx]))
+	if ( (!idx&&isdigit(str[idx])) || !isalpha(str[idx]))
 	{
 	    isvariable = false;
 	    break;
