@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.23 2004-08-05 07:03:57 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.24 2004-09-07 14:35:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
     void			moveDraggerToObjectPos();
 
     int				nrKnots() const;
+    void			setTrack(const TypeSet<Coord>&);
     void			addKnot(const Coord&);
     void			insertKnot(int idx,const Coord&);
     Coord			getKnotPos(int) const;
@@ -98,6 +99,9 @@ public:
 
     static const char*		textureidstr;
     static const char*		draggersizestr;
+
+    void			setTransformation(visBase::Transformation*);
+    Transformation*		getTransformation();
     
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
@@ -116,6 +120,7 @@ protected:
     int				sectionidx;
 
     ObjectSet<TriangleStripSet>	sections;
+    Transformation*		transformation;
     SoRandomTrackLineDragger*	dragger;
     SoSwitch*			draggerswitch;
 };
