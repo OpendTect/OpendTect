@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.7 2002-05-30 07:48:04 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.8 2002-06-24 15:01:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <uidset.h>
 
 class PickSetGroup;
+class PickSet;
 class Color;
 
 
@@ -45,7 +46,9 @@ public:
     const BoolTypeSet& selectedSets() const		{ return selsets; }
     MultiID&		psgID()				{ return psgid; }
     const Color&	getPickColor()			{ return pickcolor; }
+    bool		storeSinglePickSet(PickSet*);
     void		renamePickset(const char*,BufferString&);
+    
 
 protected:
 

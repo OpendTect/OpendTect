@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.6 2002-05-30 07:47:59 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.7 2002-06-24 15:01:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,9 @@ ________________________________________________________________________
 #include "color.h"
 #include "uigeninputdlg.h"
 #include "datainpspec.h"
+#include "ctxtioobj.h"
+#include "ioobj.h"
+#include "uiioobjsel.h"
 
 const int uiPickPartServer::evGetAvailableSets = 0;
 const int uiPickPartServer::evFetchPicks = 1;
@@ -82,6 +85,30 @@ bool uiPickPartServer::storePickSets()
     BufferString bs;
     if ( !PickSetGroupTranslator::store(psg,dlg.ioobj(),bs,0,dlg.merge()) )
 	{ uiMSG().error( bs ); return false; }
+
+    return true;
+}
+
+
+bool uiPickPartServer::storeSinglePickSet( PickSet* ps )
+{
+    CtxtIOObj ctio = PickSetGroupTranslator::ioContext();
+    ctio.ctxt.forread = false;
+    ctio.ctxt.maychdir = false;
+    uiIOObjSelDlg dlg( appserv().parent(), ctio );
+    dlg.setInitOutputName( ps->name() );
+    if ( !dlg.go() || !dlg.ioObj() )
+	return false;
+
+    psg.clear();
+    psg.add( ps );
+    ctio.ioobj = 0;
+    ctio.setObj( dlg.ioObj()->clone() );
+    if ( !ctio.ioobj )
+	uiMSG().error("Cannot find pickset in data base");
+    BufferString bs;
+    if ( !PickSetGroupTranslator::store( psg,ctio.ioobj,bs ) )
+	{ uiMSG().error(bs); return false; }
 
     return true;
 }

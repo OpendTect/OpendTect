@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.21 2002-06-05 14:24:59 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.22 2002-06-24 15:01:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
+    void		setInitOutputName(const char*);
 
 protected:
 
@@ -63,6 +64,7 @@ protected:
     IODirEntryList*	entrylist;
     IOObj*		ioobj;
     bool		ismultisel;
+    bool		initoutpnm;
 
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
