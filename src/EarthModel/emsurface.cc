@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.40 2004-01-08 17:50:20 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.41 2004-01-09 10:20:58 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -475,9 +475,9 @@ bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
 }
 
 
-char EM::Surface::whichSide( const Coord3& timepos,
+float EM::Surface::normalDistance( const Coord3& timepos,
 			     const MathFunction<float>* time2depthfunc,
-			     float fuzzy ) const
+			     Interval<float>* meshvariation ) const
 {
     EM::PosID closestmesh(0,0,0);
     if ( !findClosestMesh(closestmesh,timepos,time2depthfunc) )
@@ -504,11 +504,14 @@ char EM::Surface::whichSide( const Coord3& timepos,
     const Plane3 plane( meshnormal, center, false );
 
     //Check how far the mesh's own coords are from the plane
-    Interval<float> nodevariation(0,0);
-    if ( c00def ) { nodevariation.include(plane.distanceToPoint(c00)); }
-    if ( c10def ) { nodevariation.include(plane.distanceToPoint(c10)); }
-    if ( c01def ) { nodevariation.include(plane.distanceToPoint(c01)); }
-    if ( c11def ) { nodevariation.include(plane.distanceToPoint(c11)); }
+    if ( meshvariation )
+    {
+	*meshvariation = Interval<float>(0,0);
+	if ( c00def ) { meshvariation->include(plane.distanceToPoint(c00)); }
+	if ( c10def ) { meshvariation->include(plane.distanceToPoint(c10)); }
+	if ( c01def ) { meshvariation->include(plane.distanceToPoint(c01)); }
+	if ( c11def ) { meshvariation->include(plane.distanceToPoint(c11)); }
+    }
 
     const Coord3 pos = time2depthfunc
 	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
@@ -518,11 +521,22 @@ char EM::Surface::whichSide( const Coord3& timepos,
     Coord3 intersection;
     plane.intersectWith( line, intersection );
     const Coord3 vector = pos-intersection;
-    double factor = meshnormal.dot( vector );
-    if ( factor>nodevariation.stop+fuzzy ) return 1;
-    if ( factor<nodevariation.start-fuzzy ) return -1;
+    return meshnormal.dot( vector );
+}
+
+
+char EM::Surface::whichSide( const Coord3& timepos,
+			     const MathFunction<float>* time2depthfunc,
+			     float fuzzy ) const
+{
+    Interval<float> meshvariation;
+    const float dist = normalDistance( timepos, time2depthfunc, &meshvariation);
+
+    if ( dist>meshvariation.stop+fuzzy ) return 1;
+    if ( dist<meshvariation.start-fuzzy ) return -1;
     return 0;
 }
+
 
 
 void EM::Surface::getMeshCoords( const EM::PosID& pid,

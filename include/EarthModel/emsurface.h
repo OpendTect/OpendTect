@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.32 2003-12-30 08:14:37 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.33 2004-01-09 10:20:55 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -247,6 +247,22 @@ public:
 					will give problems in pca. If
 					ommitted, the z coords will not
 					be converted.
+		*/
+
+    float	normalDistance( const Coord3&,
+	    		   const MathFunction<float>* depthconv=0,
+			   Interval<float>* meshvariation=0) const;
+		/*!< Computes the distance along normal of the closest mesh's
+		     plane.
+		  \returns 	the distance. Note that the distance is
+		  		negative on the back side of the surface.
+		  \param	meshvariation
+		  		      If set, the variation of the mesh's
+		  		      coordinates' own distance along the
+				      normal is set. If the returned value
+				      lies inside this range, it cannot be
+				      said on which side of the surface
+				      the given coord is.
 		*/
 
     char	whichSide( const Coord3&,
