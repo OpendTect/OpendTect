@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.2 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: bufstringset.h,v 1.3 2004-03-03 15:36:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "sets.h"
 
+class IOPar;
 
 /*!\brief Set of BufferString objects
  
@@ -46,6 +47,9 @@ public:
     int			indexOf(const char*) const;
     						//!< returns -1 if not found
 
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+
     // Overriding ObjectSet's methods - different in case of being owner
     virtual void	erase();	// becomes deepErase if owner
     virtual void	remove(int);	// etc.
@@ -67,6 +71,9 @@ public:
 
     const BufferString&	name() const			{ return name_; }
     void		setName( const char* nm )	{ name_ = nm; }
+
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
 
 protected:
 

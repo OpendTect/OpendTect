@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.44 2004-01-20 16:38:38 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.45 2004-03-03 15:34:32 arend Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -26,6 +26,11 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.44 2004-01-20 16:38:38 nanne E
 #include "toplist.h"
 #include "ptrman.h"
 #include "survinfo.h"
+
+static const char* sDbInfo = "DB Info";
+static const char* sRange = "Range";
+static const char* sValnms = "Value Names";
+static const char* sPatches = "Patches";
 
 
 void EM::SurfaceIOData::clear()
@@ -52,6 +57,39 @@ void EM::SurfaceIOData::use( const EM::Surface& surf )
 
     for ( int idx=0; idx<surf.nrAuxData(); idx++ )
 	valnames += new BufferString( surf.auxDataName(idx) );
+}
+
+
+void EM::SurfaceIOData::fillPar( IOPar& iopar ) const
+{
+    iopar.set( sDbInfo, dbinfo );
+
+    IOPar bidpar;
+    rg.fillPar( bidpar );
+    iopar.mergeComp( bidpar, sRange );
+
+    IOPar valnmspar;
+    valnames.fillPar( valnmspar );
+    iopar.mergeComp( valnmspar, sValnms );
+
+    IOPar patchpar;
+    patches.fillPar( patchpar );
+    iopar.mergeComp( patchpar, sPatches );
+}
+
+
+void EM::SurfaceIOData::usePar( const IOPar& iopar )
+{
+    iopar.get( sDbInfo, dbinfo );
+
+    IOPar* bidpar = iopar.subselect(sRange);
+    if ( bidpar ) rg.usePar( *bidpar );
+
+    IOPar* valnmspar = iopar.subselect(sValnms);
+    if ( valnmspar ) valnames.usePar( *valnmspar );
+
+    IOPar* patchpar = iopar.subselect(sPatches);
+    if ( patchpar ) patches.usePar( *patchpar );
 }
 
 

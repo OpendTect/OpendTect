@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.3 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.4 2004-03-03 15:33:30 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,10 @@ class Surface;
 class SurfaceIOData
 {
 public:
-
     			~SurfaceIOData()	{ clear(); }
+
+    void                fillPar(IOPar&) const;
+    void                usePar(const IOPar&);
 
     void		clear();
     void		use(const Surface&);
