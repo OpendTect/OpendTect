@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.20 2004-07-14 15:36:25 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.21 2004-07-21 13:20:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,8 @@ void uiIOSurface::mkObjFld( const char* lbl, bool imp )
 {
     ctio.ctxt.forread = imp;
     objfld = new uiIOObjSel( this, ctio, lbl );
+    if ( imp )
+	objfld->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
 }
 
 
@@ -262,7 +264,6 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, bool ishor, bool showattribfld )
     : uiIOSurface(p,ishor)
 {
     mkObjFld( "Input Surface", true );
-    objfld->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
 
     mkPatchFld( showattribfld );
 

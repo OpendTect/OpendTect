@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.12 2004-06-23 11:18:40 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.13 2004-07-21 13:20:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "pickset.h"
 #include "picksettr.h"
+
+#include <math.h>
 
 
 uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )

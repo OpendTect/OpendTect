@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.58 2004-05-17 13:56:37 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.59 2004-07-21 13:20:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 {
     if ( !survinfo ) return;
 
-    orgstorepath = survinfo ? survinfo->datadir : rootdir;
+    orgstorepath = survinfo ? survinfo->datadir.buf() : rootdir.buf();
     isnew = !survinfo || orgdirname == "";
 
     if ( !isnew )

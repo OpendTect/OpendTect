@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.47 2004-07-16 15:35:26 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.48 2004-07-21 13:20:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimenu.h"
 #include "ptrman.h"
+
+#include <math.h>
 
 const int uiEMPartServer::evDisplayHorizon = 0;
 
