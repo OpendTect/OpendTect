@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.34 2003-05-14 14:45:00 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.35 2003-08-25 10:31:12 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -178,7 +178,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     if ( !File_exists(fname) )
     {
 	fname = GetSurveyFileName();
-	if ( File_exists(fname) && !File_remove( fname, YES, NO ) )
+	if ( File_exists(fname) && !File_remove( fname, NO ) )
 	{
 	    fname = "The file ";
 	    fname += GetSurveyFileName();
@@ -207,7 +207,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	cerr << ". This survey is corrupt." << endl;
 
 	fname = GetSurveyFileName();
-	if ( File_exists(fname) && !File_remove( fname, YES, NO ) )
+	if ( File_exists(fname) && !File_remove( fname, NO ) )
 	{
 	    fname = "The file ";
 	    fname += GetSurveyFileName();
@@ -717,7 +717,7 @@ bool IOMan::removeAux( const MultiID& ky ) const
     FileNameString fn;
     getAuxfname( ky, fn );
     if ( iopl->size() == 0 )
-	rv = File_remove( fn, YES, NO );
+	rv = File_remove( fn, NO );
     else
     {
 	StreamData sd = StreamProvider( fn ).makeOStream();

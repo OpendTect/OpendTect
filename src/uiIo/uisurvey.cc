@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.36 2003-08-14 12:54:42 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.37 2003-08-25 10:31:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     if ( !uiMSG().askGoOn( msg ) ) return;
 
     msg = File_getFullPath( GetBaseDataDir(), selnm );
-    if ( !File_remove( msg, YES, YES ) )
+    if ( !File_remove( msg, YES ) )
     {
         msg += "\nnot removed properly";
         return;

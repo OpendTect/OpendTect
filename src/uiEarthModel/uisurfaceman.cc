@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.2 2003-08-07 14:35:54 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.3 2003-08-25 10:31:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ void uiSurfaceMan::remPush( CallBacker* )
 	    BufferString msg( "Remove attribute: '" );
 	    msg += datanm; msg += "'?";
 	    if ( uiMSG().askGoOn( msg ) )
-		File_remove( (const char*)fnm, 0, 0 );
+		File_remove( (const char*)fnm, NO );
 
 	    selChg(this);
 	    return;

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.5 2003-08-22 16:40:34 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.6 2003-08-25 10:31:12 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -60,6 +60,20 @@ const char* Well::IO::getFileName( const char* ext, int nr ) const
 	{ fnm += "^"; fnm += nr; }
     fnm += ext;
     return fnm;
+}
+
+
+bool Well::IO::removeAll( const char* ext ) const
+{
+    for ( int idx=0; ; idx++ )
+    {
+	BufferString fnm( getFileName(ext,idx) );
+	if ( !File_exists(fnm) )
+	    break;
+	else if ( !File_remove(fnm,NO) )
+	    return false;
+    }
+    return true;
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.13 2002-11-18 08:43:02 bert Exp $
+ RCS:		$Id: filegen.h,v 1.14 2003-08-25 10:31:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ int	File_isWritable(const char*);
 int	File_createDir(const char*,int mode /* 0755 when 0 passed */);
 int	File_rename(const char* oldname,const char* newname);
 int	File_copy(const char* from,const char* to,int recursive_downward);
-int	File_remove(const char*,int force,int recursive_downward);
+int	File_remove(const char*,int recursive_downward);
 int	File_makeWritable(const char*,int recursive,int yesno);
 int	File_createLink(const char* from,const char* to);
 

@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.17 2002-01-07 13:20:12 nanne Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.18 2003-08-25 10:31:12 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -124,7 +124,7 @@ bool Settings::write( bool do_merge ) const
 
     BufferString oldfname = (const char*)fname;
     oldfname += ".old";
-    if ( File_exists(oldfname) && !File_remove(oldfname,NO,NO) )
+    if ( File_exists(oldfname) && !File_remove(oldfname,NO) )
     {
 	ErrMsg( "Cannot remove '.old' settings file" );
 	sd.close();

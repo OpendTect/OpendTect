@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.24 2002-10-28 22:29:11 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.25 2003-08-25 10:31:12 bert Exp $
 ________________________________________________________________________
 
 */
@@ -116,7 +116,7 @@ public:
     inline	~ArrayNDFileStor()
 		{
 		    close();
-		    File_remove( name, 0, 0 );
+		    File_remove( name, NO );
 		}
 private:
 

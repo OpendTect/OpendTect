@@ -33,7 +33,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.36 2003-05-20 12:42:12 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.37 2003-08-25 10:31:12 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -470,7 +470,7 @@ bool StreamProvider::remove( bool recursive ) const
 
     if ( !hostname[0] )
 	return fname == sStdIO || fname == sStdErr ? false :
-		File_remove( (const char*)fname, NO, recursive );
+		File_remove( (const char*)fname, recursive );
 
     sprintf( oscommand.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
 	      (const char*)rshcomm,
