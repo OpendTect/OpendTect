@@ -2,14 +2,14 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.5 2003-12-09 15:37:09 arend Exp $
+# $Id: od_cr_dev_env,v 1.6 2003-12-09 15:45:25 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
 #_______________________________________________________________________________
 
 
-if [ ! "$#" -lt 2 ]; then
+if [ "$#" -lt 2 ]; then
 	echo "Usage : $0 OpendtTect_directory existing_target_directory [MinGW home]"
 	exit 1
 fi
