@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.6 2002-08-05 08:56:25 nanne Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.7 2002-08-27 19:40:47 nanne Exp $";
 
 
 #include "dataclipper.h"
@@ -42,7 +42,7 @@ void DataClipper::putData( float v )
 	    return;
     }
 
-    samples += v;
+    if ( !mIsUndefined( v ) ) samples += v;
 }
 
 
