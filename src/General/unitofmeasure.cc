@@ -4,13 +4,14 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.4 2004-02-27 08:21:31 nanne Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.5 2004-04-01 13:39:50 bert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
 #include "separstr.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "debug.h"
 
 UnitOfMeasureRepository& UoMR()
@@ -40,8 +41,8 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 
 UnitOfMeasureRepository::UnitOfMeasureRepository()
 {
-    BufferString fnm = GetSettingsDir();
-    fnm = File_getFullPath( fnm, "unitsofmeasure" );
+    FilePath fp( GetSettingsDir() ); fp.add( "unitsofmeasure" );
+    BufferString fnm = fp.fullPath();
     addUnitsFromFile(fnm);
     fnm = GetDataFileName( "UnitsOfMeasure" );
     addUnitsFromFile(fnm);

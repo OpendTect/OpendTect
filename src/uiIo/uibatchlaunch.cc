@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.36 2003-11-13 16:10:59 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.37 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "hostdata.h"
-#include "filegen.h"
+#include "filepath.h"
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
@@ -28,12 +28,13 @@ static const char* sMultiBaseNm = "cube_processing";
 
 static void getProcFilename( const char* basnm, BufferString& tfname )
 {
-    const BufferString inpfnm( basnm );
-    tfname = File_getFullPath( GetDataDir(), "Proc" );
-    tfname = File_getFullPath( tfname, inpfnm );
+    tfname = basnm;
     if ( GetSoftwareUser() )
 	{ tfname += "_"; tfname += GetSoftwareUser(); }
     tfname += ".par";
+
+    FilePath fp( GetDataDir() );
+    tfname = fp.add( "Proc" ).add( tfname ).fullPath();
 }
 
 
@@ -93,12 +94,13 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     static BufferString fname = "";
     if ( fname == "" )
     {
-	fname = GetDataDir();
-	fname = File_getFullPath( fname, "Proc" );
-	fname = File_getFullPath( fname, "log" );
+	fname = "log";
 	if ( GetSoftwareUser() )
 	    { fname += "_"; fname += GetSoftwareUser(); }
 	fname += ".txt";
+
+	FilePath fp( GetDataDir() );
+	fname = fp.add( "Proc" ).add( fname ).fullPath();
     }
     filefld = new uiFileInput( this, "Log file",
 	   		       uiFileInput::Setup(fname).forread(false) );
@@ -278,7 +280,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     BufferString inpfnm = parfnamefld->fileName();
     if ( inpfnm == "" )
 	getProcFilename( "tmp_proc", inpfnm );
-    else if ( !File_isAbsPath(inpfnm) )
+    else if ( !FilePath(inpfnm).isAbsolute() )
 	getProcFilename( inpfnm, inpfnm );
 
     const bool issing = 

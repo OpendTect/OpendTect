@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.22 2004-03-01 14:46:31 nanne Exp $
+ RCS:           $Id: uifileinput.cc,v 1.23 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "filegen.h"
+#include "filepath.h"
 #include "uifilebrowser.h"
 
 
@@ -118,8 +118,12 @@ void uiFileInput::doSelect( CallBacker* )
 const char* uiFileInput::fileName()
 {
     fname = text();
-    if ( !File_isAbsPath(fname) && fname != "" && defseldir != "" )
-	fname = File_getFullPath( defseldir, fname );
+    FilePath fp( fname );
+    if ( !fp.isAbsolute() && fname != "" && defseldir != "" )
+    {
+	fp.insert( defseldir );
+	fname = fp.fullPath();
+    }
     return fname;
 }
 

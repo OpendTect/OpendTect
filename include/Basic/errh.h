@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.10 2003-11-10 14:35:07 arend Exp $
+ RCS:		$Id: errh.h,v 1.11 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 */
 
-#include <msgh.h>
-#include <bufstring.h>
+#include "msgh.h"
+#include "bufstring.h"
 
 /*!\brief MsgClass holding an error message.
 
@@ -36,18 +36,7 @@ public:
 };
 
 
-inline void ErrMsg( const char* msg, bool progr = false )
-{
-    if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
-
-    if ( !MsgClass::theCB().willCall() )
-	cerr << (progr?"(PE) ":"") << msg << endl;
-    else
-    {
-	ErrMsgClass obj( msg, progr );
-	MsgClass::theCB().doCall( &obj );
-    }
-}
+void ErrMsg(const char*,bool progr=false);
 
 
 inline void programmerErrMsg( const char* msg, const char* cname,

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fstream>
+#include <iostream>
 
 #ifdef __win__
 # include <windows.h>
@@ -27,6 +28,7 @@
 
 #include "strmprov.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "string2.h"
 #include "binidsel.h"
 #include "strmoper.h"
@@ -35,7 +37,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.50 2004-02-04 13:32:42 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.51 2004-04-01 13:39:50 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -113,7 +115,7 @@ void StreamData::close()
     if ( ostrm )
     {
 	ostrm->flush();
-	if ( ostrm != &cout && ostrm != &cerr )
+	if ( ostrm != &std::cout && ostrm != &std::cerr )
 	    delete ostrm;
     }
 
@@ -299,14 +301,18 @@ const char* StreamProvider::fullName() const
 void StreamProvider::addPathIfNecessary( const char* path )
 {
     if ( isbad ) return;
+
     if ( type_ != StreamConn::File
       || !path || ! *path
-      || fname == sStdIO || fname == sStdErr
-      || File_isAbsPath(fname) )
+      || fname == sStdIO || fname == sStdErr )
 	return;
 
-    BufferString pth( path );
-    fname = File_getFullPath( pth, fname );
+    FilePath fp( fname );
+    if ( fp.isAbsolute() )
+	return;
+
+    fp.insert( path );
+    fname = fp.fullPath();
 }
 
 
@@ -383,12 +389,12 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 	return sd;
     else if ( fname == sStdIO )
     {
-	sd.ostrm = &cout;
+	sd.ostrm = &std::cout;
 	return sd;
     }
     else if ( fname == sStdErr )
     {
-	sd.ostrm = &cerr;
+	sd.ostrm = &std::cerr;
 	return sd;
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
@@ -505,7 +511,7 @@ static const char* getCmd( const char* fnm )
 	static BufferString fullexec;
 
 	fullexec = "\"";
-	fullexec += File_getFullPath( GetSoftwareDir(), interp );
+	fullexec += FilePath(GetSoftwareDir()).add(interp).fullPath();
 	fullexec += "\" '";
 	fullexec += execnm;
 	fullexec += "'";

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.11 2003-11-07 12:21:57 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.12 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,8 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "ascstream.h"
 #include "errh.h"
-#include <unistd.h>
+#include <iostream>
+# include <unistd.h>
 #ifdef __win__
 # include <windows.h>
 #else

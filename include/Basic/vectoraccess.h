@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.18 2003-12-24 11:59:21 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.19 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
 			    if ( i1 >= sz ) return;
 
 			    if ( i2 >= sz-1 ) i2 = sz-1;
-			    v.erase( v.begin()+i1, v.begin()+i2 );
+			    v.erase( v.begin()+i1, v.begin()+i2+1 );
 			}
     inline void		swap( unsigned int i, unsigned int j )
 			{ std::swap( v[i], v[j] ); }

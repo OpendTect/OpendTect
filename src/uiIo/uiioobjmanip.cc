@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.7 2004-03-19 13:42:29 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.8 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "transl.h"
 #include "ptrman.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "errh.h"
 
 
@@ -205,7 +206,7 @@ bool uiRmIOObjImpl( IOObj& ioob, bool askexist )
     else
     {
 	FileNameString fullexpr( ioob.fullUserExpr(true) );
-	mess += File_getFileName(fullexpr);
+	mess += FilePath(fullexpr).fileName();
 	mess += "'\n- and everything in it! - ?";
     }
     if ( !uiMSG().askGoOn(mess) )
@@ -256,9 +257,8 @@ bool uiIOObjManipGroup::relocEntry( Translator* tr )
     if ( !File_isDirectory(newdir) )
     { uiMSG().error( "Selected path is not a directory" ); return false; }
 
-    const char* filenm = File_getFileName(oldfnm);
-    BufferString newfnm = File_getFullPath( newdir, filenm );
-    chiostrm.setFileName( newfnm );
+    FilePath fp( oldfnm ); fp.setPath( newdir );
+    chiostrm.setFileName( fp.fullPath() );
     if ( !doReloc(tr,*iostrm,chiostrm) )
 	return false;
 

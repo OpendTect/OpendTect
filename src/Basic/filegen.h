@@ -8,18 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.16 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: filegen.h,v 1.17 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <gendefs.h>
-
-#ifdef __win__
-# define sDirSep	"\\"
-#else
-# define sDirSep	"/"
-#endif
 
 
 #ifdef __cpp__
@@ -37,7 +31,6 @@ and links are lacking on windows.
 int	File_exists(const char*);
 int	File_isEmpty(const char*);
 int	File_isDirectory(const char*);
-int	File_isAbsPath(const char*);
 int	File_isLink(const char*);
 int	File_isRemote(const char*);
 int	File_isWritable(const char*);
@@ -54,20 +47,7 @@ int	File_createLink(const char* from,const char* to);
 int	File_getKbSize(const char*);
 int	File_getFreeMBytes(const char*);
 
-/*!
-The following functions return a pointer to the same static buffer, meaning you
-cannot mix them directly!
-*/
-const char*	File_getFullPath(const char* pathname,const char* filename);
-const char*	File_getPathOnly(const char* fullpath);
-const char*	File_getFileName(const char* fullpath);
-const char*	File_getTempFileName(const char* id_unique_for_process,
-				     const char* extension,int full_path);
-const char*	File_getSimpleTempFileName(const char* extension);
-const char*	File_removeExtension(const char* filename);
-		/* returns all extensions removed */
-const char*	File_getBaseName(const char* filename);
-		/* returns all extensions and path prefixes removed */
+/*! Functions returning path */
 const char*	File_linkTarget(const char* linkname);
 		/* returns what a symbolic link points to */
 const char*	File_getCurrentDir();

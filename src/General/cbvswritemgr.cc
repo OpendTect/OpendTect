@@ -5,22 +5,20 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.20 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.21 2004-04-01 13:39:50 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
 #include "strmprov.h"
-#include "filegen.h"
+#include "filepath.h"
 #include "survinfo.h"
 
 BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
     if ( curnr == 0 ) return basefname;
 
-    BufferString fname( basefname );
-    fname = File_getFileName( fname );
-    BufferString pathname( basefname );
-    pathname = File_getPathOnly( pathname );
+    FilePath fp( basefname );
+    BufferString fname = fp.fileName();
 
     char* ptr = strrchr( fname.buf(), '.' );
     BufferString ext;
@@ -37,8 +35,8 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 
     if ( ptr ) fname += ext;
 
-    fname = File_getFullPath( pathname, fname );
-    return fname;
+    fp.setFileName( fname );
+    return fp.fullPath();
 }
 
 

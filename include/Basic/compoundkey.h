@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.4 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: compoundkey.h,v 1.5 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <general.h>
 #endif
 #include <stdlib.h>
+#include <iostream>
 
 /*!\brief Concatenated short keys separated by dots.
 
@@ -62,9 +63,9 @@ protected:
 };
 
 
-inline ostream& operator <<( ostream& strm, const CompoundKey& uid )
+inline std::ostream& operator <<( std::ostream& strm, const CompoundKey& uid )
 { strm << (const char*)uid; return strm; }
-inline istream& operator >>( istream& strm, CompoundKey& uid )
+inline std::istream& operator >>( std::istream& strm, CompoundKey& uid )
 { strm >> uid.buf(); return strm; }
 
 inline CompoundKey& CompoundKey::operator +=( const char* s )

@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.39 2004-02-06 13:11:11 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.40 2004-04-01 13:39:50 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -15,19 +15,21 @@ static const char* rcsID = "$Id: genc.c,v 1.39 2004-02-06 13:11:11 arend Exp $";
 #include <stdlib.h>
 #include <math.h>
 #ifndef __win__
-#include <unistd.h>
+# include <unistd.h>
+# define sDirSep	"/"
 #else
-#include <process.h>
-#include <float.h>
-#include "windows.h"
-#include "getspec.h"	// GetSpecialFolderLocation()
+# include <process.h>
+# include <float.h>
+# include "windows.h"
+# include "getspec.h"	// GetSpecialFolderLocation()
+# define sDirSep	"\\"
 #endif
 
 #include "debugmasks.h"
 
-static FileNameString filenamebuf;
 static FileNameString surveyname;
 static int surveynamedirty = YES;
+static const char* dirsep = sDirSep;
 
 
 int SurveyNameDirty()
@@ -39,6 +41,31 @@ int SurveyNameDirty()
 void SetSurveyNameDirty()
 {
     surveynamedirty = 1;
+}
+
+
+static const char* mkFullPath( const char* path, const char* filename )
+{
+    static FileNameString pathbuf;
+    char* chptr;
+    int lastpos;
+
+    if ( path != pathbuf )
+	strcpy( pathbuf, path && *path ? path : "." );
+
+    if ( !filename || !*filename ) return pathbuf;
+
+    /* Remove trailing dirseps from pathbuf */
+    chptr = pathbuf; while ( *chptr ) chptr++; chptr--;
+    while ( chptr != pathbuf-1 && *chptr == *dirsep ) *chptr-- = '\0';
+
+    chptr = (char*)pathbuf;
+    lastpos = strlen( chptr ) - 1;
+    if ( lastpos >= 0 && chptr[lastpos] != *dirsep )
+	strcat( chptr, dirsep );
+
+    strcat( chptr, filename );
+    return chptr;
 }
 
 
@@ -74,7 +101,6 @@ const char* GetSoftwareDir()
 	*chptr1-- = '\0';
 
 	/* Remove trailing dirseps from pathbuf */
-	const char* dirsep = sDirSep;
 	while ( chptr1 != progname-1 && *chptr1 == *dirsep ) *chptr1-- = '\0';
 
 	dir = progname;
@@ -97,11 +123,11 @@ const char* GetExecScript( int remote )
 
     strcpy( progname, "'" );
     strcat( progname, GetSoftwareDir() );
-    strcpy( progname, File_getFullPath(progname, "bin") );
+    strcpy( progname, mkFullPath(progname, "bin") );
 #ifdef __win__
-    strcpy( progname, File_getFullPath(progname, "win") );
+    strcpy( progname, mkFullPath(progname, "win") );
 #endif
-    strcpy( progname, File_getFullPath(progname, "od_exec") );
+    strcpy( progname, mkFullPath(progname, "od_exec") );
 
     if( remote )
 	strcat( progname, "_rmt" );
@@ -117,9 +143,10 @@ const char* GetExecScript( int remote )
 
 const char* GetDataFileName( const char* fname )
 {
-    strcpy( filenamebuf, File_getFullPath( GetSoftwareDir(), "data" ) );
+    static FileNameString filenamebuf;
+    strcpy( filenamebuf, mkFullPath( GetSoftwareDir(), "data" ) );
     if ( fname && *fname )
-	strcpy( filenamebuf, File_getFullPath( filenamebuf, fname ) );
+	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
 
     if ( dgb_debug_isOn(DBG_SETTINGS) )
     {
@@ -210,7 +237,7 @@ const char* GetSettingsDir(void)
 
 #endif
 
-    ptr = File_getFullPath( ptr, ".od" );
+    ptr = mkFullPath( ptr, ".od" );
 
     if ( !File_isDirectory(ptr) )
     {
@@ -274,7 +301,7 @@ const char* GetSurveyFileName()
     {
 	ptr = GetSettingsDir();
 	if ( !ptr ) return 0;
-	strcpy( sfname, File_getFullPath(ptr,"survey") );
+	strcpy( sfname, mkFullPath(ptr,"survey") );
 	ptr = GetSoftwareUser();
 	if ( ptr )
 	{
@@ -378,6 +405,7 @@ const char* GetBaseDataDir()
 
 const char* GetDataDir()
 {
+    static FileNameString filenamebuf;
     const char* survnm;
     const char* basedir = GetBaseDataDir();
     if ( !basedir || !*basedir ) return 0;
@@ -385,7 +413,7 @@ const char* GetDataDir()
     survnm = GetSurveyName();
     if ( !survnm || !*survnm ) return basedir;
 
-    strcpy( filenamebuf, File_getFullPath(basedir,survnm) );
+    strcpy( filenamebuf, mkFullPath(basedir,survnm) );
 
     if( dgb_debug_isOn(DBG_SETTINGS) )
     {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.6 2004-01-16 13:39:43 bert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.7 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "settings.h"
 #include "filegen.h"
+#include "filepath.h"
 #include <stdlib.h>
 
 
@@ -49,8 +50,9 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 		  "* Locate a valid data root directory\n"
 		  "* Or specify a new directory name to create";
 
-	    oddirnm = File_getFileName( olddatadir );
-	    basedirnm = File_getPathOnly( olddatadir );
+	    FilePath fp( olddatadir );
+	    oddirnm = fp.fileName();
+	    basedirnm = fp.pathOnly();
 	}
     }
     else
@@ -88,12 +90,17 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 
 bool uiSetDataDir::isOK( const char* d )
 {
-    const BufferString datadir( d ? d : GetBaseDataDir() );
-    const BufferString omffnm( File_getFullPath( datadir, ".omf" ) );
-    const BufferString seisdir( File_getFullPath( datadir, "Seismics" ) );
-    return File_isDirectory( datadir )
-	&& File_exists( omffnm )
-	&& !File_exists( seisdir );
+    FilePath fp( d ? d : GetBaseDataDir() );
+    if ( !File_isDirectory( fp.fullPath() ) ) return false;
+
+    fp.add( ".omf" );
+    if ( !File_exists( fp.fullPath() ) ) return false;
+
+    fp.setFileName( ".survey" );
+    if ( File_exists( fp.fullPath() ) )
+	return false;
+
+    return true;
 }
 
 
@@ -111,7 +118,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	if ( oddirnm == "" )
 	    mErrRet( "Please enter a (sub-)directory name" )
 
-	datadir = File_getFullPath( datadir, oddirnm );
+	datadir = FilePath( datadir ).add( oddirnm ).fullPath();
     }
     else if ( datadir == olddatadir )
 	return true;
@@ -124,8 +131,9 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 {
     BufferString datadir = inpdatadir;
 
-    const BufferString omffnm = File_getFullPath( datadir, ".omf" );
+    const BufferString omffnm = FilePath( datadir ).add( ".omf" ).fullPath();
     const BufferString stdomf( GetDataFileName("omf") );
+    bool trycpdemosurv = false;
 
     if ( !File_exists(datadir) )
     {
@@ -144,21 +152,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	if ( !File_exists(omffnm) )
 	    mErrRet( "Cannot copy a file to the new directory!" )
 
-        if ( getenv( "DTECT_DEMO_SURVEY") )
-	{
-            const BufferString surveynm( getenv( "DTECT_DEMO_SURVEY" ) );
-            const BufferString todir( File_getFullPath( datadir,
-                                      File_getFileName(surveynm) ) );
-
-            if ( File_isDirectory(surveynm) && !File_exists(todir) )
-	    {
-		if ( uiMSG().askGoOn( 
-			    "Do you want to install the demo survey\n"
-			    "in your new OpendTect Data Root directory?" ) )
-		    File_copy( surveynm, todir, YES );
-	    }
-	}
-
+	trycpdemosurv = true;
     }
     else if ( !isOK(datadir) )
     {
@@ -174,27 +168,15 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 		mErrRet( "Could not convert the directory.\n"
 			 "Most probably you have no write permissions." )
 
-	    if ( getenv( "DTECT_DEMO_SURVEY") )
-	    {
-		const BufferString surveynm( getenv( "DTECT_DEMO_SURVEY" ) );
-		const BufferString todir( File_getFullPath( datadir,
-					  File_getFileName(surveynm) ) );
-
-		if ( File_isDirectory(surveynm) && !File_exists(todir) )
-		{
-		    if ( uiMSG().askGoOn( 
-			    "Do you want to install the demo survey\n"
-			    "in your OpendTect Data Root directory?" ) )
-			File_copy( surveynm, todir, YES );
-		}
-	    }
+	    trycpdemosurv = true;
 	}
 	else
 	{
-	    const BufferString seisdir( File_getFullPath(datadir,"Seismics") );
-	    if ( File_exists(seisdir) )
+	    FilePath fp( datadir ); fp.add( "Seismics" );
+	    if ( File_exists(fp.fullPath()) )
 	    {
-		BufferString probdatadir( File_getPathOnly(datadir) );
+		fp.setFileName( 0 );
+		BufferString probdatadir( fp.pathOnly() );
 		BufferString msg( "This seems to be a survey directory.\n" );
 		msg += "We need the directory containing the survey dirs.\n"
 			"Do you want to correct your input to\n"; 
@@ -206,6 +188,21 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 		else if ( res == 0 )
 		    datadir = probdatadir;
 	    }
+	}
+    }
+
+    const char* demosurvnm = getenv( "DTECT_DEMO_SURVEY" );
+    if ( trycpdemosurv && demosurvnm && File_isDirectory(demosurvnm) )
+    {
+	FilePath fp( datadir );
+	fp.add( FilePath(demosurvnm).fileName() );
+	const BufferString todir( fp.fullPath() );
+	if ( !File_exists(todir) )
+	{
+	    if ( uiMSG().askGoOn( 
+		    "Do you want to install the demo survey\n"
+		    "in your OpendTect Data Root directory?" ) )
+		File_copy( demosurvnm, todir, YES );
 	}
     }
 

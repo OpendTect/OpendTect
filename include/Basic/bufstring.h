@@ -8,15 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.15 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.16 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "string2.h"
 #include <string.h>
-#include <string2.h>
-#include <iostream>
 #include <stdlib.h>
+#include <iosfwd>
 
 /*!\brief String with variable length but guaranteed minimum buffer size.
 
@@ -86,6 +86,8 @@ public:
    inline BufferString&	operator+=(const char*);
    inline bool		operator==(const char*) const;
 
+   static const BufferString& empty();
+
 protected:
 
     char*		buf_;
@@ -98,6 +100,9 @@ private:
 			{ len = minlen; buf_ = mMALLOC(len,char); *buf_ ='\0'; }
 
 };
+
+std::ostream& operator <<(std::ostream&,const BufferString&);
+std::istream& operator >>(std::istream&,BufferString&);
 
 
 inline bool BufferString::operator==( const char* s ) const
@@ -150,14 +155,6 @@ inline BufferString& BufferString::operator +=( const char* s )
     }
     return *this;
 }
-
-
-
-inline ostream& operator <<( ostream& stream, const BufferString& bs )
-{ stream << (const char*)bs; return stream; }
-
-inline istream& operator >>( istream& stream, BufferString& bs )
-{ stream >> bs.buf(); return stream; }
 
 
 #endif

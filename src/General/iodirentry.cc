@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.9 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.10 2004-04-01 13:39:50 bert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: iodirentry.cc,v 1.9 2003-11-07 12:21:57 bert Ex
 #include "ioman.h"
 #include "iopar.h"
 #include "globexpr.h"
+#include "filepath.h"
 
 #include "errh.h"
 
@@ -85,7 +86,8 @@ void IODirEntryList::fill( IODir* iodir )
     setName( iodir->main() ? (const char*)iodir->main()->name() : "Objects" );
     const ObjectSet<IOObj>& ioobjs = iodir->getObjs();
     int curset = 0;
-    if ( ctxt.maychdir && strcmp(iodir->dirName(),IOM().rootDir()) )
+    if ( ctxt.maychdir
+	&& FilePath(iodir->dirName()) != FilePath(IOM().rootDir()) )
     {
         *this += new IODirEntry( 0, 0, false );
 	curset++;
@@ -103,7 +105,7 @@ void IODirEntryList::fill( IODir* iodir )
 	      || (selres == mObjSelRelated && !ioobj->isLink()) )
 		continue;
 	}
-	if ( ctxt.validIOObj(*ioobj) )
+	if ( selres == mObjSelRelated || ctxt.validIOObj(*ioobj) )
 	    *this += new IODirEntry( ioobj, selres, ctxt.maychdir );
     }
 

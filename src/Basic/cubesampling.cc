@@ -4,12 +4,13 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.4 2004-03-17 08:32:21 kristofer Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.5 2004-04-01 13:39:50 bert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
 #include "binidselimpl.h"
 #include "iopar.h"
+#include <math.h>
 
 const char* HorSampling::startstr = "Start";
 const char* HorSampling::stopstr = "Stop";
@@ -200,7 +201,7 @@ void CubeSampling::snapToSurvey(bool work)
 }
 
 
-bool CubeSampling::operator==(const CubeSampling& cs) const
+bool CubeSampling::operator==( const CubeSampling& cs ) const
 {
    if ( cs.hrg==this->hrg )
    {

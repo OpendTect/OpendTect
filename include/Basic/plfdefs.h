@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.10 2003-12-24 11:59:21 bert Exp $
+ RCS:		$Id: plfdefs.h,v 1.11 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 */
@@ -50,7 +50,11 @@ Language:
 Byte order:
 
 	__little__	little-endian (PC,DEC)
+
+Always defined:
+
 	__islittle__	'true' if __little__ defined, else 'false'
+	__iswin__	'true' on windows, 'false' otherwise
 
 */
 
@@ -81,6 +85,12 @@ Byte order:
 # warning "Platform not detected. choosing windows"
 # define __win__ 1
 #endif
+#endif
+
+#ifdef __win__
+# define __iswin__ true
+#else
+# define __iswin__ false
 #endif
 
 

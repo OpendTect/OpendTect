@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.14 2004-02-12 15:49:34 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.15 2004-04-01 13:39:50 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.14 2004-02-12 15:49:34 bert E
 #include "wellmarker.h"
 #include "ascstream.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "errh.h"
 #include "strmprov.h"
 #include "keystrs.h"
@@ -38,8 +39,9 @@ Well::IO::IO( const char* f, bool fr )
     	: basenm(f)
     	, isrdr(fr)
 {
-    strcpy( const_cast<char*>(basenm.buf()),
-	    File_removeExtension(basenm.buf()) );
+    FilePath fp( basenm );
+    fp.setExtension( 0, true );
+    const_cast<BufferString&>(basenm) = fp.fullPath();
 }
 
 
@@ -185,7 +187,7 @@ bool Well::Reader::getOldTimeWell( istream& strm ) const
 	return false;
 
     wd.info().surfacecoord = wd.track().pos(0);
-    wd.info().setName( File_getPathOnly(basenm) );
+    wd.info().setName( FilePath(basenm).fileName() );
 
     // create T2D
     D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell );
@@ -239,7 +241,7 @@ bool Well::Reader::getLogs() const
 	if ( !addLog(*sd.istrm) )
 	{
 	    BufferString msg( "Could not read data from " );
-	    msg += File_getFileName(basenm.buf());
+	    msg += FilePath(basenm).fileName();
 	    msg += " log #";
 	    msg += idx;
 	    ErrMsg( msg );

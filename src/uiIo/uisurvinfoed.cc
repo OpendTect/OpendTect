@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.56 2004-03-02 13:39:00 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.57 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvinfoed.h"
 #include "errh.h"
-#include "filegen.h"
 #include "survinfoimpl.h"
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -24,6 +23,8 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
 #include "ioman.h"
+#include "filegen.h"
+#include "filepath.h"
 #include "ptrman.h"
 
 extern "C" const char* GetBaseDataDir();
@@ -58,30 +59,33 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 
     if ( !isnew )
     {
-	BufferString storagedir = File_getFullPath( orgstorepath, orgdirname );
+	BufferString storagedir = FilePath(orgstorepath)
+	    			  .add(orgdirname).fullPath();
 	int linkcount = 0;
 	while ( linkcount++ < 20 && File_isLink(storagedir) )
 	{
 	    BufferString newstoragedir = File_linkTarget(storagedir);
-	    if ( !File_isAbsPath(newstoragedir) )
+	    FilePath fp( newstoragedir );
+	    if ( !fp.isAbsolute() )
 	    {
-		storagedir = File_getPathOnly(storagedir);
-		newstoragedir = File_getFullPath(storagedir,newstoragedir);
+		fp.setPath( FilePath(storagedir).pathOnly() );
+		newstoragedir = fp.fullPath();
 	    }
 	    storagedir = newstoragedir;
 	}
 	if ( linkcount < 20 )
 	{
-	    orgstorepath = File_getPathOnly( storagedir );
-	    orgdirname = File_getFileName( storagedir );
+	    FilePath fp( storagedir );
+	    orgstorepath = fp.pathOnly();
+	    orgdirname = fp.fileName();
 	}
     }
     else
     {
 	orgstorepath = rootdir;
 	orgdirname = newSurvTempDirName();
-	BufferString dirnm( orgstorepath );
-	dirnm = File_getFullPath( dirnm, orgdirname );
+	BufferString dirnm = FilePath( orgstorepath )
+	    		    .add( orgdirname ).fullPath();
 	if ( File_exists(dirnm) )
 	    File_remove( dirnm, YES );
 	if ( !copySurv(GetDataFileName(0),"BasicSurvey",
@@ -315,8 +319,8 @@ const char* uiSurveyInfoEditor::newSurvTempDirName()
 bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 				   const char* outpath, const char* outdirnm )
 {
-    BufferString fnmin( inpath ); fnmin = File_getFullPath(fnmin,indirnm);
-    BufferString fnmout( outpath ); fnmout = File_getFullPath(fnmout,outdirnm);
+    const BufferString fnmin = FilePath(inpath).add(indirnm).fullPath();
+    const BufferString fnmout = FilePath(outpath).add(outdirnm).fullPath();
     if ( File_exists(fnmout) )
     {
 	BufferString msg( "Cannot copy " ); msg += fnmin;
@@ -342,8 +346,8 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 				     const char* outdirnm )
 {
-    BufferString fnmin( path ); fnmin = File_getFullPath(fnmin,indirnm);
-    BufferString fnmout( path ); fnmout = File_getFullPath(fnmout,outdirnm);
+    const BufferString fnmin = FilePath(path).add(indirnm).fullPath();
+    const BufferString fnmout = FilePath(path).add(outdirnm).fullPath();
     if ( File_exists(fnmout) )
     {
 	BufferString msg( "Cannot rename " ); msg += fnmin;
@@ -409,7 +413,7 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 {
     if ( isnew )
     {
-	BufferString dirnm = File_getFullPath( orgstorepath, orgdirname );
+	BufferString dirnm = FilePath(orgstorepath).add(orgdirname).fullPath();
 	if ( File_exists(dirnm) )
 	    File_remove( dirnm, YES );
     }
@@ -438,8 +442,8 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     BufferString newstorepath = pathfld->text();
 
-    BufferString olddir = File_getFullPath( orgstorepath, orgdirname );
-    BufferString newdir = File_getFullPath( newstorepath, newdirnm );
+    BufferString olddir = FilePath(orgstorepath).add(orgdirname).fullPath();
+    BufferString newdir = FilePath(newstorepath).add(newdirnm).fullPath();
     const bool storepathchanged = orgstorepath != newstorepath;
 
     if ( !isnew )
@@ -487,7 +491,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     }
 
     survinfo->dirname = newdirnm;
-    BufferString linkpos = File_getFullPath( rootdir, newdirnm ); 
+    BufferString linkpos = FilePath(rootdir).add(newdirnm).fullPath(); 
     if ( File_exists(linkpos) )
     {
        if ( File_isLink(linkpos) )

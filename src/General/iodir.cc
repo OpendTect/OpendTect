@@ -4,9 +4,8 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.12 2004-03-25 14:25:53 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.13 2004-04-01 13:39:50 bert Exp $";
 
-#include "filegen.h"
 #include "iodir.h"
 #include "iolink.h"
 #include "ioman.h"
@@ -15,6 +14,8 @@ static const char* rcsID = "$Id: iodir.cc,v 1.12 2004-03-25 14:25:53 bert Exp $"
 #include "strmoper.h"
 #include "errh.h"
 #include "timefun.h"
+#include "filegen.h"
+#include "filepath.h"
 
 
 IODir::IODir( const char* dirnm )
@@ -77,7 +78,8 @@ const IOObj* IODir::main() const
 
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 {
-    FileNameString omfname = File_getFullPath(dirnm,".omf");
+    FilePath fp( dirnm ); fp.add( ".omf" );
+    BufferString omfname = fp.fullPath();
     bool found1 = false;
     if ( !File_isEmpty(omfname) )
     {
@@ -87,18 +89,19 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
     }
 
     // Looks like something went wrong. Try the .omb ...
-    omfname = File_getFullPath(dirnm,".omb");
     if ( dirptr )
     {
 	dirptr->setLinked(0);
 	deepErase(dirptr->objs_);
     }
-    IOObj* ret = readOmf( omfname, dirnm, dirptr, needid, found1 );
+    fp.setFileName( ".omb" );
+    IOObj* ret = readOmf( fp.fullPath(), dirnm, dirptr, needid, found1 );
+
     if ( !found1 )
     {
 	// Last chance: maybe there's a .omf.new
-	omfname = File_getFullPath(dirnm,".omf.new");
-	ret = readOmf( omfname, dirnm, dirptr, needid, found1 );
+	fp.setFileName( ".omf.new" );
+	ret = readOmf( fp.fullPath(), dirnm, dirptr, needid, found1 );
     }
     return ret;
 }
@@ -396,9 +399,12 @@ bool IODir::wrOmf( const char* fnm ) const
 
 bool IODir::doWrite() const
 {
-    const BufferString omfname( File_getFullPath(dirname_,".omf") );
-    const BufferString ombname( File_getFullPath(dirname_,".omb") );
-    const BufferString tmpomfname( File_getFullPath(dirname_,".omf.new") );
+    FilePath fp( dirname_ ); fp.add( ".omf" );
+    const BufferString omfname( fp.fullPath() );
+    fp.setFileName( ".omb" );
+    const BufferString ombname( fp.fullPath() );
+    fp.setFileName( ".omf.new" );
+    const BufferString tmpomfname( fp.fullPath() );
 
     // Simple (but by no means secure) attempt to avoid concurrent update
     // problems. I'm afraid that making this a forcing lock will introduce

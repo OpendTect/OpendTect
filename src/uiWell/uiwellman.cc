@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.15 2004-03-11 12:39:27 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.16 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "pixmap.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "strmprov.h"
 #include "ptrman.h"
 #include "uimsg.h"
@@ -285,9 +286,9 @@ void uiWellMan::renameLogPush( CallBacker* )
     if ( !logsfld->size() || !logsfld->nrSelected() ) mErrRet("No log selected")
 
     const int lognr = logsfld->currentItem() + 1;
-    BufferString basenm = File_removeExtension( fname );
-    BufferString logfnm = Well::IO::mkFileName( basenm, Well::IO::sExtLog, 
-	    					lognr );
+    FilePath fp( fname ); fp.setExtension( 0 );
+    BufferString logfnm = Well::IO::mkFileName( fp.fullPath(),
+	    					Well::IO::sExtLog, lognr );
     StreamProvider sp( logfnm );
     StreamData sdi = sp.makeIStream();
     bool res = wellrdr->addLog( *sdi.istrm );
@@ -327,9 +328,10 @@ void uiWellMan::mkFileInfo()
 	return;
     }
 
+    FilePath fp( fname );
     BufferString txt;
-    txt += "File location: "; txt += File_getPathOnly( fname );
-    txt += "\nFile name: "; txt += File_getFileName( fname );
+    txt += "File location: "; txt += fp.pathOnly();
+    txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; txt += getFileSize( fname );
 
 #define mAddWellInfo(key,str) \

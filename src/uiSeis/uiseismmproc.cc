@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.60 2004-03-03 11:07:36 nanne Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.61 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "timer.h"
 #include "timefun.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "executor.h"
 #include "ptrman.h"
 #include "strmprov.h"
@@ -99,7 +100,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 	    isrestart = ioobj ? ioobj->implExists(true) : false;
 	else
 	{
-	    tmpstordir = File_getPathOnly(iostrm->fileName());
+	    tmpstordir = FilePath(iostrm->fileName()).pathOnly();
 	    isrestart = File_exists( tmpstordir );
 	}
     }
@@ -608,7 +609,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 		mErrRet("Please enter a valid temporary storage directory")
 	    else if ( !File_isDirectory(tmpstordir) )
 	    {
-		tmpstordir = File_getPathOnly(tmpstordir);
+		tmpstordir = FilePath(tmpstordir).pathOnly();
 		tmpstordirfld->setInputText( tmpstordir );
 	    }
 	}
@@ -734,9 +735,9 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
     if ( mkdump )
     {
 	// Stop during operation. Create a dump
-	BufferString dumpfname( GetDataDir() );
-	dumpfname = File_getFullPath( dumpfname, "Proc" );
-	dumpfname = File_getFullPath( dumpfname, "mmbatch_dump.txt" );
+	FilePath fp( GetDataDir() );
+	fp.add( "Proc" ).add( "mmbatch_dump.txt" );
+	BufferString dumpfname = fp.fullPath();
 	StreamData sd = StreamProvider( dumpfname ).makeOStream();
 	ostream* strm = &cerr;
 	if ( !sd.usable() )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.35 2003-12-04 16:18:39 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.36 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "seistrctr.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "binidselimpl.h"
 #include "survinfo.h"
 
@@ -151,14 +152,12 @@ void uiSeisFileMan::mkFileInfo()
     if ( iostrm )
     {
 	BufferString fname( iostrm->fileName() );
-	if ( !File_isAbsPath(fname) )
-	{
-	    fname = GetDataDir();
-	    fname = File_getFullPath( fname, "Seismics" );
-	    fname = File_getFullPath( fname, iostrm->fileName() );
-	}
-	txt += "\nLocation: "; txt += File_getPathOnly( fname );
-	txt += "\nFile name: "; txt += File_getFileName( fname );
+	FilePath fp( fname );
+	if ( !fp.isAbsolute() )
+	    fp.set( GetDataDir() ).add( "Seismics" ).add( fname );
+	fname = fp.fullPath();
+	txt += "\nLocation: "; txt += fp.pathOnly();
+	txt += "\nFile name: "; txt += fp.fileName();
 	txt += "\nFile size: "; txt += getFileSize( fname );
     }
 

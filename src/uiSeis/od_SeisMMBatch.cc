@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.12 2004-01-21 13:46:25 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.13 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "strmdata.h"
 #include "ioparlist.h"
-#ifdef __msvc__
-#else
-#include <unistd.h>
+#include <iostream>
+#ifndef __msvc__
+# include <unistd.h>
 #endif
 
 

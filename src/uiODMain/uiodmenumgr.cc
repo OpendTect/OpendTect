@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.7 2004-01-16 15:37:14 nanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.8 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.7 2004-01-16 15:37:14 nanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.8 2004-04-01 13:39:51 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.7 2004-01-16 15:37:14 nanne 
 #include "dirlist.h"
 #include "pixmap.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "timer.h"
 
 
@@ -300,11 +301,11 @@ void uiODMenuMgr::fillCoinTB()
 static const char* getHelpF( const char* subdir, const char* infnm,
 			     const char* basedirnm = "dTectDoc" )
 {
+    FilePath fp( basedirnm );
+    if ( subdir && *subdir ) fp.add( subdir );
+    fp.add( infnm );
     static BufferString fnm;
-    fnm = basedirnm;
-    if ( subdir && *subdir )
-	fnm = File_getFullPath( fnm, subdir );
-    fnm = File_getFullPath( fnm, infnm );
+    fnm = fp.fullPath();
     return fnm.buf();
 }
 
@@ -374,7 +375,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     {
 	const char* htmlfnm = "about.html";
 	const BufferString dddirnm = GetDataFileName("dTectDoc");
-	BufferString fnm = File_getFullPath( dddirnm, htmlfnm );
+	BufferString fnm = FilePath(dddirnm).add(htmlfnm).fullPath();
 	fnm = File_exists(fnm) ? getHelpF(0,htmlfnm) : htmlfnm;
 	HelpViewer::doHelp( fnm, "About OpendTect" );
     } break;

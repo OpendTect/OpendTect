@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.14 2004-01-28 15:26:03 arend Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.15 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "settings.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "strmprov.h"
 #include "uimain.h"
 
@@ -70,31 +71,21 @@ const char* getCygDir()
 			    "native" );
     }
 
-    if ( !File_isDirectory(cygdir) ) return 0;
-
-    BufferString bindir = File_getFullPath(cygdir,"bin");
-    if ( !File_isDirectory(bindir) ) return 0;
+    if ( !File_isDirectory(cygdir)
+      || !File_isDirectory(FilePath(cygdir).add("bin").fullPath()) )
+	return 0;
 
     return cygdir;
 }
 
 #endif
 
-#ifdef __win__
-# define mHelpFile "windows.html"
-#else
-# define mHelpFile "unix.html"
-#endif
-
 static void showProgrDoc()
 {
-
-    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
-
-    getstarted = File_getFullPath( getstarted, mHelpFile );
-
-    HelpViewer::doHelp( getstarted, 
-		    "Get started with OpendTect development" );
+    FilePath fp( "dTectDoc" );
+    fp.add( "Programmer" ).add( __iswin__ ? "windows.html" : "unix.html" );
+    HelpViewer::doHelp( fp.fullPath(), 
+			"Getting started with OpendTect development" );
 }
 
 #undef mHelpFile
@@ -124,20 +115,28 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 }
 
 
-bool uiCrDevEnv::isOK( const char* d )
+bool uiCrDevEnv::isOK( const char* datadir )
 {
-    if ( !d || !*d ) return false; 
+    if ( !datadir || !*datadir )
+	datadir = getenv("WORK");
+    if ( !datadir || !*datadir || !File_isDirectory(datadir) )
+	return false;
 
-    const BufferString datadir( (d && *d) ? d : getenv("WORK") );
-    const BufferString pmakedir( File_getFullPath( datadir, "Pmake" ) );
-    const BufferString incdir( File_getFullPath( datadir, "include" ) );
-    const BufferString srcdir( File_getFullPath( datadir, "src" ) );
-    const BufferString plugindir( File_getFullPath( datadir, "plugins" ) );
-    return File_isDirectory( datadir )
-        && File_isDirectory( pmakedir )
-        && File_isDirectory( incdir )
-        && File_isDirectory( srcdir )
-        && File_isDirectory( plugindir );
+    FilePath fp( datadir );
+
+    fp.add( "Pmake" );
+    if ( !File_isDirectory(fp.fullPath()) )
+	return false;
+
+    fp.set( "include" );
+    if ( !File_isDirectory(fp.fullPath()) )
+	return false;
+
+    fp.set( "plugins" );
+    if ( !File_isDirectory(fp.fullPath()) )
+	return false;
+
+    return true;
 }
 
 
@@ -223,13 +222,13 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	if ( cygwin )
 	{
-	    basedirnm = File_getFullPath( cygwin, "home" );
-
+	    FilePath fp( cygwin ); fp.add( "home" );
 	    if ( getenv("USERNAME") )
-		basedirnm = File_getFullPath( basedirnm, getenv("USERNAME") );
+		fp.add( getenv("USERNAME") );
 	    else if ( getenv("USER") )
-		basedirnm = File_getFullPath( basedirnm, getenv("USER") );
+		fp.add( getenv("USER") );
 
+	    BufferString basedirnm( fp.fullPath() );
 	    if ( !File_isDirectory(basedirnm) )
 	    {
 		const char* msg =
@@ -256,7 +255,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	if ( !File_isDirectory(basedirnm) )
 	    mErrRet( "Invalid directory selected" )
 
-	workdirnm = File_getFullPath( basedirnm, worksubdirm );
+	workdirnm = FilePath( basedirnm ).add( worksubdirm ).fullPath();
     }
 
     if ( workdirnm == "" ) return;
@@ -305,15 +304,15 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     showProgrDoc();
 
     BufferString cmd( "@'" );
-    cmd += GetSoftwareDir();
-    cmd = File_getFullPath( cmd, "bin" );
-    cmd = File_getFullPath( cmd, "od_cr_dev_env" );
+    FilePath fp( GetSoftwareDir() );
+    fp.add( "bin" ).add( "od_cr_dev_env" );
+    cmd += fp.fullPath();
     cmd += "' '"; cmd += GetSoftwareDir();
     cmd += "' '"; cmd += workdirnm; cmd += "'";
 
     StreamProvider( cmd ).executeCommand( false );
 
-    BufferString relfile = File_getFullPath( workdirnm, ".rel.od.doc" );
+    BufferString relfile = FilePath(workdirnm).add(".rel.od.doc").fullPath();
     if ( !File_exists(relfile) )
 	mErrRet( "Creation seems to have failed" )
     else
@@ -338,12 +337,8 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	if ( workdirnm == "" )
 	    mErrRet( "Please enter a (sub-)directory name" )
 
-	workdir = File_getFullPath( workdir, workdirnm );
+	workdir = FilePath( workdir ).add( workdirnm ).fullPath();
     }
-
-
-    const BufferString omffnm = File_getFullPath( workdir, ".omf" );
-    const BufferString stdomf( GetDataFileName("omf") );
 
     if ( !File_exists(workdir) )
     {

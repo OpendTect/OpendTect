@@ -12,6 +12,7 @@ static const char* rcsID = "$Id";
 #include "iostrm.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "ptrman.h"
 #include <iostream>
 #include <math.h>
@@ -38,11 +39,12 @@ int main( int argc, char** argv )
 
     const int selcomp = atoi( argv[1] );
 
-    FileNameString fname( argv[2] );
-    if ( !File_isAbsPath(argv[2]) )
+    BufferString fname( argv[2] );
+    FilePath fp( fname );
+    if ( !fp.isAbsolute() )
     {
-	fname = File_getCurrentDir();
-	fname = File_getFullPath( fname, argv[2] );
+	fp.insert( File_getCurrentDir() );
+	fname = fp.fullPath();
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
@@ -56,10 +58,11 @@ int main( int argc, char** argv )
 	    ci[idx]->destidx = idx == selcomp ? idx : -1;
 
     fname = argv[3];
-    if ( !File_isAbsPath(argv[3]) )
+    fp.set( fname );
+    if ( !fp.isAbsolute() )
     {
-	fname = File_getCurrentDir();
-	fname = File_getFullPath( fname, argv[3] );
+	fp.insert( File_getCurrentDir() );
+	fname = fp.fullPath();
     }
 
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();

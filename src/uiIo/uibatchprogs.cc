@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.16 2004-03-23 16:28:17 dgb Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.17 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "errh.h"
 #include <iostream>
@@ -243,9 +244,8 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     if ( File_isEmpty(sourceex) )
 	{ pErrMsg("Installation problem"); return; }
 
-    BufferString targetex( GetDataDir() );
-    targetex = File_getFullPath( targetex, "Proc" );
-    targetex = File_getFullPath( targetex, bpi.exampleinput );
+    FilePath fp( GetDataDir() );
+    BufferString targetex = fp.add( "Proc" ).add( bpi.exampleinput ).fullPath();
     if ( !File_exists(targetex) )
     {
 	File_copy( sourceex, targetex, NO );

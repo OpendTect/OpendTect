@@ -15,6 +15,7 @@ static const char* rcsID = "$Id";
 #include "progressmeter.h"
 #include "survinfo.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "ptrman.h"
 #include <iostream>
 #include <math.h>
@@ -37,11 +38,12 @@ int main( int argc, char** argv )
 	exitProgram( 1 );
     }
 
-    FileNameString fname( argv[1] );
-    if ( !File_isAbsPath(argv[1]) )
+    BufferString fname( argv[1] );
+    FilePath fp( fname );
+    if ( !fp.isAbsolute() )
     {
-	fname = File_getCurrentDir();
-	fname = File_getFullPath( fname, argv[1] );
+	fp.insert( File_getCurrentDir() );
+	fname = fp.fullPath();
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
@@ -51,10 +53,11 @@ int main( int argc, char** argv )
     const CBVSInfo::SurvGeom& geom = rdmgr.info().geom;
 
     fname = argv[2];
-    if ( !File_isAbsPath(argv[2]) )
+    fp.set( fname );
+    if ( !fp.isAbsolute() )
     {
-	fname = File_getCurrentDir();
-	fname = File_getFullPath( fname, argv[2] );
+	fp.insert( File_getCurrentDir() );
+	fname = fp.fullPath();
     }
 
     SeisTrc trc;

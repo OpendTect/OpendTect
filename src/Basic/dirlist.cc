@@ -4,10 +4,11 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.8 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.9 2004-04-01 13:39:50 bert Exp $";
 
 #include "dirlist.h"
 #include "globexpr.h"
+#include "filepath.h"
 #include "filegen.h"
 
 #ifdef __win__
@@ -34,6 +35,7 @@ void DirList::update()
     deepErase();
     const bool havemask = mask_ != "";
     GlobExpr ge( mask_.buf() );
+    FilePath fp( dir_ ); fp.add( "X" );
 
 #ifdef __win__
     WIN32_FIND_DATA	dat;
@@ -52,8 +54,8 @@ void DirList::update()
 
 	if ( type_ != AllEntries )
 	{
-	    FileNameString fullnm( File_getFullPath(dir_.buf(),dat.cFileName) );
-	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fullnm) )
+	    fp.setFileName( dat.cFileName );
+	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fp.fullPath()) )
 		continue;
 	}
 
@@ -77,8 +79,8 @@ void DirList::update()
 
 	if ( type_ != AllEntries )
 	{
-	    FileNameString fullnm( File_getFullPath(dir_.buf(),dp->d_name) );
-	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fullnm) )
+	    fp.setFileName( dp->d_name );
+	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fp.fullPath()) )
 		continue;
 	}
 

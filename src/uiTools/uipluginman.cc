@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.7 2003-12-04 16:18:39 bert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.8 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "plugins.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "strmprov.h"
+#include <iostream>
 
 
 uiPluginMan::uiPluginMan( uiParent* p )
@@ -72,14 +74,15 @@ void uiPluginMan::selChg( CallBacker* )
 	    txt += piinf.version;
 	else
 	{
-	    BufferString fnm( GetSoftwareDir() );
-	    fnm = File_getFullPath( fnm, ".rel." );
+	    FilePath fp( GetSoftwareDir() );
+	    BufferString fnm = ".rel.";
 	    fnm += piinf.version+1;
 	    fnm += ".";
 	    const char* plfenv = getenv( "binsubdir" );
 	    if ( !plfenv ) plfenv = getenv( "HDIR" );
 	    fnm += plfenv;
-	    StreamData sd = StreamProvider( fnm ).makeIStream();
+	    fp.add( fnm );
+	    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
 	    if ( !sd.usable() )
 		txt += "<unknown>";
 	    else
@@ -122,5 +125,5 @@ void uiPluginMan::loadPush( CallBacker* )
     else if ( !PIM().load(fnm) )
 	uiMSG().error( "Couldn't load plugin" );
     else
-	{ defdir = File_getPathOnly(fnm); fillList(); selChg(0); }
+	{ defdir = FilePath(fnm).pathOnly(); fillList(); selChg(0); }
 }

@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.15 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.16 2004-04-01 13:39:50 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.15 2003-11-07 12:21:57 bert Exp $"
 #include "ascstream.h"
 #include "separstr.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "ptrman.h"
 #include "conn.h"
 #include <stdlib.h>
@@ -314,7 +315,7 @@ int GetFreeMBOnDisk( const IOObj* ioobj )
 
     BufferString dir;
     if ( iostrm && iostrm->type() == StreamConn::File )
-	dir = File_getPathOnly( iostrm->fullUserExpr(true) );
+	dir = FilePath( iostrm->fullUserExpr(true) ).pathOnly();
     else
 	dir = GetDataDir();
 

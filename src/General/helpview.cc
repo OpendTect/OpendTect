@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.21 2004-02-02 11:25:44 dgb Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.22 2004-04-01 13:39:50 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: helpview.cc,v 1.21 2004-02-02 11:25:44 dgb Exp 
 #include "errh.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "string2.h"
 #include <stdlib.h>
 
@@ -108,7 +109,7 @@ static StreamData openHFile( const char* nm, const char* scope )
 	fnm = GetDataFileName( sNotInstHtml );
     else
     {
-	subfnm = File_getFullPath( subfnm, nm );
+	subfnm = FilePath( subfnm ).add( nm ).fullPath();
 	fnm = GetDataFileName( subfnm );
     }
 
@@ -249,21 +250,16 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 	}
     }
 
-    BufferString url( GetSoftwareDir() );
-    url = File_getFullPath( url, "data" );
-    url = File_getFullPath( url, subdirNm(scope) );
-
+    FilePath fp( GetSoftwareDir() );
+    fp.add( "data" ).add( subdirNm(scope) );
     if ( htmlfnm == "" )
 	htmlfnm = "index.html";
-    url = File_getFullPath( url, htmlfnm );
+    fp.add( htmlfnm );
+    BufferString url = fp.fullPath();
     if ( !File_exists(url) )
     {
-	url = File_getPathOnly( url );
-	if ( htmlfnm == "index.html" )
-	    htmlfnm = "book1.htm";
-	else
-	    htmlfnm = "index.html";
-	url = File_getFullPath( url, htmlfnm );
+	fp.setFileName( htmlfnm == "index.html" ? "book1.htm" : "index.html" );
+	url = fp.fullPath();
     }
     if ( !File_exists(url) )
 	url = GetDataFileName( "notfound.html" );

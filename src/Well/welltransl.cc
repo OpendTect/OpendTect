@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.6 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.7 2004-04-01 13:39:50 bert Exp $";
 
 
 #include "welltransl.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: welltransl.cc,v 1.6 2003-11-07 12:21:58 bert Ex
 #include "welldata.h"
 #include "iostrm.h"
 #include "strmprov.h"
-#include "filegen.h"
+#include "filepath.h"
 
 const IOObjContext& WellTranslatorGroup::ioContext()
 {
@@ -64,7 +64,8 @@ bool WellTranslator::implRemove( const IOObj* ioobj ) const
 {
     mImplStart(remove(false));
 
-    BufferString bnm = File_removeExtension( filenm );
+    FilePath fp( filenm ); fp.setExtension( 0, true );
+    const BufferString bnm = fp.fullPath();
     mRemove(Well::IO::sExtMarkers,0)
     mRemove(Well::IO::sExtD2T,0)
     for ( int idx=1; ; idx++ )
@@ -89,8 +90,10 @@ bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
 {
     mImplStart(rename(newnm,cb));
 
-    BufferString bnm = File_removeExtension( filenm );
-    BufferString newbnm = File_removeExtension( newnm );
+    FilePath fp( filenm ); fp.setExtension( 0, true );
+    const BufferString bnm = fp.fullPath();
+    fp.set( newnm ); fp.setExtension( 0, true );
+    const BufferString newbnm = fp.fullPath();
     mRename(Well::IO::sExtMarkers,0)
     mRename(Well::IO::sExtD2T,0)
 

@@ -5,11 +5,12 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.13 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.14 2004-04-01 13:39:50 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
 #include "cubesampling.h"
+#include <iostream>
 
 
 CBVSInfo::SurvGeom& CBVSInfo::SurvGeom::operator =(
@@ -253,7 +254,10 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 				= ii.segments[iseg];
 	    if ( !seg.start && !seg.stop )
 	    {
-		cerr << "Empty segment: " <<ii.inl<< " segment " <<iseg<< endl;
+#ifdef __debug__
+		std::cerr << "Empty segment: " << ii.inl
+		    	  << " segment " << iseg << endl;
+#endif
 		continue;
 	    }
 

@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.55 2004-03-17 14:48:53 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.56 2004-04-01 13:39:50 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.55 2004-03-17 14:48:53 arend E
 #include "iodir.h"
 #include "strmprov.h"
 #include "strmdata.h"
-#include "filegen.h"
+#include "filepath.h"
 #include "timefun.h"
 #include "sighndl.h"
 #include "socket.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.55 2004-03-17 14:48:53 arend E
 # include "_execbatch.h"
 #endif
 
-#define mErrStrm (sdout_.ostrm ? *sdout_.ostrm : cerr)
+#define mErrStrm (sdout_.ostrm ? *sdout_.ostrm : std::cerr)
 
 BatchProgram* BatchProgram::inst_;
 
@@ -89,7 +89,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	BufferString msg( progName() );
 	msg += ": No parameter file name specified";
 
-	writeErrorMsg( msg ); cerr << msg << endl;
+	writeErrorMsg( msg ); std::cerr << msg << std::endl;
 	return;
     }
 
@@ -106,7 +106,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	msg += ": Cannot open parameter file: ";
 	msg += fn;
 
-	writeErrorMsg( msg ); cerr << msg << endl;
+	writeErrorMsg( msg ); std::cerr << msg << std::endl;
 	return;
     }
  
@@ -118,7 +118,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	msg += ": Invalid input file: ";
 	msg += fn;
 
-	writeErrorMsg( msg ); cerr << msg << endl;
+	writeErrorMsg( msg ); std::cerr << msg << std::endl;
         return;
     }
 
@@ -134,7 +134,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
     {
 #ifdef __debug__
 	std::cerr << "Using survey: " << res << " instead of "
-	    	  << IOM().surveyName() << endl;
+	    	  << IOM().surveyName() << std::endl;
 #endif
 	IOMan::setSurvey( res );
     }
@@ -147,7 +147,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
 BatchProgram::~BatchProgram()
 {
-    mErrStrm << "Finished batch processing." << endl;
+    mErrStrm << "Finished batch processing." << std::endl;
 
     if ( exitstat_ == mSTAT_UNDEF ) 
 	exitstat_ = stillok_ ? mSTAT_DONE : mSTAT_ERROR;
@@ -165,14 +165,14 @@ BatchProgram::~BatchProgram()
 const char* BatchProgram::progName() const
 {
     static UserIDString ret;
-    ret = File_getFileName( fullpath_ );
+    ret = FilePath( fullpath_ ).fileName();
     return ret;
 }
 
 
 void BatchProgram::progKilled( CallBacker* )
 {
-    mErrStrm << "BatchProgram Killed." << endl;
+    mErrStrm << "BatchProgram Killed." << std::endl;
 
     exitstat_ = mSTAT_KILLED;
     writeStatus( mEXIT_STATUS, exitstat_ );
@@ -207,7 +207,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     int elapsed = Time_getMilliSeconds() - timestamp_;
     if ( elapsed < 0 )
     {
-	mErrStrm << "System clock skew detected (Ignored)." << endl;
+	mErrStrm << "System clock skew detected (Ignored)." << std::endl;
 	force = true;
     }
 
@@ -222,7 +222,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     Socket* sock = mkSocket();
     if ( !sock || !sock->ok() )
     {
-	mErrStrm << "Cannot open communication socket to Master." << endl;
+	mErrStrm << "Cannot open communication socket to Master." << std::endl;
 	return false;
     }
 
@@ -241,7 +241,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     if ( !ret )
     {
 	sock->fetchMsg( errbuf );
-	mErrStrm << "Error writing status to Master: " << errbuf << endl;
+	mErrStrm << "Error writing status to Master: " << errbuf << std::endl;
     }
 
     else if ( masterinfo == mRSP_WORK )
@@ -252,7 +252,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
 
     else if ( masterinfo == mRSP_STOP ) 
     {
-	mErrStrm << "Exiting on request of Master." << endl;
+	mErrStrm << "Exiting on request of Master." << std::endl;
 	exit( -1 );
     }
     else
@@ -291,7 +291,7 @@ bool BatchProgram::initOutput()
     stillok_ = false;
     if ( !writeStatus( mPID_TAG, getPID() ) )
     {
-	mErrStrm << "Could not write status. Exiting." << endl;
+	mErrStrm << "Could not write status. Exiting." << std::endl;
 	exit( 0 );
     }
 
@@ -307,8 +307,8 @@ bool BatchProgram::initOutput()
 	sdout_ = sp.makeOStream();
 	if ( !sdout_.usable() )
 	{
-	    cerr << name() << ": Cannot open window for output" << endl;
-	    cerr << "Using std output instead" << endl;
+	    std::cerr << name() << ": Cannot open window for output"<<std::endl;
+	    std::cerr << "Using std output instead" << std::endl;
 	    res = 0;
 	}
     }
@@ -320,8 +320,8 @@ bool BatchProgram::initOutput()
 	sdout_ = spout.makeOStream();
 	if ( !sdout_.ostrm )
 	{
-	    cerr << name() << ": Cannot open log file" << endl;
-	    cerr << "Using std output instead" << endl;
+	    std::cerr << name() << ": Cannot open log file" << std::endl;
+	    std::cerr << "Using std output instead" << std::endl;
 	    sdout_.ostrm = &cout;
 	}
     }
@@ -336,20 +336,23 @@ bool BatchProgram::initOutput()
 IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 					const IOObjContext& ctxt ) const
 {
-    BufferString basekey( bsky ); basekey += ".";
-    BufferString iopkey( basekey );
+    const BufferString basekey( bsky );
+    BufferString iopkey( basekey ); iopkey += ".";
     iopkey += "ID";
     BufferString res = pars().find( iopkey );
     if ( res == "" )
     {
-	iopkey = basekey; iopkey += "Name";
-	res = pars().find( iopkey );
+	iopkey = basekey; res = pars().find( iopkey );
 	if ( res == "" )
 	{
-	    *sdout_.ostrm << "Please specify '" << iopkey << "' or ID" << endl;
-	    return 0;
+	    iopkey += ".Name"; res = pars().find( iopkey );
+	    if ( res == "" )
+	    {
+		*sdout_.ostrm << "Please specify '" << iopkey <<"'"<< std::endl;
+		return 0;
+	    }
 	}
-	else
+	else if ( !IOObj::isKey(res.buf()) )
 	{
 	    CtxtIOObj ctio( ctxt );
 	    IOM().to( ctio.ctxt.stdSelKey() );
@@ -361,13 +364,17 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 		ctio.setName( res );
 		IOM().getEntry( ctio );
 		if ( ctio.ioobj );
+		{
+		    IOM().commitChanges( *ctio.ioobj );
 		    return ctio.ioobj;
+		}
 	    }
 	}
     }
 
     IOObj* ioobj = IOM().get( MultiID(res.buf()) );
     if ( !ioobj )
-	*sdout_.ostrm << "Cannot find the specified '" << iopkey << "'" << endl;
+	*sdout_.ostrm << "Cannot find the specified '" << basekey << "'"
+	    		<< std::endl;
     return ioobj;
 }

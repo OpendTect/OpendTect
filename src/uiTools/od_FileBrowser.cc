@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.2 2004-03-11 08:09:42 dgb Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.3 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "prog.h"
 #include <unistd.h>
+#include <iostream>
 
 #ifdef __win__
 #include "filegen.h"

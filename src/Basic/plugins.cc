@@ -4,9 +4,10 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.29 2004-01-15 15:31:00 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.30 2004-04-01 13:39:50 bert Exp $";
 
 #include "plugins.h"
+#include "filepath.h"
 #include "filegen.h"
 #include "dirlist.h"
 #include "strmprov.h"
@@ -22,14 +23,6 @@ static const char* rcsID = "$Id: plugins.cc,v 1.29 2004-01-15 15:31:00 bert Exp 
 
 PluginManager* PluginManager::theinst_ = 0;
 static const char* plugindir = "plugins";
-
-#ifdef __win__
-#define mDefinePrognm(var) \
-    const BufferString var( File_removeExtension(File_getFileName(argv[0])));
-#else
-#define mDefinePrognm(var) \
-    const BufferString var( File_getFileName(argv[0]) );
-#endif
 
 
 extern "C" {
@@ -48,6 +41,16 @@ static const char* getHDir()
     const char* ret = getenv( "binsubdir" );
     return ret ? ret : getenv( "HDIR" );
 #endif
+}
+
+
+static BufferString getProgNm( const char* argv0 )
+{
+    FilePath fp( argv0 );
+#ifdef __win__
+    fp.setExtension( 0 );
+#endif
+    return fp.fileName();
 }
 
 
@@ -120,7 +123,7 @@ static bool loadPlugin( const char* lnm, int argc, char** argv,
     if ( !handle )
 	mNotLoadedRet( cerr << dlerror() << endl )
 
-    const BufferString libnmonly = File_getFileName(libnm);
+    const BufferString libnmonly = FilePath(libnm).fileName();
     if ( inittype > 0 )
     {
 	mGetFn(VoidIntRetFn,fn,"Get","PluginType");
@@ -167,21 +170,25 @@ extern "C" bool LoadPlugin( const char* libnm, int argc, char** argv )
 static void loadALOPlugins( const char* dnm, const char* fnm,
 			    int argc, char** argv, int inittype )
 {
-    StreamData sd = StreamProvider( File_getFullPath(dnm,fnm) ).makeIStream();
+    FilePath fp( dnm ); fp.add( fnm );
+    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
     if ( !sd.usable() ) return;
 
     char buf[128];
+    fp.setFileName( "libs" ); fp.add( "X" );
     while ( *sd.istrm )
     {
 	sd.istrm->getline( buf, 128 );
-	BufferString dirnm( File_getFullPath(dnm,"libs") );
 #ifdef __win__
 	BufferString libnm = buf; libnm += ".dll";
 #else
 	BufferString libnm = "lib"; libnm += buf; libnm += ".so";
 #endif
 	if ( !PIM().isLoaded(libnm) )
-	    loadPlugin( File_getFullPath(dirnm,libnm), argc, argv, inittype );
+	{
+	    fp.setFileName( libnm );
+	    loadPlugin( fp.fullPath(), argc, argv, inittype );
+	}
     }
 
     sd.close();
@@ -201,7 +208,7 @@ static void loadPluginDir( const char* dirnm, int argc, char** argv,
 {
     DirList dl( dirnm, DirList::FilesOnly );
     dl.sort();
-    mDefinePrognm( prognm );
+    BufferString prognm = getProgNm( argv[0] );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString libnm = dl.get(idx);
@@ -216,7 +223,10 @@ static void loadPluginDir( const char* dirnm, int argc, char** argv,
     {
 	const BufferString& libnm = dl.get(idx);
 	if ( !isALO(libnm) && !PIM().isLoaded(libnm) )
-	    loadPlugin( File_getFullPath(dirnm,libnm), argc, argv, inittype );
+	{
+	    FilePath fp( dirnm ); fp.add( libnm );
+	    loadPlugin( fp.fullPath(), argc, argv, inittype );
+	}
     }
 }
 
@@ -237,8 +247,8 @@ static void autoLoadPlugins( const char* dirnm,
     mTryLoadDbgMsg( dirnm );
     loadPluginDir( dirnm, argc, argv, inittype );
 
-    mDefinePrognm( prognm );
-    BufferString specdirnm = File_getFullPath( dirnm, prognm );
+    FilePath fp( dirnm ); fp.add( getProgNm( argv[0] ) );
+    BufferString specdirnm = fp.fullPath();
     if ( !File_isDirectory(specdirnm) )
 	return;
 
@@ -250,18 +260,9 @@ static void autoLoadPlugins( const char* dirnm,
 static const char* getDefDir( bool instdir )
 {
     static BufferString dnm;
-    if ( instdir )
-    {
-	dnm = GetSoftwareDir();
-	dnm = File_getFullPath( dnm, plugindir );
-    }
-    else
-    {
-	dnm = GetSettingsDir();
-	dnm = File_getFullPath( dnm, plugindir );
-    }
-
-    dnm = File_getFullPath( dnm, getHDir() );
+    FilePath fp(instdir ? GetSoftwareDir() : GetSettingsDir());
+    fp.add(plugindir).add( getHDir() );
+    dnm = fp.fullPath();
 
     if( DBG::isOn(DBG_SETTINGS) )
     {
@@ -293,7 +294,7 @@ PluginManager::PluginManager()
 
 void PluginManager::getUsrNm( const char* libnm, BufferString& nm ) const
 {
-    const BufferString libnmonly = File_getFileName(libnm);
+    const BufferString libnmonly = FilePath(libnm).fileName();
     nm = getFnName( libnmonly, "", "" );
 }
 
@@ -311,7 +312,7 @@ const char* PluginManager::getFullName( const char* nm ) const
     {
 	const BufferString& lnm = *loaded_[idx];
 	if ( lnm == nm ) return lnm.buf();
-	curnm = File_getFileName(lnm);
+	curnm = FilePath(lnm).fileName();
 	if ( curnm == nm ) return lnm.buf();
 	getUsrNm( lnm, curnm );
 	if ( curnm == nm ) return lnm.buf();

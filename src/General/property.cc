@@ -4,11 +4,12 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.4 2004-02-20 16:10:07 bert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.5 2004-04-01 13:39:50 bert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "ascstream.h"
 #include "strmprov.h"
 #include "separstr.h"
@@ -62,8 +63,8 @@ PropertyRefRepository::PropertyRefRepository()
     BufferString fnm = GetDataFileName( "StdProperties" );
     addFromFile( fnm, 0 );
 
-    fnm = GetSettingsDir();
-    fnm = File_getFullPath( fnm, "properties" );
+    FilePath fp( GetSettingsDir() ); fp.add( "properties" );
+    fnm = fp.fullPath();
     addFromFile( fnm, 1 );
 
     getSurvPropFileNm( fnm );
@@ -73,8 +74,8 @@ PropertyRefRepository::PropertyRefRepository()
 
 void PropertyRefRepository::getSurvPropFileNm( BufferString& fnm ) const
 {
-    fnm = GetDataDir();
-    fnm = File_getFullPath( fnm, ".properties" );
+    FilePath fp( GetDataDir() ); fp.add( ".properties" );
+    fnm = fp.fullPath();
 }
 
 

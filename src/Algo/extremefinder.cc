@@ -8,11 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.7 2003-12-30 13:11:18 kristofer Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.8 2004-04-01 13:39:50 bert Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
 #include "mathfunc.h"
+#include <math.h>
 
 #define TINY 1.0e-25
 #define SHIFT(a, b, c, d ) (a)=(b); (b)=(c); (c)=(d);

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.44 2004-03-26 16:50:45 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.45 2004-04-01 13:39:50 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: ioman.cc,v 1.44 2004-03-26 16:50:45 bert Exp $"
 #include "transl.h"
 #include "ctxtioobj.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "errh.h"
 #include "strmprov.h"
 #include <stdlib.h>
@@ -85,19 +86,23 @@ void IOMan::init()
     int nrstddirdds = IOObjContext::totalNrStdDirs();
     const IOObjContext::StdDirData* prevdd = 0;
     bool needwrite = false;
+    FilePath basicfp = FilePath( GetDataFileName("BasicSurvey") );
+    FilePath rootfp = FilePath( rootdir );
+    basicfp.add( "X" ); rootfp.add( "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )
     {
 	const IOObjContext::StdDirData* dd
 		= IOObjContext::getStdDirData( (IOObjContext::StdSelType)idx );
 	if ( (*dirPtr())[MultiID(dd->id)] ) { prevdd = dd; continue; }
 
-	FileNameString basicdirnm = GetDataFileName( "BasicSurvey" );
-	basicdirnm = File_getFullPath( basicdirnm, dd->dirnm );
+	basicfp.setFileName( dd->dirnm );
+	BufferString basicdirnm = basicfp.fullPath();
 	if ( !File_exists(basicdirnm) )
 	    // Apparently, the application doesn't need such a directory
 	    { prevdd = dd; continue; }
 
-	FileNameString dirnm = File_getFullPath( rootdir, dd->dirnm );
+	rootfp.setFileName( dd->dirnm );
+	BufferString dirnm = rootfp.fullPath();
 	if ( !File_exists(dirnm) )
 	{
 	    // Apparently, this directory should have been in the survey
@@ -152,6 +157,21 @@ bool IOMan::isReady() const
 }
 
 
+static bool validOmf( const char* dir )
+{
+    FilePath fp( dir ); fp.add( ".omf" );
+    BufferString fname = fp.fullPath();
+    if ( File_isEmpty(fname) )
+    {
+	fp.setFileName( ".omb" );
+	if ( File_isEmpty(fp.fullPath()) )
+	    return false;
+	else
+	    File_copy( fname, fp.fullPath(), NO );
+    }
+    return true;
+}
+
 extern "C" const char* GetSurveyFileName();
 
 #define mErrRet(str) \
@@ -159,7 +179,7 @@ extern "C" const char* GetSurveyFileName();
 #define mErrRetNotODDir(fname) \
     { \
         errmsg = "$DTECT_DATA="; errmsg += GetBaseDataDir(); \
-        errmsg += "\nThis is not an OpendTect data storage directory."; \
+        errmsg += "\nThis is not a valid OpendTect data storage directory."; \
 	if ( fname ) \
 	    { errmsg += "\n[Cannot find: "; errmsg += fname; errmsg += "]"; } \
         return false; \
@@ -168,35 +188,27 @@ extern "C" const char* GetSurveyFileName();
 bool IOMan::validSurveySetup( BufferString& errmsg )
 {
     errmsg = "";
-    BufferString basedatadir( GetBaseDataDir() );
+    const BufferString basedatadir( GetBaseDataDir() );
     if ( basedatadir == "" )
 	mErrRet("Please set the environment variable DTECT_DATA.")
-    else if ( !File_exists(basedatadir.buf()) )
+    else if ( !File_exists(basedatadir) )
 	mErrRetNotODDir(0)
-
-    BufferString fname = basedatadir;
-    fname = File_getFullPath( fname, ".omf" );
-    if ( File_isEmpty(fname) ) mErrRetNotODDir(fname.buf())
+    else if ( !validOmf(basedatadir) )
+	mErrRetNotODDir(".omf")
 
     const BufferString projdir = GetDataDir();
     if ( projdir != basedatadir && File_isDirectory(projdir) )
     {
-	BufferString omffname = File_getFullPath( projdir, ".omf" );
-	if ( File_isEmpty(omffname) )
-	{
-	    fname = File_getFullPath( projdir, ".omb" );
-	    if ( File_exists(fname) )
-		File_copy( fname, omffname, NO );
-	}
-	BufferString survfname = File_getFullPath( projdir, ".survey" );
-	bool noomf = File_isEmpty(omffname);
-	bool nosurv = File_isEmpty(survfname);
+	const bool noomf = !validOmf( projdir );
+	const bool nosurv = File_isEmpty(
+				FilePath(projdir).add(".survey").fullPath() );
 
 	if ( !noomf && !nosurv )
 	{
 	    if ( !IOM().bad() )
 		return true; // This is normal
-	    // So what's wrong here? In any case - survey is not good.
+
+	    // But what's wrong here? In any case - survey is not good.
 	}
 
 	else
@@ -211,14 +223,14 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	}
     }
 
-    // Survey in ~/.od/survey[.$DETCT_USER] is invalid. Remove it if necessary
+    // Survey in ~/.od/survey[.$DTECT_USER] is invalid. Remove it if necessary
     BufferString survfname = GetSurveyFileName();
     if ( File_exists(survfname) && !File_remove( survfname, NO ) )
     {
-	fname = "The file "; fname += survfname;
-	fname += " contains an invalid survey.\n";
-	fname += "Please remove this file";
-	mErrRet(fname)
+	errmsg = "The file "; errmsg += survfname;
+	errmsg += " contains an invalid survey.\n";
+	errmsg += "Please remove this file";
+	return false;
     }
 
     delete IOMan::theinst_; IOMan::theinst_ = 0;
@@ -241,9 +253,9 @@ bool IOMan::to( const IOLink* link )
 	return false;
     if ( bad() ) return link ? to( link->link()->key() ) : to( prevkey );
 
-    FileNameString fulldir( curDir() );
-    const char* dirnm = link ? (const char*)link->dirname : "..";
-    fulldir = File_getFullPath( fulldir, dirnm );
+    FilePath fp( curDir() );
+    fp.add( link ? (const char*)link->dirname : ".." );
+    BufferString fulldir = fp.fullPath();
     if ( !File_isDirectory(fulldir) ) return false;
 
     prevkey = dirptr->key();
@@ -525,7 +537,7 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
     int subnr = 0;
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
-    cleanupString( ptr, NO, *ptr == *sDirSep, YES );
+    cleanupString( ptr, NO, *ptr == *FilePath::sDirSep, YES );
     static BufferString fnm;
     for ( int subnr=0; ; subnr++ )
     {
@@ -551,14 +563,14 @@ bool IOMan::setFileName( MultiID key, const char* fname )
 
     Translator* tr = ioobj->getTranslator();
     BufferString fnm = generateFileName( tr, fname );
-    if ( File_isAbsPath(fulloldname) )
-    {
-	BufferString oldpath = File_getPathOnly( fulloldname );
-	fnm = File_getFullPath( oldpath, fnm );
-    }
-    iostrm->setFileName( fnm );
+    FilePath fp( fulloldname );
+    if ( fp.isAbsolute() )
+	fp.setFileName( fnm );
+    else
+	fp.set( fnm );
+    iostrm->setFileName( fp.fullPath() );
   
-    const FileNameString fullnewname = ioobj->fullUserExpr(true); 
+    const FileNameString fullnewname = iostrm->fullUserExpr(true); 
     int ret = File_rename( fulloldname, fullnewname );
     if ( !ret || !commitChanges( *ioobj ) )
 	return false;
@@ -580,7 +592,7 @@ int IOMan::levelOf( const char* dirnm ) const
     while ( ptr )
     {
 	ptr++; lvl++;
-	ptr = strchr( ptr, *sDirSep );
+	ptr = strchr( ptr, *FilePath::sDirSep );
     }
     return lvl;
 }
@@ -635,7 +647,7 @@ bool IOMan::getAuxfname( const MultiID& ky, FileNameString& fn ) const
     IOObj* ioobj = (IOObj*)(*dirptr)[ky];
     if ( !ioobj ) { local = false; ioobj = IODir::getObj( ky ); }
     if ( !ioobj ) return false;
-    fn = File_getFullPath( ioobj->dirName(), ".aux" );
+    fn = FilePath( ioobj->dirName() ).add( ".aux" ).fullPath();
     if ( !local ) delete ioobj;
     return true;
 }

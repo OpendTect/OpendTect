@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.19 2003-11-07 12:22:02 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.20 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "survinfo.h"
 #include "filegen.h"
+#include "filepath.h"
 
 #include "uimsg.h"
 #include "uifileinput.h"
@@ -156,7 +157,7 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
 	transffld->updateFrom( *ioobj );
     }
 
-    inp = File_getFileName( inp );
+    inp = FilePath( inp ).fileName();
     if ( !*(const char*)inp ) return;
 
     // convert underscores to spaces

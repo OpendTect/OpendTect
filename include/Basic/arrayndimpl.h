@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.26 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.27 2004-04-01 13:39:50 bert Exp $
 ________________________________________________________________________
 
 */
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "bufstring.h"
 #include "filegen.h"
+#include "filepath.h"
 
 #include <fstream>
 
@@ -108,7 +109,7 @@ public:
 		ArrayNDFileStor( int nsz )
 		    : sz( nsz )
 		    , strm( 0 )
-		    , name(File_getSimpleTempFileName("tmp"))
+		    , name(FilePath::getTempName("dat"))
 		    , open_failed(false)
 		    , stream_fail(false)
 		{ }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.55 2004-02-28 11:10:06 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.56 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ctxtioobj.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include <iostream>
@@ -54,8 +55,7 @@ static bool copy()
         return false;
     }
 
-    BufferString to( GetBaseDataDir() );
-    to = File_getFullPath( to, "Tutorial" );
+    BufferString to = FilePath(GetBaseDataDir()).add("Tutorial").fullPath();
     if ( File_exists(to) )
     {
         uiMSG().error( "A survey 'Tutorial' already exists.\n"
@@ -77,9 +77,9 @@ static bool copy()
 
 static void fill()
 {
-    BufferString dirnm = File_getFullPath(GetBaseDataDir(),"Tutorial");
-    dirnm = File_getFullPath( dirnm, "Seismics" );
-    IOM().setRootDir( dirnm );
+    FilePath fp( GetBaseDataDir() );
+    fp.add( "Tutorial" ).add( "Seismics" );
+    IOM().setRootDir( fp.fullPath() );
     IOM().to( IOObjContext::StdSelTypeNames[0] );
     IOObj* ioobj = IOM().get( "100010.2" );
     mDynamicCastGet(IOStream*,iostrm,ioobj)
@@ -236,11 +236,10 @@ void uiSurvey::newButPushed( CallBacker* )
 
     BufferString oldnm = listbox->getText();
   
-    BufferString from( GetSoftwareDir() );
-    from = File_getFullPath( GetSoftwareDir(), "data" );
-    from = File_getFullPath( from, "BasicSurvey" );
+    FilePath fp( GetSoftwareDir() );
+    fp.add( "data" ).add( "BasicSurvey" );
     delete survinfo;
-    survinfo = SurveyInfo::read( from );
+    survinfo = SurveyInfo::read( fp.fullPath() );
     survinfo->dirname = "";
     mkInfo();
     if ( !survInfoDialog() )
@@ -282,8 +281,9 @@ void uiSurvey::mkDirList()
 	if ( matchString("_Temp_Survey_",dirnm) )
 	    continue;
 
-	BufferString survfnm = File_getFullPath( basedir, dirnm );
-	survfnm = File_getFullPath( survfnm, ".survey" );
+	FilePath fp( basedir );
+	fp.add( dirnm ).add( ".survey" );
+	BufferString survfnm = fp.fullPath();
 	if ( File_exists(survfnm) )
 	    dirlist.add( dirnm );
     }
@@ -314,7 +314,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     msg += "\nAre you sure you wish to continue?";
     if ( !uiMSG().askGoOn( msg ) ) return;
 
-    msg = File_getFullPath( GetBaseDataDir(), selnm );
+    msg = FilePath( GetBaseDataDir() ).add( selnm ).fullPath();
     if ( !File_remove( msg, YES ) )
     {
         msg += "\nnot removed properly";
@@ -328,7 +328,6 @@ void uiSurvey::rmButPushed( CallBacker* )
         BufferString newsel( listbox->getText() );
         writeSurveyName( newsel );
     }
-
 }
 
 
@@ -371,8 +370,7 @@ bool uiSurvey::updateSvyFile()
         ErrMsg( "Cannot update the 'survey' file in $HOME/.od/" );
         return false;
     }
-    FileNameString fname( File_getFullPath(GetBaseDataDir(),seltxt) );
-    if ( !File_exists(fname) )
+    if ( !File_exists( FilePath(GetBaseDataDir()).add(seltxt).fullPath() ) )
     {
         ErrMsg( "Survey directory does not exist anymore" );
         return false;
@@ -545,7 +543,7 @@ void uiSurvey::updateViewsGlobal()
 {
     BufferString capt( "Open" );
     capt += GetProjectVersionName();
-    BufferString fnm = File_getFullPath( GetSoftwareDir(), ".rel.od" );
+    BufferString fnm = ".rel.od";
 #ifdef __win__
     fnm += ".win";
 #else
@@ -554,10 +552,11 @@ void uiSurvey::updateViewsGlobal()
     if ( ptr ) { fnm += "."; fnm += ptr; }
 #endif
     if ( !File_exists(fnm) )
-	fnm = File_getFullPath( GetSoftwareDir(), ".rel.od" );
+	fnm = ".rel.od";
     if ( !File_exists(fnm) )
-	fnm = File_getFullPath( GetSoftwareDir(), ".rel" );
+	fnm = ".rel";
 
+    fnm = FilePath( GetSoftwareDir() ).add( fnm ).fullPath();
     if ( File_exists(fnm) )
     {
 	char* ptr = strrchr( capt.buf(), 'V' );
@@ -594,7 +593,8 @@ void uiSurvey::updateViewsGlobal()
 
 void uiSurvey::getSurvInfo()
 {
-    BufferString fname( File_getFullPath(GetBaseDataDir(), listbox->getText()));
+    BufferString fname = FilePath( GetBaseDataDir() )
+	    		.add( listbox->getText() ).fullPath();
     delete survinfo;
     survinfo = SurveyInfo::read( fname );
 }

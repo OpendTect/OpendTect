@@ -5,11 +5,12 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.16 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.17 2004-04-01 13:39:50 bert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
 #include "strmoper.h"
+#include <iostream>
 #include <fstream>
 
 bool ErrMsgClass::printProgrammerErrs =
@@ -18,20 +19,43 @@ bool ErrMsgClass::printProgrammerErrs =
 # else
     false;
 # endif
+UsrIoMsg* UsrIoMsg::theUsrIoMsg_ = 0;
 
 DefineEnumNames(MsgClass,Type,1,"Message type")
 	{ "Information", "Message", "Warning", "Error", "PE", 0 };
 
+void UsrMsg( const char* msg, MsgClass::Type t )
+{
+    if ( !MsgClass::theCB().willCall() )
+	std::cerr << msg << endl;
+    else
+    {
+	MsgClass obj( msg, t );
+	MsgClass::theCB().doCall( &obj );
+    }
+}
+
+
+void ErrMsg( const char* msg, bool progr )
+{
+    if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
+
+    if ( !MsgClass::theCB().willCall() )
+	cerr << (progr?"(PE) ":"") << msg << endl;
+    else
+    {
+	ErrMsgClass obj( msg, progr );
+	MsgClass::theCB().doCall( &obj );
+    }
+}
+
+
 CallBack& MsgClass::theCB( const CallBack* cb )
 {
     static CallBack thecb;
-
     if ( cb ) thecb = *cb;
-
     return thecb;
 }
-
-UsrIoMsg* UsrIoMsg::theUsrIoMsg_ = 0;
 
 
 DefineEnumNames(StreamConn,Type,0,"Type")

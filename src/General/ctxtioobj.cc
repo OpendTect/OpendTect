@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.19 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.20 2004-04-01 13:39:50 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: ctxtioobj.cc,v 1.19 2003-11-07 12:21:57 bert Ex
 #include "transl.h"
 #include "globexpr.h"
 #include "filegen.h"
+#include "filepath.h"
 
 DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 
@@ -95,21 +96,22 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 BufferString IOObjContext::getDataDirName( StdSelType sst )
 {
     const IOObjContext::StdDirData* sdd = getStdDirData( sst );
-    BufferString datadirnm( GetDataDir() );
-    BufferString dirnm = File_getFullPath( datadirnm, sdd->dirnm );
+    FilePath fp( GetDataDir() ); fp.add( sdd->dirnm );
+    BufferString dirnm = fp.fullPath();
     if ( !File_exists(dirnm) )
     {
 	if ( sst == IOObjContext::NLA )
-	    dirnm = File_getFullPath( datadirnm, "NNs" );
+	    fp.setFileName( "NNs" );
 	else if ( sst == IOObjContext::Surf )
-	    dirnm = File_getFullPath( datadirnm, "Grids" );
+	    fp.setFileName( "Grids" );
 	else if ( sst == IOObjContext::Loc )
-	    dirnm = File_getFullPath( datadirnm, "Wavelets" );
+	    fp.setFileName( "Wavelets" );
 	else if ( sst == IOObjContext::WllInf )
-	    dirnm = File_getFullPath( datadirnm, "Logs" );
+	    fp.setFileName( "Logs" );
 
-	if ( !File_exists(dirnm) )
-	    dirnm = File_getFullPath( datadirnm, sdd->dirnm );
+	BufferString altdirnm = fp.fullPath();
+	if ( File_exists(altdirnm) )
+	    dirnm = altdirnm;
     }
     return dirnm;
 }

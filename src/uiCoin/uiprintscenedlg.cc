@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.11 2004-02-04 10:08:52 kristofer Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.12 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "ptrman.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "uiobj.h"
 #include "uibutton.h"
 #include "uilabel.h"
@@ -81,8 +82,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 
     fileinputfld = new uiFileInput( this, "Select filename",
 				    uiFileInput::Setup().forread(false) );
-    BufferString datadirnm( GetDataDir() );
-    BufferString dirnm = File_getFullPath( datadirnm, "Misc" );
+    BufferString dirnm = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld->setDefaultSelectionDir( dirnm );
     fileinputfld->attach( alignedBelow, filetypesfld );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.13 2004-03-31 11:14:04 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.14 2004-04-01 13:39:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "pixmap.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "binidselimpl.h"
 #include "emmanager.h"
 #include "emhorizontransl.h"
@@ -175,8 +176,9 @@ void uiSurfaceMan::mkFileInfo()
     if ( !conn ) return;
 
     BufferString fname( conn->fileName() );
-    txt += "\nLocation: "; txt += File_getPathOnly( fname );
-    txt += "\nFile name: "; txt += File_getFileName( fname );
+    FilePath fp( fname );
+    txt += "\nLocation: "; txt += fp.pathOnly();
+    txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; txt += getFileSize( fname );
 
     if ( sd.patches.size() > 1 )

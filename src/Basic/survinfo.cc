@@ -4,11 +4,11 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.51 2004-03-01 15:18:03 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.52 2004-04-01 13:39:50 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
-#include "filegen.h"
+#include "filepath.h"
 #include "separstr.h"
 #include "errh.h"
 #include "strmprov.h"
@@ -161,8 +161,9 @@ void SurveyInfo3D::copyFrom( const SurveyInfo& si )
 
 SurveyInfo* SurveyInfo::read( const char* survdir )
 {
-    FileNameString fname( File_getFullPath( survdir, ".survey" ) );
-    StreamData sd = StreamProvider( fname ).makeIStream();
+    FilePath fpsurvdir( survdir );
+    FilePath fp( fpsurvdir ); fp.add( ".survey" );
+    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
 
     if ( !sd.istrm || sd.istrm->fail() )
     {
@@ -187,8 +188,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 		   ? (SurveyInfo*) new SurveyInfo2D
 		   : (SurveyInfo*) new SurveyInfo3D;
 
-    si->datadir = File_getPathOnly( survdir );
-    si->dirname = File_getFileName( survdir );
+    si->dirname = fpsurvdir.fileName();
+    si->datadir = fpsurvdir.pathOnly();
     if ( !survdir || si->dirname == "" ) return si;
 
     BinIDRange bir; BinID bid( 1, 1 );
@@ -251,8 +252,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     si->wrange_ = si->range_;
     si->wzrange_ = si->zrange_;
 
-    fname = File_getFullPath( survdir, ".defs" );
-    si->pars().read( fname );
+    fp = fpsurvdir; fp.add( ".defs" );
+    si->pars().read( fp.fullPath() );
     si->pars().setName( "Survey defaults" );
     return si;
 }
@@ -294,10 +295,8 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !valid_ ) return false;
     if ( !basedir ) basedir = GetDataDir();
 
-    FileNameString fname( File_getFullPath(basedir,dirname) );
-    fname = File_getFullPath( fname, ".survey" );
-
-    StreamData sd = StreamProvider( fname ).makeOStream();
+    FilePath fp( basedir ); fp.add( dirname ).add( ".survey" );
+    StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
     if ( !sd.ostrm || !sd.usable() ) { sd.close(); return false; }
 
     ostream& strm = *sd.ostrm;
@@ -361,9 +360,7 @@ void SurveyInfo::savePars( const char* basedir ) const
     if ( !basedir || !*basedir )
 	basedir = GetDataDir();
 
-    BufferString fname( basedir );
-    fname = File_getFullPath( fname, ".defs" );
-    pars_.dump( fname );
+    pars_.dump( FilePath(basedir).add(".defs").fullPath() );
 }
 
 
