@@ -8,13 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.12 2003-05-20 12:42:12 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.13 2003-07-21 14:55:40 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include <idobj.h>
-#include <fixstring.h>
 #include <streamconn.h>
 class CallBack;
 
@@ -93,9 +92,9 @@ public:
 
 protected:
 
-    FixedString<256>	fname;
-    FixedString<32>	hostname;
-    FixedString<16>	rshcomm;
+    FileNameString	fname;
+    UnitIDString	hostname;
+    UnitIDString	rshcomm;
 
     long		blocksize;
     bool		isbad;
