@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.9 2002-01-29 11:12:28 bert Exp $
+ RCS:           $Id: uimenu.cc,v 1.10 2002-02-14 10:57:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,21 +26,6 @@ ________________________________________________________________________
 
 #include "uibody.h"
 #include "uimainwin.h"
-
-
-
-class uiPopupItem : public uiMenuItem
-{
-friend class uiPopupMenu;
-protected:
-				uiPopupItem( uiPopupMenu& menu, const char* nm);
-public:
-
-    bool			isCheckable();
-    void			setCheckable( bool yn );
-
-};
-
 
 
 class uiMenuDataBody : public uiBodyImpl<uiMenuData,QMenuData>

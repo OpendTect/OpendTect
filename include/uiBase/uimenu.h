@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.11 2002-01-29 11:13:20 bert Exp $
+ RCS:           $Id: uimenu.h,v 1.12 2002-02-14 10:58:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,19 @@ private:
     i_MenuMessenger&            messenger_;
 
     int                         id_;
+
+};
+
+
+class uiPopupItem : public uiMenuItem
+{
+friend class uiPopupMenu;
+protected:
+                                uiPopupItem( uiPopupMenu& menu, const char* nm);
+public:
+
+    bool                        isCheckable();
+    void                        setCheckable( bool yn );
 
 };
 
