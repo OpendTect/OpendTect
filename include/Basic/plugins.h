@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.11 2003-11-17 14:43:15 bert Exp $
+ RCS:		$Id: plugins.h,v 1.12 2003-12-22 09:11:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ bool LoadPlugin(const char* libnm,int argc,char** argv);
  if not defined, PI_AUTO_INIT_NONE is assumed, which means it will not be loaded
  if not explicitly done so.
 
- Loading from startup is done from $HOME/.odplugins/$HDIR or $dGB_APPL/...
+ Loading from startup is done from $HOME/.od/plugins/$HDIR or $dGB_APPL/...
  Plugins can always be put in these directory (for all) or in a subdirectory
  with the name of the program (e.g. dtectmain).
  From OpendTect V1.0.3 we also support the '.alo' files with the names of
