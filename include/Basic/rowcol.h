@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.10 2004-05-31 06:48:54 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.11 2004-05-31 09:25:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,6 @@ public:
 
     static const TypeSet<RowCol>&	clockWiseSequence();
 private:
-    static TypeSet<RowCol>&		clockwisedirs_;
 };
 
 
