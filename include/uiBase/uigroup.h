@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.24 2002-10-08 09:46:40 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.25 2002-11-01 12:29:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,22 +32,29 @@ class uiGroupObj : public uiObject
 { 	
 friend class uiGroup;
 protected:
-			uiGroupObj( uiParent*, const char* nm, bool manage );
-			uiGroupObj( uiTabGroup*, const char* nm );
-private:
+			uiGroupObj( uiGroup*,uiParent*, const char*, bool );
+			uiGroupObj( uiGroup*,uiTabGroup*, const char* );
+public:
+
+    virtual		~uiGroupObj();
+
+protected:
 
     uiGroupObjBody*	body_;
+    uiGroup*		uigrp_;
 };
 
 
 class uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
+friend class		uiGroupObj;
 friend class		uiMainWin;
 public:
 			uiGroup( uiParent* , const char* nm="uiGroup", 
 				 bool manage=true );
 			uiGroup( uiTabGroup* , const char* nm="uiGroup" );
+    virtual		~uiGroup();
 
     inline uiGroupObj*	uiObj()				    { return grpobj_; }
     inline const uiGroupObj* uiObj() const		    { return grpobj_; }

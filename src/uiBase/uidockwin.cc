@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.7 2002-10-08 09:46:33 arend Exp $
+ RCS:           $Id: uidockwin.cc,v 1.8 2002-11-01 12:29:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ void uiDockWinBody::construct()
 
 uiDockWinBody::~uiDockWinBody( )
 {
-    delete centralWidget_;
+    //delete centralWidget_;
 }
 
 void uiDockWinBody::finalise()

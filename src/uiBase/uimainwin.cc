@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.60 2002-10-08 09:46:33 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.61 2002-11-01 12:29:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,7 +279,7 @@ void uiMainWinBody::construct(  int nrStatusFlds, bool wantMenuBar,
 
 uiMainWinBody::~uiMainWinBody( )
 {
-    delete centralWidget_;
+//    delete centralWidget_;
 }
 
 void uiMainWinBody::popTimTick(CallBacker*)

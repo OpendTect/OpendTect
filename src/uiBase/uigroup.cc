@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.38 2002-10-08 09:46:33 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.39 2002-11-01 12:29:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -431,7 +431,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     , grpobj_( 0 )
     , body_( 0 )
 {
-    grpobj_ =  new uiGroupObj( p,nm,manage );
+    grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
 #ifdef __debug__
@@ -455,7 +455,7 @@ uiGroup::uiGroup( uiTabGroup* p, const char* nm )
     , grpobj_( 0 )
     , body_( 0 )
 {
-    grpobj_ =  new uiGroupObj( p,nm );
+    grpobj_ =  new uiGroupObj( this,p,nm );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
 #ifdef __debug__
@@ -467,6 +467,9 @@ uiGroup::uiGroup( uiTabGroup* p, const char* nm )
 
     grpobj_->body_->setPrntBody( body_ );
 }
+
+uiGroup::~uiGroup()
+    { if( grpobj_ ) { grpobj_->uigrp_ = 0; delete grpobj_; } }
 
 void uiGroup::display( bool yn, bool shrink, bool maximize )
 { 
@@ -575,19 +578,25 @@ void uiGroup::setHCentreObj( uiObject* o )
     { body_->setHCentreObj( o ); }
 
 
-uiGroupObj::uiGroupObj( uiParent* parnt , const char* nm, bool manage )
-: uiObject( parnt, nm )
+uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
+			bool manage )
+    : uiObject( parnt, nm )
+    , uigrp_( bud )
 {
     body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );
 }
 
-uiGroupObj::uiGroupObj( uiTabGroup* parnt , const char* nm )
-: uiObject( 0, nm )
+uiGroupObj::uiGroupObj( uiGroup* bud, uiTabGroup* parnt , const char* nm )
+    : uiObject( 0, nm )
+    , uigrp_( bud )
 {
     body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );
 }
+
+uiGroupObj::~uiGroupObj()
+    { if(uigrp_) { uigrp_->grpobj_ =0; delete uigrp_; }  }
 
 uiGroup* uiGroup::gtDynamicCastToGrp( QWidget* widg )
 { 
