@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.20 2004-09-17 14:28:06 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.21 2004-09-21 07:59:16 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -159,7 +159,7 @@ void Seis2DLineSet::setLineKey( IOPar& iop, const char* lk )
 BufferString Seis2DLineSet::lineKey( const char* lnm, const char* attrnm )
 {
     BufferString ret( lnm );
-    if ( attrnm && strcmp(attrnm,sKeyDefAttrib) )
+    if ( attrnm && *attrnm && strcmp(attrnm,sKeyDefAttrib) )
 	{ ret += "|"; ret += attrnm; }
     return ret;
 }
