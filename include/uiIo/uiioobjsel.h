@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.35 2004-07-21 14:04:58 nanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.36 2004-10-05 15:26:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,8 +99,8 @@ public:
 
     bool		commitInput(bool mknew);
 
-    void		updateInput();	//!< updates from CtxtIOObj
-    void		processInput(); //!< Match user typing with existing
+    virtual void	updateInput();	//!< updates from CtxtIOObj
+    virtual void	processInput(); //!< Match user typing with existing
 					//!< IOObjs, then set item accordingly
     bool		existingTyped() const;
 					//!< returns false is typed input is
@@ -124,6 +124,7 @@ protected:
     virtual void	newSelection(uiIOObjRetDlg*)		{}
     virtual uiIOObjRetDlg* mkDlg();
     virtual IOObj*	createEntry(const char*);
+    void		obtainIOObj();
 
 };
 

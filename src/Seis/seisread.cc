@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.43 2004-09-30 15:33:32 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.44 2004-10-05 15:26:20 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -315,7 +315,7 @@ BufferString lineKey() const
 {
     BufferString lk = rdr.lineKey();
     if ( attr != "" )
-	lk = Seis2DLineSet::lineKey( Seis2DLineSet::lineNamefromKey(lk.buf()),
+	lk = Seis2DLineSet::lineKey( Seis2DLineSet::lineNameFromKey(lk.buf()),
 				     attr );
     return lk;
 }

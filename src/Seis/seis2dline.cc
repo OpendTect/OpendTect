@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.24 2004-10-04 15:04:04 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.25 2004-10-05 15:26:20 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -168,8 +168,8 @@ BufferString Seis2DLineSet::lineKey( const IOPar& iop )
 
 void Seis2DLineSet::setLineKey( IOPar& iop, const char* lk )
 {
-    iop.setName( lineNamefromKey(lk) );
-    iop.set( sKeyAttrib, attrNamefromKey(lk) );
+    iop.setName( lineNameFromKey(lk) );
+    iop.set( sKeyAttrib, attrNameFromKey(lk) );
 }
 
 
@@ -182,7 +182,7 @@ BufferString Seis2DLineSet::lineKey( const char* lnm, const char* attrnm )
 }
 
 
-BufferString Seis2DLineSet::lineNamefromKey( const char* key )
+BufferString Seis2DLineSet::lineNameFromKey( const char* key )
 {
     BufferString ret( key );
     char* ptr = strchr( ret.buf(), '|' );
@@ -191,7 +191,7 @@ BufferString Seis2DLineSet::lineNamefromKey( const char* key )
 }
 
 
-BufferString Seis2DLineSet::attrNamefromKey( const char* key )
+BufferString Seis2DLineSet::attrNameFromKey( const char* key )
 {
     BufferString ret;
     char* ptr = key ? strchr( key, '|' ) : 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.7 2004-09-20 16:17:37 bert Exp $
+ RCS:		$Id: seisscanner.h,v 1.8 2004-10-05 15:26:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class SeisScanner : public Executor
 {
 public:
 
-			SeisScanner(const IOObj&,bool for3dcube=true);
+			SeisScanner(const IOObj&);
 			~SeisScanner();
 
     const char*		message() const;

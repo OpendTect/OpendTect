@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.20 2004-09-29 08:01:59 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.21 2004-10-05 15:26:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,12 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "ctxtioobj.h"
 #include "iopar.h"
+#include "ioobj.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include "separstr.h"
 #include "seistrctr.h"
+#include "seis2dline.h"
 
 
 static void mkKvals( const IOObjContext& ctxt, BufferString& keyvals )
@@ -71,6 +73,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& setup )
 	: uiIOObjSelDlg(p,getCtio(c,setup),"")
 	, subsel(0)
+	, attrfld(0)
 {
     mkKvals( ctio.ctxt, orgkeyvals );
     const char* ttxt = setup.pol2d_ == SeisSelSetup::No2D ? "Select Cube"
@@ -87,6 +90,20 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	subsel->attach( alignedBelow, topgrp );
 	if ( ctio.iopar )
 	    subsel->usePar( *ctio.iopar );
+    }
+
+    if ( setup.pol2d_ != SeisSelSetup::No2D )
+    {
+	if ( ctio.ctxt.forread )
+	    attrfld = new uiGenInput( this, "Attribute", StringListInpSpec() );
+	else
+	    attrfld = new uiGenInput( this, "Attribute (if any)" );
+	if ( subsel )
+	    attrfld->attach( alignedBelow, subsel );
+	else if ( nmfld )
+	    attrfld->attach( alignedBelow, nmfld );
+	else
+	    attrfld->attach( ensureBelow, topgrp );
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
@@ -137,14 +154,24 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !ioobj )
 	return;
 
+    uiSeisIOObjInfo oinf(*ioobj,false);
     if ( subsel )
     {
-	uiSeisIOObjInfo oinf(*ioobj,false);
 	subsel->set2D( oinf.is2D() );
 	CubeSampling cs;
 	if ( oinf.getRanges(cs) )
 	    subsel->setInput( cs );
     }
+
+    if ( !attrfld ) return;
+
+    const bool is2d = oinf.is2D();
+    attrfld->display( is2d );
+    if ( !is2d || !ctio.ctxt.forread ) return;
+
+    BufferStringSet nms;
+    oinf.getAttribNames( nms );
+    attrfld->newSpec( StringListInpSpec(nms), 0 );
 }
 
 
@@ -152,6 +179,7 @@ void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 {
     uiIOObjSelDlg::fillPar( iopar );
     if ( subsel ) subsel->fillPar( iopar );
+    if ( attrfld ) iopar.set( Seis2DLineSet::sKeyAttrib, attrfld->text() );
 }
 
 
@@ -159,6 +187,12 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 {
     uiIOObjSelDlg::usePar( iopar );
     if ( subsel ) subsel->usePar( iopar );
+    if ( attrfld )
+    {
+	entrySel(0);
+	const char* selattrnm = iopar.find( Seis2DLineSet::sKeyAttrib );
+	if ( selattrnm ) attrfld->setText( selattrnm );
+    }
 }
 
 
@@ -208,6 +242,25 @@ uiSeisSel::~uiSeisSel()
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     ((uiSeisSelDlg*)dlg)->fillPar( iopar );
+    attrnm = iopar.find( Seis2DLineSet::sKeyAttrib );
+}
+
+
+void uiSeisSel::setAttrNm( const char* nm )
+{
+    attrnm = nm;
+    updateInput();
+}
+
+
+const char* uiSeisSel::userNameFromKey( const char* txt ) const
+{
+    if ( !txt || !*txt ) return "";
+    curusrnm = uiIOObjSel::userNameFromKey(
+	    	Seis2DLineSet::lineNameFromKey(txt) );
+    BufferString attnm = Seis2DLineSet::attrNameFromKey(txt);
+    curusrnm = Seis2DLineSet::lineKey( curusrnm, attnm );
+    return curusrnm.buf();
 }
 
 
@@ -228,6 +281,24 @@ void uiSeisSel::usePar( const IOPar& iop )
 {
     uiIOObjSel::usePar( iop );
     iopar.merge( iop );
+}
+
+
+void uiSeisSel::updateInput()
+{
+    if ( !ctio.ioobj ) return;
+    BufferString inp( Seis2DLineSet::lineKey(ctio.ioobj->key(),attrnm) );
+    setInput( inp );
+}
+
+
+void uiSeisSel::processInput()
+{
+    obtainIOObj();
+    const char* ptr = strchr( getInput(), '|' );
+    attrnm = Seis2DLineSet::attrNameFromKey( getInput() );
+    if ( ctio.ioobj || ctio.ctxt.forread )
+	updateInput();
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.11 2004-09-24 12:09:12 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.12 2004-10-05 15:26:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 protected:
 
     uiSeisSubSel*	subsel;
+    uiGenInput*		attrfld;
     BufferString	orgkeyvals;
 
     void		entrySel(CallBacker*);
@@ -60,15 +61,22 @@ public:
 
     bool		is2D() const;
     void		set2DPol(SeisSelSetup::Pol2D);
+    void		setAttrNm(const char*);
+    const char*		attrNm() const		{ return attrnm.buf(); }
+    virtual void	processInput();
 
 protected:
 
     SeisSelSetup	setup;
     IOPar&		iopar;
     BufferString	orgkeyvals;
+    BufferString	attrnm;
     const char**	seltxts;
+    mutable BufferString curusrnm;
 
+    virtual void	updateInput();
     virtual void	newSelection(uiIOObjRetDlg*);
+    virtual const char*	userNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
 
 };

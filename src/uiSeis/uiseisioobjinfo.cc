@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.11 2004-09-29 10:38:16 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.12 2004-10-05 15:26:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,7 @@ void uiSeisIOObjInfo::getAttribKeys( BufferStringSet& bss, bool add ) const
 }
 
 
-void uiSeisIOObjInfo::getLineNames( BufferStringSet& bss, bool add ) const
+void uiSeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr ) const
 {
     if ( !add ) bss.erase();
     if ( !isOK() ) return;
@@ -256,5 +256,5 @@ void uiSeisIOObjInfo::getLineNames( BufferStringSet& bss, bool add ) const
 	return;
 
     for ( int idx=0; idx<lset->nrLines(); idx++ )
-	bss.addIfNew( lset->lineName(idx) );
+	bss.addIfNew( attr ? lset->attribute(idx) : lset->lineName(idx) );
 }

@@ -152,7 +152,7 @@ bool SeisTrcWriter::next2DLine()
     BufferString lk = prevlk;
     if ( attrib != "" )
     {
-	BufferString lnm = Seis2DLineSet::lineNamefromKey( lk );
+	BufferString lnm = Seis2DLineSet::lineNameFromKey( lk );
 	if ( lnm == "" )
 	{
 	    errmsg = "Cannot write to empty line name";

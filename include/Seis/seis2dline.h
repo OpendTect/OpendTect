@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.16 2004-10-01 15:29:47 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.17 2004-10-05 15:26:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,8 +99,8 @@ public:
     static BufferString	lineKey(const IOPar&);
     static BufferString	lineKey(const char* lnm,const char* attrnm);
 			//!< "line_name|attribute"
-    static BufferString	lineNamefromKey(const char*);
-    static BufferString	attrNamefromKey(const char*);
+    static BufferString	lineNameFromKey(const char*);
+    static BufferString	attrNameFromKey(const char*);
     static void		setLineKey(IOPar&,const char*);
 
 protected:
