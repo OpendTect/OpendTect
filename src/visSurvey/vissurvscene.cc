@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.45 2003-01-21 16:09:48 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.46 2003-01-24 07:40:47 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -44,7 +44,7 @@ visSurvey::Scene::Scene()
     : inlcrl2displtransform( SPM().getInlCrl2DisplayTransform() )
     , zscaletransform( SPM().getZScaleTransform() )
     , annot( 0 )
-    , eventcatcher( visBase::EventCatcher::create())
+    , eventcatcher( 0 )
     , mouseposchange( this )
     , mouseposval(0)
 {
@@ -364,6 +364,7 @@ void visSurvey::Scene::setup()
 {
     setAmbientLight( 1 );
 
+    eventcatcher = visBase::EventCatcher::create();
     visBase::SceneObjectGroup::addObject( eventcatcher );
     eventcatcher->setEventType( visBase::MouseMovement );
     eventcatcher->eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
