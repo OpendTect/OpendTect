@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.20 2004-05-04 12:33:07 nanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.21 2004-06-02 12:26:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,6 @@ public:
     bool			usesTexture() const;
 
     int				getSectionIdx() const { return sectionidx; }
-    Coord			getClickedPos() const    { return selknotpos; }
 
     void			setData(int sectn,const Array2D<float>*,int tp);
     				/*!< section ranges from 0 to nrKnots-2 */
@@ -93,7 +92,6 @@ public:
     void			setColorPars(bool,bool,const Interval<float>&);
     const Interval<float>&	getColorDataRange() const;
 
-    Notifier<RandomTrack>	rightclick;
     Notifier<RandomTrack>	knotnrchange;
     CNotifier<RandomTrack,int>	knotmovement;
     				/*!< Sends the index of the knot moving */
@@ -111,9 +109,7 @@ protected:
 
     static void			motionCB(void*,SoRandomTrackLineDragger*);
     static void			startCB(void*,SoRandomTrackLineDragger*);
-
-    void			eventCB(CallBacker*);
-    				// Handles adding and removal of knots
+    void			triggerRightClick(const TypeSet<int>* path);
 
     Interval<float>		depthrg;
     TypeSet<Coord>		knots;
@@ -123,7 +119,6 @@ protected:
     ObjectSet<TriangleStripSet>	sections;
     SoRandomTrackLineDragger*	dragger;
     SoSwitch*			draggerswitch;
-    EventCatcher*		eventcatcher;
 };
 
 };
