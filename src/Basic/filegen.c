@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.36 2003-05-19 07:49:30 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.37 2003-05-19 08:04:14 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -104,6 +104,7 @@ int File_isRemote( const char* fname )
 #endif
 }
 
+#define mToKbFac (1.0 / 1024.0)
 
 int File_getFreeMBytes( const char* dirnm )
 {
@@ -111,16 +112,18 @@ int File_getFreeMBytes( const char* dirnm )
     return 0;
 #else
 
-    double res = 1.0 / 1024.0;
+    double res = mToKbFac;
 
     if ( !File_exists(dirnm)
       || mStatFS(dirnm,&fsstatbuf) )
 	return 0;
 
-    res *= res * fsstatbuf.f_bavail * fsstatbuf.f_bsize;
-#ifdef sun5
-    //TODO check this
-    res /= 64;
+    res *= res			/* to MB */
+	* fsstatbuf.f_bavail	/* available blocks */
+#ifdef lux
+	* fsstatbuf.f_bsize;	/* block size */
+#else
+	* fsstatbuf.f_frsize;	/* 'real' block size */
 #endif
     return (int)(res + .5);
 
@@ -134,7 +137,7 @@ int File_getKbSize( const char* fnm )
     return 0;
 #else
 
-    double res = 1.0 / 1024.0;
+    double res = mToKbFac;
 
     if ( !File_exists(fnm) )
 	return 0;
