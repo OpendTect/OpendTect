@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.5 2004-01-16 10:34:36 bert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.6 2004-01-16 13:39:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,14 @@ bool uiSetDataDir::acceptOK( CallBacker* )
     }
     else if ( datadir == olddatadir )
 	return true;
+
+    return setRootDataDir( datadir );
+}
+
+
+bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
+{
+    BufferString datadir = inpdatadir;
 
     const BufferString omffnm = File_getFullPath( datadir, ".omf" );
     const BufferString stdomf( GetDataFileName("omf") );

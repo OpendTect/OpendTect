@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.14 2004-01-12 16:49:35 bert Exp $
+ RCS:           $Id: uisurvey.h,v 1.15 2004-01-16 13:39:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,9 +36,11 @@ protected:
 
     SurveyInfo*		survinfo;
     DirList*		dirlist;
+    BufferString	initialdatadir;
+    uiSurveyMap*	survmap;
+
     uiListBox*		listbox;
     uiCanvas*		mapcanvas;
-    uiSurveyMap*	survmap;
     uiPushButton*	newbut;
     uiPushButton*	editbut;
     uiPushButton*	rmbut;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.52 2004-01-15 16:10:19 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.53 2004-01-16 13:39:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,10 @@ static void fill()
 uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	: uiDialog(p,uiDialog::Setup("Survey selection",
 		   "Select and setup survey","0.3.1"))
+    	, initialdatadir(GetBaseDataDir())
 	, survinfo(0)
+	, survmap(0)
+	, mapcanvas(0)
 {
     SurveyInfo::produceWarnings( false );
     const int lbwidth = 250;
@@ -221,7 +224,6 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 uiSurvey::~uiSurvey()
 {
     delete dirlist;
-    delete mapcanvas;
     delete survinfo;
     delete survmap;
 }
@@ -229,6 +231,8 @@ uiSurvey::~uiSurvey()
 
 void uiSurvey::newButPushed( CallBacker* )
 {
+    if ( !mapcanvas ) return;
+
     ioDrawTool& dt = *mapcanvas->drawTool();
     dt.beginDraw(); dt.clear(); dt.endDraw();
 
@@ -495,7 +499,7 @@ void uiSurvey::updateInfo( CallBacker* cb )
 	getSurvInfo();
 
     mkInfo();
-    survmap->drawMap( survinfo );
+    if ( survmap ) survmap->drawMap( survinfo );
 }
 
 
@@ -512,8 +516,7 @@ void uiSurvey::writeComments()
 
 void uiSurvey::doCanvas( CallBacker* c )
 {
-    mDynamicCastGet(uiCanvas*,mapcanvas,c)
-    if (!mapcanvas) return;
+    if ( !mapcanvas ) return;
     survmap = new uiSurveyMap( mapcanvas );
     survmap->drawMap( survinfo );
 }
@@ -521,6 +524,16 @@ void uiSurvey::doCanvas( CallBacker* c )
 
 bool uiSurvey::rejectOK( CallBacker* )
 {
+    if ( initialdatadir != GetBaseDataDir() )
+    {
+	if ( !uiSetDataDir::setRootDataDir( initialdatadir ) )
+	{
+	    uiMSG().error( "As we cannot reset to the old Data Root,\n"
+		    	   "You *have to* select a survey now!" );
+	    return false;
+	}
+    }
+
     SurveyInfo::produceWarnings( true );
     return true;
 }
