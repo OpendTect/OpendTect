@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.3 2004-02-20 16:10:07 bert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.4 2004-02-27 08:21:31 nanne Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -49,23 +49,44 @@ UnitOfMeasureRepository::UnitOfMeasureRepository()
 #define mAdd(nm,symb,fac,ptyp) \
     add( UnitOfMeasure( nm, symb, fac, PropertyRef::ptyp ) )
 
+    mAdd( "Seconds", "s", 1, Time );
     mAdd( "Milliseconds", "msec", 0.001, Time );
     mAdd( "Microseconds", "usec", 1e-6, Time );
+    mAdd( "Meter", "m", 1, Dist );
     mAdd( "Feet", "ft", 0.3048, Dist );
     mAdd( "Inches", "in", 0.0254, Dist );
+    mAdd( "Kg/m3", "kg/m3", 1, Den );
     mAdd( "Gram/cm3", "g/cc", 1000, Den );
+    mAdd( "Meter/second", "m/s", 1, Vel );
     mAdd( "Feet/second ", "ft/s", 0.3048, Vel );
     mAdd( "Km/second ", "km/s", 1000, Vel );
+    mAdd( "Seconds/meter", "s/m", 1, Son );
     mAdd( "Microseconds/feet", "us/ft", 3.28084e-6, Son );
     mAdd( "Microseconds/meter", "us/m", 1e-6, Son );
+    mAdd( "Kg/m2s", "kg/m2s", 1, AI );
     mAdd( "Kg/m2us", "kg/m2us", 1000000, AI );
     mAdd( "G/ft2s", "g/ft2s", 0.0107639, AI );
+    mAdd( "Fraction", "", 1, Por );
     mAdd( "Percent", "%", 0.01, Por );
+    mAdd( "Darcy", "k", 1, Perm );
+    mAdd( "Fraction", "", 1, Sat );
     mAdd( "Percent", "%", 0.01, Sat );
+    mAdd( "API", "API", 1, GR );
+    mAdd( "Volt", "V", 1, ElPot );
+    mAdd( "Ohm", "ohm", 1, Res );
+    mAdd( "Ratio", "", 1, PR );
+    mAdd( "1/Pascal", "1/Pa", 1, Comp );
+    mAdd( "Kelvin", "K", 1, Temp );
 
+    UnitOfMeasure degc( "Degrees Celcius", "deg.C", 1, PropertyRef::Temp );
+    degc.setScaler( LinScaler(273.15,1) );
+    add( degc );
     UnitOfMeasure degf( "Degrees Fahrenheit", "deg.F", 1, PropertyRef::Temp );
-    degf.setScaler( LinScaler(-160./9.,5./9.) );
+    degf.setScaler( LinScaler(273.15-160./9.,5./9.) );
     add( degf );
+
+    mAdd( "Pascal", "Pa", 1, Pres );
+    mAdd( "Bar", "bar", 1e5, Pres );
 }
 
 
