@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.48 2002-05-13 11:25:58 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.49 2002-05-13 14:11:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -713,7 +713,7 @@ void uiVisPartServer::setClipRate( int id, float cr )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    sd->textureRect().setClipRate( cr );
+    if ( sd ) sd->textureRect().setClipRate( cr );
 }
 
 
@@ -721,7 +721,7 @@ float uiVisPartServer::getClipRate(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    return sd->textureRect().clipRate();
+    return sd ? sd->textureRect().clipRate() : 0;
 }
 
 
@@ -729,7 +729,7 @@ void uiVisPartServer::setAutoscale( int id, bool yn )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    sd->textureRect().setAutoscale( yn );
+    if ( sd ) sd->textureRect().setAutoscale( yn );
 }
 
 
@@ -737,7 +737,7 @@ bool uiVisPartServer::getAutoscale(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    return sd->textureRect().autoScale();
+    return sd ? sd->textureRect().autoScale() : false;
 }
 
 
@@ -745,7 +745,7 @@ void uiVisPartServer::setDataRange( int id, const Interval<float>& intv )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    sd->textureRect().getColorTab().scaleTo( intv );
+    if ( sd ) sd->textureRect().getColorTab().scaleTo( intv );
 }
 
 
@@ -784,7 +784,7 @@ void uiVisPartServer::modifyColor( int id, const Color& col )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visBase::VisualObject*,vo,obj);
-    vo->getMaterial()->setColor(col);
+    if ( vo ) vo->getMaterial()->setColor(col);
 }
 
 
