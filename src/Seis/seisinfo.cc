@@ -5,13 +5,18 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.2 1999-10-18 14:06:36 dgb Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.3 2000-03-03 09:29:30 bert Exp $";
 
 #include "seisinfo.h"
 #include "susegy.h"
 #include <math.h>
 #include <timeser.h>
 #include <float.h>
+
+FixedString<32>  SeisPacketInfo::defaultclient( getenv("dGB_SEGY_CLIENT") );
+FixedString<32>  SeisPacketInfo::defaultcompany( getenv("dGB_SEGY_COMPANY") );
+FixedString<180> SeisPacketInfo::defaultauxinfo( getenv("dGB_SEGY_AUXINFO") );
+
 
 DefineEnumNames(Seis,WaveType,0,"Wave type")
 {
@@ -56,6 +61,7 @@ void SeisPacketInfo::fillEmpty( const SeisPacketInfo& tpi )
 {
     if ( !client[0] ) client = tpi.client;
     if ( !company[0] ) company = tpi.company;
+    if ( !auxinfo[0] ) auxinfo = tpi.auxinfo;
     if ( !nr ) nr = tpi.nr;
     if ( !ns ) ns = tpi.ns;
     if ( !dt ) dt = tpi.dt;
