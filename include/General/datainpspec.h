@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.8 2001-05-08 15:17:55 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.9 2001-05-08 15:38:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,8 +318,10 @@ public:
 					 , bool isRelative=false
 					 , double inline_x = 0
 					 , double crossline_y = 0
+					 , bool withOtherBut=true
 					 , const SurveyInfo& si = SI() )
 			    : DataInpSpec( binIDCoordTp )
+			    , withOtherBut_( withOtherBut )
 			    , inl_x( inline_x )
 			    , crl_y( crossline_y )
 			    , doCoord_( doCoord )
@@ -336,8 +338,9 @@ public:
 
     const char*		otherTxt() const
 			    {
-				if( doCoord_ ) { return "Inline/Crossline"; }
-				return isRelative_ ? "Distance" : "Coords";
+				if( !withOtherBut_ ) return 0;
+				if( doCoord_ ) { return "Inline/Crossline..."; }
+				return isRelative_? "Distance..." : "Coords...";
 			    }
 
     const SurveyInfo&	survInf()	{ return surv_;}
@@ -349,6 +352,7 @@ protected:
 
     bool		doCoord_;
     bool		isRelative_;
+    bool		withOtherBut_;
     const SurveyInfo&	surv_;
 
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.11 2001-05-08 14:33:43 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.12 2001-05-08 15:38:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,9 @@ public:
 
                         // can be a uiGroup, i.e. for radio button group
     virtual uiObject&	uiObj() =0;
+
+    virtual void	changeNotify( const CallBack& cb ) = 0;
+
 };
 
 /*! \brief Text oriented data input field.
@@ -188,6 +191,8 @@ public:
     virtual void        setText( const char* t,int idx)	{ li.setText(t);}
     virtual uiObject&	uiObj()				{ return li; }
 
+    virtual void	changeNotify( const CallBack& cb ) 
+			    { li.textChanged.notify(cb); }
 protected:
     uiLineEdit&	li;
 };
@@ -219,6 +224,8 @@ public:
 			    { setValue( i ? true : false, idx ); }
 
     virtual uiObject&	uiObj()				{ return *butOrGrp; }
+    virtual void	changeNotify( const CallBack& cb )
+			{ changed.notify(cb); }
 
 protected:
 
@@ -231,10 +238,13 @@ protected:
     uiCheckBox*		cb;
     uiRadioButton*	rb1;
     uiRadioButton*	rb2;
+
+    Notifier<uiBoolInpFld> changed;
+
 };
 
 uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec* spec, const char* nm)
-    : butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
+    : butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true ), changed( this )
 {
     const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(spec);
     if( !spc ) { butOrGrp = new uiGroup(p,nm); return; }
@@ -287,6 +297,7 @@ void uiBoolInpFld::radioButSel(CallBacker* cb)
 
 void uiBoolInpFld::setValue( bool b, int idx )
 { 
+    if( yn != b ) changed.trigger();
     yn = b; 
 
     if( cb ) { cb->setChecked( yn ); return; }
@@ -313,6 +324,11 @@ public:
     virtual void        setText( const char* t,int idx)
 			    { if(idx) crl_y.setText(t); else inl_x.setText(t); }
 
+    virtual void	changeNotify( const CallBack& cb ) 
+			{ 
+			    inl_x.textChanged.notify(cb); 
+			    crl_y.textChanged.notify(cb); 
+			}
 protected:
     // don't change order of these 3 attributes!
     uiGroup&		binidGrp;
@@ -331,18 +347,19 @@ uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
     , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
     , ofrmBut( 0 )
 {
-    const BinIDCoordInpSpec* spc 
-			    = dynamic_cast< const BinIDCoordInpSpec* >(spec);
+    const BinIDCoordInpSpec*spc = dynamic_cast<const BinIDCoordInpSpec*>(spec);
     if( !spc ) return;
 
-    ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt() );
-    ofrmBut->notify( mCB(this,uiBinIDInpFld,otherFormSel) );
-
     binidGrp.setHAlignObj( &inl_x );
-
     crl_y.attach( rightTo, &inl_x );
-    ofrmBut->attach( rightTo, &crl_y );
 
+    if( spc->otherTxt() )
+    {
+	ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt() );
+	ofrmBut->notify( mCB(this,uiBinIDInpFld,otherFormSel) );
+
+	ofrmBut->attach( rightTo, &crl_y );
+    }
 }
 
 
@@ -371,6 +388,13 @@ public:
     virtual void        setText( const char* t,int idx)	
 			    { if(le(idx)) le(idx)->setText(t); }
 
+    virtual void	changeNotify( const CallBack& cb ) 
+			{ 
+			    start.textChanged.notify(cb); 
+			    stop.textChanged.notify(cb); 
+			    if(step) step->textChanged.notify(cb); 
+			}
+protected:
 protected:
     uiGroup&		intvalGrp;
 
@@ -451,8 +475,11 @@ public:
 
     virtual uiObject&	uiObj()				{ return cbb; }
 
+    virtual void	changeNotify( const CallBack& cb ) 
+			    { cbb.notify(cb); }
+
 protected:
-    uiComboBox&	cbb;
+    uiComboBox&		cbb;
 };
 
 /*!
@@ -483,6 +510,7 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
 	    case DataInpSpec::intTp:
 		{
 		    fld = new uiLineInpFld( this, desc ); 
+		    fld->uiObj().setPrefWidthInChar( 15 );
 		}
 		break;
 
@@ -534,6 +562,7 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
     for( int idx=0; idx<fld->nElems(); idx++ )
 	idxes += FieldIdx( flds.size()-1, idx );
 
+    fld->changeNotify( mCB(this,uiGenInput,inpFldChanged) );
     return *fld;
 }
 
@@ -738,6 +767,11 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
 
     if( selbut ) selbut->setSensitive( isChecked() );
     if( clrbut ) clrbut->setSensitive( isChecked() );
+}
+
+void uiGenInput::inpFldChanged( CallBacker* cb )
+{
+    changed.trigger();
 }
 
 
