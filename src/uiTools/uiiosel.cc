@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.14 2001-07-19 22:15:53 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.15 2001-07-20 09:04:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,7 @@ bool uiIOSelect::fillPar( IOPar& iopar ) const
 
 void uiIOSelect::usePar( const IOPar& iopar )
 {
+    checkState();
     bool haveold = inp_->box()->size();
     bool havenew = false; BufferString bs;
     for ( int idx=1; ; idx++ )
@@ -155,6 +156,7 @@ const char* uiIOSelect::getInput() const
 
 const char* uiIOSelect::getKey() const
 {
+    checkState();
     const_cast<uiIOSelect*>(this)->processInput();
 
     const int nrspec = specialitems.size();
@@ -166,8 +168,17 @@ const char* uiIOSelect::getKey() const
 }
 
 
+void uiIOSelect::checkState() const
+{
+    if ( inp_->box()->size() != specialitems.size() + entries_.size() )
+	const_cast<uiIOSelect*>(this)->updateFromEntries();
+}
+
+
 void uiIOSelect::setInput( const char* key )
 {
+    checkState();
+
     if ( specialitems.find(key) )
     {
 	inp_->box()->setCurrentItem( specialitems.find(key) );
@@ -178,7 +189,8 @@ void uiIOSelect::setInput( const char* key )
     if ( !usrnm ) return;
 
     const int nrspec = specialitems.size();
-    for ( int idx=0; idx<entries_.size(); idx++ )
+    const int nrentries = entries_.size();
+    for ( int idx=0; idx<nrentries; idx++ )
     {
 	const int boxidx = idx + nrspec;
 	if ( *entries_[idx] == key )
@@ -191,18 +203,20 @@ void uiIOSelect::setInput( const char* key )
 
     entries_ += new BufferString( key );
     inp_->box()->addItem( usrnm );
-    inp_->box()->setCurrentItem( nrspec + entries_.size() - 1 );
+    inp_->box()->setCurrentItem( nrspec + nrentries );
 }
 
 
 int uiIOSelect::getCurrentItem() const
 {
+    checkState();
     return inp_->box()->size() ? inp_->box()->currentItem() : -1;
 }
 
 
 void uiIOSelect::setCurrentItem( int idx )
 {
+    checkState();
     if ( idx >= 0 ) inp_->box()->setCurrentItem( idx );
 }
 

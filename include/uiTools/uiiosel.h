@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.11 2001-07-19 22:16:23 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.12 2001-07-20 09:04:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ protected:
 			//!< If 0 returned, then if possible,
 			//!< that entry is not entered in the entries_.
 
+    void		checkState() const;
     void		updateFromEntries();
     bool		haveEntry(const char*) const;
 
