@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.2 2000-03-02 15:24:22 bert Exp $
+ RCS:		$Id: plfdefs.h,v 1.3 2000-11-29 11:04:47 bert Exp $
 ________________________________________________________________________
 
 For every platform, the HDIR variable should be put in a -D$HDIR by make.
@@ -48,6 +48,7 @@ Language:
 Bytes:
 
 	__little__	little-endian (PC,DEC)
+	__islittle__	'true' if __little__ defined, else 'false'
 
 ________________________________________________________________________________
 
@@ -112,7 +113,6 @@ ________________________________________________________________________________
 #undef __ibm__
 #undef __pc__
 #undef __little__
-# define __little__ 1
 #ifdef sgi
 # define __sgi__ 1
 #endif
@@ -140,7 +140,13 @@ ________________________________________________________________________________
 #endif
 #ifdef lux
 # define __pc__ 1
+#endif
+
+#ifdef __pc__
 # define __little__ 1
+# define __islittle__ true
+#else
+# define __islittle__ false
 #endif
 
 
