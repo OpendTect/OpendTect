@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.2 2002-03-11 13:38:52 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.3 2002-03-11 13:57:43 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -49,13 +49,13 @@ visBase::DataObject::~DataObject()
 
 void visBase::DataObject::ref() const
 {
-    DataManager::manager.ref( this );
+    DM().ref( this );
 }
 
 
 void visBase::DataObject::unRef() const
 {
-    DataManager::manager.unRef( this );
+    DM().unRef( this );
 }
 
 
