@@ -26,7 +26,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.23 2002-06-07 10:22:36 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.24 2002-07-26 16:23:38 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -213,8 +213,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
     if ( type_ != StreamConn::File
       || !path || ! *path
       || fname == sStdIO
-      || File_isAbsPath(fname)
-      || (*(const char*)fname == '.' && *(((const char*)fname)+1) == *sDirSep) )
+      || File_isAbsPath(fname) )
 	return;
 
     FileNameString pth( path );

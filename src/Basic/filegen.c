@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.23 2002-06-14 09:20:32 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.24 2002-07-26 16:23:38 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -104,15 +104,18 @@ const char* File_getFullPath( const char* path, const char* filename )
 	strcpy( pathbuf, newpath );
     }
 
-    lastpos = strlen( pathbuf ) - 1;
-    if ( lastpos >= 0 && pathbuf[lastpos] != *dirsep )
-	strcat( pathbuf, dirsep );
+    chptr = (char*)pathbuf;
+    while ( *chptr == '.' && *(chptr+1) == '/' ) chptr += 2;
 
-    strcat( pathbuf, filename );
+    lastpos = strlen( chptr ) - 1;
+    if ( lastpos >= 0 && chptr[lastpos] != *dirsep )
+	strcat( chptr, dirsep );
+
+    strcat( chptr, filename );
 
 #endif
 
-    return pathbuf;
+    return chptr;
 }
 
 
