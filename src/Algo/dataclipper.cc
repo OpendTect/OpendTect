@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.2 2002-02-08 06:56:37 kristofer Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.3 2002-03-12 16:00:14 bert Exp $";
 
 
 #include "dataclipper.h"
@@ -70,10 +70,10 @@ void DataClipper::calculateRange()
     int firstidx = mNINT(cliprate*nrvals);
     int lastidx = nrvals-firstidx-1;
 
-    sortFor( &samples[0], nrvals, firstidx );
+    sortFor( samples.arr(), nrvals, firstidx );
     range.start = samples[firstidx];
 
-    sortFor( &samples[0], nrvals, lastidx);
+    sortFor( samples.arr(), nrvals, lastidx );
     range.stop = samples[lastidx];
 
     samples.erase();

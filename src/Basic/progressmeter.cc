@@ -55,6 +55,15 @@ void ProgressMeter::reset()
 }
 
 
+void ProgressMeter::resetDist()
+{
+    if ( progress > 0 )
+	annotate( true );
+    dist = 1;
+    idist = 0;
+}
+
+
 unsigned long ProgressMeter::operator++()
 {
     return update( ULONG_MAX );
