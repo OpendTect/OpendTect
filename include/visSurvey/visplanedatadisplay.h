@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.36 2003-10-03 13:52:46 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.37 2003-11-06 10:27:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -30,8 +30,11 @@ namespace visSurvey
 
 class Scene;
 
-/*!\brief
-    PlaneDataDisplay is a TextureRect that displays seismics or attributes.
+/*!\brief Used for displaying an inline, crossline or timeslice.
+
+    A PlaneDataDisplay object is the front-end object for displaying an inline,
+    crossline or timeslice.  Use <code>setType(Type)</code> for setting the 
+    requested orientation of the slice.
 */
 
 class PlaneDataDisplay :  public visBase::VisualObject,
@@ -52,6 +55,7 @@ public:
 					  const StepInterval<float>&,
 					  const StepInterval<float>&,
 					  bool manip=false);
+    				//!< Sets the maximum range in each direction
 
     void			setOrigo(const Coord3&);
     void			setWidth(const Coord3&);

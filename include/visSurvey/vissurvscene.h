@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.25 2003-01-20 11:30:48 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.26 2003-11-06 10:27:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -27,23 +27,29 @@ namespace visBase
 namespace visSurvey
 {
 
-/*!
+/*!\brief Database for 3D objects
+
+<code>VisSurvey::Scene</code> is the database for all 'xxxxDisplay' objects.
+Use <code>addObject(visBase::SceneObject*)</code> to add an object to the Scene.
+
+It also manages the size of the survey cube. The ranges in each direction are
+obtained from <code>SurveyInfo</code> class.<br>
 The display coordinate system is given in [m/m/ms] if the survey's depth is
 given in time. If the survey's depth is given in meters, the display coordinate
 system is given as [m/m/m]. The display coordinate system is _righthand_
-oriented!
+oriented!<br>
 
-OpenInventor has hard to handle real-world coordinates (like xy UTM).
+OpenInventor(OI) has difficulties handling real-world coordinates (like xy UTM).
 Therefore the coordinates given to OI must be transformed from the UTM system
 to the display coordinate system. This is done by the display transform, which
 is given to all objects in the UTM system. These object are responsible to
-transform their coords themselves before giving them to OI.
+transform their coords themselves before giving them to OI.<br>
 
-The visSurvey::Scene has two domains:
-1) the UTM coordinate system. It is adviced that most objects are here.
+The visSurvey::Scene has two domains:<br>
+1) the UTM coordinate system. It is advised that most objects are here.
 The objects added to this domain will have their transforms set to the
 displaytransform which transforms their coords from UTM lefthand
-(x, y, time[s] or depth[m] ) to display coords (righthand).
+(x, y, time[s] or depth[m] ) to display coords (righthand).<br>
 
 2) the InlCrl domain. Here, OI takes care of the transformation between
 inl/crl/t to display coords, so the objects does not need any own transform.
@@ -68,7 +74,7 @@ public:
 
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos( bool xyt ) const;
-    				/*! If ont xyt it is inlcrlt */
+    				/*! If not xyt it is inlcrlt */
     float			getMousePosValue() const { return mouseposval;}
 
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.19 2003-10-31 16:22:09 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.20 2003-11-06 10:27:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -33,8 +33,13 @@ namespace visSurvey
 
 class Scene;
 
-/*!\brief
-    RandomTrackDisplay contains a RandomTrack for displaying seismics or attributes.
+/*!\brief Used for displaying a random or arbitrary line.
+
+    RandomTrackDisplay is the front-end class for displaying arbitrary lines.
+    The complete line consists of separate sections connected at 
+    inline/crossline positions, called knots or nodes. Several functions are
+    available for adding or inserting knot positions. The depth range of the
+    line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
 class RandomTrackDisplay :  public visBase::VisualObject,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.25 2003-01-20 11:30:48 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.26 2003-11-06 10:27:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,11 @@ namespace visSurvey
 
 class Scene;
 
-/*!\brief
+/*!\brief Used for displaying picks.
+
+  Picks are positions in 3d (x,y,z) selected by the user by mouseclicks,
+  or generated at random. Picks have a constant size in pixels, and can be
+  visualized by a number of shapes.
 
 
 */

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.11 2003-10-28 11:12:39 nanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.12 2003-11-06 10:27:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ namespace visSurvey
 {
 class Scene;
 
-/*!\brief 
+/*!\brief Used for displaying welltracks, markers and logs
 
 
 */
@@ -41,7 +41,7 @@ public:
 				mCreateDataObj(WellDisplay);
 
     bool			setWellId(const MultiID&);
-    const MultiID&		wellId() const 		{ return emwellid; }
+    const MultiID&		wellId() const 		{ return wellid; }
 
     const LineStyle&		lineStyle() const;
     void			setLineStyle(const LineStyle&);
@@ -85,7 +85,7 @@ protected:
 
     visBase::Well*		well;
 
-    MultiID			emwellid;
+    MultiID			wellid;
     const bool			zistime;
 
     BufferString		log1nm;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.25 2003-10-03 13:51:06 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.26 2003-11-06 10:27:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -35,8 +35,12 @@ namespace visSurvey
 
 class Scene;
 
-/*!\brief
-    VolumeDisplay is a 3DTexture with 3 planes that display seismics or attributes.
+/*!\brief Used for displaying 3D volumes
+  
+  VolumeDisplay is the front-end object for displaying 3D volumes and Volume
+  Rendering. It has a <code>visBase::CubeView>/code> object which has a 
+  3DTexture with an inline-, crossline-, and timeslice plane for displaying the
+  data.
 */
 
 class VolumeDisplay :  public visBase::VisualObject,

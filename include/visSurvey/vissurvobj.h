@@ -7,11 +7,21 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.14 2003-10-30 12:37:26 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.15 2003-11-06 10:27:57 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
+
+/*! \mainpage
+  \section intro Introduction
+
+  This module contains front-end classes for displaying 3D objects. Most 
+  functions in these classes deal with the geometry or position of the object, 
+  as well as handling new data and information about the attribute 
+  displayed.<br>
+*/
+
 
 #include "gendefs.h"
 #include "callback.h"
@@ -21,9 +31,7 @@ namespace visBase { class Transformation; };
 namespace visSurvey
 {
 
-/*!\brief
-
-
+/*!\brief Base class for all 'Display' objects
 */
 
 class SurveyObject 
@@ -42,6 +50,18 @@ protected:
     BufferString		errmsg;
 };
 
+
+/*!\brief Manager for survey parameters and transformations
+
+  Manages the Z-scale of the survey, and the transformations between different
+  coordinate systems.<br>
+  inlcrl2displaytransform: transforms between inline/crossline and the
+  internal coordinate system.<br>
+  utm2displaytransform: transforms between x/y and the internal coordinate 
+  system.<br>
+  For more information, look at the class documentation of visSurvey::Scene.
+  
+*/
 
 class SurveyParamManager : public CallBackClass
 {
