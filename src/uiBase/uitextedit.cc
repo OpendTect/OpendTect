@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.13 2003-01-08 12:48:42 nanne Exp $
+ RCS:           $Id: uitextedit.cc,v 1.14 2003-02-12 10:31:11 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ public:
 
                         uiTextBrowserBody( uiTextBrowser& handle, 
 					uiParent* parnt, 
-					const char* nm );
+					const char* nm, bool plaintxt );
 
     virtual		~uiTextBrowserBody()	{ delete &messenger_; }
 protected:
@@ -106,16 +106,11 @@ protected:
 
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p, 
-				const char* nm )
+				const char* nm, bool plaintxt )
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &handle))
 {
-    mimeSourceFactory()->setExtensionType( "par", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "log", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "sim", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "fw", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "nn", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "dict", "text/plain" );
+    if( plaintxt ) setTextFormat(Qt::PlainText); 
 
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
@@ -127,17 +122,18 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
 
 //-------------------------------------------------------
 
-uiTextBrowser::uiTextBrowser(uiParent* parnt, const char* nm )
-    : uiTextEditBase( parnt, nm, mkbody(parnt, nm) )	
+uiTextBrowser::uiTextBrowser(uiParent* parnt, const char* nm, bool forcePTxt )
+    : uiTextEditBase( parnt, nm, mkbody(parnt, nm, forcePTxt) )	
     , goneforwardorback(this)
     , linkhighlighted(this)
     , linkclicked(this)
 {}
 
 
-uiTextBrowserBody& uiTextBrowser::mkbody(uiParent* parnt, const char* nm )
+uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
+					  bool forcePlainText )
 { 
-    body_= new uiTextBrowserBody( *this, parnt, nm );
+    body_= new uiTextBrowserBody( *this, parnt, nm, forcePlainText );
     return *body_; 
 }
 
