@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.1 2003-08-20 10:10:41 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.2 2003-08-21 15:48:42 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -48,7 +48,11 @@ static bool loadPlugin( const char* libnm, int* pargc, char** argv,
     if ( inittype == PI_AUTO_INIT_NONE ) return false;
 
     void* handle = dlopen( libnm, RTLD_LAZY );
-    if ( !handle ) return false;
+    if ( !handle )
+    {
+	cerr << dlerror() << endl;
+	return false;
+    }
 
     const BufferString libnmonly = File_getFileName(libnm);
     if ( inittype > 0 )
