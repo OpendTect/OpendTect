@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.8 2004-05-11 12:44:31 kristofer Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.9 2004-08-30 14:37:51 kristofer Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"
@@ -91,13 +91,13 @@ float visBase::ShapeScale::getSize() const
 }
 
 
-void visBase::ShapeScale::freeze(bool yn)
+void visBase::ShapeScale::restoreProportions(bool yn)
 {
     shapescalekit->restoreProportions = yn;
 }
 
 
-bool visBase::ShapeScale::isFrozen() const
+bool visBase::ShapeScale::restoresProportions() const
 {
     return shapescalekit->restoreProportions.getValue();
 }

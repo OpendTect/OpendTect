@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshapescale.h,v 1.6 2004-05-11 12:20:24 kristofer Exp $
+ RCS:		$Id: visshapescale.h,v 1.7 2004-08-30 14:37:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -38,10 +38,11 @@ public:
     DataObject*		getShape() { return shape; }
 
     void		setSize( float );
+    			/*!<If size is set to zero, the size won't be changed */
     float		getSize() const;
 
-    void		freeze(bool yn);
-    bool		isFrozen() const;
+    void		restoreProportions(bool yn);
+    bool		restoresProportions() const;
 
     SoNode*		getInventorNode();
     int			usePar( const IOPar& iopar );
