@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.6 2001-02-13 17:21:08 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.7 2001-03-23 11:25:48 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -120,7 +120,7 @@ bool SeisTrcWriter::initWrite( const SeisTrc& trc )
 	return false;
     }
 
-    if ( !handleConn(trc) ) return false;
+    if ( !handleConn(trc,false) ) return false;
     if ( !conn && !openConn() )
     {
 	if ( errmsg == "" )
@@ -132,7 +132,7 @@ bool SeisTrcWriter::initWrite( const SeisTrc& trc )
 }
 
 
-bool SeisTrcWriter::handleConn( const SeisTrc& trc )
+bool SeisTrcWriter::handleConn( const SeisTrc& trc, bool tonext )
 {
     if ( !ioobj || !ioobj->hasClass(IOStream::classid) ) return true;
     IOStream* iostrm = (IOStream*)ioobj;
@@ -154,7 +154,7 @@ bool SeisTrcWriter::handleConn( const SeisTrc& trc )
 	(void)iostrm->implRemove(); // What if it fails? Can't stop.
     delete conn; conn = 0;
     nrwrconn = 0;
-    if ( !iostrm->toNextConnNr() ) return false;
+    if ( tonext && !iostrm->toNextConnNr() ) return false;
 
     if ( connisbidnr )
     {
