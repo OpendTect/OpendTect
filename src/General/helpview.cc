@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.8 2003-09-26 16:24:48 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.9 2003-10-19 13:53:07 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -41,7 +41,7 @@ void HelpViewer::use( const char* url, const char* wintitl )
     BufferString cmd( "@" );
     cmd += GetSoftwareDir();
     cmd = File_getFullPath( cmd, "bin" );
-    cmd = File_getFullPath( cmd, "dgb_exec" );
+    cmd = File_getFullPath( cmd, "od_exec" );
     cmd += " HtmlViewer \"";
     cmd += url; cmd += "\" ";
     if ( wintitl )
@@ -135,7 +135,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* winid )
 	UsrMsg( msg );
 	ptr = sMainIndex;
     }
-    else if ( getenv("dGB_SHOW_HELP") )
+    else if ( getenv("DTECT_SHOW_HELP") )
     {
 	BufferString msg = winid; msg += " -> "; msg += ptr;
 	UsrMsg( msg );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.44 2003-09-26 16:24:49 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.45 2003-10-19 13:53:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     horsep1->attach( stretchedBelow, pathfld, -2 );
 
     uiButton* wsbut = 0;
-    if ( IdealConn::haveIdealServices() || getenv( "dGB_DEMO" ) )
+    if ( IdealConn::haveIdealServices() || getenv( "DTECT_DEMO" ) )
     {
 	BufferString txt( "Fetch setup from " );
 	txt += IdealConn::guessedType() == IdealConn::SW

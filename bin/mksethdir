@@ -2,12 +2,12 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: mksethdir,v 1.2 2003-06-18 13:51:09 arend Exp $
+# $Id: mksethdir,v 1.3 2003-10-19 13:53:07 bert Exp $
 #
-# dGB-GDI HDIR variable setup
+# HDIR variable setup
 # usage from a csh-script:
 #    eval `/__path__/mksethdir <root binary dir>`
-#    if no root binary dir given, $dGB_APPL is used
+#    if no root binary dir given, $DTECT_APPL is used
 #_______________________________________________________________________________
 
 set sethdirstr=""
@@ -25,7 +25,7 @@ endif
 
 set ROOT_DIR=$1
 if ( $ROOT_DIR == "" ) then
-    if ( $?dGB_APPL ) set ROOT_DIR=$dGB_APPL
+    if ( $?DTECT_APPL ) set ROOT_DIR=$DTECT_APPL
 endif
 
 set binsubdir=$HDIR

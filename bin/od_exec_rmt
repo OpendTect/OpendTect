@@ -2,17 +2,17 @@
 #_______________________________________________________________________________
 #
 # (C) 1999,2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec_rmt,v 1.8 2003-04-28 08:22:04 arend Exp $
+# $Id: od_exec_rmt,v 1.9 2003-10-19 13:53:07 bert Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
-if ( $?dGB_DEBUG ) then
-    echo "$*" > /tmp/dgbdebug.log
+if ( $?DTECT_DEBUG ) then
+    echo "$*" > /tmp/oddebug.log
 endif
 
-if ( ! $?dGB_APPL ) then
-	echo "Error : dGB program not initialized."
+if ( ! $?DTECT_APPL ) then
+	echo "Error : environment not initialized."
 	exit 1
 endif
 
@@ -50,10 +50,10 @@ else if ( "$1" == "--transfervars" ) then
 	goto next_var
 endif
 
-set transf="setenv dGB_DATA $dGB_DATA +-+ setenv dGB_APPL $dGB_APPL"
+set transf="setenv DTECT_DATA $DTECT_DATA +-+ setenv DTECT_APPL $DTECT_APPL"
 
-if ( $?dGB_USER ) then
-	set transf="${transf} +-+ setenv dGB_USER $dGB_USER"
+if ( $?DTECT_USER ) then
+	set transf="${transf} +-+ setenv DTECT_USER $DTECT_USER"
 endif
 
 if ( $?LM_LICENSE_FILE ) then
@@ -84,9 +84,9 @@ end
 
 set transf="$transf +-+-+ $*"
 
-if ( $?dGB_DEBUG ) then
-    echo ${rshcomm} ${remotehost} ${dGB_APPL}/bin/dgb_do_rmt $transf >> /tmp/dgbdebug.log
+if ( $?DTECT_DEBUG ) then
+    echo ${rshcomm} ${remotehost} ${DTECT_APPL}/bin/od_do_rmt $transf >> /tmp/oddebug.log
 endif
 
-${rshcomm} ${remoteuser} ${remotehost} ${dGB_APPL}/bin/dgb_do_rmt $transf
+${rshcomm} ${remoteuser} ${remotehost} ${DTECT_APPL}/bin/od_do_rmt $transf
 exit 0

@@ -2,9 +2,9 @@
 #_______________________________________________________________________________
 #
 # (C) 2003 de Groot-Bril Earth Sciences B.V.
-# $Id: od_xterm_exec,v 1.1 2003-05-04 14:39:44 bert Exp $
+# $Id: od_xterm_exec,v 1.2 2003-10-19 13:53:07 bert Exp $
 #
-# script to run in xterm for dgb_exec
+# script to run in xterm for od_exec
 #_______________________________________________________________________________
 
 set askclose=0

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.56 2003-10-17 14:19:03 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.57 2003-10-19 13:53:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,10 +178,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     jrppolselfld->box()->addItem( "Go - Only between" );
     jrppolselfld->box()->setCurrentItem( ((int)0) );
 
-    jrpstarttime = getenv("dGB_STOP_OFFICEHOURS")
-		 ? getenv("dGB_STOP_OFFICEHOURS") : "18:00";
-    jrpstoptime  = getenv("dGB_START_OFFICEHOURS")
-		 ? getenv("dGB_START_OFFICEHOURS"): "7:30";
+    jrpstarttime = getenv("DTECT_STOP_OFFICEHOURS")
+		 ? getenv("DTECT_STOP_OFFICEHOURS") : "18:00";
+    jrpstoptime  = getenv("DTECT_START_OFFICEHOURS")
+		 ? getenv("DTECT_START_OFFICEHOURS"): "7:30";
  
     jrpstartfld = new uiGenInput( jrppolgrp, "", jrpstarttime );
     jrpstartfld->attach( rightOf, jrppolselfld );
@@ -722,7 +722,7 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	    "This will stop further processing and start data transfer",false) )
 	return false;
 
-    bool mkdump = getenv("dGB_MMBATCH_DUMP");
+    bool mkdump = getenv("DTECT_MMBATCH_DUMP");
     if ( mkdump )
     {
 	// Stop during operation. Create a dump

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.37 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.38 2003-10-19 13:53:08 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -83,7 +83,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, lastinlwritten(SI().range().start.inl)
     	, enforce_regular_write(true)
 {
-    if ( getenv("dGB_DONT_ENFORCE_REGULAR_WRITE") )
+    if ( getenv("DTECT_DONT_ENFORCE_REGULAR_WRITE") )
 	enforce_regular_write = false;
 }
 
@@ -271,7 +271,7 @@ void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
 				      const Coord& sp )
 {
-    static bool warnfail = getenv( "dGB_WARN_BINID_SRCOORDS" );
+    static bool warnfail = getenv( "DTECT_WARN_BINID_SRCOORDS" );
     ti.offset = gp.distance( sp );
     ti.azimuth = atan2( gp.y - sp.y, gp.x - sp.x );
     if ( warnfail )

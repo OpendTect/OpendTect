@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.14 2003-09-26 16:24:48 bert Exp $
+ RCS:           $Id: sighndl.cc,v 1.15 2003-10-19 13:53:07 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.14 2003-09-26 16:24:48 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.15 2003-10-19 13:53:07 bert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -63,7 +63,7 @@ SignalHandling::SignalHandling() {}
 
 SignalHandling::SignalHandling()
 {
-    if ( !getenv("dGB_NO_OS_EVENT_HANDLING") )
+    if ( !getenv("DTECT_NO_OS_EVENT_HANDLING") )
     {
 
 #define mCatchSignal(nr) (void)signal( nr, &SignalHandling::handle )

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.23 2003-10-06 10:44:19 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.24 2003-10-19 13:53:08 bert Exp $";
 
 #include "vistexture.h"
 
@@ -63,7 +63,7 @@ visBase::Texture::Texture()
 
 
 //  TODO: Evaluate this. Can most probably be removed.
-    if ( getenv("dGB_USE_SCALE_POLICY") )
+    if ( getenv("DTECT_USE_SCALE_POLICY") )
     {
 	SoTextureScalePolicy* scalepolicy = new SoTextureScalePolicy;
 	texturegrp->insertChild( scalepolicy, 1 );

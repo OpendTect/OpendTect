@@ -2,19 +2,19 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.19 2003-06-13 14:15:36 arend Exp $
+# $Id: od_exec,v 1.20 2003-10-19 13:53:07 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
 
-if ( ! $?dGB_APPL ) then
-	echo "Error : dGB program not initialized."
+if ( ! $?DTECT_APPL ) then
+	echo "$0 : Error : environment not initialized."
 	exit 1
 endif
 
-eval `$dGB_APPL/bin/mksethdir`
+eval `$DTECT_APPL/bin/mksethdir`
 
-set bindir="$dGB_APPL/bin/$binsubdir"
+set bindir="$DTECT_APPL/bin/$binsubdir"
 set nicecmd=""
 set extrascript=""
 set extraargs=""
@@ -47,8 +47,8 @@ else if ( "$1" == "--prescript" ) then
 
 	set extrascript="$2"
 	if ( ! -e $extrascript ) then
-	    if ( -e $dGB_APPL/bin/$extrascript ) then
-		set extrascript="$dGB_APPL/bin/$extrascript"
+	    if ( -e $DTECT_APPL/bin/$extrascript ) then
+		set extrascript="$DTECT_APPL/bin/$extrascript"
 	    else if ( -e $bindir/$extrascript ) then
 		set extrascript="$bindir/$extrascript"
 	    endif
@@ -64,7 +64,7 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 	    set xtermcmdarg = "--askclose"
 	endif
 
-	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $dGB_APPL/bin/dgb_xterm_exec $xtermcmdarg"
+	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $xtermcmdarg"
 
 	shift
 	goto next_arg
@@ -79,7 +79,7 @@ if ( ! -d $bindir ) then
 	exit 1
 endif
 
-setenv XAPPLRESDIR	$dGB_APPL/data
+setenv XAPPLRESDIR	$DTECT_APPL/data
 setenv PATH		"${bindir}:${PATH}"
 if ( $?LD_LIBRARY_PATH ) then
 	setenv LD_LIBRARY_PATH	"${bindir}/so:${LD_LIBRARY_PATH}"
@@ -95,10 +95,10 @@ endif
 
 
 if ( $issys == yes ) then
-	if ( $?dGB_DEBUG ) echo "$0 : $xtermcmd $nicecmd $* $extraargs"
+	if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $* $extraargs"
 	$xtermcmd $nicecmd $* $extraargs
 else
-	if ( $?dGB_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
+	if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
 	$xtermcmd $nicecmd $bindir/$* $extraargs
 endif
 

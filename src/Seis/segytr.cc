@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.21 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.22 2003-10-19 13:53:08 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -31,7 +31,7 @@ const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 const char* SEGYSeisTrcTranslator::sUseLiNo
 	= "Use tape header line number for inline";
 
-static const char* nth_to_dump_str = getenv("dGB_NR_SEGY_HEADERS_TO_DUMP");
+static const char* nth_to_dump_str = getenv("DTECT_NR_SEGY_HEADERS_TO_DUMP");
 static int nr_trc_headers_to_dump = nth_to_dump_str ? atoi(nth_to_dump_str) : 5;
 
 

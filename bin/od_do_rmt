@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_do_rmt,v 1.5 2003-04-28 10:52:19 arend Exp $
+# $Id: od_do_rmt,v 1.6 2003-10-19 13:53:07 bert Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -34,18 +34,18 @@ endif
 
 do_rest:
 
-if ( $?dGB_DEBUG ) then
-    echo "dGB_DATA = $dGB_DATA" > /tmp/dgbdebug.log
-    echo "dGB_USER = $dGB_USER" >> /tmp/dgbdebug.log
-    echo "dGB_APPL = $dGB_APPL" > /tmp/dgbdebug.log
+if ( $?DTECT_DEBUG ) then
+    echo "DTECT_DATA = $DTECT_DATA" > /tmp/dgbdebug.log
+    echo "DTECT_USER = $DTECT_USER" >> /tmp/dgbdebug.log
+    echo "DTECT_APPL = $DTECT_APPL" > /tmp/dgbdebug.log
     echo "LM_LICENSE_FILE = $LM_LICENSE_FILE" >> /tmp/dgbdebug.log
     echo "DISPLAY = $DISPLAY" >> /tmp/dgbdebug.log
-    echo "$dGB_APPL/bin/dgb_exec $*" >> /tmp/dgbdebug.log
-    $dGB_APPL/bin/dgb_exec $* >> /tmp/dgbdebug.log
+    echo "$DTECT_APPL/bin/od_exec $*" >> /tmp/dgbdebug.log
+    $DTECT_APPL/bin/od_exec $* >> /tmp/dgbdebug.log
 
 else
 
-    $dGB_APPL/bin/dgb_exec $*
+    $DTECT_APPL/bin/od_exec $*
 
 endif
 

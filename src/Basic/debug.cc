@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.3 2003-10-15 09:12:57 arend Exp $
+ RCS:           $Id: debug.cc,v 1.4 2003-10-19 13:53:07 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.3 2003-10-15 09:12:57 arend Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.4 2003-10-19 13:53:07 bert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -22,7 +22,7 @@ namespace DBG
 
 static int getMask()
 {
-    BufferString envmask = getenv("dGB_DEBUG");
+    BufferString envmask = getenv("DTECT_DEBUG");
     int res = atoi( envmask );
 
     const char* buf=envmask.buf();

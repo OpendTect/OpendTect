@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.43 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.44 2003-10-19 13:53:07 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -30,7 +30,7 @@ BatchProgram* BatchProgram::inst_;
 
 int Execute_batch( int* pargc, char** argv )
 {
-    BufferString envarg("dGB_ARGV0=");
+    BufferString envarg("DTECT_ARGV0=");
     envarg += argv[0];
     putenv( envarg.buf() );
 
