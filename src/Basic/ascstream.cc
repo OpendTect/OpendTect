@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.2 2000-04-17 14:56:39 bert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.3 2000-04-18 10:16:07 bert Exp $";
 
 #include "ascstream.h"
 #include "unitscale.h"
@@ -14,8 +14,6 @@ static const char* rcsID = "$Id: ascstream.cc,v 1.2 2000-04-17 14:56:39 bert Exp
 #include <string.h>
 #include <stdlib.h>
 #include <iostream.h>
-
-static char linebuf[mMaxLineLength+1];
 
 
 ascostream::~ascostream()
@@ -132,7 +130,6 @@ void ascistream::init( istream* strm, int rdhead )
 {
     streamptr = strm;
     filetype[0] = header[0] = timestamp[0] = curword[0] = '\0';
-    keybuf = ""; valbuf = "";
     tabbed = false;
     nextwordptr = valbuf;
     if ( !streamptr ) return;
@@ -142,12 +139,13 @@ void ascistream::init( istream* strm, int rdhead )
 	stream().getline( header, mMaxFileHeadLength );
 	stream().getline( filetype, mMaxFileHeadLength );
 	stream().getline( timestamp, mMaxFileHeadLength );
-	stream().getline( linebuf, mMaxWordLength );
 
 	removeTrailingBlanks(filetype);
 	char* ptr = filetype + strlen(filetype) - 4;
 	if ( caseInsensitiveEqual(ptr,"file",0) ) *ptr = '\0';
 	removeTrailingBlanks(filetype);
+
+	next();
     }
 }
 
@@ -167,6 +165,7 @@ ascistream& ascistream::next()
     if ( !streamptr || !streamptr->good() )
 	return *this;
 
+    static char linebuf[mMaxLineLength+1];
     if ( !stream().getline(linebuf,mMaxLineLength) )
 	return *this;
 
