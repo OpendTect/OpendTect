@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.44 2004-10-11 14:49:57 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.45 2004-10-18 15:11:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,20 +55,17 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 	listfld->addItem( (*entrylist)[idx]->name() );
     listfld->setCurrentItem(0);
     listfld->selectionChanged.notify( mCB(this,uiSeisFileMan,selChg) );
-    listfld->rightButtonClicked.notify( mCB(this,uiSeisFileMan,rightClicked) );
 
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "cbvs" );
     manipgrp->preRelocation.notify( mCB(this,uiSeisFileMan,relocMsg) );
     manipgrp->postRelocation.notify( mCB(this,uiSeisFileMan,postReloc) );
 
     const ioPixmap copypm( GetDataFileName("copyobj.png") );
-    copybut = new uiToolButton( manipgrp, "copy toolbut", copypm );
-    copybut->activated.notify( mCB(this,uiSeisFileMan,copyPush) );
-    copybut->setToolTip( "Copy cube" );
+    copybut = manipgrp->addButton( copypm, mCB(this,uiSeisFileMan,copyPush),
+	    			   "Copy cube" );
     const ioPixmap mergepm( GetDataFileName("mergeseis.png") );
-    mergebut = new uiToolButton( manipgrp, "merge toolbut", mergepm );
-    mergebut->activated.notify( mCB(this,uiSeisFileMan,mergePush) );
-    mergebut->setToolTip( "Merge blocks of inlines into cube" );
+    mergebut = manipgrp->addButton( mergepm, mCB(this,uiSeisFileMan,mergePush),
+	    			    "Merge blocks of inlines into cube" );
 
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( centeredBelow, topgrp );
@@ -94,8 +91,22 @@ void uiSeisFileMan::selChg( CallBacker* cb )
     const IOObj* selioobj = entrylist->selected();
     const bool is2d = selioobj && SeisTrcTranslator::is2D( *selioobj );
     ctio.setObj( selioobj ? selioobj->clone() : 0 );
-    copybut->setSensitive( !is2d && selioobj && ctio.ioobj->implExists(true) );
+    copybut->setSensitive( is2d || selioobj && ctio.ioobj->implExists(true) );
     mergebut->setSensitive( !is2d );
+
+    copybut->setPixmap( ioPixmap(GetDataFileName( is2d ? "info2d.png"
+		    					: "copyobj.png" )) );
+    const CallBack& cbcopy = mCB(this,uiSeisFileMan,copyPush);
+    const CallBack& cb2d = mCB(this,uiSeisFileMan,rightClicked);
+    const CallBack& oldcb = !is2d ? cb2d : cbcopy;
+    const CallBack& newcb = is2d ? cb2d : cbcopy;
+    if ( copybut->activated.cbs.indexOf(oldcb) >= 0 )
+	copybut->activated.remove( oldcb );
+    if ( copybut->activated.cbs.indexOf(newcb) < 0 )
+	copybut->activated.notify( newcb );
+
+    copybut->setToolTip( is2d ? "Show lineset info" : "Copy cube" );
+
     mkFileInfo();
     manipgrp->selChg( cb );
 
@@ -179,7 +190,7 @@ void uiSeisFileMan::mkFileInfo()
 	txt += "\nLocation: "; txt += fp.pathOnly();
 	txt += "\nFile name: "; txt += fp.fileName();
 	if ( !is2d )
-	    txt += "\nFile size: "; txt += getFileSize( fname );
+	{ txt += "\nFile size: "; txt += getFileSize( fname ); }
     }
 
     infofld->setText( txt );
@@ -259,28 +270,25 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
 	    			     uiLabeledListBox::AboveMid );
     linelist->box()->selectionChanged.notify( mCB(this,uiSeis2DMan,lineSel) );
 
-    uiButtonGroup* linebutgrp = new uiButtonGroup( linelist, "" );
+    uiManipButGrp* linebutgrp = new uiManipButGrp( linelist );
+    linebutgrp->addButton( uiManipButGrp::Rename, 
+	    		   mCB(this,uiSeis2DMan,renameLine), "Rename line" );
     linebutgrp->attach( rightTo, linelist->box() );
-    const ioPixmap renpm( GetDataFileName("renameobj.png") );
-    uiToolButton* linerenbut = new uiToolButton( linebutgrp, "Rename", renpm,
-					mCB(this,uiSeis2DMan,renameLine) );
-    linerenbut->setToolTip( "Rename line" );
 
     attriblist = new uiLabeledListBox( this, "Attributes", true,
 				       uiLabeledListBox::AboveMid );
     attriblist->attach( rightTo, linelist );
 
-    uiButtonGroup* butgrp = new uiButtonGroup( attriblist, "" );
+    uiManipButGrp* butgrp = new uiManipButGrp( attriblist );
+    butgrp->addButton( uiManipButGrp::Rename,
+	    	       mCB(this,uiSeis2DMan,renameAttrib), "Rename attribute" );
+    butgrp->addButton( uiManipButGrp::Remove,
+	    	       mCB(this,uiSeis2DMan,removeAttrib),
+		       "Remove selected attribute(s)" );
     butgrp->attach( rightTo, attriblist->box() );
-    const ioPixmap rempm( GetDataFileName("trashcan.png") );
-    uiToolButton* rembut = new uiToolButton( butgrp, "Remove", rempm );
-    rembut->activated.notify( mCB(this,uiSeis2DMan,removeAttrib) );
-    rembut->setToolTip( "Remove selected attribute(s)" );
-    uiToolButton* renbut = new uiToolButton( butgrp, "Rename", renpm,
-					mCB(this,uiSeis2DMan,renameAttrib) );
-    renbut->setToolTip( "Rename attribute" );
-
+    
     fillLineBox();
+    lineSel(0);
 }
 
 
@@ -293,11 +301,14 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
 
 void fillLineBox()
 {
+    uiListBox* lb = linelist->box();
+    const int curitm = lb->size() ? lb->currentItem() : 0;
     BufferStringSet linenames;
     objinfo->getLineNames( linenames );
     linenames.sort();
-    linelist->box()->empty();
-    linelist->box()->addItems( linenames );
+    lb->empty();
+    lb->addItems( linenames );
+    lb->setSelected( curitm );
 }
 
 
@@ -360,7 +371,6 @@ void removeAttrib( CallBacker* )
     }
 
     fillLineBox();
-    lineSel(0);
 }
 
 
@@ -442,10 +452,6 @@ void uiSeisFileMan::rightClicked( CallBacker* )
 {
     const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
     if ( !is2d ) return;
-
-    uiPopupMenu mnu( this, "" );
-    mnu.insertItem( new uiMenuItem("Show lineset info") );
-    if ( !mnu.exec() ) return;
 
     uiSeis2DMan dlg( this, *ctio.ioobj );
     dlg.go();

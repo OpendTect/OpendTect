@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.10 2004-05-28 11:11:25 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.11 2004-10-18 15:10:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "pixmap.h"
+#include "ptrman.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
@@ -28,9 +29,39 @@ ________________________________________________________________________
 #include "errh.h"
 
 
+uiToolButton* uiManipButGrp::addButton( Type tp, const CallBack& cb,
+					const char* tooltip )
+{
+    PtrMan<ioPixmap> pm = 0;
+    switch ( tp )
+    {
+	case FileLocation:
+	    pm = new ioPixmap( GetDataFileName("filelocation.png") ); break;
+	case Rename:
+	    pm = new ioPixmap( GetDataFileName("renameobj.png") ); break;
+	case Remove:
+	    pm = new ioPixmap( GetDataFileName("trashcan.png") ); break;
+	case ReadOnly:
+	    pm = new ioPixmap( GetDataFileName("readonly.png") ); break;
+    }
+
+    return addButton( *pm, cb, tooltip );
+}
+
+
+uiToolButton* uiManipButGrp::addButton( const ioPixmap& pm, const CallBack& cb,
+					const char* tooltip )
+{
+    uiToolButton* button = new uiToolButton( this, "ToolButton", pm, cb );
+    button->setToolTip( tooltip );
+    return button;
+}
+
+
+
 uiIOObjManipGroup::uiIOObjManipGroup( uiListBox* l, IODirEntryList& el,
        				      const char* de )
-    	: uiButtonGroup(l->parent(),"")
+    	: uiManipButGrp( l->parent() )
 	, box(l)
 	, entries(el)
 	, defext(de)
@@ -38,23 +69,12 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiListBox* l, IODirEntryList& el,
     	, postRelocation(this)
     	, ioobj(0)
 {
-    const ioPixmap locpm( GetDataFileName("filelocation.png") );
-    const ioPixmap renpm( GetDataFileName("renameobj.png") );
-    const ioPixmap rempm( GetDataFileName("trashcan.png") );
-    const ioPixmap ropm( GetDataFileName("readonly.png") );
-    locbut = new uiToolButton( this, "File loc TB", locpm );
-    renbut = new uiToolButton( this, "Obj rename TB", renpm );
-    robut = new uiToolButton( this, "Readonly togg", ropm );
-    rembut = new uiToolButton( this, "Remove", rempm );
+    const CallBack cb( mCB(this,uiIOObjManipGroup,tbPush) );
+    locbut = addButton( FileLocation, cb, "Change location on disk" );
+    renbut = addButton( Rename, cb, "Rename this object" );
+    robut = addButton( ReadOnly, cb, "Toggle read-only" );
+    rembut = addButton( Remove, cb, "Remove this object" );
     robut->setToggleButton( true );
-    locbut->activated.notify( mCB(this,uiIOObjManipGroup,tbPush) );
-    renbut->activated.notify( mCB(this,uiIOObjManipGroup,tbPush) );
-    robut->activated.notify( mCB(this,uiIOObjManipGroup,tbPush) );
-    rembut->activated.notify( mCB(this,uiIOObjManipGroup,tbPush) );
-    locbut->setToolTip( "Change location on disk" );
-    renbut->setToolTip( "Rename this object" );
-    robut->setToolTip( "Toggle read-only" );
-    rembut->setToolTip( "Remove this object" );
     attach( rightOf, box );
 }
 
