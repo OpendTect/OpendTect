@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.4 2001-03-30 10:27:21 bert Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.5 2001-03-30 10:50:43 bert Exp $";
 
 #include "timefun.h"
 #include <time.h>
@@ -43,11 +43,11 @@ static struct tm* getLocal( void )
 
 # ifdef __win__
 
-    (void)ftime( &timebstruct ) ;
+    (void)_ftime( &timebstruct ) ;
 
 # else
 
-    (void)_ftime( &timebstruct ) ;
+    (void)ftime( &timebstruct ) ;
 
 # endif
 
