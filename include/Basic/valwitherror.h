@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: valwitherror.h,v 1.2 2002-03-14 15:38:14 bert Exp $
+ RCS:           $Id: valwitherror.h,v 1.3 2002-12-02 15:05:02 kristofer Exp $
 ________________________________________________________________________
 
 ValWithError is a value with a known error (variance), and that knows
@@ -24,8 +24,8 @@ template <class A>
 class ValWithError
 {
 public:
-    					ValWithError(A val = 0, A var = 0)
-					    : val_(val), variance_(var)	{}
+    					ValWithError(A val__ = 0, A var__ = 0)
+					    : val_(val__), variance_(var__) {}
 
     					operator A () { return val_; }
 
