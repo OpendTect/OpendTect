@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.45 2004-10-01 11:55:15 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.46 2004-10-25 10:23:16 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -126,13 +126,8 @@ static const char* getTmpFile()
         strcpy( buffer, getenv( "TMP" ) );
     else if ( getenv("TEMP") )
         strcpy( buffer, getenv( "TEMP" ) );
-    else if ( getenv("USERPROFILE") ) // should be set by OS
-	strcpy( buffer, getenv( "USERPROFILE" ) );
     else // make sure we have at least write access...
-    {
-	const char* specf = GetSpecialFolderLocation( CSIDL_PERSONAL );
-        if( specf && *specf ) strcpy( buffer, specf );
-    }
+	strcpy( buffer, GetPersonalDir() );
 
     strcat( buffer, "\\od" );
 
@@ -551,15 +546,24 @@ const char* _GetHomeDir()
 const char* GetSettingsDir(void)
 {
     const char* ptr = getenv( "OD_SETTINGS_DIR" );
+
+#ifndef __win__
+
     if ( !ptr )
 	ptr = _GetHomeDir();
+#else    
 
-#ifdef __win__
+    if ( !ptr && getenv("OD_PREFER_HOME") )
+	ptr = _GetHomeDir();
+
     if ( !ptr )
 	ptr = getenv( "APPDATA" ); // should be set by OS
 
     if ( !ptr )
 	ptr = getenv( "DTECT_APPLICATION_DATA" ); // set by init script
+
+    if ( !ptr )
+	ptr = _GetHomeDir();
 
     if ( !ptr ) // Last resort. Is known to cause problems when used 
                 // during initialisation of statics. (0xc0000005)
@@ -595,6 +599,7 @@ const char* GetSettingsDir(void)
 const char* GetPersonalDir(void)
 {
     const char* ptr = getenv( "OD_PERSONAL_DIR" );
+
     if ( !ptr )
 	ptr = _GetHomeDir();
 
@@ -608,6 +613,9 @@ const char* GetPersonalDir(void)
 
     if ( !ptr ) 
 	ptr = getenv( "DTECT_MYDOCUMENTS_DIR" );
+
+    if ( !ptr )
+	ptr = _GetHomeDir();
 
     if ( !ptr ) // Last resort. Is known to cause problems when used 
                 // during initialisation of statics. (0xc0000005)
