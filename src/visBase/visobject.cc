@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.20 2002-07-30 11:11:02 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.21 2002-07-30 11:29:14 kristofer Exp $";
 
 #include "visobject.h"
 #include "vistransform.h"
@@ -22,21 +22,11 @@ visBase::VisualObject::VisualObject( bool selectable_ )
     : isselectable( selectable_ )
     , deselnotifier( this )
     , selnotifier( this )
-    , transformation( 0 )
 {}
 
 
 visBase::VisualObject::~VisualObject()
 {
-    if ( transformation ) transformation->unRef();
-}
-
-
-void visBase::VisualObject::setDisplayTransformation( const Transformation* t )
-{
-    if ( transformation ) transformation->unRef();
-    transformation = t;
-    if ( transformation ) transformation->ref();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.17 2002-07-30 11:11:13 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.18 2002-07-30 11:29:26 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,6 @@ class SoSwitch;
 
 namespace visBase
 {
-class Transformation;
 class Material;
 
 /*!\brief
@@ -51,8 +50,6 @@ public:
 	    				 TypeSet<int>& saveids ) const
 				{ SceneObject::fillPar( iopar, saveids );}
 
-    void			setDisplayTransformation(const Transformation*);
-
 protected:
     void		triggerSel()
     			{ if (isselectable) selnotifier.trigger(); }
@@ -62,8 +59,6 @@ protected:
 
 			VisualObject(bool selectable=false);
 			~VisualObject();
-
-    const Transformation*	transformation;
 
 private:
     bool			isselectable;
