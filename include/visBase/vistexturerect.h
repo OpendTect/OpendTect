@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.4 2002-03-20 20:41:37 bert Exp $
+ RCS:		$Id: vistexturerect.h,v 1.5 2002-04-11 06:40:05 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -44,12 +44,9 @@ public:
     static TextureRect*	create( bool usermanip )
 			mCreateDataObj1arg( TextureRect, bool, usermanip );
 
-    i_Notifier*		manipStarts() { return &manipstartnotifier; }
-    i_Notifier*		manipChanges() { return &manipchnotifier; }
-    i_Notifier*		manipEnds() { return &manipendsnotifier; }
-
-    i_Notifier*         selection() { return &selnotifier; }
-    i_Notifier*         deSelection() { return &deselnotifier; }
+    NotifierAccess*	manipStarts() { return &manipstartnotifier; }
+    NotifierAccess*	manipChanges() { return &manipchnotifier; }
+    NotifierAccess*	manipEnds() { return &manipendsnotifier; }
 
     void		setRectangle( Rectangle* );
     const Rectangle&	getRectangle() const;
@@ -77,8 +74,6 @@ protected:
     void		updateTexture();
     void		clipData();
 
-    void		triggerSel() { selnotifier.trigger(); }
-    void		triggerDeSel() { deselnotifier.trigger(); }
     void		triggerManipStarts() { manipstartnotifier.trigger(); }
     void		triggerManipChanges() { manipchnotifier.trigger(); }
     void		triggerManipEnds() { manipendsnotifier.trigger(); }
@@ -98,8 +93,6 @@ protected:
 private:
 			~TextureRect();
 
-    Notifier<TextureRect>	selnotifier;
-    Notifier<TextureRect>	deselnotifier;
     Notifier<TextureRect>	manipstartnotifier;
     Notifier<TextureRect>	manipchnotifier;
     Notifier<TextureRect>	manipendsnotifier;

@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.7 2002-04-10 08:50:09 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.8 2002-04-11 06:40:11 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -76,10 +76,10 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const DataObject* dataobj =
-				visBase::DM().getObj(eventinfo.pickedobjids[0]);
+			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
 	    if ( dataobj->selectable() )
 	    {
-		mousedownid = eventinfo.pickedobjids[0];
+		mousedownid = eventinfo.pickedobjids[idx];
 		break;
 	    }
 	}
@@ -87,6 +87,12 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
     else
     {
 	const int sz = eventinfo.pickedobjids.size();
+	if ( !sz && mousedownid==-1 )
+	{
+	    if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
+		visBase::DM().selMan().deSelectAll();
+	}
+
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const DataObject* dataobj =

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.17 2002-04-09 06:02:55 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.18 2002-04-11 06:40:05 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -116,12 +116,9 @@ public:
     void		resetManip();
     bool		isManipRectOnObject() const;
 
-    i_Notifier*		manipStarts();
-    i_Notifier*		manipChanges();
-    i_Notifier*		manipEnds();
-
-    i_Notifier*		selection() { return &selnotifier; }
-    i_Notifier*		deSelection() { return &deselnotifier; }
+    NotifierAccess*	manipStarts();
+    NotifierAccess*	manipChanges();
+    NotifierAccess*	manipEnds();
 
     int			usePar( const IOPar& );
     void		fillPar( IOPar& ) const;
@@ -139,8 +136,6 @@ protected:
     float		getCenterCoord(int dim,float startpos,float wdth) const;
 
     const SoNode*	getSelObj() const { return (const SoNode*) plane; }
-    void		triggerSel() { selnotifier.trigger(); }
-    void		triggerDeSel() { deselnotifier.trigger(); }
 
     bool		snap;
     Orientation		orientation_;
@@ -168,9 +163,6 @@ protected:
     SoSwitch*		maniprectswitch;
     SoTranslation*	maniprecttrans;
     SoScale*		maniprectscale;
-
-    Notifier<Rectangle>	selnotifier;
-    Notifier<Rectangle>	deselnotifier;
 
     static const char*	orientationstr;
     static const char*	origostr;

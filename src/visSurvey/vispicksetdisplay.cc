@@ -4,10 +4,12 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.12 2002-04-10 08:52:32 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.13 2002-04-11 06:40:20 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
+#include "visdataman.h"
+#include "visseisdisplay.h"
 #include "vissceneobjgroup.h"
 #include "vissurvscene.h"
 #include "position.h"
@@ -15,20 +17,23 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.12 2002-04-10 08:52:32
 #include "geompos.h"
 #include "color.h"
 
-visSurvey::PickSetDisplay::PickSetDisplay()
+#include "survinfo.h"		//Should go when SI is removed from code
+
+visSurvey::PickSetDisplay::PickSetDisplay( const visSurvey::Scene& scene_ )
     : group( visBase::SceneObjectGroup::create(true) )
     , eventcatcher( visBase::EventCatcher::create(visBase::MouseClick) )
     , inlsz( 5 )
     , crlsz( 5 )
     , tsz( 0.05 )
-    , addedpoint( this )
-    , removedpoint( this )
-    , selected( false )
+    , changed( this )
+    , scene( scene_ )
+    , VisualObjectImpl( true )
 {
     eventcatcher->ref();
     addChild( eventcatcher->getData() );
 
-    eventcatcher->eventhappened.notify( mCB(this,visSurvey::PickSetDisplay,pickCB ));
+    eventcatcher->eventhappened.notify(
+	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
 
     group->ref();
     addChild( group->getData() );
@@ -37,7 +42,8 @@ visSurvey::PickSetDisplay::PickSetDisplay()
 
 visSurvey::PickSetDisplay::~PickSetDisplay()
 {
-    eventcatcher->eventhappened.remove( mCB(this,visSurvey::PickSetDisplay,pickCB ));
+    eventcatcher->eventhappened.remove(
+	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
     removeChild( eventcatcher->getData() );
     eventcatcher->unRef();
     removeChild( group->getData() );
@@ -74,6 +80,7 @@ void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
     cube->setMaterial( 0 );
 
     group->addObject( cube );
+    changed.trigger();
 }
 
 
@@ -104,6 +111,7 @@ void visSurvey::PickSetDisplay::removePick( const Geometry::Pos& pos )
 	if ( cube->centerPos() == pos )
 	{
 	    group->removeObject( idx );
+	    changed.trigger();
 	    return;
 	}
     }
@@ -118,7 +126,7 @@ void visSurvey::PickSetDisplay::removeAll()
 
 void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 {
-    if ( !selected ) return;
+    if ( !isSelected() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
@@ -161,13 +169,32 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 	    if ( eventinfo.pickedobjids.size() &&
 		 eventinfo.pickedobjids[0]==mousepressid )
 	    {
-		Geometry::Pos newpos = eventinfo.pickedpos;
+		const int sz = eventinfo.pickedobjids.size();
+		bool validpicksurface = false;
 
-		if ( mIS_ZERO( newpos.x-mousepressposition.x ) &&
-		     mIS_ZERO( newpos.y-mousepressposition.y ) &&
-		     mIS_ZERO( newpos.z-mousepressposition.z ) )
+		for ( int idx=0; idx<sz; idx++ )
 		{
-		    addPick( newpos );
+		    const DataObject* pickedobj =
+			visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+
+		    if ( typeid(*pickedobj)==typeid(visSurvey::SeisDisplay) )
+		    {
+			validpicksurface = true;
+			break;
+		    }
+		}
+
+		if ( validpicksurface )
+		{
+		    Geometry::Pos newpos = eventinfo.pickedpos;
+
+		    if ( mIS_ZERO( newpos.x-mousepressposition.x ) &&
+			 mIS_ZERO( newpos.y-mousepressposition.y ) &&
+			 mIS_ZERO( newpos.z-mousepressposition.z ) )
+		    {
+			newpos.z /= scene.apparentVel();
+			addPick( newpos );
+		    }
 		}
 	    }
 

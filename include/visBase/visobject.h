@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.13 2002-03-18 14:45:35 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.14 2002-04-11 06:40:05 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -32,17 +32,37 @@ class Material;
 class VisualObject : public SceneObject
 {
 public:
-    virtual void	turnOn(bool)					= 0;
-    virtual bool	isOn() const					= 0;
+    virtual void		turnOn(bool)				= 0;
+    virtual bool		isOn() const				= 0;
 
     virtual void		setMaterial( Material* )		= 0;
     virtual const Material*	getMaterial() const			= 0;
     virtual Material*		getMaterial()				= 0;
 
-    virtual int		usePar( const IOPar& iopar )
-			{ return SceneObject::usePar(iopar); }
-    virtual void	fillPar( IOPar& iopar ) const
-			{ SceneObject::fillPar( iopar );}
+    void			setSelectable( bool yn ) { isselectable=yn; }
+
+    bool			selectable() const { return isselectable; }
+    NotifierAccess*		selection() { return &selnotifier; }
+    NotifierAccess*		deSelection() { return &deselnotifier; }
+
+    virtual int			usePar( const IOPar& iopar )
+				{ return SceneObject::usePar(iopar); }
+    virtual void		fillPar( IOPar& iopar ) const
+				{ SceneObject::fillPar( iopar );}
+
+protected:
+    void		triggerSel()
+    			{ if (isselectable) selnotifier.trigger(); }
+
+    void		triggerDeSel()
+    			{ if (isselectable) deselnotifier.trigger(); }
+
+			VisualObject(bool selectable=false);
+
+private:
+    bool			isselectable;
+    Notifier<VisualObject>	selnotifier;
+    Notifier<VisualObject>	deselnotifier;
 };
 
 
@@ -65,7 +85,8 @@ protected:
     void		insertChild( int pos, SoNode* );
     void		removeChild( SoNode* );
 
-			VisualObjectImpl();
+
+			VisualObjectImpl(bool selectable=false);
     virtual		~VisualObjectImpl();
 
     SoSwitch*		onoff;
@@ -74,10 +95,12 @@ protected:
     Material*		material;
 
 private:
+    
     SoSeparator*	root;
 
     static const char*	materialidstr;
     static const char*	isonstr;
+
 };
 
 };

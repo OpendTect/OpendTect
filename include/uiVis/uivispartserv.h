@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.7 2002-04-10 09:15:59 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.8 2002-04-11 06:41:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
 			//!< Display position of selected plane.
     static const int	evSelectionChange;
 			//!< 
+    static const int	evPicksChanged;
+			//!<
 
     enum ElementType    { Inline, Crossline, Timeslice };
     enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay };
@@ -62,7 +64,6 @@ public:
     bool		deleteAllObjects();
     int			addDataDisplay(uiVisPartServer::ElementType);
     void		removeDataDisplay();
-    void		selectObj(CallBacker*);
 
     int                 addPickSetDisplay();
     void                removePickSetDisplay();
@@ -95,9 +96,12 @@ public:
     void		setAttribSelSpec(AttribSelSpec&);
     void		putNewData(AttribSlice*);
     float		getPlanePos();
-    void		showPos(CallBacker*);
 
 protected:
+
+    void		selectObjCB(CallBacker*);
+    void		picksChangedCB(CallBacker*);
+    void		showPosCB(CallBacker*);
 
     const CallBack	appcb;
     int			selsceneid;

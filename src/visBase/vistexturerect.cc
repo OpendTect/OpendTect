@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.5 2002-04-05 15:14:59 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.6 2002-04-11 06:40:11 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -34,8 +34,6 @@ visBase::TextureRect::TextureRect( bool usermanip )
     , manipstartnotifier( this )
     , manipchnotifier( this )
     , manipendsnotifier( this )
-    , selnotifier( this )
-    , deselnotifier( this )
 {
     addChild( textureswitch );
     textureswitch->addChild( texturegrp );

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.16 2002-04-09 06:02:52 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.17 2002-04-11 06:40:11 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -371,8 +371,6 @@ visBase::Rectangle::Rectangle( bool usermanip)
     , zrange( -mUndefValue, mUndefValue, mUndefValue )
     , wxrange( 1, mUndefValue )
     , wyrange( 1, mUndefValue )
-    , selnotifier( this )
-    , deselnotifier( this )
 { 
     if ( dragger ) dragger->ref();
 
@@ -743,15 +741,15 @@ bool visBase::Rectangle::isManipRectOnObject() const
 }
 
 
-i_Notifier*  visBase::Rectangle::manipStarts()
+NotifierAccess*  visBase::Rectangle::manipStarts()
 { return dragger ? &dragger->started : 0; }
 
 
-i_Notifier*  visBase::Rectangle::manipChanges()
+NotifierAccess*  visBase::Rectangle::manipChanges()
 { return dragger ? &dragger->changed : 0; }
 
 
-i_Notifier*  visBase::Rectangle::manipEnds()
+NotifierAccess*  visBase::Rectangle::manipEnds()
 { return dragger ? &dragger->finished : 0; }
 
 

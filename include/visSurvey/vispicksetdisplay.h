@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.10 2002-04-10 07:49:39 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.11 2002-04-11 06:40:35 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,8 +34,9 @@ class Scene;
 class PickSetDisplay : public visBase::VisualObjectImpl
 {
 public:
-    static PickSetDisplay*	create()
-				mCreateDataObj0arg(PickSetDisplay);
+    static PickSetDisplay*	create(const visSurvey::Scene& scene)
+				mCreateDataObj1arg(PickSetDisplay,
+					const visSurvey::Scene&, scene );
 
     int				nrPicks() const;
     Geometry::Pos		getPick( int idx ) const;
@@ -49,25 +50,23 @@ public:
 
     void			setSize( float inl, float crl, float t );
 
-    Notifier<PickSetDisplay>	addedpoint;
-    Notifier<PickSetDisplay>	removedpoint;
+    Notifier<PickSetDisplay>	changed;
 
 protected:
-    virtual	~PickSetDisplay();
+    virtual		~PickSetDisplay();
 
-    void	pickCB( CallBacker* =0 );
+    void		pickCB( CallBacker* =0 );
 
-    float	inlsz;
-    float	crlsz;
-    float	tsz;
-
-    bool	selected;
+    float		inlsz;
+    float		crlsz;
+    float		tsz;
 
     int			mousepressid;
     Geometry::Pos	mousepressposition;
 
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
+    const visSurvey::Scene&	scene;
 };
 
 };

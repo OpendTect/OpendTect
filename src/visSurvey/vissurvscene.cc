@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.10 2002-03-18 11:01:16 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.11 2002-04-11 06:40:20 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -45,11 +45,12 @@ visSurvey::Scene::Scene()
     Coord startpos = SI().transform( startbid );
     Coord stoppos = SI().transform( stopbid );
 
-    inlcrltransformation->setA(
+    /*inlcrltransformation->setA(
 	1,	0,	0,	-startpos.x,
 	0,	1,	0,	-startpos.y,
 	0,	0,	1,	0,
 	0,	0,	0,	1 );
+    */
 
 
     // Set inlcrl transformation

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.10 2002-04-11 06:04:31 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.11 2002-04-11 06:40:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 
 const int uiVisPartServer::evShowPosition   	= 0;
 const int uiVisPartServer::evSelectionChange    = 1;
+const int uiVisPartServer::evPicksChanged    	= 2;
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
@@ -45,12 +46,15 @@ uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
 	, planepos(0)
 {
     visBase::DM().selMan().selnotifer.notify( 
-	mCB(this,uiVisPartServer,selectObj) );
+	mCB(this,uiVisPartServer,selectObjCB) );
 }
 
 
 uiVisPartServer::~uiVisPartServer()
 {
+    visBase::DM().selMan().selnotifer.remove(
+	    mCB(this,uiVisPartServer,selectObjCB) );
+
     for ( int idx=0; idx<scenes.size(); idx++ )
 	scenes[idx]->unRef();
 }
@@ -92,7 +96,8 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
     coltab->colorSeq().loadFromStorage("Red-White-Black");
     sd->textureRect().setColorTab( coltab );
-    sd->textureRect().manipChanges()->notify(mCB(this,uiVisPartServer,showPos));
+    sd->textureRect().manipChanges()->notify(
+	    				mCB(this,uiVisPartServer,showPosCB));
 
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -104,11 +109,13 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 
 void uiVisPartServer::removeDataDisplay()
 {
+
     visBase::DataObject* sdobj = visBase::DM().getObj( getSelObjectId() );
     mDynamicCastGet(visSurvey::SeisDisplay*,sd,sdobj)
     if ( !sd ) return;
 
-    sd->unRef();
+    sd->textureRect().manipChanges()->remove(
+	    				mCB(this,uiVisPartServer,showPosCB));
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( sd );
@@ -116,9 +123,15 @@ void uiVisPartServer::removeDataDisplay()
 }
 
 
-void uiVisPartServer::selectObj( CallBacker* )
+void uiVisPartServer::selectObjCB( CallBacker* )
 {
     sendEvent( evSelectionChange );
+}
+
+
+void uiVisPartServer::picksChangedCB(CallBacker*)
+{
+    sendEvent( evPicksChanged );
 }
 
 
@@ -142,8 +155,9 @@ int uiVisPartServer::addPickSetDisplay()
     visSurvey::PickSetDisplay* pickset =
 				visSurvey::PickSetDisplay::create( *scene );
     picks += pickset;
-    scene->addInlCrlTObject( pickset );
+    scene->addXYTObject( pickset );
     setSelObjectId( pickset->id() );
+    pickset->changed.notify( mCB( this, uiVisPartServer, picksChangedCB ));
     return pickset->id();
 }
 
@@ -154,6 +168,7 @@ void uiVisPartServer::removePickSetDisplay()
     mDynamicCastGet(visSurvey::PickSetDisplay*,ps,psobj)
     if ( !ps ) return;
 
+    ps->changed.remove( mCB( this, uiVisPartServer, picksChangedCB ));
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( ps );
@@ -176,9 +191,7 @@ bool uiVisPartServer::setPicks( const PickSet& pickset )
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	Coord crd( pickset[idx].pos );
-	BinID bid = SI().transform( crd );
-	float z = (float)pickset[idx].z;
-	ps->addPick( Geometry::Pos(bid.inl,bid.crl,z) );
+	ps->addPick( Geometry::Pos(crd.x,crd.y,pickset[idx].z) );
     }
 
     return true;
@@ -380,7 +393,7 @@ void uiVisPartServer::putNewData( AttribSlice* slice )
 }
 
 
-void uiVisPartServer::showPos( CallBacker* )
+void uiVisPartServer::showPosCB( CallBacker* )
 {
     sendEvent( evShowPosition );
 }
