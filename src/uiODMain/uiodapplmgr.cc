@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.40 2004-07-16 15:35:26 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.41 2004-07-20 12:38:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -871,14 +871,15 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
     ObjectSet<BinIDValueSet> data;
     if ( !emserv->getDataVal(*visserv->getMultiID(visid),data,attrnm,shift) )
 	return;
+
+    AttribSelSpec myas( attrnm, -1 );
+    visserv->setSelSpec( visid, myas );
     visserv->stuffSurfaceData( visid, false, &data );
     deepErase( data );
 
     mDynamicCastGet( visSurvey::SurfaceDisplay*, sd, visserv->getObject(visid));
     sd->setShift( shift );
 
-    AttribSelSpec myas( attrnm, -1 );
-    visserv->setSelSpec( visid, myas );
     setHistogram( visid );
     sceneMgr().updateTrees();
 }
