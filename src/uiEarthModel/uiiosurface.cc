@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.27 2004-12-15 16:01:21 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.28 2004-12-17 12:31:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool ishor )
     , sectionfld(0)
     , attribfld(0)
     , rgfld(0)
+    , attrSelChange(this)
 {
 }
 
@@ -49,9 +50,9 @@ uiIOSurface::~uiIOSurface()
 void uiIOSurface::mkAttribFld()
 {
     attribfld = new uiLabeledListBox( this, "Calculated attributes", true,
-					uiLabeledListBox::AboveMid );
-//  attribfld->setPrefHeightInChar( cListHeight );
+				      uiLabeledListBox::AboveMid );
     attribfld->setStretch( 1, 1 );
+    attribfld->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
 }
 
 
@@ -128,6 +129,17 @@ void uiIOSurface::fillRangeFld( const HorSampling& hrg )
 }
 
 
+bool uiIOSurface::haveAttrSel() const
+{
+    for ( int idx=0; idx<attribfld->box()->size(); idx++ )
+    {
+	if ( attribfld->box()->isSelected(idx) )
+	    return true;
+    }
+    return false;
+}
+
+
 void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 {
     if ( rgfld && rgfld->isRg() )
@@ -168,6 +180,12 @@ void uiIOSurface::objSel( CallBacker* )
     if ( !ioobj ) return;
 
     fillFields( ioobj->key() );
+}
+
+
+void uiIOSurface::attrSel( CallBacker* )
+{
+    attrSelChange.trigger();
 }
 
 

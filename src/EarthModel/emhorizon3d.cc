@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.49 2004-08-18 15:09:57 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.50 2004-12-17 12:31:09 bert Exp $";
 
 #include "emhorizon.h"
 
@@ -35,11 +35,11 @@ class HorizonImporter : public Executor
 {
 public:
 
-HorizonImporter( Horizon& hor, const Grid& g, bool fixholes_ )
+HorizonImporter( Horizon& hor, const Grid& g, bool fh )
 	: Executor("Horizon Import")
 	, horizon( hor )
 	, grid( g )
-	, fixholes( fixholes_ )
+	, fixholes( fh )
 {
     const int nrrows = grid.nrRows();
     const int nrcols = grid.nrCols();
@@ -172,6 +172,7 @@ protected:
     const Grid&		grid;
     StepInterval<int>	inlrange;
     StepInterval<int>	crlrange;
+    float		udfval;
 
     int			inl;
     bool		fixholes;
@@ -179,11 +180,11 @@ protected:
 };
 
 
-Executor* Horizon::import( const Grid& grid, int idx, bool fixholes )
+Executor* Horizon::importer( const Grid& grid, int idx, bool fh )
 {
     if ( !idx ) cleanUp();
 
-    return new HorizonImporter( *this, grid, fixholes );
+    return new HorizonImporter( *this, grid, fh );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.32 2004-09-01 12:55:17 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.33 2004-12-17 12:31:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 				     "Specify output format","104.0.1"))
 {
     infld = new uiSurfaceRead( this, true );
+    infld->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
     typfld = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );
     typfld->attach( alignedBelow, infld );
@@ -50,6 +51,10 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     zfld = new uiGenInput( this, lbltxt, BoolInpSpec() );
     zfld->setValue( false );
     zfld->attach( alignedBelow, typfld );
+
+    udffld = new uiGenInput( this, "Undefined value",
+	    		     StringInpSpec(sUndefValue) );
+    udffld->attach( alignedBelow, zfld );
 
     gfgrp = new uiGroup( this, "GF things" );
     gfnmfld = new uiGenInput( gfgrp, "Horizon name in file" );
@@ -122,6 +127,8 @@ bool uiExportHorizon::writeAscii()
     const bool doxy = typfld->getIntValue() == 0;
     const bool addzpos = zfld->getBoolValue();
     const bool dogf = typfld->getIntValue() == 2;
+    BufferString udfstr = udffld->text();
+    if ( udfstr == "" ) udfstr = sUndefValue;
 
     BufferString basename = outfld->fileName();
 
@@ -209,14 +216,20 @@ bool uiExportHorizon::writeAscii()
 
 	    if ( addzpos )
 	    {
-		float depth = crd.z;
-		if ( !mIsUndefined(depth) ) 
-		    depth *= zfac;
-		*sdo.ostrm << '\t' << depth;
+		if ( mIsUndefined(crd.z) ) 
+		    *sdo.ostrm << '\t' << udfstr;
+		else
+		    *sdo.ostrm << '\t' << zfac * crd.z;
 	    }
 
 	    for ( int idx=0; idx<nrattribs; idx++ )
-		*sdo.ostrm << '\t' << hor->auxdata.getAuxDataVal(idx,posid);
+	    {
+		auxvalue = hor->auxdata.getAuxDataVal(idx,posid);
+		if ( mIsUndefined(auxvalue) )
+		    *sdo.ostrm << '\t' << udfstr;
+		else
+		    *sdo.ostrm << '\t' << auxvalue;
+	    }
 
 	    *sdo.ostrm << '\n';
 	}
@@ -242,9 +255,17 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 }
 
 
-void uiExportHorizon::typChg( CallBacker* )
+void uiExportHorizon::typChg( CallBacker* cb )
 {
     const bool isgf = typfld->getIntValue() == 2;
     gfgrp->display( isgf );
     zfld->display( !isgf );
+    attrSel( cb );
+}
+
+
+void uiExportHorizon::attrSel( CallBacker* )
+{
+    const bool isgf = typfld->getIntValue() == 2;
+    udffld->display( !isgf && infld->haveAttrSel() );
 }

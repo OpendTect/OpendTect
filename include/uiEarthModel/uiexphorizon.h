@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.12 2004-07-14 15:26:50 bert Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.13 2004-12-17 12:31:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ protected:
     uiFileInput*	outfld;
     uiGenInput*		typfld;
     uiGenInput*		zfld;
+    uiGenInput*		udffld;
     uiGenInput*		gfnmfld;
     uiGenInput*		gfcommfld;
     uiGenInput*		gfunfld;
@@ -41,6 +42,7 @@ protected:
 
     virtual bool	acceptOK(CallBacker*);
     void		typChg(CallBacker*);
+    void		attrSel(CallBacker*);
     bool		writeAscii();
 };
 

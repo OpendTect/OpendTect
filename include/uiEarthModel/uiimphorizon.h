@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.8 2004-05-24 15:24:00 kristofer Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.9 2004-12-17 12:31:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ protected:
     uiGenInput*		xyfld;
     uiScaler*		scalefld;
     uiBinIDSubSel*	subselfld;
+    uiGenInput*		udffld;
     uiGenInput*		fillholesfld;
     uiIOObjSel*		outfld;
     uiCheckBox*		displayfld;

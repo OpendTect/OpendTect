@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.34 2004-08-18 15:09:49 nanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.35 2004-12-17 12:31:09 bert Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,7 @@ the knots.
 class Horizon : public EM::Surface
 {
 public:
-    Executor*			import(const Grid&,int idx,bool fixholes);
+    Executor*			importer(const Grid&,int idx,bool fixholes);
     				/*!< Removes all data when idx=0 and creates 
 				  sections for every Grid imported.
 				*/

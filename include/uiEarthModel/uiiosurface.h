@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.13 2004-08-17 09:46:30 bert Exp $
+ RCS:           $Id: uiiosurface.h,v 1.14 2004-12-17 12:31:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,9 @@ public:
 
     virtual bool	processInput()		{ return true; };
 
+    Notifier<uiIOSurface> attrSelChange;
+    bool		haveAttrSel() const;
+
 protected:
 			uiIOSurface(uiParent*,bool ishor);
 
@@ -55,6 +58,7 @@ protected:
     void		mkObjFld(const char*,bool);
 
     void		objSel(CallBacker*);
+    void		attrSel(CallBacker*);
 
     uiLabeledListBox*	sectionfld;
     uiLabeledListBox*	attribfld;

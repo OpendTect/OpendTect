@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.40 2004-12-15 15:59:46 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.41 2004-12-17 12:31:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,10 +63,14 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     scalefld = new uiScaler( this, scalelbl, true );
     scalefld->attach( alignedBelow, subselfld );
 
+    udffld = new uiGenInput( this, "Undefined value",
+	    		     StringInpSpec(sUndefValue) );
+    udffld->attach( alignedBelow, scalefld );
+
     fillholesfld = new uiGenInput( this, "Try to fill small holes:",
                             BoolInpSpec() );
     fillholesfld->setValue(false);
-    fillholesfld->attach( alignedBelow, scalefld );
+    fillholesfld->attach( alignedBelow, udffld );
 
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
@@ -109,9 +113,10 @@ bool uiImportHorizon::handleAscii()
 	if ( conn->bad() )
 	    mErrRetUnRef( "Bad connection" );
 	    
-	GridTranslator* trans =
-	    doxy ? (GridTranslator*)CoordGridTranslator::getInstance()
-		 : (GridTranslator*)BinIDGridTranslator::getInstance();
+	ValGridTranslator* trans = 0;
+	if ( doxy )	trans = CoordGridTranslator::getInstance();
+	else		trans = BinIDGridTranslator::getInstance();
+	trans->setUdf( udffld->getfValue() );
 
 	GridReader reader( trans, conn );
 	BinIDSampler* bs = 0;
@@ -147,7 +152,7 @@ bool uiImportHorizon::handleAscii()
 	    delete it;
 	}
 
-	PtrMan<Executor> horimp = horizon->import( *grid, idx,
+	PtrMan<Executor> horimp = horizon->importer( *grid, idx,
 					       fillholesfld->getBoolValue() );
 	uiExecutor impdlg( this, *horimp );
 	if ( !impdlg.go() ) 
