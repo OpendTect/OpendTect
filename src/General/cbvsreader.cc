@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.5 2001-04-05 16:18:46 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.6 2001-04-06 16:38:19 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -25,7 +25,11 @@ CBVSReader::CBVSReader( istream* s )
 	, bidrg(*new BinIDRange)
 	, samprgs(0)
 {
-    lastposfo = datastartfo;
+    if ( readInfo() )
+    {
+	lastposfo = datastartfo;
+	strm_.seekg( lastposfo, ios::beg );
+    }
 }
 
 
@@ -80,6 +84,7 @@ bool CBVSReader::readInfo()
     removeTrailingBlanks( info_.usertext.buf() );
 
     datastartfo = strm_.tellg();
+    curbinid_ = info_.geom.start;
     if ( !info_.geom.fullyrectandreg && !readTrailer() )
 	return false;
 
@@ -258,6 +263,7 @@ bool CBVSReader::readTrailer()
     strm_.seekg( -4-integersize-nrbytes, ios::end );
     strm_.read( buf, integersize );
     const int nrinl = iinterp.get( buf, 0 );
+    if ( nrinl == 0 ) mErrRet("No traces in file")
 
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
@@ -275,6 +281,9 @@ bool CBVSReader::readTrailer()
 	info_.geom.inldata += iinf;
     }
 
+    curinlinfnr = cursegnr = 0;
+    curbinid_.inl = info_.geom.inldata[curinlinfnr]->inl;
+    curbinid_.crl = info_.geom.inldata[curinlinfnr]->segments[cursegnr].start;
     return strm_.good();
 }
 
@@ -356,24 +365,29 @@ bool CBVSReader::goTo( const BinID& bid )
 }
 
 
+void CBVSReader::nextPosIdx()
+{
+    posidx++;
+    if ( posidx >= info_.nrtrcsperposn )
+	posidx = 0;
+}
+
+
 bool CBVSReader::skip( bool tonextpos )
 {
+    if ( hinfofetched ) 
     hinfofetched = false;
 
     streampos onetrcoffs = explicitnrbytes + bytespertrace;
     streampos posadd = onetrcoffs;
-    posidx++;
-    if ( posidx >= info_.nrtrcsperposn )
-	posidx = 0;
+    nextPosIdx();
 
     if ( posidx && tonextpos )
     {
 	while ( posidx )
 	{
 	    posadd += onetrcoffs;
-	    posidx++;
-	    if ( posidx >= info_.nrtrcsperposn )
-		posidx = 0;
+	    nextPosIdx();
 	}
     }
 
@@ -448,6 +462,13 @@ BinID CBVSReader::nextBinID() const
 bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
 {
     if ( strmclosed_ || hinfofetched ) return true;
+    nextPosIdx();
+
+    expldat.binid = curbinid_;
+    expldat.coord = info_.geom.b2c.transform( curbinid_ );
+    expldat.startpos = info_.compinfo[0]->sd.start;
+    expldat.offset = 0;
+    expldat.pick = expldat.refpos = mUndefValue;
 
     unsigned char buf[8];
     mGet(startpos)

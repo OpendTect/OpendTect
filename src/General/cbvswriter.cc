@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.7 2001-04-05 16:18:47 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.8 2001-04-06 16:38:19 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -248,14 +248,11 @@ void CBVSWriter::close()
     if ( strmclosed_ ) return;
 
     getRealGeometry();
-    if ( survgeom.fullyrectandreg )
-    {
-	streampos kp = strm_.tellp();
-	strm_.seekp( geomfo );
-	writeGeom();
-	strm_.seekp( kp );
-    }
-    else if ( !writeTrailer() )
+    streampos kp = strm_.tellp();
+    strm_.seekp( geomfo );
+    writeGeom();
+    strm_.seekp( kp );
+    if ( !survgeom.fullyrectandreg && !writeTrailer() )
     {
 	// damn! we were almost there!
 	errmsg_ = "Could not write CBVS trailer";
