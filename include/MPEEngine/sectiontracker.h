@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.3 2005-03-11 16:56:32 cvsnanne Exp $
+ RCS:           $Id: sectiontracker.h,v 1.4 2005-03-15 16:53:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,9 @@ class SectionAdjuster;
 class SectionTracker
 {
 public:
-    				SectionTracker( SectionSourceSelector* = 0,
-						SectionExtender* = 0,
-						SectionAdjuster*  = 0);
+    				SectionTracker(SectionSourceSelector* = 0,
+					       SectionExtender* = 0,
+					       SectionAdjuster* = 0);
     virtual			~SectionTracker();
     EM::SectionID		sectionID() const;
     virtual bool		init();
@@ -55,16 +55,22 @@ public:
     virtual bool		adjust();
     const char*			errMsg() const;
 
-    void			enableAdjuster(bool yn)	{ enabadjuster=yn; }
-    bool			adjusterEnabled() const	{ return enabadjuster; }
+    void			useAdjuster(bool yn)	{ useadjuster=yn; }
+    bool			adjusterUsed() const	{ return useadjuster; }
+
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
     BufferString		errmsg;
-    bool			enabadjuster;
+    bool			useadjuster;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;
     SectionAdjuster*		adjuster_;
+
+    static const char*		trackerstr;
+    static const char*		useadjusterstr;
 };
 
 };

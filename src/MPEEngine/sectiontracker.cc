@@ -8,17 +8,21 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.4 2005-03-11 16:55:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.5 2005-03-15 16:53:39 cvsnanne Exp $";
 
 #include "sectiontracker.h"
 
 #include "sectionextender.h"
 #include "sectionselector.h"
 #include "sectionadjuster.h"
+#include "iopar.h"
+#include "ptrman.h"
 
 namespace MPE 
 {
 
+const char* SectionTracker::trackerstr = "Tracker";
+const char* SectionTracker::useadjusterstr = "Use adjuster";
 
 SectionTracker::SectionTracker( SectionSourceSelector* selector__,
 				SectionExtender* extender__,
@@ -26,7 +30,7 @@ SectionTracker::SectionTracker( SectionSourceSelector* selector__,
     : selector_(selector__)
     , extender_(extender__)
     , adjuster_(adjuster__)
-    , enabadjuster(true)
+    , useadjuster(true)
 {
     init();
 }
@@ -99,5 +103,27 @@ mGet( SectionAdjuster, adjuster, adjuster_ )
 
 const char* SectionTracker::errMsg() const
 { return errmsg[0] ? (const char*) errmsg : 0; }
+
+
+void SectionTracker::fillPar( IOPar& par ) const
+{
+    IOPar trackpar;
+    trackpar.setYN( useadjusterstr, useadjuster );
+    par.mergeComp( trackpar, trackerstr );
+    if ( adjuster_ ) adjuster_->fillPar( par );
+}
+
+
+bool SectionTracker::usePar( const IOPar& par )
+{
+    PtrMan<IOPar> trackpar = par.subselect( trackerstr );
+    useadjuster = true;
+    if ( trackpar )
+	trackpar->getYN( useadjusterstr, useadjuster );
+	
+    if ( adjuster_ ) adjuster_->usePar( par );
+
+    return true;
+}
 
 }; // namespace MPE
