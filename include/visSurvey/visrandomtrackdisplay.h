@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.34 2004-10-01 12:29:06 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.35 2004-11-30 08:07:03 nanne Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,9 @@ public:
     int				getResolution() const;
     void			setResolution(int);
 
+    bool			canDuplicate() const		{ return true; }
+    SurveyObject*		duplicate() const;
+
     bool			allowMaterialEdit() const { return true; }
 
     int				getAttributeFormat() const { return 1; }
@@ -100,6 +103,8 @@ public:
     void			removeKnot(int);
     void			removeAllKnots();
 
+    void			setDepthInterval(const Interval<float>&);
+
     void			getMousePosInfo(const Coord3&,float& val,
 	    					BufferString& info) const;
 
@@ -131,7 +136,6 @@ public:
 
 protected:
 				~RandomTrackDisplay();
-    void			setDepthInterval(const Interval<float>&);
 
     void			setRandomTrack(visBase::RandomTrack*);
 

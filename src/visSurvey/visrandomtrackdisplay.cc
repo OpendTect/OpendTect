@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.43 2004-10-01 12:29:21 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.44 2004-11-30 08:06:56 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@
 #include "vistristripset.h"
 #include "vistransform.h"
 #include "viscolortab.h"
+#include "colortab.h"
 #include "ptrman.h"
 
 #include <math.h>
@@ -606,6 +607,28 @@ const visBase::Material* RandomTrackDisplay::getMaterial() const
 
 visBase::Material* RandomTrackDisplay::getMaterial()
 { return track->getMaterial(); }
+
+
+SurveyObject* RandomTrackDisplay::duplicate() const
+{
+    RandomTrackDisplay* rtd = create();
+    rtd->setResolution( getResolution() );
+
+    rtd->setDepthInterval( track->getDepthInterval() );
+    for ( int idx=0; idx<nrKnots(); idx++ )
+	rtd->setKnotPos( idx, getKnotPos(idx) );
+
+    const int id = rtd->getColTabID();
+    visBase::DataObject* obj = id>=0 ? visBase::DM().getObj( id ) : 0;
+    mDynamicCastGet(visBase::VisColorTab*,nct,obj);
+    if ( nct )
+    {
+	const char* ctnm = track->getColorTab().colorSeq().colors().name();
+	nct->colorSeq().loadFromStorage( ctnm );
+    }
+
+    return rtd;
+}
 
 
 SoNode* RandomTrackDisplay::getInventorNode()
