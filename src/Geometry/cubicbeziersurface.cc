@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.5 2005-02-17 10:25:59 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.6 2005-02-20 13:42:26 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -65,8 +65,34 @@ CubicBezierSurface* CubicBezierSurface::clone() const
 
 IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
 {
-    //Todo: Own impl
-    return ParametricSurface::boundingBox(approx);
+    if ( approx ) return ParametricSurface::boundingBox(approx);
+
+    IntervalND<float> bbox(3);
+    const StepInterval<int> rowrange = rowRange();
+    const StepInterval<int> colrange = rowRange();
+
+    for ( RowCol rc(rowrange.start,0); rc.row<=rowrange.stop;
+	  rc.row+=rowrange.step )
+    {
+	for ( rc.col = colrange.start; rc.col<=colrange.stop;
+	      rc.col+=colrange.step )
+	{
+	    for ( RowCol relrc(-1,-1); relrc.row<=1; relrc.row++ )
+	    {
+		for ( relrc.col=-1; relrc.col<=1; relrc.col++ )
+		{
+		    const Coord3 vertex = getBezierVertex( rc, relrc );
+		    if ( !vertex.isDefined() )
+			continue;
+
+		    if ( !bbox.isSet() ) bbox.setRange(vertex);
+		    else bbox.include(vertex);
+		}
+	    }
+	}
+    }
+
+    return bbox;
 }
 
 
@@ -179,9 +205,26 @@ Coord3 CubicBezierSurface::getBezierVertex( const RCol& knot,
 bool CubicBezierSurface::insertRow(int row)
 {
     mInsertStart( rowidx, row, nrRows() );
+
+    TypeSet<GeomPosID> movedpos;
+    for ( int idx=rowidx; idx<curnrrows; idx++ )
+    {
+	const int currow = origo.row+idx*step.row;
+	for ( int idy=0; idy<curnrcols; idy++ )
+	    movedpos += RowCol(currow,origo.col+idy*step.col).getSerialized();
+    }
+
+    TypeSet<GeomPosID> addedpos;
+    const int newrow = origo.row+curnrrows*step.row;
+    for ( int idy=0; idy<curnrcols; idy++ )
+	addedpos += RowCol(newrow,origo.col+idy*step.col).getSerialized();
+
     mCloneRowVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneRowVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
     mCloneRowVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
+
+    triggerNrPosCh( addedpos );
+    triggerMovement( movedpos );
     return true;
 }
 
@@ -189,9 +232,25 @@ bool CubicBezierSurface::insertRow(int row)
 bool CubicBezierSurface::insertColumn(int col)
 {
     mInsertStart( colidx, col, nrCols() );
+    TypeSet<GeomPosID> movedpos;
+    for ( int idx=colidx; idx<curnrcols; idx++ )
+    {
+	const int curcol = origo.col+idx*step.col;
+	for ( int idy=0; idy<curnrrows; idy++ )
+	    movedpos += RowCol(origo.row+idy*step.row,curcol).getSerialized();
+    }
+
+    TypeSet<GeomPosID> addedpos;
+    const int newcol = origo.col+curnrcols*step.col;
+    for ( int idy=0; idy<curnrrows; idy++ )
+	addedpos += RowCol(origo.row+idy*step.row,newcol).getSerialized();
+
     mCloneColVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneColVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
     mCloneColVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
+
+    triggerNrPosCh( addedpos );
+    triggerMovement( movedpos );
     return true;
 }
 
@@ -302,6 +361,137 @@ void CubicBezierSurface::setDirectionInfluence(float ndi)
 }
 
 
+bool CubicBezierSurface::checkSelfIntersection( const RCol& ownrc ) const
+{
+    const StepInterval<int> rowrange = rowRange();
+    const StepInterval<int> colrange = colRange();
+
+    TypeSet<RowCol> affectedrcs;
+    RowCol affectedrc;
+    for ( RowCol rc(-2,-2); rc.row<=1; rc.row++ )
+    {
+	affectedrc.row = ownrc.r()+rc.row*step.row;
+	if ( !rowrange.includes(affectedrc.row) )
+	    continue;
+
+	for ( rc.col=-2; rc.col<=1; rc.col++ )
+	{
+	    affectedrc.col = ownrc.c()+rc.col*step.col;
+	    if ( !colrange.includes(affectedrc.col) )
+		continue;
+
+	    affectedrcs += affectedrc;
+	}
+    }
+
+
+    for ( int idx=0; idx<affectedrcs.size(); idx++ )
+    {
+	affectedrc = affectedrcs[idx];
+
+	const IntervalND<float> ownbbox = boundingBox(affectedrc, false );
+	if ( !ownbbox.isSet() ) return false;
+
+	for ( RowCol rc(rowrange.start,0); rc.row<=rowrange.stop;
+	      rc.row+=rowrange.step )
+	{
+	    for ( rc.col = colrange.start; rc.col<=colrange.stop;
+		  rc.col+=colrange.step )
+	    {
+		if ( rc==affectedrc ) continue;
+		if ( abs(rc.row-affectedrc.r())<=step.row &&
+		     abs(rc.col-affectedrc.c())<=step.col )
+		{
+		    //TODO
+		    continue;
+		}
+
+		const IntervalND<float> bbox = boundingBox(rc,false);
+		if ( !bbox.isSet() ) continue;
+
+		if ( ownbbox.intersects(bbox) )
+		    return true;
+	    }
+	}
+    }
+
+    return false;
+}
+
+
+#define mGetBBoxVertex( relrow, relcol ) \
+vertex = getBezierVertex(currc, RowCol(0,0)); \
+if ( vertex.isDefined() ) \
+{ \
+    if ( bbox.isSet() ) bbox.include(vertex); \
+    else bbox.setRange(vertex); \
+\
+    if ( rowext ) \
+    {\
+	vertex = getBezierVertex(currc, RowCol(relrow,0)); \
+	if ( vertex.isDefined() ) bbox.include(vertex); \
+    }\
+    if ( rowext && colext )\
+    {\
+	vertex = getBezierVertex(currc, RowCol(relrow,relcol)); \
+	if ( vertex.isDefined() ) bbox.include(vertex); \
+    }\
+    if ( colext )\
+    {\
+	vertex = getBezierVertex(currc, RowCol(0,relcol)); \
+	if ( vertex.isDefined() ) bbox.include(vertex); \
+    }\
+}
+
+
+IntervalND<float> CubicBezierSurface::boundingBox( const RCol& rc,
+						   bool ownvertices ) const
+{
+    IntervalND<float> bbox(3);
+
+    if ( ownvertices )
+    {
+	for ( RowCol relrc(-1,-1); relrc.row<=1; relrc.row++ )
+	{
+	    for ( relrc.col=-1; relrc.col<=1; relrc.col++ )
+	    {
+		const Coord3 vertex = getBezierVertex( rc, relrc );
+		if ( !vertex.isDefined() )
+		    continue;
+
+		if ( !bbox.isSet() ) bbox.setRange(vertex);
+		else bbox.include(vertex);
+	    }
+	}
+    }
+    else
+    {
+	const bool rowext = rc.r()<origo.row+(nrRows()-1)*step.row;
+	const bool colext = rc.c()<origo.col+(nrCols()-1)*step.col;
+	if ( rowext || colext )
+	{
+	    Coord3 vertex;
+	    RowCol currc(rc);
+	    mGetBBoxVertex( 1, 1 );
+
+	    currc.row += step.row;
+	    if ( rowext )
+	    { mGetBBoxVertex( -1, 1 ); }
+
+	    currc.col += step.col;
+	    if ( rowext && colext )
+	    { mGetBBoxVertex( -1, -1 ); }
+
+	    currc.row = rc.r();
+	    if ( colext )
+	    { mGetBBoxVertex( 1, -1 ); }
+	}
+    }
+
+    return bbox;
+}
+
+
 #ifndef mEPS
 #define mEPS 1e-10
 #endif
@@ -340,18 +530,6 @@ void CubicBezierSurface::setDirectionInfluence(float ndi)
     return (nextcoord-prevcoord)*step._rowcol_/diff*directioninfluence;
 
 
-Coord3 CubicBezierSurface::computeColDirection( const RCol& rc ) const
-{
-    const int lastcol = origo.col + (nrCols()-1)*step.col;
-    const RowCol prev( rc.r(), rc.c()==origo.col && circularCols() 
-	    ? lastcol : rc.c()-step.col );
-    const RowCol next( rc.r(), rc.c()==lastcol && circularCols() 
-	    ? origo.col : rc.c()+step.col);
-
-    mComputeDirImpl(col);
-}
-
-
 Coord3 CubicBezierSurface::computeRowDirection( const RCol& rc ) const
 {
     const int lastrow = origo.row + (nrRows()-1)*step.row;
@@ -361,6 +539,18 @@ Coord3 CubicBezierSurface::computeRowDirection( const RCol& rc ) const
 	    ? origo.row : rc.r()+step.row, rc.c() );
 
     mComputeDirImpl(row);
+}
+
+
+Coord3 CubicBezierSurface::computeColDirection( const RCol& rc ) const
+{
+    const int lastcol = origo.col + (nrCols()-1)*step.col;
+    const RowCol prev( rc.r(), rc.c()==origo.col && circularCols() 
+	    ? lastcol : rc.c()-step.col );
+    const RowCol next( rc.r(), rc.c()==lastcol && circularCols() 
+	    ? origo.col : rc.c()+step.col);
+
+    mComputeDirImpl(col);
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.2 2005-02-17 10:25:59 cvskris Exp $";
+static const char* rcsID = "$Id: geomelement.cc,v 1.3 2005-02-20 13:42:26 cvskris Exp $";
 
 #include "geomelement.h"
 #include "survinfo.h"
@@ -58,6 +58,8 @@ BufferString& Element::errmsg()
 
 void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
 {
+    if ( !gpids.size() ) return;
+
     movementnotifier.trigger( &gpids, this );
     ischanged = true;
 }
@@ -80,6 +82,7 @@ void Element::triggerMovement()
 
 void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
 {
+    if ( !gpids.size() ) return;
     nrpositionnotifier.trigger( &gpids, this );
     ischanged = true;
 }

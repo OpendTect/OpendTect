@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.5 2005-02-17 10:25:59 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.6 2005-02-20 13:42:26 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -92,9 +92,18 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 	wasundef = true;
     }
 
-    _setKnot(getIndex(rc), np);
-    const GeomPosID gpos = rc.getSerialized();
 
+    const Coord3 oldpos = getKnot(rc);
+    const int index = getIndex(rc);
+    _setKnot(index, np);
+
+    if ( checkSelfIntersection(rc) )
+    {
+	_setKnot(index,oldpos);
+	return false;
+    }
+
+    const GeomPosID gpos = rc.getSerialized();
     if ( wasundef ) triggerNrPosCh(gpos);
     else triggerMovement(gpos);
 
@@ -207,6 +216,10 @@ bool ParametricSurface::checkSupport(bool yn)
 
 
 bool ParametricSurface::checksSupport() const { return checksupport; }
+
+
+bool ParametricSurface::checkSelfIntersection(const RCol& ) const
+{ return false; }
 
 
 int ParametricSurface::getIndex( const RCol& rc ) const
