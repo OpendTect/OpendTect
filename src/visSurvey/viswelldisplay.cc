@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.7 2002-06-25 15:22:39 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.8 2002-07-03 15:18:33 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -158,6 +158,7 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
     if ( !em.isLoaded( wellid ) )
     {
 	PtrMan<Executor> exec = em.load( wellid );
+	if ( !exec ) return -1;
 	exec->execute();
     }
 	
