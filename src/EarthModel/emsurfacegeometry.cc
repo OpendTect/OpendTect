@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.6 2004-09-20 10:59:47 nanne Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.7 2004-09-28 09:59:37 kristofer Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -224,7 +224,7 @@ bool SurfaceGeometry::computeMeshNormal( Coord3& res, const PosID& pid,
 
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
-				 const MathFunction<float>* t2dfunc ) const 
+		 const MathFunction<float>* t2dfunc, bool normalize ) const 
 {
     TypeSet<PosID> nodes;
     if ( cs ) 
@@ -251,7 +251,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 	}
     }
 
-    return computeNormal( res, nodes, t2dfunc );
+    return computeNormal( res, nodes, t2dfunc, normalize );
 }
 
 
@@ -270,7 +270,7 @@ if ( !fetched[nodeindex] ) \
 }
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
-				 const MathFunction<float>* t2d ) const
+		     const MathFunction<float>* t2d, bool normalize ) const
 {
     const Coord3 nodetpos = getPos(node);
     const bool defnode = nodetpos.isDefined();
@@ -361,7 +361,8 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 
     if ( validcolvector && validrowvector )
     {
-	res = rowvector.cross(colvector).normalize();
+	res = normalize ? rowvector.cross(colvector).normalize() :
+	    		  rowvector.cross(colvector);
 	return true;
     }
 
@@ -379,7 +380,8 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 	const double len = average.abs();
 	if ( !mIsZero(len,mDefEps) )
 	{
-	    res = average.normalize();
+	    res = normalize ? average.normalize() :
+			      average;
 	    return true;
 	}
     }
@@ -398,7 +400,8 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 	const double len = average.abs();
 	if ( !mIsZero(len,mDefEps) )
 	{
-	    res = average.normalize();
+	    res = normalize ? average.normalize() :
+			      average;
 	    return true;
 	}
     }
@@ -408,7 +411,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const TypeSet<PosID>& nodes,
-				 const MathFunction<float>* t2dfunc ) const
+				 const MathFunction<float>* t2dfunc, bool normalize ) const
 {
     TypeSet<Coord3> normals;
     const int nrnodes = nodes.size();
@@ -416,11 +419,12 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const TypeSet<PosID>& nodes,
     {
 	const PosID& node = nodes[idx];
 	Coord3 normal;
-	if ( computeNormal(normal,nodes[idx],t2dfunc) )
+	if ( computeNormal(normal,nodes[idx],t2dfunc,false) )
 	    normals += normal;
     }
 
-    res = estimateAverageVector( normals, false, false );
+    res = normalize ? estimateAverageVector(normals,false,false).normalize()
+		    : estimateAverageVector(normals,false,false);
     return res.isDefined();
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.3 2004-08-18 15:09:49 nanne Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.4 2004-09-28 09:59:37 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -161,9 +161,11 @@ public:
     bool	computeMeshNormal( Coord3& res, const EM::PosID&, 
 	    			const MathFunction<float>* dconv=0) const;
     bool	computeNormal( Coord3& res, const EM::PosID& posid,
-	    			const MathFunction<float>* dconv=0) const;
+	    			const MathFunction<float>* dconv=0,
+				bool normalize=true ) const;
     bool	computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
-				const MathFunction<float>* depthconv=0) const;
+				const MathFunction<float>* depthconv=0,
+				bool normalize=true ) const;
 		/*!< Computes an aproximation of the orientation of a
 		     part of a surface
 		     \param nodes	orientation is computed on the
@@ -177,7 +179,8 @@ public:
 					be converted.
 		*/
     bool	computeNormal( Coord3& res, const CubeSampling* cs=0,
-			       const MathFunction<float>* depthconv=0) const;
+			       const MathFunction<float>* depthconv=0,
+			       bool normalize=true ) const;
 		/*!< Computes an aproximation of the surface's
 		     orientation
 		     \param cs		Compute only within this cube.
