@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.46 2002-01-31 14:24:26 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.47 2002-02-08 14:14:18 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include <limits.h>
 
 #ifdef __debug__
-#define MAX_ITER	1000
+#define MAX_ITER	2000
 #else
 #define MAX_ITER	10000
 #endif
