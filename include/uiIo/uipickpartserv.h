@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.5 2002-04-02 11:25:52 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.6 2002-04-12 10:10:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <uidset.h>
 
 class PickSetGroup;
+class Color;
 
 
 /*! \brief Service provider for application level - seismics */
@@ -43,6 +44,7 @@ public:
     UserIDSet&		availableSets()			{ return avsets; }
     const BoolTypeSet& selectedSets() const		{ return selsets; }
     MultiID&		psgID()				{ return psgid; }
+    const Color&	getPickColor()			{ return pickcolor; }
 
 protected:
 
@@ -50,6 +52,7 @@ protected:
     MultiID		psgid;
     UserIDSet		avsets;
     BoolTypeSet		selsets;
+    Color&		pickcolor;
 
 };
 

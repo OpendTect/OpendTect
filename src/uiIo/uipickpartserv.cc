@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.4 2002-03-29 17:26:42 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.5 2002-04-12 10:10:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "color.h"
 
 const int uiPickPartServer::evGetAvailableSets = 0;
 const int uiPickPartServer::evFetchPicks = 1;
@@ -24,6 +25,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
     	, psg(*new PickSetGroup)
     	, avsets("Select sets to be stored")
+	, pickcolor(Color::DgbColor)
 {
 }
 
@@ -42,7 +44,11 @@ bool uiPickPartServer::fetchPickSets()
     if ( !dlg.go() ) return false;
 
     if ( !dlg.nrSets() )
-	{ psg.setName(dlg.getName()); return true; }
+    { 
+	psg.setName(dlg.getName());
+	pickcolor = dlg.getPickColor();
+	return true; 
+    }
 
     BufferString bs;
     if ( !PickSetGroupTranslator::retrieve(psg,dlg.ioobj(),bs,
