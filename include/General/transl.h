@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.18 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: transl.h,v 1.19 2004-05-28 15:25:47 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -174,6 +174,7 @@ public: \
     } \
     static spec##clss##Translator* getInstance(); \
     static const char* translKey(); \
+    static int listID()	{ return listid_; } \
 private: \
     static int			listid_;
 
