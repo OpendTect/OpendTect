@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.3 2000-02-10 13:01:37 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.4 2000-06-23 14:09:46 bert Exp $
 ________________________________________________________________________
 
 */
@@ -138,7 +138,7 @@ public:
 			{ *(((Type*) dbuf.data)+off) = val; }
 
     Type*               getData() const
-                            { return (Type *)dbuf.data; } 
+                            { return (Type*)dbuf.data; } 
     const Array1DSize&  size() const
                             { return sz; }
 
@@ -172,6 +172,10 @@ public:
 
     Type*               getData() const
                             { return (Type*)dbuf.data; }
+    virtual int		getStorageDim() const			{ return 1; }
+    Type*		getStorage( int idx ) const
+			{ return getData()+sz.getArrayPos(idx,0); }
+
     const Array2DSize&  size() const
                             { return sz; }
 
@@ -206,6 +210,9 @@ public:
 
     Type*               getData() const
                             { return (Type*)dbuf.data; }
+    virtual int		getStorageDim() const			{ return 2; }
+    Type*		getStorage( int idx0, int idx1 ) const
+			{ return getData()+sz.getArrayPos(idx0,idx1,0); }
     const Array3DSize&	size() const
 			    { return sz; }
 
@@ -241,6 +248,15 @@ public:
 
     Type*               getData() const
                             { return (Type*) dbuf.data; }
+    virtual int		getStorageDim() const
+			{ return sz.getNDim() - 1; }
+    virtual Type*	getStorage( const TypeSet<int>& pos ) const
+			{
+			    TypeSet<int> p = pos;
+			    while ( p.size() < sz.getNDim() ) p += 0;
+			    p[sz.getNDim()-1] = 0;
+			    return getData()+sz.getArrayPos(p);
+			}
     const ArrayNDSize&	size() const
 			    { return sz; }
 

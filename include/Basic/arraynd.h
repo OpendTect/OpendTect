@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.6 2000-05-25 16:08:14 bert Exp $
+ RCS:		$Id: arraynd.h,v 1.7 2000-06-23 14:09:44 bert Exp $
 ________________________________________________________________________
 
 */
@@ -93,7 +93,7 @@ public:
 
     virtual			~ArrayND()	{}
 
-    virtual T		getValOff( unsigned long off ) const
+    virtual T			getValOff( unsigned long off ) const
 				{
 				    T res = *(T*)(getData()+off);
 				    unlockData();
@@ -106,12 +106,17 @@ public:
 				    unlockData();
 				}
 
-    virtual T                getVal( const TypeSet<int>& pos ) const
+    virtual T	                getVal( const TypeSet<int>& pos ) const
                                 { return getValOff( size().getArrayPos(pos) ); }
     virtual void		setVal( const TypeSet<int>& pos, T val )
 				{ setValOff( size().getArrayPos( pos ), val ); }
 
-    virtual T*		getData() const			= 0;
+    virtual T*			getData() const			= 0;
+    virtual int			getStorageDim() const		{ return -1; }
+    virtual T*			getStorage(const TypeSet<int>& pos) const
+								{ return 0; }
+				    /*!< 'pos' should contain the positions
+					except the getStorageDim(). */
     virtual void		dataUpdated()			{}
     virtual void		unlockData() const		{}
 
@@ -174,7 +179,13 @@ public:
     ArrayND<Type>::Proxy operator() (int pos)
 			{ return ArrayND<Type>::Proxy( *this, pos ); }
 
+    virtual int		getStorageDim() const	{ return getData() ? 0 : -1; }
+    virtual Type*	getStorage(const TypeSet<int>&) const
+						{ return getData(); }
+    virtual Type*	getStorage() const	{ return getData(); }
+
     virtual const Array1DSize& size() const = 0;
+
 };
 
 
@@ -195,6 +206,9 @@ public:
 			    return ArrayND<Type>::Proxy(*this,
 						size().getArrayPos(p0,p1));
 			}
+    virtual Type*	getStorage( const TypeSet<int>& pos ) const
+			{ return pos.size() ? getStorage( pos[0] ) : 0; }
+    virtual Type*	getStorage(int) const	= 0;
 
     virtual const Array2DSize& size() const = 0;
 
@@ -217,6 +231,11 @@ public:
 			    return ArrayND<Type>::Proxy(*this,
 						size().getArrayPos(p0,p1,p2));
 			}
+
+    virtual Type*	getStorage( const TypeSet<int>& pos ) const
+			{ return pos.size() >= 1
+			       ? getStorage( pos[0], pos[1] ) : 0; }
+    virtual Type*	getStorage(int,int) const	= 0;
 
     virtual const Array3DSize& size() const = 0;
 };
