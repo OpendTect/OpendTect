@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoKrisSurface.h,v 1.4 2005-03-22 07:20:37 cvskris Exp $
+ RCS:		$Id: SoLODMeshSurface.h,v 1.1 2005-03-22 14:38:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,10 +25,11 @@ ________________________________________________________________________
 #include "Inventor/nodes/SoSubNode.h"
 
 class SbVec3f;
-class MeshSurfacePart;
+
+namespace MeshSurfImpl { class MeshSurfacePart; };
 
 /*!
-A class for displaying mesh-surfaces
+A class for displaying mesh-surfaces with LOD functionality
 
 
 meshStyle
@@ -92,9 +93,9 @@ meshStyle
 */
 
 
-class SoKrisSurface : public SoShape
+class SoLODMeshSurface : public SoShape
 {
-    SO_NODE_HEADER(SoKrisSurface);
+    SO_NODE_HEADER(SoLODMeshSurface);
 public:
     SoMFVec3f		coordinates;
     			/* If the x component of a coordinate less than
@@ -130,7 +131,7 @@ public:
 
     int			getIndex( int, int ) const;
 
-    			SoKrisSurface();
+    			SoLODMeshSurface();
     static void		initClass();
 
     int			nrRows() const;
@@ -140,10 +141,10 @@ protected:
 
     void		adjustNrOfParts();
 
-    SbList<MeshSurfacePart*>	parts;
-    bool			useownvalidation;
-    int				nrcolparts;
-    int				sidesize;
+    SbList<MeshSurfImpl::MeshSurfacePart*>	parts;
+    bool					useownvalidation;
+    int						nrcolparts;
+    int						sidesize;
 };
 
 
