@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.18 2002-04-11 06:40:05 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.19 2002-04-12 09:20:20 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,8 @@ protected:
     SoTranslate1Dragger* manipzdraggerleft;
     SoScale*		zdraggerscale;
 
-    SoTabPlaneDragger*	manipxydragger;
+    SoTabPlaneDragger*	manipxydragger0;
+    SoTabPlaneDragger*	manipxydragger1;
 
     bool		allowcb;
 
