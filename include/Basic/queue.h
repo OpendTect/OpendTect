@@ -7,8 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		March 2004
- RCS:		$Id: queue.h,v 1.1 2004-03-17 11:58:11 arend Exp $
-________________________________________________________________________
+ RCS:		$Id: queue.h,v 1.2 2004-03-17 16:26:56 arend Exp $
+________________*_______________________________________________________
 
 -*/
 
@@ -17,28 +17,28 @@ ________________________________________________________________________
 template <class T> class QueueEntry
 {
 public:
-			QueueEntry( T* item )
-			    : value( item_value ), next( 0 ) {}
+			QueueEntry( T item )
+			    : value( item ), next( 0 ) {}
 
-  T*			value;
-  QueueEntry<T>*	next;
+    T			value;
+    QueueEntry<T>*	next;
 };
 
 
-template <class T> class Queue
+template <class T> class ObjQueue
 {
 public:
-			Queue() : head(0), tail(0) {}
+			ObjQueue() : head(0), tail(0) {}
 
 			//! item becomes MINE!
     void		add( T* item ) 
 			{
 			    mutex.lock();
-			    if (tail == (QueueEntry*)0)
-				head = tail = new QueueEntry<T>( item );
+			    if ( !tail )
+				head = tail = new QueueEntry<T*>( item );
 			    else
 			    {
-				tail->next = new QueueEntry<T>( item );
+				tail->next = new QueueEntry<T*>( item );
 				tail = tail->next;
 			    }
 			    mutex.unlock();
@@ -52,6 +52,54 @@ public:
 			    mutex.lock();
 
 			    T* value = head->value;
+
+			    QueueEntry<T*>* old = head;
+			    head = head->next;
+			    delete old;
+
+			    if ( !head ) tail = 0;
+
+			    mutex.unlock();
+
+			    return value;
+			}
+protected:
+
+    Threads::Mutex	mutex;
+
+    QueueEntry<T*>*	head;
+    QueueEntry<T*>*	tail;
+
+};
+
+
+template <class T> class TypeQueue
+{
+public:
+			TypeQueue() : head(0), tail(0) {}
+
+    void		add( T item ) 
+			{
+			    mutex.lock();
+			    if ( !tail )
+				head = tail = new QueueEntry<T>( item );
+			    else
+			    {
+				tail->next = new QueueEntry<T>( item );
+				tail = tail->next;
+			    }
+			    mutex.unlock();
+			}
+
+    bool		empty()		{ return !head; }
+
+    T			next() 
+			{
+			    if ( empty() ) return 0;
+
+			    mutex.lock();
+
+			    T value = head->value;
 
 			    QueueEntry<T>* old = head;
 			    head = head->next;
