@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.15 2004-05-24 09:01:58 arend Exp $
+ RCS:           $Id: uitable.h,v 1.16 2004-05-25 09:50:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,8 @@ public:
 			, selmode_( NoSelection )
 			, snglclkedit_( true )
 			, defcollbl_(false)
-			, defrowlbl_(false)		{}
+			, defrowlbl_(false)
+			, manualresize_(false)		{}
 
 #define mSetVar(var) { var=s; return *this; }
 	Setup& size(const Size& s)		mSetVar(size_)
@@ -87,6 +88,7 @@ public:
 	Setup& singleclickedit(bool s=true)	mSetVar(snglclkedit_)
 	Setup& defrowlbl(bool s=true)		mSetVar(defrowlbl_)
 	Setup& defcollbl(bool s=true)		mSetVar(defcollbl_)
+	Setup& manualResize(bool s=true)	mSetVar(manualresize_)
 #undef mSetVar
 
 
@@ -105,6 +107,7 @@ public:
 	bool		snglclkedit_;
 	bool		defrowlbl_;
 	bool		defcollbl_;
+ 	bool		manualresize_; //!< adapt size of cells to avail space
     };
 
                         uiTable(uiParent*, const Setup&,const char* nm="Table");
@@ -233,6 +236,7 @@ protected:
     void		geometrySet_(CallBacker*);
     void		updateCellSizes(uiSize* sz=0);
 
+    void		update( bool row, int rc );
 
 private:
 
