@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.27 2004-07-23 11:53:00 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.28 2004-07-28 10:20:08 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -85,10 +85,13 @@ void SeisTrcReader::startWork()
     }
 
     trl->setSelData( seldata );
-    if ( trl->inlCrlSorted() && seldata && seldata->isPositioned() )
-	outer = seldata->binidRange();
-    else
-	outer = 0;
+    outer = 0;
+    if ( trl->inlCrlSorted() && seldata )
+    {
+	outer = new BinIDRange;
+	if ( !seldata->fill(*outer) )
+	    { delete outer; outer = 0; }
+    }
 }
 
 
