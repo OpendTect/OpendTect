@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.17 2004-09-21 15:58:07 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.18 2004-10-04 09:45:55 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,21 +31,12 @@ public:
     int&	c() { return col; }
     const int&	c() const { return col; }
 
-    RowCol	operator+( const RowCol& rc ) const
-		{ return RowCol( row+rc.row, col+rc.col ); }
-    RowCol	operator-( const RowCol& rc ) const
-		{ return RowCol( row-rc.row, col-rc.col ); }
-    RowCol	operator+() const { return RowCol( +row, +col ); }
-    RowCol	operator-() const { return RowCol( -row, -col ); }
-    RowCol	operator*( const RowCol& rc ) const
-		{ return RowCol( row*rc.row, col*rc.col ); }
-    RowCol	operator*( int factor ) const
-		{ return RowCol( row*factor, col*factor ); }
-    RowCol	operator/( const RowCol& rc ) const
-		{ return RowCol( row/rc.row, col/rc.col ); }
+		/* Implements +, -, * and other operators. See the documentation
+		   for details */
+    		mRowColFunctions( RowCol, row, col );
 
     RowCol	getDirection() const;
-    		/*!\returns a rowcol where row/col are either -1, 0 or 1 where
+    		/*!<\returns a rowcol where row/col are either -1, 0 or 1 where
 		    depending on if row/col of the object is negative, zero or
 		    positive. 
 		*/

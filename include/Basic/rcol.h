@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.3 2004-09-22 10:41:41 nanne Exp $
+ RCS:		$Id: rcol.h,v 1.4 2004-10-04 09:45:55 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,25 @@ public:
 };
 
 
+#define mRowColFunctions(clss, row, col) \
+clss	operator+( const RCol& rc ) const \
+	{ return clss( row+rc.r(), col+rc.c() ); } \
+clss	operator-( const RCol& rc ) const \
+	{ return clss( row-rc.r(), col-rc.c() ); } \
+clss	operator+() const { return clss( +row, +col ); } \
+clss	operator-() const { return clss( -row, -col ); } \
+clss	operator*( const RCol& rc ) const \
+	{ return clss( row*rc.r(), col*rc.c() ); } \
+clss	operator*( int factor ) const \
+	{ return clss( row*factor, col*factor ); } \
+clss	operator/( const RCol& rc ) const \
+	{ return clss( row/rc.r(), col/rc.c() ); } \
+clss	operator/( int denominator ) const \
+	{ return clss( row/denominator, col/denominator ); }
+
+
+
+
 /*!\brief Object that builds a line from start in the direction of dir with
   	  a step. The line is built in an iterative way, so it is possible
 	  to check after everystep if the line should continue (e.g. check if
@@ -138,7 +157,7 @@ int RColLineBuilder<T>::nextStep()
 
 	float disttoline = mUndefValue;
 
-	if ( dir.row )
+	if ( dir.r() )
 	{
 	    const T candidate =
 	    lastpos+T(dir.r()>0?step.c():-step.r(), 0 );
@@ -147,20 +166,20 @@ int RColLineBuilder<T>::nextStep()
 	    { bestrc = candidate; disttoline=dist; }
 	}
 
-	if ( dir.col )
+	if ( dir.c() )
 	{
 	    const T candidate =
-		lastpos+T(0,dir.col>0?step.col:-step.col );
+		lastpos+T(0,dir.c()>0?step.c():-step.c() );
 	    const float dist = distToLine(candidate);
 	    if ( dist<disttoline )
 	    { bestrc = candidate; disttoline=dist; }
 	}
 
-	if ( dir.row && dir.col )
+	if ( dir.r() && dir.c() )
 	{
 	    const T candidate =
-		lastpos+T( dir.row>0?step.col:-step.row,
-				dir.col>0?step.col:-step.col );
+		lastpos+T( dir.r()>0?step.c():-step.r(),
+				dir.c()>0?step.c():-step.c() );
 	    const float dist = distToLine(candidate);
 	    if ( dist<disttoline )
 	    { bestrc = candidate; disttoline=dist; }
