@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uisurvmap.h,v 1.5 2001-08-24 13:32:41 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ void drawMap( SurveyInfo* survinfo )
         ann = "";
         ann += "("; ann += xcoord; ann += ",";
         ann += ycoord; ann += ")";
-        dt.drawText( cpt[idx].x(), cpt[idx].y()+1.5*spacing, ann,
+        dt.drawText( cpt[idx].x(), mNINT(cpt[idx].y()+1.5*spacing), ann,
             Alignment::Middle );
     }
 
