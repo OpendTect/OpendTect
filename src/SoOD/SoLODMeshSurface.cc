@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.6 2005-04-06 08:26:51 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.7 2005-04-06 13:20:17 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -767,6 +767,9 @@ void MeshSurfacePart::touch( int i0, int i1, bool undef )
     const int rel0 = i0-start0;
     const int rel1 = i1-start1;
 
+    if ( rel0<0 || rel1<0 || rel0>sidesize || rel1>sidesize )
+	return;
+
     const int spacing = hsidesize;
     for ( int res=0; res<resolutions.getLength(); res++ )
     {
@@ -779,6 +782,9 @@ void MeshSurfacePart::touch( int i0, int i1, bool undef )
 
     for ( int idx=0; idx<bboxes.getLength(); idx++ )
 	bboxes[idx]->touch(i0,i1, undef );
+
+    bboxvalidation = false;
+    gluevalidation = false;
 }
 
 
@@ -959,7 +965,7 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
 
     const bool tesselate =
 	(!useownvalidation && gluecache
-	     ? gluecache->isValid() : gluevalidation ) || reshaschanged ||
+	     ? gluecache->isValid() : !gluevalidation ) || reshaschanged ||
 	(neighbors[5] && neighbors[5]->hasResChangedSinceLastRender()) ||
 	(neighbors[7] && neighbors[7]->hasResChangedSinceLastRender());
 
@@ -1311,7 +1317,7 @@ SbBool MeshSurfacePart::getNormal( int row, int col, int res,
     {
 	MeshSurfacePartResolution* partres = resolutions[res];
 	int spacing = partres->getSpacing();
-	if ( partres->getNormal( relcol%spacing, relcol%spacing,
+	if ( partres->getNormal( relrow/spacing, relcol/spacing,
 		    		 useownvalidation, normal) )
 	    return true;
     }
@@ -2213,6 +2219,8 @@ void SoLODMeshSurface::insertColumns( bool before, int nr )
     materialIndex.enableNotify(oldminotstatus);
     meshStyle.enableNotify(oldmsnotstatus);
     nrColumns.enableNotify(oldnrcolnotstatus);
+
+    useownvalidation = oldvalidationflag;
 }
 
 
@@ -2236,6 +2244,13 @@ void SoLODMeshSurface::insertRowsBefore(int nr)
 
 void SoLODMeshSurface::turnOnOwnValidation(bool yn)
 { useownvalidation=yn; }
+
+
+void SoLODMeshSurface::touch( int row, int col, bool udf )
+{
+    for ( int idx=0; idx<parts.getLength(); idx++ )
+	parts[idx]->touch( row, col, udf );
+}
 
 
 void SoLODMeshSurface::computeBBox(SoAction* action, SbBox3f& bbox,
