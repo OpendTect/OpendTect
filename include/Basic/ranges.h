@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.16 2002-01-09 15:59:37 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.17 2002-04-23 09:25:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <general.h>
+#include "general.h"
 
 
 /*!\brief interval of values.

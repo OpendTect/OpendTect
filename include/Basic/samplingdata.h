@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: samplingdata.h,v 1.5 2002-04-23 09:23:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <ranges.h>
+#include "ranges.h"
 
 
 /*!\brief holds the fundamental sampling info: start and interval. */
