@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.21 2002-12-13 15:19:31 nanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.22 2003-02-18 09:30:36 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,15 @@ public:
 
     virtual 		~uiListBox();
 
-			// 0: use nr itms in list
-    void 		setLines(int);
+/*! \brief set preferred number of lines. 
+    If set to 0, then it is determined by the number of items in list.
+    If set to 1, then the list has a fixed height of 1 textline and 
+    therefore should not be able to grow/shrink vertically.
+
+    adaptVStretch specifies wether or not the vertical stretch should be
+    set to 0 if nrlines == 1 or 2 otherwise.
+*/
+    void 		setLines(int, bool adaptVStretch);
     void		setNotSelectable();
     void		setMultiSelect(bool yn=true);
 

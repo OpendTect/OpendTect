@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.45 2003-02-17 15:16:13 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.46 2003-02-18 09:30:29 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,11 +34,16 @@ public:
 				  int preferredFieldWidth=0);
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
-    void 		setLines( int prefNrLines )
+
+    void 		setLines( int prefNrLines, bool adaptVStretch )
 			{ 
-			    if(prefNrLines >= 0) prefnrlines=prefNrLines;
-			    if( stretch(true) == 1 && stretch(false) < 2 )
-				setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
+			    if( prefNrLines >= 0 ) prefnrlines=prefNrLines;
+
+			    if( adaptVStretch )
+			    {
+				int hs = stretch(true,true);
+				setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
+			    }
 			}
 
     virtual uiSize	minimumSize() const; //!< \reimp
@@ -66,8 +71,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 {
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
 
-    int hs = stretch(true,true);
-    setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
+    setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
 
     setHSzPol( uiObject::medium);
 }
@@ -106,13 +110,8 @@ uiListBox::~uiListBox()
 {
 }
 
-/*! preferred number of lines. 
-    If set to 0, then it is determined by the number of items in list.
-    If set to 1, then the list has a fixed height of 1 textline and 
-    therefore can not grow/shrink vertically.
-*/
-void uiListBox::setLines( int prefNrLines )
-    { body_->setLines(prefNrLines); }
+void uiListBox::setLines( int prefNrLines, bool adaptVStretch )
+    { body_->setLines(prefNrLines,adaptVStretch); }
 
 
 void uiListBox::setNotSelectable()
