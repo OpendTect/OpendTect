@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.11 2002-04-10 07:49:49 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.12 2002-04-10 08:52:32 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -132,33 +132,20 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 	mousepressposition.y = mUndefValue;
 	mousepressposition.z = mUndefValue;
 
-	if ( eventinfo.ctrl )
+	if ( eventinfo.pickedobjids.size() )
 	{
-	    mousepressid = eventinfo.pickedobjid;
-	    if ( mousepressid!=-1 )
-	    {
-		if ( group->getFirstIdx( mousepressid ) == -1 )
-		    mousepressid = -1;
-	    }
+	    mousepressid = eventinfo.pickedobjids[0];
+	    mousepressposition = eventinfo.pickedpos;
+	}
 
-	    eventcatcher->eventIsHandled();
-	}
-	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
-	{
-	    if ( eventinfo.pickedobjid>0 )
-	    {
-		mousepressposition = eventinfo.pickedpos;
-	    }
-	    
-	    eventcatcher->eventIsHandled();
-	}
+	eventcatcher->eventIsHandled();
     }
     else 
     {
-	if ( eventinfo.ctrl )
+	if ( eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
 	{
-	    if ( mousepressid==eventinfo.pickedobjid )
-	    if ( mousepressid!=-1 )
+	    if ( eventinfo.pickedobjids.size() &&
+		 eventinfo.pickedobjids[0]==mousepressid )
 	    {
 		int removeidx = group->getFirstIdx(mousepressid);
 		if ( removeidx != -1 )
@@ -171,7 +158,8 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 	}
 	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
 	{
-	    if ( eventinfo.pickedobjid==mousepressid )
+	    if ( eventinfo.pickedobjids.size() &&
+		 eventinfo.pickedobjids[0]==mousepressid )
 	    {
 		Geometry::Pos newpos = eventinfo.pickedpos;
 
