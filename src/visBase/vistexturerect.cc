@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.11 2002-04-22 14:42:02 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.12 2002-04-22 15:44:24 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -14,6 +14,8 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.11 2002-04-22 14:42:02 kr
 #include "viscolortab.h"
 #include "ptrman.h"
 #include "position.h"
+
+#include <math.h>
 
 #include "Inventor/nodes/SoTexture2.h"
 #include "Inventor/nodes/SoSeparator.h"
@@ -68,31 +70,44 @@ float visBase::TextureRect::getValue( const Geometry::Pos& pos ) const
 
     visBase::Rectangle::Orientation orientation = rectangle->orientation();
     Geometry::Pos origo = rectangle->origo();
-    Coord localpos;
+    Coord localpos;		
 
     if ( orientation==visBase::Rectangle::XY )
     {
-	if ( !mIS_ZERO(pos.z-origo.z) ) return mUndefValue;
+	if ( fabs(pos.z-origo.z)> 1e-3 )
+	    return mUndefValue;
+	// x=inl y=crl
 	localpos.x = pos.x-origo.x;
 	localpos.y = pos.y-origo.y;
+	localpos.x /= rectangle->width(0);
+	localpos.y /= rectangle->width(1);
+
     }
     else if ( orientation==visBase::Rectangle::XZ )
     {
-	if ( !mIS_ZERO(pos.y-origo.y) ) return mUndefValue;
+	if ( fabs(pos.y-origo.y)> 1e-3 )
+	    return mUndefValue;
+	// x=inline y=depth
 	localpos.x = pos.x-origo.x;
 	localpos.y = pos.z-origo.z;
+
+	localpos.x /= rectangle->width(0);
+	localpos.y /= rectangle->width(1);
     }
     else 
     {
-	if ( !mIS_ZERO(pos.x-origo.x) ) return mUndefValue;
+	if ( fabs(pos.x-origo.x)> 1e-3 )
+	    return mUndefValue;
+	// x=crossline y=depth
 	localpos.x = pos.y-origo.y;
 	localpos.y = pos.z-origo.z;
+
+	localpos.x /= rectangle->width(1);
+	localpos.y /= rectangle->width(0);
     }
 
-    localpos.x /= rectangle->width(1);
-    localpos.y /= rectangle->width(0);
-
-    if ( localpos.x>1 || localpos.y>1 ) return mUndefValue;
+    if ( localpos.x>1 || localpos.y>1 )
+	return mUndefValue;
 
     localpos.x *= data->info().getSize(0);
     localpos.y *= data->info().getSize(1);
