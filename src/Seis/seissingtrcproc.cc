@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.1 2001-10-17 09:00:06 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.2 2001-10-18 08:42:10 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -31,6 +31,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 	, nrwr_(0)
 	, wrrkey_(*new MultiID)
 	, totnr_(-1)
+    	, trcsperstep_(10)
 {
     outtrc_ = intrc_;
 
@@ -112,28 +113,32 @@ int SeisSingleTraceProc::nextStep()
 	return 1;
     }
 
-    int rv = rdr_->get( intrc_->info() );
-    if ( !rv )
-	{ wrapUp(); return 0; }
-    else if ( rv < 0 )
-	{ curmsg_ = rdr_->errMsg(); return -1; }
-    else if ( rv == 2 )
-	return 1;
+    int retval = 1;
+    for ( int idx=0; idx<trcsperstep_; idx++ )
+    {
+	int rv = rdr_->get( intrc_->info() );
+	if ( !rv )
+	    { wrapUp(); return 0; }
+	else if ( rv < 0 )
+	    { curmsg_ = rdr_->errMsg(); return -1; }
+	else if ( rv == 2 )
+	    continue;
 
-    skipcurtrc_ = false;
-    selcb_.doCall( this );
-    if ( skipcurtrc_ ) { nrskipped_++; return 1; }
+	skipcurtrc_ = false;
+	selcb_.doCall( this );
+	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
-    if ( !rdr_->get(*intrc_) )
-	{ curmsg_ = rdr_->errMsg(); return -1; }
-    proccb_.doCall( this );
-    if ( skipcurtrc_ ) { nrskipped_++; return 1; }
+	if ( !rdr_->get(*intrc_) )
+	    { curmsg_ = rdr_->errMsg(); return -1; }
+	proccb_.doCall( this );
+	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
-    //TODO do explicit execute of writer starter
-    if ( !wrr_->put(*outtrc_) )
-	{ curmsg_ = wrr_->errMsg(); return -1; }
+	//TODO do explicit execute of writer starter
+	if ( !wrr_->put(*outtrc_) )
+	    { curmsg_ = wrr_->errMsg(); return -1; }
 
-    nrwr_++;
+	nrwr_++;
+    }
     return 1;
 }
 
