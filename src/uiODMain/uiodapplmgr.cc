@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.22 2004-05-04 15:51:30 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.23 2004-05-04 16:03:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -772,7 +772,9 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		{ uiMSG().error("No valid data locations found"); return true; }
 	}
 	ObjectSet<FeatureSet> fss;
-	if ( !attrserv->extractFeatures(crdesc,bivsets,fss) )
+	bool bres = !attrserv->extractFeatures(crdesc,bivsets,fss);
+	deepErase( bivsets );
+	if ( !bres )
 	    return true;
 
 	FeatureSet& fstr = nlaserv->fsTrain();
