@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.7 2003-08-26 09:39:53 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.8 2003-09-26 11:41:22 nanne Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.7 2003-08-26 09:39:53 bert Ex
 #include "keystrs.h"
 #include "separstr.h"
 #include "iopar.h"
+#include "ptrman.h"
 #include <fstream>
 
 const char* Well::IO::sKeyWell = "Well";
@@ -36,12 +37,8 @@ Well::IO::IO( const char* f, bool fr )
     	: basenm(f)
     	, isrdr(fr)
 {
-    BufferString fnm = File_getFileName( basenm.buf() );
-    if ( strrchr(fnm.buf(),'.') )
-    {
-	char* ptr = const_cast<char*>( strrchr( basenm.buf(), '.' ) );
-	*ptr = '\0';
-    }
+    strcpy( const_cast<char*>(basenm.buf()),
+	    File_removeExtension(basenm.buf()) );
 }
 
 
@@ -54,8 +51,14 @@ StreamData Well::IO::mkSD( const char* ext, int nr ) const
 
 const char* Well::IO::getFileName( const char* ext, int nr ) const
 {
+    return mkFileName( basenm, ext, nr );
+}
+
+
+const char* Well::IO::mkFileName( const char* bnm, const char* ext, int nr )
+{
     static BufferString fnm;
-    fnm = basenm;
+    fnm = bnm;
     if ( nr )
 	{ fnm += "^"; fnm += nr; }
     fnm += ext;
@@ -65,7 +68,7 @@ const char* Well::IO::getFileName( const char* ext, int nr ) const
 
 bool Well::IO::removeAll( const char* ext ) const
 {
-    for ( int idx=0; ; idx++ )
+    for ( int idx=1; ; idx++ )
     {
 	BufferString fnm( getFileName(ext,idx) );
 	if ( !File_exists(fnm) )
@@ -206,6 +209,20 @@ bool Well::Reader::getTrack( istream& strm ) const
 	wd.track().addPoint( c, c.z, dah );
     }
     return wd.track().size();
+}
+
+
+void Well::Reader::getLogInfo( ObjectSet<BufferString>& strs ) const
+{
+    for ( int idx=1;  ; idx++ )
+    {
+	StreamData sd = mkSD( sExtLog, idx );
+	if ( !sd.usable() ) break;
+
+	rdHdr( *sd.istrm, sKeyLog );
+	PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, idx-1 );
+	strs += new BufferString( log->name() );
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.3 2003-08-25 10:31:12 bert Exp $
+ RCS:		$Id: wellio.h,v 1.4 2003-09-26 11:40:41 nanne Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class IO
 {
 public:
 
+    static const char*	mkFileName(const char*,const char* ext,int nr=0);
     const char*		getFileName(const char* ext,int nr=0) const;
     bool		removeAll(const char* ext) const;
 
