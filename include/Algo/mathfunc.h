@@ -8,13 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.8 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: mathfunc.h,v 1.9 2004-10-06 10:08:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include <position.h>
+#include "position.h"
+
+#include <math.h>
 
 /*!\brief Multidimensional Mathematical function
 
@@ -179,6 +181,82 @@ public:
     LinePars	lp;		// Parameters
     LinePars	sd;		// Standard deviations in parameters
     double	corrcoeff;	// Correlation coefficient
+};
+
+
+/*! A class for 3rd order polynomials on the form:
+
+    a x^3 + b x^2 + c x + d
+*/
+
+class ThirdOrderPoly : public MathFunction<float>
+{
+public:
+    			ThirdOrderPoly(float y0_,float y1_,float y2_,float y3_)
+			{
+			    b = ( (y2_+y0_) / 2 ) - y1_;
+			    c = y2_ - ( ( 2*y0_ + 3*y1_ + y3_ ) / 6 );
+			    a = ( (y2_-y0_) / 2 ) - c;
+			    d = y1_;
+			}
+
+    float		getValue( double pos ) const
+			{
+			    if ( mIsUndefined(pos) ) return mUndefValue;
+			    const float possq = pos * pos;
+			    return possq * pos * a + possq * b + pos * c + d;
+			}
+
+    void		getExtremePos( float& pos0, float& pos1 ) const
+			{
+			    pos0 = pos1 = mUndefValue;
+			    if ( mIsZero(a,mDefEps) && mIsZero(b,mDefEps) )
+				return;
+			    else if ( mIsZero(a,mDefEps) )
+			    {
+				pos0 = -c / ( 2*b );
+				return;
+			    }
+
+			    const float det = 4*b*b - 12*a*c;
+			    if ( det < 0 ) return;
+			    pos0 = ( -2*b + sqrt(det) ) / ( 6*a );
+			    if ( !mIsZero(det,mDefEps) )
+				pos1 = ( -2*b - sqrt(det) ) / ( 6*a );
+			}
+
+    float		a, b, c, d;
+};
+
+
+/*! A class for 2nd order polynomials on the form:
+
+    a x^2 + b x + c
+*/
+
+class SecondOrderPoly : public MathFunction<float>
+{
+public:
+    			SecondOrderPoly(float y0_,float y1_,float y2_)
+			{
+			    c = y1_;
+			    a = ( (y0_+y2_) / 2 ) - y1_;
+			    b = ( y2_-y0_ ) / 2;
+			}
+
+    float		getValue( double pos ) const
+			{
+			    if ( mIsUndefined(pos) ) return mUndefValue;
+			    return pos *pos * a + pos * b + c;
+			}
+
+    float		getExtremePos() const
+			{
+			    if ( mIsZero(a,mDefEps) ) return mUndefValue;
+			    return -b / (2*a);
+			}
+
+    float		a, b, c;
 };
 
 
