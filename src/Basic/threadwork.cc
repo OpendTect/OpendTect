@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.9 2002-12-30 12:00:39 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.10 2003-02-22 10:23:03 kristofer Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -25,18 +25,18 @@ and the tasks to be performed.
 class WorkThread : public CallBacker
 {
 public:
-    enum		Status { Idle, Running, Finished, Stopped };
-
     			WorkThread( ThreadWorkManager& );
     			~WorkThread();
 
     			//Interface from manager
-    bool		assignTask(BasicTask*, CallBack* cb = 0);
-    			/*!< becomes mine */
+    void		assignTask(BasicTask&, CallBack* finishedcb = 0);
 
-    Status		getStatus();
     int			getRetVal();
-    BasicTask*		getTask();
+    			/*!< Do only call when task is finished,
+			     i.e. from the cb or
+			     Threads::ThreadWorkManager::imFinished()
+			*/
+
     void		cancelWork( const BasicTask* );
     			//!< If working on this task, cancel it and continue.
     			//!< If a nullpointer is given, it will cancel
@@ -49,15 +49,17 @@ protected:
     ThreadWorkManager&	manager;
 
     ConditionVar&	controlcond;	//Dont change this order!
-    Status		status;		//These are protected by the condvar
     int			retval;		//Lock before reading or writing
 
     bool		exitflag;	//Set only from destructor
     bool		cancelflag;	//Cancel current work and continue
     BasicTask*		task;		
-    CallBack*		cb;
+    CallBack*		finishedcb;
 
     Thread*		thread;
+
+private:
+    long		_spacefiller[24];
 };
 
 }; // Namespace
@@ -70,7 +72,6 @@ Threads::WorkThread::WorkThread( ThreadWorkManager& man )
     , exitflag( false )
     , cancelflag( false )
     , task( 0 )
-    , status( Idle )
 {
     controlcond.lock();
     thread = new Thread( mCB( this, WorkThread, doWork));
@@ -109,70 +110,42 @@ void Threads::WorkThread::doWork( CallBacker* )
     sigaddset(&newset,SIGKILL);
     pthread_sigmask(SIG_BLOCK, &newset, 0 );
 
+    controlcond.lock();
     while ( true )
     {
-	controlcond.lock();
-	while ( !task && !exitflag && !cancelflag )
-	{
-	    status = Idle;
+	while ( !task && !exitflag )
 	    controlcond.wait();
-	}
 
 	if ( exitflag )
 	{
-	    status = Stopped;
 	    controlcond.unlock();
 	    thread->threadExit();
 	}
 
-	if ( task )
+	controlcond.unlock();
+	while ( task && !exitflag )
 	{
-	    status = Running;
-	    if ( cancelflag )
-	    {
-		retval = 0;
-	    }
-	    else
-	    {
-		controlcond.unlock();
-		int rval = task->doStep();
-		controlcond.lock();
-		retval =rval;
-	    }
-
+	    retval = cancelflag ? 0 : task->doStep();
 	    if ( retval<1 )
 	    {
-		status = Finished;
-
-		controlcond.unlock();
-		if ( cb ) cb->doCall( this );
+		if ( finishedcb ) finishedcb->doCall( this );
 		controlcond.lock();
 		task = 0;
-		status = Idle;
 		controlcond.unlock();
 		manager.imFinished( this );
 	    }
-	    else
-		controlcond.unlock();
 	}
-	else
-	    controlcond.unlock();
     }
+
+    controlcond.unlock();
 }
 
 
 void Threads::WorkThread::cancelWork( const BasicTask* canceltask )
 {
-    controlcond.lock();
+    Threads::MutexLocker lock( controlcond );
     if ( !canceltask || canceltask==task )
-    {
 	cancelflag = true;
-	controlcond.unlock();
-	controlcond.signal( false );
-	return;
-    }
-
-    controlcond.unlock();
 }
 
 
@@ -188,41 +161,27 @@ void Threads::WorkThread::exitWork(CallBacker*)
 }
 
 
-bool Threads::WorkThread::assignTask(BasicTask* newtask, CallBack* cb_ )
+void Threads::WorkThread::assignTask(BasicTask& newtask, CallBack* cb_ )
 {
     controlcond.lock();
     if ( task )
     {
+	pErrMsg( "Trying to set existing task");
 	controlcond.unlock();
-	return false;
+	return;
     }
 
-    task = newtask;
-    cb = cb_;
+    task = &newtask;
+    finishedcb = cb_;
     controlcond.signal(false);
     controlcond.unlock();
-    return true;
-}
-
-
-Threads::WorkThread::Status Threads::WorkThread::getStatus()
-{
-    Threads::MutexLocker locker( controlcond );
-    return status;
+    return;
 }
 
 
 int Threads::WorkThread::getRetVal()
 {
-    Threads::MutexLocker locker( controlcond );
     return retval;
-}
-
-
-BasicTask* Threads::WorkThread::getTask()
-{
-    Threads::MutexLocker locker( controlcond );
-    return task;
 }
 
 
@@ -234,7 +193,11 @@ Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
     callbacks.allowNull(true);
 
     for ( int idx=0; idx<nrthreads; idx++ )
-	threads += new WorkThread( *this );
+    {
+	WorkThread* wt = new WorkThread( *this );
+	threads += wt;
+	freethreads += wt;
+    }
 }
 
 
@@ -263,10 +226,12 @@ void Threads::ThreadWorkManager::addWork( BasicTask* newtask, CallBack* cb )
 
     Threads::MutexLocker lock(workloadcond);
 
-    for ( int idx=0; idx<nrthreads; idx++ )
+    const int nrfreethreads = freethreads.size();
+    if ( nrfreethreads )
     {
-	if ( threads[idx]->assignTask( newtask, cb ) ) 
-	    return;
+	freethreads[nrfreethreads-1]->assignTask( *newtask, cb );
+	freethreads.remove( nrfreethreads-1 );
+	return;
     }
 
     workload += newtask;
@@ -291,8 +256,6 @@ void Threads::ThreadWorkManager::removeWork( const BasicTask* task )
     callbacks.remove( idx );
     workloadcond.unlock();
 }
-
-
 
 class ThreadWorkResultManager : public CallBacker
 {
@@ -354,14 +317,19 @@ bool Threads::ThreadWorkManager::addWork( ObjectSet<BasicTask>& work )
 
 void Threads::ThreadWorkManager::imFinished( WorkThread* workthread )
 {
-    Threads::MutexLocker lock(workloadcond);
+    workloadcond.lock();
 
     if ( workload.size() )
     {
-	workthread->assignTask( workload[0], callbacks[0] );
+	workthread->assignTask( *workload[0], callbacks[0] );
 	workload.remove( 0 );
 	callbacks.remove( 0 );
+	workloadcond.unlock();
+	return;
     }
-    else
-	isidle.trigger(this);
+
+    freethreads += workthread;
+
+    workloadcond.unlock();
+    isidle.trigger(this);
 }
