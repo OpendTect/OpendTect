@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.17 2003-06-05 08:56:04 nanne Exp $
+ RCS:           $Id: uilineedit.cc,v 1.18 2003-09-24 10:46:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,18 @@ void uiLineEdit::setPasswordMode()
     body_->setEchoMode( QLineEdit::Password );
 }
 
+//! Sets the maximum permitted length of the text
+void uiLineEdit::setMaxLength( int maxtxtlength )
+{
+    body_->setMaxLength( maxtxtlength );
+}
+
+
+int uiLineEdit::maxLength() const
+{
+    return body_->maxLength();
+}
+
 
 /*!  Sets the edited flag of this line edit to \a yn.  The edited flag
 is never read by uiLineEdit, and is changed to true whenever the user
@@ -145,5 +157,4 @@ void uiLineEdit::end()
 {
     body_->end( false );
 }
-
 

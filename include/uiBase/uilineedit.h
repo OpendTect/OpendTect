@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.10 2003-06-05 08:56:04 nanne Exp $
+ RCS:           $Id: uilineedit.h,v 1.11 2003-09-24 10:46:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,9 @@ public:
     virtual bool	update_( const DataInpSpec& spec );
 
     void		setPasswordMode();
+
+    void		setMaxLength(int);
+    int			maxLength() const;
 
 			//! Moves the text cursor to the beginning of the line. 
     void		home();
