@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.246 2004-10-21 10:10:35 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.247 2004-11-11 16:12:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1107,6 +1107,9 @@ void uiVisPartServer::setTrackMan( int id, Tracking::TrackManager& tm )
 void uiVisPartServer::showTrackingManager()
 {
     tracktools->updateAttribNames();
-    tracktools->display();
-    tracktools->undock();
+    if ( !tracktools->isShown() )
+    {
+	tracktools->display();
+	tracktools->undock();
+    }
 }
