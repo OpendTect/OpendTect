@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.62 2004-11-16 09:26:44 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.63 2005-01-28 16:04:07 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -33,12 +33,12 @@ const char* PickSetDisplay::shapestr = "Shape";
 const char* PickSetDisplay::sizestr = "Size";
 
 PickSetDisplay::PickSetDisplay()
-    : group( visBase::DataObjectGroup::create() )
+    : VisualObjectImpl(true)
+    , group( visBase::DataObjectGroup::create() )
     , eventcatcher( 0 )
     , initsz(3)
     , picktype(3)
     , changed(this)
-    , VisualObjectImpl(true)
     , showall(true)
     , transformation( 0 )
 {
@@ -289,17 +289,7 @@ void PickSetDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.pressed )
     {
 	mousepressid = eventid;
-	if ( eventid==-1 )
-	{
-	    mousepressposition.x = mUndefValue;
-	    mousepressposition.y = mUndefValue;
-	    mousepressposition.z = mUndefValue;
-	}
-	else
-	{
-	    mousepressposition = eventinfo.pickedpos;
-	}
-
+	mousepressposition = eventid==-1 ? Coord3::udf() : eventinfo.pickedpos;
 	eventcatcher->eventIsHandled();
     }
     else 
