@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.19 2004-10-25 14:41:23 dgb Exp $
+# $Id: od_exec_rmt,v 1.20 2004-11-05 15:06:20 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -28,8 +28,8 @@ if ( $#argv < 1 ) then
     echo "       [--with-data-host <win32 host were data is stored>"
     echo "       [--with-data-drive <win32 data drive letter>"
     echo "       [--with-data-share <win32 share name where data is stored>"
-    echo "       [--with-local-proc-dir <processing directory on local host>"
-    echo "       [--with-remote-proc-dir <processing directory on remote host>"
+    echo "       [--with-local-file-base <local base file name>"
+    echo "       [--with-remote-file-base <remote base file name>"
     echo "       [--transfervars <list of environment vars to transfer> -+-+-"
     echo "       [--iswin]"
 endif
@@ -94,12 +94,12 @@ else if ( $1 == "--with-dtect-data" ) then
         set dtectdata="$2"
         shift; shift
         goto next_arg
-else if ( $1 == "--with-local-proc-dir" ) then
-        set locprocdir="$2"
+else if ( $1 == "--with-local-file-base" ) then
+        set locfilebase="$2"
         shift; shift
         goto next_arg
-else if ( $1 == "--with-remote-proc-dir" ) then
-        set remprocdir="$2"
+else if ( $1 == "--with-remote-file-base" ) then
+        set remfilebase="$2"
         shift; shift
         goto next_arg
 else if ( "$1" == "--transfervars" ) then
@@ -161,12 +161,12 @@ set do_exec=`echo "${dtectappl}/bin/od_do_rmt" | sed -e "s% %\\ %g"`
 
 if ( $iswin == 1 ) then
 
-    set transffile="od$$.vars"
+    set loctransffile="${locfilebase}.vars"
+    set remtransffile="${remfilebase}.vars"
 
-    echo "${transf}" > "${locprocdir}/${transffile}"
+    echo "${transf}" > "${loctransffile}"
 
-    set transf=`echo "${remprocdir}/${transffile}" | sed -e 's% %#-#%g'`
-    set procdir2=`echo "${remprocdir}" | sed -e 's% %#-#%g'`
+    set transf=`echo "${remtransffile}" | sed -e 's% %#-#%g'`
 
     set usernm=""
     if ( $?USERNAME ) then
@@ -176,7 +176,7 @@ if ( $iswin == 1 ) then
 	set usernm="$user"
     endif
 
-    set transf="$transf $procdir2 $datahost $datadrive $datashare $usernm $remotepass"
+    set transf="$transf $datahost $datadrive $datashare $usernm $remotepass"
 
     if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt+=+' \

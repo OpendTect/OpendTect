@@ -1,7 +1,7 @@
 echo off
 ::
 :: OpenTect remote startup script for window<->windows using rcmd
-:: $Id: od_dormt.bat,v 1.4 2004-10-25 14:41:23 dgb Exp $
+:: $Id: od_dormt.bat,v 1.5 2004-11-05 15:06:20 arend Exp $
 ::______________________________________________________________________________
 
 cd %DTECT_WINAPPL%
@@ -36,15 +36,11 @@ set string=%1
 set tmpvar=%string:#-#= %
 for /F "tokens=*" %%i in ('cygpath -wa "%tmpvar%"') do set ARGFILE=%%i
 
-set string=%2
-set tmpvar=%string:#-#= %
-for /F "tokens=*" %%i in ('cygpath -wa "%tmpvar%"') do set PROCDIR=%%i
-
-set datahost=%3
-set datadrive=%4
-set datashare=%5
-set username=%6
-set userpass=%7
+set datahost=%2
+set datadrive=%3
+set datashare=%4
+set username=%5
+set userpass=%6
 
 for /F "tokens=*" %%i in ('.\bin\win\SearchODFile.exe od_pre_login.bat') do set PRESCRIPT=%%i
 
@@ -62,7 +58,4 @@ echo Error: %ARGFILE% does not exist
 exit 1
 
 :getargs
-:for /F "tokens=*" %%i in ('type "%ARGFILE%"') do set ARGS=%%i
-
-
 tcsh.exe -f .\bin\od_do_rmt_file %ARGFILE%
