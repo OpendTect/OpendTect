@@ -13,7 +13,7 @@
 #include "errh.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.14 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.15 2003-11-10 09:17:58 bert Exp $";
 
 
 int defaultSelector( const char* mytyp, const char* typ )
@@ -67,14 +67,15 @@ public:
 
 };
 
+#define mRetEG { if ( !eg ) eg = new EmptyTrGroup; return *eg; }
 
 TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
 {
     const ObjectSet<TranslatorGroup>& grps = groups();
-    static EmptyTrGroup emptygrp;
+    static EmptyTrGroup* eg = 0;
 
     if ( !nm || !*nm )
-	{ pFreeFnErrMsg("nm empty","getGroup"); return emptygrp; }
+	{ pFreeFnErrMsg("nm empty","getGroup"); mRetEG; }
 
     for ( int idx=0; idx<grps.size(); idx++ )
     {
@@ -85,7 +86,8 @@ TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
 
     if ( strcmp(nm,"Appl dir") )
 	{ pFreeFnErrMsg( "Requested trgroup doesn't exist", "getGroup" ); }
-    return emptygrp;
+
+    mRetEG;
 }
 
 
@@ -108,7 +110,7 @@ bool TranslatorGroup::hasConnType( const char* ct ) const
 }
 
 
-inline static const BufferString& gtNm( const Translator* tr, bool user )
+static const BufferString& gtNm( const Translator* tr, bool user )
 {
     return user ? tr->userName() : tr->typeName();
 }
