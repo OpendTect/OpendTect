@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/09/2000
- RCS:           $Id: changetracker.h,v 1.5 2001-10-18 11:28:32 bert Exp $
+ RCS:           $Id: changetracker.h,v 1.6 2002-08-20 12:47:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 /*!\brief updates a variable when changes occur.
 
 Use if you need to keep track of whether a variable changes when it is assigned
-to another variable. Example: a 'not saved' flag in a UI.
+to another variable. Example: a 'not saved' flag in a UI. Also facilitates
+Giving unique change stamps.
 
 */
 
@@ -26,37 +27,52 @@ class ChangeTracker
 {
 public:
 			ChangeTracker( bool* c=0 )
-			: chgd(c)			{}
+			: chgd(c), chgid(0)		{}
 			ChangeTracker( bool& c )
-			: chgd(&c)			{}
+			: chgd(&c), chgid(0)		{}
+			ChangeTracker( unsigned int& c )
+			: chgid(&c), chgd(0)		{}
+			ChangeTracker( unsigned int* c )
+			: chgid(c), chgd(0)		{}
+			ChangeTracker( bool& c, unsigned int& ci )
+			: chgd(&c), chgid(&ci)		{}
 
 			//! returns wether this value is changed
     template <class T,class U>
-    inline bool		update(T& val,const U& newval)
-			{
-			    if ( !chgd ) return false;
-			    bool ret = !(val == newval);
-			    val = newval;
-			    if ( !*chgd ) *chgd = ret;
-			    return ret;
-			}
+    inline bool		set(const T& oldval,const U& newval);
+			//! Changes and returns wether this value is changed
+    template <class T,class U>
+    inline bool		update(T& val,const U& newval);
 
-
+			//! specialisation for C-strings
+    inline bool		set(const char*&,const char*&);
 			//! specialisation for C-strings
     inline bool		update(char*&,const char*&);
 
-    bool		isChanged() const	   { return chgd && *chgd;}
-    void		setChanged( bool yn=true ) { if ( chgd ) *chgd = yn; }
+    bool		isChanged() const
+    			{ return chgd ? *chgd : (bool)(chgid ? *chgid : 0); }
+    unsigned int	changeId() const
+    			{ return chgid ? *chgid : (chgd ? (*chgd?1:0) : 0); }
+    inline void		setChanged(bool yn=true);
+    void		setChangeId( unsigned int c )
+    			{ if ( chgid ) *chgid = c; }
 
-    bool		hasVar() const			{ return chgd; }
-    const bool&		var() const			{ return *chgd; }
-			//!< Don't call if !hasVar()
+    bool		hasBoolVar() const		{ return chgd; }
+    bool		hasIntVar() const		{ return chgid; }
+    const bool&		boolVar() const			{ return *chgd; }
+			//!< Don't call if !hasBoolVar()
+    const unsigned int&	intVar() const			{ return *chgid; }
+			//!< Don't call if !hasIntVar()
+
     void		setVar( bool* m )		{ chgd = m; }
     void		setVar( bool& m )		{ chgd = &m; }
+    void		setVar( unsigned int* m )	{ chgid = m; }
+    void		setVar( unsigned int& m )	{ chgid = &m; }
 
 protected:
 
     bool*		chgd;
+    unsigned int*	chgid;
 
 };
 
@@ -72,22 +88,53 @@ newval = new value
 
 
 #define mChgTrackGetSet(chtr,obj,getfn,setfn,newval) { \
-    if ( !chtr.isChanged() && newval != obj->getfn() ) \
-	chtr.setChanged( true ); \
-    obj->setfn( newval ); }
+    if ( chtr.set( obj->getfn(), newval ) ) \
+	obj->setfn( newval ); }
 
 
+inline void ChangeTracker::setChanged( bool ischgd )
+{
+    if ( chgd )
+	{ if ( !*chgd ) *chgd = ischgd; }
+    else if ( chgid )
+	{ if ( ischgd ) (*chgid)++; }
+}
+
+
+template <class T,class U>
+inline bool ChangeTracker::set( const T& val, const U& newval )
+{
+    bool ret = !(val == newval);
+    setChanged( ret );
+    return ret;
+}
+
+
+inline bool ChangeTracker::set( const char*& val, const char*& newval )
+{
+    bool ret = (val && newval) || (!val && !newval);
+    if ( !ret ) { setChanged(true); return true; }
+    if ( !val ) return false;
+
+    ret = strcmp( val, newval );
+    setChanged( ret );
+    return ret;
+}
+
+
+template <class T,class U>
+inline bool ChangeTracker::update( T& val, const U& newval )
+{
+    bool ret = set( val, newval );
+    val = newval;
+    return ret;
+}
 
 
 inline bool ChangeTracker::update( char*& val, const char*& newval )
 {
-    if ( !chgd ) return false;
-    bool ret = (val && newval) || (!val && !newval);
-    if ( !ret ) { *chgd = true; return true; }
-    if ( !val ) return false;
-
-    ret = strcmp( val, newval );
-    if ( !*chgd ) *chgd = ret;
+    bool ret = set( val, newval );
+    if ( val ) strcpy( val, newval ? newval : "" );
     return ret;
 }
 
