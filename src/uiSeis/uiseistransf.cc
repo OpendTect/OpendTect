@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.6 2002-11-01 12:09:45 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.7 2002-11-02 22:13:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,12 +73,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj* inobj, const IOObj* outobj,
 }
 
 
-#if __GNUC__ > 2
 # include <sstream>
-#else
-# include <strstream>
-# include <strings.h>
-#endif
 
 
 bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj ) const
@@ -103,22 +98,8 @@ bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj ) const
 	return false;
     }
 
-#if __GNUC__ > 2
-    string buf;
-    ostringstream strm( buf );
-#else
-    char buf[32768]; bzero( buf, 32768 );
-    ostrstream strm( buf, 32768 );
-#endif
-
+    ostringstream strm;
     tr->readMgr()->dumpInfo( strm, false );
-
-#if __GNUC__ > 2
-    const char* str = buf.c_str();
-#else
-    const char* str = buf;
-#endif
-
-    uiMSG().message( str );
+    uiMSG().message( strm.str().c_str() );
     return true;
 }
