@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.27 2004-01-07 08:21:53 nanne Exp $
+ RCS:           $Id: mathexpression.cc,v 1.28 2004-01-13 16:07:14 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 
 static void parens( const char* str, int& idx, int& parenslevel, int len )
 {
-    while ( parenslevel && idx<len )
+    while ( idx<len && (str[idx]=='(' || parenslevel) )
     {
 	if ( str[idx]=='(' ) parenslevel++;
 	if ( parenslevel && str[idx]==')' ) parenslevel--;
