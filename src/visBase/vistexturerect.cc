@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.28 2003-02-19 15:33:57 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.29 2003-02-25 16:16:43 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -25,6 +25,7 @@ const char* visBase::TextureRect::texturequalitystr = "Texture quality";
 const char* visBase::TextureRect::rectangleidstr = "Rectangle ID";
 const char* visBase::TextureRect::usestexturestr = "Uses texture";
 const char* visBase::TextureRect::resolutionstr = "Resolution";
+const char* visBase::TextureRect::textureidstr = "Texture ID";
 
 visBase::TextureRect::TextureRect()
     : texture(0)
@@ -174,51 +175,6 @@ bool visBase::TextureRect::usesTexture() const
 }
 
 
-void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    VisualObjectImpl::fillPar( par, saveids );
-
-    int rectid = rectangle->id();
-
-    par.set( texturequalitystr, getTextureQuality() );
-    par.set( rectangleidstr, rectid );
-    par.setYN( usestexturestr, usesTexture() );
-    par.set( resolutionstr, getResolution() );
-
-    if ( saveids.indexOf( rectid )==-1 ) saveids += rectid;
-}
-
-
-int visBase::TextureRect::usePar( const IOPar& par )
-{
-    int res = VisualObjectImpl::usePar( par );
-    if ( res!= 1 ) return res;
-
-    int newres = 0;
-    par.get( resolutionstr, newres );
-    setResolution( newres );
-
-    float texturequality;
-    if ( !par.get( texturequalitystr, texturequality )) return -1;
-    setTextureQuality( texturequality );
-
-    int rectid;
-    if ( !par.get( rectangleidstr, rectid ) ) return -1;
-    DataObject* dataobj = DM().getObj( rectid );
-    if ( !dataobj ) return 0;
-    mDynamicCastGet( Rectangle*, rect, dataobj );
-    if ( !rect ) return -1;
-
-    setRectangle( rect );
-
-    bool usetext;
-    if ( !par.getYN( usestexturestr, usetext )) return -1;
-    useTexture(usetext);
-
-    return 1;
-}
-    
-
 void visBase::TextureRect::setData( const Array2D<float>& data )
 {
     texture->setData( &data );
@@ -252,4 +208,60 @@ void visBase::TextureRect::setResolution( int res )
 int visBase::TextureRect::getResolution() const
 {
     return texture->getResolution();
+}
+
+
+void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    int rectid = rectangle->id();
+    par.set( rectangleidstr, rectid );
+
+    int textureid = texture->id();
+    par.set( textureidstr, textureid );
+    par.set( texturequalitystr, getTextureQuality() );
+    par.setYN( usestexturestr, usesTexture() );
+    par.set( resolutionstr, getResolution() );
+
+    if ( saveids.indexOf(rectid) == -1 ) saveids += rectid;
+    if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
+}
+
+
+int visBase::TextureRect::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res!= 1 ) return res;
+
+    int textureid;
+    if ( !par.get( textureidstr, textureid ) ) return -1;
+    DataObject* dataobj = DM().getObj( textureid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet(Texture2*,texture_,dataobj);
+    if ( !texture_ ) return -1;
+    setTexture( *texture_ );
+
+    int newres = 0;
+    par.get( resolutionstr, newres );
+    setResolution( newres );
+
+    float texturequality;
+    if ( !par.get( texturequalitystr, texturequality )) return -1;
+    setTextureQuality( texturequality );
+
+    int rectid;
+    if ( !par.get( rectangleidstr, rectid ) ) return -1;
+    dataobj = DM().getObj( rectid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet( Rectangle*, rect, dataobj );
+    if ( !rect ) return -1;
+
+    setRectangle( rect );
+
+    bool usetext;
+    if ( !par.getYN( usestexturestr, usetext )) return -1;
+    useTexture(usetext);
+
+    return 1;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.19 2003-02-19 15:34:09 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.20 2003-02-25 16:17:16 nanne Exp $
 ________________________________________________________________________
 
 
@@ -79,6 +79,7 @@ public:
     static const char*	rectangleidstr;
     static const char*	usestexturestr;
     static const char*	resolutionstr;
+    static const char*	textureidstr;
 
 protected:
 
