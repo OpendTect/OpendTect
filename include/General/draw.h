@@ -6,14 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.4 2000-08-07 20:09:26 bert Exp $
+ RCS:           $Id: draw.h,v 1.5 2000-08-08 14:16:36 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
 #include "color.h"
-#include "fontdata.h"
 
 
 class Alignment
@@ -40,13 +39,13 @@ public:
 
 			MarkerStyle( Type t=Square, int s=2,
 				     Color c=Color::Black,
-				     FontData fd=FontData() )
-			: type(t), size(s), color(c), fontdata(fd)	{}
+				     const char* fk=0 )
+			: type(t), size(s), color(c), fontkey(fk)	{}
 
     Type		type;
     int			size;
     Color		color;
-    FontData		fontdata;
+    BufferString	fontkey;
 
 };
 
