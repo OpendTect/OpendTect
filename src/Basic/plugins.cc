@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.17 2003-10-21 14:09:44 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.18 2003-10-25 20:34:56 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -108,7 +108,8 @@ static bool loadPlugin( const char* libnm, int argc, char** argv,
     if ( !piinf )
     {
 	piinf = new PluginInfo;
-	piinf->creator = piinf->version = piinf->text = "";
+	piinf->dispname = "<NoName>"; piinf->creator = piinf->version = "";
+	piinf->text = "No info available";
     }
 
     PIM().addLoaded( libnm, piinf );
