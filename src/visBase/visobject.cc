@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.13 2002-03-18 14:45:41 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.14 2002-03-18 14:52:17 kristofer Exp $";
 
 #include "visobject.h"
 #include "vismaterial.h"
@@ -15,6 +15,9 @@ static const char* rcsID = "$Id: visobject.cc,v 1.13 2002-03-18 14:45:41 kristof
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoDrawStyle.h"
+
+const char* visBase::VisualObjectImpl::materialidstr = "Material ID";
+const char* visBase::VisualObjectImpl::isonstr = "Is on";
 
 visBase::VisualObjectImpl::VisualObjectImpl()
     : root( new SoSeparator )
@@ -90,12 +93,18 @@ int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
     int matid;
     if ( iopar.get( materialidstr, matid ) )
     {
-	DataObject* mat = visBase::DM().getObj( matid );
-	if ( !mat ) return 0;
-	if ( typeid(*mat)!=typeid(Material) ) return -1;
+	if ( matid==-1 ) setMaterial( 0 );
+	else
+	{
+	    DataObject* mat = visBase::DM().getObj( matid );
+	    if ( !mat ) return 0;
+	    if ( typeid(*mat)!=typeid(Material) ) return -1;
 
-	setMaterial( (Material*) mat );
+	    setMaterial( (Material*) mat );
+	}
     }
+    else
+	setMaterial( 0 );
 
     bool isonsw;
     if ( iopar.getYN( isonstr, isonsw ) )
@@ -103,3 +112,12 @@ int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
 
     return 1;
 }
+
+
+void visBase::VisualObjectImpl::fillPar( IOPar& iopar ) const
+{
+    VisualObject::fillPar( iopar );
+    iopar.set( materialidstr, material ? material->id(): -1 );
+    iopar.set( isonstr, isOn() );
+}
+    
