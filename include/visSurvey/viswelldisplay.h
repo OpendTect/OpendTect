@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.10 2003-10-22 15:27:58 nanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.11 2003-10-28 11:12:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "multiid.h"
+#include "ranges.h"
 
 class LineStyle;
 template <class T> class Interval;
@@ -40,7 +41,7 @@ public:
 				mCreateDataObj(WellDisplay);
 
     bool			setWellId(const MultiID&);
-    const MultiID&		wellId() const 		{ return wellid; }
+    const MultiID&		wellId() const 		{ return emwellid; }
 
     const LineStyle&		lineStyle() const;
     void			setLineStyle(const LineStyle&);
@@ -57,11 +58,15 @@ public:
     int				markerSize() const;
 
     void			displayLog(int idx,int nr,
-	    				   const Interval<float>&);
+	    				   const Interval<float>* rg=0);
     				//!< idx: idx in Well::LogSet
     				//!< nr==1: left log; nr==2: right log
-    const Color&		logColor(int) const;
+    void			displayLog(const char*,const Interval<float>&,
+	    				   int nr);
     void			setLogColor(const Color&,int);
+    const Color&		logColor(int) const;
+    void			setLogWidth(int);
+    int				logWidth() const;
     void			showLogs(bool);
     bool			logsShown() const;
     void			showLogName(bool);
@@ -75,14 +80,27 @@ public:
 
 protected:
     virtual			~WellDisplay();
+    void			setWell(visBase::Well*);
+    void			updateMarkerScale(CallBacker*);
 
     visBase::Well*		well;
 
-    MultiID			wellid;
+    MultiID			emwellid;
     const bool			zistime;
 
-    static const char*		ioobjidstr;
+    BufferString		log1nm;
+    BufferString		log2nm;
+    Interval<float>		log1rg;
+    Interval<float>		log2rg;
+
     static const char*		earthmodelidstr;
+    static const char*		wellidstr;
+    static const char*		log1nmstr;
+    static const char*		log1rgstr;
+    static const char*		log2nmstr;
+    static const char*		log2rgstr;
+    static const char*		log1colorstr;
+    static const char*		log2colorstr;
 };
 
 };

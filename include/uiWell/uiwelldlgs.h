@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.3 2003-10-17 15:00:41 nanne Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.4 2003-10-28 11:14:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,9 +86,11 @@ protected:
 
     uiLabeledListBox*		logsfld;
     uiGenInput*			rangefld;
+    uiCheckBox*			autofld;
     uiGenInput*			dispfld;
 
     void			logSel(CallBacker*);
+    virtual bool		acceptOK(CallBacker*);
 
 };
 

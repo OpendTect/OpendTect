@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.7 2003-10-27 23:10:02 bert Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.8 2003-10-28 11:13:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 
 
 void uiWellPartServer::selectLogs( const MultiID& wellid, int& selidx, 
-				   int& lognr, Interval<float>& range )
+				   int& lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) return;
@@ -67,7 +67,6 @@ void uiWellPartServer::selectLogs( const MultiID& wellid, int& selidx,
 
     selidx = dlg.selectedLog();
     lognr = dlg.logNumber();
-    range = dlg.selRange();
 }
 
 

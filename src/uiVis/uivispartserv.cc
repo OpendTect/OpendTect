@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.171 2003-10-23 12:18:26 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.172 2003-10-28 11:13:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,15 +306,13 @@ int uiVisPartServer::addWell( int sceneid, const MultiID& multiid )
 }
 
 
-void uiVisPartServer::displayLog( int visid, int selidx, int lognr, 
-				  const Interval<float>& range )
+void uiVisPartServer::displayLog( int visid, int selidx, int lognr ) 
 {
     visBase::DataObject* dobj = visBase::DM().getObj( visid );
     mDynamicCastGet(visSurvey::WellDisplay*,wd,dobj)
     if ( !wd ) return;
 
-    wd->displayLog( selidx, lognr, range );
-
+    wd->displayLog( selidx, lognr );
 }
 
 

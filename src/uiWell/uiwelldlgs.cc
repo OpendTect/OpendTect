@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.4 2003-10-21 16:33:44 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.5 2003-10-28 11:13:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,8 +198,14 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
     for ( int idx=0; idx<logs.size(); idx++ )
 	logsfld->box()->addItem( logs.getLog(idx).name() );
 
-    rangefld = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
+    rangefld = new uiGenInput( this, "Specify data range", 
+	    			FloatInpIntervalSpec() );
     rangefld->attach( alignedBelow, logsfld );
+
+    autofld = new uiCheckBox( this, "Auto" );
+    autofld->setChecked( false );
+    autofld->attach( rightTo, rangefld );
+    autofld->activated.notify( mCB(this,uiLogSelDlg,logSel) );
 
     dispfld = new uiGenInput( this, "Display", BoolInpSpec("Left","Right") );
     dispfld->attach( alignedBelow, rangefld );
@@ -214,7 +220,20 @@ void uiLogSelDlg::logSel( CallBacker* )
     if ( logidx < 0 || logidx >= logset.size() )
 	return;
 
-    rangefld->setValue( logset.getLog(logidx).range() );
+    const Well::Log& log = logset.getLog(logidx);
+    rangefld->setValue( autofld->isChecked() ? log.range() : log.selrange );
+}
+
+
+bool uiLogSelDlg::acceptOK( CallBacker* )
+{
+    const int logidx = logsfld->box()->currentItem();
+    if ( logidx < 0 || logidx >= logset.size() )
+	return false;
+
+    Well::Log& log = const_cast<Well::Log&>(logset.getLog(logidx));
+    assign( log.selrange, rangefld->getFInterval() );
+    return true;
 }
 
 

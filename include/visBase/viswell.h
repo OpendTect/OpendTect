@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.2 2003-10-22 15:27:05 nanne Exp $
+ RCS:           $Id: viswell.h,v 1.3 2003-10-28 11:11:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,11 @@ ________________________________________________________________________
 
 class Color;
 class Coord3;
+class Coord3Value;
 class IOPar;
 class LineStyle;
 class SoPlaneWellLog;
+template <class T> class Interval;
 
 class SoSwitch;
 
@@ -32,7 +34,7 @@ class Text;
 class Transformation;
 
 /*! \brief 
-
+Base class for well display
 */
 
 class Well : public VisualObjectImpl
@@ -61,10 +63,13 @@ public:
     void			showMarkerName(bool);
     bool			markerNameShown() const;
 
-    void			setLog(const TypeSet<Coord3>&,
-	    			       const TypeSet<float>&,int);
-    const Color&		logColor(int) const;
+    void			setLogData(const TypeSet<Coord3Value>&,
+	    			           const char*,const Interval<float>&,
+					   int);
     void			setLogColor(const Color&,int);
+    const Color&		logColor(int) const;
+    void			setLogWidth(int);
+    int				logWidth() const;
     void			showLogs(bool);
     bool			logsShown() const;
     void			showLogName(bool);
@@ -80,6 +85,10 @@ public:
     static const char*		linestylestr;
     static const char*		showwellnmstr;
     static const char*		showmarkerstr;
+    static const char*		markerszstr;
+    static const char*		showmarknmstr;
+    static const char*		showlogsstr;
+    static const char*		showlognmstr;
 
 protected:
     				~Well();
@@ -88,9 +97,13 @@ protected:
     DrawStyle*			drawstyle;
     Text*			welltxt;
     SceneObjectGroup*		markergroup;
+    SoSwitch*			markernmsw;
+    SceneObjectGroup*		markernames;
     SoPlaneWellLog*		log;
-    SoSwitch*			marktxtsw;
-    SceneObjectGroup*		marktexts;
+    Transformation*		transformation;
+
+    bool			showmarkers;
+    int				markersize;
 };
 
 

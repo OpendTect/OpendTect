@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.4 2003-10-23 14:58:19 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.5 2003-10-28 11:11:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "vismaterial.h"
 #include "vistransform.h"
 #include "iopar.h"
+#include "ranges.h"
 
 #include "SoPlaneWellLog.h"
 
@@ -36,15 +37,21 @@ namespace visBase
 const char* Well::linestylestr	= "Line style";
 const char* Well::showwellnmstr	= "Show name";
 const char* Well::showmarkerstr = "Show markers";
+const char* Well::showmarknmstr	= "Show markername";
+const char* Well::markerszstr	= "Marker size";
+const char* Well::showlogsstr	= "Show logs";
+const char* Well::showlognmstr	= "Show logname";
 
 
 Well::Well()
     : track( visBase::PolyLine::create() )
     , drawstyle( visBase::DrawStyle::create() )
     , welltxt( visBase::Text::create() )
-    , markergroup( visBase::SceneObjectGroup::create() )
-    , marktxtsw( new SoSwitch )
+    , markernmsw( new SoSwitch )
+    , showmarkers(true)
+    , markersize(sDefaultMarkerSize)
     , log( new SoPlaneWellLog )
+    , transformation(0)
 {
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
@@ -56,14 +63,15 @@ Well::Well()
     welltxt->ref();
     sep->addChild( welltxt->getData() );
 
+    markergroup = visBase::SceneObjectGroup::create();
     markergroup->ref();
     addChild( markergroup->getData() );
-    addChild( marktxtsw );
-    marktexts = visBase::SceneObjectGroup::create();
-    marktexts->setSeparate(false);
-    marktexts->ref();
-    marktxtsw->addChild( marktexts->getData() );
-    marktxtsw->whichChild = 0;
+    addChild( markernmsw );
+    markernames = visBase::SceneObjectGroup::create();
+    markernames->setSeparate(false);
+    markernames->ref();
+    markernmsw->addChild( markernames->getData() );
+    markernmsw->whichChild = 0;
 
     addChild( log );
 }
@@ -71,15 +79,17 @@ Well::Well()
 
 Well::~Well()
 {
+    if ( transformation ) transformation->unRef();
     removeChild( welltxt->getData() );
     welltxt->unRef();
     removeChild( track->getData() );
     track->unRef();
     removeChild( drawstyle->getData() );
     drawstyle->unRef();
+    markergroup->removeAll();
     removeChild( markergroup->getData() );
     markergroup->unRef();
-    marktexts->unRef();
+    markernames->unRef();
 }
 
 
@@ -88,6 +98,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
     while ( track->size() )
 	track->removePoint( 0 );
 
+    track->setTransformation( transformation );
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	const Coord3& crd = pts[idx];
@@ -115,6 +126,7 @@ const LineStyle& Well::lineStyle() const
 
 void Well::setWellName( const char* nm, const Coord3& pos )
 {
+    welltxt->setTransformation( transformation );
     welltxt->setText( nm );
     welltxt->setPosition( pos ); //TODO
     welltxt->setJustification( visBase::Text::Center );
@@ -131,16 +143,19 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
 {
     visBase::Marker* marker = visBase::Marker::create();
     markergroup->addObject( marker );
+    marker->setTransformation( transformation );
     marker->setCenterPos( pos );
     marker->setType( visBase::Marker::Cube );
     marker->getMaterial()->setColor( color );
-    marker->setSize( sDefaultMarkerSize );
+    marker->setSize( markersize );
+    marker->turnOn( showmarkers );
 
-    Text* markername = Text::create();
-    markername->setText( nm );
-    markername->setPosition( pos );
-    markername->setJustification( visBase::Text::Left );
-    marktexts->addObject( markername );
+    Text* markernm = Text::create();
+    markernm->setTransformation( transformation );
+    markernm->setText( nm );
+    markernm->setPosition( pos );
+    markernm->setJustification( visBase::Text::Left );
+    markernames->addObject( markernm );
 }
 
 
@@ -162,6 +177,7 @@ void Well::setMarkerScale( const Coord3& scale )
 
 void Well::setMarkerSize( int size )
 {
+    markersize = size;
     for ( int idx=0; idx<markergroup->size(); idx++ )
     {
 	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
@@ -179,6 +195,7 @@ int Well::markerSize() const
 
 void Well::showMarkers( bool yn )
 {
+    showmarkers = yn;
     for ( int idx=0; idx<markergroup->size(); idx++ )
     {
 	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
@@ -195,18 +212,17 @@ bool Well::markersShown() const
 
 
 void Well::showMarkerName( bool yn )
-{ marktxtsw->whichChild = yn ? 0 : SO_SWITCH_NONE; }
+{ markernmsw->whichChild = yn ? 0 : SO_SWITCH_NONE; }
 
 
 bool Well::markerNameShown() const
-{ return marktxtsw->whichChild.getValue()==0; }
+{ return markernmsw->whichChild.getValue()==0; }
 
 
-void Well::setLog( const TypeSet<Coord3>& coords, const TypeSet<float>& vals,
-       		   int lognr )
+void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
+		       const Interval<float>& range, int lognr )
 {
-    int nrsamp = coords.size();
-    if ( nrsamp != vals.size() ) return;
+    int nrsamp = crdvals.size();
 
     float step = 1;
     if ( nrsamp > sMaxNrLogSamples )
@@ -219,14 +235,24 @@ void Well::setLog( const TypeSet<Coord3>& coords, const TypeSet<float>& vals,
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int index = mNINT(idx*step);
-	Coord3 pos(coords[index]);
-	if ( getTransformation() )
-	    pos = getTransformation()->transform( pos );
-	float val = mIsUndefined(vals[index]) ? 0 : vals[index];
+	const Coord3Value& cv = crdvals[index];
+	Coord3 pos( cv.coord );
+	if ( transformation )
+	    pos = transformation->transform( pos );
+	float val = mIsUndefined(cv.value) ? 0 : cv.value;
+	val -= range.start;
+	if ( val < 0 ) val = 0;
+	else if ( val > range.stop ) val = range.stop;
 	log->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
     }
 
     showLogs( true );
+}
+
+
+void Well::setLogColor( const Color& col, int lognr )
+{
+    log->setLineColor( SbVec3f(col.r()/255,col.g()/255,col.b()/255), lognr );
 }
 
 
@@ -242,9 +268,15 @@ const Color& Well::logColor( int lognr ) const
 }
 
 
-void Well::setLogColor( const Color& col, int lognr )
+void Well::setLogWidth( int width )
 {
-    log->setLineColor( SbVec3f(col.r()/255,col.g()/255,col.b()/255), lognr );
+    log->screenWidth.setValue( (float)width );
+}
+
+
+int Well::logWidth() const
+{
+    return mNINT(log->screenWidth.getValue());
 }
 
 
@@ -262,33 +294,24 @@ bool Well::logsShown() const
 
 
 void Well::showLogName( bool yn )
-{
-}
-
+{} 
 
 bool Well::logNameShown() const
-{
-    return false;
-}
+{ return false; }
 
 
 void Well::setTransformation( visBase::Transformation* nt )
 {
-    track->setTransformation( nt );
-    welltxt->setTransformation( nt );
-    for ( int idx=0; idx<markergroup->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
-	marker->setTransformation( nt );
-    }
-
-    for ( int idx=0; idx<marktexts->size(); idx++ )
-	((visBase::Text*)(marktexts->getObject(idx)))->setTransformation( nt );
+    if ( transformation )
+	transformation->unRef();
+    transformation = nt;
+    if ( transformation )
+	transformation->ref();
 }
 
 
 visBase::Transformation* Well::getTransformation()
-{ return track->getTransformation(); }
+{ return transformation; }
 
 
 void Well::fillPar( IOPar& par, TypeSet<int>& saveids ) const
@@ -296,14 +319,15 @@ void Well::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     BufferString linestyle;
-    drawstyle->lineStyle().toString( linestyle );
+    lineStyle().toString( linestyle );
     par.set( linestylestr, linestyle );
 
-    bool welltxtshown = welltxt->isOn();
-    par.setYN( showwellnmstr, welltxtshown );
-
-    bool markershown = markersShown();
-    par.setYN( showmarkerstr, markershown );
+    par.setYN( showwellnmstr, welltxt->isOn() );
+    par.setYN( showmarkerstr, markersShown() );
+    par.setYN( showmarknmstr, markerNameShown() );
+    par.setYN( showlogsstr, logsShown() );
+    par.setYN( showlognmstr, logNameShown() );
+    par.set( markerszstr, markersize );
 }
 
 
@@ -313,20 +337,27 @@ int Well::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     BufferString linestyle;
-    if ( par.get( linestylestr, linestyle ) )
+    if ( par.get(linestylestr,linestyle) )
     {
 	LineStyle lst;
 	lst.fromString( linestyle );
-	drawstyle->setLineStyle( lst );
+	setLineStyle( lst );
     }
 
-    bool welltxtshown = true;
-    par.getYN( showwellnmstr, welltxtshown );
-    showWellName( welltxtshown );
+#define mParGetYN(str,func) \
+    doshow = true; \
+    par.getYN(str,doshow); \
+    func( doshow );
 
-    bool markershown = true;
-    par.getYN( showmarkerstr, markershown );
-    showMarkers( markershown );
+    bool doshow;
+    mParGetYN(showwellnmstr,showWellName);
+    mParGetYN(showmarkerstr,showMarkers);	showmarkers = doshow;
+    mParGetYN(showmarknmstr,showMarkerName);
+    mParGetYN(showlogsstr,showLogs);
+    mParGetYN(showlognmstr,showLogName);
+
+    par.get( markerszstr, markersize );
+    setMarkerSize( markersize );
 
     return 1;
 }

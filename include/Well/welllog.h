@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.5 2003-10-17 15:04:08 nanne Exp $
+ RCS:		$Id: welllog.h,v 1.6 2003-10-28 11:14:12 nanne Exp $
 ________________________________________________________________________
 
 
@@ -39,6 +39,7 @@ public:
 			{ dah_.remove(idx); val_.remove(idx); }
 
     const Interval<float>& range() const		{ return range_; }
+    Interval<float>	selrange;
 
 
 protected:

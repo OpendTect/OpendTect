@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.100 2003-10-17 15:01:58 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.101 2003-10-28 11:13:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
     int				addSurface(int scene,const MultiID&);
     void			getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     int				addWell(int scene,const MultiID&);
-    void			displayLog(int,int,int,const Interval<float>&);
+    void			displayLog(int id,int,int);
 
     int				addInterpreter( int scene );
     void			toogleDirection(int obj);
