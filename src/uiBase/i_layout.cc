@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.19 2001-09-21 09:58:11 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.20 2001-09-21 12:27:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,14 @@ constraintIterator i_LayoutItem::iterator()
 
 
 uiSize i_LayoutItem::actualSize( bool include_border ) const
-    { return pos(setGeom).size(); }
+{ 
+#define CLUTCH
+#ifdef CLUTCH
+    return uiSize( pos(setGeom).width() - 1, pos(setGeom).height() - 1 );
+#else
+    return pos(setGeom).size(); 
+#endif
+}
 
 
 int i_LayoutItem::stretch( bool hor ) const
