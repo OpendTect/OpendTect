@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.129 2004-09-07 10:19:09 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.130 2004-09-08 14:58:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ public:
 					 const ObjectSet<BinIDValueSet>*);
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,
-	    			 const Coord3& = Coord3::udf);
+	    			 const Coord3& = Coord3::udf());
     			/*!<\param menutype Please refer to \ref
 					uiVisMenu::executeMenu for a detailed
 					description.

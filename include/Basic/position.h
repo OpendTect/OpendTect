@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.29 2004-09-03 11:42:44 kristofer Exp $
+ RCS:		$Id: position.h,v 1.30 2004-09-08 14:58:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ public:
 
     double	z;
 
-    static const Coord3	udf;
+    static const Coord3&	udf();
 };
 
 
