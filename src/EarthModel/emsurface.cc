@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.59 2004-07-23 12:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.60 2004-07-27 06:59:43 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -164,28 +164,28 @@ void EM::Surface::removeAuxData()
 }
 
 
-bool EM::Surface::findClosestNodes(TopList<float,EM::PosID>& toplist,
-				const Coord3& pos_,
-				const MathFunction<float>* time2depthfunc) const
+bool EM::Surface::findClosestNodes( TopList<float,EM::PosID>& toplist,
+				    const Coord3& pos_,
+				    const MathFunction<float>* t2dfunc) const
 {
     const int nrsections = nrSections();
     for ( int section=0; section<nrsections; section++ )
-	findClosestNodes( sectionID(section), toplist, pos_, time2depthfunc );
+	findClosestNodes( sectionID(section), toplist, pos_, t2dfunc );
 
     return toplist.size();
 }
 
 
-bool EM::Surface::findClosestNodes(const SectionID& sectionid,
-				TopList<float,EM::PosID>& toplist,
-				const Coord3& pos_,
-				const MathFunction<float>* time2depthfunc) const
+bool EM::Surface::findClosestNodes( const SectionID& sectionid,
+				    TopList<float,EM::PosID>& toplist,
+				    const Coord3& pos_,
+				    const MathFunction<float>* t2dfunc ) const
 {
     toplist.setTop(false);
 
     //TODO Make faster impl
     Coord3 origpos = pos_;
-    if ( time2depthfunc ) origpos.z = time2depthfunc->getValue( pos_.z );
+    if ( t2dfunc ) origpos.z = t2dfunc->getValue( pos_.z );
     const int nrsections = nrSections();
 
     StepInterval<int> rowrange; StepInterval<int> colrange;
@@ -200,12 +200,12 @@ bool EM::Surface::findClosestNodes(const SectionID& sectionid,
 	    if ( isDefined(sectionid,rc) )
 	    {
 		Coord3 pos = getPos( sectionid, rc );
-		if ( time2depthfunc )
-		    pos.z = time2depthfunc->getValue( pos.z );
+		if ( t2dfunc )
+		    pos.z = t2dfunc->getValue( pos.z );
 
 		double dist = pos.distance( origpos );
 		toplist.addValue( dist,
-				  EM::PosID(id_,sectionid,rowCol2SubID(rc)));
+				  EM::PosID(id_,sectionid,rowCol2SubID(rc)) );
 	    
 	    }
 	}
@@ -215,16 +215,15 @@ bool EM::Surface::findClosestNodes(const SectionID& sectionid,
 }
 
 
-bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& timepos,
-			  const MathFunction<float>* time2depthfunc) const
+bool EM::Surface::findClosestMesh( EM::PosID& res, const Coord3& timepos,
+			           const MathFunction<float>* t2dfunc ) const
 {
     TopList<float, EM::PosID> closestnodes( 20, mUndefValue, false );
-    if ( !findClosestNodes(closestnodes,timepos,time2depthfunc) )
+    if ( !findClosestNodes(closestnodes,timepos,t2dfunc) )
 	return false;
 
-    const Coord3 pos = time2depthfunc
-	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
-	: timepos;
+    const Coord3 pos = t2dfunc ? Coord3( timepos, t2dfunc->getValue(timepos.z) )
+			       : timepos;
 
     float mindist;
     bool isresset = false;
@@ -234,8 +233,8 @@ bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& timepos,
 	EM::PosID pid = closestnodes.getAssociatedValue(idx);
 	Coord3 c00, c10, c01, c11;
 	bool c00def, c10def, c01def, c11def;
-	getMeshCoords( pid, c00, c10, c01, c11,
-			c00def, c10def, c01def, c11def, time2depthfunc );
+	getMeshCoords( pid, c00, c10, c01, c11, 
+		       c00def, c10def, c01def, c11def, t2dfunc );
 
 	int nrvalidcoords = 0;
 	float totaldist = 0;
@@ -260,13 +259,13 @@ bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& timepos,
 
 
 bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
-			     const MathFunction<float>* time2depthfunc ) const
+				     const MathFunction<float>* t2dfunc ) const
 {
     Coord3 c00, c10, c01, c11;
     bool c00def, c10def, c01def, c11def;
     getMeshCoords( pid, c00, c10, c01, c11,
 	    	   c00def, c10def, c01def, c11def,
-		   time2depthfunc );
+		   t2dfunc );
 
     TypeSet<Coord3> normals;
     if ( c00def && c10def && c01def )
@@ -327,10 +326,11 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
 
 
 bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
-			    const MathFunction<float>* time2depthfunc ) const 
+				 const MathFunction<float>* t2dfunc ) const 
 {
     TypeSet<EM::PosID> nodes;
-    if ( cs ) findPos(*cs, &nodes );
+    if ( cs ) 
+	findPos( *cs, &nodes );
     else
     {
 	for ( int idy=0; idy<nrSections(); idy++ )
@@ -347,15 +347,13 @@ bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
 		for ( ; colrange.includes( idx.col ); idx.col+=colrange.step )
 		{
 		    if ( isDefined(sectionid,idx) )
-		    {
 			nodes += EM::PosID(id(),sectionid,rowCol2SubID(idx));
-		    }
 		}
 	    }
 	}
     }
 
-    return computeNormal( res, nodes, time2depthfunc );
+    return computeNormal( res, nodes, t2dfunc );
 }
 
 
@@ -374,12 +372,12 @@ if ( !fetched[nodeindex] ) \
 }
 
 bool EM::Surface::computeNormal( Coord3& res, const EM::PosID& node,
-			    const MathFunction<float>* t2d ) const
+				 const MathFunction<float>* t2d ) const
 {
     const Coord3 nodetpos = getPos(node);
     const bool defnode = nodetpos.isDefined();
-    const Coord3 nodecoord(nodetpos,
-	     		 t2d&&defnode?t2d->getValue(nodetpos.z):nodetpos.z);
+    const Coord3 nodecoord( nodetpos,
+	     		 t2d&&defnode ? t2d->getValue(nodetpos.z) : nodetpos.z);
 
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
     BoolTypeSet defnodes(dirs.size(), false );
@@ -512,7 +510,7 @@ bool EM::Surface::computeNormal( Coord3& res, const EM::PosID& node,
 
 
 bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
-			     const MathFunction<float>* time2depthfunc ) const
+				 const MathFunction<float>* t2dfunc ) const
 {
     TypeSet<Coord3> normals;
     const int nrnodes = nodes.size();
@@ -520,7 +518,7 @@ bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
     {
 	const EM::PosID& node = nodes[idx];
 	Coord3 normal;
-	if ( computeNormal(normal,nodes[idx],time2depthfunc) )
+	if ( computeNormal(normal,nodes[idx],t2dfunc) )
 	    normals += normal;
     }
 
@@ -530,22 +528,22 @@ bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
 
 
 float EM::Surface::normalDistance( const Coord3& timepos,
-			     const MathFunction<float>* time2depthfunc,
-			     Interval<float>* meshvariation ) const
+				   const MathFunction<float>* t2dfunc,
+				   Interval<float>* meshvariation ) const
 {
     EM::PosID closestmesh(0,0,0);
-    if ( !findClosestMesh(closestmesh,timepos,time2depthfunc) )
+    if ( !findClosestMesh(closestmesh,timepos,t2dfunc) )
 	return mUndefValue;
 
     Coord3 meshnormal;
-    if ( !computeMeshNormal(meshnormal,closestmesh,time2depthfunc) )
+    if ( !computeMeshNormal(meshnormal,closestmesh,t2dfunc) )
 	return mUndefValue;
 
     Coord3 c00, c10, c01, c11;
     bool c00def, c10def, c01def, c11def;
     getMeshCoords( closestmesh, c00, c10, c01, c11,
 	    	   c00def, c10def, c01def, c11def,
-		   time2depthfunc );
+		   t2dfunc );
 
     Coord3 center(0,0,0);
     int nrvals = 0;
@@ -567,9 +565,8 @@ float EM::Surface::normalDistance( const Coord3& timepos,
 	if ( c11def ) {meshvariation->include(plane.distanceToPoint(c11,true));}
     }
 
-    const Coord3 pos = time2depthfunc
-	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
-	: timepos;
+    const Coord3 pos = t2dfunc ? Coord3( timepos, t2dfunc->getValue(timepos.z) )
+			       : timepos;
 
     const Line3 line( pos, meshnormal );
     Coord3 intersection;
@@ -580,11 +577,11 @@ float EM::Surface::normalDistance( const Coord3& timepos,
 
 
 char EM::Surface::whichSide( const Coord3& timepos,
-			     const MathFunction<float>* time2depthfunc,
+			     const MathFunction<float>* t2dfunc,
 			     float fuzzy ) const
 {
     Interval<float> meshvariation;
-    const float dist = normalDistance( timepos, time2depthfunc, &meshvariation);
+    const float dist = normalDistance( timepos, t2dfunc, &meshvariation);
 
     if ( dist>meshvariation.stop+fuzzy ) return 1;
     if ( dist<meshvariation.start-fuzzy ) return -1;
@@ -604,8 +601,8 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
     defname = coordname.isDefined(); \
     if ( defname ) \
     { \
-	if ( time2depthfunc ) \
-	    coordname.z = time2depthfunc->getValue(coordname.z); \
+	if ( t2dfunc ) \
+	    coordname.z = t2dfunc->getValue(coordname.z); \
 	break; \
     } \
 } \
@@ -613,9 +610,11 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
 
 
 void EM::Surface::getMeshCoords( const EM::PosID& pid,
-	Coord3& c00, Coord3& c10, Coord3& c01, Coord3& c11,
-	bool& c00def, bool& c10def, bool& c01def, bool& c11def,
-	const MathFunction<float>* time2depthfunc ) const
+				 Coord3& c00, Coord3& c10, 
+				 Coord3& c01, Coord3& c11,
+				 bool& c00def, bool& c10def, 
+				 bool& c01def, bool& c11def,
+				 const MathFunction<float>* t2dfunc ) const
 {
     TypeSet<EM::PosID> nodealiases;
     getLinkedPos( pid, nodealiases );
@@ -624,7 +623,7 @@ void EM::Surface::getMeshCoords( const EM::PosID& pid,
 
     c00 = getPos(pid);
     c00def = c00.isDefined();
-    if ( c00def && time2depthfunc ) c00.z = time2depthfunc->getValue(c00.z);
+    if ( c00def && t2dfunc ) c00.z = t2dfunc->getValue(c00.z);
 
     mGetNeigborCoord( c10, c10def, +step_.row, +0 );
     mGetNeigborCoord( c01, c01def, +0, +step_.col );
@@ -679,7 +678,8 @@ EM::SectionID EM::Surface::addSection( const char* nm, bool addtohistory )
 }
 
 
-bool EM::Surface::addSection( const char* nm, SectionID sectionid, bool addtohistory )
+bool EM::Surface::addSection( const char* nm, SectionID sectionid, 
+			      bool addtohistory )
 {
     if ( sectionids.indexOf(sectionid) != -1 ) return false;
 
@@ -791,8 +791,8 @@ EM::SectionID EM::Surface::cloneSection( EM::SectionID sectionid )
 
 
 bool EM::Surface::setPos( const SectionID& section, const RowCol& surfrc,
-				   const Coord3& pos, bool autoconnect,
-				   bool addtohistory)
+			  const Coord3& pos, bool autoconnect,
+			  bool addtohistory)
 {
     RowCol geomrowcol;
     if ( !getMeshRowCol( surfrc, geomrowcol, section ) )
@@ -837,7 +837,7 @@ bool EM::Surface::setPos( const SectionID& section, const RowCol& surfrc,
 	    
 	    if ( mIsEqual(otherz,pos.z,mDefEps) )
 	    {
-		if ( !surface->isLinked(posid, surfaces[sectionsurfidx], posid ))
+		if ( !surface->isLinked(posid,surfaces[sectionsurfidx],posid) )
 		{
 		    surface->setLink(posid,surfaces[sectionsurfidx],posid,true);
 		    // Put to history?
@@ -846,7 +846,7 @@ bool EM::Surface::setPos( const SectionID& section, const RowCol& surfrc,
 	}
     }
 
-    poschnotifier.trigger( EM::PosID( id(), section, rowCol2SubID(surfrc)), this);
+    poschnotifier.trigger( EM::PosID(id(),section,rowCol2SubID(surfrc)), this );
 
     return true;
 }
@@ -897,7 +897,7 @@ bool EM::Surface::isDefined( const EM::PosID& posid ) const
 }
 
 
-bool EM::Surface::isDefined( const SectionID& section, const RowCol& rc) const
+bool EM::Surface::isDefined( const SectionID& section, const RowCol& rc ) const
 {
     const int surfidx = sectionids.indexOf( section );
     RowCol geomnode;
@@ -908,8 +908,7 @@ bool EM::Surface::isDefined( const SectionID& section, const RowCol& rc) const
 }
 
 
-int EM::Surface::findPos( const RowCol& rowcol,
-				  TypeSet<PosID>& res ) const
+int EM::Surface::findPos( const RowCol& rowcol, TypeSet<PosID>& res ) const
 {
     TypeSet<Coord3> respos;
     const int nrsubsurf = nrSections();
@@ -955,7 +954,8 @@ int EM::Surface::findPos( const EM::SectionID& sectionid,
     for ( int idy=0; idy<nrnodes; idy++ )
     {
 	const SectionID section = sectionids[idx];
-	const EM::PosID posid( id(), sectionid, getSurfSubID(nodes[idy],sectionid));
+	const EM::PosID posid( id(), sectionid, 
+			getSurfSubID(nodes[idy],sectionid) );
 
 	TypeSet<EM::PosID> clones;
 	getLinkedPos( posid, clones );
@@ -1062,7 +1062,7 @@ EM::PosID EM::Surface::getNeighbor( const EM::PosID& posid,
 
 
 int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
-				int maxradius, bool circle ) const
+			       int maxradius, bool circle ) const
 {
     ObjectSet< TypeSet<EM::PosID> > neigbors;
     const RowCol start = subID2RowCol(posid_.subID());
@@ -1183,10 +1183,10 @@ RowCol EM::Surface::step() const
 
 
 void EM::Surface::setTranslatorData( const RowCol& step__,
-					const RowCol& loadedstep_,
-					const RowCol& origo_,
-					const Interval<int>* rowrange_,
-					const Interval<int>* colrange_ )
+				     const RowCol& loadedstep_,
+				     const RowCol& origo_,
+				     const Interval<int>* rowrange_,
+				     const Interval<int>* colrange_ )
 {
     step_ = step__;
     loadedstep = loadedstep_;
@@ -1305,7 +1305,7 @@ float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
 }
 
 
-void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
+void EM::Surface::setAuxDataVal( int dataidx, const EM::PosID& posid, float val)
 {
     if ( !auxdata[dataidx] ) return;
 
@@ -1321,7 +1321,8 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
     if ( !sectionauxdata )
     {
 	const int sz = surfaces[sectionidx]->size();
-	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue),sectionidx);
+	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue),
+				   sectionidx );
 	sectionauxdata = (*auxdata[dataidx])[sectionidx];
     }
 
@@ -1398,7 +1399,8 @@ void EM::Surface::getRange( StepInterval<int>& rg, bool rowdir ) const
 }
 
 
-void EM::Surface::getRange( const EM::SectionID& sectionid, StepInterval<int>& rg,
+void EM::Surface::getRange( const EM::SectionID& sectionid, 
+			    StepInterval<int>& rg,
 			    bool rowdir ) const
 {
     const Geometry::MeshSurface& gsurf = *getSurface( sectionid );
@@ -1407,8 +1409,8 @@ void EM::Surface::getRange( const EM::SectionID& sectionid, StepInterval<int>& r
 	const RowCol firstrow(gsurf.firstRow(),0);
 	const RowCol lastrow(gsurf.lastRow(),0);
 
-	rg.start = subID2RowCol( getSurfSubID(firstrow,sectionid)).row;
-	rg.stop = subID2RowCol( getSurfSubID(lastrow,sectionid)).row;
+	rg.start = subID2RowCol( getSurfSubID(firstrow,sectionid) ).row;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow,sectionid) ).row;
     }
     else
     {
@@ -1416,8 +1418,8 @@ void EM::Surface::getRange( const EM::SectionID& sectionid, StepInterval<int>& r
 	const RowCol firstrow(0,colrg.start);
 	const RowCol lastrow(0,colrg.stop);
 
-	rg.start = subID2RowCol( getSurfSubID(firstrow,sectionid)).col;
-	rg.stop = subID2RowCol( getSurfSubID(lastrow,sectionid)).col;
+	rg.start = subID2RowCol( getSurfSubID(firstrow,sectionid) ).col;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow,sectionid) ).col;
     }
 
     rg.step = rowdir ? loadedStep().row : loadedStep().col;
