@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.5 2002-04-12 10:10:26 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.6 2002-05-30 07:47:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "picksettr.h"
 #include "color.h"
+#include "uigeninputdlg.h"
+#include "datainpspec.h"
 
 const int uiPickPartServer::evGetAvailableSets = 0;
 const int uiPickPartServer::evFetchPicks = 1;
@@ -83,3 +85,38 @@ bool uiPickPartServer::storePickSets()
 
     return true;
 }
+
+
+void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
+{
+    DataInpSpec* inpspec = new StringInpSpec(oldnm);
+    uiGenInputDlg dlg( appserv().parent(), "Rename Pickset", "Pickset name",
+			inpspec );
+    if ( dlg.go() )
+    {
+	newnm = dlg.text();
+	if ( !strcmp(oldnm,newnm) )
+	{
+	    newnm = oldnm;
+	    return;
+	}
+
+	avsets.erase();
+	sendEvent( evGetAvailableSets );
+	for ( int idx=0; idx<avsets.size(); idx++ )
+	{
+	    if ( !strcmp(newnm,avsets[idx]->name()) )
+	    {
+		BufferString msg( "Pickset: "); msg += newnm;
+		msg += "\nalready exists.";
+		uiMSG().about( msg );
+		newnm = oldnm;
+		return;
+	    }
+	}
+
+    }
+    else
+	newnm = oldnm;
+}
+

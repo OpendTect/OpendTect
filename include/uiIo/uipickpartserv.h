@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.6 2002-04-12 10:10:16 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.7 2002-05-30 07:48:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     const BoolTypeSet& selectedSets() const		{ return selsets; }
     MultiID&		psgID()				{ return psgid; }
     const Color&	getPickColor()			{ return pickcolor; }
+    void		renamePickset(const char*,BufferString&);
 
 protected:
 
