@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.11 2003-02-26 16:33:08 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.12 2003-02-27 16:44:40 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -27,6 +27,10 @@
 
 
 const char* visSurvey::RandomTrackDisplay::trackstr = "Random track";
+const char* visSurvey::RandomTrackDisplay::nrknotsstr = "Nr. Knots";
+const char* visSurvey::RandomTrackDisplay::knotprefix = "Knot ";
+const char* visSurvey::RandomTrackDisplay::depthintvstr = "Depth Interval";
+
 
 mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
 
@@ -393,6 +397,21 @@ void visSurvey::RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids )
     int trackid = track->id();
     par.set( trackstr, trackid );
 
+    const Interval<float> depthrg = getDepthInterval();
+    par.set( depthintvstr, depthrg.start, depthrg.stop );
+
+    int nrknots = nrKnots();
+    par.set( nrknotsstr, nrknots );
+
+    BufferString key;
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	key = knotprefix;
+	key += idx;
+	BinID bid = getKnotPos( idx );
+	par.set( key, bid.inl, bid.crl );
+    }
+
     if ( saveids.indexOf(trackid) == -1 ) saveids += trackid;
 
     as.fillPar(par);
@@ -406,10 +425,8 @@ int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
 
     int trackid;
     if ( !par.get( trackstr, trackid ) ) return -1;
-
     visBase::DataObject* dataobj = visBase::DM().getObj( trackid );
     if ( !dataobj ) return 0;
-
     mDynamicCastGet(visBase::RandomTrack*,rt,dataobj);
     if ( !rt ) return -1;
 
@@ -418,6 +435,46 @@ int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
     track = rt;
     track->ref();
     track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
+
+    Interval<float> intv(0,1);
+    par.get( depthintvstr, intv.start, intv.stop );
+    setDepthInterval( intv );
+
+    int nrknots = 0;
+    par.get( nrknotsstr, nrknots );
+
+    BufferString key;
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	key = knotprefix;
+	key += idx;
+	BinID pos;
+	par.get( key, pos.inl, pos.crl );
+	if ( idx < 2 )
+	    setKnotPos( idx, pos );
+	else
+	    addKnot( pos );
+    }
+
+    const StepInterval<double>& survinterval = SI().zRange(true);
+    const StepInterval<float> inlrange( SI().range(true).start.inl,
+	    				SI().range(true).stop.inl,
+					SI().inlWorkStep() );
+    const StepInterval<float> crlrange( SI().range(true).start.crl,
+	    				SI().range(true).stop.crl,
+	    				SI().crlWorkStep() );
+
+    track->setXrange( StepInterval<float>( inlrange.start,
+		    			   inlrange.stop,
+					   inlrange.step ));
+
+    track->setYrange( StepInterval<float>( crlrange.start,
+	    				   crlrange.stop,
+					   crlrange.step ));
+
+    track->setZrange( StepInterval<float>( survinterval.start,
+					   survinterval.stop,
+					   survinterval.step ));
 
     if ( !as.usePar( par ) ) return -1;
 

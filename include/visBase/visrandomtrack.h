@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.8 2003-02-25 07:18:48 nanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.9 2003-02-27 16:43:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -83,11 +83,8 @@ public:
     CNotifier<RandomTrack,int>	knotmovement;
     				/*!< Sends the index of the knot moving */
 
-    static const char*		nrknotsstr;
-    static const char*		knotprefix;
     static const char*		textureidstr;
     static const char*		draggersizestr;
-    static const char*		depthintvstr;
     
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );

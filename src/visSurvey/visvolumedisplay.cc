@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.29 2003-02-26 16:33:08 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.30 2003-02-27 16:44:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -393,17 +393,20 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     cube->ref();
     cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
 
-    float pos = 0;
+    const CubeSampling& cs = getCubeSampling(false);
+    Coord3 origo( cs.hrg.start.inl, cs.hrg.start.crl, cs.zrg.start );
+
+    float pos = origo.x;
     par.get( inlineposstr, pos );
     inlid = cube->addSlice( 0, pos );
     visBase::DM().getObj( inlid )->setName(inlinestr);
 
-    pos = 0;
+    pos = origo.y;
     par.get( inlineposstr, pos );
     crlid = cube->addSlice( 1, pos );
     visBase::DM().getObj( crlid )->setName(crosslinestr);
 
-    pos = 0;
+    pos = origo.z;
     par.get( timeposstr, pos );
     tslid = cube->addSlice( 2, pos );
     visBase::DM().getObj( tslid )->setName(timestr);

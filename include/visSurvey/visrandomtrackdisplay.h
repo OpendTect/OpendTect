@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.8 2003-02-26 16:33:15 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.9 2003-02-27 16:44:46 nanne Exp $
 ________________________________________________________________________
 
 
@@ -109,6 +109,10 @@ protected:
     ObjectSet<SeisTrc>		cache;
 
     static const char*		trackstr;
+    static const char*		nrknotsstr;
+    static const char*		knotprefix;
+    static const char*		depthintvstr;
+
 };
 
 };

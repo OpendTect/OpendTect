@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.13 2003-02-25 07:18:33 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.14 2003-02-27 16:43:42 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -29,6 +29,9 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.13 2003-02-25 07:18:33 nanne 
 
 
 const char* visBase::Texture::colortabstr = "ColorTable ID";
+const char* visBase::Texture::usestexturestr = "Uses texture";
+const char* visBase::Texture::texturequalitystr = "Texture quality";
+const char* visBase::Texture::resolutionstr = "Resolution";
 
 visBase::Texture::Texture()
     : datacache( 0 )
@@ -455,6 +458,10 @@ void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     int ctid = colortab->id();
     par.set( colortabstr, ctid );
 
+    par.set( texturequalitystr, getTextureQuality() );
+    par.setYN( usestexturestr, isOn() );
+    par.set( resolutionstr, resolution );
+
     if ( saveids.indexOf(ctid) == -1 ) saveids += ctid;
 }
 
@@ -473,6 +480,18 @@ int visBase::Texture::usePar( const IOPar& par )
     if ( !coltab ) return -1;
 
     setColorTab( *coltab );
+
+    int newres = 0;
+    par.get( resolutionstr, newres );
+    setResolution( newres );
+
+    float texturequality = 1;
+    par.get( texturequalitystr, texturequality );
+    setTextureQuality( texturequality );
+
+    bool usetext = true;
+    par.getYN( usestexturestr, usetext );
+    turnOn( usetext );
 
     return 1;
 }

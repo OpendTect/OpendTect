@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.9 2003-02-25 07:18:48 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.10 2003-02-27 16:43:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -120,6 +120,9 @@ private:
     ThreadWorker*	threadworker;
 
     static const char*	colortabstr;
+    static const char*	texturequalitystr;
+    static const char*	usestexturestr;
+    static const char*	resolutionstr;
 };
 
 };

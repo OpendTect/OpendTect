@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.8 2003-02-25 07:18:33 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.9 2003-02-27 16:43:42 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -26,10 +26,7 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.8 2003-02-25 07:18:33 nan
 #include "Inventor/nodes/SoMaterial.h"
 
 
-const char* visBase::RandomTrack::nrknotsstr = "Nr. Knots";
-const char* visBase::RandomTrack::knotprefix = "Knot ";
 const char* visBase::RandomTrack::textureidstr = "Texture ID";
-const char* visBase::RandomTrack::depthintvstr = "Depth Interval";
 const char* visBase::RandomTrack::draggersizestr = "DraggerSize";
 
 
@@ -385,23 +382,9 @@ void visBase::RandomTrack::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     int textureid = texture->id();
     par.set( textureidstr, textureid );
 
-    par.set( depthintvstr, depthrg.start, depthrg.stop );
-
     Coord3 size = getDraggerSize();
     par.set( draggersizestr, size.x, size.y, size.z );
 
-    int nrknots = knots.size();
-    par.set( nrknotsstr, nrknots );
-
-    BufferString key;
-    for ( int idx=0; idx<nrknots; idx++ )
-    {
-	key = knotprefix;
-	key += idx;
-	Coord pos = knots[idx];
-	par.set( key, pos.x, pos.y );
-    }
-	
     if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
 }
 
@@ -414,26 +397,6 @@ int visBase::RandomTrack::usePar( const IOPar& par )
     Coord3 size(1,1,1);
     par.get( draggersizestr, size.x, size.y, size.z );
     setDraggerSize( size );
-
-    Interval<float> intv(0,1);
-    par.get( depthintvstr, intv.start, intv.stop );
-    setDepthInterval( intv );
-
-    int nrknots = 0;
-    par.get( nrknotsstr, nrknots );
-
-    BufferString key;
-    for ( int idx=0; idx<nrknots; idx++ )
-    {
-	key = knotprefix;
-	key += idx;
-	Coord pos;
-	par.get( key, pos.x, pos.y );
-	if ( idx < 2 )
-	    setKnotPos( idx, pos );
-	else
-	    addKnot( pos );
-    }
 
     int textureid;
     if ( !par.get( textureidstr, textureid ) ) return -1;

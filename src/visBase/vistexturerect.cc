@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.29 2003-02-25 16:16:43 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.30 2003-02-27 16:43:42 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -21,10 +21,7 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.29 2003-02-25 16:16:43 na
 mCreateFactoryEntry( visBase::TextureRect );
 
 
-const char* visBase::TextureRect::texturequalitystr = "Texture quality";
 const char* visBase::TextureRect::rectangleidstr = "Rectangle ID";
-const char* visBase::TextureRect::usestexturestr = "Uses texture";
-const char* visBase::TextureRect::resolutionstr = "Resolution";
 const char* visBase::TextureRect::textureidstr = "Texture ID";
 
 visBase::TextureRect::TextureRect()
@@ -220,9 +217,6 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     int textureid = texture->id();
     par.set( textureidstr, textureid );
-    par.set( texturequalitystr, getTextureQuality() );
-    par.setYN( usestexturestr, usesTexture() );
-    par.set( resolutionstr, getResolution() );
 
     if ( saveids.indexOf(rectid) == -1 ) saveids += rectid;
     if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
@@ -232,36 +226,68 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 int visBase::TextureRect::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
-    if ( res!= 1 ) return res;
+    if ( res != 1 ) return res;
 
-    int textureid;
-    if ( !par.get( textureidstr, textureid ) ) return -1;
-    DataObject* dataobj = DM().getObj( textureid );
-    if ( !dataobj ) return 0;
-    mDynamicCastGet(Texture2*,texture_,dataobj);
-    if ( !texture_ ) return -1;
-    setTexture( *texture_ );
+    res = useOldPar( par );
+    if ( res < 1 ) return res;
 
-    int newres = 0;
-    par.get( resolutionstr, newres );
-    setResolution( newres );
-
-    float texturequality;
-    if ( !par.get( texturequalitystr, texturequality )) return -1;
-    setTextureQuality( texturequality );
+    if ( res == 2 )
+    {
+	int textureid;
+	if ( !par.get( textureidstr, textureid ) ) return -1;
+	DataObject* dataobj = DM().getObj( textureid );
+	if ( !dataobj ) return 0;
+	mDynamicCastGet(Texture2*,texture_,dataobj);
+	if ( !texture_ ) return -1;
+	setTexture( *texture_ );
+    }
 
     int rectid;
     if ( !par.get( rectangleidstr, rectid ) ) return -1;
-    dataobj = DM().getObj( rectid );
+    DataObject* dataobj = DM().getObj( rectid );
     if ( !dataobj ) return 0;
     mDynamicCastGet( Rectangle*, rect, dataobj );
     if ( !rect ) return -1;
 
     setRectangle( rect );
 
-    bool usetext;
-    if ( !par.getYN( usestexturestr, usetext )) return -1;
-    useTexture(usetext);
+    return 1;
+}
+
+
+int visBase::TextureRect::useOldPar( const IOPar& par )
+{ 
+    // Will be used in d-Tect 1.5 to be able to restore old sessions
+    int coltabid;
+    if ( !par.get( "ColorTable ID", coltabid ) ) return 2;
+    // use new par;
+    
+    DataObject* dataobj = DM().getObj( coltabid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet( VisColorTab*, coltab, dataobj );
+    if ( !coltab ) return -1;
+
+    texture->setColorTab( *coltab );
+
+    float cliprt = 0.025;
+    if ( par.get( "Cliprate", cliprt ) )
+	setClipRate( cliprt );
+
+    bool autosc = true;
+    if ( par.getYN( "Auto scale", autosc ) )
+        setAutoScale( autosc );
+
+    int newres = 0;
+    par.get( "Resolution", newres );
+    setResolution( newres );
+
+    float texturequality = 1;
+    par.get( "Texture quality", texturequality );
+    setTextureQuality( texturequality );
+
+    bool usetext = true;
+    par.getYN( "Uses texture", usetext );
+    useTexture( usetext );
 
     return 1;
 }

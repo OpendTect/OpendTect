@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.20 2003-02-25 16:17:16 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.21 2003-02-27 16:43:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -74,11 +74,7 @@ public:
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );
 
-
-    static const char*	texturequalitystr;
     static const char*	rectangleidstr;
-    static const char*	usestexturestr;
-    static const char*	resolutionstr;
     static const char*	textureidstr;
 
 protected:
@@ -89,6 +85,8 @@ protected:
 
     Texture2*		texture;
     Rectangle*		rectangle;
+
+    int			useOldPar( const IOPar& );
 
 private:
 			~TextureRect();
