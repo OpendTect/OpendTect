@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.12 2002-10-08 09:46:29 bert Exp $
+ RCS:		$Id: filegen.h,v 1.13 2002-11-18 08:43:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,8 @@ int	File_remove(const char*,int force,int recursive_downward);
 int	File_makeWritable(const char*,int recursive,int yesno);
 int	File_createLink(const char* from,const char* to);
 
-/*! Disk space. Returns 0 on any error */
+/*! Size/disk space. Returns 0 on any error */
+int	File_getKbSize(const char*);
 int	File_getFreeMBytes(const char*);
 
 /*!
