@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.11 2002-02-28 13:42:29 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.12 2002-02-28 14:03:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -93,7 +93,7 @@ public:
 			~Rectangle();
     void		setOrigo( const Geometry::Pos& );
     Geometry::Pos	origo() const;
-    float		manipOrigo(int) const;
+    Geometry::Pos	manipOrigo() const;
 
     void		setWidth( float, float );
     float		width( int ) const;
@@ -123,8 +123,6 @@ public:
     			{ return dragger ? &dragger->changed : 0; }
     i_Notifier*		draggerFinishedNotifier()
     			{ return dragger ? &dragger->finished : 0; }
-
-    Geometry::Pos	getDraggerPos() const;
 
 protected:
     void		moveManipRectangletoDragger(CallBacker* =0);

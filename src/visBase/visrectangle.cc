@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.9 2002-02-28 13:42:40 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.10 2002-02-28 14:03:29 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "visscene.h"
@@ -439,31 +439,31 @@ Geometry::Pos visBase::Rectangle::origo() const
 }
 
 
-float visBase::Rectangle::manipOrigo( int dim ) const
+Geometry::Pos visBase::Rectangle::manipOrigo() const
 {
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
     SbVec3f origopos;
 
-    float res;
+    Geometry::Pos res;
 
     switch ( orientation_ )
     {
     case XY:
-	if ( dim==0 ) res = getStartPos(0, centerpos[0], scale[0] );
-	else if ( dim==1 ) res = getStartPos(1, centerpos[1], scale[1] );
-	else res = getStartPos(2, centerpos[2], 0 );
-    break;
+	res.x = getStartPos(0, centerpos[0], scale[0] );
+	res.y = getStartPos(1, centerpos[1], scale[1] );
+	res.z = getStartPos(2, centerpos[2], 0 );
+	break;
     case XZ:
-    	if ( dim==0 ) res = getStartPos(0, centerpos[0], scale[0] );
-	else if ( dim==1 ) res = getStartPos(2, -centerpos[2], 0 );
-	else res = getStartPos(1, centerpos[1], scale[1]);
+	res.x = getStartPos(0, centerpos[0], scale[0] );
+	res.y = getStartPos(2, -centerpos[2], 0 );
+	res.z = getStartPos(1, centerpos[1], scale[1]);
     break;
     case YZ:
-    	if ( dim==0 ) res = getStartPos(2, -centerpos[2], 0 );
-	else if ( dim==1 ) res = getStartPos(1, centerpos[1], scale[1] );
-	else res = getStartPos(0, centerpos[0], scale[0]);
+        res.x = getStartPos(2, -centerpos[2], 0 );
+	res.y = getStartPos(1, centerpos[1], scale[1] );
+	res.z = getStartPos(0, centerpos[0], scale[0]);
     }
 
     return res;
@@ -531,13 +531,6 @@ bool visBase::Rectangle::regForSelection(const VisualObject* assoc )
 }
 
 
-Geometry::Pos visBase::Rectangle::getDraggerPos() const
-{
-    if ( dragger ) return dragger->center();
-    return origo();
-}
-
-    
 void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
 {
     if ( !dragger ) return;
@@ -625,7 +618,7 @@ void visBase::Rectangle::moveObjectToManipRect(CallBacker*)
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
-    SbVec3f origopos( manipOrigo( 0 ), manipOrigo( 1 ), manipOrigo( 2 ) );
+    SbVec3f origopos( manipOrigo().x, manipOrigo().y, manipOrigo().z );
 
     if ( origotrans->translation.getValue()!=origopos )
     {
@@ -652,7 +645,7 @@ bool visBase::Rectangle::isManipRectOnObject() const
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
-    SbVec3f origopos( manipOrigo( 0 ), manipOrigo( 1 ), manipOrigo( 2 ) );
+    SbVec3f origopos( manipOrigo().x, manipOrigo().y, manipOrigo().z );
 
     if ( origotrans->translation.getValue()!=origopos )
     res = false;
