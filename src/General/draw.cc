@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.27 2002-05-27 15:53:23 nanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.28 2002-07-05 06:25:33 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -441,6 +441,9 @@ void ColorTable::get( const char* nm, ColorTable& ct )
 	get( "Pastel", ct );
     else if ( !strcmp(ctname,"Blue-White-Blue") )
 	get( "Blue Spirit", ct );
+
+    if ( !ct.name() || !(*ct.name()) )
+	get( "Red-White-Black", ct );
 }
 
 
