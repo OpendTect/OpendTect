@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.1.1.1 1999-09-03 10:11:40 dgb Exp $
+ RCS:		$Id: plfdefs.h,v 1.1.1.2 1999-09-16 09:18:46 arend Exp $
 ________________________________________________________________________
 
 */

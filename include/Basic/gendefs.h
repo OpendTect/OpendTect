@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: gendefs.h,v 1.1.1.2 1999-09-16 09:19:01 arend Exp $
 ________________________________________________________________________
 
 There are only #define lines, so there is no C-language constraint.

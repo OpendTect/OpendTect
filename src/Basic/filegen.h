@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: filegen.h,v 1.1.1.2 1999-09-16 09:18:58 arend Exp $
 ________________________________________________________________________
 
 These functions deliver services related to files. In principle, they shield

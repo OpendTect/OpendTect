@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.1.1.1 1999-09-03 10:11:40 dgb Exp $
+ RCS:		$Id: ascstream.h,v 1.1.1.2 1999-09-16 09:18:49 arend Exp $
 ________________________________________________________________________
 
  An asc stream gets/puts data in/from a standard ascii format file.

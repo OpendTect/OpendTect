@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-95
  Contents:	A Data trace is an XFunction with iteration
- RCS:		$Id: databuf.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: databuf.h,v 1.1.1.2 1999-09-16 09:19:51 arend Exp $
 ________________________________________________________________________
 
 */

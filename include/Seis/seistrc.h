@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: seistrc.h,v 1.1.1.2 1999-09-16 09:22:11 arend Exp $
 ________________________________________________________________________
 
 A trace is composed of trace info and trace data.

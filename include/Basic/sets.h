@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: sets.h,v 1.1.1.2 1999-09-16 09:19:15 arend Exp $
 ________________________________________________________________________
 
 The TypeSet is meant for simple types or small objects that have a copy

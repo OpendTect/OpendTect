@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: seistrctr.h,v 1.1.1.2 1999-09-16 09:22:14 arend Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.

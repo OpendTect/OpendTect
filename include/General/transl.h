@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: transl.h,v 1.1.1.2 1999-09-16 09:20:11 arend Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with

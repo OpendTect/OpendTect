@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.1.1.1 1999-09-03 10:11:40 dgb Exp $
+ RCS:		$Id: vectoraccess.h,v 1.1.1.2 1999-09-16 09:18:47 arend Exp $
 ________________________________________________________________________
 
 @$*/

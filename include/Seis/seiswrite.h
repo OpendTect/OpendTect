@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: seiswrite.h,v 1.1.1.2 1999-09-16 09:22:17 arend Exp $
 ________________________________________________________________________
 
 A SeisTrcWriter writes to a seismic data store. To be able to use the writer,

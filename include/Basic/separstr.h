@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.1.1.1 1999-09-03 10:11:41 dgb Exp $
+ RCS:		$Id: separstr.h,v 1.1.1.2 1999-09-16 09:19:14 arend Exp $
 ________________________________________________________________________
 
 SeparString is a list encoded in a string where the items are separated by
