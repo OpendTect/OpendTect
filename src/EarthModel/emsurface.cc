@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.30 2003-12-07 00:32:20 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.31 2003-12-08 16:31:02 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -590,6 +590,14 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
     const Geometry::PosID posid = Geometry::MeshSurface::getPosID(geomrowcol);
     Geometry::MeshSurface* surface = surfaces[patchindex];
     const Coord3 oldpos = surface->getMeshPos( geomrowcol );
+
+    if ( addtohistory )
+    {
+	EM::PosID pid( id(), patch, rowCol2SubID(surfrc) );
+	HistoryEvent* history = new SetPosHistoryEvent( pos, oldpos, pid );
+	manager.history().addEvent( history, 0, 0 );
+    }
+
     if ( oldpos==pos ) return true;
 
     TypeSet<EM::PosID> nodeonotherpatches;
@@ -613,13 +621,6 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
 
 	    dataptr->insert( newauxdataindex, mUndefValue );
 	}
-    }
-
-    if ( addtohistory )
-    {
-	HistoryEvent* history = new SetPosHistoryEvent( pos, oldpos,
-				    EM::PosID(id(),patch,rowCol2SubID(surfrc)) );
-	manager.history().addEvent( history, 0, 0 );
     }
 
     if ( !autoconnect ) return true;
