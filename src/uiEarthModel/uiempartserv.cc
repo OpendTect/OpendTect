@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.39 2004-01-02 13:08:23 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.40 2004-01-07 08:14:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,7 +126,7 @@ bool uiEMPartServer::createSurface(MultiID& id, bool ishor,
     BufferString instruction = "Enter new ";
     instruction += ishor ? "horizon" : "fault";
     instruction += "name";
-    DataInpSpec* inpspec = new StringInpSpec("Kalle");
+    DataInpSpec* inpspec = new StringInpSpec;
     uiGenInputDlg dlg( appserv().parent(), instruction, "Name", inpspec );
 
     EM::ObjectID objid;
