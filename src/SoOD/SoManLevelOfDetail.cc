@@ -2,6 +2,7 @@
 
 #include <Inventor/actions/SoGetBoundingBoxAction.h>
 #include <Inventor/actions/SoCallbackAction.h>
+#include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/caches/SoBoundingBoxCache.h>
 #include <Inventor/elements/SoLocalBBoxMatrixElement.h>
@@ -131,6 +132,13 @@ void SoManLevelOfDetail::doAction(SoAction *action)
 				SoComplexityTypeElement::get(state);
     float complexity = SbClamp(SoComplexityElement::get(state), 0.0f, 1.0f);
 
+    SoType actiontype = action->getTypeId();
+    if ( actiontype==SoRayPickAction::getClassTypeId() )
+    {
+	idx = 0;
+	goto traverse;
+    }
+
     if ( this->whichChild.getValue()>SO_MANLEVELOFDETAIL_AUTO )
     {
 	idx =  this->whichChild.getValue();
@@ -191,6 +199,12 @@ void SoManLevelOfDetail::GLRender(SoGLRenderAction *action)
 }
 
 void SoManLevelOfDetail::rayPick(SoRayPickAction *action)
+{
+    SoManLevelOfDetail::doAction((SoAction*)action);
+}
+
+
+void  SoManLevelOfDetail::pick( SoPickAction* action )
 {
     SoManLevelOfDetail::doAction((SoAction*)action);
 }
