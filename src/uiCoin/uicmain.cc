@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.11 2004-01-16 11:39:15 bert Exp $
+ RCS:           $Id: uicmain.cc,v 1.12 2004-03-05 10:17:26 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ void uicMain::init( QWidget* mw )
 	    DBG::message( "SoQt::init() ..." );
     SoQt::init(mw);
 	if ( DBG::isOn() )
-	    DBG::message( "done. visBase::initdGBInventorClasses() ..." );
-    visBase::initdGBInventorClasses();
+	    DBG::message( "done. visBase::initODInventorClasses() ..." );
+    visBase::initODInventorClasses();
 	if ( DBG::isOn() )
 	    DBG::message( "done. SoDB::init() ..." );
     SoDB::init();
