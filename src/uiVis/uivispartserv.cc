@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.24 2002-04-19 14:29:40 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.25 2002-04-19 14:55:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,9 @@ const int uiVisPartServer::evSelectableStatusCh = 5;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-        , viewmode( false )
-        , eventmutex( *new Threads::Mutex )
+        , viewmode(false)
+	, eventobjid(-1)
+        , eventmutex(*new Threads::Mutex)
 {
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -269,7 +270,7 @@ void uiVisPartServer::setAttribSelSpec( int id, AttribSelSpec& as )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
-    sd->setAttribSelSpec( as );
+    if ( sd ) sd->setAttribSelSpec( as );
 }
 
 
@@ -293,7 +294,7 @@ void uiVisPartServer::putNewData( int id, AttribSlice* slice )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
-    sd->operationSucceeded( sd->putNewData(slice) );
+    if ( sd ) sd->operationSucceeded( sd->putNewData(slice) );
 }
 
 
