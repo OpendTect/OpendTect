@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.9 2002-03-21 09:44:47 arend Exp $
+ RCS:		$Id: vissurvscene.h,v 1.10 2002-04-11 08:41:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,11 +40,6 @@ public:
     void			addXYZObject( SceneObject* );
     void			addXYTObject( SceneObject* );
     void			addInlCrlTObject( SceneObject* );
-    int				getFirstIdx( int id ) const;
-    int				getFirstIdx(  const SceneObject* ) const;
-    void			removeObject( int idx );
-
-    virtual int			size() const;
 
     float			apparentVel() const;
     void			setApparentVel( float );
@@ -52,9 +47,6 @@ public:
 protected:
     				~Scene();
 
-    visBase::SceneObjectGroup*	xytworld;
-    visBase::SceneObjectGroup*	inlcrlworld;
-    visBase::Transformation*	xytranslation;
     visBase::Transformation*	timetransformation;
     visBase::Transformation*	inlcrltransformation;
 

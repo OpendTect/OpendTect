@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.11 2002-04-11 06:40:20 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.12 2002-04-11 08:41:23 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -19,39 +19,18 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.11 2002-04-11 06:40:20 kris
 
 
 visSurvey::Scene::Scene()
-    : xytworld( visBase::SceneObjectGroup::create(true) )
-    , inlcrlworld( visBase::SceneObjectGroup::create(true) )
-    , inlcrltransformation( visBase::Transformation::create() )
-    , xytranslation( visBase::Transformation::create() )
+    : inlcrltransformation( visBase::Transformation::create() )
     , timetransformation( visBase::Transformation::create() )
     , appvel( 1000 )
 {
-    xytworld->ref();
-    inlcrlworld->ref();
-    inlcrltransformation->ref();
-    xytranslation->ref();
-    timetransformation->ref();
+    addObject( timetransformation );
+    addObject( inlcrltransformation );
 
-    addObject( xytranslation );
-    addObject( xytworld );
-    xytworld->addObject( timetransformation );
-    xytworld->addObject( inlcrlworld );
-    inlcrlworld->addObject( inlcrltransformation );
-
-    // Set xytranslation
     BinID startbid = SI().range().start;
     BinID stopbid = SI().range().stop;
 
     Coord startpos = SI().transform( startbid );
     Coord stoppos = SI().transform( stopbid );
-
-    /*inlcrltransformation->setA(
-	1,	0,	0,	-startpos.x,
-	0,	1,	0,	-startpos.y,
-	0,	0,	1,	0,
-	0,	0,	0,	1 );
-    */
-
 
     // Set inlcrl transformation
     BinID firstinlinestopbid( startbid.inl, stopbid.crl );
@@ -116,90 +95,53 @@ visSurvey::Scene::Scene()
 
     visBase::DirectionalLight* light = visBase::DirectionalLight::create();
     light->setDirection( 0, 0, 1 );
-    addInlCrlTObject( light );
+    addXYZObject( light );
 
     light = visBase::DirectionalLight::create();
     light->setDirection( 0, 0, -1 );
-    addInlCrlTObject( light );
+    addXYZObject( light );
 
     light = visBase::DirectionalLight::create();
     light->setDirection( 0, 1, 0 );
-    addInlCrlTObject( light );
+    addXYZObject( light );
 
     light = visBase::DirectionalLight::create();
     light->setDirection( 0,-1, 0 );
-    addInlCrlTObject( light );
+    addXYZObject( light );
 
     light = visBase::DirectionalLight::create();
     light->setDirection( 1, 0, 0 );
-    addInlCrlTObject( light );
+    addXYZObject( light );
 
     light = visBase::DirectionalLight::create();
     light->setDirection(-1, 0, 0 );
-    addInlCrlTObject( light );
+    addXYZObject( light );
 }
 
 
 visSurvey::Scene::~Scene()
-{
-    xytworld->unRef();
-    inlcrlworld->unRef();
-    inlcrltransformation->unRef();
-    xytranslation->unRef();
-    timetransformation->unRef();
-}
+{ }
 
 
 void visSurvey::Scene::addXYZObject( SceneObject* obj )
-{ addObject( obj ); }
+{
+    int insertpos = getFirstIdx( timetransformation );
+    if ( insertpos==size()-1) addObject(obj);
+    else insertObject( insertpos, obj );
+}
 
 
 void visSurvey::Scene::addXYTObject( SceneObject* obj )
-{ xytworld->addObject(obj); }
+{
+    int insertpos = getFirstIdx( inlcrltransformation );
+    if ( insertpos==size()-1) addObject(obj);
+    else insertObject( insertpos, obj );
+}
 
 
 void visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
-{ inlcrlworld->addObject( obj ); }
-
-
-int visSurvey::Scene::getFirstIdx( int nid ) const
 {
-    int res = visBase::SceneObjectGroup::getFirstIdx( nid );
-    if ( res>=0 ) return res;
-    res = xytworld->getFirstIdx( nid );
-    if ( res>=0 ) return res+visBase::SceneObjectGroup::size();
-    res = inlcrlworld->getFirstIdx( nid );
-    if ( res>=0 ) return res+visBase::SceneObjectGroup::size()+xytworld->size();
-
-    return res;
-}
-
-
-int visSurvey::Scene::getFirstIdx( const SceneObject* sceneobj ) const
-{
-    int id = visBase::DataManager::manager.getId( sceneobj );
-    return getFirstIdx( id );
-}
-
-
-int visSurvey::Scene::size() const
-{
-    return visBase::SceneObjectGroup::size() +
-	   inlcrlworld->size() + xytworld->size();
-}
-
-
-void visSurvey::Scene::removeObject( int idx )
-{
-    if ( idx<visBase::SceneObjectGroup::size() )
-	return visBase::SceneObjectGroup::removeObject( idx );
-    idx -= visBase::SceneObjectGroup::size();
-
-    if ( idx<xytworld->size() )
-	return xytworld->removeObject( idx );
-
-    idx -= xytworld->size();
-    inlcrlworld->removeObject( idx );
+    addObject( obj );
 }
 
 
