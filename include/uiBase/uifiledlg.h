@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.2 2001-05-16 14:58:39 arend Exp $
+ RCS:           $Id: uifiledlg.h,v 1.3 2001-08-31 15:05:29 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,9 +31,9 @@ public:
 protected:
     BufferString	fn;
     bool		forread_;
-    const char*		fname_;
-    const char*		filter_;
-    const char*		caption_;
+    BufferString	fname_;
+    BufferString	filter_;
+    BufferString	caption_;
 };
 
 #endif

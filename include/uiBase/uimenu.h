@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.8 2001-08-30 14:36:43 bert Exp $
+ RCS:           $Id: uimenu.h,v 1.9 2001-08-31 15:05:29 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiMainWin;
 
 class uiMenuItem;
 class uiPopupMenu;
+class uiPopupItem;
 
 class uiMenuDataBody;
 class i_MenuMessenger;
@@ -59,7 +60,7 @@ class uiMenuItem : public UserIDObject
 friend class			uiMenuDataBody;
 
 public:
-				uiMenuItem( const char* nm="uiMenuItem" );
+				uiMenuItem( const char* nm );
 				uiMenuItem( const char* nm, const CallBack& cb);
 				~uiMenuItem();
 
@@ -92,28 +93,6 @@ private:
 };
 
 
-class uiPopupItem : public uiMenuItem
-{
-friend class uiPopupMenu;
-protected:
-				uiPopupItem( uiPopupMenu& menu,
-					     const char* nm="uiMenuItem");
-
-				uiPopupItem( uiPopupMenu& menu, 
-					     const char* nm, 
-					     const CallBack&);
-public:
-
-    bool			isCheckable();
-    void			setCheckable( bool yn );
-
-private:
-
-    //uiPopupMenu*		popmenu_;
-
-};
-
-
 class uiMenuBar : public uiMenuData
 {
     friend class		uiMainWinBody;
@@ -126,8 +105,6 @@ protected:
     void 			reDraw(bool deep=true);
 
 };
-
-
 
 class uiPopupMenu : public uiMenuData
 {
