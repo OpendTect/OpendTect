@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.17 2003-05-28 09:46:38 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.18 2003-05-28 15:16:20 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -257,7 +257,8 @@ void visBase::Texture::clipData()
 	clipper.putData(datacache[idx], cachesize );
 	clipper.calculateRange();
 	datascales[idx].factor = 1.0/clipper.getRange().width();
-	datascales[idx].constant = -clipper.getRange().start;
+	datascales[idx].constant = -clipper.getRange().start * 
+	    						datascales[idx].factor;
     }
 
     if ( datacache[Texture::Color] )
@@ -394,7 +395,7 @@ protected:
 		    col.getHSV(h,s,v);
 		    if ( huedata )
 		    {
-			float th = h * (*datascales)[visBase::Texture::Hue]
+			float th = 255 * (*datascales)[visBase::Texture::Hue]
 					.scale(huedata[idx]);
 
 			if ( th<0 ) th=0;
@@ -404,7 +405,7 @@ protected:
 		    }
 		    if ( saturationdata )
 		    {
-			float ts = s *
+			float ts = 255 *
 			    	(*datascales)[visBase::Texture::Saturation]
 				    .scale(saturationdata[idx]);
 			if ( ts<0 ) ts=0;
@@ -413,7 +414,7 @@ protected:
 		    }
 		    if ( brightnessdata )
 		    {
-			float tv = v *
+			float tv = 255 *
 			    (*datascales)[visBase::Texture::Brightness]
 				    .scale(brightnessdata[idx]);
 			if ( tv<0 ) tv=0;
@@ -432,12 +433,12 @@ protected:
 		{
 		    if ( transdata )
 		    {
-			int trans =
+			int trans = 255 * 
 			    mNINT((*datascales)[visBase::Texture::Transparency]
 			    .scale(transdata[idx] ));
 			if ( trans<0 ) trans=0;
 			else if ( trans>255 ) trans=255;
-			texture[pos++] = trans;
+			texture[pos++] = 255-trans;
 		    }
 		    else
 		    {
