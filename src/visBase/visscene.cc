@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.10 2002-04-29 09:01:38 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.11 2002-04-29 09:21:16 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -19,8 +19,7 @@ static const char* rcsID = "$Id: visscene.cc,v 1.10 2002-04-29 09:01:38 kristofe
 mCreateFactoryEntry( visBase::Scene );
 
 visBase::Scene::Scene()
-    : SceneObjectGroup( true )
-    , selroot( new SoGroup )
+    : selroot( new SoGroup )
     , environment( new SoEnvironment )
     , mouseevents( *EventCatcher::create() )
     , mousedownid( -1 )
