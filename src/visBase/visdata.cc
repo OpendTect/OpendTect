@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.17 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.18 2003-12-16 13:36:46 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -135,9 +135,36 @@ visBase::FactoryEntry::FactoryEntry( FactPtr funcptr_,
 				     const char* name_ ) 
     : funcptr( funcptr_ )
     , name( name_ )
+    , factory( &DM().factory() )
 {
-    DM().factory().entries += this;
+    factory->entries += this;
+    factory->closing.notify( mCB(this, visBase::FactoryEntry, visIsClosingCB ));
 }
+
+
+visBase::FactoryEntry::~FactoryEntry()
+{
+    if ( !factory )
+	return;
+
+    factory->entries -= this;
+    factory->closing.remove( mCB(this, visBase::FactoryEntry, visIsClosingCB ));
+}
+
+
+void visBase::FactoryEntry::visIsClosingCB(CallBacker*)
+{
+    factory = 0;
+}
+
+
+visBase::Factory::Factory()
+     : closing( this )
+{}
+
+
+visBase::Factory::~Factory()
+{ closing.trigger(); }
 
 
 visBase::DataObject* visBase::Factory::create( const char* nm )
@@ -151,4 +178,3 @@ visBase::DataObject* visBase::Factory::create( const char* nm )
 
     return 0;
 }
-

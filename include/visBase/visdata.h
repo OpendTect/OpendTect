@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.25 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visdata.h,v 1.26 2003-12-16 13:36:50 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -95,24 +95,34 @@ private:
 };
 
 
+class Factory;
 
-class FactoryEntry
+class FactoryEntry : public CallBackClass
 {
 public:
     			FactoryEntry( FactPtr, const char*);
+    			~FactoryEntry();
 
     DataObject*		create(void) { return (*funcptr)(); }
 
     			FactPtr funcptr;
     const char*		name;
+
+protected:
+    void		visIsClosingCB(CallBacker*);
+    visBase::Factory*	factory;
 };
 
 
-class Factory
+class Factory : public CallBacker
 {
 public:
+    				Factory(); 
+    				~Factory();
     DataObject*			create( const char* );
     ObjectSet<FactoryEntry>	entries;
+
+    Notifier<Factory>		closing;
 };
 
 };
@@ -134,18 +144,6 @@ protected:
     
 #define _mDeclConstr(clss)	\
     clss();			\
-public:
-
-#define _mDeclConstr1Arg(clss,typ,arg)	\
-    clss(typ arg);			\
-public:
-
-#define _mDeclConstr2Args(clss,typ,arg,typ2,arg2)	\
-    clss(typ arg,typ2 arg2);			\
-public:
-
-#define _mDeclConstr3Args(clss,typ,arg,typ2,arg2,typ3,arg3)	\
-    clss(typ arg,typ2 arg2, typ3 arg3 );			\
 public:
 
 #define mCreateDataObj(clss) \
