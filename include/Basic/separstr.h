@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.3 2000-09-27 15:22:16 bert Exp $
+ RCS:		$Id: separstr.h,v 1.4 2000-10-17 16:01:36 bert Exp $
 ________________________________________________________________________
 
 SeparString is a list encoded in a string where the items are separated by
@@ -65,5 +65,23 @@ public:
 };
 
 
-/*$-*/
+class MultiKeyString : public SeparString
+{
+public:
+
+	MultiKeyString(const char* str=0) : SeparString(str,'.') {}
+	MultiKeyString( const MultiKeyString& baskey, const char* key )
+		: SeparString(baskey)
+	{
+	    if ( key && *key ) *this += key;
+	}
+	MultiKeyString( const char* baskey, const char* key )
+		: SeparString(baskey,'.')
+	{
+	    if ( key && *key ) *this += key;
+	}
+
+};
+
+
 #endif

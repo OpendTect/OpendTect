@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.2 2000-08-08 14:16:20 bert Exp $
+ RCS:		$Id: settings.h,v 1.3 2000-10-17 16:01:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,9 @@ public:
 			~Settings();
 
     bool		reRead();
-    bool		write() const;
+    bool		write(bool read_before=true) const;
+			//!< read_before should be true: this is the protection
+			//!< against another update being screwed by this one
 
     inline static Settings& common()
 			{
@@ -45,6 +47,15 @@ protected:
     static Settings*	common_;
 
 };
+
+
+//! Below macros for easy get and set to Settings::common()
+
+#define mSettUse(fn,basekey,key,value) \
+	Settings::common().fn( IOPar::compKey(basekey,key), value )
+#define mSettGet(basekey,key) \
+	Settings::common()[ IOPar::compKey(basekey,key) ]
+
 
 
 #endif
