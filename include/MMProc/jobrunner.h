@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.12 2005-03-23 15:44:06 cvsbert Exp $
+ RCS:		$Id: jobrunner.h,v 1.13 2005-03-23 16:17:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,9 @@ public:
     const JobInfo&		curJobInfo() const	{ return *curjobinfo_; }
     IOPar&			curJobIOPar()		{ return curjobiop_; }
     const FilePath&		curJobFilePath()	{ return curjobfp_; }
+
+    const char*			procDir() const	{ return procdir_.buf(); }
+    				// processing directory on local machine
 
 protected:
 
