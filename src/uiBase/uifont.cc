@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.8 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uifont.cc,v 1.9 2001-08-27 12:53:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ int uiFont::maxWidth() const
 
 int uiFont::avgWidth() const
 {
-    return mQFontMetrics.width('x');
+    return mQFontMetrics.width(QChar('x'));
 }
 
 
