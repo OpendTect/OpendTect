@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.17 2004-01-22 16:25:39 dgb Exp $
+# $Id: od_cr_dev_env,v 1.18 2004-05-11 08:43:20 macman Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -28,6 +28,11 @@ else
     soext=so
 fi
 
+cpcmd="cp -a"
+if [ "$HDIR" = "mac" ]; then
+    cpcmd="cp -r"
+    soext=dylib
+fi
 
 if [ ! -d "$inpdir" ] || [ ! -e "$inpdir/.rel.od.doc" ]; then
 	echo "$0 : $inpdir does not have the doc package installed"
@@ -48,7 +53,7 @@ cd "$outdir"
 
 for item in plugins src include Pmake
 do 
-    cp -a "$inpdir/$item" .
+    $cpcmd "$inpdir/$item" .
 
 done 
 
@@ -82,9 +87,9 @@ mkdir so
 cd so
 
 
-cp -a "$inpdir/bin/$HDIR/so"/*.$soext .
+$cpcmd "$inpdir/bin/$HDIR/so"/*.$soext .
 if [ "$HDIR" = "win" ]; then
-    cp -a "$inpdir/bin/$HDIR/so"/*.a .
+    $cpcmd "$inpdir/bin/$HDIR/so"/*.a .
 fi
 
 
