@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.3 2005-02-08 16:55:49 bert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.4 2005-02-09 15:57:48 bert Exp $";
 
 #include "posvecdataset.h"
 #include "datacoldef.h"
@@ -57,6 +57,8 @@ PosVecDataSet& PosVecDataSet::operator =( const PosVecDataSet& vds )
 void PosVecDataSet::copyStructureFrom( const PosVecDataSet& vds )
 {
     empty();
+    data_.copyStructureFrom( vds.data_ );
+    deepErase( coldefs_ );
     deepCopy( coldefs_, vds.coldefs_ );
 }
 

@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.7 2005-02-08 16:57:12 bert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.8 2005-02-09 15:57:48 bert Exp $";
 
 #include "nlacrdesc.h"
 #include "posvecdataset.h"
@@ -52,18 +52,16 @@ const char* NLACreationDesc::prepareData( const ObjectSet<PosVecDataSet>& vdss,
 
     // For direct prediction, the sets are ready. If not, add a ColumnDef
     // for each output node
-    trainvds.data().copyStructureFrom( vdss[0]->data() );
+    trainvds.copyStructureFrom( *vdss[0] );
     if ( doextraction && !isdirect )
     {
         for ( int iout=0; iout<nrout; iout++ )
 	{
 	    BufferString psnm = IOM().nameOf( outids[iout]->buf() );
-	    DataColDef* newdcd = new DataColDef( psnm );
-	    newdcd->ref_ = *outids[iout];
-            trainvds.add( newdcd );
+            trainvds.add( new DataColDef( psnm, *outids[iout] ) );
 	}
     }
-    testvds.data().copyStructureFrom( trainvds.data() );
+    testvds.copyStructureFrom( trainvds );
 
     // Get the data into train and test set
     for ( int idx=0; idx<vdss.size(); idx++ )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.69 2005-02-08 16:56:31 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.70 2005-02-09 15:57:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -851,10 +851,21 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( extrres )
 	{
 	    ObjectSet<PosVecDataSet> vdss;
+	    PosVecDataSet tmplvds;
 	    for ( int idx=0; idx<fss.size(); idx++ )
 	    {
+		const FeatureSet& fs = *fss[idx];
+		if ( fs.descs().size() != 0 || fs.size() != 0 )
+		    fs.fill( tmplvds );
+	    }
+	    for ( int idx=0; idx<fss.size(); idx++ )
+	    {
+		const FeatureSet& fs = *fss[idx];
 		PosVecDataSet* vds = new PosVecDataSet;
-		fss[idx]->fill( *vds );
+		if ( fs.size() )
+		    fs.fill( *vds );
+		else
+		    vds->copyStructureFrom( tmplvds );
 		vdss += vds;
 	    }
 
