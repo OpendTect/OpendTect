@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.11 2002-09-04 06:38:39 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.12 2002-10-08 11:50:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     infofld->attach( alignedBelow, topgrp );
     infofld->setPrefHeightInChar( 7 );
     infofld->setPrefWidthInChar( 50 );
-    topgrp->attach( widthSameAs, infofld );
 
     selChg( this ); 
     setCancelText( "" );

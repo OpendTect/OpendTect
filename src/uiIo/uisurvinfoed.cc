@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.33 2002-09-30 15:39:49 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.34 2002-10-08 11:50:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,17 +30,19 @@ extern "C" const char* GetBaseDataDir();
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si, 
 					const CallBack& appcb )
 	: uiDialog(p,uiDialog::Setup("Survey setup",
-		    		     "Specify survey parameters","0.3.2"))
+		    		     "Specify survey parameters","0.3.2")
+				.nrstatusflds(1))
 	, rootdir( GetBaseDataDir() )
 	, dirnmch_(0)
 	, survinfo(si)
 	, survparchanged(this)
     	, x0fld(0)
+    	, orgdirname(si ? (const char*)si->dirname : "")
 {
-    orgdirname = survinfo->dirname;
-    survnm = survinfo->name();
+    if ( !si ) return;
 
-    survnmfld = new uiGenInput( this, "Survey name", StringInpSpec( survnm ) );
+    survnmfld = new uiGenInput( this, "Survey name",
+	    			StringInpSpec(survinfo->name()) );
     dirnmfld = new uiGenInput( this, "Directory name", 
 			       StringInpSpec( orgdirname ) );
     dirnmfld->attach( alignedBelow, survnmfld );
@@ -228,6 +230,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 	BufferString path = File_getPathOnly( File_linkTarget( from ) );
 	pathfld->setText( path );
 	pathfld->setReadOnly( true );
+	updStatusBar( path );
     }
 
     if ( survinfo->rangeUsable() ) setValues();
@@ -236,6 +239,7 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     chgSetMode(0);
 //  if( ic1fld->uiObj() ) ic1fld->uiObj()->setSensitive( false );
     ic1fld->setReadOnly( true, 0 );
+
 }
 
 
@@ -432,7 +436,26 @@ void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 {
     uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, pathfld->text() );
     if ( dlg.go() )
-	pathfld->setText( dlg.fileName() );
+    {
+	BufferString dirnm( dlg.fileName() );
+	if ( !File_isWritable(dirnm) )
+	{
+	    uiMSG().error( "Directory is not writable" );
+	    return;
+	}
+	updStatusBar( dirnm );
+	pathfld->setText( dirnm );
+    }
+}
+
+
+void uiSurveyInfoEditor::updStatusBar( const char* dirnm )
+{
+    BufferString msg;
+    msg += "Free space on disk: ";
+    msg += File_getFreeMBytes( dirnm );
+    msg += " MB";
+    toStatusBar( msg );
 }
 
 
