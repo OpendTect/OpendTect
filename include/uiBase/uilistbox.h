@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.14 2001-09-25 12:27:50 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.15 2001-12-30 14:48:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
 			*/
     void 		setLines( int prefNrLines );
     void		setNotSelectable();
+    void		setMultiSelect(bool yn=true);
 
     int			size() const;
     bool		isPresent(const char*) const;
