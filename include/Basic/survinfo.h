@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.36 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.37 2004-01-08 14:30:03 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,9 @@ public:
 
     virtual Coord	transform(const BinID&) const	= 0;
     virtual BinID	transform(const Coord&) const	= 0;
+    			/*!<\note The returned BinID will be snapped according
+			  	  to the current step.
+			*/
 
     virtual Coord	minCoord(bool work=true) const;
     virtual Coord	maxCoord(bool work=true) const;
