@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.16 2001-12-07 17:43:59 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.17 2001-12-31 13:40:24 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 #include "bufstring.h"
+class uiGroup;
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
@@ -56,6 +57,7 @@ public:
 			//! Separator between central dialog and Ok/Cancel bar?
     void		setSeparator( bool yn );
     bool		separator();
+    uiGroup*		topGroup();
 
     Notifier<uiDialog>	finaliseStart; //! triggered when about to start finalising
     Notifier<uiDialog>	finaliseDone;  //! triggered when finalising finished
