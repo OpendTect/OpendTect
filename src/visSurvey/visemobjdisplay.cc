@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.8 2005-03-11 12:23:08 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.9 2005-03-11 12:52:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.8 2005-03-11 12:23:08 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.9 2005-03-11 12:52:43 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
@@ -134,6 +134,8 @@ bool EMObjectDisplay::updateFromEM()
     EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(mid));
     if ( !emobject ) return false;
 
+    setName( emobject->name() );
+
     for ( int idx=0; idx<emobject->nrSections(); idx++ )
     {
 	const EM::SectionID sectionid = emobject->sectionID(idx);
@@ -216,6 +218,8 @@ void EMObjectDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 
 void EMObjectDisplay::setDepthAsAttrib()
 {
+    as.set( "", AttribSelSpec::noAttrib, false, "" );
+
     ObjectSet<BinIDValueSet> positions;
     fetchData(positions);
 
