@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.38 2004-06-23 11:19:46 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.39 2004-07-14 15:44:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,7 @@ void uiODApplMgr::resetServers()
 {
     if ( nlaserv ) nlaserv->reset();
     delete attrserv; attrserv = new uiAttribPartServer( applservice );
+    delete visserv; visserv = new uiVisPartServer( applservice );
 }
 
 
@@ -578,11 +579,10 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 
 	TypeSet<Coord3> stick;
 	sd->getEditor()->getSeedStick( stick );
-	trackserv->createSeedFromStickset( stick,
-		sd->getEditor()->getSeedStickColor() );
+	trackserv->createSeedFromStick( stick );
 	trackserv->calcInterpreterCube( stick );
-	sd->setColor(sd->getEditor()->getSeedStickColor());
-	sd->getEditor()->enableSeedStick(false);
+	sd->setColor( sd->getEditor()->getSeedStickColor() );
+	sd->getEditor()->enableSeedStick( false );
     }
     else if ( evid == uiTrackingPartServer::evShowManager )
     {
