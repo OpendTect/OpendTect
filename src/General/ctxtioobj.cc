@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.6 2001-08-22 15:37:47 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.7 2001-10-05 15:47:13 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -79,6 +79,10 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 	maydooper = ct.maydooper;
 	parentkey = ct.parentkey;
 	deftransl = ct.deftransl;
+	trglobexpr = ct.trglobexpr;
+	ioparkeyval[0] = ct.ioparkeyval[0];
+	ioparkeyval[1] = ct.ioparkeyval[1];
+	includekeyval = ct.includekeyval;
     }
     return *this;
 }
@@ -101,6 +105,10 @@ void IOObjContext::fillPar( IOPar& iopar ) const
     iopar.setYN( "Selection.Allow operations", maydooper );
     iopar.set( "Selection.Default translator", (const char*)deftransl );
     iopar.set( "Selection.Parent key", (const char*)parentkey );
+    iopar.set( "Selection.Allow Translators", trglobexpr );
+    iopar.set( "Selection.Property selection key", ioparkeyval[0] );
+    iopar.set( "Selection.Property selection value", ioparkeyval[1] );
+    iopar.setYN( "Selection.Include property", includekeyval );
 }
 
 
@@ -130,6 +138,13 @@ void IOObjContext::usePar( const IOPar& iopar )
     if ( res ) deftransl = res;
     res = iopar.find( "Selection.Parent key" );
     if ( res ) parentkey = res;
+    res = iopar.find( "Selection.Allow Translators" );
+    if ( res ) trglobexpr = res;
+    res = iopar.find( "Selection.Property selection key" );
+    if ( res ) ioparkeyval[0] = res;
+    res = iopar.find( "Selection.Property selection value" );
+    if ( res ) ioparkeyval[1] = res;
+    iopar.getYN( "Selection.Include property", includekeyval );
 }
 
 
