@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.2 2003-10-02 14:49:44 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.3 2003-10-04 20:58:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
     const char*		name() const			= 0;
     virtual MultiID	modelId() const			= 0;
     virtual void	reset()				= 0;
-    virtual bool	isClassification()		= 0;
+    virtual bool	isClassification() const	= 0;
     virtual void	getNeededStoredInputs(
 			      const UserIDSet& ioobjnms,
 			      TypeSet<int>&) const	= 0;
