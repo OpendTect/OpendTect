@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.4 2003-02-12 12:52:26 kristofer Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.5 2003-02-19 09:22:31 nanne Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -80,6 +80,10 @@ SoRandomTrackLineDragger::SoRandomTrackLineDragger()
     SoShapeHints* hints =
 		SO_GET_ANY_PART( this, "feedbackShapeHints", SoShapeHints );
     hints->vertexOrdering = SoShapeHints::CLOCKWISE;
+
+    SoMaterial* material =
+		SO_GET_ANY_PART( this, "feedbackMaterial", SoMaterial );
+    material->transparency.setValue( 0.5 );
 
     knotsfieldsensor = new SoFieldSensor(&fieldChangeCB, this );
     knotsfieldsensor->setPriority(0);
