@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.43 2002-01-22 10:51:20 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.44 2002-01-22 15:55:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm ) 
 :   mngr_( m ), mQLayoutItem_( itm ), 
     preferred_pos_inited( false ), minimum_pos_inited( false ),
-    prefSzDone( false )
+    prefSzDone( false ), hsameas( false ), vsameas( false )
 {}
 
 
@@ -75,6 +75,8 @@ uiSize i_LayoutItem::actualSize( bool include_border ) const
 
 int i_LayoutItem::stretch( bool hor ) const
 { 
+    if( hor && hsameas || !hor && vsameas ) return 0;
+
     const uiObjectBody* blo = bodyLayouted();
     return blo ? blo->stretch( hor ) : 0; 
 }
@@ -140,8 +142,8 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
 	    uiRect& mPos = curpos( m );
 	    mPos = curpos( preferred );
 
-	    mPos.setLeft( mMAX( pPos.left(), mngrLeft ));
-	    mPos.setTop( mMAX( pPos.top(), mngrTop ));
+	    mPos.leftTo( mMAX( pPos.left(), mngrLeft ));
+	    mPos.topTo( mMAX( pPos.top(), mngrTop ));
 
 	    initChildLayout(m);
 	    }
@@ -606,12 +608,19 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	    other-> constrList.append( 
 			    new uiConstraint( centeredBelow, this, margn ) );
 	    break;
-
+#if 0
 	case heightSameAs:
 	case widthSameAs:
 	    other-> constrList.append( new uiConstraint( type, this, margn ) );
 	    break;
-
+#else
+	case heightSameAs:
+	    vsameas=true;
+	    break;
+	case widthSameAs:
+	    hsameas=true;
+	    break;
+#endif
 	case ensureLeftOf:
 	    other-> constrList.append( 
 			    new uiConstraint( ensureRightOf, this, margn ) );
@@ -1066,8 +1075,8 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
         hdone = true;
         itm.hDelta += hdir;
         itmGeometry.setWidth ( refGeom.width() + itm.hDelta );
-	if( hdir>0 &&  itmGeometry.right() == targetRect.right() )
-	    itmGeometry.setLeft ( itmGeometry.left() - 1 );
+	if( hdir>0 &&  itmGeometry.right() > targetRect.right() )
+	    itmGeometry.leftTo( itmGeometry.left() - 1 );
     }   
     
     if( vdir && itm.nviter>0 
@@ -1083,7 +1092,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
         vdone = true; 
         itm.vDelta += vdir;
         itmGeometry.setHeight( refGeom.height() + itm.vDelta );
-//        itmGeometry.setTop( itmGeometry.top() - 1 );
+//        itmGeometry.topTo( itmGeometry.top() - 1 );
     }
 
 
@@ -1368,9 +1377,13 @@ uiRect i_LayoutMngr::childrenRect( layoutMode m )
     {
 	int l = mMAX( 0,chldRect.left() - bs );
 	int t = mMAX( 0,chldRect.top() - bs );
-	int r = chldRect.right() + bs;
-	int b = chldRect.bottom() + bs;
-	return uiRect(l,t,r,b);
+	int w = chldRect.hNrPics() + 2*bs;
+	int h = chldRect.vNrPics() + 2*bs;
+
+	uiRect ret(l,t,0,0);
+	ret.setHNrPics(w);
+	ret.setVNrPics(h);
+	return ret;
     }
 
     return chldRect;

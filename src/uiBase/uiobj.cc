@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.28 2002-01-17 16:16:36 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.29 2002-01-22 15:55:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -465,7 +465,7 @@ int uiObjectBody::prefVNrPics() const
 		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
 	    else 
 	    {
-		float lines = 1.45;
+		float lines = 1.51;
 		if( nrTxtLines() == 0 )		lines = 7;
 		else if( nrTxtLines() > 1 )	lines = nrTxtLines();
 

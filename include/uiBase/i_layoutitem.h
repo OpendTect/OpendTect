@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.13 2002-01-22 10:51:20 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.14 2002-01-22 15:55:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,8 @@ private:
 #endif
     bool			prefSzDone;
     uiSize			prefSz;
+    bool			hsameas;
+    bool			vsameas;
 };
 
 
