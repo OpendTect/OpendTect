@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.18 2005-03-31 15:28:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.19 2005-04-01 15:01:12 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -101,7 +101,7 @@ bool Engine::trackAtCurrentPlane()
 {
     for ( int idx=0; idx<trackers.size(); idx++ )
     {
-	if ( !trackers[idx]->isEnabled() )
+	if ( !trackers[idx] || !trackers[idx]->isEnabled() )
 	    continue;
 
 	if ( !trackers[idx]->trackSections( trackplane ) )
@@ -116,7 +116,7 @@ bool Engine::trackAtCurrentPlane()
 
     for ( int idx=0; idx<trackers.size(); idx++ )
     {
-	if ( !trackers[idx]->isEnabled() )
+	if ( !trackers[idx] || !trackers[idx]->isEnabled() )
 	    continue;
 
 	if ( !trackers[idx]->trackIntersections( trackplane ) )
