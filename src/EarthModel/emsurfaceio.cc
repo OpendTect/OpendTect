@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.4 2003-06-19 13:38:32 bert Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.5 2003-06-20 12:40:41 bert Exp $";
 
 #include "emsurfaceio.h"
 
@@ -58,7 +58,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     auxdataexecs.allowNull(true);
     if ( !conn || !conn->forRead()  )
     {
-	msg = badconnstr;
+	msg = "Cannot open input horizon file";
 	error = true;
 	return;
     }
@@ -649,7 +649,7 @@ int EM::dgbSurfaceWriter::nextStep()
 	conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Write));
 	if ( !conn )
 	{
-	    msg = EM::dgbSurfaceReader::badconnstr;
+	    msg = "Cannot open output horizon file";
 	    return ErrorOccurred;
 	}
 
