@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.32 2003-02-26 13:02:26 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.33 2003-02-26 13:43:27 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -66,6 +66,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, sdout_(*new StreamData)
     	, masterport_(0)
 	, usesock_( false )
+	, jobid_( 0 )
 	, timestamp_( Time_getMilliSeconds() )
 	, exitstat_( mSTAT_UNDEF )
 {
@@ -86,10 +87,14 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	    fn = argv_[ argshift_ - 1 ];
 	    masterport_ = atoi(fn);
 	}
+	else if ( !strncmp(fn,"-jobid",6) )
+	{
+	    argshift_++;
+	    fn = argv_[ argshift_ - 1 ];
+	    jobid_ = atoi(fn);
+	}
 	else if ( *(fn+1) )
 	    opts_ += new BufferString( fn+1 );
-
-
 
 	argshift_++;
 	fn = argv_[ argshift_ - 1 ];
@@ -131,8 +136,6 @@ BatchProgram::BatchProgram( int* pac, char** av )
     }
 
     iopar_ = new IOPar( *parlist[0] );
-
-    iopar_->get( "Job ID", jobid_ ); 
 
     const char* res = iopar_->find( "Log file" );
     if ( !res )
