@@ -26,7 +26,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.17 2002-03-04 12:25:26 nanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.18 2002-05-14 16:57:52 bert Exp $";
 
 static FixedString<1024> oscommand;
 #ifdef __msvc__
@@ -65,8 +65,8 @@ void StreamData::init()
 bool StreamData::usable() const
 {
     return ( istrm || ostrm )
-	&& ( !istrm || !istrm->bad() )
-	&& ( !ostrm || (!ostrm->bad() && !ostrm->eof()) )
+	&& ( !istrm || !(istrm->bad() && !istrm->eof()) )
+	&& ( !ostrm || !ostrm->bad() )
 	&& ( !ispipe || fp );
 }
 
