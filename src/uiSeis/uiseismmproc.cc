@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.5 2002-04-24 16:07:10 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.6 2002-04-24 22:18:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uifilebrowser.h"
 #include "uiiosel.h"
 #include "uimsg.h"
+#include "uistatusbar.h"
 #include "hostdata.h"
 #include "iopar.h"
 
@@ -28,11 +29,12 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 	: uiExecutor(p,getFirstJM(prognm,iop))
     	, running(false)
     	, finished(false)
+    	, jmfinished(false)
 	, logvwer(0)
 {
     setCancelText( "Quit" );
     setOkText( "" );
-    setTitleText("Manage processing");
+    setTitleText("");
     delay = 2000;
 
     tmpstordirfld = new uiIOFileSelect( this, "Temporary storage directory",
@@ -123,17 +125,32 @@ void uiSeisMMProc::postStep( CallBacker* )
 
 void uiSeisMMProc::execFinished()
 {
-    SeisMMJobMan* newjm = new SeisMMJobMan( *jm );
-    if ( newjm->totalNr() < 1 )
+    if ( jmfinished )
     {
+	if ( !jm->removeTempSeis() )
+	    uiMSG().warning( "Could not remove temporary seismics" );
+	statusBar()->message( "Finished", 0 );
 	finished = true;
-	delete newjm;
-	return;
     }
-
-    delete jm; jm = newjm; task_ = newjm;
-    first_time = true;
-    timerTick(0);
+    else
+    {
+	updateCurMachs();
+	SeisMMJobMan* newjm = new SeisMMJobMan( *jm );
+	if ( newjm->totalNr() < 1 )
+	{
+	    delete newjm; newjm = 0;
+	    jmfinished = true;
+	    task_ = jm->dataTransferrer();
+	    delay = 0;
+	}
+	else
+	{
+	    delete jm; jm = newjm;
+	    task_ = newjm;
+	}
+	first_time = true;
+	timerTick(0);
+    }
 }
 
 
