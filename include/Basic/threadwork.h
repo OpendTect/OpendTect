@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.8 2002-12-30 12:00:23 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.9 2003-02-22 10:21:35 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,8 @@ protected:
     ObjectSet<BasicTask>	workload;
     ObjectSet<CallBack>		callbacks;
     ObjectSet<WorkThread>	threads;
+
+    ObjectSet<WorkThread>	freethreads;
 
     ConditionVar&		workloadcond;
 };
