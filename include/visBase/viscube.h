@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.12 2004-05-13 07:41:13 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.13 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,8 +43,8 @@ public:
     void		setWidth( const Coord3& );
     Coord3		width() const;
 
-    void		setTransformation( Transformation* );
-    Transformation*	getTransformation() { return transformation; }
+    void		setDisplayTransformation( Transformation* );
+    Transformation*	getDisplayTransformation() { return transformation; }
 
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;

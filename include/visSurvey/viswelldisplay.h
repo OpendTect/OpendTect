@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.20 2004-05-24 16:37:40 bert Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.21 2004-11-16 09:30:23 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -77,8 +77,9 @@ public:
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
-    void			setTransformation(visBase::Transformation*);
-    visBase::Transformation*	getTransformation();
+    void			setDisplayTransformation(
+	    					visBase::Transformation*);
+    visBase::Transformation*	getDisplayTransformation();
 
 protected:
 

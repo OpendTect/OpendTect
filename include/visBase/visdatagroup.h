@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.1 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visdatagroup.h,v 1.2 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,8 @@ public:
 
     virtual SoNode*		getInventorNode();
 
-    void			setTransformation( Transformation* );
-    Transformation*		getTransformation( );
+    void			setDisplayTransformation( Transformation* );
+    Transformation*		getDisplayTransformation( );
     				/*!\returns the trans of the first child
 					    with a trans, or null if none of
 					    the childrens has a trans */

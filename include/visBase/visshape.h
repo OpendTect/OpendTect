@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.13 2004-09-09 12:46:01 nanne Exp $
+ RCS:		$Id: visshape.h,v 1.14 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -110,12 +110,12 @@ public:
     Coordinates*	getCoordinates();
     const Coordinates*	getCoordinates() const;
 
-    void		setTransformation( Transformation* );
+    void		setDisplayTransformation( Transformation* );
     			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates, 
 			     you will have to setTransformation again.
 			 */
-    Transformation*	getTransformation();
+    Transformation*	getDisplayTransformation();
     			/*!<\note Direcly relayed to the coordinates */
 
     void		setTextureCoords(TextureCoords*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.6 2004-09-27 09:02:52 kristofer Exp $
+ RCS:           $Id: vishingeline.h,v 1.7 2004-11-16 09:30:23 kristofer Exp $
 ________________________________________________________________________
 
           
@@ -52,8 +52,9 @@ public:
     void			setEdgeLineSet(const EM::EdgeLineSet*);
     bool			setEdgeLineSet(int);
     const EM::EdgeLineSet*	getEdgeLineSet() const { return edgelineset; }
-    void			setTransformation(visBase::Transformation*);
-    visBase::Transformation*	getTransformation();
+    void			setDisplayTransformation(
+	    					visBase::Transformation*);
+    visBase::Transformation*	getDisplayTransformation();
 
 
     int				getRightClickedLine() const

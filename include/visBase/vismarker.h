@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.16 2004-11-03 08:39:08 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.17 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -79,8 +79,8 @@ public:
     void		setDirection(const ::Sphere& d)	{ direction = d; }
     const ::Sphere&	getDirection() const		{ return direction; }
 
-    void		setTransformation( Transformation* );
-    Transformation*	getTransformation();
+    void		setDisplayTransformation( Transformation* );
+    Transformation*	getDisplayTransformation();
     
     int			usePar(const IOPar&);
     void		fillPar(IOPar&,TypeSet<int>&) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.9 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistext.h,v 1.10 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -52,8 +52,8 @@ public:
     void		fillPar( IOPar&, TypeSet<int>& ) const;
     int			usePar( const IOPar& );
 
-    void		setTransformation( Transformation* );
-    Transformation*	getTransformation();
+    void		setDisplayTransformation( Transformation* );
+    Transformation*	getDisplayTransformation();
 
 protected:
 			~Text();

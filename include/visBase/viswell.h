@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.9 2004-05-24 16:37:40 bert Exp $
+ RCS:           $Id: viswell.h,v 1.10 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,8 @@ public:
     bool			logNameShown() const;
 
 
-    void			setTransformation(visBase::Transformation*);
-    visBase::Transformation*	getTransformation();
+    void			setDisplayTransformation(Transformation*);
+    visBase::Transformation*	getDisplayTransformation();
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar& par);

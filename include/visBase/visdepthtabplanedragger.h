@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.5 2004-10-01 12:31:09 nanne Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.6 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -74,8 +74,8 @@ public:
 	    					Interval<float>& y,
 						Interval<float>& z ) const;
 
-    void			setTransformation( Transformation* );
-    Transformation*		getTransformation();
+    void			setDisplayTransformation( Transformation* );
+    Transformation*		getDisplayTransformation();
 
     void			setOwnShape( SoNode* );
 

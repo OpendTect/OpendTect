@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.9 2004-08-30 12:56:16 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.10 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,8 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setTransformation( Transformation* );
-    Transformation*		getTransformation();
+    void			setDisplayTransformation( Transformation* );
+    Transformation*		getDisplayTransformation();
 
     void			setOwnShape(visBase::DataObject*,
 	    				    const char* partname );

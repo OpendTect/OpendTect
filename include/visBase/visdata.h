@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.32 2004-08-05 07:03:57 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.33 2004-11-16 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,7 @@ public:
     virtual NotifierAccess*	rightClicked()		{ return 0; }
     virtual const TypeSet<int>*	rightClickedPath() const{ return 0; }
 
-    virtual void		setTransformation( Transformation* );
+    virtual void		setDisplayTransformation( Transformation* );
     				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     witht this transform. This enables us
@@ -75,7 +75,7 @@ public:
 				     outside the vis without loosing precision
 				     in the vis.
 				 */
-    virtual Transformation*	getTransformation() { return 0; }
+    virtual Transformation*	getDisplayTransformation() { return 0; }
     				/*!< All positions going from the outside
 				     world to the vis should be transformed
 				     witht this transform. This enables us
