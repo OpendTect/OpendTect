@@ -9,6 +9,7 @@
 #include "filegen.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "iopar.h"
 #include <fstream>
 #include <math.h>
 
@@ -54,16 +55,16 @@ bool BatchProgram::go( ostream& logstrm )
         return false;
     }
 
-    CBVSSeisTrcTranslator tri;
-    if ( !tri.initRead( new StreamConn(fname,Conn::Read) ) )
-        { mErrStrm << tri.errMsg() << endl;  return 1; }
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
+        { mErrStrm << tri->errMsg() << endl;  return 1; }
 
     StepInterval<float> zrg; assign( zrg, SI().zRange() );
     BinIDSampler bidsel;
     IOStream ioobj( "tmp" );
     ioobj.setFileName( fname );
-    ioobj.setGroup( SeisTrcTranslator::classdef.name() );
-    ioobj.setTranslator( CBVSSeisTrcTranslator::classdef.name() );
+    ioobj.setGroup( mTranslGroupName(SeisTrc) );
+    ioobj.setTranslator( mTranslKey(CBVSSeisTrc) );
     SeisTrcTranslator::getRanges( ioobj, bidsel, zrg );
 
     fname = StreamProvider::sStdIO;
@@ -77,7 +78,7 @@ bool BatchProgram::go( ostream& logstrm )
 	{ mErrStrm << "Cannot open output " << fname << endl; return false; }
     ostream& outstrm = *sd.ostrm;
 
-    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci = tri.componentInfo();
+    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci = tri->componentInfo();
     const char* res = pars().find( "Output.Mode" );
     if ( res && *res == 'I' )
     {
@@ -90,7 +91,7 @@ bool BatchProgram::go( ostream& logstrm )
 	if ( ci.size() > 1 )
 	    outstrm << "Components.Nr: " << ci.size() << endl;
 
-	BinID2Coord b2c( tri.getTransform() );
+	BinID2Coord b2c( tri->getTransform() );
 	BinID bid;
 	bid.inl = bidsel.start.inl; bid.crl = bidsel.start.crl;
 	prBidCoord( outstrm, b2c, bid );
@@ -147,7 +148,7 @@ bool BatchProgram::go( ostream& logstrm )
 	    }
 	    SeisTrcSel* tsel = new SeisTrcSel;
 	    tsel->bidsel = bidsel.clone();
-	    tri.setTrcSel( tsel );
+	    tri->setTrcSel( tsel );
 	}
 	if ( zselstr )
 	{
@@ -176,7 +177,7 @@ bool BatchProgram::go( ostream& logstrm )
 
     SeisTrc trc;
     int nrwr = 0; int nrbytes = 0;
-    while ( tri.read(trc) )
+    while ( tri->read(trc) )
     {
 	wrBinID( outstrm, trc.info().binid, doasc );
 
