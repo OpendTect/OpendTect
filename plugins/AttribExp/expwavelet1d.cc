@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expwavelet1d.cc,v 1.5 2003-11-07 12:21:56 bert Exp $";
+static const char* rcsID = "$Id: expwavelet1d.cc,v 1.6 2004-02-19 14:22:51 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -83,7 +83,7 @@ int Wavelet1DAttrib::Task::nextStep()
     }
 
     Array1DImpl<float> transformed( len );
-    DiscreteWaveletTransform transform( calculator.wavelet );
+    DWT transform( calculator.wavelet );
 
     transform.setInputInfo( signal.info() );
     transform.init();
