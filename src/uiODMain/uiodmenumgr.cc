@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.13 2004-05-28 15:55:02 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.14 2004-05-30 17:41:45 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.13 2004-05-28 15:55:02 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.14 2004-05-30 17:41:45 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -287,7 +287,7 @@ void uiODMenuMgr::fillDtectTB()
 {
     mAddTB(dtecttb,"survey.png","Survey setup",false,manSurvCB);
     mAddTB(dtecttb,"attributes.png","Edit attributes",false,manAttrCB);
-    mAddTB(dtecttb,"out_vol.png","Output volume",false,outVolCB);
+    mAddTB(dtecttb,"out_vol.png","Create volume",false,outVolCB);
 }
 
 #undef mAddTB
