@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.27 2003-03-21 09:01:52 kristofer Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.28 2003-03-24 13:54:24 nanne Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -263,16 +263,14 @@ void IOPar::add( const char* nm, const char* val )
 #define get1Val( type, convfunc ) \
 bool IOPar::get( const char* s, type& res ) const \
 { \
-    const char* ptr = (*this)[s];\
-    if ( ptr && *ptr )\
-    {\
-	char* endptr;\
-	type tmpval = convfunc;\
-	if ( ptr==endptr) return false;\
-	res = tmpval;\
-    } \
+    const char* ptr = (*this)[s]; \
+    if ( !ptr || !*ptr ) return false; \
 \
-    return false;\
+    char* endptr; \
+    type tmpval = convfunc; \
+    if ( ptr==endptr) return false; \
+    res = tmpval; \
+    return true; \
 }
 
 get1Val(int,strtol(ptr, &endptr, 0));
