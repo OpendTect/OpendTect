@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.29 2002-12-04 15:16:39 nanne Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.30 2002-12-12 17:00:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -414,14 +414,9 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
     if ( jmfinished ) // Transferring data!
 	return false;
 
-    int res = 0;
-    if ( usedmachfld->box()->size() )
-    {
-	const char* msg = "This will stop processing and start data transfer"
-	    		  " now.\n\nDo you want to continue?";
-	if ( !uiMSG().askGoOn(msg) )
-	    return false;
-    }
+    if ( usedmachfld->box()->size() && !uiMSG().askGoOn(
+	    "This will stop further processing and start data transfer",false) )
+	return false;
 
     bool mkdump = true;
     if ( mkdump )

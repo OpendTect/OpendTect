@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.6 2002-04-26 15:01:43 bert Exp $
+ RCS:           $Id: uimsg.h,v 1.7 2002-12-12 17:00:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,14 +27,14 @@ class uiMsg : public CallBacker
 
 public:
 
-    void 	message(const char*,const char* caption="Information");
-    void 	warning(const char*,const char* cn="Warning");
-    void 	error(const char*,const char* cn="Error");
-    void 	about(const char*,const char* cn="About");
-    bool	askGoOn(const char*,const char* cn="Please specify",
-	    		bool withyesno=true);
-    int		askGoOnAfter(const char*,const char* cnclmsg="Cancel",
-	    		     const char* cn="Please specify");
+    void 	message(const char*,const char* caption=0);
+    void 	warning(const char*,const char* cn=0);
+    void 	error(const char*,const char* cn=0);
+    void 	about(const char*,const char* cn=0);
+    bool	askGoOn(const char*,bool withyesno=true,const char* cn=0);
+    		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
+    int		askGoOnAfter(const char*,const char* cnclmsg=0,
+	    		     const char* cn=0);
 
     void	setParent(QWidget*);
     void	setMainWin(uiMainWin*);

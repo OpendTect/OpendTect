@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.10 2002-04-26 14:57:33 bert Exp $
+ RCS:           $Id: uimsg.cc,v 1.11 2002-12-12 17:00:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,7 @@ void uiMsg::toStatusbar( MsgClass* mc )
 
 void uiMsg::message( const char* text, const char* caption )
 {
+    if ( !caption || !*caption ) caption = "Information";
     QMessageBox::information( popParnt(),
 			      QString(caption), QString(text), QString("Ok") );
 }
@@ -131,6 +132,7 @@ void uiMsg::message( const char* text, const char* caption )
 
 void uiMsg::warning( const char* text, const char* caption )
 {
+    if ( !caption || !*caption ) caption = "Warning";
     QMessageBox::warning( popParnt(),
 			  QString(caption), QString(text), QMessageBox::Ok,
 		          QMessageBox::NoButton, QMessageBox::NoButton );
@@ -139,6 +141,7 @@ void uiMsg::warning( const char* text, const char* caption )
 
 void uiMsg::error( const char* text, const char* caption )
 {
+    if ( !caption || !*caption ) caption = "Error";
     QMessageBox::critical( popParnt(),
 			   QString(caption), QString(text), QString("Ok") );
 }
@@ -146,12 +149,14 @@ void uiMsg::error( const char* text, const char* caption )
 
 void uiMsg::about( const char* text, const char* caption )
 {
+    if ( !caption || !*caption ) caption = "About";
     QMessageBox::about( popParnt(), QString(caption), QString(text) );
 }
 
 
-bool uiMsg::askGoOn( const char* text, const char* caption, bool yn )
+bool uiMsg::askGoOn( const char* text, bool yn, const char* caption )
 {
+    if ( !caption || !*caption ) caption = "Please specify";
     return !QMessageBox::warning( popParnt(),
 				  QString(caption), QString(text),
 				  QString(yn?"Yes":"OK"),
@@ -164,6 +169,8 @@ bool uiMsg::askGoOn( const char* text, const char* caption, bool yn )
 int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg,
 			 const char* caption )
 {
+    if ( !cnclmsg || !*cnclmsg ) cnclmsg = "Cancel";
+    if ( !caption || !*caption ) caption = "Please specify";
     return QMessageBox::warning( popParnt(), QString(caption), QString(text),
 				  QString("Yes"), QString("No"),
 				  QString(cnclmsg), 0, 2 );
