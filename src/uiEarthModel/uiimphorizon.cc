@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.39 2004-08-19 09:29:48 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.40 2004-12-15 15:59:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ ________________________________________________________________________
 #include "grid.h"
 #include "scaler.h"
 #include "survinfo.h"
+#include "cubesampling.h"
+#include "binidselimpl.h"
 
 #include "gridread.h"
 #include "valgridtr.h"
@@ -112,8 +114,14 @@ bool uiImportHorizon::handleAscii()
 		 : (GridTranslator*)BinIDGridTranslator::getInstance();
 
 	GridReader reader( trans, conn );
-	BinIDRange* bidrg = subselfld->isAll() ? 0 : subselfld->getRange();
-	reader.setRange( bidrg );
+	BinIDSampler* bs = 0;
+	if ( !subselfld->isAll() )
+	{
+	    bs = new BinIDSampler;
+	    HorSampling hs; subselfld->getHorSampling( hs );
+	    bs->start = hs.start; bs->stop = hs.stop; bs->step = hs.step;
+	}
+	reader.setRange( bs );
 	uiExecutor execdlg( this, reader );
 	if ( !execdlg.go() ) mErrRetUnRef( "Stopped reading" );
 
