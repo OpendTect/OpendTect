@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.17 2003-08-15 13:17:44 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.18 2003-08-26 09:48:31 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -32,6 +32,7 @@ const char* EM::dgbSurfaceReader::patchnamestr = "Patch Name ";
 const char* EM::dgbSurfaceReader::rowrangestr = "Row range";
 const char* EM::dgbSurfaceReader::colrangestr = "Col range";
 const char* EM::dgbSurfaceReader::dbinfostr = "DB info";
+const char* EM::dgbSurfaceReader::versionstr = "Format version";
 
 const char* EM::dgbSurfaceReader::badconnstr = "Internal: Bad connection";
 const char* EM::dgbSurfaceReader::parseerrorstr = "Cannot parse file";
@@ -332,6 +333,23 @@ int EM::dgbSurfaceReader::nextStep()
 		continue;
 	    }
 	}
+
+	if ( readrowrange )
+	{
+	    const RowCol filestep = rcconv 
+	    		? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
+			: RowCol(rowrange.step, colrange.step);
+
+	    if ( readrowrange->step < abs(filestep.row) )
+		readrowrange->step = filestep.row;
+	    if ( readcolrange->step < abs(filestep.col) )
+		readcolrange->step = filestep.col;
+
+	    if ( readrowrange->step / filestep.row < 0 )
+		readrowrange->step *= -1;
+	    if ( readcolrange->step / filestep.col < 0 )
+		readcolrange->step *= -1;
+	}
     }
 
     if ( patchindex>=patchids.size() )
@@ -364,8 +382,22 @@ int EM::dgbSurfaceReader::nextStep()
 
     const int nrcols = readInt(strm);
     if ( !strm ) return ErrorOccurred;
-
     const int firstcol = nrcols ? readInt(strm) : 0;
+
+    int versionnr = 1;
+    par->get( versionstr, versionnr );
+    if ( !nrdone && versionnr == 1 && readrowrange && rcconv )
+    {
+	const RowCol rc0 = rcconv->get( RowCol(firstrow,firstcol) );
+	const RowCol rc1 = rcconv->get( RowCol(nrrows-1,nrcols-1) ); 
+
+	Interval<int> filerowrg( rc0.row, rc1.row );
+	Interval<int> filecolrg( rc0.col, rc1.col );
+	filerowrg.sort(); filecolrg.sort();
+	assign( *readrowrange, filerowrg );
+	assign( *readcolrange, filecolrg );
+    }
+
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int filecol = firstcol+colindex*colrange.step;
@@ -404,17 +436,9 @@ int EM::dgbSurfaceReader::nextStep()
 
 	if ( !surface->getSurface(patchid) )
 	{
-	    const RowCol filestep = rcconv
-		    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
-		    : RowCol(rowrange.step, colrange.step);
-
-	    if ( readrowrange )
-	    {
-		if ( readrowrange->step < filestep.row ) 
-		    readrowrange->step = filestep.row;
-		if ( readcolrange->step < filestep.col )
-		    readcolrange->step = filestep.col;
-	    }
+	    const RowCol filestep = rcconv 
+			    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
+			    : RowCol(rowrange.step, colrange.step);
 
 	    surface->setTranslatorData( filestep, 
 		    readrowrange ? RowCol(readrowrange->step,readcolrange->step)

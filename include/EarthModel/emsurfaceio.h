@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.5 2003-07-30 17:01:03 bert Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.6 2003-08-26 09:48:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -123,6 +123,7 @@ public:
     static const char*		intdatacharstr;
     static const char*		floatdatacharstr;
     static const char*		dbinfostr;
+    static const char*		versionstr;
 
     static const char*		badconnstr;
     static const char*		parseerrorstr;
