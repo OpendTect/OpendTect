@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.4 2001-04-13 11:52:28 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.5 2001-04-13 13:49:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ inline void IOObjContext::init()
     forread		= true;
     maychdir		= true;
     maydooper		= true;
-    deftransl		= 0;
+    deftransl		= "";
     stdseltype		= None;
 }
 
