@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.28 2003-01-15 08:42:03 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.29 2003-01-16 15:32:22 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -32,9 +32,9 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject( true )
     , trect( visBase::TextureRect::create() )
     , selected_( false )
-    , prevcs(*new CubeSampling)
-    , cs(*new CubeSampling)
+    , cache(0)
     , as(*new AttribSelSpec)
+    , cs(*new CubeSampling)
     , moving( this )
 {
     trect->ref();
@@ -357,6 +357,9 @@ bool visSurvey::PlaneDataDisplay::updateAtNewPos()
 AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec()
 { return as; }
 
+const AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec() const
+{ return as; }
+
 void visSurvey::PlaneDataDisplay::setAttribSelSpec( AttribSelSpec& as_ )
 { as = as_; }
 
@@ -422,8 +425,6 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
     
     trect->setData( *(*sliceset)[0] );
     trect->useTexture( true );
-
-    prevcs = getCubeSampling();
 
     delete cache;
     cache = sliceset;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.20 2003-01-15 08:42:08 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.21 2003-01-16 15:33:01 nanne Exp $
 ________________________________________________________________________
 
 
@@ -58,9 +58,10 @@ public:
     void			resetManip();
 
     bool			updateAtNewPos();
-    CubeSampling&		getPrevCubeSampling()	{ return prevcs; }
     CubeSampling&		getCubeSampling(bool manippos=true);
-    const CubeSampling&		getCubeSampling(bool manippos=true) const;
+    const CubeSampling&		getCubeSampling(bool manippos=true) const
+				{ return const_cast<PlaneDataDisplay*>(this)->
+				    	getCubeSampling(manippos); }
     void			setCubeSampling(const CubeSampling&);
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
@@ -116,10 +117,9 @@ protected:
     visBase::TextureRect*	trect;
 
     Type			type;
-    CubeSampling&		cs;
-    CubeSampling&		prevcs;
     AttribSelSpec&		as;
     AttribSliceSet*             cache;
+    CubeSampling&		cs;
 
     bool			selected_;
     bool			succeeded_;

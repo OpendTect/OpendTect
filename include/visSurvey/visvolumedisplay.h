@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.11 2003-01-14 13:55:34 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.12 2003-01-16 15:33:01 nanne Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,9 @@ public:
     const AttribSelSpec&	getAttribSelSpec() const;
     void			setAttribSelSpec(AttribSelSpec&);
     CubeSampling&		getCubeSampling();
-    const CubeSampling&		getCubeSampling() const;
+    const CubeSampling&		getCubeSampling() const
+				{ return const_cast<VolumeDisplay*>(this)->
+				    	getCubeSampling(); }
     void			setCubeSampling(const CubeSampling&);
     bool			putNewData( AttribSliceSet* );
     const AttribSliceSet*	getPrevData() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.16 2003-01-15 10:05:29 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.17 2003-01-16 15:32:22 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , cube(visBase::CubeView::create())
     , selected_(false)
     , as(*new AttribSelSpec)
+    , cache(0)
     , moved(this)
     , manipulated(false)
     , slicemoving(this)
@@ -133,6 +134,10 @@ bool visSurvey::VolumeDisplay::updateAtNewPos()
 
 
 AttribSelSpec& visSurvey::VolumeDisplay::getAttribSelSpec()
+{ return as; }
+
+
+const AttribSelSpec& visSurvey::VolumeDisplay::getAttribSelSpec() const
 { return as; }
 
 
