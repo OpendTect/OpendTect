@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.6 2003-06-05 11:58:00 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.7 2003-06-05 14:08:11 kristofer Exp $";
 
 #include "emsurface.h"
 
@@ -412,7 +412,18 @@ int EM::Surface::nrAuxData() const
 }
 
 
-int EM::Surface::addAuxData( const char* name )
+const char* EM::Surface::auxDataName(int dataidx) const
+{
+    if ( auxdatanames[dataidx] )
+    {
+	return *auxdatanames[dataidx];
+    }
+
+    return 0;
+}
+
+
+int EM::Surface::addAuxData(const char* name)
 {
     auxdatanames += new BufferString( name );
     ObjectSet<TypeSet<float> >* newauxdata = new ObjectSet<TypeSet<float> >;
