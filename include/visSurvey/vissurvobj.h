@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.12 2003-03-24 15:26:33 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.13 2003-08-22 11:32:31 nanne Exp $
 ________________________________________________________________________
 
 
@@ -32,9 +32,14 @@ public:
     virtual float		calcDist( const Coord3& ) const
     					{ return mUndefValue; }
 
-    virtual NotifierAccess*	getMovementNotification() { return 0; }
+    virtual NotifierAccess*	getMovementNotification()   { return 0; }
 
     float			zFactor() const;
+
+    const char*			errMsg() const		    { return errmsg; }
+
+protected:
+    BufferString		errmsg;
 };
 
 
