@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.12 2004-02-06 12:23:44 arend Exp $
+# $Id: od_exec_rmt,v 1.13 2004-07-28 12:47:24 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -18,6 +18,8 @@ endif
 
 if ( $#argv < 1 ) then
     echo "Usage: $0 remote_host [--rexec remote_shell_command]"
+    echo "       [--with-dtect-appl <DTECT_APPL on remote host>"
+    echo "       [--with-dtect-data <DTECT_DATA on remote host>"
     echo "       [--transfervars <list of environment vars to transfer> -+-+-"
 endif
 
@@ -27,6 +29,8 @@ shift
 set rshcomm=rsh
 set transfvars=""
 set remoteuser=""
+set dtectappl="$DTECT_APPL"
+set dtectdata="$DTECT_DATA"
 
 next_arg:
 
@@ -36,6 +40,14 @@ if ( "$1" == "--rexec" ) then
 	goto next_arg
 else if ( $1 == "--remoteuser" ) then
         set remoteuser=" -l $2"
+        shift; shift
+        goto next_arg
+else if ( $1 == "--with-dtect-appl" ) then
+        set dtectappl="$2"
+        shift; shift
+        goto next_arg
+else if ( $1 == "--with-dtect-data" ) then
+        set dtectdata="$2"
         shift; shift
         goto next_arg
 else if ( "$1" == "--transfervars" ) then
@@ -50,7 +62,7 @@ else if ( "$1" == "--transfervars" ) then
 	goto next_var
 endif
 
-set transf="setenv DTECT_DATA $DTECT_DATA +-+ setenv DTECT_APPL $DTECT_APPL"
+set transf="setenv DTECT_DATA $dtectdata +-+ setenv DTECT_APPL $dtectappl"
 
 if ( $?DTECT_USER ) then
 	set transf="${transf} +-+ setenv DTECT_USER $DTECT_USER"
@@ -85,8 +97,8 @@ end
 set transf="$transf +-+-+ $*"
 
 if ( $?DTECT_DEBUG ) then
-    echo "od_exec_rmt: " ${rshcomm} ${remoteuser} ${remotehost} ${DTECT_APPL}/bin/od_do_rmt $transf
+    echo "od_exec_rmt: " ${rshcomm} ${remoteuser} ${remotehost} ${dtectappl}/bin/od_do_rmt $transf
 endif
 
-${rshcomm} ${remoteuser} ${remotehost} ${DTECT_APPL}/bin/od_do_rmt $transf
+${rshcomm} ${remoteuser} ${remotehost} "${dtectappl}/bin/od_do_rmt" $transf
 exit 0
