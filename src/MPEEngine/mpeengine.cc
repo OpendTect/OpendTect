@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.16 2005-03-30 13:26:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.17 2005-03-31 15:20:32 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -189,6 +189,9 @@ int Engine::addTracker( const char* objname, const char* trackername )
 		return -1;
 	    }
 
+	    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+	    emobj->setPreferredColor( seedcolor );
+	    emobj->notifier.notify( mCB(this,Engine,removeObjectCB) );
 	    trackers += tracker;
 	    added = true;
 	    break;
@@ -199,6 +202,22 @@ int Engine::addTracker( const char* objname, const char* trackername )
 	mRetErr( "Cannot find this trackertype", -1 );
 
     return trackers.size()-1;
+}
+
+
+void Engine::removeObjectCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller(const EM::EMObjectCallbackData&,
+			       cbdata,caller,cb);
+    if ( cbdata.event != EM::EMObjectCallbackData::Removal ) return;
+
+    mDynamicCastGet(EM::EMObject*,emobj,caller);
+    if ( !emobj ) return;
+    
+    emobj->notifier.remove( mCB(this,Engine,removeObjectCB) );
+    const int trackeridx = getTrackerByObject( emobj->id() );
+    if ( trackeridx >= 0 )
+	removeTracker( trackeridx );
 }
 
 
