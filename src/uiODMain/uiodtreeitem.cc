@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.3 2003-12-28 16:10:23 bert Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.4 2004-03-01 14:39:31 nanne Exp $";
 
 
 #include "uiodtreeitemimpl.h"
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.3 2003-12-28 16:10:23 bert 
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uipickpartserv.h"
+#include "uiwellattribpartserv.h"
+#include "uiattribpartserv.h"
 
 
 const char* uiODTreeTop::sceneidkey = "Sceneid";
@@ -193,10 +195,8 @@ uiOD##type##TreeItem::uiOD##type##TreeItem( int id ) \
 #define mReloadSurface                  520
 #define mStoreSurface			521
 #define mStoreMultiIDObject		522
-#define mTrackHorizon			530
-#define mTrackFault			531
-#define mTrackSettings			532
 #define mSelectLogs			540
+#define mWellAttribSel			541
 #define mRestoreSurfDataStart           600
 #define mRestoreSurfDataStop            800
 
@@ -650,6 +650,7 @@ bool uiODWellTreeItem::init()
 uiPopupMenu* uiODWellTreeItem::createMenu( uiPopupMenu** selattrmnu )
 {
     uiPopupMenu* mnu = uiODDisplayTreeItem::createMenu( selattrmnu );
+    mnu->insertItem( new uiMenuItem("Select Attribute ..."), mWellAttribSel );
     mnu->insertItem( new uiMenuItem("Select logs ..."), mSelectLogs );
     return mnu;
 }
@@ -657,15 +658,20 @@ uiPopupMenu* uiODWellTreeItem::createMenu( uiPopupMenu** selattrmnu )
 
 bool uiODWellTreeItem::handleMenu( int mnuid )
 {
+    const MultiID& wellid = applMgr()->visServer()->getMultiID( displayid );
     if ( mnuid == mSelectLogs )
     {
 	int selidx = -1;
 	int lognr = 1;
-	Interval<float> range(0,0);
-	const MultiID& emwellid = applMgr()->visServer()->getMultiID(displayid);
-	applMgr()->wellServer()->selectLogs( emwellid, selidx, lognr );
+	applMgr()->wellServer()->selectLogs( wellid, selidx, lognr );
 	if ( selidx > -1 )
 	    applMgr()->visServer()->displayLog( displayid, selidx, lognr );
+    }
+    else if ( mnuid == mWellAttribSel )
+    {
+	applMgr()->wellAttribServer()->setAttribSet( 
+				*applMgr()->attrServer()->curDescSet() );
+	applMgr()->wellAttribServer()->selectAttribute( wellid );
     }
 
     return uiODDisplayTreeItem::handleMenu( mnuid );

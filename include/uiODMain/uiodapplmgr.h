@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.7 2004-02-17 14:47:20 bert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.8 2004-03-01 14:39:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiPickPartServer;
 class uiSeisPartServer;
 class uiVisPartServer;
 class uiWellPartServer;
+class uiWellAttribPartServer;
 class uiODApplService;
 class uiApplService;
 class Color;
@@ -53,6 +54,7 @@ public:
     uiAttribPartServer* attrServer()			{ return attrserv; }
     uiEMPartServer*	EMServer() 			{ return emserv; }
     uiWellPartServer*	wellServer()			{ return wellserv; }
+    uiWellAttribPartServer* wellAttribServer()		{ return wellattrserv; }
     uiNLAPartServer*	nlaServer()			{ return nlaserv; }
     void		setNlaServer( uiNLAPartServer* s ) { nlaserv = s; }
     uiApplService&	applService()			
@@ -130,6 +132,7 @@ protected:
     uiSeisPartServer*	seisserv;
     uiEMPartServer*	emserv;
     uiWellPartServer*	wellserv;
+    uiWellAttribPartServer* wellattrserv;
 
     bool		handleEvent(const uiApplPartServer*,int);
     void*		deliverObject(const uiApplPartServer*,int);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.12 2004-03-01 13:27:06 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.13 2004-03-01 14:39:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uiempartserv.h"
 #include "uiwellpartserv.h"
+#include "uiwellattribpartserv.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -79,6 +80,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     seisserv = new uiSeisPartServer( applservice );
     emserv = new uiEMPartServer( applservice );
     wellserv = new uiWellPartServer( applservice );
+    wellattrserv = new uiWellAttribPartServer( applservice );
 }
 
 
@@ -91,6 +93,7 @@ uiODApplMgr::~uiODApplMgr()
     delete visserv;
     delete emserv;
     delete wellserv;
+    delete wellattrserv;
     delete &applservice;
 }
 
@@ -592,6 +595,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Create new attrib set from NLA model's IOPar
 
 	attrserv->replaceSet( nlaserv->modelPars() );
+	wellattrserv->setNLAModel( &nlaserv->getModel() );
     }
     else if ( evid == uiNLAPartServer::evGetInputNames )
     {
