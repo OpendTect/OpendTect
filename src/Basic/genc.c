@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.11 2001-10-29 17:36:21 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.12 2001-10-29 21:52:40 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: genc.c,v 1.11 2001-10-29 17:36:21 bert Exp $";
 
 static FileNameString filenamebuf;
 static FileNameString surveyname;
-static int surveynamedirty = NO;
+static int surveynamedirty = YES;
 static int dgb_application_code = mDgbApplCodeGDI;
 
 

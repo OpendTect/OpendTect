@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.15 2001-10-29 17:36:21 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.16 2001-10-29 21:52:40 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -105,24 +105,31 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
 
 
 SurveyInfo::SurveyInfo( const char* rootdir )
-	: dirname(File_getFileName(rootdir?rootdir:"/"))
+	: dirname(File_getFileName(rootdir))
     	, valid_(false)
 {
     set3binids[2].crl = 0;
+    if ( !rootdir || dirname == "" ) return;
 
     FileNameString fname( File_getFullPath( rootdir, ".survey" ) );
     ifstream strm( fname );
+    static bool errmsgdone = false;
     if ( strm.fail() )
     {
-	ErrMsg( "Cannot read survey definition file (yet)." );
+	if ( !errmsgdone )
+	    ErrMsg( "Cannot read survey definition file (yet)." );
+	errmsgdone = true;
 	return;
     }
     ascistream astream( strm );
     if ( !astream.isOfFileType(sKey) )
     {
-	ErrMsg( "Survey definition file is corrupt!" );
+	if ( !errmsgdone )
+	    ErrMsg( "Survey definition file is corrupt!" );
+	errmsgdone = true;
 	return;
     }
+    errmsgdone = false;
 
     BinID2Coord::BCTransform xtr, ytr;
     xtr.b = 1;
