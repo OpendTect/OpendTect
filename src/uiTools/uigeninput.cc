@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.25 2001-07-17 12:33:49 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.26 2001-07-18 07:56:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -433,6 +433,7 @@ protected:
     uiLineEdit&		start;
     uiLineEdit&		stop;
     uiLineEdit*		step;
+    uiLabel*		lbl;
 
     inline const uiLineEdit* le( int idx ) const 
 			{ 
@@ -473,12 +474,17 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 	step = new uiLineEdit(&intvalGrp,"",nm);
 	step->textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
 	step->setText( spec.text(2) );
+	lbl = new uiLabel(&intvalGrp, "Step" );
     }
 
     intvalGrp.setHAlignObj( &start );
 
     stop.attach( rightTo, &start );
-    if ( step ) step->attach( rightTo, &stop );
+    if ( step ) 
+    {
+	lbl->attach( rightTo, &stop );
+        step->attach( rightTo, lbl );
+    }
 
     init();
 }
@@ -589,18 +595,7 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
     uiObject* other= flds.size() ? &flds[ flds.size()-1 ]->uiObj() : 0;
     if ( other )
-    {
-	//TODO Hack: if nr flds ==2, we're adding nr 3, which is currently
-	// always a step. We want the text "Step" there.
-	// How on earth can we specify this in general?
-	if ( flds.size() != 2 )
-	    fld->uiObj().attach( rightTo, other );
-	else
-	{
-	    uiLabel* lbl = new uiLabel( this, "Step", &fld->uiObj() );
-	    lbl->attach( rightTo, other );
-	}
-    }
+	fld->uiObj().attach( rightTo, other );
 
     flds += fld;
 
