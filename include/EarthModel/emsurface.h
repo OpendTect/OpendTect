@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.37 2004-05-26 15:06:04 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.38 2004-06-17 07:54:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,7 @@ namespace EM
 class EMManager;
 class SurfaceIODataSelection;
 class HingeLine;
+class EdgeLineSet;
 
 /*!\brief
 The horizon is made up of one or more meshes (so they can overlap at faults).
@@ -89,6 +90,7 @@ public:
     bool		addPatch(const char* nm, PatchID, bool addtohistory);
     			/*!< Return false if the patchid allready exists */
     void		removePatch(EM::PatchID, bool addtohistory);
+    PatchID		clonePatch(EM::PatchID);
     CNotifier<Surface,const PatchID&>	patchchnotifier;
 
     bool		setPos( const PatchID& patch, const RowCol&,
@@ -282,6 +284,11 @@ public:
     				/*!<Returned id is persistent in runtime */
     void			removeHingeLine(int, bool addtohistory);
     CNotifier<Surface,int>	hingelinechange;
+
+
+    EdgeLineSet*		getEdgeLineSet( const EM::PatchID&,
+	    				        bool create );
+    ObjectSet<EdgeLineSet>	edgelines;
 
     bool			isChanged(int) const { return changed; }
     void			resetChangedFlag() { changed=false; }

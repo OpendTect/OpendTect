@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.54 2004-06-16 14:54:18 bert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.55 2004-06-17 07:50:22 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -119,6 +119,7 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     auxdatainfo.allowNull(true);
     auxdata.allowNull(true);
     hingelines.allowNull();
+    edgelines.allowNull();
 }
 
 
@@ -683,6 +684,7 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
 	{ name = "["; name += patchid + 1; name += "]"; }
 
     patchnames += new BufferString(name);
+    edgelines += 0;
 
     Geometry::MeshSurface* newsurf = createPatchSurface( patchid );
     surfaces += newsurf;
@@ -719,6 +721,8 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
     surfaces.remove( idx );
     patchids.remove( idx );
     patchnames.remove( idx );
+    delete edgelines[idx];
+    edgelines.remove( idx );
 
     for ( int idy=0; idy<nrAuxData(); idy++ )
     {
@@ -738,6 +742,53 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 
     patchchnotifier.trigger(patchid,this);
     changed = true;
+}
+
+
+EM::PatchID EM::Surface::clonePatch( EM::PatchID patchid )
+{
+    int idx = patchids.indexOf(patchid);
+    if ( idx==-1 ) return -1;
+
+    PatchID res = addPatch(0, true);
+    StepInterval<int> rowrange;
+    StepInterval<int> colrange;
+    getRange( patchid, rowrange, true );
+    if ( rowrange.width() )
+	getRange( patchid, colrange, false );
+
+    for ( int row=rowrange.start; row<=rowrange.stop; row+=step_.row )
+    {
+	for ( int col=colrange.start; col<=colrange.stop; col+=step_.col )
+	{
+	    const RowCol rc(row,col);
+	    const Coord3 pos = getPos(patchid,rc);
+	    if ( !pos.isDefined() )
+		continue;
+
+	    setPos(res,rc,pos,false, true);
+
+	    const EM::PosID src(id(),patchid,rowCol2SubID(rc));
+	    const EM::PosID dst(id(),res,rowCol2SubID(rc));
+	    for ( int idy=0; idy<nrPosAttribs(); idy++ )
+	    {
+		const int attrib = posAttrib(idy);
+		if ( isPosAttrib( src, attrib ) )
+		    setPosAttrib( dst, attrib, true );
+	    }
+	}
+    }
+
+    if ( getEdgeLineSet( patchid, false ) )
+    {
+	EdgeLineSet* els = getEdgeLineSet(patchid,false)->clone();
+	els->setSection( res );
+	edgelines.replace(els, patchids.indexOf(res) );
+    }
+
+
+
+    return res;
 }
 
 
@@ -1400,6 +1451,26 @@ void EM::Surface::removeHingeLine(int idx, bool addtohistory)
 
     hingelinechange.trigger(idx);
 }
+
+
+EM::EdgeLineSet* EM::Surface::getEdgeLineSet( const EM::PatchID& segment,
+					      bool create )
+{
+    const int patchsurfidx = patchids.indexOf(segment);
+    if ( patchsurfidx==-1 ) return 0;
+
+    if ( !edgelines[patchsurfidx] && create )
+    {
+	EM::EdgeLineSet* els = new EM::EdgeLineSet( *this, segment );
+	if ( els->findLines() )
+	    edgelines.replace( els, patchsurfidx );
+	else
+	    delete els;
+    }
+
+    return edgelines[patchsurfidx];
+}
+
 
 /*
 
