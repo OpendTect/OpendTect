@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.21 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.22 2001-12-31 13:40:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -591,5 +591,4 @@ bool uiDialog::saveButtonChecked()
     { return mBody->saveButtonChecked(); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator()			{ return mBody->separator(); }
-
-
+uiGroup* uiDialog::topGroup()			{return mBody->uiCentralWidg();}
