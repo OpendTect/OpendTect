@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.8 2001-10-12 10:41:32 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.9 2001-10-12 10:43:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,19 @@ class IOPar;
 
 /*\brief object describing how to do I/O for objects
 
+The IOMan object manager manages IODir directories of IOObj objects. These
+objects contain the information needed to do the I/O needed for the storage
+that is accessed in the dGB software. IOObj objects not in the root IODir will
+have a parent object, which may or may not be useful in relation to the IOObj.
+
+In any case, every IOObj has a unique key in the form of a MultiID. This key
+holds (a) the position of the IOObj in the IOMan/IODir tree (b) a unique
+integer as an index in the IOObj's own IODir.
+
+A special type of IOObj is the IOLink, which is the object that links to the
+'main object' of a sub-IODir. It will usually return info as if it's the main
+object itself, but will also allow changing the IOMan's dir with it.
+If a link is removed, the entire tree below it is removed.
 
 */
 
@@ -74,7 +87,7 @@ public:
     			//!< IOObjs can be dependent on the IODir
     void		setStandAlone(const char* dirnm);
     			//!< uncouple IOObj from IODir
-    IOPar&		pars() const			{ return pars_; }
+    virtual IOPar&	pars() const			{ return pars_; }
     			//!< These are the extra parameters: #xxx: yyy in .omf
 
     static bool		isKey(const char*);
@@ -83,7 +96,7 @@ public:
     Translator*		getTranslator() const;
     			//!< returns a subclass of Translator according to
 			//!< the translator name and group.
-    void		acquireNewKey();
+    virtual void	acquireNewKey();
     			//!< This will give the IOObj a new (free) ID
 
 protected:
