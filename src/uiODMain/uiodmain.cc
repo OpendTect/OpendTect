@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.17 2004-04-29 10:18:02 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.18 2004-05-07 12:33:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,8 +241,11 @@ void uiODMain::doRestoreSession()
     applMgr().attrServer()->usePar( cursession->attrpars() );
     bool visok = applMgr().visServer()->usePar( cursession->vispars() );
 
-    if ( visok ) 
+    if ( visok )
+    {
 	sceneMgr().useScenePars( cursession->scenepars() );
+	applMgr().visServer()->calculateAllAttribs();
+    }
     else
     {
 	uiMSG().error( "An error occurred while reading session file.\n"
