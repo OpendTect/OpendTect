@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.10 2002-12-17 16:08:35 nanne Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.11 2003-02-03 08:21:56 kristofer Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -172,7 +172,7 @@ int visBase::Camera::usePar( const IOPar& iopar )
     if ( iopar.get( posstr, pos.x, pos.y, pos.z ) )
 	setPosition( pos );
 
-    float angle;
+    double angle;
     if ( iopar.get( orientationstr, pos.x, pos.y, pos.z, angle ) )
 	camera->orientation.setValue( SbVec3f( pos.x, pos.y, pos.z ), angle );
 
