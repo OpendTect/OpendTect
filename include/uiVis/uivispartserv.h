@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.124 2004-05-10 11:56:01 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.125 2004-05-13 09:16:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,10 @@ public:
     void		setObjectName(int,const char*);
     const char*		getObjectName(int) const;
 
-    int			addScene();
+    int			addScene(visSurvey::Scene* =0);
+    			/*!<Adds a scene. The argument is only used internally.
+			    Don't use the argument when calling from outside.
+			*/
     void		removeScene(int);
 
     void		getChildIds(int id,TypeSet<int>&) const;

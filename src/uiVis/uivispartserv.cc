@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.213 2004-05-12 12:30:51 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.214 2004-05-13 09:16:55 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,9 +99,9 @@ const char* uiVisPartServer::getObjectName( int id ) const
 }
 
 
-int uiVisPartServer::addScene()
+int uiVisPartServer::addScene(visSurvey::Scene* newscene)
 {
-    visSurvey::Scene* newscene = visSurvey::Scene::create();
+    if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
     scenes += newscene;
@@ -411,13 +411,8 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 
 bool uiVisPartServer::deleteAllObjects()
 {
-
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	scenes[idx]->mouseposchange.remove(
-				mCB(this,uiVisPartServer,mouseMoveCB) );
-	scenes[idx]->unRef();
-    }
+    while ( scenes.size() )
+	removeScene( scenes[0]->id() );
 
     scenes.erase();
 
@@ -527,10 +522,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
     {
 	visSurvey::Scene* newscene =
 		(visSurvey::Scene*) visBase::DM().getObj( sceneids[idx] );
-
-	newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB));
-	scenes += newscene;
-	newscene->ref();
+	addScene( newscene );
 
 	TypeSet<int> children;
 	getChildIds( newscene->id(), children );
