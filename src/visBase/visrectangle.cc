@@ -4,10 +4,11 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.12 2002-03-12 07:11:09 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.13 2002-03-18 10:46:15 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoScale.h"
 #include "Inventor/nodes/SoTranslation.h"
@@ -325,6 +326,16 @@ void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
 }
 
 
+const char* visBase::Rectangle::orientationstr = "Orientation";
+const char* visBase::Rectangle::origostr = "Origo";
+const char* visBase::Rectangle::widthstr = "Width";
+const char* visBase::Rectangle::xrangestr = "XRange";
+const char* visBase::Rectangle::yrangestr = "YRange";
+const char* visBase::Rectangle::zrangestr = "ZRange";
+const char* visBase::Rectangle::xwidhtrange = "XWidth";
+const char* visBase::Rectangle::ywidhtrange = "YWidth";
+const char* visBase::Rectangle::snappingstr = "Snapping";
+
 visBase::Rectangle::Rectangle( bool usermanip)
     : origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
@@ -424,6 +435,64 @@ visBase::Rectangle::Rectangle( bool usermanip)
 visBase::Rectangle::~Rectangle()
 {
     if (dragger) dragger->unRef();
+}
+
+
+bool visBase::Rectangle::usePar( const IOPar& iopar )
+{
+    int ori;
+    if ( iopar.get( orientationstr, ori ) )
+	setOrientation( (Orientation) ori );
+
+    Geometry::Pos pos;
+    if ( iopar.get( origostr, pos.x, pos.y, pos.z ) )
+	setOrigo( pos );
+
+    float xwidth, ywidth;
+    if ( iopar.get( widthstr, xwidth, ywidth ) )
+	setWidth( xwidth, ywidth );
+
+    StepInterval<float> range;
+    if ( iopar.get( xrangestr, range.start, range.stop, range.step ) )
+	setRange( 0, range );
+
+    if ( iopar.get( yrangestr, range.start, range.stop, range.step ) )
+	setRange( 1, range );
+
+    if ( iopar.get( zrangestr, range.start, range.stop, range.step ) )
+	setRange( 2, range );
+
+    Interval<float> wrange;
+    if ( iopar.get( xwidhtrange, range.start, range.stop ))
+	setWidthRange( 0, wrange );
+
+    if ( iopar.get( ywidhtrange, range.start, range.stop ))
+	setWidthRange( 1, wrange );
+
+    bool snap;
+    if ( iopar.getYN( snappingstr, snap ) )
+	setSnapping( snap );
+
+    return true;
+}
+
+
+void visBase::Rectangle::fillPar( IOPar& iopar ) const
+{
+    iopar.set( orientationstr, (int)orientation() );
+
+    Geometry::Pos pos = origo();
+    iopar.set( origostr, pos.x, pos.y, pos.z );
+    iopar.set( widthstr, width(0), width(1) );
+
+    iopar.set( xrangestr, xrange.start, xrange.stop, xrange.step );
+    iopar.set( yrangestr, yrange.start, yrange.stop, yrange.step );
+    iopar.set( zrangestr, zrange.start, zrange.stop, zrange.step );
+
+    iopar.set( xwidhtrange, wxrange.start, wxrange.stop );
+    iopar.set( ywidhtrange, wyrange.start, wyrange.stop );
+
+    iopar.setYN( snappingstr, isSnapping() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.3 2002-03-12 06:34:58 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.4 2002-03-18 10:46:00 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 
 class SoNode;
+class IOPar;
 class BufferString;
 
 namespace visBase
@@ -47,6 +48,9 @@ public:
 
     virtual i_Notifier*	selection() { return 0; }
     virtual i_Notifier*	deSelection() { return 0; }
+
+    virtual bool	usePar( const IOPar& ) { return true; }
+    virtual void	fillPar( IOPar& ) const { return; }
 			
 protected:
     friend			SelectionManager;

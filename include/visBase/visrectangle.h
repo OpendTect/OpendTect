@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.13 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.14 2002-03-18 10:46:00 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,9 @@ public:
     i_Notifier*		selection() { return &selnotifier; }
     i_Notifier*		deSelection() { return &deselnotifier; }
 
+    bool		usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
+
 protected:
 			Rectangle( bool manip );
 			~Rectangle();
@@ -172,6 +175,15 @@ protected:
     Notifier<Rectangle>	selnotifier;
     Notifier<Rectangle>	deselnotifier;
 
+    static const char*	orientationstr;
+    static const char*	origostr;
+    static const char*	widthstr;
+    static const char*	xrangestr;
+    static const char*	yrangestr;
+    static const char*	zrangestr;
+    static const char*	xwidhtrange;
+    static const char*	ywidhtrange;
+    static const char*	snappingstr;
 };
 
 };
