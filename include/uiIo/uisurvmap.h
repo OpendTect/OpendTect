@@ -1,10 +1,13 @@
+#ifndef uisurvmap_h
+#define uisurvmap_h
+
 /*+
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.6 2001-10-16 06:16:33 nanne Exp $
+ RCS:           $Id: uisurvmap.h,v 1.7 2002-03-21 15:55:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,4 +138,6 @@ void doCanvas( CallBacker* )
 
 uiCanvas*		cv;
 
-};		
+};
+
+#endif
