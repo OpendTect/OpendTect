@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.21 2003-08-22 11:35:53 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.22 2003-08-26 12:53:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ uiPickPartServer::~uiPickPartServer()
 {
     delete &psg;
     avsets.deepErase();
+    deepErase( selhorids );
 }
 
 
@@ -101,6 +102,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 			 rp.horidx2 != rp.horidx;
     hordef.erase();
     hordepth.erase();
+    deepErase( selhorids );
     if ( !rp.iscube )
     {
 	selhorids += new MultiID( hinfos[rp.horidx]->multiid );
