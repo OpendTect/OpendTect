@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.11 2001-04-30 14:07:29 bert Exp $
+ RCS:		$Id: iopar.h,v 1.12 2002-01-08 14:35:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,8 @@ public:
 			//!< The composite key where int will be --> string
     IOPar*		subselect(const char*) const;
 			//!< returns iopar with key that start with <str>.
+    IOPar*		subselect(int) const;
+			//!< returns iopar with key that start with number.
     void		mergeComp(const IOPar&,const char*);
 			//!< merge entries, where IOPar's entries get a prefix
 
