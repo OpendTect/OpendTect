@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.15 2002-05-02 06:56:53 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.16 2002-05-02 09:06:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -125,10 +125,6 @@ public:								\
     virtual const char*	getClassName() const 			\
 	{ return __factoryentry.name; }				\
 protected:
-/*
-    visBase::FactoryEntry& _fe() const { return __factoryentry; }	\
-protected:
-*/
     
 #define _mDeclConstr(clss)	\
     clss();			\
