@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.2 2000-04-12 16:08:58 bert Exp $
+ RCS:		$Id: general.h,v 1.3 2000-07-27 16:03:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,16 @@ typedef FixedString<PATH_LENGTH>	FileNameString;
 
 template <class T>
 inline void Swap( T& a, T& b ) { T tmp = a; a = b; b = tmp; }
+
+#include <typeinfo>
+
+template <class T>
+inline const char* className( const T& t )
+{	//!< Also works for gcc that returns the size first e.g. 4Clss
+    const char* nm = typeid(t).name();
+    while ( isdigit(*nm) ) nm++;
+    return nm;
+}
 
 
 /* ifdef cpp */

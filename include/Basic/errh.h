@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.2 2000-06-23 14:09:11 bert Exp $
+ RCS:		$Id: errh.h,v 1.3 2000-07-27 16:03:24 bert Exp $
 ________________________________________________________________________
 
 */
@@ -48,9 +48,12 @@ inline void ErrMsg( const char* msg, bool progr = false )
 }
 
 
-inline void programmerErrMsg( const char* msg, const char* fname, int linenr )
+inline void programmerErrMsg( const char* msg, const char* cname,
+				const char* fname, int linenr )
 {
-    BufferString str( fname );
+    BufferString str( cname );
+    str += "-";
+    str += fname;
     str += "/";
     str += linenr;
     str += ": ";
@@ -59,7 +62,8 @@ inline void programmerErrMsg( const char* msg, const char* fname, int linenr )
     ErrMsg( str, true );
 }
 
-#define pErrMsg(msg) programmerErrMsg( msg, __FILE__, __LINE__ )
+#define pErrMsg(msg) programmerErrMsg( msg, className(*this),__FILE__,__LINE__)
+#define pFreeFnErrMsg(msg,fn) programmerErrMsg( msg, fn, __FILE__, __LINE__ )
 
 
 #ifdef __prog__
