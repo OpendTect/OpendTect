@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.23 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.24 2001-09-27 16:17:04 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ public:
     void 		setLines( int prefNrLines )
 			{ 
 			    if(prefNrLines >= 0) nLines=prefNrLines;
-			    setStretch( 1, isSingleLine() ? 0 : 1 );
+			    setStretch( 1, isSingleLine() ? 0 : 2 );
 			}
 
     virtual uiSize	minimumSize() const; //!< \reimp
@@ -68,7 +68,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 	, nLines(preferredNrLines)
 {
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
-    setStretch( 1, isSingleLine() ? 0 : 1 );
+    setStretch( 1, isSingleLine() ? 0 : 2 );
 }
 
 

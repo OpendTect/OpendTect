@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.18 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.19 2001-09-27 16:17:04 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ public:
 			    , objbody_( objbdy )
 			{ 
 			    loMngr = new i_LayoutMngr( objbdy.qwidget(), 
-						       border, spacing ); 
+						       border, spacing, nm ); 
 			}
 
 public:
@@ -121,6 +121,9 @@ public:
 			    return loMngr ? loMngr->minTxtWidgHgt() 
 					: uiParentBody::minTextWidgetHeight();
 			}
+
+    void		setIsMain( bool yn ) 
+			    { if(loMngr)loMngr->setIsMain( yn ); }
 
 protected:
 
@@ -294,6 +297,9 @@ void uiGroup::attach ( constraintType c, uiObject *other, int margin )
 uiSize uiGroup::actualSize( bool include_border) const	
     { return uiObj()->actualSize(include_border); }
 
+
+void uiGroup::setIsMain( bool yn )
+    { body_->setIsMain( yn ); }
 
 void uiGroup::setSpacing( int s )
     { body_->setSpacing( s ); }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.10 2001-08-30 10:49:59 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.11 2001-09-27 16:17:04 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,8 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar)
 { 
     centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
     setCentralWidget( centralWidget_->body()->qwidget() ); 
+
+    centralWidget_->setIsMain(true);
 
     if( wantStatusBar )
     {
