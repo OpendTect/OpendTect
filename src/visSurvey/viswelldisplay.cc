@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.11 2003-01-21 16:09:48 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.12 2003-05-26 14:52:14 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -51,19 +51,27 @@ visSurvey::WellDisplay::~WellDisplay()
     line->unRef();
     removeChild( drawstyle->getData() );
     drawstyle->unRef();
+
+    if ( EarthModel::EMM().getObject( wellid ) )
+	EarthModel::EMM().unRef( wellid );
 }
 
 
 bool visSurvey::WellDisplay::setWellId( const MultiID& multiid )
 {
     const EarthModel::EMManager& em = EarthModel::EMM();
+
     mDynamicCastGet( const EarthModel::Well*, well, em.getObject( multiid ) );
     if ( !well ) return false;
 
     while ( line->size() ) line->removePoint( 0 );
     displayedattrib = -1;
 
+    if ( EarthModel::EMM().getObject( wellid ) )
+	EarthModel::EMM().unRef( wellid );
+
     wellid = multiid;
+    well->ref();
 
     setName( well->name() );
 
