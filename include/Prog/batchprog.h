@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.17 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.18 2004-01-21 09:38:23 dgb Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -118,13 +118,40 @@ inline const BatchProgram& BP() { return *BatchProgram::inst_; }
 
 #ifdef __prog__
 
-# ifdef __win__
-#  include "_execbatch.h"
-# endif
+# ifndef __win__
 
     int main( int argc, char** argv )
 	{ return Execute_batch(&argc,argv); }
 
-#endif
+# else 
+
+#  include "windows.h"
+#  include "_execbatch.h"
+#  define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
+
+    int main( int argc, char** argv )
+    { 
+	int ret=Execute_batch(&argc,argv); 
+
+	// open process
+	HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, getPID() );
+	if ( isBadHandle( hProcess ) )
+	    cerr << "OpenProcess() failed, err = " << GetLastError();
+	else
+	{
+	    // kill process
+	    if ( ! TerminateProcess( hProcess, (DWORD) -1 ) )
+		cerr << "TerminateProcess() failed, err = " << GetLastError();
+
+	    // close handle
+	    CloseHandle( hProcess );
+	}
+
+	exit(0);
+    }
+
+# endif // __win__
+
+#endif // __prog__
 
 #endif
