@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.20 2004-05-24 14:28:36 bert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.21 2004-05-27 11:56:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,7 @@ uiWellMan::uiWellMan( uiParent* p )
 
     selChg( this );
     setCancelText( "" );
+    setOkText( "Dismiss" );
 }
 
 

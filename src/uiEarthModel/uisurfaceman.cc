@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.16 2004-04-14 11:12:33 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.17 2004-05-27 11:56:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
 
     selChg( this ); 
     setCancelText( "" );
+    setOkText( "Dismiss" );
 }
 
 

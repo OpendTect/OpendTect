@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.16 2004-05-27 10:07:10 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.17 2004-05-27 11:56:11 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.16 2004-05-27 10:07:10 b
 #include "survinfo.h"
 #include "iodirentry.h"
 #include "ctxtioobj.h"
+#include "filepath.h"
+#include "strmprov.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -25,6 +27,8 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.16 2004-05-27 10:07:10 b
 #include "multiid.h"
 #include "sorting.h"
 #include "errh.h"
+#include <iostream>
+
 
 DefineEnumNames(Well::TrackSampler,SelPol,1,Well::TrackSampler::sKeySelPol)
 	{ "Nearest trace only", "All corners", 0 };
@@ -328,10 +332,6 @@ int Well::LogDataExtracter::nextStep()
 }
 
 
-#ifdef __debug__
-#include <fstream>
-#endif
-
 #define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*10 : SI().zRange().step
 
 
@@ -348,32 +348,50 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
 
-#ifdef __debug__
-    std::ofstream strm( "/tmp/welltrack.dat" );
-    float last_dah = track.dah( track.size()-1 );
-    const float dah_step = wl.dahStep(true);
-    for ( float d_ah=track.dah(0); d_ah<=last_dah; d_ah += dah_step )
+    if ( getenv("DTECT_DUMP_WELL_EXTRACTION_DATA") )
     {
-	Coord3 tpos = track.getPos( d_ah );
-	Coord3 zpos = wd.track().getPos( d_ah );
-	float val = wl.getValue( d_ah );
-	BinID bid = SI().transform( zpos );
-	Coord bidcoord = SI().transform( bid );
-	Coord offs; offs.x = zpos.x - bidcoord.x; offs.y = zpos.y - bidcoord.y;
-	strm << d_ah << '\t' << val << '\t'
-	     << bid.inl << '\t' << bid.crl << '\t'
-	     << offs.x << '\t' << offs.y << '\t'
-	     << zpos.z << '\t' << tpos.z << '\n';
+	StreamProvider sp( FilePath::getTempName("trackdump.txt") );
+	StreamData sd = sp.makeOStream();
+	if ( sd.usable() )
+	{
+	std::ostream& strm = *sd.ostrm;
+	float last_dah = track.dah( track.size()-1 );
+	const float dah_step = wl.dahStep(true);
+	for ( float d_ah=track.dah(0); d_ah<=last_dah; d_ah += dah_step )
+	{
+	    Coord3 tpos = track.getPos( d_ah );
+	    Coord3 zpos = wd.track().getPos( d_ah );
+	    float val = wl.getValue( d_ah );
+	    BinID bid = SI().transform( zpos );
+	    Coord bidcoord = SI().transform( bid );
+	    Coord offs; offs.x = zpos.x - bidcoord.x;
+	    		offs.y = zpos.y - bidcoord.y;
+	    strm << d_ah << '\t' << val << '\t'
+		 << bid.inl << '\t' << bid.crl << '\t'
+		 << offs.x << '\t' << offs.y << '\t'
+		 << zpos.z << '\t' << tpos.z << '\n';
+	}
+	}
+	sd.close();
     }
-    strm.close();
-#endif
 
-    if ( getenv("DTECT_ALWAYS_USE_GEN_LOG_EXTR") || !track.alwaysDownward() )
+    bool usegenalgo = !track.alwaysDownward();
+    if ( getenv("DTECT_LOG_EXTR_ALGO") )
+    {
+	int opt = atoi( getenv("DTECT_LOG_EXTR_ALGO") );
+	if ( opt == 1 ) usegenalgo = false;
+	if ( opt == 2 ) usegenalgo = true;
+    }
+
+    if ( usegenalgo )
     {
 	// Much slower, less precise but should always work
 	getGenTrackData( bivset, track, wl, res );
 	return;
     }
+
+    // The idea here is to calculate the dah from the Z only.
+    // Should be OK for all wells without horizontal sections
 
     int bividx = 0; int trackidx = 0;
     const float tol = 0.001;
@@ -408,6 +426,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	z1 = track.pos( trackidx - 1 ).z;
 	if ( z1 > biv.value )
 	{
+	    // This is not uncommon. A new binid with higher posns.
 	    trackidx = 1;
 	    bividx--;
 	    prevdah = mUndefValue;
@@ -418,7 +437,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 		    + (biv.value-z1) * track.dah(trackidx) )
 		    / (z2 - z1);
 
-	float winsz = mIsUndefined(prevdah) ? prevwinsz : (dah-prevdah) / 2;
+	float winsz = mIsUndefined(prevdah) ? prevwinsz : dah - prevdah;
 	addValAtDah( dah, wl, res, winsz );
 	prevwinsz = winsz;
 	prevdah = dah;
@@ -431,20 +450,18 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 					      const Well::Log& wl,
 					      TypeSet<float>& res ) const
 {
-    int bividx = 0; int trackidx = 0;
-    const float tol = 0.001;
+    int bividx = 0;
     while ( bividx<bivset.size() && mIsUndefined(bivset[bividx].value) )
 	{ res += mUndefValue; bividx++; }
     if ( bividx >= bivset.size() || !track.size() )
 	{ res.erase(); return; }
 
     BinIDValue biv( bivset[bividx] );
-    float startdah = track.dah(0);
-    const float lastdah = track.dah( track.size() - 1 );
-    const float dahstep = wl.dahStep(true);
     BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
     const float dtol = SI().transform(biv.binid).distance( SI().transform(b) );
     const float ztol = SI().zRange().step * 5;
+    const float startdah = track.dah(0);
+    const float dahstep = wl.dahStep(true);
 
     float prevdah = mUndefValue;
     float prevwinsz = mDefWinSz;
@@ -462,8 +479,7 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 		res += mUndefValue;
 	    else
 	    {
-		float winsz = mIsUndefined(prevdah) ? prevwinsz
-		    				    : (dah-prevdah) / 2;
+		float winsz = mIsUndefined(prevdah) ? prevwinsz : dah - prevdah;
 		addValAtDah( dah, wl, res, winsz );
 		prevwinsz = winsz;
 		prevdah = dah;

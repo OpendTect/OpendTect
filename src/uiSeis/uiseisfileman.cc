@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.36 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.37 2004-05-27 11:56:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 
     selChg( this ); 
     setCancelText( "" );
+    setOkText( "Dismiss" );
 }
 
 
