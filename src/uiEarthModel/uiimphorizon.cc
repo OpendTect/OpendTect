@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.2 2002-05-23 09:32:53 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.3 2002-05-23 11:02:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,10 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "filegen.h"
 #include "uimsg.h"
+
+#include "gridread.h"
+#include "valgridtr.h"
+#include "streamconn.h"
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p )
@@ -61,28 +65,31 @@ bool uiImportHorizon::handleAscii()
     bool doxy = xyfld->getBoolValue();
 
     const char* fname = infld->fileName();
-    StreamData sdi = StreamProvider( fname ).makeIStream();
-    if ( !sdi.usable() ) 
-    { 
-	sdi.close();
-	mErrRet( "Could not open input file" )
-    }
+    StreamConn conn( fname, Conn::Read );
+    if ( conn.bad() )
+	mErrRet( "Bad connection" );
+	
+    PtrMan<GridTranslator> trans =
+	doxy ? (GridTranslator*) new CoordGridTranslator
+	     : (GridTranslator*) new BinIDGridTranslator;
+
+
+    GridReader reader( trans, &conn );
+    uiExecutor execdlg( this, reader );
+    if ( !execdlg.go() ) return false;
+
+    PtrMan<Grid> grid = reader.grid();
 
     const char* horizonnm = outfld->getInput();
     EarthModel::EMManager& em = EarthModel::EMM();
+
     MultiID key = em.add( EarthModel::EMManager::Hor, horizonnm );
     mDynamicCastGet( EarthModel::Horizon*, horizon, em.getObject( key ) );
     if ( !horizon )
-	mErrRet( "Cannot create horizon" )
-    
-    Geometry::Pos pos;
-    while ( *sdi.istrm )
-    {
-	*sdi.istrm >> pos.x >> pos.y >> pos.z;
-// TODO: add points to horizon
-    }
+	mErrRet( "Cannot create horizon" );
 
-    sdi.close();
+    if ( !horizon->import( *grid ) )
+	mErrRet( "Cannot import horizon" );
 
     BufferString msg;
     Executor* exec = EarthModelHorizonTranslator::writer( *horizon, ctio.ioobj,
@@ -98,7 +105,6 @@ bool uiImportHorizon::handleAscii()
 
 bool uiImportHorizon::acceptOK( CallBacker* )
 {
-    return false; // TODO: remove this line
     bool ret = checkInpFlds() && handleAscii();
     return ret;
 }
