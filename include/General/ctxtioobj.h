@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.7 2001-08-22 15:37:59 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.8 2001-10-05 15:46:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,21 +44,24 @@ public:
     IOObjContext&	operator=(const IOObjContext&);
 
     //! intrinsics
-    const Translator*	trgroup;	//!< Mandatory, must never be 0
-    int			newonlevel;
-    bool		crlink;
-    bool		needparent;
-    int			parentlevel;
-    const Translator*	partrgroup;	//!< If !0, parent needed for create
     StdSelType		stdseltype;
+    const Translator*	trgroup;	//!< Mandatory, must never be 0
+    int			newonlevel;	//!< level 0 is survey dir
+    bool		crlink;		//!< Create subdir with new entry
+    bool		needparent;	//!< Does object have a 'parent'
+    int			parentlevel;	//!< On what level can parent be found
+    const Translator*	partrgroup;	//!< If !0, parent needed for create
     bool		multi;		//!< If true, multi allowed
-    bool		maychdir;
+    bool		maychdir;	//!< If not, only select from curdir
 
     //! this selection only
     bool		forread;
-    bool		maydooper;
-    BufferString	deftransl;
-    MultiID		parentkey;
+    MultiID		parentkey;	//!< If set, require this parent
+    bool		maydooper;	//!< Will we allow add/remove etc?
+    BufferString	deftransl;	//!< Translator to use for new entry
+    BufferString	trglobexpr;	//!< Only display when matches globexpr
+    BufferString	ioparkeyval[2];	//!< Allow only/not with this key-value
+    bool		includekeyval;	//!< Is keyval only or not allowed
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
