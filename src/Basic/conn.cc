@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.3 2001-03-27 11:58:10 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.4 2001-05-22 16:23:48 bert Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
@@ -25,21 +25,6 @@ StreamConn::StreamConn()
 {
     fname = new char[1024];
     *fname = '\0';
-}
-
-
-StreamConn::~StreamConn()
-{
-    delete [] fname;
-    if ( mine ) sd.close();
-}
-
-
-bool StreamConn::bad() const
-{
-    if ( state_ == Bad ) return YES;
-    if ( !sd.usable() ) (State&)state_ = Bad;
-    return state_ == Bad;
 }
 
 
@@ -134,10 +119,43 @@ StreamConn::StreamConn( const char* nm, State s )
 }
 
 
+StreamConn::~StreamConn()
+{
+    delete [] fname;
+    close();
+}
+
+
+bool StreamConn::bad() const
+{
+    if ( state_ == Bad ) return YES;
+    if ( !sd.usable() ) (State&)state_ = Bad;
+    return state_ == Bad;
+}
+
+
 void StreamConn::clearErr()
 {
     if ( forWrite() ) { oStream().flush(); oStream().clear(); }
     if ( forRead() ) iStream().clear();
+}
+
+
+void StreamConn::close()
+{
+    if ( mine )
+	sd.close();
+    else if ( state_ == Read && sd.istrm && sd.istrm != &cin )
+    {
+	ifstream* s = dynamic_cast<ifstream*>( sd.istrm );
+	if ( s ) s->close();
+    }
+    else if ( state_ == Write && sd.ostrm
+	   && sd.ostrm != &cout && sd.ostrm != &cerr )
+    {
+	ofstream* s = dynamic_cast<ofstream*>( sd.ostrm );
+	if ( s ) s->close();
+    }
 }
 
 

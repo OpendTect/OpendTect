@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.4 2001-04-17 07:28:10 bert Exp $
+ RCS:		$Id: conn.h,v 1.5 2001-05-22 16:24:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
     virtual bool	bad() const		{ return state() == Bad; }
     virtual bool	forRead() const		{ return state() == Read; }
     virtual bool	forWrite() const	{ return state() == Write; }
+    virtual void	close()			{}
 
     virtual int		nrRetries() const	{ return 0; }
     virtual int		retryDelay() const	{ return 0; }
@@ -94,6 +95,7 @@ public:
 
     virtual bool	bad() const;
     const char*		name() const	 { return fname; }
+    void		close();
 
 private:
 
@@ -130,6 +132,8 @@ public:
     void		setConn( Conn* c, bool becomesmine=true )
 			{ if ( mine_ ) delete conn_;
 			  conn_ = c; mine_ = becomesmine; }
+    void		close()
+			{ if ( conn_ ) conn_->close(); }
 
 protected:
 
