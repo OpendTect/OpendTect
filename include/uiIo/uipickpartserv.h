@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.13 2002-10-25 08:58:35 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.14 2003-01-28 17:28:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
     const Color&	getPickColor()			{ return pickcolor; }
     bool		storeSinglePickSet(PickSet*);
     void		renamePickset(const char*,BufferString&);
+    void		setMisclassSet(const TypeSet<BinIDZValue>&);
 
     ObjectSet<SurfaceInfo>& horInfos()		{ return hinfos; }
     int			selHorID() const	{ return selhorid; }

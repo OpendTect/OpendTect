@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.18 2003-01-21 15:31:43 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.19 2003-01-28 17:28:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,7 +276,8 @@ void uiFullBatchDialog::addStdFields()
     {
 	uiSeparator* sep = new uiSeparator( this, "Hor sep" );
 	sep->attach( stretchedBelow, uppgrp );
-	dogrp->attach( centeredBelow, sep );
+	dogrp->attach( alignedBelow, uppgrp );
+	dogrp->attach( ensureBelow, sep );
     }
 
     singmachfld = new uiGenInput( dogrp, "Submit to",

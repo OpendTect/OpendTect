@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.14 2002-10-25 08:58:35 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.15 2003-01-28 17:28:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,7 +241,7 @@ void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
 	PtrUserIDObjectSet nms = avsets;
 	for ( int idx=0; idx<nms.size(); idx++ )
 	{
-	    if ( !strcmp(newnm,nms[idx]->name()) )
+	    if ( newnm == nms[idx]->name() )
 	    {
 		BufferString msg( "Pickset: "); msg += newnm;
 		msg += "\nalready exists.";
@@ -256,3 +256,17 @@ void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
 	newnm = oldnm;
 }
 
+
+void uiPickPartServer::setMisclassSet( const TypeSet<BinIDZValue>& bzvs )
+{
+    static const BufferString sMisClassStr = "Misclassified [NN]";
+
+    /* Ehhhh ...?
+    sendEvent( evGetAvailableSets );
+    PtrUserIDObjectSet nms = avsets;
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	if ( sMisClassStr == nms[idx]->name() )
+    }
+    */
+}
