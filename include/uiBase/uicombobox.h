@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.17 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.18 2004-10-28 14:15:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,13 @@ public:
 
 
     virtual bool	hasItems()		{ return true; }
-    virtual void	addItem(const char*); 
+
+    virtual void	addItem(const char*);
+    void		insertItem(const char*,int index=-1);
+    void		insertItem(const ioPixmap&,const char*,int index=-1);
+    void		setPixmap(const ioPixmap&,int index);
+    void		getItemSize(int,int& h,int& w) const;
+
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match

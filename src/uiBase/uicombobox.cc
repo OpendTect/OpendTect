@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.33 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.34 2004-10-28 14:14:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,11 @@ public:
 			    : uiObjBodyImpl<uiComboBox,QComboBox>(handle,p,nm)
 			    , messenger_( *new i_comboMessenger( this, &handle))
 			    {
+				// Qt hack ( qt-3.3.3 )
+				// Have no clue why we need to allow editing
+				// first, but otherwise the combobox does not 
+				// work properly. 
+				if ( !ed ) setEditable( true );
 				setEditable( ed );
 				setAutoCompletion( ed );
 				setHSzPol( uiObject::medium) ;
@@ -195,7 +200,20 @@ bool uiComboBox::isReadOnly() const
 
 void uiComboBox::addItem( const char* text ) 
 { 
-    body_->insertItem( QString( text ), -1 );
+    insertItem( text, -1 );
+}
+
+
+void uiComboBox::insertItem( const char* text, int index )
+{
+    body_->insertItem( QString(text), index );
+}
+
+
+void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
+{
+    // TODO: implement
+    pErrMsg( "Not implemented yet" );
 }
 
 
