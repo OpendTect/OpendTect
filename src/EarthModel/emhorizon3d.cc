@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.25 2003-06-17 13:34:43 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.26 2003-06-19 09:21:27 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -34,7 +34,12 @@ EM::Horizon::~Horizon()
 
 BinID EM::Horizon::getBinID( const EM::SubID& subid )
 {
-    const RowCol rc = subID2RowCol(subid);
+    return getBinID( subID2RowCol(subid) );
+}
+
+
+BinID EM::Horizon::getBinID( const RowCol& rc )
+{
     return BinID(rc.row, rc.col);
 }
 

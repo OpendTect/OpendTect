@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.18 2003-06-17 12:50:16 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.19 2003-06-19 09:21:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
 			*/
 
     static BinID	getBinID( const EM::SubID& );
+    static BinID	getBinID( const RowCol& );
 
 protected:
     friend class	EMManager;
