@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.3 2002-02-11 16:05:31 bert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.4 2002-03-21 14:01:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,12 +56,14 @@ public:
     uiApplService&	appserv()		{ return uias_; }
     const uiApplService& appserv() const	{ return uias_; }
 
+protected:
+
     void		sendEvent( int evid )
     			{ appserv().eventOccurred(this,evid); }
     void*		getObject( int objid )
 			{ return appserv().getObject(this,objid); }
 
-protected:
+private:
 
     uiApplService&	uias_;
 
