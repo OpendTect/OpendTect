@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.cc,v 1.4 2003-12-31 15:09:26 kristofer Exp $
+ RCS:           $Id: uigeninputdlg.cc,v 1.5 2004-01-28 14:55:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
 			      const char* fldtxt, DataInpSpec* spec )
-	: uiGroup(p,"Input data")
+	: uiGroup(p,dlgtitle)
 	, entries(new ObjectSet<uiGenInputDlgEntry>)
 {
     *entries += new uiGenInputDlgEntry( fldtxt, spec );
@@ -27,7 +27,7 @@ uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
 
 uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
 			      ObjectSet<uiGenInputDlgEntry>* e )
-	: uiGroup(p,"Input data")
+	: uiGroup(p,dlgtitle)
 	, entries(e?e : new ObjectSet<uiGenInputDlgEntry>)
 {
     build();
