@@ -4,28 +4,29 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.2 2002-02-26 20:23:01 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.3 2002-02-27 09:54:09 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "vistransform.h"
 #include "position.h"
 #include "survinfo.h"
 #include "linsolv.h"
+#include "visannot.h"
 
 #include <limits.h>
 
 
-int visSurvey::SurveyScene::xytidoffset = INT_MAX >> 2;
-int visSurvey::SurveyScene::inlcrloffset = INT_MAX >> 1;
-const float visSurvey::SurveyScene::defvel = 1000;
+int visSurvey::Scene::xytidoffset = INT_MAX >> 2;
+int visSurvey::Scene::inlcrloffset = INT_MAX >> 1;
+// const float visSurvey::Scene::defvel = 1000;
 
-visSurvey::SurveyScene::SurveyScene()
+visSurvey::Scene::Scene()
     : xytworld( new visBase::SceneObjectGroup(true) )
     , inlcrlworld( new visBase::SceneObjectGroup(true) )
     , inlcrltransformation( new visBase::Transformation )
     , xytranslation( new visBase::Transformation )
     , timetransformation( new visBase::Transformation )
-    , appvel( defvel )
+    , appvel( 1000 )
 {
     addObject( xytranslation );
     addObject( xytworld );
@@ -92,34 +93,52 @@ visSurvey::SurveyScene::SurveyScene()
     timetransformation->setA(
 	1,	0,	0,		0,
 	0,	1,	0,		0,
-	0,	0,	appvel/defvel,	0,
+	0,	0,	appvel,		0,
 	0,	0,	0,		1 );
+
+    BinIDRange hrg = SI().range();
+    StepInterval<double> vrg = SI().zRange();
+
+    visBase::Annotation* annot = new visBase::Annotation( *this );
+    annot->setCorner( 0, hrg.start.inl, hrg.start.crl, vrg.start );
+    annot->setCorner( 1, hrg.stop.inl, hrg.start.crl, vrg.start );
+    annot->setCorner( 2, hrg.stop.inl, hrg.stop.crl, vrg.start );
+    annot->setCorner( 3, hrg.start.inl, hrg.stop.crl, vrg.start );
+    annot->setCorner( 4, hrg.start.inl, hrg.start.crl, vrg.stop );
+    annot->setCorner( 5, hrg.stop.inl, hrg.start.crl, vrg.stop );
+    annot->setCorner( 6, hrg.stop.inl, hrg.stop.crl, vrg.stop );
+    annot->setCorner( 7, hrg.start.inl, hrg.stop.crl, vrg.stop );
+
+    annot->setText( 0, "In-line" );
+    annot->setText( 1, "Cross-line" );
+    annot->setText( 2, "TWT");
+    addInlCrlTObject( annot );
 }
 
 
-visSurvey::SurveyScene::~SurveyScene()
+visSurvey::Scene::~Scene()
 { }
 
 
-int visSurvey::SurveyScene::addXYZObject( SceneObject* obj )
+int visSurvey::Scene::addXYZObject( SceneObject* obj )
 {
     return addObject( obj );
 }
 
 
-int visSurvey::SurveyScene::addXYTObject( SceneObject* obj )
+int visSurvey::Scene::addXYTObject( SceneObject* obj )
 {
     return xytidoffset + xytworld->addObject(obj);
 }
 
 
-int visSurvey::SurveyScene::addInlCrlTObject( SceneObject* obj )
+int visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
 {
     return inlcrloffset + inlcrlworld->addObject( obj );
 }
 
 
-void visSurvey::SurveyScene::removeObject( int id )
+void visSurvey::Scene::removeObject( int id )
 {
     if ( id >=inlcrloffset )
 	inlcrlworld->removeObject( id-inlcrloffset );

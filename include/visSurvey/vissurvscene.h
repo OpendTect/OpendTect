@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.2 2002-02-26 20:23:11 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.3 2002-02-27 09:54:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,11 +31,11 @@ metres with a velocity. This velocity is unique for each scene, and can be set
 at any time.
 */
 
-class SurveyScene : public visBase::Scene
+class Scene : public visBase::Scene
 {
 public:
-    				SurveyScene();
-    				~SurveyScene();
+    				Scene();
+    				~Scene();
 
     int				addXYZObject( SceneObject* );
     int				addXYTObject( SceneObject* );
@@ -45,7 +45,7 @@ public:
     float			apparentVel() const;
     void			settApparentVel() const;
 
-    static const float		defvel;
+////    static const float		defvel;
 
 protected:
     visBase::SceneObjectGroup*	xytworld;
