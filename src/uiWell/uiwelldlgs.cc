@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.6 2003-10-30 12:24:34 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.7 2003-11-06 16:16:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
     const int nrmarkers = markers.size();
     if ( !nrmarkers ) return;
 
+    const float zfac = feetfld->isChecked() ? 0.3048 : 1;
     int nrrows = nrmarkers + initnrrows < maxnrrows ? nrmarkers + initnrrows 
 						    : nrmarkers;
     table->setNrRows( nrrows );
@@ -95,7 +96,7 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
     {
 	const Well::Marker* marker = markers[idx];
 	table->setText( uiTable::RowCol(idx,0), marker->name() );
-	table->setValue( uiTable::RowCol(idx,1), marker->dah );
+	table->setValue( uiTable::RowCol(idx,1), marker->dah/zfac );
 	table->setColor( uiTable::RowCol(idx,2), marker->color );
     }
 
