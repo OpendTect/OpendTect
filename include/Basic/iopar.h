@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.2 1999-10-18 14:02:44 dgb Exp $
+ RCS:		$Id: iopar.h,v 1.3 2000-04-12 16:08:59 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -77,8 +77,8 @@ public:
 
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
-    void		get(const char*,BinID&) const;
-    void		get(const char*,Coord&) const;
+    bool		get(const char*,BinID&) const;
+    bool		get(const char*,Coord&) const;
 
 private:
     UserIDString	type_;
