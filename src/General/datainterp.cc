@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.2 2001-02-19 11:27:11 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.3 2001-02-22 08:22:05 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -86,13 +86,17 @@ unsigned short DataCharacteristics::dump() const
 }
 
 
-BufferString DataCharacteristics::toString() const
+void DataCharacteristics::toString( char* buf ) const
 {
-    FileMultiString fms = (const char*)BinDataDesc::toString();
-    fms += isIeee() ? "IEEE" : "IBMmainframe";
+    if ( !buf ) return;
+
+    BinDataDesc::toString( buf );
+
+    FileMultiString fms( buf );
+    fms += isIeee() ? "IEEE" : "IBMmf";
     fms += getYesNoString( littleendian );
 
-    return BufferString( (const char*)fms );
+    strcpy( buf, (const char*)fms );
 }
 
 

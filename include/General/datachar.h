@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.2 2001-02-19 11:28:45 bert Exp $
+ RCS:		$Id: datachar.h,v 1.3 2001-02-22 08:22:18 bert Exp $
 ________________________________________________________________________
 
 */
@@ -54,10 +54,11 @@ public:
 			DataCharacteristics( unsigned short c )	{ set(c); }
 			DataCharacteristics( const char* s )	{ set(s); }
 
-    virtual unsigned short	dump() const;
-    virtual BufferString	toString() const;
-    virtual void		set(unsigned short);
-    virtual void		set(const char*);
+    virtual int         maxStringifiedSize() const      { return 50; }
+    virtual void	toString(char*) const;
+    virtual void	set(const char*);
+    virtual unsigned short dump() const;
+    virtual void	set(unsigned short);
 
 			mDeclConstr(signed char,true,true)
 			mDeclConstr(short,true,true)
