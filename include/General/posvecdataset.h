@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.2 2005-01-20 17:17:15 bert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.3 2005-02-08 16:48:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,18 +28,13 @@ class DataColDef;
 class PosVecDataSet
 {
 public:
-    			PosVecDataSet();
+    			PosVecDataSet( const char* nm=0 )
+			: data_(1,true), name_(nm)	{ empty(); }
     			PosVecDataSet( const PosVecDataSet& vds )
-			:data_(1,true)		{ *this = vds; }
-    virtual		~PosVecDataSet()	{ deepErase(coldefs_); }
-    PosVecDataSet&	operator =( const PosVecDataSet& vds )
-			{
-			    if ( &vds != this ) {
-			    empty();
-			    deepCopy(coldefs_,vds.coldefs_);
-			    merge( vds );
-			    } return *this;
-			}
+			: data_(1,true)			{ *this = vds; }
+    virtual		~PosVecDataSet();
+    PosVecDataSet&	operator =(const PosVecDataSet&);
+    void		copyStructureFrom(const PosVecDataSet&);
 
     void		empty();
     void		add(DataColDef*);
@@ -58,10 +53,14 @@ public:
     DataColDef&		colDef( int idx )	{ return *coldefs_[idx]; }
     const DataColDef&	colDef( int idx ) const	{ return *coldefs_[idx]; }
 
+    const char*		name() const		{ return name_.buf(); }
+    void		setName( const char* nm ) { name_ = nm; }
+
 protected:
 
     BinIDValueSet	data_;
     ObjectSet<DataColDef> coldefs_;
+    BufferString	name_;
 
     void		mergeColDefs(const PosVecDataSet&,ColMatchPol,int*);
 
