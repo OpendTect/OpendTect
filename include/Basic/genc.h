@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.21 2004-09-27 08:07:16 dgb Exp $
+ RCS:		$Id: genc.h,v 1.22 2004-10-25 10:13:53 arend Exp $
 ________________________________________________________________________
 
 
@@ -131,9 +131,22 @@ const char*	_GetHomeDir(void);
 
 /*! Home dir or "Application Data"
 
- returns _GetHomeDir() by default.
+  Returns OD_SETTINGS_DIR if set.
 
- On Windows, it returns "Application Data" if home directory not defined.
+  else:
+  
+    On Unix: returns _GetHomeDir();
+
+    On Windows:
+	returns 
+
+	    if OD_PREFER_HOME is set: _GetHomeDir()
+	    APPDATA
+	    DTECT_APPLICATION_DATA
+	    _GetHomeDir()
+	    location of "Application Data"
+
+    in that order.
 
 */
 const char*	GetSettingsDir(void);
@@ -141,9 +154,23 @@ const char*	GetSettingsDir(void);
 
 /*! Home dir or "My Documents"
 
- returns _GetHomeDir() by default.
+  Returns OD_PERSONAL_DIR if set.
 
- On Windows, it returns "My Documents" if home directory not defined.
+  else:
+  
+    On Unix: returns _GetHomeDir();
+
+    On Windows:
+	returns 
+
+	    if OD_PREFER_HOME is set: _GetHomeDir()
+	    USERPROFILE
+	    DTECT_USERPROFILE_DIR
+	    DTECT_MYDOCUMENTS_DIR
+	    _GetHomeDir()
+	    location of "User Profile"
+
+    in that order.
 
 */
 const char*	GetPersonalDir(void);
