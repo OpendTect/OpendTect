@@ -2,14 +2,14 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.22 2004-01-30 09:03:32 arend Exp $
+# $Id: od_exec,v 1.23 2004-01-30 10:16:52 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
 
 if ( ! $?DTECT_APPL ) then
-	echo "$0 : Error : environment not initialized."
-	exit 1
+    echo "$0 : Error : environment not initialized."
+    exit 1
 endif
 
 eval `$DTECT_APPL/bin/mksethdir`
@@ -25,67 +25,69 @@ next_arg:
 
 if ( "$1" == "--sys" ) then
 
-	set issys=yes
-	shift
-	goto next_arg
+    set issys=yes
+    shift
+    goto next_arg
 
 else if ( "$1" == "--nice" ) then
 
-	set niceness=$2
-	set nicecmd=/usr/bin/nice
-	if ( -x /bin/nice ) set nicecmd=/bin/nice
-	if ( ! -x $nicecmd ) then
-		set nicecmd=""
-	else
-		set nicecmd="$nicecmd -$2"
-	endif
+    set niceness=$2
+    set nicecmd=/usr/bin/nice
+    if ( -x /bin/nice ) set nicecmd=/bin/nice
+    if ( ! -x $nicecmd ) then
+	set nicecmd=""
+    else
+	set nicecmd="$nicecmd -$2"
+    endif
 
-	shift ; shift
-	goto next_arg
+    shift ; shift
+    goto next_arg
 
 else if ( "$1" == "--prescript" ) then
 
-	set extrascript="$2"
-	if ( ! -e $extrascript ) then
-	    if ( -e $DTECT_APPL/bin/$extrascript ) then
-		set extrascript="$DTECT_APPL/bin/$extrascript"
-	    else if ( -e $bindir/$extrascript ) then
-		set extrascript="$bindir/$extrascript"
-	    endif
+    set extrascript="$2"
+    if ( ! -e $extrascript ) then
+	if ( -e $DTECT_APPL/bin/$extrascript ) then
+	    set extrascript="$DTECT_APPL/bin/$extrascript"
+	else if ( -e $bindir/$extrascript ) then
+	    set extrascript="$bindir/$extrascript"
 	endif
+    endif
 
-	shift ; shift
-	goto next_arg
+    shift ; shift
+    goto next_arg
 
 else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 
-	set xtermcmdarg=""
-	if ( "$1" == "--inxterm+askclose" ) then
-	    set xtermcmdarg = "--askclose"
-	endif
+    set xtermcmdarg=""
+    if ( "$1" == "--inxterm+askclose" ) then
+	set xtermcmdarg = "--askclose"
+    endif
 
-	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $xtermcmdarg"
+    set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $xtermcmdarg"
 
-	shift
-	goto next_arg
+    shift
+    goto next_arg
 
 endif
 
 
 if ( ! -d $bindir ) then
-	echo "Fatal error: Cannot start program because directory:"
-	echo "$bindir"
-	echo "Does not exist."
-	exit 1
+    echo "Fatal error: Cannot start program because directory:"
+    echo "$bindir"
+    echo "Does not exist."
+    exit 1
 endif
 
 setenv XAPPLRESDIR	$DTECT_APPL/data
 setenv PATH		"${bindir}:${PATH}"
+
 if ( $?LD_LIBRARY_PATH ) then
-	setenv LD_LIBRARY_PATH	"${bindir}/so:${LD_LIBRARY_PATH}"
+    setenv LD_LIBRARY_PATH	"${bindir}/so:${LD_LIBRARY_PATH}"
 else
-	setenv LD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
+    setenv LD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
 endif
+
 if ( $HDIR == sgi ) then
     if ( $?LD_LIBRARYN32_PATH ) then
         setenv LD_LIBRARYN32_PATH "${bindir}/so:${LD_LIBRARYN32_PATH}"
@@ -97,16 +99,16 @@ endif
 unsetenv QTDIR
 
 if ( $extrascript != "" ) then
-	source $extrascript
+    source $extrascript
 endif
 
 
 if ( $issys == yes ) then
-	if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $* $extraargs"
-	$xtermcmd $nicecmd $* $extraargs
+    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $* $extraargs"
+    $xtermcmd $nicecmd $* $extraargs
 else
-	if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
-	$xtermcmd $nicecmd $bindir/$* $extraargs
+    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
+    $xtermcmd $nicecmd $bindir/$* $extraargs
 endif
 
 exit $status
