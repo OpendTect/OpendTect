@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.21 2004-05-21 16:55:42 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.22 2004-07-30 16:06:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,11 +155,12 @@ bool uiWellImportAsc::doWork()
 bool uiWellImportAsc::checkInpFlds()
 {
     if ( ! *infld->fileName() )
-	mErrRet( "Please select the input file" )
-    else if ( !File_exists(infld->fileName()) )
-	mErrRet( "Input file does not exist" )
+	mErrRet( "Please select 'Well Track' file" )
 
-    if ( !outfld->commitInput( true ) )
+    if ( SI().zIsTime() && ! *d2tfld->fileName() )
+	mErrRet( "Please select 'Depth to Time model' file" )
+
+    if ( !outfld->commitInput(true) )
 	mErrRet( "Please select output" )
 
     return true;
