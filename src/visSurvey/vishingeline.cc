@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.8 2004-09-03 09:20:56 kristofer Exp $
+ RCS:           $Id: vishingeline.cc,v 1.9 2004-09-27 09:02:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ EdgeLineSetDisplay::EdgeLineSetDisplay()
     , connect( true )
     , showdefault( true )
 {
-    getMaterial()->setColor( Color(255,255,0), 0 );
+    getMaterial()->setColor( Color(178,178,178), 0 );
     getMaterial()->setAmbience(0, 0);
     getMaterial()->setDiffIntensity(1,0);
     getMaterial()->setColor( Color(0,0,255), mCutColor );
@@ -74,6 +74,16 @@ EdgeLineSetDisplay::~EdgeLineSetDisplay()
 	const_cast<EM::EdgeLineSet*>(edgelineset)->changenotifier.remove(
 		mCB(this,EdgeLineSetDisplay,updateEdgeLineSetChangeCB));
 }
+
+void EdgeLineSetDisplay::setRadius( float nr )
+{
+    for ( int idx=0; idx<polylines.size(); idx++ )
+	polylines[idx]->setRadius(nr);
+}
+
+
+float EdgeLineSetDisplay::getRadius() const
+{ return polylines.size() ? polylines[0]->getRadius(): 5; }
 
 
 void EdgeLineSetDisplay::setConnect(bool yn)

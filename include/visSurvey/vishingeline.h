@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.5 2004-08-05 12:26:54 kristofer Exp $
+ RCS:           $Id: vishingeline.h,v 1.6 2004-09-27 09:02:52 kristofer Exp $
 ________________________________________________________________________
 
           
@@ -30,6 +30,9 @@ class EdgeLineSetDisplay : public visBase::VisualObjectImpl
 public:
     static EdgeLineSetDisplay*	create()
 				mCreateDataObj(EdgeLineSetDisplay);
+
+    void			setRadius(float);
+    float			getRadius() const;
 
     void			setConnect(bool);
     				/*!<Sets wether the first and last node in a 
