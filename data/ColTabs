@@ -1,0 +1,89 @@
+dGB-GDI V3.0
+Color table definitions
+Tue Jan  8 14:04:25 2002
+!
+Standard color tables
+
+1.Name       :	Red-White-Blue
+1.Value-Color.1: 0`255`0`0
+1.Value-Color.2: 0.5`255`255`255
+1.Value-Color.3: 1`0`0`255
+1.Undef color:	200`200`200
+1.Marker color: 0`0`0
+
+2.Name       :	Red-White-Black
+2.Value-Color.1: 0`255`0`0
+2.Value-Color.2: 0.25`255`255`0
+2.Value-Color.3: 0.5`255`255`255
+2.Value-Color.4: 1`0`0`0
+2.Undef color:	255`0`0
+2.Marker color: 0`240`0
+
+3.Name       :	Grey scales
+3.Value-Color.1: 0`255`255`255
+3.Value-Color.2: 1`0`0`0
+3.Undef color:	255`255`200
+3.Marker color: 0`240`0
+
+4.Name       :	Rainbow
+4.Value-Color.1: 0`0`0`255
+4.Value-Color.2: 0.25`0`255`255
+4.Value-Color.3: 0.4`0`255`0
+4.Value-Color.4: 0.55`255`255`0
+4.Value-Color.5: 0.8`255`0`0
+4.Value-Color.6: 1`255`0`255
+4.Undef color:	200`200`200
+4.Marker color: 0`0`0
+
+5.Name       :	SunRise
+5.Value-Color.1: 0`255`255`255
+5.Value-Color.2: 0.5`255`255`0
+5.Value-Color.3: 1`255`0`0
+5.Undef color:	200`200`200
+5.Marker color: 0`240`0
+
+6.Name       :	Pastel
+6.Value-Color.1: 0`0`0`255
+6.Value-Color.2: 0.25`0`255`255
+6.Value-Color.3: 0.5`255`255`255
+6.Value-Color.4: 0.75`255`255`0
+6.Value-Color.5: 1`255`0`0
+6.Undef color:	200`200`200
+6.Marker color: 0`0`0
+
+7.Name       :	Extremes
+7.Value-Color.1: 0`255`255`0
+7.Value-Color.2: 0.05`255`0`0
+7.Value-Color.3: 0.4`255`255`255
+7.Value-Color.4: 0.6`255`255`255
+7.Value-Color.5: 0.95`0`0`255
+7.Value-Color.6: 1`0`255`0
+7.Undef color:	200`200`200
+7.Marker color: 0`0`0
+
+8.Name       :	Flames
+8.Value-Color.1: 0`255`255`255
+8.Value-Color.2: 0.2`255`255`255
+8.Value-Color.3: 0.49999`0`0`0
+8.Value-Color.4: 0.5`255`0`0
+8.Value-Color.5: 0.95`255`255`0
+8.Value-Color.6: 1`255`255`0
+8.Undef color:	0`0`200
+8.Marker color: 0`240`0
+
+9.Name       :	Blue Spirit
+9.Value-Color.1: 0`0`0`255
+9.Value-Color.2: 0.5`255`255`255
+9.Value-Color.3: 1`0`0`255
+9.Undef color:	200`200`200
+9.Marker color: 0`240`0
+
+10.Name       :	Black&White
+10.Value-Color.1: 0`0`0`0
+10.Value-Color.2: 0.49999`0`0`0
+10.Value-Color.3: 0.5`255`255`255
+10.Value-Color.3: 1`255`255`255
+10.Undef color:	255`255`255
+10.Marker color: 0`0`0
+
+!
