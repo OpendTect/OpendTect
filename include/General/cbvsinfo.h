@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.1 2001-03-19 10:17:57 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.2 2001-03-21 17:32:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ public:
     SurvGeom			geom;
 
     int				seqnr;
+    BufferString		stdtext;
     BufferString		usertext;
 
     void			clean()
