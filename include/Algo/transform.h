@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.3 2001-05-31 15:09:10 windev Exp $
+ RCS:           $Id: transform.h,v 1.4 2001-07-19 06:24:58 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,9 @@ class TransformND
     isAbstractClass
 
 public:
-    virtual bool		setInfo( const ArrayNDInfo& )		= 0;
-    virtual const ArrayNDInfo&	getInfo() const				= 0;
+    virtual bool		setInputInfo( const ArrayNDInfo& )	= 0;
+    virtual const ArrayNDInfo&	getInputInfo() const			= 0;
+    virtual const ArrayNDInfo&	getOutputInfo() const { return getInputInfo(); }
 
 			//! Says whether float* can be used
     virtual bool	isReal() const					= 0;
@@ -95,8 +96,8 @@ subclass of GenericTransformND.
 class GenericTransformND : public TransformND
 {
 public:
-    bool			setInfo( const ArrayNDInfo& );
-    const ArrayNDInfo&		getInfo() const;
+    bool			setInputInfo( const ArrayNDInfo& );
+    const ArrayNDInfo&		getInputInfo() const;
 
     bool			setDir( bool forward );
     bool			getDir() const;

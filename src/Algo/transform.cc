@@ -4,13 +4,13 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.1 2001-02-19 17:17:02 bert Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.2 2001-07-19 06:25:21 kristofer Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
 
 
-bool GenericTransformND::setInfo( const ArrayNDInfo& ni )
+bool GenericTransformND::setInputInfo( const ArrayNDInfo& ni )
 {
     if ( !isPossible( ni ) ) return false;
 
@@ -20,7 +20,7 @@ bool GenericTransformND::setInfo( const ArrayNDInfo& ni )
 }
 
 
-const ArrayNDInfo& GenericTransformND::getInfo() const
+const ArrayNDInfo& GenericTransformND::getInputInfo() const
 { return *info; }
 
 
@@ -157,7 +157,7 @@ bool GenericTransformND::transform( const ArrayND<float>& in,
 {
     if ( !isReal() ) return false;
 
-    const ArrayNDInfo& info = getInfo();
+    const ArrayNDInfo& info = getInputInfo();
 
     if ( out.info() != in.info() || out.info() != info ) return false;
 
@@ -186,7 +186,7 @@ bool GenericTransformND::transform( const ArrayND<float_complex>& in,
 {
     if ( !isReal() ) return false;
 
-    const ArrayNDInfo& info = getInfo();
+    const ArrayNDInfo& info = getInputInfo();
 
     if ( out.info() != in.info() || out.info() != info ) return false;
 
