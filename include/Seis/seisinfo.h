@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.15 2004-07-19 11:30:10 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.16 2004-09-30 15:33:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ public:
     StepInterval<int>	inlrg;
     StepInterval<int>	crlrg;
     StepInterval<float>	zrg;
+    bool		inlrev;
+    bool		crlrev;
 
     void		clear();
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.23 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.24 2004-09-30 15:33:32 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -109,6 +109,7 @@ void SeisPacketInfo::clear()
     nr = 0;
     SI().sampling(false).hrg.get( inlrg, crlrg );
     zrg = SI().zRange();
+    inlrev = crlrev = false;
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.15 2004-08-18 14:29:57 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.16 2004-09-30 15:33:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
     bool		hasAuxInfo() const		{ return haveaux_; }
     void		fetchAuxInfo(bool yn=true);
     			//!< Single shot. Second time, may not work properly.
+    void		getIsRev(bool& inl, bool& crl) const;
 
     const char*		baseFileName() const
 			{ return (const char*)basefname_; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.16 2004-09-24 12:09:12 bert Exp $
+ RCS:		$Id: seisread.h,v 1.17 2004-09-30 15:33:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ public:
     int			curLineNumber() const		{ return curlinenr; }
     BufferString	lineKey() const;		//!< 2D only
     Seis2DLineKeyProvider* lineKeyProvider(const char* attrnm2d=0) const;
+    void		getIsRev(bool& inl,bool& crl) const;
+    			//!< use after prepareWork()
 
 protected:
 
