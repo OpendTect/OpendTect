@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.17 2004-12-20 12:31:20 nanne Exp $
+ RCS:		$Id: emposid.h,v 1.18 2005-01-10 15:36:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -39,6 +39,8 @@ public:
     				PosID( ObjectID emobj,
 				       SectionID section=0,
 				       SubID subid=0);
+
+    static const PosID&		udf();
 
     const ObjectID&		objectID() const;
     SectionID			sectionID() const;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.12 2004-12-17 13:31:02 nanne Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.13 2005-01-10 15:36:47 kristofer Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
@@ -14,6 +14,13 @@ static const char* rcsID = "$Id: emposid.cc,v 1.12 2004-12-17 13:31:02 nanne Exp
 const char* EM::PosID::emobjStr() { return "Object"; }
 const char* EM::PosID::sectionStr() { return  "Patch"; }
 const char* EM::PosID::subidStr() { return  "Sub ID"; }
+
+
+const EM::PosID& EM::PosID::udf()
+{
+    static EM::PosID undef( -1, -1, -1 );
+    return undef; 
+}
 
 
 RowCol EM::PosID::getRowCol() const
