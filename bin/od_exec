@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.15 2003-05-04 13:11:53 dgb Exp $
+# $Id: od_exec,v 1.16 2003-05-04 14:39:44 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -34,8 +34,6 @@ set bindir="$dGB_APPL/bin/$binsubdir"
 set niceness=0
 set extrascript=""
 set extraargs=""
-set xtermcmd=""
-set xtermcmdend = ""
 
 next_arg:
 
@@ -70,9 +68,11 @@ else if ( "$1" == "--prescript" ) then
 
 else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 
-	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e"
-	if ( "$1" == "--inxterm+askclose" )
-	    set xtermcmdend = " ; echo 'Press enter to close xterm ...' ; read _tmp"
+	set xtermcmdarg=""
+	if ( "$1" == "--inxterm+askclose" ) then
+	    set xtermcmdarg = "--askclose"
+	endif
+	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $dGB_APPL/bin/dgb_xterm_exec $xtermcmdarg"
 	shift
 
 	goto next_arg
@@ -101,12 +101,12 @@ if ( $extrascript != "" ) then
 	source $extrascript
 endif
 
-if ( $?dGB_DEBUG ) echo "Executing: $xtermcmd $bindir/$* $extraargs "
+if ( $?dGB_DEBUG ) echo "Executing: $xtermcmd $bindir/$* $extraargs"
 
 if ( $niceness == 0 ) then
-	$xtermcmd $bindir/$* $extraargs $xtermcmdend
+	$xtermcmd $bindir/$* $extraargs
 else
-	$xtermcmd $nicecmd $bindir/$* $extraargs $xtermcmdend
+	$xtermcmd $nicecmd $bindir/$* $extraargs
 endif
 
 exit $status

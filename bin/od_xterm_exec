@@ -1,0 +1,25 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) 2003 de Groot-Bril Earth Sciences B.V.
+# $Id: od_xterm_exec,v 1.1 2003-05-04 14:39:44 bert Exp $
+#
+# script to run in xterm for dgb_exec
+#_______________________________________________________________________________
+
+set askclose=0
+if ( "$1" == "--askclose" ) then
+	set askclose=1
+	shift
+endif
+
+eval $*
+set st=$status
+
+if ( $askclose == 1 ) then
+	echo ""
+	echo -n "Press enter to close xterm ..."
+	set inp=$<
+endif
+
+exit $st
