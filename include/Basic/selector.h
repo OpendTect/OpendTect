@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.2 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: selector.h,v 1.3 2001-04-17 11:40:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,9 +111,13 @@ class ArraySelector : public Selector<T>
 {
 public:
 
-			ArraySelector()			{}
+			ArraySelector() : vals(0), sz(0)	  {}
 			ArraySelector( const T* v, int s )
-			: vals(v), sz(s)		{}
+			: vals(v), sz(s), valsmine(false)	  {}
+			ArraySelector( const ArraySelector& x )
+			: vals(x.vals), sz(x.sz), valsmine(false) {}
+			~ArraySelector()
+			{ if ( valsmine ) delete [] const_cast<T*>(vals); }
 
     virtual const char*	selectorType() const		{ return "Array"; }
     virtual Selector<T>* clone() const
@@ -125,6 +129,7 @@ public:
 				{ if ( vals[idx] == t ) return true; }
 			    return false;
 			}
+    void		manageVals( bool yn=true )	{ valsmine = yn; }
 
     const T*		vals;
     int			sz;
@@ -140,6 +145,8 @@ protected:
 				{ if ( !ss.includes(vals[idx]) ) return false; }
 			    return true;
 			}
+
+    bool		valsmine;
 
 };
 
