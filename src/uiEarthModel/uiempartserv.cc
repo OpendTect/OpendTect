@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.22 2003-08-11 11:23:17 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.23 2003-08-15 13:19:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,8 @@ bool uiEMPartServer::storeSurface( const MultiID& id )
     dlg.getSelection( sel );
 
     bool auxdataonly = dlg.auxDataOnly();
-    PtrMan<Executor> exec = hor->saver( &sel, auxdataonly );
+    const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
+    PtrMan<Executor> exec = hor->saver( &sel, auxdataonly, &key );
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go();
 }

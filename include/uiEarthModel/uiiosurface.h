@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.5 2003-08-06 15:11:33 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.6 2003-08-15 13:19:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,8 @@ public:
 
     const char*		auxDataName() const;
     bool		saveAuxDataOnly() const;
+    bool		surfaceOnly() const;
+    bool		surfaceAndData() const;
 
     virtual bool	processInput();
 

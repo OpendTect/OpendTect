@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.4 2003-08-07 14:35:42 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.5 2003-08-15 13:19:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,10 @@ public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Horizon&);
 
     bool		auxDataOnly() const;
+    bool		surfaceOnly() const;
+    bool		surfaceAndData() const;
     void		getSelection(EM::SurfaceIODataSelection&);
+    IOObj*		ioObj() const;
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.5 2003-08-07 14:35:54 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.6 2003-08-15 13:19:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,17 +54,35 @@ bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
 void uiWriteSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 {
     iogrp->getSelection( sels );
+    sels.selvalues.erase();
     if ( auxDataOnly() )
-    {
-	sels.selvalues.erase();
 	sels.selvalues += auxdataidx;
-    }
+    else if ( surfaceAndData() )
+	sels.selvalues += 0;
+}
+
+
+bool uiWriteSurfaceDlg::surfaceOnly() const
+{
+    return iogrp->surfaceOnly();
 }
 
 
 bool uiWriteSurfaceDlg::auxDataOnly() const
 {
     return iogrp->saveAuxDataOnly();
+}
+
+
+bool uiWriteSurfaceDlg::surfaceAndData() const
+{
+    return iogrp->surfaceAndData();
+}
+
+
+IOObj* uiWriteSurfaceDlg::ioObj() const
+{
+    return iogrp->selIOObj();
 }
 
 

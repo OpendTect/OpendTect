@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.7 2003-08-07 14:33:15 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.8 2003-08-15 13:19:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ void uiIOSurface::fillAttribFld( const ObjectSet<BufferString>& valnames )
     attribfld->box()->empty();
     for ( int idx=0; idx<valnames.size(); idx++)
 	attribfld->box()->addItem( valnames[idx]->buf() );
-    attribfld->box()->selAll( false );
+    attribfld->box()->setSelected( 0 );
 }
 
 
@@ -238,6 +238,18 @@ void uiSurfaceOutSel::savePush( CallBacker* )
 bool uiSurfaceOutSel::saveAuxDataOnly() const
 {
     return savefld ? savefld->getBoolValue() : false;
+}
+
+
+bool uiSurfaceOutSel::surfaceOnly() const
+{
+    return !savefld;
+}
+
+
+bool uiSurfaceOutSel::surfaceAndData() const
+{
+    return savefld ? !savefld->getBoolValue() : false;
 }
 
 
