@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.2 2005-01-18 13:14:20 kristofer Exp $
+ RCS:           $Id: sectionextender.h,v 1.3 2005-03-18 12:50:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,8 @@ public:
 
     virtual void	reset() { addedpos.erase(); }
     virtual void	setDirection( const BinIDValue& ) {}
-    virtual void	setSelector( const SectionSourceSelector* ) {}
+    virtual const BinIDValue* getDirection() const { return 0; }
+    virtual void	setSelector(const SectionSourceSelector*) {}
     int			nextStep() { return 0; }
 
     const char*		errMsg() const { return errmsg[0] ? errmsg : 0; }
