@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.12 2002-04-11 14:34:58 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.13 2002-04-11 16:33:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
 {
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifer.notify( 
-	mCB(this,uiVisPartServer,selectObjCB) );
+//  visBase::DM().selMan().deselnotifer.notify( 
+//	mCB(this,uiVisPartServer,selectObjCB) );
 }
 
 
@@ -132,6 +132,7 @@ void uiVisPartServer::removeDataDisplay()
     mDynamicCastGet(visSurvey::SeisDisplay*,sd,sdobj)
     if ( !sd ) return;
 
+    sdobj->deSelect();
     sd->textureRect().manipChanges()->remove(
 	    				mCB(this,uiVisPartServer,showPosCB));
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
@@ -162,6 +163,14 @@ void uiVisPartServer::setSelObjectId( int id )
 int uiVisPartServer::getSelObjectId() const
 {
     return visBase::DM().selMan().selected()[0];
+}
+
+
+void uiVisPartServer::deSelectObject( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    if ( !obj ) return;
+    obj->deSelect();
 }
 
 

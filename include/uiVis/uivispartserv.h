@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.9 2002-04-11 14:36:39 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.10 2002-04-11 16:33:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ public:
 
     void		setSelObjectId(int id);
     int			getSelObjectId() const;
+    void		deSelectObject(int);
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
 
