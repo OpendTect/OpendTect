@@ -4,11 +4,12 @@
  * FUNCTION : Synchronize OpendTect sys tools with cygwin, if installed.
 -*/
 
-static const char* rcsID = "$Id: SyncCygwin.cc,v 1.2 2004-01-22 15:19:06 dgb Exp $";
+static const char* rcsID = "$Id: SyncCygwin.cc,v 1.3 2004-04-07 22:09:19 bert Exp $";
 
 
 #include "prog.h"
 #include "filegen.h"
+#include "filepath.h"
 
 #include <windows.h>
 #include <regstr.h>
@@ -52,28 +53,32 @@ int main( int argc, char** argv )
     const char* cygdir = getCygDir();
     if ( !cygdir || !*cygdir ) return 1;
 
-    BufferString bindir = File_getFullPath( cygdir, "bin" );
-    if ( !File_isDirectory(bindir) ) return 2;
+    FilePath fp( cygdir ); fp.add( "bin" );
+    if ( !File_isDirectory(fp.fullPath()) ) return 2;
 
-    BufferString cygdll = File_getFullPath( bindir, "cygwin1.dll" );
-    if ( !File_exists(cygdll) ) return 3;
+    static const char* cygdllnm = "cygwin1.dll";
+    fp.add( cygdllnm );
+    BufferString cygdllpath = fp.fullPath();
+    if ( !File_exists(cygdllpath) ) return 3;
 
-    BufferString todir = File_getFullPath( File_getCurrentDir(), "sys" );
-    if ( !File_isDirectory(todir) ) return 4;
+    fp.set( File_getCurrentDir() ); fp.add( "sys" );
+    if ( !File_isDirectory(fp.fullPath()) ) return 4;
 
-    BufferString tofile = File_getFullPath( todir, "cygwin1.dll" );
+    fp.add( cygdllnm );
+    BufferString tofile = fp.fullPath();
+    fp.setFileName( "cygwin1_old.dll" );
+    BufferString oldfile = fp.fullPath();
+    if ( File_exists(oldfile) && !File_remove(oldfile, false) )
+	return 5;
+    else if ( !File_rename( tofile, oldfile ) )
+	return 6;
 
-    BufferString oldfile = File_getFullPath( todir, "cygwin1_old.dll" );
-    if ( File_exists(oldfile) ) 
+    if ( !File_copy(cygdllpath,tofile,false) ) 
     {
-	if ( !File_remove(oldfile, false) ) return 5;
-    }
-    if ( !File_rename( tofile, oldfile ) ) return 6;
-
-    if ( !File_copy(cygdll,tofile,false) ) 
-    {
-	if ( !File_rename( oldfile, tofile ) ) return 7;
-	return 8;
+	if ( !File_rename( oldfile, tofile ) )
+	    return 7;
+	else
+	    return 8;
     }
 
     return 0;
