@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uimergeseis.h,v 1.6 2004-07-01 15:14:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,9 @@ ________________________________________________________________________
 class IOObj;
 class IOPar;
 class SeisTrc;
+class uiSeisSel;
 class CtxtIOObj;
 class uiCheckBox;
-class uiIOObjSel;
 class SeisRequester;
 class uiLabeledListBox;
 class SeisSingleTraceProc;
@@ -34,7 +34,7 @@ public:
 protected:
 
     uiLabeledListBox*   seisinpfld;
-    uiIOObjSel*		seisoutfld;
+    uiSeisSel*		seisoutfld;
     uiCheckBox*		remfld;
 
     ObjectSet<MultiID>	ioobjids;
@@ -47,7 +47,7 @@ protected:
     bool		rev;
 
     virtual bool	acceptOK(CallBacker*);
-    bool		handleInput();
+    bool		handleInput(int&,int&);
     int			checkRanges();
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.19 2004-06-28 16:00:05 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.20 2004-07-01 15:14:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ ________________________________________________________________________
 #include "sorting.h"
 #include "uiexecutor.h"
 #include "uiseistransf.h"
+#include "uiseissel.h"
+#include "uiseisioobjinfo.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "bufstringset.h"
@@ -66,9 +68,8 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     seisinpfld->box()->setCurrentItem( 0 );
 
     ctio.ctxt.forread = false;
-    ctio.ctxt.trglobexpr = "CBVS";
-    ctio.ctxt.deftransl = "CBVS";
-    seisoutfld = new uiIOObjSel( this, ctio, "Output to", false );
+    seisoutfld = new uiSeisSel( this, ctio, "Output to",
+	    			SeisSelSetup(false).pol2d(-1) );
     seisoutfld->attach( alignedBelow, seisinpfld );
 
     remfld = new uiCheckBox( this, "Remove original files on succes" );
@@ -98,20 +99,19 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 	        	   "Do you wish to continue?" ) )
 	return false;
 
-    if ( !handleInput() ) return false;
-    const int estnrtrcs = checkRanges();
+    uiSeisIOObjInfo::SpaceInfo spi;
+    int nrsamps, bps;
+    if ( !handleInput(spi.expectednrsamps,spi.maxbytespsamp) )
+	return false;
+    spi.expectednrtrcs = checkRanges();
 
-    /*TODO 
-    //TODO get these from cubes
-    const int nrsamps = SI().zRange(false).nrSteps() + 1;
-    const int bps = 4;
-    if ( !estnrtrcs
-      || !uiSeisTransfer::checkSpaceLeft(*ctio.ioobj,nrsamps,bps,estnrtrcs) )
+    if ( !spi.expectednrtrcs
+      || !uiSeisIOObjInfo(*ctio.ioobj).checkSpaceLeft(spi) )
 	return false;
 
     const char* txt = "File merger";
     proc = new SeisSingleTraceProc( selobjs, ctio.ioobj, txt, &seliops );
-    proc->setTotalNrIfUnknown( estnrtrcs );
+    proc->setTotalNrIfUnknown( spi.expectednrtrcs );
     uiExecutor dlg( this, *proc );
     dlg.go();
 
@@ -132,15 +132,13 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 	}
     }
 
-    */
     return true;
 }
 
 
-bool uiMergeSeis::handleInput()
+bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
 {
-    selobjs.erase();
-    seliops.erase();
+    selobjs.erase(); seliops.erase();
     for ( int idx=0; idx<seisinpfld->box()->size(); idx++ )
     {
         if ( seisinpfld->box()->isSelected(idx) )
@@ -158,7 +156,7 @@ bool uiMergeSeis::handleInput()
     static const char* typekey = sKey::Type;
     int order[inpsz];
     int inlstart[inpsz];
-    BinIDSampler bs;
+    StepInterval<int> inlrg, crlrg;
     StepInterval<float> zrg;
     StepInterval<float> zrgprev;
     BufferString type = "";
@@ -180,36 +178,39 @@ bool uiMergeSeis::handleInput()
 	if ( !idx && ioobj->pars().hasKey(optdirkey) )
 	    optdir = ioobj->pars().find( optdirkey );
 
-        if ( !SeisTrcTranslator::getRanges( *ioobj, bs, zrg ) )
-	{
-	    BufferString msg( "Cannot read \"" );
-	    msg += ioobj->name(); msg += "\"";
-	    uiMSG().error( msg );
+	uiSeisIOObjInfo oinf( *ioobj );
+        if ( !oinf.getRanges(inlrg,crlrg,zrg) )
 	    return false;
+
+	if ( !idx )
+	{
+	    nrsamps = zrg.nrSteps() + 1;
+	    oinf.getBPS( bps );
 	}
 
-	IOPar iopar;
-	iopar.set( BinIDSelector::sKeyseltyp, BinIDSelector::keyseltyps()[2] );
-	iopar.set( BinIDSelector::sKeyfinl, bs.start.inl );
-        iopar.set( BinIDSelector::sKeylinl, bs.stop.inl );
-        iopar.set( BinIDSelector::sKeystepinl, abs(bs.step.inl) );
-        iopar.set( BinIDSelector::sKeyfcrl, bs.start.crl );
-        iopar.set( BinIDSelector::sKeylcrl, bs.stop.crl );
-        iopar.set( BinIDSelector::sKeystepcrl, abs(bs.step.crl) );
-	seliops += new IOPar( iopar );
+	IOPar* iopar = new IOPar;
+	iopar->set( BinIDSelector::sKeyseltyp, BinIDSelector::keyseltyps()[2] );
+	iopar->set( BinIDSelector::sKeyfinl, inlrg.start );
+        iopar->set( BinIDSelector::sKeylinl, inlrg.stop );
+        iopar->set( BinIDSelector::sKeystepinl, abs(inlrg.step) );
+        iopar->set( BinIDSelector::sKeyfcrl, crlrg.start );
+        iopar->set( BinIDSelector::sKeylcrl, crlrg.stop );
+        iopar->set( BinIDSelector::sKeystepcrl, abs(crlrg.step) );
+	seliops += iopar;
 	order[idx] = idx;
-	inlstart[idx] = bs.start.inl;
-	if ( bs.step.inl < 0 ) 
+	inlstart[idx] = inlrg.start;
+	if ( inlrg.step < 0 ) 
         { 
 	    inlstart[idx] *= -1; 
 	    rev = true; 
 	}
 
-	if ( !idx ) zrgprev = zrg;
-	if ( zrg != zrgprev )
+	if ( !idx )
+	    zrgprev = zrg;
+	else if ( zrg != zrgprev )
 	{
-	    uiMSG().error( "Z-range is not equal,\n"
-			   "filemerging will not continue." );
+	    uiMSG().error( "Sorry, not implemented:\n"
+		    	   "Merge with different Z-ranges" );
 	    return false;
 	}
     }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.7 2004-07-01 15:14:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 class IOObj;
 class CtxtIOObj;
-class uiIOObjSel;
+class uiSeisSel;
 class uiGenInput;
 class uiFileInput;
 class uiSeisTransfer;
@@ -34,12 +34,12 @@ protected:
     CtxtIOObj&		inctio_;
     CtxtIOObj&		outctio_;
 
-    uiFileInput*	finpfld;
-    uiIOObjSel*		oinpfld;
     uiGenInput*		typefld;
     uiGenInput*		modefld;
     uiSeisTransfer*	transffld;
-    uiIOObjSel*		seissel;
+    uiFileInput*	finpfld;
+    uiSeisSel*		oinpfld;
+    uiSeisSel*		outfld;
 
     void		finpSel(CallBacker*);
     void		oinpSel(CallBacker*);

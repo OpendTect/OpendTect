@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.4 2004-06-28 16:00:06 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.5 2004-07-01 15:14:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uibinidsubsel.h"
 #include "uiseis2dsubsel.h"
+#include "uiseisioobjinfo.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "ctxtioobj.h"
@@ -57,9 +58,9 @@ const char* uiSeisSelDlg::standardTranslSel( int pol2d )
 {
     static FileMultiString fms;
     fms = "";
-    if ( pol2d > -1 )
-	fms += "CBVS";
     if ( pol2d < 1 )
+	fms += "CBVS";
+    if ( pol2d > -1 )
 	fms += "2D";
     return fms.buf();
 }
@@ -95,9 +96,11 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( setup.subsel_ )
     {
 	BinIDSampler bs;
-	StepInterval<float> zrg;
-	if ( !SeisTrcTranslator::getRanges( *ioobj, bs, zrg ) )
+	StepInterval<int> inlrg, crlrg; StepInterval<float> zrg;
+	if ( !uiSeisIOObjInfo(*ioobj,ctio.ctxt.forread)
+				.getRanges(inlrg,crlrg,zrg) )
 	    return;
+
 	if ( is2d )
 	{
 	    subsel2d->setInput( bs );
@@ -168,6 +171,21 @@ void uiSeisSel::usePar( const IOPar& iop )
 {
     uiIOObjSel::usePar( iop );
     if ( ctio.iopar ) ctio.iopar->merge( iop );
+}
+
+
+void uiSeisSel::set2DPol( int pol )
+{
+    setup.pol2d_ = pol;
+    if ( ctio.ioobj )
+    {
+	bool curis2d = SeisTrcTranslator::is2D( *ctio.ioobj );
+	if ( (curis2d && pol < 0) || (!curis2d && pol > 0) )
+	{
+	    ctio.setObj( 0 );
+	    updateInput();
+	}
+    }
 }
 
 

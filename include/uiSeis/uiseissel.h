@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.4 2004-06-28 16:00:05 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.5 2004-07-01 15:14:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
 			//!< Extra, ctio will be used anyway
 
     bool		is2D() const;
+    void		set2DPol(int);
 
 protected:
 

@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.21 2004-06-28 16:00:05 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.22 2004-07-01 15:14:43 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseiscbvsimp.h"
+#include "uiseissel.h"
 #include "seistrctr.h"
 #include "ioman.h"
 #include "iostrm.h"
@@ -24,6 +25,7 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uiseistransf.h"
+#include "uiseisioobjinfo.h"
 #include "uiexecutor.h"
 
 
@@ -61,7 +63,8 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	inctio_.ctxt.forread = true;
 	inctio_.ctxt.trglobexpr = "CBVS";
-	oinpfld = new uiIOObjSel( this, inctio_, "Input data" );
+	oinpfld = new uiSeisSel( this, inctio_, "Input data",
+				 SeisSelSetup(true) );
 	oinpfld->selectiondone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
     }
     else
@@ -92,8 +95,8 @@ void uiSeisImpCBVS::init( bool fromioobj )
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.stdSelKey() );
-    seissel = new uiIOObjSel( this, outctio_, "Cube name" );
-    seissel->attach( alignedBelow, transffld );
+    outfld = new uiSeisSel( this, outctio_, "Cube name", SeisSelSetup(false) );
+    outfld->attach( alignedBelow, transffld );
 }
 
 
@@ -146,7 +149,7 @@ void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 
 void uiSeisImpCBVS::finpSel( CallBacker* )
 {
-    const char* out = seissel->getInput();
+    const char* out = outfld->getInput();
     if ( *out ) return;
     BufferString inp = finpfld->text();
     if ( !*(const char*)inp ) return;
@@ -174,7 +177,7 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
      && *(ptr-3) == 'c' && *(ptr-4) == '.' )
 	*(ptr-4) = '\0';
 
-    seissel->setInputText( inp );
+    outfld->setInputText( inp );
 }
 
 
@@ -183,9 +186,9 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
 
 bool uiSeisImpCBVS::acceptOK( CallBacker* )
 {
-    if ( !seissel->commitInput(true) )
+    if ( !outfld->commitInput(true) )
     {
-	uiMSG().error( "Please choose a valid name for the cube" );
+	uiMSG().error( "Please choose a valid name for the output data" );
 	return false;
     }
 
