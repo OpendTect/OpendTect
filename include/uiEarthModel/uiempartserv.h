@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.6 2003-02-11 09:56:30 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.7 2003-06-02 08:17:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
     bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importLMKFault();
     bool		selectFault(MultiID&);
+    bool		loadSurface(const MultiID&);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     void		getSurfaceDef(const MultiID&, 
 	    			      ObjectSet< TypeSet<BinIDValue> >&, 

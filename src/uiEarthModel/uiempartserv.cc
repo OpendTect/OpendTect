@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.12 2003-05-26 09:21:54 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.13 2003-06-02 08:16:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "emfaulttransl.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "survinfo.h"
 #include "surfaceinfo.h"
 #include "geom2dsnappedsurface.h"
@@ -59,22 +60,7 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
     if ( !dlg.go() ) return false;
 
     id = dlg.ioObj()->key();
-    if ( !EarthModel::EMM().isLoaded(id) )
-    {
-	PtrMan<Executor> exec = EarthModel::EMM().load( id );
-	if ( !exec ) mErrRet( dlg.ioObj()->name() );
-	EarthModel::EMM().ref( id );
-	uiExecutor exdlg( appserv().parent(), *exec );
-	if ( exdlg.go() <= 0 )
-	{
-	    EarthModel::EMM().unRef( id );
-	    return false;
-	}
-
-	EarthModel::EMM().unRefNoDel( id );
-    }
-
-    return true;
+    return loadSurface( id );
 }
 
 
@@ -133,21 +119,26 @@ bool uiEMPartServer::selectFault( MultiID& id )
     if ( !dlg.go() ) return false;
 
     id = dlg.ioObj()->key();
-    if ( !EarthModel::EMM().isLoaded(id) )
-    {
-	PtrMan<Executor> exec = EarthModel::EMM().load( id );
-	if ( !exec ) mErrRet( dlg.ioObj()->name() );
-	EarthModel::EMM().ref( id );
-	uiExecutor exdlg( appserv().parent(), *exec );
-	if ( exdlg.go() <= 0 )
-	{
-	    EarthModel::EMM().unRef( id );
-	    return false;
-	}
+    return loadSurface( id );
+}
 
-	EarthModel::EMM().unRefNoDel( id );
+
+bool uiEMPartServer::loadSurface( const MultiID& id )
+{
+    if ( EarthModel::EMM().isLoaded(id) )
+	return true;
+
+    PtrMan<Executor> exec = EarthModel::EMM().load( id );
+    if ( !exec ) mErrRet( IOM().nameOf(id) );
+    EarthModel::EMM().ref( id );
+    uiExecutor exdlg( appserv().parent(), *exec );
+    if ( exdlg.go() <= 0 )
+    {
+	EarthModel::EMM().unRef( id );
+	return false;
     }
 
+    EarthModel::EMM().unRefNoDel( id );
     return true;
 }
 
