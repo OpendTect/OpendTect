@@ -7,13 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.2 2001-05-31 15:09:09 windev Exp $
+ RCS:           $Id: costrans.h,v 1.3 2001-06-02 12:40:52 windev Exp $
 ________________________________________________________________________
 
 
 @$*/
 
 #include <transform.h>
+#include <simpnumer.h>
+#include <arraynd.h>
+#include <ptrman.h>
 
 /*!\brief
 This is the CosineTransform.
@@ -83,15 +86,8 @@ protected:
 	float		two_over_size;
 	float		root2_over_rootsize;
 
-	template<class T> void		inv_sums(T*, int step) const;
-	template<class T> void		fwd_sums(T*, int step) const;
-	template<class T> void		scramble(T*, int step) const;
-	template<class T> void		unscramble(T*, int step) const;
-	template<class T> void		inv_butterflies(T*, int step) const;
-	template<class T> void		fwd_butterflies(T*, int step) const;
-	template<class T> void		bitrev(T*, int step, int len) const;
-	template<class T> void		templ_transform1D(const T*, T*,
-							  int step) const;
+#include <templ_costransimpl.h>
+
 
 	void				initcosarray();
     };

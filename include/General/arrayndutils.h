@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.12 2001-05-02 08:53:53 windev Exp $
+ RCS:           $Id: arrayndutils.h,v 1.13 2001-06-02 12:40:51 windev Exp $
 ________________________________________________________________________
 
 
@@ -124,7 +124,51 @@ public:
     bool		resize( const ArrayNDInfo& );
 
     template <class Type> bool	apply(  ArrayND<Type>* in,
-					ArrayND<Type>* out=0) const;
+					ArrayND<Type>* out_=0) const
+    {
+	ArrayND<Type>* out = out_ ? out_ : in; 
+
+	if ( out_ && in->info() != out_->info() ) return false;
+
+	if ( in->info() != size) return false;
+
+	unsigned long totalSz = size.getTotalSz();
+
+	Type* indata = in->getData();
+	Type* outdata = out->getData();
+
+	if ( indata && outdata )
+	{
+	    for ( unsigned long idx = 0; idx < totalSz; idx++ )
+		outdata[idx] = indata[idx] * window[idx];
+	}
+	else
+	{
+	    const ArrayND<Type>::LinearStorage* instorage = in->getStorage();
+	    ArrayND<Type>::LinearStorage* outstorage = in->getStorage();
+
+	    if ( instorage && outstorage )
+	    {
+		for ( unsigned long idx = 0; idx < totalSz; idx++ )
+		    outstorage->set(idx, instorage->get(idx) * window[idx] );
+	    }
+	    else
+	    {
+		ArrayNDIter iter( size );
+
+		int idx = 0;
+		
+		do
+		{
+		    out->set(iter.getPos(), in->get( iter.getPos() ) * window[idx]);
+		    idx++;
+
+		} while ( iter.next() );
+	    }
+	}
+
+	return true;
+    }
 
 protected:
 
@@ -217,7 +261,7 @@ protected:
 
 };
    
-
+#if 0
 template <class Type>
 inline bool ArrayNDWindow::apply( ArrayND<Type>* in, ArrayND<Type>* out_) const
 {
@@ -264,13 +308,14 @@ inline bool ArrayNDWindow::apply( ArrayND<Type>* in, ArrayND<Type>* out_) const
 
     return true;
 }
- 
+#endif 
 template<class T>
 inline T Array3DInterpolate( const Array3D<T>& array,
 		      float p0, float p1, float p2,
 		      bool posperiodic = false )
 {
-    const Array3DInfo& size = array.info();
+    const Array3DInfo& size 
+	= mPolyRetDownCastRef( const Array3DInfo , array.info() );
 
     int intpos0 = mNINT( p0 );
     float dist0 = p0 - intpos0;

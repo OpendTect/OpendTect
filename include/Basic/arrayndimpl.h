@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.15 2001-06-01 07:04:19 kristofer Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.16 2001-06-02 12:40:50 windev Exp $
 ________________________________________________________________________
 
 */
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "filegen.h"
 
-#include <fstream.h>
+#include <fstream>
 
 template <class T>
 class ArrayNDMemStor : public ArrayND<T>::LinearStorage
@@ -236,7 +236,7 @@ public:
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{} 
 			Array2DImpl( const Array2D<T>& templ )
-			    : in( templ.info() )
+			    : in( (const Array2DInfo&)templ.info() )
 			    , stor( new ArrayNDMemStor<T>(in.getTotalSz()))
 			{
 			    if ( templ.getData() )

@@ -7,13 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.1 2001-02-19 17:17:36 bert Exp $
+ RCS:           $Id: wavelettrans.h,v 1.2 2001-06-02 12:40:53 windev Exp $
 ________________________________________________________________________
 
 @$*/
 
 #include <transform.h>
 #include <enums.h>
+#include <simpnumer.h>
+#include <arraynd.h>
+#include <ptrman.h>
 
 /*!\brief
 WaveletTransform is a ND wavelet transform.
@@ -77,7 +80,8 @@ protected:
 
 	void		setWaveletType( WaveletType );
     protected:
-	template <class T> void	transform1Dt( const T*, T*, int ) const;
+
+#include <templ_wavlttransimpl.h>
 
 	WaveletType		wt;
 	int			size;
