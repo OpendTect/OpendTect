@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.2 2004-02-29 00:25:11 bert Exp $
+ RCS:		$Id: seisscanner.h,v 1.3 2004-03-02 13:39:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,11 @@ public:
     			{ return Interval<float>( sampling.start,
 					 sampling.atIndex(nrsamples-1) ); }
     			//!< the range found in the cube
+
+    static const char*	defaultUserInfoFile(const char* translnm=0);
+    void		launchBrowser(const char* fnm=0) const;
+    			//!< If nulll or empty fnm uses default file name
+    			//!< for the current translator
 
 protected:
 

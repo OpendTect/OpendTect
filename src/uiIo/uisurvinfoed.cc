@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.55 2004-03-01 15:18:18 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.56 2004-03-02 13:39:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimain.h"
 #include "uifiledlg.h"
-#include "uifilebrowser.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
 #include "ioman.h"
 #include "ptrman.h"
@@ -51,7 +50,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	, x0fld(0)
 	, dirnamechanged(false)
 	, globcurdirname(SI().dirname)
-	, browser(0)
 {
     if ( !survinfo ) return;
 
@@ -634,19 +632,6 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 
     survinfo->setWSProjName( SI().getWSProjName() );
     survinfo->setWSPwd( SI().getWSPwd() );
-
-    const char* scanfile = sip->scanFile();
-    if ( scanfile )
-    {
-	if ( browser )
-	    browser->setFileName( scanfile );
-	else
-	{
-	    browser = new uiFileBrowser( this,
-			uiFileBrowser::Setup(scanfile).readonly(true) );
-	}
-	browser->show();
-    }
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.3 2004-03-01 13:27:06 bert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.4 2004-03-02 13:39:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, BinIDSampler& bs,
     if ( !ex.go() )
 	return false;
 
-    IOPar iopar; scanner.report( iopar );
-    iopar.dump( scanFile(), "_pretty" );
+    scanner.launchBrowser( scanFile() );
 
     if ( !scanner.getSurvInfo(bs,zrg,crd) )
     {
@@ -66,12 +65,5 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, BinIDSampler& bs,
 
 const char* uiSEGYSurvInfoProvider::scanFile() const
 {
-    static BufferString dumpfnm;
-    dumpfnm = GetDataDir();
-    dumpfnm = File_getFullPath( dumpfnm, "Proc" );
-    dumpfnm = File_getFullPath( dumpfnm, "SEGYscan" );
-    if ( GetSoftwareUser() )
-	{ dumpfnm += "_"; dumpfnm += GetSoftwareUser(); }
-    dumpfnm += ".txt";
-    return dumpfnm.buf();
+    return SeisScanner::defaultUserInfoFile( "SEG-Y" );
 }

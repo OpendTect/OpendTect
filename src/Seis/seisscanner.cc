@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.4 2004-03-01 15:37:33 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.5 2004-03-02 13:39:00 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -12,11 +12,14 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.4 2004-03-01 15:37:33 bert E
 #include "seistrc.h"
 #include "binidselimpl.h"
 #include "binid2coord.h"
+#include "strmprov.h"
 #include "sorting.h"
+#include "filegen.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "conn.h"
 #include "stats.h"
+#include "conn.h"
+#include "errh.h"
 #include <values.h>
 
 
@@ -237,6 +240,43 @@ const char* SeisScanner::getClipRgStr( float pct ) const
     static BufferString ret;
     ret = distribvals[idx0]; ret += " - "; ret += distribvals[idx1];
     return ret.buf();
+}
+
+
+const char* SeisScanner::defaultUserInfoFile( const char* trnm )
+{
+    static BufferString ret;
+    ret = GetDataDir();
+    ret = File_getFullPath( ret, "Proc" );
+    ret = File_getFullPath( ret, "scan" );
+    if ( trnm && *trnm )
+	{ ret += "_"; ret += trnm; }
+    if ( GetSoftwareUser() )
+	{ ret += "_"; ret += GetSoftwareUser(); }
+    ret += ".txt";
+    return ret.buf();
+}
+
+
+void SeisScanner::launchBrowser( const char* fnm ) const
+{
+    if ( !fnm || !*fnm )
+	fnm = defaultUserInfoFile( reader.ioObj()
+				 ? reader.ioObj()->translator() : "" );
+    IOPar iopar; report( iopar );
+    iopar.dump( fnm, "_pretty" );
+
+    BufferString nospcfname( fnm );
+    replaceCharacter( nospcfname.buf(), ' ', '%' );
+    BufferString cmd( "@" ); cmd += mGetExecScript();
+    cmd += " FileBrowser "; cmd += nospcfname;
+    StreamProvider strmprov( cmd );
+    if ( !strmprov.executeCommand(false) )
+    {
+	BufferString s( "Failed to submit command '" );
+	s += strmprov.command(); s += "'";
+	ErrMsg( s );
+    }
 }
 
 
