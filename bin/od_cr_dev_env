@@ -2,13 +2,13 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.2 2003-12-04 11:39:49 arend Exp $
+# $Id: od_cr_dev_env,v 1.3 2003-12-04 13:35:33 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
 #_______________________________________________________________________________
 
-logfile="/tmp/od_cr_dev_env.$$"
+logfile="/cygdrive/c/temp/od_cr_dev_env.$$.log"
 
 if [ ! "$#" -eq 2 ]; then
 	echo "Usage : $0 OpendtTect_directory existing_target_directory"
@@ -34,8 +34,8 @@ else
     soext=so
 fi
 
-echo "Input dir: " $inpdir
-echo "Output dir: " $outdir
+echo "Input dir: " $inpdir >> $logfile
+echo "Output dir: " $outdir >> $logfile
 
 if [ ! -d "$inpdir" ] || [ ! -e "$inpdir/.rel.od.doc" ]; then
 	echo "$0 : $inpdir does not have the doc package installed"
@@ -56,10 +56,14 @@ fi
 
 cd "$outdir"
 
+pwd >> $logfile
+
 for item in plugins include Pmake
 do 
-    echo " copying" $item
-    cp -a "$odpath"/$item .
+    echo " copying" $item >> $logfile
+    echo cp -a "$inpdir/$item" .  >> $logfile  
+    cp -a "$inpdir/$item" .
+
 done 
 
 if [ -d plugins ]; then
@@ -70,9 +74,12 @@ if [ -d plugins ]; then
     ln -s Makefile.od Makefile
 fi
 
-echo "setting up lib"
+echo "setting up lib" >> $logfile
 
 cd "$outdir"
+
+pwd >> $logfile
+
 mkdir lib
 cd lib
 mkdir $HDIR
@@ -80,7 +87,7 @@ cd $HDIR
 ln -s . G
 ln -s . O
 
-echo "setting up bin"
+echo "setting up bin" >> $logfile
 
 cd "$outdir"
 mkdir bin
@@ -91,17 +98,19 @@ mkdir so
 cd so
 
 
-echo " copying ${soext}'s"
-cp -a "$odpath/bin/$HDIR/so"/*.$soext .
-cp -a "$odpath/bin/$HDIR/so"/*.a .
+echo " copying ${soext}'s" >> $logfile
+
+cp -a "$inpdir/bin/$HDIR/so"/*.$soext .
+cp -a "$inpdir/bin/$HDIR/so"/*.a .
 
 
 cd "$outdir"
 
 for fil in init.bash init.csh 
 do
-    sed -e "s/__WORK__/$outdir/" \
-        -e "s/__MINGWHOME__/$MINGWHOME/" \
-        "$odpath/bin/.$fil" > $fil
+    sed -e "s%__WORK__%$outdir%" \
+        -e "s%__MINGWHOME__%$MINGWHOME%" \
+        -e "s%__hdir__%$HDIR%" \
+        "$inpdir/.$fil" > $fil
 done
 
