@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.20 2004-01-02 13:07:42 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.21 2004-05-21 10:18:22 bert Exp $
 ________________________________________________________________________
 
 
@@ -70,7 +70,8 @@ public:
 	    		     const EM::SurfaceIODataSelection* =0);
     EMObject*		getTempObj(EM::EMManager::Type);
 
-    void		getSurfaceData(const MultiID&, EM::SurfaceIOData&);
+    const char*		getSurfaceData(const MultiID&, EM::SurfaceIOData&);
+    			// returns err msg or null if OK
 
     void		ref(const EM::ObjectID&);
     void		unRef(const EM::ObjectID&);
