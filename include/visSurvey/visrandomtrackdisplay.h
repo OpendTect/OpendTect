@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.29 2004-05-19 14:59:18 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.30 2004-06-02 12:32:15 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -117,7 +117,6 @@ public:
     visBase::Material*          getMaterial();
 
     int				getSectionIdx() const;
-    BinID			getClickedPos() const;
     void			removeNearestKnot(int,const BinID&);
 
     int				getSelKnotIdx() const	{ return selknotidx; }

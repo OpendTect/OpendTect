@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.36 2004-05-19 14:58:08 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.37 2004-06-02 12:31:45 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -598,13 +598,6 @@ int RandomTrackDisplay::nrResolutions() const
 
 int RandomTrackDisplay::getSectionIdx() const
 { return track->getSectionIdx(); }
-
-
-BinID RandomTrackDisplay::getClickedPos() const
-{ 
-    Coord crd = track->getClickedPos();
-    return BinID( (int)crd.x, (int)crd.y );
-}
 
 
 void RandomTrackDisplay::removeNearestKnot( int sectionidx, 
