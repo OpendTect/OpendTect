@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.18 2004-07-29 21:41:26 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.19 2004-09-20 16:17:37 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -27,13 +27,14 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.18 2004-07-29 21:41:26 bert 
 #endif
 
 
-SeisScanner::SeisScanner( const IOObj& ioobj )
+SeisScanner::SeisScanner( const IOObj& ioobj, bool d3 )
     	: Executor( "Scan seismic volume file(s)" )
     	, reader(*new SeisTrcReader(&ioobj))
-    	, geomdtector(*new PosGeomDetector)
+    	, geomdtector(*new PosGeomDetector(d3))
 	, trc(*new SeisTrc)
     	, chnksz(10)
     	, totalnr(-2)
+	, is3d(d3)
 {
     init();
     Stat_initRandom(0);
@@ -120,7 +121,8 @@ void SeisScanner::report( IOPar& iopar ) const
     if ( !reader.ioObj() ) { iopar.setName( "No scan executed" ); return; }
 
     BufferString str = "Report for "; str += reader.ioObj()->translator();
-    str += " cube '"; str += reader.ioObj()->name(); str += "'\n\n";
+    str += is3d ? " cube '" : " line set '";
+    str += reader.ioObj()->name(); str += "'\n\n";
     iopar.setName( str );
 
     iopar.add( "->", "Sampling info" );
@@ -238,11 +240,16 @@ int SeisScanner::nextStep()
 	    if ( res != 0 )
 	    {
 		curmsg = "Error during read of trace header after ";
-		if ( !geomdtector.prevbid.inl )
+		if ( geomdtector.atFirstPos() )
 		    curmsg += "opening file";
-		else
+		else if ( is3d )
 		{
 		    curmsg += geomdtector.prevbid.inl; curmsg += "/";
+		    curmsg += geomdtector.prevbid.crl;
+		}
+		else
+		{
+		    curmsg += "trace number ";
 		    curmsg += geomdtector.prevbid.crl;
 		}
 	    }
@@ -254,8 +261,16 @@ int SeisScanner::nextStep()
 	if ( !reader.get( trc ) )
 	{
 	    curmsg = "Error during read of trace data at ";
-	    curmsg += trc.info().binid.inl; curmsg += "/";
-	    curmsg += trc.info().binid.crl;
+	    if ( is3d )
+	    {
+		curmsg += trc.info().binid.inl; curmsg += "/";
+		curmsg += trc.info().binid.crl;
+	    }
+	    else
+	    {
+		curmsg += "trace number ";
+		curmsg += trc.info().binid.crl;
+	    }
 	    wrapUp();
 	    return Executor::ErrorOccurred;
 	}
@@ -286,13 +301,14 @@ void SeisScanner::handleFirstTrc()
     sampling = trc.info().sampling;
     nrsamples = trc.size(0);
     nrcrlsthisline = 1;
-    geomdtector.add( trc.info().binid, trc.info().coord );
+    geomdtector.add( trc.info().binid, trc.info().coord, trc.info().nr );
 }
 
 
 void SeisScanner::handleTrc()
 {
-    if ( geomdtector.add(trc.info().binid,trc.info().coord) != mInlChange )
+    if ( geomdtector.add(trc.info().binid,trc.info().coord,trc.info().nr)
+	    		!= mInlChange )
 	nrcrlsthisline++;
     else
     {

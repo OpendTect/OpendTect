@@ -94,7 +94,7 @@ static int doWork( int argc, char** argv )
 	}
     }
 
-    SeisResampler rsmplr( cs, userg );
+    SeisResampler rsmplr( cs, false, userg );
     SeisTrc rdtrc;
     while ( tri->read(rdtrc) )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.11 2004-08-24 16:24:57 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.12 2004-09-20 16:17:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ protected:
     int			nrobjs_;
     Scaler*		scaler_;
     bool		skipnull_;
+    bool		is3d_;
 
     virtual void	wrapUp();
     void		nextObj();

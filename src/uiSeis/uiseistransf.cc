@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.25 2004-09-16 16:13:37 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.26 2004-09-20 16:17:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,7 +126,7 @@ SeisResampler* uiSeisTransfer::getResampler() const
     CubeSampling cs;
     selfld->getSampling( cs.hrg );
     selfld->getZRange( cs.zrg );
-    return new SeisResampler( cs );
+    return new SeisResampler( cs, is2d );
 }
 
 

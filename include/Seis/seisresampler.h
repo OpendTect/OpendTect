@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisresampler.h,v 1.1 2004-07-22 16:14:07 bert Exp $
+ RCS:		$Id: seisresampler.h,v 1.2 2004-09-20 16:17:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class SeisResampler
 {
 public:
 
-    			SeisResampler(const CubeSampling&,
+    			SeisResampler(const CubeSampling&,bool is2d=false,
 				      const Interval<float>* valrange=0);
     			//!< valrange will be copied. null == no checks
     virtual		~SeisResampler();
@@ -39,6 +39,7 @@ public:
     const SeisTrc*	get( const SeisTrc& t )	{ return doWork(t); }
 
     int			nrPassed() const	{ return nrtrcs; }
+    void		set2D( bool yn )	{ is3d = !yn; }
 
 protected:
 
@@ -50,6 +51,7 @@ protected:
     SeisTrc&		worktrc;
     Interval<float>*	valrg;
     CubeSampling&	cs;
+    bool		is3d;
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.19 2004-09-07 16:24:01 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.20 2004-09-20 16:17:37 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -34,7 +34,8 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.19 2004-09-07 16:24:01 b
     	, trcsperstep_(10) \
     	, scaler_(0) \
     	, skipnull_(false) \
-    	, resampler_(0)
+    	, resampler_(0) \
+    	, is3d_(true)
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelection& in,
@@ -164,6 +165,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	if ( !szdone )
 	    allszsfound = false;
 	rdrset_ += rdr_;
+	is3d_ = is3d;
     }
 
     if ( !allszsfound || totnr_ < 3 ) totnr_ = -1;
@@ -193,7 +195,7 @@ void SeisSingleTraceProc::setScaler( Scaler* newsclr )
 
 void SeisSingleTraceProc::setResampler( SeisResampler* r )
 {
-    delete resampler_; resampler_ = r;
+    delete resampler_; resampler_ = r; resampler_->set2D( !is3d_ );
 }
 
 
@@ -263,7 +265,10 @@ int SeisSingleTraceProc::nextStep()
 	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
 
 	if ( resampler_ )
+	{
 	    worktrc_ = resampler_->get(intrc_);
+	    if ( !worktrc_ ) { nrskipped_++; continue; }
+	}
 
 	if ( skipnull_ && worktrc_->isNull() )
 	    skipcurtrc_ = true;
