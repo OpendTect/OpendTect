@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.6 2001-05-01 08:55:09 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.7 2001-05-01 17:05:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class i_QListBox;
 class i_listMessenger;
-class UserIDSet;
+class PtrUserIDObjectSet;
 
 
 class uiListBox : public uiWrapObj<i_QListBox>
@@ -31,7 +31,7 @@ public:
 				  bool isMultiSelect=false,
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
-			uiListBox(uiObject*,const UserIDSet&,
+			uiListBox(uiObject*,const PtrUserIDObjectSet&,
 				  bool isMultiSelect=false,
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
@@ -58,7 +58,7 @@ public:
     void		clear();
     void		addItem(const char*); 
     void		addItems(const char**); 
-    void		addItems(const UserIDSet&);
+    void		addItems(const PtrUserIDObjectSet&);
     void		setItemText(int,const char*);
     int			currentItem() const;
     void                setCurrentItem(int);

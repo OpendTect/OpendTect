@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.6 2001-05-01 08:54:59 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.7 2001-05-01 17:06:39 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uilistbox.h>
 #include <uifont.h>
-#include <uidset.h>
+#include <uidobjset.h>
 
 #include <i_qlistbox.h>
 #include <i_qobjwrap.h>
@@ -95,12 +95,12 @@ uiListBox::uiListBox(  uiObject* parnt, const char* nm, bool isMultiSelect,
 }
 
 
-uiListBox::uiListBox( uiObject* p, const UserIDSet& uids,
+uiListBox::uiListBox( uiObject* p, const PtrUserIDObjectSet& uids,
 			bool isMultiSelect,
 			int preferredNrLines, int preferredFieldWidth )
 	: uiWrapObj<i_QListBox>(
-		new i_QListBox( *this,p,(const char*)uids.name() ),
-				      p,(const char*)uids.name() )
+		new i_QListBox( *this,p,(const char*)uids->name() ),
+				      p,(const char*)uids->name() )
 	, _messenger(*new i_listMessenger(mQtThing(),this))
 	, fieldWdt(preferredFieldWidth)
 	, nLines(preferredNrLines)
@@ -144,7 +144,7 @@ void uiListBox::addItems( const char** textList )
 }
 
 
-void uiListBox::addItems( const UserIDSet& uids )
+void uiListBox::addItems( const PtrUserIDObjectSet& uids )
 {
     for ( int idx=0; idx<uids.size(); idx++ )
 	mQtThing()->insertItem( QString( uids[idx]->name() ), -1 );

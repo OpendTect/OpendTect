@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.3 2001-04-30 14:58:51 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.4 2001-05-01 17:05:26 bert Exp $
 ________________________________________________________________________
 
 -*/
 #include <uigroup.h>
 
 class QComboBox;
-class UserIDSet;
+class PtrUserIDObjectSet;
 class uiLabel;
 
 template <class T> class i_QObjWrapper;
@@ -28,7 +28,7 @@ public:
 
 			uiComboBox(uiObject*,const char* nm="Combo Box",
 				   bool editable=false);
-			uiComboBox(uiObject*,const UserIDSet&,
+			uiComboBox(uiObject*,const PtrUserIDObjectSet&,
 				   bool editable=false);
     virtual 		~uiComboBox();
 
@@ -48,7 +48,7 @@ public:
     void		clear();
     void		addItem(const char*); 
     void		addItems(const char**); 
-    void		addItems(const UserIDSet&);
+    void		addItems(const PtrUserIDObjectSet&);
 
     virtual bool        isSingleLine() const { return true; }
 
@@ -75,7 +75,8 @@ public:
 		uiLabeledComboBox( uiObject*,const char* txt,
 				   const char* nm="Labeled Combobox",
 				   bool editable=false);
-		uiLabeledComboBox(uiObject*,const UserIDSet&,bool ed=false);
+		uiLabeledComboBox(uiObject*,const PtrUserIDObjectSet&,
+					    bool ed=false);
 
     uiComboBox*	box()		{ return cb; }
     uiLabel*	label()		{ return labl; }

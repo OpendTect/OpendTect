@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.3 2001-04-30 14:57:59 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.4 2001-05-01 17:06:39 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uicombobox.h>
 #include <uilabel.h>
-#include <uidset.h>
+#include <uidobjset.h>
 
 #include <i_qcombobox.h>
 #include <i_qobjwrap.h>
@@ -31,10 +31,11 @@ uiComboBox::uiComboBox(  uiObject* parnt, const char* nm, bool ed )
     mQtThing()->setAutoCompletion( ed );
 }
 
-uiComboBox::uiComboBox(  uiObject* parnt, const UserIDSet& uids, bool ed )
-	: uiWrapObj<i_QComboBox>(new i_QComboBox(*this,(const char*)uids.name(),
-			  parnt,false), parnt, (const char*)uids.name() )
-						//false: no read/write
+uiComboBox::uiComboBox(  uiObject* parnt, const PtrUserIDObjectSet& uids,
+			 bool ed )
+	: uiWrapObj<i_QComboBox>(
+		new i_QComboBox(*this,(const char*)uids->name(),parnt,false),
+				parnt, (const char*)uids->name() )
 	, _messenger ( *new i_comboMessenger( mQtThing(), this ))
 {
     mQtThing()->setEditable( ed );
@@ -123,7 +124,7 @@ void uiComboBox::addItems( const char** textList )
 }
 
 
-void uiComboBox::addItems( const UserIDSet& uids )
+void uiComboBox::addItems( const PtrUserIDObjectSet& uids )
 {
     for ( int idx=0; idx<uids.size(); idx++ )
 	mQtThing()->insertItem( QString( uids[idx]->name() ), -1 );
@@ -140,10 +141,11 @@ uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const char* txt,
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const UserIDSet& s, bool ed )
+uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const PtrUserIDObjectSet& s,
+				      bool ed )
 	: uiGroup(p,"Labeled combobox")
 {
     cb = new uiComboBox( this, s, ed );
-    labl = new uiLabel( this, s.name(), cb );
+    labl = new uiLabel( this, s->name(), cb );
     setHAlignObj( cb );
 }
