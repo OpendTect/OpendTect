@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.14 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.15 2004-11-09 13:12:28 dgb Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -30,6 +30,13 @@ static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.14 2004-02-02 15:26:00 kri
 #include "Inventor/threads/SbCondVar.h"
 #include "Inventor/threads/SbThread.h"
 #include "Inventor/misc/SoChildList.h"
+
+#ifdef __win__
+#define _no_threads_
+#endif
+#ifdef __mac__
+#define _no_threads__
+#endif
 
 SO_NODE_SOURCE(SoMeshSurface);
 
@@ -258,7 +265,7 @@ void SoMeshSurface::GLRender( SoGLRenderAction* action )
 	    {
 		SbThreadAutoLock quelock( creatorqueMutex );
 		SoMeshSurfaceBrick* brick = square->getBrick(missingresolution);
-#ifdef __win__
+#ifdef _no_threads_
 		brick->build(true);
 #else
 		const int existingindex = creationquebricks.find( brick );
@@ -524,7 +531,7 @@ void SoMeshSurface::stopThreads()
 
 void SoMeshSurface::startThreads( int nrthreads )
 {
-#ifndef __win__
+#ifndef _no_threads_
     SbThreadAutoLock lock( creatorqueMutex );
     weAreStopping = false;
 
