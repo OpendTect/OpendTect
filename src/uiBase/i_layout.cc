@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.32 2001-10-17 11:52:54 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.33 2001-10-17 13:31:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,7 +274,6 @@ void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd,
 #define mOutsideBorder ( constr->margin < -1 ? mngr_.borderSpace() : 0 )
 #define mInsideBorder  ( constr->margin > mngr_.borderSpace() \
 			 ? constr->margin - mngr_.borderSpace() : 0  )
-#define mVInsideBorder ( mInsideBorder -  mngr_.verSpacing() )
 
     uiRect& mPos = pos(m);
 
@@ -416,7 +415,7 @@ void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd,
 		{
 		    if( finalLoop )
 		    {
-			int nwTop = mngr().pos(m).top() + mVInsideBorder;
+			int nwTop = mngr().pos(m).top() + mInsideBorder;
 			if( mPos.top() != nwTop )
 			{
 			    mPos.topTo( mCP(nwTop ));
@@ -429,7 +428,7 @@ void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd,
 		{
 		    if( finalLoop )
 		    {
-			int nwBottom = mngr().pos(m).bottom() - mVInsideBorder;
+			int nwBottom = mngr().pos(m).bottom() - mInsideBorder;
 			if( mPos.bottom() != nwBottom )
 			{
 			    mPos.bottomTo( mCP(nwBottom ));
