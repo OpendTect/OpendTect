@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.53 2003-12-24 15:18:38 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.54 2004-01-08 15:30:49 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -511,9 +511,14 @@ int File_rename( const char* from, const char* to )
 #else
 
     if ( !rename(from,to) )
-	return YES;
+    {
+	if ( File_exists(to) )
+	    return YES;
+	else if ( !File_exists(from) )
+	    return NO;
+    }
 
-    // Probably to other disk
+    // Failed. May be to other disk. Let's try again via shell.
     len = strlen( from ) + strlen( to ) + 25;
     cmd = mMALLOC(len,char);
     
