@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobinfo.h,v 1.1 2004-10-25 07:26:20 bert Exp $
+ RCS:		$Id: jobinfo.h,v 1.2 2004-10-25 11:59:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class HostData;
 
 
-/*!\brief Processing job: All info on a job. */
+/*!\brief All info on a job. */
 
 class JobInfo
 {
@@ -30,7 +30,7 @@ public:
     			JobInfo( int dnr )
 			    : descnr_(dnr)
 			    , state_(ToDo)
-			    , curmsg("Scheduled")
+			    , curmsg_("Scheduled")
 			    , attempts_(0)
 			    , hostdata_(0)
 			    , osprocid_(-1)		{}

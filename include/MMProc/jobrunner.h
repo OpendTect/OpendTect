@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.1 2004-10-25 07:26:20 bert Exp $
+ RCS:		$Id: jobrunner.h,v 1.2 2004-10-25 11:59:24 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
+class IOPar;
 class HostData;
 class JobInfo;
 class JobHostInfo;
@@ -20,12 +21,13 @@ class JobDescProv;
 
 class JobHostInfo
 {
+public:
     			JobHostInfo( const HostData& hd )
 			    : hostdata_(hd)
-			    , failures_(0)	{}
+			    , nrfailures_(0)	{}
 
     const HostData&	hostdata_;
-    int			failures_; //!< Reset to 0 at every success
+    int			nrfailures_; //!< Reset to 0 at every success
 };
 
 
@@ -43,15 +45,17 @@ public:
 
     void			removeHost(int);
     void			pauseHost(int,bool);
+    bool			isFailed(int) const;
     bool			isPaused(int) const;
+    bool			isAssigned(int) const;
 
     int				jobsDone() const;
     int				jobsInProgress() const;
     int				totalJobs() const
 				{ return jobinfos_.size()+failedjobs_.size(); }
-    int				jobsFailed() const;
+    int				jobsFailed() const
     				{ return failedjobs_.size(); }
-    JobInfo*			currentJob(JobHostInfo*) const;
+    JobInfo*			currentJob(const JobHostInfo*) const;
 
     int				nextStep()	{ return doCycle(); }
     int				nrDone() const	{ return jobsDone(); }
@@ -59,36 +63,39 @@ public:
     const char*			message() const;
     const char*			nrDoneMessage() const;
 
-    void			setNiceNess( int n )	{ niceval_ = n; }
+    				// Set these before first step
     void			setFirstPort( int n )	{ firstport_ = n; }
-    void			setRshComm( const char* s ) { rshcomm = s; }
+    void			setRshComm( const char* s ) { rshcomm_ = s; }
     void			setProg( const char* s ) { prog_ = s; }
+    				// Set this anytime
+    void			setNiceNess( int n )	{ niceval_ = n; }
 
 protected:
 
     JobDescProv*		descprov_;
     ObjectSet<JobInfo>		jobinfos_;
     ObjectSet<JobHostInfo>	hostinfo_;
-    BufferString		procdir_;
+    ObjectSet<JobInfo>		failedjobs_;
     BufferString		prog_;
+    BufferString		procdir_;
 
     int				niceval_;
     int				firstport_;
     BufferString		rshcomm_;
-
-    int				nrhostattempts_;
-    int				nrjobattempts_;
-    ObjectSet<JobInfo>		failedjobs_;
-    ObjectSet<JobHostInfo>	failedhosts_;
+    int				maxhostfailures_;
+    int				maxjobfailures_;
 
     int				doCycle();
     JobHostInfo*		jobHostInfoFor(const HostData&) const;
 
-    enum StartRes		{ Started, NotStarted, JobSucks, HostSucks };
+    enum StartRes		{ Started, NotStarted, JobBad, HostBad };
     StartRes			startJob(JobInfo&,JobHostInfo&);
     bool			runJob(JobInfo&,const HostData&);
-    bool			startProg(const HostData&,IOPar&,BufferString&);
+    bool			assignJob(JobHostInfo&);
+    bool			startProg(const HostData&,IOPar&,int,
+	    				  BufferString&);
     bool			haveIncomplete() const;
+    bool			isFailed(const JobHostInfo*) const;
 
 };
 
