@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: repos.cc,v 1.1 2004-11-25 17:23:03 bert Exp $";
+static const char* rcsID = "$Id: repos.cc,v 1.2 2004-11-25 20:45:38 bert Exp $";
 
 #include "repos.h"
 #include "filepath.h"
@@ -37,6 +37,12 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 {
     BufferString ret;
 
+#define mSetRet(fn,yn) \
+	getFname( ret, yn ); \
+	FilePath fp( fn() ); \
+	fp.add( ret ); \
+	ret = fp.fullPath()
+
     switch ( src )
     {
     case Repos::Temp: {
@@ -45,23 +51,13 @@ BufferString Repos::FileProvider::fileName( Repos::Source src ) const
 	ret = fp.fullPath();
     } break;
     case Repos::Survey: {
-	FilePath fp( GetDataDir() );
-	getFname( ret, true );
-	fp.add( ret );
-	ret = fp.fullPath();
+	mSetRet(GetDataDir,true);
     } break;
     case Repos::Data: {
-	FilePath fp( GetBaseDataDir() );
-	getFname( ret, true );
-	fp.add( ret );
-	ret = fp.fullPath();
+	mSetRet(GetBaseDataDir,true);
     } break;
     case Repos::User: {
-	FilePath fp( GetSettingsDir() );
-	fp.add( ".od" );
-	getFname( ret, false );
-	fp.add( ret );
-	ret = fp.fullPath();
+	mSetRet(GetSettingsDir,false);
     } break;
     case Repos::Appl: {
 	ret = GetDataFileName( basenm_ );
