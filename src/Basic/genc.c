@@ -4,7 +4,10 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.5 2001-03-19 10:33:40 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.6 2001-03-30 10:27:21 bert Exp $";
+
+#include "genc.h"
+#include "filegen.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -13,9 +16,6 @@ static const char* rcsID = "$Id: genc.c,v 1.5 2001-03-19 10:33:40 bert Exp $";
 #ifndef __win__
 #include <unistd.h>
 #endif
-
-#include "genc.h"
-#include "filegen.h"
 
 int GetSurveyName_reRead = NO;
 static FileNameString filenamebuf;
