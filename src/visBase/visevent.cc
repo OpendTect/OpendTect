@@ -4,22 +4,35 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.12 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.13 2004-01-09 12:07:56 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
 #include "visdataman.h"
+#include "vistransform.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoEventCallback.h"
+#include "Inventor/elements/SoModelMatrixElement.h"
+#include "Inventor/elements/SoViewVolumeElement.h"
 #include "Inventor/events/SoMouseButtonEvent.h"
 #include "Inventor/events/SoKeyboardEvent.h"
 #include "Inventor/events/SoLocation2Event.h"
 #include "Inventor/details/SoFaceDetail.h"
 #include "Inventor/SoPickedPoint.h"
+#include "Inventor/SbViewportRegion.h"
 #include "Inventor/SbLinear.h"
 
 const char* visBase::EventCatcher::eventtypestr = "EventType";
+
+visBase::EventInfo::EventInfo()
+    : objecttoworldtrans( visBase::Transformation::create() )
+{ objecttoworldtrans->ref(); }
+
+
+visBase::EventInfo::~EventInfo()
+{ objecttoworldtrans->unRef(); }
+
 
 mCreateFactoryEntry( visBase::EventCatcher );
 
@@ -31,6 +44,14 @@ visBase::EventCatcher::EventCatcher()
     node->ref();
 
     setCBs();
+}
+
+
+void visBase::EventCatcher::_init()
+{
+    visBase::DataObject::_init();
+    SO_ENABLE( SoHandleEventAction, SoModelMatrixElement );
+    SO_ENABLE( SoHandleEventAction, SoViewVolumeElement );
 }
 
 
@@ -120,20 +141,34 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 {
     visBase::EventCatcher* eventcatcher = (visBase::EventCatcher*) userdata;
     if ( eventcatcher->isEventHandled() ) return;
-
     const SoEvent* event = evcb->getEvent();
 
     visBase::EventInfo eventinfo;
-
     eventinfo.shift = event->wasShiftDown();
     eventinfo.ctrl = event->wasCtrlDown();
     eventinfo.alt = event->wasAltDown();
 
-    SbVec2s mousepos = event->getPosition();
+    const SbVec2s mousepos = event->getPosition();
     eventinfo.mousepos.x = mousepos[0];
     eventinfo.mousepos.y = mousepos[1];
 
+    const SoHandleEventAction* action = evcb->getAction();
+    SoState* state = action->getState();
+
     const SoPickedPoint* pickedpoint = evcb->getPickedPoint();
+    const SbViewVolume &vv = SoViewVolumeElement::get(state);
+    const SbViewportRegion& viewportregion = action->getViewportRegion();
+
+    const SbVec2f normmousepos = event->getNormalizedPosition(viewportregion);
+    SbVec3f startpos, stoppos;
+    vv.projectPointToLine( normmousepos, startpos, stoppos );
+    const Coord3 startcoord(startpos[0], startpos[1], startpos[2] );
+    const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
+    eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
+
+    const SbMatrix& mat = SoModelMatrixElement::get(state);
+    eventinfo.objecttoworldtrans->setA(mat);
+
     if ( pickedpoint && pickedpoint->isOnGeometry() )
     {
 	const SoPath* path = pickedpoint->getPath();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.12 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.13 2004-01-09 12:07:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visdata.h"
 #include "position.h"
+#include "trigonometry.h"
 
 class SoEventCallback;
 
@@ -34,18 +35,31 @@ enum EventType		{ Any, MouseClick, Keyboard, MouseMovement };
 class EventInfo
 {
 public:
+    				EventInfo();
+				~EventInfo();
     EventType			type;
 
     char			mousebutton;
 				//!< Only set if type==MouseClick
+    Line3			mouseline;
+    				/*!<\The line projected from the mouse-position
+    						into the scene. The line is
+						in world coordinates.
+				*/
     bool			pressed;
 				/*!< Only set if type==MouseClick or
 				     type==Keyboard
 				     If it is false, the button has been
 				     released.
 				*/
+    Transformation*		objecttoworldtrans;
+    				/*!<The transformation from the coordinates
+				    given to OI to the world coordinates
+				    (i.e. the transform that is accumulated
+				          while traversing the scene-graph).
+				*/
 
-    TypeSet<int>		pickedobjids;    
+    TypeSet<int>		pickedobjids;
     Coord3			pickedpos;
     Coord3			localpickedpos;
     Detail*			detail;
@@ -81,6 +95,7 @@ public:
     int				usePar( const IOPar& );
 
 protected:
+    void			_init();
     void			removeCBs();
     void			setCBs();
 
