@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.3 2005-01-20 07:08:11 kristofer Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.4 2005-01-20 15:50:11 kristofer Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -25,6 +25,7 @@ CubicBezierSurface::CubicBezierSurface(const Coord3& p0, const Coord3& p1,
     , positions( new Array2DImpl<Coord3>(1,2) )
     , rowdirections( 0 )
     , coldirections( 0 )
+    , directioninfluence( 1.0/3 )
 {
      if ( !p0.isDefined() || !p1.isDefined() )
 	 pErrMsg("Cannot start surface with undefined positions" );
@@ -81,7 +82,7 @@ Coord3 CubicBezierSurface::computeNormal( const Coord& ) const
 
 bool CubicBezierSurface::insertRow(int row)
 {
-    mInsertStart( rowidx, Row, rowIndex(row) );
+    mInsertStart( rowidx, row, nrRows() );
     mCloneRowVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneRowVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
     mCloneRowVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
@@ -91,7 +92,7 @@ bool CubicBezierSurface::insertRow(int row)
 
 bool CubicBezierSurface::insertColumn(int col)
 {
-    mInsertStart( colidx, Col, colIndex(col) );
+    mInsertStart( colidx, col, nrCols() );
     mCloneColVariable( Coord3, positions, computePosition(param), Coord3::udf())
     mCloneColVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
     mCloneColVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
@@ -150,6 +151,17 @@ Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
 }
 
 
+float CubicBezierSurface::directionInfluence() const
+{ return directioninfluence; }
+
+
+void CubicBezierSurface::setDirectionInfluence(float ndi)
+{
+    directioninfluence = ndi;
+    triggerMovement();
+}
+
+
 #ifndef mEPS
 #define mEPS 1e-10
 #endif
@@ -185,7 +197,7 @@ Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
     if ( prevcoord.sqDistance(nextcoord)<mEPS ) \
 	return Coord3::udf(); \
  \
-    return (nextcoord-prevcoord)*step._rowcol_/diff
+    return (nextcoord-prevcoord)*step._rowcol_/diff*directioninfluence;
 
 
 Coord3 CubicBezierSurface::computeColDirection( const RCol& rc ) const
