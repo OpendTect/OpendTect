@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.6 2003-04-14 07:35:07 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.7 2003-04-14 08:41:51 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -112,6 +112,37 @@ Vector3& Vector3::normalize()
 Vector3 operator*( float f, const Vector3& b )
 {
     return Vector3( b.x*f, b.y*f, b.z*f );
+}
+
+
+ObjectSet<Vector3>* makeSphereVectorSet( double dradius )
+{
+    ObjectSet<Vector3>& vectors(*new ObjectSet<Vector3>);
+
+
+    const int nrdips = mNINT(M_PI_2/dradius)+1;
+    const double ddip = M_PI_2/(nrdips-1);
+
+    for ( int dipidx=0; dipidx<nrdips; dipidx++ )
+    {
+	const double dip = ddip*dipidx;
+	static const double twopi = M_PI*2;
+	const double radius = cos(dip);
+	const double perimeter = twopi*radius;
+
+	int nrazi = mNINT(perimeter/dradius);
+	//!< No +1 since it's comes back to 0 when angle is 2*PI
+	if ( !nrazi ) nrazi = 1;
+	const double dazi = twopi/nrazi;
+
+	for ( int aziidx=0; aziidx<nrazi; aziidx++ )
+	{
+	    double azi = aziidx*dazi;
+	    vectors += new Vector3( cos(azi)*radius, sin(azi)*radius, sin(dip));
+	}
+    }
+
+    return &vectors;
 }
 
 
