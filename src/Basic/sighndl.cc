@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: sighndl.cc,v 1.2 2001-07-06 11:40:33 bert Exp $
+ RCS:           $Id: sighndl.cc,v 1.3 2002-01-29 11:13:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.2 2001-07-06 11:40:33 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.3 2002-01-29 11:13:02 bert Exp $";
 
 #include "sighndl.h"
 #include "errh.h"
@@ -132,7 +132,22 @@ void SignalHandling::handle( int signalnr )
 void SignalHandling::doKill( int signalnr )
 {
     mReleaseSignal( signalnr );
-    ErrMsg( "Stopped by Operating system" );
+    if ( signalnr != SIGTERM )
+	ErrMsg(
+#ifdef lux
+	    	"Stopped by Linux"
+#else
+# ifdef __sun__
+	    	"Stopped by Solaris"
+# else
+#  ifdef __win__
+	    	"Killed by Windows"
+#  else
+	    	"Terminated by Operating System"
+#  endif
+# endif
+#endif
+		);
     killcbs.doCall( this );
     exit( 1 );
 }
@@ -143,6 +158,14 @@ void SignalHandling::doStop( int signalnr )
     mReleaseSignal( signalnr );
     stopcbs.doCall( this );
     kill( getPID(), signalnr );
+}
+
+
+extern "C" int getPPID();
+
+void SignalHandling::stopProcess( int pid, bool friendly )
+{
+    kill( pid, friendly ? SIGTERM : SIGKILL );
 }
 
 

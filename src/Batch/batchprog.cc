@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.8 2002-01-25 17:58:45 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.9 2002-01-29 11:13:02 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -40,10 +40,11 @@ int Execute_batch( int* pargc, char** argv )
 #endif
     }
 
-    int res = BatchProgram::inst_->go(
-		*BatchProgram::inst_->sdout_.ostrm ) ? 0 : 1;
+    bool allok = BatchProgram::inst_->initOutput();
+    if ( allok )
+	allok = BatchProgram::inst_->go( *BatchProgram::inst_->sdout_.ostrm );
     delete BatchProgram::inst_;
-    return res;
+    return allok ? 0 : 1;
 }
 
 
@@ -52,7 +53,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, pargc_(pac)
 	, argv_(av)
 	, argshift_(2)
-	, stillok_(NO)
+	, stillok_(false)
 	, fullpath_(av[0])
 	, inbg_(NO)
 	, sdout_(*new StreamData)
@@ -90,7 +91,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
     sdin.close();
 
     iopar_ = new IOPar( *parlist[0] );
-    stillok_ = initOutput();
+    stillok_ = true;
 }
 
 
@@ -115,11 +116,10 @@ bool BatchProgram::initOutput()
     if ( !*res || !strcmp(res,"stdout") ) res = 0;
  
 #ifndef __win__
-    if ( res && (!strcmp(res,"window") || !strcmp(res,"window +D")) )
+    if ( res && !strcmp(res,"window") )
     {
-	FileNameString comm( "@disp_text " );
-	if ( *(res+6) == ' ' ) comm += "+D ";
-	comm += name();
+	FileNameString comm( "@view_progress " );
+	comm += getPID();
 	StreamProvider sp( comm );
 	sdout_ = sp.makeOStream();
 	if ( !sdout_.usable() )

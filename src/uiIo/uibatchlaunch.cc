@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.3 2002-01-10 14:21:11 nanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.4 2002-01-29 11:13:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,31 +78,35 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 	, progname(pn)
 	, opts("Output to")
 {
+    finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
+
+    remfld = new uiGenInput( this, "Execute",
+			     BoolInpSpec( "Local", "Remote (using rsh)" ) );
+    remfld->changed.notify( mCB(this,uiBatchLaunch,remSel) );
+
     opts.add( "Output window" );
-    opts.add( "Standard output" );
     opts.add( "Log file" );
+    opts.add( "Standard output" );
     if ( wp )
 	opts.add( "Parameter report (no run)" );
     opts.setCurrent( 0 );
     optfld = new uiLabeledComboBox( this, Ptr(opts) );
+    optfld->attach( alignedBelow, remfld );
     optfld->box()->selectionChanged.notify( mCB(this,uiBatchLaunch,optSel) );
-
-    BufferString fname = "/tmp/out";
-    if ( GetSoftwareUser() )
-	fname += GetSoftwareUser();
-    fname += ".log";
-    filefld = new uiFileInput( this, "Output file", fname, false );
-    filefld->attach( alignedBelow, optfld );
-
-    remfld = new uiGenInput( this, "Execute", 
-			     BoolInpSpec("Local", "Remote (using rsh)") );
-    remfld->attach( alignedBelow, filefld );
-    remfld->changed.notify( mCB(this,uiBatchLaunch,remSel) );
 
     remhostfld = new uiGenInput( this, "Hostname", StringInpSpec(hostname) );
     remhostfld->attach( alignedBelow, remfld );
 
-    optSel(0);
+    static BufferString fname = "";
+    if ( fname == "" )
+    {
+	fname = "/tmp/out";
+	if ( GetSoftwareUser() )
+	    { fname += "_"; fname += GetSoftwareUser(); }
+	fname += ".log";
+    }
+    filefld = new uiFileInput( this, "Output file", fname, false );
+    filefld->attach( alignedBelow, optfld );
 }
 
 
@@ -120,38 +124,29 @@ bool uiBatchLaunch::execRemote() const
 
 void uiBatchLaunch::optSel( CallBacker* )
 {
-    int sel = selected();
-    filefld->display( sel > 1 );
-    if ( sel != 2 ) remfld->setValue( true );
-    remSel(0);
+    const int sel = selected();
+    filefld->display( sel == 1 || sel == 3 );
 }
 
 
 void uiBatchLaunch::remSel( CallBacker* )
 {
-    bool doshw = selected() == 2;
     bool isrem = execRemote();
-    remfld->display( doshw );
-    remhostfld->display( doshw && isrem );
-    optfld->box()->setSensitive( !(doshw && isrem) );
+    remhostfld->display( isrem );
+    optfld->display( !isrem );
+    optSel(0);
 }
 
 
 int uiBatchLaunch::selected()
 {
-    return optfld->box()->currentItem();
+    return execRemote() ? 1 : optfld->box()->currentItem();
 }
 
 
 bool uiBatchLaunch::acceptOK( CallBacker* )
 {
     BufferString fname;
-    int sel = selected();
-    if ( sel > 1 )		fname = filefld->fileName();
-    else if ( sel == 0 )	fname = "window";
-    else			fname = "stdout";
-
-    if ( fname == "" )   fname = "/dev/null";
     if ( execRemote() )
     {
 	hostname = remhostfld->text();
@@ -162,6 +157,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	}
     }
 
+    const int sel = selected();
+    fname = sel == 0 ? "window" : (sel == 2 ? "stdout" : filefld->fileName());
+    if ( fname == "" ) fname = "/dev/null";
     IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
     if ( iop ) iop->set( "Log file", fname );
 
