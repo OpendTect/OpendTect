@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.1 2005-03-22 14:38:15 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.2 2005-03-23 13:49:26 cvsnanne Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -312,6 +312,9 @@ void MeshSurfacePartPart::computeBBox( SoState* state, SbBox3f& box,
 	int nrcolsonpart = sidesize;
 	if ( colstart+sidesize>=meshsurface.nrColumns.getValue() )
 	    nrcolsonpart = meshsurface.nrColumns.getValue()-colstart;
+
+	if ( nrcolsonpart < 0 )
+	    break;
 
 	const SbVec3f* coordptr =
 	    meshsurface.coordinates.getValues(row*nrcols+colstart);
@@ -1721,7 +1724,7 @@ void MeshSurfacePartResolution::tesselate()
     for ( int idx1=0; idx1<nrcols; idx1++ )
     {
 	bool isopen = false;
-	for ( int idx0=0; idx0<=nrrows; idx0++ )
+	for ( int idx0=0; idx0<nrrows; idx0++ )
 	{
 	    int ci = getCoordIndex(idx0,idx1);
 	    if ( ci==-1 || coordptr[ci][2]>1e29 )
@@ -2171,7 +2174,7 @@ SoLODMeshSurface::SoLODMeshSurface()
 }
 
 
-void SoLODMeshSurface::insertColumns(bool before,int nr)
+void SoLODMeshSurface::insertColumns( bool before, int nr )
 {
     if ( nr<=0 ) return;
     const bool oldvalidationflag = useownvalidation;
@@ -2223,6 +2226,9 @@ void SoLODMeshSurface::insertRowsBefore(int nr)
 {
     if ( nr<=0 ) return;
     coordinates.insertSpace( 0, nrColumns.getValue()*sidesize );
+    for ( int idy=0; idy<nrColumns.getValue()*sidesize; idy++ )
+	coordinates.set1Value( idy, SbVec3f(1e30,1e30,1e30) );
+
     materialIndex.insertSpace( 0, nrColumns.getValue()*sidesize );
     meshStyle.insertSpace( 0, nrColumns.getValue()*sidesize );
 
@@ -2364,12 +2370,11 @@ void SoLODMeshSurface::getBoundingBox(SoGetBoundingBoxAction* action)
 }
 
 
-
 int SoLODMeshSurface::getIndex( int i0, int i1 ) const
 {
     if ( i1<0 || i1>=nrColumns.getValue() ) return -1;
     const int res = i0*nrColumns.getValue()+i1;
-    return res>=0&&res<coordinates.getNum() ? res : -1;
+    return res>=0 && res<coordinates.getNum() ? res : -1;
 }
 
 
