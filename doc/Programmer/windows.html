@@ -4,10 +4,10 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.8 2004-01-14 12:24:32 arend Exp $
+  - RCS:        $Id: windows.html,v 1.9 2004-01-16 09:51:52 dgb Exp $
  -->
 
-<body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.0]</title>
+<body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.1]</title>
 <center>
 <h1>OpendTect development on MS Windows</h1>
   <a href=#external>External installations</a>
@@ -211,7 +211,7 @@ and copy the actual plugins into the libs subdirectory.
 In order to do this, we use .tar.gz files on Unix and inno-setup on windows, which can be obtained for free at: <a href="http://www.jrsoftware.org/isinfo.php">jrsoftware.org</a>.
 
 </p><p>
-Because we internally treat Windows as much like Unix as we can, we actually make a .tar.gz file for our windows plugins too, which is extracted to "d:\users\admin\rel\plugins\opendtect-1.0\", which forms the "Source" for Inno-Setup.
+Because we internally treat Windows as much like Unix as we can, we actually make a .tar.gz file for our windows plugins too, which is extracted to "d:\users\admin\rel\plugins\opendtect-1.1\", which forms the "Source" for Inno-Setup.
 
 </p><p>
 
@@ -222,7 +222,7 @@ Note that the OpendTect installation directory is stored in the registry and use
 
 [Setup]
 AppName=OpendTect
-AppVerName=OpendTect 1.0
+AppVerName=OpendTect 1.1
 AppPublisher=De Groot-Bril Earth Sciences
 AppPublisherURL=http://www.opendtect.org
 AppSupportURL=http://www.opendtect.org
@@ -232,11 +232,11 @@ DisableDirPage=yes
 DefaultGroupName=OpendTect
 AllowNoIcons=yes
 OutputBaseFilename=dgb-opendtect-1_0_5
-LicenseFile=d:\users\admin\rel\opendtect-1.0\LICENSE.txt
+LicenseFile=d:\users\admin\rel\opendtect-1.1\LICENSE.txt
 
 
 [Files]
-Source: d:\users\admin\rel\plugins\opendtect-1.0\*; DestDir: {app}; Flags: recursesubdirs
+Source: d:\users\admin\rel\plugins\opendtect-1.1\*; DestDir: {app}; Flags: recursesubdirs
 
 </pre>
 

@@ -4,21 +4,28 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.1 2004-01-14 12:24:32 arend Exp $
+  - RCS:        $Id: unix.html,v 1.2 2004-01-16 09:51:52 dgb Exp $
  -->
 
-<body background="../backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V1.0]</title>
+<body background="../backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V1.1]</title>
 <center>
 <h1>Getting started with OpendTect development</h1>
-  <a href=#prereq>Prerequisites</a>
+  <a href=#intro>Intro</a>
+| <a href=#prereq>Prerequisites</a>
 | <a href=#setup>Setup</a>
 | <a href=#buildod>Building OpendTect</a>
 </center>
 <br>
 <img src="../hr.png" border=0>
 
-<a name=prereq><h2>Prerequisites</h2></a>
+<a name=intro><h2>Intro</h2></a>
+<p>
+In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, we recommend contacting support opendtect.org first.
+</p><p>
+For both types of development you should have installed a fully functional OpendTect system before you start. Even when you build the entire OpendTect, you'll want to be able to use some of the libraries from the distribution.
+<p>
 
+<a name=prereq><h2>Prerequisites</h2></a>
 <p>
 Before you can start developing, there are a few external programs that need
 to be installed. For Windows, see <a href="windows.html#external">external installations</a>.
@@ -35,11 +42,11 @@ On Unix, the following programs should be available:
 </ul>
 <p>Also recommended are:</p>
 <ul>
-<li>cvs</li>
-<li>binutils</li>
-<li>GNU bizon(*)</li>
-<li>GNU flex (*)</li>
-<li>doxygen</li>
+<li>CVS</li>
+<li>GNU Binutils</li>
+<li>GNU Bison(*)</li>
+<li>GNU Flex (*)</li>
+<li>Doxygen</li>
 </ul>
 
 <p>(*) Bison and Flex are required to build OpendTect itself.</p>
@@ -51,24 +58,18 @@ On Unix, the following programs should be available:
 <a href="pmake.html">Pmake</a> is used to build both the system and to
 build plugins.
 It requires a few environment variables to be setup and it expects a
-certain directory structure in your ODWork directory.
+certain directory structure in your OpendTect Work directory.
 </p>
 
 
 <h3>Setup ODWork dir</h3>
 
 <p>
-Before you can build anything, you have to setup the ODWork directory in such
-a way that Pmake can use it.
-The easiest way to do this is from within OpendTect, menu 'Utilities-Create Development Environment'.
-Note that the OpendTect application window will freeze while the development
-environment is created.
-
-'Create Development Environment' will also create init scripts 'init.bash'
-and 'init.csh' in your ODWork directory that can easily be sourced from your
-.bashrc or your .login to setup your environment.
+Before you can build anything, you should let OpendTect setup a new ODWork directory.
+The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel. Env.'. This function will make sure you get a full environment that is 'ready to go'. Note that the OpendTect application window will freeze while the development environment is created.
+</p><p>
+When OpendTect is finished, you will find a fresh ODWork directory with all sources, libs, Makefile and so forth, aswell as init scripts 'init.bash' and 'init.csh'. One of these must be sourced in order to setup the environment in such a way that Pmake and other tools should work immediately.
 </p>
-
 <p>
 It is strongly recommended to make sure that there are no spaces in the path
 to your ODWork directory. A good place for your ODWork directory is your
@@ -78,21 +79,16 @@ home directory.
 
 <h3>Setup environment variables</h3>
 
-<p>Once you have successfully created your ODWork directory, you have to setup a few environment variables: HDIR, WORK and GNUMAKE.</p>
-
-<li>HDIR defines the platform you're working on, which is eigther lux, sun5, sgi or win.</li>
-<li>GNUMAKE gives the name of gnu make, usually just make or gmake.</li>
-<li>WORK defines where your ODWork directory is.</li>
-
 <p>
-Beside setting up these environment variables, you should source either
-the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base
-directory.
-</p>
-
-<p>If you have followed our instructions well, you can set the entire environment with a single setup script that is generated in the new ODWork directory. You can source the 'init.bash' script from your .bashrc (or 'init.csh',if you work with the non-default csh shell). 
-
-If you have created your ODWork directory in your home directory, you can add the following line to the end of your .bashrc script:
+The init.csh/init.bash scripts are making guesses about a few pieces of information that are essential to the work of Pmake:
+<ul>
+<li>HDIR defines the platform you're working on, which is eigther lux, sun5, sgi or win.
+<li>GNUMAKE is the gnu make executable, usually just make or gmake.
+<li>WORK defines where your ODWork directory is.
+<li>DEBUG defines whether optimisation is switched on and symbols are added to the libraries and executables. Default is 'yes'.
+</ul>
+</p><p>
+If the guessed values are not correct, you can overrule them by setting the variables before your init script is sourced. Of course you can source the init script from your login script, e.g. in your ~/.bashrc:
 <pre>
     source ~/ODWork/init.bash
 </pre>
@@ -102,77 +98,65 @@ If you have created your ODWork directory in your home directory, you can add th
 <h4>Testing the installation</h4>
 
 <p>
-After you setup your environment, open a new shell and go to your ODWork directory. If all is well, the alias 'cwd' should bring you directly to your ODWork directory. Then go to the plugins directory and type 'make'. You should see something like this:
+After you setup your environment, open a new shell and go to your ODWork directory. If you have sourced your init script from .bashrc or .login, the alias 'cdw' should bring you directly to your ODWork directory. Then go to the plugins directory, subdirectory Hello and type 'make'. You should see something like this:
 </p>
 <pre>
-$ cd plugins/
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
+$ cd plugins/Hello
 $ make
-make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/Hello'
-  Making Hello / Microsoft Windows (Nov 27 13:18:33) DEBUG=no.
+Making Hello / Linux (Jan 16 09:37:18) DEBUG=yes.
 Compiling hellopi.cc ...
-Ranlib on Hello.lib ...
-Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/Hello.dll ...
+Ranlib on libHello.a ...
+Creating /users/bert/ODWork/lib/lux/G/libHello.so ...
   Done !
-make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/Hello'
-
-&lt;snip&gt;
-
-make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
-  Making uiSeisIOSimple / Microsoft Windows (Nov 27 13:19:14) DEBUG=no.
+$</pre>
+If this doesn't give similar output but errors, try the command 'make -n', which shows what make will do without actually doing it:
+<pre>
+$ make -n
+rm -f lslux
+echo "  Making Hello / Linux (Jan 16 09:41:52) DEBUG=yes." | tee -a lslux
+echo "Compiling hellopi.cc ... " | tee -a lslux
+g++ -c -ggdb3  -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DSYSV -D__debug__ -Dlux -D__shared__ -fsigned-char -Wconversion -Wimplicit -Wmissing-prototypes -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I/users/bert/ODWork/include   -I. hellopi.cc -o /tmp/hellopi.o 1&gt;&gt;lslux 2&gt;&amp;1
+ar rv /users/bert/ODWork/lib/lux/G/libHello.a /tmp/hellopi.o 1&gt;&gt;lslux 2&gt;&amp;1
+rm -f /tmp/hellopi.o
+echo "Ranlib on libHello.a ... " | tee -a lslux
+ranlib /users/bert/ODWork/lib/lux/G/libHello.a
+echo "Creating /users/bert/ODWork/lib/lux/G/libHello.so ..." | tee -a lslux
+/users/bert/ODWork/Pmake/base/bin/mkshobjlib /users/bert/ODWork/lib/lux/G/libHello.a --output /users/bert/ODWork/lib/lux/G/libHello.so \
+g++ -L/users/bert/ODWork/lib/lux/G  -shared -ggdb3  -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DSYSV -D__debug__ -Dlux -D__shared__ -fsigned-char -Wconversion -Wimplicit -Wmissing-prototypes -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I/users/bert/ODWork/include   -I. 1&gt;&gt;lslux 2&gt;&amp;1
+echo "  Done !" | tee -a lslux
+$
+</pre>
+Anyway, when you have the 'Hello world' thing going, try a more 'demanding' plugin. For example the simple file seismic import:
+<pre>
+$ cd ../uiSeisIOSimple
+$ make
+  Making uiSeisIOSimple / Linux (Jan 16 09:38:13) DEBUG=yes.
 Compiling seisiosimple.cc ...
 Compiling uiseisiosimple.cc ...
 Compiling uiseisiosimplepi.cc ...
-Ranlib on uiSeisIOSimple.lib ...
-Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/uiSeisIOSimple.dll
- ...
+Ranlib on libuiSeisIOSimple.a ...
+Creating /users/bert/ODWork/lib/lux/G/libuiSeisIOSimple.so ...
   Done !
-make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
 $</pre>
-<p>The libraries should now be made in $WORK/lib/$HDIR. We can check that, like this:</p>
-<pre>
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
-$ cdw
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork
-$ cd lib/win/
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win
-$ ls
-Coh.dll*    O@                 libuiSeisIOSimple.dll.a*  uiSeisIOSimple.dll*
-Coh.lib*    libCoh.dll.a*      uiCoh.dll*                uiSeisIOSimple.lib*
-G@          libHello.dll.a*    uiCoh.lib*
-Hello.dll*  libuiCoh.dll.a*    uiHello.dll*
-Hello.lib*  libuiHello.dll.a*  uiHello.lib*
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win $
-</pre>
+<p>The libraries should now be created in $WORK/lib/$HDIR (in the example case /users/bert/ODWork/lib/lux/G).
 
 <h4>Testing the newly compiled plugins</h4>
 
-You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "Hello.dll" plugin, you should see "Hello World" on the OpendTect console window.
-If you want to load one of the 'ui' plugins, you have to load the corresponding non-ui one first.
+You can test your newly compiled plugins by loading them using the Utilities-plugins menu in OpendTect. For example, if you load the "libHello.so" plugin, you should see "Hello World" on the OpendTect console window. Note that when plugins depend on other plugins, the order of loading matters.
 
 <a name=installplugins><h4>Installing your plugins</h4>
 
-<p> The plugins are basically installed by copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file. 
+<p> Installing a plugin means: making it auto-loaded. This removes the nuisance of having to load the plugin each time you start OpendTect. On the other hand, when you're still developing you may not want the plugin to be loaded all the time. Anyway, the plugins are installed by linking or copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file. 
 This is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.
-However, there are a few remarks about the location of your personal directory on windows. </p>
 
 <a name=dist><h2>Distributing your plugins:</h2>
 
 <p>
 The distribution of plugins is basically the same for Unix and windows. 
-Just copy the .alo files into the plugins/platform directory
-    (<code>$DTECT_APPL/plugins/$HDIR</code>)
-and copy the actual plugins into the libs subdirectory.
+Just copy the .alo files into the plugins/platform directory (<code>$DTECT_APPL/plugins/$HDIR</code>) and copy the actual plugins into the libs subdirectory.
 </p>
-
 <p>
-In order to do this, we use .tar.gz files on Unix and inno-setup on windows, which can be obtained for free at: <a href="http://www.jrsoftware.org/isinfo.php">jrsoftware.org</a>.
+For distribution to the outside world, you'll need to package your plugins, documentation, etc. into .tar.gz files on Unix (and <a href="http://www.jrsoftware.org/isinfo.php">inno-setup</a> on windows). For all details on what exactly should be packaged and how we'd recommend contacting support at opendtect.org.
 </p>
 
 
