@@ -1,5 +1,5 @@
-#ifndef uilabel_H
-#define uilabel_H
+#ifndef uilabel_h
+#define uilabel_h
 
 /*+
 ________________________________________________________________________
@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uilabel.h,v 1.6 2004-03-02 13:01:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-//class QLabel;
+#include "uiobj.h"
 
 class uiLabelBody;
 
@@ -21,7 +20,9 @@ class uiLabel : public uiObject
 {
 public:
 
-                        uiLabel(uiParent*,const char*,uiObject* buddy=0);
+                        uiLabel(uiParent*,const char*);
+                        uiLabel(uiParent*,const char*,uiObject*);
+                        uiLabel(uiParent*,const char*,uiGroup*);
 
 /*! \brief set text on label
 
@@ -31,7 +32,7 @@ public:
 
 */
     virtual void        setText(const char*);
-    const char*         text();
+    const char*         text() const;
 
 private:
 

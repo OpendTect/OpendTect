@@ -9,18 +9,19 @@ ________________________________________________________________________
 -*/
 
 
-#include <uilabel.h>
+#include "uilabel.h"
+#include "uiobjbody.h"
+
 #include <qlabel.h> 
-#include <uiobjbody.h>
 
 
 class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
 public:
 
-                        uiLabelBody(uiLabel& handle, uiParent* parnt,
-				    const char* txt )
-			    : uiObjBodyImpl<uiLabel,QLabel>( handle, parnt,txt )
+                        uiLabelBody( uiLabel& handle, uiParent* parnt,
+				     const char* txt )
+			    : uiObjBodyImpl<uiLabel,QLabel>(handle,parnt,txt)
 			    {}
 
     virtual int 	nrTxtLines() const		
@@ -36,8 +37,31 @@ public:
 };
 
 
-uiLabel::uiLabel(uiParent* parnt,const char* txt, uiObject* buddy)
-    : uiObject( parnt, txt, mkbody(parnt,txt) )
+uiLabel::uiLabel( uiParent* p, const char* txt )
+    : uiObject(p,txt,mkbody(p,txt))
+{
+    setText(txt);
+    setStretch( 0, 0 );
+}
+
+
+uiLabel::uiLabel( uiParent* p, const char* txt, uiGroup* grp )
+    : uiObject(p,txt,mkbody(p,txt))
+{
+    setText(txt);
+
+    uiObject* buddy = grp ? grp->attachObj() : 0;
+    if ( buddy )
+    {
+	body_->setBuddy( buddy->body()->qwidget() );
+	buddy->attach( rightOf, this );
+    }
+    setStretch( 0, 0 );
+}
+
+
+uiLabel::uiLabel( uiParent* p, const char* txt, uiObject* buddy )
+    : uiObject(p,txt,mkbody(p,txt))
 {
     setText(txt);
 
@@ -49,17 +73,20 @@ uiLabel::uiLabel(uiParent* parnt,const char* txt, uiObject* buddy)
     setStretch( 0, 0 );
 }
 
-uiLabelBody& uiLabel::mkbody(uiParent* parnt,const char* txt)
+
+uiLabelBody& uiLabel::mkbody( uiParent* p, const char* txt )
 { 
-    body_= new uiLabelBody(*this,parnt,txt);
+    body_= new uiLabelBody( *this, p, txt );
     return *body_; 
 }
 
+
 void uiLabel::setText( const char* txt )
 { 
-    body_->setText( QString( txt ) ); 
+    body_->setText( QString(txt) ); 
 }
 
-const char* uiLabel::text()
-    { return body_->text(); }
+
+const char* uiLabel::text() const
+{ return body_->text(); }
 
