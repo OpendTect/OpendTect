@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.1 2005-01-06 12:00:58 kristofer Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.2 2005-01-10 12:32:15 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,9 @@ const int uiMPEPartServer::evAddTreeObject	= 3;
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const AttribDescSet* ads )
     : uiApplPartServer(a)
     , attrset( ads )
-{ }
+{
+    MPE::initStandardClasses();
+}
 
 
 uiMPEPartServer::~uiMPEPartServer()
