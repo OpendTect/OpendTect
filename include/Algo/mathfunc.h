@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.10 2004-10-06 17:35:47 kristofer Exp $
+ RCS:		$Id: mathfunc.h,v 1.11 2005-01-26 16:40:27 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "position.h"
+class LinePars;
 
 #include <math.h>
 
@@ -25,7 +26,6 @@ The positioning needs more precision than the outcome, hence
 the doubles in the position.
 
 */
-
 
 template <class RT>
 class MathFunctionND
@@ -98,37 +98,6 @@ public:
 };
 
 
-/*!\brief Line parameters: steepness and intercept. */
-
-class LinePars : public MathFunction<float>
-{
-public:
-		LinePars( double i0=0, double i1=0 )
-		: a0(i0), ax(i1)		{}
- 
-    float	getValue( double x ) const
-		{ return (float)(a0 + ax * x); }
- 
-    double      a0, ax;
-};
-
-
-/*!\brief Palne parameters: steepnesses and intercept. */
-
-class PlanePars : public MathXYFunction<float>
-{
-public:
-		PlanePars( double i0=0, double i1=0, double i2=0 )
-		: a0(i0), ax(i1), ay(i2)	{}
-
-    float	getValue( const Coord& c ) const
-		{ return (float)(a0 + ax * c.x + ay * c.y); }
-
-    double	a0, ax, ay;
-
-};
-
-
 /*! \brief A MathFunction that cuts through another mathfunctioin with
            higher number of dimensions.
 
@@ -163,24 +132,6 @@ protected:
     const double*		P;
     const double*		N;
     const MathFunctionND<RT>&	func;
-};
-
-
-/*!\brief Linear statistics.
-
-Linear statistics have Line parameters for the regression line, the errors
-and a correlation coefficient. There is no 2D variant yet.
-
-*/
-
-class LinStats
-{
-public:
-		LinStats() : corrcoeff(0)	{}
-
-    LinePars	lp;		// Parameters
-    LinePars	sd;		// Standard deviations in parameters
-    double	corrcoeff;	// Correlation coefficient
 };
 
 
@@ -219,9 +170,7 @@ public:
 			    return -b / (2*a);
 			}
 
-    LinePars*		createDerivative() const
-			{ return new LinePars( b, a*2 ); }
-
+    LinePars*		createDerivative() const;
 
     float		a, b, c;
 };
