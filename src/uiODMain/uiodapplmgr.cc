@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.46 2004-09-03 14:41:29 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.47 2004-09-07 08:25:08 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,7 +295,7 @@ bool uiODApplMgr::selectColorAttrib( int id )
 }
 
 
-void uiODApplMgr::storeSurface( int visid )
+void uiODApplMgr::storeSurface( int visid, bool storeas )
 {
     ObjectSet<BinIDValueSet> bivs;
     visserv->fetchSurfaceData( visid, bivs );
@@ -312,7 +312,7 @@ void uiODApplMgr::storeSurface( int visid )
 
     if ( as && as->id() >= 0 )
 	emserv->setDataVal( *visserv->getMultiID(visid), bivs, dispname );
-    emserv->storeObject( *visserv->getMultiID(visid) );
+    emserv->storeObject( *visserv->getMultiID(visid), storeas );
 }
 
 

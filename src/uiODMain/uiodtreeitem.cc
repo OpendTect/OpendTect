@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.44 2004-09-03 13:34:32 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.45 2004-09-07 08:25:08 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -415,7 +415,12 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
-{ delete uivissurf; }
+{ 
+    if (  uivissurf->finishEditingNotifier() )
+	uivissurf->finishEditingNotifier()->remove(
+		mCB(this,uiODEarthModelSurfaceTreeItem,finishedEditingCB));
+    delete uivissurf;
+}
 
 
 bool uiODEarthModelSurfaceTreeItem::init()
@@ -444,6 +449,8 @@ bool uiODEarthModelSurfaceTreeItem::init()
     if ( !uiODDisplayTreeItem::init() )
 	return false; 
 
+    uivissurf->finishEditingNotifier()->notify(
+	    mCB(this,uiODEarthModelSurfaceTreeItem,finishedEditingCB));
     return true;
 }
 
@@ -564,12 +571,9 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    trackmnu->insertItem( new uiMenuItem("Relations ..."), relmnuid );
 	}
 
-	storemnuid = -1;
-	if ( applMgr()->EMServer()->isChanged(mid) )
-	{
-	    uiMenuItem* storemenuitem =  new uiMenuItem("Store");
-	    storemnuid = menu->addItem( storemenuitem );
-	}
+	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
+	storemnuid = menu->addItem( storemenuitem );
+	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid));
 
     }
     else
@@ -599,12 +603,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==storeasmnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->storeSurface(displayid);
+	applMgr()->storeSurface(displayid, true);
     }
     else if ( mnuid==storemnuid )
     {
 	menu->setIsHandled(true);
-	
+	applMgr()->storeSurface(displayid, false);
     }
     else if ( mnuid==trackmnuid )
     {
@@ -676,6 +680,15 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->trackServer()->setDisplayID( displayid );
 	applMgr()->trackServer()->addNewSection( mid, ishor );
     }
+}
+
+
+void uiODEarthModelSurfaceTreeItem::finishedEditingCB(CallBacker*)
+{
+    TypeSet<EM::PosID> movednodes;
+    uivissurf->getMovedNodes(movednodes);
+    applMgr()->trackServer()->finishedEditing( mid, uivissurf->snapAfterEdit(),
+	   				       movednodes );
 }
 
 

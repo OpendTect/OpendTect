@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.14 2004-07-30 11:41:57 nanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.15 2004-09-07 08:25:05 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ public:
     bool			selectAttrib(int);
     bool			selectColorAttrib(int);
 	// Surfaces
-    void			storeSurface(int);
+    void			storeSurface(int, bool store_as );
     void			handleStoredSurfaceData(int);
 	// PickSets
     const Color&		getPickColor();
