@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.35 2004-05-17 06:18:24 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.36 2004-05-25 12:18:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -275,7 +275,14 @@ public:
 		  \retval	-2	Side could not be determined
 		*/
 
-    ObjectSet<HingeLine>	hingelines;
+    int				nrHingeLines() const {return hingelines.size();}
+    HingeLine*			hingeLine(int i) { return hingelines[i]; }
+    const HingeLine*		hingeLine(int i) const { return hingelines[i]; }
+    int				addHingeLine(HingeLine*, bool addtohistory);
+    				/*!<Returned id is persistent in runtime */
+    void			removeHingeLine(int, bool addtohistory);
+    CNotifier<Surface,int>	hingelinechange;
+
 
 protected:
     friend class		EMManager;
@@ -316,6 +323,8 @@ protected:
     Interval<int>*		rowinterval;
     Interval<int>*		colinterval;
     float 			shift;
+
+    ObjectSet<HingeLine>	hingelines;
 };
 
 /*
