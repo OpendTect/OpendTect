@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.4 2002-03-18 15:31:47 nanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.5 2002-03-22 12:42:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,6 +215,13 @@ public:
     int			depth() const; // depth in the tree.
 
     void		setText( const char*, int column=0 );
+    void		setText( int i, int column=0 )
+			{ setText( toString(i), column ); }
+    void		setText( float f, int column=0 )
+			{ setText( toString(f), column ); }
+    void		setText( double d, int column=0 )
+			{ setText( toString(d), column ); }
+
     const char*		text( int column=0 ) const;
 
     void		setPixmap( int column, const ioPixmap& );
