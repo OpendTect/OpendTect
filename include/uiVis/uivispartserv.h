@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.12 2002-04-16 06:48:27 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.13 2002-04-16 10:15:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,11 @@ class PickSetDisplay;
 class SeisDisplay;
 };
 
-namespace visBase{ class Material; };
+namespace visBase
+{
+    class Material;
+    class ColorSequence;
+};
 
 namespace Threads { class Mutex; };
 
@@ -53,14 +57,12 @@ public:
     static const int	evDeSelection;
     static const int	evPicksChanged;
     static const int	evGetNewData;
+    static const int	evSelectableStatusCh;
     int			getEventObjId() const { return eventobjid; }
     			/* Tells which object the event is about */
 
     			//General stuff
     bool		deleteAllObjects();
-    void		setSelObjectId(int);
-    			//!< set to -1 if you want to deselect
-    int			getSelObjectId() const;
 
     enum ElementType    { Inline, Crossline, Timeslice };
     enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay };
@@ -72,9 +74,15 @@ public:
     bool		isOn(int);
     void		setViewMode(bool yn);
 
+    			// Selection
+    bool		isSelectable(int) const;
+    void		makeSelectable(int, bool yn );
+    void		setSelObjectId(int);
+    			//!< set to -1 if you want toedeselect
+    int			getSelObjectId() const;
+
     			// Scene Stuff
     int			addScene();
-    visSurvey::Scene*	getScene(int); //Should be removed ->crap!!
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
 
@@ -97,26 +105,27 @@ public:
     int 		nrPicks(int);
 
 			//ColorSeqs
-    int			setColorSeq(int, ColorTable&);
-    const ColorTable&   getColorSeq(int);
-
-    			//Property stuff
     bool		canSetColorSeq(int) const;
-    void		linkColorSeq(int fromid, int toid);
+    void		modifyColorSeq(int, const ColorTable&);
+    const ColorTable&   getColorSeq(int) const;
+    void		shareColorSeq(int toid, int fromid );
 
-    bool		canSetColor(int) const;
-    Color		getColor(int) const;
-    void		setColor(int,const Color&);
-    void		linkColor(int fromid, int toid );
-    visBase::Material*	getMaterial(int id);	//Should be removed ASAP
-
-    bool		canSetScale(int);
+    			//Ranges
+    bool		canSetRange(int) const;
     void		setClipRate(int,float);
-    float		getClipRate(int);
+    float		getClipRate(int) const;
     void		setAutoscale(int,bool);
-    bool		getAutoscale(int);
+    bool		getAutoscale(int) const;
     void		setDataRange(int,const Interval<float>&);
-    Interval<float>	getDataRange(int);
+    Interval<float>	getDataRange(int) const;
+    void		shareRange(int toid, int fromid );
+    			//!<Includes colorsequence
+
+    			//Material
+    bool		canSetColor(int) const;
+    void		modifyColor( int, const Color&);
+    Color		getColor(int) const;
+    void		shareColor(int toid, int fromid );
 
 protected:
 
