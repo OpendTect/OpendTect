@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.11 2003-10-17 14:19:02 bert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.12 2003-10-29 17:28:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,7 +168,7 @@ void uiIOSurface::objSel( CallBacker* )
 
 
 
-uiSurfaceOutSel::uiSurfaceOutSel( uiParent* p, const EM::Horizon& hor_ )
+uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Horizon& hor_ )
     : uiIOSurface(p)
     , savefld(0)
 {
@@ -180,7 +180,7 @@ uiSurfaceOutSel::uiSurfaceOutSel( uiParent* p, const EM::Horizon& hor_ )
 	savefld = new uiGenInput( this, "Save", 
 	    		BoolInpSpec("Attribute only","Horizon and attribute") );
 	savefld->attach( alignedBelow, attrnmfld );
-	savefld->valuechanged.notify( mCB(this,uiSurfaceOutSel,savePush) );
+	savefld->valuechanged.notify( mCB(this,uiSurfaceWrite,savePush) );
     }
 
     if ( hor_.nrPatches() > 1 )
@@ -205,7 +205,7 @@ uiSurfaceOutSel::uiSurfaceOutSel( uiParent* p, const EM::Horizon& hor_ )
 }
 
 
-bool uiSurfaceOutSel::processInput()
+bool uiSurfaceWrite::processInput()
 {
     if ( patchfld && !patchfld->box()->nrSelected() )
     {
@@ -223,39 +223,39 @@ bool uiSurfaceOutSel::processInput()
 }
 
 
-const char* uiSurfaceOutSel::auxDataName() const
+const char* uiSurfaceWrite::auxDataName() const
 {
     return attrnmfld->text();
 }
 
 
-void uiSurfaceOutSel::savePush( CallBacker* )
+void uiSurfaceWrite::savePush( CallBacker* )
 {
     if ( savefld )
 	objfld->display( !savefld->getBoolValue() );
 }
 
 
-bool uiSurfaceOutSel::saveAuxDataOnly() const
+bool uiSurfaceWrite::saveAuxDataOnly() const
 {
     return savefld ? savefld->getBoolValue() : false;
 }
 
 
-bool uiSurfaceOutSel::surfaceOnly() const
+bool uiSurfaceWrite::surfaceOnly() const
 {
     return !savefld;
 }
 
 
-bool uiSurfaceOutSel::surfaceAndData() const
+bool uiSurfaceWrite::surfaceAndData() const
 {
     return savefld ? !savefld->getBoolValue() : false;
 }
 
 
 
-uiSurfaceSel::uiSurfaceSel( uiParent* p, bool showattribfld )
+uiSurfaceRead::uiSurfaceRead( uiParent* p, bool showattribfld )
     : uiIOSurface( p )
 {
     mkObjFld( "Input Horizon", true );
@@ -280,12 +280,12 @@ uiSurfaceSel::uiSurfaceSel( uiParent* p, bool showattribfld )
 }
 
 
-uiSurfaceSel::~uiSurfaceSel()
+uiSurfaceRead::~uiSurfaceRead()
 {
 }
 
 
-bool uiSurfaceSel::processInput()
+bool uiSurfaceRead::processInput()
 {
     if ( patchfld && !patchfld->box()->nrSelected() )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.5 2003-08-15 13:19:49 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.6 2003-10-29 17:28:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class IOObj;
-class uiIOSurface;
-class uiSurfaceOutSel;
+class uiSurfaceRead;
+class uiSurfaceWrite;
 class MultiID;
 
 namespace EM { class Horizon; class SurfaceIODataSelection; };
@@ -39,7 +39,7 @@ protected:
 
     int			auxdataidx;
 
-    uiSurfaceOutSel*	iogrp;
+    uiSurfaceWrite*	iogrp;
     const EM::Horizon&	hor;
 
     bool		checkIfAlreadyPresent(const char*);
@@ -57,7 +57,7 @@ public:
 
 protected:
 
-    uiIOSurface*        iogrp;
+    uiSurfaceRead*        iogrp;
 
     bool                acceptOK(CallBacker*);
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.9 2003-08-01 15:48:12 nanne Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.10 2003-10-29 17:28:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiFileInput;
 class uiGenInput;
 class BinIDZValue;
-class uiSurfaceSel;
+class uiSurfaceRead;
 
 
 /*! \brief Dialog for horizon export */
@@ -31,7 +31,7 @@ public:
 
 protected:
 
-    uiSurfaceSel*	infld;
+    uiSurfaceRead*	infld;
     uiFileInput*	outfld;
     uiGenInput*		typfld;
     uiGenInput*		zfld;
