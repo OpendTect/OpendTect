@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.1 2002-04-29 09:39:54 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.2 2002-04-29 13:43:02 kristofer Exp $";
 
 #include "vissurvobj.h"
 #include "vistransform.h"
@@ -13,10 +13,13 @@ static const char* rcsID = "$Id: vissurvobj.cc,v 1.1 2002-04-29 09:39:54 kristof
 #include "linsolv.h"
 
 
+float visSurvey::SurveyParamManager::defappvel = 2000;
+
+
 
 visSurvey::SurveyParamManager& visSurvey::SPM()
 {
-    visSurvey::SurveyParamManager* spm = 0;
+    static visSurvey::SurveyParamManager* spm = 0;
 
     if ( !spm ) spm = new SurveyParamManager;
 
@@ -26,11 +29,92 @@ visSurvey::SurveyParamManager& visSurvey::SPM()
 
 visSurvey::SurveyParamManager::SurveyParamManager()
     : appvelchange( this )
-    , displaytransform( visBase::Transformation::create() )
-    , appveltransform( visBase::Transformation::create() )
-    , inlcrltransform( visBase::Transformation::create() )
+    , displaytransform( 0 )
+    , appveltransform( 0 )
+    , inlcrltransform( 0 )
     , appvel( 0 )
+{ }
+
+
+visSurvey::SurveyParamManager::~SurveyParamManager()
 {
+    if ( displaytransform ) displaytransform->unRef();
+    if ( appveltransform ) appveltransform->unRef();
+    if ( inlcrltransform ) inlcrltransform->unRef();
+}
+
+
+void visSurvey::SurveyParamManager::setAppVel( float a )
+{
+    if ( !displaytransform ) createTransforms();
+
+    if ( mIS_ZERO(appvel-a) ) return;
+
+    appvel = a;
+    appveltransform->setA(
+    1,      0,      0,              0,
+    0,      1,      0,              0,
+    0,      0,      appvel/2,       0,
+    0,      0,      0,              1 );
+
+    appvelchange.trigger();
+}
+
+
+Geometry::Pos visSurvey::SurveyParamManager::coordDispl2XYT(
+					const Geometry::Pos& display ) const
+{
+    if ( !displaytransform )
+	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+
+    Geometry::Pos xyz = displaytransform->transformBack( display );
+    return appveltransform->transformBack( xyz );
+}
+
+
+Geometry::Pos visSurvey::SurveyParamManager::coordXYT2Display(
+					const Geometry::Pos& xyt ) const
+{
+    if ( !displaytransform )
+	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+    Geometry::Pos xyz = appveltransform->transform( xyt );
+    return displaytransform->transform( xyz );
+}
+
+
+const visBase::Transformation* visSurvey::SurveyParamManager::getDisplayTransform() const
+{
+    if ( !displaytransform )
+	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+
+    return displaytransform;
+}
+
+
+const visBase::Transformation* visSurvey::SurveyParamManager::getAppvelTransform() const
+{
+    if ( !displaytransform )
+	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+
+    return appveltransform;
+}
+
+
+const visBase::Transformation* visSurvey::SurveyParamManager::getInlCrlTransform() const
+{
+    if ( !displaytransform )
+	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+
+    return inlcrltransform;
+}
+
+
+void visSurvey::SurveyParamManager::createTransforms()
+{
+    displaytransform = visBase::Transformation::create();
+    appveltransform = visBase::Transformation::create();
+    inlcrltransform = visBase::Transformation::create();
+
     displaytransform->ref();
     appveltransform->ref();
     inlcrltransform->ref();
@@ -86,44 +170,7 @@ visSurvey::SurveyParamManager::SurveyParamManager()
 	    0,			0,		0,	1 );
 
     
-    setAppVel( 2000 );
+    setAppVel( defappvel );
 }
 
 
-visSurvey::SurveyParamManager::~SurveyParamManager()
-{
-    displaytransform->unRef();
-    appveltransform->unRef();
-    inlcrltransform->unRef();
-}
-
-
-void visSurvey::SurveyParamManager::setAppVel( float a )
-{
-    if ( mIS_ZERO(appvel-a) ) return;
-
-    appvel = a;
-    appveltransform->setA(
-    1,      0,      0,              0,
-    0,      1,      0,              0,
-    0,      0,      appvel/2,       0,
-    0,      0,      0,              1 );
-
-    appvelchange.trigger();
-}
-
-
-Geometry::Pos visSurvey::SurveyParamManager::coordDispl2XYT(
-					const Geometry::Pos& display ) const
-{
-    Geometry::Pos xyz = displaytransform->transformBack( display );
-    return appveltransform->transformBack( xyz );
-}
-
-
-Geometry::Pos visSurvey::SurveyParamManager::coordXYT2Display(
-					const Geometry::Pos& xyt ) const
-{
-    Geometry::Pos xyz = appveltransform->transform( xyt );
-    return displaytransform->transform( xyz );
-}
