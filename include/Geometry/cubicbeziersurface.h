@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.4 2005-02-20 13:42:55 cvskris Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.5 2005-03-02 18:38:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,41 @@ ________________________________________________________________________
 #include "parametricsurface.h"
 
 template <class T> class TypeSet;
+class Line3;
 
 namespace Geometry
 {
+
+
+class CubicBezierSurfacePatch
+{
+public:
+			CubicBezierSurfacePatch(
+					const Coord3& p00, const Coord3& p01,
+					const Coord3& p02, const Coord3& p03,
+					const Coord3& p10, const Coord3& p11,
+					const Coord3& p12, const Coord3& p13,
+					const Coord3& p20, const Coord3& p21,
+					const Coord3& p22, const Coord3& p23,
+					const Coord3& p30, const Coord3& p31,
+					const Coord3& p32, const Coord3& p33 );
+
+    CubicBezierSurfacePatch*		clone() const;
+
+    Coord3		computePos(float u,float v) const; 
+    Coord3		computeNormal(float u, float v) const;
+    Coord3		computeUTangent(float u, float v) const;
+    Coord3		computeVTangent(float u, float v) const;
+
+    bool		intersectWithLine( const Line3& line,
+	    				float& u, float& v, float eps ) const;
+
+    IntervalND<float>	computeBoundingBox() const;
+
+    Coord3		pos[16];
+    static int		nrPos() { return 16; }
+};
+
 
 
 class CubicBezierSurface : public ParametricSurface
@@ -36,6 +68,8 @@ public:
     Coord3	computePosition(const Coord&) const;
     Coord3	computeNormal(const Coord&) const;
 
+    bool	intersectWithLine(const Line3&, Coord& ) const;
+
     Coord3	getBezierVertex( const RCol& knot, const RCol& relpos ) const;
 
     bool	insertRow(int row);
@@ -48,6 +82,8 @@ public:
     Coord3	getColDirection(const RCol&, bool computeifudf ) const;
     float	directionInfluence() const;
     void	setDirectionInfluence(float);
+
+    const CubicBezierSurfacePatch*	getPatch(const RCol&) const;
 protected:
 
     bool	checkSelfIntersection( const RCol& ) const;
