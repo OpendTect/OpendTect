@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.13 2004-09-21 15:59:22 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.14 2004-09-21 17:01:45 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -374,7 +374,8 @@ bool EdgeLineSegment::trackWithCache( int start, bool forward,
     if ( !isNodeOK(newrc) )
 	return false;
 
-    if ( indexOf(newrc)!=-1 || (next&&next->indexOf(newrc)!=-1) )
+    if ( indexOf(newrc)!=-1 || (next&&next->indexOf(newrc)!=-1) ||
+	 (prev&&prev->indexOf(newrc)!=-1 ))
 	return false;
 
     if ( forward )
