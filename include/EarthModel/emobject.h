@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.32 2005-01-06 09:40:02 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.33 2005-01-10 09:57:26 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ public:
     				EMObject( EMManager&, const EM::ObjectID&);
     virtual			~EMObject( );
     const ObjectID&		id() const { return id_; }
+    void			setID( const EM::ObjectID& nid ) { id_ = nid; }
     virtual const char*		getTypeStr() const			= 0;
     MultiID			multiID() const;
 
