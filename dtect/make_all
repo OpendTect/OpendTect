@@ -1,0 +1,57 @@
+#!/bin/csh -f
+
+set mods=.mods.dtect
+if ( $HDIR == lux || $HDIR == sun5 ) then
+    set mods=.mods
+endif
+set shallow=no
+set dodeps=yes
+
+source $WORK/Pmake/base/PMinit.csh
+
+parse_args:
+if ( "$1" == "--shallow" ) then
+    set shallow=yes
+else if ( "$1" == "--dtect" ) then
+    set mods=.mods.dtect
+else if ( "$1" == "--gdi" ) then
+    set mods=.mods.gdi
+else if ( "$1" == "--nodep" ) then
+    set dodeps=no
+else
+    goto do_it
+endif
+
+shift
+goto parse_args
+
+do_it:
+
+if ( $shallow == no ) then
+    cdl
+    echo "Removing all libs from " `pwd`
+    \rm *.a
+    ln -s ../*.a .
+endif
+
+cdw
+dvs update
+if ( $dodeps == yes ) then
+    if ( `hostname` == $MAIN_DGB_HOST ) then
+	make dep MODS=$mods
+	cd plugins ; make dep
+	cd ../spec ; make dep
+	cd ..
+    else
+	cd src ; ./cpdeps
+	cd ../plugins ; ./cpdeps
+	cd ../spec ; ./cpdeps
+	cd ..
+    endif
+endif
+make lib MODS=$mods
+make MODS=$mods
+cd plugins
+make
+cd ../spec
+make
