@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.2 1999-10-18 14:03:29 dgb Exp $
+ RCS:		$Id: seisinfo.h,v 1.3 2000-03-03 09:28:59 bert Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
@@ -26,12 +26,16 @@ class SeisPacketInfo
 {
 public:
 			SeisPacketInfo()
-			: company("dGB")
+			: client(defaultclient)
+			, company(defaultcompany)
+			, auxinfo(defaultauxinfo)
 			, wavetype(Seis::P), datatype(Seis::Ampl)
 			, nr(0), ns(0), dt(0), starttime(1e-30)		{}
 
     FixedString<32>	client;
     FixedString<32>	company;
+    FixedString<180>	auxinfo;
+
     Seis::WaveType	wavetype;
     Seis::DataType	datatype;
 
@@ -45,6 +49,10 @@ public:
 
     static const char*	sNrTrcs;
     static const char*	sBinIDs;
+
+    static FixedString<32>	defaultclient;
+    static FixedString<32>	defaultcompany;
+    static FixedString<180>	defaultauxinfo;
 };
 
 
