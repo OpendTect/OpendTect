@@ -1,7 +1,7 @@
 echo off
 ::
 :: OpenTect remote startup script for window<->windows using rcmd
-:: $Id: od_dormt.bat,v 1.6 2004-11-09 12:58:11 arend Exp $
+:: $Id: od_dormt.bat,v 1.7 2004-11-15 15:08:40 arend Exp $
 ::______________________________________________________________________________
 
 cd %DTECT_WINAPPL%
@@ -33,8 +33,6 @@ set PATH=%CYGWINDIR%;%PATH%
 :: Now do what we setup to do
 
 set string=%1
-set tmpvar=%string:#-#= %
-for /F "tokens=*" %%i in ('cygpath -wa "%tmpvar%"') do set ARGFILE=%%i
 
 set datahost=%2
 set datadrive=%3
@@ -45,6 +43,10 @@ set userpass=%6
 for /F "tokens=*" %%i in ('.\bin\win\SearchODFile.exe od_prepare.bat') do set PRESCRIPT=%%i
 
 cmd /c "%PRESCRIPT%" %datahost% %datadrive% %datashare% %username% %userpass%
+
+:: Use cygpath only after prescipt has executed and the data dir is mounted.
+set tmpvar=%string:#-#= %
+for /F "tokens=*" %%i in ('cygpath -wa "%tmpvar%"') do set ARGFILE=%%i
 
 if exist "%ARGFILE%" goto getargs
 
