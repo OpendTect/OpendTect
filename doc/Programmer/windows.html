@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.4 2003-12-11 14:53:16 arend Exp $
+  - RCS:        $Id: windows.html,v 1.5 2003-12-23 16:03:17 arend Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.0]</title>
@@ -22,20 +22,41 @@
 <p>The external installations can, in principle, be installed wherever you like. However, it is recommended to use the defaults. Otherwise, one or two configuration files have to be hand-edited.
 If you choose to install some of the external installations elsewhere, it is strongly recommended to make sure that there are no spaces in any paths to external installations, because the make environment has not been prepared to handle these.</p> 
 
-<a name=mingw><h3>MinGW</h3></a>
+<h3>Cygwin</h3>
+<p>The make system that is used with OpendTect requires some tools like a Unix-shell, sed, awk, etc. Since Cygwin provides all this, we use Cygwin as our shell/work environment, while still creating native Windows executables.</p>
 
-<p>First, download MinGW from <a href="http://mingw.org/download.shtml">http://mingw.org/download.shtml</a>.
-The easiest way to install is to download the MinGW auto-extracting executable, MinGW-&lt;version&gt;.exe. This file is approximately 14 MB. After download, just run the installer.
-Optionally, you can install gdb 6.0, which can be downloaded at: <a href="http://gd.tuwien.ac.at/gnu/mingw/?fisel=gG">http://gd.tuwien.ac.at/gnu/mingw/?fisel=gG</a></p>
-<p>If you did not install mingw at its default location "C:\MinGW",  you have to set the environment variable MINGWHOME at some point. The easiest thing is to postpone this until after creating your ODWork environment and manually edit the generated init.bash or init.csh script(s).
+
+<h4>Preparing the cygwin installation</h4>
+<p>
+If you did not install cygwin prior to installing OpendTect, it is likely that
+an incomplete mount table is stored in the windows registry due to the fact
+that some command-line cygwin tools are used internally by OpendTect.
+
+It is necessary to check this before installing cygwin; otherwise cygwin will complain about not being able to find '/tmp'.
+
+</p><p>
+
+This can be avoided by deleting the following registry keys before installing cygwin with the registry editor (start - run - regedit):
+<pre>
+    HKEY_LOCAL_MACHINE\SOFTWARE\Cygnus Solutions
+    HKEY_CURRENT_USER\Software\Cygnus Solutions
+</pre>
+
+If you don't like doing this by hand, you can make use of the cleanCygReg.reg
+file that you can find in the windows binary directory
+(default: C:\Program Files\OpendTect\bin\win\cleanCygReg.reg).
+A simple double-click on this file will invoke the registry editor
+which will make the changes for you.
+
 </p>
 
-<h3>Cygwin</h3>
-<p>Since MinGW only provides a compiler and we also need tools like a Unix-shell, sed, awk, etc., we use Cygwin as our shell/work environment.</p>
-<p>Download the Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a> and run it.</p>
+<h4>Running the cygwin installer</h4>
+
+<p>When you are sure the registry is ok, you can download the Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a> and run it.</p>
 <p>After a few questions, you can select packages to install. Choose at least the following packages:</p>
 <ul>
 <li>make (development)</li>
+<li>mingw (development)</li>
 <li>tcsh (shells)</li>
 <li>perl (interpreters)</li>
 <li>gawk (interpreters)</li>
@@ -55,21 +76,6 @@ Optionally, you can install gdb 6.0, which can be downloaded at: <a href="http:/
 </ul>
 
 Note: You can always re-start the cygwin installation program to add additional packages later or to update existing packages.
-
-<p>
-It is possible that cygwin complains about not being able to find '/tmp'. This is caused by the cygwin mount table not being properly initialised, possibly due to the use of cygwin tools from within OpenDtect.
-The problem can be resolved as follows:
-</p>
-
-<li> delete the following registry keys using the registry editor:</li>
-<pre>
-    HKEY_CURRENT_USER\Software\Cygnus Solutions
-    HKEY_LOCAL_MACHINE\SOFTWARE\Cygnus Solutions
-</pre>
-<li> delete cygwin icon from the desktop and cygwin directory from start menu. </li>
-<li> delete cygwin installation directory. </li>
-<li> reboot </li>
-<li> re-install cygwin </li>
 
 
 <p>(*) Bison and Flex are required to build OpendTect itself.</p>
@@ -91,10 +97,9 @@ The location of this directory can be easily found from a cygwin bash shell:
 </pre>
 </p>
 <h3>Setup environment variables</h3>
-<p>Once you have successfully created your ODWork directory, you have to setup a few environment variables: HDIR, WORK, MINGWHOME and GNUMAKE.</p>
+<p>Once you have successfully created your ODWork directory, you have to setup a few environment variables: HDIR, WORK and GNUMAKE.</p>
 
 <li>HDIR defines the platform you're working on. On windows, this should be set to win.</li>
-<li>MINGWHOME defines the location of the MinGW compiler.</li>
 <li>GNUMAKE gives the name of gnu make, usually just make or gmake.</li>
 <li>WORK defines where your ODWork directory is.</li>
 
@@ -108,22 +113,6 @@ If you have created your ODWork directory in your cygwin home, you can simple ad
 </p>
 <p>You may have to edit the location of your MinGW compiler in the script if it is not installed in C:\MinGW.</p>
 
-<h4>Checking the MinGW installation</h4>
-<p>It is important that MinGW is in your search path (and that it comes before the cygwin binary path $cygwin/bin if you have installed the cygwin gcc compiler&amp;friends). You can either set the path under cygwin in your .bashrc (bash) or your .login (csh) or use "My Computer - properties - advanced - Environment Variables" to edit the Path environment variable from Windows. If you use the init.bash (or init.csh) script, you don't have to do anything; the MinGW path is added to the pad for you.</p>
-<p>To see if your path is correctly set, you can retrieve the version of the C compiler and see if the result contains the word mingw:</p>
-<pre>
-~$gcc --version
-gcc.exe (GCC) 3.2 (mingw special 20020817-1)
-Copyright (C) 2002 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre>
-<p>In constrast, if you have done something wrong, you would see something like:</p>
-<pre>
-~$/c/programs/cygwin/bin/gcc --version
-gcc (GCC) 3.2 20020927 (prerelease)
-Copyright (C) 2002 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre>
 <h3>Building your own plugins</h3>
 <h4>Testing the installation</h4>
 <p>After you setup your environment, open a new cygwin bash shell and go to your ODWork directory. If all is well, the alias 'cwd' should bring you directly to your ODWork directory. Then go to the plugins directory and type 'make'. You should see something like this:</p>
@@ -185,7 +174,7 @@ If you want to load one of the 'ui' plugins, you have to load the corresponding 
 This is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.
 However, there are a few remarks about the location of your personal directory on windows. </p>
 
-<p> Your 'Personal directory' is located at $HOMEDRIVE/$HOMEPATH if this is defined and not "C:\".
+<p> Your 'Personal directory' is located at $HOMEDRIVE/$HOMEPATH if this is defined and is not equal to "C:\".
 Otherwise, the location of the special windows folder "Application Data" is used.
 
 You can find the location of special windows folders using the GetSpecFolder.exe program that you can find in the OpendTect installation directory:
@@ -202,38 +191,76 @@ $
 </pre>
 </p>
 
-<p>If you want the '.od' settings directory to be somewhere else, you can set the "DTECT_WINHOME" environment variable.</p>
+<p>If you want your personal '.od' settings directory to be somewhere else, you can set the "DTECT_WINHOME" environment variable.</p>
 <p>
 You would have to set this using "My Computer - properties - advanced - Environment Variables"; otherwise it won't be available when you start OpendTect from the start-menu or the shortcut icons. You can set it to something like 'C:\cygwin\home\Administrator'</p>
 
+<br>
+<a name=dist><h2>Distributing your plugins:</h2>
+
+<p>
+The distribution of plugins is basically the same for Unix and windows. 
+Just copy the .alo files into the plugins/platform directory
+    (<code>$DTECT_APPL/plugins/$HDIR</code>, default
+    <code>C:\Program Files\OpendTect\plugins\win</code> on windows)
+and copy the actual plugins into the libs subdirectory.
+</p><p>
+In order to do this, we use .tar.gz files on Unix and inno-setup on windows, which can be obtained for free at: <a href="http://www.jrsoftware.org/isinfo.php">jrsoftware.org</a>.
+
+</p><p>
+Because we internally treat Windows as much like Unix as we can, we actually make a .tar.gz file for our windows plugins too, which is extracted to "d:\users\admin\rel\plugins\opendtect-1.0\", which forms the "Source" for Inno-Setup.
+
+</p><p>
+
+As an example, here is the Inno-setup file "dgbsetup.iss" that we use for our own dgb plugins.
+Note that the OpendTect installation directory is stored in the registry and used as 'DefaultDirName':
+
+<pre>
+
+[Setup]
+AppName=OpendTect
+AppVerName=OpendTect 1.0
+AppPublisher=De Groot-Bril Earth Sciences
+AppPublisherURL=http://www.opendtect.org
+AppSupportURL=http://www.opendtect.org
+AppUpdatesURL=http://www.opendtect.org
+DefaultDirName={reg:HKLM\OpendTect\Base\Settings,Path|{pf}\OpendTect}
+DisableDirPage=yes
+DefaultGroupName=OpendTect
+AllowNoIcons=yes
+OutputBaseFilename=dgb-opendtect-1_0_5
+LicenseFile=d:\users\admin\rel\opendtect-1.0\LICENSE.txt
 
 
+[Files]
+Source: d:\users\admin\rel\plugins\opendtect-1.0\*; DestDir: {app}; Flags: recur
+sesubdirs
+
+</pre>
+
+
+</p>
 
 <a name=buildod><h2>Building OpendTect</h2>
 <p>OpendTect relies on a number of external libraries to function. All these external libraries have been properly insulated, so there should be no need to recompile these if you want to build Open d-Tect yourself.</p>
-<p>However, should you really want to, here are some guidelines. Beware that especially compiling Coin's <u>SoQt</u> is quite tricky and can take a considerable amount of time and tweaking to get it right.</p>
+<p>However, should you really want to, here are some guidelines.
+Beware that especially compiling Coin's <u>SoQt</u> is quite tricky and can take a considerable amount of time and tweaking to get it right.</p>
+
+
 <h3>Qt</h3>
-<p>Qt does not officialy support <u>MinGw</u><a href="MinGw?action=edit"></a>, but as of version 3.2.1 it should build out of the box.</p>
+<p>Qt does not officialy support <u>MinGW</u>, but as of version 3.2.1 it should build out of the box. Since Qt has it's own make-system, it cannot be compiled with cygwin's mingw compiler, so we have to use a native MinGW compiler, which can be downloaded at <a href="http://mingw.org/download.shtml">http://mingw.org/download.shtml</a>.
+Make sure that the version number of the gcc compiler you use is the same as the one included in cygwin (i.e. test with gcc --version).
+</p>
 <h3>Pthreads</h3>
 <p>The pthreads-win32 library can be downloaded from <a href="http://sources.redhat.com/pthreads-win32/">http://sources.redhat.com/pthreads-win32/</a>.
 <p>You also might want to check out the faq: <a href="http://sources.redhat.com/pthreads-win32/faq.html">http://sources.redhat.com/pthreads-win32/faq.html</a></p>
-<p>You need to copy the include files into the MinGW include directory (default C:\MinGW\include) and the proper dll with accompaning import library (pthreadGC.dll and libpthreadGC.a) into  the MinGW lib directory (default C:\MinGW\lib)</p>
+<p>You need to copy the include files into cygwin's mingw include directory (default C:\cygwin\usr\include\mingw), the proper dll (pthreadGC.dll) into the bin directory (default C:\cygwin\bin) and the accompaning import library (libpthreadGC.a) into the mingw lib directory (default C:\cygwin\lib\mingw)</p>
 <h3>Coin</h3>
 <p>Coin does not officially support anything other then VC++.</p>
 <p>However, older versions of Coin required cygwin as a build environment. This was necessary in order to make use of the command-line MSVC compiler, cl.exe, which was called using a wrapper program (wrapmsvc).</p>
-<p>Fortunately, the Coin config scripts can handle MinGW quite well. Only in the case of <u>SoQt</u> we have to revert to using a wrapper script that converts cygwin's paths into Windows paths before calling the mingw compiler.</p>
-<p>You can find the wrapper script in the Pmake/base/bin/win directory, either in your ODWork directory or in the installation directory (C:\Program files\OpendTect\bin\win by default).</p>
-<p>Coin itself and simage both compile pretty straightforward without the wrapper scripts, just configure &amp; make from a cygwin shell (make sure the MinGW compiler is in your path..).</p>
+<p>Fortunately, the Coin config scripts can handle the cygwin MinGW compiler (i.e. gcc -mno-cygwin) quite well.</p>
+<p>Coin compiles pretty straightforward, just configure &amp; make from a cygwin shell, making sure the -mno-cygwin is added to the c flags.</p>
 <p>It might be that the libtool complains about not being able to find certain dlls. This cost me a lot of time, until I found out that the required dlls have to be in the search path ($PATH). Passing a -L&lt;path to dll&gt; did not work.</p>
-<p>Compiling <u>SoQt</u> is a little trickier. This really needs the wrapper script to convert cygwin paths to win32 ones. When running configure from a c-shell, you need something like:</p>
-<pre>
-setenv CC "$PMAKE/bin/win/wrapit gcc"
-setenv CXX "$PMAKE/bin/win/wrapit g++"
-setenv AR "/usr/bin/ar"
-
-set cflags="$cflags -DCOIN_DLL"
-set ldflags="$ldflags -DCOIN_DLL"</pre>
-<p>Note that in this case, we use Cygwin's ar, which means you'd have to install the binutils package under cygwin.</p>
 
 <br>
 <img src="../hr.png" border=0>

@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.18 2003-12-11 14:53:16 arend Exp $
+  - RCS:	$Id: plugins.html,v 1.19 2003-12-23 16:03:17 arend Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -320,6 +320,7 @@ Now it's time for the <code>nextStep()</code> function to do it's work. This is 
 <p>
 Once you have made your own plugin, you probably would like it to be loaded automatically whenever OpendTect is started. 
 OpendTect provides some facilities that do just that.
+</p>
 
 <h3>Preparing a plugin for auto-load</h3>
 If you want to prepare your plugin for auto-loading at startup, you basically just have to define when it should be loaded. This is done by implementing the GetxxxxPluginType() function, for example:
@@ -401,6 +402,19 @@ alphabetical order.
 
 </p>
 
+
+<br>
+<a name=dist><h2>Distributing your plugins:</h2>
+
+<p>
+The publishing and distribution of OpendTect plugins is pretty straightforward, especially if you use .alo files. The .alo files can be installed in the plugins/platform (<code>$DTECT_APPL/plugins/$HDIR</code>) directory, while the actual plugins come in the 'libs' sub-directory.
+</p>
+<p>
+On Unix, this means that you can make a .tar.gz file containing the plugins in a directory structure as described above, which can be extracted into the existing OpendTect installation directory.
+</p><p>
+On Windows this is also possible, but it is more common to use an auto-extracting installer to do this.
+For more info on this, see the <a href="windows.html#dist">windows</a> documentation.
+</p>
 <br>
 <img src="../hr.png" border=0>
 
