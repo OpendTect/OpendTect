@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.27 2004-05-17 07:18:01 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.28 2004-05-25 14:11:07 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,12 +63,13 @@ public:
 				     linked to the posid given
 				*/
 
+    virtual int			nrPosAttribs() const;
+    virtual int			posAttrib(int idx) const;
+    virtual void		removePosAttrib(int attr);
     virtual void		setPosAttrib( const EM::PosID&,
 	    					int attr, bool yn );
     virtual bool		isPosAttrib(const EM::PosID&, int attr) const;
     virtual const char*		posAttribName(int) const;
-    virtual int			nrPosAttribs() const;
-    virtual int			posAttrib(int idx) const;
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int) const;
     CNotifier<EMObject, PosID>*	getPosAttribChNotifier( int, bool create );
