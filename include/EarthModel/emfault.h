@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.11 2003-08-13 10:13:55 nanne Exp $
+ RCS:		$Id: emfault.h,v 1.12 2003-08-15 13:16:12 nanne Exp $
 ________________________________________________________________________
 
 
@@ -27,14 +27,14 @@ class SurfaceIODataSelection;
 class Fault : public EM::Surface
 {
 public:
-			Fault( EM::EMManager&, const MultiID &);
+			Fault( EM::EMManager&, const MultiID&);
 			~Fault();
 
     bool		isLoaded() const { return surfaces.size(); }
     Executor*		loader(const EM::SurfaceIODataSelection* s=0,
 	    		       bool auxdataonly=false);
     Executor*		saver(const EM::SurfaceIODataSelection* s=0,
-	    		      bool auxdataonly=false);
+	    		      bool auxdataonly=false,const MultiID* key=0);
 
 protected:
     friend			class ::dgbEMFaultReader;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.30 2003-07-30 17:01:03 bert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.31 2003-08-15 13:15:54 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -115,9 +115,10 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
 
 
 Executor* EM::Horizon::saver( const EM::SurfaceIODataSelection* newsel,
-       			      bool auxdata )
+       			      bool auxdata, const MultiID* key )
 {
-    PtrMan<IOObj> ioobj = IOM().get( id() );
+    const MultiID& mid = key && !(*key=="") ? *key : id();
+    PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.22 2003-07-30 13:47:33 nanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.23 2003-08-15 13:16:12 nanne Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,7 @@ public:
     Executor*		loader(const EM::SurfaceIODataSelection* s=0,
 	    		       bool auxdataonly=false);
     Executor*		saver(const EM::SurfaceIODataSelection* s=0,
-	    		      bool auxdataonly=false);
+	    		      bool auxdataonly=false,const MultiID* key=0);
 
     Executor*		import(const Grid&,int idx);
     			/*!< Removes all data when idx=0 and creates patches

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.15 2003-08-13 10:13:55 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.16 2003-08-15 13:16:12 nanne Exp $
 ________________________________________________________________________
 
 
@@ -73,7 +73,8 @@ public:
     virtual Executor*	loader(const EM::SurfaceIODataSelection* s=0,
 			       bool auxdataonly=false)		{return 0;}
     virtual Executor*	saver(const EM::SurfaceIODataSelection* s=0,
-			      bool auxdataonly=false)		{return 0;}
+			      bool auxdataonly=false,const MultiID* key=0)
+    								{return 0;}
 
     int			nrPatches() const;
     PatchID		patchID(int idx) const;
