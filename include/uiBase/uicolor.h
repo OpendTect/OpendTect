@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.7 2002-07-25 15:27:55 nanne Exp $
+ RCS:           $Id: uicolor.h,v 1.8 2002-08-02 13:09:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,8 @@ public:
 			uiColorInput(uiParent*,const Color&,
 				     const char* buttxt="Color ...",
 				     const char* lbltxt=0,
-				     const char* seltxt="Select color");
+				     const char* seltxt="Select color",
+				     bool withalpha=false);
 			//!< seltxt is the window caption for the Qt color
 			//!< selection dialog.
 
@@ -52,6 +53,7 @@ protected:
 
     Color		color_;
     BufferString	seltxt_;
+    bool		withalpha;
 
     uiLabel*		collbl;
 

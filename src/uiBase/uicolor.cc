@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.8 2002-07-25 15:27:55 nanne Exp $
+ RCS:           $Id: uicolor.cc,v 1.9 2002-08-02 13:09:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,12 +42,13 @@ bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
 
 uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* txt,
-			    const char* lbltxt, const char* st )
+			    const char* lbltxt, const char* st, bool alpha )
 	: uiGroup(p,"Color input")
 	, color_(c)
 	, seltxt_(st)
     	, collbl(0)
 	, colorchanged(this)
+	, withalpha(alpha)
 {
     uiPushButton* but = new uiPushButton( this, txt );
     but->activated.notify( mCB(this,uiColorInput,selCol) );
@@ -63,7 +64,7 @@ uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* txt,
 void uiColorInput::selCol( CallBacker* )
 {
     const Color oldcol = color_;
-    select( color_, this, seltxt_ );
+    select( color_, this, seltxt_, withalpha );
     collbl->setBackgroundColor( color_ );
     if ( oldcol != color_ )
 	colorchanged.trigger();
