@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.21 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.22 2005-03-25 13:25:22 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -238,16 +238,21 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
     }
 
     const char* iopkey = ioparkeyval[0];
-    if ( *iopkey )
-    {
-	const char* res = ioobj.pars().find( iopkey );
-	if ( !res && includekeyval )
-	    return false;
-	if ( res && includekeyval == (ioparkeyval[1] != res) )
-	    return false;
-    }
+    if ( !*iopkey )
+	return true;
 
-    return true;
+    const char* res = ioobj.pars().find( iopkey );
+    if ( res && *res )
+    {
+	FileMultiString fms( ioparkeyval[1] );
+	const int nrvals = fms.size();
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    if ( !strcmp(res,fms[idx]) )
+		return includekeyval;
+	}
+    }
+    return !includekeyval;
 }
 
 
