@@ -1,0 +1,14 @@
+dGB-dTect V1.5
+Parameters
+Fri Dec 13 17:58:00 2002
+!
+Dump contents of CBVS cube
+Input: /users/bert/work/test/Tut/Seismics/tst_xx.cbvs
+Output: /tmp/cbvsdump.txt
+Output.Mode: Info
+-- Output.Type: Ascii
+-- Output.Selection.Inline: 100`300`2
+-- Output.Selection.Xline: 1200`1700`1
+-- Output.Selection.Z: 1.5`3.5`0.004
+-- Output.Component: 0
+!

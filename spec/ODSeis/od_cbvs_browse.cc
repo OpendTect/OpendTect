@@ -12,8 +12,7 @@
 #include <ctype.h>
 
 #include "prog.h"
-defineTranslatorGroup(SeisTrc,"Seismic Data");
-defineTranslator(CBVS,SeisTrc,"CBVS");
+#include "seisfact.h"
 
 
 static void putComps( const ObjectSet<BasicComponentInfo>& cinfo )

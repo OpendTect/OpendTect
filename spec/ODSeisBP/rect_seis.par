@@ -1,0 +1,14 @@
+dGB-GDI V2.7
+Parameters
+Sat Sep 25 16:30:11 1999
+!
+Create rectangular seismic cube
+Input seismic.ID: 100010.34
+Input seismic.BinID selection: Range
+Input seismic.First In-line: 97
+Input seismic.Last In-line: 540
+Input seismic.First Cross-line: 83
+Input seismic.Last Cross-line: 477
+Reversed X-line: No
+Output seismic.ID: 100010.42
+!

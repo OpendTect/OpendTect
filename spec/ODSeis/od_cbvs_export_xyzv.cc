@@ -11,8 +11,7 @@
 #include <math.h>
 
 #include "prog.h"
-defineTranslatorGroup(SeisTrc,"Seismic Data");
-defineTranslator(CBVS,SeisTrc,"CBVS");
+#include "seisfact.h"
 
 
 int main( int argc, char** argv )
