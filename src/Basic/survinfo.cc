@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.58 2004-07-29 21:41:26 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.59 2004-08-28 17:46:32 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -153,11 +153,11 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     wspwd_ = si.wspwd_;
     zistime_ = si.zistime_;
     zinfeet_ = si.zinfeet_;
-    b2c_ = b2c_;
+    b2c_ = si.b2c_;
     for ( int idx=0; idx<3; idx++ )
     {
-	set3binids[idx] = set3binids[idx];
-	set3coords[idx] = set3coords[idx];
+	set3binids[idx] = si.set3binids[idx];
+	set3coords[idx] = si.set3coords[idx];
     }
     cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_;
 
