@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.2 2004-07-23 13:01:40 kristofer Exp $
+ RCS:           $Id: vishingeline.cc,v 1.3 2004-07-28 06:47:58 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,26 +16,28 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emmanager.h"
 #include "viscoord.h"
-#include "visdrawstyle.h"
+#include "vismaterial.h"
 #include "vispolyline.h"
 #include "vistransform.h"
+#include "trackingedgeline.h"
 
 mCreateFactoryEntry( visSurvey::EdgeLineSetDisplay );
 
 namespace visSurvey
 {
 
+#define mStopColor	1
+#define mCutColor	2
+#define mConnectColor	3
+
 EdgeLineSetDisplay::EdgeLineSetDisplay()
     : edgelineset( 0 )
     , transformation( 0 )
-    , drawstyle( visBase::DrawStyle::create() )
 {
-    LineStyle ls;
-    ls.width = 3;
-
-    drawstyle->ref();
-    drawstyle->setLineStyle( ls );
-    addChild( drawstyle->getInventorNode() );
+    getMaterial()->setColor( Color(255,255,0), 0 );
+    getMaterial()->setColor( Color(255,128,0), mCutColor );
+    getMaterial()->setColor( Color(255,0,0), mStopColor );
+    getMaterial()->setColor( Color(0,255,0), mConnectColor );
 }
 
 
@@ -52,8 +54,6 @@ EdgeLineSetDisplay::~EdgeLineSetDisplay()
     if ( edgelineset )
 	const_cast<EM::EdgeLineSet*>(edgelineset)->changenotifier.remove(
 		mCB(this,EdgeLineSetDisplay,updateEdgeLineSetChangeCB));
-
-    drawstyle->unRef();
 }
 
 
@@ -123,22 +123,61 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	const EM::EdgeLine* edgeline = edgelineset->getLine(lineidx);
 
 	const int nrsegments = edgeline->nrSegments();
+	RowCol prevrc; bool defprevrc = false;
+	int firstindex = -1;
 	for ( int segmentidx=0; segmentidx<nrsegments; segmentidx++ )
 	{
 	    const EM::EdgeLineSegment* edgelinesegment =
 					edgeline->getSegment(segmentidx);
-	    const int nrnodes = edgelinesegment->size();
+	    int materialindex = 0;
+	    if ( dynamic_cast<const Tracking::TerminationEdgeLineSegment*>(
+						    edgelinesegment) )
+		materialindex = mStopColor;
+	    else if ( dynamic_cast<const Tracking::SurfaceConnectLine*>
+						    (edgelinesegment) )
+		materialindex = mConnectColor;
+	    else if ( dynamic_cast<const Tracking::SurfaceCutLine*>
+						    (edgelinesegment) )
+		materialindex = mCutColor;
 
+	    const int nrnodes = edgelinesegment->size();
 	    for ( int nodeidx=0; nodeidx<nrnodes; nodeidx++ )
 	    {
 		const RowCol& rc = (*edgelinesegment)[nodeidx];
+		if ( defprevrc && !rc.isNeighborTo(prevrc, surface.step()) )
+		{
+		    polyline->setCoordIndex( coordindexindex++, -1 );
+		    defprevrc = false;
+		    continue;
+		}
+
+		if ( firstindex==-1 )
+		    firstindex = coordindexindex;
+
 		const Coord3 pos = surface.getPos(section,rc);
+		if ( !pos.isDefined() )
+		{
+		    polyline->setCoordIndex( coordindexindex++, -1 );
+		    defprevrc = false;
+		    continue;
+		}
+
 		polyline->getCoordinates()->setPos(coordindex,pos);
 		polyline->setCoordIndex( coordindexindex, coordindex );
+		polyline->setMaterialIndex( coordindexindex, materialindex );
 		coordindex++; coordindexindex++;
+		prevrc = rc;
+		defprevrc = true;
 	    }
+	}
 
-	    polyline->setCoordIndex( coordindexindex++, -1 );
+	if ( firstindex>=0  && edgeline->isClosed() )
+	{
+	    polyline->setCoordIndex( coordindexindex,
+		    		     polyline->getCoordIndex(firstindex) );
+	    polyline->setMaterialIndex( coordindexindex,
+				    polyline->getMaterialIndex(firstindex) );
+	    coordindexindex++;
 	}
 
 	polyline->removeCoordIndexAfter(coordindexindex-1);
