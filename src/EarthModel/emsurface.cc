@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.66 2004-08-20 07:53:59 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.67 2004-09-29 10:58:21 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -167,7 +167,8 @@ Coord3 Surface::getPos( const PosID& posid ) const
 
 
 bool Surface::isChanged(int idx) const
-{ return auxdata.isChanged(idx) || geometry.isChanged(idx); }
+{ return geometry.isChanged(idx); }
+//{ return auxdata.isChanged(idx) || geometry.isChanged(idx); }
 
 
 void Surface::resetChangedFlag()
