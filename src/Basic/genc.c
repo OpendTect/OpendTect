@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.34 2004-01-16 10:34:36 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.35 2004-01-16 15:14:27 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -192,7 +192,10 @@ const char* GetSettingsDir(void)
 
 #ifdef __win__
     if ( !ptr )
-	ptr = getenv( "DTECT_APPLICATION_DATA" );
+	ptr = getenv( "APPDATA" ); // should be set by OS
+
+    if ( !ptr )
+	ptr = getenv( "DTECT_APPLICATION_DATA" ); // set by init script
 
     if ( !ptr ) // Last resort. Is known to cause problems when used 
                 // during initialisation of statics. (0xc0000005)
@@ -230,12 +233,19 @@ const char* GetPersonalDir(void)
     const char* ptr = _GetHomeDir();
 
 #ifdef __win__
+
+    if ( !ptr ) 
+	ptr = getenv( "USERPROFILE" ); // should be set by OS
+
+    if ( !ptr ) 
+	ptr = getenv( "DTECT_USERPROFILE_DIR" );
+
     if ( !ptr ) 
 	ptr = getenv( "DTECT_MYDOCUMENTS_DIR" );
 
     if ( !ptr ) // Last resort. Is known to cause problems when used 
                 // during initialisation of statics. (0xc0000005)
-	ptr = GetSpecialFolderLocation( CSIDL_PERSONAL ); // "My Documents"
+	ptr = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User Profile"
 
     char* chptr = ptr;
     while ( chptr && *chptr++ ) { if ( *chptr == '\r' ) *chptr='\0'; }
