@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.7 2002-03-15 15:29:20 arend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.8 2002-03-18 08:17:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ int uiFileDialog::go()
     fd->setMode( qmodeForUiMode(mode_) );// QFileDialog::ExistingFile );
     fd->setFilter( QString(filter_) );
     fd->setCaption( QString(caption_) );
+    fd->setDir( QString(fname_) );
 
 
     if ( fd->exec() == QDialog::Accepted )
