@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.17 2002-05-02 14:15:44 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.18 2002-05-08 07:17:11 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,7 @@ public:
 
     void			ref() const;
     void			unRef() const;
+    void			unRefNoDelete() const;
 
     virtual bool		selectable() const { return false; }
     void			select() const;
