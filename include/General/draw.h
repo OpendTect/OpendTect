@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.6 2000-10-18 08:28:56 bert Exp $
+ RCS:           $Id: draw.h,v 1.7 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

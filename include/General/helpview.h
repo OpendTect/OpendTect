@@ -1,7 +1,7 @@
 #ifndef helpview_h
 #define helpview_h
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 18-8-2000
 -*/

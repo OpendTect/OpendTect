@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: welltransl.h,v 1.3 2003-10-15 15:15:54 bert Exp $
+ RCS:		$Id: welltransl.h,v 1.4 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 

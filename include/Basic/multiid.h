@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.2 2001-02-16 15:42:24 bert Exp $
+ RCS:		$Id: multiid.h,v 1.3 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

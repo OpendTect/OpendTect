@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : June 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.21 2003-10-01 13:36:39 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.22 2003-11-07 12:21:57 bert Exp $";
 
 #include "emsurfaceio.h"
 

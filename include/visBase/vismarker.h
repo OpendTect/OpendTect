@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.8 2003-08-20 07:56:44 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.9 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 

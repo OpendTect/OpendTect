@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.6 2003-06-03 15:27:03 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.7 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 -*/

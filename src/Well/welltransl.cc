@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.5 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.6 2003-11-07 12:21:58 bert Exp $";
 
 
 #include "welltransl.h"

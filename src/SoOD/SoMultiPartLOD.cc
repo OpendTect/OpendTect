@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoMultiPartLOD.cc,v 1.3 2002-07-09 12:33:01 kristofer Exp $";
+static const char* rcsID = "$Id: SoMultiPartLOD.cc,v 1.4 2003-11-07 12:22:02 bert Exp $";
 
 #include "SoMultiPartLOD.h"
 #include <Inventor/misc/SoState.h>

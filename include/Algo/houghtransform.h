@@ -3,10 +3,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.4 2003-05-22 08:35:16 kristofer Exp $
+ RCS:		$Id: houghtransform.h,v 1.5 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 */

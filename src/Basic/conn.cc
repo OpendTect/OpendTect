@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.15 2003-10-28 12:15:22 arend Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.16 2003-11-07 12:21:57 bert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"

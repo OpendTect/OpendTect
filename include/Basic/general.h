@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.5 2002-04-23 09:25:40 kristofer Exp $
+ RCS:		$Id: general.h,v 1.6 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expwavelet1d.h,v 1.3 2002-10-28 22:29:10 bert Exp $
+ RCS:           $Id: expwavelet1d.h,v 1.4 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 Wavelet1D minwaveletlen= maxwaveletlen= wavelet=

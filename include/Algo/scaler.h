@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.11 2003-06-03 09:37:08 kristofer Exp $
+ RCS:		$Id: scaler.h,v 1.12 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.20 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.21 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.

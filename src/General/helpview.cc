@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 18-8-2000
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.14 2003-11-05 16:19:50 arend Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.15 2003-11-07 12:21:57 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.10 2003-09-29 11:42:16 nanne Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.11 2003-11-07 12:21:57 bert Exp $";
 
 #include "ascstream.h"
 #include "unitscale.h"

@@ -4,11 +4,11 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.3 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: timefun.h,v 1.4 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.33 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.34 2003-11-07 12:21:57 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : May 1995
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.14 2003-07-21 14:56:05 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.15 2003-11-07 12:21:58 bert Exp $";
 
 
 #include "segyhdr.h"

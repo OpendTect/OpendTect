@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.7 2003-05-13 15:04:39 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.8 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : March 1994
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.27 2003-11-07 10:04:25 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.28 2003-11-07 12:21:57 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"

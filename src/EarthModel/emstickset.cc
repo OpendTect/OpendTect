@@ -2,14 +2,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.2 2003-09-16 09:38:11 kristofer Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.3 2003-11-07 12:21:57 bert Exp $";
 
 #include "emstickset.h"
 

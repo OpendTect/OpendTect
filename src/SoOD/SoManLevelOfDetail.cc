@@ -1,5 +1,5 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : Sep 2000
 -*/

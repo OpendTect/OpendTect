@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.24 2003-11-02 10:17:06 bert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.25 2003-11-07 12:22:01 bert Exp $
 ________________________________________________________________________
 
 -*/

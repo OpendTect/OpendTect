@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.12 2003-01-24 15:57:55 arend Exp $
+ RCS:		$Id: seisinfo.h,v 1.13 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.

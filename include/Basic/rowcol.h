@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.7 2003-07-14 06:12:31 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.8 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : April 2001
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.12 2002-08-01 13:31:30 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.13 2003-11-07 12:21:57 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"

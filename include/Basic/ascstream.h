@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.8 2003-09-29 11:18:38 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.9 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.10 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.11 2003-11-07 12:21:58 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"

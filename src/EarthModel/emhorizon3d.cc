@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.38 2003-10-29 17:08:53 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.39 2003-11-07 12:21:57 bert Exp $";
 
 #include "emhorizon.h"
 

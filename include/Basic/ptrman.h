@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.6 2002-01-24 21:00:28 bert Exp $
+ RCS:           $Id: ptrman.h,v 1.7 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.17 2003-08-28 11:14:01 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.18 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 

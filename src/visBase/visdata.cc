@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.16 2003-04-14 15:11:34 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.17 2003-11-07 12:22:02 bert Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"

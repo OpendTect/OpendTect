@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.7 2003-09-08 13:03:04 nanne Exp $
+ RCS:           $Id: pixmap.cc,v 1.8 2003-11-07 12:22:00 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.4 2003-04-22 09:49:42 arend Exp $
+ RCS:           $Id: uitabbar.h,v 1.5 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.1 2003-09-30 13:00:57 kristofer Exp $
+ RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.2 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 

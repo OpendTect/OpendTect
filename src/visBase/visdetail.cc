@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : 23-06-2003
 -*/
 
-static const char* rcsID = "$Id: visdetail.cc,v 1.1 2003-07-08 09:54:40 jeroen Exp $";
+static const char* rcsID = "$Id: visdetail.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
 
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>

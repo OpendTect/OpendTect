@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.2 2003-10-06 10:44:19 nanne Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.3 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

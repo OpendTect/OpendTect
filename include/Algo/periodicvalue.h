@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.1 2003-08-28 11:14:01 bert Exp $
+ RCS:		$Id: periodicvalue.h,v 1.2 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 */

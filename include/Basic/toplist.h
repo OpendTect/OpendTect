@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	K Tingdahl
  Date:		April 2003
- RCS:		$Id: toplist.h,v 1.1 2003-04-14 14:45:30 kristofer Exp $
+ RCS:		$Id: toplist.h,v 1.2 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.11 2002-04-24 16:07:10 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.12 2003-11-07 12:21:57 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"

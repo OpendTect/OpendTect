@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.2 2003-08-18 16:37:23 bert Exp $
+ RCS:		$Id: wellmarker.h,v 1.3 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 

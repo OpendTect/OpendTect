@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.21 2003-09-26 16:24:47 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.22 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

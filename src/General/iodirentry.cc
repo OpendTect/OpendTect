@@ -1,12 +1,12 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : April 2001
  * FUNCTION : IODir entries for selectors
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.8 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.9 2003-11-07 12:21:57 bert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"

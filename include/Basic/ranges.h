@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.25 2003-09-16 09:52:34 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.26 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

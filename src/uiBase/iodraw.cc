@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.8 2003-05-22 12:49:17 nanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.9 2003-11-07 12:22:00 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.9 2003-10-31 09:48:03 nanne Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.10 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

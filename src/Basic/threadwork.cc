@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.12 2003-09-25 08:48:44 arend Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.13 2003-11-07 12:21:57 bert Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.20 2003-11-06 10:27:57 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.21 2003-11-07 12:21:55 bert Exp $
 ________________________________________________________________________
 
 

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.15 2003-03-13 12:21:09 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.16 2003-11-07 12:22:02 bert Exp $";
 
 
 #include "vistexture3viewer.h"

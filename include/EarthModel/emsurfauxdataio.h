@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.5 2003-10-29 17:09:00 nanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.6 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.3 2003-01-23 16:15:24 bert Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.4 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 -*/

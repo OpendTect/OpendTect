@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.27 2003-06-06 14:09:14 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.28 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 

@@ -1,5 +1,5 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Stream Provider functions
@@ -35,7 +35,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.41 2003-11-06 11:51:40 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.42 2003-11-07 12:21:57 bert Exp $";
 
 static FixedString<1024> oscommand;
 

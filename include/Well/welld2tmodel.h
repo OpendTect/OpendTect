@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.6 2003-08-22 16:40:34 bert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.7 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 

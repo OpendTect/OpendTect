@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.11 2003-03-13 12:21:14 nanne Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.12 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 -*/

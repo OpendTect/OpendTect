@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksetfact.h,v 1.6 2003-09-11 15:56:00 bert Exp $
+ RCS:		$Id: picksetfact.h,v 1.7 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.25 2003-10-17 14:19:00 bert Exp $
+ RCS:		$Id: sets.h,v 1.26 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.3 2001-03-30 08:53:47 bert Exp $
+ RCS:		$Id: compoundkey.h,v 1.4 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

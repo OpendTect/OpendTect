@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 21-1-1998
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.8 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.9 2003-11-07 12:21:58 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"

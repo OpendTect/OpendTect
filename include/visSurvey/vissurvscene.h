@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.26 2003-11-06 10:27:57 nanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.27 2003-11-07 12:21:55 bert Exp $
 ________________________________________________________________________
 
 

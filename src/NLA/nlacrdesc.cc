@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.2 2003-10-02 14:49:44 bert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.3 2003-11-07 12:21:58 bert Exp $";
 
 #include "nlacrdesc.h"
 #include "featset.h"

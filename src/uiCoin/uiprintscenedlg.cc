@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.7 2003-08-28 08:20:02 nanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.8 2003-11-07 12:22:01 bert Exp $
 ________________________________________________________________________
 
 -*/

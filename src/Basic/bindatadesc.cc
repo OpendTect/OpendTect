@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Feb 2001
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.4 2001-12-10 14:52:59 bert Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
 
 #include "bindatadesc.h"
 #include <stdio.h>

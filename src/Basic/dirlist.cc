@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.7 2003-10-30 12:15:31 bert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.8 2003-11-07 12:21:57 bert Exp $";
 
 #include "dirlist.h"
 #include "globexpr.h"

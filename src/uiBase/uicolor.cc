@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.10 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uicolor.cc,v 1.11 2003-11-07 12:22:00 bert Exp $
 ________________________________________________________________________
 
 -*/

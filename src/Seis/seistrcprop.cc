@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 28-2-1996
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.4 2002-11-15 10:56:13 bert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.5 2003-11-07 12:21:58 bert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"

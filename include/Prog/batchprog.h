@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
  
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.16 2003-10-30 15:22:32 arend Exp $
+ RCS:		$Id: batchprog.h,v 1.17 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.2 2003-10-17 14:19:01 bert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.3 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 -*/

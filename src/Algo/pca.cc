@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2002
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.4 2003-05-22 08:33:19 kristofer Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
 
 
 #include "pca.h"

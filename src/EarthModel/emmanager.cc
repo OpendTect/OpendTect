@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.24 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.25 2003-11-07 12:21:57 bert Exp $";
 
 #include "emmanager.h"
 

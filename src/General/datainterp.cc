@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Nov 2000
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.10 2001-12-21 15:05:33 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.11 2003-11-07 12:21:57 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: posgeom.h,v 1.1 2003-01-23 16:14:48 bert Exp $
+ RCS:           $Id: posgeom.h,v 1.2 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.3 2003-11-07 10:04:25 bert Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.4 2003-11-07 12:22:02 bert Exp $";
 
 
 #include "uitreeitemmanager.h"

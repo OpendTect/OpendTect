@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.9 2002-04-21 15:06:56 bert Exp $
+ RCS:		$Id: executor.h,v 1.10 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

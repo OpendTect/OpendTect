@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.6 2003-08-25 06:56:17 kristofer Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.7 2003-11-07 12:21:57 bert Exp $";
 
 #include "emposid.h"
 #include "iopar.h"

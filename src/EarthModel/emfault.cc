@@ -1,10 +1,10 @@
 /*
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : N. Fredman
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.13 2003-10-03 06:32:03 nanne Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.14 2003-11-07 12:21:57 bert Exp $";
 
 #include "emfault.h"
 

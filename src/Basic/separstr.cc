@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 11-4-1994
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.6 2002-11-01 09:48:06 bert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.7 2003-11-07 12:21:57 bert Exp $";
 
 #include <string.h>
 #include <stdlib.h>

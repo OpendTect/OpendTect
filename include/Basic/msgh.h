@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.5 2003-10-28 12:15:22 arend Exp $
+ RCS:		$Id: msgh.h,v 1.6 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 */

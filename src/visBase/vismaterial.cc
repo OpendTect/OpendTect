@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.5 2003-08-11 11:24:34 nanne Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.6 2003-11-07 12:22:02 bert Exp $";
 
 #include "vismaterial.h"
 #include "color.h"

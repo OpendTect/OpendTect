@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Marc Gerritsen
  Date:          15-04-2003
- RCS:           $Id: SoGridSurfaceDragger.cc,v 1.1 2003-07-08 09:54:40 jeroen Exp $
+ RCS:           $Id: SoGridSurfaceDragger.cc,v 1.2 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: databuf.h,v 1.4 2001-04-18 14:45:36 bert Exp $
+ RCS:		$Id: databuf.h,v 1.5 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 */

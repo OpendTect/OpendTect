@@ -1,7 +1,7 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahk
  * DATE     : Jun 2003
 ___________________________________________________________________
@@ -20,7 +20,7 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.11 2003-10-29 17:08:53 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.12 2003-11-07 12:21:57 bert Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";

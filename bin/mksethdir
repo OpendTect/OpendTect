@@ -1,8 +1,8 @@
 #!/bin/csh -f
 #_______________________________________________________________________________
 #
-# (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: mksethdir,v 1.4 2003-10-31 12:34:21 bert Exp $
+# (C) dGB Beheer B.V.
+# $Id: mksethdir,v 1.5 2003-11-07 12:21:50 bert Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:

@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: linsolv.h,v 1.5 2002-10-31 17:24:43 kristofer Exp $
+ RCS:           $Id: linsolv.h,v 1.6 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 LinSolver - Solves linear systems of equations on the form A*x=B. A is

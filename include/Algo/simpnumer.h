@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.15 2003-08-28 11:14:01 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.16 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 */

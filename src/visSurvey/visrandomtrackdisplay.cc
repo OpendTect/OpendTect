@@ -1,10 +1,10 @@
 /*+
  ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.26 2003-10-31 16:22:05 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.27 2003-11-07 12:22:03 bert Exp $
  ________________________________________________________________________
 
 -*/

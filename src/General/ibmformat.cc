@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : May 1995
  * FUNCTION : Seg-Y word functions
 -*/
 
-static const char* rcsID = "$Id: ibmformat.cc,v 1.2 2001-05-02 13:50:29 windev Exp $";
+static const char* rcsID = "$Id: ibmformat.cc,v 1.3 2003-11-07 12:21:57 bert Exp $";
 
 #include "ibmformat.h"
 #include <string.h>

@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Component information
- RCS:		$Id: basiccompinfo.h,v 1.4 2001-05-31 13:23:49 windev Exp $
+ RCS:		$Id: basiccompinfo.h,v 1.5 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

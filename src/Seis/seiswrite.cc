@@ -1,5 +1,5 @@
 /*+
-* COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+* COPYRIGHT: (C) dGB Beheer B.V.
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 * FUNCTION : Seismic data writer

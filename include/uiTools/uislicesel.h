@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.5 2003-08-12 14:38:00 nanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.6 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 -*/

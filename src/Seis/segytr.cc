@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 21-3-1996
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.22 2003-10-19 13:53:08 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.23 2003-11-07 12:21:58 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"

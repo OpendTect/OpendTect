@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.8 2003-06-06 14:08:24 nanne Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.9 2003-11-07 12:21:57 bert Exp $";
 
 
 #include "dataclipper.h"

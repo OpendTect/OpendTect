@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.35 2003-10-28 18:09:03 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.36 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

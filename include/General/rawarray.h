@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		1-9-95
  Contents:	A Data trace is an XFunction with iteration
- RCS:		$Id: rawarray.h,v 1.1 2001-02-28 15:00:24 bert Exp $
+ RCS:		$Id: rawarray.h,v 1.2 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 */

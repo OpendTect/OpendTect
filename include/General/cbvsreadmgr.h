@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.11 2002-11-01 09:48:06 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.12 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -3,10 +3,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.25 2003-08-25 10:31:12 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.26 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 */

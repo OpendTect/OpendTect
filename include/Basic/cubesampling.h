@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.8 2003-02-04 10:01:24 kristofer Exp $
+ RCS:           $Id: cubesampling.h,v 1.9 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

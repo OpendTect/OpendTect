@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 12-3-1996
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.3 2002-12-03 13:18:18 kristofer Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.4 2003-11-07 12:21:57 bert Exp $";
 
 #include "dateinfo.h"
 #include <time.h>

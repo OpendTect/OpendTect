@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.4 2002-12-04 14:33:55 kristofer Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.5 2003-11-07 12:22:02 bert Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"

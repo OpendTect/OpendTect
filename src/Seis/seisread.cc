@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 28-1-1998
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.23 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.24 2003-11-07 12:21:58 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"

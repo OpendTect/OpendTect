@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.17 2003-10-28 12:15:22 arend Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.18 2003-11-07 12:22:01 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.9 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.10 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 

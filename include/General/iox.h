@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.10 2003-10-27 23:10:01 bert Exp $
+ RCS:		$Id: iox.h,v 1.11 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

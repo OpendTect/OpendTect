@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : April 2001
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.19 2003-10-19 13:53:07 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.20 2003-11-07 12:21:57 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"

@@ -1,15 +1,15 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.4 2003-10-19 13:53:07 bert Exp $
+ RCS:           $Id: debug.cc,v 1.5 2003-11-07 12:21:57 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.4 2003-10-19 13:53:07 bert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"

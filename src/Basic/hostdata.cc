@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.10 2003-10-19 13:53:07 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.11 2003-11-07 12:21:57 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.40 2003-10-03 13:50:59 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.41 2003-11-07 12:22:03 bert Exp $
 ________________________________________________________________________
 
 -*/

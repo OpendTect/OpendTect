@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.8 2003-03-19 16:21:59 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.9 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

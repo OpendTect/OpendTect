@@ -1,10 +1,10 @@
 /*+
  ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.h,v 1.2 2003-03-12 16:23:30 arend Exp $
+ RCS:           $Id: uibinidtable.h,v 1.3 2003-11-07 12:21:54 bert Exp $
  ________________________________________________________________________
 
 -*/

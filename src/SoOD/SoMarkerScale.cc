@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoMarkerScale.cc,v 1.1 2003-08-19 07:30:46 kristofer Exp $";
+static const char* rcsID = "$Id: SoMarkerScale.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
 
 
 #include "SoMarkerScale.h"

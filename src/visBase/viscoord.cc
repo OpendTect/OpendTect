@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2002
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.8 2003-09-10 10:00:08 kristofer Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.9 2003-11-07 12:22:02 bert Exp $";
 
 #include "viscoord.h"
 

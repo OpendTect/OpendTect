@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.8 2003-10-30 12:26:45 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.9 2003-11-07 12:22:01 bert Exp $
 ________________________________________________________________________
 
 -*/

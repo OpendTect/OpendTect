@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.2 2003-02-07 08:36:46 kristofer Exp $";
+static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.3 2003-11-07 12:22:02 bert Exp $";
 
 
 

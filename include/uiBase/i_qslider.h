@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qslider.h,v 1.2 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: i_qslider.h,v 1.3 2003-11-07 12:21:53 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.1 2003-09-02 12:36:03 kristofer Exp $";
+static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
 
 #include "SoCameraInfoElement.h"
 

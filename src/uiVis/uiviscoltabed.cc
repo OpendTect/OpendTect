@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.4 2003-05-28 14:24:07 nanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.5 2003-11-07 12:22:02 bert Exp $";
 
 #include "uiviscoltabed.h"
 

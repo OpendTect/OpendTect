@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.18 2003-10-27 23:10:02 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.19 2003-11-07 12:21:57 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"

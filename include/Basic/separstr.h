@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.7 2001-05-02 13:49:59 windev Exp $
+ RCS:		$Id: separstr.h,v 1.8 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

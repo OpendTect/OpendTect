@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.15 2002-08-01 13:31:54 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.16 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.4 2002-05-24 11:45:07 kristofer Exp $
+ RCS:		$Id: sortedlist.h,v 1.5 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

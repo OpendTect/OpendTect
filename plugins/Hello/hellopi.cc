@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: hellopi.cc,v 1.4 2003-10-30 21:59:31 bert Exp $";
+static const char* rcsID = "$Id: hellopi.cc,v 1.5 2003-11-07 12:21:55 bert Exp $";
 
 #include <iostream>
 

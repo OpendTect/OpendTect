@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 14-9-1998
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.46 2003-10-30 15:22:57 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.47 2003-11-07 12:21:57 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"

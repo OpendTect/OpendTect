@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.5 2003-10-17 14:19:00 bert Exp $
+ RCS:		$Id: streamconn.h,v 1.6 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

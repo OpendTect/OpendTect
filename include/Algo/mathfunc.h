@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.7 2003-05-13 14:41:07 kristofer Exp $
+ RCS:		$Id: mathfunc.h,v 1.8 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

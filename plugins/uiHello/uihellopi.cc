@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.4 2003-11-02 22:37:59 bert Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.5 2003-11-07 12:21:55 bert Exp $";
 
 #include "uimsg.h"
 

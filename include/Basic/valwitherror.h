@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: valwitherror.h,v 1.4 2002-12-02 15:15:04 kristofer Exp $
+ RCS:           $Id: valwitherror.h,v 1.5 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 ValWithError is a value with a known error (variance), and that knows

@@ -1,5 +1,5 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Translator functions
@@ -13,7 +13,7 @@
 #include "errh.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.13 2003-10-31 08:34:08 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.14 2003-11-07 12:21:57 bert Exp $";
 
 
 int defaultSelector( const char* mytyp, const char* typ )

@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.6 2003-02-18 16:32:21 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.7 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 This object buffers seismic traces. The traces are not managed, but can be

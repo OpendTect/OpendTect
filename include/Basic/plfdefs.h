@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.7 2003-09-25 08:48:44 arend Exp $
+ RCS:		$Id: plfdefs.h,v 1.8 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 */

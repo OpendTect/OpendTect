@@ -3,10 +3,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.4 2003-10-24 10:20:05 bert Exp $
+ RCS:           $Id: uibatchprogs.h,v 1.5 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -3,10 +3,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.4 2001-05-07 13:53:55 windev Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.5 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 An ArrayNDInfo contains the information about the size of ArrayND, and

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.23 2003-11-07 10:04:25 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.24 2003-11-07 12:21:57 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"

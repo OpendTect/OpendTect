@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.10 2003-01-07 10:27:35 kristofer Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.11 2003-11-07 12:22:03 bert Exp $";
 
 #include "vistristripset.h"
 

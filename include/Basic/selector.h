@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.5 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: selector.h,v 1.6 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

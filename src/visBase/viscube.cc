@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.13 2003-09-22 09:10:55 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.14 2003-11-07 12:22:02 bert Exp $";
 
 #include "viscube.h"
 #include "iopar.h"

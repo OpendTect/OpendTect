@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Mar 2001
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.43 2003-06-18 11:34:25 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.44 2003-11-07 12:21:57 bert Exp $";
 
 /*!
 

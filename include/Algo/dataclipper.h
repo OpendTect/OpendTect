@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.5 2003-06-06 14:08:34 nanne Exp $
+ RCS:		$Id: dataclipper.h,v 1.6 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 

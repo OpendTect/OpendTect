@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.15 2003-05-22 08:34:08 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.16 2003-11-07 12:21:57 bert Exp $";
 
 #include "trigonometry.h"
 

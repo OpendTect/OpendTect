@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 24-1-2001
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.42 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.43 2003-11-07 12:21:58 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Mar 2001
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.35 2003-08-14 12:54:16 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.36 2003-11-07 12:21:57 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdeconv.cc,v 1.4 2003-04-16 10:42:34 nanne Exp $";
+static const char* rcsID = "$Id: expdeconv.cc,v 1.5 2003-11-07 12:21:56 bert Exp $";
 
 #define mEPSILON 1E-9
 

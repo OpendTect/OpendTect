@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.14 2003-06-17 13:12:48 kristofer Exp $
+ RCS:		$Id: bufstring.h,v 1.15 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

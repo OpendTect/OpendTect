@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.9 2003-06-18 11:31:33 kristofer Exp $
+ RCS:           $Id: genericnumer.h,v 1.10 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 

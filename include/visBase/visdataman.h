@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.11 2002-10-28 22:05:35 bert Exp $
+ RCS:		$Id: visdataman.h,v 1.12 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 

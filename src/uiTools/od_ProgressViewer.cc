@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.7 2003-09-16 11:40:51 bert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.8 2003-11-07 12:22:01 bert Exp $
 ________________________________________________________________________
 
 -*/

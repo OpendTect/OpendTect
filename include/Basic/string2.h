@@ -4,11 +4,11 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.9 2003-07-21 10:34:14 dgb Exp $
+ RCS:		$Id: string2.h,v 1.10 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 -*/
 

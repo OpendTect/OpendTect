@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		4-2-1994; 20-10-1995
  Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.4 2002-03-05 07:37:14 kristofer Exp $
+ RCS:		$Id: enums.h,v 1.5 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

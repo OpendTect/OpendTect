@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2002
  Contents:	PAuxiliary info on position
- RCS:		$Id: posauxinfo.h,v 1.2 2002-07-25 21:48:44 bert Exp $
+ RCS:		$Id: posauxinfo.h,v 1.3 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.33 2003-10-30 12:34:24 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.34 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

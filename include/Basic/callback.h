@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.28 2003-01-27 07:22:26 kristofer Exp $
+ RCS:		$Id: callback.h,v 1.29 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

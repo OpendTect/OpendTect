@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.8 2002-08-23 14:15:15 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.9 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

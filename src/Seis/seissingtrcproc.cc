@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.10 2002-07-31 14:59:38 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.11 2003-11-07 12:21:58 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.7 2002-07-31 14:59:38 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.8 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.6 2003-10-01 14:21:10 kristofer Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.7 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.19 2003-10-06 10:52:34 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.20 2003-11-07 12:22:02 bert Exp $";
 
 #include "visrandomtrack.h"
 

@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.7 2001-12-09 09:29:53 bert Exp $
+ RCS:		$Id: datachar.h,v 1.8 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 */

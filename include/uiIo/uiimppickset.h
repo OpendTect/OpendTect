@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.2 2003-07-24 11:57:02 nanne Exp $
+ RCS:           $Id: uiimppickset.h,v 1.3 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 -*/

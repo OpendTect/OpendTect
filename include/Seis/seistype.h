@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.3 2003-03-28 12:20:08 nanne Exp $
+ RCS:		$Id: seistype.h,v 1.4 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 */

@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.11 2003-01-24 15:57:55 arend Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.12 2003-11-07 12:21:57 bert Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"

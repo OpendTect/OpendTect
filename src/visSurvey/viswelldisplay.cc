@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.22 2003-11-06 16:15:12 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.23 2003-11-07 12:22:03 bert Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"

@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : May 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.3 2003-06-03 07:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.4 2003-11-07 12:21:57 bert Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"

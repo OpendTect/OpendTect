@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.7 2003-10-17 14:19:01 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.8 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.2 2001-07-19 06:25:21 kristofer Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.3 2003-11-07 12:21:57 bert Exp $";
 
 #include <transform.h>
 #include <arraynd.h>

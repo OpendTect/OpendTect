@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expextremedip.h,v 1.1 2003-05-19 11:54:46 nanne Exp $
+ RCS:           $Id: expextremedip.h,v 1.2 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 ModGradientDip

@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.29 2003-11-06 14:22:19 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.30 2003-11-07 12:21:57 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"

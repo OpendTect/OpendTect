@@ -1,7 +1,7 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoShapeHintsElement.h>
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 
-static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.1 2003-10-21 18:27:31 kristofer Exp $";
+static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 

@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.3 2002-12-03 13:17:17 kristofer Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.4 2003-11-07 12:21:54 bert Exp $
 ________________________________________________________________________
 
 

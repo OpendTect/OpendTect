@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.16 2003-08-18 08:07:09 arend Exp $
+ RCS:		$Id: vectoraccess.h,v 1.17 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

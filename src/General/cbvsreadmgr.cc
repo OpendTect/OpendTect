@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : April 2001
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.27 2003-05-15 13:45:44 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.28 2003-11-07 12:21:57 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"

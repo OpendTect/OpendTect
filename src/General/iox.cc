@@ -1,11 +1,11 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 1995
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.11 2003-10-27 23:10:02 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.12 2003-11-07 12:21:57 bert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"

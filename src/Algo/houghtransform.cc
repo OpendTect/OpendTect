@@ -1,7 +1,7 @@
 /*+
 -----------------------------------------------------------------------------
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V. 
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : N. Fredman
  * DATE     : 18-12-2002
 
@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.4 2003-04-14 15:07:10 kristofer Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
 
 
 #include "houghtransform.h"

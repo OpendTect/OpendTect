@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.19 2003-10-22 12:37:10 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.20 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,11 +4,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswritemgr.h,v 1.9 2002-11-27 17:05:23 bert Exp $
+ RCS:		$Id: cbvswritemgr.h,v 1.10 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 -*/

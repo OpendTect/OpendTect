@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.13 2003-06-03 15:27:03 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.14 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.7 2003-08-19 14:26:13 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.8 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

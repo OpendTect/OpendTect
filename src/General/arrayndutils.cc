@@ -1,10 +1,10 @@
 /*+
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.10 2002-02-22 10:10:19 bert Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.11 2003-11-07 12:21:57 bert Exp $";
 
 #include <arrayndutils.h>
 

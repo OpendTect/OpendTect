@@ -3,11 +3,11 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) dGB Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.9 2003-10-30 11:16:25 bert Exp $
+ RCS:		$Id: plugins.h,v 1.10 2003-11-07 12:21:50 bert Exp $
 ________________________________________________________________________
 
 -*/

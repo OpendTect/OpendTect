@@ -4,10 +4,10 @@
 /*
 ________________________________________________________________________
  
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id: mmdefs.h,v 1.4 2003-08-13 13:47:25 arend Exp $
+ RCS:		$Id: mmdefs.h,v 1.5 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 Defines for multimachine status tags and codes

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.10 2003-10-20 15:17:57 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.11 2003-11-07 12:22:01 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.10 2003-11-06 16:16:43 nanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.11 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,11 +4,11 @@
 /*
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.6 2001-06-07 09:42:38 bert Exp $
+ RCS:		$Id: strmoper.h,v 1.7 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 */

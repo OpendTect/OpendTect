@@ -4,10 +4,10 @@
 /*@+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: polynd.h,v 1.5 2002-08-28 12:58:12 nanne Exp $
+ RCS:           $Id: polynd.h,v 1.6 2003-11-07 12:21:51 bert Exp $
 ________________________________________________________________________
 
 PolynomialND is a N-dimensional polynomial with arbitary orders in each

@@ -1,10 +1,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.3 2002-04-15 14:34:26 bert Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.4 2003-11-07 12:22:02 bert Exp $
 ________________________________________________________________________
 
 -*/

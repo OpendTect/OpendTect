@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jul 2003
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrickWire.cc,v 1.4 2003-10-08 11:54:42 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrickWire.cc,v 1.5 2003-11-07 12:22:02 bert Exp $";
 
 
 #include "SoMeshSurfaceBrickWire.h"

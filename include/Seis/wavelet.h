@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.6 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: wavelet.h,v 1.7 2003-11-07 12:21:52 bert Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,14 +1,14 @@
 /*
 ___________________________________________________________________
 
- * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Dec 2002
 ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.6 2003-03-06 18:39:29 nanne Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.7 2003-11-07 12:22:02 bert Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
