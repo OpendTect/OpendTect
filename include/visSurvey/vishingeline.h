@@ -7,13 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.4 2004-07-28 06:48:46 kristofer Exp $
+ RCS:           $Id: vishingeline.h,v 1.5 2004-08-05 12:26:54 kristofer Exp $
 ________________________________________________________________________
 
           
 -*/
 
 #include "visobject.h"
+
+#include "emposid.h"
+
+class RowCol;
 
 namespace visBase { class IndexedPolyLine3D; class Transformation; };
 namespace EM { class EdgeLineSet; };
@@ -27,18 +31,50 @@ public:
     static EdgeLineSetDisplay*	create()
 				mCreateDataObj(EdgeLineSetDisplay);
 
+    void			setConnect(bool);
+    				/*!<Sets wether the first and last node in a 
+				    line should be connected, given that they
+				    are neighbors */
+    bool			getConnect() const;
+    				/*!<\returns true if the first and last node
+				     in a line is connected, given that they
+				     are neighbors */
+    void			setShowDefault(bool);
+    				/*!<Sets wether default edgesegments should be
+				    shown */
+    bool			getShowDefault() const;
+    				/*!<\returns wether default edgesegments
+				  should be shown */
+
     void			setEdgeLineSet(const EM::EdgeLineSet*);
     bool			setEdgeLineSet(int);
     const EM::EdgeLineSet*	getEdgeLineSet() const { return edgelineset; }
     void			setTransformation(visBase::Transformation*);
     visBase::Transformation*	getTransformation();
 
+
+    int				getRightClickedLine() const
+    				{ return rightclidedline; }
+    int				getRightClickedSegment() const
+    				{ return rightclidedsegment; }
+    int				getRightClickedSegmentPos() const
+    				{ return rightclidedsegmentpos; }
+
 protected:
     				~EdgeLineSetDisplay();
     void			updateEdgeLineSetChangeCB(CallBacker*);
+    void			triggerRightClick(const visBase::EventInfo*);
     const EM::EdgeLineSet*	edgelineset;
-    ObjectSet<visBase::IndexedPolyLine3D> polylines;
+    ObjectSet<visBase::IndexedPolyLine3D>	polylines;
+    ObjectSet<TypeSet<int> >			polylinesegments;
+    ObjectSet<TypeSet<int> >			polylinesegmentpos;
     visBase::Transformation*	transformation;
+    bool			connect;
+    bool			showdefault;
+
+    int				rightclidedline;
+    int				rightclidedsegment;
+    int				rightclidedsegmentpos;
 };
 
 
