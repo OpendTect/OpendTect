@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.7 2001-04-17 08:16:59 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.8 2001-04-17 11:39:39 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -112,22 +112,28 @@ bool SeisTrcTranslator::commitSelections()
     int nrsel = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
-	selnrs[nrsel] = tarcds[idx]->destidx;
-	if ( selnrs[idx] >= 0 )
+	int destidx = tarcds[idx]->destidx;
+	if ( destidx >= 0 )
 	{
+	    selnrs[nrsel] = destidx;
 	    inpnrs[nrsel] = idx;
 	    nrsel++;
 	}
     }
 
-    nrout_ = nrsel; if ( nrout_ < 1 ) nrout_ = 1;
+    nrout_ = nrsel;
+    if ( nrout_ < 1 ) nrout_ = 1;
     delete [] inpfor_; inpfor_ = new int [nrout_];
     if ( nrsel < 1 )
-	{ inpfor_[0] = 0; return false; }
-
-    sort_coupled( selnrs, inpnrs, nrsel );
-    for ( int idx=0; idx<nrout_; idx++ )
-	inpfor_[idx] = inpnrs[idx];
+	inpfor_[0] = 0;
+    else if ( nrsel == 1 )
+	inpfor_[0] = inpnrs[0];
+    else
+    {
+	sort_coupled( selnrs, inpnrs, nrsel );
+	for ( int idx=0; idx<nrout_; idx++ )
+	    inpfor_[idx] = inpnrs[idx];
+    }
 
     errmsg = 0;
     return commitSelections_();
