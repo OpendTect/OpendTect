@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.16 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.17 2004-09-28 12:32:45 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -219,9 +219,15 @@ bool IOObj::isKey( const char* ky )
 {
     if ( !ky || !*ky || !isdigit(*ky) ) return false;
 
+    bool digitseen = false;
     while ( *ky )
     {
-	if ( !isdigit(*ky) && *ky != '.' ) return false;
+	if ( isdigit(*ky) )
+	    digitseen = true;
+	else if ( *ky == '|' )
+	    return digitseen;
+	else if ( *ky != '.' )
+	    return false;
 	ky++;
     }
 
