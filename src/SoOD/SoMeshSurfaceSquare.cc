@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.12 2003-10-21 18:46:10 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.13 2003-10-22 07:55:20 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -286,26 +286,42 @@ bool SoMeshSurfaceSquare::setResolution( int nr )
 int SoMeshSurfaceSquare::computeResolution( SoState* state )
 {
     int32_t camerainfo = SoCameraInfoElement::get(state);
-    int desiredres = 0;
+    computeBBox();
+
+    int minextension = extension[0]<extension[1]?extension[0]:extension[1];
+    if ( !minextension ) minextension = 1;
+
+    int bricksize=1;
+    int minres;
+    const int numres = sizepower.getValue();
+    for ( minres=numres-1; minres>=0; minres-- )
+    {
+	const int nextbricksize = bricksize*2;
+	if ( nextbricksize>minextension )
+	    break;
+
+	bricksize = nextbricksize;
+    }
+
+    int desiredres = minres;
+
     if ( !(camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE)) )
     {
-	computeBBox();
-
 	SbVec2s screensize;
 	SoShape::getScreenSize( state, *bboxcache, screensize );
 	const float complexity =
 			SbClamp(SoComplexityElement::get(state), 0.0f, 1.0f);
 	const float wantednumcells =
-	    		complexity*screensize[0]*screensize[1] / 16;
+	    		complexity*screensize[0]*screensize[1] / 32;
 
 	int numcells = extension[0]*extension[1];
-	const int numres = sizepower.getValue();
-	for ( desiredres=numres-1; desiredres>=0; desiredres-- )
+	for ( desiredres=numres-1; desiredres>=minres; desiredres-- )
 	{
-	    if ( numcells<wantednumcells )
+	    const int nextnumcells = numcells/4;
+	    if ( nextnumcells<wantednumcells )
 		break;
 
-	    numcells /=4;
+	    numcells = nextnumcells;
 	}
     }
 	    
@@ -544,6 +560,21 @@ void SoMeshSurfaceSquare::updateGlue()
 		   in colgluecells and will be made.
 		*/
 	    }
+	    if ( res7==ownres && res5>ownres )
+	    {
+		/*
+		    |    |
+		   -1----2
+		    |    |
+		    |    3
+		    |    |
+		   -5----4
+		   Add the square (1) to the colcells
+		*/
+		row = origo[0]+sidesize-ownblocksize;
+		col = origo[1]+sidesize-ownblocksize;
+		colgluecells.push( SbVec2s(row,col) );
+	    }
 	    else if ( res7<ownres )
 	    {
 		/*
@@ -555,10 +586,55 @@ void SoMeshSurfaceSquare::updateGlue()
 		   row rowgluecells and will be made.
 		*/
 	    }
-	    else
+	    else if ( res5==ownres && res7>=ownres )
 	    {
+		/*
+		    |   |
+		   -1---2
+		    |   |
+		    |   |
+		    |   |
+		   -5-4-3
+	       */
 		rowgluecells.push(SbVec2s(origo[0]+sidesize-ownblocksize,
 					  origo[1]+sidesize-ownblocksize));
+	    }
+	    else
+	    {
+		SbList<int> brickindexes;
+		SbList<SbVec3f> bricknormals;
+		row = origo[0]+sidesize-ownblocksize;
+		const int startcol = origo[1]+sidesize-ownblocksize;
+		mAddCoordToIndexes( row, col, ownres, brickindexes,
+				    bricknormals );
+
+
+		SbList<int> neighborindexes;
+		SbList<SbVec3f> neighbornormals;
+
+		col += ownblocksize;
+		mAddCoordToIndexes( row, col, res5,
+				    neighborindexes, neighbornormals );
+		while ( row<=origo[0]+sidesize )
+		{
+		    const int res = row==origo[0]+sidesize?res8:res5;
+		    mAddCoordToIndexes( row, col, res,
+				    neighborindexes, neighbornormals );
+		    row+=blocksize5;
+		}
+
+		row = origo[0]+sidesize;
+
+		while ( col>=startcol )
+		{
+		    mAddCoordToIndexes( row, col, res7,
+					neighborindexes, neighbornormals );
+		    col-=blocksize7;
+		}
+
+		addGlueFan( coordindex, normalindex, brickindexes, bricknormals,
+			    neighborindexes, neighbornormals, false );
+
 	    }
 	}
 	else
