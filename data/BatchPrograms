@@ -37,15 +37,9 @@ process_attrib
 	Comment: Use the OpendTect Attribute Engine.
 	Comment: Is used by OpendTect for batch output, so it is unlikely that you will need to use the program from this place.
 !
-mk_2d_vol
-	Arg: M`FileRead`Parameter file
-	Comment: This program duplicates a single in-line into a cube.
-	Comment: That cube can then be used to calculate e.g. a steering cube.
-	ExampleInput: mk_2d_vol_example.par
-!
 rect_seis
 	Arg: M`FileRead`Parameter file
-	Comment: Fills gaps in an irregular cube with null traces.
+	Comment: Fills gaps in an irregular cube by inserting null traces.
 	Comment: Unlike OpendTect, some ancient packages require fully filled cubes.
 	ExampleInput: rect_seis_example.par
 !
