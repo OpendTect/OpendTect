@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.27 2004-03-31 11:13:51 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.28 2004-05-27 08:06:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ public:
     bool		exportHorizon();
 
     BufferString	getName(const MultiID&) const;
+    bool		isChanged(const MultiID&) const;
+    bool		isFullResolution(const MultiID&) const;
 
     bool		selectHorizon(MultiID& id);
     bool		createHorizon(MultiID& id, const char* nm="");
@@ -49,6 +51,7 @@ public:
     bool		loadAuxData(const MultiID&,const char*);
     int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&,
 	    				     bool);
+    			/*<\returns number of items added */
 
     bool		importLMKFault();
 

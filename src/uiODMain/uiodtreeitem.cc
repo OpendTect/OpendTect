@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.24 2004-05-26 12:37:47 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.25 2004-05-27 08:05:11 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -479,13 +479,30 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
     mGetTrackingBoolean(dotrack);    
     if ( dotrack )
     {
-	storemnuid = menu->addItem( new uiMenuItem("Store") );
-	storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
-	trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
-	tracksetupmnuid = menu->addItem( new uiMenuItem("Change setup ...") );
-	uiMenuItem* tracktooglemnuitem = new uiMenuItem("Enable tracking");
-	toogletrackingmnuid = menu->addItem(tracktooglemnuitem);
-	tracktooglemnuitem->setChecked(applMgr()->trackServer()->isTrackingEnabled(mid));
+	if ( applMgr()->EMServer()->isFullResolution(mid) && 
+	     applMgr()->trackServer()->getTrackerID(mid)==-1 )
+	{
+	    trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
+	    tracksetupmnuid = -1;
+	    toogletrackingmnuid = -1;
+	}
+	else
+	{
+	    trackmnuid = -1;
+	    tracksetupmnuid = menu->addItem(new uiMenuItem("Change setup ..."));
+	    uiMenuItem* tracktooglemnuitem = new uiMenuItem("Enable tracking");
+	    toogletrackingmnuid = menu->addItem(tracktooglemnuitem);
+	    tracktooglemnuitem->setChecked(
+		    applMgr()->trackServer()->isTrackingEnabled(mid));
+	}
+
+	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
+	storemnuid = menu->addItem( storemenuitem );
+	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid) );
+
+	storemenuitem = new uiMenuItem("Store as ...");
+	storeasmnuid = menu->addItem( storemenuitem );
+	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid) );
     }
     else
     {
@@ -528,7 +545,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 	if ( cutmenu && cutmenu->nrItems() )
 	{
 	    menu->addSubMenu( cutmenu );
-	    for ( int idx=0; idx<cutstopmnuid-cutstartmnuid; idx++ )
+	    for ( int idx=0; idx<cutstopmnuid-cutstartmnuid+1; idx++ )
 		menu->getFreeID();
 	}
 
@@ -540,7 +557,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 	if ( terminatemenu && terminatemenu->nrItems() )
 	{
 	    menu->addSubMenu( terminatemenu );
-	    for ( int idx=0; idx<terminatestopmnuid-terminatestartmnuid; idx++ )
+	    for ( int idx=0; idx<terminatestopmnuid-terminatestartmnuid+1; idx++ )
 		menu->getFreeID();
 	}
     }

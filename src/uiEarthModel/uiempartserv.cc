@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.44 2004-04-14 08:22:06 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.45 2004-05-27 08:06:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,22 @@ BufferString uiEMPartServer::getName(const MultiID& mid) const
 {
     EM::EMManager& em = EM::EMM();
     return em.name(em.multiID2ObjectID(mid));
+}
+
+
+bool uiEMPartServer::isChanged(const MultiID& mid) const
+{
+    EM::EMManager& em = EM::EMM();
+    EM::EMObject* emobj = em.getObject(em.multiID2ObjectID(mid));
+    return emobj && emobj->isChanged();
+}
+
+
+bool uiEMPartServer::isFullResolution(const MultiID& mid) const
+{
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Surface*,emsurf,em.getObject(em.multiID2ObjectID(mid)));
+    return emsurf && emsurf->isFullResolution();
 }
 
 
