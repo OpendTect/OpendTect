@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.17 2004-05-24 16:37:40 bert Exp $
+ RCS:           $Id: viswell.cc,v 1.18 2004-05-24 21:04:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,7 +255,7 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
     }
 
     const bool rev = range.start > range.stop;
-    log->setRevScale( rev );
+    log->setRevScale( rev, lognr );
     log->clearLog( lognr );
     Interval<float> rg = range; rg.sort();
     for ( int idx=0; idx<nrsamp; idx++ )

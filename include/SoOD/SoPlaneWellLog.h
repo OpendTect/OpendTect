@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.7 2004-05-24 16:37:40 bert Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.8 2004-05-24 21:04:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ public:
     void			showLog(bool,int);
     bool			logShown(int) const;
     void			clearLog(int);
-    void			setRevScale( bool yn ) 	{ revscale = yn; }
+    void			setRevScale( bool yn, int lognr ) 
+    				{ (lognr == 1 ? revscale1 : revscale2) = yn; }
     void			setLogValue(int,const SbVec3f&,float,int);
 
     SoMFVec3f			path1;
@@ -93,7 +94,7 @@ protected:
     bool			valchanged;
     int				currentres;
     float			worldwidth;
-    bool			revscale;
+    bool			revscale1, revscale2;
 
     SoFieldSensor*		valuesensor;
     static void			valueChangedCB(void*,SoSensor*);

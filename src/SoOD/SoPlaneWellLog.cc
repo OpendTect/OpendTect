@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.9 2004-05-24 16:37:40 bert Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.10 2004-05-24 21:04:12 bert Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -41,7 +41,8 @@ void SoPlaneWellLog::initClass()
 
 SoPlaneWellLog::SoPlaneWellLog()
     : valuesensor( new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this) )
-    , revscale(false)
+    , revscale1(false)
+    , revscale2(false)
 {
     SO_KIT_CONSTRUCTOR(SoPlaneWellLog);
 
@@ -187,6 +188,7 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
     SoMFVec3f& path = lognr==1 ? path1 : path2;
     SoMFFloat& log = lognr==1 ? log1 : log2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
+    bool& revscale = lognr==1 ? revscale1 : revscale2;
 
     const int pathsz = path.getNum();
     int nrsamp = pathsz;
@@ -221,7 +223,11 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
 	SbVec3f normal = getNormal( pt1, pt2, projdir );
 	normal.normalize();
 
-	const float scaledval = log[index]*worldwidth/maxval.getValue();
+	float logval = log[index];
+	if ( revscale ) logval = maxval.getValue() - logval;
+	if ( logval < 0 ) logval = 0;
+	if ( logval > maxval.getValue() ) logval = maxval.getValue();
+	const float scaledval = logval * worldwidth / maxval.getValue();
 	const float fact = scaledval / normal.length();
 	normal *= lognr==1 ? -fact : fact;
 	SbVec3f newcrd = path[index];
