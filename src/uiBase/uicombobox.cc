@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.6 2001-05-05 14:10:43 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.7 2001-05-05 16:32:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ bool uiComboBox::isPresent( const char* txt ) const
 
 const char* uiComboBox::textOfItem( int idx ) const
 {
+    if ( idx < 0 ) return "";
     const_cast<uiComboBox*>(this)->rettxt = (const char*)mQtThing()->text(idx);
     return (const char*)rettxt;
 }
