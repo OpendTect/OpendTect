@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.18 2001-11-09 15:18:01 windev Exp $
+ RCS:           $Id: uisurvey.cc,v 1.19 2001-11-09 15:18:01 windev Exp $
 ________________________________________________________________________
 
 -*/
