@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.48 2003-07-24 14:21:30 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.49 2003-07-30 13:15:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,15 @@ bool uiListBox::isSelected ( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return false;
     return body_->isSelected( idx );
+}
+
+
+int uiListBox::nrSelected() const
+{
+    int res = 0;
+    for ( int idx=0; idx<size(); idx++ )
+	{ if ( isSelected(idx) ) res++; }
+    return res;
 }
 
 
