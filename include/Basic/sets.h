@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.6 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: sets.h,v 1.7 2001-02-27 17:09:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,13 +100,13 @@ private:
 template <class T>
 inline bool operator ==( const TypeSet<T>& a, const TypeSet<T>& b )
 {
-    if ( a.size() != b.size() ) return NO;
+    if ( a.size() != b.size() ) return false;
 
     int sz = a.size();
     for ( int idx=0; idx<sz; idx++ )
-	if ( !(a[idx] == b[idx]) ) return NO;
+	if ( !(a[idx] == b[idx]) ) return false;
 
-    return YES;
+    return true;
 }
 
 template <class T>
@@ -125,13 +125,15 @@ template <class T>
 class ObjectSet
 {
 public:
-    			ObjectSet() : allow0(NO) {}
+    			ObjectSet() : allow0(false) {}
     			ObjectSet( const ObjectSet<T>& t )
 						{ *this = t; }
     virtual		~ObjectSet()		{}
-    void		allowNull(bool yn=true)	{ allow0 = yn; }
     ObjectSet<T>&	operator =( const ObjectSet<T>& os )
 			{ allow0 = os.allow0; copy(os); return *this; }
+
+    void		allowNull(bool yn=true)	{ allow0 = yn; }
+    bool		nullAllowed() const	{ return allow0; }
 
     virtual int		size() const
 				{ return objs.size(); }
@@ -168,7 +170,7 @@ public:
     virtual void	copy( const ObjectSet<T>& os ) {
 
 			    if ( &os != this )
-				{ erase(); append( os ); }
+				{ erase(); allow0 = os.allow0; append( os ); }
 			}
     virtual void	append( const ObjectSet<T>& os ) {
 
@@ -200,16 +202,20 @@ inline void deepErase( ObjectSet<T>& os )
 template <class T>
 inline void deepAppend( ObjectSet<T>& to, const ObjectSet<T>& from )
 {
-    int sz = from.size();
+    const int sz = from.size();
     for ( int idx=0; idx<sz; idx++ )
-	to += new T( *from[idx] );
+	to += from[idx] ? new T( *from[idx] ) : 0;
 }
 
 template <class T>
 inline void deepCopy( ObjectSet<T>& to, const ObjectSet<T>& from )
 {
     if ( &to != &from )
-	{ deepErase(to); deepAppend( to, from ); }
+    {
+	deepErase(to);
+	to.allowNull(from.nullAllowed());
+	deepAppend( to, from );
+    }
 }
 
 
