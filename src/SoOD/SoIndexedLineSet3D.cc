@@ -409,7 +409,10 @@ void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
 	generateCoordinates( action, curindex, corner1, corner2, corner3,
 			     corner4, reverse, endnormals, nrjoints, false );
 	if ( nrjoints<2 )
+	{
+	    curindex++;
 	    continue;
+	}
 
 	for ( int idx=0; idx<nrjoints; idx++ )
 	{
