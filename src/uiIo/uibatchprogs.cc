@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.12 2003-11-12 12:57:04 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.13 2003-11-13 16:43:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,7 +276,13 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
     comm += " --inxterm+askclose ";
     if ( bpi.issys ) comm += "--sys ";
+#ifdef __win__ // TODO: check if this hurts on *nix
+    comm += "\"";
     comm += progfld->box()->text();
+    comm += "\"";
+#else
+    comm += progfld->box()->text();
+#endif
 
     ObjectSet<uiGenInput>& inplst = *inps[selidx];
     for ( int iinp=0; iinp<inplst.size(); iinp++ )
@@ -285,7 +291,15 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	mDynamicCastGet(uiFileInput*,finp,inp)
 	BufferString val;
 	if ( finp )
+	{
+#ifdef __win__ // TODO: check if this hurts on *nix
+	    val = "\"";
+	    val += finp->fileName();
+	    val += "\"";
+#else
 	    val = finp->fileName();
+#endif
+	}
 	else if ( bpi.args[iinp]->type != BatchProgPar::QWord )
 	    val = inp->text();
 	else
