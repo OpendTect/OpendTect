@@ -5,12 +5,13 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.3 2001-03-30 08:52:58 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.4 2001-03-30 16:32:34 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
 #include "strmoper.h"
 #include "errh.h"
+#include "binidselimpl.h"
 
 #define mIntSz 4
 #define mVersion 1
@@ -33,9 +34,19 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
 	, explinfo(i.explinfo)
 	, survgeom(i.geom)
 {
-    if ( !strm_.good() ) { errmsg_ = "Cannot open file for write"; return; }
+    if ( !strm_.good() )
+	{ errmsg_ = "Cannot open file for write"; return; }
+    if ( !survgeom.fullyrectandreg && !expldat )
+	{ pErrMsg("Survey not rectangular but no explicit inl/crl info");
+	  errmsg_ = "Internal error"; return; }
 
-    writeHdr( i );
+    if ( expldat && survgeom.fullyrectandreg
+      && !explinfo.startpos && !explinfo.coord && !explinfo.offset
+      && !explinfo.pick && !explinfo.refpos )
+	expldat = 0;
+
+    writeHdr( i ); if ( *(const char*)errmsg_ ) return;
+
     streampos datastart = strm_.tellp();
     strm_.seekp( 8 );
     int nrbytes = (int)datastart;
@@ -49,31 +60,6 @@ CBVSWriter::~CBVSWriter()
     close();
     delete &strm_;
     delete [] cnrbytes;
-}
-
-
-void CBVSWriter::close()
-{
-    if ( strmclosed ) return;
-
-    getRealGeometry();
-    if ( survgeom.fullyrectandreg )
-    {
-	streampos kp = strm_.tellp();
-	strm_.seekp( geomfo );
-	writeGeom();
-	strm_.seekp( kp );
-    }
-
-    else if ( !writeTrailer() )
-    {
-	// damn! we were almost there!
-	errmsg_ = "Could not write CBVS trailer";
-	ErrMsg( errmsg_ );
-    }
-    
-    strm_.flush();
-    strmclosed = true;
 }
 
 
@@ -220,9 +206,12 @@ int CBVSWriter::put( void** cdat )
 	return 1;
     }
 
+    if ( !writeExplicits() )
+	{ errmsg_ = "Cannot write Trace header data"; return -1; }
+
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
-	if ( !writeWithRetry(strm_,cdat[icomp],cnrbytes[icomp],1,50) )
+	if ( !writeWithRetry(strm_,cdat[icomp],cnrbytes[icomp],2,100) )
 	    { errmsg_ = "Cannot write CBVS data"; return -1; }
     }
 
@@ -232,4 +221,116 @@ int CBVSWriter::put( void** cdat )
     previnl = curbid.inl;
     trcswritten++;
     return 0;
+}
+
+
+bool CBVSWriter::writeExplicits()
+{
+    if ( !expldat ) return true;
+
+#define mDoWrExpl(memb) \
+    if ( explinfo.memb ) strm_.write( &expldat->memb, sizeof(expldat->memb) )
+
+    mDoWrExpl(startpos);
+    mDoWrExpl(coord);
+    mDoWrExpl(offset);
+    mDoWrExpl(pick);
+    mDoWrExpl(refpos);
+
+    return strm_.good();
+}
+
+
+void CBVSWriter::close()
+{
+    if ( strmclosed ) return;
+
+    getRealGeometry();
+    if ( survgeom.fullyrectandreg )
+    {
+	streampos kp = strm_.tellp();
+	strm_.seekp( geomfo );
+	writeGeom();
+	strm_.seekp( kp );
+    }
+    else if ( !writeTrailer() )
+    {
+	// damn! we were almost there!
+	errmsg_ = "Could not write CBVS trailer";
+	ErrMsg( errmsg_ );
+    }
+    
+    strm_.flush();
+    strmclosed = true;
+}
+
+
+void CBVSWriter::getRealGeometry()
+{
+    BinIDSampler bids;
+    survgeom.fullyrectandreg = true;
+
+    const int nrinl = inldata.size();
+    for ( int iinl=0; iinl<nrinl; iinl++ )
+    {
+	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata[iinl];
+	if ( iinl == 0 )
+	{
+	    previnl = bids.start.inl = bids.stop.inl = inlinf.inl;
+	    bids.start.crl = bids.stop.crl = inlinf.segments[0].start;
+	    bids.step.crl = inlinf.segments[0].step;
+	}
+	else if ( iinl == 1 )
+	    bids.step.inl = inlinf.inl - previnl;
+	else if ( inlinf.inl - previnl != bids.step.inl )
+	    survgeom.fullyrectandreg = false;
+	previnl = inlinf.inl;
+
+	const int nrcrl = inlinf.segments.size();
+	if ( nrcrl != 1 )
+	    survgeom.fullyrectandreg = false;
+
+	for ( int icrl=0; icrl<nrcrl; icrl++ )
+	{
+	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =inlinf.segments[icrl];
+	    if ( seg.step != bids.step.crl )
+		survgeom.fullyrectandreg = false;
+	    else if ( iinl )
+	    {
+		Interval<int> intv( seg ); intv.sort();
+		if ( intv.start != bids.start.crl || intv.stop != bids.stop.crl)
+		    survgeom.fullyrectandreg = false;
+	    }
+	    bids.include( BinID(seg.start,seg.stop) );
+	}
+    }
+
+    survgeom.start = bids.start;
+    survgeom.stop = bids.stop;
+    survgeom.step = bids.step;
+}
+
+
+bool CBVSWriter::writeTrailer()
+{
+    const int nrinl = inldata.size();
+    streampos trailerstart = strm_.tellp();
+    strm_.write( &nrinl, mIntSz );
+    for ( int iinl=0; iinl<nrinl; iinl++ )
+    {
+	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata[iinl];
+	const int nrcrl = inlinf.segments.size();
+	strm_.write( &nrcrl, mIntSz );
+
+	for ( int icrl=0; icrl<nrcrl; icrl++ )
+	{
+	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =inlinf.segments[icrl];
+	    strm_.write( &seg.start, 2*mIntSz );
+	    strm_.write( &seg.stop, 2*mIntSz );
+	    strm_.write( &seg.step, 2*mIntSz );
+	}
+	if ( !strm_.good() ) return false;
+    }
+
+    return strm_.good();
 }
