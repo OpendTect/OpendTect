@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.152 2003-06-23 13:17:54 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.153 2003-07-29 13:24:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1243,18 +1243,10 @@ bool uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,obj)
     if ( !vo ) return false;
 
-    if ( pdd || vd || rtd || (sd && sd->usesTexture()) )
-    {
-	uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), true,
-	       		   true, false, false, false, true );
-	dlg.go();
-    }
-    else
-    {
-	uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), true, 
-			   true, false, false, false, true );
-	dlg.go();
-    }
+    visBase::Material* mat = sd ? sd->getMaterial() : vo->getMaterial();
+    uiMaterialDlg dlg( appserv().parent(), mat, true,
+		       true, false, false, false, true );
+    dlg.go();
 
     return true;
 }
