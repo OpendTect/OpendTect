@@ -2,11 +2,12 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt_file,v 1.4 2004-10-08 14:52:47 dgb Exp $
+# $Id: od_do_rmt_file,v 1.5 2004-11-05 15:04:26 arend Exp $
 #
 # remote execution script for passing arguments file to od_do_rmt
 #_______________________________________________________________________________
 
+# check for DTECT_DEBUG in arguments file
 if ( `grep DTECT_DEBUG "$1"` == "" ) then
     set havedebug=no
 else
