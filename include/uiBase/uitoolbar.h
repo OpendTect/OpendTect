@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uitoolbar.h,v 1.13 2004-09-10 07:21:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,10 +37,9 @@ public:
 			     the menu bar. */
     };
 
-    static uiToolBar*	getNew( QMainWindow& main, const char* nm="uiToolBar",
-				ToolBarDock d=Top, bool newline=false );
-protected:
-			uiToolBar( const char* nm, QToolBar& );
+    			uiToolBar(uiParent*,const char* nm,
+				  ToolBarDock d=Top,bool newline=false);
+
 public:
 
     int 		addButton( const ioPixmap&, const CallBack& cb, 
@@ -68,8 +67,9 @@ public:
 
 protected:
 
+    QToolBar*		qtoolbar;
     uiToolBarBody*	body_;
-    uiToolBarBody&	mkbody(const char*, QToolBar&);
+    uiToolBarBody&	mkbody(const char*,QToolBar&);
 
 };
 

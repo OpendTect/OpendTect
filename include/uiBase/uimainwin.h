@@ -7,17 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.36 2004-08-25 11:32:08 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.37 2004-09-10 07:21:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiparent.h>
-#include <uihandle.h>
+#include "uiparent.h"
+#include "uihandle.h"
 
 class uiMainWinBody;
+class uiPopupMenu;
 class uiStatusBar;
-class uiToolBar;
 class uiMenuBar;
 class uiObject;
 class uiGroup;
@@ -40,7 +40,6 @@ public:
 				   const char* nm="uiMainWin",
 				   int nrStatusFlds = 1, 
 				   bool wantMenuBar = true,
-				   bool wantToolBar = false,
 				   bool modal=false );
 
     virtual		~uiMainWin();
@@ -62,8 +61,6 @@ public:
 
     uiStatusBar* 	statusBar();
     uiMenuBar* 		menuBar();
-    uiToolBar* 		toolBar();
-    uiToolBar* 		newToolBar(const char* nm="ToolBar");
 
     static uiMainWin*	activeWindow();
 
@@ -86,6 +83,7 @@ public:
 
     void		moveDockWindow(uiDockWin&,Dock d=Top,int index=-1);
     void		removeDockWindow(uiDockWin*);
+    uiPopupMenu&	createDockWindowMenu();
 
     Notifier<uiMainWin>	finaliseStart;
     			//!< triggered when about to start finalising

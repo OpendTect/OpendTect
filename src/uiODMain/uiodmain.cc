@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.21 2004-09-03 14:41:48 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.22 2004-09-10 07:22:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ int ODMain( int argc, char** argv )
 
 
 uiODMain::uiODMain( uicMain& a )
-	: uiMainWin(0,"OpendTect Main Window",3,true,true)
+	: uiMainWin(0,"OpendTect Main Window",3,true)
     	, uiapp(a)
 	, failed(true)
     	, menumgr(0)

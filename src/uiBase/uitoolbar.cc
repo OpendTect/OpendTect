@@ -4,26 +4,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.18 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.19 2004-09-10 07:21:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitoolbar.h"
 #include "uimain.h"
-#include "uimainwin.h"
+#include "uibody.h"
 #include "uiobj.h"
+#include "uimainwin.h"
 #include "pixmap.h"
+#include "uiparentbody.h"
+
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qapplication.h>
 #include <qmainwindow.h>
 
 #include "qobject.h"
-
 #include "i_qtoolbut.h"
 
-#include "uibody.h"
 
 
 class uiToolBarBody : public uiBodyImpl<uiToolBar,QToolBar>
@@ -116,37 +117,35 @@ QMainWindow::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
     return (QMainWindow::ToolBarDock) 0;
 }
 
-uiToolBar::uiToolBar( const char* nm, QToolBar& qtb )
-    : uiParent( nm, 0 )
-    { setBody( &mkbody(nm,qtb) ); }
+
+uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
+		      bool newline )
+    : uiParent(nm,0)
+    , qtoolbar(0)
+{
+    QMainWindow::ToolBarDock tbdock = uiToolBarBody::qdock(d);
+    QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
+    qtoolbar = new QToolBar( QString(nm), (QMainWindow*)qwidget, 
+	    		     tbdock, newline );
+    setBody( &mkbody(nm,*qtoolbar) );
+}
 
 
 uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
 { 
-    body_=new uiToolBarBody( *this, qtb );
+    body_ = new uiToolBarBody( *this, qtb );
     return *body_; 
 }
 
 
-uiToolBar* uiToolBar::getNew( QMainWindow& main, const char* nm, ToolBarDock d, 
-			      bool newline )
-{
-    QMainWindow::ToolBarDock d_ = uiToolBarBody::qdock(d);
-    QToolBar& bar = *new QToolBar( QString(nm), &main, d_, newline );
-
-    return new uiToolBar( nm, bar );
-}
-
-
-int uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,
-			 const char* nm, bool toggle)
+int uiToolBar::addButton( const ioPixmap& pm, const CallBack& cb,
+			  const char* nm, bool toggle)
 { return body_->addButton(pm,cb,nm,toggle); }
 
 
 void uiToolBar::setLabel( const char* lbl )
 {
-    if ( body_->qthing() ) 
-	body_->qthing()->setLabel( QString(lbl) );
+    qtoolbar->setLabel( QString(lbl) );
     setName( lbl );
 }
 
@@ -163,37 +162,29 @@ void uiToolBar::setSensitive( bool yn )
 { body_->setSensitive( yn ); }
 
 
-void uiToolBar::display( bool yn, bool,bool)
+void uiToolBar::display( bool yn, bool, bool )
 {
-    if ( !body_->qthing() ) return;
-    if ( yn )	body_->qthing()->show();
-    else	body_->qthing()->hide();
+    if ( yn )
+	qtoolbar->show();
+    else
+	qtoolbar->hide();
 }
 
 
 void uiToolBar::addSeparator()
-{
-    if ( !body_->qthing() ) return;
-    body_->qthing()->addSeparator();
-}
+{ qtoolbar->addSeparator(); }
 
 
 void uiToolBar::setStretchableWidget( uiObject* obj )
 {
-    if ( !body_->qthing() || !obj ) return;
-    body_->qthing()->setStretchableWidget( obj->body()->qwidget() );
+    if ( !obj ) return;
+    qtoolbar->setStretchableWidget( obj->body()->qwidget() );
 }
 
 
 void uiToolBar::setMovingEnabled( bool yn )
-{
-    if ( !body_->qthing() ) return;
-    body_->qthing()->setMovingEnabled( yn );
-}
+{ qtoolbar->setMovingEnabled( yn ); }
 
 
 bool uiToolBar::isMovingEnabled()
-{
-    if ( !body_->qthing() ) return false;
-    return body_->qthing()->isMovingEnabled();
-}
+{ return qtoolbar->isMovingEnabled(); }

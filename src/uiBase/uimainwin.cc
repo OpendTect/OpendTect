@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.86 2004-09-06 08:25:18 dgb Exp $
+ RCS:           $Id: uimainwin.cc,v 1.87 2004-09-10 07:21:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uibutton.h"
 #include "uistatusbar.h"
-#include "uitoolbar.h"
 #include "uiseparator.h"
 #include "uimenu.h"
 #include "uilabel.h"
@@ -71,8 +70,7 @@ public:
 			uiMainWinBody( uiMainWin& handle, uiParent* parnt,
 				       const char* nm, bool modal );
 
-    void		construct( int nrStatusFlds, bool wantMenuBar, 
-				   bool wantToolBar );
+    void		construct( int nrstatusflds, bool wantmenubar );
 
     virtual		~uiMainWinBody();
 
@@ -88,7 +86,6 @@ public:
 
     uiStatusBar* 	uistatusbar();
     uiMenuBar* 		uimenubar();
-    uiToolBar*		uitoolbar();
 
     virtual void        polish()
                         {
@@ -159,7 +156,6 @@ protected:
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
-    uiToolBar* 		toolbar;
 
 private:
 
@@ -191,7 +187,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
-	, statusbar(0), menubar(0), toolbar(0)  
+	, statusbar(0), menubar(0)  
 	, modal_( parnt && modal )
 	, poptimer("Popup timer")
 	, popped_up( false )
@@ -201,8 +197,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
     poptimer.tick.notify(mCB(this,uiMainWinBody,popTimTick));
 }
 
-void uiMainWinBody::construct(  int nrStatusFlds, bool wantMenuBar, 
-				bool wantToolBar )
+void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 {
     centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
     setCentralWidget( centralWidget_->body()->qwidget() ); 
@@ -211,7 +206,7 @@ void uiMainWinBody::construct(  int nrStatusFlds, bool wantMenuBar,
     centralWidget_->setBorder(10);
     centralWidget_->setStretch(2,2);
 
-    if( nrStatusFlds != 0 )
+    if( nrstatusflds != 0 )
     {
 	QStatusBar* mbar= statusBar();
 	if( mbar )
@@ -220,13 +215,13 @@ void uiMainWinBody::construct(  int nrStatusFlds, bool wantMenuBar,
 	else
 	    pErrMsg("No statusbar returned from Qt");
 
-	if( nrStatusFlds > 0 )
+	if( nrstatusflds > 0 )
 	{
-	    for( int idx=0; idx<nrStatusFlds; idx++ )
+	    for( int idx=0; idx<nrstatusflds; idx++ )
 		statusbar->addMsgFld();
 	}
     }
-    if( wantMenuBar )
+    if( wantmenubar )
     {   
 	QMenuBar* myBar =  menuBar();
 
@@ -235,10 +230,6 @@ void uiMainWinBody::construct(  int nrStatusFlds, bool wantMenuBar,
 				      *myBar);
 	else
 	    pErrMsg("No menubar returned from Qt");
-    }
-    if( wantToolBar )
-    {
-	toolbar = uiToolBar::getNew( *this );
     }
 
     initing = false;
@@ -309,11 +300,6 @@ uiMenuBar* uiMainWinBody::uimenubar()
     return menubar;
 }
 
-uiToolBar* uiMainWinBody::uitoolbar()
-{
-    if ( !toolbar ) pErrMsg("No toolBar. See uiMainWinBody's constructor"); 
-    return toolbar;
-}
 
 void uiMainWinBody::uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock dock,
 				      int index )
@@ -417,7 +403,7 @@ Qt::Dock uiMainWinBody::qdock( uiMainWin::Dock d )
 
 
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
-		  int nrstatusflds, bool wantMBar, bool wantTBar, bool modal )
+		      int nrstatusflds, bool wantMBar, bool modal )
     : uiParent( nm, 0 )
     , body_( 0 )
     , finaliseStart(this)
@@ -426,7 +412,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
-    body_->construct( nrstatusflds, wantMBar, wantTBar );
+    body_->construct( nrstatusflds, wantMBar );
     if ( !parnt )
 	setIcon( dtect_xpm_data, "OpendTect" );
 }
@@ -452,9 +438,6 @@ void uiMainWin::provideHelp( const char* winid )
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
-uiToolBar* uiMainWin::toolBar()			{ return body_->uitoolbar(); }
-uiToolBar* uiMainWin::newToolBar( const char* nm )
-    { return uiToolBar::getNew( *body_, nm ); }
 
 void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::close()				{ body_->close(); }
@@ -532,6 +515,12 @@ void uiMainWin::setIcon( const char* img[], const char* icntxt )
 	if ( menuBar() )
 	    menuBar()->setIcon( imgpm );
     }
+}
+
+uiPopupMenu& uiMainWin::createDockWindowMenu()
+{
+    QPopupMenu* qmnu = body_->createDockWindowMenu();
+    return *new uiPopupMenu(this,qmnu,"Toolbars");
 }
 
 
@@ -975,7 +964,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 {
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );
-    body_->construct( s.nrstatusflds_, s.menubar_, s.toolbar_ );
+    body_->construct( s.nrstatusflds_, s.menubar_ );
     uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
 
     cw->setStretch( 2, 2 );

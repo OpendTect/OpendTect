@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.15 2004-07-30 11:41:47 nanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.16 2004-09-10 07:22:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.15 2004-07-30 11:41:47 nanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.16 2004-09-10 07:22:36 nanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -37,10 +37,9 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     utilmnu = new uiPopupMenu( &appl, "&Utilities" );
     helpmnu = new uiPopupMenu( &appl, "&Help" );
 
-    dtecttb = appl.toolBar();
-    dtecttb->setLabel( "OpendTect tools" );
-    cointb = appl.newToolBar( "Graphical tools" );
-    mantb = appl.newToolBar( "Manage data" );
+    dtecttb = new uiToolBar( &appl, "OpendTect tools" );
+    cointb = new uiToolBar( &appl, "Graphical tools" );
+    mantb = new uiToolBar( &appl, "Manage data" );
 }
 
 
@@ -224,6 +223,8 @@ void uiODMenuMgr::fillViewMenu()
 				mCB(this,uiODMenuMgr,handleClick) );
     stereoitm->insertItem( stereooffsetitm, mStereoOffsetMnuItm, 3 );
     stereooffsetitm->setEnabled( false );
+    viewmnu->insertSeparator();
+    viewmnu->insertItem( &appl.createDockWindowMenu() );
 }
 
 

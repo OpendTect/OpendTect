@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.37 2004-03-01 13:27:06 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.38 2004-09-10 07:21:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ public:
 			, oktext_("Ok"), canceltext_("Cancel")
 			, modal_(true) // if no parent given, always non-modal
 			, savebutton_(None), separator_(true)
-			, menubar_(false), toolbar_(false), nrstatusflds_(0)
+			, menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
 			, fixedsize_(false)
 			{}
@@ -65,7 +65,7 @@ public:
 	BufferString	wintitle_, dlgtitle_, helpid_;
 	BufferString	savetext_, oktext_, canceltext_;
 	bool		modal_, separator_, savechecked_;
-	bool		menubar_, toolbar_, mainwidgcentered_, fixedsize_;
+	bool		menubar_, mainwidgcentered_, fixedsize_;
 	SaveButType	savebutton_;
 	int		nrstatusflds_;
 
@@ -77,7 +77,6 @@ public:
 					    { savebutton_ = tp; return *this; }
 	Setup&	separator( bool yn=true )   { separator_ = yn;  return *this; }
 	Setup&	menubar( bool yn=true )     { menubar_ = yn;    return *this; }
-	Setup&	toolbar( bool yn=true )     { toolbar_ = yn;    return *this; }
 	//! nrstatusflds == -1: Do make a statusbar, but don't add msg fields.
 	Setup&	nrstatusflds( int nr=1 )    { nrstatusflds_= nr; return *this; }
 	Setup&	savechecked( bool yn=true ) { savechecked_ = yn; return *this; }
