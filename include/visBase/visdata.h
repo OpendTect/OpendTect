@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.33 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.34 2005-01-07 11:23:15 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,10 @@ class BufferString;
 
 namespace visBase { class DataObject; class EventInfo; }
 typedef visBase::DataObject* (*FactPtr)(void);
+
+
+#define mVisTrans visBase::Transformation
+
 
 namespace visBase
 {
