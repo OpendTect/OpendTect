@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.4 2001-10-08 16:12:28 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.5 2001-10-12 10:41:49 bert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -111,17 +111,12 @@ void IODirEntryList::fill( IODir* iodir )
 	}
 	if ( *((const char*)iopkey) )
 	{
-	    IOPar* iop = ioobj->trOpts();
-	    if ( !iop && inciopkey )
+	    IOPar& iop = ioobj->pars();
+	    const char* res = iop.find( (const char*)iopkey );
+	    if ( !res && inciopkey )
 		continue;
-	    if ( iop )
-	    {
-		const char* res = iop->find( (const char*)iopkey );
-		if ( !res && inciopkey )
-		    continue;
-		if ( res && inciopkey == (iopval != res) )
-		    continue;
-	    }
+	    if ( res && inciopkey == (iopval != res) )
+		continue;
 	}
 
         *this += new IODirEntry( ioobj, selres, maychgdir );

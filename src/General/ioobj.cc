@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.8 2001-09-17 16:46:01 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.9 2001-10-12 10:41:49 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -28,7 +28,7 @@ IOObj::IOObj( const char* nm, const char* ky )
 	, key_(ky)
 	, dirname_(0)
 	, connclassdef_(0)
-	, opts(0)
+	, pars_(*new IOPar)
 {
 }
 
@@ -38,7 +38,7 @@ IOObj::IOObj( IOObj* l, const char* ky )
 	, key_(ky)
 	, dirname_(0)
 	, connclassdef_(0)
-	, opts(0)
+	, pars_(*new IOPar)
 {
     if ( l )
 	connclassdef_ = l->connclassdef_;
@@ -48,7 +48,7 @@ IOObj::IOObj( IOObj* l, const char* ky )
 IOObj::~IOObj()
 {
     delete dirname_;
-    delete opts;
+    delete &pars_;
 }
 
 
@@ -59,11 +59,7 @@ void IOObj::copyFrom( const IOObj* obj )
     setGroup( obj->group() );
     setTranslator( obj->translator() );
     setName( obj->name() );
-    if ( obj->opts )
-    {
-	opts = new IOPar( this );
-	*opts = *obj->opts;
-    }
+    pars_ = obj->pars_;
 }
 
 
@@ -84,12 +80,6 @@ const char* IOObj::dirName() const
 {
     if ( dirname_ ) return *dirname_;
     return IOM().curDir();
-}
-
-
-void IOObj::mkOpts()
-{
-   opts = new IOPar( this );
 }
 
 
@@ -145,8 +135,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 	{
 	    while ( *astream.keyWord() == '#' )
 	    {
-		if ( !objptr->opts ) objptr->opts = new IOPar( objptr );
-		objptr->opts->set( astream.keyWord()+1, astream.value() );
+		objptr->pars_.set( astream.keyWord()+1, astream.value() );
 		astream.next();
 	    }
 	}
@@ -183,7 +172,7 @@ Translator* IOObj::getTranslator() const
     Translator* tr = Translator::produce( group(), translator() );
     if ( !tr ) return 0;
 
-    if ( opts ) tr->usePar( opts );
+    if ( pars_.size() ) tr->usePar( &pars_ );
     return tr;
 }
 
@@ -252,13 +241,10 @@ int IOObj::put( ascostream& astream ) const
 
     if ( !putTo( astream ) )
 	return NO;
-    if ( opts )
+    for ( int idx=0; idx<pars_.size(); idx++ )
     {
-	for ( int idx=0; idx<opts->size(); idx++ )
-	{
-	    astream.stream() << '#';
-	    astream.put( opts->getKey(idx), opts->getValue(idx) );
-	}
+	astream.stream() << '#';
+	astream.put( pars_.getKey(idx), pars_.getValue(idx) );
     }
     astream.newParagraph();
     return YES;
