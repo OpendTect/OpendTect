@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.10 2001-04-18 14:45:39 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.11 2001-05-31 14:09:00 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,6 +145,10 @@ One of the components of a SeisTrc can be selected to form a DataTrace.
 
 */
 
+#ifndef mXFunctionIterTp
+# define mXFunctionIterTp mPolyRet(FunctionIter,XFunctionIter)
+#endif
+
 class SeisDataTrc : public DataTrace
 {
 public:
@@ -182,7 +186,7 @@ protected:
     int			curcomp;
     bool		ismutable;
 
-    XFunctionIter*	mkIter(bool, bool) const;
+    mXFunctionIterTp*	mkIter(bool, bool) const;
 
 };
 

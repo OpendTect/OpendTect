@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.5 2001-05-02 20:16:04 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.6 2001-05-31 14:09:15 windev Exp $";
 
 
 #include "segyhdr.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.5 2001-05-02 20:16:04 bert Exp $
 #include "settings.h"
 #include <string.h>
 #include <ctype.h>
-#include <iostream.h>
+#include <iostream>
 #include <stdio.h>
 #include <math.h>
 

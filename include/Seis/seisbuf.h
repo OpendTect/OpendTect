@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.3 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.4 2001-05-31 14:08:59 windev Exp $
 ________________________________________________________________________
 
 This object buffers seismic traces. The traces are not managed, but can be
@@ -67,7 +67,6 @@ protected:
 
 class XFunction;
 
-
 class SeisGather : public SeisTrcBuf
 {
 public:
@@ -78,7 +77,7 @@ public:
 			SeisGather( const SeisGather& sg )
 			: SeisTrcBuf(sg)	{}
 
-    virtual SeisGather*	clone() const
+    virtual mPolyRet(SeisTrcBuf,SeisGather)* clone() const
 			{ SeisGather* g = new SeisGather; fill(*g); return g; }
 
     void		getStack(SeisTrc&,const StepInterval<int>&,

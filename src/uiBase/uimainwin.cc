@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.4 2001-05-16 14:57:24 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.5 2001-05-31 14:09:28 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "errh.h"
 
-#include <iostream.h>
+#include <iostream>
 
 #ifdef __msvc__
 #include <qpopupmenu.h>

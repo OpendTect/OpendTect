@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.7 2001-05-31 12:22:27 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.8 2001-05-31 14:09:25 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include <qmenubar.h>
 
 #include <stdio.h>
-#include <iostream.h>
+#include <iostream>
 #include <limits.h>
 
 

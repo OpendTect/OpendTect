@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.8 2001-04-04 11:13:04 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.9 2001-05-31 14:09:17 windev Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -237,7 +237,7 @@ inline		SeisDataTrc& td()	{ return *((SeisDataTrc*)func_); }
 };
 
 
-XFunctionIter* SeisDataTrc::mkIter( bool bw, bool isc ) const
+mXFunctionIterTp* SeisDataTrc::mkIter( bool bw, bool isc ) const
 {
     return new SeisDataTrcIter( const_cast<SeisDataTrc*>(this), bw, isc );
 }

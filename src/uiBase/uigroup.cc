@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.6 2001-05-29 11:45:29 bert Exp $
+ RCS:           $Id: uigroup.cc,v 1.7 2001-05-31 14:09:27 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include <i_qobjwrap.h>
 #include <uimainwin.h>
 
-#include <iostream.h>
+#include <iostream>
 #include "errh.h"
 
 uiGroup::uiGroup( uiParent* parnt, const char* nm, int border, int spacing)
