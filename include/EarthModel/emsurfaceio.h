@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.12 2004-05-25 14:11:07 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.13 2004-05-28 15:00:58 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -134,6 +134,7 @@ public:
 
     static const char*		badconnstr;
     static const char*		parseerrorstr;
+    static const char*		prefcolofstr;
 
 protected:
 

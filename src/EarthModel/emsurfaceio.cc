@@ -8,10 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.31 2004-05-26 15:06:10 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.32 2004-05-28 15:00:37 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
+#include "color.h"
 #include "ascstream.h"
 #include "datachar.h"
 #include "datainterp.h"
@@ -43,6 +44,7 @@ const char* EM::dgbSurfaceReader::rowrangestr = "Row range";
 const char* EM::dgbSurfaceReader::colrangestr = "Col range";
 const char* EM::dgbSurfaceReader::dbinfostr = "DB info";
 const char* EM::dgbSurfaceReader::versionstr = "Format version";
+const char* EM::dgbSurfaceReader::prefcolofstr = "Color";
 
 const char* EM::dgbSurfaceReader::badconnstr = "Internal: Bad connection";
 const char* EM::dgbSurfaceReader::parseerrorstr = "Cannot parse file";
@@ -372,6 +374,13 @@ int EM::dgbSurfaceReader::nextStep()
 
     if ( patchindex>=patchids.size() )
     {
+	int col;
+	if ( par->get( prefcolofstr, col ) )
+	{
+	    Color newcol; newcol.setRgb(col);
+	    surface->setPreferredColor(newcol);
+	}
+
 	while ( surface->nrHingeLines() ) surface->removeHingeLine(0,false);
 	int nrhingelines = 0;
 	par->get( nrhingelinestr, nrhingelines );
@@ -398,6 +407,7 @@ int EM::dgbSurfaceReader::nextStep()
 
 	while ( surface->nrPosAttribs() )
 	    surface->removePosAttrib(surface->posAttrib(0));
+
 
 	int nrattribs = 0;
 	par->get( nrposattrstr, nrattribs );
@@ -614,6 +624,8 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	if ( auxDataName(idx) )
 	    auxdatasel += idx;
     }
+
+    par.set( EM::dgbSurfaceReader::prefcolofstr, (int) surface.preferredColor().rgb() );
 
     par.set( EM::dgbSurfaceReader::nrhingelinestr, surface.nrHingeLines() );
     int hingeid = 0;
