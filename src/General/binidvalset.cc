@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.3 2005-01-17 16:34:41 bert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.4 2005-02-08 16:19:59 nanne Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -186,6 +186,13 @@ bool BinIDValueSet::putTo( std::ostream& strm ) const
 }
 
 
+int BinIDValueSet::nrCrls( int inl ) const
+{
+    const int inlidx = inls.indexOf( inl );
+    return inlidx<0 ? 0 : crlsets[inlidx]->size();
+}
+
+
 Interval<int> BinIDValueSet::inlRange() const
 {
     Interval<int> ret( mUndefIntVal, -mUndefIntVal );
@@ -195,11 +202,20 @@ Interval<int> BinIDValueSet::inlRange() const
 }
 
 
-Interval<int> BinIDValueSet::crlRange() const
+Interval<int> BinIDValueSet::crlRange( int inl ) const
 {
     Interval<int> ret( mUndefIntVal, -mUndefIntVal );
     if ( !inls.size() ) return ret;
 
+    const int inlidx = inls.indexOf( inl );
+    if ( inlidx >= 0 )
+    {
+	TypeSet<int>& crlset = *crlsets[inlidx];
+	for ( int idx=0; idx<crlset.size(); idx++ )
+	    ret.include( crlset[idx], false );
+	return ret;
+    }
+    
     Pos pos; BinID bid;
     while ( next(pos) )
     {

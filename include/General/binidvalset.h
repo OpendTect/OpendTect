@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.4 2005-01-17 16:34:41 bert Exp $
+ RCS:		$Id: binidvalset.h,v 1.5 2005-02-08 16:19:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ public:
 
     inline int		nrVals() const		{ return nrvals; }
     inline int		nrInls() const		{ return inls.size(); }
+    int			nrCrls(int inl) const;
     inline bool		isEmpty() const		{ return !nrInls(); }
     inline bool		includes( const BinID& b ) const
     						{ return findFirst(b).j > -1; }
@@ -117,7 +118,7 @@ public:
     bool		hasCrl(int) const;
     BinID		firstPos() const; //!< if empty, returns BinID(0,0)
     Interval<int>	inlRange() const;
-    Interval<int>	crlRange() const;
+    Interval<int>	crlRange(int inl=-1) const;
     Interval<float>	valRange(int) const;
 
     void		remove(const Pos&);
