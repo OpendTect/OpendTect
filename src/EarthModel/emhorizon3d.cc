@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.33 2003-10-03 06:32:03 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.34 2003-10-10 10:10:12 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -183,7 +183,6 @@ public:
 	: Executor("Horizon Import")
 	, horizon( hor )
 	, grid( g )
-	, patch( hor.addPatch(g.name(),true) )
     {
 	const int nrrows = grid.nrRows();
 	const int nrcols = grid.nrCols();
@@ -221,6 +220,7 @@ public:
 	const RowCol step( inlrange.step, crlrange.step );
 	const RowCol origo(bid00.inl,bid00.crl);
 	horizon.setTranslatorData( step, step, origo, 0, 0 );
+	patch = hor.addPatch( g.name(), true );
 
 	inl = inlrange.start;
     }
@@ -261,9 +261,10 @@ protected:
     StepInterval<int>	crlrange;
 
     int			inl;
-    const EM::PatchID	patch;
+    EM::PatchID		patch;
 };
-};
+
+}; // namespace EM
 
 
 
