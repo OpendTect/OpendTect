@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.79 2002-08-06 08:17:11 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.80 2002-08-08 10:33:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,7 +164,11 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	horizons += hor;
 
 	if ( hor->getAttribSelSpec().id() >= 0 )
+	{
+	    bool usetext = hor->usesTexture();
 	    getDataCB( hor );
+	    hor->useTexture( usetext );
+	}
 	else if ( hor->usesTexture() )
 	    hor->setZValues();
     }
@@ -910,11 +914,19 @@ void uiVisPartServer::removeHorizonDisplay( int id )
 
 void uiVisPartServer::getHorAttribPos( int id,
 				       ObjectSet<TypeSet<BinIDValue> >& bidvset,
-				       const BinIDRange* br )
+				       const BinIDRange* br ) const
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
     if ( hor ) hor->getAttribPos( bidvset, br );
+}
+
+
+void uiVisPartServer::getHorData( int id, TypeSet<float>& vals ) const
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
+    if ( hor ) hor->getDataValues( vals );
 }
 
 

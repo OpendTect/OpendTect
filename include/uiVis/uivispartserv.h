@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.51 2002-08-05 15:38:17 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.52 2002-08-08 10:33:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,8 +163,9 @@ public:
     int			addHorizonDisplay(const MultiID& emhorid);
     void		removeHorizonDisplay( int );
     void		getHorAttribPos(int,ObjectSet<TypeSet<BinIDValue> >&,
-					const BinIDRange* br=0);
+					const BinIDRange* br=0) const;
     			//!< The data in the objset is managed by caller
+    void		getHorData(int,TypeSet<float>&) const;
     void		putNewHorData(int,const ObjectSet<const float>& );
     void		getHorizonIds(int,TypeSet<int>&);
     void		getHorizonNames(ObjectSet<BufferString>&);
