@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.9 2005-03-11 12:52:43 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.10 2005-03-17 16:28:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.9 2005-03-11 12:52:43 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.10 2005-03-17 16:28:54 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -28,12 +28,10 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.9 2005-03-11 12:52:43 cv
 #include "vistransform.h"
 
 
+mCreateFactoryEntry( visSurvey::EMObjectDisplay );
+
 namespace visSurvey
 {
-
-
-mCreateFactoryEntry( EMObjectDisplay );
-
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
@@ -41,10 +39,10 @@ EMObjectDisplay::EMObjectDisplay()
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
     , usestexture(false)
-    , editor( 0 )
-    , eventcatcher( 0 )
-    , transformation( 0 )
-    , translation( 0 )
+    , editor(0)
+    , eventcatcher(0)
+    , transformation(0)
+    , translation(0)
 {}
 
 
@@ -59,10 +57,11 @@ EMObjectDisplay::~EMObjectDisplay()
 }
 
 
-mVisTrans* EMObjectDisplay::getDisplayTransformation() {return transformation;}
+mVisTrans* EMObjectDisplay::getDisplayTransformation()
+{return transformation;}
 
 
-void EMObjectDisplay::setDisplayTransformation(mVisTrans* nt)
+void EMObjectDisplay::setDisplayTransformation( mVisTrans* nt )
 {
     if ( transformation ) transformation->unRef();
     transformation = nt;
@@ -75,7 +74,7 @@ void EMObjectDisplay::setDisplayTransformation(mVisTrans* nt)
 }
 
 
-void EMObjectDisplay::setSceneEventCatcher(visBase::EventCatcher* nec )
+void EMObjectDisplay::setSceneEventCatcher( visBase::EventCatcher* nec )
 {
     if ( eventcatcher ) eventcatcher->unRef();
     eventcatcher = nec;
@@ -112,7 +111,7 @@ void EMObjectDisplay::removeAll()
 }
 
 
-bool EMObjectDisplay::setEMObject(const MultiID& newmid)
+bool EMObjectDisplay::setEMObject( const MultiID& newmid )
 {
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(newmid));
@@ -164,7 +163,7 @@ bool EMObjectDisplay::updateFromEM()
 }
 
 
-void EMObjectDisplay::useTexture(bool yn)
+void EMObjectDisplay::useTexture( bool yn )
 {
     if ( usesTexture()==yn )
 	return;
@@ -187,7 +186,8 @@ void EMObjectDisplay::useTexture(bool yn)
 }
 
 
-bool EMObjectDisplay::usesTexture() const { return usestexture; }
+bool EMObjectDisplay::usesTexture() const
+{ return usestexture; }
 
 
 void EMObjectDisplay::readAuxData()
@@ -242,16 +242,16 @@ void EMObjectDisplay::setDepthAsAttrib()
 }
 
 
-void EMObjectDisplay::fetchData(ObjectSet<BinIDValueSet>& data) const
+void EMObjectDisplay::fetchData( ObjectSet<BinIDValueSet>& data ) const
 {
     deepErase( data );
-
     for ( int idx=0; idx<sections.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( !psurf ) return;
 	data += new BinIDValueSet( 1, false );
 	BinIDValueSet& res = *data[idx];
-	psurf->getDataPositions(res,true);
+	psurf->getDataPositions( res, true );
     }
 }
 
@@ -266,7 +266,7 @@ void EMObjectDisplay::stuffData( bool forcolordata,
     {
 	for ( int idx=0; idx<sections.size(); idx++ )
 	{
-	    mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	    psurf->setTextureData( 0 );
 	}
 	return;
@@ -344,7 +344,7 @@ void EMObjectDisplay::useWireframe( bool yn )
 MPEEditor* EMObjectDisplay::getEditor() { return editor; }
 
 
-void EMObjectDisplay::enableEditing(bool yn)
+void EMObjectDisplay::enableEditing( bool yn )
 {
     if ( yn && !editor )
     {
@@ -369,7 +369,7 @@ bool EMObjectDisplay::isEditingEnabled() const
 { return editor && editor->isOn(); }
 
 
-EM::SectionID EMObjectDisplay::getSectionID(int visid) const
+EM::SectionID EMObjectDisplay::getSectionID( int visid ) const
 {
     for ( int idx=0; idx<sections.size(); idx++ )
     {
@@ -381,7 +381,7 @@ EM::SectionID EMObjectDisplay::getSectionID(int visid) const
 }
 
 
-EM::SectionID EMObjectDisplay::getSectionID(const TypeSet<int>* path) const
+EM::SectionID EMObjectDisplay::getSectionID( const TypeSet<int>* path ) const
 {
     for ( int idx=0; path && idx<path->size(); idx++ )
     {
@@ -393,10 +393,9 @@ EM::SectionID EMObjectDisplay::getSectionID(const TypeSet<int>* path) const
 }
 
 
-visBase::VisualObject*
-EMObjectDisplay::createSection( Geometry::Element* ge )
+visBase::VisualObject* EMObjectDisplay::createSection( Geometry::Element* ge )
 {
-    mDynamicCastGet( Geometry::CubicBezierSurface*, cbs, ge );
+    mDynamicCastGet(Geometry::CubicBezierSurface*,cbs,ge);
     if ( cbs )
     {
 	visBase::CubicBezierSurface* surf =
@@ -405,7 +404,7 @@ EMObjectDisplay::createSection( Geometry::Element* ge )
 	return surf;
     }
 
-    mDynamicCastGet( Geometry::ParametricSurface*, ps, ge );
+    mDynamicCastGet(Geometry::ParametricSurface*,ps,ge);
     if ( ps )
     {
 	visBase::ParametricSurface* surf =
@@ -424,5 +423,4 @@ void EMObjectDisplay::removeAttribCache()
     attribcachesz.erase();
 }
 
-
-};
+}; // namespace visSurvey
