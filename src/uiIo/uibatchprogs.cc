@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.9 2003-10-24 10:20:05 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.10 2003-11-05 16:19:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,9 +271,8 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     const BatchProgInfo& bpi = *pil[selidx];
 
     BufferString comm( "@" );
-    comm += GetSoftwareDir();
-    comm = File_getFullPath( comm, "bin" );
-    comm = File_getFullPath( comm, "od_exec" );
+    comm += mGetExecScript();
+
     comm += " --inxterm+askclose ";
     if ( bpi.issys ) comm += "--sys ";
     comm += progfld->box()->text();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.29 2003-10-28 12:15:22 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.30 2003-11-05 16:19:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,12 +180,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	return false;
 
     BufferString comm( "@" );
-    comm += GetSoftwareDir();
-    comm = File_getFullPath( comm, "bin" );
-    comm = File_getFullPath( comm, "od_exec" );
+    comm += GetExecScript( dormt );
     if ( dormt )
     {
-	comm += "_rmt ";
 	comm += hostname;
 	comm += " --rexec ";
 	comm += rshcomm;

@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.13 2003-11-03 12:02:37 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.14 2003-11-05 16:19:50 arend Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -40,9 +40,8 @@ void HelpViewer::use( const char* url, const char* wintitl )
     }
 
     BufferString cmd( "@" );
-    cmd += GetSoftwareDir();
-    cmd = File_getFullPath( cmd, "bin" );
-    cmd = File_getFullPath( cmd, "od_exec" );
+    cmd += mGetExecScript();
+
     cmd += " HtmlViewer \"";
     cmd += url; cmd += "\" ";
     if ( wintitl )

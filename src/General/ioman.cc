@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.38 2003-10-19 13:53:08 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.39 2003-11-05 16:19:50 arend Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -125,7 +125,7 @@ void IOMan::init()
 	iol->dirname = iostrm->name();
 	const IOObj* previoobj = prevdd ? (*dirPtr())[prevdd->id]
 					: dirPtr()->main();
-	int idxof = indexOf( dirPtr()->objs_, (IOObj*)previoobj );
+	int idxof = dirPtr()->objs_.indexOf( (IOObj*)previoobj );
 	dirPtr()->objs_.insertAfter( iol, idxof );
 
 	prevdd = dd;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.11 2003-10-15 09:12:21 arend Exp $
+ RCS:		$Id: genc.h,v 1.12 2003-11-05 16:19:50 arend Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,19 @@ const char*	GetProjectVersionName(void);
 */
 const char*	GetSoftwareDir(void);
 
+
+/*! Location of launch script for external programs
+
+    local:
+	GetSoftwareDir()/bin/od_exec     on *nix
+	GetSoftwareDir()\bin\od_exec.bat on win32
+    remote:
+	GetSoftwareDir()/bin/od_exec_rmt     on *nix
+	GetSoftwareDir()\bin\od_exec_rmt.bat on win32
+
+*/
+const char*	GetExecScript(int remote);
+#define		mGetExecScript()	GetExecScript(0)
 
 /*! DTECT_USER (or dGB_USER, etc.).
 
@@ -149,6 +162,10 @@ const char*	GetDataFileName(const char*);
 
 */
 const char*	GetDataDir(void);
+
+
+
+
 
 int		isFinite(double);
 		/*!< Returns 0 for infinite, NaN, and that sort of crap */
