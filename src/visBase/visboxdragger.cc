@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.3 2002-10-23 09:41:40 nanne Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.4 2002-11-08 15:02:19 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,9 +51,8 @@ visBase::BoxDragger::~BoxDragger()
 }
 
 
-void visBase::BoxDragger::setCenter( const Coord3& pos_ )
+void visBase::BoxDragger::setCenter( const Coord3& pos )
 {
-    Coord3 pos( pos_ );
     boxdragger->translation.setValue( pos.x, pos.y, pos.z );
 }
 
@@ -61,22 +60,20 @@ void visBase::BoxDragger::setCenter( const Coord3& pos_ )
 Coord3 visBase::BoxDragger::center() const
 {
     SbVec3f pos = boxdragger->translation.getValue();
-    Coord3 res( pos[0], pos[1], pos[2] );
-    return res;
+    return Coord3( pos[0], pos[1], pos[2] );
 }
 
 
-void visBase::BoxDragger::setScale( const Coord3& pos )
+void visBase::BoxDragger::setWidth( const Coord3& pos )
 {
     boxdragger->scaleFactor.setValue( pos.x/2, pos.y/2, pos.z/2 );
 }
 
 
-Coord3 visBase::BoxDragger::scale() const
+Coord3 visBase::BoxDragger::width() const
 {
     SbVec3f pos = boxdragger->scaleFactor.getValue();
-    Coord3 res( pos[0]*2, pos[1]*2, pos[2]*2 );
-    return res;
+    return Coord3( pos[0]*2, pos[1]*2, pos[2]*2 );
 }
 
 

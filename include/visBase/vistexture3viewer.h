@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.1 2002-11-08 12:22:25 kristofer Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.2 2002-11-08 15:02:44 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 
 class SoRotation;
+class SoTexture2;
 class SoTexture3;
 class SoTranslateRectangleDragger;
 class SoSensor;
@@ -26,7 +27,19 @@ class SoTextureCoordinate3;
 namespace visBase
 {
 
-class MovableTextureSlice;
+class Texture3ViewerObject : public VisualObjectImpl
+{
+public:
+    virtual void		setTexture( SoTexture3* ) = 0;
+};
+
+
+/*!\brief
+Is a viewer for 3d textures. Any number of slices, in either x, y or z
+direction can be cut through the texture. The positions of the object in
+3d is always -1,-1,-1 to 1,1,1. If you want to have it larger, place a scale
+in front of it.
+*/
 
 class Texture3Viewer : public VisualObjectImpl
 {
@@ -47,11 +60,11 @@ protected:
 			~Texture3Viewer();
     SoTexture3*         texture;
 
-    ObjectSet<MovableTextureSlice>	textureobjects;
+    ObjectSet<Texture3ViewerObject>	textureobjects;
 };
 
 
-class MovableTextureSlice : public VisualObjectImpl
+class MovableTextureSlice : public Texture3ViewerObject
 {
 public:
     static MovableTextureSlice*	create()
@@ -73,7 +86,34 @@ protected:
     SoGroup*			group;
     SoTextureCoordinate3*	texturecoords;
     SoTranslateRectangleDragger* dragger;
-    int			dim_;
+    int				dim_;
+};
+
+
+class MovableTexture2Slice : public Texture3ViewerObject
+{
+public:
+    static MovableTexture2Slice*	create()
+			mCreateDataObj0arg(MovableTexture2Slice);
+
+    int			dim() const;
+    void		setDim( int );
+    float 		position() const;
+    void		setPosition( float );
+
+    void		setTexture( SoTexture3* );
+protected:
+				~MovableTexture2Slice();
+
+    static void			fieldsensorCB( void*, SoSensor* );
+    SoFieldSensor*		fieldsensor;
+
+    SoRotation*			rotation;
+    SoGroup*			group;
+    SoTranslateRectangleDragger* dragger;
+    SoTexture2*			texture2;
+    SoTexture3*			texture3;
+    int				dim_;
 };
 
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.3 2002-10-23 09:41:55 nanne Exp $
+ RCS:		$Id: visboxdragger.h,v 1.4 2002-11-08 15:02:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -32,8 +32,8 @@ public:
     void			setCenter(const Coord3&);
     Coord3			center() const;
     
-    void			setScale(const Coord3&);
-    Coord3			scale() const;
+    void			setWidth(const Coord3&);
+    Coord3			width() const;
 
     Notifier<BoxDragger>	started;
     Notifier<BoxDragger>	motion;
