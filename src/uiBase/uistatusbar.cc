@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.cc,v 1.5 2002-01-22 13:22:15 arend Exp $
+ RCS:           $Id: uistatusbar.cc,v 1.6 2002-01-29 11:12:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
 			}
 
     void		addMsgFld( const char* tooltip, 
-				   uiStatusBar::txtAlign algn,  int stretch )
+				   uiStatusBar::TxtAlign algn,  int stretch )
 			{
 			    QLabel* msg_ = new QLabel( qthing(), tooltip );
 
@@ -56,11 +56,11 @@ public:
 			    int qalgn = 0;
 			    switch( algn )
 			    {
-				case uiStatusBar::centre:
+				case uiStatusBar::Centre:
 				    qalgn = Qt::AlignCenter; break;
-				case uiStatusBar::right:
+				case uiStatusBar::Right:
 				    qalgn = Qt::AlignRight; break;
-				case uiStatusBar::left:
+				case uiStatusBar::Left:
 				    qalgn = Qt::AlignLeft; break;
 			    }
 			    if( qalgn ) msg_->setAlignment( qalgn );
@@ -85,17 +85,16 @@ private:
 
 
 uiStatusBar::uiStatusBar( uiMainWin* parnt, const char* nm, QStatusBar& sb )
-: uiObjHandle( nm, &mkbody(parnt, nm, sb) )
-{}
+	: uiObjHandle( nm, &mkbody(parnt, nm, sb) )
+{
+}
 
 uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm, 
 				      QStatusBar& sb)	
 {
     body_= new uiStatusBarBody( *this, parnt, nm, sb );
 
-//    sb.setBackgroundMode( Qt::PaletteMidlight );
     sb.setSizeGripEnabled( false ); 
-
 
     return *body_; 
 }
@@ -108,7 +107,7 @@ void uiStatusBar::message( const char* msg, int fldidx )
 }
 
 
-void uiStatusBar::addMsgFld( const char* tooltip, txtAlign al, int stretch )
-    { body_->addMsgFld( tooltip, al, stretch ); }
-
-
+void uiStatusBar::addMsgFld( const char* tooltip, TxtAlign al, int stretch )
+{
+    body_->addMsgFld( tooltip, al, stretch );
+}

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.8 2001-08-31 15:05:29 arend Exp $
+ RCS:           $Id: uimenu.cc,v 1.9 2002-01-29 11:12:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,7 @@ void uiMenuItem::setChecked( bool yn )
     { menu_->qthing()->setItemChecked( id_, yn ); }
 
 
-void uiMenuItem::set( const char* txt )
+void uiMenuItem::setText( const char* txt )
     { menu_->qthing()->changeItem ( id_, QString(txt) ); }
 
 

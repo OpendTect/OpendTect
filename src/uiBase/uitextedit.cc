@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.6 2001-10-04 13:14:54 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.7 2002-01-29 11:12:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p,
 void uiTextEditBody::append( const char* txt)
 { 
     QTextEdit::append( txt );
+    repaint();
     setCursorPosition( lines(), 0 );
 } 
 

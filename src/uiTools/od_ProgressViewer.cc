@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.1 2002-01-29 07:54:05 bert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.2 2002-01-29 11:12:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,14 +18,16 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistatusbar.h"
 #include "prog.h"
+#include "sighndl.h"
 #include <iostream.h>
+#include <ctype.h>
 
 
 class uiProgressViewer : public uiMainWin
 {
 public:
 
-    		uiProgressViewer(uiParent*,istream&,bool);
+    		uiProgressViewer(uiParent*,istream&,int);
     		~uiProgressViewer();
 
 protected:
@@ -37,22 +39,21 @@ protected:
     uiTextEdit*	txtfld;
     uiMenuItem*	quitmi;
     Timer*	tim;
-    bool	delayed;
-    bool	first_time;
-    BufferString fullline;
+    int		ppid;
+    int		sz;
+    char	fullline[81];
 
-    void	startWork();
     void	doWork(CallBacker*);
     void	update(char*,int&);
 };
 
 
-uiProgressViewer::uiProgressViewer( uiParent* p, istream& s, bool b )
+uiProgressViewer::uiProgressViewer( uiParent* p, istream& s, int i )
 	: uiMainWin(p,"Progress",1)
 	, tim(0)
 	, strm(s)
-	, delayed(b)
-	, first_time(false)
+	, ppid(i)
+	, sz(0)
 {
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
@@ -62,7 +63,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, istream& s, bool b )
     uiMenuItem* mi = new uiMenuItem( "Help", mCB(this,uiProgressViewer,helpFn));
     popmnu->insertItem( mi );
     popmnu->insertSeparator();
-    quitmi = new uiMenuItem( "&Quit / Stop process",
+    quitmi = new uiMenuItem( ppid ? "Stop process and &Quit" : "&Quit",
 	    		 mCB(this,uiProgressViewer,quitFn) );
     popmnu->insertItem( quitmi );
 
@@ -81,66 +82,45 @@ uiProgressViewer::~uiProgressViewer()
 }
 
 
-void uiProgressViewer::startWork()
-{
-}
-
-
 void uiProgressViewer::doWork( CallBacker* )
 {
-    if ( first_time )
-    {
-	first_time = false;
-	tim->start( 1 , true );
-	return;
-    }
-
     if ( strm.eof() || strm.fail() )
     {
+	if ( sz )
+	    txtfld->append( fullline );
+	fullline[0] = '\0';
+	statusBar()->message( fullline );
+	uiMain::theMain().flushX();
 	quitmi->setText( "&Quit" );
+	ppid = 0;
 	return;
     }
 
-    static char buf[80];
-    int endnr = 0;
-    char c;
-    while ( (c = strm.peek()) != EOF )
+    char c = strm.peek();
+    strm.ignore( 1 );
+    if (  c == '\n' || isprint(c) )
     {
-	buf[endnr] = c; endnr++;
+	if ( c == '\n' || sz == 80 )
+	{
+	    txtfld->append( fullline );
+	    sz = 0;
+	}
 
-	if ( !delayed || isspace(c) || endnr == 79 )
-	    update( buf, endnr );
-
-	strm.ignore( 1 );
-    }
-    update( buf, endnr );
-
-    tim->start( 1 , true );
-}
-
-
-void uiProgressViewer::update( char* buf, int& nr )
-{
-    if ( !nr ) return;
-
-    buf[nr] = '\0';
-    if ( buf[nr-1] != '\n' )
-	fullline += buf;
-    else
-    {
-	buf[nr-1] = '\0';
-	txtfld->append( fullline );
-        fullline = buf;
+	if ( c != '\n' && isprint(c) )
+	    fullline[sz++] = c;
+	fullline[sz] = '\0';
+	statusBar()->message( fullline );
+	uiMain::theMain().flushX();
     }
 
-    statusBar()->message( fullline );
-    uiMain::theMain().flushX();
-    nr = 0;
+    tim->start( 1, true );
 }
 
 
 void uiProgressViewer::quitFn( CallBacker* )
 {
+    if ( ppid )
+	SignalHandling::stopProcess( ppid );
     uiMain::theMain().exit(0);
 }
 
@@ -154,8 +134,8 @@ void uiProgressViewer::helpFn( CallBacker* )
 int main( int argc, char** argv )
 {
     uiMain app( argc, argv );
-    bool delayed = argc > 1 && !strcmp(argv[1],"+D");
-    uiProgressViewer* pv = new uiProgressViewer( 0, cin, delayed );
+    int ppid = argc > 1 ? atoi(argv[1]) : 0;
+    uiProgressViewer* pv = new uiProgressViewer( 0, cin, ppid );
 
     app.setTopLevel( pv );
     pv->show();
