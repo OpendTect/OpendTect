@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.35 2004-06-04 09:36:51 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.36 2004-06-04 14:53:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -418,7 +418,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    if ( as.id()<-1 && colordata )
 	    { visserv->setRandomPosData(visid,true,0); return true; }
 
-	    if ( as.id() == -1 )
+	    if ( as.id() == AttribSelSpec::otherAttrib )
 	    {
 		bool selok = emserv->loadAuxData( 
 		    *visserv->getMultiID(visid), as.userRef() );

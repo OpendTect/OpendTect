@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.221 2004-05-28 10:11:52 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.222 2004-06-04 14:52:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -695,8 +695,7 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 
     const AttribSelSpec* as = so->getSelSpec();
     if ( !as ) return false;
-    if ( as->id()==AttribSelSpec::noAttrib ||
-	 as->id()==AttribSelSpec::otherAttrib )
+    if ( as->id()==AttribSelSpec::noAttrib )
 	return true;
 
     if ( newselect || ( as->id()==AttribSelSpec::attribNotSel ) )
