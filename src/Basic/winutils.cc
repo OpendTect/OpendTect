@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.5 2004-12-07 13:00:51 dgb Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.6 2005-01-06 12:08:17 kristofer Exp $";
 
 
 #include "winutils.h"
@@ -22,13 +22,13 @@ static const char* rcsID = "$Id: winutils.cc,v 1.5 2004-12-07 13:00:51 dgb Exp $
 
 // registry stuff
 # include <regstr.h>
-# include <ctype.h>
 # include <winreg.h>
 
 #include <iostream>
 
 #endif
 
+# include <ctype.h>
 
 #ifdef __cpp__
 extern "C" {
