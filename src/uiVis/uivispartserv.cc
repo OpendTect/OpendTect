@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.233 2004-09-03 13:33:09 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.234 2004-09-03 14:46:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,10 +80,8 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,deselectObjCB) );
     delete &eventmutex;
 
-    for ( int idx=0; idx<menus.size(); idx++ )
-	menus[idx]->unRef();
-
     delete trackdlg;
+    deleteAllObjects();
 }
 
 
@@ -420,6 +418,8 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 
 bool uiVisPartServer::deleteAllObjects()
 {
+    delete trackdlg; trackdlg = 0;
+
     while ( scenes.size() )
 	removeScene( scenes[0]->id() );
 
