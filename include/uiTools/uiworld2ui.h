@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.5 2005-03-22 08:06:16 cvsduntao Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.6 2005-03-22 09:42:08 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,11 +128,16 @@ public:
 			}
 			//! Call this if window size changed(uiSize) but
 			//! the world rect. remains the same. Normally after 
-			//! window resize.
+			//! window resize. Must be called only after the two
+			//! coordinate system has been set up.
     void		setUisize (const uiSize& sz )
     				{ set ( sz, wrdrect_ ); }
+    void		setUirect (const uiRect& rc )
+    				{ set ( rc, wrdrect_ ); }
 			//! Call this if the world rect. has changed but the
-			//! display window(uiSize) remains the same.
+			//! display window(uiSize) remains the same. Must be
+			//! called only after the two coordinate system has 
+			//! been set up.
     void		setWorldRect (const uiWorldRect& wr )
     				{ set ( uisize_, wr ); }
 
