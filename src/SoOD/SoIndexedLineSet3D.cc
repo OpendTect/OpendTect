@@ -6,6 +6,8 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/bundles/SoTextureCoordinateBundle.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
+#include <Inventor/details/SoFaceDetail.h>
+#include <Inventor/details/SoPointDetail.h>
 
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/elements/SoMaterialBindingElement.h>
@@ -47,218 +49,6 @@ void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 void SoIndexedLineSet3D::generatePrimitives(SoAction* action)
 {
     generateTriangles(action, false );
-
-/*
-    if ( coordIndex.getNum()<2 )
-	return;
-
-    SoState* state = action->getState();
-    SoMaterialBindingElement::Binding mbind =
-				SoMaterialBindingElement::get(state);
-
-    const SoCoordinateElement* coords;
-    const SbVec3f* normals;
-    const int32_t* cindices;
-    int numindices;
-    const int32_t* nindices;
-    const int32_t* tindices;
-    const int32_t* mindices;
-    SbBool dotextures;
-    SbBool sendnormals = TRUE;
-    SbBool normalcacheused;
-
-    getVertexData(  state, coords, normals, cindices,
-		    nindices, tindices, mindices, numindices,
-		    sendnormals, normalcacheused );
-
-    SoTextureCoordinateBundle tb(action, FALSE, FALSE);
-    dotextures = tb.needCoordinates();
-
-    if ( dotextures )
-    {
-	if ( tb.isFunction() )
-	    tindices = 0;
-	else if ( SoTextureCoordinateBindingElement::get(state) ==
-			      SoTextureCoordinateBindingElement::PER_VERTEX )
-	    tindices = 0;
-	else if ( !tindices )
-	    tindices = cindices;
-    }
-
-    if (mbind == SoMaterialBindingElement::PER_VERTEX_INDEXED && !mindices )
-	mindices = cindices;
-
-    int texidx = 0;
-    int matnr = 0;
-
-    const int32_t* viptr = cindices;
-    const int32_t* viendptr = viptr + numindices;
-    SoPrimitiveVertex pv;
-
-    while ( viptr+2<viendptr )
-    {
-	bool isreversed = false;
-	int32_t v1 = *viptr++;
-	SbVec3f c1 = coords->get3(v1);
-	int m1 = 0, m2 = 0;
-
-	if ( mbind==SoMaterialBindingElement::PER_PART ||
-	     mbind==SoMaterialBindingElement::PER_FACE ||
-	     mbind==SoMaterialBindingElement::PER_VERTEX )
-	{
-	    m1 = matnr++;
-	    m2 = matnr;
-	}
-	else if ( mbind==SoMaterialBindingElement::PER_PART_INDEXED ||
-		  mbind==SoMaterialBindingElement::PER_FACE_INDEXED ||
-		  mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
-	{
-	    m1 = *mindices++;
-	    m2 = *mindices;
-	}
-
-	int32_t v2 = *viptr;
-	SbVec3f c2 = coords->get3(v2);
-
-	SbVec3f squarecoords1[4];
-	if ( !getEdgeStartCoords( c1, c2, squarecoords1) )
-	    continue;
-
-	beginShape( action, TRIANGLES );
-	pv.setNormal(c1-c2);
-	pv.setMaterialIndex(m1);
-	pv.setPoint(squarecoords1[0]);
-	shapeVertex(&pv);
-	pv.setPoint(squarecoords1[1]);
-	shapeVertex(&pv);
-	pv.setPoint(squarecoords1[3]);
-	shapeVertex(&pv);
-
-	pv.setPoint(squarecoords1[3]);
-	shapeVertex(&pv);
-	pv.setPoint(squarecoords1[1]);
-	shapeVertex(&pv);
-	pv.setPoint(squarecoords1[2]);
-	shapeVertex(&pv);
-
-	endShape();
-
-	while ( v2>=0 )
-	{
-	    viptr++;
-	    mindices++;
-	    const int32_t v3 = *viptr;
-	    SbVec3f c3;
-
-	    SbVec3f c2c1 = c2-c1;
-	    c2c1.normalize();
-	    SbPlane junctionplane;
-	    bool doreverse = false;
-	    if ( v3>=0 )
-	    {
-		c3 = coords->get3(v3);
-		SbVec3f c3c2 = c3-c2;
-		c3c2.normalize();
-		doreverse = c2c1.dot(c3c2)<-0.5;
-		SbVec3f planenormal = doreverse ? c2c1-c3c2 :c2c1+c3c2;
-		if ( !planenormal.length() )
-		    planenormal = c2c1;
-
-
-		junctionplane = SbPlane( planenormal, c2 );
-	    }
-	    else
-		junctionplane = SbPlane( c2c1, c2 );
-
-	    SbVec3f squarecoords2[4];
-	    for ( int idx=0; idx<4; idx++ )
-	    {
-		SbLine projline( squarecoords1[idx], squarecoords1[idx]+c2c1 );
-		junctionplane.intersect(projline,squarecoords2[idx]);
-	    }
-
-	    beginShape( action, TRIANGLES );
-	    for ( int idx=0; idx<4; idx++ )
-	    {
-		SbVec3f normal = (isreversed ? -1 : 1 ) *
-		    (squarecoords1[(idx+1)%4]-squarecoords1[idx]).cross
-		    (squarecoords2[idx]-squarecoords1[idx]);
-
-		pv.setNormal(normal);
-
-		pv.setPoint(squarecoords1[idx]);
-		pv.setMaterialIndex(m1);
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords2[idx]);
-		pv.setMaterialIndex(m2);
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords1[(idx+1)%4]);
-		pv.setMaterialIndex(m1);
-		shapeVertex(&pv);
-
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords2[idx]);
-		pv.setMaterialIndex(m2);
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords2[(idx+1)%4]);
-		shapeVertex(&pv);
-	    }
-
-	    endShape();
-
-
-	    if ( v3<0 || doreverse )
-	    {
-		beginShape( action, TRIANGLES );
-		pv.setMaterialIndex(m2);
-		pv.setNormal(c2-c1);
-		pv.setPoint(squarecoords2[0]);
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords2[1]);
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords2[3]);
-		shapeVertex(&pv);
-
-		pv.setPoint(squarecoords2[3]);
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords2[1]);
-		shapeVertex(&pv);
-		pv.setPoint(squarecoords2[2]);
-		shapeVertex(&pv);
-
-		endShape();
-	    }
-
-	    if ( doreverse ) isreversed = !isreversed;
-
-	    if ( v3<0 )
-	    {
-		viptr++;
-		++mindices;
-		break;
-	    }
-
-	    for ( int idx=0; idx<4; idx++ )
-		squarecoords1[idx] = squarecoords2[idx];
-
-	    v1 = v2; c1 = c2;
-	    v2 = v3; c2 = c3;
-	    m1 = m2;
-	    if ( mbind==SoMaterialBindingElement::PER_PART ||
-		 mbind==SoMaterialBindingElement::PER_FACE ||
-		 mbind==SoMaterialBindingElement::PER_VERTEX )
-	    {
-		m2 = ++matnr;
-	    }
-	    else if ( mbind==SoMaterialBindingElement::PER_PART_INDEXED ||
-		      mbind==SoMaterialBindingElement::PER_FACE_INDEXED ||
-		      mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
-	    {
-		m2 = *mindices;
-	    }
-	}
-    }
-*/
 }
 
 
@@ -437,43 +227,58 @@ void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
 }
 
 
-#define mSendQuad(  c1, ci1, c2, ci2, m12, c3, ci3, c4, ci4, m34, norm )\
+#define mSendQuad(  c1, ci1, c2, ci2, m12, c3, ci3, c4, ci4, m34, norm23, \
+       norm14	)\
     if ( render )\
     {\
 	mb.send(m12,true);\
-	glNormal3fv((norm).getValue()); \
 	if ( isreversed ) \
 	{ \
+	    glNormal3fv((norm23).getValue()); \
 	    glVertex3fv((c2[ci2]).getValue());\
+	    glNormal3fv((norm14).getValue()); \
 	    glVertex3fv((c1[ci1]).getValue());\
 	    mb.send(m34,true);\
-	    glNormal3fv((norm).getValue()); \
+	    glNormal3fv((norm14).getValue()); \
 	    glVertex3fv((c4[ci4]).getValue());\
+	    glNormal3fv((norm23).getValue()); \
 	    glVertex3fv((c3[ci3]).getValue());\
 	} \
 	else \
 	{ \
+	    glNormal3fv((norm14).getValue()); \
 	    glVertex3fv((c1[ci1]).getValue());\
+	    glNormal3fv((norm23).getValue()); \
 	    glVertex3fv((c2[ci2]).getValue());\
 	    mb.send(m34,true);\
-	    glNormal3fv((norm).getValue()); \
+	    glNormal3fv((norm23).getValue()); \
 	    glVertex3fv((c3[ci3]).getValue());\
+	    glNormal3fv((norm14).getValue()); \
 	    glVertex3fv((c4[ci4]).getValue());\
 	} \
     }\
     else\
     {\
-	pv.setNormal(norm); \
+	pv.setNormal(norm14); \
 	pv.setMaterialIndex(m12);\
 	pv.setPoint(c1[ci1]);\
+	pointdetail.setCoordinateIndex(ci1); \
 	shapeVertex(&pv);\
+	pv.setNormal(norm23); \
 	pv.setPoint(c2[ci2]);\
+	pointdetail.setCoordinateIndex(ci2); \
 	shapeVertex(&pv);\
+	pv.setNormal(norm14); \
 	pv.setMaterialIndex(m34);\
 	pv.setPoint(c4[ci4]);\
+	pointdetail.setCoordinateIndex(ci4); \
 	shapeVertex(&pv);\
+	pv.setNormal(norm23); \
+	facedetail.incFaceIndex(); \
 	pv.setPoint(c3[ci3]);\
+	pointdetail.setCoordinateIndex(ci3); \
 	shapeVertex(&pv);\
+	facedetail.incFaceIndex(); \
     }
 
 
@@ -497,6 +302,10 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 				SoMaterialBindingElement::get(state);
 
     SoPrimitiveVertex pv;
+    SoFaceDetail facedetail;
+    SoPointDetail pointdetail;
+    pv.setDetail(&pointdetail);
+
 
     while ( curindex<nrcoordindex )
     {
@@ -516,7 +325,8 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	}
 	else
 	{
-	    beginShape(action,TRIANGLE_STRIP );
+	    facedetail.setFaceIndex(0);
+	    beginShape(action,TRIANGLE_STRIP, &facedetail );
 	}
 
 	const int32_t* cis = coordIndex.getValues(curindex);
@@ -538,7 +348,7 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	bool isreversed = false;
 	mSendQuad(  corner1, 0, corner2, 0, material1,
 		    corner3, 0, corner4, 0, material1,
-		    endnormals[0] );
+		    endnormals[0], endnormals[0] );
 
 	for ( int idx=0; idx<nrjoints-1; idx++ )
 	{
@@ -552,36 +362,47 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 		      mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
 		material2 = materialindexes[idx+1];
 
-	    SbVec3f normal = (isreversed ? 1 : -1 ) *
+	    const SbVec3f face0normal = (isreversed ? 1 : -1 ) *
 				 (corner2[idx]-corner1[idx]).cross(
 				 corner1[idx+1]-corner1[idx] );
-	    mSendQuad(  corner2, idx, corner1, idx, material1,
-			corner1, idx+1, corner2, idx+1, material2, normal );
-
-	    normal = (isreversed ? 1 : -1 ) *
+	    const SbVec3f face1normal = (isreversed ? 1 : -1 ) *
 				 (corner3[idx]-corner2[idx]).cross(
 				 corner2[idx+1]-corner2[idx] );
-	    mSendQuad(  corner3, idx, corner2, idx, material1,
-			corner2, idx+1, corner3, idx+1, material2, normal );
-
-	    normal = (isreversed ? 1 : -1 ) *
+	    const SbVec3f face2normal = (isreversed ? 1 : -1 ) *
 				 (corner4[idx]-corner3[idx]).cross(
 				 corner3[idx+1]-corner3[idx] );
-	    mSendQuad(  corner4, idx, corner3, idx, material1,
-			corner3, idx+1, corner4, idx+1, material2, normal );
-
-	    normal = (isreversed ? 1 : -1 ) *
+	    const SbVec3f face3normal = (isreversed ? 1 : -1 ) *
 				 (corner1[idx]-corner4[idx]).cross(
 				 corner4[idx+1]-corner4[idx] );
+
+	    SbList<SbVec3f> cornernormals;
+	    cornernormals.append(face3normal+face0normal);
+	    cornernormals.append(face0normal+face1normal);
+	    cornernormals.append(face1normal+face2normal);
+	    cornernormals.append(face2normal+face3normal);
+
+	    mSendQuad(  corner2, idx, corner1, idx, material1,
+			corner1, idx+1, corner2, idx+1, material2,
+			cornernormals[0], cornernormals[1] );
+
+	    mSendQuad(  corner3, idx, corner2, idx, material1,
+			corner2, idx+1, corner3, idx+1, material2,
+			cornernormals[1], cornernormals[2] );
+
+	    mSendQuad(  corner4, idx, corner3, idx, material1,
+			corner3, idx+1, corner4, idx+1, material2, 
+		   	cornernormals[2], cornernormals[3] );
+
 	    mSendQuad(  corner1, idx, corner4, idx, material1,
-			corner4, idx+1, corner1, idx+1, material2, normal );
+			corner4, idx+1, corner1, idx+1, material2, 
+		   	cornernormals[3], cornernormals[0] );
 
 	    if ( reverse[idx+1] || idx==nrjoints-2)
 	    {
 		isreversed = !isreversed;
 		mSendQuad(  corner1, idx+1, corner2, idx+1, material2,
 			    corner3, idx+1, corner4, idx+1, material2,
-			    endnormals[idx+1] );
+			    endnormals[idx+1], endnormals[idx+1] );
 	    }
 
 	    material1 = material2;
@@ -596,6 +417,7 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	else
 	{
 	    endShape();
+	    facedetail.incPartIndex();
 	}
 
 	curindex += nrjoints+1;
