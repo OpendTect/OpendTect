@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.11 2004-05-28 15:55:02 bert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.12 2004-06-04 09:37:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ public:
 
     // Work. Don't use unless expert.
     bool			getNewData(int visid,bool);
-    //bool			evaluateAttribute(int visid);
+    bool			evaluateAttribute(int visid);
     void			resetServers();
     void			modifyColorTable(int);
     void			manSurvCB(CallBacker*)	{ manageSurvey(); }
@@ -150,10 +150,6 @@ protected:
     bool			handleVisServEv(int);
     bool			handleNLAServEv(int);
     bool			handleAttribServEv(int);
-
-    //bool			getNewCubeData(int visid,bool);
-    //bool			getNewSurfData(int,bool);
-    //bool			getNewRandomLineData(int,bool);
 
     void			setHistogram(int);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.34 2004-06-04 05:42:55 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.35 2004-06-04 09:36:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -447,15 +447,18 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
     return res;
 }
 
-/*
+
 bool uiODApplMgr::evaluateAttribute( int visid )
 {
-    if ( visserv->isInlCrlTsl(visid,-1) )
+    /* TODO: Perhaps better to merge this with uiODApplMgr::getNewData(), 
+       for now it works */
+    int format = visserv->getAttributeFormat( visid );
+    if ( format == 0 )
     {
 	const CubeSampling cs = visserv->getCubeSampling( visid );
-	visserv->setCubeData( visid, attrserv->createSliceSet(cs) );
+	visserv->setCubeData( visid, false, attrserv->createSliceSet(cs) );
     }
-    else if ( visserv->isHorizon(visid) )
+    else if ( format == 2 )
     {
 	ObjectSet< TypeSet<BinIDZValues> > data;
 	visserv->getRandomPosDataPos( visid, data );
@@ -464,7 +467,8 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 	const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
 	    reinterpret_cast< const ObjectSet< 
 			    const TypeSet< const BinIDZValues > >& >( data );
-	visserv->setRandomPosData( visid, &to_pass );
+	visserv->setRandomPosData( visid, false, &to_pass );
+	deepErase( data );
     }
     else
     {
@@ -474,7 +478,7 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 
     return true;
 }
-*/
+
 
 
 bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
@@ -855,7 +859,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	int visid = visserv->getEventObjId();
 	AttribSelSpec as( "Evaluation" );
 	visserv->setSelSpec( visid, as );
-	if ( !getNewData( visid, false ) )
+	if ( !evaluateAttribute(visid) )
 	    return false;
 	sceneMgr().updateTrees();
     }
@@ -870,23 +874,6 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
     return true;
 }
-
-
-/*
-bool uiODApplMgr::getNewCubeData( int visid, bool colordata )
-{
-}
-
-
-bool uiODApplMgr::getNewSurfData( int visid, bool colordata )
-{
-}
-
-
-bool uiODApplMgr::getNewRandomLineData( int visid, bool colordata )
-{
-}
-*/
 
 
 void uiODApplMgr::handleStoredSurfaceData( int visid )
