@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.5 2002-05-07 16:04:18 nanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.6 2002-05-31 10:41:15 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseispartserv.h"
 #include "uimergeseis.h"
-#include "uiseisimpexp.h"
+#include "uiseissegyimpexp.h"
 #include "uiseisidealimpexp.h"
 #include "uiseisfileman.h"
 #include "uimsg.h"
@@ -38,7 +38,7 @@ bool uiSeisPartServer::ioSeis( uiSeisPartServer::ExternalType t, bool forread )
 #endif
 
     PtrMan<uiDialog> dlg = t == uiSeisPartServer::SegY
-      ? (uiDialog*) new uiSeisImpExp( appserv().parent(), forread, segyid )
+      ? (uiDialog*) new uiSeisSegYImpExp( appserv().parent(), forread, segyid )
       : (uiDialog*) new uiSeisIdealImpExp( appserv().parent(), forread,
 	      				   (int)t==1 );
 

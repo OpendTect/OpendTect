@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.h,v 1.2 2002-05-30 22:09:59 bert Exp $
+ RCS:           $Id: uiscaler.h,v 1.3 2002-05-31 10:41:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,21 +15,21 @@ ________________________________________________________________________
 #include "uigroup.h"
 class Scaler;
 class uiGenInput;
+class uiCheckBox;
 
 
 class uiScaler : public uiGroup
 {
 public:
 
-			uiScaler(uiParent*,const char* txt=0, //"Value scaling"
+			uiScaler(uiParent*,const char* txt=0, // "Scale values"
 				 bool linear_only=false);
-			~uiScaler();
 
     Scaler*		getScaler();
 
 protected:
 
-    Scaler*		scaler;
+    uiCheckBox*		ynfld;
     uiGenInput*		typefld;
     uiGenInput*		linearfld;
     uiGenInput*		basefld;
