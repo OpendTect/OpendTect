@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.5 2002-05-23 18:38:55 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.6 2002-05-23 19:03:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,8 +93,8 @@ bool uiImportHorizon::handleAscii()
 	mErrRet( "Cannot import horizon" );
 
     BufferString msg;
-    Executor* exec = EarthModelHorizonTranslator::writer( *horizon, ctio.ioobj,
-							  msg );
+    PtrMan<Executor> exec =
+	EarthModelHorizonTranslator::writer( *horizon, ctio.ioobj, msg );
     uiExecutor dlg( this, *exec );
     dlg.go();
     if ( msg && *msg )
