@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.3 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: keybindings.cc,v 1.4 2003-11-12 12:57:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "settings.h"
 #include "separstr.h"
 #include "ascstream.h"
-#include <fstream>
+#include "strmprov.h"
+#include <iostream>
 
 #include <Inventor/events/SoKeyboardEvent.h>
 #include <Inventor/events/SoMouseButtonEvent.h>
@@ -39,9 +40,11 @@ KeyBindMan::KeyBindMan()
     , ctrlpress(false)
     , curkeyb( "Default" )
 {
-    ifstream strm( GetDataFileName("MouseControls") );
-    if ( !strm ) return;
-    ascistream astrm( strm );
+    StreamData sd = StreamProvider( GetDataFileName("MouseControls") )
+			.makeIStream();
+    if ( !sd.usable() ) return;
+
+    ascistream astrm( *sd.istrm );
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( astrm.hasKeyword("Default") )
     {
@@ -70,6 +73,7 @@ KeyBindMan::KeyBindMan()
         astrm.next();
         keyset += new KeyBindings( keybind );
     }
+    sd.close();
 
     mSettUse(get,"dTect.MouseControls","Default",curkeyb);
     setKeyBindings( curkeyb );

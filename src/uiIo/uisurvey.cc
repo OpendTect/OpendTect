@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.48 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.49 2003-11-12 12:57:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,15 +25,14 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uifont.h"
 #include "iodrawtool.h"
-#include "strmprov.h"
 #include "dirlist.h"
 #include "ioman.h"
 #include "ctxtioobj.h"
 #include "filegen.h"
 #include "iostrm.h"
-
+#include "strmprov.h"
+#include <iostream>
 #include <math.h>
-#include <fstream>
 
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
@@ -545,13 +544,17 @@ void uiSurvey::updateViewsGlobal()
 	if ( ptr )
 	{
 	    char vstr[80];
-	    ifstream strm( fnm );
-	    strm.getline( vstr, 80 );
-	    if ( vstr[0] )
+	    StreamData sd = StreamProvider( fnm ).makeIStream();
+	    if ( sd.usable() )
 	    {
-		*ptr++ = '\0';
-		capt += vstr;
+		sd.istrm->getline( vstr, 80 );
+		if ( vstr[0] )
+		{
+		    *ptr++ = '\0';
+		    capt += vstr;
+		}
 	    }
+	    sd.close();
 	}
     }
 

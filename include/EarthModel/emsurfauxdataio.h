@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.7 2003-11-12 12:57:04 bert Exp $
 ________________________________________________________________________
 
 
@@ -25,9 +25,7 @@ namespace EM
 
 class Surface;
 
-/*!
-Writes auxdata to file
-*/
+/*!\brief  Writes auxdata to file */
 
 class dgbSurfDataWriter : public Executor
 {
@@ -80,14 +78,12 @@ protected:
     int				nrdone;
     int				totalnr;
 
-    ofstream*			stream;
+    ostream*			stream;
     bool			binary;
 };
 
-/*!
-Writes auxdata to file
-*/
 
+/*!\brief Reads auxdata from file */
 
 class dgbSurfDataReader : public Executor
 {
@@ -124,7 +120,7 @@ protected:
     int				nrdone;
     int				totalnr;
 
-    ifstream*			stream;
+    istream*			stream;
     DataInterpreter<int>*	subidinterpreter;
     DataInterpreter<float>*	datainterpreter;
     bool			error;

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.28 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.29 2003-11-12 12:57:04 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -15,7 +15,8 @@ static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.28 2003-11-07 12:21:57 bert 
 #include "datachar.h"
 #include "cubesampling.h"
 #include "errh.h"
-#include <fstream>
+#include "strmprov.h"
+#include <iostream>
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )
@@ -81,6 +82,9 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs )
 }
 
 
+// Aux file can contain 'trace header' data instead of in the main files.
+// Not (yet) used in OpendTect.
+
 #define mErrRet(s) \
 	{ BufferString msg( "Auxiliary file: " ); msg += s; ErrMsg(s); \
 	    delete auxstrm_; auxstrm_ = 0; return; }
@@ -91,7 +95,10 @@ void CBVSReadMgr::handleAuxFile()
     if ( !File_exists((const char*)fname) )
 	return;
 
-    auxstrm_ = new ifstream( fname );
+    StreamData sd = StreamProvider(fname).makeIStream();
+    auxstrm_ = sd.istrm;
+    if ( !auxstrm_ ) return;
+
     const char* res = CBVSReader::check( *auxstrm_ );
     if ( res ) mErrRet(res)
 

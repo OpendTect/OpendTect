@@ -8,6 +8,8 @@ ___________________________________________________________________
 
 -*/
 
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.13 2003-11-12 12:57:04 bert Exp $";
+
 #include "emsurfauxdataio.h"
 
 #include "ascstream.h"
@@ -17,10 +19,8 @@ ___________________________________________________________________
 #include "geommeshsurface.h"
 #include "iopar.h"
 #include "survinfo.h"
-
-#include <fstream>
-
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.12 2003-11-07 12:21:57 bert Exp $";
+#include "strmprov.h"
+#include <iostream>
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -59,9 +59,9 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 	par.set(floatdatacharstr, (int) dc[0],(int)dc[1]);
     }
 
-    stream = binary ? new ofstream( filename, ios::binary )
-		    : new ofstream( filename);
-
+    StreamData sd = StreamProvider( filename ).makeOStream();
+    if ( !sd.usable() ) return;
+    stream = sd.ostrm;
     if ( !(*stream) ) return;
 
     ascostream astream( *stream );
@@ -83,7 +83,6 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 
 EM::dgbSurfDataWriter::~dgbSurfDataWriter()
 {
-    stream->close();
     delete stream;
 }
 
@@ -208,7 +207,6 @@ bool EM::dgbSurfDataWriter::writeFloat( float val )
 
 EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     : Executor( "Aux data reader" )
-    , stream( new ifstream(filename) )
     , subidinterpreter( 0 )
     , datainterpreter( 0 )
     , chunksize( 100 )
@@ -219,7 +217,12 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     , nrdone(0)
     , valsleftonpatch(0)
     , shift(0)
+    , stream(0)
 {
+    StreamData sd = StreamProvider( filename ).makeIStream();
+    if ( !sd.usable() )
+	return;
+    stream = sd.istrm;
     if ( !(*stream) )
 	return;
 
@@ -256,7 +259,6 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 
 EM::dgbSurfDataReader::~dgbSurfDataReader()
 {
-    stream->close();
     delete stream;
 }
 

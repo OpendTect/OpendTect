@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.11 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.12 2003-11-12 12:57:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "iopar.h"
 #include "errh.h"
-#include <fstream>
+#include <iostream>
 
 
 class BatchProgPar
@@ -90,10 +90,10 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
     fnm = GetDataFileName( fnm );
     if ( File_isEmpty(fnm.buf()) ) return;
 
-    ifstream strm( fnm );
-    if ( !strm ) return;
+    StreamData sd = StreamProvider( fnm ).makeIStream();
+    if ( !sd.usable() ) return;
 
-    ascistream astrm( strm, true );
+    ascistream astrm( *sd.istrm, true );
 
     while ( astrm.type() != ascistream::EndOfFile )
     {
@@ -122,6 +122,7 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
 
 	if ( bpi ) *this += bpi;
     }
+    sd.close();
 }
 
 

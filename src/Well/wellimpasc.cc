@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.11 2003-11-07 16:10:49 dgb Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.12 2003-11-12 12:57:04 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.11 2003-11-07 16:10:49 dgb Ex
 #include "strmprov.h"
 #include "unitscale.h"
 #include "survinfo.h"
-#include <fstream>
+#include <iostream>
 
 inline static StreamData getSD( const char* fnm )
 {

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.3 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.4 2003-11-12 12:57:04 bert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: wellwriter.cc,v 1.3 2003-11-07 12:21:58 bert Ex
 #include "keystrs.h"
 #include "separstr.h"
 #include "iopar.h"
-#include <fstream>
+#include <iostream>
 
 
 Well::Writer::Writer( const char* f, const Well::Data& w )

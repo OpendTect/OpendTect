@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.11 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.12 2003-11-12 12:57:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,8 @@ ________________________________________________________________________
 #include "gridread.h"
 #include "valgridtr.h"
 #include "streamconn.h"
-
-#include <fstream>
+#include "strmprov.h"
+#include <iostream>
 
 
 uiImportLMKFault::uiImportLMKFault( uiParent* p )
@@ -80,8 +80,8 @@ bool uiImportLMKFault::handleAscii()
     fault->ref();
 
     PtrMan<lmkEMFaultTranslator> transl = lmkEMFaultTranslator::getInstance();
-    ifstream* stream = new ifstream( infld->fileName(), ios::in | ios::binary );
-    Conn* conn = new StreamConn( stream );
+    StreamData sd = StreamProvider( infld->fileName() ).makeIStream();
+    Conn* conn = new StreamConn( sd.istrm );
 
     PtrMan<Executor> exec =
 	transl->reader( *fault, conn, formatfilefld->fileName() ); 

@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.34 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.35 2003-11-12 12:57:04 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -20,7 +20,8 @@ The main chunk is color table related.
 #include "ptrman.h"
 #include "interpol.h"
 #include "bufstringset.h"
-#include <fstream>
+#include "strmprov.h"
+#include <iostream>
 
 // First some implementations for a couple of header files ...
 
@@ -380,13 +381,14 @@ void ColorTable::usePar( const IOPar& iopar )
 
 void ColorTable::initTabs()
 {
-    ifstream strm( GetDataFileName("ColTabs") );
-    if ( !strm ) return;
-    ascistream astrm( strm );
+    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeIStream();
+    if ( !sd.usable() ) return;
+    ascistream astrm( *sd.istrm );
     IOPar iopar( astrm, true );
     add( iopar, 0, &tabpars );
     if ( tabpars.size() )
 	tabparsinited = true;
+    sd.close();
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.6 2003-11-12 12:57:04 bert Exp $";
 
 #include "emsticksettransl.h"
 
@@ -18,8 +18,9 @@ static const char* rcsID = "$Id: emsticksettransl.cc,v 1.5 2003-11-07 12:21:57 b
 #include "ioman.h"
 #include "iopar.h"
 #include "ascstream.h"
+#include "strmprov.h"
+#include <iostream>
 
-#include <fstream>
 
 const char* EMStickSetTranslatorGroup::keyword = "StickSet";
 
@@ -168,14 +169,14 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
 	return;
     }
 
-    ifstream formatfile(formatfilename);
-    while ( formatfile )
+    StreamData formatsd = StreamProvider( formatfilename ).makeIStream();
+    while ( formatsd.istrm && *formatsd.istrm )
     {
 	BufferString fieldname; Interval<int> rg;
 
-	formatfile >> fieldname >> rg.start >> rg.stop;
+	*formatsd.istrm >> fieldname >> rg.start >> rg.stop;
+	if ( !*formatsd.istrm ) break;
 
-	if ( !formatfile ) break;
 	if ( fieldname==lmkEMStickSetTranslator::xstr )
 	    xinterval = rg;
 	else if ( fieldname==lmkEMStickSetTranslator::ystr )
@@ -195,6 +196,7 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
 	else if ( fieldname==lmkEMStickSetTranslator::tracestr )
 	    traceinterval = rg;
     }
+    formatsd.close();
 
     if ( (  xinterval.start==-1 || xinterval.stop==-1 ||
 	    yinterval.start==-1 || yinterval.stop==-1 ) &&
@@ -396,7 +398,11 @@ lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
     , distanceunitinterval( 46, 50 )
     , pointtypeinterval( 51, 51 )
 {
-    ofstream formatfile( formatfilename );
+    StreamData formatsd = StreamProvider( formatfilename ).makeOStream();
+    if ( !formatsd.usable() )
+	return;
+
+    ostream& formatfile = *formatsd.ostrm;
     formatfile  << lmkEMStickSetTranslator::xstr
 		<< '\t' << '\t' << '\t' << xinterval.start 
 		<< '\t' << xinterval.stop << '\n';
@@ -419,7 +425,7 @@ lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
 		<< '\t' << distanceunitinterval.start 
 		<< '\t' << distanceunitinterval.stop << '\n';
 
-    formatfile.close();
+    formatsd.close();
 }
 
 

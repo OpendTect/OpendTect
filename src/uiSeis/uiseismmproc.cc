@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.58 2003-11-07 12:22:02 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.59 2003-11-12 12:57:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,10 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "executor.h"
 #include "ptrman.h"
+#include "strmprov.h"
+#include "seissingtrcproc.h"
 #include <stdlib.h>
+#include <iostream>
 
 const char* sTmpStorKey = "Temporary storage directory";
 const char* sTmpSeisID = "Temporary seismics";
@@ -708,9 +711,6 @@ void uiSeisMMProc::startStopUpd( CallBacker* )
 }
 
 
-#include "seissingtrcproc.h"
-#include <fstream>
-
 bool uiSeisMMProc::acceptOK(CallBacker*)
 {
     if ( !stopbut || finished )
@@ -729,14 +729,14 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	BufferString dumpfname( GetDataDir() );
 	dumpfname = File_getFullPath( dumpfname, "Proc" );
 	dumpfname = File_getFullPath( dumpfname, "mmbatch_dump.txt" );
-	ofstream ostrm( dumpfname );
+	StreamData sd = StreamProvider( dumpfname ).makeOStream();
 	ostream* strm = &cerr;
-	if ( ostrm.fail() )
+	if ( !sd.usable() )
 	    cerr << "Cannot open dump file '" << dumpfname << "'" << endl;
 	else
 	{
 	    cerr << "Writing to dump file '" << dumpfname << "'" << endl;
-	    strm = &ostrm;
+	    strm = sd.ostrm;
 	}
 
 	*strm << "Multi-machine-batch dump at "<< Time_getLocalString() << endl;
@@ -760,6 +760,8 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	    *strm << "task != jm . Why?" << endl;
 
 	jm->dump( *strm );
+
+	sd.close();
     }
 
     execFinished( false );
