@@ -1,8 +1,8 @@
 #!/bin/csh
 #__Pmake________________________________________________________________________
 #
+# $Id: get_full_libnames,v 1.2 2004-11-11 15:39:19 dgb Exp $
 # This script returns the full libname for a given link directive
-# SCCS %Z%%M%   Version: %I%  Date: %G% - %U%
 #_______________________________________________________________________________
 
 if ( ! $?MAIN ) set MAIN=$WORK

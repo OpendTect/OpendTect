@@ -1,8 +1,8 @@
 #!/bin/csh
 #__Pmake________________________________________________________________________
 #
+# $Id: get_temp_file_name,v 1.2 2004-11-11 15:39:19 dgb Exp $
 # This script returns a temporary file or directory name
-# SCCS %Z%%M%   Version: %I%  Date: %G% - %U%
 #_______________________________________________________________________________
 
 echo "/tmp/pmake_$$"
