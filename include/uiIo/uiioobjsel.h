@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.7 2001-05-18 13:37:15 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.8 2001-05-28 15:51:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
 				      bool withclear=false);
 
+    void		updateInput();
     CtxtIOObj&		ctxtIOObj()		{ return ctio; }
 
 protected:
@@ -59,7 +60,6 @@ protected:
     CtxtIOObj&		ctio;
     bool		forread;
 
-    void		updateInput();
     void		doObjSel(CallBacker*);
     virtual const char*	userNameFromKey(const char*) const;
 
