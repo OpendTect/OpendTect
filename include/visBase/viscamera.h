@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.7 2002-05-08 08:33:55 kristofer Exp $
+ RCS:		$Id: viscamera.h,v 1.8 2002-05-21 09:57:34 nanne Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,12 @@ public:
 
     void		setFocalDistance( float );
     float		focalDistance() const;
+
+    void		setStereoAdjustment(float);
+    float		getStereoAdjustment() const;
+
+    void		setBalanceAdjustment(float);
+    float		getBalanceAdjustment() const;
 
     SoNode*		getData();
     int			usePar( const IOPar& );

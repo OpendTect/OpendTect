@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.7 2002-05-08 08:35:15 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.8 2002-05-21 09:57:43 nanne Exp $";
 
 #include "viscamera.h"
 #include "geompos.h"
@@ -143,6 +143,26 @@ float visBase::Camera::focalDistance() const
     return camera->focalDistance.getValue();
 }
 
+
+void visBase::Camera::setStereoAdjustment(float n)
+{
+    camera->setStereoAdjustment( n );
+}
+
+float visBase::Camera::getStereoAdjustment() const
+{
+    return camera->getStereoAdjustment();
+}
+
+void visBase::Camera::setBalanceAdjustment(float n)
+{
+    camera->setBalanceAdjustment( n );
+}
+
+float visBase::Camera::getBalanceAdjustment() const
+{
+    return camera->getBalanceAdjustment();
+}
 
 int visBase::Camera::usePar( const IOPar& iopar )
 {
