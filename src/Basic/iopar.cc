@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.38 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.39 2004-05-25 14:10:10 kristofer Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -273,10 +273,9 @@ bool IOPar::get( const char* s, TypeSet<type>& res ) const\
     if ( !ptr || !*ptr ) return false;\
 \
     FileMultiString fms(ptr);\
-    if ( fms.size()<res.size() ) return false;\
 \
-    TypeSet<type> tmpres(res);\
-    for ( int idx=0; idx<res.size(); idx++ )\
+    TypeSet<type> tmpres;\
+    for ( int idx=0; idx<fms.size(); idx++ )\
     {\
 	ptr = fms[idx];\
 	if ( !ptr || !*ptr ) return false;\
