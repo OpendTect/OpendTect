@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.25 2002-05-26 16:41:27 kristofer Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.26 2002-05-27 09:09:17 kristofer Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -217,6 +217,11 @@ int ColorTable::colorIdx( float v, int undefid ) const
     const int sz = cvs.size();
     if ( !sz ) return undefid;
 
+    const int csz = collist.size();
+    if ( csz < 1 ) return undefid;
+    if ( csz == 1 ) return 0;
+
+
     float startval = cvs[0].value;
     float stopval = cvs[sz-1].value;
 
@@ -226,17 +231,13 @@ int ColorTable::colorIdx( float v, int undefid ) const
     if ( isrev )
     {
 	if ( v>startval ) return 0;
-	if ( v<stopval ) return sz-1;
+	if ( v<stopval ) return csz-1;
     }
     else
     {
 	if ( v<startval ) return 0;
-	if ( v>stopval ) return sz-1;
+	if ( v>stopval ) return csz-1;
     }
-
-    const int csz = collist.size();
-    if ( csz < 1 ) return undefid;
-    if ( csz == 1 ) return 0;
 
     float fcidx = ((v-startval) * (csz-1)) / (stopval-startval);
     return ((int)(fcidx+.5));
