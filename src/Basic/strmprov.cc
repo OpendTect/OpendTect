@@ -26,7 +26,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.14 2001-11-09 15:18:01 windev Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.15 2002-01-07 13:21:23 nanne Exp $";
 
 static FixedString<1024> oscommand;
 #ifdef __msvc__
@@ -45,8 +45,12 @@ void StreamData::close()
 	{ if ( ispipe ) pclose(fp); else fclose(fp); }
     if ( istrm && istrm != &cin )
 	delete istrm;
-    if ( ostrm && ostrm != &cout && ostrm != &cerr )
+    if ( ostrm )
+    {
+	ostrm->flush();
+	if ( ostrm != &cout && ostrm != &cerr )
 	delete ostrm;
+    }
 
     init();
 }
