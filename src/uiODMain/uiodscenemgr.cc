@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.16 2004-04-29 17:05:32 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.17 2004-04-30 12:11:24 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,14 +51,17 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     	, lasthrot(0), lastvrot(0), lastdval(0)
     	, tifs(new uiTreeFactorySet)
 {
-    tifs->addFactory( new uiODInlineFactory );
-    tifs->addFactory( new uiODCrosslineFactory );
-    tifs->addFactory( new uiODTimesliceFactory );
-    tifs->addFactory( new uiODRandomLineFactory );
-    tifs->addFactory( new uiODPickSetFactory );
-    tifs->addFactory( new uiODHorizonFactory );
-    tifs->addFactory( new uiODFaultFactory );
-    tifs->addFactory( new uiODWellFactory );
+
+    tifs->addFactory( new uiODInlineFactory, 1000 );
+    tifs->addFactory( new uiODCrosslineFactory, 2000 );
+    tifs->addFactory( new uiODTimesliceFactory, 3000 );
+    tifs->addFactory( new uiODRandomLineFactory, 4000 );
+    tifs->addFactory( new uiODPickSetFactory, 5000 );
+    tifs->addFactory( new uiODHorizonFactory, 6000);
+    tifs->addFactory( new uiODFaultFactory, 70000 );
+    tifs->addFactory( new uiODWellFactory, 8000 );
+
+
     wsp->setPrefWidth( cWSWidth );
     wsp->setPrefHeight( cWSHeight );
 
@@ -446,8 +449,29 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     scn.itemmanager = new uiODTreeTop( scn.sovwr, scn.lv, &applMgr(), tifs );
 
-    for ( int idx=0; idx<tifs->nrFactories(); idx++ )
-	scn.itemmanager->addChild( tifs->getFactory(idx)->create() );
+    int nradded = 0;
+    int globalhighest = INT_MAX;
+    while ( nradded<tifs->nrFactories() )
+    {
+	int highest = INT_MIN;
+	for ( int idx=0; idx<tifs->nrFactories(); idx++ )
+	{
+	    const int placementidx = tifs->getPlacementIdx(idx);
+	    if ( placementidx>highest && placementidx<globalhighest )
+		highest = placementidx;
+	}
+
+	for ( int idx=0; idx<tifs->nrFactories(); idx++ )
+	{
+	    if ( tifs->getPlacementIdx(idx)==highest )
+	    {
+		scn.itemmanager->addChild( tifs->getFactory(idx)->create() );
+		nradded++;
+	    }
+	}
+
+	globalhighest = highest;
+    }
 
     if ( getenv("DTECT_SHOW_TRACKINGITEMS") )
     {
