@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.5 2001-02-13 17:20:58 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.6 2001-02-28 14:58:04 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -55,10 +55,15 @@ static char buf[80];
 bool Coord::use( const char* str )
 {
     if ( !str || !*str ) return false;
-    strcpy( buf, str );
+
+    strcpy( buf, *str == '(' ? str+1 : str );
     char* ptr = strchr( buf, ',' );
     if ( !ptr ) return false;
+
     *ptr++ = '\0';
+    const int len = strlen(ptr);
+    if ( len && ptr[len-1] == ')' ) ptr[len-1] = '\0';
+
     x = atof( buf );
     y = atof( ptr );
     return true;
@@ -113,7 +118,8 @@ BinIDSelector* BinIDSelector::create( const IOPar& iopar )
     else if ( !strcmp(res,sKeyseltyps[2]) ) seltyp = 1;
     if ( seltyp < 0 || seltyp > 2 ) return 0;
 
-    BinIDRange* rg = seltyp == 0 ? new BinIDRange : new BinIDSampler;
+    BinIDRange* rg = seltyp == 0 ? new BinIDRange
+				 : (BinIDRange*)new BinIDSampler;
     rg->start = SI().range().start; rg->stop = SI().range().stop;
     res = iopar[sKeyfinl];
     if ( res && *res ) rg->start.inl = atoi(res);

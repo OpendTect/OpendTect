@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.3 2000-06-23 14:11:11 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.4 2001-02-28 14:58:04 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -46,12 +46,19 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     range_ = si.range_;
     step_ = si.step_;
     setName( si.name() );
+    for ( int idx=0; idx<3; idx++ )
+    {
+	set3binids[idx] = si.set3binids[idx];
+	set3coords[idx] = si.set3coords[idx];
+    }
 }
 
 
 SurveyInfo::SurveyInfo( const char* rootdir )
 	: dirname(File_getFileName(rootdir))
 {
+    set3binids[2].crl = 0;
+
     FileNameString fname( File_getFullPath( rootdir, ".survey" ) );
     ifstream strm( fname );
     if ( strm.fail() )
@@ -60,7 +67,11 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	return;
     }
     ascistream astream( strm );
-    if ( !astream.isOfFileType(sKey) ) return;
+    if ( !astream.isOfFileType(sKey) )
+    {
+	ErrMsg( "Survey definition file is corrupt!" );
+	return;
+    }
 
     xtr.b = 1;
     ytr.c = 1;
@@ -87,7 +98,22 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    bir.stop.crl = atoi(fms[1]);
 	    bid.crl = atoi(fms[2]);
 	}
+	else if ( matchString("Set Point",astream.keyWord()) )
+	{
+	    const char* ptr = strchr( astream.keyWord(), '.' );
+	    if ( !ptr ) continue;
+	    int ptidx = atoi( ptr + 1 ) - 1;
+	    if ( ptidx < 0 ) ptidx = 0;
+	    if ( ptidx > 3 ) ptidx = 2;
+	    FileMultiString fms( astream.value() );
+	    if ( fms.size() < 2 ) continue;
+	    set3binids[ptidx].use( fms[0] );
+	    set3coords[ptidx].use( fms[1] );
+	}
     }
+
+    if ( set3binids[2].crl == 0 )
+	get3Pts( set3coords, set3binids, set3binids[2].crl );
 
     setRange( bir );
     setStep( bid );
@@ -106,7 +132,19 @@ int SurveyInfo::write( const char* basedir ) const
     astream.put( sNameKey, name() );
     putTr( xtr, astream, "Coord-X-BinID" );
     putTr( ytr, astream, "Coord-Y-BinID" );
+
     FileMultiString fms;
+    for ( int idx=0; idx<3; idx++ )
+    {
+	SeparString ky( "Set Point", '.' );
+	ky += idx + 1;
+	char buf[80];
+	set3binids[idx].fill( buf ); fms = buf;
+	set3coords[idx].fill( buf ); fms += buf;
+	astream.put( (const char*)ky, (const char*)fms );
+    }
+
+    fms = "";
     fms += range_.start.inl; fms += range_.stop.inl; fms += step_.inl;
     astream.put( "In-line range", fms );
     fms = ""; fms += range_.start.crl; fms += range_.stop.crl; fms += step_.crl;
@@ -128,6 +166,62 @@ void SurveyInfo::putTr( const BCTransform& tr, ascostream& astream,
     FileMultiString fms;
     fms += tr.a; fms += tr.b; fms += tr.c;
     astream.put( key, fms );
+}
+
+
+void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline )
+{
+    if ( set3binids[0].inl )
+    {
+	b[0] = set3binids[0]; c[0] = set3coords[0];
+	b[1] = set3binids[1]; c[1] = set3coords[1];
+	c[2] = set3coords[2]; xline = set3binids[2].crl;
+    }
+    else
+    {
+	b[0] = range_.start; c[0] = transform( b[0] );
+	b[1] = range_.stop; c[1] = transform( b[1] );
+	BinID b2 = range_.stop; b2.inl = b[0].inl;
+	c[2] = transform( b2 ); xline = b2.crl;
+    }
+}
+
+
+const char* SurveyInfo::set3Pts( Coord c[3], BinID b[2], int xline )
+{
+    if ( b[1].inl == b[0].inl )
+        return "Need two different in-lines";
+    if ( b[0].crl == xline )
+        return "The X-line cannot be the same";
+
+    SurveyInfo::BCTransform nxtr, nytr;
+    int crld = b[0].crl - xline;
+    nxtr.c = ( c[0].x - c[2].x ) / crld;
+    nytr.c = ( c[0].y - c[2].y ) / crld;
+    int inld = b[0].inl - b[1].inl;
+    crld = b[0].crl - b[1].crl;
+    nxtr.b = ( c[0].x - c[1].x ) / inld - ( nxtr.c * crld / inld );
+    nytr.b = ( c[0].y - c[1].y ) / inld - ( nytr.c * crld / inld );
+    nxtr.a = c[0].x - nxtr.b * b[0].inl - nxtr.c * b[0].crl;
+    nytr.a = c[0].y - nytr.b * b[0].inl - nytr.c * b[0].crl;
+
+    if ( mIS_ZERO(nxtr.a) ) nxtr.a = 0; if ( mIS_ZERO(nxtr.b) ) nxtr.b = 0;
+    if ( mIS_ZERO(nxtr.c) ) nxtr.c = 0; if ( mIS_ZERO(nytr.a) ) nytr.a = 0;
+    if ( mIS_ZERO(nytr.b) ) nytr.b = 0; if ( mIS_ZERO(nytr.c) ) nytr.c = 0;
+
+    if ( !nxtr.valid(nytr) )
+	return "The transformation would not be valid";
+
+    xtr = nxtr;
+    ytr = nytr;
+
+    set3coords[0].x = c[0].x; set3coords[0].y = c[0].y;
+    set3coords[1].x = c[1].x; set3coords[1].y = c[1].y;
+    set3coords[2].x = c[2].x; set3coords[2].y = c[2].y;
+    set3binids[0] = transform( set3coords[0] );
+    set3binids[1] = transform( set3coords[1] );
+    set3binids[2] = transform( set3coords[2] );
+    return 0;
 }
 
 
