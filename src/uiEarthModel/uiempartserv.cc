@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.52 2004-08-09 14:09:31 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.53 2004-08-17 06:41:29 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiempartserv.h"
+
+#include "binidselimpl.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
