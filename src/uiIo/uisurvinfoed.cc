@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.2 2001-07-31 09:53:42 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     xy1fld->attach( rightOf, ic1fld );
     xy2fld->attach( rightOf, ic2fld );
     applybut = new uiPushButton( this, "Apply" ); 
-    applybut->notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
+    applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
     applybut->attach( centeredBelow, coordgrp);
 
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
@@ -97,16 +97,16 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     uiSeparator* horsep1 = new uiSeparator( this );
     uiSeparator* horsep2 = new uiSeparator( this );
     uiLabel* labelrg = new uiLabel( this, "Survey ranges:" );
-    rangegrp->setHAlignObj( inlfld );
-    coordgrp->setHAlignObj( ic0fld );
-    trgrp->setHAlignObj( xinlfld );
+    rangegrp->setHAlignObj( inlfld->uiObj() );
+    coordgrp->setHAlignObj( ic0fld->uiObj() );
+    trgrp->setHAlignObj( xinlfld->uiObj() );
     horsep1->attach( stretchedBelow, dirnmfld );
-    labelrg->attach( leftBorder, 0, borderSpace() );
+    labelrg->attach( leftBorder );
     labelrg->attach( ensureBelow, horsep1 );
     rangegrp->attach( alignedBelow, dirnmfld ); 
     rangegrp->attach( ensureBelow, labelrg ); 
     horsep2->attach( stretchedBelow, rangegrp );
-    coordset->attach( leftBorder, 0, borderSpace() );
+    coordset->attach( leftBorder );
     coordset->attach( ensureBelow, horsep2 );
     coordgrp->attach( alignedBelow, rangegrp );
     coordgrp->attach( ensureBelow, coordset );
@@ -115,6 +115,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     trgrp->hide();
 
     if ( survinfo->rangeUsable() ) setValues();
+
+    finalising.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
+
 }
 
 
@@ -176,9 +179,8 @@ bool uiSurveyInfoEditor::appButPushed()
 }
 
 
-void uiSurveyInfoEditor::finalise_()
+void uiSurveyInfoEditor::doFinalise()
 {
-    uiDialog::finalise_();
     ic1fld->setFldsSensible( false, 0 );
 }
 
