@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.15 2004-03-23 16:04:45 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.16 2004-03-23 16:28:17 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,13 +272,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     const BatchProgInfo& bpi = *pil[selidx];
 
     BufferString comm( "@" );
-#ifdef __win__
     comm += mGetExecScript();
-#else
-    BufferString exbpscript = GetSoftwareDir();
-    exbpscript = File_getFullPath( exbpscript, "exec_prog" );
-    comm += exbpscript;
-#endif
 
     comm += " --inxterm+askclose ";
     if ( bpi.issys ) comm += "--sys ";
