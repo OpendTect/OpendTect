@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.3 1999-11-18 16:41:14 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.4 1999-12-09 14:21:35 bert Exp $
 ________________________________________________________________________
 
 
@@ -93,5 +93,14 @@ bool findValue(const MathFunction&,float x1,float x2,float& res,
 float findValueInAperture(const MathFunction&,float startx, 
 	 	float aperture,float dx,float target=0,float tol=1e-5);
 
+/*
+findExtreme - finds a functions minimal or maximum value (specified by bool 
+minima) within the values x1 and x2. 
+f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
+mUndefValue is returned;
+*/
+
+float findExtreme( const MathFunction&, bool minima, float x1, float x2,
+		   float tol = 1e-5);
 
 #endif
