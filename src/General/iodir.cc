@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.5 2001-02-13 17:21:02 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.6 2001-10-01 20:36:08 bert Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -128,11 +128,6 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 
 	if ( dirptr )
 	{
-	    if ( (*dirptr)[ky] )
-	    {
-		delete obj;
-		continue;
-	    }
 	    retobj = obj;
 	    if ( id == 1 ) dirptr->setLinked( obj );
 	    dirptr->addObj( obj, NO );
