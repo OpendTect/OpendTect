@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.25 2002-01-22 13:05:21 arend Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.26 2002-01-31 07:21:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,13 +89,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     coordset->attach( rightTo, crdlbl );
     coordset->changed.notify( mCB(this,uiSurveyInfoEditor,chgSetMode) );
 
-    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
     crdgrp = new uiGroup( this, "Coordinate settings" );
-    ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", dis, dis ); 
+    ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
+			     BinIDCoordInpSpec() ); 
     ic0fld->changed.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
-    ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line", dis, dis );
+    ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line",
+			     BinIDCoordInpSpec()  );
     ic2fld = new uiGenInput( crdgrp, "In-line/Cross-line not on above in-line",
-			     dis, dis );
+			     BinIDCoordInpSpec() );
     xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
     xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
     xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
@@ -108,6 +109,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     xy1fld->attach( rightOf, ic1fld );
     xy2fld->attach( rightOf, ic2fld );
 
+    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
     x0fld = new uiGenInput ( trgrp, "X = ", dis );
     xinlfld = new uiGenInput ( trgrp, "+ in-line *", dis );
@@ -162,12 +164,12 @@ void uiSurveyInfoEditor::setValues()
     survinfo->get3Pts( c, b, xline );
     if ( b[0].inl )
     {
-	ic0fld->setValues( b[0].inl, b[0].crl );
+	ic0fld->setValue( b[0] );
 	ic1fld->setValues( b[0].inl, xline );
-	ic2fld->setValues( b[1].inl, b[1].crl );
-	xy0fld->setValues( c[0].x, c[0].y );
-	xy1fld->setValues( c[2].x, c[2].y );
-	xy2fld->setValues( c[1].x, c[1].y );
+	ic2fld->setValue( b[1] );
+	xy0fld->setValue( c[0] );
+	xy1fld->setValue( c[2] );
+	xy2fld->setValue( c[1] );
     }
 }
 
@@ -201,7 +203,7 @@ void uiSurveyInfoEditor::doFinalise()
     if ( survinfo->rangeUsable() ) setValues();
 
     chgSetMode(0);
-    ic1fld->setFldsSensible( false, 0 );
+    if( ic1fld->element(0) ) ic1fld->element(0)->setSensitive( false );
 }
 
 
@@ -281,6 +283,11 @@ bool uiSurveyInfoEditor::setRanges()
 
     StepInterval<double> zrs( zfld->getDStepInterval() );
     survinfo->setZRange( zrs );
+    if ( !survinfo->zRangeUsable() )
+    {
+	uiMSG().error( "Please specify time range" );
+	return false;
+    }
 
     BinID bs( irg.step, crg.step );
     if ( !bs.inl ) bs.inl = 1; if ( !bs.crl ) bs.crl = 1;
@@ -293,12 +300,12 @@ bool uiSurveyInfoEditor::setRanges()
 bool uiSurveyInfoEditor::setCoords()
 {    
     BinID b[2]; Coord c[3]; int xline;
-    b[0].inl = ic0fld->getIntValue(0); b[0].crl = ic0fld->getIntValue(1);
-    b[1].inl = ic2fld->getIntValue(0); b[1].crl = ic2fld->getIntValue(1);
-    xline = ic1fld->getIntValue(1);
-    c[0].x = xy0fld->getValue(0); c[0].y = xy0fld->getValue(1);
-    c[1].x = xy2fld->getValue(0); c[1].y = xy2fld->getValue(1);
-    c[2].x = xy1fld->getValue(0); c[2].y = xy1fld->getValue(1);
+    b[0] = ic0fld->getBinID();
+    b[1] = ic2fld->getBinID();
+    xline = ic1fld->getBinID().crl;
+    c[0] = xy0fld->getCoord();
+    c[1] = xy2fld->getCoord();
+    c[2] = xy1fld->getCoord();
   
     const char* msg = survinfo->set3Pts( c, b, xline );
     if ( msg ) { uiMSG().error( msg ); return false; }
