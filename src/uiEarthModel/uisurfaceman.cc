@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.14 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.15 2004-04-05 12:20:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,7 @@ void uiSurfaceMan::mkFileInfo()
     txt += "\nCrossline range: "; mRangeTxt(crl);
 
     mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read))
-    if ( !conn ) return;
+    if ( !conn ) { infofld->setText( "" ); return; }
 
     BufferString fname( conn->fileName() );
     FilePath fp( fname );
