@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.5 2003-12-23 16:03:17 arend Exp $
+  - RCS:        $Id: windows.html,v 1.6 2004-01-05 10:54:25 arend Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.0]</title>
@@ -56,7 +56,10 @@ which will make the changes for you.
 <p>After a few questions, you can select packages to install. Choose at least the following packages:</p>
 <ul>
 <li>make (development)</li>
-<li>mingw (development)</li>
+<li>gcc (development)</li>
+<li>gcc-g++ (development)</li>
+<li>gcc-mingw-core (development)</li>
+<li>gcc-mingw-g++ (development)</li>
 <li>tcsh (shells)</li>
 <li>perl (interpreters)</li>
 <li>gawk (interpreters)</li>
@@ -87,7 +90,8 @@ Note: You can always re-start the cygwin installation program to add additional 
 It requires a few environment variables to be setup and it expects a certain directory structure in your ODWork directory.</p>
 <h3>Setup ODWork dir</h3>
 <p>Before you can build anything, you have to setup the ODWork directory in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Development Environment'.
-This will also create an init script 'init.bash' that can easily be sourced from your .bashrc to setup your environment. 
+Note that the OpendTect application window will freeze while the development environment is created.
+'Create Development Environment' will also create an init script 'init.bash' in your ODWork directory that can easily be sourced from your .bashrc to setup your environment.
 </p>
 <p>It is strongly recommended to make sure that there are no spaces in the path to your ODWork directory. A good place for your ODWork directory is your cygwin home directory, which is by default at C:\cygwin\home\[user name]. 
 The location of this directory can be easily found from a cygwin bash shell:
@@ -106,7 +110,7 @@ The location of this directory can be easily found from a cygwin bash shell:
 <p>Beside setting up these environment variables, you should source either the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base directory.</p>
 
 <p>If you have followed our instructions well, you can set the entire environment with a single setup script that is generated in the new ODWork directory. You can source the 'init.bash' script from your .bashrc (or 'init.csh',if you work with the non-default csh shell). 
-If you have created your ODWork directory in your cygwin home, you can simple add the following line to the end of your .bashrc script:
+If you have created your ODWork directory in your cygwin home, you can add the following line to the end of your .bashrc script:
 <pre>
     source ~/ODWork/init.bash
 </pre>
