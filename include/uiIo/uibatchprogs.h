@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.3 2003-05-02 14:44:17 arend Exp $
+ RCS:           $Id: uibatchprogs.h,v 1.4 2003-10-24 10:20:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiBatchProgLaunch : public uiDialog
 {
 public:
 
-			uiBatchProgLaunch(uiParent*);
+			uiBatchProgLaunch(uiParent*,const char* appnm=0);
 			~uiBatchProgLaunch();
 
 protected:

@@ -1,6 +1,6 @@
-dGB-dTect V1.5
+dTect V1.0
 Batch Programs
-Fri Apr 25 09:51:00 2003
+Fri Oct 24 12:06:18 2003
 !
 cbvs_browse
 	Arg: M`File`Cube to browse
@@ -22,46 +22,25 @@ cbvs_export_xyzv
 	Comment: >>inl1,inl2,inlstep,crl1,crl2,crlstep[,startz,stepz,nrz]
 	Comment: Note: If specified, z range should be in seconds, meters or feet (whichever is appropriate).
 !
-process_attrib: d-Tect
+cbvs_swap_inlcrl
+	Arg: M`File`Input seismic cube
+	Arg: M`File`Output seismic cube
+	Comment: Allows using a cross-line sorted SEG-Y file.
+	Comment: Load the cube from SEG-Y with the cross-line byte
+	Comment: pointing to the in-line number, and vice versa.
+	Comment: Then use this utility.
+	Comment: Check that the survey boundaries allow the import!
+!
+process_attrib
 	Arg: M`File`Parameter file
 	Comment: Use the d-Tect Attribute Engine
 	Comment: Is used by d-Tect for batch output
 !
-mk_2d_vol: d-Tect
+mk_2d_vol
 	Arg: M`File`Parameter file
 	Comment: This program duplicates a single in-line into a cube.
 	Comment: That cube can then be used to calculate a steering cube.
 	ExampleInput: mk_2d_vol_example.par
-!
-segy2su: GDI
-	Arg: O`Words`Program arguments
-	Comment: Run this program without optional arguments to see the options
-	Comment: Use this utility only if the standard SEG-Y reading
-	Comment: doesn't have the options you need
-!
-calcqty: GDI
-	Arg: M`QWord`Quantity definition formula
-	Comment: Check a Quantity definition formula using test values
-!
-load_well: GDI
-	Arg: M`File`Parameter file
-	Comment: Load wells into GDI based on log data
-	Comment: Batch variant of the Well-Load utility
-	ExampleInput: load_well_example.par
-!
-cutvol: GDI
-	Arg: M`File`Parameter file
-	Comment: Sets data to a value outside a zone.
-	Comment: The zone is defined by one or two grids with optional
-	Comment: time shifts.
-	ExampleInput: cutvol_example.par
-!
-lith2nodes: GDI
-	Arg: M`File`Parameter file
-	Comment: Convert lithology codes into lithology probabilities
-	Comment: See manual chapter 22:
-	Comment: >>'Lithology classification: Supervised Learning Approach'
-	ExampleInput: lith2nodes_example.par
 !
 df -k: Sys
 	Arg: O`Words`Program arguments

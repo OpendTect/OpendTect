@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.8 2003-10-19 13:53:08 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.9 2003-10-24 10:20:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,10 @@ public:
 
 BatchProgInfoList::BatchProgInfoList( const char* appnm )
 {
-    BufferString fnm( GetDataFileName("BatchPrograms") );
+    BufferString fnm( "BatchPrograms" );
+    if ( appnm && *appnm )
+	{ fnm += "."; fnm += appnm; }
+    fnm = GetDataFileName( fnm );
     if ( File_isEmpty(fnm.buf()) ) return;
 
     ifstream strm( fnm );
@@ -98,16 +101,11 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
 	    continue;
 
 	const bool issys = astrm.hasValue("Sys");
-	const bool useentry = issys
-	    		   || astrm.type() != ascistream::KeyVal
-	    		   || astrm.hasValue(appnm);
-	BatchProgInfo* bpi = useentry ? new BatchProgInfo(astrm.keyWord()) : 0;
+	BatchProgInfo* bpi = new BatchProgInfo(astrm.keyWord());
 	if ( issys ) bpi->issys = true;
 
 	while ( !atEndOfSection(astrm.next()) )
 	{
-	    if ( !useentry ) continue;
-
 	    if ( astrm.hasKeyword("ExampleInput") )
 		bpi->exampleinput = astrm.value();
 	    else if ( astrm.hasKeyword("Arg") )
@@ -127,18 +125,17 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
 }
 
 
-uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
+uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p, const char* appnm )
         : uiDialog(p,uiDialog::Setup("Run batch program",
 		   "Specify batch program and parameters","0.1.5"))
-	, pil(*new BatchProgInfoList( strchr(GetProjectVersionName(),'T')
-		    	? "d-Tect" : "GDI"))
+	, pil(*new BatchProgInfoList(appnm))
 	, progfld(0)
 	, browser(0)
 	, exbut(0)
 {
     if ( pil.size() < 1 )
     {
-	new uiLabel( this, "'BatchPrograms' file not present or invalid" );
+	new uiLabel( this, "No 'BatchPrograms[.xxx]' file present" );
 	return;
     }
 
