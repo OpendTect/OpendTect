@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.28 2003-10-19 13:53:08 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.29 2003-10-28 12:15:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,11 +190,16 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	comm += " --rexec ";
 	comm += rshcomm;
     }
+
+#ifdef __win__ 
+    comm += " "; comm += progname;
+    comm += " "; comm += parfname;
+#else
     if ( nicelvl != 0 )
 	{ comm += " --nice "; comm += nicelvl; }
     comm += " "; comm += progname;
     comm += " -bg "; comm += parfname;
-
+#endif
 
     if ( !StreamProvider( comm ).executeCommand(dormt) )
     {

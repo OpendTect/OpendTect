@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.44 2003-10-19 13:53:07 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.45 2003-10-28 12:15:22 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -27,41 +27,6 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.44 2003-10-19 13:53:07 bert Ex
 #define mErrStrm (sdout_.ostrm ? *sdout_.ostrm : cerr)
 
 BatchProgram* BatchProgram::inst_;
-
-int Execute_batch( int* pargc, char** argv )
-{
-    BufferString envarg("DTECT_ARGV0=");
-    envarg += argv[0];
-    putenv( envarg.buf() );
-
-    PIM().setArgs( *pargc, argv ); PIM().loadAuto( false );
-
-    BatchProgram::inst_ = new BatchProgram( pargc, argv );
-    if ( !BP().stillok_ )
-	return 1;
-
-    if ( BP().inbg_ )
-    {
-#ifndef __win__
-	switch ( fork() )
-	{
-	case -1:
-	    cerr << argv[0] <<  "cannot fork:\n" << errno_message() << endl;
-	case 0: break;
-	default:
-	    Time_sleep( 0.1 );
-	    exit( 0 );
-	break;
-	}
-#endif
-    }
-
-    BatchProgram& bp = *BatchProgram::inst_;
-    bool allok = bp.initOutput() && bp.go( *bp.sdout_.ostrm );
-    bp.stillok_ = allok;
-    delete BatchProgram::inst_;
-    return allok ? 0 : 1;
-}
 
 
 BatchProgram::BatchProgram( int* pac, char** av )

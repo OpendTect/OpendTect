@@ -11,12 +11,14 @@
 #include <string.h>
 #include <fstream>
 
-#ifdef __msvc__
+#ifdef __win__
 # include <windows.h>
-# define popen _popen
-# define pclose _pclose
-# define fileno(s) _fileno(s)
-#include "errh.h"
+# ifdef __msvc__
+#  define popen _popen
+#  define pclose _pclose
+#  define fileno(s) _fileno(s)
+# include "errh.h"
+# endif
 #endif
 
 #if __GNUC__ > 2
@@ -33,7 +35,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.39 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.40 2003-10-28 12:15:22 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -41,14 +43,54 @@ const char* StreamProvider::sStdIO = "Std-IO";
 const char* StreamProvider::sStdErr = "Std-Err";
 
 
-bool ExecOSCmd( const char* comm )
+bool ExecOSCmd( const char* comm, bool inbg )
 {
-#ifdef __msvc__
-    return false;
-#else
     if ( !comm || !*comm ) return false;
+
+#ifdef __win__
+/*
+    if( !inbg )
+    {
+	int res = system(comm);
+	return !res;
+    }
+*/
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+    ZeroMemory( &pi, sizeof(pi) );
+
+    // Start the child process. 
+    int res = CreateProcess( NULL,	// No module name (use command line). 
+        const_cast<char*>( comm ),	// Command line. 
+        NULL,				// Process handle not inheritable. 
+        NULL,				// Thread handle not inheritable. 
+        FALSE,				// Set handle inheritance to FALSE. 
+        inbg ? DETACHED_PROCESS : 0,	// Creation flags. 
+        NULL,				// Use parent's environment block. 
+        NULL,       			// Use parent's starting directory. 
+        &si,				// Pointer to STARTUPINFO structure.
+        &pi );             // Pointer to PROCESS_INFORMATION structure.
+
+
+    if ( res )
+    {
+	if ( !inbg )  WaitForSingleObject( pi.hProcess, INFINITE );
+
+	// Close process and thread handles. 
+	CloseHandle( pi.hProcess );
+	CloseHandle( pi.hThread );
+    }
+
+    return res;
+
+#else
+
     int res = system(comm);
     return !res;
+
 #endif
 }
 
@@ -387,7 +429,7 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 bool StreamProvider::executeCommand( bool inbg ) const
 {
     mkOSCmd( true, inbg );
-    return ExecOSCmd( oscommand );
+    return ExecOSCmd( oscommand, inbg );
 }
 
 
@@ -442,8 +484,12 @@ void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 	}
     }
 
+#ifndef __win__
+
     if ( inbg ) 
 	oscommand += "&";
+
+#endif
 }
 
 #define mRemoteTest(act) \

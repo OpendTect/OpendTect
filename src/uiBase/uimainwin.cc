@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.75 2003-06-30 15:34:54 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.76 2003-10-28 12:15:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,8 @@ public:
 
     virtual void        polish()
                         {
-			    MsgClass::theCB = mCB(&uiMSG(),uiMsg,handleMsg);
+			    CallBack msghcb = mCB(&uiMSG(),uiMsg,handleMsg);
+			    MsgClass::theCB( &msghcb );
                             QMainWindow::polish();
                         }
 

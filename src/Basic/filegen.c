@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.41 2003-10-15 09:12:57 arend Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.42 2003-10-28 12:15:22 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: filegen.c,v 1.41 2003-10-15 09:12:57 arend Exp 
 # include <windows.h>
 # include <shlwapi.h>
 # include <time.h>
+# include <largeint.h>
 
 #endif
 
@@ -112,11 +113,27 @@ int File_isRemote( const char* fname )
 
 int File_getFreeMBytes( const char* dirnm )
 {
+    double res = mToKbFac;
+
 #ifdef __win__
-    return 0;
+
+    ULARGE_INTEGER freeBytesAvail2User; 
+    ULARGE_INTEGER totalNrBytes;
+    ULARGE_INTEGER totalNrFreeBytes;
+
+    GetDiskFreeSpaceEx( dirnm, &freeBytesAvail2User,
+			&totalNrBytes, &totalNrFreeBytes);
+
+    double fac = MAXLONG;
+    fac += 1;
+
+    double aap = freeBytesAvail2User.HighPart * fac + 
+		 freeBytesAvail2User.LowPart;
+
+    res *= res * aap;
+
 #else
 
-    double res = mToKbFac;
 
     if ( !File_exists(dirnm)
       || mStatFS(dirnm,&fsstatbuf) )
@@ -506,10 +523,11 @@ int File_copy( const char* from, const char* to, int recursive )
 	cmd = mMALLOC(len,char);
 	
 	strcpy( cmd, "xcopy /E /I /Q /H /K " );
-	strcat( cmd, " " );
+	strcat( cmd, " \"" );
 	strcat( cmd, from );
-	strcat( cmd, " " );
+	strcat( cmd, "\" \"" );
 	strcat( cmd, to );
+	strcat( cmd, "\"" );
 
 	retval = system( cmd ) != -1 ? YES : NO;
 	if ( retval ) retval = File_exists( to );

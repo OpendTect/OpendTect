@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.14 2003-10-17 14:19:01 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.15 2003-10-28 12:15:22 arend Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -19,9 +19,17 @@ bool ErrMsgClass::printProgrammerErrs =
     false;
 # endif
 
-CallBack MsgClass::theCB;
 DefineEnumNames(MsgClass,Type,1,"Message type")
 	{ "Information", "Message", "Warning", "Error", "PE", 0 };
+
+CallBack& MsgClass::theCB( const CallBack* cb )
+{
+    static CallBack thecb;
+
+    if ( cb ) thecb = *cb;
+
+    return thecb;
+}
 
 UsrIoMsg* UsrIoMsg::theUsrIoMsg_ = 0;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.16 2003-10-17 14:19:03 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.17 2003-10-28 12:15:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,7 +187,7 @@ bool uiMergeSeis::handleInput()
 	}
 
 	IOPar iopar;
-	iopar.set( BinIDSelector::sKeyseltyp, BinIDSelector::sKeyseltyps[2] );
+	iopar.set( BinIDSelector::sKeyseltyp, BinIDSelector::keyseltyps()[2] );
 	iopar.set( BinIDSelector::sKeyfinl, bs.start.inl );
         iopar.set( BinIDSelector::sKeylinl, bs.stop.inl );
         iopar.set( BinIDSelector::sKeystepinl, abs(bs.step.inl) );

@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.20 2003-10-20 09:49:39 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.21 2003-10-28 12:15:22 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -169,6 +169,14 @@ const char* GetSettingsDir(void)
 	ptr = GetSpecialFolderLocation( CSIDL_APPDATA ); // "Application Data"
 #endif
 
+    ptr = File_getFullPath( ptr, ".od" );
+
+    if ( !File_isDirectory(ptr) )
+    {
+	if ( File_exists(ptr) ) ptr = 0;
+	else if ( !File_createDir(ptr,0) ) ptr = 0;
+    }
+
     if( dgb_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
@@ -210,8 +218,7 @@ const char* GetSurveyFileName()
     {
 	ptr = GetSettingsDir();
 	if ( !ptr ) return 0;
-	strcpy( sfname, File_getFullPath(ptr,".od") );
-	strcpy( sfname, File_getFullPath(sfname,"survey") );
+	strcpy( sfname, File_getFullPath(ptr,"survey") );
 	ptr = GetSoftwareUser();
 	if ( ptr )
 	{

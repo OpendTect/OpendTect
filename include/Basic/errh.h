@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.7 2003-09-26 16:24:47 bert Exp $
+ RCS:		$Id: errh.h,v 1.8 2003-10-28 12:15:22 arend Exp $
 ________________________________________________________________________
 
 */
@@ -40,12 +40,12 @@ inline void ErrMsg( const char* msg, bool progr = false )
 {
     if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
 
-    if ( !MsgClass::theCB.willCall() )
+    if ( !MsgClass::theCB().willCall() )
 	cerr << (progr?"(PE) ":"") << msg << endl;
     else
     {
 	ErrMsgClass obj( msg, progr );
-	MsgClass::theCB.doCall( &obj );
+	MsgClass::theCB().doCall( &obj );
     }
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.4 2003-09-26 16:24:47 bert Exp $
+ RCS:		$Id: msgh.h,v 1.5 2003-10-28 12:15:22 arend Exp $
 ________________________________________________________________________
 
 */
@@ -36,7 +36,7 @@ public:
 
     const char*		msg;
 
-    static CallBack	theCB;
+    static CallBack&	theCB( const CallBack* cb=0 ); // set: != 0
 
 };
 
@@ -44,12 +44,12 @@ public:
 inline void UsrMsg( const char* msg, MsgClass::Type t=MsgClass::Info )
 //!< Will pass the message to the appropriate destination.
 {
-    if ( !MsgClass::theCB.willCall() )
+    if ( !MsgClass::theCB().willCall() )
 	cerr << msg << endl;
     else
     {
 	MsgClass obj( msg, t );
-	MsgClass::theCB.doCall( &obj );
+	MsgClass::theCB().doCall( &obj );
     }
 }
 

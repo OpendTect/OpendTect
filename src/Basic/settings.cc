@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.22 2003-10-21 09:54:31 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.23 2003-10-28 12:15:22 arend Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -28,7 +28,6 @@ static ObjectSet<Settings>& getSetts()
 static void getFnm( const char* key, BufferString& fname )
 {
     fname = GetSettingsDir();
-    fname = File_getFullPath( fname, ".od" );
     fname = File_getFullPath( fname, "settings" );
     if ( key )
 	{ fname += "."; fname += key; }
