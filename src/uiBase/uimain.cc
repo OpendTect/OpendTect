@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.21 2004-01-15 15:31:00 bert Exp $
+ RCS:           $Id: uimain.cc,v 1.22 2004-05-06 14:19:17 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,34 @@ ________________________________________________________________________
 #include "qcdestyle.h"
 
 
+#ifdef __mac__
+# define __machack__
+#endif
+
+#ifdef __machack__
+# include <CoreServices/CoreServices.h>
+# include <ApplicationServices/ApplicationServices.h>
+
+extern "C"
+{
+
+typedef struct CPSProcessSerNum
+{
+        UInt32          lo;
+        UInt32          hi;
+} CPSProcessSerNum;
+
+extern OSErr    CPSGetCurrentProcess(CPSProcessSerNum *);
+extern OSErr    CPSEnableForegroundOperation( CPSProcessSerNum *,
+                                              UInt32, UInt32, UInt32, UInt32);
+extern OSErr    CPSSetFrontProcess(CPSProcessSerNum *);
+extern OSErr    NativePathNameToFSSpec(char *, FSSpec *, unsigned long);
+
+}
+
+#endif
+
+
 void myMessageOutput( QtMsgType type, const char *msg );
 
 
@@ -32,6 +60,24 @@ uiMain* 	uiMain::themain = 0;
 uiMain::uiMain( int argc, char **argv )
     : mainobj( 0 )
 {
+#ifdef __machack__
+
+        ProcessSerialNumber psn;
+        CPSProcessSerNum PSN;
+
+        GetCurrentProcess(&psn);
+        if (!CPSGetCurrentProcess(&PSN))
+        {
+            if (!CPSEnableForegroundOperation(&PSN, 0x03, 0x3C, 0x2C, 0x1103))
+            {
+                if (!CPSSetFrontProcess(&PSN))
+                {
+                    GetCurrentProcess(&psn);
+                }
+            }
+        }
+#endif
+
     init(0,argc,argv);
 }
 
@@ -39,6 +85,7 @@ uiMain::uiMain( int argc, char **argv )
 uiMain::uiMain( QApplication* qapp )
     : mainobj( 0 )
 { 
+
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setLibraryPaths( QStringList("/dev") );
 
