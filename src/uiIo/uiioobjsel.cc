@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.28 2001-11-23 12:58:33 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.29 2001-11-30 16:32:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -323,6 +323,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	ctio.setObj( dlg->ioObj()->clone() );
 	updateInput();
 	newSelection( dlg );
+	selok_ = true;
     }
     delete dlg;
 }
