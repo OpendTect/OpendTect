@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.3 2005-03-11 16:56:32 cvsnanne Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.4 2005-03-14 16:43:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basictask.h"
 #include "emposid.h"
 
+class IOPar;
 namespace EM { class EMObject; };
 
 namespace MPE
@@ -47,6 +48,9 @@ public:
 				{ thresholdval = val; }
     float			getThresholdValue() const
     				{ return thresholdval; }
+
+    virtual void		fillPar(IOPar&) const;
+    virtual bool		usePar(const IOPar&);
 
 protected:
     BufferString		errmsg;
