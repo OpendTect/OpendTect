@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.41 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.42 2004-05-06 11:16:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,6 +144,8 @@ public:
     IOPar&		pars() const
 			{ return const_cast<SurveyInfo*>(this)->pars_; }
     void		savePars(const char* basedir=0) const;
+    static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
+    bool		depthsInFeetByDefault() const;
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.12 2004-04-29 16:41:41 nanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.13 2004-05-06 11:16:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,9 +25,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiwelldlgs.h"
 #include "ptrman.h"
-
-
-const char* uiWellPartServer::unitstr = "Show depth in feet";
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )

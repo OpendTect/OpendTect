@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.10 2004-04-29 16:41:46 nanne Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.11 2004-05-06 11:16:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,6 @@ public:
     bool			selectWells(ObjectSet<MultiID>&);
 
     void			selectLogs(const MultiID&,int&,int&);
-
-    static const char*		unitstr;
 
 protected:
 

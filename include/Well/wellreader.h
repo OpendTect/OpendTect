@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.7 2004-04-28 21:30:58 bert Exp $
+ RCS:		$Id: wellreader.h,v 1.8 2004-05-06 11:16:47 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "wellio.h"
 #include "sets.h"
+#include "ranges.h"
 #include <iosfwd>
 class BufferStringSet;
 
@@ -43,6 +44,9 @@ public:
     bool		addLog(std::istream&) const;
     bool		getMarkers(std::istream&) const;
     bool		getD2T(std::istream&) const;
+
+    Interval<float>	getLogZRange(const char*) const;
+    			//!< If no log with this name, returns [undef,undef]
 
 protected:
 

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.2 2004-05-05 20:54:28 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.3 2004-05-06 11:16:47 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -32,6 +32,7 @@ const char* Well::TrackSampler::sKeyHorSamplPol = "Horizontal sampling";
 const char* Well::TrackSampler::sKeyVerSamplPol = "Vertical sampling";
 const char* Well::TrackSampler::sKeyDataStart = "<Start of data>";
 const char* Well::TrackSampler::sKeyDataEnd = "<End of data>";
+const char* Well::TrackSampler::sKeyLogNm = "Log name";
 
 
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers )
@@ -86,6 +87,7 @@ int Well::InfoCollector::nextStep()
     return ++curidx_ >= totalnr_ ? Finished : MoreToDo;
 }
 
+
 Well::TrackSampler::TrackSampler( const BufferStringSet& i,
 				  ObjectSet<BinIDValueSet>& b )
 	: Executor("Well data extraction")
@@ -96,6 +98,7 @@ Well::TrackSampler::TrackSampler( const BufferStringSet& i,
     	, ids(i)
     	, bivsets(b)
     	, curidx(0)
+    	, timesurv(SI().zIsTime())
 {
 }
 
@@ -104,6 +107,7 @@ void Well::TrackSampler::usePar( const IOPar& pars )
 {
     pars.get( sKeyTopMrk, topmrkr );
     pars.get( sKeyBotMrk, botmrkr );
+    pars.get( sKeyLogNm, lognm );
     pars.get( sKeyLimits, above, below );
     const char* res = pars.find( sKeyHorSamplPol );
     if ( res && *res ) horpol = eEnum(HorPol,res);
@@ -115,21 +119,57 @@ void Well::TrackSampler::usePar( const IOPar& pars )
 #define mRetNext() { \
     delete ioobj; \
     curidx++; \
-    return curidx >= ids.size() ? 0 : 1; }
+    return curidx >= ids.size() ? Finished : MoreToDo; }
 
 int Well::TrackSampler::nextStep()
 {
     if ( curidx >= ids.size() )
 	return 0;
 
+    BinIDValueSet* bivset = new BinIDValueSet;
+    bivsets += bivset;
+
     IOObj* ioobj = IOM().get( MultiID(ids.get(curidx)) );
     if ( !ioobj ) mRetNext()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
     if ( !wr.getInfo() ) mRetNext()
-    if ( SI().zIsTime() && !wr.getD2T() ) mRetNext()
+    if ( timesurv && !wr.getD2T() ) mRetNext()
+    fulldahrg = wr.getLogZRange( lognm );
+    if ( mIsUndefined(fulldahrg.start) ) mRetNext()
+    wr.getMarkers();
 
-    //TODO use wd track + d2t model to sample track
-
+    getData( wd, *bivset );
     mRetNext();
+}
+
+
+void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
+{
+    Interval<float> dahrg;
+    getLimitPos(wd,true,dahrg.start); if ( mIsUndefined(dahrg.start) ) return;
+    getLimitPos(wd,false,dahrg.stop); if ( mIsUndefined(dahrg.stop) ) return;
+}
+
+
+void Well::TrackSampler::getLimitPos( const Well::Data& wd, bool isstart,
+				      float& val ) const
+{
+    const BufferString& mrknm = isstart ? topmrkr : botmrkr;
+    if ( mrknm == sKeyDataStart )
+	val = fulldahrg.start;
+    if ( mrknm == sKeyDataEnd )
+	val = fulldahrg.stop;
+    else
+    {
+	val = mUndefValue;
+	for ( int idx=0; idx<wd.markers().size(); idx++ )
+	{
+	    if ( wd.markers()[idx]->name() == mrknm )
+	    {
+		val = wd.markers()[idx]->dah;
+		break;
+	    }
+	}
+    }
 }

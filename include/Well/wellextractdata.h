@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.2 2004-05-05 20:54:27 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.3 2004-05-06 11:16:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "bufstringset.h"
 #include "position.h"
+#include "ranges.h"
 #include "enums.h"
 
 class MultiID;
@@ -24,6 +25,7 @@ class IODirEntryList;
 namespace Well
 {
 class Info;
+class Data;
 class Marker;
 
 /*!\brief Collects info about all wells in store */
@@ -84,6 +86,7 @@ public:
 
     BufferString	topmrkr;
     BufferString	botmrkr;
+    BufferString	lognm;
     float		above;
     float		below;
     HorPol		horpol;
@@ -107,12 +110,18 @@ public:
     static const char*	sKeyVerSamplPol;
     static const char*	sKeyDataStart;
     static const char*	sKeyDataEnd;
+    static const char*	sKeyLogNm;
 
 protected:
 
     const BufferStringSet&	ids;
     ObjectSet<BinIDValueSet>&	bivsets;
     int				curidx;
+    const bool			timesurv;
+    Interval<float>		fulldahrg;
+
+    void		getData(const Data&,BinIDValueSet&);
+    void		getLimitPos(const Data&,bool,float&) const;
 
 };
 

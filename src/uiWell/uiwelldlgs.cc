@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.13 2004-03-19 14:28:24 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.14 2004-05-06 11:16:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ static const char* collbls[] =
 
 static const int maxnrrows = 10;
 static const int initnrrows = 5;
+#define mFromFeetFac 0.3048
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Well Markers",
@@ -54,11 +55,9 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p )
     table->setNrRows( initnrrows );
     table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
 
-    bool zinft = SI().zInFeet();
-    SI().pars().getYN( uiWellPartServer::unitstr, zinft );
-    unitfld = new uiGenInput( this, "Depth unit", BoolInpSpec("Meter","Feet") );
+    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( leftAlignedBelow, table );
-    unitfld->setValue( !zinft );
 }
 
 
@@ -78,7 +77,7 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
     const int nrmarkers = markers.size();
     if ( !nrmarkers ) return;
 
-    const float zfac = unitfld->getBoolValue() ? 1 : 0.3048;
+    const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
     int nrrows = nrmarkers + initnrrows < maxnrrows ? nrmarkers + initnrrows 
 						    : nrmarkers;
     table->setNrRows( nrrows );
@@ -86,7 +85,7 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
     {
 	const Well::Marker* marker = markers[idx];
 	table->setText( uiTable::RowCol(idx,0), marker->name() );
-	table->setValue( uiTable::RowCol(idx,1), marker->dah/zfac );
+	table->setValue( uiTable::RowCol(idx,1), marker->dah*zfac );
 	table->setColor( uiTable::RowCol(idx,2), marker->color );
     }
 }
@@ -96,7 +95,7 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 {
     deepErase( markers );
 
-    const float zfac = unitfld->getBoolValue() ? 1 : 0.3048;
+    const float zfac = unitfld->getBoolValue() ? 1 : mFromFeetFac;
     const int nrrows = table->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
@@ -113,7 +112,7 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
-    SI().pars().setYN( uiWellPartServer::unitstr, !unitfld->getBoolValue() );
+    SI().pars().setYN( SurvInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
     SI().savePars();
     return true;
 }
@@ -139,6 +138,9 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     intvfld = new uiGenInput( this, "Depth interval to load (empty=all)",
 			      FloatInpIntervalSpec(false) );
     intvfld->attach( alignedBelow, lasfld );
+    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    intvunfld = new uiGenInput( this, "", mft );
+    intvunfld->attach( rightOf, intvfld );
 
     unitlbl = new uiLabel( this, "XXXX" );
     unitlbl->attach( rightOf, intvfld );
@@ -171,6 +173,8 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     unitlbl->display( true );
 
     udffld->setValue( lfi.undefval );
+    if ( intvunfld->getBoolValue() )
+	{ lfi.zrg.start /= mFromFeetFac; lfi.zrg.stop /= mFromFeetFac; }
     intvfld->setValue( lfi.zrg );
 }
 
@@ -185,6 +189,14 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 				      : mUndefValue;
     lfi.zrg.stop = *intvfld->text(1) ? intvfld->getFInterval().stop
 				     : mUndefValue;
+    const bool zinft = !unitfld->getBoolValue();
+    if ( zinft )
+    {
+	if ( !mIsUndefined(lfi.zrg.start) ) lfi.zrg.start *= mFromFeetFac;
+	if ( !mIsUndefined(lfi.zrg.stop) ) lfi.zrg.stop *= mFromFeetFac;
+    }
+    SI().pars().setYN( SurvInfo::sKeyDpthInFt, zinft );
+    SI().savePars();
 
     for ( int idx=0; idx<logsfld->box()->size(); idx++ )
     {
@@ -293,8 +305,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
     , wd(wd_)
     , logsel(sel_)
 {
-    bool zinft = SI().zInFeet();
-    SI().pars().getYN( uiWellPartServer::unitstr, zinft );
+    const bool zinft = SI().depthsInFeetByDefault();
     BufferString lbl( "Depth range " ); lbl += zinft ? "(ft)" : "(m)";
     zrangefld = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
@@ -341,9 +352,9 @@ void uiExportLogs::setDefaultRange( bool zinft )
 
     if ( zinft )
     {
-	dahintv.start /= 0.3048;
-	dahintv.stop /= 0.3048;
-	dahintv.step /= 0.3048;
+	dahintv.start /= mFromFeetFac;
+	dahintv.stop /= mFromFeetFac;
+	dahintv.step /= mFromFeetFac;
     }
 
     zrangefld->setValue( dahintv );
@@ -415,18 +426,17 @@ void uiExportLogs::writeLogs( StreamData& sdo )
     bool insec = zunitgrp->selectedId() == 2;
     bool inmsec = zunitgrp->selectedId() == 3;
 
-    bool zinft = SI().zInFeet();
-    SI().pars().getYN( uiWellPartServer::unitstr, zinft );
+    const bool zinft = SI().depthsInFeetByDefault();
 
     StepInterval<float> intv = zrangefld->getFStepInterval();
     const int nrsteps = intv.nrSteps();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
-	if ( zinft ) md *= 0.3048;
+	if ( zinft ) md *= mFromFeetFac;
 	if ( !typefld->getIntValue() )
 	{
-	    const float mdout = infeet ? md/0.3048 : md;
+	    const float mdout = infeet ? md/mFromFeetFac : md;
 	    *sdo.ostrm << mdout;
 	}
 	else
@@ -444,7 +454,7 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 		*sdo.ostrm << pos.x << '\t' << pos.y;
 
 	    float z = pos.z;
-	    if ( infeet ) z /= 0.3048;
+	    if ( infeet ) z /= mFromFeetFac;
 	    else if ( insec ) z = wd.d2TModel()->getTime( md );
 	    else if ( inmsec ) z = wd.d2TModel()->getTime( md ) * 1000;
 	    *sdo.ostrm << '\t' << z;

@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.53 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.54 2004-05-06 11:16:47 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -22,6 +22,8 @@ const char* SurveyInfo::sKeyInlRange = "In-line range";
 const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
 const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
+const char* SurveyInfo::sKeyDpthInFt = "Show depth in feet";
+
 
 SurveyInfo* SurveyInfo::theinst_ = 0;
 bool SurveyInfo::dowarnings_ = true;
@@ -593,6 +595,14 @@ void SurveyInfo::setZUnit( bool istime, bool meter )
     zistime_ = istime;
     zinmeter_ = istime ? false : meter;
     zinfeet_ = istime ? false : !meter;
+}
+
+
+bool SurveyInfo::depthsInFeetByDefault() const
+{
+    bool ret = zIsTime() ? false : zInFeet();
+    pars().getYN( sKeyDpthInFt, ret );
+    return ret;
 }
 
 

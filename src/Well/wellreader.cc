@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.16 2004-04-28 21:30:59 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.17 2004-05-06 11:16:47 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -230,6 +230,38 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 }
 
 
+Interval<float> Well::Reader::getLogZRange( const char* nm ) const
+{
+    Interval<float> ret( mUndefValue, mUndefValue );
+    if ( !nm || !*nm ) return ret;
+
+    for ( int idx=1;  ; idx++ )
+    {
+	StreamData sd = mkSD( sExtLog, idx );
+	if ( !sd.usable() ) break;
+	std::istream& strm = *sd.istrm;
+
+	rdHdr( strm, sKeyLog );
+	PtrMan<Well::Log> log = rdLogHdr( strm, idx-1 );
+	if ( log->name() != nm )
+	    { sd.close(); continue; }
+
+	float dah, val;
+	strm >> dah >> val;
+	if ( !strm )
+	    { sd.close(); break; }
+
+	ret.start = dah;
+	while ( strm )
+	    strm >> dah >> val;
+	ret.stop = dah;
+	sd.close(); break;
+    }
+
+    return ret;
+}
+
+
 bool Well::Reader::getLogs() const
 {
     bool rv = false;
@@ -289,24 +321,8 @@ bool Well::Reader::addLog( std::istream& strm ) const
 	strm >> dah >> val;
 	if ( !strm ) break;
 
-	/* Useful for import, not here
-	if ( mIsUndefined(dah) || mIS_ZERO(dah-prevdah)
-	|| ( !newlog->nrValues() && mIsUndefined(val) ) )
-	    continue;
-	*/
-
 	newlog->addValue( dah, val );
     }
-
-    /* Useful for import, not here
-    for ( int idx=newlog->nrValues()-1; idx>=0; idx-- )
-    {
-	dah = newlog->dah(idx);
-	val = newlog->value(idx);
-	if ( mIsUndefined(val) || (mIS_ZERO(dah) && mIS_ZERO(val)) )
-	    newlog->removeValue(idx);
-    }
-    */
 
     wd.logs().add( newlog );
     return true;
