@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.7 2002-06-24 15:01:39 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.8 2002-08-05 14:36:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,17 +13,21 @@ ________________________________________________________________________
 #include "uifetchpicks.h"
 #include "uistorepicks.h"
 #include "uimsg.h"
+#include "uigeninputdlg.h"
+#include "uiioobjsel.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "color.h"
-#include "uigeninputdlg.h"
 #include "datainpspec.h"
 #include "ctxtioobj.h"
+#include "color.h"
 #include "ioobj.h"
-#include "uiioobjsel.h"
+#include "survinfo.h"
+#include "stats.h"
 
 const int uiPickPartServer::evGetAvailableSets = 0;
 const int uiPickPartServer::evFetchPicks = 1;
+const int uiPickPartServer::evGetHorNames = 2;
+const int uiPickPartServer::evGetHorDef = 3;
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
@@ -45,14 +49,27 @@ uiPickPartServer::~uiPickPartServer()
 bool uiPickPartServer::fetchPickSets()
 {
     psg.clear();
-    uiFetchPicks dlg( appserv().parent(), psgid );
+    deepErase( hornms );
+    sendEvent( evGetHorNames );
+    uiFetchPicks dlg( appserv().parent(), psgid, hornms );
+    deepErase( hornms );
     if ( !dlg.go() ) return false;
 
     if ( !dlg.nrSets() )
     { 
 	psg.setName(dlg.getName());
 	pickcolor = dlg.getPickColor();
-	return true; 
+	bool rv = true;
+	if ( dlg.genRand() )
+	{
+	    IOPar iopar;
+	    PickSet* ps = new PickSet( dlg.getName() );
+	    ps->color = pickcolor;
+	    rv = mkRandLocs( *ps, dlg.randPars() );
+	    if ( rv )	psg.add(ps);
+	    else	delete ps;
+	}
+	return rv;
     }
 
     BufferString bs;
@@ -62,6 +79,49 @@ bool uiPickPartServer::fetchPickSets()
 
     return true;
 }
+
+
+bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
+{
+    Stat_initRandom(0);
+    if ( !rp.isvol )
+    {
+	selhor = rp.hornm;
+	selbr = &rp.bidrg;
+	hordef.erase();
+	sendEvent( evGetHorDef );
+    }
+    else
+    {
+	BinID bid( rp.bidrg.start );
+	const BinID& stp = SI().step();
+	for ( int inl=rp.bidrg.start.inl; inl<=rp.bidrg.stop.inl; inl += stp.inl)
+	{
+	    for ( int crl=rp.bidrg.start.crl; crl<=rp.bidrg.stop.crl;
+		    	crl += stp.crl )
+		hordef += BinIDValue( inl, crl, mUndefValue );
+	}
+    }
+
+    const int nrpts = hordef.size();
+    if ( !nrpts ) return true;
+
+    const float zwidth = rp.zrg.width();
+    Coord c;
+    for ( int ipt=0; ipt<rp.nr; ipt++ )
+    {
+	int idx = Stat_getIndex( nrpts );
+	BinIDValue bv = hordef[idx];
+	if ( rp.isvol )
+	    bv.value = rp.zrg.start + Stat_getRandom() * zwidth;
+	c = SI().transform( bv.binid );
+
+	ps += PickLocation( c, bv.value );
+    }
+    hordef.erase();
+    return true;
+}
+
 
 
 bool uiPickPartServer::storePickSets()

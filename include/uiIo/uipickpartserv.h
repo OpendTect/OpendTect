@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.8 2002-06-24 15:01:39 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.9 2002-08-05 14:36:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,13 @@ ________________________________________________________________________
 #include <uiapplserv.h>
 #include <multiid.h>
 #include <uidset.h>
+#include <position.h>
 
-class PickSetGroup;
-class PickSet;
 class Color;
+class PickSet;
+class BinIDRange;
+class PickSetGroup;
+class RandLocGenPars;
 
 
 /*! \brief Service provider for application level - seismics */
@@ -37,6 +40,8 @@ public:
 
     static const int	evGetAvailableSets;
     static const int	evFetchPicks;
+    static const int	evGetHorNames;
+    static const int	evGetHorDef;
 
 			// Interaction stuff
     PickSetGroup&	group()				{ return psg; }
@@ -48,7 +53,11 @@ public:
     const Color&	getPickColor()			{ return pickcolor; }
     bool		storeSinglePickSet(PickSet*);
     void		renamePickset(const char*,BufferString&);
-    
+
+    ObjectSet<BufferString> horNames()			{ return hornms; }
+    TypeSet<BinIDValue>& horDef()			{ return hordef; }
+    const char*		selHor() const			{ return selhor; }
+    const BinIDRange*	selBinIDRange() const		{ return selbr; }
 
 protected:
 
@@ -58,6 +67,12 @@ protected:
     BoolTypeSet		selsets;
     Color&		pickcolor;
 
+    ObjectSet<BufferString> hornms;
+    TypeSet<BinIDValue> hordef;
+    const char*		selhor;
+    const BinIDRange*	selbr;
+
+    bool		mkRandLocs(PickSet&,const RandLocGenPars&);
 };
 
 
