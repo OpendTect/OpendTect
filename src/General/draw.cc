@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.4 2000-08-18 19:10:20 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.5 2000-10-04 08:23:31 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -65,7 +65,7 @@ Color		Color::LightGrey	= Color( 230, 230, 230 );
 
 DefineEnumNames(ColorTable,Type,0,"Color table name")
 {
-	"Blue-White-Red",
+	"Red-White-Blue",
 	"Grey scales",
 	"Blue-Green-Magenta",
 	"White-Yellow-Red",
@@ -438,15 +438,15 @@ void ColorTable::getRWB( ColorTable& ct, const Interval<float>& intv )
     ct.cvs.erase();
     if ( intv.start > intv.stop )
     {
-	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
-	ct.cvs += ColorVal( Color(255,255,255), (intv.start+intv.stop)/2 );
 	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
+	ct.cvs += ColorVal( Color(255,255,255), (intv.start+intv.stop)/2 );
+	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
     }
     else
     {
-	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
-	ct.cvs += ColorVal( Color(255,255,255), (intv.start+intv.stop)/2 );
 	ct.cvs += ColorVal( Color(255,  0,  0), intv.stop );
+	ct.cvs += ColorVal( Color(255,255,255), (intv.start+intv.stop)/2 );
+	ct.cvs += ColorVal( Color(  0,  0,255), intv.start );
     }
     ct.undefcolor = Color( 200, 200, 200 );
     ct.markcolor = Color( 0, 200, 0 );
