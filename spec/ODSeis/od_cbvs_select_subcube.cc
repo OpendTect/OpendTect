@@ -21,7 +21,7 @@ int main( int argc, char** argv )
     {
 	cerr << "Usage: " << argv[0]
 	     << " 'inl1`inl2`inlstep`crl1`crl2`crlstep[`startz`stepz`nrz]'"
-	     << " inpfile outpfile [min_val`max_val]" << endl;
+	     << " inpfile outpfile ['min_val`max_val']" << endl;
 	cerr << "Format: CBVS." << endl;
 	cerr << "Note the difference between forward- and back-quotes" << endl;
 	cerr << "Parameters between brackets [] are optional, do not type the brackets!" << endl;
