@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.9 2003-10-19 13:53:07 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.10 2003-10-22 14:07:08 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -20,10 +20,10 @@ static const char* sMainIndex = "MainIndex";
 BufferString HelpViewer::applnm( "dTect" );
 
 
-const char* HelpViewer::subdirNm()
+const char* HelpViewer::subdirNm( const char* scnm )
 {
-    static char ret[20];
-    strcpy( ret, applnm );
+    static char ret[40];
+    strcpy( ret, scnm && *scnm ? scnm : applnm.buf() );
     strcat( ret, "Doc" );
     return ret;
 }
@@ -34,7 +34,7 @@ void HelpViewer::use( const char* url, const char* wintitl )
     if ( !url || !*url )
     {
 	static BufferString tmp;
-	tmp = getURLForLinkName( sMainIndex );
+	tmp = getURLForLinkName( sMainIndex, applnm );
 	url = (const char*)tmp;
     }
 
@@ -58,9 +58,9 @@ void HelpViewer::use( const char* url, const char* wintitl )
 }
 
 
-static StreamData openHFile( const char* nm )
+static StreamData openHFile( const char* nm, const char* scope )
 {
-    BufferString subfnm( HelpViewer::subdirNm() );
+    BufferString subfnm( HelpViewer::subdirNm(scope) );
     subfnm = File_getFullPath( subfnm, nm );
     FileNameString fnm = GetDataFileName( subfnm );
 
@@ -75,9 +75,37 @@ static StreamData openHFile( const char* nm )
 }
 
 
-BufferString HelpViewer::getLinkNameForWinID( const char* winid )
+static const char* unScoped( const char* inp )
 {
-    StreamData sd = openHFile( "WindowLinkTable.txt" );
+    if ( !inp || !*inp ) return inp;
+
+    char* ptr = strchr( inp, ':' );
+    return ptr ? ptr + 1 : inp;
+}
+
+
+static BufferString getScope( const char* inp )
+{
+    BufferString ret;
+    BufferString winid( inp );
+    char* ptr = strchr( winid.buf(), ':' );
+    if ( ptr )
+    {
+	*ptr = '\0';
+	ret = winid;
+    }
+    return ret;
+}
+
+
+BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
+{
+    if ( !inpwinid || !*inpwinid ) return BufferString( sMainIndex );
+
+    BufferString scope( getScope(inpwinid) );
+    BufferString winid( unScoped(inpwinid) );
+
+    StreamData sd = openHFile( "WindowLinkTable.txt", scope );
     if ( !sd.usable() )
 	return BufferString("");
     istream& strm = *sd.istrm;
@@ -112,7 +140,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* winid )
 	    if ( code[2] != "" )
 		wid += code[2];
 	}
-	if ( wid != winid ) continue;
+	if ( wid != winid.buf() ) continue;
 
 	ptr = astream.value();
 	skipLeadingBlanks(ptr);
@@ -131,13 +159,13 @@ BufferString HelpViewer::getLinkNameForWinID( const char* winid )
     if ( !ptr || ! *ptr )
     {
 	BufferString msg = "No specific help for this window (ID=";
-	msg += winid; msg += ").";
+	msg += inpwinid; msg += ").";
 	UsrMsg( msg );
 	ptr = sMainIndex;
     }
     else if ( getenv("DTECT_SHOW_HELP") )
     {
-	BufferString msg = winid; msg += " -> "; msg += ptr;
+	BufferString msg = inpwinid; msg += " -> "; msg += ptr;
 	UsrMsg( msg );
     }
 
@@ -146,7 +174,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* winid )
 }
 
 
-BufferString HelpViewer::getURLForLinkName( const char* lnm )
+BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 {
     BufferString linknm( lnm );
     if ( linknm == "" )
@@ -154,7 +182,7 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm )
     BufferString htmlfnm;
     if ( linknm != sMainIndex )
     {
-	StreamData sd = openHFile( "LinkFileTable.txt" );
+	StreamData sd = openHFile( "LinkFileTable.txt", scope );
 	if ( sd.usable() )
 	{
 	    string lnk, fnm;
@@ -190,5 +218,5 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 {
     BufferString lnm = getLinkNameForWinID( winid );
     if ( lnm == "" ) return lnm;
-    return getURLForLinkName( lnm );
+    return getURLForLinkName( lnm, getScope(winid) );
 }
