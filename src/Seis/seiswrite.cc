@@ -58,7 +58,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg += ioobj->name(); errmsg += "'";
 	return false;
     }
-    if ( is2d && !lkp )
+    if ( is2d && !lkp && ( !seldata || seldata->linekey_ == "" ) )
     {
 	errmsg = "Internal: 2D seismic can only be stored if line key known";
 	return false;
@@ -146,9 +146,12 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 }
 
 
+#define mCurLineKey (lkp ? lkp->lineKey() : seldata->linekey_)
+
+
 bool SeisTrcWriter::next2DLine()
 {
-    LineKey lk = lkp->lineKey();
+    LineKey lk = lkp ? lkp->lineKey() : seldata->linekey_;
     if ( attrib != "" )
 	lk.setAttrName( attrib );
     BufferString lnm = lk.lineName();
@@ -179,7 +182,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 {
     if ( !putter ) return false;
 
-    if ( lkp->lineKey() != prevlk )
+    if ( mCurLineKey != prevlk )
     {
 	if ( !next2DLine() )
 	    return false;
