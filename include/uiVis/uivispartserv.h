@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.133 2004-10-01 12:29:49 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.134 2005-01-17 08:41:33 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,6 +192,7 @@ public:
     				/*!< \returns id of new object */
 
     				// Tracking stuff
+    bool			sendTrackNewObjectEvent() { return true; }
     int				addInterpreter(int);
     void			setTrackMan(int,Tracking::TrackManager&);
     void			showTrackingManager();
