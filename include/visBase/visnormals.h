@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.1 2002-12-20 16:30:21 kristofer Exp $
+ RCS:		$Id: visnormals.h,v 1.2 2003-01-07 10:26:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,12 +18,12 @@ ________________________________________________________________________
 
 class CallBacker;
 class SoNormal;
+class Vector3;
+
+namespace Threads { class Mutex; };
 
 namespace visBase
 {
-
-class Coordinates;
-
 
 /*!\brief
 
@@ -35,29 +35,23 @@ public:
     static Normals*	create()
 			mCreateDataObj(Normals);
 
-    void		setCoords( Coordinates* );
-    int			addNormal( int, int, int );
+    void		setNormal( int, const Vector3& );
+    int			addNormal( const Vector3& );
     void		removeNormal( int );
 
     SoNode*		getData();
 
 protected:
-    void		calcNormal( int nr, int, int, int );
     			~Normals();
     int			getFreeIdx();
-    void		handleCoordChange( CallBacker* );
+    			/*!< Object should be locked when calling */
 
-    Coordinates*		coords;
-    SoNormal*			normals;
-    TypeSet<int>		p0s;
-    TypeSet<int>		p1s;
-    TypeSet<int>		p2s;
+    SoNormal*		normals;
 
-    ObjectSet<TypeSet<int> >	normaldeps;
-
-    TypeSet<int>		unusednormals;
+    TypeSet<int>	unusednormals;
+    Threads::Mutex&	mutex;
+    			
 };
-    
 
 };
 
