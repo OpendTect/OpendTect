@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.2 2003-10-20 15:38:03 bert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.3 2003-10-21 14:09:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,4 +90,6 @@ void uiPluginMan::loadPush( CallBacker* )
 	uiMSG().error( "File does not exist" );
     else if ( !PIM().load(fnm) )
 	uiMSG().error( "Couldn't load plugin" );
+    else
+	{ fillList(); selChg(0); }
 }

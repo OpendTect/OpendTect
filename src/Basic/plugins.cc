@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.16 2003-10-20 15:38:03 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.17 2003-10-21 14:09:44 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -165,7 +165,7 @@ static const char* getDefDir( bool instdir )
     }
     else
     {
-	dnm = GetPersonalDir();
+	dnm = GetSettingsDir();
 	dnm = File_getFullPath( dnm, ".od" );
 	dnm = File_getFullPath( dnm, plugindir );
     }
