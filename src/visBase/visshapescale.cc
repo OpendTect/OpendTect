@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.1 2002-07-12 09:33:48 kristofer Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.2 2002-07-22 09:35:06 kristofer Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"
@@ -40,6 +40,14 @@ void visBase::ShapeScale::setShape( SceneObject* no )
     shape = no;
     if ( no ) no->ref();
     shapescalekit->setPart("shape", no ? no->getData() : 0 );
+}
+
+
+void visBase::ShapeScale::setShape( SoNode* node )
+{
+    if ( shape ) shape->unRef();
+    shape = 0;
+    shapescalekit->setPart("shape", node );
 }
 
 
@@ -83,7 +91,7 @@ int visBase::ShapeScale::usePar( const IOPar& iopar )
     if ( shapeid==-1 ) return 1;
 
     DataObject* dataobj = DM().getObj( shapeid );
-    if ( !dataobj ) { setShape( 0 ); return 0; }
+    if ( !dataobj ) { setShape( (SoNode*) 0 ); return 0; }
     mDynamicCastGet( SceneObject*, sceneobj, dataobj );
     if ( !sceneobj ) return -1;
 
