@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.24 2004-09-30 15:33:32 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.25 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -148,10 +148,9 @@ double SeisTrcInfo::getAttr( int nr ) const
 }
 
 
-bool SeisTrcInfo::dataPresent( float t, int trcsz, int soffs ) const
+bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
 {
-    float realstartpos = sampling.atIndex( soffs );
-    if ( t < realstartpos || t > samplePos(trcsz-1,soffs) )
+    if ( t < sampling.start || t > samplePos(trcsz-1) )
 	return false;
     if ( mIsUndefined(mute_pos) || t > mute_pos )
 	return true;
@@ -190,15 +189,14 @@ void SeisTrcInfo::fillPar( IOPar& iopar ) const
 }
 
 
-int SeisTrcInfo::nearestSample( float t, int soffs ) const
+int SeisTrcInfo::nearestSample( float t ) const
 {
     float s = mIsUndefined(t) ? 0 : (t - sampling.start) / sampling.step;
-    s -= soffs;
     return mNINT(s);
 }
 
 
-SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg, int soffs ) const
+SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
 {
     SampleGate sg;
 
@@ -209,7 +207,6 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg, int soffs ) const
     Interval<float> vals(
 	mIsUndefined(tg.start) ? 0 : (tg.start-sampling.start) / sampling.step,
 	mIsUndefined(tg.stop) ? 0 : (tg.stop-sampling.start) / sampling.step );
-    vals.shift( -soffs );
 
     if ( vals.start < vals.stop )
     {

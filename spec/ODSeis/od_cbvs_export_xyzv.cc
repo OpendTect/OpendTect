@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_export_xyzv.cc,v 1.17 2005-01-28 15:18:05 arend Exp $
+ * RCS      : $Id: od_cbvs_export_xyzv.cc,v 1.18 2005-03-09 12:22:17 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_export_xyzv.cc,v 1.17 2005-01-28 15:18:05 arend Exp $";
+static const char* rcsID = "$Id: od_cbvs_export_xyzv.cc,v 1.18 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -84,14 +84,14 @@ int main( int argc, char** argv )
     while ( tri->read(trc) )
     {
 	const int nrcomps = trc.data().nrComponents();
-	const int nrsamps = trc.size( 0 );
+	const int nrsamps = trc.size();
 	Coord coord = trc.info().coord;
 	for ( int isamp=0; isamp<nrsamps; isamp++ )
 	{
 	    for ( int icomp=0; icomp<nrcomps; icomp++ )
 	    {
 		*outsd.ostrm << coord.x << ' ' << coord.y << ' '
-			     << trc.samplePos(isamp,icomp) << ' '
+			     << trc.samplePos(isamp) << ' '
 			     << trc.get(isamp,icomp) << '\n';
 		nrlwr++;
 	    }

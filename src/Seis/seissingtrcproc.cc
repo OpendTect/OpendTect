@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.24 2004-10-11 14:49:57 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.25 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -234,7 +234,7 @@ static void scaleTrc( SeisTrc& trc, Scaler& sclr )
 {
     for ( int icomp=0; icomp<trc.data().nrComponents(); icomp++ )
     {
-	const int sz = trc.size( icomp );
+	const int sz = trc.size();
 	for ( int isamp=0; isamp<sz; isamp++ )
 	    trc.set( isamp, sclr.scale(trc.get(isamp,icomp)), icomp );
     }

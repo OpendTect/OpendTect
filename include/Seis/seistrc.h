@@ -7,30 +7,24 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.23 2005-01-28 13:31:16 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.24 2005-03-09 12:22:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <seisinfo.h>
-#include <tracedata.h>
-#include <datachar.h>
-#include <datatrc.h>
-class Interpolator1D;
+#include "seisinfo.h"
+#include "tracedata.h"
+#include "datachar.h"
+#include "datatrc.h"
+#include "valseries.h"
 class Socket;
+template <class T> class ValueSeriesInterpolator;
 
 /*!\brief Seismic traces
 
 A seismic trace is composed of trace info and trace data. The trace data
 consists of one or more components. These are represented by a set of buffers,
 interpreted by DataInterpreters.
-
-The number of samples of the components may vary, therfore the index of the
-sample at the info().sampling.start can be set to non-zero. The first component
-(icomp==0) has a sampleoffset of zero which cannot be set.
-
-Interpolation between samples is automatic if you use the getValue() method.
-The interpolation method can be customised.
 
 */
 
@@ -40,10 +34,10 @@ public:
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
 					    = DataCharacteristics() )
-			: soffs_(0), intpols_(0)
+			: intpol_(0)
 						{ data_.addComponent(ns,dc); }
 			SeisTrc( const SeisTrc& t )
-			: soffs_(0), intpols_(0)
+			: intpol_(0)
 						{ *this = t; }
 			~SeisTrc();
     SeisTrc&		operator =(const SeisTrc& t);
@@ -52,56 +46,21 @@ public:
     const SeisTrcInfo&	info() const		{ return info_; }
     TraceData&		data()			{ return data_; }
     const TraceData&	data() const		{ return data_; }
-
-    inline int		sampleOffset( int icomp ) const
-			{ return soffs_ && icomp && icomp < soffs_->size()
-				? (*soffs_)[icomp] : 0; }
-    void		setSampleOffset(int icomp,int);
-    inline float	posOffset( int icomp ) const
-			{ return sampleOffset(icomp) * info_.sampling.step; }
-
+    int			nrComponents() const	{ return data_.nrComponents(); }
 
     inline void		set( int idx, float v, int icomp )
 			{ data_.setValue( idx, v, icomp ); }
     inline float	get( int idx, int icomp ) const
 			{ return data_.getValue(idx,icomp); }
 
-    inline int		size( int icomp ) const
-			{ return data_.size( icomp ); }
-    inline float	getX( int idx, int icomp ) const
-			{ return startPos(icomp) + idx * info_.sampling.step; }
+    inline int		size() const
+			{ return data_.size(0); }
     float		getValue(float,int icomp) const;
-
-    const Interpolator1D* interpolator( int icomp=0 ) const;
-			//!< May return null!
-    Interpolator1D*	interpolator( int icomp=0 );
-			//!< May return null!
-    void		setInterpolator(Interpolator1D*,int icomp=0);
-			//!< Passed Interpolator1D becomes mine
-			//!< setData() will be called with appropriate args.
 
     bool		isNull(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
-    inline bool		dataPresent( float t, int icomp ) const
-			{ return info_.dataPresent( t, size(icomp),
-						    sampleOffset(icomp)); }
-    inline SamplingData<float>	samplingData( int icomp ) const
-			{ return SamplingData<float>( startPos(icomp),
-						      info_.sampling.step); }
-    inline float	startPos( int icomp ) const
-			{ return info_.sampling.start + posOffset(icomp); }
-    inline float	samplePos( int idx, int icomp ) const
-			{ return info_.samplePos( idx, sampleOffset(icomp) ); }
-    inline int		nearestSample( float pos, int icomp ) const
-			{ return info_.nearestSample(pos,sampleOffset(icomp)); }
-    void		setStartPos(float,int icomp=0);
-
-    bool		reSize( int sz, int icomp, bool copydata=false )
-			{ data_.reSize( sz, icomp, copydata );
-			  return data_.allOk(); }
-    SampleGate		sampleGate(const Interval<float>&,bool check,
-				   int icomp) const;
+    bool		reSize(int,bool copydata);
     void		copyDataFrom(const SeisTrc&,int icomp=-1,
 	    			     bool forcefloats=false);
 			//!< icomp -1 (default) is all components
@@ -111,17 +70,31 @@ public:
     //! If !err, errors are handled trough the socket.
     bool		getFrom(Socket&, BufferString* err=0);
 
-
     static const float	snapdist;
     			//!< The relative distance from a sample below
     			//!< which no interpolation is done.
 
+    const ValueSeriesInterpolator<float>& interpolator() const;
+    void		setInterpolator(ValueSeriesInterpolator<float>*);
+    			//!< becomes mine
+
+    inline float	startPos() const
+			{ return info_.sampling.start; }
+    inline float	samplePos( int idx ) const
+			{ return info_.samplePos(idx); }
+    inline int		nearestSample( float pos ) const
+			{ return info_.nearestSample(pos); }
+    void		setStartPos( float p )
+			{ info_.sampling.start = p; }
+    inline bool		dataPresent( float t ) const
+			{ return info_.dataPresent(t,size()); }
+    SampleGate		sampleGate(const Interval<float>&,bool check) const;
+
 protected:
 
-    TraceData		data_;
-    SeisTrcInfo		info_;
-    TypeSet<int>*	soffs_;
-    ObjectSet<Interpolator1D>* intpols_;
+    TraceData				data_;
+    SeisTrcInfo				info_;
+    ValueSeriesInterpolator<float>*	intpol_;
 
 private:
 
@@ -129,6 +102,32 @@ private:
 
 };
 
+
+/*!> Seismic traces conforming the ValueSeries<float> interface.
+
+One of the components of a SeisTrc can be selected to form a ValueSeries.
+
+*/
+
+class SeisTrcValueSeries : public ValueSeries<float>
+{
+public:
+
+    		SeisTrcValueSeries( const SeisTrc& t, int c )
+		    : trc(const_cast<SeisTrc&>(t))
+		    , icomp(c)			{}
+
+    void	setComponent( int idx )		{ icomp = idx; }
+    float	value( int idx ) const		{ return trc.get(idx,icomp); }
+    bool	writable() const		{ return true; }
+    void	setValue( int idx, float v )	{ trc.set(idx,v,icomp); }
+
+protected:
+
+    SeisTrc&	trc;
+    int		icomp;
+
+};
 
 /*!> Seismic traces conforming the DataTrace interface.
 
@@ -161,13 +160,13 @@ public:
     int			getIndex( float val ) const
 			{ return trc.info().nearestSample( val ); }
     float		getX( int idx ) const
-			{ return trc.getX( idx, curcomp ); }
+			{ return trc.samplePos( idx ); }
     float		getValue( float v ) const
 			{ return trc.getValue( v, curcomp ); }
 
-    inline int		size() const	{ return trc.size( curcomp ); }
+    inline int		size() const	{ return trc.size(); }
     inline float	step() const	{ return trc.info().sampling.step; }
-    float		start() const	{ return trc.startPos(curcomp); }
+    float		start() const	{ return trc.startPos(); }
 
     bool		isMutable() const	{ return ismutable; }
 

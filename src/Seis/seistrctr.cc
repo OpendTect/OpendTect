@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.57 2005-01-03 14:01:36 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.58 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -165,7 +165,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 {
     cleanUp();
     pinfo = new SeisPacketInfo;
-    innrsamples = outnrsamples = trc.size(0);
+    innrsamples = outnrsamples = trc.size();
     insd = outsd = trc.info().sampling;
 
     if ( !initConn(c,false)

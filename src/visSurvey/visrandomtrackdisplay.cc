@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.45 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.46 2005-03-09 12:22:17 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -329,8 +329,8 @@ void RandomTrackDisplay::setData( const SeisTrcBuf& trcbuf, int datatype )
 	    float ctime = zrg.start;
 	    for ( int ids=0; ids<nrsamp; ids++ )
 	    {
-		val = trc && trc->dataPresent(ctime,0) ? trc->getValue(ctime,0)
-						       : mUndefValue;
+		val = trc && trc->dataPresent(ctime) ? trc->getValue(ctime,0)
+						     : mUndefValue;
 		arr->set( ids, bidnr, val );
 		ctime += step;
 	    }
@@ -375,8 +375,8 @@ void RandomTrackDisplay::getMousePosInfo( const Coord3& pos, float& val,
     }
 
     const SeisTrc& trc = *cache.get( trcidx );
-    const int sampidx = trc.nearestSample( pos.z, 0 );
-    val = sampidx < 0 || sampidx >= trc.size(0) ? mUndefValue 
+    const int sampidx = trc.nearestSample( pos.z );
+    val = sampidx < 0 || sampidx >= trc.size()	? mUndefValue 
 						: trc.get( sampidx, 0 );
 }
 

@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_component.cc,v 1.14 2005-01-28 15:18:05 arend Exp $
+ * RCS      : $Id: od_cbvs_select_component.cc,v 1.15 2005-03-09 12:22:17 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_component.cc,v 1.14 2005-01-28 15:18:05 arend Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_component.cc,v 1.15 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -75,7 +75,7 @@ static int doWork( int argc, char** argv )
 	{
 	    // assume user knows that this is a dip cube:
 
-	    const int trcsz = trc.size(0);
+	    const int trcsz = trc.size();
 	    if ( !nrwr ) outtrc.reSize( trcsz, 0 );
 	    for ( int idx=0; idx<trcsz; idx++ )
 	    {

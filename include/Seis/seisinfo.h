@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.16 2004-09-30 15:33:31 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.17 2005-03-09 12:22:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,11 +84,11 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    int			nearestSample(float pos,int sampoffs=0) const;
-    float		samplePos( int idx, int sampoffs=0 ) const
-			{ return sampling.atIndex( idx + sampoffs ); }
-    SampleGate		sampleGate(const Interval<float>&,int sampoffs=0) const;
-    bool		dataPresent(float pos,int trcsize,int sampoffs=0) const;
+    int			nearestSample(float pos) const;
+    float		samplePos( int idx ) const
+			{ return sampling.atIndex( idx ); }
+    SampleGate		sampleGate(const Interval<float>&) const;
+    bool		dataPresent(float pos,int trcsize) const;
     void		gettr(SUsegy&) const;
     void		puttr(const SUsegy&);
 
@@ -106,13 +106,6 @@ public:
     void		getFrom(const PosAuxInfo&);
 
 };
-
-
-inline float mathAng2DegFromNorth( float rads )
-{
-    float deg = 90 - 57.2957795131 * rads;
-    return deg < 0 ? deg + 360 : deg;
-}
 
 
 #endif

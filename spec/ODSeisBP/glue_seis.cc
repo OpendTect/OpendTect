@@ -4,7 +4,7 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id: glue_seis.cc,v 1.3 2004-07-19 11:30:10 bert Exp $";
+static const char* rcsID = "$Id: glue_seis.cc,v 1.4 2005-03-09 12:22:17 cvsbert Exp $";
 #include "prog.h"
 #include "batchprog.h"
 #include "seisfact.h"
@@ -98,7 +98,7 @@ static SeisTrc* getInterp( const SeisTrc* t1, const SeisTrc* t2, float frac )
     SeisTrc* trc = new SeisTrc( *t1 );
     for ( int icomp=0; icomp<trc->data().nrComponents(); icomp++ )
     {
-	const int sz = trc->size(icomp);
+	const int sz = trc->size();
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
 	    float val1 = t1->get( isamp, icomp );

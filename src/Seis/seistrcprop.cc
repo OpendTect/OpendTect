@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.10 2005-03-09 09:14:21 cvshelene Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.11 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -23,11 +23,11 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
     Seis::Event ev;
     if ( mIsZero(tg.width(),mDefEps) ) return ev;
 
-    int sz = trc.size(curcomp); float sr = trc.info().sampling.step;
+    int sz = trc.size(); float sr = trc.info().sampling.step;
     SampleGate sg;
-    tg.shift( -trc.startPos(curcomp) );
+    tg.shift( -trc.startPos() );
     if ( tg.start < 0 ) tg.start = 0; if ( tg.stop < 0 ) tg.stop = 0;
-    float endpos = trc.samplePos(sz-1,curcomp);
+    float endpos = trc.samplePos(sz-1);
     if ( tg.start > endpos ) tg.start = endpos;
     if ( tg.stop > endpos ) tg.stop = endpos;
 
@@ -112,7 +112,7 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
 		// Linear (who cares?)
 		float reldist = cur / ( cur - prev );
 		float pos = inc < 0 ? idx + reldist : idx - reldist;
-		ev.pos = trc.startPos(curcomp) + pos * sr;
+		ev.pos = trc.startPos() + pos * sr;
 		ev.val = 0;
 	    }
 	    break;
@@ -136,9 +136,9 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
 void SeisTrcPropCalc::getPreciseExtreme( Seis::Event& ev, int idx, int inc,
 				 float y2, float y3 ) const
 {
-    float y1 = idx-inc < 0 || idx-inc >= trc.size(curcomp)
-		? y2 : trc.get( idx-inc, curcomp );
-    ev.pos = trc.startPos(curcomp) + idx * trc.info().sampling.step;
+    float y1 = idx-inc < 0 || idx-inc >= trc.size()
+	     ?  y2 : trc.get( idx-inc, curcomp );
+    ev.pos = trc.startPos() + idx * trc.info().sampling.step;
     ev.val = y2;
 
     float a = ( y3 + y1 - 2 * y2 ) / 2;
@@ -176,12 +176,12 @@ void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick )
     mtrc().info().stack_count++;
 
     mStartCompLoop
-    const int sz = trc.size( icomp );
+    const int sz = trc.size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	float val = trc.get( idx, icomp ) * wght;
 	val += alongpick
-	     ? trc2.getValue( trc.samplePos(idx,icomp)-diff, icomp )
+	     ? trc2.getValue( trc.samplePos(idx)-diff, icomp )
 	     : trc2.get( idx, icomp );
 	val /= wght + 1.;
 	mtrc().set( idx, val, icomp );
@@ -193,7 +193,7 @@ void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick )
 void SeisTrcPropChg::removeDC()
 {
     mStartCompLoop
-    int sz = trc.size( icomp );
+    int sz = trc.size();
     if ( !sz ) continue;
 
     float avg = 0;
@@ -209,7 +209,7 @@ void SeisTrcPropChg::removeDC()
 void SeisTrcPropCalc::gettr( SUsegy& sutrc ) const
 {
     trc.info().gettr( sutrc );
-    sutrc.ns = trc.size( curcomp );
+    sutrc.ns = trc.size();
 
     if ( trc.data().getInterpreter(curcomp)->isSUCompat() )
 	memcpy( sutrc.data, trc.data().getComponent(curcomp)->data(),
@@ -227,7 +227,7 @@ void SeisTrcPropChg::puttr( const SUsegy& sutrc )
     const int icomp = curcomp < 0 ? 0 : curcomp;
 
     mtrc().info().puttr( sutrc );
-    mtrc().reSize( sutrc.ns, icomp );
+    mtrc().reSize( sutrc.ns, false );
 
     if ( trc.data().getInterpreter(icomp)->isSUCompat() )
 	memcpy( mtrc().data().getComponent(icomp)->data(), sutrc.data,
@@ -243,7 +243,7 @@ void SeisTrcPropChg::puttr( const SUsegy& sutrc )
 void SeisTrcPropChg::scale( float fac, float shft )
 {
     mStartCompLoop
-    const int sz = trc.size( icomp );
+    const int sz = trc.size();
     for ( int idx=0; idx<sz; idx++ )
 	mtrc().set( idx, shft + fac * trc.get( idx, icomp ), icomp );
     mEndCompLoop
@@ -253,7 +253,7 @@ void SeisTrcPropChg::scale( float fac, float shft )
 void SeisTrcPropChg::normalize( bool aroundzero )
 {
     mStartCompLoop
-    const int sz = trc.size( icomp );
+    const int sz = trc.size();
     if ( !sz ) continue;
 
     float val = trc.get( 0, icomp );
@@ -308,7 +308,7 @@ void SeisTrcPropChg::normalize( bool aroundzero )
 void SeisTrcPropChg::corrNormalize()
 {
     mStartCompLoop
-    int sz = trc.size( icomp );
+    int sz = trc.size();
     if ( !sz ) continue;
 
     double val = trc.get( 0, icomp );
@@ -336,13 +336,13 @@ void SeisTrcPropChg::corrNormalize()
 
 float SeisTrcPropCalc::getFreq( int isamp ) const
 {
-    float mypos = trc.samplePos( isamp, curcomp );
-    float endpos = trc.samplePos( trc.size( curcomp ) - 1, curcomp );
-    if ( mypos < trc.startPos(curcomp) || mypos > endpos )
+    float mypos = trc.samplePos( isamp );
+    float endpos = trc.samplePos( trc.size() - 1 );
+    if ( mypos < trc.startPos() || mypos > endpos )
 	return mUndefValue;
 
     // Find nearest crests
-    Interval<float> tg( mypos-2*trc.info().sampling.step, trc.startPos(curcomp) );
+    Interval<float> tg( mypos-2*trc.info().sampling.step, trc.startPos() );
     Seis::Event ev1 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 1 );
     tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
     Seis::Event ev2 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 1 );
@@ -360,7 +360,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     }
 
     // Now find next events ...
-    tg.start = mypos-2*trc.info().sampling.step; tg.stop = trc.startPos(curcomp);
+    tg.start = mypos-2*trc.info().sampling.step; tg.stop = trc.startPos();
     Seis::Event ev0 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 2 );
     tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
     Seis::Event ev3 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 2 );
@@ -386,7 +386,7 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
     ArrPtrMan<float> trcdata = new float[ quadsz ];
     int start = isamp - mHalfHilbertLength;
     int stop = isamp + mHalfHilbertLength;
-    const int sz = trc.size(curcomp);
+    const int sz = trc.size();
     for ( int idx=start; idx<=stop; idx++ )
     {
         int trcidx = idx < 0 ? 0 : (idx>=sz ? sz-1 : idx);
@@ -404,10 +404,10 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
 void SeisTrcPropChg::topMute( float mpos, float taperlen )
 {
     mStartCompLoop
-    if ( mpos < trc.startPos(icomp) ) return;
-    int endidx = trc.size(icomp) - 1;
-    if ( mpos > trc.samplePos(endidx,icomp) )
-	mpos = trc.samplePos(endidx,icomp);
+    if ( mpos < trc.startPos() ) return;
+    int endidx = trc.size() - 1;
+    if ( mpos > trc.samplePos(endidx) )
+	mpos = trc.samplePos(endidx);
     if ( taperlen < 0 || mIsUndefined(taperlen) )
 	taperlen = 0;
 //  if ( !mIsUndefined(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
@@ -416,10 +416,10 @@ void SeisTrcPropChg::topMute( float mpos, float taperlen )
     mtrc().info().mute_pos = mpos;
     mtrc().info().taper_length = taperlen;
 
-    float pos = trc.startPos( icomp );
+    float pos = trc.startPos();
     while ( pos < mpos + mDefEps )
     {
-	int idx = trc.nearestSample( pos, icomp );
+	int idx = trc.nearestSample( pos );
 	mtrc().set( idx, 0, icomp );
 	pos += trc.info().sampling.step;
     }
@@ -427,11 +427,11 @@ void SeisTrcPropChg::topMute( float mpos, float taperlen )
     if ( mIsZero(taperlen,mDefEps) ) return;
 
     float pp = mpos + taperlen;
-    if ( pp > trc.samplePos(endidx,icomp) )
-	pp = trc.samplePos(endidx,icomp);
+    if ( pp > trc.samplePos(endidx) )
+	pp = trc.samplePos(endidx);
     while ( pos < pp + mDefEps )
     {
-	int idx = trc.nearestSample( pos, icomp );
+	int idx = trc.nearestSample( pos );
 	float x = ((pos - mpos) / taperlen) * M_PI;
 	float taper = 0.5 * ( 1 - cos(x) );
 	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
@@ -444,10 +444,10 @@ void SeisTrcPropChg::topMute( float mpos, float taperlen )
 void SeisTrcPropChg::tailMute( float mpos, float taperlen )
 {
     mStartCompLoop
-    int endidx = trc.size(icomp) - 1;
-    if ( mpos > trc.samplePos(endidx,icomp) ) return;
-    if ( mpos < trc.startPos(icomp) )
-	mpos = trc.startPos(icomp);
+    int endidx = trc.size() - 1;
+    if ( mpos > trc.samplePos(endidx) ) return;
+    if ( mpos < trc.startPos() )
+	mpos = trc.startPos();
 
     if ( taperlen < 0 || mIsUndefined(taperlen) )
 	taperlen = 0;
@@ -458,9 +458,9 @@ void SeisTrcPropChg::tailMute( float mpos, float taperlen )
     mtrc().info().taper_length = taperlen;
 
     float pos = mpos;
-    while ( pos <= trc.samplePos(endidx,icomp)  )
+    while ( pos <= trc.samplePos(endidx)  )
     {
-	int idx = trc.nearestSample( pos, icomp );
+	int idx = trc.nearestSample( pos );
 	mtrc().set( idx, 0, icomp );
 	pos += trc.info().sampling.step;
     }
@@ -468,12 +468,12 @@ void SeisTrcPropChg::tailMute( float mpos, float taperlen )
     if ( mIsZero(taperlen,mDefEps) ) return;
 
     float pp = mpos - taperlen;
-    if ( pp < trc.startPos(icomp) )
-	pp = trc.startPos(icomp);
+    if ( pp < trc.startPos() )
+	pp = trc.startPos();
     pos = pp;
     while ( pos <= mpos )
     {
-	int idx = trc.nearestSample( pos, icomp );
+	int idx = trc.nearestSample( pos );
 	float x = ((mpos - pos) / taperlen) * M_PI;
 	float taper = 0.5 * ( 1 - cos(x) );
 	mtrc().set( idx, trc.get( idx, icomp ) * taper, icomp );
@@ -490,8 +490,8 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
     float val1, val2;
     SampleGate sg( sgin ); sg.sort();
     if ( !alpick
-      && (sg.start<0 || sg.stop>=trc.size(curcomp)
-		     || sg.stop>=t2.size(curcomp)) )
+      && (sg.start<0 || sg.stop>=trc.size()
+		     || sg.stop>=t2.size()) )
 	return mUndefValue;
 
     float p1 = trc.info().pick;
@@ -521,8 +521,8 @@ double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
     double sqdist = 0, sq1 = 0, sq2 = 0;
     SampleGate sg( sgin ); sg.sort();
     if ( !alpick
-      && (sg.start<0 || sg.stop>=trc.size(curcomp)
-		     || sg.stop>=t2.size(curcomp)) )
+      && (sg.start<0 || sg.stop>=trc.size()
+		     || sg.stop>=t2.size()) )
 	return mUndefValue;
 
     float p1 = trc.info().pick;

@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.21 2005-01-28 15:18:05 arend Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.22 2005-03-09 12:22:17 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.21 2005-01-28 15:18:05 arend Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.22 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -173,7 +173,7 @@ int main( int argc, char** argv )
 
 	while ( true )
 	{
-	    std::cerr << "Print samples ( 1 - " << trc.size(0) << " )."
+	    std::cerr << "Print samples ( 1 - " << trc.size() << " )."
 		      << std::endl;
 	    std::cerr << "From (0 to stop): ";
 	    getInt( samps.start );
@@ -183,7 +183,7 @@ int main( int argc, char** argv )
 	    std::cerr << "Step: "; getInt( samps.step );
 	    if ( samps.step < 1 ) samps.step = 1;
 	    if ( samps.start < 1 ) samps.start = 1;
-	    if ( samps.stop > trc.size(0) ) samps.stop = trc.size(0);
+	    if ( samps.stop > trc.size() ) samps.stop = trc.size();
 	    std::cerr << std::endl;
 	    for ( int isamp=samps.start; isamp<=samps.stop; isamp+=samps.step )
 	    {

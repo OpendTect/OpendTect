@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.28 2005-01-28 13:31:16 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.29 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: seistrc.cc,v 1.28 2005-01-28 13:31:16 bert Exp 
 #include "socket.h"
 #include "iopar.h"
 #include "errh.h"
+#include "valseriesinterpol.h"
 #include <math.h>
 #include <float.h>
 
@@ -21,15 +22,7 @@ const float SeisTrc::snapdist = 1e-3;
 
 SeisTrc::~SeisTrc()
 {
-    cleanUp();
-}
-
-
-void SeisTrc::cleanUp()
-{
-    delete soffs_; soffs_ = 0;
-    if ( intpols_ )
-	{ deepErase( *intpols_ ); delete intpols_; intpols_ = 0; }
+    delete intpol_;
 }
 
 
@@ -37,82 +30,47 @@ SeisTrc& SeisTrc::operator =( const SeisTrc& t )
 {
     if ( &t == this ) return *this;
 
-    cleanUp();
     info_ = t.info_;
     copyDataFrom( t, -1, false );
 
-    if ( t.soffs_ )
-	soffs_ = new TypeSet<int>( *t.soffs_ );
-
-    if ( t.intpols_ )
-    {
-	intpols_ = new ObjectSet<Interpolator1D>;
-	intpols_->allowNull();
-	for ( int idx=0; idx<t.intpols_->size(); idx++ )
-	{
-	    Interpolator1D* interpol =  (*t.intpols_)[idx] ?
-					(*t.intpols_)[idx]->clone() : 0;
-
-	    if ( interpol )
-		interpol->setData( *data().getComponent(idx),
-				   *data().getInterpreter(idx) );
-
-	    (*intpols_) += interpol;
-	}
-    }
+    delete intpol_; intpol_ = 0;
+    if ( t.intpol_ )
+	intpol_ = new ValueSeriesInterpolator<float>( *t.intpol_ );
 
     return *this;
 }
 
 
-void SeisTrc::setSampleOffset( int icomp, int so )
+bool SeisTrc::reSize( int sz, bool copydata )
 {
-    if ( (!so && !soffs_) || icomp >= data_.nrComponents() ) return;
-
-    if ( !soffs_ ) soffs_ = new TypeSet<int>;
-
-    while ( soffs_->size() <= icomp ) (*soffs_) += 0;
-    (*soffs_)[icomp] = so;
+    for ( int idx=0; idx<nrComponents(); idx++ )
+	data_.reSize( sz, idx, copydata );
+    return data_.allOk();
 }
 
 
-const Interpolator1D* SeisTrc::interpolator( int icomp ) const
+const ValueSeriesInterpolator<float>& SeisTrc::interpolator() const
 {
-    return !intpols_ || icomp>=intpols_->size() ? 0 : (*intpols_)[icomp];
-}
-
-
-Interpolator1D* SeisTrc::interpolator( int icomp )
-{
-    const Interpolator1D* i = ((const SeisTrc*) this)->interpolator( icomp );
-    return const_cast<Interpolator1D*>(i);
-}
-
-
-void SeisTrc::setInterpolator( Interpolator1D* intpol, int icomp )
-{
-    if ( (!intpol && !intpols_) || icomp >= data().nrComponents() )
-	{ delete intpol; return; }
-
-    if ( !intpols_ )
+    static ValueSeriesInterpolator<float>* defintpol = 0;
+    if ( !defintpol )
     {
-	intpols_ = new ObjectSet<Interpolator1D>;
-	intpols_->allowNull();
+	defintpol = new ValueSeriesInterpolator<float>();
+	defintpol->snapdist_ = snapdist;
+	defintpol->smooth_ = true;
+	defintpol->extrapol_ = false;
+	defintpol->udfval_ = 0;
     }
+    ValueSeriesInterpolator<float>& ret
+	= const_cast<ValueSeriesInterpolator<float>&>(
+	    				intpol_ ? *intpol_ : *defintpol );
+    ret.maxidx_ = size() - 1;
+    return ret;
+}
 
-    while ( intpols_->size() <= icomp )
-	(*intpols_) += 0;
 
-    delete intpols_->replace( intpol, icomp );
-    if ( intpol )
-	intpol->setData( *data().getComponent(icomp),
-			 *data().getInterpreter(icomp) );
-    else
-    {
-	for ( int idx=0; idx<intpols_->size(); idx++ )
-	    if ( (*intpols_)[idx] ) return;
-	deepErase( *intpols_ ); delete intpols_; intpols_ = 0;
-    }
+void SeisTrc::setInterpolator( ValueSeriesInterpolator<float>* intpol )
+{
+    delete intpol_; intpol_ = intpol;
 }
 
 
@@ -121,7 +79,7 @@ bool SeisTrc::isNull( int icomp ) const
     if ( icomp >= 0 )
 	return data_.isZero(icomp);
 
-    for ( icomp=0; icomp<data_.nrComponents(); icomp++ )
+    for ( icomp=0; icomp<nrComponents(); icomp++ )
     {
 	if ( !data_.isZero(icomp) )
 	    return false;
@@ -132,72 +90,49 @@ bool SeisTrc::isNull( int icomp ) const
 
 float SeisTrc::getValue( float t, int icomp ) const
 {
-    const int sz = size( icomp );
-    int sampidx = nearestSample( t, icomp );
-    if ( sampidx < 0 || sampidx >= sz ) return 0;
+    const int sz = size();
+    int sampidx = nearestSample( t );
+    if ( sampidx < 0 || sampidx >= sz )
+	return interpolator().udfval_;
 
-    const float pos = ( t - startPos( icomp ) ) / info_.sampling.step;
+    const float pos = ( t - startPos() ) / info_.sampling.step;
     if ( sampidx-pos > -snapdist && sampidx-pos < snapdist )
 	return get( sampidx, icomp );
 
-    const Interpolator1D* intpol = interpolator( icomp );
-    if ( !intpol )
-    {
-	PolyInterpolator1D polyintpol( snapdist, 0 );
-
-	polyintpol.setData( *data().getComponent(icomp),
-			    *data().getInterpreter(icomp) );
-	return polyintpol.value(pos);
-    }
-
-    return intpol->value(pos);
+    return interpolator().value( SeisTrcValueSeries(*this,icomp), pos );
 }
 
 
-SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check,
-				int icomp ) const
+SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check ) const
 {
-    SampleGate sg( info_.sampleGate(tg,sampleOffset(icomp)) );
+    SampleGate sg( info_.sampleGate(tg) );
     if ( !check ) return sg;
 
-    int maxsz = size(icomp) - 1;
+    const int maxsz = size() - 1;
     if ( sg.start > maxsz ) sg.start = maxsz;
     if ( sg.stop > maxsz ) sg.stop = maxsz;
-
     return sg;
-}
-
-
-void SeisTrc::setStartPos( float pos, int icomp )
-{
-    if ( icomp == 0 )
-	info_.sampling.start = pos;
-    else
-    {
-	float offs = (pos - info_.sampling.start) / info_.sampling.step;
-	setSampleOffset( icomp, mNINT(offs) );
-    }
 }
 
 
 void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
 {
     int startcomp = tarcomp < 0 ? 0 : tarcomp;
-    int stopcomp = tarcomp < 0 ? trc.data().nrComponents()-1 : tarcomp;
+    int stopcomp = tarcomp < 0 ? trc.nrComponents()-1 : tarcomp;
+    const int sz = trc.size();
     for ( int icomp=startcomp; icomp<=stopcomp; icomp++ )
     {
 	DataCharacteristics dc = forcefloats
 	    			? DataCharacteristics()
 				: trc.data().getInterpreter(icomp)->dataChar();
-	const int sz = trc.size(icomp);
 
-	if ( data().nrComponents() <= icomp )
+	if ( nrComponents() <= icomp )
 	    data().addComponent( sz, dc );
 	else
 	{
 	    if ( data().getInterpreter(icomp)->dataChar() != dc )
 		data().setComponent(dc,icomp);
-	    if ( size(icomp) != sz )
+	    if ( data_.size(icomp) != sz )
 		data().getComponent(icomp)->reSize( sz );
 	}
 	memcpy( data().getComponent(icomp)->data(),
@@ -240,11 +175,11 @@ bool SeisTrc::putTo(Socket& sock, bool withinfo, BufferString* errbuf) const
 	    { mSockErrRet( "Could not write to socket." ); }
     }
 
-    int nrcomps = data_.nrComponents();
+    int nrcomps = nrComponents();
     if ( !sock.write( nrcomps ) )
 	    { mSockErrRet( "Could not write to socket." ); }
 
-    for( int idx=0; idx< data_.nrComponents(); idx++ )
+    for( int idx=0; idx< nrComponents(); idx++ )
     {
 	DataCharacteristics dc = data_.getInterpreter(idx)->dataChar();
 
@@ -271,11 +206,11 @@ bool SeisTrc::putTo(Socket& sock, bool withinfo, BufferString* errbuf) const
 
 bool SeisTrc::getFrom( Socket& sock, BufferString* errbuf )
 {
-    int totalcmps = data().nrComponents();
+    int totalcmps = nrComponents();
     for ( int idx=0; idx < totalcmps; idx++ )
 	data().delComponent(0);
 
-    if ( data().nrComponents() )
+    if ( nrComponents() )
 	{ mErrRet( "Could not clear trace buffers" ); }
 
     bool withinfo;

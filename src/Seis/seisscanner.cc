@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.21 2004-10-05 15:26:20 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.22 2005-03-09 12:22:17 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -303,7 +303,7 @@ void SeisScanner::handleFirstTrc()
 {
     first_trace = false;
     sampling = trc.info().sampling;
-    nrsamples = trc.size(0);
+    nrsamples = trc.size();
     nrcrlsthisline = 1;
     geomdtector.add( trc.info().binid, trc.info().coord, trc.info().nr );
 }
@@ -338,7 +338,7 @@ bool SeisScanner::doValueWork()
     float sievethresh = 1. / selsieve;
 
     bool nonnull_seen = false;
-    int nullstart = trc.size(0);
+    int nullstart = trc.size();
     for ( int idx=nullstart-1; idx!=-1; idx-- )
     {
 	float val = trc.get(idx,0);

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.27 2004-12-16 10:34:22 bert Exp $
+ RCS:		$Id: genc.h,v 1.28 2005-03-09 12:22:16 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -247,6 +247,13 @@ int		exitProgram( int ret );
 
 #ifdef __cpp__
 }
+
+inline float	degFromNorth( float azimuth )
+		{
+		    const float deg = 90 - 57.2957795131 * azimuth;
+		    return deg < 0 ? deg + 360 : deg;
+		}
+
 #else
 /* C only */
 
