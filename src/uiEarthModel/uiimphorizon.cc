@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.21 2003-06-03 12:46:12 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.22 2003-06-20 12:43:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,23 +101,12 @@ bool uiImportHorizon::handleAscii()
 
     Scaler* scaler = scalefld->getScaler();
 
-    // Auto-detect millisecond grids
     if ( !scaler )
+	grid->ensureContainsValidZValues();
+    else
     {
-	GridNode lastgn( grid->nrCols()-1, grid->nrRows()-1 );
-	const float maxval = grid->partValue( FeatureSpec::Max,
-					      GridNode(0,0), lastgn );
-	if ( maxval > 2 * SI().zRange(false).stop )
-	{
-	    if ( SI().zRange(false).includes( maxval * .001 ) )
-		scaler = new LinScaler( 0, 0.001 );
-	}
-    }
-
-    if ( scaler )
-    {
-	GridScaler* grdsc = new GridScaler( grid, scaler );
-	uiExecutor scdlg( this, *grdsc );
+	GridScaler grdsc( grid, scaler );
+	uiExecutor scdlg( this, grdsc );
 	scdlg.go();
     }
 
