@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.20 2002-04-25 14:51:28 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.21 2002-04-25 15:29:29 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -54,7 +54,7 @@ int File_isDirectory( const char* dirname )
     return PathIsDirectory( dirname );
 #else
     if ( !dirname || !*dirname || !File_exists(dirname) ) return 0;
-    return S_ISDIR(statbuf.st_rdev);
+    return S_ISDIR(statbuf.st_mode);
 #endif
 }
 
