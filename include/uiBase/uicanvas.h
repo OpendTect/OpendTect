@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.5 2002-03-26 07:33:39 nanne Exp $
+ RCS:           $Id: uicanvas.h,v 1.6 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
 
     void			resizeContents( int w, int h );
     inline void			resizeContents( uiSize s ) 
-				    { resizeContents( s.width(), s.height() ); }
+				    { resizeContents(s.hNrPics(),s.vNrPics()); }
     void			setContentsPos( uiPoint topLeft );
 
     void			updateContents();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.52 2002-05-13 14:21:03 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.53 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ void i_LayoutItem::invalidate()
 
 uiSize i_LayoutItem::actualSize( bool include_border ) const
 { 
-    return curpos(setGeom).pixelSize(); 
+    return curpos(setGeom).getsize(); 
 }
 
 
@@ -115,8 +115,8 @@ void i_LayoutItem::initLayout( layoutMode lom, int mngrTop, int mngrLeft )
 	}
 	else
 	{
-	    pref_h_nr_pics	= prefSize().width();
-	    pref_v_nr_pics	= prefSize().height();
+	    pref_h_nr_pics	= prefSize().hNrPics();
+	    pref_v_nr_pics	= prefSize().vNrPics();
 	}
     }
 
@@ -467,18 +467,18 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	}
 	case heightSameAs:
 	{
-	    if ( mPos.height() < ( otherPos.height() ) )
+	    if ( mPos.vNrPics() < ( otherPos.vNrPics() ) )
 	    {
-		mPos.setHeight( otherPos.height() );
+		mPos.setVNrPics( otherPos.vNrPics() );
 		mUpdated();
 	    }
 	    break;
 	}
 	case widthSameAs:
 	{
-	    if ( mPos.width() < ( otherPos.width() ) )
+	    if ( mPos.hNrPics() < ( otherPos.hNrPics() ) )
 	    {
-		mPos.setWidth( otherPos.width() );
+		mPos.setHNrPics( otherPos.hNrPics() );
 		mUpdated();
 	    }
 	    break;
@@ -494,12 +494,12 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated();
 	    }
 
-	    int nwWidth = mFullStretch() ? mngr().winpos(lom).width() 
-					: mngr().curpos(lom).width();
+	    int nwWidth = mFullStretch() ? mngr().winpos(lom).hNrPics() 
+					: mngr().curpos(lom).hNrPics();
 
-	    if ( finalLoop &&  mPos.width() < nwWidth )
+	    if ( finalLoop &&  mPos.hNrPics() < nwWidth )
 	    {
-		mPos.setWidth( nwWidth );
+		mPos.setHNrPics( nwWidth );
 		mUpdated();
 	    }
 	    if ( mPos.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
@@ -517,12 +517,12 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated();
 	    }
 
-	    int nwWidth = mFullStretch() ? mngr().winpos(lom).width() 
-					: mngr().curpos(lom).width();
+	    int nwWidth = mFullStretch() ? mngr().winpos(lom).hNrPics() 
+					: mngr().curpos(lom).hNrPics();
 
-	    if ( finalLoop &&  mPos.width() < nwWidth )
+	    if ( finalLoop &&  mPos.hNrPics() < nwWidth )
 	    {
-		mPos.setWidth( nwWidth );
+		mPos.setHNrPics( nwWidth );
 		mUpdated();
 	    }
 
@@ -538,11 +538,11 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated();
 	    }
 
-	    int nwHeight = mFullStretch() ? mngr().winpos(lom).height() 
-					  : mngr().curpos(lom).height();
-	    if ( finalLoop && mPos.height() < nwHeight )
+	    int nwHeight = mFullStretch() ? mngr().winpos(lom).vNrPics() 
+					  : mngr().curpos(lom).vNrPics();
+	    if ( finalLoop && mPos.vNrPics() < nwHeight )
 	    {
-		mPos.setHeight( nwHeight );
+		mPos.setVNrPics( nwHeight );
 		mUpdated();
 	    }
 
@@ -558,11 +558,11 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated();
 	    }
 
-	    int nwHeight = mFullStretch() ? mngr().winpos(lom).height() 
-					  : mngr().curpos(lom).height();
-	    if ( finalLoop && mPos.height() < nwHeight )
+	    int nwHeight = mFullStretch() ? mngr().winpos(lom).vNrPics() 
+					  : mngr().curpos(lom).vNrPics();
+	    if ( finalLoop && mPos.vNrPics() < nwHeight )
 	    {
-		mPos.setHeight( nwHeight );
+		mPos.setVNrPics( nwHeight );
 		mUpdated();
 	    }
 	    if ( mPos.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
@@ -1082,7 +1082,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     { 
         hdone = true;
         itm.hDelta += hdir;
-        itmGeometry.setWidth ( refGeom.width() + itm.hDelta );
+        itmGeometry.setHNrPics ( refGeom.hNrPics() + itm.hDelta );
 	if ( hdir>0 &&  itmGeometry.right() > targetRect.right() )
 	    itmGeometry.leftTo( itmGeometry.left() - 1 );
     }   
@@ -1099,7 +1099,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     {   
         vdone = true; 
         itm.vDelta += vdir;
-        itmGeometry.setHeight( refGeom.height() + itm.vDelta );
+        itmGeometry.setVNrPics( refGeom.vNrPics() + itm.vDelta );
     }
 
 
@@ -1164,7 +1164,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	    itm.nhiter--;
 	    itm.hDelta -= hdir;
 
-	    itmGeometry.setWidth( refGeom.width() + itm.hDelta );
+	    itmGeometry.setHNrPics( refGeom.hNrPics() + itm.hDelta );
 	    do_layout = true;
 	}
     }
@@ -1191,7 +1191,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	    itm.nviter--;
 	    itm.vDelta -= vdir;
 
-	    itmGeometry.setHeight( refGeom.height() + itm.vDelta );
+	    itmGeometry.setVNrPics( refGeom.vNrPics() + itm.vDelta );
 	    do_layout = true;
 	}
     }
@@ -1252,17 +1252,17 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     cout << UserIDObject::name() << endl;
 
     cout << "l: " << extRect.left() << " t: " << extRect.top();
-    cout << " hor: " << extRect.width() << " ver: " << extRect.height() << endl;
+    cout << " hor: " << extRect.hNrPics() << " ver: " << extRect.vNrPics() << endl;
 */
 
     QRect targetRect = extRect;
 /*
     QSize minSz = minimumSize();
 
-    if ( targetRect.width() < minSz.width()  )   
-    { targetRect.setWidth( minSz.width()  ); }
-    if ( targetRect.height() < minSz.height()  ) 
-    { targetRect.setHeight( minSz.height()  ); }
+    if ( targetRect.hNrPics() < minSz.hNrPics()  )   
+    { targetRect.sethNrPics( minSz.hNrPics()  ); }
+    if ( targetRect.vNrPics() < minSz.vNrPics()  ) 
+    { targetRect.setvNrPics( minSz.vNrPics()  ); }
 */
     prevGeometry = targetRect;
 

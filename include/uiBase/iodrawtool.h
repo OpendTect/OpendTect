@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.2 2002-01-17 16:13:29 nanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.3 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,18 +56,18 @@ public:
     void 		drawRect( int x, int y, int w, int h ); 
     inline void		drawRect( uiPoint topLeft, uiSize sz )
                         { drawRect( topLeft.x(), topLeft.y(), 
-                                    sz.width(), sz.height()); }
+                                    sz.hNrPics(), sz.vNrPics()); }
     inline void		drawRect( uiRect r )
                         { drawRect( r.left(), r.top(), 
-                                    r.width(), r.height()); }
+                                    r.hNrPics(), r.vNrPics()); }
 
     void 		drawEllipse( int x, int y, int w, int h ); 
     inline void		drawEllipse( uiPoint topLeft, uiSize sz )
                         { drawEllipse( topLeft.x(), topLeft.y(), 
-                                       sz.width(), sz.height()); }
+                                       sz.hNrPics(), sz.vNrPics()); }
     inline void 	drawEllipse( uiRect r )
                         { drawEllipse( r.left(), r.top(), 
-                                       r.width(), r.height()); }
+                                       r.hNrPics(), r.vNrPics()); }
 
     void 		drawPixmap( uiPoint destTopLeft,
 				     ioPixmap*, 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.19 2002-05-13 14:21:33 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.20 2002-05-17 11:34:53 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 					self->prefSzDone = true;
 					QSize ps( mQLayoutItem().sizeHint() );
 					self->prefSz = 
-					    uiSize( ps.width(), ps.height() );	
+					    uiSize(ps.width(),ps.height(),true);
 				    }
 
 				    return prefSz;
@@ -156,8 +156,8 @@ public:
     virtual QSize 	minimumSize() const
 			    { 
 				uiSize s =  uiObjBody_.minimumSize();
-				if( s.width()!=mUndefIntVal )  
-				    return QSize( s.width() , s.height() ); 
+				if( s.hNrPics()!=mUndefIntVal )  
+				    return QSize( s.hNrPics() , s.vNrPics() ); 
 
 				return i_LayoutItem::minimumSize();
 			    }

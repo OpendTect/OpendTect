@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.3 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.4 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,10 +64,10 @@ public:
     virtual void	resizeEvent( QResizeEvent* QREv )
 			    {
 				const QSize& os = QREv->oldSize();
-				uiSize oldSize( os.width(), os.height() );
+				uiSize oldSize( os.width(), os.height(), true );
 
 				const QSize& ns = QREv->size();
-				uiSize nwSize( ns.width(), ns.height() );
+				uiSize nwSize( ns.width(), ns.height(), true );
 
 				handleResizeEvent( QREv,  oldSize, nwSize );
 			    }

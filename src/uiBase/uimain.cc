@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.12 2002-04-29 13:25:08 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.13 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ uiMain::uiMain( int argc, char **argv )
 uiMain::uiMain( QApplication* qapp )
     : mainobj( 0 )
 { 
+    QApplication::setColorSpec( QApplication::ManyColor );
+
 #ifdef NO_MORE_DTECT
     init(qapp,0,0); 
 #else
@@ -58,6 +60,7 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
 
     app->setStyle( new QCDEStyle() );
     font_ = 0;
+
 
     setFont( *font() , true );
 
@@ -177,5 +180,5 @@ void uiMain::processEvents( int msec )
 uiSize uiMain::desktopSize()
 {
     QWidget *d = QApplication::desktop();
-    return uiSize ( d->width()-1, d->height()-1 ); 
+    return uiSize ( d->width(), d->height(), true ); 
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.37 2002-05-14 11:35:38 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.38 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -394,8 +394,8 @@ void uiObjectBody::getSzHint()
 
     uiSize sh = layoutItem_->prefSize();
 
-    pref_width_hint = sh.width();
-    pref_height_hint = sh.height();
+    pref_width_hint = sh.hNrPics();
+    pref_height_hint = sh.vNrPics();
 }
 
 int uiObjectBody::prefHNrPics() const
@@ -499,7 +499,6 @@ int uiObjectBody::prefVNrPics() const
 
 uiSize uiObjectBody::actualSize( bool include_border ) const
 {
-    mChkLayoutItm();
     return layoutItem_->actualSize( include_border );
 }
 

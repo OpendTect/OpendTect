@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.7 2002-03-21 15:55:34 nanne Exp $
+ RCS:           $Id: uisurvmap.h,v 1.8 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ void drawMap( SurveyInfo* survinfo )
     maxcoord += border;
 
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
-    uiSize sz( w, h );
+    uiSize sz( w, h, true );
     uiWorld2Ui w2ui( wr, sz );
     uiPoint cpt[4];
     MarkerStyle ms = MarkerStyle::Square;

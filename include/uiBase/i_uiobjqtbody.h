@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: i_uiobjqtbody.h,v 1.2 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: i_uiobjqtbody.h,v 1.3 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
 			    if ( uiCloseOK() ) 
 				mQWIDGET_BASE::closeEvent(e);
 			} 
+
 protected:
 
     virtual uiObject&	uiObjHandle()              { return handle_; }

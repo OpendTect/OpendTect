@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.1 2000-11-27 10:19:43 bert Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.2 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,8 +58,8 @@ public:
 			{
 			    w2ud = World2UiData( sz, wr );
 			    p0 = wr.topLeft();
-			    fac.setXY( wr.width()/sz.width(),
-				       wr.height()/sz.height() );
+			    fac.setXY( wr.width()/(sz.hNrPics()-1),
+				       wr.height()/(sz.vNrPics()-1));
 			    if ( wr.left() > wr.right() ) fac.setX( -fac.x() );
 			    if ( wr.top() > wr.bottom() ) fac.setY( -fac.y() );
 			}

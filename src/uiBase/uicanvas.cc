@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.15 2002-03-26 07:33:55 nanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.16 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,11 +98,11 @@ public:
 			    if ( include_border ) return sz;
 
 			    int fw = frameWidth();
-			    int w = sz.width()-2*fw;
-			    if ( w<0 ) w=0;
-			    int h = sz.height()-2*fw;
-			    if ( h<0 ) h=0;
-			    return uiSize( w, h );
+			    int w = sz.hNrPics()-2*fw;
+			    if ( w<1 ) w=1;
+			    int h = sz.vNrPics()-2*fw;
+			    if ( h<1 ) h=1;
+			    return uiSize( w, h, true );
 			}
 
 
@@ -149,9 +149,7 @@ uiRect uiScrollViewBody::visibleArea() const
     uiSize vpSize = actualSize(false);
 
     uiPoint tl( contentsX(), contentsY() );
-    return uiRect( tl.x(), tl.y(), 
-		   tl.x()+ vpSize.width(), 
-		   tl.y()+ vpSize.height() );
+    return uiRect( tl, vpSize.hNrPics(), vpSize.vNrPics() );
 }
 
 
@@ -165,20 +163,20 @@ void uiScrollViewBody::drawContents ( QPainter * p, int clipx,
         return;
     }
 
-    handlePaintEvent( uiRect(clipx,clipy,clipx+clipw,clipy+cliph) );
+    handlePaintEvent( uiRect( uiPoint(clipx,clipy), clipw, cliph) );
 }
 
 
 void uiScrollViewBody::resizeEvent( QResizeEvent *QREv )
 {
     const QSize& os = QREv->oldSize();
-    uiSize oldSize( os.width()-1, os.height()-1 );
+    uiSize oldSize( os.width(), os.height(), true );
 
     const QSize& ns = QREv->size();
-    uiSize nwSize( ns.width() - 1 - 2 * frameWidth(), 
-                   ns.height()- 1 - 2 * frameWidth() );
+    uiSize nwSize( ns.width()  - 2 * frameWidth(), 
+                   ns.height() - 2 * frameWidth(), true );
 
-    handleResizeEvent( QREv,  oldSize, nwSize );
+    handleResizeEvent( QREv, oldSize, nwSize );
 
     viewport()->update();
 }
@@ -253,8 +251,8 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent * e )
 		    ( ((e->y()- rubber.top())*yfac) < ( aspectrat*(rbidx-1))) )
 		rbidx--;
 
-	    rubber.setWidth( rbidx*xfac );
-	    rubber.setHeight( mNINT(rbidx * aspectrat*yfac) );
+	    rubber.setHNrPics( rbidx*xfac );
+	    rubber.setVNrPics( mNINT(rbidx * aspectrat*yfac) );
 	}
 	else
 	{
@@ -299,7 +297,7 @@ void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
 	paint.end();
 
 	rubber.checkCorners();
-	if( rubber.width() > 10 && rubber.height() > 10 )
+	if( rubber.hNrPics() > 10 && rubber.vNrPics() > 10 )
 	    handle_.rubberBandHandler( rubber );
     }
     else
@@ -353,8 +351,8 @@ void uiScrollView::updateContents()
 
 void uiScrollView::updateContents( uiRect area, bool erase )
 { 
-    body_->updateContents ( area.topLeft().x(),  area.topLeft().y(),
-                               area.width(), area.height() );
+    body_->updateContents( area.left(), area.top(),
+			   area.hNrPics(), area.vNrPics() );
 
 }
 

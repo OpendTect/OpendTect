@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.21 2002-05-14 11:35:49 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.22 2002-05-17 11:34:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,7 +146,7 @@ public:
 
     virtual uiSize		actualSize( bool include_border = true) const;
     virtual uiSize		minimumSize() const
-				    { return uiSize(mUndefIntVal,mUndefIntVal);}
+				{return uiSize(mUndefIntVal,mUndefIntVal,true);}
 
     void			uisetCaption( const char* );
 
@@ -156,122 +156,125 @@ public:
 
     const i_LayoutItem*		layoutItem()		{ return layoutItem_; }
     i_LayoutItem*		mkLayoutItem( i_LayoutMngr& mngr )
-				{ 
-				    if( layoutItem_ ) 
 				    { 
-					pErrMsg("Already have a layout item"); 
-					return layoutItem_ ;
+					if( layoutItem_ ) 
+					{ 
+					    pErrMsg("Already have layout itm"); 
+					    return layoutItem_ ;
+					}
+					layoutItem_ = mkLayoutItem_( mngr );
+					return layoutItem_;
 				    }
-				    layoutItem_ = mkLayoutItem_( mngr );
-				    return layoutItem_;
-				}
 
-    virtual void		finalise() 
-				{ 
-				    if( finalised )	return;
+	virtual void		finalise() 
+				    { 
+					if( finalised )	return;
 
-				    uiObjHandle().finalising.trigger(
+					uiObjHandle().finalising.trigger(
 								uiObjHandle()); 
-				    finalise_();
-				    finalised = true;
-				    if( !display_ ) display( display_ );
-				}
+					finalise_();
+					finalised = true;
+					if( !display_ ) display( display_ );
+				    }
 
-    virtual void		fontchanged();
+	virtual void		fontchanged();
 
-    int				fontHgt() const 
-				    { gtFntWdtHgt(); return fnt_hgt; }
-    int				fontWdt(bool max=false) const
+	int				fontHgt() const 
+					{ gtFntWdtHgt(); return fnt_hgt; }
+	int				fontWdt(bool max=false) const
+					{ 
+					    gtFntWdtHgt(); 
+					    return max ? fnt_maxwdt : fnt_wdt; 
+					}
+
+	void			setSzPol( const SzPolicySpec& p ) 
 				    { 
-					gtFntWdtHgt(); 
-					return max ? fnt_maxwdt : fnt_wdt; 
+					szpol = p; 
+					if( p.hSzPol() >= SzPolicySpec::smallmax
+					    && 
+					    p.hSzPol() <= SzPolicySpec::widemax)
+					{
+					    int hs = mMAX( 2, stretch(true) );
+					    int vs = stretch( false );
+
+					    setStretch( hs, vs);
+					}
+					if( p.vSzPol() >= SzPolicySpec::smallmax
+					    &&
+					    p.vSzPol() <= SzPolicySpec::widemax)
+					{
+					    int hs = stretch( true );
+					    int vs = mMAX( 2, stretch(false) );
+
+					    setStretch( hs, vs);
+					}
+
 				    }
+	SzPolicySpec		szPol() const		{ return szpol; }
 
-    void			setSzPol( const SzPolicySpec& p ) 
-				{ 
-				    szpol = p; 
-				    if( p.hSzPol() >= SzPolicySpec::smallmax 
-					&& p.hSzPol() <= SzPolicySpec::widemax )
-				    {
-					int hs = mMAX( 2, stretch(true) );
-					int vs = stretch( false );
-
-					setStretch( hs, vs);
-				    }
-				    if( p.vSzPol() >= SzPolicySpec::smallmax 
-					&& p.vSzPol() <= SzPolicySpec::widemax )
-				    {
-					int hs = stretch( true );
-					int vs = mMAX( 2, stretch(false) );
-
-					setStretch( hs, vs);
-				    }
-
-				}
-    SzPolicySpec		szPol() const		{ return szpol; }
-
-    void			setShrinkAllowed( bool yn ) { allowshrnk = yn; }
-    bool			shrinkAllowed()		{ return allowshrnk; }
+	void			setShrinkAllowed( bool yn ) { allowshrnk = yn; }
+	bool			shrinkAllowed()		{ return allowshrnk; }
 
 
-    bool			isHidden()		{ return is_hidden; }
-    bool			itemInited() const;
+	bool			isHidden()		{ return is_hidden; }
+	bool			itemInited() const;
 
-protected:
+    protected:
 
-    virtual const QWidget*	managewidg_() const	{ return qwidget_(); }
+	int			hStretch;
+	int			vStretch;
 
-    virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mngr );
+	virtual const QWidget*	managewidg_() const	{ return qwidget_(); }
 
-    virtual void                finalise_()             {}
+	virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mngr );
 
-    void 			doDisplay(CallBacker*);
+	virtual void		finalise_()             {}
 
-    int				fontWdtFor( const char* ) const;
+	void 			doDisplay(CallBacker*);
+
+	int			fontWdtFor( const char* ) const;
 
 
-    int				hStretch;
-    int				vStretch;
+	void			loitemDeleted()		{ layoutItem_ = 0; }
 
-    void			loitemDeleted()		{ layoutItem_ = 0; }
 
-private:
+    private:
 
-    i_LayoutItem*		layoutItem_;
-    uiParentBody*      		parent_;
-    const uiFont*		font_;
+	i_LayoutItem*		layoutItem_;
+	uiParentBody* 		parent_;
+	const uiFont*		font_;
 
-    bool			allowshrnk;
+	bool			allowshrnk;
 
-    bool			is_hidden;
-    bool			finalised;
-    bool			display_;
-    bool			display_maximised;
+	bool			is_hidden;
+	bool			finalised;
+	bool			display_;
+	bool			display_maximised;
 
-    int				pref_width_;
-    int				pref_height_;
+	int			pref_width_;
+	int			pref_height_;
 
-    int				pref_width_set;
-    float			pref_char_width;
-    int				pref_height_set;
-    float			pref_char_height;
-    int				pref_width_hint;
-    int				pref_height_hint;
+	int			pref_width_set;
+	float			pref_char_width;
+	int			pref_height_set;
+	float			pref_char_height;
+	int			pref_width_hint;
+	int			pref_height_hint;
 
-    int				fnt_hgt;
-    int				fnt_wdt;
-    int				fnt_maxwdt;
-    QFontMetrics*		fm;
+	int			fnt_hgt;
+	int			fnt_wdt;
+	int			fnt_maxwdt;
+	QFontMetrics*		fm;
 
-    SzPolicySpec		szpol;
+	SzPolicySpec		szpol;
 
-    void                	gtFntWdtHgt() const;
-    void			getSzHint();
+	void                	gtFntWdtHgt() const;
+	void			getSzHint();
 
-#ifdef USE_DISPLAY_TIMER
-    Timer&			displTim;
-#endif
-};
+    #ifdef USE_DISPLAY_TIMER
+	Timer&			displTim;
+    #endif
+    };
 
 /*! \brief Default (Template) implementation of uiObjectBody.
 
