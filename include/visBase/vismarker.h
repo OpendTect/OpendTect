@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.11 2003-12-11 16:28:16 nanne Exp $
+ RCS:		$Id: vismarker.h,v 1.12 2004-01-12 08:17:47 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
-#include "position.h"
+#include "trigonometry.h"
 #include "enums.h"
 
 class SoGroup;
@@ -55,9 +55,8 @@ public:
     void		setScale(const Coord3&);
 
     void		setRotation(const Coord3&,float);
-    void		setDirection(const Coord3&);
-    const Coord3&	getDirection() const		{ return direction; }
-    void		setLength(float);
+    void		setDirection(const ::Sphere& d)	{ direction = d; }
+    const ::Sphere&	getDirection() const		{ return direction; }
 
     void		setTransformation( Transformation* );
     Transformation*	getTransformation();
@@ -72,9 +71,11 @@ protected:
     SoMarkerScale*	markerscale;
     SoShape*		shape;
     SoRotation*		rotation;
-    Coord3		direction;
 
     Type		markertype;
+
+    ::Sphere		direction;
+    void		setArrowDir(const ::Sphere&);
 
     static const char*  centerposstr;
 };

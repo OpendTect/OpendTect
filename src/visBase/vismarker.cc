@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.10 2003-12-11 16:28:10 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.11 2004-01-12 08:17:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "viscube.h"
 #include "iopar.h"
 #include "vistransform.h"
+
 
 #include "SoMarkerScale.h"
 #include "SoArrow.h"
@@ -95,6 +96,7 @@ void visBase::Marker::setType( Type type )
     {
     case Cube: {
 	shape = new SoCube;
+	setRotation( Coord3(0,0,1), 0 );
 	} break;
     case Cone:
 	shape = new SoCone;
@@ -106,9 +108,11 @@ void visBase::Marker::setType( Type type )
 	break;
     case Sphere:
 	shape = new SoSphere;
+	setRotation( Coord3(0,0,1), 0 );
 	break;
     case Arrow:
 	shape = new SoArrow;
+	setArrowDir( direction );
 	break;
     }
 
@@ -142,31 +146,24 @@ void visBase::Marker::setRotation( const Coord3& vec, float angle )
 }
 
 
-void visBase::Marker::setDirection( const Coord3& dir )
+void visBase::Marker::setArrowDir( const ::Sphere& dir )
 {
     mDynamicCastGet(SoArrow*,arrow,shape)
     if ( !arrow ) return;
 
-    direction = dir;
-    SbVec3f orgdir( 1, 0, 0 );
-    SbVec3f newdir( dir[0], dir[1], dir[2] );
-    float length = newdir.length();
+    Coord3 newcrd = spherical2Cartesian( dir, false );
+    newcrd /= dir.radius;
 
-    newdir.normalize();
-    SbVec3f rot = orgdir.cross( newdir );
-    float angle = acos( orgdir.dot(newdir) );
-    if ( rot.sqrLength() > 0 )
-	rotation->rotation.setValue( rot, angle );
+    SbVec3f orgvec(1,0,0);
+    SbRotation newrot( orgvec, SbVec3f(newcrd.x,newcrd.y,-newcrd.z) );
+    rotation->rotation.setValue( newrot );
+    
+    float length = dir.radius;
+    if ( length > 1 ) length = 1;
+    else if ( length <= 0 ) length = 0;
 
-    setLength( length );
-}
-
-
-void visBase::Marker::setLength( float length )
-{
-    mDynamicCastGet(SoArrow*,arrow,shape)
-    if ( arrow )
-	arrow->lineLength.setValue( length );
+    float orglength = arrow->lineLength.getValue();
+    arrow->lineLength.setValue( orglength*length );
 }
 
 
