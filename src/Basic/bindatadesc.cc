@@ -5,7 +5,7 @@
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.3 2001-12-09 09:29:30 bert Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.4 2001-12-10 14:52:59 bert Exp $";
 
 #include "bindatadesc.h"
 #include <stdio.h>
@@ -27,12 +27,38 @@ union _BDD_union
 
 void BinDataDesc::set( unsigned char c, unsigned char )
 {
-    _BDD_union bdd; bdd.c = c;
+    setFrom( c, __islittle__ );
+}
 
-    isint = bdd.b.isint;
-    issigned = bdd.b.issigned;
+
+void BinDataDesc::setFrom( unsigned char c, bool wronlittle )
+{
+    bool needswp = wronlittle != __islittle__;
     int nb = 1;
-    while( bdd.b.bytepow ) { bdd.b.bytepow--; nb *= 2; }
+    if ( needswp )
+    {
+	union _BDD_union_swp
+	{
+	    unsigned char c;
+	    struct bits {
+		unsigned char	rest:3;
+		unsigned char	issigned:1;
+		unsigned char	isint:1;
+		unsigned char	bytepow:3;
+	   } b;
+	};
+	_BDD_union_swp bdd; bdd.c = c;
+	isint = bdd.b.isint;
+	issigned = bdd.b.issigned;
+	while( bdd.b.bytepow ) { bdd.b.bytepow--; nb *= 2; }
+    }
+    else
+    {
+	_BDD_union bdd; bdd.c = c;
+	isint = bdd.b.isint;
+	issigned = bdd.b.issigned;
+	while( bdd.b.bytepow ) { bdd.b.bytepow--; nb *= 2; }
+    }
     nrbytes = (BinDataDesc::ByteCount)nb;
 };
 

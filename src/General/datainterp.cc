@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.7 2001-12-09 09:29:30 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.8 2001-12-10 14:52:59 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -52,18 +52,31 @@ union _DC_union
 	unsigned char	little:1;	// little endian == 1
 	unsigned char	fmt:3;		// 0 == IEEE, 1 == IBM mainframe (SEG-Y)
 					// 2 == SGI
-	unsigned char	rest:4;		// Future? Subclasses?
+	unsigned char	zero:4;		// Need this to be zero!
+   } b;
+};
+
+union _DC_union_swp
+{
+    unsigned char c;
+    struct bits {
+	unsigned char	zero:4;
+	unsigned char	fmt:3;
+	unsigned char	little:1;
    } b;
 };
 
 
 void DataCharacteristics::set( unsigned char c1, unsigned char c2 )
 {
-    BinDataDesc::set( c1, c2 );
-
     _DC_union dc; dc.c = c2;
-    littleendian = dc.b.little;
-    fmt = dc.b.fmt == 0 ? DataCharacteristics::Ieee : DataCharacteristics::Ibm;
+    _DC_union dc_swp; dc_swp.c = c2;
+    littleendian = dc.b.little || dc_swp.b.little;
+    setFrom( c1, littleendian );
+
+    bool needswp = littleendian != __islittle__;
+    fmt = (needswp ? dc_swp.b.fmt == 0 : dc.b.fmt == 0)
+	? DataCharacteristics::Ieee : DataCharacteristics::Ibm;
 };
 
 
