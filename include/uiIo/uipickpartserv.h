@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.15 2003-02-03 14:07:09 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.16 2003-08-22 11:36:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <multiid.h>
 #include <uidset.h>
 #include <position.h>
+#include <ranges.h>
 
 class Color;
 class PickSet;
@@ -30,55 +31,54 @@ class SurfaceInfo;
 class uiPickPartServer : public uiApplPartServer
 {
 public:
-			uiPickPartServer(uiApplService&);
-			~uiPickPartServer();
+				uiPickPartServer(uiApplService&);
+				~uiPickPartServer();
 
-    const char*		name() const			{ return "Picks"; }
+    const char*			name() const		{ return "Picks"; }
 
-			// Services
-    void		importPickSet();
-    bool		fetchPickSets();
-    bool		storePickSets();
+				// Services
+    void			importPickSet();
+    bool			fetchPickSets();
+    bool			storePickSets();
 
-    static const int	evGetAvailableSets;
-    static const int	evFetchPicks;
-    static const int	evGetHorInfo;
-    static const int	evGetHorDef;
+    static const int		evGetAvailableSets;
+    static const int		evFetchPicks;
+    static const int		evGetHorInfo;
+    static const int		evGetHorDef;
 
-			// Interaction stuff
-    PickSetGroup&	group()				{ return psg; }
-    			//!< 1) Result of fetchPickSets()
-    			//!< 2) Must be filled on evFetchPicks
-    UserIDSet&		availableSets()			{ return avsets; }
-    const BoolTypeSet& selectedSets() const		{ return selsets; }
-    MultiID&		psgID()				{ return psgid; }
-    const Color&	getPickColor()			{ return pickcolor; }
-    bool		storeSinglePickSet(PickSet*);
-    void		renamePickset(const char*,BufferString&);
-    void		setMisclassSet(const TypeSet<BinIDZValue>&);
+				// Interaction stuff
+    PickSetGroup&		group()			{ return psg; }
+    				//!< 1) Result of fetchPickSets()
+    				//!< 2) Must be filled on evFetchPicks
+    UserIDSet&			availableSets()		{ return avsets; }
+    const BoolTypeSet& 		selectedSets() const	{ return selsets; }
+    MultiID&			psgID()			{ return psgid; }
+    const Color&		getPickColor()		{ return pickcolor; }
+    bool			storeSinglePickSet(PickSet*);
+    void			renamePickset(const char*,BufferString&);
+    void			setMisclassSet(const TypeSet<BinIDZValue>&);
 
-    ObjectSet<SurfaceInfo>& horInfos()		{ return hinfos; }
-    const MultiID&	selHorID() const	{ return selhorid; }
-    const BinIDRange*	selBinIDRange() const	{ return selbr; }
-    TypeSet<BinIDValue>& horDef()
-    			{ return usehd1 ? hordef : hordef2; }
+    ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos; }
+    const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids; }
+    const BinIDRange*		selBinIDRange() const	{ return selbr; }
+    TypeSet<BinID>&		horDef() 		{ return hordef; }
+    TypeSet<Interval<float> >& 	horDepth()		{ return hordepth; }
 
 protected:
 
-    PickSetGroup&	psg;
-    MultiID		psgid;
-    UserIDSet		avsets;
-    BoolTypeSet		selsets;
-    Color&		pickcolor;
+    PickSetGroup&		psg;
+    MultiID			psgid;
+    UserIDSet			avsets;
+    BoolTypeSet			selsets;
+    Color&			pickcolor;
 
-    ObjectSet<SurfaceInfo> hinfos;
-    TypeSet<BinIDValue> hordef;
-    TypeSet<BinIDValue> hordef2;
-    bool		usehd1;
-    MultiID		selhorid;
-    const BinIDRange*	selbr;
+    ObjectSet<SurfaceInfo> 	hinfos;
+    TypeSet<BinID> 		hordef;
+    TypeSet<Interval<float> >	hordepth;
+    ObjectSet<MultiID>		selhorids;
+    const BinIDRange*		selbr;
 
-    bool		mkRandLocs(PickSet&,const RandLocGenPars&);
+    bool			mkRandLocs(PickSet&,const RandLocGenPars&);
 };
 
 
