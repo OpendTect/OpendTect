@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.10 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: plugins.h,v 1.11 2003-11-17 14:43:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,14 @@ bool LoadPlugin(const char* libnm,int argc,char** argv);
  if not explicitly done so.
 
  Loading from startup is done from $HOME/.odplugins/$HDIR or $dGB_APPL/...
- The plugins will be loaded in alphabetical order.
+ Plugins can always be put in these directory (for all) or in a subdirectory
+ with the name of the program (e.g. dtectmain).
+ From OpendTect V1.0.3 we also support the '.alo' files with the names of
+ the plugins (e.g. DipSteer), and the plugins themeselves in the 'libs'
+ subdirectory.
+ The non-alo plugins will be loaded in alphabetical order, for .alo files the
+ order specified in the file. The alo files themselves are handled in
+ alphabetical order.
 
  2) It may be a good idea to define a function:
 
