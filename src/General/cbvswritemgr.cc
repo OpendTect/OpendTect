@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.4 2001-06-26 07:51:50 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.5 2001-07-21 16:36:18 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -29,7 +29,7 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 
 
 CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
-			    const CBVSInfo::ExplicitData* e )
+			    const CBVSInfo::ExplicitData* e, bool fi )
 	: CBVSIOMgr(fnm)
 	, writer_(0)
 	, info_(i)
@@ -37,7 +37,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
     ostream* strm = mkStrm();
     if ( !strm ) return;
 
-    writer_ = new CBVSWriter( strm, info_, e );
+    writer_ = new CBVSWriter( strm, info_, e, fi );
     writer_->setByteThreshold( 1900000000 );
 }
 
