@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.2 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uimsg.h,v 1.3 2001-08-29 15:43:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class uiObject;
 class MsgClass;
 class uiMainWin;
+class QWidget;
 
 
 class uiMsg : public CallBacker
@@ -32,6 +33,8 @@ public:
     bool	askGoOn(const char*,const char* cn="Please specify");
     int		askGoOnAfter(const char*,const char* cn="Please specify");
 
+    void	setParent(QWidget*);
+
 protected:
 
 		uiMsg();
@@ -39,6 +42,8 @@ protected:
     void	toStatusbar(MsgClass*);
 
     uiMainWin*	mainwin_;
+    QWidget*	parent_;
+
     static uiMsg* theinst_;
 
 };
