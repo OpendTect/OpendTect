@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.6 2003-11-24 08:38:08 kristofer Exp $
+ RCS:		$Id: houghtransform.h,v 1.7 2003-11-26 21:09:16 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -69,7 +69,7 @@ public:
     void			setData( const Array3D<float>* );
     ObjectSet<BasicTask>*	createCalculators();
 
-    TopList<unsigned int, unsigned int>*
+    TopList<float, unsigned int>*
 				sortParamSpace(int) const;
     				/*!< Sorts the paramspace and returns
 				     an array with the indexes of the planes,
