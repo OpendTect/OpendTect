@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.13 2003-05-20 12:42:12 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.14 2003-08-11 13:15:53 bert Exp $
 ________________________________________________________________________
 
 
@@ -23,14 +23,12 @@ class StreamProvider;
 
 class IOStream : public IOObject
 {		 isUidConcreteDefObject(IOStream)
-
-    friend class	dIOStream;
-
 public:
 			IOStream(const char* nm=0,const char* id=0,bool =0);
     virtual		~IOStream();
     bool		bad() const;
     StreamConn::Type	type() const			{ return type_; }
+    void		setType( StreamConn::Type t )	{ type_ = t; }
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;

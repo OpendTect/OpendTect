@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.6 2003-05-13 15:27:56 bert Exp $
+ RCS:		$Id: iox.h,v 1.7 2003-08-11 13:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,15 +21,11 @@ Feature Set. */
 
 class IOX : public IOObject
 {	    isUidConcreteDefObject(IOX)
-
-    friend class	dIOX;
-
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);
     virtual		~IOX();
     bool		bad() const;
 
-    void		setOwnKey(const MultiID&);
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
     void		genDefaultImpl()		{}
@@ -40,6 +36,9 @@ public:
     Conn*		getConn(Conn::State) const;
     bool		slowOpen() const;
     IOObj*		getIOObj() const;
+
+    const MultiID&	ownKey() const			{ return ownkey_; }
+    void		setOwnKey(const MultiID&);
 
 protected:
 

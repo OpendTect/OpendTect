@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.7 2002-03-12 16:02:46 bert Exp $
+ RCS:		$Id: iodir.h,v 1.8 2003-08-11 13:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,6 @@ class IODir : public UserIDObject
     friend class	IOMan;
     friend class	IOObj;
     friend class	IOLink;
-    friend class	IOObjSelector;
-    friend class	dIoSelect;
 
 public:
 			IODir(const char*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.21 2003-04-22 10:05:38 kristofer Exp $
+ RCS:		$Id: iopar.h,v 1.22 2003-08-11 13:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,9 +35,6 @@ reading/writing to/from file, merging, and more.
 
 class IOPar : public UserIDObject
 {
-
-   friend class		EdIOPar;
-
 public:
 			IOPar(const char* nm=0);
 			IOPar(UserIDObject*);

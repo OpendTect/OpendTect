@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.19 2003-07-21 14:56:05 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.20 2003-08-11 13:15:54 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -30,6 +30,9 @@ const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 	= "Coordinate scaling overrule";
 const char* SEGYSeisTrcTranslator::sUseLiNo
 	= "Use tape header line number for inline";
+
+static const char* nth_to_dump_str = getenv("dGB_NR_SEGY_HEADERS_TO_DUMP");
+static int nr_trc_headers_to_dump = nth_to_dump_str ? atoi(nth_to_dump_str) : 5;
 
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
@@ -92,7 +95,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     binhead_ns = binhead.hns;
     binhead_dpos = binhead.hdt * 1e-6;
 
-    if ( itrc < 5 )
+    if ( itrc <= nr_trc_headers_to_dump )
     {
 	dumpsd.close();
 	if ( do_string_dump )
@@ -157,13 +160,13 @@ int SEGYSeisTrcTranslator::nrSamplesRead() const
 void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
     itrc++;
-    if ( itrc < 5 && dumpsd.usable() )
+    if ( itrc <= nr_trc_headers_to_dump && dumpsd.usable() )
     {
 	if ( itrc == 1 )
 	    *dumpsd.ostrm << "\n\n\n\tField\tByte\tValue\n\n";
 	*dumpsd.ostrm << "\nTrace " << itrc << ":\n";
 	trhead.print( *dumpsd.ostrm );
-	if ( itrc != 4 )
+	if ( itrc != nr_trc_headers_to_dump )
 	    *dumpsd.ostrm << endl;
 	else
 	{
