@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.5 2003-06-03 12:46:12 bert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.6 2003-06-05 11:58:00 kristofer Exp $";
 
 #include "emsurface.h"
 
@@ -24,7 +24,10 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.5 2003-06-03 12:46:12 bert Exp
 
 EM::Surface::Surface(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
-{}
+{
+    auxdatanames.allowNull(true);
+    auxdata.allowNull(true);
+}
 
 
 EM::Surface::~Surface()
@@ -63,6 +66,14 @@ bool EM::Surface::addPatch( PatchID patchid, bool addtohistory )
     Geometry::GridSurface* newsurf = createPatchSurface();
     surfaces += newsurf;
 
+    for ( int idx=0; idx<nrAuxData(); idx++ )
+    {
+	if ( !auxdata[idx] )
+	    continue;
+
+	(*auxdata[idx]) += 0;
+    }
+
     if ( addtohistory )
     {
 	HistoryEvent* history = new SurfacePatchEvent( true, id(), patchid );
@@ -82,6 +93,15 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
     surfaces.remove( idx );
     patchids.remove( idx );
 
+    for ( int idy=0; idy<nrAuxData(); idy++ )
+    {
+	if ( !auxdata[idy] )
+	    continue;
+
+	delete (*auxdata[idy])[idx];
+	auxdata[idy]->replace( 0, idx );
+    }
+
     if ( addtohistory )
     {
 	HistoryEvent* history = new SurfacePatchEvent( false, id(), patchid );
@@ -94,21 +114,36 @@ void EM::Surface::setPos( PatchID patch, const RowCol& node,
 				   const Coord3& pos, bool autoconnect,
 				   bool addtohistory)
 {
-    int idx=patchids.indexOf(patch);
-    if ( idx==-1 ) return;
+    int patchindex=patchids.indexOf(patch);
+    if ( patchindex==-1 ) return;
 
     const Geometry::PosID posid = Geometry::GridSurface::getPosID(node);
-    Geometry::GridSurface* surface = surfaces[idx];
+    Geometry::GridSurface* surface = surfaces[patchindex];
     const Coord3 oldpos = surface->getGridPos( node );
     if ( oldpos==pos ) return;
 
     TypeSet<EM::PosID> nodeonotherpatches;
-
     if ( autoconnect )
 	findPos( node, nodeonotherpatches );
 
+    const int auxdataindex = surface->indexOf( node );
+
     surface->setGridPos( node, pos );
     surface->setFillType( node, Geometry::GridSurface::Filled );
+
+    if ( auxdataindex==-1 )
+    {
+	const int newauxdataindex = surface->indexOf( node );
+	for ( int idx=0; idx<nrAuxData(); idx++ )
+	{
+	    if ( !auxdata[idx] ) continue;
+
+	    TypeSet<float>* dataptr = (*auxdata[idx])[patchindex];
+	    if ( !dataptr ) continue;
+
+	    dataptr->insert( newauxdataindex, mUndefValue );
+	}
+    }
 
     if ( addtohistory )
     {
@@ -371,6 +406,74 @@ bool EM::Surface::isLoaded() const
 }
 
 
+int EM::Surface::nrAuxData() const
+{
+    return auxdatanames.size();
+}
+
+
+int EM::Surface::addAuxData( const char* name )
+{
+    auxdatanames += new BufferString( name );
+    ObjectSet<TypeSet<float> >* newauxdata = new ObjectSet<TypeSet<float> >;
+    auxdata += newauxdata;
+    newauxdata->allowNull(true);
+
+    for ( int idx=0; idx<nrPatches(); idx++ )
+	newauxdata += 0;
+
+    return auxdatanames.size()-1;
+}
+
+
+void EM::Surface::removeAuxData( int dataidx )
+{
+    delete auxdatanames[dataidx];
+    auxdatanames.replace( 0, dataidx );
+
+    deepEraseArr( *auxdata[dataidx] );
+    delete auxdata[dataidx];
+    auxdata.replace( 0, dataidx );
+}
+
+
+float EM::Surface::getAuxDataVal(int dataidx,const EM::PosID& posid) const
+{
+    if ( !auxdata[dataidx] ) return mUndefValue;
+    const int patchidx = patchids.indexOf(posid.patchID());
+    if ( patchidx==-1 ) return mUndefValue;
+
+    const TypeSet<float>* patchauxdata = (*auxdata[dataidx])[patchidx];
+    if ( !patchauxdata ) return mUndefValue;
+
+    const int subidx = surfaces[patchidx]->indexOf(posid.subID());
+    if ( subidx==-1 ) return mUndefValue;
+    return (*patchauxdata)[subidx];
+}
+
+
+void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
+{
+    if ( auxdata[dataidx] ) return;
+
+    const int patchidx = patchids.indexOf(posid.patchID());
+    if ( patchidx==-1 ) return;
+
+    const int subidx = surfaces[patchidx]->indexOf(posid.subID());
+    if ( subidx==-1 ) return;
+
+    TypeSet<float>* patchauxdata = (*auxdata[dataidx])[patchidx];
+    if ( !patchauxdata )
+    {
+	const int sz = surfaces[patchidx]->size();
+	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue),patchidx);
+	patchauxdata = (*auxdata[dataidx])[patchidx];
+    }
+
+    (*patchauxdata)[subidx] = val;
+}
+
+
 const Geometry::GridSurface* EM::Surface::getSurface( PatchID patchid )const
 {
     const int idx = patchids.indexOf( patchid );
@@ -381,6 +484,16 @@ const Geometry::GridSurface* EM::Surface::getSurface( PatchID patchid )const
 
 void EM::Surface::cleanUp()
 {
+    deepErase( auxdatanames );
+    for ( int idx=0; idx<auxdata.size(); idx++ )
+    {
+	if ( !auxdata[idx] ) continue;
+	deepErase( *auxdata[idx] );
+    }
+
+    deepErase( auxdata );
+
+    
     deepErase( surfaces );
     patchids.erase();
 }

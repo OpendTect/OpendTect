@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.5 2003-06-03 12:46:12 bert Exp $
+ RCS:		$Id: emsurface.h,v 1.6 2003-06-05 11:58:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -106,6 +106,32 @@ public:
    
     bool		isLoaded() const;
 
+    int			nrAuxData() const;
+    			/*!<\return	The number of data per node.
+			    \note	Some of the data might have been
+			    		removed, so the result might be
+					misleading. Query by doing:
+					\code
+					for ( int idx=0; idx<nrAuxData(); idx++)
+					    if ( !auxDataName(idx) )
+					\endcode
+			*/
+    const char*		auxDataName(int dataidx) const;
+    			/*!<\return The name of aux-data or 0 if the data
+				    is removed;
+			*/
+    int			addAuxData( const char* name );
+    			/*!<\return The dataidx of the new data.
+				    The index is persistent in runtime.
+			*/
+				
+    void		removeAuxData( int dataidx);
+    float		getAuxDataVal(int dataidx,const EM::PosID& posid) const;
+    void		setAuxDataVal(int dataidx, const EM::PosID& posid,
+				      float value );
+
+
+
     const Geometry::GridSurface*		getSurface(PatchID) const;
 
 protected:
@@ -122,6 +148,9 @@ protected:
 
     ObjectSet<Geometry::GridSurface>	surfaces;
     TypeSet<PatchID>			patchids;
+
+    ObjectSet<BufferString>			auxdatanames;
+    ObjectSet<ObjectSet<TypeSet<float> > >	auxdata;
 };
 
 
