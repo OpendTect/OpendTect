@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.17 2002-01-24 16:03:39 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.18 2002-02-14 10:54:36 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -283,20 +283,29 @@ bool CBVSSeisTrcTranslator::toNext()
     if ( trcsel->bidsel->includes(nextbid) )
 	return rdmgr->toNext();
 
-    // find next requested BinID
     const CBVSInfo& info = rdmgr->info();
+    // find next requested BinID
     while ( 1 )
     {
-	int res = trcsel->bidsel->excludes( nextbid );
-	if ( !res ) break;
 
-	if ( res%256 == 2 )
-	    { if ( !info.geom.toNextInline(nextbid) ) return false; }
-	else if ( !info.geom.toNextBinID(nextbid) )
+	while ( 1 )
+	{
+	    int res = trcsel->bidsel->excludes( nextbid );
+	    if ( !res ) break;
+
+	    if ( res%256 == 2 )
+		{ if ( !info.geom.toNextInline(nextbid) ) return false; }
+	    else if ( !info.geom.toNextBinID(nextbid) )
+		return false;
+	}
+
+	if ( goTo(nextbid) ) break;
+	if ( !info.geom.toNextBinID(nextbid) )
 	    return false;
+
     }
 
-    return goTo( nextbid );
+    return true;
 }
 
 
