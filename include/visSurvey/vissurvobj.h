@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.27 2004-05-10 14:17:39 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.28 2004-05-19 14:59:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,6 @@ public:
 				    pick will not be displayed. */
 
     virtual NotifierAccess*	getMovementNotification()   { return 0; }
-    virtual NotifierAccess*	rightClickNotifier()	    { return 0; }
     virtual bool		isInlCrl() const	    { return false; }
 
     const char*			errMsg() const		    { return errmsg; }
@@ -68,9 +67,12 @@ public:
     virtual BufferString	getManipulationString() const;
     virtual NotifierAccess*	getManipulationNotifier();
 
-    virtual bool		hasColor() const;
-    virtual bool		hasMaterial() const;
+    virtual bool		allowMaterialEdit() const;
+    				/*!\note Mofication of color should be done
+				  	 with setMaterial on
+					 visBase::VisualObject */
 
+    virtual bool		hasColor() const;
     virtual void		setColor(Color)		{}
     virtual Color		getColor() const;
 
@@ -85,7 +87,6 @@ public:
 				   \retval 2	random pos
 				   \retval -1	Does not have attribs 
 				*/
-    virtual bool		hasColorAttribute() const;
     virtual const AttribSelSpec* getSelSpec() const;
     virtual const ColorAttribSel* getColorSelSpec() const;
     virtual const TypeSet<float>* getHistogram() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.216 2004-05-17 13:56:37 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.217 2004-05-19 14:59:05 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -718,7 +718,7 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 bool uiVisPartServer::hasColorAttrib( int id ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    return so && so->hasColorAttribute();
+    return so && so->getColorSelSpec();
 }
 
 
@@ -750,7 +750,7 @@ void uiVisPartServer::resetColorDataType( int id )
 bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
-    if ( !so || !so->hasColorAttribute() )
+    if ( !so )
 	return false;
 
     const ColorAttribSel* colas = getColorSelSpec( id );
@@ -804,7 +804,7 @@ bool uiVisPartServer::selectColorAttrib( int id )
 bool uiVisPartServer::hasMaterial( int id ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    return so && so->hasMaterial();
+    return so && so->allowMaterialEdit();
 }
 
 
@@ -872,8 +872,6 @@ void uiVisPartServer::setUpConnections( int id )
     uiVisMenu* menu = getMenu(id,true);
     menu->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
-    if ( so && so->rightClickNotifier() )
-       so->rightClickNotifier()->notify(mCB(this,uiVisPartServer,rightClickCB));
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( vo && vo->rightClicked() )
@@ -893,8 +891,6 @@ void uiVisPartServer::removeConnections( int id )
     menus.remove(mnufactidx);
     menu->createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
     menu->handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
-    if ( so && so->rightClickNotifier() )
-       so->rightClickNotifier()->remove(mCB(this,uiVisPartServer,rightClickCB));
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( vo && vo->rightClicked() )
@@ -992,7 +988,7 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
     mDynamicCastGet( visBase::VisualObject*, vo, getObject(menu->id()));
     if ( !so ) return;
 
-    selcolorattrmnusel = so->hasColorAttribute()
+    selcolorattrmnusel = so->getColorSelSpec()
 	?  menu->addItem( new uiMenuItem("Select color attribute ..."), 9000 ) 
 	: -1;
 
@@ -1004,7 +1000,7 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 	? menu->addItem( new uiMenuItem("Color..."), 7000 )
 	: -1;
 
-    changematerialmnusel = so->hasMaterial()
+    changematerialmnusel = so->allowMaterialEdit()
 	? menu->addItem( new uiMenuItem("Properties ..."), 6000 )
 	: -1;
 

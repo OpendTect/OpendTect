@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.35 2004-05-07 10:28:00 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.36 2004-05-19 14:58:08 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ RandomTrackDisplay::RandomTrackDisplay()
     , texturematerial(visBase::Material::create())
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
-    , rightclick(this)
     , knotmoving(this)
     , moving(this)
     , selknotidx(-1)
@@ -101,7 +100,6 @@ RandomTrackDisplay::~RandomTrackDisplay()
 {
     track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
     track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged) );
-    track->rightclick.remove( mCB(this,RandomTrackDisplay,rightClicked) );
     track->unRef();
     texturematerial->unRef();
 
@@ -119,13 +117,12 @@ void RandomTrackDisplay::setRandomTrack( visBase::RandomTrack* rt )
     {
 	track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
 	track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged));
-	track->rightclick.remove( mCB(this,RandomTrackDisplay,rightClicked) );
 	track->unRef();
     }
 
     track = rt;
     track->ref();
-    track->rightclick.notify( mCB(this,RandomTrackDisplay,rightClicked) );
+    track->setSelectable(false);
     track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
     track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
 }
@@ -359,14 +356,43 @@ const SeisTrc* RandomTrackDisplay::getTrc( const BinID& bid,
 
 float RandomTrackDisplay::getValue( const Coord3& pos ) const
 {
-    if ( !cache.size() ) return 0;
+    if ( !cache.size() ) return mUndefValue;
 
-    BinID bid( (int)pos.x, (int)pos.y );
+    BinID bid( SI().transform(pos) );
     const SeisTrc* trc = getTrc( bid, cache );
-    if ( !trc ) return 0;
+    if ( !trc )
+    {
+	ObjectSet<const SeisTrc> trcs; trcs.allowNull(false);
+	const BinID step( SI().inlWorkStep(), SI().crlWorkStep() );
+	trcs += getTrc(BinID(bid.inl+step.inl,bid.crl+step.crl), cache );
+	trcs += getTrc(BinID(bid.inl+step.inl,bid.crl), cache );
+	trcs += getTrc(BinID(bid.inl+step.inl,bid.crl-step.crl), cache );
 
-    int sampidx = trc->nearestSample( pos.z, 0 );
-    return trc->get( sampidx, 0 );
+	trcs += getTrc(BinID(bid.inl,bid.crl+step.crl), cache );
+	trcs += getTrc(BinID(bid.inl,bid.crl-step.crl), cache );
+
+	trcs += getTrc(BinID(bid.inl-step.inl,bid.crl+step.crl), cache );
+	trcs += getTrc(BinID(bid.inl-step.inl,bid.crl), cache );
+	trcs += getTrc(BinID(bid.inl-step.inl,bid.crl-step.crl), cache );
+
+	float closestdist;
+	for ( int idx=0; idx<trcs.size(); idx++ )
+	{
+	    float dist = trcs[idx]->info().coord.distance(pos);
+	    if ( !idx || dist<closestdist )
+	    {
+		closestdist = dist;
+		trc = trcs[idx];
+	    }
+	}
+
+	if ( !trc )
+	    return mUndefValue;
+    }
+
+    const int sampidx = trc->nearestSample( pos.z, 0 );
+    return sampidx<0 || sampidx>=trc->size(0)
+    	   ? mUndefValue : trc->get( sampidx, 0 );
 }
 
 bool RandomTrackDisplay::canAddKnot( int knotnr ) const
@@ -478,10 +504,6 @@ int RandomTrackDisplay::getColTabID() const
 
 const TypeSet<float>* RandomTrackDisplay::getHistogram() const
 { return &track->getHistogram(); }
-
-
-void RandomTrackDisplay::rightClicked( CallBacker* )
-{ rightclick.trigger(); }
 
 
 void RandomTrackDisplay::knotMoved( CallBacker* cb )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.28 2004-05-05 14:21:35 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.29 2004-05-19 14:59:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ public:
     int				getResolution() const;
     void			setResolution(int);
 
-    bool			hasMaterial() const { return true; }
+    bool			allowMaterialEdit() const { return true; }
 
     int				getAttributeFormat() const { return 1; }
     bool			hasColorAttribute() const { return true; }
@@ -124,7 +124,6 @@ public:
 
     virtual float               calcDist(const Coord3&) const;
     virtual NotifierAccess*	getMovementNotification() { return &moving; }
-    NotifierAccess*		rightClickNotifier()	 { return &rightclick; }
     NotifierAccess*		getManipulationNotifier() { return &knotmoving;}
 
     SoNode*			getInventorNode();
@@ -155,7 +154,6 @@ protected:
 
     void			knotMoved(CallBacker*);
     void			knotNrChanged(CallBacker*);
-    void			rightClicked(CallBacker*);
 
     ObjectSet< TypeSet<BinID> > bidsset;
     ObjectSet<SeisTrc>		cache;
@@ -169,7 +167,6 @@ protected:
 
     Notifier<RandomTrackDisplay> moving;
     Notifier<RandomTrackDisplay> knotmoving;
-    Notifier<RandomTrackDisplay> rightclick;
 };
 
 };
