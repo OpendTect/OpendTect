@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.13 2004-06-23 11:19:52 nanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.14 2004-07-30 11:41:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!
-    void			importPickSet();
+    void			impexpPickSet(bool);
     void			importLMKFault();
 
     // Processing menu operations

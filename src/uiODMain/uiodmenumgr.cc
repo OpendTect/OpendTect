@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.14 2004-05-30 17:41:45 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.15 2004-07-30 11:41:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.14 2004-05-30 17:41:45 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.15 2004-07-30 11:41:47 nanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -122,13 +122,6 @@ void uiODMenuMgr::enableActButton( bool yn )
     menu->insertItem( \
 	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)), id )
 
-#define mInsertIdealItem(menu,txt,id) \
-    { \
-	uiMenuItem* subitm = \
-		    new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)); \
-	menu->insertItem( subitm, id ); subitm->setEnabled( doenable ); \
-    }
-
 void uiODMenuMgr::fillFileMenu()
 {
     mInsertItem( filemnu, "&Survey ...", mManSurveyMnuItm );
@@ -164,7 +157,9 @@ void uiODMenuMgr::fillFileMenu()
     expmnu = new uiPopupMenu( &appl, "&Export" );
     uiPopupMenu* expseis = new uiPopupMenu( &appl, "&Seismics" );
     uiPopupMenu* exphor = new uiPopupMenu( &appl, "&Horizons" );
-    expmnu->insertItem( expseis ); expmnu->insertItem( exphor );
+    expmnu->insertItem( expseis );
+    mInsertItem( expmnu, "&Picksets ...", mExpPickMnuItm );
+    expmnu->insertItem( exphor );
     mInsertItem( expseis, "SEG-Y ...", mExpSeisSEGYMnuItm );
     mInsertItem( exphor, "&Ascii ...", mExpHorAsciiMnuItm );
 
@@ -365,7 +360,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManHorMnuItm: 	mDoOp(Man,Hor,0); break;
     case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;
     case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;
-    case mImpPickMnuItm: 	applMgr().importPickSet(); break;
+    case mImpPickMnuItm: 	applMgr().impexpPickSet(true); break;
+    case mExpPickMnuItm: 	applMgr().impexpPickSet(false); break;
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
     case mExitMnuItm: 		appl.exit(); break;
     case mManAttribsMnuItm: 	applMgr().manageAttributes(); break;

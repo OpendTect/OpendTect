@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.6 2004-05-24 14:28:36 bert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.7 2004-07-30 11:41:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ ________________________________________________________________________
 #define mImpLmkFaultMnuItm	(mFileImpMnu + 60)
 #define mExpSeisSEGYMnuItm	(mFileExpMnu + 10)
 #define mExpHorAsciiMnuItm	(mFileExpMnu + 20)
+#define mExpPickMnuItm		(mFileExpMnu + 50)
 #define mManSeisMnuItm		(mFileManMnu + 10)
 #define mManHorMnuItm		(mFileManMnu + 20)
 #define mManFaultMnuItm		(mFileManMnu + 30)

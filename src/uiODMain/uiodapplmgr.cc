@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.41 2004-07-20 12:38:00 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.42 2004-07-30 11:41:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 }
 
 
-void uiODApplMgr::importPickSet() { pickserv->importPickSet(); }
+void uiODApplMgr::impexpPickSet( bool imp ) { pickserv->impexpPickSet(imp); }
 void uiODApplMgr::importLMKFault() { emserv->importLMKFault(); }
 
 
