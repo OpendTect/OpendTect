@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.3 2002-03-11 13:57:43 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.4 2002-04-10 07:40:28 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -39,10 +39,6 @@ visBase::DataObject::~DataObject()
     SoNode* data = getData();
     if ( data ) data->unref();
 
-    const SoNode* selobj = getSelObj();
-    if ( selobj )
-	visBase::DataManager::manager.selMan().unRegSelObject( *this );
-
     delete name_;
 }
 
@@ -59,15 +55,26 @@ void visBase::DataObject::unRef() const
 }
 
 
+void visBase::DataObject::select()
+{
+    DM().selMan().select( id() );
+}
+
+
+void visBase::DataObject::deSelect()
+{
+    DM().selMan().deSelect( id() );
+}
+
+
+bool visBase::DataObject::isSelected() const
+{ return selectable() && DM().selMan().selected().indexOf( id()) != -1; }
+
+
 void visBase::DataObject::init()
 {
     id_ = DataManager::manager.addObj( this );
 
     SoNode* data = getData();
     if ( data ) data->ref();
-
-    const SoNode* selobj = getSelObj();
-    if ( selobj )
-	visBase::DataManager::manager.selMan().regSelObject( *this );
 }
-
