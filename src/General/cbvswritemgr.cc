@@ -5,12 +5,13 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.15 2002-11-27 17:05:10 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.16 2002-11-28 08:11:18 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "survinfo.h"
 
 BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
@@ -49,12 +50,30 @@ CBVSIOMgr::~CBVSIOMgr()
 
 void VBrickSpec::setStd( bool yn )
 {
-    nrsamplesperslab = yn ? 75 : -1;
-    maxnrslabs = 20;
-    if ( yn && getenv("dGB_CBVS_SAMPLES_PER_SLAB") )
+    maxnrslabs = 30;
+    if ( !yn )
+    {
+	nrsamplesperslab = -1;
+	return;
+    }
+
+    if ( getenv("dGB_CBVS_SAMPLES_PER_SLAB") )
     {
 	nrsamplesperslab = atoi(getenv("dGB_CBVS_SAMPLES_PER_SLAB"));
-	maxnrslabs = 256;
+	maxnrslabs = 200;
+    }
+    else if ( !SI().zRangeUsable() )
+    {
+	nrsamplesperslab = 50;
+    }
+    else
+    {
+	const int nrsamps = SI().zRange().nrSteps() + 1;
+	nrsamplesperslab = nrsamps / maxnrslabs;
+	if ( nrsamps % maxnrslabs )
+	    nrsamplesperslab++;
+	if ( nrsamplesperslab < 10 )
+	    nrsamplesperslab = 10;
     }
 }
 
