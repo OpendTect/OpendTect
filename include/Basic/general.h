@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.7 2003-12-24 11:07:22 bert Exp $
+ RCS:		$Id: general.h,v 1.8 2004-10-15 09:43:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,10 @@ inline const char* className( const T& t )
     while ( isdigit(*nm) ) nm++;
     return nm;
 }
+
+
+		//! Defines policy for selection of things
+enum Pol2D	{ No2D=-1, Both2DAnd3D=0, Only2D=1 };
 
 
 #endif /* ifdef cpp */
