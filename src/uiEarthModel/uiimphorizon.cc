@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.4 2002-05-23 13:39:10 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.5 2002-05-23 18:38:55 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,15 +65,15 @@ bool uiImportHorizon::handleAscii()
     bool doxy = xyfld->getBoolValue();
 
     const char* fname = infld->fileName();
-    StreamConn conn( fname, Conn::Read );
-    if ( conn.bad() )
+    StreamConn* conn = new StreamConn( fname, Conn::Read );
+    if ( conn->bad() )
 	mErrRet( "Bad connection" );
 	
-    PtrMan<GridTranslator> trans =
+    GridTranslator* trans =
 	doxy ? (GridTranslator*) new CoordGridTranslator
 	     : (GridTranslator*) new BinIDGridTranslator;
 
-    GridReader reader( trans, &conn );
+    GridReader reader( trans, conn );
     uiExecutor execdlg( this, reader );
     if ( !execdlg.go() ) return false;
 
