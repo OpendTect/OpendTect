@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.9 2003-02-27 16:44:46 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.10 2003-03-04 13:17:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -82,6 +82,8 @@ public:
 
     void			setResolution(int);
     int				getResolution() const;
+    const char*			getResName(int) const;
+    int				getNrResolutions() const;
 
     Notifier<RandomTrackDisplay> knotmoving;
     void			knotMoved(CallBacker*);

@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.12 2003-02-27 16:44:40 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.13 2003-03-04 13:17:21 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -371,6 +371,24 @@ int visSurvey::RandomTrackDisplay::getResolution() const
 {
     return track->getResolution();
 }
+
+
+const char* visSurvey::RandomTrackDisplay::getResName( int res ) const
+{
+    if ( res == 1 ) 
+	return "Moderate";
+    else if ( res == 2 ) 
+	return "High";
+    else 
+	return "Default";
+}
+
+
+int visSurvey::RandomTrackDisplay::getNrResolutions() const
+{
+    return 3;
+}
+
 
 
 void visSurvey::RandomTrackDisplay::setMaterial( visBase::Material* nm)
