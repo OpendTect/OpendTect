@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.15 2002-03-26 10:01:14 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.16 2002-03-28 08:55:53 nanne Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -223,7 +223,10 @@ const char* dgbPickSetGroupTranslator::read( PickSetGroup& psg, Conn& conn,
 			 : new PickSet( astrm.value() );
 	astrm.next();
 	if ( astrm.hasKeyword("Color") )
+	{
 	    newps->color.use( astrm.value() );
+	    astrm.next();
+	}
 	PickLocation loc;
 	while ( !atEndOfSection(astrm) )
 	{
