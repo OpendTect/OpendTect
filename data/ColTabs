@@ -86,4 +86,18 @@ Standard color tables
 10.Undef color:	200`200`200
 10.Marker color: 0`240`0
 
+10.Name       :	5 Segments
+10.Value-Color.1: 0`255`0`0
+10.Value-Color.2: 0.2`255`0`0
+10.Value-Color.3: 0.20001`0`255`255
+10.Value-Color.4: 0.4`0`255`255
+10.Value-Color.5: 0.4.0001`255`255`0
+10.Value-Color.6: 0.6`255`255`0
+10.Value-Color.7: 0.60001`0`255`0
+10.Value-Color.8: 0.8`0`255`0
+10.Value-Color.9: 0.80001`0`0`255
+10.Value-Color.10: 1`0`0`255
+10.Undef color:	200`200`200
+11.Marker color: 0`0`0
+
 !
