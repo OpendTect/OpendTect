@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.6 2005-03-23 16:02:22 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.7 2005-04-01 14:56:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,9 +212,7 @@ const AttribSelSpec* uiMPEPartServer::getAttribSelSpec() const
 
 bool uiMPEPartServer::startWizard( const char* typestr, int startidx )
 {
-//  csfromseeds.init( false );
-//  csfromseeds.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-//  csfromseeds.zrg.step = SI().zRange(false).step;
+    csfromseeds.init( false );
 
     delete wizard;
     wizard = new MPE::Wizard( appserv().parent(), this );
@@ -324,16 +322,17 @@ void uiMPEPartServer::createActiveVolume()
 	newcube.zrg.include( csfromseeds.zrg.stop );
     }
 
-    if ( newcube.nrInl()<2 )
+    const int minnr = 50;
+    if ( newcube.nrInl() < minnr )
     {
-	newcube.hrg.start.inl -= 100;
-	newcube.hrg.stop.inl += 100;
+	newcube.hrg.start.inl -= minnr*newcube.hrg.step.inl;
+	newcube.hrg.stop.inl += minnr*newcube.hrg.step.inl;
     }
 
-    if ( newcube.nrCrl()<2 )
+    if ( newcube.nrCrl() < minnr )
     {
-	newcube.hrg.start.crl -= 100;
-	newcube.hrg.stop.crl += 100;
+	newcube.hrg.start.crl -= minnr*newcube.hrg.step.crl;
+	newcube.hrg.stop.crl += minnr*newcube.hrg.step.crl;
     }
 
     if ( isdefault )
