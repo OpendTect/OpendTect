@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.30 2003-02-07 16:11:37 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.31 2003-03-02 14:23:05 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -532,7 +532,7 @@ bool IOMan::setFileName( MultiID key, const char* fname )
   
     const FileNameString fullnewname = ioobj->fullUserExpr(true); 
     int ret = File_rename( fulloldname, fullnewname );
-    if ( !ret || !dirPtr()->commitChanges( ioobj ) )
+    if ( !ret || !commitChanges( *ioobj ) )
 	return false;
 
     return true;
@@ -575,6 +575,22 @@ bool IOMan::haveEntries( const MultiID& id,
 	return true;
     }
     return false;
+}
+
+
+bool IOMan::commitChanges( const IOObj& ioobj )
+{
+    return dirPtr() ? dirPtr()->commitChanges( &ioobj ) : false;
+}
+
+
+bool IOMan::permRemove( const MultiID& ky )
+{
+    if ( !dirPtr() || !dirPtr()->permRemove(ky) )
+	return false;
+
+    removeAux( ky );
+    return true;
 }
 
 

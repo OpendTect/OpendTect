@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.20 2003-01-23 16:15:24 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.21 2003-03-02 14:23:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "uiseisfileman.h"
 #include "iodirentry.h"
 #include "ioobj.h"
-#include "ioman.h"
 #include "iodir.h"
+#include "ioman.h"
 #include "iostrm.h"
 #include "cbvsio.h"
 #include "ctxtioobj.h"
@@ -182,8 +182,7 @@ void uiSeisFileMan::removePush( CallBacker* )
     }
 
     entrylist->curRemoved();
-    IOM().removeAux( ioobj->key() );
-    IOM().dirPtr()->permRemove( ioobj->key() );
+    IOM().permRemove( ioobj->key() );
     refreshList( curitm );
 }
 
@@ -254,7 +253,7 @@ void uiSeisFileMan::relocatePush( CallBacker* )
     handleMultiFiles( fulloldname, fullnewname );
 
     int curitm = listfld->currentItem();
-    if ( IOM().dirPtr()->commitChanges( ioobj ) )
+    if ( IOM().commitChanges( *ioobj ) )
 	refreshList( curitm );
 }
 

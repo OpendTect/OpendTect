@@ -4,15 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.10 2003-02-26 16:36:50 dgb Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.11 2003-03-02 14:23:05 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimergeseis.h"
 #include "ctxtioobj.h"
-#include "iodir.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "ioobj.h"
 #include "seissingtrcproc.h"
 #include "seistrc.h"
@@ -117,8 +117,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 		continue;
 	    }
 
-	    IOM().removeAux( ioobj->key() );
-	    IOM().dirPtr()->permRemove( ioobj->key() );
+	    IOM().permRemove( ioobj->key() );
 	}
     }
 
@@ -208,7 +207,7 @@ bool uiMergeSeis::handleInput()
     else
 	ctio.ioobj->pars().set( typekey, type );
     ctio.ioobj->pars().set( optdirkey, optdir );
-    IOM().dirPtr()->commitChanges( ctio.ioobj );
+    IOM().commitChanges( *ctio.ioobj );
 
     sort_coupled( inlstart, order, inpsz );
 

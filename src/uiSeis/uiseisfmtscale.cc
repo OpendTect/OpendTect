@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.5 2002-11-22 16:09:02 nanne Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.6 2003-03-02 14:23:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "iodir.h"
 #include "iopar.h"
 
 #include "uigeninput.h"
@@ -84,5 +83,5 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj ) const
 	    		horOptim() ? "Horizontal" : "Vertical" );
 
     IOM().to( ioobj->key() );
-    IOM().dirPtr()->commitChanges( ioobj );
+    IOM().commitChanges( *ioobj );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.12 2003-02-07 16:11:37 bert Exp $
+ RCS:		$Id: ioman.h,v 1.13 2003-03-02 14:23:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,8 @@ public:
 				     const char* trnm=0) const;
     IOParList*		getParList(const char* typ=0) const;
 			//!< Reads the file on the root of the survey
+    bool		commitChanges(const IOObj&);
+    bool		permRemove(const MultiID&);
 
     IOPar*		getAux(const MultiID&) const;
     bool		putAux(const MultiID&,const IOPar*) const;

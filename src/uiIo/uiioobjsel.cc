@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.43 2003-01-30 11:36:59 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.44 2003-03-02 14:23:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,8 +187,7 @@ bool uiIOObjSelDlg::rmEntry( Translator* tr, bool rmabl )
     }
 
     entrylist->curRemoved();
-    IOM().removeAux( ioobj->key() );
-    IOM().dirPtr()->permRemove( ioobj->key() );
+    IOM().permRemove( ioobj->key() );
     entrylist->fill( IOM().dirPtr() );
     return true;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.11 2003-01-16 11:26:25 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.12 2003-03-02 14:23:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "ioman.h"
 #include "iostrm.h"
-#include "iodir.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
 #include "ptrman.h"
@@ -206,7 +205,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	}
     }
 
-    IOM().dirPtr()->commitChanges( outctio_.ioobj );
+    IOM().commitChanges( *outctio_.ioobj );
     if ( dolink )
 	return true;
 
