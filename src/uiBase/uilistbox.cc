@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.29 2002-01-01 23:05:15 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.30 2002-01-05 14:05:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,14 +86,12 @@ Do something like:
 //! over-rides QWidget::sizeHint()
 QSize uiListBoxBody::sizeHint() const
 {
-
     // initialize to requested size or reasonable default size
-    // reasonable sizes are 3 <= nrlines <= 7 , 20 <= nrchars <= 40.
-    const int sz = count();
-    int nrchars = fieldWdt ? fieldWdt : 20;
-    int nrlines = nLines ? nLines : sz > 7 ? 7 : (sz < 3 ? 3 : sz);
+    // reasonable sizes are 3 <= nrlines <= 7 , 25 <= nrchars <= 40.
+    int nrchars = fieldWdt ? fieldWdt : 25;
+    int nrlines = nLines ? nLines : 7;
 
-    // if biggest string is over 20 chars, grow box to max 40 chars.
+    // if biggest string is over 25 chars, grow box to max 40 chars.
     const int fontavgpixwidth = fontWdt();
     const int maxwdth = 40 * fontavgpixwidth;
     int pixwidth = nrchars * fontavgpixwidth;
