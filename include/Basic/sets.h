@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.9 2001-06-29 15:50:23 bert Exp $
+ RCS:		$Id: sets.h,v 1.10 2001-06-29 20:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,9 +172,9 @@ public:
 			{
 			    *this += newptr;
 			    if ( idx < 0 )
-				objs.moveToStart( newptr );
+				objs.moveToStart( (void*)newptr );
 			    else
-				objs.moveAfter( newptr, (*this)[idx] );
+				objs.moveAfter( (void*)newptr, (*this)[idx] );
 			}
     virtual void	copy( const ObjectSet<T>& os ) {
 
