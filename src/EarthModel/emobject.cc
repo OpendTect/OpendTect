@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.30 2004-07-23 15:35:14 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.31 2004-08-25 11:44:13 nanne Exp $";
 
 #include "emobject.h"
 
@@ -138,6 +138,8 @@ void EM::EMObject:: removePosAttrib(int attr)
 
 void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 {
+    CNotifier<EMObject, PosID>* notifier = getPosAttribChNotifier(attr,false);
+
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
     {
@@ -159,11 +161,13 @@ void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 	}
 	else if ( !yn )
 	{
+	    const EM::PosID pidcopy = pid;
 	    posids.removeFast(idy);
+	    if ( notifier ) notifier->trigger( pidcopy, this );
+	    return;
 	}
     }
 
-    CNotifier<EMObject, PosID>* notifier = getPosAttribChNotifier(attr,false);
     if ( notifier ) notifier->trigger( pid, this );
 }
 
