@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.4 2003-10-30 15:54:17 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.5 2003-10-30 21:59:31 bert Exp $
  -->
 
 <body bgcolor="#dddddd"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -23,6 +23,8 @@
 Making your own software within OpendTect is in principle pretty easy. You <i>could</i> change the software by modifying existing classes and functions, and adding your own stuff to the libs. The advantage is total control. The problem with this approach, however, is that you have to keep the OpendTect sources in sync with new releases. Furthermore, if you cannot convince the opendtect.org people also make those changes, OpendTect users may not be happy with your work.
 </p><p>
 An easy way to overcome this is to make your own plugins. Plugins make use of all the facilities of OpendTect but are loaded at run-time and can therefore be developed in a completely independent way. If you then find things that can't be done without modifying the OpendTect environment, it should be much easier to convince the opendtect.org people to take over or even implement those things themselves.
+</p><p>
+One thing you <i>cannot</i> do, is use another compiler than <b>gcc/g++</b>. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, COIN) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.
 </p>
 
 <br><br>
@@ -55,7 +57,7 @@ InitMyModPlugin
 </code></pre>
 Only the last one is required.
 </p><p>
-Note that these functions must be declared 'extern "C"', e.g.:
+Note that these functions must be declared 'extern "C"', as you can see in the first example plugin "Hello":
 <pre><code>#include <iostream>
 extern "C" const char* InitHelloPlugin( int, char** )
 {
@@ -63,13 +65,13 @@ extern "C" const char* InitHelloPlugin( int, char** )
     return 0; // All OK - no error messages
 }
 </code></pre>
-This is an example plugin from the plugins directory. Those 6 lines are enough to constitue a plugin for OpendTect. The Makefile to build the plugin looks like this:
+You'll find this example plugin in the plugins directory. Those 6 lines are enough to constitue a plugin for OpendTect. The Makefile to build the plugin looks like this:
 <pre><code>SRC.cc := hellopi.cc
 PLUGIN := yes
 include make.od.Defaults
 include make.Targets
 </code></pre>
-First try <code>make -n</code>. Pmake makes an awful lot of commands with a small specification. Anyway, after typing <code>make</code> the plugin should be generated. The new plugin can be loaded from within OpendTect. At that point in time, the message 'Hello world' should appear on stdout (wherever that may be on Windows).
+First try <code>make -n</code>. Notice that Pmake makes an awful lot of commands with a small specification. Anyway, after typing <code>make</code> the plugin should be generated. The new plugin can be loaded from within OpendTect (Menu Utilities-Plugins; press the 'Load new' button). At that point in time, the message 'Hello world' should appear on stdout (wherever that may be on Windows).
 </p><p>
 To make this a UI - based program we'll need to use functionality from the <code>uiBase</code> module. In this case, we use the <code>uiMSG()</code> utility:
 <pre><code>#include "uimsg.h"
@@ -79,15 +81,59 @@ extern "C" const char* InituiHelloPlugin( int*, char** )
     return 0; // All OK - no error messages
 }
 </code></pre>
-Again, 6 lines but now, when you load it, you'll get a popup message with an OK button.
+Again 6 lines, but now, when you load it, you'll get a popup message with an OK button.
 </p>
 In this case we actually use stuff from OpendTect libraries, so the Makefile needs to change. We need to add the line:
 <pre><code>MODDEP := uiBase
 </code></pre>
-Add this <i>before</i> the inclusions. By typing <code>make -n</code> again you'll see that Pmake added some directives for the compiler.
+Notice that this is added <i>before</i> the inclusions: It's a directive to establish all kinds of variables in the make includes. By typing <code>make -n</code> again you'll see that Pmake added some directives for the compiler.
 </p>
+
 <a name=real><h2>Real examples</h2>
+
 <a name=coh><h3>Attributes: Coherency</h3>
+<p>
+Anyone vaguely familiar with interpretation should by now know about Coherency abd Coherency cubes. We have always used the 'Similarity' attribute instead because of patent restrictions. Similarity is just as good for object detection en better suited in combination with the dip/steering concept. Coherency beats Similarity when used for single-attribute display.
+</p><p>
+AThe Coherency attributes were implemented some time ago by Kristofer for his research work, and it seemed a good idea to show how to make your own attribute plugins by looking at the <code>Coh</code> and <code>uiCoh</code> plugin code.
+</p><p>
+The <code>Coh</code> plugin handles the 'Real Work' part. If we start with the plugin 'main' file, <code>uicohpi.cc</code>, we see that it's not that much more complex than the <code>hellopi.cc</code> from the <code>Hello</code> plugin. There are three includes:
+<code>#include "coh.h"</code> gets the Coherency attribute object classes;
+<code>#include "attribfact.h"</code> gets the attribute factory to which the Coherency attributes must be added;
+<code>#include "plugins.h"</code> is needed for the PluginInfo structure and teh PI_AUTO_INIT_EARLY define:
+<pre><code>extern "C" int GetCohPluginType()
+{
+    return PI_AUTO_INIT_EARLY;
+}</code></pre>
+The above is one of the three 'special' plugin functions that determine how OpendTect will deal with the plugin. The GetxxxxPluginType() function is used for detemining whether and when to auto-load the plugin. The auto-load tool of OpendTect looks for plugins to load in two places: The plugins/platform_dir of the installation directory (<code>$DTECT_APPL/plugins/$HDIR</code>) and the same on the HOME directory (or <code>Application data</code> on windows).
+</p><p>
+This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined and LATE, which is typical for UI plugins that want to start working when most of the widgets are already created.
+</p><p>
+A few lines further we get:
+<pre><code>extern "C" PluginInfo* GetCohPluginInfo()
+{
+    static PluginInfo retpii = {
+        "Coherency",
+        "dGB - Kristofer Tingdahl and Bert Bril",
+        "1.0.1",
+        "Coherency attribute plugin.\n\n"
+        "Usage of Coherency may be subject to patent laws!" };
+    return &retpii;
+}</code></pre>
+If you look at the definition of PluginInfo, this should be easy to grasp. It allows the plugin manager to make this info about the plugin available to the world.
+</p><p>
+The actual work is done, like in the Hello world plugin, in:
+<pre><code>extern "C" const char* InitCohPlugin( int, char** )
+{
+    AF().add( new CoherencyAttrib::Parameters, false );
+    return 0; // All OK - no error messages
+}</code></pre>
+This function gets passed argc and argv from the main function. It should return null on success, and an error message if the initialisation failed. In this case, the Coherency attribute is added to AF() (the AttribFactory singleton object) using the macro defined in attribfact.h .
+
+
+
+
+<a name=coh><h3>Adding menus: ArkCls</h3>
 
 
 <br><hr size=3>
