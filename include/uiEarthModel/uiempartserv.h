@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.29 2004-07-16 15:35:25 bert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.30 2004-09-07 08:22:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
 	    			      BinIDValueSet&,
 				      const BinIDRange* br=0) const;
 
-    bool		storeObject(const MultiID&);
+    bool		storeObject(const MultiID&,bool storeas);
     void		setDataVal(const MultiID&,
 	    			   ObjectSet<BinIDValueSet>&,
 				   const char*);

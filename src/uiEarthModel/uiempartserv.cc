@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.54 2004-08-17 09:46:30 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.55 2004-09-07 08:22:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -321,14 +321,14 @@ int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx,
 }
 
 
-bool uiEMPartServer::storeObject( const MultiID& id )
+bool uiEMPartServer::storeObject( const MultiID& id, bool storeas )
 {
     mDynamicCastAll()
     if ( !object ) return false;
 
     PtrMan<Executor> exec = 0;
 
-    if ( surface )
+    if ( storeas && surface )
     {
 	uiWriteSurfaceDlg dlg( appserv().parent(), *surface );
 	if ( !dlg.go() ) return false;
