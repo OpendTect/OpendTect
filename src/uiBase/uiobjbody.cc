@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.1 2003-04-23 15:05:21 nanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.2 2003-05-22 12:49:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "timer.h"
 #include "pixmap.h"
+#include "color.h"
 
 #include <qpixmap.h>
 #include <qtooltip.h>
@@ -217,9 +218,9 @@ void uiObjectBody::setVSzPol( uiObject::SzPolicy pol )
 }
 
 
-Color uiObjectBody::uibackgroundColor() const
+const Color& uiObjectBody::uibackgroundColor() const
 {
-    return Color( qwidget()->backgroundColor().rgb() );
+    return *new Color( qwidget()->backgroundColor().rgb() );
 }
 
 

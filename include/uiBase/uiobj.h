@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.31 2003-04-23 15:04:03 nanne Exp $
+ RCS:           $Id: uiobj.h,v 1.32 2003-05-22 12:49:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,6 @@ the ubiquitous uiDialog.
 #include "uihandle.h"
 #include "uigeom.h"
 #include "uilayout.h"
-#include "color.h"
 #include "errh.h"
 
 #include <stdlib.h>
@@ -104,6 +103,7 @@ class uiMainWin;
 class uiButtonGroup;
 class i_LayoutItem;
 class ioPixmap;
+class Color;
 
 class uiObject : public uiObjHandle
 {
@@ -141,7 +141,7 @@ public:
 				 bool maximised=false );
     void		setFocus();
 
-    Color               backgroundColor() const;
+    const Color&	backgroundColor() const;
     void                setBackgroundColor(const Color&);
     void		setBackgroundPixmap(const char**);
     void		setBackgroundPixmap(const ioPixmap&);

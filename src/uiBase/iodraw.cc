@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.7 2003-05-15 14:15:49 nanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.8 2003-05-22 12:49:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ void ioDrawTool::drawPolygon( const TypeSet<uiPoint>& pts, int pt0, int nr )
 }
 
 
-void ioDrawTool::drawText( int x, int y, const char* txt, Alignment al, 
+void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al, 
 			   bool doovershoot, bool erase, int len )
 {
     if ( !active() && !beginDraw() ) return;
@@ -158,9 +158,9 @@ void ioDrawTool::drawRect ( int x, int y, int w, int h )
 }
 
 
-Color ioDrawTool::backgroundColor() const
+const Color& ioDrawTool::backgroundColor() const
 {
-    return Color( mQPainter->backgroundColor().rgb() );
+    return *new Color( mQPainter->backgroundColor().rgb() );
 }
 
 
@@ -297,7 +297,7 @@ void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle& mstyle,
 }
 
 
-void ioDrawTool::setLineStyle( LineStyle ls )
+void ioDrawTool::setLineStyle( const LineStyle& ls )
 {
     mQPen.setStyle( (Qt::PenStyle) ls.type);
     mQPen.setColor( QColor( QRgb( ls.color.rgb() )));
@@ -308,14 +308,14 @@ void ioDrawTool::setLineStyle( LineStyle ls )
 }
 
 
-void ioDrawTool::setPenColor( Color colr )
+void ioDrawTool::setPenColor( const Color& colr )
 {
     mQPen.setColor( QColor( QRgb(colr.rgb()) ) );
     if ( mQPainter ) mQPainter->setPen( mQPen ); 
 }
 
 
-void ioDrawTool::setFillColor( Color colr )
+void ioDrawTool::setFillColor( const Color& colr )
 { 
     if ( !active() && !beginDraw() ) return;
 

@@ -7,15 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.5 2003-05-15 14:16:53 nanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.6 2003-05-22 12:49:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "iodraw.h"
 #include "uigeom.h"
-#include "color.h"
-#include "draw.h"
+#include "sets.h"
 
 class QPaintDevice; 
 class QPaintDeviceMetrics; 
@@ -24,6 +23,11 @@ class QPen;
 
 class ioPixmap;
 class uiFont;
+class Color;
+class Alignment;
+class LineStyle;
+class MarkerStyle;
+
 
 //! Tool to draw on ioDrawArea's. Each ioDrawArea can give you a drawtool.
 class ioDrawTool
@@ -39,7 +43,7 @@ public:
 
     virtual		~ioDrawTool(); 
 
-    Color		backgroundColor() const;
+    const Color&	backgroundColor() const;
     void		setBackgroundColor(const Color&);
     void		clear(const uiRect* r=0,const Color* c=0);
 
@@ -54,10 +58,10 @@ public:
     			/*<!Draws a polygon defined by 'nr' points starting 
     			    at idx1*/
 
-    void		drawText( int x, int y, const char *, Alignment, 
+    void		drawText( int x, int y, const char *, const Alignment&, 
 				  bool over=true, bool erase=false, int len=-1);
-    inline void		drawText( uiPoint p, const char * txt, Alignment al, 
-				  bool over=true, bool erase=false, int len=-1)
+    inline void		drawText(uiPoint p,const char * txt,const Alignment& al,
+				 bool over=true,bool erase=false,int len=-1)
                         { drawText( p.x(), p.y(), txt, al, over, erase, len ); }
 
     void 		drawRect( int x, int y, int w, int h ); 
@@ -94,9 +98,9 @@ public:
     int 		getDevHeight() const;
     int 		getDevWidth() const;
 
-    void		setLineStyle( LineStyle );
-    void		setPenColor( Color );
-    void		setFillColor( Color );
+    void		setLineStyle( const LineStyle& );
+    void		setPenColor( const Color& );
+    void		setFillColor( const Color& );
     void		setPenWidth( unsigned int );
 
     void		setFont( const uiFont& f);

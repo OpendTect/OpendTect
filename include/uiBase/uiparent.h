@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.8 2003-04-22 09:49:42 arend Exp $
+ RCS:           $Id: uiparent.h,v 1.9 2003-05-22 12:49:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ public:
 
     void		setStretch( int h, int v ){ mIfMO()->setStretch(h,v); }
 
-    Color		backgroundColor() const;
+    const Color&	backgroundColor() const;
     void		setBackgroundColor(const Color& c)
 			    { mIfMO()->setBackgroundColor(c); }
 

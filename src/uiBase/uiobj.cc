@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.52 2003-04-23 15:05:21 nanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.53 2003-05-22 12:49:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "timer.h"
 #include "pixmap.h"
+#include "color.h"
 
 #include <qsettings.h> 
 
@@ -106,8 +107,10 @@ void uiParent::storePosition()
     settings.writeEntry( k, s.height() );
 }
 
-Color uiParent::backgroundColor() const
-    { return mainObject() ? mainObject()->backgroundColor() : Color(); }
+const Color& uiParent::backgroundColor() const
+{
+    return mainObject() ? mainObject()->backgroundColor() : *new Color();
+}
 
 
 void uiParent::restorePosition()
@@ -218,7 +221,7 @@ void uiObject::setFocus()			{ mBody()->uisetFocus();}
 
 
 
-Color uiObject::backgroundColor() const	
+const Color& uiObject::backgroundColor() const	
     { return mConstBody()->uibackgroundColor(); }
 
 
