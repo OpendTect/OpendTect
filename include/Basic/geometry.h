@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.3 2000-07-19 09:25:41 bert Exp $
+ RCS:           $Id: geometry.h,v 1.4 2000-08-04 16:49:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,93 +79,15 @@ public:
     inline void		setTopLeft( Point<T> tl )	{ topLeft_ = tl; }
     inline void		setBottomRight( Point<T> br )	{ bottomRight_ = br; }
 
-    inline bool		inside( const Rect<T>& other ) const
-			{ 
-			    return ( (left()   >= other.left() ) 
-				  && (top()    >= other.top()  )
-				  && (right()  <= other.right()  )
-				  && (bottom() <= other.bottom() ) );
+    inline bool		contains( const Point<T>& pt ) const
+			{
+			    return (left()-pt.x())*(pt.x()-right()) >= 0
+				&& (top()-pt.y())*(pt.y()-bottom()) >= 0;
 			}
-    inline Rect<T>	selectArea( const Rect<T>& other ) const
+    inline bool		isInside( const Rect<T>& other ) const
 			{
-			    T hOffset = other.left() - left();
-			    T vOffset = other.top() - top();
-
-			    return Rect<T> (hOffset,
-					    vOffset,
-					    other.width() + hOffset,
-					    other.height() + vOffset);
-			} 
-
-    inline bool 	topToAtLeast( T ref )
-			{
-			    if ( top() < ref ) 
-			    { 
-				T shift = ref - top();
-				setTop( top() + shift ); 
-				setBottom( bottom() + shift);
-				return true; 
-			    }
-			    return false;
-			} 
-
-    inline void 	topTo( T ref )
-			{
-			    T shift = ref - top();
-			    setTop( top() + shift ); 
-			    setBottom( bottom() + shift);
-			} 
-
-    inline bool 	bottomToAtLeast( T ref )
-			{
-			    if ( bottom < ref ) 
-			    { 
-				T shift = ref - bottom();
-				setTop( top() + shift ); 
-				setBottom( bottom() + shift);
-			    }
-			    return false;
-			} 
-
-    inline bool 	leftToAtLeast( T ref )
-			{
-			    if ( left() < ref ) 
-			    { 
-				T shift = ref - left();
-				setLeft( left() + shift ); 
-				setRight( right() + shift );
-				return true; 
-			    }
-			    return false;
-			} 
-
-    inline void 	leftTo( T ref )
-			{
-			    T shift = ref - left();
-			    setLeft( left() + shift ); 
-			    setRight( right() + shift );
-			} 
-
-    inline bool 	rightToAtLeast( T ref )
-			{
-			    if ( right() < ref ) 
-			    { 
-				T shift = ref - right();
-				setLeft( left() + shift ); 
-				setRight( right() + shift );
-				return true; 
-			    }
-			    return false;
-			} 
-
-    inline void 	setWidth( T ref ) 
-			{
-			    setRight( left() + ref );
-			}
-
-    inline void 	setHeight( T ref ) 
-			{
-			    setBottom( top() + ref );
+			    return other.contains(topLeft())
+				&& other.contains(bottomRight());
 			}
 
     inline T 		width() const

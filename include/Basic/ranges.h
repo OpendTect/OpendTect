@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.3 2000-05-24 14:57:43 dgb Exp $
+ RCS:		$Id: ranges.h,v 1.4 2000-08-04 16:49:32 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -29,8 +29,10 @@ public:
     int		operator!=( const Interval<T>& i ) const
 		{ return ! (i == *this); }
 
-    T		width() const			{ return stop - start; }
-    int		includes( const T& t ) const	{ return t>=start && t<=stop; }
+    T		width() const
+		{ return stop - start > 0 ? stop - start : start - stop; }
+    int		includes( const T& t ) const
+		{ return (t-start)*(stop-t) >= 0; }
     int		getIndex( const T& t, const T& step ) const
 		{ return (int)(( t  - start ) / step); }
     T		atIndex( int idx, const T& step ) const

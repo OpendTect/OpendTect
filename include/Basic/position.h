@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.1.1.2 1999-09-16 09:19:07 arend Exp $
+ RCS:		$Id: position.h,v 1.2 2000-08-04 16:49:31 bert Exp $
 ________________________________________________________________________
 
 @$*/
 
-#include <gendefs.h>
+#include <geometry.h>
 
 
 class Coord
@@ -21,6 +21,9 @@ class Coord
 public:
 		Coord()				{ x = y = 0; }
 		Coord( double cx, double cy )	{ x = cx; y = cy; }
+
+		Coord( const Point<double>& p )	{ x = p.x(); y = p.y(); }
+		operator Point<double>() const { return Point<double>(x,y); }
 
     void	operator+=( double dist )	{ x += dist; y += dist; }
     void	operator+=( const Coord& crd )	{ x += crd.x; y += crd.y; }
