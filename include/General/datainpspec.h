@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.17 2001-05-30 16:12:44 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.18 2001-06-05 13:30:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -409,6 +409,7 @@ class StringListInpSpec : public DataInpSpec
 public:
 				StringListInpSpec( const char** sl=0 )
 				    : DataInpSpec( stringListTp, mUndefWdt )
+				    , cur_(0)
 				{
 				    if ( !sl ) return;
 				    while( *sl )
@@ -417,12 +418,14 @@ public:
 
 				StringListInpSpec( const StringListInpSpec& oth)
 				    : DataInpSpec( stringListTp, mUndefWdt )
+				    , cur_(oth.cur_)
 				    { deepCopy( strings_, oth.strings_ ); }
 
 				~StringListInpSpec() { deepErase(strings_); }
 
     virtual bool		isUndef( int idx=0 ) const	
-				    { return strings_.size()?false:true; }
+				    { return strings_.size() && cur_ >= 0
+					   ? false : true; }
     virtual DataInpSpec*	clone() const	
 				    { return new StringListInpSpec( *this ); }
     const ObjectSet<BufferString>& strings() const	{ return strings_; }
@@ -432,14 +435,37 @@ public:
     virtual const char*		text( int idx ) const
 				    {
 					if ( isUndef() ) return "";
-					else return (const char*)*strings_[idx];
+					else return (const char*)*strings_[cur_];
 				    }
-    virtual void		setText( const char* s, int idx ) 
-				    { if ( strings_[idx] ) *strings_[idx] = s; }
+    void		setItemText( int idx, const char* s ) 
+			{ *strings_[cur_] = s; }
+
+    virtual void	setText( const char* s, int nr ) 
+			{
+			    for ( int idx=0; idx<strings_.size(); idx++ )
+				if ( *strings_[idx] == s ) { cur_ = idx;return;}
+			}
+
+    virtual int		getIntValue( int idx ) const
+			    { return cur_; }
+    virtual double	getValue( int idx ) const
+			    { return cur_; }
+    virtual float	getfValue( int idx ) const
+			    { return cur_; }
+
+    virtual void	setValue( int i, int idx )
+			    { if ( i < strings_.size() ) cur_ = i; }
+    virtual void	setValue( double d, int idx )
+			    { if ( (int)(d+.5) < strings_.size() )
+				cur_ = (int)(d+.5); }
+    virtual void	setValue( float f, int idx )
+			    { if ( (int)(f+.5) < strings_.size() )
+				cur_ = (int)(f+.5); }
 
 protected:
 
     ObjectSet<BufferString>	strings_;
+    int				cur_;
 
 };
 
