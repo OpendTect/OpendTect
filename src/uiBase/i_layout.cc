@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.6 2001-05-21 14:20:22 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.7 2001-05-31 12:22:27 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,10 @@ ________________________________________________________________________
 
 
 #define MAX_ITER 10000
+
+
+int i_LayoutMngr::mintxtwidgethgt = -1;
+
 
 class uiConstraint
 {
@@ -578,7 +582,6 @@ i_LayoutMngr::i_LayoutMngr( uiObject *parnt, int border, int space,
 			    , parnt_( parnt )
 			    , finalised( false )
 			    , curmode( preferred )
-			    , mintextwidgetheight_( 0 )
 
 { setAutoAdd( autoAdd ); }
 
@@ -590,7 +593,6 @@ i_LayoutMngr::i_LayoutMngr( QWidget* prntWidg, uiObject *parnt,
 			    , parnt_( parnt )
 			    , finalised( false )
 			    , curmode( preferred )
-			    , mintextwidgetheight_( 0 )
 
 { setAutoAdd( autoAdd ); }
 
@@ -837,15 +839,6 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 }
 
 
-int& i_LayoutMngr::mintextwidgetheight()
-{
-    //finalise();
-    if( !parnt_->prntLayoutMngr() || parnt_->prntLayoutMngr() == this ) 
-	return mintextwidgetheight_;
-
-    return parnt_->prntLayoutMngr()->mintextwidgetheight();
-}
-
 void i_LayoutMngr::finalise_()
 {
     finalised=true;
@@ -870,8 +863,6 @@ void i_LayoutMngr::doLayout( const QRect &externalRect )
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
-    mintextwidgetheight_ = -1;
-
     childIter.toFirst(); 
     while ( (curChld = childIter.current()) ) 
     { 
@@ -879,8 +870,8 @@ void i_LayoutMngr::doLayout( const QRect &externalRect )
 	if( curChld->uiClient() && curChld->uiClient()->isSingleLine() )
 	{ 
 	    int chldPref = curChld->uiClient()->preferredHeight();
-	    if( chldPref > mintextwidgetheight() ) 
-		mintextwidgetheight() = chldPref;
+	    if( chldPref > mintxtwidgethgt ) 
+		mintxtwidgethgt = chldPref;
 	}
     }
 
