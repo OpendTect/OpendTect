@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.9 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.10 2003-12-11 15:22:01 arend Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: iodir.cc,v 1.9 2003-11-07 12:21:57 bert Exp $";
 #include "ascstream.h"
 #include "separstr.h"
 #include "strmoper.h"
+#include "errh.h"
 
 
 IODir::IODir( const char* dirnm )
@@ -320,7 +321,11 @@ bool IODir::doWrite() const
 	File_copy( omfname, ombname, NO );
 
     ostream* streamptr = openOutputStream( omfname );
-    if ( !streamptr ) return NO;
+    if ( !streamptr )
+    {
+	ErrMsg( "Cannot open the object management file for write!" );
+	return false;
+    }
 
     ascostream astream( *streamptr );
     if ( !astream.putHeader( "Object Management file" ) ) mCloseRetNo(streamptr)
