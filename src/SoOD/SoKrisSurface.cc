@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.9 2005-03-11 12:21:23 cvskris Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.10 2005-03-22 08:14:16 cvskris Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -22,14 +22,40 @@ static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.9 2005-03-11 12:21:23 cvsk
 #include <Inventor/caches/SoBoundingBoxCache.h>
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/elements/SoComplexityElement.h>
+#include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoCoordinateElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/threads/SbRWMutex.h>
 #include <Inventor/system/gl.h>
 
 #include <Inventor/errors/SoDebugError.h>
 
 #define mIsCoordDefined( coord ) (coord[0]<1e29)
+
+
+MeshSurfaceIndexChanger::MeshSurfaceIndexChanger( int oc, int nc, bool bf,int r)
+    : prevnrcols( oc )
+    , newnrcols( nc )
+    , changebeforeexisting( bf )
+    , nraddedrows( r )
+{}
+
+
+int MeshSurfaceIndexChanger::convertIndex( int oldindex ) const
+{
+    if ( oldindex==-1 ) return oldindex;
+
+    int row = oldindex/prevnrcols;
+    int col = oldindex%prevnrcols;
+    
+    if ( changebeforeexisting ) col += (newnrcols-prevnrcols);
+    row += nraddedrows;
+
+    return row*newnrcols+col;
+}
+
 
 MeshSurfacePartPart::MeshSurfacePartPart(SoKrisSurface& m, int s0, int s1 )
     : meshsurface( m )
@@ -305,26 +331,27 @@ const int32_t* MeshSurfacePartPart::getMatIndexPtr(int i0,int i1) const
 
 
 MeshSurfaceTesselationCache::MeshSurfaceTesselationCache( 
-				  const SoKrisSurface& m, bool isstrip_ )
+	  const SoKrisSurface& m,
+	  MeshSurfaceTesselationCache::Primitive primitivearg )
     : meshsurface(m)
-    , isstrip( isstrip_ )
+    , primitive( primitivearg )
     , buildmutex( new SbRWMutex( SbRWMutex::READ_PRECEDENCE) )
     , isvalid( true )
 {}
 
 
 MeshSurfaceTesselationCache::~MeshSurfaceTesselationCache()
-{
-    delete buildmutex;
-}
+{ delete buildmutex; }
 
 
 void MeshSurfaceTesselationCache::reset(bool all)
 {
     buildmutex->writeLock();
     setValid(false);
-    ni.truncate(0,false);
-    ci.truncate(0,false);
+    triangleni.truncate(0,false);
+    triangleci.truncate(0,false);
+    lineni.truncate(0,false);
+    lineci.truncate(0,false);
 
     if ( all )
 	normals.truncate(0,false);
@@ -333,26 +360,48 @@ void MeshSurfaceTesselationCache::reset(bool all)
 }
 
 
-
-void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
+void MeshSurfaceTesselationCache::changeCacheIdx(
+	const MeshSurfaceIndexChanger& ch )
 {
+    buildmutex->writeLock();
+    int numci = triangleci.getLength();
+    for ( int idx=0; idx<numci; idx++ )
+	triangleci[idx] = ch.convertIndex(triangleci[idx]);
+
+    numci = lineci.getLength();
+    for ( int idx=0; idx<numci; idx++ )
+	lineci[idx] = ch.convertIndex(lineci[idx]);
+
+    buildmutex->writeUnlock();
+}
+
+
+
+void MeshSurfaceTesselationCache::GLRenderSurface(SoGLRenderAction* action)
+{
+    GLenum mode;
+    if ( primitive==TriangleStrip )
+	mode = GL_TRIANGLE_STRIP;
+    else if ( primitive==TriangleFan )
+	mode = GL_TRIANGLE_FAN; 
+    else
+	return;
+
     SoMaterialBundle mb(action);
     const SbVec3f* cptr = meshsurface.coordinates.getValues(0);
     const int nc = meshsurface.coordinates.getNum();
     const int32_t* miptr = meshsurface.materialIndex.getValues(0);
     const int nmi = meshsurface.materialIndex.getNum();
 
-    mb.sendFirst();
-
     buildmutex->readLock();
-    const int nrci = ci.getLength();
+    const int nrci = triangleci.getLength();
     bool isopen = false;
     float texturecoord[2];
     const int nrrows = meshsurface.nrRows();
     const int nrcols = meshsurface.nrColumns.getValue();
     for ( int idx=0; idx<nrci; idx++ )
     {
-	const int index = ci[idx];
+	const int index = triangleci[idx];
 	if ( index<0 )
 	{
 	    if ( isopen )
@@ -366,12 +415,72 @@ void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
 	if ( !isopen )
 	{
 	    mb.sendFirst();
-	    glBegin( isstrip ? GL_TRIANGLE_STRIP : GL_TRIANGLE_FAN );
+	    glBegin( mode );
 	    isopen = true;
 	}
 
 	mb.send(miptr?(index<nmi?miptr[index]:miptr[nmi-1]):0,true);
-	glNormal3fv(normals[ni[idx]].getValue());
+	glNormal3fv(normals[triangleni[idx]].getValue());
+#if __debug__
+	if ( index>=nc )
+	    SoDebugError::postWarning("MeshSurfaceTesselationCache::GLRender",
+				      "Index is too large");
+#endif
+	const int row = index/nrcols;
+	const int col = index%nrcols;
+	texturecoord[0] = nrrows>1 ? (float) row/(nrrows-1) : 0;
+	texturecoord[1] = nrcols>1 ? (float) col/(nrcols-1) : 0;
+	glTexCoord2fv(texturecoord);
+	glVertex3fv(cptr[index].getValue());
+    }
+    
+    if ( isopen )
+	glEnd();
+
+    buildmutex->readUnlock();
+}
+
+
+void MeshSurfaceTesselationCache::GLRenderLines(SoGLRenderAction* action)
+{
+    SoState* state = action->getState();
+    SoMaterialBundle mb(action);
+    const SbVec3f* cptr = meshsurface.coordinates.getValues(0);
+    const int nc = meshsurface.coordinates.getNum();
+    const int32_t* miptr = meshsurface.materialIndex.getValues(0);
+    const int nmi = meshsurface.materialIndex.getNum();
+
+    buildmutex->readLock();
+    const int nrci = lineci.getLength();
+    bool isopen = false;
+    float texturecoord[2];
+    const int nrrows = meshsurface.nrRows();
+    const int nrcols = meshsurface.nrColumns.getValue();
+    for ( int idx=0; idx<nrci; idx++ )
+    {
+	const int index = lineci[idx];
+	if ( index<0 )
+	{
+	    if ( isopen )
+	    {
+		glEnd();
+		isopen = false;
+	    }
+	    continue;
+	}
+
+	if ( !isopen )
+	{
+	    mb.sendFirst();
+	    glBegin( GL_LINE_STRIP );
+	    isopen = true;
+	}
+
+	SbColor realcolor = SoLazyElement::getDiffuse(state,
+				miptr?(index<nmi?miptr[index]:miptr[nmi-1]):0 );
+	glColor3f(1-realcolor[0],1-realcolor[1],1-realcolor[2]);
+
+	glNormal3fv(normals[lineni[idx]].getValue());
 #if __debug__
 	if ( index>=nc )
 	    SoDebugError::postWarning("MeshSurfaceTesselationCache::GLRender",
@@ -448,6 +557,8 @@ MeshSurfacePart::~MeshSurfacePart()
 
 void MeshSurfacePart::setStart( int row, int col )
 {
+    start0 = row; start1 = col;
+
     for ( int idx=0; idx<resolutions.getLength(); idx++ )
 	resolutions[idx]->setStart( row, col );
 
@@ -455,6 +566,16 @@ void MeshSurfacePart::setStart( int row, int col )
 	bboxes[idx]->setStart( row, col );
 
 }
+
+
+void MeshSurfacePart::changeCacheIdx( const MeshSurfaceIndexChanger& ch )
+{
+    for ( int idx=0; idx<resolutions.getLength(); idx++ )
+	resolutions[idx]->changeCacheIdx( ch );
+
+    if ( gluecache ) gluecache->changeCacheIdx(ch);
+}
+
 
 
 void MeshSurfacePart::touch( int i0, int i1, bool undef )
@@ -502,6 +623,7 @@ void MeshSurfacePart::computeBBox(SoState* state, SbBox3f& bbox,
     center = SbVec3f(0,0,0);
     SbBox3f localbox;
     SbVec3f localcenter;
+    bbox.makeEmpty();
 
     int nrboxes = 0;
     for ( int idx=0; idx<bboxes.getLength(); idx++ )
@@ -529,11 +651,21 @@ void MeshSurfacePart::rayPick( SoRayPickAction* action, bool useownvalidation )
 }
 
 
-void MeshSurfacePart::GLRender(SoGLRenderAction* action,bool useownvalidation)
+void MeshSurfacePart::GLRenderSurface(  SoGLRenderAction* action,
+					bool useownvalidation)
 {
     reshaschanged = false;
     if ( resolution<0 ) return;
-    resolutions[resolution]->GLRender( action, useownvalidation );
+    resolutions[resolution]->GLRenderSurface( action, useownvalidation );
+}
+
+
+void MeshSurfacePart::GLRenderWireframe(SoGLRenderAction* action,
+					bool useownvalidation)
+{
+    reshaschanged = false;
+    if ( resolution<0 ) return;
+    resolutions[resolution]->GLRenderWireframe( action, useownvalidation );
 }
 
 
@@ -627,7 +759,7 @@ int MeshSurfacePart::getSpacing( int res ) const
 #define mAddCoordToIndexes(row_,col_,res_, indexes, normals) \
 { \
     const int index_ = meshsurface.getIndex( row_, col_ ); \
-    if ( index_ != -1 ) \
+    if ( index_!=-1 && meshsurface.coordinates[index_][2]<1e29 ) \
     { \
 	indexes.push(index_); \
 	normals.push(getNormal(row_,col_,res_,useownvalidation)); \
@@ -649,12 +781,15 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
 
     if ( !tesselate )
     {
-	gluecache->GLRender(action);
+	gluecache->GLRenderSurface(action);
 	return;
     }
 
     if ( !gluecache ) 
-	gluecache = new MeshSurfaceTesselationCache(meshsurface,true);
+	gluecache = new MeshSurfaceTesselationCache(meshsurface,
+				MeshSurfaceTesselationCache::TriangleFan);
+    else
+	gluecache->reset(true);
 
     gluecache->buildmutex->writeLock();
 
@@ -673,7 +808,11 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
     int col = start1;
     for ( int idx=0; idx<sidesize-ownspacing; idx+=rowgluespacing )
     {
-	rowgluecells.append( SbVec2s(row,col+idx) );
+	const SbVec2s rc(row,col+idx);
+	if ( rc[0]<0 || rc[1]<0 )
+	    continue;
+
+	rowgluecells.append( rc );
     }
 
     SbList<SbVec2s> colgluecells;
@@ -684,7 +823,11 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
     col = start1+sidesize-ownspacing;
     for ( int idx=0; idx<sidesize-ownspacing; idx+=colgluespacing )
     {
-	colgluecells.append( SbVec2s(row+idx,col) );
+	const SbVec2s rc(row+idx,col);
+	if ( rc[0]<0 || rc[1]<0 )
+	    continue;
+
+	colgluecells.append( rc );
     }
 
     //Make corner.
@@ -919,6 +1062,7 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
     }
 
     gluecache->buildmutex->writeUnlock();
+    gluecache->GLRenderSurface(action);
 }
 
 
@@ -993,13 +1137,13 @@ SbBool MeshSurfacePart::getNormal( int row, int col, int res,
 
 
 #define mAddFanNode( ci_, n_ ) \
-    gluecache->ni.push( gluecache->normals.getLength() ); \
+    gluecache->triangleni.push( gluecache->normals.getLength() ); \
     gluecache->normals.push(n_); \
-    gluecache->ci.push(ci_)
+    gluecache->triangleci.push(ci_)
 
 #define mStopFanStrip \
-    gluecache->ni.push(-1); \
-    gluecache->ci.push(-1)
+    gluecache->triangleni.push(-1); \
+    gluecache->triangleci.push(-1)
 
 void MeshSurfacePart::addGlueFan( const SbList<int>& lowresci,
     const SbList<SbVec3f>& lowresnorm, const SbList<int>& highresci,
@@ -1231,28 +1375,55 @@ void MeshSurfacePartResolution::setStart( int row, int col )
 }
 
 
-void MeshSurfacePartResolution::GLRender( SoGLRenderAction* action,
-					  bool useownvalidation )
+void MeshSurfacePartResolution::changeCacheIdx(
+			const MeshSurfaceIndexChanger& ch)
+{ if ( cache && cachestatus!=2 ) cache->changeCacheIdx(ch); }
+
+
+void MeshSurfacePartResolution::GLRenderSurface( SoGLRenderAction* action,
+						 bool useownvalidation )
 {
+    bool drawwireframe = meshsurface.wireframe.getValue();
     if ( cache && useownvalidation )
     {
 	if ( cachestatus==2 )
 	    tesselate();
-	cache->GLRender(action);
+
+	cache->GLRenderSurface(action);
     }
     else
     {
 	if ( !cache || !cache->isValid() )
 	    tesselate();
 
-	cache->GLRender(action);
+	cache->GLRenderSurface(action);
+    }
+}
+
+
+void MeshSurfacePartResolution::GLRenderWireframe( SoGLRenderAction* action,
+						 bool useownvalidation )
+{
+    if ( cache && useownvalidation )
+    {
+	if ( cachestatus==2 )
+	    tesselate();
+
+	cache->GLRenderLines(action);
+    }
+    else
+    {
+	if ( !cache || !cache->isValid() )
+	    tesselate();
+
+	cache->GLRenderLines(action);
     }
 }
 
 #define mAppend(ci_,ni_, extra) \
 { \
-    cache->ci.append(ci_); \
-    cache->ni.append(ni_); \
+    cache->triangleci.append(ci_); \
+    cache->triangleni.append(ni_); \
     extra; \
 }
 
@@ -1284,7 +1455,8 @@ void MeshSurfacePartResolution::invalidateCaches()
 void MeshSurfacePartResolution::tesselate()
 {
     if ( !cache )
-	cache = new MeshSurfaceTesselationCache( meshsurface, true );
+	cache = new MeshSurfaceTesselationCache( meshsurface,
+		    	MeshSurfaceTesselationCache::TriangleStrip );
     else
 	cache->reset(true);
 
@@ -1324,6 +1496,71 @@ void MeshSurfacePartResolution::tesselate()
 	for ( int idx1=0; idx1<nrcols; idx1++ )
 	    computeNormal( nrrows-1, idx1 );
     }
+
+    const int normalsperrow = nrCols();
+    for ( int idx0=0; idx0<nrrows-1; idx0++ )
+    {
+	bool isopen = false;
+	for ( int idx1=0; idx1<nrcols-1; idx1++ )
+	{
+	    int ci = getCoordIndex(idx0,idx1);
+	    if ( ci==-1 )
+	    {
+		if ( isopen )
+		{
+		    cache->lineci.append(-1);
+		    cache->lineni.append(-1);
+		    isopen = false;
+		}
+
+		continue;
+	    }
+
+	    cache->lineci.append(ci);
+	    cache->lineni.append(mGetNormalIndex( idx0, idx1 ));
+	    isopen = true;
+	}
+
+	if ( isopen )
+	{
+	    cache->lineci.append(-1);
+	    cache->lineni.append(-1);
+	    isopen = false;
+	}
+    }
+
+
+    for ( int idx1=0; idx1<nrcols-1; idx1++ )
+    {
+	bool isopen = false;
+	for ( int idx0=0; idx0<nrrows-1; idx0++ )
+	{
+	    int ci = getCoordIndex(idx0,idx1);
+	    if ( ci==-1 )
+	    {
+		if ( isopen )
+		{
+		    cache->lineci.append(-1);
+		    cache->lineni.append(-1);
+		    isopen = false;
+		}
+
+		continue;
+	    }
+
+	    cache->lineci.append(ci);
+	    cache->lineni.append(mGetNormalIndex( idx0, idx1 ));
+	    isopen = true;
+	}
+
+	if ( isopen )
+	{
+	    cache->lineci.append(-1);
+	    cache->lineni.append(-1);
+	    isopen = false;
+	}
+    }
+
 
     cache->setValid(true);
     cache->buildmutex->writeUnlock();
@@ -1735,53 +1972,65 @@ SoKrisSurface::SoKrisSurface()
     SO_NODE_ADD_FIELD( coordinates, (0,0,0) );
     SO_NODE_ADD_FIELD( materialIndex, (0) );
     SO_NODE_ADD_FIELD( meshStyle, (0) );
-    SO_NODE_ADD_FIELD( brickSize, (6) );
     SO_NODE_ADD_FIELD( resolution, (-1) );
     SO_NODE_ADD_FIELD( wireframe, (false) );
+    SO_NODE_ADD_FIELD( wireframeLift, (5) );
     SO_NODE_ADD_FIELD( nrColumns, (64) );
+
     coordinates.deleteValues(0,-1);
 }
 
 
-void SoKrisSurface::insertColumns(bool before)
+void SoKrisSurface::insertColumns(bool before,int nr)
 {
+    if ( nr<=0 ) return;
     const bool oldvalidationflag = useownvalidation;
     useownvalidation = true;
     const int nrrows = nrRows();
     const int nrcols = nrColumns.getValue();
 
-/*
-    if ( coordinates.getNum()<nrcols*nrrows )
-	coordinates.insertSpace( coordinates.getNum(),
-				nrcols*nrrows-coordinates.getNum() );
+    const bool oldcoordnotstatus = coordinates.enableNotify(false);
+    const bool oldminotstatus = materialIndex.enableNotify(false);
+    const bool oldmsnotstatus = meshStyle.enableNotify(false);
+    const bool oldnrcolnotstatus = nrColumns.enableNotify(false);
 
-    if ( materialIndex.getNum()<nrcols*nrrows )
-	materialIndex.insertSpace( materialIndex.getNum(),
-				   nrcols*nrrows-materialIndex.getNum() );
-
-    if ( meshStyle.getNum()<nrcols*nrrows )
-	meshStyle.insertSpace( meshStyle.getNum(),
-				nrcols*nrrows-meshStyle.getNum() );
-				*/
-
-
-    for ( int idx= before?nrrows-1:nrrows-2; idx>=0; idx-- )
+    for ( int row=before?nrrows-1:nrrows-2; row>=0; row-- )
     {
-	const int insertpos = (idx+(before?0:1))*nrcols;
-	coordinates.insertSpace( insertpos, sidesize );
-	for ( int idy=0; idy<sidesize; idy++ )
+	const int insertpos = (row+(before?0:1))*nrcols;
+	coordinates.insertSpace( insertpos, nr );
+	for ( int idy=0; idy<nr; idy++ )
 	    coordinates.set1Value( insertpos+idy, SbVec3f(1e30,1e30,1e30) );
 
-	materialIndex.insertSpace( insertpos, sidesize );
-	meshStyle.insertSpace( insertpos, sidesize );
+	if ( materialIndex.getNum()>insertpos )
+	    materialIndex.insertSpace( insertpos, nr );
+	if ( meshStyle.getNum()>insertpos )
+	    meshStyle.insertSpace( insertpos, nr );
     }
 
-    nrColumns.setValue( nrcols+getSideLength() );
+    const MeshSurfaceIndexChanger ic( nrcols, nrcols+nr, before, 0 );
+    for ( int idx=0; idx<parts.getLength(); idx++ )
+    {
+	if ( before )
+	{
+	    parts[idx]->setStart( parts[idx]->getRowStart(),
+		    		  parts[idx]->getColStart()+nr );
+	}
+
+	parts[idx]->changeCacheIdx( ic );
+    }
+
+    nrColumns.setValue( nrcols+nr );
+
+    coordinates.enableNotify(oldcoordnotstatus);
+    materialIndex.enableNotify(oldminotstatus);
+    meshStyle.enableNotify(oldmsnotstatus);
+    nrColumns.enableNotify(oldnrcolnotstatus);
 }
 
 
-void SoKrisSurface::insertRowsBefore()
+void SoKrisSurface::insertRowsBefore(int nr)
 {
+    if ( nr<=0 ) return;
     coordinates.insertSpace( 0, nrColumns.getValue()*sidesize );
     materialIndex.insertSpace( 0, nrColumns.getValue()*sidesize );
     meshStyle.insertSpace( 0, nrColumns.getValue()*sidesize );
@@ -1806,6 +2055,8 @@ void SoKrisSurface::computeBBox(SoAction* action, SbBox3f& bbox,
     center = SbVec3f(0,0,0);
     SbBox3f localbox;
     SbVec3f localcenter;
+
+    bbox.makeEmpty();
 
     int nrboxes = 0;
     for ( int idx=0; idx<parts.getLength(); idx++ )
@@ -1879,11 +2130,33 @@ void SoKrisSurface::GLRender(SoGLRenderAction* action)
 	}
     //}
 
-    for ( int idx=0; idx<nrparts; idx++ )
-	parts[idx]->GLRenderGlue(action, useownvalidation);
+    if ( !wireframe.getValue() )
+    {
+	for ( int idx=0; idx<nrparts; idx++ )
+	    parts[idx]->GLRenderGlue(action, useownvalidation);
 
-    for ( int idx=0; idx<nrparts; idx++ )
-	parts[idx]->GLRender(action, useownvalidation);
+	for ( int idx=0; idx<nrparts; idx++ )
+	    parts[idx]->GLRenderSurface(action, useownvalidation);
+    }
+    else
+    {
+	state->push();
+	const SbViewVolume& vv = SoViewVolumeElement::get(state);
+	const SbMatrix& mat = SoModelMatrixElement::get(state);
+
+	SbVec3f projectiondir = vv.getProjectionDirection();
+	projectiondir.normalize();
+	projectiondir *=-wireframeLift.getValue();
+
+	SbVec3f localprojdir;
+	mat.inverse().multDirMatrix( projectiondir, localprojdir );
+	SoModelMatrixElement::translateBy(state, this,localprojdir);
+
+	for ( int idx=0; idx<nrparts; idx++ )
+	    parts[idx]->GLRenderWireframe(action, useownvalidation);
+
+	state->pop();
+    }
 }
 
 
@@ -1917,14 +2190,6 @@ int SoKrisSurface::nrRows() const
 }
 
 
-int SoKrisSurface::getSideLength() const
-{
-    const int power = brickSize.getValue();
-    return 1<<power;
-}
-
-
-
 void SoKrisSurface::notify( SoNotList* nl )
 {
     SoShape::notify(nl);
@@ -1938,61 +2203,154 @@ void SoKrisSurface::notify( SoNotList* nl )
 
 void SoKrisSurface::adjustNrOfParts()
 {
-    const int nrcolumns = nrColumns.getValue();
-    while ( nrcolparts*sidesize<nrcolumns )
+    const int nrcols = nrColumns.getValue();
+    int currentpart = 0;
+    bool changed = false;
+    if ( !parts.getLength() && coordinates.getNum() )
     {
-	const int nrrowparts = nrRows()/sidesize+1;
-	for ( int idx=0; idx<nrrowparts; idx++ )
-	{
-	    const int insertbefore = (nrcolparts+1)*(idx+1)-1;
-	    MeshSurfacePart* newpart = new MeshSurfacePart(*this,
-		    		idx*sidesize, nrcolparts*sidesize, sidesize );
-	    if ( insertbefore>=parts.getLength() )
-		parts.append( newpart );
-	    else 
-		parts.insert( newpart, insertbefore );
-
-	    //TODO Set neighbors
-	}
-
-	nrcolparts++;
+	parts.push( new MeshSurfacePart(*this, 0, 0, sidesize) );
+	changed = true; 
     }
 
-    while ( (nrcolparts-1)*sidesize>nrcolumns )
+    while ( parts.getLength() && parts[0]->getRowStart()>0 )
     {
-	const int nrrowparts = nrRows()/sidesize+1;
-	nrcolparts--;
-	for ( int idx=0; idx<nrrowparts; idx++ )
+	const int newrow = parts[0]->getRowStart()-sidesize;
+	parts.insert( new MeshSurfacePart(*this, newrow,
+			     parts[0]->getColStart(), sidesize), currentpart++);
+	changed = true; 
+	while ( parts[0]->getColStart()>0 )
 	{
-	    const int indextoremove = (idx+1)*nrcolparts;
-	    delete parts[indextoremove];
-	    parts.remove(indextoremove);
-
-	    //TODO Set neighbors, remove from tesselation queue.
+	    parts.insert( new MeshSurfacePart(*this, newrow,
+					     parts[0]->getColStart()-sidesize,
+					     sidesize), 0 );
+	    currentpart++;
 	}
-    }
 
-    const int desnrpartrows = nrRows()/sidesize+1;
-
-    while ( parts.getLength()/nrcolparts<desnrpartrows )
-    {
-	const int newrowidx = parts.getLength()/nrcolparts;
-	for ( int idx=0; idx<nrcolparts; idx++ )
+	while ( parts[0]->getColStart()+currentpart*sidesize<nrcols )
 	{
-	    MeshSurfacePart* newpart = new MeshSurfacePart(*this,
-		    		idx*sidesize, newrowidx*sidesize, sidesize );
-	    parts.append( newpart );
-	    //TODO Set neighbors
+	    MeshSurfacePart* part = new MeshSurfacePart(*this, newrow,
+			parts[currentpart]->getColStart()+sidesize, sidesize);
+
+	    if ( currentpart>=parts.getLength() )
+	    {
+		parts.push( part );
+		currentpart++;
+	    }
+	    else
+		parts.insert( part, ++currentpart );
 	}
     }
 
-    while ( parts.getLength()/nrcolparts>desnrpartrows )
+    while ( parts.getLength() && parts[0]->getRowStart()<=-sidesize )
     {
-	for ( int idx=0; idx<nrcolparts; idx++ )
+	delete parts[0];
+	parts.remove(0);
+	changed = true; 
+    }
+
+    int currentrow = parts[currentpart]->getRowStart();
+    while ( currentrow<nrRows() )
+    {
+	if ( currentpart==parts.getLength() )
 	{
-	    delete parts[parts.getLength()-1];
-	    parts.pop();
-	    //TODO Set neighbors, remove from tesselation queue.
+	    parts.push( new MeshSurfacePart(*this, currentrow,
+			  parts[0]->getColStart(), sidesize) );
+	}
+
+	const int rowstartpart = currentpart;
+
+	while ( parts[rowstartpart]->getColStart()>0 )
+	{
+	    parts.insert( new MeshSurfacePart(*this, currentrow,
+			  parts[rowstartpart]->getColStart()-sidesize,
+				     sidesize), rowstartpart );
+	    currentpart++;
+	    changed = true; 
+	}
+
+	while ( parts.getLength()>rowstartpart &&
+		parts[rowstartpart]->getColStart()<=-sidesize )
+	{
+	    delete parts[rowstartpart];
+	    parts.remove(rowstartpart);
+	    changed = true; 
+	}
+
+	while ( parts[currentpart]->getColStart()+sidesize<nrcols )
+	{
+	    MeshSurfacePart* part = new MeshSurfacePart(*this, currentrow,
+				 parts[currentpart]->getColStart()+sidesize,
+				 sidesize);
+
+	    if ( currentpart>=parts.getLength() )
+	    {
+		parts.push( part );
+		currentpart++;
+	    }
+	    else
+		parts.insert( part,++currentpart );
+
+	    changed = true; 
+	}
+
+	while ( parts.getLength()>currentpart &&
+		parts[currentpart]->getColStart()>=nrcols )
+	{
+	    delete parts[currentpart];
+	    parts.remove(currentpart);
+	    changed = true; 
+	}
+
+	currentrow += sidesize;
+	currentpart++;
+    }
+
+    while ( parts.getLength() &&
+	    parts[parts.getLength()-1]->getRowStart()>=nrRows() )
+    {
+	delete parts[parts.getLength()-1];
+	parts.remove(parts.getLength()-1);
+	changed = true; 
+    }
+
+    if ( !changed ) return;
+    for ( int idx=0; idx<parts.getLength(); idx++ )
+    {
+	if ( idx<parts.getLength()-1 &&
+	     parts[idx]->getColStart()<parts[idx+1]->getColStart() )
+	    parts[idx]->setNeighbor( 5, parts[idx+1], true );
+	else parts[idx]->setNeighbor( 5, 0 );
+
+	for ( int idy=idx+1; idy<parts.getLength(); idy++ )
+	{
+	    if ( parts[idy]->getRowStart()==parts[idx]->getRowStart() )
+		continue;
+
+	    if ( parts[idy]->getColStart()<parts[idx]->getColStart()-sidesize )
+		continue;
+
+	    if ( parts[idy]->getColStart()==parts[idx]->getColStart()-sidesize )
+	    {
+		parts[idx]->setNeighbor( 6, parts[idy], true );
+		if ( ++idy>=parts.getLength() ) continue;
+	    }
+	    else parts[idx]->setNeighbor( 6, 0, false );
+
+	    if ( parts[idy]->getColStart()==parts[idx]->getColStart() )
+	    {
+		parts[idx]->setNeighbor( 7, parts[idy], true );
+		if ( ++idy>=parts.getLength() ) continue;
+	    }
+	    else parts[idx]->setNeighbor( 7, 0, false );
+
+	    if ( parts[idy]->getColStart()==parts[idx]->getColStart()+sidesize )
+	    {
+		parts[idx]->setNeighbor( 8, parts[idy], true );
+		if ( ++idy>=parts.getLength() ) continue;
+	    }
+	    else parts[idx]->setNeighbor( 8, 0, false );
+
+	    break;
 	}
     }
 }

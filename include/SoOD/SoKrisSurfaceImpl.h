@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoKrisSurfaceImpl.h,v 1.4 2005-03-22 07:20:37 cvskris Exp $
+ RCS:		$Id: SoKrisSurfaceImpl.h,v 1.5 2005-03-22 08:14:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -111,7 +111,8 @@ public:
     void	touch( int, int, bool undef );
     void	computeBBox(SoState*, SbBox3f&, SbVec3f&,bool useownvalidation);
     void	rayPick( SoRayPickAction*, bool useownvalidation);
-    void	GLRender(SoGLRenderAction*,bool useownvalidation);
+    void	GLRenderSurface(SoGLRenderAction*,bool useownvalidation);
+    void	GLRenderWireframe(SoGLRenderAction*,bool useownvalidation);
     void	GLRenderGlue(SoGLRenderAction*,bool useownvalidation);
 
     void	invalidateCaches();
@@ -163,7 +164,8 @@ public:
     		~MeshSurfacePartResolution();
     void	setStart( int row, int col );
     void	changeCacheIdx(const MeshSurfaceIndexChanger&);
-    void	GLRender(SoGLRenderAction*,bool overridetessel);
+    void	GLRenderSurface(SoGLRenderAction*,bool overridetessel);
+    void	GLRenderWireframe(SoGLRenderAction*,bool overridetessel);
     void	touch( int, int, bool undef );
     bool	canDisplay(bool ownvalidation) const;
     bool	needsUpdate(bool ownvalidation) const;
