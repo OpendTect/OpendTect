@@ -4,20 +4,18 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.6 2003-01-20 09:36:07 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.7 2003-08-19 14:26:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vismarker.h"
-#include "visshapescale.h"
 #include "viscube.h"
 #include "iopar.h"
 #include "vistransform.h"
 
+#include <SoMarkerScale.h>
 #include <Inventor/nodes/SoTranslation.h>
-#include <Inventor/nodes/SoRotationXYZ.h>
-#include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoSphere.h>
@@ -32,23 +30,12 @@ const char* visBase::Marker::centerposstr = "Center Pos";
 
 visBase::Marker::Marker()
     : VisualObjectImpl(true)
-    , group( new SoGroup )
-    , position( new SoTranslation )
-    , scale( new SoScale )
-    , shapescale( visBase::ShapeScale::create() )
     , markertype( Cube )
     , transformation( 0 )
+    , markerscale( new SoMarkerScale )
+    , shape( 0 )
 {
-    addChild( position );
-    addChild( group );
-    group->ref();
-    scale = new SoScale;
-    group->addChild( scale );
-    SoRotationXYZ* rot = new SoRotationXYZ;
-    rot->angle = -M_PI/2;
-    rot->axis = SoRotationXYZ::X;
-    group->addChild( rot );
-    group->addChild( shapescale->getData() );
+    addChild( markerscale );
     setType( markertype );
 
 //  Creation only used for being able to read old session files with Cubes
@@ -58,7 +45,6 @@ visBase::Marker::Marker()
 
 visBase::Marker::~Marker()
 {
-    group->unref();
     if ( transformation ) transformation->unRef();
 }
 
@@ -68,14 +54,14 @@ void visBase::Marker::setCenterPos( const Coord3& pos_ )
     Coord3 pos( pos_ );
 
     if ( transformation ) pos = transformation->transform( pos );
-    position->translation.setValue( pos.x, pos.y, pos.z );
+    markerscale->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
 Coord3 visBase::Marker::centerPos(bool displayspace) const
 {
     Coord3 res;
-    SbVec3f pos = position->translation.getValue();
+    SbVec3f pos = markerscale->translation.getValue();
 
     res.x = pos[0];
     res.y = pos[1];
@@ -90,31 +76,38 @@ Coord3 visBase::Marker::centerPos(bool displayspace) const
 
 void visBase::Marker::setType( Type type )
 {
+    if ( shape ) removeChild(shape);
     switch ( type )
     {
     case Cube: {
-	shapescale->setShape( new SoCube );
+	shape = new SoCube;
 	} break;
-    case Cone: {
-	shapescale->setShape( new SoCone );
-	} break;
-    case Cylinder: {
-	shapescale->setShape( new SoCylinder );
-	} break;
-    case Sphere: {
-	shapescale->setShape( new SoSphere );
-	} break;
-    case Cross: {
-	SoText3* xshape = new SoText3;
-	xshape->string.setValue( "x" );
-	shapescale->setShape( xshape );
-	} break;
-    case Star: {
-	SoText3* oshape = new SoText3;
-	oshape->string.setValue( "*" );
-	shapescale->setShape( oshape );
-	} break;
+    case Cone:
+	shape = new SoCone;
+	break;
+    case Cylinder:
+	shape = new SoCylinder;
+	break;
+    case Sphere:
+	shape = new SoSphere;
+	break;
+    case Cross:
+	{
+	    SoText3* xshape = new SoText3;
+	    xshape->string.setValue( "x" );
+	    shape = xshape;
+	}
+	break;
+    case Star:
+	{
+	    SoText3* oshape = new SoText3;
+	    oshape->string.setValue( "*" );
+	    shape = oshape;
+	}
+	break;
     }
+
+    addChild( shape );
 
     markertype = type;
 }
@@ -122,19 +115,19 @@ void visBase::Marker::setType( Type type )
 
 void visBase::Marker::setSize( const float r )
 {
-    shapescale->setSize( r );
+    markerscale->screenSize.setValue(r);
 }
 
 
 float visBase::Marker::getSize() const
 {
-    return shapescale->getSize();
+    return markerscale->screenSize.getValue();
 }
 
 
 void visBase::Marker::setScale( const Coord3& pos )
 {
-    scale->scaleFactor.setValue( pos.x, pos.y, pos.z );
+    markerscale->scaleFactor.setValue( pos.x, pos.y, pos.z );
 }
 
 
