@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.9 2003-02-07 16:11:37 bert Exp $
+ RCS:           $Id: uibutton.h,v 1.10 2003-04-03 15:16:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
 				uiRadioButton(uiParent*,const char*);
 
     bool			isChecked() const;
-    virtual void		setChecked( bool check );
+    virtual void		setChecked( bool yn=true );
 
 private:
 
@@ -82,7 +82,7 @@ public:
 				uiCheckBox(uiParent*,const char* nm);
 
     bool			isChecked () const;
-    void			setChecked ( bool check ) ;
+    void			setChecked ( bool yn=true ) ;
 
     virtual void		setText(const char*);
 

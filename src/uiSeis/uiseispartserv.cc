@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.8 2002-07-24 17:08:12 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.9 2003-04-03 15:16:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,14 +36,14 @@ bool uiSeisPartServer::isAvailable( uiSeisPartServer::ExternalType t ) const
 
 bool uiSeisPartServer::ioSeis( uiSeisPartServer::ExternalType t, bool forread )
 {
-#ifndef sun5
-    if ( t != uiSeisPartServer::SegY && t != uiSeisPartServer::CBVS
-      && !uiMSG().askGoOn( "Sorry, workstation connection not available on "
-			    "this platform.\nPlease import from a "
-			    "Solaris workstation or use SEG-Y.\n\n"
+    if ( t != uiSeisPartServer::SegY && t != uiSeisPartServer::CBVS &&
+	 !IdealConn::haveIdealServices() &&
+	 !uiMSG().askGoOn( "Sorry, workstation connection not available. "
+			    "\nPlease setup remote workstation access trough a"
+			    "Solaris workstation, use a Solaris workstation "
+			    "directly, or use SEG-Y.\n\n"
 			    "Do you wish to see the dialog anyway?" ) )
 	return false;
-#endif
 
     PtrMan<uiDialog> dlg = t == uiSeisPartServer::SegY
       ?	(uiDialog*)new uiSeisSegYImpExp( appserv().parent(), forread, segyid )

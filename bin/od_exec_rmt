@@ -2,10 +2,12 @@
 #_______________________________________________________________________________
 #
 # (C) 1999,2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec_rmt,v 1.6 2003-02-06 16:22:13 arend Exp $
+# $Id: od_exec_rmt,v 1.7 2003-04-03 15:16:24 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
+
+echo "$*" > /tmp/xx
 
 if ( ! $?dGB_APPL ) then
 	echo "Error : dGB program not initialized."
@@ -13,16 +15,37 @@ if ( ! $?dGB_APPL ) then
 endif
 
 if ( $#argv < 1 ) then
-	echo "Usage: $0 remote_host [--rexec remote_shell_command] ..."
+    echo "Usage: $0 remote_host [--rexec remote_shell_command]"
+    echo "       [--transfervars <list of environment vars to transfer> -+-+-"
 endif
 
-set rh=$1
+set remotehost=$1
 shift
 
 set rshcomm=rsh
+set transfvars=""
+set remoteuser=""
+
+next_arg:
+
 if ( "$1" == "--rexec" ) then
 	set rshcomm=$2
 	shift ; shift
+	goto next_arg
+else if ( $1 == "--remoteuser" ) then
+        set remoteuser=" -l $2"
+        shift; shift
+        goto next_arg
+else if ( "$1" == "--transfervars" ) then
+    next_var:
+	shift
+	if ( "$1" == "-+-+-" ) then
+	    shift
+	    goto next_arg
+	endif
+
+	set transfvars="$transfvars $1"
+	goto next_var
 endif
 
 set transf="setenv dGB_DATA $dGB_DATA +-+ setenv dGB_APPL $dGB_APPL"
@@ -49,15 +72,17 @@ if ( $?DISPLAY ) then
 	set transf="${transf} +-+ setenv DISPLAY $DISPLAY"
 endif
 
-if ( $?dGB_TRANSFER_VARS ) then
-    foreach var ( $dGB_TRANSFER_VARS )
-	set dollarvar=`echo "$ ${var}" | sed "s/ //"`
-	set varvalue=`eval "echo $dollarvar"`
+foreach var ( $transfvars )
+    set dollarvar=`echo "$ ${var}" | sed "s/ //"`
+    set varvalue=`eval "echo $dollarvar"`
+    if ( $varvalue != "" ) then
 	set transf="${transf} +-+ setenv $var $varvalue"
-    end
-endif
+    endif
+end
 
 set transf="$transf +-+-+ $*"
 
-${rshcomm} ${rh} ${dGB_APPL}/bin/dgb_do_rmt $transf
+echo ${rshcomm} ${remotehost} ${dGB_APPL}/bin/dgb_do_rmt $transf >> /tmp/xx
+
+${rshcomm} ${remoteuser} ${remotehost} ${dGB_APPL}/bin/dgb_do_rmt $transf
 exit 0

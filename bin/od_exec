@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.10 2003-02-19 12:04:35 arend Exp $
+# $Id: od_exec,v 1.11 2003-04-03 15:16:24 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -34,6 +34,7 @@ set bindir="$dGB_APPL/bin/$binsubdir"
 set niceness=0
 set extrascript=""
 set xtermcmd=""
+set extraargs=""
 
 next_arg:
 
@@ -69,6 +70,7 @@ else if ( $1 == --prescript ) then
 else if ( $1 == --inxterm ) then
 
 	set xtermcmd="xterm -bg blue -fg black -e"
+	set extraargs="$extraargs --inxterm"
 	shift
 
 	goto next_arg
@@ -99,9 +101,9 @@ endif
 
 
 if ( $niceness == 0 ) then
-	$xtermcmd $bindir/$*
+	$xtermcmd $bindir/$* $extraargs
 else
-	$xtermcmd $nicecmd $bindir/$*
+	$xtermcmd $nicecmd $bindir/$* $extraargs
 endif
 
 exit $status

@@ -2,14 +2,24 @@ dGB-dTect V1.4
 Remote Workstation Access Definitions
 Wed Feb 19 13:30:27 2003
 !
-PreferredMethod: Socket
-Available.1: SeisWorks
-Host.1: dgb14
-Platform.1: Solaris 2.6
-Script.1: /users/appman/bin/set_sw_env.csh
-TransferVariables.1: OW_PMPATH SELECTED_SURVEY
-Remote Shell Command.1: ssh
-Available.2: GeoFrame
-Platform.2: Solaris 2.8
-Host.2: dgb26
-Script.2: /users/appman/bin/set_gf_env.csh
+Workstation Access Par
+Number of Hosts: 2
+
+Host.0.Name: dgb26
+Host.0.Platform: Solaris 2.8
+Host.0.Available Databases: GeoFrame
+Host.0.Prefer direct Connection: Yes
+Host.0.TransferVariables: dGB_PRINT_SOCKETIO YOUR_VAR MOTHERS_MAIDEN_NAME
+Host.0.Script: /users/appman/bin/set_geoframe_env.csh
+Host.0.Remote Shell Command: rsh
+Host.0.Remote User Name: gf
+
+Host.1.Name: dgb14
+Host.1.Platform: Solaris 2.6
+Host.1.Available Databases: SeisWorks
+Host.1.Prefer direct Connection: No
+Host.1.Script: /users/appman/bin/set_sw_env.csh
+Host.1.TransferVariables: OW_PMPATH SELECTED_SURVEY
+Host.1.Remote Shell Command: ssh
+
+!
