@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.26 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.27 2004-03-31 11:13:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     bool		selectStickSet(MultiID&);
     bool		createStickSet(MultiID&);
 
-    void		manageSurfaces();
+    void		manageSurfaces(bool hor=true);
     bool		loadSurface(const MultiID&,
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);

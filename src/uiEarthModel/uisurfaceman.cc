@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.12 2004-01-22 16:08:38 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.13 2004-03-31 11:14:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,16 +26,17 @@ ________________________________________________________________________
 #include "binidselimpl.h"
 #include "emmanager.h"
 #include "emhorizontransl.h"
+#include "emfaulttransl.h"
 #include "emsurfaceiodata.h"
 #include "emsurfauxdataio.h"
 #include "uimsg.h"
 
 
-uiSurfaceMan::uiSurfaceMan( uiParent* p )
+uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
         : uiDialog(p,uiDialog::Setup("Surface file management",
                                      "Manage surfaces",
                                      "104.2.0").nrstatusflds(1))
-	, ctio(*mMkCtxtIOObj(EMHorizon))
+	, ctio(hor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault) )
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.4 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.5 2004-03-31 11:13:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class BufferStringSet;
 class uiSurfaceMan : public uiDialog
 {
 public:
-			uiSurfaceMan(uiParent*);
+			uiSurfaceMan(uiParent*,bool);
 			~uiSurfaceMan();
 
 protected:

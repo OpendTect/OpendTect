@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.42 2004-02-02 10:50:12 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.43 2004-03-31 11:14:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,9 +65,9 @@ uiEMPartServer::~uiEMPartServer()
 }
 
 
-void uiEMPartServer::manageSurfaces()
+void uiEMPartServer::manageSurfaces( bool hor )
 {
-    uiSurfaceMan dlg( appserv().parent() );
+    uiSurfaceMan dlg( appserv().parent(), hor );
     dlg.go();
 }
 
