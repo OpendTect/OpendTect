@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.15 2004-09-28 08:47:17 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.16 2004-10-05 15:44:43 nanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -1143,7 +1143,7 @@ bool EdgeLine::reTrackLine()
 		    nextseg =  getSegment(idu);
 	    }
 
-	    if ( nextseg->reTrackOrderIndex()<index ) nextseg = 0;
+	    if ( nextseg && nextseg->reTrackOrderIndex()<index ) nextseg = 0;
 
 	    segment->reTrack( prevseg, nextseg );
 	    cutLineBy( segment->first(), segment->last(), segment );
