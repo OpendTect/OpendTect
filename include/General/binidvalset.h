@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.3 2004-07-22 16:14:07 bert Exp $
+ RCS:		$Id: binidvalset.h,v 1.4 2005-01-17 16:34:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,7 @@ public:
     Interval<float>	valRange(int) const;
 
     void		remove(const Pos&);
+    void		removeVal(int); // Will remove entire 'column'
     void		setNrVals(int,bool kp_data=true);
     void		sortDuplicateBids(int value_nr,bool ascending=true);
     void		removeDuplicateBids();
