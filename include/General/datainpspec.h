@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.20 2001-06-07 21:50:38 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.21 2001-07-04 11:06:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,8 @@ class NumInpSpec : public NumInpWithLimitsSpec<T>
 {
 public:
 			NumInpSpec(DataInpSpec::Type t ) 
-			    : NumInpWithLimitsSpec<T>( t )	{}
+			    : NumInpWithLimitsSpec<T>( t )	
+			    { value_=undef.value(); }
 			NumInpSpec(DataInpSpec::Type t, T val ) 
 			    : NumInpWithLimitsSpec<T>( t )
 			    , value_( val )			{}
@@ -180,6 +181,8 @@ public:
 protected:
 
     T			value_;
+
+
 }; 
 
 
@@ -188,7 +191,7 @@ class  clssNm : public NumInpSpec<type>\
 {\
 public:\
 				clssNm() \
-				    : NumInpSpec<type>( type##Tp ) {}\
+				    : NumInpSpec<type>( type##Tp ) {} \
 				clssNm( type var ) \
 				    : NumInpSpec<type>( type##Tp, var )	{} \
 				clssNm( const clssNm& o ) \
