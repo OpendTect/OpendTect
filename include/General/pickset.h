@@ -7,8 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		May 2001
- Contents:	Common Binary Volume Storage format header
- RCS:		$Id: pickset.h,v 1.8 2002-03-26 10:01:25 bert Exp $
+ Contents:	PickSet base classes
+ RCS:		$Id: pickset.h,v 1.9 2003-07-24 11:54:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ public:
 		: pos(x,y), z(f)			{}
 		PickLocation( const Coord& c, float f=0 )
 		: pos(c), z(f)				{}
+		PickLocation( const Coord3& c )
+		: pos(c.x,c.y), z(c.z)			{}
 
     inline bool	operator ==( const PickLocation& pl ) const
 		{ return pos == pl.pos && mIS_ZERO(z-pl.z); }
