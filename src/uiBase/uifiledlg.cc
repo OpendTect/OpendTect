@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.10 2002-10-08 08:20:45 arend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.11 2002-10-08 08:36:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 	, fname_( fname )
 	, filter_( filter )
 	, caption_( caption )
+	, oktxt_( "Select" )
 {
     if( !caption || !*caption )
 	caption_ = forread ? "Open" : "Save As";
@@ -72,6 +73,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 	, fname_( fname )
 	, filter_( filter )
 	, caption_( caption )
+	, oktxt_( "Select" )
 {}
 
 
@@ -89,13 +91,13 @@ int uiFileDialog::go()
 
     dgbQFileDialog* fd = new dgbQFileDialog( 0, name(), TRUE );
 
-    fd->setMode( qmodeForUiMode(mode_) );// QFileDialog::ExistingFile );
+    fd->setMode( qmodeForUiMode(mode_) );
     fd->setFilters( QString(filter_) );
     fd->setCaption( QString(caption_) );
     fd->setDir( QString(fname_) );
 
-    if( oktxt_ != "" ) fd->okB->setText( (const char*)oktxt_ );
-    if( cnclxt_ != "") fd->cancelB->setText( (const char*)cnclxt_ );
+    if ( oktxt_ != "" ) fd->okB->setText( (const char*)oktxt_ );
+    if ( cnclxt_ != "") fd->cancelB->setText( (const char*)cnclxt_ );
 
     if ( fd->exec() == QDialog::Accepted )
         filnm = fd->selectedFile();
