@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.22 2002-04-29 09:27:44 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.23 2002-04-29 09:30:58 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -19,8 +19,8 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.22 2002-04-29 09:27:44
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
 
 visSurvey::PickSetDisplay::PickSetDisplay( )
-    : group( visBase::SceneObjectGroup::create(true) )
-    , eventcatcher( visBase::EventCatcher::create(visBase::MouseClick) )
+    : group( visBase::SceneObjectGroup::create() )
+    , eventcatcher( visBase::EventCatcher::create() )
     , xsz( 50 )
     , ysz( 50 )
     , zsz( 50 )
@@ -28,6 +28,7 @@ visSurvey::PickSetDisplay::PickSetDisplay( )
     , VisualObjectImpl( true )
 {
     eventcatcher->ref();
+    eventcatcher->setEventType(visBase::MouseClick);
     addChild( eventcatcher->getData() );
 
     eventcatcher->eventhappened.notify(

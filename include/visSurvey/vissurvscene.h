@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.15 2002-04-22 14:41:18 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.16 2002-04-29 09:28:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,16 +47,9 @@ public:
     void			addXYTObject( SceneObject* );
     void			addInlCrlTObject( SceneObject* );
 
-    float			apparentVel() const;
-    void			setApparentVel( float );
-
     void			showAnnotText( bool yn );
     bool			isAnnotTextShown() const;
 
-    Geometry::Pos		getRealCoord( Geometry::Pos display) const;
-    Geometry::Pos		getDisplayCoord( Geometry::Pos real ) const;
-
-    Notifier<Scene>		appvelchange;
     Notifier<Scene>		mouseposchange;
     Geometry::Pos		getMousePos( bool xyt ) const;
     				/*! If ont xyt it is inlcrlt */
@@ -66,19 +59,13 @@ protected:
     				~Scene();
     void			mouseMoveCB( CallBacker* = 0 );
 
-    visBase::Transformation*	timetransformation;
-    visBase::Transformation*	inlcrltransformation;
-    visBase::Annotation*	annot;
-    visBase::EventCatcher*	eventcatcher;
+    const visBase::Transformation*	timetransformation;
+    const visBase::Transformation*	inlcrltransformation;
+    visBase::Annotation*		annot;
+    visBase::EventCatcher*		eventcatcher;
 
     Geometry::Pos		xytmousepos;
     float			mouseposval;
-
-private:
-    float			appvel;
-    float			xoffset;
-    float			yoffset;
-
 };
 
 };

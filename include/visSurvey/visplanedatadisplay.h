@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.5 2002-04-23 11:53:53 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.6 2002-04-29 09:28:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 
 #include "visobject.h"
-#include "callback.h"
+#include "vissurvobj.h"
 
 class AttribSelSpec;
 class CubeSampling;
@@ -33,18 +33,20 @@ class Scene;
     PlaneDataDisplay is a TextureRect that displays seismics or attributes.
 */
 
-class PlaneDataDisplay :  public visBase::VisualObject
+class PlaneDataDisplay :  public visBase::VisualObject,
+			  public visSurvey::SurveyObject
 {
 public:
 
     enum Type			{ Inline, Crossline, Timeslice };
 
-    static PlaneDataDisplay*	create( Type type, visSurvey::Scene& scene_,
-	    				const CallBack newdatacb )
-				mCreateDataObj3arg( PlaneDataDisplay,
-						Type, type,
-						visSurvey::Scene&, scene_,
-						const CallBack, newdatacb );
+    static PlaneDataDisplay*	create()
+				mCreateDataObj0arg(PlaneDataDisplay);
+
+    void			setNewDataCallBack( const CallBack );
+
+    void			setType(Type type);
+    Type			getType() const { return type; }
 
     void			setOrigo( const Geometry::Pos& );
     void			setWidth( const Geometry::Pos& );
@@ -56,7 +58,6 @@ public:
     void			showDraggers(bool yn);
     void			resetManip();
 
-    Type			getType() const { return type; }
     bool			getNewTextureData();
     CubeSampling&		getCubeSampling(bool manippos=true);
     AttribSelSpec&		getAttribSelSpec();
@@ -85,7 +86,8 @@ protected:
     void			select();
     void			deSelect();
 
-    void			updateDraggerCB( CallBacker* = 0);
+    void			setAppVel( float nv ) 
+				{ resetDraggerSizes( nv ); }
 
     visBase::TextureRect*	trect;
 
@@ -96,8 +98,6 @@ protected:
 
     bool			selected_;
     bool			succeeded_;
-
-    visSurvey::Scene&		scene;
 };
 
 };
