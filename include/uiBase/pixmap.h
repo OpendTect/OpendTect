@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.2 2001-05-30 11:49:53 arend Exp $
+ RCS:           $Id: pixmap.h,v 1.3 2001-08-07 06:11:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,10 @@ public:
 
     QPixmap* 		Pixmap()		{ return qpixmap; }
     const QPixmap*  	Pixmap() const		{ return qpixmap; }
+
+    int			width();
+    int         	height();
+
     
 protected:
     

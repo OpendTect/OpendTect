@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.3 2001-06-02 14:32:52 windev Exp $
+ RCS:           $Id: pixmap.cc,v 1.4 2001-08-07 06:10:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,3 +62,14 @@ bool ioPixmap::convertFromArrayRGB( const ArrayRGB & theImage )
 QPaintDevice*  ioPixmap::mQPaintDevice()
     { return qpixmap; }
 
+
+int ioPixmap::width()
+{
+    { return qpixmap->width(); }
+}
+
+
+int ioPixmap::height()
+{
+    { return qpixmap->height(); }
+}
