@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.25 2004-12-10 16:57:41 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.26 2005-03-10 17:48:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,10 @@ public:
     Seis2DLinePutter*	linePutter(IOPar*);
     				//!< May return null.
     				//!< will return replacer if linekey exists
+    bool		addLineKeys(Seis2DLineSet&,const char* attrnm,
+				    const char* lnm=0);
+    				//!< if lnm == null, add attrib to all lines
+    				//!< will commit to file
 
     bool		rename(const char* lk,const char* newlk);
     				//!< Fails if new line key exists

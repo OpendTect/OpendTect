@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.37 2004-12-12 22:36:44 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.38 2005-03-10 17:48:17 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -388,6 +388,65 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 
     // Phew! Made it.
     return res;
+}
+
+
+bool Seis2DLineSet::addLineKeys( Seis2DLineSet& ls, const char* attrnm,
+				 const char* lnm )
+{
+    if ( !ls.liop_ )
+    {
+	ErrMsg("No suitable 2D line creation object found");
+	return 0;
+    }
+
+    // Critical concurrency section using file lock
+    readFile( true );
+    if ( pars_.size() < 1 )
+	{ removeLock(); return true; }
+
+    BufferStringSet lnms;
+    for ( int ipar=0; ipar<pars_.size(); ipar++ )
+	lnms.addIfNew( pars_[ipar]->name() );
+
+    ObjectSet<LineKey> lkstoadd;
+    for ( int idx=0; idx<lnms.size(); idx++ )
+    {
+	const BufferString curlnm( lnms.get(idx) );
+	if ( !lnm || !*lnm || curlnm == lnm )
+	{
+	    LineKey* newlk = new LineKey( curlnm, attrnm );
+	    if ( ls.indexOf( *newlk ) < 0 )
+		lkstoadd += newlk;
+	    else
+		delete newlk;
+	}
+    }
+
+    if ( lkstoadd.size() == 0 )
+	{ removeLock(); return true; }
+
+    if ( &ls != this )
+    {
+	removeLock();
+	ls.readFile( true );
+    }
+
+    IOPar iop( *pars_[0] ); iop.setName( ls.name() );
+    iop.removeWithKey( sKey::FileName );
+    for ( int idx=0; idx<lkstoadd.size(); idx++ )
+    {
+	IOPar* newiop = new IOPar( iop );
+	lkstoadd[idx]->fillPar( *newiop, true );
+	const IOPar* previop = ls.pars_.size() ? ls.pars_[ls.pars_.size()-1]
+	    					: 0;
+	ls.pars_ += newiop;
+	delete ls.liop_->getAdder( *newiop, previop, ls.name() );
+    }
+
+    ls.writeFile();
+    // End critical section - lock released
+    return true;
 }
 
 

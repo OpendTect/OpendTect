@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.11 2005-03-08 15:42:16 cvsdgb Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.12 2005-03-10 17:48:17 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -113,33 +113,23 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	    }
 	}
 
-	if ( getenv("OD_FILE_ATTR_CACHING") )
+	// Because we may be going drastically concurrent, we'd better
+	// ensure we have the line set ready.
+	// Helps against NFS attribute caching
+	lskey = iopar_.find( "Output.1.Seismic ID" );
+	Seis2DLineSet* outls = &ls;
+	if ( lskey )
 	{
-	    UsrMsg( "- Ensuring all lines are added to output line set because "
-		    "of file attribute caching.\n- This can take a while ..." );
-	    lskey = iopar_.find( "Output.1.Seismic ID" );
-	    Seis2DLineSet* outls = &ls;
-	    if ( lskey )
+	    IOObj* outioobj = IOM().get( lskey );
+	    if ( outioobj && outioobj->key() != ioobj->key() )
 	    {
-		IOObj* outioobj = IOM().get( lskey );
-		if ( outioobj && outioobj->key() != ioobj->key() )
-		{
-		    outls = new Seis2DLineSet( outioobj->fullUserExpr(true) );
-		    delete outioobj;
-		}
+		outls = new Seis2DLineSet( outioobj->fullUserExpr(true) );
+		delete outioobj;
 	    }
-	    for ( int idx=0; idx<nms.size(); idx++ )
-	    {
-		LineKey lk( nms.get(idx), attrnm );
-		if ( outls->indexOf(lk.buf()) >= 0 ) continue;
-
-		IOPar* iop = new IOPar; lk.fillPar( *iop, true );
-		Seis2DLinePutter* lp = outls->linePutter( iop );
-		delete lp;
-	    }
-	    if ( outls != &ls )
-		delete outls;
 	}
+	ls.addLineKeys( *outls, attrnm );
+	if ( outls != &ls )
+	    delete outls;
     }
     delete ioobj;
 
