@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.34 2002-05-22 06:17:42 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.35 2002-05-22 09:03:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class UserIDSet;
 class PickSet;
 class PickSetGroup;
 class Color;
+class LineStyle;
 class ColorTable;
 class CallBack;
 class CubeSampling;
@@ -141,6 +142,8 @@ public:
     const char*		getWellAttribName(int, int idx) const;
     void		displayWellAttrib(int, int idx);
     int			displayedWellAttrib(int) const;
+    const LineStyle*	wellLineStyle(int) const;
+    void		setWellLineStyle(int, const LineStyle& );
 
 			//ColorSeqs
     bool		canSetColorSeq(int) const;
