@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.24 2001-07-04 12:36:16 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.25 2001-07-04 13:30:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,9 +221,16 @@ template <class T>
 class NumInpIntervalSpec : public NumInpWithLimitsSpec<T>
 {
 public:
-			NumInpIntervalSpec(DataInpSpec::Type t )
+			NumInpIntervalSpec(DataInpSpec::Type t, bool withstep )
 			    : NumInpWithLimitsSpec<T>( t )
-			    , interval_( 0 )			{}
+			    , interval_( withstep ?  new StepInterval<T>( 
+							undef.value(), 
+							undef.value(), 
+							undef.value() ) 
+						  : new Interval<T>(
+							undef.value(), 
+							undef.value() ) )
+			    {}
 
 			NumInpIntervalSpec(DataInpSpec::Type t,
 			    const Interval<T>& interval ) 
@@ -232,7 +239,8 @@ public:
 
 			NumInpIntervalSpec( const NumInpIntervalSpec<T>& o )
 			    : NumInpWithLimitsSpec<T>( o )
-			    , interval_( o.interval_->clone() )	{}
+			    , interval_( o.interval_ ? o.interval_->clone() : 0)
+			    {}
 
 			~NumInpIntervalSpec()	{ delete interval_; }
 
@@ -306,8 +314,8 @@ private:
 class  clssNm : public NumInpIntervalSpec<type> \
 { \
 public: \
-		    clssNm() \
-		    : NumInpIntervalSpec<type>( type##IntervalTp )\
+		    clssNm( bool withstep=false) \
+		    : NumInpIntervalSpec<type>( type##IntervalTp, withstep )\
 		    {} \
 		    clssNm( const Interval<type>& var ) \
 		    : NumInpIntervalSpec<type>( type##IntervalTp,var )\
