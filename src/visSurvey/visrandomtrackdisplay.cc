@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.39 2004-07-16 15:35:26 bert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.40 2004-07-27 11:43:16 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -309,20 +309,28 @@ void RandomTrackDisplay::setData( const SeisTrcBuf& trcbuf, int datatype )
     const int nrsections = bidsset.size();
     for ( int snr=0; snr<nrsections; snr++ )
     {
-	TypeSet<BinID> binidset = *(bidsset[snr]);
+	TypeSet<BinID>& binidset = *(bidsset[snr]);
 	const int nrbids = binidset.size();
+	float val;
 	PtrMan<Array2DImpl<float> > arr = new Array2DImpl<float>(nrsamp,nrbids);
 	for ( int bidnr=0; bidnr<nrbids; bidnr++ )
 	{
 	    BinID curbid = binidset[bidnr];
 	    int trcidx = trcbuf.find( curbid );
-	    if ( trcidx < 0 ) continue;
+	    if ( trcidx < 0 )
+	    {
+		for ( int ids=0; ids<nrsamp; ids++ )
+		    arr->set( ids, bidnr, mUndefValue );
+		continue;
+	    }
 
 	    const SeisTrc* trc = trcbuf.get( trcidx );
 	    float ctime = zrg.start;
 	    for ( int ids=0; ids<nrsamp; ids++ )
 	    {
-		arr->set( ids, bidnr, trc->getValue(ctime,0) );
+		val = trc && trc->dataPresent(ctime,0) ? trc->getValue(ctime,0)
+						       : mUndefValue;
+		arr->set( ids, bidnr, val );
 		ctime += step;
 	    }
 	}
