@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.9 2003-08-01 14:15:00 bert Exp $
+ RCS:		$Id: emposid.h,v 1.10 2003-08-25 06:46:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ namespace EM
 
 typedef MultiID ObjectID;
 typedef short PatchID;
-typedef long SubID;
+typedef long long SubID;
 
 
 /*!\brief
