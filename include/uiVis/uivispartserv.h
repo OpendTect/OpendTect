@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.73 2003-01-21 16:09:20 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.74 2003-01-22 08:56:29 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,9 +67,6 @@ public:
     void			getAllPickSets(UserIDSet&);
     void			getPickSetData( int id, PickSet& pickset )const;
 
-    void			getVolumePlaneIds(int,int&,int&,int&);
-    float			getVolumePlanePos(int,int) const;
-
     MultiID			getMultiID( int id ) const;
 	
     int				getSelObjectId() const;
@@ -80,7 +77,6 @@ public:
     bool			handleSubMenuSel( int mnu, int scene, int id);
 
     				//Events and their functions
-    static const int		evAddItem;
     static const int		evUpdateTree;
     void			getChildIds( int id, TypeSet<int>& ) const;
 				/*!< Gets a scenes' children or a volumes' parts
@@ -88,7 +84,10 @@ public:
 				     scenes */
     BufferString		getTreeInfo(int id) const;
     BufferString		getAttribName(int id) const;
-    bool			isInlCrlTsl(int,int) const;
+    bool			isInlCrlTsl(int,int dim) const;
+    				/*!< dim==0 : inline
+				     dim==1 : crossline
+				     dim==2 : tslc */
     bool			isVolView(int) const;
     bool			isRandomLine(int) const;
     bool			isHorizon(int) const;

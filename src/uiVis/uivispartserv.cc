@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.113 2003-01-21 16:09:34 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.114 2003-01-22 08:56:42 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,6 @@ const int uiVisPartServer::evMouseMove = 5;
 const int uiVisPartServer::evGetRandomTracePosData = 6;
 const int uiVisPartServer::evInteraction = 7;
 const int uiVisPartServer::evSelectAttrib = 8;
-const int uiVisPartServer::evAddItem = 9;
 
 const char* uiVisPartServer::appvelstr = "AppVel";
 const char* uiVisPartServer::workareastr = "Work Area";
@@ -491,7 +490,7 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	return duplicateObject( id, sceneid );
 	
     if ( mnu==mSelAttrib )
-	 return selectAttrib(id);
+	 return calculateAttrib(id);	//Will both select and calculate
 
     if ( mnu==mPosition )
 	return setPosition( id );
@@ -606,7 +605,7 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	if ( !sceneobj ) 
 	    pErrMsg( "oops" );
 	scenes[sceneidx]->addObject( sceneobj );
-	//TODO Force a rebuild of the tree
+	sendEvent( evUpdateTree );
 	return true;
     }
 
@@ -646,6 +645,16 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
     }
 
     //TODO Add voldisplay stuff if needed
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd )
+    {
+	int inl, crl, tsl;
+	vd->getPlaneIds( inl, crl, tsl );
+	childids += inl;
+	childids += crl;
+	childids += tsl;
+    }
 }
 
 
@@ -837,23 +846,6 @@ void uiVisPartServer::setRandomTrackData( int id, ObjectSet<SeisTrc>& data )
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
     if ( rtd ) rtd->putNewData( data );
-}
-
-
-void uiVisPartServer::getVolumePlaneIds( int id, int& inl, int& crl, int& tsl )
-{
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd ) vd->getPlaneIds( inl, crl, tsl );
-}
-
-
-float uiVisPartServer::getVolumePlanePos( int volid, int sliceid ) const
-{
-    visBase::DataObject* dobj = visBase::DM().getObj( volid );
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd ) return vd->getPlanePos( sliceid );
-    else return 0;
 }
 
 
@@ -1531,7 +1523,7 @@ bool uiVisPartServer::duplicateObject( int id, int sceneid )
     }
 
     eventobjid = newid;
-    sendEvent( evAddItem );
+    sendEvent( evUpdateTree );
     return true;
 }
 
@@ -1598,8 +1590,6 @@ void uiVisPartServer::setUpConnections( int id )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
     if ( pdd )
     {
-        //pdd->getMovementNotification()->notify(
-				//mCB(this,uiVisPartServer,getDataCB) );
 	pdd->moving.notify( mCB(this,uiVisPartServer,interactionCB) );
     }
 

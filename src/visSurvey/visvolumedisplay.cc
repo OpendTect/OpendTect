@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.17 2003-01-16 15:32:22 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.18 2003-01-22 08:56:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,10 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     initSlice( crlid );
     tslid = cube->addSlice( 2 );
     initSlice( tslid );
+
+    visBase::DM().getObj( inlid )->setName("Inline");
+    visBase::DM().getObj( crlid )->setName("Crossline");
+    visBase::DM().getObj( tslid )->setName("Timeslice");
 }
 
 
@@ -432,8 +436,13 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
 
     inlid = cube->addSlice( 0 );
+    visBase::DM().getObj( inlid )->setName("Inline");
+
     crlid = cube->addSlice( 1 );
+    visBase::DM().getObj( crlid )->setName("Crossline");
+
     tslid = cube->addSlice( 2 );
+    visBase::DM().getObj( tslid )->setName("Timeslice");
 
     if ( !as.usePar( par )) return -1;
 
