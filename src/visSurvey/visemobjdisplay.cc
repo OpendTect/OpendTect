@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.3 2005-01-10 10:57:01 kristofer Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.4 2005-01-17 08:03:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.3 2005-01-10 10:57:01 kristofer Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.4 2005-01-17 08:03:34 kristofer Exp $";
 
 
 #include "vissurvemobj.h"
@@ -150,6 +150,10 @@ bool EMObjectDisplay::updateFromEM()
 	sectionids += sectionid;
     }
 
+    const EM::ObjectID objid = EM::EMM().multiID2ObjectID(mid);
+    if ( MPE::engine().getEditor(objid,false) )
+	enableEditing(true);
+
     return true;
 }
 
@@ -224,12 +228,22 @@ void EMObjectDisplay::setTranslation( const Coord3& nt )
 
 
 bool EMObjectDisplay::usesWireframe() const
-{ return false; }
+{
+    if ( !sections.size() )
+	return false;
+
+    mDynamicCastGet( const visBase::CubicBezierSurface*, cbs, sections[0] );
+    return cbs->usesWireframe();
+}
 
 
 void EMObjectDisplay::useWireframe( bool yn )
 {
-    pErrMsg("Not impl");
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::CubicBezierSurface*,cbs,sections[idx]);
+	if ( cbs ) cbs->useWireframe(yn);
+    }
 }
 
 
