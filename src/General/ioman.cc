@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.24 2002-05-07 16:04:18 nanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.25 2002-06-14 13:09:51 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -516,7 +516,12 @@ bool IOMan::setFileName( MultiID key, const char* fname )
     if ( !iostrm ) return false;
 
     Translator* tr = ioobj->getTranslator();
-    const char* fnm = generateFileName( tr, fname );
+    BufferString fnm = generateFileName( tr, fname );
+    if ( File_isAbsPath(fulloldname) )
+    {
+	BufferString oldpath = File_getPathOnly( fulloldname );
+	fnm = File_getFullPath( oldpath, fnm );
+    }
     iostrm->setFileName( fnm );
   
     const FileNameString fullnewname = ioobj->fullUserExpr(true); 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.4 2002-06-14 09:22:38 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.5 2002-06-14 13:09:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,13 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iodir.h"
 #include "iostrm.h"
+#include "cbvsio.h"
 #include "ctxtioobj.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uimsg.h"
 #include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "uimergeseis.h"
 #include "uifiledlg.h"
 #include "uitextedit.h"
@@ -170,20 +172,23 @@ void uiSeisFileMan::renamePush( CallBacker* )
     if ( !ioobj ) return;
     BufferString fulloldname = ioobj->fullUserExpr(true);
     int curitm = listfld->currentItem();
-    BufferString filenm = listfld->getText();
-    char* ptr = filenm.buf();
+    BufferString entrynm = listfld->getText();
+    char* ptr = entrynm.buf();
     skipLeadingBlanks( ptr );
-    FileNameDlg dlg( this, ptr );
+    uiGenInputDlg dlg( this, "Rename seismic cube", "New name",
+	    		new StringInpSpec(ptr) );
     if ( dlg.go() )
     {
-	if ( listfld->isPresent( dlg.getNewName() ) )
+	if ( listfld->isPresent( dlg.text() ) )
 	    if ( !uiMSG().askGoOn("Filename exists, overwrite?") )
 		return;
 
-	if ( IOM().setFileName( ioobj->key(), dlg.getNewName() ) )
+	MultiID key = ioobj->key();
+	if ( IOM().setFileName( key, dlg.text() ) )
 	{
+	    PtrMan<IOObj> locioobj = IOM().get( key );
+	    handleMultiFiles( fulloldname, locioobj->fullUserExpr(true) );
 	    refreshList( curitm );
-	    handleMultiFiles( fulloldname, ioobj->fullUserExpr(true) );
 	}
     }
 }
@@ -191,37 +196,68 @@ void uiSeisFileMan::renamePush( CallBacker* )
 
 void uiSeisFileMan::relocatePush( CallBacker* )
 {
-    if ( !ioobj) return;
-    int curitm = listfld->currentItem();
+    if ( !ioobj ) return;
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
+
     const FileNameString fulloldname = ioobj->fullUserExpr(true);
-    const char* dirpath = File_getPathOnly( fulloldname );
-    BufferString fname = File_getFileName( fulloldname );
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirpath );
-    if ( dlg.go() )
+    if ( !File_exists(fulloldname) )
     {
-	mDynamicCastGet(IOStream*,iostrm,ioobj)
-	if ( !iostrm ) return;
-        BufferString newdirpath = dlg.fileName();
+	uiMSG().error( "File does not exist" );
+        return;
+    }
 
-	BufferString fullnewname = File_getFullPath(newdirpath,fname);
-	if ( File_exists(fullnewname) )
+    const char* dirpath = File_getPathOnly( fulloldname );
+    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirpath );
+    if ( !dlg.go() ) return;
+    BufferString newdirpath = dlg.fileName();
+    BufferString fname = File_getFileName( fulloldname );
+    BufferString fullnewname = File_getFullPath(newdirpath,fname);
+    if ( File_exists(fullnewname) )
+    {
+	uiMSG().error( "New name exists at given location\n"
+		       "Please select another location" );
+	return;
+    }
+
+    UsrMsg( "Moving cube ..." );
+    if ( !File_rename(fulloldname,fullnewname) )
+    {
+	uiMSG().error( "Could not move cube to new location" );
+	UsrMsg( "" );
+	return;
+    }
+
+    iostrm->setFileName( fullnewname );
+    handleMultiFiles( fulloldname, fullnewname );
+
+    int curitm = listfld->currentItem();
+    if ( IOM().dirPtr()->commitChanges( ioobj ) )
+	refreshList( curitm );
+}
+
+
+void uiSeisFileMan::handleMultiFiles( const char* fulloldname,
+					const char* fullnewname )
+{
+    for ( int inr=1; ; inr++ )
+    {
+	BufferString fnm( CBVSIOMgr::getFileName(fulloldname,inr) );
+	if ( File_isEmpty(fnm) ) break;
+
+	BufferString newfn( CBVSIOMgr::getFileName(fullnewname,inr) );
+	BufferString msg = "Moving part "; msg += inr+1; msg += " ...";
+	UsrMsg( msg );
+	if ( !File_rename(fnm,newfn) )
 	{
-	    uiMSG().error( "New name exists at given location\n"
-			   "Please select another location" );
-	    return;
-	}
-	UsrMsg( "Moving cube ..." );
-	if ( !File_rename(fulloldname,fullnewname) )
-	{
-	    uiMSG().error( "Could not move file to new location" );
+	    msg = "Move aborted: could not move part "; msg += inr+1;
+	    msg += "\nThe cube data is now partly moved.";
+	    msg += "\nPlease contact system administration to fix the problem";
+	    uiMSG().error( msg );
 	    UsrMsg( "" );
-	    return;
+	    break;
 	}
-	iostrm->setFileName( fullnewname );
-	if ( !handleMultiFiles( fulloldname, fullnewname ) ) return;
-
-	if ( IOM().dirPtr()->commitChanges( ioobj ) )
-	    refreshList( curitm );
+	UsrMsg( "" );
     }
 }
 
@@ -233,71 +269,3 @@ void uiSeisFileMan::mergePush( CallBacker* )
     dlg.go();
     refreshList( curitm );
 }
-
-   
-bool uiSeisFileMan::handleMultiFiles( const char* oldnm, const char* newnm )
-{
-    BufferString oldfname( oldnm );
-    oldfname = File_getFileName( oldfname );
-    BufferString oldpathname( oldnm );
-    oldpathname = File_getPathOnly( oldpathname );
-
-    BufferString newfname( newnm );
-    newfname = File_getFileName( newfname );
-    BufferString newpathname( newnm );
-    newpathname = File_getPathOnly( newpathname );
-
-    char* ptr1 = strrchr( oldfname.buf(), '.' );
-    BufferString ext;
-    if ( ptr1 )
-        { ext = ptr1; *ptr1 = '\0'; }
-
-    char* ptr2 = strrchr( newfname.buf(), '.' );
-    if ( ptr2 ) *ptr2 = '\0';
-
-    ObjectSet<BufferString> oldfnms;
-    oldfnms += new BufferString( oldnm );
-    ObjectSet<BufferString> newfnms;
-    newfnms += new BufferString( newnm );
-    for ( int idx=1; ; idx++ )
-    {
-	oldfname += idx < 10 ? "^0" : "^";
-	oldfname += idx;
-	if ( ptr1 ) oldfname += ext;
-	BufferString fulloldname = File_getFullPath( oldpathname, oldfname );
-	if ( !File_exists((const char*)fulloldname) )
-	    return true;
-	newfname += idx < 10 ? "^0" : "^";
-	newfname += idx;
-	if ( ptr2 ) newfname += ext;
-	BufferString fullnewname = File_getFullPath( newpathname, newfname );
-	int res = File_rename( fulloldname, fullnewname );
-	if ( !res )
-	{ 
-	    createLinks( oldfnms, newfnms ); 
-	    return false; 
-	}
-	oldfnms += new BufferString( fulloldname );
-	newfnms += new BufferString( fullnewname );
-    }
-}
-
-
-void uiSeisFileMan::createLinks( ObjectSet<BufferString>& oldnms, 
-				 ObjectSet<BufferString>& newnms )
-{
-    for ( int idx=0; idx<oldnms.size(); idx++ )
-    {
-	File_createLink( newnms[idx]->buf(), oldnms[idx]->buf() );
-    }
-}
-
-
-FileNameDlg::FileNameDlg( uiParent* p, const char* name_ )
-        : uiDialog(p,uiDialog::Setup("Seismic", "Rename object"))
-{   namefld = new uiGenInput( this, "Name", StringInpSpec(name_) ); }
-
-const char* FileNameDlg::getNewName()
-{   return namefld->text(); }
-
-

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.1 2002-05-07 16:04:18 nanne Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.2 2002-06-14 13:09:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,20 +47,10 @@ protected:
     void		relocatePush(CallBacker*);
     void		refreshList(int);
     void		mkFileInfo();
-    bool		handleMultiFiles(const char*,const char*);
-    void		createLinks(ObjectSet<BufferString>&,
-				    ObjectSet<BufferString>&);
+    void		handleMultiFiles(const char*,const char*);
+
+
 };
 
-
-class FileNameDlg : public uiDialog
-{
-public:
-			FileNameDlg(uiParent*,const char*);
-    const char*		getNewName();
-
-protected:
-    uiGenInput*		namefld;
-};
 
 #endif
