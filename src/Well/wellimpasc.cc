@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.6 2003-09-01 14:04:42 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.7 2003-09-26 15:06:32 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -276,6 +276,7 @@ const char* Well::AscImporter::getLogs( istream& strm,
     if ( lfi.lognms.size() == 0 )
 	return "No logs selected";
 
+    const int prevnrlogs = wd.logs().size();
     BoolTypeSet issel( inplfi.lognms.size(), false );
     for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
     {
@@ -321,7 +322,7 @@ const char* Well::AscImporter::getLogs( istream& strm,
 	const float z = istvd ? wd.track().getDahForTVD( dpth, prevdpth )
 	    		      : dpth;
 	for ( int idx=0; idx<vals.size(); idx++ )
-	    wd.logs().getLog(idx).addValue( z, vals[idx] );
+	    wd.logs().getLog(prevnrlogs+idx).addValue( z, vals[idx] );
     }
 
     wd.logs().updateDahIntvs();
