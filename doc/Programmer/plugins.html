@@ -1,18 +1,18 @@
+<html>
 <!--
   - CopyRight:	(C) dGB Earth Sciences
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.3 2003-10-30 11:16:25 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.4 2003-10-30 15:54:17 bert Exp $
  -->
-<html>
 
 <body bgcolor="#dddddd"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
 <center>
 <h1>OpendTect Plugins</h1>
   <a href=#intro>Intro</a>
 | <a href=#concept>Concept</a>
-| <a href=#starting>Starting</a>
+| <a href=#real>Real examples</a>
 </center>
 <br>
 <hr size=3>
@@ -22,7 +22,7 @@
 <p>
 Making your own software within OpendTect is in principle pretty easy. You <i>could</i> change the software by modifying existing classes and functions, and adding your own stuff to the libs. The advantage is total control. The problem with this approach, however, is that you have to keep the OpendTect sources in sync with new releases. Furthermore, if you cannot convince the opendtect.org people also make those changes, OpendTect users may not be happy with your work.
 </p><p>
-An easy way to overcome this is to make your own plugins. Plugins make use of all the facilities of OpendTect but are loaded at run-time and can therefore be developed in a completely independent way. If you then find things that can't be done without modifying the OpendTect environment, it should much easier to convince the opendtect.org people to take over or even implement those themselves.
+An easy way to overcome this is to make your own plugins. Plugins make use of all the facilities of OpendTect but are loaded at run-time and can therefore be developed in a completely independent way. If you then find things that can't be done without modifying the OpendTect environment, it should be much easier to convince the opendtect.org people to take over or even implement those things themselves.
 </p>
 
 <br><br>
@@ -63,9 +63,31 @@ extern "C" const char* InitHelloPlugin( int, char** )
     return 0; // All OK - no error messages
 }
 </code></pre>
-Those 6 lines make a plugin for OpendTect - unfortunately the usefulness would be pretty low.
+This is an example plugin from the plugins directory. Those 6 lines are enough to constitue a plugin for OpendTect. The Makefile to build the plugin looks like this:
+<pre><code>SRC.cc := hellopi.cc
+PLUGIN := yes
+include make.od.Defaults
+include make.Targets
+</code></pre>
+First try <code>make -n</code>. Pmake makes an awful lot of commands with a small specification. Anyway, after typing <code>make</code> the plugin should be generated. The new plugin can be loaded from within OpendTect. At that point in time, the message 'Hello world' should appear on stdout (wherever that may be on Windows).
 </p><p>
+To make this a UI - based program we'll need to use functionality from the <code>uiBase</code> module. In this case, we use the <code>uiMSG()</code> utility:
+<pre><code>#include "uimsg.h"
+extern "C" const char* InituiHelloPlugin( int*, char** )
+{
+    uiMSG().message( "Hello world" );
+    return 0; // All OK - no error messages
+}
+</code></pre>
+Again, 6 lines but now, when you load it, you'll get a popup message with an OK button.
 </p>
+In this case we actually use stuff from OpendTect libraries, so the Makefile needs to change. We need to add the line:
+<pre><code>MODDEP := uiBase
+</code></pre>
+Add this <i>before</i> the inclusions. By typing <code>make -n</code> again you'll see that Pmake added some directives for the compiler.
+</p>
+<a name=real><h2>Real examples</h2>
+<a name=coh><h3>Attributes: Coherency</h3>
 
 
 <br><hr size=3>
