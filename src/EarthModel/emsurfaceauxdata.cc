@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.3 2004-09-01 12:51:40 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.4 2004-12-22 12:10:29 nanne Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -237,6 +237,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, int fileidx )
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
+    grp->setNrDoneText( "Nr done" );
     for ( int selidx=0; selidx<nrAuxData(); selidx++ )
     {
 	if ( dataidx >= 0 && dataidx != selidx ) continue;
