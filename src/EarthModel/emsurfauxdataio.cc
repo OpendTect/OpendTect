@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.15 2003-12-16 12:59:21 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.16 2004-07-19 06:56:37 nanne Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -83,7 +83,13 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 	nrnodes += meshsurf->size();
     }
 
-    totalnr = nrnodes/chunksize+1;
+    totalnr = 100;
+    chunksize = nrnodes/totalnr+1;
+    if ( chunksize < 100 )
+    {
+	chunksize = 100;
+	totalnr = nrnodes/chunksize+1;
+    }
 }
 
 
@@ -322,7 +328,13 @@ int EM::dgbSurfDataReader::nextStep()
 		return ErrorOccurred;
 
 	    currentpatch = cp;
-	    totalnr = valsleftonpatch/chunksize+1;
+	    totalnr = 100;
+	    chunksize = valsleftonpatch/totalnr+1;
+	    if ( chunksize < 100 )
+	    {
+		chunksize = 100;
+		totalnr = valsleftonpatch/chunksize+1;
+	    }
 	}
 
 	EM::SubID subid;
