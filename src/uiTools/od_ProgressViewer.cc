@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.5 2002-09-11 14:39:08 bert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.6 2003-09-16 08:13:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,12 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistatusbar.h"
 #include "uifont.h"
-#include "prog.h"
 #include "sighndl.h"
 #include <iostream>
 #include <ctype.h>
+
+#include "prog.h"
+#include "picksetfact.h"
 
 #define mBufLen 81
 
