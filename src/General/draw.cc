@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.2 2000-08-08 18:25:39 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.3 2000-08-17 17:04:59 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -16,6 +16,7 @@ The main chunk is color table related.
 #include "fontdata.h"
 #include "separstr.h"
 #include "iopar.h"
+#include "settings.h"
 
 // First some implementations for a couple of header files ...
 
@@ -62,7 +63,7 @@ Color		Color::DgbColor		= Color( 0, 240, 0 );
 Color		Color::Wheat		= Color( 245, 222, 179 );
 Color		Color::LightGrey	= Color( 230, 230, 230 );
 
-DefineEnumNames(ColorTable,Type,0,"Color table")
+DefineEnumNames(ColorTable,Type,0,"Color table name")
 {
 	"Blue-White-Red",
 	"Grey scales",
@@ -188,10 +189,11 @@ Color ColorTable::color( float v ) const
 
     ColorVal cv( cvs[0] );
     if ( sz == 1 || mIS_ZERO(v-cv.value) ) return cv.color;
-    if ( v < cv.value ) return undefcolor;
+    bool isrev = cvs[0].value > cvs[1].value;
+    if ( (isrev && v>cv.value) || (!isrev && v<cv.value) ) return undefcolor;
 
     ColorVal cv2 = cvs[sz-1];
-    if ( v > cv2.value ) return undefcolor;
+    if ( (isrev && v<cv2.value) || (!isrev && v>cv2.value) ) return undefcolor;
 
     if ( uselist )
     {
@@ -209,7 +211,7 @@ Color ColorTable::color( float v ) const
     for ( int idx=1; idx<cvs.size(); idx++ )
     {
 	cv2 = cvs[idx];
-	if ( v <= cv2.value )
+	if ( (isrev && v >= cv2.value) || (!isrev && v <= cv2.value) )
 	{
 	    if ( mIS_ZERO(v-cv2.value) ) return cv2.color;
 
@@ -233,7 +235,7 @@ void ColorTable::scaleTo( const Interval<float>& intv )
     if ( sz < 2 ) { cvs[0].value = (intv.start+intv.stop)*.5; return; }
 
     const float oldwidth = cvs[sz-1].value - cvs[0].value;
-    const float newwidth = intv.width();
+    const float newwidth = intv.stop - intv.start;
     const float oldstart = cvs[0].value;
     cvs[0].value = intv.start;
     cvs[sz-1].value = intv.stop;
@@ -284,10 +286,16 @@ static float getfromPar( const IOPar& iopar, Color& col, const char* key,
 void ColorTable::usePar( const IOPar& iopar )
 {
     setName( "" );
-    const char* res = iopar[ColorTable::TypeDef.name()];
-    if ( res && *res )
-	ColorTable::get( eEnum(ColorTable::Type,res), *this,
-			 Interval<float>(0,1) );
+    const char* nm = iopar[sNameKey];
+    if ( nm && *nm )
+    {
+	Type t = eEnum(ColorTable::Type,nm);
+	if ( t != (Type)0 || !strcmp(nm,TypeNames[0]) )
+	    ColorTable::get( eEnum(ColorTable::Type,nm), *this,
+			     Interval<float>(0,1) );
+	else
+	    type_ = UserDefined;
+    }
 
     getfromPar( iopar, markcolor, sKeyMarkColor );
     getfromPar( iopar, undefcolor, sKeyUdfColor );
@@ -312,8 +320,67 @@ void ColorTable::usePar( const IOPar& iopar )
 
     if ( newcvs.size() > 1 )
     {
-	setName( iopar[sKeyName] );
+	setName( nm );
 	cvs = newcvs;
+    }
+}
+
+
+void ColorTable::getNames( UserIDSet& names )
+{
+    names.deepErase();
+    int idx = 0;
+    while ( idx < (int)UserDefined )
+	names.add( TypeNames[idx++] );
+
+    names.setName( "Color table" );
+    IOPar* iopar = Settings::common().subselect( names.name() );
+    if ( !iopar || !iopar->size() ) { delete iopar; return; }
+
+    idx = 0;
+    while ( 1 )
+    {
+	idx++;
+	BufferString key; key += idx;
+	IOPar* ctiopar = iopar->subselect( key );
+	if ( !ctiopar || !ctiopar->size() ) { delete ctiopar; return; }
+	
+	const char* res = (*ctiopar)[sNameKey];
+	if ( res && *res )
+	    names.add( res );
+    }
+}
+
+
+void ColorTable::get( const char* nm, ColorTable& ct )
+{
+    if ( !nm || !*nm ) return;
+
+    int idx = 0;
+    while ( idx < (int)UserDefined )
+    {
+	if ( !strcmp(TypeNames[idx],nm) )
+	    return get( (Type)idx, ct, Interval<float>(0,1) );
+	idx++;
+    }
+
+    IOPar* iopar = Settings::common().subselect( "Color table" );
+    if ( !iopar || !iopar->size() ) { delete iopar; return; }
+
+    idx = 0;
+    while ( 1 )
+    {
+	idx++;
+	BufferString key; key += idx;
+	IOPar* ctiopar = iopar->subselect( key );
+	if ( !ctiopar || !ctiopar->size() ) { delete ctiopar; return; }
+	
+	const char* res = (*ctiopar)[sNameKey];
+	if ( !strcmp(res,nm) )
+	{
+	    ct.type_ = UserDefined;
+	    ct.usePar( *ctiopar );
+	}
     }
 }
 
@@ -323,14 +390,17 @@ void ColorTable::fillPar( IOPar& iopar ) const
     iopar.set( sKeyName, name() );
     iopar.set( sKeyMarkColor, markcolor.r(), markcolor.g(), markcolor.b() );
     iopar.set( sKeyUdfColor, undefcolor.r(), undefcolor.g(), undefcolor.b() );
-    for ( int idx=0; idx<cvs.size(); idx++ )
+    if ( type_ == UserDefined )
     {
-	FileMultiString fms;
-	fms += cvs[idx].color.r();
-	fms += cvs[idx].color.g();
-	fms += cvs[idx].color.b();
-	fms += cvs[idx].value;
-	iopar.set( ColorVal::sKey, fms );
+	for ( int idx=0; idx<cvs.size(); idx++ )
+	{
+	    FileMultiString fms;
+	    fms += cvs[idx].color.r();
+	    fms += cvs[idx].color.g();
+	    fms += cvs[idx].color.b();
+	    fms += cvs[idx].value;
+	    iopar.set( ColorVal::sKey, fms );
+	}
     }
 }
 
