@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.9 2002-03-19 08:38:39 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.10 2002-03-21 13:47:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,12 +98,15 @@ public:
                         uiTextBrowserBody( uiTextBrowser& handle, 
 					uiParent* parnt, 
 					const char* nm );
+protected:
+    i_BrowserMessenger& messenger_;
 };
 
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p, 
 				const char* nm )
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
+    , messenger_( *new i_BrowserMessenger(this, &handle))
 {
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
