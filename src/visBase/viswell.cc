@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.20 2004-11-16 09:28:33 kristofer Exp $
+ RCS:           $Id: viswell.cc,v 1.21 2005-01-14 09:32:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ const char* Well::showmarknmstr	= "Show markername";
 const char* Well::markerszstr	= "Marker size";
 const char* Well::showlogsstr	= "Show logs";
 const char* Well::showlognmstr	= "Show logname";
+const char* Well::logwidthstr 	= "Screen width";
 
 
 Well::Well()
@@ -291,9 +292,11 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 }
 
 
+
 void Well::setLogColor( const Color& col, int lognr )
 {
-    log->setLineColor( SbVec3f(col.r()/255,col.g()/255,col.b()/255), lognr );
+#define col2f(rgb) float(col.rgb())/255
+    log->setLineColor( SbVec3f(col2f(r),col2f(g),col2f(b)), lognr );
 }
 
 
@@ -381,6 +384,7 @@ void Well::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( showlogsstr, logsShown() );
     par.setYN( showlognmstr, logNameShown() );
     par.set( markerszstr, markersize );
+    par.set( logwidthstr, logWidth() );
 }
 
 
@@ -411,6 +415,10 @@ int Well::usePar( const IOPar& par )
 
     par.get( markerszstr, markersize );
     setMarkerScreenSize( markersize );
+
+    int logwidth = 10;
+    if ( par.get(logwidthstr,logwidth) )
+	setLogWidth( logwidth );
 
     return 1;
 }

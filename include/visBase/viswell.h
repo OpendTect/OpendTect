@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.10 2004-11-16 09:29:17 kristofer Exp $
+ RCS:           $Id: viswell.h,v 1.11 2005-01-14 09:31:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,7 @@ public:
     static const char*		showmarknmstr;
     static const char*		showlogsstr;
     static const char*		showlognmstr;
+    static const char*		logwidthstr;
 
 protected:
     				~Well();
