@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.59 2003-07-24 14:23:16 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.60 2003-08-05 08:27:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( ctio.ioobj )
         entrylist->setSelected( ctio.ioobj->key() );
 
-    uiGroup* topgrp = new uiGroup( this, "Top group" );
+    topgrp = new uiGroup( this, "Top group" );
     entrylist->setName( seltxt );
     listfld = new uiLabeledListBox( topgrp, entrylist->Ptr() );
     if ( ismultisel )

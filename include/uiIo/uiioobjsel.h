@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.31 2003-07-24 14:23:21 nanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.32 2003-08-05 08:27:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ protected:
     uiIOObjManipGroup*	manipgrp;
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
-    uiGroup*		grp;
+    uiGroup*		topgrp;
 
     bool		acceptOK(CallBacker*);
     void		selChg(CallBacker*);
