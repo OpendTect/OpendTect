@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.9 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: iopar.h,v 1.10 2001-04-27 16:48:45 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include <uidobj.h>
+#include <sets.h>
 class ascistream;
 class ascostream;
 class Coord;
@@ -63,6 +64,8 @@ public:
 			//!< merge entries using the set() command
     static const char*	compKey(const char*,const char*);
 			//!< The composite key
+    static const char*	compKey(const char*,int);
+			//!< The composite key where int will be --> string
     IOPar*		subselect(const char*) const;
 			//!< returns iopar with key that start with <str>.
     void		mergeComp(const IOPar&,const char*);
@@ -123,11 +126,35 @@ public:
 			/*!< Only to save performance: responsibility for
 			     caller to avoid duplicate keys! */
 
+    const char*		mkKey(int) const;
+
 protected:
 
     AliasObjectSet&	pars_;
 
 };
+
+
+template <class T>
+inline void use( const TypeSet<T>& ts, IOPar& iopar, const char* basekey=0 )
+{
+    const int sz = ts.size();
+    for ( int idx=0; idx<sz; idx++ )
+	iopar.set( compKey(basekey,idx+1), ts[idx] );
+}
+
+
+template <class T>
+inline void use( const IOPar& iopar, TypeSet<T>& ts, const char* basekey=0 )
+{
+    T t;
+    for ( int idx=0; ; idx++ )
+    {
+	if ( !iopar.get( IOPar::compKey(basekey,idx), t ) )
+	    { if ( idx ) return; else continue; }
+	ts += t;
+    }
+}
 
 
 #endif
