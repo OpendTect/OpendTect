@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.35 2005-01-06 08:29:13 kristofer Exp $
+ RCS:		$Id: position.h,v 1.36 2005-02-16 11:51:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,8 @@ public:
     inline Coord3	operator-() const;
     inline Coord3	operator*(double) const;
     inline Coord3	operator/(double) const;
+    inline Coord3	scaleBy( const Coord3& ) const;
+    inline Coord3	unScaleBy( const Coord3& ) const;
 
     inline Coord3&	operator+=(const Coord3&);
     inline Coord3&	operator-=(const Coord3&);
@@ -295,6 +297,14 @@ inline Coord3 Coord3::operator*( double factor ) const
 
 inline Coord3 Coord3::operator/( double denominator ) const
 { return Coord3( x/denominator, y/denominator, z/denominator ); }
+
+
+inline Coord3 Coord3::scaleBy( const Coord3& factor ) const
+{ return Coord3( x*factor.x, y*factor.y, z*factor.z ); }
+
+
+inline Coord3 Coord3::unScaleBy( const Coord3& denominator ) const
+{ return Coord3( x/denominator.x, y/denominator.y, z/denominator.z ); }
 
 
 inline Coord3& Coord3::operator+=( const Coord3& p )
