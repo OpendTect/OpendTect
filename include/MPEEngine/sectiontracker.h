@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.2 2005-01-18 13:14:20 kristofer Exp $
+ RCS:           $Id: sectiontracker.h,v 1.3 2005-03-11 16:56:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,12 @@ public:
     virtual bool		adjust();
     const char*			errMsg() const;
 
+    void			enableAdjuster(bool yn)	{ enabadjuster=yn; }
+    bool			adjusterEnabled() const	{ return enabadjuster; }
+
 protected:
     BufferString		errmsg;
+    bool			enabadjuster;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;
