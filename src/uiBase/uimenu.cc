@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.15 2003-01-30 10:06:28 kristofer Exp $
+ RCS:           $Id: uimenu.cc,v 1.16 2003-03-12 16:22:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,42 +50,49 @@ public:
 
 			~uiMenuDataBody()	{ deepErase( itms ); }
 
-    virtual int		nrItems() const { return itms.size(); }
+    int			nrItems() const { return itms.size(); }
 
-    virtual void	insertItem( uiMenuItem* it, int idx )
+    int			insertItem( uiMenuItem* it, int idx )
 			{
 			    QString nm( it->name() );
 			    i_MenuMessenger* msgr__= it->messenger();
 			    QMenuData* theqthng__ = qthing();
 
-			    int id__ = theqthng__->insertItem(
+			    int id = theqthng__->insertItem(
 				     nm, msgr__, SLOT( activated() ),0,idx,idx);
 
-			    it->setId( id__ );
+			    it->setId( id );
 			    it->setMenu( this );
 			    itms += it;
+
+			    return id;
 			}
 
-    void		insertItem( uiPopupMenu* pmnu, int idx )
+    int			insertItem( uiPopupMenu* pmnu, int idx )
 			{
 			    uiPopupItem* it = &pmnu->item();
 
 			    QString nm( it->name() );
 			    QPopupMenu* pu = pmnu->body_->popup();
 
-			    int id_ =  qthing()->insertItem( nm, pu, -1, idx) ;
+			    int id =  qthing()->insertItem( nm, pu, -1, idx) ;
 
-			    it->setId( id_ );
+			    it->setId( id );
 			    it->setMenu( this );
 			    itms += it;
+
+			    return id;
 			}
 
-    void		insertItem( const char* text, const CallBack& cb, 
+    int			insertItem( const char* text, const CallBack& cb, 
 				    int idx )
 			{ 
 			    uiMenuItem* it = new uiMenuItem( text, cb );
-			    insertItem ( it, idx ); 
+
+			    int id = insertItem ( it, idx ); 
 			    itms += it;
+
+			    return id;
 			} 
 
     void		insertSeparator(int);
@@ -178,8 +185,8 @@ int uiMenuData::nrItems() const
 
 
 
-void uiMenuData::insertItem( uiMenuItem* it, int idx )
-    { body_->insertItem( it, idx); }
+int uiMenuData::insertItem( uiMenuItem* it, int idx )
+    { return body_->insertItem( it, idx); }
 
 /*!
     \brief Add a menu item by menu-text and CallBack.
@@ -189,11 +196,11 @@ void uiMenuData::insertItem( uiMenuItem* it, int idx )
     add callbacks at any time to the uiMenuItem.
 
 */
-void uiMenuData::insertItem( const char* text, const CallBack& cb, int idx )
-    { body_->insertItem( text, cb, idx); }
+int uiMenuData::insertItem( const char* text, const CallBack& cb, int idx )
+    { return body_->insertItem( text, cb, idx); }
 
-void uiMenuData::insertItem( uiPopupMenu* it, int idx )
-    { body_->insertItem( it, idx); }
+int uiMenuData::insertItem( uiPopupMenu* it, int idx )
+    { return body_->insertItem( it, idx); }
 
 void uiMenuData::insertSeparator( int idx ) 
     { body_->insertSeparator(idx); }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.3 2003-03-04 16:21:44 nanne Exp $
+ RCS:           $Id: uitable.cc,v 1.4 2003-03-12 16:22:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,95 +14,12 @@ ________________________________________________________________________
 #include <uidobjset.h>
 #include <uilabel.h>
 #include <uiobjbody.h>
+#include <uimenu.h>
 
 
 #include <qsize.h> 
 #include <sets.h> 
-
-#define private public
 #include <i_qtable.h>
-#undef private
-
-
-class Q_EXPORT QTableHeader : public QHeader
-{
-    friend class QTable;
-    Q_OBJECT
-    
-public:
-    enum SectionState {
-        Normal,
-        Bold,
-        Selected
-    };
-    
-    QTableHeader( int, QTable *t, QWidget* parent=0, const char* name=0 );
-    ~QTableHeader() {};
-    void addLabel( const QString &s, int size );
-    void setLabel( int section, const QString & s, int size = -1 );
-    void setLabel( int section, const QIconSet & iconset, const QString & s,
-                   int size = -1 );
-    void removeLabel( int section );
-    
-    void setSectionState( int s, SectionState state );
-    void setSectionStateToAll( SectionState state );
-    SectionState sectionState( int s ) const;
-    
-    int sectionSize( int section ) const;
-    int sectionPos( int section ) const;
-    int sectionAt( int section ) const;
-    
-    void setSectionStretchable( int s, bool b );
-    bool isSectionStretchable( int s ) const; 
-    
-    void updateCache();
-
-signals:
-    void sectionSizeChanged( int s );
-    
-protected:
-    void paintEvent( QPaintEvent *e );
-    void paintSection( QPainter *p, int index, const QRect& fr );
-    void mousePressEvent( QMouseEvent *e );
-    void mouseMoveEvent( QMouseEvent *e );
-    void mouseReleaseEvent( QMouseEvent *e );
-    void mouseDoubleClickEvent( QMouseEvent *e );
-    void resizeEvent( QResizeEvent *e );
-
-private slots:
-    void doAutoScroll();
-    void sectionWidthChanged( int col, int os, int ns );
-    void indexChanged( int sec, int oldIdx, int newIdx );
-      void updateStretches();
-    void updateWidgetStretches();
-
-private:
-    void updateSelections();
-    void saveStates();
-    void setCaching( bool b );
-    void swapSections( int oldIdx, int newIdx, bool swapTable = TRUE );
-    bool doSelection( QMouseEvent *e );
-    void sectionLabelChanged( int section );
-    void resizeArrays( int n );
-
-private:
-    QMemArray<int> states, oldStates;
-    QMemArray<bool> stretchable;
-    QMemArray<int> sectionSizes, sectionPoses;
-    bool mousePressed;
-    int pressPos, startPos, endPos;
-    QTable *table;
-    QTimer *autoScrollTimer;
-    QWidget *line1, *line2;
-    bool caching;
-    int resizedSection;
-    bool isResizing;
-    int numStretches;
-    QTimer *stretchTimer, *widgetStretchTimer;
-    QTableHeaderPrivate *d;
-
-};
-
 
 
 class uiTableBody : public uiObjBodyImpl<uiTable,QTable>
@@ -147,21 +64,14 @@ public:
 
 void setRowLabels( const QStringList &labels )
 {
+
+    QHeader* leftHeader = verticalHeader();
+
     int i = 0;
     for ( QStringList::ConstIterator it = labels.begin();
           it != labels.end() && i < numRows(); ++i, ++it )
         leftHeader->setLabel( i, *it );
 }
-
-
-void setColumnLabels( const QStringList &labels )
-{
-    int i = 0;
-    for ( QStringList::ConstIterator it = labels.begin();
-          it != labels.end() && i < numCols(); ++i, ++it )
-        topHeader->setLabel( i, *it );
-}
-
 
 
 private:
@@ -171,14 +81,17 @@ private:
 };
 
 
-uiTable::uiTable( uiParent* p, const char* nm, int nr, int nc)
-    : uiObject( p, nm, mkbody(p,nm,nr,nc) )
+uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
+    : uiObject( p, nm, mkbody(p,nm,s.size_.height(),s.size_.width()) )
+    , setup_( s )
     , valueChanged( this )
     , clicked( this )
     , doubleClicked( this )
-    , lastrow_( -1 )
-    , lastcol_( -1 )
-{}
+    , rowInserted( this )
+    , colInserted( this )
+{
+    clicked.notify( mCB(this,uiTable,clicked_) );
+}
 
 
 uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc)
@@ -191,26 +104,28 @@ uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc)
 uiTable::~uiTable() {}
 
 
+void uiTable::setText( const Pos& pos, const char* txt )
+    { body_->setText( pos.y(), pos.x(), txt ); }
 
-void uiTable::setText( int row, int col, const char* txt )
-    { body_->setText( row, col, txt ); }
+void uiTable::clearCell( const Pos& pos )
+    { body_->clearCell( pos.y(), pos.x() ); }
 
-void uiTable::clearCell( int row, int col )
-    { body_->clearCell( row, col ); }
+void uiTable::setCurrentCell( const Pos& pos )
+    { body_->setCurrentCell( pos.y(), pos.x() ); }
 
-const char* uiTable::text( int row, int col ) const
-    { rettxt_ = body_->text( row, col ); return rettxt_; }
+const char* uiTable::text( const Pos& pos ) const
+    { rettxt_ = body_->text( pos.y(), pos.x() ); return rettxt_; }
 
-void uiTable::setNumRows(int nr)
+int uiTable::nrRows() const
+    { return  body_->numRows(); }
+void uiTable::setNrRows( int nr )
     { body_->setLines( nr + 1 ); }
 
-void uiTable::setNumCols(int nc)
-    { body_->setNumCols( nc ); }
-
-int uiTable::numRows() const
-    { return body_->numRows(); }
-int uiTable::numCols() const
+int uiTable::nrCols() const
     { return body_->numCols(); }
+void uiTable::setNrCols( int nr )
+    { body_->setNumCols( nr ); }
+
 
 void uiTable::setColumnWidth( int col, int w )
     { body_->setColumnWidth( col, w ); }
@@ -235,26 +150,26 @@ void uiTable::removeRow( int row )
 void uiTable::removeColumn( int col )
     { body_->removeColumn( col ); }
 
-void uiTable::setRowLabels( const char** labels )
-{
-    QStringList labls;
-    const char* pt_cur = *labels;
-    while ( pt_cur )
-        labls += pt_cur++;
 
-    body_->setLines( labls.size() + 1 );
-    body_->setRowLabels( labls );
+void uiTable::setRowLabel( int row, const char* label )
+{
+    QHeader* topHeader = body_->verticalHeader();
+    topHeader->setLabel( row, label );
 }
 
-void uiTable::setColumnLabels( const char** labels )
-{
-    QStringList labls;
-    const char* pt_cur = *labels;
-    while ( pt_cur )
-        labls += pt_cur++;
 
-    setNumCols( labls.size() );
-    body_->setColumnLabels( labls );
+void uiTable::setRowLabels( const char** labels )
+{
+    const char* pt_cur = *labels;
+
+    int nlabels=0;
+    while ( pt_cur ) { nlabels++; pt_cur++; }
+    body_->setLines( nlabels + 1 );
+
+    pt_cur = *labels;
+    int idx=0;
+    while ( pt_cur ) 
+	setRowLabel( idx++, pt_cur++ );
 }
 
 
@@ -262,32 +177,120 @@ void uiTable::setRowLabels( const ObjectSet<BufferString>& labels )
 {
     body_->setLines( labels.size() + 1 );
 
-    QStringList labls;
-    for ( int idx=0; idx < labels.size(); idx++ )
-        labls += (const char*) *labels[idx];
+    for ( int i=0; i<labels.size(); i++ )
+        setRowLabel( i, *labels[i] );
+}
 
-    body_->setRowLabels( labls );
+
+void uiTable::setColumnLabel( int col, const char* label )
+{
+    QHeader* topHeader = body_->horizontalHeader();
+    topHeader->setLabel( col, label );
+}
+
+
+void uiTable::setColumnLabels( const char** labels )
+{
+    const char* pt_cur = *labels;
+
+    int nlabels=0;
+    while ( pt_cur ) { nlabels++; pt_cur++; }
+    body_->setNumCols( nlabels );
+
+    pt_cur = *labels;
+    int idx=0;
+    while ( pt_cur ) 
+	setColumnLabel( idx++, pt_cur++ );
 }
 
 
 void uiTable::setColumnLabels( const ObjectSet<BufferString>& labels )
 {
-    setNumCols( labels.size() );
+    body_->setNumCols( labels.size() );
 
-    QStringList labls;
-    for ( int idx=0; idx < labels.size(); idx++ )
-        labls += (const char*) *labels[idx];
-
-    body_->setColumnLabels( labls );
+    for ( int i=0; i<labels.size(); i++ )
+        setColumnLabel( i, *labels[i] );
 }
 
-/*
-uiSize uiTableBody::minimumsize() const
-{ 
-    int totHeight = fontHgt() * prefnrlines;
-    int totWidth  = fontWdt( true ) * fieldWdt;
 
-    return uiSize ( totWidth , totHeight, true );
+void uiTable::clicked_( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const uiMouseEvent&,ev,cb);
+
+    if( ev.buttonState() & uiMouseEvent::RightButton )
+	rightClk();
 }
-*/
 
+
+void uiTable::rightClk()
+{
+    if ( !setup_.rowgrow_  && !setup_.colgrow_  )
+	return;
+
+    uiPopupMenu* mnu = new uiPopupMenu( parent(), "Action" );
+    BufferString itmtxt;
+
+    int inscolbef = 0;
+    int delcol = 0;
+    int inscolaft = 0;
+    if ( setup_.colgrow_ )
+    {
+	itmtxt = "Insert "; itmtxt += setup_.coldesc_; itmtxt += " before";
+	inscolbef = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	itmtxt = "Remove "; itmtxt += setup_.coldesc_;
+	delcol = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	itmtxt = "Insert "; itmtxt += setup_.coldesc_; itmtxt += " after";
+	inscolaft = mnu->insertItem( new uiMenuItem( itmtxt ) );
+    }
+
+    int insrowbef = 0;
+    int delrow = 0;
+    int insrowaft = 0;
+    if ( setup_.rowgrow_ )
+    {
+	itmtxt = "Insert "; itmtxt += setup_.rowdesc_; itmtxt += " before";
+	insrowbef = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
+	delrow = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	itmtxt = "Insert "; itmtxt += setup_.rowdesc_; itmtxt += " after";
+	insrowaft = mnu->insertItem( new uiMenuItem( itmtxt ) );
+    }
+
+    int ret = mnu->exec();
+    if ( !ret ) return;
+
+    Pos cur = notifiedPos();
+
+    if( ret == inscolbef || ret == inscolaft )
+    {
+	const int offset = (ret == inscolbef) ? 0 : 1;
+	newpos_ = Pos( cur.x() + offset, cur.y() );
+	insertColumns( newpos_ );
+
+	BufferString label( newpos_.x() );
+	setColumnLabel( newpos_, label );
+
+	colInserted.trigger();
+    }
+    else if ( ret == delcol )
+    {
+	removeColumn( cur.x() );
+    }
+    else if ( ret == insrowbef || ret == insrowaft  )
+    {
+	const int offset = (ret == insrowbef) ? 0 : 1;
+	newpos_ = Pos( cur.x(), cur.y() + offset );
+	insertRows( newpos_ );
+
+	BufferString label( newpos_.y() );
+	setRowLabel( newpos_, label );
+
+	rowInserted.trigger();
+    }
+    else if ( ret == delrow )
+    {
+	removeRow( cur.y() );
+    }
+
+    setCurrentCell( newpos_ );
+}
