@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.16 2003-01-03 17:51:26 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.17 2003-01-21 08:17:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,9 @@ ________________________________________________________________________
 #include "lic.h"
 #include "hostdata.h"
 #include "filegen.h"
+
+static const char* sSingBaseNm = "batch_processing";
+static const char* sMultiBaseNm = "cube_processing";
 
 
 uiGenBatchLaunch::uiGenBatchLaunch( uiParent* p, const UserIDSet& nms )
@@ -71,14 +74,19 @@ const char* uiGenBatchLaunch::getProg()
 }
 
 
-static bool writeProcFile( const IOParList& iopl, const char* basnm,
-			   BufferString& tfname )
+static void getProcFilename( const char* basnm, BufferString& tfname )
 {
+    const BufferString inpfnm( basnm );
     tfname = File_getFullPath( GetDataDir(), "Proc" );
-    tfname = File_getFullPath( tfname, basnm );
+    tfname = File_getFullPath( tfname, inpfnm );
     if ( GetSoftwareUser() )
 	{ tfname += "_"; tfname += GetSoftwareUser(); }
     tfname += ".par";
+}
+
+
+static bool writeProcFile( const IOParList& iopl, const char* tfname )
+{
     StreamData sd = StreamProvider(tfname).makeOStream();
     bool allok = sd.usable() && iopl.write(*sd.ostrm);
     sd.close();
@@ -94,7 +102,7 @@ static bool writeProcFile( const IOParList& iopl, const char* basnm,
 
 
 uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
-			      BufferString& hn, const char* pn, bool wp )
+			      const char* hn, const char* pn, bool wp )
         : uiDialog(p,uiDialog::Setup("Batch launch","Specify output mode",
 		   "0.1.4"))
 	, iopl(pl)
@@ -219,7 +227,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     }
 
     BufferString tfname;
-    if ( !writeProcFile(iopl,"batch_processing",tfname) )
+    if ( parfname == "" )
+	getProcFilename( sSingBaseNm, tfname );
+    if ( !writeProcFile(iopl,tfname) )
 	return false;
 
     BufferString comm( "@" );
@@ -245,78 +255,93 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* ppn,
 					const char* t, const char* mpn )
-	: uiDialog(p,uiDialog::Setup(t,"X",0)
-			.oktext(""))
+	: uiDialog(p,Setup(t,"X",0).oktext("Proceed"))
     	, uppgrp(new uiGroup(this,"Upper group"))
 	, procprognm(ppn)
 	, multiprognm(mpn)
+    	, redo_(false)
 {
-    finaliseStart.notify( mCB(this,uiFullBatchDialog,preFinalise) );
+    getProcFilename( sSingBaseNm, singparfname );
+    getProcFilename( sMultiBaseNm, multiparfname );
 }
 
 
-static int buttxtpresz = 10;
-
-void uiFullBatchDialog::preFinalise( CallBacker* )
+void uiFullBatchDialog::addStdFields()
 {
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, uppgrp );
-
-    uiGroup* dogrp = new uiGroup( this, "Start-work buttons" );
-    singmachbut = new uiPushButton( dogrp, "Single-machine" );
-    singmachbut->activated.notify( mCB(this,uiFullBatchDialog,doButPush) );
-    multimachbut = new uiPushButton( dogrp, "Multi-machine" );
-    multimachbut->activated.notify( mCB(this,uiFullBatchDialog,doButPush) );
-    multimachbut->attach( rightOf, singmachbut );
-
-    uiObject* prev = multimachbut;
-    for ( int idx=0; idx<uiDistributedLaunch::nrEnvironments(); idx++ )
+    uiGroup* dogrp = new uiGroup( this, "Proc details" );
+    if ( !redo_ )
     {
-	BufferString txt( "Submit to " );
-	buttxtpresz = txt.size();
-	txt += uiDistributedLaunch::environmentName(idx);
-	uiPushButton* but = new uiPushButton( dogrp, txt );
-	but->attach( rightOf, prev );
-	but->activated.notify( mCB(this,uiFullBatchDialog,doButPush) );
-	prev = but;
+	uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+	sep->attach( stretchedBelow, uppgrp );
+	dogrp->attach( centeredBelow, sep );
     }
-    dogrp->attach( centeredBelow, sep );
+
+    singmachfld = new uiGenInput( dogrp, "Submit to",
+	    		BoolInpSpec("Single machine","Multiple machines") );
+    singmachfld->valuechanged.notify( mCB(this,uiFullBatchDialog,singTogg) );
+    const char* txt = redo_ ? "Name of stored processing specification file"
+			    : "Store processing specification as";
+    parfnamefld = new uiFileInput( dogrp, txt, singparfname, false, "*.par;;*");
+    parfnamefld->attach( alignedBelow, singmachfld );
+
 }
 
 
-void uiFullBatchDialog::doButPush( CallBacker* cb )
+void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
-    if ( !prepareProcessing() ) return;
+    if ( redo_ ) return;
 
-    IOPar* iopar = new IOPar( "Processing" );
-    IOParList iopl; iopl.deepErase(); iopl += iopar;
-    if ( !fillPar(*iopar) )
-	return;
+    const BufferString inpfnm = parfnamefld->fileName();
+    const bool issing = singmachfld->getBoolValue();
+    if ( issing && inpfnm == multiparfname )
+	parfnamefld->setText( singparfname );
+    else if ( !issing && inpfnm == singparfname )
+	parfnamefld->setText( multiparfname );
+}
 
-    BufferString tfname;
-    if ( cb != singmachbut )
+
+bool uiFullBatchDialog::acceptOK( CallBacker* cb )
+{
+    if ( !prepareProcessing() ) return false;
+    BufferString inpfnm = parfnamefld->fileName();
+    if ( inpfnm == "" )
+	getProcFilename( "tmp_proc", inpfnm );
+    else if ( !File_isAbsPath(inpfnm) )
+	getProcFilename( inpfnm, inpfnm );
+
+    const bool issing = singmachfld->getBoolValue();
+    IOParList* iopl; iopl->deepErase();
+    if ( redo_ )
     {
-	if ( !writeProcFile(iopl,"cube_processing",tfname) )
-	    return;
+	if ( issing )
+	{
+	    StreamData sd = StreamProvider( inpfnm ).makeIStream();
+	    if ( !sd.usable() )
+		{ uiMSG().error( "Cannot open parameter file" ); return false; }
+	    iopl = new IOParList( *sd.istrm );
+	    iopl->setFileName( inpfnm );
+	}
     }
-
-    bool res = false;
-    if ( cb == singmachbut )
-	res = singLaunch(iopl);
-    else if ( cb == multimachbut )
-	res = multiLaunch( tfname );
     else
-	res = distrLaunch( cb, tfname );
+    {
+	iopl = new IOParList; iopl->deepErase();
+	IOPar* iopar = new IOPar( "Processing" );
+	*iopl += iopar;
+	if ( !fillPar(*iopar) )
+	    return false;
+    }
 
-    if ( res )
-	accept(this);
+    if ( !issing && !redo_ && !writeProcFile(*iopl,inpfnm) )
+	return false;
+
+    return issing ? singLaunch( *iopl, inpfnm ) : multiLaunch( inpfnm );
 }
 
 
-bool uiFullBatchDialog::singLaunch( const IOParList& iopl )
+bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 {
-    BufferString dum;
-    uiBatchLaunch dlg( this, iopl, dum, procprognm, false );
+    uiBatchLaunch dlg( this, iopl, 0, procprognm, false );
+    dlg.setParFileName( fnm );
     return dlg.go();
 }
 
@@ -333,23 +358,4 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 
     sd.close();
     return true;
-}
-
-
-bool uiFullBatchDialog::distrLaunch( CallBacker* cb, const char* fnm )
-{
-    mDynamicCastGet(uiPushButton*,but,cb);
-    if ( !but ) { pErrMsg("Huh"); return false; }
-
-    const char* envnm = but->text() + buttxtpresz;
-    int envid = 0;
-    for ( int idx=0; idx<uiDistributedLaunch::nrEnvironments(); idx++ )
-    {
-	if ( !strcmp(uiDistributedLaunch::environmentName(idx),envnm) )
-	    { envid = idx; break; }
-    }
-
-    //TODO set callback and do what's needed
-    uiDistributedLaunch dlg( this, procprognm, CallBack(0), envid );
-    return dlg.go();
 }
