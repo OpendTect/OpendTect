@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.5 2003-11-07 12:21:55 bert Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.6 2003-12-31 07:54:27 nanne Exp $";
 
 #include "uimsg.h"
 
@@ -20,10 +20,8 @@ extern "C" const char* InituiHelloPlugin( int, char** )
 #else /* PLAN_B is defined */
 
 
-#include "ui3dapplication.h"
-#include "ui3dapplman.h"
-#include "uidtectman.h"
-#include "uiapplserv.h"
+#include "uiodmain.h"
+#include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -40,7 +38,7 @@ extern "C" PluginInfo* GetuiHelloPluginInfo()
     static PluginInfo retpi = {
 	"uiHello plugin - plan B",
 	"Bert",
-	"1.0.1",
+	"1.1.1",
 	"This is the more extensive variant of the uiHello example.\n"
    	"See the plugin manual for details." };
     return &retpi;
@@ -54,26 +52,19 @@ class uiHelloMgr :  public CallBacker
 {
 public:
 
-			uiHelloMgr( ui3DApplMan* a )
-			    : applman(a), initdone(false)	{}
+			uiHelloMgr(uiODMain*);
 
-    void		init(CallBacker*);
-
-    ui3DApplMan*	applman;
-    bool		initdone;
-
+    uiODMain*		appl;
     void		dispMsg(CallBacker*);
 };
 
 
-void uiHelloMgr::init( CallBacker* )
+uiHelloMgr::uiHelloMgr( uiODMain* a )
+	: appl(a)
 {
-    if ( initdone ) return;
-
-    applman->utilMnu()->insertItem(
-	new uiMenuItem("&Diplay Hello Message ...",mCB(this,uiHelloMgr,dispMsg) ) );
-
-    initdone = true;
+    appl->menuMgr().utilMnu()->insertItem(
+	new uiMenuItem("&Diplay Hello Message ...",
+	    		mCB(this,uiHelloMgr,dispMsg) ) );
 }
 
 
@@ -115,21 +106,15 @@ bool acceptOK( CallBacker* )
 
 void uiHelloMgr::dispMsg( CallBacker* )
 {
-    uiHelloMsgBringer dlg( applman->applService().parent() );
+    uiHelloMsgBringer dlg( appl );
     dlg.go();
 }
 
 
 extern "C" const char* InituiHelloPlugin( int, char** )
 {
-    static uiHelloMgr* mgr = 0;
-    if ( !mgr ) mgr = new uiHelloMgr( dTectMainWin() );
-
-    if ( mgr->applman->uidMan()->isFinalised() )
-	mgr->init( mgr->applman->uidMan() );
-    else
-	mgr->applman->uidMan()->finalised.notify(mCB(mgr,uiHelloMgr,init));
-
+    static uiHelloMgr* mgr = 0; if ( mgr ) return 0;
+    mgr = new uiHelloMgr( ODMainWin() );
     return 0; // All OK - no error messages
 }
 
