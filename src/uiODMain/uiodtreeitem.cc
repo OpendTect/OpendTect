@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.36 2004-07-14 15:42:38 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.37 2004-07-20 14:01:43 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -544,6 +544,28 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    tracktooglemnuitem->setChecked(
 		    applMgr()->trackServer()->isTrackingEnabled(mid) );
 	}
+
+	EM::PatchID section = -1;
+	if ( uivissurf->nrSections()==1 )
+	    section = uivissurf->getSection(0);
+	else if ( menu->getPath() )
+	    section = uivissurf->getSection( menu->getPath() );
+
+	if ( section != -1 )
+	{
+	    cutmnuid = menu->getFreeID();
+	    trackmnu->insertItem( new uiMenuItem("Cut by ..."), cutmnuid );
+
+	    terminatemnuid = menu->getFreeID();
+	    trackmnu->insertItem( new uiMenuItem("Terminate against ..."),
+				  terminatemnuid );
+	}
+	else
+	{
+	    cutmnuid = -1;
+	    terminatemnuid = -1;
+	}
+
 	storemnuid = -1;
 /*
 	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
@@ -556,48 +578,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	storemnuid = trackmnuid = tracksetupmnuid = -1;
     }
 
-
-    EM::PatchID section = -1;
-    if ( uivissurf->nrSections()==1 )
-	section = uivissurf->getSection(0);
-    else if ( menu->getPath() )
-	section = uivissurf->getSection(menu->getPath());
-
-    if ( section!=-1 )
-    {
-	cutstartmnuid = menu->getCurrentID();
-	cutstopmnuid = cutstartmnuid;
-	uiPopupMenu* cutmenu = 
-	    applMgr()->trackServer()->createTrackerMenu( cutstopmnuid, mid,
-							 section, false );
-	if ( cutmenu && cutmenu->nrItems() )
-	{
-	    menu->addSubMenu( cutmenu );
-	    for ( int idx=0; idx<cutstopmnuid-cutstartmnuid+1; idx++ )
-		menu->getFreeID();
-	}
-
-	terminatestartmnuid = menu->getCurrentID();
-	terminatestopmnuid = terminatestartmnuid;
-	uiPopupMenu* terminatemenu = 
-	    applMgr()->trackServer()->createTrackerMenu( terminatestopmnuid,
-							 mid, section, 
-							 true );
-	if ( terminatemenu && terminatemenu->nrItems() )
-	{
-	    menu->addSubMenu( terminatemenu );
-	    int stopidx = terminatestopmnuid-terminatestartmnuid+1;
-	    for ( int idx=0; idx<stopidx; idx++ )
-		menu->getFreeID();
-	}
-    }
-    else
-    {
-	cutstartmnuid = -1;
-	cutstopmnuid = -1;
-	terminatestartmnuid = -1;
-	terminatestopmnuid = -1;
-    }
 
     storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
 
@@ -671,7 +651,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( applMgr()->EMServer()->loadAuxData(mid, mnuid-attribstartmnuid) )
 	    applMgr()->handleStoredSurfaceData( displayid );
     }
-    else if ( mnuid>=cutstartmnuid && mnuid<=cutstopmnuid )
+    else if ( mnuid == cutmnuid || mnuid == terminatemnuid )
     {	
 	menu->setIsHandled(true);
 	EM::PatchID section = -1;
@@ -683,23 +663,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( section==-1 )
 	    return;
 
-	applMgr()->trackServer()->handleTrackerMenu(mnuid,cutstartmnuid,mid,
-				  		    section,false);
-    }
-    else if ( mnuid>=terminatestartmnuid && mnuid<=terminatestopmnuid )
-    {	
-	menu->setIsHandled(true);
-	EM::PatchID section = -1;
-	if ( uivissurf->nrSections()==1 )
-	    section = uivissurf->getSection(0);
-	else if ( menu->getPath() )
-	    section = uivissurf->getSection(menu->getPath());
-
-	if ( section==-1 )
-	    return;
-
-	applMgr()->trackServer()->handleTrackerMenu(mnuid,terminatestartmnuid,
-		mid, section,true);
+	const bool terminate = mnuid == terminatemnuid;
+	applMgr()->trackServer()->handleTrackerMenu( mid, section, terminate );
     }
     else if ( mnuid==toogletrackingmnuid )
     {
