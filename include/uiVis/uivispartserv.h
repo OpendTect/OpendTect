@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.56 2002-09-17 13:26:13 bert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.57 2002-09-19 07:09:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,13 +189,15 @@ public:
     void		getHorizonInfo(ObjectSet<HorizonInfo>&) const;
     void		getHorizonNames(ObjectSet<BufferString>&) const;
     int			getHorizonID(const char*,int nr) const;
-    void		setHorizonRes(int, int res );
-    			//!< 0 is automatic.
-    int			getHorizonRes(int) const;
     void		setHorizonNrTriPerPixel(int id, float);
     float		getHorizonNrTriPerPixel(int id) const;
-    int			getNrHorizonRes(int) const;
-    BufferString	getHorizonResText(int,int) const;
+
+			// Resolution
+    void		setResolution(int, int res );
+    			//!< 0 is automatic.
+    int			getResolution(int) const;
+    int			getNrResolutions(int) const;
+    BufferString	getResolutionText(int,int) const;
 
 			//ColorSeqs
     bool		canSetColorSeq(int) const;
