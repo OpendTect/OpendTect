@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.2 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.3 2002-06-13 15:31:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "filegen.h"
 #include "binidselimpl.h"
+#include "ptrman.h"
+#include "transl.h"
 
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p )
@@ -92,13 +94,17 @@ void uiSeisFileMan::mkFileInfo()
 	txt += "\nCrossline range: "; txt += bs.start.crl; txt += " - "; 
 			           txt += bs.stop.crl;
 	txt += "\nZ-range: "; txt += zrg.start; txt += " - "; 
-			        txt += zrg.stop; txt += "\n";
+			        txt += zrg.stop;
     }
 
     if ( ioobj->pars().size() && ioobj->pars().hasKey("Type") )
     {
-	txt += "Type: "; txt += ioobj->pars().find( "Type" );
+	txt += "\nType: "; txt += ioobj->pars().find( "Type" );
     }
+
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( iostrm )
+	{ txt += "\nFile name: "; txt += iostrm->fileName(); }
     
     infofld->setText( txt );
 }
@@ -132,7 +138,9 @@ void uiSeisFileMan::removePush( CallBacker* )
 	}
 	if ( !uiMSG().askGoOn(msg) ) return;
 
-	if ( !ioobj->implRemove() )
+	PtrMan<Translator> tr = ioobj->getTranslator();
+	bool rmd = tr ? tr->implRemove(ioobj) : ioobj->implRemove();
+	if ( !rmd )
 	{
 	    msg = "Could not remove '";
 	    msg += ioobj->fullUserExpr(YES); msg += "'";
