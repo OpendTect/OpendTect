@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.45 2003-10-19 13:53:08 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.46 2003-10-27 23:10:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,19 +13,33 @@ ________________________________________________________________________
 #include "errh.h"
 #include "filegen.h"
 #include "survinfoimpl.h"
-#include "idealconn.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uisurvey.h"
-#include "uiidealdata.h"
 #include "uimsg.h"
 #include "uifiledlg.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
+#include "ptrman.h"
 
 extern "C" const char* GetBaseDataDir();
+
+static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
+{
+    static ObjectSet<uiSurvInfoProvider>* sips = 0;
+    if ( !sips )
+	sips = new ObjectSet<uiSurvInfoProvider>;
+    return *sips;
+}
+
+
+int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
+{
+    if ( p ) survInfoProvs() += p;
+    return survInfoProvs().size();
+}
 
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_, 
@@ -62,15 +76,20 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->attach( stretchedBelow, pathfld, -2 );
 
-    uiButton* wsbut = 0;
-    if ( IdealConn::haveIdealServices() || getenv( "DTECT_DEMO" ) )
+    uiObject* prevobj = pathfld->attachObj();
+    if ( survInfoProvs().size() )
     {
-	BufferString txt( "Fetch setup from " );
-	txt += IdealConn::guessedType() == IdealConn::SW
-	     ? "SeisWorks ..." : "GeoFrame ...";
-	wsbut = new uiPushButton( this, txt );
-	wsbut->attach( alignedBelow, pathfld );
-	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
+	for ( int idx=0; idx<survInfoProvs().size(); idx++ )
+	{
+	    BufferString txt( "Fetch setup from " );
+	    txt += survInfoProvs()[idx]->name();
+	    txt += " ...";
+	    uiPushButton* newpb = new uiPushButton( this, txt );
+	    sipbuts += newpb;
+	    newpb->attach( idx == 0 ? alignedBelow : rightOf, prevobj );
+	    newpb->activated.notify( mCB(this,uiSurveyInfoEditor,sipbutPush) );
+	    prevobj = newpb;
+	}
     }
 
     uiLabel* rglbl = new uiLabel( this, "Survey ranges:" );
@@ -85,7 +104,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     rangegrp->setHAlignObj( inlfld );
     rangegrp->attach( alignedBelow, pathfld ); 
     rangegrp->attach( ensureBelow, rglbl ); 
-    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
+    if ( prevobj ) rangegrp->attach( ensureBelow, prevobj ); 
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
 
@@ -423,38 +442,18 @@ bool uiSurveyInfoEditor::setRelation()
 }
 
 
-class uiIdealSurvSetup : public uiDialog
+void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 {
-public:
+    int sipidx = sipbuts.indexOf( cb );
+    if ( sipidx < 0 ) { pErrMsg("Huh?"); return; }
 
-uiIdealSurvSetup( uiParent* p, IdealConn::Type t )
-    : uiDialog(p,uiDialog::Setup("Survey setup",
-				 "Select cube to retrieve survey setup",
-				 "0.3.8")
-	    			.nrstatusflds(1) )
-{
-    iddfld = new uiIdealData( this, t, uiIdealData::Seis );
-}
+    uiSurvInfoProvider* sip = survInfoProvs()[sipidx];
+    PtrMan<uiDialog> dlg = sip->dialog( this );
+    if ( !dlg || !dlg->go() ) return;
 
-bool acceptOK( CallBacker* )
-{
-    return iddfld->fetchInput();
-}
-
-    uiIdealData* iddfld;
-
-};
-
-
-void uiSurveyInfoEditor::wsbutPush( CallBacker* )
-{
-    uiIdealSurvSetup dlg( this, IdealConn::guessedType() );
-    if ( !dlg.go() || !IdealConn::haveIdealServices() ) return;
-
-    const IdealConn& conn = dlg.iddfld->conn();
     BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
-    if ( !conn.getSurveySetup(bs,zrg,crd) )
-	{ BufferString m; conn.fetchMsg(m); uiMSG().error(m); return; }
+    if ( !sip->getInfo(dlg,bs,zrg,crd) )
+	return;
 
     survinfo->setRange(bs,true); survinfo->setRange(bs,false);
     survinfo->setStep(bs.step,true); survinfo->setStep(bs.step,false);

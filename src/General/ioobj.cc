@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.13 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.14 2003-10-27 23:10:02 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -13,7 +13,6 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.13 2003-10-17 14:19:02 bert Exp $"
 #include "iopar.h"
 #include "iostrm.h"
 #include "iox.h"
-#include "ioideal.h"
 #include "transl.h"
 #include "ascstream.h"
 #include "separstr.h"
@@ -21,6 +20,23 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.13 2003-10-17 14:19:02 bert Exp $"
 #include "ptrman.h"
 #include "conn.h"
 #include <stdlib.h>
+
+
+static ObjectSet<const IOObjProducer>& getProducers()
+{
+    static ObjectSet<const IOObjProducer>* prods = 0;
+    if ( !prods ) prods = new ObjectSet<const IOObjProducer>;
+    return *prods;
+}
+
+
+int IOObj::addProducer( IOObjProducer* prod )
+{
+    if ( !prod ) return -1;
+    ObjectSet<const IOObjProducer>& prods = getProducers();
+    prods += prod;
+    return prods.size();
+}
 
 
 IOObj::IOObj( const char* nm, const char* ky )
@@ -157,14 +173,14 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
     if ( ky == "" && IOM().dirPtr() )
 	ky = IOM().dirPtr()->newKey();
 
-    if ( !strcmp(typ,StreamConn::sType) )
-	objptr = new IOStream( nm, ky, gendef );
-    else if ( !strcmp(typ,XConn::sType) )
-	objptr = new IOX( nm, ky, gendef );
-    else if ( !strcmp(typ,"Ideal") ) // IdealConn::sType. Don't like the dep.
-	objptr = new IOIdeal( nm, ky );
-
-    return objptr;
+    const ObjectSet<const IOObjProducer>& prods = getProducers();
+    for ( int idx=0; idx<prods.size(); idx++ )
+    {
+	const IOObjProducer& prod = *prods[idx];
+	if ( prod.canMake(typ) )
+	    return prod.make( nm, ky, gendef );
+    }
+    return 0;
 }
 
 

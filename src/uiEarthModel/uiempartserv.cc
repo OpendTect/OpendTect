@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.32 2003-10-23 12:15:01 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.33 2003-10-27 23:10:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,13 +29,11 @@ ________________________________________________________________________
 #include "uiexphorizon.h"
 #include "uiiosurfacedlg.h"
 #include "uigeninputdlg.h"
-#include "uihoridealio.h"
 #include "uisurfaceman.h"
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uimenu.h"
-#include "idealconn.h"
 #include "ptrman.h"
 
 const int uiEMPartServer::evDisplayHorizon = 0;
@@ -63,24 +61,11 @@ void uiEMPartServer::manageSurfaces()
 }
 
 
-bool uiEMPartServer::ioHorizon( uiEMPartServer::ExternalType t, bool imp )
+bool uiEMPartServer::ioHorizon( bool imp )
 {
-    if ( t != Ascii && !IdealConn::haveIdealServices() &&
-	 !uiMSG().askGoOn( "Sorry, workstation connection not available. "
-			    "\nPlease setup remote workstation access through a"
-			    "\nSolaris workstation, use a Solaris workstation "
-			    "directly, or use Ascii.\n\n"
-			    "Do you wish to see the dialog anyway?" ) )
-	return false;
-
-    PtrMan<uiDialog> dlg;
-    if ( t == Ascii )
-	dlg = imp ? (uiDialog*)new uiImportHorizon( appserv().parent() )
-	          : (uiDialog*)new uiExportHorizon( appserv().parent() );
-    else
-	dlg = imp ? (uiDialog*)new uiHorIdealImport( appserv().parent() )
-	    	  : (uiDialog*)new uiHorIdealExport( appserv().parent() );
-
+    PtrMan<uiDialog> dlg = imp
+		? (uiDialog*)new uiImportHorizon( appserv().parent() )
+		: (uiDialog*)new uiExportHorizon( appserv().parent() );
     if ( !dlg->go() )
 	return false;
 
@@ -95,11 +80,9 @@ bool uiEMPartServer::ioHorizon( uiEMPartServer::ExternalType t, bool imp )
 }
 
 
-bool uiEMPartServer::importHorizon( uiEMPartServer::ExternalType t )
-{ return ioHorizon( t, true ); }
+bool uiEMPartServer::importHorizon() { return ioHorizon( true ); }
 
-bool uiEMPartServer::exportHorizon( uiEMPartServer::ExternalType t )
-{ return ioHorizon( t, false ); }
+bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
 
 
 bool uiEMPartServer::selectHorizon( MultiID& id )

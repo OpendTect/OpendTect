@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.4 2002-07-24 17:08:12 bert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.5 2003-10-27 23:10:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiapplserv.h>
-#include <multiid.h>
+#include "uiapplserv.h"
+#include "multiid.h"
 
 
 /*! \brief Service provider for application level - seismics */
@@ -24,10 +24,9 @@ public:
 			uiSeisPartServer(uiApplService&);
     const char*		name() const			{ return "Seismics"; }
 
-    enum ExternalType	{ SegY, SeisWorks, GeoFrame, CBVS };
-    bool		isAvailable(ExternalType) const;
+    enum ExternalType	{ SegY, CBVS };
     bool		importSeis(ExternalType);
-    bool		exportSeis(ExternalType);
+    bool		exportSeis();
 
     bool		mergeSeis();
     void		manageSeismics();

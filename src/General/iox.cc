@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.10 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.11 2003-10-27 23:10:02 bert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"
@@ -13,6 +13,16 @@ static const char* rcsID = "$Id: iox.cc,v 1.10 2003-10-17 14:19:02 bert Exp $";
 #include "ioman.h"
 #include "ascstream.h"
 #include "conn.h"
+
+class IOXProducer : public IOObjProducer
+{
+    bool	canMake( const char* typ ) const
+		{ return !strcmp(typ,XConn::sType); }
+    IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
+		{ return new IOX(nm,ky,fd); }
+};
+
+int IOX::prodid = IOObj::addProducer( new IOXProducer );
 
 
 IOX::IOX( const char* nm, const char* ky, bool )

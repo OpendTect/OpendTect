@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.6 2003-10-17 15:00:36 nanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.7 2003-10-27 23:10:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "idealconn.h"
 #include "uiwelldlgs.h"
 #include "ptrman.h"
 
@@ -34,24 +33,10 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
 }
 
 
-bool uiWellPartServer::importWell( uiWellPartServer::ExternalType t )
-{ return ioWell( t, true ); }
-
-bool uiWellPartServer::exportWell( uiWellPartServer::ExternalType t )
-{ return ioWell( t, false ); }
-
-
-bool uiWellPartServer::ioWell( uiWellPartServer::ExternalType t, bool imp )
+bool uiWellPartServer::importWell()
 {
-    if ( t != Ascii && !IdealConn::haveIdealServices() &&
-	 !uiMSG().askGoOn( "No idealconn, see dialog anyway?" ) )
-	return false;
-
-    PtrMan<uiDialog> dlg = 0;
-    if ( t == Ascii && imp )
-	dlg = (uiDialog*)new uiWellImportAsc( appserv().parent() );
-
-    return dlg && dlg->go();
+    uiWellImportAsc dlg( appserv().parent() );
+    return dlg.go();
 }
 
 

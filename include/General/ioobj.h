@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.16 2003-10-17 14:19:01 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.17 2003-10-27 23:10:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,19 @@ class CallBack;
 class ascistream;
 class ascostream;
 class Translator;
+
+
+/*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */
+
+class IOObjProducer
+{
+public:
+
+    virtual bool	canMake(const char*) const	= 0;
+    virtual IOObj*	make(const char*,const MultiID&,
+	    		     bool fill_defs) const	= 0;
+
+};
 
 /*\brief object describing how to do I/O for objects
 
@@ -101,6 +114,10 @@ public:
 			//!< the translator name and group.
     virtual void	acquireNewKey();
     			//!< This will give the IOObj a new (free) ID
+
+
+    static int		addProducer(IOObjProducer*);
+    			//!< Factory for IOObj types. Not for casual use.
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.16 2003-10-17 14:19:01 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.17 2003-10-27 23:10:01 bert Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,8 @@ protected:
     bool		validNr() const
 			{ return curfnr*fnrs.step <= fnrs.stop*fnrs.step; }
     bool		implDo(bool,bool) const;
+
+    static int		prodid; //!< for factory implementation
 };
 
 

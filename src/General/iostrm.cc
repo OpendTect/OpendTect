@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.17 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.18 2003-10-27 23:10:02 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -12,6 +12,16 @@ static const char* rcsID = "$Id: iostrm.cc,v 1.17 2003-10-17 14:19:02 bert Exp $
 #include "strmprov.h"
 #include "separstr.h"
 #include "string2.h"
+
+class IOStreamProducer : public IOObjProducer
+{
+    bool	canMake( const char* typ ) const
+		{ return !strcmp(typ,StreamConn::sType); }
+    IOObj*	make( const char* nm, const MultiID& ky, bool fd ) const
+		{ return new IOStream(nm,ky,fd); }
+};
+
+int IOStream::prodid = IOObj::addProducer( new IOStreamProducer );
 
 
 IOStream::IOStream( const char* nm, const char* uid, bool mkdef )

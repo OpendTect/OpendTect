@@ -7,20 +7,39 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.11 2003-03-18 16:05:24 nanne Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.12 2003-10-27 23:10:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "uigroup.h"
+#include "ranges.h"
 class uiCheckBox;
 class uiGenInput;
 class uiPushButton;
 class uiRadioButton;
+class BinIDSampler;
 class SurveyInfo;
 class uiLabel;
+class Coord;
 
+
+/*\brief Interface for survey info provider - typically from workstations */
+
+class uiSurvInfoProvider
+{
+public:
+
+    virtual const char*		name() const		= 0;
+    virtual uiDialog*		dialog(uiParent*)	= 0;
+    virtual bool		getInfo(uiDialog*,BinIDSampler&,
+	    				StepInterval<double>&,
+					Coord crd[3])	= 0;
+};
+
+
+/*\brief The survey info editor */
 
 class uiSurveyInfoEditor : public uiDialog
 {
@@ -32,6 +51,9 @@ public:
     const char*		dirName();
     Notifier<uiSurveyInfoEditor> survparchanged;
     SurveyInfo*		getSurvInfo()			{ return survinfo; }
+
+    static int		addInfoProvider(uiSurvInfoProvider*);
+    			
 
 protected:
 
@@ -65,6 +87,7 @@ protected:
     uiGroup*		trgrp;
     uiCheckBox*		overrule;
     uiPushButton*	applybut;
+    ObjectSet<CallBacker> sipbuts;
 
     bool		dirnmch_;
     void		setValues();
@@ -73,13 +96,14 @@ protected:
     bool		setRelation();
     bool		appButPushed();
     bool		acceptOK(CallBacker*);
-    void		wsbutPush(CallBacker*);
+    void		sipbutPush(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		unitPush(CallBacker*);
     void		updStatusBar(const char*);
+
 };
 
 #endif

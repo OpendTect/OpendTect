@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.18 2003-10-23 12:15:10 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.19 2003-10-27 23:10:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,11 +35,9 @@ public:
 
     const char*		name() const			{ return "EarthModel"; }
 
-    enum ExternalType   { Ascii, SeisWorks, GeoFrame };
-
 			// Services
-    bool		importHorizon(ExternalType);
-    bool		exportHorizon(ExternalType);
+    bool		importHorizon();
+    bool		exportHorizon();
 
     bool		selectHorizon(MultiID&);
     bool		loadAuxData(const MultiID&,int);
@@ -79,7 +77,7 @@ protected:
 
     MultiID&		selemid_;
 
-    bool		ioHorizon(uiEMPartServer::ExternalType,bool);
+    bool		ioHorizon(bool);
     
 };
 
