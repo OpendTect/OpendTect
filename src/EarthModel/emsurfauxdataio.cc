@@ -12,6 +12,7 @@ ___________________________________________________________________
 
 #include "ascstream.h"
 #include "datainterp.h"
+#include "datachar.h"
 #include "emsurface.h"
 #include "geomgridsurface.h"
 #include "iopar.h"
@@ -19,33 +20,39 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.1 2003-06-17 13:39:12 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.2 2003-06-19 12:34:41 kristofer Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
-const char* EM::dgbSurfDataWriter::binarystr = "Binary";
-
+const char* EM::dgbSurfDataWriter::infostr = "Info";
+const char* EM::dgbSurfDataWriter::intdatacharstr = "Int data";
+const char* EM::dgbSurfDataWriter::floatdatacharstr = "Float data";
 
 EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
-				    const BinIDSampler* sel_, bool binary,
+				    const BinIDSampler* sel_, bool binary_,
        				    const char* filename )
     : Executor( "Aux data writer" )
     , stream( 0 )
-    , subidinterpreter( 0 )
-    , datainterpreter( 0 )
     , chunksize( 100 )
     , dataidx( dataidx_ )
     , surf( surf_ )
     , sel( sel_ )
     , patchindex( 0 )
+    , binary( binary_ )
 {
-    IOPar par;
+    IOPar par( "Surface Data" );
     par.set( attrnmstr, surf.auxDataName(dataidx) );
-    par.setYN( binarystr, binary );
+    par.set( infostr, surf.auxDataInfo(dataidx) );
 
     if ( binary )
     {
-	//TODO: Put this machine's Datachars into the par and create the
-	// 	interpreters.
+	int dummy;
+	unsigned char dc[2];
+	DataCharacteristics(dummy).dump(dc[0], dc[1]);
+	par.set(intdatacharstr, (int) dc[0],(int)dc[1]);
+					 
+	float fdummy;
+	DataCharacteristics(fdummy).dump(dc[0], dc[1]);
+	par.set(floatdatacharstr, (int) dc[0],(int)dc[1]);
     }
 
     stream = binary ? new ofstream( filename, ios::binary )
@@ -74,8 +81,6 @@ EM::dgbSurfDataWriter::~dgbSurfDataWriter()
 {
     stream->close();
     delete stream;
-    delete subidinterpreter;
-    delete datainterpreter;
 }
 
 
@@ -83,7 +88,7 @@ int EM::dgbSurfDataWriter::nextStep()
 {
     for ( int idx=0; idx<chunksize; idx++ )
     {
-	if ( !subids.size() )
+	while ( !subids.size() )
 	{
 	    if ( nrdone )
 	    {
@@ -91,6 +96,12 @@ int EM::dgbSurfDataWriter::nextStep()
 		if ( patchindex>=surf.nrPatches() )
 		    return Finished;
 	    }
+	    else
+	    {
+		if ( !writeLong(surf.nrPatches()))
+		    return ErrorOccurred;
+	    }
+
 
 	    const EM::PatchID patchid = surf.patchID( patchindex );
 	    const Geometry::GridSurface* gridsurf = surf.getSurface(patchid);
@@ -113,39 +124,16 @@ int EM::dgbSurfDataWriter::nextStep()
 		values += auxvalue;
 	    }
 
-	    if ( subidinterpreter )
-	    {
-		char intbuf[sizeof(int)];
-		subidinterpreter->put( intbuf, 1, (int) patchid );
-		stream->write( intbuf, sizeof(int));
-
-		subidinterpreter->put( intbuf, 1, subids.size() );
-		stream->write( intbuf, sizeof(int));
-	    }
-	    else
-	    {
-		(*stream) << patchid << '\t' << subids.size()<< '\n';
-	    }
+	    if ( !writeLong( patchid ) || !writeLong(subids.size()))
+		return ErrorOccurred;
 	}
 
 	const int subidindex = subids.size()-1;
 	const EM::SubID subid = subids[subidindex];
 	const float auxvalue = values[subidindex];
 
-	if ( subidinterpreter )
-	{
-	    char intbuf[sizeof(int)];
-	    subidinterpreter->put( intbuf, 1, (int) subid );
-	    stream->write( intbuf, sizeof(int));
-
-	    char floatbuf[sizeof(float)];
-	    datainterpreter->put( floatbuf, 1, (float) auxvalue );
-	    stream->write( floatbuf, sizeof(float));
-	}
-	else
-	{
-	    (*stream) << subid << '\t' << auxvalue << '\n';
-	}
+	if ( !writeLong(subid) || !writeFloat(auxvalue) )
+	    return ErrorOccurred;
 
 	subids.remove( subidindex );
     }
@@ -175,6 +163,28 @@ BufferString EM::dgbSurfDataWriter::createHovName( const char* base, int idx )
 }
 
 
+bool EM::dgbSurfDataWriter::writeLong(long val)
+{
+    if ( binary )
+	stream->write((char*) &val, sizeof(val));
+    else
+	(*stream) << val << '\n' ;
+
+    return (*stream);
+}
+
+
+bool EM::dgbSurfDataWriter::writeFloat(float val)
+{
+    if ( binary )
+	stream->write((char*) &val ,sizeof(val));
+    else
+	(*stream) << val << '\n';
+
+    return (*stream);
+}
+
+
 EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     : Executor( "Aux data writer" )
     , stream( new ifstream(filename) )
@@ -184,6 +194,7 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     , dataidx( -1 )
     , surf( 0 )
     , patchindex( 0 )
+    , error( true )
 {
     if ( !(*stream) )
 	return;
@@ -193,8 +204,24 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     if ( !par.get( dgbSurfDataWriter::attrnmstr, dataname ) )
 	return;
 
-    bool binary;
-    par.getYN( dgbSurfDataWriter::binarystr, binary );
+    if ( !par.get( dgbSurfDataWriter::attrnmstr, datainfo ) )
+	return;
+
+    int dc[2];
+    if ( par.get(EM::dgbSurfDataWriter::intdatacharstr, dc[0], dc[1] ))
+    {
+	DataCharacteristics writtendatachar;
+	writtendatachar.set( dc[0], dc[1] );
+	subidinterpreter = new DataInterpreter<int>( writtendatachar );
+					     
+	if ( !par.get(EM::dgbSurfDataWriter::floatdatacharstr, dc[0], dc[1]))
+	    return;
+						     
+	writtendatachar.set( dc[0], dc[1] );
+	datainterpreter = new DataInterpreter<float>( writtendatachar );
+    }
+
+    error = false;
 }
 
 
@@ -211,6 +238,12 @@ const char* EM::dgbSurfDataReader::dataName() const
 }
 
 
+const char* EM::dgbSurfDataReader::dataInfo() const
+{
+    return datainfo[0] ? datainfo : 0;
+}
+
+
 
 void EM::dgbSurfDataReader::setSurface( EM::Surface& surf_ )
 {
@@ -220,73 +253,41 @@ void EM::dgbSurfDataReader::setSurface( EM::Surface& surf_ )
 
 int EM::dgbSurfDataReader::nextStep()
 {
+    if ( error )
+	return ErrorOccurred; 
+
     for ( int idx=0; idx<chunksize; idx++ )
     {
-	if ( !subids.size() )
+	while ( !valsleftonpatch )
 	{
 	    if ( nrdone )
 	    {
 		patchindex++;
-		if ( patchindex>=surf->nrPatches() )
+		if ( patchindex>=nrpatches )
 		    return Finished;
-	    }
-
-	    const EM::PatchID patchid = surf->patchID( patchindex );
-	    const Geometry::GridSurface* gridsurf = surf->getSurface(patchid);
-
-	    const int nrnodes = gridsurf->size();
-	    for ( int idy=0; idy<nrnodes; idx++ )
-	    {
-		EM::SubID subid = gridsurf->getPosID(idy);
-		Coord3 coord = gridsurf->getPos( subid );
-
-		if ( sel && sel->excludes(SI().transform(coord)) )
-		    continue;
-
-		const EM::PosID posid( surf->id(), patchid, subid);
-		const float auxvalue = surf->getAuxDataVal(dataidx,posid);
-		if ( mIsUndefined( auxvalue ) )
-		    continue;
-
-		subids += subid;
-		values += auxvalue;
-	    }
-
-	    if ( subidinterpreter )
-	    {
-		char intbuf[sizeof(int)];
-		subidinterpreter->put( intbuf, 1, (int) patchid );
-		//stream->write( intbuf, sizeof(int));
-
-		subidinterpreter->put( intbuf, 1, subids.size() );
-		//stream->write( intbuf, sizeof(int));
 	    }
 	    else
 	    {
-		//(*stream) << patchid << '\t' << subids.size()<< '\n';
+		if ( !readLong(nrpatches) )
+		    return ErrorOccurred;
 	    }
+
+	    int cp;
+	    if ( !readLong(cp) || !readLong(valsleftonpatch))
+		return ErrorOccurred;
+
+	    currentpatch = cp;
 	}
 
-	const int subidindex = subids.size()-1;
-	const EM::SubID subid = subids[subidindex];
-	const float auxvalue = values[subidindex];
+	int subid;
+	float val;
+	if ( !readLong(subid) && !readFloat(val) )
+	    return ErrorOccurred;
 
-	if ( subidinterpreter )
-	{
-	    char intbuf[sizeof(int)];
-	    subidinterpreter->put( intbuf, 1, (int) subid );
-	//    stream->write( intbuf, sizeof(int));
+	surf->setAuxDataVal( dataidx,
+		EM::PosID( surf->id(),currentpatch,subid ), val);
 
-	    char floatbuf[sizeof(float)];
-	    datainterpreter->put( floatbuf, 1, (float) auxvalue );
-	 //   stream->write( floatbuf, sizeof(float));
-	}
-	else
-	{
-	  //  (*stream) << subid << '\t' << auxvalue << '\n';
-	}
-
-	subids.remove( subidindex );
+	valsleftonpatch--;
     }
 
     nrdone++;
@@ -303,4 +304,37 @@ int EM::dgbSurfDataReader::nrDone() const
 int EM::dgbSurfDataReader::totalNr() const
 {
     return totalnr;
+}
+
+bool EM::dgbSurfDataReader::readLong(int& res)
+{
+    if ( subidinterpreter )
+    {
+	char buf[sizeof(res)];
+	stream->read(buf,sizeof(res));
+	res = subidinterpreter->get(buf,0);
+    }
+    else
+    {
+	(*stream) >> res;
+    }
+
+    return (*stream);
+}
+
+
+bool EM::dgbSurfDataReader::readFloat(float& res)
+{
+    if ( datainterpreter )
+    {
+	char buf[sizeof(res)];
+	stream->read(buf,sizeof(res));
+	res = datainterpreter->get(buf,0);
+    }
+    else
+    {
+	(*stream) >> res;
+    }
+
+    return (*stream);
 }

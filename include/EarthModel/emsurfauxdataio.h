@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.1 2003-06-17 13:50:25 kristofer Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.2 2003-06-19 12:34:41 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -53,12 +53,16 @@ public:
 
 
     static const char*	attrnmstr;
-    static const char*	binarystr;
+    static const char*	infostr;
+    static const char*	intdatacharstr;
+    static const char*	floatdatacharstr;
 
     static BufferString	createHovName(const char* base, int idx );
 
 
 protected:
+    bool			writeLong(long);
+    bool			writeFloat(float);
     int				dataidx;
     const EM::Surface&		surf;
     const BinIDSampler*		sel;
@@ -72,8 +76,7 @@ protected:
     int				totalnr;
 
     ofstream*			stream;
-    DataInterpreter<int>*	subidinterpreter;
-    DataInterpreter<float>*	datainterpreter;
+    bool			binary;
 };
 
 /*!
@@ -88,6 +91,7 @@ public:
 			~dgbSurfDataReader();
 
     const char*		dataName() const;
+    const char*		dataInfo() const;
 
     void		setSurface( EM::Surface& surf );
 
@@ -96,14 +100,18 @@ public:
     int			totalNr() const;
 
 protected:
+    bool			readLong(int&);
+    bool			readFloat(float&);
     BufferString		dataname;
+    BufferString		datainfo;
     int				dataidx;
-    const EM::Surface*		surf;
+    EM::Surface*		surf;
     const BinIDSampler*		sel;
   
-    TypeSet<EM::SubID>		subids;
-    TypeSet<float>		values;
     int				patchindex;
+    int				nrpatches;
+    EM::PatchID			currentpatch;
+    int				valsleftonpatch;
 
     int				chunksize;
     int				nrdone;
@@ -112,6 +120,7 @@ protected:
     ifstream*			stream;
     DataInterpreter<int>*	subidinterpreter;
     DataInterpreter<float>*	datainterpreter;
+    bool			error;
 };
 
 };

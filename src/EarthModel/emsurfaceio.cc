@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.2 2003-06-19 10:36:54 bert Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.3 2003-06-19 12:34:41 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -114,8 +114,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	    auxdatanames += new BufferString(dreader->dataName());
 	    auxdataexecs += dreader;
 
-	    auxdatainfo += new BufferString;
-	    //!< TODO
+	    auxdatainfo += new BufferString( dreader->dataInfo());
 	}
 	else
 	{
