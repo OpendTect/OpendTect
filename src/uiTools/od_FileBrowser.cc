@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.4 2004-04-28 21:30:59 bert Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.5 2004-05-06 14:21:19 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ int main( int argc, char ** argv )
 
     int argidx = 1;
     bool editable = false;
-    if ( !strcmp(argv[argidx],"--edit") )
+    if ( inpok && !strcmp(argv[argidx],"--edit") )
     {
 	editable = true;
 	argidx++;
