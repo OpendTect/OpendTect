@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.49 2004-01-12 13:20:07 kristofer Exp $
+ RCS:           $Id: datainpspec.h,v 1.50 2004-07-28 08:53:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -448,7 +448,6 @@ class StringListInpSpec : public DataInpSpec
 public:
     			StringListInpSpec( const BufferStringSet& bss );
 			StringListInpSpec( const char** sl=0 );
-			StringListInpSpec( TypeSet<char*> sl );
 			StringListInpSpec( const StringListInpSpec& oth);
 			~StringListInpSpec();
 
