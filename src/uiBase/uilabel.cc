@@ -90,3 +90,20 @@ void uiLabel::setText( const char* txt )
 const char* uiLabel::text() const
 { return body_->text(); }
 
+
+void uiLabel::setAlignment( int al )
+{ 
+    int align = body_->alignment();
+    align &= Qt::AlignVertical_Mask;
+    
+    align |= al;
+
+    body_->setAlignment( align );
+}
+
+
+int uiLabel::alignment() const
+{
+    int align = body_->alignment();
+    return align & Qt::AlignHorizontal_Mask;
+}

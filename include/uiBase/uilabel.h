@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.6 2004-03-02 13:01:07 nanne Exp $
+ RCS:           $Id: uilabel.h,v 1.7 2004-09-08 09:21:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,11 +28,21 @@ public:
 
     Note that the layout for the label is not updated when setting a new text.
     So, if the new text is too long, part of it might be invisible.
-    It's just what Qt decides to do with it.
+    Therefore, reserve enough space for it with setPrefWidthInChar.
 
 */
     virtual void        setText(const char*);
     const char*         text() const;
+
+    enum horAlign {
+        AlignAuto               = 0x0000,  
+        AlignLeft               = 0x0001,
+        AlignRight              = 0x0002,
+        AlignHCenter            = 0x0004
+    };
+
+    void		setAlignment( int );
+    int			alignment() const;
 
 private:
 
