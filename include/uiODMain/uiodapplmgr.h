@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.12 2004-06-04 09:37:00 nanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.13 2004-06-23 11:19:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,10 +108,6 @@ public:
     bool			storeSinglePickSet(int);
     bool			setPickSetDirs(int);
     void			renamePickset(int);
-	// Menu
-    //bool		createSubMenu(uiPopupMenu&,int mnuid,int visid,int tp);
-    //bool		handleSubMenu(int mnuid,int visid,int tp);
-
 
     // Work. Don't use unless expert.
     bool			getNewData(int visid,bool);
@@ -121,6 +117,8 @@ public:
     void			manSurvCB(CallBacker*)	{ manageSurvey(); }
     void			manAttrCB(CallBacker*)	{ manageAttributes(); }
     void			outVolCB(CallBacker*)	{ createVol(); }
+
+    void			enableSceneMenu(bool);
 
 protected:
 
