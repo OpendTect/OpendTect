@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.4 2001-04-24 10:53:27 bert Exp $
+ RCS:           $Id: uifont.cc,v 1.5 2001-05-04 10:09:00 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,7 @@ int uiFont::ascent() const
 }
 
 
-bool select( uiFont& fnt, uiObject* parnt=0, const char* nm=0 )
+bool select( uiFont& fnt, uiObject* parnt, const char* nm )
 {
     bool ok;
   
@@ -156,11 +156,8 @@ bool select( uiFont& fnt, uiObject* parnt=0, const char* nm=0 )
 
 //----------------------------------------------------------------------------
 
-uiFont& uiFontList::add( const char* key,
-                         const char* family = FontData::defaultFamily(),
-                         int pointSize = FontData::defaultPointSize(),
-                         FontData::Weight weight = FontData::defaultWeight(),
-                         bool isItalic = FontData::defaultItalic() )
+uiFont& uiFontList::add( const char* key, const char* family, int pointSize,
+                         FontData::Weight weight, bool isItalic )
 {
     return add( key, FontData( pointSize, family, weight, isItalic) );
 }
@@ -172,7 +169,7 @@ uiFont& uiFontList::add( const char* key, const FontData& fdat )
 }
 
 
-uiFont& uiFontList::get( const char* key = 0 )
+uiFont& uiFontList::get( const char* key )
 {
     return gtFont( key, 0 );
 }

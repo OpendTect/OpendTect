@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uicolor.cc,v 1.2 2001-05-04 10:08:59 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "qcolordialog.h"
 
-bool select( Color& col, uiObject* parnt=0, const char* nm=0 )
+bool select( Color& col, uiObject* parnt, const char* nm )
 {
   
     bool ok;

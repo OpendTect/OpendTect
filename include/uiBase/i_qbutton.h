@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.2 2001-02-16 17:01:35 arend Exp $
+ RCS:           $Id: i_qbutton.h,v 1.3 2001-05-04 10:08:53 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,15 +50,15 @@ private:
 private slots:
 
     void clicked() 		
-		{ return _receiver->notifyHandler( uiButton::clicked ); }
+		{ _receiver->notifyHandler( uiButton::clicked ); }
     void pressed() 		
-		{ return _receiver->notifyHandler( uiButton::pressed ); }
+		{ _receiver->notifyHandler( uiButton::pressed ); }
     void released()		
-		{ return _receiver->notifyHandler( uiButton::released); }
+		{ _receiver->notifyHandler( uiButton::released); }
     void toggled( bool ) 	
-		{ return _receiver->notifyHandler( uiButton::toggled ); }
+		{ _receiver->notifyHandler( uiButton::toggled ); }
     void stateChanged( int ) 	
-		{ return _receiver->notifyHandler( uiButton::stateChanged ); }
+		{ _receiver->notifyHandler( uiButton::stateChanged ); }
 
 };
 

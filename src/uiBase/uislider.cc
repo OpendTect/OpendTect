@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.1 2001-02-16 17:02:07 arend Exp $
+ RCS:           $Id: uislider.cc,v 1.2 2001-05-04 10:09:03 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ void uiSlider::setValue( double d )
     mQtThing()->setValue( d );
 }
 
-void uiSlider::setTickMarks( bool yn=true )
+void uiSlider::setTickMarks( bool yn )
 {
     mQtThing()->setTickmarks ( yn ? QSlider::Below : QSlider::NoMarks );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.2 2001-04-24 10:53:27 bert Exp $
+ RCS:           $Id: uimenu.cc,v 1.3 2001-05-04 10:09:02 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,4 +123,4 @@ uiPopupMenu::uiPopupMenu( uiObject* parnt, const char* nm )
 const QWidget* 	uiPopupMenu::qWidget_() const 	{ return mQtThing(); } 
 QMenuData& uiPopupMenu::qMenuData()		{ return *mQtThing(); }
 bool uiPopupMenu::isCheckable()		{ return mQtThing()->isCheckable(); }
-void uiPopupMenu::setCheckable(bool yn) { return mQtThing()->setCheckable(yn); }
+void uiPopupMenu::setCheckable(bool yn) { mQtThing()->setCheckable(yn); }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.8 2001-05-02 14:27:55 arend Exp $
+ RCS:		$Id: gendefs.h,v 1.9 2001-05-04 10:08:51 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,9 @@ ________________________________________________________________________
 
 
 #ifdef __msvc__
+  // warning C4355: 'this' : used in base member initializer list
+# pragma warning( disable : 4355 )
+
 # define for 				if(0);else for
 # define mPolyRet(base,clss)		base
 # define mPolyRetDownCast(clss,var)	dynamic_cast<clss>(var)

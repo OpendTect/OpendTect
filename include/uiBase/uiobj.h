@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.6 2001-05-03 10:30:47 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.7 2001-05-04 10:08:56 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,7 +245,9 @@ public:
 			{ 
 			    if( qtThing )
 			    {   // avoid infinite recursion!
+#ifndef __msvc__
 				qtThing->clientDel( this );
+#endif
 				delete qtThing;
 			    }
 			}

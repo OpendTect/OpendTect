@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uimain.cc,v 1.2 2001-05-04 10:09:01 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ void uiMain::setFont( const uiFont& font, bool PassToChildren )
 
 void uiMain::exit ( int retcode ) 
 { 
-    return app->exit( retcode ); 
+    app->exit( retcode ); 
 }
 /*!<
     \brief Tells the application to exit with a return code. 

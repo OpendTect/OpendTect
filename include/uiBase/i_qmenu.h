@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.1 2000-11-27 10:19:26 bert Exp $
+ RCS:           $Id: i_qmenu.h,v 1.2 2001-05-04 10:08:54 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ private:
 
 private slots:
 
-    void activated() 		{ return _receiver->notifyHandler(); }
+    void activated() 		{ _receiver->notifyHandler(); }
 
 };
 
