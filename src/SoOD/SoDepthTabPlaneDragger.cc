@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.5 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.6 2004-05-19 10:15:38 kristofer Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -108,7 +108,7 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
     SO_KIT_ADD_CATALOG_ENTRY(translator, SoSeparator, true,
 	    			planeSwitch, scaleTabs, true);
     SO_KIT_ADD_CATALOG_ENTRY(scaleTabs, SoSeparator, true,
-	    			planeSwitch, "", false);
+	    			planeSwitch, "", true);
     SO_KIT_ADD_CATALOG_ENTRY(scaleTabMaterial, SoMaterial, true,
 	    			scaleTabs, scaleTabHints, true);
     SO_KIT_ADD_CATALOG_ENTRY(scaleTabHints, SoShapeHints, true,
