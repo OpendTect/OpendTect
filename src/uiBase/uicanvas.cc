@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.2 2001-04-09 16:37:55 bert Exp $
+ RCS:           $Id: uicanvas.cc,v 1.3 2001-04-10 07:10:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,16 +228,7 @@ void i_ScrollableCanvas::drawContents ( QPainter * p, int clipx,
         return;
     }
 
-    QRect qr = p->viewport();
-    if ( clipx < qr.left() ) clipx = qr.left();
-    if ( clipx > qr.right() ) clipx = qr.right();
-    if ( clipy < qr.top() ) clipy = qr.top();
-    if ( clipy > qr.bottom() ) clipy = qr.bottom();
-    if ( clipx+clipw > qr.right() ) clipw = qr.right() - clipx;
-    if ( clipy+cliph > qr.bottom() ) cliph = qr.bottom() - clipy;
-    uiRect rect ( clipx , clipy, clipx+clipw, clipy+cliph );
-
-    handlePaintEvent( rect );
+    handlePaintEvent( uiRect(clipx,clipy,clipx+clipw,clipy+cliph) );
 }
 
 
