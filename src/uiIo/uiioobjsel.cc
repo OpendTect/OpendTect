@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.58 2003-06-27 08:40:47 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.59 2003-07-24 14:23:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,16 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	nmfld->attach( stretchedBelow, topgrp );
 	nmfld->setElemSzPol( uiObject::smallmax );
 	nmfld->setStretch( 2, 0 );
+
+	const char* nm = ctio.name();
+	if ( nm && *nm )
+	{
+	    nmfld->setText( nm );
+	    if ( listfld->box()->isPresent( nm ) )
+		listfld->box()->setCurrentItem( nm );
+	    else
+		listfld->box()->clear();
+	}
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
@@ -137,10 +147,11 @@ void uiIOObjSelDlg::selChg( CallBacker* cb )
 {
     if ( ismultisel ) return;
     const int curitm = listfld->box()->currentItem();
+    bool issel = listfld->box()->isSelected( curitm );
     ioobj = 0;
-    if ( curitm >= 0 )
+    if ( curitm >= 0 && issel )
     {
-	entrylist->setCurrent( listfld->box()->currentItem() );
+	entrylist->setCurrent( curitm );
 	ioobj = entrylist->selected();
 	if ( cb && nmfld )
 	    nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
@@ -253,13 +264,6 @@ bool uiIOObjSelDlg::createEntry( const char* seltxt )
     return true;
 }
 
-
-void uiIOObjSelDlg::setInitOutputName( const char* nm )
-{
-    if ( nmfld ) 
-	nmfld->setText( nm );
-    listfld->box()->setCurrentItem( nm );
-}
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,

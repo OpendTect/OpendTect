@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.30 2003-05-20 12:42:12 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.31 2003-07-24 14:23:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,6 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
-    void		setInitOutputName(const char*);
 
 protected:
 
