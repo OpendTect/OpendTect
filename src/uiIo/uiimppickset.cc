@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.9 2004-01-16 11:35:54 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.10 2004-02-25 12:01:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ bool uiImportPickSet::handleAscii()
     bool doscale = false;
     PickLocation ploc;
     char buf[1024];
+    const float zfactor = SI().zFactor();
     while ( true )
     {
 	sdi.istrm->getline( buf, 1024 );
@@ -83,7 +84,7 @@ bool uiImportPickSet::handleAscii()
             firstpos = false;
 
             doscale = ploc.z > 2 * SI().zRange(false).stop &&
-                      SI().zRange(false).includes( ploc.z * .001 );
+                      SI().zRange(false).includes( ploc.z / zfactor );
 
             BinID bid = doxy ? SI().transform(Coord(ploc.pos.x,ploc.pos.y))
                              : BinID( mNINT(ploc.pos.x), mNINT(ploc.pos.y) );
@@ -102,7 +103,7 @@ bool uiImportPickSet::handleAscii()
         }
 
 	if ( doscale )
-	    ploc.z *= 0.001;
+	    ploc.z /= zfactor;
 	if ( ploc.hasDir() )
 	{
 	    ploc.dir.theta *= M_PI/180;
