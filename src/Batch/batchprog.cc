@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.69 2004-12-16 09:39:57 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.70 2005-02-21 14:51:05 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -217,13 +217,20 @@ void BatchProgram::killNotify( bool yn )
 }
 
 
+#define mReturn( ret ) { \
+    if ( ret ) { nrattempts = 0; return true; } \
+    if ( nrattempts++ < maxtries ) return true; \
+    return false; \
+}
 
 bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
 				 bool force )
 {
     static int maxelapsed  = atoi( getenv("DTECT_MM_MILLISECS")
 				 ? getenv("DTECT_MM_MILLISECS") : "1000");
-    // if ( !usesock_ ) return true;
+    static int maxtries = atoi( getenv("DTECT_MM_MSTR_RETRY")
+				 ? getenv("DTECT_MM_MSTR_RETRY") : "10");
+    static int nrattempts = 0;
 
     int elapsed = Time_getMilliSeconds() - timestamp_;
     if ( elapsed < 0 )
@@ -244,7 +251,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     if ( !sock || !sock->ok() )
     {
 	mErrStrm << "Cannot open communication socket to Master." << std::endl;
-	return false;
+	mReturn(false)
     }
 
     FileMultiString statstr;
@@ -289,7 +296,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     }
 
     delete sock;
-    return ret;
+    mReturn(ret)
 }
 
 
