@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.11 2001-05-01 15:37:09 arend Exp $
+ RCS:           $Id: arrayndutils.h,v 1.12 2001-05-02 08:53:53 windev Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,10 @@ ________________________________________________________________________
 #include <mathfunc.h>
 #include <math.h>
 #include <iostrm.h>
+
+#ifndef M_PI
+# define M_PI           3.14159265358979323846  /* pi */
+#endif
 
 template <class T>
 inline void operator<<( ostream& strm, const ArrayND<T>& array )
@@ -110,11 +114,11 @@ public:
 
 			ArrayNDWindow( const ArrayNDInfo&,
 					bool rectangular,
-					ArrayNDWindow::WindowType = Hamming );
+					WindowType = Hamming );
 
 			~ArrayNDWindow();
 
-    bool		setType( ArrayNDWindow::WindowType );
+    bool		setType( WindowType );
     bool		setType( const char* );
 
     bool		resize( const ArrayNDInfo& );
@@ -602,14 +606,20 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
     return true;
 }
 
+#ifdef KEEP_FOR_A_WHILE
+/*
+I included this routine for my NLA module, but I'm not currently working
+on it. It's not tested, so I commented it out, since I needed to check
+in.
+AL 2/05/2001
+*/
+
 /*! \brief Calculates the average over an Array2D
 
 */
 template <class T>
 inline bool avg( Array2D<T>* in, Array1D<T>* out_ = 0, int loopDim=1 )
 {
-
-
 
     slice.setPos( loopDim, 0 );
     slice.init();
@@ -660,5 +670,5 @@ inline bool avg( Array2D<T>* in, Array1D<T>* out_ = 0, int loopDim=1 )
 
     return true;
 }
-
+#endif // KEEP_FOR_A_WHILE
 #endif
