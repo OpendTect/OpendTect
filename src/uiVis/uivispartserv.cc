@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.149 2003-05-27 15:25:32 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.150 2003-06-02 08:14:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -608,11 +608,12 @@ const AttribSliceSet* uiVisPartServer::getCachedData( int id ) const
 }
 
 
-bool uiVisPartServer::setCubeData( int id, AttribSliceSet* sliceset )
+bool uiVisPartServer::setCubeData( int id, AttribSliceSet* sliceset,
+       				   bool colordata )
 {
     mDynamicCastAll();
-    if ( pdd ) return pdd->putNewData(sliceset);
-    if ( vd ) return vd->putNewData( sliceset );
+    if ( pdd ) return pdd->putNewData( sliceset, colordata );
+    if ( vd ) return vd->putNewData( sliceset, colordata );
 
     delete sliceset;
     return false;
@@ -663,11 +664,12 @@ const Interval<float> uiVisPartServer::getRandomTraceZRange( int id ) const
 }
 
 
-void uiVisPartServer::setRandomTrackData( int id, ObjectSet<SeisTrc>& data )
+void uiVisPartServer::setRandomTrackData( int id, ObjectSet<SeisTrc>& data,
+       					  bool colordata )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj)
-    if ( rtd ) rtd->putNewData( data );
+    if ( rtd ) rtd->putNewData( data, colordata );
 }
 
 
@@ -1097,10 +1099,19 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 }
 
 
+bool uiVisPartServer::hasColorAttrib( int id ) const
+{
+    mDynamicCastAllConst();
+    return ( vd || rtd || pdd );
+}
+
+
 const ColorAttribSel* uiVisPartServer::getColorSelSpec( int id ) const
 {
     mDynamicCastAllConst();
     if ( pdd ) return &pdd->getColorSelSpec();
+    if ( rtd ) return &rtd->getColorSelSpec();
+    if ( vd ) return &rtd->getColorSelSpec();
 
     return 0;
 }
@@ -1110,6 +1121,8 @@ void uiVisPartServer::setColorSelSpec( int id, const ColorAttribSel& myas )
 {
     mDynamicCastAll();
     if ( pdd ) pdd->setColorSelSpec( myas );
+    if ( rtd ) rtd->setColorSelSpec( myas );
+    if ( vd ) vd->setColorSelSpec( myas );
 }
 
 
@@ -1119,17 +1132,10 @@ void uiVisPartServer::setColorSelSpec( const ColorAttribSel& myas )
 }
 
 
-void uiVisPartServer::setColorData( int id, AttribSliceSet* sliceset )
-{
-    mDynamicCastAll();
-    if ( pdd ) pdd->setColorData( sliceset );
-}
-
-
 bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 {
     mDynamicCastAll();
-    if ( !vd && !pdd && !rtd && !sd )
+    if ( !vd && !pdd && !rtd )
 	return false;
 
     const ColorAttribSel* as = getColorSelSpec( id );

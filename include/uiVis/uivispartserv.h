@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.86 2003-05-27 15:25:38 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.87 2003-06-02 08:14:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,8 @@ public:
     				/*!< Should only be called as a direct 
 				     reply to evGetNewCubeData */
     const AttribSliceSet*	getCachedData(int) const;
-    bool			setCubeData(int,AttribSliceSet*);
+    bool			setCubeData(int,AttribSliceSet*,
+	    				    bool colordata=false);
     				/*!< data becomes mine */
     void			setSliceIdx(int,int);
 
@@ -134,9 +135,10 @@ public:
 
     void			getRandomTrackPositions(int id,
 	    						TypeSet<BinID>&) const;
-    const Interval<float>	getRandomTraceZRange( int id ) const;
-    void			setRandomTrackData(int id,ObjectSet<SeisTrc>&);
-    				/*!< Traces becomes mine */
+    const Interval<float>	getRandomTraceZRange(int id) const;
+    void			setRandomTrackData(int,ObjectSet<SeisTrc>&,
+	    					   bool colordata=false);
+    				/*!< Traces become mine */
 
     static const int		evMouseMove;
     Coord3			getMousePos(bool xyt) const;
@@ -190,8 +192,9 @@ protected:
     bool			selectAttrib(int id);
     bool			calculateAttrib(int id,bool newsel);
 
-    bool			calculateColorAttrib(int,bool);
+    bool			hasColorAttrib(int) const;
     bool			selectColorAttrib(int);
+    bool			calculateColorAttrib(int,bool);
 
     bool			isMovable(int id) const;
     bool			setPosition(int id);
