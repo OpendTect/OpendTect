@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.4 2002-02-20 17:14:48 bert Exp $
+ RCS:		$Id: executor.h,v 1.5 2002-03-05 10:20:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uidobj.h>
-#include <basictask.h>
+#include "uidobj.h"
+#include "basictask.h"
 #include <iosfwd>
+
+template <class T> class ObjectSet;
 
 /*!\brief specification to enable chunkwise execution a process.
 
@@ -57,8 +59,33 @@ public:
 
     virtual bool	execute(ostream* log=0,
 				bool isfirst=true,bool islast=true);
-
 };
 
+/*!\brief 
+ExecutorGroup is an Executor that consists of many other executors. Executors
+may be added on the fly while processing. The executors are executed in the
+order in which they where added
+*/
+
+
+class ExecutorGroup : public Executor
+{
+public:
+    			ExecutorGroup( const char* nm );
+    virtual		~ExecutorGroup();
+    virtual void	add( Executor* );
+    			/*!< You will become mine!! */
+
+    virtual int		nextStep();
+    virtual const char*	message() const;
+    virtual int		totalNr() const;
+    virtual int		nrDone() const { return nrdone; }
+    virtual const char*	nrDoneText() const;
+
+protected:
+    int			currentexec;
+    int			nrdone;
+    ObjectSet<Executor>& executors;
+};
 
 #endif

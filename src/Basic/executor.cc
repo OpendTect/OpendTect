@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.4 2002-02-20 17:15:00 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.5 2002-03-05 10:20:32 kristofer Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -103,4 +103,83 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
     if ( islast )
 	stream << endl << endl << "End of processing" << endl;
     return rv < 0 ? false : true;
+}
+
+
+ExecutorGroup::ExecutorGroup( const char* nm )
+    : Executor( nm )
+    , executors( *new ObjectSet<Executor> )
+    , nrdone( 0 )
+    , currentexec( 0 )
+{}
+
+
+ExecutorGroup::~ExecutorGroup()
+{
+    deepErase( executors );
+    delete &executors;
+}
+
+
+void ExecutorGroup::add( Executor* n )
+{
+    executors += n;
+}
+
+
+int ExecutorGroup::nextStep()
+{
+    const int nrexecs = executors.size();
+    if ( nrexecs ) return 0;
+
+    int res = executors[currentexec]->nextStep();
+    if ( res==Finished )
+    {
+	if ( currentexec<nrexecs-1 )
+	{
+	    currentexec++;
+	    res = MoreToDo;
+	}
+    }
+
+    nrdone ++;
+
+    return res;
+}
+
+
+const char* ExecutorGroup::message() const
+{
+    const int nrexecs = executors.size();
+    if ( nrexecs ) return 0;
+
+    return executors[currentexec]->message();
+}
+
+
+int ExecutorGroup::totalNr() const
+{
+    const int nrexecs = executors.size();
+    if ( nrexecs ) return -1;
+
+    int sum = 0;
+
+    for ( int idx=0; idx<nrexecs; idx++ )
+    {
+	int val = executors[idx]->totalNr();
+	if ( val<0 ) return -1;
+
+	sum += val;
+    }
+
+    return sum;
+}
+
+
+const char* ExecutorGroup::nrDoneText() const
+{
+    const int nrexecs = executors.size();
+    if ( nrexecs ) return Executor::nrDoneText();
+
+    return executors[currentexec]->nrDoneText();
 }
