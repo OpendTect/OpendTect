@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.21 2002-04-18 09:51:15 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.22 2002-04-20 14:50:59 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -104,12 +104,14 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     }
     wsprojnm_ = si.wsprojnm_;
     wspwd_ = si.wspwd_;
+    zistime_ = si.zistime_;
 }
 
 
 SurveyInfo::SurveyInfo( const char* rootdir )
 	: dirname(File_getFileName(rootdir))
     	, valid_(false)
+    	, zistime_(true)
 {
     set3binids[2].crl = 0;
     if ( !rootdir || dirname == "" ) return;
