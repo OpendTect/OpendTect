@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.57 2005-03-14 16:56:29 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.58 2005-03-31 15:33:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,9 +148,9 @@ HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
     {
 	const BinIDValueSet& bvs = *sections[idx];
 	totalnr += bvs.totalSize();
-	//SectionID sectionid =  horizon.geometry.addSection( 0, false );
-	//horizon.geometry.setTranslatorData( sectionid, step, step,
-	//		RowCol(bvs.inlRange().start,bvs.crlRange().start) );
+	SectionID sectionid =  horizon.geometry.addSection( 0, false );
+	horizon.geometry.setTranslatorData( sectionid, step, step,
+			RowCol(bvs.inlRange().start,bvs.crlRange().start) );
     }
 
     sectionidx = 0;
