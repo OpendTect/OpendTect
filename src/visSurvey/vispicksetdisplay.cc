@@ -4,12 +4,13 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.30 2002-07-29 07:35:03 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.31 2002-07-30 06:28:03 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
 #include "visdataman.h"
 #include "visplanedatadisplay.h"
+#include "vissurvhorizon.h"
 #include "vissceneobjgroup.h"
 #include "vismaterial.h"
 #include "position.h"
@@ -221,26 +222,31 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
     if ( eventinfo.type != visBase::MouseClick ) return;
     if ( eventinfo.mousebutton ) return;
 
+    int eventid = -1;
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	visBase::DataObject* dataobj =
+	    		visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+
+	if ( dataobj->selectable() )
+	{
+	    eventid = eventinfo.pickedobjids[idx];
+	    break;
+	}
+    }
+
     if ( eventinfo.pressed )
     {
-	mousepressid = -1;
-	mousepressposition.x = mUndefValue;
-	mousepressposition.y = mUndefValue;
-	mousepressposition.z = mUndefValue;
-
-	if ( eventinfo.pickedobjids.size() )
+	mousepressid = eventid;
+	if ( eventid==-1 )
 	{
-	    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
-	    {
-		visBase::DataObject* dataobj =
-		    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
-
-		if ( dataobj->selectable() )
-		{
-		    mousepressid = eventinfo.pickedobjids[idx];
-		    mousepressposition = eventinfo.pickedpos;
-		}
-	    }
+	    mousepressposition.x = mUndefValue;
+	    mousepressposition.y = mUndefValue;
+	    mousepressposition.z = mUndefValue;
+	}
+	else
+	{
+	    mousepressposition = eventinfo.pickedpos;
 	}
 
 	eventcatcher->eventIsHandled();
@@ -250,7 +256,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 	if ( eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
 	{
 	    if ( eventinfo.pickedobjids.size() &&
-		 eventinfo.pickedobjids[0]==mousepressid )
+		 eventid==mousepressid )
 	    {
 		int removeidx = group->getFirstIdx(mousepressid);
 		if ( removeidx != -1 )
@@ -265,7 +271,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
 	{
 	    if ( eventinfo.pickedobjids.size() &&
-		 eventinfo.pickedobjids[0]==mousepressid )
+		 eventid==mousepressid )
 	    {
 		const int sz = eventinfo.pickedobjids.size();
 		bool validpicksurface = false;
@@ -275,8 +281,10 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 		    const DataObject* pickedobj =
 			visBase::DM().getObj(eventinfo.pickedobjids[idx]);
 
-		    if ( typeid(*pickedobj)==
-			    typeid(visSurvey::PlaneDataDisplay) )
+		    if ( typeid(*pickedobj) ==
+			    typeid(visSurvey::PlaneDataDisplay) ||
+		          typeid(*pickedobj) ==
+		      	    typeid(visSurvey::HorizonDisplay) )
 		    {
 			validpicksurface = true;
 			break;
