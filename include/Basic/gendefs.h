@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.23 2003-12-24 11:59:21 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.24 2004-01-21 15:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 /*! There are only #define lines, so there is no C-language constraint. */
 
 #define mODMajorVersion		1
-#define mODMinorVersion		0
+#define mODMinorVersion		1
 
 #include <plfdefs.h>
 
