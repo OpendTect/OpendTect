@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.5 2003-01-24 07:38:56 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.6 2003-02-12 12:53:21 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -70,10 +70,15 @@ public:
     void			setData( int section, const Array2D<float>& );
     				/*!< section ranges from 0 to nrKnots-2 */
 
+    CNotifier<RandomTrack,int>	knotmovement;
+    				/*!< Sends the index of the knot moving */
+
 protected:
     				~RandomTrack();
     void			rebuild();
     void			createDragger();
+
+    static void			motionCB(void*,SoRandomTrackLineDragger*);
 
     Interval<float>		depthrg;
     TypeSet<Coord>		knots;
