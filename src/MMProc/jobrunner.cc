@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.16 2004-11-18 12:26:59 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.17 2004-11-18 13:40:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,14 +40,16 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	: Executor("Running jobs")
 	, iomgr__(0)
 	, descprov_(p)
-    	, maxhostfailures_(2)
-    	, maxjobfailures_(2)
     	, rshcomm_("rsh")
 	, niceval_(19)
 	, firstport_(19636)
     	, prog_(cmd)
-	, timeout_( atoi( getenv("DTECT_JOBMAN_TIMEOUT")
-			? getenv("DTECT_JOBMAN_TIMEOUT") : "120000") )
+	, timeout_(		atoi( getenv("DTECT_JOB_TIMEOUT")
+				    ? getenv("DTECT_JOB_TIMEOUT"): "120000") )
+    	, maxhostfailures_(	atoi( getenv("DTECT_MAX_HOSTFAIL")
+				    ? getenv("DTECT_MAX_HOSTFAIL") : "2") )
+    	, maxjobfailures_(	atoi( getenv("DTECT_MAX_JOBFAIL")
+				    ? getenv("DTECT_MAX_JOBFAIL") : "2") )
 	, jobStarted(this)
 	, jobFailed(this)
     	, notifyji(0)
