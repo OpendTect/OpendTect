@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.3 2004-07-29 16:52:30 bert Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.4 2004-12-15 15:56:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -312,6 +312,9 @@ bool dgbEMSurfaceTranslator::prepRead()
 void dgbEMSurfaceTranslator::getSels( StepInterval<int>& rrg,
 				      StepInterval<int>& crg )
 {
+    if ( sels_.rg.isEmpty() )
+	sels_.rg = sd_.rg;
+
     rrg.start = sels_.rg.start.inl; rrg.stop = sels_.rg.stop.inl;
     rrg.step = sels_.rg.step.inl;
     crg.start = sels_.rg.start.crl; crg.stop = sels_.rg.stop.crl;
