@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.18 2004-10-07 11:27:25 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.19 2004-10-07 12:03:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,9 @@ public:
     				//!< will return replacer if linekey exists
     bool		rename(const char* lk,const char* newlk);
     				//!< Fails if new line key exists
+    				//!< or if LineSet is currently being written
+    bool		renameLine(const char* oldlnm,const char* newlnm);
+    				//!< Fails if new line name already exists
     				//!< or if LineSet is currently being written
     bool		remove(const char* lk);
     				//!< Also removes from disk

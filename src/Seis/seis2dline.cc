@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.26 2004-10-07 11:27:25 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.27 2004-10-07 12:03:52 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -419,6 +419,41 @@ bool Seis2DLineSet::remove( const char* lk )
 	liop_->removeImpl(*iop);
     pars_ -= iop;
     delete iop;
+
+    writeFile();
+    return true;
+}
+
+
+bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
+{
+    if ( !newlnm || !*newlnm )
+	return false;
+
+    if ( !waitForLock(false,true) )
+	{ ErrMsg("Cannot edit Lineset: LineSet locked"); return false; }
+
+    // Critical concurrency section using file lock
+    readFile( true );
+
+    for ( int idx=0; idx<pars_.size(); idx++ )
+    {
+	BufferString lnm = lineName( *pars_[idx] );
+	if ( lnm == newlnm )
+	{
+	    ErrMsg("Cannot rename line to existing line name");
+	    removeLock();
+	    return false;
+	}
+    }
+
+    for ( int idx=0; idx<pars_.size(); idx++ )
+    {
+	IOPar& iop = *pars_[idx];
+	BufferString lnm = lineName( iop );
+	if ( lnm == oldlnm )
+	    setLineKey( iop, lineKey(newlnm,attribute(iop)) );
+    }
 
     writeFile();
     return true;
