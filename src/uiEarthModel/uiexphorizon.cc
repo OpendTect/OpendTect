@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.11 2003-04-22 09:52:13 arend Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.12 2003-06-03 15:24:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p,
     inbox = new uiLabeledListBox( this, "Available horizons" );
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	inbox->box()->addItem( hinfos_[idx]->name );
+    inbox->box()->setSelected( 0 );
     inbox->box()->selectionChanged.notify( mCB(this,uiExportHorizon,selChg) );
 
     attrlbl = new uiLabel( this, "" );
