@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.6 2000-08-09 15:16:23 bert Exp $
+ RCS:           $Id: geometry.h,v 1.7 2000-08-11 15:20:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,11 @@ public:
 			Size2D( T w = 0 , T h = 0 ) 
 				{ width_ = w; height_ = h; }
 
+    inline bool		operator ==( const Size2D<T>& s ) const
+			{ return s.width_ == width_ && s.height_ == height_; }
+    inline bool		operator !=( const Size2D<T>& p ) const
+			{ return s.width_ != width_ || s.height_ != height_; }
+
     inline T		width() const		{ return width_; }
     inline T		height() const		{ return height_; }
     inline void		setWidth( T val )	{ width_ = val; }
@@ -70,21 +75,30 @@ public:
 			Rect ( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
 			: topLeft_( Point<T>(l,t)) 
 			, bottomRight_( Point<T>(r,b) ) {}
-
 			Rect ( Point<T> tl, Point<T> br ) 
 			: topLeft_( tl ) , bottomRight_( br ) {} 
 
-    inline Point<T>	topLeft() const 		{ return topLeft_; }
-    inline Point<T>	bottomRight() const 		{ return bottomRight_; }
+    inline bool		operator ==( const Rect<T>& r ) const
+			{ return   r.topLeft_ == topLeft_
+				&& r.bottomRight_ == bottomRight_; }
+    inline bool		operator !=( const Rect<T>& p ) const
+			{ return   r.topLeft_ != topLeft_
+				|| r.bottomRight_ != bottomRight_; }
+
+    inline Point<T>	topLeft() const     { return topLeft_; }
+    inline Point<T>	topRight() const    { return uiPoint(top(),right()); }
+    inline Point<T>	bottomLeft() const  { return uiPoint(bottom(),left()); }
+    inline Point<T>	bottomRight() const { return bottomRight_; }
     inline Point<T>	centre() const 		
-                        { return Point<T>
-				 (
-				    ( ( topLeft_.x() + bottomRight_.x() ) / 2 ),
-				    ( ( topLeft_.y() + bottomRight_.y() ) / 2 ) 
-				 ); 
+                        { return Point<T>( (topLeft_.x()+bottomRight_.x())/2,
+					   (topLeft_.y()+bottomRight_.y())/2 ); 
                         }
     inline void		setTopLeft( Point<T> tl )	{ topLeft_ = tl; }
     inline void		setBottomRight( Point<T> br )	{ bottomRight_ = br; }
+    inline void		setTopRight( Point<T> tr )
+			{ topLeft_.setY(tr.y()); bottomRight_.setX(tr.x()); }
+    inline void		setBottomLeft( Point<T> tr )
+			{ topLeft_.setX(tr.x()); bottomRight_.setY(tr.y()); }
 
     inline bool		contains(const Point<T>&) const;
     inline bool		isInside( const Rect<T>& other ) const
@@ -107,6 +121,7 @@ public:
     inline void 	setBottom( T val )	{ bottomRight_.setY( val ); }
 
     inline Size2D<T>	size() const { return Size2D<T>( width(), height() ); }
+    inline		operator Size2D<T>() const	{ return size(); }
     inline void 	zero()	{ topLeft_.zero(); bottomRight_.zero(); }
 
 protected:
