@@ -1,14 +1,16 @@
 /*+
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
- * DATE     : Nov 2000
- * FUNCTION : Interpret data buffers
+ * DATE     : Feb 2001
+ * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.1 2001-02-19 11:26:41 bert Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.2 2001-02-22 08:21:20 bert Exp $";
 
 #include "bindatadesc.h"
-#include "separstr.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 union _BDD_union
@@ -37,14 +39,17 @@ void BinDataDesc::set( unsigned short c )
 
 void BinDataDesc::set( const char* s )
 {
-    FileMultiString fms( s );
-    const int sz = fms.size();
-    if ( sz > 0 )
-	isint = *fms[0] == 'F' || *fms[0] == 'f';
-    if ( sz > 1 )
-	issigned = *fms[1] == 'S' || *fms[1] == 's';
-    if ( sz > 2 )
-	nrbytes = nearestByteCount( isint, atoi( fms[2] ) );
+    if ( !s || !*s ) return;
+
+    const char* ptr = strchr( s, '`' );
+    isint = *s != 'F' && *s != 'f';
+    if ( !ptr ) return;
+
+    s = ptr + 1;
+    ptr = strchr( s, '`' );
+    issigned = *s == 'S' || *s == 's';
+    if ( ptr )
+	nrbytes = nearestByteCount( isint, atoi( ptr+1 ) );
 }
 
 
@@ -60,13 +65,14 @@ unsigned short BinDataDesc::dump() const
 }
 
 
-BufferString BinDataDesc::toString() const
+void BinDataDesc::toString( char* buf ) const
 {
-    FileMultiString fms( isint ? "Integer" : "Float" );
-    fms += issigned ? "Signed" : "Unsigned";
-    fms += (int)nrbytes;
+    if ( !buf ) return;
 
-    return BufferString( (const char*)fms );
+    sprintf( buf, "%s`%s`%d",
+		  isint ? "Integer" : "Float",
+		  issigned ? "Signed" : "Unsigned",
+		  (int)nrbytes );
 }
 
 
