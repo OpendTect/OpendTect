@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.19 2004-12-17 13:31:02 nanne Exp $
+ RCS:		$Id: rowcol.h,v 1.20 2005-01-06 08:28:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,13 @@ class RowCol : public RCol
 public:
 		RowCol( int row_, int col_ ) : row(row_), col(col_)	{}
 		RowCol( const RCol& rc ) : row( rc.r() ), col ( rc.c() )			{}
+		RowCol( const int64_t& ser ) { setSerialized(ser); }
 		RowCol() : row( 0 ), col ( 0 )			{}
 
     int&	r() { return row; }
-    const int&	r() const { return row; }
+    int		r() const { return row; }
     int&	c() { return col; }
-    const int&	c() const { return col; }
+    int		c() const { return col; }
 
 		/* Implements +, -, * and other operators. See the documentation
 		   for details */
