@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.23 2003-12-15 10:14:56 kristofer Exp $
+ RCS:		$Id: position.h,v 1.24 2004-01-09 12:03:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,13 @@ public:
     double	x;
     double	y;
 };
+
+
+bool getDirectionStr( const Coord&, BufferString& );
+/*!< Returns strings like 'South-West', NorthEast depending on the given
+     coord that is assumed to have the x-axis pointing northwards, and the
+     y axis pointing eastwards
+*/
 
 
 /*!\brief a cartesian coordinate in 3D space. */
