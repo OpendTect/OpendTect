@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.2 2000-04-12 16:08:57 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.3 2000-05-26 10:37:05 bert Exp $
 ________________________________________________________________________
 
 There are only #define lines, so there is no C-language constraint.
@@ -25,17 +25,13 @@ There are only #define lines, so there is no C-language constraint.
 #endif
 #define PATH_LENGTH		255
 
+#define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
+#define mNINT(x)		( (int)((x)>0 ? (x)+.5 : (x)-.5) )
+
 #ifndef mEPSILON
 #define mEPSILON		(1e-10)
 #endif
-
-#define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
-
 #define mIS_ZERO(x)		( (x) < (mEPSILON) && (x) > (-mEPSILON) )
-#define mIS_FINITE(x)		( finite(x) )
-#define mMIN(x,y)		( (x) > (y) ? (y) : (x) )
-#define mMAX(x,y)		( (x) < (y) ? (y) : (x) )
-#define mNINT(x)		( (int)((x)>0 ? (x)+.5 : (x)-.5) )
 
 #define mUndefValue		1e30
 #define mIsUndefined(x)		(((x)>9.99999e29)&&((x)<1.00001e30))

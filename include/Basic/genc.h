@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.2 2000-03-02 15:24:29 bert Exp $
+ RCS:		$Id: genc.h,v 1.3 2000-05-26 10:37:04 bert Exp $
 ________________________________________________________________________
 
 General utilities:
@@ -47,6 +47,7 @@ const char*	GetDataFileName(const char*);
 const char*	GetDataDir(void);
 		/* User data: $dGB_DATA/project */
 
+int		isFinite(double);
 double		IntPowerOf(double,int);
 double		PowerOf(double,double);
 		/* PowerOf(-2,2) returns -4 */

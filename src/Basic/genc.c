@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.2 2000-03-02 15:28:56 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.3 2000-05-26 10:37:55 bert Exp $";
 
 #include <string.h>
 #include <stdio.h>
@@ -167,4 +167,14 @@ double PowerOf( double x, double y )
  
     ret = exp( y * log(x) );
     return isneg ? -ret : ret;
+}
+
+
+#ifdef sun5
+# include <ieeefp.h>
+#endif
+
+int isFinite( double v )
+{
+    return finite(v);
 }

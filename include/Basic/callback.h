@@ -1,23 +1,26 @@
 #ifndef callback_H
 #define callback_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any user ID object
- RCS:		$Id: callback.h,v 1.1.1.2 1999-09-16 09:18:51 arend Exp $
+ RCS:		$Id: callback.h,v 1.2 2000-05-26 10:37:03 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include <sets.h>
 class UserIDObject;
 
 
 typedef void (UserIDObject::*InformFunction)(UserIDObject*);
+#define mCBFn(clss,fn) ((InformFunction)(&clss::fn))
+#define mCB(obj,clss,fn) CallBack(obj,mCBFn(clss,fn))
+
 
 class CallBack
 {
