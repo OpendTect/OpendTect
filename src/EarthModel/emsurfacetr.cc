@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.1 2004-07-14 15:33:53 nanne Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.2 2004-07-23 12:54:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,8 +280,8 @@ bool dgbEMSurfaceTranslator::prepRead()
     if ( readOnlyZ() )
 	reader_->setSurfPosCalc( new dgbEMSurfacePosCalc );
 
-    for ( int idx=0; idx<reader_->nrPatches(); idx++ )
-	sd_.patches += new BufferString( reader_->patchName(idx) );
+    for ( int idx=0; idx<reader_->nrSections(); idx++ )
+	sd_.sections += new BufferString( reader_->sectionName(idx) );
     
     for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
 	sd_.valnames += new BufferString( reader_->auxDataName(idx) );
@@ -332,11 +332,11 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 	    StepInterval<int> rrg, crg; getSels( rrg, crg );
 	    reader_->setRowInterval( rrg ); reader_->setColInterval( crg );
 	}
-	TypeSet<EM::PatchID> patchids;
-	for ( int idx=0; idx<sels_.selpatches.size(); idx++ )
-	    patchids += reader_->patchID( sels_.selpatches[idx] );
+	TypeSet<EM::SectionID> sectionids;
+	for ( int idx=0; idx<sels_.selsections.size(); idx++ )
+	    sectionids += reader_->sectionID( sels_.selsections[idx] );
 	
-	reader_->selPatches( patchids );
+	reader_->selSections( sectionids );
 	reader_->selAuxData( sels_.selvalues );
     }
 
@@ -360,11 +360,11 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 	StepInterval<int> rrg, crg; getSels( rrg, crg );
 	res->setRowInterval( rrg ); res->setColInterval( crg );
     }
-    TypeSet<EM::PatchID> patchids;
-    for ( int idx=0; idx<sels_.selpatches.size(); idx++ )
-	patchids += res->patchID( sels_.selpatches[idx] );
+    TypeSet<EM::SectionID> sectionids;
+    for ( int idx=0; idx<sels_.selsections.size(); idx++ )
+	sectionids += res->sectionID( sels_.selsections[idx] );
     
-    res->selPatches( patchids );
+    res->selSections( sectionids );
     res->selAuxData( sels_.selvalues );
 
     return res;

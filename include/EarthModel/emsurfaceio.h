@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.13 2004-05-28 15:00:58 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.14 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -62,12 +62,12 @@ public:
     void		setSurface( EM::Surface* s )	{ surface = s; }
     bool		isOK() const;
 
-    int			nrPatches() const;
-    EM::PatchID		patchID( int ) const;
-    const char*		patchName( int ) const;
-    void		selPatches(const TypeSet<EM::PatchID>&);
-    			/*!< The given patchIDs will be loaded. If this
-			     function is not called, all avaliable patches
+    int			nrSections() const;
+    EM::SectionID	sectionID( int ) const;
+    const char*		sectionName( int ) const;
+    void		selSections(const TypeSet<EM::SectionID>&);
+    			/*!< The given sectionIDs will be loaded. If this
+			     function is not called, all avaliable sections
 			     will be loaded.
 			*/
 
@@ -116,15 +116,15 @@ public:
 
     virtual const char*		message() const;
 
-    static const char*		nrpatchstr;
+    static const char*		nrsectionstr;
     static const char*		nrhingelinestr;
     static const char*		hingelineprefixstr;
     static const char*		posattrprefixstr;
-    static const char*		posattrpatchstr;
+    static const char*		posattrsectionstr;
     static const char*		posattrposidstr;
     static const char*		nrposattrstr;
-    static const char*		patchidstr;
-    static const char*		patchnamestr;
+    static const char*		sectionidstr;
+    static const char*		sectionnamestr;
     static const char*		rowrangestr;
     static const char*		colrangestr;
     static const char*		intdatacharstr;
@@ -142,9 +142,9 @@ protected:
     int				readInt(std::istream&) const;
     StreamConn*			conn;
 
-    BufferStringSet		patchnames;
-    TypeSet<EM::PatchID>	patchids;
-    TypeSet<EM::PatchID>	patchsel;
+    BufferStringSet		sectionnames;
+    TypeSet<EM::SectionID>	sectionids;
+    TypeSet<EM::SectionID>	sectionsel;
 
     BufferStringSet		auxdatanames;
     ObjectSet<EM::dgbSurfDataReader> auxdataexecs;
@@ -156,8 +156,8 @@ protected:
     bool			error;
     int				nrdone;
 
-    int				patchindex;
-    int				oldpatchindex;
+    int				sectionindex;
+    int				oldsectionindex;
     int				firstrow;
     int				nrrows;
     int				rowindex;
@@ -209,12 +209,12 @@ public:
 			~dgbSurfaceWriter();
 			/*!< Closes the stream */
 
-    int			nrPatches() const;
-    EM::PatchID		patchID( int ) const;
-    const char*		patchName( int ) const;
-    void		selPatches(const TypeSet<EM::PatchID>&);
-    			/*!< The given patchIDs will be written. If this
-			     function is not called, all avaliable patches
+    int			nrSections() const;
+    EM::SectionID	sectionID( int ) const;
+    const char*		sectionName( int ) const;
+    void		selSections(const TypeSet<EM::SectionID>&);
+    			/*!< The given sectionIDs will be written. If this
+			     function is not called, all avaliable sections
 			     will be written.
 			*/
 
@@ -252,7 +252,7 @@ protected:
     StreamConn*			conn;
     const IOObj*		ioobj;
 
-    TypeSet<EM::PatchID>	patchsel;
+    TypeSet<EM::SectionID>	sectionsel;
     TypeSet<int>		auxdatasel;
     BufferString		dbinfo;
 
@@ -261,8 +261,8 @@ protected:
     BufferString		msg;
     int				nrdone;
 
-    int				patchindex;
-    int				oldpatchindex;
+    int				sectionindex;
+    int				oldsectionindex;
     int				firstrow;
     int				nrrows;
     int				rowindex;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.17 2004-07-14 15:33:59 nanne Exp $
+ RCS:		$Id: emfault.h,v 1.18 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ public:
 protected:
 				Fault(EMManager&,const ObjectID&);
 
-    Geometry::MeshSurface*	createPatchSurface(const PatchID&) const;
+    Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
     const IOObjContext&		getIOObjContext() const;
 
 

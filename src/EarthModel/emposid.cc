@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.8 2004-07-14 15:31:08 nanne Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.9 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: emposid.cc,v 1.8 2004-07-14 15:31:08 nanne Exp 
 
 
 const char* EM::PosID::emobjstr ="Object";
-const char* EM::PosID::patchstr = "Patch";
+const char* EM::PosID::sectionstr = "Patch";
 const char* EM::PosID::subidstr = "Sub ID";
 
 
@@ -31,21 +31,21 @@ RowCol EM::PosID::getRowCol() const
 void EM::PosID::fillPar( IOPar& par ) const
 {
     par.set( emobjstr, emobj );
-    par.set( patchstr, patch );
+    par.set( sectionstr, section );
     par.set( subidstr, subid );
 }
 
 
 bool EM::PosID::usePar( const IOPar& par )
 {
-    int tmppatch;
+    int tmpsection;
     long long tmpsubid;
     const bool res = par.get( emobjstr, emobj ) &&
-		     par.get( patchstr, tmppatch ) &&
+		     par.get( sectionstr, tmpsection ) &&
 		     par.get( subidstr, tmpsubid );
     if ( res )
     {
-	patch = tmppatch;
+	section = tmpsection;
 	subid = tmpsubid;
     }
 

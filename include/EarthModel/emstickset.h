@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emstickset.h,v 1.3 2003-11-24 08:39:49 kristofer Exp $
+ RCS:		$Id: emstickset.h,v 1.4 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ template <class T> class StepInterval;
 namespace EM
 {
 
-typedef PatchID StickID;
+typedef SectionID StickID;
 typedef SubID KnotID;
 
 class EMManager;

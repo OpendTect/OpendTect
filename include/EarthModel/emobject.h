@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.29 2004-06-03 11:15:05 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.30 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -90,6 +90,10 @@ public:
     				{ return errmsg[0]
 				    ? (const char*) errmsg : (const char*) 0; }
 
+
+    virtual bool		usePar( const IOPar& );
+    virtual void		fillPar( IOPar& ) const;
+
     static int			sPermanentControlNode;
     static int			sTemporaryControlNode;
     static int			sEdgeControlNode;
@@ -106,6 +110,12 @@ protected:
     ObjectSet<TypeSet<PosID> >	posattribs;
     TypeSet<int>		attribs;
     ObjectSet<CNotifier<EMObject, PosID> >	posattrchnotifiers;
+
+    static const char*		prefcolorstr;
+    static const char*		nrposattrstr;
+    static const char*		posattrprefixstr;
+    static const char*		posattrsectionstr;
+    static const char*		posattrposidstr;
 };
 
 }; // Namespace

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.31 2004-07-14 15:33:59 nanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.32 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 /*!
 Rules for horizons.
 
-A horizon can have many patches that can be used for reversed faults.
+A horizon can have many sections that can be used for reversed faults.
 
 
      ----------------------
@@ -36,8 +36,8 @@ A horizon can have many patches that can be used for reversed faults.
      ----------------------
 
 The area marked with x is an area with an reversed fault, and the area with x
-is an own patch, while the white area is another patch. In the border between
-the patches, the nodes are defined on both patches, with the same coordinate.
+is an own section, while the white area is another section. In the border between
+the sections, the nodes are defined on both sections, with the same coordinate.
 In addition, they are also linked together. 
 */
 
@@ -59,7 +59,7 @@ class Horizon : public EM::Surface
 public:
     Executor*			import(const Grid&,int idx,bool fixholes);
     				/*!< Removes all data when idx=0 and creates 
-				  patches for every Grid imported.
+				  sections for every Grid imported.
 				*/
 
     BinID			getBinID(const EM::SubID&);
@@ -72,7 +72,7 @@ public:
 protected:
 	    			Horizon(EMManager&,const ObjectID&);
 
-    Geometry::MeshSurface*	createPatchSurface(const PatchID&) const;
+    Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
     const IOObjContext&		getIOObjContext() const;
 
     friend class		EMManager;

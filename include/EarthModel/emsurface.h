@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.40 2004-07-20 12:15:06 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.41 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,11 +30,11 @@ A horizon can have many patches that can be used for reversed faults.
      |                    |
      |       xxxxxx       |
      |     xxxxxxxxxx     |
-     |   xx Patch 1 xxx   |
+     |   xx Section 1 xxx   |
      |  XXXXXXXXXXXXXXX   |
      |                    |
      |                    |
-     |     Patch 0        |
+     |     Section 0        |
      |                    |
      |                    |
      |                    |
@@ -64,7 +64,7 @@ namespace EM
 class EMManager;
 class SurfaceIODataSelection;
 class HingeLine;
-class EdgeLineSet;
+class EdgeLineManager;
 
 class SurfaceRelations;
 
@@ -81,36 +81,36 @@ public:
     virtual Executor*	saver(const EM::SurfaceIODataSelection* s=0,
 			      bool auxdataonly=false,const MultiID* key=0);
 
-    int			nrPatches() const;
-    PatchID		patchID(int idx) const;
-    PatchID		patchID(const char*) const;
-    bool		hasPatch(const PatchID&) const;
-    int			patchNr(const PatchID&) const;
-    const char*		patchName(const PatchID&) const;
-    PatchID		addPatch(const char* nm, bool addtohistory);
-    bool		addPatch(const char* nm, PatchID, bool addtohistory);
-    			/*!< Return false if the patchid allready exists */
-    void		removePatch(EM::PatchID, bool addtohistory);
-    PatchID		clonePatch(EM::PatchID);
-    CNotifier<Surface,const PatchID&>	patchchnotifier;
+    int			nrSections() const;
+    SectionID		sectionID(int idx) const;
+    SectionID		sectionID(const char*) const;
+    bool		hasSection(const SectionID&) const;
+    int			sectionNr(const SectionID&) const;
+    const char*		sectionName(const SectionID&) const;
+    SectionID		addSection(const char* nm, bool addtohistory);
+    bool		addSection(const char* nm, SectionID, bool addtohistory);
+    			/*!< Return false if the sectionid allready exists */
+    void		removeSection(EM::SectionID, bool addtohistory);
+    SectionID		cloneSection(EM::SectionID);
+    CNotifier<Surface,const SectionID&>	sectionchnotifier;
 
-    bool		setPos( const PatchID& patch, const RowCol&,
+    bool		setPos( const SectionID& section, const RowCol&,
 	    			const Coord3&, bool autoconnect, bool addtoh );
     bool		setPos(const EM::PosID&, const Coord3&, bool addtohist);
 
-    bool		isDefined( const PatchID& patch, const RowCol&) const;
+    bool		isDefined( const SectionID& section, const RowCol&) const;
     bool		isDefined( const EM::PosID& ) const;
 
     Coord3		getPos(const EM::PosID&) const;
-    Coord3		getPos(const PatchID& patch, const RowCol&) const;
+    Coord3		getPos(const SectionID& section, const RowCol&) const;
     void		getPos(const RowCol&,TypeSet<Coord3>&) const;
-    			//!< Returns positions from all patches on RowCol
+    			//!< Returns positions from all sections on RowCol
    
     EM::PosID		getNeighbor( const EM::PosID& posid,
 	   			     const RowCol& dir ) const;
        			/*!<If the node has a neigbor in the given direction
 		  	    it is returned. If not, the PosID of the neighbor
-		  	    node on the same patch is returned
+		  	    node on the same section is returned
 			*/	    
     int			getNeighbors( const EM::PosID& posid, 
 	    			      TypeSet<EM::PosID>* res,
@@ -165,7 +165,7 @@ public:
     void                setShift(float sh_)		{ shift = sh_; }
     float               getShift() const		{ return shift; }
 
-    const Geometry::MeshSurface* getSurface(PatchID) const;
+    const Geometry::MeshSurface* getSurface(SectionID) const;
     RowCol		loadedStep() const;
     RowCol		step() const;
     void		setTranslatorData( const RowCol& step,
@@ -190,17 +190,17 @@ public:
     static EM::SubID	rowCol2SubID( const RowCol& );
 
     void	getRange(StepInterval<int>&,bool rowdir) const;
-    void	getRange(const EM::PatchID&,
+    void	getRange(const EM::SectionID&,
 	    		 StepInterval<int>&,bool rowdir) const;
 
-    bool	getMeshRowCol(const EM::SubID&,RowCol&, const PatchID&) const;
+    bool	getMeshRowCol(const EM::SubID&,RowCol&, const SectionID&) const;
 		/*!< Converts EM::SubID to rowcol that is used
 		     on the Geometry::MeshSurface */
-    bool	getMeshRowCol(const RowCol&,RowCol&, const PatchID&) const;
+    bool	getMeshRowCol(const RowCol&,RowCol&, const SectionID&) const;
 		/*!< Converts input RowCol(in surface domain)
 		     to a RowCol that is used on the Geometry::MeshSurface
 		*/
-    int		findPos( const EM::PatchID& patchid,
+    int		findPos( const EM::SectionID& sectionid,
 			 const Interval<float>& x, const Interval<float>& y,
 			 const Interval<float>& z,
 			 TypeSet<EM::PosID>* res ) const;
@@ -212,7 +212,7 @@ public:
     bool	findClosestNodes(TopList<float,EM::PosID>& res,
 	    			const Coord3& pos,
 				const MathFunction<float>* depthconv=0) const;
-    bool	findClosestNodes(const EM::PatchID&,
+    bool	findClosestNodes(const EM::SectionID&,
 	    			TopList<float,EM::PosID>& res,
 	    			const Coord3& pos,
 				const MathFunction<float>* depthconv=0) const;
@@ -278,18 +278,7 @@ public:
 		  \retval	-2	Side could not be determined
 		*/
 
-    int				nrHingeLines() const {return hingelines.size();}
-    HingeLine*			hingeLine(int i) { return hingelines[i]; }
-    const HingeLine*		hingeLine(int i) const { return hingelines[i]; }
-    int				addHingeLine(HingeLine*, bool addtohistory);
-    				/*!<Returned id is persistent in runtime */
-    void			removeHingeLine(int, bool addtohistory);
-    CNotifier<Surface,int>	hingelinechange;
 
-
-    EdgeLineSet*		getEdgeLineSet( const EM::PatchID&,
-	    				        bool create );
-    ObjectSet<EdgeLineSet>	edgelines;
     bool			isAtEdge(const EM::PosID&) const;
 
     bool			isChanged(int) const { return changed; }
@@ -298,8 +287,11 @@ public:
     virtual bool		createFromStick(const TypeSet<Coord3>&,float)
     				{ return false; }
 
+    virtual bool		usePar( const IOPar& );
+    virtual void		fillPar( IOPar& ) const;
 
     SurfaceRelations&		relations;
+    EdgeLineManager&		edgelinesets;
 
 protected:
     friend class		EMManager;
@@ -311,9 +303,9 @@ protected:
     void			removeAuxData();
 
     EM::SubID			getSurfSubID(const RowCol&,
-	    				     const PatchID&) const;
+	    				     const SectionID&) const;
     EM::SubID			getSurfSubID(const Geometry::PosID&,
-					     const PatchID&) const;
+					     const SectionID&) const;
 
     void			getMeshCoords( const EM::PosID&,
 	    			    Coord3& c00, Coord3& c10,
@@ -322,10 +314,11 @@ protected:
 				    bool& c01def, bool& c11def,
 				   const MathFunction<float>* depthconv=0)const;
 
-    virtual Geometry::MeshSurface* createPatchSurface(const PatchID&) const =0;
+    virtual Geometry::MeshSurface*
+				createSectionSurface(const SectionID&) const =0;
     ObjectSet<Geometry::MeshSurface>	surfaces;
-    TypeSet<PatchID>		patchids;
-    BufferStringSet		patchnames;
+    TypeSet<SectionID>			sectionids;
+    BufferStringSet		sectionnames;
 
     BufferStringSet		auxdatanames;
     BufferStringSet		auxdatainfo;
@@ -341,8 +334,6 @@ protected:
     float 			shift;
 
     bool			changed;
-
-    ObjectSet<HingeLine>	hingelines;
 };
 
 

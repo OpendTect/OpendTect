@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.28 2004-07-14 15:33:53 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.29 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -12,15 +12,24 @@ static const char* rcsID = "$Id: emobject.cc,v 1.28 2004-07-14 15:33:53 nanne Ex
 #include "emsurfacetr.h"
 #include "emsticksettransl.h"
 #include "emmanager.h"
-#include "ioobj.h"
-#include "ptrman.h"
 #include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "ptrman.h"
 
 
 int EM::EMObject::sPermanentControlNode	= 0;
 int EM::EMObject::sTemporaryControlNode	= 1;
 int EM::EMObject::sEdgeControlNode	= 2;
 int EM::EMObject::sTerminationNode	= 3;
+
+
+const char* EM::EMObject::prefcolorstr = "Color";
+const char* EM::EMObject::posattrprefixstr = "Pos Attrib ";
+const char* EM::EMObject::posattrsectionstr = " Section";
+const char* EM::EMObject::posattrposidstr = " SubID";
+const char* EM::EMObject::nrposattrstr = "Nr Pos Attribs";
+
 
 EM::EMObject* EM::EMObject::create( const IOObj& ioobj, EM::EMManager& manager )
 {
@@ -223,3 +232,82 @@ EM::EMObject::getPosAttribChNotifier( int attr, bool create )
 }
 
 
+bool EM::EMObject::usePar( const IOPar& par )
+{
+    int col;
+    if ( par.get( prefcolorstr, col ) )
+    {
+	Color newcol; newcol.setRgb(col);
+	setPreferredColor(newcol);
+    }
+
+    for ( int idx=0; idx<nrPosAttribs(); idx++ )
+	removePosAttrib(posAttrib(idx));
+
+    int nrattribs = 0;
+    par.get( nrposattrstr, nrattribs );
+    for ( int idx=0; idx<nrattribs; idx++ )
+    {
+	BufferString attribkey = posattrprefixstr;
+	attribkey += idx;
+
+	int attrib;
+	if ( !par.get( attribkey, attrib ) )
+	    continue;
+
+	TypeSet<int> sections;
+	TypeSet<long long> subids;
+
+	BufferString sectionkey = attribkey;
+	sectionkey += posattrsectionstr;
+
+	BufferString subidkey = attribkey;
+	subidkey += posattrposidstr;
+
+	par.get( sectionkey, sections );
+	par.get( subidkey, subids );
+
+	const int minsz = mMIN(sections.size(), subids.size() );
+
+	for ( int idy=0; idy<minsz; idy++ )
+	    setPosAttrib( PosID(id(),sections[idy],subids[idy]), attrib, true );
+    }
+
+    return true;
+}
+
+
+void EM::EMObject::fillPar( IOPar& par ) const
+{
+    par.set( prefcolorstr, (int) preferredColor().rgb() );
+
+    int keyid = 0;
+    for ( int idx=0; idx<nrPosAttribs(); idx++ )
+    {
+	const int attrib = posAttrib(idx);
+	const TypeSet<PosID>* pids = getPosAttribList(attrib);
+	if ( !pids ) continue;
+
+	BufferString attribkey = posattrprefixstr;
+	attribkey += keyid++;
+	par.set( attribkey, attrib );
+
+	TypeSet<int> attrpatches;
+	TypeSet<long long> subids;
+	for ( int idy=0; idy<pids->size(); idy++ )
+	{
+	    attrpatches += (*pids)[idy].sectionID();
+	    subids += (*pids)[idy].subID();
+	}
+
+	BufferString patchkey = attribkey;
+	patchkey += posattrprefixstr;
+	BufferString subidkey = attribkey;
+	subidkey += posattrposidstr;
+
+	par.set( patchkey, attrpatches );
+	par.set( subidkey, subids );
+    }
+
+    par.set( nrposattrstr, keyid );
+}

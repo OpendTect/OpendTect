@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.58 2004-07-20 12:15:00 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.59 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -34,14 +34,14 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.58 2004-07-20 12:15:00 kristof
 static const char* sDbInfo = "DB Info";
 static const char* sRange = "Range";
 static const char* sValnms = "Value Names";
-static const char* sPatches = "Patches";
+static const char* sSections = "Patches";
 
 
 void EM::SurfaceIOData::clear()
 {
     dbinfo = "";
     deepErase(valnames);
-    deepErase(patches);
+    deepErase(sections);
 }
 
 void EM::SurfaceIOData::use( const EM::Surface& surf )
@@ -56,8 +56,8 @@ void EM::SurfaceIOData::use( const EM::Surface& surf )
     rg.start.crl = hrg.start; rg.stop.crl = hrg.stop;
     rg.step.crl = hrg.step;
 
-    for ( int idx=0; idx<surf.nrPatches(); idx++ )
-	patches += new BufferString( surf.patchName( surf.patchID(idx) ) );
+    for ( int idx=0; idx<surf.nrSections(); idx++ )
+	sections += new BufferString( surf.sectionName( surf.sectionID(idx) ) );
 
     for ( int idx=0; idx<surf.nrAuxData(); idx++ )
 	valnames += new BufferString( surf.auxDataName(idx) );
@@ -76,9 +76,9 @@ void EM::SurfaceIOData::fillPar( IOPar& iopar ) const
     valnames.fillPar( valnmspar );
     iopar.mergeComp( valnmspar, sValnms );
 
-    IOPar patchpar;
-    patches.fillPar( patchpar );
-    iopar.mergeComp( patchpar, sPatches );
+    IOPar sectionpar;
+    sections.fillPar( sectionpar );
+    iopar.mergeComp( sectionpar, sSections );
 }
 
 
@@ -92,19 +92,19 @@ void EM::SurfaceIOData::usePar( const IOPar& iopar )
     IOPar* valnmspar = iopar.subselect(sValnms);
     if ( valnmspar ) valnames.usePar( *valnmspar );
 
-    IOPar* patchpar = iopar.subselect(sPatches);
-    if ( patchpar ) patches.usePar( *patchpar );
+    IOPar* sectionpar = iopar.subselect(sSections);
+    if ( sectionpar ) sections.usePar( *sectionpar );
 }
 
 
 void EM::SurfaceIODataSelection::setDefault()
 {
     rg = sd.rg;
-    selvalues.erase(); selpatches.erase();
+    selvalues.erase(); selsections.erase();
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
 	selvalues += idx;
-    for ( int idx=0; idx<sd.patches.size(); idx++ )
-	selpatches += idx;
+    for ( int idx=0; idx<sd.sections.size(); idx++ )
+	selsections += idx;
 }
 
 
@@ -114,17 +114,15 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     , loadedstep( SI().getStep(true,false), SI().getStep(false,false) )
     , rowinterval(0)
     , colinterval(0)
-    , patchchnotifier( this )
-    , hingelinechange( this )
+    , sectionchnotifier( this )
     , shift(0)
     , changed( 0 )
     , relations( *new SurfaceRelations(*this ) )
+    , edgelinesets( *new EdgeLineManager(*this) )
 {
     auxdatanames.allowNull(true);
     auxdatainfo.allowNull(true);
     auxdata.allowNull(true);
-    hingelines.allowNull();
-    edgelines.allowNull();
 }
 
 
@@ -132,19 +130,21 @@ EM::Surface::~Surface()
 {
     cleanUp();
     delete &relations;
+    delete &edgelinesets;
 }
 
 
 void EM::Surface::cleanUp()
 {
-    while ( nrPatches() ) removePatch(patchID(0), false);
-    for ( int idx=0; idx<nrHingeLines(); idx++ )
-	removeHingeLine(idx,false);
+    while ( nrSections() ) removeSection(sectionID(0), false);
 
     delete rowinterval;
     delete colinterval;
     rowinterval = 0;
     colinterval = 0;
+
+    relations.removeAll();
+    edgelinesets.removeAll();
 }
 
 
@@ -168,15 +168,15 @@ bool EM::Surface::findClosestNodes(TopList<float,EM::PosID>& toplist,
 				const Coord3& pos_,
 				const MathFunction<float>* time2depthfunc) const
 {
-    const int nrpatches = nrPatches();
-    for ( int patch=0; patch<nrpatches; patch++ )
-	findClosestNodes( patchID(patch), toplist, pos_, time2depthfunc );
+    const int nrsections = nrSections();
+    for ( int section=0; section<nrsections; section++ )
+	findClosestNodes( sectionID(section), toplist, pos_, time2depthfunc );
 
     return toplist.size();
 }
 
 
-bool EM::Surface::findClosestNodes(const PatchID& patchid,
+bool EM::Surface::findClosestNodes(const SectionID& sectionid,
 				TopList<float,EM::PosID>& toplist,
 				const Coord3& pos_,
 				const MathFunction<float>* time2depthfunc) const
@@ -186,7 +186,7 @@ bool EM::Surface::findClosestNodes(const PatchID& patchid,
     //TODO Make faster impl
     Coord3 origpos = pos_;
     if ( time2depthfunc ) origpos.z = time2depthfunc->getValue( pos_.z );
-    const int nrpatches = nrPatches();
+    const int nrsections = nrSections();
 
     StepInterval<int> rowrange; StepInterval<int> colrange;
     getRange( rowrange, true ); getRange( colrange, false );
@@ -197,15 +197,15 @@ bool EM::Surface::findClosestNodes(const PatchID& patchid,
 	for ( rc.col=colrange.start; rc.col<=colrange.stop;
 						    rc.col+=colrange.step )
 	{
-	    if ( isDefined(patchid,rc) )
+	    if ( isDefined(sectionid,rc) )
 	    {
-		Coord3 pos = getPos( patchid, rc );
+		Coord3 pos = getPos( sectionid, rc );
 		if ( time2depthfunc )
 		    pos.z = time2depthfunc->getValue( pos.z );
 
 		double dist = pos.distance( origpos );
 		toplist.addValue( dist,
-				  EM::PosID(id_,patchid,rowCol2SubID(rc)));
+				  EM::PosID(id_,sectionid,rowCol2SubID(rc)));
 	    
 	    }
 	}
@@ -333,22 +333,22 @@ bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
     if ( cs ) findPos(*cs, &nodes );
     else
     {
-	for ( int idy=0; idy<nrPatches(); idy++ )
+	for ( int idy=0; idy<nrSections(); idy++ )
 	{
-	    const EM::PatchID patchid = patchID(idy);
-	    const int nrpatches = nrPatches();
+	    const EM::SectionID sectionid = sectionID(idy);
+	    const int nrsections = nrSections();
 
-	    StepInterval<int> rowrange; getRange( patchid, rowrange, true );
-	    StepInterval<int> colrange; getRange( patchid, colrange, false );
+	    StepInterval<int> rowrange; getRange( sectionid, rowrange, true );
+	    StepInterval<int> colrange; getRange( sectionid, colrange, false );
 
 	    RowCol idx( rowrange.start, colrange.start );
 	    for ( ; rowrange.includes( idx.row ); idx.row+=rowrange.step )
 	    {
 		for ( ; colrange.includes( idx.col ); idx.col+=colrange.step )
 		{
-		    if ( isDefined(patchid,idx) )
+		    if ( isDefined(sectionid,idx) )
 		    {
-			nodes += EM::PosID(id(),patchid,rowCol2SubID(idx));
+			nodes += EM::PosID(id(),sectionid,rowCol2SubID(idx));
 		    }
 		}
 	    }
@@ -597,10 +597,10 @@ defname = false; \
 for ( int idy=0; idy<nrnodealiases; idy++ ) \
 { \
     const EM::PosID& nodealias = nodealiases[idy]; \
-    const EM::PatchID patchid = nodealias.patchID(); \
+    const EM::SectionID sectionid = nodealias.sectionID(); \
     const RowCol noderc = subID2RowCol(nodealias.subID()); \
     const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
-    coordname = getPos(patchid, neighborrc); \
+    coordname = getPos(sectionid, neighborrc); \
     defname = coordname.isDefined(); \
     if ( defname ) \
     { \
@@ -632,68 +632,67 @@ void EM::Surface::getMeshCoords( const EM::PosID& pid,
 }
 
 
-int EM::Surface::nrPatches() const
+int EM::Surface::nrSections() const
 {
-    return patchids.size();
+    return sectionids.size();
 }
 
 
-EM::PatchID EM::Surface::patchID( int idx ) const
+EM::SectionID EM::Surface::sectionID( int idx ) const
 {
-    return patchids[idx];
+    return sectionids[idx];
 }
 
 
-EM::PatchID EM::Surface::patchID( const char* nm ) const
+EM::SectionID EM::Surface::sectionID( const char* nm ) const
 {
-    for ( int idx=0; idx<patchnames.size(); idx++ )
-	if ( *patchnames[idx] == nm ) return patchids[idx];
+    for ( int idx=0; idx<sectionnames.size(); idx++ )
+	if ( *sectionnames[idx] == nm ) return sectionids[idx];
     return -1;
 }
 
 
-const char* EM::Surface::patchName( const EM::PatchID& patchid ) const
+const char* EM::Surface::sectionName( const EM::SectionID& sectionid ) const
 {
-    int idx = patchids.indexOf(patchid);
-    const char* res = idx!=-1 ? patchnames[idx]->buf() : 0;
+    int idx = sectionids.indexOf(sectionid);
+    const char* res = idx!=-1 ? sectionnames[idx]->buf() : 0;
     return  res && *res ? res : 0;
 }
 
 
-bool EM::Surface::hasPatch( const EM::PatchID& patchid ) const
-{ return patchNr(patchid)!=-1; }
+bool EM::Surface::hasSection( const EM::SectionID& sectionid ) const
+{ return sectionNr(sectionid)!=-1; }
 
 
-int EM::Surface::patchNr( const EM::PatchID& patchid ) const
-{ return patchids.indexOf(patchid); }
+int EM::Surface::sectionNr( const EM::SectionID& sectionid ) const
+{ return sectionids.indexOf(sectionid); }
 
 
 
-EM::PatchID EM::Surface::addPatch( const char* nm, bool addtohistory )
+EM::SectionID EM::Surface::addSection( const char* nm, bool addtohistory )
 {
-    PatchID res = 0;
-    while ( patchids.indexOf(res)!=-1 ) res++;
+    SectionID res = 0;
+    while ( sectionids.indexOf(res)!=-1 ) res++;
 
-    addPatch( nm, res, addtohistory );
+    addSection( nm, res, addtohistory );
     return res;
 }
 
 
-bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
+bool EM::Surface::addSection( const char* nm, SectionID sectionid, bool addtohistory )
 {
-    if ( patchids.indexOf(patchid) != -1 ) return false;
+    if ( sectionids.indexOf(sectionid) != -1 ) return false;
 
     BufferString name;
-    patchids += patchid;
+    sectionids += sectionid;
     if ( nm && *nm )
 	name = nm;
     else
-	{ name = "["; name += patchid + 1; name += "]"; }
+	{ name = "["; name += sectionid + 1; name += "]"; }
 
-    patchnames += new BufferString(name);
-    edgelines += 0;
+    sectionnames += new BufferString(name);
 
-    Geometry::MeshSurface* newsurf = createPatchSurface( patchid );
+    Geometry::MeshSurface* newsurf = createSectionSurface( sectionid );
     surfaces += newsurf;
 
     for ( int idx=0; idx<nrAuxData(); idx++ )
@@ -706,30 +705,30 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
 
     if ( addtohistory )
     {
-	HistoryEvent* history = new SurfacePatchEvent( true, id(),
-							patchid, name );
+	HistoryEvent* history = new SurfaceSectionEvent( true, id(),
+							sectionid, name );
 	manager.history().addEvent( history, 0, 0 );
     }
 
-    patchchnotifier.trigger(patchid,this);
+    sectionchnotifier.trigger(sectionid,this);
     changed = true;
     return true;
 }
 
 
-void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
+void EM::Surface::removeSection( EM::SectionID sectionid, bool addtohistory )
 {
-    int idx=patchids.indexOf(patchid);
+    int idx=sectionids.indexOf(sectionid);
     if ( idx==-1 ) return;
 
-    BufferString name = *patchnames[idx];
+    edgelinesets.removeSection( sectionid );
+    relations.removeSection( sectionid );
+    BufferString name = *sectionnames[idx];
 
     delete surfaces[idx];
     surfaces.remove( idx );
-    patchids.remove( idx );
-    patchnames.remove( idx );
-    delete edgelines[idx];
-    edgelines.remove( idx );
+    sectionids.remove( idx );
+    sectionnames.remove( idx );
 
     for ( int idy=0; idy<nrAuxData(); idy++ )
     {
@@ -742,40 +741,40 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 
     if ( addtohistory )
     {
-	HistoryEvent* history = new SurfacePatchEvent( false, id(),
-							patchid, name );
+	HistoryEvent* history = new SurfaceSectionEvent( false, id(),
+							sectionid, name );
 	manager.history().addEvent( history, 0, 0 );
     }
 
-    patchchnotifier.trigger(patchid,this);
+    sectionchnotifier.trigger(sectionid,this);
     changed = true;
 }
 
 
-EM::PatchID EM::Surface::clonePatch( EM::PatchID patchid )
+EM::SectionID EM::Surface::cloneSection( EM::SectionID sectionid )
 {
-    int patchidx = patchids.indexOf(patchid);
-    if ( patchidx==-1 ) return -1;
+    int sectionidx = sectionids.indexOf(sectionid);
+    if ( sectionidx==-1 ) return -1;
 
-    PatchID res = addPatch(0, true);
+    SectionID res = addSection(0, true);
     StepInterval<int> rowrange;
     StepInterval<int> colrange;
-    getRange( patchid, rowrange, true );
+    getRange( sectionid, rowrange, true );
     if ( rowrange.width() )
-	getRange( patchid, colrange, false );
+	getRange( sectionid, colrange, false );
 
     for ( int row=rowrange.start; row<=rowrange.stop; row+=step_.row )
     {
 	for ( int col=colrange.start; col<=colrange.stop; col+=step_.col )
 	{
 	    const RowCol rc(row,col);
-	    const Coord3 pos = getPos(patchid,rc);
+	    const Coord3 pos = getPos(sectionid,rc);
 	    if ( !pos.isDefined() )
 		continue;
 
 	    setPos(res,rc,pos,false, true);
 
-	    const EM::PosID src(id(),patchid,rowCol2SubID(rc));
+	    const EM::PosID src(id(),sectionid,rowCol2SubID(rc));
 	    const EM::PosID dst(id(),res,rowCol2SubID(rc));
 	    for ( int idy=0; idy<nrPosAttribs(); idy++ )
 	    {
@@ -786,35 +785,29 @@ EM::PatchID EM::Surface::clonePatch( EM::PatchID patchid )
 	}
     }
 
-    if ( getEdgeLineSet( patchid, false ) )
-    {
-	EdgeLineSet* els = getEdgeLineSet(patchid,false)->clone();
-	els->setSection( res );
-	edgelines.replace(els, patchids.indexOf(res) );
-    }
-
+    edgelinesets.cloneEdgeLineSet( sectionid, res );
     return res;
 }
 
 
-bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
+bool EM::Surface::setPos( const SectionID& section, const RowCol& surfrc,
 				   const Coord3& pos, bool autoconnect,
 				   bool addtohistory)
 {
     RowCol geomrowcol;
-    if ( !getMeshRowCol( surfrc, geomrowcol, patch ) )
+    if ( !getMeshRowCol( surfrc, geomrowcol, section ) )
 	return false;
 
-    int patchindex=patchids.indexOf(patch);
-    if ( patchindex==-1 ) return false;
+    int sectionindex=sectionids.indexOf(section);
+    if ( sectionindex==-1 ) return false;
 
     const Geometry::PosID posid = Geometry::MeshSurface::getPosID(geomrowcol);
-    Geometry::MeshSurface* surface = surfaces[patchindex];
+    Geometry::MeshSurface* surface = surfaces[sectionindex];
     const Coord3 oldpos = surface->getMeshPos( geomrowcol );
 
     if ( addtohistory )
     {
-	EM::PosID pid( id(), patch, rowCol2SubID(surfrc) );
+	EM::PosID pid( id(), section, rowCol2SubID(surfrc) );
 	HistoryEvent* history = new SetPosHistoryEvent( oldpos, pid );
 	manager.history().addEvent( history, 0, 0 );
     }
@@ -824,9 +817,9 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
 
     changed = true;
 
-    TypeSet<EM::PosID> nodeonotherpatches;
+    TypeSet<EM::PosID> nodeonothersections;
     if ( autoconnect )
-	findPos( geomrowcol, nodeonotherpatches );
+	findPos( geomrowcol, nodeonothersections );
 
     surface->setMeshPos( geomrowcol, pos );
     surface->setFillType( geomrowcol, Geometry::MeshSurface::Filled );
@@ -836,24 +829,24 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
 
     if ( autoconnect )
     {
-	for ( int idx=0; idx<nodeonotherpatches.size(); idx++ )
+	for ( int idx=0; idx<nodeonothersections.size(); idx++ )
 	{
-	    const int patchsurfidx =
-		patchids.indexOf(nodeonotherpatches[idx].patchID());
-	    double otherz = surfaces[patchsurfidx]->getMeshPos(geomrowcol).z;
+	    const int sectionsurfidx =
+		sectionids.indexOf(nodeonothersections[idx].sectionID());
+	    double otherz = surfaces[sectionsurfidx]->getMeshPos(geomrowcol).z;
 	    
 	    if ( mIsEqual(otherz,pos.z,mDefEps) )
 	    {
-		if ( !surface->isLinked(posid, surfaces[patchsurfidx], posid ))
+		if ( !surface->isLinked(posid, surfaces[sectionsurfidx], posid ))
 		{
-		    surface->setLink(posid,surfaces[patchsurfidx],posid,true);
+		    surface->setLink(posid,surfaces[sectionsurfidx],posid,true);
 		    // Put to history?
 		}
 	    }
 	}
     }
 
-    poschnotifier.trigger( EM::PosID( id(), patch, rowCol2SubID(surfrc)), this);
+    poschnotifier.trigger( EM::PosID( id(), section, rowCol2SubID(surfrc)), this);
 
     return true;
 }
@@ -864,22 +857,22 @@ bool EM::Surface::setPos( const EM::PosID& posid, const Coord3& newpos,
 {
     if ( posid.objectID()!=id() ) return false;
 
-    return setPos( posid.patchID(), subID2RowCol(posid.subID()),
+    return setPos( posid.sectionID(), subID2RowCol(posid.subID()),
 	    	   newpos, false,addtohistory);
 }
 
 
 Coord3 EM::Surface::getPos( const EM::PosID& posid ) const
 {
-    return getPos( posid.patchID(), subID2RowCol(posid.subID()) );
+    return getPos( posid.sectionID(), subID2RowCol(posid.subID()) );
 }
 
 
-Coord3 EM::Surface::getPos( const PatchID& patch, const RowCol& rc) const
+Coord3 EM::Surface::getPos( const SectionID& section, const RowCol& rc) const
 {
-    const int surfidx = patchids.indexOf( patch );
+    const int surfidx = sectionids.indexOf( section );
     RowCol geomnode;
-    if ( !getMeshRowCol( rc, geomnode, patch ) )
+    if ( !getMeshRowCol( rc, geomnode, section ) )
 	return Coord3( mUndefValue, mUndefValue, mUndefValue );
 
     return surfaces[surfidx]->getMeshPos( geomnode );
@@ -888,10 +881,10 @@ Coord3 EM::Surface::getPos( const PatchID& patch, const RowCol& rc) const
 
 void EM::Surface::getPos( const RowCol& rc, TypeSet<Coord3>& crdset ) const
 {
-    const int nrsubsurf = nrPatches();
+    const int nrsubsurf = nrSections();
     for ( int surfidx=0; surfidx<nrsubsurf; surfidx++ )
     {
-	Coord3 crd = getPos( patchID(surfidx), rc );
+	Coord3 crd = getPos( sectionID(surfidx), rc );
 	if ( crd.isDefined() )
 	    crdset += crd;
     }
@@ -900,15 +893,15 @@ void EM::Surface::getPos( const RowCol& rc, TypeSet<Coord3>& crdset ) const
 
 bool EM::Surface::isDefined( const EM::PosID& posid ) const
 {
-    return isDefined( posid.patchID(), subID2RowCol(posid.subID()) );
+    return isDefined( posid.sectionID(), subID2RowCol(posid.subID()) );
 }
 
 
-bool EM::Surface::isDefined( const PatchID& patch, const RowCol& rc) const
+bool EM::Surface::isDefined( const SectionID& section, const RowCol& rc) const
 {
-    const int surfidx = patchids.indexOf( patch );
+    const int surfidx = sectionids.indexOf( section );
     RowCol geomnode;
-    if ( !getMeshRowCol( rc, geomnode, patch ) )
+    if ( !getMeshRowCol( rc, geomnode, section ) )
 	return false;
 
     return surfaces[surfidx]->isDefined( geomnode );
@@ -919,8 +912,8 @@ int EM::Surface::findPos( const RowCol& rowcol,
 				  TypeSet<PosID>& res ) const
 {
     TypeSet<Coord3> respos;
-    const int nrsubsurf = nrPatches();
-    for ( PatchID surface=0; surface<nrsubsurf; surface++ )
+    const int nrsubsurf = nrSections();
+    for ( SectionID surface=0; surface<nrsubsurf; surface++ )
     {
 	Geometry::MeshSurface* meshsurf = surfaces[surface];
 	if ( !meshsurf->isDefined( rowcol ) )
@@ -936,7 +929,7 @@ int EM::Surface::findPos( const RowCol& rowcol,
 
 	    if ( mIsEqual(respos[idx].z,pos.z,mDefEps) ) continue;
 
-	    res += PosID(id(), patchID(surface), subid );
+	    res += PosID(id(), sectionID(surface), subid );
 	    respos += pos;
 	}
     }
@@ -945,12 +938,12 @@ int EM::Surface::findPos( const RowCol& rowcol,
 }
 
 
-int EM::Surface::findPos( const EM::PatchID& patchid,
+int EM::Surface::findPos( const EM::SectionID& sectionid,
 			  const Interval<float>& x, const Interval<float>& y,
 			  const Interval<float>& z,
 			  TypeSet<EM::PosID>* res ) const	
 {
-    int idx = patchids.indexOf(patchid);
+    int idx = sectionids.indexOf(sectionid);
     if ( idx<0 ) return 0;
 
     TypeSet<EM::PosID> posids;
@@ -961,8 +954,8 @@ int EM::Surface::findPos( const EM::PatchID& patchid,
     const int nrnodes = nodes.size();
     for ( int idy=0; idy<nrnodes; idy++ )
     {
-	const PatchID patch = patchids[idx];
-	const EM::PosID posid( id(), patchid, getSurfSubID(nodes[idy],patchid));
+	const SectionID section = sectionids[idx];
+	const EM::PosID posid( id(), sectionid, getSurfSubID(nodes[idy],sectionid));
 
 	TypeSet<EM::PosID> clones;
 	getLinkedPos( posid, clones );
@@ -990,9 +983,9 @@ int EM::Surface::findPos( const Interval<float>& x, const Interval<float>& y,
 			  TypeSet<EM::PosID>* res ) const	
 {
     int sum = 0;
-    const int nrpatches = nrPatches();
-    for ( int idx=0; idx<nrpatches; idx++ )
-	sum += findPos( patchID(idx), x, y, z, res );
+    const int nrsections = nrSections();
+    for ( int idx=0; idx<nrsections; idx++ )
+	sum += findPos( sectionID(idx), x, y, z, res );
 
     return sum;
 }
@@ -1056,15 +1049,15 @@ EM::PosID EM::Surface::getNeighbor( const EM::PosID& posid,
     {
 	const RowCol ownrc = subID2RowCol(aliases[idx].subID());
 	const RowCol neigborrc = ownrc+diff;
-	if ( isDefined(aliases[idx].patchID(),neigborrc) )
-	    return EM::PosID( id(), aliases[idx].patchID(),
+	if ( isDefined(aliases[idx].sectionID(),neigborrc) )
+	    return EM::PosID( id(), aliases[idx].sectionID(),
 		    	      rowCol2SubID(neigborrc));
     }
 
     const RowCol ownrc = subID2RowCol(posid.subID());
     const RowCol neigborrc = ownrc+diff;
 
-    return EM::PosID( id(), posid.patchID(), rowCol2SubID(neigborrc));
+    return EM::PosID( id(), posid.sectionID(), rowCol2SubID(neigborrc));
 }
 
 
@@ -1098,12 +1091,12 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 		    if ( circle && (drow*drow+dcol*dcol)> maxradius*maxradius)
 			continue;
 
-		    if ( !isDefined(currentposid.patchID(),neighborrowcol) )
+		    if ( !isDefined(currentposid.sectionID(),neighborrowcol) )
 			continue;
 		   
 		    const EM::PosID
 			    neighborposid(currentposid.objectID(),
-			    currentposid.patchID(),
+			    currentposid.sectionID(),
 			    rowCol2SubID(neighborrowcol) );
 
 		    bool found = false;
@@ -1156,16 +1149,16 @@ void EM::Surface::getLinkedPos( const EM::PosID& posid,
 
     const EM::SubID subid = posid.subID();
     const RowCol rowcol = subID2RowCol(subid);
-    const Geometry::MeshSurface* ownmeshsurf = getSurface( posid.patchID() );
+    const Geometry::MeshSurface* ownmeshsurf = getSurface( posid.sectionID() );
     if ( !ownmeshsurf ) return;
 
-    const int nrsubsurf = nrPatches();
+    const int nrsubsurf = nrSections();
     for ( int surface=0; surface<nrsubsurf; surface++ )
     {
 	Geometry::MeshSurface* meshsurf = surfaces[surface];
 	if ( ownmeshsurf->isLinked( subid, meshsurf, subid ) )
 	{
-	    res += EM::PosID( id(),patchids[surface], subid );
+	    res += EM::PosID( id(),sectionids[surface], subid );
 	}
     }
 }
@@ -1173,7 +1166,7 @@ void EM::Surface::getLinkedPos( const EM::PosID& posid,
 
 bool EM::Surface::isLoaded() const
 {
-    return nrPatches();
+    return nrSections();
 }
 
 
@@ -1260,7 +1253,7 @@ int EM::Surface::addAuxData( const char* name )
     auxdata += newauxdata;
     newauxdata->allowNull(true);
 
-    for ( int idx=0; idx<nrPatches(); idx++ )
+    for ( int idx=0; idx<nrSections(); idx++ )
 	(*newauxdata) += 0;
 
     changed = true;
@@ -1298,17 +1291,17 @@ void EM::Surface::removeAllAuxdata()
 float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
 {
     if ( !auxdata[dataidx] ) return mUndefValue;
-    const int patchidx = patchids.indexOf( posid.patchID() );
-    if ( patchidx==-1 ) return mUndefValue;
+    const int sectionidx = sectionids.indexOf( posid.sectionID() );
+    if ( sectionidx==-1 ) return mUndefValue;
 
-    const TypeSet<float>* patchauxdata = (*auxdata[dataidx])[patchidx];
-    if ( !patchauxdata ) return mUndefValue;
+    const TypeSet<float>* sectionauxdata = (*auxdata[dataidx])[sectionidx];
+    if ( !sectionauxdata ) return mUndefValue;
 
     RowCol geomrc;
-    getMeshRowCol( posid.subID(), geomrc, posid.patchID() );
-    const int subidx = surfaces[patchidx]->indexOf( geomrc );
+    getMeshRowCol( posid.subID(), geomrc, posid.sectionID() );
+    const int subidx = surfaces[sectionidx]->indexOf( geomrc );
     if ( subidx==-1 ) return mUndefValue;
-    return (*patchauxdata)[subidx];
+    return (*sectionauxdata)[subidx];
 }
 
 
@@ -1316,38 +1309,38 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
 {
     if ( !auxdata[dataidx] ) return;
 
-    const int patchidx = patchids.indexOf( posid.patchID() );
-    if ( patchidx==-1 ) return;
+    const int sectionidx = sectionids.indexOf( posid.sectionID() );
+    if ( sectionidx==-1 ) return;
 
     RowCol geomrc; 
-    getMeshRowCol( posid.subID(), geomrc, posid.patchID() );
-    const int subidx = surfaces[patchidx]->indexOf( geomrc );
+    getMeshRowCol( posid.subID(), geomrc, posid.sectionID() );
+    const int subidx = surfaces[sectionidx]->indexOf( geomrc );
     if ( subidx==-1 ) return;
 
-    TypeSet<float>* patchauxdata = (*auxdata[dataidx])[patchidx];
-    if ( !patchauxdata )
+    TypeSet<float>* sectionauxdata = (*auxdata[dataidx])[sectionidx];
+    if ( !sectionauxdata )
     {
-	const int sz = surfaces[patchidx]->size();
-	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue),patchidx);
-	patchauxdata = (*auxdata[dataidx])[patchidx];
+	const int sz = surfaces[sectionidx]->size();
+	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue),sectionidx);
+	sectionauxdata = (*auxdata[dataidx])[sectionidx];
     }
 
-    (*patchauxdata)[subidx] = val;
+    (*sectionauxdata)[subidx] = val;
     changed = true;
 }
 
 
 bool EM::Surface::getMeshRowCol( const EM::SubID& subid, RowCol& meshrowcol, 
-				 const PatchID& patchid ) const
+				 const SectionID& sectionid ) const
 {
-    return getMeshRowCol( subID2RowCol(subid), meshrowcol, patchid );
+    return getMeshRowCol( subID2RowCol(subid), meshrowcol, sectionid );
 }
 
 
 bool EM::Surface::getMeshRowCol( const RowCol& emrowcol, RowCol& meshrowcol,
-       				 const PatchID& patchid ) const
+       				 const SectionID& sectionid ) const
 {
-    const int idx = patchids.indexOf( patchid );
+    const int idx = sectionids.indexOf( sectionid );
     RowCol origo = idx<origos.size() ? origos[idx] :
 		   (origos.size() ? origos[0] : RowCol(0,0) );
     const RowCol relrowcol = emrowcol - origo;
@@ -1360,9 +1353,9 @@ bool EM::Surface::getMeshRowCol( const RowCol& emrowcol, RowCol& meshrowcol,
 
 
 EM::SubID EM::Surface::getSurfSubID( const RowCol& nodeid, 
-				     const PatchID& patchid ) const
+				     const SectionID& sectionid ) const
 {
-    const int idx = patchids.indexOf( patchid );
+    const int idx = sectionids.indexOf( sectionid );
     RowCol origo = idx<origos.size() ? origos[idx] :
 	(origos.size() ? origos[0] : RowCol(0,0) );
     return rowCol2SubID( origo+nodeid*loadedstep );
@@ -1370,52 +1363,52 @@ EM::SubID EM::Surface::getSurfSubID( const RowCol& nodeid,
 
 
 EM::SubID EM::Surface::getSurfSubID( const Geometry::PosID& gposid,
-       				     const PatchID& patchid ) const
+       				     const SectionID& sectionid ) const
 {
     const RowCol& nodeid = Geometry::MeshSurface::getMeshNode(gposid);
-    return getSurfSubID( nodeid, patchid );
+    return getSurfSubID( nodeid, sectionid );
 }
 
 
 
-const Geometry::MeshSurface* EM::Surface::getSurface( PatchID patchid )const
+const Geometry::MeshSurface* EM::Surface::getSurface( SectionID sectionid )const
 {
-    const int idx = patchids.indexOf( patchid );
+    const int idx = sectionids.indexOf( sectionid );
     return idx==-1 ? 0 : surfaces[idx];
 }
 
 
 void EM::Surface::getRange( StepInterval<int>& rg, bool rowdir ) const
 {
-    const int nrpatches = nrPatches();
-    for ( int idx=0; idx<nrpatches; idx++ )
+    const int nrsections = nrSections();
+    for ( int idx=0; idx<nrsections; idx++ )
     {
-	const EM::PatchID patchid = patchID( idx );
-	StepInterval<int> patchrg;
-	getRange( patchID(idx), patchrg, rowdir );
+	const EM::SectionID sectionid = sectionID( idx );
+	StepInterval<int> sectionrg;
+	getRange( sectionID(idx), sectionrg, rowdir );
 	
 	if ( !idx )
-	    rg = patchrg;
+	    rg = sectionrg;
 	else
 	{
-	    rg.include( patchrg.start ); 
-	    rg.include( patchrg.stop );
+	    rg.include( sectionrg.start ); 
+	    rg.include( sectionrg.stop );
 	}
     }
 }
 
 
-void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
+void EM::Surface::getRange( const EM::SectionID& sectionid, StepInterval<int>& rg,
 			    bool rowdir ) const
 {
-    const Geometry::MeshSurface& gsurf = *getSurface( patchid );
+    const Geometry::MeshSurface& gsurf = *getSurface( sectionid );
     if ( rowdir )
     {
 	const RowCol firstrow(gsurf.firstRow(),0);
 	const RowCol lastrow(gsurf.lastRow(),0);
 
-	rg.start = subID2RowCol( getSurfSubID(firstrow,patchid)).row;
-	rg.stop = subID2RowCol( getSurfSubID(lastrow,patchid)).row;
+	rg.start = subID2RowCol( getSurfSubID(firstrow,sectionid)).row;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow,sectionid)).row;
     }
     else
     {
@@ -1423,58 +1416,11 @@ void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
 	const RowCol firstrow(0,colrg.start);
 	const RowCol lastrow(0,colrg.stop);
 
-	rg.start = subID2RowCol( getSurfSubID(firstrow,patchid)).col;
-	rg.stop = subID2RowCol( getSurfSubID(lastrow,patchid)).col;
+	rg.start = subID2RowCol( getSurfSubID(firstrow,sectionid)).col;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow,sectionid)).col;
     }
 
     rg.step = rowdir ? loadedStep().row : loadedStep().col;
-}
-
-
-int EM::Surface::addHingeLine(HingeLine* hl, bool addtohistory)
-{
-    const int res = hingelines.size();
-    hingelines += hl;
-    hingelinechange.trigger(res);
-    changed = true;
-    return res;
-}
-
-
-void EM::Surface::removeHingeLine(int idx, bool addtohistory)
-{
-    HingeLine* hl = hingelines[idx];
-    hingelines.replace(0,idx);
-    delete hl;
-    changed = true;
-    for ( int idy=hingelines.size()-1; idy>=0; idy-- )
-    {
-	if ( hingelines[idy] )
-	    break;
-
-	hingelines.remove(idy);
-    }
-
-    hingelinechange.trigger(idx);
-}
-
-
-EM::EdgeLineSet* EM::Surface::getEdgeLineSet( const EM::PatchID& segment,
-					      bool create )
-{
-    const int patchsurfidx = patchids.indexOf(segment);
-    if ( patchsurfidx==-1 ) return 0;
-
-    if ( !edgelines[patchsurfidx] && create )
-    {
-	EM::EdgeLineSet* els = new EM::EdgeLineSet( *this, segment );
-	if ( els->findLines() )
-	    edgelines.replace( els, patchsurfidx );
-	else
-	    delete els;
-    }
-
-    return edgelines[patchsurfidx];
 }
 
 
@@ -1485,12 +1431,12 @@ bool EM::Surface::isAtEdge( const EM::PosID& pid ) const
     int nrneighbors = getNeighbors(pid,0,1,false);
     if ( nrneighbors == 6 )
     {
-	const int patch = pid.patchID();
+	const int section = pid.sectionID();
 	RowCol center = subID2RowCol( pid.subID() );
-	return !( isDefined( patch, center+step_*RowCol(0,1) ) &&
-		  isDefined( patch, center+step_*RowCol(1,0) ) &&
-		  isDefined( patch, center+step_*RowCol(0,-1) ) &&
-		  isDefined( patch, center+step_*RowCol(-1,0) ) );
+	return !( isDefined( section, center+step_*RowCol(0,1) ) &&
+		  isDefined( section, center+step_*RowCol(1,0) ) &&
+		  isDefined( section, center+step_*RowCol(0,-1) ) &&
+		  isDefined( section, center+step_*RowCol(-1,0) ) );
     }
 
    return nrneighbors != 8;
@@ -1514,7 +1460,7 @@ Executor* EM::Surface::loader( const EM::SurfaceIODataSelection* newsel,
     {
 	sel.rg = newsel->rg;
 	sel.selvalues = newsel->selvalues;
-	sel.selpatches = newsel->selpatches;
+	sel.selsections = newsel->selsections;
     }
     else
 	sel.selvalues.erase();
@@ -1569,7 +1515,7 @@ Executor* EM::Surface::saver( const EM::SurfaceIODataSelection* newsel,
     {
 	sel.rg = newsel->rg;
 	sel.selvalues = newsel->selvalues;
-	sel.selpatches = newsel->selpatches;
+	sel.selsections = newsel->selsections;
     }
 
     if ( auxdata )
@@ -1605,4 +1551,19 @@ Executor* EM::Surface::saver( const EM::SurfaceIODataSelection* newsel,
 	errmsg = tr->errMsg();
 	return exec;
     }
+}
+
+
+bool EM::Surface::usePar( const IOPar& par )
+{
+    return EMObject::usePar(par) && relations.usePar(par) &&
+	   edgelinesets.usePar(par);
+}
+
+
+void EM::Surface::fillPar( IOPar& par ) const
+{
+    EMObject::fillPar(par);
+    relations.fillPar(par);
+    edgelinesets.fillPar(par);
 }

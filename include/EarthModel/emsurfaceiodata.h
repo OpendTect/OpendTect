@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.4 2004-03-03 15:33:30 arend Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.5 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
     BufferString	dbinfo;
     BinIDSampler	rg;
     BufferStringSet	valnames;
-    BufferStringSet	patches;
+    BufferStringSet	sections;
 
 };
 
@@ -53,7 +53,7 @@ public:
 
     BinIDSampler		rg;
     TypeSet<int>		selvalues; // Indexes in sd.valnames
-    TypeSet<int>		selpatches; // Indexes in sd.patches
+    TypeSet<int>		selsections; // Indexes in sd.sections
 
     void			setDefault(); // selects all
 };

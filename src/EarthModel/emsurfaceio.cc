@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.36 2004-07-14 15:33:53 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.37 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -32,15 +32,10 @@ const char* EM::dgbSurfaceReader::floatdatacharstr = "Data char";
 const char* EM::dgbSurfaceReader::nrhingelinestr = "Nr hingelines";
 const char* EM::dgbSurfaceReader::hingelineprefixstr = "HingeLine ";
 
-const char* EM::dgbSurfaceReader::nrposattrstr = "Nr Pos Attribs";
-const char* EM::dgbSurfaceReader::posattrprefixstr = "Pos Attrib ";
-const char* EM::dgbSurfaceReader::posattrpatchstr = " Patch";
-const char* EM::dgbSurfaceReader::posattrposidstr = " SubID";
-
 const char* EM::dgbSurfaceReader::intdatacharstr = "Int Data char";
-const char* EM::dgbSurfaceReader::nrpatchstr = "Nr Patches";
-const char* EM::dgbSurfaceReader::patchidstr = "Patch ";
-const char* EM::dgbSurfaceReader::patchnamestr = "Patch Name ";
+const char* EM::dgbSurfaceReader::nrsectionstr = "Nr Patches";
+const char* EM::dgbSurfaceReader::sectionidstr = "Patch ";
+const char* EM::dgbSurfaceReader::sectionnamestr = "Patch Name ";
 const char* EM::dgbSurfaceReader::rowrangestr = "Row range";
 const char* EM::dgbSurfaceReader::colrangestr = "Col range";
 const char* EM::dgbSurfaceReader::dbinfostr = "DB info";
@@ -63,8 +58,8 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , intinterpreter( 0 )
     , floatinterpreter( 0 )
     , nrdone( 0 )
-    , patchindex( 0 )
-    , oldpatchindex( -1 )
+    , sectionindex( 0 )
+    , oldsectionindex( -1 )
     , surfposcalc( 0 )
     , rcconv( 0 )
     , readfilltype( false )
@@ -89,31 +84,31 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     astream.next();
 
     par = new IOPar( astream, false );
-    int nrpatches;
-    if ( !par->get( nrpatchstr, nrpatches ) &&
-	    !par->get("Nr Subhorizons", nrpatches ) )
+    int nrsections;
+    if ( !par->get( nrsectionstr, nrsections ) &&
+	    !par->get("Nr Subhorizons", nrsections ) )
     {
 	msg = parseerrorstr;
 	error = true;
 	return;
     }
 
-    for ( int idx=0; idx<nrpatches; idx++ )
+    for ( int idx=0; idx<nrsections; idx++ )
     {
-	int patchid = idx;
-	BufferString key = patchidstr;
+	int sectionid = idx;
+	BufferString key = sectionidstr;
 	key += idx;
-	par->get(key, patchid);
-	patchids+= patchid;
+	par->get(key, sectionid);
+	sectionids+= sectionid;
 
-	key = patchnamestr;
+	key = sectionnamestr;
 	key += idx;
-	BufferString patchname;
-	par->get(key,patchname);
-	if ( !patchname.size() )
-	{ patchname = "["; patchname += idx+1; patchname += "]"; }
+	BufferString sectionname;
+	par->get(key,sectionname);
+	if ( !sectionname.size() )
+	{ sectionname = "["; sectionname += idx+1; sectionname += "]"; }
 		
-	patchnames += new BufferString(patchname);
+	sectionnames += new BufferString(sectionname);
     }
 
     par->get( rowrangestr, rowrange.start, rowrange.stop, rowrange.step );
@@ -160,8 +155,8 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	floatinterpreter = new DataInterpreter<double>( writtendatachar );
     }
 
-    for ( int idx=0; idx<nrPatches(); idx++ )
-	patchsel += patchID(idx);
+    for ( int idx=0; idx<nrSections(); idx++ )
+	sectionsel += sectionID(idx);
 
     for ( int idx=0; idx<nrAuxVals(); idx++ )
 	auxdatasel += idx;
@@ -181,7 +176,7 @@ const char* EM::dgbSurfaceReader::dbInfo() const
 
 EM::dgbSurfaceReader::~dgbSurfaceReader()
 {
-    deepErase( patchnames );
+    deepErase( sectionnames );
     deepErase( auxdatanames );
     deepErase( auxdataexecs );
 
@@ -200,28 +195,28 @@ bool EM::dgbSurfaceReader::isOK() const
 }
 
 
-int EM::dgbSurfaceReader::nrPatches() const
+int EM::dgbSurfaceReader::nrSections() const
 {
-    return patchnames.size();
+    return sectionnames.size();
 }
 
 
-EM::PatchID EM::dgbSurfaceReader::patchID( int idx ) const
+EM::SectionID EM::dgbSurfaceReader::sectionID( int idx ) const
 {
-    return patchids[idx];
+    return sectionids[idx];
 }
 
 
-const char* EM::dgbSurfaceReader::patchName( int idx ) const
+const char* EM::dgbSurfaceReader::sectionName( int idx ) const
 {
-    const char* res = patchnames[idx]->buf();
+    const char* res = sectionnames[idx]->buf();
     return res && *res ? res : 0;
 }
 
 
-void EM::dgbSurfaceReader::selPatches(const TypeSet<EM::PatchID>& sel)
+void EM::dgbSurfaceReader::selSections(const TypeSet<EM::SectionID>& sel)
 {
-    patchsel = sel;
+    sectionsel = sel;
 }
 
 
@@ -311,7 +306,7 @@ int EM::dgbSurfaceReader::totalNr() const
 {
     int ownres =
 	(readrowrange?readrowrange->nrSteps():rowrange.nrSteps()) *
-	patchids.size();
+	sectionids.size();
 
     if ( !ownres ) ownres = nrrows;
 
@@ -345,12 +340,12 @@ int EM::dgbSurfaceReader::nextStep()
 	    auxdataexecs.replace( 0, auxdatasel[idx] );
 	}
 
-	for ( int idx=0; idx<patchsel.size(); idx++ )
+	for ( int idx=0; idx<sectionsel.size(); idx++ )
 	{
-	    const int index = patchids.indexOf(patchsel[idx]);
+	    const int index = sectionids.indexOf(sectionsel[idx]);
 	    if ( index<0 )
 	    {
-		patchsel.remove(idx--);
+		sectionsel.remove(idx--);
 		continue;
 	    }
 	}
@@ -373,14 +368,18 @@ int EM::dgbSurfaceReader::nextStep()
 	}
     }
 
-    if ( patchindex>=patchids.size() )
+    if ( sectionindex>=sectionids.size() )
     {
+	if ( !surface->usePar(*par) )
+	    return -1;
+/*
 	int col;
 	if ( par->get( prefcolofstr, col ) )
 	{
 	    Color newcol; newcol.setRgb(col);
 	    surface->setPreferredColor(newcol);
 	}
+
 
 	for ( int idx=0; idx<surface->nrHingeLines(); idx++ )
 	    surface->removeHingeLine(idx,false);
@@ -401,7 +400,7 @@ int EM::dgbSurfaceReader::nextStep()
 		return -1;
 	    }
 
-	    if ( surface->hasPatch(hingeline->getSection()) )
+	    if ( surface->hasSection(hingeline->getSection()) )
 		surface->addHingeLine( hingeline, false );
 	    else
 		delete hingeline;
@@ -422,23 +421,25 @@ int EM::dgbSurfaceReader::nextStep()
 	    if ( !par->get( attribkey, attrib ) )
 		continue;
 
-	    TypeSet<int> attrpatches;
+	    TypeSet<int> attrsections;
 	    TypeSet<long long> subids;
 
-	    BufferString patchkey = attribkey;
-	    patchkey += EM::dgbSurfaceReader::posattrpatchstr;
+	    BufferString sectionkey = attribkey;
+	    sectionkey += EM::dgbSurfaceReader::posattrsectionstr;
 	    BufferString subidkey = attribkey;
 	    subidkey += EM::dgbSurfaceReader::posattrposidstr;
 
-	    par->get( patchkey, attrpatches );
+	    par->get( sectionkey, attrsections );
 	    par->get( subidkey, subids );
 
-	    for ( int idy=0; idy<attrpatches.size(); idy++ )
+	    for ( int idy=0; idy<attrsections.size(); idy++ )
 	    {
-		const EM::PosID pid(surface->id(),attrpatches[idy],subids[idy]);
+		const EM::PosID pid(surface->id(),attrsections[idy],subids[idy]);
 		surface->setPosAttrib( pid, attrib, true );
 	    }
 	}
+
+	*/
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res )
@@ -450,7 +451,7 @@ int EM::dgbSurfaceReader::nextStep()
 
     static const char* readerrmsg = "Unexpected end of file";
 
-    if ( patchindex!=oldpatchindex )
+    if ( sectionindex!=oldsectionindex )
     {
 	nrrows = readInt(strm);
 	if ( !strm )
@@ -463,17 +464,17 @@ int EM::dgbSurfaceReader::nextStep()
 	    firstrow = readInt(strm);
 	else
 	{
-	    patchindex++;
+	    sectionindex++;
 	    return MoreToDo;
 	}
 
 	rowindex = 0;
 
 
-	oldpatchindex = patchindex;
+	oldsectionindex = sectionindex;
     }
 
-    const EM::PatchID patchid = patchids[patchindex];
+    const EM::SectionID sectionid = sectionids[sectionindex];
     const int filerow = firstrow+rowindex*rowrange.step;
 
     const int nrcols = readInt(strm);
@@ -512,7 +513,7 @@ int EM::dgbSurfaceReader::nextStep()
 	if ( readfilltype && rowindex!=nrrows-1 && colindex!=nrcols-1 )
 	    readInt(strm);
 
-	if ( patchsel.indexOf(patchid)==-1 )
+	if ( sectionsel.indexOf(sectionid)==-1 )
 	    continue;
 
 	if ( readrowrange && (!readrowrange->includes(surfrc.row) ||
@@ -523,7 +524,7 @@ int EM::dgbSurfaceReader::nextStep()
 		    ((surfrc.col-readcolrange->start)%readcolrange->step)))
 	    continue;
 
-	if ( !surface->getSurface(patchid) )
+	if ( !surface->getSurface(sectionid) )
 	{
 	    const RowCol filestep = rcconv 
 			    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
@@ -534,16 +535,16 @@ int EM::dgbSurfaceReader::nextStep()
 				 : filestep,
 		    rowcol, readrowrange, readcolrange );
 
-	    const int index = patchids.indexOf(patchid);
-	    surface->addPatch( *patchnames[index], patchids[index], false );
+	    const int index = sectionids.indexOf(sectionid);
+	    surface->addSection( *sectionnames[index], sectionids[index], false );
 	}
 
-	surface->setPos( patchid, rowcol, pos, false, false );
+	surface->setPos( sectionid, rowcol, pos, false, false );
     }
 
     rowindex++;
     if ( rowindex>=nrrows )
-	patchindex++;
+	sectionindex++;
 
     nrdone++;
 
@@ -601,8 +602,8 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
     , writerowrange( new StepInterval<int> )
     , writecolrange( new StepInterval<int> )
     , nrdone( 0 )
-    , patchindex( 0 )
-    , oldpatchindex( -1 )
+    , sectionindex( 0 )
+    , oldsectionindex( -1 )
     , writeonlyz( false )
     , filetype( filetype_ )
     , binary( binary_ )
@@ -621,16 +622,15 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	par.set( EM::dgbSurfaceReader::floatdatacharstr, dc );
     }
 
-    for ( int idx=0; idx<nrPatches(); idx++ )
-	patchsel += patchID(idx);
+    for ( int idx=0; idx<nrSections(); idx++ )
+	sectionsel += sectionID(idx);
 
     for ( int idx=0; idx<nrAuxVals(); idx++ )
     {
 	if ( auxDataName(idx) )
 	    auxdatasel += idx;
     }
-
-    par.set( EM::dgbSurfaceReader::prefcolofstr, (int) surface.preferredColor().rgb() );
+/*
 
     par.set( EM::dgbSurfaceReader::nrhingelinestr, surface.nrHingeLines() );
     int hingeid = 0;
@@ -645,36 +645,10 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	surface.hingeLine(idx)->fillPar(relpar);
 	par.mergeComp( relpar, key );
     }
+*/
 
-    int keyid = 0;
-    for ( int idx=0; idx<surface.nrPosAttribs(); idx++ )
-    {
-	const int attrib = surface.posAttrib(idx);
-	const TypeSet<PosID>* pids = surface.getPosAttribList(attrib);
-	if ( !pids ) continue;
+    surface.fillPar( par );
 
-	BufferString attribkey = EM::dgbSurfaceReader::posattrprefixstr;
-	attribkey += keyid++;
-	par.set( attribkey, attrib );
-
-	TypeSet<int> attrpatches;
-	TypeSet<long long> subids;
-	for ( int idy=0; idy<pids->size(); idy++ )
-	{
-	    attrpatches += (*pids)[idy].patchID();
-	    subids += (*pids)[idy].subID();
-	}
-
-	BufferString patchkey = attribkey;
-	patchkey += EM::dgbSurfaceReader::posattrpatchstr;
-	BufferString subidkey = attribkey;
-	subidkey += EM::dgbSurfaceReader::posattrposidstr;
-
-	par.set( patchkey, attrpatches );
-	par.set( subidkey, subids );
-    }
-
-    par.set( EM::dgbSurfaceReader::nrposattrstr, keyid );
     surface.getRange( *writerowrange, true );
     surface.getRange( *writecolrange, false );
 }
@@ -690,27 +664,27 @@ EM::dgbSurfaceWriter::~dgbSurfaceWriter()
 }
 
 
-int EM::dgbSurfaceWriter::nrPatches() const
+int EM::dgbSurfaceWriter::nrSections() const
 {
-    return surface.nrPatches();
+    return surface.nrSections();
 }
 
 
-EM::PatchID EM::dgbSurfaceWriter::patchID( int idx ) const
+EM::SectionID EM::dgbSurfaceWriter::sectionID( int idx ) const
 {
-    return surface.patchID(idx);
+    return surface.sectionID(idx);
 }
 
 
-const char* EM::dgbSurfaceWriter::patchName( int idx ) const
+const char* EM::dgbSurfaceWriter::sectionName( int idx ) const
 {
-    return surface.patchName(patchID(idx));
+    return surface.sectionName(sectionID(idx));
 }
 
 
-void EM::dgbSurfaceWriter::selPatches(const TypeSet<EM::PatchID>& sel)
+void EM::dgbSurfaceWriter::selSections(const TypeSet<EM::SectionID>& sel)
 {
-    patchsel = sel;
+    sectionsel = sel;
 }
 
 
@@ -792,7 +766,7 @@ int EM::dgbSurfaceWriter::totalNr() const
 {
     return (executors.size() ? ExecutorGroup::totalNr() : 0) + 
 	   (writerowrange?writerowrange->nrSteps():rowrange.nrSteps()) *
-	   patchsel.size();
+	   sectionsel.size();
 }
 
 
@@ -827,16 +801,16 @@ int EM::dgbSurfaceWriter::nextStep()
 	par.set( EM::dgbSurfaceReader::colrangestr,
 		 writecolrange->start,writecolrange->stop,writecolrange->step);
 
-	par.set( dgbSurfaceReader::nrpatchstr, patchsel.size() );
-	for ( int idx=0; idx<patchsel.size(); idx++ )
+	par.set( dgbSurfaceReader::nrsectionstr, sectionsel.size() );
+	for ( int idx=0; idx<sectionsel.size(); idx++ )
 	{
-	    BufferString key( dgbSurfaceReader::patchidstr );
+	    BufferString key( dgbSurfaceReader::sectionidstr );
 	    key += idx;
-	    par.set( key, patchsel[idx] );
+	    par.set( key, sectionsel[idx] );
 
-	    key = dgbSurfaceReader::patchnamestr;
+	    key = dgbSurfaceReader::sectionnamestr;
 	    key += idx;
-	    par.set( key, surface.patchName(patchsel[idx]));
+	    par.set( key, surface.sectionName(sectionsel[idx]));
 	}
 
 	std::ostream& stream = conn->oStream();
@@ -845,7 +819,7 @@ int EM::dgbSurfaceWriter::nextStep()
 	par.putTo( astream );
     }
 
-    if ( patchindex>=patchsel.size() )
+    if ( sectionindex>=sectionsel.size() )
     {
 	const int res = ExecutorGroup::nextStep();
 	if ( !res ) const_cast<EM::Surface*>(&surface)->resetChangedFlag();
@@ -858,14 +832,14 @@ int EM::dgbSurfaceWriter::nextStep()
     static const char* eol = "\n";
     static const char* eoltab = "\n\t\t";
 
-    if ( patchindex!=oldpatchindex )
+    if ( sectionindex!=oldsectionindex )
     {
 	const Geometry::MeshSurface* gsurf =
-	    			surface.getSurface( patchsel[patchindex] );
-	StepInterval<int> patchrange;
-       	surface.getRange( patchsel[patchindex], patchrange, true );
-	firstrow = patchrange.start;
-	int lastrow = patchrange.stop;
+	    			surface.getSurface( sectionsel[sectionindex] );
+	StepInterval<int> sectionrange;
+       	surface.getRange( sectionsel[sectionindex], sectionrange, true );
+	firstrow = sectionrange.start;
+	int lastrow = sectionrange.stop;
 
 	if ( writerowrange )
 	{
@@ -898,7 +872,7 @@ int EM::dgbSurfaceWriter::nextStep()
 
 	if ( !nrrows )
 	{
-	    patchindex++;
+	    sectionindex++;
 	    nrdone++;
 	    return MoreToDo;
 	}
@@ -909,14 +883,14 @@ int EM::dgbSurfaceWriter::nextStep()
 	    return ErrorOccurred;
 	}
 
-	oldpatchindex = patchindex;
+	oldsectionindex = sectionindex;
 	rowindex = 0;
     }
 
     const int row = firstrow+rowindex *
 		    (writerowrange?writerowrange->step:rowrange.step);
 
-    const EM::PatchID patchid = surface.patchID(patchindex);
+    const EM::SectionID sectionid = surface.sectionID(sectionindex);
     TypeSet<Coord3> colcoords;
 
     int firstcol = -1;
@@ -927,7 +901,7 @@ int EM::dgbSurfaceWriter::nextStep()
 	const int col = writecolrange ? writecolrange->atIndex(colindex) :
 	    				colrange.atIndex(colindex);
 
-	const EM::PosID posid(  surface.id(), patchid,
+	const EM::PosID posid(  surface.id(), sectionid,
 				surface.rowCol2SubID(RowCol(row,col)));
 	const Coord3 pos = surface.getPos(posid);
 
@@ -987,7 +961,7 @@ int EM::dgbSurfaceWriter::nextStep()
     rowindex++;
     if ( rowindex>=nrrows )
     {
-	patchindex++;
+	sectionindex++;
 	stream.flush();
     }
 

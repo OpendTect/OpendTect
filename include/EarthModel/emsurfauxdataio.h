@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.9 2004-04-28 21:30:58 bert Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.10 2004-07-23 12:54:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -73,7 +73,7 @@ protected:
   
     TypeSet<EM::SubID>		subids;
     TypeSet<float>		values;
-    int				patchindex;
+    int				sectionindex;
 
     int				chunksize;
     int				nrdone;
@@ -112,10 +112,10 @@ protected:
     EM::Surface*		surf;
     const BinIDSampler*		sel;
   
-    int				patchindex;
-    int				nrpatches;
-    EM::PatchID			currentpatch;
-    int				valsleftonpatch;
+    int				sectionindex;
+    int				nrsections;
+    EM::SectionID		currentsection;
+    int				valsleftonsection;
 
     int				chunksize;
     int				nrdone;

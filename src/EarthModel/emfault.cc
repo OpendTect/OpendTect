@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.17 2004-07-19 11:24:12 nanne Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.18 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -20,7 +20,7 @@ EM::Fault::Fault( EM::EMManager& em_, const EM::ObjectID& mid_ )
 {}
 
 
-Geometry::MeshSurface* EM::Fault::createPatchSurface( const PatchID& pid ) const
+Geometry::MeshSurface* EM::Fault::createSectionSurface( const SectionID& pid ) const
 {
     return new Geometry::MeshSurfaceImpl;
 }
@@ -34,9 +34,9 @@ bool EM::Fault::createFromStick( const TypeSet<Coord3>& stick, float velocity )
 {
     if ( stick.size() < 2 ) return false;
 
-    if ( !nrPatches() ) addPatch( "", true );
+    if ( !nrSections() ) addSection( "", true );
     setTranslatorData( RowCol(1,1), RowCol(1,1), RowCol(0,0), 0, 0 );
-    const EM::PatchID patchid = patchID(0);
+    const EM::SectionID sectionid = sectionID(0);
     const float idealdistance = 25; // TODO set this in some intelligent way
     RowCol rowcol(0,0);
 
@@ -68,12 +68,12 @@ bool EM::Fault::createFromStick( const TypeSet<Coord3>& stick, float velocity )
 	    const BinID newprojectedbid = SI().transform( newprojectedpos );
 	    const Coord3 newpos( SI().transform(newprojectedbid),
 				 newprojectedpos.z/(velocity/2) );
-	    setPos( patchid, rowcol, newpos, false, true );
+	    setPos( sectionid, rowcol, newpos, false, true );
 	    istimestick ? rowcol.row++ : rowcol.col++;
 	}
 
 	Coord3 crd( SI().transform(stopbid), stoppos.z/(velocity/2) );
-	setPos( patchid, rowcol, crd, false, true );
+	setPos( sectionid, rowcol, crd, false, true );
 	istimestick ? rowcol.row++ : rowcol.col++;
     }
 

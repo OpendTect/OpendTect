@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.46 2004-07-21 12:06:05 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.47 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -54,7 +54,7 @@ EM::SubID EM::Horizon::getSubID( const BinID& bid )
 }
 
 
-Geometry::MeshSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
+Geometry::MeshSurface* EM::Horizon::createSectionSurface( const SectionID& sectionid )
     									   const
 {
     Geometry::GridSurface* newsurf = new Geometry::GridSurface();
@@ -62,9 +62,9 @@ Geometry::MeshSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
     const RowCol rc10( 1, 0 );
     const RowCol rc11( 1, 1 );
 
-    const RowCol surfrc00 = subID2RowCol( getSurfSubID(rc00,patchid) );
-    const RowCol surfrc10 = subID2RowCol( getSurfSubID(rc10,patchid) );
-    const RowCol surfrc11 = subID2RowCol( getSurfSubID(rc11,patchid) );
+    const RowCol surfrc00 = subID2RowCol( getSurfSubID(rc00,sectionid) );
+    const RowCol surfrc10 = subID2RowCol( getSurfSubID(rc10,sectionid) );
+    const RowCol surfrc11 = subID2RowCol( getSurfSubID(rc11,sectionid) );
 
     const Coord pos00 = SI().transform(BinID(surfrc00.row,surfrc00.col));
     const Coord pos10 = SI().transform(BinID(surfrc10.row,surfrc10.col));
@@ -127,7 +127,7 @@ HorizonImporter( EM::Horizon& hor, const Grid& g, bool fixholes_ )
     const RowCol step( inlrange.step, crlrange.step );
     const RowCol origo(bid00.inl,bid00.crl);
     horizon.setTranslatorData( step, step, origo, 0, 0 );
-    patch = hor.addPatch( g.name(), true );
+    section = hor.addSection( g.name(), true );
 
     inl = inlrange.start;
 }
@@ -155,10 +155,10 @@ int nextStep()
 		      curcol+=colrange.step )
 		{
 		    const RowCol rc( currow, curcol );
-		    if ( horizon.isDefined(patch,rc) )
+		    if ( horizon.isDefined(section,rc) )
 			continue;
 
-		    EM::PosID pid(horizon.id(),patch,horizon.rowCol2SubID(rc));
+		    EM::PosID pid(horizon.id(),section,horizon.rowCol2SubID(rc));
 
 		    TypeSet<EM::PosID> neighbors;
 		    horizon.getNeighbors( pid, &neighbors );
@@ -204,7 +204,7 @@ int nextStep()
 	    continue;
 
 	Coord3 pos(coord.x, coord.y, val );
-	horizon.setPos( patch, horizon.getRowCol(bid), pos,
+	horizon.setPos( section, horizon.getRowCol(bid), pos,
 			true, false );
     }
 
@@ -222,7 +222,7 @@ protected:
 
     int			inl;
     bool		fixholes;
-    EM::PatchID		patch;
+    EM::SectionID		section;
 };
 
 }; // namespace EM
@@ -244,9 +244,9 @@ const IOObjContext& EM::Horizon::getIOObjContext() const
 bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick, 
 				   float velocity )
 {
-    if ( !nrPatches() ) addPatch( "", true );
+    if ( !nrSections() ) addSection( "", true );
 
-    const EM::PatchID patchid = patchID(0);
+    const EM::SectionID sectionid = sectionID(0);
     
     const float idealdistance = 25; // TODO set this in some intelligent way
 
@@ -288,7 +288,7 @@ bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick,
 		    (startpos.z*distafter+stoppos.z*distbefore)/
 		    (distbefore+distafter)/(velocity/2));
 
-	    const EM::PosID posid( id(), patchid,
+	    const EM::PosID posid( id(), sectionid,
 				   rowCol2SubID(rowcol) );
 	    setPos( posid, newpos, true );
 	    if ( rowcol == startrc )
@@ -320,7 +320,7 @@ bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick,
 
 	if ( idx==stick.size()-2 )
 	{
-	    const EM::PosID posid( id(), patchid,
+	    const EM::PosID posid( id(), sectionid,
 				    rowCol2SubID(rowcol));
 	    setPos( posid, Coord3( stoppos, stoppos.z/(velocity/2)), true);
 

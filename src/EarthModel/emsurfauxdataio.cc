@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.16 2004-07-19 06:56:37 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.17 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -40,7 +40,7 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     , dataidx( dataidx_ )
     , surf( surf_ )
     , sel( sel_ )
-    , patchindex( 0 )
+    , sectionindex( 0 )
     , binary( binary_ )
     , nrdone(0)
 {
@@ -75,10 +75,10 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     par.putTo( astream );
 
     int nrnodes = 0;
-    for ( int idx=0; idx<surf.nrPatches(); idx++ )
+    for ( int idx=0; idx<surf.nrSections(); idx++ )
     {
-	EM::PatchID patchid = surf.patchID(idx);
-	const Geometry::MeshSurface* meshsurf = surf.getSurface(patchid);
+	EM::SectionID sectionid = surf.sectionID(idx);
+	const Geometry::MeshSurface* meshsurf = surf.getSurface(sectionid);
 
 	nrnodes += meshsurf->size();
     }
@@ -108,19 +108,19 @@ int EM::dgbSurfDataWriter::nextStep()
 	{
 	    if ( nrdone )
 	    {
-		patchindex++;
-		if ( patchindex>=surf.nrPatches() )
+		sectionindex++;
+		if ( sectionindex>=surf.nrSections() )
 		    return Finished;
 	    }
 	    else
 	    {
-		if ( !writeInt(surf.nrPatches()))
+		if ( !writeInt(surf.nrSections()))
 		    return ErrorOccurred;
 	    }
 
 
-	    const EM::PatchID patchid = surf.patchID( patchindex );
-	    const Geometry::MeshSurface* meshsurf = surf.getSurface(patchid);
+	    const EM::SectionID sectionid = surf.sectionID( sectionindex );
+	    const Geometry::MeshSurface* meshsurf = surf.getSurface(sectionid);
 
 	    const int nrnodes = meshsurf->size();
 	    for ( int idy=0; idy<nrnodes; idy++ )
@@ -135,7 +135,7 @@ int EM::dgbSurfDataWriter::nextStep()
 		const RowCol emrc( bid.inl, bid.crl );
 		const EM::SubID subid = surf.rowCol2SubID( emrc );
 		posid.setSubID( subid );
-		posid.setPatchID( patchid );
+		posid.setSectionID( sectionid );
 		const float auxvalue = surf.getAuxDataVal(dataidx,posid);
 		if ( mIsUndefined( auxvalue ) )
 		    continue;
@@ -144,7 +144,7 @@ int EM::dgbSurfDataWriter::nextStep()
 		values += auxvalue;
 	    }
 
-	    if ( !writeInt( patchid ) || !writeInt(subids.size()))
+	    if ( !writeInt( sectionid ) || !writeInt(subids.size()))
 		return ErrorOccurred;
 	}
 
@@ -225,10 +225,10 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     , chunksize( 100 )
     , dataidx( -1 )
     , surf( 0 )
-    , patchindex( 0 )
+    , sectionindex( 0 )
     , error( true )
     , nrdone(0)
-    , valsleftonpatch(0)
+    , valsleftonsection(0)
     , shift(0)
     , stream(0)
 {
@@ -309,31 +309,31 @@ int EM::dgbSurfDataReader::nextStep()
     EM::PosID posid( surf->id() );
     for ( int idx=0; idx<chunksize; idx++ )
     {
-	while ( !valsleftonpatch )
+	while ( !valsleftonsection )
 	{
 	    if ( nrdone )
 	    {
-		patchindex++;
-		if ( patchindex>=nrpatches )
+		sectionindex++;
+		if ( sectionindex>=nrsections )
 		    return Finished;
 	    }
 	    else
 	    {
-		if ( !readInt(nrpatches) )
+		if ( !readInt(nrsections) )
 		    return ErrorOccurred;
 	    }
 
 	    int cp;
-	    if ( !readInt(cp) || !readInt(valsleftonpatch))
+	    if ( !readInt(cp) || !readInt(valsleftonsection))
 		return ErrorOccurred;
 
-	    currentpatch = cp;
+	    currentsection = cp;
 	    totalnr = 100;
-	    chunksize = valsleftonpatch/totalnr+1;
+	    chunksize = valsleftonsection/totalnr+1;
 	    if ( chunksize < 100 )
 	    {
 		chunksize = 100;
-		totalnr = valsleftonpatch/chunksize+1;
+		totalnr = valsleftonsection/chunksize+1;
 	    }
 	}
 
@@ -343,10 +343,10 @@ int EM::dgbSurfDataReader::nextStep()
 	    return ErrorOccurred;
 
 	posid.setSubID( subid );
-	posid.setPatchID( currentpatch );
+	posid.setSectionID( currentsection );
 	surf->setAuxDataVal( dataidx, posid, val );
 
-	valsleftonpatch--;
+	valsleftonsection--;
     }
 
     nrdone++;

@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.4 2003-11-24 08:39:52 kristofer Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.5 2004-07-23 12:54:49 kristofer Exp $";
 
 #include "emstickset.h"
 
@@ -138,7 +138,7 @@ bool EM::StickSet::setPos( const StickID& stickid, const KnotID& knotid,
 bool EM::StickSet::setPos( const EM::PosID& posid, const Coord3& newpos,
 			   bool addtohistory )
 {
-    return setPos( posid.patchID(), posid.subID(), newpos, addtohistory );
+    return setPos( posid.sectionID(), posid.subID(), newpos, addtohistory );
 }
 
 
@@ -162,7 +162,7 @@ Coord3 EM::StickSet::getPos( const StickID& stickid,
 
 Coord3 EM::StickSet::getPos( const EM::PosID& posid ) const
 {
-    return getPos( posid.patchID(), posid.subID() );
+    return getPos( posid.sectionID(), posid.subID() );
 }
 
 
