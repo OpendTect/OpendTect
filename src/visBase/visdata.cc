@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.19 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.20 2004-11-16 09:28:33 kristofer Exp $";
 
 #include "visdata.h"
 
@@ -91,7 +91,7 @@ bool visBase::DataObject::isSelected() const
 { return selectable() && DM().selMan().selected().indexOf( id()) != -1; }
 
 
-void visBase::DataObject::setTransformation( visBase::Transformation* )
+void visBase::DataObject::setDisplayTransformation( visBase::Transformation* )
 {   
     pErrMsg("Not implemented");
 }   

@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.2 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.3 2004-11-16 09:28:33 kristofer Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -53,18 +53,18 @@ void visBase::DataObjectGroup::addObject( DataObject* no )
 }
 
 
-void visBase::DataObjectGroup::setTransformation( Transformation* nt )
+void visBase::DataObjectGroup::setDisplayTransformation( Transformation* nt )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
-	objects[idx]->setTransformation(nt);
+	objects[idx]->setDisplayTransformation(nt);
 }
 
 
-visBase::Transformation* visBase::DataObjectGroup::getTransformation()
+visBase::Transformation* visBase::DataObjectGroup::getDisplayTransformation()
 {
     for ( int idx=0; idx<objects.size(); idx++ )
-	if ( objects[idx]->getTransformation() )
-	    return objects[idx]->getTransformation();
+	if ( objects[idx]->getDisplayTransformation() )
+	    return objects[idx]->getDisplayTransformation();
 
     return 0;
 }

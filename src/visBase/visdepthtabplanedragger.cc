@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.7 2004-10-01 12:31:02 nanne Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.8 2004-11-16 09:28:33 kristofer Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -235,7 +235,7 @@ void DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
 }
 
 
-void DepthTabPlaneDragger::setTransformation( Transformation* nt )
+void DepthTabPlaneDragger::setDisplayTransformation( Transformation* nt )
 {
     if ( transform==nt ) return;
 
@@ -269,7 +269,7 @@ void DepthTabPlaneDragger::setTransformation( Transformation* nt )
 }
 
 
-Transformation* DepthTabPlaneDragger::getTransformation()
+Transformation* DepthTabPlaneDragger::getDisplayTransformation()
 {
     return transform;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.19 2004-06-18 08:02:49 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.20 2004-11-16 09:28:33 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
     while ( track->size()>pts.size() )
 	track->removePoint( 0 );
 
-    track->setTransformation( transformation );
+    track->setDisplayTransformation( transformation );
     for ( int idx=0; idx<pts.size(); idx++ )
     {
 	const Coord3& crd = pts[idx];
@@ -135,7 +135,7 @@ const LineStyle& Well::lineStyle() const
 
 void Well::setWellName( const char* nm, const Coord3& pos )
 {
-    welltxt->setTransformation( transformation );
+    welltxt->setDisplayTransformation( transformation );
     welltxt->setText( nm );
     Coord3 wp( pos );
     if ( !SI().zRange().includes(pos.z) )
@@ -172,7 +172,7 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
 
     marker->doRestoreProportions(false);
     markergroup->addObject( marker );
-    marker->setTransformation( transformation );
+    marker->setDisplayTransformation( transformation );
     marker->setCenterPos( pos );
     //marker->setType( MarkerStyle3D::Cube );
     marker->getMaterial()->setColor( color );
@@ -180,7 +180,7 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
     marker->turnOn( showmarkers );
 
     Text* markernm = Text::create();
-    markernm->setTransformation( transformation );
+    markernm->setDisplayTransformation( transformation );
     markernm->setText( nm );
     markernm->setPosition( pos );
     markernm->setJustification( visBase::Text::Left );
@@ -353,7 +353,7 @@ bool Well::logNameShown() const
 { return false; }
 
 
-void Well::setTransformation( visBase::Transformation* nt )
+void Well::setDisplayTransformation( visBase::Transformation* nt )
 {
     if ( transformation )
 	transformation->unRef();
@@ -363,7 +363,7 @@ void Well::setTransformation( visBase::Transformation* nt )
 }
 
 
-visBase::Transformation* Well::getTransformation()
+visBase::Transformation* Well::getDisplayTransformation()
 { return transformation; }
 
 

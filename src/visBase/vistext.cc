@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.9 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.10 2004-11-16 09:28:33 kristofer Exp $";
 
 
 #include "vistext.h"
@@ -149,7 +149,7 @@ int visBase::Text::usePar( const IOPar& par )
 }
 
 
-void visBase::Text::setTransformation( Transformation* nt )
+void visBase::Text::setDisplayTransformation( Transformation* nt )
 {
     const Coord3 pos = position();
 
@@ -160,7 +160,7 @@ void visBase::Text::setTransformation( Transformation* nt )
 }	
 
 
-visBase::Transformation* visBase::Text::getTransformation()
+visBase::Transformation* visBase::Text::getDisplayTransformation()
 {
     return transformation;
 }

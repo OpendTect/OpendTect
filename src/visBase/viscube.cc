@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.15 2004-05-13 07:41:31 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.16 2004-11-16 09:28:33 kristofer Exp $";
 
 #include "viscube.h"
 
@@ -30,10 +30,10 @@ visBase::Cube::Cube()
 
 
 visBase::Cube::~Cube()
-{ setTransformation(0); }
+{ setDisplayTransformation(0); }
 
 
-void visBase::Cube::setTransformation( Transformation* nt )
+void visBase::Cube::setDisplayTransformation( Transformation* nt )
 {
     if ( transformation==nt ) return;
 

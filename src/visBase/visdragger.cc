@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.9 2004-08-30 14:37:03 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.10 2004-11-16 09:28:33 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ void Dragger::setDraggerType( Type tp )
 }
 
 
-void Dragger::setTransformation( Transformation* nt )
+void Dragger::setDisplayTransformation( Transformation* nt )
 {
     Coord3 pos = getPos();
     if ( displaytrans )
@@ -113,7 +113,7 @@ void Dragger::setTransformation( Transformation* nt )
 }
 
 
-Transformation* Dragger::getTransformation()
+Transformation* Dragger::getDisplayTransformation()
 {
     return displaytrans;
 }

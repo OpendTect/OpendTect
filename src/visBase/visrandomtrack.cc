@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.29 2004-09-07 14:35:02 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.30 2004-11-16 09:28:33 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -69,7 +69,7 @@ visBase::RandomTrack::~RandomTrack()
 }
 
 
-void visBase::RandomTrack::setTransformation( visBase::Transformation* tf )
+void visBase::RandomTrack::setDisplayTransformation( visBase::Transformation* tf )
 {
     if ( transformation ) transformation->unRef();
     transformation = tf;
@@ -78,7 +78,7 @@ void visBase::RandomTrack::setTransformation( visBase::Transformation* tf )
 }
 
 
-visBase::Transformation* visBase::RandomTrack::getTransformation()
+visBase::Transformation* visBase::RandomTrack::getDisplayTransformation()
 {
     return transformation;
 }
@@ -445,7 +445,7 @@ void visBase::RandomTrack::rebuild()
     if ( !sections.size() ) return;
 
     Coordinates* coords = sections[0]->getCoordinates();
-    if ( transformation ) coords->setTransformation( transformation );
+    if ( transformation ) coords->setDisplayTransformation( transformation );
 
     for ( int idx=0; idx<knots.size(); idx++ )
     {

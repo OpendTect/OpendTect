@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.17 2004-11-03 11:05:49 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.18 2004-11-16 09:28:33 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,7 +223,7 @@ void visBase::Marker::setArrowDir( const ::Sphere& dir )
 }
 
 
-void visBase::Marker::setTransformation( visBase::Transformation* nt )
+void visBase::Marker::setDisplayTransformation( visBase::Transformation* nt )
 {
     const Coord3 pos = centerPos();
     if ( transformation ) transformation->unRef();
@@ -233,7 +233,7 @@ void visBase::Marker::setTransformation( visBase::Transformation* nt )
 }
 
 
-visBase::Transformation* visBase::Marker::getTransformation()
+visBase::Transformation* visBase::Marker::getDisplayTransformation()
 { return transformation; }
 
 
