@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.15 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.16 2002-01-10 10:26:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ public:
 
     void		setHSpacing( int ); 
     void		setVSpacing( int ); 
+    void		setSpacing( int s=0 )	
+			{ setHSpacing(s); setVSpacing(s); }
     void		setBorder( int ); 
 
     uiObject*		hAlignObj();
