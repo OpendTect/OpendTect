@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiimppickset.h,v 1.4 2004-06-23 11:18:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,22 +22,24 @@ class uiIOObjSel;
 
 /*! \brief Dialog for pickset selection */
 
-class uiImportPickSet : public uiDialog
+class uiImpExpPickSet : public uiDialog
 {
 public:
-			uiImportPickSet(uiParent*);
-			~uiImportPickSet();
+			uiImpExpPickSet(uiParent*,bool);
+			~uiImpExpPickSet();
 
 protected:
 
-    uiIOObjSel*		outfld;
+    uiIOObjSel*		objfld;
     uiGenInput*		xyfld;
-    uiFileInput*	infld;
+    uiFileInput*	filefld;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();
-    bool		handleAscii();
+    bool		doImport();
+    bool		doExport();
 
+    bool		import;
     CtxtIOObj&		ctio;
 };
 

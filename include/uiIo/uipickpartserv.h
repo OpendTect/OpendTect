@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.18 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.19 2004-06-23 11:18:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 
 				// Services
     void			importPickSet();
+    void			exportPickSet();
     bool			fetchPickSets();
     bool			storePickSets();
 
