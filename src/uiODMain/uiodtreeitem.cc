@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.29 2004-06-05 19:19:17 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.30 2004-06-06 07:49:32 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -479,7 +479,7 @@ BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
     const uiVisPartServer* visserv =
        const_cast<uiODEarthModelSurfaceTreeItem*>(this)->applMgr()->visServer();
     const AttribSelSpec* as =  visserv->getSelSpec( displayid );
-    bool hasattr = as && as->id() > -2;
+    bool hasattr = as && as->id()>=0;
     BufferString dispname;
     if ( hasattr )
     {
