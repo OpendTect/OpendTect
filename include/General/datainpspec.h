@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.48 2003-11-15 23:42:17 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.49 2004-01-12 13:20:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class BinID2Coord;
+class IOPar;
 
 class DataType
 {
@@ -78,52 +79,48 @@ class DataInpSpec
 public:
 
 
-			DataInpSpec( DataType t )
-			    : tp_(t), prefempty_(true) {}
-
-			DataInpSpec( const DataInpSpec& o )
-			    : tp_(o.tp_), prefempty_(true) {}
-
+			DataInpSpec( DataType t );
+			DataInpSpec( const DataInpSpec& o );
     virtual		~DataInpSpec() {}
 
-    DataType		type() const			{ return tp_; }
+    DataType		type() const;
 
     virtual DataInpSpec* clone() const			=0;
-    virtual int 	nElems() const			{ return 1; }
+    virtual int 	nElems() const;
 
     virtual bool	isUndef( int idx=0 ) const	=0;
-    bool		preferEmpty() const 		{ return prefempty_; }
-    void		setPrefEmpty( bool yn=true )	{ prefempty_ = yn; }
+    bool		preferEmpty() const;
+    void		setPrefEmpty( bool yn=true );
 
-    virtual bool	hasLimits() const		{ return false; }
+    virtual bool	hasLimits() const;
 
     virtual const char*	text( int idx=0 ) const		=0;
     virtual void	setText( const char*, int idx=0)=0;
 
-    virtual int		getIntValue( int idx=0 ) const
-			    { return text(idx) ? atoi( text(idx) ) : 0; }
-    virtual double	getValue( int idx=0 ) const
-			    { return text(idx) ? atof( text(idx) ) : 0; }
-    virtual float	getfValue( int idx=0 ) const
-			    { return text(idx) ? atof( text(idx) ) : 0; }
-    virtual bool	getBoolValue( int idx=0 ) const
-			    { return (bool)getIntValue(idx); }
+    void		fillPar(IOPar&) const;
+    			/*!\Saves the _values_ (from text()) */
+    bool		usePar(const IOPar&);
+    			/*!\Sets the _values_ (with setText()) */
 
-    virtual void	setValue( int i, int idx=0 )
-			    { setText( toString( i ),idx); }
-    virtual void	setValue( double d, int idx=0 )
-			    { setText( toString( d ),idx); }
-    virtual void	setValue( float f, int idx=0 )
-			    { setText( toString( f ),idx); }
-    virtual void	setValue( bool b, int idx=0 )
-			    { setValue( ((int)b), idx ); }
+    virtual int		getIntValue( int idx=0 ) const;
+    virtual double	getValue( int idx=0 ) const;
+    virtual float	getfValue( int idx=0 ) const;
+    virtual bool	getBoolValue( int idx=0 ) const;
+
+    virtual void	setValue( int i, int idx=0 );
+    virtual void	setValue( double d, int idx=0 );
+    virtual void	setValue( float f, int idx=0 );
+    virtual void	setValue( bool b, int idx=0 );
 
 
 protected:
 
-    void		setType( DataType t )		{ tp_ = t; }
+    void		setType( DataType t );
     DataType		tp_;
     bool		prefempty_;
+
+private:
+    static const char*	valuestr;
 };
 
 
@@ -376,23 +373,14 @@ typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 class StringInpSpec : public DataInpSpec
 {
 public:
-			StringInpSpec( const char* s=0 )
-			    : DataInpSpec( DataTypeImpl<const char*>() )
-			    , isUndef_(s?false:true), str( s ) 
-			    {}
+			StringInpSpec( const char* s=0 );
+    virtual bool	isUndef( int idx=0 ) const;
 
-    virtual bool	isUndef( int idx=0 ) const	{ return isUndef_; }
+    virtual DataInpSpec* clone() const;
+    const char*		text() const;
 
-    virtual DataInpSpec* clone() const	{ return new StringInpSpec( *this ); }
-    const char*		text() const			{ return str; }
-
-    virtual void	setText( const char* s, int idx=0 ) 
-			    { str = s; isUndef_ = s ? false : true; }
-    virtual const char*	text( int idx=0 ) const
-			    {
-				if ( isUndef() )	return "";
-				else		return (const char*) str;
-			    }
+    virtual void	setText( const char* s, int idx=0 ) ;
+    virtual const char*	text( int idx ) const;
 protected:
 
     bool		isUndef_;
@@ -405,15 +393,8 @@ protected:
 class FileNameInpSpec : public StringInpSpec
 {
 public:
-			FileNameInpSpec( const char* fname=0 )
-			    : StringInpSpec( fname )
-			    { 
-				setType( DataTypeImpl<const char*>
-						    ( DataType::filename ) );
-			    }
-
-    virtual DataInpSpec* clone() const  
-			    { return new FileNameInpSpec( *this ); }
+				FileNameInpSpec( const char* fname=0 );
+    virtual DataInpSpec*	clone() const;
 };
 
 
@@ -432,43 +413,22 @@ class BoolInpSpec : public DataInpSpec
 {
 public:
 			BoolInpSpec( const char* truetxt=0,
-				     const char* falsetxt=0,bool yesno=true)
-			    : DataInpSpec( DataTypeImpl<bool>() )
-			    , truetext(truetxt && *truetxt ? truetxt : "Yes")
-			    , falsetext(falsetxt && *falsetxt ? falsetxt : "No")
-			    , yn(yesno) 
-			    {}
+				     const char* falsetxt=0,bool yesno=true);
+			BoolInpSpec( const BoolInpSpec& oth);
 
-			BoolInpSpec( const BoolInpSpec& oth)
-			    : DataInpSpec( oth )
-			    , truetext( oth.truetext )
-			    , falsetext( oth.falsetext )
-			    , yn( oth.yn ) 
-			    {}
+    virtual bool	isUndef( int idx=0 ) const;
 
-    virtual bool	isUndef( int idx=0 ) const	{ return false; }
+    virtual DataInpSpec* clone() const;
+    const char*		trueFalseTxt( bool tf = true ) const;
+    void 		setTrueFalseTxt( bool tf, const char* txt );
 
-    virtual DataInpSpec* clone() const  
-			    { return new BoolInpSpec( *this ); }
-    const char*		trueFalseTxt( bool tf = true ) const
-			    { return tf ? truetext : falsetext; }
-    void 		setTrueFalseTxt( bool tf, const char* txt )
-			    { if ( tf ) truetext=txt; else falsetext=txt; }
+    bool		checked() const;
+    void		setChecked( bool yesno );
+    virtual const char*	text( int idx=0 ) const;
 
-    bool		checked() const			{ return yn; }
-    void		setChecked( bool yesno )	{ yn=yesno; }
-    virtual const char*	text( int idx=0 ) const
-			{ 
-			    return yn ? (const char*)truetext 
-				      : (const char*)falsetext; 
-			}
-
-    virtual void	setText( const char* s, int idx=0 )
-			    { yn = s && strcmp(s,falsetext); }
-    virtual bool	getBoolValue( int idx=0 ) const
-			    { return yn; }
-    virtual void	setValue( bool b, int idx=0 )
-			    { yn = b; }
+    virtual void	setText( const char* s, int idx=0 );
+    virtual bool	getBoolValue( int idx=0 ) const;
+    virtual void	setValue( bool b, int idx=0 );
 
 protected:
 
@@ -486,85 +446,30 @@ protected:
 class StringListInpSpec : public DataInpSpec
 {
 public:
-    			StringListInpSpec( const BufferStringSet& bss )
-			    : DataInpSpec( DataTypeImpl<const char*>
-							(DataType::list) )
-			    , strings_(bss)		{}
+    			StringListInpSpec( const BufferStringSet& bss );
+			StringListInpSpec( const char** sl=0 );
+			StringListInpSpec( TypeSet<char*> sl );
+			StringListInpSpec( const StringListInpSpec& oth);
+			~StringListInpSpec();
 
-			StringListInpSpec( const char** sl=0 )
-			    : DataInpSpec( DataTypeImpl<const char*>
-						    (DataType::list) )
-			    , cur_(0)
-			{
-			    if ( !sl ) return;
-			    while( *sl )
-				strings_ += new BufferString( *sl++ );
-			}
+    virtual bool	isUndef( int idx=0 ) const;
 
-			StringListInpSpec( TypeSet<char*> sl )
-			    : DataInpSpec( DataTypeImpl<const char*>
-							(DataType::list) )
-			    , cur_(0)
-			{
-			    for ( int idx=0; idx<sl.size(); idx++ )
-				strings_ += new BufferString( sl[idx] );
-			}
+    virtual DataInpSpec* clone() const;
 
-			StringListInpSpec( const StringListInpSpec& oth)
-			    : DataInpSpec( oth )
-			    , cur_(oth.cur_)
-			{ deepCopy( strings_, oth.strings_ ); }
+    const BufferStringSet& strings() const;
 
-			~StringListInpSpec()
-			{ deepErase(strings_); }
+    void		addString( const char* txt );
+    virtual const char*	text( int idx=0 ) const;
+    void		setItemText( int idx, const char* s );
+    virtual void	setText( const char* s, int nr );
 
-    virtual bool	isUndef( int idx=0 ) const	
-			    { return !(strings_.size() && cur_ >= 0); }
+    virtual int		getIntValue( int idx=0 ) const;
+    virtual double	getValue( int idx=0 ) const;
+    virtual float	getfValue( int idx=0 ) const;
 
-    virtual DataInpSpec* clone() const	
-			    { return new StringListInpSpec( *this ); }
-
-    const BufferStringSet& strings() const
-			    { return strings_; }
-
-    void		addString( const char* txt )
-			    { strings_ += new BufferString( txt ); }
-
-    virtual const char*	text( int idx=0 ) const
-			    {
-				if ( isUndef() ) return "";
-				else return (const char*)*strings_[cur_];
-			    }
-
-    void		setItemText( int idx, const char* s ) 
-			    { *strings_[cur_] = s; }
-
-    virtual void	setText( const char* s, int nr ) 
-			    {
-				for ( int idx=0; idx<strings_.size(); idx++ )
-				    if ( *strings_[idx] == s ) 
-					{ cur_ = idx; return; }
-			    }
-
-    virtual int		getIntValue( int idx=0 ) const
-			    { return cur_; }
-    virtual double	getValue( int idx=0 ) const
-			    { return cur_; }
-    virtual float	getfValue( int idx=0 ) const
-			    { return cur_; }
-
-    virtual void	setValue( int i, int idx=0 )
-			    { if ( i < strings_.size() ) cur_ = i; }
-    virtual void	setValue( double d, int idx=0 )
-			    { 
-				if ( (int)(d+.5) < strings_.size() )
-				    cur_ = (int)(d+.5); 
-			    }
-    virtual void	setValue( float f, int idx=0 )
-			    { 
-				if ( (int)(f+.5) < strings_.size() )
-				    cur_ = (int)(f+.5); 
-			    }
+    virtual void	setValue( int i, int idx=0 );
+    virtual void	setValue( double d, int idx=0 );
+    virtual void	setValue( float f, int idx=0 );
 
 protected:
 
@@ -585,43 +490,17 @@ public:
 					   double inline_x = undefVal<double>(),
 					   double crossline_y =
 							     undefVal<double>(),
-					   const BinID2Coord* b2c=0 )
-			    : DataInpSpec( DataTypeImpl<int>(DataType::binID) )
-			    , withOtherBut_( withOtherBut )
-			    , inl_x( inline_x )
-			    , crl_y( crossline_y )
-			    , doCoord_( doCoord )
-			    , isRelative_( isRelative )
-			    , b2c_( b2c ) {}
+					   const BinID2Coord* b2c=0 );
+    virtual DataInpSpec* clone() const;
+    virtual int 	nElems()  const;
 
-    virtual DataInpSpec* clone() const  
-			    { return new BinIDCoordInpSpec( *this ); }
+    double		value( int idx=0 ) const;
+    virtual bool	isUndef( int idx=0 ) const;
+    virtual const char*	text( int idx=0 ) const;
+    virtual void	setText( const char* s, int idx=0 );
 
-    virtual int 	nElems()  const	{ return 2; }
-
-    double		value( int idx=0 ) const { return idx ? crl_y : inl_x; }
-    virtual bool	isUndef( int idx=0 ) const		
-			    { 
-				if ( idx<0 || idx>1 ) return true;
-				return idx ? isUndefined( crl_y )
-					   : isUndefined( inl_x );
-			    }
-    virtual const char*	text( int idx=0 ) const
-			    {
-				if ( isUndef() )	return "";
-				else		return toString( value(idx) );
-			    }
-    virtual void	setText( const char* s, int idx=0 ) 
-			    { getFromString( (idx ? crl_y : inl_x), s); }
-
-    const char*		otherTxt() const
-			    {
-				if ( !withOtherBut_ ) return 0;
-				if ( doCoord_ ) { return "Inline/Xline ..."; }
-				return isRelative_? "Distance ...":"Coords ...";
-			    }
-    const BinID2Coord*	binID2Coord() const
-			    { return b2c_; }
+    const char*		otherTxt() const;
+    const BinID2Coord*	binID2Coord() const;
 
 protected:
 
