@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.15 2001-09-22 14:26:14 bert Exp $
+ RCS:		$Id: ranges.h,v 1.16 2002-01-09 15:59:37 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,10 @@ public:
 			step = -step;
 		}
 
+    inline bool	isCompatible( const StepInterval<T>& b, T eps=mEPSILON) const;
+    		//!< epsilon refers to the steps, i.e eps=0.1 allows b
+    		//!< to be 0.1 steps apart.
+
      T		step;
 
 };
@@ -177,6 +181,40 @@ inline int StepInterval<typ>::nrSteps() const \
 
 mDefFNrSteps(float,1e-6)
 mDefFNrSteps(double,1e-10)
+
+#define mDefIntisCompat(typ) \
+inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
+	typ ) const \
+{ \
+    if ( step!=b.step ) return false; \
+\
+    const typ diff = start - b.start; \
+    return diff % step;	\
+}
+
+mDefIntisCompat(int)
+mDefIntisCompat(long)
+mDefIntisCompat(short)
+mDefIntisCompat(char)
+mDefIntisCompat(unsigned int)
+mDefIntisCompat(unsigned long)
+mDefIntisCompat(unsigned short)
+mDefIntisCompat(unsigned char)
+
+#define mDefFltisCompat(typ) \
+inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
+			typ eps ) const \
+{ \
+    if ( !mIS_ZERO(step-b.step) ) return false; \
+ \
+    typ nrsteps = (start - b.start) / step; \
+    int nrstepsi = mNINT( nrsteps ); \
+    typ diff = nrsteps - nrstepsi; \
+    return ( (diff) < (eps) && (diff) > (-eps) ); \
+}
+
+mDefFltisCompat(float)
+mDefFltisCompat(double)
 
 
 #endif
