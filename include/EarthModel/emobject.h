@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.34 2005-01-13 11:44:58 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.35 2005-01-17 08:38:22 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,8 @@ public:
 
     virtual int			nrSections() const 			= 0;
     virtual SectionID		sectionID( int ) const			= 0;
+    virtual bool		removeSection( SectionID, bool hist )
+    					{ return false; }
 
     virtual const Geometry::Element*	getElement( SectionID ) const;
 
