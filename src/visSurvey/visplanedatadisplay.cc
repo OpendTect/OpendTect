@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.79 2005-02-04 14:31:34 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.80 2005-03-30 15:52:55 cvsbert Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -610,7 +610,7 @@ Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset,
     const int nrz = cs.nrZ();
 
     Array2DImpl<float>* datacube = new Array2DImpl<float>(0,0);
-    if ( sliceset->direction == AttribSlice::Hor )
+    if ( sliceset->direction == CubeSampling::Z )
     {
 	datacube->setSize( nrinl, nrcrl );
 	int curinl, curcrl;
@@ -634,7 +634,7 @@ Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset,
 	    }
 	}
     }
-    else if ( sliceset->direction == AttribSlice::Crl )
+    else if ( sliceset->direction == CubeSampling::Crl )
     {
 	datacube->setSize( nrinl, nrz );
 	int curinl;
@@ -659,7 +659,7 @@ Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset,
 	    }
 	}
     }
-    else if ( sliceset->direction == AttribSlice::Inl )
+    else if ( sliceset->direction == CubeSampling::Inl )
     {
 	datacube->setSize( nrz, nrcrl );
 	int curcrl;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.18 2004-09-22 09:18:06 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.19 2005-03-30 15:52:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,20 @@ struct HorSampling
 };
 
 
-/*\brief Hor+Vert sampling in 3D surveys */
+/*\brief Hor+Vert sampling in 3D surveys
+
+  When slices are to be taken from a CubeSampling, they should be ordered
+  as follows:
+ 
+  Dir |   Dim1    Dim2
+  ----|---------------
+  Inl |   Crl     Z
+  Crl |   Inl     Z
+  Z   |   Inl     Crl
+
+  See also the direction() and dimension() free functions.
+
+ */
 
 struct CubeSampling
 {
@@ -96,6 +109,11 @@ public:
 
     			CubeSampling( bool settoSI=true )
 			: hrg(settoSI)		{ init(settoSI); }
+
+    enum Dir		{ Z, Inl, Crl };
+    Dir			defaultDir() const;
+    			//!< 'flattest' direction, i.e. direction with
+    			//!< smallest size. If equal, prefer Inl then Crl then Z
 
     void		init(bool settoSI=true);
     			//!< Sets hrg.init and zrg to survey values or zeros
@@ -111,10 +129,12 @@ public:
     inline int		nrInl() const		{ return hrg.nrInl(); }
     inline int		nrCrl() const		{ return hrg.nrCrl(); }
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
-			// No totalNr(): doesn't fit into int
-    inline bool		isEmpty() const
-			{ return hrg.isEmpty() || nrZ() < 1; }
-    bool		getInterSection(const CubeSampling&,
+			// No totalNr(): doesn't fit into int in general
+    inline int		size( Dir d ) const	{ return d == Inl ? nrInl()
+    						      : (d == Crl ? nrCrl()
+							          : nrZ()); }
+    inline bool		isEmpty() const		{ return hrg.isEmpty(); }
+    bool		getIntersection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
     void		include(const CubeSampling&);
@@ -137,6 +157,32 @@ protected:
     static const char*	zrangestr;
 
 };
+
+
+inline CubeSampling::Dir direction( CubeSampling::Dir slctype, int dimnr )
+{
+    if ( dimnr == 0 )
+	return slctype;
+    else if ( dimnr == 1 )
+	return slctype == CubeSampling::Inl ? CubeSampling::Crl
+	    				    : CubeSampling::Inl;
+    else
+	return slctype == CubeSampling::Z ? CubeSampling::Crl : CubeSampling::Z;
+}
+
+
+inline int dimension( CubeSampling::Dir slctype, CubeSampling::Dir direction )
+{
+    if ( slctype == direction )
+	return 0;
+
+    else if ( direction == CubeSampling::Z )
+	return 2;
+    else if ( direction == CubeSampling::Inl )
+	return 1;
+
+    return slctype == CubeSampling::Z ? 2 : 1;
+}
 
 
 #endif

@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.14 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.15 2005-03-30 15:52:55 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -261,7 +261,7 @@ static void normaliseZ( StepInterval<float>& zrg )
 }
 
 
-bool CubeSampling::getInterSection( const CubeSampling& cs,
+bool CubeSampling::getIntersection( const CubeSampling& cs,
 				    CubeSampling& out ) const
 {
     if ( !hrg.getInterSection(cs.hrg,out.hrg) )
@@ -272,6 +272,18 @@ bool CubeSampling::getInterSection( const CubeSampling& cs,
     return intersectF( zrg1.start, zrg1.stop, zrg1.step,
 		       zrg2.start, zrg2.stop, zrg2.step,
 		       out.zrg.start, out.zrg.stop, out.zrg.step );
+}
+
+
+CubeSampling::Dir CubeSampling::defaultDir() const
+{
+    const int nrinl = nrInl();
+    const int nrcrl = nrCrl();
+    const int nrz = nrZ();
+    if ( nrz < nrinl && nrz < nrcrl )
+	return Z;
+
+    return nrinl < nrcrl ? Inl : Crl;
 }
 
 
