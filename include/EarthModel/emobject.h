@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.8 2003-05-05 12:36:21 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.9 2003-05-15 09:59:26 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,7 @@ public:
 	    				BufferString& errmsg );
 
     				EMObject( EMManager&, const MultiID&);
-    virtual			~EMObject( ) {}
+    virtual			~EMObject( );
     const MultiID&		id() const { return id_; }
     BufferString		name() const;
 
@@ -57,10 +57,8 @@ public:
     				
     				
     virtual void		setPosAttrib( EarthModel::PosID&, int attr,
-	   				      bool yn )
-    					{ return; }
-    virtual bool		isPosAttrib(EarthModel::PosID&, int attr) const
-					{ return true; }
+	   				      bool yn );
+    virtual bool		isPosAttrib(EarthModel::PosID&, int attr) const;
 
     CNotifier<EMObject, PosID>	poschnotifier;
 
@@ -76,6 +74,9 @@ protected:
     MultiID			id_;
     class EMManager&		manager;
     BufferString		errmsg;
+
+    ObjectSet<TypeSet<PosID> >	posattribs;
+    TypeSet<int>		attribs;
 };
 
 }; // Namespace
