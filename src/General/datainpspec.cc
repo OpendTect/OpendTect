@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.6 2004-02-03 18:49:34 kristofer Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.7 2004-04-14 14:43:37 nanne Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -236,6 +236,7 @@ void BoolInpSpec::setValue( bool b, int idx )
 StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
     : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
     , strings_(bss)
+    , cur_(0)
 {}
 
 
