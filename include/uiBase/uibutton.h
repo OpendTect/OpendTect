@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.14 2004-02-25 14:49:18 nanne Exp $
+ RCS:           $Id: uibutton.h,v 1.15 2004-10-18 15:12:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
+
 class uiButtonGroup;
 class uiButtonBody;
 
@@ -29,7 +30,6 @@ class uiButton : public uiObject
 public:
 			uiButton(uiParent*,const char*,const CallBack*,
 				 uiObjectBody&);
-
     virtual		~uiButton()		{}
 
     virtual void	setText(const char*);
@@ -37,6 +37,7 @@ public:
 
     Notifier<uiButton>	activated;
 };
+
 
 class uiPushButton : public uiButton
 {
@@ -49,7 +50,7 @@ public:
 				uiPushButton(uiParent*,const char* nm,
 					     const ioPixmap&,const CallBack&);
 
-    void			setDefault( bool yn = true);
+    void			setDefault(bool yn=true);
 
 private:
 
@@ -67,12 +68,12 @@ public:
 					      const CallBack&);
 
     bool			isChecked() const;
-    virtual void		setChecked( bool yn=true );
+    virtual void		setChecked(bool yn=true);
 
 private:
 
     uiRadioButtonBody*		body_;
-    uiRadioButtonBody&		mkbody(uiParent*, const char*);
+    uiRadioButtonBody&		mkbody(uiParent*,const char*);
 
 };
 
@@ -85,15 +86,15 @@ public:
 				uiCheckBox(uiParent*,const char*,
 					   const CallBack&);
 
-    bool			isChecked () const;
-    void			setChecked ( bool yn=true ) ;
+    bool			isChecked() const;
+    void			setChecked(bool yn=true);
 
     virtual void		setText(const char*);
 
 private:
 
     uiCheckBoxBody*		body_;
-    uiCheckBoxBody&		mkbody(uiParent*, const char*);
+    uiCheckBoxBody&		mkbody(uiParent*,const char*);
 
 };
 
@@ -110,11 +111,12 @@ public:
 					     const ioPixmap&,const CallBack&);
 
     bool			isOn();
-    void			setOn( bool yn=true );
+    void			setOn(bool yn=true);
 
-    void			setToggleButton( bool yn=true);
+    void			setToggleButton(bool yn=true);
     bool			isToggleButton();
 
+    void			setPixmap(const ioPixmap&);
 
 private:
 
@@ -138,7 +140,7 @@ public:
 
 protected:
     //! Handler called from Qt.
-    virtual void        notifyHandler( notifyTp )		=0;
+    virtual void        notifyHandler(notifyTp)			=0;
 };
 
 

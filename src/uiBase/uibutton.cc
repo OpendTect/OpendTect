@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.23 2004-07-22 09:28:20 nanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.24 2004-10-18 15:12:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,6 +265,7 @@ void uiCheckBox::setChecked ( bool check )
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
 {}
+
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
 {}
@@ -273,6 +274,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm )
     : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
 {}
+
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, const CallBack& cb )
     : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
@@ -281,7 +283,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 					const char* txt)
 {
-    body_= new uiToolButtonBody(*this,parnt,txt); 
+    body_ = new uiToolButtonBody(*this,parnt,txt); 
 
     if( pm )
         body_->setIconSet( QIconSet(*pm->Pixmap()) );
@@ -289,8 +291,15 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
     return *body_;
 }
 
+
 bool uiToolButton::isOn()		{ return body_->isOn(); }
 void uiToolButton::setOn( bool yn)	{ body_->setOn(yn); }
 
 bool uiToolButton::isToggleButton()	     { return body_->isToggleButton(); }
 void uiToolButton::setToggleButton( bool yn) { body_->setToggleButton(yn); }
+
+
+void uiToolButton::setPixmap( const ioPixmap& pm )
+{
+    body_->setIconSet( QIconSet(*pm.Pixmap()) );
+}
