@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.6 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uiparentbody.h,v 1.7 2002-08-14 14:00:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ public:
     virtual void 		finalise(bool t=false)		
 				{ 
 				    finaliseChildren(); 
-				    restorePosition(); 
 				}
     void      			finaliseChildren();	// body: uiobj.cc
     void      			clearChildren();	// body: uiobj.cc
@@ -60,9 +59,6 @@ public:
 				//! widget to be used as parent for QWidgets
     inline QWidget*		managewidg()
                                    {return const_cast<QWidget*>(managewidg_());}
-
-    void			storePosition();
-    void			restorePosition();
 
 protected:
 

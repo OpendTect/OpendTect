@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.41 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.42 2002-08-14 14:00:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,10 +82,62 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 }
 
 
-void uiParent::storePosition(CallBacker*)
+void uiParent::storePosition()
 {
-    if( pbody() ) pbody()->storePosition();
+    QWidget* widget = body()->qwidget();
+    if( !widget ) { pErrMsg("no qwidget!"); return; }
+
+    QSettings settings;
+
+    BufferString key( "/dTect/geometry/" );
+    key += name();
+
+    QPoint p = widget->pos();
+
+    QString k(key); k += "x";
+    settings.writeEntry( k, p.x() );
+
+    k = key; k += "y";
+    settings.writeEntry( k, p.y() );
+
+    QSize s = widget->size();
+
+    k = key; k += "width";
+    settings.writeEntry( k, s.width() );
+
+    k = key; k += "height";
+    settings.writeEntry( k, s.height() );
 }
+
+void uiParent::restorePosition()
+{
+    QWidget* widget = body()->qwidget();
+    if( !widget ) { pErrMsg("no qwidget!"); return; }
+
+    QSettings settings;
+
+    BufferString key( "/dTect/geometry/" );
+    key += name();
+
+    QString k(key); k += "width";
+    int w = settings.readNumEntry( k, -1 );
+
+    k = key; k += "height";
+    int h = settings.readNumEntry( k, -1 );
+
+    if( w >= 0 && h >= 0 )
+	widget->resize( QSize(w,h) );
+
+    k = key; k += "x";
+    int x = settings.readNumEntry( k, -1 );
+
+    k = key; k += "y";
+    int y = settings.readNumEntry( k, -1 );
+
+    if( x >= 0 && y >= 0 )
+	widget->move( QPoint(x,y) );
+}
+
 
 uiParentBody* uiParent::pbody()
 {
@@ -110,60 +162,6 @@ void uiParentBody::clearChildren()
 	children[idx]->clear();
 }
 
-
-void uiParentBody::storePosition()
-{
-    if( !qwidget() ) { pErrMsg("no qwidget!"); return; }
-
-    QSettings settings;
-
-    BufferString key( "/dTect/geometry/" );
-    key += qwidget()->name();
-
-    QPoint p = qwidget()->pos();
-
-    QString k(key); k += "x";
-    settings.writeEntry( k, p.x() );
-
-    k = key; k += "y";
-    settings.writeEntry( k, p.y() );
-
-    QSize s = qwidget()->size();
-
-    k = key; k += "width";
-    settings.writeEntry( k, s.width() );
-
-    k = key; k += "height";
-    settings.writeEntry( k, s.height() );
-}
-
-void uiParentBody::restorePosition()
-{
-    if( !qwidget() ) { pErrMsg("no qwidget!"); return; }
-
-    QSettings settings;
-
-    BufferString key( "/dTect/geometry/" );
-    key += qwidget()->name();
-
-    QString k(key); k += "width";
-    int w = settings.readNumEntry( k, -1 );
-
-    k = key; k += "height";
-    int h = settings.readNumEntry( k, -1 );
-
-    if( w >= 0 && h >= 0 )
-	qwidget()->resize( QSize(w,h) );
-
-    k = key; k += "x";
-    int x = settings.readNumEntry( k, -1 );
-
-    k = key; k += "y";
-    int y = settings.readNumEntry( k, -1 );
-
-    if( x >= 0 && y >= 0 )
-	qwidget()->move( QPoint(x,y) );
-}
 
 
 uiObject::uiObject( uiParent* p, const char* nm )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.5 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uiparent.h,v 1.6 2002-08-14 14:00:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,9 @@ public:
 				      uiObject* other, int margin );
 
 			//! persists current widget position
-    void		storePosition(CallBacker* cb=0);
+    void		storePosition();
+			//! restores persisted widget position
+    void		restorePosition();
 
     virtual uiMainWin*	mainwin()		{ return 0; }
 
