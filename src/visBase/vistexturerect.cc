@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.21 2002-07-01 15:42:24 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.22 2002-09-19 07:13:29 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.21 2002-07-01 15:42:24 na
 #include "viscolortab.h"
 #include "ptrman.h"
 #include "position.h"
+#include "simpnumer.h"
 
 #include <math.h>
 
@@ -33,6 +34,7 @@ const char* visBase::TextureRect::colortabidstr = "ColorTable ID";
 const char* visBase::TextureRect::usestexturestr = "Uses texture";
 const char* visBase::TextureRect::clipratestr = "Cliprate";
 const char* visBase::TextureRect::autoscalestr = "Auto scale";
+const char* visBase::TextureRect::resolutionstr = "Resolution";
 
 visBase::TextureRect::TextureRect()
     : texture( new SoTexture2 )
@@ -47,6 +49,7 @@ visBase::TextureRect::TextureRect()
     , manipstartnotifier( this )
     , manipchnotifier( this )
     , manipendsnotifier( this )
+    , resolution(0)
 {
     addChild( textureswitch );
     textureswitch->addChild( texturegrp );
@@ -248,6 +251,7 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( usestexturestr, usesTexture() );
     par.set( clipratestr, clipRate() );
     par.setYN( autoscalestr, autoScale() );
+    par.set( resolutionstr, resolution );
 
     if ( saveids.indexOf( rectid )==-1 ) saveids += rectid;
     if ( saveids.indexOf( ctid )==-1 ) saveids += ctid;
@@ -258,6 +262,10 @@ int visBase::TextureRect::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res!= 1 ) return res;
+
+    int newres = 0;
+    par.get( resolutionstr, newres );
+    resolution = newres;
 
     float texturequality;
     if ( !par.get( texturequalitystr, texturequality )) return -1;
@@ -338,17 +346,49 @@ void visBase::TextureRect::updateTexture()
 //  const int nrofcomponents = 3;	// disable transparency
     const int nrofcomponents = 4;	// use transparency
 
+    int newssize = !resolution ? ssize : ( resolution == 1 ? 1024 : 2048 );
+    int newtsize = !resolution ? tsize : ( resolution == 1 ? 1024 : 2048 );
     ArrPtrMan<unsigned char> imagedata =
-			new unsigned char[ssize*tsize*nrofcomponents];
+			new unsigned char[newssize*newtsize*nrofcomponents];
 
     int idx=0;
-    float val;
+    float val00, val01, val10, val11;
     Color color;
-    for ( int t=0; t<tsize; t++ )
+    float sstep = (ssize-1) / (float)(newssize-1);
+    float tstep = (tsize-1) / (float)(newtsize-1);
+    for ( int t=0; t<newtsize; t++ )
     {
-	for ( int s=0; s<ssize; s++ )
+	for ( int s=0; s<newssize; s++ )
 	{
-	    val = isinl ? data->get( s, t ) : data->get( t, s );
+	    float spos = s * sstep;
+	    int snr = (int)spos;
+	    bool onsedge = snr+1 == ssize;
+
+	    float tpos = t * tstep;
+	    int tnr = (int)tpos;
+	    bool ontedge = tnr+1 == tsize;
+	    spos -= snr;
+	    tpos -= tnr;
+	    val00 = isinl ? data->get( snr, tnr ) : data->get( tnr, snr );
+	    if ( !onsedge )
+		val10 = isinl ? data->get( snr+1, tnr ) 
+			      : data->get( tnr, snr+1 );
+	    if ( !ontedge )
+		val01 = isinl ? data->get( snr, tnr+1 ) 
+			      : data->get( tnr+1, snr );
+	    if ( !onsedge && !ontedge )
+		val11 = isinl ? data->get( snr+1, tnr+1 ) 
+			      : data->get( tnr+1, snr+1 );
+	    float val = 0;
+	    if ( onsedge && ontedge )
+		val = val11;
+	    else if ( onsedge )
+	    	val = linearInterpolate( val00, val01, tpos );
+	    else if ( ontedge )
+		val = linearInterpolate( val00, val10, spos );
+	    else
+		val = linearInterpolate2D(val00,val01,val10,val11,spos,tpos);
+
 	    color = colortable->color(val);
 	    imagedata[idx++] = color.r();
 	    imagedata[idx++] = color.g();
@@ -358,7 +398,7 @@ void visBase::TextureRect::updateTexture()
 	}
     }
     
-    texture->image.setValue( SbVec2s(ssize, tsize ),
+    texture->image.setValue( SbVec2s(newssize, newtsize ),
 			     nrofcomponents, imagedata );
 }
 
@@ -366,4 +406,17 @@ void visBase::TextureRect::updateTexture()
 void visBase::TextureRect::setTextureQuality( float q )
 {
     quality->textureQuality.setValue( q );
+}
+
+
+int visBase::TextureRect::getNrResolutions() const
+{
+    return 3;
+}
+
+
+void visBase::TextureRect::setResolution( int res )
+{
+    resolution = res;
+    updateTexture();
 }
