@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.14 2001-09-20 08:30:59 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.15 2001-09-21 07:44:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,9 +163,13 @@ void uiGroupObjBody::reDraw( bool deep )
 int uiGroupObjBody::stretch( bool hor, bool ) const
 {
     int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
-
+#define CLUTCH
+#ifdef CLUTCH
+    return s;
+#else
     return s != mUndefIntVal ? s : 
 	( prntbody_->loMngr ? prntbody_->loMngr->childStretch( hor ) : 0 );
+#endif
 }
 
 i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
