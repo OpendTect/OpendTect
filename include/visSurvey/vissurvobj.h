@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.13 2003-08-22 11:32:31 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.14 2003-10-30 12:37:26 nanne Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ public:
     visBase::Transformation*	getInlCrl2DisplayTransform();
 
     Notifier<SurveyParamManager>	zscalechange;
+    static const char*		zscalestr;
 
 protected:
     void			createTransforms();
