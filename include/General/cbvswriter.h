@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.11 2001-10-02 11:48:09 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.12 2001-11-22 16:53:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,9 +83,10 @@ private:
 
     streampos		geomfo; //!< file offset of geometry data
     streampos		newblockfo; //!< file offset for next block write
-    bool		finishing_inline;
     int			trcswritten;
-    int			previnl;
+    BinID		prevbinid_;
+    bool		finishing_inline;
+    bool		nrtrcsperposn_known;
 
     int			nrtrcsperposn;
     CBVSInfo::ExplicitInfo explinfo;
