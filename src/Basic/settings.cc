@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.5 2000-08-09 08:28:50 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.6 2000-08-09 09:11:02 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -29,11 +29,8 @@ Settings::Settings( const char* setupf )
 	const char* ptr = getenv( "dGB_USER" );
 	if ( ptr )
 	{
-	    FileNameString tmp( fname );
-	    tmp += ".";
-	    tmp += ptr;
-	    if ( File_exists(tmp) )
-		fname = tmp;
+	    fname += ".";
+	    fname += ptr;
 	}
     }
     if ( !reRead() )
