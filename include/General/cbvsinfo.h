@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.9 2001-05-11 20:29:38 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.10 2001-06-28 21:17:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,11 @@ public:
 				//!< in trailer.
 
 	void			merge(const SurvGeom&);
-	InlineInfo*		getInfoFor(int inl);
+	InlineInfo*		getInfoFor( int inl )
+				{ return gtInfFor(inl); }
 				//!< returns 0 in case of regular
+	const InlineInfo*	getInfoFor( int inl ) const
+				{ return gtInfFor(inl); }
 	void			reCalcBounds();
 
 	int			excludes(const BinID&) const;
@@ -85,6 +88,7 @@ public:
 	int			outOfRange(const BinID&) const;
 	int			getInfIdx(const BinID&,int&) const;
 	int			getInfoIdxFor(int) const;
+	InlineInfo*		gtInfFor(int) const;
 
     };
 
