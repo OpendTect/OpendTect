@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.28 2003-01-08 10:46:57 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.29 2003-01-08 15:03:16 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -155,6 +155,11 @@ void BatchProgram::progKilled( CallBacker* )
     exitstat_ = mSTAT_KILLED;
     writeStatus( mEXIT_STATUS, exitstat_ );
     killNotify( false );
+
+#ifdef __debug__
+    abort();
+#endif
+
 }
 
 
