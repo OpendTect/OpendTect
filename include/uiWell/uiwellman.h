@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.3 2003-10-16 15:01:37 nanne Exp $
+ RCS:           $Id: uiwellman.h,v 1.4 2003-11-06 16:16:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ class uiWellMan : public uiDialog
 public:
     				uiWellMan(uiParent*);
 				~uiWellMan();
+
+    Notifier<uiWellMan>		markerschanged;
 
 protected:
 

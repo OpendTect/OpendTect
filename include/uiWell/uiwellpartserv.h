@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.6 2003-10-30 12:22:27 nanne Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.7 2003-11-06 16:16:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,11 @@ public:
     void			selectLogs(const MultiID&,int&,int&);
 
     static const char*		unitstr;
+    static const int		evRefreshMarkers;
+
+protected:
+
+    void			refreshMarkers(CallBacker*);
 };
 
 #endif
