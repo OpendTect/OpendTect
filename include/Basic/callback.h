@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.29 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: callback.h,v 1.30 2003-12-01 09:37:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,6 +205,11 @@ public:
     virtual void	notify(const CallBack&)			=0;
     virtual void	remove(const CallBack&)			=0;
 
+    bool		enable(bool newstatus=true){return doEnable(newstatus);}
+    			/*!<\return previous status */
+    bool		disable()	{ return doEnable(false);}
+    			/*!<\return previous status */
+
 protected:
 
     bool		enabled;
@@ -320,10 +325,6 @@ class Notifier : public i_Notifier
 public:
 
     void		trigger( T& t )	{ trigger(&t); }
-    bool		enable(bool newstatus=true){return doEnable(newstatus);}
-    			/*!<\return previous status */
-    bool		disable()	{ return doEnable(false);}
-    			/*!<\return previous status */
 
 // protected: (should be used by T class only)
 
