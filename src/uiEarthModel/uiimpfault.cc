@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.15 2005-01-06 09:53:22 kristofer Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.16 2005-02-09 14:55:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,6 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "survinfo.h"
 
-#include "gridread.h"
-#include "valgridtr.h"
 #include "streamconn.h"
 #include "strmprov.h"
 #include <iostream>
