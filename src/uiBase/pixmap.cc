@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.1 2000-11-27 10:20:34 bert Exp $
+ RCS:           $Id: pixmap.cc,v 1.2 2001-05-30 11:50:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 ioPixmap::ioPixmap( const ArrayRGB& anImage )
 {
-    mDrawArea_ = new QPixmap;
+    qpixmap = new QPixmap;
     if( !convertFromArrayRGB( anImage ) )
     {
         ErrMsg( "Could not create Pixmap" );
@@ -30,26 +30,35 @@ ioPixmap::ioPixmap( const ArrayRGB& anImage )
 }
 
 
+ioPixmap::ioPixmap( const char* xpm[] )
+    { qpixmap = new QPixmap( xpm ); }
+
+
+ioPixmap::ioPixmap( int w, int h, int depth = -1)
+    { qpixmap = new QPixmap( w, h, depth ); }
+
+
+ioPixmap::ioPixmap( const QPixmap& pm )
+    { qpixmap = new QPixmap( pm ); }
+
+
+ioPixmap::ioPixmap( const char* fileName, const char * format )
+    { qpixmap = new QPixmap( fileName, format ); }
+
+
 ioPixmap::~ioPixmap()
-{
-    if(mDrawArea_) delete mDrawArea_;
-}
+    { if(qpixmap) delete qpixmap; }
+
 
 bool ioPixmap::convertFromArrayRGB( const ArrayRGB & theImage )
 {
     if( mDrawTool ) { delete mDrawTool; mDrawTool=0; };
 
-    if( !mDrawArea_ )  mDrawArea_ = new QPixmap;
-    return mDrawArea_->convertFromImage( theImage.Image() );
-    // returns TRUE if successful
+    if( !qpixmap ) qpixmap = new QPixmap;
+    return qpixmap->convertFromImage( theImage.Image() );
 }    
 
-QPaintDevice*  ioPixmap::mQPaintDevice()
-{ 
-    return mDrawArea_; 
-}
 
-//  qwidget.html:
-//  During paintEvent(), any QPainter you create on the widget will be 
-//  clipped to at most the area covered by the update region. 
+QPaintDevice*  ioPixmap::mQPaintDevice()
+    { return qpixmap; }
 
