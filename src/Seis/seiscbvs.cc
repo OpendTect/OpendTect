@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.53 2004-08-18 14:30:34 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.54 2004-09-23 21:13:56 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -28,6 +28,8 @@ const IOPar& CBVSSeisTrcTranslator::datatypeparspec
 	= *new IOPar( "CBVS option");
 
 
+#define mPosOK() (!seldata || nobidsubsel || !seldata->selRes(rdmgr->binID()))
+
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
 	, headerdone(false)
@@ -44,6 +46,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
     	, minimalhdrs(false)
     	, brickspec(*new VBrickSpec)
     	, single_file(false)
+    	, nobidsubsel(false)
 {
 }
 
@@ -170,7 +173,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    if ( forread && seldata && seldata->isPositioned() )
+    if ( forread && !nobidsubsel && seldata && seldata->isPositioned() )
     {
 	CubeSampling cs;
 	Interval<int> inlrg = seldata->inlRange();
@@ -213,7 +216,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
     if ( !forread )
 	return startWrite();
-    else if ( seldata && seldata->selRes(rdmgr->binID()) )
+    else if ( !mPosOK() )
 	return toNext();
     return true;
 }
@@ -221,7 +224,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
 bool CBVSSeisTrcTranslator::toNext()
 {
-    if ( isEmpty(seldata) )
+    if ( nobidsubsel || isEmpty(seldata) )
 	return rdmgr->toNext();
 
     const CBVSInfo& info = rdmgr->info();
@@ -281,7 +284,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !storinterps && !commitSelections() ) return false;
     if ( headerdone ) return true;
 
-    donext = donext || (seldata && seldata->selRes(rdmgr->binID()));
+    donext = donext || !mPosOK();
 
     if ( donext && !toNext() ) return false;
     donext = true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.25 2004-08-18 14:30:54 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.26 2004-09-23 21:13:56 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -52,6 +52,8 @@ public:
 
     bool		minimalHdrs() const		{ return minimalhdrs; }
     void		setMinimalHdrs( bool yn=true )	{ minimalhdrs = yn; }
+    bool		noBinIDSubSel() const		{ return nobidsubsel; }
+    void		setNoBinIDSubSel( bool yn=true ) { nobidsubsel = yn; }
     bool		singleFile() const		{ return single_file; }
     void		setSingleFile( bool yn=true )	{ single_file = yn; }
 
@@ -74,6 +76,7 @@ protected:
     CBVSReadMgr*	rdmgr;
     CBVSWriteMgr*	wrmgr;
     PosAuxInfo		auxinf;
+    bool		nobidsubsel;
     bool		minimalhdrs;
     bool		single_file;
 

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.16 2004-09-22 16:04:02 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.17 2004-09-23 21:13:56 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -72,6 +72,7 @@ static CBVSSeisTrcTranslator* gtTransl( const char* fnm, BufferString* msg=0 )
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->setSingleFile( true );
+    tr->setNoBinIDSubSel( true );
     if ( msg ) *msg = "";
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read)) )
     {
