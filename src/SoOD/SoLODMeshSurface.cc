@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.3 2005-03-25 11:36:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.4 2005-03-31 15:29:37 cvsnanne Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -669,7 +669,8 @@ void MeshSurfaceTesselationCache::GLRenderLines(SoGLRenderAction* action)
 				miptr?(index<nmi?miptr[index]:miptr[nmi-1]):0 );
 	glColor3f(1-realcolor[0],1-realcolor[1],1-realcolor[2]);
 
-	glNormal3fv(normals[lineni[idx]].getValue());
+	if ( lineni[idx] < normals.getLength() )
+	    glNormal3fv( normals[lineni[idx]].getValue() );
 #if __debug__
 	if ( index>=nc )
 	    SoDebugError::postWarning("MeshSurfaceTesselationCache::GLRender",
@@ -1724,7 +1725,7 @@ void MeshSurfacePartResolution::tesselate()
     for ( int idx1=0; idx1<nrcols; idx1++ )
     {
 	bool isopen = false;
-	for ( int idx0=0; idx0<nrrows; idx0++ )
+	for ( int idx0=0; idx0<=nrrows; idx0++ )
 	{
 	    int ci = getCoordIndex(idx0,idx1);
 	    if ( ci==-1 || coordptr[ci][2]>1e29 )
@@ -2327,13 +2328,18 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 	}
     //}
 
+    for ( int idx=0; idx<nrparts; idx++ )
+	parts[idx]->GLRenderGlue(action, useownvalidation);
+
+    for ( int idx=0; idx<nrparts; idx++ )
+	parts[idx]->GLRenderSurface(action, useownvalidation);
     if ( !wireframe.getValue() )
     {
-	for ( int idx=0; idx<nrparts; idx++ )
-	    parts[idx]->GLRenderGlue(action, useownvalidation);
-
-	for ( int idx=0; idx<nrparts; idx++ )
-	    parts[idx]->GLRenderSurface(action, useownvalidation);
+//	for ( int idx=0; idx<nrparts; idx++ )
+//	    parts[idx]->GLRenderGlue(action, useownvalidation);
+//
+//	for ( int idx=0; idx<nrparts; idx++ )
+//	    parts[idx]->GLRenderSurface(action, useownvalidation);
     }
     else
     {
@@ -2343,7 +2349,7 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 
 	SbVec3f projectiondir = vv.getProjectionDirection();
 	projectiondir.normalize();
-	projectiondir *=-wireframeLift.getValue();
+	projectiondir *= -wireframeLift.getValue();
 
 	SbVec3f localprojdir;
 	mat.inverse().multDirMatrix( projectiondir, localprojdir );
