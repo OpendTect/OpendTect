@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.16 2004-05-25 09:50:09 arend Exp $
+ RCS:           $Id: uitable.h,v 1.17 2004-06-23 11:17:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
 			, colgrow_(false)
 			, rowdesc_("Row")
 			, coldesc_("Column")
-			, fillrow_(true)
+			, fillrow_(false)
 			, fillcol_(false)
 			, minrowhgt_( 1 )
 			, maxrowhgt_( 3 )
