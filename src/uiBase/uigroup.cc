@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.3 2001-02-16 17:02:03 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.4 2001-05-03 10:30:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,11 +56,18 @@ void uiGroup::setBorder( int b )
 }
 
 
+void uiGroup::clear()
+{  
+    loMngr.childrenClear( this ); 
+}
+
+
 void uiGroup::forceRedraw_( bool deep )
 {  
     uiObject::forceRedraw_( deep ); // calls qWidget().update()
     loMngr.forceChildrenRedraw( this, deep ); 
 }
+
 
 void uiGroup::finalise_()
 {  

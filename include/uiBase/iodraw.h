@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.h,v 1.3 2001-05-02 20:25:19 bert Exp $
+ RCS:           $Id: iodraw.h,v 1.4 2001-05-03 10:30:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ class ioDrawTool
     mTFriend		(T,i_drwblQObj);
 
 mProtected:
-
 			ioDrawTool( QPaintDevice* client, int x_0=0, int y_0=0);
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.2 2001-05-01 15:37:10 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.3 2001-05-03 10:30:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,11 @@ class DataInpSpec
 {
 public:
 
-    enum		Type { None, intTp, floatTp, doubleTp, boolTp, 
+    enum		Type { none, intTp, floatTp, doubleTp, boolTp, 
 			       intIntervalTp, floatIntervalTp, doubleIntervalTp,
-			       binIdCoordTp, stringTp, fileNmTp, stringListTp };
+			       binIDCoordTp, stringTp, fileNmTp, stringListTp };
 
-			DataInpSpec( Type t = None) { tp_ = t; }
+			DataInpSpec( Type t = none) { tp_ = t; }
 
     virtual		~DataInpSpec() {}
 
@@ -156,7 +156,7 @@ public:
 
 protected:
 
-    Interval<T>*	stpi()
+    StepInterval<T>*	stpi()
 			{ return dynamic_cast< StepInterval<T>* > (interval_);}
 
     Interval<T>*	interval_;
@@ -269,10 +269,10 @@ protected:
 
 /*! \brief Specifications for list of character string inputs.
 */
-class stringListInpSpec : public DataInpSpec
+class StringListInpSpec : public DataInpSpec
 {
 public:
-				stringListInpSpec( const char** sl=0
+				StringListInpSpec( const char** sl=0
 					     , int prefWdt=-1 )
 				    : DataInpSpec( stringTp )
 				    ,pw( prefWdt )
@@ -282,10 +282,10 @@ public:
 					    strings_ += new BufferString(*s);
 				    }
 
-				~stringListInpSpec() { deepErase(strings_); }
+				~StringListInpSpec() { deepErase(strings_); }
 
     virtual DataInpSpec*	clone() const	
-				    { return new stringListInpSpec( *this ); }
+				    { return new StringListInpSpec( *this ); }
 
     const ObjectSet<BufferString>& strings() const	{ return strings_; }
     void			addString( const char* txt) 
@@ -302,21 +302,21 @@ protected:
 };
 
 
-/*! \brief Specifications for BinId/Coordinate inputs.
+/*! \brief Specifications for BinID/Coordinate inputs.
 */
-class binIdCoordInpSpec : public DataInpSpec
+class BinIDCoordInpSpec : public DataInpSpec
 {
 public:
-			binIdCoordInpSpec( bool doCoord=false
+			BinIDCoordInpSpec( bool doCoord=false
 					 , bool isRelative=false
 					 , const SurveyInfo& si = SI() )
-			    : DataInpSpec( binIdCoordTp )
+			    : DataInpSpec( binIDCoordTp )
 			    , doCoord_( doCoord )
 			    , isRelative_( isRelative )
 			    , surv_( si ) {}
 
     virtual DataInpSpec* clone() const  
-			    { return new binIdCoordInpSpec( *this ); }
+			    { return new BinIDCoordInpSpec( *this ); }
 
     virtual void	getText( BufferString& dest, int idx ) const
 			    {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.4 2001-05-02 13:50:09 windev Exp $
+ RCS:           $Id: i_layout.h,v 1.5 2001-05-03 10:30:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ public:
     layoutMode		curMode() const { return curmode; } 
     inline const uiRect& pos() const { return pos_[curMode()]; }
     void		forceChildrenRedraw( uiObject*, bool deep );
+    void		childrenClear( uiObject* );
     int			borderSpace() const	{ return margin(); }
     int			minTxtWidgHgt() const
                         { return const_cast<i_LayoutMngr*>(this)->

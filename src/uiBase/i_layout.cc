@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.3 2001-02-16 17:02:00 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.4 2001-05-03 10:30:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -656,6 +656,20 @@ public:
 
 };
 
+
+void i_LayoutMngr::childrenClear( uiObject* cb )
+{
+    i_LayoutItem*       	curChld=0;
+    QListIterator<i_LayoutItem> childIter( childrenList );
+
+    childIter.toFirst();
+    while ( (curChld = childIter.current()) )
+    {
+        ++childIter;
+	uiObject* cl = curChld->uiClient();
+	if( cl && cl != cb ) cl->clear();
+    }
+}
 
 void i_LayoutMngr::forceChildrenRedraw( uiObject* cb, bool deep )
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.5 2001-05-02 20:25:19 bert Exp $
+ RCS:           $Id: uiobj.h,v 1.6 2001-05-03 10:30:47 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ friend class 		i_LayoutItem;
 friend class 		i_uiLayoutItem; 
 friend class 		uiGroup;
 friend class 		uiMainWin;
-mTFriend		(T , i_QObjWrapper);
+mTFriend		(T, i_QObjWrapper );
 
 protected:
 			uiObject( uiObject* parnt = 0, 
@@ -61,6 +61,7 @@ public:
 			{ if ( yn ) show(); else hide(); }
     void		show();
     void		hide();
+    virtual void	clear()		{}
     void		setFocus();
 
     Color               backgroundColor() const;

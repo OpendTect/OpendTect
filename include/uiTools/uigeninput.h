@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.6 2001-05-02 16:35:35 bert Exp $
+ RCS:           $Id: uigeninput.h,v 1.7 2001-05-03 10:30:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,10 @@ class uiLabel;
 class uiCheckBox;
 class uiPushButton;
 
-class uiDataInpField;
+class uiDataInpFld;
 class DataInpSpec;
+
+class FieldIdx;
 
 /*! \brief General Input Element
 
@@ -37,7 +39,7 @@ and also it's most common use. For example, to define a uiGenInput that inputs
 a string, you'd do something like
 
 \code
-uiGenInput* xx = new uiGenInput( this,"Input name", StringInp("Initial"));
+uiGenInput* xx = new uiGenInput( this,"Input name", StringInpSpec("Initial"));
 \endcode
 
 For more complicated inputs, you'd have to explicitely construct a
@@ -76,6 +78,9 @@ Don't use when already finalised (i.e. popped up).
 
 */
     DataInpSpec*	getInput( int nr );
+
+//! checks if inputs are valid, f.e. within specified range
+    bool		isValid(int nr=0) const;
 
     const char*		text(int nr=0) const;
     int			getIntValue(int nr=0) const;
@@ -130,8 +135,6 @@ Don't use when already finalised (i.e. popped up).
     void 		setChecked( bool yn );
     bool		isChecked();
     bool		isCheckable() { return cbox ? true : false; }
-			//! returns false if no checkbox available
-    bool 		notifyCheck( const CallBack& ); 
 
     virtual bool 	isSingleLine() const		{ return true; }
 
@@ -139,9 +142,13 @@ Don't use when already finalised (i.e. popped up).
     void		setWithSelect( bool yn=true ) 
 			    { selText = yn ? "Select ..." : "" ; }
 
+    Notifier<uiGenInput> checked;
+    Notifier<uiGenInput> changed;
+
 protected:
 
-    ObjectSet<uiDataInpField> flds;
+    ObjectSet<uiDataInpFld>	flds;
+    TypeSet<FieldIdx>		idxes;
 
     BufferString	selText;
     bool		withchk;
@@ -161,12 +168,12 @@ protected:
     void 		checkBoxSel(CallBacker*);
 
 			//! DataInpField factory
-    uiDataInpField& 	createInpField(uiObject*, const DataInpSpec* =0);
+    uiDataInpFld& 	createInpFld(const DataInpSpec* =0);
     virtual void	finalise_();
 
 private:
 
-    bool		checked;
+    bool		checked_;
     bool		ro;
     ObjectSet<DataInpSpec> inputs;
 

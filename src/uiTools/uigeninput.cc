@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.4 2001-05-02 07:39:01 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.5 2001-05-03 10:30:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,19 @@ ________________________________________________________________________
     if( ! finalised ) \
     { pErrMsg( "Do not use before popped up" ); return retval; }
 
+//! maps a uiGenInput's idx to a field- and sub-idx
+class FieldIdx
+{
+public:
+                FieldIdx( int fidx, int sidx )
+                    : fldidx( fidx ), subidx( sidx ) {}
+
+    bool	operator ==( const FieldIdx& idx ) const
+		{ return fldidx == idx.fldidx && subidx == idx.subidx; }
+
+    int         fldidx;
+    int         subidx;
+};
 
 
 /*! \brief Generalised data input field.
@@ -36,33 +49,40 @@ programmer to decide.
 
 */
 
-class uiDataInpField : public CallBacker
+class uiDataInpFld : public CallBacker
 {
 public:
-                        uiDataInpField() {}
+                        uiDataInpFld() {}
 
-    virtual const char* text() const =0;
+    virtual const char* text( int idx ) const =0;
 
-    virtual int         getIntValue() const
-			    { return text() ? atoi( text() ) : 0; }
-    virtual double      getValue() const
-			    { return text() ? atof( text() ) : 0; }
-    virtual float       getfValue() const
-			    { return text() ? atof( text() ) : 0; }
-    virtual bool        getBoolValue() const
-			    { return yesNoFromString( text() ); }
+    virtual int		nElems()			{ return 1; }
+    virtual bool	isValid(int elemidx) const	{ return true; }
 
-    virtual void        setText( const char* ) =0;
-    virtual void        setValue( int i )
-			    { setText( getStringFromInt(0, i )); }
-    virtual void        setValue( double d )
-			    { setText( getStringFromDouble(0, d )); }
-    virtual void        setValue( float f )
-			    { setText( getStringFromFloat(0, f )); }
-    virtual void        setValue( bool b )
-			    { setText( getYesNoString( b )); }
+    virtual int         getIntValue( int idx ) const
+			    { return text(idx) ? atoi( text(idx) ) : 0; }
+    virtual double      getValue( int idx ) const
+			    { return text(idx) ? atof( text(idx) ) : 0; }
+    virtual float       getfValue( int idx ) const
+			    { return text(idx) ? atof( text(idx) ) : 0; }
+    virtual bool        getBoolValue( int idx ) const
+			    { return yesNoFromString( text(idx) ); }
 
-    virtual void        clear()				{ setText(""); }
+    virtual void        setText( const char*, int idx ) =0;
+    virtual void        setValue( int i, int idx )
+			    { setText( getStringFromInt(0, i ),idx); }
+    virtual void        setValue( double d, int idx )
+			    { setText( getStringFromDouble(0, d ),idx); }
+    virtual void        setValue( float f, int idx )
+			    { setText( getStringFromFloat(0, f ),idx); }
+    virtual void        setValue( bool b, int idx )
+			    { setText( getYesNoString( b ),idx); }
+
+    virtual void        clear()				
+			    { 
+				for( int idx=0; idx<nElems(); idx++ ) 
+				    setText("",idx); 
+			    }
 
     virtual void        setReadOnly( bool = true )	{}
     virtual bool        isReadOnly() const		{ return false; }
@@ -72,10 +92,10 @@ public:
 };
 
 
-class uiLineEditField : public uiDataInpField
+class uiLineInpFld : public uiDataInpFld
 {
 public:
-			uiLineEditField( uiObject* p, 
+			uiLineInpFld( uiObject* p, 
 					 const DataInpSpec* spec=0,
 					 const char* nm="Line Edit Field" ) 
 			: li( *new uiLineEdit(p,0,nm) ) 
@@ -94,25 +114,25 @@ public:
 			    }
 			}
 
-    virtual const char*	text() const		{ return li.text(); }
-    virtual void        setText( const char* t)	{ return li.setText(t); }
-    virtual uiObject&	uiObj()			{ return li; }
+    virtual const char*	text(int idx) const		{ return li.text(); }
+    virtual void        setText( const char* t,int idx)	{ return li.setText(t);}
+    virtual uiObject&	uiObj()				{ return li; }
 
 protected:
     uiLineEdit&	li;
 };
 
 
-class uiBoolInputField : public uiDataInpField
+class uiBoolInpFld : public uiDataInpFld
 {
 public:
 
-			uiBoolInputField( uiObject* p, 
+			uiBoolInpFld( uiObject* p, 
 					 const DataInpSpec* spec=0,
 					 const char* nm="Bool Input Field" );
 
-    virtual const char*	text() const	{ return yn ? truetxt : falsetxt; }
-    virtual void        setText( const char* t)	
+    virtual const char*	text(int idx) const{ return yn ? truetxt : falsetxt; }
+    virtual void        setText( const char* t, int idx)	
 			    {  
 				if( t == truetxt ) yn = true;
 				else if( t == falsetxt ) yn = false;
@@ -137,7 +157,7 @@ protected:
     uiRadioButton*	rb2;
 };
 
-uiBoolInputField::uiBoolInputField( uiObject* p, const DataInpSpec* spec=0,
+uiBoolInpFld::uiBoolInpFld( uiObject* p, const DataInpSpec* spec=0,
 				    const char* nm="Bool Input Field" ) 
     : butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
 {
@@ -169,9 +189,9 @@ uiBoolInputField::uiBoolInputField( uiObject* p, const DataInpSpec* spec=0,
     butOrGrp = grp_;
 
     rb1 = new uiRadioButton( butOrGrp, truetxt );
-    rb1->notify( mCB(this,uiBoolInputField,radioButSel) );
+    rb1->notify( mCB(this,uiBoolInpFld,radioButSel) );
     rb2 = new uiRadioButton( butOrGrp, falsetxt );
-    rb2->notify( mCB(this,uiBoolInputField,radioButSel) );
+    rb2->notify( mCB(this,uiBoolInpFld,radioButSel) );
 
     rb2->attach( rightTo, rb1 );
     grp_->setHAlignObj( rb1 );
@@ -180,7 +200,7 @@ uiBoolInputField::uiBoolInputField( uiObject* p, const DataInpSpec* spec=0,
 }
 
 
-void uiBoolInputField::radioButSel(CallBacker* cb)
+void uiBoolInpFld::radioButSel(CallBacker* cb)
 {
     if( cb == rb1 )		{ yn = rb1->isChecked(); }
     else if( cb == rb2 )	{ yn = !rb2->isChecked(); }
@@ -189,7 +209,7 @@ void uiBoolInputField::radioButSel(CallBacker* cb)
     setValue( yn );
 }
 
-void uiBoolInputField::setValue( bool b )
+void uiBoolInpFld::setValue( bool b )
 { 
     yn = b; 
 
@@ -201,20 +221,144 @@ void uiBoolInputField::setValue( bool b )
     rb2->setChecked(!yn); 
 }
 
+#ifdef NEWTYPES
+
+
+class uiBinIDInpFld : public uiDataInpFld
+{
+public:
+
+			uiBinIDInpFld( uiObject* p, 
+					 const DataInpSpec* spec=0,
+					 const char* nm="BinID Input Field" );
+
+    virtual uiObject&	uiObj()				{ return *binidGrp; }
+
+    virtual const char*	text(int idx) const		
+			    { return idx ? xl_y.text() : il_x.text(); }
+    virtual void        setText( const char* t,int idx)
+			    { if(idx) xl_y.setText(t); else il_x.setText(t); }
+
+protected:
+
+    uiLineEdit&		il_x; // inline or x-coordinate
+    uiLineEdit&		xl_y; // crossline or y-coordinate
+
+    uiObject*		binidGrp;
+    void		otherFormSel(CallBacker*);
+
+    uiPushButton*	ofrmBut;
+};
+
+uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec* spec,
+			      const char* nm ) 
+    : binidGrp( 0 ) , ofrmBut( 0 ), il_x( 0 ), xl_y( 0 )
+{
+}
+
+
+void uiBinIDInpFld::otherFormSel(CallBacker* cb)
+{
+// pop dialog box
+// transform using SI()
+// set value
+}
+
+void uiBinIDInpFld::setValue( bool b )
+{ 
+}
+
+template<class T>
+class uiIntervalInpFld : public uiDataInpFld
+{
+public:
+
+			uiIntervalInpFld( uiObject* p, 
+					 const DataInpSpec* spec=0,
+					 const char* nm="Bool Input Field" );
+
+    //virtual bool        getBoolValue() const	{ return yn; }
+    virtual void        setValue( T val );
+
+    virtual uiObject&	uiObj()			{ return *intvalGrp; }
+
+    virtual const char*	text(int idx) const		
+			    { return  le(idx) ? le(idx)->text() : 0; }
+    virtual void        setText( const char* t,int idx)	
+			    { if(le(idx)) le(idx)->setText(t); }
+    virtual uiObject&	uiObj()			{ return *intvalGrp; }
+
+protected:
+    uiLineEdit&		start;
+    uiLineEdit&		stop;
+    uiLineEdit*		step;
+
+    uiLineEdit*		le(idx)
+			{ 
+			    if( idx>1 ) return step;
+			    return idx ? &stop : &start;
+			}
+
+    uiObject*		intvalGrp;
+
+};
+
+uiIntervalInpFld::uiIntervalInpFld( uiObject* p, const DataInpSpec* spec=0,
+				    const char* nm="Bool Input Field" ) 
+    : intvalGrp( 0 ) , cb( 0 ), eqBut( 0 )
+{
+    const FloatInpIntervalSpec* spc = 
+			dynamic_cast< const FloatInpIntervalSpec* >(spec);
+
+
+    if( !spc ) { intvalGrp = new uiGroup(p,nm); return; }
+
+    yn=spc->checked();
+    truetxt = spc->trueFalseTxt(true);
+    falsetxt = spc->trueFalseTxt(false);
+
+    if( truetxt == "" )
+    { 
+	cb = new uiCheckBox( p, nm ); 
+	intvalGrp = cb;
+	setValue( yn );
+	return; 
+    }
+
+    if( falsetxt == "" )
+    { 
+	cb = new uiCheckBox( p, truetxt );
+	intvalGrp = cb;
+	setValue( yn );
+	return; 
+    }
+
+    // we have two labelTxt()'s, so we'll make radio buttons
+    uiGroup* grp_ = new uiGroup( p, nm ); 
+    intvalGrp = grp_;
+
+    eqBut = new uiRadioButton( intvalGrp, truetxt );
+    eqBut->notify( mCB(this,uiIntervalInpFld,equivSel) );
+
+    eqBut->attach( rightTo, hasStep ? step : stop );
+    grp_->setHAlignObj( start );
+
+    setValue( yn );
+}
+#endif
 
 /*!
 
-creates a new inputfield and attaches it rightTo the last one
+creates a new InpFld and attaches it rightTo the last one
 already present in 'flds'.
 
 */
-uiDataInpField& uiGenInput::createInpField( uiObject* p, 
-					    const DataInpSpec* desc )
+uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
 {
-    uiDataInpField* fld;
+    uiDataInpFld* fld;
 
     if( !desc )
-	{ fld = new uiLineEditField( p ); }
+	{ fld = new uiLineInpFld( this ); }
     else
     {
 	switch( desc->type() )
@@ -222,7 +366,7 @@ uiDataInpField& uiGenInput::createInpField( uiObject* p,
 	    case DataInpSpec::stringTp:
 	    case DataInpSpec::fileNmTp:
 		{
-		    fld = new uiLineEditField( p, desc ); 
+		    fld = new uiLineInpFld( this, desc ); 
 		}
 		break;
 
@@ -230,18 +374,49 @@ uiDataInpField& uiGenInput::createInpField( uiObject* p,
 	    case DataInpSpec::doubleTp:
 	    case DataInpSpec::intTp:
 		{
-		    fld = new uiLineEditField( p, desc ); 
+		    fld = new uiLineInpFld( this, desc ); 
 		}
 		break;
 
 	    case DataInpSpec::boolTp:
 		{
-		    fld = new uiBoolInputField( p, desc ); 
+		    fld = new uiBoolInpFld( this, desc ); 
 		}
 		break;
+#ifdef NEWTYPES
+
+	    case DataInpSpec::intIntervalTp:
+		{
+		    fld = new uiIntervalInpFld<int>( this, desc ); 
+		}
+		break;
+	    case DataInpSpec::floatIntervalTp:
+		{
+		    fld = new uiIntervalInpFld<float>( this, desc ); 
+		}
+		break;
+	    case DataInpSpec::doubleIntervalTp:
+		{
+		    fld = new uiIntervalInpFld<double>( this, desc ); 
+		}
+		break;
+
+	    case DataInpSpec::binIDCoordTp:
+		{
+		    fld = new uiBinIDInpFld( this, desc ); 
+		}
+		break;
+
+	    case DataInpSpec::stringListTp:
+		{
+		    fld = new uiStrLstInpFld( this, desc ); 
+		}
+		break;
+
+#endif
 	    default:
 		{
-		    fld = new uiLineEditField( p, desc ); 
+		    fld = new uiLineInpFld( this, desc ); 
 		}
 		break;
 	}
@@ -251,6 +426,10 @@ uiDataInpField& uiGenInput::createInpField( uiObject* p,
     if( other ) fld->uiObj().attach( rightTo, other );
 
     flds += fld;
+
+    for( int idx=0; idx<fld->nElems(); idx++ )
+	idxes += FieldIdx( flds.size()-1, idx );
+
     return *fld;
 }
 
@@ -262,7 +441,8 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt)
     : uiGroup( p, disptxt )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked(false), ro(false)
+    , checked( this ), changed( this )
+    , checked_(false), ro(false)
 {}
 
 uiGenInput::uiGenInput( uiObject* p, const char* disptxt
@@ -270,7 +450,8 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
     : uiGroup( p, disptxt )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked(false), ro(false)
+    , checked( this ), changed( this )
+    , checked_(false), ro(false)
 {
     inputs += inp1.clone();
 }
@@ -281,7 +462,8 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
     : uiGroup( p, disptxt )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked(false), ro(false)
+    , checked( this ), changed( this )
+    , checked_(false), ro(false)
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
@@ -294,7 +476,8 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
     : uiGroup( p, disptxt )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked(false), ro(false)
+    , checked( this ), changed( this )
+    , checked_(false), ro(false)
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
@@ -317,13 +500,14 @@ DataInpSpec* uiGenInput::getInput( int nr )
 }
 
 
+
 void uiGenInput::finalise_()
 {
     uiGroup::finalise_();
     uiObject *lastElem = 0;
     if( inputs.size() )
     {
-	lastElem = &createInpField( this, inputs[0] ).uiObj();
+	lastElem = &createInpFld( inputs[0] ).uiObj();
 	setHAlignObj( lastElem );
     }
 
@@ -332,7 +516,7 @@ void uiGenInput::finalise_()
 	cbox = new uiCheckBox( this, name() );
 	cbox->attach( leftTo, lastElem );
 	cbox->notify( mCB(this,uiGenInput,checkBoxSel) );
-	setChecked( checked );
+	setChecked( checked_ );
     }
     else if( *name() ) 
     {
@@ -341,7 +525,7 @@ void uiGenInput::finalise_()
     }
 
     for( int i=1; i<inputs.size(); i++ )
-	lastElem = &createInpField( this, inputs[i] ).uiObj();
+	lastElem = &createInpFld( inputs[i] ).uiObj();
 
     if( selText != "" )
     {
@@ -390,15 +574,19 @@ void uiGenInput::clear( int nr )
     ret uiGenInput::fn( int nr ) const \
     { \
 	mCheckFinalisedv( undefval );\
-	return nr<flds.size() && flds[nr] ? flds[nr]->fn() : undefval; \
+	return nr<idxes.size() && flds[idxes[nr].fldidx] \
+		? flds[idxes[nr].fldidx]->fn(idxes[nr].subidx) : undefval; \
     }
 
 #define mFromLE_s(fn,typ,var) \
     void uiGenInput::fn( typ var, int nr ) \
     { \
 	mCheckFinalised();\
-	flds[nr]->fn( var ); \
+	if( nr<idxes.size() && flds[idxes[nr].fldidx] )\
+	    flds[idxes[nr].fldidx]->fn( var, idxes[nr].subidx ); \
     }
+
+mFromLE_g(isValid,bool, false )
 
 mFromLE_g(text,const char*, sUndefValue )
 mFromLE_g(getIntValue,int, 0 )
@@ -427,16 +615,16 @@ void uiGenInput::setTitleText( const char* txt )
 
 
 void uiGenInput::setChecked( bool yn )
-    { checked = yn; if( cbox ) cbox->setChecked( yn ); }
+    { checked_ = yn; if( cbox ) cbox->setChecked( yn ); }
 
 
 bool uiGenInput::isChecked()
-    { return checked; }
+    { return checked_; }
 
 
 void uiGenInput::checkBoxSel( CallBacker* cb )
 {
-    checked = cbox->isChecked();
+    checked_ = cbox->isChecked();
 
     for( int idx=0; idx < flds.size(); idx++ )
 	flds[idx]->uiObj().setSensitive( isChecked() );
