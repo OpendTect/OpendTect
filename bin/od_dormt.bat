@@ -1,7 +1,7 @@
 echo off
 ::
 :: OpenTect remote startup script for window<->windows using rcmd
-:: $Id: od_dormt.bat,v 1.3 2004-10-05 14:18:05 dgb Exp $
+:: $Id: od_dormt.bat,v 1.4 2004-10-25 14:41:23 dgb Exp $
 ::______________________________________________________________________________
 
 cd %DTECT_WINAPPL%
@@ -46,12 +46,9 @@ set datashare=%5
 set username=%6
 set userpass=%7
 
+for /F "tokens=*" %%i in ('.\bin\win\SearchODFile.exe od_pre_login.bat') do set PRESCRIPT=%%i
 
-::echo net use "\\%datahost%" . "/USER:%datahost%\%username%"
-net use "\\%datahost%" %userpass% "/USER:%datahost%\%username%" > nul 2>&1
-
-::echo net use %datadrive%: "\\%dathost%\%datashare%"
-net use %datadrive%: "\\%datahost%\%datashare%" > nul 2>&1
+"%PRESCRIPT%" %datahost% %datadrive% %datashare% %username% %userpass%
 
 if exist "%ARGFILE%" goto getargs
 

@@ -2,12 +2,13 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.18 2004-10-05 14:18:05 dgb Exp $
+# $Id: od_exec_rmt,v 1.19 2004-10-25 14:41:23 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
-#if ( $?DTECT_DEBUG ) set verbose=yes
+if ( $?DTECT_DEBUG ) set verbose=yes
+
 
 if ( $?DTECT_DEBUG ) then
     echo "od_exec_rmt $*"
@@ -158,38 +159,53 @@ set transf="$transf +-+-+ $*"
 set do_exec=`echo "${dtectappl}/bin/od_do_rmt" | sed -e "s% %\\ %g"`
 
 
-if ( $?COMSPEC ) then 
-    if ( ${rshcomm} == "rcmd" ) then
+if ( $iswin == 1 ) then
 
+    set transffile="od$$.vars"
+
+    echo "${transf}" > "${locprocdir}/${transffile}"
+
+    set transf=`echo "${remprocdir}/${transffile}" | sed -e 's% %#-#%g'`
+    set procdir2=`echo "${remprocdir}" | sed -e 's% %#-#%g'`
+
+    set usernm=""
+    if ( $?USERNAME ) then
+	set usernm="$USERNAME"
+    endif
+    if ( $?user ) then
+	set usernm="$user"
+    endif
+
+    set transf="$transf $procdir2 $datahost $datadrive $datashare $usernm $remotepass"
+
+    if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt+=+' \
 		     | sed -e "s% %\\ %g" -e 's%+=+%""%g'`
 
-	set transffile="od$$.vars"
+	if ( $?DTECT_DEBUG) then
+	    set prelogin=`unsetenv DTECT_DEBUG; \
+		    "${DTECT_APPL}/bin/win/SearchODFile" od_prepare.bat \
+		    | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
 
-	echo "${transf}" > "${locprocdir}/${transffile}"
-
-	set transf=`echo "${remprocdir}/${transffile}" | sed -e 's% %#-#%g'`
-	set procdir2=`echo "${remprocdir}" | sed -e 's% %#-#%g'`
-
-	set usernm=""
-	if ( $?USERNAME ) then
-	    set usernm="$USERNAME"
-	endif
-	if ( $?user ) then
-	    set usernm="$user"
+	    echo cmd /c \
+	       "${prelogin} ${remotehost} _none_ _none_ ${usernm} ${remotepass}"
+	else
+	    set prelogin=`"${DTECT_APPL}/bin/win/SearchODFile" od_prepare.bat \
+		    | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
 	endif
 
-	set transf="$transf $procdir2 $datahost $datadrive $datashare $usernm $remotepass"
+        cmd /c "${prelogin} ${remotehost} _none_ _none_ ${usernm} ${remotepass}"
 
 	set remotehost="\\${remotehost}"
-	net use "${remotehost}" ${remotepass} \
-		"/USER:${remotehost}\${usernm}" >& /dev/null
 
 	if ( ! $?DTECT_DEBUG ) then
 	    ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} \
 		 $transf >& /dev/null
 	    exit $status 
 	endif
+
+    else
+	set do_exec=`echo "${dtectappl}/bin/od_dormt" | sed -e "s% %\\ %g"`
     endif
 endif
 
