@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.17 2002-04-15 10:05:41 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.18 2002-04-17 09:10:19 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -84,7 +84,7 @@ void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
 {
     visBase::Cube* cube = visBase::Cube::create();
     cube->setCenterPos( pos );
-    cube->setWidth( Geometry::Pos( xsz, ysz, zsz/scene.apparentVel()) );
+    cube->setWidth( Geometry::Pos( xsz, ysz, zsz/scene.apparentVel()*2) );
     cube->setMaterial( 0 );
 
     group->addObject( cube );
@@ -193,6 +193,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 			 mIS_ZERO( newpos.z-mousepressposition.z ) )
 		    {
 			newpos.z /= -scene.apparentVel();
+			newpos.z *= 2;
 			addPick( newpos );
 		    }
 		}
@@ -206,7 +207,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 
 void visSurvey::PickSetDisplay::updateCubeSz( CallBacker* cb )
 {
-    Geometry::Pos nsz( xsz, ysz, zsz/scene.apparentVel());
+    Geometry::Pos nsz( xsz, ysz, zsz/scene.apparentVel()*2);
 
     for ( int idx=0; idx<group->size(); idx++ )
     {
