@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.5 2001-05-08 14:33:06 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.6 2001-05-21 14:20:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -572,7 +572,7 @@ i_LayoutItem* i_LayoutIterator::takeCurrent_()
 //-----------------------------------------------------------------
 
 i_LayoutMngr::i_LayoutMngr( uiObject *parnt, int border, int space,
-			    const char *name )
+			    const char *name, bool autoAdd )
 			    : QLayout( &parnt->qWidget(), border, space, name )
 			    , UserIDObject( parnt->name() )
 			    , parnt_( parnt )
@@ -580,10 +580,11 @@ i_LayoutMngr::i_LayoutMngr( uiObject *parnt, int border, int space,
 			    , curmode( preferred )
 			    , mintextwidgetheight_( 0 )
 
-{}
+{ setAutoAdd( autoAdd ); }
 
 i_LayoutMngr::i_LayoutMngr( QWidget* prntWidg, uiObject *parnt, 
-			    int border, int space, const char *name )
+			    int border, int space, const char *name, 
+			    bool autoAdd )
 			    : QLayout( prntWidg, border, space, name )
 			    , UserIDObject( parnt->name() )
 			    , parnt_( parnt )
@@ -591,7 +592,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* prntWidg, uiObject *parnt,
 			    , curmode( preferred )
 			    , mintextwidgetheight_( 0 )
 
-{}
+{ setAutoAdd( autoAdd ); }
 
 i_LayoutMngr::~i_LayoutMngr()
 {
@@ -611,6 +612,30 @@ void i_LayoutMngr::addItem( QLayoutItem *qItem )
     if ( qwItem ) iqlItem = dynamic_cast<i_QObjWrp*> ( qwItem->widget() );
 
     i_LayoutItem* uiItem;
+
+    // check if already inserted. 
+    QListIterator<i_LayoutItem> childIter( childrenList );
+    childIter.toFirst();
+    while ( i_LayoutItem* loop = childIter.current() ) 
+    {
+        ++childIter;
+	if( loop->widget() == qItem->widget() ) 
+	{
+	    #ifdef __debug__
+	    if( !iqlItem ) // hmm. we have a non-ui widget, which is already
+                           // known to the manager. In contrast to native
+			   // Qt widgets, uiWidgets are added 
+			   // twice to the manager, once at construction 
+			   // and once by Qt's autoAdd functionality.
+			   // Since the iqlItem==0, we have a Qt widget, 
+			   // which should have been added only once.
+		pErrMsg("WARNING: Native QWidget already present. Returning");
+	    #endif
+	    return;
+	}
+
+    }
+
 
     uiItem = iqlItem ? new i_uiLayoutItem( *iqlItem->uiClient(), *this, *qItem )
 		     : new i_LayoutItem( *this, *qItem);
