@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.15 2004-05-24 08:14:27 kristofer Exp $
+ RCS:           $Id: viswell.cc,v 1.16 2004-05-24 13:56:59 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ ________________________________________________________________________
 #include "SoPlaneWellLog.h"
 
 #include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoFaceSet.h>
 #include <Inventor/nodes/SoSwitch.h>
 
 
@@ -151,12 +153,29 @@ bool Well::wellNameShown() const
 void Well::addMarker( const Coord3& pos, const Color& color, const char* nm ) 
 {
     visBase::Marker* marker = visBase::Marker::create();
+
+    SoSeparator* markershapesep = new SoSeparator;
+    markershapesep->ref();
+    SoCoordinate3* markercoords= new SoCoordinate3;
+    markershapesep->addChild(markercoords);
+    markercoords->point.set1Value(0,-1,-1,0);
+    markercoords->point.set1Value(1,-1, 1,0);
+    markercoords->point.set1Value(2, 1, 1,0);
+    markercoords->point.set1Value(3, 1,-1,0);
+    SoFaceSet* markershape = new SoFaceSet;
+    markershape->numVertices.setValue(4);
+    markershapesep->addChild(markershape);
+
+    marker->setMarkerShape(markershapesep);
+    markershapesep->unref();
+
+    marker->doRestoreProportions(false);
     markergroup->addObject( marker );
     marker->setTransformation( transformation );
     marker->setCenterPos( pos );
-    marker->setType( MarkerStyle3D::Cube );
+    //marker->setType( MarkerStyle3D::Cube );
     marker->getMaterial()->setColor( color );
-    marker->setSize( markersize );
+    marker->setScreenSize( markersize );
     marker->turnOn( showmarkers );
 
     Text* markernm = Text::create();
@@ -175,22 +194,26 @@ void Well::removeAllMarkers()
 }
 
 
-void Well::setMarkerSize( int size )
+void Well::setMarkerScreenSize( int size )
 {
     markersize = size;
     for ( int idx=0; idx<markergroup->size(); idx++ )
     {
 	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
-	marker->setSize( size );
+	marker->setScreenSize( size );
     }
 }
 
 
-int Well::markerSize() const
+int Well::markerScreenSize() const
 {
     mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(0))
-    return marker ? mNINT(marker->getSize()) : sDefaultMarkerSize;
+    return marker ? mNINT(marker->getScreenSize()) : sDefaultMarkerSize;
 }
+
+
+bool Well::canShowMarkers() const
+{ return markergroup->size(); }
 
 
 void Well::showMarkers( bool yn )
@@ -371,7 +394,7 @@ int Well::usePar( const IOPar& par )
     mParGetYN(showlognmstr,showLogName);
 
     par.get( markerszstr, markersize );
-    setMarkerSize( markersize );
+    setMarkerScreenSize( markersize );
 
     return 1;
 }

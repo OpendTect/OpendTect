@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.14 2004-05-11 12:20:24 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.15 2004-05-24 13:57:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,6 @@ ________________________________________________________________________
 class SoGroup;
 class SoShapeScale;
 class SoRotation;
-class SoShape;
 class SoTranslation;
 
 namespace visBase
@@ -41,16 +40,39 @@ public:
 			mCreateDataObj(Marker);
 
     void		setMarkerStyle(const MarkerStyle3D&);
+    			/*!<Sets predefined shape and size. */
     const MarkerStyle3D& getMarkerStyle() const	{ return markerstyle; }
-
     void		setType(MarkerStyle3D::Type);
+    			/*!<Sets predefined shape. */
     MarkerStyle3D::Type	getType() const;
+
+    void		setMarkerShape(SoNode*);
+    			/*!< Sets user-defined shape. The shape is expected
+			     to be about two units large and centered at 
+			     origo, i.e. in box (-1,-1,-1) to (1,1,1).
+			     \note If set, the getType() and getMarkerStyle()
+			     will return the wrong shape
+			*/
  
     void		setCenterPos(const Coord3&);
     Coord3		centerPos(bool displayspace=false) const;
    
-    void		setSize(const float);
-    float		getSize() const;
+    void		setScreenSize(const float);
+    			/*!<If a nonzero value is given, the object will
+			    try to have the same size (in pixels) on the screen
+			    at all times. */
+    float		getScreenSize() const;
+
+    void		doFaceCamera(bool yn);
+    			/*!<If true, the maker will always be rotated so the
+			    same part of the marker always faces the camera. */
+    bool		facesCamera() const;
+
+    void		doRestoreProportions(bool yn);
+			/*!<If true, the shape will make sure that the shape's
+			    proportions is unchanged, regardless of previous
+			    scalings in the scenegraph. */
+    bool		restoresProportions() const;		
 
     void		setRotation(const Coord3&,float);
     void		setDirection(const ::Sphere& d)	{ direction = d; }
@@ -68,7 +90,7 @@ protected:
 
     SoShapeScale*	markerscale;
     SoTranslation*	translation;
-    SoShape*		shape;
+    SoNode*		shape;
     SoRotation*		rotation;
 
     MarkerStyle3D	markerstyle;

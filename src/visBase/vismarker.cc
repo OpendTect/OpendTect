@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.14 2004-05-11 12:44:31 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.15 2004-05-24 13:56:59 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ Coord3 visBase::Marker::centerPos(bool displayspace) const
 void visBase::Marker::setMarkerStyle( const MarkerStyle3D& ms )
 {
     setType( ms.type );
-    setSize( (float)ms.size );
+    setScreenSize( (float)ms.size );
 }
 
 
@@ -95,49 +95,69 @@ MarkerStyle3D::Type visBase::Marker::getType() const
 
 void visBase::Marker::setType( MarkerStyle3D::Type type )
 {
-    if ( shape ) removeChild(shape);
-
     switch ( type )
     {
     case MarkerStyle3D::Cube: {
-	shape = new SoCube;
+	setMarkerShape(new SoCube);
 	setRotation( Coord3(0,0,1), 0 );
 	} break;
     case MarkerStyle3D::Cone:
-	shape = new SoCone;
+	setMarkerShape(new SoCone);
 	setRotation( Coord3(1,0,0), M_PI/2 );
 	break;
     case MarkerStyle3D::Cylinder:
-	shape = new SoCylinder;
+	setMarkerShape(new SoCylinder);
 	setRotation( Coord3(1,0,0), M_PI/2 );
 	break;
     case MarkerStyle3D::Sphere:
-	shape = new SoSphere;
+	setMarkerShape(new SoSphere);
 	setRotation( Coord3(0,0,1), 0 );
 	break;
     case MarkerStyle3D::Arrow:
-	shape = new SoArrow;
+	setMarkerShape(new SoArrow);
 	setArrowDir( direction );
 	break;
     }
 
-
-    addChild( shape );
     markerstyle.type = type;
 }
 
 
-void visBase::Marker::setSize( const float sz )
+void visBase::Marker::setMarkerShape(SoNode* newshape)
+{
+    if ( shape ) removeChild(shape);
+    shape = newshape;
+    addChild( shape );
+}
+
+
+void visBase::Marker::setScreenSize( const float sz )
 {
     markerscale->screenSize.setValue( sz );
     markerstyle.size = (int)sz;
 }
 
 
-float visBase::Marker::getSize() const
+float visBase::Marker::getScreenSize() const
 {
     return markerscale->screenSize.getValue();
 }
+
+
+void visBase::Marker::doFaceCamera(bool yn)
+{ markerscale->dorotate = yn; }
+
+
+bool visBase::Marker::facesCamera() const
+{ return markerscale->dorotate.getValue(); }
+
+
+void visBase::Marker::doRestoreProportions(bool yn)
+{ markerscale->restoreProportions = yn; }
+
+
+bool visBase::Marker::restoresProportions() const
+{ return markerscale->restoreProportions.getValue(); }
 
 
 void visBase::Marker::setRotation( const Coord3& vec, float angle )
