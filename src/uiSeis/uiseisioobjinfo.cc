@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.5 2004-07-29 21:41:26 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.6 2004-08-27 10:07:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,13 @@ uiSeisIOObjInfo::~uiSeisIOObjInfo()
 	uiMSG().error( "Cannot find object in data store" ); \
 	return ret; \
     }
+
+
+bool uiSeisIOObjInfo::is2D() const
+{
+    mChkIOObj(false);
+    return SeisTrcTranslator::is2D( *ctio.ioobj );
+}
 
 
 bool uiSeisIOObjInfo::provideUserInfo() const
@@ -145,19 +152,11 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SpaceInfo& si ) const
 }
 
 
-bool uiSeisIOObjInfo::getRanges( StepInterval<int>& inlrg,
-				 StepInterval<int>& crlrg,
-				 StepInterval<float>& zrg ) const
+bool uiSeisIOObjInfo::getRanges( CubeSampling& cs ) const
 {
     mChkIOObj(false);
-
-    CubeSampling cs;
     if ( SeisTrcTranslator::getRanges( *ctio.ioobj, cs ) )
-    {
-	cs.hrg.get( inlrg, crlrg );
-	zrg = cs.zrg;
 	return true;
-    }
 
     if ( doerrs )
     {

@@ -6,15 +6,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.1 2004-07-01 15:14:43 bert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.2 2004-08-27 10:07:32 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 class IOObj;
-class CtxtIOObj;
 class MultiID;
+class CtxtIOObj;
+class CubeSampling;
 template <class T> class StepInterval;
 
 
@@ -34,12 +35,11 @@ public:
 	int		maxbytespsamp;
     };
 
+    bool		is2D() const;
     bool		provideUserInfo() const;
     int			expectedMBs(const SpaceInfo&) const;
     bool		checkSpaceLeft(const SpaceInfo&) const;
-    bool		getRanges(StepInterval<int>& inlrg,
-				  StepInterval<int>& crlrg,
-				  StepInterval<float>& zrg) const;
+    bool		getRanges(CubeSampling&) const;
     bool		getBPS(int& bps,int icomp=-1) const;
 			//!< max bytes per sample, component -1 => add all
 

@@ -5,13 +5,28 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.26 2004-08-18 14:29:57 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.27 2004-08-27 10:07:32 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
 #include "strmprov.h"
 #include "filepath.h"
 #include "survinfo.h"
+
+
+BufferString CBVSIOMgr::baseFileName( const char* fnm )
+{
+    BufferString ret( fnm );
+    char* caretptr = strchr( ret.buf(), '^' );
+    if ( !caretptr ) return ret;
+
+    char* dotptr = strchr( caretptr, '.' );
+    BufferString ext( dotptr );
+    *caretptr = '\0';
+    ret += ext;
+    return ret;
+}
+
 
 BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
@@ -37,6 +52,21 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 
     fp.setFileName( fname );
     return fp.fullPath();
+}
+
+
+int CBVSIOMgr::getFileNr( const char* fnm )
+{
+    if ( !fnm || !*fnm ) return 0;
+
+    const char* caretptr = strrchr( fnm, '^' );
+    if ( !caretptr ) return 0;
+
+    BufferString nrstr( caretptr + 1 );
+    char* dotptr = strchr( nrstr.buf(), '.' );
+    if ( dotptr ) *dotptr = '\0';
+
+    return atoi( nrstr.buf() );
 }
 
 

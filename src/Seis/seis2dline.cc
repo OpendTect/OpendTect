@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.7 2004-08-25 14:25:57 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.8 2004-08-27 10:07:32 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -20,8 +20,6 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.7 2004-08-25 14:25:57 bert Ex
 
 const char* Seis2DLineGroup::sKeyAttrib = "Attribute";
 const char* Seis2DLineGroup::sKeyDefAttrib = "Seis";
-const char* Seis2DLineIOProvider::sKeyType = sKey::Type;
-const char* Seis2DLineIOProvider::sKeyLineNr = "Line number";
 
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
@@ -122,7 +120,23 @@ Seis2DLineGroup& Seis2DLineGroup::operator =( const Seis2DLineGroup& lg )
 void Seis2DLineGroup::init( const char* fnm )
 {
     fname_ = fnm;
-    readFile();
+    BufferString type = "CBVS";
+    readFile( &type );
+
+    liop_ = 0;
+    const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
+    for ( int idx=0; idx<liops.size(); idx++ )
+    {
+	Seis2DLineIOProvider* liop = liops[idx];
+	if ( type == liop->type() )
+	    { liop_ = liop; break; }
+    }
+}
+
+
+const char* Seis2DLineGroup::type() const
+{
+    return liop_ ? liop_->type() : "CBVS";
 }
 
 
@@ -143,7 +157,9 @@ const char* Seis2DLineGroup::attribute( int idx ) const
 
 BufferString Seis2DLineGroup::lineKey( const char* lnm, const char* attrnm )
 {
-    BufferString ret( lnm ); ret += "|"; ret += attrnm;
+    BufferString ret( lnm );
+    if ( attrnm && strcmp(attrnm,sKeyDefAttrib) )
+	{ ret += "|"; ret += attrnm; }
     return ret;
 }
 
@@ -168,7 +184,7 @@ BufferString Seis2DLineGroup::attrNamefromKey( const char* key )
 
 static const char* sKeyFileType = "2D Line Group Data";
 
-void Seis2DLineGroup::readFile()
+void Seis2DLineGroup::readFile( BufferString* type )
 {
     deepErase( pars_ );
 
@@ -183,6 +199,8 @@ void Seis2DLineGroup::readFile()
     {
 	if ( astrm.hasKeyword(sKey::Name) )
 	    setName( astrm.value() );
+	if ( astrm.hasKeyword(sKey::Type) && type )
+	    *type = astrm.value();
     }
 
     while ( astrm.type() != ascistream::EndOfFile )
@@ -217,6 +235,7 @@ void Seis2DLineGroup::writeFile() const
 	{ sd.close(); return; }
 
     astrm.put( sKey::Name, name() );
+    astrm.put( sKey::Type, type() );
     astrm.put( "Number of lines", pars_.size() );
     astrm.newParagraph();
 
@@ -237,36 +256,16 @@ void Seis2DLineGroup::writeFile() const
 }
 
 
-Seis2DLineIOProvider* Seis2DLineGroup::getLiop( int ipar ) const
-{
-    return ipar >= pars_.size() ? 0 : getLiop( *pars_[ipar] );
-}
-
-
-Seis2DLineIOProvider* Seis2DLineGroup::getLiop( const IOPar& iop ) const
-{
-    const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
-    for ( int idx=0; idx<liops.size(); idx++ )
-    {
-	Seis2DLineIOProvider* liop = liops[idx];
-	if ( liop->isUsable(iop) )
-	    return liop;
-    }
-    return 0;
-}
-
-
 Executor* Seis2DLineGroup::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 					const SeisSelData* sd) const
 {
-    Seis2DLineIOProvider* liop = getLiop( ipar );
-    if ( !liop )
+    if ( !liop_ )
     {
 	ErrMsg("No suitable 2D line extraction object found");
 	return 0;
     }
 
-    return liop->getFetcher( *pars_[ipar], tbuf, sd );
+    return liop_->getFetcher( *pars_[ipar], tbuf, sd );
 }
 
 
@@ -278,15 +277,14 @@ Executor* Seis2DLineGroup::lineAdder( IOPar* newiop,
 	ErrMsg("No data for line add provided");
 	return 0;
     }
-    Seis2DLineIOProvider* liop = getLiop( *newiop );
-    if ( !liop )
+    if ( !liop_ )
     {
 	ErrMsg("No suitable 2D line creation object found");
 	return 0;
     }
 
     const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
-    return liop->getPutter( *newiop, tbuf, previop );
+    return liop_->getPutter( *newiop, tbuf, previop );
 }
 
 
@@ -299,18 +297,16 @@ void Seis2DLineGroup::commitAdd( IOPar* newiop )
 
 bool Seis2DLineGroup::isEmpty( int ipar ) const
 {
-    Seis2DLineIOProvider* liop = getLiop( ipar );
-    return liop ? liop->isEmpty( *pars_[ipar] ) : true;
+    return liop_ ? liop_->isEmpty( *pars_[ipar] ) : true;
 }
 
 
 void Seis2DLineGroup::remove( int ipar )
 {
     if ( ipar > pars_.size() ) return;
-    Seis2DLineIOProvider* liop = getLiop( ipar );
     IOPar* iop = pars_[ipar];
-    if ( liop )
-	liop->removeImpl(*iop);
+    if ( liop_ )
+	liop_->removeImpl(*iop);
 
     pars_ -= iop;
     delete iop;
@@ -321,21 +317,12 @@ void Seis2DLineGroup::remove( int ipar )
 bool Seis2DLineGroup::getTxtInfo( int ipar, BufferString& uinf,
 				  BufferString& stdinf ) const
 {
-    const Seis2DLineIOProvider* liop = getLiop( ipar );
-    return liop ? liop->getTxtInfo(*pars_[ipar],uinf,stdinf) : false;
+    return liop_ ? liop_->getTxtInfo(*pars_[ipar],uinf,stdinf) : false;
 }
 
 
 bool Seis2DLineGroup::getRanges( int ipar, StepInterval<int>& sii,
 				 StepInterval<float>& sif ) const
 {
-    const Seis2DLineIOProvider* liop = getLiop( ipar );
-    return liop ? liop->getRanges(*pars_[ipar],sii,sif) : false;
-}
-
-
-bool Seis2DLineIOProvider::isUsable( const IOPar& iop ) const
-{
-    const char* res = iop.find( sKeyType );
-    return res && type == res;
+    return liop_ ? liop_->getRanges(*pars_[ipar],sii,sif) : false;
 }

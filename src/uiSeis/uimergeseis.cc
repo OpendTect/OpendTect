@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.23 2004-07-29 21:41:26 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.24 2004-08-27 10:07:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "survinfo.h"
 #include "bufstringset.h"
+#include "cubesampling.h"
 
 #include <math.h>
 
@@ -156,9 +157,8 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
     static const char* typekey = sKey::Type;
     int order[inpsz];
     int inlstart[inpsz];
-    StepInterval<int> inlrg, crlrg;
-    StepInterval<float> zrg;
-    StepInterval<float> zrgprev;
+    CubeSampling cs;
+    StepInterval<float> prevzrg;
     BufferString type = "";
     BufferString optdir = "Vertical";
     for ( int idx=0; idx<inpsz; idx++ )
@@ -179,35 +179,35 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
 	    optdir = ioobj->pars().find( optdirkey );
 
 	uiSeisIOObjInfo oinf( *ioobj );
-        if ( !oinf.getRanges(inlrg,crlrg,zrg) )
+        if ( !oinf.getRanges(cs) )
 	    return false;
 
 	if ( !idx )
 	{
-	    nrsamps = zrg.nrSteps() + 1;
+	    nrsamps = cs.zrg.nrSteps() + 1;
 	    oinf.getBPS( bps );
 	}
 
 	IOPar* iopar = new IOPar;
 	iopar->set( sKey::BinIDSel, sKey::Range );
-	iopar->set( sKey::FirstInl, inlrg.start );
-        iopar->set( sKey::LastInl, inlrg.stop );
-        iopar->set( sKey::StepInl, abs(inlrg.step) );
-        iopar->set( sKey::FirstCrl, crlrg.start );
-        iopar->set( sKey::LastCrl, crlrg.stop );
-        iopar->set( sKey::StepCrl, abs(crlrg.step) );
+	iopar->set( sKey::FirstInl, cs.hrg.start.inl );
+        iopar->set( sKey::LastInl, cs.hrg.stop.inl );
+        iopar->set( sKey::StepInl, abs(cs.hrg.step.inl) );
+	iopar->set( sKey::FirstCrl, cs.hrg.start.crl );
+        iopar->set( sKey::LastCrl, cs.hrg.stop.crl );
+        iopar->set( sKey::StepCrl, abs(cs.hrg.step.crl) );
 	seliops += iopar;
 	order[idx] = idx;
-	inlstart[idx] = inlrg.start;
-	if ( inlrg.step < 0 ) 
+	inlstart[idx] = cs.hrg.start.inl;
+	if ( cs.hrg.step.inl < 0 ) 
         { 
 	    inlstart[idx] *= -1; 
 	    rev = true; 
 	}
 
 	if ( !idx )
-	    zrgprev = zrg;
-	else if ( zrg != zrgprev )
+	    prevzrg = cs.zrg;
+	else if ( cs.zrg != prevzrg )
 	{
 	    uiMSG().error( "Sorry, not implemented:\n"
 		    	   "Merge with different Z-ranges" );

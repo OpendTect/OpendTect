@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.9 2004-08-18 14:29:57 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.10 2004-08-27 10:07:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,8 +82,12 @@ public:
 
     inline BufferString	getFileName( int nr ) const
 			{ return getFileName(basefname_,nr); }
+
+    static BufferString	baseFileName(const char*);
     static BufferString	getFileName(const char*,int);
     			//!< returns aux file name for negative nr
+    static int		getFileNr(const char*);
+    			//!< returns 0 or number behind '^'
 
 protected:
 

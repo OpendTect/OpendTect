@@ -39,22 +39,24 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg = "Info for output seismic data not found in Object Manager";
 	return false;
     }
-    if ( !trl )
+    if ( !(is2d && !lgrp) || (!is2d && !trl) )
     {
-	errmsg = "No data interpreter available for '";
+	errmsg = "No data storer available for '";
 	errmsg += ioobj->name(); errmsg += "'";
 	return false;
     }
 
-    mDynamicCastGet(const IOStream*,strm,ioobj)
-    if ( !strm || !strm->isMulti() )
-	fullImplRemove( *ioobj );
+    if ( !is2d )
+    {
+	mDynamicCastGet(const IOStream*,strm,ioobj)
+	if ( !strm || !strm->isMulti() )
+	    fullImplRemove( *ioobj );
 
-    if ( !ensureRightConn(trc,true) )
-    	return false;
+	if ( !ensureRightConn(trc,true) )
+	    return false;
+    }
 
-    prepared = true;
-    return true;
+    return (prepared = true);
 }
 
 
@@ -78,6 +80,16 @@ Conn* SeisTrcWriter::crConn( int inl, bool first )
 
 bool SeisTrcWriter::startWrite( Conn* conn, const SeisTrc& trc )
 {
+    if ( is2d )
+    {
+	if ( !conn->ioobj )
+	{
+	    errmsg = "Cannot write to ";
+	    errmsg += ioobj->fullUserExpr(false);
+	    delete conn;
+	    return false;
+	}
+    }
     trl->cleanUp();
     if ( !conn || conn->bad() )
     {
@@ -166,20 +178,6 @@ bool SeisTrcWriter::isMultiConn() const
 {
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     return iostrm && iostrm->isMulti();
-}
-
-
-bool SeisTrcWriter::isMultiComp() const
-{
-    if ( !trl || !trl->componentInfo().size() )
-	return false;
-
-    int nrsel = 0;
-    for ( int idx=0; idx<trl->componentInfo().size(); idx++ )
-	if ( trl->componentInfo()[idx]->destidx >= 0 )
-	    nrsel++;
-
-    return nrsel > 1;
 }
 
 

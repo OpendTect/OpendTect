@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.9 2004-08-26 10:47:45 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.10 2004-08-27 10:07:33 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissubsel.h"
 #include "uibinidsubsel.h"
+#include "uiseisioobjinfo.h"
 #include "uigeninput.h"
 #include "seistrcsel.h"
 #include "seistrctr.h"
@@ -83,8 +84,8 @@ void uiSeisSubSel::setInput( const IOObj& ioobj )
 	sel2d->setInput( ioobj );
     else
     {
-	CubeSampling cs;
-	if ( !SeisTrcTranslator::getRanges(ioobj,cs) )
+	uiSeisIOObjInfo oinf(ioobj,false); CubeSampling cs;
+	if ( !oinf.getRanges(cs) )
 	    clear();
 	else
 	    setInput( cs );
@@ -247,8 +248,8 @@ void uiSeis2DSubSel::setInput( const HorSampling& hs )
 void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 {
     const BufferString prevlnm( lnmsfld->isChecked() ? lnmsfld->text() : "" );
-    CubeSampling cs;
-    if ( !SeisTrcTranslator::getRanges(ioobj,cs) )
+    uiSeisIOObjInfo oinf(ioobj,false); CubeSampling cs;
+    if ( !oinf.getRanges(cs) )
 	{ clear(); return; }
 
     setInput( cs.hrg );

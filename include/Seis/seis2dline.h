@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.6 2004-08-25 14:25:57 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.7 2004-08-27 10:07:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     Seis2DLineGroup&	operator=(const Seis2DLineGroup&);
     virtual		~Seis2DLineGroup();
 
+    const char*		type() const;
     int			nrLines() const			{ return pars_.size(); }
     const IOPar&	getInfo( int idx ) const	{ return *pars_[idx]; }
     bool		isEmpty(int) const;
@@ -66,15 +67,14 @@ public:
 
 protected:
 
+    Seis2DLineIOProvider* liop_;
     BufferString	fname_;
     ObjectSet<IOPar>	pars_;
 
     void		init(const char*);
-    void		readFile();
+    void		readFile(BufferString* typ=0);
     void		writeFile() const;
 
-    Seis2DLineIOProvider* getLiop(int) const;
-    Seis2DLineIOProvider* getLiop(const IOPar&) const;
 
 };
 
@@ -88,6 +88,8 @@ public:
 
     virtual		~Seis2DLineIOProvider()			{}
 
+    virtual bool	isUsable(const IOPar&) const		{ return true; }
+
     virtual bool	isEmpty(const IOPar&) const		= 0;
     virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,
 	    			   const SeisSelData* sd=0)	= 0;
@@ -98,18 +100,18 @@ public:
     virtual bool	getRanges(const IOPar&,StepInterval<int>&,
 	    			   StepInterval<float>&) const	{ return false;}
 
-    virtual bool	isUsable(const IOPar&) const;
-    static const char*	sKeyType;
     static const char*	sKeyLineNr;
 
     virtual void	removeImpl(const IOPar&) const		= 0;
 
-    const BufferString	type;
+    const char*		type() const			{ return type_.buf(); }
 
 protected:
 
 			Seis2DLineIOProvider( const char* t )
-    			: type(t)				{}
+    			: type_(t)				{}
+
+    const BufferString	type_;
 };
 
 

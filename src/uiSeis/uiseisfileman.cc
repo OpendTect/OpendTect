@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.40 2004-07-28 16:44:45 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.41 2004-08-27 10:07:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "cbvsio.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "uiseisioobjinfo.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uimsg.h"
@@ -129,7 +130,8 @@ void uiSeisFileMan::mkFileInfo()
     txt += SI().zIsTime() ? mNINT(1000*cs.zrg.memb) : cs.zrg.memb
 
     BufferString txt; CubeSampling cs;
-    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, cs ) )
+    uiSeisIOObjInfo oinf( *ctio.ioobj, false );
+    if ( oinf.getRanges(cs) )
     {
 	txt = "Inline range: "; mRangeTxt(inl);
 	txt += "\nCrossline range: "; mRangeTxt(crl);
