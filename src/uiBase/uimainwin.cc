@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.2 2001-02-16 17:02:05 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.3 2001-05-04 11:25:07 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,10 @@ ________________________________________________________________________
 #include "errh.h"
 
 #include <iostream.h>
+
+#ifdef __msvc__
+#include <qpopupmenu.h>
+#endif
 
 uiMainWin::uiMainWin( uiObject* parnt, const char* nm , bool wantStatusBar, bool wantMenuBar)
 	: uiObject( parnt, nm )

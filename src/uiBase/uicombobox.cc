@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.4 2001-05-01 17:06:39 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.5 2001-05-04 11:25:05 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,10 @@ ________________________________________________________________________
 #include <i_qobjwrap.h>
 
 #include <qsize.h> 
+
+#ifdef __msvc__
+#include <qlabel.h>
+#endif
 
 typedef i_QObjWrapper<QComboBox> i_QComboBox;
 
