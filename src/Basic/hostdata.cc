@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.16 2004-10-05 14:19:40 dgb Exp $
+ RCS:           $Id: hostdata.cc,v 1.17 2004-10-21 14:53:24 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,7 +218,6 @@ bool HostDataList::readHostFile( const char* fname )
 void HostDataList::handleLocal()
 {
     int sz = size();
-    if ( !sz ) return;
 
     const char* localhoststd = "localhost";
 
