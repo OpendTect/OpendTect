@@ -7,16 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.3 2001-06-02 12:40:52 windev Exp $
+ RCS:           $Id: costrans.h,v 1.4 2003-08-29 07:04:26 nanne Exp $
 ________________________________________________________________________
 
 
 @$*/
 
-#include <transform.h>
-#include <simpnumer.h>
-#include <arraynd.h>
-#include <ptrman.h>
+#include "transform.h"
+#include "ptrman.h"
 
 /*!\brief
 This is the CosineTransform.
