@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.33 2002-04-29 10:53:37 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.34 2002-04-30 14:14:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,12 @@ void uiVisPartServer::usePar( const IOPar& par )
 
 void uiVisPartServer::fillPar( IOPar& par ) const
 {
-    visBase::DM().fillPar(par);
+    TypeSet<int> storids;
+
+    for ( int idx=0; idx<scenes.size(); idx++ )
+	storids += scenes[idx]->id();
+
+    visBase::DM().fillPar(par, storids);
 }
 
 
