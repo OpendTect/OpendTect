@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.31 2003-04-23 15:29:30 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.32 2003-04-25 13:37:50 nanne Exp $";
 
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -78,18 +78,19 @@ void visBase::TextureRect::setTexture( visBase::Texture2& newtext, int idx )
     visBase::Texture2* text = idx < textureset.size() ? textureset[idx] : 0;
     if ( text )
     {
-	removeChild( text->getData() );
+	textureswitch->removeChild( text->getData() );
 	text->unRef();
+	textureset -= text;
     }
-    else
+    
+    if ( textureset.size() )
     {
-	if ( textureset.size() )
-	{
-	    newtext.setResolution( textureset[0]->getResolution() );
-	    newtext.setColorTab( textureset[0]->getColorTab() );
-	}
-	textureset += &newtext;
+	newtext.setResolution( textureset[0]->getResolution() );
+	newtext.setColorTab( textureset[0]->getColorTab() );
+//	newtext.getColorTab().setColorSeq( 
+//			    &textureset[0]->getColorTab().colorSeq() );
     }
+    textureset += &newtext;
 
     text = &newtext;
     text->ref();
