@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.6 2003-04-22 11:00:57 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.7 2003-05-05 12:07:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class IOObj;
 class Executor;
+struct CubeSampling;
 
 namespace EarthModel
 {
@@ -46,6 +47,17 @@ public:
     virtual bool		setPos(const EarthModel::PosID&,
 	    			       const Coord3&,
 				       bool addtohistory ) = 0;
+
+    virtual void		getLinkedPos( const EarthModel::PosID& posid,
+					  TypeSet<EarthModel::PosID>& ) const;
+    				/*!< Gives positions on the object that are
+				     linked to the posid given
+				*/
+    				
+    				
+    virtual void		setPosAttrib( EarthModel::PosID&, int attr,
+	   				      bool yn );
+    virtual bool		isPosAttrib(EarthModel::PosID&, int attr) const;
 
     CNotifier<EMObject, PosID>	poschnotifier;
 

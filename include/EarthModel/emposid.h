@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.3 2003-04-22 11:00:16 kristofer Exp $
+ RCS:		$Id: emposid.h,v 1.4 2003-05-05 11:59:10 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,26 +20,26 @@ namespace EarthModel
 {
 
 typedef MultiID ObjectID;
-typedef unsigned short PartID;
+typedef unsigned short PatchID;
 typedef Geometry::PosID SubID;
 
 
 /*!\brief
-is an identifier for each position in the earthmodel. It has three parts,
+is an identifier for each position in the earthmodel. It has three patches,
 - an ObjectID, wich identifies wich object is belongs to.
-- a PartID, wich identifies which part of the object it belongs to.
-- a SubID, wich identifies the position on the part. 
+- a PatchID, wich identifies which patch of the object it belongs to.
+- a SubID, wich identifies the position on the patch. 
 */
 
 class PosID
 {
 public:
     				PosID( ObjectID emobj,
-				       PartID part,
+				       PatchID patch,
 				       SubID subid );
 
     const ObjectID&		emObject() const;
-    const PartID&		partID() const;
+    const PatchID&		patchID() const;
     const SubID&		subID() const;
 
     bool			operator==(const PosID& b) const;
@@ -50,26 +50,26 @@ public:
 
 protected:
     ObjectID			emobj;
-    PartID			part;
+    PatchID			patch;
     SubID			subid;
 
     static const char*		emobjstr;
-    static const char* 		partstr;
+    static const char* 		patchstr;
     static const char*		subidstr;
 };
 
 
 inline PosID::PosID( ObjectID emobj_,
-		       PartID part_,
+		       PatchID patch_,
 		       SubID subid_ )
     : emobj( emobj_ )
-    , part( part_ )
+    , patch( patch_ )
     , subid( subid_ )
 {}
 
 
 inline bool PosID::operator==(const PosID& b) const
-{ return emobj==b.emobj && part==b.part && subid==b.subid; }
+{ return emobj==b.emobj && patch==b.patch && subid==b.subid; }
 
 
 inline bool PosID::operator!=(const PosID& b) const
@@ -79,8 +79,8 @@ inline const ObjectID& PosID::emObject() const
 { return emobj; }
 
 
-inline const PartID& PosID::partID() const
-{ return part; }
+inline const PatchID& PosID::patchID() const
+{ return patch; }
 
 
 inline const SubID& PosID::subID() const

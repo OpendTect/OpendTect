@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.1 2003-05-05 10:21:53 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.2 2003-05-05 12:04:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ In addition, they are also linked together.
 
 class BinID;
 class RowCol;
+class CubeSampling;
 
 namespace Geometry
 {

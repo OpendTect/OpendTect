@@ -7,20 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.7 2003-04-22 11:01:38 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.8 2003-05-05 12:02:15 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
-#include "emobject.h"
-#include "position.h"
+#include "emsurface.h"
 
-class RowCol;
 
-namespace Geometry
-{
-    class GridSurfaceImpl;
-};
+class dgbEarthModelFaultReader;
 
 namespace EarthModel
 {
@@ -28,26 +23,19 @@ namespace EarthModel
 /*!\brief
 
 */
-class Fault : public EMObject
+class Fault : public EarthModel::Surface
 {
 public:
 			Fault( EarthModel::EMManager&, const MultiID &);
 			~Fault();
 
-    PosID		setPos( const RowCol&, const Coord3&,bool addtohistory);
-    Coord3 		getPos( const EarthModel::PosID&) const;
-    bool		setPos( const EarthModel::PosID&, const Coord3&,
-				bool addtohistory);
-
     Executor*		loader();
-    bool		isLoaded() const { return surface; }
+    bool		isLoaded() const { return surfaces.size(); }
     Executor*		saver();
 
-    Geometry::GridSurfaceImpl*		getSurface() { return surface; }
-    const Geometry::GridSurfaceImpl*	getSurface() const { return surface; }
-    
 protected:
-    Geometry::GridSurfaceImpl*		surface;
+    friend			class ::dgbEarthModelFaultReader;
+    Geometry::GridSurface*	createPatchSurface() const;
 };
 
 }; // Namespace
