@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.5 2003-01-20 08:35:29 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.6 2003-05-02 07:25:21 marc Exp $
 ________________________________________________________________________
 
 
@@ -57,6 +57,9 @@ public:
     Coord3		getPos( int, bool scenespace=false ) const;
     void		setPos( int,  const Coord3& );
     void		removePos( int );
+    void		setAutoUpdate( bool );
+    bool		autoUpdate();
+    void		update();
 
     SoNode*		getData();
 protected:
