@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.19 2004-11-02 13:56:44 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.20 2004-11-09 10:03:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.19 2004-11-02 13:56:44 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.20 2004-11-09 10:03:37 nanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -40,6 +40,14 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     dtecttb = new uiToolBar( &appl, "OpendTect tools" );
     cointb = new uiToolBar( &appl, "Graphical tools" );
     mantb = new uiToolBar( &appl, "Manage data" );
+}
+
+
+uiODMenuMgr::~uiODMenuMgr()
+{
+    delete dtecttb;
+    delete cointb;
+    delete mantb;
 }
 
 
