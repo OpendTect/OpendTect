@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.20 2001-09-21 12:27:15 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.21 2001-09-21 13:54:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,12 +68,7 @@ constraintIterator i_LayoutItem::iterator()
 
 uiSize i_LayoutItem::actualSize( bool include_border ) const
 { 
-#define CLUTCH
-#ifdef CLUTCH
-    return uiSize( pos(setGeom).width() - 1, pos(setGeom).height() - 1 );
-#else
     return pos(setGeom).size(); 
-#endif
 }
 
 
@@ -163,10 +158,16 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
 #ifndef dont_use_preferred_wh
 /*
     Use preferred width & height for initial values. This makes that dialogs can
-    not be shrinked and get us into trouble ;-))
+    not be shrinked
 */
-		mPos.setWidth( preferred_width );
-		mPos.setHeight( preferred_height );
+
+//		mPos.setWidth( preferred_width );
+//		mPos.setHeight( preferred_height );
+
+		mPos.setWidth( minimumSize().width() );
+		mPos.setHeight( minimumSize().height() );
+
+
 #else           
                 if( stretch(true) )
 		    mPos.setWidth( minimumSize().width() );
@@ -829,11 +830,19 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
     layoutChildren( setGeom );
     uiRect childrenBBox = childrenRect(setGeom);  
 
-    bool doh = true;
-    bool dov = true;
+    int tgtwdt = targetRect.width();
+    int tgthgt = targetRect.height();
 
-    if ( childrenBBox.width() > targetRect.width() )	doh = false;
-    if ( childrenBBox.height() > targetRect.height() )	dov = false;
+    if ( childrenBBox.width() > tgtwdt )
+    {
+	if( childrenBBox.width() - tgtwdt < 100 ) tgtwdt = childrenBBox.width();
+	else { pErrMsg("ChildrenBBox too wide"); tgtwdt += 100; }
+    }
+    if ( childrenBBox.height() > tgthgt )
+    {
+	if( childrenBBox.height()-tgthgt < 100 ) tgthgt = childrenBBox.height();
+	else { pErrMsg("ChildrenBBox too high"); tgthgt += 100; }
+    }
 
     bool done_something = false;
 
@@ -844,13 +853,15 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
     bool vdone = false;
 
 
-    if( doh && cur.nhiter ) 
+    //if( doh && cur.nhiter ) 
+    if( cur.nhiter ) 
     {
 	hdone = true;
 	myGeomtry.setWidth ( refGeom.width() + ++cur.hDelta );
     }
 
-    if(  dov && cur.nviter )
+    //if(  dov && cur.nviter )
+    if(  cur.nviter )
     {
 	vdone = true;
 	myGeomtry.setHeight( refGeom.height() + ++cur.vDelta );
@@ -861,7 +872,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
 
     bool do_layout = false;
 
-    if( hdone && ( childrenBBox.width() > targetRect.width()) )  
+    if( hdone && ( childrenBBox.width() > tgtwdt) )  
     { 
 	cur.nhiter--;
 	cur.hDelta--;
@@ -871,7 +882,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
     }
     else { done_something = true; }
 
-    if( vdone && (childrenBBox.height() > targetRect.height() ))
+    if( vdone && (childrenBBox.height() > tgthgt ))
     {   
 	cur.nviter--;
 	cur.vDelta--;
@@ -889,9 +900,9 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
 	childrenBBox = childrenRect(setGeom);  
     } 
 
-    if( doh && ( childrenBBox.width() > targetRect.width() ) )
+    if( hdone && ( childrenBBox.width() > tgtwdt ) )
 	{ pErrMsg("hShit!"); return false; }
-    if( dov && ( childrenBBox.height() > targetRect.height() ) )
+    if( vdone && ( childrenBBox.height() > tgthgt ) )
 	{ pErrMsg("vShit!"); return false; }
 
     return done_something;
@@ -910,7 +921,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
 //    if( (!hSpace && !vSpace) || hSpace<0 || vSpace<0 ) return;
 // allow space <0 in one direction.
-    if ( hSpace<=0 && vSpace<=0 ) return;
+//    if ( hSpace<=0 && vSpace<=0 ) return;
 
     ObjectSet<resizeItem> resizeList;
     int maxHstr, maxVstr;
@@ -992,10 +1003,10 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     if( targetRect.height() < minSz.height() ) 
     { targetRect.setHeight( minSz.height() ); }
 
-    QLayout::setGeometry( extRect );
 
     resizeTo( targetRect );
     childrenCommitGeometrySet();
+    QLayout::setGeometry( extRect );
 }
 
 void i_LayoutMngr::childrenCommitGeometrySet()
