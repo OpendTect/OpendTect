@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.49 2003-04-22 09:51:07 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.50 2003-04-22 14:06:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,14 +207,15 @@ protected:
 				{
 				    int nel = p_ ? p_->nElements() : nElems();
 
-				    if ( nel > 1 ) hpol = uiObject::small;
-				    else switch( spec_.type().rep() )
+				    switch( spec_.type().rep() )
 				    {
 				    case DataType::stringTp:
-					hpol = uiObject::medvar;
+					hpol = nel > 1 ? uiObject::smallvar
+						       : uiObject::medvar;
 				    break;
 				    default:
-					hpol = uiObject::medium;
+					hpol = nel > 1 ? uiObject::small
+						       : uiObject::medium;
 				    break;
 				    }
 				}
