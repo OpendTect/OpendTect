@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.12 2004-04-20 15:02:05 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.13 2004-05-04 15:32:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,8 @@ Well::~Well()
     markergroup->removeAll();
     removeChild( markergroup->getInventorNode() );
     markergroup->unRef();
+    markernames->removeAll();
+    removeChild( markernames->getInventorNode() );
     markernames->unRef();
 }
 
@@ -166,6 +168,7 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
 void Well::removeAllMarkers() 
 {
     markergroup->removeAll();
+    markernames->removeAll();
 }
 
 
