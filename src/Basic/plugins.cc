@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.7 2003-09-25 11:05:45 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.8 2003-10-03 15:22:03 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: plugins.cc,v 1.7 2003-09-25 11:05:45 bert Exp $
 #include <iostream>
 
 PluginManager* PluginManager::theinst_ = 0;
+static const char* plugindir = ".odplugins";
 
 
 extern "C" {
@@ -145,11 +146,11 @@ static void loadPIs( const char* dnm, int* pargc, char** argv, int inittype )
 
 extern "C" void LoadAutoPlugins( int* pargc, char** argv, int inittype )
 {
-    const BufferString homedir( getenv("HOME") );
-    BufferString dirnm = File_getFullPath( homedir, ".odplugins" );
+    const BufferString homedir( GetHomeDir() );
+    BufferString dirnm = File_getFullPath( homedir, plugindir );
     loadPIs( dirnm, pargc, argv, inittype );
     const BufferString swdir( GetSoftwareDir() );
-    dirnm = File_getFullPath( swdir, "plugins" );
+    dirnm = File_getFullPath( swdir, plugindir );
     loadPIs( dirnm, pargc, argv, inittype );
 }
 
