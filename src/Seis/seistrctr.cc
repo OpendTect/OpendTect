@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.6 2001-04-13 11:51:11 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.7 2001-04-17 08:16:59 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -176,11 +176,11 @@ void SeisTrcTranslator::useStoredPar()
 
 	BufferString keystr( "Name" ); keystr += nrstr;
 	const char* nm = storediopar.find( (const char*)keystr );
-	if ( nm ) tcd->setName( nm );
+	if ( nm && *nm ) tcd->setName( nm );
 
 	keystr = "Positions"; keystr += nrstr;
 	const char* res = storediopar.find( (const char*)keystr );
-	if ( res )
+	if ( res && *res )
 	{
 	    FileMultiString fms( res );
 	    const int sz = fms.size();
@@ -210,12 +210,12 @@ void SeisTrcTranslator::useStoredPar()
 
 	keystr = "Index"; keystr += nrstr;
 	res = storediopar.find( (const char*)keystr );
-	if ( res )
+	if ( res && *res )
 	    tcd->destidx = atoi( res );
 
 	keystr = "Data characteristics"; keystr += nrstr;
 	res = storediopar.find( (const char*)keystr );
-	if ( res )
+	if ( res && *res )
 	    tcd->datachar.set( res );
 
 	nr++;
