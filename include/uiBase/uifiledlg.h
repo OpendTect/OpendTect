@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.8 2003-03-19 16:21:59 bert Exp $
+ RCS:           $Id: uifiledlg.h,v 1.9 2003-07-29 08:22:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,13 +40,22 @@ public:
 				     const char* caption = 0 );
 
     const char*		fileName() const	{ return fn; }
-    int                 go();
+    void		getFileNames(ObjectSet<BufferString>&) const;
 
     void		setMode( Mode m)	{ mode_=m; }
     Mode		mode() const		{ return mode_; }
 
     void		setOkText( const char* txt )	{ oktxt_ = txt; }
     void		setCancelText( const char* txt ){ cnclxt_ = txt; }
+
+    int                 go();
+
+    static const char*	filesep;
+
+    static void		list2String(const ObjectSet<BufferString>&,
+	    			    BufferString&);
+    static void		string2List(const BufferString&,
+	    			    ObjectSet<BufferString>&);
 
 protected:
 
@@ -58,7 +67,7 @@ protected:
     BufferString	oktxt_;
     BufferString	cnclxt_;
     uiParent*		parnt_;
-
+    ObjectSet<BufferString>	filenames;
 };
 
 #endif

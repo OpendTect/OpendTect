@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.8 2002-06-11 12:25:24 arend Exp $
+ RCS:           $Id: uifileinput.h,v 1.9 2003-07-29 08:24:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,8 @@ edit the filename by hand, or pop up a file selector trough the included
 class uiFileInput : public uiGenInput
 { 	
 public:
-			uiFileInput(uiParent*,const char* txt,const char* fnm=0
-			    , bool forread=true, const char* filtr=0 );
+			uiFileInput(uiParent*,const char* txt,const char* fnm=0,
+			    	    bool forread=true,const char* filtr=0);
 
     void		setFileName(const char*);
     void		setDefaultSelectionDir( const char* nm )
@@ -35,6 +35,7 @@ public:
     void		setFilter( const char* fltr )
 			    { newfltr = true; selfltr = fltr; }
     const char*		fileName();
+    void		getFileNames(ObjectSet<BufferString>&) const;
 
     uiFileDialog::Mode	selectMode() const		
 			{ 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.12 2003-01-20 14:31:11 arend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.13 2003-07-29 08:22:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,9 @@ ________________________________________________________________________
 #undef private
 #undef public
 #include <qpushbutton.h>
+
+
+const char* uiFileDialog::filesep = ";";
 
 class dgbQFileDialog : public QFileDialog
 {
@@ -82,8 +85,6 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 
 int uiFileDialog::go()
 {
-    QString filnm;
-
     if ( !File_exists(fname_) && !File_isDirectory(fname_) )
     {
 	BufferString tmp( File_getPathOnly(fname_) ); 
@@ -105,12 +106,41 @@ int uiFileDialog::go()
     if ( oktxt_ != "" ) fd->okB->setText( (const char*)oktxt_ );
     if ( cnclxt_ != "") fd->cancelB->setText( (const char*)cnclxt_ );
 
-    if ( fd->exec() == QDialog::Accepted )
-        filnm = fd->selectedFile();
+    if ( fd->exec() != QDialog::Accepted )
+	return 0;
 
 
-    if ( filnm.isNull() ) return 0;
+    QStringList list = fd->selectedFiles();
+    fn = list.size() ? list[0] : fd->selectedFile();
 
-    fn = filnm;
+    for ( int idx=0; idx<list.size(); idx++ )
+	filenames += new BufferString( list[idx] );
+
     return 1;
+}
+
+
+void uiFileDialog::getFileNames( ObjectSet<BufferString>& fnms ) const
+{
+    deepCopy( fnms, filenames );
+}
+
+
+void uiFileDialog::list2String( const ObjectSet<BufferString>& list,
+				BufferString& string )
+{
+    QStringList qlist;
+    for ( int idx=0; idx<list.size(); idx++ )
+	qlist.append( (QString)list[idx]->buf() );
+
+    string = qlist.join( (QString)filesep );
+}
+
+
+void uiFileDialog::string2List( const BufferString& string,
+				ObjectSet<BufferString>& list )
+{
+    QStringList qlist = QStringList::split( (QString)filesep, (QString)string );
+    for ( int idx=0; idx<qlist.size(); idx++ )
+	list += new BufferString( qlist[idx] );
 }
