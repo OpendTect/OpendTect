@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.29 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.30 2004-12-20 14:59:17 nanne Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -79,7 +79,10 @@ void visBase::Texture2::setTextureSize( int x0, int x1 )
 void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
 {
     if ( !newdata )
+    {
+	if ( !sel ) setTextureSize(0,0);
 	mSodOff
+    }
 
     const int datax0size = newdata->info().getSize(0);
     const int datax1size = newdata->info().getSize(1);

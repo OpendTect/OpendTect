@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.32 2004-04-27 12:07:25 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.33 2004-12-20 14:59:16 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -521,6 +521,12 @@ void visBase::Texture::makeTexture()
 	maker->colordata = colordatacache;
 	maker->ctm = coltabmod;
 	maker->datatype = curtype;
+    }
+
+    if ( !texture )
+    {
+	finishEditing();
+	return;
     }
 
 
