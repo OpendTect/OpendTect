@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.6 2001-05-03 12:14:26 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.7 2001-05-03 13:20:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,7 +282,6 @@ public:
 					 const char* nm="Bool Input Field" );
 
     //virtual bool        getBoolValue() const	{ return yn; }
-    virtual void        setValue( T val );
 
     virtual uiObject&	uiObj()			{ return intvalGrp; }
 
@@ -577,6 +576,7 @@ mFromLE_g(getValue,double, mUndefValue )
 mFromLE_g(getfValue,float, mUndefValue )
 mFromLE_g(getBoolValue,bool, false )
 mFromLE_s(setText,const char*,s)
+mFromLE_s(setValue,int,i)
 mFromLE_s(setValue,float,f)
 mFromLE_s(setValue,double,d)
 mFromLE_s(setValue,bool,yn)
