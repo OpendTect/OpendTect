@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.50 2004-06-23 10:34:23 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.51 2004-07-26 15:25:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,9 +19,10 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class AttribSelSpec;
-class ColorAttribSel;
 class AttribSliceSet;
+class ColorAttribSel;
 class CubeSampling;
+template <class T> class Array2D;
 
 namespace visBase { class TextureRect; class VisColorTab; };
 
@@ -128,6 +129,7 @@ protected:
 
     void			setTextureRect(visBase::TextureRect*);
     void			setData(const AttribSliceSet*,int datatype=0);
+    Array2D<float>*		createArray(const AttribSliceSet*,int) const;
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);

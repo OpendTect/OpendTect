@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.69 2004-06-23 10:33:37 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.70 2004-07-26 15:24:53 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -558,36 +558,109 @@ void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype )
 	if ( slcidx )
 	    trect->addTexture();
 
-	const int lsz = (*sliceset)[slcidx]->info().getSize(0);
-	const int zsz = (*sliceset)[slcidx]->info().getSize(1);
-	const int slicesize = (*sliceset)[slcidx]->info().getTotalSz();
-
-	if ( sliceset->direction == AttribSlice::Inl )
-	{
-	    PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(zsz,lsz);
-	    for ( int zidx=0; zidx<zsz; zidx++ )
-	    {
-		for ( int lidx=0; lidx<lsz; lidx++ )
-		{
-		    const float val = (*sliceset)[slcidx]->get( lidx, zidx );
-		    datacube->set( zidx, lidx, val );
-		}
-	    }
-	    trect->setData( datacube, slcidx, datatype );
-	}
-	else
-	{
-	    PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(lsz,zsz);
-	    float* data = datacube->getData();
-	    memcpy( data, (*sliceset)[slcidx]->getData(), 
-		    				slicesize*sizeof(float) );
-	    trect->setData( datacube, slcidx, datatype );
-	}
+	PtrMan< Array2D<float> > datacube = createArray( sliceset, slcidx );
+	trect->setData( datacube, slcidx, datatype );
     }
 
     trect->finishTextures();
     trect->showTexture( 0 );
     trect->useTexture( true );
+}
+
+
+#define mInlIdx ((curinl-datacs.hrg.start.inl) / datacs.hrg.step.inl)
+#define mCrlIdx ((curcrl-datacs.hrg.start.crl) / datacs.hrg.step.crl)
+#define mZIdx (datacs.zrg.nearestIndex(curz))
+
+Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset, 
+					       int slcidx ) const
+{
+    CubeSampling cs = getCubeSampling(true);
+    CubeSampling datacs = sliceset->sampling;
+
+    const int nrinl = cs.nrInl();
+    const int nrcrl = cs.nrCrl();
+    const int nrz = cs.nrZ();
+
+    Array2DImpl<float>* datacube = new Array2DImpl<float>(0,0);
+    if ( sliceset->direction == AttribSlice::Hor )
+    {
+	datacube->setSize( nrinl, nrcrl );
+	int curinl, curcrl;
+	float val;
+	for ( int inlidx=0; inlidx<nrinl; inlidx++ )
+	{
+	    curinl = cs.hrg.start.inl + inlidx*cs.hrg.step.inl;
+	    for ( int crlidx=0; crlidx<nrcrl; crlidx++ )
+	    {
+		curcrl = cs.hrg.start.crl + crlidx*cs.hrg.step.crl;
+		if ( !datacs.hrg.includes(BinID(curinl,curcrl)) )
+		    val = mUndefValue;
+		else
+		{
+		    int datainlidx = mInlIdx;
+		    int datacrlidx = mCrlIdx;
+		    val = (*sliceset)[slcidx]->get(datainlidx,datacrlidx);
+		}
+
+		datacube->set( inlidx, crlidx, val );
+	    }
+	}
+    }
+    else if ( sliceset->direction == AttribSlice::Crl )
+    {
+	datacube->setSize( nrinl, nrz );
+	int curinl;
+	float curz;
+	float val;
+	for ( int inlidx=0; inlidx<nrinl; inlidx++ )
+	{
+	    curinl = cs.hrg.start.inl + inlidx*cs.hrg.step.inl;
+	    for ( int zidx=0; zidx<nrz; zidx++ )
+	    {
+		curz = cs.zrg.atIndex( zidx );
+		if ( !datacs.hrg.inlOK(curinl) || 
+		     !datacs.zrg.includes(curz) )
+		    val = mUndefValue;
+		else
+		{
+		    int datainlidx = mInlIdx;
+		    int datazidx = mZIdx;
+		    val = (*sliceset)[slcidx]->get(datainlidx,datazidx);
+		}
+
+		datacube->set( inlidx, zidx, val );
+	    }
+	}
+    }
+    else if ( sliceset->direction == AttribSlice::Inl )
+    {
+	datacube->setSize( nrz, nrcrl );
+	int curcrl;
+	float curz;
+	float val;
+	for ( int crlidx=0; crlidx<nrcrl; crlidx++ )
+	{
+	    curcrl = cs.hrg.start.crl + crlidx*cs.hrg.step.crl;
+	    for ( int zidx=0; zidx<nrz; zidx++ )
+	    {
+		curz = cs.zrg.atIndex( zidx );
+		if ( !datacs.hrg.crlOK(curcrl) || 
+		     !datacs.zrg.includes(curz) )
+		    val = mUndefValue;
+		else
+		{
+		    int datacrlidx = mCrlIdx;
+		    int datazidx = mZIdx;
+		    val = (*sliceset)[slcidx]->get(datacrlidx,datazidx);
+		}
+
+		datacube->set( zidx, crlidx, val );
+	    }
+	}
+    }
+
+    return datacube;
 }
 
 
