@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.26 2004-10-06 16:18:41 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.27 2004-11-30 17:35:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,13 +147,25 @@ bool uiODMain::buildUI()
     menumgr = new uiODMenuMgr( this );
     menumgr->initSceneMgrDepObjs();
 
+    const char* s = getenv( "DTECT_CBAR_POS" );
+    const bool isvert = !s || *s == 'v' || *s == 'V';
+    const bool isontop = s && *s
+		&& (*s == 't' || *s == 'T' || *(s+1) == 't' || *(s+1) == 'T');
+
     ctabwin = new uiDockWin( this, "Color Table" );
-    moveDockWindow( *ctabwin, uiMainWin::Left, 0 );
     ctabwin->setResizeEnabled( true );
-							    
-    ctabed = new uiVisColTabEd( ctabwin );
-    ctabed->setPrefHeight( cCTHeight );
-    ctabed->attach(hCentered);
+
+    ctabed = new uiVisColTabEd( ctabwin, isvert );
+    if ( !isvert )
+	ctabed->setPrefHeightInChar( 1 );
+    else
+    {
+	ctabed->setPrefHeight( cCTHeight );
+	ctabed->attach(hCentered);
+    }
+
+    moveDockWindow( *ctabwin, isontop ? uiMainWin::TornOff
+		    	    : (isvert ? uiMainWin::Left : uiMainWin::Top), 0);
 
     return true;
 }

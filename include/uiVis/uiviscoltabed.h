@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.4 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.5 2004-11-30 17:35:48 bert Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ class ColorTableEditor;
 class uiVisColTabEd : public uiGroup
 {
 public:
-    				uiVisColTabEd(uiParent*);
+    				uiVisColTabEd(uiParent*,bool vert=true);
 				~uiVisColTabEd();
 
     void			setColTab(int coltabid);
