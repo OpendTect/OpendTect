@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.30 2003-02-21 15:51:59 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.31 2003-02-26 08:56:15 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -74,17 +74,35 @@ BatchProgram::BatchProgram( int* pac, char** av )
     {
 	if ( !strcmp(fn,"-bg") )
 	    inbg_ = YES;
+	else if ( !strncmp(fn,"-masterhost",11) )
+	{
+	    argshift_++;
+	    fn = argv_[ argshift_ - 1 ];
+	    masterhost_ = fn;
+	}
+	else if ( !strncmp(fn,"-masterport",11) )
+	{
+	    argshift_++;
+	    fn = argv_[ argshift_ - 1 ];
+	    masterport_ = atoi(fn);
+	}
 	else if ( *(fn+1) )
 	    opts_ += new BufferString( fn+1 );
+
+
 
 	argshift_++;
 	fn = argv_[ argshift_ - 1 ];
     }
-    
+
+    usesock_ = masterhost_.size() && masterport_ > 0; // both must be set.
+     
     if ( !fn || !*fn )
     {
-        cerr << progName() << ": "
-	     << "No parameter file name specified" << endl;
+	BufferString msg( progName() );
+	msg += ": No parameter file name specified";
+
+	if ( !writeErrorMsg( msg ) ) cerr << msg << endl;
 	return;
     }
 
@@ -92,22 +110,28 @@ BatchProgram::BatchProgram( int* pac, char** av )
     ifstream strm( fn );
     if ( !strm.good() )
     {
-        cerr << name() << ": Cannot open parameter file" << endl;
-        return;
+	BufferString msg( name() );
+	msg += ": Cannot open parameter file: ";
+	msg += fn;
+
+	if ( !writeErrorMsg( msg ) ) cerr << msg << endl;
+	return;
     }
  
     IOParList parlist( strm );
     strm.close();
     if ( parlist.size() == 0 )
     {
-        cerr << argv_[0] << ": Invalid input file: " << fn << endl;
+	BufferString msg( argv_[0] );
+	msg += ": Invalid input file: ";
+	msg += fn;
+
+	if ( !writeErrorMsg( msg ) ) cerr << msg << endl;
         return;
     }
 
     iopar_ = new IOPar( *parlist[0] );
 
-    usesock_ = iopar_->get( "Master host", masterhost_ )
-	    && iopar_->get( "Master port", masterport_ ); 
     iopar_->get( "Job ID", jobid_ ); 
 
     const char* res = iopar_->find( "Log file" );
@@ -226,6 +250,19 @@ bool BatchProgram::writeStatus_( char tag , int status, bool force )
 
     return false;
 
+}
+
+
+bool BatchProgram::writeErrorMsg( const char* msg )
+{
+    if ( !usesock_ ) return false;
+
+    if ( Socket* sock = mkSocket() )
+    {
+	return sock->writeErrorMsg( msg );
+    }
+
+    return false;
 }
 
 

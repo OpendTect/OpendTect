@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.8 2003-02-21 15:51:58 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.9 2003-02-26 08:56:15 arend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -46,6 +46,8 @@ public:
 			    { return writeStatus_( tag, stat, true ); }
     inline bool		updateStatus( char tag, int stat )
 			    { return writeStatus_( tag, stat, false ); }
+			//! write error msg over sock if sock avail.
+    bool		writeErrorMsg( const char* msg );
 
 protected:
 
