@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.90 2002-09-24 13:13:00 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.91 2002-10-03 14:19:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 #include "vissurvwell.h"
 #include "vissurvsurf.h"
+#include "vissurvhorizon.h"
 #include "visplanedatadisplay.h"
 #include "visvolumedisplay.h"
 #include "visselman.h"
@@ -160,9 +161,11 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	getDataCB( pdd );
     }
 
-
+// TODO: remove all HorizonDisplay stuff
     TypeSet<int> horizonids;
     visBase::DM().getIds( typeid(visSurvey::SurfaceDisplay), horizonids );
+    if ( !horizonids.size() )
+	visBase::DM().getIds( typeid(visSurvey::HorizonDisplay), horizonids );
     for ( int idx=0; idx<horizonids.size(); idx++ )
     {
 	visSurvey::SurfaceDisplay* hd =
@@ -220,6 +223,9 @@ uiVisPartServer::ObjectType uiVisPartServer::getObjectType( int id ) const
     mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
     if ( vd ) return VolumeDisplay;
 
+    mDynamicCastGet(const visSurvey::HorizonDisplay*, sd, dobj );
+    if ( sd ) return HorizonDisplay;
+
 
     return Unknown;
 }
@@ -274,8 +280,8 @@ void uiVisPartServer::setViewMode(bool yn)
     if ( pdd ) pdd->showDraggers(!yn);
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( vd ) vd->showBox( !yn );
-    mDynamicCastGet(visBase::TextureRect*,rect,obj)
-    if ( rect ) rect->getRectangle().displayDraggers( !yn );
+    mDynamicCastGet(visBase::Rectangle*,rect,obj)
+    if ( rect ) rect->displayDraggers( !yn );
 }
 
 
@@ -1084,16 +1090,19 @@ void uiVisPartServer::putNewSurfData( int id,
 void uiVisPartServer::getSurfaceIds( int sceneid, ObjectType type, 
 				     TypeSet<int>& ids ) const
 {
-    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    visBase::DataObject* dobj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,dobj)
     if ( !scene ) return;
 
     for ( int idx=0; idx<scene->size(); idx++ )
     {
 	visBase::SceneObject* obj = scene->getObject( idx );
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,hd,obj)
-	if ( hd && type == getObjectType( hd->id() ) )
-	    ids += hd->id();
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
+	if ( sd && type == getObjectType( sd->id() ) )
+	    ids += sd->id();
+
+	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,obj)
+	if ( hd ) ids += hd->id();
     }
 }
 
@@ -1482,8 +1491,8 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 	visBase::DataObject* obj = visBase::DM().getObj( sel );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
 	if ( pdd ) pdd->showDraggers( true );
-	mDynamicCastGet(visBase::TextureRect*,rect,obj)
-	if ( rect ) rect->getRectangle().displayDraggers( true );
+	mDynamicCastGet(visBase::Rectangle*,rect,obj)
+	if ( rect ) rect->displayDraggers( true );
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
 	if ( vd ) vd->showBox( true );
     }
@@ -1502,8 +1511,8 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 	visBase::DataObject* obj = visBase::DM().getObj( oldsel );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
 	if ( pdd ) pdd->showDraggers( false );
-	mDynamicCastGet(visBase::TextureRect*,rect,obj)
-	if ( rect ) rect->getRectangle().displayDraggers( false );
+	mDynamicCastGet(visBase::Rectangle*,rect,obj)
+	if ( rect ) rect->displayDraggers( false );
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
 	if ( vd ) vd->showBox( false );
     }
