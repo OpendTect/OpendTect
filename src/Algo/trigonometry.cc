@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.5 2003-01-10 10:45:55 dgb Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.6 2003-04-14 07:35:07 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -302,8 +302,21 @@ void Plane3::set( const TypeSet<Coord3>& pts )
     midpt.z /= nrpts;
 
     pca.calculate();
+
+    float eigen0 = pca.getEigenValue(0);
+    float eigen1 = pca.getEigenValue(1);
+    float eigen2 = pca.getEigenValue(2);
+
     TypeSet<float> normalvec;
-    pca.getEigenVector(2,normalvec);
+    if ( eigen2<eigen0 && eigen2<eigen1 )
+	pca.getEigenVector(2,normalvec);
+    else if ( eigen1 < eigen2 && eigen1 < eigen0 )
+	pca.getEigenVector(1,normalvec );
+    else if ( eigen0 < eigen1 && eigen0 < eigen2 )
+	pca.getEigenVector(0,normalvec );
+    else
+	return;
+
     Vector3 normal( normalvec[0], normalvec[1], normalvec[2] );
 
     set( normal, midpt );
