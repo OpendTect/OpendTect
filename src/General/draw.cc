@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.5 2000-10-04 08:23:31 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.6 2000-10-18 08:03:50 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -48,6 +48,49 @@ FontData::Weight FontData::enumWeight( int w )
     return (FontData::Weight)idx;
 }
 
+
+// The some draw.h stuff
+
+void MarkerStyle::toString( BufferString& bs ) const
+{
+    FileMultiString fms;
+    fms = eString(Type,type);
+    fms += size;
+    color.fill( ((char*)bs) );
+    fms += bs;
+    bs = fms;
+}
+
+
+void MarkerStyle::fromString( const char* s )
+{
+    FileMultiString fms( s );
+    type = eEnum(Type,fms[0]);
+    size = atoi(fms[1]);
+    FileMultiString colfms( fms.from(2) );
+    color.use( colfms );
+}
+
+
+void LineStyle::toString( BufferString& bs ) const
+{
+    FileMultiString fms;
+    fms = eString(Type,type);
+    fms += width;
+    color.fill( ((char*)bs) );
+    fms += bs;
+    bs = fms;
+}
+
+
+void LineStyle::fromString( const char* s )
+{
+    FileMultiString fms( s );
+    type = eEnum(Type,fms[0]);
+    width = atoi(fms[1]);
+    FileMultiString colfms( fms.from(2) );
+    color.use( colfms );
+}
 
 // Then the Color stuff ...
 
