@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.19 2004-05-07 12:32:39 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.20 2004-05-19 06:56:57 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 
 #include "ptrman.h"
 #include "survinfo.h"
+#include "settings.h"
 #include "scene.xpm"
 
 static const int cWSWidth = 600;
@@ -58,7 +59,11 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs->addFactory( new uiODRandomLineFactory, 4000 );
     tifs->addFactory( new uiODPickSetFactory, 5000 );
     tifs->addFactory( new uiODHorizonFactory, 6000);
-    tifs->addFactory( new uiODFaultFactory, 7000 );
+
+    bool dotrack = false;
+    Settings::common().getYN(IOPar::compKey("dTect","Enable Tracking"),dotrack);
+    if ( dotrack )
+	tifs->addFactory( new uiODFaultFactory, 7000 );
     tifs->addFactory( new uiODWellFactory, 8000 );
 
 
