@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.143 2003-03-18 16:05:35 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.144 2003-04-17 15:18:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -614,6 +614,8 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id )
 	uiBinIDTableDlg dlg( appserv().parent(), "Specify nodes", bidset );
 	if ( dlg.go() )
 	{
+	    bool viewmodeswap = false;
+	    if ( viewmode ) { setViewMode( false ); viewmodeswap = true; }
 	    TypeSet<BinID> newbids;
 	    dlg.getBinIDs( newbids );
 	    if ( newbids.size() < 2 ) return true;
@@ -635,6 +637,7 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id )
 
 	    setSelObjectId( rtd->id() );
 	    calculateAttrib( rtd->id(), false );
+	    if ( viewmodeswap ) setViewMode( true );
 	}
     }
 
@@ -958,6 +961,14 @@ bool uiVisPartServer::setCubeData( int id, AttribSliceSet* sliceset )
     return false;
 }
 
+/*
+void uiVisPartServer::setSliceIdx( int id, int idx )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
+    if ( pdd ) pdd->setDataIdx( idx );
+}
+*/
 
 void uiVisPartServer::getRandomPosDataPos( int id,
 			   ObjectSet< TypeSet<BinIDZValue> >& bidzvset) const
@@ -1626,6 +1637,9 @@ bool uiVisPartServer::duplicateObject( int id, int sceneid )
 
 	newpdd->setType( pdd->getType() );
 	newpdd->setCubeSampling( pdd->getCubeSampling() );
+	newpdd->setResolution( pdd->getResolution() );
+	const char* ctnm = pdd->getColorTab().colorSeq().colors().name();
+	newpdd->getColorTab().colorSeq().loadFromStorage( ctnm );
     }
     else if ( vd )
     {
@@ -1634,9 +1648,12 @@ bool uiVisPartServer::duplicateObject( int id, int sceneid )
 	mDynamicCastGet(visSurvey::VolumeDisplay*,newvd,newobj)
 
 	newvd->setCubeSampling( vd->getCubeSampling() );
+	const char* ctnm = vd->getColorTab().colorSeq().colors().name();
+	newvd->getColorTab().colorSeq().loadFromStorage( ctnm );
     }
 
     eventobjid = newid;
+    setSelObjectId( newid );
     sendEvent( evUpdateTree );
     return true;
 }
