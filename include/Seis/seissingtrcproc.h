@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.2 2001-10-18 08:53:10 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.3 2002-02-05 15:44:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,10 @@ public:
 					    const char* nm="Trace processor",
 					    const IOPar* iniopar=0,
 					    const char* msg="Processing");
+			SeisSingleTraceProc(ObjectSet<IOObj>,const IOObj*,
+					    const char* nm="Trace processor",
+					    ObjectSet<IOPar>* iniopars=0,
+					    const char* msg="Processing");
     virtual		~SeisSingleTraceProc();
 
     void		setSelectionCB( const CallBack& cb ) { selcb_ = cb; }
@@ -45,9 +49,9 @@ public:
     void		skipCurTrc()		{ skipcurtrc_ = true; }
     			//!< will also be checked after processing CB
 
-    const SeisTrcReader* reader() const		{ return rdr_; }
-    const SeisTrcWriter* writer() const		{ return wrr_; }
-    SeisTrc&		inputTrace()		{ return *intrc_; }
+    const SeisTrcReader* reader(int idx=0) const { return rdrset_[idx]; }
+    const SeisTrcWriter* writer() const		 { return wrr_; }
+    SeisTrc&		inputTrace()		 { return *intrc_; }
 
     void		setOuputTrace( const SeisTrc& t ) { outtrc_ = &t; }
     			//!< should be called before first nextStep()
@@ -65,7 +69,7 @@ public:
 
 protected:
 
-    SeisTrcReader*	rdr_;
+    ObjectSet<SeisTrcReader> rdrset_;
     SeisTrcWriter*	wrr_;
     SeisTrc*		intrc_;
     const SeisTrc*	outtrc_;
@@ -80,8 +84,12 @@ protected:
     Executor*		starter_;
     MultiID&		wrrkey_;
     int			trcsperstep_;
+    int			currentobj_;
+    int			nrobjs_;
 
     virtual void	wrapUp();
+    void		nextObj();
+    bool		init(ObjectSet<IOObj>&,ObjectSet<IOPar>&);
 };
 
 

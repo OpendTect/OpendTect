@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.2 2001-10-18 08:42:10 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.3 2002-02-05 15:44:41 nanne Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -22,7 +22,6 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 				       	  const char* nm, const IOPar* iop,
 				       	  const char* msg )
 	: Executor(nm)
-	, rdr_(in ? new SeisTrcReader(in) : 0)
 	, wrr_(out ? new SeisTrcWriter(out) : 0)
 	, msg_(msg)
 	, starter_(0)
@@ -35,42 +34,132 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 {
     outtrc_ = intrc_;
 
-    if ( !rdr_ || !wrr_ )
+    if ( !wrr_ )
     {
-	curmsg_ = rdr_ ? "Cannot find write object" : "Cannot find read object";
+	curmsg_ = "Cannot find write object";
         return;
     }
 
-    if ( iop )
+    if ( !in )
     {
-	rdr_->usePar( *iop );
-	if ( rdr_->trcSel() )
-	{
-	    if ( rdr_->trcSel()->bidsel )
-	    {
-		BinIDProvider* prov = rdr_->trcSel()->bidsel->provider();
-		totnr_ = prov->size();
-		delete prov;
-	    }
-	    else
-	    {
-		int nr = rdr_->trcSel()->intv.width();
-		if ( nr < 10000000 ) totnr_ = nr + 1;
-	    }
-	}
+	curmsg_ = "No input specified";
+	return;
     }
-    starter_ = rdr_->starter();
+
     wrrkey_ = out->key();
+    currentobj_ = 0;
+    nrobjs_ = 1;
+
+    ObjectSet<IOObj> objset_;
+    ObjectSet<IOPar> iopset_;
+    objset_ += in->clone();
+    iopset_ += const_cast<IOPar*>(iop);
+    if ( !init( objset_, iopset_ ) )
+	return;
+
+    nextObj();
+}
+
+
+SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset, 
+					  const IOObj* out, const char* nm, 
+					  ObjectSet<IOPar>* iopset, 
+					  const char* msg )
+	: Executor(nm)
+	, wrr_(out ? new SeisTrcWriter(out) : 0)
+	, msg_(msg)
+	, starter_(0)
+	, nrskipped_(0)
+	, intrc_(new SeisTrc)
+	, nrwr_(0)
+	, wrrkey_(*new MultiID)
+	, totnr_(-1)
+    	, trcsperstep_(10)
+{
+    outtrc_ = intrc_;
+
+    if ( !wrr_ )
+    {
+	curmsg_ = "Cannot find write object";
+        return;
+    }
+
+    if ( !objset.size() )
+    {
+	curmsg_ = "No input specified";
+	return;
+    }
+
+    wrrkey_ = out->key();
+    nrobjs_ = objset.size();
+    currentobj_ = 0;
+
+    if ( iopset && iopset->size() != nrobjs_ )
+	iopset->erase();
+
+    if ( !init( objset, *iopset ) )
+	return;
+
+    nextObj();
 }
 
 
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
-    delete rdr_;
     delete wrr_;
     delete starter_;
     delete intrc_;
     delete &wrrkey_;
+    deepErase( rdrset_ );
+}
+
+
+bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
+{
+    totnr_ = 0;
+    for ( int idx=0; idx<nrobjs_; idx++ )
+    {
+	SeisTrcReader* rdr_ = new SeisTrcReader( os[idx] );
+	if ( !rdr_->ioObj() )
+	{
+	    curmsg_ = "Cannot find read object";
+	    delete rdr_;
+	    return false;
+	}
+
+	if ( is.size() && is[idx] )
+	{
+	    rdr_->usePar( *is[idx] );
+	    if ( rdr_->trcSel() )
+	    {
+		if ( rdr_->trcSel()->bidsel )
+		{
+		    BinIDProvider* prov = rdr_->trcSel()->bidsel->provider();
+		    totnr_ += prov->size();
+		    delete prov;
+		}
+		else
+		{
+		    int nr = rdr_->trcSel()->intv.width();
+		    if ( nr < 10000000 ) totnr_ = nr + 1;
+		}
+	    }
+	}
+	
+	rdrset_ += rdr_;
+    }
+
+    return true;
+}
+
+
+void SeisSingleTraceProc::nextObj()
+{
+    if ( starter_ )
+	{ delete starter_; starter_ = 0; }
+    starter_ = rdrset_[currentobj_]->starter();
+
+    return;
 }
 
 
@@ -101,7 +190,7 @@ int SeisSingleTraceProc::totalNr() const
 
 int SeisSingleTraceProc::nextStep()
 {
-    if ( !rdr_ || !wrr_ )
+    if ( !rdrset_[currentobj_] || !wrr_ )
 	return -1;
     else if ( starter_ )
     {
@@ -116,11 +205,17 @@ int SeisSingleTraceProc::nextStep()
     int retval = 1;
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
-	int rv = rdr_->get( intrc_->info() );
+	int rv = rdrset_[currentobj_]->get( intrc_->info() );
 	if ( !rv )
-	    { wrapUp(); return 0; }
+	{ 
+	    currentobj_++;
+	    if ( currentobj_ == nrobjs_ )
+		{ wrapUp(); return 0; }
+	    nextObj();
+	    return 1;
+	}
 	else if ( rv < 0 )
-	    { curmsg_ = rdr_->errMsg(); return -1; }
+	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
 	else if ( rv == 2 )
 	    continue;
 
@@ -128,8 +223,8 @@ int SeisSingleTraceProc::nextStep()
 	selcb_.doCall( this );
 	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
-	if ( !rdr_->get(*intrc_) )
-	    { curmsg_ = rdr_->errMsg(); return -1; }
+	if ( !rdrset_[currentobj_]->get(*intrc_) )
+	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
 	proccb_.doCall( this );
 	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
@@ -154,3 +249,4 @@ void SeisSingleTraceProc::wrapUp()
     }
 
 }
+
