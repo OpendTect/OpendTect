@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.7 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: uislider.cc,v 1.8 2002-04-04 13:04:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "i_qslider.h"
 #include "uiobjbody.h"
+
+#include "uilabel.h"
 
 #include <qsize.h> 
 
@@ -106,6 +108,15 @@ int uiSlider::minValue() const         { return body_->minValue() ; }
 int uiSlider::maxValue() const         { return body_->minValue() ; }
 void uiSlider::setMinValue( int m )    { body_->setMinValue(m); }
 void uiSlider::setMaxValue( int m )    { body_->setMaxValue(m); }
-int uiSlider::step() const             { return body_->lineStep() ; }
-void uiSlider::setStep ( int s )       { body_->setLineStep(s); }
+int uiSlider::step() const             { return body_->tickInterval() ; }
+void uiSlider::setStep ( int s )       { body_->setTickInterval(s); }
 
+
+uiLabeledSlider::uiLabeledSlider( uiParent* p, const char* txt,
+				  const char* nm )
+	: uiGroup(p,"Labeled slider")
+{
+    slider = new uiSlider( this, nm );
+    lbl = new uiLabel( this, txt, slider );
+    setHAlignObj( slider );
+}

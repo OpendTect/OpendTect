@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.3 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uislider.h,v 1.4 2002-04-04 13:04:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
+#include <uigroup.h>
 
 class uiSliderBody;
+class uiLabel;
 
 class uiSlider : public uiObject
 {
@@ -50,5 +52,23 @@ private:
     uiSliderBody&	mkbody(uiParent*, const char*);
 
 };
+
+
+class uiLabeledSlider : public uiGroup
+{
+public:
+                uiLabeledSlider( uiParent*,const char* txt,
+                                 const char* nm="Labeled Slider");
+
+    uiSlider*		sldr()			{ return slider; }
+    uiLabel*		label()			{ return lbl; }
+
+protected:
+
+    uiSlider*	slider;
+    uiLabel*    lbl;
+
+};
+
 
 #endif
