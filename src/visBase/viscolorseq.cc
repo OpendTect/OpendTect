@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.4 2002-04-16 08:16:12 kristofer Exp $";
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.5 2002-04-26 07:40:09 kristofer Exp $";
 
 #include "viscolorseq.h"
 #include "colortab.h"
@@ -47,4 +47,17 @@ void visBase::ColorSequence::colorsChanged()
     coltab.scaleTo( Interval<float>( 0, 1 ) );
     coltab.calcList( 256 );
     change.trigger();
+}
+
+
+int visBase::ColorSequence::usePar( const IOPar& par )
+{
+    coltab.usePar( par );
+    return 1;
+}
+
+
+void visBase::ColorSequence::fillPar( IOPar& par ) const
+{
+    coltab.fillPar( par );
 }
