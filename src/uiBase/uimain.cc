@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uimain.cc,v 1.5 2001-08-30 12:58:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ QApplication* 	uiMain::app     = 0;
 uiMain* 	uiMain::themain = 0;
 
 uiMain::uiMain( int argc, char **argv )
+: mainobj( 0 )
 {
     if ( app ) 
     {
