@@ -36,8 +36,15 @@ public:
     			//!< Pass url==null for main help index for app.
 
 
+    static void		doHelp( const char* relurl, const char* wintitl=0);
+			/*!< Pops up help viewer with url relative to data/ dir
+			    \sa GetDataFileName() 
+			    i.e. calls use( GetDataFileName(relurl) );
+			*/
+
+
     static BufferString	applnm;
-    			// Determines default scope = subdir from data/ directory
+    			// Determines default scope= subdir from data/ directory
     static const char*	subdirNm(const char* scope=0);
     			// scope + "Doc" . If !scope || !*scope: applnm used
 
