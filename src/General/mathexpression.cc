@@ -379,7 +379,12 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( !inp0 ) return 0;
 
 	    ArrPtrMan<char> arg1 = new char[len+1];
-	    strcpy( arg1, &str[idx+1] );
+	    // Always use the plus operator. 
+	    // So '20-4-5' becomes '20+-4+-5'
+	    if ( str[idx] == '+' )
+		strcpy( arg1, &str[idx+1] );
+	    else
+		strcpy( arg1, &str[idx] );
 
 	    MathExpression* inp1 = parse( arg1 );
 
@@ -389,9 +394,7 @@ MathExpression* MathExpression::parse( const char* input )
 		return 0;
 	    }
 
-	    MathExpression* res = str[idx]  == '+' 
-				? (MathExpression*) new MathExpressionPlus
-				: (MathExpression*) new MathExpressionMinus;
+	    MathExpression* res = (MathExpression*) new MathExpressionPlus;
 
 	    res->setInput( 0, inp0 );
 	    res->setInput( 1, inp1 );
