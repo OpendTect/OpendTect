@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.20 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uicanvas.cc,v 1.21 2004-10-29 10:27:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,6 +346,33 @@ uiScrollViewBody& uiScrollView::mkbody( uiParent* p,const char* nm)
     return *body_;
 }
 
+
+void uiScrollView::setScrollBarMode( ScrollBarMode mode, bool hor )
+{
+    QScrollView::ScrollBarMode qmode = QScrollView::Auto;
+    if ( mode == AlwaysOff )
+	qmode = QScrollView::AlwaysOff;
+    else if ( mode == AlwaysOn )
+	qmode = QScrollView::AlwaysOn;
+    if ( hor )
+	body_->setHScrollBarMode( qmode );
+    else
+	body_->setVScrollBarMode( qmode );
+}
+
+
+uiScrollView::ScrollBarMode uiScrollView::getScrollBarMode( bool hor ) const
+{
+    QScrollView::ScrollBarMode qmode;
+    qmode = hor ? body_->hScrollBarMode() : body_->vScrollBarMode();
+    if ( qmode == QScrollView::AlwaysOff )
+	return AlwaysOff;
+    if ( qmode == QScrollView::AlwaysOn )
+	return AlwaysOn;
+    return Auto;
+}
+
+
 void uiScrollView::updateContents()	
 { body_->viewport()->update(); }
 
@@ -356,11 +383,6 @@ void uiScrollView::updateContents( uiRect area, bool erase )
 			   area.hNrPics(), area.vNrPics() );
 
 }
-
-
-
-
-
 
 void uiScrollView::resizeContents( int w, int h )
     { body_->resizeContents(w,h); }

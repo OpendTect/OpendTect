@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uicanvas.h,v 1.8 2004-10-29 10:27:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,9 @@ public:
 
     virtual			~uiScrollView()			{}
 
+    enum ScrollBarMode		{ Auto, AlwaysOff, AlwaysOn };
+    void			setScrollBarMode(ScrollBarMode,bool hor);
+    ScrollBarMode		getScrollBarMode(bool hor) const;
 
     void			resizeContents( int w, int h );
     inline void			resizeContents( uiSize s ) 
