@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.6 2004-12-16 09:39:57 bert Exp $
+ RCS:           $Id: od_main.cc,v 1.7 2004-12-20 12:04:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "prog.h"
 #include "genc.h"
+#include <iostream>
 
 // TODO : Is there a better way to force linking with attribute factory?
 #ifdef __mac__
@@ -20,9 +21,29 @@ ________________________________________________________________________
 
 extern int ODMain(int,char**);
 
+
+inline static bool isPromised( const char* claim )
+{
+    const char* answer = getenv( claim );
+    return answer && *answer && (*answer == 'y' || *answer == 'Y');
+}
+
+
 int main( int argc, char** argv )
 {
+    if ( !isPromised("OD_I_AM_JUST_EVALUATING")		 // Hmmm.
+      && !isPromised("OD_I_AM_NOT_A_COMMERCIAL_USER")	 // Good.
+      && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")	 // Better.
+      && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") ) // Yo.
+    {
+	std::cerr << "OpendTect is free for non-commercial users (R&D, "
+		     "evaluation), and developers.\n"
+		     "In doubt, consult http://opendtect.org/rel/LICENSE.txt."
+		     << std::endl;
+    }
+
     od_putProgInfo( argc, argv );
+
     int ret = ODMain( argc, argv );
     exitProgram( ret );
 }
