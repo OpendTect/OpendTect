@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uisellinest.cc,v 1.5 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
