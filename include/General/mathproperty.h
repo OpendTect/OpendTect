@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.2 2005-01-25 16:29:18 bert Exp $
+ RCS:		$Id: mathproperty.h,v 1.3 2005-01-26 07:55:04 nanne Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,7 @@ public:
     virtual bool        dependsOn( const Property* pr ) const
     			{ return pr_->dependsOn(pr); }
 
-    Property*		pr_;
+    const Property*	pr_;
 };
 
 
