@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.21 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.22 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -441,10 +441,10 @@ void visBase::RandomTrack::createDragger()
     insertChild( 0, draggerswitch );
     draggerswitch->addChild( dragger );
 
-    SoMaterial* material = new SoMaterial;
+    SoMaterial* newmaterial = new SoMaterial;
 
-    material->transparency.setValue( 0.9 );
-    dragger->setPart( "feedbackMaterial", material );
+    newmaterial->transparency.setValue( 0.9 );
+    dragger->setPart( "feedbackMaterial", newmaterial );
 }
 
 

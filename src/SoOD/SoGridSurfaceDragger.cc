@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Marc Gerritsen
  Date:          15-04-2003
- RCS:           $Id: SoGridSurfaceDragger.cc,v 1.2 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: SoGridSurfaceDragger.cc,v 1.3 2004-02-02 15:26:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,32 +68,32 @@ SoGridSurfaceDragger::SoGridSurfaceDragger()
     SO_KIT_ADD_FIELD( rotation, (1, 1, 1, 1) );
     SO_KIT_INIT_INSTANCE();
 
-    SoMaterial* material = SO_GET_ANY_PART(this, "material", SoMaterial);
-    material->diffuseColor.setValue(1,1,1);
-    material->emissiveColor.setValue(0.3,0.3,0.3);
+    SoMaterial* materialpart = SO_GET_ANY_PART(this, "material", SoMaterial);
+    materialpart->diffuseColor.setValue(1,1,1);
+    materialpart->emissiveColor.setValue(0.3,0.3,0.3);
 
-    SoCylinder* cylinder = SO_GET_ANY_PART(this, "cylinder", SoCylinder);
-    cylinder->radius.setValue( 3.0f );
-    cylinder->height.setValue( 150.0f );
+    SoCylinder* cylinderpart = SO_GET_ANY_PART(this, "cylinder", SoCylinder);
+    cylinderpart->radius.setValue( 3.0f );
+    cylinderpart->height.setValue( 150.0f );
 
-    SoCube* cube = SO_GET_ANY_PART(this, "cube", SoCube);
-    cube->width.setValue(25.0);
-    cube->depth.setValue(25.0);
-    cube->height.setValue(0.1);
+    SoCube* cubepart = SO_GET_ANY_PART(this, "cube", SoCube);
+    cubepart->width.setValue(25.0);
+    cubepart->depth.setValue(25.0);
+    cubepart->height.setValue(0.1);
 
-    SoCylinder* topcylinder =
+    SoCylinder* topcylinderpart =
                 SO_GET_ANY_PART(this, "topcylinder", SoCylinder);
-    topcylinder->radius.setValue( 15.0f );
-    topcylinder->height.setValue( 10.0f );
+    topcylinderpart->radius.setValue( 15.0f );
+    topcylinderpart->height.setValue( 10.0f );
 
     SoTranslation* topcylindertranslation =
                SO_GET_ANY_PART(this, "topcylindertranslator", SoTranslation);
     topcylindertranslation->translation.setValue( 0, 75.0f, 0 );
 
-    SoCylinder* bottomcylinder =
+    SoCylinder* bottomcylinderpart =
                 SO_GET_ANY_PART(this, "bottomcylinder", SoCylinder);
-    bottomcylinder->radius.setValue( 15.0f );
-    bottomcylinder->height.setValue( 10.0f );
+    bottomcylinderpart->radius.setValue( 15.0f );
+    bottomcylinderpart->height.setValue( 10.0f );
 
     SoTranslation* bottomcylindertranslation =
                SO_GET_ANY_PART(this, "bottomcylindertranslator", SoTranslation);

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.4 2003-11-24 10:51:34 kristofer Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.5 2004-02-02 15:26:00 kristofer Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -388,7 +388,6 @@ void SoDepthTabPlaneDragger::reallyAdjustScaleTabSize(SoGLRenderAction* action)
 
 void SoDepthTabPlaneDragger::dragStart(void)
 {
-    int i;
     const SoPath* pickpath = getPickPath();
     const SoEvent* event = getEvent();
 

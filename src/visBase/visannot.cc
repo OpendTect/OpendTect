@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.17 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.18 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -230,7 +230,6 @@ void visBase::Annotation::updateTextPos(int textid)
     Interval<double> range( p0[dim], p1[dim] );
     SamplingData<double> sd = AxisInfo::prettySampling(range);
 
-    int idx = 0;
     for ( int idx=0; ; idx++ )
     {
 	double val = sd.atIndex(idx);

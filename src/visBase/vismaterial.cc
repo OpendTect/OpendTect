@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.7 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.8 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "vismaterial.h"
 #include "color.h"
@@ -155,8 +155,8 @@ void visBase::Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( iopar, saveids );
 
-    Color color = getColor();
-    iopar.set( colorstr, color.r(), color.g(), color.b() ) ;
+    Color tmpcolor = getColor();
+    iopar.set( colorstr, tmpcolor.r(), tmpcolor.g(), tmpcolor.b() ) ;
     iopar.set( ambiencestr, getAmbience() );
     iopar.set( diffintensstr, getDiffIntensity() );
     iopar.set( specintensstr, getSpecIntensity() );

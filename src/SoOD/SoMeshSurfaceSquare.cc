@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.19 2004-01-19 12:45:25 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.20 2004-02-02 15:26:00 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -447,7 +447,7 @@ int SoMeshSurfaceSquare::getResolution() const
 
 
 void SoMeshSurfaceSquare::setNeighbor( int relrow, int relcol,
-				   SoMeshSurfaceSquare* part, bool callback )
+				   SoMeshSurfaceSquare* part, bool cb )
 {
     const int index = getNeigborIndex(relrow,relcol);
     neighbors[getNeigborIndex(relrow,relcol)] = part;
@@ -471,7 +471,7 @@ void SoMeshSurfaceSquare::setNeighbor( int relrow, int relcol,
 	}
     }
 	    
-    if ( callback ) part->setNeighbor( -relrow, -relcol, this, false );
+    if ( cb ) part->setNeighbor( -relrow, -relcol, this, false );
 }
 
 
@@ -683,7 +683,7 @@ void SoMeshSurfaceSquare::updateGlue()
 	    mAddCoordToIndexes( row, col, ownres,
 		    		neighborindexes, neighbornormals );
 
-	    const int cellindex = rowgluecells.find(SbVec2s(row,col));
+	    int cellindex = rowgluecells.find(SbVec2s(row,col));
 	    if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
 
 	    const int maxcol = origo[1]+sidesize-ownblocksize*2;
@@ -692,7 +692,7 @@ void SoMeshSurfaceSquare::updateGlue()
 		col += ownblocksize;
 		mAddCoordToIndexes( row, col, ownres,
 				    neighborindexes, neighbornormals );
-		const int cellindex = rowgluecells.find(SbVec2s(row,col));
+		cellindex = rowgluecells.find(SbVec2s(row,col));
 		if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
 	    }
 

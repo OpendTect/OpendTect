@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.13 2003-12-10 15:41:03 nanne Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.14 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -117,25 +117,26 @@ void SoMeshSurface::removePos( int row, int col )
 }
 
 
-void SoMeshSurface::setTextureRange(int firstrow, int firstcol,
-				    int lastrow, int lastcol )
+void SoMeshSurface::setTextureRange(int newfirstrow, int newfirstcol,
+				    int newlastrow, int newlastcol )
 {
     if ( texturerangeisset &&
-	    firstrow==texturefirstrow &&
-	    firstcol==texturefirstcol &&
-	    lastrow==texturelastrow &&
-	    lastcol==texturelastcol )
+	    newfirstrow==texturefirstrow &&
+	    newfirstcol==texturefirstcol &&
+	    newlastrow==texturelastrow &&
+	    newlastcol==texturelastcol )
 	return;
     
     const int nrsquares = getNumChildren();
     for ( int idx=0; idx<nrsquares; idx++ )
-	getSquare(idx)->setTextureRange(firstrow,firstcol,lastrow,lastcol);
+	getSquare(idx)->setTextureRange(newfirstrow,newfirstcol,
+					newlastrow,newlastcol);
 
     texturerangeisset = true;
-    texturefirstrow = firstrow;
-    texturefirstcol = firstcol;
-    texturelastrow = lastrow;
-    texturelastcol = lastcol;
+    texturefirstrow = newfirstrow;
+    texturefirstcol = newfirstcol;
+    texturelastrow = newlastrow;
+    texturelastcol = newlastcol;
 }
 
 

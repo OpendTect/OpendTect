@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoShapeScale.cc,v 1.4 2004-01-09 08:15:32 nanne Exp $";
+static const char* rcsID = "$Id: SoShapeScale.cc,v 1.5 2004-02-02 15:26:00 kristofer Exp $";
 
 
 #include "SoShapeScale.h"
@@ -106,10 +106,10 @@ void SoShapeScale::GLRender(SoGLRenderAction * action)
 	if ( mIsZero(rotationaxis.length()) )
 	    rotationaxis[0] = 1;
 
-	SbRotation rotation( rotationaxis, -angle );
+	SbRotation rotationval( rotationaxis, -angle );
 
 	bool oldnotify = rotnode->enableNotify( false );
-	rotnode->rotation.setValue( rotation );
+	rotnode->rotation.setValue( rotationval );
 	rotnode->enableNotify( oldnotify );
     }
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.14 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.15 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -208,13 +208,13 @@ Coord3 visBase::Camera::centerFrustrum()
                                  ( orientation.z * orientation.z )));
      
     Coord3 currentposition = position();
-    Coord3 position (((( distancetopoint / vectorlength ) * orientation.x ) +
+    Coord3 pos (((( distancetopoint / vectorlength ) * orientation.x ) +
 	                 currentposition.x ),
                      ((( distancetopoint / vectorlength ) * orientation.y ) +
 	                 currentposition.y ),
                      ((( distancetopoint / vectorlength ) * orientation.z ) +
                          currentposition.z ));
-    return position;
+    return pos;
 
 }
 

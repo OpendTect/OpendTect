@@ -22,12 +22,14 @@
 
 static PtrMan<SoGetBoundingBoxAction> bboxAction(0);
 
+/*
 static void
 SoManLevelOfDetail(void)
 {
   delete bboxAction;
   bboxAction = NULL;
 }
+*/
 
 SO_NODE_SOURCE(SoManLevelOfDetail);
 

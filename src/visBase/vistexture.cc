@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.30 2004-01-26 08:22:19 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.31 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -97,8 +97,8 @@ visBase::Texture::Texture()
 	SoTextureScalePolicy* scalepolicy = new SoTextureScalePolicy;
 	texturegrp->insertChild( scalepolicy, 1 );
 	scalepolicy->policy = SoTextureScalePolicy::FRACTURE;
-	float quality = 1;
-	scalepolicy->quality.setValue( quality );
+	float newquality = 1;
+	scalepolicy->quality.setValue( newquality );
     }
 
     setColorTab( *visBase::VisColorTab::create() );

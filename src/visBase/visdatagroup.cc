@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.1 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.2 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -165,14 +165,14 @@ int visBase::DataObjectGroup::usePar( const IOPar& par )
 	key = kidprefix;
 	key += idx;
 
-	int id;
-	if ( !par.get( key, id ) )
+	int newid;
+	if ( !par.get( key, newid ) )
 	    return -1;
 
-	if ( !DM().getObj( id ) )
+	if ( !DM().getObj( newid ) )
 	    return 0;
 
-	ids += id;
+	ids += newid;
     }
 
     for ( int idx=0; idx<nrkids; idx++ )

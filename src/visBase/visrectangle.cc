@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.37 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.38 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -603,9 +603,9 @@ int visBase::Rectangle::usePar( const IOPar& iopar )
     if ( iopar.get( draggersizestr, w, h, d ) )
 	setDraggerSize( w, h, d );
 
-    bool snap;
-    if ( iopar.getYN( snappingstr, snap ) )
-	setSnapping( snap );
+    bool dosnap;
+    if ( iopar.getYN( snappingstr, dosnap ) )
+	setSnapping( dosnap );
 
     return 1;
 }
@@ -942,9 +942,9 @@ float visBase::Rectangle::getWidth( int dim, float scale ) const
 }
 
 
-float visBase::Rectangle::getScale( int dim, float width ) const
+float visBase::Rectangle::getScale( int dim, float newwidth ) const
 {
-    return dim!=2 ? width / widthscale->scaleFactor.getValue()[dim] : 0;
+    return dim!=2 ? newwidth / widthscale->scaleFactor.getValue()[dim] : 0;
 }
 
 
@@ -1011,7 +1011,7 @@ float visBase::Rectangle::getStopPos( int dim, float centerpos,
 
 
 float visBase::Rectangle::getCenterCoord( int dim, float startpos,
-					  float width ) const 
+					  float width_ ) const 
 {
     switch ( orientation_ )
     {
@@ -1030,7 +1030,7 @@ float visBase::Rectangle::getCenterCoord( int dim, float startpos,
     break;
     }
 
-    startpos += width /2;
+    startpos += width_ /2;
     startpos -= localorigotrans->translation.getValue()[dim] *
 		widthscale->scaleFactor.getValue()[dim];
 

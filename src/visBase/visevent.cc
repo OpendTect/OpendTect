@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.13 2004-01-09 12:07:56 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.14 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -75,12 +75,11 @@ int visBase::EventCatcher::usePar( const IOPar& par )
     int res = DataObject::usePar( par );
     if ( res!= 1 ) return res;
 
-    int type;
-
-    if ( !par.get( eventtypestr, type ))
+    int inttype;
+    if ( !par.get( eventtypestr, inttype ))
 	return -1;
 
-    setEventType( (EventType) type );
+    setEventType( (EventType) inttype );
 
     return 1;
 }

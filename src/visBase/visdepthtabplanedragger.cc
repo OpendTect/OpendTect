@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.4 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.5 2004-02-02 15:26:00 kristofer Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -61,17 +61,17 @@ visBase::DepthTabPlaneDragger::~DepthTabPlaneDragger()
 }
 
 
-void visBase::DepthTabPlaneDragger::setCenter( const Coord3& center,
+void visBase::DepthTabPlaneDragger::setCenter( const Coord3& newcenter,
 					       bool alldims )
 {
-    const Coord3 dcenter = world2Dragger( center, true );
+    const Coord3 dcenter = world2Dragger( newcenter, true );
     dragger->translation.setValue( SbVec3f(dcenter.x,dcenter.y,dcenter.z) );
 
-    centers[dim] = center;
+    centers[dim] = newcenter;
 
     if ( alldims )
     {
-	centers[0] = center; centers[1] = center; centers[2] = center;
+	centers[0] = newcenter; centers[1] = newcenter; centers[2] = newcenter;
     }
 }
 
