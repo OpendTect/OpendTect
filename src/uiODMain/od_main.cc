@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.7 2004-12-20 12:04:05 bert Exp $
+ RCS:           $Id: od_main.cc,v 1.8 2004-12-21 13:18:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,9 +36,8 @@ int main( int argc, char** argv )
       && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")	 // Better.
       && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") ) // Yo.
     {
-	std::cerr << "OpendTect is free for non-commercial users (R&D, "
-		     "evaluation), and developers.\n"
-		     "In doubt, consult http://opendtect.org/rel/LICENSE.txt."
+	std::cerr << "OpendTect is free for R&D, education or evaluation only."
+		     "\nIn doubt, consult http://opendtect.org/rel/LICENSE.txt."
 		     << std::endl;
     }
 
