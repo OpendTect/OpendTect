@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.29 2002-05-03 11:55:16 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.30 2002-05-03 15:50:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ public:
     int			addScene();
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
+    void		getSceneIds(TypeSet<int>&);
 
 			//DataDisplay stuff
     int			addDataDisplay(uiVisPartServer::ElementType);
@@ -115,6 +116,8 @@ public:
     CubeSampling&	getCubeSampling(int,bool manippos);
     AttribSelSpec&	getAttribSelSpec(int);
     void		putNewData(int,AttribSlice*);
+    void		getDataDisplayIds(int,uiVisPartServer::ElementType,
+					  TypeSet<int>&);
 
     			//PickSets stuff
     int                 addPickSetDisplay();
@@ -122,6 +125,7 @@ public:
     bool		setPicks(int, const PickSet&);
     void		getAllPickSets(UserIDSet&);
     void		getPickSetData(const char*,PickSet&);
+    void		getPickSetIds(int,TypeSet<int>&);
     int 		nrPicks(int);
     bool		picksetIsPresent(const char*);
     void		showAllPicks(int,bool);
