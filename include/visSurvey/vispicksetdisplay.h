@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.33 2004-05-07 10:28:35 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.34 2004-05-11 12:20:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -89,7 +89,6 @@ protected:
     virtual			~PickSetDisplay();
 
     void			pickCB( CallBacker* =0 );
-    void			updatePickSz( CallBacker* = 0);
 
     int				picktype;
     float			picksz;

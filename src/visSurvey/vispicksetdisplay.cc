@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.54 2004-05-07 10:28:28 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.55 2004-05-11 12:20:04 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
@@ -51,12 +51,9 @@ visSurvey::PickSetDisplay::PickSetDisplay()
     eventcatcher->eventhappened.notify(
 	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
 
-    SPM().zscalechange.notify(	mCB( this, visSurvey::PickSetDisplay,
-				updatePickSz ));
-
     group->ref();
     addChild( group->getInventorNode() );
-    picksz = initsz;
+    setSize(initsz);
 }
 
 
@@ -103,9 +100,6 @@ visSurvey::PickSetDisplay::~PickSetDisplay()
     removeChild( group->getInventorNode() );
     group->unRef();
 
-    SPM().zscalechange.remove(	mCB( this, visSurvey::PickSetDisplay,
-				updatePickSz ));
-
     if ( transformation ) transformation->unRef();
 }
 
@@ -118,7 +112,6 @@ void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
     marker->setTransformation( transformation );
     marker->setCenterPos( pos );
     marker->setDirection( dir );
-    marker->setScale( Coord3(1, 1, 2/SPM().getZScale()) );
     marker->setSize( picksz );
     marker->setType( (MarkerStyle3D::Type)picktype );
     marker->setMaterial( 0 );
@@ -226,10 +219,16 @@ void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
 }
 
 
-void visSurvey::PickSetDisplay::setSize( float x )
+void visSurvey::PickSetDisplay::setSize( float newsize )
 {
-    picksz = x; 
-    updatePickSz( 0 );
+    picksz = newsize;
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
+
+	marker->setSize( picksz );
+    }
 }
 
 
@@ -387,19 +386,6 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 
 	    eventcatcher->eventIsHandled();
 	}
-    }
-}
-
-
-void visSurvey::PickSetDisplay::updatePickSz( CallBacker* )
-{
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
-	if ( !marker ) continue;
-
-	marker->setSize( picksz );
-	marker->setScale( Coord3(1, 1, 2/SPM().getZScale()) );
     }
 }
 

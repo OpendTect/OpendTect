@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.54 2004-01-05 09:45:07 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.55 2004-05-11 12:20:04 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -16,10 +16,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.54 2004-01-05 09:45:07 kris
 #include "visdataman.h"
 #include "visevent.h"
 #include "vislight.h"
-#include "visplanedatadisplay.h"
-#include "visrandomtrackdisplay.h"
 #include "vissurvpickset.h"
-#include "vissurvsurf.h"
 #include "vistransform.h"
 #include "visvolumedisplay.h"
 
@@ -403,66 +400,36 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
-    const visSurvey::PlaneDataDisplay* pdd = 0;
-    const visSurvey::SurfaceDisplay* sd =0;
-    const visSurvey::VolumeDisplay* vd = 0;
-    const visSurvey::RandomTrackDisplay* rtd = 0;
 
+    const Coord3 displayspacepos =
+	SPM().getZScaleTransform()->transformBack(eventinfo.pickedpos);
+    xytmousepos =
+	SPM().getUTM2DisplayTransform()->transformBack(displayspacepos);
+
+    mouseposval = mUndefValue;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
 			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
-
-	if ( typeid(*pickedobj) == typeid(visSurvey::PlaneDataDisplay) )
+	mDynamicCastGet( const SurveyObject*, so, pickedobj );
+	if ( so )
 	{
-	    validpicksurface = true;
-	    pdd = (const visSurvey::PlaneDataDisplay*) pickedobj;
-	    break;
-	}
+	    if ( !validpicksurface )
+		validpicksurface = true;
 
-	if ( typeid(*pickedobj) == typeid(visSurvey::SurfaceDisplay) )
-	{
-	    validpicksurface = true;
-	    sd = (const visSurvey::SurfaceDisplay*) pickedobj;
-	    break;
-	}
-
-	if ( typeid(*pickedobj) == typeid(visSurvey::VolumeDisplay) )
-	{
-	    validpicksurface = true;
-	    vd = (const visSurvey::VolumeDisplay*) pickedobj;
-	    break;
-	}
-
-	if ( typeid(*pickedobj) == typeid(visSurvey::RandomTrackDisplay) )
-	{
-	    validpicksurface = true;
-	    rtd = (const visSurvey::RandomTrackDisplay*) pickedobj;
-	    break;
+	    if ( mIsUndefined(mouseposval) )
+	    {
+		const float newmouseposval = so->getValue( xytmousepos );
+		if ( !mIsUndefined(newmouseposval) )
+		{
+		    mouseposval = newmouseposval;
+		}
+	    }
+	    else if ( validpicksurface )
+		break;
 	}
     }
 
-    if ( !validpicksurface ) return;
-
-    Coord3 displayspacepos =
-	SPM().getZScaleTransform()->transformBack(eventinfo.pickedpos);
-
-
-    xytmousepos =
-	SPM().getUTM2DisplayTransform()->transformBack(displayspacepos);
-
-    Coord3 inlcrl = xytmousepos;
-    BinID binid = SI().transform( Coord( xytmousepos.x, xytmousepos.y ));
-    inlcrl.x = binid.inl;
-    inlcrl.y = binid.crl;
-
-    if ( pdd )
-	mouseposval = pdd->getValue( inlcrl );
-    else if ( sd )
-	mouseposval = sd->getValue( xytmousepos );
-    else if ( vd )
-	mouseposval = vd->getValue( inlcrl );
-    else if ( rtd )
-	mouseposval = rtd->getValue( inlcrl );
-    mouseposchange.trigger();
+    if ( validpicksurface )
+	mouseposchange.trigger();
 }

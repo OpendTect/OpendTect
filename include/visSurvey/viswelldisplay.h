@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.16 2004-05-04 15:34:14 nanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.17 2004-05-11 12:20:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -82,7 +82,6 @@ public:
 protected:
     virtual			~WellDisplay();
     void			setWell(visBase::Well*);
-    void			updateMarkerScale(CallBacker*);
     void			updateMarkers(CallBacker*);
 
     visBase::Well*		well;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.13 2004-04-20 15:01:56 nanne Exp $
+ RCS:		$Id: vismarker.h,v 1.14 2004-05-11 12:20:24 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "draw.h"
 
 class SoGroup;
-class SoMarkerScale;
+class SoShapeScale;
 class SoRotation;
 class SoShape;
 class SoTranslation;
@@ -52,8 +52,6 @@ public:
     void		setSize(const float);
     float		getSize() const;
 
-    void		setScale(const Coord3&);
-
     void		setRotation(const Coord3&,float);
     void		setDirection(const ::Sphere& d)	{ direction = d; }
     const ::Sphere&	getDirection() const		{ return direction; }
@@ -68,7 +66,8 @@ protected:
 			~Marker();
     Transformation*	transformation;
 
-    SoMarkerScale*	markerscale;
+    SoShapeScale*	markerscale;
+    SoTranslation*	translation;
     SoShape*		shape;
     SoRotation*		rotation;
 

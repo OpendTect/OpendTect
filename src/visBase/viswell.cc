@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.13 2004-05-04 15:32:32 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.14 2004-05-11 12:19:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,16 +169,6 @@ void Well::removeAllMarkers()
 {
     markergroup->removeAll();
     markernames->removeAll();
-}
-
-
-void Well::setMarkerScale( const Coord3& scale )
-{
-    for ( int idx=0; idx<markergroup->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
-	marker->setScale( scale );
-    }
 }
 
 

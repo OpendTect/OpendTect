@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshapescale.h,v 1.5 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visshapescale.h,v 1.6 2004-05-11 12:20:24 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visdata.h"
 
 class SoShapeScale;
+class SoSeparator;
 
 namespace visBase
 {
@@ -49,6 +50,8 @@ public:
 protected:
     static const char*	shapeidstr;
 
+    SoSeparator*	root;
+    SoNode*		node;
     DataObject*		shape;
     SoShapeScale*	shapescalekit;
 private:

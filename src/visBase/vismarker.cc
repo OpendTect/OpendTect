@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.12 2004-04-20 15:02:05 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.13 2004-05-11 12:19:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 
-#include "SoMarkerScale.h"
+#include "SoShapeScale.h"
 #include "SoArrow.h"
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoCylinder.h>
+#include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoRotation.h>
 
@@ -32,14 +33,19 @@ const char* visBase::Marker::centerposstr = "Center Pos";
 visBase::Marker::Marker()
     : VisualObjectImpl(true)
     , transformation(0)
+    , translation(new SoTranslation)
     , rotation(new SoRotation)
-    , markerscale(new SoMarkerScale)
+    , markerscale(new SoShapeScale)
     , shape(0)
     , direction(0,0,0)
 {
+    addChild( translation );
     addChild( markerscale );
     addChild( rotation );
     setType( MarkerStyle3D::Cube );
+
+    markerscale->doscale = true;
+    markerscale->dorotate = true;
 }
 
 
@@ -54,14 +60,14 @@ void visBase::Marker::setCenterPos( const Coord3& pos_ )
     Coord3 pos( pos_ );
 
     if ( transformation ) pos = transformation->transform( pos );
-    markerscale->translation.setValue( pos.x, pos.y, pos.z );
+    translation->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
 Coord3 visBase::Marker::centerPos(bool displayspace) const
 {
     Coord3 res;
-    SbVec3f pos = markerscale->translation.getValue();
+    SbVec3f pos = translation->translation.getValue();
 
     res.x = pos[0];
     res.y = pos[1];
@@ -115,8 +121,8 @@ void visBase::Marker::setType( MarkerStyle3D::Type type )
 	break;
     }
 
-    addChild( shape );
 
+    addChild( shape );
     markerstyle.type = type;
 }
 
@@ -131,12 +137,6 @@ void visBase::Marker::setSize( const float sz )
 float visBase::Marker::getSize() const
 {
     return markerscale->screenSize.getValue();
-}
-
-
-void visBase::Marker::setScale( const Coord3& pos )
-{
-    markerscale->scaleFactor.setValue( pos.x, pos.y, pos.z );
 }
 
 

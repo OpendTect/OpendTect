@@ -4,13 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.6 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.7 2004-05-11 12:19:26 kristofer Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"
 #include "visdataman.h"
 
 #include "SoShapeScale.h"
+#include "Inventor/nodes/SoSeparator.h"
 
 
 mCreateFactoryEntry( visBase::ShapeScale );
@@ -19,11 +20,14 @@ const char* visBase::ShapeScale::shapeidstr = "Shape ID";
 
 
 visBase::ShapeScale::ShapeScale()
-    : shapescalekit( new SoShapeScale )
+    : root( new SoSeparator )
+    , shapescalekit( new SoShapeScale )
     , shape( 0 )
+    , node( 0 )
 {
-    shapescalekit->ref();
-    shapescalekit->projectedSize.setValue( 5 );
+    root->ref();
+    root->addChild(shapescalekit);
+    shapescalekit->screenSize.setValue( 5 );
     shapescalekit->dorotate.setValue( false );
 }
 
@@ -31,36 +35,59 @@ visBase::ShapeScale::ShapeScale()
 visBase::ShapeScale::~ShapeScale()
 {
     if ( shape ) shape->unRef();
-    shapescalekit->unref();
+    root->unref();
 }
 
 
 void visBase::ShapeScale::setShape( DataObject* no )
 {
-    if ( shape ) shape->unRef();
+    if ( shape )
+    {
+	shape->unRef();
+    }
+
+    if ( node )
+    {
+	root->removeChild(node);
+	node = 0;
+    }
+
     shape = no;
-    if ( no ) no->ref();
-    shapescalekit->setPart("shape", no ? no->getInventorNode() : 0 );
+    if ( no )
+    {
+	no->ref();
+	node = no->getInventorNode();
+    }
+
+    if ( node ) root->addChild( node );
 }
 
 
-void visBase::ShapeScale::setShape( SoNode* node )
+void visBase::ShapeScale::setShape( SoNode* newnode )
 {
-    if ( shape ) shape->unRef();
+    if ( shape )
+    {
+	shape->unRef();
+    }
+
+    if ( node )
+	root->removeChild(node);
+
     shape = 0;
-    shapescalekit->setPart("shape", node );
+    node = newnode;
+    root->addChild( node );
 }
 
 
 void visBase::ShapeScale::setSize( float nz )
 {
-    shapescalekit->projectedSize.setValue( nz );
+    shapescalekit->screenSize.setValue( nz );
 }
 
 
 float visBase::ShapeScale::getSize() const
 {
-    return shapescalekit->projectedSize.getValue();
+    return shapescalekit->screenSize.getValue();
 }
 
 
@@ -78,7 +105,7 @@ bool visBase::ShapeScale::isFrozen() const
 
 SoNode*  visBase::ShapeScale::getInventorNode() 
 {
-    return shapescalekit;
+    return root;
 }
 
 

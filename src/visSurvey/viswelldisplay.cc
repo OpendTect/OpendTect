@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.34 2004-05-10 08:22:09 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.35 2004-05-11 12:20:04 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -51,9 +51,6 @@ WellDisplay::WellDisplay()
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
-
-    SPM().zscalechange.notify( 
-	    mCB(this,visSurvey::WellDisplay,updateMarkerScale) );
 }
 
 
@@ -61,9 +58,6 @@ WellDisplay::~WellDisplay()
 {
     removeChild( well->getInventorNode() );
     well->unRef();
-
-    SPM().zscalechange.remove(
-	    mCB(this,visSurvey::WellDisplay,updateMarkerScale) );
 }
 
 
@@ -157,13 +151,7 @@ void WellDisplay::updateMarkers( CallBacker* )
 
 	well->addMarker( pos, wellmarker->color, wellmarker->name() );
     }
-
-    well->setMarkerScale( Coord3(1,1,1/(4*SPM().getZScale())) );
 }
-
-
-void WellDisplay::updateMarkerScale( CallBacker* )
-{ well->setMarkerScale( Coord3(1,1,1/(4*SPM().getZScale())) ); }
 
 
 void WellDisplay::setMarkerSize( int sz )
