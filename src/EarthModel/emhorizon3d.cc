@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.24 2003-06-03 12:46:12 bert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.25 2003-06-17 13:34:43 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.24 2003-06-03 12:46:12 bert 
 #include "ioobj.h"
 #include "linsolv.h"
 #include "ptrman.h"
+#include "survinfo.h"
 
 EM::Horizon::Horizon(EMManager& man, const MultiID& id_)
     : Surface( man, id_ )
@@ -31,17 +32,28 @@ EM::Horizon::~Horizon()
 { }
 
 
+BinID EM::Horizon::getBinID( const EM::SubID& subid )
+{
+    const RowCol rc = subID2RowCol(subid);
+    return BinID(rc.row, rc.col);
+}
+
+
 
 Geometry::GridSurface* EM::Horizon::createPatchSurface() const
 {
     Geometry::Snapped2DSurface* newsurf = new Geometry::Snapped2DSurface();
-    RowCol rc00( 0, 0 );
-    RowCol rc10( 1, 0 );
-    RowCol rc11( 1, 1 );
+    const RowCol rc00( 0, 0 );
+    const RowCol rc10( 1, 0 );
+    const RowCol rc11( 1, 1 );
 
-    Coord pos00 = getCoord( rc00 );
-    Coord pos10 = getCoord( rc10 );
-    Coord pos11 = getCoord( rc11 );
+    const RowCol surfrc00 = subID2RowCol(getSurfSubID( rc00 ));
+    const RowCol surfrc10 = subID2RowCol(getSurfSubID( rc10 ));
+    const RowCol surfrc11 = subID2RowCol(getSurfSubID( rc11 ));
+
+    const Coord pos00 = SI().transform(BinID(surfrc00.row,surfrc00.col));
+    const Coord pos10 = SI().transform(BinID(surfrc10.row,surfrc10.col));
+    const Coord pos11 = SI().transform(BinID(surfrc11.row,surfrc11.col));
     
     newsurf->setTransform(  pos00.x, pos00.y, rc00.row, rc00.col,
 			    pos10.x, pos10.y, rc10.row, rc10.col,
@@ -56,28 +68,33 @@ Executor* EM::Horizon::loader()
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    EMHorizonTranslator tr;
-    if ( !tr.startRead(*ioobj,*this) )
-	{ errmsg = tr.errMsg(); return 0; }
+    PtrMan<Translator> tr_ = ioobj->getTranslator();
+    EMHorizonTranslator* tr =
+			dynamic_cast<EMHorizonTranslator*>((Translator*)tr_);
 
-    Executor* exec = tr.reader();
-    errmsg = tr.errMsg();
+    if ( !tr->startRead(*ioobj,*this) )
+	{ errmsg = tr->errMsg(); return 0; }
+
+    Executor* exec = tr->reader();
+    errmsg = tr->errMsg();
     return exec;
 }
 
 
 Executor* EM::Horizon::saver()
 {
-    EMHorizonTranslator tr;
-    if ( !tr.startWrite(*this) )
-	{ errmsg = tr.errMsg(); return 0; }
-
     PtrMan<IOObj> ioobj = IOM().get( id() );
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    Executor* exec = tr.writer(*ioobj);
-    errmsg = tr.errMsg();
+    PtrMan<Translator> tr_ = ioobj->getTranslator();
+    EMHorizonTranslator* tr =
+			dynamic_cast<EMHorizonTranslator*>((Translator*)tr_);
+    if ( !tr->startWrite(*this) )
+	{ errmsg = tr->errMsg(); return 0; }
+
+    Executor* exec = tr->writer(*ioobj);
+    errmsg = tr->errMsg();
     return exec;
 }
 
@@ -86,112 +103,59 @@ bool EM::Horizon::import( const Grid& grid )
 {
     cleanUp();
 
+    Interval<int> inlrange;
+    Interval<int> crlrange;
     const int nrrows = grid.nrRows();
     const int nrcols = grid.nrCols();
-
-    const GridNode node00( 0, 0 );
-    const GridNode node01( 0, nrrows-1 );
-    const GridNode node10( nrcols-1, 0 );
-
-    const Coord coord00 = grid.getCoord( node00 );
-    const Coord coord01 = grid.getCoord( node01 );
-    const Coord coord10 = grid.getCoord( node10 );
-
-    setTransform( coord00.x, coord00.y, node00.row, node00.col,
-		  coord01.x, coord01.y, node01.row, node01.col,
-		  coord10.x, coord10.y, node10.row, node10.col );
-
-    const EM::PatchID part = addPatch(true);
-
     for ( int row=0; row<nrrows; row++ )
     {
 	for ( int col=0; col<nrcols; col++ )
 	{
 	    GridNode gridnode( col, row );
-	    Coord coord = grid.getCoord( gridnode );
-	    float val = grid.getValue( gridnode );
+	    const Coord coord = grid.getCoord( gridnode );
+	    const BinID bid = SI().transform(coord);
+
+	    if ( !row && !col )
+	    {
+		inlrange.start = bid.inl; inlrange.stop = bid.inl;
+		crlrange.start = bid.crl; crlrange.stop = bid.crl;
+	    }
+	    else
+	    {
+		inlrange.include( bid.inl );
+		crlrange.include( bid.crl );
+	    }
+	}
+    }
+
+    const GridNode node00( 0, 0 );
+    const GridNode node11( 1, 1 );
+
+    const BinID bid00 = SI().transform(grid.getCoord( node00 ));
+    const BinID bid11 = SI().transform(grid.getCoord( node11 ));
+
+    step = RowCol( abs(bid00.inl-bid11.inl), abs(bid00.crl-bid11.crl));
+    loadedstep = step;
+    origo = RowCol(bid00.inl,bid00.crl);
+
+    const EM::PatchID part = addPatch(0, true);
+    for ( int inl=inlrange.start; inl<=inlrange.stop; inl+=step.row )
+    {
+	for ( int crl=crlrange.start; crl<=crlrange.stop; crl+=step.col )
+	{
+	    const Coord coord = SI().transform(BinID(inl,crl));
+	    const GridNode gridnode = grid.getNode(coord);
+	    const float val = grid.getValue( gridnode );
+	    if ( mIsUndefined(val) )
+		continue;
+
+	    const EM::SubID subid =
+			    Geometry::GridSurface::getPosID(RowCol(inl,crl));
 
 	    Coord3 pos(coord.x, coord.y, val );
-	    setPos( part, gridnode, pos, false, true );
+	    setPos( part, subid, pos, true, false );
 	}
     }
 
     return true;
-}
-
-
-Coord EM::Horizon::getCoord( const RowCol& node ) const
-{
-    return Coord( a11*node.row+a12*node.col+a13,
-	    	  a21*node.row+a22*node.col+a23 );
-}
-
-
-RowCol EM::Horizon::getClosestNode( const Coord& pos ) const
-{
-    return RowCol( mNINT(b11*pos.x+b12*pos.y + b13),
-	           mNINT(b21*pos.x+b22*pos.y + b23) );
-}
-
-
-void EM::Horizon::setTransform(
-    float x1, float y1, float i0_1, float i1_1,
-    float x2, float y2, float i0_2, float i1_2,
-    float x3, float y3, float i0_3, float i1_3 )
-{
-    for ( int idx=0; idx<surfaces.size(); idx++ )
-    {
-	dynamic_cast<Geometry::Snapped2DSurface*>(
-		surfaces[idx])->setTransform(  x1, y1, i0_1, i1_1,
-					       x2, y2, i0_2, i1_2,
-					       x3, y3, i0_3, i1_3 );
-    }
-
-    Array2DImpl<double> A(3,3);
-    A.set( 0, 0, i0_1 );
-    A.set( 0, 1, i1_1 );
-    A.set( 0, 2, 1 );
-
-    A.set( 1, 0, i0_2 );
-    A.set( 1, 1, i1_2 );
-    A.set( 1, 2, 1 );
-
-    A.set( 2, 0, i0_3 );
-    A.set( 2, 1, i1_3 );
-    A.set( 2, 2, 1 );
-
-    double b[] = { x1, x2, x3 };
-    double x[3];
-
-    LinSolver<double> linsolver( A );
-    linsolver.apply( b, x );
-    a11 = x[0]; a12 = x[1]; a13 = x[2];
-
-    b[0] = y1; b[1] = y2; b[2] = y3;
-
-    linsolver.apply( b, x );
-    a21 = x[0]; a22 = x[1]; a23 = x[2];
-
-    A.set( 0, 0, x1 );
-    A.set( 0, 1, y1 );
-    A.set( 0, 2, 1 );
-
-    A.set( 1, 0, x2 );
-    A.set( 1, 1, y2 );
-    A.set( 1, 2, 1 );
-
-    A.set( 2, 0, x3 );
-    A.set( 2, 1, y3 );
-    A.set( 2, 2, 1 );
-
-    b[0] = i0_1; b[1] = i0_2; b[2] = i0_3;
-
-    LinSolver<double> linsolverB( A );
-    linsolverB.apply( b, x );
-    b11 = x[0]; b12 = x[1]; b13 = x[2];
-
-    b[0] = i1_1; b[1] = i1_2; b[2] = i1_3;
-
-    linsolverB.apply( b, x );
-    b21 = x[0]; b22 = x[1]; b23 = x[2];
 }
