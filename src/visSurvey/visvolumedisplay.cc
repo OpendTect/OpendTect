@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.33 2003-03-13 12:22:09 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.34 2003-03-21 15:45:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,9 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , slicemoving(this)
 {
     cube->ref();
+
     cube->getMaterial()->setAmbience( 0.8 );
+    cube->getMaterial()->setDiffIntensity( 0.8 );
 
     cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
 
@@ -287,16 +289,25 @@ void visSurvey::VolumeDisplay::manipMotionFinishCB( CallBacker* )
     const Interval<int> crlrange( SI().range(true).start.crl,
 				  SI().range(true).stop.crl );
 
-    if ( !inlrange.includes( cs.hrg.start.inl ) ||
-	    !inlrange.includes( cs.hrg.stop.inl ) ||
-	    !crlrange.includes( cs.hrg.start.crl ) ||
-	    !crlrange.includes( cs.hrg.stop.crl ) ||
-	    !SI().zRange(true).includes( cs.zrg.start ) ||
-	    !SI().zRange(true).includes( cs.zrg.stop ) )
+    BinIDRange bidr( cs.hrg.start, cs.hrg.stop );
+    SI().checkRange( bidr );
+    Interval<double> zrg( cs.zrg.start, cs.zrg.stop );
+    SI().checkZRange( zrg );
+    if ( bidr.start.inl == bidr.stop.inl ||
+	 bidr.start.crl == bidr.stop.crl ||
+	 zrg.start == zrg.stop )
     {
 	resetManip();
 	return;
     }
+    else
+    {
+	cs.hrg.start = bidr.start;
+	cs.hrg.stop = bidr.stop;
+	cs.zrg.start = (float)zrg.start;
+	cs.zrg.stop = (float)zrg.stop;
+    }
+
 
     const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
 			 cs.hrg.stop.crl - cs.hrg.start.crl, 
@@ -410,6 +421,7 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     float pos = origo.x;
     par.get( inlineposstr, pos );
     inlid = cube->addSlice( 0, pos );
+    initSlice( inlid );
     bool show = true;
     par.getYN( inlineshowstr, show );
     cube->showSlice( inlid, show );
@@ -418,6 +430,7 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     pos = origo.y;
     par.get( crosslineposstr, pos );
     crlid = cube->addSlice( 1, pos );
+    initSlice( crlid );
     show = true;
     par.getYN( crosslineshowstr, show );
     cube->showSlice( crlid, show );
@@ -426,6 +439,7 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     pos = origo.z;
     par.get( timeposstr, pos );
     tslid = cube->addSlice( 2, pos );
+    initSlice( tslid );
     show = true;
     par.getYN( timeshowstr, show );
     cube->showSlice( tslid, show );
