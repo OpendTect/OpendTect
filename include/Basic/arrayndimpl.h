@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.18 2001-07-05 15:17:54 kristofer Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.19 2001-07-19 12:59:55 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -196,6 +196,14 @@ public:
     virtual T		get( int pos ) const {return stor->get(pos); }
 			
     const mPolyArray1DInfoTp&  info() const		{ return in; }
+    bool		canSetInfo() { return true; }
+    bool		setInfo( const ArrayNDInfo& ni )
+			{
+			    if ( ni.getNDim() != 1 ) return false; 
+			    setSize( ni.getSize( 0 ) );
+			    return true;
+			}
+
 
     void		setSize( int s ) { in.setSize(0,s); stor->setSize(s); }
 protected:
@@ -254,6 +262,15 @@ public:
 			{ return stor->get(in.getMemPos(p0,p1)); }
 
     const mPolyArray2DInfoTp&  info() const { return in; }
+
+    bool		canSetInfo() { return true; }
+
+    bool		setInfo( const ArrayNDInfo& ni )
+			{
+			    if ( ni.getNDim() != 2 ) return false; 
+			    setSize( ni.getSize( 0 ), ni.getSize( 1 ) );
+			    return true;
+			}
 
     void		setSize( int d0, int d1 )
 			{
@@ -324,6 +341,15 @@ public:
 
 
     const mPolyArray3DInfoTp&	info() const { return in; }
+    bool		canSetInfo() { return true; }
+    bool		setInfo( const ArrayNDInfo& ni )
+			{
+			    if ( ni.getNDim() != 3 ) return false; 
+			    setSize( ni.getSize( 0 ), ni.getSize( 1 ),
+				     ni.getSize( 2 ) );
+			    return true;
+			}
+
 
     void		setSize( int d0, int d1, int d2 )
 			{
@@ -388,7 +414,17 @@ static ArrayND<T>*	create( const ArrayNDInfo& nsz, bool file=false );
 
 
     const ArrayNDInfo&	info() const { return *in; }
-
+    bool		canSetInfo() { return true; }
+    bool		canChangeNrDims() const { return true; }
+    bool		setInfo( const ArrayNDInfo& ni )
+			{
+			    int ndim = in->getNDim();
+			    for ( int idx=0; idx<ndim; idx++ )
+			    { in->setSize(idx,ni->getSize(idx)); }
+			    stor->setSize(in->getTotalSz());
+			    return true;
+			}
+ 
     void		setSize( const int* d )
 			{
 			    int ndim = in->getNDim();

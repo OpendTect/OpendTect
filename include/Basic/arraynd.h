@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.14 2001-05-07 13:58:25 arend Exp $
+ RCS:		$Id: arraynd.h,v 1.15 2001-07-19 12:59:54 kristofer Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -54,6 +54,16 @@ public:
     virtual T*					get1D( const int* i );
 
     virtual const ArrayNDInfo&			info() const		= 0;
+    virtual bool				canSetInfo() const
+    						{ return false; }
+    						/*!< You might not be able to
+						     change nr dimension, check
+						     canChangeNrDims() if you
+						     want to do that. */
+    virtual bool				canChangeNrDims() const
+    						{ return false; }
+    virtual bool				setInfo( ArrayNDInfo& )
+						{ return false; }
 
     class LinearStorage
     {
