@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.7 2003-02-05 10:42:32 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.8 2003-02-05 12:53:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,14 +83,14 @@ bool HostDataList::readHostFile( const char* fname )
 {
     StreamData sd = StreamProvider( fname ).makeIStream();
     if ( !sd.usable() || !sd.istrm->good() )
-	return false;
+	{ sd.close(); return false; }
 
     ascistream astrm( *sd.istrm );
     if ( !astrm.isOfFileType("Batch Processing Hosts") )
     {
 	BufferString msg( fname );
 	msg += ": invalid hosts file (invalid file header)";
-	ErrMsg( msg ); return false;
+	ErrMsg( msg ); sd.close(); return false;
     }
 
     if ( atEndOfSection(astrm) ) astrm.next();
@@ -112,6 +112,7 @@ bool HostDataList::readHostFile( const char* fname )
 	*this += newhd;
     }
 
+    sd.close();
     return true;
 }
 

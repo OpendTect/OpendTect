@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.39 2003-01-21 15:31:43 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.40 2003-02-05 12:53:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -379,7 +379,7 @@ void uiSeisMMProc::prepareNextCycle( int msecs )
     tim.start( delay, true );
 }
 
-
+#define mReturn()    { deepErase( machs ); return; }
 void uiSeisMMProc::updateCurMachs()
 {
     ObjectSet<BufferString> machs;
@@ -397,20 +397,21 @@ void uiSeisMMProc::updateCurMachs()
 		{ chgd = true; break; }
     }
 
-    if ( !chgd ) return;
+    if ( !chgd ) mReturn();
 
     int curit = oldsz ? usedmachfld->box()->currentItem() : -1;
     usedmachfld->box()->empty();
     if ( newsz )
     {
 	usedmachfld->box()->addItems( machs );
-	deepErase( machs );
 	if ( curit >= usedmachfld->box()->size() )
 	    curit = usedmachfld->box()->size() - 1;
 	usedmachfld->box()->setCurrentItem(curit);
     }
     stopbut->setSensitive( newsz );
     vwlogbut->setSensitive( newsz );
+
+    mReturn();
 }
 
 
