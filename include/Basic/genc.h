@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.15 2004-01-16 10:34:36 bert Exp $
+ RCS:		$Id: genc.h,v 1.16 2004-01-21 10:19:07 dgb Exp $
 ________________________________________________________________________
 
 
@@ -191,6 +191,12 @@ int		getPID();
 
 int		setEnvVar(const char* env,const char* val);
 		/*!< sets environment variable to a value. */
+
+
+void		exitProgram( int ret );
+		/*!< Win32: kills progam itself and ignores ret.
+                     Unix: uses exit(ret).
+                */
 
 
 #ifdef __cpp__

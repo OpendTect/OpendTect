@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.18 2004-01-21 09:38:23 dgb Exp $
+ RCS:		$Id: batchprog.h,v 1.19 2004-01-21 10:19:07 dgb Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uidobj.h"
 #include "mmdefs.h"
 #include "bufstringset.h"
+#include "genc.h"
 class IOPar;
 class Socket;
 class StreamData;
@@ -117,40 +118,15 @@ protected:
 inline const BatchProgram& BP() { return *BatchProgram::inst_; }
 
 #ifdef __prog__
-
-# ifndef __win__
-
-    int main( int argc, char** argv )
-	{ return Execute_batch(&argc,argv); }
-
-# else 
-
-#  include "windows.h"
+# ifdef __win__
 #  include "_execbatch.h"
-#  define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
+# endif
 
     int main( int argc, char** argv )
-    { 
-	int ret=Execute_batch(&argc,argv); 
-
-	// open process
-	HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, getPID() );
-	if ( isBadHandle( hProcess ) )
-	    cerr << "OpenProcess() failed, err = " << GetLastError();
-	else
-	{
-	    // kill process
-	    if ( ! TerminateProcess( hProcess, (DWORD) -1 ) )
-		cerr << "TerminateProcess() failed, err = " << GetLastError();
-
-	    // close handle
-	    CloseHandle( hProcess );
-	}
-
-	exit(0);
+    {
+	int ret = Execute_batch(&argc,argv);
+	ExitProgram( ret );
     }
-
-# endif // __win__
 
 #endif // __prog__
 

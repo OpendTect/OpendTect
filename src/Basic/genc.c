@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.35 2004-01-16 15:14:27 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.36 2004-01-21 10:19:07 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: genc.c,v 1.35 2004-01-16 15:14:27 arend Exp $";
 #else
 #include <process.h>
 #include <float.h>
+#include "windows.h"
 #include "getspec.h"	// GetSpecialFolderLocation()
 #endif
 
@@ -425,6 +426,28 @@ int setEnvVar( const char* env, const char* val )
 
     putenv( buf );
     return YES;
+}
+
+void exitProgram( int ret )
+{
+
+#ifdef __win__
+    // open process
+    HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, getPID() );
+    if ( isBadHandle( hProcess ) )
+	printf( "OpenProcess() failed, err = %lu\n", GetLastError() );
+    else
+    {
+	// kill process
+	if ( ! TerminateProcess( hProcess, (DWORD) -1 ) )
+	    printf( "TerminateProcess() failed, err = %lu\n", GetLastError() );
+
+	// close handle
+	CloseHandle( hProcess );
+    }
+#endif
+
+    exit(ret);
 }
 
 
