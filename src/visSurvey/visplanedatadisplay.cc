@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.17 2002-05-17 06:33:48 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.18 2002-07-02 13:55:24 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -388,6 +388,17 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
     }
 
     return cs;
+}
+
+
+void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs )
+{
+    Geometry::Pos width( cs.hrg.stop.inl - cs.hrg.start.inl,
+			 cs.hrg.stop.crl - cs.hrg.start.crl, 
+			 cs.zrg.stop - cs.zrg.start );
+    setWidth( width );
+    Geometry::Pos origo(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.start);
+    setOrigo( origo );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.9 2002-05-07 12:09:51 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.10 2002-07-02 13:55:24 nanne Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,7 @@ public:
 
     bool			updateAtNewPos();
     CubeSampling&		getCubeSampling(bool manippos=true);
+    void			setCubeSampling(const CubeSampling&);
     AttribSelSpec&		getAttribSelSpec();
     void			setAttribSelSpec(AttribSelSpec&);
     bool			putNewData( AttribSlice* );

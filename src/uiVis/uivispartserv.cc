@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.67 2002-06-27 10:40:32 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.68 2002-07-02 13:55:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -335,7 +335,7 @@ int uiVisPartServer::getSelObjectId() const
 int uiVisPartServer::addScene()
 {
     visSurvey::Scene* newscene = visSurvey::Scene::create();
-    newscene->mouseposchange.notify( mCB( this, uiVisPartServer, mouseMoveCB ));
+    newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     scenes += newscene;
     newscene->ref();
     selsceneid = newscene->id();
@@ -347,8 +347,7 @@ void uiVisPartServer::removeScene( int sceneid )
 {
     visBase::DataObject* obj = visBase::DM().getObj( sceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
-    scene->mouseposchange.remove(
-		mCB( this, uiVisPartServer, mouseMoveCB ) );
+    scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
     scene->unRef();
     scenes -= scene;
 }
@@ -424,20 +423,33 @@ void uiVisPartServer::setPlanePos( int id )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( !sd ) return;
-    CubeSampling* cs = &sd->getCubeSampling( true );
-    uiSliceSel dlg( appserv().parent(), cs );
+    uiSliceSel dlg( appserv().parent(), sd->getCubeSampling( true ),
+		    mCB(this,uiVisPartServer,updatePlanePos) );
     if ( dlg.go() )
     {
-	Geometry::Pos width( cs->hrg.stop.inl - cs->hrg.start.inl, 
-			     cs->hrg.stop.crl - cs->hrg.start.crl,
-			     cs->zrg.stop - cs->zrg.start );
-	sd->setWidth( width );
-	Geometry::Pos origo(cs->hrg.start.inl,cs->hrg.start.crl,cs->zrg.start);
-	sd->setOrigo( origo );
+	CubeSampling cs = dlg.getCubeSampling();
+	sd->setCubeSampling( cs );
 	sd->updateAtNewPos();
 	sendEvent( evManipulatorMove );
 	sendEvent( evSelection );
     }
+}
+
+
+void uiVisPartServer::updatePlanePos( CallBacker* cb )
+{
+    int id = getSelObjectId();
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
+    if ( !sd ) return;
+    mDynamicCastGet(uiSliceSel*,dlg,cb);
+    if ( !dlg ) return;
+
+    CubeSampling cs = dlg->getCubeSampling();
+    sd->setCubeSampling( cs );
+    sd->updateAtNewPos();
+    sendEvent( evManipulatorMove );
+    sendEvent( evSelection );
 }
 
 
