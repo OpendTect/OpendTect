@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.5 2003-12-30 16:37:33 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.6 2004-01-03 08:51:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,6 +256,9 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() )
 	{ delete ctio->ioobj; delete ctio; ctio = 0; }
+    else
+	{ delete ctio->ioobj; ctio->ioobj = dlg.ioObj()->clone(); }
+
     return ctio;
 }
 
