@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.4 2001-10-30 15:29:41 nanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.5 2002-01-17 16:13:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ void ioDrawTool::drawLine ( int x1, int y1, int x2, int y2 )
 } 
 
 void ioDrawTool::drawText ( int x, int y, const char* txt, Alignment al, 
-			    bool erase, int len )
+			    bool doovershoot, bool erase, int len )
 {
     if( !active() && !beginDraw()) return;
 
@@ -82,7 +82,7 @@ void ioDrawTool::drawText ( int x, int y, const char* txt, Alignment al,
 	    break;
     }
 
-    int overshoot = (xx+wdt) - getDevWidth();
+    int overshoot = doovershoot ? (xx+wdt) - getDevWidth() : 0;
     if( overshoot > 0 )
     {
 	if( 4*(wdt - overshoot) >=  wdt )
@@ -96,7 +96,7 @@ void ioDrawTool::drawText ( int x, int y, const char* txt, Alignment al,
 	else return;
     }
 
-    overshoot = yy - getDevHeight();
+    overshoot = doovershoot ? yy - getDevHeight() : 0;
     if( overshoot > 0)
     {
 	if( (hgt - overshoot)*4 >= hgt )

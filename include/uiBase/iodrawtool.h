@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.1 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: iodrawtool.h,v 1.2 2002-01-17 16:13:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,10 @@ public:
                         { drawLine ( p1.x(), p1.y(), p2.x(), p2.y() ); }
 
     void		drawText( int x, int y, const char *, Alignment, 
-				  bool erase=false, int len = -1);
+				  bool over=true, bool erase=false, int len=-1);
     inline void		drawText( uiPoint p, const char * txt, Alignment al, 
-				  bool erase=false, int len =-1 )
-                        { drawText( p.x(), p.y(), txt, al, erase, len ); }
+				  bool over=true, bool erase=false, int len=-1)
+                        { drawText( p.x(), p.y(), txt, al, over, erase, len ); }
 
     void 		drawRect( int x, int y, int w, int h ); 
     inline void		drawRect( uiPoint topLeft, uiSize sz )
