@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.11 2001-07-18 16:14:17 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.12 2001-07-18 21:49:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,45 +21,30 @@ class IODirEntryList;
 class uiListBox;
 class uiGenInput;
 
-class uiIOObjSelAuxInfo
-{
-public:
 
-			uiIOObjSelAuxInfo( uiGroupCreater* g=0, const char* t=0)
-			: grpcr(g), trglobexpr(t)		{}
-			uiIOObjSelAuxInfo( const uiIOObjSelAuxInfo& ai )
-			: grpcr(ai.grpcr), trglobexpr(ai.trglobexpr),
-			  editcb(ai.editcb)			{}
+/*! \brief Dialog for selection of IOObjs
 
-    uiGroupCreater*	grpcr;
-    const char*		trglobexpr;
-    CallBack		editcb; //!< specify only if non-standard
+This class may be subclassed to make selection more specific.
 
-};
-
-
-/*! \brief Dialog for selection of IOObjs */
+*/
 
 class uiIOObjSelDlg : public uiDialog
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      uiIOObjSelAuxInfo* ai=0);
+				      const char* transl_glob_expr=0);
 			~uiIOObjSelDlg();
 
     const IOObj*	ioObj() const		{ return ioobj; }
-    const NamedNotifierList& notifiers() const	{ return notifs; }
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
 
 protected:
 
     const CtxtIOObj&	ctio;
     IODirEntryList*	entrylist;
     IOObj*		ioobj;
-    CNotifier<uiIOObjSelDlg,MultiID> selchg;
-    NamedNotifierList	notifs;
 
     uiListBox*		listfld;
     uiGenInput*		nmfld;
@@ -67,21 +52,28 @@ protected:
 
     bool		acceptOK(CallBacker*);
     void		selChg(CallBacker*);
+
+    virtual bool	createEntry(const char*);
 };
 
 
-/*! \brief UI element for selection of IOObjs */
+/*! \brief UI element for selection of IOObjs
+
+This class may be subclassed to make selection more specific.
+
+*/
 
 class uiIOObjSel : public uiIOSelect
 {
 public:
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
-				   bool wthclear=false,uiIOObjSelAuxInfo* ai=0);
+				   bool wthclear=false,
+				   const char* transl_globexpr=0);
 			~uiIOObjSel();
 
     bool		commitInput(bool mknew);
 
-    void		updateInput(); //!< updates from CtxtIOObj
+    void		updateInput();	//!< updates from CtxtIOObj
     void		processInput(); //!< Match user typing with existing
 					//!< IOObjs, then set item accordingly
     bool		existingTyped() const;
@@ -96,12 +88,16 @@ protected:
 
     CtxtIOObj&		ctio;
     bool		forread;
-    uiIOObjSelAuxInfo	auxinfo;
-    IOPar&		iopar;
+    BufferString	trglobexpr;
 
     void		doObjSel(CallBacker*);
+
+    virtual void	newSelection(uiIOObjSelDlg*);
     virtual const char*	userNameFromKey(const char*) const;
     virtual void	objSel();
+
+    virtual uiIOObjSelDlg* mkDlg();
+    virtual IOObj*	createEntry(const char*);
 
 };
 
