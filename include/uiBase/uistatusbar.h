@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.4 2002-01-29 11:13:20 bert Exp $
+ RCS:           $Id: uistatusbar.h,v 1.5 2002-04-23 09:57:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,9 +28,16 @@ public:
 
     enum		TxtAlign{ Left, Centre, Right };
 
-    void 		message(const char*,int fldidx=0);
-    void		addMsgFld(const char* tooltip ="",TxtAlign al=Left,
+    int			addMsgFld(const char* lbltxt=0,
+	    			  const char* tooltip =0,
+				  TxtAlign al=Left,
 	    			  int stretch=1);
+    void		setToolTip(int,const char*);
+    void		setStretch(int,int);
+    void		setTxtAlign(int,TxtAlign);
+    void		setLabelTxt(int,const char*);
+
+    void 		message(const char*,int fldidx=0);
 
 protected:
 
