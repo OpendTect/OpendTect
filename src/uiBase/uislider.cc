@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.9 2002-04-15 14:34:26 bert Exp $
+ RCS:           $Id: uislider.cc,v 1.10 2002-04-16 12:49:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 
 #include "uilabel.h"
+#include "uilineedit.h"
+#include "datainpspec.h"
 
 #include <qsize.h> 
 
@@ -48,14 +50,23 @@ uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
 
 //------------------------------------------------------------------------------
 
-uiSlider::uiSlider(  uiParent* parnt, const char* nm )
+uiSlider::uiSlider(  uiParent* parnt, const char* nm, bool witheditfld )
     : uiObject( parnt, nm, mkbody(parnt, nm) )
     , valueChanged(this)
     , sliderMoved(this)
+    , editfld(0)
 {
     body_->setOrientation( QSlider::Horizontal );
     setTickMarks( true );
+    if ( witheditfld )
+    {
+	valueChanged.notify( mCB(this,uiSlider,sliderMove) );
+	editfld = new uiLineEdit( parnt, FloatInpSpec() );
+	editfld->attach( rightTo, this );
+	editfld->returnPressed.notify( mCB(this,uiSlider,editValue) );
+    }
 }
+
 
 uiSliderBody& uiSlider::mkbody(uiParent* parnt, const char* nm)
 { 
@@ -104,6 +115,17 @@ void uiSlider::setTickMarks( bool yn )
     body_->setTickmarks ( yn ? QSlider::Above : QSlider::NoMarks );
 }
 
+void uiSlider::sliderMove( CallBacker* )
+{
+    if ( !editfld ) return;
+    editfld->setValue( getIntValue() );
+}
+
+void uiSlider::editValue( CallBacker* )
+{
+    setValue( editfld->getValue() );
+}
+
 int uiSlider::minValue() const		{ return body_->minValue() ; }
 int uiSlider::maxValue() const		{ return body_->minValue() ; }
 void uiSlider::setMinValue( int m )	{ body_->setMinValue(m); }
@@ -113,10 +135,10 @@ void uiSlider::setTickStep ( int s )	{ body_->setTickInterval(s); }
 
 
 uiLabeledSlider::uiLabeledSlider( uiParent* p, const char* txt,
-				  const char* nm )
+				  const char* nm, bool witheditfld )
 	: uiGroup(p,"Labeled slider")
 {
-    slider = new uiSlider( this, nm );
+    slider = new uiSlider( this, nm, witheditfld );
     lbl = new uiLabel( this, txt, slider );
     setHAlignObj( slider );
 }

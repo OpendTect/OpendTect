@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.5 2002-04-15 14:34:43 bert Exp $
+ RCS:           $Id: uislider.h,v 1.6 2002-04-16 12:50:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,14 @@ ________________________________________________________________________
 
 class uiSliderBody;
 class uiLabel;
+class uiLineEdit;
 
 class uiSlider : public uiObject
 {
 public:
 
-                        uiSlider(uiParent*, const char* nm="Slider");
+                        uiSlider(uiParent*, const char* nm="Slider",
+				 bool weditfld=false);
 
     const char*		text() const;
     int 		getIntValue() const;
@@ -40,6 +42,7 @@ public:
     int			tickStep() const;
     void		setTickStep( int );
 
+    uiLineEdit*		editfld;
 
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
@@ -51,6 +54,9 @@ private:
     uiSliderBody*	body_;
     uiSliderBody&	mkbody(uiParent*, const char*);
 
+    void		editValue(CallBacker*);
+    void		sliderMove(CallBacker*);
+
 };
 
 
@@ -58,7 +64,8 @@ class uiLabeledSlider : public uiGroup
 {
 public:
                 uiLabeledSlider( uiParent*,const char* txt,
-                                 const char* nm="Labeled Slider");
+                                 const char* nm="Labeled Slider",
+				 bool weditfld=false);
 
     uiSlider*		sldr()			{ return slider; }
     uiLabel*		label()			{ return lbl; }
