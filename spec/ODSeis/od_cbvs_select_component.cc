@@ -3,6 +3,7 @@
 #include "conn.h"
 #include "iostrm.h"
 #include "strmprov.h"
+#include "filegen.h"
 #include <iostream.h>
 #include <math.h>
 
@@ -13,24 +14,32 @@ defineTranslator(CBVS,SeisTrc,"CBVS");
 
 int main( int argc, char** argv )
 {
-    if ( argc < 2 )
+    if ( argc < 4 )
     {
-	cerr << "Usage: " << argv[0] << " component" << endl
-	     << "input/output are stdin and stdout. Format: CBVS." << endl
+	cerr << "Usage: " << argv[0] << " component inpfile outpfile"<< endl
+	     << "Format: CBVS." << endl
 	     << "set component to -1 for polar dip, -2 for azimuth"
 	     << " (2 components required!)" << endl;
 	return 1;
     }
+    else if ( !File_exists(argv[2]) )
+    {
+        cerr << argv[2] << " does not exist" << endl;
+        return 1;
+    }
 
     const int selcomp = atoi( argv[1] );
 
+    FileNameString fname( argv[2] );
+    if ( !File_isAbsPath(argv[2]) )
+        fname = File_getFullPath( ".", argv[2] );
     CBVSSeisTrcTranslator tri;
-    StreamConn inconn( cin );
-    IOStream inioobj( "cin" );
-    inioobj.setFileName( StreamProvider::sStdIO );
-    inconn.ioobj = &inioobj;
+    StreamConn inconn( fname, Conn::Read );
+    IOStream ioobj( "tmp" );
+    ioobj.setFileName( fname );
+    inconn.ioobj = &ioobj;
     if ( !tri.initRead(inconn) )
-	{ cerr << tri.errMsg() << endl;  return 1; }
+        { cerr << tri.errMsg() << endl;  return 1; }
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci = tri.componentInfo();
     const int nrincomp = ci.size();
@@ -38,11 +47,13 @@ int main( int argc, char** argv )
 	for ( int idx=0; idx<nrincomp; idx++ )
 	    ci[idx]->destidx = idx == selcomp ? idx : -1;
 
+    fname = argv[3];
+    if ( !File_isAbsPath(argv[3]) )
+        fname = File_getFullPath( ".", argv[3] );
     CBVSSeisTrcTranslator tro;
-    StreamConn outconn( cout );
-    IOStream outioobj( "cout" );
-    outioobj.setFileName( StreamProvider::sStdIO );
-    outconn.ioobj = &outioobj;
+    StreamConn outconn( fname, Conn::Write );
+    ioobj.setFileName( fname );
+    outconn.ioobj = &ioobj;
 
     SeisTrc trc;
     SeisTrc& outtrc = selcomp < 0 ? *new SeisTrc : trc;

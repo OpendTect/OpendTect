@@ -6,6 +6,7 @@
 #include "iostrm.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include "filegen.h"
 #include <iostream.h>
 #include <math.h>
 
@@ -16,34 +17,51 @@ defineTranslator(CBVS,SeisTrc,"CBVS");
 
 int main( int argc, char** argv )
 {
-    if ( argc < 2 )
+    if ( argc < 4 )
     {
-	cerr << "Usage: " << argv[0] << " in1`inl2`crl1`crl2[`startz`stepz`nrz]"
-	     << endl;
-	cerr << "input/output are stdin and stdout. Format: CBVS." << endl;
+	cerr << "Usage: " << argv[0]
+	     << " inl1`inl2`inlstep`crl1`crl2`crlstep[`startz`stepz`nrz]"
+	     << " inpfile outpfile" << endl;
+	cerr << "Format: CBVS." << endl;
 	return 1;
     }
+    else if ( !File_exists(argv[2]) )
+    {
+        cerr << argv[2] << " does not exist" << endl;
+        return 1;
+    }
 
+    FileNameString fname( argv[2] );
+    if ( !File_isAbsPath(argv[2]) )
+        fname = File_getFullPath( ".", argv[2] );
     CBVSSeisTrcTranslator tri;
-    StreamConn inconn( cin );
-    IOStream inioobj( "cin" );
-    inioobj.setFileName( StreamProvider::sStdIO );
-    inconn.ioobj = &inioobj;
+    StreamConn inconn( fname, Conn::Read );
+    IOStream ioobj( "tmp" );
+    ioobj.setFileName( fname );
+    inconn.ioobj = &ioobj;
     if ( !tri.initRead(inconn) )
-	{ cerr << tri.errMsg() << endl;  return 1; }
+        { cerr << tri.errMsg() << endl;  return 1; }
+
+    fname = argv[3];
+    if ( !File_isAbsPath(argv[3]) )
+        fname = File_getFullPath( ".", argv[3] );
+    CBVSSeisTrcTranslator tro;
+    StreamConn outconn( fname, Conn::Write );
+    ioobj.setFileName( fname );
+    outconn.ioobj = &ioobj;
 
     FileMultiString fms( argv[1] );
     SeisTrcSel tsel;
-    BinIDRange* bidrg = new BinIDRange;
-    tsel.bidsel = bidrg;
-    bidrg->start = BinID( atoi(fms[0]), atoi(fms[2]) );
-    bidrg->stop = BinID( atoi(fms[1]), atoi(fms[3]) );
+    BinIDSampler* bidsmpl = new BinIDSampler;
+    tsel.bidsel = bidsmpl;
+    bidsmpl->start = BinID( atoi(fms[0]), atoi(fms[3]) );
+    bidsmpl->stop = BinID( atoi(fms[1]), atoi(fms[4]) );
+    bidsmpl->step = BinID( atoi(fms[2]), atoi(fms[5]) );
     tri.setTrcSel( &tsel );
-
-    if ( fms.size() > 4 )
+    if ( fms.size() > 6 )
     {
-	SamplingData<float> sd( atof(fms[4]), atof(fms[5]) );
-	int nrz = atoi( fms[6] );
+	SamplingData<float> sd( atof(fms[6]), atof(fms[7]) );
+	int nrz = atoi( fms[8] );
 	ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
 		= tri.componentInfo();
 	const int nrincomp = ci.size();
@@ -53,12 +71,6 @@ int main( int argc, char** argv )
 	    ci[idx]->nrsamples = nrz;
 	}
     }
-
-    CBVSSeisTrcTranslator tro;
-    StreamConn outconn( cout );
-    IOStream iostrm( "cout" );
-    iostrm.setFileName( StreamProvider::sStdIO );
-    outconn.ioobj = &iostrm;
 
     SeisTrc trc;
     int nrwr = 0;
