@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.29 2003-12-06 11:09:08 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.30 2003-12-07 00:32:20 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -164,12 +164,16 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
 } \
 
 
-bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& pos,
+bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& timepos,
 			  const MathFunction<float>* time2depthfunc) const
 {
     TopList<float, EM::PosID> closestnodes( 20, mUndefValue, false );
-    if ( !findClosestNodes(closestnodes,pos,time2depthfunc) )
+    if ( !findClosestNodes(closestnodes,timepos,time2depthfunc) )
 	return false;
+
+    const Coord3 pos = time2depthfunc
+	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
+	: timepos;
 
     float mindist;
     const int nrnodes = closestnodes.size();
@@ -269,6 +273,17 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
 	return true;
     }
 
+    Coord3 average(0,0,0);
+    for ( int idx=0; idx<nrnormals; idx++ )
+	average += normals[idx];
+
+    if ( average.abs() )
+    {
+	res = average.normalize();
+	return true;
+    }
+
+    //Note that the sign can be wrong with this method
     PCA pca(3);
     for ( int idx=0; idx<nrnormals; idx++ )
 	pca.addSample( normals[idx] );
@@ -796,24 +811,6 @@ int EM::Surface::findPos( const CubeSampling& cs,
 
 	if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
 	     nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
-	{
-	    posids.removeFast( idx-- );
-	    continue;
-	}
-
-	TypeSet<EM::PosID> clones;
-	getLinkedPos( posid, clones );
-	clones += posid;
-
-	const int nrclones = clones.size();
-	bool found = false;
-	for ( int idz=0; idz<nrclones; idz++ )
-	{
-	    if ( posids.indexOf(clones[idz]) != -1 )
-	    { found = true; break; }
-	}
-
-	if ( found )
 	{
 	    posids.removeFast( idx-- );
 	    continue;
