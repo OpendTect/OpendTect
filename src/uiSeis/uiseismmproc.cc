@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.87 2005-03-23 15:46:30 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.88 2005-03-24 12:12:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	, jrpstartfld(0), jrpstopfld(0)
     	, jobprov(0), jobrunner(0)
     	, outioobjinfo(0), isrestart(false)
+	, lsfileemitted(false)
 	, timer(0)
 {
     const IOPar& iopar = *iopl[0];
@@ -522,8 +523,25 @@ static void addObjNm( BufferString& msg, const JobRunner* jr, int nr )
 
 void uiSeisMMProc::jobPrepare( CallBacker* cb )
 {
-    const FilePath& basefp = jobrunner->curJobFilePath();
-    IOPar& iop = jobrunner->curJobIOPar();
+    if ( !is2d ) return;
+
+    // Put a copy of the .2ds file in the proc directory
+    // Makes sure 2D changes are only done on master
+    static const char* lsfilename = "outls.2ds";
+    if ( !lsfileemitted )
+    {
+	FilePath fp( jobrunner->procDir() );
+	fp.add( lsfilename );
+	const BufferString lsfnm( fp.fullPath() );
+	lsfileemitted = jobprov->emitLSFile( lsfnm );
+    }
+    if ( lsfileemitted )
+    {
+	FilePath fp( jobrunner->curJobFilePath() );
+	fp.setFileName( lsfilename );
+	const BufferString lsfnm( fp.fullPath() );
+	jobrunner->curJobIOPar().set( "Output.Line Set File", lsfnm );
+    }
 }
 
 

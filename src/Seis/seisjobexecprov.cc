@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.13 2005-03-18 10:05:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.14 2005-03-24 12:12:08 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -41,6 +41,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     	, ctio_(*new CtxtIOObj(SeisTrcTranslatorGroup::ioContext()) )
     	, nrrunners_(0)
     	, is2d_(false)
+    	, workls_(0)
 {
     ctio_.ctxt.trglobexpr = "CBVS";
     seisoutkey_ = outputKey( iopar_ );
@@ -56,6 +57,15 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 	is2d_ = SeisTrcTranslator::is2D(*outioobj);
 	delete outioobj;
     }
+}
+
+
+SeisJobExecProv::~SeisJobExecProv()
+{
+    delete workls_;
+    delete &iopar_;
+    delete &outioobjpars_;
+    delete &ctio_;
 }
 
 
@@ -82,9 +92,9 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
     IOObj* ioobj = IOM().get( lskey );
     if ( ioobj && SeisTrcTranslator::is2D(*ioobj) )
     {
-	Seis2DLineSet ls( ioobj->fullUserExpr(true) );
-	for ( int idx=0; idx<ls.nrLines(); idx++ )
-	    nms.addIfNew( ls.lineName(idx) );
+	Seis2DLineSet* inpls = new Seis2DLineSet( ioobj->fullUserExpr(true) );
+	for ( int idx=0; idx<inpls->nrLines(); idx++ )
+	    nms.addIfNew( inpls->lineName(idx) );
 	const BufferString attrnm = iopar_.find( "Target value" );
 
 	if ( isrestart )
@@ -93,11 +103,11 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	    {
 		LineKey lk( nms.get(idx) );
 		lk.setAttrName( attrnm );
-		const int lidx = ls.indexOf( lk );
+		const int lidx = inpls->indexOf( lk );
 		if ( lidx >= 0 )
 		{
 		    Line2DGeometry geom;
-		    if ( ls.getGeometry(lidx,geom) && geom.posns.size() > 0 )
+		    if ( inpls->getGeometry(lidx,geom) && geom.posns.size()>0 )
 		    {
 			nms.remove( idx );
 			idx--;
@@ -108,8 +118,8 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	    {
 		// Hmm - all already done. Then probably (s)he wants to
 		// re-process, possibly with new attrib definition
-		for ( int idx=0; idx<ls.nrLines(); idx++ )
-		    nms.addIfNew( ls.lineName(idx) );
+		for ( int idx=0; idx<inpls->nrLines(); idx++ )
+		    nms.addIfNew( inpls->lineName(idx) );
 	    }
 	}
 
@@ -117,7 +127,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	// ensure we have the line set ready.
 	// This is crucial in the war against NFS attribute caching
 	lskey = iopar_.find( "Output.1.Seismic ID" );
-	Seis2DLineSet* outls = &ls;
+	Seis2DLineSet* outls = inpls;
 	if ( lskey )
 	{
 	    IOObj* outioobj = IOM().get( lskey );
@@ -127,9 +137,11 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 		delete outioobj;
 	    }
 	}
-	ls.addLineKeys( *outls, attrnm );
-	if ( outls != &ls )
-	    delete outls;
+	inpls->addLineKeys( *outls, attrnm );
+	if ( inpls != outls )
+	    delete inpls;
+
+	delete workls_; workls_ = outls;
     }
     delete ioobj;
 
@@ -138,6 +150,20 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	= new KeyReplaceJobDescProv( iopar_, parkey, nms );
     ret->objtyp_ = "Line";
     return ret;
+}
+
+
+bool SeisJobExecProv::emitLSFile( const char* fnm ) const
+{
+    if ( !workls_ ) return false;
+
+    StreamData sd = StreamProvider(fnm).makeOStream();
+    if ( !sd.usable() )
+	return false;
+
+    workls_->putTo( *sd.ostrm );
+    sd.close();
+    return !File_isEmpty( fnm );
 }
 
 
@@ -166,7 +192,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv()
     BufferString rgkey = iopar_.find( "Inline Range Key" );
     if ( rgkey == "" ) rgkey = mOutKey("In-line range");
     InlineSplitJobDescProv jdp( iopar_, rgkey );
-    jdp.getRange( inls );
+    jdp.getRange( inls_ );
 
     if ( havetempdir )
     {
@@ -235,8 +261,8 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 {
     FilePath basefp( iopar_.find(sKeyTmpStor) );
 
-    int lastgood = inls.start - inls.step;
-    for ( int inl=inls.start; inl<=inls.stop; inl+=inls.step )
+    int lastgood = inls_.start - inls_.step;
+    for ( int inl=inls_.start; inl<=inls_.stop; inl+=inls_.step )
     {
 	FilePath fp( basefp );
 	BufferString fnm( "i." ); fnm += inl;
@@ -288,8 +314,8 @@ MultiID SeisJobExecProv::tempStorID() const
 	ctio_.ioobj->pars() = outioobjpars_;
 	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj)
 	fp.add( "i.*" );
-	if ( inls.start != inls.stop || inls.start != 0 )
-	    iostrm->fileNumbers() = inls;
+	if ( inls_.start != inls_.stop || inls_.start != 0 )
+	    iostrm->fileNumbers() = inls_;
 	else
 	{
 	    StepInterval<int> fnrs;

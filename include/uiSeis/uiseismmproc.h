@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.30 2005-03-23 15:46:46 cvsbert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.31 2005-03-24 12:12:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ protected:
     bool		isrestart;
     bool		is2d;
     bool 		paused;
+    bool 		lsfileemitted;
 
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;

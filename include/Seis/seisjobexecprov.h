@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.5 2004-11-10 17:23:35 bert Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.6 2005-03-24 12:12:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class Executor;
 class CtxtIOObj;
 class JobRunner;
 class JobDescProv;
+class Seis2DLineSet;
 
 /*!\brief Provides job runners and postprocessor for seismic processing.
 
@@ -49,6 +50,7 @@ class SeisJobExecProv
 public:
 
 			SeisJobExecProv(const char* prognm,const IOPar&);
+    virtual		~SeisJobExecProv();
 
     bool		isRestart() const;
     const char*		errMsg() const		{ return errmsg_.buf(); }
@@ -57,6 +59,7 @@ public:
     JobRunner*		getRunner();
     Executor*		getPostProcessor();
     bool		removeTempSeis();
+    bool		emitLSFile(const char*) const;
 
     const MultiID&	outputID() const	{ return seisoutid_; }
 
@@ -78,7 +81,8 @@ protected:
     const BufferString	progname_;
     mutable BufferString errmsg_;
     int			nrrunners_;
-    StepInterval<int>	inls;
+    StepInterval<int>	inls_;
+    Seis2DLineSet*	workls_;
 
 
     JobDescProv*	mk2DJobProv();

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.39 2005-03-18 10:05:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.40 2005-03-24 12:12:08 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -262,14 +262,28 @@ void Seis2DLineSet::readFile( bool mklock, BufferString* type )
 	getFrom( *sd.istrm, type );
 	sd.close();
     }
+    else if ( name() == "" )
+    {
+	FilePath fp( fname_ );
+	fp.setExtension( 0 );
+	setName( fp.fileName() );
+    }
 }
 
 
 bool Seis2DLineSet::getPre( BufferString* type )
 {
+    if ( preSetFiles().size() < 1 )
+	return false;
+
     int psidx = preSetFiles().indexOf( fname_.buf() );
     if ( psidx < 0 )
-	return false;
+    {
+	FilePath fp( fname_ );
+	psidx = preSetFiles().indexOf( fp.fileName() );
+	if ( psidx < 0 )
+	    return false;
+    }
 
     std::string stdstr( preSetContents().get(psidx).buf() );
     std::istringstream istrstrm( stdstr );
