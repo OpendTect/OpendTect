@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.13 2004-01-09 12:07:56 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.14 2004-09-14 12:16:01 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ namespace visBase
 class Detail;
 
     
-enum EventType		{ Any, MouseClick, Keyboard, MouseMovement };
+enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4 };
 
 class EventInfo
 {
@@ -81,10 +81,12 @@ public:
     static EventCatcher*	create()
 				mCreateDataObj(EventCatcher);
 
-    void			setEventType( EventType type );
-    EventType			eventType() const { return type; }
+    void			setEventType( int type );
+    int				eventType() const { return type; }
 
     CNotifier<EventCatcher, const EventInfo&>		eventhappened;
+
+    CNotifier<EventCatcher, const EventInfo&>		nothandled;
 
     SoNode*			getInventorNode();
 
@@ -102,7 +104,7 @@ protected:
 				~EventCatcher();
     static void			internalCB( void*, SoEventCallback* );
 
-    EventType			type;
+    int				type;
     SoEventCallback*		node;
 
     static const char*		eventtypestr;

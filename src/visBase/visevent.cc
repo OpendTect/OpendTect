@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.16 2004-08-05 08:53:26 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.17 2004-09-14 12:16:01 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -43,6 +43,7 @@ mCreateFactoryEntry( visBase::EventCatcher );
 visBase::EventCatcher::EventCatcher()
     : node( new SoEventCallback )
     , eventhappened( this )
+    , nothandled( this )
     , type( Any )
 {
     node->ref();
@@ -59,7 +60,7 @@ void visBase::EventCatcher::_init()
 }
 
 
-void visBase::EventCatcher::setEventType( EventType type_ )
+void visBase::EventCatcher::setEventType( int type_ )
 {
     removeCBs();
     type = type_;
@@ -242,4 +243,6 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     }
 
     eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
+    if ( !eventcatcher->isEventHandled() )
+	eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
 }
