@@ -1,5 +1,5 @@
-#ifndef uiattribpartserv_h
-#define uiattribpartserv_h
+#ifndef uivispartserv_h
+#define uivispartserv_h
 
 /*+
 ________________________________________________________________________
@@ -7,16 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.1 2002-03-25 16:04:26 bert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.2 2002-03-28 16:02:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
-#include "multiid.h"
 class UserIDSet;
 class PickSet;
 class PickSetGroup;
+
+namespace visSurvey
+{
+class Scene;
+class PickSet;
+};
 
 
 /*! \brief Service provider for application level - Visutes */
@@ -28,10 +33,25 @@ public:
 			~uiVisPartServer();
     const char*		name() const		{ return "Visualisation"; }
 
-    bool		setPicks(const PickSetGroup&);
+    int			addScene();
+
+    int                 addPickSetDisplay();
+    void                removePickSetDisplay();
+
+    bool		setPicks(const PickSet&);
     void		getPickSets(UserIDSet&);
     void		getPickSetData(const char*,PickSet&);
 
+    void		setSelObjectId(int id)	{ selobjid = id; }
+    void		setSelSceneId(int id)	{ selsceneid = id; }
+
+protected:
+
+    int			selobjid;
+    int			selsceneid;
+
+    ObjectSet<visSurvey::PickSet>	picks;
+    ObjectSet<visSurvey::Scene>         scenes;
 };
 
 #endif
