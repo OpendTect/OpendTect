@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.16 2002-01-17 14:19:06 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.17 2002-01-24 16:03:39 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -74,6 +74,9 @@ void CBVSSeisTrcTranslator::cleanUp()
 
 void CBVSSeisTrcTranslator::destroyVars()
 {
+    delete rdmgr;
+    delete wrmgr;
+
     if ( !blockbufs ) return;
 
     const int nrcomps = nrSelComps();
@@ -93,9 +96,6 @@ void CBVSSeisTrcTranslator::destroyVars()
     delete [] actualsz; actualsz = 0;
     delete [] stptrs; stptrs = 0;
     delete [] tdptrs; tdptrs = 0;
-
-    delete rdmgr;
-    delete wrmgr;
 }
 
 
