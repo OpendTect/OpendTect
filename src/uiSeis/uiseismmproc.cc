@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.44 2003-03-06 15:08:23 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.45 2003-03-07 14:06:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -503,6 +503,10 @@ bool uiSeisMMProc::getCurMach( BufferString& mach ) const
     if ( curit < 0 ) return false;
 
     mach = usedmachfld->box()->textOfItem(curit);
+
+    char* ptr = strchr( mach.buf(), ':' );
+    if ( ptr ) *ptr = '\0';
+
     return mach.size() > 0;
 }
 
