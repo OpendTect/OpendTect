@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.12 2001-05-25 18:25:52 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.13 2001-05-30 09:01:41 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -249,9 +249,6 @@ bool CBVSReader::readGeom()
     return strm_.good();
 }
 
-
-#undef mErrRet
-#define mErrRet(s) { toOffs(0); return s; }
 
 bool CBVSReader::readTrailer()
 {
