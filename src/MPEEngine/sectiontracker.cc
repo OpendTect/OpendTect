@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.5 2005-03-15 16:53:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.6 2005-03-17 14:55:46 cvsnanne Exp $";
 
 #include "sectiontracker.h"
 
 #include "sectionextender.h"
 #include "sectionselector.h"
 #include "sectionadjuster.h"
+#include "positionscorecomputer.h"
 #include "iopar.h"
 #include "ptrman.h"
 
@@ -30,7 +31,7 @@ SectionTracker::SectionTracker( SectionSourceSelector* selector__,
     : selector_(selector__)
     , extender_(extender__)
     , adjuster_(adjuster__)
-    , useadjuster(true)
+    , useadjuster_(true)
 {
     init();
 }
@@ -79,7 +80,7 @@ bool SectionTracker::function() \
     { \
 	if ( res==-1 ) \
 	{ \
-	    errmsg = actionobj->errMsg(); \
+	    errmsg_ = actionobj->errMsg(); \
 	    return false; \
 	} \
     }  \
@@ -102,13 +103,30 @@ mGet( SectionExtender, extender, extender_ )
 mGet( SectionAdjuster, adjuster, adjuster_ )
 
 const char* SectionTracker::errMsg() const
-{ return errmsg[0] ? (const char*) errmsg : 0; }
+{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
+
+
+void SectionTracker::getNeededAttribs( 
+				ObjectSet<const AttribSelSpec>& res ) const
+{
+    if ( !adjuster_ ) return;
+    for ( int idx=0; idx<adjuster_->nrComputers(); idx++ )
+    {
+	PositionScoreComputer* psc = adjuster_->getComputer( idx );
+	for ( int asidx=0; asidx<psc->nrAttribs(); asidx++ )
+	{
+	    const AttribSelSpec* as = psc->getSelSpec( asidx );
+	    if ( indexOf(res,*as) < 0 )
+		res += as;
+	}
+    }
+}
 
 
 void SectionTracker::fillPar( IOPar& par ) const
 {
     IOPar trackpar;
-    trackpar.setYN( useadjusterstr, useadjuster );
+    trackpar.setYN( useadjusterstr, useadjuster_ );
     par.mergeComp( trackpar, trackerstr );
     if ( adjuster_ ) adjuster_->fillPar( par );
 }
@@ -117,9 +135,9 @@ void SectionTracker::fillPar( IOPar& par ) const
 bool SectionTracker::usePar( const IOPar& par )
 {
     PtrMan<IOPar> trackpar = par.subselect( trackerstr );
-    useadjuster = true;
+    useadjuster_ = true;
     if ( trackpar )
-	trackpar->getYN( useadjusterstr, useadjuster );
+	trackpar->getYN( useadjusterstr, useadjuster_ );
 	
     if ( adjuster_ ) adjuster_->usePar( par );
 

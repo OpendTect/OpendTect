@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.13 2005-03-14 16:46:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.14 2005-03-17 14:55:46 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -16,8 +16,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.13 2005-03-14 16:46:14 cvsnann
 #include "attribslice.h"
 #include "bufstringset.h"
 #include "emeditor.h"
-#include "emlens.h"
-#include "emlenstracker.h"
+#include "sectiontracker.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emtracker.h"
@@ -53,7 +52,8 @@ Engine::~Engine()
 }
 
 
-const CubeSampling& Engine::activeVolume() const { return activevolume; }
+const CubeSampling& Engine::activeVolume() const
+{ return activevolume; }
 
 
 void  Engine::setActiveVolume(const CubeSampling& nav)
@@ -85,10 +85,11 @@ void  Engine::setActiveVolume(const CubeSampling& nav)
 }
 
 
-const TrackPlane& Engine::trackPlane() const { return trackplane; }
+const TrackPlane& Engine::trackPlane() const
+{ return trackplane; }
 
 
-bool  Engine::setTrackPlane(const TrackPlane& ntp, bool dotrack)
+bool  Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 {
     trackplane = ntp;
     trackplanechange.trigger();
@@ -211,7 +212,8 @@ void Engine::removeTracker( int idx )
 }
 
 
-int Engine::highestTrackerID() const { return trackers.size(); }
+int Engine::highestTrackerID() const
+{ return trackers.size(); }
 
 
 const EMTracker* Engine::getTracker( int idx ) const
@@ -256,7 +258,29 @@ int Engine::getTrackerByObject( const char* objname ) const
 
 void Engine::getNeededAttribs( ObjectSet<const AttribSelSpec>& res ) const
 {
-    //TODO
+    for ( int trackeridx=0; trackeridx<trackers.size(); trackeridx++ )
+    {
+	EMTracker* tracker = trackers[trackeridx];
+	if ( !tracker ) continue;
+
+	EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+	if ( !emobj ) continue;
+
+	for ( int sectidx=0; sectidx<emobj->nrSections(); sectidx++ )
+	{
+	    const EM::SectionID sectionid = emobj->sectionID( sectidx );
+	    SectionTracker* sectiontracker = 
+				tracker->getSectionTracker(sectionid);
+	    ObjectSet<const AttribSelSpec> specs;
+	    sectiontracker->getNeededAttribs( specs );
+	    for ( int idx=0; idx<specs.size(); idx++ )
+	    {
+		const AttribSelSpec* as = specs[idx];
+		if ( indexOf(res,*as) < 0 )
+		    res += as;
+	    }
+	}
+    }
 }
 
 

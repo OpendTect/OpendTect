@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.5 2005-03-15 16:53:29 cvsnanne Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.6 2005-03-17 14:55:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,42 +29,46 @@ class SectionAdjuster : public BasicTask
 public:
 				SectionAdjuster(EM::EMObject&,
 						const EM::SectionID& sid=-1)
-				    : sectionid(sid)
-				    , stopbelowthrhold(false)
-				    , thresholdval(0.5)	{}
+				    : sectionid_(sid)
+				    , stopbelowthrhold_(false)
+				    , thresholdval_(0.5)	{}
 
-    EM::SectionID		sectionID() const 	{ return sectionid; }
+    EM::SectionID		sectionID() const 	{ return sectionid_; }
 
     virtual void		reset() 		{}
     virtual void		setExtender(const SectionExtender*) {}
 
     int				nextStep()		{ return 0; }
     const char*			errMsg() const  
-    				{ return errmsg[0] ? errmsg : 0; }
+    				{ return errmsg_[0] ? errmsg_ : 0; }
 
     const PositionScoreComputer* getComputer(int idx) const;
     PositionScoreComputer*	getComputer(int idx);
     int				nrComputers() const;
 
     void			setThresholdValue(float val)
-				{ thresholdval = val; }
+				{ thresholdval_ = val; }
     float			getThresholdValue() const
-    				{ return thresholdval; }
+    				{ return thresholdval_; }
     void			doStopBelowThreshold(bool yn)
-				{ stopbelowthrhold = yn; }
+				{ stopbelowthrhold_ = yn; }
     bool			stopBelowThreshold() const
-				{ return stopbelowthrhold; }
+				{ return stopbelowthrhold_; }
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
 protected:
-    BufferString		errmsg;
-    EM::SectionID		sectionid;
-    float			thresholdval;
-    bool			stopbelowthrhold;
+    BufferString		errmsg_;
+    EM::SectionID		sectionid_;
+    float			thresholdval_;
+    bool			stopbelowthrhold_;
 
-    ObjectSet<PositionScoreComputer>	computers;
+    ObjectSet<PositionScoreComputer> computers_;
+
+    static const char*		adjusterstr;
+    static const char*		thresholdstr;
+    static const char*		stoptrackstr;
 };
 
 }; // namespace MPE

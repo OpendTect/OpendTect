@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.4 2005-03-15 16:53:29 cvsnanne Exp $
+ RCS:           $Id: sectiontracker.h,v 1.5 2005-03-17 14:55:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "geomelement.h"
 
+class AttribSelSpec;
 class BinIDValue;
 
 
@@ -55,15 +56,22 @@ public:
     virtual bool		adjust();
     const char*			errMsg() const;
 
-    void			useAdjuster(bool yn)	{ useadjuster=yn; }
-    bool			adjusterUsed() const	{ return useadjuster; }
+    void			useAdjuster(bool yn)	{ useadjuster_=yn; }
+    bool			adjusterUsed() const	{ return useadjuster_; }
+
+    void			setSetupID(const MultiID& id)	{ setupid_=id; }
+    const MultiID&		setupID() const		{ return setupid_; }
+
+    void			getNeededAttribs(
+	    				ObjectSet<const AttribSelSpec>&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
 protected:
-    BufferString		errmsg;
-    bool			useadjuster;
+    BufferString		errmsg_;
+    bool			useadjuster_;
+    MultiID			setupid_;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;

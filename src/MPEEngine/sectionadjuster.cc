@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.2 2005-03-14 16:43:13 cvsnanne Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.3 2005-03-17 14:55:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,14 @@ ________________________________________________________________________
 namespace MPE
 {
 
+const char* SectionAdjuster::adjusterstr = "Adjuster";
+const char* SectionAdjuster::thresholdstr = "Threshold value";
+const char* SectionAdjuster::stoptrackstr = "Stop tracking below threshold";
+
+
 PositionScoreComputer* SectionAdjuster::getComputer( int idx )
 {
-    return computers[idx];
+    return computers_[idx];
 }
 
 
@@ -31,12 +36,17 @@ const PositionScoreComputer* SectionAdjuster::getComputer( int idx ) const
 
 int SectionAdjuster::nrComputers() const
 {
-    return computers.size();
+    return computers_.size();
 }
 
 
 void SectionAdjuster::fillPar( IOPar& par ) const
 {
+    IOPar adjpar;
+    adjpar.set( thresholdstr, thresholdval_ );
+    adjpar.setYN( stoptrackstr, stopbelowthrhold_ );
+    par.mergeComp( adjpar, adjusterstr );
+
     for ( int idx=0; idx<nrComputers(); idx++ )
 	getComputer(idx)->fillPar( par );
 }
@@ -44,9 +54,19 @@ void SectionAdjuster::fillPar( IOPar& par ) const
 
 bool SectionAdjuster::usePar( const IOPar& par )
 {
+    stopbelowthrhold_ = false;
+    thresholdval_ = 0.5;
+    PtrMan<IOPar> adjpar = par.subselect( adjusterstr );
+    if ( adjpar )
+    {
+	adjpar->get( thresholdstr, thresholdval_ );
+	adjpar->getYN( stoptrackstr, stopbelowthrhold_ );
+    }
+    
     for ( int idx=0; idx<nrComputers(); idx++ )
     {
-	if ( !getComputer(idx)->usePar(par) ) return false;
+	if ( !getComputer(idx)->usePar(par) )
+	    return false;
     }
 
     return true;
