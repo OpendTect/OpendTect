@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.2 2001-06-05 11:49:45 windev Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.3 2002-07-25 11:49:13 nanne Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -345,7 +345,7 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
 }
 
 
-void SeisTrcPropChg::mute( float mpos, float taperlen )
+void SeisTrcPropChg::topMute( float mpos, float taperlen )
 {
     if ( mpos < trc.startPos(curcomp) ) return;
     int endidx = trc.size(curcomp) - 1;
@@ -353,8 +353,8 @@ void SeisTrcPropChg::mute( float mpos, float taperlen )
 	mpos = trc.samplePos(endidx,curcomp);
     if ( taperlen < 0 || mIsUndefined(taperlen) )
 	taperlen = 0;
-    if ( !mIsUndefined(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
-	return;
+//  if ( !mIsUndefined(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
+//	return;
 
     mtrc().info().mute_pos = mpos;
     mtrc().info().taper_length = taperlen;
@@ -376,6 +376,46 @@ void SeisTrcPropChg::mute( float mpos, float taperlen )
     {
 	int idx = trc.nearestSample( pos, curcomp );
 	float x = ((pos - mpos) / taperlen) * M_PI;
+	float taper = 0.5 * ( 1 - cos(x) );
+	mtrc().set( idx, trc.get( idx, curcomp ) * taper, curcomp );
+	pos += trc.info().sampling.step;
+    }
+}
+
+
+void SeisTrcPropChg::tailMute( float mpos, float taperlen )
+{
+    int endidx = trc.size(curcomp) - 1;
+    if ( mpos > trc.samplePos(endidx,curcomp) ) return;
+    if ( mpos < trc.startPos(curcomp) )
+	mpos = trc.startPos(curcomp);
+
+    if ( taperlen < 0 || mIsUndefined(taperlen) )
+	taperlen = 0;
+//  if ( !mIsUndefined(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
+//	return;
+
+    mtrc().info().mute_pos = mpos;
+    mtrc().info().taper_length = taperlen;
+
+    float pos = mpos;
+    while ( pos <= trc.samplePos(endidx,curcomp)  )
+    {
+	int idx = trc.nearestSample( pos, curcomp );
+	mtrc().set( idx, 0, curcomp );
+	pos += trc.info().sampling.step;
+    }
+
+    if ( mIS_ZERO(taperlen) ) return;
+
+    float pp = mpos - taperlen;
+    if ( pp < trc.startPos(curcomp) )
+	pp = trc.startPos(curcomp);
+    pos = pp;
+    while ( pos <= mpos )
+    {
+	int idx = trc.nearestSample( pos, curcomp );
+	float x = ((mpos - pos) / taperlen) * M_PI;
 	float taper = 0.5 * ( 1 - cos(x) );
 	mtrc().set( idx, trc.get( idx, curcomp ) * taper, curcomp );
 	pos += trc.info().sampling.step;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.1 2001-02-13 17:46:50 bert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.2 2002-07-25 11:49:37 nanne Exp $
 ________________________________________________________________________
 
 A trace is composed of trace info and trace data.
@@ -57,7 +57,9 @@ public:
     void	normalize();
     void	corrNormalize();
     void	removeDC();
-    void	mute(float,float taperlen);
+    void	mute(float pos,float taperlen)		{topMute(pos,taperlen);}
+    void	topMute(float,float);
+    void	tailMute(float,float);
 
     SeisTrc&	trace()			{ return mtrc(); }
 
