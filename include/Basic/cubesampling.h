@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.9 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.10 2003-12-16 08:16:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,10 @@ struct HorSampling
     bool		getInterSection(const HorSampling&,HorSampling&) const;
     			//!< Returns false if intersection is empty
 
+    void		snapToSurvey(bool work=true);
+    			/*!< Checks if it is on valid bids. If not, it will
+			     expand until it is */
+
     bool		operator==( const HorSampling& hs ) const
 			{ return hs.start==start && hs.stop==stop 
 			    			 && hs.step==step; }
@@ -112,6 +116,10 @@ public:
     bool		getInterSection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
+
+    void		snapToSurvey(bool work=true);
+    			/*!< Checks if it is on valid bids. If not, it will
+			     expand until it is */
 
     bool		operator==( const CubeSampling& cs ) const
 			{ return cs.hrg==hrg && cs.zrg==zrg; }

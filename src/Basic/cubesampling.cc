@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.2 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.3 2003-12-16 08:16:23 kristofer Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -162,6 +162,13 @@ bool HorSampling::getInterSection( const HorSampling& hs,
 }
 
 
+void HorSampling::snapToSurvey(bool work)
+{
+    SI().snap( start, BinID(-1,-1), work );
+    SI().snap( stop, BinID(1,1), work );
+}
+
+
 
 static void normaliseZ( StepInterval<float>& zrg )
 {
@@ -182,6 +189,14 @@ bool CubeSampling::getInterSection( const CubeSampling& cs,
     return intersectF( zrg1.start, zrg1.stop, zrg1.step,
 		       zrg2.start, zrg2.stop, zrg2.step,
 		       out.zrg.start, out.zrg.stop, out.zrg.step );
+}
+
+
+void CubeSampling::snapToSurvey(bool work)
+{
+    hrg.snapToSurvey(work);
+    zrg.start = SI().zRange(work).snap( zrg.start-SI().zRange(work).step/2 );
+    zrg.stop = SI().zRange(work).snap( zrg.stop+SI().zRange(work).step/2 );
 }
 
 
