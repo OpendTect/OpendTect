@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.150 2003-06-02 08:14:03 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.151 2003-06-06 14:08:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1140,6 +1140,9 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 
     const ColorAttribSel* as = getColorSelSpec( id );
     if ( !as ) return false;
+    if ( !newselect && as->id()<0 )
+	return false;
+
     bool res = true;
     if ( newselect || ( as->id() < 0 ) )
 	res = selectColorAttrib( id );
@@ -1195,15 +1198,12 @@ bool uiVisPartServer::setPosition( int id )
 	bool res;
 	CubeSampling cs = dlg.getCubeSampling();
 	if ( pdd )
-	{
 	    pdd->setCubeSampling( cs );
-	    res = calculateAttrib( id, false );
-	}
 	else if ( vd )
-	{
 	    vd->setCubeSampling( cs );
-	    res = calculateAttrib( id, false );
-	}
+
+	res = calculateAttrib( id, false );
+	calculateColorAttrib( id, false );
 
 	sendEvent( evInteraction );
 	return res;
@@ -1225,6 +1225,7 @@ void uiVisPartServer::updatePlanePos( CallBacker* cb )
     CubeSampling cs = dlg->getCubeSampling();
     pdd->setCubeSampling( cs );
     calculateAttrib( id, false );
+    calculateColorAttrib( id, false );
     sendEvent( evInteraction );
 }
   
@@ -1475,8 +1476,13 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 void uiVisPartServer::deselectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,oldsel,cb);
-    if ( isManipulated( oldsel ) && hasAttrib(oldsel) )
-	calculateAttrib( oldsel, false );
+    if ( isManipulated(oldsel) )
+    {
+	if ( hasAttrib(oldsel) )
+	    calculateAttrib( oldsel, false );
+	if ( hasColorAttrib(oldsel) )
+	    calculateColorAttrib( oldsel, false );
+    }
 
     if ( !viewmode )
 	toggleDraggers();

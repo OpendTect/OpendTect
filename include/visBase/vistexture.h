@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.12 2003-06-02 08:08:36 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.13 2003-06-06 14:09:14 nanne Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ namespace visBase
 {
 
 class VisColorTab;
+class VisColTabMod;
 class ThreadWorker;
 
 /*!\brief
@@ -73,6 +74,8 @@ public:
 
     void		setTextureQuality(float);
     float		getTextureQuality() const;
+
+    VisColTabMod&	getColTabMod();
 
     SoNode*		getData();
 
@@ -126,6 +129,7 @@ private:
 
     bool		usetrans;
 
+    VisColTabMod*	coltabmod;
     VisColorTab*	colortab;
     ObjectSet<visBaseTextureColorIndexMaker> colorindexers;
     ObjectSet<BasicTask> texturemakers;

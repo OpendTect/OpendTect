@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.26 2003-06-02 08:08:36 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.27 2003-06-06 14:09:14 nanne Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 
 template <class T> class Array2D;
+template <class T> class Interval;
 class Coord3;
 
 namespace visBase
@@ -75,6 +76,9 @@ public:
     int				getResolution() const;
 
     const TypeSet<float>&       getHistogram() const;
+
+    void			setColorPars(bool,bool,const Interval<float>&);
+    const Interval<float>&	getColorDataRange() const;
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.37 2003-06-02 08:08:26 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.38 2003-06-06 14:09:04 nanne Exp $";
 
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.37 2003-06-02 08:08:26 na
 #include "visdataman.h"
 #include "viscolortab.h"
 #include "vistexture2.h"
+#include "viscoltabmod.h"
 #include "ptrman.h"
 #include "position.h"
 
@@ -273,6 +274,22 @@ int visBase::TextureRect::getResolution() const
 const TypeSet<float>& visBase::TextureRect::getHistogram() const
 {
     return textureset[curidx]->getHistogram();
+}
+
+
+void visBase::TextureRect::setColorPars( bool rev, bool useclip, 
+					 const Interval<float>& intv )
+{
+    VisColTabMod& ctm = textureset[curidx]->getColTabMod();
+    ctm.doReverse( rev );
+    ctm.useClipping( useclip );
+    useclip ? ctm.setClipRate( intv.start, intv.stop ) : ctm.setRange( intv );
+}
+
+
+const Interval<float>& visBase::TextureRect::getColorDataRange() const
+{
+    return textureset[curidx]->getColTabMod().getRange();
 }
 
 

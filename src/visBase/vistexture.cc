@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.19 2003-06-02 08:08:26 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.20 2003-06-06 14:09:04 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.19 2003-06-02 08:08:26 nanne 
 #include "simpnumer.h"
 #include "thread.h"
 #include "viscolortab.h"
+#include "viscoltabmod.h"
 #include "visdataman.h"
 #include "visthread.h"
 
@@ -50,10 +51,7 @@ visBase::Texture::Texture()
 {
     datacache.allowNull(true);
     for ( int idx=0; idx<5; idx++ )
-    {
 	datacache += 0;
-	datascales += LinScaler( 0, 1 );
-    }
 
     onoff->ref();
     onoff->addChild( texturegrp );
@@ -61,6 +59,9 @@ visBase::Texture::Texture()
     quality->textureQuality.setValue( 1 );
 
     setColorTab( *visBase::VisColorTab::create() );
+
+    coltabmod = visBase::VisColTabMod::create();
+    coltabmod->ref();
 }
 
 
@@ -82,6 +83,7 @@ visBase::Texture::~Texture()
     }
 
     onoff->unref();
+    coltabmod->unRef();
 }
 
 
@@ -269,11 +271,7 @@ void visBase::Texture::clipData()
 	if ( !datacache[idx] )
 	    continue;
 
-	clipper.putData(datacache[idx], cachesize );
-	clipper.calculateRange();
-	datascales[idx].factor = 1.0/clipper.getRange().width();
-	datascales[idx].constant = -clipper.getRange().start * 
-	    						datascales[idx].factor;
+	coltabmod->setScale( datacache[idx], cachesize, idx );
     }
 
     if ( datacache[Texture::Color] )
@@ -385,7 +383,7 @@ public:
     unsigned char*		indexcache;
     unsigned char*		texture;
     ::Color*			colortabcolors;
-    TypeSet<LinScaler>*		datascales;
+    visBase::VisColTabMod*	ctm;
     const float*		transdata;
     const float*		huedata;
     const float*		saturationdata;
@@ -410,30 +408,33 @@ protected:
 		    col.getHSV(h,s,v);
 		    if ( huedata )
 		    {
-			float th = 255 * (*datascales)[visBase::Texture::Hue]
-					.scale(huedata[idx]);
+			float th = 255 * ctm->getScale(visBase::Texture::Hue)
+							.scale(huedata[idx]);
 
 			if ( th<0 ) th=0;
 			else if ( th>255 ) th=255;
+			if ( ctm->isReverse() ) th = 255-th;
 
 			h = mNINT(th);
 		    }
 		    if ( saturationdata )
 		    {
-			float ts = 255 *
-			    	(*datascales)[visBase::Texture::Saturation]
-				    .scale(saturationdata[idx]);
+			float ts = 255 * 
+			      ctm->getScale(visBase::Texture::Saturation)
+			      .scale(saturationdata[idx]);
 			if ( ts<0 ) ts=0;
 			else if ( ts>255 ) ts=255;
+			if ( ctm->isReverse() ) ts = 255-ts;
 			s = mNINT(ts);
 		    }
 		    if ( brightnessdata )
 		    {
-			float tv = 255 *
-			    (*datascales)[visBase::Texture::Brightness]
-				    .scale(brightnessdata[idx]);
+			float tv = 255 * 
+			      ctm->getScale(visBase::Texture::Brightness)
+			      .scale(brightnessdata[idx]);
 			if ( tv<0 ) tv=0;
 			else if ( tv>255 ) tv=255;
+			if ( ctm->isReverse() ) tv = 255-tv;
 			v = mNINT(tv);
 		    }
 
@@ -448,12 +449,13 @@ protected:
 		{
 		    if ( transdata )
 		    {
-			int trans = 255 * 
-			    mNINT((*datascales)[visBase::Texture::Transparency]
-			    .scale(transdata[idx] ));
+			int trans = mNINT( 255 * 
+			    ctm->getScale(visBase::Texture::Transparency)
+			    .scale(transdata[idx]) );
 			if ( trans<0 ) trans=0;
 			else if ( trans>255 ) trans=255;
-			texture[pos++] = 255-trans;
+			if ( !ctm->isReverse() ) trans = 255-trans;
+			texture[pos++] = trans;
 		    }
 		    else
 		    {
@@ -502,11 +504,11 @@ void visBase::Texture::makeTexture()
 	maker->indexcache = indexcache;
 	maker->texture = texture;
 	maker->usetrans = usetrans;
-	maker->datascales = &datascales;
 	maker->transdata = datacache[Transparency];
 	maker->huedata = datacache[Hue];
 	maker->saturationdata = datacache[Saturation];
 	maker->brightnessdata = datacache[Brightness];
+	maker->ctm = coltabmod;
     }
 
 
@@ -545,6 +547,10 @@ int visBase::Texture::nextPower2( int nr, int minnr, int maxnr ) const
 
     return newnr;
 }
+
+
+visBase::VisColTabMod& visBase::Texture::getColTabMod()
+{ return *coltabmod; }
 
 
 void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const

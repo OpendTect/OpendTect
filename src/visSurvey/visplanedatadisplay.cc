@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.51 2003-06-02 08:09:51 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.52 2003-06-06 14:09:35 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -375,6 +375,13 @@ void visSurvey::PlaneDataDisplay::setSliceIdx( int idx )
 bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset, 
 					      bool colordata )
 {
+    if ( colordata )
+    {
+	Interval<float> cliprate( colas.cliprate0, colas.cliprate1 );
+	trect->setColorPars( colas.reverse, colas.useclip, 
+			     colas.useclip ? cliprate : colas.range );
+    }
+
     setData( sliceset, colordata ? colas.datatype : 0 );
     if ( colordata )
     {
