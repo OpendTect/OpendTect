@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.10 2003-12-22 15:56:41 arend Exp $
+# $Id: od_cr_dev_env,v 1.11 2004-01-05 10:54:08 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -69,6 +69,8 @@ mkdir bin
 cd bin
 mkdir $HDIR
 cd $HDIR
+ln -s . G
+ln -s . O
 mkdir so
 cd so
 
