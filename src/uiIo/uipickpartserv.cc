@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.16 2003-02-03 14:07:03 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.17 2003-02-11 10:01:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,12 +102,12 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     bool do2hors = !rp.iscube && rp.horidx2 >= 0 && rp.horidx2 != rp.horidx;
     if ( !rp.iscube )
     {
-	selhorid = hinfos[rp.horidx]->id;
+	selhorid = hinfos[rp.horidx]->multiid;
 	hordef.erase(); usehd1 = true;
 	sendEvent( evGetHorDef );
 	if ( do2hors )
 	{
-	    selhorid = hinfos[rp.horidx2]->id;
+	    selhorid = hinfos[rp.horidx2]->multiid;
 	    hordef2.erase(); usehd1 = false;
 	    sendEvent( evGetHorDef );
 	    do2hors = hordef2.size() > 2;
