@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.4 2003-06-03 13:25:44 kristofer Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.5 2003-07-10 09:55:00 kristofer Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
@@ -18,7 +18,7 @@ const char* EM::PosID::subidstr = "Sub ID";
 
 RowCol EM::PosID::getRowCol() const
 {
-    return Geometry::GridSurface::getGridNode(subID());
+    return long2rc(subID());
 }
 
 
