@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.19 2004-04-28 21:30:59 bert Exp $
+ RCS:           $Id: uimsg.cc,v 1.20 2004-09-15 06:37:46 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uimsg.h"
+
+#include "uicursor.h"
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uistatusbar.h"
@@ -105,14 +107,17 @@ void uiMsg::toStatusbar( MsgClass* mc )
 
 void uiMsg::message( const char* text, const char* caption )
 {
+    uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "Information";
     QMessageBox::information( popParnt(),
 			      QString(caption), QString(text), QString("Ok") );
+
 }
 
 
 void uiMsg::warning( const char* text, const char* caption )
 {
+    uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "Warning";
     QMessageBox::warning( popParnt(),
 			  QString(caption), QString(text), QMessageBox::Ok,
@@ -122,6 +127,7 @@ void uiMsg::warning( const char* text, const char* caption )
 
 void uiMsg::error( const char* text, const char* caption )
 {
+    uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "Error";
     QMessageBox::critical( popParnt(),
 			   QString(caption), QString(text), QString("Ok") );
@@ -130,6 +136,7 @@ void uiMsg::error( const char* text, const char* caption )
 
 void uiMsg::about( const char* text, const char* caption )
 {
+    uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "About";
     QMessageBox::about( popParnt(), QString(caption), QString(text) );
 }
@@ -137,6 +144,7 @@ void uiMsg::about( const char* text, const char* caption )
 
 bool uiMsg::askGoOn( const char* text, bool yn, const char* caption )
 {
+    uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "Please specify";
     return !QMessageBox::warning( popParnt(),
 				  QString(caption), QString(text),
@@ -150,6 +158,7 @@ bool uiMsg::askGoOn( const char* text, bool yn, const char* caption )
 int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg,
 			 const char* caption )
 {
+    uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !cnclmsg || !*cnclmsg ) cnclmsg = "Cancel";
     if ( !caption || !*caption ) caption = "Please specify";
     return QMessageBox::warning( popParnt(), QString(caption), QString(text),
