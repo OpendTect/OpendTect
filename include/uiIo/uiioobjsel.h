@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.34 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.35 2004-07-21 14:04:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,8 @@ protected:
     bool		acceptOK(CallBacker*);
     void		selChg(CallBacker*);
     void		preReloc(CallBacker*);
+
+    void		replaceFinaliseCB(const CallBack&);
 
     virtual bool	createEntry(const char*);
 

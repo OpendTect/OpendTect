@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.66 2004-05-07 12:54:45 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.67 2004-07-21 14:04:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,6 +270,13 @@ bool uiIOObjSelDlg::createEntry( const char* seltxt )
     }
 
     return true;
+}
+
+
+void uiIOObjSelDlg::replaceFinaliseCB( const CallBack& newcb )
+{
+    finaliseDone.remove( mCB(this,uiIOObjSelDlg,selChg) );
+    finaliseDone.notify( newcb );
 }
 
 

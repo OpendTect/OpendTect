@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.7 2004-07-16 15:35:26 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.8 2004-07-21 14:05:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
-    finaliseDone.remove( mCB(this,uiIOObjSelDlg,selChg) );
-    finaliseDone.notify( mCB(this,uiSeisSelDlg,fillFlds) );
+    replaceFinaliseCB( mCB(this,uiSeisSelDlg,fillFlds) );
 }
 
 
