@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.11 2001-05-02 13:50:01 windev Exp $
+ RCS:		$Id: simpnumer.h,v 1.12 2001-09-03 13:09:15 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -30,9 +30,9 @@ ________________________________________________________________________
 */
 
 template <class T>
-inline T linearInterpolate( T y0, T y1, float pos )
+inline T linearInterpolate( T y0_, T y1_, float pos )
 {
-    return pos*y1 + (1-pos)*y0;
+    return pos*y1_ + (1-pos)*y0_;
 }
 
 
@@ -42,9 +42,9 @@ inline T linearInterpolate( T y0, T y1, float pos )
 */
 
 template <class T>
-inline T linearInterpolate( float x0, T y0, float x1, T y1, float x )
+inline T linearInterpolate( float x0, T y0_, float x1, T y1_, float x )
 {
-    return y0 + (x-x0) * (y1-y0) / (x1-x0);
+    return y0_ + (x-x0) * (y1_-y0_) / (x1-x0);
 } 
 
 
@@ -58,14 +58,14 @@ inline T linearInterpolate( float x0, T y0, float x1, T y1, float x )
 */
 
 template <class T>
-inline T polyInterpolate( T y0, T y1, T y2, T y3, float pos )
+inline T polyInterpolate( T y0_, T y1_, T y2, T y3, float pos )
 {
-    T b = (( y2 + y0 ) / 2) - y1;
-    T c = y2 - (( 2*y0 + 3*y1 + y3 ) / 6);
-    T a = (( y2 - y0 ) / 2) - c;
+    T b = (( y2 + y0_ ) / 2) - y1_;
+    T c = y2 - (( 2*y0_ + 3*y1_ + y3 ) / 6);
+    T a = (( y2 - y0_ ) / 2) - c;
 
     float possq = pos * pos;
-    return possq * pos * a + possq * b + pos * c + y1;
+    return possq * pos * a + possq * b + pos * c + y1_;
 }
 
 
@@ -76,12 +76,12 @@ inline T polyInterpolate( T y0, T y1, T y2, T y3, float pos )
 */
 
 template <class T>
-inline T polyInterpolate( float x0, T y0, float x1, T y1, float x2, T y2, 
+inline T polyInterpolate( float x0, T y0_, float x1, T y1_, float x2, T y2, 
 			  float x3, T y3, float x )
 {
     float xx0 = x - x0, xx1 = x-x1, xx2 = x-x2, xx3 = x-x3;
-    return 	y0 * xx1 * xx2 * xx3 / ((x0 - x1) * (x0 - x2) * (x0 - x3)) +
-		y1 * xx0 * xx2 * xx3 / ((x1 - x0) * (x1 - x2) * (x1 - x3)) +
+    return 	y0_ * xx1 * xx2 * xx3 / ((x0 - x1) * (x0 - x2) * (x0 - x3)) +
+		y1_ * xx0 * xx2 * xx3 / ((x1 - x0) * (x1 - x2) * (x1 - x3)) +
 		y2 * xx0 * xx1 * xx3 / ((x2 - x0) * (x2 - x1) * (x2 - x3)) +
 		y3 * xx0 * xx1 * xx2 / ((x3 - x0) * (x3 - x1) * (x3 - x2));
 }
@@ -94,10 +94,10 @@ inline T polyInterpolate( float x0, T y0, float x1, T y1, float x2, T y2,
 */
 
 template <class T>
-inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
+inline T polyInterpolateWithUdf( T y0_, T y1_, T y2, T y3, float x )
 {
     static bool udf[4];
-    udf[0] = mIsUndefined(y0); udf[1] = mIsUndefined(y1);
+    udf[0] = mIsUndefined(y0_); udf[1] = mIsUndefined(y1_);
     udf[2] = mIsUndefined(y2); udf[3] = mIsUndefined(y3);
 
     int nrudf = udf[0] ? 1 : 0;
@@ -108,8 +108,8 @@ inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
 	if ( nrudf > 2 ) return mUndefValue;
 
 	float pos[3]; T* v[3]; int ipos = 0;
-	if ( !udf[0] ) { pos[ipos] = -1; v[ipos] = &y0; ipos++; }
-	if ( !udf[1] ) { pos[ipos] = 0; v[ipos] = &y1; ipos++; }
+	if ( !udf[0] ) { pos[ipos] = -1; v[ipos] = &y0_; ipos++; }
+	if ( !udf[1] ) { pos[ipos] = 0; v[ipos] = &y1_; ipos++; }
 	if ( !udf[2] ) { pos[ipos] = 1; v[ipos] = &y2; ipos++; }
 	if ( !udf[3] ) { pos[ipos] = 2; v[ipos] = &y3; }
 
@@ -118,7 +118,7 @@ inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
       : parabolicInterpolate( pos[0], *v[0], pos[1], *v[1], pos[2], *v[2], x );
     }
 
-    return polyInterpolate( y0, y1, y2, y3, x );
+    return polyInterpolate( y0_, y1_, y2, y3, x );
 }
 
 
@@ -128,12 +128,12 @@ inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
 */
 
 template <class T>
-inline T parabolicInterpolate( float x0, T y0, float x1, T y1, float x2, T y2, 
+inline T parabolicInterpolate( float x0, T y0_, float x1, T y1_, float x2, T y2, 
 			       float x )
 {
     float xx0 = x - x0, xx1 = x-x1, xx2 = x-x2;
-    return 	y0 * xx1 * xx2 / ((x0 - x1) * (x0 - x2)) +
-		y1 * xx0 * xx2 / ((x1 - x0) * (x1 - x2)) +
+    return 	y0_ * xx1 * xx2 / ((x0 - x1) * (x0 - x2)) +
+		y1_ * xx0 * xx2 / ((x1 - x0) * (x1 - x2)) +
 		y2 * xx0 * xx1 / ((x2 - x0) * (x2 - x1));
 }
 
@@ -696,26 +696,26 @@ bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
  The function will return mUndefValue if there are too many missing values.
 */
 template <class T>
-inline T sampledGradient( T ym2, T ym1, T y0, T y1, T y2 )
+inline T sampledGradient( T ym2, T ym1, T y0_, T y1_, T y2 )
 {
-    bool um1 = mIsUndefined(ym1), u0 = mIsUndefined(y0), u1 = mIsUndefined(y1);
+    bool um1 = mIsUndefined(ym1), u0 = mIsUndefined(y0_), u1 = mIsUndefined(y1_);
 
     if ( mIsUndefined(ym2) || mIsUndefined(y2) )
     {
         if ( um1 || u1 )
-	    { if ( !u0 && !(um1 && u1) ) return um1 ? y1 - y0 : y0 - ym1; }
+	    { if ( !u0 && !(um1 && u1) ) return um1 ? y1_ - y0_ : y0_ - ym1; }
         else
-            return (y1-ym1) * .5;
+            return (y1_-ym1) * .5;
     }
     else if ( (um1 && u1) || (u0 && (um1 || u1)) )
         return (y2-ym2) * .25;
     else if ( um1 || u1 )
     {
-        return um1 ? ((16*y1)   - 3*y2  - ym2) / 12 - y0
-                   : ((-16*ym1) + 3*ym2 + y2)  / 12 + y0;
+        return um1 ? ((16*y1_)   - 3*y2  - ym2) / 12 - y0_
+                   : ((-16*ym1) + 3*ym2 + y2)  / 12 + y0_;
     }
     else
-        return (8 * ( y1 - ym1 ) - y2 + ym2) / 12;
+        return (8 * ( y1_ - ym1 ) - y2 + ym2) / 12;
 
     return mUndefValue;
 }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.11 2001-06-29 20:17:42 bert Exp $
+ RCS:		$Id: sets.h,v 1.12 2001-09-03 13:09:15 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ public:
     ObjectSet<T>&	operator =( const ObjectSet<T>& os )
 			{ allow0 = os.allow0; copy(os); return *this; }
 
-    void		allowNull(bool yn=true)	{ allow0 = yn; }
+    void		allowNull(bool yn_=true){ allow0 = yn_; }
     bool		nullAllowed() const	{ return allow0; }
 
     virtual int		size() const
