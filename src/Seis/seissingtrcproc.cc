@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.20 2004-09-20 16:17:37 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.21 2004-09-21 07:37:01 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -195,7 +195,9 @@ void SeisSingleTraceProc::setScaler( Scaler* newsclr )
 
 void SeisSingleTraceProc::setResampler( SeisResampler* r )
 {
-    delete resampler_; resampler_ = r; resampler_->set2D( !is3d_ );
+    delete resampler_; resampler_ = r;
+    if ( resampler_ )
+	resampler_->set2D( !is3d_ );
 }
 
 
