@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999,2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec_rmt,v 1.3 2002-01-31 17:28:06 dgb Exp $
+# $Id: od_exec_rmt,v 1.4 2002-05-16 09:13:51 bert Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -42,3 +42,4 @@ endif
 set transf="$transf +-+-+ $*"
 
 rsh ${rh} ${dGB_APPL}/bin/dgb_do_rmt $transf
+exit 0
