@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.23 2002-01-16 14:14:50 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.24 2002-01-18 12:48:28 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -358,6 +358,7 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
 	{ uiMSG().error(conn.errMsg()); return; }
 
     survinfo->setRange( bs );
+    survinfo->setStep( bs.step );
     survinfo->setZRange( zrg );
     BinID bid[2];
     bid[0].inl = bs.start.inl; bid[0].crl = bs.start.crl;
