@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.25 2004-08-12 12:42:48 nanne Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.26 2004-10-18 14:11:55 nanne Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -82,8 +82,22 @@ bool visBase::DataManager::usePar( const IOPar& par )
 	return false;
 
     TypeSet<int> lefttodo;
+    /*
     for ( int idx=0; idx<freeid; idx++ )
 	lefttodo += idx;
+    */
+
+    for ( int idx=0; idx<par.size(); idx++ )
+    {
+	BufferString key = par.getKey( idx );
+	char* ptr = strchr(key.buf(),'.');
+	if ( !ptr ) continue;
+	*ptr++ = '\0';
+	const int id = atoi( key.buf() );
+	if ( lefttodo.indexOf(id) < 0 ) lefttodo += id;
+    }
+
+    sort( lefttodo );
 
     ObjectSet<DataObject> createdobj;
 
