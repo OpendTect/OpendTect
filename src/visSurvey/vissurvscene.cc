@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.48 2003-01-24 14:56:50 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.49 2003-02-04 12:27:21 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.48 2003-01-24 14:56:50 nann
 #include "vislight.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
+#include "vissurvinterpret.h"
 #include "vissurvpickset.h"
 #include "vissurvsurf.h"
 #include "vistransform.h"
@@ -126,6 +127,14 @@ void  visSurvey::Scene::addObject( visBase::SceneObject* sobj )
     if ( rtd )
     {
 	addInlCrlTObject( rtd );
+	return;
+    }
+
+
+    mDynamicCastGet( visSurvey::SurfaceInterpreterDisplay*, si, sobj );
+    if ( si )
+    {
+	addInlCrlTObject( si );
 	return;
     }
 
