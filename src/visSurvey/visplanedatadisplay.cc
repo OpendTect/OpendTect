@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.40 2003-02-19 15:35:31 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.41 2003-02-25 07:15:45 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -49,6 +49,10 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
 
     trect->getRectangle().setSnapping( true );
     trect->useTexture( false );
+
+//TODO: Fix! For some reason this is needed to let Texture2 work properly
+    showDraggers(true);
+    showDraggers(false);
 
     SPM().zscalechange.notify( mCB(this,PlaneDataDisplay,appVelChCB) );
 }
@@ -256,55 +260,6 @@ void visSurvey::PlaneDataDisplay::manipChanged( CallBacker* )
 }
 
 
-void visSurvey::PlaneDataDisplay::fillPar( IOPar& par,
-	TypeSet<int>& saveids ) const
-{
-    visBase::VisualObject::fillPar( par, saveids );
-    int trectid = trect->id();
-    par.set( trectstr, trectid );
-
-    if ( saveids.indexOf( trectid )==-1 ) saveids += trectid;
-
-    as.fillPar(par);
-}
-
-
-int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
-{
-    int res =  visBase::VisualObject::usePar( par );
-    if ( res!=1 ) return res;
-
-    int trectid;
-
-    if ( !par.get( trectstr, trectid ))
-	return -1;
-
-    visBase::DataObject* dataobj = visBase::DM().getObj( trectid );
-    if ( !dataobj ) return 0;
-
-    mDynamicCastGet( visBase::TextureRect*, tr, dataobj );
-    if ( !tr ) return -1;
-
-    trect->unRef();
-    trect = tr;
-    trect->ref();
-
-    trect->getRectangle().setSnapping( true );
-    trect->useTexture( false );
-
-    if ( trect->getRectangle().orientation() == visBase::Rectangle::YZ )
-	type = Inline;
-    else if ( trect->getRectangle().orientation() == visBase::Rectangle::XZ )
-	type = Crossline;
-    else
-	type = Timeslice;
-
-    if ( !as.usePar( par )) return -1;
-
-    return 1;
-}
-    
-
 void visSurvey::PlaneDataDisplay::showDraggers(bool yn)
 {
     trect->getRectangle().displayDraggers(yn);
@@ -408,29 +363,31 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
     
 void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset )
 {
+    if ( !sliceset ) return;
+
     const int lsz = (*sliceset)[0]->info().getSize(0);
     const int zsz = (*sliceset)[0]->info().getSize(1);
     const int slicesize = (*sliceset)[0]->info().getTotalSz();
 
     if ( sliceset->direction == AttribSlice::Inl )
     {
-	Array2DImpl<float> datacube( zsz, lsz );
+	PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(zsz,lsz);
 	for ( int zidx=0; zidx<zsz; zidx++ )
 	{
 	    for ( int lidx=0; lidx<lsz; lidx++ )
 	    {
 		const float val = (*sliceset)[0]->get( lidx, zidx );
-		datacube.set( zidx, lidx, val );
+		datacube->set( zidx, lidx, val );
 	    }
 	}
-	trect->setData( datacube );
+	trect->setData( *datacube );
     }
     else
     {
-	Array2DImpl<float> datacube( lsz, zsz );
-	float* data = datacube.getData();
+	PtrMan< Array2D<float> > datacube = new Array2DImpl<float>(lsz,zsz);
+	float* data = datacube->getData();
 	memcpy( data, (*sliceset)[0]->getData(), slicesize*sizeof(float) );
-	trect->setData( datacube );
+	trect->setData( *datacube );
     }
 
     trect->useTexture( true );
@@ -534,7 +491,7 @@ const char* visSurvey::PlaneDataDisplay::getResName( int res ) const
 void visSurvey::PlaneDataDisplay::setResolution( int res )
 {
     trect->setResolution( res );
-    setData( cache );
+    if ( cache ) setData( cache );
 }
 
 
@@ -547,3 +504,53 @@ int visSurvey::PlaneDataDisplay::getNrResolutions() const
 {
     return trect->getNrResolutions();
 }
+
+
+void visSurvey::PlaneDataDisplay::fillPar( IOPar& par,
+	TypeSet<int>& saveids ) const
+{
+    visBase::VisualObject::fillPar( par, saveids );
+    int trectid = trect->id();
+    par.set( trectstr, trectid );
+
+    if ( saveids.indexOf( trectid )==-1 ) saveids += trectid;
+
+    as.fillPar(par);
+}
+
+
+int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
+{
+    int res =  visBase::VisualObject::usePar( par );
+    if ( res!=1 ) return res;
+
+    int trectid;
+
+    if ( !par.get( trectstr, trectid ))
+	return -1;
+
+    visBase::DataObject* dataobj = visBase::DM().getObj( trectid );
+    if ( !dataobj ) return 0;
+
+    mDynamicCastGet( visBase::TextureRect*, tr, dataobj );
+    if ( !tr ) return -1;
+
+    trect->unRef();
+    trect = tr;
+    trect->ref();
+
+    trect->getRectangle().setSnapping( true );
+    trect->useTexture( false );
+
+    if ( trect->getRectangle().orientation() == visBase::Rectangle::YZ )
+	type = Inline;
+    else if ( trect->getRectangle().orientation() == visBase::Rectangle::XZ )
+	type = Crossline;
+    else
+	type = Timeslice;
+
+    if ( !as.usePar( par )) return -1;
+
+    return 1;
+}
+
