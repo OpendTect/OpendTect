@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.50 2002-03-21 16:20:52 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.51 2002-04-12 19:04:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -428,6 +428,12 @@ bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d )
     { body_->uimoveDockWindow( dwin , d ); }
+
+void uiMainWin::removeDockWindow( uiDockWin* dwin )
+{
+    if ( !dwin ) return;
+    body_->removeDockWindow( dwin->qwidget() );
+}
 
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }

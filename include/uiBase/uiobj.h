@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.20 2002-02-26 15:46:45 bert Exp $
+ RCS:           $Id: uiobj.h,v 1.21 2002-04-12 19:04:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,6 +175,10 @@ public:
 			*/
     Notifier<uiObject>	finalising;
 
+			/*! \brief triggered when object closes.
+			*/
+    Notifier<uiObject>	close;
+
 
 			/*! \brief triggered when getting a new geometry 
 			    A reference to the new geometry is passed 
@@ -186,7 +190,7 @@ public:
 protected:
 
                         //! hook. Accepts/denies closing of window.
-    virtual bool	closeOK()		{ return true; } 
+    virtual bool	closeOK()	{ close.trigger(); return true; } 
 
 private:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.10 2002-04-11 16:33:25 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.11 2002-04-12 19:04:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     static const int	evShowPosition;
 			//!< Display position of selected plane.
     static const int	evSelectionChange;
+    static const int	evDeSelection;
 			//!< 
     static const int	evPicksChanged;
 			//!<
@@ -103,6 +104,7 @@ public:
 protected:
 
     void		selectObjCB(CallBacker*);
+    void		deselectObjCB(CallBacker*);
     void		picksChangedCB(CallBacker*);
     void		showPosCB(CallBacker*);
 

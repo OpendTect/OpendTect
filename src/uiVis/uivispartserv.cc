@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.15 2002-04-12 11:26:05 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.16 2002-04-12 19:04:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,8 @@ ________________________________________________________________________
 
 const int uiVisPartServer::evShowPosition   	= 0;
 const int uiVisPartServer::evSelectionChange    = 1;
-const int uiVisPartServer::evPicksChanged    	= 2;
+const int uiVisPartServer::evDeSelection	= 2;
+const int uiVisPartServer::evPicksChanged    	= 3;
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
@@ -47,8 +48,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
 {
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
-//  visBase::DM().selMan().deselnotifer.notify( 
-//	mCB(this,uiVisPartServer,selectObjCB) );
+    visBase::DM().selMan().deselnotifer.notify( 
+  	mCB(this,uiVisPartServer,deselectObjCB) );
 }
 
 
@@ -146,6 +147,12 @@ void uiVisPartServer::removeDataDisplay()
 void uiVisPartServer::selectObjCB( CallBacker* )
 {
     sendEvent( evSelectionChange );
+}
+
+
+void uiVisPartServer::deselectObjCB( CallBacker* )
+{
+    sendEvent( evDeSelection );
 }
 
 
