@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.10 2000-09-22 09:59:19 bert Exp $
+ RCS:		$Id: callback.h,v 1.11 2000-09-22 10:07:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ would result in the availability of:
 */
 
 #define mCBCapsuleUnpack(T,var,cb) \
-    CBCapsule<T>* cb##caps = dynamic_cast< CBCapsule<T> >( cb ); \
+    CBCapsule<T>* cb##caps = dynamic_cast< CBCapsule<T>* >( cb ); \
     T var = cb##caps->data
 
 
