@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.56 2004-10-20 14:45:42 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.57 2004-10-21 12:35:26 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -131,12 +131,12 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 }
 
 
-bool CBVSSeisTrcTranslator::initRead_()
+bool CBVSSeisTrcTranslator::initRead_( bool pinfo_only )
 {
     forread = true;
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
-    rdmgr = new CBVSReadMgr( fnm, 0, single_file );
+    rdmgr = new CBVSReadMgr( fnm, 0, single_file, pinfo_only );
     if ( rdmgr->failed() )
 	{ errmsg = rdmgr->errMsg(); return false; }
 

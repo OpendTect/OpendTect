@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.38 2004-09-16 21:50:26 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.39 2004-10-21 12:35:26 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -204,10 +204,14 @@ public:
 
     static const char*	sKeyIs2D;
 
+    			// Use the following fns only if you _really_ know
+    			// what you're doing.
     void		enforceRegularWrite( bool yn )
     			{ enforce_regular_write = yn; }
     void		enforceSurvinfoWrite( bool yn )
     			{ enforce_survinfo_write = yn; }
+    void		needHeaderInfoOnly( bool yn )
+			{ needpinfoonly = yn; }
 
 protected:
 
@@ -233,7 +237,7 @@ protected:
     void		fillOffsAzim(SeisTrcInfo&,const Coord&,const Coord&);
 
 			/* Subclasses will need to implement the following: */
-    virtual bool	initRead_()			{ return true; }
+    virtual bool	initRead_(bool pinfonly)	{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
@@ -258,6 +262,7 @@ private:
     int			nrout_;
     int			prevnr_;
     int			lastinlwritten;
+    bool		needpinfoonly;
 
     void		enforceBounds();
     bool		writeBlock();

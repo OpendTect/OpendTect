@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.21 2004-10-20 16:12:33 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.22 2004-10-21 12:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
 
     StepInterval<float>	zrg;
     TypeSet<Line2DPos>	posns;
+
+    void		dump(std::ostream&,bool pretty=true) const;
 
 };
 
@@ -189,7 +191,7 @@ class TwoDSeisTrcTranslator : public SeisTrcTranslator
 
     const char*		defExtension() const		{ return "2ds"; }
     bool		implRemove(const IOObj*) const;
-    bool		initRead_(); // supporting getRanges()
+    bool		initRead_(bool); // supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
 
 };

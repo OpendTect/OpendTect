@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.43 2004-10-20 16:12:33 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.44 2004-10-21 12:35:26 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -27,7 +27,7 @@ static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 
 
 CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
-			  bool single_file )
+			  bool single_file, bool glob_info_only )
 	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
 	, vertical_(false)
@@ -45,7 +45,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 
     if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO) )
     {
-	addReader( &std::cin, cs );
+	addReader( &std::cin, cs, glob_info_only );
 	if ( !readers_.size() )
 	    errmsg_ = "Standard input contains no relevant data";
 	else
@@ -61,7 +61,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 	    break;
 
 	foundone = true;
-	if ( !addReader(fname,cs) )
+	if ( !addReader(fname,cs,glob_info_only) )
 	{
 	    if ( *(const char*)errmsg_ )
 		return;
@@ -203,7 +203,8 @@ const char* CBVSReadMgr::errMsg_() const
 }
 
 
-bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs )
+bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs,
+				bool info_only )
 {
     StreamData sd = StreamProvider(fname).makeIStream();
     if ( !sd.usable() )
@@ -213,13 +214,14 @@ bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs )
 	return false;
     }
 
-    return addReader( sd.istrm, cs );
+    return addReader( sd.istrm, cs, info_only );
 }
 
 
-bool CBVSReadMgr::addReader( std::istream* strm, const CubeSampling* cs )
+bool CBVSReadMgr::addReader( std::istream* strm, const CubeSampling* cs,
+				bool info_only )
 {
-    CBVSReader* newrdr = new CBVSReader( strm );
+    CBVSReader* newrdr = new CBVSReader( strm, info_only );
     if ( newrdr->errMsg() )
     {
 	errmsg_ = newrdr->errMsg();

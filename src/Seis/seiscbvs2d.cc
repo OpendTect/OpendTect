@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.21 2004-10-20 16:12:33 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.22 2004-10-21 12:35:26 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -67,7 +67,8 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
 }
 
 
-static CBVSSeisTrcTranslator* gtTransl( const char* fnm, BufferString* msg=0 )
+static CBVSSeisTrcTranslator* gtTransl( const char* fnm, bool infoonly,
+					BufferString* msg=0 )
 {
     if ( !fnm || !*fnm )
 	{ if ( msg ) *msg = "Empty file name"; return false; }
@@ -75,6 +76,7 @@ static CBVSSeisTrcTranslator* gtTransl( const char* fnm, BufferString* msg=0 )
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->setSingleFile( true );
     tr->setNoBinIDSubSel( true );
+    tr->needHeaderInfoOnly( infoonly );
     if ( msg ) *msg = "";
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read)) )
     {
@@ -90,7 +92,7 @@ bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOPar& iop,
 {
     if ( !isUsable(iop) ) return true;
 
-    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( getFileName(iop) );
+    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( getFileName(iop), true );
     if ( !tr ) return false;
 
     const SeisPacketInfo& pinf = tr->packetInfo();
@@ -105,7 +107,7 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOPar& iop,
 {
     if ( !isUsable(iop) ) return true;
 
-    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( getFileName(iop) );
+    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( getFileName(iop), true );
     if ( !tr ) return false;
 
     const SeisPacketInfo& pinf = tr->packetInfo();
@@ -140,7 +142,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
 	, trcstep(1)
 	, linenr(CBVSIOMgr::getFileNr(fnm))
 {
-    tr = gtTransl( fname, &msg );
+    tr = gtTransl( fname, false, &msg );
     if ( !tr ) return;
 
     if ( sd.type_ == SeisSelData::Range || sd.type_ == SeisSelData::TrcNrs )
@@ -251,7 +253,7 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
 	ErrMsg(errmsg);
 	return false;
     }
-    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm );
+    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm, false );
     if ( !tr ) return false;
 
     const CBVSInfo& cbvsinf = tr->readMgr()->info();

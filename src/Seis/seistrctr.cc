@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.53 2004-09-16 21:50:26 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.54 2004-10-21 12:35:26 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -84,6 +84,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, lastinlwritten(SI().sampling(false).hrg.start.inl)
     	, enforce_regular_write(true)
     	, enforce_survinfo_write(false)
+    	, needpinfoonly(false)
 {
     const char* envvar = getenv("DTECT_ENFORCE_REGULAR_SEISWRITE");
     if ( envvar && *envvar )
@@ -147,7 +148,7 @@ bool SeisTrcTranslator::initRead( Conn* c )
     cleanUp();
     pinfo = new SeisPacketInfo;
     if ( !initConn(c,true)
-      || !initRead_() )
+      || !initRead_(needpinfoonly) )
     {
 	conn = 0;
 	return false;
@@ -508,6 +509,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 	tr->setSelData( sd );
     }
     Conn* cnn = ioobj.getConn( Conn::Read );
+    tr->needpinfoonly = true;
     if ( !cnn || !tr->initRead(cnn) )
 	{ delete cnn; return false; }
 

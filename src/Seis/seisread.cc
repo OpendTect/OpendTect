@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.46 2004-10-12 15:47:21 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.47 2004-10-21 12:35:26 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -31,6 +31,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
     	, outer(mUndefPtr(BinIDRange))
     	, fetcher(0)
     	, tbuf(0)
+    	, onlyforinfo(false)
 {
     init();
 }
@@ -57,7 +58,7 @@ void SeisTrcReader::init()
 }
 
 
-bool SeisTrcReader::prepareWork()
+bool SeisTrcReader::prepareWork( bool needinfoonly )
 {
     if ( !ioobj )
     {
@@ -71,6 +72,7 @@ bool SeisTrcReader::prepareWork()
 	return false;
     }
 
+    onlyforinfo = needinfoonly;
     Conn* conn = 0;
     if ( !is2d )
     {
@@ -157,6 +159,7 @@ bool SeisTrcReader::initRead( Conn* conn )
 {
     if ( is2d ) return true;
 
+    trl->needHeaderInfoOnly( onlyforinfo );
     if ( !trl->initRead(conn) )
     {
 	errmsg = trl->errMsg();
@@ -195,7 +198,7 @@ bool SeisTrcReader::initRead( Conn* conn )
 
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
-    if ( !prepared && !prepareWork() )
+    if ( !prepared && !prepareWork(onlyforinfo) )
 	return -1;
     else if ( outer == mUndefPtr(BinIDRange) )
 	startWork();
@@ -273,7 +276,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
-    if ( !prepared && !prepareWork() )
+    if ( !prepared && !prepareWork(onlyforinfo) )
 	return false;
     else if ( outer == mUndefPtr(BinIDRange) )
 	startWork();

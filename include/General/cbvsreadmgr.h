@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.18 2004-10-20 16:12:33 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.19 2004-10-21 12:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,10 @@ class CBVSReadMgr : public CBVSIOMgr
 public:
 
 			CBVSReadMgr(const char*,const CubeSampling* cs=0,
-				    bool single_file=false);
+				    bool single_file=false,
+				    bool glob_info_only=false);
+			//!< glob_info_only: I am useless except for inspecting
+			//!< global info. See also CBVSReader.
 			~CBVSReadMgr();
 
     const CBVSInfo&	info() const		{ return info_; }
@@ -86,8 +89,8 @@ protected:
     DataInterpreter<double> dinterp;
     int			rdr1firstsampnr_;
 
-    bool		addReader(std::istream*,const CubeSampling*);
-    bool		addReader(const char*,const CubeSampling*);
+    bool		addReader(std::istream*,const CubeSampling*,bool);
+    bool		addReader(const char*,const CubeSampling*,bool);
     int			nextRdrNr(int) const;
     const char*		errMsg_() const;
 

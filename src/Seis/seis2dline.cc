@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.30 2004-10-20 16:12:33 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.31 2004-10-21 12:35:26 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -23,6 +23,8 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.30 2004-10-20 16:12:33 bert E
 #include "hostdata.h"
 #include "timefun.h"
 #include "errh.h"
+
+#include <iostream>
 
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
@@ -46,7 +48,7 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool TwoDSeisTrcTranslator::initRead_()
+bool TwoDSeisTrcTranslator::initRead_( bool )
 {
     errmsg = 0;
     if ( !conn->ioobj )
@@ -94,6 +96,27 @@ bool TwoDSeisTrcTranslator::initRead_()
 Line2DGeometry::Line2DGeometry()
 {
     zrg = SI().sampling().zrg;
+}
+
+
+void Line2DGeometry::dump( std::ostream& strm, bool pretty ) const
+{
+    if ( !pretty )
+	strm << zrg.start << '\t' << zrg.stop << '\t' << zrg.step << std::endl;
+    else
+    {
+	const float fac = SI().zFactor();
+	strm << "Z range " << SI().getZUnit() << ":\t" << fac*zrg.start
+	     << '\t' << fac*zrg.stop << "\t" << fac*zrg.step;
+	strm << "\n\nTrace number\tX-coord\tY-coord" << std::endl;
+    }
+
+    for ( int idx=0; idx<posns.size(); idx++ )
+    {
+	const Line2DPos& pos = posns[idx];
+	strm << pos.nr << '\t' << pos.coord.x << '\t' << pos.coord.y << '\n';
+    }
+    strm.flush();
 }
 
 
@@ -315,6 +338,17 @@ Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 	ErrMsg("Line number requested not found in Line Set");
 	return 0;
     }
+
+//TODO remove
+Line2DGeometry geom;
+bool res = liop_->getGeometry( *pars_[ipar], geom );
+if ( res )
+{
+    std::cerr << "\n\n--- Geometry dump ----\n";
+    geom.dump( std::cerr, true );
+    std::cerr << "\n\n--- End Geometry dump ----\n";
+}
+
 
     return liop_->getFetcher( *pars_[ipar], tbuf, sd );
 }

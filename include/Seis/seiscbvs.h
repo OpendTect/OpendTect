@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.27 2004-10-20 14:45:42 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.28 2004-10-21 12:35:25 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -84,7 +84,7 @@ protected:
     bool		single_file;
 
     virtual void	cleanUp();
-    virtual bool	initRead_();
+    virtual bool	initRead_(bool);
     virtual bool	initWrite_(const SeisTrc&);
     virtual bool	commitSelections_();
     virtual bool	writeTrc_(const SeisTrc&);

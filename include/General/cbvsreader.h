@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.23 2004-10-20 16:12:33 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.24 2004-10-21 12:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,13 +26,17 @@ class BinIDRange;
 The stream it works on will be deleted on destruction or if close() is
 explicitly called.
 
+If you construct with glob_info_only == true, you cannot use the reader. After
+construction, the info() is then usable but no precise positioning is available.
+In other words, the trailer is not read.
+
 */
 
 class CBVSReader : public CBVSIO
 {
 public:
 
-			CBVSReader(std::istream*);
+			CBVSReader(std::istream*,bool glob_info_only=false);
 			~CBVSReader();
 
     const CBVSInfo&	info() const		{ return info_; }
@@ -105,7 +109,7 @@ private:
     Interval<int>	samprg;
     TypeSet<int>	posnrs;
 
-    bool		readInfo();
+    bool		readInfo(bool);
     bool		nextPosIdx();
 
     std::streampos	lastposfo;

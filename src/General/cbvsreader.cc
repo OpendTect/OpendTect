@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.49 2004-10-20 14:45:42 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.50 2004-10-21 12:35:26 bert Exp $";
 
 /*!
 
@@ -32,7 +32,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "errh.h"
 
 
-CBVSReader::CBVSReader( std::istream* s )
+CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
 	: strm_(*s)
 	, iinterp(DataCharacteristics())
 	, finterp(DataCharacteristics())
@@ -45,7 +45,7 @@ CBVSReader::CBVSReader( std::istream* s )
 	, bidrg(*new BinIDRange)
     	, needaux(true)
 {
-    if ( readInfo() )
+    if ( readInfo(!glob_info_only) )
 	toOffs( datastartfo );
 }
 
@@ -67,7 +67,7 @@ void CBVSReader::close()
 
 #define mErrRet(s) { errmsg_ = s; return 0; }
 
-bool CBVSReader::readInfo()
+bool CBVSReader::readInfo( bool wanttrailer )
 {
     info_.clean();
     errmsg_ = check( strm_ );
@@ -102,8 +102,11 @@ bool CBVSReader::readInfo()
     removeTrailingBlanks( info_.usertext.buf() );
 
     datastartfo = strm_.tellg();
+
+    if ( !wanttrailer )
+	info_.geom.fullyrectandreg = true;
     bool needtrailer = !info_.geom.fullyrectandreg || coordpol_ == InTrailer;
-    if ( needtrailer && !readTrailer() )
+    if ( wanttrailer && needtrailer && !readTrailer() )
 	return false;
 
     firstbinid.inl = info_.geom.step.inl > 0
@@ -114,7 +117,7 @@ bool CBVSReader::readInfo()
 		   ? info_.geom.stop.inl : info_.geom.start.inl;
     lastbinid.crl  = info_.geom.step.crl > 0
 		   ? info_.geom.stop.crl : info_.geom.start.crl;
-    if ( info_.geom.fullyrectandreg )
+    if ( info_.geom.fullyrectandreg || !wanttrailer )
 	nrxlines_ = (lastbinid.crl - firstbinid.crl) / info_.geom.step.crl + 1;
     else
     {
@@ -128,7 +131,8 @@ bool CBVSReader::readInfo()
     }
 
     curbinid_ = firstbinid;
-    mkPosNrs();
+    if ( wanttrailer )
+	mkPosNrs();
     return true;
 }
 

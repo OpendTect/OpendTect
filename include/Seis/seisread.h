@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.18 2004-10-11 14:49:56 bert Exp $
+ RCS:		$Id: seisread.h,v 1.19 2004-10-21 12:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
 
     void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
     			//!< Only effective if called before prepareWork()
-    bool		prepareWork();
+    bool		prepareWork(bool needglobalinfoonly=false);
     			//!< After this, you can set stuff on the translator
 
     int			get(SeisTrcInfo&);
@@ -81,6 +81,7 @@ protected:
     BinIDRange*		outer;
     SeisTrcBuf*		tbuf;
     Executor*		fetcher;
+    bool		onlyforinfo;
 
     void		init();
     Conn*		openFirst();
