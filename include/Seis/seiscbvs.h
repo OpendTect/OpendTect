@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.30 2004-11-29 13:19:34 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.31 2004-12-30 11:28:24 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -28,6 +28,8 @@ class CBVSSeisTrcTranslator : public SeisTrcTranslator
 public:
 
 			CBVSSeisTrcTranslator(const char*,const char*);
+    static CBVSSeisTrcTranslator* make(const char* fnm,bool forinfoonly,
+	    				bool is2d, BufferString* errmsg=0);
 			~CBVSSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&);

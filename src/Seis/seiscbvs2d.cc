@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.26 2004-11-19 13:24:27 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.27 2004-12-30 11:28:25 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -70,20 +70,7 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
 static CBVSSeisTrcTranslator* gtTransl( const char* fnm, bool infoonly,
 					BufferString* msg=0 )
 {
-    if ( !fnm || !*fnm )
-	{ if ( msg ) *msg = "Empty file name"; return false; }
-
-    CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
-    tr->setSingleFile( true );
-    tr->set2D( true );
-    tr->needHeaderInfoOnly( infoonly );
-    if ( msg ) *msg = "";
-    if ( !tr->initRead(new StreamConn(fnm,Conn::Read)) )
-    {
-	if ( msg ) *msg = tr->errMsg();
-	delete tr; tr = 0;
-    }
-    return tr;
+    return CBVSSeisTrcTranslator::make( fnm, infoonly, true, msg );
 }
 
 

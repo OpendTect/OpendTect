@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.59 2004-11-29 13:18:28 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.60 2004-12-30 11:28:25 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -55,6 +55,26 @@ CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
     cleanUp();
     delete &brickspec;
 }
+
+
+CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
+			bool infoonly, bool is2d, BufferString* msg )
+{
+    if ( !fnm || !*fnm )
+	{ if ( msg ) *msg = "Empty file name"; return 0; }
+
+    CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
+    tr->setSingleFile( is2d ); tr->set2D( is2d );
+    tr->needHeaderInfoOnly( infoonly );
+    if ( msg ) *msg = "";
+    if ( !tr->initRead(new StreamConn(fnm,Conn::Read)) )
+    {
+	if ( msg ) *msg = tr->errMsg();
+	delete tr; tr = 0;
+    }
+    return tr;
+}
+
 
 
 void CBVSSeisTrcTranslator::cleanUp()
