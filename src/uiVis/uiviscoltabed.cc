@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.6 2004-11-30 17:35:48 bert Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.7 2005-01-10 10:02:50 nanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.6 2004-11-30 17:35:48 bert
 #include "settings.h"
 #include "viscolortab.h"
 #include "visdataman.h"
+#include "uicursor.h"
+
 
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     : uiGroup( p, "ColorTable Editor" )
@@ -83,6 +85,7 @@ void uiVisColTabEd::setPrefHeight( int nv )
 void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 {
     if ( !coltab ) return;
+    uiCursorChanger cursorchanger( uiCursor::Wait );
 
     bool seqchange = false;
     bool rangechange = false;

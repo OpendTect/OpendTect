@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.66 2004-12-23 15:12:56 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.67 2005-01-10 10:02:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uisurvey.h"
 #include "uistereodlg.h"
+#include "uicursor.h"
 
 static BufferString retstr;
 
@@ -510,6 +511,7 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 	emserv->setAuxData( *visserv->getMultiID(visid), data, attribnms );
 	deepErase( data );
 
+	uiCursorChanger cursor( uiCursor::Wait );
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
 	sd->updateTexture();
     }
