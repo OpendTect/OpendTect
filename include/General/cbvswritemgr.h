@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswritemgr.h,v 1.8 2002-07-26 15:33:59 bert Exp $
+ RCS:		$Id: cbvswritemgr.h,v 1.9 2002-11-27 17:05:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,7 @@ struct VBrickSpec
 {
 		VBrickSpec()		{ setStd(false); }
 
-    void	setStd( bool yn )
-		{
-		    nrsamplesperslab = yn ? 75 : -1;
-		    maxnrslabs = 20;
-		}
+    void	setStd(bool yn_bricking=false);
 
     int		nrsamplesperslab;	//!< -1 means no bricking
     int		maxnrslabs;
