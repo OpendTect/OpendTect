@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.8 2001-05-05 13:30:33 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.9 2001-05-07 15:51:32 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -212,6 +212,14 @@ IOObj* IOMan::getByName( const char* objname,
 {
     if ( !objname || !*objname )
 	return 0;
+    if ( matchString("ID=<",objname) )
+    {
+	BufferString oky( objname+4 );
+	char* ptr = strchr( oky.buf(), '>' );
+	if ( ptr ) *ptr = '\0';
+	return get( MultiID((const char*)oky) );
+    }
+
     MultiID startky = dirptr->key();
     to( MultiID("") );
 
@@ -264,7 +272,7 @@ IOObj* IOMan::getByName( const char* objname,
 }
 
 
-const char* IOMan::nameOf( const char* id ) const
+const char* IOMan::nameOf( const char* id, bool full ) const
 {
     static FileNameString ret;
     ret = "";
@@ -272,11 +280,13 @@ const char* IOMan::nameOf( const char* id ) const
 
     MultiID ky( id );
     IOObj* ioobj = get( ky );
-    if ( !ioobj ) ret = id;
+    if ( !ioobj )
+	{ ret = "ID=<"; ret += id; ret += ">"; }
     else
     {
 	do { 
 	    ret += ioobj->name();
+	    if ( !full ) break;
 	    IOObj* parioobj = ioobj->getParent();
 	    delete ioobj;
 	    ioobj = parioobj;

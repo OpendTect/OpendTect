@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.3 2001-05-07 09:23:08 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.4 2001-05-07 15:51:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,10 +114,20 @@ void uiIOObjSel::updateInput()
 }
 
 
+const char* uiIOObjSel::userNameFromKey( const char* ky ) const
+{
+    static BufferString key;
+    key = "";
+    if ( ky && *ky )
+	key = IOM().nameOf( ky, false );
+    return (const char*)key;
+}
+
+
 void uiIOObjSel::doObjSel( CallBacker* )
 {
     uiIOObjSelDlg dlg( this, ctio );
-    if ( dlg.go() )
+    if ( dlg.go() && dlg.ioObj() )
     {
 	ctio.setObj( dlg.ioObj()->clone() );
 	updateInput();
