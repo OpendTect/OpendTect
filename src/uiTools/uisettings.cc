@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.3 2002-01-08 11:25:56 nanne Exp $
+ RCS:           $Id: uisettings.cc,v 1.4 2002-01-18 16:27:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ uiSettings::uiSettings( uiParent* p, const char* nm )
     }
 
     itemfld = new uiLabeledComboBox( this, "Item", "", true );
+    itemfld->box()->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medvar ) );
     itemfld->box()->addItems( items );
     itemfld->box()->setCurrentItem( 0 );
     itemfld->box()->selectionChanged.notify( mCB(this,uiSettings,itemSel) );
