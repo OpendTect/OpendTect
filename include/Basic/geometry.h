@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.5 2000-08-07 14:33:12 bert Exp $
+ RCS:           $Id: geometry.h,v 1.6 2000-08-09 15:16:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,13 @@ public:
     inline void		setY( T yy )		{ y_ = yy ; }  
     inline void		setXY( T xx, T yy )	{ x_ = xx ; y_ = yy; }  
     inline void		zero()			{ x_ = y_ = 0; }
+
+    inline bool		operator ==( const Point<T>& p ) const
+			{ return p.x_ == x_ && p.y_ == y_; }
+    inline bool		operator !=( const Point<T>& p ) const
+			{ return p.x_ != x_ || p.y_ != y_; }
+    Point<T>&		operator +=( const Point<T>& p )
+			{ x_ += p.x_; y_ += p.y_; }
     
 protected:
 
