@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.43 2004-07-22 16:14:07 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.44 2004-09-27 08:08:36 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -23,6 +23,13 @@ static const char* rcsID = "$Id: genc.c,v 1.43 2004-07-22 16:14:07 bert Exp $";
 # include "windows.h"
 # include "getspec.h"	// GetSpecialFolderLocation()
 # define sDirSep	"\\"
+# include "string2.h"
+
+// registry stuff
+# include <regstr.h>
+# include <ctype.h>
+# include <winreg.h>
+
 #endif
 
 #ifdef __mac__
@@ -71,13 +78,237 @@ static const char* mkFullPath( const char* path, const char* filename )
     return chptr;
 }
 
+#ifdef __win__
+
+const char* getCygDir()
+{
+    static FileNameString answer;
+
+    if ( strcmp(answer, "") ) return answer;
+    
+    HKEY hKeyRoot = HKEY_LOCAL_MACHINE;
+    LPCTSTR subkey="SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
+    LPTSTR Value="native"; 
+
+    BYTE Value_data[80];
+    DWORD Value_size = 80;
+
+    HKEY hKeyNew=0;
+    DWORD retcode=0;
+    DWORD Value_type=0;
+
+    retcode = RegOpenKeyEx ( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
+
+    if (retcode != ERROR_SUCCESS)
+    {
+	hKeyRoot = HKEY_CURRENT_USER;
+	subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2/";
+
+	retcode = RegOpenKeyEx( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
+	if (retcode != ERROR_SUCCESS) return 0;
+    }
+
+    retcode = RegQueryValueEx( hKeyNew, Value, NULL, &Value_type, Value_data,
+                               &Value_size);
+
+    if (retcode != ERROR_SUCCESS) return 0;
+
+    strcpy ( answer , (const char*) Value_data );
+    return answer;
+}
+
+
+static const char* getTmpFile()
+{
+    static FileNameString buffer;
+
+    if ( getenv("TMP") )
+        strcpy( buffer, getenv( "TMP" ) );
+    else if ( getenv("TEMP") )
+        strcpy( buffer, getenv( "TEMP" ) );
+    else if ( getenv("USERPROFILE") ) // should be set by OS
+	strcpy( buffer, getenv( "USERPROFILE" ) );
+    else // make sure we have at least write access...
+    {
+	const char* specf = GetSpecialFolderLocation( CSIDL_PERSONAL );
+        if( specf && *specf ) strcpy( buffer, specf );
+    }
+
+    strcat( buffer, "\\od" );
+
+    static int counter = 0;
+    int time_stamp = time( (time_t*)0 ) + counter++;
+    char uniquestr[80];
+    sprintf( uniquestr, "%X%X", getPID(), (int)time_stamp );
+
+    strcat( buffer, uniquestr );
+
+    return buffer;
+}
+
+
+
+#define mRett(msg,v)\
+ { \
+    if( dgb_debug_isOn(DBG_SETTINGS) && msg ) \
+    { \
+	char buf[4096]; \
+	sprintf(buf, "convertPath: converting '%s' : %s\n", \
+		frompath, msg ); \
+	dgb_debug_message( buf ); \
+    } \
+    mFREE(cmd); return v; \
+ }
+
+#define mRet(msg,v) { fclose( cygpth ); File_remove(tempfile,NO); mRett(msg,v) }
+
+static const char* convertPath( const char* frompath, int towin )
+{
+    if ( !frompath || !*frompath ) return 0;
+    removeTrailingBlanks( frompath );
+
+    static FileNameString buffer;
+    const char* cygpath = towin ? "cygpath -wa \"" : "cygpath -ua \"";
+
+    static FileNameString tempfile;
+    strcpy( tempfile, getTmpFile() );
+
+    int len = strlen( cygpath ) + strlen( frompath ) + strlen(tempfile) + 64;
+
+    char* cmd = mMALLOC(len,char);
+
+    strcpy( cmd, cygpath );
+    strcat( cmd, frompath );
+    strcat( cmd, "\" > \"" );
+    strcat( cmd, tempfile );
+    strcat( cmd, "\"" );
+
+    int ret = system( cmd );
+    if ( ret )
+    {   // try to do our best. Does not follow links, however
+	static const char* drvstr="/cygdrive/";
+
+	char* ptr = (char*) frompath;
+	skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+	if( towin )
+	{
+	    if ( *(ptr+1) == ':' ) // already in windows style.
+		{ strcpy( buffer, ptr ); mRett(0,buffer) }
+
+	    char* cygdrv = strstr( ptr, drvstr );
+	    if( cygdrv )
+	    {
+		char* drv = cygdrv + strlen( drvstr );
+		*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
+		strcat( buffer, ++drv ); 
+
+		replaceCharacter( buffer, '/', '\\' );
+	    }
+	    else
+	    {
+		strcpy( buffer, getCygDir() );
+		strcat( buffer, ptr );
+		replaceCharacter( buffer, '/', '\\' );
+
+		if ( ! File_exists(buffer) )
+		{
+		    fprintf( stderr, 
+		"\nWarning: path conversion from Unix style to Windows style:");
+		    fprintf( stderr,
+		"\n         Unix path     '%s'", frompath );
+		    fprintf( stderr,
+		"\n         converted to  '%s' does not exist.\n\n", buffer );
+		    fflush( stderr );
+		}
+	    }
+
+
+	    ret = 0;
+	}
+	else
+	{
+
+	    if ( *(ptr+1) != ':' ) // already in unix style.
+		{ strcpy( buffer, ptr ); mRett(0,buffer) }
+
+	    *(ptr+1) = '\0';
+
+	    strcpy( buffer, drvstr );
+	    strcat( buffer, ptr );
+	    strcat( buffer, ptr+2 );
+
+	    replaceCharacter( buffer, '\\' , '/' );
+
+	    ret = 0;
+	}
+    }
+    else
+    {   // read result from cygpath utility
+
+	FILE* cygpth;
+
+	if( (cygpth = fopen( tempfile, "rt" )) == NULL )
+	    mRet("could not open temporary file", 0)
+
+	if ( feof( cygpth ) )
+	    mRet("input past end on tempfile",0)
+
+	if ( fgets( buffer, PATH_LENGTH, cygpth ) == NULL )
+	    mRet("could nog read line from tempfile",0)
+
+	fclose( cygpth );
+	File_remove(tempfile,NO);
+    }
+
+    mFREE( cmd );
+
+    char* eol = strstr( buffer , "\n" );
+    if ( eol ) *eol = '\0';
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "convertPath: from '%s' to '%s' \n", frompath, buffer );
+	dgb_debug_message( buf );
+    }
+
+    return ret ? 0 : buffer;
+}
+
+
+const char* getWinPath( const char* path )
+{
+    return convertPath( path, YES );
+}
+
+const char* getUnixPath( const char* path )
+{
+    return convertPath( path, NO );
+}
+
+
+#endif
+
 
 const char* GetSoftwareDir()
 {
+    static char* cachedDir = 0;
+    if ( cachedDir ) return cachedDir;
+
     const char* dir = 0;
-#ifdef __win__
+
+#ifndef __win__
+
+    dir = getenv( "DTECT_APPL" );
+    if ( !dir ) dir = getenv( "dGB_APPL" );
+
+#else
+
     dir = getenv( "DTECT_WINAPPL" );
     if ( !dir ) dir = getenv( "dGB_WINAPPL" );
+
+    if ( !dir ) dir = getWinPath( getenv("DTECT_APPL") );
+    if ( !dir ) dir = getWinPath( getenv("dGB_APPL") );
 
 #if 0
     if ( !dir )
@@ -90,9 +321,9 @@ const char* GetSoftwareDir()
     }
 #endif
 
-#else
-    dir = getenv( "DTECT_APPL" );
-    if ( !dir ) dir = getenv( "dGB_APPL" );
+    if ( dir && *dir && !getenv("DTECT_WINAPPL") )
+	setEnvVar( "DTECT_WINAPPL" , dir );
+
 #endif
 
 #ifdef __mac__
@@ -111,11 +342,7 @@ const char* GetSoftwareDir()
 	if ( *progname )
 	{
 	    dir = progname;
-
-	    FileNameString envstr;
-	    strcpy( envstr, "DTECT_APPL=" );
-	    strcat( envstr, progname );
-	    putenv( envstr );
+	    setEnvVar( "DTECT_APPL" , dir );
 	}
     }
 #endif
@@ -156,7 +383,10 @@ const char* GetSoftwareDir()
 	dgb_debug_message( buf );
     }
 
-    return dir;
+    cachedDir = mMALLOC( strlen(dir)+ 1, char );
+    strcpy( cachedDir, dir );
+
+    return cachedDir;
 }
 
 
@@ -192,18 +422,10 @@ const char* GetExecScript( int remote )
 
     strcat( progname, GetBinDir() );
 
-# ifdef __win__
-    strcpy( progname, mkFullPath(progname, "win") );
-# endif
-
     strcpy( progname, mkFullPath(progname, "od_exec") );
 
     if( remote )
 	strcat( progname, "_rmt" );
-
-#ifdef __win__
-    strcat( progname, ".csh" );
-#endif
 
     strcat( progname, "' " );
     return progname;
@@ -226,6 +448,38 @@ const char* GetDataFileName( const char* fname )
     }
 
     return filenamebuf;
+}
+
+static const char* checkFile( const char* path, const char* subdir,
+			      const char* fname )
+{
+    static FileNameString filenamebuf;
+    strcpy( filenamebuf, mkFullPath( path, subdir ) );
+    if ( fname && *fname )
+	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
+
+    if ( File_exists(filenamebuf) )
+	return filenamebuf;
+ 
+    return 0;
+}
+
+const char* SearchConfigFile( const char* fname )
+{
+
+    const char* nm = checkFile( GetPersonalDir(), ".od", fname );
+    if( !nm ) nm = checkFile( GetSettingsDir(), ".od", fname );
+    if( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
+
+    if ( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "SearchConfigFile for %s: %s\n", fname ? fname : "(null)",
+			nm );
+	dgb_debug_message( buf );
+    }
+
+    return nm;
 }
 
 
@@ -254,31 +508,42 @@ const char* GetSoftwareUser()
 
 const char* _GetHomeDir()
 {
-#ifdef __win__
+#ifndef __win__
+
+    const char* ptr = getenv( "DTECT_HOME" );
+    if ( !ptr ) ptr = getenv( "dGB_HOME" );
+    if ( !ptr ) ptr = getenv( "HOME" );
+    return ptr;
+
+#else
 
     static FileNameString home = "";
 
     const char* ptr = getenv( "DTECT_WINHOME" );
     if ( !ptr ) ptr = getenv( "dGB_WINHOME" );
 
+    if ( !ptr ) ptr = getWinPath( getenv("DTECT_HOME") );
+    if ( !ptr ) ptr = getWinPath( getenv("dGB_HOME") );
+    if ( !ptr ) ptr = getWinPath( getenv("HOME") );
 
-    if ( ptr && *ptr ) return ptr;
+    if ( ptr && *ptr )
+    {
+	strcpy( home, ptr );
+	if ( !getenv("DTECT_WINHOME") )
+	    setEnvVar( "DTECT_WINHOME" , home );
+	return home;
+    }
 
     strcpy( home, getenv("HOMEDRIVE") );
     strcat( home, getenv("HOMEPATH") );
 
     if( strcmp( home, "" ) && strcmp( home, "c:\\" ) && strcmp( home, "C:\\" ) 
 	&& File_isDirectory( home ) ) // Apparantly, home has been set...
+    {
 	return home;
+    }
 
     return 0;
-
-#else
-
-    const char* ptr = getenv( "DTECT_HOME" );
-    if ( !ptr ) ptr = getenv( "dGB_HOME" );
-    if ( !ptr ) ptr = getenv( "HOME" );
-    return ptr;
 
 #endif
 }
@@ -301,7 +566,7 @@ const char* GetSettingsDir(void)
     if ( !ptr )
 	return 0;
 
-    char* chptr = ptr;
+    char* chptr = (char*)ptr;
     while ( chptr && *chptr++ ) { if ( *chptr == '\r' ) *chptr='\0'; }
 
 #endif
@@ -344,7 +609,7 @@ const char* GetPersonalDir(void)
                 // during initialisation of statics. (0xc0000005)
 	ptr = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User Profile"
 
-    char* chptr = ptr;
+    char* chptr = (char*)ptr;
     while ( chptr && *chptr++ ) { if ( *chptr == '\r' ) *chptr='\0'; }
 
 #endif
@@ -460,13 +725,25 @@ const char* GetBaseDataDir()
     const char* dir = 0;
 
 #ifdef __win__
+
     dir = getenv( "DTECT_WINDATA" );
     if ( !dir ) dir = getenv( "dGB_WINDATA" );
-#endif
+
+    if ( !dir ) dir = getWinPath( getenv("DTECT_DATA") );
+    if ( !dir ) dir = getWinPath( getenv("dGB_DATA") );
+    if ( !dir ) dir = getWinPath( GetSettingsDataDir() );
+
+    if ( dir && *dir && !getenv("DTECT_WINDATA") )
+	setEnvVar( "DTECT_WINDATA" , dir );
+
+#else
+
     if ( !dir ) dir = getenv( "DTECT_DATA" );
     if ( !dir ) dir = getenv( "dGB_DATA" );
 
     if ( !dir ) dir = GetSettingsDataDir();
+
+#endif
 
     return dir;
 }
