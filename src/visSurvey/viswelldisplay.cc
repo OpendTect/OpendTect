@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.27 2004-02-02 15:13:18 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.28 2004-02-03 15:05:49 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -82,7 +82,7 @@ void WellDisplay::setWell( visBase::Well* well_ )
 
 bool WellDisplay::setWellId( const MultiID& multiid )
 {
-    Well::Data* wd = Well::MGR().get( multiid );
+    Well::Data* wd = Well::MGR().get( multiid, true );
     if ( !wd ) return false;
     
     const Well::D2TModel* d2t = wd->d2TModel();
@@ -190,11 +190,12 @@ void WellDisplay::displayLog( int logidx, int lognr,
     assign( sizrg, SI().zRange() );
     for ( int idx=0; idx<logsz; idx++ )
     {
-	Coord3 pos = track.getPos( log.dah(idx) );
-	if ( !pos.x && !pos.y && !pos.z ) break;
+	const float dah = log.dah(idx);
+	Coord3 pos = track.getPos( dah );
+	if ( !pos.x && !pos.y && !pos.z ) continue;
 
 	if ( zistime )
-	    pos.z = wd->d2TModel()->getTime( pos.z );
+	    pos.z = wd->d2TModel()->getTime( dah );
 
 	if ( !sizrg.includes(pos.z) )
 	{
