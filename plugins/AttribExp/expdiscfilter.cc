@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdiscfilter.cc,v 1.1 2002-01-04 11:25:59 nanne Exp $";
+static const char* rcsID = "$Id: expdiscfilter.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
 
 
 #define mEPSILON 1E-9
@@ -100,6 +100,10 @@ bool DiscFilterAttrib::init()
 
     return AttribCalc::init();
 } 
+
+
+AttribCalc::Task* DiscFilterAttrib::Task::clone() const
+{ return new DiscFilterAttrib::Task(calculator); }
 
 
 void DiscFilterAttrib::Task::set( float t1_, int nrtimes_, float step_,

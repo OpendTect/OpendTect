@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expspectrum.cc,v 1.1 2002-01-04 10:11:46 kristofer Exp $";
+static const char* rcsID = "$Id: expspectrum.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
 
 #define mEPSILON 1E-9
 
@@ -118,6 +118,10 @@ int TraceSpectrumAttrib::Task::nextStep()
 
     return 0;
 }
+
+
+AttribCalc::Task* TraceSpectrumAttrib::Task::clone() const
+{ return new TraceSpectrumAttrib::Task(calculator); }
 
 
 bool TraceSpectrumAttrib::Task::Input::set(const BinID& pos, 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: exppcadip.cc,v 1.1 2002-01-04 14:05:35 kristofer Exp $";
+static const char* rcsID = "$Id: exppcadip.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
 
 
 #define mEPSILON 1E-9
@@ -50,6 +50,11 @@ bool PCADipAttrib::init()
 
     return AttribCalc::init();
 } 
+
+
+AttribCalc::Task* PCADipAttrib::Task::clone()const
+{ return new PCADipAttrib::Task(calculator); }
+
 
 
 void PCADipAttrib::Task::set( float t1_, int nrtimes_, float step_,

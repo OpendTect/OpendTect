@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expnearsubtract.cc,v 1.1 2002-01-04 14:05:35 kristofer Exp $";
+static const char* rcsID = "$Id: expnearsubtract.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
 
 #include "expnearsubtract.h"
 #include "attribprovider.h"
@@ -66,6 +66,11 @@ bool NearSubtractAttrib::init()
 
     return AttribCalc::init();
 }
+
+
+AttribCalc::Task* NearSubtractAttrib::Task::clone() const
+{ return new NearSubtractAttrib::Task(calculator); }
+
 
 bool NearSubtractAttrib::Task::Input::set( const BinID& pos,
 			     const ObjectSet<AttribProvider>& inputproviders,

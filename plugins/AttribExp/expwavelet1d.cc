@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expwavelet1d.cc,v 1.1 2002-01-04 10:25:50 kristofer Exp $";
+static const char* rcsID = "$Id: expwavelet1d.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
 
 
 #define mEPSILON 1E-9
@@ -187,7 +187,10 @@ int Wavelet1DAttrib::Task::nextStep()
 
     return 0;
 }
-			
+
+
+AttribCalc::Task*  Wavelet1DAttrib::Task::clone() const 
+{ return new Wavelet1DAttrib::Task(calculator); }
 
 
 bool Wavelet1DAttrib::Task::Input::set(const BinID& pos, 

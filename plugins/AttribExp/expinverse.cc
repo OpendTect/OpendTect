@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expinverse.cc,v 1.3 2002-01-04 10:21:43 kristofer Exp $";
+static const char* rcsID = "$Id: expinverse.cc,v 1.4 2002-09-05 15:50:46 kristofer Exp $";
 
 #define mEPSILON 1E-9
 
@@ -123,6 +123,10 @@ InverseAttrib::Task::~Task()
 
 InverseAttrib::Task::Input::~Input()
 { delete trcs; }
+
+
+AttribCalc::Task* InverseAttrib::Task::clone() const
+{ return new InverseAttrib::Task(*this); }
     
 
 bool InverseAttrib::Task::Input::set(const BinID& pos, 

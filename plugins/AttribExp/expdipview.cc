@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdipview.cc,v 1.1 2002-01-04 10:24:16 kristofer Exp $";
+static const char* rcsID = "$Id: expdipview.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
 
 
 #include "expdipview.h"
@@ -44,8 +44,11 @@ DipViewAttrib::DipViewAttrib( Parameters* params )
 
 
 DipViewAttrib::~DipViewAttrib( )
-{
-}
+{ }
+
+
+AttribCalc::Task* DipViewAttrib::Task::clone() const
+{ return new DipViewAttrib::Task(calculator); }
 
 
 bool DipViewAttrib::Task::Input::set( const BinID& pos,

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdeconv.cc,v 1.1 2002-01-04 09:37:46 kristofer Exp $";
+static const char* rcsID = "$Id: expdeconv.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
 
 #define mEPSILON 1E-9
 
@@ -123,6 +123,10 @@ DeConvolveAttrib::Task::~Task()
 
 DeConvolveAttrib::Task::Input::~Input()
 { delete trcs; }
+
+
+AttribCalc::Task* DeConvolveAttrib::Task::clone() const
+{ return new DeConvolveAttrib::Task(calculator); }
     
 
 bool DeConvolveAttrib::Task::Input::set(const BinID& pos, 
