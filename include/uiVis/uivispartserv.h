@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.119 2004-05-03 16:04:27 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.120 2004-05-03 18:50:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,6 +236,7 @@ protected:
     Threads::Mutex&		eventmutex;
     int				eventobjid;
 
+    void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
     void			deselectObjCB(CallBacker*);
     void			interactionCB(CallBacker*);
