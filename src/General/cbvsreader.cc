@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.7 2001-04-13 11:50:04 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.8 2001-04-20 15:41:13 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -290,6 +290,25 @@ bool CBVSReader::readTrailer()
 }
 
 
+bool CBVSReader::toStart()
+{
+    if ( strmclosed_ ) return false;
+
+    curbinid_ = info_.geom.start;
+    if ( !info_.geom.fullyrectandreg )
+    {
+	curinlinfnr = cursegnr = 0;
+	curbinid_.inl = info_.geom.inldata[0]->inl;
+	curbinid_.crl = info_.geom.inldata[0]->segments[0].start;
+    }
+    posidx = 0;
+    lastposfo = datastartfo;
+    strm_.seekg( datastartfo, ios::beg );
+    hinfofetched = false;
+    return true;
+}
+
+
 bool CBVSReader::goTo( const BinID& bid )
 {
     if ( strmclosed_ ) return false;
@@ -411,6 +430,9 @@ bool CBVSReader::skip( bool tonextpos )
 
 BinID CBVSReader::nextBinID() const
 {
+    if ( curbinid_ == lastbinid )
+	return BinID(0,0);
+
     BinID bid = curbinid_;
     if ( info_.geom.fullyrectandreg )
     {
@@ -420,10 +442,11 @@ BinID CBVSReader::nextBinID() const
 	    bid.crl = info_.geom.start.crl;
 	    bid.inl += info_.geom.step.inl;
 	    if ( !bidrg.includes(bid) )
+		// Huh?
 		return BinID(0,0);
 	}
     }
-    else if ( bid != lastbinid )
+    else
     {
 	const CBVSInfo::SurvGeom::InlineInfo* inlinf =
 		info_.geom.inldata[curinlinfnr];
@@ -438,6 +461,7 @@ BinID CBVSReader::nextBinID() const
 		const_cast<int&>(cursegnr) = 0;
 		const_cast<int&>(curinlinfnr) ++;
 		if ( curinlinfnr >= info_.geom.inldata.size() )
+		    // Huh?
 		    return BinID(0,0);
 		inlinf = info_.geom.inldata[curinlinfnr];
 		curseg = &inlinf->segments[cursegnr];

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.9 2001-04-13 11:50:04 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.10 2001-04-20 15:41:13 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -29,6 +29,27 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
 	, nrtrcsperposn(i.nrtrcsperposn)
 	, explinfo(i.explinfo)
 	, survgeom(i.geom)
+{
+    init( i );
+}
+
+
+CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
+	: strm_(*s)
+	, expldat(cw.expldat)
+	, thrbytes_(cw.thrbytes_)
+	, finishing_inline(false)
+	, previnl(-999)
+	, trcswritten(0)
+	, nrtrcsperposn(cw.nrtrcsperposn)
+	, explinfo(cw.explinfo)
+	, survgeom(ci.geom)
+{
+    init( ci );
+}
+
+
+void CBVSWriter::init( const CBVSInfo& i )
 {
     if ( !strm_.good() )
 	{ errmsg_ = "Cannot open file for write"; return; }
@@ -206,6 +227,10 @@ int CBVSWriter::put( void** cdat )
     getBinID();
     if ( finishing_inline && previnl != curbinid_.inl )
     {
+	// remove last segment added
+	delete inldata[inldata.size()-1];
+	inldata.remove( inldata.size()-1 );
+
 	close();
 	return 1;
     }
@@ -278,7 +303,8 @@ void CBVSWriter::getRealGeometry()
 	if ( iinl == 0 )
 	{
 	    previnl = bids.start.inl = bids.stop.inl = inlinf.inl;
-	    bids.start.crl = bids.stop.crl = inlinf.segments[0].start;
+	    bids.start.crl = inlinf.segments[0].start;
+	    bids.stop.crl = inlinf.segments[0].stop;
 	    bids.step.crl = inlinf.segments[0].step;
 	}
 	else if ( iinl == 1 )
@@ -302,9 +328,13 @@ void CBVSWriter::getRealGeometry()
 		if ( intv.start != bids.start.crl || intv.stop != bids.stop.crl)
 		    survgeom.fullyrectandreg = false;
 	    }
-	    bids.include( BinID(seg.start,seg.stop) );
+	    bids.include( BinID(inlinf.inl,seg.start) );
+	    bids.include( BinID(inlinf.inl,seg.stop) );
 	}
     }
+
+    if ( survgeom.fullyrectandreg )
+	deepErase( survgeom.inldata );
 
     survgeom.start = bids.start;
     survgeom.stop = bids.stop;

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.1 2001-04-18 16:24:05 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.2 2001-04-20 15:41:13 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -22,23 +22,16 @@ static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 
 
 CBVSReadMgr::CBVSReadMgr( const char* fnm )
-	: basefname_(fnm)
+	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
-	, curreader_(0)
 {
-    BufferString fname( basefname_ );
-    while ( File_exists((const char*)fname) )
+    while ( 1 )
     {
+	BufferString fname = getFileName( readers_.size() );
+	if ( !File_exists((const char*)fname) ) break;
+
 	if ( !addReader(fname) ) return;
 	fnames_ += new BufferString( fname );
-
-	int curnr = readers_.size() + 1;
-	fname = basefname_;
-	char* ptr = strrchr( fname.buf(), '.' );
-	BufferString ext;
-	if ( ptr ) { ext = ptr; *ptr = '\0'; }
-	fname += curnr < 10 ? "0^" : "^";
-	fname += ext;
     }
 
     if ( !readers_.size() )
@@ -60,6 +53,12 @@ void CBVSReadMgr::close()
 {
     for ( int idx=0; idx<readers_.size(); idx++ )
 	readers_[idx]->close();
+}
+
+
+const char* CBVSReadMgr::errMsg_() const
+{
+    return readers_.size() ? readers_[curnr_]->errMsg() : 0;
 }
 
 
@@ -122,35 +121,133 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 	    mErrRet("Sample interval")
     }
 
-    if ( !ci.geom.fullyrectandreg || !info_.geom.fullyrectandreg )
-	return mergeIrreg( ci.geom, ireader );
+    info_.geom.merge( ci.geom );
+    return true;
+}
 
-    int expected_inline = info_.geom.stop.inl + info_.geom.step.inl;
-    bool isafter = true;
-    if ( ci.geom.start.inl != expected_inline )
+
+int CBVSReadMgr::nextRdrNr( int rdrnr ) const
+{
+    rdrnr++;
+    if ( rdrnr >= readers_.size() ) rdrnr = 0;
+    if ( rdrnr == curnr_ ) rdrnr = -1;
+    return rdrnr;
+}
+
+
+BinID CBVSReadMgr::nextBinID() const
+{
+    int rdrnr = curnr_;
+    BinID ret(0,0);
+    while ( ret == BinID(0,0) && rdrnr > 0 )
     {
-	expected_inline = info_.geom.start.inl - info_.geom.step.inl;
-	if ( ci.geom.stop.inl == expected_inline )
-	    isafter = false;
-	else
-	    return mergeIrreg( ci.geom, ireader );
+	ret = readers_[rdrnr]->nextBinID();
+	rdrnr = nextRdrNr( rdrnr );
     }
 
-    if ( isafter ) info_.geom.stop.inl = ci.geom.stop.inl;
-    else	   info_.geom.start.inl = ci.geom.start.inl;
+    return ret;
+}
 
-    StepInterval<int> crls( info_.geom.start.crl, info_.geom.stop.crl,
-			    info_.geom.step.crl );
-    crls.include( ci.geom.start.crl );
-    crls.include( ci.geom.stop.crl );
-    info_.geom.start.crl = crls.start;
-    info_.geom.stop.crl = crls.stop;
+
+bool CBVSReadMgr::goTo( const BinID& bid )
+{
+    int rdrnr = curnr_;
+
+    while ( !readers_[rdrnr]->goTo( bid ) )
+    {
+	rdrnr = nextRdrNr( rdrnr );
+	if ( rdrnr < 0 ) return false;
+    }
+
+    curnr_ = rdrnr;
+    return true;
+}
+
+
+bool CBVSReadMgr::toNext()
+{
+    if ( !readers_[curnr_]->toNext() )
+    {
+	if ( curnr_ == readers_.size()-1 ) return false;
+	curnr_++;
+	return readers_[curnr_]->toStart();
+    }
 
     return true;
 }
 
 
-bool CBVSReadMgr::mergeIrreg( const CBVSInfo::SurvGeom& geom, int ireader )
+bool CBVSReadMgr::toStart()
 {
+    curnr_ = 0;
+    return readers_[curnr_]->toStart();
+}
+
+
+bool CBVSReadMgr::skip( bool fnp )
+{
+    if ( !readers_[curnr_]->skip(fnp) )
+    {
+	if ( curnr_ == readers_.size()-1 ) return false;
+	curnr_++;
+	return readers_[curnr_]->toStart();
+    }
+
     return true;
+}
+
+
+bool CBVSReadMgr::getHInfo( CBVSInfo::ExplicitData& ed )
+{
+    return readers_[curnr_]->getHInfo( ed );
+}
+
+
+bool CBVSReadMgr::fetch( void** d, const Interval<int>* s )
+{
+    return readers_[curnr_]->fetch( d, s );
+}
+
+
+int CBVSReadMgr::nrComponents() const
+{
+    return readers_[curnr_]->nrComponents();
+}
+
+
+const BinID& CBVSReadMgr::binID() const
+{
+    return readers_[curnr_]->binID();
+}
+
+
+const char* CBVSReadMgr::check( const char* basefname )
+{
+    static BufferString ret;
+
+    int curnr=0;
+    for ( ; ; curnr++ )
+    {
+	BufferString fname = getFileName( basefname, curnr );
+	if ( !File_exists((const char*)fname) ) break;
+
+	istream* strm = new ifstream( (const char*)fname );
+	const char* res = CBVSReader::check( *strm );
+	delete strm;
+
+	if ( res && *res )
+	{
+	    ret = "'"; ret += fname; ret += "': ";
+	    ret += res;
+	    return (const char*)ret;
+	}
+    }
+
+    if ( curnr == 0 )
+    {
+	ret = "'"; ret += basefname; ret += "' does not exist";
+	return (const char*)ret;
+    }
+
+    return 0;
 }
