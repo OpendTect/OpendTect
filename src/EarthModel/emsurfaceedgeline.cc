@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.16 2004-10-05 15:44:43 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.17 2004-10-07 05:55:34 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -743,11 +743,13 @@ int EdgeLine::getSegment( const EM::PosID& pos, int* seq ) const
 }
 
 
-int EdgeLine::getSegment( const RowCol& rowcol, int* seq ) const 
+int EdgeLine::getSegment( const RowCol& rowcol, int* seq,
+			  const EdgeLineSegment* ignoreseg ) const 
 {
     for ( int idx=0; idx<segments.size(); idx++ )
     {
-	const int idy = segments[idx]->indexOf( rowcol );
+	const int idy = segments[idx]==ignoreseg
+	    ? -1 : segments[idx]->indexOf( rowcol );
 	if ( idy!=-1 )
 	{
 	    if ( seq ) *seq=idy;
@@ -1318,12 +1320,22 @@ int EdgeLine::cutLineBy( const RowCol& start, const RowCol& stop,
 			 const EdgeLineSegment* donttouch )
 {
     int startidx;
-    int startseg = getSegment( start, &startidx );
-    if ( startseg==-1 ) return -1;
+    int startseg = getSegment( start, &startidx, donttouch );
+    if ( startseg==-1 )
+    {
+        startseg = getSegment( start, &startidx );
+	if ( startseg==-1 )
+	    return -1;
+    }
 
     int stopidx;
-    int stopseg = getSegment( stop, &stopidx );
-    if ( stopseg==-1 ) return -1;
+    int stopseg = getSegment( stop, &stopidx, donttouch );
+    if ( stopseg==-1 )
+    {
+	stopseg = getSegment( stop, &stopidx );
+	if ( stopseg==-1 )
+	    return -1;
+    }
 
     const bool didremovesegments = setRemoveZeroSegments(false);
     int curseg = startseg;
