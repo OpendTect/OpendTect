@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.20 2004-09-15 06:37:46 kristofer Exp $
+ RCS:           $Id: uimsg.cc,v 1.21 2004-12-20 12:16:45 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ void uiMsg::handleMsg( CallBacker* cb )
 #endif
     break;
     default:
+	message( mc->msg );
 	std::cerr << mc->msg << std::endl;
     break;
     }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.23 2004-12-16 10:34:22 bert Exp $
+ RCS:           $Id: uimain.cc,v 1.24 2004-12-20 12:16:45 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "debugmasks.h"
 #include "settings.h"
 #include "qapplication.h"
+#include "uimsg.h"
 
 #include "qstyle.h"
 #include "qcdestyle.h"
@@ -133,6 +134,10 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     }
     if ( !enab )
 	uiObject::enableToolTips( false );
+
+    CallBack msghcb = mCB(&uiMSG(),uiMsg,handleMsg);
+    MsgClass::theCB( &msghcb );
+
 }
 
 uiMain::~uiMain()

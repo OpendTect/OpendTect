@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.89 2004-10-27 14:42:02 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.90 2004-12-20 12:16:45 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "errh.h"
 #include "helpview.h"
-#include "uimsg.h"
 
 #include "pixmap.h"
 #include "uibody.h"
@@ -89,8 +88,6 @@ public:
 
     virtual void        polish()
                         {
-			    CallBack msghcb = mCB(&uiMSG(),uiMsg,handleMsg);
-			    MsgClass::theCB( &msghcb );
                             QMainWindow::polish();
                         }
 
