@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.2 2005-01-17 12:48:42 kristofer Exp $
+ RCS:           $Id: uimpeman.cc,v 1.3 2005-01-18 12:45:09 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,10 @@ void uiMPEMan::createSeedMenuCB(CallBacker* cb)
     BufferStringSet trackernames;
     MPE::engine().getAvaliableTrackerTypes(trackernames);
     for ( int idx=0; idx<trackernames.size(); idx++ )
-	menu->addItem( new uiMenuItem((const char*)*trackernames[idx]) );
+    {
+	BufferString txt("Create "); txt += *trackernames[idx];
+	menu->addItem( new uiMenuItem((const char*)txt) );
+    }
 }
 
 
@@ -207,6 +210,7 @@ void uiMPEMan::handleSeedMenuCB(CallBacker* cb)
 
     menu->setIsHandled(true);
 }
+
 
 void uiMPEMan::createMPEDisplay()
 {
@@ -272,7 +276,7 @@ void uiMPEMan::deselCB( CallBacker* )
 
 void uiMPEMan::selectCB( CallBacker* cb )
 {
-    if ( !mpedisplay ) return;
+    if ( !mpedisplay ) createMPEDisplay();
     const bool isshown = mpedisplay->isManipulatorShown();
     if ( isshown )
 	visBase::DM().selMan().deSelect( mpedisplay->id() );
