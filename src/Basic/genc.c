@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.37 2004-01-21 12:47:41 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.38 2004-02-06 13:07:46 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -278,8 +278,12 @@ const char* GetSurveyFileName()
 	ptr = GetSoftwareUser();
 	if ( ptr )
 	{
-	    strcat( sfname, "." );
-	    strcat( sfname, ptr );
+	    static FileNameString usrsfname;
+	    strcpy( usrsfname, sfname );
+	    strcat( usrsfname, "." );
+	    strcat( usrsfname, ptr );
+	    if ( FileExists(usrsfname) )
+		strcpy( sfname, usrsfname );
 	}
 	inited = YES;
     }
@@ -311,10 +315,30 @@ const char* GetSurveyName()
     if ( surveynamedirty )
     {
 	fnm = GetSurveyFileName();
-	if ( !fnm ) return 0;
+	if ( !fnm )
+	{
+	    if( dgb_debug_isOn(DBG_SETTINGS) )
+	    {
+		char buf[255];
+		sprintf(buf,
+		    "GetSurveyName: GetSurveyFileName returned NULL\n" );
+		dgb_debug_message( buf );
+	    }
+	    return 0;
+	}
 
 	fp = fopen( fnm, "r" );
-	if ( !fp ) return 0;
+	if ( !fp )
+	{
+	    if( dgb_debug_isOn(DBG_SETTINGS) )
+	    {
+		char buf[255];
+		sprintf(buf,
+		    "GetSurveyName: Could not open SurveyFile: \"%s\"\n", fnm );
+		dgb_debug_message( buf );
+	    }
+	    return 0;
+	}
 
 	surveyname[0] = '\0';
 	fgets( surveyname, PATH_LENGTH, fp );
