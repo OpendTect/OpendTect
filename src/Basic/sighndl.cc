@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.18 2004-04-15 13:12:24 macman Exp $
+ RCS:           $Id: sighndl.cc,v 1.19 2004-08-13 08:10:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.18 2004-04-15 13:12:24 macman Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.19 2004-08-13 08:10:16 kristofer Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -222,7 +222,7 @@ void SignalHandling::doKill( int signalnr )
 #endif
 	ErrMsg( msg );
     }
-    killcbs.doCall( this );
+    killcbs.doCall( this, 0 );
     exitProgram( 1 );
 }
 
@@ -230,7 +230,7 @@ void SignalHandling::doKill( int signalnr )
 void SignalHandling::doStop( int signalnr )
 {
     mReleaseSignal( signalnr );
-    stopcbs.doCall( this );
+    stopcbs.doCall( this, 0 );
 #ifdef __win__
     raise( signalnr );
 #else
@@ -274,31 +274,31 @@ void SignalHandling::doCont()
 #ifndef __win__
     mCatchSignal( SIGSTOP );
 #endif
-    contcbs.doCall( this );
+    contcbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleConn()
 {
-    conncbs.doCall( this );
+    conncbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleChld()
 {
-    chldcbs.doCall( this );
+    chldcbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleReInit()
 {
-    reinitcbs.doCall( this );
+    reinitcbs.doCall( this, 0 );
 }
 
 
 void SignalHandling::handleAlarm()
 {
-    alarmcbs.doCall( this );
+    alarmcbs.doCall( this, 0 );
 }
 
 #endif
