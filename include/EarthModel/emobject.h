@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.9 2003-05-15 09:59:26 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.10 2003-05-26 09:17:01 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,10 @@ public:
     static EMObject*		create( const IOObj&, bool load,
 	    				EMManager&,
 	    				BufferString& errmsg );
+
+    void			ref() const;
+    void			unRef() const;
+    void			unRefNoDel() const;
 
     				EMObject( EMManager&, const MultiID&);
     virtual			~EMObject( );

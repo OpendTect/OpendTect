@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.11 2003-04-22 11:01:52 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.12 2003-05-26 09:16:58 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.11 2003-04-22 11:01:52 kristof
 #include "emhorizontransl.h"
 #include "emobject.h"
 #include "emwelltransl.h"
+#include "errh.h"
 #include "executor.h"
 #include "iodir.h"
 #include "ioman.h"
@@ -76,6 +77,7 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 	PtrMan<Executor> exec = hor->saver();
 	exec->execute();
 	objects += hor;
+	refcounts += 0;
 
 	return key;
     }
@@ -97,6 +99,7 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 	PtrMan<Executor> exec = fault->saver();
 	exec->execute();
 	objects += fault;
+	refcounts += 0;
 
 	return key;
     }
@@ -119,6 +122,7 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 	exec->execute();
 
 	objects += well;
+	refcounts += 0;
 
 	return key;
     }
@@ -175,10 +179,66 @@ void EarthModel::EMManager::removeObject( const MultiID& id )
     {
 	if ( objects[idx]->id() == id )
 	{
+	    delete objects[idx];
 	    objects.remove( idx );
+	    refcounts.remove( idx );
 	    return;
 	}
     }
+}
+
+
+void EarthModel::EMManager::ref( const MultiID& id )
+{
+    for ( int idx=0; idx<objects.size(); idx++ )
+    {
+	if ( objects[idx]->id() == id )
+	{
+	    refcounts[idx]++;
+	    return;
+	}
+    }
+
+    pErrMsg("Reference of id does not exist");
+}
+
+
+void EarthModel::EMManager::unRef( const MultiID& id )
+{
+    for ( int idx=0; idx<objects.size(); idx++ )
+    {
+	if ( objects[idx]->id() == id )
+	{
+	    if ( !refcounts[idx] )
+		pErrMsg("Un-refing object that is not reffed");
+
+	    refcounts[idx]--;
+	    if ( !refcounts[idx] )
+		removeObject( id );
+
+	    return;
+	}
+    }
+
+    pErrMsg("Reference of id does not exist");
+}
+
+
+void EarthModel::EMManager::unRefNoDel( const MultiID& id )
+{
+    for ( int idx=0; idx<objects.size(); idx++ )
+    {
+	if ( objects[idx]->id() == id )
+	{
+	    if ( !refcounts[idx] )
+		pErrMsg("Un-refing object that is not reffed");
+
+	    refcounts[idx]--;
+	    return;
+	}
+    }
+
+    pErrMsg("Reference of id does not exist");
 }
 
 
@@ -195,6 +255,7 @@ Executor* EarthModel::EMManager::load( const MultiID& id )
     {
 	EarthModel::Well* well = new EarthModel::Well( *this, id );
 	objects += well;
+	refcounts += 0;
 	return well->loader();
     }
 
@@ -202,6 +263,7 @@ Executor* EarthModel::EMManager::load( const MultiID& id )
     {
 	EarthModel::Horizon* hor = new EarthModel::Horizon( *this, id );
 	objects += hor;
+	refcounts += 0;
 	return hor->loader();
     }
 
@@ -210,6 +272,7 @@ Executor* EarthModel::EMManager::load( const MultiID& id )
     {
 	EarthModel::Fault* fault = new EarthModel::Fault( *this, id );
 	objects += fault;
+	refcounts += 0;
 	return fault->loader();
     }
 

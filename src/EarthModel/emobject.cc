@@ -4,12 +4,14 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.6 2003-05-15 09:59:06 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.7 2003-05-26 09:16:58 kristofer Exp $";
 
 #include "emobject.h"
+
 #include "emhorizontransl.h"
 #include "emwelltransl.h"
 #include "emfaulttransl.h"
+#include "emmanager.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "ioman.h"
@@ -31,6 +33,24 @@ EarthModel::EMObject* EarthModel::EMObject::create( const IOObj& ioobj,
 	res = new EarthModel::Fault( manager, id );
 
     return res;
+}
+
+
+void EarthModel::EMObject::ref() const
+{
+    const_cast<EarthModel::EMObject*>(this)->manager.ref(id());
+}
+
+
+void EarthModel::EMObject::unRef() const
+{
+    const_cast<EarthModel::EMObject*>(this)->manager.unRef(id());
+}
+
+
+void EarthModel::EMObject::unRefNoDel() const
+{
+    const_cast<EarthModel::EMObject*>(this)->manager.unRefNoDel(id());
 }
 
 
