@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.5 2004-06-17 07:48:07 kristofer Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.6 2004-07-28 12:06:52 kristofer Exp $";
 
 #include "rowcol.h"
 #include "ptrman.h"
@@ -84,7 +84,8 @@ bool RowCol::isNeighborTo( const RowCol& rc, const RowCol& step,
 			   bool eightconnectivity ) const
 {
     const RowCol diff(abs(row-rc.row),abs(col-rc.col));
-    bool areeightconnected = diff.row<=step.row && diff.col<=step.col;
+    bool areeightconnected = diff.row<=step.row && diff.col<=step.col &&
+			     !(!diff.row && !diff.col);
     if ( eightconnectivity )
 	return areeightconnected;
 
