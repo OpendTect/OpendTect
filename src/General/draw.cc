@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.6 2000-10-18 08:03:50 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.7 2001-03-30 08:52:58 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -56,7 +56,7 @@ void MarkerStyle::toString( BufferString& bs ) const
     FileMultiString fms;
     fms = eString(Type,type);
     fms += size;
-    color.fill( ((char*)bs) );
+    color.fill( bs.buf() );
     fms += bs;
     bs = fms;
 }
@@ -77,7 +77,7 @@ void LineStyle::toString( BufferString& bs ) const
     FileMultiString fms;
     fms = eString(Type,type);
     fms += width;
-    color.fill( ((char*)bs) );
+    color.fill( bs.buf() );
     fms += bs;
     bs = fms;
 }

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.5 2001-03-19 10:20:06 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.6 2001-03-30 08:53:02 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -32,7 +32,7 @@ static BufferString getUsrInfo()
 	while ( *sd.istrm )
 	{
 	    sd.istrm->getline( buf, 1024 );
-	    if ( *(char*)bs ) bs += "\n";
+	    if ( *(const char*)bs ) bs += "\n";
 	    bs += buf;
 	}
     }

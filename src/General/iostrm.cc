@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.5 2001-02-13 17:21:02 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.6 2001-03-30 08:52:58 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -161,8 +161,8 @@ Conn* IOStream::getConn( Conn::State rw ) const
 void IOStream::genFileName()
 {
     fname = name();
-    cleanupString( fname, NO, YES, YES );
-    if ( *(char*)extension )
+    cleanupString( fname.buf(), NO, YES, YES );
+    if ( *(const char*)extension )
     {
         fname += ".";
         fname += extension;
@@ -358,7 +358,7 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
 	strcat( numbstr, numb );
 	
 	FileNameString inp = nm;
-	char* ptr = inp;
+	char* ptr = inp.buf();
 	nm = "";
 	char wc = directNumberMultiConn() ? '*' : '%';
 	while ( 1 )

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: globexpr.cc,v 1.3 2001-03-26 09:29:00 bert Exp $";
+static const char* rcsID = "$Id: globexpr.cc,v 1.4 2001-03-30 08:52:55 bert Exp $";
 
 #include "globexpr.h"
 
@@ -15,7 +15,7 @@ void GlobExpr::set( const char* str )
     errmsg_ = 0;
 
     // remove possible trailing backslash
-    char* ptr = expr_;
+    char* ptr = expr_.buf();
     while ( *ptr )
     {
 	if ( !*(ptr+1) && *ptr == '\\' )

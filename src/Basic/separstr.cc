@@ -2,19 +2,15 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 11-4-1994
- * FUNCTION : Functions concerning comma separated string lists
+ * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.4 2001-02-13 17:20:58 bert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.5 2001-03-30 08:52:55 bert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
 #include "separstr.h"
 #include "string2.h"
-
-static char buf[mMaxSepItem+1];
-
-/*$-*/
 
 SeparString::SeparString( const char* str, char separ )
 {
@@ -27,9 +23,10 @@ SeparString::SeparString( const char* str, char separ )
 
 const char* SeparString::operator[]( unsigned int elemnr ) const
 {
-    char* bufptr = buf;
+    static char buf_[mMaxSepItem+1];
+    char* bufptr = buf_;
     const char* repptr = rep;
-    buf[0] = '\0';
+    buf_[0] = '\0';
 
     while ( *repptr )
     {
@@ -38,10 +35,10 @@ const char* SeparString::operator[]( unsigned int elemnr ) const
 
 	if ( *repptr == sep )
 	{
-	    if ( --elemnr == -1 || bufptr-buf == mMaxSepItem )
+	    if ( --elemnr == -1 || bufptr-buf_ == mMaxSepItem )
 	    {
 		*bufptr = '\0';
-		return buf;
+		return buf_;
 	    }
 	}
 	else if ( !elemnr )
@@ -51,7 +48,7 @@ const char* SeparString::operator[]( unsigned int elemnr ) const
     }
 
     *bufptr = '\0';
-    return buf;
+    return buf_;
 }
 
 

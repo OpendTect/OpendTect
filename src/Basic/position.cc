@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.6 2001-02-28 14:58:04 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.7 2001-03-30 08:52:55 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -220,7 +220,7 @@ bool BinIDRange::fillString( char* str ) const
     if ( stepout.inl || stepout.crl )
     {
 	fms += "S";
-	strcat( (char*)fms, getStringFromInt(0,stepout.inl) );
+	strcat( fms.buf(), getStringFromInt(0,stepout.inl) );
 	fms += stepout.crl;
     }
     strcpy( str, fms );
@@ -245,7 +245,7 @@ int BinIDRange::excludes( const BinID& bid ) const
 }
 
 
-bool BinIDRange::isEq( const BinIDSelector& b ) const
+bool BinIDRange::isEqBidSel( const BinIDSelector& b ) const
 {
     const BinIDRange& br = (const BinIDRange&)b;
     return br.start == start && br.stop == stop && br.stepout == stepout;
@@ -328,7 +328,7 @@ int BinIDSampler::extreme( bool inl, bool mini ) const
 }
 
 
-bool BinIDSampler::isEq( const BinIDSelector& b ) const
+bool BinIDSampler::isEqBidSel( const BinIDSelector& b ) const
 {
     const BinIDSampler& bs = (const BinIDSampler&)b;
     return BinIDRange::isEq(b) && bs.step == step;
@@ -496,7 +496,7 @@ int BinIDTable::extreme( bool inl, bool mini ) const
 }
 
 
-bool BinIDTable::isEq( const BinIDSelector& b ) const
+bool BinIDTable::isEqBidSel( const BinIDSelector& b ) const
 {
     const BinIDTable& bt = (const BinIDTable&)b;
     if ( binids.size() != bt.binids.size() ) return false;

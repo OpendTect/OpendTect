@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.1 2001-03-19 10:20:01 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.2 2001-03-30 08:52:58 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -64,7 +64,7 @@ streampos CBVSReader::readInfo()
     }
 
     const streampos dfo = strm_.tellg();
-    return info_.geom.fullyrectangular || readTrailer(iinterp) ? dfo : 0;
+    return info_.geom.fullyrectandreg || readTrailer(iinterp) ? dfo : 0;
 }
 
 
@@ -125,8 +125,8 @@ bool CBVSReader::readTrailer( const DataInterpreter<int>& iinterp )
     if ( strcmp(buf,"dGB") ) mErrRet("Missing required file trailer")
     
     strm_.seekg( -4, ios::end );
-    info_.geom.fullyrectangular = (bool)strm_.peek();
-    if ( info_.geom.fullyrectangular )
+    info_.geom.fullyrectandreg = (bool)strm_.peek();
+    if ( info_.geom.fullyrectandreg )
     {
 	strm_.seekg( -4-6*mIntSz, ios::end );
 	return readBinIDBounds( iinterp );

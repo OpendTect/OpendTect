@@ -5,7 +5,7 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID = "$Id: compoundkey.cc,v 1.1 2001-02-13 17:48:37 bert Exp $";
+static const char* rcsID = "$Id: compoundkey.cc,v 1.2 2001-03-30 08:52:54 bert Exp $";
 
 #include "multiid.h"
 #include "globexpr.h"
@@ -19,7 +19,7 @@ static char bufstr[4096];
 char* CompoundKey::fromKey( int keynr, bool tobuf ) const
 {
     bufstr[0] = '\0';
-    if ( keynr<1 && !tobuf ) return id;
+    if ( keynr<1 && !tobuf ) return (char*)((const char*)id);
 
     const char* ptr = (const char*)id;
     while ( keynr )

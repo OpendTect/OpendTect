@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.3 2001-03-19 10:20:06 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.4 2001-03-30 08:53:02 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -56,16 +56,17 @@ SegyTxtHeader::SegyTxtHeader()
     if ( !mIS_ZERO(bid.inl-coord.x) && !mIS_ZERO(bid.crl-coord.x)
       && !mIS_ZERO(bid.inl-coord.y) && !mIS_ZERO(bid.crl-coord.y) )
     {
+	char* pbuf = buf.buf();
 	coord = SI().transform( bid );
-	bid.fill( buf ); buf += " = "; coord.fill( buf + strlen(buf) );
+	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
 	putAt( 12, 6, 75, buf );
 	bid.crl = SI().range().stop.crl;
 	coord = SI().transform( bid );
-	bid.fill( buf ); buf += " = "; coord.fill( buf + strlen(buf) );
+	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
 	putAt( 13, 6, 75, buf );
 	bid.inl = SI().range().stop.inl; bid.crl = SI().range().start.crl;
 	coord = SI().transform( bid );
-	bid.fill( buf ); buf += " = "; coord.fill( buf + strlen(buf) );
+	bid.fill( pbuf ); buf += " = "; coord.fill( pbuf + strlen(buf) );
 	putAt( 14, 6, 75, buf );
     }
 
@@ -87,7 +88,7 @@ void SegyTxtHeader::setUserInfo( const char* txt )
     int lnr = 16;
     while ( lnr < 35 )
     {
-	char* ptr = buf;
+	char* ptr = buf.buf();
 	int idx = 0;
 	while ( *txt && *txt != '\n' && ++idx < 75 )
 	    *ptr++ = *txt++;
@@ -134,7 +135,7 @@ void SegyTxtHeader::getText( BufferString& bs )
     {
 	getFrom( idx, 4, 80, buf );
 	if ( !buf[0] ) continue;
-	if ( *(char*)bs ) bs += "\n";
+	if ( *(const char*)bs ) bs += "\n";
 	bs += buf;
     }
 }

@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.2 2001-03-19 10:19:52 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.3 2001-03-30 08:52:56 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -119,7 +119,7 @@ bool BatchProgram::initOutput()
     {
 	FileNameString comm( "disp_text " );
 	comm += name();
-	sdout_.fp = popen( (char*)comm, "w" );
+	sdout_.fp = popen( (const char*)comm, "w" );
 	if ( !sdout_.fp )
 	{
 	    cerr << name() << ": Cannot open window for output" << endl;

@@ -16,7 +16,7 @@
 #include "binidsel.h"
 #include "strmoper.h"
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.3 2001-02-13 17:20:58 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.4 2001-03-30 08:52:55 bert Exp $";
 
 static FixedString<1024> oscommand;
 #define exeCmd(comm) system((const char*)comm) ? false : true
@@ -99,18 +99,18 @@ void StreamProvider::set( const char* devname )
     fname = ptr;
 
     // separate hostname from filename
-    ptr = strchr( (char*)fname, ':' );
+    ptr = strchr( fname.buf(), ':' );
     if ( ptr )
     {
 	*ptr++ = '\0';
 	hostname = fname;
     }
     else
-	ptr = fname;
+	ptr = fname.buf();
 
     if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }
 
-    char* ptrname = fname;
+    char* ptrname = fname.buf();
     while ( *ptr ) *ptrname++ = *ptr++;
     *ptrname = '\0';
 
@@ -131,10 +131,10 @@ bool StreamProvider::rewind() const
     else if ( type_ != StreamConn::Device ) return true;
 
     if ( hostname[0] )
-	sprintf( oscommand, "rsh %s \"mt -f %s rewind\"", (const char*)hostname,
-			  (const char*)fname );
+	sprintf( oscommand.buf(), "rsh %s \"mt -f %s rewind\"",
+		 (const char*)hostname, (const char*)fname );
     else
-	sprintf( oscommand, "mt -f %s rewind", (const char*)fname );
+	sprintf( oscommand.buf(), "mt -f %s rewind", (const char*)fname );
     return exeCmd(oscommand);
 }
 
@@ -145,10 +145,10 @@ bool StreamProvider::offline() const
     else if ( type_ != StreamConn::Device ) return true;
 
     if ( hostname[0] )
-	sprintf( oscommand, "rsh %s \"mt -f %s offline\"",
+	sprintf( oscommand.buf(), "rsh %s \"mt -f %s offline\"",
 			    (const char*)hostname, (const char*)fname );
     else
-	sprintf( oscommand, "mt -f %s offline", (const char*)fname );
+	sprintf( oscommand.buf(), "mt -f %s offline", (const char*)fname );
     return exeCmd(oscommand);
 }
 
@@ -159,10 +159,10 @@ bool StreamProvider::skipFiles( int nr ) const
     if ( type_ != StreamConn::Device ) return false;
 
     if ( hostname[0] )
-	sprintf( oscommand, "rsh %s \"mt -f %s fsf %d\"", (const char*)hostname,
-			  (const char*)fname, nr );
+	sprintf( oscommand.buf(), "rsh %s \"mt -f %s fsf %d\"",
+			(const char*)hostname, (const char*)fname, nr );
     else
-	sprintf( oscommand, "mt -f %s fsf %d", (const char*)fname, nr );
+	sprintf( oscommand.buf(), "mt -f %s fsf %d", (const char*)fname, nr );
     return exeCmd(oscommand);
 }
 
@@ -210,25 +210,25 @@ StreamData StreamProvider::makeIStream() const
 	    {
 	    case StreamConn::Device:
 		if ( blocksize )
-		    sprintf( oscommand, "rsh %s dd if=%s ibs=%ld",
+		    sprintf( oscommand.buf(), "rsh %s dd if=%s ibs=%ld",
 				(const char*)hostname, (const char*)fname,
 				blocksize );
 		else
-		    sprintf( oscommand, "rsh %s dd if=%s",
+		    sprintf( oscommand.buf(), "rsh %s dd if=%s",
 				(const char*)hostname, (const char*)fname );
 	    break;
 	    case StreamConn::Command:
-		sprintf( oscommand, "rsh %s %s", (const char*)hostname,
+		sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
 					(const char*)fname );
 	    break;
 	    case StreamConn::File:
-		sprintf( oscommand, "rsh %s cat %s", (const char*)hostname,
-					(const char*)fname );
+		sprintf( oscommand.buf(), "rsh %s cat %s",
+				(const char*)hostname, (const char*)fname );
 	    break;
 	    }
 	}
 	else
-	    strcpy( oscommand, (const char*)fname );
+	    strcpy( oscommand.buf(), (const char*)fname );
 
 	sd.fp = popen( oscommand, "r" );
 	sd.ispipe = true;
@@ -263,25 +263,25 @@ StreamData StreamProvider::makeOStream() const
 	    {
 	    case StreamConn::Device:
 		if ( blocksize )
-		    sprintf( oscommand, "rsh %s dd of=%s obs=%ld",
+		    sprintf( oscommand.buf(), "rsh %s dd of=%s obs=%ld",
 				      (const char*)hostname, (const char*)fname,
 					blocksize );
 		else
-		    sprintf( oscommand, "rsh %s dd of=%s",
+		    sprintf( oscommand.buf(), "rsh %s dd of=%s",
 				    (const char*)hostname, (const char*)fname );
 	    break;
 	    case StreamConn::Command:
-		sprintf( oscommand, "rsh %s %s", (const char*)hostname,
+		sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
 					(const char*)fname );
 	    break;
 	    case StreamConn::File:
-		sprintf( oscommand, "rsh %s tee %s > /dev/null",
+		sprintf( oscommand.buf(), "rsh %s tee %s > /dev/null",
 				  (const char*)hostname, (const char*)fname );
 	    break;
 	    }
 	}
 	else
-	    strcpy( oscommand, (const char*)fname );
+	    strcpy( oscommand.buf(), (const char*)fname );
 
 	sd.fp = popen( oscommand, "w" );
 	sd.ispipe = true;
@@ -312,7 +312,7 @@ bool StreamProvider::exists( int fr ) const
 
     if ( hostname[0] )
     {
-	sprintf( oscommand, "rsh %s 'test -%c %s && echo 1'",
+	sprintf( oscommand.buf(), "rsh %s 'test -%c %s && echo 1'",
 		  (const char*)hostname, fr ? 'r' : 'w', (const char*)fname );
 	FILE* fp = popen( oscommand, "r" );
 	int i = 0;
@@ -334,7 +334,7 @@ bool StreamProvider::remove() const
 			File_remove( (const char*)fname, YES, YES );
     else
     {
-	sprintf( oscommand, "rsh %s '/bin/rm -f %s && echo 1'",
+	sprintf( oscommand.buf(), "rsh %s '/bin/rm -f %s && echo 1'",
 		  (const char*)hostname, (const char*)fname );
 	FILE* fp = popen( oscommand, "r" );
 	char c;
