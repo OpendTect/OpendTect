@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.29 2004-12-15 16:03:14 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.30 2004-12-23 15:23:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,12 +153,18 @@ bool uiODMain::buildUI()
 		&& (*s == 't' || *s == 'T' || *(s+1) == 't' || *(s+1) == 'T');
 
     ctabwin = new uiDockWin( this, "Color Table" );
-    ctabwin->setResizeEnabled( true );
+    if ( isvert )
+    {
+	ctabwin->setResizeEnabled( true );
+    }
+    else
+    {
+	ctabwin->setVerStretchable( false );
+	ctabwin->setHorStretchable( true );
+    }
 
     ctabed = new uiVisColTabEd( ctabwin, isvert );
-    if ( !isvert )
-	ctabed->setPrefHeightInChar( 1 );
-    else
+    if ( isvert )
     {
 	ctabed->setPrefHeight( cCTHeight );
 	ctabed->attach(hCentered);
