@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.8 2003-10-30 12:29:09 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.9 2003-10-30 12:38:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p )
 
 uiSurfaceMan::~uiSurfaceMan()
 {
-    delete &ctio; // NOT ctio.ioobj
+    delete ctio.ioobj; delete &ctio;
 }
 
 

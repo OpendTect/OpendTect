@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.7 2003-10-30 12:24:04 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.8 2003-10-30 12:38:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ uiWellMan::uiWellMan( uiParent* p )
 
 uiWellMan::~uiWellMan()
 {
-    delete &ctio; // NOT ctio.ioobj
+    delete ctio.ioobj; delete &ctio;
 }
 
 
