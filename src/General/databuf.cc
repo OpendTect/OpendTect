@@ -162,7 +162,7 @@ void TraceData::addComponent( int ns, const DataCharacteristics& dc,
 	delete [] data_;
 	delete [] interp_;
     }
-    newdata[nrcomp_] = new DataBuffer( ns, dc.nrbytes, cleardata );
+    newdata[nrcomp_] = new DataBuffer( ns, (int)dc.nrBytes(), cleardata );
     newinterp[nrcomp_] = new TraceDataInterpreter( dc );
     nrcomp_++;
     data_ = newdata;
@@ -213,7 +213,7 @@ void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 {
     if ( icomp >= nrcomp_ ) return;
 
-    data_[icomp]->reByte( dc.nrbytes );
+    data_[icomp]->reByte( dc.nrBytes() );
     *interp_[icomp] = dc;
 }
 

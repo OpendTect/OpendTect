@@ -8,95 +8,79 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.1 2001-02-13 17:46:49 bert Exp $
+ RCS:		$Id: datachar.h,v 1.2 2001-02-19 11:28:45 bert Exp $
 ________________________________________________________________________
 
 */
 
 
-#include <general.h>
+#include <bindatadesc.h>
 
 
-/*!\brief Characteristics of data for byte-level data interpretation.
+/*!\brief byte-level data characteristics of stored data.
 
-Interpretation (read or write) of data in buffers according to specified
-characteristics. The Ibm Format is only supported for the types that are used
-in SEG-Y sample data handling.
+Used for the interpretation (read or write) of data in buffers that are read
+directly from disk into buffer. In that case cross-platform issues arise:
+byte-ordering and int/float layout.
+The Ibm Format is only supported for the types that are used in SEG-Y sample
+data handling. SGI is a future option.
+
 */
 
-#define mDeclConstr(T,t,f,i) \
-	DataCharacteristics( T* ) \
-	: type(t), fmt(f), nrbytes(sizeof(T)), issigned(i), \
-	  littleendian(__islittle__)	{}
+#define mDeclConstr(T,ii,is) \
+DataCharacteristics( const T* ) \
+: BinDataDesc(ii,is,sizeof(T)), fmt(Ieee), littleendian(__islittle__) {} \
+DataCharacteristics( const T& ) \
+: BinDataDesc(ii,is,sizeof(T)), fmt(Ieee), littleendian(__islittle__) {}
 
 
-class DataCharacteristics
+class DataCharacteristics : public BinDataDesc
 {
 public:
 
-    enum Type		{ Integer, Float };
     enum Format		{ Ieee, Ibm };
 
-    Type		type;
     Format		fmt;
-    int			nrbytes;
-    bool		issigned;
     bool		littleendian;
 
-			DataCharacteristics( Type t=Float, Format f=Ieee,
-					     int n=4, bool i=true,
+			DataCharacteristics( bool ii=false, bool is=true,
+					     ByteCount n=N4, Format f=Ieee,
 					     bool l=__islittle__ )
-			: type(t), fmt(f), nrbytes(n), issigned(i)
-			, littleendian(l)			{}
-    inline bool		isInt() const		{ return type == Integer; }
+			: BinDataDesc(ii,is,n)
+			, fmt(f), littleendian(l)		{}
+
     inline bool		isIeee() const		{ return fmt == Ieee; }
 
-			DataCharacteristics( unsigned char c )	{ set(c); }
+			DataCharacteristics( unsigned short c )	{ set(c); }
 			DataCharacteristics( const char* s )	{ set(s); }
 
-    unsigned char	dump() const;
-    BufferString	toString() const;
-    void		set(unsigned char);
-    void		set(const char*);
+    virtual unsigned short	dump() const;
+    virtual BufferString	toString() const;
+    virtual void		set(unsigned short);
+    virtual void		set(const char*);
 
-			mDeclConstr(signed char,Integer,Ieee,true)
-			mDeclConstr(int,Integer,Ieee,true)
-			mDeclConstr(short,Integer,Ieee,true)
-			mDeclConstr(long long,Integer,Ieee,true)
-			mDeclConstr(unsigned char,Integer,Ieee,false)
-			mDeclConstr(unsigned short,Integer,Ieee,false)
-			mDeclConstr(unsigned int,Integer,Ieee,false)
-			mDeclConstr(unsigned long long,Integer,Ieee,false)
-			mDeclConstr(float,Float,Ieee,true)
-			mDeclConstr(double,Float,Ieee,true)
+			mDeclConstr(signed char,true,true)
+			mDeclConstr(short,true,true)
+			mDeclConstr(int,true,true)
+			mDeclConstr(long long,true,true)
+			mDeclConstr(unsigned char,true,false)
+			mDeclConstr(unsigned short,true,false)
+			mDeclConstr(unsigned int,true,false)
+			mDeclConstr(unsigned long long,true,false)
+			mDeclConstr(float,false,true)
+			mDeclConstr(double,false,true)
 
     bool		operator ==( const DataCharacteristics& dc ) const
-			{ return dump() == dc.dump(); }
+			{ return isEqual(dc); }
     bool		operator !=( const DataCharacteristics& dc ) const
-			{ return dump() != dc.dump(); }
+			{ return !isEqual(dc); }
 
-    int			sizeFor( int n ) const		{ return nrbytes * n; }
-    bool		convertsWellTo(const DataCharacteristics&) const;
     bool		needSwap() const
-			{ return nrbytes > 1 && littleendian != __islittle__; }
+			{ return (int)nrbytes > 1
+			      && littleendian != __islittle__; }
 
-    static bool		canBeUnsigned( Type t )
-			{ return t != Float; }
-    static int		snappedSize( Type t, int s )
-			{
-			    if ( s < 2 ) s = 1;
-			    else if ( s > 6 ) s = 8;
-			    else if ( s > 2 ) s = 4;
-			    return s;
-			}
-    static int		nextSize( Type t, int s )
-			{
-			    if ( s < 0 || s > 4 ) return -1;
-			    if ( s == 0 )	  return t == Float ? 4 : 1;
-			    if ( t == Float )	  return s == 4 ? 8 : -1;
-			    return s == 1 ? 2 : (s == 2 ? 4 : 8);
-			}
 };
 
+#undef mDeclConstr
 
 #endif

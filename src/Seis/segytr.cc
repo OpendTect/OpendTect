@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.1 2001-02-13 17:48:41 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.2 2001-02-19 11:27:14 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -108,8 +108,8 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     addComp( getDataChar(numbfmt), sd, nrsamples );
     DataCharacteristics& dc = tarcds[0]->datachar;
     dc.fmt = DataCharacteristics::Ieee;
-    if ( dc.isInt() && dc.nrbytes == 4 )
-	dc.type = DataCharacteristics::Float;
+    if ( dc.isInteger() && dc.nrBytes() == BinDataDesc::N4 )
+	dc.setInteger( false );
 }
 
 
@@ -193,9 +193,9 @@ void SEGYSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 
 int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
 {
-    int nrbytes = dc.nrbytes;
+    int nrbytes = dc.nrBytes();
     if ( nrbytes > 4 ) nrbytes = 4;
-    else if ( !dc.issigned && nrbytes < 4 )
+    else if ( !dc.isSigned() && nrbytes < 4 )
 	nrbytes *= 2;
 
     int nf = 1;
@@ -204,33 +204,29 @@ int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
     else if ( nrbytes == 2 )
 	nf = 3;
     else
-	nf = dc.isIeee() ? 6 : (dc.isInt() ? 2 : 1);
+	nf = dc.isIeee() ? 6 : (dc.isInteger() ? 2 : 1);
     return nf;
 }
 
 
 DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 {
-    DataCharacteristics dc;
-    dc.type = DataCharacteristics::Integer;
-    dc.issigned = true;
-    dc.nrbytes = 4;
-    dc.fmt = DataCharacteristics::Ibm;
-    dc.littleendian = __islittle__;
+    DataCharacteristics dc( true, true, BinDataDesc::N4,
+			    DataCharacteristics::Ibm, __islittle__ );
 
     switch ( nf )
     {
     case 3:
-        dc.nrbytes = 2;
+        dc.setNrBytes( 2 );
     case 2:
     break;
     case 5:
-        dc.nrbytes = 1;
+        dc.setNrBytes( 1 );
     break;
     case 6:
 	dc.fmt = DataCharacteristics::Ieee;
     default:
-	dc.type = DataCharacteristics::Float;
+	dc.setInteger( false );
     break;
     }
 

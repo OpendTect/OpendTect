@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.4 2001-02-13 17:21:02 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.5 2001-02-19 11:27:11 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -60,7 +60,7 @@ void IOMan::init()
 
     if ( dirPtr()->key() == MultiID("-1") ) return;
 
-    if ( ! (*dirPtr())[CompoundKey(Translator::sMiscID)] )
+    if ( ! (*dirPtr())[MultiID(Translator::sMiscID)] )
     {
 	FileNameString dirnm = File_getFullPath( rootdir, "Misc" );
 	if ( !File_exists(dirnm) )
@@ -220,10 +220,10 @@ IOObj* IOMan::getByName( const char* objname,
     ioobj = 0;
     for ( int idx=0; idx<kys.size(); idx++ )
     {
-	if ( havepar && !to(kys[idx]) )
+	if ( havepar && !to( kys[idx] ) )
 	{
 	    BufferString msg( "Survey is corrupt. Cannot go to dir with ID: " );
-	    msg += kys[idx];
+	    msg += (const char*)kys[idx];
 	    ErrMsg( msg );
 	    return 0;
 	}
@@ -233,7 +233,7 @@ IOObj* IOMan::getByName( const char* objname,
     }
 
     if ( ioobj ) ioobj = ioobj->clone();
-    to( MultiID(startky) );
+    to( startky );
     return (IOObj*)ioobj;
 }
 

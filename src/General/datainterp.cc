@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.1 2001-02-13 17:48:39 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.2 2001-02-19 11:27:11 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -39,26 +39,23 @@ const TU8 cMU8 = 18446744073709551615ULL;
 
 union _DC_union
 {
-    unsigned char c;
+    unsigned short c;
     struct bits {
-	unsigned char	bytepow:3;	// nrbytes_per_sample == 2^bytepow
-	unsigned char	type:1;		// integer == 1, floating point == 0
-	unsigned char	issigned:1;	// signed data == 1
+
+	unsigned char	bindesc:8;	// BinDataDesc part
 	unsigned char	little:1;	// little endian == 1
-	unsigned char	fmt:2;		// 0 == IEEE, 1 == IBM mainframe (SEG-Y)
+	unsigned char	fmt:3;		// 0 == IEEE, 1 == IBM mainframe (SEG-Y)
 					// 2 == SGI
+	unsigned char	rest:4;		// Future? Subclasses?
    } b;
 };
 
 
-void DataCharacteristics::set( unsigned char c )
+void DataCharacteristics::set( unsigned short c )
 {
     _DC_union dc; dc.c = c;
+    BinDataDesc::set( c );
 
-    nrbytes = 1;
-    while( dc.b.bytepow ) { dc.b.bytepow--; nrbytes *= 2; }
-    type = dc.b.type ? DataCharacteristics::Integer: DataCharacteristics::Float;
-    issigned = dc.b.issigned;
     littleendian = dc.b.little;
     fmt = dc.b.fmt == 0 ? DataCharacteristics::Ieee : DataCharacteristics::Ibm;
 };
@@ -66,34 +63,24 @@ void DataCharacteristics::set( unsigned char c )
 
 void DataCharacteristics::set( const char* s )
 {
+    BinDataDesc::set( s );
     FileMultiString fms( s );
     const int sz = fms.size();
-    if ( sz > 0 )
-	type = *fms[0] == 'F' ? DataCharacteristics::Float
-			      : DataCharacteristics::Integer;
-    if ( sz > 1 )
+    if ( sz > 3 )
 	fmt = matchStringCI( "ibm", fms[1] ) ? DataCharacteristics::Ibm
 					     : DataCharacteristics::Ieee;
-    if ( sz > 2 )
-    {
-	int nrb = atoi( fms[2] );
-	if ( nrb > 0 && nrb < 9 ) nrbytes = snappedSize( type, nrb );
-    }
-    if ( sz > 3 )
-	issigned = yesNoFromString( fms[3] );
     if ( sz > 4 )
 	littleendian = yesNoFromString( fms[4] );
 }
 
 
-unsigned char DataCharacteristics::dump() const
+unsigned short DataCharacteristics::dump() const
 {
     _DC_union dc;
-    dc.b.bytepow = 0; int nb = nrbytes;
-    while ( nb > 1 ) { dc.b.bytepow++; nb /= 2; }
-    dc.b.type = isInt() ? 1 : 0;
-    dc.b.issigned = issigned ? 1 : 0;
+
+    dc.c = BinDataDesc::dump();
     dc.b.fmt = isIeee() ? 0 : 1;
+    dc.b.little = littleendian;
 
     return dc.c;
 }
@@ -101,10 +88,8 @@ unsigned char DataCharacteristics::dump() const
 
 BufferString DataCharacteristics::toString() const
 {
-    FileMultiString fms( isInt() ? "Integer" : "Float" );
+    FileMultiString fms = (const char*)BinDataDesc::toString();
     fms += isIeee() ? "IEEE" : "IBMmainframe";
-    fms += nrbytes;
-    fms += getYesNoString( issigned );
     fms += getYesNoString( littleendian );
 
     return BufferString( (const char*)fms );
@@ -353,62 +338,62 @@ mDefDIPFIbmswp(float,F,Float)
 
 void DataInterpreter<float>::set( const DataCharacteristics& dc, bool ignend )
 {
-    swpfn = dc.nrbytes < 2 ?  mDICB(SwapFn,swap0)
-	: ( dc.nrbytes > 4 ?  mDICB(SwapFn,swap8)
-	: ( dc.nrbytes == 4 ? mDICB(SwapFn,swap4)
-			    : mDICB(SwapFn,swap2) ) );
+    swpfn = dc.nrBytes() == BinDataDesc::N1 ? mDICB(SwapFn,swap0)
+	: ( dc.nrBytes() == BinDataDesc::N8 ? mDICB(SwapFn,swap8)
+	: ( dc.nrBytes() == BinDataDesc::N4 ? mDICB(SwapFn,swap4)
+					    : mDICB(SwapFn,swap2) ) );
 
     getfn = mDICB(GetFn,get0);
     putfn = mDICB(PutFn,put0);
     needswap = !ignend && dc.needSwap();
 
-    if ( !dc.isInt() )
+    if ( !dc.isInteger() )
     {
 	if ( !dc.isIeee() )
 	{
-	    if ( dc.nrbytes == 4 )
+	    if ( dc.nrBytes() == BinDataDesc::N4 )
 		mDefGetPut(FIbm)
 	}
 	else
 	{
-	    if ( dc.nrbytes == 4 )
+	    if ( dc.nrBytes() == BinDataDesc::N4 )
 		mDefGetPut(F)
-	    else if ( dc.nrbytes == 8 )
+	    else if ( dc.nrBytes() == BinDataDesc::N8 )
 		mDefGetPut(D)
 	}
     }
     else
     {
-	if ( dc.issigned )
+	if ( dc.isSigned() )
 	{
 	    if ( !dc.isIeee() )
 	    {
-		switch ( dc.nrbytes )
+		switch ( dc.nrBytes() )
 		{
-		case 1: mDefGetPutNoSwap(S1)	break;
-		case 2: mDefGetPut(S2Ibm)	break;
-		case 4: mDefGetPut(S4Ibm)	break;
+		case BinDataDesc::N1: mDefGetPutNoSwap(S1)	break;
+		case BinDataDesc::N2: mDefGetPut(S2Ibm)		break;
+		case BinDataDesc::N4: mDefGetPut(S4Ibm)		break;
 		}
 	    }
 	    else
 	    {
-		switch ( dc.nrbytes )
+		switch ( dc.nrBytes() )
 		{
-		case 1: mDefGetPutNoSwap(S1)	break;
-		case 2: mDefGetPut(S2)		break;
-		case 4: mDefGetPut(S4)		break;
-		case 8: mDefGetPut(S8)		break;
+		case BinDataDesc::N1: mDefGetPutNoSwap(S1)	break;
+		case BinDataDesc::N2: mDefGetPut(S2)		break;
+		case BinDataDesc::N4: mDefGetPut(S4)		break;
+		case BinDataDesc::N8: mDefGetPut(S8)		break;
 		}
 	    }
 	}
 	else if ( dc.isIeee() )
 	{
-	    switch ( dc.nrbytes )
+	    switch ( dc.nrBytes() )
 	    {
-	    case 1: mDefGetPutNoSwap(U1)	break;
-	    case 2: mDefGetPut(U2)		break;
-	    case 4: mDefGetPut(U4)		break;
-	    case 8: mDefGetPut(U8)		break;
+	    case BinDataDesc::N1: mDefGetPutNoSwap(U1)		break;
+	    case BinDataDesc::N2: mDefGetPut(U2)		break;
+	    case BinDataDesc::N4: mDefGetPut(U4)		break;
+	    case BinDataDesc::N8: mDefGetPut(U8)		break;
 	    }
 	}
     }
@@ -454,79 +439,77 @@ int DataInterpreter<float>::nrBytes() const
 }
 
 
-#define mSet(typ,frt,iss,swpd) { \
-	dc.type = DataCharacteristics::typ; dc.fmt = DataCharacteristics::frt; \
-	dc.issigned = iss; dc.littleendian = __islittle__ != swpd; }
+#define mSet(nb,isint,frmt,iss,swpd) \
+	dc = DataCharacteristics( isint, iss, (BinDataDesc::ByteCount)nb, \
+		DataCharacteristics::frmt, __islittle__ != swpd );
 
 DataCharacteristics DataInterpreter<float>::dataChar() const
 {
     DataCharacteristics dc;
-    dc.nrbytes = nrBytes();
-
-    switch ( dc.nrbytes )
+    switch ( nrBytes() )
     {
 
     case 2: {
 	if ( getfn == &DataInterpreter<float>::getS2 )
-	    mSet(Integer,Ieee,true,false)
+	    mSet(2,true,Ieee,true,false)
 	else if ( getfn == &DataInterpreter<float>::getU2 )
-	    mSet(Integer,Ieee,false,false)
+	    mSet(2,true,Ieee,false,false)
 	else if ( getfn == &DataInterpreter<float>::getS2Ibm )
-	    mSet(Integer,Ibm,true,false)
+	    mSet(2,true,Ibm,true,false)
 	else if ( getfn == &DataInterpreter<float>::getS2swp )
-	    mSet(Integer,Ieee,true,true)
+	    mSet(2,true,Ieee,true,true)
 	else if ( getfn == &DataInterpreter<float>::getU2swp )
-	    mSet(Integer,Ieee,false,true)
+	    mSet(2,true,Ieee,false,true)
 	else if ( getfn == &DataInterpreter<float>::getS2Ibmswp )
-	    mSet(Integer,Ibm,true,true)
+	    mSet(2,true,Ibm,true,true)
     }
 
     case 4:
     {
 	if ( getfn == &DataInterpreter<float>::getS4 )
-	    mSet(Integer,Ieee,true,false)
+	    mSet(4,true,Ieee,true,false)
 	else if ( getfn == &DataInterpreter<float>::getU4 )
-	    mSet(Integer,Ieee,false,false)
+	    mSet(4,true,Ieee,false,false)
 	else if ( getfn == &DataInterpreter<float>::getF )
-	    mSet(Float,Ieee,true,false)
+	    mSet(4,false,Ieee,true,false)
 	else if ( getfn == &DataInterpreter<float>::getS4Ibm )
-	    mSet(Integer,Ibm,true,false)
+	    mSet(4,true,Ibm,true,false)
 	else if ( getfn == &DataInterpreter<float>::getFIbm )
-	    mSet(Float,Ibm,true,false)
+	    mSet(4,false,Ibm,true,false)
 	else if ( getfn == &DataInterpreter<float>::getS4swp )
-	    mSet(Integer,Ieee,true,true)
+	    mSet(4,true,Ieee,true,true)
 	else if ( getfn == &DataInterpreter<float>::getU4swp )
-	    mSet(Integer,Ieee,false,true)
+	    mSet(4,true,Ieee,false,true)
 	else if ( getfn == &DataInterpreter<float>::getFswp )
-	    mSet(Float,Ieee,true,true)
+	    mSet(4,false,Ieee,true,true)
 	else if ( getfn == &DataInterpreter<float>::getS4Ibmswp )
-	    mSet(Integer,Ibm,true,true)
+	    mSet(4,true,Ibm,true,true)
 	else if ( getfn == &DataInterpreter<float>::getFIbmswp )
-	    mSet(Float,Ibm,true,true)
+	    mSet(4,false,Ibm,true,true)
     }
 
     case 8:
     {
 	if ( getfn == &DataInterpreter<float>::getS8 )
-	    mSet(Integer,Ieee,true,false)
+	    mSet(8,true,Ieee,true,false)
 	else if ( getfn == &DataInterpreter<float>::getU8 )
-	    mSet(Integer,Ieee,false,false)
+	    mSet(8,true,Ieee,false,false)
 	else if ( getfn == &DataInterpreter<float>::getD )
-	    mSet(Float,Ieee,true,false)
+	    mSet(8,false,Ieee,true,false)
 	else if ( getfn == &DataInterpreter<float>::getS8swp )
-	    mSet(Integer,Ieee,true,true)
+	    mSet(8,true,Ieee,true,true)
 	else if ( getfn == &DataInterpreter<float>::getU8swp )
-	    mSet(Integer,Ieee,false,true)
+	    mSet(8,true,Ieee,false,true)
 	else if ( getfn == &DataInterpreter<float>::getDswp )
-	    mSet(Float,Ieee,true,true)
+	    mSet(8,false,Ieee,true,true)
     }
 
     default:
     {
 	if ( getfn == &DataInterpreter<float>::getS1 )
-	    mSet(Integer,Ieee,true,false)
+	    mSet(1,true,Ieee,true,false)
 	else if ( getfn == &DataInterpreter<float>::getU1 )
-	    mSet(Integer,Ieee,false,false)
+	    mSet(1,true,Ieee,false,false)
     }
 
     }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.8 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: ranges.h,v 1.9 2001-02-19 11:28:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,16 +31,16 @@ public:
 		Interval( const T& t1, const T& t2 )
 						{ start = t1; stop = t2; }
 
-    int		operator==( const Interval<T>& i ) const
+    inline int	operator==( const Interval<T>& i ) const
 		{ return start == i.start && stop == i.stop; }
-    int		operator!=( const Interval<T>& i ) const
+    inline int	operator!=( const Interval<T>& i ) const
 		{ return ! (i == *this); }
 
-    T		width( bool allowrev=true ) const
+    inline T	width( bool allowrev=true ) const
 		{ return allowrev && isRev() ? start - stop : stop - start; }
-    void	shift( const T& len )
+    inline void	shift( const T& len )
 		{ start += len; stop += len; }
-    void	widen( const T& len, bool allowrev=true )
+    inline void	widen( const T& len, bool allowrev=true )
 		{
 		    if ( allowrev && isRev() )
 			{ start += len; stop -= len; }
@@ -48,25 +48,25 @@ public:
 			{ start -= len; stop += len; }
 		}
 
-    int		includes( const T& t, bool allowrev=true ) const
+    inline int	includes( const T& t, bool allowrev=true ) const
 		{
 		    return allowrev && isRev()
 			? t>=stop && start>=t
 			: t>=start && stop>=t;
 		}
-    void	include( const T& i, bool allowrev=true )
+    inline void	include( const T& i, bool allowrev=true )
 		{
 		    if ( allowrev && isRev() )
 			{ if ( stop>i ) stop=i; if ( start<i ) start=i; }
 		    else
 			{ if ( start>i ) start=i; if ( stop<i ) stop=i; }
 		}
-    void	include( const Interval<T>& i, bool allowrev=true )
+    inline void	include( const Interval<T>& i, bool allowrev=true )
 		{ include( i.start, allowrev ); include( i.stop, allowrev ); }
 
-    T		atIndex( int idx, const T& step ) const
+    inline T	atIndex( int idx, const T& step ) const
 		{ return start + step * idx; }
-    int		getIndex( const T& t, const T& step ) const
+    inline int	getIndex( const T& t, const T& step ) const
 		{ return (int)(( t  - start ) / step); }
     int         nearestIndex( const T& x, const T& step ) const
 		{
@@ -108,20 +108,20 @@ public:
 		StepInterval( const T& t1, const T& t2, const T& t3 )
 		: Interval<T>(t1,t2)		{ step = t3; }
 
-    T		atIndex( int idx ) const
+    inline T	atIndex( int idx ) const
 		{ return Interval<T>::atIndex(idx,step); }
-    int		getIndex( const T& t ) const
+    inline int	getIndex( const T& t ) const
 		{ return getIndex( t, step ); }
-    int		nearestIndex( const T& x ) const
+    inline int	nearestIndex( const T& x ) const
 		{ return Interval<T>::nearestIndex( x, step ); }
 
     int		nrSteps() const
 		{
 		    if ( !step ) return 0;
-		    T tnr = ( (start > stop ? start : stop)
-			    - (start > stop ? stop : start) )
-			    / (step > 0 ? step : -step);
-		    return (int)(tnr + mEPSILON) + 1;
+		    double ns = ( (start > stop ? start : stop)
+				- (start > stop ? stop : start) )
+			      / (step > 0 ? step : -step);
+		    return (int)(ns * (1. + 1e-10)) + 1;
 		}
     virtual void sort( bool asc=true )
 		{
@@ -133,6 +133,7 @@ public:
      T		step;
 
 };
+
 
 
 #endif

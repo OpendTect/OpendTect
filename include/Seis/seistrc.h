@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.5 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.6 2001-02-19 11:28:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ class SeisTrc
 public:
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
-			    = DataCharacteristics(DataCharacteristics::Float) )
+					    = DataCharacteristics() )
 			{ data_.addComponent( ns, dc ); }
 			SeisTrc( const SeisTrc& t )
 			: info_(t.info_), data_(t.data_), soffs_(t.soffs_) {}
