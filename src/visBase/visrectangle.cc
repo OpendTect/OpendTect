@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.23 2002-04-23 11:14:56 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.24 2002-04-23 11:55:39 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -584,9 +584,9 @@ void visBase::Rectangle::fillPar( IOPar& iopar ) const
 
 void visBase::Rectangle::setOrigo( const Geometry::Pos& np )
 {
-    float x = xrange.atIndex( xrange.nearestIndex( np.x ));
-    float y = xrange.atIndex( xrange.nearestIndex( np.y ));
-    float z = xrange.atIndex( xrange.nearestIndex( np.z ));
+    float x = snap ? xrange.atIndex( xrange.nearestIndex( np.x )) : np.x;
+    float y = snap ? xrange.atIndex( xrange.nearestIndex( np.y )) : np.y;
+    float z = snap ? xrange.atIndex( xrange.nearestIndex( np.z )) : np.z;
     origotrans->translation.setValue( x, y, z );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.4 2002-04-22 14:41:18 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.5 2002-04-23 11:53:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,10 @@ public:
 						Type, type,
 						visSurvey::Scene&, scene_,
 						const CallBack, newdatacb );
+
+    void			setOrigo( const Geometry::Pos& );
+    void			setWidth( const Geometry::Pos& );
+    				//!< Will only use the two coords that are valid
 
     void			resetDraggerSizes( float appvel );
     				//!< Should be called when appvel has changed

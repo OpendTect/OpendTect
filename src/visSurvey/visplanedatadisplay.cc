@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.5 2002-04-22 14:41:27 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.6 2002-04-23 11:54:00 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
@@ -109,6 +109,33 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay(
     scene.appvelchange.notify(
 	    mCB( this, visSurvey::PlaneDataDisplay, updateDraggerCB ));
 }
+
+
+void visSurvey::PlaneDataDisplay::setOrigo( const Geometry::Pos& pos )
+{
+    trect->getRectangle().setOrigo( pos );
+}
+
+
+void visSurvey::PlaneDataDisplay::setWidth( const Geometry::Pos& pos )
+{
+    if ( type==Inline )
+    {
+	trect->getRectangle().setWidth( 0, pos.x );
+	trect->getRectangle().setWidth( 1, pos.z );
+    }
+    else if ( type==Crossline )
+    {
+	trect->getRectangle().setWidth( 0, pos.z );
+	trect->getRectangle().setWidth( 1, pos.y );
+    }
+    else
+    {
+	trect->getRectangle().setWidth( 0, pos.x );
+	trect->getRectangle().setWidth( 1, pos.y );
+    }
+}
+
 
 
 void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
