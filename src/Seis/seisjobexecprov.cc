@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.12 2005-03-10 17:48:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.13 2005-03-18 10:05:39 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -115,7 +115,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 
 	// Because we may be going drastically concurrent, we'd better
 	// ensure we have the line set ready.
-	// Helps against NFS attribute caching
+	// This is crucial in the war against NFS attribute caching
 	lskey = iopar_.find( "Output.1.Seismic ID" );
 	Seis2DLineSet* outls = &ls;
 	if ( lskey )

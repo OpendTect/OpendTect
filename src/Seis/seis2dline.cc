@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.38 2005-03-10 17:48:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.39 2005-03-18 10:05:39 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.38 2005-03-10 17:48:17 cvsber
 #include "errh.h"
 
 #include <iostream>
+#include <sstream>
 
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
@@ -124,6 +125,27 @@ void Line2DGeometry::dump( std::ostream& strm, bool pretty ) const
 }
 
 
+//------
+
+static BufferStringSet& preSetFiles()
+{
+    static BufferStringSet* psf = 0; if ( !psf ) psf = new BufferStringSet;
+    return *psf;
+}
+static BufferStringSet& preSetContents()
+{
+    static BufferStringSet* psc = 0; if ( !psc ) psc = new BufferStringSet;
+    return *psc;
+}
+
+
+void Seis2DLineSet::addPreSetLS( const char* fnm, const char* def )
+{
+    preSetFiles().add( fnm );
+    preSetContents().add( def );
+}
+
+
 Seis2DLineSet::~Seis2DLineSet()
 {
     deepErase( pars_ );
@@ -141,6 +163,7 @@ Seis2DLineSet& Seis2DLineSet::operator =( const Seis2DLineSet& lset )
 
 void Seis2DLineSet::init( const char* fnm )
 {
+    readonly_ = false;
     fname_ = fnm;
     BufferString type = "CBVS";
     readFile( false, &type );
@@ -215,6 +238,7 @@ bool Seis2DLineSet::waitForLock( bool mknew, bool failiflocked ) const
 	    const char* ptr = GetSoftwareUser();
 	    if ( ptr && *ptr )
 		*sd.ostrm << ' ' << ptr;
+	    sd.ostrm->flush();
 	}
 	sd.close();
     }
@@ -228,13 +252,38 @@ void Seis2DLineSet::readFile( bool mklock, BufferString* type )
 {
     deepErase( pars_ );
 
+    if ( getPre(type) )
+	return;
+
     waitForLock( mklock, false );
     StreamData sd = StreamProvider( fname_ ).makeIStream();
-    if ( !sd.usable() ) return;
+    if ( sd.usable() )
+    {
+	getFrom( *sd.istrm, type );
+	sd.close();
+    }
+}
 
-    ascistream astrm( *sd.istrm, true );
-    if ( !astrm.isOfFileType( sKeyFileType ) )
-	{ sd.close(); return; }
+
+bool Seis2DLineSet::getPre( BufferString* type )
+{
+    int psidx = preSetFiles().indexOf( fname_.buf() );
+    if ( psidx < 0 )
+	return false;
+
+    std::string stdstr( preSetContents().get(psidx).buf() );
+    std::istringstream istrstrm( stdstr );
+    getFrom( istrstrm, type );
+    readonly_ = true;
+    return true;
+}
+
+
+void Seis2DLineSet::getFrom( std::istream& strm, BufferString* type )
+{
+    ascistream astrm( strm, true );
+    if ( !astrm.isOfFileType(sKeyFileType) )
+	return;
 
     while ( !atEndOfSection(astrm.next()) )
     {
@@ -259,21 +308,36 @@ void Seis2DLineSet::readFile( bool mklock, BufferString* type )
 	else
 	    pars_ += newpar;
     }
-
-    sd.close();
 }
 
 
 void Seis2DLineSet::writeFile() const
 {
-    BufferString wrfnm( fname_ ); wrfnm += "_new";
+    if ( !readonly_ )
+    {
+	BufferString wrfnm( fname_ ); wrfnm += "_new";
 
-    StreamData sd = StreamProvider( wrfnm ).makeOStream();
-    if ( !sd.usable() ) return;
+	StreamData sd = StreamProvider( wrfnm ).makeOStream();
+	if ( sd.usable() )
+	{
+	    putTo( *sd.ostrm );
+	    sd.close();
 
-    ascostream astrm( *sd.ostrm );
-    if ( !astrm.putHeader( sKeyFileType ) )
-	{ sd.close(); return; }
+	    if ( File_exists(fname_) )
+		File_remove( fname_, 0 );
+	    File_rename( wrfnm, fname_ );
+	}
+    }
+
+    removeLock();
+}
+
+
+void Seis2DLineSet::putTo( std::ostream& strm ) const
+{
+    ascostream astrm( strm );
+    if ( !astrm.putHeader(sKeyFileType) )
+	return;
 
     astrm.put( sKey::Name, name() );
     astrm.put( sKey::Type, type() );
@@ -292,14 +356,6 @@ void Seis2DLineSet::writeFile() const
 	}
 	astrm.newParagraph();
     }
-
-    sd.close();
-
-    if ( File_exists(fname_) )
-	File_remove( fname_, 0 );
-    File_rename( wrfnm, fname_ );
-
-    removeLock();
 }
 
 
@@ -374,11 +430,18 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 	delete pars_.replace( newiop, paridx );
 	res = liop_->getReplacer( *pars_[paridx] );
     }
-    else
+    else if ( !readonly_ )
     {
 	const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
 	pars_ += newiop;
 	res = liop_->getAdder( *newiop, previop, name() );
+    }
+    else
+    {
+	BufferString msg( "Read-only line set chg req: " );
+	msg += newlinekey; msg += " not yet in set ";
+	msg += name();
+	pErrMsg( msg );
     }
 
     if ( res )
@@ -458,6 +521,8 @@ bool Seis2DLineSet::isEmpty( int ipar ) const
 
 bool Seis2DLineSet::remove( const char* lk )
 {
+    if ( readonly_ ) return false;
+
     if ( !waitForLock(false,true) )
 	{ ErrMsg("Cannot remove from Lineset: LineSet locked"); return false; }
 
@@ -480,6 +545,8 @@ bool Seis2DLineSet::remove( const char* lk )
 
 bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
 {
+    if ( readonly_ ) return false;
+
     if ( !newlnm || !*newlnm )
 	return false;
 
@@ -524,6 +591,8 @@ bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
 
 bool Seis2DLineSet::rename( const char* lk, const char* newlk )
 {
+    if ( readonly_ ) return false;
+
     if ( !newlk || !*newlk )
 	return false;
 

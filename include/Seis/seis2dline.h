@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.26 2005-03-10 17:48:17 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.27 2005-03-18 10:05:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "linekey.h"
 #include "position.h"
 #include "seistrctr.h"
+#include <iosfwd>
 class IOPar;
 class Executor;
 class SeisTrcBuf;
@@ -86,6 +87,7 @@ public:
 			    	: UserIDObject(lg.name()) { init(lg.fname_); }
     Seis2DLineSet&	operator=(const Seis2DLineSet&);
     virtual		~Seis2DLineSet();
+    void		setReadOnly( bool yn=true )	{ readonly_ = yn; }
 
     const char*		type() const;
     int			nrLines() const			{ return pars_.size(); }
@@ -133,14 +135,22 @@ public:
     bool		haveMatch(int,const BinIDValueSet&) const;
     			//!< Uses getGeometry
 
+    static void		addPreSetLS(const char*,const char*);
+    			//!< Use only after looking at the implementation
+
+    void		getFrom(std::istream&,BufferString*);
+    void		putTo(std::ostream&) const;
+
 protected:
 
     Seis2DLineIOProvider* liop_;
     BufferString	fname_;
     ObjectSet<IOPar>	pars_;
+    bool		readonly_;
 
     void		init(const char*);
     void		readFile(bool mklock=false,BufferString* typ=0);
+    bool		getPre(BufferString*);
     void		writeFile() const;
     bool		waitForLock(bool,bool) const;
     void		removeLock() const;
