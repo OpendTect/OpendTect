@@ -4,24 +4,18 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.15 2003-07-16 09:58:06 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.16 2003-07-29 13:03:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiempartserv.h"
-#include "uiimphorizon.h"
-#include "uiimpfault.h"
-#include "uiimpwelltrack.h"
-#include "uiexphorizon.h"
-#include "uiiosurfacedlg.h"
-#include "uiexecutor.h"
-#include "uiioobjsel.h"
-#include "uimsg.h"
+
 #include "emhorizontransl.h"
 #include "emmanager.h"
 #include "emwelltransl.h"
 #include "emfaulttransl.h"
+#include "emsurfaceiodata.h"
 #include "emposid.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -29,6 +23,17 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "surfaceinfo.h"
 #include "geom2dsnappedsurface.h"
+#include "uiimphorizon.h"
+#include "uiimpfault.h"
+#include "uiimpwelltrack.h"
+#include "uiexphorizon.h"
+#include "uiiosurfacedlg.h"
+#include "uihoridealio.h"
+#include "uiexecutor.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "idealconn.h"
+#include "ptrman.h"
 
 const int uiEMPartServer::evGetHorData = 0;
 
@@ -47,37 +52,69 @@ uiEMPartServer::~uiEMPartServer()
 }
 
 
-bool uiEMPartServer::importHorizon()
+bool uiEMPartServer::ioHorizon( uiEMPartServer::ExternalType t, bool imp )
 {
-    uiImportHorizon dlg( appserv().parent() );
-    return dlg.go();
+    if ( t != Ascii && !IdealConn::haveIdealServices() &&
+	 !uiMSG().askGoOn( "Sorry, workstation connection not available. "
+			    "\nPlease setup remote workstation access trough a"
+			    "Solaris workstation, use a Solaris workstation "
+			    "directly, or use Ascii.\n\n"
+			    "Do you wish to see the dialog anyway?" ) )
+	return false;
+
+    PtrMan<uiDialog> dlg;
+    if ( t == Ascii )
+	dlg = imp ? (uiDialog*)new uiImportHorizon( appserv().parent() )
+	          : (uiDialog*)new uiExportHorizon( appserv().parent() );
+    else
+	dlg = imp ? (uiDialog*)new uiHorIdealImport( appserv().parent() )
+	    	  : (uiDialog*)new uiHorIdealExport( appserv().parent() );
+
+    return dlg->go();
 }
+
+
+bool uiEMPartServer::importHorizon( uiEMPartServer::ExternalType t )
+{ return ioHorizon( t, true ); }
+
+bool uiEMPartServer::exportHorizon( uiEMPartServer::ExternalType t )
+{ return ioHorizon( t, false ); }
 
 
 bool uiEMPartServer::selectHorizon( MultiID& id )
 {
-    CtxtIOObj ctio( EMHorizonTranslator::ioContext() );
-    ctio.ctxt.forread = true;
-    uiIOSurfaceDlg dlg( appserv().parent(), ctio );
+    uiReadSurfaceDlg dlg( appserv().parent() );
     if ( !dlg.go() ) return false;
 
     IOObj* ioobj = dlg.ioObj();
     if ( !ioobj ) return false;
     
     id = ioobj->key();
-    return loadSurface( id );
+
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sel( sd );
+    dlg.getSelection( sel );
+    return loadSurface( id, &sel );
 }
 
 
-bool uiEMPartServer::exportHorizon( const ObjectSet<SurfaceInfo>& his )
+bool uiEMPartServer::selectAuxData( const MultiID& id )
 {
-    uiExportHorizon dlg( appserv().parent(), his );
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    if ( !hor ) return false;
+
+    uiReadSurfaceDlg dlg( appserv().parent(), &id );
     if ( !dlg.go() ) return false;
 
-    selvisid_ = dlg.selVisID();
-    deepErase( horbidzvs_ );
-    sendEvent( evGetHorData );
-    return dlg.writeAscii( horbidzvs_ );
+    hor->removeAllAuxdata();
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sel( sd );
+    dlg.getSelection( sel );
+
+    PtrMan<Executor> exec = hor->loader( &sel, true );
+    uiExecutor exdlg( appserv().parent(), *exec );
+    return exdlg.go();
 }
 
 
@@ -87,9 +124,17 @@ bool uiEMPartServer::storeSurface( const MultiID& id )
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
     if ( !hor ) return false;
 
-    uiSaveSurfaceDlg dlg( appserv().parent(), *hor );
+    uiWriteSurfaceDlg dlg( appserv().parent(), *hor );
     if ( !dlg.go() ) return false;
-    return dlg.doWrite();
+
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sel( sd );
+    dlg.getSelection( sel );
+
+    bool auxdataonly = dlg.auxDataOnly();
+    PtrMan<Executor> exec = hor->saver( &sel, auxdataonly );
+    uiExecutor exdlg( appserv().parent(), *exec );
+    return exdlg.go();
 }
 
 
@@ -149,6 +194,7 @@ void uiEMPartServer::setDataVal( const MultiID& id,
 	    return;
     }
 
+    hor->removeAllAuxdata();
     int	dataidx = hor->addAuxData( attrnm );
 
     for ( int patchidx=0; patchidx<data.size(); patchidx++ )
@@ -211,27 +257,40 @@ bool uiEMPartServer::selectFault( MultiID& id )
     if ( !dlg.go() ) return false;
 
     id = dlg.ioObj()->key();
-    return loadSurface( id );
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sel( sd );
+    return loadSurface( id, &sel );
 }
 
 
-bool uiEMPartServer::loadSurface( const MultiID& id )
+bool uiEMPartServer::loadSurface( const MultiID& id,
+       				  const EM::SurfaceIODataSelection* newsel )
 {
-    if ( EM::EMM().isLoaded(id) )
+    EM::EMManager& em = EM::EMM();
+    if ( em.isLoaded(id) )
 	return true;
 
-    PtrMan<Executor> exec = EM::EMM().load( id );
-    if ( !exec ) mErrRet( IOM().nameOf(id) );
-    EM::EMM().ref( id );
-    uiExecutor exdlg( appserv().parent(), *exec );
-    if ( exdlg.go() <= 0 )
-    {
-	EM::EMM().unRef( id );
+    if ( !em.createObject(id) )
 	return false;
+
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    if ( hor )
+    {
+	PtrMan<Executor> exec = hor->loader( newsel );
+	if ( !exec ) mErrRet( IOM().nameOf(id) );
+	EM::EMM().ref( id );
+	uiExecutor exdlg( appserv().parent(), *exec );
+	if ( exdlg.go() <= 0 )
+	{
+	    EM::EMM().unRef( id );
+	    return false;
+	}
+
+	EM::EMM().unRefNoDel( id );
+	return true;
     }
 
-    EM::EMM().unRefNoDel( id );
-    return true;
+    return false;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.8 2003-07-16 09:58:11 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.9 2003-07-29 13:03:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class BinIDZValue;
 class MultiID;
 class BufferString;
 
+namespace EM { class SurfaceIODataSelection; };
 
 /*! \brief Service provider for application level - seismics */
 
@@ -31,15 +32,20 @@ public:
 
     const char*		name() const			{ return "EarthModel"; }
 
+    enum ExternalType   { Ascii, SeisWorks, GeoFrame };
+
 			// Services
-    bool		importHorizon();
+    bool		importHorizon(ExternalType);
+    bool		exportHorizon(ExternalType);
+
     bool		selectHorizon(MultiID&);
-    bool		exportHorizon(const ObjectSet<SurfaceInfo>&);
+    bool		selectAuxData(const MultiID&);
     bool		importWellTrack();
     bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importLMKFault();
     bool		selectFault(MultiID&);
-    bool		loadSurface(const MultiID&);
+    bool		loadSurface(const MultiID&,
+	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     void		getSurfaceDef(const MultiID&, 
 	    			      ObjectSet< TypeSet<BinIDValue> >&, 
@@ -64,6 +70,8 @@ protected:
 
     ObjectSet< TypeSet<BinIDZValue> >	horbidzvs_;
     int			selvisid_;
+
+    bool		ioHorizon(uiEMPartServer::ExternalType,bool);
     
 };
 

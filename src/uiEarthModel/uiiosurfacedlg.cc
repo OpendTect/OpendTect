@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.1 2003-07-16 09:56:21 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.2 2003-07-29 13:03:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,63 +12,98 @@ ________________________________________________________________________
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
 
+#include "emsurfaceiodata.h"
 #include "uimsg.h"
 #include "ioobj.h"
-#include "ctxtioobj.h"
-#include "emhorizontransl.h"
 #include "emhorizon.h"
-#include "ptrman.h"
-#include "uiexecutor.h"
+#include "emmanager.h"
 
 
-uiSaveSurfaceDlg::uiSaveSurfaceDlg( uiParent* p, const EM::Horizon& hor_ )
+uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Horizon& hor_ )
     : uiDialog(p,uiDialog::Setup("Output selection","",""))
     , hor(hor_)
+    , auxdataidx(-1)
 {
-    iogrp = new uiIOSurface( this, &hor );
+    iogrp = new uiSurfaceOutSel( this, hor );
 }
 
 
-bool uiSaveSurfaceDlg::doWrite()
+bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
 {
-    dgbEMHorizonTranslator tr;
-    if ( !tr.startWrite(hor) )
-        return false;
+    iogrp->processInput();
+    if ( auxDataOnly() )
+	return checkIfAlreadyPresent();
 
-    EM::SurfaceIODataSelection& sels = tr.selections();
+    return true;
+}
+
+
+void uiWriteSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
+{
     iogrp->getSelection( sels );
-
-    PtrMan<Executor> exec = tr.writer( *iogrp->selIOObj() );
-    uiExecutor dlg( this, *exec );
-    bool rv = dlg.execute();
-
-    return rv;
+    if ( auxDataOnly() )
+    {
+	sels.selvalues.erase();
+	sels.selvalues += auxdataidx;
+    }
 }
 
 
-bool uiSaveSurfaceDlg::acceptOK( CallBacker* )
+bool uiWriteSurfaceDlg::auxDataOnly() const
+{
+    return iogrp->saveAuxDataOnly();
+}
+
+
+bool uiWriteSurfaceDlg::checkIfAlreadyPresent()
+{
+    BufferString attrnm = iogrp->auxDataName();
+    EM::SurfaceIOData sd;
+    EM::EMM().getSurfaceData( hor.id(), sd );
+
+    bool present = false;
+    auxdataidx = -1;
+    for ( int idx=0; idx<sd.valnames.size(); idx++ )
+    {
+	if ( attrnm == sd.valnames[idx]->buf() )
+	{
+	    present = true;
+	    auxdataidx = idx;
+	}
+    }
+
+    BufferString msg( "This surface already has an attribute called:\n" );
+    msg += attrnm;
+    msg += "\nDo you wish to overwrite this data?";
+
+    return !(present && !uiMSG().askGoOn(msg) );
+}
+
+
+
+uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const MultiID* emid )
+    : uiDialog(p,uiDialog::Setup("Input selection","",""))
+{
+    if ( emid )
+	iogrp = new uiSurfaceAuxSel( this, *emid );
+    else
+	iogrp = new uiSurfaceSel( this );
+}
+
+
+bool uiReadSurfaceDlg::acceptOK( CallBacker* )
 {
     return true;
 }
 
 
-
-uiIOSurfaceDlg::uiIOSurfaceDlg( uiParent* p, CtxtIOObj& c )
-    : uiDialog(p,uiDialog::Setup(c.ctxt.forread ? "Input selection"
-                                                : "Output selection","",""))
-{
-    iogrp = new uiIOSurface( this, c );
-}
-
-
-IOObj* uiIOSurfaceDlg::ioObj() const
+IOObj* uiReadSurfaceDlg::ioObj() const
 {
     return iogrp->selIOObj();
 }
 
 
-bool uiIOSurfaceDlg::acceptOK( CallBacker* )
+void uiReadSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 {
-    return true;
+    iogrp->getSelection( sels );
 }
-

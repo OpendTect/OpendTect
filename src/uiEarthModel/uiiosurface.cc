@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.1 2003-07-16 09:56:21 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.2 2003-07-29 13:03:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,156 +25,41 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 
 
-uiIOSurface::uiIOSurface( uiParent* p, const EM::Horizon* hor_ )
+uiIOSurface::uiIOSurface( uiParent* p )
     : uiGroup(p,"Surface selection")
     , ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
-    , hor(hor_)
-    , readgrp(0)
-    , writegrp(0)
     , patchfld(0)
-    , entrylist(0)
+    , attrlistfld(0)
 {
-    if ( hor->nrAuxData() )
-    {
-	writegrp = new uiGroup( this, "Write group" );
-	attrnmfld = new uiGenInput( writegrp, "Attribute" );
-	attrnmfld->setText( hor->auxDataName(0) );
-
-	savefld = new uiGenInput( writegrp, "Save", 
-	    		BoolInpSpec("Horizon and attribute","Horizon only") );
-	savefld->attach( alignedBelow, attrnmfld );
-    }
-    
-    createSharedFields( hor->nrPatches() > 1 );
-
-    outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
-    outfld->attach( alignedBelow, rgfld );
-
-    fillFields( hor->id() );
-}
-
-
-uiIOSurface::uiIOSurface( uiParent* p, CtxtIOObj& c )
-    : uiGroup(p,"Surface selection")
-    , ctio(c)
-    , hor(0)
-    , readgrp(0)
-    , writegrp(0)
-    , patchfld(0)
-    , entrylist(0)    
-{
-    readgrp = new uiGroup( this, "Read group" );
-    IOM().to( ctio.ctxt.stdSelKey() );
-    entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
-    if ( ctio.ioobj )
-	entrylist->setSelected( ctio.ioobj->key() );
-    entrylist->setName( "Select" );
-    objlistfld = new uiLabeledListBox( readgrp, entrylist->Ptr(), false,
-				       uiLabeledListBox::AboveMid );
-    objlistfld->setPrefHeightInChar( 8 );
-    objlistfld->setStretch( 1, 1 );
-    objlistfld->box()->selectionChanged.notify( 
-					    mCB(this,uiIOSurface,selChg) );
-
-    attrlistfld = new uiLabeledListBox( readgrp, 
-					"Calculated attributes", true,
-					uiLabeledListBox::AboveMid );
-    attrlistfld->setPrefHeightInChar( 8 );
-    attrlistfld->setStretch( 1, 1 );
-    attrlistfld->attach( rightTo, objlistfld );
-
-    createSharedFields( anyHorWithPatches() );
-
-    selChg(0);
-}
-
-
-void uiIOSurface::createSharedFields( bool withpatches )
-{
-    if ( withpatches )
-    {
-	patchfld = new uiLabeledListBox( this, "Available patches", true,
-	       				 uiLabeledListBox::AboveMid );
-	patchfld->setPrefHeightInChar( 8 );
-	patchfld->setStretch( 1, 1 );
-	if ( readgrp )
-	    patchfld->attach( rightTo, readgrp );
-	else if ( writegrp )
-	    patchfld->attach( alignedBelow, writegrp );
-
-    }
-
-    rgfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withstep() );
-    if ( readgrp )
-	rgfld->attach( alignedBelow, readgrp );
-    else if ( patchfld )
-	rgfld->attach( alignedBelow, patchfld );
-    else if ( writegrp )
-	rgfld->attach( alignedBelow, writegrp );
 }
 
 
 uiIOSurface::~uiIOSurface()
 {
-    delete entrylist;
 }
 
 
-bool uiIOSurface::anyHorWithPatches()
+void uiIOSurface::mkAttribFld()
 {
-    int maxnrpatches = 1;
-    for ( int idx=0; idx<entrylist->size(); idx++ )
-    {
-	IOObj* ioobj = (*entrylist)[idx]->ioobj;
-	EM::SurfaceIOData sd;
-	EM::EMM().getSurfaceData( ioobj->key(), sd );
-	
-	int nrpatches = sd.patches.size();
-	if ( nrpatches > maxnrpatches )
-	    maxnrpatches = nrpatches;
-    }
-
-    return maxnrpatches > 1;
+    attrlistfld = new uiLabeledListBox( this, "Calculated attributes", true,
+					uiLabeledListBox::AboveMid );
+    attrlistfld->setPrefHeightInChar( 8 );
+    attrlistfld->setStretch( 1, 1 );
 }
 
 
-void uiIOSurface::fillPatchField( ObjectSet<BufferString> patches )
+void uiIOSurface::mkPatchFld()
 {
-    if ( !patchfld ) return;
-
-    patchfld->box()->empty();
-    for ( int idx=0; idx<patches.size(); idx++ )
-	patchfld->box()->addItem( patches[idx]->buf() );
-    patchfld->box()->setSelected( 0 );
+    patchfld = new uiLabeledListBox( this, "Available patches", true,
+				     uiLabeledListBox::AboveMid );
+    patchfld->setPrefHeightInChar( 8 );
+    patchfld->setStretch( 1, 1 );
 }
 
 
-void uiIOSurface::fillAttrField( ObjectSet<BufferString> valnames )
+void uiIOSurface::mkRangeFld()
 {
-    attrlistfld->box()->empty();
-    for ( int idx=0; idx<valnames.size(); idx++)
-	attrlistfld->box()->addItem( valnames[idx]->buf() );
-    attrlistfld->box()->setSelected( 0 );
-}
-
-
-void uiIOSurface::fillRangeField( const BinIDSampler& bids )
-{
-    rgfld->setInput( bids );
-}
-
-
-void uiIOSurface::selChg( CallBacker* )
-{
-    const int curitm = objlistfld->box()->currentItem();
-    if ( !entrylist || curitm < 0 ) return;
-    
-    entrylist->setCurrent( objlistfld->box()->currentItem() );
-    IOObj* ioobj = entrylist->selected();
-    if ( !ioobj ) return;
-
-    ctio.setObj( ioobj->clone() );
-    fillFields( ioobj->key() );
+    rgfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withstep() );
 }
 
 
@@ -183,11 +68,37 @@ void uiIOSurface::fillFields( const MultiID& id )
     EM::SurfaceIOData sd;
     EM::EMM().getSurfaceData( id, sd );
 
-    if ( readgrp ) 
-	fillAttrField( sd.valnames );
+    fillAttribFld( sd.valnames );
+    fillPatchFld( sd.patches );
+    fillRangeFld( sd.rg );
+}
 
-    fillPatchField( sd.patches );
-    fillRangeField( sd.rg );
+
+void uiIOSurface::fillAttribFld( ObjectSet<BufferString> valnames )
+{
+    if ( !attrlistfld ) return;
+
+    attrlistfld->box()->empty();
+    for ( int idx=0; idx<valnames.size(); idx++)
+	attrlistfld->box()->addItem( valnames[idx]->buf() );
+    attrlistfld->box()->selAll( false );
+}
+
+
+void uiIOSurface::fillPatchFld( ObjectSet<BufferString> patches )
+{
+    if ( !patchfld ) return;
+
+    patchfld->box()->empty();
+    for ( int idx=0; idx<patches.size(); idx++ )
+	patchfld->box()->addItem( patches[idx]->buf() );
+    patchfld->box()->selAll( true );
+}
+
+
+void uiIOSurface::fillRangeFld( const BinIDSampler& bids )
+{
+    rgfld->setInput( bids );
 }
 
 
@@ -206,10 +117,8 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
     }
 
     sels.selvalues.erase();
-    if ( writegrp && !savefld->getBoolValue() )
-	return;
 
-    int curitm = readgrp ? attrlistfld->box()->currentItem() : 0;
+    int curitm = attrlistfld ? attrlistfld->box()->currentItem() : 0;
     if ( curitm >= 0 )
 	sels.selvalues += curitm;
 }
@@ -218,5 +127,149 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 IOObj* uiIOSurface::selIOObj() const
 {
     return ctio.ioobj->clone();
+}
+
+
+
+uiSurfaceOutSel::uiSurfaceOutSel( uiParent* p, const EM::Horizon& hor_ )
+    : uiIOSurface(p)
+    , savefld(0)
+{
+    if ( hor_.nrAuxData() )
+    {
+	attrnmfld = new uiGenInput( this, "Attribute" );
+	attrnmfld->setText( hor_.auxDataName(0) );
+
+	savefld = new uiGenInput( this, "Save", 
+	    		BoolInpSpec("Attribute only","Horizon and attribute") );
+	savefld->attach( alignedBelow, attrnmfld );
+	savefld->valuechanged.notify( mCB(this,uiSurfaceOutSel,savePush) );
+    }
+
+    if ( hor_.nrPatches() > 1 )
+    {
+	mkPatchFld();
+	patchfld->attach( rightTo, attrlistfld );
+    }
+
+    mkRangeFld();
+    if ( patchfld )
+	rgfld->attach( alignedBelow, patchfld );
+    else if ( savefld )
+	rgfld->attach( alignedBelow, savefld );
+
+    ctio.ctxt.forread = false;
+    outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
+    outfld->attach( alignedBelow, rgfld );
+
+    fillFields( hor_.id() );
+    savePush(0);
+}
+
+
+void uiSurfaceOutSel::processInput()
+{
+    outfld->commitInput( true );
+}
+
+
+const char* uiSurfaceOutSel::auxDataName() const
+{
+    return attrnmfld->text();
+}
+
+
+void uiSurfaceOutSel::savePush( CallBacker* )
+{
+    if ( savefld )
+	outfld->display( !savefld->getBoolValue() );
+}
+
+
+bool uiSurfaceOutSel::saveAuxDataOnly() const
+{
+    return savefld ? savefld->getBoolValue() : false;
+}
+
+
+
+
+uiSurfaceAuxSel::uiSurfaceAuxSel( uiParent* p, const MultiID& emid )
+    : uiIOSurface( p )
+{
+    mkAttribFld();
+
+    mkRangeFld();
+    rgfld->attach( alignedBelow, attrlistfld );
+
+    fillFields( emid );
+}
+
+
+uiSurfaceSel::uiSurfaceSel( uiParent* p )
+    : uiIOSurface( p )
+{
+    IOM().to( ctio.ctxt.stdSelKey() );
+    entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
+    if ( ctio.ioobj )
+	entrylist->setSelected( ctio.ioobj->key() );
+    entrylist->setName( "Select" );
+    objlistfld = new uiLabeledListBox( this, entrylist->Ptr(), false,
+				       uiLabeledListBox::AboveMid );
+    objlistfld->setPrefHeightInChar( 8 );
+    objlistfld->setStretch( 1, 1 );
+    objlistfld->box()->selectionChanged.notify( mCB(this,uiSurfaceSel,selChg) );
+
+    mkAttribFld();
+    attrlistfld->attach( rightTo, objlistfld );
+
+    if ( anyHorWithPatches() )
+    {
+	mkPatchFld();
+	patchfld->attach( rightTo, attrlistfld );
+    }
+
+    mkRangeFld();
+    rgfld->attach( alignedBelow, objlistfld );
+
+    selChg(0);
+}
+
+
+uiSurfaceSel::~uiSurfaceSel()
+{
+    delete entrylist;
+}
+
+
+void uiSurfaceSel::selChg( CallBacker* )
+{
+    const int curitm = objlistfld->box()->currentItem();
+    if ( !entrylist || curitm < 0 ) return;
+    
+    entrylist->setCurrent( objlistfld->box()->currentItem() );
+    IOObj* ioobj = entrylist->selected();
+    if ( !ioobj ) return;
+
+    ctio.setObj( ioobj->clone() );
+    fillFields( ioobj->key() );
+}
+
+
+bool uiSurfaceSel::anyHorWithPatches()
+{
+    int maxnrpatches = 1;
+    for ( int idx=0; idx<entrylist->size(); idx++ )
+    {
+	IOObj* ioobj = (*entrylist)[idx]->ioobj;
+	EM::SurfaceIOData sd;
+	EM::EMM().getSurfaceData( ioobj->key(), sd );
+	
+	int nrpatches = sd.patches.size();
+	if ( nrpatches > maxnrpatches )
+	    maxnrpatches = nrpatches;
+    }
+
+    return maxnrpatches > 1;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.23 2003-07-07 11:12:13 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.24 2003-07-29 13:03:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,16 +36,17 @@ ________________________________________________________________________
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Import Horizon",
-				     "Specify horizon parameters","104.0.0"))
-	, ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
+    : uiDialog(p,uiDialog::Setup("Import Horizon",
+				 "Specify horizon parameters","104.0.0"))
+    , ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Ascii file");
+    infld->setSelectMode( uiFileDialog::ExistingFiles );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
     xyfld = new uiGenInput( this, "Positions in:",
-                             BoolInpSpec("X/Y","Inl/Crl") );
+                            BoolInpSpec("X/Y","Inl/Crl") );
     xyfld->attach( alignedBelow, infld );
 
     subselfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
@@ -77,59 +78,59 @@ bool uiImportHorizon::handleAscii()
 {
     bool doxy = xyfld->getBoolValue();
 
-    const char* fname = infld->fileName();
-    StreamConn* conn = new StreamConn( fname, Conn::Read );
-    if ( conn->bad() )
-	mErrRet( "Bad connection" );
-	
-    GridTranslator* trans =
-	doxy ? (GridTranslator*) new CoordGridTranslator
-	     : (GridTranslator*) new BinIDGridTranslator;
-
-    GridReader reader( trans, conn );
-    BinIDRange* bidrg = subselfld->isAll() ? 0 : subselfld->getRange();
-    reader.setRange( bidrg );
-    uiExecutor execdlg( this, reader );
-    if ( !execdlg.go() ) return false;
-
-    Grid* dskgrd = reader.grid();
-    PtrMan<Grid> grid = dskgrd->cloneTrimmed();
-    delete dskgrd;
-
-    if ( !grid )
-	mErrRet( "No valid grid specified." );
-
-    Scaler* scaler = scalefld->getScaler();
-
-    if ( !scaler )
-	grid->ensureContainsValidZValues();
-    else
-    {
-	GridScaler grdsc( grid, scaler );
-	uiExecutor scdlg( this, grdsc );
-	scdlg.go();
-    }
-
     const char* horizonnm = outfld->getInput();
     EM::EMManager& em = EM::EMM();
-
     MultiID key = em.add( EM::EMManager::Hor, horizonnm );
     mDynamicCastGet( EM::Horizon*, horizon, em.getObject( key ) );
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
-
     horizon->ref();
 
-    PtrMan<Executor> horimp = horizon->import( *grid );
-    uiExecutor impdlg( this, *horimp );
-    if ( !impdlg.go() ) 
-	mErrRetUnRef("Cannot import horizon")
+    ObjectSet<BufferString> filenames;
+    infld->getFileNames( filenames );
+    for ( int idx=0; idx<filenames.size(); idx++ )
+    {
+	const char* fname = filenames[idx]->buf();
+	StreamConn* conn = new StreamConn( fname, Conn::Read );
+	if ( conn->bad() )
+	    mErrRet( "Bad connection" );
+	    
+	GridTranslator* trans =
+	    doxy ? (GridTranslator*) new CoordGridTranslator
+		 : (GridTranslator*) new BinIDGridTranslator;
 
-    dgbEMHorizonTranslator tr;
-    if ( !tr.startWrite(*horizon) )
-	mErrRetUnRef(tr.errMsg())
+	GridReader reader( trans, conn );
+	BinIDRange* bidrg = subselfld->isAll() ? 0 : subselfld->getRange();
+	reader.setRange( bidrg );
+	uiExecutor execdlg( this, reader );
+	if ( !execdlg.go() ) return false;
 
-    PtrMan<Executor> exec = tr.writer( *ctio.ioobj );
+	Grid* dskgrd = reader.grid();
+	PtrMan<Grid> grid = dskgrd->cloneTrimmed();
+	delete dskgrd;
+
+	if ( !grid )
+	    mErrRet( "No valid grid specified." );
+
+	Scaler* scaler = scalefld->getScaler();
+
+	if ( !scaler )
+	    grid->ensureContainsValidZValues();
+	else
+	{
+	    GridScaler grdsc( grid, scaler );
+	    uiExecutor scdlg( this, grdsc );
+	    scdlg.go();
+	}
+
+	PtrMan<Executor> horimp = horizon->import( *grid );
+	uiExecutor impdlg( this, *horimp );
+	if ( !impdlg.go() ) 
+	    mErrRetUnRef("Cannot import horizon")
+
+    }
+
+    PtrMan<Executor> exec = horizon->saver();
     uiExecutor dlg( this, *exec );
     bool rv = dlg.execute();
     horizon->unRef();
@@ -147,9 +148,20 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 bool uiImportHorizon::checkInpFlds()
 {
     if ( ! *infld->fileName() )
-	mWarnRet( "Please select the input file" )
-    else if ( !File_exists(infld->fileName()) )
-	mWarnRet( "Input file does not exist" )
+	mWarnRet( "Please select input file(s)" )
+
+    ObjectSet<BufferString> filenames;
+    infld->getFileNames( filenames );
+    for ( int idx=0; idx<filenames.size(); idx++ )
+    {
+	const char* fnm = filenames[idx]->buf();
+	if ( !File_exists(fnm) )
+	{
+	    BufferString errmsg( "Cannot find input file:\n" );
+	    errmsg += fnm;
+	    mWarnRet( errmsg );
+	}
+    }
 
     if ( !outfld->commitInput( true ) )
 	mWarnRet( "Please select the output" )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.1 2003-07-16 09:56:15 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.2 2003-07-29 13:03:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,12 @@ class MultiID;
 namespace EM { class Horizon; class SurfaceIODataSelection; };
 
 
-/*! \brief Dialog for horizon export */
+/*! \brief Base group for Surface input and output */
 
 class uiIOSurface : public uiGroup
 {
 public:
-			uiIOSurface(uiParent*,CtxtIOObj&);
-			uiIOSurface(uiParent*,const EM::Horizon*);
+			uiIOSurface(uiParent*);
 			~uiIOSurface();
 
     IOObj*		selIOObj() const;
@@ -41,29 +40,62 @@ public:
 
 protected:
 
-    uiLabeledListBox*	objlistfld;
     uiLabeledListBox*	patchfld;
     uiLabeledListBox*	attrlistfld;
     uiBinIDSubSel*	rgfld;
-    uiIOObjSel*		outfld;
-    uiGenInput*		attrnmfld;
-    uiGenInput*		savefld;
-    IODirEntryList*	entrylist;
-
-    uiGroup*		readgrp;
-    uiGroup*		writegrp;
 
     CtxtIOObj&		ctio;
-    const EM::Horizon*	hor;
 
-
-    bool		anyHorWithPatches();
-    void		createSharedFields(bool);
     void		fillFields(const MultiID&);
-    void		fillPatchField(ObjectSet<BufferString>);
-    void		fillAttrField(ObjectSet<BufferString>);
-    void		fillRangeField(const BinIDSampler&);
+    void		fillPatchFld(ObjectSet<BufferString>);
+    void		fillAttribFld(ObjectSet<BufferString>);
+    void		fillRangeFld(const BinIDSampler&);
+
+    void		mkAttribFld();
+    void		mkPatchFld();
+    void		mkRangeFld();
+
+};
+
+
+class uiSurfaceOutSel : public uiIOSurface
+{
+public:
+			uiSurfaceOutSel(uiParent*,const EM::Horizon&);
+
+    void		processInput();
+    const char*		auxDataName() const;
+    bool		saveAuxDataOnly() const;
+
+protected:
+    void		savePush(CallBacker*);
+
+    uiGenInput*		attrnmfld;
+    uiGenInput*		savefld;
+    uiIOObjSel*		outfld;
+};
+
+
+class uiSurfaceAuxSel : public uiIOSurface
+{
+public:
+    			uiSurfaceAuxSel(uiParent*,const MultiID&);
+};
+
+
+class uiSurfaceSel : public uiIOSurface
+{
+public:
+    			uiSurfaceSel(uiParent*);
+			~uiSurfaceSel();
+
+protected:
     void		selChg(CallBacker*);
+    bool		anyHorWithPatches();
+
+    IODirEntryList*	entrylist;
+    uiLabeledListBox*	objlistfld;
+
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.12 2003-06-03 15:24:39 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.13 2003-07-29 13:03:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,40 +15,25 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 #include "filegen.h"
 #include "uimsg.h"
+#include "uiiosurface.h"
 #include "uibinidsubsel.h"
-#include "uilistbox.h"
 #include "survinfo.h"
-#include "surfaceinfo.h"
 #include "ctxtioobj.h"
 #include <stdio.h>
 
 static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
 
 
-uiExportHorizon::uiExportHorizon( uiParent* p, 
-				  const ObjectSet<SurfaceInfo>& hinfos )
+uiExportHorizon::uiExportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format","104.0.1"))
-	, hinfos_(hinfos)
-	, selinfo_(-1)
 {
-    inbox = new uiLabeledListBox( this, "Available horizons" );
-    for ( int idx=0; idx<hinfos_.size(); idx++ )
-	inbox->box()->addItem( hinfos_[idx]->name );
-    inbox->box()->setSelected( 0 );
-    inbox->box()->selectionChanged.notify( mCB(this,uiExportHorizon,selChg) );
-
-    attrlbl = new uiLabel( this, "" );
-    attrlbl->setHSzPol( uiObject::medium );
-    attrlbl->attach( alignedBelow, inbox );
-    uiLabel* lbl = new uiLabel( this, "Attached values: " );
-    lbl->attach( leftOf, attrlbl );
+    infld = new uiSurfaceSel( this );
 
     typfld = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );
-    typfld->attach( alignedBelow, attrlbl );
+    typfld->attach( alignedBelow, infld );
     typfld->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
     BufferString lbltxt( "Include Z (" );
@@ -72,19 +57,12 @@ uiExportHorizon::uiExportHorizon( uiParent* p,
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     outfld->attach( alignedBelow, gfgrp );
 
-    selChg( 0 );
     typChg( 0 );
 }
 
 
 uiExportHorizon::~uiExportHorizon()
 {
-}
-
-
-int uiExportHorizon::selVisID() const
-{
-    return selinfo_ < 0 ? -1 : hinfos_[selinfo_]->visid;
 }
 
 
@@ -188,24 +166,7 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 			!uiMSG().askGoOn( "File exists. Continue?" ) )
 	return false;
 
-    if ( inbox->box()->currentItem() < 0 )
-	mWarnRet( "Please select input" );
-
     return true;
-}
-
-
-const char* uiExportHorizon::selectedItem()
-{
-    return inbox->box()->getText();
-}
-
-
-void uiExportHorizon::selChg( CallBacker* )
-{
-    selinfo_ = inbox->box()->currentItem();
-    if ( selinfo_ >= 0 )
-	attrlbl->setText( hinfos_[selinfo_]->attrnm );
 }
 
 

@@ -7,44 +7,50 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.1 2003-07-16 09:56:15 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.2 2003-07-29 13:03:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
-class CtxtIOObj;
 class IOObj;
 class uiIOSurface;
+class uiSurfaceOutSel;
+class MultiID;
 
-namespace EM { class Horizon; };
+namespace EM { class Horizon; class SurfaceIODataSelection; };
 
 
 /*! \brief Dialog for horizon export */
 
-class uiSaveSurfaceDlg : public uiDialog
+class uiWriteSurfaceDlg : public uiDialog
 {
 public:
-			uiSaveSurfaceDlg(uiParent*,const EM::Horizon&);
+			uiWriteSurfaceDlg(uiParent*,const EM::Horizon&);
 
-    bool		doWrite();
+    bool		auxDataOnly() const;
+    void		getSelection(EM::SurfaceIODataSelection&);
 
 protected:
 
-    uiIOSurface*	iogrp;
+    int			auxdataidx;
+
+    uiSurfaceOutSel*	iogrp;
     const EM::Horizon&	hor;
 
+    bool		checkIfAlreadyPresent();
     bool		acceptOK(CallBacker*);
 };
 
 
-class uiIOSurfaceDlg : public uiDialog
+class uiReadSurfaceDlg : public uiDialog
 {
 public:
-                        uiIOSurfaceDlg(uiParent*,CtxtIOObj&);
+                        uiReadSurfaceDlg(uiParent*,const MultiID* id=0);
 
-    IOObj*              ioObj() const;
+    IOObj*		ioObj() const;
+    void		getSelection(EM::SurfaceIODataSelection&);
 
 protected:
 
