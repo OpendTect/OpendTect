@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.1 2004-01-05 14:48:28 bert Exp $
+ RCS:		$Id: property.h,v 1.2 2004-02-19 14:02:53 bert Exp $
 ________________________________________________________________________
 
 
@@ -23,14 +23,13 @@ class PropertyRef : public ::UserIDObject
 {
 public:
 
-    enum StdType		{ Udef, Pson, Den, AI, Por, Perm, Sw,
-				  Sson, Pvel, Svel, GR, SP, PR,
-				  Res, Comp, Cal, Temp, Pres };
+    enum StdType		{ Other, Dist, Den, Vel, Son, AI, Por, Perm,
+				  Sat, GR, ElPot, Res, PR, Comp, Temp, Pres };
 				DeclareEnumUtilsWithVar(StdType,stdtype)
 
 				PropertyRef( const char* nm=0 )
 				: UserIDObject(nm)
-				, stdtype_(Udef)	{}
+				, stdtype_(Other)	{}
 
     ObjectSet<MeasureUnit>&	measUnits()		{ return measunits_; }
     const ObjectSet<MeasureUnit>& measUnits() const	{ return measunits_; }

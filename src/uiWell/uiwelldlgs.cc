@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.8 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.9 2004-02-19 14:02:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,9 +148,12 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     lasfld->setDefaultSelectionDir( GetDataDir() );
     lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
 
-    intvfld = new uiGenInput( this, "Depth interval to load",
+    intvfld = new uiGenInput( this, "Depth interval to load (empty=all)",
 			      FloatInpIntervalSpec(false) );
     intvfld->attach( alignedBelow, lasfld );
+
+    ftfld = new uiGenInput( this, "", BoolInpSpec("meter","feet") );
+    ftfld->attach( rightOf, intvfld );
 
     udffld = new uiGenInput( this, "Undefined value in logs",
                     FloatInpSpec(defundefval));
@@ -159,6 +162,9 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     logsfld = new uiLabeledListBox( this, "Select logs", true );
     logsfld->attach( alignedBelow, udffld );
 }
+
+
+#define mFeetFac 0.3048
 
 
 void uiLoadLogsDlg::lasSel( CallBacker* )
@@ -175,6 +181,8 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     logsfld->box()->addItems( lfi.lognms );
 
     udffld->setValue( lfi.undefval );
+    if ( !mIsUndefined(lfi.zrg.start) && !ftfld->getBoolValue() )
+	{ lfi.zrg.start *= mFeetFac; lfi.zrg.stop *= mFeetFac; }
     intvfld->setValue( lfi.zrg );
 }
 
@@ -183,8 +191,15 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 {
     Well::AscImporter wdai( wd );
     Well::AscImporter::LasFileInfo lfi;
+
     lfi.undefval = udffld->getValue();
-    assign( lfi.zrg, intvfld->getFInterval() );
+    if ( *intvfld->text(0) && *intvfld->text(1) )
+    {
+	assign( lfi.zrg, intvfld->getFInterval() );
+	if ( !ftfld->getBoolValue() )
+	    { lfi.zrg.start *= mFeetFac; lfi.zrg.stop *= mFeetFac; }
+    }
+
     for ( int idx=0; idx<logsfld->box()->size(); idx++ )
     {
 	if ( logsfld->box()->isSelected(idx) )

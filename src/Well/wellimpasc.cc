@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.17 2004-02-12 16:38:37 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.18 2004-02-19 14:02:53 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.17 2004-02-12 16:38:37 nanne 
 #include "welld2tmodel.h"
 #include "filegen.h"
 #include "strmprov.h"
-#include "unitscale.h"
+#include "unitofmeasure.h"
 #include "survinfo.h"
 #include <iostream>
 
@@ -28,7 +28,6 @@ inline static StreamData getSD( const char* fnm )
 
 Well::AscImporter::~AscImporter()
 {
-    deepErase( convs );
     unitmeasstrs.deepErase();
 }
 
@@ -136,7 +135,7 @@ const char* Well::AscImporter::getLogInfo( const char* fnm,
 const char* Well::AscImporter::getLogInfo( istream& strm,
 					   LasFileInfo& lfi ) const
 {
-    deepErase( convs );
+    convs.erase();
 
     char linebuf[1024]; char wordbuf[64];
     const char* ptr;
@@ -182,7 +181,7 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 
 		    lfi.lognms += new BufferString( wordbuf );
 		}
-		convs += MeasureUnit::getGuessed( unstr );
+		convs += UnitOfMeasure::getGuessed( unstr );
 		unitmeasstrs.add( unstr );
 		qnr++;
 	    }
@@ -210,21 +209,21 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 		}
 		lfi.lognms += new BufferString( info );
 	    }
-	    convs += MeasureUnit::getGuessed( val1 );
+	    convs += UnitOfMeasure::getGuessed( val1 );
 	    unitmeasstrs.add( val1 );
 	break;
 	case 'W':
 	    if ( mIsKey("STRT") )
 	    {
-		MeasureUnit* mu = MeasureUnit::getGuessed( val1 );
-		lfi.zrg.start = mu->toSI( atof(val2) );
-		delete mu;
+		lfi.zrg.start = atof(val2);
+		const UnitOfMeasure* mu = UnitOfMeasure::getGuessed( val1 );
+		if ( mu ) lfi.zrg.start = mu->internalValue( lfi.zrg.start );
 	    }
 	    if ( mIsKey("STOP") )
 	    {
-		MeasureUnit* mu = MeasureUnit::getGuessed( val1 );
-		lfi.zrg.stop = mu->toSI( atof(val2) );
-		delete mu;
+		lfi.zrg.start = atof(val2);
+		const UnitOfMeasure* mu = UnitOfMeasure::getGuessed( val1 );
+		if ( mu ) lfi.zrg.start = mu->internalValue( lfi.zrg.start );
 	    }
 	    if ( mIsKey("NULL") )
 		lfi.undefval = atof( val1 );
@@ -329,7 +328,7 @@ const char* Well::AscImporter::getLogs( istream& strm,
 	strm >> dpth;
 	if ( strm.fail() || strm.eof() ) break;
 	dpth = mIS_ZERO(dpth-lfi.undefval) ? mUndefValue
-					   : convs[0]->toSI( dpth );
+					   : convs[0]->internalValue( dpth );
 	if ( havestop && dpth > lfi.zrg.stop ) break;
 	bool douse = !mIsUndefined(dpth)
 	          && (!havestart || dpth >= lfi.zrg.start);
@@ -345,7 +344,7 @@ const char* Well::AscImporter::getLogs( istream& strm,
 	    if ( !douse || !issel[ilog] ) continue;
 
 	    val = mIS_ZERO(val-lfi.undefval) ? mUndefValue
-		: (useconvs_ ? convs[ilog+1]->toSI( val ) : val);
+		: (useconvs_ ? convs[ilog+1]->internalValue( val ) : val);
 	    vals += val;
 	}
 	if ( !vals.size() ) continue;

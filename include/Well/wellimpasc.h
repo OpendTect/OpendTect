@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.8 2004-02-12 15:49:46 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.9 2004-02-19 14:02:53 bert Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include <iosfwd>
 
-class MeasureUnit;
+class UnitOfMeasure;
 
 
 namespace Well
@@ -68,7 +68,7 @@ protected:
     Data&		wd;
 
     mutable BufferStringSet	unitmeasstrs;
-    mutable ObjectSet<MeasureUnit>	convs;
+    mutable ObjectSet<const UnitOfMeasure>	convs;
     bool		useconvs_;
 
     void		parseHeader(char*,char*&,char*&,char*&) const;

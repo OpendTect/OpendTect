@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.1 2004-01-05 14:48:53 bert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.2 2004-02-19 14:02:53 bert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -13,22 +13,20 @@ static const char* rcsID = "$Id: property.cc,v 1.1 2004-01-05 14:48:53 bert Exp 
 
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
-	"None (User-defined)",
-	"P-wave sonic travel time",
+	"Other",
+	"Distance/Depth",
 	"Density",
+	"Velocity",
+	"Sonic travel time",
 	"Acoustic Impedance",
 	"Porosity",
 	"Permeability",
-	"Water saturation",
-	"S-wave sonic travel time",
-	"P-wave velocity",
-	"S-wave velocity",
+	"Saturation",
 	"Gamma Ray",
-	"Spontaneous Potential",
-	"Poisson's Ratio",
+	"Electrical Potential",
 	"Resistivity",
+	"Poisson's Ratio",
 	"Compressibility",
-	"Caliper",
 	"Temperature",
 	"Pressure",
 	0
