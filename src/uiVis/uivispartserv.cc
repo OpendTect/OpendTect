@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.138 2003-03-06 16:46:43 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.139 2003-03-06 18:55:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -615,11 +615,17 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id )
 	    TypeSet<BinID> newbids;
 	    dlg.getBinIDs( newbids );
 	    if ( newbids.size() < 2 ) return true;
-	    rtd->removeAllKnots();
+	    int nrknots = rtd->nrKnots();
+	    while ( nrknots > newbids.size() )
+	    {
+		rtd->removeKnot( nrknots-1 );
+		nrknots--;
+	    }
+		
 	    for ( int idx=0; idx<newbids.size(); idx++ )
 	    {
 		const BinID bid = newbids[idx];
-		if ( idx < 2 )
+		if ( idx < nrknots )
 		    rtd->setKnotPos( idx, bid );
 		else
 		    rtd->addKnot( bid );
