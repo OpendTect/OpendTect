@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.10 2005-02-04 11:21:59 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.11 2005-03-08 15:42:16 cvsdgb Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -85,9 +85,10 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	Seis2DLineSet ls( ioobj->fullUserExpr(true) );
 	for ( int idx=0; idx<ls.nrLines(); idx++ )
 	    nms.addIfNew( ls.lineName(idx) );
+	const BufferString attrnm = iopar_.find( "Target value" );
+
 	if ( isrestart )
 	{
-	    const BufferString attrnm = iopar_.find( "Target value" );
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		LineKey lk( nms.get(idx) );
@@ -111,7 +112,37 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 		    nms.addIfNew( ls.lineName(idx) );
 	    }
 	}
+
+	if ( getenv("OD_FILE_ATTR_CACHING") )
+	{
+	    UsrMsg( "- Ensuring all lines are added to output line set because "
+		    "of file attribute caching.\n- This can take a while ..." );
+	    lskey = iopar_.find( "Output.1.Seismic ID" );
+	    Seis2DLineSet* outls = &ls;
+	    if ( lskey )
+	    {
+		IOObj* outioobj = IOM().get( lskey );
+		if ( outioobj && outioobj->key() != ioobj->key() )
+		{
+		    outls = new Seis2DLineSet( outioobj->fullUserExpr(true) );
+		    delete outioobj;
+		}
+	    }
+	    for ( int idx=0; idx<nms.size(); idx++ )
+	    {
+		LineKey lk( nms.get(idx), attrnm );
+		if ( outls->indexOf(lk.buf()) >= 0 ) continue;
+
+		IOPar* iop = new IOPar; lk.fillPar( *iop, true );
+		Seis2DLinePutter* lp = outls->linePutter( iop );
+		delete lp;
+	    }
+	    if ( outls != &ls )
+		delete outls;
+	}
     }
+    delete ioobj;
+
     BufferString parkey( mOutKey("Line key") );
     KeyReplaceJobDescProv* ret
 	= new KeyReplaceJobDescProv( iopar_, parkey, nms );
