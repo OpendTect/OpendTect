@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.3 2003-12-28 16:10:23 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.4 2003-12-30 16:37:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,9 +144,9 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case Seis:
 	switch ( at )
 	{
-	case Imp:	seisserv->importSeis( opt ?
-			      uiSeisPartServer::CBVS
-			    : uiSeisPartServer::SegY );	break;
+	case Imp:	seisserv->importSeis( opt ? uiSeisPartServer::CBVS
+						  : uiSeisPartServer::SegY );
+			break;
 	case Exp:	seisserv->exportSeis();		break;
 	case Man:	seisserv->manageSeismics();	break;
 	}
@@ -354,7 +354,7 @@ bool uiODApplMgr::setPickSetDirs( int id )
     if ( !attrserv->setPickSetDirs(ps,nlaserv?&nlaserv->getModel():0) )
 	return false;
 
-    //TODO change the pick set accordingly
+    visserv->setPickSetData( id, ps );
     return true;
 }
 
@@ -429,9 +429,9 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
     if ( visserv->isInlCrlTsl(visid,0) || visserv->isInlCrlTsl(visid,1) ||
 	 visserv->isInlCrlTsl(visid,2) || visserv->isVolView(visid) )
 	res =  getNewCubeData( visid, colordata );
-    else if ( visserv->isHorizon( visid ) )
+    else if ( visserv->isHorizon(visid) || visserv->isFault(visid) )
 	res =  getNewSurfData( visid, colordata );
-    else if ( visserv->isRandomLine( visid ) )
+    else if ( visserv->isRandomLine(visid) )
 	res =  getNewRandomLineData( visid, colordata );
 
     setHistogram( visid );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.4 2003-12-28 16:10:23 bert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.5 2003-12-30 16:37:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
     dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
     dollywheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-    uiLabel* dollylbl = new uiLabel( leftgrp, "MOV" );
+    uiLabel* dollylbl = new uiLabel( leftgrp, "Mov" );
     dollylbl->attach( centeredBelow, dollywheel );
 
     uiLabel* dummylbl = new uiLabel( leftgrp, "" );
@@ -72,7 +72,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
     vwheel->attach( centeredBelow, dummylbl );
 
-    uiLabel* rotlbl = new uiLabel( &appl, "ROT" );
+    uiLabel* rotlbl = new uiLabel( &appl, "Rot" );
     rotlbl->attach( centeredBelow, leftgrp );
 
     uiThumbWheel* hwheel = new uiThumbWheel( &appl, "hRotate", true );
@@ -81,7 +81,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
     hwheel->attach( leftAlignedBelow, wsp );
 
-    zoomslider = new uiLabeledSlider( &appl, "ZOOM" );
+    zoomslider = new uiLabeledSlider( &appl, "Zoom" );
     zoomslider->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
     zoomslider->sldr()->setTickMarks( false );
     zoomslider->sldr()->setMinValue( cMinZoom );
@@ -186,7 +186,6 @@ void uiODSceneMgr::storePositions()
 
 void uiODSceneMgr::getScenePars( IOPar& iopar )
 {
-    mDoAllScenes(sovwr,fillPar,iopar);
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	IOPar iop;
@@ -335,6 +334,7 @@ void uiODSceneMgr::layoutScenes()
 	tile();
 }
 
+
 void uiODSceneMgr::toHomePos( CallBacker* )
 { mDoAllScenes(sovwr,toHomePos,); }
 void uiODSceneMgr::saveHomePos( CallBacker* )
@@ -387,7 +387,7 @@ void uiODSceneMgr::wheelMoved( CallBacker* cb, int wh, float& lastval )
 	    if ( wh == 1 )
 		scenes[idx]->sovwr->rotateH( diff );
 	    else if ( wh == 2 )
-		scenes[idx]->sovwr->rotateV( diff );
+		scenes[idx]->sovwr->rotateV( -diff );
 	    else
 		scenes[idx]->sovwr->dolly( diff );
 	}

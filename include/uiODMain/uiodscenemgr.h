@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.4 2003-12-28 16:10:23 bert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.5 2003-12-30 16:37:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,8 @@ public:
     void		addPickSetItem(const PickSet*,int);
     void		addHorizonItem(const MultiID&,int);
 
+    uiTreeFactorySet*   treeItemFactorySet() 		{ return tifs; }
+
 protected:
 
     class Scene
@@ -99,7 +101,7 @@ protected:
 
     uiODMain&		appl;
     uiWorkSpace*	wsp;
-    ObjectSet<Scene>	scenes;
+    ObjectSet<uiODSceneMgr::Scene>	scenes;
     int			vwridx;
     float		lasthrot, lastvrot, lastdval;
     uiTreeFactorySet*	tifs;

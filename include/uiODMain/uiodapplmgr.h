@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.3 2003-12-28 16:10:23 bert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.4 2003-12-30 16:37:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
     uiWellPartServer*	wellServer()			{ return wellserv; }
     uiNLAPartServer*	nlaServer()			{ return nlaserv; }
     void		setNlaServer( uiNLAPartServer* s ) { nlaserv = s; }
+    uiApplService&	applService()			
+    			{ return (uiApplService&)applservice; }
 
 
     // File menu operations

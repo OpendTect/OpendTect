@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.2 2003-12-28 16:10:23 bert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.3 2003-12-30 16:37:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -16,8 +16,8 @@ ________________________________________________________________________
 
 /* These are the menu IDs of standard menu items in OpendTect.
    Note that all 'nodes' (i.e. items that have sub-items) are also available
-   through the interface of ui3DApplication directly, e.g.:
-   uiPopupMenu* viewmnu = dTectMainWin()->viewMenu();
+   through the interface of the uiODMenuMgr directly, e.g.:
+   uiPopupMenu* viewmnu = ODMainWin()->menuMgr().viewMnu();
  */
 
 
