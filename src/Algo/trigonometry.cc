@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.18 2003-12-18 06:38:46 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.19 2003-12-27 10:19:48 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -193,7 +193,7 @@ Line3::Line3( const Coord3& point, const Vector3& vector )
 {}
 
 
-float Line3::distanceToPoint( Coord3& point ) const
+float Line3::distanceToPoint( const Coord3& point ) const
 {
    Vector3 p0p1( point.x - x0, point.y - y0, point.z - z0 );
    Vector3 v( alpha, beta, gamma );

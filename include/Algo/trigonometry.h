@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.10 2003-12-18 06:38:46 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.11 2003-12-27 10:20:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,7 @@ public:
 			    return res;
 			}
  
-    float               distanceToPoint( Coord3& point ) const;
+    float               distanceToPoint( const Coord3& point ) const;
  
     float		x0;
     float		y0;
