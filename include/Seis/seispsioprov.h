@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.1 2004-12-30 17:29:35 bert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.2 2005-01-07 16:35:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,20 @@ class IOObj;
   It is not mandatory to provide both reader and writer.
   Null returns must be expected.
 
-  The key provided to makeReader and makeReader must be a file or directory
-  name. This name is stored in IOObjs refering to PS data stores.
+  The key provided to makeReader and makeReader is the key to the data store.
+  It can be a file or directory, but also some kind of data store access code.
+  This name is stored in IOObjs refering to PS data stores. The IOObj's
+  tranlator() is used for the type.
 
-  IOObjs should always have a sKey::Type -> the type.
+  If you pass an inline number to the makeReader, you will get a Reader that
+  may not be able to provide the full geometry of the data store. If the
+  inline is present in the data store, at least the segments for that inline
+  should be filled.  Construction time can be much faster when you pass an
+  inline number.
+  Pass:
+  * negative number for no scanning
+  * positive number for single inline usage
+  * mUndefIntVal for scanning the entire datastore
 
  */
 
@@ -38,7 +48,8 @@ public:
 
     virtual		~SeisPSIOProvider()		{}
 
-    virtual SeisPSReader* makeReader(const char*) const	= 0;
+    virtual SeisPSReader* makeReader(const char*,
+	    			     int inl=mUndefIntVal) const = 0;
     virtual SeisPSWriter* makeWriter(const char*) const	= 0;
 
     const char*		type() const			{ return type_.buf(); }
@@ -65,7 +76,8 @@ public:
 
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
-    SeisPSReader*		getReader(const IOObj&) const;
+    SeisPSReader*		getReader(const IOObj&,
+	    				  int inl=mUndefIntVal) const;
     SeisPSWriter*		getWriter(const IOObj&) const;
 
 protected:
@@ -84,6 +96,7 @@ class SeisPSTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisTrc)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisPS)
+    Translator*		make(const char*,bool un=true) const;
 };
 
 
@@ -101,6 +114,12 @@ public:
 
     bool		implRemove(const IOObj*) const;
 };
+
+
+inline Translator* SeisPSTranslatorGroup::make( const char*, bool ) const
+{
+    return new ODSeisPSTranslator("OD","OD");
+}
 
 
 #endif

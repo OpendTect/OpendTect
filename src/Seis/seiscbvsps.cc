@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.5 2005-01-05 15:06:57 bert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.6 2005-01-07 16:35:51 bert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -23,8 +23,8 @@ class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
 			CBVSSeisPSIOProvider() : SeisPSIOProvider("CBVS") {}
-    SeisPSReader*	makeReader( const char* dirnm ) const
-			{ return new SeisCBVSPSReader(dirnm); }
+    SeisPSReader*	makeReader( const char* dirnm, int inl ) const
+			{ return new SeisCBVSPSReader(dirnm,inl); }
     SeisPSWriter*	makeWriter( const char* dirnm ) const
 			{ return new SeisCBVSPSWriter(dirnm); }
     static int		factid;
@@ -47,7 +47,7 @@ SeisCBVSPSIO::~SeisCBVSPSIO()
 }
 
 
-SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm )
+SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
     	: SeisCBVSPSIO(dirnm)
     	, posdata_(*new PosInfo::CubeData)
     	, curtr_(0)
@@ -60,27 +60,31 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm )
 	return;
     }
 
-    DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
-    for ( int idx=0; idx<dl.size(); idx++ )
+    if ( mIsUndefInt(inl) )
     {
-	BufferString fnm( dl.get(idx) );
-	char* ptr = fnm.buf();
-	while ( *ptr && !isdigit(*ptr) ) ptr++;
-	while ( *ptr && isdigit(*ptr) ) ptr++;
-	*ptr = '\0';
-	if ( fnm == "" ) continue;
+	DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    BufferString fnm( dl.get(idx) );
+	    char* ptr = fnm.buf();
+	    while ( *ptr && !isdigit(*ptr) ) ptr++;
+	    while ( *ptr && isdigit(*ptr) ) ptr++;
+	    *ptr = '\0';
+	    if ( fnm == "" ) continue;
 
-	addInl( atoi(ptr) );
+	    addInl( atoi(ptr) );
+	}
+
+	if ( posdata_.size() < 1 )
+	{
+	    errmsg_ = "Directory '"; errmsg_ += dirnm_;
+	    errmsg_ += "' contains no usable pre-stack data files";
+	    return;
+	}
+	posdata_.sort();
     }
-
-    if ( posdata_.size() < 1 )
-    {
-	errmsg_ = "Directory '"; errmsg_ += dirnm_;
-	errmsg_ += "' contains no usable pre-stack data files";
-	return;
-    }
-
-    posdata_.sort();
+    else if ( inl >= 0 )
+	addInl( inl );
 }
 
 
@@ -135,16 +139,14 @@ bool SeisCBVSPSReader::mkTr( int inl ) const
 {
     if ( curtr_ && curinl_ == inl )
 	return true;
+    else if ( mIsUndefInt(inl) )
+	return false;
 
     delete curtr_; curtr_ = 0;
     curinl_ = inl;
 
-    int inlidx = posdata_.indexOf( inl );
-    if ( inlidx < 0 )
-	{ errmsg_ = "Inline not present"; return false; }
-
     FilePath fp( dirnm_ );
-    BufferString fnm = posdata_[inlidx]->inl; fnm += ext();
+    BufferString fnm = inl; fnm += ext();
     fp.add( fnm );
 
     errmsg_ = "";

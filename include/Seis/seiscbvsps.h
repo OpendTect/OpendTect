@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.5 2005-01-05 15:06:57 bert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.6 2005-01-07 16:35:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,8 @@ class SeisCBVSPSReader : public SeisPSReader
 {
 public:
 
-    			SeisCBVSPSReader(const char* dirnm);
+    			SeisCBVSPSReader(const char* dirnm,
+					 int inl=mUndefIntVal);
 			// Check errMsg() to see failure
 			~SeisCBVSPSReader();
 

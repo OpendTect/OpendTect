@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.2 2005-01-07 15:11:20 bert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.3 2005-01-07 16:35:51 bert Exp $";
 
 #include "seispsioprov.h"
 #include "filegen.h"
@@ -33,11 +33,12 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 }
 
 
-SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj ) const
+SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
+						  int inl ) const
 {
     if ( !provs_.size() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    return prov ? prov->makeReader( ioobj.fullUserExpr(true) ) : 0;
+    return prov ? prov->makeReader( ioobj.fullUserExpr(true), inl ) : 0;
 }
 
 
@@ -77,6 +78,7 @@ bool ODSeisPSTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     BufferString fnm( ioobj->fullUserExpr(true) );
-    File_remove( fnm, File_isDirectory(fnm) );
+    if ( File_exists(fnm) )
+	File_remove( fnm, File_isDirectory(fnm) );
     return File_exists(fnm);
 }
