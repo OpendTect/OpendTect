@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.14 2004-11-09 16:42:57 arend Exp $
+# $Id: od_do_rmt,v 1.15 2004-11-10 10:37:15 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -50,7 +50,7 @@ else if ( $1 == "+-+-+" ) then
 	shift
 	set cmd=`echo $comm | sed "s%-=-%'%g"`
 	eval $cmd
-	goto do_res
+	goto do_rest
 
 else
 
