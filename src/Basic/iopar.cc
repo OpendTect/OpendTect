@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.10 2001-02-13 17:20:58 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.11 2001-03-20 11:19:21 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -448,7 +448,7 @@ void IOPar::putTo( ascostream& astream, bool withname ) const
 }
 
 
-static const char* sersep = "!^~";
+static const char* sersep = "#-#";
 
 void IOPar::putTo( BufferString& str ) const
 {
