@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.8 2002-04-16 06:47:50 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.9 2002-04-29 09:23:25 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,9 @@ public:
 
     CNotifier<SelectionManager,int>	selnotifer;
     CNotifier<SelectionManager,int>	deselnotifer;
+
+    void			fillPar( IOPar& ) const {};
+    void			usePar( const IOPar& ) {};
 
 protected:
     void			select( int id, bool keep, bool lock );
