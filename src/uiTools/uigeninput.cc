@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.46 2003-01-13 08:37:32 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.47 2003-01-14 13:45:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,13 +66,13 @@ public:
     virtual uiObject*	elemObj( int idx=0 )
 			{
 			    UserInputObj* elem = element(idx);
-			    if( !elem )	return 0;
+			    if ( !elem )	return 0;
 
 			    uiObject* ob = dynamic_cast<uiObject*>(elem);
-			    if( ob )	return ob;
+			    if ( ob )	return ob;
 
 			    uiGroup* grp = dynamic_cast<uiGroup*>(elem);
-			    if( grp )	return grp->uiObj(); 
+			    if ( grp )	return grp->uiObj(); 
 
 			    return 0;
 			}
@@ -116,15 +116,15 @@ const char*		text( int idx ) const
 			    }
 
     void		setText( const char* s, int idx )
-			    { if( element(idx) ) element(idx)->setText(s); }
+			    { if ( element(idx) ) element(idx)->setText(s); }
     void		setValue( int i, int idx )
-			    { if( element(idx) ) element(idx)->setValue(i); }
+			    { if ( element(idx) ) element(idx)->setValue(i); }
     void		setValue( double d, int idx )
-			    { if( element(idx) ) element(idx)->setValue(d); }
+			    { if ( element(idx) ) element(idx)->setValue(d); }
     void		setValue( float f, int idx )
-			    { if( element(idx) ) element(idx)->setValue(f); }
+			    { if ( element(idx) ) element(idx)->setValue(f); }
     void		setValue( bool b, int idx )
-			    { if( element(idx) ) element(idx)->setValue(b); }
+			    { if ( element(idx) ) element(idx)->setValue(b); }
 
 			//! stores current value as clear state.
     void		initClearValue()
@@ -138,8 +138,8 @@ const char*		text( int idx ) const
 				    element(idx)->clear();
 			    }
 
-    void		setReadOnly( bool yn = true, int idx=0 )
-			    { if(element(idx)) element(idx)->setReadOnly(yn);}
+    virtual void	setReadOnly( bool yn = true, int idx=0 )
+			    { if (element(idx)) element(idx)->setReadOnly(yn);}
 
     bool		isReadOnly( int idx=0 ) const
 			    { 
@@ -149,9 +149,9 @@ const char*		text( int idx ) const
 
     void		setSensitive(bool yn, int idx=-1)		
 			    { 
-				if( idx >= 0 ) 
+				if ( idx >= 0 ) 
 				{ 
-				    if(elemObj(idx) )
+				    if (elemObj(idx) )
 					elemObj(idx)->setSensitive(yn); 
 				}
 				else
@@ -163,9 +163,9 @@ const char*		text( int idx ) const
 
     bool                update( const DataInpSpec& nw )
 			    {
-				if( spec_.type() != nw.type() ) return false;
+				if ( spec_.type() != nw.type() ) return false;
 
-				if( update_(nw) )
+				if ( update_(nw) )
 				{
 				    spec_ = nw;
 				    return true;
@@ -194,7 +194,7 @@ protected:
 
     void		init()
 			    {
-				if( !update_( spec_ ) )
+				if ( !update_( spec_ ) )
 				{
 				    pErrMsg("huh?");
 				    update_( spec_ );
@@ -207,7 +207,7 @@ protected:
 				{
 				    int nel = p_ ? p_->nElements() : nElems();
 
-				    if( nel > 1 ) hpol = uiObject::small;
+				    if ( nel > 1 ) hpol = uiObject::small;
 				    else switch( spec_.type().rep() )
 				    {
 				    case DataType::stringTp:
@@ -238,6 +238,8 @@ public:
 			    , usrinpobj( *new T(p, spec) ) 
 			    {
 				init();
+
+				setReadOnly( false );
 
 				usrinpobj.notifyValueChanging( 
 				   mCB(this,uiInputFld,valChangingNotify) );
@@ -347,6 +349,9 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     b2c = spc->binID2Coord();
 
     init();
+
+    inl_x.setReadOnly(false);
+    crl_y.setReadOnly(false);
 }
 
 bool uiBinIDInpFld::update_( const DataInpSpec& spec )
@@ -443,12 +448,16 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
     start.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
     stop.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
 
+    start.setReadOnly( false );
+    stop.setReadOnly( false );
+
     if ( spc->hasStep() )
     {
 	step = new uiLineEdit(&intvalGrp,"",nm);
 
 	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
 	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+	step->setReadOnly( false );
 
 	lbl = new uiLabel(&intvalGrp, "Step" );
     }
@@ -485,9 +494,11 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="uiStrLstInpFld" ) 
 			    : uiInputFld( p, spec )
-			    , cbb( *new uiComboBox(p,nm,false) ) 
+			    , cbb( *new uiComboBox(p,nm) ) 
 			{
 			    init();
+
+			    cbb.setReadOnly( true );
 
 			    cbb.selectionChanged.notify( 
 				mCB(this,uiInputFld,valChangedNotify) );
@@ -498,6 +509,12 @@ public:
     virtual const char*	text(int idx) const		{ return cbb.text();}
     virtual void        setText( const char* t,int idx)	
 			    { cbb.setCurrentItem(t); }
+
+    virtual void	setReadOnly( bool yn = true, int idx=0 )
+			    { 
+			      if ( !yn )
+				pErrMsg("Stringlist input must be read-only");
+			    }
 
     virtual UserInputObj* element( int idx=0 )		{ return &cbb; }
     virtual uiObject*	mainObj()			{ return &cbb; }
@@ -532,7 +549,7 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
     case DataType::stringTp:
     {
-	if( desc.type().form() == DataType::list )
+	if ( desc.type().form() == DataType::list )
 	    fld = new uiStrLstInpFld( this, desc ); 
 	else
 	    fld = new uiTextInputFld( this, desc ); 
@@ -543,7 +560,7 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     case DataType::doubleTp:
     case DataType::intTp:
     {
-	if( desc.type().form() == DataType::interval )
+	if ( desc.type().form() == DataType::interval )
 	{
 	    switch( desc.type().rep() )
 	    {
@@ -559,7 +576,7 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	    break;
 	    }
 	}
-	else if( desc.type().form() == DataType::binID )
+	else if ( desc.type().form() == DataType::binID )
 	    fld = new uiBinIDInpFld( this, desc ); 
 	else
 	    fld = new uiTextInputFld( this, desc ); 
@@ -567,7 +584,7 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     break;
     }
 
-    if( ! fld ) { pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
+    if ( ! fld ) { pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
 
 
     uiObject* other= flds.size() ? flds[ flds.size()-1 ]->mainObj() : 0;
@@ -593,7 +610,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), ro(false)
+    , checked_(false), rdonly_(false), rdonlyset_(false)
     , elemszpol( uiObject::undef )
 { 
     inputs += new StringInpSpec( inputStr ); 
@@ -608,7 +625,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), ro(false)
+    , checked_(false), rdonly_(false), rdonlyset_(false)
     , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
@@ -624,7 +641,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), ro(false)
+    , checked_(false), rdonly_(false), rdonlyset_(false)
     , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
@@ -642,7 +659,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
-    , checked_(false), ro(false)
+    , checked_(false), rdonly_(false), rdonlyset_(false)
     , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
@@ -722,7 +739,7 @@ void uiGenInput::doFinalise()
     deepErase( inputs ); // have been copied to fields.
     finalised = true;
 
-    setReadOnly( ro );
+    if ( rdonlyset_) setReadOnly( rdonly_ );
 
     if ( withchk ) checkBoxSel(0);	// sets elements (non-)sensitive
 }
@@ -731,12 +748,12 @@ void uiGenInput::doFinalise()
 
 void uiGenInput::setReadOnly( bool yn, int nr )
 {
-    if( !finalised ) { ro = yn; return; }
+    if ( !finalised ) { rdonly_ = yn; rdonlyset_=true; return; }
 
     if ( nr >= 0  ) 
 	{ if ( nr<flds.size() && flds[nr] ) flds[nr]->setReadOnly(yn); return; }
 
-    ro = yn;
+    rdonly_ = yn; rdonlyset_=true;
 
     for( int idx=0; idx < flds.size(); idx++ )
 	flds[idx]->setReadOnly( yn );
@@ -766,7 +783,7 @@ void uiGenInput::clear( int nr )
 int uiGenInput::nElements() const
 {
     int nel=0;
-    if( finalised ) 
+    if ( finalised ) 
     {
 	for( int idx=0; idx<flds.size(); idx++ )
 	    if ( flds[idx] ) nel += flds[idx]->nElems();
