@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.38 2003-07-01 14:26:19 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.39 2003-10-01 08:12:33 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , colas(*new ColorAttribSel)
     , cache(0)
     , colcache(0)
-    , moved(this)
     , slicemoving(this)
 {
     cube->ref();
