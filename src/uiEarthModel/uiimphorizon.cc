@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.11 2002-06-05 23:25:17 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.12 2002-06-08 10:31:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
                              BoolInpSpec("X/Y","Inl/Crl") );
     xyfld->attach( alignedBelow, infld );
 
-    subselfld = new uiBinIDSubSel( this );
+    subselfld = new uiBinIDSubSel( this, false, false, false );
     subselfld->attach( alignedBelow, xyfld );
 
     scalefld = new uiScaler( this, "Value scaling", true );
