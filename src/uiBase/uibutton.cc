@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.15 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.16 2002-11-05 15:13:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 
 			uiButtonTemplBody( uiButton& handle, uiParent* parnt,
 					   const char* txt )
-			    : uiObjectBody( parnt )
+			    : uiObjectBody( parnt, txt )
                             , T( parnt && parnt->pbody() ?
 				  parnt->pbody()->managewidg() : 0 , txt )
                             , handle_( handle )
@@ -47,7 +47,7 @@ public:
 			uiButtonTemplBody(uiButton& handle, 
 				     const ioPixmap& pm,
 				     uiParent* parnt, const char* txt)
-			    : uiObjectBody( parnt )
+			    : uiObjectBody( parnt, txt )
 			    , T( QIconSet(*pm.Pixmap()),txt, 
 				parnt && parnt->pbody() ?
 				  parnt->pbody()->managewidg() : 0, txt )

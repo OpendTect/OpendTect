@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.8 2002-11-01 12:29:32 arend Exp $
+ RCS:           $Id: uidockwin.cc,v 1.9 2002-11-05 15:13:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include <qdockwindow.h>
 
-class uiDockWinBody : public uiParentBody, public UserIDObject
+class uiDockWinBody : public uiParentBody
 		    , public QDockWindow
 {
 public:
@@ -85,8 +85,7 @@ protected:
 
 uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt, 
 			      const char* nm )
-	: uiParentBody()
-	, UserIDObject( nm )
+	: uiParentBody( nm )
 	, QDockWindow( InDock, parnt && parnt->pbody() ?  
 					parnt->pbody()->qwidget() : 0, nm ) 
 	, handle_( handle__ )

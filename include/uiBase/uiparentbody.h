@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.8 2002-10-08 09:46:40 arend Exp $
+ RCS:           $Id: uiparentbody.h,v 1.9 2002-11-05 15:13:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,20 +20,32 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-class uiParentBody : public uiBody
+class uiParentBody : public uiBody, public UserIDObject
 {
 friend class uiObjectBody;
 public:
-				uiParentBody()
-				    : finalised( false )
+				//uiParentBody( const char* nm = "uiParentBody")
+				uiParentBody( const char* nm )
+				    : UserIDObject( nm )
+				    , finalised( false )
+				    , destructing( 0xdeadbeef )
 				{}
 
-    virtual			~uiParentBody()		{ deepErase(children);}
+    virtual			~uiParentBody()	
+				{
+				    destructing = 1;
+				    deepErase( children );
+				}
 
     virtual void		addChild( uiObjHandle& child )
 				    { 
 					if( children.indexOf(&child ) < 0 )
+					{
 					    children += &child; 
+
+					    child.deleteNotify( mCB(this,
+							uiParentBody,childDel));
+					}
 				    }
 
 				//! child becomes mine.
@@ -63,14 +75,25 @@ public:
 
 protected:
 
+    void			childDel( CallBacker* cb )
+				{
+				    if( destructing != 0xdeadbeef ) return;
+				    uiObjHandle* obj =
+					    static_cast<uiObjHandle*>( cb );
+				    if( obj ) children -= obj;
+				}
+
     virtual const QWidget*	managewidg_() const		=0;
     virtual void		manageChld_(uiObjHandle&, uiObjectBody& ){}
 
     ObjectSet<uiObjHandle>		children;
 
+
+
 private:
 
     bool			finalised;
+    int				destructing;
 //    bool			restored_position;
 
 };

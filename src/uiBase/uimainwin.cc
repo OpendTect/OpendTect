@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.61 2002-11-01 12:29:32 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.62 2002-11-05 15:13:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ ________________________________________________________________________
 #include <qlayout.h>
 
 
-class uiMainWinBody : public uiParentBody, public UserIDObject
+class uiMainWinBody : public uiParentBody
 		    , public QMainWindow
 {
 friend class		uiMainWin;
@@ -213,8 +213,8 @@ private:
 
 uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt, 
 			      const char* nm, bool modal )
-	: uiParentBody()
-	, UserIDObject( nm )
+	: uiParentBody( nm )
+//	, UserIDObject( nm )
 	, QMainWindow( parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0, 
 		       nm, 
 		       (parnt && modal) ? 

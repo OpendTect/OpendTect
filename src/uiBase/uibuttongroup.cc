@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.4 2002-10-08 09:46:33 arend Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.5 2002-11-05 15:13:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
 			uiButtonGroupObjBody(uiButtonGroupObj& handle, 
 					uiParent* parnt, const char* txt, 
                                         bool vertical, int strips )
-			: uiObjectBody( parnt )
+			: uiObjectBody( parnt, txt )
 			, QButtonGroup( strips, 
 
 //					vertical ? Vertical : Horizontal, txt,
@@ -67,7 +67,7 @@ public:
 					 uiButtonGroupObjBody& objbdy,
 					 uiParent* parnt=0,
 					 const char* nm="uiButtonGroupObjBody") 
-                            : uiParentBody()
+                            : uiParentBody( nm )
                             , handle_( handle )
 			    , objbody_( objbdy )
 			{}

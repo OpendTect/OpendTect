@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.28 2002-10-08 09:46:40 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.29 2002-11-05 15:13:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,8 +176,6 @@ private:
     int 		borderspc;
 
     uiObjectBody& 	managedBody;
-    int			magic_nr;
-
 };
 
 #endif 

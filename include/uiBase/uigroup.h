@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.25 2002-11-01 12:29:39 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.26 2002-11-05 15:13:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,12 +42,16 @@ protected:
 
     uiGroupObjBody*	body_;
     uiGroup*		uigrp_;
+
+    void		bodyDel( CallBacker* );
+    void		grpDel( CallBacker* );
 };
 
 
 class uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
+friend class		uiGroupParentBody;
 friend class		uiGroupObj;
 friend class		uiMainWin;
 public:
@@ -136,6 +140,9 @@ protected:
 
     void		setShrinkAllowed(bool);
     bool		shrinkAllowed();
+
+    void		bodyDel( CallBacker* );
+    void		uiobjDel( CallBacker* );
 };
 
 class NotifierAccess;

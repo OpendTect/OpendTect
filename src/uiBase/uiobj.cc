@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.43 2002-10-08 09:46:33 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.44 2002-11-05 15:13:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -311,8 +311,9 @@ uiMainWin* uiObject::mainwin()
 }
 
 
-uiObjectBody::uiObjectBody( uiParent* parnt )
+uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
+    , UserIDObject( nm )
     , layoutItem_( 0 )
     , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.39 2002-11-01 12:29:32 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.40 2002-11-05 15:13:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
 				uiGroupObjBody( uiGroupObj& handle, 
 						uiParent* parnt,
 						const char* nm )
-				    : uiObjectBody( parnt )
+				    : uiObjectBody( parnt, nm )
 				    , QFrame( parnt && parnt->pbody() ?  
 					parnt->pbody()->managewidg() : 0, nm )
 				    , handle_( handle )
@@ -77,7 +77,7 @@ public:
 				uiGroupObjBody( uiGroupObj& handle, 
 						uiTabGroup* parnt,
 						const char* nm )
-				    : uiObjectBody( 0 )
+				    : uiObjectBody( 0, nm )
 				    , QFrame( parnt && parnt->body() ?  
 					parnt->body()->qwidget() : 0, nm )
 				    , handle_( handle )
@@ -122,18 +122,25 @@ public:
 					 uiGroupObjBody& objbdy,
 					 uiParent* parnt=0,
 					 const char* nm="uiGroupObjBody" )
-                            : uiParentBody()
+                            : uiParentBody( nm )
                             , handle_( handle )
 			    , loMngr( 0 ) , halignobj( 0 ), hcentreobj( 0 )
 			    , objbody_( objbdy )
 			{ 
 			    loMngr = new i_LayoutMngr( objbdy.qwidget(), 
 			       nm, objbdy );
+
+			    loMngr->deleteNotify(
+					mCB(this,uiGroupParentBody,mngrDel) );
 			}
 public:
 
 
-    virtual		~uiGroupParentBody()		{ delete loMngr; }
+    virtual		~uiGroupParentBody()		
+			{
+			    handle_.body_ = 0;
+			    if( loMngr) { delete loMngr; loMngr=0; }
+			}
 
     void		setHSpacing( int space )
 			    { loMngr->setHSpacing( space ); }
@@ -183,6 +190,12 @@ protected:
 
     virtual const QWidget* qwidget_() const    { return objbody_.qwidget(); }
     virtual const QWidget* managewidg_() const { return objbody_.qwidget();}
+
+    void		mngrDel( CallBacker* cb ) 
+			{
+			    if( cb == loMngr ) loMngr = 0;
+			    else pErrMsg("huh?");
+			}
 
 private:
 
@@ -466,10 +479,34 @@ uiGroup::uiGroup( uiTabGroup* p, const char* nm )
     setBody( body_ );
 
     grpobj_->body_->setPrntBody( body_ );
+
+    body_->deleteNotify( mCB(this, uiGroup, bodyDel ) );
+    grpobj_->deleteNotify( mCB(this, uiGroup, uiobjDel ) );
 }
 
 uiGroup::~uiGroup()
-    { if( grpobj_ ) { grpobj_->uigrp_ = 0; delete grpobj_; } }
+{
+    if( grpobj_ ) { grpobj_->uigrp_ = 0; delete grpobj_; } 
+    if( body_ )
+    {
+	uiGroupParentBody* bd = body_;
+	body_ = 0;
+	delete bd;
+    }
+}
+
+void uiGroup::bodyDel( CallBacker* cb )
+{
+    if( body_ == cb ) body_ = 0;
+    else pErrMsg("huh?");
+}
+
+
+void uiGroup::uiobjDel( CallBacker* cb )
+{
+    if( cb == grpobj_ ) grpobj_ = 0;
+    else pErrMsg("huh?");
+}
 
 void uiGroup::display( bool yn, bool shrink, bool maximize )
 { 
@@ -585,6 +622,9 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
 {
     body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );
+
+    uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
+    body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
 }
 
 uiGroupObj::uiGroupObj( uiGroup* bud, uiTabGroup* parnt , const char* nm )
@@ -593,10 +633,28 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiTabGroup* parnt , const char* nm )
 {
     body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );
+
+    uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
+    body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
 }
+
 
 uiGroupObj::~uiGroupObj()
     { if(uigrp_) { uigrp_->grpobj_ =0; delete uigrp_; }  }
+
+
+void uiGroupObj::bodyDel( CallBacker* cb )
+{
+    if( body_ == cb ) body_ = 0;
+    else pErrMsg("huh?");
+}
+
+
+void uiGroupObj::grpDel( CallBacker* cb )
+{
+    if( cb == uigrp_ ) uigrp_ = 0;
+    else pErrMsg("huh?");
+}
 
 uiGroup* uiGroup::gtDynamicCastToGrp( QWidget* widg )
 { 

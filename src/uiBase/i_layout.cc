@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.54 2002-10-08 09:46:33 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.55 2002-11-05 15:13:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -779,7 +779,6 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
 
 i_LayoutMngr::~i_LayoutMngr()
 {
-    magic_nr=0;
 }
 
 

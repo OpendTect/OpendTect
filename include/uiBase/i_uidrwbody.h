@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.5 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.6 2002-11-05 15:13:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiDrawableObjBody : public uiObjectBody, public T, public ioDrawAreaImpl
 public:
                         uiDrawableObjBody( C& handle, 
 					   uiParent* parnt, const char* nm )
-			    : uiObjectBody( parnt )
+			    : uiObjectBody( parnt, nm )
 			    , T( parnt && parnt->pbody()? 
 				    parnt->pbody()->managewidg() : 0 , nm )
                             , handle_( handle )

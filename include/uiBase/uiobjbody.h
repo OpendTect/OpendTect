@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.26 2002-10-08 09:46:40 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.27 2002-11-05 15:13:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class i_LayoutMngr;
 class Timer;
 class QFontMetrics;
 
-class uiObjectBody : public uiBody, public CallBacker
+class uiObjectBody : public uiBody, public UserIDObject
 {
 //friend class 		i_LayoutMngr;
 //friend class 		i_LayoutItem;
@@ -38,7 +38,7 @@ friend class 		i_uiLayoutItem;
 //friend class 		uiMainWin;
 
 protected:
-				uiObjectBody( uiParent* );
+				uiObjectBody( uiParent*, const char* nm );
 public:
 
     virtual			~uiObjectBody();
@@ -337,7 +337,7 @@ public:
 
                         uiObjBodyImpl( C& handle, uiParent* parnt, 
 				       const char* nm )
-			    : uiObjectBody( parnt )
+			    : uiObjectBody( parnt, nm )
 			    , T( parnt && parnt->pbody() ? 
 				     parnt->pbody()->managewidg() : 0 , nm )
 			    , handle_( handle )
@@ -358,7 +358,7 @@ public:
 
                         uiParentObjectTemplateBody( C& handle, uiParent* parnt, 
 						    const char* nm )
-			    : uiObjectBody( parnt )
+			    : uiObjectBody( parnt, nm )
 			    , uiParentBody()
 			    , T( parnt && parnt->body() ? 
 				     parnt->body()->managewidg() : 0 , nm )
