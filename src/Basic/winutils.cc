@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.2 2004-11-16 15:12:55 arend Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.3 2004-11-17 10:41:05 dgb Exp $";
 
 
 #include "winutils.h"
@@ -86,6 +86,8 @@ const char* getCleanWinPath( const char* path )
 
     if ( *(ptr+1) == ':' ) // already in windows style.
 	{ ret = ptr;  mRet( ret ); }
+
+    bool isabs = *ptr == '/';
                 
     char* cygdrv = strstr( ptr, drvstr );
     if ( cygdrv )
@@ -98,7 +100,7 @@ const char* getCleanWinPath( const char* path )
     }
 
     char* drivesep = strstr( ret.buf(), ":" );
-    if ( !drivesep ) 
+    if ( isabs && !drivesep ) 
     {
 #ifdef __win__
 	ret = getCygDir();
