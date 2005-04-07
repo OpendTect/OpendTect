@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.12 2004-06-28 16:00:05 bert Exp $
+ RCS:		$Id: iodir.h,v 1.13 2005-04-07 16:28:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include <ioobj.h>
-#include <selector.h>
+#include "ioobj.h"
+#include "selector.h"
+#include <iosfwd>
+
 
 /*\brief 'Directory' of IOObj objects.
 
@@ -71,19 +73,19 @@ private:
 
     ObjectSet<IOObj>	objs_;
     FileNameString	dirname_;
-    bool		isok_;
-    int			curid_;
     MultiID		key_;
+    bool		isok_;
+    mutable int		curid_;
 
 			IODir();
     static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     bool		build();
-    bool		wrOmf(const char*) const;
+    bool		wrOmf(std::ostream&) const;
 
     MultiID		newKey() const;
 
-    static IOObj*	readOmf(const char*,const char*,IODir*,int,bool&);
+    static IOObj*	readOmf(std::istream&,const char*,IODir*,int);
 };
 
 

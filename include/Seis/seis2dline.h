@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.29 2005-03-31 15:25:53 cvsarend Exp $
+ RCS:		$Id: seis2dline.h,v 1.30 2005-04-07 16:28:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,7 +158,6 @@ protected:
     void		readFile(bool mklock=false,BufferString* typ=0);
     bool		getPre(BufferString*);
     void		writeFile() const;
-    bool		waitForLock(bool,bool) const;
     void		removeLock() const;
 
 

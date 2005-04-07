@@ -4,14 +4,14 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.42 2005-03-24 17:10:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.43 2005-04-07 16:28:44 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
 #include "seisbuf.h"
 #include "survinfo.h"
-#include "strmprov.h"
+#include "safefileio.h"
 #include "ascstream.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
@@ -156,7 +156,7 @@ Seis2DLineSet& Seis2DLineSet::operator =( const Seis2DLineSet& lset )
 {
     if ( &lset == this ) return *this;
     fname_ = lset.fname_;
-    readFile();
+    readFile( false );
     return *this;
 }
 
@@ -209,65 +209,28 @@ int Seis2DLineSet::indexOf( const char* key ) const
     return -1;
 }
 
-
-#define mMkLockNm(lockfnm) \
-    const BufferString lockfnm( fname_ ); \
-    const_cast<BufferString&>(lockfnm) += "_lock"
-
-bool Seis2DLineSet::waitForLock( bool mknew, bool failiflocked ) const
-{
-    mMkLockNm(lockfnm);
-
-    // Wait for max 5 seconds.
-    for ( int idx=0; idx<50; idx++ )
-    {
-	if ( !File_exists(lockfnm.buf()) )
-	    break;
-	else if ( failiflocked )
-	    return false;
-
-	Time_sleep( 0.1 );
-    }
-
-    if ( mknew )
-    {
-	StreamData sd = StreamProvider(lockfnm).makeOStream();
-	if ( sd.usable() )
-	{
-	    *sd.ostrm << HostData::localHostName() << ":" << getPID();
-	    const char* ptr = GetSoftwareUser();
-	    if ( ptr && *ptr )
-		*sd.ostrm << ' ' << ptr;
-	    sd.ostrm->flush();
-	}
-	sd.close();
-    }
-    return true;
-}
-
-
 static const char* sKeyFileType = "2D Line Group Data";
 
 void Seis2DLineSet::readFile( bool mklock, BufferString* type )
 {
     deepErase( pars_ );
-
     if ( getPre(type) )
 	return;
 
-    waitForLock( mklock, false );
-    StreamData sd = StreamProvider( fname_ ).makeIStream();
-    if ( sd.usable() )
+    SafeFileIO sfio( fname_, true );
+    if ( !sfio.open(true) )
     {
-	getFrom( *sd.istrm, type );
-	sd.close();
+	if ( name() == "" )
+	{
+	    FilePath fp( fname_ );
+	    fp.setExtension( 0 );
+	    setName( fp.fileName() );
+	}
+	return;
     }
-    else if ( name() == "" )
-    {
-	FilePath fp( fname_ );
-	fp.setExtension( 0 );
-	setName( fp.fileName() );
-    }
+
+    getFrom( sfio.istrm(), type );
+    sfio.closeSuccess( mklock );
 }
 
 
@@ -329,21 +292,13 @@ void Seis2DLineSet::writeFile() const
 {
     if ( !readonly_ )
     {
-	BufferString wrfnm( fname_ ); wrfnm += "_new";
-
-	StreamData sd = StreamProvider( wrfnm ).makeOStream();
-	if ( sd.usable() )
+	SafeFileIO sfio( fname_, true );
+	if ( sfio.open(false,true) )
 	{
-	    putTo( *sd.ostrm );
-	    sd.close();
-
-	    if ( File_exists(fname_) )
-		File_remove( fname_, 0 );
-	    File_rename( wrfnm, fname_ );
+	    putTo( sfio.ostrm() );
+	    sfio.closeSuccess();
 	}
     }
-
-    removeLock();
 }
 
 
@@ -375,8 +330,9 @@ void Seis2DLineSet::putTo( std::ostream& strm ) const
 
 void Seis2DLineSet::removeLock() const
 {
-    mMkLockNm(lockfnm);
-    File_remove( lockfnm.buf(), 0 );
+    SafeFileIO sfio( fname_, true );
+    sfio.open( true, true );
+    sfio.closeFail( false );
 }
 
 
@@ -432,7 +388,6 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 
     const BufferString newlinekey = LineKey( *newiop, true );
 
-    // Critical concurrency section using file lock
     readFile( true );
 
     Seis2DLinePutter* res = 0;
@@ -477,7 +432,6 @@ bool Seis2DLineSet::addLineKeys( Seis2DLineSet& ls, const char* attrnm,
 	return 0;
     }
 
-    // Critical concurrency section using file lock
     readFile( true );
     if ( pars_.size() < 1 )
 	{ removeLock(); return true; }
@@ -537,10 +491,6 @@ bool Seis2DLineSet::remove( const char* lk )
 {
     if ( readonly_ ) return false;
 
-    if ( !waitForLock(false,true) )
-	{ ErrMsg("Cannot remove from Lineset: LineSet locked"); return false; }
-
-    // Critical concurrency section using file lock
     readFile( true );
     int ipar = indexOf( lk );
     if ( ipar < 0 )
@@ -564,10 +514,6 @@ bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
     if ( !newlnm || !*newlnm )
 	return false;
 
-    if ( !waitForLock(false,true) )
-	{ ErrMsg("Cannot edit Lineset: LineSet locked"); return false; }
-
-    // Critical concurrency section using file lock
     readFile( true );
 
     bool foundone = false;
@@ -610,10 +556,6 @@ bool Seis2DLineSet::rename( const char* lk, const char* newlk )
     if ( !newlk || !*newlk )
 	return false;
 
-    if ( !waitForLock(false,true) )
-	{ ErrMsg("Cannot edit Lineset: LineSet locked"); return false; }
-
-    // Critical concurrency section using file lock
     readFile( true );
     int ipar = indexOf( lk );
     if ( ipar < 0 )

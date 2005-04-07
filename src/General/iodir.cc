@@ -4,14 +4,14 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.18 2004-11-23 13:07:47 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.19 2005-04-07 16:28:44 cvsbert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
 #include "ioman.h"
 #include "ascstream.h"
 #include "separstr.h"
-#include "strmoper.h"
+#include "safefileio.h"
 #include "errh.h"
 #include "timefun.h"
 #include "filegen.h"
@@ -76,46 +76,36 @@ const IOObj* IODir::main() const
 }
 
 
+#undef mErrRet
+#define mErrRet() \
+
+
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 {
     FilePath fp( dirnm ); fp.add( ".omf" );
-    BufferString omfname = fp.fullPath();
-    bool found1 = false;
-    if ( !File_isEmpty(omfname) )
+    SafeFileIO sfio( fp.fullPath(), false );
+    if ( !sfio.open(true) )
     {
-	IOObj* ret = readOmf( omfname, dirnm, dirptr, needid, found1 );
-	if ( found1 )
-	    return ret;
+	BufferString msg( "\nError during read of Object Management info!" );
+	msg += "\n-> Please check directory (read permissions, existence):\n'";
+	msg += dirnm; msg += "'";
+	ErrMsg( msg );
+	return false;
     }
 
-    // Looks like something went wrong. Try the .omb ...
-    if ( dirptr )
-    {
-	dirptr->setLinked(0);
-	deepErase(dirptr->objs_);
-    }
-    fp.setFileName( ".omb" );
-    IOObj* ret = readOmf( fp.fullPath(), dirnm, dirptr, needid, found1 );
-
-    if ( !found1 )
-    {
-	// Last chance: maybe there's a .omf.new
-	fp.setFileName( ".omf.new" );
-	ret = readOmf( fp.fullPath(), dirnm, dirptr, needid, found1 );
-    }
+    IOObj* ret = readOmf( sfio.istrm(), dirnm, dirptr, needid );
+    if ( ret )
+	sfio.closeSuccess();
+    else
+	sfio.closeFail();
     return ret;
 }
 
 
-IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
-			IODir* dirptr, int needid, bool& found1 )
+IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
+			IODir* dirptr, int needid )
 {
-    found1 = false;
-    std::istream* streamptr = openInputStream( omfname );
-    if ( !streamptr )
-	return 0;
-
-    ascistream astream( *streamptr );
+    ascistream astream( strm );
     astream.next();
     FileMultiString fms( astream.value() );
     MultiID dirky( fms[0] );
@@ -133,7 +123,6 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 	IOObj* obj = IOObj::get(astream,dirnm,dirky);
 	if ( !obj || obj->bad() ) { delete obj; continue; }
 
-	found1 = true;
 	MultiID ky( obj->key() );
 	int id = ky.ID( ky.nrKeys()-1 );
 
@@ -142,7 +131,8 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 	    retobj = obj;
 	    if ( id == 1 ) dirptr->setLinked( obj );
 	    dirptr->addObj( obj, false );
-	    if ( id < 100000 && id > dirptr->curid_ ) dirptr->curid_ = id;
+	    if ( id < 100000 && id > dirptr->curid_ )
+		dirptr->curid_ = id;
 	}
 	else
 	{
@@ -157,7 +147,6 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 	}
     }
 
-    delete streamptr;
     return retobj;
 }
 
@@ -325,36 +314,27 @@ bool IODir::mkUniqueName( IOObj* ioobj )
     msg += dirname_
 
 
-#define mCloseRetNo(strm) \
+#undef mErrRet
+#define mErrRet() \
 { \
     BufferString msg( "\nError during write of Object Management info!" ); \
     mAddDirWarn(msg); \
     ErrMsg( msg ); \
-    delete streamptr; \
     return false; \
 }
 
 
-bool IODir::wrOmf( const char* fnm ) const
+bool IODir::wrOmf( std::ostream& strm ) const
 {
-    std::ostream* streamptr = openOutputStream( fnm );
-    if ( !streamptr )
-    {
-	BufferString msg( "Cannot open a new file for Object Management info!");
-	mAddDirWarn(msg);
-	ErrMsg( msg );
-	return false;
-    }
-
-    ascostream astream( *streamptr );
+    ascostream astream( strm );
     if ( !astream.putHeader( "Object Management file" ) )
-	mCloseRetNo(streamptr)
+	mErrRet()
     FileMultiString fms( key_ == "" ? "0" : (const char*)key_ );
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	MultiID key = objs_[idx]->key();
 	if ( key.leafID() > curid_ )
-	    const_cast<IODir*>(this)->curid_ = key.leafID();
+	    curid_ = key.leafID();
     }
     fms += curid_;
     astream.put( "ID", fms );
@@ -363,7 +343,7 @@ bool IODir::wrOmf( const char* fnm ) const
     // First the main obj
     const IOObj* mymain = main();
     if ( mymain && !mymain->put(astream) )
-	mCloseRetNo(streamptr)
+	mErrRet()
 
     // Then the links
     for ( int idx=0; idx<objs_.size(); idx++ )
@@ -371,7 +351,7 @@ bool IODir::wrOmf( const char* fnm ) const
 	IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
 	if ( obj->isLink() && !obj->put(astream) )
-	    mCloseRetNo(streamptr)
+	    mErrRet()
     }
     // Then the normal objs
     for ( int idx=0; idx<objs_.size(); idx++ )
@@ -379,73 +359,40 @@ bool IODir::wrOmf( const char* fnm ) const
 	IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
 	if ( !obj->isLink() && !obj->put(astream) )
-	    mCloseRetNo(streamptr)
+	    mErrRet()
     }
 
-    delete streamptr;
     return true;
 }
 
 
-/*
-   .omf writing must be _very_ safe. Therefore:
-
-   1) Write the IODir data to file .omf.new
-
-   2) Remove .omb
-
-   3) Rename .omf to .omb
-
-   4) rename .omf.new to .omf
-*/
+#undef mErrRet
+#define mErrRet(addsfiomsg) \
+{ \
+    BufferString msg( "\nError during write of Object Management info!" ); \
+    mAddDirWarn(msg); \
+    if ( addsfiomsg ) \
+	{ msg += "\n"; msg += sfio.errMsg(); } \
+    ErrMsg( msg ); \
+    return false; \
+}
 
 bool IODir::doWrite() const
 {
     FilePath fp( dirname_ ); fp.add( ".omf" );
-    const BufferString omfname( fp.fullPath() );
-    fp.setFileName( ".omb" );
-    const BufferString ombname( fp.fullPath() );
-    fp.setFileName( ".omf.new" );
-    const BufferString tmpomfname( fp.fullPath() );
+    SafeFileIO sfio( fp.fullPath(), false );
+    if ( !sfio.open(false) )
+	mErrRet(true)
 
-    // Simple (but by no means secure) attempt to avoid concurrent update
-    // problems. I'm afraid that making this a forcing lock will introduce
-    // more pain than it solves.
-    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
-    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
-    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
-    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
-    // A full second should be enough nowadays.
-    // If there still is a .omf.new - we'll just assume it's a relict of
-    // some kind of failed attempt.
-
-    if ( !wrOmf(tmpomfname) )
+    if ( !wrOmf(sfio.ostrm()) )
     {
-	File_remove( tmpomfname, NO );
-	return false;
+	sfio.closeFail();
+	mErrRet(false)
     }
 
-    if ( !File_remove(ombname,NO) )
-    {
-	BufferString msg( "\nCannot remove '.omb' file.");
-	mAddDirWarn(msg); ErrMsg( msg );
-    }
-    else if ( File_exists(omfname) && !File_rename(omfname,ombname) )
-    {
-	BufferString msg( "\nCannot rename '.omf' to '.omb'.");
-	mAddDirWarn(msg); ErrMsg( msg );
-    }
+    if ( !sfio.closeSuccess() )
+	mErrRet(true)
 
-    if ( !File_rename(tmpomfname,omfname) )
-    {
-	File_remove( tmpomfname, NO );
-	BufferString msg( "\nCannot rename '.omf.new' to '.omf'!\n"
-			  "This means your changes will not be saved!");
-	mAddDirWarn(msg); ErrMsg( msg );
-	return false;
-    }
-
-    // Pff - glad it worked.
     return true;
 }
 
