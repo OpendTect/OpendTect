@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.1 2005-03-17 14:59:17 cvsnanne Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.2 2005-04-07 15:54:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,10 +16,15 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfacerelations.h"
 #include "cubesampling.h"
+#include "cubicbeziersurface.h"
+#include "consistencychecker.h"
 
 #include "emtracker.h"
 #include "mpeengine.h"
 #include "trackplane.h"
+#include "trigonometry.h"
+#include "survinfo.h"
+#include "cubesampling.h"
 
 
 namespace MPE
@@ -66,10 +71,34 @@ bool SurfaceCutter::doTerminate( bool positiveside )
     const int relation = cuttedsurf->relations.setRelation(
 	    cuttedsectionid_, cuttingobjid_, cuttingsectionid_, positiveside );
 
-// TODO removeNodes;
+    RowCol dir;
+    if ( !getSurfaceDir(dir) ) return false;
 
-    reTrack();
+    CubeSampling cs;
+    getBoundingBox( cs );
 
+    EM::PosID posid( cuttedsurf->id(), cuttedsectionid_ );
+    ConsistencyChecker checker( *cuttedsurf );
+    const Geometry::ParametricSurface* psurf = 
+			cuttedsurf->geometry.getSurface( cuttedsectionid_ );
+    const int nrnodes = psurf->nrKnots();
+    for ( int idy=0; idy<nrnodes; idy++ )
+    {
+	const RowCol rc = psurf->getKnotRowCol( idy );
+	if ( cs.hrg.includes(rc) )
+	{
+	    cuttedsurf->geometry.setPos( cuttedsectionid_, rc, 
+		    			 Coord3(0,0,mUndefValue), true );
+	    continue;
+	}
+	
+	posid.setSubID( rc.getSerialized() );
+	checker.addNodeToCheck( posid );
+    }
+
+    checker.nextStep();
+
+//  reTrack();
     return true;
 }
 
@@ -92,7 +121,7 @@ bool SurfaceCutter::doCut()
 
     if ( doTerminate(true) )
     {
-	cuttingsectionid_ = newsectionid;
+	cuttedsectionid_ = newsectionid;
 	bool res = doTerminate( false );
 	return res;
     }
@@ -133,6 +162,55 @@ bool SurfaceCutter::reTrack()
     }
 
     return true;
+}
+
+
+#define mConv2IC(crd) \
+{ BinID bid = SI().transform( crd ); crd.x = bid.inl; crd.y = bid.crl; }
+
+bool SurfaceCutter::getSurfaceDir( RowCol& dir )
+{
+    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
+    if ( !cuttingsurf || !cuttingsurf->geometry.hasSection(cuttingsectionid_) )
+	return false;
+    
+    mDynamicCastGet(const Geometry::CubicBezierSurface*,
+		    cbsurf,cuttingsurf->geometry.getSurface(0))
+    if ( !cbsurf ) return false;
+    
+    StepInterval<int> rowrg = cbsurf->rowRange();
+    StepInterval<int> colrg = cbsurf->colRange();
+    Coord3 crd1 = cbsurf->getKnot( RowCol(rowrg.start,colrg.start));
+    Coord3 crd2 = cbsurf->getKnot( RowCol(rowrg.start,colrg.stop) );
+    Coord3 crd3 = cbsurf->getKnot( RowCol(rowrg.stop,colrg.start) );
+    mConv2IC( crd1 ); mConv2IC( crd2 ); mConv2IC( crd3 );
+    Plane3 plane( crd1, crd2, crd3 );
+    Coord3 normal = plane.normal();
+    normal.z = 0; 
+    normal = normal.normalize();
+
+    dir.row = normal.x >= 0.5 ? 1 : 0;
+    dir.col = normal.y >= 0.5 ? 1 : 0;
+
+    return true;
+}
+
+
+void SurfaceCutter::getBoundingBox( CubeSampling& cs )
+{
+    cs.hrg.set( Interval<int>(mUdf(int),-mUdf(int)), 
+	    	Interval<int>(mUdf(int),-mUdf(int)) );
+    mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
+    IntervalND<float> bb =
+	cuttingsurf->geometry.getSurface(cuttingsectionid_)->boundingBox(true);
+
+    const Interval<float>& xrange = bb.getRange(0);
+    const Interval<float>& yrange = bb.getRange(1);
+    cs.hrg.include( SI().transform(Coord(xrange.start,yrange.start)) );
+    cs.hrg.include( SI().transform(Coord(xrange.start,yrange.stop)) );
+    cs.hrg.include( SI().transform(Coord(xrange.stop,yrange.start)) );
+    cs.hrg.include( SI().transform(Coord(xrange.stop,yrange.stop)) );
+    assign( cs.zrg, bb.getRange(2) );
 }
 
 
