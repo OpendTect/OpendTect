@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.58 2005-03-31 15:33:19 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.59 2005-04-07 15:53:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,11 +77,6 @@ AuxDataImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects_ )
 }
 
 
-const char*	message() const { return "Importing aux data"; }
-int		totalNr() const { return totalnr; }
-int		nrDone() const { return nrdone; }
-const char*	nrDoneText() const { return "Nr inlines imported"; }
-
 int nextStep()
 {
     if ( sectionidx == -1 || inl > inlrange.stop )
@@ -116,6 +111,12 @@ int nextStep()
     return MoreToDo;
 }
 
+
+const char*	message() const		{ return "Importing aux data"; }
+int		totalNr() const		{ return totalnr; }
+int		nrDone() const		{ return nrdone; }
+const char*	nrDoneText() const	{ return "Nr inlines imported"; }
+
 protected:
 
     const ObjectSet<BinIDValueSet>&	sections;
@@ -138,41 +139,42 @@ public:
 HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects, 
 		 const RowCol& step, bool fh )
     : Executor("Horizon Import")
-    , horizon(hor)
-    , sections(sects)
-    , fixholes(fh)
-    , totalnr(0)
-    , nrdone(0)
+    , horizon_(hor)
+    , sections_(sects)
+    , fixholes_(fh)
+    , totalnr_(0)
+    , nrdone_(0)
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
+    for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	const BinIDValueSet& bvs = *sections[idx];
-	totalnr += bvs.totalSize();
-	SectionID sectionid =  horizon.geometry.addSection( 0, false );
-	horizon.geometry.setTranslatorData( sectionid, step, step,
+	const BinIDValueSet& bvs = *sections_[idx];
+	totalnr_ += bvs.totalSize();
+	SectionID sectionid =  horizon_.geometry.addSection( 0, false );
+	horizon_.geometry.setTranslatorData( sectionid, step, step,
 			RowCol(bvs.inlRange().start,bvs.crlRange().start) );
     }
 
-    sectionidx = 0;
+    sectionidx_ = 0;
 }
 
 
-const char*	message() const { return "Transforming grid data"; }
-int		totalNr() const { return totalnr; }
-int		nrDone() const { return nrdone; }
-const char*	nrDoneText() const { return "Nr inlines imported"; }
+const char*	message() const		{ return "Transforming grid data"; }
+int		totalNr() const		{ return totalnr_; }
+int		nrDone() const		{ return nrdone_; }
+const char*	nrDoneText() const	{ return "Nr inlines imported"; }
 
 int nextStep()
 {
-    const BinIDValueSet& bvs = *sections[sectionidx];
+    BinIDValueSet& bvs = *sections_[sectionidx_];
     bool haspos = bvs.next( pos );
     if ( !haspos )
     {
-	sectionidx++;
-	if ( sectionidx >= sections.size() )
-	    return fixholes ? fillHoles() : Finished;
+	if ( bvs.isEmpty() )
+	    sectionidx_++;
 
-	// REIMPL horizon.geometry.addSection( 0, false );
+	if ( sectionidx_ >= sections_.size() )
+	    return fixholes_ ? fillHoles() : Finished;
+
 	pos.i = pos.j = -1;
 	return MoreToDo;
     }
@@ -182,11 +184,15 @@ int nextStep()
     BinID bid;
     bvs.get( pos, bid, vals.arr() );
 
-    PosID posid( horizon.id(), horizon.geometry.sectionID(sectionidx),
-	         bid.getSerialized() );
-    horizon.geometry.setPos( posid, Coord3(0,0,vals[0]), false );
+    PosID posid( horizon_.id(), horizon_.geometry.sectionID(sectionidx_),
+		 bid.getSerialized() );
+    bool res = horizon_.geometry.setPos( posid, Coord3(0,0,vals[0]), false );
+    if ( res )
+    {
+	bvs.remove( pos );
+	nrdone_++;
+    }
 
-    nrdone++;
     return MoreToDo;
 }
 
@@ -194,15 +200,16 @@ int nextStep()
 int fillHoles()
 {
     bool changed = false;
-    for ( int idx=0; idx<horizon.geometry.nrSections(); idx++ )
+    for ( int idx=0; idx<horizon_.geometry.nrSections(); idx++ )
     {
-	SectionID sectionid = horizon.geometry.sectionID( idx );
-	const StepInterval<int> rowrange = horizon.geometry.rowRange(sectionid);
+	SectionID sectionid = horizon_.geometry.sectionID( idx );
+	const StepInterval<int> rowrange = 
+	    			horizon_.geometry.rowRange(sectionid);
 	if ( rowrange.width(false)>=0 )
 	{
 	    const StepInterval<int> colrange =
-		horizon.geometry.colRange(sectionid);
-	    PosID pid( horizon.id(), sectionid );
+		horizon_.geometry.colRange(sectionid);
+	    PosID pid( horizon_.id(), sectionid );
 
 	    for ( int currow=rowrange.start; rowrange.includes(currow);
 		  currow+=rowrange.step )
@@ -211,18 +218,18 @@ int fillHoles()
 		      curcol+=colrange.step )
 		{
 		    const RowCol rc( currow, curcol );
-		    if ( horizon.geometry.isDefined(sectionid,rc) )
+		    if ( horizon_.geometry.isDefined(sectionid,rc) )
 			continue;
 
-		    pid.setSubID( horizon.geometry.rowCol2SubID(rc) );
+		    pid.setSubID( horizon_.geometry.rowCol2SubID(rc) );
 		    TypeSet<PosID> neighbors;
-		    horizon.geometry.getNeighbors( pid, &neighbors );
+		    horizon_.geometry.getNeighbors( pid, &neighbors );
 		    if ( neighbors.size()<6 )
 			continue;
 
 		    TypeSet<Coord3> neighborcoords;
 		    for ( int nidx=0; nidx<neighbors.size(); nidx++ )
-			neighborcoords += horizon.getPos(neighbors[nidx]);
+			neighborcoords += horizon_.getPos(neighbors[nidx]);
 
 		    Plane3 plane;
 		    if ( !plane.set(neighborcoords) )
@@ -236,7 +243,7 @@ int fillHoles()
 		    if ( !plane.intersectWith(line,interpolcoord) )
 			continue;
 
-		    horizon.setPos(pid,interpolcoord,false);
+		    horizon_.setPos(pid,interpolcoord,false);
 		    changed = true;
 		}
 	    }
@@ -252,15 +259,15 @@ int fillHoles()
 
 protected:
 
-    const ObjectSet<BinIDValueSet>&	sections;
-    Horizon&		horizon;
+    const ObjectSet<BinIDValueSet>&	sections_;
+    Horizon&		horizon_;
     BinIDValueSet::Pos	pos;
 
-    bool		fixholes;
-    int			sectionidx;
+    bool		fixholes_;
+    int			sectionidx_;
 
-    int			totalnr;
-    int			nrdone;
+    int			totalnr_;
+    int			nrdone_;
 };
 
 
