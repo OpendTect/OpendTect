@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.5 2004-01-30 10:21:24 bert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.6 2005-04-07 16:27:58 cvsbert Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
@@ -337,6 +337,7 @@ void DateInfo::getFullDisp( BufferString& disp ) const
     disp = eString(DateInfo::Month,month());
     *(disp.buf() + 3) = ' '; *(disp.buf() + 4) = '\0';
     disp += day(); disp += " ";
+    disp += year(); disp += " ";
 
     const int cursecs = Time_getMilliSeconds() / 1000;
     const int hrs = cursecs / 3600;
