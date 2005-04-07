@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.20 2005-04-07 13:55:44 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.21 2005-04-07 15:51:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.20 2005-04-07 13:55:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.21 2005-04-07 15:51:33 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -133,7 +133,11 @@ void EMObjectDisplay::removeAll()
     sectionids.erase();
 
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
-    if ( emobject ) emobject->unRef();
+    if ( emobject )
+    {
+	emobject->notifier.remove( mCB(this,EMObjectDisplay,emSectionChangeCB));
+	emobject->unRef();
+    }
     if ( editor ) editor->unRef();
     if ( translation )
     {
@@ -153,6 +157,7 @@ bool EMObjectDisplay::setEMObject( const MultiID& newmid )
 
     mid = newmid;
     emobject->ref();
+    emobject->notifier.notify( mCB(this,EMObjectDisplay,emSectionChangeCB) );
     return updateFromEM();
 }
 
@@ -167,27 +172,7 @@ bool EMObjectDisplay::updateFromEM()
     setName( emobject->name() );
 
     for ( int idx=0; idx<emobject->nrSections(); idx++ )
-    {
-	const EM::SectionID sectionid = emobject->sectionID(idx);
-	Geometry::Element* ge = const_cast<Geometry::Element*>(
-	    const_cast<const EM::EMObject*>(emobject)->getElement(sectionid));
-	if ( !ge ) continue;
-
-	visBase::VisualObject* vo = createSection( ge );
-	if ( !vo ) continue;
-
-	vo->ref();
-	vo->setMaterial( 0 );
-	vo->setDisplayTransformation( transformation );
-	addChild( vo->getInventorNode() );
-
-	sections += vo;
-	sectionids += sectionid;
-
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,vo)
-	if ( psurf )
-	    psurf->setColorTab( *coltab_ );
-    }
+	addSection( emobject->sectionID(idx) );
 
     const EM::ObjectID objid = em.multiID2ObjectID(mid);
     if ( MPE::engine().getEditor(objid,false) )
@@ -200,6 +185,32 @@ bool EMObjectDisplay::updateFromEM()
     useWireframe( hastracker );
     useTexture( !hastracker );
     setResolution( hastracker ? nrResolutions()-1 : 0 );
+
+    return true;
+}
+
+
+bool EMObjectDisplay::addSection( EM::SectionID sectionid )
+{
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    Geometry::Element* ge = const_cast<Geometry::Element*>(
+	const_cast<const EM::EMObject*>(emobject)->getElement(sectionid));
+    if ( !ge ) return false;
+
+    visBase::VisualObject* vo = createSection( ge );
+    if ( !vo ) return false;
+
+    vo->ref();
+    vo->setMaterial( 0 );
+    vo->setDisplayTransformation( transformation );
+    addChild( vo->getInventorNode() );
+
+    sections += vo;
+    sectionids += sectionid;
+
+    mDynamicCastGet(visBase::ParametricSurface*,psurf,vo)
+    if ( psurf )
+	psurf->setColorTab( *coltab_ );
 
     return true;
 }
@@ -552,6 +563,31 @@ visBase::VisualObject* EMObjectDisplay::createSection( Geometry::Element* ge )
     }
 
     return 0;
+}
+
+
+void EMObjectDisplay::emSectionChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    if ( cbdata.event!=EM::EMObjectCallbackData::SectionChange )
+	return;
+
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    mDynamicCastGet(EM::Surface*,emsurface,emobject)
+    if ( !emsurface ) return;
+
+    const EM::SectionID sectionid = cbdata.pid0.sectionID();
+    if ( emsurface->geometry.hasSection(sectionid) )
+	addSection( sectionid );
+    else
+    {
+	const int idx = sectionids.indexOf( sectionid );
+	if ( idx < 0 ) return;
+	removeChild( sections[idx]->getInventorNode() );
+	sections[idx]->unRef();
+	sections.remove( idx );
+	sectionids.remove(idx);
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.12 2005-04-07 08:07:03 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.13 2005-04-07 15:51:40 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -106,6 +106,8 @@ protected:
     				~EMObjectDisplay();
     static visBase::VisualObject* createSection(Geometry::Element*);
     void			removeAttribCache();
+    bool			addSection(EM::SectionID);
+    void			emSectionChangeCB(CallBacker*);
 
     mVisTrans*			transformation;
     mVisTrans*			translation;
