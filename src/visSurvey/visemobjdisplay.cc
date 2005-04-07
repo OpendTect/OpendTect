@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.19 2005-04-07 08:07:03 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.20 2005-04-07 13:55:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.19 2005-04-07 08:07:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.20 2005-04-07 13:55:44 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -376,6 +376,7 @@ void EMObjectDisplay::setDepthAsAttrib()
 
     stuffData( false, &positions );
     useTexture( usestexture );
+    deepErase( positions );
 }
 
 
