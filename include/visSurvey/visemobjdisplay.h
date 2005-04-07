@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.11 2005-04-05 15:30:00 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.12 2005-04-07 08:07:03 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -99,35 +99,45 @@ public:
     EM::SectionID		getSectionID(int visid) const;
     EM::SectionID		getSectionID(const TypeSet<int>* path) const;
 
-    static visBase::FactoryEntry oldnameentry;
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
 protected:
-    					~EMObjectDisplay();
-    static visBase::VisualObject*	createSection(Geometry::Element*);
-    void				removeAttribCache();
+    				~EMObjectDisplay();
+    static visBase::VisualObject* createSection(Geometry::Element*);
+    void			removeAttribCache();
 
-    mVisTrans*				transformation;
-    mVisTrans*				translation;
-    visBase::EventCatcher*		eventcatcher;
-    visBase::VisColorTab*		coltab_;
+    mVisTrans*			transformation;
+    mVisTrans*			translation;
+    visBase::EventCatcher*	eventcatcher;
+    visBase::VisColorTab*	coltab_;
 
-    ObjectSet<visBase::VisualObject>	sections;
-    TypeSet<EM::SectionID>		sectionids;
+    ObjectSet<visBase::VisualObject> sections;
+    TypeSet<EM::SectionID>	sectionids;
 
-    EM::EMManager&			em;
-    MultiID				mid;
-    MPEEditor*				editor;
+    EM::EMManager&		em;
+    MultiID			mid;
+    MPEEditor*			editor;
 
-    Color				nontexturecol;
-    bool				usestexture;
-    int					curtextureidx;
+    Color			nontexturecol;
+    bool			usestexture;
+    int				curtextureidx;
 
-    AttribSelSpec&			as;
-    ColorAttribSel&			colas;
-    ObjectSet<const float>		attribcache;
-    TypeSet<int>			attribcachesz;
+    AttribSelSpec&		as;
+    ColorAttribSel&		colas;
+    ObjectSet<const float>	attribcache;
+    TypeSet<int>		attribcachesz;
+
+    static visBase::FactoryEntry oldnameentry;
+    static const char*		earthmodelidstr;
+    static const char*		texturestr;
+    static const char*		colortabidstr;
+    static const char*		shiftstr;
+    static const char*		editingstr;
+    static const char*		wireframestr;
+    static const char*		resolutionstr;
+    static const char*		colorstr;
+
 };
 
 

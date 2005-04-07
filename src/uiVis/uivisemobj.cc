@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.6 2005-04-05 15:30:24 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.7 2005-04-07 08:07:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,11 +207,7 @@ const char* uiVisEMObject::getObjectType( int id )
     const MultiID* mid = emod->getMultiID();
     if ( !mid ) return 0;
 
-    mDynamicCastGet(EM::EMObject*,emobj,
-	    	    EM::EMM().getObject(EM::EMM().multiID2ObjectID(*mid)));
-    if ( !emobj ) return 0;
-
-    return emobj->getTypeStr();
+    return EM::EMM().objectType( EM::EMM().multiID2ObjectID(*mid) );
 }
 
 

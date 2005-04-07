@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.18 2005-04-06 10:51:37 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.19 2005-04-07 08:07:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.18 2005-04-06 10:51:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.19 2005-04-07 08:07:03 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.18 2005-04-06 10:51:37 c
 #include "emobject.h"
 #include "mpeengine.h"
 #include "viscubicbeziersurface.h"
+#include "visdataman.h"
 #include "visevent.h"
 #include "visparametricsurface.h"
 #include "vismaterial.h"
@@ -28,6 +29,7 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.18 2005-04-06 10:51:37 c
 #include "vistransform.h"
 #include "viscolortab.h"
 #include "survinfo.h"
+#include "iopar.h"
 
 #include "emsurface.h"
 #include "emsurfaceauxdata.h"
@@ -43,6 +45,15 @@ visBase::FactoryEntry visSurvey::EMObjectDisplay::oldnameentry(
 
 namespace visSurvey
 {
+
+const char* EMObjectDisplay::earthmodelidstr = "EarthModel ID";
+const char* EMObjectDisplay::texturestr = "Use texture";
+const char* EMObjectDisplay::colortabidstr = "ColorTable ID";
+const char* EMObjectDisplay::shiftstr = "Shift";
+const char* EMObjectDisplay::editingstr = "Edit";
+const char* EMObjectDisplay::wireframestr = "WireFrame on";
+const char* EMObjectDisplay::resolutionstr = "Resolution";
+const char* EMObjectDisplay::colorstr = "Color";
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
@@ -64,24 +75,24 @@ EMObjectDisplay::EMObjectDisplay()
 
 EMObjectDisplay::~EMObjectDisplay()
 {
-    removeAll();
-
     delete &as;
     delete &colas;
     if ( transformation ) transformation->unRef();
     if ( eventcatcher ) eventcatcher->unRef();
     if ( coltab_ ) coltab_->unRef();
 
-    const EM::ObjectID objid = em.multiID2ObjectID(mid);
-    const int trackeridx = MPE::engine().getTrackerByObject(objid);
+    const EM::ObjectID objid = em.multiID2ObjectID( mid );
+    const int trackeridx = MPE::engine().getTrackerByObject( objid );
     if ( trackeridx >= 0 )
 	MPE::engine().removeTracker( trackeridx );
     MPE::engine().removeEditor( objid );
+
+    removeAll();
 }
 
 
 mVisTrans* EMObjectDisplay::getDisplayTransformation()
-{return transformation;}
+{ return transformation; }
 
 
 void EMObjectDisplay::setDisplayTransformation( mVisTrans* nt )
@@ -167,6 +178,7 @@ bool EMObjectDisplay::updateFromEM()
 
 	vo->ref();
 	vo->setMaterial( 0 );
+	vo->setDisplayTransformation( transformation );
 	addChild( vo->getInventorNode() );
 
 	sections += vo;
@@ -633,8 +645,20 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
+    par.set( earthmodelidstr, mid );
+    par.setYN( texturestr, usesTexture() );
+    par.setYN( wireframestr, usesWireframe() );
+    par.setYN( editingstr, isEditingEnabled() );
+    par.set( resolutionstr, getResolution() );
+    par.set( shiftstr, getTranslation().z );
+    par.set( colorstr, (int)nontexturecol.rgb() );
+    par.set( colortabidstr, coltab_->id() );
+    if ( saveids.indexOf(coltab_->id())==-1 )
+	saveids += coltab_->id();
+
     as.fillPar( par );
     colas.fillPar( par );
+
 }
 
 
@@ -643,8 +667,55 @@ int EMObjectDisplay::usePar( const IOPar& par )
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
+    setDisplayTransformation( SPM().getUTM2DisplayTransform() );
+
+    MultiID surfid;
+    if ( !par.get(earthmodelidstr,surfid) )
+	return -1;
+
     as.usePar( par );
     colas.usePar( par );
+
+    //Editing may not be moved further down, since the enableEditing call
+    //will change the wireframe, resolution++
+    bool enableedit = false;
+    par.getYN( editingstr, enableedit );
+    enableEditing( enableedit );
+
+    if ( !par.get(colorstr,(int&)nontexturecol.rgb()) )
+	nontexturecol = getMaterial()->getColor();
+
+    bool usetext = true;
+    par.getYN( texturestr, usetext );
+    useTexture( usetext );
+
+    bool usewireframe = false;
+    par.getYN( wireframestr, usewireframe );
+    useWireframe( usewireframe );
+
+    int resolution = 0;
+    par.get( resolutionstr, resolution );
+    setResolution( resolution );
+
+    visBase::VisColorTab* coltab;
+    int coltabid = -1;
+    par.get( colortabidstr, coltabid );
+    if ( coltabid > -1 )
+    {
+	DataObject* dataobj = visBase::DM().getObject( coltabid );
+	if ( !dataobj ) return 0;
+	coltab = (visBase::VisColorTab*)dataobj;
+	if ( !coltab ) return -1;
+	if ( coltab_ ) coltab_->unRef();
+	coltab_ = coltab;
+	coltab_->ref();
+    }
+
+    Coord3 shift( 0, 0, 0 );
+    par.get( shiftstr, shift.z );
+    setTranslation( shift );
+
+    mid = surfid;
 
     return 1;
 }
