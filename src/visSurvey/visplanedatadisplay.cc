@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.80 2005-03-30 15:52:55 cvsbert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.81 2005-04-07 15:50:56 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -47,6 +47,7 @@ PlaneDataDisplay::PlaneDataDisplay()
 {
     setTextureRect( visBase::TextureRect::create() );
 
+    trect->getMaterial()->setColor( Color::White );
     trect->getMaterial()->setAmbience( 0.8 );
     trect->getMaterial()->setDiffIntensity( 0.8 );
 
