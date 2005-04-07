@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.11 2005-03-31 15:21:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.12 2005-04-07 09:31:33 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -216,7 +216,7 @@ IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
 Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
 {
     const StepInterval<int> rowrange = rowRange();
-    const StepInterval<int> colrange = rowRange();
+    const StepInterval<int> colrange = colRange();
 
     int prevrowidx = rowrange.getIndex(params.x);
     if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
@@ -354,15 +354,19 @@ bool CubicBezierSurface::insertRow(int row)
     mInsertStart( rowidx, row, nrRows() );
 
     TypeSet<GeomPosID> movedpos;
-    for ( int idx=rowidx; idx<curnrrows; idx++ )
+    if ( !addedinfront )
     {
-	const int currow = origo.row+idx*step.row;
-	for ( int idy=0; idy<curnrcols; idy++ )
-	    movedpos += RowCol(currow,origo.col+idy*step.col).getSerialized();
+	for ( int idx=rowidx; idx<curnrrows; idx++ )
+	{
+	    const int currow = origo.row+idx*step.row;
+	    for ( int idy=0; idy<curnrcols; idy++ )
+		movedpos +=
+		    RowCol(currow,origo.col+idy*step.col).getSerialized();
+	}
     }
 
     TypeSet<GeomPosID> addedpos;
-    const int newrow = origo.row+curnrrows*step.row;
+    const int newrow = addedinfront ? origo.row : origo.row+curnrrows*step.row;
     for ( int idy=0; idy<curnrcols; idy++ )
 	addedpos += RowCol(newrow,origo.col+idy*step.col).getSerialized();
 
@@ -370,8 +374,8 @@ bool CubicBezierSurface::insertRow(int row)
     mCloneRowVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
     mCloneRowVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
 
-    triggerNrPosCh( addedpos );
-    triggerMovement( movedpos );
+    if ( addedpos.size() ) triggerNrPosCh( addedpos );
+    if ( movedpos.size() ) triggerMovement( movedpos );
     return true;
 }
 
@@ -380,15 +384,19 @@ bool CubicBezierSurface::insertCol(int col)
 {
     mInsertStart( colidx, col, nrCols() );
     TypeSet<GeomPosID> movedpos;
-    for ( int idx=colidx; idx<curnrcols; idx++ )
+    if ( !addedinfront )
     {
-	const int curcol = origo.col+idx*step.col;
-	for ( int idy=0; idy<curnrrows; idy++ )
-	    movedpos += RowCol(origo.row+idy*step.row,curcol).getSerialized();
+	for ( int idx=colidx; idx<curnrcols; idx++ )
+	{
+	    const int curcol = origo.col+idx*step.col;
+	    for ( int idy=0; idy<curnrrows; idy++ )
+		movedpos +=
+		    RowCol(origo.row+idy*step.row,curcol).getSerialized();
+	}
     }
 
     TypeSet<GeomPosID> addedpos;
-    const int newcol = origo.col+curnrcols*step.col;
+    const int newcol = addedinfront ? origo.col : origo.col+curnrcols*step.col;
     for ( int idy=0; idy<curnrrows; idy++ )
 	addedpos += RowCol(origo.row+idy*step.row,newcol).getSerialized();
 
@@ -396,8 +404,8 @@ bool CubicBezierSurface::insertCol(int col)
     mCloneColVariable( Coord3, rowdirections, Coord3::udf(), Coord3::udf() )
     mCloneColVariable( Coord3, coldirections, Coord3::udf(), Coord3::udf() )
 
-    triggerNrPosCh( addedpos );
-    triggerMovement( movedpos );
+    if ( addedpos.size() ) triggerNrPosCh( addedpos );
+    if ( movedpos.size() ) triggerMovement( movedpos );
     return true;
 }
 
