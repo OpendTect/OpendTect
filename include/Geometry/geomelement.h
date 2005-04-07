@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.3 2005-02-17 10:25:47 cvskris Exp $
+RCS:           $Id: geomelement.h,v 1.4 2005-04-07 09:30:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ class Element : public CallBackClass
 public:
     				Element();
     virtual			~Element();
-    virtual void		getPosIDs( TypeSet<GeomPosID>& ) const	= 0;
+    virtual void		getPosIDs( TypeSet<GeomPosID>&,
+	   				   bool noudf=true ) const	= 0;
     virtual IntervalND<float>	boundingBox(bool approx) const;
     virtual Element*		clone() const				= 0;
     virtual const char*		errMsg() const;

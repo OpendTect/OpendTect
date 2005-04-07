@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.7 2005-03-18 11:23:06 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.8 2005-04-07 09:30:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
 					const RCol& step=RowCol(1,1) );
     			~ParametricSurface();
     ParametricSurface*	clone() const = 0;
-    void		getPosIDs( TypeSet<GeomPosID>& ) const;
+    void		getPosIDs( TypeSet<GeomPosID>&, bool=true ) const;
 
     virtual Coord3 	computePosition(const Coord&) const;
     virtual Coord3 	computeNormal(const Coord&) const;

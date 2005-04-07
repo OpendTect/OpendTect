@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.3 2005-03-18 13:41:49 cvskris Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.4 2005-04-07 09:30:59 cvskris Exp $";
 
 #include "parametriccurve.h"
 
@@ -114,13 +114,16 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
     return false;
 }
     
-void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids ) const
+void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids, bool remudf ) const
 {
     ids.erase();
     const StepInterval<int> range = parameterRange();
 
     for ( int param=range.start; param<=range.stop; param += range.step )
+    {
+	if ( remudf && !isDefined(param) ) continue;
 	ids += param;
+    }
 }
 
 

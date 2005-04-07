@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurfaceimpl.h,v 1.5 2005-01-20 15:45:10 kristofer Exp $
+RCS:           $Id: parametricsurfaceimpl.h,v 1.6 2005-04-07 09:30:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,8 @@ if ( idxvar<-1 || idxvar>nrfunc ) \
     errmsg() = "Cannot insert row or column that is not connected to existing rows."; \
     return false; \
 } \
-if ( idxvar==-1 ) \
+const bool addedinfront = idxvar==-1; \
+if ( addedinfront ) \
 { \
     idxvar = 0; \
     origo.type -= step.type; \

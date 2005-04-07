@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
-RCS:           $Id: parametriccurve.h,v 1.4 2005-03-18 13:41:49 cvskris Exp $
+RCS:           $Id: parametriccurve.h,v 1.5 2005-04-07 09:30:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
     virtual bool	isCircular() const { return false; }
     			/*!<If true, the curve is connected between 
 			    parameterRange().stop and parameterRange().start. */
-    void		getPosIDs( TypeSet<GeomPosID>& ) const;
+    void		getPosIDs( TypeSet<GeomPosID>&, bool=true ) const;
     			/*!<Returns a list with all defined positions. */
     virtual bool	insertPosition( const GeomPosID,const Coord3& )	= 0;
     virtual StepInterval<int>	parameterRange() const			= 0;

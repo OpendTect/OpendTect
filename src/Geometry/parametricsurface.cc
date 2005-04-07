@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.10 2005-03-25 15:41:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.11 2005-04-07 09:30:59 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -51,9 +51,7 @@ Coord3 ParametricSurface::computeNormal( const Coord& ) const
 }
 
 
-
-
-void ParametricSurface::getPosIDs( TypeSet<GeomPosID>& pids ) const
+void ParametricSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 {
     pids.erase();
 
@@ -65,8 +63,9 @@ void ParametricSurface::getPosIDs( TypeSet<GeomPosID>& pids ) const
 	{
 	    rc.col = origo.col+colidx*step.col;
 
-	    if ( isKnotDefined( rc ) )
-		pids += rc.getSerialized();
+	    if ( remudf && !isKnotDefined(rc) ) continue;
+
+	    pids += rc.getSerialized();
 	}
     }
 }
