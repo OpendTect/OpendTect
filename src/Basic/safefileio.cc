@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.1 2005-04-07 16:28:44 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.2 2005-04-08 11:37:36 cvsbert Exp $";
 
 #include "safefileio.h"
 #include "filegen.h"
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: safefileio.cc,v 1.1 2005-04-07 16:28:44 cvsbert
 SafeFileIO::SafeFileIO( const char* fnm, bool l )
     	: filenm_(fnm)
     	, locked_(l)
+    	, removebakonsuccess_(false)
+    	, usebakwhenmissing_(true)
     	, lockretries_(10)
     	, lockwaitincr_(0.5)
     	, allowlockremove_(true)
@@ -58,7 +60,8 @@ bool SafeFileIO::openRead( bool ignorelock )
     const char* toopen = filenm_.buf();
     if ( File_isEmpty(toopen) )
     {
-	toopen = bakfnm_.buf();
+	if ( usebakwhenmissing_ )
+	    toopen = bakfnm_.buf();
 	if ( File_isEmpty(toopen) )
 	{
 	    errmsg_ = "Input file '"; errmsg_ += filenm_;
@@ -131,6 +134,9 @@ bool SafeFileIO::commitWrite()
 	errmsg_ += "' could not be commited.";
 	return false;
     }
+    if ( removebakonsuccess_ )
+	File_remove( bakfnm_, NO );
+
     return true;
 }
 
