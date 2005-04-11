@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.255 2005-04-06 10:54:54 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.256 2005-04-11 15:41:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -999,6 +999,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 	    eventmutex.lock();
 	    eventobjid = oldsel;
 	    sendEvent( evGetNewData );
+	    showMPEToolbar();
 	    return;
 	}
 
