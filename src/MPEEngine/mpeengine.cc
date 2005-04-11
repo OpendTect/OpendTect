@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.21 2005-04-05 10:18:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.22 2005-04-11 15:40:45 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -59,7 +59,7 @@ const CubeSampling& Engine::activeVolume() const
 { return activevolume; }
 
 
-void  Engine::setActiveVolume(const CubeSampling& nav)
+void Engine::setActiveVolume( const CubeSampling& nav )
 {
     activevolume = nav;
     activevolumechange.trigger();
@@ -92,7 +92,7 @@ const TrackPlane& Engine::trackPlane() const
 { return trackplane; }
 
 
-bool  Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
+bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 {
     trackplane = ntp;
     trackplanechange.trigger();
@@ -133,6 +133,12 @@ bool Engine::trackAtCurrentPlane()
     }
 
     return true;
+}
+
+
+void Engine::setTrackMode( TrackPlane::TrackMode tm )
+{
+    trackplane.setTrackMode( tm );
 }
 
 
@@ -189,6 +195,7 @@ int Engine::addTracker( const char* objname, const char* trackername )
 	    {
 		errmsg = tracker->errMsg();
 		delete tracker;
+		interactionseeds.erase();
 		return -1;
 	    }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.9 2005-04-05 10:19:12 cvsnanne Exp $
+ RCS:           $Id: mpeengine.h,v 1.10 2005-04-11 15:40:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
 
     const TrackPlane&		trackPlane() const;
     bool			setTrackPlane(const TrackPlane&,bool track);
+    void			setTrackMode(TrackPlane::TrackMode);
     Notifier<Engine>		trackplanechange;
 
     ObjectSet<Geometry::Element> interactionseeds;
