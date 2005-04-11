@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.31 2005-04-01 10:05:56 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.32 2005-04-11 13:17:44 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -194,8 +194,17 @@ public:
 			Array1DImpl(const Array1D<T>& templ)
 			    : in(templ.info()) 
 			    , stor(new ArrayNDMemStor<T>(in.getTotalSz()))
+			{ copyFrom(templ); }
+			~Array1DImpl() { delete stor; }
+
+    virtual void	set( int pos, T v ) { stor->set(pos,v); }
+    virtual T		get( int pos ) const {return stor->get(pos); }
+    void		copyFrom( const Array1D<T>& templ )
 			{
-			    int nr = in.getTotalSz();
+			    if ( info()!=templ.info() )
+				setInfo(templ.info());
+
+			    const int nr = in.getTotalSz();
 
 			    if ( templ.getData() )
 				memcpy( this->getData(),
@@ -204,10 +213,6 @@ public:
 				for ( int idx=0; idx<nr; idx++ )
 				    set(idx, templ.get(idx));
 			}
-			~Array1DImpl() { delete stor; }
-
-    virtual void	set( int pos, T v ) { stor->set(pos,v); }
-    virtual T		get( int pos ) const {return stor->get(pos); }
 			
     const mPolyArray1DInfoTp&  info() const		{ return in; }
     bool		canSetInfo() { return true; }
@@ -253,9 +258,22 @@ public:
 			    : in( (const Array2DInfo&)templ.info() )
 			    , stor( new ArrayNDMemStor<T>(in.getTotalSz()))
 			{
+			    copyFrom(templ);
+			}
+			~Array2DImpl() { delete stor; }
+
+    virtual void	set( int p0, int p1, T v )
+			{ stor->set(in.getMemPos(p0,p1), v); }
+    virtual T		get( int p0, int p1 ) const
+			{ return stor->get(in.getMemPos(p0,p1)); }
+    void		copyFrom( const Array2D<T>& templ )
+			{
+			    if ( info()!=templ.info() )
+				setInfo(templ.info());
+
 			    if ( templ.getData() )
 			    {
-				int nr = in.getTotalSz();
+				const int nr = in.getTotalSz();
 				memcpy( this->getData(),
 					templ.getData(),sizeof(T)*nr );
 			    }
@@ -271,12 +289,6 @@ public:
 				}
 			    }
 			}
-			~Array2DImpl() { delete stor; }
-
-    virtual void	set( int p0, int p1, T v )
-			{ stor->set(in.getMemPos(p0,p1), v); }
-    virtual T		get( int p0, int p1 ) const
-			{ return stor->get(in.getMemPos(p0,p1)); }
 
     const mPolyArray2DInfoTp&  info() const { return in; }
 
@@ -323,10 +335,21 @@ public:
 			Array3DImpl( const Array3D<T>& templ )
 			    : in( templ.info() )
 			    , stor( new ArrayNDMemStor<T>(in.getTotalSz()))
+			{ copyFrom(templ); }
+			~Array3DImpl() { delete stor; }
+
+    virtual void	set( int p0, int p1, int p2, T v )
+			{ stor->set(in.getMemPos(p0,p1,p2), v); }
+    virtual T		get( int p0, int p1, int p2 ) const
+			{ return stor->get(in.getMemPos(p0,p1,p2)); }
+    void		copyFrom( const Array3D<T>& templ )
 			{
+			    if ( info()!=templ.info() )
+				setInfo(templ.info());
+
 			    if ( templ.getData() )
 			    {
-				int nr = in.getTotalSz();
+				const int nr = in.getTotalSz();
 				memcpy( this->getData(),
 					templ.getData(),sizeof(T)*nr );
 			    }
@@ -347,13 +370,6 @@ public:
 				}
 			    }
 			}
-			~Array3DImpl() { delete stor; }
-
-    virtual void	set( int p0, int p1, int p2, T v )
-			{ stor->set(in.getMemPos(p0,p1,p2), v); }
-    virtual T		get( int p0, int p1, int p2 ) const
-			{ return stor->get(in.getMemPos(p0,p1,p2)); }
-
 
     const mPolyArray3DInfoTp&	info() const { return in; }
     bool		canSetInfo() { return true; }
