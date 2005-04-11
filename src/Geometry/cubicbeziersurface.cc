@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.12 2005-04-07 09:31:33 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.13 2005-04-11 13:44:24 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -216,7 +216,7 @@ IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
 Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
 {
     const StepInterval<int> rowrange = rowRange();
-    const StepInterval<int> colrange = colRange();
+    const StepInterval<int> colrange = rowRange();
 
     int prevrowidx = rowrange.getIndex(params.x);
     if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
@@ -487,8 +487,20 @@ Coord3 CubicBezierSurface::getKnot( const RCol& rc, bool estimateifundef ) const
 	} \
     } \
  \
-    return computeifudf ? compfunc(rc) : Coord3::udf()
-
+    if ( !computeifudf ) \
+	return Coord3::udf(); \
+ \
+    Coord3 res = compfunc(rc); \
+    if ( res.isDefined() ) return res; \
+ \
+    const TypeSet<RowCol>& directions = RowCol::clockWiseSequence(); \
+    for ( int idx=0; idx<directions.size(); idx++ ) \
+    { \
+	res = compfunc(directions[idx]*step + rc); \
+	if ( res.isDefined() ) return res; \
+    } \
+\
+    return Coord3::udf(); \
 
 Coord3 CubicBezierSurface::getRowDirection( const RCol& rc,
 				    bool computeifudf ) const
