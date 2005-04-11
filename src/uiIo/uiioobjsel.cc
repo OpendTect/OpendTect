@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.69 2004-10-06 14:00:23 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.70 2005-04-11 13:41:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,7 +316,26 @@ void uiIOObjSel::usePar( const IOPar& iopar )
 
 void uiIOObjSel::updateInput()
 {
-    setInput( ctio.ioobj ? (const char*)ctio.ioobj->key() : "" );
+    if ( ctio.ioobj )
+    {
+	setInput( (const char*)ctio.ioobj->key() );
+	return;
+    }
+
+    //If there is only one possible input, set that one as default
+    if ( ctio.ctxt.forread )
+    {
+	IOM().to( ctio.ctxt.stdSelKey() );
+	const IODirEntryList entrylist( IOM().dirPtr(), ctio.ctxt );
+	if ( entrylist.size()==1 && entrylist[0]->ioobj )
+	{
+	    setInput(entrylist[0]->ioobj->key());
+	    obtainIOObj();
+	    return;
+	}
+    }
+
+    setInput( "" );
 }
 
 
