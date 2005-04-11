@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.11 2005-04-07 09:30:59 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.12 2005-04-11 13:43:22 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -133,7 +133,7 @@ ParametricCurve* ParametricSurface::createColCurve( float col,
 bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 {
     const Coord3 oldpos = getKnot(rc);
-    bool wasundef = oldpos.isDefined();
+    bool wasundef = !oldpos.isDefined();
 
     int index;
     if ( nrKnots() )
