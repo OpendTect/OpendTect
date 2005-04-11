@@ -40,7 +40,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.62 2005-03-18 12:21:45 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.63 2005-04-11 12:38:56 cvsarend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -513,12 +513,23 @@ static const char* getCmd( const char* fnm )
 	static BufferString fullexec;
 
 	fullexec = "\"";
+
+	FilePath interpfp;
+
 	if ( getCygDir() )
-	    fullexec += FilePath(getCygDir()).add("bin").add(interp).fullPath();
-	else
-	    fullexec += FilePath(GetSoftwareDir())
-			.add("bin").add("win").add("sys")
-			.add(interp).fullPath();
+	{
+	    interpfp.set( getCygDir() );
+	    interpfp.add("bin").add(interp);
+	}
+
+	if ( !File_exists( interpfp.fullPath() ) )
+	{
+	    interpfp.set( GetSoftwareDir() );
+	    interpfp.add("bin").add("win").add("sys")
+		    .add(interp).fullPath();
+	}
+
+	fullexec += interpfp.fullPath();
 
 	fullexec += "\" '";
 	fullexec += execnm;
