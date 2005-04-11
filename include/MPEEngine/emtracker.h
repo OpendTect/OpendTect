@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.6 2005-03-30 13:44:25 cvsnanne Exp $
+ RCS:           $Id: emtracker.h,v 1.7 2005-04-11 15:45:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ public:
 
 protected:
     virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
+    virtual void		erasePositions(EM::SectionID,
+	    				       const TypeSet<EM::SubID>&);
+
     bool			isenabled;
     ObjectSet<SectionTracker>	sectiontrackers;
     BufferString		errmsg;

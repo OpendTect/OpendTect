@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.6 2005-04-01 14:59:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.7 2005-04-11 15:45:33 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -60,6 +60,14 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 
 	sectiontracker->reset();
 	sectiontracker->selector()->setTrackPlane( plane );
+
+	if ( plane.getTrackMode() == TrackPlane::Erase )
+	{
+	    erasePositions( sectionid,
+		    	    sectiontracker->selector()->selectedPositions() );
+	    continue;
+	}
+	
 	sectiontracker->extender()->setDirection( plane.motion() );
 	sectiontracker->select();
 
@@ -117,6 +125,18 @@ SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
 
     sectiontrackers += sectiontracker;
     return sectiontracker;
+}
+
+
+void EMTracker::erasePositions( EM::SectionID sectionid,
+				const TypeSet<EM::SubID>& pos )
+{
+    EM::PosID posid( emobject->id(), sectionid );
+    for ( int idx=0; idx<pos.size(); idx++ )
+    {
+	posid.setSubID( pos[idx] );
+	emobject->unSetPos( posid, true );
+    }
 }
 
 
