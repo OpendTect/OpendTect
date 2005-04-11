@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.7 2005-04-04 11:18:35 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.8 2005-04-11 15:42:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "cubesampling.h"
-#include "visobject.h"
 #include "vissurvobj.h"
+#include "visobject.h"
+#include "cubesampling.h"
 
 class AttribSelSpec;
 template <class T> class Array3D;
@@ -30,7 +30,7 @@ namespace visBase
     class Transformation;
 };
 
-namespace MPE { class Plane; class Engine; };
+namespace MPE { class Engine; };
 
 
 namespace visSurvey
@@ -49,11 +49,6 @@ public:
 				mCreateDataObj(MPEDisplay);
     bool			isInlCrl() const	{ return true; }
 
-    enum TrackMode		{ Extend, ReTrack, Erode };
-    TrackMode			getTrackMode() const	{ return trackmode_; }
-    void			setTrackMode(const TrackMode& tm)
-				{ trackmode_ = tm; }
-
     bool			isManipulated() const	{ return manipulated_; }
     void			showManipulator(bool);
     void			setDraggerTransparency(float);
@@ -61,6 +56,7 @@ public:
     void			showDragger(bool);
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
+    void			updatePlaneColor();
 
     int				getAttributeFormat() const { return 3; }
     CubeSampling		getCubeSampling() const;
@@ -108,7 +104,6 @@ protected:
 
     visBase::EventCatcher*	sceneeventcatcher_;
 
-    TrackMode			trackmode_;
     AttribSelSpec&		as_;
     bool			manipulated_;
 };

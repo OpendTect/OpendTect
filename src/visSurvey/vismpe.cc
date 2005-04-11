@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.10 2005-04-05 15:32:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.11 2005-04-11 15:42:25 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -60,7 +60,7 @@ MPEDisplay::MPEDisplay()
 
     rectangle_->setVertexOrdering(1);
 //  rectangle_->setFaceType(1);
-    rectangle_->setMaterial(visBase::Material::create());
+    rectangle_->setMaterial( visBase::Material::create() );
     rectangle_->getCoordinates()->addPos( Coord3(-1,-1,0) );
     rectangle_->getCoordinates()->addPos( Coord3(1,-1,0) );
     rectangle_->getCoordinates()->addPos( Coord3(1,1,0) );
@@ -70,7 +70,7 @@ MPEDisplay::MPEDisplay()
     rectangle_->setCoordIndex( 2, 2 );
     rectangle_->setCoordIndex( 3, 3 );
     rectangle_->setCoordIndex( 4, -1 );
-    rectangle_->setTextureCoords(visBase::TextureCoords::create());
+    rectangle_->setTextureCoords( visBase::TextureCoords::create() );
     rectangle_->getTextureCoords()->addCoord( Coord3(0,0,0) );
     rectangle_->getTextureCoords()->addCoord( Coord3(1,0,0) );
     rectangle_->getTextureCoords()->addCoord( Coord3(1,1,0) );
@@ -120,6 +120,18 @@ MPEDisplay::~MPEDisplay()
     draggerrect_->unRef();
     boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->unRef();
+}
+
+
+void MPEDisplay::updatePlaneColor()
+{
+    MPE::TrackPlane::TrackMode tm = engine_.trackPlane().getTrackMode();
+    if ( tm == MPE::TrackPlane::ReTrack )
+	rectangle_->getMaterial()->setColor( Color(0,255,0) );
+    else if ( tm == MPE::TrackPlane::Erase )
+	rectangle_->getMaterial()->setColor( Color(255,0,0) );
+    else
+	rectangle_->getMaterial()->setColor( Color::White );
 }
 
 
@@ -363,6 +375,8 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
     if ( isSelected() ) return;
 
     MPE::TrackPlane newplane;
+    newplane.setTrackMode( engine_.trackPlane().getTrackMode() );
+
     CubeSampling& planebox = newplane.boundingBox();
     getPlanePosition( planebox );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.3 2005-03-09 16:44:44 cvsnanne Exp $
+ RCS:           $Id: uimpeman.h,v 1.4 2005-04-11 15:42:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,9 +77,8 @@ protected:
     void			retrackModeCB(CallBacker*);
     void			eraseModeCB(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
-    void			trackModeChg(CallBacker*);
-    void			setTrackButton(bool,bool,bool);
-    void			showTracker(bool yn,int trackmode);
+    void			setTrackButton();
+    void			showTracker(bool);
 
     int				seedidx;
     int				extendidx, retrackidx, eraseidx;

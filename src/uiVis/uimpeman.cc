@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.8 2005-04-05 06:41:45 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.9 2005-04-11 15:42:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uivismenu.h"
 #include "pixmap.h"
+
+using namespace MPE;
 
 
 #define mAddButton(pm,func,tip,toggle) \
@@ -93,7 +95,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
     EM::EMM().history().changenotifier.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
-    MPE::engine().seedpropertychange.notify(
+    engine().seedpropertychange.notify(
 	    		mCB(this,uiMPEMan,seedPropertyChangeCB) );
 }
 
@@ -103,7 +105,7 @@ uiMPEMan::~uiMPEMan()
     EM::EMM().history().changenotifier.remove(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
-    MPE::engine().seedpropertychange.remove(
+    engine().seedpropertychange.remove(
 	    		mCB(this,uiMPEMan,seedPropertyChangeCB) );
 }
 
@@ -136,6 +138,7 @@ void uiMPEMan::deleteVisObjects()
 	    visserv->removeObject( seededitor->id(), scenes[0] );
 
 	seededitor->unRef();
+	seededitor = 0;
     }
 }
 
@@ -163,15 +166,14 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     mpedisplay->setDraggerTransparency( transfld->getValue() );
     mpedisplay->showDragger( isOn(extendidx) );
 
-    //mpedisplay->trackmodechange.notify( mCB(this,uiMPEMan,trackModeChg) );
     mpedisplay->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
     mpedisplay->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
 
     transfld->setValue( mpedisplay->getDraggerTransparency() );
-    trackModeChg( 0 );
     setSensitive( true );
     return mpedisplay;
 }
+
 
 #define mGetDisplays(create) \
     ObjectSet<visSurvey::MPEDisplay> displays; \
@@ -186,9 +188,9 @@ void uiMPEMan::seedPropertyChangeCB( CallBacker* )
     if ( !seededitor )
 	return;
 
-    seededitor->getMaterial()->setColor( MPE::engine().seedcolor );
-    seededitor->setSeedSize( MPE::engine().seedsize );
-    LineStyle ls( LineStyle::Solid, MPE::engine().seedlinewidth );
+    seededitor->getMaterial()->setColor( engine().seedcolor );
+    seededitor->setSeedSize( engine().seedsize );
+    LineStyle ls( LineStyle::Solid, engine().seedlinewidth );
     seededitor->setLineStyle( ls );
 }
 
@@ -206,7 +208,7 @@ void uiMPEMan::createSeedMenuCB( CallBacker* cb )
 
 
     BufferStringSet trackernames;
-    MPE::engine().getAvaliableTrackerTypes( trackernames );
+    engine().getAvaliableTrackerTypes( trackernames );
     for ( int idx=0; idx<trackernames.size(); idx++ )
     {
 	BufferString txt("Create "); txt += *trackernames[idx];
@@ -233,13 +235,13 @@ void uiMPEMan::handleSeedMenuCB( CallBacker* cb )
     }
 
     BufferStringSet trackernames;
-    MPE::engine().getAvaliableTrackerTypes( trackernames );
+    engine().getAvaliableTrackerTypes( trackernames );
     const int idx = mnuid-seedmnuid-1;
     if ( idx<0 || idx>=trackernames.size() )
 	return;
 
     destrackertype = *trackernames[idx];
-    seededitor->getSeeds( MPE::engine().interactionseeds );
+    seededitor->getSeeds( engine().interactionseeds );
     if ( visserv->sendTrackNewObjectEvent() )
 	turnSeedPickingOn( false );
 
@@ -254,7 +256,7 @@ void uiMPEMan::updateAttribNames()
     attribfld->addItem( "No attribute" );
 
     ObjectSet<const AttribSelSpec> attribspecs;
-    MPE::engine().getNeededAttribs( attribspecs );
+    engine().getNeededAttribs( attribspecs );
     for ( int idx=0; idx<attribspecs.size(); idx++ )
     {
 	const AttribSelSpec* spec = attribspecs[idx];
@@ -319,7 +321,7 @@ void uiMPEMan::attribSel( CallBacker* )
     }
 
     ObjectSet<const AttribSelSpec> attribspecs;
-    MPE::engine().getNeededAttribs( attribspecs );
+    engine().getNeededAttribs( attribspecs );
     for ( int idx=0; idx<attribspecs.size(); idx++ )
     {
 	const AttribSelSpec* spec = attribspecs[idx];
@@ -402,7 +404,7 @@ void uiMPEMan::seedModeCB( CallBacker* )
     if ( !ison && seededitor )
     {
 	seededitor->turnOn( false );
-	seededitor->getSeeds( MPE::engine().interactionseeds );
+	seededitor->getSeeds( engine().interactionseeds );
 	return;
     }
 
@@ -464,79 +466,56 @@ void uiMPEMan::trackBackward( CallBacker* )
 }
 
 
-void uiMPEMan::trackModeChg( CallBacker* )
+void uiMPEMan::setTrackButton()
 {
-    mGetDisplays(false);
-    if ( !displays.size() ) return;
-
-    visSurvey::MPEDisplay::TrackMode tm = displays[0]->getTrackMode();
-    bool extend = tm == visSurvey::MPEDisplay::Extend;
-    bool retrack = tm == visSurvey::MPEDisplay::ReTrack;
-    bool erase = tm == visSurvey::MPEDisplay::Erode;
-    setTrackButton( extend, retrack, erase );
-}
-
-
-void uiMPEMan::setTrackButton( bool extend, bool retrack, bool erase )
-{
+    TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
+    const bool extend = tm == TrackPlane::Extend;
+    const bool retrack = tm == TrackPlane::ReTrack;
+    const bool erase = tm == TrackPlane::Erase;
     turnOn( extendidx, extend );
     turnOn( retrackidx, retrack );
     turnOn( eraseidx, erase );
 }
 
 
-void uiMPEMan::showTracker( bool yn, int tm )
+void uiMPEMan::showTracker( bool yn )
 {
-    setSensitive( showcubeidx, yn );
     setSensitive( trackforwardidx, yn );
     setSensitive( trackbackwardidx, yn );
     attribfld->setSensitive( yn );
     transfld->setSensitive( yn );
     nrstepsbox->setSensitive( yn );
-
-    visSurvey::MPEDisplay::TrackMode trackmode =
-				(visSurvey::MPEDisplay::TrackMode)tm;
-
-    setTrackButton( yn && trackmode==visSurvey::MPEDisplay::Extend, 
-	    	    yn && trackmode==visSurvey::MPEDisplay::ReTrack,
-	    	    yn && trackmode==visSurvey::MPEDisplay::Erode );
+    setTrackButton();
 
     mGetDisplays(false)
     for ( int idx=0; idx<displays.size(); idx++ )
     {
-	displays[idx]->turnOn( yn );
+	displays[idx]->showDragger( yn );
 	if ( yn )
-	    displays[idx]->setTrackMode( trackmode );
+	    displays[idx]->updatePlaneColor();
     }
 }
 
 
 void uiMPEMan::extendModeCB( CallBacker* )
 {
-    const bool isshown = isOn( extendidx );
-    mGetDisplays(isshown)
-    for ( int idx=0; idx<displays.size(); idx++ )
-	displays[idx]->showDragger( isshown );
+    const bool ison = isOn( extendidx );
+    engine().setTrackMode( ison ? TrackPlane::Extend : TrackPlane::None );
+    showTracker( ison );
 }
 
 
 void uiMPEMan::retrackModeCB( CallBacker* )
 {
-    mGetDisplays(false)
-    if ( !displays.size() ) return;
-
-    const bool turnon = displays[0]->isOn() ||
-		displays[0]->getTrackMode()!=visSurvey::MPEDisplay::ReTrack;
-    showTracker( turnon, visSurvey::MPEDisplay::ReTrack );
+    const bool ison = isOn( retrackidx );
+    engine().setTrackMode( ison ? TrackPlane::ReTrack : TrackPlane::None );
+    showTracker( ison );
 }
 
 
 void uiMPEMan::eraseModeCB( CallBacker* )
 {
-    mGetDisplays(false)
-    if ( !displays.size() ) return;
-
-    const bool turnon = displays[0]->isOn() ||
-		displays[0]->getTrackMode()!=visSurvey::MPEDisplay::Erode;
-    showTracker( turnon, visSurvey::MPEDisplay::Erode );
+    const bool ison = isOn( eraseidx );
+    engine().setTrackMode( ison ? TrackPlane::Erase : TrackPlane::None );
+    showTracker( ison );
 }
