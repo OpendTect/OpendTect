@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.48 2005-03-25 15:40:20 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.49 2005-04-12 11:08:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,10 +32,14 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "binidselimpl.h"
 #include "horizonscanner.h"
+#include "array2dinterpol.h"
 
 #include "streamconn.h"
 #include "binidvalset.h"
 #include "uicursor.h"
+
+
+static int sDefStepout = 3;
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p )
@@ -49,38 +53,47 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     infld->setSelectMode( uiFileDialog::ExistingFiles );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
+    infld->valuechanged.notify( mCB(this,uiImportHorizon,inputCB) );
 
     uiPushButton* scanbut = new uiPushButton( this, "Scan file ...", 
 					mCB(this,uiImportHorizon,scanFile) );
     scanbut->attach( alignedBelow, infld );
 
-    xyfld = new uiGenInput( this, "Positions in:",
+    grp = new uiGroup( this, "Group" );
+    xyfld = new uiGenInput( grp, "Positions in:",
                             BoolInpSpec("X/Y","Inl/Crl") );
-    xyfld->attach( alignedBelow, scanbut );
+    grp->setHAlignObj( xyfld );
+    grp->attach( alignedBelow, scanbut );
 
-    subselfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-	    			   .withz(false).withstep(true) );
+    subselfld = new uiBinIDSubSel( grp, uiBinIDSubSel::Setup()
+	    			   .withz(false).withstep(true).rangeonly() );
     subselfld->attach( alignedBelow, xyfld );
 
     BufferString scalelbl( SI().zIsTime() ? "Z " : "Depth " );
     scalelbl += "scaling";
-    scalefld = new uiScaler( this, scalelbl, true );
+    scalefld = new uiScaler( grp, scalelbl, true );
     scalefld->attach( alignedBelow, subselfld );
 
-    udffld = new uiGenInput( this, "Undefined value",
+    udffld = new uiGenInput( grp, "Undefined value",
 	    		     StringInpSpec(sUndefValue) );
     udffld->attach( alignedBelow, scalefld );
 
-    fillholesfld = new uiGenInput( this, "Try to fill small holes:",
-                            BoolInpSpec() );
-    fillholesfld->setValue(false);
-    fillholesfld->attach( alignedBelow, udffld );
+    interpolfld = new uiGenInput( grp, "Interpolate to make regular grid",
+				  BoolInpSpec() );
+    interpolfld->valuechanged.notify( mCB(this,uiImportHorizon,interpolSel) );
+    interpolfld->setValue(false);
+    interpolfld->attach( alignedBelow, udffld );
+
+    stepoutfld = new uiGenInput( grp, "Used stepout", IntInpSpec() );
+    stepoutfld->setValue( sDefStepout );
+    stepoutfld->setElemSzPol( uiObject::small );
+    stepoutfld->attach( alignedBelow, interpolfld );
 
     ctio.ctxt.forread = false;
-    outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
-    outfld->attach( alignedBelow, fillholesfld );
+    outfld = new uiIOObjSel( grp, ctio, "Output Horizon" );
+    outfld->attach( alignedBelow, stepoutfld );
 
-    displayfld = new uiCheckBox( this, "Display after import" );
+    displayfld = new uiCheckBox( grp, "Display after import" );
     displayfld->attach( alignedBelow, outfld );
 }
 
@@ -88,6 +101,18 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 uiImportHorizon::~uiImportHorizon()
 {
     delete ctio.ioobj; delete &ctio;
+}
+
+
+void uiImportHorizon::inputCB( CallBacker* )
+{
+    grp->setSensitive( false );
+}
+
+
+void uiImportHorizon::interpolSel( CallBacker* )
+{
+    stepoutfld->display( interpolfld->getBoolValue() );
 }
 
 
@@ -183,11 +208,14 @@ bool uiImportHorizon::doWork()
     if ( !sections.size() )
 	mErrRet( "Nothing to import" );
 
+    if ( interpolfld->getBoolValue() )
+	interpolateGrid( sections );
+
     const RowCol step( hs.step.inl, hs.step.crl );
     horizon->ref();
     ExecutorGroup exgrp( "Horizon importer" );
     exgrp.setNrDoneText( "Nr inlines imported" );
-    exgrp.add( horizon->importer(sections,step,fillholesfld->getBoolValue()) );
+    exgrp.add( horizon->importer(sections,step,false) );
     exgrp.add( horizon->auxDataImporter(sections) );
     uiExecutor impdlg( this, exgrp );
     if ( !impdlg.go() ) 
@@ -247,6 +275,8 @@ void uiImportHorizon::scanFile( CallBacker* )
     xyfld->setValue( scanner.posIsXY() );
     hs.set( scanner.inlRg(), scanner.crlRg() );
     subselfld->setInput( hs );
+    interpolfld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
+    grp->setSensitive( true );
 }
 
 
@@ -306,4 +336,57 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 
     sd.close();
     return set;
+}
+
+
+bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
+{
+    HorSampling hs; subselfld->getHorSampling( hs );
+
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	BinIDValueSet& data = *sections[idx];
+	Array2DImpl<float>* arr = new Array2DImpl<float>(hs.nrInl(),hs.nrCrl());
+	BinID bid;
+	for ( int inl=0; inl<hs.nrInl(); inl++ )
+	{
+	    bid.inl = hs.start.inl + inl*hs.step.inl;
+	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
+	    {
+		bid.crl = hs.start.crl + crl*hs.step.crl;
+		BinIDValueSet::Pos pos = data.findFirst( bid );
+		if ( pos.j < 0 )
+		    arr->set( inl, crl, mUndefValue );
+		else
+		{
+		    const float* vals = data.getVals( pos );
+		    arr->set( inl, crl, vals ? vals[0] : mUndefValue );
+		}
+	    }
+	}
+
+	Array2DInterpolator<float> interpolator( arr );
+	interpolator.setInverseDistance( true );
+	interpolator.setAperture( stepoutfld->getIntValue() );
+	while ( true )
+	{
+	    const int res = interpolator.nextStep();
+	    if ( !res ) break;
+	    else if ( res == -1 ) return false;
+	}
+
+	data.empty();
+	data.setNrVals( 1, false );
+	for ( int inl=0; inl<hs.nrInl(); inl++ )
+	{
+	    bid.inl = hs.start.inl + inl*hs.step.inl;
+	    for ( int crl=0; crl<hs.nrCrl(); crl++ )
+	    {
+		bid.crl = hs.start.crl + crl*hs.step.crl;
+		data.add( bid, arr->get(inl,crl) );
+	    }
+	}
+    }
+
+    return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.11 2005-03-25 15:40:26 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.12 2005-04-12 11:08:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,12 +42,14 @@ public:
 
 protected:
 
+    uiGroup*		grp;
     uiFileInput*	infld;
     uiGenInput*		xyfld;
     uiScaler*		scalefld;
     uiBinIDSubSel*	subselfld;
     uiGenInput*		udffld;
-    uiGenInput*		fillholesfld;
+    uiGenInput*		interpolfld;
+    uiGenInput*		stepoutfld;
     uiIOObjSel*		outfld;
     uiCheckBox*		displayfld;
 
@@ -58,7 +60,10 @@ protected:
 	    			  const HorSampling*);
     bool		doWork();
     BinIDValueSet*	getBidValSet(const char*,bool,const HorSampling*);
+    bool		interpolateGrid(ObjectSet<BinIDValueSet>&);
 
+    void		inputCB(CallBacker*);
+    void		interpolSel(CallBacker*);
     void		scanFile(CallBacker*);
 
     CtxtIOObj&		ctio;
