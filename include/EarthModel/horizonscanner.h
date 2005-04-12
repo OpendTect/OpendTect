@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.1 2005-03-25 15:33:13 cvsnanne Exp $
+ RCS:		$Id: horizonscanner.h,v 1.2 2005-04-12 11:07:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
 
     StepInterval<int>	inlRg() const;
     StepInterval<int>	crlRg() const;
+    bool		gapsFound(bool inl) const;
 
     static const char*	defaultUserInfoFile();
     void		launchBrowser(const char* fnm=0) const;
