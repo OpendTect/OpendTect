@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.9 2004-11-16 12:25:14 nanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.10 2005-04-12 16:26:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,9 +36,10 @@ public:
 
 protected:
 
-    void			updateSel(CallBacker*);
-    void			csChanged(CallBacker*);
-    void			stepSel(CallBacker*);
+    friend class		uiSliceScroll;
+
+    void			scrollPush(CallBacker*);
+    void			applyPush(CallBacker*);
     void			readInput();
     bool			acceptOK(CallBacker*);
     void			setBoxValues(uiSpinBox*,
@@ -46,8 +47,6 @@ protected:
     void			createInlFld();
     void			createCrlFld();
     void			createZFld();
-    void			createUpdateFld();
-					    
 
     uiLabeledSpinBox*           inl0fld;
     uiLabeledSpinBox*           crl0fld;
@@ -55,14 +54,12 @@ protected:
     uiSpinBox*			inl1fld;
     uiSpinBox*			crl1fld;
     uiSpinBox*			z1fld;
-    uiCheckBox*			doupdfld;
-    uiLabeledSpinBox*		stepfld;
 
     const CubeSampling&		curcs;
     const CubeSampling&		maxcs;
 
     CubeSampling&		cs;
-    Notifier<uiSliceSel>	cschanged;
+    CallBack&			appcb;
     bool			isinl, iscrl, istsl, isvol, is2d;
 
     Threads::Mutex&		updatemutex;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.22 2005-03-03 16:43:38 cvsnanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.23 2005-04-12 16:26:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,17 +19,16 @@ ________________________________________________________________________
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
 			const CubeSampling& maxcs_,
-			const CallBack& appcb, Type type )
+			const CallBack& acb, Type type )
     : uiDialog(p,uiDialog::Setup("Positioning",
-				 "Specify what you want to see",
+				 "Specify the element's position",
 				 0).modal(type==Vol||type==TwoD))
     , cs(*new CubeSampling(curcs_))
     , curcs(curcs_)
     , maxcs(maxcs_)
-    , doupdfld(0)
     , inl0fld(0)
-    , cschanged(this)
     , updatemutex(*new Threads::Mutex)
+    , appcb(*new CallBack(acb))
 {
     isinl = type == Inl;
     iscrl = type == Crl;
@@ -47,11 +46,16 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
 	mainObject()->setTabOrder( (uiObject*)inl0fld, (uiObject*)crl0fld );
     mainObject()->setTabOrder( (uiObject*)crl0fld, (uiObject*)z0fld );
 
+    uiButton* applybut = new uiPushButton( this, "Apply" );
+    applybut->activated.notify( mCB(this,uiSliceSel,applyPush) );
+    mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)applybut );
+    applybut->attach( alignedBelow, z0fld );
     if ( !isvol && !is2d )
-	createUpdateFld();
-
-    finaliseDone.notify( mCB(this,uiSliceSel,updateSel) );
-    cschanged.notify( appcb );
+    {
+	uiButton* scrollbut = new uiPushButton( this, "Scroll ..." );
+	scrollbut->activated.notify( mCB(this,uiSliceSel,scrollPush) );
+	scrollbut->attach( rightOf, isinl ? inl0fld : (iscrl?crl0fld:z0fld) );
+    }
 }
 
 
@@ -109,33 +113,10 @@ void uiSliceSel::createZFld()
 }
 
 
-void uiSliceSel::createUpdateFld()
-{
-    doupdfld = new uiCheckBox( this, "Immediate update" );
-    doupdfld->setChecked( false );
-    doupdfld->activated.notify( mCB(this,uiSliceSel,updateSel) );
-    doupdfld->attach( alignedBelow, z0fld );
-
-    stepfld = new uiLabeledSpinBox( this, "Step" );
-    const int zstep = mNINT( SI().zRange().step*SI().zFactor() );
-    const int step = isinl ? SI().inlStep()
-			   : (iscrl ? SI().crlStep() : zstep );
-    stepfld->box()->setMinValue( step );
-    stepfld->box()->setStep( step, true );
-    const int width = isinl ? inl0fld->box()->maxValue() 
-			    : ( iscrl ? crl0fld->box()->maxValue() 
-				      : z0fld->box()->maxValue() );
-    stepfld->box()->setMaxValue( width );
-    stepfld->box()->valueChanged.notify( mCB(this,uiSliceSel,stepSel) );
-    stepfld->attach( rightOf, doupdfld );
-    mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)doupdfld );
-    mainObject()->setTabOrder( (uiObject*)doupdfld, (uiObject*)stepfld );
-}
-
-
 uiSliceSel::~uiSliceSel()
 {
     delete &cs;
+    delete &appcb;
     delete &updatemutex;
 }
 
@@ -147,39 +128,22 @@ void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
     box->setMaxValue( intv.stop );
     box->setStep( intv.step, true );
     box->setValue( curval );
-    box->valueChanged.notify( mCB(this,uiSliceSel,csChanged) );
 }
 
 
-void uiSliceSel::updateSel( CallBacker* )
+void uiSliceSel::scrollPush( CallBacker* )
 {
-    if ( !doupdfld ) return;
-    bool doupdate = doupdfld->isChecked();
-    stepfld->setSensitive( doupdate );
+    //TODO create dialog, give it appcb
 }
 
 
-void uiSliceSel::csChanged( CallBacker* )
+void uiSliceSel::applyPush( CallBacker* )
 {
-    if ( !doupdfld || !doupdfld->isChecked() ) return;
-
     if ( !updatemutex.tryLock() )
 	return;
     readInput();
-    cschanged.trigger();
+    appcb.doCall(this);
     updatemutex.unlock();
-}
-
-
-void uiSliceSel::stepSel( CallBacker* )
-{
-    int newstep = stepfld->box()->getValue();
-    if ( isinl )
-	inl0fld->box()->setStep( newstep, true );
-    else if ( iscrl )
-	crl0fld->box()->setStep( newstep, true );
-    else if ( istsl )
-	z0fld->box()->setStep( newstep, true );
 }
 
 
