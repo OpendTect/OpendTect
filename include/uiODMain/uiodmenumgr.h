@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.10 2005-03-25 15:50:23 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.11 2005-04-13 15:30:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
     void		updateAxisMode(bool);
     void		enableMenuBar(bool);
     void		enableActButton(bool);
+    void		setCameraPixmap(bool isperspective);
 
 protected:
 
@@ -106,7 +107,7 @@ protected:
     uiMenuItem*		stereoredcyanitm;
     uiMenuItem*		stereoquadbufitm;
     uiMenuItem*		stereooffsetitm;
-    int			axisid, actid, viewid;
+    int			axisid, actid, viewid, cameraid;
 
     inline uiODApplMgr&	applMgr()	{ return appl.applMgr(); }
     inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }

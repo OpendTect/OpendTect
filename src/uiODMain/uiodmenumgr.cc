@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.22 2005-03-25 15:50:23 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.23 2005-04-13 15:29:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.22 2005-03-25 15:50:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.23 2005-04-13 15:29:46 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -326,14 +326,23 @@ void uiODMenuMgr::fillCoinTB()
     mAddTB(cointb,"home.png","To home position",false,toHomePos);
     mAddTB(cointb,"set_home.png","Save home position",false,saveHomePos);
     mAddTB(cointb,"view_all.png","View all",false,viewAll);
-#ifdef __debug__
-    mAddTB(cointb,"i.xpm","view Inl",false,viewInl);
-    mAddTB(cointb,"c.xpm","view Crl",false,viewCrl);
-    mAddTB(cointb,"z.xpm","view Z",false,viewZ);
-#endif
+    cameraid = mAddTB(cointb,"perspective.png","Switch to orthographic camera",
+	       false,switchCameraType);
+    mAddTB(cointb,"cube_inl.png","view Inl",false,viewInl);
+    mAddTB(cointb,"cube_crl.png","view Crl",false,viewCrl);
+    mAddTB(cointb,"cube_z.png","view Z",false,viewZ);
     axisid = mAddTB(cointb,"axis.png","Display rotation axis",true,showRotAxis);
 
     cointb->turnOn( actid, true );
+}
+
+
+void uiODMenuMgr::setCameraPixmap( bool perspective )
+{
+    cointb->setToolTip( cameraid, perspective ? "Switch to orthographic camera"
+					      : "Switch to perspective camera");
+    BufferString fnm( perspective ? "perspective.png" : "orthographic.png" );
+    cointb->setPixmap( cameraid, ioPixmap(GetDataFileName(fnm)) );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.35 2005-03-25 15:58:34 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.36 2005-04-13 15:29:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -447,6 +447,18 @@ void uiODSceneMgr::vWheelMoved( CallBacker* cb )
 { wheelMoved(cb,2,lastvrot); }
 void uiODSceneMgr::dWheelMoved( CallBacker* cb )
 { wheelMoved(cb,0,lastdval); }
+
+
+void uiODSceneMgr::switchCameraType( CallBacker* )
+{
+    ObjectSet<uiSoViewer> vwrs;
+    getSoViewers( vwrs );
+    if ( !vwrs.size() ) return;
+    mDoAllScenes(sovwr,toggleCameraType,);
+    const bool isperspective = vwrs[0]->isCameraPerspective();
+    menuMgr().setCameraPixmap( isperspective );
+    zoomslider->setSensitive( isperspective );
+}
 
 
 void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
