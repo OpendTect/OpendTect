@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.8 2005-04-11 15:42:31 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.9 2005-04-13 15:37:48 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,7 @@ public:
     bool			isInlCrl() const	{ return true; }
 
     bool			isManipulated() const	{ return manipulated_; }
+    void			acceptManipulation()	{ manipulated_=false; }
     void			showManipulator(bool);
     void			setDraggerTransparency(float);
     float			getDraggerTransparency() const;
