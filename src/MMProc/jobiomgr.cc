@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.15 2005-03-31 15:25:53 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.16 2005-04-13 14:43:15 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ ________________________________________________________________________
 #include "errh.h"
 #include "separstr.h"
 #include "timefun.h"
+
+#include "sighndl.h"
 
 
 #define sTmpStor	"Temporary storage directory"
@@ -78,6 +80,7 @@ protected:
     BufferString	cmd;
 };
 
+
 /*!\brief Connects job to host.
  *
  */
@@ -94,6 +97,53 @@ public:
     int			descnr_;
     char		response_;
 };
+
+/*! \brief Timer using Unix alarm signal.
+
+    Uses Unix alarm timer to make sure we don't get any blocking
+    socket calls. 
+
+*/
+class AlarmTimer
+{
+public:
+
+    AlarmTimer(const CallBack& callback) : cb(callback), alarmset(false) {}
+
+    ~AlarmTimer() { stop(); }
+
+    void start( int timeout )
+    {
+#ifndef __win__
+	if( timeout > 0 && !getenv("DTECT_NO_WATCHDOG")  )
+	{
+	    alarmset=true;
+	    alarm(timeout);
+	    SignalHandling::startNotify( SignalHandling::Alarm, cb ); 
+	}
+#endif
+    }
+
+    void stop()
+    {
+#ifndef __win__
+	if( alarmset )
+	{
+	    alarm(0);
+	    SignalHandling::stopNotify( SignalHandling::Alarm, cb ); 
+	}
+#endif
+	alarmset = false;
+    }
+
+protected:
+
+    bool		alarmset;
+    CallBack		cb;
+
+};
+
+
 
 
 /*!\brief Sets up a thread that waits for clients to connect.
@@ -175,6 +225,7 @@ protected:
     JobHostRespInfo*		getJHRFor( int desc, const char* hostnm );
 
     void 			doDispatch( CallBacker* ); //!< work thread
+    void 			alarmHndl( CallBacker* ); //!< watch-dog
 
     mThreadDeclareMutexedVar(Threads::Thread*,thread);
 };
@@ -251,17 +302,26 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
 
 void JobIOHandler::doDispatch( CallBacker* )
 {
+    static int timeout = atoi( getenv("DTECT_MM_MSTR_TO")
+			     ? getenv("DTECT_MM_MSTR_TO") : "1" );
+
+    
     SocketProvider& sockprov = *new SocketProvider( firstport_ );
     sockprov_ = &sockprov;
 
     bool exitreq = false; exitreq_ = &exitreq;
-    
+    AlarmTimer watchdog( mCB( this, JobIOHandler, alarmHndl ) );
+     
     while( 1 ) 
     {
-	Socket* sock_ = sockprov.makeConnection(1); // 1 sec timeout
+	watchdog.start( 3 * timeout );
+
+	Socket* sock_ = sockprov.makeConnection( timeout ); 
+	if ( sock_ ) sock_->setTimeOut( timeout );
 
 	if ( exitreq )
 	{
+	    watchdog.stop();
 	    delete &sockprov;
 	    if ( thread ) thread->threadExit();
 	    return;
@@ -277,12 +337,6 @@ void JobIOHandler::doDispatch( CallBacker* )
 	{
 	    SeparString statstr;
 	    bool ok = sock_->readtag( tag, statstr );
-
-	    if ( !ok )
-	    {
-		sock_->fetchMsg( errmsg );
-		ok = sock_->readtag( tag, statstr );
-	    } 
 
 	    if ( ok )
 	    {
@@ -302,15 +356,24 @@ void JobIOHandler::doDispatch( CallBacker* )
 	    }
 	    else
 	    {
-		pErrMsg( "Error in socket communication." );
+		sock_->fetchMsg( errmsg );
+		ErrMsg( errmsg );
 	    }
 	}
+	watchdog.stop();
 
 	delete sock_; sock_ =0;
     }
 }
 
-
+void JobIOHandler::alarmHndl(CallBacker*)
+{  
+    // no need to do anything. The alarm signal should unblock
+    // all blocking socket calls. 
+    // See http://www.cs.ucsb.edu/~rich/class/cs290I-grid/notes/Sockets/
+    
+    std::cerr << "Communication time-out." << std::endl;
+}
 
 
 JobIOMgr::JobIOMgr( int firstport, int niceval )

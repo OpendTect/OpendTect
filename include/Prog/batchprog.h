@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.27 2005-03-31 15:25:53 cvsarend Exp $
+ RCS:		$Id: batchprog.h,v 1.28 2005-04-13 14:43:15 cvsarend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -135,7 +135,7 @@ inline const BatchProgram& BP() { return *BatchProgram::inst; }
     if ( ret ) { nrattempts = 0; return true; } \
     if ( nrattempts++ < maxtries ) return true; \
     stillok = false; \
-    setErrMsg("Lost connection with master."); \
+    setErrMsg("Lost connection with master[1]."); \
     return false; \
 }
 
@@ -147,7 +147,7 @@ inline const BatchProgram& BP() { return *BatchProgram::inst; }
 	Time_sleep(1); \
     } \
     stillok = false; \
-    setErrMsg("Lost connection with master."); \
+    setErrMsg("Lost connection with master[2]."); \
     return false; \
 }
 

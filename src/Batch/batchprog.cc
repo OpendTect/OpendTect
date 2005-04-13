@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.72 2005-03-31 15:25:53 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.73 2005-04-13 14:43:15 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -502,5 +502,11 @@ void  MMSockCommunic::directMsg( const char* msg )
 
 Socket* MMSockCommunic::mkSocket()
 {
-    return new Socket( masterhost, masterport );
+    static int timeout = atoi( getenv("DTECT_MM_CLNT_TO")
+			     ? getenv("DTECT_MM_CLNT_TO") : "5" );
+
+    Socket* s =  new Socket( masterhost, masterport );
+    if ( s ) s->setTimeOut( timeout );
+
+    return s;
 }
