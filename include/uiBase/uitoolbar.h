@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.18 2004-11-11 16:12:10 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.19 2005-04-13 15:31:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
 
     void		setLabel(const char*);
 
+    void		setPixmap(int,const ioPixmap&);
     void		setToolTip(int,const char*);
     void		turnOn( int idx, bool yn );
     			/*!< Does only work on toggle-buttons */

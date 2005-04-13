@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.24 2004-11-11 16:12:05 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.25 2005-04-13 15:32:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
     void		setSensitive(int idx, bool yn );
     void		setSensitive(bool yn);
     void		setToolTip(int,const char*);
+    void		setPixmap(int,const ioPixmap&);
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
@@ -118,6 +119,12 @@ bool uiToolBarBody::isOn( int idx ) const
 void uiToolBarBody::setSensitive( int idx, bool yn )
 {
     buttons[idx]->setEnabled( yn );
+}
+
+
+void uiToolBarBody::setPixmap( int idx, const ioPixmap& pm )
+{
+    buttons[idx]->setPixmap( *pm.Pixmap() );
 }
 
 
@@ -203,6 +210,12 @@ void uiToolBar::setSensitive( bool yn )
 void uiToolBar::setToolTip( int idx, const char* tip )
 {
     body_->setToolTip( idx, tip );
+}
+
+
+void uiToolBar::setPixmap( int idx, const ioPixmap& pm )
+{
+    body_->setPixmap( idx, pm );
 }
 
 
