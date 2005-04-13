@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.9 2005-04-11 15:42:02 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.10 2005-04-13 15:34:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -487,7 +487,7 @@ void uiMPEMan::showTracker( bool yn )
     nrstepsbox->setSensitive( yn );
     setTrackButton();
 
-    mGetDisplays(false)
+    mGetDisplays(true)
     for ( int idx=0; idx<displays.size(); idx++ )
     {
 	displays[idx]->showDragger( yn );
