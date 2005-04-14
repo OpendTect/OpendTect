@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.7 2005-04-06 13:20:17 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.8 2005-04-14 09:06:25 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.7 2005-04-06 13:20:17 c
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/elements/SoComplexityElement.h>
 #include <Inventor/elements/SoCacheElement.h>
+#include <Inventor/elements/SoCullElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/lists/SbList.h>
 #include <Inventor/threads/SbRWMutex.h>
 #include <Inventor/system/gl.h>
@@ -126,6 +128,7 @@ public:
     int		getColStart() const { return start1; }
     void	touch( int, int, bool undef );
     void	computeBBox(SoState*, SbBox3f&, SbVec3f&,bool useownvalidation);
+    bool	cullTest(SoState*, bool useownvalidation);
     void	rayPick( SoRayPickAction*, bool useownvalidation);
     void	GLRenderSurface(SoGLRenderAction*,bool useownvalidation);
     void	GLRenderWireframe(SoGLRenderAction*,bool useownvalidation);
@@ -141,7 +144,8 @@ public:
 
     int		nrResolutions() const { return resolutions.getLength(); }
     int		getResolution() const { return resolution; }
-    MeshSurfacePartResolution*	getResolution(int i) { return resolutions[i]; }
+    MeshSurfacePartResolution*	getResolution(int i)
+    				{ return i>= 0 ? resolutions[i] : 0; }
 
 protected:
     int 	getSpacing( int res ) const;
@@ -827,6 +831,7 @@ void MeshSurfacePart::computeBBox(SoState* state, SbBox3f& bbox,
     }
 
     if ( nrboxes ) center /= nrboxes;
+
     bboxcache->set( bbox, nrboxes, center );
     state->pop();
     SoCacheElement::setInvalid(storedinvalid);
@@ -858,11 +863,24 @@ void MeshSurfacePart::GLRenderWireframe(SoGLRenderAction* action,
 }
 
 
+
+bool MeshSurfacePart::cullTest(SoState* state, bool ownv )
+{
+    SbBox3f bbox;
+    SbVec3f dummy;
+    computeBBox( state, bbox, dummy, ownv );
+    if ( bbox.isEmpty() ) return true;
+
+    return SoCullElement::cullTest(state, bbox, true );
+}
+
+
 int MeshSurfacePart::computeResolution( SoState* state, bool ownv) 
 {
     SbBox3f bbox;
     SbVec3f dummy;
     computeBBox( state, bbox, dummy, ownv );
+    if ( bbox.isEmpty() ) return -1;
 
     const int nrrows = neighbors[7] ? sidesize : nrRows()-1;
     const int nrcols = neighbors[5] ? sidesize : nrCols()-1;
@@ -905,6 +923,12 @@ int MeshSurfacePart::computeResolution( SoState* state, bool ownv)
 bool MeshSurfacePart::setResolution( int desiredres,
 				     bool useownvalidation )
 {
+    if ( desiredres==-1 )
+    {
+	resolution = -1;
+	return true;
+    }
+
     for ( int idx=desiredres; idx>0; idx-- )
     {
 	bool candisplay = resolutions[idx]->canDisplay(useownvalidation);
@@ -943,7 +967,7 @@ void MeshSurfacePart::setNeighbor( int neighbor, MeshSurfacePart* n, bool cb )
 
 
 int MeshSurfacePart::getSpacing( int res ) const
-{ return resolutions[res]->getSpacing(); }
+{ return res>=0 ? resolutions[res]->getSpacing() : 1; }
 
 
 #define mAddCoordToIndexes(row_,col_,res_, indexes, normals) \
@@ -984,18 +1008,22 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
     gluecache->buildmutex->writeLock();
 
     const int ownspacing = getSpacing(resolution);
-    const int res5 = neighbors[5] ? neighbors[5]->getResolution() : resolution;
+    const int res5 = neighbors[5] && neighbors[5]->getResolution()!=-1
+	? neighbors[5]->getResolution() : resolution;
     const int spacing5 = getSpacing(res5);
-    const int res7 = neighbors[7] ? neighbors[7]->getResolution() : resolution;
+    const int res7 = neighbors[7]  && neighbors[7]->getResolution()!=-1
+	? neighbors[7]->getResolution() : resolution;
     const int spacing7 = getSpacing(res7);
-    const int res8 = neighbors[8] ? neighbors[8]->getResolution() : res7;
-
-    SbList<SbVec2s> rowgluecells;
-    const int rowgluespacing =
-	ownspacing>spacing7 ? ownspacing : spacing7;
+    const int res8 = neighbors[8] && neighbors[8]->getResolution()!=-1
+	? neighbors[8]->getResolution() : res7;
 
     int row = start0+sidesize-ownspacing;
     int col = start1;
+
+    const int rowgluespacing =
+	ownspacing>spacing7 ? ownspacing : spacing7;
+
+    SbList<SbVec2s> rowgluecells;
     for ( int idx=0; idx<sidesize-ownspacing; idx+=rowgluespacing )
     {
 	const SbVec2s rc(row,col+idx);
@@ -1005,10 +1033,9 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
 	rowgluecells.append( rc );
     }
 
-    SbList<SbVec2s> colgluecells;
-    const int colgluespacing =
-	ownspacing>spacing5 ? ownspacing : spacing5;
+    const int colgluespacing = ownspacing>spacing5 ? ownspacing : spacing5;
 
+    SbList<SbVec2s> colgluecells;
     row = start0;
     col = start1+sidesize-ownspacing;
     for ( int idx=0; idx<sidesize-ownspacing; idx+=colgluespacing )
@@ -2301,13 +2328,20 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 	    int missingresolution = -1;
 	    if ( whichres==-1 )
 	    {
-		const int desres =
-		     	part->computeResolution(state,useownvalidation);
+		const int desres =  part->cullTest(state,useownvalidation)
+		    ? -1
+		    : part->computeResolution(state,useownvalidation);
 		if ( !part->setResolution(desres,useownvalidation) )
 		     missingresolution = desres;
 	    }
-	    else if ( !part->setResolution(whichres,useownvalidation) )
-		missingresolution = whichres;
+	    else
+	    {
+		const int desres = part->cullTest(state,useownvalidation)
+		    ? -1 : whichres;
+
+		if ( !part->setResolution( desres, useownvalidation) )
+		    missingresolution = desres;
+	    }
 
 	    if ( missingresolution!=-1 )
 	    {
