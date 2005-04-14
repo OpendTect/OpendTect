@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.8 2004-10-20 14:41:51 bert Exp $
+ RCS:           $Id: iodirentry.h,v 1.9 2005-04-14 16:32:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
 					const char* translator_globexpr=0);
 			~IODirEntryList();
 
-    void		fill(IODir*);
+    void		fill(IODir*,const char* nmfiltglobexpr=0);
     void		setSelected(const MultiID&);
     bool		mustChDir();
     bool		canChDir();

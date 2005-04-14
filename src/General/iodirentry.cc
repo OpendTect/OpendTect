@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.13 2004-11-12 09:13:07 nanne Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.14 2005-04-14 16:32:36 cvsbert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -81,12 +81,14 @@ IODirEntryList::~IODirEntryList()
 }
 
 
-void IODirEntryList::fill( IODir* iodir )
+void IODirEntryList::fill( IODir* iodir, const char* nmfilt )
 {
     if ( !iodir ) { pErrMsg("Can't fill IODirEntryList. No iodir"); return; }
+
     deepErase(*this);
     setName( iodir->main() ? (const char*)iodir->main()->name() : "Objects" );
     const ObjectSet<IOObj>& ioobjs = iodir->getObjs();
+
     int curset = 0;
     if ( ctxt.maychdir
 	&& FilePath(iodir->dirName()) != FilePath(IOM().rootDir()) )
@@ -94,6 +96,8 @@ void IODirEntryList::fill( IODir* iodir )
         *this += new IODirEntry( 0, 0, false );
 	curset++;
     }
+
+    GlobExpr* ge = nmfilt && *nmfilt ? new GlobExpr(nmfilt) : 0;
 
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
@@ -108,9 +112,13 @@ void IODirEntryList::fill( IODir* iodir )
 		continue;
 	}
 	if ( selres == mObjSelRelated || ctxt.validIOObj(*ioobj) )
-	    *this += new IODirEntry( ioobj, selres, ctxt.maychdir );
+	{
+	    if ( !ge || ge->matches(ioobj->name()) )
+		*this += new IODirEntry( ioobj, selres, ctxt.maychdir );
+	}
     }
 
+    delete ge;
     sort();
     if ( lastiokey == "" )
 	{ if ( size() > curset ) setCurrent( curset ); }
