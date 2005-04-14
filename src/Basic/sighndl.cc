@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.22 2005-04-14 11:17:52 cvsarend Exp $
+ RCS:           $Id: sighndl.cc,v 1.23 2005-04-14 14:14:37 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.22 2005-04-14 11:17:52 cvsarend Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.23 2005-04-14 14:14:37 cvsarend Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -33,7 +33,7 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
     CallBackList& cbs = theinst_.getCBL( et );
     if ( cbs.indexOf(cb) < 0 ) cbs += cb;
-
+#ifndef __win__
     if ( et == SignalHandling::Alarm )
     {
 	/* tell OS not to restart system calls if a signal is received */
@@ -45,6 +45,7 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 	    std::cout <<"using alarm signals." << std::endl;
 	}
     }
+#endif
     
 }
 
