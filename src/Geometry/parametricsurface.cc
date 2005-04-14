@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.12 2005-04-11 13:43:22 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.13 2005-04-14 09:08:11 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -140,26 +140,38 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
     {
 	if ( wasundef && !hasSupport(rc) )
 	{
-	    pErrMsg("New rc does not have any support");
+	    errmsg() = "New rc does not have any support";
 	    return false;
 	}
 
-	const int rowindex = rowIndex( rc.r() );
-	if ( rowindex==-1 || rowindex==nrRows() )
+	int rowindex = rowIndex( rc.r() );
+	while ( rowindex<0 )
 	{
-	    if ( !insertRow(rc.r()) )
+	    if ( !insertRow(origo.row-step.row) )
 		return false;
-
-	    wasundef = true;
+	    rowindex = rowIndex( rc.r() );
 	}
 
-	const int colindex = colIndex( rc.c() );
-	if  ( colindex==-1 || colindex==nrCols() )
+	while ( rowindex>=nrRows() )
 	{
-	    if ( !insertCol(rc.c()) )
+	    if ( !insertRow(origo.row+step.row*nrRows()) )
 		return false;
-	    
-	    wasundef = true;
+	    rowindex = rowIndex( rc.r() );
+	}
+ 
+	int colindex = colIndex( rc.c() );
+	while ( colindex<0 )
+	{
+	    if ( !insertCol(origo.col-step.col) )
+		return false;
+	    colindex = colIndex( rc.c() );
+	}
+
+	while ( colindex>=nrCols() )
+	{
+	    if ( !insertCol(origo.col+step.col*nrCols()) )
+		return false;
+	    colindex = colIndex( rc.c() );
 	}
 
     	index = getKnotIndex( rc );
