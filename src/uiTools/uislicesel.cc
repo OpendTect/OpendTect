@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.23 2005-04-12 16:26:51 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.24 2005-04-14 16:33:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
 			const CallBack& acb, Type type )
     : uiDialog(p,uiDialog::Setup("Positioning",
 				 "Specify the element's position",
-				 0).modal(type==Vol||type==TwoD))
+				 "0.4.1").modal(type==Vol||type==TwoD))
     , cs(*new CubeSampling(curcs_))
     , curcs(curcs_)
     , maxcs(maxcs_)
@@ -131,9 +131,27 @@ void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
 }
 
 
+class uiSliceScroll : public uiDialog
+{
+public:
+
+uiSliceScroll( uiSliceSel* p, const CallBack& c )
+	: uiDialog(p,uiDialog::Setup("Scrolling",
+				 "Control scrolling through the data","0.4.2")
+		.oktext("").canceltext("Dismiss"))
+	, appcb(c)
+{
+}
+
+    CallBack	appcb;
+
+};
+
+
 void uiSliceSel::scrollPush( CallBacker* )
 {
-    //TODO create dialog, give it appcb
+    uiSliceScroll dlg( this, appcb );
+    dlg.go();
 }
 
 
