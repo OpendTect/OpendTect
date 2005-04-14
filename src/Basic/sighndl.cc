@@ -4,17 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.21 2004-10-14 09:31:24 dgb Exp $
+ RCS:           $Id: sighndl.cc,v 1.22 2005-04-14 11:17:52 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.21 2004-10-14 09:31:24 dgb Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.22 2005-04-14 11:17:52 cvsarend Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "errh.h"
+
+#include <signal.h>
+#include <unistd.h>
 
 #ifdef __win__
 # include "winterminate.h"
@@ -30,6 +33,19 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
     CallBackList& cbs = theinst_.getCBL( et );
     if ( cbs.indexOf(cb) < 0 ) cbs += cb;
+
+    if ( et == SignalHandling::Alarm )
+    {
+	/* tell OS not to restart system calls if a signal is received */
+	/* see: http://www.cs.ucsb.edu/~rich/class/cs290I-grid/notes/Sockets/ */
+	if ( siginterrupt(SIGALRM, 1) < 0 ) 
+	{   
+	    std::cout <<"WARNING: setting of siginterrupt failed. ";
+	    std::cout <<"System operations might not be interuptable ";
+	    std::cout <<"using alarm signals." << std::endl;
+	}
+    }
+    
 }
 
 
@@ -60,8 +76,6 @@ SignalHandling::SignalHandling() {}
 
 #else
 
-#include <signal.h>
-#include <unistd.h>
 
 
 SignalHandling::SignalHandling()
