@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.3 2005-03-02 18:40:19 cvskris Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.4 2005-04-15 12:31:30 cvsnanne Exp $";
    
 
 #include "trackplane.h"
@@ -22,6 +22,7 @@ namespace MPE
 
 
 TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )
+    : trackmode(Extend)
 {
     cubesampling.hrg.start = start;
     cubesampling.hrg.stop = stop;
@@ -32,6 +33,7 @@ TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )
 
 TrackPlane::TrackPlane( const BinID& start, const BinID& stop,
 	      float starttime, float stoptime )
+    : trackmode(Extend)
 {
     cubesampling.hrg.start = start;
     cubesampling.hrg.stop = stop;
