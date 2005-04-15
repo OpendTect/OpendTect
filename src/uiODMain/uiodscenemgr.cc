@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.37 2005-04-15 12:31:55 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.38 2005-04-15 15:31:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -399,8 +399,8 @@ void uiODSceneMgr::showRotAxis( CallBacker* )
 
 void uiODSceneMgr::mkSnapshot( CallBacker* )
 {
-    //TODO
-    uiMSG().error( "Somebody implement this!" );
+    if ( scenes.size() )
+	scenes[0]->sovwr->renderToFile();
 }
 
 
