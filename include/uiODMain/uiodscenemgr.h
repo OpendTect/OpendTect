@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.18 2005-04-13 15:30:15 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.19 2005-04-15 12:32:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ public:
     void		viewInl(CallBacker*);
     void		viewCrl(CallBacker*);
     void		switchCameraType(CallBacker*);
+    void		mkSnapshot(CallBacker*);
 
     void		setZoomValue(float);
     void		zoomChanged(CallBacker*);

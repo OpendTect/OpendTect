@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.70 2005-04-11 13:41:49 cvskris Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.71 2005-04-15 12:32:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,13 +65,16 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
 
     topgrp = new uiGroup( this, "Top group" );
-    BufferStringSet nms; getIOObjNames( *entrylist, nms );
-    listfld = new uiLabeledListBox( topgrp, nms, seltxt );
+    filtfld = new uiGenInput( topgrp, "Filter", "*" );
+    filtfld->valuechanged.notify( mCB(this,uiIOObjSelDlg,filtChg) );
+    listfld = new uiLabeledListBox( topgrp, seltxt );
     if ( ismultisel )
 	listfld->box()->setMultiSelect( true );
     listfld->box()->setPrefWidthInChar( 
 		listfld->box()->optimumFieldWidth(25,60) );
     listfld->box()->setPrefHeightInChar( 8 );
+    fillList();
+    listfld->attach( ctio.ctxt.forread ? ensureBelow : alignedBelow, filtfld );
 
     if ( ctio.ioobj )
         listfld->box()->setCurrentItem( ctio.ioobj->name() );
@@ -147,6 +150,27 @@ const IOObj* uiIOObjSelDlg::selected( int objnr ) const
     msg += objnr; msg += " nrsel="; msg += nrsel;
     pErrMsg( msg );
     return 0;
+}
+
+
+void uiIOObjSelDlg::filtChg( CallBacker* cb )
+{
+    entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
+    BufferString nmflt = filtfld->text();
+    if ( nmflt != "" && nmflt != "*" )
+	entrylist->fill( IOM().dirPtr(), nmflt );
+    fillList();
+    selChg(cb);
+}
+
+
+void uiIOObjSelDlg::fillList()
+{
+    listfld->box()->empty();
+    BufferStringSet nms; getIOObjNames( *entrylist, nms );
+    listfld->box()->addItems( nms );
+    if ( nms.size() )
+	listfld->box()->setCurrentItem( 0 );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.38 2005-03-07 09:32:31 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.39 2005-04-15 12:32:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,14 +69,17 @@ protected:
     uiIOObjManipGroup*	manipgrp;
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
+    uiGenInput*		filtfld;
     uiGroup*		topgrp;
 
     bool		acceptOK(CallBacker*);
+    void		filtChg(CallBacker*);
     void		selChg(CallBacker*);
     void		preReloc(CallBacker*);
 
     void		replaceFinaliseCB(const CallBack&);
     bool		createEntry(const char*);
+    void		fillList();
 
 };
 

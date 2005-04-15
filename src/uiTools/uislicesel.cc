@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.24 2005-04-14 16:33:09 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.25 2005-04-15 12:32:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
 			const CallBack& acb, Type type )
     : uiDialog(p,uiDialog::Setup("Positioning",
 				 "Specify the element's position",
-				 "0.4.1").modal(type==Vol||type==TwoD))
+				 "").modal(type==Vol||type==TwoD))
     , cs(*new CubeSampling(curcs_))
     , curcs(curcs_)
     , maxcs(maxcs_)
