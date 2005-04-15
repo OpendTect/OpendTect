@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.7 2005-04-01 14:56:29 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.8 2005-04-15 15:35:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,6 +110,7 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
 
     activetrackerid = MPE::engine().addTracker( emobj );
     startWizard( emobj->getTypeStr(), 2 );
+    wizard->setTrackerID( activetrackerid );
 
     csfromseeds.zrg.start = csfromseeds.zrg.stop = pickedpos.z;
     HorSampling& hrg = csfromseeds.hrg;
@@ -322,7 +323,7 @@ void uiMPEPartServer::createActiveVolume()
 	newcube.zrg.include( csfromseeds.zrg.stop );
     }
 
-    const int minnr = 50;
+    const int minnr = 20;
     if ( newcube.nrInl() < minnr )
     {
 	newcube.hrg.start.inl -= minnr*newcube.hrg.step.inl;

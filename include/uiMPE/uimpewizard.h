@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.5 2005-04-05 06:41:45 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.6 2005-04-15 15:34:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 				~Wizard();
 
     void			setTrackingType(const char* typestr);
+    void			setTrackerID(int);
     void			startAt(int);
     void			setSurfaceColor(const Color&);
 

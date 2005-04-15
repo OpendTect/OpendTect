@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.6 2005-04-05 06:59:48 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.7 2005-04-15 15:35:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,12 +258,17 @@ bool Wizard::addTracker( const char* objnm )
 {
     curtrackid = mpeserv->addTracker( trackertype, objnm );
     if ( curtrackid < 0 ) return false;
+    setTrackerID( curtrackid );
+    return true;
+}
 
-    const MultiID& mid = mpeserv->getTrackerMultiID( curtrackid );
-    EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
+
+void Wizard::setTrackerID( int trackerid )
+{
+    const MultiID& mid = mpeserv->getTrackerMultiID( trackerid );
+    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
     setupgrp->setType( objid, 0 );
     currentfinished = false;
-    return true;
 }
 
 

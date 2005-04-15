@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.7 2005-04-11 15:45:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.8 2005-04-15 15:34:54 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: emtracker.cc,v 1.7 2005-04-11 15:45:33 cvsnanne
 #include "sectionextender.h"
 #include "sectionselector.h"
 #include "sectiontracker.h"
+#include "consistencychecker.h"
 #include "trackplane.h"
 #include "iopar.h"
 
@@ -50,6 +51,8 @@ bool EMTracker::trackSections( const TrackPlane& plane )
     if ( !emobject || !isenabled ) return true;
 
     const int initialhistnr = EM::EMM().history().currentEventNr();
+    ConsistencyChecker* consistencychecker = getConsistencyChecker();
+    if ( consistencychecker ) consistencychecker->reset();
 
     for ( int idx=0; idx<emobject->nrSections(); idx++ )
     {
@@ -85,7 +88,22 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	    errmsg = sectiontracker->errMsg();
 	    return false;;
 	}
+
+	EM::PosID posid( emobject->id(), sectionid );
+	if ( consistencychecker )
+	{
+	    const TypeSet<EM::SubID>& addedpos = 
+		sectiontracker->extender()->getAddedPositions();
+	    for ( int posidx=0; posidx<addedpos.size(); posidx++ )
+	    {
+		posid.setSubID( addedpos[posidx] );
+		consistencychecker->addNodeToCheck( posid );
+	    }
+	}
     }
+
+    if ( consistencychecker )
+	consistencychecker->nextStep();
 
     return true;
 }

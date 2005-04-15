@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.2 2005-04-07 15:54:26 cvsnanne Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.3 2005-04-15 15:35:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,8 +189,8 @@ bool SurfaceCutter::getSurfaceDir( RowCol& dir )
     normal.z = 0; 
     normal = normal.normalize();
 
-    dir.row = normal.x >= 0.5 ? 1 : 0;
-    dir.col = normal.y >= 0.5 ? 1 : 0;
+    dir.row = fabs(normal.x) >= 0.5 ? 1 : 0;
+    dir.col = fabs(normal.y) > 0.5 ? 1 : 0;
 
     return true;
 }
