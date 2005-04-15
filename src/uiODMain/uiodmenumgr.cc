@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.23 2005-04-13 15:29:46 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.24 2005-04-15 12:31:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.23 2005-04-13 15:29:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.24 2005-04-15 12:31:55 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -40,8 +40,11 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     helpmnu = new uiPopupMenu( &appl, "&Help" );
 
     dtecttb = new uiToolBar( &appl, "OpendTect tools" );
+    dtecttb->setVerticallyStretchable( true );
     cointb = new uiToolBar( &appl, "Graphical tools" );
+    cointb->setVerticallyStretchable( true );
     mantb = new uiToolBar( &appl, "Manage data" );
+    mantb->setVerticallyStretchable( true );
 }
 
 
@@ -332,6 +335,7 @@ void uiODMenuMgr::fillCoinTB()
     mAddTB(cointb,"cube_crl.png","view Crl",false,viewCrl);
     mAddTB(cointb,"cube_z.png","view Z",false,viewZ);
     axisid = mAddTB(cointb,"axis.png","Display rotation axis",true,showRotAxis);
+    mAddTB(cointb,"snapshot.png","Make snapshot",false,mkSnapshot);
 
     cointb->turnOn( actid, true );
 }
