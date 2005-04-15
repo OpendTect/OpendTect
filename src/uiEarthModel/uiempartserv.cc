@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.62 2005-04-06 10:54:30 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.63 2005-04-15 12:26:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,7 +215,7 @@ bool uiEMPartServer::selectStickSet( MultiID& multiid )
     if ( em.getObject(objid) )
 	return true;
 
-    PtrMan<Executor> loadexec = em.loadObject(multiid);
+    PtrMan<Executor> loadexec = em.objectLoader(multiid);
     if ( !loadexec)
 	mErrRet( IOM().nameOf(multiid) );
 
@@ -476,7 +476,7 @@ bool uiEMPartServer::loadSurface( const MultiID& id,
     if ( em.getObject(objid) )
 	return true;
 
-    PtrMan<Executor> exec = em.loadObject( id, newsel );
+    PtrMan<Executor> exec = em.objectLoader( id, newsel );
     if ( !exec ) mErrRet( IOM().nameOf(id) );
 
     EM::EMObject* obj = em.getObject(objid);

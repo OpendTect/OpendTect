@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.23 2005-02-16 14:13:20 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.24 2005-04-15 12:26:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -48,8 +48,8 @@ public:
 
     int			nrLoadedObjects() const	{ return objects.size(); }
     EM::ObjectID	objectID(int idx) const;
-    Executor*		loadObject(const MultiID&,
-	    		     const SurfaceIODataSelection* =0);
+    Executor*		objectLoader(const MultiID&,
+	    			     const SurfaceIODataSelection* =0);
     EM::ObjectID	createObject(const char* type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
 			     mem

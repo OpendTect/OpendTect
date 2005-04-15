@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.15 2005-03-10 11:48:21 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.16 2005-04-15 12:26:49 cvsnanne Exp $";
 
 
 
@@ -944,7 +944,7 @@ bool SurfaceCutLine::usePar(const IOPar& par)
     mDynamicCastGet(EM::Surface*,surface,EM::EMM().getObject(id));
     if ( !surface || !surface->isLoaded() )
     {
-	PtrMan<Executor> loader = EM::EMM().loadObject(mid,0);
+	PtrMan<Executor> loader = EM::EMM().objectLoader(mid,0);
 	if ( loader ) loader->execute();
 
 	surface = dynamic_cast<EM::Surface*>(EM::EMM().getObject(id));
