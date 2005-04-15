@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.11 2005-04-11 15:42:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.12 2005-04-15 15:31:44 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -383,8 +383,9 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
     if ( planebox==engine_.trackPlane().boundingBox() )
 	return;
 
-    const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
+    updateTextureCoords();
 
+    const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
     const int dim = dragger_->getDim();
     if ( !dim && planebox.hrg.start.inl==engineplane.hrg.start.inl )
 	return;
@@ -421,7 +422,6 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 	newplane.setMotion( 0, 0, inc ? step : -step );
     }
 
-    updateTextureCoords();
     engine_.setTrackPlane( newplane, true );
 }
 
