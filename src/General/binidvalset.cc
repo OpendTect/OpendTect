@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.5 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.6 2005-04-15 10:33:11 cvsnanne Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -538,6 +538,14 @@ void BinIDValueSet::remove( const Pos& pos )
     crls.remove( pos.j );
     delete [] vals[pos.j];
     vals.remove( pos.j );
+    if ( !crls.size() )
+    {
+	inls.remove( pos.i );
+	delete crlsets[pos.i];
+	crlsets.remove( pos.i );
+	delete valsets[pos.i];
+	valsets.remove( pos.i );
+    }
 }
 
 
