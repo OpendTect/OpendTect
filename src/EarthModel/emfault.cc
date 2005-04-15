@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.29 2005-03-24 12:09:33 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.30 2005-04-15 11:24:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ const IOObjContext& Fault::getIOObjContext() const
 FaultGeometry::FaultGeometry( Fault& flt )
     : SurfaceGeometry(flt)
 {
-    loadedstep=BinID(1,1);
+    loadedstep_ = BinID(1,1);
     step_ = BinID(1,1);
 }
 
@@ -182,9 +182,8 @@ void FaultGeometry::updateHiddenPos()
 }
 
 
-Geometry::ParametricSurface*
-FaultGeometry::createSectionSurface() const
-{ return new Geometry::CubicBezierSurface( loadedstep ); }
+Geometry::ParametricSurface* FaultGeometry::createSectionSurface() const
+{ return new Geometry::CubicBezierSurface( loadedstep_ ); }
 
 
 PosID FaultGeometry::getNeighbor( const PosID& posid,

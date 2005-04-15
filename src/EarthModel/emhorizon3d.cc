@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.59 2005-04-07 15:53:58 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.60 2005-04-15 11:24:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,11 +149,11 @@ HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
     {
 	const BinIDValueSet& bvs = *sections_[idx];
 	totalnr_ += bvs.totalSize();
-	SectionID sectionid =  horizon_.geometry.addSection( 0, false );
-	horizon_.geometry.setTranslatorData( sectionid, step, step,
-			RowCol(bvs.inlRange().start,bvs.crlRange().start) );
+	horizon_.geometry.setStep( step, step );
+	horizon_.geometry.addSection( 0, false );
     }
 
+    horizon_.geometry.checkSupport( false );
     sectionidx_ = 0;
 }
 
@@ -173,7 +173,10 @@ int nextStep()
 	    sectionidx_++;
 
 	if ( sectionidx_ >= sections_.size() )
+	{
+	    horizon_.geometry.checkSupport( true );
 	    return fixholes_ ? fillHoles() : Finished;
+	}
 
 	pos.i = pos.j = -1;
 	return MoreToDo;
@@ -190,6 +193,7 @@ int nextStep()
     if ( res )
     {
 	bvs.remove( pos );
+	pos.i = pos.j = -1;
 	nrdone_++;
     }
 
@@ -412,10 +416,9 @@ SubID HorizonGeometry::getSubID( const BinID& bid )
 }
 
 
-Geometry::ParametricSurface*
-HorizonGeometry::createSectionSurface() const
+Geometry::ParametricSurface* HorizonGeometry::createSectionSurface() const
 {
-    return new Geometry::BinIDSurface( loadedstep );
+    return new Geometry::BinIDSurface( loadedstep_ );
 }
 
 /*

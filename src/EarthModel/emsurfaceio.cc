@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.45 2005-03-31 15:32:12 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.46 2005-04-15 11:24:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -333,8 +333,8 @@ int EM::dgbSurfaceReader::nextStep()
 
     if ( !nrdone )
     {
+	surface->geometry.removeAll();
 	surface->setDBInfo( dbinfo );
-	surface->geometry.checkSupport(false);
 	for ( int idx=0; idx<auxdatasel.size(); idx++ )
 	{
 	    if ( auxdatasel[idx]>=auxdataexecs.size() )
@@ -381,81 +381,10 @@ int EM::dgbSurfaceReader::nextStep()
 	    msg = "Could not parse header";
 	    return ErrorOccurred;
 	}
-/*
-	int col;
-	if ( par->get( prefcolofstr, col ) )
-	{
-	    Color newcol; newcol.setRgb(col);
-	    surface->setPreferredColor(newcol);
-	}
-
-
-	for ( int idx=0; idx<surface->nrHingeLines(); idx++ )
-	    surface->removeHingeLine(idx,false);
-
-	int nrhingelines = 0;
-	par->get( nrhingelinestr, nrhingelines );
-	for ( int idx=0; idx<nrhingelines; idx++ )
-	{
-	    BufferString key = hingelineprefixstr; key += idx;
-	    PtrMan<IOPar> relpar = par->subselect(key);
-	    if ( !relpar )
-		return -1;
-
-	    EM::HingeLine* hingeline = new EM::HingeLine(*surface);
-	    if ( !hingeline->usePar( *relpar ) )
-	    {
-		delete hingeline;
-		return -1;
-	    }
-
-	    if ( surface->hasSection(hingeline->getSection()) )
-		surface->addHingeLine( hingeline, false );
-	    else
-		delete hingeline;
-	}
-
-
-	for ( int idx=0; idx<surface->nrPosAttribs(); idx++ )
-	    surface->removePosAttrib(surface->posAttrib(idx));
-
-	int nrattribs = 0;
-	par->get( nrposattrstr, nrattribs );
-	for ( int idx=0; idx<nrattribs; idx++ )
-	{
-	    BufferString attribkey = EM::dgbSurfaceReader::posattrprefixstr;
-	    attribkey += idx;
-
-	    int attrib;
-	    if ( !par->get( attribkey, attrib ) )
-		continue;
-
-	    TypeSet<int> attrsections;
-	    TypeSet<SubID> subids;
-
-	    BufferString sectionkey = attribkey;
-	    sectionkey += EM::dgbSurfaceReader::posattrsectionstr;
-	    BufferString subidkey = attribkey;
-	    subidkey += EM::dgbSurfaceReader::posattrposidstr;
-
-	    par->get( sectionkey, attrsections );
-	    par->get( subidkey, subids );
-
-	    for ( int idy=0; idy<attrsections.size(); idy++ )
-	    {
-		const EM::PosID pid(surface->id(),attrsections[idy],subids[idy]);
-		surface->setPosAttrib( pid, attrib, true );
-	    }
-	}
-
-	*/
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res )
-	{
-	    surface->geometry.checkSupport(true);
 	    surface->resetChangedFlag();
-	}
 	return res;
     }
 
@@ -538,23 +467,25 @@ int EM::dgbSurfaceReader::nextStep()
 
 	if ( !surface->geometry.getSurface(sectionid) )
 	{
-	    const int index = sectionids.indexOf(sectionid);
-	    surface->geometry.addSection( *sectionnames[index], sectionid, 
-		    			  false );
-
 	    const RowCol filestep = rcconv 
 			    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
 			    : RowCol(rowrange.step, colrange.step);
 
-	    surface->geometry.setTranslatorData( sectionid, filestep, 
-		    readrowrange ? RowCol(readrowrange->step,readcolrange->step)
-				 : filestep,
-		    rowcol );
+	    const RowCol loadedstep = readrowrange && readcolrange
+				? RowCol(readrowrange->step,readcolrange->step)
+				: filestep;
+	    surface->geometry.setStep( filestep, loadedstep );
+
+	    const int index = sectionids.indexOf(sectionid);
+	    surface->geometry.addSection( *sectionnames[index], sectionid, 
+		    			  false );
+	    surface->geometry.checkSupport(false);
 	}
 
 	surface->geometry.setPos( sectionid, rowcol, pos, false );
     }
 
+    surface->geometry.checkSupport(false);
     rowindex++;
     if ( rowindex>=nrrows )
 	sectionindex++;
@@ -644,22 +575,6 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	if ( auxDataName(idx) )
 	    auxdatasel += idx;
     }
-/*
-
-    par.set( EM::dgbSurfaceReader::nrhingelinestr, surface.nrHingeLines() );
-    int hingeid = 0;
-    for ( int idx=0; idx<surface.nrHingeLines(); idx++ )
-    {
-	if ( !surface.hingeLine(idx) )
-	    continue;
-
-	BufferString key = EM::dgbSurfaceReader::hingelineprefixstr;
-	key += hingeid++;
-	IOPar relpar;
-	surface.hingeLine(idx)->fillPar(relpar);
-	par.mergeComp( relpar, key );
-    }
-*/
 
     surface.fillPar( par );
 

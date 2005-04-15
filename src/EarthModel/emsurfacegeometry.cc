@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.15 2005-04-05 10:28:30 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.16 2005-04-15 11:24:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ bool SurfaceSectionHistoryEvent::usePar( const IOPar& iopar )
 }
 
 
-bool SurfaceSectionHistoryEvent::action(bool doadd) const
+bool SurfaceSectionHistoryEvent::action( bool doadd ) const
 {
     EMManager& manager = EMM();
     EMObject* objectptr = manager.getObject(object);
@@ -141,7 +141,7 @@ bool SurfaceSectionHistoryEvent::action(bool doadd) const
 
 SurfaceGeometry::SurfaceGeometry( Surface& surf_ )
     : step_(SI().inlStep(),SI().crlStep())
-    , loadedstep(SI().inlStep(),SI().crlStep())
+    , loadedstep_(SI().inlStep(),SI().crlStep())
     , shift(0)
     , changed( 0 )
     , surface( surf_ )
@@ -692,25 +692,23 @@ SectionID SurfaceGeometry::addSection( const char* nm, bool addtohistory )
     SectionID res = 0;
     while ( sectionids.indexOf(res)!=-1 ) res++;
 
-    return addSection( nm, res, addtohistory ) ? res : -1;
+    return addSection( nm, res, addtohistory );
 }
 
 
-bool SurfaceGeometry::addSection( const char* nm, SectionID sectionid, 
-				  bool addtohistory )
+SectionID SurfaceGeometry::addSection( const char* nm, SectionID sid, 
+				       bool addtohistory )
 {
-    if ( sectionids.indexOf(sectionid) != -1 ) return false;
-
     Geometry::ParametricSurface* newsurf = createSectionSurface();
-
-    if ( !newsurf ) return false;
-    return addSection( newsurf, nm, sectionid, addtohistory )!=-1;
+    return newsurf ? addSection( newsurf, nm, sid, addtohistory ) : -1;
 }
 
 
 SectionID SurfaceGeometry::addSection( Geometry::ParametricSurface* surf,
-			   const char* nm, SectionID sid, bool addtohistory )
+				       const char* nm, SectionID sid,
+				       bool addtohistory )
 {
+    if ( !surf ) return -1;
     surf->checkSupport( checksSupport() );
 
     if ( sid==-1 )
@@ -740,7 +738,7 @@ SectionID SurfaceGeometry::addSection( Geometry::ParametricSurface* surf,
     surface.notifier.trigger(cbdata);
 
     changed = true;
-    return true;
+    return sid;
 }
 
 
@@ -794,8 +792,7 @@ SectionID SurfaceGeometry::cloneSection( SectionID sectionid )
     if ( sectionidx==-1 ) return -1;
 
     Geometry::ParametricSurface* newsurf = meshsurfaces[sectionidx]->clone();
-
-    SectionID res = addSection(newsurf, 0, -1, true);
+    SectionID res = addSection( newsurf, 0, -1, true );
 
     surface.edgelinesets.cloneEdgeLineSet( sectionid, res );
     surface.relations.cloneSectionRelation( sectionid, res );
@@ -1168,7 +1165,7 @@ bool SurfaceGeometry::isLoaded() const
 
 RowCol SurfaceGeometry::loadedStep() const
 {
-    return loadedstep;
+    return loadedstep_;
 }
 
 
@@ -1178,17 +1175,10 @@ RowCol SurfaceGeometry::step() const
 }
 
 
-void SurfaceGeometry::setTranslatorData( SectionID sectionid, 
-					 const RowCol& step__,
-					 const RowCol& loadedstep_,
-					 const RowCol& origo_ )
+void SurfaceGeometry::setStep( const RowCol& step, const RowCol& loadedstep )
 {
-    step_ = step__;
-    loadedstep = loadedstep_;
-    const int sectionnr = sectionNr( sectionid );
-    while ( sectionnr >= origos.size() )
-	origos += RowCol(mUndefIntVal,mUndefIntVal);
-    origos[sectionnr] = origo_;
+    step_ = step;
+    loadedstep_ = loadedstep;
 }
 
 
@@ -1202,12 +1192,12 @@ SubID SurfaceGeometry::rowCol2SubID( const RowCol& rc )
 
 bool SurfaceGeometry::isFullResolution() const
 {
-    return loadedstep == step_;
+    return loadedstep_ == step_;
 }
 
 
 const Geometry::ParametricSurface*
-SurfaceGeometry::getSurface( SectionID sectionid ) const
+    SurfaceGeometry::getSurface( SectionID sectionid ) const
 {
     const int idx = sectionids.indexOf( sectionid );
     return idx==-1 ? 0 : meshsurfaces[idx];

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.10 2005-03-10 11:47:17 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.11 2005-04-15 11:24:47 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -56,9 +56,8 @@ public:
     bool		hasSection(SectionID) const;
     int			sectionNr(SectionID) const;
     const char*		sectionName(SectionID) const;
-    SectionID		addSection( const char* nm, bool addtohistory);
-    bool		addSection( const char* nm, SectionID,
-				    bool addtohistory);
+    SectionID		addSection(const char* nm,bool addtohistory);
+    SectionID		addSection(const char* nm,SectionID,bool addtohistory);
     			/*!< Return false if the sectionid allready exists */
     void		removeSection(SectionID,bool addtohistory);
     SectionID		cloneSection(SectionID);
@@ -112,16 +111,11 @@ public:
     const Geometry::ParametricSurface* getSurface(SectionID) const;
     RowCol		loadedStep() const;
     RowCol		step() const;
-    void		setTranslatorData(SectionID,
-					  const RowCol& step,
-					  const RowCol& loadedstep,
-					  const RowCol& origo);
+    void		setStep(const RowCol& step,const RowCol& loadedstep);
     			/*!< Sets subselection data
 			    \param step		The step that the surface
 						is defined in
 			    \param loadedstep	The step that is loaded
-			    \param origo	The origo that is used with
-						step
 			*/
 						
     static RowCol	subID2RowCol(SubID);
@@ -132,135 +126,132 @@ public:
     StepInterval<int>	colRange(SectionID=-1) const;
     			/*< If SectionID is -1, the overall range is returned */
 
-    virtual int	findPos(SectionID,const Interval<float>& x,
-	    		const Interval<float>& y,const Interval<float>& z,
-			TypeSet<PosID>* res) const;
-    int		findPos(const Interval<float>& x,const Interval<float>& y,
-			const Interval<float>& z,TypeSet<PosID>*) const;
-    int		findPos(const CubeSampling&,TypeSet<PosID>*) const;
-    int		findPos(const RowCol&,TypeSet<PosID>&) const;
-    bool	findClosestNodes(TopList<float,PosID>& res,
-	    			const Coord3& pos,
-				const FloatMathFunction* depthconv=0) const;
-    bool	findClosestNodes(SectionID,
-	    			TopList<float,PosID>& res,
-	    			const Coord3& pos,
-				const FloatMathFunction* depthconv=0) const;
-    bool	findClosestMesh(PosID& res, const Coord3& pos,
-				const FloatMathFunction* depthconv=0) const;
+    virtual int		findPos(SectionID,const Interval<float>& x,
+	    			const Interval<float>& y,
+				const Interval<float>& z,
+				TypeSet<PosID>* res) const;
+    int			findPos(const Interval<float>& x,
+	    			const Interval<float>& y,
+				const Interval<float>& z,TypeSet<PosID>*) const;
+    int			findPos(const CubeSampling&,TypeSet<PosID>*) const;
+    int			findPos(const RowCol&,TypeSet<PosID>&) const;
+    bool		findClosestNodes(TopList<float,PosID>& res,
+					 const Coord3& pos,
+					 const FloatMathFunction* t2d=0) const;
+    bool		findClosestNodes(SectionID,
+					 TopList<float,PosID>& res,
+					 const Coord3& pos,
+					 const FloatMathFunction* t2d=0) const;
+    bool		findClosestMesh(PosID& res,const Coord3& pos,
+					const FloatMathFunction* t2d=0) const;
 
-    bool	computeMeshNormal( Coord3& res, const PosID&, 
-	    			const FloatMathFunction* dconv=0) const;
-    bool	computeNormal( Coord3& res, const PosID& posid,
-	    			const FloatMathFunction* dconv=0,
-				bool normalize=true ) const;
-    bool	computeNormal( Coord3& res, const TypeSet<PosID>& nodes,
-				const FloatMathFunction* depthconv=0,
-				bool normalize=true ) const;
-		/*!< Computes an aproximation of the orientation of a
-		     part of a surface
-		     \param nodes	orientation is computed on the
-					connections surrounding these
-					nodes.
-		     \param depthconv	Convert the depth before
-					computing. This can be handy
-					if z is given in timedomain wich
-					will give problems in pca. If
-					ommitted, the z coords will not
-					be converted.
-		*/
-    bool	computeNormal( Coord3& res, const CubeSampling* cs=0,
-			       const FloatMathFunction* depthconv=0,
-			       bool normalize=true ) const;
-		/*!< Computes an aproximation of the surface's
-		     orientation
-		     \param cs		Compute only within this cube.
-					If ommitted, the depth will be
-					computed on the entire surface.
-		     \param depthconv	Convert the depth before
-					computing. This can be handy
-					if z is given in timedomain wich
-					will give problems in pca. If
-					ommitted, the z coords will not
-					be converted.
-		*/
+    bool		computeMeshNormal(Coord3& res,const PosID&, 
+					  const FloatMathFunction* t2d=0) const;
+    bool		computeNormal(Coord3& res,const PosID& posid,
+				      const FloatMathFunction* t2d=0,
+				      bool normalize=true) const;
+    bool		computeNormal(Coord3& res,const TypeSet<PosID>& nodes,
+				      const FloatMathFunction* t2d=0,
+				      bool normalize=true) const;
+			/*!< Computes an aproximation of the orientation of a
+			     part of a surface
+			     \param nodes	orientation is computed on the
+						connections surrounding these
+						nodes.
+			     \param depthconv	Convert the depth before
+						computing. This can be handy
+						if z is given in timedomain wich
+						will give problems in pca. If
+						ommitted, the z coords will not
+						be converted.
+			*/
 
-    float	normalDistance( const Coord3&,
-	    		   const FloatMathFunction* depthconv=0,
-			   Interval<float>* meshvariation=0) const;
-		/*!< Computes the distance along normal of the closest mesh's
-		     plane.
-		  \returns 	the distance. Note that the distance is
-		  		negative on the back side of the surface.
-		  \param	meshvariation
-		  		      If set, the variation of the mesh's
-		  		      coordinates' own distance along the
+    bool		computeNormal(Coord3& res,const CubeSampling* cs=0,
+				      const FloatMathFunction* t2d=0,
+				      bool normalize=true) const;
+			/*!< Computes an aproximation of the surface's
+			     orientation
+			     \param cs		Compute only within this cube.
+						If ommitted, the depth will be
+						computed on the entire surface.
+			     \param depthconv	Convert the depth before
+						computing. This can be handy
+						if z is given in timedomain wich
+						will give problems in pca. If
+						ommitted, the z coords will not
+						be converted.
+			*/
+
+    float		normalDistance(const Coord3&,
+				       const FloatMathFunction* t2d=0,
+				       Interval<float>* meshvariation=0) const;
+			/*!< Computes the distance along normal of the closest
+			     mesh's plane.
+			  \returns the distance. Note that the distance is
+			   negative on the back side of the surface.
+			  \param meshvariation
+				      If set, the variation of the mesh's
+				      coordinates' own distance along the
 				      normal is set. If the returned value
 				      lies inside this range, it cannot be
 				      said on which side of the surface
 				      the given coord is.
-		*/
+			*/
 
-    char	whichSide( const Coord3&,
-	    		   const FloatMathFunction* depthconv=0,
-			   float fuzzyness=0 ) const;
-		/*!< Determies wich side of the surface the position is.
-		  \retval	1	The positive side
-		  \retval	0	Is on (within precision) the surface
-		  \retval	-1	The negative side
-		  \retval	-2	Side could not be determined
-		*/
+    char		whichSide(const Coord3&,
+				  const FloatMathFunction* t2d=0,
+				  float fuzzyness=0) const;
+			/*!< Determies wich side of the surface the position is.
+			  \retval	1	The positive side
+			  \retval	0	Is on the surface
+			  \retval	-1	The negative side
+			  \retval	-2	Side could not be determined
+			*/
 
+    bool		checkSupport(bool yn);
+    			/*!<\returns previous status */
+    bool		checksSupport() const;
 
-    bool			checkSupport( bool yn );
-    				/*!<\returns previous status */
-    bool			checksSupport() const;
+    bool		isAtEdge(const PosID&) const;
 
-    bool			isAtEdge(const PosID&) const;
+    bool		isChanged(int) const		{ return changed; }
+    void		resetChangedFlag()		{ changed=false; }
 
-    bool			isChanged(int) const { return changed; }
-    void			resetChangedFlag() { changed=false; }
-
-    virtual bool		usePar( const IOPar& );
-    virtual void		fillPar( IOPar& ) const;
+    virtual bool	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
 
 protected:
 
-    SectionID		addSection( Geometry::ParametricSurface*,
-	    			    const char* nm, SectionID, bool history);
+    SectionID		addSection(Geometry::ParametricSurface*,
+				   const char* nm,SectionID,
+				   bool addtohistory);
 
-    virtual Geometry::ParametricSurface*	
-			createSectionSurface() const = 0;
+    virtual Geometry::ParametricSurface* createSectionSurface() const = 0;
 
-    SubID			getSurfSubID(const RowCol&,
-	    				     SectionID) const;
-    SubID			getSurfSubID(const Geometry::PosID&,
-					     SectionID) const;
+    SubID		getSurfSubID(const RowCol&,SectionID) const;
+    SubID		getSurfSubID(const Geometry::PosID&,
+				     SectionID) const;
 
-    void			getMeshCoords( const PosID&,
-					       Coord3& c00, Coord3& c10,
-					       Coord3& c01, Coord3& c11,
-					       bool& c00def, bool& c10def,
-					       bool& c01def, bool& c11def,
-					       const FloatMathFunction* t2d=0)
-									const;
+    void		getMeshCoords(const PosID&,
+				      Coord3& c00, Coord3& c10,
+				      Coord3& c01, Coord3& c11,
+				      bool& c00def, bool& c10def,
+				      bool& c01def, bool& c11def,
+				      const FloatMathFunction* t2d=0) const;
 
-    Surface&				surface;
-
+    Surface&			surface;
     ObjectSet<Geometry::ParametricSurface>	meshsurfaces;
-    TypeSet<SectionID>			sectionids;
-    BufferStringSet			sectionnames;
+    TypeSet<SectionID>		sectionids;
+    BufferStringSet		sectionnames;
 
-    RowCol				loadedstep;
-    RowCol				step_;
-    TypeSet<RowCol>			origos;
+    RowCol			loadedstep_;
+    RowCol			step_;
 
-    float 				shift;
-    bool				changed;
+    float 			shift;
+    bool			changed;
 };
 
 
 }; // Namespace
-
 
 #endif
