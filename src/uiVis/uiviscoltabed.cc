@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.8 2005-02-04 14:35:43 kristofer Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.9 2005-04-15 12:23:13 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -27,7 +27,7 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     , coltabcb( mCB(this,uiVisColTabEd,colTabChangedCB) )
 {
     const char* setkey = "dTect.Color table.Name";
-    BufferString ctname = "Red-White-Black";
+    BufferString ctname = "Seismics";
     mSettUse(get,setkey,"",ctname);
     ColorTable ct( ctname );
     ct.scaleTo( Interval<float>(0,1) );

@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.39 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.40 2005-04-15 12:23:01 cvsnanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -433,7 +433,7 @@ void ColorTable::add( const IOPar& iopar, BufferStringSet* names,
 
 bool ColorTable::get( const char* nm, ColorTable& ct )
 {
-    BufferString ctname = "Rainbow";
+    BufferString ctname = "Seismics";
     if ( !nm || !*nm )
 	mSettUse(get,"dTect.Color table","Name",ctname);
     else
