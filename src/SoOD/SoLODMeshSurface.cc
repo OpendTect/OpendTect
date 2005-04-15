@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.8 2005-04-14 09:06:25 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.9 2005-04-15 12:27:36 cvsnanne Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -2189,7 +2189,7 @@ SoLODMeshSurface::SoLODMeshSurface()
     , nrcolparts( 0 )
 {
     SO_NODE_CONSTRUCTOR(SoLODMeshSurface);
-    SO_NODE_ADD_FIELD( coordinates, (0,0,0) );
+    SO_NODE_ADD_FIELD( coordinates, (1e30,1e30,1e30) );
     SO_NODE_ADD_FIELD( materialIndex, (0) );
     SO_NODE_ADD_FIELD( meshStyle, (0) );
     SO_NODE_ADD_FIELD( resolution, (-1) );
