@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.36 2005-03-10 11:49:18 cvskris Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.37 2005-04-15 10:34:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "ptrman.h"
 #include "parametricsurface.h"
+#include "uicursor.h"
 
 #include <stdio.h>
 
@@ -155,6 +156,8 @@ bool uiExportHorizon::writeAscii()
 
     uiExecutor dlg( this, *exec );
     if ( !dlg.go() ) return false;
+
+    uiCursorChanger cursorlock( uiCursor::Wait );
 
     const float zfac = SI().zIsTime() ? 1000 : 1;
     const int nrattribs = hor->auxdata.nrAuxData();
