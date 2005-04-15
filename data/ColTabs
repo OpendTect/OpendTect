@@ -4,64 +4,79 @@ Tue Jan  8 14:04:25 2002
 !
 Standard color tables
 
-1.Name       :	Red-White-Blue
-1.Value-Color.1: 0`255`0`0
-1.Value-Color.2: 0.5`255`255`255
-1.Value-Color.3: 1`0`0`255
+1.Name		: Seismics
+1.Value-Color.0: 0`170`0`0`255
+1.Value-Color.1: 0.070352`255`28`0`0
+1.Value-Color.2: 0.25`255`200`0`0
+1.Value-Color.3: 0.5`255`255`255`0
+1.Value-Color.4: 0.883249`56`70`127`255
+1.Value-Color.5: 1`0`0`0`0
 1.Transparency.0: 0`0
 1.Transparency.1: 1`0
-1.Undef color:	200`200`200
+1.Undef color: 150`200`150`0
 1.Marker color: 0`240`0
 
-2.Name       :	Red-White-Black
-2.Value-Color.1: 0`255`0`0
-2.Value-Color.2: 0.25`255`200`0
-2.Value-Color.3: 0.5`255`255`255
-2.Value-Color.4: 1`0`0`0
+2.Name		: Depth
+2.Value-Color.0: 0`255`0`0`255
+2.Value-Color.1: 0.311558`0`255`0`255
+2.Value-Color.2: 0.5`255`255`0`255
+2.Value-Color.3: 0.653266`170`255`255`255
+2.Value-Color.4: 0.819095`117`190`179`255
+2.Value-Color.5: 1`42`42`126`255
 2.Transparency.0: 0`0
-2.Transparency.1: 1`0
-2.Undef color:	150`200`150
-2.Marker color: 0`240`0
+2.Transparency.1: 0.201005`0
+2.Transparency.2: 0.452261`0
+2.Transparency.3: 0.497487`0
+2.Transparency.4: 0.547739`0
+2.Transparency.5: 0.698492`0
+2.Transparency.6: 1`0
+2.Undef color: 200`200`200`0
+2.Marker color: 0`0`0
 
-3.Name       :	Grey scales
-3.Value-Color.1: 0`255`255`255
-3.Value-Color.2: 1`0`0`0
+3.Name		: Faults
+3.Value-Color.0: 0`255`255`255`0
+3.Value-Color.1: 0.406091`197`180`153`255
+3.Value-Color.2: 0.492386`216`173`1`255
+3.Value-Color.3: 0.57868`73`145`0`255
+3.Value-Color.4: 0.847716`0`85`0`255
+3.Value-Color.5: 1`0`111`166`255
 3.Transparency.0: 0`0
 3.Transparency.1: 1`0
-3.Undef color:	255`255`200
+3.Undef color: 255`255`200`255
 3.Marker color: 0`240`0
 
-4.Name       :	Rainbow
-4.Value-Color.1: 0`0`0`255
-4.Value-Color.2: 0.25`0`255`255
-4.Value-Color.3: 0.4`0`255`0
-4.Value-Color.4: 0.55`255`255`0
-4.Value-Color.5: 0.8`255`0`0
-4.Value-Color.6: 1`255`0`255
-4.Transparency.0: 0`0
-4.Transparency.1: 1`0
-4.Undef color:	200`200`200
+4.Name		: Chimney
+4.Value-Color.0: 0`0`0`255`255
+4.Value-Color.1: 0.436548`50`113`207`100
+4.Value-Color.2: 0.482233`42`84`255`255
+4.Value-Color.3: 0.832487`0`255`0`255
+4.Value-Color.4: 0.959391`255`255`0`255
+4.Value-Color.5: 1`255`255`0`255
+4.Transparency.0: 0`255
+4.Transparency.1: 0.316583`255
+4.Transparency.2: 0.668342`0
+4.Transparency.3: 1`0
+4.Undef color: 200`200`200`255
 4.Marker color: 0`0`0
 
-5.Name       :	SunRise
-5.Value-Color.1: 0`255`255`255
-5.Value-Color.2: 0.5`255`255`0
-5.Value-Color.3: 1`255`0`0
+5.Name       :	Red-White-Black
+5.Value-Color.1: 0`255`0`0
+5.Value-Color.2: 0.25`255`200`0
+5.Value-Color.3: 0.5`255`255`255
+5.Value-Color.4: 1`0`0`0
 5.Transparency.0: 0`0
 5.Transparency.1: 1`0
-5.Undef color:	200`200`200
+5.Undef color:	150`200`150
 5.Marker color: 0`240`0
 
-6.Name       :	Pastel
-6.Value-Color.1: 0`0`0`255
-6.Value-Color.2: 0.25`0`255`255
-6.Value-Color.3: 0.5`255`255`255
-6.Value-Color.4: 0.75`255`255`0
-6.Value-Color.5: 1`255`0`0
+6.Name       :	Red-White-Blue
+6.Value-Color.1: 0`255`0`0
+6.Value-Color.2: 0.5`255`255`255
+6.Value-Color.3: 1`0`0`255
 6.Transparency.0: 0`0
 6.Transparency.1: 1`0
 6.Undef color:	200`200`200
-6.Marker color: 0`0`0
+6.Marker color: 0`240`0
 
 7.Name       :	Extremes
 7.Value-Color.1: 0`255`255`0
@@ -75,41 +90,70 @@ Standard color tables
 7.Undef color:	200`200`200
 7.Marker color: 0`0`0
 
-8.Name       :	Flames
+8.Name       :	Grey scales
 8.Value-Color.1: 0`255`255`255
-8.Value-Color.2: 0.2`255`255`255
-8.Value-Color.3: 0.49999`0`0`0
-8.Value-Color.4: 0.5`255`0`0
-8.Value-Color.5: 0.95`255`255`0
-8.Value-Color.6: 1`255`255`0
+8.Value-Color.2: 1`0`0`0
 8.Transparency.0: 0`0
 8.Transparency.1: 1`0
-8.Undef color:	150`200`150
+8.Undef color:	255`255`200
 8.Marker color: 0`240`0
 
-9.Name       :	Blue Spirit
+9.Name       :	Rainbow
 9.Value-Color.1: 0`0`0`255
-9.Value-Color.2: 0.5`255`255`255
-9.Value-Color.3: 1`0`0`255
+9.Value-Color.2: 0.25`0`255`255
+9.Value-Color.3: 0.4`0`255`0
+9.Value-Color.4: 0.55`255`255`0
+9.Value-Color.5: 0.8`255`0`0
+9.Value-Color.6: 1`255`0`255
 9.Transparency.0: 0`0
 9.Transparency.1: 1`0
 9.Undef color:	200`200`200
-9.Marker color: 0`240`0
+9.Marker color: 0`0`0
 
-10.Name       :	5 Segments
-10.Value-Color.1: 0`255`0`0
-10.Value-Color.2: 0.2`255`0`0
-10.Value-Color.3: 0.20001`0`255`255
-10.Value-Color.4: 0.4`0`255`255
-10.Value-Color.5: 0.4.0001`255`255`0
-10.Value-Color.6: 0.6`255`255`0
-10.Value-Color.7: 0.60001`0`255`0
-10.Value-Color.8: 0.8`0`255`0
-10.Value-Color.9: 0.80001`0`0`255
-10.Value-Color.10: 1`0`0`255
+10.Name       :	SunRise
+10.Value-Color.1: 0`255`255`255
+10.Value-Color.2: 0.5`255`255`0
+10.Value-Color.3: 1`255`0`0
 10.Transparency.0: 0`0
 10.Transparency.1: 1`0
 10.Undef color:	200`200`200
-10.Marker color: 0`0`0
+10.Marker color: 0`240`0
+
+11.Name       :	Pastel
+11.Value-Color.1: 0`0`0`255
+11.Value-Color.2: 0.25`0`255`255
+11.Value-Color.3: 0.5`255`255`255
+11.Value-Color.4: 0.75`255`255`0
+11.Value-Color.5: 1`255`0`0
+11.Transparency.0: 0`0
+11.Transparency.1: 1`0
+11.Undef color:	200`200`200
+11.Marker color: 0`0`0
+
+12.Name       :	Flames
+12.Value-Color.1: 0`255`255`255
+12.Value-Color.2: 0.2`255`255`255
+12.Value-Color.3: 0.49999`0`0`0
+12.Value-Color.4: 0.5`255`0`0
+12.Value-Color.5: 0.95`255`255`0
+12.Value-Color.6: 1`255`255`0
+12.Transparency.0: 0`0
+12.Transparency.1: 1`0
+12.Undef color:	150`200`150
+12.Marker color: 0`240`0
+
+13.Name		: Experimental
+13.Value-Color.0: 0`85`170`255`255
+13.Value-Color.1: 0.040201`39`117`59`255
+13.Value-Color.2: 0.221106`85`255`127`255
+13.Value-Color.3: 0.467337`171`171`171`255
+13.Value-Color.4: 0.502513`0`0`0`255
+13.Value-Color.5: 0.527638`171`171`171`255
+13.Value-Color.6: 0.964824`252`142`24`255
+13.Value-Color.7: 1`255`0`0`255
+13.Transparency.0: 0`0
+13.Transparency.1: 1`0
+13.Undef color: 150`200`150`0
+13.Marker color: 0`0`0
 
 !
