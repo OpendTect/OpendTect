@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.92 2005-03-31 15:31:21 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.93 2005-04-15 13:20:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,7 +271,13 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
-    mMwHandle.closeOK() ? ce->accept() : ce->ignore();
+    if (  mMwHandle.closeOK() )
+    {
+	mMwHandle.windowClosed.trigger(mMwHandle);
+	ce->accept();
+    }
+    else
+	ce->ignore();
 }
 
 
