@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.49 2005-04-12 11:08:35 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.50 2005-04-15 10:35:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 
     displayfld = new uiCheckBox( grp, "Display after import" );
     displayfld->attach( alignedBelow, outfld );
+
+    interpolSel(0);
 }
 
 
@@ -276,6 +278,7 @@ void uiImportHorizon::scanFile( CallBacker* )
     hs.set( scanner.inlRg(), scanner.crlRg() );
     subselfld->setInput( hs );
     interpolfld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
+    interpolSel(0);
     grp->setSensitive( true );
 }
 
