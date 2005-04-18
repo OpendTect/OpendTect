@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.21 2005-04-04 15:25:10 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.22 2005-04-18 14:09:44 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,21 +152,33 @@ bool JobRunner::addHost( const HostData& hd )
     else
 	return true; // host already in use
 
-    bool res = assignJob( *hfi );
+    AssignStat res = assignJob( *hfi );
+
     if ( isnew )
     {
-	if ( res )
-	    hostinfo_ += hfi;
-	else
+	if ( res == BadHost )
 	    delete hfi;
+	else
+	    hostinfo_ += hfi;
     }
 
-    return res;
+    return !(res == BadHost);
 }
 
 
-bool JobRunner::assignJob( HostNFailInfo& hfi )
+JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 {
+    static int waittime( atoi( getenv("DTECT_WAIT_TIME")
+			     ? getenv("DTECT_WAIT_TIME") : "1000") )
+    static int timestamp = -1;
+
+    int elapsed = timestamp > 0 ? Time_getMilliSeconds() - timestamp : -1;
+    if ( elapsed < 0 ) timestamp = Time_getMilliSeconds();
+
+    if ( elapsed < waittime ) return NotReady; 
+
+    timestamp = Time_getMilliSeconds();
+    
     // First go for new jobs, then try failed
     for ( int tryfailed=0; tryfailed<2; tryfailed++ )
     {
@@ -186,13 +198,13 @@ bool JobRunner::assignJob( HostNFailInfo& hfi )
 
 	    StartRes res = startJob( ji, hfi );
 	    if ( res == HostBad )
-		return false;
+		return BadHost;
 	    else if ( res == Started )
-		return true;
+		return JobStarted;
 	}
     }
 
-    return false;
+    return NoJobs;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.16 2005-04-13 14:43:15 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.17 2005-04-18 14:09:44 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,6 +179,7 @@ public:
 				threadmutex.lock();
 				if( exitreq_ ) *exitreq_ = true;
 				threadmutex.unlock();
+				thread->stop();
 			    }
 
     bool		ready()	{ return port() > 0; }
@@ -311,7 +312,7 @@ void JobIOHandler::doDispatch( CallBacker* )
 
     bool exitreq = false; exitreq_ = &exitreq;
     AlarmTimer watchdog( mCB( this, JobIOHandler, alarmHndl ) );
-     
+
     while( 1 ) 
     {
 	watchdog.start( 3 * timeout );
