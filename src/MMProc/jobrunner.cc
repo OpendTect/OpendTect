@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.22 2005-04-18 14:09:44 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.23 2005-04-18 14:10:34 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,8 +168,8 @@ bool JobRunner::addHost( const HostData& hd )
 
 JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 {
-    static int waittime( atoi( getenv("DTECT_WAIT_TIME")
-			     ? getenv("DTECT_WAIT_TIME") : "1000") )
+    static int waittime= atoi( getenv("DTECT_WAIT_TIME")
+			     ? getenv("DTECT_WAIT_TIME") : "1000");
     static int timestamp = -1;
 
     int elapsed = timestamp > 0 ? Time_getMilliSeconds() - timestamp : -1;
