@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.5 2005-04-04 11:28:27 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.6 2005-04-18 07:15:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,9 +187,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 #define mErrRet(s) \
     { strm << '\n' << s << '\n' << std::endl; mDestroyWorkers ; return false; }
 
-#define mRetErr(s) \
-	{ strm << '\n' << s << '\n' << std::endl; \
-	  mDestroyWorkers ; return false; }
+#define mPIDMsg(s) { strm << "\n["<< getPID() <<"]: " << s << std::endl; }
 
 bool BatchProgram::go( std::ostream& strm )
 {
@@ -212,20 +210,20 @@ bool BatchProgram::go( std::ostream& strm )
 	mErrRet( errmsg );
 
     strm << "Loading: " << mid.buf() << "\n\n";
-    PtrMan<Executor> loader = EM::EMM().loadObject( mid, 0 );
-    if ( !loader || !loader->execute(&strm) ) mRetErr( "Cannot load surface" );
+    PtrMan<Executor> loader = EM::EMM().objectLoader( mid, 0 );
+    if ( !loader || !loader->execute(&strm) ) mErrRet( "Cannot load surface" );
 
     AttribDescSet attribset;
     PtrMan<IOPar> attribs = pars().subselect( "Attributes" );
     if ( !attribset.usePar(*attribs) )
-	mRetErr( attribset.errMsg() )
+	mErrRet( attribset.errMsg() )
 
     PtrMan<IOPar> output = pars().subselect( "Output.1" );
-    if ( !output ) mRetErr( "No output specified" );
+    if ( !output ) mErrRet( "No output specified" );
     
     PtrMan<IOPar> attribsiopar = 
 			    output->subselect(CubeAttribOutput::attribkey);
-    if ( !attribsiopar ) mRetErr( "No output specified" );
+    if ( !attribsiopar ) mErrRet( "No output specified" );
 
     TypeSet<int> attribids;
     int nrattribs = 1;
@@ -239,7 +237,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     if ( !attribids.size() )
-	mRetErr( "No attributes selected" );
+	mErrRet( "No attributes selected" );
 
     AttribEngMan aem;
     aem.setAttribSet( &attribset );
@@ -289,12 +287,11 @@ bool BatchProgram::go( std::ostream& strm )
 	    if ( loading )
 	    {
 		loading = false;
-		strm << "\n["<<getPID()<<"]: Processing started."
-		     << std::endl;
+		mPIDMsg( "Processing started." );
 	    }
 	    if ( res > 1 )
-		strm << "\n["<<getPID()<<"]: Warning: "
-		     << exec->message() << std::endl;
+		mPIDMsg( exec->message() );
+
 	    bool newcalc = exec->calculating();
 	    if ( oldcalc != newcalc )
 	    {
@@ -307,13 +304,13 @@ bool BatchProgram::go( std::ostream& strm )
 	else
 	{
 	    if ( res == -1 )
-		mRetErr( exec->errMsg() )
+		mErrRet( exec->errMsg() )
 	    break;
 	}
     }
 
     progressmeter.finish();
-    strm << "\n\n["<<getPID()<<"]: Processing done. Closing up.\n" << std::endl;
+    mPIDMsg( "Processing done." );
 
     // It is VERY important workers are destroyed BEFORE the last writeStatus!!!
     mDestroyWorkers
@@ -321,15 +318,15 @@ bool BatchProgram::go( std::ostream& strm )
     addSurfaceData( mid, attribrefs, bivs );
     EM::EMObject* obj = EM::EMM().getObject( EM::EMM().multiID2ObjectID(mid) );
     mDynamicCastGet(EM::Surface*,surface,obj)
-    if ( !surface ) mRetErr( "Huh" );
+    if ( !surface ) mErrRet( "Huh" );
 
     EM::SurfaceIOData sd; sd.use( *surface );
     EM::SurfaceIODataSelection sels( sd );
     PtrMan<Executor> saver = surface->auxdata.auxDataSaver( -1, -1 );
-    if ( !saver || !saver->execute(&strm) ) mRetErr( "Cannot save data" );
+    if ( !saver || !saver->execute(&strm) )
+	mErrRet( "Cannot save data" );
 
-    strm << "\n["<<getPID()<<"]: Successfully saved data."
-	 << std::endl;
+    strm << "Successfully saved data." << std::endl;
 
     return true;
 }
