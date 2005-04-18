@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.25 2005-04-15 12:32:37 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.26 2005-04-18 11:55:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uislicesel.h"
 #include "cubesampling.h"
 #include "uispinbox.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
 #include "uibutton.h"
 #include "survinfo.h"
 #include "thread.h"
@@ -135,15 +137,85 @@ class uiSliceScroll : public uiDialog
 {
 public:
 
-uiSliceScroll( uiSliceSel* p, const CallBack& c )
-	: uiDialog(p,uiDialog::Setup("Scrolling",
-				 "Control scrolling through the data","0.4.2")
+uiSliceScroll( uiSliceSel* ss, const CallBack& c )
+	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
 		.oktext("").canceltext("Dismiss"))
 	, appcb(c)
 {
+    const CubeSampling& cs = SI().sampling( false );
+    const HorSampling& hs = cs.hrg;
+    int step = hs.step.inl;
+    int maxstep = hs.start.inl - hs.stop.inl;
+    if  ( ss->iscrl )
+    {
+	step = hs.step.crl;
+	maxstep = hs.start.crl - hs.stop.crl;
+    }
+    else if ( ss->istsl )
+    {
+	const float zfact( SI().zFactor() );
+	step = mNINT(cs.zrg.step*zfact);
+	float zrg = (cs.zrg.stop - cs.zrg.start) * zfact;
+	maxstep = mNINT(zrg);
+    }
+    if ( maxstep < 0 ) maxstep = -maxstep;
+    stepfld = new uiLabeledSpinBox( this, "Scroll step" );
+    stepfld->box()->setMinValue( -maxstep );
+    stepfld->box()->setMaxValue( maxstep );
+    stepfld->box()->setStep( step );
+    stepfld->box()->setValue( step );
+
+    typfld = new uiLabeledComboBox( this, "Control" );
+    typfld->box()->addItem( "Manual" );
+    typfld->box()->addItem( "Auto" );
+    typfld->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
+    typfld->attach( alignedBelow, stepfld );
+
+    ctrlbut = new uiPushButton( this, "Advance" );
+    ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
+    ctrlbut->attach( alignedBelow, typfld );
+
+    dtfld = new uiGenInput( this, "Time between updates (s)", FloatInpSpec(1) );
+    dtfld->attach( alignedBelow, ctrlbut );
+
+    finaliseDone.notify( mCB(this,uiSliceScroll,typSel) );
 }
 
-    CallBack	appcb;
+
+void typSel( CallBacker* )
+{
+    const bool isauto = typfld->box()->currentItem() == 1;
+    dtfld->display( isauto );
+    ctrlbut->setText( isauto ? "Go" : "Advance" ); // TODO Go or pause
+}
+
+
+void butPush( CallBacker* )
+{
+    //TODO
+}
+
+
+const char* getTitle( uiSliceSel* ss )
+{
+    static BufferString title;
+    title = "Control scrolling through ";
+    if ( !ss->istsl )
+	title += ss->isinl ? "Inlines" : "Crosslines";
+    else
+    {
+	title += SI().zIsTime() ? "Time" : "Depth";
+	title += " slices";
+    }
+    return title.buf();
+}
+
+    uiSliceSel*		slcsel;
+    uiLabeledSpinBox*	stepfld;
+    uiLabeledComboBox*	typfld;
+    uiPushButton*	ctrlbut;
+    uiGenInput*		dtfld;
+    CallBack		appcb;
 
 };
 
