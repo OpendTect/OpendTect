@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.16 2005-04-04 15:25:10 cvsarend Exp $
+ RCS:		$Id: jobrunner.h,v 1.17 2005-04-18 14:09:09 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,7 +143,10 @@ protected:
     enum StartRes		{ Started, NotStarted, JobBad, HostBad };
     StartRes			startJob( JobInfo& ji, HostNFailInfo& jhi );
     bool			runJob(JobInfo&,const HostData&);
-    bool			assignJob(HostNFailInfo&);
+
+
+    enum AssignStat		{ NotReady, BadHost, JobStarted, NoJobs };
+    AssignStat			assignJob(HostNFailInfo&);
     bool			haveIncomplete() const;
 
     enum HostStat		{ OK = 0, SomeFailed = 1, HostFailed = 2 };
