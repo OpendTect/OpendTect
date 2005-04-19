@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.27 2005-04-19 14:33:13 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.28 2005-04-19 14:53:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,9 +144,11 @@ uiSliceScroll( uiSliceSel* ss )
 	, slcsel(ss)
 	, inauto(false)
 	, paused(false)
-	, timer(0)
 	, zfact( SI().zFactor() )
 {
+    timer = new Timer( "uiSliceScroll timer" );
+    timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
+
     const CubeSampling& cs = SI().sampling( false );
     const HorSampling& hs = cs.hrg;
     int step = hs.step.inl;
@@ -188,7 +190,7 @@ uiSliceScroll( uiSliceSel* ss )
 
 ~uiSliceScroll()
 {
-    delete timer;
+    delete timer; timer = 0;
 }
 
 
@@ -259,11 +261,8 @@ void timerTick( CallBacker* )
 
 void setTimer()
 {
-    if ( !timer )
-    {
-	timer = new Timer( "uiSliceScroll timer" );
-	timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
-    }
+    if ( !timer ) return;
+
     float val = dtfld->getfValue();
     if ( Values::isUdf(val) || val < 0.1 )
 	val = 100;
