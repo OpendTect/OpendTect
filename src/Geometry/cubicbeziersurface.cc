@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.15 2005-04-19 13:15:16 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.16 2005-04-19 13:53:20 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -543,17 +543,17 @@ CubicBezierSurface::getPatch(const RCol& rc) const
     					getBezierVertex(rc,  RowCol(1,0)),
 	    				getBezierVertex(rc,  RowCol(1,1)),
 	    				getBezierVertex(rc01,RowCol(1,-1)),
-	    				getBezierVertex(rc01,RowCol(1,-1)),
+	    				getBezierVertex(rc01,RowCol(1,0)),
 
     					getBezierVertex(rc10,  RowCol(-1,0)),
 	    				getBezierVertex(rc10,  RowCol(-1,1)),
 	    				getBezierVertex(rc11,  RowCol(-1,-1)),
-	    				getBezierVertex(rc11,  RowCol(-1,-1)),
+	    				getBezierVertex(rc11,  RowCol(-1,0)),
 
-    					getBezierVertex(rc10,  RowCol(0,0)),
+    					getKnot(rc10, true ),
 	    				getBezierVertex(rc10,  RowCol(0,1)),
 	    				getBezierVertex(rc11,  RowCol(0,-1)),
-	    				getBezierVertex(rc11,  RowCol(0,-1)) );
+	    				getKnot(rc11, true ));
 }
 
 
