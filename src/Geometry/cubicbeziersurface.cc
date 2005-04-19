@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.13 2005-04-11 13:44:24 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.14 2005-04-19 13:04:09 cvsnanne Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -186,7 +186,7 @@ IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
 
     IntervalND<float> bbox(3);
     const StepInterval<int> rowrange = rowRange();
-    const StepInterval<int> colrange = rowRange();
+    const StepInterval<int> colrange = colRange();
 
     for ( RowCol rc(rowrange.start,0); rc.row<=rowrange.stop;
 	  rc.row+=rowrange.step )
@@ -216,7 +216,7 @@ IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
 Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
 {
     const StepInterval<int> rowrange = rowRange();
-    const StepInterval<int> colrange = rowRange();
+    const StepInterval<int> colrange = colRange();
 
     int prevrowidx = rowrange.getIndex(params.x);
     if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
