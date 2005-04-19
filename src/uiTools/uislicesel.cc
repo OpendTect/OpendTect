@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.26 2005-04-18 11:55:58 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.27 2005-04-19 14:33:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uibutton.h"
 #include "survinfo.h"
+#include "timer.h"
 #include "thread.h"
 
 
@@ -48,12 +49,12 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
 	mainObject()->setTabOrder( (uiObject*)inl0fld, (uiObject*)crl0fld );
     mainObject()->setTabOrder( (uiObject*)crl0fld, (uiObject*)z0fld );
 
-    uiButton* applybut = new uiPushButton( this, "Apply" );
-    applybut->activated.notify( mCB(this,uiSliceSel,applyPush) );
-    mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)applybut );
-    applybut->attach( alignedBelow, z0fld );
     if ( !isvol && !is2d )
     {
+	uiButton* applybut = new uiPushButton( this, "Apply" );
+	applybut->activated.notify( mCB(this,uiSliceSel,applyPush) );
+	mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)applybut );
+	applybut->attach( alignedBelow, z0fld );
 	uiButton* scrollbut = new uiPushButton( this, "Scroll ..." );
 	scrollbut->activated.notify( mCB(this,uiSliceSel,scrollPush) );
 	scrollbut->attach( rightOf, isinl ? inl0fld : (iscrl?crl0fld:z0fld) );
@@ -137,10 +138,14 @@ class uiSliceScroll : public uiDialog
 {
 public:
 
-uiSliceScroll( uiSliceSel* ss, const CallBack& c )
+uiSliceScroll( uiSliceSel* ss )
 	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
 		.oktext("").canceltext("Dismiss"))
-	, appcb(c)
+	, slcsel(ss)
+	, inauto(false)
+	, paused(false)
+	, timer(0)
+	, zfact( SI().zFactor() )
 {
     const CubeSampling& cs = SI().sampling( false );
     const HorSampling& hs = cs.hrg;
@@ -153,7 +158,6 @@ uiSliceScroll( uiSliceSel* ss, const CallBack& c )
     }
     else if ( ss->istsl )
     {
-	const float zfact( SI().zFactor() );
 	step = mNINT(cs.zrg.step*zfact);
 	float zrg = (cs.zrg.stop - cs.zrg.start) * zfact;
 	maxstep = mNINT(zrg);
@@ -182,17 +186,90 @@ uiSliceScroll( uiSliceSel* ss, const CallBack& c )
 }
 
 
+~uiSliceScroll()
+{
+    delete timer;
+}
+
+
 void typSel( CallBacker* )
 {
-    const bool isauto = typfld->box()->currentItem() == 1;
-    dtfld->display( isauto );
-    ctrlbut->setText( isauto ? "Go" : "Advance" ); // TODO Go or pause
+    const bool autoreq = typfld->box()->currentItem() == 1;
+    dtfld->display( autoreq );
+    if ( inauto != autoreq )
+    {
+	if ( autoreq )
+	    startAuto();
+	else
+	    timer->stop();
+    }
+    ctrlbut->setText( autoreq ? "Pause" : "Advance" );
+    inauto = autoreq;
 }
 
 
 void butPush( CallBacker* )
 {
-    //TODO
+    if ( !inauto )
+	doAdvance();
+    else
+    {
+	paused = !paused;
+	ctrlbut->setText( paused ? "Go" : "Pause" );
+    }
+}
+
+
+void startAuto()
+{
+    paused = false;
+    doAdvance();
+    ctrlbut->setText( "Pause" );
+    setTimer();
+}
+
+
+void doAdvance()
+{
+    int step = stepfld->box()->getValue();
+    slcsel->readInput();
+    if ( slcsel->isinl )
+	slcsel->inl0fld->box()->setValue( slcsel->cs.hrg.start.inl + step );
+    else if ( slcsel->iscrl )
+	slcsel->crl0fld->box()->setValue( slcsel->cs.hrg.start.crl + step );
+    else
+    {
+	float zval = 1000 * slcsel->cs.zrg.start + step;
+	slcsel->z0fld->box()->setValue( mNINT(zval) );
+    }
+
+    slcsel->applyPush(0);
+}
+
+
+void timerTick( CallBacker* )
+{
+    if ( !inauto )
+	return;
+    if ( !paused )
+	doAdvance();
+    setTimer();
+}
+
+
+void setTimer()
+{
+    if ( !timer )
+    {
+	timer = new Timer( "uiSliceScroll timer" );
+	timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
+    }
+    float val = dtfld->getfValue();
+    if ( Values::isUdf(val) || val < 0.1 )
+	val = 100;
+    else
+	val *= 1000;
+    timer->start( mNINT(val), true );
 }
 
 
@@ -215,14 +292,18 @@ const char* getTitle( uiSliceSel* ss )
     uiLabeledComboBox*	typfld;
     uiPushButton*	ctrlbut;
     uiGenInput*		dtfld;
-    CallBack		appcb;
+    const float		zfact;
+
+    bool		paused;
+    bool		inauto;
+    Timer*		timer;
 
 };
 
 
 void uiSliceSel::scrollPush( CallBacker* )
 {
-    uiSliceScroll dlg( this, appcb );
+    uiSliceScroll dlg( this );
     dlg.go();
 }
 
