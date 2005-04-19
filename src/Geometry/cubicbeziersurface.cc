@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.14 2005-04-19 13:04:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.15 2005-04-19 13:15:16 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -329,9 +329,9 @@ Coord3 CubicBezierSurface::getBezierVertex( const RCol& knot,
 	if ( !rowdir.isDefined() ) return rowdir;
 
 	if ( relpos.r()>0 )
-	    pos += rowdir.normalize()*directioninfluence;
+	    pos += rowdir;
 	else
-	    pos -= rowdir.normalize()*directioninfluence;
+	    pos -= rowdir;
     }
 
     if ( relpos.c() )
@@ -340,9 +340,9 @@ Coord3 CubicBezierSurface::getBezierVertex( const RCol& knot,
 	if ( !coldir.isDefined() ) return coldir;
 
 	if ( relpos.c()>0 )
-	    pos += coldir.normalize()*directioninfluence;
+	    pos += coldir;
 	else 
-	    pos -= coldir.normalize()*directioninfluence;
+	    pos -= coldir;
     }
 
     return pos;
