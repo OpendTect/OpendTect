@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.29 2004-10-20 14:44:55 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.30 2005-04-19 08:12:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	finpfld = new uiFileInput( this, "(First) CBVS file name",
 	       			   uiFileInput::Setup(GetDataDir())
-				   .filter("*.cbvs;;*") );
+				   .filter("CBVS (*.cbvs);;All (*)") );
 	finpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
 
 	StringListInpSpec spec;
