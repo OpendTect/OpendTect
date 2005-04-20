@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.28 2005-04-19 14:53:02 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.29 2005-04-20 13:09:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,6 +233,8 @@ void startAuto()
 
 void doAdvance()
 {
+    if ( !timer ) return;
+
     int step = stepfld->box()->getValue();
     slcsel->readInput();
     if ( slcsel->isinl )
@@ -269,6 +271,14 @@ void setTimer()
     else
 	val *= 1000;
     timer->start( mNINT(val), true );
+}
+
+
+bool rejectOK( CallBacker* )
+{
+    paused = true;
+    inauto = false;
+    return true;
 }
 
 
