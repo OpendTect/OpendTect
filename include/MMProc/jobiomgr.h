@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.7 2004-11-15 14:03:51 arend Exp $
+ RCS:		$Id: jobiomgr.h,v 1.8 2005-04-21 14:37:26 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,16 +37,17 @@ template <class T> class ObjQueue;
 class StatusInfo
 {
 public:
-			StatusInfo( char tg, int desc, int stat,
+			StatusInfo( char tg, int desc, int stat, int pid,
 				    const BufferString& mg, 
 				    const BufferString& hostname, int time )
 			    : tag(tg), descnr(desc), status(stat), msg(mg)
-			    , hostnm(hostname), timestamp(time) {}
+			    , hostnm(hostname), timestamp(time), procid(pid) {}
 
     char		tag;
     int			descnr;
     int			status;
     int			timestamp;
+    int			procid;
     BufferString	hostnm;
     BufferString	msg;
 };

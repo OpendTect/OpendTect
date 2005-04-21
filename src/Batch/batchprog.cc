@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.73 2005-04-13 14:43:15 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.74 2005-04-21 14:37:27 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.73 2005-04-13 14:43:15 cvsaren
 #include "plugins.h"
 #include "strmprov.h"
 #include "ctxtioobj.h"
+#include "debugmasks.h"
 
 #ifndef __msvc__
 #include <unistd.h>
@@ -385,18 +386,18 @@ bool MMSockCommunic::sendErrMsg_( const char* msg )
     return sendMsg( mERROR_MSG, -1, msg ); 
 }
 
-
 bool MMSockCommunic::sendPID_( int pid )
 { 
     return sendMsg( mPID_TAG, pid );
 }
 
-bool MMSockCommunic::sendProgress_( int progress )
+bool MMSockCommunic::sendProgress_( int progress, bool immediate )
 { 
-    return sendMsg( mPROC_STATUS, progress );
+    if ( immediate ) return sendMsg( mPROC_STATUS, progress );
+    return updateMsg( mPROC_STATUS, progress );
 }
 
-bool MMSockCommunic::sendState_( State stat, bool isexit )
+bool MMSockCommunic::sendState_( State stat, bool isexit, bool immediate )
 {
     int _stat = mSTAT_UNDEF;
     switch( stat )
@@ -411,8 +412,12 @@ bool MMSockCommunic::sendState_( State stat, bool isexit )
 	case Timeout	: _stat = mSTAT_TIMEOUT; break;
 	default		: _stat = mSTAT_UNDEF; break;
     }
-    
-    return sendMsg( isexit ? mEXIT_STATUS : mCTRL_STATUS, _stat );
+   
+
+    if ( immediate )
+	return sendMsg( isexit ? mEXIT_STATUS : mCTRL_STATUS, _stat );
+
+    return updateMsg( isexit ? mEXIT_STATUS : mCTRL_STATUS, _stat );
 }
 
 bool MMSockCommunic::updateMsg( char tag , int status, const char* msg )
@@ -450,10 +455,17 @@ bool MMSockCommunic::sendMsg( char tag , int status, const char* msg )
     statstr += bp.jobId();
     statstr += status;
     statstr += HostData::localHostName();
+    statstr += getPID();
 
     if ( msg && *msg )
 	statstr += msg;
 
+    if ( DBG::isOn(DBG_MM) )
+    {
+	BufferString msg("MMSockCommunic::sendMsg -- sending : ");
+	msg += statstr;		
+	DBG::message(msg);
+    }
     sock->writetag( tag, statstr );
 
     bool ret = true;
@@ -490,6 +502,27 @@ bool MMSockCommunic::sendMsg( char tag , int status, const char* msg )
     }
 
     delete sock;
+
+    static int last_succ = -1;
+
+    if ( ret || last_succ < 0 )
+	last_succ = Time_getMilliSeconds();
+    else if ( last_succ > 0 )
+    {
+	static int failtimeout = atoi( getenv("DTECT_FAIL_TIMEOUT")
+				     ? getenv("DTECT_FAIL_TIMEOUT"): "300000");
+
+	int elapsed = Time_getMilliSeconds() - last_succ;  
+	if ( elapsed > failtimeout )
+	{
+	    BufferString msg( "Time-out contacting master." );
+	    msg += " Last contact "; msg += elapsed/1000;
+	    msg += " sec ago. Exiting.";
+	    directMsg( msg );
+	    exitProgram( -1 );
+	}
+    }
+    
     return ret;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.28 2005-04-13 14:43:15 cvsarend Exp $
+ RCS:		$Id: batchprog.h,v 1.29 2005-04-21 14:37:26 cvsarend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -135,8 +135,8 @@ inline const BatchProgram& BP() { return *BatchProgram::inst; }
     if ( ret ) { nrattempts = 0; return true; } \
     if ( nrattempts++ < maxtries ) return true; \
     stillok = false; \
-    setErrMsg("Lost connection with master[1]."); \
-    return false; \
+    directMsg("Lost connection with master[1]. Exiting."); \
+    exitProgram( -1 ); return false; \
 }
 
 #define mTryMaxtries( fn ) { \
@@ -147,8 +147,8 @@ inline const BatchProgram& BP() { return *BatchProgram::inst; }
 	Time_sleep(1); \
     } \
     stillok = false; \
-    setErrMsg("Lost connection with master[2]."); \
-    return false; \
+    directMsg("Lost connection with master[2]. Exiting."); \
+    exitProgram( -1 ); return false; \
 }
 
 
@@ -171,14 +171,17 @@ public:
     void		setState( State s ) { stat = s; }
 			
     bool		updateState()
-			    { bool ret = sendState_(stat); mReturn(ret) }
+			    {
+				bool ret = sendState_(stat,false,false);
+				mReturn(ret)
+			    }
     bool		updateProgress( int p )
-			    { bool ret = sendProgress_(p); mReturn(ret) }
+			    { bool ret = sendProgress_(p,false); mReturn(ret) }
 			    
     bool		sendState(  bool isexit=false )
-			    { mTryMaxtries( sendState_(stat,isexit) ) }
+			    { mTryMaxtries( sendState_(stat,isexit,true) ) }
     bool		sendProgress( int p )
-			    { mTryMaxtries( sendProgress_(p) ) }
+			    { mTryMaxtries( sendProgress_(p,true) ) }
 
 			//! hostrelated error messages are more serious.
     bool		sendErrMsg( const char* msg )
@@ -197,8 +200,8 @@ protected:
 
     Socket*		mkSocket();
 
-    bool		sendState_( State, bool isexit=false );
-    bool		sendProgress_( int );
+    bool		sendState_( State, bool isexit, bool immediate );
+    bool		sendProgress_( int, bool immediate );
     bool		sendPID_( int );
     bool		sendErrMsg_( const char* msg );
 

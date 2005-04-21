@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.23 2005-04-18 14:10:34 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.24 2005-04-21 14:37:27 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,7 +278,21 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 
 void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 { 
-    if ( !isAssigned(ji) ) return;
+    if ( ji.hostdata_ )
+	iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+
+    if ( !isAssigned(ji) )
+    {
+	if ( mDebugOn )
+	{
+	    BufferString msg("----\nJobRunner::failedJob UNASSIGNED! : ");
+	    if ( ji.state_ == JobInfo::HostFailed ) msg += "host failed. ";
+	    if ( ji.state_ == JobInfo::JobFailed ) msg += "job failed. ";
+	    mAddDebugMsg( ji )
+	    DBG::message(msg);
+	}
+       	return;
+    }
 
     curjobinfo_ = &ji;
     ji.state_ = reason;
@@ -641,6 +655,10 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	ji->statusmsg_ = " active; ";
 	ji->statusmsg_ += ji->nrdone_;
 	ji->statusmsg_ += " traces done.";
+
+	if ( si.procid > 0 && ji->osprocid_ > 0  && si.procid != ji->osprocid_ )
+	    failedJob( *ji, JobInfo::JobFailed );
+
     break;
     case mCTRL_STATUS :
         switch( si.status )

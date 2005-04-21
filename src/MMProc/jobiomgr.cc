@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.17 2005-04-18 14:09:44 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.18 2005-04-21 14:37:27 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -242,7 +242,7 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
     for ( int idx=0; idx < sz; idx++ )
     {
 	JobHostRespInfo* jhri_ = jobhostresps_[idx];
-	if ( jhri_->descnr_ == descnr )
+	if ( descnr < 0 || jhri_->descnr_ == descnr )
 	{
 	    if ( !hostnm || !*hostnm )  { jhri = jhri_; break; }		
 
@@ -333,6 +333,7 @@ void JobIOHandler::doDispatch( CallBacker* )
 	int status=mSTAT_UNDEF;
 	BufferString hostnm;
 	BufferString errmsg;
+	int procid=-1;
 
 	if ( sock_ && sock_->ok() )
 	{
@@ -344,13 +345,30 @@ void JobIOHandler::doDispatch( CallBacker* )
 		getFromString( jobid, statstr[0] );
 		getFromString(status, statstr[1] );
 		hostnm = statstr[2];
-		errmsg = statstr[3];
+		getFromString( procid, statstr[3] );
+		errmsg = statstr[4];
 
 		char response = getRespFor( jobid, hostnm );
 		if ( response != mRSP_STOP )
 		{
 		    statusqueue_.add( new StatusInfo( tag, jobid, status,
-				      errmsg, hostnm, Time_getMilliSeconds()) );
+			    procid, errmsg, hostnm, Time_getMilliSeconds()) );
+		}
+
+		if ( mDebugOn )
+		{
+		    BufferString msg("JobIOMgr::JobIOMgr: Response to host ");
+		    msg += hostnm; msg += ", job: "; msg += jobid;
+		    msg += ": ";	    
+		    if ( response == mRSP_STOP )
+			msg +=  "STOP";
+		    else if ( response == mRSP_WORK )
+			msg +=  "WORK";
+		    else if ( response == mRSP_PAUSE )
+			msg +=  "PAUSE";
+		    else
+			msg += &response;
+		    DBG::message(msg);
 		}
 
 		sock_->writetag( response );
