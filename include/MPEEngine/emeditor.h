@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.4 2005-01-17 07:13:05 kristofer Exp $
+ RCS:           $Id: emeditor.h,v 1.5 2005-04-22 13:39:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,30 +27,31 @@ namespace MPE
 class ObjectEditor : public CallBackClass
 {
 public:
-    			ObjectEditor( EM::EMObject& );
-    			~ObjectEditor();
-    const EM::EMObject&	emObject() const { return emobject; }
-    virtual void	startEdit();
-    virtual void	finishEdit();
+    				ObjectEditor( EM::EMObject& );
+    				~ObjectEditor();
+    const EM::EMObject&		emObject() const	{ return emobject; }
+    virtual void		startEdit();
+    virtual void		finishEdit();
 
-    virtual void	getEditIDs( TypeSet<EM::PosID>& ) const;
-    virtual Coord3	getPosition( const EM::PosID& ) const;
-    virtual bool	setPosition( const EM::PosID&, const Coord3& );
+    virtual void		setEditIDs(const TypeSet<EM::PosID>&);
+    virtual void		getEditIDs(TypeSet<EM::PosID>&) const;
+    virtual Coord3		getPosition(const EM::PosID&) const;
+    virtual bool		setPosition(const EM::PosID&,const Coord3&);
 
-    virtual bool	mayTranslate1D( const EM::PosID& ) const;
-    virtual Coord3	translation1DDirection( const EM::PosID& ) const;
+    virtual bool		mayTranslate1D(const EM::PosID&) const;
+    virtual Coord3		translation1DDirection(const EM::PosID&) const;
 
-    virtual bool	mayTranslate2D( const EM::PosID& ) const;
-    virtual Coord3	translation2DNormal( const EM::PosID& ) const;
+    virtual bool		mayTranslate2D(const EM::PosID&) const;
+    virtual Coord3		translation2DNormal(const EM::PosID&) const;
 
-    virtual bool	mayTranslate3D( const EM::PosID& ) const;
+    virtual bool		mayTranslate3D(const EM::PosID&) const;
 
-    virtual bool	maySetNormal( const EM::PosID& ) const;
-    virtual Coord3	getNormal( const EM::PosID& ) const;
+    virtual bool		maySetNormal(const EM::PosID&) const;
+    virtual Coord3		getNormal(const EM::PosID&) const;
 
-    virtual bool	maySetDirection( const EM::PosID& ) const;
-    virtual Coord3	getDirectionPlaneNormal( const EM::PosID& ) const;
-    virtual Coord3	getDirection( const EM::PosID& ) const;
+    virtual bool		maySetDirection(const EM::PosID&) const;
+    virtual Coord3		getDirectionPlaneNormal(const EM::PosID&) const;
+    virtual Coord3		getDirection(const EM::PosID&) const;
 
     Notifier<ObjectEditor>	editpositionchange;
     				/*!<Won't trigger on position-changes,
@@ -68,6 +69,8 @@ protected:
 
     EM::EMObject&			emobject;
     TypeSet<EM::PosID>			changedpids;
+
+    TypeSet<EM::PosID>			editids;
 
 private:
     ObjectSet<Geometry::ElementEditor>	geeditors;
