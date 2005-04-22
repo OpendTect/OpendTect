@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.13 2005-04-07 15:51:40 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.14 2005-04-22 13:38:34 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -108,6 +108,7 @@ protected:
     void			removeAttribCache();
     bool			addSection(EM::SectionID);
     void			emSectionChangeCB(CallBacker*);
+    void			clickCB(CallBacker*);
 
     mVisTrans*			transformation;
     mVisTrans*			translation;

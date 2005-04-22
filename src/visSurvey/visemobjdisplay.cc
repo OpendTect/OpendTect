@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.21 2005-04-07 15:51:33 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.22 2005-04-22 13:38:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.21 2005-04-07 15:51:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.22 2005-04-22 13:38:28 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.21 2005-04-07 15:51:33 c
 #include "emmanager.h"
 #include "emobject.h"
 #include "mpeengine.h"
+#include "emeditor.h"
 #include "viscubicbeziersurface.h"
 #include "visdataman.h"
 #include "visevent.h"
@@ -108,16 +109,99 @@ void EMObjectDisplay::setDisplayTransformation( mVisTrans* nt )
 }
 
 
-void EMObjectDisplay::setSceneEventCatcher( visBase::EventCatcher* nec )
+void EMObjectDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
 {
-    if ( eventcatcher ) eventcatcher->unRef();
-    eventcatcher = nec;
-    if ( eventcatcher ) eventcatcher->ref();
+    if ( eventcatcher )
+    {
+	eventcatcher->eventhappened.remove( mCB(this,EMObjectDisplay,clickCB) );
+	eventcatcher->unRef();
+    }
+
+    eventcatcher = ec;
+    if ( eventcatcher )
+    {
+	eventcatcher->eventhappened.notify( mCB(this,EMObjectDisplay,clickCB) );
+	eventcatcher->ref();
+    }
 
     for ( int idx=0; idx<sections.size(); idx++ )
-	sections[idx]->setSceneEventCatcher(nec);
+	sections[idx]->setSceneEventCatcher( ec );
 
-    if ( editor ) editor->setSceneEventCatcher(nec);
+    if ( editor ) editor->setSceneEventCatcher( ec );
+}
+
+
+void EMObjectDisplay::clickCB( CallBacker* cb )
+{
+    if ( !isOn() || eventcatcher->isEventHandled() )
+	return;
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    if ( eventinfo.pickedobjids.indexOf(id())==-1 )
+	return;
+
+    bool keycb = false;
+    bool mousecb = false;
+    if ( eventinfo.type == visBase::Keyboard )
+	keycb = eventinfo.key=='n' && eventinfo.pressed;
+    else if ( eventinfo.type == visBase::MouseClick )
+	mousecb = !eventinfo.mousebutton && eventinfo.pressed;
+
+    if ( !keycb && !mousecb ) return;
+
+    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    mDynamicCastGet(const EM::Surface*,emsurface,emobject)
+    if ( !emsurface ) return;
+
+    Coord3 newpos =
+      visSurvey::SPM().getZScaleTransform()->transformBack(eventinfo.pickedpos);
+    if ( transformation )
+	newpos = transformation->transformBack(newpos);
+
+    const float tracedist = SI().transform(BinID(0,0)).distance(
+	    SI().transform(BinID(SI().inlStep(true),SI().crlStep(true))));
+
+    const BinID pickedbid = SI().transform( newpos );
+    TypeSet<EM::PosID> closestnodes;
+    emsurface->geometry.findPos( pickedbid, closestnodes );
+    if ( !closestnodes.size() ) return;
+
+    EM::PosID closestnode = closestnodes[0];
+    float mindist=mUndefValue;
+    for ( int idx=0; idx<closestnodes.size(); idx++ )
+    {
+	const Coord3 coord = emsurface->getPos( closestnodes[idx] );
+	const Coord3 displaypos =
+	    visSurvey::SPM().getZScaleTransform()->transform(transformation
+		    ? transformation->transform(coord) : coord );
+
+	const float dist = displaypos.distance( eventinfo.pickedpos );
+	if ( !idx || dist<mindist )
+	{
+	    closestnode = closestnodes[idx];
+	    mindist = dist;
+	}
+    }
+
+    if ( mousecb )
+    {
+	MPE::ObjectEditor* mpeeditor = 
+			    MPE::engine().getEditor(emobject->id(),false);
+	if ( editor && mpeeditor )
+	{
+	    TypeSet<EM::PosID> pids; pids += closestnode;
+	    mpeeditor->setEditIDs( pids );
+	}
+    }
+    else if ( keycb )
+    {
+	const RowCol closestrc =
+	    emsurface->geometry.subID2RowCol( closestnode.subID() );
+	BufferString str = "Section: "; str += closestnode.sectionID();
+	str += " ("; str += closestrc.row;
+	str += ","; str += closestrc.col; str+=")";
+	pErrMsg(str);
+    }
 }
 
 
@@ -603,7 +687,7 @@ int EMObjectDisplay::nrResolutions() const
     if ( !sections.size() ) return 1;
 
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
-    return ps ? ps->nrResolutions()+1 : 1;
+    return ps ? ps->nrResolutions() : 1;
 }
 
 
