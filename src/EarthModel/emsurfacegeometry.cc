@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.16 2005-04-15 11:24:47 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.17 2005-04-22 13:45:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -908,7 +908,6 @@ bool SurfaceGeometry::isDefined( SectionID section, const RowCol& rc ) const
 
 int SurfaceGeometry::findPos( const RowCol& rowcol, TypeSet<PosID>& res ) const
 {
-    TypeSet<Coord3> respos;
     const int nrsubsurf = nrSections();
     for ( SectionID section=0; section<nrsubsurf; section++ )
     {
@@ -919,16 +918,7 @@ int SurfaceGeometry::findPos( const RowCol& rowcol, TypeSet<PosID>& res ) const
 	Coord3 pos = meshsurf->getKnot( rowcol );
 	SubID subid = rowCol2SubID( rowcol );
 
-	for ( int idx=0; idx<res.size(); idx++ )
-	{
-	    if ( subid!=res[idx].subID() )
-		continue;
-
-	    if ( mIsEqual(respos[idx].z,pos.z,mDefEps) ) continue;
-
-	    res += PosID(surface.id(), sectionID(section), subid );
-	    respos += pos;
-	}
+	res += PosID( surface.id(), sectionID(section), subid );
     }
 
     return res.size();
