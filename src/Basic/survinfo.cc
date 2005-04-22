@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.65 2005-04-04 15:25:10 cvsarend Exp $
+ RCS:           $Id: survinfo.cc,v 1.66 2005-04-22 11:17:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,11 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "separstr.h"
 #include "errh.h"
-#include "strmprov.h"
 #include "iopar.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "undefval.h"
+#include "safefileio.h"
 
 #include <math.h>
 
@@ -175,21 +175,17 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 {
     FilePath fpsurvdir( survdir );
     FilePath fp( fpsurvdir ); fp.add( ".survey" );
-    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
-
-    if ( !sd.istrm || sd.istrm->fail() )
-    {
-	sd.close();
+    SafeFileIO sfio( fp.fullPath(), false );
+    if ( !sfio.open(true) )
 	return new SurveyInfo;
-    }
 
-    ascistream astream( *sd.istrm );
+    ascistream astream( sfio.istrm() );
     static bool errmsgdone = false;
     if ( !astream.isOfFileType(sKeySI) )
     {
 	ErrMsg( "Survey definition file is corrupt!" );
 	errmsgdone = true;
-	sd.close();
+	sfio.closeFail();
 	return new SurveyInfo;
     }
     errmsgdone = false;
@@ -253,7 +249,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    si->comment_ += "\n";
 	si->comment_ += buf;
     }
-    sd.close();
+    sfio.closeSuccess();
 
     if ( si->wrapUpRead() )
 	si->valid_ = true;
@@ -625,12 +621,23 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !basedir ) basedir = GetDataDir();
 
     FilePath fp( basedir ); fp.add( dirname ).add( ".survey" );
-    StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
-    if ( !sd.ostrm || !sd.usable() ) { sd.close(); return false; }
+    SafeFileIO sfio( fp.fullPath(), false );
+    if ( !sfio.open(false) )
+    {
+	BufferString msg( "Cannot open survey info file for write!" );
+	if ( *sfio.errMsg() )
+	    { msg += "\n\t"; msg += sfio.errMsg(); }
+	ErrMsg( msg );
+	return false;
+    }
 
-    std::ostream& strm = *sd.ostrm;
+    std::ostream& strm = sfio.ostrm();
     ascostream astream( strm );
-    if ( !astream.putHeader(sKeySI) ) { sd.close(); return false; }
+    if ( !astream.putHeader(sKeySI) )
+    {
+	ErrMsg( "Cannot write to survey info file!" );
+	return false;
+    }
 
     astream.put( sNameKey, name() );
     FileMultiString fms;
@@ -669,11 +676,22 @@ bool SurveyInfo::write( const char* basedir ) const
 	strm << '\n';
     }
 
-    bool retval = !strm.fail();
-    sd.close();
+    if ( strm.fail() )
+    {
+	sfio.closeFail();
+	ErrMsg( "Error during write of survey info file!" );
+	return false;
+    }
+    else if ( !sfio.closeSuccess() )
+    {
+	BufferString msg( "Error closing survey info file:\n" );
+	msg += sfio.errMsg();
+	ErrMsg( msg );
+	return false;
+    }
 
     savePars( basedir );
-    return retval;
+    return true;
 }
 
 
