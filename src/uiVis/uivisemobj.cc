@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.9 2005-04-15 12:26:49 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.10 2005-04-22 11:34:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
 
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
+    if ( !emod ) return;
     const MultiID* mid = visserv->getMultiID( displayid );
     if ( !mid ) return;
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
@@ -130,11 +131,13 @@ uiVisEMObject::~uiVisEMObject()
     nodemenu.createnotifier.remove( mCB(this,uiVisEMObject,createNodeMenuCB) );
     nodemenu.handlenotifier.remove( mCB(this,uiVisEMObject,handleNodeMenuCB) );
     nodemenu.unRef();
+
     interactionlinemenu.createnotifier.remove(
 	    mCB(this,uiVisEMObject,createInteractionLineMenuCB) );
     interactionlinemenu.handlenotifier.remove(
 	    mCB(this,uiVisEMObject,handleInteractionLineMenuCB) );
     interactionlinemenu.unRef();
+
     edgelinemenu.createnotifier.remove(
 	    mCB(this,uiVisEMObject,createEdgeLineMenuCB) );
     edgelinemenu.handlenotifier.remove(
@@ -167,8 +170,7 @@ void uiVisEMObject::prepareForShutdown()
     {
 	PtrMan<Executor> saver = emobj->saver();
 	uiCursorChanger uicursor( uiCursor::Wait );
-	if ( saver )
-	    saver->execute();
+	if ( saver ) saver->execute();
     }
 }
 
@@ -203,21 +205,10 @@ void uiVisEMObject::setUpConnections()
 
 const char* uiVisEMObject::getObjectType( int id )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visBase::DM().getObject(id));
-    if ( !emod ) return 0;
-
-    const MultiID* mid = emod->getMultiID();
-    if ( !mid ) return 0;
-
-    return EM::EMM().objectType( EM::EMM().multiID2ObjectID(*mid) );
-}
-
-
-bool uiVisEMObject::canHandle( int id )
-{
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visBase::DM().getObject(id));
-    return emod;
+		    visBase::DM().getObject(id))
+    const MultiID* mid = emod ? emod->getMultiID() : 0;
+    return mid ? EM::EMM().objectType( EM::EMM().multiID2ObjectID(*mid) ) : 0;
 }
 
 
@@ -225,7 +216,7 @@ void uiVisEMObject::setDepthAsAttrib()
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
-    emod->setDepthAsAttrib();
+    if ( emod ) emod->setDepthAsAttrib();
 }
 
 
@@ -233,7 +224,7 @@ void uiVisEMObject::readAuxData()
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
-    emod->readAuxData();
+    if ( emod ) emod->readAuxData();
 }
 
 
@@ -242,9 +233,7 @@ int uiVisEMObject::nrSections() const
     const MultiID* mid = visserv->getMultiID( displayid );
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
     mDynamicCastGet(const EM::EMObject*,emobj,EM::EMM().getObject(emid))
-    if ( !emobj ) return 0;
-
-    return emobj->nrSections();
+    return emobj ? emobj->nrSections() : 0;
 }
 
 
@@ -253,9 +242,7 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
     const MultiID* mid = visserv->getMultiID( displayid );
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
     mDynamicCastGet(const EM::EMObject*,emobj,EM::EMM().getObject(emid))
-    if ( !emobj ) return -1;
-
-    return emobj->sectionID( idx );
+    return emobj ? emobj->sectionID( idx ) : -1;
 }
 
 
@@ -264,8 +251,7 @@ EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
     if ( !path ) return -1;
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
-
-    return emod->getSectionID( path );
+    return emod ? emod->getSectionID( path ) : -1;
 }
 
 
@@ -273,8 +259,7 @@ float uiVisEMObject::getShift() const
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 		    visserv->getObject(displayid))
-    Coord3 shift = emod->getTranslation();
-    return shift.z;
+    return emod ? emod->getTranslation().z : 0;
 }
 
 
@@ -307,6 +292,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiVisMenu*,menu,cb)
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
+    if ( !emod ) return;
 
     uiMenuItem* colitm = new uiMenuItem( "Use single color" );
     singlecolmnuid = menu->addItem( colitm );
@@ -335,7 +321,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
     mDynamicCastGet(EM::EMObject*,emobj,EM::EMM().getObject(emid));
     removesectionmnuid =
-	emobj->nrSections()>1&&emod->getSectionID(menu->getPath())!=-1
+	emobj->nrSections()>1 && emod->getSectionID(menu->getPath())!=-1
 	? menu->addItem( new uiMenuItem("Remove section") ) : -1;
 }
 
@@ -349,6 +335,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
+    if ( !emod ) return;
 
     if ( mnuid==singlecolmnuid )
     {
