@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.8 2005-04-15 15:35:04 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.9 2005-04-22 11:40:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,6 +270,7 @@ void uiMPEPartServer::loadAttribData()
 	eventattrselspec = attribselspecs[idx];
 	sendEvent( evGetAttribData );
     }
+    sendEvent( evShowToolbar );
 }
 
 
