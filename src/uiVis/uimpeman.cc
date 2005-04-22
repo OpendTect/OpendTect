@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.10 2005-04-13 15:34:37 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.11 2005-04-22 11:35:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : uiToolBar(p,"Tracking controls")
     , seededitor(0)
     , visserv(ps)
+    , init(false)
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -52,9 +53,11 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    		     "ReTrack mode", true );
     eraseidx = mAddButton( "erasingplane.png", eraseModeCB, 
 	    		   "Erase mode", true );
+/*
     addSeparator();
     mouseeraseridx = mAddButton( "eraser.png", mouseEraseModeCB, 
 	    			 "Erase with mouse", true );
+*/
 
     addSeparator();
     undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
@@ -266,6 +269,16 @@ void uiMPEMan::updateAttribNames()
     mGetDisplays(false)
     for ( int idx=0; idx<displays.size(); idx++ )
         attribfld->setCurrentItem( displays[idx]->getSelSpec()->userRef() );
+
+    if ( !init && attribfld->size()>1 && attribspecs.size() &&
+	 engine().getAttribCache(*attribspecs[0]) )
+    {
+	init = true;
+	turnOn( extendidx, true );
+	engine().setTrackMode( TrackPlane::Extend );
+	showTracker( true );
+	attribfld->setCurrentItem( (int)1 );
+    }
 
     attribSel(0);
 }

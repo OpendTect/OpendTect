@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.4 2005-04-11 15:42:08 cvsnanne Exp $
+ RCS:           $Id: uimpeman.h,v 1.5 2005-04-22 11:35:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ protected:
     bool			trackerwasonbeforemouseerase;
 
     BufferString		destrackertype;
+    bool			init;
 };
 
 #endif
