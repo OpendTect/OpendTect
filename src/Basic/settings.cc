@@ -5,14 +5,14 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.26 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.27 2005-04-22 11:37:00 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "ascstream.h"
 #include "errh.h"
-#include "strmprov.h"
+#include "safefileio.h"
 #include <filegen.h>
 
 static const char* sKeyDeflt = "Default settings";
@@ -70,43 +70,32 @@ Settings& Settings::fetch( const char* key )
 
 bool Settings::doReRead( bool cpodsetts )
 {
-    StreamData sd = StreamProvider( fname ).makeIStream();
+    SafeFileIO sfio( fname, false );
 
-    bool do_write = false;
-    BufferString usedfname = (const char*)fname;
-    if ( !sd.usable() )
+    bool do_write = File_isEmpty(fname);
+    if ( !sfio.open(true) )
     {
-	// Try using the '.old' file ...
-	do_write = true;
-	usedfname = (const char*)fname;
-	usedfname += ".old";
-	sd.close();
-
-	sd = StreamProvider( usedfname ).makeIStream();
-	if ( !sd.usable() )
+	if ( !cpodsetts )
 	{
-	    if ( !cpodsetts )
-		return false;
-
-	    sd.close();
-	    usedfname = GetDataFileName("odSettings");
-	    sd = StreamProvider( usedfname ).makeIStream();
+	    ErrMsg( sfio.errMsg() );
+	    return false;
+	}
+	File_copy( GetDataFileName("odSettings"), fname, NO );
+	if ( !sfio.open(true) )
+	{
+	    ErrMsg( sfio.errMsg() );
+	    return false;
 	}
     }
 
-    if ( !sd.usable() )
-    {
-	ErrMsg( "Cannot find any valid 'common' user settings file" );
-	sd.close(); return false;
-    }
-
-    ascistream stream( *sd.istrm, true );
+    ascistream stream( sfio.istrm(), true );
     if ( !stream.isOfFileType( sKeyDeflt ) )
     {
 	BufferString emsg = "User settings file '";
-	emsg += usedfname;
+	emsg += fname;
 	emsg += "' seems to be corrupted.";
-	sd.close(); return false;
+	sfio.closeFail();
+	return false;
     }
 
     clear();
@@ -116,8 +105,7 @@ bool Settings::doReRead( bool cpodsetts )
 	if ( *ptr == '*' ) ptr++;
 	set( ptr, stream.value() );
     }
-
-    sd.close();
+    sfio.closeSuccess();
 
     if ( do_write ) write( false );
     return true;
@@ -126,17 +114,6 @@ bool Settings::doReRead( bool cpodsetts )
 
 bool Settings::write( bool do_merge ) const
 {
-    BufferString newfname = (const char*)fname;
-    newfname += ".new";
-    StreamData sd = StreamProvider(newfname).makeOStream();
-
-    if ( !sd.usable() )
-    {
-	ErrMsg( "Cannot open '.new' settings file" );
-	sd.close();
-	return false;
-    }
-
     if ( do_merge )
     {
 	IOPar dup( *this );
@@ -145,26 +122,24 @@ bool Settings::write( bool do_merge ) const
 	me->merge( dup );
     }
 
-    ascostream stream( *sd.ostrm );
+    SafeFileIO sfio( fname );
+    if ( !sfio.open(false) )
+    {
+	BufferString msg( "Cannot open user settings file for write" );
+	if ( *sfio.errMsg() )
+	{ msg += "\n\t"; msg += sfio.errMsg(); }
+	    ErrMsg( msg );
+	return false;
+    }
+
+    ascostream stream( sfio.ostrm() );
     stream.putHeader( sKeyDeflt );
     putTo( stream, false );
-    sd.close();
-
-    BufferString oldfname = (const char*)fname;
-    oldfname += ".old";
-    if ( File_exists(oldfname) && !File_remove(oldfname,NO) )
+    if ( !sfio.closeSuccess() )
     {
-	ErrMsg( "Cannot remove '.old' settings file" );
-	return false;
-    }
-    if ( File_exists(fname) && !File_rename(fname,oldfname) )
-    {
-	ErrMsg( "Cannot rename settings file to '.old'" );
-	return false;
-    }
-    if ( !File_rename(newfname,fname) )
-    {
-	ErrMsg( "Cannot rename new settings file" );
+	BufferString msg( "Error closing user settings file:\n" );
+	msg += sfio.errMsg();
+	ErrMsg( msg );
 	return false;
     }
 
