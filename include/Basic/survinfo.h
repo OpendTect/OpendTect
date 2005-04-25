@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.45 2004-07-29 21:41:25 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.46 2005-04-25 11:50:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ public:
     const char*		comment() const		{ return comment_; }
 
     			// These fns are commonly not used ...
+    static SurveyInfo*	read(const char*);
     void		setRange(const CubeSampling&,bool);
     void		setComment( const char* s )	{ comment_ = s; }
     static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
@@ -137,8 +138,6 @@ protected:
 
 			SurveyInfo();
     bool		valid_;
-
-    static SurveyInfo*	read(const char*);
 
     BufferString	datadir;
     BufferString	dirname;
