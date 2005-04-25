@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.2 2005-04-08 11:37:36 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.3 2005-04-25 07:57:11 cvsdgb Exp $";
 
 #include "safefileio.h"
 #include "filegen.h"
@@ -121,6 +121,10 @@ bool SafeFileIO::commitWrite()
 	errmsg_ += "' not overwritten with empty new file";
 	return false;
     }
+
+    if ( File_exists( bakfnm_ ) )
+	File_remove( bakfnm_, NO );
+
     if ( !File_rename( filenm_, bakfnm_ ) )
     {
 	errmsg_ = "Cannot create backup file '";
