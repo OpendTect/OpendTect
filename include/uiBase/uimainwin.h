@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.39 2004-12-23 15:14:34 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.40 2005-04-25 10:43:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,12 @@ public:
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalised() const;
     virtual uiMainWin*	mainwin()				{ return this; }
+
+    			//Toolbar functions
+    void		useBigPixmaps(bool);
+    bool		usesBigPixmaps() const;
+    void		useTextLabel(bool);
+    bool		usesTextLabel() const;
 
 protected:
 

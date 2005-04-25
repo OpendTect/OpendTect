@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.93 2005-04-15 13:20:03 cvskris Exp $
+ RCS:           $Id: uimainwin.cc,v 1.94 2005-04-25 10:44:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -547,6 +547,21 @@ uiPopupMenu& uiMainWin::createDockWindowMenu()
     QPopupMenu* qmnu = body_->createDockWindowMenu();
     return *new uiPopupMenu(this,qmnu,"Toolbars");
 }
+
+
+void uiMainWin::useBigPixmaps( bool yn )
+{ body_->setUsesBigPixmaps( yn ); }
+
+bool uiMainWin::usesBigPixmaps() const
+{ return body_->usesBigPixmaps(); }
+
+void uiMainWin::useTextLabel( bool yn )
+{ body_->setUsesTextLabel( yn ); }
+
+bool uiMainWin::usesTextLabel() const
+{ return body_->usesTextLabel(); }
+
+
 
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
