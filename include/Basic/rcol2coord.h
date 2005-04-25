@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.1 2005-04-20 08:26:17 cvskris Exp $
+ RCS:		$Id: rcol2coord.h,v 1.2 2005-04-25 14:55:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,14 +27,21 @@ public:
 
 			RCol2Coord()		{}
 
-    int			isValid() const		{ return xtr.valid(ytr); }
+    bool		isValid() const		{ return xtr.valid(ytr); }
     Coord		transform(const RCol&) const;
     RowCol		transform(const Coord&,
 	    			  const StepInterval<int>* inlrg=0,
 	    			  const StepInterval<int>* crlrg=0 ) const;
+			/*!< Transforms Coord to RowCol. If the ranges are
+			     given, they are only used for snapping: the
+			     actual range is not used */
 
-    bool		set3Pts(const Coord&, const Coord&, const Coord&,
-	    			const RCol&, const RCol&, int32 col2 ); 
+    bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
+	    			const RCol& rc0,const RCol& rc1,int32 col2 ); 
+			/*!<Sets up the transform using three points.
+			    \note that the third point is assumed to be on
+			    the same row as the first point.
+			*/
 
     struct RCTransform
     {
@@ -48,7 +55,7 @@ public:
 	double		a, b, c;
     };
 
-    void		setTransforms( const RCTransform& x,
+    void		setTransforms(	const RCTransform& x,
 					const RCTransform& y )
 			{ xtr = x; ytr = y; }
     const RCTransform&	getTransform( bool x ) const
