@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.60 2004-07-29 21:41:26 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.61 2005-04-25 12:20:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,23 +277,7 @@ void uiSurvey::dataRootPushed( CallBacker* )
 void uiSurvey::mkDirList()
 {
     dirlist.deepErase();
-
-    BufferString basedir = GetBaseDataDir();
-    DirList dl( basedir, DirList::DirsOnly );
-    for ( int idx=0; idx<dl.size(); idx++ )
-    {
-	const char* dirnm = dl.get( idx );
-	if ( matchString("_Temp_Survey_",dirnm) )
-	    continue;
-
-	FilePath fp( basedir );
-	fp.add( dirnm ).add( ".survey" );
-	BufferString survfnm = fp.fullPath();
-	if ( File_exists(survfnm) )
-	    dirlist.add( dirnm );
-    }
-
-    dirlist.sort();
+    getSurveyList( dirlist );
 }
 
 
@@ -607,4 +591,25 @@ void uiSurvey::newSurvey()
 {
     delete SurveyInfo::theinst_;
     SurveyInfo::theinst_ = 0;
+}
+
+
+void uiSurvey::getSurveyList( BufferStringSet& list )
+{
+    BufferString basedir = GetBaseDataDir();
+    DirList dl( basedir, DirList::DirsOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const char* dirnm = dl.get( idx );
+	if ( matchString("_New_Survey_",dirnm) )
+	    continue;
+
+	FilePath fp( basedir );
+	fp.add( dirnm ).add( ".survey" );
+	BufferString survfnm = fp.fullPath();
+	if ( File_exists(survfnm) )
+	    list.add( dirnm );
+    }
+
+    list.sort();
 }

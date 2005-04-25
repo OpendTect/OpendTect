@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.66 2004-12-23 10:33:45 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.67 2005-04-25 12:20:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "cubesampling.h"
 #include "ptrman.h"
+#include "uilistboxdlg.h"
+#include "bufstringset.h"
 
 extern "C" const char* GetBaseDataDir();
 
@@ -41,6 +43,44 @@ static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
 	sips = new ObjectSet<uiSurvInfoProvider>;
     return *sips;
 }
+
+
+class uiCopySurveySIP : public uiSurvInfoProvider
+{
+public:
+
+const char* usrText() const
+{ return "Copy from other survey"; }
+
+uiDialog* dialog( uiParent* p )
+{
+    BufferStringSet survlist;
+    uiSurvey::getSurveyList( survlist );
+    uiListBoxDlg* dlg = new uiListBoxDlg( p, survlist, "Surveys" );
+    dlg->setTitleText( "Select survey" );
+    return dlg;
+}
+
+
+bool getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
+{
+    mDynamicCastGet(uiListBoxDlg*,lbdlg,dlg)
+    if ( !lbdlg ) return false;
+
+    BufferString fname = FilePath( GetBaseDataDir() )
+			 .add( lbdlg->box()->getText() ).fullPath();
+    PtrMan<SurveyInfo> survinfo = SurveyInfo::read( fname );
+    if ( !survinfo ) return false;
+
+    cs = survinfo->sampling( false );
+    crd[0] = survinfo->transform( cs.hrg.start );
+    crd[1] = survinfo->transform( cs.hrg.stop );
+    crd[2] = survinfo->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+
+    return true;
+}
+
+};
 
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
@@ -57,6 +97,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	, sipfld(0)
 {
     if ( !survinfo ) return;
+
+    static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
     orgstorepath = survinfo ? survinfo->datadir.buf() : rootdir.buf();
     isnew = !survinfo || orgdirname == "";

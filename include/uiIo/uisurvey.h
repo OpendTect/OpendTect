@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.17 2004-02-28 11:10:06 bert Exp $
+ RCS:           $Id: uisurvey.h,v 1.18 2005-04-25 12:20:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 
     static void		updateViewsGlobal();
     			//!< updates caption on main window
+    static void		getSurveyList(BufferStringSet&);
 
 protected:
 
