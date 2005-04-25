@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.43 2005-04-01 13:32:32 cvsarend Exp $
+# $Id: od_exec,v 1.44 2005-04-25 14:53:39 cvsbert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -126,11 +126,19 @@ if ( ! -d "$bindir" ) then
     exit 1
 endif
 
+set prog="$1"
+
 if ( ! -e "$bindir/$1" ) then
-    if ( $?DEBUG && -e "$bindir/G/$1" ) then
+    if ( $?DEBUG && -e "$bindir/G/$prog" ) then
 	set bindir="$bindir/G"
-    else if ( -e "$bindir/O/$1" ) then
+    else if ( -e "$bindir/O/$prog" ) then
 	set bindir="$bindir/O"
+    endif
+    if ( ! -e "$bindir/$1" ) then
+    	if ( $binsubdir == lux64 ) then
+	    set binsubdir=lux32
+	    set bindir="$DTECT_APPL/bin/$binsubdir"
+	endif
     endif
 endif
 
@@ -170,9 +178,9 @@ endif
 if ( $indosbox == yes ) then
 
     if ( $issys == yes ) then
-	set execfile=`which $1`
+	set execfile=`which $prog`
     else
-	set execfile="$bindir/$1"
+	set execfile="$bindir/$prog"
     endif
 
     shift
@@ -212,18 +220,16 @@ if ( $indosbox == yes ) then
     echo cmd /E:off /c start "$batfile"
     cmd /E:off /c start "$batfile"
 
-    ## TODO : remove temporary .bat file
-    #\rm $tempbatfile
-
+    mv $tempbatfile /tmp/lastodexec.bat
     exit $status
 
 endif
 
 more_args:
 
-if ( "$1" != "" ) then
+if ( "$prog" != "" ) then
 
-    set arg=`echo "$1" | sed 's/ /%/g'`
+    set arg=`echo "$prog" | sed 's/ /%/g'`
 
     if ( $?allargs ) then
 	set allargs="$allargs $arg"
