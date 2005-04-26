@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.14 2005-04-22 13:47:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.15 2005-04-26 15:42:27 cvsnanne Exp $";
 
 #include "parametricsurface.h"
 
@@ -215,6 +215,7 @@ bool ParametricSurface::unsetKnot( const RCol& rc )
 
     // TODO: prevent endless loop in isAtSameEdge. Then remove these two lines
     _setKnot( index, Coord3::udf() );
+    triggerNrPosCh( rc.getSerialized() );
     return true;
 
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
