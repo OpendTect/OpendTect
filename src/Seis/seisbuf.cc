@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.22 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.23 2005-04-26 18:57:15 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -209,7 +209,7 @@ int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
 }
 
 
-int SeisTrcBuf::find( SeisTrc* trc, bool is2d ) const
+int SeisTrcBuf::find( const SeisTrc* trc, bool is2d ) const
 {
     if ( !trc ) return -1;
 

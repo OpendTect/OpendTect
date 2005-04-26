@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.11 2005-02-28 14:49:53 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.12 2005-04-26 18:57:15 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -56,7 +56,7 @@ public:
     void		add(SeisTrcBuf&);	//!< shallow copy if not owner
 
     int			find(const BinID&,bool is2d=false) const;
-    int			find(SeisTrc*,bool is2d=false) const;
+    int			find(const SeisTrc*,bool is2d=false) const;
     SeisTrc*		get( int idx )		{ return trcs[idx]; }
     const SeisTrc*	get( int idx ) const	{ return trcs[idx]; }
     void		remove( SeisTrc* t )	{ if ( t ) trcs -= t;  }
