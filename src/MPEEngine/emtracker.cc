@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.8 2005-04-15 15:34:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.9 2005-04-26 20:38:01 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -74,7 +74,12 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	sectiontracker->extender()->setDirection( plane.motion() );
 	sectiontracker->select();
 
-	if ( !sectiontracker->extend() || !sectiontracker->adjust() )
+	const bool hasextended = sectiontracker->extend();
+	bool hasadjusted = true;
+	if ( hasextended && sectiontracker->adjusterUsed() )
+	    hasadjusted = sectiontracker->adjust();
+
+	if ( !hasextended || !hasadjusted )
 	{
 	    while ( EM::EMM().history().canUnDo() &&
 		    EM::EMM().history().currentEventNr()!=initialhistnr )
