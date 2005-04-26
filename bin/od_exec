@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.44 2005-04-25 14:53:39 cvsbert Exp $
+# $Id: od_exec,v 1.45 2005-04-26 08:00:15 cvsbert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -204,7 +204,7 @@ if ( $indosbox == yes ) then
     endif
 
     setenv args "$nicecmd -@-$executable-@- "
-    foreach arg( $* )
+    foreach arg ( $* )
         setenv args "$args -@-$arg-@-"
     end
 
@@ -227,9 +227,9 @@ endif
 
 more_args:
 
-if ( "$prog" != "" ) then
+if ( "$1" != "" ) then
 
-    set arg=`echo "$prog" | sed 's/ /%/g'`
+    set arg=`echo "$1" | sed 's/ /%/g'`
 
     if ( $?allargs ) then
 	set allargs="$allargs $arg"
