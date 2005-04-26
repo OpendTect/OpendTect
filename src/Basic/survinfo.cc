@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.66 2005-04-22 11:17:50 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.67 2005-04-26 15:11:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -618,7 +618,7 @@ bool SurveyInfo::isClockWise() const
 bool SurveyInfo::write( const char* basedir ) const
 {
     if ( !valid_ ) return false;
-    if ( !basedir ) basedir = GetDataDir();
+    if ( !basedir ) basedir = GetBaseDataDir();
 
     FilePath fp( basedir ); fp.add( dirname ).add( ".survey" );
     SafeFileIO sfio( fp.fullPath(), false );

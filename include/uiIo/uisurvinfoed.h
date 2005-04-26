@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.20 2004-10-22 14:38:05 bert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.21 2005-04-26 15:11:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,9 @@ public:
 					Coord crd[3])	= 0;
 
     virtual const char*		scanFile() const	{ return 0; }
+
+    enum TDInfo			{ Uknown, Time, Depth };
+    virtual TDInfo		tdInfo() const		{ return Uknown; }
 };
 
 
