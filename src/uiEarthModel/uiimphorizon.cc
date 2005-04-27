@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.50 2005-04-15 10:35:13 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.51 2005-04-27 19:41:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,8 @@ bool uiImportHorizon::doWork()
     if ( !sections.size() )
 	mErrRet( "Nothing to import" );
 
-    if ( interpolfld->getBoolValue() )
+    const bool dointerpolate = interpolfld->getBoolValue();
+    if ( dointerpolate )
 	interpolateGrid( sections );
 
     const RowCol step( hs.step.inl, hs.step.crl );
@@ -218,7 +219,26 @@ bool uiImportHorizon::doWork()
     ExecutorGroup exgrp( "Horizon importer" );
     exgrp.setNrDoneText( "Nr inlines imported" );
     exgrp.add( horizon->importer(sections,step,false) );
-    exgrp.add( horizon->auxDataImporter(sections) );
+    if ( !dointerpolate && scanner.nrAttribValues()>=1 )
+    {
+	ObjectSet<BinIDValueSet> attribs;
+	for ( int sidx=0; sidx<sections.size(); sidx++ )
+	{
+	    BinIDValueSet* set = new BinIDValueSet( sections[sidx]->nrVals(),
+						    false );
+	    attribs += set;
+	    BinID bid;
+	    TypeSet<float> vals;
+	    BinIDValueSet::Pos pos;
+	    while( sections[sidx]->next(pos,true) )
+	    {
+		sections[sidx]->get( pos, bid, vals );
+		set->add( bid, vals );
+	    }
+	}	
+	exgrp.add( horizon->auxDataImporter(attribs) );
+    }
+
     uiExecutor impdlg( this, exgrp );
     if ( !impdlg.go() ) 
 	mErrRetUnRef("Cannot import horizon")
