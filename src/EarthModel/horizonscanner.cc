@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.2 2005-04-12 11:08:29 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.3 2005-04-27 19:25:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,4 +288,7 @@ StepInterval<int> HorizonScanner::crlRg() const
 
 bool HorizonScanner::gapsFound( bool inl ) const
 { return inl ? geomdetector.inlgapsfound : geomdetector.crlgapsfound; }
+
+int HorizonScanner::nrAttribValues() const
+{ return valranges.size()-1; }
 
