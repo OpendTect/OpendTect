@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.7 2005-03-18 11:21:27 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.8 2005-04-27 07:11:55 cvskris Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -53,39 +53,41 @@ IntervalND<float> CubicBezierCurve::boundingBox(bool approx) const
     return res;
 }
 
+#define cubicDeCasteljauPrep \
+    const StepInterval<int> range = parameterRange();\
+    int previdx = range.getIndex(param);\
+\
+    if ( previdx<0 || previdx>positions.size()-1 )\
+	return Coord3::udf();\
+    else if ( previdx==positions.size()-1 )\
+    {\
+	if ( range.atIndex(previdx)<=param )\
+	    previdx--;\
+	else\
+	    return Coord3::udf();\
+    }\
+\
+    const GeomPosID prevparam = range.atIndex(previdx);\
+\
+    const int nextidx = previdx+1;\
+    const GeomPosID nextparam = range.atIndex(nextidx);\
+\
+    const float u = (param-prevparam)/range.step;\
+    Coord3 temppos[] = { positions[previdx], getBezierVertex(prevparam,false),\
+			 getBezierVertex(nextparam,true),\
+			 positions[previdx+1] }
 
-Coord3 CubicBezierCurve::computePosition( float param) const
+Coord3 CubicBezierCurve::computePosition(float param) const
 {
-    const StepInterval<int> range = parameterRange();
-    int previdx = range.getIndex(param);
-
-    if ( previdx<0 || previdx>positions.size()-1 )
-	return Coord3::udf();
-    else if ( previdx==positions.size()-1 )
-    {
-	if ( range.atIndex(previdx)<=param )
-	    previdx--;
-	else
-	    return Coord3::udf();
-    }
-
-    const GeomPosID prevparam = range.atIndex(previdx);
-
-    const int nextidx = previdx+1;
-    const GeomPosID nextparam = range.atIndex(nextidx);
-
-    const float u = (param-prevparam)/range.step;
-    Coord3 temppos[] = { positions[previdx], getBezierVertex(prevparam,false),
-			 getBezierVertex(nextparam,true),
-			 positions[previdx+1] };
+    cubicDeCasteljauPrep;
     return cubicDeCasteljau( temppos, 0, 1, u );
 }
 
 
 Coord3 CubicBezierCurve::computeTangent( float param ) const
 {
-    pErrMsg("Not implemented");
-    return Coord3::udf();
+    cubicDeCasteljauPrep;
+    return cubicDeCasteljauTangent( temppos, 0, 1, u );
 }
 
 
