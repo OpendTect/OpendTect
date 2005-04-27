@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.45 2005-04-26 08:00:15 cvsbert Exp $
+# $Id: od_exec,v 1.46 2005-04-27 13:44:01 cvsarend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -220,7 +220,6 @@ if ( $indosbox == yes ) then
     echo cmd /E:off /c start "$batfile"
     cmd /E:off /c start "$batfile"
 
-    mv $tempbatfile /tmp/lastodexec.bat
     exit $status
 
 endif
