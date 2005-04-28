@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.22 2005-04-22 13:38:28 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.23 2005-04-28 15:41:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.22 2005-04-22 13:38:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.23 2005-04-28 15:41:35 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -79,7 +79,8 @@ EMObjectDisplay::~EMObjectDisplay()
     delete &as;
     delete &colas;
     if ( transformation ) transformation->unRef();
-    if ( eventcatcher ) eventcatcher->unRef();
+
+    setSceneEventCatcher( 0 );
     if ( coltab_ ) coltab_->unRef();
 
     const EM::ObjectID objid = em.multiID2ObjectID( mid );
@@ -428,6 +429,14 @@ void EMObjectDisplay::selectNextTexture( bool next )
 }
 
 
+int EMObjectDisplay::getAttributeFormat() const
+{
+    if ( !sections.size() ) return -1;
+    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
+    return ps ? 2 : -1;
+}
+
+
 const AttribSelSpec* EMObjectDisplay::getSelSpec() const
 { return &as; }
 
@@ -440,7 +449,9 @@ void EMObjectDisplay::setSelSpec( const AttribSelSpec& as_ )
 
 
 const ColorAttribSel* EMObjectDisplay::getColorSelSpec() const
-{ return &colas; }
+{
+    return getAttributeFormat() < 0 ? 0 : &colas;
+}
 
 
 void EMObjectDisplay::setColorSelSpec( const ColorAttribSel& as_ )
@@ -454,7 +465,11 @@ void EMObjectDisplay::setDepthAsAttrib()
     ObjectSet<BinIDValueSet> positions;
     fetchData(positions);
 
-    if ( !positions.size() ) return;
+    if ( !positions.size() )
+    {
+	useTexture( false );
+	return;
+    }
 
     for ( int idx=0; idx<positions.size(); idx++ )
     {
@@ -500,7 +515,8 @@ void EMObjectDisplay::stuffData( bool forcolordata,
 	for ( int idx=0; idx<sections.size(); idx++ )
 	{
 	    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
-	    psurf->setTextureData( 0 );
+	    if ( psurf ) psurf->setTextureData( 0 );
+	    else useTexture(false);
 	}
 	return;
     }
@@ -511,13 +527,17 @@ void EMObjectDisplay::stuffData( bool forcolordata,
 	if ( idx>=sections.size() ) break;
 
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
-	psurf->setTextureData( (*data)[idx], forcolordata ? colas.datatype : 0);
+	if ( psurf )
+	    psurf->setTextureData( (*data)[idx], forcolordata ? colas.datatype 
+		    					      : 0 );
+	else
+	    useTexture(false);
     }
 
     for ( ; idx<sections.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
-	psurf->setTextureData( 0 );
+	if ( psurf ) psurf->setTextureData( 0 );
     }
 }
 
@@ -566,10 +586,10 @@ void EMObjectDisplay::useWireframe( bool yn )
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	mDynamicCastGet(visBase::CubicBezierSurface*,cbs,sections[idx]);
-	if ( cbs ) cbs->useWireframe(yn);
+	if ( cbs ) cbs->useWireframe( yn );
 
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[0]);
-	if ( ps ) return ps->useWireframe(yn);
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
+	if ( ps ) ps->useWireframe( yn );
     }
 }
 
@@ -662,7 +682,11 @@ void EMObjectDisplay::emSectionChangeCB( CallBacker* cb )
 
     const EM::SectionID sectionid = cbdata.pid0.sectionID();
     if ( emsurface->geometry.hasSection(sectionid) )
+    {
 	addSection( sectionid );
+	useWireframe( usesWireframe() );
+	setResolution( getResolution() );
+    }
     else
     {
 	const int idx = sectionids.indexOf( sectionid );
@@ -687,7 +711,7 @@ int EMObjectDisplay::nrResolutions() const
     if ( !sections.size() ) return 1;
 
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
-    return ps ? ps->nrResolutions() : 1;
+    return ps ? ps->nrResolutions()+1 : 1;
 }
 
 
