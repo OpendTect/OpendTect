@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: rcol2coord.cc,v 1.1 2005-04-20 08:26:18 cvskris Exp $
+ RCS:           $Id: rcol2coord.cc,v 1.2 2005-04-28 13:43:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,21 +57,32 @@ Coord RCol2Coord::transform( const RCol& rc ) const
 }
 
 
-RowCol RCol2Coord::transform( const Coord& coord,
-				const StepInterval<int>* rowrg,
-				const StepInterval<int>* colrg) const
+RowCol RCol2Coord::transformBack( const Coord& coord,
+				  const StepInterval<int>* rowrg,
+				  const StepInterval<int>* colrg) const
 {
     if ( Values::isUdf(coord.x) || Values::isUdf(coord.y) )
 	return RowCol(mUdf(int),mUdf(int));
 
+    const Coord res = transformBackNoSnap( coord );
+    if ( Values::isUdf(res.x) || Values::isUdf(res.y) )
+	return RowCol(mUdf(int),mUdf(int));
+
+    return RowCol(rowrg ? rowrg->snap(res.x) : mNINT(res.x),
+	    	  colrg ? colrg->snap(res.y) : mNINT(res.y));
+}
+
+
+Coord RCol2Coord::transformBackNoSnap( const Coord& coord ) const
+{
+    if ( Values::isUdf(coord.x) || Values::isUdf(coord.y) )
+	return Coord(mUdf(double),mUdf(double));
+
     double det = xtr.det( ytr );
     if ( mIsZero(det,mDefEps) ) 
-	return RowCol(mUdf(int),mUdf(int));
+	return Coord(mUdf(double),mUdf(double));
 
     const double x = coord.x - xtr.a;
     const double y = coord.y - ytr.a;
-    double di = (x*ytr.c - y*xtr.c) / det;
-    double dc = (y*xtr.b - x*ytr.b) / det;
-    return RowCol(rowrg ? rowrg->snap(di) : mNINT(di),
-	    	  colrg ? colrg->snap(dc) : mNINT(dc));
+    return Coord( (x*ytr.c - y*xtr.c) / det, (y*xtr.b - x*ytr.b) / det );
 }
