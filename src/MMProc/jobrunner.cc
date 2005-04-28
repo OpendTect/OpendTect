@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.24 2005-04-21 14:37:27 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.25 2005-04-28 20:24:48 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,9 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, starttimeout_(	atoi( getenv("DTECT_START_TIMEOUT")
 				    ? getenv("DTECT_START_TIMEOUT"): "45000") )
 	, failtimeout_(		atoi( getenv("DTECT_FAIL_TIMEOUT")
-				    ? getenv("DTECT_FAIL_TIMEOUT"): "300000") )
+				    ? getenv("DTECT_FAIL_TIMEOUT"): "450000") )
+	, wrapuptimeout_(	atoi( getenv("DTECT_WRAPUP_TIMEOUT")
+				    ? getenv("DTECT_WRAPUP_TIMEOUT"):"1800000"))
 	, hosttimeout_(		atoi( getenv("DTECT_HOST_TIMEOUT")
 				    ? getenv("DTECT_HOST_TIMEOUT"): "600000") )
     	, maxhostfailures_(	atoi( getenv("DTECT_MAX_HOSTFAIL")
@@ -595,8 +597,10 @@ void JobRunner::updateJobInfo()
 	    if ( since_lst_chk > starttimeout_ )
 	    {
 		int since_lst_recv = ji.recvtime_ ? now - ji.recvtime_ : -1;
+		int to = ji.state_ == JobInfo::WrappingUp ? wrapuptimeout_
+							  : failtimeout_;
 
-		if ( since_lst_recv < 0 || since_lst_recv > failtimeout_ )
+		if ( since_lst_recv < 0 || since_lst_recv > to )
 		{
 		    ji.statusmsg_ = "Timed out.";
 		    failedJob( ji, JobInfo::HostFailed );
@@ -677,19 +681,23 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    ji->state_ = JobInfo::Paused;
 	    ji->statusmsg_ = " paused";
 	break;
+	case mSTAT_WRAPUP:
+	    ji->state_ = JobInfo::WrappingUp;
+	    ji->statusmsg_ = " storing result";
+	break;
 	case mSTAT_FINISHED:
-	    ji->state_ = JobInfo::Completed;
-	    ji->statusmsg_ = " finished";
+	    ji->state_ = JobInfo::WrappingUp;
+	    ji->statusmsg_ = " closing up";
 	break;
 	}
     break;
     case mEXIT_STATUS :
         switch( si.status )
 	{
-	case mSTAT_DONE:
+	case mSTAT_ALLDONE:
 	{
 	    ji->state_ = JobInfo::Completed;
-	    ji->statusmsg_ = " finished";
+	    ji->statusmsg_ = " all done";
 	    HostNFailInfo* hfi = hostNFailInfoFor( ji->hostdata_ );
 	    if ( hfi )
 	    {

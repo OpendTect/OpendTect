@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.74 2005-04-21 14:37:27 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.75 2005-04-28 20:24:48 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -174,12 +174,12 @@ BatchProgram::~BatchProgram()
     {
 	MMSockCommunic::State s = comm->state();
 
-	bool isSet =  s == MMSockCommunic::Done 
+	bool isSet =  s == MMSockCommunic::AllDone 
 	           || s == MMSockCommunic::JobError
 		   || s == MMSockCommunic::HostError;
 
 	if ( !isSet )
-	    comm->setState( stillok ? MMSockCommunic::Done
+	    comm->setState( stillok ? MMSockCommunic::AllDone
 				    : MMSockCommunic::HostError );
 
        	comm->sendState( true );
@@ -403,8 +403,9 @@ bool MMSockCommunic::sendState_( State stat, bool isexit, bool immediate )
     switch( stat )
     {
 	case Working	: _stat = mSTAT_WORKING; break;
+	case WrapUp	: _stat = mSTAT_WRAPUP; break;
 	case Finished	: _stat = mSTAT_FINISHED; break;
-	case Done	: _stat = mSTAT_DONE; break;
+	case AllDone	: _stat = mSTAT_ALLDONE; break;
 	case Paused	: _stat = mSTAT_PAUSED; break;
 	case JobError	: _stat = mSTAT_JOBERROR; break;
 	case HostError	: _stat = mSTAT_HSTERROR; break;

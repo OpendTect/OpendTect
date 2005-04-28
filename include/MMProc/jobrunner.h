@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.17 2005-04-18 14:09:09 cvsarend Exp $
+ RCS:		$Id: jobrunner.h,v 1.18 2005-04-28 20:24:48 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,6 +129,7 @@ protected:
     int				maxjobhstfails_;  //!< host related job failrs
     int				starttimeout_;
     int				failtimeout_;
+    int				wrapuptimeout_;
     int				hosttimeout_; 
 
     int				doCycle();

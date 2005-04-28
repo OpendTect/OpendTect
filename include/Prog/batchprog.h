@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.29 2005-04-21 14:37:26 cvsarend Exp $
+ RCS:		$Id: batchprog.h,v 1.30 2005-04-28 20:24:48 cvsarend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -158,8 +158,8 @@ inline const BatchProgram& BP() { return *BatchProgram::inst; }
 class MMSockCommunic
 {
 public:
-    enum State		{ Undef, Working, Finished, Done, Paused, JobError,
-	                  HostError, Killed, Timeout };
+    enum State		{ Undef, Working, WrapUp, Finished, AllDone, Paused,
+			  JobError, HostError, Killed, Timeout };
 
 			MMSockCommunic( const char* host, int port,
 					BatchProgram& );

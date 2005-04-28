@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id: mmdefs.h,v 1.9 2005-03-30 11:19:22 cvsarend Exp $
+ RCS:		$Id: mmdefs.h,v 1.10 2005-04-28 20:24:48 cvsarend Exp $
 ________________________________________________________________________
 
 Defines for multimachine status tags and codes
@@ -25,9 +25,10 @@ Defines for multimachine status tags and codes
 // Control status values
 #define mSTAT_UNDEF	0
 #define mSTAT_WORKING	1
-#define mSTAT_FINISHED	2
-#define mSTAT_DONE	3
-#define mSTAT_PAUSED	4
+#define mSTAT_WRAPUP	2
+#define mSTAT_FINISHED	3
+#define mSTAT_ALLDONE	4
+#define mSTAT_PAUSED	5
 #define mSTAT_JOBERROR	-1
 #define mSTAT_HSTERROR	-2
 #define mSTAT_KILLED	-3

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobinfo.h,v 1.7 2005-04-04 15:25:10 cvsarend Exp $
+ RCS:		$Id: jobinfo.h,v 1.8 2005-04-28 20:24:48 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,8 @@ class JobInfo
     friend class	JobRunner;
 public:
 
-    enum State		{ ToDo, Scheduled, Preparing, Working, Paused,
-			  Completed, JobFailed, HostFailed };
+    enum State		{ ToDo, Scheduled, Preparing, Working, WrappingUp, 
+			  Paused, Completed, JobFailed, HostFailed };
     			//!< This is always the 'real' status
 			//!< This as opposed to 'requested' or whatever
 
