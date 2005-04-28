@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.10 2005-04-28 10:48:35 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.11 2005-04-28 12:25:13 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -787,6 +787,8 @@ void MeshSurfacePart::touch( int i0, int i1, bool undef )
 
     for ( int idx=0; idx<bboxes.getLength(); idx++ )
 	bboxes[idx]->touch(i0,i1, undef );
+
+    if ( bboxcache ) bboxcache->invalidate();
 
     bboxvalidation = false;
     gluevalidation = false;
