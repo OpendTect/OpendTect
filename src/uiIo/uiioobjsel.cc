@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.71 2005-04-15 12:32:37 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.72 2005-04-28 15:52:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,6 +346,7 @@ void uiIOObjSel::updateInput()
 	return;
     }
 
+#ifdef __debug__
     //If there is only one possible input, set that one as default
     if ( ctio.ctxt.forread )
     {
@@ -358,6 +359,7 @@ void uiIOObjSel::updateInput()
 	    return;
 	}
     }
+#endif
 
     setInput( "" );
 }
