@@ -10,12 +10,6 @@ if ( "$1" == ed ) then
     exit $status
 endif
 
-if ( $HDIR == win ) then
-    # use cygwin home dir to store .cvspass en .ssh .
-    # Otherise, cvs won't work.
-    setenv HOME /home/$USER
-endif
-
 set get_answer='echo -n ">> ";set answer=$<;echo ""'
 
 if ( ! $?OD_CVS_ROOT_PTH ) then
