@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.68 2005-04-26 15:11:54 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.69 2005-04-28 09:55:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 		txt += " ->>";
 		sipfld->addItem( txt );
 	    }
-	    sipfld->setCurrentItem( nrprovs-1 );
+	    sipfld->setCurrentItem( nrprovs-2 ); // last one before copy
 	    sipfld->setPrefWidthInChar( maxlen + 10 );
 	    uiPushButton* sipbut = new uiPushButton( this, "Go ...", sipcb );
 	    sipbut->attach( rightOf, sipfld );
