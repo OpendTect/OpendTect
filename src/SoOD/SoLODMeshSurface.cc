@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.11 2005-04-28 12:25:13 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.12 2005-04-28 13:10:07 cvsnanne Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -508,7 +508,8 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 bool MeshSurfacePartPart::isInside( int i, int j ) const
 {
     const int sidesize = sideSize();
-    return i>=rowstart&&j>=colstart&&(i-rowstart)>sidesize&&(j-colstart)<sidesize;
+    return i>=rowstart && j>=colstart &&
+	   (i-rowstart)<sidesize && (j-colstart)<sidesize;
 }
 
 
