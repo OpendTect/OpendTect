@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.6 2005-03-17 14:55:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.7 2005-04-28 15:39:55 cvsnanne Exp $";
 
 #include "sectiontracker.h"
 
@@ -32,6 +32,7 @@ SectionTracker::SectionTracker( SectionSourceSelector* selector__,
     , extender_(extender__)
     , adjuster_(adjuster__)
     , useadjuster_(true)
+    , displayas_(*new AttribSelSpec)
 {
     init();
 }
@@ -42,6 +43,7 @@ SectionTracker::~SectionTracker()
     delete selector_;
     delete extender_;
     delete adjuster_;
+    delete &displayas_;
 }
 
 
@@ -121,6 +123,13 @@ void SectionTracker::getNeededAttribs(
 	}
     }
 }
+
+
+void SectionTracker::setDisplaySpec( const AttribSelSpec& as )
+{ displayas_ = as; }
+
+const AttribSelSpec& SectionTracker::getDisplaySpec() const
+{ return displayas_; }
 
 
 void SectionTracker::fillPar( IOPar& par ) const

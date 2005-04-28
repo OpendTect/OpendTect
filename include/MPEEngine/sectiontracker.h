@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.5 2005-03-17 14:55:55 cvsnanne Exp $
+ RCS:           $Id: sectiontracker.h,v 1.6 2005-04-28 15:40:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,9 @@ public:
     void			setSetupID(const MultiID& id)	{ setupid_=id; }
     const MultiID&		setupID() const		{ return setupid_; }
 
+    const AttribSelSpec&	getDisplaySpec() const;
+    void			setDisplaySpec(const AttribSelSpec&);
+
     void			getNeededAttribs(
 	    				ObjectSet<const AttribSelSpec>&) const;
 
@@ -72,6 +75,7 @@ protected:
     BufferString		errmsg_;
     bool			useadjuster_;
     MultiID			setupid_;
+    AttribSelSpec&		displayas_;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;
