@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.9 2005-04-15 12:27:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.10 2005-04-28 10:48:35 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.9 2005-04-15 12:27:36 c
 #include <Inventor/caches/SoBoundingBoxCache.h>
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/elements/SoComplexityElement.h>
+#include <Inventor/elements/SoComplexityTypeElement.h>
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoCullElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
@@ -269,7 +270,7 @@ void MeshSurfacePartPart::touch( int i0, int i1, bool undef )
     if ( !isInside(i0,i1) )
 	return;
 
-    //cache->invalidize();
+    if ( cache ) cache->invalidate();
     ownvalidation = false;
 }
 
@@ -2318,6 +2319,15 @@ void SoLODMeshSurface::rayPick(SoRayPickAction* action )
 void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 {
     SoState* state = action->getState();
+    if ( SoComplexityTypeElement::get(state)==
+			SoComplexityTypeElement::BOUNDING_BOX )
+    {
+	GLRenderBoundingBox(action);
+	return;
+    }
+
+
+
     const int nrparts = parts.getLength();
     //if ( !(SoCameraInfoElement::get(state)&SoCameraInfo::STEREO) )
     //{
@@ -2381,6 +2391,48 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 	for ( int idx=0; idx<nrparts; idx++ )
 	    parts[idx]->GLRenderWireframe(action, useownvalidation);
     }
+}
+
+
+void SoLODMeshSurface::GLRenderBBox(SoGLRenderAction* action)
+{
+    SbBox3f box;
+    SbVec3f center;
+    computeBBox( action, box, center);
+    if ( box.isEmpty() )
+	return;
+
+    SoMaterialBundle mb(action);
+    mb.sendFirst();
+    glBegin( GL_LINE_STRIP );
+
+    const SbVec3f min = box.getMin();
+    const SbVec3f max = box.getMax();
+
+    glVertex3f(min[0], min[1], min[2]);
+    glVertex3f(min[0], min[1], max[2]);
+    glVertex3f(min[0], max[1], max[2]);
+    glVertex3f(min[0], max[1], min[2]);
+    glVertex3f(min[0], min[1], min[2]);
+   
+    glVertex3f(max[0], min[1], min[2]);
+    glVertex3f(max[0], min[1], max[2]);
+    glVertex3f(max[0], max[1], max[2]);
+    glVertex3f(max[0], max[1], min[2]);
+    glVertex3f(max[0], min[1], min[2]);
+
+    glEnd();
+    glBegin( GL_LINE_STRIP );
+
+    glVertex3f(min[0], min[1], max[2]);
+    glVertex3f(max[0], min[1], max[2]);
+    
+    glVertex3f(min[0], max[1], max[2]);
+    glVertex3f(max[0], max[1], max[2]);
+
+    glVertex3f(min[0], max[1], min[2]);
+    glVertex3f(max[0], max[1], min[2]);
+    glEnd();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoLODMeshSurface.h,v 1.1 2005-03-22 14:38:15 cvskris Exp $
+ RCS:		$Id: SoLODMeshSurface.h,v 1.2 2005-04-28 10:48:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -137,6 +137,7 @@ public:
     int			nrRows() const;
 
 protected:
+    void		GLRenderBBox(SoGLRenderAction*);
     void		notify( SoNotList* );
 
     void		adjustNrOfParts();
