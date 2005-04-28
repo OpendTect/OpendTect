@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.15 2004-11-02 10:47:39 kristofer Exp $
+ RCS:		$Id: viscamera.h,v 1.16 2005-04-28 14:23:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visdata.h"
 #include "position.h"
 
+class SoCamera;
 class UTMCamera;
 
 namespace visBase
@@ -65,11 +66,13 @@ public:
     void		setBalanceAdjustment(float);
     float		getBalanceAdjustment() const;
 
+    Coord3 		centerFrustrum();
+    float		frustrumRadius();
+
     SoNode*		getInventorNode();
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
-    Coord3 		centerFrustrum();
-    float		frustrumRadius();
+    void		fillPar(IOPar&,const SoCamera*) const;
 protected:
 
     virtual		~Camera();

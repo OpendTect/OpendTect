@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2002
- RCS:           $Id: viscamera.cc,v 1.18 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: viscamera.cc,v 1.19 2005-04-28 14:23:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,6 +255,33 @@ void Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( neardistancestr, (int)(nearDistance()+.5) );
     iopar.set( fardistancestr, (int)(farDistance()+.5) );
     iopar.set( focaldistancestr, focalDistance() );
+}
+
+
+void Camera::fillPar( IOPar& iopar, const SoCamera* socamera ) const
+{
+    TypeSet<int> dummy;
+    DataObject::fillPar( iopar, dummy );
+
+    SbVec3f pos = socamera->position.getValue();
+    iopar.set( posstr, Coord3(pos[0],pos[1],pos[2]) );
+    
+    SbVec3f axis;
+    float angle;
+    socamera->orientation.getValue( axis, angle );
+    iopar.set( orientationstr, axis[0], axis[1], axis[2], angle );
+
+    SoType t = socamera->getTypeId();
+    if ( t.isDerivedFrom( SoPerspectiveCamera::getClassTypeId() ) )
+    {
+	SoPerspectiveCamera* pc = (SoPerspectiveCamera*)socamera;
+	iopar.set( heightanglestr, pc->heightAngle.getValue() );
+    }
+
+    iopar.set( aspectratiostr, socamera->aspectRatio.getValue() );
+    iopar.set( neardistancestr, mNINT(socamera->nearDistance.getValue()) );
+    iopar.set( fardistancestr, mNINT(socamera->farDistance.getValue()) );
+    iopar.set( focaldistancestr, socamera->focalDistance.getValue() );
 }
 
 }; // namespace visBase
