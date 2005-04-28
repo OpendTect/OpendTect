@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.51 2005-04-27 19:41:48 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.52 2005-04-28 09:01:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,9 +219,10 @@ bool uiImportHorizon::doWork()
     ExecutorGroup exgrp( "Horizon importer" );
     exgrp.setNrDoneText( "Nr inlines imported" );
     exgrp.add( horizon->importer(sections,step,false) );
+
+    ObjectSet<BinIDValueSet> attribs;
     if ( !dointerpolate && scanner.nrAttribValues()>=1 )
     {
-	ObjectSet<BinIDValueSet> attribs;
 	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{
 	    BinIDValueSet* set = new BinIDValueSet( sections[sidx]->nrVals(),
@@ -240,7 +241,10 @@ bool uiImportHorizon::doWork()
     }
 
     uiExecutor impdlg( this, exgrp );
-    if ( !impdlg.go() ) 
+    const bool success = impdlg.go();
+    deepErase( sections );
+    deepErase( attribs );
+    if ( !success )
 	mErrRetUnRef("Cannot import horizon")
 
     PtrMan<Executor> exec = horizon->geometry.saver();
