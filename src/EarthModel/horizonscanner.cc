@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.3 2005-04-27 19:25:36 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.4 2005-04-28 08:58:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms )
     : Executor("Scan horizon file(s)")
     , geomdetector(*new PosGeomDetector(true))
+    , nrattribvals(0)
 {
     filenames = fnms;
     init();
@@ -47,6 +48,7 @@ void HorizonScanner::init()
     totalnr = -1;
     firsttime = true;
     valranges.erase();
+    nrattribvals = 0;
     geomdetector.reInit();
     analyzeData();
 }
@@ -215,6 +217,15 @@ bool HorizonScanner::analyzeData()
 	if ( validrg.includes(val) ) nrnoscale++;
 	else if ( validrg.includes(val*fac) ) nrscale++;
 	count++;
+
+	int validx = 0;
+	while ( *ptr )
+	{
+	    ptr = getNextWord( ptr, valbuf );
+	    validx++;
+	}
+
+	nrattribvals = validx;
     }
 
     isxy = nrxy > nrbid;
@@ -265,7 +276,7 @@ int HorizonScanner::nextStep()
 		if ( firsttime )
 		    valranges += Interval<float>(mUndefValue,-mUndefValue);
 		const float val = atof( valbuf );
-		if ( !mIsUndefined(val) )
+		if ( !mIsUndefined(val) && validx<valranges.size() )
 		    valranges[validx].include( val, false );
 		validx++;
 	    }
@@ -275,6 +286,8 @@ int HorizonScanner::nextStep()
 	}
 	sd.close();
     }
+
+    nrattribvals = valranges.size() - 1;
 
     return Executor::Finished;
 }
@@ -290,5 +303,5 @@ bool HorizonScanner::gapsFound( bool inl ) const
 { return inl ? geomdetector.inlgapsfound : geomdetector.crlgapsfound; }
 
 int HorizonScanner::nrAttribValues() const
-{ return valranges.size()-1; }
+{ return nrattribvals; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.3 2005-04-27 19:27:00 cvsnanne Exp $
+ RCS:		$Id: horizonscanner.h,v 1.4 2005-04-28 08:58:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ protected:
     bool		isxy;
     bool		doscale;
     float		udfval;
+    int			nrattribvals;
     TypeSet<Interval<float> > valranges;
 
 };
