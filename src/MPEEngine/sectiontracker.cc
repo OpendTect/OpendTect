@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.7 2005-04-28 15:39:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.8 2005-04-29 09:16:27 cvsnanne Exp $";
 
 #include "sectiontracker.h"
 
@@ -118,7 +118,7 @@ void SectionTracker::getNeededAttribs(
 	for ( int asidx=0; asidx<psc->nrAttribs(); asidx++ )
 	{
 	    const AttribSelSpec* as = psc->getSelSpec( asidx );
-	    if ( indexOf(res,*as) < 0 )
+	    if ( as && indexOf(res,*as) < 0 )
 		res += as;
 	}
     }
