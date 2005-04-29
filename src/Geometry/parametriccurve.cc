@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.5 2005-04-26 13:11:09 cvskris Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.6 2005-04-29 16:21:18 cvsnanne Exp $";
 
 #include "parametriccurve.h"
 
@@ -40,7 +40,7 @@ protected:
 bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 					   float eps ) const
 {
-    pErrMsg("This function is not tested, quality not assured (yet)");
+//    pErrMsg("This function is not tested, quality not assured (yet)");
     CurveSqDistanceFunction mfunc( *this, pos );
     const StepInterval<int> prange = parameterRange();
     if ( Values::isUdf(p) || !prange.includes(p,false) )
@@ -67,6 +67,7 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
     while ( (res=finder.nextStep())==1 ) ;
 
     if ( !res ) p = finder.extremePos();
+    p = finder.extremePos();
 
     return res!=-1;
 }
