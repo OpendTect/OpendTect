@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.23 2005-04-28 15:41:35 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.24 2005-04-29 15:09:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.23 2005-04-28 15:41:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.24 2005-04-29 15:09:21 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -268,7 +268,7 @@ bool EMObjectDisplay::updateFromEM()
 
     const bool hastracker = MPE::engine().getTrackerByObject(objid) >= 0;
     useWireframe( hastracker );
-    useTexture( !hastracker );
+    useTexture( hastracker ? false : usestexture );
     setResolution( hastracker ? nrResolutions()-1 : 0 );
 
     return true;
@@ -304,8 +304,7 @@ bool EMObjectDisplay::addSection( EM::SectionID sectionid )
 void EMObjectDisplay::useTexture( bool yn )
 {
     usestexture = yn;
-
-    if ( yn ) nontexturecol = getMaterial()->getColor();
+//  if ( yn ) nontexturecol = getMaterial()->getColor();
     getMaterial()->setColor( yn ? Color::White : nontexturecol );
 
     for ( int idx=0; idx<sections.size(); idx++ )
