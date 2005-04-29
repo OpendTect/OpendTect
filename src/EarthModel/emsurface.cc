@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.70 2005-03-10 11:48:21 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.71 2005-04-29 15:07:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,13 @@ int Surface::nrSections() const
 
 SectionID Surface::sectionID( int idx ) const
 { return geometry.sectionID(idx); }
+
+
+bool Surface::removeSection( SectionID sid, bool hist )
+{
+    geometry.removeSection( sid, hist );
+    return true;
+}
 
 
 bool Surface::setPos( const PosID& posid, const Coord3& newpos,
