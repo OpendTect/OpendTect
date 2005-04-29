@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.4 2005-03-23 16:02:45 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.5 2005-04-29 15:41:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,8 @@ public:
 
     static const int		evGetAttribData;
     void			loadAttribData();
+    CubeSampling		getActiveVolume() const;
     const AttribSelSpec*	getAttribSelSpec() const;
-    CubeSampling		getAttribCube(const AttribSelSpec&) const;
     const AttribSliceSet*	getAttribCache(const AttribSelSpec&) const;
     void			setAttribData(const AttribSelSpec&,
 	    				      AttribSliceSet*);

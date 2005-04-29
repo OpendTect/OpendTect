@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.9 2005-04-22 11:40:11 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.10 2005-04-29 15:41:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,21 +125,24 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
 
 int uiMPEPartServer::addTracker( const char* trackertype, const char* name )
 {
-    activetrackerid = MPE::engine().addTracker( name, trackertype );
+    MPE::Engine& engine = MPE::engine();
+    if ( !engine.highestTrackerID() )
+	engine.setActiveVolume( engine.getDefaultActiveVolume() );
+
+    activetrackerid = engine.addTracker( name, trackertype );
     if ( activetrackerid==-1 )
 	uiMSG().error( MPE::engine().errMsg() );
     else
     {
-	//Create Editor
 	const EM::ObjectID objid =
-	    MPE::engine().getTracker(activetrackerid)->objectID();
-	if ( !MPE::engine().getEditor(objid,false) )
-	    MPE::engine().getEditor(objid,true);
+			    engine.getTracker(activetrackerid)->objectID();
+	if ( !engine.getEditor(objid,false) )
+	    engine.getEditor(objid,true);
 
 	if ( !sendEvent( evAddTreeObject ) )
 	{
 	    pErrMsg("Could not add treeitem");
-	    MPE::engine().removeTracker( activetrackerid );
+	    engine.removeTracker( activetrackerid );
 	    activetrackerid = -1;
 	    //TODO? Remove new object?
 	    //TODO? Remove new editor?
@@ -279,8 +282,8 @@ const AttribSliceSet*
 { return MPE::engine().getAttribCache( spec ); }
 
 
-CubeSampling uiMPEPartServer::getAttribCube(  const AttribSelSpec& spec ) const
-{ return MPE::engine().getAttribCube(spec); }
+CubeSampling uiMPEPartServer::getActiveVolume() const
+{ return MPE::engine().activeVolume(); }
 
 
 void uiMPEPartServer::updateVolumeFromSeeds()
