@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.3 2005-04-15 15:35:04 cvsnanne Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.4 2005-04-29 15:40:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ bool SurfaceCutter::doTerminate( bool positiveside )
     }
 
     checker.nextStep();
+    cuttedsurf->geometry.checkSections();
 
 //  reTrack();
     return true;
