@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.17 2005-04-22 13:45:04 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.18 2005-04-29 15:06:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,6 +158,33 @@ void SurfaceGeometry::removeAll()
 {
     while ( nrSections() )
 	removeSection( sectionID(0), false );
+}
+
+
+void SurfaceGeometry::checkSections()
+{
+    const int nrsections = nrSections();
+    for ( int sidx=0; sidx<nrsections; sidx++ )
+    {
+	SectionID sid = sectionID( sidx );
+	const Geometry::ParametricSurface* psurf = getSurface( sid );
+	if ( !psurf ) return;
+
+	bool isundef = true;
+	const int nrnodes = psurf->nrKnots();
+	for ( int nodeidx=0; nodeidx<nrnodes; nodeidx++ )
+	{
+	    const RowCol rc = psurf->getKnotRowCol( nodeidx );
+	    if ( psurf->isKnotDefined(rc) )
+	    {
+		isundef = false;
+		break;
+	    }
+	}
+
+	if ( isundef )
+	    removeSection( sid, false );
+    }
 }
 
 

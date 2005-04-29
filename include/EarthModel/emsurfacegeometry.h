@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.11 2005-04-15 11:24:47 cvsnanne Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.12 2005-04-29 15:06:11 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ public:
     			/*!< Return false if the sectionid allready exists */
     void		removeSection(SectionID,bool addtohistory);
     SectionID		cloneSection(SectionID);
+    void		checkSections();
 
     bool		setPos(SectionID,const RowCol&,
 			       const Coord3&,bool addtoh);
