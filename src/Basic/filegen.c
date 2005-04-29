@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.63 2005-03-22 14:17:01 cvsarend Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.64 2005-04-29 13:20:27 cvsdgb Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -307,7 +307,7 @@ int File_copy( const char* from, const char* to, int recursive )
 	len = strlen( from ) + strlen( to ) + 128;
 	cmd = mMALLOC(len,char);
 	
-	strcpy( cmd, "xcopy /E /I /Q /H /K " );
+	strcpy( cmd, "xcopy /E /I /Q /H " );
 	strcat( cmd, " \"" );
 	strcat( cmd, from );
 	strcat( cmd, "\" \"" );
