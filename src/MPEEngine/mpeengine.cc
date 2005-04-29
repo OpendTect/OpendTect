@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.23 2005-04-22 11:31:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.24 2005-04-29 15:39:22 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -300,8 +300,8 @@ void Engine::getNeededAttribs( ObjectSet<const AttribSelSpec>& res ) const
 
 CubeSampling Engine::getAttribCube( const AttribSelSpec& as ) const
 {
-    //TODO: Implement margins
-    return activeVolume();
+    const AttribSliceSet* sliceset = getAttribCache( as );
+    return sliceset ? sliceset->sampling : activeVolume();
 }
     
 
@@ -309,7 +309,8 @@ const AttribSliceSet* Engine::getAttribCache( const AttribSelSpec& as ) const
 {
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
     {
-	if ( *attribcachespecs[idx]==as ) return attribcache[idx];
+	if ( *attribcachespecs[idx]==as )
+	    return idx<attribcache.size() ? attribcache[idx] : 0;
     }
 
     return 0;
