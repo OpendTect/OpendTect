@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.30 2005-04-15 11:24:47 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.31 2005-04-29 15:04:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ EMObject* Fault::create( const ObjectID& id, EMManager& emm )
 Fault::Fault( EMManager& em, const ObjectID& mid )
     : Surface(em,mid,*new FaultGeometry(*this))
 {
-    geometry.addSection( "", true );
+    geometry.addSection( "", false );
 }
 
 

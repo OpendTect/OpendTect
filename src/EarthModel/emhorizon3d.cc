@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.60 2005-04-15 11:24:47 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.61 2005-04-29 15:04:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace EM {
 Horizon::Horizon( EMManager& man, const ObjectID& id_ )
     : Surface(man,id_,*new HorizonGeometry(*this))
 {
-    geometry.addSection( "", true );
+    geometry.addSection( "", false );
 }
 
 
