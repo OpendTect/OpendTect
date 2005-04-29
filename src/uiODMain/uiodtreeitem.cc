@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.78 2005-04-15 15:31:59 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.79 2005-04-29 15:08:02 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -587,6 +587,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	}
 	else if ( hastracker && section != -1 )
 	{
+#ifdef __debug__
 	    if ( mIsObject(EM::Horizon::typeStr()) )
 	    {
 		addsectionmnuid = menu->getFreeID();
@@ -594,7 +595,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 				      addsectionmnuid );
 	    }
 
-#ifdef __debug__
 	    extendsectionmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Extend section ..."),
 		    		  extendsectionmnuid );
