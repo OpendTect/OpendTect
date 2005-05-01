@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.9 2005-04-13 15:37:48 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.10 2005-05-01 18:34:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,9 @@ public:
     void			setSelSpec(const AttribSelSpec&);
     const AttribSelSpec*	getSelSpec() const;
     void			updateTexture();
+    
+    void			fillPar(IOPar&,TypeSet<int>&) const;
+    int				usePar( const IOPar&);
 
 protected:
 				~MPEDisplay();
@@ -77,6 +80,7 @@ protected:
     void			setTexture(visBase::Texture3*);
     void			updateTextureCoords();
     void			setDraggerCenter(bool alldims);
+    void			setDragger(visBase::DepthTabPlaneDragger*);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
@@ -107,6 +111,9 @@ protected:
 
     AttribSelSpec&		as_;
     bool			manipulated_;
+
+    static const char*		draggerstr_;
+    static const char*		transstr_;
 };
 
 };

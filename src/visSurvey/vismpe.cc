@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.12 2005-04-15 15:31:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.13 2005-05-01 18:34:35 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -24,18 +24,23 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.12 2005-04-15 15:31:44 cvsnanne E
 #include "vistexturecoords.h"
 #include "attribsel.h"
 #include "attribslice.h"
+#include "iopar.h"
+#include "visdataman.h"
 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
 namespace visSurvey {
 
+const char* MPEDisplay::draggerstr_ = "Dragger ID";
+const char* MPEDisplay::transstr_   = "Transparency";
+
 MPEDisplay::MPEDisplay()
     : VisualObjectImpl(true )
     , boxdragger_(visBase::BoxDragger::create())
     , rectangle_(visBase::FaceSet::create())
     , draggerrect_(visBase::DataObjectGroup::create())
-    , dragger_(visBase::DepthTabPlaneDragger::create())
+    , dragger_(0)
     , engine_(MPE::engine())
     , sceneeventcatcher_(0)
     , as_(*new AttribSelSpec())
@@ -92,13 +97,7 @@ MPEDisplay::MPEDisplay()
     polyline->setCoordIndex( 5, -1 );
     draggerrect_->addObject( polyline );
 
-    dragger_->ref();
-    addChild( dragger_->getInventorNode() );
-    dragger_->setOwnShape( draggerrect_->getInventorNode() );
-    dragger_->setDim(0);
-    dragger_->changed.notify( mCB(this,MPEDisplay,rectangleMovedCB) );
-    dragger_->started.notify( mCB(this,MPEDisplay,rectangleStartCB) );
-    dragger_->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
+    setDragger( visBase::DepthTabPlaneDragger::create() );
 
     engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
 //  engine_.trackplanechange.notify( 
@@ -115,11 +114,35 @@ MPEDisplay::~MPEDisplay()
 //				mCB(this,MPEDisplay,updateDraggerPosition) );
 
     setSceneEventCatcher( 0 );
+    setDragger(0);
 
-    if ( dragger_ ) dragger_->unRef();
     draggerrect_->unRef();
     boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->unRef();
+}
+
+
+void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )
+{
+    if ( dragger_ )
+    {
+	dragger_->changed.remove( mCB(this,MPEDisplay,rectangleMovedCB) );
+	dragger_->started.remove( mCB(this,MPEDisplay,rectangleStartCB) );
+	dragger_->finished.remove( mCB(this,MPEDisplay,rectangleStopCB) );
+	removeChild( dragger_->getInventorNode() );
+	dragger_->unRef();
+    }
+
+    dragger_ = dr;
+    if ( !dragger_ ) return;
+        
+    dragger_->ref();
+    addChild( dragger_->getInventorNode() );
+    dragger_->setOwnShape( draggerrect_->getInventorNode() );
+    dragger_->setDim(0);
+    dragger_->changed.notify( mCB(this,MPEDisplay,rectangleMovedCB) );
+    dragger_->started.notify( mCB(this,MPEDisplay,rectangleStartCB) );
+    dragger_->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
 }
 
 
@@ -575,6 +598,57 @@ void MPEDisplay::updateTextureCoords()
 	rectangle_->getTextureCoords()->setCoord( 3, 
 				Coord3(intv0.start,intv1.stop,relcoord) );
     }
+}
+
+
+void MPEDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    visBase::VisualObjectImpl::fillPar( par, saveids );
+
+    as_.fillPar( par );
+    
+    CubeSampling cs = getCubeSampling();
+    cs.fillPar( par );
+
+    if ( dragger_ )
+    {
+	const int draggerid = dragger_->id();
+	par.set( draggerstr_, draggerid );
+	if ( saveids.indexOf(draggerid) == -1 ) saveids += draggerid;
+    }
+
+    par.set( transstr_, getDraggerTransparency() );
+}
+
+
+int MPEDisplay::usePar( const IOPar& par )
+{
+    const int res = visBase::VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    CubeSampling cs;
+    if ( !cs.usePar(par) )
+	return -1;
+    setCubeSampling( cs );
+
+    int draggerid;
+    if ( par.get(draggerstr_,draggerid) )
+    {
+	visBase::DataObject* dataobj = visBase::DM().getObject( draggerid );
+	if ( !dataobj ) return 0;
+	mDynamicCastGet(visBase::DepthTabPlaneDragger*,dr,dataobj)
+	setDragger( dr );
+    }
+    else
+	setDragger( visBase::DepthTabPlaneDragger::create() );
+
+    float transparency = 0.5;
+    par.get( transstr_, transparency );
+    setDraggerTransparency( transparency );
+
+    as_.usePar( par );
+
+    return 1;
 }
 
 
