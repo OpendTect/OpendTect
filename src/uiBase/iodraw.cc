@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.12 2005-01-26 13:27:03 duntao Exp $
+ RCS:           $Id: iodraw.cc,v 1.13 2005-05-02 09:18:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ void ioDrawTool::drawLine( int x1, int y1, int x2, int y2 )
 
 void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, int pt0, int nr )
 {
+    if ( !active() && !beginDraw() ) return;
+
     int nrpoints = pts.size();
     QPointArray qarray(nrpoints);
     for ( int idx=0; idx<nrpoints; idx++ )
@@ -71,6 +73,8 @@ void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, int pt0, int nr )
 
 void ioDrawTool::drawPolygon( const TypeSet<uiPoint>& pts, int pt0, int nr )
 {
+    if ( !active() && !beginDraw() ) return;
+
     int nrpoints = pts.size();
     QPointArray qarray(nrpoints);
     for ( int idx=0; idx<nrpoints; idx++ )
@@ -160,6 +164,7 @@ void ioDrawTool::drawRect ( int x, int y, int w, int h )
 
 Color ioDrawTool::backgroundColor() const
 {
+    if ( !active() ) return Color::Black;
     return Color( mQPainter->backgroundColor().rgb() );
 }
 
@@ -194,6 +199,7 @@ void ioDrawTool::clear( const uiRect* rect, const Color* col )
 
 void ioDrawTool::drawBackgroundPixmap( const Color* col )
 {
+    if ( !active() && !beginDraw() ) return;
     setBackgroundColor( *col );
     mQPainter->setBackgroundMode( Qt::OpaqueMode );
     mQPainter->setBrush( Qt::DiagCrossPattern );
@@ -405,11 +411,13 @@ bool ioDrawTool::setActivePainter( QPainter* p )
 
 void ioDrawTool::setRasterXor()
 {
+    if ( !active() ) return;
     mQPainter->setRasterOp(Qt::XorROP);
 }
 
 void ioDrawTool::setRasterNorm()
 {
+    if ( !active() ) return;
     mQPainter->setRasterOp(Qt::CopyROP);
 }
 
