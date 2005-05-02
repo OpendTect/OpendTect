@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.12 2005-04-28 13:10:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.13 2005-05-02 08:47:57 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -2258,17 +2258,22 @@ void SoLODMeshSurface::insertColumns( bool before, int nr )
 void SoLODMeshSurface::insertRowsBefore(int nr)
 {
     if ( nr<=0 ) return;
-    coordinates.insertSpace( 0, nrColumns.getValue()*nr );
-    for ( int idy=0; idy<nrColumns.getValue()*nr; idy++ )
+    const int nrcols = nrColumns.getValue();
+    coordinates.insertSpace( 0, nrcols*nr );
+    
+    for ( int idy=0; idy<nrcols*nr; idy++ )
 	coordinates.set1Value( idy, SbVec3f(1e30,1e30,1e30) );
 
-    materialIndex.insertSpace( 0, nrColumns.getValue()*nr );
-    meshStyle.insertSpace( 0, nrColumns.getValue()*nr );
+    materialIndex.insertSpace( 0, nrcols*nr );
+    meshStyle.insertSpace( 0, nrcols*nr );
 
+    const MeshSurfImpl::MeshSurfaceIndexChanger
+			ic( nrcols, nrcols, true, nr );
     for ( int idx=0; idx<parts.getLength(); idx++ )
     {
 	parts[idx]->setStart( parts[idx]->getRowStart()+nr,
 			      parts[idx]->getColStart() );
+	parts[idx]->changeCacheIdx( ic );
     }
 }
 
