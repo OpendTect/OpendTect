@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.22 2005-03-09 12:22:17 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.23 2005-05-02 13:15:28 cvskris Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.22 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.23 2005-05-02 13:15:28 cvskris Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -162,7 +162,7 @@ int main( int argc, char** argv )
 	{
 	    BufferString str; trc.info().coord.fill(str.buf());
 	    std::cerr << "Coordinate: " << str;
-	    BinID bid = info.geom.b2c.transform( trc.info().coord );
+	    BinID bid = info.geom.b2c.transformBack( trc.info().coord );
 	    if ( bid != trc.info().binid )
 	    {
 		bid.fill( str.buf() );
