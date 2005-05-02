@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.8 2005-04-05 07:03:10 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.9 2005-05-02 13:26:18 cvsnanne Exp $";
 
 #include "vismpeeditor.h"
 
@@ -210,7 +210,9 @@ void MPEEditor::changeNumNodes(CallBacker*)
 	
     while ( posids.size()<markers.size() )
     {
-	const int lastmarker = posids.size()-1;
+	int lastmarker = posids.size()-1;
+	if ( lastmarker<0 && markers.size() )
+	    lastmarker = 0;
 	removeChild(markers[lastmarker]->getInventorNode() );
 	markers[lastmarker]->unRef();
 	markers.remove(lastmarker);
