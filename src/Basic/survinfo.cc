@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.67 2005-04-26 15:11:54 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.68 2005-05-02 09:08:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "undefval.h"
+#include "unitofmeasure.h"
 #include "safefileio.h"
 
 #include <math.h>
@@ -48,71 +49,6 @@ const SurveyInfo& SI()
 	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
     }
     return *SurveyInfo::theinst_;
-}
-
-
-const char* BinID2Coord::set3Pts( const Coord c[3], const BinID b[2], int xline)
-{
-    if ( b[1].inl == b[0].inl )
-        return "Need two different in-lines";
-    if ( b[0].crl == xline )
-        return "No Cross-line range present";
-
-    BCTransform nxtr, nytr;
-    int crld = b[0].crl - xline;
-    nxtr.c = ( c[0].x - c[2].x ) / crld;
-    nytr.c = ( c[0].y - c[2].y ) / crld;
-    int inld = b[0].inl - b[1].inl;
-    crld = b[0].crl - b[1].crl;
-    nxtr.b = ( c[0].x - c[1].x ) / inld - ( nxtr.c * crld / inld );
-    nytr.b = ( c[0].y - c[1].y ) / inld - ( nytr.c * crld / inld );
-    nxtr.a = c[0].x - nxtr.b * b[0].inl - nxtr.c * b[0].crl;
-    nytr.a = c[0].y - nytr.b * b[0].inl - nytr.c * b[0].crl;
-
-    if ( mIsZero(nxtr.a,mDefEps) ) nxtr.a = 0;
-    if ( mIsZero(nxtr.b,mDefEps) ) nxtr.b = 0;
-    if ( mIsZero(nxtr.c,mDefEps) ) nxtr.c = 0;
-    if ( mIsZero(nytr.a,mDefEps) ) nytr.a = 0;
-    if ( mIsZero(nytr.b,mDefEps) ) nytr.b = 0;
-    if ( mIsZero(nytr.c,mDefEps) ) nytr.c = 0;
-
-    if ( !nxtr.valid(nytr) )
-	return "Cannot construct a valid transformation matrix from this input";
-
-    xtr = nxtr;
-    ytr = nytr;
-    return 0;
-}
-
-
-Coord BinID2Coord::transform( const BinID& binid ) const
-{
-    return Coord( xtr.a + xtr.b*binid.inl + xtr.c*binid.crl,
-		  ytr.a + ytr.b*binid.inl + ytr.c*binid.crl );
-}
-
-
-BinID BinID2Coord::transform( const Coord& coord,
-				const StepInterval<int>* inlrg,
-				const StepInterval<int>* crlrg) const
-{
-    static BinID binid;
-    static double x, y;
-
-    if ( Values::isUdf(coord.x) || Values::isUdf(coord.y) )
-	return binid;
-
-    double det = xtr.det( ytr );
-    if ( mIsZero(det,mDefEps) ) return binid;
-
-    x = coord.x - xtr.a;
-    y = coord.y - ytr.a;
-    double di = (x*ytr.c - y*xtr.c) / det;
-    double dc = (y*xtr.b - x*ytr.b) / det;
-    binid.inl = inlrg ? inlrg->snap(di) : mNINT(di);
-    binid.crl = crlrg ? crlrg->snap(dc) : mNINT(dc);
-
-    return binid;
 }
 
 
@@ -452,6 +388,15 @@ const char* SurveyInfo::getZUnit( bool wb ) const
 }
 
 
+const UnitOfMeasure* SurveyInfo::zUnit() const
+{
+    if ( zistime_ )
+	return UoMR().get("Seconds");
+
+    return UoMR().get( zinfeet_ ? "Feet" : "Meter");
+}
+
+
 void SurveyInfo::setZUnit( bool istime, bool meter )
 {
     zistime_ = istime;
@@ -472,7 +417,7 @@ BinID SurveyInfo::transform( const Coord& c ) const
     if ( !valid_ ) return BinID(0,0);
     static StepInterval<int> inlrg, crlrg;
     cs_.hrg.get( inlrg, crlrg );
-    return b2c_.transform( c, &inlrg, &crlrg );
+    return b2c_.transformBack( c, &inlrg, &crlrg );
 }
 
 
@@ -497,8 +442,13 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 				   int xline )
 {
-    const char* msg = b2c_.set3Pts( c, b, xline );
-    if ( msg ) return msg;
+    if ( b[1].inl == b[0].inl )
+        return "Need two different in-lines";
+    if ( b[0].crl == xline )
+        return "No Cross-line range present";
+
+    if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
+	return "Cannot construct a valid transformation matrix from this input";
 
     set3coords[0].x = c[0].x; set3coords[0].y = c[0].y;
     set3coords[1].x = c[1].x; set3coords[1].y = c[1].y;
@@ -587,14 +537,14 @@ void SurveyInfo::snapZ( float& z, int dir, bool work ) const
 }
 
 
-void SurveyInfo::setTr( BinID2Coord::BCTransform& tr, const char* str )
+void SurveyInfo::setTr( RCol2Coord::RCTransform& tr, const char* str )
 {
     FileMultiString fms( str );
     tr.a = atof(fms[0]); tr.b = atof(fms[1]); tr.c = atof(fms[2]);
 }
 
 
-void SurveyInfo::putTr( const BinID2Coord::BCTransform& tr,
+void SurveyInfo::putTr( const RCol2Coord::RCTransform& tr,
 			  ascostream& astream, const char* key ) const
 {
     FileMultiString fms;

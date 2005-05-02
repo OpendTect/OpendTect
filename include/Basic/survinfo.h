@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.46 2005-04-25 11:50:26 cvsnanne Exp $
+ RCS:		$Id: survinfo.h,v 1.47 2005-05-02 09:08:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,11 @@ ________________________________________________________________________
  
 #include "uidobj.h"
 #include "ranges.h"
-#include "binid2coord.h"
+#include "rcol2coord.h"
 class ascostream;
 class IOPar;
-class BinID2Coord;
 class CubeSampling;
+class UnitOfMeasure;
 
 
 /*!\brief Holds survey general information.
@@ -67,6 +67,7 @@ public:
     bool		includes(const BinID&,const float,bool work=true) const;
 			//!< Returns true when pos is inside survey-range
 
+    const UnitOfMeasure* zUnit() const;
     inline bool		zIsTime() const	 { return zistime_; }
     inline bool		zInMeter() const { return !zistime_ && !zinfeet_; }
     inline bool		zInFeet() const	 { return !zistime_ && zinfeet_; }
@@ -87,7 +88,7 @@ public:
     virtual BinID	transform(const Coord&) const;
     			/*!<\note The returned BinID will be snapped according
 			  	  to the work step. */
-    const BinID2Coord&	binID2Coord() const		{ return b2c_; }
+    const RCol2Coord&	binID2Coord() const		{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
 
     virtual Coord	minCoord(bool work=true) const;
@@ -151,7 +152,7 @@ protected:
     CubeSampling&	wcs_;
     IOPar&		pars_;
 
-    BinID2Coord		b2c_;
+    RCol2Coord		b2c_;
     BinID		set3binids[3];
     Coord		set3coords[3];
 
@@ -162,8 +163,8 @@ protected:
     bool		wrapUpRead();
     void		writeSpecLines(ascostream&) const;
 
-    void		setTr(BinID2Coord::BCTransform&,const char*);
-    void		putTr(const BinID2Coord::BCTransform&,
+    void		setTr(RCol2Coord::RCTransform&,const char*);
+    void		putTr(const RCol2Coord::RCTransform&,
 	    			ascostream&,const char*) const;
 
     friend class	uiSurvey;
@@ -173,8 +174,8 @@ protected:
 
 private:
 
-    BinID2Coord::BCTransform	rdxtr;
-    BinID2Coord::BCTransform	rdytr;
+    RCol2Coord::RCTransform	rdxtr;
+    RCol2Coord::RCTransform	rdytr;
 
 };
 

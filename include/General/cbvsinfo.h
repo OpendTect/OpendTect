@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.18 2005-01-05 15:06:57 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.19 2005-05-02 09:08:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
 	BinID			start, stop, step;
 				//!< If step < 0, the order is reversed in
 				//!< the file
-	BinID2Coord		b2c;
+	RCol2Coord		b2c;
 	PosInfo::CubeData	cubedata;
 				//!< For write, cubedata is ignored in favor
 				//!< of actually written, which is put

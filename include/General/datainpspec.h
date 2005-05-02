@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.54 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: datainpspec.h,v 1.55 2005-05-02 09:08:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "bufstringset.h"
 
-class BinID2Coord;
+class RCol2Coord;
 class IOPar;
 
 class DataType
@@ -504,7 +504,7 @@ public:
 					   bool withOtherBut=false,
 					   double inline_x = mUdf(double),
 					   double crossline_y = mUdf(double),
-					   const BinID2Coord* b2c=0 );
+					   const RCol2Coord* b2c=0 );
     virtual DataInpSpec* clone() const;
     virtual int 	nElems()  const;
 
@@ -514,7 +514,7 @@ public:
     virtual bool	setText( const char* s, int idx=0 );
 
     const char*		otherTxt() const;
-    const BinID2Coord*	binID2Coord() const;
+    const RCol2Coord*	binID2Coord() const;
 
 protected:
 
@@ -524,7 +524,7 @@ protected:
     bool		doCoord_;
     bool		isRelative_;
     bool		withOtherBut_;
-    const BinID2Coord*	b2c_;
+    const RCol2Coord*	b2c_;
 };
 
 #endif

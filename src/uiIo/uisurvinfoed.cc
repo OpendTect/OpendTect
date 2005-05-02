@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.69 2005-04-28 09:55:15 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.70 2005-05-02 09:08:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -674,7 +674,7 @@ bool uiSurveyInfoEditor::setCoords()
 
 bool uiSurveyInfoEditor::setRelation()
 {
-    BinID2Coord::BCTransform xtr, ytr;
+    RCol2Coord::RCTransform xtr, ytr;
     xtr.a = x0fld->getValue();   ytr.a = y0fld->getValue();
     xtr.b = xinlfld->getValue(); ytr.b = yinlfld->getValue();
     xtr.c = xcrlfld->getValue(); ytr.c = ycrlfld->getValue();

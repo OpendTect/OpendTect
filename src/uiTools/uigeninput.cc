@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.66 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.67 2005-05-02 09:08:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -330,7 +330,7 @@ protected:
     uiGroup&		binidGrp;
     uiLineEdit&		inl_x; // inline or x-coordinate
     uiLineEdit&		crl_y; // crossline or y-coordinate
-    const BinID2Coord*	b2c;
+    const RCol2Coord*	b2c;
 
     uiPushButton*	ofrmBut; // other format: BinId / Coordinates 
     void		otherFormSel(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.33 2004-12-30 17:29:35 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.34 2005-05-02 09:08:48 cvskris Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -44,7 +44,7 @@ public:
     virtual void	usePar(const IOPar&);
 
     const CBVSReadMgr*	readMgr() const			{ return rdmgr; }
-    BinID2Coord		getTransform() const;
+    RCol2Coord		getTransform() const;
 
     virtual bool	implRemove(const IOObj*) const;
     virtual bool	implRename(const IOObj*,const char*,

@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.11 2005-02-23 14:47:04 cvsarend Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.12 2005-05-02 09:08:49 cvskris Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -327,7 +327,7 @@ void StringListInpSpec::setValue( float f, int idx )
 BinIDCoordInpSpec::BinIDCoordInpSpec( bool doCoord, bool isRelative,
 					bool withOtherBut, double inline_x,
 					double crossline_y,
-					const BinID2Coord* b2c )
+					const RCol2Coord* b2c )
     : DataInpSpec( DataTypeImpl<int>(DataType::binID) )
     , withOtherBut_( withOtherBut )
     , inl_x( inline_x )
@@ -376,5 +376,5 @@ const char* BinIDCoordInpSpec::otherTxt() const
 }
 
 
-const BinID2Coord* BinIDCoordInpSpec::binID2Coord() const
+const RCol2Coord* BinIDCoordInpSpec::binID2Coord() const
 { return b2c_; }
