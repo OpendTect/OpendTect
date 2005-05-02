@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.18 2005-04-21 14:37:27 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.19 2005-05-02 06:55:54 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,9 @@ ________________________________________________________________________
 
 #include "sighndl.h"
 
+#ifndef __win__
+#include <unistd.h>
+#endif
 
 #define sTmpStor	"Temporary storage directory"
 #define sLogFil		"Log file"
