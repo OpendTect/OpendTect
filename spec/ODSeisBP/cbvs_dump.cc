@@ -40,7 +40,7 @@ static bool provideInfo( CBVSSeisTrcTranslator& tr )
 }
 
 
-static void prBidCoord( std::ostream& strm, const BinID2Coord& b2c,
+static void prBidCoord( std::ostream& strm, const RCol2Coord& b2c,
 			const BinID& bid)
 {
     Coord coord = b2c.transform( bid );
@@ -102,7 +102,7 @@ bool BatchProgram::go( std::ostream& logstrm )
 	if ( ci.size() > 1 )
 	    outstrm << "Components.Nr: " << ci.size() << std::endl;
 
-	BinID2Coord b2c( tri->getTransform() );
+	RCol2Coord b2c( tri->getTransform() );
 	BinID bid( cs.hrg.start );
 	prBidCoord( outstrm, b2c, bid );
 	bid.inl = cs.hrg.stop.inl;
