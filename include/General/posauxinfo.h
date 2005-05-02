@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jul 2002
  Contents:	PAuxiliary info on position
- RCS:		$Id: posauxinfo.h,v 1.3 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: posauxinfo.h,v 1.4 2005-05-02 09:14:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <binid2coord.h>
+#include <rcol2coord.h>
 #include <basiccompinfo.h>
 #include <scaler.h>
 #include <sets.h>
