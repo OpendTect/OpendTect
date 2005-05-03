@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.5 2005-02-08 16:19:51 nanne Exp $
+ RCS:		$Id: binidvalset.h,v 1.6 2005-05-03 14:40:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ public:
     bool		valid(const Pos&) const;
 
     void		get(const Pos&,BinID&,float* v=0) const;
+    BinID		getBinID(const Pos&) const;
     Pos			getPos(int global_idx) const;
     			//!< Slow. And 0 < global_idx < totalNr() is not checked
     Pos			add(const BinID&,const float* vs=0);
