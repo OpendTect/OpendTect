@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.25 2005-05-03 11:30:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.26 2005-05-03 11:38:35 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.25 2005-05-03 11:30:38 cvsnann
 #define mRetErr( msg, retval ) { errmsg = msg; return retval; }
 
 
-MPE::Engine& engine()
+MPE::Engine& MPE::engine()
 {
     static MPE::Engine* theinst_ = 0;
     if ( !theinst_ )
