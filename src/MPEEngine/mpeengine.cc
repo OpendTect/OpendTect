@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.24 2005-04-29 15:39:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.25 2005-05-03 11:30:38 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -26,9 +26,18 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.24 2005-04-29 15:39:22 cvsnann
 
 #define mRetErr( msg, retval ) { errmsg = msg; return retval; }
 
+
+MPE::Engine& engine()
+{
+    static MPE::Engine* theinst_ = 0;
+    if ( !theinst_ )
+	theinst_ = new MPE::Engine;
+    return *theinst_;
+}
+
+
 namespace MPE 
 {
-
 
 Engine::Engine()
     : seedpropertychange( this )

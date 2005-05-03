@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.10 2005-04-11 15:40:39 cvsnanne Exp $
+ RCS:           $Id: mpeengine.h,v 1.11 2005-05-03 11:30:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ class ObjectEditor;
 
 class Engine : public CallBackClass
 {
+    friend Engine&		engine();
+
 public:
     				Engine();
     virtual			~Engine();
@@ -110,13 +112,6 @@ protected:
     ObjectSet<TrackerFactory>	trackerfactories;
     ObjectSet<EditorFactory>	editorfactories;
 };
-
-
-inline Engine& engine()
-{
-    static MPE::Engine engine_inst;
-    return engine_inst;
-}
 
 
 void initStandardClasses();
