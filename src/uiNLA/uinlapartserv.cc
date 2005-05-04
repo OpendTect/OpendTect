@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.17 2005-03-25 13:26:01 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.18 2005-05-04 15:19:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,9 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uiposdataedit.h"
 #include "uiioobjsel.h"
+#include "uidistribution.h"
+#include "uigeninput.h"
+#include "uicanvas.h"
 #include "uimsg.h"
 #include "debug.h"
 #include "ioman.h"
@@ -28,6 +31,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "featset.h"
 #include "featsettr.h"
+#include "sorting.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -127,6 +131,89 @@ static void putBivSetToFS( BinIDValueSet& bvs, FeatureSet& fs )
     }
 }
 
+class uiBalanceDataDlg : public uiDialog
+{
+public:
+
+uiBalanceDataDlg( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
+    : uiDialog(p,uiDialog::Setup("Data balancing",gtTitle(vdss),"0.4.3"))
+{
+    const BinIDValueSet& bvs = vdss[0]->data();
+    BinIDValueSet::Pos pos;
+    const int valnr = bvs.nrVals() - 1;
+    TypeSet<float> datavals;
+    while ( bvs.next(pos) )
+    {
+	const float* vals = bvs.getVals( pos );
+	float val = vals[valnr];
+	if ( !mIsUndefined(val) )
+	    datavals += val;
+    }
+    sort_array( datavals.arr(), datavals.size() );
+
+    uiGroup* graphgrp = new uiGroup( this, "Graph group" );
+    plotfld = new uiDistribPlot( graphgrp );
+    const char* varname = vdss[0]->colDef(vdss[0]->nrCols()-1).name_;
+    plotfld->setData( datavals.arr(), datavals.size(), varname );
+
+    uiGroup* datagrp = new uiGroup( this, "Data group" );
+    dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec() );
+    dobalfld->valuechanged.notify( mCB(this,uiBalanceDataDlg,doBalChg) );
+    rg_.start = datavals[0];
+    rg_.stop = datavals[datavals.size()-1];
+    valrgfld = new uiGenInput( datagrp, "Data range to use",
+	    			FloatInpIntervalSpec(rg_) );
+    valrgfld->attach( alignedBelow, dobalfld );
+    nrptsperclss_ = plotfld->avgCount();
+    nrptspclssfld = new uiGenInput( datagrp,
+				"Target Number of data points per class",
+				IntInpSpec(nrptsperclss_) );
+    nrptspclssfld->attach( alignedBelow, valrgfld );
+
+    datagrp->attach( centeredBelow, graphgrp );
+}
+
+const char* gtTitle( const ObjectSet<PosVecDataSet>& vdss ) const
+{
+    const PosVecDataSet& pvds = *vdss[0];
+    const DataColDef& dcd = pvds.colDef( pvds.nrCols()-1 );
+    static BufferString ret;
+    ret = "Specify balancing for '";
+    ret += dcd.name_;
+    ret += "'";
+    return ret.buf();
+}
+
+void doBalChg( CallBacker* )
+{
+    dobal_ = dobalfld->getBoolValue();
+    valrgfld->display( dobal_ );
+    nrptspclssfld->display( dobal_ );
+}
+
+bool acceptOK( CallBacker* )
+{
+    dobal_ = dobalfld->getBoolValue();
+    if ( dobal_ )
+    {
+	rg_ = valrgfld->getFInterval();
+	nrptsperclss_ = nrptspclssfld->getIntValue();
+    }
+
+    return true;
+}
+
+    uiDistribPlot*	plotfld;
+    uiGenInput*		dobalfld;
+    uiGenInput*		valrgfld;
+    uiGenInput*		nrptspclssfld;
+
+    bool		dobal_;
+    Interval<float>	rg_;
+    int			nrptsperclss_;
+};
+
+
 const char* uiNLAPartServer::prepareInputData(
 		const ObjectSet<PosVecDataSet>& inpvdss )
 {
@@ -195,7 +282,21 @@ const char* uiNLAPartServer::prepareInputData(
     uiPosDataEdit dlg( appserv().parent(), vdss );
     dlg.saveData.notify( mCB(this,uiNLAPartServer,writeSets) );
     if ( dlg.go() )
-	return 0;
+    {
+	bool allok = true;
+	if ( crdesc.isdirect )
+	{
+	    uiBalanceDataDlg bddlg( appserv().parent(), vdss );
+	    allok = bddlg.go();
+	    if ( allok )
+	    {
+		//TODO do the actual balancing to trainvds.data()
+	    }
+	}
+
+	if ( allok )
+	    return 0;
+    }
 
     trainvds.data().empty(); testvds.data().empty();
     return "User cancel";
