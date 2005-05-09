@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.24 2005-02-10 16:34:32 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.25 2005-05-09 11:02:40 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -85,8 +85,8 @@ SegyTxtHeader::SegyTxtHeader()
 	buf += SI().getZUnit(false);
 	putAt( 18, 6, 75, buf.buf() );
     }
-
-    putAt( 38, 6, 75, "Geodetic datum: No data available" );
+    putAt( 40, 6, 75, "SEG Y REV0" );
+    putAt( 40, 6, 75, "END TEXTUAL HEADER" );
 }
 
 
@@ -202,7 +202,10 @@ void SegyTxtHeader::putAt( int line, int pos, int endpos, const char* str )
     int maxcharnr = (line-1)*80 + endpos;
 
     while ( charnr < maxcharnr && *str )
-	txt[charnr++] = *str++;
+    {
+	txt[charnr] = *str;
+	charnr++; str++;
+    }
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.34 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.35 2005-05-09 11:02:40 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -81,16 +81,22 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     SegyBinHeader binhead;
     binhead.getFrom( binheaderbuf );
 
-    if ( binhead.format == 4 )
-    {
-	errmsg = "SEG-Y format 4 (fixed point with gain code) not supported";
-	return false;
-    }
-    else if ( !numbfmt && binhead.format > 0 && binhead.format < 7 )
+    if ( numbfmt == 0 )
     {
 	numbfmt = binhead.format;
-	if ( numbfmt < 1 || numbfmt > 6 )
-	    numbfmt = 0;
+	if ( numbfmt < 1 || numbfmt > 8 || numbfmt == 6 || numbfmt == 7 )
+	{
+	    BufferString msg = "SEG-Y format '";
+	    msg += numbfmt;
+	    msg += "' found. Will try '1' (4-byte floating point)";
+	    ErrMsg( msg );
+	    numbfmt = 1;
+	}
+	else if ( numbfmt == 4 )
+	{
+	    errmsg = "SEG-Y format '4' (fixed point/gain code) not supported";
+	    return false;
+	}
     }
 
     txthead.getText( pinfo->usrinfo );
@@ -284,11 +290,11 @@ int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
 
     int nf = 1;
     if ( nrbytes == 1 )
-	nf = 5;
+	nf = 8;
     else if ( nrbytes == 2 )
 	nf = 3;
     else
-	nf = dc.isIeee() ? 6 : (dc.isInteger() ? 2 : 1);
+	nf = dc.isIeee() ? 5 : (dc.isInteger() ? 2 : 1);
     return nf;
 }
 
@@ -304,10 +310,10 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
         dc.setNrBytes( 2 );
     case 2:
     break;
-    case 5:
+    case 8:
         dc.setNrBytes( 1 );
     break;
-    case 6:
+    case 5:
 	dc.fmt = DataCharacteristics::Ieee;
     default:
 	dc.setInteger( false );
