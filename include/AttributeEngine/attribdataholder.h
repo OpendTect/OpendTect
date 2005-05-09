@@ -7,48 +7,53 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.2 2005-02-01 14:05:34 kristofer Exp $
+ RCS:           $Id: attribdataholder.h,v 1.3 2005-05-09 14:40:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "valseries.h"
+#include "samplingdata.h"
 #include "sets.h"
 
 namespace Attrib
 {
 
-class SingleDataHolder
+class DataHolder
 {
 public:
-    virtual		~SingleDataHolder() {}
-    virtual float	operator[](int) const			= 0;
-    virtual float*	getPtr() { return 0; }
+				DataHolder( int t1, int nrsamples )
+				: t1_(t1), nrsamples_(nrsamples)
+				{ data_.allowNull(true); }
+
+				~DataHolder()		{ deepErase(data_); }
+
+    inline ValueSeries<float>*	add();
+
+    int				nrItems() const	{ return data_.size(); }
+    ValueSeries<float>*		item( int idx )	const { return data_[idx]; }
+    void			replace(ValueSeries<float>* valseries,int idx)
+				{ data_.replace( valseries, idx ); }
+
+
+
+    int				t1_;
+    int				nrsamples_;
+
+protected:
+
+    ObjectSet< ValueSeries<float> >	data_;
+
 };
 
 
-class DataHolder : public ObjectSet<SingleDataHolder>
+ValueSeries<float>* DataHolder::add()
 {
-public:
-    			DataHolder( int t1_, int nrsamples_ )
-			    : t1( t1_ ), nrsamples( nrsamples )
-			{ allowNull(true); }
-			~DataHolder() { deepErase(*this); }
-    int			t1;
-    int			nrsamples;
-};
-
-
-template <class T>
-class SingleDataHolderPtrImpl : public SingleDataHolder
-{
-public:
-    		~SingleDataHolderPtrImpl() { delete [] ptr; }
-    		SingleDataHolderPtrImpl( T* ptr_ ) : ptr( ptr_ ) {}
-    float	operator[](int idx) const { return ptr[idx]; }
-    float*	getPtr() { return typeid(ptr)==typeid(float*) ? ptr : 0; }
-    T*		ptr;
-};
-
+    float* ptr = new float[nrsamples_];
+    ValueSeries<float>* res = new ArrayValueSeries<float>(ptr);
+    data_ += res;
+    return res;
+}
 
 
 }; //Namespace

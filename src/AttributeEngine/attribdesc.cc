@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.4 2005-02-03 15:35:02 kristofer Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.5 2005-05-09 14:40:41 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -44,6 +44,7 @@ Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
     , statusupdater( updater )
     , descchecker( dc )
     , issteering( false )
+    , seloutput( 0 )
 {
     mRefCountConstructor;
     inputs.allowNull(true);
@@ -56,12 +57,17 @@ Desc::Desc( const Desc& a )
     , statusupdater( a.statusupdater )
     , descchecker( a.descchecker )
     , issteering( false )
+    , seloutput( a.seloutput )
 {
     mRefCountConstructor;
     inputs.allowNull(true);
 
+    addOutputDataType (a.dataType());
     for ( int idx=0; idx<a.params.size(); idx++ )
 	addParam( a.params[idx]->clone() );
+
+    for ( int idx=0; idx<a.inputs.size(); idx++ )
+	addInput( a.inputSpec(idx) );
 }
 
 
@@ -121,12 +127,21 @@ bool Desc::parseDefStr( const char* defstr )
      {
 	 BufferString paramval;
 	 if ( !getParamString( defstr, params[idx]->getKey(), paramval ) )
-	     return false;
+	     continue;
 
 	 if ( !params[idx]->setCompositeValue(paramval) )
 	     return false;
      }
 
+     if ( statusupdater )
+	 statusupdater(*this);
+
+     for ( int idx=0; idx<params.size(); idx++ )
+     {
+         if ( !params[idx]->isOK() )
+	     return false;
+     }
+     
      return true;
 }
 
@@ -311,6 +326,15 @@ void Desc::addInput( const InputSpec& is )
 }
 
 
+bool Desc::removeInput( int idx )
+{
+    inputspecs.remove(idx);
+    inputs.remove(idx);
+    return true;
+}
+
+
+
 InputSpec& Desc::inputSpec( int input ) { return inputspecs[input]; }
 
 
@@ -327,6 +351,13 @@ void Desc::removeOutputs()
 
 void Desc::addOutputDataType( Seis::DataType dt )
 { outputtypes+=dt; outputtypelinks+=-1; }
+
+
+void Desc::setNrOutputs( Seis::DataType dt, int nroutp )
+{
+    for ( int idx=0; idx<nroutp; idx++ )
+	addOutputDataType( dt );
+}
 	
 
 void Desc::addOutputDataTypeSameAs( int input )
@@ -430,7 +461,29 @@ Param* Desc::findParam( const char* key )
     return 0;
 }
 
+/*
+IOObj* Desc::getDefCubeIOObj(bool issteering ,bool is2d) const;
+{
+    IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
+    if ( issteering && !is2d )
+    {
+        ctxt.ioparkeyval[0] = sKey::Type;
+        ctxt.ioparkeyval[1] = sKey::Steering;
+        ctxt.includekeyval = true;
+    }
+    ctxt.trglobexpr = is2d ? "2D" : "CBVS";
+    return IOM().getFirst( ctxt );
+}
 
 
+bool Desc::getDataLimits( CubeSampling& cs, const char* lk ) const
+{
+    CubeSampling lcs;
+    if (!SeisTrcTranslator::getRanges(getDefCubeIOObj(issteering,is2d),lcs,lk) )
+        return false;
+    cs = lcs;
+    return true;
+}
+*/
 
 }; //namespace

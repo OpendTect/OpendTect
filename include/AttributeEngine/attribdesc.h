@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.5 2005-02-04 09:28:35 kristofer Exp $
+ RCS:           $Id: attribdesc.h,v 1.6 2005-05-09 14:40:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,8 @@ public:
 
     bool		isIdenticalTo( const Desc&, bool cmpoutput=true ) const;
 
+
+    			/* Interface to factory */
     void		addParam( Param* );
     const Param*	getParam( const char* key ) const;
     const Param*	getParam( const char* key );
@@ -96,13 +98,16 @@ public:
     bool		isParamEnabled( const char* key ) const;
     void		setParamRequired( const char* key, bool yn=true );
     bool		isParamRequired( const char* key ) const;
+
     bool		setParamVal( const char* key, const char* val );
     //bool		getParamVal( const char* key, BufferString& ) const;
     //const DataInpSpec*	getParamSpec( const char* key );
 
     void		addInput( const InputSpec& );
+    bool		removeInput(int idx);
     void		removeOutputs();
     void		addOutputDataType( Seis::DataType );
+    void		setNrOutputs( Seis::DataType, int );
     void		addOutputDataTypeSameAs( int );
     void		setSteering(bool yn) { issteering=yn; }
 
@@ -128,6 +133,8 @@ protected:
 
     DescStatusUpdater		statusupdater;
     DescChecker			descchecker;
+
+//    IOObj*              	getDefCubeIOObj(bool,bool) const;
 };
 
 }; //Namespace

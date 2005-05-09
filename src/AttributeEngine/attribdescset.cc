@@ -4,14 +4,17 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.2 2005-02-03 15:35:02 kristofer Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.3 2005-05-09 14:40:41 cvshelene Exp $";
 
 #include "attribdescset.h"
+#include "attribstorprovider.h"
+#include "attribparam.h"
 
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "bufstringset.h"
 #include "iopar.h"
+#include "separstr.h"
 
 namespace Attrib
 {
@@ -130,12 +133,75 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	const char* typestr = descpar->find("Type");
 	if ( typestr && !strcmp(typestr,"Stored" ) )
 	{
-	    //TODO: Convert old format
+	    const char* olddef = descpar->find(definitionStr());
+	    if ( !olddef ) continue;
+	    BufferString newdef = StorageProvider::attribName();
+	    newdef += " ";
+	    newdef += Attrib::StorageProvider::keyStr();
+	    newdef += "=";
+	    newdef +=olddef;
+	    descpar->set(definitionStr(),newdef);
 	}
-	else if ( typestr && strcmp(typestr,"Calculated") )
+
+	PtrMan<IOPar> steeringpar = descpar->subselect("Steering");
+	if ( steeringpar )
 	{
-	    //TODO: Convert old format
+	    BufferString steeringdef = steeringpar->find("Type");
+	    steeringdef += " ";
+	    if ( steeringpar->find("Stepout") )
+	    {
+		steeringdef += "stepout=";
+		steeringdef += steeringpar->find("Stepout");
+		steeringdef += " ";
+	    }
+	    if ( steeringpar->find("PhaseLock") )
+	    {
+		steeringdef += "phlock=";
+		steeringdef += steeringpar->find("PhaseLock");
+		steeringdef += " ";
+	    }
+	    if ( steeringpar->find("Aperture") )
+	    {
+		steeringdef += "aperture=";
+		steeringdef += steeringpar->find("Aperture");
+	    }
+	    BufferString attribname;
+            if ( !Desc::getAttribName( steeringdef, attribname ) )
+            mHandleParseErr("Cannot find attribute name");
+	    RefMan<Desc> desc;
+	    desc = PF().createDescCopy(attribname);
+	    if ( !desc )
+	    {
+		BufferString err = "Cannot find factory-entry for ";
+		err += attribname;
+		mHandleParseErr(err);
+	    }
+
+	    if ( !desc->parseDefStr(steeringdef) )
+	    {
+		BufferString err = "Cannot parse: ";
+		err += steeringdef;
+		mHandleParseErr(err);
+	    }
+
+	    const char* inldipstr = steeringpar->find("InlDipID");
+	    const char* crldipstr = steeringpar->find("CrlDipID");
+	    if ( inldipstr )
+	    {
+		int idipdescnr = atoi(inldipstr);
+	    	idipdescnr = idipdescnr < id ? idipdescnr : idipdescnr + 1;
+		desc->setInput(0, descs[idipdescnr] );
+	    }
+	    if ( crldipstr )
+	    {
+		int cdipdescnr = atoi(crldipstr);
+	        cdipdescnr = cdipdescnr < id ? cdipdescnr : cdipdescnr + 1;
+                desc->setInput(1, descs[cdipdescnr] );
+	    }	
+	//TODO see what's going on for the phase input	
+	    addDesc(desc);
 	}
+	    
 
 	const char* defstring = descpar->find(definitionStr());
 	if ( !defstring )
@@ -144,8 +210,11 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	BufferString attribname;
 	if ( !Desc::getAttribName( defstring, attribname ) )
 	    mHandleParseErr("Cannot find attribute name");
+	
 
-	RefMan<Desc> desc = PF().createDescCopy(attribname);
+	RefMan<Desc> desc;
+	desc = PF().createDescCopy(attribname);
+
 	if ( !desc )
 	{
 	    BufferString err = "Cannot find factory-entry for ";
@@ -162,6 +231,30 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	const char* userref = descpar->find(userRefStr());
 	if ( userref ) desc->setUserRef(userref);
+
+	if ( steeringpar )
+	{
+	    BufferString inputstr = "Attributes.";
+	    inputstr += id; inputstr += ".Input.";
+	    bool firsttime = true;
+	    for ( int idx=0; idx<desc->nrInputs(); idx++ )
+	    {
+		inputstr += idx;
+		if ( !strcmp (steeringpar->find(inputstr),"-1") )
+		    firsttime ? desc->setInput(idx, descs[id])
+				: desc->removeInput(idx);
+		firsttime = false;
+	    }
+	}
+
+	addDesc(desc);
+	if ( !strcmp(attribname,"Storage" ))
+	{
+	    BufferString res;
+	    const char* idstring= "id";
+	    Attrib::Desc::getParamString( defstring, idstring, res );
+	    setStoredID ( res );
+	}
     }
 
     for ( int idx=0; idx<descs.size(); idx++ )
@@ -191,16 +284,6 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
     return true;
 }
-
-
-
-
-
-
-
-	
-
-	
 
 
 

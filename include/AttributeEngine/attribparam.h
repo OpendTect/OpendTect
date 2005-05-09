@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.2 2005-02-03 15:35:02 kristofer Exp $
+ RCS:           $Id: attribparam.h,v 1.3 2005-05-09 14:40:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,11 @@ public:
 
     const char*		getKey() const;
     int			nrValues() const;
-    int			getIntValue( int idx ) const;
-    double		getValue( int idx ) const;
-    float		getfValue( int idx ) const;
-    bool		getBoolValue( int idx ) const;
-    const char*		getStringValue( int idx ) const;
+    int			getIntValue( int idx=0 ) const;
+    double		getValue( int idx=0 ) const;
+    float		getfValue( int idx=0 ) const;
+    bool		getBoolValue( int idx=0 ) const;
+    const char*		getStringValue( int idx=0 ) const;
 
 
     virtual bool	setCompositeValue( const char* );

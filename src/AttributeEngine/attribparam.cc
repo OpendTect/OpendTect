@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.2 2005-02-03 15:35:02 kristofer Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.3 2005-05-09 14:40:41 cvshelene Exp $";
 
 #include "attribparam.h"
 
@@ -117,7 +117,7 @@ bool Param::getCompositeValue(BufferString& buf) const
 }
 
 ZGateParam::ZGateParam( const char* nm )
-    : Param( nm, new FloatInpIntervalSpec(true) )
+      : Param( nm, new FloatInpIntervalSpec() )
 {}
 
 mParamClone( ZGateParam );
@@ -233,7 +233,8 @@ mParamClone( StringParam );
 bool StringParam::setCompositeValue( const char* str_ )
 {
     BufferString str = str_;
-    if ( str.size() && str[0]=='"' && str[str.size()-1]=='"' )
+    if ( str.size() )// && str[0]=='"' && str[str.size()-1]=='"' )
+		     // no, this is never verified...
     {
 	if ( !spec->setText( str, 0 ) )
 	    return false;

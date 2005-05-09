@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.2 2005-02-03 15:35:02 kristofer Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.3 2005-05-09 14:40:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
+#include "attribdataholder.h"
 
 #include "cubesampling.h"
 #include "seisreq.h"
@@ -28,14 +29,14 @@ public:
     bool		init();
 
     int			moveToNextTrace();
-    bool		getPossibleVolume(int outp,CubeSampling&) const;
+    bool		getPossibleVolume(int outp,CubeSampling&);
+    static const char*  attribName() { return "Storage"; }
+    static const char*  keyStr() { return "id"; }
 
 
 protected:
     static Provider*	createFunc( Desc& );
     static void		updateDesc( Desc& );
-    static const char*	attribName() { return "Storage"; }
-    static const char*	keyStr() { return "key"; }
 
     			StorageProvider( Desc& );
     SeisRequester*	getSeisRequester();
@@ -43,12 +44,21 @@ protected:
     bool		initSeisRequester(int req);
     bool		setSeisRequesterSelection(int req);
 
-    SeisReqGroup		rg;
-    int				currentreq;
+    bool        	computeData( const DataHolder& output,
+	                	     const BinID& relpos,
+				     int t1, int nrsamples ) const;
 
-    CubeSampling		storedvolume;
+    void		fillDataHolderWithTrc( const SeisTrc*,
+	    					const DataHolder& ) const;
+    bool		getZStepStoredData(float& step) const
+			{step = storedvolume.zrg.step; return true;}
 
-    enum Status                 { Nada, StorageOpened, Ready } status;
+    SeisReqGroup	rg;
+    int			currentreq;
+    
+    CubeSampling	storedvolume;
+
+    enum Status        { Nada, StorageOpened, Ready } status;
 
 };
 

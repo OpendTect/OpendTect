@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.2 2005-02-04 09:28:29 kristofer Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.3 2005-05-09 14:40:41 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -18,24 +18,28 @@ static const char* rcsID = "$Id: attribprocessor.cc,v 1.2 2005-02-04 09:28:29 kr
 namespace Attrib
 {
 
-Processor::Processor( Desc& desc_ )
+Processor::Processor( Desc& desc , const char* lk )
     : Executor("Attribute Processor")
-    , desc( desc_ )
-    , provider( Provider::create(desc_) )
+    , desc_( desc )
+    , provider( Provider::create(desc) )
     , nriter( 0 )
+    , lk_ (lk)
+    , moveonly(this)
 {
     if ( !provider ) return;
     provider->ref();
-    desc.ref();
+    desc_.ref();
 
-    if ( desc.selectedOutput()!=-1 )
-	provider->enableOutput(desc.selectedOutput(), true );
+    if ( desc_.selectedOutput()!=-1 )
+	provider->enableOutput( desc_.selectedOutput(), true );
+
+    is2d_ = strcmp( (const char*)lk_,"" );
 }
 
 
 Processor::~Processor()
 {
-    desc.unRef();
+    desc_.unRef();
     if ( provider ) provider->unRef();
     deepUnRef( outputs );
 }
@@ -76,14 +80,12 @@ int Processor::nextStep()
 		globalcs.zrg.include(cs.zrg);
 	    }
 
-	    TypeSet<int> outputinterest;
-	    outputs[idx]->getDesiredOutputs(outputinterest);
-
-	    for ( int idy=0; idy<outputinterest.size(); idy++ )
+	    for ( int idy=0; idy<outpinterest.size(); idy++ )
 	    {
-		if ( globaloutputinterest.indexOf(outputinterest[idy])==-1 )
-		    globaloutputinterest += outputinterest[idy];
+		if ( globaloutputinterest.indexOf(outpinterest[idy])==-1 )
+		    globaloutputinterest += outpinterest[idy];
 	    }
+	    outputs[idx]->setDesiredOutputs( outpinterest );
 	}
 
 	if ( !outputs.size() )
@@ -96,7 +98,7 @@ int Processor::nextStep()
     }
 
     const int res = provider->moveToNextTrace();
-    if ( !res )
+    if ( res )
     {
 	const BinID curbid = provider->getCurrentPosition();
 
@@ -121,7 +123,12 @@ int Processor::nextStep()
 	if ( data )
 	{
 	    for ( int idx=0; idx<outputs.size(); idx++ )
-		outputs[idx]->collectData(curbid, *data );
+	    {
+		outputs[idx]->setReqs(curbid);
+		outputs[idx]->collectData( curbid, *data,
+					    provider->getRefStep(),
+					    provider->getTraceNr() );
+	    }
 	}
     }
 
@@ -129,5 +136,9 @@ int Processor::nextStep()
     return res;
 }
 
+int Processor::totalNr()
+{
+    return provider->getTotalNrPos(is2d_);
+}
 
 }; //namespace

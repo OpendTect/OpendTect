@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.2 2005-02-03 15:35:02 kristofer Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.3 2005-05-09 14:40:41 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -41,6 +41,8 @@ void StorageProvider::initClass()
 
     if ( !desc->init() )
     { desc->unRef(); return; }
+
+    desc->addOutputDataType( Seis::UnknowData );
 
     PF().addDesc( desc, createFunc );
     desc->unRef();
@@ -185,6 +187,9 @@ bool StorageProvider::init()
 	}
 	else
 	{
+	    SeisTrcTranslator::getRanges(mid,storedvolume,lk);
+	    //TODO see if we have to add it also in 2D.
+
 	    const SeisTrcTranslator* transl = reader->translator();
 	    const SeisSelData* seldata = transl ? transl->selData() : 0;
 	    if ( seldata && seldata->type_==SeisSelData::Range )
@@ -196,8 +201,6 @@ bool StorageProvider::init()
 		storedvolume.zrg.start = seldata->zrg_.start;
 		storedvolume.zrg.stop = seldata->zrg_.stop;
 	    }
-	    else
-		storedvolume.init(true);
 
 	    isset = true;
 	}
@@ -205,7 +208,7 @@ bool StorageProvider::init()
 
     if ( !isset ) { deepErase( rg ); return false; }
 
-    status==StorageOpened;
+    status = StorageOpened;
     return true;
 }
 
@@ -253,7 +256,7 @@ int StorageProvider::moveToNextTrace()
 }
 
 
-bool StorageProvider::getPossibleVolume(int,CubeSampling& res) const
+bool StorageProvider::getPossibleVolume(int,CubeSampling& res)
 { res = storedvolume; return true; }
 
 
@@ -276,6 +279,13 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 
     if ( reader->is2D() )
     {
+	SeisSelData* sel = new SeisSelData;
+	sel->type_ = SeisSelData::TrcNrs;
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	if ( lset->getRanges(0,trcrg,zrg) )
+	{
+	}
 	//TODO?
 	return true;
     }
@@ -300,5 +310,38 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 
     return true;
 }
+
+
+bool StorageProvider::computeData( const DataHolder& output,
+				   const BinID& relpos,
+				   int t1, int nrsamples ) const
+{
+    SeisTrc* trc = rg[currentreq]->get(0,0);
+    if ( trc )
+    {
+	const_cast<Attrib::StorageProvider*> (this)->trcnr_ = trc->info().nr;
+	fillDataHolderWithTrc( trc, output );
+	return true;
+    }
+    else
+	return false;
+}
+
+
+void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
+				    const DataHolder& trcsamplvalues ) const
+{
+    int t1 = trcsamplvalues.t1_;
+    float starttrctime = trc->startPos();
+    float trcstep = trc->info().sampling.step;
+    float reqstarttime = starttrctime + t1 * trcstep;
+    ValueSeries<float>* valseries = trcsamplvalues.item(0);
+    for (int idx=0 ; idx<trcsamplvalues.nrsamples_ ; idx++)
+    {
+	float val = trc->getValue( reqstarttime + idx * refstep, 0 );
+	valseries->setValue(idx,val);
+    }
+}
+
 
 }; //namespace

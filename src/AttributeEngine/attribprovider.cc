@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.6 2005-03-07 16:26:39 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.7 2005-05-09 14:40:41 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -59,7 +59,10 @@ protected:
 Provider* Provider::create( Desc& desc )
 {
     ObjectSet<Provider> existing;
-    return internalCreate( desc, existing );
+    Provider* prov = internalCreate( desc, existing );
+    prov->computeRefZStep( existing );
+    prov->propagateZRefStep( existing );
+    return prov;
 }
 
 
@@ -110,10 +113,15 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 Provider::Provider( Desc& nd )
     : desc( nd )
     , desiredvolume( 0 )
+    , possiblevolume( 0 ) 
     , outputinterest( nd.nrOutputs(), 0 )
     , bufferstepout( 0, 0 )
     , threadmanager( 0 )
     , currentbid( -1, -1 )
+    , linebuffer( 0 )
+    , refstep( 0 )
+    , trcnr_( -1 )
+    , localcomputezinterval( INT_MAX, INT_MIN )
 {
     desc.ref();
     inputs.allowNull(true);
@@ -174,6 +182,15 @@ void Provider::enableOutput( int out, bool yn )
 }
 
 
+bool Provider::isOutputEnabled( int out ) const
+{
+    if ( out<0 || out >= outputinterest.size() )
+	return false;
+    else
+	return outputinterest[out];
+}
+
+
 void Provider::setBufferStepout( const BinID& ns )
 {
     if ( ns.inl <= bufferstepout.inl && ns.crl <= bufferstepout.crl )
@@ -225,7 +242,7 @@ type var(0,0); \
 mGetMargin( type, var, des##var, des##funcPost ); \
 mGetMargin( type, var, req##var, req##funcPost )
 
-bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
+bool Provider::getPossibleVolume( int output, CubeSampling& res )
 {
     if ( inputs.size()==0 )
     {
@@ -247,7 +264,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
 	}
     }
 
-    CubeSampling inputcs;
+    CubeSampling inputcs = res;
     bool isset = false;
     for ( int idx=0; idx<outputs.size(); idx++ )
     {
@@ -282,12 +299,12 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
 		    inputcs.zrg.stop -= zrg->stop;
 		}
 
-		if ( !isset )
-		{
-		    res = inputcs;
-		    isset = true;
-		    continue;
-		}
+//		if ( !isset )
+//		{
+//		    res = inputcs;
+//		    isset = true;
+//		    continue;
+//		}
 
 #		define mAdjustIf(v1,op,v2) if ( v1 op v2 ) v1 = v2;
 		mAdjustIf(res.hrg.start.inl,<,inputcs.hrg.start.inl);
@@ -296,10 +313,16 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
 		mAdjustIf(res.hrg.stop.inl,>,inputcs.hrg.stop.inl);
 		mAdjustIf(res.hrg.stop.crl,>,inputcs.hrg.stop.crl);
 		mAdjustIf(res.zrg.stop,>,inputcs.zrg.stop);
+		isset = true;
 	    }
 	}
     }
 
+    if ( !possiblevolume )
+	possiblevolume = new CubeSampling;
+    
+    possiblevolume->hrg = res.hrg;
+    possiblevolume->zrg = res.zrg;
     return isset;
 }
 
@@ -392,9 +415,28 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZInterval( const Interval<int>& ni )
 {
-    localcomputezinterval.include( ni, false );
+    CubeSampling cs = *desiredvolume;
+    getPossibleVolume(-1, cs);
 
-    const float dz = SI().zRange(true).step;
+    float surveystep = SI().zRange().step;
+    const float dz = (refstep==0) ? surveystep : refstep;
+    
+    Interval<int> nigoodstep(ni);
+    if ( surveystep != refstep )
+    {
+	nigoodstep.start *= (int)(surveystep / refstep);
+	nigoodstep.stop *= (int)(surveystep / refstep);
+    }
+    
+    int cssamplstart = (int)( cs.zrg.start / refstep );
+    int cssamplstop = (int)( cs.zrg.stop / refstep );
+    nigoodstep.start = ( cssamplstart < nigoodstep.start ) ? 
+			nigoodstep.start : cssamplstart;
+    nigoodstep.stop = ( cssamplstop > nigoodstep.stop ) ? 
+			nigoodstep.stop : cssamplstop;
+    
+    localcomputezinterval.include( nigoodstep, false );
+
     for ( int out=0; out<outputinterest.size(); out++ )
     {
 	if ( !outputinterest[out] ) continue;
@@ -404,12 +446,12 @@ void Provider::addLocalCompZInterval( const Interval<int>& ni )
 	    if ( !inputs[inp] )
 		continue;
 
-	    Interval<int> inputrange( ni );
+	    Interval<int> inputrange( nigoodstep );
 	    Interval<float> zrg( 0, 0 );
 	    const Interval<float>* req = reqZMargin( inp, out );
 	    if ( req ) zrg = *req;
 	    const Interval<float>* des = desZMargin( inp, out );
-	    if ( req ) zrg.include( *req );
+	    if ( des ) zrg.include( *des );
 
 	    inputrange.start += (int)(zrg.start / dz - 0.5);
 	    inputrange.stop += (int)(zrg.stop / dz + 0.5);
@@ -443,30 +485,35 @@ const DataHolder* Provider::getData( const BinID& relpos )
 				      localcomputezinterval.width()+1 );
     if ( !outdata || !getInputData(relpos) )
 	return 0;
+    
+    if ( inputs.size() )
+	const_cast<Attrib::Provider*> (this)->trcnr_ = inputs[0]->trcnr_;
 
     for ( int idx=0; idx<outputinterest.size(); idx++ )
     {
-	while ( outdata->size()<=idx ) (*outdata) += 0;
+	while ( outdata->nrItems()<=idx )
+	    outdata->add();
+	
 	if ( outputinterest[idx]<=0 ) 
 	{
-	    if ( (*outdata)[idx] )
+	    if ( outdata->item(idx)->arr() )
 	    {
-		delete (*outdata)[idx];
+		delete outdata->item(idx);
 		outdata->replace( 0, idx );
 	    }
 
 	    continue;
 	}
 
-	if ( !(*outdata)[idx] )
+	if ( !outdata->item(idx)->arr() )
 	{
-	    float* ptr = new float[outdata->nrsamples];
-	    outdata->replace( new SingleDataHolderPtrImpl<float>(ptr), idx );
+	    float* ptr = new float[outdata->nrsamples_];
+	    outdata->replace( new ArrayValueSeries<float>(ptr), idx );
 	}
     }
 
-    const int t1 = outdata->t1;
-    const int nrsamples = outdata->nrsamples;
+    const int t1 = outdata->t1_;
+    const int nrsamples = outdata->nrsamples_;
 
     bool success = false;
     if ( !threadmanager )
@@ -635,5 +682,29 @@ const BinID* Provider::reqStepout(int,int) const { return 0; }
 const Interval<float>* Provider::desZMargin(int,int) const { return 0; }
 const Interval<float>* Provider::reqZMargin(int,int) const { return 0; }
 
-}; //namespace
+int Provider::getTotalNrPos( bool is2d )
+{
+    return is2d ? possiblevolume->nrCrl()
+		: possiblevolume->nrInl() * possiblevolume->nrCrl();
+}
 
+
+void Provider::computeRefZStep( const ObjectSet<Provider>& existing )
+{
+    for( int idx=0; idx<existing.size(); idx++ )
+    {
+	float step = 0;
+	bool isstored = existing[idx]->getZStepStoredData(step);
+	if ( isstored )
+	    refstep = ( refstep != 0 && refstep < step )? refstep : step;
+    }
+}
+
+
+void Provider::propagateZRefStep( const ObjectSet<Provider>& existing )
+{
+    for ( int idx=0; idx<existing.size(); idx++ )
+	existing[idx]->refstep = refstep;
+}
+
+}; //namespace
