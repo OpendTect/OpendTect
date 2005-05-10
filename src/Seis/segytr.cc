@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.35 2005-05-09 11:02:40 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.36 2005-05-10 11:27:16 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -27,6 +27,7 @@ const char* SEGYSeisTrcTranslator::sNumberFormat = "Number format";
 const char* SEGYSeisTrcTranslator::sExternalNrSamples = "Nr samples overrule";
 const char* SEGYSeisTrcTranslator::sExternalTimeShift = "Start time overrule";
 const char* SEGYSeisTrcTranslator::sExternalSampleRate = "Sample rate overrule";
+const char* SEGYSeisTrcTranslator::sForceRev0 = "Force Rev0";
 const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 	= "Coordinate scaling overrule";
 const char* SEGYSeisTrcTranslator::sUseLiNo
@@ -41,7 +42,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, numbfmt(0)
 	, dumpsd(*new StreamData)
 	, itrc(0)
-	, trhead(headerbuf,hdef)
+	, trhead(headerbuf,true,hdef)
 	, trcscale(0)
 	, curtrcscale(0)
 	, ext_nr_samples(-1)
@@ -50,6 +51,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, ext_sample_rate(mUndefValue)
 	, use_lino(false)
 	, do_string_dump(false)
+	, force_rev0(false)
 {
 }
 
@@ -68,6 +70,8 @@ int SEGYSeisTrcTranslator::dataBytes() const
 }
 
 
+#define mIsRev1() trhead.isrev1
+
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
     SegyTxtHeader txthead;
@@ -80,6 +84,16 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	{ errmsg = "Cannot read binary header"; return false; }
     SegyBinHeader binhead;
     binhead.getFrom( binheaderbuf );
+    trhead.isrev1 = force_rev0 ? false : binhead.isrev1;
+
+    if ( mIsRev1() )
+    {
+	for ( int idx=0; idx<binhead.nrstanzas; idx++ )
+	{
+	    if ( !sConn().doIO(txthead.txt,SegyTxtHeaderLength) )
+		{ errmsg = "Cannot SEG-Y REV1 extended headers"; return false; }
+	}
+    }
 
     if ( numbfmt == 0 )
     {
@@ -218,15 +232,16 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( !numbfmt )
 	numbfmt = nrFormatFor( storinterp->dataChar() );
 
-    SegyTxtHeader txthead;
+    trhead.isrev1 = !force_rev0;
+
+    SegyTxtHeader txthead( mIsRev1() );
     txthead.setUserInfo( pinfo->usrinfo );
     txthead.setPosInfo( hdef );
     txthead.setStartPos( outsd.start );
-    txthead.setEbcdic();
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
-	{ errmsg = "Cannot write SEG-Y EBCDIC header"; return false; }
+	{ errmsg = "Cannot write SEG-Y textual header"; return false; }
 
-    SegyBinHeader binhead;
+    SegyBinHeader binhead( mIsRev1() );
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
     binhead.lino = pinfo->nr;
     binhead.reno = 1;
@@ -265,6 +280,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     iopar.get( sExternalTimeShift, ext_time_shift );
     iopar.get( sExternalSampleRate, ext_sample_rate );
     iopar.getYN( sUseLiNo, use_lino );
+    iopar.getYN( sForceRev0, force_rev0 );
 }
 
 

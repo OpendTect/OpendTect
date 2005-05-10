@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.25 2005-05-09 11:02:40 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.26 2005-05-10 11:27:16 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -38,7 +38,7 @@ static void Ebcdic2Ascii(unsigned char*,int);
 static void Ascii2Ebcdic(unsigned char*,int);
 
 
-SegyTxtHeader::SegyTxtHeader()
+SegyTxtHeader::SegyTxtHeader( bool rev1 )
 {
     char cbuf[3];
     int nrlines = SegyTxtHeaderLength / 80;
@@ -85,7 +85,9 @@ SegyTxtHeader::SegyTxtHeader()
 	buf += SI().getZUnit(false);
 	putAt( 18, 6, 75, buf.buf() );
     }
-    putAt( 40, 6, 75, "SEG Y REV0" );
+    BufferString rvstr( "SEG Y REV" );
+    rvstr += rev1 ? 1 : 0;
+    putAt( 39, 6, 75, rvstr.buf() );
     putAt( 40, 6, 75, "END TEXTUAL HEADER" );
 }
 
@@ -222,8 +224,9 @@ void SegyTxtHeader::print( std::ostream& stream ) const
 }
 
 
-SegyBinHeader::SegyBinHeader()
+SegyBinHeader::SegyBinHeader( bool rev1 )
 	: needswap(false)
+    	, isrev1(rev1)
 {
     memset( &jobid, 0, SegyBinHeaderLength );
     mfeet = format = 1;
@@ -276,6 +279,9 @@ void SegyBinHeader::getFrom( const void* buf )
     {
 	mSBHGet(hunass[i],Short,2);
     }
+    isrev1 = hunass[21];
+    fixedtrcsz = hunass[22];
+    nrstanzas = hunass[23];
 }
 
 
@@ -317,6 +323,10 @@ void SegyBinHeader::putTo( void* buf ) const
     mSBHPut(polyt,Short,2);
     mSBHPut(vpol,Short,2);
 
+    short* v = const_cast<short*>( hunass );
+    v[21] = isrev1;
+    v[22] = 1; // fixed trace size
+    v[23] = 0; // no stanzas
     for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
 	{ mSBHPut(hunass[i],Short,2); }
 }
@@ -382,9 +392,10 @@ void SegyBinHeader::print( std::ostream& stream ) const
     prmem(format); prmem(fold); prmem(tsort); prmem(vscode); prmem(hsfs);
     prmem(hsfe); prmem(hslen); prmem(hstyp); prmem(schn); prmem(hstas);
     prmem(hstae); prmem(htatyp); prmem(hcorr); prmem(bgrcv); prmem(rcvm);
-    prmem(mfeet); prmem(polyt); prmem(vpol);
+    prmem(mfeet); prmem(polyt); prmem(vpol); prmem(isrev1); prmem(fixedtrcsz);
+    prmem(nrstanzas);
     for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
-	if ( hunass[i] != 0 )
+	if ( hunass[i] != 0 && (i < 21 || i > 23) )
 	    stream << "hunass[" << i << "] = " << hunass[i] << std::endl;
 }
 
@@ -446,8 +457,21 @@ void SegyTraceheader::putSampling( SamplingData<float> sd, unsigned short ns )
 }
 
 
+static void putRev1Flds( const SeisTrcInfo& ti, unsigned char* buf )
+{
+    IbmFormat::putInt( mNINT(ti.coord.x*10), buf+180 );
+    IbmFormat::putInt( mNINT(ti.coord.y*10), buf+184 );
+    IbmFormat::putInt( ti.binid.inl, buf+188 );
+    IbmFormat::putInt( ti.binid.crl, buf+192 );
+    IbmFormat::putInt( ti.nr, buf+196 );
+}
+
+
 void SegyTraceheader::use( const SeisTrcInfo& ti )
 {
+    if ( !isrev1 ) // starting default
+	putRev1Flds( ti, buf );
+
     // First put some Statoil standards
     IbmFormat::putInt( seqnr++, buf );
     IbmFormat::putShort( 1, buf+88 );   // counit
@@ -514,6 +538,9 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     IbmFormat::putShort( delrt, buf+108 );
     IbmFormat::putUnsignedShort( (unsigned short)(ti.sampling.step*zfac*1e3+.5),
 				 buf+116 );
+
+    if ( isrev1 ) // Now it overrules everything
+	putRev1Flds( ti, buf );
 }
 
 
@@ -526,8 +553,21 @@ float SegyTraceheader::postScale( int numbfmt ) const
 }
 
 
+static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf )
+{
+    ti.coord.x = IbmFormat::asInt( buf + 180 );
+    ti.coord.y = IbmFormat::asInt( buf + 184 );
+    ti.binid.inl = IbmFormat::asInt( buf + 188 );
+    ti.binid.crl = IbmFormat::asInt( buf + 192 );
+    ti.nr = IbmFormat::asInt( buf + 196 );
+}
+
+
 void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 {
+    if ( !isrev1 )
+	getRev1Flds( ti, buf );
+
     ti.nr = IbmFormat::asInt( buf+0 );
     const float zfac = 1. / SI().zFactor();
     ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * zfac;
@@ -548,6 +588,9 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	ti.nr = hdef.trnrbytesz == 2 ? IbmFormat::asShort(buf+hdef.trnr-1)
 				     : IbmFormat::asInt(buf+hdef.trnr-1);
     ti.offset = IbmFormat::asInt( buf+36 );
+
+    if ( isrev1 )
+	getRev1Flds( ti, buf );
 
     double scale = getCoordScale( extcoordsc );
     ti.coord.x *= scale;
