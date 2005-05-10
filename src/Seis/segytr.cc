@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.36 2005-05-10 11:27:16 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.37 2005-05-10 16:20:53 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -331,6 +331,9 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
     break;
     case 5:
 	dc.fmt = DataCharacteristics::Ieee;
+	dc.setInteger( false );
+	dc.littleendian = false;
+    break;
     default:
 	dc.setInteger( false );
     break;
