@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.18 2005-05-04 15:19:59 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.19 2005-05-10 16:21:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,6 +155,8 @@ uiBalanceDataDlg( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
     plotfld = new uiDistribPlot( graphgrp );
     const char* varname = vdss[0]->colDef(vdss[0]->nrCols()-1).name_;
     plotfld->setData( datavals.arr(), datavals.size(), varname );
+    nrptsperclss_ = plotfld->avgCount();
+    plotfld->setCutoffNrClasses( nrptsperclss_ );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
     dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec() );
@@ -164,11 +166,13 @@ uiBalanceDataDlg( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
     valrgfld = new uiGenInput( datagrp, "Data range to use",
 	    			FloatInpIntervalSpec(rg_) );
     valrgfld->attach( alignedBelow, dobalfld );
-    nrptsperclss_ = plotfld->avgCount();
+    valrgfld->valuechanged.notify( mCB(this,uiBalanceDataDlg,valrgChg) );
+
     nrptspclssfld = new uiGenInput( datagrp,
 				"Target Number of data points per class",
 				IntInpSpec(nrptsperclss_) );
     nrptspclssfld->attach( alignedBelow, valrgfld );
+    nrptspclssfld->valuechanged.notify( mCB(this,uiBalanceDataDlg,cutoffChg) );
 
     datagrp->attach( centeredBelow, graphgrp );
 }
@@ -189,6 +193,18 @@ void doBalChg( CallBacker* )
     dobal_ = dobalfld->getBoolValue();
     valrgfld->display( dobal_ );
     nrptspclssfld->display( dobal_ );
+}
+
+void cutoffChg( CallBacker* )
+{
+    nrptsperclss_ = nrptspclssfld->getIntValue();
+    plotfld->setCutoffNrClasses( nrptsperclss_ );
+}
+
+void valrgChg( CallBacker* )
+{
+    rg_ = nrptspclssfld->getFInterval();
+    plotfld->setSelectedInterval( rg_ );
 }
 
 bool acceptOK( CallBacker* )
@@ -288,7 +304,7 @@ const char* uiNLAPartServer::prepareInputData(
 	{
 	    uiBalanceDataDlg bddlg( appserv().parent(), vdss );
 	    allok = bddlg.go();
-	    if ( allok )
+	    if ( allok && bddlg.dobal_ )
 	    {
 		//TODO do the actual balancing to trainvds.data()
 	    }
