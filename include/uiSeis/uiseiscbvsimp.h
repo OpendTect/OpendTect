@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.7 2004-07-01 15:14:43 bert Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.8 2005-05-10 11:25:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ protected:
 
     CtxtIOObj&		inctio_;
     CtxtIOObj&		outctio_;
+    BufferString	tmpid_;
 
     uiGenInput*		typefld;
     uiGenInput*		modefld;

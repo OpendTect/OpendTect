@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.30 2005-04-19 08:12:07 cvsnanne Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.31 2005-05-10 11:25:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	, outctio_(*mMkCtxtIOObj(SeisTrc))
 {
     init( false );
+    modeSel(0);
 }
 
 
@@ -61,6 +62,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     finpfld = 0; modefld = typefld = 0; oinpfld = 0;
     setTitleText( fromioobj ? "Specify transfer parameters"
 	    		    : "Create CBVS cube definition" );
+    tmpid_ = "100010."; tmpid_ += IOObj::tmpID;
 
     if ( fromioobj )
     {
@@ -85,7 +87,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	typefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
 
 	modefld = new uiGenInput( this, "Import mode",
-				  BoolInpSpec("Copy the data","Use in-place") );
+			  BoolInpSpec("Copy the data","Use in-place",false) );
 	modefld->attach( alignedBelow, typefld );
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
     }
@@ -111,7 +113,7 @@ uiSeisImpCBVS::~uiSeisImpCBVS()
 
 IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
 {
-    IOStream* iostrm = new IOStream( "tmp", "100010.9999" );
+    IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
     iostrm->setGroup( outctio_.ctxt.trgroup->userName() );
     iostrm->setTranslator( outctio_.ctxt.trglobexpr );
     iostrm->setFileName( inp );
@@ -183,6 +185,8 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
 }
 
 
+#define rmTmpIOObj() IOM().permRemove( MultiID(tmpid_.buf()) );
+
 #define mErrRet(s) \
 	{ uiMSG().error(s); return false; }
 
@@ -221,7 +225,10 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
 	outctio_.ioobj->setTranslator( "CBVS" );
 	if ( !dolink )
+	{
 	    inctio_.setObj( getfInpIOObj(fname) );
+	    IOM().commitChanges( *inctio_.ioobj );
+	}
 	else
 	{
 	    mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj);
@@ -235,7 +242,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     uiSeisIOObjInfo ioobjinfo( *outctio_.ioobj, true );
     if ( !ioobjinfo.checkSpaceLeft(transffld->spaceInfo()) )
-	return false;
+	{ rmTmpIOObj(); return false; }
 
     const char* titl = oinpfld ? "Copying seismic data"
 				: "Importing CBVS seismic cube";
@@ -244,9 +251,10 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    			*outctio_.ioobj, titl, "Loading data",
 				attrnm );
     if ( !stp )
-	return false;
+	{ rmTmpIOObj(); return false; }
 
     uiExecutor dlg( this, *stp );
-    return dlg.go() == 1 && !ioobjinfo.is2D()
-	&& ioobjinfo.provideUserInfo();
+    bool rv = dlg.go() == 1 && !ioobjinfo.is2D() && ioobjinfo.provideUserInfo();
+    rmTmpIOObj();
+    return rv;
 }
