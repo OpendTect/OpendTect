@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.18 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.19 2005-05-10 11:22:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,8 @@ public:
     virtual void	acquireNewKey();
     			//!< This will give the IOObj a new (free) ID
 
+    static const int	tmpID; //!< 99999
+    inline bool		isTmp() const	{ return key_.leafID() == tmpID; }
 
     static int		addProducer(IOObjProducer*);
     			//!< Factory for IOObj types. Not for casual use.
