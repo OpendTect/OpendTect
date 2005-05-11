@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.19 2005-03-30 15:52:55 cvsbert Exp $
+ RCS:           $Id: cubesampling.h,v 1.20 2005-05-11 07:34:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,11 +80,6 @@ struct HorSampling
     BinID		start;
     BinID		stop;
     BinID		step;
-
-    static const char*	startstr;
-    static const char*	stopstr;
-    static const char*	stepstr;
-
 };
 
 
@@ -151,11 +146,6 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
     static void		removeInfo(IOPar&);
-
-protected:
-
-    static const char*	zrangestr;
-
 };
 
 
