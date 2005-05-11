@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.30 2005-04-28 20:24:48 cvsarend Exp $
+ RCS:		$Id: batchprog.h,v 1.31 2005-05-11 09:19:47 cvsarend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -19,11 +19,9 @@ ________________________________________________________________________
 #include "uidobj.h"
 #include "bufstringset.h"
 #include "genc.h"
-#include "timefun.h"
 #include <iosfwd>
 class IOPar;
 class IOObj;
-class Socket;
 class StreamData;
 class IOObjContext;
 class MMSockCommunic;
@@ -72,7 +70,7 @@ public:
 					 bool msgiffail=true) const;
 
 			//! pause requested (via socket) by master?
-    bool		pauseRequested()	{ return pausereq; }
+    bool		pauseRequested() const;
 
     bool		errorMsg( const char* msg, bool cc_stderr=false);
     bool		infoMsg( const char* msg, bool cc_stdout=false);
@@ -105,12 +103,10 @@ protected:
     MMSockCommunic*	mmComm()		{ return comm; }
 
     int 		jobId()			{ return jobid; }
-    void		setPauseReq( bool yn )	{ pausereq = yn; }
 
 private:
 
     MMSockCommunic*	comm;
-    bool		pausereq;
     int			jobid;
 };
 
@@ -129,103 +125,5 @@ inline const BatchProgram& BP() { return *BatchProgram::inst; }
     }
 
 #endif // __prog__
-
-
-#define mReturn( ret ) { \
-    if ( ret ) { nrattempts = 0; return true; } \
-    if ( nrattempts++ < maxtries ) return true; \
-    stillok = false; \
-    directMsg("Lost connection with master[1]. Exiting."); \
-    exitProgram( -1 ); return false; \
-}
-
-#define mTryMaxtries( fn ) { \
-    for ( int i=0; i<maxtries; i++ ) \
-    { \
-	bool ret = fn; \
-	if ( ret ) return true; \
-	Time_sleep(1); \
-    } \
-    stillok = false; \
-    directMsg("Lost connection with master[2]. Exiting."); \
-    exitProgram( -1 ); return false; \
-}
-
-
-/*! \brief Multi-machine socket communicator
- * 
- */ 
-class MMSockCommunic
-{
-public:
-    enum State		{ Undef, Working, WrapUp, Finished, AllDone, Paused,
-			  JobError, HostError, Killed, Timeout };
-
-			MMSockCommunic( const char* host, int port,
-					BatchProgram& );
-
-    bool		ok()		{ return stillok; }
-    const char*		errMsg()	{ return errmsg; }
-
-    State		state()	const	{ return stat; }
-    void		setState( State s ) { stat = s; }
-			
-    bool		updateState()
-			    {
-				bool ret = sendState_(stat,false,false);
-				mReturn(ret)
-			    }
-    bool		updateProgress( int p )
-			    { bool ret = sendProgress_(p,false); mReturn(ret) }
-			    
-    bool		sendState(  bool isexit=false )
-			    { mTryMaxtries( sendState_(stat,isexit,true) ) }
-    bool		sendProgress( int p )
-			    { mTryMaxtries( sendProgress_(p,true) ) }
-
-			//! hostrelated error messages are more serious.
-    bool		sendErrMsg( const char* msg )
-			    { mTryMaxtries( sendErrMsg_(msg) ) }
-    bool		sendPID( int pid )
-			    { mTryMaxtries( sendPID_(pid) ) }
-
-
-protected:
-
-    BufferString	masterhost;
-    int			masterport;
-    bool		stillok;
-    State		stat;
-    BufferString	errmsg;
-
-    Socket*		mkSocket();
-
-    bool		sendState_( State, bool isexit, bool immediate );
-    bool		sendProgress_( int, bool immediate );
-    bool		sendPID_( int );
-    bool		sendErrMsg_( const char* msg );
-
-private:    
-
-    BatchProgram&	bp;
-
-    bool		updateMsg( char tag, int, const char* msg=0 );
-    bool		sendMsg( char tag, int, const char* msg=0 );
-
-			//! directly to bp.stdout.ostrem or std::cerr.
-    void		directMsg( const char* msg );
-
-    void		setErrMsg( const char* m )
-			{
-			    errmsg = ("["); errmsg += getPID(); errmsg += "]: ";
-			    errmsg += m;
-			}
-
-    int			timestamp;
-    int			nrattempts;
-    int 		maxtries;
-};
-
-#undef mReturn
 
 #endif

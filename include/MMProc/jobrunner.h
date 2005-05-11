@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.18 2005-04-28 20:24:48 cvsarend Exp $
+ RCS:		$Id: jobrunner.h,v 1.19 2005-05-11 09:19:47 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,13 +32,15 @@ public:
 			    , nrfailures_(0)
 			    , nrsucces_(0)
 			    , lastsuccess_(0)
-			    , starttime_(0)	{}
+			    , starttime_(0)
+			    , inuse_(false) {}
 
     const HostData&	hostdata_;
     int			nrfailures_; //!< Reset to 0 at every success
     int			nrsucces_;
     int			starttime_;  //!< Set whenever host added.
     int			lastsuccess_; //!< timestamp
+    bool		inuse_;
 };
 
 
@@ -131,6 +133,7 @@ protected:
     int				failtimeout_;
     int				wrapuptimeout_;
     int				hosttimeout_; 
+    int				startwaittime_;  //!< wait B4 next client start
 
     int				doCycle();
     HostNFailInfo*		hostNFailInfoFor(const HostData*) const;

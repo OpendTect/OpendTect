@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.19 2005-05-02 06:55:54 cvsdgb Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.20 2005-05-11 09:19:47 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,6 @@ ________________________________________________________________________
 #include "errh.h"
 #include "separstr.h"
 #include "timefun.h"
-
-#include "sighndl.h"
 
 #ifndef __win__
 #include <unistd.h>
@@ -100,53 +98,6 @@ public:
     int			descnr_;
     char		response_;
 };
-
-/*! \brief Timer using Unix alarm signal.
-
-    Uses Unix alarm timer to make sure we don't get any blocking
-    socket calls. 
-
-*/
-class AlarmTimer
-{
-public:
-
-    AlarmTimer(const CallBack& callback) : cb(callback), alarmset(false) {}
-
-    ~AlarmTimer() { stop(); }
-
-    void start( int timeout )
-    {
-#ifndef __win__
-	if( timeout > 0 && !getenv("DTECT_NO_WATCHDOG")  )
-	{
-	    alarmset=true;
-	    alarm(timeout);
-	    SignalHandling::startNotify( SignalHandling::Alarm, cb ); 
-	}
-#endif
-    }
-
-    void stop()
-    {
-#ifndef __win__
-	if( alarmset )
-	{
-	    alarm(0);
-	    SignalHandling::stopNotify( SignalHandling::Alarm, cb ); 
-	}
-#endif
-	alarmset = false;
-    }
-
-protected:
-
-    bool		alarmset;
-    CallBack		cb;
-
-};
-
-
 
 
 /*!\brief Sets up a thread that waits for clients to connect.
@@ -307,7 +258,7 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
 void JobIOHandler::doDispatch( CallBacker* )
 {
     static int timeout = atoi( getenv("DTECT_MM_MSTR_TO")
-			     ? getenv("DTECT_MM_MSTR_TO") : "1" );
+			     ? getenv("DTECT_MM_MSTR_TO") : "30" );
 
     
     SocketProvider& sockprov = *new SocketProvider( firstport_ );
@@ -358,7 +309,9 @@ void JobIOHandler::doDispatch( CallBacker* )
 			    procid, errmsg, hostnm, Time_getMilliSeconds()) );
 		}
 
-		if ( mDebugOn )
+	        // hardly ever needed and quite noisy.
+		static bool debug_resp = getenv("DTECT_MM_DEBUG_RESP");
+		if ( debug_resp && mDebugOn )
 		{
 		    BufferString msg("JobIOMgr::JobIOMgr: Response to host ");
 		    msg += hostnm; msg += ", job: "; msg += jobid;

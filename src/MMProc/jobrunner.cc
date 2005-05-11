@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.25 2005-04-28 20:24:48 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.26 2005-05-11 09:19:47 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,20 +59,22 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, niceval_(19)
 	, firstport_(19636)
     	, prog_(cmd)
-	, starttimeout_(	atoi( getenv("DTECT_START_TIMEOUT")
-				    ? getenv("DTECT_START_TIMEOUT"): "45000") )
-	, failtimeout_(		atoi( getenv("DTECT_FAIL_TIMEOUT")
-				    ? getenv("DTECT_FAIL_TIMEOUT"): "450000") )
-	, wrapuptimeout_(	atoi( getenv("DTECT_WRAPUP_TIMEOUT")
-				    ? getenv("DTECT_WRAPUP_TIMEOUT"):"1800000"))
-	, hosttimeout_(		atoi( getenv("DTECT_HOST_TIMEOUT")
-				    ? getenv("DTECT_HOST_TIMEOUT"): "600000") )
-    	, maxhostfailures_(	atoi( getenv("DTECT_MAX_HOSTFAIL")
-				    ? getenv("DTECT_MAX_HOSTFAIL") : "2") )
-    	, maxjobfailures_(	atoi( getenv("DTECT_MAX_JOBFAIL")
-				    ? getenv("DTECT_MAX_JOBFAIL") : "2") )
-    	, maxjobhstfails_(	atoi( getenv("DTECT_MAX_JOBHSTF")
-				    ? getenv("DTECT_MAX_JOBHSTF") : "7") )
+	, starttimeout_( 1000 * atoi( getenv("DTECT_MM_START_TO")
+				    ? getenv("DTECT_MM_START_TO"): "45") )
+	, failtimeout_(  1000 * atoi( getenv("DTECT_MM_FAIL_TO")
+				    ? getenv("DTECT_MM_FAIL_TO"): "450") )
+	, wrapuptimeout_(1000 *	atoi( getenv("DTECT_MM_WRAPUP_TO")
+				    ? getenv("DTECT_MM_WRAPUP_TO"):"1800"))
+	, hosttimeout_(  1000 * atoi( getenv("DTECT_MM_HOST_TO")
+				    ? getenv("DTECT_MM_HOST_TO"): "600") )
+    	, maxhostfailures_(	atoi( getenv("DTECT_MM_MX_HSTFAIL")
+				    ? getenv("DTECT_MM_MX_HSTFAIL") : "5") )
+    	, maxjobfailures_(	atoi( getenv("DTECT_MM_MX_JOBFAIL")
+				    ? getenv("DTECT_MM_MX_JOBFAIL") : "2") )
+    	, maxjobhstfails_(	atoi( getenv("DTECT_MM_MX_JOBHSTF")
+				    ? getenv("DTECT_MM_MX_JOBHSTF") : "7") )
+	, startwaittime_ (	atoi( getenv("DTECT_MM_START_WAIT")
+				    ? getenv("DTECT_MM_START_WAIT") : "1000") )
 	, preJobStart(this)
 	, postJobStart(this)
 	, jobFailed(this)
@@ -135,21 +137,10 @@ bool JobRunner::addHost( const HostData& hd )
 	hfi = new HostNFailInfo( hd );
 	hfi->starttime_ = Time_getMilliSeconds();
     }
-    else if ( hostStatus(hfi) == HostFailed )
+    else if ( !hfi->inuse_ )
     {
 	hfi->nrfailures_ = 0;
 	hfi->starttime_ = Time_getMilliSeconds();
-
-	// Clear failed jobs' hostdata for this host.
-	for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
-	{
-	    JobInfo& ji = *jobinfos_[ijob];
-	    bool isfailed = ( ji.state_ == JobInfo::JobFailed
-		           || ji.state_ == JobInfo::HostFailed);
-
-	    if ( isfailed && ji.hostdata_ == &hfi->hostdata_ )
-		ji.hostdata_=0;
-	}
     }
     else
 	return true; // host already in use
@@ -170,14 +161,15 @@ bool JobRunner::addHost( const HostData& hd )
 
 JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 {
-    static int waittime= atoi( getenv("DTECT_WAIT_TIME")
-			     ? getenv("DTECT_WAIT_TIME") : "1000");
+    if ( hfi.inuse_ ) return NotReady;
+    
     static int timestamp = -1;
 
     int elapsed = timestamp > 0 ? Time_getMilliSeconds() - timestamp : -1;
+    if ( elapsed < 0 && timestamp > 0 ) elapsed += 86486400;
     if ( elapsed < 0 ) timestamp = Time_getMilliSeconds();
 
-    if ( elapsed < waittime ) return NotReady; 
+    if ( elapsed < startwaittime_ ) return NotReady; 
 
     timestamp = Time_getMilliSeconds();
     
@@ -212,6 +204,8 @@ JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 
 JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 {
+    if ( hfi.inuse_ ) { pErrMsg("huh?"); return NotStarted; }
+
     if ( hostStatus(&hfi) == HostFailed ) return HostBad;
 
     if ( ji.jobfailures_ > maxjobfailures_ || ji.hstfailures_ > maxjobhstfails_)
@@ -253,6 +247,7 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 	DBG::message(msg);
     }
 
+    hfi.inuse_ = true;
     return Started;
 }
 
@@ -280,8 +275,14 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 
 void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 { 
+    HostNFailInfo* hfi = 0;
     if ( ji.hostdata_ )
+    {
+	hfi = hostNFailInfoFor( ji.hostdata_ );
+	if ( hfi ) hfi->inuse_ = false;
+
 	iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+    }
 
     if ( !isAssigned(ji) )
     {
@@ -299,17 +300,11 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
     curjobinfo_ = &ji;
     ji.state_ = reason;
 
-    HostNFailInfo* hfi = 0;
-    if ( ji.hostdata_ ) 
+    if ( reason == JobInfo::JobFailed ) ji.jobfailures_++;
+    else
     {
-	hfi = hostNFailInfoFor( ji.hostdata_ );
-
-	if ( reason == JobInfo::JobFailed ) ji.jobfailures_++;
-	else
-	{
-	    ji.hstfailures_++;
-	    if ( hfi ) hfi->nrfailures_++;
-	}
+	ji.hstfailures_++;
+	if ( hfi ) hfi->nrfailures_++;
     }
 
     if ( mDebugOn )
@@ -703,6 +698,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    {
 		hfi->nrsucces_++;
 		hfi->lastsuccess_ = Time_getMilliSeconds();
+		hfi->inuse_ = false;
 	    }
 	}
 	break;

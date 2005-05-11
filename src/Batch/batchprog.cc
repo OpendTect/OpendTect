@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.75 2005-04-28 20:24:48 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.76 2005-05-11 09:19:47 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -14,15 +14,12 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.75 2005-04-28 20:24:48 cvsaren
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filepath.h"
-#include "timefun.h"
 #include "sighndl.h"
-#include "socket.h"
-#include "separstr.h"
 #include "hostdata.h"
 #include "plugins.h"
 #include "strmprov.h"
 #include "ctxtioobj.h"
-#include "debugmasks.h"
+#include "mmsockcommunic.h"
 
 #ifndef __msvc__
 #include <unistd.h>
@@ -38,7 +35,6 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.75 2005-04-28 20:24:48 cvsaren
 
 
 
-
 BatchProgram* BatchProgram::inst;
 
 BatchProgram::BatchProgram( int* pac, char** av )
@@ -51,7 +47,6 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, inbg(NO)
 	, sdout(*new StreamData)
 	, comm(0)
-	, pausereq( false )
 {
     od_putProgInfo( *pargc, argv_ );
 
@@ -89,7 +84,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
     }
 
     if ( masterhost.size() && masterport > 0 )  // both must be set.
-	comm = new MMSockCommunic( masterhost, masterport, *this );
+	comm = new MMSockCommunic( masterhost, masterport, jobid, sdout );
      
     if ( !fn || !*fn )
     {
@@ -232,6 +227,10 @@ void BatchProgram::killNotify( bool yn )
 }
 
 
+bool BatchProgram::pauseRequested() const
+    { return comm ? comm->pauseRequested() : false; }
+
+
 bool BatchProgram::errorMsg( const char* msg, bool cc_stderr )
 {
     if ( sdout.ostrm )
@@ -364,183 +363,3 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
     return ioobj;
 }
 
-/*--------------------------------------------------------------------------*/
-
-// should only be needed for MMSockCommunic ...
-#include "mmdefs.h"
-
-MMSockCommunic::MMSockCommunic( const char* host, int port, BatchProgram& bp_ )
-	: masterhost( host )
-    	, masterport( port )
-	, timestamp( Time_getMilliSeconds() )
-	, stillok( true )
-	, nrattempts( 0 )
-	, maxtries ( atoi( getenv("DTECT_MM_MSTR_RETRY")
-		 	 ? getenv("DTECT_MM_MSTR_RETRY") : "10") )
-	, bp( bp_ )
-{}
-
-
-bool MMSockCommunic::sendErrMsg_( const char* msg )
-{
-    return sendMsg( mERROR_MSG, -1, msg ); 
-}
-
-bool MMSockCommunic::sendPID_( int pid )
-{ 
-    return sendMsg( mPID_TAG, pid );
-}
-
-bool MMSockCommunic::sendProgress_( int progress, bool immediate )
-{ 
-    if ( immediate ) return sendMsg( mPROC_STATUS, progress );
-    return updateMsg( mPROC_STATUS, progress );
-}
-
-bool MMSockCommunic::sendState_( State stat, bool isexit, bool immediate )
-{
-    int _stat = mSTAT_UNDEF;
-    switch( stat )
-    {
-	case Working	: _stat = mSTAT_WORKING; break;
-	case WrapUp	: _stat = mSTAT_WRAPUP; break;
-	case Finished	: _stat = mSTAT_FINISHED; break;
-	case AllDone	: _stat = mSTAT_ALLDONE; break;
-	case Paused	: _stat = mSTAT_PAUSED; break;
-	case JobError	: _stat = mSTAT_JOBERROR; break;
-	case HostError	: _stat = mSTAT_HSTERROR; break;
-	case Killed	: _stat = mSTAT_KILLED; break;
-	case Timeout	: _stat = mSTAT_TIMEOUT; break;
-	default		: _stat = mSTAT_UNDEF; break;
-    }
-   
-
-    if ( immediate )
-	return sendMsg( isexit ? mEXIT_STATUS : mCTRL_STATUS, _stat );
-
-    return updateMsg( isexit ? mEXIT_STATUS : mCTRL_STATUS, _stat );
-}
-
-bool MMSockCommunic::updateMsg( char tag , int status, const char* msg )
-{
-    static int maxelapsed  = atoi( getenv("DTECT_MM_MILLISECS")
-				 ? getenv("DTECT_MM_MILLISECS") : "1000");
-
-    int elapsed = Time_getMilliSeconds() - timestamp;
-    if ( elapsed < 0 )
-    {
-	directMsg( "System clock skew detected (Ignored)." );
-    }
-    else if ( elapsed < maxelapsed  )
-    {
-	return true;
-    }
-
-    return sendMsg( tag , status, msg );
-}
-
-
-bool MMSockCommunic::sendMsg( char tag , int status, const char* msg )
-{
-    timestamp = Time_getMilliSeconds();
-
-    Socket* sock = mkSocket();
-    if ( !sock || !sock->ok() )
-    {
-	setErrMsg( "Cannot open communication socket to Master." );
-	return false;
-    }
-
-    FileMultiString statstr;
-
-    statstr += bp.jobId();
-    statstr += status;
-    statstr += HostData::localHostName();
-    statstr += getPID();
-
-    if ( msg && *msg )
-	statstr += msg;
-
-    if ( DBG::isOn(DBG_MM) )
-    {
-	BufferString msg("MMSockCommunic::sendMsg -- sending : ");
-	msg += statstr;		
-	DBG::message(msg);
-    }
-    sock->writetag( tag, statstr );
-
-    bool ret = true;
-
-    char masterinfo;
-    BufferString errbuf;
-
-    ret = sock->readtag( masterinfo );
-
-    if ( !ret )
-    {
-	BufferString emsg( "Error writing status to Master: " );
-	emsg += errbuf;
-	setErrMsg( errbuf );
-    }
-
-    else if ( masterinfo == mRSP_WORK )
-	bp.setPauseReq( false );
-
-    else if ( masterinfo == mRSP_PAUSE )
-	bp.setPauseReq( true );
-
-    else if ( masterinfo == mRSP_STOP ) 
-    {
-	directMsg( "Exiting on request of Master." );
-	exitProgram( -1 );
-    }
-    else
-    {
-	BufferString emsg( "Master sent an unkown response code. " );
-	emsg += errbuf;
-	setErrMsg( errbuf );
-	ret = false;
-    }
-
-    delete sock;
-
-    static int last_succ = -1;
-
-    if ( ret || last_succ < 0 )
-	last_succ = Time_getMilliSeconds();
-    else if ( last_succ > 0 )
-    {
-	static int failtimeout = atoi( getenv("DTECT_FAIL_TIMEOUT")
-				     ? getenv("DTECT_FAIL_TIMEOUT"): "300000");
-
-	int elapsed = Time_getMilliSeconds() - last_succ;  
-	if ( elapsed > failtimeout )
-	{
-	    BufferString msg( "Time-out contacting master." );
-	    msg += " Last contact "; msg += elapsed/1000;
-	    msg += " sec ago. Exiting.";
-	    directMsg( msg );
-	    exitProgram( -1 );
-	}
-    }
-    
-    return ret;
-}
-
-
-void  MMSockCommunic::directMsg( const char* msg )
-{
-    (bp.sdout.ostrm ? *bp.sdout.ostrm : std::cerr) << msg << std::endl;
-}
-
-
-Socket* MMSockCommunic::mkSocket()
-{
-    static int timeout = atoi( getenv("DTECT_MM_CLNT_TO")
-			     ? getenv("DTECT_MM_CLNT_TO") : "5" );
-
-    Socket* s =  new Socket( masterhost, masterport );
-    if ( s ) s->setTimeOut( timeout );
-
-    return s;
-}
