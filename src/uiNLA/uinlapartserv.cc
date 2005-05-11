@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.19 2005-05-10 16:21:18 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.20 2005-05-11 15:56:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uinlapartserv.h"
 #include "nlacrdesc.h"
+#include "nlabal.h"
 #include "picksettr.h"
 #include "welltransl.h"
 #include "wellextractdata.h"
@@ -136,12 +137,11 @@ class uiBalanceDataDlg : public uiDialog
 public:
 
 uiBalanceDataDlg( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
-    : uiDialog(p,uiDialog::Setup("Data balancing",gtTitle(vdss),"0.4.3"))
+    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(vdss),"0.4.3"))
 {
     const BinIDValueSet& bvs = vdss[0]->data();
     BinIDValueSet::Pos pos;
     const int valnr = bvs.nrVals() - 1;
-    TypeSet<float> datavals;
     while ( bvs.next(pos) )
     {
 	const float* vals = bvs.getVals( pos );
@@ -153,26 +153,26 @@ uiBalanceDataDlg( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
 
     uiGroup* graphgrp = new uiGroup( this, "Graph group" );
     plotfld = new uiDistribPlot( graphgrp );
-    const char* varname = vdss[0]->colDef(vdss[0]->nrCols()-1).name_;
+    varname = vdss[0]->colDef(vdss[0]->nrCols()-1).name_;
     plotfld->setData( datavals.arr(), datavals.size(), varname );
     nrptsperclss_ = plotfld->avgCount();
-    plotfld->setCutoffNrClasses( nrptsperclss_ );
+    plotfld->setAnnotatedNrClasses( nrptsperclss_ );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
     dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec() );
     dobalfld->valuechanged.notify( mCB(this,uiBalanceDataDlg,doBalChg) );
+
+    nrptspclssfld = new uiGenInput( datagrp, "Data points per class",
+				IntInpSpec(nrptsperclss_) );
+    nrptspclssfld->attach( alignedBelow, dobalfld );
+    nrptspclssfld->valuechanged.notify( mCB(this,uiBalanceDataDlg,cutoffChg) );
+
     rg_.start = datavals[0];
     rg_.stop = datavals[datavals.size()-1];
     valrgfld = new uiGenInput( datagrp, "Data range to use",
 	    			FloatInpIntervalSpec(rg_) );
-    valrgfld->attach( alignedBelow, dobalfld );
+    valrgfld->attach( alignedBelow, nrptspclssfld );
     valrgfld->valuechanged.notify( mCB(this,uiBalanceDataDlg,valrgChg) );
-
-    nrptspclssfld = new uiGenInput( datagrp,
-				"Target Number of data points per class",
-				IntInpSpec(nrptsperclss_) );
-    nrptspclssfld->attach( alignedBelow, valrgfld );
-    nrptspclssfld->valuechanged.notify( mCB(this,uiBalanceDataDlg,cutoffChg) );
 
     datagrp->attach( centeredBelow, graphgrp );
 }
@@ -182,7 +182,7 @@ const char* gtTitle( const ObjectSet<PosVecDataSet>& vdss ) const
     const PosVecDataSet& pvds = *vdss[0];
     const DataColDef& dcd = pvds.colDef( pvds.nrCols()-1 );
     static BufferString ret;
-    ret = "Specify balancing for '";
+    ret = "Specify data preparation for '";
     ret += dcd.name_;
     ret += "'";
     return ret.buf();
@@ -190,21 +190,36 @@ const char* gtTitle( const ObjectSet<PosVecDataSet>& vdss ) const
 
 void doBalChg( CallBacker* )
 {
-    dobal_ = dobalfld->getBoolValue();
-    valrgfld->display( dobal_ );
-    nrptspclssfld->display( dobal_ );
+    if ( dobalfld->getBoolValue() )
+    {
+	nrptspclssfld->display( true );
+	nrptsperclss_ = nrptspclssfld->getIntValue();
+    }
+    else
+    {
+	nrptsperclss_ = -1;
+	nrptspclssfld->display( false );
+    }
+    plotfld->setAnnotatedNrClasses( nrptsperclss_ );
 }
 
 void cutoffChg( CallBacker* )
 {
     nrptsperclss_ = nrptspclssfld->getIntValue();
-    plotfld->setCutoffNrClasses( nrptsperclss_ );
+    plotfld->setAnnotatedNrClasses( nrptsperclss_ );
 }
 
 void valrgChg( CallBacker* )
 {
-    rg_ = nrptspclssfld->getFInterval();
-    plotfld->setSelectedInterval( rg_ );
+    rg_ = valrgfld->getFInterval();
+    rg_.sort( true );
+    TypeSet<float> newdatavals;
+    for ( int idx=0; idx<datavals.size(); idx++ )
+    {
+	if ( rg_.includes( datavals[idx] ) )
+	    newdatavals += datavals[idx];
+    }
+    plotfld->setData( newdatavals.arr(), newdatavals.size(), varname );
 }
 
 bool acceptOK( CallBacker* )
@@ -213,9 +228,11 @@ bool acceptOK( CallBacker* )
     if ( dobal_ )
     {
 	rg_ = valrgfld->getFInterval();
+	rg_.sort();
 	nrptsperclss_ = nrptspclssfld->getIntValue();
     }
 
+    nrclasses_ = plotfld->nrClasses();
     return true;
 }
 
@@ -224,9 +241,13 @@ bool acceptOK( CallBacker* )
     uiGenInput*		valrgfld;
     uiGenInput*		nrptspclssfld;
 
+    TypeSet<float>	datavals;
+    BufferString	varname;
+
     bool		dobal_;
     Interval<float>	rg_;
     int			nrptsperclss_;
+    int			nrclasses_;
 };
 
 
@@ -304,9 +325,19 @@ const char* uiNLAPartServer::prepareInputData(
 	{
 	    uiBalanceDataDlg bddlg( appserv().parent(), vdss );
 	    allok = bddlg.go();
-	    if ( allok && bddlg.dobal_ )
+	    if ( allok )
 	    {
-		//TODO do the actual balancing to trainvds.data()
+		const int targetcol = trainvds.data().nrVals() - 1;
+		float ext = bddlg.rg_.width() * mDefEps;
+		Interval<float> rg( bddlg.rg_.start-ext, bddlg.rg_.stop+ext );
+		trainvds.data().removeRgExceeding( targetcol, rg );
+		if ( bddlg.dobal_ )
+		{
+		    NLABalancer blncr( trainvds.data(), targetcol );
+		    blncr.nrclasses_ = bddlg.nrclasses_;
+		    blncr.nrptsperclss_ = bddlg.nrptsperclss_;
+		    blncr.balance();
+		}
 	    }
 	}
 
