@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.7 2005-05-03 14:40:41 cvskris Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.8 2005-05-11 15:55:11 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -739,6 +739,23 @@ void BinIDValueSet::extend( const BinID& so, const BinID& sos )
 
     delete [] vals;
     bvs.allowdup = allowdup;
+    *this = bvs;
+}
+
+
+void BinIDValueSet::removeRgExceeding( int valnr, const Interval<float>& rg )
+{
+    BinIDValueSet bvs( nrvals, allowdup );
+    Pos pos; BinID bid;
+    while ( next(pos) )
+    {
+	const float* v = getVals( pos );
+	if ( rg.includes(v[valnr]) )
+	{
+	    get( pos, bid );
+	    bvs.add( bid, v );
+	}
+    }
     *this = bvs;
 }
 

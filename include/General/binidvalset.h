@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.6 2005-05-03 14:40:41 cvskris Exp $
+ RCS:		$Id: binidvalset.h,v 1.7 2005-05-11 15:55:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,6 +130,8 @@ public:
 
     void		extend(const BinID& stepout,const BinID& stepoutstep);
     			//!< Adds only BinID postions not yet in set
+    void		removeRgExceeding(int valnr,const Interval<float>&);
+    			//!< Removes vectors with value outside interval
 
     			// Convenience stuff
     Pos			add(const BinIDValue&);
