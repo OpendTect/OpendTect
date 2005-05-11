@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.15 2005-03-30 15:52:55 cvsbert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.16 2005-05-11 10:50:17 cvsnanne Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -83,10 +83,18 @@ void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 }
 
 
-void HorSampling::limitTo( const HorSampling& c )
+void HorSampling::limitTo( const HorSampling& h )
 {
-    HorSampling hs( c ); hs.normalise();
+    HorSampling hs( h ); hs.normalise();
     normalise();
+
+    if ( hs.start.inl > stop.inl || hs.stop.inl < start.inl ||
+	 hs.start.crl > stop.crl || hs.stop.crl < start.crl )
+    {
+	init( false );
+	return;
+    }
+    
     if ( hs.start.inl > start.inl ) start.inl = hs.start.inl;
     if ( hs.start.crl > start.crl ) start.crl = hs.start.crl;
     if ( hs.stop.crl < stop.crl ) stop.crl = hs.stop.crl;
@@ -304,6 +312,12 @@ void CubeSampling::limitTo( const CubeSampling& c )
     CubeSampling cs( c ); cs.normalise();
     normalise();
     hrg.limitTo( cs.hrg );
+    if ( hrg.isEmpty() || cs.zrg.start > zrg.stop || cs.zrg.stop < zrg.start )
+    {
+	init( false );
+	return;
+    }
+
     if ( zrg.start < cs.zrg.start ) zrg.start = cs.zrg.start;
     if ( zrg.stop > cs.zrg.stop ) zrg.stop = cs.zrg.stop;
     if ( zrg.step < cs.zrg.step ) zrg.step = cs.zrg.step;
