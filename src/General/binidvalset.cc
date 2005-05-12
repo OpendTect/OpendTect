@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.8 2005-05-11 15:55:11 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.9 2005-05-12 14:08:27 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -555,6 +555,27 @@ void BinIDValueSet::remove( const Pos& pos )
 }
 
 
+void BinIDValueSet::remove( const TypeSet<BinIDValueSet::Pos>& poss )
+{
+    if ( poss.size() < 1 )
+	return;
+    else if ( poss.size() == 1 )
+	{ remove( poss[0] ); return; }
+
+    BinIDValueSet bvs( *this );
+    empty();
+    Pos pos; BinID bid;
+    while ( bvs.next(pos) )
+    {
+	if ( poss.indexOf(pos) < 0 )
+	{
+	    bvs.get( pos, bid );
+	    add( bid, bvs.getVals(pos) );
+	}
+    }
+}
+
+
 void BinIDValueSet::removeDuplicateBids()
 {
     Pos pos; next(pos,false);
@@ -717,12 +738,15 @@ void BinIDValueSet::extend( const BinID& so, const BinID& sos )
     if ( (!so.inl && !so.crl) || (!sos.inl && !sos.crl) ) return;
 
     BinIDValueSet bvs( *this );
-    bvs.allowdup = false;
+
+    const bool kpdup = allowdup;
+    allowdup = false;
 
     float* vals = nrvals ? new float [nrvals] : 0;
     mSetUdf(vals,nrvals);
+
     Pos pos; BinID bid;
-    while ( next(pos) )
+    while ( bvs.next(pos) )
     {
 	const BinID centralbid( mInl(pos), mCrl(pos) );
 	for ( int iinl=-so.inl; iinl<=so.inl; iinl++ )
@@ -732,31 +756,42 @@ void BinIDValueSet::extend( const BinID& so, const BinID& sos )
 	    {
 		if ( !iinl && !icrl ) continue;
 		bid.crl = centralbid.crl + icrl * sos.crl;
-		bvs.add( bid, vals );
+		add( bid, vals );
 	    }
 	}
     }
 
     delete [] vals;
-    bvs.allowdup = allowdup;
-    *this = bvs;
+    allowdup = kpdup;
 }
 
 
-void BinIDValueSet::removeRgExceeding( int valnr, const Interval<float>& rg )
+void BinIDValueSet::getColumn( int valnr, TypeSet<float>& vals,
+				bool incudf ) const
 {
-    BinIDValueSet bvs( nrvals, allowdup );
-    Pos pos; BinID bid;
+    if ( valnr < 0 || valnr >= nrVals() ) return;
+    Pos pos;
     while ( next(pos) )
     {
 	const float* v = getVals( pos );
-	if ( rg.includes(v[valnr]) )
-	{
-	    get( pos, bid );
-	    bvs.add( bid, v );
-	}
+	if ( incudf || !Values::isUdf(v[valnr]) )
+	    vals += v[ valnr ];
     }
-    *this = bvs;
+}
+
+
+void BinIDValueSet::removeRange( int valnr, const Interval<float>& rg,
+				 bool inside )
+{
+    if ( valnr < 0 || valnr >= nrVals() ) return;
+    TypeSet<Pos> poss; Pos pos;
+    while ( next(pos) )
+    {
+	const float* v = getVals( pos );
+	if ( inside == rg.includes(v[valnr]) )
+	    poss += pos;
+    }
+    remove( poss );
 }
 
 

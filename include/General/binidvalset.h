@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.7 2005-05-11 15:55:11 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.8 2005-05-12 14:08:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,11 @@ public:
     void		copyStructureFrom(const BinIDValueSet&);
     			//!< will also empty this set
 
-    /*!\brief position in BinIDValueSet. an iterator. */
+    /*!\brief position in BinIDValueSet. an iterator.
+
+      Note that the iterator becomes invalid when adding or removing from
+      the set.
+     */
     struct Pos
     {
 			Pos( int ii=-1, int jj=-1 ) : i(ii), j(jj)	{}
@@ -123,6 +127,10 @@ public:
     Interval<float>	valRange(int) const;
 
     void		remove(const Pos&);
+    			//!< afterwards, Pos may be invalid
+    void		remove(const TypeSet<Pos>&);
+    			//!< You cannot remove while iterating
+    			//!< Collect the to-be-removed and use this instead
     void		removeVal(int); // Will remove entire 'column'
     void		setNrVals(int,bool kp_data=true);
     void		sortDuplicateBids(int value_nr,bool ascending=true);
@@ -130,8 +138,10 @@ public:
 
     void		extend(const BinID& stepout,const BinID& stepoutstep);
     			//!< Adds only BinID postions not yet in set
-    void		removeRgExceeding(int valnr,const Interval<float>&);
-    			//!< Removes vectors with value outside interval
+    void		removeRange(int valnr,const Interval<float>&,
+				    bool inside=true);
+    			//!< Removes vectors with value for column valnr
+    			//!< in- or outside interval
 
     			// Convenience stuff
     Pos			add(const BinIDValue&);
@@ -146,6 +156,7 @@ public:
     void		set(const Pos&,float);
     void		set(const Pos&,float,float);
     void		set(const Pos&,const TypeSet<float>&);
+    void		getColumn(int valnr,TypeSet<float>&,bool incudf) const;
 
     			// Slow! Can still come in handly for small sets
     void		fillPar(IOPar&,const char* key) const;
