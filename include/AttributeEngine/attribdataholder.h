@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.3 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attribdataholder.h,v 1.4 2005-05-12 09:36:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
 
 				~DataHolder()		{ deepErase(data_); }
 
-    inline ValueSeries<float>*	add();
+    inline ValueSeries<float>*	add(bool null=false);
 
     int				nrItems() const	{ return data_.size(); }
     ValueSeries<float>*		item( int idx )	const { return data_[idx]; }
@@ -47,10 +47,10 @@ protected:
 };
 
 
-ValueSeries<float>* DataHolder::add()
+ValueSeries<float>* DataHolder::add(bool null)
 {
-    float* ptr = new float[nrsamples_];
-    ValueSeries<float>* res = new ArrayValueSeries<float>(ptr);
+    ValueSeries<float>* res = null
+	? 0 : new ArrayValueSeries<float>(new float[nrsamples_]);
     data_ += res;
     return res;
 }
