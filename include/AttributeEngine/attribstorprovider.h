@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.3 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.4 2005-05-12 10:53:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ protected:
 
     bool        	computeData( const DataHolder& output,
 	                	     const BinID& relpos,
-				     int t1, int nrsamples ) const;
+				     int t0, int nrsamples ) const;
 
     void		fillDataHolderWithTrc( const SeisTrc*,
 	    					const DataHolder& ) const;
@@ -55,7 +55,7 @@ protected:
 
     SeisReqGroup	rg;
     int			currentreq;
-    
+
     CubeSampling	storedvolume;
 
     enum Status        { Nada, StorageOpened, Ready } status;

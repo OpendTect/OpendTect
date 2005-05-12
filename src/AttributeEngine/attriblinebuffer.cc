@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.2 2005-05-09 14:40:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.3 2005-05-12 10:54:00 cvshelene Exp $";
 
 #include "attriblinebuffer.h"
 
@@ -29,7 +29,7 @@ DataHolderLineBuffer::~DataHolderLineBuffer()
 
 
 DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
-						    int t1, int nrsamples )
+						    int t0, int nrsamples )
 {
     int lineidx = inlines.indexOf(bid.inl);
     if ( lineidx==-1 )
@@ -43,7 +43,7 @@ DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
     const int traceidx = crossliness[lineidx]->indexOf(bid.crl);
     if ( traceidx==-1 )
     {
-	DataHolder* res = new DataHolder( t1, nrsamples );
+	DataHolder* res = new DataHolder( t0, nrsamples );
 	(*inlinedata[lineidx]) += res;
 	(*crossliness[lineidx]) += bid.crl;
 	return res;
@@ -55,7 +55,7 @@ DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
 	(*inlinedata[lineidx])[traceidx]->nrsamples_ = nrsamples;
     }
 
-    (*inlinedata[lineidx])[traceidx]->t1_ = t1;
+    (*inlinedata[lineidx])[traceidx]->t0_ = t0;
     return (*inlinedata[lineidx])[traceidx];
 }
 

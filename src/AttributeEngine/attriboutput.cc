@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.2 2005-05-09 14:40:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.3 2005-05-12 10:54:00 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -75,8 +75,8 @@ void SliceSetOutput::collectData( const BinID& bid,
     int i0, i1, i2;
     for ( int idx=0; idx<sliceset->sampling.nrZ(); idx++)
     {
-	float val = ( idx >= data.t1_ && idx < data.t1_+data.nrsamples_ ) ?
-	     		data.item(0)->value(idx-data.t1_): mUndefValue;
+	float val = ( idx >= data.t0_ && idx < data.t0_+data.nrsamples_ ) ?
+	     		data.item(0)->value(idx-data.t0_): mUndefValue;
 	sliceset->getIdxs( bid.inl, bid.crl, idx*refstep, i0, i1, i2 );
 	((*sliceset)[i0])->set( i1, i2, val );
     }
@@ -89,11 +89,16 @@ SliceSet* SliceSetOutput::getSliceSet() const
 }
 
 
-StorageOutput::StorageOutput( const CubeSampling& cs , const char* lkstr)
+CubeOutput::CubeOutput( const CubeSampling& cs , const char* lkstr)
     : desiredvolume( cs )
     , seldata(*new SeisSelData)
     , auxpars(0)
     , storid_(*new MultiID)
+    , writer_(0)
+    , calcurpos_(0)
+    , prevpos_(-1,-1)
+    , storinited_(0)
+    , lk_(lkstr)
     , errmsg(0)
 {
     const float dz = SI().zRange().step;
@@ -107,30 +112,22 @@ StorageOutput::StorageOutput( const CubeSampling& cs , const char* lkstr)
 }
 
 
-StorageOutput::~StorageOutput() 
-{
-    delete &seldata;
-    delete &storid_;
-    delete auxpars;
-}
-
-
-bool StorageOutput::getDesiredVolume(CubeSampling& cs) const
+bool CubeOutput::getDesiredVolume(CubeSampling& cs) const
 { cs=desiredvolume; return true; }
 
 
-bool StorageOutput::wantsOutput( const BinID& bid ) const
+bool CubeOutput::wantsOutput( const BinID& bid ) const
 { return desiredvolume.hrg.includes(bid); }
 
 
-Interval<int> StorageOutput::getLocalZRange(const BinID&) const
+Interval<int> CubeOutput::getLocalZRange(const BinID&) const
 { return sampleinterval; }
 
 
 //usePar, updTrc, init?
 
 
-bool StorageOutput::setStorageID( const MultiID& storid )
+bool CubeOutput::setStorageID( const MultiID& storid )
 {
     if ( *((const char*)storid) )
     {
@@ -147,27 +144,19 @@ bool StorageOutput::setStorageID( const MultiID& storid )
 }
 
 
-void StorageOutput::setGeometry( const CubeSampling& cs )
+void CubeOutput::setGeometry( const CubeSampling& cs )
 {
     if ( cs.isEmpty() ) return;
     seldata.copyFrom(cs);
 }
 
 
-CubeOutput::CubeOutput( const CubeSampling& cs, const char* lk )
-        : writer_(0)
-    	, calcurpos_(0)
-    	, prevpos_(-1,-1)
-        , StorageOutput(cs,lk)
-    	, storinited_(0)
-    	,lk_(lk)
-{
-}
-
-
 CubeOutput::~CubeOutput()
 {
     delete writer_;
+    delete &seldata;
+    delete &storid_;
+    delete auxpars;
 }
 
 
@@ -323,7 +312,7 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
 	trc->data().addComponent( sz, dc, false );
 
     trc->info().sampling.step = refstep;
-    trc->info().sampling.start = data.t1_*refstep;
+    trc->info().sampling.start = data.t0_*refstep;
     trc->info().binid = bid;
     if ( is2d_ )
 	trc->info().nr = trcnr;

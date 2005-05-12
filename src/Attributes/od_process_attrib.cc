@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.1 2005-05-09 14:37:55 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.2 2005-05-12 10:54:50 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -195,37 +195,25 @@ bool BatchProgram::go( std::ostream& strm )
 	mRetJobErr( "No outputs found" )
 
     Attrib::EngineMan* attrengman = new Attrib::EngineMan();
-    BufferStringSet linenames;
-    const char* storedid = attribset.getStoredID();
-    if ( !storedid )
+    //from here delete things related to mult 2dlines next line to inprove
+    int indexoutp = 0;
+    const char* linename;
+    while ( true )
     {
-	ErrMsg( "Internal: Cannot find Stored ID" );
-    }
-    else
-    {
-	LineKey lk( storedid );
-	MultiID key = lk.lineName().buf();
-	PtrMan<IOObj> ioobj = IOM().get( key );
-	bool is2d = false;
-	if ( ioobj )
-	    is2d = SeisTrcTranslator::is2D( *ioobj );
-	if ( is2d )
-	{
-	    Seis2DLineSet lset ( ioobj->fullUserExpr(true) );
-	    for ( int idx=0; idx<lset.nrLines(); idx++ )
-		linenames.addIfNew ( lset.lineName(idx) ) ;
-	    if ( linenames.size() < 1 )
-	    {
-		ErrMsg( "No line with any extraction position found" );
-		return false;
-	    }
+        BufferString multoutpstr = IOPar::compKey( "Output", indexoutp );
+        PtrMan<IOPar> output = pars().subselect( multoutpstr );
+        if ( !output )
+        {
+            if ( !indexoutp )
+		{ indexoutp++; continue; }
+	    else
+	        break;
 	}
-	else
-	    linenames.add ("");
-    }
+	linename = output->find("Line key");
+	indexoutp++;
+    }    
 
-    ObjectSet<Attrib::Processor> procset;
-    procset = attrengman->usePar( pars(), attribset, linenames );
+    proc = attrengman->usePar( pars(), attribset, linename );
     
     ProgressMeter progressmeter(strm);
 
@@ -245,70 +233,66 @@ bool BatchProgram::go( std::ostream& strm )
     Time_sleep( startup_wait );  
 
     int nriter = 0;
-    for ( int idx=0; idx<procset.size(); idx++ )
+    while ( true )
     {
-	while ( true )
+	bool paused = false;
+
+	if ( pauseRequested() )
+	{ 
+	    paused = true;
+
+	    if ( comm )
+	    {
+		comm->setState( MMSockCommunic::Paused );
+		if ( !comm->updateState() ) mRetHostErr( comm->errMsg() )
+	    }
+
+	    Time_sleep( sleeptime );  
+	}
+	else
 	{
-	    bool paused = false;
-
-	    if ( pauseRequested() )
-	    { 
-		paused = true;
-
+	    if ( paused )
+	    {
+		paused = false;
 		if ( comm )
 		{
-		    comm->setState( MMSockCommunic::Paused );
-		    if ( !comm->updateState() ) mRetHostErr( comm->errMsg() )
+		    comm->setState( MMSockCommunic::Working );
+		    if ( !comm->updateState() ) mRetHostErr( comm->errMsg())
+		}
+	    }
+	    int res = proc->nextStep();
+
+	    if ( nriter==0 )
+	    {
+		strm << std::endl;
+		strm << "Estimated number of positions to be processed"
+		     <<"(regular survey): "<< proc->totalNr() 
+		     << std::endl;
+		strm << "Loading cube data ..." << std::endl;
+	    }
+
+	    if ( res > 0 )
+	    {
+		if ( loading )
+		{
+		    loading = false;
+		    strm << "\n["<<getPID()<<"]: Processing started."
+			 << std::endl;
 		}
 
-		Time_sleep( sleeptime );  
+		if ( comm && !comm->updateProgress( nriter + 1 ) )
+		    mRetHostErr( comm->errMsg() )
+
+		++progressmeter;
 	    }
 	    else
 	    {
-		if ( paused )
-		{
-		    paused = false;
-		    if ( comm )
-		    {
-			comm->setState( MMSockCommunic::Working );
-			if ( !comm->updateState() ) mRetHostErr( comm->errMsg())
-		    }
-		}
-		Attrib::Processor* attribproc = procset[idx];
-		int res = attribproc->nextStep();
-
-		if ( nriter==0 )
-		{
-		    strm << std::endl;
-		    strm << "Estimated number of positions to be processed"
-			 <<"(regular survey): "<< attribproc->totalNr() 
-			 << std::endl;
-		    strm << "Loading cube data ..." << std::endl;
-		}
-
-		if ( res > 0 )
-		{
-		    if ( loading )
-		    {
-			loading = false;
-			strm << "\n["<<getPID()<<"]: Processing started."
-			     << std::endl;
-		    }
-
-		    if ( comm && !comm->updateProgress( nriter + 1 ) )
-			mRetHostErr( comm->errMsg() )
-
-		    ++progressmeter;
-		}
-		else
-		{
-		    if ( res == -1 )
-			mRetJobErr( "Cannot reach next position" )
-		    break;
-		}
+		if ( res == -1 )
+		    mRetJobErr( "Cannot reach next position" )
+		break;
 	    }
-	    nriter++;
 	}
+	nriter++;
     }
 
     strm << "\n["<<getPID()<<"]: Processing done. Closing up." << std::endl;
@@ -329,8 +313,8 @@ bool BatchProgram::go( std::ostream& strm )
 	strm << "[" <<getPID()<< "]: Successfully wrote finish status."
 	     << std::endl;
     else
-	strm << "[" <<getPID()<< "]: Could not write finish status."
-	     << std::endl;
+    strm << "[" <<getPID()<< "]: Could not write finish status."
+	 << std::endl;
 
     return ret;
 }

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.3 2005-05-09 14:40:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.4 2005-05-12 10:54:00 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -248,13 +248,6 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	}
 
 	addDesc(desc);
-	if ( !strcmp(attribname,"Storage" ))
-	{
-	    BufferString res;
-	    const char* idstring= "id";
-	    Attrib::Desc::getParamString( defstring, idstring, res );
-	    setStoredID ( res );
-	}
     }
 
     for ( int idx=0; idx<descs.size(); idx++ )

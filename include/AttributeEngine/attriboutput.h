@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.2 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.3 2005-05-12 10:53:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,59 +64,18 @@ protected:
 };
 
 
-/*class Seis2DOutput : public Output
-{
-public:
-			Seis2DOutput(const CubeSampling&);
-			~Seis2DOutput();
-
-    SeisTrcBuf*		getTrcBuf() const;
-
-    bool                getDesiredVolume(CubeSampling&) const;
-    bool                wantsOutput( const BinID& ) const;
-    Interval<int>       getLocalZRange(const BinID&) const;
-    void                collectData(const BinID&,const DataHolder&,float,int);
-
-protected:
-    CubeSampling        desiredvolume;
-    Interval<int>       sampleinterval;
-    Seis2DLineSet*      seis2dlineset;
-};*/
-
-
-class StorageOutput : public Output
-{
-public:
-    			StorageOutput( const CubeSampling&, const char* );
-			~StorageOutput();
-    
-    bool		getDesiredVolume( CubeSampling& ) const;
-    bool		wantsOutput( const BinID& ) const;
-    Interval<int>	getLocalZRange( const BinID& ) const;
-    bool		setStorageID( const MultiID& );
-    void		setGeometry( const CubeSampling& );
-    virtual void	collectData( const BinID&, const DataHolder&, 
-	    				float, int ) {};
-    virtual bool	setReqs(const BinID&) { return true; }
-
-protected:
-    
-    MultiID&            storid_;
-    CubeSampling	desiredvolume;
-    Interval<int>	sampleinterval;
-    SeisSelData&        seldata;
-    IOPar*              auxpars;
-    bool		is2d_;
-    BufferString 	errmsg;
-};
-
-class CubeOutput : public StorageOutput
+class CubeOutput : public Output
 {
 public:
     			CubeOutput( const CubeSampling&, const char* lk);
 			~CubeOutput();
     
     bool		doInit();
+    bool		getDesiredVolume( CubeSampling& ) const;
+    bool		wantsOutput( const BinID& ) const;
+    Interval<int>	getLocalZRange( const BinID& ) const;
+    bool		setStorageID( const MultiID& );
+    void		setGeometry( const CubeSampling& );
 
     bool		doUsePar( const IOPar& );
     bool		setReqs(const BinID&);
@@ -126,6 +85,14 @@ public:
 	    				float, int );
 
 protected:
+
+    MultiID&            storid_;
+    CubeSampling	desiredvolume;
+    Interval<int>	sampleinterval;
+    SeisSelData&        seldata;
+    IOPar*              auxpars;
+    bool		is2d_;
+    BufferString 	errmsg;
 
     SeisTrcWriter*      writer_;
     bool 		calcurpos_;

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.3 2005-05-09 14:40:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.4 2005-05-12 10:54:00 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -108,7 +108,8 @@ StorageProvider::StorageProvider( Desc& desc_ )
     : Provider( desc_ )
     , status( Nada )
     , currentreq( 0 )
-{}
+{
+}
 
 
 bool StorageProvider::init()
@@ -247,6 +248,9 @@ int StorageProvider::moveToNextTrace()
 	    if ( trc )
 	    {
 		currentbid = trc->info().binid;
+		if ( strcmp(curlinekey_.lineName(),"") )
+		    trcnr_ = trc->info().nr;
+		
 		break;
 	    }
 	}
@@ -279,12 +283,25 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 
     if ( reader->is2D() )
     {
+	Seis2DLineSet* lset = reader->lineSet();
+	if ( !lset ) return false;
 	SeisSelData* sel = new SeisSelData;
-	sel->type_ = SeisSelData::TrcNrs;
+	sel->type_ = SeisSelData::Range;
+	sel->linekey_.setAttrName( curlinekey_.attrName() );
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	if ( lset->getRanges(0,trcrg,zrg) )
+	if ( (const char*)curlinekey_.lineName() != "" )
 	{
+	    sel->linekey_.setLineName( curlinekey_.lineName() );
+	    int idx = lset->indexOf( curlinekey_.lineName() );
+	    if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
+	    {
+		sel->crlrg_.start = desiredvolume->hrg.start.crl;
+		sel->crlrg_.stop = desiredvolume->hrg.stop.crl;
+		sel->zrg_.start = desiredvolume->zrg.start;
+		sel->zrg_.stop = desiredvolume->zrg.stop;
+	    }
+	    reader->setSelData( sel ); //Memleak!
 	}
 	//TODO?
 	return true;
@@ -314,12 +331,11 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 
 bool StorageProvider::computeData( const DataHolder& output,
 				   const BinID& relpos,
-				   int t1, int nrsamples ) const
+				   int t0, int nrsamples ) const
 {
     SeisTrc* trc = rg[currentreq]->get(0,0);
     if ( trc )
     {
-	const_cast<Attrib::StorageProvider*> (this)->trcnr_ = trc->info().nr;
 	fillDataHolderWithTrc( trc, output );
 	return true;
     }
@@ -331,10 +347,10 @@ bool StorageProvider::computeData( const DataHolder& output,
 void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
 				    const DataHolder& trcsamplvalues ) const
 {
-    int t1 = trcsamplvalues.t1_;
+    int t0 = trcsamplvalues.t0_;
     float starttrctime = trc->startPos();
     float trcstep = trc->info().sampling.step;
-    float reqstarttime = starttrctime + t1 * trcstep;
+    float reqstarttime = starttrctime + t0 * trcstep;
     ValueSeries<float>* valseries = trcsamplvalues.item(0);
     for (int idx=0 ; idx<trcsamplvalues.nrsamples_ ; idx++)
     {

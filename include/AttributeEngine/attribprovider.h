@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.8 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.9 2005-05-12 10:53:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "survinfo.h"
+#include "linekey.h"
 
 class BasicTask;
 class CubeSampling;
@@ -59,6 +60,7 @@ public:
     void			setDesiredVolume( const CubeSampling& );
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
     int				getTotalNrPos(bool);
+    void			setCurLineKey( const char* linename ); 
 
     virtual int			moveToNextTrace();
     				/*!<\retval -1	something went wrong
@@ -72,7 +74,7 @@ public:
     const Interval<int>&	localCompZInterval() const;
 
     void               		updateInputReqs(int input=-1);
-    int				getTraceNr () { return trcnr_; }
+    int				getCurrentTrcNr () { return trcnr_; }
     float                       getRefStep() const { return refstep; }
 
 protected:
@@ -88,7 +90,7 @@ protected:
     virtual bool	getInputData( const BinID& relpos );
     virtual bool	computeData( const DataHolder& output,
 	    			     const BinID& relpos,
-	    			     int t1, int nrsamples ) const
+	    			     int t0, int nrsamples ) const
     			{ return false; }
 
     virtual bool	allowParallelComputation() const { return true; }
@@ -136,6 +138,7 @@ protected:
     ObjectSet<BasicTask>	computetasks;
     DataHolderLineBuffer*	linebuffer;
     BinID			currentbid;
+    LineKey			curlinekey_;
 
     float                       refstep;
     int				trcnr_;

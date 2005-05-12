@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.3 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.4 2005-05-12 10:53:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,14 +44,11 @@ public:
     bool	usePar( const IOPar&, BufferStringSet* errmsgs = 0 );
 
     const ObjectSet<Desc>	getDescSet() const {return descs;}
-    const char*         	getStoredID() { return storedid_; }
 
     const char*	errMsg() const;
 
 protected:
     int			getFreeID() const;
-    void		setStoredID( const BufferString& storedid ) 
-    					{ storedid_ = storedid.buf(); }
     static const char*	highestIDStr() { return "MaxNrKeys"; }
     static const char*	definitionStr() { return "Definition"; }
     static const char*	userRefStr() { return "UserRef"; }
@@ -62,7 +59,6 @@ protected:
     ObjectSet<Desc>	descs;
     TypeSet<int>	ids;
     BufferString	errmsg;
-    BufferString 	storedid_;
 };
 
 }; //Namespace

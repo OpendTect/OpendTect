@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.7 2005-05-09 14:40:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.8 2005-05-12 10:54:00 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -30,19 +30,19 @@ public:
 
 ProviderBasicTask( const Provider& p ) : provider( p )	{}
 
-void setScope( const DataHolder* res_, const BinID& relpos_, int t1_,
+void setScope( const DataHolder* res_, const BinID& relpos_, int t0_,
 	       int nrsamples_ )
 {
     res = res_;
     relpos = relpos_;
-    t1 = t1_;
+    t0 = t0_;
     nrsamples = nrsamples_;
 }
 
 int nextStep()
 {
     if ( !res ) return 0;
-    return provider.computeData(*res,relpos,t1,nrsamples)?0:-1;
+    return provider.computeData(*res,relpos,t0,nrsamples)?0:-1;
 }
 
 protected:
@@ -50,7 +50,7 @@ protected:
     const Provider&		provider;
     const DataHolder*		res;
     BinID			relpos;
-    int				t1;
+    int				t0;
     int				nrsamples;
 
 };
@@ -80,6 +80,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
     if ( !res ) return 0;
 
     res->ref();
+    
     existing += res;
 
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
@@ -118,6 +119,7 @@ Provider::Provider( Desc& nd )
     , bufferstepout( 0, 0 )
     , threadmanager( 0 )
     , currentbid( -1, -1 )
+    , curlinekey_( 0, 0 )
     , linebuffer( 0 )
     , refstep( 0 )
     , trcnr_( -1 )
@@ -379,6 +381,8 @@ int Provider::moveToNextTrace()
 	}
     }
     currentbid = movinginputs[0]->getCurrentPosition();
+    if ( strcmp(curlinekey_.lineName(),"") )
+	trcnr_ = movinginputs[0]-> getCurrentTrcNr();
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
@@ -486,9 +490,6 @@ const DataHolder* Provider::getData( const BinID& relpos )
     if ( !outdata || !getInputData(relpos) )
 	return 0;
     
-    if ( inputs.size() )
-	const_cast<Attrib::Provider*> (this)->trcnr_ = inputs[0]->trcnr_;
-
     for ( int idx=0; idx<outputinterest.size(); idx++ )
     {
 	while ( outdata->nrItems()<=idx )
@@ -512,12 +513,12 @@ const DataHolder* Provider::getData( const BinID& relpos )
 	}
     }
 
-    const int t1 = outdata->t1_;
+    const int t0 = outdata->t0_;
     const int nrsamples = outdata->nrsamples_;
 
     bool success = false;
     if ( !threadmanager )
-	success = computeData( *outdata, relpos, t1, nrsamples );
+	success = computeData( *outdata, relpos, t0, nrsamples );
     else
     {
 	if ( !computetasks.size() )
@@ -706,5 +707,16 @@ void Provider::propagateZRefStep( const ObjectSet<Provider>& existing )
     for ( int idx=0; idx<existing.size(); idx++ )
 	existing[idx]->refstep = refstep;
 }
+
+void Provider::setCurLineKey( const char* linename )
+{
+    curlinekey_.setLineName(linename);
+    const char* attrname = strcmp(desc.attribName(),"Storage") ? 
+					desc.attribName() : "Seis";
+    curlinekey_.setAttrName(attrname);
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	inputs[idx]->setCurLineKey(curlinekey_.lineName());
+}
+    
 
 }; //namespace

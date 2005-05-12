@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.4 2005-05-12 09:36:25 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.5 2005-05-12 10:53:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,8 +22,8 @@ namespace Attrib
 class DataHolder
 {
 public:
-				DataHolder( int t1, int nrsamples )
-				: t1_(t1), nrsamples_(nrsamples)
+				DataHolder( int t0, int nrsamples )
+				: t0_(t0), nrsamples_(nrsamples)
 				{ data_.allowNull(true); }
 
 				~DataHolder()		{ deepErase(data_); }
@@ -37,7 +37,7 @@ public:
 
 
 
-    int				t1_;
+    int				t0_;
     int				nrsamples_;
 
 protected:
