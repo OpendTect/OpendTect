@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.13 2005-05-02 08:47:57 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.14 2005-05-13 08:32:32 cvsnanne Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -2157,7 +2157,6 @@ bool MeshSurfacePartResolution::computeNormal(
     {
 	const int normalsperrow = nrCols();
 	int normalindex = mGetNormalIndex(rel0,rel1);
-#if __debug__
 	if ( normalindex<0 )
 	{
 	    SoDebugError::postWarning(
@@ -2165,7 +2164,7 @@ bool MeshSurfacePartResolution::computeNormal(
 		    "normalindex is negative");
 	    normalindex = 0;
 	}
-#endif
+
 	while ( cache->normals.getLength()<=normalindex )
 	    cache->normals.push( SbVec3f(0,0,1) );
 
