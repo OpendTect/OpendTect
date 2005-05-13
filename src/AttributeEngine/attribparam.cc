@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.3 2005-05-09 14:40:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.4 2005-05-13 12:54:13 cvsnanne Exp $";
 
 #include "attribparam.h"
 
@@ -55,9 +55,6 @@ bool Param::operator==( const Param& b ) const
     return true;
 }
 
-   
-bool Param::operator!=( const Param& b ) const { return !(*this==b); }
-
 
 bool Param::isOK() const
 {
@@ -74,29 +71,32 @@ bool Param::isOK() const
 }
 
 
-bool Param::isEnabled() const { return enabled; }
+bool Param::operator!=( const Param& b ) const
+{ return !(*this==b); }
+
+const char* Param::getKey() const
+{ return (const char*) key; }
+
+int Param::nrValues() const
+{ return spec->nElems(); }
 
 
-void Param::setEnabled(bool yn) { enabled=yn; }
+#define mSetGet(type,getfunc) \
+type Param::getfunc( int idx ) const \
+{ return spec->getfunc(idx); } \
+\
+void Param::setValue( type val, int idx ) \
+{ spec->setValue( val, idx ); }
 
+mSetGet(int,getIntValue)
+mSetGet(float,getfValue)
+mSetGet(bool,getBoolValue)
 
-bool Param::isRequired() const { return required; }
+const char* Param::getStringValue( int idx ) const
+{ return spec->text(idx); }
 
-
-void Param::setRequired(bool yn) { required=yn; }
-
-
-
-const char* Param::getKey() const { return (const char*) key; }
-
-
-int Param::nrValues() const { return spec->nElems(); }
-
-
-int Param::getIntValue( int idx ) const { return spec->getIntValue(idx); }
-float Param::getfValue( int idx ) const { return spec->getfValue(idx); }
-bool Param::getBoolValue( int idx ) const { return spec->getBoolValue(idx); }
-const char* Param::getStringValue( int idx ) const { return spec->text(idx); }
+void Param::setValue( const char* str, int idx )
+{ spec->setText( str, idx ); }
 
 
 bool Param::setCompositeValue( const char* nv )
@@ -108,19 +108,23 @@ bool Param::setCompositeValue( const char* nv )
 };
 
 
-bool Param::getCompositeValue(BufferString& buf) const
+bool Param::getCompositeValue( BufferString& res ) const
 {
     if ( !spec ) return false;
-    buf = spec->text();
+    res = spec->text();
 
     return true;
 }
+
+
 
 ZGateParam::ZGateParam( const char* nm )
       : Param( nm, new FloatInpIntervalSpec() )
 {}
 
+
 mParamClone( ZGateParam );
+
 
 bool ZGateParam::setCompositeValue( const char* gatestrvar )
 {
@@ -172,7 +176,9 @@ BinIDParam::BinIDParam( const char* nm )
     : Param( nm, new BinIDCoordInpSpec(false,true,false) )
 {}
 
+
 mParamClone( BinIDParam );
+
 
 bool BinIDParam::setCompositeValue( const char* posstr )
 {
@@ -212,6 +218,7 @@ bool BinIDParam::getCompositeValue( BufferString& res ) const
 }
 
 
+
 EnumParam::EnumParam( const char* nm )
     : Param( nm, new StringListInpSpec )
 {}
@@ -222,10 +229,10 @@ void EnumParam::addEnum( const char* ne )
 { reinterpret_cast<StringListInpSpec*>(spec)->addString(ne); }
 
 
+
 StringParam::StringParam( const char* key_ )
     : Param( key_, new StringInpSpec )
 {}
-
 
 mParamClone( StringParam );
 
@@ -284,5 +291,4 @@ bool SeisStorageRefParam::isOK() const
     return ioobj;
 }
 
-}; //namespace
-
+}; // namespace Attrib
