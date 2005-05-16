@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.32 2005-02-18 11:34:18 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.33 2005-05-16 08:48:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,9 @@ public:
     inline int		getIndex( const X& t, const T& step ) const;
 
     template <class X>
+    inline float	getfIndex( const X& t, const T& step ) const;
+
+    template <class X>
     inline X		limitValue( const X& t ) const;
 		
 
@@ -90,6 +93,8 @@ public:
     inline T			atIndex( int idx ) const;
     template <class X>
     inline int			getIndex( const X& t ) const;
+    template <class X>
+    inline float		getfIndex( const X& t ) const;
     template <class X>
     inline int			nearestIndex( const X& x ) const;
     template <class X>
@@ -428,6 +433,11 @@ int Interval<T>::getIndex( const X& t, const T& step ) const
 
 
 template <class T> template <class X> inline
+float Interval<T>::getfIndex( const X& t, const T& step ) const
+{ return (( (float)t  - start ) / step); }
+
+
+template <class T> template <class X> inline
 X Interval<T>::limitValue( const X& t ) const
 {
     const bool isrev = isRev();
@@ -469,6 +479,11 @@ T StepInterval<T>::atIndex( int idx ) const
 template <class T> template <class X> inline
 int StepInterval<T>::getIndex( const X& t ) const
 { return Interval<T>::getIndex( t, step ); }
+
+
+template <class T> template <class X> inline
+float StepInterval<T>::getfIndex( const X& t ) const
+{ return Interval<T>::getfIndex( t, step ); }
 
 
 template <class T> template <class X> inline
