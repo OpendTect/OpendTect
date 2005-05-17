@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.6 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.7 2005-05-17 11:17:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "seistype.h"
 
-class IOPar;
 class DataInpSpec;
 
 namespace Attrib
@@ -33,8 +32,8 @@ class InputSpec
 {
 public:
     				InputSpec( const char* d, bool enabled_ )
-				    : desc( d ) , enabled( enabled_ )
-				    , issteering(false) {}
+				    : desc(d), enabled(enabled_)
+				    , issteering(false)	{}
 
     BufferString		desc;
     TypeSet<Seis::DataType>	forbiddenDts;
@@ -72,7 +71,10 @@ public:
     void	        selectOutput(int);
     int			selectedOutput() const;
     Seis::DataType	dataType() const;
-    bool		isSteering() const { return issteering; }
+    void		setSteering(bool yn)		{ issteering=yn; }
+    bool		isSteering() const		{ return issteering; }
+    void		setHidden(bool yn)		{ hidden_ = yn; }
+    bool		isHidden() const		{ return hidden_; }
 
     int			nrInputs() const;
     InputSpec&		inputSpec( int );
@@ -93,7 +95,7 @@ public:
     			/* Interface to factory */
     void		addParam( Param* );
     const Param*	getParam( const char* key ) const;
-    const Param*	getParam( const char* key );
+    Param*		getParam( const char* key );
     void		setParamEnabled( const char* key, bool yn=true );
     bool		isParamEnabled( const char* key ) const;
     void		setParamRequired( const char* key, bool yn=true );
@@ -109,7 +111,6 @@ public:
     void		addOutputDataType( Seis::DataType );
     void		setNrOutputs( Seis::DataType, int );
     void		addOutputDataTypeSameAs( int );
-    void		setSteering(bool yn) { issteering=yn; }
 
     static bool		getAttribName( const char* defstr, BufferString& );
     static bool		getParamString( const char* defstr, const char* key,
@@ -120,6 +121,7 @@ protected:
     TypeSet<Seis::DataType>	outputtypes;
     TypeSet<int>		outputtypelinks;
     bool			issteering;
+    bool			hidden_;
 
     TypeSet<InputSpec>		inputspecs;
     ObjectSet<Desc>		inputs;

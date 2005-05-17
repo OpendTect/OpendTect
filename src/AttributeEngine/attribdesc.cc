@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.6 2005-05-17 09:29:06 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.7 2005-05-17 11:17:11 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -243,7 +243,7 @@ const Param* Desc::getParam( const char* key ) const
 { return const_cast<Desc*>(this)->getParam(key); }
 
 
-const Param* Desc::getParam( const char* key )
+Param* Desc::getParam( const char* key )
 {
     return findParam(key);
 }
