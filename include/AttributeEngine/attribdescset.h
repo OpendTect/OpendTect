@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.4 2005-05-12 10:53:22 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.5 2005-05-17 11:19:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,44 +24,43 @@ class Desc;
 class DescSet
 {
 public:
-    		~DescSet() { removeAll(); }
-    DescSet*    clone() const;
+    				~DescSet() { removeAll(); }
+    DescSet*			clone() const;
 
-    int		addDesc( Desc* );
-		/*!<\returns id of the attrib */
+    int				addDesc(Desc*);
+				/*!<\returns id of the attrib */
 
-    Desc*       getDesc(int id);
-    const Desc* getDesc(int id) const;
+    Desc*       		getDesc(int id);
+    const Desc*			getDesc(int id) const;
 
-    int		nrDescs() const;
-    int		getID(const Desc&) const;
-    void	getIds( TypeSet<int>& ) const;
+    int				nrDescs() const;
+    int				getID(const Desc&) const;
+    int				getID(const char* ref,bool isusrref) const;
+    void			getIds(TypeSet<int>&) const;
 
-    void	removeDesc(int id);
-    void	removeAll();
+    void			removeDesc(int id);
+    void			removeAll();
 
-    void	fillPar( IOPar& ) const;
-    bool	usePar( const IOPar&, BufferStringSet* errmsgs = 0 );
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&,BufferStringSet* errmsgs=0);
 
-    const ObjectSet<Desc>	getDescSet() const {return descs;}
+    const ObjectSet<Desc>&	getDescSet() const { return descs; }
 
     const char*	errMsg() const;
 
 protected:
-    int			getFreeID() const;
-    static const char*	highestIDStr() { return "MaxNrKeys"; }
-    static const char*	definitionStr() { return "Definition"; }
-    static const char*	userRefStr() { return "UserRef"; }
-    static const char*	inputPrefixStr() { return "Input."; }
+    int				getFreeID() const;
+    static const char*		highestIDStr()		{ return "MaxNrKeys"; }
+    static const char*		definitionStr()		{ return "Definition"; }
+    static const char*		userRefStr()		{ return "UserRef"; }
+    static const char*		inputPrefixStr()	{ return "Input."; }
 
-
-
-    ObjectSet<Desc>	descs;
-    TypeSet<int>	ids;
-    BufferString	errmsg;
+    ObjectSet<Desc>		descs;
+    TypeSet<int>		ids;
+    BufferString		errmsg;
 };
 
-}; //Namespace
+}; // namespace Attrib
 
 #endif
 

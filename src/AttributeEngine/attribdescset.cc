@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.4 2005-05-12 10:54:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.5 2005-05-17 11:20:02 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -47,12 +47,32 @@ const Desc* DescSet::getDesc(int id) const
 int DescSet::nrDescs() const { return descs.size(); }
 
 
-int DescSet::getID(const Desc& desc) const
+int DescSet::getID( const Desc& desc ) const
 {
-    const int idx=descs.indexOf(&desc);
+    const int idx = descs.indexOf( &desc );
     return idx==-1 ? -1 : ids[idx];
 }
 
+
+int DescSet::getID( const char* ref, bool isusrref ) const
+{
+    if ( !ref || !*ref ) return -1;
+
+    for ( int idx=0; idx<nrDescs(); idx++ )
+    {
+	if ( isusrref && !strcmp(ref,descs[idx]->userRef()) )
+	    return ids[idx];
+	else if ( !isusrref )
+	{
+	    BufferString defstr;
+	    descs[idx]->getDefStr( defstr );
+	    if ( defstr == ref )
+		return ids[idx];
+	}
+    }
+
+    return -1;
+}
 
 
 void DescSet::removeDesc( int id )
@@ -73,7 +93,7 @@ void DescSet::removeAll()
 { while ( ids.size() ) removeDesc(ids[0]); }
 
 
-void DescSet::fillPar(IOPar& par) const
+void DescSet::fillPar( IOPar& par ) const
 {
     int maxid = 0;
 
@@ -106,15 +126,17 @@ void DescSet::fillPar(IOPar& par) const
     par.set( highestIDStr(), maxid );
 }
 
+
 #define mHandleParseErr( str ) \
-	{ \
-	    errmsg = str; \
-	    if ( !errmsgs ) \
-		return false; \
- \
-	    (*errmsgs) += new BufferString(errmsg); \
-	    continue; \
-	}
+{ \
+    errmsg = str; \
+    if ( !errmsgs ) \
+	return false; \
+\
+    (*errmsgs) += new BufferString(errmsg); \
+	continue; \
+}
+
 bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 {
     removeAll();
@@ -279,7 +301,6 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 }
 
 
-
 const char* DescSet::errMsg() const
 { return errmsg[0] ? (const char*) errmsg : 0; }
 
@@ -293,4 +314,4 @@ int DescSet::getFreeID() const
     return id;
 }
 
-}; //namespace
+}; // namespace Attrib
