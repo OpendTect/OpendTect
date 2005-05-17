@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.15 2005-05-10 11:26:53 cvsbert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.16 2005-05-17 09:29:05 cvskris Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -222,7 +222,7 @@ void IODirEntryList::sort()
 	    for ( int j=i-d;
 		  j>=0 && (*this)[j]->name() > (*this)[j+d]->name();
 		  j-=d )
-		replace( replace( (*this)[j+d], j ), j+d );
+		swap( j+d, j );
     IODirEntry::beingsorted = false;
 }
 

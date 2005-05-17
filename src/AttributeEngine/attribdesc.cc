@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.5 2005-05-09 14:40:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.6 2005-05-17 09:29:06 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -182,7 +182,7 @@ bool Desc::setInput( int input, Desc* nd )
 	return false;
 
     if ( inputs[input] ) inputs[input]->unRef();
-    inputs.replace( nd, input );
+    inputs.replace( input, nd );
     if ( inputs[input] ) inputs[input]->ref();
 
     return true;

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.23 2005-04-26 18:57:15 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.24 2005-05-17 09:29:06 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: seisbuf.cc,v 1.23 2005-04-26 18:57:15 cvskris E
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
 {
     for ( int idx=insidx; idx<trcs.size(); idx++ )
-	t = trcs.replace( t, idx );
+	t = trcs.replace( idx, t );
     trcs += t;
 }
 
@@ -184,7 +184,7 @@ void SeisTrcBuf::revert()
     int sz = trcs.size();
     int hsz = sz / 2;
     for ( int idx=0; idx<hsz; idx++ )
-	trcs.replace( trcs.replace(trcs[sz-idx-1],idx), sz-idx-1 );
+	trcs.swap( sz-idx-1, idx );
 }
 
 

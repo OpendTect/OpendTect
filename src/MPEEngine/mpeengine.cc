@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.26 2005-05-03 11:38:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.27 2005-05-17 09:29:05 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -229,7 +229,7 @@ void Engine::removeTracker( int idx )
 	return;
 
     delete trackers[idx];
-    trackers.replace( 0, idx );
+    trackers.replace( idx, 0 );
 }
 
 
@@ -334,7 +334,7 @@ bool Engine::setAttribData( const AttribSelSpec& as, AttribSliceSet* newdata )
 	if ( *attribcachespecs[idx]==as )
 	{
 	    delete attribcache[idx];
-	    attribcache.replace(newdata,idx);
+	    attribcache.replace(idx, newdata);
 	    found = true;
 	    break;
 	}

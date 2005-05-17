@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.33 2005-03-09 16:19:19 cvsbert Exp $
+ RCS:           $Id: mathexpression.cc,v 1.34 2005-05-17 09:29:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
     if ( inp>=0 && inp<getNrInputs() )
     {
 	if ( inputs[inp] ) return false;
-	delete inputs.replace( obj, inp );
+	delete inputs.replace( inp, obj );
 
 	for ( int idx=0; idx<obj->getNrVariables(); idx++ )
 	{

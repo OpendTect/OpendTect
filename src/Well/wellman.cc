@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellman.cc,v 1.5 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: wellman.cc,v 1.6 2005-05-17 09:29:06 cvskris Exp $";
 
 #include "welldata.h"
 #include "wellman.h"
@@ -75,7 +75,7 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 	mErrRet("Cannot read well from files")
 
     if ( mustreplace )
-	delete wells_.replace( wd, wllidx );
+	delete wells_.replace( wllidx, wd );
     else
 	add( key, wd );
 

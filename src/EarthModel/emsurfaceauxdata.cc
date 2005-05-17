@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.6 2005-03-10 11:48:21 cvskris Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.7 2005-05-17 09:29:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ const char* SurfaceAuxData::auxDataName( int dataidx ) const
 void SurfaceAuxData::setAuxDataName( int dataidx, const char* name )
 {
     if ( auxdatanames[dataidx] )
-	auxdatanames.replace( new BufferString(name), dataidx );
+	auxdatanames.replace( dataidx, new BufferString(name) );
 }
 
 
@@ -106,11 +106,11 @@ int SurfaceAuxData::addAuxData( const char* name )
 void SurfaceAuxData::removeAuxData( int dataidx )
 {
     delete auxdatanames[dataidx];
-    auxdatanames.replace( 0, dataidx );
+    auxdatanames.replace( dataidx, 0 );
 
     deepEraseArr( *auxdata[dataidx] );
     delete auxdata[dataidx];
-    auxdata.replace( 0, dataidx );
+    auxdata.replace( dataidx, 0 );
     changed = true;
 }
 
@@ -154,8 +154,8 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	    (*auxdata[dataidx]) += 0;
 
 	const int sz= surface.geometry.getSurface(posid.sectionID())->nrKnots();
-	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue), 
-				   sectionidx );
+	auxdata[dataidx]->replace( sectionidx,
+				   new TypeSet<float>(sz,mUndefValue) );
 	sectionauxdata = (*auxdata[dataidx])[sectionidx];
     }
 
@@ -257,7 +257,7 @@ void SurfaceAuxData::removeSection(const SectionID& sectionid)
 	    continue;
 
 	delete (*auxdata[idy])[sectionidx];
-	auxdata[idy]->replace( 0, sectionidx );
+	auxdata[idy]->replace( sectionidx, 0 );
     }
 }
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.30 2004-08-03 15:41:48 kristofer Exp $
+ RCS:		$Id: sets.h,v 1.31 2005-05-17 09:29:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,9 +236,17 @@ public:
 			    if ( ptr || allow0 ) ovec.erase((void*)ptr);
 			    return *this;
 			}
-    virtual T*		replace( T* newptr, int idx )
+    void		swap( int idx0, int idx1 )
 			{
-			    if (idx<0||idx>size()) return 0;
+			    if ( idx0<0||idx0>=size()||idx1<0||idx1>=size() )
+				return;
+			    void* tmp = ovec[idx0];
+			    ovec[idx0] = ovec[idx1];
+			    ovec[idx1] = tmp;
+			}
+    virtual T*		replace( int idx, T* newptr )
+			{
+			    if (idx<0||idx>=size()) return 0;
 			    T* ptr = (T*)ovec[idx];
 			    ovec[idx] = (void*)newptr; return ptr;
 			}
@@ -358,10 +366,7 @@ inline void sort( ObjectSet<T>& os )
     for ( int d=sz/2; d>0; d=d/2 )
 	for ( int i=d; i<sz; i++ )
 	    for ( int j=i-d; j>=0 && *os[j]>*os[j+d]; j-=d )
-	    {
-		tmp = os.replace( os[j+d], j );
-		os.replace( tmp, j+d );
-	    }
+		os.swap( j, j+d );
 }
 
 template <class T>

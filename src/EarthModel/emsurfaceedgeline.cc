@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.24 2005-03-10 11:48:21 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.25 2005-05-17 09:29:05 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -1885,7 +1885,7 @@ EdgeLineSet* EM::EdgeLineManager::getEdgeLineSet(
 	    delete els;
 	else
 	{
-	    linesets.replace( els, sectionnr );
+	    linesets.replace( sectionnr, els );
 	    addremovenotify.trigger( section );
 	}
     }
@@ -1905,7 +1905,7 @@ void  EdgeLineManager::cloneEdgeLineSet( const EM::SectionID& src,
 
     const int dstidx = surface.geometry.sectionNr(dst);
     while ( dstidx>=linesets.size() ) linesets += 0;
-    linesets.replace(els, dstidx);
+    linesets.replace(dstidx, els);
     addremovenotify.trigger( dst );
 }
 
@@ -1925,7 +1925,7 @@ void EdgeLineManager::removeLineSet( const SectionID& pid )
     const int nr = surface.geometry.sectionNr(pid);
     if ( nr<0 || nr>=linesets.size() ) return;
     delete linesets[nr];
-    linesets.replace(0,nr);
+    linesets.replace(nr,0);
     addremovenotify.trigger( pid );
 }
 

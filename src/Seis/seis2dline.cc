@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.43 2005-04-07 16:28:44 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.44 2005-05-17 09:29:06 cvskris Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -396,7 +396,7 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
     {
 	pars_[paridx]->merge( *newiop );
 	*newiop = *pars_[paridx];
-	delete pars_.replace( newiop, paridx );
+	delete pars_.replace( paridx, newiop );
 	res = liop_->getReplacer( *pars_[paridx] );
     }
     else if ( !readonly_ )

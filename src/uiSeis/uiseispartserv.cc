@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.30 2005-02-28 14:49:40 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.31 2005-05-17 09:29:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,11 +178,7 @@ BufferStringSet uiSeisPartServer::getStoredGathersList()
 	    for ( int icmp=ioobjnms.size()-2; icmp>=0; icmp-- )
 	    {
 		if ( ioobjnms.get(icmp) > ioobjnms.get(icmp+1) )
-		{
-		    BufferString* tmp = ioobjnms[icmp];
-		    ioobjnms.replace( ioobjnms[icmp+1], icmp );
-		    ioobjnms.replace( tmp, icmp+1  );
-		}
+		    ioobjnms.swap(icmp,icmp+1);
 	    }
 	}
     }

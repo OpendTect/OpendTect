@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedtable.h,v 1.3 2005-01-14 13:55:12 kristofer Exp $
+ RCS:		$Id: sortedtable.h,v 1.4 2005-05-17 09:29:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,7 +162,7 @@ void	SortedPointers<T>::set( int id_, T* val )
 	vals.insertAt( val, newpos );
     }
 
-    vals.replace( val, newpos );
+    vals.replace( newpos, val );
 }
 
 

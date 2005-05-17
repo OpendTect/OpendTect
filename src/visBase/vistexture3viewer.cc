@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: vistexture3viewer.cc,v 1.19 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vistexture3viewer.cc,v 1.20 2005-05-17 09:29:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ void Texture3Viewer::removeObject( int idnumber )
 	removeChild( textureobjects[idx]->getInventorNode() );
 	textureobjects[idx]->unRef();
 
-	textureobjects.replace( 0, idx );
+	textureobjects.replace( idx, 0 );
 	return;
     }
 }

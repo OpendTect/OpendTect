@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.8 2005-02-23 16:49:53 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.9 2005-05-17 09:29:05 cvskris Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -206,7 +206,7 @@ void MathProperty::setInput( int idx, const Property* p )
 	ErrMsg( msg );
 	p = 0;
     }
-    inps_.replace( p, idx );
+    inps_.replace( idx, p );
 }
 
 

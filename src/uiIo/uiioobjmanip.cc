@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.16 2005-04-01 10:09:50 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.17 2005-05-17 09:29:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,8 +86,8 @@ void uiManipButGrp::setAlternative( uiToolButton* button, const ioPixmap& pm,
 	{
 	    uiManipButGrp::ButData* bd = altbutdata[idx];
 	    if ( !bd )
-		altbutdata.replace( new uiManipButGrp::ButData(button,pm,tt),
-				    idx );
+		altbutdata.replace( idx,
+				    new uiManipButGrp::ButData(button,pm,tt) );
 	    else
 	    {
 		bd->but = button;

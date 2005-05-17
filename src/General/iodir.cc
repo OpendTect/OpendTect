@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.19 2005-04-07 16:28:44 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.20 2005-05-17 09:29:05 cvskris Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -262,7 +262,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
 	IOObj* obj = objs_[idx];
 	if ( obj->key() == clone->key() )
 	{
-	    delete objs_.replace( clone, idx );
+	    delete objs_.replace( idx, clone );
 	    found = true;
 	    break;
 	}
