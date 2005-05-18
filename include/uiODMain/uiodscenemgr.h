@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.19 2005-04-15 12:32:37 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.20 2005-05-18 11:31:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ public:
     void		disabRightClick(bool);
     void		disabTree(int,bool);
 
-    int			addPickSetItem(const PickSet*,int);
+    int			addPickSetItem(const PickSet&,int);
     int			addEMItem(const MultiID&,int);
     void		removeTreeItem(int);
 

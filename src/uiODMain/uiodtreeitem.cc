@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.79 2005-04-29 15:08:02 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.80 2005-05-18 11:31:06 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1374,22 +1374,22 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     if ( mnuid==0 )
     {
 	if ( !applMgr()->pickServer()->fetchPickSets() ) return -1;
-	PickSetGroup* psg = new PickSetGroup;
-	applMgr()->getPickSetGroup( *psg );
-	if ( psg->nrSets() )
+	PickSetGroup& psg = applMgr()->pickServer()->group();
+	if ( psg.nrSets() )
 	{
-	    for ( int idx=0; idx<psg->nrSets(); idx++ )
+	    for ( int idx=0; idx<psg.nrSets(); idx++ )
 	    {
 		//TODO make sure it's not in list already
-		addChild( new uiODPickSetTreeItem(psg->get(idx)) );
+		const PickSet* ps = psg.get( idx );
+		if ( ps )
+		    addChild( new uiODPickSetTreeItem(*ps) );
 	    }
 	}
 	else
 	{
-	    PickSet pset( psg->name() );
+	    PickSet pset( psg.name() );
 	    pset.color = applMgr()->getPickColor();
-	    addChild( new uiODPickSetTreeItem(&pset) );
-	    //TODO create pickset
+	    addChild( new uiODPickSetTreeItem(pset) );
 	}
     }
     else if ( mnuid==1 )
@@ -1409,13 +1409,18 @@ uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
 }
 
 
-uiODPickSetTreeItem::uiODPickSetTreeItem( const PickSet* ps_ )
-    : ps( ps_ )
+uiODPickSetTreeItem::uiODPickSetTreeItem( const PickSet& ps )
+    : ps_(new PickSet(ps))
 {}
 
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int id )
+    : ps_(0)
 { displayid = id; }
+
+
+uiODPickSetTreeItem::~uiODPickSetTreeItem()
+{ delete ps_; }
 
 
 bool uiODPickSetTreeItem::init()
@@ -1424,7 +1429,7 @@ bool uiODPickSetTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
 	displayid = psd->id();
-	psd->copyFromPickSet(*ps);
+	psd->copyFromPickSet( *ps_ );
 	visserv->addObject(psd,sceneID(),true);
     }
     else

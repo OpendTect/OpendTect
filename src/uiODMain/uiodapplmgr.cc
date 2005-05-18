@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.79 2005-05-18 09:14:03 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.80 2005-05-18 11:31:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -824,12 +824,15 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 	pickserv->setMisclassSet( mcpicks );
 	PickSetGroup& psg = pickserv->group();
-	int psid = sceneMgr().getIDFromName( psg.name() );
-	bool haspicks = psg.nrSets();
+	const int psid = sceneMgr().getIDFromName( psg.name() );
+	const bool haspicks = psg.nrSets();
 	PickSet pset( psg.name() );
 	pset.color.set(255,0,0);
 	if ( psid < 0 )
-	    sceneMgr().addPickSetItem( haspicks ? psg.get(0) : &pset, -1 );
+	{
+	    const PickSet* ps = psg.get(0);
+	    sceneMgr().addPickSetItem( haspicks && ps ? *ps : pset, -1 );
+	}
 	else
 	{
 	    mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
