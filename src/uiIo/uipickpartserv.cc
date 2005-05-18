@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.28 2004-07-30 11:41:15 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.29 2005-05-18 11:30:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
+#include "uicursor.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "surfaceinfo.h"
@@ -64,19 +65,18 @@ bool uiPickPartServer::fetchPickSets()
     sendEvent( evGetHorInfo );
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos.size(); idx++ )
-	hornms += new BufferString( hinfos[idx]->name );
+	hornms.add( hinfos[idx]->name );
 
     uiFetchPicks dlg( appserv().parent(), psgid, hornms );
     if ( !dlg.go() ) { deepErase( hinfos ); return false; }
 
     if ( !dlg.nrSets() )
     { 
-	psg.setName(dlg.getName());
+	psg.setName( dlg.getName() );
 	pickcolor = dlg.getPickColor();
 	bool rv = true;
 	if ( dlg.genRand() )
 	{
-	    IOPar iopar;
 	    PickSet* ps = new PickSet( dlg.getName() );
 	    ps->color = pickcolor;
 	    rv = mkRandLocs( *ps, dlg.randPars() );
@@ -97,6 +97,8 @@ bool uiPickPartServer::fetchPickSets()
 
 bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 {
+    uiCursorChanger cursorlock( uiCursor::Wait );
+
     Stat_initRandom(0);
     selbr = &rp.bidrg;
     const bool do2hors = !rp.iscube && rp.horidx2 >= 0 && 
@@ -137,6 +139,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 	ps += PickLocation( SI().transform(bid), val );
     }
 
+    gendef.empty();
     return true;
 }
 
