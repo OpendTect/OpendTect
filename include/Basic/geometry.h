@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.17 2004-07-21 11:13:17 nanne Exp $
+ RCS:           $Id: geometry.h,v 1.18 2005-05-18 08:27:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,27 +19,31 @@ namespace Geom
 
 /*!\brief basic point class */
 template <class T>
-class Point
+class Point2D
 {
 public:
-			Point ( T xx = 0, T yy = 0 ) { x_ = xx; y_ = yy; }
+			Point2D ( T xx = 0, T yy = 0 ) : x_(xx), y_(yy) {}
 
-    inline T		x() const	{ return x_; }
-    inline T		y() const	{ return y_; }
+    inline const T&	x() const	{ return x_; }
+    inline const T&	y() const	{ return y_; }
     inline void		setX( T xx )	{ x_ = xx ; }  
     inline void		setY( T yy )	{ y_ = yy ; }  
     inline void		setXY( T xx, T yy ) { x_ = xx ; y_ = yy; }  
-    inline Point<T>&	zero()		{ x_ = y_ = 0; return *this; }
-    inline Point<T>&	operator -()	{ x_ = -x_; y_ = -y_; return *this; }
+    inline Point2D<T>&	zero()		{ x_ = y_ = 0; return *this; }
+    inline Point2D<T>&	operator -()	{ x_ = -x_; y_ = -y_; return *this; }
 
-    inline bool		operator ==( const Point<T>& p ) const
+    inline bool		operator ==( const Point2D<T>& p ) const
 			{ return p.x_ == x_ && p.y_ == y_; }
-    inline bool		operator !=( const Point<T>& p ) const
+    inline bool		operator !=( const Point2D<T>& p ) const
 			{ return p.x_ != x_ || p.y_ != y_; }
-    inline Point<T>&	operator +=( const Point<T>& p )
+    inline Point2D<T>&	operator +=( const Point2D<T>& p )
 			{ x_ += p.x_; y_ += p.y_; return *this; }
-    inline Point<T>&	operator -=( const Point<T>& p )
+    inline Point2D<T>&	operator -=( const Point2D<T>& p )
 			{ x_ -= p.x_; y_ -= p.y_; return *this; }
+    inline Point2D<T>	operator +( const Point2D<T>& p ) const
+			{ return Point2D<T>(x_+p.x_,y_+p.y_); }
+    inline Point2D<T>	operator -( const Point2D<T>& p ) const
+			{ return Point2D<T>(x_-p.x_,y_-p.y_); }
     
 protected:
 
@@ -102,9 +106,9 @@ class Rect
 {
 public:
 			Rect ( T l = 0 , T t = 0, T r = 0 , T b = 0 ) 
-			: topLeft_( Point<T>(l,t)) 
-			, bottomRight_( Point<T>(r,b) ) {}
-			Rect ( Point<T> tl, Point<T> br ) 
+			: topLeft_( Point2D<T>(l,t)) 
+			, bottomRight_( Point2D<T>(r,b) ) {}
+			Rect ( Point2D<T> tl, Point2D<T> br ) 
 			: topLeft_( tl ) , bottomRight_( br ) {} 
 
     inline bool		operator ==( const Rect<T>& r ) const
@@ -114,27 +118,27 @@ public:
 			{ return   r.topLeft_ != topLeft_
 				|| r.bottomRight_ != bottomRight_; }
 
-    inline Point<T>	topLeft() const     { return topLeft_; }
-    inline Point<T>	topRight() const    { return Point<T>(top(),right()); }
-    inline Point<T>	bottomLeft() const  { return Point<T>(bottom(),left());}
-    inline Point<T>	bottomRight() const { return bottomRight_; }
-    inline Point<T>	centre() const 		
-                        { return Point<T>( (topLeft_.x()+bottomRight_.x())/2,
+    inline Point2D<T>	topLeft() const    { return topLeft_; }
+    inline Point2D<T>	topRight() const   { return Point2D<T>(top(),right());}
+    inline Point2D<T>	bottomLeft() const {return Point2D<T>(bottom(),left());}
+    inline Point2D<T>	bottomRight() const { return bottomRight_; }
+    inline Point2D<T>	centre() const 		
+                        { return Point2D<T>( (topLeft_.x()+bottomRight_.x())/2,
 					   (topLeft_.y()+bottomRight_.y())/2 ); 
                         }
-    inline void		setTopLeft( Point<T> tl )	{ topLeft_ = tl; }
-    inline void		setBottomRight( Point<T> br )	{ bottomRight_ = br; }
-    inline void		setTopRight( Point<T> tr )
+    inline void		setTopLeft( Point2D<T> tl )	{ topLeft_ = tl; }
+    inline void		setBottomRight( Point2D<T> br )	{ bottomRight_ = br; }
+    inline void		setTopRight( Point2D<T> tr )
 			{ topLeft_.setY(tr.y()); bottomRight_.setX(tr.x()); }
-    inline void		setBottomLeft( Point<T> tr )
+    inline void		setBottomLeft( Point2D<T> tr )
 			{ topLeft_.setX(tr.x()); bottomRight_.setY(tr.y()); }
 
-    inline bool		isInside(const Point<T>&) const;
-    inline bool		isOutside( const Point<T>& p ) const
+    inline bool		isInside(const Point2D<T>&) const;
+    inline bool		isOutside( const Point2D<T>& p ) const
 			{ return xOutside(p.x()) || yOutside(p.y()); }
-    inline bool		isOnSide( const Point<T>& p ) const
+    inline bool		isOnSide( const Point2D<T>& p ) const
 			{ return !isInside(p) && !isOutside(p); }
-    inline bool		contains( const Point<T>& p ) const
+    inline bool		contains( const Point2D<T>& p ) const
 			{ return !isOutside(p); }
 
     inline bool		contains( const Rect<T>& other ) const
@@ -176,9 +180,9 @@ public:
     inline		operator Size2D<T>() const	{ return size(); }
     inline void 	zero()	{ topLeft_.zero(); bottomRight_.zero(); }
 
-    inline Rect<T>&	operator +=( const Point<T>& p )
+    inline Rect<T>&	operator +=( const Point2D<T>& p )
 			{ topLeft_ += p; bottomRight_ += p; return *this; }
-    inline Rect<T>&	operator -=( const Point<T>& p )
+    inline Rect<T>&	operator -=( const Point2D<T>& p )
 			{ topLeft_ -= p; bottomRight_ -= p; return *this; }
 
 protected:
@@ -196,8 +200,8 @@ protected:
 			    bottomRight_.setY( t );
 			}
 
-    Point<T>		topLeft_;
-    Point<T>		bottomRight_;
+    Point2D<T>		topLeft_;
+    Point2D<T>		bottomRight_;
 
     inline bool		revX() const		{ return left() > right(); }
     inline bool		revY() const		{ return bottom() > top(); }
@@ -208,7 +212,7 @@ protected:
 
 
 template <class T>
-inline bool Rect<T>::isInside( const Point<T>& pt ) const
+inline bool Rect<T>::isInside( const Point2D<T>& pt ) const
 {
     return pt != topLeft_ && pt != bottomRight_
 	&& ( (pt.x() - left() > 0) == (right() - pt.x() > 0) )
