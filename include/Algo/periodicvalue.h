@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.4 2004-07-21 11:13:17 nanne Exp $
+ RCS:		$Id: periodicvalue.h,v 1.5 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -123,9 +123,8 @@ protected:
 
 template <class T, class RT>
 inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
-				RT& ret, RT period,
-				bool extrapolate=NO,
-				RT undefval=(RT)mUndefValue )
+				RT& ret, RT period, bool extrapolate=NO,
+				RT undefval=mUdf(RT) )
 {
     const float halfperiod = period / 2;
     int intpos = mNINT( pos );
@@ -178,7 +177,7 @@ inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
 template <class T>
 inline float interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
                                  float period, bool extrapolate=NO,
-                                 float undefval=mUndefValue )
+                                 float undefval=mUdf(float) )
 {
     float ret = undefval;
     interpolateYPeriodicSampled( idxabl, sz, pos, ret,

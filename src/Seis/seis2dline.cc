@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.44 2005-05-17 09:29:06 cvskris Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.45 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -77,7 +77,7 @@ bool TwoDSeisTrcTranslator::initRead_( bool )
     if ( isall )
     {
 	cs.hrg.start.inl = cs.hrg.start.crl = 1;
-	cs.hrg.stop.inl = cs.hrg.stop.crl = mUndefIntVal;
+	cs.hrg.stop.inl = cs.hrg.stop.crl = mUdf(int);
 	cs.hrg.step.inl = cs.hrg.step.crl = 1;
     }
     else
@@ -606,7 +606,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
 {
     cs.hrg.step.inl = cs.hrg.step.crl = 1;
     cs.hrg.start.inl = 0; cs.hrg.stop.inl = nrLines()-1;
-    cs.hrg.start.crl = 0; cs.hrg.stop.crl = mUndefIntVal;
+    cs.hrg.start.crl = 0; cs.hrg.stop.crl = mUdf(int);
     cs.zrg = SI().zRange();
     const int nrlines = nrLines();
     if ( nrlines < 1 )
@@ -708,7 +708,7 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
 	, lnshandled(0)
 	, ptswritten(0)
 	, zval(z)
-	, incz(!mIsUndefined(z))
+	, incz(!Values::isUdf(z))
 {
     lastidx = ls.nrLines() - 1;
     if ( lastidx < 0 )

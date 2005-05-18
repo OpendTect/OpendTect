@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.25 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.26 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -152,7 +152,7 @@ bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
 {
     if ( t < sampling.start || t > samplePos(trcsz-1) )
 	return false;
-    if ( mIsUndefined(mute_pos) || t > mute_pos )
+    if ( Values::isUdf(mute_pos) || t > mute_pos )
 	return true;
     return false;
 }
@@ -191,7 +191,7 @@ void SeisTrcInfo::fillPar( IOPar& iopar ) const
 
 int SeisTrcInfo::nearestSample( float t ) const
 {
-    float s = mIsUndefined(t) ? 0 : (t - sampling.start) / sampling.step;
+    float s = Values::isUdf(t) ? 0 : (t - sampling.start) / sampling.step;
     return mNINT(s);
 }
 
@@ -201,12 +201,12 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
     SampleGate sg;
 
     sg.start = sg.stop = 0;
-    if ( mIsUndefined(tg.start) && mIsUndefined(tg.stop) )
+    if ( Values::isUdf(tg.start) && Values::isUdf(tg.stop) )
 	return sg;
 
     Interval<float> vals(
-	mIsUndefined(tg.start) ? 0 : (tg.start-sampling.start) / sampling.step,
-	mIsUndefined(tg.stop) ? 0 : (tg.stop-sampling.start) / sampling.step );
+	Values::isUdf(tg.start) ? 0 : (tg.start-sampling.start) / sampling.step,
+	Values::isUdf(tg.stop) ? 0 : (tg.stop-sampling.start) / sampling.step );
 
     if ( vals.start < vals.stop )
     {

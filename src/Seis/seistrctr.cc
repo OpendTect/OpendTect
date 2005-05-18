@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.60 2005-03-31 15:25:53 cvsarend Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.61 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -79,7 +79,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	, outcds(0)
 	, pinfo(0)
 	, seldata(0)
-    	, prevnr_(mUndefIntVal)
+    	, prevnr_(mUdf(int))
     	, trcblock_(*new SeisTrcBuf)
     	, lastinlwritten(SI().sampling(false).hrg.start.inl)
     	, enforce_regular_write(true)
@@ -188,7 +188,7 @@ bool SeisTrcTranslator::commitSelections()
     if ( sz < 1 ) return false;
 
     outsd = insd; outnrsamples = innrsamples;
-    if ( seldata && !mIsUndefined(seldata->zRange().start) )
+    if ( seldata && !Values::isUdf(seldata->zRange().start) )
     {
 	const Interval<float> selzrg( seldata->zRange() );
 	const Interval<float> sizrg( SI().sampling(false).zrg );
@@ -307,7 +307,7 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 	return writeTrc_( trc );
     }
 
-    bool wrblk = prevnr_ != trc.info().binid.inl && !mIsUndefInt(prevnr_);
+    bool wrblk = prevnr_ != trc.info().binid.inl && !Values::isUdf(prevnr_);
     prevnr_ = trc.info().binid.inl;
     if ( wrblk && !writeBlock() )
 	return false;
@@ -330,7 +330,9 @@ bool SeisTrcTranslator::writeBlock()
 
     if ( sz && enforce_regular_write )
     {
-	trcblock_.sort( true );
+	const bool is2d = !conn || !conn->ioobj ? false
+			: is2D( *conn->ioobj, false );
+	trcblock_.sort( true, is2d ? 0 : 6 );
 	firsttrc = trcblock_.get( 0 );
 	const int firstcrl = firsttrc->info().binid.crl;
 	int nrperpos = 1;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.4 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seistype.h,v 1.5 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -32,7 +32,7 @@ public:
 			  GateMax, GateMin };
 			DeclareEnumUtils(Type);
 
-			Event( float v=mUndefValue, float p=mUndefValue )
+			Event( float v=mUdf(float), float p=mUdf(float) )
 			: val(v), pos(p) {}
 
 			float val, pos;

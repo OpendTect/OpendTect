@@ -26,7 +26,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
     	, putter(0)
     	, lineauxiopar(*new IOPar)
 {
-    binids.start.inl = mUndefIntVal;
+    binids.start.inl = mUdf(int);
 }
 
 
@@ -242,7 +242,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     }
 
     nrwritten++;
-    if ( mIsUndefInt(binids.start.inl) )
+    if ( Values::isUdf(binids.start.inl) )
 	binids.start = binids.stop = trc.info().binid;
     else
 	binids.include( trc.info().binid );

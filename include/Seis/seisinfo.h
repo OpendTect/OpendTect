@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.17 2005-03-09 12:22:16 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.18 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,10 +59,10 @@ class SeisTrcInfo
 public:
 			SeisTrcInfo()
 			: sampling(0,defaultSampleInterval()), nr(0)
-			, pick(mUndefValue), refpos(mUndefValue)
+			, pick(mUdf(float)), refpos(mUdf(float))
 			, offset(0), azimuth(0)
 			, new_packet(NO), stack_count(1)
-			, mute_pos(mUndefValue), taper_length(0)
+			, mute_pos(mUdf(float)), taper_length(0)
 			{}
 
 	    // persistent

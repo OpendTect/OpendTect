@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jul 2002
  Contents:	PAuxiliary info on position
- RCS:		$Id: posauxinfo.h,v 1.4 2005-05-02 09:14:13 cvskris Exp $
+ RCS:		$Id: posauxinfo.h,v 1.5 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 		{
 		    binid.inl = binid.crl = 0; coord.x = coord.y = 0;
 		    startpos = offset = azimuth = 0;
-		    pick = refpos = mUndefValue;
+		    pick = refpos = mUdf(float);
 		}
 
     BinID	binid;

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.37 2005-05-10 16:20:53 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.38 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -46,9 +46,9 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, trcscale(0)
 	, curtrcscale(0)
 	, ext_nr_samples(-1)
-	, ext_coord_scaling(mUndefValue)
-	, ext_time_shift(mUndefValue)
-	, ext_sample_rate(mUndefValue)
+	, ext_coord_scaling(mUdf(float))
+	, ext_time_shift(mUdf(float))
+	, ext_sample_rate(mUdf(float))
 	, use_lino(false)
 	, do_string_dump(false)
 	, force_rev0(false)
@@ -154,9 +154,9 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     trhead.fill( info, ext_coord_scaling );
     insd = info.sampling;
     if ( !insd.step ) insd.step = binhead_dpos;
-    if ( !mIsUndefined(ext_time_shift) )
+    if ( !Values::isUdf(ext_time_shift) )
 	insd.start = ext_time_shift;
-    if ( !mIsUndefined(ext_sample_rate) )
+    if ( !Values::isUdf(ext_sample_rate) )
 	insd.step = ext_sample_rate;
 
     innrsamples = ext_nr_samples;
@@ -220,9 +220,9 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	curtrcscale = trcscale;
     }
 
-    if ( !mIsUndefined(ext_time_shift) )
+    if ( !Values::isUdf(ext_time_shift) )
 	ti.sampling.start = ext_time_shift;
-    if ( !mIsUndefined(ext_sample_rate) )
+    if ( !Values::isUdf(ext_sample_rate) )
 	ti.sampling.step = ext_sample_rate;
 }
 

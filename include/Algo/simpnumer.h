@@ -8,15 +8,16 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.17 2004-06-16 14:54:18 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.18 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
+#include "undefval.h"
 #include <math.h>
 
 #ifndef M_PI
-# define M_PI           3.14159265358979323846  /* pi */
+# define M_PI           3.14159265358979323846
 #endif
 
 #ifndef M_PIl
@@ -113,14 +114,15 @@ bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
  y: ym2 ym1 y0 y1 y2
  The gradient estimation is done at x=0. y0 is generally not needed, but it
  will be used if there are one or more undefineds.
- The function will return mUndefValue if there are too many missing values.
+ The function will return mUdf(T) if there are too many missing values.
 */
 template <class T>
 inline T sampledGradient( T ym2, T ym1, T y0_, T y1_, T y2 )
 {
-    bool um1 = mIsUndefined(ym1), u0 = mIsUndefined(y0_), u1 = mIsUndefined(y1_);
+    bool um1 = Values::isUdf(ym1), u0 = Values::isUdf(y0_),
+    		u1 = Values::isUdf(y1_);
 
-    if ( mIsUndefined(ym2) || mIsUndefined(y2) )
+    if ( Values::isUdf(ym2) || Values::isUdf(y2) )
     {
         if ( um1 || u1 )
 	    { if ( !u0 && !(um1 && u1) ) return um1 ? y1_ - y0_ : y0_ - ym1; }
@@ -137,7 +139,7 @@ inline T sampledGradient( T ym2, T ym1, T y0_, T y1_, T y2 )
     else
         return (8 * ( y1_ - ym1 ) - y2 + ym2) / 12;
 
-    return mUndefValue;
+    return mUdf(T);
 }
 
 
@@ -168,7 +170,7 @@ inline void getGradient( const X& x, const Y& y, int sz, int firstx, int firsty,
 template <class X>
 inline float variance( const X& x, int sz )
 {
-    if ( sz < 2 ) return mUndefValue;
+    if ( sz < 2 ) return mUdf(float);
 
     float sum=0;
     float sqsum=0;

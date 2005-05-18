@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.51 2004-11-19 13:24:27 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.52 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -51,7 +51,7 @@ void SeisTrcReader::init()
 {
     foundvalidinl = foundvalidcrl = entryis2d = onlyforinfo =
     new_packet = inforead = needskip = prepared = forcefloats = false;
-    prev_inl = mUndefIntVal;
+    prev_inl = mUdf(int);
     if ( tbuf ) tbuf->deepErase();
     mDelOuter; outer = mUndefPtr(BinIDRange);
     delete fetcher; fetcher = 0;
@@ -225,7 +225,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     ti.stack_count = 1;
     ti.new_packet = false;
 
-    if ( mIsUndefInt(prev_inl) )
+    if ( Values::isUdf(prev_inl) )
 	prev_inl = ti.binid.inl;
     else if ( prev_inl != ti.binid.inl )
     {
@@ -401,7 +401,7 @@ bool SeisTrcReader::mkNextFetcher()
     if ( curlineidx >= maxline )
 	return false;
 
-    prev_inl = mUndefIntVal;
+    prev_inl = mUdf(int);
     fetcher = lset->lineFetcher( curlinenr, *tbuf, 1, seldata );
     return fetcher;
 }
@@ -442,7 +442,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf->get( 0 )->info();
-    trcti.new_packet = mIsUndefInt(prev_inl);
+    trcti.new_packet = Values::isUdf(prev_inl);
     ti = trcti;
     prev_inl = 0;
 

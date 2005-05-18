@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.2 2005-01-07 16:35:51 bert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.3 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,7 @@ public:
 
     virtual		~SeisPSIOProvider()		{}
 
-    virtual SeisPSReader* makeReader(const char*,
-	    			     int inl=mUndefIntVal) const = 0;
+    virtual SeisPSReader* makeReader(const char*,int inl=mUdf(int)) const = 0;
     virtual SeisPSWriter* makeWriter(const char*) const	= 0;
 
     const char*		type() const			{ return type_.buf(); }
@@ -76,8 +75,7 @@ public:
 
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
-    SeisPSReader*		getReader(const IOObj&,
-	    				  int inl=mUndefIntVal) const;
+    SeisPSReader*		getReader(const IOObj&,int inl=mUdf(int)) const;
     SeisPSWriter*		getWriter(const IOObj&) const;
 
 protected:

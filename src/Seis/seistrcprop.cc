@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.11 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.12 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -163,7 +163,7 @@ void SeisTrcPropCalc::getPreciseExtreme( Seis::Event& ev, int idx, int inc,
 void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick )
 {
     float pick = trc2.info().pick;
-    if ( alongpick && (mIsUndefined(pick) || mIsUndefined(trc.info().pick)) )
+    if ( alongpick && (Values::isUdf(pick) || Values::isUdf(trc.info().pick)) )
 	alongpick = NO;
     float diff;
     if ( alongpick )
@@ -339,15 +339,15 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     float mypos = trc.samplePos( isamp );
     float endpos = trc.samplePos( trc.size() - 1 );
     if ( mypos < trc.startPos() || mypos > endpos )
-	return mUndefValue;
+	return mUdf(float);
 
     // Find nearest crests
     Interval<float> tg( mypos-2*trc.info().sampling.step, trc.startPos() );
     Seis::Event ev1 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 1 );
     tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
     Seis::Event ev2 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 1 );
-    if ( mIsUndefined(ev1.pos) || mIsUndefined(ev2.pos) )
-	return mUndefValue;
+    if ( Values::isUdf(ev1.pos) || Values::isUdf(ev2.pos) )
+	return mUdf(float);
 
     // If my sample is an extreme, the events are exactly at a wavelength
     float myval = trc.get( isamp, curcomp );
@@ -356,7 +356,7 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
     if ( (myval > val0 && myval > val1) || (myval < val0 && myval < val1) )
     {
 	float wvpos = ev2.pos - ev1.pos;
-	return wvpos > 1e-6 ? 1 / wvpos : mUndefValue;
+	return wvpos > 1e-6 ? 1 / wvpos : mUdf(float);
     }
 
     // Now find next events ...
@@ -367,16 +367,16 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
 
     // Guess where they would have been when not found
     float dpos = ev2.pos - ev1.pos;
-    if ( mIsUndefined(ev0.pos) )
+    if ( Values::isUdf(ev0.pos) )
 	ev0.pos = ev1.pos - dpos;
-    if ( mIsUndefined(ev3.pos) )
+    if ( Values::isUdf(ev3.pos) )
 	ev3.pos = ev2.pos + dpos;
 
     // ... and create a weigthed wavelength
     float d1 = (mypos - ev1.pos) / dpos;
     float d2 = (ev2.pos - mypos) / dpos;
     float wvpos = dpos + d1*(ev3.pos-ev2.pos) + d2*(ev1.pos-ev0.pos);
-    return wvpos > 1e-6 ? 1 / wvpos : mUndefValue;
+    return wvpos > 1e-6 ? 1 / wvpos : mUdf(float);
 }
 
 
@@ -408,9 +408,9 @@ void SeisTrcPropChg::topMute( float mpos, float taperlen )
     int endidx = trc.size() - 1;
     if ( mpos > trc.samplePos(endidx) )
 	mpos = trc.samplePos(endidx);
-    if ( taperlen < 0 || mIsUndefined(taperlen) )
+    if ( taperlen < 0 || Values::isUdf(taperlen) )
 	taperlen = 0;
-//  if ( !mIsUndefined(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
+//  if ( !Values::isUdf(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
 //	return;
 
     mtrc().info().mute_pos = mpos;
@@ -449,9 +449,9 @@ void SeisTrcPropChg::tailMute( float mpos, float taperlen )
     if ( mpos < trc.startPos() )
 	mpos = trc.startPos();
 
-    if ( taperlen < 0 || mIsUndefined(taperlen) )
+    if ( taperlen < 0 || Values::isUdf(taperlen) )
 	taperlen = 0;
-//  if ( !mIsUndefined(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
+//  if ( !Values::isUdf(trc.info().mute_pos) && trc.info().mute_pos >= mpos )
 //	return;
 
     mtrc().info().mute_pos = mpos;
@@ -492,12 +492,12 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
     if ( !alpick
       && (sg.start<0 || sg.stop>=trc.size()
 		     || sg.stop>=t2.size()) )
-	return mUndefValue;
+	return mUdf(double);
 
     float p1 = trc.info().pick;
     float p2 = t2.info().pick;
-    if ( alpick && (mIsUndefined(p1) || mIsUndefined(p2)) )
-	return mUndefValue;
+    if ( alpick && (Values::isUdf(p1) || Values::isUdf(p2)) )
+	return mUdf(double);
 
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
     {
@@ -523,12 +523,12 @@ double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
     if ( !alpick
       && (sg.start<0 || sg.stop>=trc.size()
 		     || sg.stop>=t2.size()) )
-	return mUndefValue;
+	return mUdf(double);
 
     float p1 = trc.info().pick;
     float p2 = t2.info().pick;
-    if ( alpick && (mIsUndefined(p1) || mIsUndefined(p2)) )
-	return mUndefValue;
+    if ( alpick && (Values::isUdf(p1) || Values::isUdf(p2)) )
+	return mUdf(double);
 
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.30 2005-04-07 16:28:44 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.31 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ public:
 
     bool		getGeometry(int,Line2DGeometry&) const;
     Executor*		geometryDumper(std::ostream&,bool inc_nr,
-	    				float z_val=mUndefValue,
+	    				float z_val=mUdf(float),
 	    				const char* linekey=0) const;
 
     Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,

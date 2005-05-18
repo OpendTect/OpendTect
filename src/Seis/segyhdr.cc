@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.26 2005-05-10 11:27:16 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.27 2005-05-18 09:20:45 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -492,7 +492,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     IbmFormat::putInt( mNINT(ti.offset), buf+36 );
     IbmFormat::putInt( mNINT(ti.azimuth*1e6), buf+40 );
     IbmFormat::putShort( -10, buf+70 ); // scalco
-    if ( mIsUndefined(ti.coord.x) )
+    if ( Values::isUdf(ti.coord.x) )
     {
 	if ( hdef.xcoord != 255 )
 	    IbmFormat::putInt( 0, buf+hdef.xcoord-1 );
@@ -529,7 +529,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     }
 
     const float zfac = SI().zFactor();
-    if ( !mIsUndefined(ti.pick) && hdef.pick != 255 )
+    if ( !Values::isUdf(ti.pick) && hdef.pick != 255 )
 	IbmFormat::putInt( mNINT(ti.pick*zfac), buf+hdef.pick-1 );
 
     // Absolute priority, therefore possibly overwriting previous
@@ -572,7 +572,7 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     const float zfac = 1. / SI().zFactor();
     ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * zfac;
     ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * zfac * 0.001;
-    ti.pick = ti.refpos = mUndefValue;
+    ti.pick = ti.refpos = mUdf(float);
     if ( hdef.pick != 255 ) ti.pick = IbmFormat::asInt( buf+hdef.pick ) * zfac;
     ti.coord.x = ti.coord.y = 0;
     if ( hdef.xcoord != 255 ) ti.coord.x = IbmFormat::asInt( buf+hdef.xcoord-1);
@@ -600,7 +600,7 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 
 double SegyTraceheader::getCoordScale( float extcoordsc ) const
 {
-    if ( !mIsUndefined(extcoordsc) ) return extcoordsc;
+    if ( !Values::isUdf(extcoordsc) ) return extcoordsc;
     short scalco = IbmFormat::asShort( buf+70 );
     return scalco ? (scalco > 0 ? scalco : -1./scalco) : 1;
 }

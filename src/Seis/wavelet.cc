@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.15 2004-07-21 12:07:10 nanne Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.16 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: wavelet.cc,v 1.15 2004-07-21 12:07:10 nanne Exp
 Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
 	: UserIDObject(nm)
 	, iw(idxfsamp)
-	, dpos(mIsUndefined(sr)?SeisTrcInfo::defaultSampleInterval(true):sr)
+	, dpos(Values::isUdf(sr)?SeisTrcInfo::defaultSampleInterval(true):sr)
 	, sz(0)
 	, samps(0)
 {
@@ -35,11 +35,11 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
     	, sz(0)
 	, samps(0)
 {
-    if ( mIsUndefined(dpos) )
+    if ( Values::isUdf(dpos) )
 	dpos = SeisTrcInfo::defaultSampleInterval(true);
-    if ( mIsUndefined(scale) )
+    if ( Values::isUdf(scale) )
 	scale = 1;
-    if ( mIsUndefined(fpeak) || fpeak <= 0 )
+    if ( Values::isUdf(fpeak) || fpeak <= 0 )
 	fpeak = 25;
     iw = (int)( -( 1 + 1. / (fpeak*dpos) ) );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2005
- RCS:		$Id: nladataprep.h,v 1.1 2005-05-12 14:08:47 cvsbert Exp $
+ RCS:		$Id: nladataprep.h,v 1.2 2005-05-18 09:20:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     struct BalanceSetup
     {
 			BalanceSetup()
-			: nrclasses(0), nrptsperclss(0), noiselvl(0)	{}
+			: nrclasses(0), nrptsperclss(0), noiselvl(0.01)	{}
 	int		nrclasses, nrptsperclss;
 	float		noiselvl;
     };

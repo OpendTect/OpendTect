@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.10 2005-01-18 14:38:27 helene Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.11 2005-05-18 09:20:45 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -51,7 +51,7 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
     	: SeisCBVSPSIO(dirnm)
     	, posdata_(*new PosInfo::CubeData)
     	, curtr_(0)
-    	, curinl_(mUndefIntVal)
+    	, curinl_(mUdf(int))
 {
     if ( !File_isDirectory(dirnm_) )
     {
@@ -60,7 +60,7 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
 	return;
     }
 
-    if ( mIsUndefInt(inl) )
+    if ( Values::isUdf(inl) )
     {
 	DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
 	for ( int idx=0; idx<dl.size(); idx++ )
@@ -139,7 +139,7 @@ bool SeisCBVSPSReader::mkTr( int inl ) const
 {
     if ( curtr_ && curinl_ == inl )
 	return true;
-    else if ( mIsUndefInt(inl) )
+    else if ( Values::isUdf(inl) )
 	return false;
 
     delete curtr_; curtr_ = 0;
@@ -205,7 +205,7 @@ SeisCBVSPSWriter::SeisCBVSPSWriter( const char* dirnm )
     	: SeisCBVSPSIO(dirnm)
     	, reqdtype_(DataCharacteristics::Auto)
     	, tr_(0)
-    	, prevbid_(*new BinID(mUndefIntVal,mUndefIntVal))
+    	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
 	, nringather_(1)
 {
     if ( !File_isDirectory(dirnm_) )
@@ -231,7 +231,7 @@ SeisCBVSPSWriter::~SeisCBVSPSWriter()
 void SeisCBVSPSWriter::close()
 {
     delete tr_; tr_ = 0;
-    prevbid_ = BinID( mUndefIntVal, mUndefIntVal );
+    prevbid_ = BinID( mUdf(int), mUdf(int) );
     nringather_ = 1;
 }
 
@@ -246,7 +246,7 @@ void SeisCBVSPSWriter::usePar( const IOPar& iopar )
 
 bool SeisCBVSPSWriter::newInl( const SeisTrc& trc )
 {
-    if ( mIsUndefInt(prevbid_.inl) )
+    if ( Values::isUdf(prevbid_.inl) )
     {
 	if ( reqdtype_ == DataCharacteristics::Auto )
 	    dc_ = trc.data().getInterpreter()->dataChar();
