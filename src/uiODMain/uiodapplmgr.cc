@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.78 2005-04-29 15:42:28 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.79 2005-05-18 09:14:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -752,11 +752,10 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput )
     {
-	AttribSelInfo attrinf( attrserv->curDescSet() );
-	TypeSet<int> idxs;
-	nlaserv->getNeededStoredInputs(attrinf.ioobjids,idxs);
-	for ( int idx=0; idx<idxs.size(); idx++ )
-            attrserv->addToDescSet( attrinf.ioobjids.get( idxs[idx] ) );
+	BufferStringSet linekeys;
+	nlaserv->getNeededStoredInputs( linekeys );
+	for ( int idx=0; idx<linekeys.size(); idx++ )
+            attrserv->addToDescSet( linekeys.get(idx) );
     }
     else if ( evid == uiNLAPartServer::evGetData )
     {

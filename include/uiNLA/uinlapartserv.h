@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.12 2005-02-08 16:57:12 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.13 2005-05-18 09:12:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,7 @@ public:
     virtual void	reset()				= 0;
     virtual bool	isClassification() const	= 0;
     virtual void	getNeededStoredInputs(
-			      const BufferStringSet& ioobjnms,
-			      TypeSet<int>&) const	= 0;
+	    			BufferStringSet& linekeys) const = 0;
     virtual bool	go()				= 0;
     			//!< returns whether manageNN should be called again
     virtual const NLAModel& getModel() const		= 0;
