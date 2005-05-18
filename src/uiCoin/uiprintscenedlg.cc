@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.17 2005-04-04 10:21:09 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.18 2005-05-18 09:15:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,9 +57,10 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     , winsz(winsz_)
     , screendpi(SoOffscreenRenderer::getScreenPixelsPerInch())
 {
-    PtrMan<SoOffscreenRenderer> sor =
-			    new SoOffscreenRenderer( *(new SbViewportRegion) );
-    if ( !sor->getNumWriteFiletypes() )
+    SbViewportRegion vp;
+    SoOffscreenRenderer sor( vp );
+    const int nrfiletypes = sor.getNumWriteFiletypes();
+    if ( !nrfiletypes )
     {
 	new uiLabel( this,
 	    "No output file types found.\n"
@@ -103,7 +104,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     while ( imageformats[idx] )
     {
 	if ( idx ) filter += ";;";
-	if ( sor->isWriteSupported( imageformats[idx] ) )
+	if ( sor.isWriteSupported(imageformats[idx]) )
 	    filter += filters[idx];
 
 	idx++;
