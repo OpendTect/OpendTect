@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.9 2004-04-15 13:12:24 macman Exp $
+ RCS:           $Id: uigeom.h,v 1.10 2005-05-18 08:27:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <geometry.h>
 
-typedef Geom::Point<int> uiPoint;
-typedef Geom::Point<double> uiWorldPoint;
+typedef Geom::Point2D<int> uiPoint;
+typedef Geom::Point2D<double> uiWorldPoint;
 typedef Geom::Rect<double> uiWorldRect;
 
 class uiSize 

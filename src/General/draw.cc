@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.40 2005-04-15 12:23:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.41 2005-05-18 08:27:22 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -358,13 +358,16 @@ void ColorTable::usePar( const IOPar& iopar )
 	float val;
 	float alpha;
 	if ( !iopar.get( key, val, alpha ) ) break;
-	translist += Geom::Point<float>(val,alpha);
+	translist += Geom::Point2D<float>(val,alpha);
     }
 
     if ( !translist.size() )
     {
 	for ( int idx=0; idx<cvs.size(); idx++ )
-	    translist += Geom::Point<float>(cvs[idx].value,cvs[idx].color.t());
+	{
+	    translist +=
+		Geom::Point2D<float>(cvs[idx].value,cvs[idx].color.t());
+	}
     }
 
     if ( uselist )
