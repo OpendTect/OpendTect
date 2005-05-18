@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.22 2005-05-18 09:20:10 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.23 2005-05-18 15:20:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,8 +158,8 @@ uiPrepNLAData( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
 				IntInpSpec(bsetup.nrptsperclss) );
     nrptspclssfld->attach( alignedBelow, dobalfld );
     nrptspclssfld->valuechanged.notify( mCB(this,uiPrepNLAData,cutoffChg) );
-    percnoisefld = new uiGenInput( datagrp, "Noise level when adding vectors",
-				   FloatInpSpec(bsetup.noiselvl) );
+    percnoisefld = new uiGenInput( datagrp, "Percentage noise when adding",
+				   FloatInpSpec(bsetup.noiselvl*100) );
     percnoisefld->attach( alignedBelow, nrptspclssfld );
 
     rg_.start = datavals[0];
@@ -185,16 +185,10 @@ const char* gtTitle( const ObjectSet<PosVecDataSet>& vdss ) const
 
 void doBalChg( CallBacker* )
 {
-    if ( dobalfld->getBoolValue() )
-    {
-	nrptspclssfld->display( true );
-	bsetup.nrptsperclss = nrptspclssfld->getIntValue();
-    }
-    else
-    {
-	bsetup.nrptsperclss = -1;
-	nrptspclssfld->display( false );
-    }
+    const bool dobal = dobalfld->getBoolValue();
+    nrptspclssfld->display( dobal );
+    percnoisefld->display( dobal );
+    bsetup.nrptsperclss = dobal ? nrptspclssfld->getIntValue() : -1;
     plotfld->setAnnotatedNrClasses( bsetup.nrptsperclss );
 }
 

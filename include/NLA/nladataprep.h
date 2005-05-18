@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2005
- RCS:		$Id: nladataprep.h,v 1.2 2005-05-18 09:20:45 cvsbert Exp $
+ RCS:		$Id: nladataprep.h,v 1.3 2005-05-18 15:20:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ protected:
     BinIDValueSet&	bvs_;
     int			targetcol_;
 
-    void		addVecs(BinIDValueSet&,int,float);
+    void		addVecs(BinIDValueSet&,int,float,
+	    			const Interval<float>*);
     void		removeVecs(BinIDValueSet&,int);
 
 };

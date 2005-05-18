@@ -4,7 +4,7 @@
  * DATE     : May 2005
 -*/
  
-static const char* rcsID = "$Id: nladataprep.cc,v 1.1 2005-05-12 14:08:47 cvsbert Exp $";
+static const char* rcsID = "$Id: nladataprep.cc,v 1.2 2005-05-18 15:20:47 cvsbert Exp $";
 
 #include "nladataprep.h"
 #include "binidvalset.h"
@@ -52,19 +52,33 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	bvss += newbvs;
     }
 
-    TypeSet<float> vals; bvs_.getColumn( targetcol_, vals, false );
-    Interval<float> rg( vals[0], vals[0] );
-    for ( int idx=1; idx<vals.size(); idx++ )
-	rg.include( vals[idx] );
-
+    const int nrvals = bvs_.nrVals();
+    Interval<float> rgs[ nrvals ];
     BinIDValueSet::Pos pos; BinID bid;
-    const float rgwdth = rg.width();
+    bool first_pos = true;
+    while ( bvs_.next(pos) )
+    {
+	const float* vals = bvs_.getVals( pos );
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    if ( first_pos )
+		rgs[idx].start = rgs[idx].stop = vals[idx];
+	    else
+		rgs[idx].include( vals[idx] );
+	}
+	first_pos = false;
+    }
+
+    const Interval<float> targetrg( rgs[targetcol_] );
+    pos = BinIDValueSet::Pos();
+    const float targetrgwdth = targetrg.width();
     while ( bvs_.next(pos) )
     {
 	const float* vals = bvs_.getVals( pos );
 	float val = vals[targetcol_];
 	if ( mIsUndefined(val) ) continue;
-	float relpos = (val-rg.start) / rgwdth;
+
+	float relpos = (val-targetrg.start) / targetrgwdth;
 	relpos *= setup.nrclasses; relpos -= 0.5;
 	int clss = mNINT( relpos );
 	if ( clss < 0 )			clss = 0;
@@ -80,7 +94,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	BinIDValueSet& bvs = *bvss[idx];
 	const int totsz = bvs.totalSize();
 	if ( totsz < setup.nrptsperclss )
-	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl );
+	    addVecs( bvs, setup.nrptsperclss - totsz, setup.noiselvl, rgs );
 	else
 	    removeVecs( bvs, totsz - setup.nrptsperclss );
 	bvs_.append( bvs );
@@ -89,7 +103,8 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 }
 
 
-void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float )
+void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
+				const Interval<float>* rgs )
 {
     const int orgsz = bvs.totalSize();
     if ( orgsz == 0 ) return;
@@ -97,13 +112,27 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float )
     bvs.allowDuplicateBids( true );
     BinIDValueSet bvsnew( bvs.nrVals(), true );
     BinID bid;
+    const int nrvals = bvs.nrVals();
+    const bool nonoise = noiselvl < 1e-6 || noiselvl > 1 + 1e-6;
     for ( int idx=0; idx<nr; idx++ )
     {
 	int dupidx = Stat_getIndex( orgsz );
 	BinIDValueSet::Pos pos = bvs.getPos( dupidx );
 	const float* vals = bvs.getVals( pos );
 	bvs.get( pos, bid );
-	bvsnew.add( bid, vals );
+	if ( nonoise )
+	    bvsnew.add( bid, vals );
+	else
+	{
+	    float newvals[nrvals];
+	    for ( int idx=0; idx<nrvals; idx++ )
+	    {
+		float wdth = rgs[idx].stop - rgs[idx].start;
+		wdth *= noiselvl;
+		newvals[idx] = vals[idx] + ((Stat_getRandom()-.5) * wdth);
+	    }
+	    bvsnew.add( bid, newvals );
+	}
     }
     bvs.append( bvsnew );
 }
