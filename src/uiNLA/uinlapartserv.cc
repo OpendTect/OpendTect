@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.21 2005-05-12 14:08:47 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.22 2005-05-18 09:20:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,12 +158,15 @@ uiPrepNLAData( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
 				IntInpSpec(bsetup.nrptsperclss) );
     nrptspclssfld->attach( alignedBelow, dobalfld );
     nrptspclssfld->valuechanged.notify( mCB(this,uiPrepNLAData,cutoffChg) );
+    percnoisefld = new uiGenInput( datagrp, "Noise level when adding vectors",
+				   FloatInpSpec(bsetup.noiselvl) );
+    percnoisefld->attach( alignedBelow, nrptspclssfld );
 
     rg_.start = datavals[0];
     rg_.stop = datavals[datavals.size()-1];
     valrgfld = new uiGenInput( datagrp, "Data range to use",
 	    			FloatInpIntervalSpec(rg_) );
-    valrgfld->attach( alignedBelow, nrptspclssfld );
+    valrgfld->attach( alignedBelow, percnoisefld );
     valrgfld->valuechanged.notify( mCB(this,uiPrepNLAData,valrgChg) );
 
     datagrp->attach( centeredBelow, graphgrp );
@@ -214,6 +217,7 @@ void valrgChg( CallBacker* )
     plotfld->setData( newdatavals.arr(), newdatavals.size(), varname );
 }
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
 bool acceptOK( CallBacker* )
 {
     dobal_ = dobalfld->getBoolValue();
@@ -222,6 +226,14 @@ bool acceptOK( CallBacker* )
 	rg_ = valrgfld->getFInterval();
 	rg_.sort();
 	bsetup.nrptsperclss = nrptspclssfld->getIntValue();
+	if ( bsetup.nrptsperclss < 1 || Values::isUdf(bsetup.nrptsperclss) )
+	    mErrRet("Please enter a valid number of points per class")
+	bsetup.noiselvl = percnoisefld->getfValue();
+	if ( Values::isUdf(bsetup.noiselvl) )
+	    bsetup.noiselvl = 0;
+	if ( bsetup.noiselvl > 100 || bsetup.noiselvl < -1e-6 )
+	    mErrRet("Please enter a valid number of points per class")
+	bsetup.noiselvl *= 0.01;
     }
 
     bsetup.nrclasses = plotfld->nrClasses();
@@ -232,6 +244,7 @@ bool acceptOK( CallBacker* )
     uiGenInput*		dobalfld;
     uiGenInput*		valrgfld;
     uiGenInput*		nrptspclssfld;
+    uiGenInput*		percnoisefld;
 
     TypeSet<float>	datavals;
     BufferString	varname;
@@ -291,7 +304,7 @@ const char* uiNLAPartServer::prepareInputData(
 		while ( vds.data().next(pos) )
 		{
 		    vds.data().get( pos, bid, vals );
-		    vals[lastidx] = ivec >= ressz ? mUndefValue : res[ivec];
+		    vals[lastidx] = ivec >= ressz ? mUdf(float) : res[ivec];
 		    vds.data().set( pos, vals );
 		    ivec++;
 		}
@@ -335,8 +348,6 @@ const char* uiNLAPartServer::prepareInputData(
     return "User cancel";
 }
 
-
-#define mErrRet(s) { return; }
 
 void uiNLAPartServer::writeSets( CallBacker* cb )
 {
