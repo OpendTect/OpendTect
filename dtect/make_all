@@ -7,6 +7,7 @@ endif
 set shallow=no
 set dodeps=yes
 set dodoc=no
+set doupd=yes
 
 source $WORK/Pmake/base/PMinit.csh
 
@@ -19,12 +20,15 @@ else if ( "$1" == "--gdi" ) then
     set mods=.mods.gdi
 else if ( "$1" == "--nodep" ) then
     set dodeps=no
+else if ( "$1" == "--noupd" ) then
+    set doupd=no
 else if ( "$1" == "--doc" ) then
     set dodoc=yes
 else if ( "$1" == "--help" ) then
     echo "Usage: make_all [option]"
     echo " --shallow, Do not remove libs"
     echo " --nodep, Do not create deps"
+    echo " --noupd, Do not run 'dvs update'"
     echo " --dtect, Only make dTect"
     echo " --gdi, Only make GDI"
     echo " --doc, Create ClassDoc"
@@ -52,7 +56,11 @@ if ( $shallow == no ) then
 endif
 
 cdw
-dvs update
+
+if ( $doupd == yes ) then
+    dvs update
+endif
+
 if ( $dodeps == yes ) then
 
     set docpdeps=0
