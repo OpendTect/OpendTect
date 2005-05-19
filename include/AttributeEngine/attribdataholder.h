@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.5 2005-05-12 10:53:22 cvshelene Exp $
+ RCS:           $Id: attribdataholder.h,v 1.6 2005-05-19 08:03:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,8 @@ public:
 
     int				nrItems() const	{ return data_.size(); }
     ValueSeries<float>*		item( int idx )	const { return data_[idx]; }
-    void			replace(ValueSeries<float>* valseries,int idx)
-				{ data_.replace( valseries, idx ); }
+    void			replace(int idx,ValueSeries<float>* valseries)
+				{ data_.replace( idx, valseries ); }
 
 
 
