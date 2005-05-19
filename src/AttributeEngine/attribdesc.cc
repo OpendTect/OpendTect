@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.8 2005-05-17 11:19:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.9 2005-05-19 07:54:37 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -191,6 +191,13 @@ bool Desc::setInput( int input, Desc* nd )
 
 
 Desc* Desc::getInput( int input ) { return inputs[input]; }
+
+
+bool Desc::is2D() const
+{
+    // TODO: implement
+    return false;
+}
 
 
 int Desc::isSatisfied() const

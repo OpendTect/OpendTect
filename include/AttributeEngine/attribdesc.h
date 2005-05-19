@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.7 2005-05-17 11:17:04 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.8 2005-05-19 07:54:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ public:
     const InputSpec&	inputSpec( int ) const;
     bool        	setInput( int input, Desc* );
     Desc*		getInput( int );
+    bool		is2D() const;
 
     int			isSatisfied() const;
 			/*!< Checks wether all inputs are satisfied. 

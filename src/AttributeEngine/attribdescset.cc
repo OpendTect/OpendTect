@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.5 2005-05-17 11:20:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.6 2005-05-19 07:54:37 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -111,10 +111,8 @@ void DescSet::fillPar( IOPar& par ) const
 	{
 	    if ( !descs[idx]->getInput(input) ) continue;
 
-	    BufferString key = inputPrefixStr();
-	    key += input;
-
-	    apar.set( key, getID( *descs[idx]->getInput(input)) );
+	    const char* key = IOPar::compKey( inputPrefixStr(), input );
+	    apar.set( key, getID( *descs[idx]->getInput(input) ) );
 	}
 
 	BufferString subkey = ids[idx];
@@ -279,11 +277,10 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
 	{
-	    BufferString key = inputPrefixStr();
-	    key += input;
+	    const char* key = IOPar::compKey( inputPrefixStr(), input );
 
 	    int inpid;
-	    if ( !descpar->get( key, inpid ) ) continue;
+	    if ( !descpar->get(key,inpid) ) continue;
 
 	    Desc* inpdesc = getDesc( inpid );
 	    if ( !inpdesc ) continue;
@@ -312,6 +309,18 @@ int DescSet::getFreeID() const
 	id++;
 
     return id;
+}
+
+
+bool DescSet::is2D() const
+{
+    for ( int idx=0; idx<descs.size(); idx++ )
+    {
+	if ( descs[idx]->is2D() )
+	    return true;
+    }
+
+    return false;
 }
 
 }; // namespace Attrib
