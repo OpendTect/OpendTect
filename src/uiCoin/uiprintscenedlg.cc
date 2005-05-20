@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.18 2005-05-18 09:15:17 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.19 2005-05-20 15:47:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,12 +235,46 @@ void uiPrintSceneDlg::updateSizes()
 
 bool uiPrintSceneDlg::filenameOK() const
 {
-    const char* filename = fileinputfld->fileName();
-    if ( !filename || !filename[0] )
+    BufferString filename = fileinputfld->fileName();
+    if ( !filename.size() )
     {
 	uiMSG().error( "Please select filename" );
 	return false;
     }
+
+    char* ptr = strrchr( filename.buf(), '.' );
+    if ( !ptr )
+    { filename += "." ; filename += getExtension(); }
+    else
+    {
+	ptr++;
+	bool found = false;
+	int idx=0;
+	while ( imageformats[idx] )
+	{
+	    if ( !strcmp(imageformats[idx],ptr) )
+	    {
+		found = true;
+		break;
+	    }
+
+	    idx++;
+	}
+
+	if ( !found )
+	{
+	    filename += "." ;
+	    filename += getExtension();
+	}
+	else if ( found && strcmp(ptr,getExtension()) )
+	{
+	    const int len = strlen( ptr );
+	    filename[ filename.size()-len ] = 0;
+	    filename += getExtension();
+	}
+    }
+
+    fileinputfld->setFileName( filename );
 
     if ( File_exists(filename) )
     {
@@ -278,6 +312,20 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    const char* extension = getExtension();
+    const char* filename = fileinputfld->fileName();
+    if ( !sor->writeToFile(filename,extension) )
+    {
+	uiMSG().error( "Couldn't write to specified file" );
+	return false;
+    }
+
+    return true;
+}
+
+
+const char* uiPrintSceneDlg::getExtension() const
+{
     const char* selectedfilter = fileinputfld->selectedFilter();
     int idx = 0;
     while ( filters[idx] )
@@ -287,16 +335,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	idx++;
     }
 
-    const char* extension = imageformats[idx] ? imageformats[idx] 
-					      : imageformats[0];
-    const char* filename = fileinputfld->fileName();
-    if ( !sor->writeToFile(filename,extension) )
-    {
-	uiMSG().error( "Couldn't write to specified file" );
-	return false;
-    }
-
-    return true;
+    return imageformats[idx] ? imageformats[idx] : imageformats[0];
 }
 
 

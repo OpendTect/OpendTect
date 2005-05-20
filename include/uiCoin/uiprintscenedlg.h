@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.7 2005-04-04 10:21:14 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.8 2005-05-20 15:47:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ protected:
     void		updateSizes();
     void		pixels2Inch(const SbVec2f&,SbVec2f&);
     void		inch2Pixels(const SbVec2f&,SbVec2f&);
+    const char*		getExtension() const;
 
     static const char*	heightstr;
     static const char*	widthstr;
