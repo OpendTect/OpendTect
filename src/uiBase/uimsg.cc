@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.23 2005-05-20 06:20:30 cvskris Exp $
+ RCS:           $Id: uimsg.cc,v 1.24 2005-05-20 06:34:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,9 +138,14 @@ int uiMsg::notSaved( const char* text, const char* caption, bool cancelbutt )
 {
     uiCursorChanger uicursor( uiCursor::Arrow );
     if ( !caption || !*caption ) caption = "Data not saved";
-    return QMessageBox::question( popParnt(), QString(caption), QString(text),
+
+    int res = QMessageBox::question( popParnt(),QString(caption),QString(text),
 	       QString("Save"), QString("Don't save"),
 	       cancelbutt ? QString("Cancel") : QString::null, 0, 2 );
+
+    if ( res==0 ) return 1;
+    if ( res==1 ) return 0;
+    return -1;
 }
 
 
