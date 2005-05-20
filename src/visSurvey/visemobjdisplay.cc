@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.24 2005-04-29 15:09:21 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.25 2005-05-20 12:53:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.24 2005-04-29 15:09:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.25 2005-05-20 12:53:57 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -498,7 +498,7 @@ void EMObjectDisplay::fetchData( ObjectSet<BinIDValueSet>& data ) const
 	if ( !psurf ) return;
 	data += new BinIDValueSet( 1, false );
 	BinIDValueSet& res = *data[idx];
-	psurf->getDataPositions( res, true );
+	psurf->getDataPositions( res, true, getTranslation().z/SI().zFactor() );
     }
 }
 
@@ -549,7 +549,13 @@ bool EMObjectDisplay::hasStoredAttrib() const
 
 
 Coord3 EMObjectDisplay::getTranslation() const
-{ return translation ? translation->getTranslation() : Coord3( 0, 0, 0 ); }
+{
+    if ( !translation ) return Coord3(0,0,0);
+
+    Coord3 shift = translation->getTranslation();
+    shift.z *= -1; 
+    return shift;
+}
 
 
 void EMObjectDisplay::setTranslation( const Coord3& nt )
@@ -561,7 +567,8 @@ void EMObjectDisplay::setTranslation( const Coord3& nt )
 	insertChild( 0, translation->getInventorNode() );
     }
 
-    translation->setTranslation( nt );
+    Coord3 shift( nt ); shift.z *= -1;
+    translation->setTranslation( shift );
 }
 
 
