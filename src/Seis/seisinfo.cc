@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.26 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.27 2005-05-20 11:50:10 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -74,20 +74,6 @@ DefineEnumNames(Seis,DataType,0,"Data type")
 	0
 };
  
-DefineEnumNames(Seis::Event,Type,0,"Event type")
-{
-	"None",
-	"Peak or trough",
-	"Peak (Max)",
-	"Trough (Min)",
-	"Zero crossing",
-	"Zero crossing - to +",
-	"Zero crossing + to -",
-	"Largest peak",
-	"Largest trough",
-	0
-};
-
 
 const char* SeisTrcInfo::attrnames[] = {
 	"Trace number",

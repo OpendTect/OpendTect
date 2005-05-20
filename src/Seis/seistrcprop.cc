@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.12 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.13 2005-05-20 11:50:10 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -17,138 +17,13 @@ static const char* rcsID = "$Id: seistrcprop.cc,v 1.12 2005-05-18 09:20:45 cvsbe
 #include <float.h>
 
 
-Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
-				   Interval<float> tg, int occ ) const
+ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
+				Interval<float> tg , int occ ) const
 {
-    Seis::Event ev;
-    if ( mIsZero(tg.width(),mDefEps) ) return ev;
-
-    int sz = trc.size(); float sr = trc.info().sampling.step;
-    SampleGate sg;
-    tg.shift( -trc.startPos() );
-    if ( tg.start < 0 ) tg.start = 0; if ( tg.stop < 0 ) tg.stop = 0;
-    float endpos = trc.samplePos(sz-1);
-    if ( tg.start > endpos ) tg.start = endpos;
-    if ( tg.stop > endpos ) tg.stop = endpos;
-
-    int inc;
-    if ( tg.start < tg.stop )
-    {
-	inc = 1;
-	sg.start = (int)floor(tg.start/sr);
-	sg.stop = (int)ceil(tg.stop/sr);
-    }
-    else
-    {
-	inc = -1;
-	sg.start = (int)ceil(tg.start/sr);
-	sg.stop = (int)floor(tg.stop/sr);
-	if ( evtype == Seis::Event::ZCNegPos )
-	    evtype = Seis::Event::ZCPosNeg;
-	else if ( evtype == Seis::Event::ZCPosNeg )
-	    evtype = Seis::Event::ZCNegPos;
-    }
-
-    float prev = trc.get( sg.start, curcomp );
-    int upward;
-    if ( sg.start-inc >= 0 && sg.start-inc < sz )
-	upward = prev > trc.get( sg.start-inc, curcomp );
-    else
-	// avoid extreme at start of gate
-        upward = evtype == Seis::Event::Max
-			? prev > trc.get( sg.start+inc, curcomp )
-			: prev < trc.get( sg.start+inc, curcomp );
-
-    if ( evtype == Seis::Event::GateMax || evtype == Seis::Event::GateMin )
-	occ = 2;
-    int iextr = sg.start;
-    float extr = 0;
-
-    for ( int idx=sg.start+inc; idx!=sg.stop+inc; idx+=inc )
-    {
-	float cur = trc.get( idx, curcomp );
-
-	switch ( evtype )
-	{
-	case Seis::Event::Extr:		if ( ( prev <= cur && !upward )
-					  || ( prev >= cur && upward  ) )
-					    occ--;
-	break;
-	case Seis::Event::Min:		if ( prev <= cur && !upward ) occ--;
-	break;
-	case Seis::Event::Max:		if ( prev >= cur && upward ) occ--;
-	break;
-	case Seis::Event::GateMin: if ( prev <= cur && !upward && prev < extr 
-					   && idx > sg.start+inc )
-					    { extr = prev; iextr = idx-inc; }
-	break;
-	case Seis::Event::GateMax: if ( prev >= cur && upward && prev > extr 
-					   && idx > sg.start+inc )
-				    { extr = prev; iextr = idx-inc; }
-	break;
-
-	case Seis::Event::ZC:		if ( ( cur >= 0 && prev < 0 )
-					  || ( cur <= 0 && prev > 0 ) )
-					    occ--;
-	break;
-	case Seis::Event::ZCNegPos:	if ( cur >= 0 && prev < 0 ) occ--;
-	break;
-	case Seis::Event::ZCPosNeg:	if ( cur <= 0 && prev > 0 ) occ--;
-	break;
-	}
-
-	if ( occ < 1 )
-	{
-	    switch ( evtype )
-	    {
-	    case Seis::Event::Extr:
-	    case Seis::Event::Min: case Seis::Event::Max:
-	    case Seis::Event::GateMax: case Seis::Event::GateMin:
-		getPreciseExtreme( ev, idx-inc, inc, prev, cur );
-	    break;
-	    case Seis::Event::ZC:
-	    case Seis::Event::ZCNegPos: case Seis::Event::ZCPosNeg:
-	    {
-		// Linear (who cares?)
-		float reldist = cur / ( cur - prev );
-		float pos = inc < 0 ? idx + reldist : idx - reldist;
-		ev.pos = trc.startPos() + pos * sr;
-		ev.val = 0;
-	    }
-	    break;
-	    }
-	    return ev;
-	}
-
-	upward = prev < cur;
-	prev = cur;
-    }
-
-    if ( ( evtype == Seis::Event::GateMin || evtype == Seis::Event::GateMax )
-      && ( iextr != sg.start && iextr != sg.stop ) )
-	getPreciseExtreme( ev, iextr, inc,
-			   trc.get(iextr,curcomp), trc.get(iextr+inc,curcomp) );
-
-    return ev;
-}
-
-
-void SeisTrcPropCalc::getPreciseExtreme( Seis::Event& ev, int idx, int inc,
-				 float y2, float y3 ) const
-{
-    float y1 = idx-inc < 0 || idx-inc >= trc.size()
-	     ?  y2 : trc.get( idx-inc, curcomp );
-    ev.pos = trc.startPos() + idx * trc.info().sampling.step;
-    ev.val = y2;
-
-    float a = ( y3 + y1 - 2 * y2 ) / 2;
-    float b = ( y3 - y1 ) / 2;
-    if ( !mIsZero(a,mDefEps) )
-    {
-	float pos = - b / ( 2 * a );
-	ev.pos += inc * pos * trc.info().sampling.step;
-	ev.val += ( a * pos + b ) * pos;
-    }
+    SeisTrcValueSeries stvs( trc, curcomp < 0 ? 0 : curcomp );
+    ValueSeriesEvFinder<float,float> evf( stvs, trc.size() - 1,
+	    				  trc.info().sampling );
+    return evf.find( typ, tg, occ );
 }
 
 
@@ -343,9 +218,9 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
 
     // Find nearest crests
     Interval<float> tg( mypos-2*trc.info().sampling.step, trc.startPos() );
-    Seis::Event ev1 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 1 );
+    mFlValSerEv ev1 = find( VSEvent::Extr, tg, 1 );
     tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
-    Seis::Event ev2 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 1 );
+    mFlValSerEv ev2 = find( VSEvent::Extr, tg, 1 );
     if ( Values::isUdf(ev1.pos) || Values::isUdf(ev2.pos) )
 	return mUdf(float);
 
@@ -361,9 +236,9 @@ float SeisTrcPropCalc::getFreq( int isamp ) const
 
     // Now find next events ...
     tg.start = mypos-2*trc.info().sampling.step; tg.stop = trc.startPos();
-    Seis::Event ev0 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 2 );
+    mFlValSerEv ev0 = find( VSEvent::Extr, tg, 2 );
     tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
-    Seis::Event ev3 = SeisTrcPropCalc::find( Seis::Event::Extr, tg, 2 );
+    mFlValSerEv ev3 = find( VSEvent::Extr, tg, 2 );
 
     // Guess where they would have been when not found
     float dpos = ev2.pos - ev1.pos;

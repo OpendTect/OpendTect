@@ -7,15 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.5 2004-10-19 12:48:21 bert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.6 2005-05-20 11:50:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seistype.h"
-#include "ranges.h"
+#include "valseriesevent.h"
 class SUsegy;
 class SeisTrc;
+#define mFlValSerEv ValueSeriesEvent<float,float>
 
 /*!\brief calculates properties of a trace component */
 
@@ -27,7 +28,8 @@ public:
 
     void	setComponent( int i )		{ curcomp = i; }
 
-    Seis::Event	find(Seis::Event::Type,Interval<float>,int occ=1) const;
+    ValueSeriesEvent<float,float>
+		find(VSEvent::Type,Interval<float>,int occ=1) const;
     void	gettr(SUsegy&) const;
     double	corr(const SeisTrc&,const SampleGate&,bool alpick=NO) const;
     double	dist(const SeisTrc&,const SampleGate&,bool alpick=NO) const;
@@ -41,8 +43,6 @@ protected:
     const SeisTrc&	trc;
     int			curcomp;
 
-    void		getPreciseExtreme(Seis::Event& ev,int,int,
-					  float,float) const;
 };
 
 /*!\brief changes properties of one or all trace components.
