@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.22 2004-12-23 12:32:57 arend Exp $
+ RCS:           $Id: uimsg.cc,v 1.23 2005-05-20 06:20:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,16 @@ void uiMsg::error( const char* text, const char* caption )
     if ( !caption || !*caption ) caption = "Error";
     QMessageBox::critical( popParnt(),
 			   QString(caption), QString(text), QString("Ok") );
+}
+
+
+int uiMsg::notSaved( const char* text, const char* caption, bool cancelbutt )
+{
+    uiCursorChanger uicursor( uiCursor::Arrow );
+    if ( !caption || !*caption ) caption = "Data not saved";
+    return QMessageBox::question( popParnt(), QString(caption), QString(text),
+	       QString("Save"), QString("Don't save"),
+	       cancelbutt ? QString("Cancel") : QString::null, 0, 2 );
 }
 
 

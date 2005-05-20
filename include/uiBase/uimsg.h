@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.12 2004-12-20 12:16:15 dgb Exp $
+ RCS:           $Id: uimsg.h,v 1.13 2005-05-20 06:20:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,10 @@ public:
     void 	warning(const char*,const char* cn=0);
     void 	error(const char*,const char* cn=0);
     void 	about(const char*,const char* cn=0);
+    int 	notSaved(const char*, const char* cn=0,bool cancelbutt=true);
+    		//!<\ retval 0 Save
+    		//!<\ retval 1 Don't save
+    		//!<\ retval 2 Cancel
     bool	askGoOn(const char*,bool withyesno=true,const char* cn=0);
     		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
     int		askGoOnAfter(const char*,const char* cnclmsg=0,
