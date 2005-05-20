@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.54 2005-05-02 09:08:49 cvskris Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.55 2005-05-20 11:49:06 cvsbert Exp $";
 
 /*!
 
@@ -582,7 +582,7 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
 	    bid.crl = firstbinid.crl;
 	    bid.inl += info_.geom.step.inl;
 	    if ( !bidrg.includes(bid) )
-		{ pErrMsg("Huh"); bid = BinID(0,0); return false; }
+		{ bid.inl = bidrg.start.inl; return false; }
 	}
     }
     else
