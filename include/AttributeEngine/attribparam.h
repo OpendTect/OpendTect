@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.4 2005-05-13 12:54:06 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.5 2005-05-24 14:27:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,16 @@ public:
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
+};
+
+
+class BoolParam : public Param
+{
+public:
+    				BoolParam(const char*);
+    BoolParam*			clone() const;
+
+    virtual bool		setCompositeValue(const char*);
 };
 
 

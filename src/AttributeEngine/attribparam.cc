@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.4 2005-05-13 12:54:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.5 2005-05-24 14:27:26 cvsnanne Exp $";
 
 #include "attribparam.h"
 
@@ -214,6 +214,27 @@ bool BinIDParam::getCompositeValue( BufferString& res ) const
     res = spec->text(0);
     res += ",";
     res += spec->text(1);
+    return true;
+}
+
+
+
+BoolParam::BoolParam( const char* nm )
+    : Param(nm,new BoolInpSpec("yes","no"))
+{}
+
+mParamClone( BoolParam );
+
+
+bool BoolParam::setCompositeValue( const char* str )
+{
+    if ( !strcasecmp(str,"yes") || !!strcasecmp(str,"true") )
+	spec->setValue( true );
+    else if ( !strcasecmp(str,"no") || !!strcasecmp(str,"false") )
+	spec->setValue( false );
+    else
+	return false;
+
     return true;
 }
 
