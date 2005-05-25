@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.5 2005-05-24 14:27:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.6 2005-05-25 06:57:07 cvshelene Exp $";
 
 #include "attribparam.h"
 
@@ -228,9 +228,9 @@ mParamClone( BoolParam );
 
 bool BoolParam::setCompositeValue( const char* str )
 {
-    if ( !strcasecmp(str,"yes") || !!strcasecmp(str,"true") )
+    if ( !strcasecmp(str,"yes") || !strcasecmp(str,"true") )
 	spec->setValue( true );
-    else if ( !strcasecmp(str,"no") || !!strcasecmp(str,"false") )
+    else if ( !strcasecmp(str,"no") || !strcasecmp(str,"false") )
 	spec->setValue( false );
     else
 	return false;
