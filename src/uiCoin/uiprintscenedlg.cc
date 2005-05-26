@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.19 2005-05-20 15:47:44 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.20 2005-05-26 15:44:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     , heightfld(0)
     , winsz(winsz_)
     , screendpi(SoOffscreenRenderer::getScreenPixelsPerInch())
+    , bgcolor(0)
 {
     SbViewportRegion vp;
     SoOffscreenRenderer sor( vp );
@@ -117,6 +118,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     fileinputfld->setDefaultSelectionDir( dirnm );
     fileinputfld->attach( alignedBelow, dpifld );
     fileinputfld->setReadOnly();
+    fileinputfld->valuechanged.notify( mCB(this,uiPrintSceneDlg,fileSel) );
 
     init();
     unitChg(0);
@@ -233,15 +235,16 @@ void uiPrintSceneDlg::updateSizes()
 }
 
 
-bool uiPrintSceneDlg::filenameOK() const
+void uiPrintSceneDlg::fileSel( CallBacker* )
 {
     BufferString filename = fileinputfld->fileName();
-    if ( !filename.size() )
-    {
-	uiMSG().error( "Please select filename" );
-	return false;
-    }
+    addFileExtension( filename );
+    fileinputfld->setFileName( filename );
+}
 
+
+void uiPrintSceneDlg::addFileExtension( BufferString& filename )
+{
     char* ptr = strrchr( filename.buf(), '.' );
     if ( !ptr )
     { filename += "." ; filename += getExtension(); }
@@ -273,8 +276,17 @@ bool uiPrintSceneDlg::filenameOK() const
 	    filename += getExtension();
 	}
     }
+}
 
-    fileinputfld->setFileName( filename );
+
+bool uiPrintSceneDlg::filenameOK() const
+{
+    BufferString filename = fileinputfld->fileName();
+    if ( !filename.size() )
+    {
+	uiMSG().error( "Please select filename" );
+	return false;
+    }
 
     if ( File_exists(filename) )
     {
@@ -306,6 +318,8 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     viewport.setPixelsPerInch( dpifld->getfValue() );
 
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
+    if ( bgcolor ) sor->setBackgroundColor( *bgcolor );
+
     if ( !sor->render( scene ) )
     {
 	uiMSG().error( "Cannot render scene" );
@@ -336,6 +350,12 @@ const char* uiPrintSceneDlg::getExtension() const
     }
 
     return imageformats[idx] ? imageformats[idx] : imageformats[0];
+}
+
+
+void uiPrintSceneDlg::setBackgroundColor( const SbColor& col )
+{
+    bgcolor = &col;
 }
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.8 2005-05-20 15:47:10 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.9 2005-05-26 15:44:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include <Inventor/SbLinear.h>
 
 class IOPar;
+class SbColor;
 class SoNode;
 class uiCheckBox;
 class uiFileInput;
@@ -25,6 +26,8 @@ class uiPrintSceneDlg : public uiDialog
 {
 public:
 			uiPrintSceneDlg(uiParent*,SoNode*,const SbVec2s&);
+
+    void		setBackgroundColor(const SbColor&);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -39,8 +42,12 @@ protected:
     uiFileInput*	fileinputfld;
 
     SoNode*		scene;
+    const SbColor*	bgcolor;
 
+    void		fileSel(CallBacker*);
+    void		addFileExtension(BufferString&);
     bool		filenameOK() const;
+
     bool		acceptOK(CallBacker*);
     void		unitChg(CallBacker*);
     void		lockChg(CallBacker*);
