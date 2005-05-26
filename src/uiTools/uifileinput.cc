@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.27 2005-01-25 13:31:29 nanne Exp $
+ RCS:           $Id: uifileinput.cc,v 1.28 2005-05-26 15:43:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,6 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , forread(setup.forread_)
     , fname(setup.fnm)
     , filter(setup.filter_)
-    , newfltr(false)
     , selmodset(false)
     , selmode(uiFileDialog::AnyFile)
     , examinebut(0)
@@ -47,7 +46,6 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
     , forread(true)
     , fname(fnm)
     , filter("")
-    , newfltr(false)
     , selmodset(false)
     , selmode(uiFileDialog::AnyFile)
     , examinebut(0)
@@ -83,10 +81,11 @@ void uiFileInput::enableExamine( bool yn )
 void uiFileInput::doSelect( CallBacker* )
 {
     fname = text();
+    BufferString oldfltr = selfltr;
     if ( fname == "" )	fname = defseldir;
-    if ( newfltr )	filter = selfltr;
 
     uiFileDialog dlg( this, forread, fname, filter );
+    dlg.setSelectedFilter( selfltr );
 
     if ( selmodset )
 	dlg.setMode( selmode );
@@ -111,7 +110,7 @@ void uiFileInput::doSelect( CallBacker* )
 	setFileName( newfname );
     }
 
-    if ( newfname != oldfname )
+    if ( newfname != oldfname || ( !forread && oldfltr != selfltr ) )
 	valuechanged.trigger( *this );
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.21 2005-01-25 13:30:47 nanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.22 2005-05-26 15:42:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,8 @@ int uiFileDialog::go()
     fd->setFilters( QString(filter_) );
     fd->setCaption( QString(caption_) );
     fd->setDir( QString(fname_) );
+    if ( *selectedfilter_ )
+	fd->setSelectedFilter( selectedfilter_.buf() );
 
     if ( oktxt_ != "" ) fd->okB->setText( (const char*)oktxt_ );
     if ( cnclxt_ != "") fd->cancelB->setText( (const char*)cnclxt_ );
@@ -112,7 +114,7 @@ int uiFileDialog::go()
 
     QStringList list = fd->selectedFiles();
     fn = list.size() ? list[0] : fd->selectedFile();
-    selectedfilter = fd->selectedFilter();
+    selectedfilter_ = fd->selectedFilter();
 
 #ifdef __win__
     replaceCharacter( fn.buf(), '/', '\\' );

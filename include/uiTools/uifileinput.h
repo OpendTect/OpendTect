@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.17 2005-01-25 13:31:45 nanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.18 2005-05-26 15:43:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,10 +62,10 @@ public:
 
     void		setFileName(const char*);
     void		setDefaultSelectionDir( const char* nm )
-			    { defseldir = nm; }
-    void		setFilter( const char* fltr )
-			    { newfltr = true; selfltr = fltr; }
+			{ defseldir = nm; }
+    void		setFilter( const char* fltr )	{ filter = fltr; }
     const char*		selectedFilter() const		{ return selfltr; }
+    void		setSelectedFilter(const char* fltr) { selfltr = fltr; }
 
     const char*		fileName();
     void		getFileNames(BufferStringSet&) const;
@@ -76,8 +76,9 @@ public:
 				 : (forread  ? uiFileDialog::ExistingFile 
 					     : uiFileDialog::AnyFile); 
 			}
+
     void		setSelectMode( uiFileDialog::Mode m) 
-			    { selmodset = true;  selmode = m; }
+			{ selmodset = true;  selmode = m; }
 
     void		enableExamine(bool);
     			//!< only if examinebut present
@@ -85,7 +86,6 @@ public:
 protected:
 
     bool		forread;
-    bool		newfltr;
     BufferString	fname;
     BufferString	filter;
     BufferString	defseldir;
