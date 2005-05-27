@@ -4,14 +4,15 @@
  * FUNCTION : get special folder location
 -*/
 
-static const char* rcsID = "$Id: GetSpecFolder.cc,v 1.2 2004-01-22 09:24:31 dgb Exp $";
+static const char* rcsID = "$Id: GetSpecFolder.cc,v 1.3 2005-05-27 12:29:18 cvsarend Exp $";
 
 
 #include "prog.h"
-#include "getspec.h"
+#include "winutils.h"
 
 #include <iostream>
 
+using namespace std;
 
 int main( int argc, char** argv )
 {
