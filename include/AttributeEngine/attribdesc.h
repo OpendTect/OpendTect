@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.8 2005-05-19 07:54:48 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.9 2005-05-27 07:47:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,10 +77,11 @@ public:
     bool		isHidden() const		{ return hidden_; }
 
     int			nrInputs() const;
-    InputSpec&		inputSpec( int );
-    const InputSpec&	inputSpec( int ) const;
-    bool        	setInput( int input, Desc* );
-    Desc*		getInput( int );
+    InputSpec&		inputSpec(int);
+    const InputSpec&	inputSpec(int) const;
+    bool        	setInput(int input,Desc*);
+    Desc*		getInput(int);
+    const Desc*		getInput(int) const;
     bool		is2D() const;
 
     int			isSatisfied() const;
