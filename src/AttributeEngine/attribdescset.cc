@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.6 2005-05-19 07:54:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.7 2005-05-27 07:28:02 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -132,7 +132,7 @@ void DescSet::fillPar( IOPar& par ) const
 	return false; \
 \
     (*errmsgs) += new BufferString(errmsg); \
-	continue; \
+    continue; \
 }
 
 bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
@@ -142,6 +142,8 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
+    ObjectSet<Desc> newsteeringdescs;
+    IOPar copypar(par);
 
     for ( int id=0; id<=maxid; id++ )
     {
@@ -163,65 +165,15 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	    descpar->set(definitionStr(),newdef);
 	}
 
-	PtrMan<IOPar> steeringpar = descpar->subselect("Steering");
+	const IOPar* steeringpar = descpar->subselect("Steering");
 	if ( steeringpar )
 	{
-	    BufferString steeringdef = steeringpar->find("Type");
-	    steeringdef += " ";
-	    if ( steeringpar->find("Stepout") )
+	    if ( !createSteeringDesc(*steeringpar, newsteeringdescs) )
 	    {
-		steeringdef += "stepout=";
-		steeringdef += steeringpar->find("Stepout");
-		steeringdef += " ";
+	        BufferString err = "Cannot create steering desc ";
+	        mHandleParseErr(err);
 	    }
-	    if ( steeringpar->find("PhaseLock") )
-	    {
-		steeringdef += "phlock=";
-		steeringdef += steeringpar->find("PhaseLock");
-		steeringdef += " ";
-	    }
-	    if ( steeringpar->find("Aperture") )
-	    {
-		steeringdef += "aperture=";
-		steeringdef += steeringpar->find("Aperture");
-	    }
-	    BufferString attribname;
-            if ( !Desc::getAttribName( steeringdef, attribname ) )
-            mHandleParseErr("Cannot find attribute name");
-	    RefMan<Desc> desc;
-	    desc = PF().createDescCopy(attribname);
-	    if ( !desc )
-	    {
-		BufferString err = "Cannot find factory-entry for ";
-		err += attribname;
-		mHandleParseErr(err);
-	    }
-
-	    if ( !desc->parseDefStr(steeringdef) )
-	    {
-		BufferString err = "Cannot parse: ";
-		err += steeringdef;
-		mHandleParseErr(err);
-	    }
-
-	    const char* inldipstr = steeringpar->find("InlDipID");
-	    const char* crldipstr = steeringpar->find("CrlDipID");
-	    if ( inldipstr )
-	    {
-		int idipdescnr = atoi(inldipstr);
-	    	idipdescnr = idipdescnr < id ? idipdescnr : idipdescnr + 1;
-		desc->setInput(0, descs[idipdescnr] );
-	    }
-	    if ( crldipstr )
-	    {
-		int cdipdescnr = atoi(crldipstr);
-	        cdipdescnr = cdipdescnr < id ? cdipdescnr : cdipdescnr + 1;
-                desc->setInput(1, descs[cdipdescnr] );
-	    }	
-	//TODO see what's going on for the phase input	
-	    addDesc(desc);
 	}
-	    
 
 	const char* defstring = descpar->find(definitionStr());
 	if ( !defstring )
@@ -252,48 +204,131 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	const char* userref = descpar->find(userRefStr());
 	if ( userref ) desc->setUserRef(userref);
 
+	int seloutpid;
+	descpar->get( "Selected Attrib",seloutpid );
+	desc->selectOutput(seloutpid);
+
 	if ( steeringpar )
 	{
-	    BufferString inputstr = "Attributes.";
-	    inputstr += id; inputstr += ".Input.";
-	    bool firsttime = true;
 	    for ( int idx=0; idx<desc->nrInputs(); idx++ )
 	    {
-		inputstr += idx;
-		if ( !strcmp (steeringpar->find(inputstr),"-1") )
-		    firsttime ? desc->setInput(idx, descs[id])
-				: desc->removeInput(idx);
-		firsttime = false;
+		BufferString inputstr = IOPar::compKey("Input", idx);
+		if ( !strcmp (descpar->find(inputstr),"-1") )
+		{
+		    BufferString newinput = id;
+		    newinput = IOPar::compKey(newinput, inputstr);
+		    copypar.set( newinput, maxid + newsteeringdescs.size() );
+		}
 	    }
 	}
 
 	addDesc(desc);
     }
+    
+    for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
+	addDesc( newsteeringdescs[idx] );
 
     for ( int idx=0; idx<descs.size(); idx++ )
     {
-	const BufferString idstr( ids[idx] );
-	PtrMan<IOPar> descpar = par.subselect(idstr);
-
-	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
+	if ( idx <= maxid )
 	{
-	    const char* key = IOPar::compKey( inputPrefixStr(), input );
+	    const BufferString idstr( ids[idx] );
+	    PtrMan<IOPar> descpar = copypar.subselect(idstr);
 
-	    int inpid;
-	    if ( !descpar->get(key,inpid) ) continue;
+	    for ( int input=0; input<descs[idx]->nrInputs(); input++ )
+	    {
+		const char* key = IOPar::compKey( inputPrefixStr(), input );
 
-	    Desc* inpdesc = getDesc( inpid );
-	    if ( !inpdesc ) continue;
+		int inpid;
+		if ( !descpar->get(key,inpid) ) continue;
 
-	    descs[idx]->setInput( input, inpdesc );
+		Desc* inpdesc = getDesc( inpid );
+		if ( !inpdesc ) continue;
+
+		descs[idx]->setInput( input, inpdesc );
+	    }
 	}
-
 	if ( descs[idx]->isSatisfied()!=0 )
 	{
 	    //Do something
 	}
     }
 
+    return true;
+}
+
+
+#define mHandleSteeringParseErr( str ) \
+{ \
+    errmsg = str; \
+    if ( !errmsgs ) \
+	return false; \
+\
+    (*errmsgs) += new BufferString(errmsg); \
+}
+
+
+bool DescSet::createSteeringDesc( const IOPar& steeringpar, 
+				  ObjectSet<Desc>& newsteeringdescs,
+				  BufferStringSet* errmsgs )
+{
+    BufferString steeringdef = steeringpar.find("Type");
+    steeringdef += " ";
+    steeringdef += "stepout=";
+    const char* stepout = steeringpar.find("Stepout");
+    steeringdef += stepout ? stepout : "1,1";
+    steeringdef += " ";
+    steeringdef += "phlock=";
+    bool phaselock = false;
+    steeringpar.getYN( "PhaseLock", phaselock );
+    steeringdef += phaselock ? "Yes" : "No";
+    steeringdef += " ";
+    if ( phaselock )
+    {
+	steeringdef += "aperture=";
+	const char* aperture = steeringpar.find("Aperture");
+	steeringdef += aperture ? aperture : "-5,5";
+    }
+    BufferString attribname;
+    if ( !Desc::getAttribName( steeringdef, attribname ) )
+    mHandleSteeringParseErr("Cannot find attribute name");
+    RefMan<Desc> stdesc;
+    stdesc = PF().createDescCopy(attribname);
+    if ( !stdesc )
+    {
+	BufferString err = "Cannot find factory-entry for ";
+	err += attribname;
+	mHandleSteeringParseErr(err);
+    }
+
+    if ( !stdesc->parseDefStr(steeringdef) )
+    {
+	BufferString err = "Cannot parse: ";
+	err += steeringdef;
+	mHandleSteeringParseErr(err);
+    }
+
+    BufferString usserefstr = "steering input ";
+    usserefstr += newsteeringdescs.size();
+    stdesc->setUserRef( (const char*)usserefstr );
+    stdesc->setSteering(true);
+    
+    const char* inldipstr = steeringpar.find("InlDipID");
+    const char* crldipstr = steeringpar.find("CrlDipID");
+    if ( inldipstr )
+    {
+	int idipdescnr = atoi(inldipstr);
+	stdesc->setInput(0, descs[idipdescnr] );
+    }
+    if ( crldipstr )
+    {
+	int cdipdescnr = atoi(crldipstr);
+	stdesc->setInput(1, descs[cdipdescnr] );
+    }	
+//TODO see what's going on for the phase input	
+    stdesc->ref();
+    newsteeringdescs += stdesc;
+    
     return true;
 }
 

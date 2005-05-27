@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.8 2005-05-12 10:54:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.9 2005-05-27 07:28:02 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -59,19 +59,27 @@ protected:
 Provider* Provider::create( Desc& desc )
 {
     ObjectSet<Provider> existing;
-    Provider* prov = internalCreate( desc, existing );
+    bool issame = false;
+    Provider* prov = internalCreate( desc, existing, issame );
     prov->computeRefZStep( existing );
     prov->propagateZRefStep( existing );
     return prov;
 }
 
 
-Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
+Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing, 
+					bool& issame )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
     {
 	if ( existing[idx]->getDesc().isIdenticalTo( desc, false ) )
+	{
+	    if ( existing[idx]->getDesc().selectedOutput() 
+		    				!= desc.selectedOutput() )
+		existing[idx]->enableOutput( desc.selectedOutput() );
+	    issame = true;
 	    return existing[idx];
+	}
     }
 
     if ( desc.nrInputs() && !desc.descSet() )
@@ -81,6 +89,9 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 
     res->ref();
     
+    if ( desc.selectedOutput()!=-1 && !existing.size() )
+	res->enableOutput( desc.selectedOutput(), true );
+
     existing += res;
 
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
@@ -88,7 +99,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 	Desc* inputdesc = desc.getInput(idx);
 	if ( !inputdesc ) continue;
 
-	Provider* inputprovider = internalCreate( *inputdesc, existing );
+	Provider* inputprovider = internalCreate(*inputdesc, existing, issame);
 	if ( !inputprovider )
 	{
 	    existing.remove(existing.indexOf(res), existing.size()-1 );
@@ -96,7 +107,9 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 	    return 0;
 	}
 
-	res->setInput( idx, inputprovider );
+	if ( !issame )
+	    res->setInput( idx, inputprovider );
+	issame = false;
     }
 
     if ( !res->init() )
@@ -335,6 +348,7 @@ int Provider::moveToNextTrace()
     ObjectSet<Provider> movinginputs;
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
+	if ( !inputs[idx] ) continue;
 	const int res = inputs[idx]->moveToNextTrace();
 	if ( res!=1 ) return res;
 
@@ -386,6 +400,7 @@ int Provider::moveToNextTrace()
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
+	if ( !inputs[idx] ) continue;
 	if ( !inputs[idx]->setCurrentPosition(currentbid) )
 	    return -1;
     }
@@ -500,7 +515,7 @@ const DataHolder* Provider::getData( const BinID& relpos )
 	    if ( outdata->item(idx)->arr() )
 	    {
 		delete outdata->item(idx);
-		outdata->replace( 0, idx );
+		outdata->replace( idx, 0 );
 	    }
 
 	    continue;
@@ -509,7 +524,7 @@ const DataHolder* Provider::getData( const BinID& relpos )
 	if ( !outdata->item(idx)->arr() )
 	{
 	    float* ptr = new float[outdata->nrsamples_];
-	    outdata->replace( new ArrayValueSeries<float>(ptr), idx );
+	    outdata->replace( idx, new ArrayValueSeries<float>(ptr) );
 	}
     }
 
@@ -551,6 +566,7 @@ SeisRequester* Provider::getSeisRequester()
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
+	if ( !inputs[idx] ) continue;
 	SeisRequester* res = inputs[idx]->getSeisRequester();
 	if ( res ) return res;
     }
@@ -591,12 +607,12 @@ void Provider::setInput( int inp, Provider* np )
 	if ( getInputOutput( inp, inputoutputs ) )
 	{
 	    for ( int idx=0; idx<inputoutputs.size(); idx++ )
-		inputs[inp]->enableOutput( idx, false );
+		inputs[inp]->enableOutput( inputoutputs[idx], false );
 	}
 	inputs[inp]->unRef();
     }
 
-    inputs.replace( np, inp );
+    inputs.replace( inp, np );
     if ( !inputs[inp] )
 	return;
 
@@ -605,10 +621,11 @@ void Provider::setInput( int inp, Provider* np )
     if ( getInputOutput( inp, inputoutputs ) )
     {
 	for ( int idx=0; idx<inputoutputs.size(); idx++ )
-	    inputs[inp]->enableOutput( idx, true );
+	    inputs[inp]->enableOutput( inputoutputs[idx], true );
     }
 
     updateInputReqs(inp);
+    inputs[inp]->updateStorageReqs();
 }
 
 
@@ -618,6 +635,8 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res ) const
 	return false;
 
     res = *desiredvolume;
+    int inlstepoutfact = desiredvolume->hrg.step.inl;
+    int crlstepoutfact = desiredvolume->hrg.step.crl;
 
     BinID stepout(0,0);
     const BinID* reqstepout = reqStepout( inp, out );
@@ -629,10 +648,10 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res ) const
 	if ( stepout.crl < desstepout->crl ) stepout.crl = desstepout->crl;
     }
 
-    res.hrg.start.inl -= stepout.inl;
-    res.hrg.start.crl -= stepout.crl;
-    res.hrg.stop.inl += stepout.inl;
-    res.hrg.stop.crl += stepout.crl;
+    res.hrg.start.inl -= stepout.inl * inlstepoutfact;
+    res.hrg.start.crl -= stepout.crl * crlstepoutfact;
+    res.hrg.stop.inl += stepout.inl * inlstepoutfact;
+    res.hrg.stop.crl += stepout.crl * crlstepoutfact;
 
     Interval<float> zrg(0,0);
     const Interval<float>* reqzrg = reqZMargin(inp,out);
@@ -685,6 +704,8 @@ const Interval<float>* Provider::reqZMargin(int,int) const { return 0; }
 
 int Provider::getTotalNrPos( bool is2d )
 {
+    if ( !possiblevolume )
+	return false;
     return is2d ? possiblevolume->nrCrl()
 		: possiblevolume->nrInl() * possiblevolume->nrCrl();
 }
@@ -695,9 +716,13 @@ void Provider::computeRefZStep( const ObjectSet<Provider>& existing )
     for( int idx=0; idx<existing.size(); idx++ )
     {
 	float step = 0;
+//	CubeSampling storedvol;
 	bool isstored = existing[idx]->getZStepStoredData(step);
 	if ( isstored )
+//	{
+//	    existing[idx]-> getPossibleVolume(-1,storedvol)
 	    refstep = ( refstep != 0 && refstep < step )? refstep : step;
+	    
     }
 }
 
@@ -711,12 +736,33 @@ void Provider::propagateZRefStep( const ObjectSet<Provider>& existing )
 void Provider::setCurLineKey( const char* linename )
 {
     curlinekey_.setLineName(linename);
-    const char* attrname = strcmp(desc.attribName(),"Storage") ? 
-					desc.attribName() : "Seis";
-    curlinekey_.setAttrName(attrname);
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	inputs[idx]->setCurLineKey(curlinekey_.lineName());
-}
+    BufferString attrname;
+    if ( strcmp(desc.attribName(),"Storage") )
+	attrname = (BufferString)desc.attribName();
+    else
+    {
+	const Param* idpar = desc.getParam( "id" );
+	BufferString bfstr;
+	if ( idpar ) 
+	    idpar->getCompositeValue( bfstr );
+	LineKey lk( bfstr );
+	attrname = lk.attrName();
+    }
     
+    curlinekey_.setAttrName( (const char*)attrname);
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {   
+	if ( !inputs[idx] ) continue;
+	inputs[idx]->setCurLineKey(curlinekey_.lineName());
+    }
+}
+
+
+void Provider::adjust2DLineStoredVolume()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] )
+	    inputs[idx]->adjust2DLineStoredVolume();
+}
 
 }; //namespace

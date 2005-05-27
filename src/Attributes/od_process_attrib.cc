@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.2 2005-05-12 10:54:50 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.3 2005-05-27 07:29:37 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.2 2005-05-12 10:54:50 
 #include "timefun.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "mmsockcommunic.h"
 
 #include "attribfactory.h"
 #include "attrfact.h"
@@ -195,9 +196,8 @@ bool BatchProgram::go( std::ostream& strm )
 	mRetJobErr( "No outputs found" )
 
     Attrib::EngineMan* attrengman = new Attrib::EngineMan();
-    //from here delete things related to mult 2dlines next line to inprove
     int indexoutp = 0;
-    const char* linename;
+    BufferString linename;
     while ( true )
     {
         BufferString multoutpstr = IOPar::compKey( "Output", indexoutp );
@@ -213,7 +213,8 @@ bool BatchProgram::go( std::ostream& strm )
 	indexoutp++;
     }    
 
-    proc = attrengman->usePar( pars(), attribset, linename );
+    ObjectSet<Attrib::Processor> procset;
+    attrengman->usePar( pars(), attribset, linename, procset );
     
     ProgressMeter progressmeter(strm);
 
@@ -233,68 +234,76 @@ bool BatchProgram::go( std::ostream& strm )
     Time_sleep( startup_wait );  
 
     int nriter = 0;
-    while ( true )
+    for ( int idx=0; idx<procset.size(); idx++ )
     {
-	bool paused = false;
-
-	if ( pauseRequested() )
-	{ 
-	    paused = true;
-
-	    if ( comm )
-	    {
-		comm->setState( MMSockCommunic::Paused );
-		if ( !comm->updateState() ) mRetHostErr( comm->errMsg() )
-	    }
-
-	    Time_sleep( sleeptime );  
-	}
-	else
+	while ( true )
 	{
-	    if ( paused )
-	    {
-		paused = false;
+	    bool paused = false;
+
+	    if ( pauseRequested() )
+	    { 
+		paused = true;
+
 		if ( comm )
 		{
-		    comm->setState( MMSockCommunic::Working );
-		    if ( !comm->updateState() ) mRetHostErr( comm->errMsg())
-		}
-	    }
-	    int res = proc->nextStep();
-
-	    if ( nriter==0 )
-	    {
-		strm << std::endl;
-		strm << "Estimated number of positions to be processed"
-		     <<"(regular survey): "<< proc->totalNr() 
-		     << std::endl;
-		strm << "Loading cube data ..." << std::endl;
-	    }
-
-	    if ( res > 0 )
-	    {
-		if ( loading )
-		{
-		    loading = false;
-		    strm << "\n["<<getPID()<<"]: Processing started."
-			 << std::endl;
+		    comm->setState( MMSockCommunic::Paused );
+		    if ( !comm->updateState() ) mRetHostErr( comm->errMsg() )
 		}
 
-		if ( comm && !comm->updateProgress( nriter + 1 ) )
-		    mRetHostErr( comm->errMsg() )
-
-		++progressmeter;
+		Time_sleep( sleeptime );  
 	    }
 	    else
 	    {
-		if ( res == -1 )
-		    mRetJobErr( "Cannot reach next position" )
-		break;
+		if ( paused )
+		{
+		    paused = false;
+		    if ( comm )
+		    {
+			comm->setState( MMSockCommunic::Working );
+			if ( !comm->updateState() ) mRetHostErr( comm->errMsg())
+		    }
+		}
+		int res = procset[idx]->nextStep();
+
+		if ( nriter==0 )
+		{
+		    int totalnr = 0;
+		    for ( int idy=0; idy<procset.size(); idy++ )
+		    {
+			totalnr += procset[idy]->totalNr();
+		    }
+		    strm << std::endl;
+		    strm << "Estimated number of positions to be processed"
+			 <<"(regular survey): "<< totalnr << std::endl;
+		    strm << "Loading cube data ..." << std::endl;
+		}
+
+		if ( res > 0 )
+		{
+		    if ( loading )
+		    {
+			loading = false;
+			strm << "\n["<<getPID()<<"]: Processing started."
+			     << std::endl;
+		    }
+
+		    if ( comm && !comm->updateProgress( nriter + 1 ) )
+			mRetHostErr( comm->errMsg() )
+
+		    ++progressmeter;
+		}
+		else
+		{
+		    if ( res == -1 )
+			mRetJobErr( "Cannot reach next position" )
+		    break;
+		}
 	    }
+	    nriter++;
 	}
-	nriter++;
     }
 
+    deepErase( procset );
     strm << "\n["<<getPID()<<"]: Processing done. Closing up." << std::endl;
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!

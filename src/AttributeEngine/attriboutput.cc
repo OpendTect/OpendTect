@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.3 2005-05-12 10:54:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.4 2005-05-27 07:28:02 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -89,7 +89,7 @@ SliceSet* SliceSetOutput::getSliceSet() const
 }
 
 
-CubeOutput::CubeOutput( const CubeSampling& cs , const char* lkstr)
+CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey)
     : desiredvolume( cs )
     , seldata(*new SeisSelData)
     , auxpars(0)
@@ -98,7 +98,7 @@ CubeOutput::CubeOutput( const CubeSampling& cs , const char* lkstr)
     , calcurpos_(0)
     , prevpos_(-1,-1)
     , storinited_(0)
-    , lk_(lkstr)
+    , lkey_(lkey)
     , errmsg(0)
 {
     const float dz = SI().zRange().step;
@@ -108,7 +108,7 @@ CubeOutput::CubeOutput( const CubeSampling& cs , const char* lkstr)
     if ( stop-sampleinterval.stop )
 	sampleinterval.stop++;
 
-    seldata.linekey_ = lkstr;
+    seldata.linekey_ = lkey;
 }
 
 
@@ -281,12 +281,12 @@ COLineKeyProvider( CubeOutput& c, const char* a, const char* lk )
 
 LineKey lineKey() const
 {
-    LineKey lk(linename);
+    LineKey lk(linename,attrnm);
     return lk;
 }
     CubeOutput&   co;
     BufferString        attrnm;
-    const char* 	linename;
+    BufferString 	linename;
 
 };
 
@@ -302,22 +302,23 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
     //provider..., so if nrtrcs>1 do a loop over nrtrcs 
     //(look in old CubeAttribOutput::createOutput).
     int nrcomp = data.nrItems();
-    if ( !nrcomp || nrcomp != desoutputs.size())
+    if ( !nrcomp || nrcomp < desoutputs.size())
 	return;
 
     int sz = data.nrsamples_;
     const DataCharacteristics dc;
     SeisTrc* trc = new SeisTrc(sz, dc);
-    for ( int idx=trc->data().nrComponents(); idx<nrcomp; idx++)
+    for ( int idx=trc->data().nrComponents(); idx<desoutputs.size(); idx++)
 	trc->data().addComponent( sz, dc, false );
 
     trc->info().sampling.step = refstep;
     trc->info().sampling.start = data.t0_*refstep;
     trc->info().binid = bid;
+    trc->info().coord = SI().transform( bid );
     if ( is2d_ )
 	trc->info().nr = trcnr;
 
-    for ( int comp=0; comp<nrcomp; comp++ )
+    for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
@@ -331,16 +332,14 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
     {
 	if ( writer_->is2D() )
 	{
-	    BufferString  nm = seldata.linekey_.attrName();
+	    BufferString  nm = curLineKey().attrName();
 	    if ( nm == "inl_dip"
 		  || nm == "crl_dip" )
 		nm = sKey::Steering;
 	    else if ( IOObj::isKey(nm) )
 		nm = IOM().nameOf(nm);
-	//    else if ( isstoredcube_ )//????
-	//	nm = LineKey(nm).attrName();
 	    writer_->setLineKeyProvider( 
-		    new COLineKeyProvider(*this,nm, curLineName()) );
+		    new COLineKeyProvider(*this, nm, curLineKey().lineName()) );
 	}
 
 	if ( !writer_->prepareWork(*trc) )
@@ -372,5 +371,24 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
 
     // TODO later on : create function on writer to handle dataholder directly
 }
+
+
+/*LocationOutput::LocationOutput()
+    : writer_( 0 )
+    , outputdata_( 0 )
+    , tofile_(false)
+{
+    seldata.type_ = SeisSelData::Table;
+    seldata.table_.allowDuplicateBids( true );
+}
+
+
+LocationOutput::~LocationOutput()
+{
+    delete writer_;
+    if ( tofile_ )
+	delete outputdata_;
+}
+*/
 
 }; //namespace

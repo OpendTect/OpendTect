@@ -30,6 +30,8 @@ ________________________________________________________________________
 #include "stats.h"
 #include <iostream>
 #include "sets.h"
+#include "linekey.h"
+
 
 
 namespace Attrib
@@ -61,8 +63,10 @@ void EngineMan::clearProcessing()
 }
 
 
-Processor* EngineMan::usePar( const IOPar& iopar, const DescSet& attribset, 
-			      	const char* linename )
+void EngineMan::usePar( const IOPar& iopar, 
+			const DescSet& attribset, 
+	      		const char* linename,
+			ObjectSet<Processor>& procset )
 {
     int indexoutp = 0;
     TypeSet<int> idstor;
@@ -94,24 +98,39 @@ Processor* EngineMan::usePar( const IOPar& iopar, const DescSet& attribset,
 	indexoutp++;
     }
 
-    if ( !idstor.size() ) return false;
+    ObjectSet<Desc> targetdescset;
+    if ( !idstor.size() ) return;
+    
+    Desc* targetdesc = 	const_cast<Desc*>(attribset.getDesc(idstor[0]));
+    targetdescset += targetdesc;
+    
+    Processor* processor = new Processor( *targetdesc, linename );
+    processor->addOutputInterest( targetdesc->selectedOutput() );
+    procset += processor;
 
-    Attrib::Desc* targetdesc = attribset.getDescSet()[idstor[0]];
-    Attrib::Processor* processor;
-    processor =  new Attrib::Processor( *targetdesc, linename );
-    processor->addOutputInterest(targetdesc->selectedOutput());
-
-    int index = 1;
-    while ( idstor[index]!=-1 )
+    for ( int index=1; index<idstor.size(); index++ )
     {
-	Attrib::Desc* candidate = attribset.getDescSet()[idstor[index]];
+	Desc* candidate = const_cast<Desc*>(
+				attribset.getDesc( idstor[index] ) );
 	if ( candidate )
-	{//check if the desc is similar to the existing one, 
-	    //except for userref and seloutpoutnr
-	    if ( candidate->isIdenticalTo( *targetdesc, false ) &&
-		targetdesc->selectedOutput() != candidate->selectedOutput())
-		processor->addOutputInterest(candidate-> selectedOutput());
+	{
+	    for ( int idx=0; idx< targetdescset.size(); idx++ )
+	    {
+		if ( candidate->isIdenticalTo( *targetdescset[idx], false ) )
+		{
+		    if ( targetdescset[idx]->selectedOutput() 
+			    != candidate->selectedOutput() )
+			    procset[idx]->addOutputInterest(
+				    candidate->selectedOutput());
+		}
+		else
+		{
+		    Processor* proc = new Processor( *candidate, linename );
+		    procset += proc;
+		}
+	    }
 	}
+	
 	index++;
     }
 
@@ -121,46 +140,20 @@ Processor* EngineMan::usePar( const IOPar& iopar, const DescSet& attribset,
     cs.zrg.start /= SI().zFactor();
     cs.zrg.stop /= SI().zFactor();
 
-/*
-    const char* selinlspec = iopar.find( "Output.1.In-line range" );
-    const char* selcrlspec = iopar.find( "Output.1.Cross-line range" );
-    const char* selzspec = iopar.find( "Output.1.Depth range" );
-    if ( selinlspec && *selinlspec && selcrlspec && *selcrlspec
-			&& selzspec && *selzspec )
-    {
-	FileMultiString inlfms( selinlspec );
-	FileMultiString crlfms( selcrlspec );
-	FileMultiString zfms( selzspec );
-	const int inlstart = atoi(inlfms[0]);
-	const int inlstop = atoi(inlfms[1]);
-	const int crlstart = atoi(crlfms[0]);
-	const int crlstop = atoi(crlfms[1]);
-	const int zstart = atoi(zfms[0]);
-	const int zstop = atoi(zfms[1]);
-	const Interval<int> inlrg( inlstart, inlstop );
-	const Interval<int> crlrg( crlstart, crlstop );
-
-	cs.hrg.set( inlrg, crlrg );
-	cs.zrg.start = zstart / SI().zFactor();
-	    cs.zrg.stop = zstop / SI().zFactor();
-    }
-*/
-
-    Attrib::CubeOutput* cubeoutp = createOutput( iopar, linename );
-    processor-> addOutput(cubeoutp);
-    
-    return processor;
+    LineKey lkey(linename,targetdesc->attribName());
+    CubeOutput* cubeoutp = createOutput( iopar, lkey );
+    for ( int idx=0; idx<procset.size(); idx++ )
+	procset[idx]->addOutput(cubeoutp);
 }
 
 
-CubeOutput* EngineMan::createOutput( const IOPar& pars, 
-					    const char* lk )
+CubeOutput* EngineMan::createOutput( const IOPar& pars, LineKey lkey )
 {
     const char* typestr = pars.find("Output.1.Type");
 
     if ( !strcmp( typestr, "Cube") )
     {
-	CubeOutput* outp = new CubeOutput(cs, lk);
+	CubeOutput* outp = new CubeOutput(cs, lkey);
 	outp->doUsePar(pars);
 	return outp;
     }

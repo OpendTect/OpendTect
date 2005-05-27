@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.9 2005-05-12 10:53:22 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.10 2005-05-27 07:28:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,8 @@ public:
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
-
+    virtual void		adjust2DLineStoredVolume();
+    
     virtual int			moveToNextTrace();
     				/*!<\retval -1	something went wrong
 				    \retval  0  finished, no more positions
@@ -74,8 +75,12 @@ public:
     const Interval<int>&	localCompZInterval() const;
 
     void               		updateInputReqs(int input=-1);
+    virtual void                updateStorageReqs(){};
     int				getCurrentTrcNr () { return trcnr_; }
     float                       getRefStep() const { return refstep; }
+    virtual BinID               getStepoutStep()
+				{ BinID bid( SI().inlStep(), SI().crlStep() );
+				  return bid;}
 
 protected:
 
@@ -84,7 +89,8 @@ protected:
     				/*!< Should be run _after_ inputs are set */
 
     virtual SeisRequester* getSeisRequester();
-    static Provider*	internalCreate(Desc&,ObjectSet<Provider>&);
+    static Provider*	internalCreate( Desc&, ObjectSet<Provider>&, 
+	    				bool& issame);
 
     virtual bool	getInputOutput( int input, TypeSet<int>& ) const;
     virtual bool	getInputData( const BinID& relpos );
@@ -111,15 +117,11 @@ protected:
 
     void			computeRefZStep(const ObjectSet<Provider>&);
     void			propagateZRefStep( const ObjectSet<Provider>& );
-    
+
     bool                        zIsTime() const {return SI().zIsTime();}
     float			zFactor() const { return zIsTime() ? 1000 : 1;}
     float			dipFactor() const {return zIsTime() ? 1e6: 1e3;}
-    int				inlStep(bool work=true) const 
-    					{return SI().inlStep(work);}
-    int				crlStep(bool work=true) const
-					{return SI().crlStep(work);}
-    float				inldist() const 
+    float			inldist() const 
 					{return SI().transform(BinID(0,0)).
 					 distance(SI().transform(BinID(1,0)));}
     float			crldist() const

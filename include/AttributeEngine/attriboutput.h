@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.3 2005-05-12 10:53:22 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.4 2005-05-27 07:28:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "attribdataholder.h"
 #include "seistrcsel.h"
+#include "linekey.h"
 
 class BinID;
 class MultiID;
@@ -67,7 +68,7 @@ protected:
 class CubeOutput : public Output
 {
 public:
-    			CubeOutput( const CubeSampling&, const char* lk);
+    			CubeOutput( const CubeSampling&, LineKey );
 			~CubeOutput();
     
     bool		doInit();
@@ -80,7 +81,7 @@ public:
     bool		doUsePar( const IOPar& );
     bool		setReqs(const BinID&);
     SeisTrcBuf* 	getTrcBuf();
-    const char*		curLineName() { return lk_; }
+    LineKey		curLineKey() { return lkey_; }
     void		collectData( const BinID&, const DataHolder&, 
 	    				float, int );
 
@@ -99,8 +100,26 @@ protected:
     BinID 		prevpos_;
     bool		storinited_;
     SeisTrcBuf*         buf2d_;
-    const char*		lk_;
+    LineKey		lkey_;
 };
+
+/*
+class LocationOutput : public Output
+{
+public:
+    			LocationOutput( const CubeSampling& );
+			~LocationOutput();
+
+    bool		getDesiredVolume(CubeSampling&) const;
+    bool		wantsOutput( const BinID& ) const;
+    Interval<int>	getLocalZRange(const BinID&) const;
+    void		collectData(const BinID&, const DataHolder&,float,int);
+protected:
+    CubeSampling	desiredvolume;
+    Interval<int>	sampleinterval;
+};
+
+*/
 
 }; //Namespace
 

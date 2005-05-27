@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.4 2005-05-12 10:54:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.5 2005-05-27 07:28:02 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -27,6 +27,9 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.4 2005-05-12 10:54:00
 #include "seistrcsel.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "attriblinebuffer.h"
+#include "threadwork.h"
+#include "basictask.h"
 
 namespace Attrib
 {
@@ -109,6 +112,23 @@ StorageProvider::StorageProvider( Desc& desc_ )
     , status( Nada )
     , currentreq( 0 )
 {
+}
+
+
+StorageProvider::~StorageProvider()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] ) inputs[idx]->unRef();
+	    inputs.erase();
+
+    desc.unRef();
+
+    delete threadmanager;
+    deepErase( computetasks );
+
+    delete linebuffer;
+
+    deepErase( rg );
 }
 
 
@@ -275,9 +295,18 @@ bool StorageProvider::initSeisRequester(int req)
 }
 
 
+void StorageProvider::updateStorageReqs()
+{
+    for ( int req=0; req<rg.size(); req++ )
+	initSeisRequester(req);
+}
+
+
 bool StorageProvider::setSeisRequesterSelection(int req)
 {
     if ( !desiredvolume ) return true;
+    if ( ! &storedvolume ) return false;
+    
     SeisTrcReader* reader = rg[req]->reader();
     if ( !reader ) return false;
 
@@ -293,28 +322,46 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 	if ( (const char*)curlinekey_.lineName() != "" )
 	{
 	    sel->linekey_.setLineName( curlinekey_.lineName() );
-	    int idx = lset->indexOf( curlinekey_.lineName() );
+	    int idx = lset->indexOf( curlinekey_ );
 	    if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
 	    {
-		sel->crlrg_.start = desiredvolume->hrg.start.crl;
-		sel->crlrg_.stop = desiredvolume->hrg.stop.crl;
-		sel->zrg_.start = desiredvolume->zrg.start;
-		sel->zrg_.stop = desiredvolume->zrg.stop;
+		sel->crlrg_.start = desiredvolume->hrg.start.crl < trcrg.start?
+		    		trcrg.start : desiredvolume->hrg.start.crl;
+		sel->crlrg_.stop = desiredvolume->hrg.stop.crl > trcrg.start ?
+		    		trcrg.stop : desiredvolume->hrg.stop.crl;
+		sel->zrg_.start = desiredvolume->zrg.start < zrg.start ?
+		    		zrg.start : desiredvolume->zrg.start;
+		sel->zrg_.stop = desiredvolume->zrg.stop > zrg.stop ?
+		    		zrg.stop : desiredvolume->zrg.stop;
 	    }
 	    reader->setSelData( sel ); //Memleak!
 	}
 	//TODO?
 	return true;
     }
+    
+    CubeSampling cs;
+    cs.hrg.start.inl = desiredvolume->hrg.start.inl<storedvolume.hrg.start.inl ?
+		storedvolume.hrg.start.inl : desiredvolume->hrg.start.inl;
+    cs.hrg.stop.inl = desiredvolume->hrg.stop.inl > storedvolume.hrg.stop.inl ?
+	        storedvolume.hrg.stop.inl : desiredvolume->hrg.stop.inl;
+    cs.hrg.stop.crl = desiredvolume->hrg.stop.crl > storedvolume.hrg.stop.crl ?
+	        storedvolume.hrg.stop.crl : desiredvolume->hrg.stop.crl;
+    cs.hrg.start.crl = desiredvolume->hrg.start.crl<storedvolume.hrg.start.crl ?
+		storedvolume.hrg.start.crl : desiredvolume->hrg.start.crl;
+    cs.zrg.start = desiredvolume->zrg.start < storedvolume.zrg.start ?
+		storedvolume.zrg.start : desiredvolume->zrg.start;
+    cs.zrg.stop = desiredvolume->zrg.stop > storedvolume.zrg.stop ?
+	                storedvolume.zrg.stop : desiredvolume->zrg.stop;
 
     SeisSelData* sel = new SeisSelData;
     sel->type_ = SeisSelData::Range;
-    sel->inlrg_.start = desiredvolume->hrg.start.inl;
-    sel->inlrg_.stop = desiredvolume->hrg.stop.inl;
-    sel->crlrg_.start = desiredvolume->hrg.start.crl;
-    sel->crlrg_.stop = desiredvolume->hrg.stop.crl;
-    sel->zrg_.start = desiredvolume->zrg.start;
-    sel->zrg_.stop = desiredvolume->zrg.stop;
+    sel->inlrg_.start = cs.hrg.start.inl;
+    sel->inlrg_.stop = cs.hrg.stop.inl;
+    sel->crlrg_.start = cs.hrg.start.crl;
+    sel->crlrg_.stop = cs.hrg.stop.crl;
+    sel->zrg_.start = cs.zrg.start;
+    sel->zrg_.stop = cs.zrg.stop;
 
     reader->setSelData( sel ); //Memleak!
 
@@ -333,7 +380,22 @@ bool StorageProvider::computeData( const DataHolder& output,
 				   const BinID& relpos,
 				   int t0, int nrsamples ) const
 {
-    SeisTrc* trc = rg[currentreq]->get(0,0);
+    BinID nullbid(0,0);
+    SeisTrc* trc;
+    if ( relpos==nullbid )
+	trc = rg[currentreq]->get(0,0);
+    else
+    {
+	if (trcnr_ == -1)
+	    trc = rg[currentreq]->get(currentbid + relpos);
+	else
+	{
+	    BinID bid(currentbid);
+	    bid.crl = trcnr_;
+	    trc = rg[currentreq]->get(bid + relpos);
+	}
+    }
+    
     if ( trc )
     {
 	fillDataHolderWithTrc( trc, output );
@@ -351,13 +413,46 @@ void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     float starttrctime = trc->startPos();
     float trcstep = trc->info().sampling.step;
     float reqstarttime = starttrctime + t0 * trcstep;
-    ValueSeries<float>* valseries = trcsamplvalues.item(0);
     for (int idx=0 ; idx<trcsamplvalues.nrsamples_ ; idx++)
     {
-	float val = trc->getValue( reqstarttime + idx * refstep, 0 );
-	valseries->setValue(idx,val);
+	for ( int idy=0; idy< outputinterest.size(); idy++ )
+	    if ( outputinterest[idy] )
+	    {
+		float val = trc->getValue( reqstarttime + idx * refstep, idy );
+		trcsamplvalues.item(idy)->setValue(idx,val);
+	    }
     }
 }
 
+
+BinID StorageProvider::getStepoutStep()
+{
+    SeisRequester* req = getSeisRequester();
+    if ( !req ) return (0,0);
+    SeisTrcTranslator* transl = req->reader()->translator();
+    BinID mystep( transl->packetInfo().inlrg.step,
+		  transl->packetInfo().crlrg.step );
+    return mystep;
+}
+
+
+void StorageProvider::adjust2DLineStoredVolume()
+{
+    const SeisTrcReader* reader = rg[currentreq]->reader();
+    if ( reader->is2D() )
+    {
+        const Seis2DLineSet* lset = reader->lineSet();
+	int idx = lset->indexOf( curlinekey_ );
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
+	{
+	    storedvolume.hrg.start.crl = trcrg.start;
+	    storedvolume.hrg.stop.crl = trcrg.stop;
+	    storedvolume.zrg.start = zrg.start;
+	    storedvolume.zrg.stop = zrg.stop;
+	}
+    }
+}
 
 }; //namespace

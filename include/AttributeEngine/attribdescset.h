@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.6 2005-05-19 07:54:48 cvsnanne Exp $
+ RCS:           $Id: attribdescset.h,v 1.7 2005-05-27 07:28:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,11 +43,16 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&,BufferStringSet* errmsgs=0);
+    bool			createSteeringDesc( const IOPar&,
+						    ObjectSet<Desc>&, 
+						    BufferStringSet* errmsgs=0);
+	    
 
     bool			is2D() const;
     const char*			errMsg() const;
 
 protected:
+
     int				getFreeID() const;
     static const char*		highestIDStr()		{ return "MaxNrKeys"; }
     static const char*		definitionStr()		{ return "Definition"; }

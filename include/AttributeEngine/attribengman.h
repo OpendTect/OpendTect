@@ -18,6 +18,7 @@ ________________________________________________________________________
 class BinID;
 class IOPar;
 class MultiID;
+class LineKey;
 class NLAModel;
 class FeatureSet;//?
 class SeisTrcBuf;
@@ -47,10 +48,12 @@ public:
 			EngineMan();
     virtual		~EngineMan();
 
-    Processor*		usePar( const IOPar& iopar, const DescSet& attribset,
-	    			const char* linename ); 
+    void		usePar( const IOPar& iopar, 
+	    			const DescSet& attribset,
+	    			const char* linename,
+				ObjectSet<Processor>& procset ); 
 
-    CubeOutput* 	createOutput( const IOPar& pars, const char* ); 
+    CubeOutput* 	createOutput( const IOPar& pars, LineKey ); 
     //old attribengman: voir si on garde toutes ces fonctions 
     //et les adapter le cas echeant.
 /*    const AttribDescSet* attribSet() const	{ return inpattrset; }
