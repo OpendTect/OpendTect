@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.14 2005-05-13 08:32:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.15 2005-05-30 15:00:15 cvsdgb Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -1282,6 +1282,7 @@ void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
 	}
     }
 
+    gluevalidation = true;
     gluecache->buildmutex->writeUnlock();
     gluecache->GLRenderSurface(action);
 }
