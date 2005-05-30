@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.9 2005-05-30 14:54:56 cvsdgb Exp $
+#	RCS :		$Id: Makefile,v 1.10 2005-05-30 14:57:32 cvsdgb Exp $
 #_______________________________________________________________________________
 
 
@@ -34,6 +34,9 @@ USEQT   := yes
 
 include make.od.Defaults
 
+# Hack to get SoLODMeshSurface.cc non-optimised on MAC - compiler problem
+# of gcc 3.3
+
 cppcompmeshsurf := $(P_COMPILE.cc)
 ifeq ($(HOST),$(mac))
 	cppcompmeshsurf := $(subst -O2,,$(cppcompmeshsurf))
@@ -41,6 +44,7 @@ endif
 
 include make.Targets
 
+# See above: Hack
 $(LIBWORK)(SoLODMeshSurface.o) : SoLODMeshSurface.cc
 	@echo "Compiling $< ... " $(TEE)
 	@-$(cppcompmeshsurf) $< -o $(TMPPREFIX)$*.o $(OUT)
