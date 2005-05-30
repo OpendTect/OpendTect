@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.8 2005-03-22 14:38:15 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.9 2005-05-30 14:54:56 cvsdgb Exp $
 #_______________________________________________________________________________
 
 
@@ -33,4 +33,16 @@ USECOIN := yes
 USEQT   := yes
 
 include make.od.Defaults
+
+cppcompmeshsurf := $(P_COMPILE.cc)
+ifeq ($(HOST),$(mac))
+	cppcompmeshsurf := $(subst -O2,,$(cppcompmeshsurf))
+endif
+
 include make.Targets
+
+$(LIBWORK)(SoLODMeshSurface.o) : SoLODMeshSurface.cc
+	@echo "Compiling $< ... " $(TEE)
+	@-$(cppcompmeshsurf) $< -o $(TMPPREFIX)$*.o $(OUT)
+	@-$(AR) $(ARFLAGS) $@ $(TMPPREFIX)$*.o $(OUT)
+	@-$(RM) $(TMPPREFIX)$*.o
