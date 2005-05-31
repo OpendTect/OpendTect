@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.61 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.62 2005-05-31 16:14:59 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -27,6 +27,9 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.61 2005-05-18 09:20:45 cvsbert
 
 
 const char* SeisTrcTranslator::sKeyIs2D = "Is2D";
+const char* SeisTrcTranslator::sKeyIsPS = "IsPS";
+const char* SeisTrcTranslator::sKeyRegWrite = "Enforce Regular Write";
+const char* SeisTrcTranslator::sKeySIWrite = "Enforce SurveyInfo Write";
 
 
 int SeisTrcTranslatorGroup::selector( const char* key )
@@ -85,6 +88,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, enforce_regular_write(true)
     	, enforce_survinfo_write(false)
     	, needpinfoonly(false)
+    	, is_prestack(false)
 {
     const char* envvar = getenv("DTECT_ENFORCE_REGULAR_SEISWRITE");
     if ( envvar && *envvar )
@@ -523,4 +527,12 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
     cs.hrg.set( pinf.inlrg, pinf.crlrg );
     cs.zrg = pinf.zrg;
     return true;
+}
+
+
+void SeisTrcTranslator::usePar( const IOPar& iop )
+{
+    iop.getYN( sKeyIsPS, is_prestack );
+    iop.getYN( sKeyRegWrite, enforce_regular_write );
+    iop.getYN( sKeySIWrite, enforce_survinfo_write );
 }

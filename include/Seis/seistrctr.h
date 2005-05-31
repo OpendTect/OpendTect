@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.41 2005-03-31 15:25:53 cvsarend Exp $
+ RCS:		$Id: seistrctr.h,v 1.42 2005-05-31 16:14:59 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -178,7 +178,7 @@ public:
     virtual void	toSupported( DataCharacteristics& ) const {}
 			//!< change the input to a supported characteristic
 
-    virtual void	usePar( const IOPar& )		{}
+    virtual void	usePar(const IOPar&);
 
     inline int		selComp( int nr=0 ) const	{ return inpfor_[nr]; }
     inline int		nrSelComps() const		{ return nrout_; }
@@ -200,9 +200,14 @@ public:
 	    			  const char* linekey=0);
     static bool		getRanges(const IOObj&,CubeSampling&,
 	    			  const char* linekey=0);
+
     static bool		is2D(const IOObj&,bool only_internal=false);
+    bool		isPS() const		{ return is_prestack; }
 
     static const char*	sKeyIs2D;
+    static const char*	sKeyIsPS;
+    static const char*	sKeyRegWrite;
+    static const char*	sKeySIWrite;
 
     			// Use the following fns only if you _really_ know
     			// what you're doing.
@@ -218,6 +223,10 @@ protected:
     Conn*		conn;
     const char*		errmsg;
     SeisPacketInfo*	pinfo;
+
+    bool		is_prestack;
+    bool		enforce_regular_write;
+    bool		enforce_survinfo_write;
 
     SamplingData<float>			insd;
     int					innrsamples;
@@ -252,9 +261,6 @@ protected:
     			// Buffer written when writeBlock() is called
     SeisTrcBuf&		trcblock_;
     virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
-
-    bool		enforce_regular_write;
-    bool		enforce_survinfo_write;
 
 private:
 

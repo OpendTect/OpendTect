@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.38 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.39 2005-05-31 16:14:59 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -206,9 +206,13 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     }
 
     trhead.fill( ti, ext_coord_scaling );
-    if ( dofilloffsazim )
-	fillOffsAzim( ti, trhead.getCoord(true,ext_coord_scaling),
-			  trhead.getCoord(false,ext_coord_scaling) );
+    if ( is_prestack )
+    {
+	Coord c1( trhead.getCoord(true,ext_coord_scaling) );
+	Coord c2( trhead.getCoord(false,ext_coord_scaling) );
+	fillOffsAzim( ti, c1, c2 );
+	ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
+    }
     if ( use_lino ) ti.binid.inl = pinfo->nr;
     float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )
