@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.4 2005-05-27 07:28:02 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.5 2005-05-31 12:50:09 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -25,7 +25,16 @@ namespace Attrib
 {
 
 Output::~Output()
-{}
+{
+    delete &seldata_;
+}
+
+
+Output::Output()
+    : seldata_(*new SeisSelData)
+{
+    mRefCountConstructor;
+}
 
 
 SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
@@ -91,7 +100,6 @@ SliceSet* SliceSetOutput::getSliceSet() const
 
 CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey)
     : desiredvolume( cs )
-    , seldata(*new SeisSelData)
     , auxpars(0)
     , storid_(*new MultiID)
     , writer_(0)
@@ -108,7 +116,7 @@ CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey)
     if ( stop-sampleinterval.stop )
 	sampleinterval.stop++;
 
-    seldata.linekey_ = lkey;
+    seldata_.linekey_ = lkey;
 }
 
 
@@ -147,14 +155,13 @@ bool CubeOutput::setStorageID( const MultiID& storid )
 void CubeOutput::setGeometry( const CubeSampling& cs )
 {
     if ( cs.isEmpty() ) return;
-    seldata.copyFrom(cs);
+    seldata_.copyFrom(cs);
 }
 
 
 CubeOutput::~CubeOutput()
 {
     delete writer_;
-    delete &seldata;
     delete &storid_;
     delete auxpars;
 }
@@ -196,24 +203,24 @@ bool CubeOutput::doInit()
     }
     
     desiredvolume.normalise();
-    seldata.linekey_.setAttrName( "" );
-    if ( seldata.type_ != SeisSelData::Range )
-	seldata.type_ = SeisSelData::Range;
+    seldata_.linekey_.setAttrName( "" );
+    if ( seldata_.type_ != SeisSelData::Range )
+	seldata_.type_ = SeisSelData::Range;
 
     if ( !is2d_ )
     {
-	if ( seldata.inlrg_.start > desiredvolume.hrg.start.inl )
-	    desiredvolume.hrg.start.inl = seldata.inlrg_.start;
-	if ( seldata.inlrg_.stop < desiredvolume.hrg.stop.inl )
-	    desiredvolume.hrg.stop.inl = seldata.inlrg_.stop;
-	if ( seldata.crlrg_.start > desiredvolume.hrg.start.crl )
-	    desiredvolume.hrg.start.crl = seldata.crlrg_.start;
-	if ( seldata.crlrg_.stop < desiredvolume.hrg.stop.crl )
-	    desiredvolume.hrg.stop.crl = seldata.crlrg_.stop;
-	if ( seldata.zrg_.start > desiredvolume.zrg.start )
-	    desiredvolume.zrg.start = seldata.zrg_.start;
-	if ( seldata.zrg_.stop < desiredvolume.zrg.stop )
-	    desiredvolume.zrg.stop = seldata.zrg_.stop;
+	if ( seldata_.inlrg_.start > desiredvolume.hrg.start.inl )
+	    desiredvolume.hrg.start.inl = seldata_.inlrg_.start;
+	if ( seldata_.inlrg_.stop < desiredvolume.hrg.stop.inl )
+	    desiredvolume.hrg.stop.inl = seldata_.inlrg_.stop;
+	if ( seldata_.crlrg_.start > desiredvolume.hrg.start.crl )
+	    desiredvolume.hrg.start.crl = seldata_.crlrg_.start;
+	if ( seldata_.crlrg_.stop < desiredvolume.hrg.stop.crl )
+	    desiredvolume.hrg.stop.crl = seldata_.crlrg_.stop;
+	if ( seldata_.zrg_.start > desiredvolume.zrg.start )
+	    desiredvolume.zrg.start = seldata_.zrg_.start;
+	if ( seldata_.zrg_.stop < desiredvolume.zrg.stop )
+	    desiredvolume.zrg.stop = seldata_.zrg_.stop;
     }
 
 /*//use that when we get the refstep to resize trc if needed.//def trcids
@@ -251,7 +258,7 @@ bool CubeOutput::setReqs( const BinID& pos )
     const int nrattribs = desoutputs.size();
     for ( int attrib=0; attrib<nrattribs; attrib++ )
     {
-//	if ( !processor.setCurrentOutpInterval( seldata.zrg_, trcids[attrib],
+//	if ( !processor.setCurrentOutpInterval( seldata_.zrg_, trcids[attrib],
 //						desoutputs[attrib] ) )
 	    //TODO fonction a remplacer, pas de ref au processor ici.
 //	{
@@ -373,22 +380,83 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
 }
 
 
-/*LocationOutput::LocationOutput()
-    : writer_( 0 )
-    , outputdata_( 0 )
-    , tofile_(false)
+LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
+    : bidvalset_(bidvalset)
 {
-    seldata.type_ = SeisSelData::Table;
-    seldata.table_.allowDuplicateBids( true );
+    seldata_.type_ = SeisSelData::Table;
+    seldata_.table_.allowDuplicateBids( true );
+    seldata_.table_ = bidvalset;
 }
 
 
-LocationOutput::~LocationOutput()
+void LocationOutput::collectData( const BinID& bid,const DataHolder& data,
+                             float refstep, int trcnr )
 {
-    delete writer_;
-    if ( tofile_ )
-	delete outputdata_;
+    int ii = bid.inl; int jj = bid.crl;
+    BinIDValueSet::Pos pos( ii, jj );
+    TypeSet<float> collectval;
+    float* vals = bidvalset_.getVals( pos );
+    collectval += *(vals); 
+    for ( int comp=0; comp<desoutputs.size(); comp++ )
+    {
+	float val = data.item(desoutputs[comp])->value(0);
+	collectval += val;
+    }
+    bidvalset_.set(pos,collectval);
 }
-*/
+
+
+bool LocationOutput::wantsOutput( const BinID& bid ) const
+{
+    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    if ( pos.i == 0 || pos.j == 0 )
+	return false;
+
+    return true;
+}
+
+
+Interval<int> LocationOutput::getLocalZRange(const BinID& bid) const
+{
+    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    const float* vals = bidvalset_.getVals(pos);
+    const_cast<LocationOutput*>(this)->sampleinterval.start =(int)vals[0];
+    const_cast<LocationOutput*>(this)->sampleinterval.stop = (int)vals[0];
+    return sampleinterval;
+}
+
+
+TrcSelectionOutput::TrcSelectionOutput( const char* blablaclass )
+//    : bla_(blabla)
+{
+    seldata_.type_ = SeisSelData::Table;
+    seldata_.table_.allowDuplicateBids( true );
+//    seldata_.table_ = ;
+}
+
+
+void TrcSelectionOutput::collectData( const BinID& bid,const DataHolder& data,
+                             float refstep, int trcnr )
+{
+    //add code
+    for ( int comp=0; comp<desoutputs.size(); comp++ )
+    {
+	float val = data.item(desoutputs[comp])->value(0);
+    }
+}
+
+
+bool TrcSelectionOutput::wantsOutput( const BinID& bid ) const
+{
+    //make specific code
+    return true;
+}
+
+
+Interval<int> TrcSelectionOutput::getLocalZRange(const BinID& bid) const
+{
+    //make specific code
+    return sampleinterval;
+}
 
 }; //namespace

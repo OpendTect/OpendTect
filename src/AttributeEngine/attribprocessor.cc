@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.5 2005-05-27 07:28:02 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.6 2005-05-31 12:50:09 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -59,13 +59,15 @@ void Processor::addOutput( Output* o )
 
 
 int Processor::nextStep()
-{
+{    
     if ( !nriter )
     {
 	TypeSet<int> globaloutputinterest;
 	CubeSampling globalcs;
 	for ( int idx=0; idx<outputs.size(); idx++ )
 	{
+	    provider->setSelData(outputs[idx]->getSelData());
+
 	    CubeSampling cs;
 	    if ( !outputs[idx]->getDesiredVolume(cs) )
 	    {
@@ -98,6 +100,7 @@ int Processor::nextStep()
 	    provider->enableOutput(globaloutputinterest[idx], true );
 
 	provider->setDesiredVolume( globalcs );
+	provider->getPossibleVolume( -1, globalcs );
 
     }
 

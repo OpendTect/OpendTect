@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.4 2005-05-27 07:28:42 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.5 2005-05-31 12:50:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "seistrcsel.h"
 #include "linekey.h"
+#include "binidvalset.h"
 
 class BinID;
 class MultiID;
@@ -31,7 +32,7 @@ class SliceSet;
 class Output
 { mRefCountImpl(Output);
 public:
-    				Output() {mRefCountConstructor;}
+    				Output(); 
     virtual bool		getDesiredVolume(CubeSampling&) const	= 0;
     virtual bool		wantsOutput( const BinID& ) const	= 0;
     virtual void		getDesiredOutputs( TypeSet<int>& outputs) 					const { outputs = desoutputs;}
@@ -41,8 +42,13 @@ public:
     virtual void		collectData( const BinID&,const DataHolder&, 
 	    					float, int )	= 0;
     virtual bool		setReqs(const BinID&) { return true; }
+    const SeisSelData&		getSelData() { return seldata_; }
 
     TypeSet<int>		desoutputs;
+
+protected:
+    SeisSelData&		seldata_;
+
 };
 
 
@@ -90,7 +96,6 @@ protected:
     MultiID&            storid_;
     CubeSampling	desiredvolume;
     Interval<int>	sampleinterval;
-    SeisSelData&        seldata;
     IOPar*              auxpars;
     bool		is2d_;
     BufferString 	errmsg;
@@ -103,23 +108,36 @@ protected:
     LineKey		lkey_;
 };
 
-/*
+
 class LocationOutput : public Output
 {
 public:
-    			LocationOutput( const CubeSampling& );
-			~LocationOutput();
+    			LocationOutput( BinIDValueSet& );
+			~LocationOutput() {};
 
-    bool		getDesiredVolume(CubeSampling&) const;
+    bool		getDesiredVolume(CubeSampling&) const	{ return true;}
     bool		wantsOutput( const BinID& ) const;
     Interval<int>	getLocalZRange(const BinID&) const;
     void		collectData(const BinID&, const DataHolder&,float,int);
 protected:
-    CubeSampling	desiredvolume;
     Interval<int>	sampleinterval;
+    BinIDValueSet	bidvalset_;
 };
 
-*/
+
+class TrcSelectionOutput : public Output
+{
+public:
+    			TrcSelectionOutput(const char* blablaclass);
+			~TrcSelectionOutput() {};
+
+    bool		getDesiredVolume(CubeSampling&) const	{ return true;}
+    bool		wantsOutput( const BinID& ) const;
+    Interval<int>	getLocalZRange(const BinID&) const;
+    void		collectData(const BinID&, const DataHolder&,float,int);
+protected:
+    Interval<int>	sampleinterval;
+};
 
 }; //Namespace
 

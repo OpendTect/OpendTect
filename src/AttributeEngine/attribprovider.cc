@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.9 2005-05-27 07:28:02 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.10 2005-05-31 12:50:09 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -136,6 +136,7 @@ Provider::Provider( Desc& nd )
     , linebuffer( 0 )
     , refstep( 0 )
     , trcnr_( -1 )
+    , seldata_(*new SeisSelData)
     , localcomputezinterval( INT_MAX, INT_MIN )
 {
     desc.ref();
@@ -157,6 +158,7 @@ Provider::~Provider()
     deepErase( computetasks );
 
     delete linebuffer;
+    delete &seldata_;
 }
 
 
@@ -765,4 +767,14 @@ void Provider::adjust2DLineStoredVolume()
 	    inputs[idx]->adjust2DLineStoredVolume();
 }
 
+
+void Provider::setSelData( const SeisSelData& seldata )
+{
+    seldata_ = seldata;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] )
+	    inputs[idx]->setSelData(seldata);
+    }
+}
 }; //namespace

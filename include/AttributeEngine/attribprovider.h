@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.10 2005-05-27 07:28:42 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.11 2005-05-31 12:50:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "survinfo.h"
 #include "linekey.h"
+#include "seistrcsel.h"
 
 class BasicTask;
 class CubeSampling;
@@ -76,6 +77,7 @@ public:
 
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(){};
+    void			setSelData(const SeisSelData&);
     int				getCurrentTrcNr () { return trcnr_; }
     float                       getRefStep() const { return refstep; }
     virtual BinID               getStepoutStep()
@@ -141,6 +143,7 @@ protected:
     DataHolderLineBuffer*	linebuffer;
     BinID			currentbid;
     LineKey			curlinekey_;
+    SeisSelData&		seldata_;
 
     float                       refstep;
     int				trcnr_;

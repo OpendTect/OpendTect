@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.5 2005-05-27 07:28:02 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.6 2005-05-31 12:50:09 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -304,74 +304,85 @@ void StorageProvider::updateStorageReqs()
 
 bool StorageProvider::setSeisRequesterSelection(int req)
 {
-    if ( !desiredvolume ) return true;
-    if ( ! &storedvolume ) return false;
-    
     SeisTrcReader* reader = rg[req]->reader();
     if ( !reader ) return false;
 
-    if ( reader->is2D() )
+    if ( seldata_.type_ == SeisSelData::Table )
     {
-	Seis2DLineSet* lset = reader->lineSet();
-	if ( !lset ) return false;
-	SeisSelData* sel = new SeisSelData;
-	sel->type_ = SeisSelData::Range;
-	sel->linekey_.setAttrName( curlinekey_.attrName() );
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	if ( (const char*)curlinekey_.lineName() != "" )
+	reader->setSelData( &seldata_ ); //Memleak!
+    }
+    else if ( seldata_.type_ == SeisSelData::Range )
+    {
+	if ( !desiredvolume ) return true;
+	if ( ! &storedvolume ) return false;
+	
+	if ( reader->is2D() )
 	{
-	    sel->linekey_.setLineName( curlinekey_.lineName() );
-	    int idx = lset->indexOf( curlinekey_ );
-	    if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
+	    Seis2DLineSet* lset = reader->lineSet();
+	    if ( !lset ) return false;
+	    seldata_.linekey_.setAttrName( curlinekey_.attrName() );
+	    StepInterval<int> trcrg;
+	    StepInterval<float> zrg;
+	    if ( (const char*)curlinekey_.lineName() != "" )
 	    {
-		sel->crlrg_.start = desiredvolume->hrg.start.crl < trcrg.start?
-		    		trcrg.start : desiredvolume->hrg.start.crl;
-		sel->crlrg_.stop = desiredvolume->hrg.stop.crl > trcrg.start ?
-		    		trcrg.stop : desiredvolume->hrg.stop.crl;
-		sel->zrg_.start = desiredvolume->zrg.start < zrg.start ?
-		    		zrg.start : desiredvolume->zrg.start;
-		sel->zrg_.stop = desiredvolume->zrg.stop > zrg.stop ?
-		    		zrg.stop : desiredvolume->zrg.stop;
+		seldata_.linekey_.setLineName( curlinekey_.lineName() );
+		int idx = lset->indexOf( curlinekey_ );
+		if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
+		{
+		    seldata_.crlrg_.start = 
+				desiredvolume->hrg.start.crl < trcrg.start?
+				trcrg.start : desiredvolume->hrg.start.crl;
+		    seldata_.crlrg_.stop = 
+				desiredvolume->hrg.stop.crl > trcrg.start ?
+				trcrg.stop : desiredvolume->hrg.stop.crl;
+		    seldata_.zrg_.start = 
+				desiredvolume->zrg.start < zrg.start ?
+				zrg.start : desiredvolume->zrg.start;
+		    seldata_.zrg_.stop = 
+				desiredvolume->zrg.stop > zrg.stop ?
+				zrg.stop : desiredvolume->zrg.stop;
+		}
+		reader->setSelData( &seldata_ ); //Memleak!
 	    }
-	    reader->setSelData( sel ); //Memleak!
+	    //TODO?
+	    return true;
 	}
-	//TODO?
-	return true;
-    }
-    
-    CubeSampling cs;
-    cs.hrg.start.inl = desiredvolume->hrg.start.inl<storedvolume.hrg.start.inl ?
+	
+	CubeSampling cs;
+	cs.hrg.start.inl = 
+	    	desiredvolume->hrg.start.inl < storedvolume.hrg.start.inl ?
 		storedvolume.hrg.start.inl : desiredvolume->hrg.start.inl;
-    cs.hrg.stop.inl = desiredvolume->hrg.stop.inl > storedvolume.hrg.stop.inl ?
-	        storedvolume.hrg.stop.inl : desiredvolume->hrg.stop.inl;
-    cs.hrg.stop.crl = desiredvolume->hrg.stop.crl > storedvolume.hrg.stop.crl ?
-	        storedvolume.hrg.stop.crl : desiredvolume->hrg.stop.crl;
-    cs.hrg.start.crl = desiredvolume->hrg.start.crl<storedvolume.hrg.start.crl ?
-		storedvolume.hrg.start.crl : desiredvolume->hrg.start.crl;
-    cs.zrg.start = desiredvolume->zrg.start < storedvolume.zrg.start ?
-		storedvolume.zrg.start : desiredvolume->zrg.start;
-    cs.zrg.stop = desiredvolume->zrg.stop > storedvolume.zrg.stop ?
-	                storedvolume.zrg.stop : desiredvolume->zrg.stop;
+	cs.hrg.stop.inl = 
+	    	desiredvolume->hrg.stop.inl > storedvolume.hrg.stop.inl ?
+		storedvolume.hrg.stop.inl : desiredvolume->hrg.stop.inl;
+	cs.hrg.stop.crl = 
+	    	desiredvolume->hrg.stop.crl > storedvolume.hrg.stop.crl ?
+		storedvolume.hrg.stop.crl : desiredvolume->hrg.stop.crl;
+	cs.hrg.start.crl = 
+	    	desiredvolume->hrg.start.crl < storedvolume.hrg.start.crl ?
+	    	storedvolume.hrg.start.crl : desiredvolume->hrg.start.crl;
+	cs.zrg.start = desiredvolume->zrg.start < storedvolume.zrg.start ?
+		    	storedvolume.zrg.start : desiredvolume->zrg.start;
+	cs.zrg.stop = desiredvolume->zrg.stop > storedvolume.zrg.stop ?
+			 storedvolume.zrg.stop : desiredvolume->zrg.stop;
 
-    SeisSelData* sel = new SeisSelData;
-    sel->type_ = SeisSelData::Range;
-    sel->inlrg_.start = cs.hrg.start.inl;
-    sel->inlrg_.stop = cs.hrg.stop.inl;
-    sel->crlrg_.start = cs.hrg.start.crl;
-    sel->crlrg_.stop = cs.hrg.stop.crl;
-    sel->zrg_.start = cs.zrg.start;
-    sel->zrg_.stop = cs.zrg.stop;
+	seldata_.inlrg_.start = cs.hrg.start.inl;
+	seldata_.inlrg_.stop = cs.hrg.stop.inl;
+	seldata_.crlrg_.start = cs.hrg.start.crl;
+	seldata_.crlrg_.stop = cs.hrg.stop.crl;
+	seldata_.zrg_.start = cs.zrg.start;
+	seldata_.zrg_.stop = cs.zrg.stop;
 
-    reader->setSelData( sel ); //Memleak!
+	reader->setSelData( &seldata_ ); //Memleak!
 
-    SeisTrcTranslator* transl = reader->translator();
+	SeisTrcTranslator* transl = reader->translator();
 
-    for ( int idx=0; idx<outputinterest.size(); idx++ )
-    {
-	if ( !outputinterest[idx] ) transl->componentInfo()[idx]->destidx = -1;
+	for ( int idx=0; idx<outputinterest.size(); idx++ )
+	{
+	    if ( !outputinterest[idx] ) 
+		transl->componentInfo()[idx]->destidx = -1;
+	}
     }
-
     return true;
 }
 
