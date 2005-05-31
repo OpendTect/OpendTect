@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.2 2005-04-06 12:01:39 cvsarend Exp $
+ RCS:           $Id: undefval.h,v 1.3 2005-05-31 08:07:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ ________________________________________________________________________
 #else
 
 #define mUdf(type) Values::Undef<type>::val()
+#define mIsUdf(val) Values::isUdf(val)
 
 
 /*!  \brief Templatized undefined and initialisation (i.e. null) values.  
