@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.9 2005-05-27 07:47:24 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.10 2005-06-01 11:49:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
     				InputSpec( const char* d, bool enabled_ )
 				    : desc(d), enabled(enabled_)
 				    , issteering(false)	{}
+
+    const char*        		getDesc() const { return desc; }
 
     BufferString		desc;
     TypeSet<Seis::DataType>	forbiddenDts;
