@@ -5,13 +5,14 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.10 2005-05-27 07:47:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.11 2005-06-01 14:35:20 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "attribstorprovider.h"
 #include "errh.h"
 
 namespace Attrib
@@ -471,6 +472,12 @@ Param* Desc::findParam( const char* key )
     }
 
     return 0;
+}
+
+
+bool Desc::isStored() const
+{
+    return !strcmp(attribName(),StorageProvider::attribName());
 }
 
 /*

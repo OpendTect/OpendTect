@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.10 2005-06-01 11:49:30 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.11 2005-06-01 14:35:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ public:
     bool		isSteering() const		{ return issteering; }
     void		setHidden(bool yn)		{ hidden_ = yn; }
     bool		isHidden() const		{ return hidden_; }
+    bool		isStored() const;
 
     int			nrInputs() const;
     InputSpec&		inputSpec(int);
