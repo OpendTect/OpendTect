@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.34 2005-06-01 08:27:07 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.35 2005-06-02 14:56:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -303,7 +303,7 @@ mDefFNrSteps(double,1e-8)
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 	typ ) const \
 { \
-    if ( step!=b.step ) return false; \
+    if ( step>b.step || b.step%step ) return false; \
 \
     const typ diff = start - b.start; \
     return !(diff%step);	\
