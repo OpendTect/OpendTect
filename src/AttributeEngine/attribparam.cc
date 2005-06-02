@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.6 2005-05-25 06:57:07 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.7 2005-06-02 07:15:10 cvsnanne Exp $";
 
 #include "attribparam.h"
 
@@ -248,6 +248,17 @@ mParamClone( EnumParam );
 
 void EnumParam::addEnum( const char* ne )
 { reinterpret_cast<StringListInpSpec*>(spec)->addString(ne); }
+
+
+void EnumParam::addEnums( const char** nes )
+{
+    int idx=0;
+    while ( nes[idx] )
+    {
+	addEnum( nes[idx] );
+	idx++;
+    }
+}
 
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.5 2005-05-24 14:27:16 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.6 2005-06-02 07:15:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,7 @@ public:
     				EnumParam(const char*);
     EnumParam*			clone() const;
     void			addEnum(const char*);
+    void			addEnums(const char**);
 };
 
 
