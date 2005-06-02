@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.10 2005-05-31 12:50:09 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.11 2005-06-02 10:37:53 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -137,7 +137,6 @@ Provider::Provider( Desc& nd )
     , refstep( 0 )
     , trcnr_( -1 )
     , seldata_(*new SeisSelData)
-    , localcomputezinterval( INT_MAX, INT_MIN )
 {
     desc.ref();
     inputs.allowNull(true);
@@ -428,83 +427,94 @@ bool Provider::setCurrentPosition( const BinID& bid )
     }
 
     //TODO Remove old buffers
-    localcomputezinterval.start = INT_MAX;
-    localcomputezinterval.stop = INT_MIN;
     return true;
 }
 
 
-void Provider::addLocalCompZInterval( const Interval<int>& ni )
+void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 {
     CubeSampling cs = *desiredvolume;
     getPossibleVolume(-1, cs);
+  //  TypeSet< TypeSet<Interval<int> > >inputranges;
+    Interval<int> inputranges[inputs.size()][ni.size()];
 
     float surveystep = SI().zRange().step;
     const float dz = (refstep==0) ? surveystep : refstep;
-    
-    Interval<int> nigoodstep(ni);
-    if ( surveystep != refstep )
-    {
-	nigoodstep.start *= (int)(surveystep / refstep);
-	nigoodstep.stop *= (int)(surveystep / refstep);
-    }
-    
     int cssamplstart = (int)( cs.zrg.start / refstep );
     int cssamplstop = (int)( cs.zrg.stop / refstep );
-    nigoodstep.start = ( cssamplstart < nigoodstep.start ) ? 
-			nigoodstep.start : cssamplstart;
-    nigoodstep.stop = ( cssamplstop > nigoodstep.stop ) ? 
-			nigoodstep.stop : cssamplstop;
     
-    localcomputezinterval.include( nigoodstep, false );
-
-    for ( int out=0; out<outputinterest.size(); out++ )
+    for ( int idx=0; idx<ni.size(); idx++ )
     {
-	if ( !outputinterest[out] ) continue;
+	Interval<int> nigoodstep(ni[idx]);
+	if ( surveystep != refstep )
+	{
+	    nigoodstep.start *= (int)(surveystep / refstep);
+	    nigoodstep.stop *= (int)(surveystep / refstep);
+	}
+	
+	nigoodstep.start = ( cssamplstart < nigoodstep.start ) ? 
+			    nigoodstep.start : cssamplstart;
+	nigoodstep.stop = ( cssamplstop > nigoodstep.stop ) ? 
+			    nigoodstep.stop : cssamplstop;
+	
+	localcomputezintervals += nigoodstep;
 
+	for ( int out=0; out<outputinterest.size(); out++ )
+	{
+	    if ( !outputinterest[out] ) continue;
+
+	    for ( int inp=0; inp<inputs.size(); inp++ )
+	    {
+		if ( !inputs[inp] )
+		    continue;
+
+		Interval<int> inputrange( nigoodstep );
+		Interval<float> zrg( 0, 0 );
+		const Interval<float>* req = reqZMargin( inp, out );
+		if ( req ) zrg = *req;
+		const Interval<float>* des = desZMargin( inp, out );
+		if ( des ) zrg.include( *des );
+
+		inputrange.start += (int)(zrg.start / dz - 0.5);
+		inputrange.stop += (int)(zrg.stop / dz + 0.5);
+
+		inputranges[inp][idx] = inputrange;
+	    }
+	}
 	for ( int inp=0; inp<inputs.size(); inp++ )
 	{
 	    if ( !inputs[inp] )
 		continue;
 
-	    Interval<int> inputrange( nigoodstep );
-	    Interval<float> zrg( 0, 0 );
-	    const Interval<float>* req = reqZMargin( inp, out );
-	    if ( req ) zrg = *req;
-	    const Interval<float>* des = desZMargin( inp, out );
-	    if ( des ) zrg.include( *des );
-
-	    inputrange.start += (int)(zrg.start / dz - 0.5);
-	    inputrange.stop += (int)(zrg.stop / dz + 0.5);
-
-	    inputs[inp]->addLocalCompZInterval( inputrange );
+	    TypeSet<Interval<int> > inpranges;
+	    for ( int idinpr=0; idinpr<ni.size(); idinpr++ )
+		inpranges += inputranges[inp][idinpr];
+	    inputs[inp]->addLocalCompZIntervals( inpranges );
 	}
     }
 }
 
 
-const Interval<int>& Provider::localCompZInterval() const
+const TypeSet< Interval<int> >& Provider::localCompZIntervals() const
 {
-    return localcomputezinterval;
+    return localcomputezintervals;
 }
 
 
-const DataHolder* Provider::getData( const BinID& relpos )
+const DataHolder* Provider::getData( const BinID& relpos, int idi )
 {
     const DataHolder* constres = getDataDontCompute(relpos);
-    if ( constres )
-    {
-	//TODO check range
+    if ( constres && constres->t0_ == localcomputezintervals[idi].start 
+	    && constres->nrsamples_ == localcomputezintervals[idi].width() )
 	return constres;
-    }
 
     if ( !linebuffer )
 	linebuffer = new DataHolderLineBuffer;
     DataHolder* outdata =
         linebuffer->createDataHolder( currentbid+relpos,
-				      localcomputezinterval.start,
-				      localcomputezinterval.width()+1 );
-    if ( !outdata || !getInputData(relpos) )
+				      localcomputezintervals[idi].start,
+				      localcomputezintervals[idi].width()+1 );
+    if ( !outdata || !getInputData(relpos, idi) )
 	return 0;
     
     for ( int idx=0; idx<outputinterest.size(); idx++ )
@@ -583,7 +593,7 @@ bool Provider::init()
 }
 
 
-bool Provider::getInputData( const BinID& )
+bool Provider::getInputData( const BinID&, int )
 {
     return true;
 }

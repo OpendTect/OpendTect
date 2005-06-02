@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.6 2005-05-31 12:50:09 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.7 2005-06-02 10:37:53 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -112,35 +112,42 @@ int Processor::nextStep()
 	    curbid.crl = provider-> getCurrentTrcNr();
 	
 	//TODO: Smarter way if output's intervals don't intersect
-	Interval<int> localinterval;
+	TypeSet< Interval<int> > localintervals;
 	bool isset = false;
 	for ( int idx=0; idx<outputs.size(); idx++ )
 	{
 	    if ( !outputs[idx]->wantsOutput(curbid) ) 
 		continue;
 
-	    if ( isset )
-		localinterval.include(outputs[idx]->getLocalZRange(curbid));
+	    if ( isset )//just assume that intervals.size() will be != 0 only in 			//case of arbitrary shapes which will require only 
+			//one output.
+		localintervals[0].include(
+				outputs[idx]->getLocalZRange(curbid)[0]);
 	    else
 	    {
-		localinterval = outputs[idx]->getLocalZRange(curbid);
+		localintervals = outputs[idx]->getLocalZRange(curbid);
 		isset = true;
 	    }
 	}
 
-	if ( isset ) provider->addLocalCompZInterval(localinterval);
-	const DataHolder* data = isset ? provider->getData() : 0;
-	if ( data )
+	if ( isset ) provider->addLocalCompZIntervals(localintervals);
+	for ( int idi=0; idi<localintervals.size(); idi++ )
 	{
-	    for ( int idx=0; idx<outputs.size(); idx++ )
+	    const DataHolder* data = isset ? 
+				    provider->getData(BinID(0,0), idi): 0;
+	    if ( data )
 	    {
-		outputs[idx]->setReqs(curbid);
-		if ( is2d_ )
-		    curbid = provider->getCurrentPosition();
-		outputs[idx]->collectData( curbid, *data,
-					    provider->getRefStep(),
-					    provider->getCurrentTrcNr() );
+		for ( int idx=0; idx<outputs.size(); idx++ )
+		{
+		    outputs[idx]->setReqs(curbid);
+		    if ( is2d_ )
+			curbid = provider->getCurrentPosition();
+		    outputs[idx]->collectData( curbid, *data,
+						provider->getRefStep(),
+						provider->getCurrentTrcNr() );
+		}
 	    }
+	    delete data;
 	}
     }
 

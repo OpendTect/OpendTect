@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.11 2005-05-31 12:50:09 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.12 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,8 @@ public:
 
     const Desc&			getDesc() const;
     Desc&			getDesc();
-    virtual const DataHolder*	getData(const BinID& relpos=BinID(0,0));
+    virtual const DataHolder*	getData( const BinID& relpos=BinID(0,0), 
+	    				int idx=0 );
     virtual const DataHolder*	getDataDontCompute(const BinID& relpos) const;
 
     void			enableOutput(int output,bool yn=true);
@@ -72,8 +73,10 @@ public:
 				    
     BinID			getCurrentPosition() const;
     virtual bool		setCurrentPosition( const BinID& );
-    void			addLocalCompZInterval(const Interval<int>&);
-    const Interval<int>&	localCompZInterval() const;
+    void			addLocalCompZIntervals(
+	    				const TypeSet< Interval<int> >&);
+    
+    const TypeSet< Interval<int> >&	localCompZIntervals() const;
 
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(){};
@@ -95,7 +98,7 @@ protected:
 	    				bool& issame);
 
     virtual bool	getInputOutput( int input, TypeSet<int>& ) const;
-    virtual bool	getInputData( const BinID& relpos );
+    virtual bool	getInputData( const BinID& relpos, int idx );
     virtual bool	computeData( const DataHolder& output,
 	    			     const BinID& relpos,
 	    			     int t0, int nrsamples ) const
@@ -136,7 +139,7 @@ protected:
     BinID			bufferstepout;
     CubeSampling*		desiredvolume;
     CubeSampling*               possiblevolume;
-    Interval<int>		localcomputezinterval;
+    TypeSet< Interval<int> >	localcomputezintervals;
 
     Threads::ThreadWorkManager*	threadmanager;
     ObjectSet<BasicTask>	computetasks;

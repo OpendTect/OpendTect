@@ -36,6 +36,7 @@ namespace Attrib
 {
 class Processor;
 class DescSet;
+class SelSpec;
 class SliceSet;
 class Output;
 class CubeOutput;
@@ -56,28 +57,28 @@ public:
     CubeOutput* 	createOutput( const IOPar& pars, LineKey ); 
     //old attribengman: voir si on garde toutes ces fonctions 
     //et les adapter le cas echeant.
-/*    const AttribDescSet* attribSet() const	{ return inpattrset; }
-    const NLAModel*	nlaModel() const	{ return nlamodel; }
-    const AttribSelSpec& attribSpec() const	{ return attrspec; }
-    const CubeSampling&	cubeSampling() const	{ return cs; }
-    const BufferString&	lineKey() const		{ return linekey; }
-    const MultiID&	outputID() const	{ return outid; }
+//    const AttribDescSet* attribSet() const	{ return inpattrset; }
+//    const NLAModel*	nlaModel() const	{ return nlamodel; }
+//    const AttribSelSpec& attribSpec() const	{ return attrspec; }
+//    const CubeSampling&	cubeSampling() const	{ return cs; }
+//    const BufferString&	lineKey() const		{ return linekey; }
+//    const MultiID&	outputID() const	{ return outid; }
     			//!< Set this to "" for in-mem output
-    int			secondAttribID() const	{ return attrid2; }
-    float		undefValue() const	{ return udfval; }
+//    int			secondAttribID() const	{ return attrid2; }
+//    float		undefValue() const	{ return udfval; }
 
-    void		setAttribSet(const AttribDescSet*);
+    void		setAttribSet(const DescSet*);
     void		setNLAModel(const NLAModel*);
-    void		setAttribSpec(const AttribSelSpec&);
+    void		setAttribSpec(const SelSpec&);
     void		setCubeSampling(const CubeSampling&);
-    void		setLineKey( const char* lk )	{ linekey = lk; }
+//    void		setLineKey( const char* lk )	{ linekey = lk; }
     void		setOutputID(const MultiID&);
-    void		setSecondAttribID( int i )	{ attrid2 = i; }
-    void		setUndefValue( float v )	{ udfval = v; }
+//    void		setSecondAttribID( int i )	{ attrid2 = i; }
+//    void		setUndefValue( float v )	{ udfval = v; }
     void		addOutputAttrib(int);
-    AttribDescSet*	createNLAADS(int& outid,BufferString& errmsg,
-	    			     const AttribDescSet* addtoset=0);
-
+    DescSet*		createNLAADS(int& outid,BufferString& errmsg,
+	    			     const DescSet* addtoset=0);
+/*
     Executor*		cubeOutputCreater(BufferString& errmsg,
 	    			      const AttribSliceSet* cached_data = 0);
     			//!< Give the previous calculated data in cached data
@@ -101,9 +102,9 @@ public:
 					    const Interval<float>&,
 	    				    SeisTrcBuf&);
 
-    void		prOut(std::ostream&,int);
+    void		prOut(std::ostream&,int);*/
     const char*		curUserDesc() const;
-*/
+
 protected:
 
     const DescSet* 	inpattrset;
@@ -113,11 +114,12 @@ protected:
     float		udfval;
     BufferString	linekey;
 
-    const DescSet* curattrset;
-    DescSet*	procattrset;
+    const DescSet* 	curattrset;
+    DescSet*		procattrset;
     int			curattrid;
     MultiID&		outid;
     TypeSet<int>	outattribs;
+    SelSpec&      	attrspec;
 
 //    bool		mkOutput();
 //    AttribOutputExecutor* mkOutputExecutor(BufferString&,bool needid=true);
@@ -130,8 +132,6 @@ private:
 
     void			clearProcessing();
 //    void		clearZPtrs();
-
-//    bool		handleAttribWithoutInputs();
 
 };
 

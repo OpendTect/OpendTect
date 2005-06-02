@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdesc.h"
 #include "attribslice.h"
+#include "attribsel.h"
 #include "datachar.h"
 //#include "featset.h"
 #include "survinfo.h"
@@ -42,6 +43,7 @@ EngineMan::EngineMan()
 	, nlamodel(0)
 	, cs(*new CubeSampling)
     	, outid(*new MultiID)
+	, attrspec(*new SelSpec)
 {
 }
 
@@ -161,25 +163,25 @@ CubeOutput* EngineMan::createOutput( const IOPar& pars, LineKey lkey )
 }
 
 //pour l'instant copie integrale de l'ancien attribeng.
-/*void AttribEngMan::setNLAModel( const NLAModel* m )
+void EngineMan::setNLAModel( const NLAModel* m )
 {
     delete nlamodel;
     nlamodel = m ? m->clone() : 0;
 }
 
 
-void AttribEngMan::setAttribSet( const AttribDescSet* ads )
+void EngineMan::setAttribSet( const DescSet* ads )
 {
     delete inpattrset;
     inpattrset = ads ? ads->clone() : 0;
 }
 
 
-const char* AttribEngMan::curUserDesc() const
+const char* EngineMan::curUserDesc() const
 {
     if ( attrspec.id() < 0 ) return "";
 
-    AttribSelSpec& ss = const_cast<AttribEngMan*>(this)->attrspec;
+    SelSpec& ss = const_cast<EngineMan*>(this)->attrspec;
     if ( attrspec.isNLA() )
     {
 	if ( !nlamodel ) return "";
@@ -194,44 +196,44 @@ const char* AttribEngMan::curUserDesc() const
 }
 
 
-AttribSliceSet* AttribEngMan::getCubeOutput( Executor* ex )
+/*SliceSet* EngineMan::getCubeOutput( Executor* ex )
 {
     mDynamicCastGet(AttribCubeExecutor*,exec,ex)
     if ( !exec ) return 0;
 
     return exec->fetch3DData();
 }
+*/
 
-
-SeisTrcBuf* AttribEngMan::get2DLineOutput( Executor* ex )
+/*SeisTrcBuf* EngineMan::get2DLineOutput( Executor* ex )
 {
     mDynamicCastGet(AttribCubeExecutor*,exec,ex)
     if ( !exec ) return 0;
 
     return exec->fetch2DData();
 }
+*/
 
-
-void AttribEngMan::setAttribSpec( const AttribSelSpec& a )
+void EngineMan::setAttribSpec( const SelSpec& a )
 {
     attrspec = a;
 }
 
 
-void AttribEngMan::setOutputID( const MultiID& m )
+void EngineMan::setOutputID( const MultiID& m )
 {
     outid = m;
 }
 
 
-void AttribEngMan::setCubeSampling( const CubeSampling& newcs )
+void EngineMan::setCubeSampling( const CubeSampling& newcs )
 {
     cs = newcs;
     cs.normalise();
 }
 
 
-void AttribEngMan::addOutputAttrib( int id )
+void EngineMan::addOutputAttrib( int id )
 {
     outattribs += id;
 }
@@ -240,18 +242,18 @@ void AttribEngMan::addOutputAttrib( int id )
 #define mErrRet() \
 	delete ads; delete ad; return 0
 
-AttribDescSet* AttribEngMan::createNLAADS( int& outid, BufferString& errmsg,
-       					   const AttribDescSet* addtoset )
+/*DescSet* EngineMan::createNLAADS( int& outpid, BufferString& errmsg,
+       				   const DescSet* addtoset )
 {
-    AttribDescSet* ads = addtoset ? addtoset->clone() : new AttribDescSet;
-    CalcAttribDesc* ad = 0;
+    DescSet* ads = addtoset ? addtoset->clone() : new DescSet;
+    Desc* ad = 0;
 
     if ( !addtoset && !ads->usePar(const_cast<NLAModel*>(nlamodel)->pars()) )
 	{ errmsg = ads->errMsg(); mErrRet(); }
 
     BufferString s;
     nlamodel->dump(s);
-    ad = new CalcAttribDesc( *ads );
+    ad = new Desc( *ads );
     BufferString def( nlamodel->nlaType(true) );
     def += " specification=\""; def += s; def += "\"";
 
@@ -276,18 +278,18 @@ AttribDescSet* AttribEngMan::createNLAADS( int& outid, BufferString& errmsg,
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
 		if ( ioobj )
 		{
-		    AttribDesc* newdesc = new StorageAttribDesc( *ads );
+		    Desc* newdesc = new Desc( *ads );
 		    newdesc->setDefStr(inpname,false);
 		    newdesc->setUserRef( ioobj->name() );
 		    dnr = ads->addAttrib( newdesc );
+		    if ( dnr < 0 )
+		    {
+			errmsg = "NLA input '";
+			errmsg += inpname;
+			errmsg += "' cannot be found in the provided set.";
+			mErrRet();
+		    }
 		}
-	    }
-	    if ( dnr < 0 )
-	    {
-		errmsg = "NLA input '";
-		errmsg += inpname;
-		errmsg += "' cannot be found in the provided set.";
-		mErrRet();
 	    }
 	}
 	ad->setInput( idx, ads->id(dnr) );
@@ -299,8 +301,8 @@ AttribDescSet* AttribEngMan::createNLAADS( int& outid, BufferString& errmsg,
 	mErrRet();
     }
 
-    outid = ads->id( ads->addAttrib( ad ) );
-    if ( outid == -1 )
+    outpid = ads->id( ads->addAttrib( ad ) );
+    if ( outpid == -1 )
     {
 	errmsg = ads->errMsg();
 	mErrRet();
@@ -308,9 +310,9 @@ AttribDescSet* AttribEngMan::createNLAADS( int& outid, BufferString& errmsg,
 
     return ads;
 }
+*/
 
-
-void AttribEngMan::setExecutorName( Executor* ex )
+/*void EngineMan::setExecutorName( Executor* ex )
 {
     if ( !ex ) return;
     BufferString usernm( curUserDesc() );
@@ -345,47 +347,13 @@ void AttribEngMan::setExecutorName( Executor* ex )
 
     ex->setName( nm );
 }
-
-
-bool AttribEngMan::handleAttribWithoutInputs()
-{
-    const int descnr = procattrset->descNr( attrspec.id() );
-    if ( descnr < 0 ) return false;
-    const AttribDesc& ad = procattrset->getAttribDesc( descnr );
-    if ( ad.isStored() || ad.nrInputs() ) return true;
-
-    int storedid = -1;
-    MultiID key;
-    bool hasstored = procattrset->getFirstStored( Both2DAnd3D, key );
-    if ( !hasstored )
-    {
-	StorageAttribDesc* newdesc = new StorageAttribDesc( *procattrset );
-	if ( !newdesc->setDefStr( "", true ) ) return false;
-	storedid = procattrset->getStoredAttribID( newdesc->defStr(), 0, true );
-	delete newdesc;
-    }
-    else
-	storedid = procattrset->getStoredAttribID( key, 0, true );
-
-    if ( storedid < 0 ) return false;
-
-    BufferString expr = "Math expression=x0+0*x1 steering=no pos0=0,0 pos1=0,0";
-    CalcAttribDesc* newad = new CalcAttribDesc( *procattrset );
-    newad->setDefStr( expr, false );
-    newad->setUserRef( "Math" );
-    newad->setInput( 0, attrspec.id() );
-    newad->setInput( 1, storedid );
-    curattrid = procattrset->addAttrib( newad );
-    attrspec.set( newad->userRef(), storedid, false, 0 );
-    return true;
-}
-
+*/
 
 #undef mErrRet
 #define mErrRet(s) { errmsg = s; return 0; }
 
-
-AttribOutputExecutor* AttribEngMan::mkOutputExecutor( BufferString& errmsg,
+/*
+AttribOutputExecutor* EngineMan::mkOutputExecutor( BufferString& errmsg,
 						      bool needid )
 {
     errmsg = "";
@@ -428,7 +396,7 @@ AttribOutputExecutor* AttribEngMan::mkOutputExecutor( BufferString& errmsg,
 }
 
 
-AttribOutputExecutor* AttribEngMan::getOutputExecutor( BufferString& errmsg,
+AttribOutputExecutor* EngineMan::getOutputExecutor( BufferString& errmsg,
 						       bool needid )
 {
     AttribOutputExecutor* ret = mkOutputExecutor( errmsg, needid );
@@ -444,7 +412,7 @@ AttribOutputExecutor* AttribEngMan::getOutputExecutor( BufferString& errmsg,
 #define mStepEps 1e-3
 
 
-Executor* AttribEngMan::cubeOutputCreater( BufferString& errmsg,
+Executor* EngineMan::cubeOutputCreater( BufferString& errmsg,
 				      const AttribSliceSet* prev )
 {
     if ( cs.isEmpty() )
@@ -639,7 +607,7 @@ int nextStep()
 };
 
 
-Executor* AttribEngMan::featureOutputCreator(
+Executor* EngineMan::featureOutputCreator(
 			const BufferStringSet& inputs,
 			const ObjectSet<BinIDValueSet>& bivsets,
 			ObjectSet<FeatureSet>& fss )
@@ -648,7 +616,7 @@ Executor* AttribEngMan::featureOutputCreator(
 }
 
 
-Executor* AttribEngMan::tableOutputCreator( BufferString& errmsg,
+Executor* EngineMan::tableOutputCreator( BufferString& errmsg,
 				ObjectSet<BinIDValueSet>& bidzvset )
 {
     if ( bidzvset.size() == 0 ) mErrRet("No locations to extract data on")
@@ -700,7 +668,7 @@ Executor* AttribEngMan::tableOutputCreator( BufferString& errmsg,
 }
 
 
-Executor* AttribEngMan::trcSelOutputCreator( BufferString& errmsg,
+Executor* EngineMan::trcSelOutputCreator( BufferString& errmsg,
 					     const TypeSet<BinID>& bids,
 					     const Interval<float>& zrg,
 					     SeisTrcBuf& output )

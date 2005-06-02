@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.1 2005-05-30 07:59:44 cvsnanne Exp $
+ RCS:           $Id: instantattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ protected:
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>& exis);
 
     bool			getInputOutput(int in,TypeSet<int>& res) const;
-    bool			getInputData(const BinID&);
+    bool			getInputData(const BinID&, int);
     bool			computeData(const DataHolder&,const BinID& pos,
 	    				    int t0,int nrsamples) const;
 

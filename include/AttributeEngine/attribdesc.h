@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.11 2005-06-01 14:35:27 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.12 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,11 @@ class Desc
 public:
 
 			Desc( const Desc& );
+			Desc( DescSet* descset );
 			Desc( const char* basename,DescStatusUpdater updater=0,
 			      DescChecker=0);
+//    void		erase() { deepErase( params );
+//	    			deepUnRef( inputs ); }
 
     const char*		attribName() const;
     Desc*		clone() const;

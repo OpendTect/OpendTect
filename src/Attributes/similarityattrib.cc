@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.1 2005-05-31 12:48:40 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -172,7 +172,7 @@ bool Similarity::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Similarity::getInputData(const BinID& relpos)
+bool Similarity::getInputData(const BinID& relpos, int idx)
 {
     if ( !inputdata.size() )
 	inputdata += 0;
@@ -180,7 +180,7 @@ bool Similarity::getInputData(const BinID& relpos)
     if ( extension != mExtensionCube && inputdata.size() < 2 )
 	inputdata += 0;
 
-    steeringdata = dosteer ? inputs[1]->getData(relpos) : 0;
+    steeringdata = dosteer ? inputs[1]->getData(relpos, idx) : 0;
 
     const BinID bidstep = inputs[0]-> getStepoutStep();
     if ( extension==mExtensionCube )
@@ -191,7 +191,8 @@ bool Similarity::getInputData(const BinID& relpos)
 	{
 	    for ( ; localpos.crl<=stepout.crl; localpos.crl+=bidstep.crl )
 	    {
-		const DataHolder* data = inputs[0]->getData( localpos+relpos );
+		const DataHolder* data = 
+		    		inputs[0]->getData( localpos+relpos, idx );
 
 		if ( !data )
 		    return false;
@@ -213,12 +214,12 @@ bool Similarity::getInputData(const BinID& relpos)
 	truepos1.inl = pos1.inl * bidstep.inl;
 	truepos0.crl = pos0.crl * bidstep.crl; 
 	truepos1.crl = pos1.crl * bidstep.crl;
-	const DataHolder* p0 = inputs[0]->getData( relpos+truepos0 );
+	const DataHolder* p0 = inputs[0]->getData( relpos+truepos0, idx );
 	if ( !p0 ) { return false; }
 	inputdata.replace( 0, p0 );
 	steeridx += getSteeringIndex(pos0);
 
-	const DataHolder* p1 = inputs[0]->getData( relpos+truepos1 );
+	const DataHolder* p1 = inputs[0]->getData( relpos+truepos1, idx );
 	if ( !p1 ) { return false; }
 	inputdata.replace( 1, p1 );
 	steeridx += getSteeringIndex(pos1);
@@ -227,12 +228,12 @@ bool Similarity::getInputData(const BinID& relpos)
 	{
 	    while ( inputdata.size() < 4 )
 		inputdata += 0;
-	    p0 = inputs[0]->getData( relpos+BinID(pos0.crl,-pos0.inl) );
+	    p0 = inputs[0]->getData( relpos+BinID(pos0.crl,-pos0.inl), idx );
 	    if ( !p0 ) { return false; }
 	    inputdata.replace( 2, p0 );
 	    steeridx += getSteeringIndex(BinID(pos0.crl,-pos0.inl));
 
-	    p1 = inputs[0]->getData( relpos+BinID(pos1.crl,-pos1.inl) );
+	    p1 = inputs[0]->getData( relpos+BinID(pos1.crl,-pos1.inl), idx );
 	    if ( !p1 ) { inputdata.erase(); return false; }
 	    inputdata.replace( 3, p1 );
 	    steeridx += getSteeringIndex(BinID(pos1.crl,-pos1.inl));
@@ -241,12 +242,12 @@ bool Similarity::getInputData(const BinID& relpos)
 	{
 	    while ( inputdata.size() < 4 )
 		inputdata += 0;
-	    p0 = inputs[0]->getData( relpos+BinID(-pos0.inl,-pos0.crl) );
+	    p0 = inputs[0]->getData( relpos+BinID(-pos0.inl,-pos0.crl), idx );
 	    if ( !p0 ) { inputdata.erase(); return false; }
 	    inputdata.replace( 2, p0 );
 	    steeridx += getSteeringIndex(BinID(-pos0.inl,-pos0.crl));
 
-	    p1 = inputs[0]->getData( relpos+BinID(-pos1.inl,-pos1.crl) );
+	    p1 = inputs[0]->getData( relpos+BinID(-pos1.inl,-pos1.crl), idx );
 	    if ( !p1 ) { inputdata.erase(); return false; }
 	    inputdata.replace( 3, p1 );
 	    steeridx += getSteeringIndex(BinID(-pos1.inl,-pos1.crl));

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.6 2005-05-19 08:03:21 cvshelene Exp $
+ RCS:           $Id: attribdataholder.h,v 1.7 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     void			replace(int idx,ValueSeries<float>* valseries)
 				{ data_.replace( idx, valseries ); }
 
-
+    inline bool			append(const DataHolder& dh);
 
     int				t0_;
     int				nrsamples_;
@@ -55,6 +55,23 @@ ValueSeries<float>* DataHolder::add(bool null)
     return res;
 }
 
+
+bool DataHolder::append(const DataHolder& dh)
+{
+    if ( nrItems() != dh.nrItems() )
+	return false;
+    
+    int prevnrsamp = nrsamples_;
+    nrsamples_ += dh.nrsamples_;
+    for ( int idx=0; idx< dh.nrItems(); idx++ )
+    {
+	for ( int idy=0; idy<dh.nrsamples_; idy++ )
+	{
+	    item(idx)->setValue( prevnrsamp+idy, dh.item(idx)->value(idy) );
+	}
+    }
+    return true;
+}
 
 }; //Namespace
 

@@ -103,9 +103,9 @@ bool Event::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Event::getInputData( const BinID& relpos )
+bool Event::getInputData( const BinID& relpos, int idx )
 {
-    inputdata = inputs[0]->getData( relpos );
+    inputdata = inputs[0]->getData( relpos, idx );
     return inputdata;
 }
 
@@ -243,7 +243,10 @@ void Event::multipleEvents( TypeSet<float>& output , int nrsamples, int t0 )
 	    sg.start = cursample;
 	    sg.stop = sg.start + samplegatewidth;
 	    ValueSeriesEvent<float,float> ev = vsevfinder.find( evtype, sg, 1 );
-	    output[idx] = fabs( (t0 + idx) - ev.pos);
+	    if ( mIsUndefined(ev.pos) )
+		output[idx] = fabs( (t0 + idx) - ev.pos);
+	    else
+		output[idx] = fabs( (t0 + idx) - ev.pos) * refstep;
 	}
 	return;
     }
@@ -254,7 +257,10 @@ void Event::multipleEvents( TypeSet<float>& output , int nrsamples, int t0 )
 	sg.start = t0;
 	sg.stop = tonext ? sg.start + SGWIDTH : sg.start - SGWIDTH;
 	ValueSeriesEvent<float,float> ev = vsevfinder.find( evtype, sg, 1 );
-	output[0] = fabs( t0 - ev.pos );
+	if ( mIsUndefined(ev.pos) )
+	    output[0] = fabs( t0 - ev.pos );
+	else
+	    output[0] = fabs( t0 - ev.pos ) * refstep;
     }
     else
     {
@@ -283,7 +289,12 @@ void Event::multipleEvents( TypeSet<float>& output , int nrsamples, int t0 )
 		    nextev = findNextEvent(nextev, 1, evtype, nrsamples);
 		}
 		if ( cursample > ev.pos && cursample < nextev.pos)
-		    output[idx] = nextev.pos - ev.pos;
+		{
+		    if ( mIsUndefined(nextev.pos) )
+			output[idx] = (nextev.pos - ev.pos);
+		    else 
+			output[idx] = (nextev.pos - ev.pos) * refstep;
+		}
 	    }
 	}
 	else
@@ -299,7 +310,12 @@ void Event::multipleEvents( TypeSet<float>& output , int nrsamples, int t0 )
 		    nextev = findNextEvent(nextev, -1, evtype, nrsamples);
 		}
 		if ( cursample < ev.pos && cursample > nextev.pos)
-		    output[idx] = ev.pos - nextev.pos;
+		{
+		    if ( mIsUndefined(nextev.pos) )
+			output[idx] = (ev.pos - nextev.pos);
+		    else
+			output[idx] = (ev.pos - nextev.pos) * refstep;
+		}
 	    }
 	}
     }
@@ -320,7 +336,8 @@ bool Event::computeData( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-            if ( outputinterest[0] ) output.item(0)->setValue(idx, outp[idx]);
+            if ( outputinterest[0] ) 
+		output.item(0)->setValue(idx, outp[idx]);
 	    else if ( outputinterest[1] ) 
 		output.item(1)->setValue(idx, outp[idx]);
 	    else if ( outputinterest[2] )

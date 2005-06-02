@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.1 2005-05-30 07:59:44 cvsnanne Exp $
+ RCS:           $Id: instantattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,10 +82,10 @@ bool Instantaneous::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Instantaneous::getInputData( const BinID& relpos )
+bool Instantaneous::getInputData( const BinID& relpos, int idx )
 {
-    realdata = inputs[0]->getData( relpos );
-    imagdata = inputs[1]->getData( relpos );
+    realdata = inputs[0]->getData( relpos, idx );
+    imagdata = inputs[1]->getData( relpos, idx );
     return realdata && imagdata;
 }
 

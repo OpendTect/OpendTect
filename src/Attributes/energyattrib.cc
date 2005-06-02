@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.1 2005-05-31 12:48:40 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $";
 
 
 #include "energyattrib.h"
@@ -74,12 +74,12 @@ bool Energy::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Energy::getInputData( const BinID& relpos )
+bool Energy::getInputData( const BinID& relpos, int idx )
 {
     if ( !inputdata.size() )
 	inputdata += 0;
 
-    const DataHolder* data = inputs[0]->getData( relpos );
+    const DataHolder* data = inputs[0]->getData( relpos, idx );
     inputdata.replace( 0, data );
     return data;
 }

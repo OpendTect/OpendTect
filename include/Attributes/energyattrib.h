@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.1 2005-05-31 12:47:04 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ protected:
     static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&);
+    bool		getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples) const;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.1 2005-05-31 07:16:12 cvsnanne Exp $
+ RCS:           $Id: mathattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Math::getInputData( const BinID& relpos )
+bool Math::getInputData( const BinID& relpos, int idi )
 {
     const int nrvar = expression_->getNrVariables();
     while ( nrvar < inputdata_.size() )
@@ -124,7 +124,7 @@ bool Math::getInputData( const BinID& relpos )
 
     for ( int idx=0; idx<nrvar; idx++ )
     {
-	const DataHolder* data = inputs[idx]->getData( relpos );
+	const DataHolder* data = inputs[idx]->getData( relpos, idi );
 	if ( !data ) return false;
 	
 	inputdata_.replace( idx, data );

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.5 2005-05-31 12:50:09 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.6 2005-06-02 10:37:53 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -42,11 +42,13 @@ SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
     , sliceset( 0 )
 {
     const float dz = SI().zRange().step;
-    sampleinterval.start = (int)( cs.zrg.start / dz );
+    Interval<int> interval;
+    interval.start = (int)( cs.zrg.start / dz );
     const float stop = ( cs.zrg.stop / dz );
-    sampleinterval.stop = (int)stop;
-    if ( stop-sampleinterval.stop )
-	sampleinterval.stop++;
+    interval.stop = (int)stop;
+    if ( stop - interval.stop )
+	interval.stop++;
+    sampleinterval += interval;
 }
 
 
@@ -61,7 +63,7 @@ bool SliceSetOutput::wantsOutput( const BinID& bid ) const
 { return desiredvolume.hrg.includes(bid); }
 
 
-Interval<int> SliceSetOutput::getLocalZRange(const BinID&) const
+TypeSet< Interval<int> > SliceSetOutput::getLocalZRange(const BinID&) const
 { return sampleinterval; }
 
 
@@ -107,14 +109,17 @@ CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey)
     , prevpos_(-1,-1)
     , storinited_(0)
     , lkey_(lkey)
+    , buf2d_(0)
     , errmsg(0)
 {
     const float dz = SI().zRange().step;
-    sampleinterval.start = (int)( cs.zrg.start / dz );
+    Interval<int> interval;
+    interval.start = (int)( cs.zrg.start / dz );
     const float stop = ( cs.zrg.stop / dz );
-    sampleinterval.stop = (int)stop;
-    if ( stop-sampleinterval.stop )
-	sampleinterval.stop++;
+    interval.stop = (int)stop;
+    if ( stop-interval.stop )
+	interval.stop++;
+    sampleinterval += interval;
 
     seldata_.linekey_ = lkey;
 }
@@ -128,7 +133,7 @@ bool CubeOutput::wantsOutput( const BinID& bid ) const
 { return desiredvolume.hrg.includes(bid); }
 
 
-Interval<int> CubeOutput::getLocalZRange(const BinID&) const
+TypeSet< Interval<int> > CubeOutput::getLocalZRange(const BinID&) const
 { return sampleinterval; }
 
 
@@ -164,6 +169,8 @@ CubeOutput::~CubeOutput()
     delete writer_;
     delete &storid_;
     delete auxpars;
+    if ( buf2d_ )
+	buf2d_->erase();
 }
 
 
@@ -303,11 +310,6 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
 {
     if ( !calcurpos_ ) return;
 
-    ObjectSet<const SeisTrc> trcs;//TODO consider the case of multiple providers
-    //leading to multiple trcs: what is then the dataHolder?
-    //here dataholder only have results for the selected outputs of one single 
-    //provider..., so if nrtrcs>1 do a loop over nrtrcs 
-    //(look in old CubeAttribOutput::createOutput).
     int nrcomp = data.nrItems();
     if ( !nrcomp || nrcomp < desoutputs.size())
 	return;
@@ -373,7 +375,7 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
     else if ( is2d_ )
     {
 	if ( !buf2d_ ) buf2d_ = new SeisTrcBuf;
-	    buf2d_->add( new SeisTrc( *trc ) );
+	buf2d_->add( new SeisTrc( *trc ) );
     }
 
     // TODO later on : create function on writer to handle dataholder directly
@@ -416,46 +418,113 @@ bool LocationOutput::wantsOutput( const BinID& bid ) const
 }
 
 
-Interval<int> LocationOutput::getLocalZRange(const BinID& bid) const
+TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     const float* vals = bidvalset_.getVals(pos);
-    const_cast<LocationOutput*>(this)->sampleinterval.start =(int)vals[0];
-    const_cast<LocationOutput*>(this)->sampleinterval.stop = (int)vals[0];
+    Interval<int> interval;
+    interval.start =(int)vals[0]; interval.stop = (int)vals[0];
+    const_cast<LocationOutput*>(this)->sampleinterval += interval;
     return sampleinterval;
 }
 
 
-TrcSelectionOutput::TrcSelectionOutput( const char* blablaclass )
-//    : bla_(blabla)
+TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset )
+    : bidvalset_(bidvalset)
+    , outpbuf_(0)
 {
     seldata_.type_ = SeisSelData::Table;
     seldata_.table_.allowDuplicateBids( true );
-//    seldata_.table_ = ;
+    seldata_.table_ = bidvalset;
+    int nrinterv = bidvalset.nrVals()/2;
+    float zmin = bidvalset.valRange(0).start;
+    float zmax = bidvalset.valRange(1).stop;
+    for ( int idx=2; idx<nrinterv; idx+=2 )
+    { 
+	zmin = bidvalset.valRange(idx).start < zmin ? 
+	    		bidvalset.valRange(idx).start : zmin;
+	zmax = bidvalset.valRange(idx+1).stop > zmax ? 
+	    		bidvalset.valRange(idx+1).stop : zmax;
+    }
+    stdtrcsz_ = zmax - zmin;
+    stdstarttime_ = zmin;
 }
 
+
+TrcSelectionOutput::~TrcSelectionOutput()
+{
+    if ( outpbuf_ )
+	outpbuf_->erase();
+}
 
 void TrcSelectionOutput::collectData( const BinID& bid,const DataHolder& data,
                              float refstep, int trcnr )
 {
-    //add code
+    int nrcomp = data.nrItems();
+    if ( !nrcomp || nrcomp < desoutputs.size())
+	return;
+
+    int sz = (int)(stdtrcsz_/refstep);
+    int startidx = (int)((data.t0_ - stdstarttime_) / refstep);
+    int index = outpbuf_->find(bid);
+    SeisTrc* trc;
+
+    if ( index == -1 )
+    {
+	const DataCharacteristics dc;
+	trc = new SeisTrc(sz, dc);
+	for ( int idx=trc->data().nrComponents(); idx<desoutputs.size(); idx++)
+	    trc->data().addComponent( sz, dc, false );
+
+	trc->info().sampling.step = refstep;
+	trc->info().sampling.start = stdstarttime_;
+	trc->info().binid = bid;
+	trc->info().coord = SI().transform( bid );
+    }
+    else
+	trc = outpbuf_->remove( index );
+
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
-	float val = data.item(desoutputs[comp])->value(0);
+	for ( int idx=0; idx<data.nrsamples_; idx++ )
+	{
+	    float val = data.item(desoutputs[comp])->value(idx);
+	    trc->set(startidx+idx, val, comp);
+	}
     }
+
+    if ( index == -1 )
+	outpbuf_->add(trc);
+    else
+	outpbuf_-> insert(trc, index);
 }
 
 
 bool TrcSelectionOutput::wantsOutput( const BinID& bid ) const
 {
-    //make specific code
+    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    if ( pos.i == 0 || pos.j == 0 )
+        return false;
+	
     return true;
 }
 
 
-Interval<int> TrcSelectionOutput::getLocalZRange(const BinID& bid) const
+TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRange(
+						const BinID& bid) const
 {
-    //make specific code
+    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    BinID binid;
+    const float dz = SI().zRange().step;
+    TypeSet<float> values;
+    bidvalset_.get( pos, binid , values );
+    for ( int idx=0; idx<values.size()/2; idx+=2 )
+    {
+	Interval<int> interval;
+	interval.start = (int)(values[idx]/dz); 
+	interval.stop = (int)(values[idx+1]/dz);
+	const_cast<TrcSelectionOutput*>(this)->sampleinterval += interval;
+    }	
     return sampleinterval;
 }
 

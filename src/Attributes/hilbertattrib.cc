@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.1 2005-05-30 19:09:14 cvsnanne Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,9 +79,9 @@ bool Hilbert::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Hilbert::getInputData( const BinID& relpos )
+bool Hilbert::getInputData( const BinID& relpos, int idx )
 {
-    inputdata = inputs[0]->getData( relpos );
+    inputdata = inputs[0]->getData( relpos, idx );
     return inputdata;
 }
 
