@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.28 2004-11-09 10:22:56 nanne Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.29 2005-06-02 14:11:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 	        	   "Do you wish to continue?" ) )
 	return false;
 
-    uiSeisIOObjInfo::SpaceInfo spi;
+    SeisIOObjInfo::SpaceInfo spi;
     int nrsamps, bps;
     if ( !handleInput(spi.expectednrsamps,spi.maxbytespsamp) )
 	return false;

@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.32 2005-02-10 13:54:39 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.33 2005-06-02 14:11:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
+#include "uiseisioobjinfo.h"
 #include "uiseisfmtscale.h"
 #include "uigeninput.h"
 #include "uimainwin.h"
@@ -95,10 +96,10 @@ int uiSeisTransfer::maxBytesPerSample() const
 }
 
 
-uiSeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
+SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 {
     int ntr = selfld->expectedNrTraces();
-    uiSeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(), ntr,
+    SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(), ntr,
 				   maxBytesPerSample() );
     if ( is2d )
 	si.expectednrtrcs = ntr;
