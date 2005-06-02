@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.7 2005-05-27 07:28:02 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.8 2005-06-02 07:13:53 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -18,6 +18,21 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.7 2005-05-27 07:28:02 cvsh
 
 namespace Attrib
 {
+
+DescSet* DescSet::clone() const
+{
+    DescSet* descset = new DescSet();
+    for ( int idx=0; idx<nrDescs(); idx++ )
+    {
+	Desc* nd = descs[idx]->clone();
+	nd->setDescSet( descset );
+	descset->descs += nd;
+	descset->ids += ids[idx];
+    }
+
+    return descset;
+}
+
 
 int DescSet::addDesc( Desc* nd )
 {
@@ -51,6 +66,12 @@ int DescSet::getID( const Desc& desc ) const
 {
     const int idx = descs.indexOf( &desc );
     return idx==-1 ? -1 : ids[idx];
+}
+
+
+void DescSet::getIds( TypeSet<int>& attribids ) const
+{
+    attribids = ids;
 }
 
 
