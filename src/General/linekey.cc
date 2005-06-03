@@ -4,10 +4,13 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.2 2004-12-01 12:12:42 nanne Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.3 2005-06-03 10:36:16 cvsbert Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
+#include "ioobj.h"
+#include "ptrman.h"
+#include "ioman.h"
 #include "keystrs.h"
 
 const char* LineKey::sKeyDefAttrib = "Seis";
@@ -64,4 +67,33 @@ bool LineKey::usePar( const IOPar& iop, bool iopnm )
 	*this = LineKey( iop.name(), res );
 
     return true;
+}
+
+
+BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm )
+{
+    BufferString ret;
+    if ( !IOObj::isKey(defkey) )
+	ret = defkey;
+    else
+    {
+	LineKey lk( defkey );
+	ret = "[";
+	if ( ioobjnm && *ioobjnm )
+	    lk.setLineName( ioobjnm );
+	else
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( MultiID(defkey) );
+	    if ( ioobj )
+		lk.setLineName( ioobj->name() );
+	    else
+	    {
+		BufferString nm( "<" ); nm += lk.lineName(); nm += ">";
+		lk.setLineName( nm );
+	    }
+	}
+	ret += lk;
+	ret += "]";
+    }
+    return ret;
 }

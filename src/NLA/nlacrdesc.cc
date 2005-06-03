@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.8 2005-02-09 15:57:48 bert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.9 2005-06-03 10:36:16 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 #include "posvecdataset.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: nlacrdesc.cc,v 1.8 2005-02-09 15:57:48 bert Exp
 #include "errh.h"
 #include "ptrman.h"
 #include "stats.h"
+#include "linekey.h"
 
 NLACreationDesc& NLACreationDesc::operator =(
 	const NLACreationDesc& sd )
@@ -57,7 +58,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<PosVecDataSet>& vdss,
     {
         for ( int iout=0; iout<nrout; iout++ )
 	{
-	    BufferString psnm = IOM().nameOf( outids[iout]->buf() );
+	    BufferString psnm = LineKey::defKey2DispName( outids.get(iout) );
             trainvds.add( new DataColDef( psnm, *outids[iout] ) );
 	}
     }

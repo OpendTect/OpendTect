@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: linekey.h,v 1.1 2004-10-11 14:49:56 bert Exp $
+ RCS:           $Id: linekey.h,v 1.2 2005-06-03 10:36:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,12 @@ public:
     bool		usePar(const IOPar&,bool linename_is_iopar_name);
 
     static const char*	sKeyDefAttrib;
+    static BufferString	defKey2DispName(const char* defkey,
+	    				const char* ioobjnm=0);
+    			//!< 'defkey' is a LineKey where the line name
+    			//!< may be an IOObj ID
 };
+
 
 
 /*!\brief class providing a current line key */

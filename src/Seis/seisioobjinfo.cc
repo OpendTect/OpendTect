@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.1 2005-06-02 14:11:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.2 2005-06-03 10:36:16 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.1 2005-06-02 14:11:53 cvsb
 #include "survinfo.h"
 #include "binidselimpl.h"
 #include "cubesampling.h"
+#include "linekey.h"
 #include "errh.h"
 
 
@@ -230,4 +231,11 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 	if ( target == requested )
 	    bss.addIfNew( listadd );
     }
+}
+
+
+BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
+					     const char* ioobjnm )
+{
+    return LineKey::defKey2DispName( defkey, ioobjnm );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.1 2005-06-02 14:11:52 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.2 2005-06-03 10:36:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,11 @@ public:
     bool		getRanges(CubeSampling&) const;
     bool		getBPS(int&,int icomp) const;
     			//!< max bytes per sample, component -1 => add all
+
     void		getDefKeys(BufferStringSet&,bool add=false) const;
     			//!< For 3D: IOObj ID, for 2D: list of ID|attrnm
+    static BufferString	defKey2DispName(const char* defkey,
+	    				const char* ioobjnm=0);
 
     // 2D only
     void		getLineNames( BufferStringSet& b, bool add=true,
