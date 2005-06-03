@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.80 2005-05-18 11:31:06 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.81 2005-06-03 11:47:50 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -101,6 +101,8 @@ uiODApplMgr* uiODTreeTop::applMgr()
 }
 
 
+// ***** uiODTreeItem
+
 uiODTreeItem::uiODTreeItem( const char* name__ )
     : uiTreeItem( name__ )
 {}
@@ -128,6 +130,46 @@ int uiODTreeItem::sceneID() const
     getProperty<int>( uiODTreeTop::sceneidkey, sceneid );
     return sceneid;
 }
+
+
+void uiODTreeItem::addStandardItems( uiPopupMenu& mnu )
+{
+    if ( !children.size() ) return;
+
+    mnu.insertSeparator( 100 );
+    mnu.insertItem( new uiMenuItem("Show all"), 101 );
+    mnu.insertItem( new uiMenuItem("Hide all"), 102 );
+    mnu.insertItem( new uiMenuItem("Remove all"), 103 );
+}
+
+
+void uiODTreeItem::handleStandardItems( int mnuid )
+{
+    for ( int idx=0; idx<children.size(); idx++ )
+    {
+	if ( mnuid == 101 )
+	    children[idx]->setChecked( true );
+	else if ( mnuid == 102 )
+	    children[idx]->setChecked( false );
+    }
+
+    if ( mnuid==103 )
+    {
+	BufferString msg( "All " ); msg += name(); 
+	msg += " items will be removed.\nDo you want to continue?";
+	if ( !uiMSG().askGoOn(msg) ) return;
+
+	while ( children.size() )
+	{
+	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children[0])
+	    if ( !itm ) continue;
+	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
+	    removeChild( itm );
+	}
+    }
+}
+
+
 
 
 void uiODTreeTop::addFactoryCB(CallBacker* cb)
@@ -170,9 +212,11 @@ void uiODTreeTop::removeFactoryCB(CallBacker* cb)
 #define mParentShowSubMenu( creation ) \
     uiPopupMenu mnu( getUiParent(), "Action" ); \
     mnu.insertItem( new uiMenuItem("Add"), 0 ); \
+    addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
     if ( mnuid==0 ) \
 	creation; \
+    handleStandardItems( mnuid ); \
  \
     return true; \
 
@@ -1083,13 +1127,14 @@ bool uiODFaultParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New ..."), 1 );
+    addStandardItems( mnu );
 
     MultiID mid;
-    bool success = false;
+    bool addflt = false;
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
-	success = applMgr()->EMServer()->selectFault(mid);
+	addflt = applMgr()->EMServer()->selectFault(mid);
     else if ( mnuid == 1 )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
@@ -1097,11 +1142,11 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	mps->startWizard( EM::Fault::typeStr(), 0 );
 	return true;
     }
+    else
+	handleStandardItems( mnuid );
 
-    if ( !success )
-	return false;
-
-    addChild( new uiODFaultTreeItem(mid) );
+    if ( addflt )
+	addChild( new uiODFaultTreeItem(mid) );
 
     return true;
 }
@@ -1135,13 +1180,14 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New ..."), 1 );
+    addStandardItems( mnu );
 
     MultiID mid;
-    bool success = false;
+    bool addhor = false;
 
     const int mnuid = mnu.exec();
-    if ( !mnuid )
-	success = applMgr()->EMServer()->selectHorizon(mid);
+    if ( mnuid == 0 )
+	addhor = applMgr()->EMServer()->selectHorizon(mid);
     else if ( mnuid == 1 )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
@@ -1149,11 +1195,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mps->startWizard( EM::Horizon::typeStr(), 0 );
 	return true;
     }
+    else
+	handleStandardItems( mnuid );
 
-    if ( !success )
-	return false;
-
-    addChild( new uiODHorizonTreeItem(mid) );
+    if ( addhor )
+	addChild( new uiODHorizonTreeItem(mid) );
 
     return true;
 }
@@ -1200,19 +1246,44 @@ bool uiODWellParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Add"), 0 );
 
+    if ( children.size() )
+	mnu.insertItem( new uiMenuItem("Properties ..."), 1 );
+    addStandardItems( mnu );
+
     const int mnuid = mnu.exec();
-
     if ( mnuid<0 ) return false;
+    if ( mnuid == 0 )
+    {
+	ObjectSet<MultiID> emwellids;
+	applMgr()->selectWells( emwellids );
+	if ( !emwellids.size() )
+	    return false;
 
-    ObjectSet<MultiID> emwellids;
-    applMgr()->selectWells( emwellids );
-    if ( !emwellids.size() )
-	return false;
+	for ( int idx=0; idx<emwellids.size(); idx++ )
+	    addChild( new uiODWellTreeItem(*emwellids[idx]) );
 
-    for ( int idx=0; idx<emwellids.size(); idx++ )
-	addChild( new uiODWellTreeItem(*emwellids[idx]) );
+	deepErase( emwellids );
+    }
+    else if ( mnuid == 1 )
+    {
+	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+	TypeSet<int> wdids;
+	visserv->findObject( typeid(visSurvey::WellDisplay), wdids );
+	ObjectSet<visSurvey::WellDisplay> wds;
+	for ( int idx=0; idx<wdids.size(); idx++ )
+	{
+	    mDynamicCastGet(visSurvey::WellDisplay*,wd,
+		    	    visserv->getObject(wdids[idx]))
+	    wds += wd;
+	}
 
-    deepErase( emwellids );
+	if ( !wds.size() ) return false;
+	uiWellPropDlg dlg( getUiParent(), wds );
+	dlg.go();
+    }
+    else
+	handleStandardItems( mnuid );
+
     return true;
 }
 
@@ -1239,10 +1310,10 @@ bool uiODWellTreeItem::init()
     {
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	displayid = wd->id();
-	visserv->addObject(wd,sceneID(),true);
+	visserv->addObject( wd, sceneID(), true );
 	if ( !wd->setWellId(mid) )
 	{
-	    visserv->removeObject(wd,sceneID());
+	    visserv->removeObject( wd, sceneID() );
 	    return false;
 	}
     }
@@ -1366,11 +1437,10 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
     if ( children.size() )
 	mnu.insertItem( new uiMenuItem("Store ..."), 1);
+    addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-
     if ( mnuid<0 ) return false;
-
     if ( mnuid==0 )
     {
 	if ( !applMgr()->pickServer()->fetchPickSets() ) return -1;
@@ -1396,6 +1466,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     {
 	applMgr()->storePickSets();
     }
+    else
+	handleStandardItems( mnuid );
 
     return true;
 }
