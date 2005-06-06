@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.3 2005-06-03 10:36:16 cvsbert Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.4 2005-06-06 10:43:57 cvsbert Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
@@ -70,7 +70,8 @@ bool LineKey::usePar( const IOPar& iop, bool iopnm )
 }
 
 
-BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm )
+BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm,
+					bool embed )
 {
     BufferString ret;
     if ( !IOObj::isKey(defkey) )
@@ -78,7 +79,7 @@ BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm )
     else
     {
 	LineKey lk( defkey );
-	ret = "[";
+	ret = embed ? "[" : "";
 	if ( ioobjnm && *ioobjnm )
 	    lk.setLineName( ioobjnm );
 	else
@@ -93,7 +94,7 @@ BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm )
 	    }
 	}
 	ret += lk;
-	ret += "]";
+	if ( embed ) ret += "]";
     }
     return ret;
 }

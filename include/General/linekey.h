@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: linekey.h,v 1.2 2005-06-03 10:36:16 cvsbert Exp $
+ RCS:           $Id: linekey.h,v 1.3 2005-06-06 10:43:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,11 @@ public:
 
     static const char*	sKeyDefAttrib;
     static BufferString	defKey2DispName(const char* defkey,
-	    				const char* ioobjnm=0);
+	    				const char* ioobjnm=0,
+					bool embed=true);
     			//!< 'defkey' is a LineKey where the line name
     			//!< may be an IOObj ID
+    			//!< embed: whether '['and ']' around name or not
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.80 2005-05-18 11:31:06 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.81 2005-06-06 10:43:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "seisbuf.h"
 #include "posvecdataset.h"
-#include "featset.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "errh.h"
@@ -761,7 +760,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     {
 	// OK, the input and output nodes are known.
 	// Query the server and make sure the relevant data is extracted
-	// Put data in the training and test feature sets
+	// Put data in the training and test posvec data sets
 
 	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return false; }
 	ObjectSet<BinIDValueSet> bivss;
@@ -771,38 +770,18 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	    if ( !bivss.size() )
 		{ uiMSG().error("No valid data locations found"); return false;}
 	}
-	ObjectSet<FeatureSet> fss;
-	bool extrres = attrserv->extractFeatures( nlaserv->creationDesc(),
-						  bivss, fss );
+	ObjectSet<PosVecDataSet> vdss;
+	bool extrres = attrserv->extractData( nlaserv->creationDesc(),
+					      bivss, vdss );
 	deepErase( bivss );
 	if ( extrres )
 	{
-	    ObjectSet<PosVecDataSet> vdss;
-	    PosVecDataSet tmplvds;
-	    for ( int idx=0; idx<fss.size(); idx++ )
-	    {
-		const FeatureSet& fs = *fss[idx];
-		if ( fs.descs().size() != 0 || fs.size() != 0 )
-		    fs.fill( tmplvds );
-	    }
-	    for ( int idx=0; idx<fss.size(); idx++ )
-	    {
-		const FeatureSet& fs = *fss[idx];
-		PosVecDataSet* vds = new PosVecDataSet;
-		if ( fs.size() )
-		    fs.fill( *vds );
-		else
-		    vds->copyStructureFrom( tmplvds );
-		vdss += vds;
-	    }
-
 	    attrserv->curDescSet()->fillPar( nlaserv->storePars() );
 	    const char* res = nlaserv->prepareInputData( vdss );
 	    if ( res && *res && strcmp(res,"User cancel") )
 		uiMSG().warning( res );
-	    deepErase(vdss);
 	}
-	deepErase(fss);
+	deepErase(vdss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass )
     {
@@ -830,7 +809,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	pset.color.set(255,0,0);
 	if ( psid < 0 )
 	{
-	    const PickSet* ps = psg.get(0);
+	    const PickSet* ps = haspicks ? psg.get(0) : 0;
 	    sceneMgr().addPickSetItem( haspicks && ps ? *ps : pset, -1 );
 	}
 	else
