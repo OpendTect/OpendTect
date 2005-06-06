@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.9 2005-05-02 13:26:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.10 2005-06-06 14:03:42 cvsnanne Exp $";
 
 #include "vismpeeditor.h"
 
@@ -92,8 +92,9 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 
     if ( emeditor )
     {
-	const_cast<EM::EMObject&>(emeditor->emObject()).
-	    notifier.remove( movementcb );
+	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor->emObject());
+	emobj.notifier.remove( movementcb );
+	emobj.unRef();
 	emeditor->editpositionchange.remove( numnodescb );
     }
 
@@ -101,8 +102,9 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 
     if ( emeditor )
     {
-	const_cast<EM::EMObject&>(emeditor->emObject()).
-	    notifier.notify( movementcb );
+	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor->emObject());
+	emobj.ref();
+	emobj.notifier.notify( movementcb );
 	emeditor->editpositionchange.notify( numnodescb );
 	changeNumNodes(0);
     }
