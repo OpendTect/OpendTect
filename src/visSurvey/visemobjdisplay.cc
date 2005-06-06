@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.25 2005-05-20 12:53:57 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.26 2005-06-06 14:13:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.25 2005-05-20 12:53:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.26 2005-06-06 14:13:16 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -259,19 +259,24 @@ bool EMObjectDisplay::updateFromEM()
     for ( int idx=0; idx<emobject->nrSections(); idx++ )
 	addSection( emobject->sectionID(idx) );
 
-    const EM::ObjectID objid = em.multiID2ObjectID(mid);
-    if ( MPE::engine().getEditor(objid,false) )
-	enableEditing(true);
-
     nontexturecol = emobject->preferredColor();
     getMaterial()->setColor( nontexturecol );
+    updateFromMPE();
 
+    return true;
+}
+
+
+void EMObjectDisplay::updateFromMPE()
+{
+    const EM::ObjectID objid = em.multiID2ObjectID(mid);
     const bool hastracker = MPE::engine().getTrackerByObject(objid) >= 0;
     useWireframe( hastracker );
     useTexture( hastracker ? false : usestexture );
     setResolution( hastracker ? nrResolutions()-1 : 0 );
 
-    return true;
+    if ( MPE::engine().getEditor(objid,hastracker) )
+	enableEditing(true);
 }
 
 

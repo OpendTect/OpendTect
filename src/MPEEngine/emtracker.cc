@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.9 2005-04-26 20:38:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.10 2005-06-06 14:13:15 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -21,6 +21,11 @@ static const char* rcsID = "$Id: emtracker.cc,v 1.9 2005-04-26 20:38:01 cvsnanne
 #include "consistencychecker.h"
 #include "trackplane.h"
 #include "iopar.h"
+
+#include "ioman.h"
+#include "ioobj.h"
+#include "mpesetup.h"
+
 
 namespace MPE 
 {
@@ -160,6 +165,53 @@ void EMTracker::erasePositions( EM::SectionID sectionid,
 	posid.setSubID( pos[idx] );
 	emobject->unSetPos( posid, true );
     }
+}
+
+
+void EMTracker::fillPar( IOPar& iopar ) const
+{
+    for ( int idx=0; idx<sectiontrackers.size(); idx++ )
+    {
+	SectionTracker* st = sectiontrackers[idx];
+	IOPar localpar;
+	localpar.set( sectionidStr(), st->sectionID() );
+	localpar.set( setupidStr(), st->setupID() );
+
+	BufferString key( "Section" ); key += idx;
+	iopar.mergeComp( localpar, key );
+    }
+}
+
+
+bool EMTracker::usePar( const IOPar& iopar )
+{
+    int idx=0;
+    while ( true )
+    {
+	BufferString key( "Section" ); key += idx;
+	PtrMan<IOPar> localpar = iopar.subselect( key );
+	if ( !localpar ) return true;
+
+	int sid;
+	if ( !localpar->get(sectionidStr(),sid) ) continue;
+	SectionTracker* st = getSectionTracker( (EM::SectionID)sid, true );
+	if ( !st ) continue;
+	MultiID setupid;
+	if ( localpar->get(setupidStr(),setupid) )
+	    st->setSetupID( setupid );
+
+	PtrMan<IOObj> ioobj = IOM().get( setupid );
+	if ( !ioobj ) continue;
+	MPE::Setup setup;
+	BufferString bs;
+	if ( !MPESetupTranslator::retrieve( setup, ioobj, bs ) ) continue;
+	IOPar setuppar;
+	setup.fillPar( setuppar );
+	st->usePar( setuppar );
+	idx++;
+    }
+
+    return true;
 }
 
 

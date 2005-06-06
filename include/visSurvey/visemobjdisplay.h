@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.15 2005-04-28 15:41:44 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.16 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
 
     bool			setEMObject(const MultiID&);
     bool			updateFromEM();
+    void			updateFromMPE();
     const MultiID*		getMultiID() const { return &mid; }
 
     void			useTexture(bool yn);

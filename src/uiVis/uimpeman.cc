@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.11 2005-04-22 11:35:16 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.12 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,9 +156,11 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
     for ( int idx=0; idx<displayids.size(); idx++ )
     {
-	if ( scene->getFirstIdx(displayids[idx])!=-1 )
-	    return reinterpret_cast<visSurvey::MPEDisplay*>(
-		    visserv->getObject(displayids[idx]) );
+	if ( scene->getFirstIdx(displayids[idx]) == -1 )
+	    continue;
+
+	visBase::DataObject* dobj = visserv->getObject( displayids[idx] );
+	return reinterpret_cast<visSurvey::MPEDisplay*>( dobj );
     }
 
     if ( !create ) return 0;
@@ -172,7 +174,6 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     mpedisplay->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
     mpedisplay->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
 
-    transfld->setValue( mpedisplay->getDraggerTransparency() );
     setSensitive( true );
     return mpedisplay;
 }
@@ -531,4 +532,21 @@ void uiMPEMan::eraseModeCB( CallBacker* )
     const bool ison = isOn( eraseidx );
     engine().setTrackMode( ison ? TrackPlane::Erase : TrackPlane::None );
     showTracker( ison );
+}
+
+
+void uiMPEMan::initFromDisplay()
+{
+    mGetDisplays(false)
+    for ( int idx=0; idx<displays.size(); idx++ )
+    {
+	displays[idx]->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
+	displays[idx]->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
+
+	if ( idx==0 )
+	{
+	    transfld->setValue( displays[idx]->getDraggerTransparency() );
+	    turnOn( extendidx, displays[idx]->isDraggerShown() );
+	}
+    }
 }

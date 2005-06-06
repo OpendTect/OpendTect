@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.11 2005-05-03 11:30:47 cvsnanne Exp $
+ RCS:           $Id: mpeengine.h,v 1.12 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,8 +93,8 @@ public:
 
     const char*			errMsg() const;
 
-    void			fillPar(IOPar&) const		{}
-    bool			usePar(const IOPar&)		{ return true; }
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
     int				getFreeID();
@@ -111,6 +111,10 @@ protected:
 
     ObjectSet<TrackerFactory>	trackerfactories;
     ObjectSet<EditorFactory>	editorfactories;
+
+    static const char*		nrtrackersStr()	{ return "Nr Trackers"; }
+    static const char*		objectidStr()	{ return "ObjectID"; }
+    static const char*		enabledStr()	{ return "Is enabled"; }
 };
 
 

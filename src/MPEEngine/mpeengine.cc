@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.27 2005-05-17 09:29:05 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.28 2005-06-06 14:13:15 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.27 2005-05-17 09:29:05 cvskris
 #include "emtracker.h"
 #include "geomelement.h"
 #include "survinfo.h"
+#include "iopar.h"
 
 
 #define mRetErr( msg, retval ) { errmsg = msg; return retval; }
@@ -440,7 +441,66 @@ CubeSampling Engine::getDefaultActiveVolume()
 }
 
 
-}; //namespace
+void Engine::fillPar( IOPar& iopar ) const
+{
+    int trackeridx = 0;
+    for ( int idx=0; idx<trackers.size(); idx++ )
+    {
+	EMTracker* tracker = trackers[idx];
+	if ( !tracker ) continue;
+	
+	IOPar localpar;
+	localpar.set( objectidStr(), tracker->objectID() );
+	localpar.setYN( enabledStr(), tracker->isEnabled() );
+
+	tracker->fillPar( localpar );
+
+	BufferString key( trackeridx );
+	iopar.mergeComp( localpar, key );
+	trackeridx++;
+    }
+
+    iopar.set( nrtrackersStr(), trackeridx );
+}
+
+
+bool Engine::usePar( const IOPar& iopar )
+{
+    deepErase( interactionseeds );
+    deepErase( trackers );
+    deepErase( editors );
+    deepErase( attribcache );
+    deepErase( attribcachespecs );
+
+    int nrtrackers = 0;
+    iopar.get( nrtrackersStr(), nrtrackers );
+    for ( int idx=0; idx<nrtrackers; idx++ )
+    {
+	BufferString key( idx );
+	PtrMan<IOPar> localpar = iopar.subselect( key );
+	if ( !localpar ) continue;
+	
+	EM::ObjectID objid;
+	if ( !localpar->get(objectidStr(),objid) ) continue;
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	if ( !emobj ) continue;
+	const int trackeridx = addTracker( emobj );
+	if ( trackeridx < 0 ) continue;
+	EMTracker* tracker = trackers[trackeridx];
+	
+	bool doenable = true;
+	localpar->getYN( enabledStr(), doenable );
+	tracker->enable( doenable );
+
+	bool res = tracker->usePar( *localpar );
+    }
+
+    return true;
+}
+
+
+}; // namespace MPE
+
 
 #include "emhortubeeditor.h"
 #include "emhortubetracker.h"

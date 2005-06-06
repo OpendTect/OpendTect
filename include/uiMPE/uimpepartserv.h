@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.5 2005-04-29 15:41:22 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.6 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,25 +20,10 @@ ________________________________________________________________________
 class AttribDescSet;
 class AttribSelSpec;
 class AttribSliceSet;
+class BufferStringSet;
 
 namespace Geometry { class Element; }
-class BufferStringSet;
-//class Color;
-//class CubeSampling;
-//class IOObj;
-//class IOPar;
-//class uiPopupMenu;
-
-//template <class T> class Array3D;
-
-//namespace EM { class EdgeLineSegment; class Surface; };
-namespace MPE
-{ 
-    class SurfaceConnectLine;
-    class Tracker;
-    class TrackManager;
-    class Wizard;
-};
+namespace MPE { class Wizard; }
 
 
 /*! \brief Implementation of Tracking part server interface */
@@ -94,6 +79,7 @@ public:
     static const int		evAddTreeObject;
     				/*!<Get trackerid via activeTrackerID */
     static const int		evShowToolbar;
+    static const int		evInitFromSession;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

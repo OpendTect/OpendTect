@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.13 2005-05-01 18:34:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.14 2005-06-06 14:13:15 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -629,7 +629,7 @@ int MPEDisplay::usePar( const IOPar& par )
     CubeSampling cs;
     if ( !cs.usePar(par) )
 	return -1;
-    setCubeSampling( cs );
+    engine_.setActiveVolume( cs );
 
     int draggerid;
     if ( par.get(draggerstr_,draggerid) )

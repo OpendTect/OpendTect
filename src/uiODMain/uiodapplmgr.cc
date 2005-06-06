@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.81 2005-06-06 10:43:57 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.82 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -543,17 +543,6 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 
 	sceneMgr().updateTrees();
 	return true;
-	/*
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(sdid))
-	trackserv->setDisplayID( sdid );
-	sd->useTexture( false );
-	sd->turnOnWireFrame(true);
-	sd->enableEditing(true);
-	sd->getEditor()->enableSeedStick(true);
-	sd->getEditor()->setTrackManager( &trackserv->trackManager() );
-	sd->setResolution( sd->nrResolutions()-1 );
-	*/
     }
     else if ( evid == uiMPEPartServer::evStartSeedPick )
     {
@@ -596,6 +585,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid == uiMPEPartServer::evShowToolbar )
 	visserv->showMPEToolbar();
+    else if ( evid == uiMPEPartServer::evInitFromSession )
+	visserv->initMPEStuff();
     else
 	pErrMsg("Unknown event from mpeserv");
 

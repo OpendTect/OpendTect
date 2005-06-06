@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.139 2005-04-06 10:55:00 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.140 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,6 +202,7 @@ public:
     static const int		evRemoveTrackTools;
     uiToolBar*			getTrackTB() const	
     				{ return (uiToolBar*)mpetools; }
+    void			initMPEStuff();
 
     bool			dumpOI(int id) const;
     

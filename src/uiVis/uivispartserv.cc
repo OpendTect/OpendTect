@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.258 2005-04-21 13:30:21 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.259 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 #include "vismpe.h"
 #include "vistransform.h"
+#include "vissurvemobj.h"
 #include "visevent.h"
 #include "seisbuf.h"
 #include "attribsel.h"
@@ -1126,4 +1127,19 @@ void uiVisPartServer::showMPEToolbar()
 	mpetools->display();
 	mpetools->undock();
     }
+}
+
+
+void uiVisPartServer::initMPEStuff()
+{
+    TypeSet<int> emobjids;
+    findObject( typeid(visSurvey::EMObjectDisplay), emobjids );
+    for ( int idx=0; idx<emobjids.size(); idx++ )
+    {
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+			getObject(emobjids[idx]))
+	emod->updateFromMPE();
+    }
+    
+    mpetools->initFromDisplay();
 }

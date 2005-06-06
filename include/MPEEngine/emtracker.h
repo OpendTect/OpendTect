@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.8 2005-04-15 15:34:57 cvsnanne Exp $
+ RCS:           $Id: emtracker.h,v 1.9 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,9 @@ public:
 
     const char*			errMsg() const;
 
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+
 protected:
     virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
     virtual void		erasePositions(EM::SectionID,
@@ -57,6 +60,9 @@ protected:
     ObjectSet<SectionTracker>	sectiontrackers;
     BufferString		errmsg;
     EM::EMObject*		emobject;
+
+    static const char*		setupidStr()	{ return "SetupID"; }
+    static const char*		sectionidStr()	{ return "SectionID"; }
 };
 
 

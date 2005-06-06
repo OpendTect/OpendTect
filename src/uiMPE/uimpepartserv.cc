@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.10 2005-04-29 15:41:16 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.11 2005-06-06 14:13:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,33 +22,14 @@ ________________________________________________________________________
 #include "uisurfacerelationdlg.h"
 #include "emmanager.h"
 #include "emobject.h"
-
-//#include "attribdescset.h"
-//#include "attribsel.h"
-//#include "attribslice.h"
-//#include "consistencychecker.h"
-//#include "emhistory.h"
-//#include "emhorizon.h"
-//#include "emsurface.h"
-//#include "emsurfacegeometry.h"
-//#include "emsurfacerelations.h"
-//#include "emsurfaceedgeline.h"
-//#include "emsurfaceedgelineimpl.h"
-//#include "errh.h"
-//#include "executor.h"
-//#include "multiid.h"
-//#include "trigonometry.h"
-//
-//#include <math.h>
-
+#include "executor.h"
 
 const int uiMPEPartServer::evGetAttribData	= 0;
 const int uiMPEPartServer::evStartSeedPick	= 1;
 const int uiMPEPartServer::evEndSeedPick	= 2;
 const int uiMPEPartServer::evAddTreeObject	= 3;
 const int uiMPEPartServer::evShowToolbar	= 4;
-//const int uiMPEPartServer::evGetData	  = 7;
-//const int uiMPEPartServer::evInitVisStuff	  = 8;
+const int uiMPEPartServer::evInitFromSession	= 5;
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const AttribDescSet* ads )
@@ -147,6 +128,13 @@ int uiMPEPartServer::addTracker( const char* trackertype, const char* name )
 	    //TODO? Remove new object?
 	    //TODO? Remove new editor?
 	}
+
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	if ( emobj && emobj->isChanged() )
+	{
+	    PtrMan<Executor> saver = emobj->saver();
+	    saver->execute();
+	}
     }
 
     return activetrackerid;
@@ -238,8 +226,8 @@ void uiMPEPartServer::showSetupDlg( const MultiID& mid, EM::SectionID sid )
     grp->setType( objid, sid );
     if ( dlg.go() )
     {
-//	getData();
-//	sendEvent( evShowToolbar );
+	loadAttribData();
+	sendEvent( evShowToolbar );
     }
 }
 
@@ -369,14 +357,13 @@ void uiMPEPartServer::fillPar( IOPar& par ) const
 bool uiMPEPartServer::usePar( const IOPar& par )
 {
     bool res = MPE::engine().usePar( par );
-    /*
     if ( res )
     {
-	if ( !sendEvent(evInitVisStuff) )
+	if ( !sendEvent(evInitFromSession) )
 	    return false;
-	res = getData();
+
+	loadAttribData();
 	sendEvent( evShowToolbar );
     }
-    */
     return res;
 }
