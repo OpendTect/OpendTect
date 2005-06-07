@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.82 2005-06-07 09:42:42 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.83 2005-06-07 13:24:55 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1107,7 +1107,10 @@ void uiODRandomLineTreeItem::editNodes()
 	{
 	    const BinID bid = newbids[idx];
 	    if ( idx<rtd->nrKnots() )
+	    {
+		rtd->setKnotPos( idx, bid );
 		rtd->setManipKnotPos( idx, bid );
+	    }
 	    else
 		rtd->addKnot( bid );
 	}
@@ -1115,6 +1118,7 @@ void uiODRandomLineTreeItem::editNodes()
 	visserv->setSelObjectId( rtd->id() );
 	visserv->calculateAttrib( rtd->id(), false );
 	visserv->calculateColorAttrib( rtd->id(), false );
+	ODMainWin()->sceneMgr().updateTrees();
 	if ( viewmodeswap ) visserv->setViewMode( true );
     }
 }
