@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.81 2005-06-03 11:47:50 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.82 2005-06-07 09:42:42 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -134,17 +134,20 @@ int uiODTreeItem::sceneID() const
 
 void uiODTreeItem::addStandardItems( uiPopupMenu& mnu )
 {
+#ifdef __debug__
     if ( !children.size() ) return;
 
     mnu.insertSeparator( 100 );
     mnu.insertItem( new uiMenuItem("Show all"), 101 );
     mnu.insertItem( new uiMenuItem("Hide all"), 102 );
     mnu.insertItem( new uiMenuItem("Remove all"), 103 );
+#endif
 }
 
 
 void uiODTreeItem::handleStandardItems( int mnuid )
 {
+#ifdef __debug__
     for ( int idx=0; idx<children.size(); idx++ )
     {
 	if ( mnuid == 101 )
@@ -167,6 +170,7 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 	    removeChild( itm );
 	}
     }
+#endif
 }
 
 
