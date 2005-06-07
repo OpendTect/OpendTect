@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.3 2005-02-08 16:48:23 bert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.4 2005-06-07 16:22:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "binidvalset.h"
+class IOPar;
 class DataColDef;
 
 
@@ -28,10 +29,8 @@ class DataColDef;
 class PosVecDataSet
 {
 public:
-    			PosVecDataSet( const char* nm=0 )
-			: data_(1,true), name_(nm)	{ empty(); }
-    			PosVecDataSet( const PosVecDataSet& vds )
-			: data_(1,true)			{ *this = vds; }
+    			PosVecDataSet(const char* nm=0);
+    			PosVecDataSet(const PosVecDataSet&);
     virtual		~PosVecDataSet();
     PosVecDataSet&	operator =(const PosVecDataSet&);
     void		copyStructureFrom(const PosVecDataSet&);
@@ -56,11 +55,18 @@ public:
     const char*		name() const		{ return name_.buf(); }
     void		setName( const char* nm ) { name_ = nm; }
 
+    IOPar&		pars()			{ return pars_; }
+    const IOPar&	pars() const		{ return pars_; }
+
+    bool		getFrom(const char*,BufferString& errmsg);
+    bool		putTo(const char*,BufferString& errmsg) const;
+
 protected:
 
     BinIDValueSet	data_;
     ObjectSet<DataColDef> coldefs_;
     BufferString	name_;
+    IOPar&		pars_;
 
     void		mergeColDefs(const PosVecDataSet&,ColMatchPol,int*);
 

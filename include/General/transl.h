@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.20 2005-01-07 16:34:30 bert Exp $
+ RCS:		$Id: transl.h,v 1.21 2005-06-07 16:22:54 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -29,6 +29,7 @@ class IOPar;
 class Translator;
 
 #define mDGBKey "dGB"
+#define mdTectKey "dTect"
 
 #define mObjSelUnrelated	0
 #define mObjSelRelated		1

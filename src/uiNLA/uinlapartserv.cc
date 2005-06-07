@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.23 2005-05-18 15:20:47 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.24 2005-06-07 16:22:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -314,7 +314,7 @@ const char* uiNLAPartServer::prepareInputData(
     // allow user to view and edit data
     ObjectSet<PosVecDataSet> vdss;
     vdss += &trainvds; vdss += &testvds;
-    uiPosDataEdit dlg( appserv().parent(), vdss );
+    uiPosDataEdit dlg( appserv().parent(), vdss, 0, uiPosDataEdit::AllOnly );
     dlg.saveData.notify( mCB(this,uiNLAPartServer,writeSets) );
     if ( dlg.go() )
     {
@@ -348,14 +348,9 @@ void uiNLAPartServer::writeSets( CallBacker* cb )
     mDynamicCastGet(uiPosDataEdit*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
 
-    const int tblidx = dlg->saveTableNo();
     PosVecDataSet savevds; savevds.copyStructureFrom( trainvds );
     for ( int idx=0; idx<2; idx++ )
-    {
-	if ( tblidx >= 0 && idx != tblidx )
-	    continue;
 	dlg->getTableData( idx, savevds.data() );
-    }
     if ( savevds.data().isEmpty() )
 	{ uiMSG().error( "Empty data set" ); return; }
 
@@ -368,8 +363,9 @@ void uiNLAPartServer::writeSets( CallBacker* cb )
 
     FeatureSet fswrite( savevds );
     fswrite.pars() = storepars;
-    fswrite.pars().set( sKey::Type, "MVA Data" );
     ctio.ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
+    ctio.ioobj->pars().set( sKey::Type, "MVA Data" );
+    IOM().commitChanges( *ctio.ioobj );
 
     bool isok = fswrite.put( ctio.ioobj );
     ctio.setObj( 0 );
