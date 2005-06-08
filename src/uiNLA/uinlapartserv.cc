@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.24 2005-06-07 16:22:54 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.25 2005-06-08 16:45:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "welltransl.h"
 #include "wellextractdata.h"
 #include "posvecdataset.h"
+#include "posvecdatasettr.h"
 #include "datacoldef.h"
 #include "binidvalset.h"
 #include "uiexecutor.h"
@@ -30,8 +31,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "featset.h"
-#include "featsettr.h"
+#include "ctxtioobj.h"
 #include "sorting.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
@@ -96,41 +96,6 @@ void uiNLAPartServer::getBinIDValueSets(
     }
 }
 
-
-static void addFSToSets( ObjectSet<BinIDValueSet>& bivsets, FeatureSet& fs )
-{
-    const int nrdescs = fs.descs().size();
-    BinIDValueSet* bvs = new BinIDValueSet( nrdescs + 1, true );
-    bivsets += bvs;
-    float vals[nrdescs + 1];
-    for ( int idx=0; idx<fs.size(); idx++ )
-    {
-	const FeatureVec& vec = *fs[idx];
-	vals[0] = vec.fvPos().ver;
-	for ( int iv=0; iv<vec.size(); iv++ )
-	    vals[iv+1] = vec[iv];
-	bvs->add( vec.fvPos(), vals );
-    }
-    fs.erase();
-}
-
-
-static void putBivSetToFS( BinIDValueSet& bvs, FeatureSet& fs )
-{
-    BinIDValueSet::Pos pos;
-    const int nrdescs = fs.descs().size();
-    float vals[nrdescs+1];
-    BinID binid;
-    while ( bvs.next(pos) )
-    {
-	bvs.get( pos, binid, vals );
-        FVPos fvp(binid.inl, binid.crl, vals[0]);
-	FeatureVec* vec = new FeatureVec( fvp );
-	for ( int idx=1; idx<=nrdescs; idx++ )
-	    (*vec) += vals[idx];
-	fs += vec;
-    }
-}
 
 class uiPrepNLAData : public uiDialog
 {
@@ -345,32 +310,20 @@ const char* uiNLAPartServer::prepareInputData(
 
 void uiNLAPartServer::writeSets( CallBacker* cb )
 {
+    // Almost identical to uiAttribCrossPlot::saveData
+    // Couldn't think of a common place to put it
     mDynamicCastGet(uiPosDataEdit*,dlg,cb)
     if ( !dlg ) { pErrMsg("Huh"); return; }
 
-    PosVecDataSet savevds; savevds.copyStructureFrom( trainvds );
-    for ( int idx=0; idx<2; idx++ )
-	dlg->getTableData( idx, savevds.data() );
-    if ( savevds.data().isEmpty() )
-	{ uiMSG().error( "Empty data set" ); return; }
-
-    CtxtIOObj ctio( FeatureSetTranslatorGroup::ioContext() );
+    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
+    ctio.ctxt.ioparkeyval[0] = sKey::Type;
+    ctio.ctxt.ioparkeyval[1] = "MVA Data";
+    ctio.ctxt.includekeyval = true;
     uiIOObjSelDlg seldlg( appserv().parent(), ctio );
     if ( !seldlg.go() )
 	return;
     ctio.setObj( seldlg.ioObj()->clone() );
-
-    FeatureSet fswrite( savevds );
-    fswrite.pars() = storepars;
-    ctio.ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
-    ctio.ioobj->pars().set( sKey::Type, "MVA Data" );
-    IOM().commitChanges( *ctio.ioobj );
-
-    bool isok = fswrite.put( ctio.ioobj );
-    ctio.setObj( 0 );
-    if ( !isok )
-	{ uiMSG().error( "Cannot write data set" ); return; }
-
-    fswrite.close();
+    dlg->stdSave( *ctio.ioobj, &storepars );
+    delete ctio.ioobj;
 }

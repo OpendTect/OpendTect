@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.6 2005-02-08 16:57:12 bert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.7 2005-06-08 16:45:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 
     NLADesign		design;
     bool		doextraction;
-    MultiID		fsid;
+    MultiID		vdsid;
     float		ratiotst;
     BufferStringSet	outids;
     			//!< different from design outputs if unsupervised

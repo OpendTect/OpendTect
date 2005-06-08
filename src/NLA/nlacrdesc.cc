@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.9 2005-06-03 10:36:16 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.10 2005-06-08 16:45:34 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 #include "posvecdataset.h"
@@ -23,7 +23,7 @@ NLACreationDesc& NLACreationDesc::operator =(
 	design = sd.design;
 	deepCopy( outids, sd.outids );
 	doextraction = sd.doextraction;
-	fsid = sd.fsid;
+	vdsid = sd.vdsid;
 	ratiotst = sd.ratiotst;
 	isdirect = sd.isdirect;
     }
@@ -35,7 +35,7 @@ void NLACreationDesc::clear()
 {
     design.clear();
     deepErase(outids);
-    fsid = "";
+    vdsid = "";
     doextraction = true;
     isdirect = false;
 }

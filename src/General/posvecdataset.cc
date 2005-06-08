@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.5 2005-06-07 16:22:54 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.6 2005-06-08 16:45:34 cvsbert Exp $";
 
 #include "posvecdataset.h"
 #include "posvecdatasetfact.h"
@@ -12,6 +12,10 @@ static const char* rcsID = "$Id: posvecdataset.cc,v 1.5 2005-06-07 16:22:54 cvsb
 #include "survinfo.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "unitofmeasure.h"
+#include "ascstream.h"
+#include "separstr.h"
+#include "strmprov.h"
 
 
 const DataColDef& DataColDef::unknown()
@@ -36,6 +40,31 @@ DataColDef::MatchLevel DataColDef::compare( const DataColDef& cd,
 	return DataColDef::Start;
 
     return DataColDef::None;
+}
+
+
+void DataColDef::putTo( BufferString& bs ) const
+{
+    FileMultiString fms( name_ );
+    fms += ref_;
+    if ( unit_ ) fms += unit_->name();
+    bs = fms;
+}
+
+
+void DataColDef::getFrom( const char* s )
+{
+    FileMultiString fms( s );
+    const int sz = fms.size();
+    if ( sz < 1 )
+	*this = unknown();
+    else
+    {
+	name_ = fms[0];
+	ref_ = fms[1];
+	if ( sz > 2 )
+	    unit_ = UoMR().get( fms[2] );
+    }
 }
 
 
@@ -191,17 +220,142 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 }
 
 
-bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
+#define mErrRet(s) { errmsg = s; sd.close(); return sd; }
+
+
+static StreamData getInpSD( const char* fnm, BufferString& errmsg )
 {
-    errmsg = "TODO: implement PosVecDataSet::getFrom"; //TODO
-    return false;
+    StreamData sd = StreamProvider(fnm).makeIStream();
+    if ( !sd.usable() )
+	mErrRet("Cannot open input file")
+    ascistream strm( *sd.istrm );
+    if ( !strm.isOfFileType(mTranslGroupName(PosVecDataSet)) )
+	mErrRet("Invalid input file")
+    return sd;
 }
 
 
+bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
+				 BufferString& errmsg, bool refs )
+{
+    StreamData sd = getInpSD( fnm, errmsg );
+    if ( !sd.usable() )
+	return false;
+
+    ascistream strm( *sd.istrm, NO );
+    while ( !atEndOfSection(strm.next()) )
+    {
+	if ( strm.type() == ascistream::Keyword )
+	{
+	    DataColDef cd( "" );
+	    cd.getFrom( strm.keyWord() );
+	    bss.add( refs ? cd.ref_ : cd.name_ );
+	}
+    }
+    sd.close();
+    return true;
+}
+
+#undef mErrRet
+#define mErrRet(s) { errmsg = s; return false; }
+
+
+bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
+{
+    StreamData sd = getInpSD( fnm, errmsg );
+    if ( !sd.usable() )
+	return false;
+
+    empty(); pars_.clear(); setName( "" );
+
+    ascistream strm( *sd.istrm, NO );
+    while ( !atEndOfSection(strm.next()) )
+    {
+	if ( strm.type() == ascistream::Keyword )
+	{
+	    DataColDef* cd = new DataColDef( "" );
+	    cd->getFrom( strm.keyWord() );
+	    add( cd );
+	}
+	else if ( strm.hasKeyword( sKey::Name ) )
+	    setName( strm.value() );
+    }
+    if ( !atEndOfSection(strm.next()) )
+	pars().getFrom( strm, true );
+
+    const int nrvals = nrCols();
+    if ( nrCols() < 1 )
+	{ add( new DataColDef("Z") ); sd.close(); return true; }
+
+    if ( atEndOfSection(strm) )
+	strm.next();
+
+    BinID bid; float* vals = new float [ nrvals ];
+    while ( *sd.istrm )
+    {
+	*sd.istrm >> bid.inl >> bid.crl;
+	if ( !bid.inl && !bid.crl )
+	    break;
+
+	for ( int idx=0; idx<nrvals; idx++ )
+	    *sd.istrm >> vals[idx];
+	if ( !sd.istrm->good() )
+	    break;
+
+	data().add( bid, vals );
+    }
+    delete [] vals;
+
+    sd.close();
+    return true;
+}
+
+
+#undef mErrRet
+#define mErrRet(s) { errmsg = s; sd.close(); return false; }
+
 bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg ) const
 {
-    errmsg = "TODO: implement PosVecDataSet::putTo"; //TODO
-    return false;
+    StreamData sd = StreamProvider(fnm).makeOStream();
+    if ( !sd.usable() )
+	mErrRet("Cannot open output file")
+    ascostream strm( *sd.ostrm );
+    if ( !strm.putHeader(mTranslGroupName(PosVecDataSet)) )
+	mErrRet("Cannot write header to output file")
+
+    strm.put( sKey::Name, name() );
+    strm.put( "--\n-- Column definitions:" );
+    BufferString str;
+    for ( int idx=0; idx<nrCols(); idx++ )
+    {
+	colDef(idx).putTo( str );
+	strm.put( str );
+    }
+    strm.newParagraph();
+    pars().putTo(strm);
+    // iopar does a newParagraph()
+
+    const int nrvals = data().nrVals();
+    BinIDValueSet::Pos pos;
+    float* vals = new float [nrvals];
+    BinID bid;
+    while ( data().next(pos) )
+    {
+	data().get( pos, bid, vals );
+	*sd.ostrm << bid.inl << '\t' << bid.crl;
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    str = vals[idx];
+	    *sd.ostrm << '\t' << str;
+	}
+	*sd.ostrm << '\n';
+	if ( !sd.ostrm->good() )
+	    mErrRet("Error during write of data")
+    }
+    delete [] vals;
+
+    sd.close();
+    return true;
 }
 
 

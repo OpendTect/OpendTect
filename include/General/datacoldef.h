@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: datacoldef.h,v 1.2 2005-02-08 16:48:23 bert Exp $
+ RCS:		$Id: datacoldef.h,v 1.3 2005-06-08 16:45:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,9 @@ public:
     enum MatchLevel		{ Exact, Start, None };
     MatchLevel			compare(const DataColDef&,bool use_name) const;
 				//!< if !use_name, matches ref_ .
+
+    void			putTo(BufferString&) const;
+    void			getFrom(const char*);
 
     static const DataColDef&	unknown();
 

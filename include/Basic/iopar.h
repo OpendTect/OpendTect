@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.33 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:		$Id: iopar.h,v 1.34 2005-06-08 16:45:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,12 +40,14 @@ class IOPar : public UserIDObject
 public:
 			IOPar(const char* nm=0);
 			IOPar(ascistream&,bool withname=true);
-    void		putTo(ascostream&,bool withname=true) const;
 			~IOPar();
 			IOPar(const IOPar&);
     IOPar&		operator =(const IOPar&);
     bool		operator ==( const IOPar& iop ) const
 			{ return isEqual(iop); }
+    void		getFrom(ascistream&,bool withname=true,
+	    			bool keepexist=false);
+    void		putTo(ascostream&,bool withname=true) const;
 
 			// serialisation
     void		getFrom(const char*);

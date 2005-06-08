@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.4 2005-06-07 16:22:54 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.5 2005-06-08 16:45:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "binidvalset.h"
+#include "bufstringset.h"
 class IOPar;
 class DataColDef;
 
@@ -60,6 +61,8 @@ public:
 
     bool		getFrom(const char*,BufferString& errmsg);
     bool		putTo(const char*,BufferString& errmsg) const;
+    static bool		getColNames(const char*,BufferStringSet& bss,
+	    			    BufferString& errmsg,bool refs=false);
 
 protected:
 
