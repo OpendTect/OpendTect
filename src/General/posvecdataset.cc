@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.6 2005-06-08 16:45:34 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.7 2005-06-09 11:13:21 cvsbert Exp $";
 
 #include "posvecdataset.h"
 #include "posvecdatasetfact.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: posvecdataset.cc,v 1.6 2005-06-08 16:45:34 cvsb
 #include "ascstream.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include <iosfwd>
 
 
 const DataColDef& DataColDef::unknown()
@@ -223,35 +224,81 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 #define mErrRet(s) { errmsg = s; sd.close(); return sd; }
 
 
-static StreamData getInpSD( const char* fnm, BufferString& errmsg )
+static StreamData getInpSD( const char* fnm, BufferString& errmsg,
+			    bool& tabstyle )
 {
     StreamData sd = StreamProvider(fnm).makeIStream();
     if ( !sd.usable() )
 	mErrRet("Cannot open input file")
-    ascistream strm( *sd.istrm );
-    if ( !strm.isOfFileType(mTranslGroupName(PosVecDataSet)) )
-	mErrRet("Invalid input file")
+    std::string buf; *sd.istrm >> buf;
+    sd.istrm->seekg( 0, std::ios::beg );
+    char c = sd.istrm->peek();
+    tabstyle = buf != "dTect";
+    if ( !tabstyle )
+    {
+	ascistream strm( *sd.istrm );
+	if ( !strm.isOfFileType(mTranslGroupName(PosVecDataSet)) )
+	    mErrRet("Invalid input file")
+    }
     return sd;
+}
+
+
+static const UnitOfMeasure* parseColName( const char* inp, BufferString& nm )
+{
+    nm = inp;
+    char* ptrstart = strrchr( nm.buf(), '(' );
+    const UnitOfMeasure* ret = 0;
+    if ( ptrstart && ptrstart != nm.buf() && *(ptrstart-1) == ' ' )
+    {
+	BufferString unsymb = ptrstart + 1;
+	char* ptrend = strchr( unsymb.buf(), ')' );
+	if ( ptrend )
+	{
+	    *ptrend = '\0';
+	    ret = UoMR().get( unsymb );
+	    if ( ret )
+		*(ptrstart-1) = '\0';
+	}
+    }
+    return ret;
 }
 
 
 bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
 				 BufferString& errmsg, bool refs )
 {
-    StreamData sd = getInpSD( fnm, errmsg );
+    bool tabstyle = false;
+    StreamData sd = getInpSD( fnm, errmsg, tabstyle );
     if ( !sd.usable() )
 	return false;
 
-    ascistream strm( *sd.istrm, NO );
-    while ( !atEndOfSection(strm.next()) )
+    if ( tabstyle )
     {
-	if ( strm.type() == ascistream::Keyword )
+	char buf[65536]; sd.istrm->getline( buf, 65536 );
+	SeparString ss( buf, '\t' );
+	const int nrcols = ss.size();
+	for ( int idx=2; idx<nrcols; idx++ )
 	{
-	    DataColDef cd( "" );
-	    cd.getFrom( strm.keyWord() );
-	    bss.add( refs ? cd.ref_ : cd.name_ );
+	    BufferString nm;
+	    parseColName( ss[idx], nm );
+	    bss.add( nm );
 	}
     }
+    else
+    {
+	ascistream strm( *sd.istrm, NO );
+	while ( !atEndOfSection(strm.next()) )
+	{
+	    if ( strm.type() == ascistream::Keyword )
+	    {
+		DataColDef cd( "" );
+		cd.getFrom( strm.keyWord() );
+		bss.add( refs ? cd.ref_ : cd.name_ );
+	    }
+	}
+    }
+
     sd.close();
     return true;
 }
@@ -262,34 +309,56 @@ bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
 
 bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 {
-    StreamData sd = getInpSD( fnm, errmsg );
+    bool tabstyle = false;
+    StreamData sd = getInpSD( fnm, errmsg, tabstyle );
     if ( !sd.usable() )
 	return false;
 
     empty(); pars_.clear(); setName( "" );
-
-    ascistream strm( *sd.istrm, NO );
-    while ( !atEndOfSection(strm.next()) )
+    if ( tabstyle )
     {
-	if ( strm.type() == ascistream::Keyword )
+	char buf[65536]; sd.istrm->getline( buf, 65536 );
+	SeparString ss( buf, '\t' );
+	const int nrcols = ss.size();
+	for ( int idx=2; idx<nrcols; idx++ )
 	{
+	    BufferString nm;
 	    DataColDef* cd = new DataColDef( "" );
-	    cd->getFrom( strm.keyWord() );
+	    cd->unit_ = parseColName( ss[idx], nm );
+	    cd->name_ = nm;
 	    add( cd );
 	}
-	else if ( strm.hasKeyword( sKey::Name ) )
-	    setName( strm.value() );
     }
-    if ( !atEndOfSection(strm.next()) )
-	pars().getFrom( strm, true );
+    else
+    {
+	ascistream strm( *sd.istrm, NO );
+	while ( !atEndOfSection(strm.next()) )
+	{
+	    if ( strm.type() == ascistream::Keyword )
+	    {
+		DataColDef* cd = new DataColDef( "" );
+		cd->getFrom( strm.keyWord() );
+		add( cd );
+	    }
+	    else if ( strm.hasKeyword( sKey::Name ) )
+		setName( strm.value() );
+	}
+	if ( !atEndOfSection(strm.next()) )
+	    pars().getFrom( strm, true );
+
+	if ( atEndOfSection(strm) )
+	    strm.next();
+    }
 
     const int nrvals = nrCols();
-    if ( nrCols() < 1 )
-	{ add( new DataColDef("Z") ); sd.close(); return true; }
+    if ( nrvals < 1 )
+    {
+	add( new DataColDef("Z") );
+	data().setNrVals(1);
+	sd.close(); return true;
+    }
 
-    if ( atEndOfSection(strm) )
-	strm.next();
-
+    data().setNrVals( nrvals );
     BinID bid; float* vals = new float [ nrvals ];
     while ( *sd.istrm )
     {
@@ -314,26 +383,44 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
 #undef mErrRet
 #define mErrRet(s) { errmsg = s; sd.close(); return false; }
 
-bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg ) const
+bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
+			   bool tabstyle ) const
 {
     StreamData sd = StreamProvider(fnm).makeOStream();
     if ( !sd.usable() )
 	mErrRet("Cannot open output file")
-    ascostream strm( *sd.ostrm );
-    if ( !strm.putHeader(mTranslGroupName(PosVecDataSet)) )
-	mErrRet("Cannot write header to output file")
 
-    strm.put( sKey::Name, name() );
-    strm.put( "--\n-- Column definitions:" );
     BufferString str;
-    for ( int idx=0; idx<nrCols(); idx++ )
+    if ( tabstyle )
     {
-	colDef(idx).putTo( str );
-	strm.put( str );
+	*sd.ostrm << "In-line\tX-line";
+	for ( int idx=0; idx<nrCols(); idx++ )
+	{
+	    const DataColDef& cd = colDef(idx);
+	    *sd.ostrm << '\t' << cd.name_;
+	    if ( cd.unit_ )
+		*sd.ostrm << " (" << cd.unit_->symbol() << ')';
+	}
+	*sd.ostrm << '\n';
     }
-    strm.newParagraph();
-    pars().putTo(strm);
-    // iopar does a newParagraph()
+    else
+    {
+	ascostream strm( *sd.ostrm );
+	if ( !strm.putHeader(mTranslGroupName(PosVecDataSet)) )
+	    mErrRet("Cannot write header to output file")
+
+	if ( *name() )
+	    strm.put( sKey::Name, name() );
+	strm.put( "--\n-- Column definitions:" );
+	for ( int idx=0; idx<nrCols(); idx++ )
+	{
+	    colDef(idx).putTo( str );
+	    strm.put( str );
+	}
+	strm.newParagraph();
+	pars().putTo(strm);
+	// iopar does a newParagraph()
+    }
 
     const int nrvals = data().nrVals();
     BinIDValueSet::Pos pos;
@@ -392,5 +479,5 @@ bool odPosVecDataSetTranslator::read( const IOObj& ioobj, PosVecDataSet& vds )
 bool odPosVecDataSetTranslator::write( const IOObj& ioobj,
 					const PosVecDataSet& vds )
 {
-    return vds.putTo( ioobj.fullUserExpr(false), errmsg_ );
+    return vds.putTo( ioobj.fullUserExpr(false), errmsg_, false );
 }

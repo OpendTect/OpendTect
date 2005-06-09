@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.5 2005-06-08 16:45:34 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.6 2005-06-09 11:13:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,10 @@ public:
     const IOPar&	pars() const		{ return pars_; }
 
     bool		getFrom(const char*,BufferString& errmsg);
-    bool		putTo(const char*,BufferString& errmsg) const;
+    bool		putTo(const char*,BufferString& errmsg,
+	    			bool tabstyle) const;
+    			//!< tabstyle -> for spreadsheet import (looses info)
+    			//!< !tabstyle: dTect style (preserves all)
     static bool		getColNames(const char*,BufferStringSet& bss,
 	    			    BufferString& errmsg,bool refs=false);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.25 2005-06-08 16:45:34 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.26 2005-06-09 11:13:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -324,6 +324,6 @@ void uiNLAPartServer::writeSets( CallBacker* cb )
     if ( !seldlg.go() )
 	return;
     ctio.setObj( seldlg.ioObj()->clone() );
-    dlg->stdSave( *ctio.ioobj, &storepars );
+    dlg->stdSave( *ctio.ioobj, false, &storepars );
     delete ctio.ioobj;
 }
