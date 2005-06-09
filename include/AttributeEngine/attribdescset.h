@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.8 2005-06-09 13:36:19 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.9 2005-06-09 13:59:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,11 @@ class DescSet
 public:
     				~DescSet() { removeAll(); }
     DescSet*			clone() const;
-    DescSet*      		optimizeClone(int,int targetid2=-1) const;
+    DescSet*			optimizeClone(int targetid) const;
+    DescSet*      		optimizeClone(const TypeSet<int>&) const;
+    				/*!< Only clones stuff needed to calculate
+				     the attrib with the ids given */
+
     int				addDesc(Desc*);
 				/*!<\returns id of the attrib */
 
@@ -38,6 +42,8 @@ public:
     int				getID(int) const;
     int				getID(const char* ref,bool isusrref) const;
     void			getIds(TypeSet<int>&) const;
+    int				getStoredID(const char* lk,int selout=0,
+	    				    bool create=false);
 
     void			removeDesc(int id);
     void			removeAll();
@@ -59,6 +65,7 @@ protected:
     static const char*		definitionStr()		{ return "Definition"; }
     static const char*		userRefStr()		{ return "UserRef"; }
     static const char*		inputPrefixStr()	{ return "Input"; }
+    static const char*		hiddenStr()		{ return "Hidden"; }
 
     ObjectSet<Desc>		descs;
     TypeSet<int>		ids;

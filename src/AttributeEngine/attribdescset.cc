@@ -4,16 +4,18 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.9 2005-06-09 13:36:42 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.10 2005-06-09 13:59:39 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
 #include "attribparam.h"
-
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "bufstringset.h"
+#include "separstr.h"
 #include "iopar.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "separstr.h"
 #include "gendefs.h"
 
@@ -133,8 +135,10 @@ void DescSet::fillPar( IOPar& par ) const
 	if ( !descs[idx]->getDefStr(defstr) ) continue;
 	apar.set( definitionStr(), defstr );
 
-	if ( descs[idx]->userRef() )
-	    apar.set( userRefStr(), descs[idx]->userRef() );
+	BufferString userref( descs[idx]->userRef() );
+	apar.set( userRefStr(), userref );
+
+	apar.setYN( hiddenStr(), descs[idx]->isHidden() );
 
 	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
 	{
@@ -214,11 +218,9 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	BufferString attribname;
 	if ( !Desc::getAttribName( defstring, attribname ) )
 	    mHandleParseErr("Cannot find attribute name");
-	
 
 	RefMan<Desc> desc;
-	desc = PF().createDescCopy(attribname);
-
+	desc = PF().createDescCopy( attribname );
 	if ( !desc )
 	{
 	    BufferString err = "Cannot find factory-entry for ";
@@ -234,11 +236,15 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	}
 
 	const char* userref = descpar->find(userRefStr());
-	if ( userref ) desc->setUserRef(userref);
+	if ( userref ) desc->setUserRef( userref );
 
-	int seloutpid;
-	descpar->get( "Selected Attrib",seloutpid );
-	desc->selectOutput(seloutpid);
+	bool ishidden = false;
+	descpar->getYN( hiddenStr(), ishidden );
+	desc->setHidden( ishidden );
+
+	int selout = 0;
+	if ( descpar->get("Selected Attrib",selout) )
+	    desc->selectOutput(selout);
 
 	if ( steeringpar )
 	{
@@ -431,38 +437,71 @@ bool DescSet::is2D() const
 }
 
 
-DescSet* DescSet::optimizeClone( int targetnode, int tn2 ) const
+int DescSet::getStoredID( const char* lk, int selout, bool create )
 {
-    TypeSet<int> needednodes;
-    needednodes += targetnode;
-    if ( tn2 >= 0 ) needednodes += tn2;
-    const int targetdescnr = getID( targetnode );
-    if ( targetdescnr < 0 )
-	return clone();
+    for ( int idx=0; idx<descs.size(); idx++ )
+    {
+	const Desc* desc = descs[idx];
+	if ( !desc->isStored() || desc->selectedOutput()!=selout )
+	    continue;
 
+	const Param* keypar = desc->getParam( StorageProvider::keyStr() );
+	const char* curlk = keypar->getStringValue();
+	if ( !strcmp(lk,curlk) ) return desc->id();
+    }
+
+    if ( !create ) return -1;
+
+    LineKey newlk( lk );
+    MultiID mid = newlk.lineName().buf();
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return -1;
+
+    Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
+    if ( !newdesc ) return false; // "Cannot create desc"
+
+    BufferString userref = LineKey( ioobj->name(), newlk.attrName() );
+    newdesc->setUserRef( userref );
+    newdesc->selectOutput( selout );
+    Param* keypar = newdesc->getParam( StorageProvider::keyStr() );
+    keypar->setValue( lk );
+    return addDesc( newdesc );
+}
+
+
+DescSet* DescSet::optimizeClone( int targetnode ) const
+{
+    TypeSet<int> needednodes( 1, targetnode );
+    return optimizeClone( needednodes );
+}
+
+
+DescSet* DescSet::optimizeClone( const TypeSet<int>& targets ) const
+{
     DescSet* res = new DescSet;
+    TypeSet<int> needednodes = targets;
     while ( needednodes.size() )
     {
 	const int needednode = needednodes[0];
 	needednodes.remove( 0 );
-	int descnr = getID( needednode );
-	if ( descnr==-1 )
+	const Desc* desc = getDesc( needednode );
+	if ( !desc )
 	{
 	    delete res;
 	    return 0;
 	}
 
-	Desc* nd = descs[descnr]->clone();
+	Desc* nd = desc->clone();
+	nd->setDescSet( res );
 	res->descs += nd;
-	res->ids += ids[descnr];
+	res->ids += needednode;
 
 	for ( int idx=0; idx<nd->nrInputs(); idx++ )
 	{
-	    const int inputid = nd->inputId(idx);
-	    if ( inputid!=-1 && res->getID(inputid)==-1)
-	    {
+	    const Desc* inpdesc = nd->getInput(idx);
+	    const int inputid = inpdesc ? inpdesc->id() : -1;
+	    if ( inputid!=-1 && !res->getDesc(inputid) )
 		needednodes += inputid;
-	    }
 	}
     }
 
@@ -470,6 +509,5 @@ DescSet* DescSet::optimizeClone( int targetnode, int tn2 ) const
 	{ delete res; res = clone(); }
     return res;
 }
-
 
 }; // namespace Attrib
