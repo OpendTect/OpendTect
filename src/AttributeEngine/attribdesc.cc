@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.13 2005-06-07 06:44:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.14 2005-06-09 13:21:53 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -136,26 +136,30 @@ bool Desc::parseDefStr( const char* defstr )
     if ( !getAttribName(defstr,defstrnm) || defstrnm!=attribname )
 	return false;
 
-     for ( int idx=0; idx<params.size(); idx++ )
-     {
-	 BufferString paramval;
-	 if ( !getParamString( defstr, params[idx]->getKey(), paramval ) )
-	     continue;
+    for ( int idx=0; idx<params.size(); idx++ )
+    {
+	BufferString paramval;
+	if ( !getParamString( defstr, params[idx]->getKey(), paramval ) )
+	    continue;
 
-	 if ( !params[idx]->setCompositeValue(paramval) )
-	     return false;
-     }
+	if ( !params[idx]->setCompositeValue(paramval) )
+	    return false;
+    }
 
-     if ( statusupdater )
-	 statusupdater(*this);
+    if ( statusupdater )
+	statusupdater(*this);
 
-     for ( int idx=0; idx<params.size(); idx++ )
-     {
-         if ( !params[idx]->isOK() )
-	     return false;
-     }
-     
-     return true;
+    for ( int idx=0; idx<params.size(); idx++ )
+    {
+	if ( !params[idx]->isOK() )
+	    return false;
+    }
+
+    BufferString outputstr;
+    bool res = getParamString( defstr, "output", outputstr );
+    selectOutput( res ? atoi(outputstr.buf()) : 0 );
+ 
+    return true;
 }
 
 
@@ -320,6 +324,12 @@ bool Desc::setParamVal( const char* key, const char* val )
 
     if ( statusupdater ) statusupdater(*this);
     return true;
+}
+
+
+void Desc::updateParams()
+{
+    if ( statusupdater ) statusupdater(*this);
 }
 
 /*

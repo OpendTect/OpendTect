@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.12 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.13 2005-06-09 13:21:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ public:
     void		setParamRequired( const char* key, bool yn=true );
     bool		isParamRequired( const char* key ) const;
 
+    void		updateParams();
     bool		setParamVal( const char* key, const char* val );
     //bool		getParamVal( const char* key, BufferString& ) const;
     //const DataInpSpec*	getParamSpec( const char* key );
