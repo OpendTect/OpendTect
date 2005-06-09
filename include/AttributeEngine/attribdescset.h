@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.7 2005-05-27 07:28:42 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.8 2005-06-09 13:36:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class DescSet
 public:
     				~DescSet() { removeAll(); }
     DescSet*			clone() const;
-
+    DescSet*      		optimizeClone(int,int targetid2=-1) const;
     int				addDesc(Desc*);
 				/*!<\returns id of the attrib */
 
@@ -35,6 +35,7 @@ public:
 
     int				nrDescs() const;
     int				getID(const Desc&) const;
+    int				getID(int) const;
     int				getID(const char* ref,bool isusrref) const;
     void			getIds(TypeSet<int>&) const;
 
@@ -43,7 +44,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&,BufferStringSet* errmsgs=0);
-    bool			createSteeringDesc( const IOPar&,
+    bool			createSteeringDesc( const IOPar&, BufferString,
 						    ObjectSet<Desc>&, 
 						    BufferStringSet* errmsgs=0);
 	    

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.8 2005-06-02 07:13:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.9 2005-06-09 13:36:42 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.8 2005-06-02 07:13:53 cvsn
 #include "bufstringset.h"
 #include "iopar.h"
 #include "separstr.h"
+#include "gendefs.h"
 
 namespace Attrib
 {
@@ -66,6 +67,13 @@ int DescSet::getID( const Desc& desc ) const
 {
     const int idx = descs.indexOf( &desc );
     return idx==-1 ? -1 : ids[idx];
+}
+
+
+int DescSet::getID( int descnr ) const
+{
+    if ( descnr < 0 || descnr >= ids.size() ) return -2;
+    return ids[descnr];
 }
 
 
@@ -189,7 +197,10 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	const IOPar* steeringpar = descpar->subselect("Steering");
 	if ( steeringpar )
 	{
-	    if ( !createSteeringDesc(*steeringpar, newsteeringdescs) )
+	    const char* defstring = descpar->find(definitionStr());
+	    if ( !defstring )
+		mHandleParseErr("No attribute definition string specified");
+	    if ( !createSteeringDesc(*steeringpar, defstring, newsteeringdescs))
 	    {
 	        BufferString err = "Cannot create steering desc ";
 	        mHandleParseErr(err);
@@ -271,7 +282,9 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	}
 	if ( descs[idx]->isSatisfied()!=0 )
 	{
-	    //Do something
+	    BufferString err = "inputs or parameters are not satisfied for ";
+	    err += descs[idx]->attribName();
+	    mHandleParseErr(err);
 	}
     }
 
@@ -290,6 +303,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 
 bool DescSet::createSteeringDesc( const IOPar& steeringpar, 
+				  BufferString defstring,
 				  ObjectSet<Desc>& newsteeringdescs,
 				  BufferStringSet* errmsgs )
 {
@@ -297,7 +311,44 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     steeringdef += " ";
     steeringdef += "stepout=";
     const char* stepout = steeringpar.find("Stepout");
-    steeringdef += stepout ? stepout : "1,1";
+    if ( stepout )
+	steeringdef += stepout;
+    else
+    {
+	BufferString pos0val;
+	BufferString stepoutval;
+	if ( Desc::getParamString( defstring, "stepout",stepoutval ) )
+	{
+	    BinIDParam stept("stepout");
+	    stept.setCompositeValue(stepoutval);
+	    BinID steptbid;
+	    steptbid.inl = stept.getIntValue(0);
+	    steptbid.crl = stept.getIntValue(1);
+	    steeringdef += abs(steptbid.inl); steeringdef += ",";
+	    steeringdef += abs(steptbid.crl);
+	}
+	else if ( Desc::getParamString( defstring, "pos0",pos0val ) )
+	{
+	    BufferString pos1val;
+	    Desc::getParamString( defstring, "pos1",pos1val );
+	    BinIDParam pos0("pos0");
+	    BinIDParam pos1("pos1");
+	    pos0.setCompositeValue(pos0val);
+	    pos1.setCompositeValue(pos1val);
+	    BinID pos0bid, pos1bid;
+	    pos0bid.inl = pos0.getIntValue(0);
+	    pos0bid.crl = pos0.getIntValue(1);
+	    pos1bid.inl = pos1.getIntValue(0);
+	    pos1bid.crl = pos1.getIntValue(1);
+	    
+	    int outputinl = mMAX( abs(pos0bid.inl), abs(pos1bid.inl) );
+	    int outputcrl = mMAX( abs(pos0bid.crl), abs(pos1bid.crl) );
+	    steeringdef += outputinl; steeringdef += ","; 
+	    steeringdef+= outputcrl;
+	}
+	else
+	    steeringdef += "5,5";
+    }
     steeringdef += " ";
     steeringdef += "phlock=";
     bool phaselock = false;
@@ -378,5 +429,47 @@ bool DescSet::is2D() const
 
     return false;
 }
+
+
+DescSet* DescSet::optimizeClone( int targetnode, int tn2 ) const
+{
+    TypeSet<int> needednodes;
+    needednodes += targetnode;
+    if ( tn2 >= 0 ) needednodes += tn2;
+    const int targetdescnr = getID( targetnode );
+    if ( targetdescnr < 0 )
+	return clone();
+
+    DescSet* res = new DescSet;
+    while ( needednodes.size() )
+    {
+	const int needednode = needednodes[0];
+	needednodes.remove( 0 );
+	int descnr = getID( needednode );
+	if ( descnr==-1 )
+	{
+	    delete res;
+	    return 0;
+	}
+
+	Desc* nd = descs[descnr]->clone();
+	res->descs += nd;
+	res->ids += ids[descnr];
+
+	for ( int idx=0; idx<nd->nrInputs(); idx++ )
+	{
+	    const int inputid = nd->inputId(idx);
+	    if ( inputid!=-1 && res->getID(inputid)==-1)
+	    {
+		needednodes += inputid;
+	    }
+	}
+    }
+
+    if ( res->nrDescs() == 0 )
+	{ delete res; res = clone(); }
+    return res;
+}
+
 
 }; // namespace Attrib
