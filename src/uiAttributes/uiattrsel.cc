@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.1 2005-05-31 12:54:14 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.2 2005-06-09 13:11:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,8 +12,12 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
-#include "attribfact.h"
+#include "attribfactory.h"
+#include "attribparam.h"
 #include "attribsel.h"
+#include "hilbertattrib.h"
+#include "attribstorprovider.h"
+
 #include "uimsg.h"
 #include "ioman.h"
 #include "iodir.h"
@@ -129,7 +133,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     }
     else
     {
-	const Attrib::Desc* desc = attrdata.attribid < 0 ? 0 :
+	const Desc* desc = attrdata.attribid < 0 ? 0 :
 	    		attrdata.attrset->getDesc( attrdata.attribid );
 	if ( desc )
 	{
@@ -144,7 +148,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	    // Defaults are the last ones added to attrib set
 	    for ( int idx=attrdata.attrset->nrDescs()-1; idx!=-1; idx-- )
 	    {
-		const Attrib::Desc& ad = *attrdata.attrset->getDesc(idx);
+		const Desc& ad = *attrdata.attrset->getDesc(idx);
 		if ( ad.isStored() && storcur == -1 )
 		    storcur = attrinf->ioobjnms.indexOf( ad.userRef() );
 		else if ( !ad.isStored() && attrcur == -1 )
@@ -288,8 +292,9 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else
     {
 	DescSet& as = const_cast<DescSet&>( *attrdata.attrset );
+
 	const char* ioobjkey = attrinf->ioobjids.get(selidx);
-	BufferString defstr( ioobjkey );
+	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
 	{
 	    attrdata.outputnr = attr2dfld->getIntValue();
@@ -298,10 +303,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	    const char* attrnm = attrdata.outputnr >= nms.size() ? 0
 				    : nms.get(attrdata.outputnr).buf();
 	    if ( needattrmatch )
-		defstr = StorageAttribDesc::createDefStr( MultiID(ioobjkey),
-							  attrnm );
+		linekey.setAttrName( attrnm );
 	}
-	attrdata.attribid = as.getStoredAttribID( defstr, 0, needattrmatch );
+
+	attrdata.attribid = as.getStoredID( linekey, 0, true );
 	if ( needattrmatch && attrdata.attribid < 0 )
 	{
 	    BufferString msg( "Could not find the seismic data " );
@@ -322,7 +327,7 @@ bool uiAttrSelDlg::acceptOK( CallBacker* )
 }
 
 
-uiAttrSel::uiAttrSel( uiParent* p, const Attrib::DescSet* ads,
+uiAttrSel::uiAttrSel( uiParent* p, const DescSet* ads,
 		      const char* txt, int curid )
     : uiIOSelect(p,mCB(this,uiAttrSel,doSel),txt?txt:"Input Data")
     , attrdata(ads)
@@ -344,7 +349,7 @@ uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
 }
 
 
-void uiAttrSel::setDescSet( const Attrib::DescSet* ads )
+void uiAttrSel::setDescSet( const DescSet* ads )
 {
     attrdata.attrset = ads;
     update2D();
@@ -357,7 +362,7 @@ void uiAttrSel::setNLAModel( const NLAModel* mdl )
 }
 
 
-void uiAttrSel::setDesc( const Attrib::Desc* ad )
+void uiAttrSel::setDesc( const Desc* ad )
 {
     const char* inp = ad->userRef();
     if ( inp[0] == '_' ) return;
@@ -369,7 +374,7 @@ void uiAttrSel::setDesc( const Attrib::Desc* ad )
 }
 
 
-void uiAttrSel::setIgnoreDesc( const Attrib::Desc* ad )
+void uiAttrSel::setIgnoreDesc( const Desc* ad )
 {
     ignoreid = -1;
     if ( !ad ) return;
@@ -408,7 +413,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 	return IOObj::isKey(nm) ? IOM().nameOf(nm) : nm;
     }
 
-    const Attrib::Desc* ad = attrdata.attrset->getDesc( attrid );
+    const Desc* ad = attrdata.attrset->getDesc( attrid );
     usrnm = ad ? ad->userRef() : "";
     return usrnm.buf();
 }
@@ -426,11 +431,12 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
     if ( attrdata.attribid < 0 || !attrdata.attrset )
 	return false;
 
-    const Attrib::Desc* desc = attrdata.attrset->getDesc( attrdata.attribid );
+    const Desc* desc = attrdata.attrset->getDesc( attrdata.attribid );
     if ( !desc->isStored() ) return false;
 
-    mDynamicCastGet(const StorageAttrib::Desc*,sad,desc)
-    return SeisTrcTranslator::getRanges( sad->ioObjKey(), cs );
+    const Param* keypar = desc->getParam( StorageProvider::keyStr() );
+    const MultiID mid( keypar->getStringValue() );
+    return SeisTrcTranslator::getRanges( mid, cs );
 }
 
 
@@ -457,12 +463,12 @@ void uiAttrSel::processInput()
 
     BufferString inp = getInput();
     char* attr2d = strchr( inp, '|' );
-    Attrib::DescSet& as = const_cast<Attrib::DescSet&>( *attrdata.attrset );
+    DescSet& as = const_cast<DescSet&>( *attrdata.attrset );
     attrdata.attribid = as.getID( inp, true );
     attrdata.outputnr = -1;
     if ( attrdata.attribid >= 0 && attr2d )
     {
-	const Attrib::Desc& ad = *attrdata.attrset->getDesc(attrdata.attribid);
+	const Desc& ad = *attrdata.attrset->getDesc(attrdata.attribid);
 	BufferString defstr; ad.getDefStr( defstr );
 	BufferStringSet nms;
 	SelInfo::getAttrNames( defstr, nms );
@@ -487,7 +493,7 @@ void uiAttrSel::processInput()
 }
 
 
-void uiAttrSel::fillSelSpec( Attrib::SelSpec& as ) const
+void uiAttrSel::fillSelSpec( SelSpec& as ) const
 {
     const bool isnla = attrdata.attribid < 0 && attrdata.outputnr >= 0;
     if ( isnla )
@@ -532,7 +538,7 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
     if ( attrdata.attribid < 0 )
 	return true;
 
-    const Attrib::Desc& ad = *attrdata.attrset->getDesc( attrdata.attribid );
+    const Desc& ad = *attrdata.attrset->getDesc( attrdata.attribid );
     bool isdep = false;
 /*
     if ( !is2d )
@@ -580,21 +586,22 @@ int uiImagAttrSel::imagID() const
     attrdata.attrset->getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	const Attrib::Desc* desc = attrdata.attrset->getDesc( attribids[idx] );
+	const Desc* desc = attrdata.attrset->getDesc( attribids[idx] );
 
-	if ( strcmp(desc->attribName(),Attrib::Hilbert::attribname()) )
+	if ( strcmp(desc->attribName(),Hilbert::attribName()) )
 	    continue;
 
-	const Attrib::Desc* inputdesc = desc->getInput( 0 );
+	const Desc* inputdesc = desc->getInput( 0 );
 	if ( !inputdesc || inputdesc->id() != selattrid )
 	    continue;
 
 	return attribids[idx];
     }
 
-    const Attrib::Desc* inpdesc = attrdata.attrset->getDesc(selattrid);
-    Attrib::Desc* newdesc = 
-			PF().createDescCopy( Attrib::Hilbert::attribname() );
+    DescSet* descset = const_cast<DescSet*>(attrdata.attrset);
+
+    Desc* inpdesc = descset->getDesc( selattrid );
+    Desc* newdesc = PF().createDescCopy( Hilbert::attribName() );
     if ( !newdesc || !inpdesc ) return -1;
 
     newdesc->selectOutput( 0 );
@@ -604,5 +611,5 @@ int uiImagAttrSel::imagID() const
     BufferString usrref = "_"; usrref += inpdesc->userRef(); usrref += "_imag";
     newdesc->setUserRef( usrref );
 
-    return const_cast<Attrib::DescSet*>(attrdata.attrset)->addDesc( newdesc );
+    return descset->addDesc( newdesc );
 }

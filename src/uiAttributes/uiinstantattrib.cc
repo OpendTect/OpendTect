@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uiinstantattrib.cc,v 1.2 2005-06-09 13:11:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,13 +12,13 @@ ________________________________________________________________________
 #include "uiinstantattrib.h"
 #include "instantattrib.h"
 #include "attribdesc.h"
-#include "uispecattrsel.h"
+#include "uiattrsel.h"
 #include "uigeninput.h"
 
 using namespace Attrib;
 
 
-const char* uiInstantAttrib::outstrs[] =
+const char* uiInstantaneousAttrib::outstrs[] =
 {
 	"Amplitude",
 	"Phase",
@@ -37,7 +37,7 @@ const char* uiInstantAttrib::outstrs[] =
 };
 
 
-uiInstantAttrib::uiInstantAttrib( uiParent* p )
+uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
     inpfld = getImagInpFld();
@@ -50,39 +50,40 @@ uiInstantAttrib::uiInstantAttrib( uiParent* p )
 }
 
 
-bool uiInstantAttrib::setParameters( const Desc& desc )
+bool uiInstantaneousAttrib::setParameters( const Desc& desc )
 {
     return !strcmp(desc.attribName(),Instantaneous::attribName());
 }
 
 
-bool uiInstantAttrib::setInput( const Desc& desc )
+bool uiInstantaneousAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld, desc, 0 );
     return true;
 }
 
 
-bool uiInstantAttrib::setOutput( const Desc& desc )
+bool uiInstantaneousAttrib::setOutput( const Desc& desc )
 {
     outpfld->setValue( desc.selectedOutput() );
+    return true;
 }
 
 
-bool uiInstantAttrib::getParameters( Desc& desc )
+bool uiInstantaneousAttrib::getParameters( Desc& desc )
 {
     return !strcmp(desc.attribName(),Instantaneous::attribName());
 }
 
 
-bool uiInstantAttrib::getInput( Desc& desc )
+bool uiInstantaneousAttrib::getInput( Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
     return true;
 }
 
 
-bool uiInstantAttrib::getOutput( Desc& desc )
+bool uiInstantaneousAttrib::getOutput( Desc& desc )
 {
     fillOutput( desc, outpfld->getIntValue() );
     return true;

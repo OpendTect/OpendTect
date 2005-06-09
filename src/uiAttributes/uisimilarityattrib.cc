@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.2 2005-06-09 13:11:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 bool uiSimilarityAttrib::setInput( const Attrib::Desc& desc )
 {
     putInp( inpfld, desc, 0 );
-    putInp( steerfld, desc );
+    putInp( steerfld, desc, 1 );
     return true;
 }
 

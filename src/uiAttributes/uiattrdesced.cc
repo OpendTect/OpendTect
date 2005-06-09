@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.1 2005-05-31 12:54:14 cvsnanne Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.2 2005-06-09 13:11:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
 #include "uiattrsel.h"
-#include "uisteersel.h"
+#include "uisteeringsel.h"
 #include "uilabel.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -53,13 +53,17 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 }
 
 
-void uiAttrDescEd::fillInp( const uiAttrSel* fld, Attrib::Desc& desc, int inp )
+void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 {
-    const Attrib::Desc* inpdesc = desc.getInput( inp );
-    if ( !inpdesc ) return;
-
+    fld->processInput();
     const int attribid = fld->attribID();
-    chtr.set( inpdesc->id(), attribid );
+
+    const Attrib::Desc* inpdesc = desc.getInput( inp );
+    if ( inpdesc )
+	chtr.set( inpdesc->id(), attribid );
+    else
+	chtr.setChanged( true );
+
     desc.setInput( inp, desc.descSet()->getDesc(attribid) );
     mDynamicCastGet(const uiImagAttrSel*,imagfld,fld)
     if ( imagfld )
@@ -67,7 +71,7 @@ void uiAttrDescEd::fillInp( const uiAttrSel* fld, Attrib::Desc& desc, int inp )
 }
 
 
-void uiAttrDescEd::fillInp( const uiSteeringSel* fld, Attrib::Desc& desc, 
+void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, 
 			    int inp )
 {
     fld->fillDesc( desc, chtr );
@@ -122,7 +126,7 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 
 
 void uiAttrDescEd::putInp( uiSteerCubeSel* inpfld, const Attrib::Desc& ad, 
-			   int inpnr)
+			   int inpnr )
 {
     const Attrib::Desc* inpdesc = ad.getInput( inpnr );
     if ( !inpdesc )
@@ -132,6 +136,15 @@ void uiAttrDescEd::putInp( uiSteerCubeSel* inpfld, const Attrib::Desc& ad,
 	inpfld->setDesc( inpdesc );
 	inpfld->updateHistory( adsman->inputHistory() );
     }
+}
+
+
+void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
+			   int inpnr )
+{
+    const Attrib::Desc* inpdesc = ad.getInput( inpnr );
+    if ( !inpdesc ) return;
+    inpfld->useDesc( *inpdesc );
 }
 
 
@@ -165,6 +178,7 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     getParameters( *editdesc );
     getInput( *editdesc );
     getOutput( *editdesc );
+    editdesc->updateParams();
     return 0;
 }
 
