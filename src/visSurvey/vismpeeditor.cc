@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.10 2005-06-06 14:03:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.11 2005-06-09 14:55:01 cvsnanne Exp $";
 
 #include "vismpeeditor.h"
 
@@ -33,7 +33,7 @@ MPEEditor::MPEEditor()
     , transformation( 0 )
     , activenode( -1, -1, -1 )
     , issettingpos( 0 )
-    , markersize( 5 )
+    , markersize( 3 )
 { }
 
 
