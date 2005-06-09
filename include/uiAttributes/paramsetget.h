@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: paramsetget.h,v 1.1 2005-05-31 12:59:48 cvsnanne Exp $
+ RCS:           $Id: paramsetget.h,v 1.2 2005-06-09 13:12:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ ________________________________________________________________________
 #define mSetString( str, newval ) \
 { \
     Attrib::Param* param = desc.getParam( str ); \
-    BufferString oldval = param->text(); \
+    BufferString oldval = param->getStringValue(); \
     if ( chtr.set(oldval,newval) ) \
         param->setValue( newval ); \
 }
@@ -91,7 +91,7 @@ if ( desc.getParam(str) ) \
 
 #define mIfGetString( str, var, setfunc ) \
 if ( desc.getParam(str) ) \
-{ const char* var = desc.getParam(str)->text(0); setfunc; }
+{ const char* var = desc.getParam(str)->getStringValue(0); setfunc; }
 
 #define mIfGetBinID( str, var, setfunc ) \
 if ( desc.getParam(str) ) \

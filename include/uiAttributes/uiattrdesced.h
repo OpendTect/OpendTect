@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.1 2005-05-31 12:54:32 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.2 2005-06-09 13:12:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,10 +84,12 @@ protected:
     virtual bool	getOutput(Attrib::Desc&);
 
     void		fillOutput(Attrib::Desc&,int selout);
-    void		fillInp(const uiAttrSel*,Attrib::Desc&,int inpnr);
-    void		fillInp(const uiSteeringSel*,Attrib::Desc&,int inpnr);
+    void		fillInp(uiAttrSel*,Attrib::Desc&,int inpnr);
+    void		fillInp(uiSteeringSel*,Attrib::Desc&,int inpnr);
+    
     void		putInp(uiAttrSel*,const Attrib::Desc&,int inpnr);
     void		putInp(uiSteerCubeSel*,const Attrib::Desc&,int inpnr);
+    void		putInp(uiSteeringSel*,const Attrib::Desc&,int inpnr);
 
     BufferString	gateLabel() const;
     BufferString	shiftLabel() const;

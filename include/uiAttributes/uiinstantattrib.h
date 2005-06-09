@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.h,v 1.1 2005-05-31 12:35:24 cvsnanne Exp $
+ RCS:           $Id: uiinstantattrib.h,v 1.2 2005-06-09 13:12:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,11 @@ class uiGenInput;
 
 /*! \brief Instantaneous Attribute description editor */
 
-class uiInstantAttrib : public uiAttrDescEd
+class uiInstantaneousAttrib : public uiAttrDescEd
 {
 public:
 
-			uiInstantAttrib(uiParent*);
+			uiInstantaneousAttrib(uiParent*);
 
 protected:
 
