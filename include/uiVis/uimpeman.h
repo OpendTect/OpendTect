@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.6 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: uimpeman.h,v 1.7 2005-06-09 03:32:33 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ protected:
     void			updateButtonSensitivity(CallBacker* = 0);
     void			trackBackward(CallBacker*);
     void			trackForward(CallBacker*);
+    void			trackInVolume(CallBacker*);
 
     void			seedModeCB(CallBacker*);
     void			extendModeCB(CallBacker*);
@@ -87,6 +88,7 @@ protected:
     int				mouseeraseridx;
     int				undoidx, redoidx;
     int				trackforwardidx, trackbackwardidx;
+    int				trackinvolidx;
     bool			trackerwasonbeforemouseerase;
 
     BufferString		destrackertype;

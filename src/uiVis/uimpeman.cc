@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.12 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.13 2005-06-09 03:32:33 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,10 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     transfld->setToolTip( "Transparency" );
     transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
 
+    addSeparator();
+    trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
+    				 "Track in whole volume", false );
+    
     addSeparator();
     trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
 	    			  "Track backward", false );
@@ -480,6 +484,12 @@ void uiMPEMan::trackBackward( CallBacker* )
 }
 
 
+void uiMPEMan::trackInVolume( CallBacker* )
+{
+    engine().trackInVolume();
+}
+
+
 void uiMPEMan::setTrackButton()
 {
     TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
@@ -494,6 +504,7 @@ void uiMPEMan::setTrackButton()
 
 void uiMPEMan::showTracker( bool yn )
 {
+    setSensitive( trackinvolidx );
     setSensitive( trackforwardidx, yn );
     setSensitive( trackbackwardidx, yn );
     attribfld->setSensitive( yn );
