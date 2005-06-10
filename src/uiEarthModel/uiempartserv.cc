@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.63 2005-04-15 12:26:49 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.64 2005-06-10 06:46:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -435,14 +435,24 @@ void uiEMPartServer::setAuxData( const MultiID& id,
 {
     mDynamicCastAll()
     if ( !surface ) { uiMSG().error( "Cannot find surface" ); return; }
-    if ( !data.size() || 
-	 attribnms.size() >= data[0]->nrVals() ) { pErrMsg("Huh"); return; }
+    if ( !data.size() ) { uiMSG().error( "No data calculated" ); return; }
 
     surface->auxdata.removeAll();
 
+    const int nrdatavals = data[0]->nrVals();
     TypeSet<int> dataidxs;
-    for ( int idx=0; idx<attribnms.size(); idx++ )
-	dataidxs += surface->auxdata.addAuxData( attribnms.get(idx) );
+    for ( int idx=0; idx<nrdatavals; idx++ )
+    {
+	BufferString name;
+	if ( idx<attribnms.size() )
+	    name = attribnms.get(idx);
+	else
+	{
+	    name = "AuxData"; name += idx;
+	}
+
+	dataidxs += surface->auxdata.addAuxData( name );
+    }
 
     BinID bid;
     BinIDValueSet::Pos pos;
