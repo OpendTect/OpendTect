@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.10 2005-04-22 11:34:20 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.11 2005-06-10 16:47:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
     }
 
     uiCursorChanger cursorchanger(uiCursor::Wait);
-    if ( !emod->updateFromEM() ) { emod->unRef(); return; }
+    if ( !emod->setEMObject(*mid) ) { emod->unRef(); return; }
 
     if ( emod->getSelSpec()->id() == AttribSelSpec::noAttrib )
 	setDepthAsAttrib();
