@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.12 2005-04-29 15:06:11 cvsnanne Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.13 2005-06-10 06:48:38 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -126,6 +126,9 @@ public:
     			/*< If SectionID is -1, the overall range is returned */
     StepInterval<int>	colRange(SectionID=-1) const;
     			/*< If SectionID is -1, the overall range is returned */
+
+    Interval<float>	getZRange(const Interval<int>& rowrg,
+	    			  const Interval<int>& colrg) const;
 
     virtual int		findPos(SectionID,const Interval<float>& x,
 	    			const Interval<float>& y,

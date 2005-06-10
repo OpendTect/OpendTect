@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.18 2005-04-29 15:06:18 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.19 2005-06-10 06:48:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1250,6 +1250,29 @@ StepInterval<int> SurfaceGeometry::funcname(SectionID sid) const \
 
 mGetRange( rowRange )
 mGetRange( colRange )
+
+
+Interval<float> SurfaceGeometry::getZRange( const Interval<int>& rowrg,
+					    const Interval<int>& colrg ) const
+{
+    Interval<float> zrg( mUdf(float), -mUdf(float) );
+    for ( int sidx=0; sidx<nrSections(); sidx++ )
+    {
+	SectionID sid = sectionID( sidx );
+	const Geometry::ParametricSurface* psurf = getSurface( sid );
+	for ( int nidx=0; nidx<psurf->nrKnots(); nidx++ )
+	{
+	    RowCol rc = psurf->getKnotRowCol( nidx );
+	    if ( rowrg.includes(rc.r()) && colrg.includes(rc.c()) )
+	    {
+		const Coord3& crd = getPos( sid, rc );
+		if ( crd.isDefined() ) zrg.include( crd.z );
+	    }
+	}
+    }
+
+    return zrg;
+}
 
 
 bool SurfaceGeometry::isAtEdge( const PosID& pid ) const
