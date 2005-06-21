@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.29 2005-06-09 03:32:33 cvsduntao Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.30 2005-06-21 10:13:49 cvsduntao Exp $";
 
 #include "mpeengine.h"
 
@@ -287,6 +287,14 @@ int Engine::getTrackerByObject( const char* objname ) const
     }
 
     return -1;
+}
+
+
+void Engine::seedsChanged()
+{
+    if ( trackers.size() != 1 )
+	return;
+    trackers[0]->setSeeds(interactionseeds, trackers[0]->objectName() );
 }
 
 
