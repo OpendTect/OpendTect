@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.28 2005-03-31 15:25:53 cvsarend Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.29 2005-06-22 15:31:49 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -154,12 +154,15 @@ void addTrc( SeisTrc* trc )
     const int tnr = trc->info().binid.crl;
     if ( seldata )
     {
-	if ( seldata->type_ == SeisSelData::TrcNrs
-		&& !seldata->trcrg_.includes(curnr) )
+	if ( seldata->type_ == SeisSelData::TrcNrs 
+		&& !seldata->isOK( curnr ) )
 	    { delete trc; return; }
-	if ( seldata->type_ == SeisSelData::Range
-		&& !seldata->crlrg_.includes(tnr) )
-	    { delete trc; return; }
+	if ( seldata->type_ == SeisSelData::Range )
+	{
+	    BinID bid( seldata->inlrg_.start, tnr );
+	    if ( !seldata->isOK(bid) )
+		{ delete trc; return; }
+	}
     }
 
     trc->info().nr = tnr;
@@ -178,7 +181,8 @@ int nextStep()
 	totnr = tr->packetInfo().crlrg.nrSteps() + 1;
 	if ( seldata )
 	{
-	    int nrsel = seldata->crlrg_.width() / trcstep + 1;
+	    const BinID tstepbid( 1, trcstep );
+	    int nrsel = seldata->expectedNrTraces( true, &tstepbid );
 	    if ( nrsel < totnr ) totnr = nrsel;
 	}
     }
