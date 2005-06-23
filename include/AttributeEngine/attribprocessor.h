@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.3 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.4 2005-06-23 09:13:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 
     int			nextStep();
 
-    int 		nrDone() {return nriter;}
+    int 		nrDone() { return nriter; }
 
     void		addOutputInterest(int seloutp) {outpinterest+= seloutp;}
     
@@ -46,6 +46,7 @@ public:
                           no processing, e.g. during initial buffer fills. */
     
     int			totalNr();
+    ObjectSet<Output>           outputs;
 
 protected:
 
@@ -56,7 +57,6 @@ protected:
     bool 			is2d_;
     TypeSet<int>		outpinterest;
 
-    ObjectSet<Output>		outputs;
 };
 
 

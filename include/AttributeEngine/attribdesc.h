@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.13 2005-06-09 13:21:46 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.14 2005-06-23 09:13:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "refcount.h"
 #include "bufstring.h"
+#include "bufstringset.h"
 #include "seistype.h"
 
 class DataInpSpec;
@@ -58,6 +59,7 @@ public:
 //	    			deepUnRef( inputs ); }
 
     const char*		attribName() const;
+    void                setAttribName(const char* name) { attribname = name; }
     Desc*		clone() const;
 
     bool		init() { return true; }  ; //Needed?
@@ -69,6 +71,9 @@ public:
 
     bool		getDefStr(BufferString&) const;
     bool		parseDefStr( const char* );
+    void                createBStrSetFromDefstring( const char*,
+						    BufferStringSet&,
+						    BufferStringSet& );
     const char*         userRef() const;
     void                setUserRef( const char* );
 
@@ -98,6 +103,10 @@ public:
 			*/
 
     bool		isIdenticalTo( const Desc&, bool cmpoutput=true ) const;
+    bool                isIdentifiedBy( const char* s ) const;
+    int                 inputId( int idx ) const
+			{ return idx >= 0 && idx < inputs.size()
+			    ? inputs[idx]->id() : -1; }
 
 
     			/* Interface to factory */
@@ -150,22 +159,28 @@ protected:
 
 }; //Namespace
 
+#define mGetInt( var, varstring ) \
+var = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
+
+#define mGetFloat( var, varstring ) \
+var = ((ValParam*)desc.getParam(varstring))->getfValue(0); \
+
 #define mGetBool( var, varstring ) \
-var = desc.getParam(varstring)->getBoolValue(0); \
+var = ((ValParam*)desc.getParam(varstring))->getBoolValue(0); \
 
 #define mGetEnum( var, varstring ) \
-var = desc.getParam(varstring)->getIntValue(0); \
+var = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
 
 #define mGetBinID( var, varstring ) \
 {\
-    var.inl = desc.getParam(varstring)->getIntValue(0); \
-    var.crl = desc.getParam(varstring)->getIntValue(1); \
+    var.inl = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
+    var.crl = ((ValParam*)desc.getParam(varstring))->getIntValue(1); \
 }
 
 #define mGetFloatInterval( var, varstring ) \
 {\
-    var.start = desc.getParam(varstring)->getfValue(0); \
-    var.stop = desc.getParam(varstring)->getfValue(1); \
+    var.start = ((ValParam*)desc.getParam(varstring))->getfValue(0); \
+    var.stop = ((ValParam*)desc.getParam(varstring))->getfValue(1); \
 }
 
 

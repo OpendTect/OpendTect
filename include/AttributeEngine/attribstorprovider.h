@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.5 2005-05-27 07:28:42 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.6 2005-06-23 09:13:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
     static const char*  attribName() { return "Storage"; }
     static const char*  keyStr() { return "id"; }
     BinID		getStepoutStep();
-    void		updateStorageReqs();
+    void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
 
 

@@ -20,13 +20,13 @@ class IOPar;
 class MultiID;
 class LineKey;
 class NLAModel;
-class FeatureSet;//?
 class SeisTrcBuf;
 class CubeSampling;
 class PickSetGroup;
 class BinIDValueSet;
 class NLACreationDesc;//?
 class BufferStringSet;
+class ExecutorGroup;
 template <class T> class TypeSet;
 template <class T> class Interval;
 template <class T> class ObjectSet;
@@ -54,55 +54,48 @@ public:
 	    			const char* linename,
 				ObjectSet<Processor>& procset ); 
 
+    void		createProcSet( ObjectSet<Processor>& procset,
+	    				const DescSet& attribset,
+					const char* linename, TypeSet<int> );
     CubeOutput* 	createOutput( const IOPar& pars, LineKey ); 
-    //old attribengman: voir si on garde toutes ces fonctions 
-    //et les adapter le cas echeant.
-//    const AttribDescSet* attribSet() const	{ return inpattrset; }
-//    const NLAModel*	nlaModel() const	{ return nlamodel; }
-//    const AttribSelSpec& attribSpec() const	{ return attrspec; }
-//    const CubeSampling&	cubeSampling() const	{ return cs; }
-//    const BufferString&	lineKey() const		{ return linekey; }
-//    const MultiID&	outputID() const	{ return outid; }
-    			//!< Set this to "" for in-mem output
-//    int			secondAttribID() const	{ return attrid2; }
-//    float		undefValue() const	{ return udfval; }
+    const DescSet* 	attribSet() const	{ return inpattrset; }
+    const NLAModel*	nlaModel() const	{ return nlamodel; }
+    const SelSpec& 	attribSpec() const	{ return attrspec; }
+    const CubeSampling&	cubeSampling() const	{ return cs; }
+    const BufferString&	lineKey() const		{ return linekey; }
+    float		undefValue() const	{ return udfval; }
 
     void		setAttribSet(const DescSet*);
     void		setNLAModel(const NLAModel*);
     void		setAttribSpec(const SelSpec&);
     void		setCubeSampling(const CubeSampling&);
-//    void		setLineKey( const char* lk )	{ linekey = lk; }
-    void		setOutputID(const MultiID&);
-//    void		setSecondAttribID( int i )	{ attrid2 = i; }
-//    void		setUndefValue( float v )	{ udfval = v; }
+    void		setLineKey( const char* lk )	{ linekey = lk; }
+    void		setUndefValue( float v )	{ udfval = v; }
     void		addOutputAttrib(int);
     DescSet*		createNLAADS(int& outid,BufferString& errmsg,
 	    			     const DescSet* addtoset=0);
-/*
-    Executor*		cubeOutputCreater(BufferString& errmsg,
-	    			      const AttribSliceSet* cached_data = 0);
+
+    ExecutorGroup*	sliceSetOutputCreator(BufferString& errmsg,
+	    			      const SliceSet* cached_data = 0);
     			//!< Give the previous calculated data in cached data
     			//!< and some parts may not be recalculated.
-    AttribSliceSet*	getCubeOutput(Executor*);
+    SliceSet*		getSliceSetOutput();
     			//!< Mem transfer here
-    			//!< Will return null if outputID set.
-    SeisTrcBuf*		get2DLineOutput(Executor*);
+    SeisTrcBuf*		get2DLineOutput();
     			//!< Mem transfer here
-    			//!< Will return null if outputID set.
 
-    Executor*		featureOutputCreator(const BufferStringSet& inputs,
-					const ObjectSet<BinIDValueSet>&,
-					    ObjectSet<FeatureSet>&);
+    ExecutorGroup* 	featureOutputCreator(const BufferStringSet& inputs,
+					const ObjectSet<BinIDValueSet>& );
 
-    Executor*		tableOutputCreator(BufferString& errmsg,
+    ExecutorGroup*	screenOutput2DCreator( BufferString& errmsg );
+    ExecutorGroup*	locationOutputCreator(BufferString& errmsg,
 					   ObjectSet<BinIDValueSet>&);
 
-    Executor*		trcSelOutputCreator(BufferString& errmsg,
-	    				    const TypeSet<BinID>&,
-					    const Interval<float>&,
+    ExecutorGroup*	trcSelOutputCreator(BufferString& errmsg,
+	    				    const BinIDValueSet& bidvalset,
 	    				    SeisTrcBuf&);
 
-    void		prOut(std::ostream&,int);*/
+    void		prOut(std::ostream&,int);
     const char*		curUserDesc() const;
 
 protected:
@@ -110,6 +103,7 @@ protected:
     const DescSet* 	inpattrset;
     const NLAModel*	nlamodel;
     CubeSampling&	cs;
+    SliceSet*		cache;
     int			attrid2;
     float		udfval;
     BufferString	linekey;
@@ -117,21 +111,21 @@ protected:
     const DescSet* 	curattrset;
     DescSet*		procattrset;
     int			curattrid;
-    MultiID&		outid;
     TypeSet<int>	outattribs;
     SelSpec&      	attrspec;
 
-//    bool		mkOutput();
-//    AttribOutputExecutor* mkOutputExecutor(BufferString&,bool needid=true);
-//    AttribOutputExecutor* getOutputExecutor(BufferString&,bool needid=true);
-//    void		setExecutorName(Executor*);
+    bool		getProcessors( ObjectSet<Processor>, 
+	    				BufferString& errmsg, bool, 
+	    				bool addcurid = true );
+    BufferString	createExecutorName();
 
 private:
 
-//    friend class	AEMFeatureExtracter;
+    friend class		AEMFeatureExtracter;
 
+    ObjectSet<Processor> 	procset;
     void			clearProcessing();
-//    void		clearZPtrs();
+    void			clearZPtrs();
 
 };
 

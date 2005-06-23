@@ -6,15 +6,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribslice.h,v 1.1 2005-02-04 09:28:35 kristofer Exp $
+ RCS:           $Id: attribslice.h,v 1.2 2005-06-23 09:13:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <sets.h>
-#include <arrayndimpl.h>
-#include <cubesampling.h>
-#include <refcount.h>
+#include "sets.h"
+#include "arrayndimpl.h"
+#include "cubesampling.h"
+#include "refcount.h"
 
 /*!\brief Slice containing attribute values.
  
@@ -30,8 +30,6 @@ class Slice : public Array2DImpl<float>
 { mRefCountImplNoDestructor(Slice);
 public:
 
-    enum Dir		{ Hor, Inl, Crl };
-
     			Slice( int nrows, int ncols, float udfval=0 );
     float		undefValue() const;
     void		setUndefValue( float udfval, bool initdata=false );
@@ -44,18 +42,11 @@ protected:
 
 
 /*!\brief Set of attrib slices.
+
+ The two array2d directions shall be filled following the CubeSampling
+ convention. The slices will be in order of increasing inl, crl or Z.
  
-  The two array2d directions shall be filled as follows:
-
-	Dir |	Dim1	Dim2
-	----|---------------
-	Hor |	Inl	Crl
-	Inl |	Crl	Z
-	Crl |	Inl	Z
-
-  Slices can be null!
-
-  The slices will be in order of increasing inl, crl or Z.
+ Slices can be null!
  
  */
 
@@ -65,13 +56,9 @@ public:
 
 			SliceSet();
 
-    Slice::Dir		direction;
+    CubeSampling::Dir	direction;
     CubeSampling	sampling;
 
-    int			dim(int,Slice::Dir) const;
-    static		Slice::Dir defaultDirection(const CubeSampling&);
-
-    int			dimNr(Slice::Dir) const;
     void		getIdx(int dimnr,int inl,int crl,float z,int&) const;
     void		getIdxs(int inl,int crl,float z,int&,int&,int&) const;
 

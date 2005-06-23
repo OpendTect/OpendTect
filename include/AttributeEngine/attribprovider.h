@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.12 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.13 2005-06-23 09:13:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,9 @@ public:
 
     const Desc&			getDesc() const;
     Desc&			getDesc();
-    virtual const DataHolder*	getData( const BinID& relpos=BinID(0,0), 
+    const DataHolder*		getData( const BinID& relpos=BinID(0,0), 
 	    				int idx=0 );
-    virtual const DataHolder*	getDataDontCompute(const BinID& relpos) const;
+    const DataHolder*		getDataDontCompute(const BinID& relpos) const;
 
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
@@ -70,6 +70,7 @@ public:
 				    \retval  0  finished, no more positions
 				    \retval  1	arrived at new position
 				*/
+    void			resetMoved();
 				    
     BinID			getCurrentPosition() const;
     virtual bool		setCurrentPosition( const BinID& );
@@ -79,13 +80,15 @@ public:
     const TypeSet< Interval<int> >&	localCompZIntervals() const;
 
     void               		updateInputReqs(int input=-1);
-    virtual void                updateStorageReqs(){};
+    virtual void                updateStorageReqs(bool all = false);
     void			setSelData(const SeisSelData&);
     int				getCurrentTrcNr () { return trcnr_; }
     float                       getRefStep() const { return refstep; }
     virtual BinID               getStepoutStep()
 				{ BinID bid( SI().inlStep(), SI().crlStep() );
 				  return bid;}
+    ObjectSet<Provider>		getInputs() { return inputs; }
+
 
 protected:
 
@@ -111,7 +114,8 @@ protected:
     void		removeDataHolder( const BinID& relpos );
     void		setInput( int input, Provider* );
     bool		computeDesInputCube( int inp, int out,
-					     CubeSampling& ) const;
+					     CubeSampling&, 
+					     bool usestepout=true ) const;
 
     virtual const BinID*	desStepout(int input, int output) const;
     virtual const BinID*	reqStepout(int input, int output) const;
@@ -149,6 +153,7 @@ protected:
     SeisSelData&		seldata_;
 
     float                       refstep;
+    bool 			alreadymoved;
     int				trcnr_;
 
 };

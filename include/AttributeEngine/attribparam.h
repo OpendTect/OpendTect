@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.6 2005-06-02 07:15:16 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.7 2005-06-23 09:13:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seistype.h"
 
 class DataInpSpec;
+class BinID;
 class BufferStringSet;
 
 template <class T> class Interval;
@@ -26,23 +27,67 @@ namespace Attrib
 class Param
 {
 public:
-    				Param(const char* key,DataInpSpec* spec);
+    				Param(const char* key);
     				Param(const Param&);
     virtual			~Param() {}
 
-    virtual Param*		clone() const;
+    virtual Param*		clone() const		= 0;
 
-    bool			operator==(const Param&) const;
-    bool			operator!=(const Param&) const;
+    bool			operator==( const Param& p ) const
+				{ return _isEqual( p ); }
+    bool			operator!=( const Param& p ) const
+				{ return !_isEqual( p ); }
 
-    virtual bool		isOK() const;
+    virtual bool		isOK() const		= 0;
 
     bool			isEnabled() const	  { return enabled; }
     void			setEnabled(bool yn=true)  { enabled=yn; }
     bool			isRequired() const	  { return required; }
     void			setRequired(bool yn=true) { required=yn; }
+    bool			isGroup() const		  { return isgroup_; }
 
-    const char*			getKey() const;
+    const char*			getKey() const		{ return key.buf(); }
+
+
+    virtual bool		setCompositeValue( const char* ) 
+				{ return false; }
+    virtual bool		setValues( BufferStringSet& )
+				{ return false; }
+    virtual bool		getCompositeValue(BufferString&) const	=0;
+    
+    void			setDefaultValue(BufferString val)
+    				{ defaultval_ = val; }
+    BufferString		getDefaultValue() { return defaultval_; }
+    void			setKey( char* newkey) { key = newkey; }
+
+protected:
+
+    BufferString		key;
+    bool			isgroup_;
+
+    bool			enabled;
+    bool			required;
+    BufferString		defaultval_;
+
+    bool			_isEqual( const Param& p ) const
+				{
+				    return p.key != key ? false : isEqual( p );
+				}
+    virtual bool		isEqual(const Param&) const	= 0;
+};
+
+
+class ValParam : public Param
+{
+public:
+    				ValParam(const char* key,DataInpSpec*);
+    				ValParam(const ValParam&);
+    				~ValParam(); 
+
+    virtual ValParam*		clone() const;
+
+    virtual bool		isOK() const;
+
     int				nrValues() const;
     int				getIntValue(int idx=0) const;
     float			getfValue(int idx=0) const;
@@ -54,19 +99,20 @@ public:
     void			setValue(bool,int idx=0);
     void			setValue(const char*,int idx=0);
 
+    DataInpSpec*		getSpec() { return spec; }
+
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
-
+    
 protected:
-    BufferString		key;
     DataInpSpec*		spec;
 
-    bool			enabled;
-    bool			required;
+    virtual bool		isEqual(const Param&) const;
 };
 
 
-class ZGateParam : public Param
+#define mLargestZGate 10000
+class ZGateParam : public ValParam
 {
 public:
     				ZGateParam(const char*);
@@ -75,10 +121,12 @@ public:
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
+
+    void			setDefaultValue(const Interval<float>&);
 };
 
 
-class BinIDParam : public Param
+class BinIDParam : public ValParam
 {
 public:
     				BinIDParam(const char*);
@@ -86,10 +134,12 @@ public:
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
+
+    void                        setDefaultValue( const BinID& );
 };
 
 
-class BoolParam : public Param
+class BoolParam : public ValParam
 {
 public:
     				BoolParam(const char*);
@@ -99,7 +149,7 @@ public:
 };
 
 
-class EnumParam : public Param
+class EnumParam : public ValParam
 {
 public:
     				EnumParam(const char*);
@@ -109,7 +159,7 @@ public:
 };
 
 
-class StringParam : public Param
+class StringParam : public ValParam
 {
 public:
     				StringParam(const char* key);

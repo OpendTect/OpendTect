@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.6 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.7 2005-06-23 09:13:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
     				Output(); 
     virtual bool		getDesiredVolume(CubeSampling&) const	= 0;
     virtual bool		wantsOutput( const BinID& ) const	= 0;
+    virtual SliceSet*		getSliceSet() const { return 0; }
+    virtual SeisTrcBuf*         getTrcBuf() const { return 0; }
     virtual void		getDesiredOutputs( TypeSet<int>& outputs) 					const { outputs = desoutputs;}
     void			setDesiredOutputs( TypeSet<int> outputs )
     				{ desoutputs = outputs;}
@@ -61,6 +63,8 @@ public:
     SliceSet*		getSliceSet() const;
 
     bool		getDesiredVolume(CubeSampling&) const;
+    void		setGeometry( const CubeSampling& );
+    void                setUndefValue( float v ) { udfval = v; }
     bool		wantsOutput( const BinID& ) const;
     void		collectData(const BinID&, const DataHolder&,float,int);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
@@ -69,6 +73,7 @@ protected:
     CubeSampling		desiredvolume;
     TypeSet< Interval<int> >	sampleinterval;
     SliceSet*			sliceset;
+    float			udfval;
 };
 
 
@@ -135,6 +140,7 @@ public:
 
     bool		getDesiredVolume(CubeSampling&) const	{ return true;}
     bool		wantsOutput( const BinID& ) const;
+    void                setOutput(SeisTrcBuf*);
     void		collectData(const BinID&, const DataHolder&,float,int);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
