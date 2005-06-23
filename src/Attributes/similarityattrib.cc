@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.3 2005-06-23 09:08:24 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -85,7 +85,7 @@ Provider* Similarity::createInstance( Desc& ds )
 
 void Similarity::updateDesc( Desc& desc )
 {
-    const Param* extension = desc.getParam(extensionStr());
+    const ValParam* extension = (ValParam*)desc.getParam(extensionStr());
     if ( !strcmp(extension->getStringValue(0),extensionTypeStr(mExtensionCube)))
     {
 	desc.setParamEnabled(pos0Str(),false);

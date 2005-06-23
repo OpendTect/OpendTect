@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.3 2005-06-23 09:08:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "datainpspec.h"
-#include "datainpspec.h"
 #include "genericnumer.h"
 
 namespace Attrib
@@ -27,7 +26,8 @@ void Hilbert::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    Param* halflen = new Param( halflenStr(), new IntInpSpec() );
+    ValParam* halflen = new ValParam( halflenStr(), new IntInpSpec() );
+    desc->addParam(halflen);
 //  halflen->setDefaultVal( 30 );
 
     InputSpec inputspec( "Input data", true );
@@ -66,7 +66,7 @@ Hilbert::Hilbert( Desc& desc_ )
 {
     if ( !isOK() ) return;
 
-    halflen = desc.getParam( halflenStr() )->getIntValue();
+    mGetInt( halflen, halflenStr() );
     hilbfilterlen = halflen * 2 + 1;
     hilbfilter = makeHilbFilt( halflen );
     gate = Interval<float>( -halflen-3, halflen+3 );
@@ -130,9 +130,14 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-const Interval<float>* Hilbert::reqZMargin( int inp, int ) const
-{ return &gate; }
-
+/*const Interval<float>* Hilbert::reqZMargin( int inp, int ) const
+{
+    
+    const_cast<Interval<float>*>(&timegate)->start = gate.start * refstep;
+    const_cast<Interval<float>*>(&timegate)->stop =  gate.stop * refstep;
+    return &timegate; 
+}
+*/
 
 float* Hilbert::makeHilbFilt( int hlen )
 {

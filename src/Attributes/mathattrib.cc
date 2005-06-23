@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.3 2005-06-23 09:08:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ static void getInputTable( const MathExpression* me, TypeSet<int>& inputtable )
 
 void Math::updateDesc( Desc& desc )
 {
-    Param* expr = desc.getParam( expressionStr() );
+    ValParam* expr = (ValParam*)desc.getParam( expressionStr() );
     if ( !expr ) return;
 
     PtrMan<MathExpression> formula = 
@@ -103,7 +103,7 @@ Math::Math( Desc& desc )
 {
     if ( !isOK() ) return;
 
-    Param* expr = desc.getParam( expressionStr() );
+    ValParam* expr = (ValParam*)desc.getParam( expressionStr() );
     if ( !expr ) return;
 
     expression_ = MathExpression::parse( expr->getStringValue() );

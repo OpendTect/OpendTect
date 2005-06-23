@@ -29,7 +29,7 @@ void Event::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    desc->addParam( new Param(eventTypeStr(), new IntInpSpec()) );
+    desc->addParam( new ValParam(eventTypeStr(), new IntInpSpec()) );
     						//0 = Extr, 1 = Max, 2 = Min,
                                                  //3 = ZC, 4 = npZC, 5 = pnZC,
                                                  //6 = GateMax, 7 = GateMin
@@ -71,8 +71,9 @@ Provider* Event::createInstance( Desc& ds )
 
 void Event::updateDesc( Desc& desc )
 {
-    bool issingle = desc.getParam(issingleeventStr())-> getBoolValue();
-    int evtype = desc.getParam(eventTypeStr())-> getIntValue();
+    bool issingle = 
+	( (ValParam*)desc.getParam(issingleeventStr()) )-> getBoolValue();
+    int evtype = ( (ValParam*)desc.getParam(eventTypeStr()) )-> getIntValue();
     if ( !issingle && ( evtype == 6 || evtype == 7 ) )
 	desc.setParamEnabled(gateStr(),true);
     else
@@ -88,7 +89,7 @@ Event::Event( Desc& desc_ )
 {
     if ( !isOK() ) return;
 
-    eventtype = desc_.getParam(eventTypeStr())->getIntValue(0);
+    eventtype = ( (ValParam*)desc_.getParam(eventTypeStr()) )->getIntValue(0);
     mGetBool( issingleevent, issingleeventStr() );
     mGetBool( tonext, tonextStr() );
     
