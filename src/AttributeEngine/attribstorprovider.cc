@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.6 2005-05-31 12:50:09 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.7 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -68,7 +68,7 @@ void StorageProvider::updateDesc( Desc& ds )
 {
     ds.removeOutputs();
 
-    const LineKey lk( ds.getParam(keyStr())->getStringValue(0) );
+    const LineKey lk( ((ValParam*)ds.getParam(keyStr()))->getStringValue(0) );
 
     const MultiID key( lk.lineName() );
     const BufferString attrnm = lk.attrName();
@@ -136,7 +136,7 @@ bool StorageProvider::init()
 {
     if ( status!=Nada ) return false;
 
-    const LineKey lk( desc.getParam(keyStr())->getStringValue(0) );
+    const LineKey lk( ((ValParam*)desc.getParam(keyStr()))->getStringValue(0) );
     const MultiID mid( lk.lineName() );
 
     IOPar iopar;
@@ -209,8 +209,7 @@ bool StorageProvider::init()
 	else
 	{
 	    SeisTrcTranslator::getRanges(mid,storedvolume,lk);
-	    //TODO see if we have to add it also in 2D.
-
+/*
 	    const SeisTrcTranslator* transl = reader->translator();
 	    const SeisSelData* seldata = transl ? transl->selData() : 0;
 	    if ( seldata && seldata->type_==SeisSelData::Range )
@@ -222,7 +221,7 @@ bool StorageProvider::init()
 		storedvolume.zrg.start = seldata->zrg_.start;
 		storedvolume.zrg.stop = seldata->zrg_.stop;
 	    }
-
+*/
 	    isset = true;
 	}
     }
@@ -236,6 +235,9 @@ bool StorageProvider::init()
 
 int StorageProvider::moveToNextTrace()
 {
+    if ( alreadymoved )
+	return 1;
+
     if ( status==Nada )
 	return -1;
 
@@ -276,12 +278,13 @@ int StorageProvider::moveToNextTrace()
 	}
     }
 
+    alreadymoved = true;
     return 1;
 }
 
 
 bool StorageProvider::getPossibleVolume(int,CubeSampling& res)
-{ res = storedvolume; return true; }
+{ res = storedvolume; possiblevolume = &storedvolume; return true; }
 
 
 SeisRequester* StorageProvider::getSeisRequester()
@@ -295,7 +298,7 @@ bool StorageProvider::initSeisRequester(int req)
 }
 
 
-void StorageProvider::updateStorageReqs()
+void StorageProvider::updateStorageReqs(bool)
 {
     for ( int req=0; req<rg.size(); req++ )
 	initSeisRequester(req);

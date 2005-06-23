@@ -4,51 +4,76 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.7 2005-06-02 07:15:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.8 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attribparam.h"
+#include "attribparamgroup.h"
 
 #include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
 #include "ptrman.h"
+#include "position.h"
 
 namespace Attrib
 {
 
-Param::Param( const char* key_, DataInpSpec* spec_ )
+Param::Param( const char* key_ )
     : key( key_ )
-    , spec( spec_ )
     , enabled( true )
     , required( true )
+    , isgroup_( false )
 {}
 
 
 Param::Param( const Param& b )
     : key( b.key )
-    , spec( b.spec->clone() )
     , enabled( b.enabled )
     , required( b.required )
+    , defaultval_( b.defaultval_ )
+    , isgroup_( b.isgroup_ )
 {}
+
+
+ValParam::ValParam( const char* key_, DataInpSpec* spec_ )
+    : Param( key_ )
+    , spec( spec_ )
+{}
+
+
+ValParam::ValParam( const ValParam& b )
+    : Param( b.key )
+    , spec( b.spec->clone() )
+{
+    enabled = b.enabled;
+    required = b.required;
+    defaultval_ = b.defaultval_;
+}
+
+
+ValParam::~ValParam()
+{
+    delete spec;
+}
 
 
 #define mParamClone( type ) \
 type* type::clone() const { return new type(*this); }
 
-mParamClone( Param );
+mParamClone( ValParam );
 
 
-bool Param::operator==( const Param& b ) const
+bool ValParam::isEqual( const Param& b ) const
 {
-    if ( key!=b.key ) return false;
+    mDynamicCastGet(ValParam*,vp,&const_cast<Param&>(b))
 
-    if ( spec->nElems()!=b.spec->nElems() )
+    if ( spec->nElems() != vp->spec->nElems() )
 	return false;
 
     for ( int idx=0; idx<spec->nElems(); idx++ )
     {
-	if ( strcmp(spec->text(idx),b.spec->text(idx)) )
+	if ( strcmp(spec->text(idx),vp->spec->text(idx)) )
 	    return false;
     }
 
@@ -56,7 +81,7 @@ bool Param::operator==( const Param& b ) const
 }
 
 
-bool Param::isOK() const
+bool ValParam::isOK() const
 {
     if ( !enabled ) return true;
     if ( spec->isUndef() ) return !required;
@@ -71,35 +96,30 @@ bool Param::isOK() const
 }
 
 
-bool Param::operator!=( const Param& b ) const
-{ return !(*this==b); }
 
-const char* Param::getKey() const
-{ return (const char*) key; }
-
-int Param::nrValues() const
+int ValParam::nrValues() const
 { return spec->nElems(); }
 
 
 #define mSetGet(type,getfunc) \
-type Param::getfunc( int idx ) const \
+type ValParam::getfunc( int idx ) const \
 { return spec->getfunc(idx); } \
 \
-void Param::setValue( type val, int idx ) \
+void ValParam::setValue( type val, int idx ) \
 { spec->setValue( val, idx ); }
 
 mSetGet(int,getIntValue)
 mSetGet(float,getfValue)
 mSetGet(bool,getBoolValue)
 
-const char* Param::getStringValue( int idx ) const
+const char* ValParam::getStringValue( int idx ) const
 { return spec->text(idx); }
 
-void Param::setValue( const char* str, int idx )
+void ValParam::setValue( const char* str, int idx )
 { spec->setText( str, idx ); }
 
 
-bool Param::setCompositeValue( const char* nv )
+bool ValParam::setCompositeValue( const char* nv )
 {
     if ( !spec->setText(nv,0) )
 	return false;
@@ -108,7 +128,7 @@ bool Param::setCompositeValue( const char* nv )
 };
 
 
-bool Param::getCompositeValue( BufferString& res ) const
+bool ValParam::getCompositeValue( BufferString& res ) const
 {
     if ( !spec ) return false;
     res = spec->text();
@@ -117,9 +137,8 @@ bool Param::getCompositeValue( BufferString& res ) const
 }
 
 
-
 ZGateParam::ZGateParam( const char* nm )
-      : Param( nm, new FloatInpIntervalSpec() )
+      : ValParam( nm, new FloatInpIntervalSpec() )
 {}
 
 
@@ -160,6 +179,15 @@ void ZGateParam::setLimits( const Interval<float>& rg )
 { reinterpret_cast<FloatInpSpec*>(spec)->setLimits(rg); }
 
 
+void ZGateParam::setDefaultValue(const Interval<float>& defaultgate)
+{
+    BufferString defaultstring = "["; 
+    defaultstring += defaultgate.start; defaultstring += ",";
+    defaultstring += defaultgate.stop; defaultstring += "]";
+    Param::setDefaultValue( defaultstring );
+}
+
+
 bool ZGateParam::getCompositeValue( BufferString& res ) const
 {
     res = "[";
@@ -173,7 +201,7 @@ bool ZGateParam::getCompositeValue( BufferString& res ) const
 
 
 BinIDParam::BinIDParam( const char* nm )
-    : Param( nm, new BinIDCoordInpSpec(false,true,false) )
+    : ValParam( nm, new BinIDCoordInpSpec(false,true,false) )
 {}
 
 
@@ -209,6 +237,14 @@ bool BinIDParam::setCompositeValue( const char* posstr )
 }
 
 
+void BinIDParam::setDefaultValue( const BinID& bid )
+{
+    BufferString defaultstring = bid.inl;
+    defaultstring += ","; defaultstring += bid.crl;
+    Param::setDefaultValue( defaultstring );
+}
+
+
 bool BinIDParam::getCompositeValue( BufferString& res ) const
 {
     res = spec->text(0);
@@ -220,7 +256,7 @@ bool BinIDParam::getCompositeValue( BufferString& res ) const
 
 
 BoolParam::BoolParam( const char* nm )
-    : Param(nm,new BoolInpSpec("yes","no"))
+    : ValParam(nm,new BoolInpSpec("yes","no"))
 {}
 
 mParamClone( BoolParam );
@@ -241,7 +277,7 @@ bool BoolParam::setCompositeValue( const char* str )
 
 
 EnumParam::EnumParam( const char* nm )
-    : Param( nm, new StringListInpSpec )
+    : ValParam( nm, new StringListInpSpec )
 {}
 
 mParamClone( EnumParam );
@@ -263,7 +299,7 @@ void EnumParam::addEnums( const char** nes )
 
 
 StringParam::StringParam( const char* key_ )
-    : Param( key_, new StringInpSpec )
+    : ValParam( key_, new StringInpSpec )
 {}
 
 mParamClone( StringParam );

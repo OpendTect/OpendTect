@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.13 2005-06-22 16:23:05 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.14 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -107,7 +107,19 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    return 0;
 	}
 
-	if ( !issame )
+	bool alreadythere = false;
+	if ( issame )
+	{
+	    for ( int idy=0; idy<desc.nrInputs()-1; idy++ )
+	    {
+		if ( res->getInputs().size()<idy)
+		if ( res->getInputs()[idy]->getDesc().
+				isIdenticalTo( *inputdesc, false ) )
+		    alreadythere = true;
+	    }
+	}
+		    
+	if ( !alreadythere )
 	    res->setInput( idx, inputprovider );
 	issame = false;
     }
@@ -136,6 +148,7 @@ Provider::Provider( Desc& nd )
     , linebuffer( 0 )
     , refstep( 0 )
     , trcnr_( -1 )
+    , alreadymoved(0)
     , seldata_(*new SeisSelData)
 {
     desc.ref();
@@ -240,7 +253,8 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	{
 	    if ( outputinterest[idy]<1 ) continue;
 
-	    if ( computeDesInputCube( idx, idy, inputcs ) )
+	    bool isstored = inputs[idx]? inputs[idx]->desc.isStored() : false;
+	    if ( computeDesInputCube( idx, idy, inputcs, !isstored ) )
 		inputs[idx]->setDesiredVolume( inputcs );
 	}
     }
@@ -260,6 +274,7 @@ mGetMargin( type, var, req##var, req##funcPost )
 
 bool Provider::getPossibleVolume( int output, CubeSampling& res )
 {
+    CubeSampling tmpres = res;
     if ( inputs.size()==0 )
     {
 	res.init(true);
@@ -280,7 +295,6 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 	}
     }
 
-    CubeSampling inputcs = res;
     bool isset = false;
     for ( int idx=0; idx<outputs.size(); idx++ )
     {
@@ -290,6 +304,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 	    if ( !inputs[inp] )
 		continue;
 
+	    CubeSampling inputcs = tmpres;
 	    TypeSet<int> inputoutput;
 	    if ( !getInputOutput( inp, inputoutput ) )
 		continue;
@@ -302,10 +317,12 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 		const BinID* stepout = reqStepout(inp,out);
 		if ( stepout )
 		{
-		    inputcs.hrg.start.inl += stepout->inl;
-		    inputcs.hrg.start.crl += stepout->crl;
-		    inputcs.hrg.stop.inl -= stepout->inl;
-		    inputcs.hrg.stop.crl -= stepout->crl;
+		    int inlstepoutfact = desiredvolume->hrg.step.inl;
+		    int crlstepoutfact = desiredvolume->hrg.step.crl;
+		    inputcs.hrg.start.inl += stepout->inl * inlstepoutfact;
+		    inputcs.hrg.start.crl += stepout->crl * crlstepoutfact;
+		    inputcs.hrg.stop.inl -= stepout->inl * inlstepoutfact;
+		    inputcs.hrg.stop.crl -= stepout->crl * crlstepoutfact;
 		}
 
 		const Interval<float>* zrg = reqZMargin(inp,out);
@@ -345,6 +362,9 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 
 int Provider::moveToNextTrace()
 {
+
+    if ( alreadymoved )
+	return 1;
 
     ObjectSet<Provider> movinginputs;
     for ( int idx=0; idx<inputs.size(); idx++ )
@@ -406,7 +426,18 @@ int Provider::moveToNextTrace()
 	    return -1;
     }
 
+    alreadymoved = true;
     return 1;
+}
+
+
+void Provider::resetMoved()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] )
+	    inputs[idx]->resetMoved();
+
+    alreadymoved = false;
 }
 
 
@@ -439,15 +470,12 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 {
-    CubeSampling cs = *desiredvolume;
-    getPossibleVolume(-1, cs);
-  //  TypeSet< TypeSet<Interval<int> > >inputranges;
     Interval<int> inputranges[inputs.size()][ni.size()];
 
     float surveystep = SI().zRange().step;
     const float dz = (refstep==0) ? surveystep : refstep;
-    int cssamplstart = (int)( cs.zrg.start / refstep );
-    int cssamplstop = (int)( cs.zrg.stop / refstep );
+    int cssamplstart = (int)( possiblevolume->zrg.start / refstep );
+    int cssamplstop = (int)( possiblevolume->zrg.stop / refstep );
     
     for ( int idx=0; idx<ni.size(); idx++ )
     {
@@ -644,33 +672,53 @@ void Provider::setInput( int inp, Provider* np )
 
     updateInputReqs(inp);
     inputs[inp]->updateStorageReqs();
+    if ( inputs[inp]->desc.isSteering() )
+    {
+	inputs[inp]->updateInputReqs(-1);
+	inputs[inp]->updateStorageReqs(-1);
+    }
 }
 
 
-bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res ) const
+void Provider::updateStorageReqs(bool all)
+{
+    if ( all )
+    {
+	for ( int idx=0; idx<inputs.size(); idx++ )
+	    if ( inputs[idx] ) inputs[idx]->updateStorageReqs(all);
+    }
+}
+
+
+bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res, 
+					bool usestepout ) const
 {
     if ( !desiredvolume )
 	return false;
 
     res = *desiredvolume;
-    int inlstepoutfact = desiredvolume->hrg.step.inl;
-    int crlstepoutfact = desiredvolume->hrg.step.crl;
 
-    BinID stepout(0,0);
-    const BinID* reqstepout = reqStepout( inp, out );
-    if ( reqstepout ) stepout=*reqstepout;
-    const BinID* desstepout = desStepout( inp, out );
-    if ( desstepout )
+    if ( usestepout )
     {
-	if ( stepout.inl < desstepout->inl ) stepout.inl = desstepout->inl;
-	if ( stepout.crl < desstepout->crl ) stepout.crl = desstepout->crl;
+	int inlstepoutfact = desiredvolume->hrg.step.inl;
+	int crlstepoutfact = desiredvolume->hrg.step.crl;
+
+	BinID stepout(0,0);
+	const BinID* reqstepout = reqStepout( inp, out );
+	if ( reqstepout ) stepout=*reqstepout;
+	const BinID* desstepout = desStepout( inp, out );
+	if ( desstepout )
+	{
+	    if ( stepout.inl < desstepout->inl ) stepout.inl = desstepout->inl;
+	    if ( stepout.crl < desstepout->crl ) stepout.crl = desstepout->crl;
+	}
+
+	res.hrg.start.inl -= stepout.inl * inlstepoutfact;
+	res.hrg.start.crl -= stepout.crl * crlstepoutfact;
+	res.hrg.stop.inl += stepout.inl * inlstepoutfact;
+	res.hrg.stop.crl += stepout.crl * crlstepoutfact;
     }
-
-    res.hrg.start.inl -= stepout.inl * inlstepoutfact;
-    res.hrg.start.crl -= stepout.crl * crlstepoutfact;
-    res.hrg.stop.inl += stepout.inl * inlstepoutfact;
-    res.hrg.stop.crl += stepout.crl * crlstepoutfact;
-
+    
     Interval<float> zrg(0,0);
     const Interval<float>* reqzrg = reqZMargin(inp,out);
     if ( reqzrg ) zrg=*reqzrg;
@@ -698,7 +746,8 @@ void Provider::updateInputReqs(int inp)
     {
 	if ( !outputinterest[out] ) continue;
 
-	if ( computeDesInputCube( inp, out, inputcs ) )
+	bool isstored = inputs[inp]? inputs[inp]->desc.isStored() : false;
+	if ( computeDesInputCube( inp, out, inputcs, !isstored ) )
 	    inputs[inp]->setDesiredVolume( inputcs );
 
 	BinID stepout(0,0);
@@ -711,7 +760,8 @@ void Provider::updateInputReqs(int inp)
 	    stepout.crl =  mMAX(stepout.crl,des->crl );
 	}
 
-	inputs[inp]->setBufferStepout( stepout+bufferstepout );
+	if ( inputs[inp] )
+	    inputs[inp]->setBufferStepout( stepout+bufferstepout );
     }
 }
 
@@ -722,6 +772,10 @@ const Interval<float>* Provider::reqZMargin(int,int) const { return 0; }
 
 int Provider::getTotalNrPos( bool is2d )
 {
+    if ( seldata_.type_ == SeisSelData::Table )
+    {
+	return seldata_.table_.totalSize();
+    }
     if ( !possiblevolume )
 	return false;
     return is2d ? possiblevolume->nrCrl()
@@ -734,11 +788,8 @@ void Provider::computeRefZStep( const ObjectSet<Provider>& existing )
     for( int idx=0; idx<existing.size(); idx++ )
     {
 	float step = 0;
-//	CubeSampling storedvol;
 	bool isstored = existing[idx]->getZStepStoredData(step);
 	if ( isstored )
-//	{
-//	    existing[idx]-> getPossibleVolume(-1,storedvol)
 	    refstep = ( refstep != 0 && refstep < step )? refstep : step;
 	    
     }

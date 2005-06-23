@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.1 2005-02-04 09:28:29 kristofer Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.2 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attribslice.h"
 
@@ -49,43 +49,6 @@ SliceSet::~SliceSet()
 { deepUnRef( *this ); }
 
 
-int SliceSet::dim(int nr,Slice::Dir slcdir) const
-{
-    if ( nr == 1 )
-	return slcdir == Slice::Inl ? sampling.nrCrl() : sampling.nrInl();
-    if ( nr == 2 )
-	return slcdir == Slice::Hor ? sampling.nrCrl() : sampling.nrZ();
-
-    return slcdir == Slice::Inl ? sampling.nrInl()
-	    : (slcdir == Slice::Crl ? sampling.nrCrl() : sampling.nrZ());
-}
-
-
-Slice::Dir
-SliceSet::defaultDirection( const CubeSampling& cs )
-{
-    const int nrinl = cs.nrInl();
-    const int nrcrl = cs.nrCrl();
-    const int nrz = cs.nrZ();
-
-    return	nrz < nrinl && nrz < nrcrl	? Slice::Hor
-	    : ( nrinl < nrz && nrinl < nrcrl	? Slice::Inl
-			    			: Slice::Crl );
-}
-
-
-int SliceSet::dimNr( Slice::Dir slcdir ) const
-{
-    if ( direction == slcdir )
-	return 0;
-
-    if ( direction == Slice::Hor )
-	return slcdir == Slice::Inl ? 1 : 2;
-
-    return slcdir == Slice::Hor ? 2 : 1;
-}
-
-
 #define mInlIdx ((inl-sampling.hrg.start.inl) / sampling.hrg.step.inl)
 #define mCrlIdx ((crl-sampling.hrg.start.crl) / sampling.hrg.step.crl)
 #define mZIdx (sampling.zrg.nearestIndex(z))
@@ -93,11 +56,11 @@ int SliceSet::dimNr( Slice::Dir slcdir ) const
 void SliceSet::getIdxs( int inl, int crl, float z,
 	                                     int& i0, int& i1, int& i2 ) const
 {
-    if ( direction == Slice::Hor )
+    if ( direction == CubeSampling::Z )
 	{ i0 = mZIdx; i1 = mInlIdx; i2 = mCrlIdx; }
-    else if ( direction == Slice::Inl )
+    else if ( direction == CubeSampling::Inl )
 	{ i0 = mInlIdx; i1 = mCrlIdx; i2 = mZIdx; }
-    else if ( direction == Slice::Crl )
+    else if ( direction == CubeSampling::Crl )
 	{ i0 = mCrlIdx; i1 = mInlIdx; i2 = mZIdx; }
 }
 
@@ -105,11 +68,11 @@ void SliceSet::getIdxs( int inl, int crl, float z,
 void SliceSet::getIdx( int nr, int inl, int crl, float z,
 	                                    int& iout ) const
 {
-    if ( direction == Slice::Hor )
+    if ( direction == CubeSampling::Z )
 	iout = nr ? (nr == 1 ? mInlIdx : mCrlIdx) : mZIdx;
-    else if ( direction == Slice::Inl )
+    else if ( direction == CubeSampling::Inl )
 	iout = nr ? (nr == 1 ? mCrlIdx : mZIdx) : mInlIdx;
-    else if ( direction == Slice::Crl )
+    else if ( direction == CubeSampling::Crl )
 	iout = nr ? (nr == 1 ? mInlIdx : mZIdx) : mCrlIdx;
 }
 
@@ -133,7 +96,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 
     if ( size0==-1 ) return 0;
 
-    if ( direction==Slice::Hor )
+    if ( direction== CubeSampling::Z )
     {
 	const int inlsz = size0;
 	const int crlsz = size1;
@@ -162,7 +125,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 	return res;
     }
 
-    if ( direction==Slice::Crl )
+    if ( direction == CubeSampling::Crl )
     {
 	const int inlsz = size0;
 	const int crlsz = size();

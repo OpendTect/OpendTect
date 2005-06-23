@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.14 2005-06-09 13:21:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.15 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -136,29 +136,74 @@ bool Desc::parseDefStr( const char* defstr )
     if ( !getAttribName(defstr,defstrnm) || defstrnm!=attribname )
 	return false;
 
+    BufferStringSet keys,vals;
+    createBStrSetFromDefstring(defstr,keys,vals);
+
     for ( int idx=0; idx<params.size(); idx++ )
     {
-	BufferString paramval;
-	if ( !getParamString( defstr, params[idx]->getKey(), paramval ) )
-	    continue;
+	bool found = false;
+	if ( !params[idx]->isGroup() )
+	{
+	    BufferString paramval;
+	    for ( int idy=0; idy<keys.size(); idy++ )
+	    {
+		if ( !strcmp(keys.get(idy).buf(), params[idx]->getKey() ) )
+		{
+		    paramval = vals.get(idy);
+		    found = true;
+		    break;
+		}
+	    }
+	    if ( !found )
+	    {
+		if ( params[idx]->isRequired() )
+		     continue;
+		else
+		    paramval = params[idx]->getDefaultValue();
+	    }
 
-	if ( !params[idx]->setCompositeValue(paramval) )
-	    return false;
+	    if ( !params[idx]->setCompositeValue(paramval.buf()) )
+		return false;
+	}
+	else
+	{
+	    BufferStringSet paramvalset;
+	    int valueid = 0;
+	    BufferString keystring = params[idx]->getKey();
+	    for ( int idy=0; idy<keys.size(); idy++ )
+	    {
+		keystring += valueid;
+		if ( !strcmp(keys.get(idy).buf(), keystring ) )
+		{
+		    paramvalset.get(valueid) = vals.get(idx);
+		    found =true;
+		    valueid++;
+		}
+	    }
+	    if ( !found )
+	    {
+		if ( params[idx]->isRequired() )
+		    continue;
+	    }
+
+	    if ( !params[idx]->setValues(paramvalset) )
+		return false;
+	}
     }
 
     if ( statusupdater )
-	statusupdater(*this);
+     statusupdater(*this);
 
     for ( int idx=0; idx<params.size(); idx++ )
     {
-	if ( !params[idx]->isOK() )
-	    return false;
-    }
-
+         if ( !params[idx]->isOK() )
+	     return false;
+     }
+     
     BufferString outputstr;
     bool res = getParamString( defstr, "output", outputstr );
     selectOutput( res ? atoi(outputstr.buf()) : 0 );
- 
+     
     return true;
 }
 
@@ -314,33 +359,10 @@ bool Desc::isParamRequired( const char* key ) const
 }
 
 
-bool Desc::setParamVal( const char* key, const char* val )
-{
-    Param* param = findParam(key);
-    if ( !param ) return false;
-
-    if ( !param->setCompositeValue( val ) )
-	return false;
-
-    if ( statusupdater ) statusupdater(*this);
-    return true;
-}
-
-
 void Desc::updateParams()
 {
     if ( statusupdater ) statusupdater(*this);
 }
-
-/*
-bool Desc::getParamVal( const char* key, BufferString& val ) const
-{
-    const Param* param = getParam(key);
-    if ( !param ) return false;
-
-    return param->getCompositeValue(val);
-}
-*/
 
 
 /*
@@ -500,6 +522,73 @@ bool Desc::isStored() const
 {
     return !strcmp(attribName(),StorageProvider::attribName());
 }
+
+
+bool Desc::isIdentifiedBy( const char* s ) const
+{
+    if ( userref == s )
+	return true;
+    else if ( isStored() )
+    {
+	LineKey lk( s );
+	BufferString pval;
+BufferString defstr;
+	getDefStr(defstr);
+	if ( !getParamString( defstr, params[0]->getKey(), pval ) )
+	    return false;
+	if ( !strcmp( pval.buf(), s ) || 
+	    ( pval == lk.lineName() && !strcmp( lk.attrName().buf(), "Seis" ) ))
+	    return true;
+    }
+    return false;
+}
+
+
+void Desc::createBStrSetFromDefstring( const char* defstr, 
+					BufferStringSet& keys,
+					BufferStringSet& vals )
+{
+    int len = strlen(defstr);
+    int spacepos = 0;
+    int equalpos = 0;
+    for ( int idx=0; idx<len; idx++ )
+    {
+	if ( defstr[idx] == '=')
+	{
+	    equalpos = idx;
+	    spacepos = idx-1;
+	    while ( spacepos>=0 && isspace(defstr[spacepos]) ) spacepos--;
+	    if ( spacepos < 0 ) continue;
+	    int lastpos = spacepos;
+
+	    while ( !isspace(defstr[spacepos]) && spacepos >= 0 ) spacepos --;
+	    spacepos++;
+	
+	    char tmpkey[lastpos-spacepos+2];
+	    strncpy( tmpkey, &defstr[spacepos], lastpos-spacepos+1 );
+	    tmpkey[lastpos-spacepos+1] = 0;
+	    const char* tmp = tmpkey;
+	    keys.add(tmp);
+	    
+	    spacepos = idx+1;
+	    while ( spacepos<len && isspace(defstr[spacepos]) ) spacepos++;
+	    if ( spacepos >= len ) continue;
+	    lastpos = spacepos;
+
+	    while ( !isspace(defstr[spacepos]) && spacepos < len ) spacepos ++;
+	    spacepos--;
+
+	    char tmpval[spacepos-lastpos+2];
+	    strncpy( tmpval, &defstr[lastpos], spacepos-lastpos+1 );
+	    tmpval[spacepos-lastpos+1] = 0;
+	    tmp = tmpval;
+	    vals.add(tmp);
+	}
+	
+    }
+    
+}
+
 
 /*
 IOObj* Desc::getDefCubeIOObj(bool issteering ,bool is2d) const;

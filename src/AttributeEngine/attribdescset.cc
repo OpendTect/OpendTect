@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.10 2005-06-09 13:59:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.11 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -326,6 +326,11 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	if ( Desc::getParamString( defstring, "stepout",stepoutval ) )
 	{
 	    BinIDParam stept("stepout");
+	    if ( strlen( stepoutval.buf() ) == 1 )
+	    {
+		BufferString saveval = stepoutval;
+		stepoutval += ","; stepoutval += saveval;
+	    }
 	    stept.setCompositeValue(stepoutval);
 	    BinID steptbid;
 	    steptbid.inl = stept.getIntValue(0);
@@ -445,7 +450,9 @@ int DescSet::getStoredID( const char* lk, int selout, bool create )
 	if ( !desc->isStored() || desc->selectedOutput()!=selout )
 	    continue;
 
-	const Param* keypar = desc->getParam( StorageProvider::keyStr() );
+	const ValParam* keypar = 
+	    (ValParam*)desc->getParam( StorageProvider::keyStr() );
+	
 	const char* curlk = keypar->getStringValue();
 	if ( !strcmp(lk,curlk) ) return desc->id();
     }
@@ -463,7 +470,8 @@ int DescSet::getStoredID( const char* lk, int selout, bool create )
     BufferString userref = LineKey( ioobj->name(), newlk.attrName() );
     newdesc->setUserRef( userref );
     newdesc->selectOutput( selout );
-    Param* keypar = newdesc->getParam( StorageProvider::keyStr() );
+    ValParam* keypar = 
+	(ValParam*)newdesc->getParam( StorageProvider::keyStr() );
     keypar->setValue( lk );
     return addDesc( newdesc );
 }

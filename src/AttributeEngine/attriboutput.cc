@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.6 2005-06-02 10:37:53 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.7 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -40,6 +40,7 @@ Output::Output()
 SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
     : desiredvolume( cs )
     , sliceset( 0 )
+    , udfval ( 0 )
 {
     const float dz = SI().zRange().step;
     Interval<int> interval;
@@ -75,19 +76,21 @@ void SliceSetOutput::collectData( const BinID& bid,
 	sliceset = new Attrib::SliceSet;
 	sliceset->sampling = desiredvolume;
 	sliceset->sampling.zrg.step = refstep;
-	sliceset->direction = sliceset->defaultDirection(desiredvolume);
+	sliceset->direction = desiredvolume.defaultDir();
 #define mGetDim(nr) \
-        const int dim##nr = sliceset->dim( nr, sliceset->direction )
+        const int dim##nr = \
+	    desiredvolume.size( direction ( sliceset->direction, nr) )
+		
 	mGetDim(0); mGetDim(1); mGetDim(2);
 	for ( int idx=0; idx<dim0; idx++ )
-	    *sliceset += new Attrib::Slice( dim1, dim2, mUndefValue );
+	    *sliceset += new Attrib::Slice( dim1, dim2, udfval );
     }
 
     int i0, i1, i2;
     for ( int idx=0; idx<sliceset->sampling.nrZ(); idx++)
     {
 	float val = ( idx >= data.t0_ && idx < data.t0_+data.nrsamples_ ) ?
-	     		data.item(0)->value(idx-data.t0_): mUndefValue;
+	     		data.item(0)->value(idx-data.t0_): udfval;
 	sliceset->getIdxs( bid.inl, bid.crl, idx*refstep, i0, i1, i2 );
 	((*sliceset)[i0])->set( i1, i2, val );
     }
@@ -97,6 +100,13 @@ void SliceSetOutput::collectData( const BinID& bid,
 SliceSet* SliceSetOutput::getSliceSet() const
 {
     return sliceset;
+}
+
+
+void SliceSetOutput::setGeometry( const CubeSampling& cs )
+{
+    if ( cs.isEmpty() ) return;
+    seldata_.copyFrom(cs);
 }
 
 
@@ -507,6 +517,14 @@ bool TrcSelectionOutput::wantsOutput( const BinID& bid ) const
         return false;
 	
     return true;
+}
+
+
+void TrcSelectionOutput::setOutput( SeisTrcBuf* outp_ )
+{
+    outpbuf_ = outp_;
+    if ( outpbuf_ )
+	outpbuf_->erase();
 }
 
 

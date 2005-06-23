@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.7 2005-06-02 10:37:53 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.8 2005-06-23 09:14:23 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -151,6 +151,7 @@ int Processor::nextStep()
 	}
     }
 
+    provider->resetMoved();
     nriter++;
     return res;
 }
