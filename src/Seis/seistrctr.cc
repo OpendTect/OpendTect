@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.62 2005-05-31 16:14:59 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.63 2005-06-23 07:08:41 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -455,6 +455,22 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
     else
     {
 	errmsg = "Translator error: Bad connection established";
+	mDynamicCastGet(StreamConn*,strmconn,c)
+	if ( !strmconn )
+	{
+#ifdef __debug__
+	    BufferString msg( "Not a StreamConn: " );
+	    msg += c->connType();
+	    ErrMsg( msg );
+#endif
+	}
+	else
+	{
+	    static BufferString emsg;
+	    emsg = "Cannot open file: ";
+	    emsg += strmconn->streamData().fileName();
+	    errmsg = emsg.buf();
+	}
 	return false;
     }
 
