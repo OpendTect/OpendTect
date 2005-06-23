@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.3 2005-06-23 09:09:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

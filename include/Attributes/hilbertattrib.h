@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.3 2005-06-23 09:09:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,12 @@ protected:
     bool			computeData(const DataHolder&,const BinID& pos,
 					    int t0,int nrsamples) const;
 
-    const Interval<float>*	reqZMargin(int input,int output) const;
+   // const Interval<float>*	reqZMargin(int input,int output) const;
 
     const DataHolder*		inputdata;
 
     Interval<float>		gate;
+    Interval<float>		timegate;
     int				halflen;
     int				hilbfilterlen;
     const float*		hilbfilter;
