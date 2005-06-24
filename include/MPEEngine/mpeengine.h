@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.14 2005-06-21 10:13:49 cvsduntao Exp $
+ RCS:           $Id: mpeengine.h,v 1.15 2005-06-24 10:21:19 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
 
     bool			trackAtCurrentPlane();
     bool			trackInVolume();
-    void			seedsChanged();
+    void			setNewSeeds();
 
     void			getAvaliableTrackerTypes(BufferStringSet&)const;
 
