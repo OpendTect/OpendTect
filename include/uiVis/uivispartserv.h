@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.140 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.141 2005-06-28 17:17:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class SurfaceInfo;
 class uiMPEMan;
 class uiPopupMenu;
 class uiToolBar;
-class uiVisMenu;
+class uiMenuHandler;
 
 namespace visBase   { class DataObject; };
 namespace visSurvey { class Scene; };
@@ -45,7 +45,7 @@ namespace Tracking  { class TrackManager; };
 
 class uiVisPartServer : public uiApplPartServer
 {
-    friend class 	uiVisMenu;
+    friend class 	uiMenuHandler;
 
 public:
 			uiVisPartServer(uiApplService&);
@@ -112,11 +112,11 @@ public:
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,
 	    			 const Coord3& = Coord3::udf());
     			/*!<\param menutype Please refer to \ref
-					uiVisMenu::executeMenu for a detailed
-					description.
+				uiMenuHandler::executeMenu for a detailed
+				description.
 			*/
 
-    uiVisMenu*		getMenu(int id, bool create_if_does_not_exist=true);
+    uiMenuHandler*	getMenu(int id, bool create_if_does_not_exist=true);
 
     const MultiID*	getMultiID(int) const;
 	
@@ -240,8 +240,8 @@ protected:
 
     ObjectSet<visSurvey::Scene>	scenes;
 
-    ObjectSet<uiVisMenu>	menus;
-    uiVisMenu*			vismenu;
+    ObjectSet<uiMenuHandler>	menus;
+    uiMenuHandler*		vismenu;
 
     uiMPEMan*			mpetools;
 
@@ -285,7 +285,7 @@ protected:
 
   A lot of user interaction is done via popupmenus, and each object has an
   own menu which can be accessed via getMenu. To add items or manipulate the
-  menus, please refer to the uiVisMenu documentation.
+  menus, please refer to the uiMenuHandler documentation.
 
   */
 

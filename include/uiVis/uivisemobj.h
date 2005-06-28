@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.4 2005-04-01 15:13:39 cvsnanne Exp $
+ RCS:		$Id: uivisemobj.h,v 1.5 2005-06-28 17:17:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 namespace EM { class EdgeLineSet; class EdgeLineSegment; };
 class uiParent;
-class uiVisMenu;
+class uiMenuHandler;
 class uiVisPartServer;
 class MultiID;
 
@@ -40,7 +40,7 @@ public:
 
     float		getShift() const;
     void		setDepthAsAttrib();
-    uiVisMenu&		getNodeMenu() { return nodemenu; }
+    uiMenuHandler&	getNodeMenu() { return nodemenu; }
 
     void		readAuxData();
     int			nrSections() const;
@@ -69,9 +69,9 @@ protected:
     uiParent*		uiparent;
     uiVisPartServer*	visserv;
 
-    uiVisMenu&		nodemenu;
-    uiVisMenu&		edgelinemenu;
-    uiVisMenu&		interactionlinemenu;
+    uiMenuHandler&	nodemenu;
+    uiMenuHandler&	edgelinemenu;
+    uiMenuHandler&	interactionlinemenu;
     
     int			displayid;
 
@@ -81,8 +81,8 @@ protected:
     int			shiftmnuid;
     int			removesectionmnuid;
 //
-    //int			makepermnodemnusel;
-    //int			removecontrolnodemnusel;
+    int			makepermnodemnusel;
+    int			removecontrolnodemnusel;
     //int			removenodenodemnusel;
     //int			tooglesnappingnodemnusel;
 ////
