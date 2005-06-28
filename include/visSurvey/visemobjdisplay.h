@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.16 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.17 2005-06-28 17:44:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -140,7 +140,6 @@ protected:
     static const char*		wireframestr;
     static const char*		resolutionstr;
     static const char*		colorstr;
-
 };
 
 

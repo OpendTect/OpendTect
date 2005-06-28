@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.11 2005-06-09 14:55:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.12 2005-06-28 17:44:44 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -32,6 +32,7 @@ MPEEditor::MPEEditor()
     , eventcatcher( 0 )
     , transformation( 0 )
     , activenode( -1, -1, -1 )
+    , temporarynode( -1, -1, -1 )
     , issettingpos( 0 )
     , markersize( 3 )
 { }
@@ -129,6 +130,36 @@ void MPEEditor::setSceneEventCatcher( visBase::EventCatcher* nev )
 }
 
 
+void MPEEditor::moveTemporaryNode( const EM::PosID& np )
+{
+    if ( temporarynode==np )
+	return;
+
+    if ( emeditor )
+    {
+	TypeSet<EM::PosID> editnodes;
+	emeditor->getEditIDs( editnodes );
+	editnodes -= temporarynode;
+
+	temporarynode = np;
+	if ( temporarynode.objectID()!=-1 ) editnodes += temporarynode;
+
+	emeditor->setEditIDs(editnodes); 
+
+	if ( temporarynode.objectID()!=-1 )
+	{
+	    activenode = temporarynode;
+	    updateDraggers();
+	}
+    }
+    else
+    {
+	pErrMsg("Not impl");
+    	temporarynode = np;
+    }
+}
+    
+	
 EM::PosID  MPEEditor::markerId(const visBase::Marker* marker) const
 {
     const int idx=markers.indexOf(marker);
@@ -294,8 +325,7 @@ void MPEEditor::clickCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
-    if ( eventinfo.type!=visBase::MouseClick || eventinfo.mousebutton ||
-	 !eventinfo.pressed )
+    if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
 	return;
 
     if ( translationdragger &&
@@ -312,24 +342,33 @@ void MPEEditor::clickCB( CallBacker* cb )
 	}
     }
 
-    if ( nodeidx==-1 && isDraggerShown() )
+    if ( !eventinfo.mousebutton && nodeidx==-1 && isDraggerShown() )
     {
 	activenode = -1;
 	updateDraggers();
 	eventcatcher->eventIsHandled();
     }
-    else if ( nodeidx!=-1 && activenode!=posids[nodeidx] )
+    else if ( !eventinfo.mousebutton && nodeidx!=-1 &&
+	       activenode!=posids[nodeidx] )
     {
 	activenode = posids[nodeidx];
 	updateDraggers();
 	eventcatcher->eventIsHandled();
     }
+    else if ( eventinfo.mousebutton==2 && nodeidx!=1 )
+    {
+	rightclicknode = nodeidx;
+	noderightclick.trigger();
+    }
 }
+
+
+int MPEEditor::getRightClickNode() const { return rightclicknode; }
 
 
 void MPEEditor::dragStart( CallBacker* cb )
 {
-    if ( emeditor ) emeditor->startEdit();
+    if ( emeditor ) emeditor->startEdit(activenode);
 }
 
 
@@ -339,7 +378,7 @@ void MPEEditor::dragMotion( CallBacker* cb )
     {
 	issettingpos++;
 	const Coord3 np = translationdragger->getPos();
-	if ( emeditor ) emeditor->setPosition( activenode, np );
+	if ( emeditor ) emeditor->setPosition( np );
 	if ( geeditor ) geeditor->setPosition( activenode.subID(), np );
 	issettingpos--;
     }

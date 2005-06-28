@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.26 2005-06-06 14:13:16 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.27 2005-06-28 17:44:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.26 2005-06-06 14:13:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.27 2005-06-28 17:44:44 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
@@ -134,11 +134,22 @@ void EMObjectDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
 
 void EMObjectDisplay::clickCB( CallBacker* cb )
 {
-    if ( !isOn() || eventcatcher->isEventHandled() )
+    if ( !isOn() || eventcatcher->isEventHandled() || !isSelected() )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-    if ( eventinfo.pickedobjids.indexOf(id())==-1 )
+
+    bool onobject = false;
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	if ( eventinfo.pickedobjids.indexOf(sections[idx]->id())!=-1 )
+	{
+	    onobject = true;
+	    break;
+	}
+    }
+
+    if  ( !onobject )
 	return;
 
     bool keycb = false;
@@ -184,15 +195,10 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	}
     }
 
-    if ( mousecb )
+    if ( mousecb && editor )
     {
-	MPE::ObjectEditor* mpeeditor = 
-			    MPE::engine().getEditor(emobject->id(),false);
-	if ( editor && mpeeditor )
-	{
-	    TypeSet<EM::PosID> pids; pids += closestnode;
-	    mpeeditor->setEditIDs( pids );
-	}
+	editor->moveTemporaryNode( closestnode );
+	eventcatcher->eventIsHandled();
     }
     else if ( keycb )
     {

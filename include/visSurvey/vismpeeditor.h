@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.4 2005-04-05 07:03:10 cvskris Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.5 2005-06-28 17:44:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,9 @@ public:
     void		setEditor( MPE::ObjectEditor* );
     void		setSceneEventCatcher( visBase::EventCatcher* );
 
+    void		moveTemporaryNode( const EM::PosID& );
+    const EM::PosID&	getTemporaryNode() const;
+
     void		setDisplayTransformation( mVisTrans* );
     mVisTrans*		getDisplayTransformation() {return transformation;}
 
@@ -55,9 +58,10 @@ public:
     bool				isDraggerShown() const;
     void				setMarkerSize(float);
 
-    CNotifier<MPEEditor, int>	noderightclick;
+    Notifier<MPEEditor>		noderightclick;
     				/*!<\ the clicked position can be retrieved
-				      with getNodePosID(int) */
+				      with getNodePosID(getRightClickNode) */
+    int				getRightClickNode() const;
     EM::PosID			getNodePosID(int visid) const;
 
 protected:
@@ -70,6 +74,9 @@ protected:
     void			dragStop( CallBacker* );
     void			updateDraggers();
     void			updateNodePos(int, const Coord3& );
+
+    EM::PosID			temporarynode;
+    int				rightclicknode;
 
     int				issettingpos;
     Geometry::ElementEditor*	geeditor;
