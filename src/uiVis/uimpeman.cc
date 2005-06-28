@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.15 2005-06-24 10:21:20 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.16 2005-06-28 17:48:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "visseedstickeditor.h"
 #include "vismpe.h"
 #include "uivispartserv.h"
-#include "uivismenu.h"
+#include "uimenuhandler.h"
 #include "pixmap.h"
 
 using namespace MPE;
@@ -134,7 +134,7 @@ void uiMPEMan::deleteVisObjects()
 
     if ( seededitor )
     {
-	uiVisMenu* menu = visserv->getMenu( seededitor->id(), false );
+	uiMenuHandler* menu = visserv->getMenu( seededitor->id(), false );
 	if ( menu )
 	{
 	    menu->createnotifier.remove( mCB(this,uiMPEMan,createSeedMenuCB) );
@@ -205,7 +205,7 @@ void uiMPEMan::seedPropertyChangeCB( CallBacker* )
 
 void uiMPEMan::createSeedMenuCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiVisMenu*,menu,cb);
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
 
     const int seedidx = seededitor->getSeedIdx( *menu->getPath() );
     bool isconnected = seededitor->isClosed( seedidx );
@@ -228,7 +228,7 @@ void uiMPEMan::createSeedMenuCB( CallBacker* cb )
 void uiMPEMan::handleSeedMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiVisMenu*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -440,7 +440,7 @@ void uiMPEMan::seedModeCB( CallBacker* )
 	    visserv->getChildIds( -1, scenes );
 	    visserv->addObject( seededitor, scenes[0], false );
 
-	    uiVisMenu* menu = visserv->getMenu( seededitor->id(), true );
+	    uiMenuHandler* menu = visserv->getMenu( seededitor->id(), true );
 	    menu->createnotifier.notify( mCB(this,uiMPEMan,createSeedMenuCB) );
 	    menu->handlenotifier.notify( mCB(this,uiMPEMan,handleSeedMenuCB) );
 	}
