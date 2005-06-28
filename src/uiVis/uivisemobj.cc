@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.11 2005-06-10 16:47:33 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.12 2005-06-28 17:35:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uivismenu.h"
+#include "uimenuhandler.h"
 #include "uivispartserv.h"
 #include "visdataman.h"
 #include "vissurvemobj.h"
@@ -44,9 +44,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
     : displayid(id)
     , visserv(vps)
     , uiparent(uip)
-    , nodemenu( *new uiVisMenu(uip,-1) )
-    , interactionlinemenu( *new uiVisMenu(uip,-1) )
-    , edgelinemenu( *new uiVisMenu(uip,-1) )
+    , nodemenu( *new uiMenuHandler(uip,-1) )
+    , interactionlinemenu( *new uiMenuHandler(uip,-1) )
+    , edgelinemenu( *new uiMenuHandler(uip,-1) )
 {
     nodemenu.ref();
     interactionlinemenu.ref();
@@ -86,9 +86,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
     : displayid(-1)
     , visserv( vps )
     , uiparent( uip )
-    , nodemenu( *new uiVisMenu(uip,-1) )
-    , interactionlinemenu( *new uiVisMenu(uip,-1) )
-    , edgelinemenu( *new uiVisMenu(uip,-1) )
+    , nodemenu( *new uiMenuHandler(uip,-1) )
+    , interactionlinemenu( *new uiMenuHandler(uip,-1) )
+    , edgelinemenu( *new uiMenuHandler(uip,-1) )
 {
     nodemenu.ref();
     interactionlinemenu.ref();
@@ -113,7 +113,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
 
 uiVisEMObject::~uiVisEMObject()
 {
-    uiVisMenu* menu = visserv->getMenu(displayid,false);
+    uiMenuHandler* menu = visserv->getMenu(displayid,false);
     if ( menu )
     {
 	menu->createnotifier.remove( mCB(this,uiVisEMObject,createMenuCB) );
@@ -166,7 +166,7 @@ void uiVisEMObject::prepareForShutdown()
     BufferString msg( emobj->getTypeStr() );
     msg += " '";
     msg += emobj->name(); msg += "' has changed.\nDo you want to save it?";
-    if ( uiMSG().askGoOn( msg, true, "Object Saver" ) )
+    if ( uiMSG().notSaved( msg,0,false) )
     {
 	PtrMan<Executor> saver = emobj->saver();
 	uiCursorChanger uicursor( uiCursor::Wait );
@@ -177,7 +177,7 @@ void uiVisEMObject::prepareForShutdown()
 
 void uiVisEMObject::setUpConnections()
 {
-    uiVisMenu* menu = visserv->getMenu(displayid,true);
+    uiMenuHandler* menu = visserv->getMenu(displayid,true);
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiVisEMObject,handleMenuCB) );
     nodemenu.createnotifier.notify( mCB(this,uiVisEMObject,createNodeMenuCB) );
@@ -289,7 +289,7 @@ bool uiVisEMObject::snapAfterEdit() const
 
 void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiVisMenu*,menu,cb)
+    mDynamicCastGet(uiMenuHandler*,menu,cb)
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
     if ( !emod ) return;
@@ -329,7 +329,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 void uiVisEMObject::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiVisMenu*,menu,caller)
+    mDynamicCastGet(uiMenuHandler*,menu,caller)
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -399,15 +399,13 @@ void uiVisEMObject::interactionLineRightClick( CallBacker* cb )
 {
     mCBCapsuleUnpack( int, nodedisplayid, cb );
     interactionlinemenu.setID(nodedisplayid);
-    interactionlinemenu.executeMenu(uiVisMenu::fromScene);
+    interactionlinemenu.executeMenu(uiMenuHandler::fromScene);
 }
 
 
 void uiVisEMObject::nodeRightClick( CallBacker* cb )
 {
-    mCBCapsuleUnpack( int, nodedisplayid, cb );
-    nodemenu.setID(nodedisplayid);
-    nodemenu.executeMenu(uiVisMenu::fromScene);
+    nodemenu.executeMenu(uiMenuHandler::fromScene);
 }
 
 
@@ -418,32 +416,33 @@ void uiVisEMObject::edgeLineRightClick( CallBacker* cb )
     if ( !edgelinedisplay ) return;
 
     edgelinemenu.setID(edgelinedisplay->id());
-    edgelinemenu.executeMenu(uiVisMenu::fromScene);
+    edgelinemenu.executeMenu(uiMenuHandler::fromScene);
     */
 }
 
 
 void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
 {
-    /*
-    mDynamicCastGet(uiVisMenu*,menu,cb)
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+		    visserv->getObject(displayid));
 
-    const EM::PosID empid = emod->getEditor()->getNodePosID(menu->id());
+    const EM::PosID empid = emod->getEditor()->getNodePosID(
+				emod->getEditor()->getRightClickNode());
 
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.getObject(empid.objectID());
 
     makepermnodemnusel =
-	emobj->isPosAttrib(*empid,EM::EMObject::sTemporaryControlNode)
+	emobj->isPosAttrib(empid,EM::EMObject::sTemporaryControlNode)
 	    ? menu->addItem( new uiMenuItem("Make control permanent") ) 
 	    : -1;
 
     removecontrolnodemnusel = 
-	emobj->isPosAttrib(*empid,EM::EMObject::sPermanentControlNode)
+	emobj->isPosAttrib(empid,EM::EMObject::sPermanentControlNode)
 	    ? menu->addItem( new uiMenuItem("Remove control") )
 	    : -1;
-
+/*
     removenodenodemnusel = emobj->isDefined(*empid)
         ? menu->addItem( new uiMenuItem("Remove node") )
 	: -1;
@@ -451,57 +450,56 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
     uiMenuItem* snapitem = new uiMenuItem("Snap after edit");
     tooglesnappingnodemnusel = menu->addItem(snapitem);
     snapitem->setChecked(emod->getEditor()->snapAfterEdit());
-    */
+*/
 }
 
 
 void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
 {
-    /*
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiVisMenu*,menu,caller)
+    mDynamicCastGet(uiMenuHandler*,menu,caller)
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
 
-    const EM::PosID* empid = emod->getEditor()->getEMPosFromDisplayID(menu->id());
+    const EM::PosID empid = emod->getEditor()->getNodePosID(
+				emod->getEditor()->getRightClickNode());
 
     EM::EMManager& em = EM::EMM();
-    EM::EMObject* emobj = em.getObject(empid->objectID());
+    EM::EMObject* emobj = em.getObject(empid.objectID());
 
     if ( mnuid==makepermnodemnusel )
     {
 	menu->setIsHandled(true);
-        emobj->setPosAttrib(*empid,EM::EMObject::sPermanentControlNode,true);
-	emobj->setPosAttrib(*empid,EM::EMObject::sTemporaryControlNode,false);
-	emobj->setPosAttrib(*empid,EM::EMObject::sEdgeControlNode,false);
+        emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode,true);
+	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode,false);
+	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode,false);
     }
     else if ( mnuid==removecontrolnodemnusel )
     {
 	menu->setIsHandled(true);
-        emobj->setPosAttrib(*empid,EM::EMObject::sPermanentControlNode,false);
-	emobj->setPosAttrib(*empid,EM::EMObject::sTemporaryControlNode,false);
-	emobj->setPosAttrib(*empid,EM::EMObject::sEdgeControlNode,false);
+        emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode,false);
+	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode,false);
+	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode,false);
     }
-    else if ( mnuid==removenodenodemnusel )
-    {
-	menu->setIsHandled(true);
-	emobj->setPos(*empid,Coord3(mUndefValue,mUndefValue,mUndefValue),true);
-    }
-    else if ( mnuid==tooglesnappingnodemnusel )
-    {
-	menu->setIsHandled(true);
-        emod->getEditor()->setSnapAfterEdit(!emod->getEditor()->snapAfterEdit());
-    }
-    */
+    //else if ( mnuid==removenodenodemnusel )
+    //{
+//	menu->setIsHandled(true);
+//	emobj->setPos(*empid,Coord3(mUndefValue,mUndefValue,mUndefValue),true);
+ //   }
+//    else if ( mnuid==tooglesnappingnodemnusel )
+ //   {
+//	menu->setIsHandled(true);
+ //       emod->getEditor()->setSnapAfterEdit(!emod->getEditor()->snapAfterEdit());
+  //  }
 }
 
 
 void uiVisEMObject::createInteractionLineMenuCB( CallBacker* cb )
 {
     /*
-    mDynamicCastGet(uiVisMenu*,menu,cb)
+    mDynamicCastGet(uiMenuHandler*,menu,cb)
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
     mDynamicCastGet( const visSurvey::EdgeLineSetDisplay*, linedisplay,
 	    	     visserv->getObject(emod->getEditor()->lineID()) );
@@ -566,7 +564,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 {
     /*
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiVisMenu*,menu,caller)
+    mDynamicCastGet(uiMenuHandler*,menu,caller)
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -678,7 +676,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 void uiVisEMObject::createEdgeLineMenuCB( CallBacker* cb )
 {
     /*
-    mDynamicCastGet(uiVisMenu*,menu,cb);
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
     mDynamicCastGet(visSurvey::EdgeLineSetDisplay*,edgelinedisplay,
 	            visserv->getObject(menu->id()));
 
@@ -715,7 +713,7 @@ void uiVisEMObject::handleEdgeLineMenuCB( CallBacker* cb )
 {
     /*
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiVisMenu*,menu,caller)
+    mDynamicCastGet(uiMenuHandler*,menu,caller)
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.83 2005-06-07 13:24:55 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.84 2005-06-28 17:29:06 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ___________________________________________________________________
 #include "survinfo.h"
 #include "uilistview.h"
 #include "uibinidtable.h"
-#include "uivismenu.h"
+#include "uimenuhandler.h"
 #include "uisoviewer.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -261,7 +261,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem( )
 
 uiODDisplayTreeItem::~uiODDisplayTreeItem( )
 {
-    uiVisMenu* menu = visserv->getMenu( displayid, false );
+    uiMenuHandler* menu = visserv->getMenu( displayid, false );
     if ( menu )
     {
 	menu->createnotifier.remove(mCB(this,uiODDisplayTreeItem,createMenuCB));
@@ -283,7 +283,7 @@ bool uiODDisplayTreeItem::init()
 
     name_ = createDisplayName();
 
-    uiVisMenu* menu = visserv->getMenu( displayid, true );
+    uiMenuHandler* menu = visserv->getMenu( displayid, true );
     menu->createnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
@@ -350,7 +350,7 @@ const char* uiODDisplayTreeItem::attrselmnutxt = "Select Attribute";
 
 void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiVisMenu*,menu,cb)
+    mDynamicCastGet(uiMenuHandler*,menu,cb)
     if ( visserv->hasAttrib(displayid) )
     {
 	uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -432,7 +432,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiVisMenu*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() ) return;
     if ( mnuid==duplicatemnuid )
     {
@@ -593,7 +593,7 @@ BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiVisMenu*,menu,cb);
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
 
     const AttribSelSpec* as = visserv->getSelSpec(displayid);
     multidatamnuid = depthvalmnuid = -1;
@@ -689,7 +689,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiVisMenu*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -1021,7 +1021,7 @@ bool uiODRandomLineTreeItem::init()
 void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiVisMenu*,menu,cb)
+    mDynamicCastGet(uiMenuHandler*,menu,cb)
     editnodesmnuid = menu->addItem( new uiMenuItem("Edit nodes ...") );
 
     uiPopupMenu* insertnodemnu = new uiPopupMenu( menu->getParent(),
@@ -1059,7 +1059,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiVisMenu*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 	
@@ -1340,7 +1340,7 @@ bool uiODWellTreeItem::init()
 void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiVisMenu*,menu,cb);
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid))
 
     propertiesmnuid = menu->addItem( new uiMenuItem("Properties ...") );
@@ -1383,7 +1383,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiVisMenu*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -1544,7 +1544,7 @@ void uiODPickSetTreeItem::updateColumnText( int col )
 void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet( uiVisMenu*, menu, cb );
+    mDynamicCastGet( uiMenuHandler*, menu, cb );
 
     renamemnuid = menu->addItem( new uiMenuItem("Rename ...") );
     storemnuid = menu->addItem( new uiMenuItem("Store ...") );
@@ -1564,7 +1564,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( uiVisMenu*, menu, caller );
+    mDynamicCastGet( uiMenuHandler*, menu, caller );
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -1663,7 +1663,7 @@ void uiODPlaneDataTreeItem::updateColumnText( int col )
 void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
-    mDynamicCastGet(uiVisMenu*,menu,cb);
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
 
     positionmnuid = menu->addItem( new uiMenuItem("Position ...") );
 
@@ -1688,7 +1688,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiVisMenu*,menu,caller);
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 

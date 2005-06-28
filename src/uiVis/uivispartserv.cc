@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.259 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.260 2005-06-28 17:30:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "uicursor.h"
 #include "iopar.h"
 #include "binidvalset.h"
-#include "uivismenu.h"
+#include "uimenuhandler.h"
 #include "uicolor.h"
 #include "uimpeman.h"
 #include "vismpe.h"
@@ -138,13 +138,13 @@ void uiVisPartServer::removeScene( int sceneid )
 bool uiVisPartServer::showMenu( int id, int menutype, const TypeSet<int>* path,
 				const Coord3& pickedpos )
 {
-    uiVisMenu* menu = getMenu( id, false );
+    uiMenuHandler* menu = getMenu( id, false );
     menu->setPickedPos(pickedpos);
     return menu ? menu->executeMenu(menutype,path) : true;
 }
 
 
-uiVisMenu* uiVisPartServer::getMenu(int visid, bool create)
+uiMenuHandler* uiVisPartServer::getMenu(int visid, bool create)
 {
     for ( int idx=0; idx<menus.size(); idx++ )
     {
@@ -154,7 +154,7 @@ uiVisMenu* uiVisPartServer::getMenu(int visid, bool create)
     
     if ( !create ) return 0;
 
-    uiVisMenu* res = new uiVisMenu(appserv().parent(),visid);
+    uiMenuHandler* res = new uiMenuHandler(appserv().parent(),visid);
     menus += res;
     res->ref();
     return res;
@@ -922,7 +922,7 @@ void uiVisPartServer::setUpConnections( int id )
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
 
-    uiVisMenu* menu = getMenu(id,true);
+    uiMenuHandler* menu = getMenu(id,true);
     menu->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
@@ -939,7 +939,7 @@ void uiVisPartServer::removeConnections( int id )
 
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
 
-    uiVisMenu* menu = getMenu(id,false);
+    uiMenuHandler* menu = getMenu(id,false);
     int mnufactidx = menus.indexOf(menu);
     menus.remove(mnufactidx);
     menu->createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
@@ -1049,7 +1049,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 
 void uiVisPartServer::createMenuCB(CallBacker* cb)
 {
-    mDynamicCastGet( uiVisMenu*, menu, cb );
+    mDynamicCastGet( uiMenuHandler*, menu, cb );
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(menu->id()));
     mDynamicCastGet( visBase::VisualObject*, vo, getObject(menu->id()));
     if ( !so ) return;
@@ -1093,7 +1093,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     if ( mnuid==-1 ) return;
 
-    mDynamicCastGet( uiVisMenu*, menu, caller );
+    mDynamicCastGet( uiMenuHandler*, menu, caller );
     const int id = menu->id();
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return;
