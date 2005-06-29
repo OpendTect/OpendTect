@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.16 2005-06-28 17:48:59 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.17 2005-06-29 10:39:36 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
     addSeparator();
     trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
-    				 "Track in whole volume", false );
+    				 "Direct seed tracking", false );
     
     addSeparator();
     trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
