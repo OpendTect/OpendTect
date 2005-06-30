@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.1 2005-06-23 09:05:33 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.2 2005-06-30 11:30:37 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -124,9 +124,10 @@ float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
 
     for ( int s = sg.start; s <= sg.stop; s++ )
     {
-	ValueSeriesInterpolator<float> interp;
-	float val1 = interp.value( *(dh1.item(0)), s1 + s );
-	float val2 = interp.value( *(dh2.item(0)), s2 + s );
+	ValueSeriesInterpolator<float> interp1(dh1.nrsamples_-1);
+	ValueSeriesInterpolator<float> interp2(dh2.nrsamples_-1);
+	float val1 = interp1.value( *(dh1.item(0)), s1-dh1.t0_ + s );
+	float val2 = interp2.value( *(dh2.item(0)), s2-dh2.t0_ + s );
 	xsum += val1 * val2;
 	sum1 += val1 * val1;
 	sum2 += val2 * val2;
@@ -157,16 +158,17 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 	    float inlpos = (idy - (inlsz/2)) * distinl;
 	    for ( int idz=0; idz<crlsz; idz++ )
 	    {
-		ValueSeriesInterpolator<float> interp;
+		ValueSeriesInterpolator<float> 
+		    	interp( re.get(idy,idz)->nrsamples_-1 );
 		float crlpos = (idz - (crlsz/2)) * distcrl;
-		float place = s + idx + (inlpos*inldip)/refstep + 
-		    			(crlpos*crldip)/refstep;
+		float place = s - re.get(idy,idz)->t0_ + idx + 
+		    	     (inlpos*inldip)/refstep + (crlpos*crldip)/refstep;
 		    
 		float real = 
 		    interp.value( *(re.get(idy,idz)->item(0)), place );
 
-		float imag = 
-		    interp.value( *(im.get(idy,idz)->item(0)), place );
+		float imag =  
+		   - interp.value( *(im.get(idy,idz)->item(0)), place );
 		
 		realsum += real;
 		imagsum += imag;
@@ -178,7 +180,7 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 	numerator += realsum * realsum + imagsum * imagsum;
     }	
 
-    return numerator / ( inlsz * crlsz * denominator );		
+    return denominator? numerator / ( inlsz * crlsz * denominator ) : 0 ;	
 }
 
 
@@ -186,29 +188,10 @@ bool Coherency::computeData(const DataHolder& output,
 			    const BinID& relpos,
 			    int t0, int nrsamples ) const
 {
-    BinID step(0,0);
-    for (int idx=0; idx<inputs.size(); idx++ )
-    {
-	if (!inputs[idx]) continue;
-	BinID bid = inputs[idx]-> getStepoutStep();
-	if ( step.inl == 0 && step.crl == 0 )
-	{
-	    step = bid;
-	    continue;
-	}
-	if ( (step.inl >0 && bid.inl>0) || (step.inl<0 && bid.inl<0) )
-	{
-	    int signinl = step.inl >0 ? 1 : -1;
-	    int signcrl = step.crl >0 ? 1 : -1;
-	    step.inl = signinl * mMAX( abs(step.inl), abs(bid.inl) );
-	    step.crl = signcrl * mMAX( abs(step.crl), abs(bid.crl) );
-	}
-	else
-	    return false;
-    }
+    BinID step = inputs[0]-> getStepoutStep();
 	
-    const_cast<Coherency*>(this)->distinl = inldist()*step.inl;
-    const_cast<Coherency*>(this)->distcrl = crldist()*step.crl;
+    const_cast<Coherency*>(this)->distinl = fabs(inldist()*step.inl);
+    const_cast<Coherency*>(this)->distcrl = fabs(crldist()*step.crl);
     return type == 1 ? computeData1(output, t0, nrsamples) 
 		     : computeData2(output, t0, nrsamples);
 }
@@ -318,6 +301,7 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
+    const BinID bidstep = inputs[0]-> getStepoutStep();
     if ( type==1 )
     {
 	while ( inputdata.size() < 3 )
@@ -325,9 +309,9 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 
 	const DataHolder* datac = inputs[0]->getData( relpos, idx );
 	const DataHolder* datai = 
-	    inputs[0]->getData( BinID(relpos.inl + 1, relpos.crl), idx );
+	   inputs[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx );
 	const DataHolder* datax =
-	    inputs[0]->getData( BinID(relpos.inl, relpos.crl + 1), idx );
+	   inputs[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
 	if ( !datac || !datai || !datax )
 	    return false;
 	
@@ -348,16 +332,16 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 	{ 
 	    for ( int idz=-stepout.crl; idz<=stepout.crl; idz++ )
 	    {
-		const DataHolder* dh = inputs[0]->getData( relpos.inl + idy, 
-						    relpos.crl + idz );
+		BinID bid = BinID( relpos.inl + idy * bidstep.inl, 
+				   relpos.crl + idz * bidstep.crl );
+		const DataHolder* dh = inputs[0]->getData( bid, idx );
 		if ( !dh )
 		    return false;
 
 		redh->set(idy+stepout.inl,idz+stepout.crl, 
 			const_cast<DataHolder*>(dh) );
 
-		const DataHolder* data = inputs[1]->getData( relpos.inl + idy, 
-							relpos.crl + idz );
+		const DataHolder* data = inputs[1]->getData( bid, idx );
 		if ( !data )
 		    return false;
 		
