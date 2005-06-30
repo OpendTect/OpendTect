@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.1 2005-06-23 09:08:24 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.2 2005-06-30 11:26:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,6 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "survinfo.h"
 #include "simpnumer.h"
-#include "threadwork.h"
-#include "basictask.h"
-#include "attriblinebuffer.h"
 
 #include <math.h>
 #include <iostream>
@@ -50,7 +47,7 @@ void SpecDecomp::initClass()
     EnumParam* window = new EnumParam(windowStr());
     window->addEnums(ArrayNDWindow::WindowTypeNames);
     window->setRequired(false);
-    window->setDefaultValue("5");
+    window->setDefaultValue("CosTaper5");
     desc->addParam(window);
 
     ZGateParam* gate = new ZGateParam(gateStr());
@@ -193,18 +190,6 @@ SpecDecomp::SpecDecomp( Desc& desc_ )
 SpecDecomp::~SpecDecomp()
 {
     delete window;
-    
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] ) inputs[idx]->unRef();
-	    inputs.erase();
-
-    desc.unRef();
-
-    delete threadmanager;
-    deepErase( computetasks );
-
-    delete linebuffer;
-    delete &seldata_;
 }
 
 
@@ -247,7 +232,8 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	    const_cast<SpecDecomp*>(this)->df = FFT::getDf( refstep, fftsz );
 
 	    const_cast<SpecDecomp*>(this)->window = 
-		new ArrayNDWindow( Array1DInfoImpl(sz), false, windowtype );
+		new ArrayNDWindow( Array1DInfoImpl(sz), false, 
+			(ArrayNDWindow::WindowType)windowtype );
 	}
 	else
 	    const_cast<SpecDecomp*>(this)->scalelen = 1024;

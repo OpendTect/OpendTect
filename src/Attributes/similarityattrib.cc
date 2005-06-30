@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.3 2005-06-23 09:08:24 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.4 2005-06-30 11:26:43 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -269,13 +269,14 @@ bool Similarity::computeData( const DataHolder& output,
 
     const int gatesz = samplegate.width();
     const int nrpairs = inputdata.size()/2;
+    int firstsample = inputdata[0] ? t0 -inputdata[0]->t0_ : t0;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	RunningStatistics<float> stats;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    float s0 = t0 + idx + samplegate.start;
+	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
 
 	     if ( !inputdata[pair*2] || ! inputdata[pair*2 + 1])

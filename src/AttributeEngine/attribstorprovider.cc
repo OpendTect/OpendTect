@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.7 2005-06-23 09:14:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.8 2005-06-30 11:26:43 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -117,17 +117,6 @@ StorageProvider::StorageProvider( Desc& desc_ )
 
 StorageProvider::~StorageProvider()
 {
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] ) inputs[idx]->unRef();
-	    inputs.erase();
-
-    desc.unRef();
-
-    delete threadmanager;
-    deepErase( computetasks );
-
-    delete linebuffer;
-
     deepErase( rg );
 }
 
@@ -423,10 +412,10 @@ bool StorageProvider::computeData( const DataHolder& output,
 void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
 				    const DataHolder& trcsamplvalues ) const
 {
-    int t0 = trcsamplvalues.t0_;
-    float starttrctime = trc->startPos();
-    float trcstep = trc->info().sampling.step;
-    float reqstarttime = starttrctime + t0 * trcstep;
+//    int t0 = trcsamplvalues.t0_;
+    float reqstarttime = trc->startPos();
+//    float trcstep = trc->info().sampling.step;
+//    float reqstarttime = starttrctime + t0 * trcstep;
     for (int idx=0 ; idx<trcsamplvalues.nrsamples_ ; idx++)
     {
 	for ( int idy=0; idy< outputinterest.size(); idy++ )

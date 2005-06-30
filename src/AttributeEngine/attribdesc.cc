@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.15 2005-06-23 09:14:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.16 2005-06-30 11:26:43 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -75,12 +75,16 @@ Desc::Desc( const Desc& a )
     mRefCountConstructor;
     inputs.allowNull(true);
 
-    addOutputDataType (a.dataType());
     for ( int idx=0; idx<a.params.size(); idx++ )
 	addParam( a.params[idx]->clone() );
 
     for ( int idx=0; idx<a.inputs.size(); idx++ )
 	addInput( a.inputSpec(idx) );
+
+    for ( int idx=0; idx<a.nrOutputs(); idx++ )
+	addOutputDataType( a.outputtypes[idx] );
+
+
 }
 
 
@@ -199,11 +203,11 @@ bool Desc::parseDefStr( const char* defstr )
          if ( !params[idx]->isOK() )
 	     return false;
      }
-     
+/*     
     BufferString outputstr;
     bool res = getParamString( defstr, "output", outputstr );
     selectOutput( res ? atoi(outputstr.buf()) : 0 );
-     
+  */   
     return true;
 }
 

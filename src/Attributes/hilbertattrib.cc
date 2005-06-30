@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.3 2005-06-23 09:08:24 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.4 2005-06-30 11:26:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,8 +115,8 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !inputdata ) return false;
 
-    const float shift = t0 - inputdata->t0_;
-    Masker masker( inputdata, mNINT(shift/refstep), 0 );
+    const int shift = t0 - inputdata->t0_;
+    Masker masker( inputdata, shift, 0 );
     float avg=0;
     for ( int idx=0; idx<nrsamples; idx++ )
 	avg += masker[idx];

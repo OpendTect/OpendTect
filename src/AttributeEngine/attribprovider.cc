@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.14 2005-06-23 09:14:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.15 2005-06-30 11:26:43 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -311,6 +311,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 	    
 	    for ( int idy=0; idy<inputoutput.size(); idy++ )
 	    {
+		if ( !computeDesInputCube(inp, out, inputcs, true)) continue;
 		if ( !inputs[inp]->getPossibleVolume( idy, inputcs ) ) 
 		    continue;
 
@@ -474,16 +475,16 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 
     float surveystep = SI().zRange().step;
     const float dz = (refstep==0) ? surveystep : refstep;
-    int cssamplstart = (int)( possiblevolume->zrg.start / refstep );
-    int cssamplstop = (int)( possiblevolume->zrg.stop / refstep );
+    int cssamplstart = (int)( possiblevolume->zrg.start / refstep + 0.5);
+    int cssamplstop = (int)( possiblevolume->zrg.stop / refstep + 0.5);
     
     for ( int idx=0; idx<ni.size(); idx++ )
     {
 	Interval<int> nigoodstep(ni[idx]);
 	if ( surveystep != refstep )
 	{
-	    nigoodstep.start *= (int)(surveystep / refstep);
-	    nigoodstep.stop *= (int)(surveystep / refstep);
+	    nigoodstep.start *= (int)(surveystep / refstep + 0.5);
+	    nigoodstep.stop *= (int)(surveystep / refstep + 0.5);
 	}
 	
 	nigoodstep.start = ( cssamplstart < nigoodstep.start ) ? 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.3 2005-06-23 09:08:24 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.4 2005-06-30 11:26:43 cvshelene Exp $";
 
 
 #include "energyattrib.h"
@@ -101,8 +101,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     int csample = t0 + samplegate.start;
     for ( int idx=0; idx<sz; idx++ )
     {
-	const int cursample = csample + idx;
-	calc += inputdata[0]->item(0)->value(cursample);
+	const int cursamp = csample + idx;
+	calc += inputdata[0]->item(0)->value(cursamp-inputdata[0]->t0_);
     }
 
     calc.lock();
@@ -111,8 +111,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	outp->setValue(idx, calc.sqSum()/sz);
-	const int cursample = csample + idx + 1;
-	calc += inputdata[0]->item(0)->value(cursample);
+	const int cursamp = csample + idx + 1;
+	calc += inputdata[0]->item(0)->value(cursamp-inputdata[0]->t0_);
     }
 
     return true;

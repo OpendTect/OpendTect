@@ -330,10 +330,12 @@ bool Event::computeData( const DataHolder& output,
     TypeSet<float> outp(nrsamples,0);
     if ( !inputdata ) return false;
 
+    int firstsample = t0 - inputdata->t0_;
+
     if ( issingleevent )
-        const_cast<Event*>(this)->singleEvent(outp, nrsamples, t0);
+        const_cast<Event*>(this)->singleEvent(outp, nrsamples, firstsample);
     else
-        const_cast<Event*>(this)->multipleEvents(outp, nrsamples, t0);
+        const_cast<Event*>(this)->multipleEvents(outp, nrsamples, firstsample);
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {

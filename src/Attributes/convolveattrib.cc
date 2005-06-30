@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.1 2005-06-23 09:08:24 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.2 2005-06-30 11:26:43 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -13,9 +13,6 @@ static const char* rcsID = "$Id: convolveattrib.cc,v 1.1 2005-06-23 09:08:24 cvs
 #include "attribparam.h"
 #include "datainpspec.h"
 #include "ptrman.h"
-#include "threadwork.h"
-#include "basictask.h"
-#include "attriblinebuffer.h"
 
 #define mShapeCube	0
 #define mShapeSphere    1
@@ -289,21 +286,9 @@ Convolve::Convolve( Desc& desc_ )
     stepout =  kernel.getStepout();
 }
 
-//see what to do with the destructor
 Convolve::~Convolve( )
 {
     delete &kernel;
-    for ( int idx=0; idx<inputs.size(); idx++ )
-	if ( inputs[idx] ) inputs[idx]->unRef();
-	    inputs.erase();
-
-    desc.unRef();
-
-    delete threadmanager;
-    deepErase( computetasks );
-
-    delete linebuffer;
-    delete &seldata_;
 }
 
 
@@ -384,7 +369,7 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 	    ArrPtrMan<float> vals = new float[sgwidth];
 	    for ( int valindex=0; valindex<sgwidth; valindex++ )
 		vals[valindex] = inputdata[idy]->item(0)->
-		    			value(cursample + (sg.start+valindex) );
+		   value( cursample-inputdata[idy]->t0_ + (sg.start+valindex) );
 
 	    for ( int kidx=0; kidx<nrofkernels; kidx++ )
 	    {
