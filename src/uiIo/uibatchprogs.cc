@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.19 2005-01-31 10:49:15 arend Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.20 2005-07-01 14:55:49 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,7 +302,9 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	    val = "\"";
 
 	    FilePath argfp( finp->fileName() );
-	    val += argfp.fullPath( FilePath::Unix );
+	    BufferString arg = argfp.fullPath( FilePath::Unix );
+	    replaceCharacter(arg.buf(),' ','%');
+	    val += arg;
 
 	    val += "\"";
 	}
