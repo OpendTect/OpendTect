@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.41 2004-12-01 17:28:22 dgb Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.42 2005-07-01 14:54:56 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -363,26 +363,6 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 
 bool uiFullBatchDialog::multiLaunch( const char* fnm )
 {
-#ifdef __aap__
-    BufferString comm( "@" );
-    comm += GetExecScript( false );
-
-    comm += "\"";
-    comm += multiprognm ;       comm += "\" ";
-    comm += procprognm;         comm += " \"";
-    comm += fnm;
-    comm += "\"";
-
-
-    if ( !StreamProvider( comm ).executeCommand(false) )
-    {
-        uiMSG().error( "Cannot start multi-machine program" );
-        return false;
-    }
-    return true;
-
-#else
-
     BufferString comm( multiprognm );	comm += " ";
     comm += procprognm;			comm += " \"";
     comm += fnm; 
@@ -392,9 +372,6 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 	{ uiMSG().error( "Cannot start multi-machine program" ); return false;}
 
     return true;
-
-#endif
-
 }
 
 
