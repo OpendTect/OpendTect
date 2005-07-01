@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.7 2005-04-22 13:39:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.8 2005-07-01 00:43:55 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -24,6 +24,7 @@ namespace MPE
 ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
     : emobject( emobj_ )
     , editpositionchange( this )
+    , movingnode( -1,-1,-1 )
 {
     emobject.ref();
 }
@@ -37,8 +38,53 @@ ObjectEditor::~ObjectEditor()
 }
 
 
-void ObjectEditor::startEdit()
-{ changedpids.erase(); }
+void ObjectEditor::startEdit(const EM::PosID& pid)
+{
+    changedpids.erase();
+    movingnode = pid;
+
+    if ( pid.objectID()!=-1 )
+    {
+        startpos = getPosition(movingnode);
+        if ( !startpos.isDefined() )
+        {
+    	    pErrMsg( "Editnode is undefined");
+	    movingnode = EM::PosID(-1,-1,-1);
+	}
+    }
+
+    setAlongMovingNodes();
+}
+
+
+bool ObjectEditor::setPosition(const Coord3& np)
+{
+    if ( movingnode.objectID()==-1 )
+    {
+	pErrMsg("Moving unknown node");
+	return false;
+    }
+
+    if ( !np.isDefined() )
+    {
+	pErrMsg("You cannot set the editnode to undefined");
+	return false;
+    }
+
+    const Coord3 diff = np-startpos;
+    if ( !setPosition( movingnode, np ) )
+	return false;
+
+    for ( int idx=0; idx<alongmovingnodes.size(); idx++ )
+    {
+	const Coord3 newpos = alongmovingnodesstart[idx] +
+		    alongmovingnodesfactors[idx]*diff;
+	if ( !setPosition( alongmovingnodes[idx], newpos ) )
+	    return false;
+    }
+
+    return true;
+}
 
 
 void ObjectEditor::finishEdit()
@@ -195,6 +241,14 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
 }
 
 
+void ObjectEditor::setAlongMovingNodes()
+{
+    alongmovingnodes.erase();
+    alongmovingnodesfactors.erase();
+    alongmovingnodesstart.erase();
+}
+
+
 EditorFactory::EditorFactory( const char* emtype, EMEditorCreationFunc cf )
     : createfunc( cf )
     , type( emtype )
@@ -206,6 +260,8 @@ const char* EditorFactory::emObjectType() const { return type; }
 
 ObjectEditor* EditorFactory::create( EM::EMObject& emobj ) const
 { return createfunc( emobj ); }
+
+
 
 
 
