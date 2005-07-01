@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.5 2005-04-22 13:39:38 cvsnanne Exp $
+ RCS:           $Id: emeditor.h,v 1.6 2005-07-01 00:39:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ public:
     				ObjectEditor( EM::EMObject& );
     				~ObjectEditor();
     const EM::EMObject&		emObject() const	{ return emobject; }
-    virtual void		startEdit();
+    virtual void		startEdit(const EM::PosID& =EM::PosID(-1,-1,-1));
+    virtual bool		setPosition(const Coord3&);
     virtual void		finishEdit();
 
     virtual void		setEditIDs(const TypeSet<EM::PosID>&);
@@ -67,7 +68,14 @@ protected:
     void				editPosChangeTrigger(CallBacker*);
     void				emSectionChange(CallBacker*);
 
+    virtual void			setAlongMovingNodes();
+    TypeSet<EM::PosID>			alongmovingnodes;
+    TypeSet<float>			alongmovingnodesfactors;
+    TypeSet<Coord3>			alongmovingnodesstart;
+
     EM::EMObject&			emobject;
+    EM::PosID				movingnode;
+    Coord3				startpos;
     TypeSet<EM::PosID>			changedpids;
 
     TypeSet<EM::PosID>			editids;
@@ -92,8 +100,8 @@ public:
 protected:
     EMEditorCreationFunc	createfunc;
     const char*			type;
-
 };
+
 
 
 };
