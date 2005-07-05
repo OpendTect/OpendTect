@@ -5,14 +5,14 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.43 2005-01-05 15:06:57 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.44 2005-07-05 14:53:06 cvsbert Exp $";
 
 #include "cbvswriter.h"
+#include "cubesampling.h"
 #include "datainterp.h"
+#include "survinfo.h"
 #include "strmoper.h"
 #include "errh.h"
-#include "binidselimpl.h"
-#include "survinfo.h"
 
 const int CBVSIO::integersize = 4;
 const int CBVSIO::version = 2;
@@ -409,31 +409,43 @@ void CBVSWriter::doClose( bool islast )
 
 void CBVSWriter::getRealGeometry()
 {
-    BinIDSampler bids; bids.start = bids.stop = BinID(0,0);
+    HorSampling hs( false );
+    hs.start.inl = hs.start.crl = hs.step.inl = hs.step.crl = mUdf(int);
     survgeom_.fullyrectandreg = true;
 
-    const int nrinl = inldata_.size();
-    bids.step.inl = 0;
-    for ( int iinl=0; iinl<nrinl; iinl++ )
+    for ( int iinl=0; iinl<inldata_.size(); iinl++ )
     {
 	PosInfo::InlData& inlinf = *inldata_[iinl];
-	int curinlstep = inlinf.inl - prevbinid_.inl;
 	if ( iinl == 0 )
 	{
-	    prevbinid_.inl = bids.start.inl = bids.stop.inl = inlinf.inl;
-	    bids.start.crl = inlinf.segments[0].start;
-	    bids.stop.crl = inlinf.segments[0].stop;
-	    bids.step.crl = inlinf.segments[0].step;
+	    hs.start.inl = hs.stop.inl = inlinf.inl;
+	    hs.start.crl = inlinf.segments[0].start;
+	    hs.stop.crl = inlinf.segments[0].stop;
+	    if ( hs.stop.crl < hs.start.crl )
+		Swap( hs.start.crl, hs.stop.crl );
+	    if ( hs.start.crl != hs.stop.crl )
+		hs.step.crl = inlinf.segments[0].step;
 	}
-	else if ( iinl == 1 || !bids.step.inl )
-	    bids.step.inl = curinlstep;
-	else if ( curinlstep != bids.step.inl )
+	else
 	{
-	    survgeom_.fullyrectandreg = false;
-	    if ( curinlstep && curinlstep < bids.step.inl )
-		bids.step.inl = curinlstep;
+	    int inlstep = inlinf.inl - inldata_[iinl-1]->inl;
+	    if ( !inlstep )
+		survgeom_.fullyrectandreg = false;
+	    else if ( iinl == 1 )
+		hs.step.inl = inlstep;
+	    else if ( inlstep != hs.step.inl )
+	    {
+		survgeom_.fullyrectandreg = false;
+		if ( (hs.step.inl > 0 && inlstep < hs.step.inl)
+		  || (hs.step.inl < 0 && inlstep > hs.step.inl) )
+		    hs.step.inl = inlstep;
+	    }
+
+	    if ( inlinf.inl < hs.start.inl )
+		hs.start.inl = inlinf.inl;
+	    else if ( inlinf.inl > hs.stop.inl )
+		hs.stop.inl = inlinf.inl;
 	}
-	prevbinid_.inl = inlinf.inl;
 
 	const int nrseg = inlinf.segments.size();
 	if ( nrseg != 1 )
@@ -441,38 +453,41 @@ void CBVSWriter::getRealGeometry()
 
 	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
-	    PosInfo::InlData::Segment& seg =inlinf.segments[iseg];
-	    if ( !seg.step )
-		seg.step = bids.step.crl ? bids.step.crl : SI().crlStep();
-	    else if ( seg.step != bids.step.crl )
+	    PosInfo::InlData::Segment seg( inlinf.segments[iseg] );
+	    if ( seg.start > seg.stop )	Swap( seg.start, seg.stop );
+
+	    if ( seg.start < hs.start.crl )
+		{ survgeom_.fullyrectandreg = false; hs.start.crl = seg.start; }
+	    if ( seg.stop > hs.stop.crl )
+		{ survgeom_.fullyrectandreg = false; hs.start.crl = seg.start; }
+
+	    if ( seg.start != seg.stop )
 	    {
-		survgeom_.fullyrectandreg = false;
-		if ( seg.step < bids.step.crl )
-		    bids.step.crl = seg.step;
-	    }
-	    else if ( iinl )
-	    {
-		Interval<int> intv( seg ); intv.sort();
-		if ( intv.start != bids.start.crl || intv.stop != bids.stop.crl)
+		if ( Values::isUdf(hs.step.crl) )
+		    hs.step.crl = seg.step;
+		else if ( seg.step != hs.step.crl )
+		{
 		    survgeom_.fullyrectandreg = false;
+		    if ( (hs.step.crl > 0 && seg.step < hs.step.crl)
+		      || (hs.step.crl < 0 && seg.step > hs.step.crl) )
+			hs.step.crl = seg.step;
+		}
 	    }
-	    bids.include( BinID(inlinf.inl,seg.start) );
-	    bids.include( BinID(inlinf.inl,seg.stop) );
 	}
     }
-    if ( !bids.step.inl )
-	bids.step.inl = SI().inlStep();
-    if ( !bids.step.crl )
-	bids.step.crl = SI().crlStep();
+    if ( Values::isUdf(hs.step.inl) || hs.step.inl == 0 )
+	hs.step.inl = SI().inlStep();
+    if ( Values::isUdf(hs.step.crl) || hs.step.crl == 0 )
+	hs.step.crl = SI().crlStep();
 
     if ( survgeom_.fullyrectandreg )
 	deepErase( survgeom_.cubedata );
     else if ( forcedlinestep_.inl )
-	bids.step.inl = forcedlinestep_.inl;
+	hs.step.inl = forcedlinestep_.inl;
 
-    survgeom_.start = bids.start;
-    survgeom_.stop = bids.stop;
-    survgeom_.step = bids.step;
+    survgeom_.start.inl = hs.start.inl; survgeom_.stop.inl = hs.stop.inl;
+    survgeom_.start.crl = hs.start.crl; survgeom_.stop.crl = hs.stop.crl;
+    survgeom_.step.inl = hs.step.inl; survgeom_.step.crl = hs.step.crl;
 }
 
 
