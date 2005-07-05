@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.7 2005-04-15 15:35:04 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.8 2005-07-05 10:38:33 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,12 +83,12 @@ bool Wizard::processPage1()
 	    return false;
     }
 
-    if ( engine().interactionseeds.size() )
+/*     if ( engine().interactionseeds.size() )
     {
 	displayPage(1,false); // skip seedpicking step
 	return addTracker( newobjnm );
     }
-
+ */
     colorfld->setColor( Color::drawDef(defcolnr++) );
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
     stickSetChange(0);

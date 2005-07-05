@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.17 2005-06-29 10:39:36 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.18 2005-07-05 10:38:33 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uimenuhandler.h"
 #include "pixmap.h"
+#include "uicursor.h"
 
 using namespace MPE;
 
@@ -487,6 +488,7 @@ void uiMPEMan::trackBackward( CallBacker* )
 
 void uiMPEMan::trackInVolume( CallBacker* )
 {
+    
     const bool ison = isOn( seedidx );
     if ( ison && seededitor )
     {
@@ -494,7 +496,10 @@ void uiMPEMan::trackInVolume( CallBacker* )
 	seededitor->getSeeds( engine().interactionseeds );
 	engine().setNewSeeds();
     }
+    
+    uiCursor::setOverride( uiCursor::Wait );
     engine().trackInVolume();
+    uiCursor::restoreOverride();
 }
 
 
