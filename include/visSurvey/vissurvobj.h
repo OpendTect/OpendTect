@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.36 2005-04-06 10:55:11 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.37 2005-07-05 16:42:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,16 @@ public:
     				//<\Snaps coordinate to a trace position
 
     virtual NotifierAccess*	getMovementNotification()	{ return 0; }
+    				/*!<Gives access to a notifier that is triggered
+				    when object is moved or modified. */
+
+    virtual void		otherObjectsMoved(
+	    			    const ObjectSet<const SurveyObject>&) {}
+    				/*!< If other objects are moved, removed or
+				     added in the scene, this function is
+				     called. \note that it only notifies on
+				     objects that return something on
+				     getMovementNotification(). */
     virtual bool		isInlCrl() const	    	{ return false;}
 
     const char*			errMsg() const		    	{return errmsg;}
