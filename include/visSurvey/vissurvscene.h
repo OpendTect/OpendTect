@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.32 2005-03-14 08:44:31 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.33 2005-07-05 16:45:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,7 @@ public:
     float			getMousePosValue() const  { return mouseposval;}
     BufferString		getMousePosString() const { return mouseposstr;}
 
-    void			filterPicks(CallBacker* =0);
+    void			objectMoved(CallBacker*);
     void			updateRange();
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;

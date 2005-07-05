@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.64 2005-02-04 14:31:34 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.65 2005-07-05 16:45:05 cvskris Exp $";
 
 #include "vissurvpickset.h"
 
@@ -180,7 +180,8 @@ void PickSetDisplay::showAll( bool yn )
 }
 
 
-void PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs )
+void PickSetDisplay::otherObjectsMoved(
+			const ObjectSet<const SurveyObject>& objs )
 {
     if ( showall ) return;
     for ( int idx=0; idx<group->size(); idx++ )

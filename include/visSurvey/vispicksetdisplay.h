@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.39 2004-11-16 09:30:23 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.40 2005-07-05 16:45:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,7 +75,8 @@ public:
 
     void			showAll(bool yn);
     bool			allShown() const	{ return showall; }
-    void			filterPicks(ObjectSet<SurveyObject>&);
+    void			otherObjectsMoved(
+	    				const ObjectSet<const SurveyObject>&);
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);

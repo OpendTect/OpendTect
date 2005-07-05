@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.64 2005-03-14 08:44:22 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.65 2005-07-05 16:45:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ void Scene::addObject( visBase::DataObject* obj )
 {
     mDynamicCastGet(SurveyObject*,so,obj)
     if ( so && so->getMovementNotification() )
-	so->getMovementNotification()->notify( mCB(this,Scene,filterPicks) );
+	so->getMovementNotification()->notify( mCB(this,Scene,objectMoved) );
 
     if ( so && so->isInlCrl() )
     {
@@ -121,7 +121,7 @@ void Scene::removeObject( int idx )
     DataObject* obj = getObject( idx );
     mDynamicCastGet(SurveyObject*,so,obj)
     if ( so && so->getMovementNotification() )
-	so->getMovementNotification()->remove( mCB(this,Scene,filterPicks) );
+	so->getMovementNotification()->remove( mCB(this,Scene,objectMoved) );
 
     DataObjectGroup::removeObject( idx );
 }
@@ -195,9 +195,9 @@ void Scene::setup()
 }
 
 
-void Scene::filterPicks( CallBacker* )
+void Scene::objectMoved( CallBacker* )
 {
-    ObjectSet<SurveyObject> activeobjects;
+    ObjectSet<const SurveyObject> activeobjects;
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
@@ -213,8 +213,8 @@ void Scene::filterPicks( CallBacker* )
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	mDynamicCastGet(PickSetDisplay*,pickset,getObject(idx))
-	if ( pickset ) pickset->filterPicks( activeobjects );
+	mDynamicCastGet(SurveyObject*,so,getObject(idx))
+	so->otherObjectsMoved( activeobjects );
     }
 }
 
