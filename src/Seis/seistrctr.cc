@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.63 2005-06-23 07:08:41 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.64 2005-07-05 14:51:56 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -89,6 +89,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, enforce_survinfo_write(false)
     	, needpinfoonly(false)
     	, is_prestack(false)
+    	, is_2d(false)
 {
     const char* envvar = getenv("DTECT_ENFORCE_REGULAR_SEISWRITE");
     if ( envvar && *envvar )
@@ -250,6 +251,7 @@ bool SeisTrcTranslator::commitSelections()
     samps.start = mNINT( fsampnr );
     samps.stop = samps.start + outnrsamples - 1;
 
+    is_2d = !conn || !conn->ioobj ? false : is2D( *conn->ioobj, false );
     return commitSelections_();
 }
 
@@ -311,8 +313,16 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 	return writeTrc_( trc );
     }
 
-    bool wrblk = prevnr_ != trc.info().binid.inl && !Values::isUdf(prevnr_);
-    prevnr_ = trc.info().binid.inl;
+    const bool haveprev = !Values::isUdf( prevnr_ );
+    const bool wrblk = haveprev && (is_2d ? prevnr_ > 99
+				: prevnr_ != trc.info().binid.inl);
+    if ( !is_2d )
+	prevnr_ = trc.info().binid.inl;
+    else if ( wrblk || !haveprev )
+	prevnr_ = 1;
+    else
+	prevnr_++;
+
     if ( wrblk && !writeBlock() )
 	return false;
 
@@ -334,19 +344,20 @@ bool SeisTrcTranslator::writeBlock()
 
     if ( sz && enforce_regular_write )
     {
-	const bool is2d = !conn || !conn->ioobj ? false
-			: is2D( *conn->ioobj, false );
-	trcblock_.sort( true, is2d ? 0 : 6 );
+	trcblock_.sort( true, is_2d ? 0 : 6 );
 	firsttrc = trcblock_.get( 0 );
-	const int firstcrl = firsttrc->info().binid.crl;
+	const int firstnr = is_2d ? firsttrc->info().nr
+	    			 : firsttrc->info().binid.crl;
 	int nrperpos = 1;
 	for ( int idx=1; idx<sz; idx++ )
 	{
-	    if ( trcblock_.get(idx)->info().binid.crl != firstcrl )
+	    const int nr = is_2d ? trcblock_.get(idx)->info().nr
+				: trcblock_.get(idx)->info().binid.crl;
+	    if ( nr != firstnr )
 		break;
 	    nrperpos++;
 	}
-	trcblock_.enforceNrTrcs( nrperpos );
+	trcblock_.enforceNrTrcs( nrperpos, is_2d ? 0 : 6 );
 	sz = trcblock_.size();
     }
 
@@ -548,6 +559,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 
 void SeisTrcTranslator::usePar( const IOPar& iop )
 {
+    iop.getYN( sKeyIs2D, is_2d );
     iop.getYN( sKeyIsPS, is_prestack );
     iop.getYN( sKeyRegWrite, enforce_regular_write );
     iop.getYN( sKeySIWrite, enforce_survinfo_write );
