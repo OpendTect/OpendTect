@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.260 2005-06-28 17:30:59 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.261 2005-07-06 13:43:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -635,7 +635,7 @@ void uiVisPartServer::turnOn( int id, bool yn )
     {
 	visSurvey::Scene* scene =
 		(visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
-	if ( scene ) scene->filterPicks();
+	if ( scene ) scene->objectMoved(dobj);
     }
 }
 
