@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.26 2005-06-09 11:13:21 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.27 2005-07-06 15:19:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,11 +278,15 @@ const char* uiNLAPartServer::prepareInputData(
 
     // allow user to view and edit data
     ObjectSet<PosVecDataSet> vdss;
-    vdss += &trainvds; vdss += &testvds;
+    vdss += &trainvds;
+    if ( !testvds.data().isEmpty() )
+	vdss += &testvds;
     uiPosDataEdit dlg( appserv().parent(), vdss, 0, uiPosDataEdit::AllOnly );
     dlg.saveData.notify( mCB(this,uiNLAPartServer,writeSets) );
     if ( dlg.go() )
     {
+	if ( vdss.size() < 2 )
+	    vdss += &testvds;
 	bool allok = true;
 	if ( crdesc.isdirect )
 	{
