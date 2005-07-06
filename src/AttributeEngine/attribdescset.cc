@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.11 2005-06-23 09:14:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.12 2005-07-06 15:02:07 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -313,7 +313,8 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  ObjectSet<Desc>& newsteeringdescs,
 				  BufferStringSet* errmsgs )
 {
-    BufferString steeringdef = steeringpar.find("Type");
+    BufferString steeringtype = steeringpar.find("Type");
+    BufferString steeringdef = steeringtype;
     steeringdef += " ";
     steeringdef += "stepout=";
     const char* stepout = steeringpar.find("Stepout");
@@ -360,17 +361,31 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	else
 	    steeringdef += "5,5";
     }
-    steeringdef += " ";
-    steeringdef += "phlock=";
-    bool phaselock = false;
-    steeringpar.getYN( "PhaseLock", phaselock );
-    steeringdef += phaselock ? "Yes" : "No";
-    steeringdef += " ";
-    if ( phaselock )
+    if ( !strcmp( steeringtype.buf(), "ConstantSteering" ) )
     {
-	steeringdef += "aperture=";
-	const char* aperture = steeringpar.find("Aperture");
-	steeringdef += aperture ? aperture : "-5,5";
+	steeringdef += " ";
+	steeringdef += "dip=";
+	const char* dip = steeringpar.find("AppDip");
+	steeringdef += dip;
+	steeringdef += " ";
+	steeringdef += "azi=";
+	const char* azi = steeringpar.find("Azimuth");
+	steeringdef += azi;
+    }
+    else
+    {   
+	steeringdef += " ";
+	steeringdef += "phlock=";
+	bool phaselock = false;
+	steeringpar.getYN( "PhaseLock", phaselock );
+	steeringdef += phaselock ? "Yes" : "No";
+	steeringdef += " ";
+	if ( phaselock )
+	{
+	    steeringdef += "aperture=";
+	    const char* aperture = steeringpar.find("Aperture");
+	    steeringdef += aperture ? aperture : "-5,5";
+	}
     }
     BufferString attribname;
     if ( !Desc::getAttribName( steeringdef, attribname ) )

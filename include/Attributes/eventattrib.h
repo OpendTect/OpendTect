@@ -11,7 +11,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: eventattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.h,v 1.3 2005-07-06 15:02:07 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"
@@ -37,8 +37,6 @@ amplitude withing a time gate.
 
 namespace Attrib
 {
-
-class ParamSet;
 
 class Event : public Provider
 {

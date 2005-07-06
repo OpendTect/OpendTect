@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.3 2005-07-06 15:02:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,6 @@ Outputs:
 
 namespace Attrib
 {
-
-class ParamSet;
 
 class Energy: public Provider
 {

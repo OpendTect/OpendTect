@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.3 2005-06-23 09:09:28 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.4 2005-07-06 15:02:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,38 @@ ________________________________________________________________________
 #include "valseriesinterpol.h"
 #include "mathfunc.h"
 
+/*!\brief Similarity Attribute
+
+Similarity gate= pos0= pos1= stepout=1,1 extension=[0|90|180|Cube]
+	 [steering=Yes|No]
+
+Calculates the gates' distance between each other in hyperspace normalized
+to the gates' lengths.
+
+If steering is enabled, it is up to the user to make sure that the steering
+goes to the same position as pos0 and pos1 respectively.
+
+Input:
+0       Data
+1-      Steerings
+
+Extension:      0       90/180          Cube
+1               pos0    pos0
+2               pos1    pos1
+3                       pos0rot
+4                       pos1rot
+
+Output:
+0       Avg
+1       Med
+2       Var
+3       Min
+4       Max
+
+*/
+
 namespace Attrib
 {
-
-class ParamSet;
 
 class Similarity : public Provider
 {

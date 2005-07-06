@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.1 2005-06-23 09:05:33 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -31,7 +31,6 @@ Output:
 namespace Attrib
 {
 
-class ParamSet;
 class DataHolder;
 
 class Coherency : public Provider

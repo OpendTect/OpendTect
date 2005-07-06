@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.3 2005-06-23 09:09:28 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.4 2005-07-06 15:02:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-
 class Hilbert : public Provider
 {
 public:
@@ -33,7 +32,6 @@ public:
 
 protected:
     static Provider*		createInstance(Desc&);
-    static void			updateDesc(Desc&);
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>& exis);
 
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
@@ -41,7 +39,7 @@ protected:
     bool			computeData(const DataHolder&,const BinID& pos,
 					    int t0,int nrsamples) const;
 
-   // const Interval<float>*	reqZMargin(int input,int output) const;
+//    const Interval<float>*	desZMargin(int input,int output) const;
 
     const DataHolder*		inputdata;
 

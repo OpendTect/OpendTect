@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.1 2005-06-30 11:27:09 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,6 @@ Output:
 */
 namespace Attrib
 {
-class ParamSet;
 
 class Frequency : public Provider
 {

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.15 2005-06-30 11:26:43 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.16 2005-07-06 15:02:08 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -78,6 +78,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 		    				!= desc.selectedOutput() )
 		existing[idx]->enableOutput( desc.selectedOutput() );
 	    issame = true;
+	    existing[idx]->setUsedMultTimes();
 	    return existing[idx];
 	}
     }
@@ -149,6 +150,7 @@ Provider::Provider( Desc& nd )
     , refstep( 0 )
     , trcnr_( -1 )
     , alreadymoved(0)
+    , isusedmulttimes(0)
     , seldata_(*new SeisSelData)
 {
     desc.ref();
@@ -243,7 +245,29 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
     if ( !desiredvolume )
 	desiredvolume = new CubeSampling(ndv);
     else
-	*desiredvolume = ndv;
+    {
+	if ( isUsedMultTimes() )
+	{
+	    desiredvolume->hrg.start.inl = 
+		desiredvolume->hrg.start.inl < ndv.hrg.start.inl ?
+		desiredvolume->hrg.start.inl : ndv.hrg.start.inl;
+	    desiredvolume->hrg.stop.inl =
+		desiredvolume->hrg.stop.inl > ndv.hrg.stop.inl ?
+		desiredvolume->hrg.stop.inl : ndv.hrg.stop.inl;
+	    desiredvolume->hrg.stop.crl =
+		desiredvolume->hrg.stop.crl > ndv.hrg.stop.crl ?
+		desiredvolume->hrg.stop.crl : ndv.hrg.stop.crl;
+	    desiredvolume->hrg.start.crl =
+		desiredvolume->hrg.start.crl < ndv.hrg.start.crl ?
+		desiredvolume->hrg.start.crl : ndv.hrg.start.crl;
+	    desiredvolume->zrg.start = desiredvolume->zrg.start < ndv.zrg.start?
+		desiredvolume->zrg.start : ndv.zrg.start;
+	    desiredvolume->zrg.stop = desiredvolume->zrg.stop > ndv.zrg.stop ?
+		desiredvolume->zrg.stop : ndv.zrg.stop;
+    }
+	else
+	    *desiredvolume = ndv;
+    }
 
     CubeSampling inputcs;
     for ( int idx=0; idx<inputs.size(); idx++ )
@@ -397,11 +421,13 @@ int Provider::moveToNextTrace()
 		if ( compres == -1 )
 		{
 		    idxmoved = true;
+		    movinginputs[idx]->resetMoved();
 		    const int res = movinginputs[idx]->moveToNextTrace();
 		    if ( res != 1 ) return res;
 		}
 		else if ( compres == 1 )
 		{
+		    movinginputs[idy]->resetMoved();
 		    const int res = movinginputs[idy]->moveToNextTrace();
 		    if ( res != 1 ) return res;
 		}
@@ -471,6 +497,10 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 {
+//    if ( isUsedMultTimes() ) 
+//	for ( int idx=0; idx<localcomputezintervals.size(); idx++ )
+//	    localcomputezintervals.remove(idx);
+
     Interval<int> inputranges[inputs.size()][ni.size()];
 
     float surveystep = SI().zRange().step;
@@ -749,7 +779,7 @@ void Provider::updateInputReqs(int inp)
 
 	bool isstored = inputs[inp]? inputs[inp]->desc.isStored() : false;
 	if ( computeDesInputCube( inp, out, inputcs, !isstored ) )
-	    inputs[inp]->setDesiredVolume( inputcs );
+		inputs[inp]->setDesiredVolume( inputcs );
 
 	BinID stepout(0,0);
 	const BinID* req = reqStepout(inp,out);

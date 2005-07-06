@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.1 2005-06-23 09:09:28 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -45,8 +45,6 @@ class ArrayNDWindow;
 
 namespace Attrib
 {
-
-class ParamSet;
 
 class SpecDecomp : public Provider
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.4 2005-06-30 11:26:43 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.5 2005-07-06 15:02:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,12 +23,12 @@ namespace Attrib
 
 void Hilbert::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
+    Desc* desc = new Desc( attribName() );
     desc->ref();
 
     ValParam* halflen = new ValParam( halflenStr(), new IntInpSpec() );
+    halflen->setDefaultValue( "30" );
     desc->addParam(halflen);
-//  halflen->setDefaultVal( 30 );
 
     InputSpec inputspec( "Input data", true );
     desc->addInput( inputspec );
@@ -53,11 +53,6 @@ Provider* Hilbert::createInstance( Desc& desc )
 
     res->unRefNoDelete();
     return res;
-}
-
-
-void Hilbert::updateDesc( Desc& desc )
-{
 }
 
 
@@ -129,10 +124,9 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     return true;
 }
 
-
-/*const Interval<float>* Hilbert::reqZMargin( int inp, int ) const
+/*
+const Interval<float>* Hilbert::desZMargin( int inp, int ) const
 {
-    
     const_cast<Interval<float>*>(&timegate)->start = gate.start * refstep;
     const_cast<Interval<float>*>(&timegate)->stop =  gate.stop * refstep;
     return &timegate; 
