@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.65 2005-07-05 16:45:05 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.66 2005-07-07 09:23:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "vislight.h"
 #include "vissurvpickset.h"
 #include "vistransform.h"
+#include "errh.h"
 
 #include <limits.h>
 
@@ -214,7 +215,10 @@ void Scene::objectMoved( CallBacker* )
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
-	so->otherObjectsMoved( activeobjects );
+	if ( !so )
+	    pErrMsg( "A visBase::DataObject* is NOT a SurveyObject!!!!" );
+	else
+	    so->otherObjectsMoved( activeobjects );
     }
 }
 
