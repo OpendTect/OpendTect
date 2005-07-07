@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.9 2005-05-12 14:08:27 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.10 2005-07-07 13:41:48 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -748,7 +748,8 @@ void BinIDValueSet::extend( const BinID& so, const BinID& sos )
     Pos pos; BinID bid;
     while ( bvs.next(pos) )
     {
-	const BinID centralbid( mInl(pos), mCrl(pos) );
+	bvs.get( pos, bid, vals );
+	const BinID centralbid( bid );
 	for ( int iinl=-so.inl; iinl<=so.inl; iinl++ )
 	{
 	    bid.inl = centralbid.inl + iinl * sos.inl;
