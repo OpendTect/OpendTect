@@ -48,8 +48,11 @@ set fil=`pwd`
 set old=$PWD
 set workdir=`cd $WORK; pwd; cd $old`
 
+echo workdir: $workdir
+
 set rep="s%^${workdir}%%"
-set cvsfil=`echo "$fil/$1" | sed $rep`
+
+set cvsfil=`echo "$fil/$1" | sed -e "$rep" -e "s%^\/%%"`
 
 cvs co -p $rev $cvsfil > /tmp/mdiff.$$
 
