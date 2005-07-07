@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.cc,v 1.5 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uithumbwheel.cc,v 1.6 2005-07-07 20:03:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,11 +112,3 @@ void uiThumbWheel::setValue( float d )
 {
     body_->setValue( d );
 }
-
-int uiThumbWheel::minValue() const         { return body_->minValue() ; }
-int uiThumbWheel::maxValue() const         { return body_->minValue() ; }
-void uiThumbWheel::setMinValue( int m )    { body_->setMinValue(m); }
-void uiThumbWheel::setMaxValue( int m )    { body_->setMaxValue(m); }
-int uiThumbWheel::step() const             { return body_->lineStep() ; }
-void uiThumbWheel::setStep ( int s )       { body_->setSteps(s,0); }
-

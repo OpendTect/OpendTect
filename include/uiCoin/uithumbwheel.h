@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uithumbwheel.h,v 1.4 2005-07-07 20:03:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,13 +31,6 @@ public:
     void		setText( const char* );
     void		setValue( int );
     void		setValue( float );
-
-    int			minValue() const;
-    int			maxValue() const;
-    void		setMinValue( int );
-    void		setMaxValue( int );
-    int			step() const;
-    void		setStep(int);
 
     float		lastMoveVal()		{ return lastmv; }
 
