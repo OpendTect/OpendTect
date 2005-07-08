@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.27 2005-05-20 11:50:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.28 2005-07-08 11:22:15 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -117,9 +117,9 @@ int SeisTrcInfo::attrNr( const char* nm )
 }
 
 
-double SeisTrcInfo::getAttr( int nr ) const
+double SeisTrcInfo::getAttr( int attrnr ) const
 {
-    switch ( nr )
+    switch ( attrnr )
     {
     case 1:	return pick;
     case 2:	return refpos;
