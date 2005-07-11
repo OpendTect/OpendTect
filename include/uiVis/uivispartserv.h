@@ -7,16 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.141 2005-06-28 17:17:35 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.142 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiapplserv.h"
+#include "cubesampling.h"
+#include "menuhandler.h"
 #include "ranges.h"
 #include "sets.h"
 #include "thread.h"
-#include "cubesampling.h"
+#include "uiapplserv.h"
 
 
 class AttribSelSpec;
@@ -263,11 +264,11 @@ protected:
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
 
-    int				selcolorattrmnusel;
-    int				resetmanipmnusel;
-    int				changecolormnusel;
-    int				changematerialmnusel;
-    int				firstresmnusel;
+    MenuItem			selcolorattrmnuitem;
+    MenuItem			resetmanipmnuitem;
+    MenuItem			changecolormnuitem;
+    MenuItem			changematerialmnuitem;
+    MenuItem			resmnuitem;
 
     static const char*		workareastr;
     static const char*		appvelstr;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.31 2005-05-17 09:29:06 cvskris Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.32 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ ________________________________________________________________________
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     	: uiApplPartServer(a)
+    	, storedgathermenuitem("Display Gather")
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid );
     uiSurveyInfoEditor::addInfoProvider( sip );
@@ -197,22 +198,22 @@ mnu->setEnabled( list.size() ); \
 }
 
 
-uiPopupMenu* uiSeisPartServer::createStoredGathersSubMenu( int& mnuid )
+MenuItem* uiSeisPartServer::storedGathersSubMenu()
 {
-    BufferStringSet ioobjnms = getStoredGathersList();
-    if ( !ioobjnms.size() ) return 0;
-    uiPopupMenu* displaygathermnu = new uiPopupMenu( appserv().parent(),
-		                                     "Display Gather" );
-    const int start = 0; const int stop = ioobjnms.size();
-    mInsertItems(ioobjnms,displaygathermnu,true);
-    return displaygathermnu;
+    storedgathermenuitem.removeItems();
+    storedgathermenuitem.createItems(getStoredGathersList());
+    return &storedgathermenuitem;
 }
 	    
 
 bool uiSeisPartServer::handleGatherSubMenu( int mnuid, BinID bid )
 {
-    BufferStringSet ioobjnms = getStoredGathersList();
-    PtrMan<IOObj> ioobj = IOM().getLocal( ioobjnms.get(mnuid) );
+    const int mnuindex = storedgathermenuitem.itemIndex(mnuid);
+    if ( mnuindex==-1 ) return true;
+
+    PtrMan<IOObj> ioobj =
+	IOM().getLocal( storedgathermenuitem.getItem(mnuindex)->text );
+
     if ( !ioobj )
     { 
 	uiMSG().error( "No valid gather selected" ); 

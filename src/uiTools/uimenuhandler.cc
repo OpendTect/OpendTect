@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.1 2005-06-28 15:58:12 cvskris Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.2 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,129 +19,96 @@ const int uiMenuHandler::fromScene = 0;
 
 
 uiMenuHandler::uiMenuHandler( uiParent* parent_, int ni )
-    : parent( parent_ )
-    , id_( ni )
-    , createnotifier( this )
-    , handlenotifier( this )
+    : MenuHandler( ni )
+    , parent( parent_ )
     , positionxyz( Coord3::udf() )
-{
-    mRefCountConstructor;
-}
-
-
-uiMenuHandler::~uiMenuHandler()
-{}
-
-
-bool uiMenuHandler::isHandled() const
-{ return ishandled; }
-
-
-void uiMenuHandler::setIsHandled( bool yn )
-{ ishandled = yn; }
+{ }
 
 
 bool uiMenuHandler::executeMenu( int menutype_, const TypeSet<int>* path_ )
 {
-    ref();		//makes sure that object is not removed during a cb
+    //makes sure that object is not removed during a cb
+    RefMan<uiMenuHandler> reffer(this);
+    
     freeid = 0;
     menutype = menutype_;
     path = path_;
 
-    uiPopupMenu menu( parent );
-
+    items.erase();
     uiCursor::setOverride( uiCursor::Wait );
     createnotifier.trigger();
     uiCursor::restoreOverride();
 
+    PtrMan<uiPopupMenu> menu = createMenu( items );
+    if ( !menu ) return true;
 
-    if ( !menus.size() && !items.size() )
-	return true;
-
-    while ( menus.size() || items.size() )
-    {
-	int lowest;
-	bool found = false;
-	for ( int idx=0; idx<menus.size(); idx++ )
-	{
-	    if ( !found || lowest<menuplacement[idx] )
-	    {
-		lowest = menuplacement[idx];
-		found = true; 
-	    }
-	}
-	    
-	for ( int idx=0; idx<items.size(); idx++ )
-	{
-	    if ( !found || lowest<itemplacement[idx] )
-	    {
-		lowest = itemplacement[idx];
-		found = true; 
-	    }
-	}
-
-
-	for ( int idx=0; idx<menus.size(); idx++ )
-	{
-	    if ( lowest==menuplacement[idx] )
-	    {
-		menu.insertItem( menus[idx], -1 );
-		menus.remove(idx);
-		menuplacement.remove(idx);
-	    }
-	}
-	   
-
-	for ( int idx=0; idx<items.size(); idx++ )
-	{
-	    if ( lowest==itemplacement[idx] )
-	    {
-		menu.insertItem( items[idx], itemids[idx] );
-		items.remove(idx);
-		itemids.remove(idx);
-		itemplacement.remove(idx);
-	    }
-	}
-    }
-	    
-    const int selection = menu.exec();
+    const int selection = menu->exec();
 
     if ( selection==-1 )
-    {
-	unRef();
-	return true;
-    }
+    { return true; }
 
     ishandled = false;
     handlenotifier.trigger( selection, *this );
-    unRef();
+
     return true;
 }
 
 
-int uiMenuHandler::addItem( uiMenuItem* itm, int placementidx)
+uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
+					const MenuItem* item )
 {
-    items += itm;
-    itemids += getFreeID();
-    itemplacement += placementidx;
-    return freeid-1;
-}
+    if ( !subitms.size() )
+	return 0;
 
-
-void  uiMenuHandler::addSubMenu( uiPopupMenu* itm, int placementidx)
-{
-    menus += itm;
-    menuplacement += placementidx;
-}
-
-
-uiPopupMenu* uiMenuHandler::getMenu( const char* name )
-{
-    for ( int idx=0; idx<menus.size(); idx++ )
+    uiPopupMenu* menu = item ? new uiPopupMenu( parent, item->text )
+			     : new uiPopupMenu( parent );
+    if ( item )
     {
-	if ( !strcmp(menus[idx]->name(), name ) )
-	    return menus[idx];
+	menu->setEnabled( item->enabled );
+	menu->setChecked( item->checked );
     }
 
-    return 0;
+    BoolTypeSet handled( subitms.size(), false );
+
+    while ( true )
+    {
+	int lowest;
+	int lowestitem = -1;
+	for ( int idx=0; idx<subitms.size(); idx++ )
+	{
+	    if ( lowestitem==-1 || lowest<subitms[idx]->placement )
+	    {
+		if ( handled[idx] ) continue;
+
+		lowest = subitms[idx]->placement;
+		lowestitem = idx;
+	    }
+	}
+
+	if ( lowestitem==-1 )
+	    break;
+
+	const MenuItem& item = *subitms[lowestitem];
+
+	if ( item.nrItems() )
+	{
+	    uiPopupMenu* submenu = createMenu( item.getItems(), &item );
+	    if ( submenu ) menu->insertItem( submenu, item.id );
+	}
+	else
+	{
+	    uiMenuItem* mnuitem = item.cb.cbObj() && item.cb.cbFn() 
+		? new uiMenuItem(item.text,item.cb)
+		: new uiMenuItem(item.text);
+
+	    menu->insertItem( mnuitem, item.id );
+	    mnuitem->setEnabled( item.enabled );
+	    mnuitem->setChecked( item.checked );
+	}
+
+	handled[lowestitem] = true;
+    }
+
+    return menu;
 }
+

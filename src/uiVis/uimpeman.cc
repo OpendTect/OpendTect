@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.18 2005-07-05 10:38:33 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.19 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , seededitor(0)
     , visserv(ps)
     , init(false)
+    , createmnuitem("Create")
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -211,18 +212,13 @@ void uiMPEMan::createSeedMenuCB( CallBacker* cb )
     const int seedidx = seededitor->getSeedIdx( *menu->getPath() );
     bool isconnected = seededitor->isClosed( seedidx );
 
-    uiMenuItem* conmenu = new uiMenuItem( isconnected ? "Split" : "Connect" );
-    seedmnuid = menu->addItem( conmenu );
-    conmenu->setEnabled( seedidx!=-1 );
-
+    seedmnuitem.text = isconnected ? "Split" : "Connect";
+    mAddMenuItem( menu, &seedmnuitem, seedidx!=-1, false );
 
     BufferStringSet trackernames;
     engine().getAvaliableTrackerTypes( trackernames );
-    for ( int idx=0; idx<trackernames.size(); idx++ )
-    {
-	BufferString txt("Create "); txt += *trackernames[idx];
-	menu->addItem( new uiMenuItem(txt) );
-    }
+    createmnuitem.createItems( trackernames );
+    mAddMenuItem( menu, &createmnuitem, trackernames.size(), false );
 }
 
 
@@ -233,7 +229,7 @@ void uiMPEMan::handleSeedMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    if ( mnuid==seedmnuid )
+    if ( mnuid==seedmnuitem.id )
     {
 	const int seedidx = seededitor->getSeedIdx( *menu->getPath() );
 	bool isconnected = seededitor->isClosed( seedidx );
@@ -245,7 +241,7 @@ void uiMPEMan::handleSeedMenuCB( CallBacker* cb )
 
     BufferStringSet trackernames;
     engine().getAvaliableTrackerTypes( trackernames );
-    const int idx = mnuid-seedmnuid-1;
+    const int idx = mnuid-createmnuitem.id-1;
     if ( idx<0 || idx>=trackernames.size() )
 	return;
 

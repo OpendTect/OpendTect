@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.7 2005-06-09 03:32:33 cvsduntao Exp $
+ RCS:           $Id: uimpeman.h,v 1.8 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitoolbar.h"
+#include "menuhandler.h"
 
 namespace EM { class EMManager; };
 namespace visSurvey { class MPEDisplay; class SeedEditor;}
@@ -50,7 +51,8 @@ protected:
     void			seedPropertyChangeCB(CallBacker*);
     void			createSeedMenuCB(CallBacker*);
     void			handleSeedMenuCB(CallBacker*);
-    int				seedmnuid;
+    MenuItem			seedmnuitem;
+    MenuItem			createmnuitem;
     uiVisPartServer*		visserv;
 
     visSurvey::SeedEditor*	seededitor;

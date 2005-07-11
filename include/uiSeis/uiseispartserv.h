@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.13 2005-01-18 14:40:30 helene Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.14 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "position.h"
+#include "menuhandler.h"
 
 class BufferString;
 class BufferStringSet;
@@ -46,7 +47,7 @@ public:
 	    				   BufferStringSet&) const;
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
-    uiPopupMenu*        createStoredGathersSubMenu( int& mnuid );
+    MenuItem*		storedGathersSubMenu();
     BufferStringSet 	getStoredGathersList ();
     bool		handleGatherSubMenu (int mnuid, BinID bid);
 
@@ -56,6 +57,7 @@ public:
 protected:
 
     MultiID		segyid;
+    MenuItem		storedgathermenuitem;
 
     bool		ioSeis(ExternalType,bool);
 

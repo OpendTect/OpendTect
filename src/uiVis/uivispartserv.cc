@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.261 2005-07-06 13:43:13 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.262 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,11 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventmutex(*new Threads::Mutex)
     , mouseposval(mUndefValue)
     , mouseposstr("")
+    , selcolorattrmnuitem( "Select color attribute ...", 9000 )
+    , resetmanipmnuitem( "Reset Manipulation", 8000 )
+    , changecolormnuitem( "Color...", 7000 )
+    , changematerialmnuitem( "Properties ...", 6000 )
+    , resmnuitem( "Resolution ...", 5000 )
 {
     mpetools = new uiMPEMan( appserv().parent(), this );
     mpetools->display( false );
@@ -148,7 +153,7 @@ uiMenuHandler* uiVisPartServer::getMenu(int visid, bool create)
 {
     for ( int idx=0; idx<menus.size(); idx++ )
     {
-	if ( menus[idx]->id()==visid )
+	if ( menus[idx]->menuID()==visid )
 	    return menus[idx];
     }
     
@@ -1050,41 +1055,30 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 void uiVisPartServer::createMenuCB(CallBacker* cb)
 {
     mDynamicCastGet( uiMenuHandler*, menu, cb );
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(menu->id()));
-    mDynamicCastGet( visBase::VisualObject*, vo, getObject(menu->id()));
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(menu->menuID()));
+    mDynamicCastGet( visBase::VisualObject*, vo, getObject(menu->menuID()));
     if ( !so ) return;
 
-    selcolorattrmnusel = so->getColorSelSpec()
-	?  menu->addItem( new uiMenuItem("Select color attribute ..."), 9000 ) 
-	: -1;
+    mAddMenuItem( menu, &selcolorattrmnuitem, so->getColorSelSpec(), false );
+    mAddMenuItem( menu, &resetmanipmnuitem,
+	    	  so->isManipulated() && so->canResetManipulation(), false );
+    mAddMenuItem( menu, &changecolormnuitem, so->hasColor(), false );
+    mAddMenuItem( menu, &changematerialmnuitem, so->allowMaterialEdit(), false );
 
-    resetmanipmnusel = so->isManipulated() && so->canResetManipulation()
-	? menu->addItem( new uiMenuItem("Reset Manipulation"), 8000 )
-	: -1;
-
-    changecolormnusel = so->hasColor()
-	? menu->addItem( new uiMenuItem("Color..."), 7000 )
-	: -1;
-
-    changematerialmnusel = so->allowMaterialEdit()
-	? menu->addItem( new uiMenuItem("Properties ..."), 6000 )
-	: -1;
-
-    firstresmnusel = -1;
+    resmnuitem.id = -1;
+    resmnuitem.removeItems();
     if ( so->nrResolutions()>1 )
     {
-	uiPopupMenu* resmnu = new uiPopupMenu( menu->getParent(),"Resolution");
+	BufferStringSet resolutions;
 	for ( int idx=0; idx<so->nrResolutions(); idx++ )
-	{
-	    int mid = menu->getFreeID();
-	    uiMenuItem* itm = new uiMenuItem(so->getResolutionName(idx));
-	    resmnu->insertItem(itm, mid);
-	    itm->setChecked(idx==so->getResolution());
-	    if ( !idx ) firstresmnusel = mid;
-	}
+	    resolutions.add( so->getResolutionName(idx) );
 
-	menu->addSubMenu( resmnu, 5000 );
+	resmnuitem.createItems( resolutions );
+	resmnuitem.getItem(so->getResolution())->checked = true;
+	mAddMenuItem(menu, &resmnuitem, true, false );
     }
+    else
+	mResetMenuItem(&resmnuitem);
 }
 
 
@@ -1094,27 +1088,37 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     if ( mnuid==-1 ) return;
 
     mDynamicCastGet( uiMenuHandler*, menu, caller );
-    const int id = menu->id();
+    const int id = menu->menuID();
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return;
     
-    if ( mnuid==selcolorattrmnusel )
+    if ( mnuid==selcolorattrmnuitem.id )
+    {
 	calculateColorAttrib( id, true );
-    else if ( mnuid==resetmanipmnusel )
+	menu->setIsHandled(true);
+    }
+    else if ( mnuid==resetmanipmnuitem.id )
+    {
 	resetManipulation(id);
-    else if ( mnuid==changecolormnusel )
+	menu->setIsHandled(true);
+    }
+    else if ( mnuid==changecolormnuitem.id )
     {
 	Color col = so->getColor();
 	if ( selectColor(col,appserv().parent(),"Color selection",false) )
 	    so->setColor( col );
+	menu->setIsHandled(true);
     }
-    else if ( mnuid==changematerialmnusel )
+    else if ( mnuid==changematerialmnuitem.id )
+    {
 	setMaterial(id);
-    else if ( firstresmnusel!=-1 && mnuid>=firstresmnusel &&
-	    mnuid-firstresmnusel<so->nrResolutions() )
+	menu->setIsHandled(true);
+    }
+    else if ( resmnuitem.id!=-1 && resmnuitem.itemIndex(mnuid)!=-1 )
     {
 	uiCursorChanger cursorlock( uiCursor::Wait );
-	so->setResolution(mnuid-firstresmnusel);
+	so->setResolution(resmnuitem.itemIndex(mnuid));
+	menu->setIsHandled(true);
     }
 }
 

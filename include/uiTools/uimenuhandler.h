@@ -7,81 +7,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.1 2005-06-28 15:59:10 cvskris Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.2 2005-07-11 21:20:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
-#include "refcount.h"
+#include "menuhandler.h"
 #include "position.h"
 
 class uiPopupMenu;
 class uiMenuItem;
-
-/*! An extensibe menu for visual objects. Every instance that is interested in
-    putting in items in the menu should hook up to the
-    uiMenuHandler::createnotifier and uiMenuHandler::handlenotifier.
-    \code
-    uiVisPartServer* visserv = getItFromSomeWhere();
-    uiMenuHandler* menu = visser->getMenu(id);
-    menu->createnotifier.notify( mCB( this, myclassname, createMenuCB ));
-    menu->handlenotifier.notify( mCB( this, myclassname, handleMenuCB ));
-    \endcode
-
-    Upon a create notification, your class might do something like this:
-    \code
-    void myclass::createMenuCB(CallBacker* callback )
-    {
-	uiMenuHandler* menu = dynamic_cast<uiMenuHandler*>(callback);
-	myitemid = menu->addItem( new uiMenuItem("My itemtext") );
-
-	uiPopUpMenu* mymenu = new uiPopupMenu(menu->getParent(), "My menu",-1);
-	mysubitem1id = menu->getFreeID();
-	mymenu->insertItem( new uiMenuItem("My subitem 1", mysubitem1id) );
-	mysubitem2id = menu->getFreeID();
-	mymenu->insertItem( new uiMenuItem("My subitem 2", mysubitem2id) );
-	menu->addItem( mymenu );
-    }
-    \endcode
-
-    Upon a handle notification, your class might do something like this:
-    \code
-    void myclass::handleMenuCB(CallBacker* callback )
-    {
-	mCBCapsuleUnpackWithCaller( int, mnuid, caller, callback );
-	uiMenuHandler* menu = dynamic_cast<uiMenuHandler*>(caller);
-	if ( mnuid==-1 || menu->isHandled() )
-	    return;
-
-	if ( mnuid==myitemid )
-	{
-	    menu->setIsHandled(true);
-	    do_something();
-	}
-	else if ( mnuid==mysubitem1id )
-	{
-	    menu->setIsHandled(true);
-	    do_something_else();
-	}
-	else if ( mnuid==mysubitem2id )
-	{
-	    menu->setIsHandled(true);
-	    do_something_else();
-	}
-    }
-    \endcode
+/*
+Implementation of MenuHandler for the dGB-based userinterface.
 */
 
 
-class uiMenuHandler : public CallBackClass
+class uiMenuHandler : public MenuHandler
 {
-    				mRefCountImpl(uiMenuHandler);
 public:
     				uiMenuHandler( uiParent*, int id );
 
-    int				id() const { return id_; }
-    void			setID( int newid ) { id_=newid; }
     uiParent*			getParent() const { return parent; }
 
     bool			executeMenu(int menutype,
@@ -119,63 +65,17 @@ public:
     void			setPickedPos(const Coord3& pickedpos)
 					{ positionxyz=pickedpos; }
     
-
-    Notifier<uiMenuHandler>	createnotifier;
-    CNotifier<uiMenuHandler,int> handlenotifier;
-    bool			isHandled() const;
-    				/*!< Should be called as the first thing
-				     from callbacks that is triggered from
-				     uiMenuHandler::handlenotifier. If
-				     isHandled() returns true, the callback
-				     should return immediately. */
-    void			setIsHandled(bool);
-    				/*!<Should be called from callbacks that
-				    are triggered from
-				    uiMenuHandler::handlenotifier
-				    if they have found the menu id they are
-				    looking for.  */
-    int				addItem( uiMenuItem*, int placementidx=-1 );
-    				/*!<\param placementidx determines where the 
-						item should be placed in the
-						menu. Items are placed in
-						order of decreasing
-						placementindexes.
-				    \returns the id that will be returned
-						if this item is selected. */
-    void			addSubMenu( uiPopupMenu*, int placementidx=-1 );
-    				/*!<\param placementidx determines where the 
-						submenu should be placed in the
-						menu. Items are placed in
-						order of decreasing
-						placementindexes.
-				    \note Caller must make sure that all
-				    	  subitems gets valid ids and that
-					  getFreeID() is called until it
-					  returns an id that is equal to the
-					  hightest id used in the submenu.  */
-    uiPopupMenu*		getMenu( const char* name );
-    				/*!\ returns a submenu, so items can be added
-				     to it. */
-
-    int				getFreeID() { return freeid++; }
-    int				getCurrentID() const { return freeid; }
-
     static const int		fromTree;
     static const int		fromScene;
 
 protected:
-    ObjectSet<uiPopupMenu>	menus;
-    TypeSet<int>		menuplacement;
-    ObjectSet<uiMenuItem>	items;
-    TypeSet<int>		itemids;
-    TypeSet<int>		itemplacement;
-    int				freeid;
+    uiPopupMenu*		createMenu( const ObjectSet<MenuItem>&,
+	    				    const MenuItem* =0);
     uiParent*			parent;
     int				menutype;
     const TypeSet<int>*		path;
     Coord3			positionxyz;
-    int				id_;
-    bool			ishandled;
+    				~uiMenuHandler() {}
 };
 
 
