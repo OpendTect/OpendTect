@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.1 2005-07-07 21:45:26 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.2 2005-07-11 21:10:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ Usage:
     \code
     void myclass::createMenuCB( CallBacker* callback )
     {
-	uiMenuHandler* menu = dynamic_cast<uiMenuHandler*>(callback);
+        mDynamicCastGet( uiMenuHandler*, menu, callback );
 
 	mAddMenuItem( menu, &mymenuitem, true, false );
 	mAddMenuItem( menu, &mysubmenu, true, false );
@@ -127,7 +127,7 @@ enabled, the second one says where there should be a check before it.
     void myclass::handleMenuCB(CallBacker* callback )
     {
 	mCBCapsuleUnpackWithCaller( int, mnuid, caller, callback );
-	uiMenuHandler* menu = dynamic_cast<uiMenuHandler*>(caller);
+        mDynamicCastGet( uiMenuHandler*, menu, caller );
 	if ( mnuid==-1 || menu->isHandled() )
 	    return;
 
