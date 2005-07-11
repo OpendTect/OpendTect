@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.12 2005-06-28 17:35:44 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.13 2005-07-11 21:28:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
     uiCursorChanger cursorchanger(uiCursor::Wait);
     if ( !emod->setEMObject(*mid) ) { emod->unRef(); return; }
 
-    if ( emod->getSelSpec()->id() == AttribSelSpec::noAttrib )
+    if ( emod->getSelSpec()->id()==AttribSelSpec::noAttrib )
 	setDepthAsAttrib();
 
     setUpConnections();
@@ -177,6 +177,15 @@ void uiVisEMObject::prepareForShutdown()
 
 void uiVisEMObject::setUpConnections()
 {
+    singlecolmnuitem.text = "Use single color";
+    trackmenuitem.text = uiVisEMObject::trackingmenutxt;
+    wireframemnuitem.text = "Wireframe";
+    editmnuitem.text = "Edit";
+    shiftmnuitem.text = "Shift ...";
+    removesectionmnuitem.text ="Remove section";
+    makepermnodemnuitem.text = "Make control permanent";
+    removecontrolnodemnuitem.text = "Remove control";
+
     uiMenuHandler* menu = visserv->getMenu(displayid,true);
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiVisEMObject,handleMenuCB) );
@@ -291,38 +300,23 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb)
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid))
-    if ( !emod ) return;
+	    	    visserv->getObject(displayid));
 
-    uiMenuItem* colitm = new uiMenuItem( "Use single color" );
-    singlecolmnuid = menu->addItem( colitm );
-    colitm->setChecked( !emod->usesTexture() );
+    mAddMenuItem( menu, &singlecolmnuitem, true, !emod->usesTexture() );
+    mAddMenuItem( menu, &shiftmnuitem,
+	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
 
-    shiftmnuid = !strcmp(getObjectType(displayid),EM::Horizon::typeStr())
-	? menu->addItem( new uiMenuItem("Shift ...") )
-	: -1;
+    mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
+    mAddMenuItem(&trackmenuitem,&wireframemnuitem,true, emod->usesWireframe());
+    mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),true);
 
-    uiPopupMenu* trackmnu = new uiPopupMenu( uiparent, 
-	    				     uiVisEMObject::trackingmenutxt );
-    menu->addSubMenu( trackmnu );
-    
-    uiMenuItem* edititem = new uiMenuItem( "Edit" );
-    editmnuid = menu->getFreeID();
-    trackmnu->insertItem( edititem, editmnuid );
-    edititem->setChecked( emod->isEditingEnabled() );
-
-    uiMenuItem* wireframeitem = new uiMenuItem("Wireframe");
-    wireframemnuid = menu->getFreeID();
-    trackmnu->insertItem( wireframeitem, wireframemnuid );
-    wireframeitem->setChecked( emod->usesWireframe() );
-
+    mAddMenuItem( menu, &removesectionmnuitem, false, false );
     const MultiID* mid = visserv->getMultiID( displayid );
     if ( !mid ) return;
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
     mDynamicCastGet(EM::EMObject*,emobj,EM::EMM().getObject(emid));
-    removesectionmnuid =
-	emobj->nrSections()>1 && emod->getSectionID(menu->getPath())!=-1
-	? menu->addItem( new uiMenuItem("Remove section") ) : -1;
+    if ( emobj->nrSections()>1 && emod->getSectionID(menu->getPath())!=-1 )
+	removesectionmnuitem.enabled = true;
 }
 
 
@@ -337,22 +331,22 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	    	    visserv->getObject(displayid))
     if ( !emod ) return;
 
-    if ( mnuid==singlecolmnuid )
+    if ( mnuid==singlecolmnuitem.id )
     {
 	emod->useTexture( !emod->usesTexture() );
 	menu->setIsHandled(true);
     }
-    else if ( mnuid==wireframemnuid )
+    else if ( mnuid==wireframemnuitem.id )
     {
 	menu->setIsHandled(true);
 	emod->useWireframe( !emod->usesWireframe() );
     }
-    else if ( mnuid==editmnuid )
+    else if ( mnuid==editmnuitem.id )
     {
 	emod->enableEditing(!emod->isEditingEnabled());
 	menu->setIsHandled(true);
     }
-    else if ( mnuid==shiftmnuid )
+    else if ( mnuid==shiftmnuitem.id )
     {
 	menu->setIsHandled(true);
 	Coord3 shift = emod->getTranslation();
@@ -376,7 +370,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	}
 	visserv->triggerTreeUpdate();
     }
-    else if ( mnuid==removesectionmnuid )
+    else if ( mnuid==removesectionmnuitem.id )
     {
 	const MultiID* mid = visserv->getMultiID( displayid );
 	if ( !mid ) return;
@@ -398,7 +392,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 void uiVisEMObject::interactionLineRightClick( CallBacker* cb )
 {
     mCBCapsuleUnpack( int, nodedisplayid, cb );
-    interactionlinemenu.setID(nodedisplayid);
+    interactionlinemenu.setMenuID(nodedisplayid);
     interactionlinemenu.executeMenu(uiMenuHandler::fromScene);
 }
 
@@ -433,22 +427,20 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.getObject(empid.objectID());
 
-    makepermnodemnusel =
-	emobj->isPosAttrib(empid,EM::EMObject::sTemporaryControlNode)
-	    ? menu->addItem( new uiMenuItem("Make control permanent") ) 
-	    : -1;
+    mAddMenuItem( menu, &makepermnodemnuitem,
+	          emobj->isPosAttrib(empid,EM::EMObject::sTemporaryControlNode),
+		  false );
 
-    removecontrolnodemnusel = 
-	emobj->isPosAttrib(empid,EM::EMObject::sPermanentControlNode)
-	    ? menu->addItem( new uiMenuItem("Remove control") )
-	    : -1;
+    mAddMenuItem( menu, &removecontrolnodemnuitem,
+	emobj->isPosAttrib(empid,EM::EMObject::sPermanentControlNode),
+	true);
 /*
-    removenodenodemnusel = emobj->isDefined(*empid)
+    removenodenodemnuitem = emobj->isDefined(*empid)
         ? menu->addItem( new uiMenuItem("Remove node") )
 	: -1;
 
     uiMenuItem* snapitem = new uiMenuItem("Snap after edit");
-    tooglesnappingnodemnusel = menu->addItem(snapitem);
+    tooglesnappingnodemnuitem = menu->addItem(snapitem);
     snapitem->setChecked(emod->getEditor()->snapAfterEdit());
 */
 }
@@ -469,26 +461,26 @@ void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.getObject(empid.objectID());
 
-    if ( mnuid==makepermnodemnusel )
+    if ( mnuid==makepermnodemnuitem.id )
     {
 	menu->setIsHandled(true);
         emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode,true);
 	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode,false);
 	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode,false);
     }
-    else if ( mnuid==removecontrolnodemnusel )
+    else if ( mnuid==removecontrolnodemnuitem.id )
     {
 	menu->setIsHandled(true);
         emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode,false);
 	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode,false);
 	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode,false);
     }
-    //else if ( mnuid==removenodenodemnusel )
+    //else if ( mnuid==removenodenodemnuitem )
     //{
 //	menu->setIsHandled(true);
 //	emobj->setPos(*empid,Coord3(mUndefValue,mUndefValue,mUndefValue),true);
  //   }
-//    else if ( mnuid==tooglesnappingnodemnusel )
+//    else if ( mnuid==tooglesnappingnodemnuitem )
  //   {
 //	menu->setIsHandled(true);
  //       emod->getEditor()->setSnapAfterEdit(!emod->getEditor()->snapAfterEdit());
@@ -543,19 +535,19 @@ void uiVisEMObject::createInteractionLineMenuCB( CallBacker* cb )
 
     uiMenuItem* smallitem = new uiMenuItem("Cut away small part");
     smallitem->setEnabled(noneonedge);
-    cutsmalllinemnusel = menu->addItem( smallitem );
+    cutsmalllinemnuitem = menu->addItem( smallitem );
 
     uiMenuItem* largeitem = new uiMenuItem("Cut away large part");
     largeitem->setEnabled(noneonedge);
-    cutlargelinemnusel = menu->addItem( largeitem );
+    cutlargelinemnuitem = menu->addItem( largeitem );
 
     uiMenuItem* splititem = new uiMenuItem("Split");
     splititem->setEnabled(noneonedge);
-    splitlinemnusel = menu->addItem( splititem );
+    splitlinemnuitem = menu->addItem( splititem );
 
     uiMenuItem* stopitem = new uiMenuItem("Disable tracking");
     stopitem->setEnabled(canstop);
-    mkstoplinemnusel = menu->addItem( stopitem );
+    mkstoplinemnuitem = menu->addItem( stopitem );
     */
 }
 
@@ -592,7 +584,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 	 line->getSegment( interactionline.last() )==-1 )
 	return;
 
-    if ( mnuid==cutsmalllinemnusel || mnuid==cutlargelinemnusel )
+    if ( mnuid==cutsmalllinemnuitem || mnuid==cutlargelinemnuitem )
     {
 	PtrMan<EM::EdgeLineSet> part1lineset = lineset->clone();
 	PtrMan<EM::EdgeLineSet> part2lineset = lineset->clone();
@@ -611,7 +603,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 
 	const int area1 = part1line->computeArea();
 	const int area2 = part2line->computeArea();
-	const bool keeppart1 = area1>area2==(mnuid==cutsmalllinemnusel);
+	const bool keeppart1 = area1>area2==(mnuid==cutsmalllinemnuitem);
 
 	lineset->getLine(mainlineidx)->insertSegment(
 	    keeppart1 ? interactionline.clone() : part2cut->clone(), -1, true );
@@ -620,7 +612,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	emod->getEditor()->clearInteractionLine();
     }
-    else if ( mnuid==splitlinemnusel )
+    else if ( mnuid==splitlinemnuitem )
     {
 	const EM::SectionID newsection =
 	    emobj->geometry.cloneSection(interactionline.getSection());
@@ -653,7 +645,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	emod->getEditor()->clearInteractionLine();
     }
-    else if ( mnuid==mkstoplinemnusel )
+    else if ( mnuid==mkstoplinemnuitem )
     {
 	int linenr;
 	bool forward;
@@ -690,19 +682,19 @@ void uiVisEMObject::createEdgeLineMenuCB( CallBacker* cb )
     mDynamicCastGet( const EM::TerminationEdgeLineSegment*,
 		     terminationline, segment );
 
-    removetermedgelinemnusel = -1;
-    removeconnedgelinemnusel = -1;
-    joinedgelinemnusel = -1;
+    removetermedgelinemnuitem = -1;
+    removeconnedgelinemnuitem = -1;
+    joinedgelinemnuitem = -1;
     if ( terminationline )
     {
-	removetermedgelinemnusel =
+	removetermedgelinemnuitem =
 	    menu->addItem( new uiMenuItem("Remove termination") );
     }
     else if ( connectline )
     {
-	removeconnedgelinemnusel =
+	removeconnedgelinemnuitem =
 	    menu->addItem( new uiMenuItem("Remove connection") );
-	joinedgelinemnusel =
+	joinedgelinemnuitem =
 	    menu->addItem( new uiMenuItem("Join sections") );
     }
     */
@@ -727,7 +719,7 @@ void uiVisEMObject::handleEdgeLineMenuCB( CallBacker* cb )
     EM::EdgeLineSegment* segment =
 	edgeline->getSegment(edgelinedisplay->getRightClickedSegment());
 
-    if ( mnuid==removetermedgelinemnusel )
+    if ( mnuid==removetermedgelinemnuitem )
     {
 	EM::EdgeLineSegment* replacement =
 	   new EM::EdgeLineSegment(segment->getSurface(),segment->getSection());

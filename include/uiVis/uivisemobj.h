@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.5 2005-06-28 17:17:35 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.6 2005-07-11 21:28:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "emposid.h"
+#include "menuhandler.h"
 
 namespace EM { class EdgeLineSet; class EdgeLineSegment; };
 class uiParent;
@@ -75,25 +76,26 @@ protected:
     
     int			displayid;
 
-    int			singlecolmnuid;
-    int			wireframemnuid;
-    int			editmnuid;
-    int			shiftmnuid;
-    int			removesectionmnuid;
+    MenuItem		singlecolmnuitem;
+    MenuItem		wireframemnuitem;
+    MenuItem		trackmenuitem;
+    MenuItem		editmnuitem;
+    MenuItem		shiftmnuitem;
+    MenuItem		removesectionmnuitem;
 //
-    int			makepermnodemnusel;
-    int			removecontrolnodemnusel;
-    //int			removenodenodemnusel;
-    //int			tooglesnappingnodemnusel;
+    MenuItem		makepermnodemnuitem;
+    MenuItem		removecontrolnodemnuitem;
+    //int			removenodenodemnuitem;
+    //int			tooglesnappingnodemnuitem;
 ////
-    //int			cutsmalllinemnusel;
-    //int			cutlargelinemnusel;
-    //int			splitlinemnusel;
-    //int			mkstoplinemnusel;
+    //int			cutsmalllinemnuitem;
+    //int			cutlargelinemnuitem;
+    //int			splitlinemnuitem;
+    //int			mkstoplinemnuitem;
 //
-    //int			removetermedgelinemnusel;
-    //int			removeconnedgelinemnusel;
-    //int			joinedgelinemnusel;
+    //int			removetermedgelinemnuitem;
+    //int			removeconnedgelinemnuitem;
+    //int			joinedgelinemnuitem;
 };
 
 #endif
