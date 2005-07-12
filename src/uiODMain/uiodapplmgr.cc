@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.82 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.83 2005-07-12 12:59:36 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -556,6 +556,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	menuMgr().enableMenuBar( false );
 	menuMgr().dtectTB()->setSensitive( false );
 	menuMgr().manTB()->setSensitive( false );
+	sceneMgr().setToViewMode( false );
 
 	visserv->turnSeedPickingOn(true);
     }
