@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.19 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.20 2005-07-12 03:13:03 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,12 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "pixmap.h"
 #include "uicursor.h"
+
+//#include "gendefs.h"
+#include "vismarker.h"
+#include "emsurfacegeometry.h"
+#include "cubicbeziercurve.h"
+#include "vissurvpickset.h"
 
 using namespace MPE;
 
@@ -418,7 +424,7 @@ void uiMPEMan::seedModeCB( CallBacker* )
     const bool ison = isOn( seedidx );
     if ( !ison && seededitor )
     {
-	seededitor->turnOn( false );
+//	seededitor->turnOn( false );
 	seededitor->getSeeds( engine().interactionseeds );
 	engine().setNewSeeds();
 	return;
@@ -570,3 +576,5 @@ void uiMPEMan::initFromDisplay()
 	}
     }
 }
+
+
