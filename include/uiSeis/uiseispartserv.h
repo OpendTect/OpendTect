@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.14 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.15 2005-07-12 15:49:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,6 @@ public:
     BufferStringSet 	getStoredGathersList ();
     bool		handleGatherSubMenu (int mnuid, BinID bid);
 
-    bool		mergeSeis();
     void		manageSeismics();
 
 protected:

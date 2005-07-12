@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.32 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.33 2005-07-12 15:49:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,13 +59,6 @@ bool uiSeisPartServer::importSeis( uiSeisPartServer::ExternalType t )
 { return ioSeis( t, true ); }
 bool uiSeisPartServer::exportSeis()
 { return ioSeis( uiSeisPartServer::SegY, false ); }
-
-
-bool uiSeisPartServer::mergeSeis()
-{
-    uiMergeSeis dlg( appserv().parent() );
-    return dlg.go();
-}
 
 
 void uiSeisPartServer::manageSeismics()
