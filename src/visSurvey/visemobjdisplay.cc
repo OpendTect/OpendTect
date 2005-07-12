@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.27 2005-06-28 17:44:44 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.28 2005-07-12 07:42:56 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.27 2005-06-28 17:44:44 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.28 2005-07-12 07:42:56 cvsdgb Exp $";
 
 
 #include "vissurvemobj.h"
@@ -774,7 +774,7 @@ void EMObjectDisplay::setResolution( int res )
 
 int EMObjectDisplay::getColTabID() const
 {
-    return coltab_->id();
+    return usesTexture() ? coltab_->id() : -1;
 }
 
 
