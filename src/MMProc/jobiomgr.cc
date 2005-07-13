@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.20 2005-05-11 09:19:47 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.21 2005-07-13 13:29:36 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,12 +24,12 @@ ________________________________________________________________________
 #include "errh.h"
 #include "separstr.h"
 #include "timefun.h"
+#include "keystrs.h"
 
 #ifndef __win__
 #include <unistd.h>
 #endif
 
-#define sTmpStor	"Temporary storage directory"
 #define sLogFil		"Log file"
 #define sSurvey		"Survey"
 
@@ -444,12 +444,13 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
     newiop->set( sLogFil, remotelogfnm.fullPath(machine.pathStyle()) );
 
-    if ( newiop->find( sTmpStor ) )
+    if ( newiop->find( sKey::TmpStor ) )
     {
 	FilePath remotetmpdir = machine.convPath( HostData::Data,
-						  newiop->find( sTmpStor ) );
+					      newiop->find( sKey::TmpStor ) );
 
-	newiop->set( sTmpStor, remotetmpdir.fullPath( machine.pathStyle() ) );
+	newiop->set( sKey::TmpStor,
+				remotetmpdir.fullPath( machine.pathStyle() ) );
     }
 
     newiop->set( sSurvey, IOM().surveyName() );
