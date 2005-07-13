@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.2 2005-07-11 21:10:10 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.3 2005-07-13 21:52:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,15 +101,15 @@ public:
 Usage:
 
     \code
-    menu->createnotifier.notify( mCB( this, myclassname, createMenuCB ));
-    menu->handlenotifier.notify( mCB( this, myclassname, handleMenuCB ));
+    menu->createnotifier.notify( mCB( this, myclass, createMenuCB ));
+    menu->handlenotifier.notify( mCB( this, myclass, handleMenuCB ));
     \endcode
 
     Upon a create notification, your class might do something like this:
     \code
     void myclass::createMenuCB( CallBacker* callback )
     {
-        mDynamicCastGet( uiMenuHandler*, menu, callback );
+        mDynamicCastGet( MenuHandler*, menu, callback );
 
 	mAddMenuItem( menu, &mymenuitem, true, false );
 	mAddMenuItem( menu, &mysubmenu, true, false );
@@ -119,33 +119,35 @@ Usage:
     \endcode
 
 The code will make a menu with two items, and the second item will have a
-submenu with two items. The first boolean says wether the item should be
+submenu with two items. The first boolean says whether the item should be
 enabled, the second one says where there should be a check before it.
+
+The menuitems are instantiations of MenuItem and should be stored in your
+class. They hold information about the item itself (like text, enabled or not
+enabled, checked or not checked, information on where in the menu it should
+be placed. In addition, it has an unique id that is set when the item is
+inserted into the menu.
 
     Upon a handle notification, your class might do something like this:
     \code
     void myclass::handleMenuCB(CallBacker* callback )
     {
 	mCBCapsuleUnpackWithCaller( int, mnuid, caller, callback );
-        mDynamicCastGet( uiMenuHandler*, menu, caller );
+        mDynamicCastGet( MenuHandler*, menu, caller );
 	if ( mnuid==-1 || menu->isHandled() )
 	    return;
 
+	bool ishandled = true;
 	if ( mnuid==mymenuitem.id )
-	{
-	    menu->setIsHandled(true);
 	    do_something();
-	}
 	else if ( mnuid==mysubmenuitem1.id )
-	{
-	    menu->setIsHandled(true);
 	    do_something_else();
-	}
 	else if ( mnuid==mymenusubitem2.id )
-	{
-	    menu->setIsHandled(true);
 	    do_something_else();
-	}
+	else
+	    ishandled = false;
+
+	menu->setIsHandled(ishandled);
     }
     \endcode
 */
@@ -175,9 +177,6 @@ public:
 				    uiMenuHandler::handlenotifier
 				    if they have found the menu id they are
 				    looking for.  */
-
-    static const int		fromTree;
-    static const int		fromScene;
 
 protected:
     void			assignItemID( MenuItem& );
