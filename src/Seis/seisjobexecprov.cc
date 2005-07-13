@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.15 2005-03-24 16:52:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.16 2005-07-13 15:08:14 cvsdgb Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -29,7 +29,6 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.15 2005-03-24 16:52:46 c
 #include <iostream>
 #include <sstream>
 
-const char* SeisJobExecProv::sKeyTmpStor = "Temporary storage location";
 const char* SeisJobExecProv::sKeySeisOutIDKey = "Output Seismics Key";
 const char* SeisJobExecProv::sKeyOutputLS = "Output Line Set";
 const char* SeisJobExecProv::sKeyWorkLS = "Work Line Set";
@@ -178,7 +177,7 @@ void SeisJobExecProv::preparePreSet( IOPar& iop, const char* reallskey ) const
 
 bool SeisJobExecProv::isRestart() const
 {
-    const char* res = iopar_.find( sKeyTmpStor );
+    const char* res = iopar_.find( sKey::TmpStor );
     if ( !res )
 	return iopar_.find( sKeyProcIs2D );
 
@@ -188,11 +187,11 @@ bool SeisJobExecProv::isRestart() const
 
 JobDescProv* SeisJobExecProv::mk3DJobProv()
 {
-    const char* res = iopar_.find( sKeyTmpStor );
+    const char* res = iopar_.find( sKey::TmpStor );
     if ( !res )
     {
-	iopar_.set( sKeyTmpStor, getDefTempStorDir() );
-	res = iopar_.find( sKeyTmpStor );
+	iopar_.set( sKey::TmpStor, getDefTempStorDir() );
+	res = iopar_.find( sKey::TmpStor );
     }
     const bool havetempdir = File_isDirectory(res);
 
@@ -268,7 +267,7 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 					 const char* rgkey ) const
 {
-    FilePath basefp( iopar_.find(sKeyTmpStor) );
+    FilePath basefp( iopar_.find(sKey::TmpStor) );
 
     int lastgood = todoinls_.start - todoinls_.step;
     for ( int inl=todoinls_.start; inl<=todoinls_.stop; inl+=todoinls_.step )
@@ -293,7 +292,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 
 MultiID SeisJobExecProv::tempStorID() const
 {
-    FilePath fp( iopar_.find(sKeyTmpStor) );
+    FilePath fp( iopar_.find(sKey::TmpStor) );
 
     // Is there already an entry?
     IOM().to( ctio_.ctxt.stdSelKey() );
