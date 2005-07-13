@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.91 2005-04-04 15:25:10 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.92 2005-07-13 14:49:46 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     bool attaligned = true;
     if ( !is2d )
     {
-	BufferString tmpstordir = iopar.find( SeisJobExecProv::sKeyTmpStor );
+	BufferString tmpstordir = iopar.find( sKey::TmpStor );
 	isrestart = tmpstordir != "";
 	if ( !isrestart )
 	{
@@ -112,7 +112,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 
 	if ( isrestart )
 	{
-	    BufferString msg( SeisJobExecProv::sKeyTmpStor ); msg += ": ";
+	    BufferString msg( sKey::TmpStor ); msg += ": ";
 	    msg += tmpstordir;
 	    sepattach = new uiLabel( this, msg );
 	    attaligned = false;
@@ -120,7 +120,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	else
 	{
 	    tmpstordirfld = new uiIOFileSelect( this,
-			    SeisJobExecProv::sKeyTmpStor, false, tmpstordir );
+			    sKey::TmpStor, false, tmpstordir );
 	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
 	    if ( tmpstordir != "" && File_isDirectory(tmpstordir) )
 		tmpstordirfld->setInput( tmpstordir );
@@ -287,7 +287,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 	if ( !File_isWritable(tmpstordir) )
 	    mErrRet("The temporary storage directory is not writable")
 	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
-	inpiopar.set( SeisJobExecProv::sKeyTmpStor, tmpstordir );
+	inpiopar.set( sKey::TmpStor, tmpstordir );
     }
 
     jobprov = new SeisJobExecProv( progname, inpiopar );
