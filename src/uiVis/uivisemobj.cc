@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.13 2005-07-11 21:28:15 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.14 2005-07-14 13:29:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,7 +308,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
     mAddMenuItem(&trackmenuitem,&wireframemnuitem,true, emod->usesWireframe());
-    mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),true);
+    mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),false);
 
     mAddMenuItem( menu, &removesectionmnuitem, false, false );
     const MultiID* mid = visserv->getMultiID( displayid );
