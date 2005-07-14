@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: visevent.cc,v 1.19 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visevent.cc,v 1.20 2005-07-14 16:01:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,12 @@ mCreateFactoryEntry( visBase::EventCatcher );
 namespace visBase
 {
 
+
+
 const char* EventCatcher::eventtypestr = "EventType";
+const char EventInfo::leftMouseButton() { return 0; }
+const char EventInfo::rightMouseButton() { return 1; }
+const char EventInfo::middleMouseButton() { return 2; }
 
 EventInfo::EventInfo()
     : objecttoworldtrans( Transformation::create() )
@@ -236,9 +241,12 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     {
 	const SoMouseButtonEvent* mbevent = (const SoMouseButtonEvent*) event;
 	SoMouseButtonEvent::Button button = mbevent->getButton();
-	if ( button==SoMouseButtonEvent::BUTTON1 ) eventinfo.mousebutton = 0;
-	if ( button==SoMouseButtonEvent::BUTTON2 ) eventinfo.mousebutton = 1;
-	if ( button==SoMouseButtonEvent::BUTTON3 ) eventinfo.mousebutton = 2;
+	if ( button==SoMouseButtonEvent::BUTTON1 )
+	    eventinfo.mousebutton = EventInfo::leftMouseButton();
+	if ( button==SoMouseButtonEvent::BUTTON2 )
+	    eventinfo.mousebutton = EventInfo::middleMouseButton();
+	if ( button==SoMouseButtonEvent::BUTTON3 )
+	    eventinfo.mousebutton = EventInfo::rightMouseButton();
 
 	if ( SoMouseButtonEvent::isButtonPressEvent( mbevent, button ) )
 	    eventinfo.pressed = true;

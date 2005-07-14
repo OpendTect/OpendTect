@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.14 2004-09-14 12:16:01 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.15 2005-07-14 16:01:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,10 @@ public:
 
     char			mousebutton;
 				//!< Only set if type==MouseClick
+    static const char		leftMouseButton();
+    static const char		rightMouseButton();
+    static const char		middleMouseButton();
+
     Line3			mouseline;
     				/*!<\The line projected from the mouse-position
     						into the scene. The line is
