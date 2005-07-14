@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.30 2005-04-14 12:00:17 cvskris Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.31 2005-07-14 08:43:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,13 +30,14 @@ ________________________________________________________________________
 const int cListHeight = 5;
 
 
-uiIOSurface::uiIOSurface( uiParent* p, bool ishor )
+uiIOSurface::uiIOSurface( uiParent* p, bool forread_, bool ishor )
     : uiGroup(p,"Surface selection")
-    , ctio( ishor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault))
+    , ctio( ishor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault) )
     , sectionfld(0)
     , attribfld(0)
     , rgfld(0)
     , attrSelChange(this)
+    , forread(forread_)
 {
 }
 
@@ -72,29 +73,36 @@ void uiIOSurface::mkRangeFld()
 }
 
 
-void uiIOSurface::mkObjFld( const char* lbl, bool imp )
+void uiIOSurface::mkObjFld( const char* lbl )
 {
-    ctio.ctxt.forread = imp;
+    ctio.ctxt.forread = forread;
     objfld = new uiIOObjSel( this, ctio, lbl );
-    if ( imp )
-    {
+    if ( forread )
 	objfld->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
-    }
 }
 
 
 void uiIOSurface::fillFields( const MultiID& id )
 {
     EM::SurfaceIOData sd;
-    const EM::ObjectID emid = EM::EMM().multiID2ObjectID( id );
-    mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(emid) );
-    if ( emsurf )
-	sd.use(*emsurf);
-    else
+
+    if ( forread )
     {
 	const char* res = EM::EMM().getSurfaceData( id, sd );
 	if ( res )
 	    { uiMSG().error( res ); return; }
+    }
+    else
+    {
+	const EM::ObjectID emid = EM::EMM().multiID2ObjectID( id );
+	mDynamicCastGet(EM::Surface*,emsurf,EM::EMM().getObject(emid));
+	if ( emsurf )
+	    sd.use(*emsurf);
+	else
+	{
+	    uiMSG().error( "Surface not loaded" );
+	    return;
+	}
     }
 
     fillAttribFld( sd.valnames );
@@ -194,7 +202,7 @@ void uiIOSurface::attrSel( CallBacker* )
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
 				bool ishor )
-    : uiIOSurface(p,ishor)
+    : uiIOSurface(p,false,ishor)
 {
     if ( surf_.geometry.nrSections() > 1 )
 	mkSectionFld( false );
@@ -203,7 +211,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
     if ( sectionfld )
 	rgfld->attach( alignedBelow, sectionfld );
 
-    mkObjFld( "Output Surface", false );
+    mkObjFld( "Output Surface" );
     objfld->attach( alignedBelow, rgfld );
 
     fillFields( surf_.multiID() );
@@ -231,9 +239,9 @@ bool uiSurfaceWrite::processInput()
 
 
 uiSurfaceRead::uiSurfaceRead( uiParent* p, bool ishor, bool showattribfld )
-    : uiIOSurface(p,ishor)
+    : uiIOSurface(p,true,ishor)
 {
-    mkObjFld( "Input Surface", true );
+    mkObjFld( "Input Surface" );
 
     mkSectionFld( showattribfld );
 
