@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.44 2005-07-05 14:53:06 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.45 2005-07-14 11:17:56 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -459,7 +459,7 @@ void CBVSWriter::getRealGeometry()
 	    if ( seg.start < hs.start.crl )
 		{ survgeom_.fullyrectandreg = false; hs.start.crl = seg.start; }
 	    if ( seg.stop > hs.stop.crl )
-		{ survgeom_.fullyrectandreg = false; hs.start.crl = seg.start; }
+		{ survgeom_.fullyrectandreg = false; hs.stop.crl = seg.stop; }
 
 	    if ( seg.start != seg.stop )
 	    {
