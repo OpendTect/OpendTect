@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.86 2005-07-11 21:20:19 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.87 2005-07-14 11:06:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -526,7 +526,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 
     const AttribSelSpec* as = visserv->getSelSpec(displayid);
 
-    mAddMenuItem( &selattrmnuitem, &savesurfacedatamnuitem, true, false );
+    mAddMenuItem( &selattrmnuitem, &loadsurfacedatamnuitem, true, false );
     mAddMenuItem( &selattrmnuitem, &depthattribmnuitem, true,
 	    	  as->id()==AttribSelSpec::noAttrib );
 
