@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.65 2005-07-05 16:45:05 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.66 2005-07-14 16:56:50 cvskris Exp $";
 
 #include "vissurvpickset.h"
 
@@ -272,7 +272,8 @@ void PickSetDisplay::pickCB( CallBacker* cb )
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
     if ( eventinfo.type != visBase::MouseClick ) return;
-    if ( eventinfo.mousebutton ) return;
+    if ( eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
+	return;
 
     int eventid = -1;
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )

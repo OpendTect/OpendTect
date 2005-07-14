@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.12 2005-06-28 17:44:44 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.13 2005-07-14 16:56:49 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -342,20 +342,22 @@ void MPEEditor::clickCB( CallBacker* cb )
 	}
     }
 
-    if ( !eventinfo.mousebutton && nodeidx==-1 && isDraggerShown() )
+    if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
+	 nodeidx==-1 && isDraggerShown() )
     {
 	activenode = -1;
 	updateDraggers();
 	eventcatcher->eventIsHandled();
     }
-    else if ( !eventinfo.mousebutton && nodeidx!=-1 &&
-	       activenode!=posids[nodeidx] )
+    else if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
+	      nodeidx!=-1 && activenode!=posids[nodeidx] )
     {
 	activenode = posids[nodeidx];
 	updateDraggers();
 	eventcatcher->eventIsHandled();
     }
-    else if ( eventinfo.mousebutton==2 && nodeidx!=1 )
+    else if ( eventinfo.mousebutton==visBase::EventInfo::rightMouseButton() &&
+	      nodeidx!=1 )
     {
 	rightclicknode = nodeidx;
 	noderightclick.trigger();

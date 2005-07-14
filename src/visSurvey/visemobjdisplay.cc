@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.28 2005-07-12 07:42:56 cvsdgb Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.29 2005-07-14 16:56:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.28 2005-07-12 07:42:56 cvsdgb Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.29 2005-07-14 16:56:49 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
@@ -157,7 +157,9 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     if ( eventinfo.type == visBase::Keyboard )
 	keycb = eventinfo.key=='n' && eventinfo.pressed;
     else if ( eventinfo.type == visBase::MouseClick )
-	mousecb = !eventinfo.mousebutton && eventinfo.pressed;
+	mousecb =
+	    eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() &&
+	    eventinfo.pressed;
 
     if ( !keycb && !mousecb ) return;
 
