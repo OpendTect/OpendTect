@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.24 2005-04-05 12:30:48 cvskris Exp $
+ RCS:           $Id: visscene.cc,v 1.25 2005-07-14 16:04:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,8 @@ void Scene::mousePickCB( CallBacker* cb )
 
 	    if ( dataobj->selectable() && mousedownid==dataobj->id() )
 	    {
-		if ( eventinfo.mousebutton == 1 && dataobj->rightClicked() )
+		if ( eventinfo.mousebutton==EventInfo::rightMouseButton() &&
+			dataobj->rightClicked() )
 		    dataobj->triggerRightClick(&eventinfo);
 		if ( eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
 		    DM().selMan().select( mousedownid, true );
