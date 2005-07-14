@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.46 2005-04-27 13:44:01 cvsarend Exp $
+# $Id: od_exec,v 1.47 2005-07-14 10:36:31 cvsbert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -251,6 +251,10 @@ if ( $issys == yes ) then
     endif
 else
     if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
+    if ( $?DTECT_PRELOAD ) then
+    	setenv LD_PRELOAD $DTECT_PRELOAD
+    endif
+
     if ( $background == yes ) then
 	$xtermcmd $nicecmd "$bindir"/$allargs &
     else
