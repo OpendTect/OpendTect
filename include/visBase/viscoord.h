@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.12 2004-11-23 13:39:18 nanne Exp $
+ RCS:		$Id: viscoord.h,v 1.13 2005-07-15 13:57:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,7 @@ public:
     Coord3		getPos(int,bool scenespace=false) const;
     void		setPos(int,const Coord3&);
     void		removePos(int);
+    void		removeAfter(int);
     void		setAutoUpdate(bool);
     bool		autoUpdate();
     void		update();
