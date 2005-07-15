@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.8 2005-07-01 00:43:55 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.9 2005-07-15 13:48:01 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -100,6 +100,10 @@ void ObjectEditor::finishEdit()
 
      history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
 }
+
+
+const BufferStringSet* ObjectEditor::getVertMovingStyleNames() const
+{ return 0; }
 
 
 void ObjectEditor::setEditIDs( const TypeSet<EM::PosID>& ids )
