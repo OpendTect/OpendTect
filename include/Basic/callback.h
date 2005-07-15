@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.33 2004-08-13 08:01:44 kristofer Exp $
+ RCS:		$Id: callback.h,v 1.34 2005-07-15 14:20:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,6 +213,7 @@ public:
     virtual		~NotifierAccess()			{}
 
     virtual void	notify(const CallBack&)			=0;
+    virtual void	notifyIfNotNotified(const CallBack&)	=0;
     virtual void	remove(const CallBack&)			=0;
 
     bool		enable(bool newstatus=true){return doEnable(newstatus);}
@@ -284,6 +285,8 @@ class i_Notifier : public NotifierAccess
 public:
 
     virtual void	notify( const CallBack& cb )	{ cbs += cb; }
+    virtual void	notifyIfNotNotified( const CallBack& cb )
+			{ if ( cbs.indexOf(cb)==-1 ) notify(cb); }
     virtual void	remove( const CallBack& cb )	{ cbs -= cb; }
 
     CallBackList	cbs;
