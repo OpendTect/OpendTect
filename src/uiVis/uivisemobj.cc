@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.15 2005-07-15 14:11:18 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.16 2005-07-15 14:22:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,7 @@ void uiVisEMObject::connectEditor()
 	    	    visserv->getObject(displayid));
     if ( emod && emod->getEditor() )
     {
-	emod->getEditor()->noderightclick.notifyIfNotPresent(
+	emod->getEditor()->noderightclick.notifyIfNotNotified(
 		mCB(this,uiVisEMObject,nodeRightClick) );
 
 	//interactionlinemenu.setID( emod->getEditor()->lineID() );
