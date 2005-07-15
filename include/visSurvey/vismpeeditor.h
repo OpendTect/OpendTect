@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.5 2005-06-28 17:44:44 cvskris Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.6 2005-07-15 14:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
 
     void		setEditor( Geometry::ElementEditor* );
     void		setEditor( MPE::ObjectEditor* );
+    MPE::ObjectEditor*	getMPEEditor() { return emeditor; }
     void		setSceneEventCatcher( visBase::EventCatcher* );
 
     void		moveTemporaryNode( const EM::PosID& );
@@ -62,7 +63,7 @@ public:
     				/*!<\ the clicked position can be retrieved
 				      with getNodePosID(getRightClickNode) */
     int				getRightClickNode() const;
-    EM::PosID			getNodePosID(int visid) const;
+    EM::PosID			getNodePosID(int idx) const;
 
 protected:
     				~MPEEditor();

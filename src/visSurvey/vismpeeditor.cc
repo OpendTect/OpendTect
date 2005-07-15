@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.13 2005-07-14 16:56:49 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.14 2005-07-15 14:00:40 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -200,16 +200,8 @@ void MPEEditor::setMarkerSize(float nsz)
 }
 
 
-EM::PosID MPEEditor::getNodePosID(int visid) const
-{
-    for ( int idx=0; idx<markers.size(); idx++ )
-    {
-	if ( markers[idx]->id()==visid )
-	    return posids[idx];
-    }
-
-    return EM::PosID::udf();
-}
+EM::PosID MPEEditor::getNodePosID(int idx) const
+{ return idx>=0&&idx<posids.size() ? posids[idx] : EM::PosID::udf(); }
 
 
 void MPEEditor::changeNumNodes(CallBacker*)
@@ -329,8 +321,16 @@ void MPEEditor::clickCB( CallBacker* cb )
 	return;
 
     if ( translationdragger &&
-	    eventinfo.pickedobjids.indexOf(translationdragger->id())!=-1 )
+	 eventinfo.pickedobjids.indexOf(translationdragger->id())!=-1 )
+    {
+	if ( eventinfo.mousebutton!=visBase::EventInfo::rightMouseButton() )
+	    return;
+
+	rightclicknode = posids.indexOf(activenode);
+	noderightclick.trigger();
+	eventcatcher->eventIsHandled();
 	return;
+    }
 
     int nodeidx = -1;
     for ( int idx=0; idx<markers.size(); idx++ )
@@ -357,10 +357,11 @@ void MPEEditor::clickCB( CallBacker* cb )
 	eventcatcher->eventIsHandled();
     }
     else if ( eventinfo.mousebutton==visBase::EventInfo::rightMouseButton() &&
-	      nodeidx!=1 )
+	      nodeidx!=-1 )
     {
 	rightclicknode = nodeidx;
 	noderightclick.trigger();
+	eventcatcher->eventIsHandled();
     }
 }
 
