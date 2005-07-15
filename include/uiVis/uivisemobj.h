@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.6 2005-07-11 21:28:15 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.7 2005-07-15 14:11:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ public:
 
 protected:
     void		setUpConnections();
+    void		connectEditor();
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 

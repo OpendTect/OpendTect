@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.14 2005-07-14 13:29:07 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.15 2005-07-15 14:11:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uicursor.h"
 #include "uigeninputdlg.h"
 #include "uimenu.h"
+#include "uimpe.h"
 #include "uimsg.h"
 #include "uimenuhandler.h"
 #include "uivispartserv.h"
@@ -200,17 +201,23 @@ void uiVisEMObject::setUpConnections()
     edgelinemenu.handlenotifier.notify(
 	    mCB(this,uiVisEMObject,handleEdgeLineMenuCB) );
 
+    connectEditor();
+}
+
+
+void uiVisEMObject::connectEditor()
+{
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid));
     if ( emod && emod->getEditor() )
     {
-	emod->getEditor()->noderightclick.notify(
+	emod->getEditor()->noderightclick.notifyIfNotPresent(
 		mCB(this,uiVisEMObject,nodeRightClick) );
+
 	//interactionlinemenu.setID( emod->getEditor()->lineID() );
 	//edgelinemenu.setID( emod->getEditor()->lineID() );
     }
 }
-
 
 const char* uiVisEMObject::getObjectType( int id )
 {
@@ -343,7 +350,9 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==editmnuitem.id )
     {
-	emod->enableEditing(!emod->isEditingEnabled());
+	bool turnon = !emod->isEditingEnabled();
+	emod->enableEditing(turnon);
+	if ( turnon ) connectEditor();
 	menu->setIsHandled(true);
     }
     else if ( mnuid==shiftmnuitem.id )
@@ -399,7 +408,33 @@ void uiVisEMObject::interactionLineRightClick( CallBacker* cb )
 
 void uiVisEMObject::nodeRightClick( CallBacker* cb )
 {
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+	    	    visserv->getObject(displayid));
+
+    if ( !emod ) return;
+
+    PtrMan<MPE::uiEMEditor> uimpeeditor =
+	MPE::uiMPE().editorfact.create(uiparent,
+				       emod->getEditor()->getMPEEditor());
+    if ( !uimpeeditor ) return;
+    const EM::PosID empid = emod->getEditor()->getNodePosID(
+				emod->getEditor()->getRightClickNode());
+    if ( empid.objectID()==-1 )
+	return;
+
+    uimpeeditor->setActiveNode( empid );
+
+    nodemenu.createnotifier.notify(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,createNodeMenus));
+    nodemenu.handlenotifier.notify(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,handleNodeMenus));
+
     nodemenu.executeMenu(uiMenuHandler::fromScene);
+
+    nodemenu.createnotifier.remove(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,createNodeMenus));
+    nodemenu.handlenotifier.remove(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,handleNodeMenus));
 }
 
 
@@ -423,6 +458,8 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
 
     const EM::PosID empid = emod->getEditor()->getNodePosID(
 				emod->getEditor()->getRightClickNode());
+    if ( empid.objectID()==-1 )
+	return;
 
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.getObject(empid.objectID());
