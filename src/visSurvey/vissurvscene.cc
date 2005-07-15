@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.67 2005-07-07 09:28:14 cvsbert Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.68 2005-07-15 14:34:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,9 +195,10 @@ void Scene::setup()
 }
 
 
-void Scene::objectMoved( CallBacker* )
+void Scene::objectMoved( CallBacker* cb )
 {
     ObjectSet<const SurveyObject> activeobjects;
+    int movedid = -1;
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
@@ -208,14 +209,16 @@ void Scene::objectMoved( CallBacker* )
 	if ( !vo ) continue;
 	if ( !vo->isOn() ) continue;
 
+	if ( cb==vo ) movedid = vo->id();
+
 	activeobjects += so;
     }
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	mDynamicCastGet(SurveyObject*,so,getObject(idx))
-	if ( so )
-	    so->otherObjectsMoved( activeobjects );
+	mDynamicCastGet(SurveyObject*,so,getObject(idx));
+	
+	if ( so ) so->otherObjectsMoved( activeobjects, movedid );
     }
 }
 
