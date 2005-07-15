@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.37 2005-07-05 16:42:46 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.38 2005-07-15 14:30:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,12 +57,15 @@ public:
 				    when object is moved or modified. */
 
     virtual void		otherObjectsMoved(
-	    			    const ObjectSet<const SurveyObject>&) {}
+	    			    const ObjectSet<const SurveyObject>&,
+				    int whichobj ) {}
     				/*!< If other objects are moved, removed or
 				     added in the scene, this function is
 				     called. \note that it only notifies on
 				     objects that return something on
-				     getMovementNotification(). */
+				     getMovementNotification().
+				     \param whichobj refers to id of the
+				     moved object */
     virtual bool		isInlCrl() const	    	{ return false;}
 
     const char*			errMsg() const		    	{return errmsg;}
