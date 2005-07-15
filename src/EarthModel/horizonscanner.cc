@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.4 2005-04-28 08:58:34 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.5 2005-07-15 15:29:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,16 +207,23 @@ bool HorizonScanner::analyzeData()
 	ptr = getNextWord( ptr, valbuf );
 	crd.y = atof( valbuf );
 	BinID bid( mNINT(crd.x), mNINT(crd.y) );
-	if ( SI().isReasonable(crd) ) nrxy++;
-	if ( SI().isReasonable(bid) ) nrbid++;
+
+	bool validplacement = false;
+	if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
+	if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
 
 	ptr = getNextWord( ptr, valbuf );
 	val = atof( valbuf );
-	if ( mIsUndefined(val) ) continue;
 
-	if ( validrg.includes(val) ) nrnoscale++;
-	else if ( validrg.includes(val*fac) ) nrscale++;
-	count++;
+	bool validvert = false;
+	if ( !mIsUndefined(val) ) 
+	{
+	    if ( validrg.includes(val) ) { nrnoscale++; validvert=true; }
+	    else if ( validrg.includes(val*fac) ) { nrscale++; validvert=true; }
+	}
+
+	if ( validplacement && validvert )
+	    count++;
 
 	int validx = 0;
 	while ( *ptr )
