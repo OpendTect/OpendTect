@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.29 2005-04-20 13:09:41 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.30 2005-07-18 15:55:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,13 +139,13 @@ class uiSliceScroll : public uiDialog
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
-		.oktext("").canceltext("Dismiss"))
+	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2"))
 	, slcsel(ss)
 	, inauto(false)
 	, paused(false)
 	, zfact( SI().zFactor() )
 {
+    setCtrlStyle( LeaveOnly );
     timer = new Timer( "uiSliceScroll timer" );
     timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
 

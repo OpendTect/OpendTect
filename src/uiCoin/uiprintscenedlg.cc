@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.20 2005-05-26 15:44:07 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.21 2005-07-18 15:55:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,9 +65,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     {
 	new uiLabel( this,
 	    "No output file types found.\n"
-	    "Probably, there is no valid 'libsimage.so' installed." );
-	setOkText("");
-	setCancelText("Dismiss");
+	    "Probably, 'libsimage.so' is not installed or invalid." );
+	setCtrlStyle( LeaveOnly );
 	return;
     }
 

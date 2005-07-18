@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.24 2005-05-20 06:34:14 cvskris Exp $
+ RCS:           $Id: uimsg.cc,v 1.25 2005-07-18 15:55:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ bool uiMsg::askGoOn( const char* text, bool yn, const char* caption )
     if ( !caption || !*caption ) caption = "Please specify";
     return !QMessageBox::warning( popParnt(),
 				  QString(caption), QString(text),
-				  QString(yn?"Yes":"OK"),
+				  QString(yn?"Yes":"Ok"),
 				  QString(yn?"No":"Cancel"),
 				  QString::null,0,1);
 }

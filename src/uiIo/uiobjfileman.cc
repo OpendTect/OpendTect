@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.4 2005-01-13 08:07:05 nanne Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.5 2005-07-18 15:55:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     : uiDialog(p,s)
     , ctio(ctio_)
 {
-    setCancelText( "" );
-    setOkText( "Dismiss" );
+    setCtrlStyle( LeaveOnly );
 }
 
 

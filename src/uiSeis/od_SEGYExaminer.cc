@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.4 2005-02-25 17:51:42 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.5 2005-07-18 15:55:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,14 +34,11 @@ class uiSeisSEGYExamine : public uiDialog
 public:
 
 uiSeisSEGYExamine( uiParent* p, const char* fname, bool mult, int n, int f )
-	: uiDialog(p,
-		uiDialog::Setup("Examine SEG-Y","",0)
-		.modal(false)
-		.oktext("")
-		.canceltext("Dismiss"))
+	: uiDialog(p,uiDialog::Setup("Examine SEG-Y","",0).modal(false))
 	, ns(n)
 	, fmt(f)
 {
+    setCtrlStyle( LeaveOnly );
     txtfld = new uiTextEdit( this, "", true );
     updateInput( fname, mult );
 }

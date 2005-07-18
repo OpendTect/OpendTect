@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.11 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.12 2005-07-18 15:55:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,8 +219,7 @@ void uiMPEPartServer::showSetupDlg( const MultiID& mid, EM::SectionID sid )
 {
     EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
     uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
-    dlg.setOkText( "Dismiss" );
-    dlg.setCancelText("");
+    dlg.setCtrlStyle( uiDialog::LeaveOnly );
     dlg.setHelpID( "108.0.1" );
     MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset );
     grp->setType( objid, sid );

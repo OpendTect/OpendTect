@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.12 2004-06-16 14:54:19 bert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.13 2005-07-18 15:55:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,9 +46,7 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     docoordbut->attach( rightOf, dobinidbut, 0 );
 
     fldgrp->attach( centeredBelow, butgrp );
-
-    setOkText("Quit");
-    setCancelText("");
+    setCtrlStyle( LeaveOnly );
 }
 
 void uiConvertPos::getCoord()

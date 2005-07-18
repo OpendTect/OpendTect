@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.42 2005-07-01 14:54:56 cvsdgb Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.43 2005-07-18 15:55:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -382,6 +382,6 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
     redo_ = true;
     setHelpID( "101.2.1" );
     setTitleText( "Run a saved processing job" );
-    setOkText( "Ok" );
+    setCtrlStyle( DoAndLeave );
     addStdFields();
 }

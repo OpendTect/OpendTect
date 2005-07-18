@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.38 2004-09-10 07:21:38 nanne Exp $
+ RCS:           $Id: uidialog.h,v 1.39 2005-07-18 15:55:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,6 +116,9 @@ public:
 			    }
 			}
 
+    enum CtrlStyle	{ DoAndLeave, DoAndStay, LeaveOnly };
+			//! On construction, it's (of course) DoAndLeave
+    void		setCtrlStyle(CtrlStyle);
 			//! OK button disabled when set to empty
     void		setOkText( const char* txt );
 			//! cancel button disabled when set to empty
