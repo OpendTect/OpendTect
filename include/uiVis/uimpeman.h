@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.8 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.9 2005-07-18 13:25:31 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 namespace EM { class EMManager; };
 namespace visSurvey { class MPEDisplay; class SeedEditor;}
 namespace Geometry  { class Element; };
+namespace visSurvey { class PickSetDisplay; }
 
 
 class BufferStringSet;
@@ -56,6 +57,7 @@ protected:
     uiVisPartServer*		visserv;
 
     visSurvey::SeedEditor*	seededitor;
+    visSurvey::PickSetDisplay*	seeddisplayer;
 
     uiComboBox*			attribfld;
     uiSlider*			transfld;
@@ -95,6 +97,9 @@ protected:
 
     BufferString		destrackertype;
     bool			init;
+    
+private:
+    void			showSeeds(bool);
 };
 
 #endif

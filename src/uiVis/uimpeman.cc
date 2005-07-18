@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.20 2005-07-12 03:13:03 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.21 2005-07-18 13:26:17 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "uicursor.h"
 
-//#include "gendefs.h"
 #include "vismarker.h"
 #include "emsurfacegeometry.h"
 #include "cubicbeziercurve.h"
@@ -49,6 +48,7 @@ using namespace MPE;
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : uiToolBar(p,"Tracking controls")
     , seededitor(0)
+    , seeddisplayer(0)
     , visserv(ps)
     , init(false)
     , createmnuitem("Create")
@@ -154,6 +154,12 @@ void uiMPEMan::deleteVisObjects()
 
 	seededitor->unRef();
 	seededitor = 0;
+    }
+    
+     if ( seeddisplayer )
+    {
+	seeddisplayer->unRef();
+	seeddisplayer = 0;
     }
 }
 
@@ -424,8 +430,9 @@ void uiMPEMan::seedModeCB( CallBacker* )
     const bool ison = isOn( seedidx );
     if ( !ison && seededitor )
     {
-//	seededitor->turnOn( false );
+	seededitor->turnOn( false );
 	seededitor->getSeeds( engine().interactionseeds );
+	showSeeds(true);
 	engine().setNewSeeds();
 	return;
     }
@@ -442,12 +449,20 @@ void uiMPEMan::seedModeCB( CallBacker* )
 	    TypeSet<int> scenes;
 	    visserv->getChildIds( -1, scenes );
 	    visserv->addObject( seededitor, scenes[0], false );
-
+	    
+ 	    if ( ! seeddisplayer )
+	    {
+		seeddisplayer = visSurvey::PickSetDisplay::create();
+		seeddisplayer->ref();
+		visserv->addObject( seeddisplayer, scenes[0], false );
+	    }
+	    
 	    uiMenuHandler* menu = visserv->getMenu( seededitor->id(), true );
 	    menu->createnotifier.notify( mCB(this,uiMPEMan,createSeedMenuCB) );
 	    menu->handlenotifier.notify( mCB(this,uiMPEMan,handleSeedMenuCB) );
 	}
 
+	showSeeds(false);
 	seededitor->turnOn(true);
 	seededitor->select();
     }
@@ -575,6 +590,37 @@ void uiMPEMan::initFromDisplay()
 	    turnOn( extendidx, displays[idx]->isDraggerShown() );
 	}
     }
+}
+
+
+void uiMPEMan::showSeeds(bool show)
+{
+    if ( ! seeddisplayer )
+	return;
+    if ( ! show )
+    {
+	seeddisplayer->removeAll();
+	return;
+    }
+
+    const ObjectSet<Geometry::Element>& seeds = engine().interactionseeds;
+    if ( !seeds.size() || !seeds[0] )    return;
+    mDynamicCastGet(const Geometry::CubicBezierCurve*,cbc,seeds[0]);
+    if ( !cbc )        return;
+    const StepInterval<int> prange = cbc->parameterRange();
+    const int nrknots = prange.nrSteps() + 1;
+    
+    visSurvey::PickSetDisplay* psd = seeddisplayer;
+    if ( !psd ) return;
+    psd->setColor( engine().seedcolor );
+    psd->setScreenSize( engine().seedsize );
+    psd->setType( 0 );
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	const Coord3 pos = cbc->getPosition( prange.atIndex(idx) );
+	psd->addPick(pos);
+    }
+    psd->showAll(true);
 }
 
 
