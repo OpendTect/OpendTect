@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.87 2005-07-14 11:06:08 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.88 2005-07-18 10:36:18 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -251,18 +251,18 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 
 	
 
-uiODDisplayTreeItem::uiODDisplayTreeItem( )
+uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(0)
     , displayid(-1)
     , visserv(ODMainWin()->applMgr().visServer())
-    , selattrmnuitem( attrselmnutxt, 9999 )
-    , duplicatemnuitem( "Duplicate" )
-    , removemnuitem( "Remove", -1000 )
+    , selattrmnuitem(attrselmnutxt,9999)
+    , duplicatemnuitem("Duplicate")
+    , removemnuitem("Remove",-1000)
 {
 }
 
 
-uiODDisplayTreeItem::~uiODDisplayTreeItem( )
+uiODDisplayTreeItem::~uiODDisplayTreeItem()
 {
     uiMenuHandler* menu = visserv->getMenu( displayid, false );
     if ( menu )
@@ -305,11 +305,11 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 
 bool uiODDisplayTreeItem::showSubMenu()
 {
-    return applMgr()->visServer()->showMenu(displayid);
+    return applMgr()->visServer()->showMenu( displayid );
 }
 
 
-void uiODDisplayTreeItem::checkCB(CallBacker*)
+void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
     applMgr()->visServer()->turnOn( displayid, uilistviewitem->isChecked() );
 }
@@ -340,12 +340,11 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 	dispname = "<right-click>";
     else if ( !as )
 	dispname = cvisserv->getObjectName(displayid);
-    else if ( as->id()==AttribSelSpec::noAttrib )
-	dispname="";
+    else if ( as->id() == AttribSelSpec::noAttrib )
+	dispname = "";
 
     return dispname;
 }
-
 
 
 const char* uiODDisplayTreeItem::attrselmnutxt = "Select Attribute";
@@ -356,24 +355,25 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
     selattrmnuitem.removeItems();
+    const AttribSelSpec* as = visserv->getSelSpec(displayid);
+    if ( as )
+    {
+	uiAttribPartServer* attrserv = applMgr()->attrServer();
+	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
+	mAddMenuItem( &selattrmnuitem, subitem, subitem->nrItems(),
+		       subitem->checked );
 
-    uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const AttribSelSpec& as = *visserv->getSelSpec(displayid);
+	subitem = attrserv->calcAttribMenuItem( *as );
+	mAddMenuItem( &selattrmnuitem, subitem, subitem->nrItems(),
+			 subitem->checked );
 
-    MenuItem* subitem = attrserv->storedAttribMenuItem(as);
-    mAddMenuItem( &selattrmnuitem, subitem, subitem->nrItems(),
-	    	   subitem->checked );
+	subitem = attrserv->nlaAttribMenuItem( *as );
+	if ( subitem && subitem->nrItems() )
+	    mAddMenuItem( &selattrmnuitem, subitem, true, subitem->checked );
 
-    subitem = attrserv->calcAttribMenuItem(as);
-    mAddMenuItem( &selattrmnuitem, subitem, subitem->nrItems(),
-	    	     subitem->checked );
-
-    subitem = attrserv->nlaAttribMenuItem(as);
-    if ( subitem && subitem->nrItems() )
-	mAddMenuItem( &selattrmnuitem, subitem, true, subitem->checked );
-
-    mAddMenuItemCond( menu, &selattrmnuitem, true, false,
-	    	      visserv->hasAttrib(displayid) );
+	mAddMenuItemCond( menu, &selattrmnuitem, true, false,
+			  visserv->hasAttrib(displayid) );
+    }
 
     mAddMenuItemCond( menu, &duplicatemnuitem, true, false,
 	    	      visserv->canDuplicate(displayid) );
@@ -404,6 +404,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else 
     {
 	const AttribSelSpec* as = visserv->getSelSpec( displayid );
+	if ( !as ) return;
 	AttribSelSpec myas( *as );
 	if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas) )
 	{
@@ -421,7 +422,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 						const MultiID& mid_ )
     : mid(mid_)
     , uivisemobj(0)
-    , depthattribmnuitem( "Depth" )
+    , depthattribmnuitem("Depth")
     , savemenuitem("Save")
     , enabletrackingmnuitem("Enable tracking")
     , changesetupmnuitem("Change setup ...")
@@ -1221,6 +1222,14 @@ uiTreeItem* uiODWellTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 
 uiODWellTreeItem::uiODWellTreeItem( int did )
+    : selattrmnuitem("Select Attribute ...")
+    , sellogmnuitem("Select logs ...")
+    , propertiesmnuitem("Properties ...")
+    , namemnuitem("Well name")
+    , markermnuitem("Markers")
+    , markernamemnuitem("Marker names")
+    , showlogmnuitem( "Logs" )
+    , showmnuitem( "Show" )
 { displayid=did; }
 
 
@@ -1269,9 +1278,10 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid));
 
-
+    mAddMenuItem( menu, &sellogmnuitem,
+	          applMgr()->wellServer()->hasLogs(wd->wellId()), false );
+    mAddMenuItem( menu, &selattrmnuitem, true, false );
     mAddMenuItem( menu, &propertiesmnuitem, true, false );
-
     mAddMenuItem( menu, &showmnuitem, true, false );
     mAddMenuItem( &showmnuitem, &namemnuitem, true,  wd->wellNameShown() );
     mAddMenuItem( &showmnuitem, &markermnuitem, wd->canShowMarkers(),
@@ -1281,10 +1291,6 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &showmnuitem, &showlogmnuitem,
 	          applMgr()->wellServer()->hasLogs(wd->wellId()), 
 		  wd->logsShown() );
-
-    mAddMenuItem( menu, &selattrmnuitem, true, false );
-    mAddMenuItem( menu, &sellogmnuitem,
-	          applMgr()->wellServer()->hasLogs(wd->wellId()), false );
 }
 
 
@@ -1400,6 +1406,11 @@ uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( const PickSet& ps )
     : ps_(new PickSet(ps))
+    , renamemnuitem("Rename ...")
+    , storemnuitem("Store ...")
+    , dirmnuitem("Set directions ...")
+    , showallmnuitem("Show all")
+    , propertymnuitem("Properties ...")
 {}
 
 
@@ -1464,8 +1475,8 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &storemnuitem, true, false );
     mAddMenuItem( menu, &dirmnuitem, true, false );
 
-    mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
-	    	     visserv->getObject(displayid));
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv->getObject(displayid));
 
     mAddMenuItem( menu, &showallmnuitem, true, psd->allShown() );
     mAddMenuItem( menu, &propertymnuitem, true, false );
