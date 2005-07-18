@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.7 2005-07-15 13:48:01 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.8 2005-07-18 14:07:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,10 +74,9 @@ protected:
     void				editPosChangeTrigger(CallBacker*);
     void				emSectionChange(CallBacker*);
 
-    virtual void			setAlongMovingNodes();
-    TypeSet<EM::PosID>			alongmovingnodes;
-    TypeSet<float>			alongmovingnodesfactors;
-    TypeSet<Coord3>			alongmovingnodesstart;
+    virtual void			getAlongMovingNodes(
+	    				    TypeSet<EM::PosID>&,
+					    TypeSet<float>* ) const;
 
     EM::EMObject&			emobject;
     EM::PosID				movingnode;
@@ -89,6 +88,10 @@ protected:
 private:
     ObjectSet<Geometry::ElementEditor>	geeditors;
     TypeSet<EM::SectionID>		sections;
+
+    TypeSet<EM::PosID>			alongmovingnodes;
+    TypeSet<float>			alongmovingnodesfactors;
+    TypeSet<Coord3>			alongmovingnodesstart;
 };
 
 

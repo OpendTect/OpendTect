@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.9 2005-07-15 13:48:01 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.10 2005-07-18 14:07:21 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -53,7 +53,11 @@ void ObjectEditor::startEdit(const EM::PosID& pid)
 	}
     }
 
-    setAlongMovingNodes();
+    getAlongMovingNodes( alongmovingnodes, &alongmovingnodesfactors );
+
+    alongmovingnodesstart.erase();
+    for ( int idx=0; idx<alongmovingnodes.size(); idx++ )
+	alongmovingnodesstart += emobject.getPos(alongmovingnodes[idx]);
 }
 
 
@@ -245,11 +249,11 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
 }
 
 
-void ObjectEditor::setAlongMovingNodes()
+void ObjectEditor::getAlongMovingNodes( TypeSet<EM::PosID>& nodes,
+					TypeSet<float>* factors ) const
 {
-    alongmovingnodes.erase();
-    alongmovingnodesfactors.erase();
-    alongmovingnodesstart.erase();
+    nodes.erase();
+    if ( factors ) factors->erase();
 }
 
 
