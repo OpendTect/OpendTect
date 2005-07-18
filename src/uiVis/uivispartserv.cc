@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.262 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.263 2005-07-18 10:35:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1054,16 +1054,17 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 
 void uiVisPartServer::createMenuCB(CallBacker* cb)
 {
-    mDynamicCastGet( uiMenuHandler*, menu, cb );
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(menu->menuID()));
-    mDynamicCastGet( visBase::VisualObject*, vo, getObject(menu->menuID()));
+    mDynamicCastGet(uiMenuHandler*,menu,cb);
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(menu->menuID()));
     if ( !so ) return;
 
-    mAddMenuItem( menu, &selcolorattrmnuitem, so->getColorSelSpec(), false );
-    mAddMenuItem( menu, &resetmanipmnuitem,
-	    	  so->isManipulated() && so->canResetManipulation(), false );
-    mAddMenuItem( menu, &changecolormnuitem, so->hasColor(), false );
-    mAddMenuItem( menu, &changematerialmnuitem, so->allowMaterialEdit(), false );
+    mAddMenuItemCond( menu, &selcolorattrmnuitem, true, false, 
+	    	      so->getColorSelSpec() );
+    mAddMenuItemCond( menu, &resetmanipmnuitem, so->isManipulated(), false,
+		      so->canResetManipulation() );
+    mAddMenuItemCond( menu, &changecolormnuitem, true, false, so->hasColor() );
+    mAddMenuItemCond( menu, &changematerialmnuitem, true, false, 
+		      so->allowMaterialEdit() );
 
     resmnuitem.id = -1;
     resmnuitem.removeItems();
