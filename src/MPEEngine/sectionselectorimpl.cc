@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.8 2005-04-15 15:34:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.9 2005-07-18 16:58:46 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -25,7 +25,7 @@ namespace MPE
 
 BinIDSurfaceSourceSelector::BinIDSurfaceSourceSelector(
 	const EM::Horizon& hor, const EM::SectionID& sid )
-    : SectionSourceSelector( hor, sid )
+    : SectionSourceSelector( sid )
     , surface( hor )
 {}
 
@@ -65,7 +65,7 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 
 SurfaceSourceSelector::SurfaceSourceSelector(
 	const EM::EMObject& obj_, const EM::SectionID& sid )
-    : SectionSourceSelector( obj_, sid )
+    : SectionSourceSelector( sid )
     , emobject( obj_ )
 {}
 

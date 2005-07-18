@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselector.h,v 1.3 2005-01-18 13:14:20 kristofer Exp $
+ RCS:           $Id: sectionselector.h,v 1.4 2005-07-18 16:58:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,25 +32,23 @@ class TrackPlane;
 class SectionSourceSelector : public BasicTask
 {
 public:
-    			SectionSourceSelector( const EM::EMObject&,
-					       const EM::SectionID& sid = -1 )
-			    : sectionid( sid ) {}
+    				SectionSourceSelector(
+					const EM::SectionID& sid = -1 );
 
-    EM::SectionID	sectionID() const { return sectionid; }
+    EM::SectionID		sectionID() const;
+    virtual void		reset();
 
-    virtual void	reset() { selpos.erase(); }
+    virtual void		setTrackPlane( const MPE::TrackPlane& );
 
-    virtual void	setTrackPlane( const MPE::TrackPlane& ) {}
+    int				nextStep();
+    const char*			errMsg() const;
 
-    int			nextStep() { return 0; }
-    const char*		errMsg() const  { return errmsg[0] ? errmsg : 0; }
-
-    const TypeSet<EM::SubID>&	selectedPositions() const { return selpos;}
+    const TypeSet<EM::SubID>&	selectedPositions() const;
 
 protected:
-    EM::SectionID	sectionid;
-    TypeSet<EM::SubID>	selpos;
-    BufferString	errmsg;
+    EM::SectionID		sectionid;
+    TypeSet<EM::SubID>		selpos;
+    BufferString		errmsg;
 };
 
 };
