@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.55 2005-05-20 11:49:06 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.56 2005-07-18 11:29:32 cvsbert Exp $";
 
 /*!
 
@@ -275,11 +275,13 @@ bool CBVSReader::readGeom()
     if ( info_.geom.step.crl == 0 ) info_.geom.step.crl = 1;
 
     strm_.read( buf, 6*sizeof(double) );
+    const char* envs = getenv("DTECT_CBVS_USE_STORED_SURVINFO");
+    bool useinf = envs && (*envs == 'y' || *envs == 'Y');
     RCol2Coord::RCTransform xtr, ytr;
     xtr.a = dinterp.get( buf, 0 ); xtr.b = dinterp.get( buf, 1 );
     xtr.c = dinterp.get( buf, 2 ); ytr.a = dinterp.get( buf, 3 );
     ytr.b = dinterp.get( buf, 4 ); ytr.c = dinterp.get( buf, 5 );
-    if ( xtr.valid(ytr) )
+    if ( useinf && xtr.valid(ytr) )
 	info_.geom.b2c.setTransforms( xtr, ytr );
     else
 	info_.geom.b2c = SI().binID2Coord();
@@ -704,7 +706,8 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 
     if ( arridx < trailercoords_.size() )
 	return trailercoords_[arridx];
-    return SI().transform( bid );
+
+    return info_.geom.b2c.transform( bid );
 }
 
 
