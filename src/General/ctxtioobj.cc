@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.22 2005-03-25 13:25:22 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.23 2005-07-21 11:30:04 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -15,6 +15,8 @@ static const char* rcsID = "$Id: ctxtioobj.cc,v 1.22 2005-03-25 13:25:22 cvsbert
 #include "separstr.h"
 #include "filegen.h"
 #include "filepath.h"
+
+static const char* sKeySelConstr = "Selection.Constraints";
 
 DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 
@@ -55,6 +57,7 @@ const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 	: UserIDObject(prefname)
 	, trgroup(trg)
+	, parconstraints(*new IOPar)
 {
     init();
 }
@@ -62,8 +65,29 @@ IOObjContext::IOObjContext( const TranslatorGroup* trg, const char* prefname )
 
 IOObjContext::IOObjContext( const IOObjContext& rp )
 	: UserIDObject("")
+	, parconstraints(*new IOPar)
 {
     *this = rp;
+}
+
+
+void IOObjContext::init()
+{
+    newonlevel = parentlevel = 0;
+    crlink = needparent = multi = false;
+    forread = maychdir = maydooper = true;
+    partrgroup		= 0;
+    deftransl		= "";
+    stdseltype		= None;
+    includeconstraints	= true;
+    allowcnstrsabsent	= false;
+    parconstraints.clear();
+}
+
+
+IOObjContext::~IOObjContext()
+{
+    delete &parconstraints;
 }
 
 
@@ -86,9 +110,9 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 	parentkey = ct.parentkey;
 	deftransl = ct.deftransl;
 	trglobexpr = ct.trglobexpr;
-	ioparkeyval[0] = ct.ioparkeyval[0];
-	ioparkeyval[1] = ct.ioparkeyval[1];
-	includekeyval = ct.includekeyval;
+	parconstraints = ct.parconstraints;
+	includeconstraints = ct.includeconstraints;
+	allowcnstrsabsent = ct.allowcnstrsabsent;
     }
     return *this;
 }
@@ -136,9 +160,9 @@ void IOObjContext::fillPar( IOPar& iopar ) const
     iopar.set( "Selection.Default translator", (const char*)deftransl );
     iopar.set( "Selection.Parent key", (const char*)parentkey );
     iopar.set( "Selection.Allow Translators", trglobexpr );
-    iopar.set( "Selection.Property selection key", ioparkeyval[0] );
-    iopar.set( "Selection.Property selection value", ioparkeyval[1] );
-    iopar.setYN( "Selection.Include property", includekeyval );
+    iopar.mergeComp( parconstraints, sKeySelConstr );
+    iopar.setYN( IOPar::compKey(sKeySelConstr,"Include"), includeconstraints );
+    iopar.setYN( IOPar::compKey(sKeySelConstr,"AllowAbsent"),allowcnstrsabsent);
 }
 
 
@@ -200,11 +224,16 @@ void IOObjContext::usePar( const IOPar& iopar )
     if ( res ) parentkey = res;
     res = iopar.find( "Selection.Allow Translators" );
     if ( res ) trglobexpr = res;
-    res = iopar.find( "Selection.Property selection key" );
-    if ( res ) ioparkeyval[0] = res;
-    res = iopar.find( "Selection.Property selection value" );
-    if ( res ) ioparkeyval[1] = res;
-    iopar.getYN( "Selection.Include property", includekeyval );
+
+    IOPar* subiop = iopar.subselect( sKeySelConstr );
+    if ( subiop )
+    {
+	parconstraints.merge( *subiop );
+	iopar.getYN( IOPar::compKey(sKeySelConstr,"Include"),
+					includeconstraints );
+	iopar.getYN( IOPar::compKey(sKeySelConstr,"AllowAbsent"),
+					allowcnstrsabsent);
+    }
 }
 
 
@@ -237,22 +266,33 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 	}
     }
 
-    const char* iopkey = ioparkeyval[0];
-    if ( !*iopkey )
+    if ( parconstraints.size() < 1 )
 	return true;
 
-    const char* res = ioobj.pars().find( iopkey );
-    if ( res && *res )
+    int nrequal = 0, nrdiff = 0;
+    for ( int idx=0; idx<parconstraints.size(); idx++ )
     {
-	FileMultiString fms( ioparkeyval[1] );
+	const char* ioobjval = ioobj.pars().find( parconstraints.getKey(idx) );
+	if ( !ioobjval ) continue;
+
+	FileMultiString fms( parconstraints.getValue(idx) );
 	const int nrvals = fms.size();
+	bool ismatch = false;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    if ( !strcmp(res,fms[idx]) )
-		return includekeyval;
+	    if ( !strcmp(ioobjval,fms[idx]) )
+		{ ismatch = true; break; }
 	}
+	if ( ismatch )	nrequal++;
+	else		nrdiff++;
     }
-    return !includekeyval;
+
+    if ( includeconstraints )
+	return allowcnstrsabsent ? nrdiff == 0
+	    			 : nrequal == parconstraints.size();
+    else
+	return allowcnstrsabsent ? nrequal == 0
+	    			 : nrdiff == parconstraints.size();
 }
 
 

@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.16 2005-05-17 09:29:05 cvskris Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.17 2005-07-21 11:30:04 cvsbert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -59,7 +59,6 @@ IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
 {
     ctxt.maychdir = maycd;
     ctxt.trglobexpr = f;
-    ctxt.includekeyval = false;
     fill( id );
 }
 
