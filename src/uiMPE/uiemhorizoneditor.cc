@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.1 2005-07-15 13:54:57 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.2 2005-07-21 20:59:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,9 +99,7 @@ uiEMEditor* uiEMHorizonEditor::create( uiParent* p, MPE::ObjectEditor* e )
 
 
 uiEMHorizonEditor::uiEMHorizonEditor( uiParent* p, MPE::HorizonEditor* he )
-    : uiEMEditor( p )
-    , editor( he )
-    , editsettingsmnuitem( "Edit settings" )
+    : uiEMObjectEditor( p, he )
 {}
 
 
@@ -110,12 +108,15 @@ void uiEMHorizonEditor::createNodeMenus(CallBacker* cb)
     if ( node.objectID()==-1 ) return;
     mDynamicCastGet( MenuHandler*, menu, cb );
 
+    uiEMObjectEditor::createNodeMenus(cb);
+
     mAddMenuItem( menu, &editsettingsmnuitem, true, false );
 }
 
 
 void uiEMHorizonEditor::handleNodeMenus(CallBacker* cb)
 {
+    uiEMObjectEditor::handleNodeMenus(cb);
     
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( MenuHandler*, menu, caller );
@@ -126,7 +127,8 @@ void uiEMHorizonEditor::handleNodeMenus(CallBacker* cb)
     {
 	menu->setIsHandled(true);
 
-	uiEMHorizonEditorSetting dlg( parent, editor );
+	uiEMHorizonEditorSetting dlg( parent,
+		reinterpret_cast<HorizonEditor*>( editor) );
 	dlg.go();
     }
 }
