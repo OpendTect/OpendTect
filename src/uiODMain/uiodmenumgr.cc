@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.24 2005-04-15 12:31:55 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.25 2005-07-21 11:30:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.24 2005-04-15 12:31:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.25 2005-07-21 11:30:52 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -159,8 +159,13 @@ void uiODMenuMgr::fillFileMenu()
     mInsertItem( impfault, "&Landmark ...", mImpLmkFaultMnuItm );
 #endif
     impmnu->insertItem( impwell );
-    mInsertItem( impseis, "SEG-Y ...", mImpSeisSEGYMnuItm );
-    mInsertItem( impseis, "CBVS ...", mImpSeisCBVSMnuItm );
+
+    uiPopupMenu* impseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
+    mInsertItem( impseissgy, "&3-D ...", mImpSeisSEGY3DMnuItm );
+    mInsertItem( impseissgy, "&2-D ...", mImpSeisSEGY2DMnuItm );
+    mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
+    impseis->insertItem( impseissgy );
+    mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
     mInsertItem( imphor, "&Ascii ...", mImpHorAsciiMnuItm );
     uiPopupMenu* impwellasc = new uiPopupMenu( &appl, "&Ascii" );
     mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
@@ -170,11 +175,15 @@ void uiODMenuMgr::fillFileMenu()
 
     expmnu = new uiPopupMenu( &appl, "&Export" );
     uiPopupMenu* expseis = new uiPopupMenu( &appl, "&Seismics" );
+    uiPopupMenu* expseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
+    mInsertItem( expseissgy, "&3-D ...", mExpSeisSEGY3DMnuItm );
+    mInsertItem( expseissgy, "&2-D ...", mExpSeisSEGY2DMnuItm );
+    mInsertItem( expseissgy, "&Pre-stack ...", mExpSeisSEGYPSMnuItm );
+    expseis->insertItem( expseissgy );
     uiPopupMenu* exphor = new uiPopupMenu( &appl, "&Horizons" );
     expmnu->insertItem( expseis );
     mInsertItem( expmnu, "&Picksets ...", mExpPickMnuItm );
     expmnu->insertItem( exphor );
-    mInsertItem( expseis, "SEG-Y ...", mExpSeisSEGYMnuItm );
     mInsertItem( exphor, "&Ascii ...", mExpHorAsciiMnuItm );
 
     filemnu->insertItem( impmnu );
@@ -377,9 +386,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSessSaveMnuItm: 	appl.saveSession(); break;
     case mSessRestMnuItm: 	{ appl.restoreSession(); 
 				  timer.start(200,true);  break; }
-    case mImpSeisSEGYMnuItm:	mDoOp(Imp,Seis,0); break;
-    case mImpSeisCBVSMnuItm: 	mDoOp(Imp,Seis,1); break;
-    case mExpSeisSEGYMnuItm: 	mDoOp(Exp,Seis,0); break;
+    case mImpSeisSEGY3DMnuItm:	mDoOp(Imp,Seis,0); break;
+    case mImpSeisSEGY2DMnuItm:	mDoOp(Imp,Seis,1); break;
+    case mImpSeisSEGYPSMnuItm:	mDoOp(Imp,Seis,2); break;
+    case mImpSeisCBVSMnuItm: 	mDoOp(Imp,Seis,3); break;
+    case mExpSeisSEGY3DMnuItm: 	mDoOp(Exp,Seis,0); break;
+    case mExpSeisSEGY2DMnuItm: 	mDoOp(Exp,Seis,1); break;
+    case mExpSeisSEGYPSMnuItm: 	mDoOp(Exp,Seis,2); break;
     case mImpHorAsciiMnuItm: 	mDoOp(Imp,Hor,0); break;
     case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
     case mImpWellAsciiTrackMnuItm:  mDoOp(Imp,Wll,0); break;

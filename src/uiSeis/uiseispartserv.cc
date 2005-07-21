@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.33 2005-07-12 15:49:35 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.34 2005-07-21 11:30:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,20 +45,21 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 }
 
 
-bool uiSeisPartServer::ioSeis( uiSeisPartServer::ExternalType t, bool forread )
+bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
-    PtrMan<uiDialog> dlg = t == uiSeisPartServer::SegY
-      ?	(uiDialog*)new uiSeisSegYImpExp( appserv().parent(), forread, segyid )
-      : (uiDialog*)new uiSeisImpCBVS( appserv().parent() );
-
+    PtrMan<uiDialog> dlg = 0;
+    if ( opt == 3 )
+	dlg = new uiSeisImpCBVS( appserv().parent() );
+    else
+	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid, opt );
     return dlg->go();
 }
 
 
-bool uiSeisPartServer::importSeis( uiSeisPartServer::ExternalType t )
-{ return ioSeis( t, true ); }
-bool uiSeisPartServer::exportSeis()
-{ return ioSeis( uiSeisPartServer::SegY, false ); }
+bool uiSeisPartServer::importSeis( int opt )
+{ return ioSeis( opt, true ); }
+bool uiSeisPartServer::exportSeis( int opt )
+{ return ioSeis( opt, false ); }
 
 
 void uiSeisPartServer::manageSeismics()

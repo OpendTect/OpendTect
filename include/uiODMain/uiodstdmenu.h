@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.9 2004-12-23 17:16:38 bert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.10 2005-07-21 11:30:51 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,9 @@ ________________________________________________________________________
 #define mExitMnuItm		(mFileMnu + 20)
 #define mSessSaveMnuItm		(mFileSessMnu + 10)
 #define mSessRestMnuItm		(mFileSessMnu + 20)
-#define mImpSeisSEGYMnuItm	(mFileImpMnu + 10)
+#define mImpSeisSEGY3DMnuItm	(mFileImpMnu + 10)
+#define mImpSeisSEGY2DMnuItm	(mFileImpMnu + 11)
+#define mImpSeisSEGYPSMnuItm	(mFileImpMnu + 12)
 #define mImpSeisCBVSMnuItm	(mFileImpMnu + 20)
 #define mImpHorAsciiMnuItm	(mFileImpMnu + 30)
 #define mImpWellAsciiTrackMnuItm (mFileImpMnu + 40)
@@ -47,7 +49,9 @@ ________________________________________________________________________
 #define mImpWellAsciiMarkersMnuItm (mFileImpMnu + 42)
 #define mImpPickMnuItm		(mFileImpMnu + 50)
 #define mImpLmkFaultMnuItm	(mFileImpMnu + 60)
-#define mExpSeisSEGYMnuItm	(mFileExpMnu + 10)
+#define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 10)
+#define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
+#define mExpSeisSEGYPSMnuItm	(mFileExpMnu + 12)
 #define mExpHorAsciiMnuItm	(mFileExpMnu + 20)
 #define mExpPickMnuItm		(mFileExpMnu + 50)
 #define mManSeisMnuItm		(mFileManMnu + 10)

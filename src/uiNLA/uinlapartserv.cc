@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.27 2005-07-06 15:19:22 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.28 2005-07-21 11:30:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -321,9 +321,8 @@ void uiNLAPartServer::writeSets( CallBacker* cb )
 
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
-    ctio.ctxt.ioparkeyval[0] = sKey::Type;
-    ctio.ctxt.ioparkeyval[1] = "MVA Data";
-    ctio.ctxt.includekeyval = true;
+    ctio.ctxt.parconstraints.set( sKey::Type, "MVA Data" );
+    ctio.ctxt.includeconstraints = true;
     uiIOObjSelDlg seldlg( appserv().parent(), ctio );
     if ( !seldlg.go() )
 	return;

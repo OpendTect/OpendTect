@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.83 2005-07-12 12:59:36 cvsdgb Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.84 2005-07-21 11:30:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,10 +160,8 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case Seis:
 	switch ( at )
 	{
-	case Imp:	seisserv->importSeis( opt ? uiSeisPartServer::CBVS
-						  : uiSeisPartServer::SegY );
-			break;
-	case Exp:	seisserv->exportSeis();		break;
+	case Imp:	seisserv->importSeis( opt );	break;
+	case Exp:	seisserv->exportSeis( opt );	break;
 	case Man:	seisserv->manageSeismics();	break;
 	}
     break;

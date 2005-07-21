@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.27 2005-03-07 09:32:31 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.28 2005-07-21 11:30:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,59 +31,13 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
-static void mkKvals( const IOObjContext& ctxt, BufferString& keyvals )
-{
-    keyvals = ctxt.ioparkeyval[0];
-    keyvals += "`";
-    keyvals += ctxt.ioparkeyval[1];
-}
-
-
-static void resetKeyVals( const IOObjContext& ct, const BufferString& kyvals )
-{
-    if ( !ct.includekeyval ) return;
-
-    IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
-    ctxt.ioparkeyval[0] = kyvals;
-    char* ptr = strchr( ctxt.ioparkeyval[0].buf(), '`' );
-    if ( ptr ) *ptr++ = '\0';
-    ctxt.ioparkeyval[1] = ptr;
-}
-
-
-static void adaptCtxt( IOObjContext& ctxt, Pol2D pol,
-			const BufferString& orgkeyvals )
-{
-    if ( !ctxt.includekeyval ) return;
-
-    BufferString& deftr = const_cast<IOObjContext*>(&ctxt)->deftransl;
-    if ( pol == Only2D )
-	deftr = "2D";
-    else if ( deftr == "2D" )
-    {
-	BufferString dt( ctxt.trglobexpr );
-	char* ptr = strchr( deftr.buf(), '`' );
-	if ( ptr ) *ptr = '\0';
-	if ( dt == "2D" )
-	    deftr = "CBVS";
-	else
-	    deftr = dt;
-    }
-
-    if ( pol == No2D )
-	resetKeyVals( ctxt, orgkeyvals );
-    else
-	ctxt.ioparkeyval[0] = ctxt.ioparkeyval[1] = "";
-}
-
-
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& setup )
 	: uiIOObjSelDlg(p,getCtio(c,setup),"",false)
+	, p2d(setup.pol2d_)
 	, subsel(0)
 	, attrfld(0)
 {
-    mkKvals( ctio.ctxt, orgkeyvals );
     const char* ttxt = p2d == No2D ? "Select Cube" : "Select Line Set";
     if ( p2d == Both2DAnd3D )
 	ttxt = ctio.ctxt.forread ? "Select Input seismics"
@@ -118,12 +72,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 }
 
 
-uiSeisSelDlg::~uiSeisSelDlg()
-{
-    resetKeyVals( ctio.ctxt, orgkeyvals );
-}
-
-
 static const char* trglobexprs[] = { "2D", "CBVS`2D", "CBVS" };
 
 const char* uiSeisSelDlg::standardTranslSel( Pol2D pol2d )
@@ -133,18 +81,28 @@ const char* uiSeisSelDlg::standardTranslSel( Pol2D pol2d )
 }
 
 
+static void adaptCtxt( const CtxtIOObj& c, Pol2D p2d )
+{
+    IOObjContext& ctxt = const_cast<IOObjContext&>( c.ctxt );
+    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( p2d );
+    ctxt.deftransl = p2d == Only2D ? trglobexprs[0] : trglobexprs[2];
+    if ( p2d == Only2D )
+	ctxt.parconstraints.setYN( "Is2D", true );
+    else if ( p2d = No2D )
+	ctxt.parconstraints.setYN( "Is2D", false );
+}
+
+
 const CtxtIOObj& uiSeisSelDlg::getCtio( const CtxtIOObj& c,
 					const SeisSelSetup& s )
 {
-    p2d = s.pol2d_;
-    if ( s.stdtrs_ )
-    {
-	IOObjContext& ctxt = const_cast<IOObjContext&>( c.ctxt );
-	ctxt.trglobexpr = standardTranslSel( p2d );
-	BufferString kvs; mkKvals( c.ctxt, kvs );
-	adaptCtxt( ctxt, p2d, kvs );
-    }
+    adaptCtxt( c.ctxt, s.pol2d_ );
     return c;
+}
+
+
+uiSeisSelDlg::~uiSeisSelDlg()
+{
 }
 
 
@@ -232,7 +190,6 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 	, setup(*new SeisSelSetup(s))
     	, seltxts(sts)
 {
-    mkKvals( ctio.ctxt, orgkeyvals );
     if ( !c.ctxt.forread )
 	inp_->label()->setPrefWidthInChar( 15 );
 
@@ -332,7 +289,7 @@ void uiSeisSel::set2DPol( Pol2D pol )
     if ( newdisptxt != disptxt )
 	setLabelText( newdisptxt );
 
-    adaptCtxt( ctio.ctxt, pol, orgkeyvals );
+    adaptCtxt( ctio.ctxt, pol );
 }
 
 

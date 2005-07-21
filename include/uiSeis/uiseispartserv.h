@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.15 2005-07-12 15:49:42 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.16 2005-07-21 11:30:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,10 @@ public:
     const char*		name() const			{ return "Seismics"; }
 
     enum ExternalType	{ SegY, CBVS };
-    bool		importSeis(ExternalType);
-    bool		exportSeis();
+    bool		importSeis(int opt);
+    			//!< opt == (int)uiSeisSEGYEntry::DataType or 3 == CBVS
+    bool		exportSeis(int opt);
+    			//!< opt == (int)uiSeisSEGYEntry::DataType
 
     bool		select2DSeis(MultiID&,bool with_attr=false);
     bool		select2DLines(const MultiID&,BufferStringSet&);
@@ -58,7 +60,7 @@ protected:
     MultiID		segyid;
     MenuItem		storedgathermenuitem;
 
-    bool		ioSeis(ExternalType,bool);
+    bool		ioSeis(int,bool);
 
 };
 
