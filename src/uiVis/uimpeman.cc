@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.21 2005-07-18 13:26:17 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.22 2005-07-21 13:42:56 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv(ps)
     , init(false)
     , createmnuitem("Create")
+    , picknewseeds(true)
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -301,7 +302,9 @@ void uiMPEMan::updateAttribNames()
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
     turnOn( seedidx, yn );
+    picknewseeds = false;
     seedModeCB(0);
+    picknewseeds = true;
 }
 
 #define mSelCBImpl( sel ) \
@@ -433,7 +436,8 @@ void uiMPEMan::seedModeCB( CallBacker* )
 	seededitor->turnOn( false );
 	seededitor->getSeeds( engine().interactionseeds );
 	showSeeds(true);
-	engine().setNewSeeds();
+	if ( picknewseeds )
+	    engine().setNewSeeds();
 	return;
     }
 

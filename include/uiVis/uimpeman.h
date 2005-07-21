@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.9 2005-07-18 13:25:31 cvsduntao Exp $
+ RCS:           $Id: uimpeman.h,v 1.10 2005-07-21 13:42:56 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,9 @@ protected:
     
 private:
     void			showSeeds(bool);
+    bool			picknewseeds;
+    				// indicator, whom seed picking is invoked by
+				// false - by program, true - by user
 };
 
 #endif
