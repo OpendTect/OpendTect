@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.8 2005-04-29 09:16:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.9 2005-07-21 20:57:38 cvskris Exp $";
 
 #include "sectiontracker.h"
 
@@ -57,12 +57,7 @@ EM::SectionID SectionTracker::sectionID() const
 }
 
 
-bool SectionTracker::init()
-{
-    if ( extender_ ) extender_->setSelector( selector_ );
-    if ( adjuster_ ) adjuster_->setExtender( extender_ );
-    return true;
-}
+bool SectionTracker::init() { return true; }
 
 
 void SectionTracker::reset()
@@ -90,9 +85,62 @@ bool SectionTracker::function() \
     return true; \
 }
 
-mAction( select, selector_ )
-mAction( extend, extender_ )
-mAction( adjust, adjuster_ )
+bool SectionTracker::select()
+{
+    if ( !selector_ ) return true;
+
+    while ( int res = selector_->nextStep() )
+    {
+	if ( res==-1 )
+	{
+	    errmsg_ = selector_->errMsg();
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+
+bool SectionTracker::extend()
+{
+    if ( !extender_ ) return true;
+   
+    if ( selector_ )
+	extender_->setStartPositions( selector_->selectedPositions() );
+
+    while ( int res = extender_->nextStep() )
+    {
+	if ( res==-1 )
+	{
+	    errmsg_ = extender_->errMsg();
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+
+bool SectionTracker::adjust()
+{
+    if ( !adjuster_ ) return true;
+   
+    if ( extender_ )
+	adjuster_->setPositions( extender_->getAddedPositions() );
+
+    while ( int res = adjuster_->nextStep() )
+    {
+	if ( res==-1 )
+	{
+	    errmsg_ = adjuster_->errMsg();
+	    return false;
+	}
+    }
+
+    return true;
+}
+
 
 #define mGet( clss, func, name ) \
 clss* SectionTracker::func() { return name; }  \

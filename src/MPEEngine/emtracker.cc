@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.10 2005-06-06 14:13:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.11 2005-07-21 20:57:38 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: emtracker.cc,v 1.10 2005-06-06 14:13:15 cvsnann
 #include "emobject.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
+#include "sectionadjuster.h"
 #include "sectiontracker.h"
 #include "consistencychecker.h"
 #include "trackplane.h"
@@ -77,8 +78,9 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	}
 	
 	sectiontracker->extender()->setDirection( plane.motion() );
-	sectiontracker->select();
+	sectiontracker->adjuster()->setDirection( &plane.motion() );
 
+	sectiontracker->select();
 	const bool hasextended = sectiontracker->extend();
 	bool hasadjusted = true;
 	if ( hasextended && sectiontracker->adjusterUsed() )
@@ -121,6 +123,50 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 
 bool EMTracker::trackIntersections( const TrackPlane& )
 { return true; }
+
+
+bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids ) 
+{
+    if ( !emobject ) return false;
+
+    for ( int idx=0; idx<emobject->nrSections(); idx++ )
+    {
+	const EM::SectionID sid = emobject->sectionID(idx);
+
+	TypeSet<EM::SubID> subids;
+	for ( int idy=0; idy<pids.size(); idy++ )
+	{
+	    const EM::PosID& pid = pids[idy];
+	    if ( pid.objectID()!= emobject->id() )
+		continue;
+	    if ( pid.sectionID()!=sid )
+		continue;
+
+	    subids += pid.subID();
+	}
+
+	SectionTracker* sectiontracker = getSectionTracker(sid,true);
+	if ( !sectiontracker )
+	    continue;
+
+	SectionAdjuster* adjuster = sectiontracker->adjuster();
+	if ( !adjuster ) continue;
+
+	adjuster->reset();
+	adjuster->setPositions( subids );
+
+	while ( int res=adjuster->nextStep() )
+	{
+	    if ( res==-1 )
+	    {
+		errmsg = adjuster->errMsg();
+		return false;
+	    }
+	}
+    }
+
+    return true;
+}
 
 
 const char* EMTracker::errMsg() const

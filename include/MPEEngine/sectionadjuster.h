@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.6 2005-03-17 14:55:55 cvsnanne Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.7 2005-07-21 20:58:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,38 +27,32 @@ class SectionExtender;
 class SectionAdjuster : public BasicTask
 {
 public:
-				SectionAdjuster(EM::EMObject&,
-						const EM::SectionID& sid=-1)
-				    : sectionid_(sid)
-				    , stopbelowthrhold_(false)
-				    , thresholdval_(0.5)	{}
+				SectionAdjuster( const EM::SectionID& sid=-1);
+    EM::SectionID		sectionID() const;
 
-    EM::SectionID		sectionID() const 	{ return sectionid_; }
+    virtual void		reset();
 
-    virtual void		reset() 		{}
-    virtual void		setExtender(const SectionExtender*) {}
+    void			setPositions(const TypeSet<EM::SubID>& );
+    void			setDirection(const BinIDValue*);
 
-    int				nextStep()		{ return 0; }
-    const char*			errMsg() const  
-    				{ return errmsg_[0] ? errmsg_ : 0; }
+    int				nextStep();
+    const char*			errMsg() const;
 
     const PositionScoreComputer* getComputer(int idx) const;
     PositionScoreComputer*	getComputer(int idx);
     int				nrComputers() const;
 
-    void			setThresholdValue(float val)
-				{ thresholdval_ = val; }
-    float			getThresholdValue() const
-    				{ return thresholdval_; }
-    void			doStopBelowThreshold(bool yn)
-				{ stopbelowthrhold_ = yn; }
-    bool			stopBelowThreshold() const
-				{ return stopbelowthrhold_; }
+    void			setThresholdValue(float val);
+    float			getThresholdValue() const;
+    void			doStopBelowThreshold(bool yn);
+    bool			stopBelowThreshold() const;
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
 protected:
+    const BinIDValue*		direction;
+    TypeSet<EM::SubID>		pids;
     BufferString		errmsg_;
     EM::SectionID		sectionid_;
     float			thresholdval_;

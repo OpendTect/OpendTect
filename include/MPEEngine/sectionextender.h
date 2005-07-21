@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.3 2005-03-18 12:50:40 cvsnanne Exp $
+ RCS:           $Id: sectionextender.h,v 1.4 2005-07-21 20:58:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,24 +30,27 @@ class SectionSourceSelector;
 class SectionExtender : public BasicTask
 {
 public:
-    			SectionExtender( EM::EMObject&,
-					 const EM::SectionID& si = -1 )
-			    : sectionid( si ) {}
-    EM::SectionID	sectionID() const { return sectionid; }
+    				SectionExtender( const EM::SectionID& si = -1 );
+    EM::SectionID		sectionID() const;
 
-    virtual void	reset() { addedpos.erase(); }
-    virtual void	setDirection( const BinIDValue& ) {}
-    virtual const BinIDValue* getDirection() const { return 0; }
-    virtual void	setSelector(const SectionSourceSelector*) {}
-    int			nextStep() { return 0; }
+    virtual void		reset();
+    virtual void		setDirection( const BinIDValue& );
+    virtual const BinIDValue*	getDirection() const;
 
-    const char*		errMsg() const { return errmsg[0] ? errmsg : 0; }
+    void			setStartPositions(const TypeSet<EM::SubID> ns);
 
-    const TypeSet<EM::SubID>&	getAddedPositions() const { return addedpos; }
+    int				nextStep();
+
+    const TypeSet<EM::SubID>&	getAddedPositions() const;
+
+    const char*			errMsg() const;
 
 protected:
-    const EM::SectionID	sectionid;
+
+    TypeSet<EM::SubID>	startpos;
     TypeSet<EM::SubID>	addedpos;
+
+    const EM::SectionID	sectionid;
     BufferString	errmsg;
 };
 

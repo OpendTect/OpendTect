@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.3 2005-03-17 14:55:46 cvsnanne Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.4 2005-07-21 20:57:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,31 @@ namespace MPE
 const char* SectionAdjuster::adjusterstr = "Adjuster";
 const char* SectionAdjuster::thresholdstr = "Threshold value";
 const char* SectionAdjuster::stoptrackstr = "Stop tracking below threshold";
+
+SectionAdjuster::SectionAdjuster( const EM::SectionID& sid )
+    : sectionid_(sid)
+    , stopbelowthrhold_(false)
+    , thresholdval_(0.5)
+    , direction( 0 )
+{}
+
+
+EM::SectionID SectionAdjuster::sectionID() const { return sectionid_; }
+
+
+void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p ) { pids = p; }
+
+
+void SectionAdjuster::setDirection(const BinIDValue* d) { direction = d; }
+
+
+void SectionAdjuster::reset() { direction = 0; }
+
+
+int SectionAdjuster::nextStep() { return 0; }
+
+
+const char* SectionAdjuster::errMsg() const { return errmsg_[0] ? errmsg_ : 0; }
 
 
 PositionScoreComputer* SectionAdjuster::getComputer( int idx )
@@ -38,6 +63,18 @@ int SectionAdjuster::nrComputers() const
 {
     return computers_.size();
 }
+
+
+void SectionAdjuster::setThresholdValue(float val) { thresholdval_ = val; }
+
+
+float SectionAdjuster::getThresholdValue() const { return thresholdval_; }
+
+
+void SectionAdjuster::doStopBelowThreshold(bool yn) { stopbelowthrhold_ = yn; }
+
+
+bool SectionAdjuster::stopBelowThreshold() const { return stopbelowthrhold_; }
 
 
 void SectionAdjuster::fillPar( IOPar& par ) const

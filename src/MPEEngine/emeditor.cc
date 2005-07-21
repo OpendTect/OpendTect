@@ -8,14 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.10 2005-07-18 14:07:21 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.11 2005-07-21 20:57:38 cvskris Exp $";
 
 #include "emeditor.h"
 
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emtracker.h"
 #include "geeditor.h"
+#include "mpeengine.h"
+#include "survinfo.h"
 
 namespace MPE 
 {
@@ -25,6 +28,7 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
     : emobject( emobj_ )
     , editpositionchange( this )
     , movingnode( -1,-1,-1 )
+    , snapafteredit( true )
 {
     emobject.ref();
 }
@@ -41,19 +45,30 @@ ObjectEditor::~ObjectEditor()
 void ObjectEditor::startEdit(const EM::PosID& pid)
 {
     changedpids.erase();
-    movingnode = pid;
 
-    if ( pid.objectID()!=-1 )
+    alongmovingnodes.erase();
+    alongmovingnodesfactors.erase();
+    alongmovingnodesstart.erase();
+    snapafterthisedit = false;
+
+    if ( pid.objectID()!=emobject.id() )
     {
-        startpos = getPosition(movingnode);
-        if ( !startpos.isDefined() )
-        {
-    	    pErrMsg( "Editnode is undefined");
-	    movingnode = EM::PosID(-1,-1,-1);
-	}
+	movingnode = EM::PosID(-1,-1,-1);
+	return;
     }
 
-    getAlongMovingNodes( alongmovingnodes, &alongmovingnodesfactors );
+    movingnode = pid;
+
+    startpos = getPosition(movingnode);
+    if ( !startpos.isDefined() )
+    {
+	pErrMsg( "Editnode is undefined");
+	movingnode = EM::PosID(-1,-1,-1);
+	return;
+    }
+
+    getAlongMovingNodes( pid, alongmovingnodes, &alongmovingnodesfactors );
+    snapafterthisedit = snapafteredit && canSnapAfterEdit(pid);
 
     alongmovingnodesstart.erase();
     for ( int idx=0; idx<alongmovingnodes.size(); idx++ )
@@ -96,6 +111,13 @@ void ObjectEditor::finishEdit()
     if ( !changedpids.size() )
 	return;
 
+    if ( snapafterthisedit )
+    {
+	const int trackeridx = MPE::engine().getTrackerByObject(emobject.id());
+	EMTracker* tracker = MPE::engine().getTracker(trackeridx);
+	tracker->snapPositions(alongmovingnodes);
+    }
+
      EM::History& history = EM::EMM().history();
      const int currentevent = history.currentEventNr();
      if ( currentevent==-1 ||
@@ -104,6 +126,37 @@ void ObjectEditor::finishEdit()
 
      history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
 }
+
+
+bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
+{
+    if ( pid.objectID()!=emobject.id() ||
+	 MPE::engine().getTrackerByObject(emobject.id())==-1 )
+	return false;
+
+    const CubeSampling& trackvolume = MPE::engine().activeVolume();
+
+    TypeSet<EM::PosID> nodes;
+    getAlongMovingNodes( pid, nodes, 0 );
+    for ( int idx=0; idx<nodes.size(); idx++ )
+    {
+	const Coord3 pos = emobject.getPos(nodes[idx]);
+	const BinID bid = SI().transform(pos);
+
+	if ( !trackvolume.hrg.includes( bid ) )
+	    return false;
+	if ( !trackvolume.zrg.includes( pos.z ) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool ObjectEditor::getSnapAfterEdit() const { return snapafteredit; }
+
+
+void ObjectEditor::setSnapAfterEdit(bool yn) { snapafteredit=yn; }
 
 
 const BufferStringSet* ObjectEditor::getVertMovingStyleNames() const
@@ -249,7 +302,8 @@ void ObjectEditor::emSectionChange(CallBacker* cb)
 }
 
 
-void ObjectEditor::getAlongMovingNodes( TypeSet<EM::PosID>& nodes,
+void ObjectEditor::getAlongMovingNodes( const EM::PosID&,
+					TypeSet<EM::PosID>& nodes,
 					TypeSet<float>* factors ) const
 {
     nodes.erase();
