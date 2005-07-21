@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.8 2005-07-18 14:07:21 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.9 2005-07-21 17:16:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,9 +32,13 @@ public:
     			~ObjectEditor();
 
     const EM::EMObject&	emObject() const	{ return emobject; }
-    virtual void	startEdit(const EM::PosID& =EM::PosID(-1,-1,-1));
+    virtual void	startEdit(const EM::PosID& );
     virtual bool	setPosition(const Coord3&);
     virtual void	finishEdit();
+
+    bool		canSnapAfterEdit(const EM::PosID&) const;
+    bool		getSnapAfterEdit() const;
+    void		setSnapAfterEdit(bool yn);
 
     virtual const BufferStringSet*	getVertMovingStyleNames() const;
     virtual int		getVertMovingStyle() const { return -1; }
@@ -74,7 +78,7 @@ protected:
     void				editPosChangeTrigger(CallBacker*);
     void				emSectionChange(CallBacker*);
 
-    virtual void			getAlongMovingNodes(
+    virtual void			getAlongMovingNodes( const EM::PosID&,
 	    				    TypeSet<EM::PosID>&,
 					    TypeSet<float>* ) const;
 
@@ -92,6 +96,9 @@ private:
     TypeSet<EM::PosID>			alongmovingnodes;
     TypeSet<float>			alongmovingnodesfactors;
     TypeSet<Coord3>			alongmovingnodesstart;
+    bool				snapafterthisedit;
+
+    bool				snapafteredit;
 };
 
 
