@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.21 2004-06-28 16:00:05 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.22 2005-07-21 11:29:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,10 @@ public:
 
 			IOObjContext(const TranslatorGroup*,
 				     const char* prefname=0);
-			//!< defaults: see init() below
+			//!< defaults: see init() implementation
 			IOObjContext(const IOObjContext&);
 			IOObjContext(const IOPar&);
+			~IOObjContext();
     IOObjContext&	operator=(const IOObjContext&);
 
     //! intrinsics
@@ -62,8 +63,9 @@ public:
     BufferString	deftransl;	//!< Translator to use for new entry
     BufferString	trglobexpr;	//!< Only select when matches globexpr
     					//!< Multiple: fill with FileMultiString
-    BufferString	ioparkeyval[2];	//!< Allow only/not with this key-value
-    bool		includekeyval;	//!< Is keyval only or not allowed
+    IOPar&		parconstraints;	//!< Allow only/not with these pars
+    bool		includeconstraints; //!< Are cnstr's only/not allowed
+    bool		allowcnstrsabsent; //!< Are absent cnstrs OK?
 
     bool		validIOObj(const IOObj&) const;
 
@@ -91,7 +93,7 @@ public:
 
 private:
 
-    inline void		init();
+    void		init();
 
 };
 
@@ -130,24 +132,6 @@ public:
     IOPar*		iopar;
 
 };
-
-
-
-inline void IOObjContext::init()
-{
-    newonlevel		= 0;
-    crlink		= false;
-    needparent		= false;
-    parentlevel		= 0;
-    partrgroup		= 0;
-    multi		= false;
-    forread		= true;
-    maychdir		= true;
-    maydooper		= true;
-    deftransl		= "";
-    stdseltype		= None;
-    includekeyval	= true;
-}
 
 
 #endif
