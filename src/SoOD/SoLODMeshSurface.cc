@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.15 2005-05-30 15:00:15 cvsdgb Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.16 2005-07-22 15:51:20 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -1922,7 +1922,7 @@ void MeshSurfacePartResolution::expandStrip( int idx, int jdx,
 	return;
     }
 
-    if ( idx00>=0 && idx10>=0 && idx01>=0 && idx11>=0  && filltype<3)
+    if ( idx00>=0 && idx10>=0 && idx01>=0 && idx11>=0 && filltype<3)
     {
 	bool diagonal00to11 = filltype==0
 	    ? getBestDiagonal(idx00,idx10,idx01,idx11,atnextrow)
@@ -1981,11 +1981,9 @@ void MeshSurfacePartResolution::expandStrip( int idx, int jdx,
 		mAppendTriangle( idx10, nidx10, idx00, nidx00, idx11, nidx11 );
 	    }
 	}
-	else
-	{
-	    mAppend( idx11, nidx11, );
-	    mEndStrip;
-	}
+	else mAppend( idx11, nidx11, );
+
+	mEndStrip;
     }
     else if ( idx01>=0 )
     {
@@ -1998,11 +1996,9 @@ void MeshSurfacePartResolution::expandStrip( int idx, int jdx,
 		mAppendTriangle(idx01, nidx01, idx00, nidx00, idx10, nidx10 );
 	    }
 	}
-	else
-	{
-	    mAppend( idx01, nidx01,);
-	    mEndStrip;
-	}
+	else mAppend( idx01, nidx01,);
+
+	mEndStrip;
     }
 
     idx00 = idx01;
