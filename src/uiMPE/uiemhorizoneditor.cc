@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.2 2005-07-21 20:59:05 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.3 2005-07-22 20:03:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,7 @@ uiEMEditor* uiEMHorizonEditor::create( uiParent* p, MPE::ObjectEditor* e )
 
 uiEMHorizonEditor::uiEMHorizonEditor( uiParent* p, MPE::HorizonEditor* he )
     : uiEMObjectEditor( p, he )
+    , editsettingsmnuitem( "Editor settings" )
 {}
 
 
