@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.17 2005-07-22 18:58:35 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.18 2005-07-22 19:48:42 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -311,20 +311,24 @@ void MeshSurfacePartPart::computeBBox( SoState* state, SbBox3f& box,
 	    break;
 
 	int nrcolsonpart = sidesize;
-	if ( colstart+sidesize>=meshsurface.nrColumns.getValue() )
+	if ( colstart+nrcolsonpart>=meshsurface.nrColumns.getValue() )
 	    nrcolsonpart = meshsurface.nrColumns.getValue()-colstart;
 
-	if ( nrcolsonpart < 0 )
-	    break;
+	const int colstartidx = row*nrcols+colstart;
+	if ( colstartidx+nrcolsonpart>=meshsurface.coordinates.getNum() )
+	    nrcolsonpart = meshsurface.coordinates.getNum()-colstartidx;
+
+	if ( nrcolsonpart<0 )
+	    continue;
 
 	const SbVec3f* coordptr =
-	    meshsurface.coordinates.getValues(row*nrcols+colstart);
+	    meshsurface.coordinates.getValues(colstartidx);
 	for ( int colidx=0; colidx<nrcolsonpart; colidx++ )
 	{
 	    const SbVec3f& coord = coordptr[colidx];
 	    if ( mIsCoordDefined( coord ) )
 	    {
-		box.extendBy(coordptr[colidx]);
+		box.extendBy(coord);
 		ncoords++;
 	    }
 	}
