@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.50 2004-12-06 20:16:13 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.51 2005-07-22 14:36:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,14 +48,12 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     ctio.ctxt.trglobexpr = "CBVS`2D";
     createDefaultUI( "cbvs" );
 
-    const ioPixmap copypm( GetDataFileName("copyobj.png") );
     cpym2dbut = manipgrp->addButton( ioPixmap(GetDataFileName("copyobj.png")),
 	    			   mCB(this,uiSeisFileMan,copyMan2DPush),
 	    			   "Copy cube" );
     manipgrp->setAlternative( cpym2dbut, ioPixmap(GetDataFileName("man2d.png")),
 			      "Manage lines" );
 
-    const ioPixmap mergepm( GetDataFileName("mergeseis.png") );
     mrgdmpbut = manipgrp->addButton( ioPixmap(GetDataFileName("mergeseis.png")),
 	    			    mCB(this,uiSeisFileMan,mergeDump2DPush),
 	    			    "Merge blocks of inlines into cube" );
