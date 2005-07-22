@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.16 2005-07-22 15:51:20 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.17 2005-07-22 18:58:35 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -605,6 +605,9 @@ void MeshSurfaceTesselationCache::GLRenderSurface(SoGLRenderAction* action)
 
 	if ( !isopen )
 	{
+	    if ( idx>nrci-3 )
+		break;
+
 	    mb.sendFirst();
 	    glBegin( mode );
 	    isopen = true;
@@ -1881,13 +1884,12 @@ void MeshSurfacePartResolution::startNewStrip(
     }
     else if ( idx01<0 && filltype<4)
     {
-	mAppendTriangle( idx00, nidx00, idx10, nidx10, idx11, nidx11 );
-	atnextrow = true;
+	mAppendTriangle( idx10, nidx10, idx00, nidx00, idx11, nidx11 );
+	mEndStrip;
     }
     else if ( idx11<0 && (filltype<3||filltype==6))
     {
-	mAppendTriangle( idx00, nidx00, idx10, nidx10, idx01, nidx01 );
-	atnextrow = false;
+	mAppendTriangle( idx10, nidx10, idx00, nidx00, idx01, nidx01 );
 	mEndStrip;
     }
 
@@ -1972,32 +1974,12 @@ void MeshSurfacePartResolution::expandStrip( int idx, int jdx,
 
     if ( idx11>=0 )
     {
-	if ( atnextrow )
-	{
-	    mEndStrip;
-
-	    if ( idx00>=0 && idx10>=0 )
-	    {
-		mAppendTriangle( idx10, nidx10, idx00, nidx00, idx11, nidx11 );
-	    }
-	}
-	else mAppend( idx11, nidx11, );
-
+	mAppend( idx11, nidx11, );
 	mEndStrip;
     }
     else if ( idx01>=0 )
     {
-	if ( !atnextrow )
-	{
-	    mEndStrip;
-
-	    if ( idx00>=0 && idx10>=0 )
-	    {
-		mAppendTriangle(idx01, nidx01, idx00, nidx00, idx10, nidx10 );
-	    }
-	}
-	else mAppend( idx01, nidx01,);
-
+	mAppend( idx01, nidx01,);
 	mEndStrip;
     }
 
@@ -2119,9 +2101,9 @@ bool MeshSurfacePartResolution::computeNormal(
 	    return false;
 
 	if ( prevcolindex==-1 )
-	    v0 = celem[nextcolindex]-celem[coordindex];
+	    v0 = (celem[nextcolindex]-celem[coordindex])*2;
 	else 
-	    v0 = celem[coordindex]-celem[prevcolindex];
+	    v0 = (celem[coordindex]-celem[prevcolindex])*2;
     }
     else
 	v0 = celem[nextcolindex]-celem[prevcolindex];
@@ -2139,9 +2121,9 @@ bool MeshSurfacePartResolution::computeNormal(
 	    return false;
 
 	if ( prevrowindex==-1 )
-	    v1 = celem[nextrowindex]-celem[coordindex];
+	    v1 = (celem[nextrowindex]-celem[coordindex])*2;
 	else 
-	    v1 = celem[coordindex]-celem[prevrowindex];
+	    v1 = (celem[coordindex]-celem[prevrowindex])*2;
     }
     else
 	v1 = celem[nextrowindex]-celem[prevrowindex];
