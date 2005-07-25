@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.28 2005-07-21 11:30:52 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.29 2005-07-25 06:16:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ static void adaptCtxt( const CtxtIOObj& c, Pol2D p2d )
     ctxt.deftransl = p2d == Only2D ? trglobexprs[0] : trglobexprs[2];
     if ( p2d == Only2D )
 	ctxt.parconstraints.setYN( "Is2D", true );
-    else if ( p2d = No2D )
+    else if ( p2d == No2D )
 	ctxt.parconstraints.setYN( "Is2D", false );
 }
 
