@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.16 2004-12-17 13:31:02 nanne Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.17 2005-07-26 08:01:08 cvsnanne Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -175,6 +175,7 @@ static void doswap8( void* buf, int bufsz )
 }
 
 #define mDefSwapFn(typ,N) \
+template <> \
 void DataInterpreter<typ>::swap##N( void* b, int s ) const { doswap##N(b,s); }
 
 mDefSwapFn(float,2) mDefSwapFn(float,4) mDefSwapFn(float,8)
@@ -184,6 +185,7 @@ mDefSwapFn(int64,2) mDefSwapFn(int64,4) mDefSwapFn(int64,8)
 
 
 #define mDefDIG(rettyp,typ) \
+template <> \
 rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int nr ) const \
 { return (rettyp)( *(((T##typ*)buf) + nr) ); }
 
@@ -221,6 +223,7 @@ mDefDIG(int64,U2)
 mDefDIG(int64,U4)
 
 #define mDefDIGF2I(rettyp,typ) \
+template <> \
 rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int nr ) const \
 { T##typ t = *(((T##typ*)buf) + nr); return (rettyp)(t > 0 ? t+.5:t-.5); }
 
@@ -231,6 +234,7 @@ mDefDIGF2I(int64,D)
 
 
 #define mDefDIGswp(rettyp,typ) \
+template <> \
 rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 { \
     T##typ t = *(((T##typ*)buf) + nr); \
@@ -265,6 +269,7 @@ mDefDIGswp(int64,U4)
 
 
 #define mDefDIGF2Iswp(rettyp,typ) \
+template <> \
 rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 { \
     T##typ t = *(((T##typ*)buf) + nr); \
@@ -278,6 +283,7 @@ mDefDIGF2Iswp(int64,D)
 
 
 #define mDefDIPS(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
@@ -294,10 +300,12 @@ mDefDIPS(double,S4)
 mDefDIPS(double,S8)
 
 #define mDefDIPIS(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 { *(((T##typ*)buf)+nr) = f; }
 
 #define mDefDIPISc(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
@@ -315,6 +323,7 @@ mDefDIPIS(int64,S8)
 
 
 #define mDefDIPU(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
@@ -330,10 +339,12 @@ mDefDIPU(double,U4)
 
 
 #define mDefDIPIU(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 { *(((T##typ*)buf)+nr) = f < 0 ? 0 : (T##typ)f; }
 
 #define mDefDIPIUc(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 { *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ : (f < 0 ? 0 : (T##typ)f); }
 
@@ -346,6 +357,7 @@ mDefDIPIUc(int64,U4)
 
 
 #define mDefDIPF(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 { *(((T##typ*)buf)+nr) = (T##typ)f; }
 
@@ -360,6 +372,7 @@ mDefDIPF(int64,D)
 
 
 #define mDefDIPSswp(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
@@ -375,6 +388,7 @@ mDefDIPSswp(double,S4)
 mDefDIPSswp(double,S8)
 
 #define mDefDIPISswp(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = (T##typ)f; \
@@ -382,6 +396,7 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 }
 
 #define mDefDIPIScswp(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
@@ -398,6 +413,7 @@ mDefDIPISswp(int64,S8)
 
 
 #define mDefDIPUswp(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
@@ -411,6 +427,7 @@ mDefDIPUswp(double,U2)
 mDefDIPUswp(double,U4)
 
 #define mDefDIPUIswp(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f < 0 ? 0 : (T##typ)f; \
@@ -418,6 +435,7 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 }
 
 #define mDefDIPUIcswp(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ : (f < 0 ? 0 : (T##typ)f); \
@@ -431,6 +449,7 @@ mDefDIPUIcswp(int64,U4)
 
 
 #define mDefDIPFswp(inptyp,typ) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = (T##typ)f; \
@@ -448,6 +467,7 @@ mDefDIPFswp(int64,D)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
+template <> \
 rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int nr) const \
 { \
      T##typ x = *( ((T##typ*)buf)+nr ); \
@@ -456,6 +476,7 @@ rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int nr) const \
 }
 
 #define mDefDIGIbm(rettyp,typ,fntyp) \
+template <> \
 rettyp DataInterpreter<rettyp>::get##typ##Ibm( const void* buf, int nr ) const \
 { return (rettyp)IbmFormat::as##fntyp( ((T##typ*)buf)+nr ); }
 
@@ -474,6 +495,7 @@ mDefDIGIbm(int64,F,Float)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
+template <> \
 rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int nr) const \
 { \
      T##typ x = *( ((T##typ*)buf)+nr ); \
@@ -496,6 +518,7 @@ mDefDIGIbmswp(int64,F,Float)
 
 
 #define mDefDIPSIbm(inptyp,typ,fntyp) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int nr,inptyp f) const \
 { \
     IbmFormat::put##fntyp( f > cM##typ ? cM##typ : ( f < -cM##typ ? -cM##typ \
@@ -513,6 +536,7 @@ mDefDIPSIbm(int64,S4,Int)
 
 
 #define mDefDIPFIbm(inptyp,typ,fntyp) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int nr,inptyp f) const \
 { IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); }
 
@@ -523,6 +547,7 @@ mDefDIPFIbm(int64,F,Float)
 
 
 #define mDefDIPSIbmswp(inptyp,typ,fntyp) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,int nr,inptyp f) \
 const { \
     IbmFormat::put##fntyp( f > cM##typ ? cM##typ : ( f < -cM##typ ? -cM##typ \
@@ -541,6 +566,7 @@ mDefDIPSIbmswp(int64,S4,Int)
 
 
 #define mDefDIPFIbmswp(inptyp,typ,fntyp) \
+template <> \
 void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,int nr,inptyp f) \
 const { \
     IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); \

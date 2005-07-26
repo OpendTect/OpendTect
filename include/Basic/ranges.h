@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.35 2005-06-02 14:56:57 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.36 2005-07-26 08:00:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,6 +270,7 @@ inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
 
 
 #define mDefIntNrSteps(typ) \
+template <> \
 inline int StepInterval<typ>::nrSteps() const \
 { \
     if ( !step ) return 0; \
@@ -287,6 +288,7 @@ mDefIntNrSteps(unsigned short)
 mDefIntNrSteps(unsigned char)
 
 #define mDefFNrSteps(typ,eps) \
+template <> \
 inline int StepInterval<typ>::nrSteps() const \
 { \
     if ( !step ) return 0; \
@@ -300,6 +302,7 @@ mDefFNrSteps(float,1e-4)
 mDefFNrSteps(double,1e-8)
 
 #define mDefIntisCompat(typ) \
+template <> \
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 	typ ) const \
 { \
@@ -319,6 +322,7 @@ mDefIntisCompat(unsigned short)
 mDefIntisCompat(unsigned char)
 
 #define mDefFltisCompat(typ) \
+template <> \
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 			typ eps ) const \
 { \
