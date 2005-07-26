@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.29 2005-07-25 06:16:29 cvsnanne Exp $
+ RCS:		$Id: uiseissel.cc,v 1.30 2005-07-26 13:28:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,9 +123,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( subsel )
     {
 	subsel->set2D( oinf.is2D() );
-	CubeSampling cs;
-	if ( oinf.getRanges(cs) )
-	    subsel->setInput( cs );
+	subsel->setInput( *ioobj );
     }
 
     if ( !attrfld ) return;
