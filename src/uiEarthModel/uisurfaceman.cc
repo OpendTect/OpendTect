@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.24 2005-02-10 16:22:57 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.25 2005-07-26 07:44:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "uimsg.h"
 #include "uigeninputdlg.h"
+#include "uiiosurfacedlg.h"
+#include "pixmap.h"
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
@@ -34,6 +36,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
 	    	   hor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault) )
 {
     createDefaultUI( hor ? "hor" : "flt" );
+
+    manipgrp->addButton( ioPixmap(GetDataFileName("copyobj.png")),
+	    		 mCB(this,uiSurfaceMan,copyCB), 
+			 hor ? "Copy horizon" : "Copy fault" );
 
     attribfld = new uiListBox( topgrp, "Calculated attributes", true );
     attribfld->attach( rightTo, manipgrp );
@@ -59,6 +65,7 @@ uiSurfaceMan::~uiSurfaceMan()
 
 void uiSurfaceMan::removeCB( CallBacker* )
 {
+    if ( !ctio.ioobj ) return;
     BufferStringSet attribnms;
     attribfld->getSelectedItems( attribnms );
     if ( !attribnms.size() || 
@@ -84,6 +91,7 @@ void uiSurfaceMan::removeCB( CallBacker* )
 
 void uiSurfaceMan::renameCB( CallBacker* )
 {
+    if ( !ctio.ioobj ) return;
     BufferString attribnm = attribfld->getText();
     BufferString titl( "Rename '" ); titl += attribnm; titl += "'";
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(attribnm) );
@@ -95,6 +103,15 @@ void uiSurfaceMan::renameCB( CallBacker* )
 
 }
 
+
+void uiSurfaceMan::copyCB( CallBacker* )
+{
+    if ( !ctio.ioobj ) return;
+    PtrMan<IOObj> ioobj = ctio.ioobj->clone();
+    uiCopySurface dlg( this, *ioobj );
+    if ( dlg.go() )
+	postIomChg(0);
+}
 
 
 void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
@@ -121,7 +138,7 @@ void uiSurfaceMan::mkFileInfo()
     BufferString txt;
     BinIDSampler bs;
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( ctio.ioobj->key(),sd);
+    EM::EMM().getSurfaceData( ctio.ioobj->key(), sd );
     fillAttribList( sd.valnames );
     txt = "Inline range: "; mRangeTxt(inl);
     txt += "\nCrossline range: "; mRangeTxt(crl);

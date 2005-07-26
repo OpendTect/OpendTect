@@ -7,18 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.9 2005-04-06 10:54:24 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.10 2005-07-26 07:43:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class CtxtIOObj;
 class IOObj;
+class MultiID;
 class uiGenInput;
+class uiIOObjSel;
 class uiSurfaceRead;
 class uiSurfaceWrite;
-class MultiID;
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
 
@@ -68,6 +70,23 @@ protected:
 
     int			auxdataidx_;
     bool		checkIfAlreadyPresent(const char*);
+    bool		acceptOK(CallBacker*);
+};
+
+
+class uiCopySurface : public uiDialog
+{
+public:
+    			uiCopySurface(uiParent*,const IOObj&);
+			~uiCopySurface();
+
+protected:
+    uiSurfaceRead*	inpfld;
+    uiIOObjSel*		outfld;
+
+    CtxtIOObj&		ctio_;
+    
+    CtxtIOObj&		mkCtxtIOObj(const IOObj&);
     bool		acceptOK(CallBacker*);
 };
 

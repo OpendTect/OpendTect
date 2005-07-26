@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.13 2005-04-06 10:54:30 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.14 2005-07-26 07:44:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,16 @@ ________________________________________________________________________
 
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfacetr.h"
 #include "uimsg.h"
+#include "ctxtioobj.h"
 #include "ioobj.h"
 #include "emsurface.h"
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uiexecutor.h"
 
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
@@ -124,3 +128,70 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
     return present;
 }
 
+
+
+uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj )
+    : uiDialog(p,Setup("Copy surface","","104.0.0"))
+    , ctio_(mkCtxtIOObj(ioobj))
+{
+    const bool ishor = !strcmp(ioobj.group(),EM::Horizon::typeStr());
+    inpfld = new uiSurfaceRead( this, ishor, false );
+    inpfld->setIOObj( ioobj.key() );
+
+    ctio_.ctxt.forread = false;
+    outfld = new uiIOObjSel( this, ctio_, "Output Horizon" );
+    outfld->attach( alignedBelow, inpfld );
+}
+
+
+uiCopySurface::~uiCopySurface()
+{
+    delete ctio_.ioobj;
+    delete &ctio_;
+}
+
+
+CtxtIOObj& uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
+{
+    return !strcmp(ioobj.group(),EM::Horizon::typeStr())
+	? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault);
+}
+
+
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
+
+bool uiCopySurface::acceptOK( CallBacker* )
+{
+    if ( !inpfld->processInput() ) return false;
+    if ( !outfld->commitInput(true) )
+	mErrRet("Please select output surface")
+
+    const IOObj* ioobj = inpfld->selIOObj();
+    if ( !ioobj ) mErrRet("Cannot find surface")
+
+    EM::SurfaceIOData sd;
+    EM::SurfaceIODataSelection sdsel( sd );
+    inpfld->getSelection( sdsel );
+
+    RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
+    if ( !emobj ) mErrRet("Cannot create object")
+    emobj->setID( EM::EMM().multiID2ObjectID(ioobj->key()) );
+
+    mDynamicCastGet(EM::Surface*,surface,emobj.ptr())
+    PtrMan<Executor> loader = surface->geometry.loader( &sdsel );
+    if ( !loader ) mErrRet("Cannot read surface")
+
+    uiExecutor loaddlg( this, *loader );
+    if ( !loaddlg.go() ) return false;
+
+    IOObj* newioobj = outfld->ctxtIOObj().ioobj;
+    emobj->setID( EM::EMM().multiID2ObjectID(newioobj->key()) );
+    const MultiID& mid = newioobj->key();
+    PtrMan<Executor> saver = surface->geometry.saver( 0, &mid );
+    if ( !saver ) mErrRet("Cannot save surface")
+
+    uiExecutor savedlg( this, *saver );
+    if ( !savedlg.go() ) return false;
+
+    return true;
+}

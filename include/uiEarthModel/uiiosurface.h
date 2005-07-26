@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.16 2005-07-14 08:43:07 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.17 2005-07-26 07:43:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ public:
     			uiSurfaceRead(uiParent*,bool,bool showattribfld=true);
 
     virtual bool	processInput();
+    void		setIOObj(const MultiID&);
 
 protected:
 

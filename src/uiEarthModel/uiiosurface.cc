@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.31 2005-07-14 08:43:15 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.32 2005-07-26 07:44:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,8 +265,22 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, bool ishor, bool showattribfld )
 }
 
 
+void uiSurfaceRead::setIOObj( const MultiID& mid )
+{
+    ctio.setObj( mid );
+    objfld->updateInput();
+    objSel(0);
+}
+
+
 bool uiSurfaceRead::processInput()
 {
+    if ( !objfld->commitInput(false) )
+    {
+	uiMSG().error( "Please select input" );
+	return false;
+    }
+
     if ( sectionfld && !sectionfld->box()->nrSelected() )
     {
 	uiMSG().error( "Please select at least one patch" );

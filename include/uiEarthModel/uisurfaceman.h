@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.7 2005-02-10 16:23:05 nanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.8 2005-07-26 07:43:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ protected:
 
     void		removeCB(CallBacker*);
     void		renameCB(CallBacker*);
+    void		copyCB(CallBacker*);
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
 };
