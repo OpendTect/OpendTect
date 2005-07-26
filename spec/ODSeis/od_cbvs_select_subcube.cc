@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.23 2005-01-28 15:18:05 arend Exp $
+ * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.24 2005-07-26 13:13:35 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.23 2005-01-28 15:18:05 arend Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.24 2005-07-26 13:13:35 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -75,7 +75,7 @@ static int doWork( int argc, char** argv )
     if ( cs.zrg.step < 0 ) cs.zrg.step = -cs.zrg.step;
     cs.normalise();
 
-    SeisSelData tsel; tsel.type_ = SeisSelData::Range;
+    SeisSelData tsel; tsel.type_ = Seis::Range;
     tsel.inlrg_.start = cs.hrg.start.inl; tsel.inlrg_.stop = cs.hrg.stop.inl;
     tsel.crlrg_.start = cs.hrg.start.crl; tsel.crlrg_.stop = cs.hrg.stop.crl;
     assign( tsel.zrg_, cs.zrg );
