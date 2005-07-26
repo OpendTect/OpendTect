@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.22 2005-07-21 13:42:56 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.23 2005-07-26 08:12:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
     addSeparator();
     trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
-    				 "Direct seed tracking", false );
+    				"Auto-tracking", false );
     
     addSeparator();
     trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
@@ -157,7 +157,7 @@ void uiMPEMan::deleteVisObjects()
 	seededitor = 0;
     }
     
-     if ( seeddisplayer )
+    if ( seeddisplayer )
     {
 	seeddisplayer->unRef();
 	seeddisplayer = 0;
@@ -376,13 +376,6 @@ void uiMPEMan::transpChg( CallBacker* )
 }
 
 
-void uiMPEMan::undoPush( CallBacker* )
-{
-    EM::EMM().history().unDo( 1, mEMHistoryUserInteractionLevel );
-    updateButtonSensitivity(0);
-}
-
-
 void uiMPEMan::mouseEraseModeCB( CallBacker* )
 {
     mGetDisplays(false)
@@ -454,7 +447,7 @@ void uiMPEMan::seedModeCB( CallBacker* )
 	    visserv->getChildIds( -1, scenes );
 	    visserv->addObject( seededitor, scenes[0], false );
 	    
- 	    if ( ! seeddisplayer )
+ 	    if ( !seeddisplayer )
 	    {
 		seeddisplayer = visSurvey::PickSetDisplay::create();
 		seeddisplayer->ref();
@@ -470,6 +463,13 @@ void uiMPEMan::seedModeCB( CallBacker* )
 	seededitor->turnOn(true);
 	seededitor->select();
     }
+}
+
+
+void uiMPEMan::undoPush( CallBacker* )
+{
+    EM::EMM().history().unDo( 1, mEMHistoryUserInteractionLevel );
+    updateButtonSensitivity(0);
 }
 
 
@@ -509,7 +509,6 @@ void uiMPEMan::trackBackward( CallBacker* )
 
 void uiMPEMan::trackInVolume( CallBacker* )
 {
-    
     const bool ison = isOn( seedidx );
     if ( ison && seededitor )
     {
@@ -550,8 +549,7 @@ void uiMPEMan::showTracker( bool yn )
     for ( int idx=0; idx<displays.size(); idx++ )
     {
 	displays[idx]->showDragger( yn );
-	if ( yn )
-	    displays[idx]->updatePlaneColor();
+	if ( yn ) displays[idx]->updatePlaneColor();
     }
 }
 
@@ -597,20 +595,21 @@ void uiMPEMan::initFromDisplay()
 }
 
 
-void uiMPEMan::showSeeds(bool show)
+void uiMPEMan::showSeeds( bool show )
 {
-    if ( ! seeddisplayer )
-	return;
-    if ( ! show )
+    if ( !seeddisplayer ) return;
+
+    if ( !show )
     {
 	seeddisplayer->removeAll();
 	return;
     }
 
     const ObjectSet<Geometry::Element>& seeds = engine().interactionseeds;
-    if ( !seeds.size() || !seeds[0] )    return;
+    if ( !seeds.size() || !seeds[0] ) return;
     mDynamicCastGet(const Geometry::CubicBezierCurve*,cbc,seeds[0]);
-    if ( !cbc )        return;
+    if ( !cbc ) return;
+    
     const StepInterval<int> prange = cbc->parameterRange();
     const int nrknots = prange.nrSteps() + 1;
     
@@ -624,7 +623,6 @@ void uiMPEMan::showSeeds(bool show)
 	const Coord3 pos = cbc->getPosition( prange.atIndex(idx) );
 	psd->addPick(pos);
     }
+
     psd->showAll(true);
 }
-
-
