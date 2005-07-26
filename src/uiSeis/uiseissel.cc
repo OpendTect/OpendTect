@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.30 2005-07-26 13:28:22 cvsnanne Exp $
+ RCS:		$Id: uiseissel.cc,v 1.31 2005-07-26 16:15:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
-    replaceFinaliseCB( mCB(this,uiSeisSelDlg,fillFlds) );
+    selChg(0); entrySel(0);
 }
 
 
@@ -81,15 +81,13 @@ const char* uiSeisSelDlg::standardTranslSel( Pol2D pol2d )
 }
 
 
-static void adaptCtxt( const CtxtIOObj& c, Pol2D p2d )
+static void adaptCtxt( const IOObjContext& c, Pol2D p2d )
 {
-    IOObjContext& ctxt = const_cast<IOObjContext&>( c.ctxt );
+    IOObjContext& ctxt = const_cast<IOObjContext&>( c );
     ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( p2d );
     ctxt.deftransl = p2d == Only2D ? trglobexprs[0] : trglobexprs[2];
-    if ( p2d == Only2D )
-	ctxt.parconstraints.setYN( "Is2D", true );
-    else if ( p2d == No2D )
-	ctxt.parconstraints.setYN( "Is2D", false );
+    if ( p2d == No2D )
+	ctxt.parconstraints.clear(); // Selection is done differently
 }
 
 
@@ -103,13 +101,6 @@ const CtxtIOObj& uiSeisSelDlg::getCtio( const CtxtIOObj& c,
 
 uiSeisSelDlg::~uiSeisSelDlg()
 {
-}
-
-
-void uiSeisSelDlg::fillFlds( CallBacker* c )
-{
-    selChg(c);
-    entrySel(c);
 }
 
 
@@ -184,9 +175,10 @@ static const char* gtSelTxt( const char** sts, Pol2D p2d, bool forread )
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 		      bool wclr, const char** sts )
 	: uiIOObjSel(p,c,gtSelTxt(sts,Both2DAnd3D,c.ctxt.forread),wclr)
-	, iopar(*new IOPar)
 	, setup(*new SeisSelSetup(s))
     	, seltxts(sts)
+	, dlgiopar(*new IOPar)
+	, orgparconstraints(*new IOPar(c.ctxt.parconstraints))
 {
     if ( !c.ctxt.forread )
 	inp_->label()->setPrefWidthInChar( 15 );
@@ -197,15 +189,16 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 
 uiSeisSel::~uiSeisSel()
 {
-    delete &iopar;
     delete &setup;
+    delete &dlgiopar;
+    delete &orgparconstraints;
 }
 
 
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
-    ((uiSeisSelDlg*)dlg)->fillPar( iopar );
-    setAttrNm( iopar.find( sKey::Attribute ) );
+    ((uiSeisSelDlg*)dlg)->fillPar( dlgiopar );
+    setAttrNm( dlgiopar.find( sKey::Attribute ) );
 }
 
 
@@ -242,7 +235,7 @@ bool uiSeisSel::is2D() const
 
 bool uiSeisSel::fillPar( IOPar& iop ) const
 {
-    iop.merge( iopar );
+    iop.merge( dlgiopar );
     return uiIOObjSel::fillPar( iop );
 }
 
@@ -250,7 +243,7 @@ bool uiSeisSel::fillPar( IOPar& iop ) const
 void uiSeisSel::usePar( const IOPar& iop )
 {
     uiIOObjSel::usePar( iop );
-    iopar.merge( iop );
+    dlgiopar.merge( iop );
 }
 
 
@@ -287,6 +280,7 @@ void uiSeisSel::set2DPol( Pol2D pol )
     if ( newdisptxt != disptxt )
 	setLabelText( newdisptxt );
 
+    ctio.ctxt.parconstraints = orgparconstraints;
     adaptCtxt( ctio.ctxt, pol );
 }
 
@@ -294,6 +288,6 @@ void uiSeisSel::set2DPol( Pol2D pol )
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
     uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio, setup );
-    dlg->usePar( iopar );
+    dlg->usePar( dlgiopar );
     return dlg;
 }
