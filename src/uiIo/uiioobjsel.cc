@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.72 2005-04-28 15:52:27 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.73 2005-07-26 13:28:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 		listfld->box()->optimumFieldWidth(25,60) );
     listfld->box()->setPrefHeightInChar( 8 );
     fillList();
-    listfld->attach( ctio.ctxt.forread ? ensureBelow : alignedBelow, filtfld );
+    listfld->attach( alignedBelow, filtfld );
+    topgrp->setHAlignObj( listfld->box() );
 
     if ( ctio.ioobj )
         listfld->box()->setCurrentItem( ctio.ioobj->name() );
@@ -82,7 +83,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( !ctio.ctxt.forread )
     {
 	nmfld = new uiGenInput( this, "Name" );
-	nmfld->attach( stretchedBelow, topgrp );
+	nmfld->attach( alignedBelow, topgrp );
 	nmfld->setElemSzPol( uiObject::smallmax );
 	nmfld->setStretch( 2, 0 );
 
