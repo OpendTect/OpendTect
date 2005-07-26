@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.17 2005-05-17 09:29:06 cvskris Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.18 2005-07-26 07:42:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -350,7 +350,7 @@ bool uiIOObjManipGroup::rmEntry( bool rmabl )
 bool uiIOObjManipGroup::relocEntry( Translator* tr )
 {
     mDynamicCastGet(IOStream*,iostrm,ioobj)
-    BufferString caption( "New file/location for '" );
+    BufferString caption( "New file location for '" );
     caption += ioobj->name(); caption += "'";
     BufferString oldfnm( iostrm->getExpandedName(true) );
     BufferString filefilt( "*" );
