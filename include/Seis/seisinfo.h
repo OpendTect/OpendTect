@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.18 2005-05-18 09:20:45 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.19 2005-07-26 08:41:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "enums.h"
 #include "ranges.h"
 #include "position.h"
-#include "seistype.h"
 #include "datachar.h"
 #include "samplingdata.h"
 class SUsegy;

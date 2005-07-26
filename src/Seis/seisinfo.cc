@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.28 2005-07-08 11:22:15 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.29 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: seisinfo.cc,v 1.28 2005-07-08 11:22:15 cvsbert 
 #include "filegen.h"
 #include "iopar.h"
 #include "cubesampling.h"
+#include "enums.h"
+#include "seistype.h"
 #include <math.h>
 #include <timeser.h>
 #include <float.h>
@@ -52,8 +54,16 @@ static BufferString getUsrInfo()
 
 BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
 
+class SeisEnum
+{
+public:
+    typedef Seis::WaveType WaveType;
+	    DeclareEnumUtils(WaveType)
+    typedef Seis::DataType DataType;
+	    DeclareEnumUtils(DataType)
+};
 
-DefineEnumNames(Seis,WaveType,0,"Wave type")
+DefineEnumNames(SeisEnum,WaveType,0,"Wave type")
 {
 	"P",
 	"Sh",
@@ -62,7 +72,7 @@ DefineEnumNames(Seis,WaveType,0,"Wave type")
 	0
 };
 
-DefineEnumNames(Seis,DataType,0,"Data type")
+DefineEnumNames(SeisEnum,DataType,0,"Data type")
 {
 	"Amplitude",
 	"Dip",
@@ -73,6 +83,19 @@ DefineEnumNames(Seis,DataType,0,"Data type")
 	"Other",
 	0
 };
+
+const char* Seis::nameOf( Seis::DataType dt )
+{ return eString(SeisEnum::DataType,dt); }
+const char* Seis::nameOf( Seis::WaveType wt )
+{ return eString(SeisEnum::WaveType,wt); }
+Seis::WaveType Seis::waveTypeOf( const char* s )
+{ return eEnum(SeisEnum::WaveType,s); }
+Seis::DataType Seis::dataTypeOf( const char* s )
+{ return eEnum(SeisEnum::DataType,s); }
+const char** Seis::dataTypeNames()
+{ return SeisEnum::DataTypeNames; }
+const char** Seis::waveTypeNames()
+{ return SeisEnum::WaveTypeNames; }
  
 
 const char* SeisTrcInfo::attrnames[] = {

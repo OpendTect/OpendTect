@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.29 2005-06-22 15:31:49 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.30 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -134,7 +134,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
     tr = gtTransl( fname, false, &msg );
     if ( !tr ) return;
 
-    if ( sd.type_ == SeisSelData::Range || sd.type_ == SeisSelData::TrcNrs )
+    if ( sd.type_ == Seis::Range || sd.type_ == Seis::TrcNrs )
     {
 	seldata = new SeisSelData( sd );
 	tr->setSelData( seldata );
@@ -154,10 +154,10 @@ void addTrc( SeisTrc* trc )
     const int tnr = trc->info().binid.crl;
     if ( seldata )
     {
-	if ( seldata->type_ == SeisSelData::TrcNrs 
+	if ( seldata->type_ == Seis::TrcNrs 
 		&& !seldata->isOK( curnr ) )
 	    { delete trc; return; }
-	if ( seldata->type_ == SeisSelData::Range )
+	if ( seldata->type_ == Seis::Range )
 	{
 	    BinID bid( seldata->inlrg_.start, tnr );
 	    if ( !seldata->isOK(bid) )

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.45 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.46 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -53,7 +53,7 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool TwoDSeisTrcTranslator::initRead_( bool )
+bool TwoDSeisTrcTranslator::initRead_()
 {
     errmsg = 0;
     if ( !conn->ioobj )

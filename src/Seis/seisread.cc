@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.52 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.53 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -49,9 +49,10 @@ SeisTrcReader::~SeisTrcReader()
 
 void SeisTrcReader::init()
 {
-    foundvalidinl = foundvalidcrl = entryis2d = onlyforinfo =
+    foundvalidinl = foundvalidcrl = entryis2d =
     new_packet = inforead = needskip = prepared = forcefloats = false;
     prev_inl = mUdf(int);
+    readmode = Seis::Prod;
     if ( tbuf ) tbuf->deepErase();
     mDelOuter; outer = mUndefPtr(BinIDRange);
     delete fetcher; fetcher = 0;
@@ -59,7 +60,7 @@ void SeisTrcReader::init()
 }
 
 
-bool SeisTrcReader::prepareWork( bool needinfoonly )
+bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 {
     if ( !ioobj )
     {
@@ -73,7 +74,7 @@ bool SeisTrcReader::prepareWork( bool needinfoonly )
 	return false;
     }
 
-    onlyforinfo = needinfoonly;
+    readmode = rm;
     Conn* conn = 0;
     if ( !is2d )
     {
@@ -161,8 +162,7 @@ bool SeisTrcReader::initRead( Conn* conn )
 {
     if ( is2d ) return true;
 
-    trl->needHeaderInfoOnly( onlyforinfo );
-    if ( !trl->initRead(conn) )
+    if ( !trl->initRead(conn,readmode) )
     {
 	errmsg = trl->errMsg();
 	cleanUp();
@@ -207,7 +207,7 @@ bool SeisTrcReader::initRead( Conn* conn )
 
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
-    if ( !prepared && !prepareWork(onlyforinfo) )
+    if ( !prepared && !prepareWork(readmode) )
 	return -1;
     else if ( outer == mUndefPtr(BinIDRange) )
 	startWork();
@@ -297,7 +297,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
-    if ( !prepared && !prepareWork(onlyforinfo) )
+    if ( !prepared && !prepareWork(readmode) )
 	return false;
     else if ( outer == mUndefPtr(BinIDRange) )
 	startWork();
@@ -366,7 +366,7 @@ bool SeisTrcReader::mkNextFetcher()
 
     if ( !islinesel )
     {
-	if ( seldata && seldata->type_ == SeisSelData::Table )
+	if ( seldata && seldata->type_ == Seis::Table )
 	{
 	    // Chances are we do not need to go through this line at all
 	    while ( !lset->haveMatch(curlineidx,seldata->table_) )
@@ -449,7 +449,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
     bool isincl = true;
     if ( seldata )
     {
-	if ( seldata->type_ == SeisSelData::Table )
+	if ( seldata->type_ == Seis::Table )
 	    // Not handled by fetcher
 	    isincl = seldata->table_.includes(trcti.binid);
     }
@@ -527,7 +527,7 @@ void SeisTrcReader::trySkipConns()
 
     BinID binid;
 
-    if ( seldata->type_ == SeisSelData::Range )
+    if ( seldata->type_ == Seis::Range )
 	binid.crl = seldata->crlrg_.start;
     else if ( seldata->table_.totalSize() == 0 )
 	return;

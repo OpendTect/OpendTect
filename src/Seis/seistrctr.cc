@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.64 2005-07-05 14:51:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.65 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -85,9 +85,9 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, prevnr_(mUdf(int))
     	, trcblock_(*new SeisTrcBuf)
     	, lastinlwritten(SI().sampling(false).hrg.start.inl)
+    	, read_mode(Seis::Prod)
     	, enforce_regular_write(true)
     	, enforce_survinfo_write(false)
-    	, needpinfoonly(false)
     	, is_prestack(false)
     	, is_2d(false)
 {
@@ -150,12 +150,13 @@ SeisPacketInfo& SeisTrcTranslator::packetInfo()
 }
 
 
-bool SeisTrcTranslator::initRead( Conn* c )
+bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 {
     cleanUp();
+    read_mode = rm;
     pinfo = new SeisPacketInfo;
     if ( !initConn(c,true)
-      || !initRead_(needpinfoonly) )
+      || !initRead_() )
     {
 	conn = 0;
 	return false;
@@ -546,8 +547,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 	tr->setSelData( sd );
     }
     Conn* cnn = ioobj.getConn( Conn::Read );
-    tr->needpinfoonly = true;
-    if ( !cnn || !tr->initRead(cnn) )
+    if ( !cnn || !tr->initRead(cnn,Seis::PreScan) )
 	{ delete cnn; return false; }
 
     const SeisPacketInfo& pinf = tr->packetInfo();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.43 2005-07-05 14:52:25 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.44 2005-07-26 08:41:38 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -18,6 +18,7 @@ Translators for seismic traces.
 #include "ctxtioobj.h"
 #include "samplingdata.h"
 #include "basiccompinfo.h"
+#include "seistype.h"
 
 class BinID;
 class Coord;
@@ -136,19 +137,19 @@ public:
 			    //!< Protection against assignment.
     };
 
-
 			SeisTrcTranslator(const char*,const char*);
     virtual		~SeisTrcTranslator();
 
 			/*! Init functions must be called, because
-			     Conn object must be always available */
-    bool		initRead(Conn*);
+			     Conn object must always be available */
+    bool		initRead(Conn*,Seis::ReadMode rt=Seis::Prod);
 			/*!< After call, component and packet info will be
-			 available. Note that Conn may need to have an IOObj* */
+			     available. Some STT's *require* a valid IOObj
+			     in Conn */
     bool		initWrite(Conn*,const SeisTrc&);
 			/*!< After call, default component and packet info
-			   will be generated according to the example trace.
-			   Note that Conn may need to have an IOObj* */
+			     will be generated according to the example trace.
+			     Some STT's *require* a valid IOObj in Conn */
     Conn*		curConn()			{ return conn; }
 
     SeisPacketInfo&		packetInfo();
@@ -215,8 +216,6 @@ public:
     			{ enforce_regular_write = yn; }
     void		enforceSurvinfoWrite( bool yn )
     			{ enforce_survinfo_write = yn; }
-    void		needHeaderInfoOnly( bool yn )
-			{ needpinfoonly = yn; }
 
 protected:
 
@@ -224,6 +223,7 @@ protected:
     const char*		errmsg;
     SeisPacketInfo*	pinfo;
 
+    Seis::ReadMode	read_mode;
     bool		is_2d;
     bool		is_prestack;
     bool		enforce_regular_write;
@@ -247,7 +247,7 @@ protected:
     void		fillOffsAzim(SeisTrcInfo&,const Coord&,const Coord&);
 
 			/* Subclasses will need to implement the following: */
-    virtual bool	initRead_(bool pinfonly)	{ return true; }
+    virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
@@ -269,7 +269,6 @@ private:
     int			nrout_;
     int			prevnr_;
     int			lastinlwritten;
-    bool		needpinfoonly;
 
     void		enforceBounds();
     bool		writeBlock();

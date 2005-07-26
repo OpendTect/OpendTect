@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.2 2005-06-03 10:36:16 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.3 2005-07-26 08:41:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "samplingdata.h"
+#include "seistype.h"
 class IOObj;
 class MultiID;
 class CubeSampling;
@@ -32,13 +33,12 @@ public:
 			SeisIOObjInfo(const SeisIOObjInfo&);
     SeisIOObjInfo&	operator =(const SeisIOObjInfo&);
 
-    inline bool		isOK() const	{ return type_ != Bad; }
-    inline bool		is2D() const	{ return type_ > VolPS; }
-    inline bool		isPS() const	{ return type_ == VolPS
-					      || type_ == LinePS; }
+    inline bool		isOK() const	{ return bad_; }
+    inline bool		is2D() const	{ return geomtype_ > Seis::VolPS; }
+    inline bool		isPS() const	{ return geomtype_ == Seis::VolPS
+					      || geomtype_ == Seis::LinePS; }
 
-    enum Type		{ Bad, Vol, VolPS, Line, LinePS };
-    Type		type() const		{ return type_; }
+    Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
 
     struct SpaceInfo
@@ -77,7 +77,8 @@ public:
 
 protected:
 
-    Type		type_;
+    Seis::GeomType	geomtype_;
+    bool		bad_;
     IOObj*		ioobj_;
 
     void		setType();

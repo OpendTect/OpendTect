@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.2 2005-06-03 10:36:16 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.3 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -33,7 +33,8 @@ SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
 
 
 SeisIOObjInfo::SeisIOObjInfo( const SeisIOObjInfo& sii )
-    	: type_(sii.type_)
+    	: geomtype_(sii.geomtype_)
+	, bad_(sii.bad_)
 {
     ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
 }
@@ -45,7 +46,8 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
     {
 	delete ioobj_;
 	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
-    	type_ = sii.type_;
+    	geomtype_ = sii.geomtype_;
+    	bad_ = sii.bad_;
     }
     return *this;
 }
@@ -53,18 +55,20 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
 
 void SeisIOObjInfo::setType()
 {
-    if ( !ioobj_ ) { type_ = Bad; return; }
+    bad_ = !ioobj_;
+    if ( bad_ ) return;
 
     const BufferString trgrpnm( ioobj_->group() );
     bool isps = false;
     if ( trgrpnm == mTranslGroupName(SeisPS) )
 	isps = true;
     else if ( trgrpnm != mTranslGroupName(SeisTrc) )
-	{ type_ = Bad; return; }
+	{ bad_ = true; return; }
     ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS, isps );
 
     const bool is2d = SeisTrcTranslator::is2D( *ioobj_, false );
-    type_ = isps ? (is2d ? LinePS : VolPS) : (is2d ? Line : Vol);
+    geomtype_ = isps ? (is2d ? Seis::LinePS : Seis::VolPS)
+		     : (is2d ? Seis::Line : Seis::Vol);
 }
 
 
@@ -79,7 +83,7 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
 	expectednrtrcs = SI().sampling(false).hrg.totalNr();
 }
 
-#define mChk(ret) if ( type_ == Bad ) return ret
+#define mChk(ret) if ( bad_ ) return ret
 
 int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.5 2005-07-18 15:55:31 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.6 2005-07-26 08:41:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ void updateInp( const char* fn, bool mult )
     }
 
     tr->dumpToString( true );
-    if ( !tr->initRead( conn ) )
+    if ( !tr->initRead( conn, Seis::PreScan ) )
     {
 	info = "No information:\n";
 	info += tr->errMsg();

@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.20 2004-11-12 11:37:24 bert Exp $
+ RCS:		$Id: seisread.h,v 1.21 2005-07-26 08:41:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seisstor.h"
+#include "seistype.h"
 #include "linekey.h"
 class Executor;
 class BinIDRange;
@@ -40,7 +41,7 @@ public:
 
     void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
     			//!< Only effective if called before prepareWork()
-    bool		prepareWork(bool needglobalinfoonly=false);
+    bool		prepareWork(Seis::ReadMode rm=Seis::Prod);
     			//!< After this, you can set stuff on the translator
 
     int			get(SeisTrcInfo&);
@@ -81,7 +82,7 @@ protected:
     BinIDRange*		outer;
     SeisTrcBuf*		tbuf;
     Executor*		fetcher;
-    bool		onlyforinfo;
+    Seis::ReadMode	readmode;
     bool		entryis2d;
 
     void		init();

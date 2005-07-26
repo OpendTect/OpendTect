@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.64 2005-05-02 09:08:49 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.65 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -65,9 +65,9 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->setSingleFile( is2d ); tr->set2D( is2d );
-    tr->needHeaderInfoOnly( infoonly );
     if ( msg ) *msg = "";
-    if ( !tr->initRead(new StreamConn(fnm,Conn::Read)) )
+    if ( !tr->initRead(new StreamConn(fnm,Conn::Read),
+			infoonly ? Seis::PreScan : Seis::Prod) )
     {
 	if ( msg ) *msg = tr->errMsg();
 	delete tr; tr = 0;
@@ -148,12 +148,12 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 }
 
 
-bool CBVSSeisTrcTranslator::initRead_( bool pinfo_only )
+bool CBVSSeisTrcTranslator::initRead_()
 {
     forread = true;
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
-    rdmgr = new CBVSReadMgr( fnm, 0, single_file, pinfo_only );
+    rdmgr = new CBVSReadMgr( fnm, 0, single_file, read_mode == Seis::PreScan );
     if ( rdmgr->failed() )
 	{ errmsg = rdmgr->errMsg(); return false; }
 
@@ -247,7 +247,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     if ( !forread )
 	return startWrite();
 
-    if ( is2d && seldata && seldata->type_ == SeisSelData::Range )
+    if ( is2d && seldata && seldata->type_ == Seis::Range )
     {
 	// For 2D, inline is just an index number
 	SeisSelData& sd = *const_cast<SeisSelData*>( seldata );
@@ -263,7 +263,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
 bool CBVSSeisTrcTranslator::inactiveSelData() const
 {
-    return isEmpty( seldata ) || seldata->type_ == SeisSelData::TrcNrs;
+    return isEmpty( seldata ) || seldata->type_ == Seis::TrcNrs;
 }
 
 
@@ -273,7 +273,7 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     // Table for 2D: can't select because inl/crl in file is not 'true'
-    if ( is2d && seldata->type_ == SeisSelData::Table )
+    if ( is2d && seldata->type_ == Seis::Table )
 	return 0;
 
     return seldata->selRes(bid);

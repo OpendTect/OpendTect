@@ -209,7 +209,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     nrtrcs++;
     if ( seldata )
     {
-	if ( seldata->type_ == SeisSelData::TrcNrs )
+	if ( seldata->type_ == Seis::TrcNrs )
 	{
 	    int selres = seldata->selRes(nrtrcs);
 	    if ( selres == 1 )

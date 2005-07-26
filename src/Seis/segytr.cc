@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.39 2005-05-31 16:14:59 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.40 2005-07-26 08:41:39 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -70,8 +70,6 @@ int SEGYSeisTrcTranslator::dataBytes() const
 }
 
 
-#define mIsRev1() trhead.isrev1
-
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
     SegyTxtHeader txthead;
@@ -86,7 +84,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     binhead.getFrom( binheaderbuf );
     trhead.isrev1 = force_rev0 ? false : binhead.isrev1;
 
-    if ( mIsRev1() )
+    if ( binhead.isrev1 )
     {
 	for ( int idx=0; idx<binhead.nrstanzas; idx++ )
 	{
@@ -106,7 +104,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	    ErrMsg( msg );
 	    numbfmt = 1;
 	}
-	else if ( numbfmt == 4 )
+	else if ( numbfmt == 4 && read_mode != Seis::PreScan )
 	{
 	    errmsg = "SEG-Y format '4' (fixed point/gain code) not supported";
 	    return false;
@@ -119,7 +117,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     binhead_dpos = pinfo->zrg.step;
     binhead_ns = binhead.hns;
 
-    if ( itrc <= nr_trc_headers_to_dump )
+    if ( read_mode != Seis::Prod && itrc <= nr_trc_headers_to_dump )
     {
 	dumpsd.close();
 	if ( do_string_dump )
@@ -238,14 +236,14 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
     trhead.isrev1 = !force_rev0;
 
-    SegyTxtHeader txthead( mIsRev1() );
+    SegyTxtHeader txthead( trhead.isrev1 );
     txthead.setUserInfo( pinfo->usrinfo );
     txthead.setPosInfo( hdef );
     txthead.setStartPos( outsd.start );
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
 	{ errmsg = "Cannot write SEG-Y textual header"; return false; }
 
-    SegyBinHeader binhead( mIsRev1() );
+    SegyBinHeader binhead( trhead.isrev1 );
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
     binhead.lino = pinfo->nr;
     binhead.reno = 1;
