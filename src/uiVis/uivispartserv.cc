@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.263 2005-07-18 10:35:21 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.264 2005-07-27 11:19:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , resetmanipmnuitem( "Reset Manipulation", 8000 )
     , changecolormnuitem( "Color...", 7000 )
     , changematerialmnuitem( "Properties ...", 6000 )
-    , resmnuitem( "Resolution ...", 5000 )
+    , resmnuitem( "Resolution", 5000 )
 {
     mpetools = new uiMPEMan( appserv().parent(), this );
     mpetools->display( false );
@@ -974,7 +974,8 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
 	    visSurvey::SPM().getZScaleTransform()->transformBack( pickedpos );
     }
 
-    showMenu( id, 1, dataobj ? dataobj->rightClickedPath() : 0, pickedpos );
+    showMenu( id, uiMenuHandler::fromScene, 
+	      dataobj ? dataobj->rightClickedPath() : 0, pickedpos );
 }
 
 
