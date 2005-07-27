@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.30 2005-07-26 08:41:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.31 2005-07-27 15:14:37 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -134,7 +134,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
     tr = gtTransl( fname, false, &msg );
     if ( !tr ) return;
 
-    if ( sd.type_ == Seis::Range || sd.type_ == Seis::TrcNrs )
+    if ( !sd.all_ && sd.type_ != Seis::Table )
     {
 	seldata = new SeisSelData( sd );
 	tr->setSelData( seldata );
@@ -152,7 +152,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
 void addTrc( SeisTrc* trc )
 {
     const int tnr = trc->info().binid.crl;
-    if ( seldata )
+    if ( !isEmpty(seldata) )
     {
 	if ( seldata->type_ == Seis::TrcNrs 
 		&& !seldata->isOK( curnr ) )
@@ -179,7 +179,7 @@ int nextStep()
     {
 	const SeisPacketInfo& pinf = tr->packetInfo();
 	totnr = tr->packetInfo().crlrg.nrSteps() + 1;
-	if ( seldata )
+	if ( !isEmpty(seldata) )
 	{
 	    const BinID tstepbid( 1, trcstep );
 	    int nrsel = seldata->expectedNrTraces( true, &tstepbid );
