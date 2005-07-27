@@ -4,14 +4,12 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.7 2005-06-09 11:13:21 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.8 2005-07-27 09:23:35 cvsbert Exp $";
 
 #include "posvecdataset.h"
-#include "posvecdatasetfact.h"
 #include "datacoldef.h"
 #include "survinfo.h"
 #include "iopar.h"
-#include "ioobj.h"
 #include "unitofmeasure.h"
 #include "ascstream.h"
 #include "separstr.h"
@@ -237,7 +235,7 @@ static StreamData getInpSD( const char* fnm, BufferString& errmsg,
     if ( !tabstyle )
     {
 	ascistream strm( *sd.istrm );
-	if ( !strm.isOfFileType(mTranslGroupName(PosVecDataSet)) )
+	if ( !strm.isOfFileType(mPosVecDataSetFileType) )
 	    mErrRet("Invalid input file")
     }
     return sd;
@@ -406,7 +404,7 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     else
     {
 	ascostream strm( *sd.ostrm );
-	if ( !strm.putHeader(mTranslGroupName(PosVecDataSet)) )
+	if ( !strm.putHeader(mPosVecDataSetFileType) )
 	    mErrRet("Cannot write header to output file")
 
 	if ( *name() )
@@ -443,41 +441,4 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
 
     sd.close();
     return true;
-}
-
-
-const IOObjContext& PosVecDataSetTranslatorGroup::ioContext()
-{
-    static IOObjContext* ctxt = 0;
-
-    if ( !ctxt )
-    {
-	ctxt = new IOObjContext( &theInst() );
-	ctxt->crlink = false;
-	ctxt->newonlevel = 1;
-	ctxt->needparent = false;
-	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::Feat;
-    }
-
-    return *ctxt;
-}
-
-
-int PosVecDataSetTranslatorGroup::selector( const char* key )
-{
-    return defaultSelector( theInst().userName(), key );
-}
-
-
-bool odPosVecDataSetTranslator::read( const IOObj& ioobj, PosVecDataSet& vds )
-{
-    return vds.getFrom( ioobj.fullUserExpr(true), errmsg_ );
-}
-
-
-bool odPosVecDataSetTranslator::write( const IOObj& ioobj,
-					const PosVecDataSet& vds )
-{
-    return vds.putTo( ioobj.fullUserExpr(false), errmsg_, false );
 }

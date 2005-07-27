@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.6 2005-06-09 11:13:21 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.7 2005-07-27 09:23:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,8 @@ protected:
     void		mergeColDefs(const PosVecDataSet&,ColMatchPol,int*);
 
 };
+
+#define mPosVecDataSetFileType "Positioned Vector Data"
 
 
 #endif
