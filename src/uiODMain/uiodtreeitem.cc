@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.88 2005-07-18 10:36:18 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.89 2005-07-27 11:19:51 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -305,7 +305,8 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 
 bool uiODDisplayTreeItem::showSubMenu()
 {
-    return applMgr()->visServer()->showMenu( displayid );
+    return applMgr()->visServer()->showMenu( displayid, 
+	    				     uiMenuHandler::fromTree );
 }
 
 
@@ -355,9 +356,9 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
     selattrmnuitem.removeItems();
-    const AttribSelSpec* as = visserv->getSelSpec(displayid);
-    if ( as )
+    if ( visserv->hasAttrib(displayid) )
     {
+	const AttribSelSpec* as = visserv->getSelSpec(displayid);
 	uiAttribPartServer* attrserv = applMgr()->attrServer();
 	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
 	mAddMenuItem( &selattrmnuitem, subitem, subitem->nrItems(),
@@ -371,8 +372,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	if ( subitem && subitem->nrItems() )
 	    mAddMenuItem( &selattrmnuitem, subitem, true, subitem->checked );
 
-	mAddMenuItemCond( menu, &selattrmnuitem, true, false,
-			  visserv->hasAttrib(displayid) );
+	mAddMenuItem( menu, &selattrmnuitem, true, false );
     }
 
     mAddMenuItemCond( menu, &duplicatemnuitem, true, false,
