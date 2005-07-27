@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.3 2005-07-26 08:41:38 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.4 2005-07-27 09:33:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "samplingdata.h"
 #include "seistype.h"
+
 class IOObj;
 class MultiID;
 class CubeSampling;
@@ -33,7 +34,7 @@ public:
 			SeisIOObjInfo(const SeisIOObjInfo&);
     SeisIOObjInfo&	operator =(const SeisIOObjInfo&);
 
-    inline bool		isOK() const	{ return bad_; }
+    inline bool		isOK() const	{ return !bad_; }
     inline bool		is2D() const	{ return geomtype_ > Seis::VolPS; }
     inline bool		isPS() const	{ return geomtype_ == Seis::VolPS
 					      || geomtype_ == Seis::LinePS; }
