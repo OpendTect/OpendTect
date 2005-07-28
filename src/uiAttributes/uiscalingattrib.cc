@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.2 2005-07-28 07:33:35 cvshelene Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.3 2005-07-28 09:47:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,7 +202,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     for ( int idx=0; idx<tgs.size(); idx++ )
     {
 	ZGateParam& zgparam = (ZGateParam&)(*gateset)[idx];
-	zgparam.setValue((const Interval<float>&)tgs[idx]);
+	zgparam.setValue( Interval<float>(tgs[idx].start,tgs[idx].stop) );
     }
 
     mDescGetParamGroup(ValParam,factorset,desc,Scaling::factorStr())
