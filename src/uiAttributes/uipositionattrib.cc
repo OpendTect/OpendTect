@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,9 @@ ________________________________________________________________________
 #include "uipositionattrib.h"
 #include "positionattrib.h"
 #include "attribdesc.h"
+#include "attribparam.h"
 #include "uiattrsel.h"
+#include "uisteeringsel.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
 
@@ -29,7 +31,7 @@ static const char* opstrs[] =
 
 
 uiPositionAttrib::uiPositionAttrib( uiParent* p )
-	: uiAttrDescEd(p,new PositionAttrib::Parameters)
+	: uiAttrDescEd(p)
 {
     inpfld = getInpFld( "Input attribute" );
 
@@ -93,7 +95,7 @@ bool uiPositionAttrib::getParameters( Desc& desc )
     mSetFloatInterval( Position::gateStr(), gatefld->getFInterval() );
     mSetBinID( Position::stepoutStr(), stepoutfld->binID() );
     mSetEnum( Position::operStr(), operfld->getIntValue() );
-    mSetBool( Position::steerStr(), steerfld->willSteer() );
+    mSetBool( Position::steeringStr(), steerfld->willSteer() );
 
     return true;
 }

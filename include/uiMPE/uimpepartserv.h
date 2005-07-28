@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.6 2005-06-06 14:13:15 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.7 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,11 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emposid.h"
 
-class AttribDescSet;
-class AttribSelSpec;
-class AttribSliceSet;
 class BufferStringSet;
 
 namespace Geometry { class Element; }
 namespace MPE { class Wizard; }
+namespace Attrib { class DescSet; class SelSpec; class SliceSet; }
 
 
 /*! \brief Implementation of Tracking part server interface */
@@ -32,9 +30,9 @@ class uiMPEPartServer : public uiApplPartServer
 {
 public:
 				uiMPEPartServer(uiApplService&,
-						const AttribDescSet*);
+						const Attrib::DescSet*);
 				~uiMPEPartServer();
-    void			setCurrentAttribDescSet(const AttribDescSet*);
+    void			setCurrentAttribDescSet(const Attrib::DescSet*);
 
     const char*			name() const		{ return "MPE";}
 
@@ -65,10 +63,10 @@ public:
     static const int		evGetAttribData;
     void			loadAttribData();
     CubeSampling		getActiveVolume() const;
-    const AttribSelSpec*	getAttribSelSpec() const;
-    const AttribSliceSet*	getAttribCache(const AttribSelSpec&) const;
-    void			setAttribData(const AttribSelSpec&,
-	    				      AttribSliceSet*);
+    const Attrib::SelSpec*	getAttribSelSpec() const;
+    const Attrib::SliceSet*	getAttribCache(const Attrib::SelSpec&) const;
+    void			setAttribData(const Attrib::SelSpec&,
+						    Attrib::SliceSet*);
     				/*!<\note Slices become mine */
 
     static const int		evStartSeedPick;
@@ -88,11 +86,11 @@ protected:
     void			createActiveVolume();
     void			updateVolumeFromSeeds();
 
-    const AttribDescSet*	attrset;
+    const Attrib::DescSet*	attrset;
     MPE::Wizard*		wizard;
 
 				//Interaction variables
-    const AttribSelSpec*	eventattrselspec;
+    const Attrib::SelSpec*	eventattrselspec;
     int				activetrackerid;
 
     CubeSampling		csfromseeds;

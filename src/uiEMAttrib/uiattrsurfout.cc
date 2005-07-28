@@ -4,17 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.4 2004-10-08 09:12:14 nanne Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.5 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiattrsurfout.h"
-#include "attribdescimpl.h"
+#include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribparsetools.h"
-#include "attriboutputimpl.h"
+#include "attriboutput.h"
+#include "attribfactory.h"
 #include "emsurfacetr.h"
 #include "uiattrsel.h"
 #include "uiioobjsel.h"
@@ -30,11 +30,11 @@ ________________________________________________________________________
 #include "multiid.h"
 
 
-uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const AttribDescSet& ad,
+uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const Attrib::DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
     : uiFullBatchDialog(p,"Create surface output","process_attrib_em")
     , ctio(*mMkCtxtIOObj(EMHorizon))
-    , ads(const_cast<AttribDescSet&>(ad))
+    , ads(const_cast<Attrib::DescSet&>(ad))
     , nlamodel(n)
     , nlaid(mid)
 {
@@ -101,7 +101,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 	    uiMSG().message( "NN needs to be stored before creating volume" ); 
 	    return false; 
 	}
-	addNLA( nlamodelid );
+	if ( !addNLA( nlamodelid ) )	return false;
     }
 
     IOPar attrpar( "Attribute Descriptions" );
@@ -109,76 +109,113 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
-        BufferString name(CubeAttribOutput::attribkey);
+        BufferString name(Attrib::CubeOutput::attribkey);
         name += "."; name += nm;
         iopar.add( name, attrpar.getValue(idx) );
     }
 
     BufferString key;
-    BufferString keybase = AttribParseTools::outputstr; keybase += ".1.";
-    key = keybase; key += AttribOutput::typekey;
-    iopar.set( key, AttribOutput::surfkey );
+    BufferString keybase = Attrib::Output::outputstr; keybase += ".1.";
+    key = keybase; key += Attrib::Output::typekey;
+    iopar.set( key, Attrib::Output::surfkey );
 
-    key = keybase; key += CubeAttribOutput::attribkey;
-    key += "."; key += AttribParseTools::maxkeystr;
+    key = keybase; key += Attrib::CubeOutput::attribkey;
+    key += "."; key += Attrib::DescSet::highestIDStr();
     iopar.set( key, 1 );
 
-    key = keybase; key += CubeAttribOutput::attribkey; key += ".0";
+    key = keybase; key += Attrib::CubeOutput::attribkey; key += ".0";
     iopar.set( key, nlamodelid < 0 ? attrfld->attribID() : nlamodelid );
 
-    key = keybase; key += SurfaceAttribOutput::surfidkey;
+    key = keybase; key += Attrib::LocationOutput::surfidkey;
     iopar.set( key, ctio.ioobj->key() );
 
     BufferString attrnm = attrnmfld->text();
     if ( attrnm == "" ) attrnm = attrfld->getInput();
     iopar.set( "Target value", attrnm );
-    ads.removeAttrib( ads.descNr(nlamodelid) );
+    ads.removeDesc( ads.getID(nlamodelid) );
 
-    ads.setRanges( iopar );
+//    ads.setRanges( iopar );////////TODO
     return true;
 }
 
 
-void uiAttrSurfaceOut::addNLA( int& id )
+#define mHandleParseErr( str ) \
+{ \
+    uiMSG().message( str );\
+    return false;\
+}
+
+
+bool uiAttrSurfaceOut::addNLA( int& id )
 {
-    AttribDesc* ad = new CalcAttribDesc( ads );
     BufferString defstr("NN specification=");
     defstr += nlaid;
-    ad->setDefStr( defstr, false );
+    BufferString attribname;
+    if ( !Attrib::Desc::getAttribName( defstr, attribname ) )
+	mHandleParseErr("Cannot find attribute name");
+    RefMan<Attrib::Desc> ad;
+    ad = Attrib::PF().createDescCopy(attribname);
+    if ( !ad )
+    {
+	BufferString err = "Cannot find factory-entry for "; err += attribname;
+	mHandleParseErr(err);
+    }
+    if ( !ad->parseDefStr(defstr) )
+    {
+	BufferString err = "Cannot parse: "; err += defstr;
+	mHandleParseErr(err);
+    }
+
     ad->setHidden( true );
     const NLADesign& nlades = nlamodel->design();
     ad->setUserRef( *nlades.outputs[attrfld->outputNr()] );
-    ad->selectAttrib( attrfld->outputNr() );
+    ad->selectOutput( attrfld->outputNr() );
 
     const int nrinputs = nlades.inputs.size();
     for ( int idx=0; idx<nrinputs; idx++ )
     {
         const char* inpname = nlades.inputs[idx]->buf();
-        int dscnr = ads.descNr( inpname, true );
+        int dscnr = ads.getID( inpname, true );
         if ( dscnr < 0 && IOObj::isKey(inpname) )
         {
-            dscnr = ads.descNr( inpname, false );
+            dscnr = ads.getID( inpname, false );
             if ( dscnr < 0 )
             {
-                // It could be 'storage', but it's not yet in the set ...
+                // It could be 'storage', but it's not yet in the old set ...
                 PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
                 if ( ioobj )
                 {
-                    AttribDesc* newdesc = new StorageAttribDesc( ads );
-                    newdesc->setDefStr( inpname, false );
+		    BufferString defstr("Storage id="); defstr += inpname;
+		    BufferString attribname;
+		    if ( !Attrib::Desc::getAttribName( defstr, attribname ) )
+			mHandleParseErr("Cannot find attribute name");
+		    RefMan<Attrib::Desc> newdesc;
+		    newdesc = Attrib::PF().createDescCopy(attribname);
+		    if ( !newdesc )
+		    {
+			BufferString err = "Cannot find factory-entry for "; 
+			err += attribname;
+			mHandleParseErr(err);
+		    }
+		    if ( !newdesc->parseDefStr(defstr) )
+		    {
+			BufferString err = "Cannot parse: "; err += defstr;
+			mHandleParseErr(err);
+		    }
                     newdesc->setUserRef( ioobj->name() );
-                    dscnr = ads.addAttrib( newdesc );
+                    dscnr = ads.addDesc( newdesc );
                 }
             }
 	}
 
-        ad->setInput( idx, ads.id(dscnr) );
+        ad->setInput( idx, ads.getDesc(dscnr) );
     }
 
-    id = ads.id( ads.addAttrib( ad ) );
+    id = ads.getID( ads.addDesc( ad ) );
     if ( id == -1 )
     {
         uiMSG().error( ads.errMsg() );
-        delete ad; return;
+        ad->unRef(); return false;
     }
+    return true;
 }

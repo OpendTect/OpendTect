@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribslice.h,v 1.2 2005-06-23 09:13:36 cvshelene Exp $
+ RCS:           $Id: attribslice.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
 	    			    int depthdim=2) const;
     			/*!< Makes an array where the dims are as specified
 			 */
+    float               getValue(int inl,int crl,float z) const;
 
 };
 

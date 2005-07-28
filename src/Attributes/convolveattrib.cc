@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.2 2005-06-30 11:26:43 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -306,7 +306,8 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
     while ( inputdata.size()< sz )
 	inputdata += 0;
    
-    const BinID bidstep = inputs[0]-> getStepoutStep();
+    bool yn = false;
+    const BinID bidstep = inputs[0]-> getStepoutStep(yn);
     BinID truepos;
     int index = 0;
     for (int inl=-stepout.inl; inl<=stepout.inl; inl++ )
@@ -400,7 +401,7 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 	}
     }
 
-    return 0;
+    return true;
 }
 
 
@@ -410,12 +411,9 @@ const BinID* Convolve::reqStepout( int inp, int out ) const
 
 const Interval<float>* Convolve::reqZMargin( int inp, int ) const
 { 
-    const Interval<float>* interv;
-    const_cast< Interval<float>* >(interv)->start = 
-				kernel.getSG().start * refstep;
-    const_cast< Interval<float>* >(interv)->stop = 
-				kernel.getSG().stop * refstep;
-    return interv;
+    const_cast<Convolve*>(this)->interval.start = kernel.getSG().start *refstep;
+    const_cast<Convolve*>(this)->interval.stop = kernel.getSG().stop * refstep;
+    return &interval;
 }
 
 }//namespace

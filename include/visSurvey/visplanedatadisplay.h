@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.54 2004-11-11 13:02:45 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.55 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -18,13 +18,11 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
-class AttribSelSpec;
-class AttribSliceSet;
-class ColorAttribSel;
 class CubeSampling;
 template <class T> class Array2D;
 
 namespace visBase { class TextureRect; class VisColorTab; };
+namespace Attrib { class SelSpec; class SliceSet; class ColorSelSpec; }
 
 namespace visSurvey
 {
@@ -92,18 +90,18 @@ public:
     int				getAttributeFormat() const 	{ return 0; }
 
     bool			hasColorAttribute() const	{ return true; }
-    const AttribSelSpec*	getSelSpec() const;
-    void			setSelSpec(const AttribSelSpec&);
-    void			setColorSelSpec(const ColorAttribSel&);
-    const ColorAttribSel*	getColorSelSpec() const;
+    const Attrib::SelSpec*	getSelSpec() const;
+    void			setSelSpec(const Attrib::SelSpec&);
+    void			setColorSelSpec(const Attrib::ColorSelSpec&);
+    const Attrib::ColorSelSpec*	getColorSelSpec() const;
     const TypeSet<float>*	getHistogram() const;
     int				getColTabID() const;
 
     CubeSampling		getCubeSampling() const;
     void			setCubeSampling(CubeSampling);
-    bool			setDataVolume(bool color,AttribSliceSet*);
+    bool			setDataVolume(bool color,Attrib::SliceSet*);
     				/*!< Becomes mine */
-    const AttribSliceSet*	getCacheVolume(bool color) const;
+    const Attrib::SliceSet*	getCacheVolume(bool color) const;
    
     bool			canHaveMultipleTextures() const { return true; }
     int				nrTextures() const;
@@ -128,8 +126,8 @@ protected:
 				~PlaneDataDisplay();
 
     void			setTextureRect(visBase::TextureRect*);
-    void			setData(const AttribSliceSet*,int datatype=0);
-    Array2D<float>*		createArray(const AttribSliceSet*,int) const;
+    void			setData(const Attrib::SliceSet*,int datatype=0);
+    Array2D<float>*		createArray(const Attrib::SliceSet*,int) const;
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
@@ -139,11 +137,11 @@ protected:
     visBase::TextureRect*	trect;
 
     Type			type;
-    AttribSelSpec&		as;
-    ColorAttribSel&		colas;
+    Attrib::SelSpec&		as;
+    Attrib::ColorSelSpec&	colas;
 
-    AttribSliceSet*             cache;
-    AttribSliceSet*             colcache;
+    Attrib::SliceSet*           cache;
+    Attrib::SliceSet*           colcache;
 
     BinID			curicstep;
     float			curzstep;

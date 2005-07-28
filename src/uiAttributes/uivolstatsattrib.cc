@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,10 @@ ________________________________________________________________________
 #include "volstatsattrib.h"
 
 #include "attribdesc.h"
+#include "attribparam.h"
 #include "uigeninput.h"
 #include "uiattrsel.h"
+#include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
 using namespace Attrib;
@@ -67,14 +69,14 @@ void uiVolStatsAttrib::set2D( bool yn )
 
 bool uiVolStatsAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),VolumeStatistics::attribName()) )
+    if ( strcmp(desc.attribName(),VolStats::attribName()) )
 	return false;
 
-    mIfGetFloatInterval( VolumeStatistics::gateStr(), gate,
+    mIfGetFloatInterval( VolStats::gateStr(), gate,
 	    		 gatefld->setValue(gate) );
-    mIfGetBinID( VolumeStatistics::stepoutStr(), stepout,
+    mIfGetBinID( VolStats::stepoutStr(), stepout,
 	         stepoutfld->setBinID(stepout) );
-    mIfGetEnum( VolumeStatistics::shapeStr(), shape,
+    mIfGetEnum( VolStats::shapeStr(), shape,
 	        shapefld->setValue(!shape) );
     return true;
 }
@@ -83,27 +85,27 @@ bool uiVolStatsAttrib::setParameters( const Desc& desc )
 bool uiVolStatsAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld, desc, 0 );
-    putInp( steerfld, desc );
+    putInp( steerfld, desc, 1 );
     return true;
 }
 
 
 bool uiVolStatsAttrib::setOutput( const Desc& desc )
 {
-    outpfld->setValue( desc->selectedOutput() );
+    outpfld->setValue( desc.selectedOutput() );
     return true;
 }
 
 
 bool uiVolStatsAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),VolumeStatistics::attribName()) )
+    if ( strcmp(desc.attribName(),VolStats::attribName()) )
 	return false;
 
-    mSetFloatInterval( VolumeStatistics::gateStr(), gatefld->getFInterval() );
-    mSetBinID( VolumeStatistics::stepoutStr(), stepoutfld->binID() );
-    mSetEnum( VolumeStatistics::shapeStr(), shapefld->getBoolValue() );
-    mSetBool( VolumeStatistics::steerStr(), steerfld->willSteer() );
+    mSetFloatInterval( VolStats::gateStr(), gatefld->getFInterval() );
+    mSetBinID( VolStats::stepoutStr(), stepoutfld->binID() );
+    mSetEnum( VolStats::shapeStr(), shapefld->getBoolValue() );
+    mSetBool( VolStats::steeringStr(), steerfld->willSteer() );
 
     return true;
 }
@@ -121,4 +123,5 @@ bool uiVolStatsAttrib::getInput( Desc& desc )
 bool uiVolStatsAttrib::getOutput( Desc& desc )
 {
     fillOutput( desc, outpfld->getIntValue() );
+    return true;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.1 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,11 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdescsettr.h"
 #include "attribdescsetman.h"
+#include "attribstorprovider.h"
+#include "attribposvecoutput.h"
 #include "attribengman.h"
+#include "attribfactory.h"
+#include "attrfact.h"
 #include "attribsel.h"
 #include "attribslice.h"
 #include "executor.h"
@@ -24,12 +28,12 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "nlacrdesc.h"
 #include "nlamodel.h"
-#include "featset.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "posvecdataset.h"
 
 #include "uiattrsel.h"
 #include "uiattrvolout.h"
@@ -66,7 +70,11 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, dirshwattrdesc(0)
         , attrsetdlg(0)
     	, attrsetclosetim("Attrset dialog close")
+	, storedmnuitem("Stored Cubes")
+	, calcmnuitem("Attributes")
 {
+    Attrib::initAttribClasses();
+    Attrib::StorageProvider::initClass();
     attrsetclosetim.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
 }
@@ -271,13 +279,13 @@ void uiAttribPartServer::outputVol( MultiID& nlaid )
 
 
 Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
-						  const SelSpec& selspec,
 						  const SliceSet* cache,
+						  const SelSpec& selspec,
        						  const DescSet* ads )
 {
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
     else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
-/*
+    
     EngineMan aem;
     aem.setAttribSet( ads ? ads : adsman->descSet() );
     aem.setNLAModel( getNLAModel() );
@@ -285,16 +293,14 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
     aem.setCubeSampling( cs );
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem.cubeOutputCreater( errmsg, cache );
+    PtrMan<ExecutorGroup> outex = aem.sliceSetOutputCreator( errmsg, cache );
     if ( !outex )
 	{ uiMSG().error(errmsg); return 0; }
 
     uiExecutor dlg( appserv().parent(), *outex );
     if ( !dlg.go() ) return 0;
 
-    return aem.getCubeOutput( outex );
-*/
-    return 0;
+    return aem.getSliceSetOutput();
 }
 
 
@@ -304,34 +310,30 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values,
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
     else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
 
-/*
     EngineMan aem;
     aem.setAttribSet( adsman->descSet() );
     aem.setNLAModel( getNLAModel() );
     aem.setAttribSpec( selspec );
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem.tableOutputCreator( errmsg, values );
+    PtrMan<Executor> outex = aem.locationOutputCreator( errmsg, values );
     if ( !outex )
 	{ uiMSG().error(errmsg); return false; }
 
     uiExecutor dlg( appserv().parent(), *outex );
     if ( !dlg.go() ) return false;
-*/
 
     return true;
 }
 
 
-bool uiAttribPartServer::createOutput( const TypeSet<BinID>& bids,
-				       const Interval<float>& zrg,
+bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
 				       SeisTrcBuf& output,
 				       const SelSpec& selspec )
 {
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
     else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
 
-/*
     EngineMan aem;
     aem.setAttribSet( adsman->descSet() );
     aem.setNLAModel( getNLAModel() );
@@ -339,208 +341,49 @@ bool uiAttribPartServer::createOutput( const TypeSet<BinID>& bids,
 
     BufferString errmsg;
     PtrMan<Executor> outex =
-	aem.trcSelOutputCreator( errmsg, bids, zrg, output );
+	aem.trcSelOutputCreator( errmsg, bidvalset, output );
     if ( !outex )
 	{ uiMSG().error(errmsg); return false; }
 
     uiExecutor dlg( appserv().parent(), *outex );
     if ( !dlg.go() ) return false;
-*/
 
     return true;
 }
 
 
-class FeatSetAttribOutGen : public Executor
-{
-public:
-
-FeatSetAttribOutGen( DescSet* as, const NLAModel* m,
-    		     const BufferStringSet& lnms, const BufferStringSet& in,
-		     const ObjectSet<BinIDValueSet>& b,
-		     ObjectSet<FeatureSet>& f )
-	: Executor("Extracting")
-	, ads(as)
-	, nlamodel(m)
-	, linenames(lnms)
-	, inps(in)
-	, bvss(b)
-	, fss(f)
-	, curlnr(0)
-	, aem(0)
-	, outex(0)
-{
-    nextExec();
-}
-
-~FeatSetAttribOutGen()
-{
-    cleanUp();
-}
-
-void cleanUp()
-{
-    delete aem; delete outex; deepErase( workfss );
-}
-
-const char* message() const
-{
-    if ( !outex ) return "Scanning data";
-
-    msg = outex->message();
-    if ( curlnr < linenames.size() )
-    {
-	const char* lnm = linenames.get(curlnr);
-	if ( lnm && *lnm )
-	{
-	    msg += " for ";
-	    msg += linenames.get(curlnr);
-	}
-    }
-    return msg.buf();
-}
-
-const char* nrDoneText() const
-{ return outex ? outex->nrDoneText() : "Positions handled"; }
-int nrDone() const
-{ return outex ? outex->nrDone() : 0; }
-int totalNr() const
-{ return outex ? outex->totalNr() : -1; }
-
-
-void nextExec()
-{
-/*
-    cleanUp();
-    aem = new EngineMan;
-    aem->setAttribSet( ads );
-    aem->setNLAModel( nlamodel );
-    aem->setLineKey( linenames.get(curlnr) );
-    outex = aem->featureOutputCreator( inps, bvss, workfss );
-    setName( outex->name() );
-*/
-}
-
-
-void addResults()
-{
-    if ( curlnr == 0 )
-    {
-	while ( workfss.size() )
-	    { FeatureSet* fs = workfss[0]; fss += fs; workfss -= fs; }
-    }
-    else
-    {
-	for ( int ifs=0; ifs<workfss.size(); ifs++ )
-	{
-	    FeatureSet& fsnew = *workfss[ifs];
-	    FeatureSet& fs = *fss[ifs];
-	    while ( fsnew.size() )
-		fs += fsnew.releaseLast();
-	}
-    }
-}
-
-
-int nextStep()
-{
-    if ( !outex ) return -1;
-
-    int res = outex->doStep();
-    if ( res < 0 ) return res;
-    if ( res == 0 )
-    {
-	addResults();
-	curlnr++;
-	if ( curlnr >= linenames.size() )
-	    return 0;
-	nextExec();
-	return 1;
-    }
-
-    return 1;
-}
-
-    ObjectSet<FeatureSet>	workfss;
-    const BufferStringSet&	inps;
-    const BufferStringSet&	linenames;
-    const DescSet*	ads;
-    const NLAModel*		nlamodel;
-    const ObjectSet<BinIDValueSet>&	bvss;
-    ObjectSet<FeatureSet>&	fss;
-    int				curlnr;
-    EngineMan*			aem;
-    Executor*			outex;
-    mutable BufferString	msg;
-};
-
-
-bool uiAttribPartServer::extractFeatures( const NLACreationDesc& desc,
+bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
 					const ObjectSet<BinIDValueSet>& bivsets,
-					ObjectSet<FeatureSet>& outfss )
+					ObjectSet<PosVecDataSet>& outvds )
 {
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
 
-/*
-    if ( !desc.doextraction )
+    if ( desc.doextraction )
     {
-	PtrMan<IOObj> ioobj = IOM().get( desc.fsid );
-	FeatureSet* fs = FeatureSet::get( ioobj );
-	if ( !fs || !fs->pars().size() || !fs->size() )
+	Attrib::PosVecOutputGen pvog( *adsman->descSet(), desc.design.inputs,
+				     bivsets, outvds );
+	uiExecutor dlg( appserv().parent(), pvog );
+	if ( !dlg.go() )
+	    return false;
+	else if ( outvds.size() != bivsets.size() )
 	{
-	    uiMSG().error( "Invalid Training set specified" );
+	    // Earlier error
+	    ErrMsg( "Error during data extraction (not all data extracted)." );
 	    return false;
 	}
-
-	outfss += fs;
-	return true;
     }
-
-    bool foundpos = false;
-    PtrMan<BinIDValueSet> allbivs = 0;
-    for ( int idx=0; idx<bivsets.size(); idx++ )
-    {
-	if ( !idx )
-	    allbivs = new BinIDValueSet( *bivsets[idx] );
-	else
-	    allbivs->append( *bivsets[idx] );
-    }
-    if ( allbivs->isEmpty() )
-	{ uiMSG().error( "No data extraction points" ); return false; }
-
-    BufferStringSet linenames;
-    if ( !adsman->descSet()->is2D() )
-	linenames.add( "" );
     else
     {
-	MultiID key;
-	if ( !adsman->descSet()->getFirstStored(Only2D,key) )
-	{
-	    ErrMsg( "Internal: Cannot find line set in attribute set." );
-	    return false;
-	}
-	uiSeisIOObjInfo oi( key );
-	if ( !oi.isOK() ) return false;
-	oi.getLineNames( linenames, false, allbivs );
-	if ( linenames.size() < 1 )
-	{
-	    uiMSG().error( "No line with any extraction position found" );
-	    return false;
-	}
+	PtrMan<IOObj> ioobj = IOM().get( desc.vdsid );
+	PosVecDataSet* vds = new PosVecDataSet;
+	BufferString errmsg;
+	if ( !vds->getFrom(ioobj->fullUserExpr(true),errmsg) )
+	    { uiMSG().error( errmsg ); delete vds; return false; }
+	if ( !vds->pars().size() || vds->data().isEmpty() )
+	    { uiMSG().error( "Invalid Training set specified" );
+		delete vds; return false; }
+	outvds += vds;
     }
-
-    FeatSetAttribOutGen fsag( adsman->descSet(), getNLAModel(), linenames,
-	    		      desc.design.inputs, bivsets, outfss );
-    uiExecutor dlg( appserv().parent(), fsag );
-    if ( !dlg.go() )
-	return false;
-    else if ( outfss.size() != bivsets.size() )
-    {
-	// Earlier error
-	ErrMsg( "Error during data extraction (not all data extracted)." );
-	return false;
-    }
-*/
 
     return true;
 }
@@ -575,67 +418,6 @@ void uiAttribPartServer::usePar( const IOPar& iopar )
 }
 
 
-bool uiAttribPartServer::createOutput( const CubeSampling& cs,
-				       SliceSet* sliceset )
-{
-    if ( !adsman->descSet() ) { pErrMsg("No attr set"); return false; }
-    else if ( !targetspecs.size() ) { pErrMsg("Nothing to do"); return 0; }
-
-    sliceset->direction = (Slice::Dir)cs.defaultDir();
-/*
-    EngineMan aem;
-    aem.setAttribSet( adsman->descSet() );
-    aem.setNLAModel( getNLAModel() );
-    aem.setCubeSampling( cs );
-    aem.setAttribSpec( targetspecs[0] );
-
-    for ( int idx=1; idx<targetspecs.size(); idx++ )
-	aem.addOutputAttrib( targetspecs[idx].id() );
-
-    BufferString errmsg;
-    PtrMan<Executor> outex = aem.cubeOutputCreater( errmsg, 0 );
-    if ( !outex )
-	{ uiMSG().error(errmsg); return false; }
-
-    uiExecutor dlg( appserv().parent(), *outex );
-    if ( !dlg.go() ) return false; 
-
-    SliceSet* slcset = aem.getCubeOutput( outex );
-    if ( !slcset ) return false;
-
-    sliceset->sampling = slcset->sampling;
-    for ( int idx=0; idx<slcset->size(); idx++ )
-	(*sliceset) += (*slcset)[idx];
-*/
-    return true;
-}
-
-
-bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )					
-{
-    if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
-    else if ( !targetspecs.size() ) { pErrMsg("Nothing to do"); return 0; }
-/*
-    EngineMan aem;
-    aem.setAttribSet( adsman->descSet() );
-    aem.setNLAModel( getNLAModel() );
-    aem.setAttribSpec( targetspecs[0] );
-
-    for ( int idx=1; idx<targetspecs.size(); idx++ )
-	aem.addOutputAttrib( targetspecs[idx].id() );
-    
-    BufferString errmsg;
-    PtrMan<Executor> outex = aem.tableOutputCreator( errmsg, values );
-    if ( !outex )
-	{ uiMSG().error(errmsg); return false; }
-
-    uiExecutor dlg( appserv().parent(), *outex );
-    if ( !dlg.go() ) return false;
-*/
-    return true;
-}
-
-
 SeisTrcBuf* uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 					        const SelSpec& selspec,
 						const char* linekey )
@@ -643,7 +425,7 @@ SeisTrcBuf* uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 {
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
     else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
-/*
+    
     EngineMan aem;
     aem.setAttribSet( adsman->descSet() );
     aem.setNLAModel( getNLAModel() );
@@ -652,16 +434,14 @@ SeisTrcBuf* uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     aem.setLineKey( linekey );
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem.cubeOutputCreater( errmsg, 0 );
+    PtrMan<Executor> outex = aem.screenOutput2DCreator( errmsg );
     if ( !outex )
 	{ uiMSG().error(errmsg); return 0; }
 
     uiExecutor dlg( appserv().parent(), *outex );
     if ( !dlg.go() ) return 0;
 
-    return aem.get2DLineOutput( outex );
-*/
-    return 0;
+    return aem.get2DLineOutput();
 }
 
 
@@ -711,39 +491,37 @@ bool uiAttribPartServer::selectColorAttrib( ColorSelSpec& selspec )
     return true;
 }
 
+
 #define mInsertItems(list,mnu,correcttype) \
-mnu->setEnabled( attrinf.list.size() ); \
+(mnu)->enabled = attrinf.list.size(); \
 for ( int idx=start; idx<stop; idx++ ) \
 { \
     const BufferString& nm = attrinf.list.get(idx); \
-    uiMenuItem* itm = new uiMenuItem( nm ); \
-    mnu->insertItem( itm, mnuid, idx ); \
+    MenuItem* itm = new MenuItem( nm ); \
     const bool docheck = correcttype && nm == as.userRef(); \
-    itm->setChecked( docheck ); \
-    if ( docheck ) mnu->setChecked( true ); \
-    mnuid++; \
+    mAddManagedMenuItem( mnu, itm, true, docheck );\
+    if ( docheck ) (mnu)->checked = true; \
 }
 
 
 static int cMaxMenuSize = 150;
 
-uiPopupMenu* uiAttribPartServer::createStoredCubesSubMenu( int& mnuid,
-						   const SelSpec& as )
+MenuItem* uiAttribPartServer::storedAttribMenuItem(const Attrib::SelSpec& as)
 {
-    uiPopupMenu* cubemnu = new uiPopupMenu( appserv().parent(), "Stored Cubes");
-    SelInfo attrinf( adsman->descSet(), 0, No2D, -1 );
+    storedmnuitem.removeItems();
+    storedmnuitem.checked = false;
+    Attrib::SelInfo attrinf( adsman->descSet(), 0, No2D, -1 );
     const bool isnla = as.isNLA();
     const bool hasid = as.id() >= 0;
     const int nritems = attrinf.ioobjnms.size();
     if ( nritems <= cMaxMenuSize )
     {
 	const int start = 0; const int stop = attrinf.ioobjnms.size();
-	mInsertItems(ioobjnms,cubemnu,!isnla&&hasid);
+	mInsertItems(ioobjnms,&storedmnuitem,!isnla&&hasid);
     }
     else
     {
 	const int nrsubmnus = (nritems-1)/cMaxMenuSize + 1;
-	bool cubemnuchecked = false;
 	for ( int mnuidx=0; mnuidx<nrsubmnus; mnuidx++ )
 	{
 	    const int start = mnuidx * cMaxMenuSize;
@@ -751,79 +529,88 @@ uiPopupMenu* uiAttribPartServer::createStoredCubesSubMenu( int& mnuid,
 	    if ( stop > nritems ) stop = nritems;
 	    const char* startnm = attrinf.ioobjnms.get(start);
 	    const char* stopnm = attrinf.ioobjnms.get(stop-1);
-	    BufferString str; strncat(str.buf(),startnm,3); 
+	    BufferString str; strncat(str.buf(),startnm,3);
 	    str += " - "; strncat(str.buf(),stopnm,3);
-	    uiPopupMenu* submnu = new uiPopupMenu( appserv().parent(), str );
-	    cubemnu->insertItem( submnu );
+	    MenuItem* submnu = new MenuItem( str );
 	    mInsertItems(ioobjnms,submnu,!isnla&&hasid);
-	    if ( !cubemnuchecked && submnu->isChecked() )
-	    {
-		cubemnu->setChecked( true ); 
-		cubemnuchecked = true;
-	    }
+	    mAddManagedMenuItem( &storedmnuitem, submnu, true,submnu->checked);
 	}
     }
 
-    return cubemnu;
+    storedmnuitem.enabled = storedmnuitem.nrItems();
+    return &storedmnuitem;
 }
+	
 
-
-uiPopupMenu* uiAttribPartServer::createAttribSubMenu( int& mnuid,
-						      const SelSpec& as )
+MenuItem* uiAttribPartServer::calcAttribMenuItem( const Attrib::SelSpec& as )
 {
-    uiPopupMenu* attrmnu = new uiPopupMenu( appserv().parent(), "Attributes" );
-    SelInfo attrinf( adsman->descSet() );
+    calcmnuitem.removeItems();
+    calcmnuitem.checked = false;
+    Attrib::SelInfo attrinf( adsman->descSet() );
     const bool isattrib = attrinf.attrids.indexOf( as.id() ) >= 0;
     const int start = 0; const int stop = attrinf.attrnms.size();
-    mInsertItems(attrnms,attrmnu,isattrib);
-    return attrmnu;
+    mInsertItems(attrnms,&calcmnuitem,isattrib);
+
+    calcmnuitem.enabled = calcmnuitem.nrItems();
+    return &calcmnuitem;
 }
 
 
-uiPopupMenu* uiAttribPartServer::createNLASubMenu( int& mnuid,
-						   const SelSpec& as )
+MenuItem* uiAttribPartServer::nlaAttribMenuItem( const Attrib::SelSpec& as )
 {
+    nlamnuitem.removeItems();
+    nlamnuitem.checked = false;
     const NLAModel* nlamodel = getNLAModel();
-    if ( !nlamodel ) return 0;
-    uiPopupMenu* nlamnu = new uiPopupMenu( appserv().parent(), 
-	    				   nlamodel->nlaType(false) );
-    SelInfo attrinf( adsman->descSet(), nlamodel );
-    const bool isnla = as.isNLA();
-    const bool hasid = as.id() >= 0;
-    const int start = 0; const int stop = attrinf.nlaoutnms.size();
-    mInsertItems(nlaoutnms,nlamnu,isnla);
-    return nlamnu;
+    if ( nlamodel )
+    {
+	nlamnuitem.text = nlamodel->nlaType(false);
+	Attrib::SelInfo attrinf( adsman->descSet(), nlamodel );
+	const bool isnla = as.isNLA();
+	const bool hasid = as.id() >= 0;
+	const int start = 0; const int stop = attrinf.nlaoutnms.size();
+	mInsertItems(nlaoutnms,&nlamnuitem,isnla);
+    }
+
+    nlamnuitem.enabled = nlamnuitem.nrItems();
+    return &nlamnuitem;
 }
 
 
-bool uiAttribPartServer::handleAttribSubMenu( int mnuid, int type,
-					      SelSpec& as )
+bool uiAttribPartServer::handleAttribSubMenu( int mnuid,
+						Attrib::SelSpec& as ) const
 {
     uiAttrSelData attrdata( adsman->descSet() );
     attrdata.nlamodel = getNLAModel();
-    SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, No2D );
+    Attrib::SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, No2D );
 
-    const bool isstored = !type;
-    const bool isattr = type==1;
-    const bool isnla = type==2;
-
-    int selidx = mnuid;
-    int attribid = -2;
+    int attribid = Attrib::SelSpec::attribNotSel;
     int outputnr = -1;
-    if ( isattr )
-	attribid = attrinf.attrids[selidx];
-    else if ( isnla )
-	outputnr = selidx;
-    else if ( isstored )
+    bool isnla = false;
+
+    if ( storedmnuitem.findItem(mnuid) )
     {
-	attribid = adsman->descSet()->getStoredID( 
-						attrinf.ioobjids.get(selidx) );
+	const MenuItem* item = storedmnuitem.findItem(mnuid);
+	int idx = attrinf.ioobjnms.indexOf(item->text);
+	attribid = adsman->descSet()->getStoredID( attrinf.ioobjids.get(idx) );
     }
+    else if ( calcmnuitem.findItem(mnuid) )
+    {
+	const MenuItem* item = calcmnuitem.findItem(mnuid);
+	int idx = attrinf.attrnms.indexOf(item->text);
+	attribid = attrinf.attrids[idx];
+    }
+    else if ( nlamnuitem.findItem(mnuid) )
+    {
+	outputnr = nlamnuitem.itemIndex(nlamnuitem.findItem(mnuid));
+	isnla = true;
+    }
+    else
+	return false;
 
     IOObj* ioobj = IOM().get( adsman->attrsetid_ );
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
     as.set( 0, isnla ? outputnr : attribid, isnla,
-	    isnla ? (const char*)nlaname : (const char*)attrsetnm );
+    isnla ? (const char*)nlaname : (const char*)attrsetnm );
 
     if ( isnla )
 	as.setRefFromID( *attrdata.nlamodel );
@@ -847,7 +634,7 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
     uiAttrDescEd* ade = attrsetdlg->curDescEd();
     if ( !ade ) return;
     const DescSet* curattrset = attrsetdlg->getSet();
-    if ( !curattrset || !ade->attrparset.size() )
+    if ( !curattrset )
 	mErrRet( "Cannot evaluate this attribute" );
 
     sendEvent( evEvalAttrInit );

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.8 2005-06-23 09:14:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.9 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -73,7 +73,9 @@ bool ValParam::isEqual( const Param& b ) const
 
     for ( int idx=0; idx<spec->nElems(); idx++ )
     {
-	if ( strcmp(spec->text(idx),vp->spec->text(idx)) )
+	BufferString buf1 = spec->text(idx);
+	BufferString buf2 = vp->spec->text(idx);
+	if ( buf1 != buf2 )
 	    return false;
     }
 
@@ -188,6 +190,15 @@ void ZGateParam::setDefaultValue(const Interval<float>& defaultgate)
 }
 
 
+void ZGateParam::setValue(const Interval<float>& gate)
+{
+    BufferString string = "["; 
+    string += gate.start; string += ",";
+    string += gate.stop; string += "]";
+    setCompositeValue( string );
+}
+
+
 bool ZGateParam::getCompositeValue( BufferString& res ) const
 {
     res = "[";
@@ -274,6 +285,13 @@ bool BoolParam::setCompositeValue( const char* str )
     return true;
 }
 
+
+void BoolParam::setDefaultValue( bool yn )
+{
+    BufferString str = yn;
+    spec->setValue( yn );
+    Param::setDefaultValue( str );
+}
 
 
 EnumParam::EnumParam( const char* nm )

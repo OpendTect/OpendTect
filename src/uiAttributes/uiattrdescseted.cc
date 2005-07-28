@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.1 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -342,9 +342,10 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
     removeNotUsedAttr();
     if ( saveButtonChecked() && !doSave(true) )
 	return false;
-
-    if ( !saveButtonChecked() )
-	mErrRetFalse( attrset->errMsg() );
+    
+// TODO: check if these lines are necessary
+//    if ( !saveButtonChecked() && attrset->isSatisfied() )
+//	mErrRetFalse( attrset->errMsg() );
 
     if ( inoutadsman )
         inoutadsman->setSaved( adsman->isSaved() );
@@ -832,7 +833,6 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
 
 void uiAttribDescSetEd::replaceStoredAttr()
 {
-/*
     TypeSet<int> idset;
     BufferStringSet defstrs;
     TypeSet<int> attrids;
@@ -870,21 +870,15 @@ void uiAttribDescSetEd::replaceStoredAttr()
                     usrrefs += new BufferString(ad->userRef());
                 }
             }
-
-	    if ( ad->steering() && ad->steering()->inldipid==idset[idnr] )
-	    {
-		crldipid = ad->steering()->crldipid;
-		usrrefs += new BufferString(ad->userRef());
-	    }	
         }
 
-	Desc* ad = attrset->getDesc( attrset->descNr(idset[idnr]));
-	if ( ad->isSteering && crldipid<0 )
-	    crldipid = attrset->getStoredAttribID( ad->defStr(), 1, false );
+	Desc* ad = attrset->getDesc( attrset->getID(idset[idnr]));
 	
 	if ( !usrrefs.size() )
 	{
-	    notused += new BufferString( ad->defStr() );
+	    BufferString bfstr;
+	    ad->getDefStr(bfstr);
+	    notused.add(bfstr.buf());
 	    continue;
 	}
 
@@ -893,38 +887,28 @@ void uiAttribDescSetEd::replaceStoredAttr()
 	dlg.set2DPol( !idnr ? Both2DAnd3D : (found2d ? Only2D : No2D) ); 
         if ( dlg.go() )
         {
-            ad->setDefStr( dlg.getDefStr(), false );
+            ad->changeStoredID( dlg.getDefStr() );
             ad->setUserRef( dlg.getUserRef() );
 	    if ( !found2d && dlg.is2D() )
 		found2d = true;
-	    if ( issteer && crldipid >= 0 )
-	    {
-		AttribDesc* crlad = &attrset->getAttribDesc( 
-		    attrset->descNr( crldipid ) );
-		crlad->setDefStr( dlg.getDefStr(), false );
-		BufferString nm( "_" ); nm += dlg.getUserRef();
-		nm += "_crline_dip";
-		crlad->setUserRef( nm );
-	    }
-        }
+	}
     }
 
     for ( int idx=0; idx<notused.size(); idx++ )
     {
 	while( true )
 	{
-	    const int dscnr = attrset->descNr( notused[0]->buf(), false );
+	    const int dscnr = attrset->getID( notused[0]->buf(), false );
 	    if ( dscnr < 0 ) break;
-	    attrset->removeAttrib( dscnr );
+	    attrset->removeDesc( dscnr );
 	}
     }
 
     attrset->removeUnused( true );
-*/
 }
 
 
 void uiAttribDescSetEd::removeNotUsedAttr()
 {
-    // if ( attrset ) attrset->removeUnused();
+     if ( attrset ) attrset->removeUnused();
 }

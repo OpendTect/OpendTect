@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.89 2005-07-27 11:19:51 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.90 2005-07-28 10:53:51 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -326,7 +326,7 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv = const_cast<uiODDisplayTreeItem*>(this)->
 							applMgr()->visServer();
-    const AttribSelSpec* as = cvisserv->getSelSpec( displayid );
+    const Attrib::SelSpec* as = cvisserv->getSelSpec( displayid );
     BufferString dispname( as ? as->userRef() : 0 );
     if ( as && as->isNLA() )
     {
@@ -337,12 +337,12 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 	dispname += " ("; dispname += nodenm; dispname += ")";
     }
 
-    if ( as && as->id()==AttribSelSpec::attribNotSel )
+    if ( as && as->id()==Attrib::SelSpec::attribNotSel )
 	dispname = "<right-click>";
     else if ( !as )
 	dispname = cvisserv->getObjectName(displayid);
-    else if ( as->id() == AttribSelSpec::noAttrib )
-	dispname = "";
+    else if ( as->id() == Attrib::SelSpec::noAttrib )
+	dispname="";
 
     return dispname;
 }
@@ -358,7 +358,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     selattrmnuitem.removeItems();
     if ( visserv->hasAttrib(displayid) )
     {
-	const AttribSelSpec* as = visserv->getSelSpec(displayid);
+	const Attrib::SelSpec* as = visserv->getSelSpec(displayid);
 	uiAttribPartServer* attrserv = applMgr()->attrServer();
 	MenuItem* subitem = attrserv->storedAttribMenuItem( *as );
 	mAddMenuItem( &selattrmnuitem, subitem, subitem->nrItems(),
@@ -403,9 +403,9 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else 
     {
-	const AttribSelSpec* as = visserv->getSelSpec( displayid );
+	const Attrib::SelSpec* as = visserv->getSelSpec( displayid );
 	if ( !as ) return;
-	AttribSelSpec myas( *as );
+	Attrib::SelSpec myas( *as );
 	if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas) )
 	{
 	    menu->setIsHandled(true);
@@ -503,7 +503,7 @@ BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv =
        const_cast<uiODEarthModelSurfaceTreeItem*>(this)->applMgr()->visServer();
-    const AttribSelSpec* as = cvisserv->getSelSpec( displayid );
+    const Attrib::SelSpec* as = cvisserv->getSelSpec( displayid );
     bool hasattr = as && as->id() > -2;
     BufferString dispname;
     if ( hasattr )
@@ -525,11 +525,11 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
-    const AttribSelSpec* as = visserv->getSelSpec(displayid);
+    const Attrib::SelSpec* as = visserv->getSelSpec(displayid);
 
     mAddMenuItem( &selattrmnuitem, &loadsurfacedatamnuitem, true, false );
     mAddMenuItem( &selattrmnuitem, &depthattribmnuitem, true,
-	    	  as->id()==AttribSelSpec::noAttrib );
+	    	  as->id()==Attrib::SelSpec::noAttrib );
 
     MenuItem* trackmnu = menu->findItem(uiVisEMObject::trackingmenutxt);
     if ( uilistviewitem->isChecked() && trackmnu )
@@ -828,7 +828,7 @@ BufferString uiODBodyTreeItem::createDisplayName() const
 {
     const uiVisPartServer* visserv =
        const_cast<uiODBodyTreeItem*>(this)->applMgr()->visServer();
-    const AttribSelSpec* as = visserv->getSelSpec( displayid );
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayid );
     bool hasattr = as && as->id() > -2;
     BufferString dispname;
     if ( hasattr )

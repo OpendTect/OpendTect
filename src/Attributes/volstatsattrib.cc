@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.1 2005-07-06 15:02:07 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -203,7 +203,8 @@ bool VolStats::getInputData(const BinID& relpos, int idx)
 
     steeringdata = steering ? inputs[nrvolumes]->getData(relpos, idx) : 0;
 
-    BinID bidstep = inputs[0]-> getStepoutStep();
+    bool yn;
+    BinID bidstep = inputs[0]-> getStepoutStep(yn);
     int nrpos = positions.size();
 
     int storpos = 0;

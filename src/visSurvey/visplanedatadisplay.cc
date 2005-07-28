@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.81 2005-04-07 15:50:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.82 2005-07-28 10:53:51 cvshelene Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -39,8 +39,8 @@ PlaneDataDisplay::PlaneDataDisplay()
     , trect(0)
     , cache(0)
     , colcache(0)
-    , as(*new AttribSelSpec)
-    , colas(*new ColorAttribSel)
+    , as(*new Attrib::SelSpec)
+    , colas(*new Attrib::ColorSelSpec)
     , moving(this)
     , curicstep(SI().inlStep(),SI().crlStep())
     , curzstep(SI().zRange(true).step)
@@ -74,8 +74,8 @@ PlaneDataDisplay::~PlaneDataDisplay()
     delete &as;
     delete &colas;
 
-    delete cache;
-    delete colcache;
+    cache->unRef();
+    colcache->unRef();
 }
 
 
@@ -428,14 +428,14 @@ void PlaneDataDisplay::setResolution( int res )
 }
 
 
-const AttribSelSpec* PlaneDataDisplay::getSelSpec() const
+const Attrib::SelSpec* PlaneDataDisplay::getSelSpec() const
 { return &as; }
 
 
-void PlaneDataDisplay::setSelSpec( const AttribSelSpec& as_ )
+void PlaneDataDisplay::setSelSpec( const Attrib::SelSpec& as_ )
 {
     as = as_;
-    delete cache;
+    cache->unRef();
     cache = 0;
 
     const char* usrref = as.userRef();
@@ -446,11 +446,11 @@ void PlaneDataDisplay::setSelSpec( const AttribSelSpec& as_ )
 }
 
 
-void PlaneDataDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+void PlaneDataDisplay::setColorSelSpec( const Attrib::ColorSelSpec& as_ )
 { colas = as_; }
 
 
-const ColorAttribSel* PlaneDataDisplay::getColorSelSpec() const
+const Attrib::ColorSelSpec* PlaneDataDisplay::getColorSelSpec() const
 { return &colas; }
 
 
@@ -523,7 +523,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos ) const
 }
 
 
-bool PlaneDataDisplay::setDataVolume( bool colordata, AttribSliceSet* sliceset )
+bool PlaneDataDisplay::setDataVolume( bool colordata, 
+					Attrib::SliceSet* sliceset )
 {
     if ( colordata )
     {
@@ -535,18 +536,18 @@ bool PlaneDataDisplay::setDataVolume( bool colordata, AttribSliceSet* sliceset )
     setData( sliceset, colordata ? colas.datatype : 0 );
     if ( colordata )
     {
-	delete colcache;
+	colcache->unRef();
 	colcache = sliceset;
 	return true;
     }
 
-    delete cache;
+    cache->unRef();
     cache = sliceset;
     return true;
 }
 
 
-void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype ) 
+void PlaneDataDisplay::setData( const Attrib::SliceSet* sliceset, int datatype )
 {
     trect->removeAllTextures( true );
     if ( !sliceset )
@@ -600,7 +601,7 @@ void PlaneDataDisplay::checkCubeSampling( const CubeSampling& datacs )
 
 #define mInZrg() (curz>=datacs.zrg.start-1e-4 && curz<=datacs.zrg.stop+1e-4)
 
-Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset, 
+Array2D<float>* PlaneDataDisplay::createArray( const Attrib::SliceSet* sliceset,
 					       int slcidx ) const
 {
     CubeSampling cs = getCubeSampling( true );
@@ -690,7 +691,7 @@ Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset,
 }
 
 
-const AttribSliceSet* PlaneDataDisplay::getCacheVolume( bool colordata ) const
+const Attrib::SliceSet* PlaneDataDisplay::getCacheVolume( bool colordata ) const
 {
     return colordata ? colcache : cache;
 }

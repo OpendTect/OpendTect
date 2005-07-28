@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -79,6 +79,7 @@ protected:
     int 		shape;
     int 		size;
     BinID		stepout;
+    Interval<float>	interval;
 
     ObjectSet<const DataHolder>	inputdata;
 

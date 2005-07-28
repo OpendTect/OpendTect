@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.2 2004-10-06 19:21:00 nanne Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibatchlaunch.h"
 
-class AttribDescSet;
 class CtxtIOObj;
 class IOPar;
 class MultiID;
@@ -23,6 +22,7 @@ class uiAttrSel;
 class uiGenInput;
 class uiIOObjSel;
 
+namespace Attrib { class DescSet; }
 
 /*! \brief
 Surface Output Batch dialog.
@@ -33,7 +33,7 @@ Used for calculating attributes on surfaces
 class uiAttrSurfaceOut : public uiFullBatchDialog
 {
 public:
-    			uiAttrSurfaceOut(uiParent*,const AttribDescSet&,
+    			uiAttrSurfaceOut(uiParent*,const Attrib::DescSet&,
 					 const NLAModel*,const MultiID&);
 			~uiAttrSurfaceOut();
 
@@ -41,11 +41,11 @@ protected:
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
-    void		addNLA(int&);
+    bool		addNLA(int&);
     void		attribSel(CallBacker*);
 
     CtxtIOObj&		ctio;
-    AttribDescSet&	ads;
+    Attrib::DescSet&	ads;
     const MultiID&	nlaid;
     const NLAModel*	nlamodel;
 

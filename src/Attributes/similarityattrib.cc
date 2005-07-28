@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.4 2005-06-30 11:26:43 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.5 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -36,7 +36,11 @@ void Similarity::initClass()
 
     desc->addParam( new BinIDParam(pos0Str()) );
     desc->addParam( new BinIDParam(pos1Str()) );
-    desc->addParam( new BinIDParam(stepoutStr()) );
+
+    BinIDParam* stepout = new BinIDParam( stepoutStr() );
+    stepout->setDefaultValue((BinID)(1,1));
+    stepout->setRequired(false);
+    desc->addParam( stepout );
 
     EnumParam* extension = new EnumParam(extensionStr());
 
@@ -45,10 +49,19 @@ void Similarity::initClass()
     extension->addEnum(extensionTypeStr(mExtensionRot90));
     extension->addEnum(extensionTypeStr(mExtensionRot180));
     extension->addEnum(extensionTypeStr(mExtensionCube));
+    extension->setDefaultValue(extensionTypeStr(mExtensionNone));
+    extension->setRequired(false);
     desc->addParam(extension);
 
-    desc->addParam( new BoolParam(steeringStr()) );
-    desc->addParam( new BoolParam(normalizeStr()) );
+    BoolParam* steering = new BoolParam( steeringStr() );
+    steering->setDefaultValue(true);
+    steering->setRequired(false);
+    desc->addParam( steering );
+
+    BoolParam* normalize = new BoolParam( normalizeStr() );
+    normalize->setDefaultValue(false);
+    normalize->setRequired(false);
+    desc->addParam( normalize );
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -182,7 +195,8 @@ bool Similarity::getInputData(const BinID& relpos, int idx)
 
     steeringdata = dosteer ? inputs[1]->getData(relpos, idx) : 0;
 
-    const BinID bidstep = inputs[0]-> getStepoutStep();
+    bool yn;
+    const BinID bidstep = inputs[0]-> getStepoutStep(yn);
     if ( extension==mExtensionCube )
     {
 	int index = 0;
@@ -285,10 +299,12 @@ bool Similarity::computeData( const DataHolder& output,
 	     if ( dosteer )
 	     {
 	         if ( steeringdata->item(steeridx[pair*2]) )
-		     s0 += steeringdata->item(steeridx[pair*2])->value(idx);
+		     s0 += steeringdata->item(steeridx[pair*2])
+			 ->value(idx - steeringdata->t0_);
 
 		 if ( steeringdata->item(steeridx[pair*2+1]) )
-		     s1 += steeringdata->item(steeridx[pair*2+1])->value(idx);
+		     s1 += steeringdata->item(steeridx[pair*2+1])
+			 ->value(idx - steeringdata->t0_);
 	     }
 
 	     SimiFunc vals0(*(inputdata[pair*2]->item(0)));

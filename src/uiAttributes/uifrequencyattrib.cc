@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,8 @@ ________________________________________________________________________
 #include "uifrequencyattrib.h"
 #include "frequencyattrib.h"
 #include "attribdesc.h"
-#include "uispecattrsel.h"
+#include "attribparam.h"
+#include "uiattrsel.h"
 #include "uigeninput.h"
 
 using namespace Attrib;
@@ -44,7 +45,7 @@ static const char* outpstrs[] =
 };
 
 
-uiFrequencyAttrDescEd::uiFrequencyAttrDescEd( uiParent* p )
+uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
     inpfld = getImagInpFld();
@@ -67,7 +68,7 @@ uiFrequencyAttrDescEd::uiFrequencyAttrDescEd( uiParent* p )
 }
 
 
-bool uiFrequency::setParameters( const Attrib::Desc& desc )
+bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
 {
     if ( strcmp(desc.attribName(),Frequency::attribName()) )
 	return false;
@@ -81,21 +82,21 @@ bool uiFrequency::setParameters( const Attrib::Desc& desc )
 }
 
 
-bool uiFrequency::setInput( const Attrib::Desc& desc )
+bool uiFrequencyAttrib::setInput( const Attrib::Desc& desc )
 {
     putInp( inpfld, desc, 0 );
     return true;
 }
 
 
-bool uiFrequency::setOutput( const Attrib::Desc& desc )
+bool uiFrequencyAttrib::setOutput( const Attrib::Desc& desc )
 {
     outpfld->setValue( desc.selectedOutput() );
     return true;
 }
 
 
-bool uiFrequency::getParameters( Attrib::Desc& desc )
+bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
 {
     if ( strcmp(desc.attribName(),Frequency::attribName()) )
 	return false;
@@ -108,15 +109,16 @@ bool uiFrequency::getParameters( Attrib::Desc& desc )
 }
 
 
-bool uiFrequency::getInput( Attrib::Desc& desc )
+bool uiFrequencyAttrib::getInput( Attrib::Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
     return true;
 }
 
 
-bool uiFrequency::getOutput( Attrib::Desc& desc )
+bool uiFrequencyAttrib::getOutput( Attrib::Desc& desc )
 {
-    mChgTrackGetSet(chtr,ad,selectedOutput,selectOutput,outpfld->getIntValue());
+    mChgTrackGetSet( chtr, (&desc), selectedOutput,
+	    	selectOutput, outpfld->getIntValue() );
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.15 2005-06-24 10:21:19 cvsduntao Exp $
+ RCS:           $Id: mpeengine.h,v 1.16 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,12 +19,11 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "trackplane.h"
 
-class AttribSelSpec;
-class AttribSliceSet;
 class BufferStringSet;
 class CubeSampling;
 class MultiID;
 
+namespace Attrib { class SelSpec; class SliceSet; }
 namespace EM { class EMObject; };
 namespace Geometry { class Element; };
 
@@ -81,11 +80,11 @@ public:
 
     				/*Attribute stuff */
     void			getNeededAttribs(
-	    				ObjectSet<const AttribSelSpec>&) const;
-    CubeSampling		getAttribCube(const AttribSelSpec&) const;
-    const AttribSliceSet*	getAttribCache(const AttribSelSpec&) const;
-    bool			setAttribData(const AttribSelSpec&,
-	    				      AttribSliceSet*);
+				    ObjectSet<const Attrib::SelSpec>&) const;
+    CubeSampling		getAttribCube(const Attrib::SelSpec&) const;
+    const Attrib::SliceSet*	getAttribCache(const Attrib::SelSpec&) const;
+    bool			setAttribData(const Attrib::SelSpec&,
+						Attrib::SliceSet*);
 
     				/*Editors */
     ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
@@ -110,8 +109,8 @@ protected:
     ObjectSet<EMTracker>	trackers;
     ObjectSet<ObjectEditor>	editors;
 
-    ObjectSet<AttribSliceSet>	attribcache;
-    ObjectSet<AttribSelSpec>	attribcachespecs;
+    ObjectSet<Attrib::SliceSet>	attribcache;
+    ObjectSet<Attrib::SelSpec>	attribcachespecs;
 
     ObjectSet<TrackerFactory>	trackerfactories;
     ObjectSet<EditorFactory>	editorfactories;

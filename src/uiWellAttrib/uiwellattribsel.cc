@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.8 2005-02-03 10:37:48 nanne Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.9 2005-07-28 10:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 
 uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd_,
-       				  const AttribDescSet& as,
+       				  const Attrib::DescSet& as,
        				  const NLAModel* mdl )
     : uiDialog(p,uiDialog::Setup("Attributes",
 				 "Attribute selection",
@@ -156,9 +156,9 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 	vidx = mUndefValue;
     }
 
-    AttribSelSpec selspec;
+    Attrib::SelSpec selspec;
     attribfld->fillSelSpec( selspec );
-    AttribEngMan aem;
+    Attrib::EngineMan aem;
     aem.setAttribSet( &attrset );
     aem.setNLAModel( nlamodel );
     aem.setAttribSpec( selspec );
@@ -166,7 +166,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     BufferString errmsg;
     ObjectSet<BinIDValueSet> bivsset;
     bivsset += &bivs;
-    PtrMan<Executor> exec = aem.tableOutputCreator( errmsg, bivsset );
+    PtrMan<Executor> exec = aem.locationOutputCreator( errmsg, bivsset );
     uiExecutor uiexec( this, *exec );
     bool ret = uiexec.go();
     if ( !ret ) return false;

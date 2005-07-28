@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.4 2005-06-23 09:13:36 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.5 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "executor.h"
 #include "linekey.h"
+#include "attribdesc.h"
 
 class CubeSampling;
 template <class T> class Interval;
@@ -22,7 +23,6 @@ template <class T> class Interval;
 namespace Attrib
 {
 class DataHolder;
-class Desc;
 class Provider;
 class Output;
 
@@ -46,6 +46,8 @@ public:
                           no processing, e.g. during initial buffer fills. */
     
     int			totalNr();
+    const char*		getAttribName() { return desc_.attribName(); }
+    Provider*		getProvider() { return provider; }
     ObjectSet<Output>           outputs;
 
 protected:

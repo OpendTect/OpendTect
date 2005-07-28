@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.12 2005-07-18 15:55:31 cvsbert Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.13 2005-07-28 10:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ const int uiMPEPartServer::evShowToolbar	= 4;
 const int uiMPEPartServer::evInitFromSession	= 5;
 
 
-uiMPEPartServer::uiMPEPartServer( uiApplService& a, const AttribDescSet* ads )
+uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     : uiApplPartServer(a)
     , attrset( ads )
     , wizard(0)
@@ -48,7 +48,7 @@ uiMPEPartServer::~uiMPEPartServer()
 }
 
 
-void uiMPEPartServer::setCurrentAttribDescSet( const AttribDescSet* ads )
+void uiMPEPartServer::setCurrentAttribDescSet( const Attrib::DescSet* ads )
 { attrset = ads; }
 
 
@@ -197,7 +197,7 @@ int uiMPEPartServer::activeTrackerID() const
 { return activetrackerid; }
 
 
-const AttribSelSpec* uiMPEPartServer::getAttribSelSpec() const
+const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 { return eventattrselspec; }
 
 
@@ -242,8 +242,8 @@ void uiMPEPartServer::showRelationsDlg( const MultiID& mid, EM::SectionID sid )
 }
 
 
-void uiMPEPartServer::setAttribData( const AttribSelSpec& spec,
-				     AttribSliceSet* slcset )
+void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
+					Attrib::SliceSet* slcset )
 {
     MPE::engine().setAttribData( spec, slcset );
 }
@@ -253,7 +253,7 @@ void uiMPEPartServer::loadAttribData()
 {
     uiCursorChanger changer( uiCursor::Wait );
 
-    ObjectSet<const AttribSelSpec> attribselspecs;
+    ObjectSet<const Attrib::SelSpec> attribselspecs;
     MPE::engine().getNeededAttribs(attribselspecs);
     for ( int idx=0; idx<attribselspecs.size(); idx++ )
     {
@@ -264,8 +264,8 @@ void uiMPEPartServer::loadAttribData()
 }
 
 
-const AttribSliceSet*
-    uiMPEPartServer::getAttribCache( const AttribSelSpec& spec ) const
+const Attrib::SliceSet*
+    uiMPEPartServer::getAttribCache( const Attrib::SelSpec& spec ) const
 { return MPE::engine().getAttribCache( spec ); }
 
 

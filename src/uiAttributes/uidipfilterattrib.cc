@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ static const char* outpstrs[] =
 
 
 ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
-	: uiAttrDescEd(p,0)
+	: uiAttrDescEd(p)
 {
     if ( !zIsTime() )
     {
@@ -104,9 +104,6 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
 
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
     outpfld->attach( alignedBelow, kernelfld );
-
-    setForm( new ConvolveAttrib::Parameters );
-    setName( "3DFilter" );
 
     setHAlignObj( inpfld );
 }

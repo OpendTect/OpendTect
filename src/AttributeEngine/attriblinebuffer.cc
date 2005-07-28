@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.3 2005-05-12 10:54:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.4 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attriblinebuffer.h"
 
@@ -88,19 +88,20 @@ void DataHolderLineBuffer::removeDataHolder( const BinID& bid )
 }
 
 
-void DataHolderLineBuffer::removeBefore( const BinID& bid )
+void DataHolderLineBuffer::removeBefore( const BinID& bid, 
+					const BinID& direction )
 {
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	bool removeline = false;
-	if ( inlines[idx]<bid.inl )
+	if ( direction.inl*inlines[idx]<direction.inl*bid.inl )
 	    removeline = true;
 	else if ( inlines[idx]==bid.inl )
 	{
 	    TypeSet<int>& crosslines = *crossliness[idx];
 	    for ( int idy=crosslines.size()-1; idy>=0; idy-- )
 	    {
-		if ( crosslines[idy]<bid.crl )
+		if ( direction.crl*crosslines[idy]<direction.crl*bid.crl )
 		{
 		    delete (*inlinedata[idx])[idy];
 		    inlinedata[idx]->remove(idy);

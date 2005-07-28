@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.1 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,7 +161,8 @@ bool Position::getInputData(const BinID& relpos, int idx)
     const int nrpos = positions.size();
     const int inlsz = stepout.inl * 2 + 1;
     const int crlsz = stepout.crl * 2 + 1;
-    BinID bidstep = inputs[0]-> getStepoutStep();
+    bool yn;
+    BinID bidstep = inputs[0]-> getStepoutStep(yn);
     //bidstep.inl = abs(bidstep.inl); bidstep.crl = abs(bidstep.crl);
 
     while ( inputdata.size()<nrpos )

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.16 2005-07-06 15:02:08 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.17 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -121,7 +121,10 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	}
 		    
 	if ( !alreadythere )
+	{
 	    res->setInput( idx, inputprovider );
+	    inputprovider->addParent(res);
+	}
 	issame = false;
     }
 
@@ -153,6 +156,7 @@ Provider::Provider( Desc& nd )
     , isusedmulttimes(0)
     , seldata_(*new SeisSelData)
 {
+    mRefCountConstructor;
     desc.ref();
     inputs.allowNull(true);
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
@@ -172,6 +176,8 @@ Provider::~Provider()
     deepErase( computetasks );
 
     delete linebuffer;
+    delete possiblevolume;
+    delete desiredvolume;
     delete &seldata_;
 }
 
@@ -404,8 +410,36 @@ int Provider::moveToNextTrace()
 
     if ( !movinginputs.size() )
     {
-	currentbid = BinID(-1,-1);
-	return true;
+	if ( !inputs.size() && !desc.isStored() )
+	{
+	    if ( currentbid.inl == -1 && currentbid.crl == -1 )
+	    {
+		currentbid.inl = desiredvolume->hrg.start.inl;
+		currentbid.crl = desiredvolume->hrg.start.crl;
+	    }
+	    else
+	    {
+		BinID prevbid = currentbid;
+		bool yn;
+		BinID step = getStepoutStep(yn);
+		if ( prevbid.crl +step.crl <= desiredvolume->hrg.stop.crl )
+		    currentbid.crl = prevbid.crl +step.crl;
+		else if ( prevbid.inl +step.inl <= desiredvolume->hrg.stop.inl )
+		{
+		    currentbid.inl = prevbid.inl +step.inl;
+		    currentbid.crl = desiredvolume->hrg.start.crl;
+		}
+		else
+		    return 0;
+	    }
+	}
+	else
+	{
+	    currentbid = BinID(-1,-1);
+	}
+
+	setCurrentPosition(currentbid);
+	return 1;
     }
 
     for ( int idx=0; idx<movinginputs.size()-1; idx++ )
@@ -452,6 +486,7 @@ int Provider::moveToNextTrace()
 	if ( !inputs[idx]->setCurrentPosition(currentbid) )
 	    return -1;
     }
+    setCurrentPosition(currentbid);
 
     alreadymoved = true;
     return 1;
@@ -483,12 +518,16 @@ bool Provider::setCurrentPosition( const BinID& bid )
 	pErrMsg( "Huh? (should never happen)");
 	return false;
     }
-
+    
     if ( linebuffer )
     {
-	const BinID step( SI().inlRange().step, SI().crlRange().step );
-	const BinID lastbid = currentbid - bufferstepout*step;
-	linebuffer->removeBefore(lastbid);
+	bool yn;
+	const BinID step = getStepoutStep(yn);
+	BinID dir = BinID(1,1);
+	dir.inl *= step.inl/abs(step.inl); dir.crl *= step.crl/abs(step.crl);
+	const BinID lastbid = currentbid - dir*bufferstepout*step;
+	linebuffer->removeBefore(lastbid, dir);
+    // in every direction...
     }
 
     return true;
@@ -497,21 +536,17 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 {
-//    if ( isUsedMultTimes() ) 
-//	for ( int idx=0; idx<localcomputezintervals.size(); idx++ )
-//	    localcomputezintervals.remove(idx);
-
     Interval<int> inputranges[inputs.size()][ni.size()];
 
     float surveystep = SI().zRange().step;
     const float dz = (refstep==0) ? surveystep : refstep;
-    int cssamplstart = (int)( possiblevolume->zrg.start / refstep + 0.5);
-    int cssamplstop = (int)( possiblevolume->zrg.stop / refstep + 0.5);
+    int cssamplstart = (int)( possiblevolume->zrg.start / dz + 0.5);
+    int cssamplstop = (int)( possiblevolume->zrg.stop / dz + 0.5);
     
     for ( int idx=0; idx<ni.size(); idx++ )
     {
 	Interval<int> nigoodstep(ni[idx]);
-	if ( surveystep != refstep )
+	if ( surveystep != refstep && refstep != 0 )
 	{
 	    nigoodstep.start *= (int)(surveystep / refstep + 0.5);
 	    nigoodstep.stop *= (int)(surveystep / refstep + 0.5);
@@ -521,8 +556,13 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 			    nigoodstep.start : cssamplstart;
 	nigoodstep.stop = ( cssamplstop > nigoodstep.stop ) ? 
 			    nigoodstep.stop : cssamplstop;
-	
-	localcomputezintervals += nigoodstep;
+
+	if ( !isUsedMultTimes() )
+	    localcomputezintervals += nigoodstep;
+	else
+	{
+	    localcomputezintervals[idx].include(nigoodstep);
+	}
 
 	for ( int out=0; out<outputinterest.size(); out++ )
 	{
@@ -564,6 +604,39 @@ const TypeSet< Interval<int> >& Provider::localCompZIntervals() const
 {
     return localcomputezintervals;
 }
+
+
+void Provider::resetZIntervals()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] )
+	    inputs[idx]->resetZIntervals();
+
+    for ( int idx=localcomputezintervals.size(); idx>0; idx-- )
+	localcomputezintervals.remove(idx-1);
+}
+    
+
+BinID Provider::getStepoutStep(bool& found)
+{
+    BinID bid;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	bid = inputs[idx]->getStepoutStep(found);
+	if (found)
+	    return bid;
+    }
+    for ( int idx=0; idx<parents.size(); idx++ )
+    {
+	bid = parents[idx]->getStepoutStep(found);
+	if (found)
+	    return bid;
+    }
+
+    bid = BinID( SI().inlStep(), SI().crlStep() );
+    return bid;
+}
+
 
 
 const DataHolder* Provider::getData( const BinID& relpos, int idi )
@@ -803,7 +876,7 @@ const Interval<float>* Provider::reqZMargin(int,int) const { return 0; }
 
 int Provider::getTotalNrPos( bool is2d )
 {
-    if ( seldata_.type_ == SeisSelData::Table )
+    if ( seldata_.type_ == Seis::Table )
     {
 	return seldata_.table_.totalSize();
     }
@@ -832,6 +905,7 @@ void Provider::propagateZRefStep( const ObjectSet<Provider>& existing )
     for ( int idx=0; idx<existing.size(); idx++ )
 	existing[idx]->refstep = refstep;
 }
+
 
 void Provider::setCurLineKey( const char* linename )
 {
@@ -872,7 +946,42 @@ void Provider::setSelData( const SeisSelData& seldata )
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	if ( inputs[idx] )
-	    inputs[idx]->setSelData(seldata);
+	    inputs[idx]->setSelData(seldata_);
     }
 }
+
+
+void Provider::setPossibleVolume( const CubeSampling& cs)
+{
+    if ( possiblevolume )
+	delete possiblevolume;
+
+    possiblevolume = new CubeSampling(cs);
+}
+
+
+float Provider::getRefStep() const
+{ 
+    return !mIsZero(refstep,mDefEps) ? refstep : SI().zRange().step; 
+}
+
+
+bool Provider::zIsTime() const 
+{
+    return SI().zIsTime();
+}
+
+
+float Provider::inldist() const
+{
+    return SI().transform(BinID(0,0)).distance(SI().transform(BinID(1,0)));
+}
+
+
+float Provider::crldist() const
+{
+    return SI().transform(BinID(0,0)).distance(SI().transform(BinID(1,0)));
+}
+
+
 }; //namespace

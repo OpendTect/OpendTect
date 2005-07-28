@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.2 2005-06-23 09:14:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribslice.h"
 
@@ -54,7 +54,7 @@ SliceSet::~SliceSet()
 #define mZIdx (sampling.zrg.nearestIndex(z))
 
 void SliceSet::getIdxs( int inl, int crl, float z,
-	                                     int& i0, int& i1, int& i2 ) const
+			 int& i0, int& i1, int& i2 ) const
 {
     if ( direction == CubeSampling::Z )
 	{ i0 = mZIdx; i1 = mInlIdx; i2 = mCrlIdx; }
@@ -65,8 +65,7 @@ void SliceSet::getIdxs( int inl, int crl, float z,
 }
 
 
-void SliceSet::getIdx( int nr, int inl, int crl, float z,
-	                                    int& iout ) const
+void SliceSet::getIdx( int nr, int inl, int crl, float z, int& iout ) const
 {
     if ( direction == CubeSampling::Z )
 	iout = nr ? (nr == 1 ? mInlIdx : mCrlIdx) : mZIdx;
@@ -78,7 +77,7 @@ void SliceSet::getIdx( int nr, int inl, int crl, float z,
 
 
 Array3D<float>* SliceSet::createArray( int inldim, int crldim,
-					     int depthdim) const
+					 int depthdim) const
 {
     int size0=-1, size1=-1;
     float udefval;
@@ -182,6 +181,26 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
     return res;
 }
 
+
+#define mIsValid(idx,sz) ( idx>=0 && idx<sz )
+
+float SliceSet::getValue( int inl, int crl, float z ) const
+{
+    int idx0, idx1, idx2;
+    getIdxs( inl, crl, z, idx0, idx1, idx2 );
+
+    const int sz0 = size();
+    if ( !mIsValid(idx0,sz0) ) return mUdf(float);
+
+    const Slice* slice = (*this)[idx0];
+    if ( !slice ) return mUdf(float);
+
+    const int sz1 = slice->info().getSize(0);
+    const int sz2 = slice->info().getSize(1);
+    if ( !mIsValid(idx1,sz1) || !mIsValid(idx2,sz2) ) return mUdf(float);
+
+    return slice->get( idx1, idx2 );
+}
 
 }; //namespacer
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.2 2005-06-30 11:26:43 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,12 +275,14 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int t0, int nrsamples ) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = t0 - redata->t0_ + idx;
+	int cursample = t0 + idx;
 	int sample = cursample + samplegate.start;
 	for ( int ids=0; ids<sz; ids++ )
 	{
-	    float real = redata->item(0)? redata->item(0)->value( sample ) : 0;
-	    float imag = imdata->item(0)? -imdata->item(0)->value( sample ) : 0;
+	    float real = redata->item(0)? 
+			redata->item(0)->value( sample-redata->t0_ ) : 0;
+	    float imag = imdata->item(0)? 
+			-imdata->item(0)->value( sample-imdata->t0_ ) : 0;
 
 	    signal->set( ids, float_complex(real,imag) );
 	    sample++;
@@ -371,9 +373,9 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int t0, int nrsamples ) const
     Array1DImpl<float_complex> inputdata( nrsamp );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	int cursample = t0 - redata->t0_ + idx - off;
-	float real = redata->item(0)->value( cursample );
-	float imag = - imdata->item(0)->value( cursample );
+	int cursample = t0 + idx - off;
+	float real = redata->item(0)->value( cursample - redata->t0_);
+	float imag = - imdata->item(0)->value( cursample - imdata->t0_);
         inputdata.set( idx, float_complex(real,imag) );
     }
     

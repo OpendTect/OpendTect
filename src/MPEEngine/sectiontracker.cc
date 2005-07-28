@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.9 2005-07-21 20:57:38 cvskris Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.10 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "sectiontracker.h"
 
@@ -32,7 +32,7 @@ SectionTracker::SectionTracker( SectionSourceSelector* selector__,
     , extender_(extender__)
     , adjuster_(adjuster__)
     , useadjuster_(true)
-    , displayas_(*new AttribSelSpec)
+    , displayas_(*new Attrib::SelSpec)
 {
     init();
 }
@@ -157,7 +157,7 @@ const char* SectionTracker::errMsg() const
 
 
 void SectionTracker::getNeededAttribs( 
-				ObjectSet<const AttribSelSpec>& res ) const
+				ObjectSet<const Attrib::SelSpec>& res ) const
 {
     if ( !adjuster_ ) return;
     for ( int idx=0; idx<adjuster_->nrComputers(); idx++ )
@@ -165,7 +165,7 @@ void SectionTracker::getNeededAttribs(
 	PositionScoreComputer* psc = adjuster_->getComputer( idx );
 	for ( int asidx=0; asidx<psc->nrAttribs(); asidx++ )
 	{
-	    const AttribSelSpec* as = psc->getSelSpec( asidx );
+	    const Attrib::SelSpec* as = psc->getSelSpec( asidx );
 	    if ( as && indexOf(res,*as) < 0 )
 		res += as;
 	}
@@ -173,10 +173,10 @@ void SectionTracker::getNeededAttribs(
 }
 
 
-void SectionTracker::setDisplaySpec( const AttribSelSpec& as )
+void SectionTracker::setDisplaySpec( const Attrib::SelSpec& as )
 { displayas_ = as; }
 
-const AttribSelSpec& SectionTracker::getDisplaySpec() const
+const Attrib::SelSpec& SectionTracker::getDisplaySpec() const
 { return displayas_; }
 
 

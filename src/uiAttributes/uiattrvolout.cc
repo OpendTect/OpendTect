@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.1 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,10 @@ using namespace Attrib;
 
 static void setTypeAttr( CtxtIOObj& ctio, bool yn )
 {
-    ctio.ctxt.ioparkeyval[0] = yn ? "Type" : "";
-    ctio.ctxt.ioparkeyval[1] = yn ? "Attribute" : "";
+    if ( yn )
+	ctio.ctxt.parconstraints.set( "Type", "Attribute" );
+    else
+	ctio.ctxt.parconstraints.removeWithKey( "Type" );
 }
 
 
@@ -70,7 +72,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 
     ctio.ctxt.forread = false;
     setTypeAttr( ctio, true );
-    ctio.ctxt.includekeyval = true;
+    ctio.ctxt.includeconstraints = true;
+    ctio.ctxt.allowcnstrsabsent = false;
     objfld = new uiSeisSel( uppgrp, ctio, SeisSelSetup().selattr(false) );
     objfld->attach( alignedBelow, transffld );
 

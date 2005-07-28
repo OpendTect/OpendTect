@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.17 2005-06-28 17:44:44 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.18 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -57,10 +57,10 @@ public:
     void			selectNextTexture(bool next);
 
     int				getAttributeFormat() const;
-    const AttribSelSpec*	getSelSpec() const;
-    const ColorAttribSel*	getColorSelSpec() const;
-    void			setSelSpec(const AttribSelSpec&);
-    void			setColorSelSpec(const ColorAttribSel&);
+    const Attrib::SelSpec*	getSelSpec() const;
+    const Attrib::ColorSelSpec*	getColorSelSpec() const;
+    void			setSelSpec(const Attrib::SelSpec&);
+    void			setColorSelSpec(const Attrib::ColorSelSpec&);
     void			setDepthAsAttrib();
 
     bool			allowMaterialEdit() const	{ return true; }
@@ -126,8 +126,8 @@ protected:
     bool			usestexture;
     int				curtextureidx;
 
-    AttribSelSpec&		as;
-    ColorAttribSel&		colas;
+    Attrib::SelSpec&		as;
+    Attrib::ColorSelSpec&	colas;
     ObjectSet<const float>	attribcache;
     TypeSet<int>		attribcachesz;
 

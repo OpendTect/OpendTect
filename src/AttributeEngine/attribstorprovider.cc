@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.9 2005-07-06 15:02:08 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.10 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -75,7 +75,7 @@ void StorageProvider::updateDesc( Desc& ds )
     
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
-    if ( !rdr.ioObj() || !rdr.prepareWork(true) ) return;
+    if ( !rdr.ioObj() || !rdr.prepareWork() ) return;
 
     SeisTrcTranslator* transl = rdr.translator();
     Seis2DLineSet* lset = rdr.lineSet();
@@ -198,19 +198,6 @@ bool StorageProvider::init()
 	else
 	{
 	    SeisTrcTranslator::getRanges(mid,storedvolume,lk);
-/*
-	    const SeisTrcTranslator* transl = reader->translator();
-	    const SeisSelData* seldata = transl ? transl->selData() : 0;
-	    if ( seldata && seldata->type_==SeisSelData::Range )
-	    {
-		storedvolume.hrg.start.inl = seldata->inlrg_.start;
-		storedvolume.hrg.stop.inl = seldata->inlrg_.stop;
-		storedvolume.hrg.start.crl = seldata->crlrg_.start;
-		storedvolume.hrg.stop.crl = seldata->crlrg_.stop;
-		storedvolume.zrg.start = seldata->zrg_.start;
-		storedvolume.zrg.stop = seldata->zrg_.stop;
-	    }
-*/
 	    isset = true;
 	}
     }
@@ -272,8 +259,13 @@ int StorageProvider::moveToNextTrace()
 }
 
 
-bool StorageProvider::getPossibleVolume(int,CubeSampling& res)
-{ res = storedvolume; possiblevolume = &storedvolume; return true; }
+bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
+{
+    res = storedvolume;
+    if ( !possiblevolume ) possiblevolume = new CubeSampling;
+    *possiblevolume = storedvolume;
+    return true;
+}
 
 
 SeisRequester* StorageProvider::getSeisRequester()
@@ -299,11 +291,11 @@ bool StorageProvider::setSeisRequesterSelection(int req)
     SeisTrcReader* reader = rg[req]->reader();
     if ( !reader ) return false;
 
-    if ( seldata_.type_ == SeisSelData::Table )
+    if ( seldata_.type_ == Seis::Table )
     {
-	reader->setSelData( &seldata_ ); //Memleak!
+	reader->setSelData( new SeisSelData(seldata_) ); //Memleak!
     }
-    else if ( seldata_.type_ == SeisSelData::Range )
+    else if ( seldata_.type_ == Seis::Range )
     {
 	if ( !desiredvolume ) return true;
 	if ( ! &storedvolume ) return false;
@@ -334,7 +326,7 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 				desiredvolume->zrg.stop > zrg.stop ?
 				zrg.stop : desiredvolume->zrg.stop;
 		}
-		reader->setSelData( &seldata_ ); //Memleak!
+		reader->setSelData( new SeisSelData(seldata_) ); //Memleak!
 	    }
 	    //TODO?
 	    return true;
@@ -365,7 +357,7 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 	seldata_.zrg_.start = cs.zrg.start;
 	seldata_.zrg_.stop = cs.zrg.stop;
 
-	reader->setSelData( &seldata_ ); //Memleak!
+	reader->setSelData( new SeisSelData(seldata_) ); //Memleak!
 
 	SeisTrcTranslator* transl = reader->translator();
 
@@ -415,7 +407,7 @@ void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     int t0 = trcsamplvalues.t0_;
     float starttime = storedvolume.zrg.start;
     float trcstep = trc->info().sampling.step;
-    float reqstarttime = t0 * trcstep + starttime;
+    float reqstarttime = starttime<0 ? t0 * trcstep + starttime : t0 * trcstep;
     for (int idx=0 ; idx<trcsamplvalues.nrsamples_ ; idx++)
     {
 	for ( int idy=0; idy< outputinterest.size(); idy++ )
@@ -428,13 +420,14 @@ void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 }
 
 
-BinID StorageProvider::getStepoutStep()
+BinID StorageProvider::getStepoutStep(bool& found)
 {
     SeisRequester* req = getSeisRequester();
     if ( !req ) return (0,0);
     SeisTrcTranslator* transl = req->reader()->translator();
     BinID mystep( transl->packetInfo().inlrg.step,
 		  transl->packetInfo().crlrg.step );
+    found = true;
     return mystep;
 }
 

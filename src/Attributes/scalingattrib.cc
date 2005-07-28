@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.1 2005-06-23 09:08:24 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,13 @@ ________________________________________________________________________
 static inline float interpolator( float fact1, float fact2, 
 				  float t1, float t2, float curt )
 {
-    const float increment = (fact2-fact1) / (t2-t1);
-    return fact1 + increment * (curt-t1);
+    if ( !mIsZero((t2-t1+2),mDefEps) )
+    {
+    const float increment = (fact2-fact1) / (t2-t1+2);
+    return fact1 + increment * (curt-t1+1);
+    }
+    else
+	return fact1;
 }
 
 namespace Attrib
@@ -37,12 +42,12 @@ namespace Attrib
 
 void Scaling::initClass()
 {
-    Desc* desc = new Desc( attribName() );
+    Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
     EnumParam* scalingtype = new EnumParam(scalingTypeStr());
-    scalingtype->addEnum(scalingTypeStr(mScalingTypeTPower));
-    scalingtype->addEnum(scalingTypeStr(mScalingTypeWindow));
+    scalingtype->addEnum(scalingTypeNamesStr(mScalingTypeTPower));
+    scalingtype->addEnum(scalingTypeNamesStr(mScalingTypeWindow));
     desc->addParam(scalingtype);
 
     FloatInpSpec* floatspec = new FloatInpSpec();
@@ -69,10 +74,10 @@ void Scaling::initClass()
     desc->addParam( factorset );
 
     EnumParam* statstype = new EnumParam(statsTypeStr());
-    statstype->addEnum(statsTypeStr(mStatsTypeRMS));
-    statstype->addEnum(statsTypeStr(mStatsTypeMean));
-    statstype->addEnum(statsTypeStr(mStatsTypeMax));
-    statstype->addEnum(statsTypeStr(mStatsTypeUser));
+    statstype->addEnum(statsTypeNamesStr(mStatsTypeRMS));
+    statstype->addEnum(statsTypeNamesStr(mStatsTypeMean));
+    statstype->addEnum(statsTypeNamesStr(mStatsTypeMax));
+    statstype->addEnum(statsTypeNamesStr(mStatsTypeUser));
     desc->addParam( statstype );
 
     desc->addOutputDataType( Seis::UnknowData );
@@ -103,7 +108,14 @@ Provider* Scaling::createInstance( Desc& ds )
 }
 
 
-const char* Scaling::statsTypeStr(int type)
+void Scaling::updateDesc( Desc& desc )
+{
+    bool isuserdef = ((ValParam*)desc.getParam(statsTypeStr()))->getBoolValue();
+    desc.setParamEnabled(factorStr(),isuserdef);
+}
+
+
+const char* Scaling::statsTypeNamesStr(int type)
 {
     if ( type==mStatsTypeRMS ) return "RMS";
     if ( type==mStatsTypeMean ) return "Mean";
@@ -112,7 +124,7 @@ const char* Scaling::statsTypeStr(int type)
 }
 
 
-const char* Scaling::scalingTypeStr(int type)
+const char* Scaling::scalingTypeNamesStr(int type)
 {
     if ( type==mScalingTypeTPower ) return "T^n";
     return "Window";
@@ -154,7 +166,7 @@ bool Scaling::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Scaling::getInputData( const BinID& relpos, int idx )
 {
-    const DataHolder* inputdata = inputs[0]->getData( relpos, idx );
+    inputdata = inputs[0]->getData( relpos, idx );
     return inputdata ? true : false;
 }
     
@@ -185,7 +197,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	    
 	    for ( int idx=sg.start; idx<=sg.stop; idx++ )
-		stats += fabs( inputdata->item(0)->value(idx) );
+		stats += fabs( inputdata->item(0)->value(idx-inputdata->t0_) );
 
 	    if ( statstype == mStatsTypeRMS )
 		scalefactors += stats.rms()? 1/stats.rms() : 1;
@@ -201,7 +213,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float trcval = inputdata->item(0)->value(idx);
+	const float trcval = inputdata->item(0)->value(idx - inputdata->t0_);
 	float scalefactor = 1;
 	bool found = false;
 	int cursample = t0 + idx;
@@ -228,7 +240,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	output.item(0)->setValue(idx, trcval * scalefactor);
     }
 
-    return 0;
+    return true;
 }
 
 
@@ -238,7 +250,8 @@ void Scaling::scaleTimeN(const DataHolder& output, int t0, int nrsamples) const
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float curt = t0*refstep + idx*refstep;
-	result = pow(curt,powerval) * inputdata->item(0)->value(idx);
+	result = pow(curt,powerval) * 
+	    		inputdata->item(0)->value(idx - inputdata->t0_);
 	output.item(0)->setValue(idx, result);
     }
 }

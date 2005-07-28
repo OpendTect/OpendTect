@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.35 2005-07-27 10:22:12 cvsduntao Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.36 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "mpeengine.h"
 
@@ -58,7 +58,7 @@ Engine::~Engine()
     deepErase( interactionseeds );
     deepErase( trackers );
     deepErase( editors );
-    deepErase( attribcache );
+    deepUnRef( attribcache );
     deepErase( attribcachespecs );
     deepErase( trackerfactories );
     deepErase( editorfactories );
@@ -305,7 +305,7 @@ void Engine::setNewSeeds()
 }
 
 
-void Engine::getNeededAttribs( ObjectSet<const AttribSelSpec>& res ) const
+void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 {
     for ( int trackeridx=0; trackeridx<trackers.size(); trackeridx++ )
     {
@@ -322,11 +322,11 @@ void Engine::getNeededAttribs( ObjectSet<const AttribSelSpec>& res ) const
 				tracker->getSectionTracker( sectionid );
 	    if ( !sectiontracker ) continue;
 
-	    ObjectSet<const AttribSelSpec> specs;
+	    ObjectSet<const Attrib::SelSpec> specs;
 	    sectiontracker->getNeededAttribs( specs );
 	    for ( int idx=0; idx<specs.size(); idx++ )
 	    {
-		const AttribSelSpec* as = specs[idx];
+		const Attrib::SelSpec* as = specs[idx];
 		if ( indexOf(res,*as) < 0 )
 		    res += as;
 	    }
@@ -335,14 +335,14 @@ void Engine::getNeededAttribs( ObjectSet<const AttribSelSpec>& res ) const
 }
 
 
-CubeSampling Engine::getAttribCube( const AttribSelSpec& as ) const
+CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 {
-    const AttribSliceSet* sliceset = getAttribCache( as );
+    const Attrib::SliceSet* sliceset = getAttribCache( as );
     return sliceset ? sliceset->sampling : activeVolume();
 }
     
 
-const AttribSliceSet* Engine::getAttribCache( const AttribSelSpec& as ) const
+const Attrib::SliceSet* Engine::getAttribCache(const Attrib::SelSpec& as) const
 {
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
     {
@@ -354,14 +354,15 @@ const AttribSliceSet* Engine::getAttribCache( const AttribSelSpec& as ) const
 }
 
 
-bool Engine::setAttribData( const AttribSelSpec& as, AttribSliceSet* newdata )
+bool Engine::setAttribData( const Attrib::SelSpec& as, 
+			    Attrib::SliceSet* newdata )
 {
     bool found = false;
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
     {
 	if ( *attribcachespecs[idx]==as )
 	{
-	    delete attribcache[idx];
+	    attribcache[idx]->unRef();
 	    attribcache.replace(idx, newdata);
 	    found = true;
 	    break;
@@ -370,7 +371,7 @@ bool Engine::setAttribData( const AttribSelSpec& as, AttribSliceSet* newdata )
 
     if ( !found )
     {
-	attribcachespecs += new AttribSelSpec(as);
+	attribcachespecs += new Attrib::SelSpec(as);
 	attribcache += newdata;
     }
 
@@ -496,7 +497,7 @@ bool Engine::usePar( const IOPar& iopar )
     deepErase( interactionseeds );
     deepErase( trackers );
     deepErase( editors );
-    deepErase( attribcache );
+    deepUnRef( attribcache );
     deepErase( attribcachespecs );
 
     int nrtrackers = 0;

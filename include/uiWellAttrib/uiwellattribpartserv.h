@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.1 2004-03-01 14:29:50 nanne Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 
 class MultiID;
-class AttribDescSet;
 class NLAModel;
+
+namespace Attrib { class DescSet; }
 
 /*! \brief Part Server for Wells */
 
@@ -26,7 +27,7 @@ public:
 				uiWellAttribPartServer(uiApplService&);
 				~uiWellAttribPartServer();
 
-    void			setAttribSet(const AttribDescSet&);
+    void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
 
     const char*			name() const		{ return "Wells"; }
@@ -36,7 +37,7 @@ public:
 
 protected:
 
-    AttribDescSet*		attrset;
+    Attrib::DescSet*		attrset;
     const NLAModel*		nlamodel;
 
 };

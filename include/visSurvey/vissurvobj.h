@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.38 2005-07-15 14:30:45 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.39 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -20,14 +20,12 @@ ________________________________________________________________________
 #include "color.h"
 #include "cubesampling.h"
 
-class AttribSelSpec;
-class AttribSliceSet;
 class BinIDValueSet;
-class ColorAttribSel;
 class MultiID;
 class SeisTrcBuf;
 
 namespace visBase { class Transformation; };
+namespace Attrib  { class SelSpec; class SliceSet; class ColorSelSpec; }
 
 namespace visSurvey
 {
@@ -105,15 +103,16 @@ public:
     				/*<\retval 0	volume
 				   \retval 1	traces
 				   \retval 2	random pos
+				   \retval 3	tracking volume
 				   \retval -1	Does not have attribs 
 				*/
-    virtual const AttribSelSpec* getSelSpec() const		{ return 0; }
-    virtual const ColorAttribSel* getColorSelSpec() const	{ return 0; }
+    virtual const Attrib::SelSpec* getSelSpec() const		{ return 0; }
+    virtual const Attrib::ColorSelSpec* getColorSelSpec() const	{ return 0; }
     virtual const TypeSet<float>* getHistogram() const		{ return 0; }
     virtual int			getColTabID() const		{ return -1; }
 
-    virtual void		setSelSpec(const AttribSelSpec&)	{}
-    virtual void		setColorSelSpec(const ColorAttribSel&)	{}
+    virtual void		setSelSpec(const Attrib::SelSpec&)	{}
+    virtual void		setColorSelSpec(const Attrib::ColorSelSpec&)	{}
 
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures() const		{ return 0; }
@@ -127,9 +126,9 @@ public:
     virtual CubeSampling	getCubeSampling() const
 				{ CubeSampling cs; return cs; }
     virtual void		setCubeSampling(CubeSampling)		{}
-    virtual bool		setDataVolume(bool color,AttribSliceSet* slc);
+    virtual bool		setDataVolume(bool color,Attrib::SliceSet* slc);
 				/*!<\note slc becomes mine */
-    virtual const AttribSliceSet* getCacheVolume( bool color ) const
+    virtual const Attrib::SliceSet* getCacheVolume( bool color ) const
 				{ return 0; }
 
     				//Trace-data

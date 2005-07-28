@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.14 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.15 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "sets.h"
-#include "survinfo.h"
 #include "linekey.h"
 #include "seistrcsel.h"
 
@@ -60,6 +59,7 @@ public:
     void			setBufferStepout(const BinID&);
     const BinID&		getBufferStepout() const;
     void			setDesiredVolume( const CubeSampling& );
+    void                        setPossibleVolume( const CubeSampling& );
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
@@ -71,11 +71,12 @@ public:
 				    \retval  1	arrived at new position
 				*/
     void			resetMoved();
+    void                        resetZIntervals();
 				    
     BinID			getCurrentPosition() const;
-    virtual bool		setCurrentPosition( const BinID& );
+    virtual bool		setCurrentPosition(const BinID&);
     void			addLocalCompZIntervals(
-	    				const TypeSet< Interval<int> >&);
+	    				const TypeSet<Interval<int> >&);
     
     const TypeSet< Interval<int> >&	localCompZIntervals() const;
 
@@ -83,10 +84,9 @@ public:
     virtual void                updateStorageReqs(bool all = false);
     void			setSelData(const SeisSelData&);
     int				getCurrentTrcNr () { return trcnr_; }
-    float                       getRefStep() const { return refstep; }
-    virtual BinID               getStepoutStep()
-				{ BinID bid( SI().inlStep(), SI().crlStep() );
-				  return bid;}
+    float                       getRefStep() const; 
+    virtual BinID		getStepoutStep(bool&);
+    
     ObjectSet<Provider>		getInputs() { return inputs; }
 
 
@@ -113,6 +113,7 @@ protected:
     DataHolder*		getDataHolder( const BinID& relpos );
     void		removeDataHolder( const BinID& relpos );
     void		setInput( int input, Provider* );
+    void                addParent( Provider* parent) {parents += parent;}
     bool		computeDesInputCube( int inp, int out,
 					     CubeSampling&, 
 					     bool usestepout=true ) const;
@@ -130,17 +131,14 @@ protected:
     void			computeRefZStep(const ObjectSet<Provider>&);
     void			propagateZRefStep( const ObjectSet<Provider>& );
 
-    bool                        zIsTime() const {return SI().zIsTime();}
+    bool                        zIsTime() const;
     float			zFactor() const { return zIsTime() ? 1000 : 1;}
     float			dipFactor() const {return zIsTime() ? 1e6: 1e3;}
-    float			inldist() const 
-					{return SI().transform(BinID(0,0)).
-					 distance(SI().transform(BinID(1,0)));}
-    float			crldist() const
-	                                {return SI().transform(BinID(0,0)).
-					 distance(SI().transform(BinID(1,0)));}
+    float			inldist() const; 
+    float			crldist() const;
 
     ObjectSet<Provider>		inputs;
+    ObjectSet<Provider>		parents;
     Desc&			desc;
     TypeSet<int>		outputinterest;
     BinID			bufferstepout;

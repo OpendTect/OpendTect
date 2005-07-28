@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.23 2005-07-26 08:12:23 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.24 2005-07-28 10:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -273,11 +273,11 @@ void uiMPEMan::updateAttribNames()
     attribfld->empty();
     attribfld->addItem( "No attribute" );
 
-    ObjectSet<const AttribSelSpec> attribspecs;
+    ObjectSet<const Attrib::SelSpec> attribspecs;
     engine().getNeededAttribs( attribspecs );
     for ( int idx=0; idx<attribspecs.size(); idx++ )
     {
-	const AttribSelSpec* spec = attribspecs[idx];
+	const Attrib::SelSpec* spec = attribspecs[idx];
 	attribfld->addItem( spec->userRef() );
     }
 
@@ -343,18 +343,18 @@ void uiMPEMan::attribSel( CallBacker* )
     {
 	for ( int idx=0; idx<displays.size(); idx++ )
 	{
-	    displays[idx]->setSelSpec( AttribSelSpec() );
+	    displays[idx]->setSelSpec( Attrib::SelSpec() );
 	    displays[idx]->updateTexture();
 	}
 
 	return;
     }
 
-    ObjectSet<const AttribSelSpec> attribspecs;
+    ObjectSet<const Attrib::SelSpec> attribspecs;
     engine().getNeededAttribs( attribspecs );
     for ( int idx=0; idx<attribspecs.size(); idx++ )
     {
-	const AttribSelSpec* spec = attribspecs[idx];
+	const Attrib::SelSpec* spec = attribspecs[idx];
 	if ( strcmp(spec->userRef(),attribfld->text()) )
 	    continue;
 

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.8 2005-06-23 09:14:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.9 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -100,7 +100,10 @@ int Processor::nextStep()
 	    provider->enableOutput(globaloutputinterest[idx], true );
 
 	provider->setDesiredVolume( globalcs );
-	provider->getPossibleVolume( -1, globalcs );
+	if ( !provider->getInputs().size() && !provider->getDesc().isStored() )
+	    provider->setPossibleVolume(globalcs);
+	else
+	    provider->getPossibleVolume( -1, globalcs );
 
     }
 
@@ -109,7 +112,10 @@ int Processor::nextStep()
     {
 	BinID curbid = provider->getCurrentPosition();
 	if ( is2d_ )
+	{
+	    curbid.inl = 0;
 	    curbid.crl = provider-> getCurrentTrcNr();
+	}
 	
 	//TODO: Smarter way if output's intervals don't intersect
 	TypeSet< Interval<int> > localintervals;
@@ -147,11 +153,11 @@ int Processor::nextStep()
 						provider->getCurrentTrcNr() );
 		}
 	    }
-	    delete data;
 	}
     }
 
     provider->resetMoved();
+    provider->resetZIntervals();
     nriter++;
     return res;
 }

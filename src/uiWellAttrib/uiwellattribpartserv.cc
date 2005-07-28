@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.cc,v 1.3 2004-04-21 14:14:34 nanne Exp $
+ RCS:           $Id: uiwellattribpartserv.cc,v 1.4 2005-07-28 10:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset(new AttribDescSet)
+    , attrset(new Attrib::DescSet)
     , nlamodel(0)
 {
 }
@@ -44,7 +44,7 @@ uiWellAttribPartServer::~uiWellAttribPartServer()
 }
 
 
-void uiWellAttribPartServer::setAttribSet( const AttribDescSet& ads )
+void uiWellAttribPartServer::setAttribSet( const Attrib::DescSet& ads )
 {
     delete attrset;
     attrset = ads.clone();

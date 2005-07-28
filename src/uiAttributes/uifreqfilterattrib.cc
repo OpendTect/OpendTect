@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,8 @@ ________________________________________________________________________
 #include "uifreqfilterattrib.h"
 #include "freqfilterattrib.h"
 #include "attribdesc.h"
-#include "uispecattrsel.h"
+#include "attribparam.h"
+#include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
 
@@ -43,14 +44,14 @@ static const char* typestrs[] =
 
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
-	: uiAttrDescEd(p,new FreqFilterAttrib::Parameters)
+	: uiAttrDescEd(p)
 {
     inpfld = getImagInpFld();
 
     isfftfld = new uiGenInput( this, "Filtering method", 
 			       BoolInpSpec("FFT","ButterWorth") );
     isfftfld->attach( alignedBelow, inpfld );
-    isfftfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,fftSel) );
+    isfftfld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,isfftSel) );
 		    
     typefld = new uiGenInput( this, "Filter type", 
 	    		      StringListInpSpec(typestrs) );
@@ -87,7 +88,7 @@ void uiFreqFilterAttrib::typeSel( CallBacker* )
 }
 
 
-void uiFreqFilterAttrib::fftSel( CallBacker* )
+void uiFreqFilterAttrib::isfftSel( CallBacker* )
 {
     bool val = isfftfld->getBoolValue();
     winfld->display(val);
@@ -100,7 +101,8 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),FreqFilter::attribName()) )
 	return false;
 
-    mIfGetEnum( FreqFilter::typeStr(), type, typefld->setValue(type) );
+    mIfGetEnum( FreqFilter::filtertypeStr(), filtertype, 
+	    	typefld->setValue(filtertype) );
     mIfGetFloat( FreqFilter::minfreqStr(), minfreq,
 	    	 freqfld->setValue(minfreq,0) );
     mIfGetFloat( FreqFilter::maxfreqStr(), maxfreq,
@@ -108,7 +110,8 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     mIfGetInt( FreqFilter::nrpolesStr(), nrpoles,
 	       polesfld->box()->setValue(nrpoles) )
     mIfGetEnum( FreqFilter::windowStr(), window, winfld->setValue(window) );
-    mIfGetBool( FreqFilter::isfftStr(), isfft, isfftfld->setValue(isfft) );
+    mIfGetBool( FreqFilter::isfftfilterStr(), isfftfilter, 
+	    	isfftfld->setValue(isfftfilter) );
 
     typeSel(0);
     isfftSel(0);
@@ -128,12 +131,12 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),FreqFilter::attribName()) )
 	return false;
 
-    mSetEnum( FreqFilter::typeStr(), typefld->getIntValue() );
+    mSetEnum( FreqFilter::filtertypeStr(), typefld->getIntValue() );
     mSetFloat( FreqFilter::minfreqStr(), freqfld->getfValue(0) );
     mSetFloat( FreqFilter::minfreqStr(), freqfld->getfValue(1) );
     mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
     mSetEnum( FreqFilter::windowStr(), winfld->getIntValue() );
-    mSetBool( FreqFilter::isfftStr(), isfftfld->getBoolValue() );
+    mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );
 
     return true;
 }

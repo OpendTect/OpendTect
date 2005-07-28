@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.16 2005-06-30 11:26:43 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.17 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -37,6 +37,10 @@ bool InputSpec::operator==(const InputSpec& b) const
 
     return true;
 }
+
+
+const char* Desc::steeringinldipcompname = "inl_dip";
+const char* Desc::steeringcrldipcompname = "crl_dip";
 
 
 Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
@@ -71,6 +75,7 @@ Desc::Desc( const Desc& a )
     , hidden_( false )
     , issteering( false )
     , seloutput( a.seloutput )
+    , userref( a.userref )
 {
     mRefCountConstructor;
     inputs.allowNull(true);
@@ -79,7 +84,11 @@ Desc::Desc( const Desc& a )
 	addParam( a.params[idx]->clone() );
 
     for ( int idx=0; idx<a.inputs.size(); idx++ )
+    {
 	addInput( a.inputSpec(idx) );
+	if ( a.inputs[idx] )
+	    setInput(idx,a.inputs[idx]);
+    }
 
     for ( int idx=0; idx<a.nrOutputs(); idx++ )
 	addOutputDataType( a.outputtypes[idx] );
@@ -116,6 +125,7 @@ bool Desc::getDefStr( BufferString& res ) const
     res = attribName();
     for ( int idx=0; idx<params.size(); idx++ )
     {
+	if ( !params[idx]->isEnabled() ) continue;
 	res += " ";
 	res += params[idx]->getKey();
 	res += "=";
@@ -173,13 +183,13 @@ bool Desc::parseDefStr( const char* defstr )
 	{
 	    BufferStringSet paramvalset;
 	    int valueid = 0;
-	    BufferString keystring = params[idx]->getKey();
 	    for ( int idy=0; idy<keys.size(); idy++ )
 	    {
+		BufferString keystring = params[idx]->getKey();
 		keystring += valueid;
 		if ( !strcmp(keys.get(idy).buf(), keystring ) )
 		{
-		    paramvalset.get(valueid) = vals.get(idx);
+		    paramvalset.add( vals.get(idy).buf() );
 		    found =true;
 		    valueid++;
 		}
@@ -202,12 +212,12 @@ bool Desc::parseDefStr( const char* defstr )
     {
          if ( !params[idx]->isOK() )
 	     return false;
-     }
-/*     
+    }
+     
     BufferString outputstr;
     bool res = getParamString( defstr, "output", outputstr );
     selectOutput( res ? atoi(outputstr.buf()) : 0 );
-  */   
+  
     return true;
 }
 
@@ -593,6 +603,15 @@ void Desc::createBStrSetFromDefstring( const char* defstr,
     
 }
 
+
+void Desc::changeStoredID(const char* newid)
+{
+    if ( isStored() )
+    {
+	ValParam* keypar = (ValParam*)getParam( StorageProvider::keyStr() );
+	keypar->setValue( newid );
+    }
+}
 
 /*
 IOObj* Desc::getDefCubeIOObj(bool issteering ,bool is2d) const;

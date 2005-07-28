@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.3 2005-05-27 07:29:37 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.4 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -97,27 +97,27 @@ bool BatchProgram::go( std::ostream& strm )
 
     Attrib::Processor* proc = 0;
     
-    const char* tempdir = pars().find(SeisJobExecProv::sKeyTmpStor);
+    const char* tempdir = pars().find(sKey::TmpStor);
 
     if ( tempdir && *tempdir )
     {
 	if ( !File_exists(tempdir) )
 	{
-	    BufferString msg(SeisJobExecProv::sKeyTmpStor);
+	    BufferString msg(sKey::TmpStor);
 	    msg += " ("; msg += tempdir; msg += ") does not exist.";
 	    mRetHostErr( msg );
 	}
 
 	if ( !File_isDirectory(tempdir) )
 	{
-	    BufferString msg(SeisJobExecProv::sKeyTmpStor);
+	    BufferString msg(sKey::TmpStor);
 	    msg += " ("; msg += tempdir; msg += ") is not a directory.";
 	    mRetHostErr( msg );
 	}
 
 	if ( !File_isWritable(tempdir) )
 	{
-	    BufferString msg(SeisJobExecProv::sKeyTmpStor);
+	    BufferString msg(sKey::TmpStor);
 	    msg += " ("; msg += tempdir; msg += ") is not writeable.";
 	    mRetHostErr( msg );
 	}
@@ -195,7 +195,7 @@ bool BatchProgram::go( std::ostream& strm )
     if ( !outputs )
 	mRetJobErr( "No outputs found" )
 
-    Attrib::EngineMan* attrengman = new Attrib::EngineMan();
+    PtrMan<Attrib::EngineMan> attrengman = new Attrib::EngineMan();
     int indexoutp = 0;
     BufferString linename;
     while ( true )
@@ -212,7 +212,20 @@ bool BatchProgram::go( std::ostream& strm )
 	linename = output->find("Line key");
 	indexoutp++;
     }    
+/*//TODO erase when all tests have been made on that new getpossiblevolume.
+    PtrMan<IOPar> output = pars().subselect( "Output.1" );
 
+    int indoutp = 0;
+    output->get("Attributes.0",indoutp);
+    CubeSampling cs;
+    pars().get( "Output.1.In-line range", cs.hrg.start.inl, cs.hrg.stop.inl );
+    pars().get( "Output.1.Cross-line range", cs.hrg.start.crl, cs.hrg.stop.crl);
+    pars().get( "Output.1.Depth range", cs.zrg.start, cs.zrg.stop );
+    cs.zrg.start /= SI().zFactor();
+    cs.zrg.stop /= SI().zFactor();
+
+    Attrib::EngineMan::getPossibleVolume( attribset, cs, linename, indoutp );
+   */
     ObjectSet<Attrib::Processor> procset;
     attrengman->usePar( pars(), attribset, linename, procset );
     

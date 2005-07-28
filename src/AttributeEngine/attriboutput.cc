@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.8 2005-07-06 15:02:08 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.9 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -24,6 +24,23 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.8 2005-07-06 15:02:08 cvshe
 namespace Attrib
 {
 
+const char* Output::outputstr = "Output";
+const char* Output::typekey = "Type";
+const char* Output::cubekey = "Cube";
+const char* Output::surfkey = "Surface";
+const char* Output::tskey = "Trace Selection";
+const char* Output::scalekey = "Scale";
+const char* CubeOutput::seisidkey = "Seismic ID";
+const char* CubeOutput::attribkey = "Attributes";
+const char* CubeOutput::inlrangekey = "In-line range";
+const char* CubeOutput::crlrangekey = "Cross-line range";
+const char* CubeOutput::depthrangekey = "Depth range";
+const char* LocationOutput::filenamekey = "Output Filename";
+const char* LocationOutput::locationkey = "Locations";
+const char* LocationOutput::attribkey = "Attribute";
+const char* LocationOutput::surfidkey = "Surface ID";
+
+
 Output::~Output()
 {
     delete &seldata_;
@@ -40,7 +57,7 @@ Output::Output()
 SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
     : desiredvolume( cs )
     , sliceset( 0 )
-    , udfval ( 0 )
+    , udfval ( mUdf(float) )
 {
     const float dz = SI().zRange().step;
     Interval<int> interval;
@@ -75,7 +92,7 @@ void SliceSetOutput::collectData( const BinID& bid,
     {
 	sliceset = new Attrib::SliceSet;
 	sliceset->sampling = desiredvolume;
-	sliceset->sampling.zrg.step = refstep;
+	sliceset->sampling.zrg.step = refstep; 
 	sliceset->direction = desiredvolume.defaultDir();
 #define mGetDim(nr) \
         const int dim##nr = \
@@ -84,15 +101,25 @@ void SliceSetOutput::collectData( const BinID& bid,
 	mGetDim(0); mGetDim(1); mGetDim(2);
 	for ( int idx=0; idx<dim0; idx++ )
 	    *sliceset += new Attrib::Slice( dim1, dim2, udfval );
+
+	if ( dim0 == 1 && desoutputs.size() > 1 )
+	    for ( int idx=0; idx<desoutputs.size()-1; idx++ )
+		*sliceset += new Attrib::Slice( dim1, dim2, udfval );
     }
 
     int i0, i1, i2;
-    for ( int idx=0; idx<sliceset->sampling.nrZ(); idx++)
+    int sampleoffset = mNINT(sliceset->sampling.zrg.start/refstep);
+    for ( int idy=0; idy<desoutputs.size(); idy++ )
     {
-	float val = ( idx >= data.t0_ && idx < data.t0_+data.nrsamples_ ) ?
-	     		data.item(0)->value(idx-data.t0_): udfval;
-	sliceset->getIdxs( bid.inl, bid.crl, idx*refstep, i0, i1, i2 );
-	((*sliceset)[i0])->set( i1, i2, val );
+	for ( int idx=sampleoffset; 
+		idx<sliceset->sampling.nrZ()+sampleoffset; idx++)
+	{
+	    float val = ( idx >= data.t0_ && idx < data.t0_+data.nrsamples_ ) ?
+			data.item(desoutputs[idy])->value(idx-data.t0_): udfval;
+	    sliceset->getIdxs( bid.inl, bid.crl, idx*refstep, i0, i1, i2 );
+    float step = !mIsZero(refstep,mDefEps) ? refstep : SI().zRange().step;
+	    ((*sliceset)[i0+idy])->set( i1, i2, val );
+	}
     }
 }
 
@@ -110,7 +137,7 @@ void SliceSetOutput::setGeometry( const CubeSampling& cs )
 }
 
 
-CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey)
+CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey )
     : desiredvolume( cs )
     , auxpars(0)
     , storid_(*new MultiID)
@@ -221,8 +248,8 @@ bool CubeOutput::doInit()
     
     desiredvolume.normalise();
     seldata_.linekey_.setAttrName( "" );
-    if ( seldata_.type_ != SeisSelData::Range )
-	seldata_.type_ = SeisSelData::Range;
+    if ( seldata_.type_ != Seis::Range )
+	seldata_.type_ = Seis::Range;
 
     if ( !is2d_ )
     {
@@ -288,10 +315,10 @@ bool CubeOutput::setReqs( const BinID& pos )
     return true;
 }
 
-SeisTrcBuf* CubeOutput::getTrcBuf()
+SeisTrcBuf* CubeOutput::getTrcBuf() const 
 {
     SeisTrcBuf* ret = buf2d_;
-    buf2d_ = 0;
+    const_cast<CubeOutput*>(this)->buf2d_ = 0;
     return ret;
 }
 
@@ -395,36 +422,34 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
 {
-    seldata_.type_ = SeisSelData::Table;
+    seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( true );
     seldata_.table_ = bidvalset;
 }
 
 
-void LocationOutput::collectData( const BinID& bid,const DataHolder& data,
-                             float refstep, int trcnr )
+void LocationOutput::collectData( const BinID& bid, const DataHolder& data,
+				  float refstep, int trcnr )
 {
-    int ii = bid.inl; int jj = bid.crl;
-    BinIDValueSet::Pos pos( ii, jj );
-    TypeSet<float> collectval;
+    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    if ( !pos.valid() ) return;
+
+    if ( bidvalset_.nrVals()-1 != desoutputs.size() )
+	bidvalset_.setNrVals( desoutputs.size()+1 );
+
     float* vals = bidvalset_.getVals( pos );
-    collectval += *(vals); 
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
 	float val = data.item(desoutputs[comp])->value(0);
-	collectval += val;
+	vals[comp+1] = val;
     }
-    bidvalset_.set(pos,collectval);
 }
 
 
 bool LocationOutput::wantsOutput( const BinID& bid ) const
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
-    if ( pos.i == 0 || pos.j == 0 )
-	return false;
-
-    return true;
+    return pos.valid();
 }
 
 
@@ -433,8 +458,10 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     const float* vals = bidvalset_.getVals(pos);
     Interval<int> interval;
-    interval.start =(int)vals[0]; interval.stop = (int)vals[0];
-    const_cast<LocationOutput*>(this)->sampleinterval += interval;
+    const float dz = SI().zRange().step;
+    interval.start =mNINT(vals[0]/dz); interval.stop = mNINT(vals[0]/dz);
+    TypeSet< Interval<int> > sampleinterval;
+    sampleinterval += interval;
     return sampleinterval;
 }
 
@@ -443,7 +470,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
     , outpbuf_(0)
 {
-    seldata_.type_ = SeisSelData::Table;
+    seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( true );
     seldata_.table_ = bidvalset;
     int nrinterv = bidvalset.nrVals()/2;

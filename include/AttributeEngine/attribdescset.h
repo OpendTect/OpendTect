@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.9 2005-06-09 13:59:48 cvsnanne Exp $
+ RCS:           $Id: attribdescset.h,v 1.10 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "multiid.h"
 
 class BufferStringSet;
 class IOPar;
@@ -43,10 +44,18 @@ public:
     int				getID(const char* ref,bool isusrref) const;
     void			getIds(TypeSet<int>&) const;
     int				getStoredID(const char* lk,int selout=0,
-	    				    bool create=false);
+	    				    bool create=true);
+    bool 			getFirstStored(Pol2D p2d, MultiID& key) const;
+    Desc* 			getFirstStored(Pol2D p2d);
 
     void			removeDesc(int id);
     void			removeAll();
+    int                 	removeUnused(bool removestored=false);
+				//!< Removes unused hidden attributes.
+				//!< Removed stored attribs if not available
+				//!< or if removestored flag is true;
+				//!< Returns total removed.
+    bool 			isAttribUsed( int id ) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&,BufferStringSet* errmsgs=0);
@@ -57,15 +66,15 @@ public:
 
     bool			is2D() const;
     const char*			errMsg() const;
-
-protected:
-
-    int				getFreeID() const;
     static const char*		highestIDStr()		{ return "MaxNrKeys"; }
     static const char*		definitionStr()		{ return "Definition"; }
     static const char*		userRefStr()		{ return "UserRef"; }
     static const char*		inputPrefixStr()	{ return "Input"; }
     static const char*		hiddenStr()		{ return "Hidden"; }
+
+protected:
+
+    int				getFreeID() const;
 
     ObjectSet<Desc>		descs;
     TypeSet<int>		ids;

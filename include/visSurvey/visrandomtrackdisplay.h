@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.35 2004-11-30 08:07:03 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.36 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -18,13 +18,13 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
-class ColorAttribSel;
-class AttribSelSpec;
 class CubeSampling;
 class BinID;
 
 namespace visBase { class RandomTrack; class Material; 
 		    class EventCatcher; };
+
+namespace Attrib { class SelSpec; class ColorSelSpec; }
 
 namespace visSurvey
 {
@@ -68,10 +68,10 @@ public:
 
     int				getAttributeFormat() const { return 1; }
     bool			hasColorAttribute() const { return true; }
-    const AttribSelSpec*	getSelSpec() const { return &as; }
-    const ColorAttribSel*	getColorSelSpec() const { return &colas; }
-    void			setSelSpec( const AttribSelSpec& );
-    void                        setColorSelSpec(const ColorAttribSel&);
+    const Attrib::SelSpec*	getSelSpec() const { return &as; }
+    const Attrib::ColorSelSpec*	getColorSelSpec() const { return &colas; }
+    void			setSelSpec( const Attrib::SelSpec& );
+    void                        setColorSelSpec(const Attrib::ColorSelSpec&);
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
@@ -143,8 +143,8 @@ protected:
 
     visBase::RandomTrack*	track;
     visBase::Material*		texturematerial;
-    AttribSelSpec&		as;
-    ColorAttribSel&		colas;
+    Attrib::SelSpec&		as;
+    Attrib::ColorSelSpec&	colas;
     int				selknotidx;
 
     void			setData(const SeisTrcBuf&,int datatp=0);

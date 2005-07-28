@@ -20,11 +20,12 @@ class IOPar;
 class MultiID;
 class LineKey;
 class NLAModel;
+class FeatureSet;//to remove
 class SeisTrcBuf;
 class CubeSampling;
 class PickSetGroup;
 class BinIDValueSet;
-class NLACreationDesc;//?
+class NLACreationDesc;
 class BufferStringSet;
 class ExecutorGroup;
 template <class T> class TypeSet;
@@ -54,9 +55,11 @@ public:
 	    			const char* linename,
 				ObjectSet<Processor>& procset ); 
 
-    void		createProcSet( ObjectSet<Processor>& procset,
+    static void		createProcSet( ObjectSet<Processor>& procset,
 	    				const DescSet& attribset,
 					const char* linename, TypeSet<int> );
+    static void		getPossibleVolume( const DescSet&, CubeSampling&,
+	    				const char* linename, int outid );
     CubeOutput* 	createOutput( const IOPar& pars, LineKey ); 
     const DescSet* 	attribSet() const	{ return inpattrset; }
     const NLAModel*	nlaModel() const	{ return nlamodel; }
@@ -85,7 +88,8 @@ public:
     			//!< Mem transfer here
 
     ExecutorGroup* 	featureOutputCreator(const BufferStringSet& inputs,
-					const ObjectSet<BinIDValueSet>& );
+					const ObjectSet<BinIDValueSet>&,
+					ObjectSet<FeatureSet>&);
 
     ExecutorGroup*	screenOutput2DCreator( BufferString& errmsg );
     ExecutorGroup*	locationOutputCreator(BufferString& errmsg,
@@ -114,7 +118,7 @@ protected:
     TypeSet<int>	outattribs;
     SelSpec&      	attrspec;
 
-    bool		getProcessors( ObjectSet<Processor>, 
+    bool		getProcessors( ObjectSet<Processor>&, 
 	    				BufferString& errmsg, bool, 
 	    				bool addcurid = true );
     BufferString	createExecutorName();
@@ -124,7 +128,6 @@ private:
     friend class		AEMFeatureExtracter;
 
     ObjectSet<Processor> 	procset;
-    void			clearProcessing();
     void			clearZPtrs();
 
 };

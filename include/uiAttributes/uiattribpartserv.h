@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.1 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "position.h"
 #include "multiid.h"
+#include "menuhandler.h"
 #include "timer.h"
 
 namespace Attrib
@@ -33,7 +34,7 @@ class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class Executor;
-class FeatureSet;
+class PosVecDataSet;
 class IOPar;
 class NLACreationDesc;
 class NLAModel;
@@ -89,38 +90,36 @@ public:
     int			getSliceIdx() const		{ return sliceidx; }
     void		getPossibleOutputs(BufferStringSet&) const;
 
-    Attrib::SliceSet*	createOutput(const CubeSampling&,const Attrib::SelSpec&,
+    Attrib::SliceSet*	createOutput(const CubeSampling&,
 				     const Attrib::SliceSet* prevslcs,
+				     const Attrib::SelSpec& = 0,
 				     const Attrib::DescSet* ads=0);
     			//!< Hands over mem to caller
     bool		createOutput(ObjectSet<BinIDValueSet>&,
-	    			     const Attrib::SelSpec&);
+	    			     const Attrib::SelSpec& = 0);
     			//!< Hands over mem to caller
-    bool		createOutput( const TypeSet<BinID>&,
-	    			      const Interval<float>& zrg,
-	    			      SeisTrcBuf&,const Attrib::SelSpec&);
+    bool		createOutput( const BinIDValueSet& bidvalset,
+	    			      SeisTrcBuf&,const Attrib::SelSpec& = 0);
     			//!< Hands over mem to caller
-    bool		createOutput(const CubeSampling&,Attrib::SliceSet*);
-    bool		createOutput(ObjectSet<BinIDValueSet>&);
     SeisTrcBuf*		create2DOutput(const CubeSampling&,
 	    			       const Attrib::SelSpec&,
 				       const char* linekey);
 
-    bool		extractFeatures(const NLACreationDesc&,
-	    				const ObjectSet<BinIDValueSet>&,
-	    				ObjectSet<FeatureSet>&);
+    bool		extractData(const NLACreationDesc&,
+				    const ObjectSet<BinIDValueSet>&,
+				    ObjectSet<PosVecDataSet>&);
     bool		createAttributeSet(const BufferStringSet&,
 	    				   Attrib::DescSet*);
 
     const NLAModel*	getNLAModel() const;
     void		setNLAName( const char* nm )	{ nlaname = nm; }
 
-    uiPopupMenu*	createStoredCubesSubMenu(int&,const Attrib::SelSpec&);
-    uiPopupMenu*	createAttribSubMenu(int&,const Attrib::SelSpec&);
-    uiPopupMenu*	createNLASubMenu(int&,const Attrib::SelSpec&);
+    MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&);
+    MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&);
+    MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&);
 
-    bool		handleAttribSubMenu(int mnuid,int tp,Attrib::SelSpec&);
-    			// type=0: stored, 1:attribs, 2:nla
+    
+    bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&) const;
 
     void		getTargetAttribNames(BufferStringSet&) const;
     void		setEvaluateInfo(bool ae,bool as)
@@ -130,6 +129,10 @@ public:
     void		usePar( const IOPar& );
 
 protected:
+
+    MenuItem            storedmnuitem;
+    MenuItem            calcmnuitem;
+    MenuItem            nlamnuitem;
 
     Attrib::DescSetMan*	adsman;
     const Attrib::Desc*	dirshwattrdesc;

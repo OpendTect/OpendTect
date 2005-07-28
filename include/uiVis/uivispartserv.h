@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.142 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.143 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,12 +19,8 @@ ________________________________________________________________________
 #include "thread.h"
 #include "uiapplserv.h"
 
-
-class AttribSelSpec;
-class AttribSliceSet;
 class BinIDValueSet;
 class BufferStringSet;
-class ColorAttribSel;
 class ColorTable;
 class MultiID;
 class PickSet;
@@ -35,6 +31,7 @@ class uiPopupMenu;
 class uiToolBar;
 class uiMenuHandler;
 
+namespace Attrib    { class ColorSelSpec; class SelSpec; class SliceSet; }
 namespace visBase   { class DataObject; };
 namespace visSurvey { class Scene; };
 namespace Threads   { class Mutex; };
@@ -87,16 +84,16 @@ public:
    			/*!\retval 0 volume
   			   \retval 1 traces
 		           \retval 2 random positions */
-    const AttribSelSpec* getSelSpec(int id) const;
-    const ColorAttribSel* getColorSelSpec(int id) const;
-    void		setSelSpec(int id, const AttribSelSpec&);
-    void		setColorSelSpec(int id, const ColorAttribSel& );
+    const Attrib::SelSpec* getSelSpec(int id) const;
+    const Attrib::ColorSelSpec* getColorSelSpec(int id) const;
+    void		setSelSpec(int id, const Attrib::SelSpec&);
+    void		setColorSelSpec(int id, const Attrib::ColorSelSpec& );
     void		resetColorDataType(int);
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id) const;
-    const AttribSliceSet* getCachedData(int id,bool color) const;
-    bool		setCubeData(int id, bool color,AttribSliceSet*);
+    const Attrib::SliceSet* getCachedData(int id,bool color) const;
+    bool		setCubeData(int id, bool color,Attrib::SliceSet*);
     			/*!< data becomes mine */
 
     			//Trace data

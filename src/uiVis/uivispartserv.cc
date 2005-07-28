@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.264 2005-07-27 11:19:24 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.265 2005-07-28 10:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,7 +290,7 @@ CubeSampling uiVisPartServer::getCubeSampling( int id ) const
 }
 
 
-const AttribSliceSet* uiVisPartServer::getCachedData( int id,
+const Attrib::SliceSet* uiVisPartServer::getCachedData( int id,
 						      bool color ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
@@ -298,14 +298,14 @@ const AttribSliceSet* uiVisPartServer::getCachedData( int id,
 }
 
 
-bool uiVisPartServer::setCubeData( int id, bool color, AttribSliceSet* sliceset)
+bool uiVisPartServer::setCubeData( int id, bool color, Attrib::SliceSet* sliceset)
 {
     if ( !sliceset ) return false;
 
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so )
     {
-	delete sliceset;
+	sliceset->unRef();
 	return false;
     }
 
@@ -439,7 +439,7 @@ const TypeSet<float>* uiVisPartServer::getHistogram( int id ) const
 int uiVisPartServer::getEventObjId() const { return eventobjid; }
 
 
-const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
+const Attrib::SelSpec* uiVisPartServer::getSelSpec( int id ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     return so ? so->getSelSpec() : 0;
@@ -739,7 +739,7 @@ bool uiVisPartServer::selectAttrib( int id )
 }
 
 
-void uiVisPartServer::setSelSpec( int id, const AttribSelSpec& myattribspec )
+void uiVisPartServer::setSelSpec( int id, const Attrib::SelSpec& myattribspec )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->setSelSpec(myattribspec);
@@ -751,12 +751,12 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return false;
 
-    const AttribSelSpec* as = so->getSelSpec();
+    const Attrib::SelSpec* as = so->getSelSpec();
     if ( !as ) return false;
-    if ( as->id()==AttribSelSpec::noAttrib )
+    if ( as->id()==Attrib::SelSpec::noAttrib )
 	return true;
 
-    if ( newselect || ( as->id()==AttribSelSpec::attribNotSel ) )
+    if ( newselect || ( as->id()==Attrib::SelSpec::attribNotSel ) )
     {
 	if ( !selectAttrib( id ) )
 	    return false;
@@ -778,14 +778,14 @@ bool uiVisPartServer::hasColorAttrib( int id ) const
 }
 
 
-const ColorAttribSel* uiVisPartServer::getColorSelSpec( int id ) const
+const Attrib::ColorSelSpec* uiVisPartServer::getColorSelSpec( int id ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
     return so ? so->getColorSelSpec() : 0;
 }
 
 
-void uiVisPartServer::setColorSelSpec( int id, const ColorAttribSel& myas )
+void uiVisPartServer::setColorSelSpec( int id, const Attrib::ColorSelSpec& myas)
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( so ) so->setColorSelSpec( myas );
@@ -794,10 +794,10 @@ void uiVisPartServer::setColorSelSpec( int id, const ColorAttribSel& myas )
 
 void uiVisPartServer::resetColorDataType( int id )
 {
-    const ColorAttribSel* css = getColorSelSpec(id);
+    const Attrib::ColorSelSpec* css = getColorSelSpec(id);
     if ( !css ) return;
 
-    ColorAttribSel myselspec( *css );
+    Attrib::ColorSelSpec myselspec( *css );
     myselspec.datatype = 0;
     setColorSelSpec(id,myselspec);
 }
@@ -809,7 +809,7 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
     if ( !so )
 	return false;
 
-    const ColorAttribSel* colas = getColorSelSpec( id );
+    const Attrib::ColorSelSpec* colas = getColorSelSpec( id );
     if ( !colas ) return false;
 
     const int attribid = colas->as.id();

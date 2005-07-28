@@ -11,7 +11,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: eventattrib.h,v 1.3 2005-07-06 15:02:07 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.h,v 1.4 2005-07-28 10:53:49 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"
@@ -44,16 +44,16 @@ public:
     static void         initClass();
 
 			Event( Desc& );
-
-protected:
-    static Provider*    createInstance( Desc& );
-    static void         updateDesc( Desc& );
-
+    
     static const char*  attribName() { return "Event"; }
     static const char*  eventTypeStr() { return "eventtype"; }
     static const char*  issingleeventStr() { return "issingleevent"; }
     static const char*  tonextStr() { return "tonext"; }
     static const char*  gateStr() { return "gate"; }
+
+protected:
+    static Provider*    createInstance( Desc& );
+    static void         updateDesc( Desc& );
 
     static Provider*    internalCreate( Desc&, ObjectSet<Provider>& existing );
 

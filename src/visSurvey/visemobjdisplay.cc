@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.29 2005-07-14 16:56:49 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.30 2005-07-28 10:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.29 2005-07-14 16:56:49 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.30 2005-07-28 10:53:52 cvshelene Exp $";
 
 
 #include "vissurvemobj.h"
@@ -60,8 +60,8 @@ EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
     , em(EM::EMM())
     , mid(-1)
-    , as(*new AttribSelSpec)
-    , colas(*new ColorAttribSel)
+    , as(*new Attrib::SelSpec)
+    , colas(*new Attrib::ColorSelSpec)
     , curtextureidx(0)
     , usestexture(true)
     , editor(0)
@@ -414,11 +414,11 @@ void EMObjectDisplay::selectTexture( int textureidx )
     if ( !emsurf ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
-	setSelSpec( AttribSelSpec(0,AttribSelSpec::attribNotSel) );
+	setSelSpec( Attrib::SelSpec(0,Attrib::SelSpec::attribNotSel) );
     else
     {
 	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
-	setSelSpec( AttribSelSpec(attrnm,AttribSelSpec::otherAttrib) );
+	setSelSpec( Attrib::SelSpec(attrnm,Attrib::SelSpec::otherAttrib) );
     }
 }
 
@@ -449,30 +449,30 @@ int EMObjectDisplay::getAttributeFormat() const
 }
 
 
-const AttribSelSpec* EMObjectDisplay::getSelSpec() const
+const Attrib::SelSpec* EMObjectDisplay::getSelSpec() const
 { return &as; }
 
 
-void EMObjectDisplay::setSelSpec( const AttribSelSpec& as_ )
+void EMObjectDisplay::setSelSpec( const Attrib::SelSpec& as_ )
 {
     removeAttribCache();
     as = as_;
 }
 
 
-const ColorAttribSel* EMObjectDisplay::getColorSelSpec() const
+const Attrib::ColorSelSpec* EMObjectDisplay::getColorSelSpec() const
 {
     return getAttributeFormat() < 0 ? 0 : &colas;
 }
 
 
-void EMObjectDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+void EMObjectDisplay::setColorSelSpec( const Attrib::ColorSelSpec& as_ )
 { colas = as_; }
 
 
 void EMObjectDisplay::setDepthAsAttrib()
 {
-    as.set( "", AttribSelSpec::noAttrib, false, "" );
+    as.set( "", Attrib::SelSpec::noAttrib, false, "" );
 
     ObjectSet<BinIDValueSet> positions;
     fetchData(positions);
@@ -557,7 +557,7 @@ void EMObjectDisplay::stuffData( bool forcolordata,
 bool EMObjectDisplay::hasStoredAttrib() const
 {
     const char* ref = as.userRef();
-    return as.id() == AttribSelSpec::otherAttrib && ref && *ref;
+    return as.id() == Attrib::SelSpec::otherAttrib && ref && *ref;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.14 2005-06-23 09:13:36 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.15 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,6 +122,7 @@ public:
     bool		setParamVal( const char* key, const char* val );
     //bool		getParamVal( const char* key, BufferString& ) const;
     //const DataInpSpec*	getParamSpec( const char* key );
+    void		changeStoredID(const char*);
 
     void		addInput( const InputSpec& );
     bool		removeInput(int idx);
@@ -133,7 +134,10 @@ public:
     static bool		getAttribName( const char* defstr, BufferString& );
     static bool		getParamString( const char* defstr, const char* key,
 					BufferString& );
-
+    
+    static const char*  steeringinldipcompname;
+    static const char*  steeringcrldipcompname;
+    
 protected:
     Param*			findParam( const char* key );
     TypeSet<Seis::DataType>	outputtypes;

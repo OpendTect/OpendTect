@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.16 2005-07-14 16:56:49 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.17 2005-07-28 10:53:51 cvshelene Exp $";
 
 #include "vismpe.h"
 
@@ -43,7 +43,7 @@ MPEDisplay::MPEDisplay()
     , dragger_(0)
     , engine_(MPE::engine())
     , sceneeventcatcher_(0)
-    , as_(*new AttribSelSpec())
+    , as_(*new Attrib::SelSpec())
     , texture_(0)
     , manipulated_(false)
 {
@@ -240,17 +240,17 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 }
 
 
-void MPEDisplay::setSelSpec( const AttribSelSpec& as )
+void MPEDisplay::setSelSpec( const Attrib::SelSpec& as )
 { as_ = as; }
 
 
-const AttribSelSpec* MPEDisplay::getSelSpec() const
+const Attrib::SelSpec* MPEDisplay::getSelSpec() const
 { return &as_; }
 
 
 void MPEDisplay::updateTexture()
 {
-    const AttribSliceSet* sliceset = engine_.getAttribCache( as_ );
+    const Attrib::SliceSet* sliceset = engine_.getAttribCache( as_ );
     if ( !sliceset )
     {
 	setTexture( 0 );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.84 2005-07-21 11:30:52 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.85 2005-07-28 10:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,8 @@ ________________________________________________________________________
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vissurvpickset.h"
-//#include "vissurvsurf.h"
-//#include "vissurvsurfeditor.h"
+#include "vissurvsurf.h"
+#include "vissurvsurfeditor.h"
 #include "uiattrsurfout.h"
 
 #include "attribdescset.h"
@@ -280,10 +280,10 @@ void uiODApplMgr::setZScale()
 bool uiODApplMgr::selectAttrib( int id )
 {
     if ( id < 0 ) return false;
-    const AttribSelSpec* as = visserv->getSelSpec( id );
+    const Attrib::SelSpec* as = visserv->getSelSpec( id );
     if ( !as ) return false;
 
-    AttribSelSpec myas( *as );
+    Attrib::SelSpec myas( *as );
     bool selok = attrserv->selectAttrib( myas );
     if ( selok )
 	visserv->setSelSpec( id, myas );
@@ -295,10 +295,10 @@ bool uiODApplMgr::selectAttrib( int id )
 bool uiODApplMgr::selectColorAttrib( int id )
 {
     if ( id < 0 ) return false;
-    const ColorAttribSel* as = visserv->getColorSelSpec( id );
+    const Attrib::ColorSelSpec* as = visserv->getColorSelSpec( id );
     if ( !as ) return false;
 
-    ColorAttribSel myas( *as );
+    Attrib::ColorSelSpec myas( *as );
     bool selok = attrserv->selectColorAttrib( myas );
     if ( selok )
 	visserv->setColorSelSpec( id, myas );
@@ -345,7 +345,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	return true;
     }
 
-    const AttribSelSpec* as = colordata ? &visserv->getColorSelSpec(visid)->as
+    const Attrib::SelSpec* as = colordata ? &visserv->getColorSelSpec(visid)->as
 					: visserv->getSelSpec(visid);
     if ( !as )
     {
@@ -353,7 +353,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	return false;
     }
 
-    AttribSelSpec myas( *as );
+    Attrib::SelSpec myas( *as );
     if ( myas.id()!=-1 ) attrserv->updateSelSpec( myas );
     if ( myas.id()<-1 && !colordata )
     {
@@ -375,11 +375,11 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    if ( myas.id()<-1 && colordata )
 	    { visserv->setCubeData(visid, true, 0 ); return true; }
 
-	    const AttribSliceSet* prevset =
+	    const Attrib::SliceSet* prevset =
 				visserv->getCachedData( visid, colordata );
 
 	    CubeSampling cs = visserv->getCubeSampling( visid );
-	    AttribSliceSet* slices = attrserv->createOutput(cs,myas,prevset);
+	    Attrib::SliceSet* slices = attrserv->createOutput(cs,prevset,myas);
 
 	    if ( !slices ) return false;
 	    visserv->setCubeData( visid, colordata, slices );
@@ -395,7 +395,8 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    TypeSet<BinID> bids;
 	    visserv->getDataTraceBids( visid, bids );
 	    SeisTrcBuf data( true );
-	    if ( !attrserv->createOutput( bids, zrg, data, myas ) )
+	    BinIDValueSet ldghl(1,0);//TODO implement, just enough to compile!
+	    if ( !attrserv->createOutput( ldghl, data, myas ) )
 		return false;
 	    visserv->setTraceData( visid, colordata, data );
 	    return true;
@@ -405,7 +406,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    if ( myas.id()<-1 && colordata )
 	    { visserv->stuffSurfaceData(visid,true,0); return true; }
 
-	    if ( myas.id() == AttribSelSpec::otherAttrib )
+	    if ( myas.id() == Attrib::SelSpec::otherAttrib )
 	    {
 		bool selok = emserv->loadAuxData( 
 				*visserv->getMultiID(visid), myas.userRef() );
@@ -460,9 +461,9 @@ bool uiODApplMgr::evaluateAttribute( int visid )
     if ( format == 0 )
     {
 	const CubeSampling cs = visserv->getCubeSampling( visid );
-	AttribSliceSet* slices = new AttribSliceSet;
+	Attrib::SliceSet* slices = new Attrib::SliceSet;
 	if ( !attrserv->createOutput( cs, slices ) )
-	{ delete slices; slices = 0; }
+	{ slices->unRef(); slices = 0; }
 	visserv->setCubeData( visid, false, slices );
     }
     else if ( format == 2 )
@@ -573,13 +574,13 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid == uiMPEPartServer::evGetAttribData )
     {
-	const AttribSelSpec* as = mpeserv->getAttribSelSpec();
+	const Attrib::SelSpec* as = mpeserv->getAttribSelSpec();
 	if ( !as ) return false;
 	const CubeSampling cs = mpeserv->getActiveVolume();
 // TODO: check cache handling
-//	const AttribSliceSet* cache = mpeserv->getAttribCache(*as);
-	const AttribSliceSet* cache = 0;
-	AttribSliceSet* newset = attrserv->createOutput( cs, *as, cache );
+//	const Attrib::SliceSet* cache = mpeserv->getAttribCache(*as);
+	const Attrib::SliceSet* cache = 0;
+	Attrib::SliceSet* newset = attrserv->createOutput( cs, cache, *as );
 	mpeserv->setAttribData(*as,newset );
     }
     else if ( evid == uiMPEPartServer::evShowToolbar )
@@ -701,14 +702,14 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 {
     if ( evid == uiNLAPartServer::evIs2D )
     {
-	const AttribDescSet* ads = attrserv->curDescSet();
+	const Attrib::DescSet* ads = attrserv->curDescSet();
 	return ads ? ads->is2D() : false;
     }
     else if ( evid == uiNLAPartServer::evPrepareWrite )
     {
 	// Before NLA model can be written, the AttribSet's IOPar must be
 	// made available as it almost certainly needs to be stored there.
-	const AttribDescSet* ads = attrserv->curDescSet();
+	const Attrib::DescSet* ads = attrserv->curDescSet();
 	if ( !ads ) return false;
 	IOPar& iopar = nlaserv->modelPars();
 	iopar.clear();
@@ -813,7 +814,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evCreateAttrSet )
     {
-	AttribDescSet attrset;
+	Attrib::DescSet attrset;
 	if ( !attrserv->createAttributeSet(nlaserv->modelInputs(),&attrset) )
 	    return false;
 	attrset.fillPar( nlaserv->modelPars() );
@@ -831,7 +832,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 {
     if ( evid==uiAttribPartServer::evDirectShowAttr )
     {
-	AttribSelSpec as;
+	Attrib::SelSpec as;
 	attrserv->getDirectShowAttrSpec( as );
 	const int visid = visserv->getEventObjId();
 	visserv->setSelSpec( visid, as );
@@ -857,7 +858,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvalCalcAttr )
     {
 	const int visid = visserv->getEventObjId();
-	AttribSelSpec as( "Evaluation", AttribSelSpec::otherAttrib );
+	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::otherAttrib );
 	visserv->setSelSpec( visid, as );
 	if ( !evaluateAttribute(visid) )
 	    return false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,16 +44,17 @@ public:
     static const char*  attribName()		{ return "Scaling"; }
     static const char*  scalingTypeStr()	{ return "scalingtype"; }
     static const char*  powervalStr()		{ return "powerval"; }
-    static const char*  gateStr()		{ return "gate"; }
-    static const char*  factorStr()		{ return "factor"; }
+    static const char*  gateStr()		{ return "timegate"; }
+    static const char*  factorStr()		{ return "scalefactor"; }
     static const char*  statsTypeStr()		{ return "statstype"; }
-    static const char*  statsTypeStr(int type);
-    static const char*  scalingTypeStr(int type);
+    static const char*  statsTypeNamesStr(int type);
+    static const char*  scalingTypeNamesStr(int type);
 
 protected:
 
     static Provider*    createInstance(Desc&);
     static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
+    static void         updateDesc( Desc& );
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);

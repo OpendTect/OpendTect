@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.6 2005-04-28 15:40:02 cvsnanne Exp $
+ RCS:           $Id: sectiontracker.h,v 1.7 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "geomelement.h"
 
-class AttribSelSpec;
 class BinIDValue;
 
+namespace Attrib { class SelSpec; }
 
 namespace MPE
 {
@@ -62,11 +62,11 @@ public:
     void			setSetupID(const MultiID& id)	{ setupid_=id; }
     const MultiID&		setupID() const		{ return setupid_; }
 
-    const AttribSelSpec&	getDisplaySpec() const;
-    void			setDisplaySpec(const AttribSelSpec&);
+    const Attrib::SelSpec&	getDisplaySpec() const;
+    void			setDisplaySpec(const Attrib::SelSpec&);
 
     void			getNeededAttribs(
-	    				ObjectSet<const AttribSelSpec>&) const;
+				    ObjectSet<const Attrib::SelSpec>&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -75,7 +75,7 @@ protected:
     BufferString		errmsg_;
     bool			useadjuster_;
     MultiID			setupid_;
-    AttribSelSpec&		displayas_;
+    Attrib::SelSpec&		displayas_;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;

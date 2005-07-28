@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.7 2005-06-23 09:13:36 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.8 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,13 @@ public:
 
     TypeSet<int>		desoutputs;
 
+    static const char*		outputstr;
+    static const char*          typekey;
+    static const char*          cubekey;
+    static const char*          tskey;
+    static const char*          surfkey;
+    static const char*          scalekey;
+
 protected:
     SeisSelData&		seldata_;
 
@@ -84,6 +91,7 @@ public:
 			~CubeOutput();
     
     bool		doInit();
+    void		set2D() { is2d_=true; }
     bool		getDesiredVolume( CubeSampling& ) const;
     bool		wantsOutput( const BinID& ) const;
     bool		setStorageID( const MultiID& );
@@ -91,11 +99,17 @@ public:
 
     bool		doUsePar( const IOPar& );
     bool		setReqs(const BinID&);
-    SeisTrcBuf* 	getTrcBuf();
+    SeisTrcBuf* 	getTrcBuf() const;
     LineKey		curLineKey() { return lkey_; }
     void		collectData( const BinID&, const DataHolder&, 
 	    				float, int );
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
+
+    static const char*          seisidkey;
+    static const char*          attribkey;
+    static const char*          inlrangekey;
+    static const char*          crlrangekey;
+    static const char*          depthrangekey;
 
 protected:
 
@@ -125,10 +139,14 @@ public:
     bool		wantsOutput( const BinID& ) const;
     void		collectData(const BinID&, const DataHolder&,float,int);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
+    
+    static const char*          filenamekey;
+    static const char*          locationkey;
+    static const char*          attribkey;
+    static const char*          surfidkey;
 
 protected:
-    TypeSet< Interval<int> >	sampleinterval;
-    BinIDValueSet		bidvalset_;
+    BinIDValueSet&		bidvalset_;
 };
 
 

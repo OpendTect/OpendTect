@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.h,v 1.1 2005-05-31 12:35:24 cvsnanne Exp $
+ RCS:           $Id: uishiftattrib.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,11 +42,9 @@ protected:
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
-    bool		setOutput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
-    bool		getOutput(Attrib::Desc&);
 };
 
 #endif

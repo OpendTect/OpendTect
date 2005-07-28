@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.25 2004-09-17 15:13:39 nanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.26 2005-07-28 10:53:52 cvshelene Exp $";
 
 #include "vissurvobj.h"
 
@@ -25,9 +25,9 @@ const char* SurveyParamManager::zscalestr = "Z Scale";
 float SurveyParamManager::defzscale = 2;
 
 
-bool SurveyObject::setDataVolume( bool color, AttribSliceSet* slc )
+bool SurveyObject::setDataVolume( bool color, Attrib::SliceSet* slc )
 {
-    delete slc;
+    slc->unRef();
     return true;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.1 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "iopar.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "keystrs.h"
@@ -52,9 +53,9 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     IOM().setRootDir( GetDataDir() ); 
     IOM().to( ctio.ctxt.stdSelKey() ); 
     ctio.ctxt.forread = true;
-    ctio.ctxt.ioparkeyval[0] = sKey::Type;
-    ctio.ctxt.ioparkeyval[1] = sKey::Steering;
-    ctio.ctxt.includekeyval = issteer;
+    ctio.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
+    ctio.ctxt.includeconstraints = issteer;
+    ctio.ctxt.allowcnstrsabsent = !issteer;
 
     inpfld = new uiSeisSel( this, ctio, SeisSelSetup(), false, 
 	    		    issteer ? steerlbl : seislbl );

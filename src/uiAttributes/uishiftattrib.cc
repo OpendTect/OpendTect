@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,9 @@ ________________________________________________________________________
 #include "uishiftattrib.h"
 #include "hashattrib.h"
 #include "attribdesc.h"
+#include "attribparam.h"
 #include "uiattrsel.h"
+#include "uisteeringsel.h"
 #include "uigeninput.h"
 #include "uistepoutsel.h"
 
@@ -64,7 +66,7 @@ bool uiShiftAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),Hash::attribName()) )
 	return false;
 
-    mIfGetBinID( Hash::stepoutStr(), steout, stepoutfld->setBinID(stepout) );
+    mIfGetBinID( Hash::posStr(), pos, stepoutfld->setBinID(pos) );
     mIfGetFloat( Hash::timeStr(), time, timefld->setValue(time) );
     mIfGetBool( Hash::steeringStr(), steering, typefld->setValue(!steering) );
 
@@ -76,7 +78,7 @@ bool uiShiftAttrib::setParameters( const Desc& desc )
 bool uiShiftAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld, desc, 0 );
-    putInp( steerfld, desc );
+    putInp( steerfld, desc, 1 );
     return true;
 }
 
@@ -88,8 +90,8 @@ bool uiShiftAttrib::getParameters( Desc& desc )
 
     const bool dotime = typefld->getBoolValue();
     mSetFloat( Hash::timeStr(), dotime ? timefld->getfValue() : 0 );
-    mSetBool( Hash::steerStr(), dotime ? false : steerfld->willSteer() );
-    mSetBinID( Hash::stepoutStr(), stepoutfld->binID() );
+    mSetBool( Hash::steeringStr(), dotime ? false : steerfld->willSteer() );
+    mSetBinID( Hash::posStr(), stepoutfld->binID() );
 
     return true;
 }

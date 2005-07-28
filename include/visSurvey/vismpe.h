@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.10 2005-05-01 18:34:35 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.11 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "cubesampling.h"
 
-class AttribSelSpec;
+namespace Attrib { class SelSpec; }
 template <class T> class Array3D;
 
 namespace visBase
@@ -63,8 +63,8 @@ public:
     CubeSampling		getCubeSampling() const;
     void			setCubeSampling(CubeSampling);
 
-    void			setSelSpec(const AttribSelSpec&);
-    const AttribSelSpec*	getSelSpec() const;
+    void			setSelSpec(const Attrib::SelSpec&);
+    const Attrib::SelSpec*	getSelSpec() const;
     void			updateTexture();
     
     void			fillPar(IOPar&,TypeSet<int>&) const;
@@ -109,7 +109,7 @@ protected:
 
     visBase::EventCatcher*	sceneeventcatcher_;
 
-    AttribSelSpec&		as_;
+    Attrib::SelSpec&		as_;
     bool			manipulated_;
 
     static const char*		draggerstr_;

@@ -11,6 +11,7 @@
 #include "uieventattrib.h"
 #include "eventattrib.h"
 #include "attribdesc.h"
+#include "attribparam.h"
 #include "uigeninput.h"
 #include "uiattrsel.h"
 #include "datainpspec.h"
@@ -98,15 +99,17 @@ bool uiEventAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),Event::attribName()) )
 	return false;
 
-    mIfGetBool( Event::singleevStr(), issingleevent, 
+    mIfGetBool( Event::issingleeventStr(), issingleevent, 
 	        issinglefld->setValue(issingleevent) );
     mIfGetBool( Event::tonextStr(), tonext, tonextfld->setValue(tonext) );
-    mIfGetEnum( Event::eventtypeStr(), eventtype, 
+    mIfGetEnum( Event::eventTypeStr(), eventtype, 
 	        evtypefld->setValue(eventtype) );
     mIfGetFloatInterval( Event::gateStr(), gate, gatefld->setValue(gate) );
 
     isSingleSel(0);
     isGateSel(0);
+
+    return true;
 }
 
 
@@ -119,7 +122,7 @@ bool uiEventAttrib::setInput( const Desc& desc )
 
 bool uiEventAttrib::setOutput( const Desc& desc )
 {
-    outpfld->setValue( desc->selectedOutput() );
+    outpfld->setValue( desc.selectedOutput() );
     return true;
 }
 
@@ -129,9 +132,9 @@ bool uiEventAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),Event::attribName()) )
 	return false;
 
-    mSetBool( Event::singleevStr(), issinglefld->getBoolValue() );
+    mSetBool( Event::issingleeventStr(), issinglefld->getBoolValue() );
     mSetBool( Event::tonextStr(), tonextfld->getBoolValue() );
-    mSetEnum( Event::eventtypeStr(), evtypefld->getIntValue() );
+    mSetEnum( Event::eventTypeStr(), evtypefld->getIntValue() );
     mSetFloatInterval( Event::gateStr(), gatefld->getFInterval() );
 
     return true;
@@ -150,4 +153,5 @@ bool uiEventAttrib::getOutput( Desc& desc )
 {
     const int outp = issinglefld->getBoolValue() ? outpfld->getIntValue() : 0;
     fillOutput( desc, outp );
+    return true;
 }

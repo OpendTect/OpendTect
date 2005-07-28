@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.12 2005-07-06 15:02:07 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.13 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -211,14 +211,21 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	    }
 	}
 
-	const char* defstring = descpar->find(definitionStr());
-	if ( !defstring )
+	BufferString defstring = descpar->find(definitionStr());
+	if ( !defstring.size() )
 	    mHandleParseErr("No attribute definition string specified");
 
 	BufferString attribname;
-	if ( !Desc::getAttribName( defstring, attribname ) )
+	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
 	    mHandleParseErr("Cannot find attribute name");
 
+	if ( attribname == "RefTime" )
+	{
+	    attribname = "Reference";
+	    defstring = attribname;
+	    descpar->set("Selected Attrib","2");
+	}
+	
 	RefMan<Desc> desc;
 	desc = PF().createDescCopy( attribname );
 	if ( !desc )
@@ -228,7 +235,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	    mHandleParseErr(err);
 	}
 
-	if ( !desc->parseDefStr(defstring) )
+	if ( !desc->parseDefStr(defstring.buf()) )
 	{
 	    BufferString err = "Cannot parse: ";
 	    err += defstring;
@@ -533,4 +540,175 @@ DescSet* DescSet::optimizeClone( const TypeSet<int>& targets ) const
     return res;
 }
 
+
+bool DescSet::isAttribUsed( int id ) const
+{
+    for ( int idx=0; idx<nrDescs(); idx++ )
+    {
+	const Desc* ad = getDesc( idx );
+	for ( int inpnr=0; inpnr<ad->nrInputs(); inpnr++ )
+	{
+	    if ( ad->inputId( inpnr ) == id )
+		return true;
+	}
+    }
+
+    return false;
+}
+
+
+int DescSet::removeUnused( bool remstored )
+{
+    TypeSet<int> torem;
+
+    while ( true )
+    {
+	int remvd = 0;
+	for ( int idesc=0; idesc<nrDescs(); idesc++ )
+	{
+	    if ( torem.indexOf(idesc) >= 0 ) continue;
+
+	    const Desc* ad = getDesc( idesc );
+	    bool iscandidate = false;
+	    if ( ad->isStored() )
+	    {
+		PtrMan<IOObj> ioobj = 
+		    IOM().get( ((ValParam*)ad->
+		    getParam(StorageProvider::keyStr()))->getStringValue() );
+		if ( remstored || !ioobj || !ioobj->implExists(true) )
+		    iscandidate = true;
+	    }
+	    else if ( ad->isHidden() )
+		iscandidate = true;
+
+	    if ( iscandidate )
+	    {
+		const int aid = ids[idesc];
+		if ( !isAttribUsed(aid) )
+		    { torem += idesc; remvd++; }
+	    }
+	}
+
+	if ( remvd == 0 ) break;
+    }
+
+    const int sz = torem.size();
+    for ( int idx=sz-1; idx>=0; idx-- )
+	removeDesc( torem[idx] );
+
+    return sz;
+}
+
+
+bool DescSet::getFirstStored( Pol2D p2d, MultiID& key ) const
+{
+    for ( int idx=0; idx<nrDescs(); idx++ )
+    {
+	const Desc* ad = descs[idx];
+	if ( !ad->isStored() ) continue;
+	if ( (ad->is2D() && p2d != No2D) || (!ad->is2D() && p2d != Only2D) )
+	{
+	    key = ((ValParam*)ad->
+	            getParam("StorageProvider::keyStr()"))->getStringValue();
+	    return true;
+	}
+    }
+    return false;
+}
+
+
+Desc* DescSet::getFirstStored( Pol2D p2d )
+{
+    for ( int idx=0; idx<nrDescs(); idx++ )
+    {
+	Desc* ad = descs[idx];
+	if ( !ad->isStored() ) continue;
+	if ( (ad->is2D() && p2d != No2D) || (!ad->is2D() && p2d != Only2D) )
+	    return ad;
+    }
+    return 0;
+}
+
+/*
+bool DescSet::setRanges( IOPar& iop, bool incstepout ) const
+{
+    CubeSampling cs;
+    if ( !getInputRanges(cs) )
+	return false;
+
+    if ( incstepout )
+    {
+	BinID stepout = getMaximumStepout();
+	cs.hrg.start.inl += stepout.inl * cs.hrg.step.inl;
+	cs.hrg.stop.inl -= stepout.inl * cs.hrg.step.inl;
+	cs.hrg.start.crl += stepout.crl * cs.hrg.step.crl;
+	cs.hrg.stop.crl -= stepout.crl * cs.hrg.step.crl;
+    }
+
+    iop.set( sKeyMaxInlRg, cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
+    iop.set( sKeyMaxCrlRg, cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
+	return true;
+}
+
+
+bool DescSet::getInputRanges( CubeSampling& cs, const char* lk ) const
+{
+    cs.init();
+    if ( is2D() )
+    {
+	cs.hrg.start.inl = cs.hrg.start.crl = 0;
+	cs.hrg.stop.inl = cs.hrg.stop.crl = mUndefIntVal;
+	cs.hrg.step.inl = cs.hrg.step.crl = 1;
+    }
+    
+    bool foundone = false;
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	const Desc* desc = getDesc( getID(ids[idx]) );
+	if ( !desc.isStored() ) continue;
+
+	CubeSampling lcs( cs );
+	if ( desc->getDataLimits(lcs,lk) )
+	{
+	    if ( !foundone )
+	    {
+		cs = lcs;
+		foundone = true;
+	    }
+	    else
+	    {
+		if ( ad->is2D() )
+		    lcs.zrg.step = cs.zrg.step;
+		cs.limitTo( lcs );
+	    }
+	}
+    }
+
+    return foundone;
+}
+
+
+BinID DescSet::getMaximumStepout() const
+{
+    BinID res(0,0);
+
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	TypeSet<int>    localstepoutids;
+	TypeSet<BinID>  localstepout;
+	if ( !getMaximumStepout( ids[idx], BinID(0,0),
+		    localstepoutids, localstepout ) )
+	    continue;
+
+	for ( int idy=0; idy<localstepoutids.size(); idy++ )
+	{
+	    res = BinID( mMAX(localstepout[idy].inl, res.inl),
+			 mMAX(localstepout[idy].crl, res.crl));
+	}
+    }
+
+    return res;
+}
+//missing another getMaxStepout
+*/
 }; // namespace Attrib

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.48 2005-06-02 06:49:19 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.49 2005-07-28 10:53:52 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -47,8 +47,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     : VisualObject(true)
     , track(0)
     , texturematerial(visBase::Material::create())
-    , as(*new AttribSelSpec)
-    , colas(*new ColorAttribSel)
+    , as(*new Attrib::SelSpec)
+    , colas(*new Attrib::ColorSelSpec)
     , knotmoving(this)
     , moving(this)
     , selknotidx(-1)
@@ -131,7 +131,7 @@ void RandomTrackDisplay::setRandomTrack( visBase::RandomTrack* rt )
 }
 
 
-void RandomTrackDisplay::setSelSpec( const AttribSelSpec& as_ )
+void RandomTrackDisplay::setSelSpec( const Attrib::SelSpec& as_ )
 {
     as = as_;
     track->useTexture( false );
@@ -139,7 +139,7 @@ void RandomTrackDisplay::setSelSpec( const AttribSelSpec& as_ )
 }
 
 
-void RandomTrackDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+void RandomTrackDisplay::setColorSelSpec( const Attrib::ColorSelSpec& as_ )
 { colas = as_; }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.1 2005-07-06 15:02:07 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $";
 
 #include "hashattrib.h"
 #include "attribdataholder.h"
@@ -99,7 +99,8 @@ bool Hash::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Hash::getInputData(const BinID& relpos, int idx)
 {
-    const BinID bidstep = inputs[0]-> getStepoutStep();
+    bool yn;
+    const BinID bidstep = inputs[0]-> getStepoutStep(yn);
     const BinID posneeded = relpos + bidstep*pos;
     inputdata = inputs[0]->getData(posneeded, idx);
     if ( !inputdata )

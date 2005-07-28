@@ -40,29 +40,36 @@ namespace Attrib
     
 EngineMan::EngineMan()
 	: inpattrset(0)
+	, procattrset(0)
 	, nlamodel(0)
 	, cs(*new CubeSampling)
 	, attrspec(*new SelSpec)
 	, cache(0)
-	, udfval(0)
+	, udfval( mUdf(float) )
 {
 }
 
 
 EngineMan::~EngineMan()
 {
-    clearProcessing();
-
     delete inpattrset;
     delete nlamodel;
     delete &cs;
     if ( cache ) cache->unRef();
-    deepErase( procset );
 }
 
 
-void EngineMan::clearProcessing()
+void EngineMan::getPossibleVolume( const DescSet& attribset, CubeSampling& cs,
+				    const char* linename, int outid )
 {
+    ObjectSet<Processor> pset;
+    TypeSet<int> iddesired;
+    iddesired += outid;
+    createProcSet( pset, attribset, linename, iddesired );
+    pset[0]->getProvider()->setDesiredVolume(cs);
+    pset[0]->getProvider()->getPossibleVolume(-1, cs);
+    deepErase( pset );
+    
 }
 
 
@@ -206,30 +213,29 @@ const char* EngineMan::curUserDesc() const
 
 SliceSet* EngineMan::getSliceSetOutput()
 {
-    if ( procset.size() == 0 )
+    if ( !procset.size() )
 	return 0;
 
-    if ( procset.size() == 1 && procset[0]->outputs.size() == 1 )
+    if ( procset.size() == 1 && procset[0]->outputs.size() == 1 && !cache )
 	return procset[0]->outputs[0]->getSliceSet();
 
     ObjectSet<SliceSet> slsets;
-    if ( procset.size() > 1 )
+    for ( int idx=0; idx<procset[0]->outputs.size(); idx++ )
     {
-	for ( int idx=0; idx<procset[0]->outputs.size(); idx++ )
+	SliceSet& slset = *new SliceSet;
+	slset.sampling = procset[0]->outputs[idx]->getSliceSet()->sampling;
+	slset.direction = slset.sampling.defaultDir();
+	for ( int idy=0; idy<procset.size(); idy++ )
 	{
-	    SliceSet& slset = *new SliceSet;
-	    for ( int idy=0; idy<procset.size(); idy++ )
+	    if ( procset[idy]->outputs[idx]->getSliceSet()->size()>1 )
+		return 0;
+	    else
 	    {
-		if ( procset[idy]->outputs[idx]->getSliceSet()->size()>1 )
-		    return 0;
-		else
-		{
-		    Slice* slc = (*procset[idy]->outputs[idx]->getSliceSet())[0];
-		    slset += slc;
-		}
+		Slice* slc = (*procset[idy]->outputs[idx]->getSliceSet())[0];
+		slset += slc;
 	    }
-	    slsets += &slset;
 	}
+	slsets += &slset;
     }
 
     bool prevismine = false;
@@ -484,12 +490,16 @@ ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
 {
     if ( !getProcessors( procset, errmsg, !outattribs.size() ) 
 	    || !procset.size() ) 
-	return 0;
+	{ deepErase( procset ); return 0; }
     
-    SliceSetOutput* attrout = new SliceSetOutput(cs); 
-    attrout->setGeometry( cs ); 
     for ( int idx=0; idx<procset.size(); idx++ )
+    {
+	LineKey lkey(linekey.buf(),procset[idx]->getAttribName());
+	CubeOutput* attrout = new CubeOutput(cs,lkey);
+	attrout->set2D();
+	attrout->setGeometry( cs );
 	procset[idx]->addOutput( attrout ); 
+    }
 
     ExecutorGroup* procgroup = new ExecutorGroup("Processors");
     BufferString nm = createExecutorName();
@@ -537,7 +547,7 @@ ExecutorGroup* EngineMan::sliceSetOutputCreator( BufferString& errmsg,
 
     if ( !getProcessors( procset, errmsg, !outattribs.size() ) 
 	    || !procset.size() ) 
-        return 0;
+	{ deepErase( procset ); return 0; }
 
     if ( !prev )
 	mAddAttrOut( cs )
@@ -611,8 +621,10 @@ class AEMFeatureExtracter : public ExecutorGroup
 {
 public:
 AEMFeatureExtracter( EngineMan& em, const BufferStringSet& inputs,
-		     const ObjectSet<BinIDValueSet>& bivsets )
+		     const ObjectSet<BinIDValueSet>& bivsets,
+		     ObjectSet<FeatureSet>& f )
 	: ExecutorGroup("Attribute Extraction at locations")
+	, fss(f)
 {
     BoolTypeSet issel;
     const int nrinps = inputs.size();
@@ -707,15 +719,17 @@ int nextStep()
     BufferString		errmsg;
     ObjectSet<Processor>	procset;
     TypeSet<int>        	outattribs;
+    ObjectSet<FeatureSet>&      fss;
 
 };
-/// to here
+
 
 ExecutorGroup* EngineMan::featureOutputCreator(
 			const BufferStringSet& inputs,
-			const ObjectSet<BinIDValueSet>& bivsets )
+			const ObjectSet<BinIDValueSet>& bivsets,
+			ObjectSet<FeatureSet>& fss)
 {
-    return new AEMFeatureExtracter( *this, inputs, bivsets );
+    return new AEMFeatureExtracter( *this, inputs, bivsets, fss );
 }
 
 
@@ -726,7 +740,7 @@ ExecutorGroup* EngineMan::locationOutputCreator( BufferString& errmsg,
 
     if ( !getProcessors( procset, errmsg, !outattribs.size() ) 
 	    || !procset.size() )
-	return 0;
+	{ deepErase( procset ); return 0; }
 
     ObjectSet<LocationOutput> outputs;
     const int nrpatches = bidzvset.size();
@@ -760,7 +774,7 @@ ExecutorGroup* EngineMan::locationOutputCreator( BufferString& errmsg,
 #undef mErrRet
 #define mErrRet(s) { errmsg = s; return false; }
 
-bool EngineMan::getProcessors( ObjectSet<Processor> pset, 
+bool EngineMan::getProcessors( ObjectSet<Processor>& pset, 
 				BufferString& errmsg, bool needid, 
 				bool addcurid )
 {
@@ -772,7 +786,6 @@ bool EngineMan::getProcessors( ObjectSet<Processor> pset,
     if ( needid && attrspec.id() < 0 )
 	mErrRet(attrspec.isNLA()?"No NLA available":"No Attribute selected");
 
-    clearProcessing();
     curattrid = attrspec.id();
 
     if ( !attrspec.isNLA() )
@@ -809,7 +822,7 @@ ExecutorGroup* EngineMan::trcSelOutputCreator( BufferString& errmsg,
 {
     if ( !getProcessors( procset, errmsg, !outattribs.size() ) 
 	    || !procset.size() );
-	return 0;
+	{ deepErase( procset ); return 0; }
 
     TrcSelectionOutput* attrout	= new TrcSelectionOutput( bidvalset );
     attrout->setOutput( &output );

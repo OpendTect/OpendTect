@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.3 2005-06-23 09:08:24 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.4 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ static void getInputTable( const MathExpression* me, TypeSet<int>& inputtable )
 	{
 	    if ( !strcmp(name,me->getVariableStr(idy)) )
 	    {
-		inputtable[idx] += idy;
+		inputtable += idy;
 		break;
 	    }
 	}
@@ -103,6 +103,8 @@ Math::Math( Desc& desc )
 {
     if ( !isOK() ) return;
 
+    inputdata_.allowNull(true);
+
     ValParam* expr = (ValParam*)desc.getParam( expressionStr() );
     if ( !expr ) return;
 
@@ -119,7 +121,7 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 bool Math::getInputData( const BinID& relpos, int idi )
 {
     const int nrvar = expression_->getNrVariables();
-    while ( nrvar < inputdata_.size() )
+    while ( inputdata_.size() < nrvar )
 	inputdata_ += 0;
 
     for ( int idx=0; idx<nrvar; idx++ )
@@ -149,7 +151,8 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	const int cursample = t0 + idx;
 	for ( int varidx=0; varidx<nrvar; varidx++ )
 	{
-	    const float val = inputdata_[varidx]->item(0)->value( cursample );
+	    const float val = inputdata_[varidx]->item(0)->
+				value( cursample - inputdata_[varidx]->t0_ );
 	    const int variable = inputtable_[varidx];
 	    expression_->setVariable( variable, val );
 	}

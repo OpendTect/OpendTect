@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.1 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,9 +200,9 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 
 CtxtIOObj& uiSteerCubeSel::getCtio( CtxtIOObj& c )
 {
-    c.ctxt.ioparkeyval[0] = sKey::Type;
-    c.ctxt.ioparkeyval[1] = sKey::Steering;
-    c.ctxt.includekeyval = true;
+    c.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
+    c.ctxt.includeconstraints = true;
+    c.ctxt.allowcnstrsabsent = false;
     c.ctxt.forread = true;
     return c;
 }
@@ -231,7 +231,7 @@ int uiSteerCubeSel::getDipID( int dipnr ) const
     if ( is2D() )
 	linekey.setAttrName( sKey::Steering );
 
-    Param* keypar = desc->getParam( StorageProvider::keyStr() );
+    ValParam* keypar = (ValParam*)desc->getParam( StorageProvider::keyStr() );
     keypar->setValue( linekey );
 
     DescSet* ads = const_cast<DescSet*>(attrdata.attrset);
@@ -252,7 +252,8 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
 
     if ( !desc->isStored() ) return;
 
-    const Param* keypar = desc->getParam( StorageProvider::keyStr() );
+    const ValParam* keypar = 
+		(ValParam*)desc->getParam( StorageProvider::keyStr() );
     const MultiID mid( keypar->getStringValue() );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     ctio.setObj( ioobj ? ioobj->clone() : 0 );

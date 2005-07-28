@@ -4,27 +4,29 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uispecdecompattred.h"
+#include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
 #include "attribdesc.h"
+#include "attribparam.h"
 #include "wavelettrans.h"
 #include "survinfo.h"
 #include "cubesampling.h"
-#include "uispecattrsel.h"
+#include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "uilabel.h"
 
+using namespace Attrib;
 
 static float sDefaultFreqStep = 5;
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p )
-    : uiAttrDescEd(p,new SpecDecompAttrib::Parameters)
+    : uiAttrDescEd(p)
     , nyqfreq(0)
     , nrsamples(0)
     , ds(0)
@@ -118,9 +120,9 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetFloatInterval( SpecDecomp::gateStr(), gate, gatefld->setValue(gate) );
-    mIfGetEnum( SpecDecomp::typeStr(), transformtype,
+    mIfGetEnum( SpecDecomp::transformTypeStr(), transformtype,
 		typefld->setValue(transformtype) );
-    mIfGetEnum( SpecDecomp::waveletStr(), cwtwavelet,
+    mIfGetEnum( SpecDecomp::cwtwaveletStr(), cwtwavelet,
 	        waveletfld->setValue(cwtwavelet) );
 
     const float freqscale = zIsTime() ? 1 : 1000;
@@ -153,9 +155,9 @@ bool uiSpecDecompAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),SpecDecomp::attribName()) )
 	return false;
 
-    mSetEnum( SpecDecomp::typeStr(), typefld->getBoolValue() ? 0 : 2 );
+    mSetEnum( SpecDecomp::transformTypeStr(), typefld->getBoolValue() ? 0 : 2 );
     mSetFloatInterval( SpecDecomp::gateStr(), gatefld->getFInterval() );
-    mSetEnum( SpecDecomp::waveletStr(), waveletfld->getIntValue() );
+    mSetEnum( SpecDecomp::cwtwaveletStr(), waveletfld->getIntValue() );
 
     const float freqscale = zIsTime() ? 1 : 1000;
     mSetFloat( SpecDecomp::deltafreqStr(), 
@@ -176,4 +178,5 @@ bool uiSpecDecompAttrib::getOutput( Desc& desc )
 {
     const int freqidx = getOutputIdx( outpfld->box()->getFValue() );
     fillOutput( desc, freqidx );
+    return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.1 2005-06-23 09:13:36 cvshelene Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
 ________________________________________________________________________
 */
 
@@ -83,6 +83,14 @@ ParamGroup<PT>* ret; \
     ret = tmp; \
 }
 
+#define mDescGetConstParamGroup(PT,ret,desc,key) \
+const ParamGroup<PT>* ret; \
+{\
+    const Param* param = desc.getParam( key ); \
+    mDynamicCastGet(const ParamGroup<PT>*,tmp,param)\
+    ret = tmp; \
+}
+
 
 /*
 template <class PT>
@@ -140,7 +148,7 @@ bool ParamGroup<PT>::setValues( BufferStringSet& vals )
     setSize( vals.size() );
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( !params[idx]->getSpec()->setText(vals.get(idx),0) )
+	if ( !params[idx]->setCompositeValue(vals.get(idx) ) )
 	    return false;
     }
 

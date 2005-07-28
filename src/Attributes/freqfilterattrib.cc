@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.1 2005-06-30 11:26:43 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -395,7 +395,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	data[idx] = redata->item(0)->value( idx );
+	data[idx] = redata->item(0)->value( idx - redata->t0_ );
     }
 
     if ( filtertype == mFilterLowPass )
@@ -455,8 +455,8 @@ void FreqFilter::fftFilter( const DataHolder& output,
     const int sz = fftsz/2 - nrsamples/2;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-        const float real = redata->item(0)->value( idx );
-        const float imag = -imdata->item(0)->value( idx );
+        const float real = redata->item(0)->value( idx - redata->t0_ );
+        const float imag = -imdata->item(0)->value( idx - imdata->t0_ );
         signal.set( idx, float_complex( real, imag ));
     }
 
