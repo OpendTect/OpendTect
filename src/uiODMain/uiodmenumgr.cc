@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.25 2005-07-21 11:30:52 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.26 2005-07-28 15:51:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.25 2005-07-21 11:30:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.26 2005-07-28 15:51:06 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -163,7 +163,8 @@ void uiODMenuMgr::fillFileMenu()
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
     mInsertItem( impseissgy, "&3-D ...", mImpSeisSEGY3DMnuItm );
     mInsertItem( impseissgy, "&2-D ...", mImpSeisSEGY2DMnuItm );
-    mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
+    if ( getenv("OD_ENABLE_PRESTACK") )
+	mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
     impseis->insertItem( impseissgy );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
     mInsertItem( imphor, "&Ascii ...", mImpHorAsciiMnuItm );
@@ -178,7 +179,8 @@ void uiODMenuMgr::fillFileMenu()
     uiPopupMenu* expseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
     mInsertItem( expseissgy, "&3-D ...", mExpSeisSEGY3DMnuItm );
     mInsertItem( expseissgy, "&2-D ...", mExpSeisSEGY2DMnuItm );
-    mInsertItem( expseissgy, "&Pre-stack ...", mExpSeisSEGYPSMnuItm );
+    if ( getenv("OD_ENABLE_PRESTACK") )
+	mInsertItem( expseissgy, "&Pre-stack ...", mExpSeisSEGYPSMnuItm );
     expseis->insertItem( expseissgy );
     uiPopupMenu* exphor = new uiPopupMenu( &appl, "&Horizons" );
     expmnu->insertItem( expseis );
