@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.3 2005-07-28 14:51:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -471,9 +471,11 @@ void uiAttribDescSetEd::updateUserRefs()
     attrdescs.erase();
 
     const int nrattrs = attrset->nrDescs();
+    TypeSet<int> ids;
+    attrset->getIds( ids );
     for ( int iattr=0; iattr<nrattrs; iattr++ )
     {
-	Desc* desc = attrset->getDesc( iattr );
+	Desc* desc = attrset->getDesc( ids[iattr] );
 	if ( !desc || desc->isHidden() || desc->isStored() ) continue;
 
 	attrdescs += desc;
@@ -632,9 +634,11 @@ void uiAttribDescSetEd::openSet( CallBacker* )
 	    newList( -1 );
 	    attrsetfld->setText( setctio.ioobj->name() );
 	    adsman->setSaved( true );
+	    TypeSet<int> ids;
+	    attrset->getIds( ids );
 	    for ( int idx=0; idx<attrset->nrDescs(); idx++ )
 	    {
-		Desc* ad = attrset->getDesc( idx );
+		Desc* ad = attrset->getDesc( ids[idx] );
 		if ( !ad ) continue;
 		if ( ad->isStored() && ad->isSatisfied()==2 )
 		{
