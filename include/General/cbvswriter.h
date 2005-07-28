@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.24 2005-01-05 15:06:57 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.25 2005-07-28 11:54:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <cbvsio.h>
-#include <cbvsinfo.h>
+#include "cbvsio.h"
+#include "cbvsinfo.h"
+#include "segposinfo.h"
 #include <iostream>
 
 template <class T> class DataInterpreter;
@@ -98,7 +99,7 @@ private:
     CBVSInfo::SurvGeom	survgeom_;
 
     const PosAuxInfo*	auxinfo_;
-    ObjectSet<PosInfo::InlData>	inldata_;
+    PosInfo::CubeData	inldata_;
 
     void		init(const CBVSInfo&);
     void		getBinID();

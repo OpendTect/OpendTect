@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.45 2005-07-14 11:17:56 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.46 2005-07-28 11:54:17 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -409,85 +409,24 @@ void CBVSWriter::doClose( bool islast )
 
 void CBVSWriter::getRealGeometry()
 {
-    HorSampling hs( false );
-    hs.start.inl = hs.start.crl = hs.step.inl = hs.step.crl = mUdf(int);
-    survgeom_.fullyrectandreg = true;
+    survgeom_.fullyrectandreg = inldata_.isFullyRectAndReg();
+    StepInterval<int> rg;
+    inldata_.getInlRange( rg ); survgeom_.step.inl = rg.step;
+    survgeom_.start.inl = rg.start; survgeom_.stop.inl = rg.stop;
+    inldata_.getCrlRange( rg ); survgeom_.step.crl = rg.step;
+    survgeom_.start.crl = rg.start; survgeom_.stop.crl = rg.stop;
 
-    for ( int iinl=0; iinl<inldata_.size(); iinl++ )
-    {
-	PosInfo::InlData& inlinf = *inldata_[iinl];
-	if ( iinl == 0 )
-	{
-	    hs.start.inl = hs.stop.inl = inlinf.inl;
-	    hs.start.crl = inlinf.segments[0].start;
-	    hs.stop.crl = inlinf.segments[0].stop;
-	    if ( hs.stop.crl < hs.start.crl )
-		Swap( hs.start.crl, hs.stop.crl );
-	    if ( hs.start.crl != hs.stop.crl )
-		hs.step.crl = inlinf.segments[0].step;
-	}
-	else
-	{
-	    int inlstep = inlinf.inl - inldata_[iinl-1]->inl;
-	    if ( !inlstep )
-		survgeom_.fullyrectandreg = false;
-	    else if ( iinl == 1 )
-		hs.step.inl = inlstep;
-	    else if ( inlstep != hs.step.inl )
-	    {
-		survgeom_.fullyrectandreg = false;
-		if ( (hs.step.inl > 0 && inlstep < hs.step.inl)
-		  || (hs.step.inl < 0 && inlstep > hs.step.inl) )
-		    hs.step.inl = inlstep;
-	    }
-
-	    if ( inlinf.inl < hs.start.inl )
-		hs.start.inl = inlinf.inl;
-	    else if ( inlinf.inl > hs.stop.inl )
-		hs.stop.inl = inlinf.inl;
-	}
-
-	const int nrseg = inlinf.segments.size();
-	if ( nrseg != 1 )
-	    survgeom_.fullyrectandreg = false;
-
-	for ( int iseg=0; iseg<nrseg; iseg++ )
-	{
-	    PosInfo::InlData::Segment seg( inlinf.segments[iseg] );
-	    if ( seg.start > seg.stop )	Swap( seg.start, seg.stop );
-
-	    if ( seg.start < hs.start.crl )
-		{ survgeom_.fullyrectandreg = false; hs.start.crl = seg.start; }
-	    if ( seg.stop > hs.stop.crl )
-		{ survgeom_.fullyrectandreg = false; hs.stop.crl = seg.stop; }
-
-	    if ( seg.start != seg.stop )
-	    {
-		if ( Values::isUdf(hs.step.crl) )
-		    hs.step.crl = seg.step;
-		else if ( seg.step != hs.step.crl )
-		{
-		    survgeom_.fullyrectandreg = false;
-		    if ( (hs.step.crl > 0 && seg.step < hs.step.crl)
-		      || (hs.step.crl < 0 && seg.step > hs.step.crl) )
-			hs.step.crl = seg.step;
-		}
-	    }
-	}
-    }
-    if ( Values::isUdf(hs.step.inl) || hs.step.inl == 0 )
-	hs.step.inl = SI().inlStep();
-    if ( Values::isUdf(hs.step.crl) || hs.step.crl == 0 )
-	hs.step.crl = SI().crlStep();
+    if ( !inldata_.haveCrlStepInfo() )
+	survgeom_.step.crl = SI().crlStep();
+    if ( !inldata_.haveInlStepInfo() )
+	survgeom_.step.inl = SI().inlStep();
+    else if ( inldata_[0]->inl > inldata_[1]->inl )
+	survgeom_.step.inl = -survgeom_.step.inl;
 
     if ( survgeom_.fullyrectandreg )
 	deepErase( survgeom_.cubedata );
     else if ( forcedlinestep_.inl )
-	hs.step.inl = forcedlinestep_.inl;
-
-    survgeom_.start.inl = hs.start.inl; survgeom_.stop.inl = hs.stop.inl;
-    survgeom_.start.crl = hs.start.crl; survgeom_.stop.crl = hs.stop.crl;
-    survgeom_.step.inl = hs.step.inl; survgeom_.step.crl = hs.step.crl;
+	survgeom_.step.inl = forcedlinestep_.inl;
 }
 
 
