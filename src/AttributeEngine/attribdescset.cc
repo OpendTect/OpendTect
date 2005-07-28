@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.14 2005-07-28 14:28:04 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.15 2005-07-28 14:40:27 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -544,7 +544,7 @@ bool DescSet::isAttribUsed( int id ) const
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	const Desc* ad = getDesc( idx );
+	const Desc* ad = descs[idx];
 	for ( int inpnr=0; inpnr<ad->nrInputs(); inpnr++ )
 	{
 	    if ( ad->inputId( inpnr ) == id )
@@ -567,7 +567,7 @@ int DescSet::removeUnused( bool remstored )
 	{
 	    if ( torem.indexOf(idesc) >= 0 ) continue;
 
-	    const Desc* ad = getDesc( idesc );
+	    const Desc* ad = descs[idesc];
 	    bool iscandidate = false;
 	    if ( ad->isStored() )
 	    {
