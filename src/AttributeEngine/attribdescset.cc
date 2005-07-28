@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.15 2005-07-28 14:40:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.16 2005-07-28 15:09:20 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -292,7 +292,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	    descs[idx]->setInput( input, inpdesc );
 	}
-	if ( descs[idx]->isSatisfied() != 0 )
+	if ( descs[idx]->isSatisfied() == Desc::Error )
 	{
 	    BufferString err = "inputs or parameters are not satisfied for ";
 	    err += descs[idx]->attribName();

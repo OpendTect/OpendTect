@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.17 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.18 2005-07-28 15:09:20 cvsbert Exp $";
 
 #include "attribdesc.h"
 
@@ -279,23 +279,23 @@ bool Desc::is2D() const
 }
 
 
-int Desc::isSatisfied() const
+Desc::SatisfyLevel Desc::isSatisfied() const
 {
-    if ( seloutput==-1 ) return 2;
+    if ( seloutput==-1 ) return Error;
 
     for ( int idx=0; idx<params.size(); idx++ )
     {
 	if ( !params[idx]->isOK() )
-	    return 2;
+	    return Error;
     }
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
 	if ( !inputspecs[idx].enabled ) continue;
-	if ( !inputs[idx] ) return 2;
+	if ( !inputs[idx] ) return Error;
     }
 
-    return 0;
+    return AllOk;
 }
 
 
