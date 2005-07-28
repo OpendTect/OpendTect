@@ -631,7 +631,10 @@ AEMFeatureExtracter( EngineMan& em, const BufferStringSet& inputs,
     const DescSet* attrset = em.procattrset ? em.procattrset : em.inpattrset;
     for ( int idx=0; idx<attrset->nrDescs(); idx++ )
     {
-	const Desc* ad = attrset->getDesc(idx);
+	const int descid = attrset->getID( idx );
+	const Desc* ad = attrset->getDesc( descid );
+	if ( !ad ) continue;
+
 	bool dosel = false;
 	for ( int iinp=0; iinp<nrinps; iinp++ )
 	{

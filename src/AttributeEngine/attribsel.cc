@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.1 2005-05-20 15:38:57 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.2 2005-07-28 14:35:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,13 +157,14 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
     {
 	for ( int idx=0; idx<attrset->nrDescs(); idx++ )
 	{
-	    const Desc* desc = attrset->getDesc(idx);
+	    const int descid = attrset->getID( idx );
+	    const Desc* desc = attrset->getDesc( descid );
 	    if ( !desc || 
 		 !strcmp(desc->attribName(),StorageProvider::attribName()) || 
 		 attrset->getID(*desc) == ignoreid || desc->isHidden() )
 		continue;
 
-	    attrids += attrset->getID(*desc);
+	    attrids += descid;
 	    attrnms.add( desc->userRef() );
 	}
     }
