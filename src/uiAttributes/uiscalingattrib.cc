@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.2 2005-07-28 07:33:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
 #include "attribdesc.h"
+#include "attribparam.h"
+#include "attribparamgroup.h"
 #include "uigeninput.h"
 #include "uitable.h"
 #include "uiattrsel.h"
@@ -25,21 +27,37 @@ static const int stopcol = 1;
 static const int factcol = 2;
 
 
+static const char* statstypestr[] =
+{
+    "RMS",
+    "Mean",
+    "Max",
+    "User-defined",
+    0
+};
+
+
+static const char* scalingtypestr[] =
+{
+    "T^n",
+    "Window",
+    0
+};
+
+
 uiScalingAttrib::uiScalingAttrib( uiParent* p )
 	: uiAttrDescEd(p)
 {
     inpfld = getInpFld();
 
-    typefld = new uiGenInput( this, "Type", 
-	    		StringListInpSpec(ScalingAttrib::ScalingTypeNames) );
+    typefld = new uiGenInput( this, "Type", StringListInpSpec(scalingtypestr) );
     typefld->valuechanged.notify( mCB(this,uiScalingAttrib,typeSel) );
     typefld->attach( alignedBelow, inpfld );
 
     nfld = new uiGenInput( this, "n", FloatInpSpec() );
     nfld->attach( alignedBelow, typefld );
 
-    statsfld = new uiGenInput( this, "Basis",
-			StringListInpSpec(ScalingAttrib::StatsTypeNames) );
+    statsfld = new uiGenInput( this, "Basis", StringListInpSpec(statstypestr) );
     statsfld->attach( alignedBelow, typefld );
     statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
 
@@ -89,38 +107,52 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),Scaling::attribName()) )
 	return false;
 
-    mIfGetEnum( Scaling::typeStr(), scalingtype,
+    mIfGetEnum( Scaling::scalingTypeStr(), scalingtype,
 	        typefld->setValue(scalingtype) );
-    mIfGetFloat( Scaling::powerStr(), powerval, nfld->setValue(powerval) );
-    mIfGetEnum( Scaling::statsStr(), statstype, statsfld->setValue(statstype) );
+    mIfGetFloat( Scaling::powervalStr(), powerval, nfld->setValue(powerval) );
+    mIfGetEnum( Scaling::statsTypeStr(), statstype, 
+	    			statsfld->setValue(statstype) );
 
     table->clearTable();
-    /*
-    const int nrtgs = pars.timegates.size();
+
+    int nrtgs = 0;
+    if ( desc.getParam(Scaling::gateStr()) )
+    {
+	mDescGetConstParamGroup(ZGateParam,gateset,desc,Scaling::gateStr())
+//	const Param* param = desc.getParam( Scaling::gateStr() );
+//	mDynamicCastGet(const ParamGroup<PT>*,gateset,param)
+	nrtgs = gateset->size();
+    }
+    
     while ( nrtgs > table->nrRows() )
 	table->insertRows(0);
     
     while ( nrtgs < table->nrRows() && table->nrRows() > initnrrows )
 	table->removeRow(0);
 
-    mIfHaveValFor(timegates)
+    if ( desc.getParam(Scaling::gateStr()) )
     {
-	for ( int idx=0; idx<pars.timegates.size(); idx++ )
+	mDescGetConstParamGroup( ZGateParam,gateset,desc,Scaling::gateStr() );
+	for ( int idx=0; idx<gateset->size(); idx++ )
 	{
+	    const ValParam& param = (ValParam&)(*gateset)[idx];
 	    table->setValue( uiTable::RowCol(idx,startcol), 
-		    	     pars.timegates[idx].start );
+		    	     param.getfValue(0) );
 	    table->setValue( uiTable::RowCol(idx,stopcol), 
-		    	     pars.timegates[idx].stop );
+		    	     param.getfValue(1) );
 	}
     }
 
-    mIfHaveValFor(scalefactors)
+    if ( desc.getParam(Scaling::factorStr()) )
     {
-	for ( int idx=0; idx< pars.scalefactors.size(); idx++ )
+	mDescGetConstParamGroup(ValParam,factorset,desc,Scaling::factorStr());
+	for ( int idx=0; idx< factorset->size(); idx++ )
+	{
+	    const ValParam& param = (ValParam&)(*factorset)[idx];
 	    table->setValue( uiTable::RowCol(idx,factcol),
-		    	     pars.scalefactors[idx] );
+		    	     param.getfValue(0) );
+	}
     }
-    */
 
     typeSel(0);
     statsSel(0);
@@ -140,11 +172,14 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),Scaling::attribName()) )
 	return false;
 
-    mGetEnum( Scaling::typeStr(), typefld->getIntValue() );
-    mGetFloat( Scaling::powerStr(), nfld->getfValue() );
-    mGetEnum( Scaling::statsStr(), statsfld->getIntValue() );
+    const char* stype = typefld->text();
+    const char* stats = statsfld->text();
+    BufferStringSet strs( scalingtypestr );
+    BufferStringSet str( statstypestr );
+    mSetEnum( Scaling::scalingTypeStr(), strs.indexOf(stype) );
+    mSetFloat( Scaling::powervalStr(), nfld->getfValue() );
+    mSetEnum( Scaling::statsTypeStr(), str.indexOf(stats) );
 
-    /*
     TypeSet<TimeGate> tgs;
     TypeSet<float> factors;
     for ( int idx=0; idx<table->nrRows(); idx++ )
@@ -162,15 +197,22 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	}
     }
 
-    pars.timegates.setSize( tgs.size() );
+    mDescGetParamGroup(ZGateParam,gateset,desc,Scaling::gateStr())
+    gateset->setSize( tgs.size() );
     for ( int idx=0; idx<tgs.size(); idx++ )
-	chtr.update( pars.timegates[idx], tgs[idx] );
+    {
+	ZGateParam& zgparam = (ZGateParam&)(*gateset)[idx];
+	zgparam.setValue((const Interval<float>&)tgs[idx]);
+    }
 
-    pars.scalefactors.setSize( factors.size() );
+    mDescGetParamGroup(ValParam,factorset,desc,Scaling::factorStr())
+    factorset->setSize( factors.size() );
     for ( int idx=0; idx<factors.size(); idx++ )
-	chtr.update( pars.scalefactors[idx], factors[idx] );
-    */
-
+    {
+	ValParam& valparam = (ValParam&)(*factorset)[idx];
+	valparam.setValue(factors[idx] );
+    }
+    
     return true;
 }
 
@@ -178,5 +220,14 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 bool uiScalingAttrib::getInput( Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
+    return true;
+}
+
+
+bool uiScalingAttrib::getOutput( Desc& desc )
+{
+    int typeval = typefld->getIntValue();
+    int val = typeval ? statsfld->getIntValue(): 0;
+    fillOutput( desc, val );
     return true;
 }
