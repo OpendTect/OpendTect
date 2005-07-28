@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.4 2005-07-28 14:28:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,8 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	    // Defaults are the last ones added to attrib set
 	    for ( int idx=attrdata.attrset->nrDescs()-1; idx!=-1; idx-- )
 	    {
-		const Desc& ad = *attrdata.attrset->getDesc(idx);
+		const int attrid = attrdata.attrset->getID( idx );
+		const Desc& ad = *attrdata.attrset->getDesc(attrid);
 		if ( ad.isStored() && storcur == -1 )
 		    storcur = attrinf->ioobjnms.indexOf( ad.userRef() );
 		else if ( !ad.isStored() && attrcur == -1 )

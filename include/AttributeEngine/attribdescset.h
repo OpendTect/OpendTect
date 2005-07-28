@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.10 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.11 2005-07-28 14:28:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
     				/*!< Only clones stuff needed to calculate
 				     the attrib with the ids given */
 
-    int				addDesc(Desc*);
+    int				addDesc(Desc*,int newid=-1);
 				/*!<\returns id of the attrib */
 
     Desc*       		getDesc(int id);

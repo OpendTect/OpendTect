@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.13 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.14 2005-07-28 14:28:04 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -37,14 +37,14 @@ DescSet* DescSet::clone() const
 }
 
 
-int DescSet::addDesc( Desc* nd )
+int DescSet::addDesc( Desc* nd, int id )
 {
-    nd->setDescSet(this);
+    nd->setDescSet( this );
     nd->ref();
     descs += nd;
-    const int id = getFreeID();
-    ids += id;
-    return id;
+    const int newid = id < 0 ? getFreeID() : id;
+    ids += newid;
+    return newid;
 }
 
 
@@ -267,33 +267,32 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	    }
 	}
 
-	addDesc(desc);
+	addDesc(desc,id);
     }
-    
+
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
 	addDesc( newsteeringdescs[idx] );
 
-    for ( int idx=0; idx<descs.size(); idx++ )
+    for ( int idx=0; idx<ids.size(); idx++ )
     {
-	if ( idx <= maxid )
+	const BufferString idstr( ids[idx] );
+	PtrMan<IOPar> descpar = copypar.subselect(idstr);
+	if ( !descpar )
+	    { pErrMsg("Huh?"); continue; }
+
+	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
 	{
-	    const BufferString idstr( ids[idx] );
-	    PtrMan<IOPar> descpar = copypar.subselect(idstr);
+	    const char* key = IOPar::compKey( inputPrefixStr(), input );
 
-	    for ( int input=0; input<descs[idx]->nrInputs(); input++ )
-	    {
-		const char* key = IOPar::compKey( inputPrefixStr(), input );
+	    int inpid;
+	    if ( !descpar->get(key,inpid) ) continue;
 
-		int inpid;
-		if ( !descpar->get(key,inpid) ) continue;
+	    Desc* inpdesc = getDesc( inpid );
+	    if ( !inpdesc ) continue;
 
-		Desc* inpdesc = getDesc( inpid );
-		if ( !inpdesc ) continue;
-
-		descs[idx]->setInput( input, inpdesc );
-	    }
+	    descs[idx]->setInput( input, inpdesc );
 	}
-	if ( descs[idx]->isSatisfied()!=0 )
+	if ( descs[idx]->isSatisfied() != 0 )
 	{
 	    BufferString err = "inputs or parameters are not satisfied for ";
 	    err += descs[idx]->attribName();
