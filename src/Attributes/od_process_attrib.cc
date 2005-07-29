@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.4 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.5 2005-07-29 13:08:11 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -61,7 +61,7 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     const char* res = iopar.find( "Output.1.Attributes.0" );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    int outid = atoi( res );
+    Attrib::DescID outid( atoi(res), true );
     if ( !initialset.getDesc(outid) )
 	mErrRet( "Target attribute not present in attribute set" )
 

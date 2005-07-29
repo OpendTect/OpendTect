@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, calcmnuitem("Attributes")
 {
     Attrib::initAttribClasses();
-    Attrib::StorageProvider::initClass();
+    StorageProvider::initClass();
     attrsetclosetim.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
 }
@@ -97,10 +97,10 @@ void uiAttribPartServer::replaceSet( const IOPar& iopar )
 }
 
 
-bool uiAttribPartServer::addToDescSet( const char* id )
+bool uiAttribPartServer::addToDescSet( const char* key )
 {
-    int res = adsman->descSet()->getStoredID( id );
-    return res < 0 ? false : true;
+    DescID id = adsman->descSet()->getStoredID( key );
+    return id < 0 ? false : true;
 }
 
 
@@ -113,7 +113,7 @@ const DescSet* uiAttribPartServer::curDescSet() const
 void uiAttribPartServer::getDirectShowAttrSpec( SelSpec& as ) const
 {
    if ( !dirshwattrdesc )
-       as.set( 0, -2, false, 0 );
+       as.set( 0, SelSpec::noAttrib, false, 0 );
    else
        as.set( *dirshwattrdesc );
 }
@@ -165,8 +165,8 @@ const NLAModel* uiAttribPartServer::getNLAModel() const
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec )
 {
     uiAttrSelData attrdata( adsman->descSet() );
-    attrdata.attribid = selspec.isNLA() ? -2 : selspec.id();
-    attrdata.outputnr = selspec.isNLA() ? selspec.id() : -1;
+    attrdata.attribid = selspec.isNLA() ? SelSpec::noAttrib : selspec.id();
+    attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel();
     uiAttrSelDlg dlg( appserv().parent(), "View Data", attrdata, No2D );
     if ( !dlg.go() )
@@ -177,8 +177,8 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec )
     const bool isnla = attrdata.attribid < 0 && attrdata.outputnr >= 0;
     IOObj* ioobj = IOM().get( adsman->attrsetid_ );
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
-    selspec.set( 0, isnla ? attrdata.outputnr : attrdata.attribid, isnla,
-	         isnla ? (const char*)nlaname : (const char*)attrsetnm );
+    selspec.set( 0, isnla ? DescID(attrdata.outputnr,true) : attrdata.attribid,
+	         isnla, isnla ? (const char*)nlaname : (const char*)attrsetnm );
     if ( isnla && attrdata.nlamodel )
 	selspec.setRefFromID( *attrdata.nlamodel );
     else if ( !isnla )
@@ -213,7 +213,7 @@ void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
 	    ss.setObjectRef( nlaname );
 	}
 	else
-	    ss.set( ss.userRef(), -2, true, 0 );
+	    ss.set( ss.userRef(), SelSpec::noAttrib, true, 0 );
     }
     else
     {
@@ -283,8 +283,10 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
 						  const SelSpec& selspec,
        						  const DescSet* ads )
 {
-    if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
-    else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
+    if ( !adsman->descSet() )
+	{ pErrMsg("No attr set"); return 0; }
+    else if ( selspec.id() == SelSpec::noAttrib )
+	{ pErrMsg("selspec id == -2"); return 0; }
     
     EngineMan aem;
     aem.setAttribSet( ads ? ads : adsman->descSet() );
@@ -307,8 +309,10 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
 bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values,
 					const SelSpec& selspec )
 {
-    if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
-    else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
+    if ( !adsman->descSet() )
+	{ pErrMsg("No attr set"); return false; }
+    else if ( selspec.id() == SelSpec::noAttrib) 
+	{ pErrMsg("selspec id == -2"); return false; }
 
     EngineMan aem;
     aem.setAttribSet( adsman->descSet() );
@@ -331,8 +335,10 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
 				       SeisTrcBuf& output,
 				       const SelSpec& selspec )
 {
-    if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
-    else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
+    if ( !adsman->descSet() )
+	{ pErrMsg("No attr set"); return 0; }
+    else if ( selspec.id() == SelSpec::noAttrib )
+	{ pErrMsg("selspec id == -2"); return 0; }
 
     EngineMan aem;
     aem.setAttribSet( adsman->descSet() );
@@ -360,7 +366,7 @@ bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
 
     if ( desc.doextraction )
     {
-	Attrib::PosVecOutputGen pvog( *adsman->descSet(), desc.design.inputs,
+	PosVecOutputGen pvog( *adsman->descSet(), desc.design.inputs,
 				     bivsets, outvds );
 	uiExecutor dlg( appserv().parent(), pvog );
 	if ( !dlg.go() )
@@ -423,8 +429,10 @@ SeisTrcBuf* uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 						const char* linekey )
 
 {
-    if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
-    else if ( selspec.id() == -2 ) { pErrMsg("selspec id == -2"); return 0; }
+    if ( !adsman->descSet() )
+	{ pErrMsg("No attr set"); return 0; }
+    else if ( selspec.id() == SelSpec::noAttrib )
+	{ pErrMsg("selspec id == -2"); return 0; }
     
     EngineMan aem;
     aem.setAttribSet( adsman->descSet() );
@@ -465,8 +473,9 @@ bool uiAttribPartServer::setPickSetDirs( PickSet& ps, const NLAModel* nlamod )
 bool uiAttribPartServer::selectColorAttrib( ColorSelSpec& selspec )
 {
     uiAttrSelData attrdata( adsman->descSet() );
-    attrdata.attribid = selspec.as.isNLA() ? -2 : selspec.as.id();
-    attrdata.outputnr = selspec.as.isNLA() ? selspec.as.id() : -1;
+    attrdata.attribid = selspec.as.isNLA() ? SelSpec::noAttrib 
+					   : selspec.as.id();
+    attrdata.outputnr = selspec.as.isNLA() ? selspec.as.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel();
 
     uiColorAttrSel dlg( appserv().parent(), attrdata );
@@ -481,8 +490,9 @@ bool uiAttribPartServer::selectColorAttrib( ColorSelSpec& selspec )
     const bool isnla = attrdata.outputnr >= 0;
     IOObj* ioobj = IOM().get( adsman->attrsetid_ );
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
-    selspec.as.set( 0, isnla ? attrdata.outputnr : attrdata.attribid, isnla,
-	            isnla ? (const char*)nlaname : (const char*)attrsetnm );
+    selspec.as.set( 0, isnla ? DescID(attrdata.outputnr,true) 
+	    		     : attrdata.attribid, isnla,
+		    isnla ? (const char*)nlaname : (const char*)attrsetnm );
     if ( isnla )
 	selspec.as.setRefFromID( *attrdata.nlamodel );
     else
@@ -506,11 +516,11 @@ for ( int idx=start; idx<stop; idx++ ) \
 
 static int cMaxMenuSize = 150;
 
-MenuItem* uiAttribPartServer::storedAttribMenuItem(const Attrib::SelSpec& as)
+MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as )
 {
     storedmnuitem.removeItems();
     storedmnuitem.checked = false;
-    Attrib::SelInfo attrinf( adsman->descSet(), 0, No2D, -1 );
+    SelInfo attrinf( adsman->descSet(), 0, No2D, DescID::undef() );
     const bool isnla = as.isNLA();
     const bool hasid = as.id() >= 0;
     const int nritems = attrinf.ioobjnms.size();
@@ -542,11 +552,11 @@ MenuItem* uiAttribPartServer::storedAttribMenuItem(const Attrib::SelSpec& as)
 }
 	
 
-MenuItem* uiAttribPartServer::calcAttribMenuItem( const Attrib::SelSpec& as )
+MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as )
 {
     calcmnuitem.removeItems();
     calcmnuitem.checked = false;
-    Attrib::SelInfo attrinf( adsman->descSet() );
+    SelInfo attrinf( adsman->descSet() );
     const bool isattrib = attrinf.attrids.indexOf( as.id() ) >= 0;
     const int start = 0; const int stop = attrinf.attrnms.size();
     mInsertItems(attrnms,&calcmnuitem,isattrib);
@@ -556,7 +566,7 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const Attrib::SelSpec& as )
 }
 
 
-MenuItem* uiAttribPartServer::nlaAttribMenuItem( const Attrib::SelSpec& as )
+MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as )
 {
     nlamnuitem.removeItems();
     nlamnuitem.checked = false;
@@ -564,7 +574,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const Attrib::SelSpec& as )
     if ( nlamodel )
     {
 	nlamnuitem.text = nlamodel->nlaType(false);
-	Attrib::SelInfo attrinf( adsman->descSet(), nlamodel );
+	SelInfo attrinf( adsman->descSet(), nlamodel );
 	const bool isnla = as.isNLA();
 	const bool hasid = as.id() >= 0;
 	const int start = 0; const int stop = attrinf.nlaoutnms.size();
@@ -576,14 +586,13 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const Attrib::SelSpec& as )
 }
 
 
-bool uiAttribPartServer::handleAttribSubMenu( int mnuid,
-						Attrib::SelSpec& as ) const
+bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 {
     uiAttrSelData attrdata( adsman->descSet() );
     attrdata.nlamodel = getNLAModel();
-    Attrib::SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, No2D );
+    SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, No2D );
 
-    int attribid = Attrib::SelSpec::attribNotSel;
+    DescID attribid = SelSpec::attribNotSel;
     int outputnr = -1;
     bool isnla = false;
 
@@ -609,7 +618,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid,
 
     IOObj* ioobj = IOM().get( adsman->attrsetid_ );
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
-    as.set( 0, isnla ? outputnr : attribid, isnla,
+    as.set( 0, isnla ? DescID(outputnr,true) : attribid, isnla,
     isnla ? (const char*)nlaname : (const char*)attrsetnm );
 
     if ( isnla )

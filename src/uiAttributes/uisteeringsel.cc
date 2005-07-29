@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,8 +142,8 @@ void uiSteeringSel::fillDesc( Attrib::Desc& ad, ChangeTracker& chtr )
     chtr.update( st->type, (Attrib::Desc::Steering::Type)sttyp );
     if ( sttyp != 3 )
     {
-	const int inldipid = inpfld->inlDipID();
-	const int crldipid = inpfld->crlDipID();
+	const DescID inldipid = inpfld->inlDipID();
+	const DescID crldipid = inpfld->crlDipID();
 	if ( inldipid == -1 || crldipid == -1 ) return;
 	if ( crldipid == -2 )
 	{
@@ -215,16 +215,16 @@ void uiSteerCubeSel::updateAttrSet2D()
 }
 
 
-int uiSteerCubeSel::getDipID( int dipnr ) const
+DescID uiSteerCubeSel::getDipID( int dipnr ) const
 {
     if ( !attrdata.attrset )
     {
 	pErrMsg( "No attribdescset set");
-	return -1;
+	return DescID::undef();
     }
 
     if ( !ctio.ioobj ) 
-	return -1;
+	return DescID::undef();
 
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
     LineKey linekey( ctio.ioobj->key() );

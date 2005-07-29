@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.1 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissel.h"
 #include "uiattrsel.h"
+#include "attribdescid.h"
 
 namespace Attrib { class Desc; class DescSet; class SelSpec; };
 
@@ -29,9 +30,9 @@ public:
 				       const Attrib::DescSet*,
 				       const char* txt="Steering Data" );
 
-    inline int		inlDipID() const	{ return getDipID(0); }
+    inline Attrib::DescID inlDipID() const	{ return getDipID(0); }
 			// Returns -2 when selected is not a dip
-    inline int		crlDipID() const	{ return getDipID(1); }
+    inline Attrib::DescID crlDipID() const	{ return getDipID(1); }
 			// Returns -2 when selected is not a dip
 
     void		setDesc(const Attrib::Desc*);
@@ -47,7 +48,7 @@ protected:
 
     uiAttrSelData	attrdata;
 
-    int			getDipID(int) const;
+    Attrib::DescID	getDipID(int) const;
     void		update2D();
     CtxtIOObj&		getCtio(CtxtIOObj&);
 

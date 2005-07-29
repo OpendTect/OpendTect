@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.18 2005-07-28 15:09:20 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.19 2005-07-29 13:08:11 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -92,8 +92,6 @@ Desc::Desc( const Desc& a )
 
     for ( int idx=0; idx<a.nrOutputs(); idx++ )
 	addOutputDataType( a.outputtypes[idx] );
-
-
 }
 
 
@@ -117,7 +115,7 @@ void Desc::setDescSet( DescSet* nds )
 DescSet* Desc::descSet() const { return ds; }
 
 
-int Desc::id() const { return ds ? ds->getID(*this) : -1; }
+DescID Desc::id() const { return ds ? ds->getID(*this) : DescID(-1,true); }
 
 
 bool Desc::getDefStr( BufferString& res ) const
@@ -182,16 +180,16 @@ bool Desc::parseDefStr( const char* defstr )
 	else
 	{
 	    BufferStringSet paramvalset;
-	    int valueid = 0;
+	    int valueidx = 0;
 	    for ( int idy=0; idy<keys.size(); idy++ )
 	    {
 		BufferString keystring = params[idx]->getKey();
-		keystring += valueid;
+		keystring += valueidx;
 		if ( !strcmp(keys.get(idy).buf(), keystring ) )
 		{
 		    paramvalset.add( vals.get(idy).buf() );
 		    found =true;
-		    valueid++;
+		    valueidx++;
 		}
 	    }
 	    if ( !found )
@@ -222,19 +220,12 @@ bool Desc::parseDefStr( const char* defstr )
 }
 
 
-const char* Desc::userRef() const { return userref; }
-
-
-void Desc::setUserRef(const char* nur ) { userref = nur; }
-
-
-int Desc::nrOutputs() const { return outputtypes.size(); }
-
-
-void Desc::selectOutput(int outp) { seloutput = outp; }
-
-
-int Desc::selectedOutput() const { return seloutput; }
+const char* Desc::userRef() const		{ return userref; }
+void Desc::setUserRef( const char* str )	{ userref = str; }
+int Desc::nrOutputs() const			{ return outputtypes.size(); }
+void Desc::selectOutput( int outp )		{ seloutput = outp; }
+int Desc::selectedOutput() const		{ return seloutput; }
+int Desc::nrInputs() const			{ return inputs.size(); }
 
 
 Seis::DataType Desc::dataType() const
@@ -246,9 +237,6 @@ Seis::DataType Desc::dataType() const
 
     return outputtypes[seloutput];
 }
-
-
-int Desc::nrInputs() const { return inputs.size(); }
 
 
 bool Desc::setInput( int input, Desc* nd )
@@ -299,27 +287,29 @@ Desc::SatisfyLevel Desc::isSatisfied() const
 }
 
 
-bool Desc::isIdenticalTo( const Desc& b, bool cmpoutput ) const
+bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 {
-    if ( this==&b ) return true;
+    if ( this==&desc ) return true;
 
-    if ( params.size()!=b.params.size() || inputs.size()!=b.inputs.size() )
+    if ( params.size()!=desc.params.size() || 
+	    				inputs.size()!=desc.inputs.size() )
 	return false;
 
     for ( int idx=0; idx<params.size(); idx++ )
     {
-	if ( *params[idx]!=*b.params[idx] )
+	if ( *params[idx]!=*desc.params[idx] )
 	    return false;
     }
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
-	if ( inputs[idx]==b.inputs[idx] ) continue;
-	if ( !inputs[idx]->isIdenticalTo(*b.inputs[idx],cmpoutput) )
+	if ( inputs[idx]==desc.inputs[idx] ) continue;
+
+	if ( !inputs[idx]->isIdenticalTo(*desc.inputs[idx],cmpoutput) )
 	    return false;
     }
 
-    return cmpoutput ? seloutput==b.seloutput : true;
+    return cmpoutput ? seloutput==desc.seloutput : true;
 }
 
 
@@ -408,7 +398,7 @@ bool Desc::removeInput( int idx )
 InputSpec& Desc::inputSpec( int input ) { return inputspecs[input]; }
 
 
-const InputSpec&  Desc::inputSpec( int input ) const
+const InputSpec& Desc::inputSpec( int input ) const
 { return const_cast<Desc*>(this)->inputSpec(input); }
 
 
@@ -454,15 +444,15 @@ bool Desc::getAttribName( const char* defstr_, BufferString& res )
 
 
 bool Desc::getParamString( const char* defstr, const char* key,
-			    BufferString& res )
+			   BufferString& res )
 {
     if ( !defstr || !key )
 	return 0;
 
     const int inpsz = strlen(defstr);
-    const int pattsz = strlen(key);
+    const int keysz = strlen(key);
     bool inquotes = false;
-    for ( int idx = 0; idx<inpsz; idx ++)
+    for ( int idx=0; idx<inpsz; idx++ )
     {
 	if ( !inquotes && defstr[idx] == '=' )
 	{
@@ -476,9 +466,9 @@ bool Desc::getParamString( const char* defstr, const char* key,
 	    while ( !isspace(defstr[firstpos]) && firstpos >= 0 ) firstpos --;
 	    firstpos++;
 
-	    if ( lastpos - firstpos + 1 == pattsz )
+	    if ( lastpos - firstpos + 1 == keysz )
 	    {
-		if ( !strncmp( &defstr[firstpos], key, pattsz ) )
+		if ( !strncmp( &defstr[firstpos], key, keysz ) )
 		{
 		    firstpos = idx + 1;
 		    while ( isspace(defstr[firstpos]) && firstpos < inpsz )
@@ -511,7 +501,6 @@ bool Desc::getParamString( const char* defstr, const char* key,
 		}
 	    }
 	}
-
 	else if ( defstr[idx] == '"' )
 	    inquotes = !inquotes;
     }
@@ -538,29 +527,32 @@ bool Desc::isStored() const
 }
 
 
-bool Desc::isIdentifiedBy( const char* s ) const
+bool Desc::isIdentifiedBy( const char* str ) const
 {
-    if ( userref == s )
+    if ( userref == str )
 	return true;
-    else if ( isStored() )
+
+    if ( isStored() )
     {
-	LineKey lk( s );
-	BufferString pval;
-BufferString defstr;
-	getDefStr(defstr);
-	if ( !getParamString( defstr, params[0]->getKey(), pval ) )
+	LineKey lk( str );
+	BufferString defstr; getDefStr(defstr);
+	BufferString parstr;
+	if ( !getParamString(defstr,params[0]->getKey(),parstr) )
 	    return false;
-	if ( !strcmp( pval.buf(), s ) || 
-	    ( pval == lk.lineName() && !strcmp( lk.attrName().buf(), "Seis" ) ))
+
+	const bool is2ddefstr = 
+	    parstr == lk.lineName() && !strcmp(lk.attrName().buf(),"Seis");
+	if ( parstr == str || is2ddefstr )
 	    return true;
     }
+
     return false;
 }
 
 
 void Desc::createBStrSetFromDefstring( const char* defstr, 
-					BufferStringSet& keys,
-					BufferStringSet& vals )
+				       BufferStringSet& keys,
+				       BufferStringSet& vals )
 {
     int len = strlen(defstr);
     int spacepos = 0;
@@ -575,9 +567,10 @@ void Desc::createBStrSetFromDefstring( const char* defstr,
 	    if ( spacepos < 0 ) continue;
 	    int lastpos = spacepos;
 
-	    while ( !isspace(defstr[spacepos]) && spacepos >= 0 ) spacepos --;
+	    while ( !isspace(defstr[spacepos]) && spacepos >= 0 )
+		spacepos --;
+
 	    spacepos++;
-	
 	    char tmpkey[lastpos-spacepos+2];
 	    strncpy( tmpkey, &defstr[spacepos], lastpos-spacepos+1 );
 	    tmpkey[lastpos-spacepos+1] = 0;
@@ -598,19 +591,16 @@ void Desc::createBStrSetFromDefstring( const char* defstr,
 	    tmp = tmpval;
 	    vals.add(tmp);
 	}
-	
     }
-    
 }
 
 
-void Desc::changeStoredID(const char* newid)
+void Desc::changeStoredID( const char* newid )
 {
-    if ( isStored() )
-    {
-	ValParam* keypar = (ValParam*)getParam( StorageProvider::keyStr() );
-	keypar->setValue( newid );
-    }
+    if ( !isStored() ) return;
+
+    ValParam* keypar = (ValParam*)getParam( StorageProvider::keyStr() );
+    keypar->setValue( newid );
 }
 
 /*

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.1 2005-05-20 15:39:03 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "multiid.h"
 #include "bufstringset.h"
+#include "attribdesc.h"
 
 class IOPar;
 class NLAModel;
@@ -33,31 +34,29 @@ class NLAModel;
 namespace Attrib 
 {
 
-class Desc;
 class DescSet;
 
 class SelSpec
 {
 public:
-			SelSpec( const char* r=0,
-				 int i=attribNotSel, bool n=false,
-				 const char* objr=0 )
+			SelSpec( const char* r=0, DescID i=attribNotSel,
+				 bool n=false, const char* objr=0 )
 			: ref_(r), id_(i), isnla_(n)
 			, objref_(objr)			{}
 
-    int			id() const			{ return id_; }
+    const DescID&	id() const			{ return id_; }
     bool		isNLA() const			{ return isnla_; }
     const char*		userRef() const			{ return ref_; }
     const char*		objectRef() const		{ return objref_; }
 
-    bool		operator==( const SelSpec& ) const;
-    bool		operator!=( const SelSpec& ) const;
-
+    bool		operator==(const SelSpec&) const;
+    bool		operator!=(const SelSpec&) const;
 
     void		set(const Desc&);
     void		set(const NLAModel&,int);
     void		setObjectRef(const char* objr)	{ objref_ = objr; }
-    void		set( const char* r, int i, bool isnla, const char* objr)
+    void		set( const char* r, DescID i, bool isnla, 
+	    		     const char* objr)
 			{ ref_ = r; id_ = i; isnla_ = isnla; objref_ = objr; }
 
     void		setIDFromRef(const NLAModel&);
@@ -72,15 +71,15 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    static const int	noAttrib;
-    static const int	attribNotSel;
-    static const int	otherAttrib;
+    static const DescID	noAttrib;
+    static const DescID	attribNotSel;
+    static const DescID	otherAttrib;
 
 protected:
 
     BufferString	ref_;
     BufferString	objref_;
-    int			id_;
+    DescID		id_;
     bool		isnla_;
     StepInterval<int>	discrspec_;
 
@@ -100,8 +99,9 @@ protected:
 class ColorSelSpec
 {
 public:
-			ColorSelSpec(const char* r=0,int i=-2,bool n=false,
-				     const char* objr=0)
+			ColorSelSpec( const char* r=0,
+				      const DescID& i=SelSpec::noAttrib,
+				      bool n=false, const char* objr=0)
 			: as(r,i,n,objr) 
 			, datatype(0)
 			, reverse(false)
@@ -137,9 +137,9 @@ class CurrentSel
 {
 public:
 			CurrentSel()
-			: attrid(-1), outputnr(-1)	{}
+			: attrid(DescID(-1,true)), outputnr(-1)	{}
 
-    int			attrid;
+    DescID		attrid;
     MultiID		ioobjkey;
     int			outputnr; // For NLA or attribute nr in 2D
 
@@ -153,14 +153,15 @@ class SelInfo
 public:
 
 			SelInfo(const DescSet*,const NLAModel* n=0,
-				      Pol2D pol=Both2DAnd3D,int ignoreid=-1);
+				Pol2D pol=Both2DAnd3D,
+				const DescID& ignoreid=DescID::undef());
 			SelInfo(const SelInfo&);
     SelInfo&		operator=(const SelInfo&);
 
     BufferStringSet	ioobjnms;
     BufferStringSet	ioobjids;
     BufferStringSet	attrnms;
-    TypeSet<int>	attrids;
+    TypeSet<DescID>	attrids;
     BufferStringSet	nlaoutnms;
 
     static bool		is2D(const char* defstr_or_ioobjid);

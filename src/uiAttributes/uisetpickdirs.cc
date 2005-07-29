@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.1 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,17 +210,17 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
 bool uiSetPickDirs::getAttribSelection( BoolTypeSet& issel, TypeSet<int>& idxs )
 {
-    TypeSet<int> nlaids;
+    TypeSet<DescID> nlaids;
     if ( !getNLAIds(nlaids) )
 	return false;
 
-    TypeSet<int> ids;
+    TypeSet<DescID> ids;
     if ( usesteering )
     {
 	if ( createdset )
 	    steerfld->setDescSet( createdset );
 
-	const int inldipid = steerfld->inlDipID();
+	const DescID inldipid = steerfld->inlDipID();
 	if ( inldipid < 0 ) mErrRet( "Cannot read Steering Cube" )
 
 	ids += inldipid;
@@ -228,10 +228,10 @@ bool uiSetPickDirs::getAttribSelection( BoolTypeSet& issel, TypeSet<int>& idxs )
     }
     else
     {
-	const int phiid = getAttribID( phifld, nlaids );
+	const DescID phiid = getAttribID( phifld, nlaids );
 	if ( phiid < 0 ) mErrRet( "No valid attribute selected for Phi" )
 	ids += phiid;
-	const int thetaid = getAttribID( thetafld, nlaids );
+	const DescID thetaid = getAttribID( thetafld, nlaids );
 	if ( thetaid < 0 ) mErrRet( "No valid attribute selected for Theta" );
 	ids += thetaid;
     }
@@ -240,7 +240,7 @@ bool uiSetPickDirs::getAttribSelection( BoolTypeSet& issel, TypeSet<int>& idxs )
 
     const DescSet* curset = createdset ? createdset : ads;
     issel = BoolTypeSet( curset->nrDescs(), false );
-    TypeSet<int> allids;
+    TypeSet<DescID> allids;
     curset->getIds( allids );
     TypeSet<int> descnrs, sorted;
     for ( int idx=0; idx<ids.size(); idx++ )
@@ -259,7 +259,7 @@ bool uiSetPickDirs::getAttribSelection( BoolTypeSet& issel, TypeSet<int>& idxs )
 }
 
 
-bool uiSetPickDirs::getNLAIds( TypeSet<int>& ids )
+bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
 {
     if ( !nlamdl ) return true;
 
@@ -274,7 +274,7 @@ bool uiSetPickDirs::getNLAIds( TypeSet<int>& ids )
 	if ( !idx )
 	{
 	    aem.setAttribSpec( SelSpec("",idx,true) );
-	    int nlaid; BufferString errmsg;
+	    DescID nlaid; BufferString errmsg;
 	    createdset = aem.createNLAADS( nlaid, errmsg, ads );
 	    if ( errmsg.size() ) mErrRet( errmsg );
 	    ids += nlaid;
@@ -288,7 +288,7 @@ bool uiSetPickDirs::getNLAIds( TypeSet<int>& ids )
 	BufferString usrref( ad->userRef() ); usrref += "__"; usrref += idx;
 	ad->setUserRef( usrref );
 	ad->selectOutput( idx );
-	int nlaid  = createdset->addDesc( ad );
+	DescID nlaid  = createdset->addDesc( ad );
 	ids += nlaid;
     }
 */
@@ -297,17 +297,16 @@ bool uiSetPickDirs::getNLAIds( TypeSet<int>& ids )
 }
 
 
-int uiSetPickDirs::getAttribID( uiAttrSel* attrfld, const TypeSet<int>& nlaids )
+DescID uiSetPickDirs::getAttribID( uiAttrSel* attrfld,
+				   const TypeSet<DescID>& nlaids )
 {
-    const int attribid = attrfld->attribID();
+    const DescID attribid = attrfld->attribID();
     const int outputnr = attrfld->outputNr();
-    int newid;
+    DescID newid( DescID::undef() );
     if ( attribid >= 0 )
 	newid = attribid;
     else if ( outputnr >= 0 && nlaids.size() > outputnr )
 	newid = nlaids[outputnr];
-    else
-	newid = -1;
 
     return newid;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.cc,v 1.1 2005-06-02 07:16:21 cvsnanne Exp $
+ RCS:           $Id: attribdescsetman.cc,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,11 +63,11 @@ void DescSetMan::cleanHist( IOPar& selhist, const DescSet& newads )
 	const int id = atoi( selhist.getValue(ikey) );
 	if ( id < 0 ) continue;
 
-	const Desc* desc = ads_->getDesc( id );
+	const Desc* desc = ads_->getDesc( DescID(id,true) );
 	bool keep = false;
 	if ( desc )
 	{
-	    if ( newads.getID(desc->userRef(),true) >= 0 )
+	    if ( newads.getID(desc->userRef(),true).asInt() >= 0 )
 		keep = true;
 	}
 
@@ -88,14 +88,14 @@ void DescSetMan::fillHist()
     inpselhist_.set( IOPar::compKey(sKey::IOSelection,1), -1 );
 
     int nr = 1;
-    TypeSet<int> attribids;
+    TypeSet<DescID> attribids;
     ads_->getIds( attribids );
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
 	Desc* ad = ads_->getDesc( attribids[idx] );
 	if ( !ad || ad->isHidden() || ad->isStored() ) continue;
 
-	BufferString key( attribids[idx] );
+	BufferString key( attribids[idx].asInt() );
 	if ( inpselhist_.findKeyFor(key) ) continue;
 
 	nr++;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.1 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: attribsetcreator.cc,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,7 +161,7 @@ bool acceptOK( CallBacker* )
 	    return false;
 	}
 
-	const int descid = attrset->getID( sel.labelText(), true );
+	const DescID descid = attrset->getID( sel.labelText(), true );
 	if ( descid < 0 )
 	{
 	    BufferString msg( "There is a problem importing '" );
@@ -177,8 +177,8 @@ bool acceptOK( CallBacker* )
 	}
 	else
 	{
-	    const int inpid = attrset->getStoredID( ioobj->key(), 0, true );
-	    if ( inpid <= 0 ) return false;
+	    const DescID inpid = attrset->getStoredID( ioobj->key(), 0, true );
+	    if ( inpid < 0 ) return false;
 
 	    for ( int iinp=0; iinp<ad.nrInputs(); iinp++ )
 		ad.setInput( iinp, attrset->getDesc(inpid) );

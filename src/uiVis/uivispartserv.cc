@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.265 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.266 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -812,7 +812,7 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
     const Attrib::ColorSelSpec* colas = getColorSelSpec( id );
     if ( !colas ) return false;
 
-    const int attribid = colas->as.id();
+    const Attrib::DescID attribid = colas->as.id();
     if ( !newselect && attribid < 0 )
 	return false;
 

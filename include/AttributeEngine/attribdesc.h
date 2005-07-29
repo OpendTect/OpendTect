@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.16 2005-07-28 15:09:20 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.17 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "seistype.h"
+#include "attribdescid.h"
 
 class DataInpSpec;
 
@@ -46,28 +47,6 @@ public:
     bool			operator==(const InputSpec&) const;
 };
 
-class DescID
-{
-			DescID( int id, bool ) : id_(id)	{}
-			//!< The bool is there to prevent accidental
-			//!< conversion from int
-    			DescID( const DescID& id )
-			    : id_(id.id_)	{}
-    inline DescID&	operator =( const DescID& id )
-			{ id_ = id.id_; return *this; }
-
-    inline bool		operator ==( const DescID& id ) const
-			{ return id.id_ == id_; }
-    inline bool		operator !=( const DescID& id ) const
-			{ return id.id_ != id_; }
-
-    int			asInt() const		{ return id_; }
-    int&		asInt()			{ return id_; }
-
-protected:
-
-    int			id_;
-};
 
 
 class Desc
@@ -90,7 +69,7 @@ public:
     void		setDescSet( DescSet* );
     DescSet*		descSet() const;
 
-    int			id() const;
+    DescID		id() const;
 
     bool		getDefStr(BufferString&) const;
     bool		parseDefStr( const char* );
@@ -122,11 +101,11 @@ public:
     SatisfyLevel	isSatisfied() const;
 			/*!< Checks wether all inputs are satisfied. */
 
-    bool		isIdenticalTo( const Desc&, bool cmpoutput=true ) const;
-    bool                isIdentifiedBy( const char* s ) const;
-    int                 inputId( int idx ) const
+    bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
+    bool		isIdentifiedBy(const char*) const;
+    DescID		inputId( int idx ) const
 			{ return idx >= 0 && idx < inputs.size()
-			    ? inputs[idx]->id() : -1; }
+			    ? inputs[idx]->id() : DescID(-1,true); }
 
 
     			/* Interface to factory */

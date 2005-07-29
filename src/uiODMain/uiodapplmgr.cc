@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.85 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.86 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -354,7 +354,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
     }
 
     Attrib::SelSpec myas( *as );
-    if ( myas.id()!=-1 ) attrserv->updateSelSpec( myas );
+    if ( myas.id()!=Attrib::DescID::undef() ) attrserv->updateSelSpec( myas );
     if ( myas.id()<-1 && !colordata )
     {
 	uiMSG().error( "Cannot find selected attribute" );

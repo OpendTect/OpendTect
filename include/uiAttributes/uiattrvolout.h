@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattrvolout.h,v 1.1 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: uiattrvolout.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "multiid.h"
 
-namespace Attrib { class CurrentSel; class DescSet; };
+namespace Attrib { class CurrentSel; class DescID; class DescSet; };
 class IOObj;
 class IOPar;
 class NLAModel;
@@ -56,7 +56,7 @@ protected:
 
     void		attrSel(CallBacker*);
     void		singLineSel(CallBacker*);
-    void		addNLA(int&);
+    void		addNLA(Attrib::DescID&);
 
 private:
 

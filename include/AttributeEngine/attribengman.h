@@ -6,41 +6,38 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id:
+ RCS:           $Id: attribengman.h,v 1.6 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "bufstring.h"
-#include <iosfwd>
+#include "attribdescid.h"
 
 class BinID;
-class IOPar;
-class MultiID;
-class LineKey;
-class NLAModel;
-class FeatureSet;//to remove
-class SeisTrcBuf;
-class CubeSampling;
-class PickSetGroup;
 class BinIDValueSet;
-class NLACreationDesc;
 class BufferStringSet;
+class CubeSampling;
 class ExecutorGroup;
-template <class T> class TypeSet;
-template <class T> class Interval;
-template <class T> class ObjectSet;
-template <class T> class StepInterval;
+class FeatureSet;//to remove
+class IOPar;
+class LineKey;
+class MultiID;
+class NLACreationDesc;
+class NLAModel;
+class PickSetGroup;
+class SeisTrcBuf;
 
 namespace Attrib
 {
-class Processor;
+class CubeOutput;
+class Desc;
 class DescSet;
 class SelSpec;
 class SliceSet;
 class Output;
-class CubeOutput;
+class Processor;
 
 /*!\brief The Attribute engine Manager. */
 
@@ -50,21 +47,22 @@ public:
 			EngineMan();
     virtual		~EngineMan();
 
-    void		usePar( const IOPar& iopar, 
-	    			const DescSet& attribset,
-	    			const char* linename,
-				ObjectSet<Processor>& procset ); 
+    void		usePar(const IOPar&,const DescSet&,
+	    		       const char* linename,
+			       ObjectSet<Processor>&); 
 
-    static void		createProcSet( ObjectSet<Processor>& procset,
-	    				const DescSet& attribset,
-					const char* linename, TypeSet<int> );
-    static void		getPossibleVolume( const DescSet&, CubeSampling&,
-	    				const char* linename, int outid );
-    CubeOutput* 	createOutput( const IOPar& pars, LineKey ); 
+    static void		createProcSet(ObjectSet<Processor>& procset,
+				      const DescSet& attribset,
+				      const char* linename,
+				      const TypeSet<DescID>&);
+    static void		getPossibleVolume(const DescSet&,CubeSampling&,
+	    				  const char* linename,const DescID&);
+    CubeOutput* 	createOutput(const IOPar&,LineKey);
+
     const DescSet* 	attribSet() const	{ return inpattrset; }
     const NLAModel*	nlaModel() const	{ return nlamodel; }
     const SelSpec& 	attribSpec() const	{ return attrspec; }
-    const CubeSampling&	cubeSampling() const	{ return cs; }
+    const CubeSampling&	cubeSampling() const	{ return cs_; }
     const BufferString&	lineKey() const		{ return linekey; }
     float		undefValue() const	{ return udfval; }
 
@@ -74,8 +72,8 @@ public:
     void		setCubeSampling(const CubeSampling&);
     void		setLineKey( const char* lk )	{ linekey = lk; }
     void		setUndefValue( float v )	{ udfval = v; }
-    void		addOutputAttrib(int);
-    DescSet*		createNLAADS(int& outid,BufferString& errmsg,
+    void		addOutputAttrib(const DescID&);
+    DescSet*		createNLAADS(DescID& outid,BufferString& errmsg,
 	    			     const DescSet* addtoset=0);
 
     ExecutorGroup*	sliceSetOutputCreator(BufferString& errmsg,
@@ -91,36 +89,34 @@ public:
 					const ObjectSet<BinIDValueSet>&,
 					ObjectSet<FeatureSet>&);
 
-    ExecutorGroup*	screenOutput2DCreator( BufferString& errmsg );
+    ExecutorGroup*	screenOutput2DCreator(BufferString& errmsg);
     ExecutorGroup*	locationOutputCreator(BufferString& errmsg,
-					   ObjectSet<BinIDValueSet>&);
+					      ObjectSet<BinIDValueSet>&);
 
     ExecutorGroup*	trcSelOutputCreator(BufferString& errmsg,
 	    				    const BinIDValueSet& bidvalset,
 	    				    SeisTrcBuf&);
 
-    void		prOut(std::ostream&,int);
     const char*		curUserDesc() const;
 
 protected:
 
     const DescSet* 	inpattrset;
     const NLAModel*	nlamodel;
-    CubeSampling&	cs;
+    CubeSampling&	cs_;
     SliceSet*		cache;
-    int			attrid2;
     float		udfval;
     BufferString	linekey;
 
     const DescSet* 	curattrset;
     DescSet*		procattrset;
-    int			curattrid;
-    TypeSet<int>	outattribs;
+    DescID		curattrid;
+    TypeSet<DescID>	outattribs;
     SelSpec&      	attrspec;
 
-    bool		getProcessors( ObjectSet<Processor>&, 
-	    				BufferString& errmsg, bool, 
-	    				bool addcurid = true );
+    bool		getProcessors(ObjectSet<Processor>&, 
+				      BufferString& errmsg, bool, 
+	    			      bool addcurid=true);
     BufferString	createExecutorName();
 
 private:

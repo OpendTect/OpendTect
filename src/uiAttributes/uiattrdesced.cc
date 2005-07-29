@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.4 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "survinfo.h"
 #include "uiattrfact.h"
+
+using namespace Attrib;
 
 const char* uiAttrDescEd::timegatestr = "Time gate";
 const char* uiAttrDescEd::stepoutstr = "Stepout";
@@ -56,7 +58,7 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 {
     fld->processInput();
-    const int attribid = fld->attribID();
+    const DescID attribid = fld->attribID();
 
     const Attrib::Desc* inpdesc = desc.getInput( inp );
     if ( inpdesc )

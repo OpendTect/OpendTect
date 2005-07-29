@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id:
+ RCS:           $Id: attribengman.cc,v 1.7 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,11 @@ EngineMan::EngineMan()
 	: inpattrset(0)
 	, procattrset(0)
 	, nlamodel(0)
-	, cs(*new CubeSampling)
+	, cs_(*new CubeSampling)
 	, attrspec(*new SelSpec)
 	, cache(0)
 	, udfval( mUdf(float) )
+	, curattrid(DescID::undef())
 {
 }
 
@@ -54,83 +55,81 @@ EngineMan::~EngineMan()
 {
     delete inpattrset;
     delete nlamodel;
-    delete &cs;
+    delete &cs_;
     if ( cache ) cache->unRef();
 }
 
 
 void EngineMan::getPossibleVolume( const DescSet& attribset, CubeSampling& cs,
-				    const char* linename, int outid )
+				   const char* linename, const DescID& outid )
 {
     ObjectSet<Processor> pset;
-    TypeSet<int> iddesired;
-    iddesired += outid;
-    createProcSet( pset, attribset, linename, iddesired );
-    pset[0]->getProvider()->setDesiredVolume(cs);
-    pset[0]->getProvider()->getPossibleVolume(-1, cs);
+    TypeSet<DescID> desiredids;
+    desiredids += outid;
+    createProcSet( pset, attribset, linename, desiredids );
+    pset[0]->getProvider()->setDesiredVolume( cs );
+    pset[0]->getProvider()->getPossibleVolume( -1, cs );
     deepErase( pset );
-    
 }
 
 
-void EngineMan::usePar( const IOPar& iopar, 
-			const DescSet& attribset, 
-	      		const char* linename,
-			ObjectSet<Processor>& pset )
+void EngineMan::usePar( const IOPar& iopar, const DescSet& attribset, 
+	      		const char* linename, ObjectSet<Processor>& pset )
 {
-    int indexoutp = 0;
-    TypeSet<int> idstor;
+    int outputidx = 0;
+    TypeSet<DescID> ids;
     while ( true )
     {    
-	BufferString multoutpstr = IOPar::compKey( "Output", indexoutp );
-	PtrMan<IOPar> output = iopar.subselect( multoutpstr );
-	if ( !output )
+	BufferString outpstr = IOPar::compKey( "Output", outputidx );
+	PtrMan<IOPar> outputpar = iopar.subselect( outpstr );
+	if ( !outputpar )
 	{
-	    if ( !indexoutp )
-	    { indexoutp++; continue; }
+	    if ( !outputidx )
+	    { outputidx++; continue; }
 	    else 
 		break;
 	}
 
-	int indexattrib = 0;
+	int attribidx = 0;
 	while ( true )
 	{
 	    BufferString attribidstr = 
-			IOPar::compKey( "Attributes", indexattrib );
+			IOPar::compKey( "Attributes", attribidx );
 	    int attribid;
-	    if ( !output->get(attribidstr,attribid) )
+	    if ( !outputpar->get(attribidstr,attribid) )
 		break;
 
-	    idstor += attribid;
-	    indexattrib++;
+	    ids += DescID(attribid,true);
+	    attribidx++;
 	}
 
-	indexoutp++;
+	outputidx++;
     }
 
-    createProcSet( pset, attribset, linename, idstor );
-    
-    iopar.get( "Output.1.In-line range", cs.hrg.start.inl, cs.hrg.stop.inl );
-    iopar.get( "Output.1.Cross-line range", cs.hrg.start.crl, cs.hrg.stop.crl );
-    iopar.get( "Output.1.Depth range", cs.zrg.start, cs.zrg.stop );
-    cs.zrg.start /= SI().zFactor();
-    cs.zrg.stop /= SI().zFactor();
+    createProcSet( pset, attribset, linename, ids );
 
-    LineKey lkey(linename,attribset.getDesc(idstor[0])->attribName());
+    iopar.get( "Output.1.In-line range", cs_.hrg.start.inl, cs_.hrg.stop.inl );
+    iopar.get( "Output.1.Cross-line range",cs_.hrg.start.crl, cs_.hrg.stop.crl);
+    iopar.get( "Output.1.Depth range", cs_.zrg.start, cs_.zrg.stop );
+    cs_.zrg.start /= SI().zFactor();
+    cs_.zrg.stop /= SI().zFactor();
+
+    LineKey lkey( linename, attribset.getDesc(ids[0])->attribName() );
     CubeOutput* cubeoutp = createOutput( iopar, lkey );
     for ( int idx=0; idx<pset.size(); idx++ )
-	pset[idx]->addOutput(cubeoutp);
+	pset[idx]->addOutput( cubeoutp );
 }
 
 
 void EngineMan::createProcSet( ObjectSet<Processor>& pset,
-				const DescSet& attribset,
-				const char* linename, TypeSet<int> outids )
+			       const DescSet& attribset,
+			       const char* linename,
+			       const TypeSet<DescID>& outids )
 {
     ObjectSet<Desc> targetdescset;
     if ( !outids.size() ) return;
     
-    Desc* targetdesc = 	const_cast<Desc*>(attribset.getDesc(outids[0]));
+    Desc* targetdesc = const_cast<Desc*>(attribset.getDesc(outids[0]));
     targetdescset += targetdesc;
     
     Processor* processor = new Processor( *targetdesc, linename );
@@ -139,10 +138,10 @@ void EngineMan::createProcSet( ObjectSet<Processor>& pset,
 
     for ( int index=1; index<outids.size(); index++ )
     {
-	Desc* candidate = const_cast<Desc*>( attribset.getDesc(outids[index]) );
+	Desc* candidate = const_cast<Desc*>(attribset.getDesc(outids[index]));
 	if ( candidate )
 	{
-	    for ( int idx=0; idx< targetdescset.size(); idx++ )
+	    for ( int idx=0; idx<targetdescset.size(); idx++ )
 	    {
 		if ( candidate->isIdenticalTo( *targetdescset[idx], false ) )
 		{
@@ -170,7 +169,7 @@ CubeOutput* EngineMan::createOutput( const IOPar& pars, LineKey lkey )
 
     if ( !strcmp( typestr, "Cube") )
     {
-	CubeOutput* outp = new CubeOutput(cs, lkey);
+	CubeOutput* outp = new CubeOutput(cs_, lkey);
 	outp->doUsePar(pars);
 	return outp;
     }
@@ -247,7 +246,7 @@ SliceSet* EngineMan::getSliceSetOutput()
     }
     
     SliceSet* outslcs = new SliceSet;
-    CubeSampling csamp(cs);
+    CubeSampling csamp(cs_);
     outslcs->sampling = csamp;
     outslcs->direction = csamp.defaultDir();
 #define mGetDim(nr) \
@@ -351,12 +350,12 @@ void EngineMan::setAttribSpec( const SelSpec& a )
 
 void EngineMan::setCubeSampling( const CubeSampling& newcs )
 {
-    cs = newcs;
-    cs.normalise();
+    cs_ = newcs;
+    cs_.normalise();
 }
 
 
-void EngineMan::addOutputAttrib( int id )
+void EngineMan::addOutputAttrib( const DescID& id )
 {
     outattribs += id;
 }
@@ -365,8 +364,8 @@ void EngineMan::addOutputAttrib( int id )
 #define mErrRet() \
 	delete ads; ad->unRef(); return 0
 
-DescSet* EngineMan::createNLAADS( int& outpid, BufferString& errmsg,
-       				   const DescSet* addtoset )
+DescSet* EngineMan::createNLAADS( DescID& outpid, BufferString& errmsg,
+       				  const DescSet* addtoset )
 {
     DescSet* ads = addtoset ? addtoset->clone() : new DescSet;
     Desc* ad = 0;
@@ -395,11 +394,11 @@ DescSet* EngineMan::createNLAADS( int& outpid, BufferString& errmsg,
     for ( int idx=0; idx<nrinputs; idx++ )
     {
 	const char* inpname = ad->inputSpec(idx).getDesc();
-	int dnr = ads->getID( inpname, true );
-	if ( dnr < 0 && IOObj::isKey(inpname) )
+	DescID descid = ads->getID( inpname, true );
+	if ( descid < 0 && IOObj::isKey(inpname) )
 	{
-	    dnr = ads->getID( inpname, false );
-	    if ( dnr < 0 )
+	    descid = ads->getID( inpname, false );
+	    if ( descid < 0 )
 	    {
 		// It could be 'storage', but it's not yet in the set ...
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
@@ -411,8 +410,8 @@ DescSet* EngineMan::createNLAADS( int& outpid, BufferString& errmsg,
 		    if ( !newdesc->parseDefStr(inpname) )
 			mErrRet();
 		    newdesc->setUserRef( ioobj->name() );
-		    dnr = ads->addDesc( newdesc );
-		    if ( dnr < 0 )
+		    descid = ads->addDesc( newdesc );
+		    if ( descid < 0 )
 		    {
 			errmsg = "NLA input '";
 			errmsg += inpname;
@@ -422,19 +421,21 @@ DescSet* EngineMan::createNLAADS( int& outpid, BufferString& errmsg,
 		}
 	    }
 	}
-	ad->setInput( idx, ads->getDesc(ads->getID(dnr)) );
+
+	ad->setInput( idx, ads->getDesc(descid) );
     }
 
     if ( attrspec.id() > ad->nrOutputs() )
     {
-	errmsg = "Output "; errmsg += attrspec.id(); errmsg += "not present.";
+	errmsg = "Output "; errmsg += attrspec.id().asInt(); 
+	errmsg += " not present.";
 	mErrRet();
     }
     
-    ad->selectOutput(attrspec.id());
+    ad->selectOutput( attrspec.id().asInt() );
 
-    outpid = ads->getID( ads->addDesc( ad ) );
-    if ( outpid == -1 )
+    outpid = ads->addDesc( ad );
+    if ( outpid == DescID::undef() )
     {
 	errmsg = ads->errMsg();
 	mErrRet();
@@ -467,11 +468,11 @@ BufferString EngineMan::createExecutorName( )
     }
     else
     {
-	const int descnr = inpattrset->getID( attrspec.id() );
-	const Desc* ad = inpattrset->getDesc( descnr );
+	const Desc* ad = inpattrset->getDesc( attrspec.id() );
 	if ( ad->isStored() )
 	    nm = "Reading from";
     }
+
     nm += " \"";
     nm += usernm;
     nm += "\"";
@@ -495,9 +496,9 @@ ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
     for ( int idx=0; idx<procset.size(); idx++ )
     {
 	LineKey lkey(linekey.buf(),procset[idx]->getAttribName());
-	CubeOutput* attrout = new CubeOutput(cs,lkey);
+	CubeOutput* attrout = new CubeOutput( cs_, lkey );
 	attrout->set2D();
-	attrout->setGeometry( cs );
+	attrout->setGeometry( cs_ );
 	procset[idx]->addOutput( attrout ); 
     }
 
@@ -516,22 +517,22 @@ ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
 ExecutorGroup* EngineMan::sliceSetOutputCreator( BufferString& errmsg,
 				      const SliceSet* prev )
 {
-    if ( cs.isEmpty() )
+    if ( cs_.isEmpty() )
 	prev = 0;
 #define mRg(dir) (prev->sampling.dir##rg)
     else if ( prev )
     {
 	cache = const_cast<SliceSet*> (prev);
-	if ( !mRg(z).isCompatible( cs.zrg, mStepEps )
-	  || mRg(h).step != cs.hrg.step
-	  || (mRg(h).start.inl - cs.hrg.start.inl) % cs.hrg.step.inl
-	  || (mRg(h).start.crl - cs.hrg.start.crl) % cs.hrg.step.crl 
-	  || mRg(h).start.inl > cs.hrg.stop.inl
-	  || mRg(h).stop.inl < cs.hrg.start.inl
-	  || mRg(h).start.crl > cs.hrg.stop.crl
-	  || mRg(h).stop.crl < cs.hrg.start.crl
-	  || mRg(z).start > cs.zrg.stop + mStepEps*cs.zrg.step
-	  || mRg(z).stop < cs.zrg.start - mStepEps*cs.zrg.step )
+	if ( !mRg(z).isCompatible( cs_.zrg, mStepEps )
+	  || mRg(h).step != cs_.hrg.step
+	  || (mRg(h).start.inl - cs_.hrg.start.inl) % cs_.hrg.step.inl
+	  || (mRg(h).start.crl - cs_.hrg.start.crl) % cs_.hrg.step.crl 
+	  || mRg(h).start.inl > cs_.hrg.stop.inl
+	  || mRg(h).stop.inl < cs_.hrg.start.inl
+	  || mRg(h).start.crl > cs_.hrg.stop.crl
+	  || mRg(h).stop.crl < cs_.hrg.start.crl
+	  || mRg(z).start > cs_.zrg.stop + mStepEps*cs_.zrg.step
+	  || mRg(z).stop < cs_.zrg.start - mStepEps*cs_.zrg.step )
 	    // No overlap, gotta crunch all the numbers ...
 	    prev = 0;
     }
@@ -550,57 +551,57 @@ ExecutorGroup* EngineMan::sliceSetOutputCreator( BufferString& errmsg,
 	{ deepErase( procset ); return 0; }
 
     if ( !prev )
-	mAddAttrOut( cs )
+	mAddAttrOut( cs_ )
     else
     {
-	CubeSampling todocs( cs );
-	if ( mRg(h).start.inl > cs.hrg.start.inl )
+	CubeSampling todocs( cs_ );
+	if ( mRg(h).start.inl > cs_.hrg.start.inl )
 	{
-	    todocs.hrg.stop.inl = mRg(h).start.inl - cs.hrg.step.inl;
+	    todocs.hrg.stop.inl = mRg(h).start.inl - cs_.hrg.step.inl;
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(h).stop.inl < cs.hrg.stop.inl )
+	if ( mRg(h).stop.inl < cs_.hrg.stop.inl )
 	{
-	    todocs = cs;
-	    todocs.hrg.start.inl = mRg(h).stop.inl + cs.hrg.step.inl;
+	    todocs = cs_;
+	    todocs.hrg.start.inl = mRg(h).stop.inl + cs_.hrg.step.inl;
 	    mAddAttrOut( todocs )
 	}
 
-	const int startinl = mMAX(cs.hrg.start.inl, mRg(h).start.inl );
-	const int stopinl = mMIN( cs.hrg.stop.inl, mRg(h).stop.inl );
+	const int startinl = mMAX(cs_.hrg.start.inl, mRg(h).start.inl );
+	const int stopinl = mMIN( cs_.hrg.stop.inl, mRg(h).stop.inl );
 
-	if ( mRg(h).start.crl > cs.hrg.start.crl )
+	if ( mRg(h).start.crl > cs_.hrg.start.crl )
 	{
-	    todocs = cs;
+	    todocs = cs_;
 	    todocs.hrg.start.inl = startinl; todocs.hrg.stop.inl = stopinl;
-	    todocs.hrg.stop.crl = mRg(h).start.crl - cs.hrg.step.crl;
+	    todocs.hrg.stop.crl = mRg(h).start.crl - cs_.hrg.step.crl;
 	    mAddAttrOut( todocs )
 	}
 	
-	if ( mRg(h).stop.crl < cs.hrg.stop.crl )
+	if ( mRg(h).stop.crl < cs_.hrg.stop.crl )
 	{
-	    todocs = cs;
+	    todocs = cs_;
 	    todocs.hrg.start.inl = startinl; todocs.hrg.stop.inl = stopinl;
-	    todocs.hrg.start.crl = mRg(h).stop.crl + cs.hrg.step.crl;
+	    todocs.hrg.start.crl = mRg(h).stop.crl + cs_.hrg.step.crl;
 	    mAddAttrOut( todocs )
 	}
 
-	todocs = cs;
+	todocs = cs_;
 	todocs.hrg.start.inl = startinl; todocs.hrg.stop.inl = stopinl;
-	todocs.hrg.start.crl = mMAX(cs.hrg.start.crl, mRg(h).start.crl );
-	todocs.hrg.stop.crl = mMIN(cs.hrg.stop.crl, mRg(h).stop.crl );
+	todocs.hrg.start.crl = mMAX(cs_.hrg.start.crl, mRg(h).start.crl );
+	todocs.hrg.stop.crl = mMIN(cs_.hrg.stop.crl, mRg(h).stop.crl );
 
-	if ( mRg(z).start > cs.zrg.start + mStepEps*cs.zrg.step )
+	if ( mRg(z).start > cs_.zrg.start + mStepEps*cs_.zrg.step )
 	{
-	    todocs.zrg.stop = mRg(z).start - cs.zrg.step;
+	    todocs.zrg.stop = mRg(z).start - cs_.zrg.step;
 	    mAddAttrOut( todocs )
 	}
 	    
-	if ( mRg(z).stop < cs.zrg.stop - mStepEps*cs.zrg.step )
+	if ( mRg(z).stop < cs_.zrg.stop - mStepEps*cs_.zrg.step )
 	{
-	    todocs.zrg = cs.zrg;
-	    todocs.zrg.start = mRg(z).stop + cs.zrg.step;
+	    todocs.zrg = cs_.zrg;
+	    todocs.zrg.start = mRg(z).stop + cs_.zrg.step;
 	    mAddAttrOut( todocs )
 	}
     }
@@ -631,7 +632,7 @@ AEMFeatureExtracter( EngineMan& em, const BufferStringSet& inputs,
     const DescSet* attrset = em.procattrset ? em.procattrset : em.inpattrset;
     for ( int idx=0; idx<attrset->nrDescs(); idx++ )
     {
-	const int descid = attrset->getID( idx );
+	const DescID descid = attrset->getID( idx );
 	const Desc* ad = attrset->getDesc( descid );
 	if ( !ad ) continue;
 
@@ -778,8 +779,8 @@ ExecutorGroup* EngineMan::locationOutputCreator( BufferString& errmsg,
 #define mErrRet(s) { errmsg = s; return false; }
 
 bool EngineMan::getProcessors( ObjectSet<Processor>& pset, 
-				BufferString& errmsg, bool needid, 
-				bool addcurid )
+			       BufferString& errmsg, bool needid, 
+			       bool addcurid )
 {
     errmsg = "";
     if ( procattrset )

@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.2 2005-07-28 14:35:39 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribsel.h"
 #include "attribdescset.h"
-#include "attribdesc.h"
 #include "attribstorprovider.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
@@ -30,9 +29,9 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-const int SelSpec::otherAttrib = -1;
-const int SelSpec::noAttrib = -2;
-const int SelSpec::attribNotSel = -3;
+const DescID SelSpec::otherAttrib = DescID(-1,true);
+const DescID SelSpec::noAttrib = DescID(-2,true);
+const DescID SelSpec::attribNotSel = DescID(-3,true);
 
 const char* SelSpec::refstr = "Attrib Reference";
 const char* SelSpec::idstr = "Attrib ID";
@@ -65,7 +64,7 @@ void SelSpec::set( const Desc& desc )
 void SelSpec::set( const NLAModel& nlamod, int nr )
 {
     isnla_ = true;
-    id_ = nr;
+    id_ = DescID(nr,true);
     setRefFromID( nlamod );
 }
 
@@ -92,11 +91,11 @@ void SelSpec::setIDFromRef( const NLAModel& nlamod )
 {
     isnla_ = true;
     const int nrout = nlamod.design().outputs.size();
-    id_ = -2;
+    id_ = noAttrib;
     for ( int idx=0; idx<nrout; idx++ )
     {
 	if ( ref_ == *nlamod.design().outputs[idx] )
-	    { id_ = idx; break; }
+	    { id_ = DescID(idx,true); break; }
     }
     setDiscr( nlamod );
 }
@@ -112,7 +111,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 
 void SelSpec::setRefFromID( const NLAModel& nlamod )
 {
-    ref_ = id_ >= 0 ? nlamod.design().outputs[id_]->buf() : "";
+    ref_ = id_.asInt() >= 0 ? nlamod.design().outputs[id_.asInt()]->buf() : "";
     setDiscr( nlamod );
 }
 
@@ -128,7 +127,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 void SelSpec::fillPar( IOPar& par ) const
 {
     par.set( refstr, ref_ );
-    par.set( idstr, id_ );
+    par.set( idstr, id_.asInt() );
     par.setYN( isnlastr, isnla_ );
     par.set( objrefstr, objref_ );
 }
@@ -137,7 +136,7 @@ void SelSpec::fillPar( IOPar& par ) const
 bool SelSpec::usePar( const IOPar& par )
 {
     ref_ = ""; 		par.get( refstr, ref_ );
-    id_ = -2; 		par.get( idstr, id_ );
+    id_ = noAttrib;	par.get( idstr, id_.asInt() );
     isnla_ = false; 	par.getYN( isnlastr, isnla_ );
     			par.getYN( isnnstr, isnla_ );
     objref_ = "";	par.get( objrefstr, objref_ );
@@ -148,7 +147,7 @@ bool SelSpec::usePar( const IOPar& par )
 
 
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
-		  Pol2D pol, int ignoreid )
+		  Pol2D pol, const DescID& ignoreid )
 {
     pol2d_ = pol;
     fillStored();
@@ -157,7 +156,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
     {
 	for ( int idx=0; idx<attrset->nrDescs(); idx++ )
 	{
-	    const int descid = attrset->getID( idx );
+	    const DescID descid = attrset->getID( idx );
 	    const Desc* desc = attrset->getDesc( descid );
 	    if ( !desc || 
 		 !strcmp(desc->attribName(),StorageProvider::attribName()) || 
@@ -278,7 +277,7 @@ const char* ColorSelSpec::datatypestr = "Color-Attrib datatype";
 void ColorSelSpec::fillPar( IOPar& par ) const
 {
     par.set( refstr, as.userRef() );
-    par.set( idstr, as.id() );
+    par.set( idstr, as.id().asInt() );
     par.setYN( isnlastr, as.isNLA() );
     par.set( datatypestr, datatype );
 }
@@ -286,9 +285,9 @@ void ColorSelSpec::fillPar( IOPar& par ) const
 
 bool ColorSelSpec::usePar( const IOPar& par )
 {
-    BufferString ref; int id; bool isnla;
+    BufferString ref; DescID id(-1,true); bool isnla;
     if ( !par.get(refstr,ref) ) return false;
-    if ( !par.get(idstr,id) ) return false;
+    if ( !par.get(idstr,id.asInt()) ) return false;
     if ( !par.getYN(isnlastr,isnla) ) return false;
     as.set( ref.buf(), id, isnla, "" );
     datatype = 0;

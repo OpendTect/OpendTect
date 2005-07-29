@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.3 2005-07-28 14:51:21 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.4 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -470,12 +470,10 @@ void uiAttribDescSetEd::updateUserRefs()
     userattrnames.deepErase();
     attrdescs.erase();
 
-    const int nrattrs = attrset->nrDescs();
-    TypeSet<int> ids;
-    attrset->getIds( ids );
-    for ( int iattr=0; iattr<nrattrs; iattr++ )
+    for ( int iattr=0; iattr<attrset->nrDescs(); iattr++ )
     {
-	Desc* desc = attrset->getDesc( ids[iattr] );
+	const DescID descid = attrset->getID( iattr );
+	Desc* desc = attrset->getDesc( descid );
 	if ( !desc || desc->isHidden() || desc->isStored() ) continue;
 
 	attrdescs += desc;
@@ -528,7 +526,7 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
     if ( strlen(newnm) < 2 )
 	mErrRetFalse( "Please enter a name of at least 2 characters." );
 
-    TypeSet<int> ids;
+    TypeSet<DescID> ids;
     attrset->getIds( ids );
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -540,6 +538,7 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 	    return false;
 	}
     }
+
     return true;
 }
 
@@ -634,7 +633,7 @@ void uiAttribDescSetEd::openSet( CallBacker* )
 	    newList( -1 );
 	    attrsetfld->setText( setctio.ioobj->name() );
 	    adsman->setSaved( true );
-	    TypeSet<int> ids;
+	    TypeSet<DescID> ids;
 	    attrset->getIds( ids );
 	    for ( int idx=0; idx<attrset->nrDescs(); idx++ )
 	    {
@@ -837,9 +836,9 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
 
 void uiAttribDescSetEd::replaceStoredAttr()
 {
-    TypeSet<int> idset;
+    TypeSet<DescID> idset;
     BufferStringSet defstrs;
-    TypeSet<int> attrids;
+    TypeSet<DescID> attrids;
     attrset->getIds( attrids );
     for ( int idx=0; idx<attrids.size(); idx++ )
     {
@@ -860,8 +859,8 @@ void uiAttribDescSetEd::replaceStoredAttr()
     for ( int idnr=0; idnr<idset.size(); idnr++ )
     {
 	usrrefs.erase();
-	int crldipid = -1;
-	TypeSet<int> attrids;
+	DescID crldipid = DescID::undef();
+	TypeSet<DescID> attrids;
 	attrset->getIds( attrids );
 	for ( int idx=0; idx<attrids.size(); idx++ )
         {
@@ -876,13 +875,13 @@ void uiAttribDescSetEd::replaceStoredAttr()
             }
         }
 
-	Desc* ad = attrset->getDesc( attrset->getID(idset[idnr]));
+	Desc* ad = attrset->getDesc( idset[idnr] );
 	
 	if ( !usrrefs.size() )
 	{
-	    BufferString bfstr;
-	    ad->getDefStr(bfstr);
-	    notused.add(bfstr.buf());
+	    BufferString defstr;
+	    ad->getDefStr( defstr );
+	    notused.add( defstr );
 	    continue;
 	}
 
@@ -902,9 +901,9 @@ void uiAttribDescSetEd::replaceStoredAttr()
     {
 	while( true )
 	{
-	    const int dscnr = attrset->getID( notused[0]->buf(), false );
-	    if ( dscnr < 0 ) break;
-	    attrset->removeDesc( dscnr );
+	    const DescID descid = attrset->getID( notused[0]->buf(), false );
+	    if ( descid < 0 ) break;
+	    attrset->removeDesc( descid );
 	}
     }
 

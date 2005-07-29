@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.1 2005-05-31 12:54:32 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "uiiosel.h"
+#include "attribdescid.h"
 
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
 
@@ -30,12 +31,12 @@ class uiAttrSelData
 {
 public:
 				uiAttrSelData( const Attrib::DescSet* a )
-				: attrset(a), attribid(-1)
+				: attrset(a), attribid(-1,true)
 				, nlamodel(0), outputnr(-1)
 				, shwcubes(true)	{}
 
     const Attrib::DescSet*	attrset;
-    int				attribid;
+    Attrib::DescID		attribid;
     const NLAModel*		nlamodel;
     int				outputnr;
     bool			shwcubes;
@@ -61,11 +62,13 @@ public:
 
 			uiAttrSelDlg(uiParent*,const char* seltxt,
 				     const uiAttrSelData&,
-				     Pol2D pol2d=Both2DAnd3D,int ignoreid=-1);
+				     Pol2D pol2d=Both2DAnd3D,
+				     Attrib::DescID ignoreid=
+				     		Attrib::DescID(-1,true));
 			~uiAttrSelDlg();
 
 			// if ( go() ) ...
-    int			attribID() const	{ return attrdata.attribid; }
+    Attrib::DescID	attribID() const	{ return attrdata.attribid; }
 			//!< -1 if not selected
     int			outputNr() const	{ return attrdata.outputnr; }
 			//!< -1 if not selected
@@ -109,12 +112,13 @@ class uiAttrSel : public uiIOSelect
 {
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet*,
-				  const char* txt=0,int curid=-1);
+				  const char* txt=0,
+				  Attrib::DescID curid=Attrib::DescID::undef());
 			uiAttrSel(uiParent*,const char*,
 				  const uiAttrSelData&);
 			~uiAttrSel()		{}
 
-    int			attribID() const	{ return attrdata.attribid; }
+    Attrib::DescID	attribID() const	{ return attrdata.attribid; }
     int			outputNr() const	{ return attrdata.outputnr; }
     bool		is2D() const		{ return is2d; }
     void		set2D(bool yn)		{ is2d = yn; }
@@ -127,7 +131,7 @@ public:
     void		setNLAModel(const NLAModel*);
 
     void		setIgnoreDesc(const Attrib::Desc*);
-    void		setIgnoreID( int id )	{ ignoreid = id; }
+    void		setIgnoreID( Attrib::DescID id ) { ignoreid = id; }
 
     virtual void	getHistory(const IOPar&);
     virtual void	processInput();
@@ -144,7 +148,7 @@ protected:
 
     uiAttrSelData	attrdata;
     bool		is2d;
-    int			ignoreid;
+    Attrib::DescID	ignoreid;
     BufferString	errmsg;
     mutable BufferString usrnm;
 
@@ -161,11 +165,13 @@ class uiImagAttrSel : public uiAttrSel
 {
 public:
 			uiImagAttrSel(uiParent* p,const Attrib::DescSet* a,
-				      const char* txt=0,int curid=-1)
+				      const char* txt=0,
+				      Attrib::DescID curid=
+				      		Attrib::DescID(-1,true))
 			: uiAttrSel(p,a,txt,curid)	{}
 
-    inline int		realID() const		{ return attribID(); }
-    int			imagID() const;
+    inline Attrib::DescID realID() const		{ return attribID(); }
+    Attrib::DescID	imagID() const;
 
 };
 

@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Dec 2003
- RCS:           $Id: uisetpickdirs.h,v 1.1 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
+#include "attribdescid.h"
 
 namespace Attrib { class DescSet; class SelInfo; };
 
@@ -55,8 +56,9 @@ protected:
 
     bool			acceptOK(CallBacker*);
     bool			getAttribSelection(BoolTypeSet&,TypeSet<int>&);
-    bool			getNLAIds(TypeSet<int>&);
-    int				getAttribID(uiAttrSel*,const TypeSet<int>&);
+    bool			getNLAIds(TypeSet<Attrib::DescID>&);
+    Attrib::DescID		getAttribID(uiAttrSel*,
+	    				    const TypeSet<Attrib::DescID>&);
     FeatureSet* 		calcAttribs(const BinIDValueSet&,
 	    				    const BoolTypeSet&);
 

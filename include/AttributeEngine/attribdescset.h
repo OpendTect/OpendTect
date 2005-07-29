@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.11 2005-07-28 14:28:04 cvsbert Exp $
+ RCS:           $Id: attribdescset.h,v 1.12 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "multiid.h"
+#include "attribdescid.h"
 
 class BufferStringSet;
 class IOPar;
@@ -27,41 +28,41 @@ class DescSet
 public:
     				~DescSet() { removeAll(); }
     DescSet*			clone() const;
-    DescSet*			optimizeClone(int targetid) const;
-    DescSet*      		optimizeClone(const TypeSet<int>&) const;
+    DescSet*			optimizeClone(const DescID& targetid) const;
+    DescSet*      		optimizeClone(const TypeSet<DescID>&) const;
     				/*!< Only clones stuff needed to calculate
 				     the attrib with the ids given */
 
-    int				addDesc(Desc*,int newid=-1);
+    DescID			addDesc(Desc*,DescID newid=DescID(-1,true));
 				/*!<\returns id of the attrib */
 
-    Desc*       		getDesc(int id);
-    const Desc*			getDesc(int id) const;
+    Desc*       		getDesc(const DescID&);
+    const Desc*			getDesc(const DescID&) const;
 
     int				nrDescs() const;
-    int				getID(const Desc&) const;
-    int				getID(int) const;
-    int				getID(const char* ref,bool isusrref) const;
-    void			getIds(TypeSet<int>&) const;
-    int				getStoredID(const char* lk,int selout=0,
+    DescID			getID(const Desc&) const;
+    DescID			getID(int) const;
+    DescID			getID(const char* ref,bool isusrref) const;
+    void			getIds(TypeSet<DescID>&) const;
+    DescID			getStoredID(const char* lk,int selout=0,
 	    				    bool create=true);
     bool 			getFirstStored(Pol2D p2d, MultiID& key) const;
     Desc* 			getFirstStored(Pol2D p2d);
 
-    void			removeDesc(int id);
+    void			removeDesc(const DescID&);
     void			removeAll();
     int                 	removeUnused(bool removestored=false);
 				//!< Removes unused hidden attributes.
 				//!< Removed stored attribs if not available
 				//!< or if removestored flag is true;
 				//!< Returns total removed.
-    bool 			isAttribUsed( int id ) const;
+    bool 			isAttribUsed(const DescID&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&,BufferStringSet* errmsgs=0);
-    bool			createSteeringDesc( const IOPar&, BufferString,
-						    ObjectSet<Desc>&, 
-						    BufferStringSet* errmsgs=0);
+    bool			createSteeringDesc(const IOPar&,BufferString,
+						   ObjectSet<Desc>&, 
+						   BufferStringSet* errmsgs=0);
 	    
 
     bool			is2D() const;
@@ -74,14 +75,14 @@ public:
 
 protected:
 
-    int				getFreeID() const;
+    DescID			getFreeID() const;
 
     ObjectSet<Desc>		descs;
-    TypeSet<int>		ids;
+    TypeSet<DescID>		ids;
     BufferString		errmsg;
 };
 
-}; // namespace Attrib
+} // namespace Attrib
 
 #endif
 

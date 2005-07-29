@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,7 +261,7 @@ bool uiAttrVolOut::fillPar( IOPar& iopar )
 }
 
 
-void uiAttrVolOut::addNLA( int& id )
+void uiAttrVolOut::addNLA( DescID& id )
 {
     /*
     Desc* ad = new CalcAttribDesc( ads );

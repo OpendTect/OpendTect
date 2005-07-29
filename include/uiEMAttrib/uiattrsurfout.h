@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.4 2005-07-29 13:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibatchlaunch.h"
+#include "attribdescid.h"
 
 class CtxtIOObj;
 class IOPar;
@@ -41,7 +42,7 @@ protected:
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
-    bool		addNLA(int&);
+    bool		addNLA(Attrib::DescID&);
     void		attribSel(CallBacker*);
 
     CtxtIOObj&		ctio;
