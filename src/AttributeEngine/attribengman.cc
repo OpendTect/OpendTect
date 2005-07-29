@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.7 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.8 2005-07-29 15:50:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,9 +53,11 @@ EngineMan::EngineMan()
 
 EngineMan::~EngineMan()
 {
+    delete procattrset;
     delete inpattrset;
     delete nlamodel;
     delete &cs_;
+    delete &attrspec;
     if ( cache ) cache->unRef();
 }
 

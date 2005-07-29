@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.9 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.10 2005-07-29 15:50:56 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -91,6 +91,7 @@ void SliceSetOutput::collectData( const BinID& bid,
     if ( !sliceset )
     {
 	sliceset = new Attrib::SliceSet;
+	sliceset->ref();
 	sliceset->sampling = desiredvolume;
 	sliceset->sampling.zrg.step = refstep; 
 	sliceset->direction = desiredvolume.defaultDir();
