@@ -4,16 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.6 2005-04-18 07:15:01 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.7 2005-07-29 07:01:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "batchprog.h"
-#include "attribdescsetproc.h"
+#include "attribstorprovider.h"
 #include "attribdescset.h"
+#include "attribdesc.h"
 #include "attribdescsettr.h"
-#include "attribexecutor.h"
+#include "attribprocessor.h"
+#include "attribengman.h"
+#include "attriboutput.h"
+#include "batchprog.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -33,14 +36,14 @@ ________________________________________________________________________
 #include "parametricsurface.h"
 #include "executor.h"
 #include "survinfo.h"
-#include "attribengman.h"
-#include "attriboutputimpl.h"
+
 #include "attribsel.h"
+#include "attribfactory.h"
+#include "attrfact.h"
 
 
-#include "attribfact.h"
 #define mDestroyWorkers \
-	{ delete exec; exec = 0; }
+	{ delete execgr; execgr = 0; }
 
 
 #define mErrRet(s) \
@@ -53,7 +56,7 @@ ________________________________________________________________________
 static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 			    bool stepout )
 {
-    AttribDescSet initialset;
+    Attrib::DescSet initialset;
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
     if ( !initialset.usePar( *attribs ) )
 	mErrRet( initialset.errMsg() )
@@ -62,17 +65,8 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     if ( !res )
 	mErrRet( "No target attribute found" )
     int outid = atoi( res );
-    if ( initialset.descNr(outid) < 0 )
+    if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
-
-    if ( !stepout )
-	strm << "1" << std::endl;
-    else
-    {
-	PtrMan<AttribDescSet> attrset = initialset.optimizeClone( outid );
-	BinID maxstepout( attrset->getMaximumStepout() );
-	strm << maxstepout.inl << ' ' << maxstepout.crl << std::endl;
-    }
 
     return true;
 }
@@ -191,6 +185,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 bool BatchProgram::go( std::ostream& strm )
 {
+    Attrib::initAttribClasses();
     if ( cmdLineOpts().size() )
     {
 	BufferString opt = *cmdLineOpts()[0];
@@ -201,8 +196,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     showHostName( strm );
 
-    AttribDescSetProcessor* proc = 0;
-    AttribOutputExecutor* exec = 0;
+    ExecutorGroup* execgr = 0;
 
     BufferString errmsg;
     MultiID mid;
@@ -213,7 +207,8 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<Executor> loader = EM::EMM().objectLoader( mid, 0 );
     if ( !loader || !loader->execute(&strm) ) mErrRet( "Cannot load surface" );
 
-    AttribDescSet attribset;
+    Attrib::StorageProvider::initClass();
+    Attrib::DescSet attribset;
     PtrMan<IOPar> attribs = pars().subselect( "Attributes" );
     if ( !attribset.usePar(*attribs) )
 	mErrRet( attribset.errMsg() )
@@ -221,8 +216,7 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<IOPar> output = pars().subselect( "Output.1" );
     if ( !output ) mErrRet( "No output specified" );
     
-    PtrMan<IOPar> attribsiopar = 
-			    output->subselect(CubeAttribOutput::attribkey);
+    PtrMan<IOPar> attribsiopar = output->subselect("Attributes");
     if ( !attribsiopar ) mErrRet( "No output specified" );
 
     TypeSet<int> attribids;
@@ -239,7 +233,7 @@ bool BatchProgram::go( std::ostream& strm )
     if ( !attribids.size() )
 	mErrRet( "No attributes selected" );
 
-    AttribEngMan aem;
+    Attrib::EngineMan aem;
     aem.setAttribSet( &attribset );
 
     BufferStringSet attribrefs;
@@ -248,14 +242,14 @@ bool BatchProgram::go( std::ostream& strm )
 	const int id_ = attribids[idx];
 	if ( !idx )
 	{
-	    AttribSelSpec selspec( 0, id_ );
+	    Attrib::SelSpec selspec( 0, id_ );
 	    aem.setAttribSpec( selspec );
 	}
 	else
 	    aem.addOutputAttrib( id_ );
 
-	AttribDesc& ad = attribset.getAttribDesc( attribset.descNr(id_) );
-	attribrefs.add( ad.userRef() );
+	Attrib::Desc* ad = attribset.getDesc( attribset.getID(id_) );
+	attribrefs.add( ad->userRef() );
     }
 
     // TODO: make a targetvalue for each output
@@ -267,21 +261,25 @@ bool BatchProgram::go( std::ostream& strm )
     ObjectSet<BinIDValueSet> bivs;
     getPositions( strm, mid, bivs );
 
-    exec = (AttribOutputExecutor*)aem.tableOutputCreator( errmsg, bivs );
+    execgr = aem.locationOutputCreator( errmsg, bivs );
 
     ProgressMeter progressmeter(strm);
-    strm << std::endl;
-    strm << "Estimated number of positions to be processed (regular survey): "
-	 << exec->totalNr() << std::endl;
-    strm << "Loading cube data ..." << std::endl;
 
     bool cont = true;
     bool loading = true;
-    bool oldcalc = false;
 
+    int nriter = 0;
     while ( 1 )
     {
-	int res = exec->nextStep();
+	int res = execgr->doStep();
+
+	if ( nriter==0 )
+	{
+	    strm << "Estimated number of positions to be processed"
+		 <<"(regular survey): " << execgr->totalNr() << std::endl;
+	    strm << "Loading cube data ..." << std::endl;
+	}
+
 	if ( res > 0 )
 	{
 	    if ( loading )
@@ -289,25 +287,16 @@ bool BatchProgram::go( std::ostream& strm )
 		loading = false;
 		mPIDMsg( "Processing started." );
 	    }
-	    if ( res > 1 )
-		mPIDMsg( exec->message() );
-
-	    bool newcalc = exec->calculating();
-	    if ( oldcalc != newcalc )
-	    {
-		progressmeter.resetDist();
-		oldcalc = newcalc;
-	    }
-
 	    ++progressmeter;
 	}
 	else
 	{
 	    if ( res == -1 )
-		mErrRet( exec->errMsg() )
+		mErrRet( "Cannot reach next position" )
 	    break;
 	}
     }
+    nriter++;
 
     progressmeter.finish();
     mPIDMsg( "Processing done." );
