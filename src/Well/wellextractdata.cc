@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.22 2004-07-21 12:14:08 nanne Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.23 2005-07-29 13:05:33 cvsnanne Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -606,9 +606,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	}
 	return valsseen[ maxvsidx ];
     }
-    else
-    {
-	pErrMsg( "SamplePol not supported" );
-	return vals[0];
-    }
+
+    pErrMsg( "SamplePol not supported" );
+    return vals[0];
 }
