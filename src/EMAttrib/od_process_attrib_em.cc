@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.7 2005-07-29 07:01:20 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.8 2005-07-29 13:43:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     const char* res = iopar.find( "Output.1.Attributes.0" );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    int outid = atoi( res );
+    DescID outid( atoi( res ), true ); 
     if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -248,7 +248,8 @@ bool BatchProgram::go( std::ostream& strm )
 	else
 	    aem.addOutputAttrib( id_ );
 
-	Attrib::Desc* ad = attribset.getDesc( attribset.getID(id_) );
+	DescID attribid( attribset.getID(id_) );
+	Attrib::Desc* ad = attribset.getDesc( attribid );
 	attribrefs.add( ad->userRef() );
     }
 
