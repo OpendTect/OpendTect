@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.8 2005-07-29 13:43:04 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.9 2005-07-29 15:11:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
+#include "attribdescid.h"
 #include "attribdescsettr.h"
 #include "attribprocessor.h"
 #include "attribengman.h"
@@ -64,7 +65,7 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     const char* res = iopar.find( "Output.1.Attributes.0" );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    DescID outid( atoi( res ), true ); 
+    Attrib::DescID outid( atoi( res ), true ); 
     if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -240,15 +241,15 @@ bool BatchProgram::go( std::ostream& strm )
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
 	const int id_ = attribids[idx];
+	Attrib::DescID attribid( attribset.getID(id_) );
 	if ( !idx )
 	{
-	    Attrib::SelSpec selspec( 0, id_ );
+	    Attrib::SelSpec selspec( 0, attribid  );
 	    aem.setAttribSpec( selspec );
 	}
 	else
-	    aem.addOutputAttrib( id_ );
+	    aem.addOutputAttrib( attribid );
 
-	DescID attribid( attribset.getID(id_) );
 	Attrib::Desc* ad = attribset.getDesc( attribid );
 	attribrefs.add( ad->userRef() );
     }
