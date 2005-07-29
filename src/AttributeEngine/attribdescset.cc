@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.17 2005-07-29 13:08:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.18 2005-07-29 14:49:23 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -29,8 +29,7 @@ DescSet* DescSet::clone() const
     {
 	Desc* nd = descs[idx]->clone();
 	nd->setDescSet( descset );
-	descset->descs += nd;
-	descset->ids += ids[idx];
+	descset->addDesc( nd, ids[idx] );
     }
 
     return descset;
