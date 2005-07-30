@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.18 2005-07-22 19:48:42 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.19 2005-07-30 02:44:18 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -64,6 +64,7 @@ public:
     				MeshSurfacePartPart(SoLODMeshSurface&,int,int);
     				~MeshSurfacePartPart();
     void			setStart( int row, int col );
+    int				getStart( bool row ) const;
     void			touch( int, int, bool undef );
     void			invalidateCaches();
     void			rayPick(SoRayPickAction*, bool );
@@ -265,6 +266,10 @@ void MeshSurfacePartPart::setStart( int row, int col )
 }
 
 
+int MeshSurfacePartPart::getStart( bool row ) const
+{ return row ? rowstart : colstart; }
+
+
 void MeshSurfacePartPart::touch( int i0, int i1, bool undef )
 {
     if ( !isInside(i0,i1) )
@@ -282,7 +287,7 @@ void MeshSurfacePartPart::invalidateCaches()
 void MeshSurfacePartPart::computeBBox( SoState* state, SbBox3f& box,
 				    SbVec3f& center, bool useownvalidation )
 {
-    if ( cache && ((useownvalidation&&ownvalidation) || cache->isValid(state)))
+    if ( cache && (useownvalidation ? ownvalidation : cache->isValid(state)) )
     {
 	box = cache->getBox();
 	if ( cache->isCenterSet() )
@@ -338,6 +343,7 @@ void MeshSurfacePartPart::computeBBox( SoState* state, SbBox3f& box,
     cache->set( box, ncoords, center );
     state->pop();
     SoCacheElement::setInvalid(storedinvalid);
+    ownvalidation = true;
 }
 
 #define mFindClosestNode( idx0, idx1, idx2 ) \
@@ -753,14 +759,18 @@ MeshSurfacePart::~MeshSurfacePart()
 
 void MeshSurfacePart::setStart( int row, int col )
 {
+    const int diff0 = row-start0, diff1 = col-start1;
     start0 = row; start1 = col;
 
     for ( int idx=0; idx<resolutions.getLength(); idx++ )
 	resolutions[idx]->setStart( row, col );
 
     for ( int idx=0; idx<bboxes.getLength(); idx++ )
-	bboxes[idx]->setStart( row, col );
-
+    {
+	const int oldrow = bboxes[idx]->getStart(true);
+	const int oldcol = bboxes[idx]->getStart(false);
+	bboxes[idx]->setStart( oldrow+diff0, oldcol+diff1 );
+    }
 }
 
 
@@ -806,8 +816,8 @@ void MeshSurfacePart::touch( int i0, int i1, bool undef )
 void MeshSurfacePart::computeBBox(SoState* state, SbBox3f& bbox,
 				  SbVec3f& center, bool useownvalidation )
 {
-    if ( (bboxcache && bboxcache->isValid(state)) ||
-	 (useownvalidation && bboxvalidation) )
+    if ( bboxcache &&
+	(useownvalidation ? bboxvalidation : bboxcache->isValid(state)) )
     {
 	bbox = bboxcache->getBox();
 	if ( bboxcache->isCenterSet() )
@@ -846,6 +856,7 @@ void MeshSurfacePart::computeBBox(SoState* state, SbBox3f& bbox,
     bboxcache->set( bbox, nrboxes, center );
     state->pop();
     SoCacheElement::setInvalid(storedinvalid);
+    bboxvalidation = true;
 }
 
 
@@ -1569,32 +1580,24 @@ bool MeshSurfacePartResolution::needsUpdate( bool ownvalidation) const
 bool MeshSurfacePartResolution::getNormal( int relrow,
 			int relcol, bool useownvalidation, SbVec3f& res )
 {
+    const int normalsperrow = nrCols();
+    int normalindex = mGetNormalIndex(relrow,relcol);
+#if __debug__
+    if ( normalindex<0 )
+    {
+	SoDebugError::postWarning("MeshSurfacePartResolution::getNormal",
+				      "normalindex is negative");
+	normalindex = 0;
+    }
+#endif
+
     if ( cache && useownvalidation && cachestatus!=2 )
     {
-	const int normalsperrow = nrCols();
-	int normalindex = mGetNormalIndex(relrow,relcol);
-#if __debug__
-	if ( normalindex<0 )
-	{
-	    SoDebugError::postWarning("MeshSurfacePartResolution::getNormal",
-				      "normalindex is negative");
-	    normalindex = 0;
-	}
-#endif
 	res = cache->normals[normalindex];
 	return true;
     }
 
-    if ( computeNormal( relrow, relcol, &res ) )
-    {
-	if ( cache && useownvalidation )
-		;
-	    //Update normal in cache if it there is a cahce
-
-	return true;
-    }
-
-    return false;
+    return computeNormal( relrow, relcol, &res );
 }
 
 
@@ -2246,8 +2249,10 @@ void SoLODMeshSurface::insertRowsBefore(int nr)
     for ( int idy=0; idy<nrcols*nr; idy++ )
 	coordinates.set1Value( idy, SbVec3f(1e30,1e30,1e30) );
 
-    materialIndex.insertSpace( 0, nrcols*nr );
-    meshStyle.insertSpace( 0, nrcols*nr );
+    if ( isMaterialNonDefault() )
+	materialIndex.insertSpace( 0, nrcols*nr );
+    if ( isMeshStyleNonDefault() )
+	meshStyle.insertSpace( 0, nrcols*nr );
 
     const MeshSurfImpl::MeshSurfaceIndexChanger
 			ic( nrcols, nrcols, true, nr );
@@ -2469,123 +2474,69 @@ void SoLODMeshSurface::notify( SoNotList* nl )
 void SoLODMeshSurface::adjustNrOfParts()
 {
     const int nrcols = nrColumns.getValue();
-    int currentpart = 0;
     bool changed = false;
-    if ( !parts.getLength() && coordinates.getNum() )
-    {
-	parts.push(new MeshSurfImpl::MeshSurfacePart(*this,0,0,sidesize) );
-	changed = true; 
-    }
 
-    while ( parts.getLength() && parts[0]->getRowStart()>0 )
+    if ( !coordinates.getNum() )
     {
-	const int newrow = parts[0]->getRowStart()-sidesize;
-	parts.insert( new MeshSurfImpl::MeshSurfacePart(*this, newrow,
-			     parts[0]->getColStart(), sidesize), currentpart++);
-	changed = true; 
-	while ( parts[0]->getColStart()>0 )
+	while ( parts.getLength() )
 	{
+	    delete parts[0];
+	    parts.remove(0);
+	    changed = true; 
+	}
+    }
+    else
+    {
+	if ( !parts.getLength() && coordinates.getNum() )
+	{
+	    parts.push(new MeshSurfImpl::MeshSurfacePart(*this,0,0,sidesize) );
+	    changed = true; 
+	}
+
+	
+        while ( parts[0]->getRowStart()>0 )
+	{
+	    const int newrow = parts[0]->getRowStart()-sidesize;
 	    parts.insert( new MeshSurfImpl::MeshSurfacePart(*this, newrow,
-					     parts[0]->getColStart()-sidesize,
-					     sidesize), 0 );
-	    currentpart++;
+			  parts[0]->getColStart(), sidesize), 0 );
+	    changed = true; 
 	}
 
-	while ( parts[0]->getColStart()+currentpart*sidesize<nrcols )
+	while ( parts.getLength() && parts[0]->getRowStart()<=-sidesize )
 	{
-	    MeshSurfImpl::MeshSurfacePart* part =
-		new MeshSurfImpl::MeshSurfacePart(*this, newrow,
-			parts[currentpart]->getColStart()+sidesize, sidesize);
+	    delete parts[0];
+	    parts.remove(0);
+	    changed = true; 
+	}
 
-	    if ( currentpart>=parts.getLength() )
+        int currentrow = parts[0]->getRowStart();
+        int rowstartpartidx = 0;
+        while ( currentrow<nrRows() )
+        {
+	    if ( rowstartpartidx==parts.getLength() )
 	    {
-		parts.push( part );
-		currentpart++;
+	        parts.push(new MeshSurfImpl::MeshSurfacePart(*this, currentrow,
+			   parts[0]->getColStart(), sidesize) );
+	        changed = true; 
 	    }
-	    else
-		parts.insert( part, ++currentpart );
-	}
+
+	    if ( completeRowStart(rowstartpartidx) ) changed = true;
+	    if ( completeRowEnd(rowstartpartidx) ) changed = true;
+
+	    while ( rowstartpartidx<parts.getLength() &&
+		parts[rowstartpartidx]->getRowStart()==currentrow )
+		rowstartpartidx++;
+
+	    currentrow += sidesize;
+        }
     }
 
-    while ( parts.getLength() && parts[0]->getRowStart()<=-sidesize )
-    {
-	delete parts[0];
-	parts.remove(0);
-	changed = true; 
-    }
+    if ( changed )
+	setPartRelations();
+}
 
-    int currentrow = parts[currentpart]->getRowStart();
-    while ( currentrow<nrRows() )
-    {
-	if ( currentpart==parts.getLength() )
-	{
-	    parts.push(new MeshSurfImpl::MeshSurfacePart(*this, currentrow,
-			  parts[0]->getColStart(), sidesize) );
-	}
-
-	const int rowstartpart = currentpart;
-
-	while ( parts[rowstartpart]->getColStart()>0 )
-	{
-	    parts.insert(
-		    new MeshSurfImpl::MeshSurfacePart(*this, currentrow,
-			  parts[rowstartpart]->getColStart()-sidesize,
-				     sidesize), rowstartpart );
-	    currentpart++;
-	    changed = true; 
-	}
-
-	while ( currentpart<parts.getLength()-1 &&
-		parts[currentpart+1]->getRowStart()==currentrow )
-	    currentpart++;
-
-	while ( parts.getLength()>rowstartpart &&
-		parts[rowstartpart]->getColStart()<=-sidesize )
-	{
-	    delete parts[rowstartpart];
-	    parts.remove(rowstartpart);
-	    changed = true; 
-	}
-
-	while ( parts[currentpart]->getColStart()+sidesize<nrcols )
-	{
-	    MeshSurfImpl::MeshSurfacePart* part =
-		new MeshSurfImpl::MeshSurfacePart(*this, currentrow,
-				 parts[currentpart]->getColStart()+sidesize,
-				 sidesize);
-
-	    if ( currentpart>=parts.getLength() )
-	    {
-		parts.push( part );
-		currentpart++;
-	    }
-	    else
-		parts.insert( part,++currentpart );
-
-	    changed = true; 
-	}
-
-	while ( parts.getLength()>currentpart &&
-		parts[currentpart]->getColStart()>=nrcols )
-	{
-	    delete parts[currentpart];
-	    parts.remove(currentpart);
-	    changed = true; 
-	}
-
-	currentrow += sidesize;
-	currentpart++;
-    }
-
-    while ( parts.getLength() &&
-	    parts[parts.getLength()-1]->getRowStart()>=nrRows() )
-    {
-	delete parts[parts.getLength()-1];
-	parts.remove(parts.getLength()-1);
-	changed = true; 
-    }
-
-    if ( !changed ) return;
+void SoLODMeshSurface::setPartRelations()
+{
     for ( int idx=0; idx<parts.getLength(); idx++ )
     {
 	if ( idx<parts.getLength()-1 &&
@@ -2626,3 +2577,77 @@ void SoLODMeshSurface::adjustNrOfParts()
 	}
     }
 }
+
+
+bool SoLODMeshSurface::completeRowStart(int& rowstartpart)
+{
+    bool changed = false;
+    while ( parts[rowstartpart]->getColStart()>0 )
+    {
+        parts.insert(
+	    new MeshSurfImpl::MeshSurfacePart(*this,
+		  parts[rowstartpart]->getRowStart(),
+		  parts[rowstartpart]->getColStart()-sidesize,
+			     sidesize), rowstartpart );
+        changed = true; 
+    }
+
+    while ( parts[rowstartpart]->getColStart()<=-sidesize )
+    {
+	delete parts[rowstartpart];
+	parts.remove(rowstartpart);
+        changed = true; 
+    }
+
+    return changed;
+}
+
+bool SoLODMeshSurface::completeRowEnd(int rowstart)
+{
+    bool changed = false;
+    int lastpartonrow=rowstart;
+    while ( lastpartonrow<parts.getLength()-1 &&
+		parts[lastpartonrow+1]->getRowStart()==
+		parts[lastpartonrow]->getRowStart() )
+	lastpartonrow++;
+
+    while ( parts[lastpartonrow]->getColStart()+sidesize<nrColumns.getValue() )
+    {
+	MeshSurfImpl::MeshSurfacePart* newpart =
+	    new MeshSurfImpl::MeshSurfacePart(*this,
+            parts[lastpartonrow]->getRowStart(),
+            parts[lastpartonrow]->getColStart()+sidesize, sidesize);
+
+	if ( lastpartonrow==parts.getLength()-1 )
+	    parts.push( newpart );
+	else
+	    parts.insert( newpart, lastpartonrow+1 );
+
+        changed = true;
+	lastpartonrow++;
+    }
+
+    while ( parts[lastpartonrow]->getColStart()-sidesize>nrColumns.getValue() )
+    {
+	delete parts[lastpartonrow];
+	parts.remove(lastpartonrow);
+	lastpartonrow--;
+        changed = true;
+    }
+
+    return changed;
+}
+
+#define mNonDefaultCheckImpl( type, field ) \
+    const type* vals = field.getValues(0); \
+    for ( int idx=field.getNum()-1; idx>=0; idx-- ) \
+	if ( vals[idx] ) return true; \
+ \
+    return false
+
+bool SoLODMeshSurface::isMaterialNonDefault() const
+{ mNonDefaultCheckImpl( int32_t, materialIndex ); }
+
+
+bool SoLODMeshSurface::isMeshStyleNonDefault() const
+{ mNonDefaultCheckImpl( int16_t, meshStyle ); }

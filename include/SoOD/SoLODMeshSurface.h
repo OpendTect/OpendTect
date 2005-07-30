@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoLODMeshSurface.h,v 1.2 2005-04-28 10:48:38 cvskris Exp $
+ RCS:		$Id: SoLODMeshSurface.h,v 1.3 2005-07-30 02:44:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -137,10 +137,15 @@ public:
     int			nrRows() const;
 
 protected:
+    bool		isMaterialNonDefault() const;
+    bool		isMeshStyleNonDefault() const;
     void		GLRenderBBox(SoGLRenderAction*);
     void		notify( SoNotList* );
 
     void		adjustNrOfParts();
+    void		setPartRelations();
+    bool		completeRowStart(int&);
+    bool		completeRowEnd(int);
 
     SbList<MeshSurfImpl::MeshSurfacePart*>	parts;
     bool					useownvalidation;
