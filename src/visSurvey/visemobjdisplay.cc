@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.30 2005-07-28 10:53:52 cvshelene Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.31 2005-07-31 08:38:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.30 2005-07-28 10:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.31 2005-07-31 08:38:44 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
@@ -64,6 +64,7 @@ EMObjectDisplay::EMObjectDisplay()
     , colas(*new Attrib::ColorSelSpec)
     , curtextureidx(0)
     , usestexture(true)
+    , useswireframe(false)
     , editor(0)
     , eventcatcher(0)
     , transformation(0)
@@ -279,9 +280,12 @@ void EMObjectDisplay::updateFromMPE()
 {
     const EM::ObjectID objid = em.multiID2ObjectID(mid);
     const bool hastracker = MPE::engine().getTrackerByObject(objid) >= 0;
-    useWireframe( hastracker );
-    useTexture( hastracker ? false : usestexture );
-    setResolution( hastracker ? nrResolutions()-1 : 0 );
+    if ( hastracker )
+    {
+	useWireframe( true );
+	useTexture( true );
+	setResolution( nrResolutions()-1 );
+    }
 
     if ( MPE::engine().getEditor(objid,hastracker) )
 	enableEditing(true);
@@ -306,9 +310,15 @@ bool EMObjectDisplay::addSection( EM::SectionID sectionid )
     sections += vo;
     sectionids += sectionid;
 
+    mDynamicCastGet(visBase::CubicBezierSurface*,cbs,vo);
+    if ( cbs ) cbs->useWireframe( useswireframe );
+
     mDynamicCastGet(visBase::ParametricSurface*,psurf,vo)
     if ( psurf )
+    {
 	psurf->setColorTab( *coltab_ );
+	psurf->useWireframe(useswireframe);
+    }
 
     return true;
 }
@@ -585,23 +595,13 @@ void EMObjectDisplay::setTranslation( const Coord3& nt )
 }
 
 
-bool EMObjectDisplay::usesWireframe() const
-{
-    if ( !sections.size() )
-	return false;
-
-    mDynamicCastGet(const visBase::CubicBezierSurface*,cbs,sections[0]);
-    if ( cbs ) return cbs->usesWireframe();
-
-    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
-    if ( ps ) return ps->usesWireframe();
-
-    return false;
-}
+bool EMObjectDisplay::usesWireframe() const { return useswireframe; }
 
 
 void EMObjectDisplay::useWireframe( bool yn )
 {
+    useswireframe = yn;
+
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	mDynamicCastGet(visBase::CubicBezierSurface*,cbs,sections[idx]);
