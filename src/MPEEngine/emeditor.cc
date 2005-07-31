@@ -8,13 +8,15 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.11 2005-07-21 20:57:38 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.12 2005-07-31 06:14:01 cvskris Exp $";
 
 #include "emeditor.h"
 
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emsurface.h"
+#include "emsurfaceedgeline.h"
 #include "emtracker.h"
 #include "geeditor.h"
 #include "mpeengine.h"
@@ -29,6 +31,7 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
     , editpositionchange( this )
     , movingnode( -1,-1,-1 )
     , snapafteredit( true )
+    , interactionline( 0 )
 {
     emobject.ref();
 }
@@ -36,6 +39,7 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
 
 ObjectEditor::~ObjectEditor()
 {
+    delete interactionline;
     emobject.unRef();
     deepErase( geeditors );
     sections.erase();
@@ -240,6 +244,36 @@ mGetFunction( getNormal );
 mMayFunction( maySetDirection );
 mGetFunction( getDirectionPlaneNormal );
 mGetFunction( getDirection );
+
+void ObjectEditor::restartInteractionLine(const EM::SectionID& sid)
+{
+    mDynamicCastGet( EM::Surface*, emsurface, &emobject );
+    if ( !emsurface )
+    {
+	if ( interactionline )
+	{
+	    delete interactionline;
+	    interactionline = 0;
+	}
+    }
+    else if ( !interactionline )
+    {
+	EM::EdgeLine* el = new EM::EdgeLine( *emsurface, sid );
+	interactionline = new EM::EdgeLineSet( *emsurface, sid );
+	interactionline->addLine( el );
+	el->setRemoveZeroSegments(false);
+    }
+    else if ( sid!=interactionline->getSection() )
+    {
+	interactionline->setSection(sid);
+	if ( interactionline->getLine(0)->nrSegments() )
+	    interactionline->getLine(0)->getSegment(0)->removeAll();
+    }
+}
+
+
+EM::EdgeLineSet* ObjectEditor::getInteractionLine()
+{ return interactionline; }
 
 
 Geometry::ElementEditor* ObjectEditor::getEditor( const EM::SectionID& sid )

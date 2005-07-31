@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.9 2005-07-21 17:16:09 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.10 2005-07-31 06:13:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class BufferStringSet;
 template <class T> class TypeSet;
 
-namespace EM { class EMObject; };
+namespace EM { class EMObject; class EdgeLineSet; };
 namespace Geometry { class ElementEditor; };
 
 namespace MPE
@@ -68,6 +68,12 @@ public:
     				/*!<Won't trigger on position-changes,
 				    but when new edit positions are avaliable
 				    or editpositions has been removed */
+    void			restartInteractionLine(const EM::SectionID&);
+				/*!<\note Object does only have one line. If
+					the provided sectionID differs from the
+					existing line's, the sectionID of the
+					existing line will be changed. */
+    virtual EM::EdgeLineSet*	getInteractionLine();
 
 protected:
 
@@ -84,6 +90,7 @@ protected:
 
     EM::EMObject&			emobject;
     EM::PosID				movingnode;
+    EM::EdgeLineSet*			interactionline;
     Coord3				startpos;
     TypeSet<EM::PosID>			changedpids;
 
