@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.8 2005-07-31 03:57:30 cvskris Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.9 2005-07-31 05:53:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 				SectionAdjuster( const EM::SectionID& sid=-1);
     EM::SectionID		sectionID() const;
 
-    virtual void		reset();
+    virtual void		reset() {}
 
     void			setPositions(const TypeSet<EM::SubID>& targets,
 	   				     const TypeSet<EM::SubID>* src=0 );
