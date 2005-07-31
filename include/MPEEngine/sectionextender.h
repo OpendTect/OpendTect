@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.4 2005-07-21 20:58:12 cvskris Exp $
+ RCS:           $Id: sectionextender.h,v 1.5 2005-07-31 03:48:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,13 +42,17 @@ public:
     int				nextStep();
 
     const TypeSet<EM::SubID>&	getAddedPositions() const;
+    const TypeSet<EM::SubID>&	getAddedPositionsSource() const;
 
     const char*			errMsg() const;
 
 protected:
+    void		addTarget( const EM::SubID& target,
+	    			   const EM::SubID& src );
 
-    TypeSet<EM::SubID>	startpos;
     TypeSet<EM::SubID>	addedpos;
+    TypeSet<EM::SubID>	addedpossrc;
+    TypeSet<EM::SubID>	startpos;
 
     const EM::SectionID	sectionid;
     BufferString	errmsg;
