@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uiemhorizoneditor.h,v 1.2 2005-07-21 20:59:14 cvskris Exp $
+ RCS:		$Id: uiemhorizoneditor.h,v 1.3 2005-07-31 06:17:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,12 @@ ________________________________________________________________________
 
 
 class uiMPEPartServer;
+
+namespace EM
+{
+    class	EdgeLineSet;
+    class	EdgeLineSegment;
+};
 
 
 namespace MPE
@@ -32,13 +38,22 @@ public:
 
     			uiEMHorizonEditor( uiParent*, MPE::HorizonEditor* );
 
-    virtual void	createNodeMenus(CallBacker*);
-    virtual void	handleNodeMenus(CallBacker*);
+    void		createNodeMenus(CallBacker*);
+    void		handleNodeMenus(CallBacker*);
+    void		createInteractionLineMenus(CallBacker*);
+    void		handleInteractionLineMenus(CallBacker*);
 
     MPE::HorizonEditor*	getEditor();
 
 protected:
+    bool		canMakeStopLine( const EM::EdgeLineSet& lineset,
+				     const EM::EdgeLineSegment& interactionline,
+				     int& linenr, bool& forward ) const;
+
     MenuItem		editsettingsmnuitem;
+
+    MenuItem		splitsectionmnuitem;
+    MenuItem		makestoplinemnuitem;
 };
 
 };

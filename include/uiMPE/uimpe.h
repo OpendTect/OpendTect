@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.1 2005-07-15 13:54:57 cvskris Exp $
+ RCS:		$Id: uimpe.h,v 1.2 2005-07-31 06:15:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
     virtual void	setActiveNode( const EM::PosID& n ) { node=n; }
     virtual void	createNodeMenus(CallBacker*) {}
     virtual void	handleNodeMenus(CallBacker*) {}
+    virtual void	createInteractionLineMenus(CallBacker*) {}
+    virtual void	handleInteractionLineMenus(CallBacker*) {}
 
 protected:
     EM::PosID		node;
