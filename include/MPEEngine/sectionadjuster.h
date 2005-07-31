@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.7 2005-07-21 20:58:12 cvskris Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.8 2005-07-31 03:57:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "basictask.h"
+#include "cubesampling.h"
 #include "emposid.h"
 
+class AttribSelSpec;
 class IOPar;
 namespace EM { class EMObject; };
 
@@ -32,11 +34,15 @@ public:
 
     virtual void		reset();
 
-    void			setPositions(const TypeSet<EM::SubID>& );
-    void			setDirection(const BinIDValue*);
+    void			setPositions(const TypeSet<EM::SubID>& targets,
+	   				     const TypeSet<EM::SubID>* src=0 );
 
     int				nextStep();
     const char*			errMsg() const;
+
+    virtual CubeSampling	getAttribCube(const AttribSelSpec&) const;
+    virtual void		getNeededAttribs(
+	    			    ObjectSet<const AttribSelSpec>&) const;
 
     const PositionScoreComputer* getComputer(int idx) const;
     PositionScoreComputer*	getComputer(int idx);
@@ -51,8 +57,8 @@ public:
     virtual bool		usePar(const IOPar&);
 
 protected:
-    const BinIDValue*		direction;
     TypeSet<EM::SubID>		pids;
+    TypeSet<EM::SubID>		pidsrc;
     BufferString		errmsg_;
     EM::SectionID		sectionid_;
     float			thresholdval_;

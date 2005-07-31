@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.4 2005-07-21 20:57:38 cvskris Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.5 2005-07-31 03:57:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "sectionadjuster.h"
-#include "positionscorecomputer.h"
+
+#include "mpeengine.h"
 #include "iopar.h"
+#include "positionscorecomputer.h"
 
 namespace MPE
 {
@@ -25,26 +27,52 @@ SectionAdjuster::SectionAdjuster( const EM::SectionID& sid )
     : sectionid_(sid)
     , stopbelowthrhold_(false)
     , thresholdval_(0.5)
-    , direction( 0 )
 {}
 
 
 EM::SectionID SectionAdjuster::sectionID() const { return sectionid_; }
 
 
-void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p ) { pids = p; }
-
-
-void SectionAdjuster::setDirection(const BinIDValue* d) { direction = d; }
-
-
-void SectionAdjuster::reset() { direction = 0; }
+void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p,
+       				   const TypeSet<EM::SubID>* src )
+{
+    pids = p;
+    if ( src ) pidsrc = *src;
+    else pidsrc.erase();
+}
 
 
 int SectionAdjuster::nextStep() { return 0; }
 
 
 const char* SectionAdjuster::errMsg() const { return errmsg_[0] ? errmsg_ : 0; }
+
+
+CubeSampling SectionAdjuster::getAttribCube( const AttribSelSpec& spec ) const
+{
+    const CubeSampling activearea( engine().activeVolume() );
+    CubeSampling res( activearea );
+    for ( int idx=0; idx<computers_.size(); idx++ )
+	res.include( computers_[idx]->getAttribCube(activearea) );
+
+    return res;
+}
+
+
+void SectionAdjuster::getNeededAttribs(
+	ObjectSet<const AttribSelSpec>& res ) const
+{
+    for ( int idx=0; idx<computers_.size(); idx++ )
+    {
+	PositionScoreComputer* psc = computers_[idx];
+	for ( int asidx=0; asidx<psc->nrAttribs(); asidx++ )
+	{
+	    const AttribSelSpec* as = psc->getSelSpec( asidx );
+	    if ( as && indexOf(res,*as) < 0 )
+		res += as;
+	}
+    }
+}
 
 
 PositionScoreComputer* SectionAdjuster::getComputer( int idx )
