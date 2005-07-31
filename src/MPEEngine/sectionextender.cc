@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.1 2005-07-22 10:11:28 cvskris Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.2 2005-07-31 03:48:16 cvskris Exp $";
 
 #include "sectionextender.h"
 
@@ -24,7 +24,11 @@ SectionExtender::SectionExtender( const EM::SectionID& si)
 EM::SectionID SectionExtender::sectionID() const { return sectionid; }
 
 
-void SectionExtender::reset() { addedpos.erase(); }
+void SectionExtender::reset()
+{
+    addedpos.erase();
+    addedpossrc.erase();
+}
 
 
 void SectionExtender::setDirection( const BinIDValue& ) {}
@@ -45,6 +49,22 @@ const char* SectionExtender::errMsg() const { return errmsg[0] ? errmsg : 0; }
 
 const TypeSet<EM::SubID>& SectionExtender::getAddedPositions() const
 { return addedpos; }
+
+
+const TypeSet<EM::SubID>& SectionExtender::getAddedPositionsSource() const
+{ return addedpossrc; }
+
+
+void SectionExtender::addTarget( const EM::SubID& target,
+			         const EM::SubID& src )
+{
+    if ( addedpos.indexOf(target)!=-1 )
+	return;
+
+    addedpossrc += src;
+    addedpos += target;
+}
+
 
 };
 
