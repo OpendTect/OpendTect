@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.38 2005-04-01 15:03:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.39 2005-07-31 05:06:39 cvsduntao Exp $";
 
 #include "emobject.h"
 
@@ -26,6 +26,7 @@ int EM::EMObject::sPermanentControlNode	= 0;
 int EM::EMObject::sTemporaryControlNode	= 1;
 int EM::EMObject::sEdgeControlNode	= 2;
 int EM::EMObject::sTerminationNode	= 3;
+int EM::EMObject::sSeedNode		= 4;
 
 
 const char* EM::EMObject::prefcolorstr = "Color";

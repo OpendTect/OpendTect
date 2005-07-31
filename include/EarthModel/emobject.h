@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.36 2005-02-16 14:13:20 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.37 2005-07-31 05:06:39 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,7 @@ public:
     static int			sTemporaryControlNode;
     static int			sEdgeControlNode;
     static int			sTerminationNode;
+    static int			sSeedNode;
 
 protected:
     virtual Geometry::Element*	getElement( SectionID ) { return 0; }
