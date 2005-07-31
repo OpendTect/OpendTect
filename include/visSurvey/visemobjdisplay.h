@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.18 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.19 2005-07-31 08:40:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,7 @@ protected:
 
     Color			nontexturecol;
     bool			usestexture;
+    bool			useswireframe;
     int				curtextureidx;
 
     Attrib::SelSpec&		as;
