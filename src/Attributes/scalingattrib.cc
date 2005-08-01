@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.3 2005-08-01 12:17:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,32 +45,32 @@ void Scaling::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    EnumParam* scalingtype = new EnumParam(scalingTypeStr());
+    EnumParam* scalingtype = new EnumParam( scalingTypeStr() );
     scalingtype->addEnum(scalingTypeNamesStr(mScalingTypeTPower));
     scalingtype->addEnum(scalingTypeNamesStr(mScalingTypeWindow));
     desc->addParam(scalingtype);
 
     FloatInpSpec* floatspec = new FloatInpSpec();
-    floatspec -> setLimits( Interval<float>(0,mUndefValue) );
+    floatspec->setLimits( Interval<float>(0,mUndefValue) );
     ValParam* powerval = new ValParam( powervalStr(), floatspec );
     powerval->setDefaultValue("1");
     powerval->setRequired(false);
     desc->addParam( powerval );
     
-    ZGateParam* gate = new ZGateParam(gateStr());
-    gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
+    ZGateParam gate( gateStr() );
+    gate.setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
 
     ParamGroup<ZGateParam>* gateset
-		= new ParamGroup<ZGateParam>( 0, gateStr(), *gate );
+		= new ParamGroup<ZGateParam>( 0, gateStr(), gate );
     desc->addParam( gateset );
 
     FloatInpSpec* floatinpspec = new FloatInpSpec();
-    floatinpspec -> setLimits( Interval<float>(0,mUndefValue) );
-    ValParam* factor = new ValParam( factorStr(), floatinpspec );
-    factor->setDefaultValue("1");
+    floatinpspec->setLimits( Interval<float>(0,mUndefValue) );
+    ValParam factor( factorStr(), floatinpspec );
+    factor.setDefaultValue("1");
 
     ParamGroup<ValParam>* factorset
-		= new ParamGroup<ValParam>( 0, factorStr(), *factor );
+		= new ParamGroup<ValParam>( 0, factorStr(), factor );
     desc->addParam( factorset );
 
     EnumParam* statstype = new EnumParam(statsTypeStr());
