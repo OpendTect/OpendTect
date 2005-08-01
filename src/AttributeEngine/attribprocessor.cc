@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.10 2005-08-01 07:32:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.11 2005-08-01 08:54:34 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -24,6 +24,7 @@ Processor::Processor( Desc& desc , const char* lk )
     , desc_(desc)
     , provider(Provider::create(desc))
     , nriter(0)
+    , nrdone(0)
     , lk_(lk)
     , moveonly(this)
 {
@@ -154,6 +155,7 @@ int Processor::nextStep()
 		}
 	    }
 	}
+    if ( provider->getPossibleVolume()->hrg.includes(curbid) ) nrdone++;
     }
 
     provider->resetMoved();
@@ -162,7 +164,7 @@ int Processor::nextStep()
     return res;
 }
 
-int Processor::totalNr()
+int Processor::totalNr() const
 {
     return provider->getTotalNrPos(is2d_);
 }
