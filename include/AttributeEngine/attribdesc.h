@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.18 2005-08-01 07:33:05 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.19 2005-08-01 14:02:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
     bool		isStored() const;
 
     int			nrInputs() const;
+    int                 nrSpecs() const         { return inputspecs.size(); }
     InputSpec&		inputSpec(int);
     const InputSpec&	inputSpec(int) const;
     bool        	setInput(int input,Desc*);
@@ -171,6 +172,9 @@ var = ((ValParam*)desc.getParam(varstring))->getBoolValue(0); \
 #define mGetEnum( var, varstring ) \
 var = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
 
+#define mGetString( var, varstring ) \
+var = ((ValParam*)desc.getParam(varstring))->getStringValue(0); \
+    
 #define mGetBinID( var, varstring ) \
 {\
     var.inl = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \
