@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.9 2005-07-31 05:53:00 cvskris Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.10 2005-08-01 07:09:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,10 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emposid.h"
 
-class AttribSelSpec;
+
 class IOPar;
 namespace EM { class EMObject; };
+namespace Attrib { class SelSpec; }
 
 namespace MPE
 {
@@ -40,9 +41,9 @@ public:
     int				nextStep();
     const char*			errMsg() const;
 
-    virtual CubeSampling	getAttribCube(const AttribSelSpec&) const;
+    virtual CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
     virtual void		getNeededAttribs(
-	    			    ObjectSet<const AttribSelSpec>&) const;
+	    			    ObjectSet<const Attrib::SelSpec>&) const;
 
     const PositionScoreComputer* getComputer(int idx) const;
     PositionScoreComputer*	getComputer(int idx);

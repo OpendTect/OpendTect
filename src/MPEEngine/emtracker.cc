@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.11 2005-07-21 20:57:38 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.12 2005-08-01 07:09:28 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -78,8 +78,6 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	}
 	
 	sectiontracker->extender()->setDirection( plane.motion() );
-	sectiontracker->adjuster()->setDirection( &plane.motion() );
-
 	sectiontracker->select();
 	const bool hasextended = sectiontracker->extend();
 	bool hasadjusted = true;

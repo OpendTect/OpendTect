@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.5 2005-07-31 03:57:38 cvskris Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.6 2005-08-01 07:09:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ int SectionAdjuster::nextStep() { return 0; }
 const char* SectionAdjuster::errMsg() const { return errmsg_[0] ? errmsg_ : 0; }
 
 
-CubeSampling SectionAdjuster::getAttribCube( const AttribSelSpec& spec ) const
+CubeSampling SectionAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     const CubeSampling activearea( engine().activeVolume() );
     CubeSampling res( activearea );
@@ -60,14 +60,14 @@ CubeSampling SectionAdjuster::getAttribCube( const AttribSelSpec& spec ) const
 
 
 void SectionAdjuster::getNeededAttribs(
-	ObjectSet<const AttribSelSpec>& res ) const
+	ObjectSet<const Attrib::SelSpec>& res ) const
 {
     for ( int idx=0; idx<computers_.size(); idx++ )
     {
 	PositionScoreComputer* psc = computers_[idx];
 	for ( int asidx=0; asidx<psc->nrAttribs(); asidx++ )
 	{
-	    const AttribSelSpec* as = psc->getSelSpec( asidx );
+	    const Attrib::SelSpec* as = psc->getSelSpec( asidx );
 	    if ( as && indexOf(res,*as) < 0 )
 		res += as;
 	}
