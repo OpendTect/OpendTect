@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.4 2005-08-01 10:37:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,7 +302,11 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
     uiExecutor dlg( appserv().parent(), *outex );
     if ( !dlg.go() ) return 0;
 
-    return aem.getSliceSetOutput();
+    // TODO: Look at where to ref sliceset. Perhaps this is not the best place.
+    // For now it works
+    Attrib::SliceSet* slices = aem.getSliceSetOutput();
+    if ( slices ) slices->ref();
+    return slices;
 }
 
 
