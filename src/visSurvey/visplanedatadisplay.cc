@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.82 2005-07-28 10:53:51 cvshelene Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.83 2005-08-01 12:15:29 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -74,8 +74,8 @@ PlaneDataDisplay::~PlaneDataDisplay()
     delete &as;
     delete &colas;
 
-    cache->unRef();
-    colcache->unRef();
+    if ( cache ) cache->unRef();
+    if ( colcache ) colcache->unRef();
 }
 
 
@@ -435,7 +435,7 @@ const Attrib::SelSpec* PlaneDataDisplay::getSelSpec() const
 void PlaneDataDisplay::setSelSpec( const Attrib::SelSpec& as_ )
 {
     as = as_;
-    cache->unRef();
+    if ( cache ) cache->unRef();
     cache = 0;
 
     const char* usrref = as.userRef();
@@ -524,7 +524,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos ) const
 
 
 bool PlaneDataDisplay::setDataVolume( bool colordata, 
-					Attrib::SliceSet* sliceset )
+				      Attrib::SliceSet* sliceset )
 {
     if ( colordata )
     {
@@ -536,12 +536,12 @@ bool PlaneDataDisplay::setDataVolume( bool colordata,
     setData( sliceset, colordata ? colas.datatype : 0 );
     if ( colordata )
     {
-	colcache->unRef();
+	if ( colcache ) colcache->unRef();
 	colcache = sliceset;
 	return true;
     }
 
-    cache->unRef();
+    if ( cache ) cache->unRef();
     cache = sliceset;
     return true;
 }
