@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.9 2005-08-01 07:32:59 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.10 2005-08-01 10:38:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,6 +237,8 @@ SliceSet* EngineMan::getSliceSetOutput()
 		slset += slc;
 	    }
 	}
+
+	slset.ref();
 	slsets += &slset;
     }
 
@@ -274,7 +276,7 @@ SliceSet* EngineMan::getSliceSetOutput()
 	    if ( !slsets[idy] ) continue;
 	    for ( int idx=0; idx<slsets[idy]->size(); idx++ )
 	    {
-		if ((*slsets[idy])[idx])
+		if ( (*slsets[idy])[idx] )
 		{
 		    udefvalfound = true;
 		    undfval= (*slsets[idy])[idx]->undefValue();
@@ -327,6 +329,7 @@ SliceSet* EngineMan::getSliceSetOutput()
 	    }
 	}
     }
+
     for ( int idx=0; idx<slsets.size(); idx++ )
 	slsets[idx]->unRef();
 

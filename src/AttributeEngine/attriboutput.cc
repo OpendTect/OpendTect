@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.10 2005-07-29 15:50:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.11 2005-08-01 10:38:37 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -70,7 +70,8 @@ SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
 }
 
 
-SliceSetOutput::~SliceSetOutput() { if ( sliceset ) sliceset->unRef(); }
+SliceSetOutput::~SliceSetOutput()
+{ if ( sliceset ) sliceset->unRef(); }
 
 
 bool SliceSetOutput::getDesiredVolume(CubeSampling& cs) const
@@ -115,10 +116,10 @@ void SliceSetOutput::collectData( const BinID& bid,
 	for ( int idx=sampleoffset; 
 		idx<sliceset->sampling.nrZ()+sampleoffset; idx++)
 	{
-	    float val = ( idx >= data.t0_ && idx < data.t0_+data.nrsamples_ ) ?
+	    const bool valididx = idx>=data.t0_ && idx<data.t0_+data.nrsamples_;
+	    const float val = valididx ? 
 			data.item(desoutputs[idy])->value(idx-data.t0_): udfval;
 	    sliceset->getIdxs( bid.inl, bid.crl, idx*refstep, i0, i1, i2 );
-    float step = !mIsZero(refstep,mDefEps) ? refstep : SI().zRange().step;
 	    ((*sliceset)[i0+idy])->set( i1, i2, val );
 	}
     }
