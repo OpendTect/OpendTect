@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.18 2005-07-29 14:49:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.19 2005-08-01 08:58:28 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -519,8 +519,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 
 	Desc* nd = desc->clone();
 	nd->setDescSet( res );
-	res->descs += nd;
-	res->ids += needednode;
+	res->addDesc( nd, needednode );
 
 	for ( int idx=0; idx<nd->nrInputs(); idx++ )
 	{
