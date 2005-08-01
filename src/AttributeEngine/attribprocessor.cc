@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.9 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.10 2005-08-01 07:32:59 cvsnanne Exp $";
 
 #include "attribprocessor.h"
 
@@ -165,6 +165,12 @@ int Processor::nextStep()
 int Processor::totalNr()
 {
     return provider->getTotalNrPos(is2d_);
+}
+
+
+const char* Processor::getAttribName()
+{
+    return desc_.attribName();
 }
 
 }; //namespace

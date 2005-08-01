@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.17 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribdesc.h,v 1.18 2005-08-01 07:33:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,10 +103,7 @@ public:
 
     bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
     bool		isIdentifiedBy(const char*) const;
-    DescID		inputId( int idx ) const
-			{ return idx >= 0 && idx < inputs.size()
-			    ? inputs[idx]->id() : DescID(-1,true); }
-
+    DescID		inputId( int idx ) const;
 
     			/* Interface to factory */
     void		addParam( Param* );

@@ -7,15 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.5 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.6 2005-08-01 07:33:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "position.h"
 #include "executor.h"
-#include "linekey.h"
-#include "attribdesc.h"
 
 class CubeSampling;
 template <class T> class Interval;
@@ -23,21 +20,22 @@ template <class T> class Interval;
 namespace Attrib
 {
 class DataHolder;
-class Provider;
+class Desc;
 class Output;
+class Provider;
 
 class Processor : public Executor
 {
 public:
-    			Processor( Desc&, const char* lk = "" );
+    			Processor(Desc&,const char* lk="");
     			~Processor();
 
     virtual bool	isOK() const;
-    void		addOutput( Output* );
+    void		addOutput(Output*);
 
     int			nextStep();
 
-    int 		nrDone() { return nriter; }
+    int 		nrDone()		{ return nriter; }
 
     void		addOutputInterest(int seloutp) {outpinterest+= seloutp;}
     
@@ -46,23 +44,22 @@ public:
                           no processing, e.g. during initial buffer fills. */
     
     int			totalNr();
-    const char*		getAttribName() { return desc_.attribName(); }
-    Provider*		getProvider() { return provider; }
-    ObjectSet<Output>           outputs;
+    const char*		getAttribName();
+    Provider*		getProvider() const		{ return provider; }
+    ObjectSet<Output>	outputs;
 
 protected:
 
-    Desc&			desc_;
-    BufferString		lk_;
-    Provider*			provider;
-    int				nriter;
-    bool 			is2d_;
-    TypeSet<int>		outpinterest;
-
+    Desc&		desc_;
+    BufferString	lk_;
+    Provider*		provider;
+    int			nriter;
+    bool 		is2d_;
+    TypeSet<int>	outpinterest;
 };
 
 
-}; //Namespace
+} // namespace Attrib
 
 
 #endif

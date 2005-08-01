@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.19 2005-07-29 13:08:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.20 2005-08-01 07:32:59 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -310,6 +310,13 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
     }
 
     return cmpoutput ? seloutput==desc.seloutput : true;
+}
+
+
+DescID Desc::inputId( int idx ) const
+{
+    const bool valididx = idx >= 0 && idx < inputs.size();
+    return valididx && inputs[idx] ? inputs[idx]->id() : DescID(-1,true);
 }
 
 

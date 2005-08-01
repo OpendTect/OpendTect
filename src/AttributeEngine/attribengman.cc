@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.8 2005-07-29 15:50:56 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.9 2005-08-01 07:32:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,16 +165,17 @@ void EngineMan::createProcSet( ObjectSet<Processor>& pset,
 }
 
 
-CubeOutput* EngineMan::createOutput( const IOPar& pars, LineKey lkey )
+CubeOutput* EngineMan::createOutput( const IOPar& pars, const LineKey& lkey )
 {
     const char* typestr = pars.find("Output.1.Type");
 
-    if ( !strcmp( typestr, "Cube") )
+    if ( !strcmp(typestr,"Cube") )
     {
-	CubeOutput* outp = new CubeOutput(cs_, lkey);
-	outp->doUsePar(pars);
+	CubeOutput* outp = new CubeOutput( cs_, lkey );
+	outp->doUsePar( pars );
 	return outp;
     }
+
     return 0;
 }
 

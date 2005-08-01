@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.4 2005-08-01 07:32:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribsel.h"
+#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribstorprovider.h"
 #include "seistrctr.h"

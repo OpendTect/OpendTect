@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.6 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribengman.h,v 1.7 2005-08-01 07:33:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "attribdescid.h"
 
-class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
@@ -23,10 +22,7 @@ class ExecutorGroup;
 class FeatureSet;//to remove
 class IOPar;
 class LineKey;
-class MultiID;
-class NLACreationDesc;
 class NLAModel;
-class PickSetGroup;
 class SeisTrcBuf;
 
 namespace Attrib
@@ -36,7 +32,6 @@ class Desc;
 class DescSet;
 class SelSpec;
 class SliceSet;
-class Output;
 class Processor;
 
 /*!\brief The Attribute engine Manager. */
@@ -57,7 +52,7 @@ public:
 				      const TypeSet<DescID>&);
     static void		getPossibleVolume(const DescSet&,CubeSampling&,
 	    				  const char* linename,const DescID&);
-    CubeOutput* 	createOutput(const IOPar&,LineKey);
+    CubeOutput* 	createOutput(const IOPar&,const LineKey&);
 
     const DescSet* 	attribSet() const	{ return inpattrset; }
     const NLAModel*	nlaModel() const	{ return nlamodel; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.3 2005-08-01 07:33:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "multiid.h"
 #include "bufstringset.h"
-#include "attribdesc.h"
+#include "attribdescid.h"
 
 class IOPar;
 class NLAModel;
@@ -34,6 +34,7 @@ class NLAModel;
 namespace Attrib 
 {
 
+class Desc;
 class DescSet;
 
 class SelSpec
