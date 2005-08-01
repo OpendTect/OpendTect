@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.15 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.16 2005-08-01 10:23:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,8 @@ public:
     void			setDesiredVolume( const CubeSampling& );
     void                        setPossibleVolume( const CubeSampling& );
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
+    CubeSampling*		getPossibleVolume() const
+						{ return possiblevolume; }
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume();
