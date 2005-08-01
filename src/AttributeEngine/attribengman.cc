@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.10 2005-08-01 10:38:37 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.11 2005-08-01 12:05:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -528,7 +528,8 @@ ExecutorGroup* EngineMan::sliceSetOutputCreator( BufferString& errmsg,
 #define mRg(dir) (prev->sampling.dir##rg)
     else if ( prev )
     {
-	cache = const_cast<SliceSet*> (prev);
+	cache = const_cast<SliceSet*>(prev);
+	cache->ref();
 	if ( !mRg(z).isCompatible( cs_.zrg, mStepEps )
 	  || mRg(h).step != cs_.hrg.step
 	  || (mRg(h).start.inl - cs_.hrg.start.inl) % cs_.hrg.step.inl
