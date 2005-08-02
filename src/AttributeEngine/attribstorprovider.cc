@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.10 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.11 2005-08-02 13:52:06 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -326,9 +326,9 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 				desiredvolume->zrg.stop > zrg.stop ?
 				zrg.stop : desiredvolume->zrg.stop;
 		}
-		reader->setSelData( new SeisSelData(seldata_) ); //Memleak!
+		reader->setSelData( new SeisSelData(seldata_) );
 	    }
-	    //TODO?
+
 	    return true;
 	}
 	
@@ -357,7 +357,7 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 	seldata_.zrg_.start = cs.zrg.start;
 	seldata_.zrg_.stop = cs.zrg.stop;
 
-	reader->setSelData( new SeisSelData(seldata_) ); //Memleak!
+	reader->setSelData( new SeisSelData(seldata_) );
 
 	SeisTrcTranslator* transl = reader->translator();
 
@@ -367,6 +367,7 @@ bool StorageProvider::setSeisRequesterSelection(int req)
 		transl->componentInfo()[idx]->destidx = -1;
 	}
     }
+
     return true;
 }
 
