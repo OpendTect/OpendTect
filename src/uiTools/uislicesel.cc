@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.30 2005-07-18 15:55:31 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.31 2005-08-02 15:38:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,8 @@ class uiSliceScroll : public uiDialog
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2"))
+	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
+		      .modal(false))
 	, slcsel(ss)
 	, inauto(false)
 	, paused(false)
