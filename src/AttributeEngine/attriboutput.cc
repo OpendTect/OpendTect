@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.13 2005-08-02 09:54:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.14 2005-08-02 12:03:03 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -168,9 +168,6 @@ TypeSet< Interval<int> > CubeOutput::getLocalZRange( const BinID& ) const
 { return sampleinterval; }
 
 
-//usePar, updTrc, init?
-
-
 bool CubeOutput::setStorageID( const MultiID& storid )
 {
     if ( *((const char*)storid) )
@@ -263,21 +260,9 @@ bool CubeOutput::doInit()
 	    desiredvolume.zrg.stop = seldata_.zrg_.stop;
     }
 
-/*//use that when we get the refstep to resize trc if needed.//def trcids
-    for ( int icomp=0; icomp<trcids.size(); icomp++ )
-    {
-	comptrc.data().reSize( nrsamps, icomp );
-	for ( int isamp=0; isamp<nrsamps; isamp++ )
-	comptrc.set( isamp, udfval, icomp );
-    }*/
-
     return true;
 }
 
-//nrVals a implementer.
-//Trouver d'ou incrementer le trcattribs (qqpart in AttribEngMan)
-//setReqs? I don't really see the need of that now...
-//-> ensure twice that everything is ok
 
 bool CubeOutput::setReqs( const BinID& pos )
 {
@@ -293,19 +278,6 @@ bool CubeOutput::setReqs( const BinID& pos )
 
 	calcurpos_ = desiredvolume.hrg.includes( pos );
 	if ( !calcurpos_ ) return false;
-    }
-
-    const int nrattribs = desoutputs.size();
-    for ( int attrib=0; attrib<nrattribs; attrib++ )
-    {
-//	if ( !processor.setCurrentOutpInterval( seldata_.zrg_, trcids[attrib],
-//						desoutputs[attrib] ) )
-	    //TODO fonction a remplacer, pas de ref au processor ici.
-//	{
-//	    calcurpos_ = false;
-//	    errmsg = processor.errMsg();
-//	    return false;
-//	}
     }
 
     return true;
@@ -395,7 +367,6 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
 	    cis[0]->datatype = Seis::UnknowData;
 	}
 
-	//transl->packetInfo().stdinfo = really important?
 	storinited_ = true;
     }
     
