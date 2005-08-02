@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.10 2005-08-02 13:51:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.11 2005-08-02 15:20:11 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -178,7 +178,7 @@ bool ZGateParam::setCompositeValue( const char* gatestrvar )
 
 
 void ZGateParam::setLimits( const Interval<float>& rg )
-{ reinterpret_cast<FloatInpSpec*>(spec)->setLimits(rg); }
+{ reinterpret_cast<FloatInpIntervalSpec*>(spec)->setLimits(rg); }
 
 
 void ZGateParam::setDefaultValue(const Interval<float>& defaultgate)
@@ -358,37 +358,32 @@ bool StringParam::getCompositeValue( BufferString& res ) const
 }
 
 
-
-FloatParam::FloatParam( const char* key_ )
-    : ValParam(key_,new FloatInpSpec)
+template <class T>
+NumParam<T>::NumParam( const char* key_ )
+    : ValParam(key_,new NumInpSpec<T>)
 {}
 
-mParamClone( FloatParam );
 
-bool FloatParam::getCompositeValue( BufferString& res ) const
+template <class T>
+NumParam<T>* NumParam<T>::clone()
+{ return new NumParam<T>(*this); }
+
+
+template <class T>
+bool NumParam<T>::getCompositeValue( BufferString& res ) const
 {
     if ( !spec ) return false;
 
-    res = spec->isUndef() ? sKey::FloatUdf : spec->text();
-    return true;
-}
-
-
-
-IntParam::IntParam( const char* key_ )
-    : ValParam(key_,new IntInpSpec)
-{}
-
-mParamClone( IntParam );
-
-bool IntParam::getCompositeValue( BufferString& res ) const
-{
-    if ( !spec ) return false;
-
-    res = spec->isUndef() ? BufferString( mUdf(int) ) 
+    res = spec->isUndef() ? BufferString( Values::Undef<T>::val() )
 			  : BufferString( spec->text() );
     return true;
 }
+
+
+template <class T>
+void NumParam<T>::setLimits( const Interval<T>& limit )
+{ reinterpret_cast<NumInpSpec<T>*>(spec)->setLimits( limit ); }
+
 
 
 SeisStorageRefParam::SeisStorageRefParam( const char* key_ )

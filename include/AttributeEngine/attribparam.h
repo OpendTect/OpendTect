@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.9 2005-08-02 13:51:01 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.10 2005-08-02 15:20:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,22 +172,21 @@ public:
 };
 
 
-class FloatParam : public ValParam
+template <class T>
+class NumParam : public ValParam
 {
 public:
-    				FloatParam(const char* key);
-    FloatParam*			clone() const;
+    				NumParam(const char* key);
+    NumParam<T>*		clone();
+
+    void			setLimits(const Interval<T>&);
     virtual bool		getCompositeValue(BufferString&) const;
 };
 
 
-class IntParam : public ValParam
-{
-public:
-    				IntParam(const char* key);
-    IntParam*			clone() const;
-    virtual bool		getCompositeValue(BufferString&) const;
-};
+typedef NumParam<int>		IntParam;
+typedef NumParam<float>		FloatParam;
+typedef NumParam<double>	DoubleParam;
 
 
 class SeisStorageRefParam : public StringParam
