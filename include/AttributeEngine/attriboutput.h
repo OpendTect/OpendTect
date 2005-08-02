@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.8 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.9 2005-08-02 09:53:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,16 +64,18 @@ protected:
 class SliceSetOutput : public Output
 {
 public:
-    			SliceSetOutput( const CubeSampling& );
-			~SliceSetOutput();
+				SliceSetOutput(const CubeSampling&);
+				~SliceSetOutput();
 
-    SliceSet*		getSliceSet() const;
+    SliceSet*			getSliceSet() const;
 
-    bool		getDesiredVolume(CubeSampling&) const;
-    void		setGeometry( const CubeSampling& );
-    void                setUndefValue( float v ) { udfval = v; }
-    bool		wantsOutput( const BinID& ) const;
-    void		collectData(const BinID&, const DataHolder&,float,int);
+    bool			getDesiredVolume(CubeSampling&) const;
+    void			setGeometry(const CubeSampling&);
+    void                	setUndefValue( float v )	{ udfval = v; }
+
+    bool			wantsOutput(const BinID&) const;
+    void			collectData(const BinID&,const DataHolder&,
+	    				    float,int);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
 protected:
@@ -87,44 +89,44 @@ protected:
 class CubeOutput : public Output
 {
 public:
-    			CubeOutput( const CubeSampling&, LineKey );
-			~CubeOutput();
+				CubeOutput(const CubeSampling&,LineKey);
+				~CubeOutput();
     
-    bool		doInit();
-    void		set2D() { is2d_=true; }
-    bool		getDesiredVolume( CubeSampling& ) const;
-    bool		wantsOutput( const BinID& ) const;
-    bool		setStorageID( const MultiID& );
-    void		setGeometry( const CubeSampling& );
+    bool			doInit();
+    void			set2D()			{ is2d_=true; }
+    bool			getDesiredVolume(CubeSampling&) const;
+    bool			wantsOutput(const BinID&) const;
+    bool			setStorageID(const MultiID&);
+    void			setGeometry(const CubeSampling&);
 
-    bool		doUsePar( const IOPar& );
-    bool		setReqs(const BinID&);
-    SeisTrcBuf* 	getTrcBuf() const;
-    LineKey		curLineKey() { return lkey_; }
-    void		collectData( const BinID&, const DataHolder&, 
-	    				float, int );
+    bool			doUsePar(const IOPar&);
+    bool			setReqs(const BinID&);
+    SeisTrcBuf* 		getTrcBuf() const;
+    LineKey			curLineKey()		{ return lkey_; }
+    void			collectData(const BinID&,const DataHolder&,
+					    float,int);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
 
-    static const char*          seisidkey;
-    static const char*          attribkey;
-    static const char*          inlrangekey;
-    static const char*          crlrangekey;
-    static const char*          depthrangekey;
+    static const char*		seisidkey;
+    static const char*		attribkey;
+    static const char*		inlrangekey;
+    static const char*		crlrangekey;
+    static const char*		depthrangekey;
 
 protected:
 
-    MultiID&            	storid_;
+    MultiID&			storid_;
     CubeSampling		desiredvolume;
     TypeSet< Interval<int> >	sampleinterval;
-    IOPar*              	auxpars;
+    IOPar*			auxpars;
     bool			is2d_;
     BufferString 		errmsg;
 
-    SeisTrcWriter*      	writer_;
+    SeisTrcWriter*		writer_;
     bool 			calcurpos_;
     BinID 			prevpos_;
     bool			storinited_;
-    SeisTrcBuf*         	buf2d_;
+    SeisTrcBuf*			buf2d_;
     LineKey			lkey_;
 };
 
@@ -132,18 +134,20 @@ protected:
 class LocationOutput : public Output
 {
 public:
-    			LocationOutput( BinIDValueSet& );
-			~LocationOutput() {};
+    				LocationOutput(BinIDValueSet&);
+				~LocationOutput() {};
 
-    bool		getDesiredVolume(CubeSampling&) const	{ return true;}
-    bool		wantsOutput( const BinID& ) const;
-    void		collectData(const BinID&, const DataHolder&,float,int);
+    bool			getDesiredVolume(CubeSampling&) const
+    				{ return true;}
+    bool			wantsOutput(const BinID&) const;
+    void			collectData(const BinID&,const DataHolder&,
+	    				    float,int);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
-    static const char*          filenamekey;
-    static const char*          locationkey;
-    static const char*          attribkey;
-    static const char*          surfidkey;
+    static const char*		filenamekey;
+    static const char*		locationkey;
+    static const char*		attribkey;
+    static const char*		surfidkey;
 
 protected:
     BinIDValueSet&		bidvalset_;
@@ -153,24 +157,26 @@ protected:
 class TrcSelectionOutput : public Output
 {
 public:
-    			TrcSelectionOutput(const BinIDValueSet& );
-			~TrcSelectionOutput() ;
+    				TrcSelectionOutput(const BinIDValueSet&);
+				~TrcSelectionOutput() ;
 
-    bool		getDesiredVolume(CubeSampling&) const	{ return true;}
-    bool		wantsOutput( const BinID& ) const;
-    void                setOutput(SeisTrcBuf*);
-    void		collectData(const BinID&, const DataHolder&,float,int);
+    bool			getDesiredVolume(CubeSampling&) const
+				{ return true;}
+    bool			wantsOutput(const BinID&) const;
+    void			setOutput(SeisTrcBuf*);
+    void			collectData(const BinID&,const DataHolder&,
+	    				    float,int);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
 protected:
     TypeSet< Interval<int> >	sampleinterval;
-    BinIDValueSet       	bidvalset_;
-    SeisTrcBuf*         	outpbuf_;
-    float 			stdtrcsz_;
+    const BinIDValueSet&	bidvalset_;
+    SeisTrcBuf*			outpbuf_;
+    float			stdtrcsz_;
     float			stdstarttime_;
 };
 
-}; //Namespace
+} // namespace Attrib
 
 
 #endif
