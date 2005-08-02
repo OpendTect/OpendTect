@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.18 2005-08-02 07:57:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.19 2005-08-02 13:32:44 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -561,7 +561,10 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 	    localcomputezintervals += nigoodstep;
 	else
 	{
-	    localcomputezintervals[idx].include(nigoodstep);
+	    if ( localcomputezintervals.size()<=idx )
+		localcomputezintervals += nigoodstep;
+	    else
+		localcomputezintervals[idx].include(nigoodstep);
 	}
 
 	for ( int out=0; out<outputinterest.size(); out++ )

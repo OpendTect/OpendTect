@@ -73,14 +73,18 @@ void Event::updateDesc( Desc& desc )
 {
     bool issingle = 
 	( (ValParam*)desc.getParam(issingleeventStr()) )-> getBoolValue();
-    int evtype = ( (ValParam*)desc.getParam(eventTypeStr()) )-> getIntValue();
-    if ( !issingle && ( evtype == 6 || evtype == 7 ) )
+    desc.setParamEnabled(eventTypeStr(),!issingle);
+    int evtype = 0;
+
+    if ( !issingle )
+	evtype = ((ValParam*)desc.getParam(eventTypeStr()) )->getIntValue();
+    else
+	desc.setNrOutputs( Seis::UnknowData, 2 );
+
+    if ( !issingle && evtype == 6 || evtype == 7 )
 	desc.setParamEnabled(gateStr(),true);
     else
 	desc.setParamEnabled(gateStr(),false);
-
-    if ( issingle )
-	desc.setNrOutputs( Seis::UnknowData, 2 );
 }
 
 
@@ -89,12 +93,20 @@ Event::Event( Desc& desc_ )
 {
     if ( !isOK() ) return;
 
-    eventtype = ( (ValParam*)desc_.getParam(eventTypeStr()) )->getIntValue(0);
     mGetBool( issingleevent, issingleeventStr() );
     mGetBool( tonext, tonextStr() );
-    
-    mGetFloatInterval( gate, gateStr() );
-    gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
+
+    if ( !issingleevent )
+    {
+	eventtype = ((ValParam*)desc_.getParam(eventTypeStr()))->getIntValue(0);
+
+	if ( eventtype == 6 || eventtype == 7 )
+	{
+	    mGetFloatInterval( gate, gateStr() );
+	    gate.start = gate.start / zFactor(); 
+	    gate.stop = gate.stop / zFactor();
+	}
+    }
 }
 
 
