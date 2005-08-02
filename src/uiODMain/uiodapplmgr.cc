@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.86 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.87 2005-08-02 09:54:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -394,9 +394,11 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    const Interval<float> zrg = visserv->getDataTraceRange( visid );
 	    TypeSet<BinID> bids;
 	    visserv->getDataTraceBids( visid, bids );
+	    BinIDValueSet bidset(2,false);
+	    for ( int idx=0; idx<bids.size(); idx++ )
+		bidset.add( bids[idx], zrg.start, zrg.stop );
 	    SeisTrcBuf data( true );
-	    BinIDValueSet ldghl(1,0);//TODO implement, just enough to compile!
-	    if ( !attrserv->createOutput( ldghl, data, myas ) )
+	    if ( !attrserv->createOutput( bidset, data, myas ) )
 		return false;
 	    visserv->setTraceData( visid, colordata, data );
 	    return true;
