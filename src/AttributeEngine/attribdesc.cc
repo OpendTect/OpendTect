@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.20 2005-08-01 07:32:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.21 2005-08-02 07:57:35 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -128,6 +128,8 @@ bool Desc::getDefStr( BufferString& res ) const
 	res += params[idx]->getKey();
 	res += "=";
 	BufferString val;
+	if ( !params[idx]->getCompositeValue(val) )
+	    val = params[idx]->getDefaultValue();
 	params[idx]->getCompositeValue(val);
 	res += val;
     }

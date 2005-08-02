@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.17 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.18 2005-08-02 07:57:35 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -882,8 +882,24 @@ int Provider::getTotalNrPos( bool is2d )
     }
     if ( !possiblevolume )
 	return false;
-    return is2d ? possiblevolume->nrCrl()
-		: possiblevolume->nrInl() * possiblevolume->nrCrl();
+
+    CubeSampling cs = *possiblevolume;
+    if ( getDesc().isStored() )
+    {
+	cs.hrg.start.inl =
+	    desiredvolume->hrg.start.inl < cs.hrg.start.inl ?
+	    cs.hrg.start.inl : desiredvolume->hrg.start.inl;
+	cs.hrg.stop.inl =
+	    desiredvolume->hrg.stop.inl > cs.hrg.stop.inl ?
+	    cs.hrg.stop.inl : desiredvolume->hrg.stop.inl;
+	cs.hrg.stop.crl =
+	    desiredvolume->hrg.stop.crl > cs.hrg.stop.crl ?
+	    cs.hrg.stop.crl : desiredvolume->hrg.stop.crl;
+	cs.hrg.start.crl =
+	    desiredvolume->hrg.start.crl < cs.hrg.start.crl ?
+	    cs.hrg.start.crl : desiredvolume->hrg.start.crl;
+    }
+    return is2d ? cs.nrCrl() : cs.nrInl() * cs.nrCrl();
 }
 
 

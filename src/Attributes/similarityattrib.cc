@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.5 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.6 2005-08-02 07:57:35 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -199,14 +199,17 @@ bool Similarity::getInputData(const BinID& relpos, int idx)
     const BinID bidstep = inputs[0]-> getStepoutStep(yn);
     if ( extension==mExtensionCube )
     {
+	BinID abstep;
+	abstep.inl = abs(bidstep.inl); abstep.crl = abs(bidstep.crl);
 	int index = 0;
 	for ( BinID localpos(-stepout); localpos.inl<=stepout.inl;
-	      localpos.inl+=bidstep.inl )
+	      localpos.inl++ )
 	{
-	    for ( ; localpos.crl<=stepout.crl; localpos.crl+=bidstep.crl )
+	    for ( localpos.crl = -stepout.crl; localpos.crl<=stepout.crl; 
+		    localpos.crl++ )
 	    {
 		const DataHolder* data = 
-		    		inputs[0]->getData( localpos+relpos, idx );
+			    inputs[0]->getData( localpos*abstep+relpos, idx );
 
 		if ( !data )
 		    return false;
@@ -214,9 +217,7 @@ bool Similarity::getInputData(const BinID& relpos, int idx)
 		    inputdata += 0;
 		inputdata.replace( index, data );
 		if ( dosteer )
-		    steeridx += getSteeringIndex(
-			    	(BinID) (localpos.inl/ bidstep.inl,
-					localpos.crl/ bidstep.crl) );
+		    steeridx += getSteeringIndex( localpos * abstep );
 		index++;
 	    }
 	}
@@ -290,25 +291,28 @@ bool Similarity::computeData( const DataHolder& output,
 	RunningStatistics<float> stats;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
+	    int idx1 = extension==mExtensionCube ? pair : pair*2;
+	    int idx2 = extension==mExtensionCube ? 
+				inputdata.size() - (pair+1) : pair*2 +1;
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
 
-	     if ( !inputdata[pair*2] || ! inputdata[pair*2 + 1])
+	     if ( !inputdata[idx1] || ! inputdata[idx2])
 		 continue;
 	     
 	     if ( dosteer )
 	     {
-	         if ( steeringdata->item(steeridx[pair*2]) )
-		     s0 += steeringdata->item(steeridx[pair*2])
+	         if ( steeringdata->item(steeridx[idx1]) )
+		     s0 += steeringdata->item(steeridx[idx1])
 			 ->value(idx - steeringdata->t0_);
 
-		 if ( steeringdata->item(steeridx[pair*2+1]) )
-		     s1 += steeringdata->item(steeridx[pair*2+1])
+		 if ( steeringdata->item(steeridx[idx2]) )
+		     s1 += steeringdata->item(steeridx[idx2])
 			 ->value(idx - steeringdata->t0_);
 	     }
 
-	     SimiFunc vals0(*(inputdata[pair*2]->item(0)));
-	     SimiFunc vals1(*(inputdata[pair*2+1]->item(0)));
+	     SimiFunc vals0(*(inputdata[idx1]->item(0)));
+	     SimiFunc vals1(*(inputdata[idx2]->item(0)));
 	     stats += similarity(vals0, vals1, s0, s1, 1, gatesz, donormalize);
 	}
 
@@ -324,7 +328,7 @@ bool Similarity::computeData( const DataHolder& output,
 	{
 	    if ( outputinterest[0] ) output.item(0)->setValue(idx,stats.mean());
 
-	    if ( nrpairs>1 )
+	    if ( nrpairs>1 && outputinterest.size()>1 )
 	    {
 		if ( outputinterest[1] ) 
 		    output.item(1)->setValue(idx,stats.median());

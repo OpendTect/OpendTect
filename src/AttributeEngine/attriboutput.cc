@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.11 2005-08-01 10:38:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.12 2005-08-02 07:57:35 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -61,11 +61,8 @@ SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
 {
     const float dz = SI().zRange().step;
     Interval<int> interval;
-    interval.start = (int)( cs.zrg.start / dz );
-    const float stop = ( cs.zrg.stop / dz );
-    interval.stop = (int)stop;
-    if ( stop - interval.stop )
-	interval.stop++;
+    interval.start = mNINT( cs.zrg.start / dz );
+    interval.stop = mNINT( cs.zrg.stop / dz );
     sampleinterval += interval;
 }
 
@@ -154,10 +151,7 @@ CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey )
     const float dz = SI().zRange().step;
     Interval<int> interval;
     interval.start = mNINT( cs.zrg.start / dz );
-    const float stop = ( cs.zrg.stop / dz );
-    interval.stop = mNINT(stop);
-    if ( stop-interval.stop )
-	interval.stop++;
+    interval.stop = mNINT( cs.zrg.stop / dz );
     sampleinterval += interval;
 
     seldata_.linekey_ = lkey;
