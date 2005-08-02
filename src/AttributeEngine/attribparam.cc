@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.9 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.10 2005-08-02 13:51:21 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -357,6 +357,38 @@ bool StringParam::getCompositeValue( BufferString& res ) const
     return true;
 }
 
+
+
+FloatParam::FloatParam( const char* key_ )
+    : ValParam(key_,new FloatInpSpec)
+{}
+
+mParamClone( FloatParam );
+
+bool FloatParam::getCompositeValue( BufferString& res ) const
+{
+    if ( !spec ) return false;
+
+    res = spec->isUndef() ? sKey::FloatUdf : spec->text();
+    return true;
+}
+
+
+
+IntParam::IntParam( const char* key_ )
+    : ValParam(key_,new IntInpSpec)
+{}
+
+mParamClone( IntParam );
+
+bool IntParam::getCompositeValue( BufferString& res ) const
+{
+    if ( !spec ) return false;
+
+    res = spec->isUndef() ? BufferString( mUdf(int) ) 
+			  : BufferString( spec->text() );
+    return true;
+}
 
 
 SeisStorageRefParam::SeisStorageRefParam( const char* key_ )
