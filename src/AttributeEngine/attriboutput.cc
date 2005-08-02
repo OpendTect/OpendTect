@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.14 2005-08-02 12:03:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.15 2005-08-02 15:21:31 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -436,18 +436,25 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset )
     , outpbuf_(0)
 {
     seldata_.type_ = Seis::Table;
-    seldata_.table_.allowDuplicateBids( true );
-    seldata_.table_ = bidvalset;
-    int nrinterv = bidvalset.nrVals()/2;
-    float zmin = bidvalset.valRange(0).start;
-    float zmax = bidvalset.valRange(1).stop;
-    for ( int idx=2; idx<nrinterv; idx+=2 )
-    { 
-	zmin = bidvalset.valRange(idx).start < zmin ? 
-	    		bidvalset.valRange(idx).start : zmin;
-	zmax = bidvalset.valRange(idx+1).stop > zmax ? 
-	    		bidvalset.valRange(idx+1).stop : zmax;
+    seldata_.table_.allowDuplicateBids( bidvalset.totalSize()<2 );
+    seldata_.table_.setNrVals( 1 );
+
+    const int nrinterv = bidvalset.nrVals()/2;
+    float zmin = mUdf(float);
+    float zmax = -mUdf(float);
+    for ( int idx=0; idx<nrinterv; idx+=2 )
+    {
+	float val = bidvalset.valRange(idx).start;
+	if ( val < zmin ) zmin = val;
+	val = bidvalset.valRange(idx+1).stop;
+	if ( val > zmax ) zmax = val;
     }
+
+    BinIDValueSet::Pos pos;
+    bidvalset.next( pos );
+    seldata_.table_.add( bidvalset.getBinID(pos), zmin );
+    while ( bidvalset.next(pos) )
+	seldata_.table_.add( bidvalset.getBinID(pos), zmax );
 
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;
@@ -455,17 +462,14 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset )
 
 
 TrcSelectionOutput::~TrcSelectionOutput()
-{
-    if ( outpbuf_ )
-	outpbuf_->erase();
-}
+{}
 
 
 void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
 				      float refstep, int trcnr )
 {
     int nrcomp = data.nrItems();
-    if ( !nrcomp || nrcomp < desoutputs.size() )
+    if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
 	return;
 
     const int sz = (int)(stdtrcsz_/refstep);
