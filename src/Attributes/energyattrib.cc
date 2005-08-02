@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.5 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.6 2005-08-02 07:04:20 cvsnanne Exp $";
 
 
 #include "energyattrib.h"
@@ -25,7 +25,7 @@ void Energy::initClass()
     Desc* desc = new Desc( attribName() );
     desc->ref();
 
-    ZGateParam* gate = new ZGateParam(gateStr());
+    ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
     desc->addParam( gate );
 
@@ -40,9 +40,9 @@ void Energy::initClass()
 }
 
 
-Provider* Energy::createInstance( Desc& ds )
+Provider* Energy::createInstance( Desc& desc )
 {
-    Energy* res = new Energy( ds );
+    Energy* res = new Energy( desc );
     res->ref();
 
     if ( !res->isOK() )
@@ -56,13 +56,14 @@ Provider* Energy::createInstance( Desc& ds )
 }
 
 
-Energy::Energy( Desc& desc_ )
-        : Provider( desc_ )
+Energy::Energy( Desc& desc )
+        : Provider( desc )
 {
     if ( !isOK() ) return;
 
     mGetFloatInterval( gate, gateStr() );
-    gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
+    gate.start = gate.start / zFactor();
+    gate.stop = gate.stop / zFactor();
 
     inputdata.allowNull( true );
 }
@@ -93,8 +94,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     ValueSeries<float>* outp = output.item(0);
 
     Interval<int> samplegate( mNINT(gate.start/refstep),
-	    			mNINT(gate.stop/refstep) );
-    int sz = samplegate.width() + 1;
+			      mNINT(gate.stop/refstep) );
+    const int sz = samplegate.width() + 1;
     
     RunningStatistics<float> calc;
 
@@ -102,20 +103,22 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int cursamp = csample + idx;
-	calc += inputdata[0]->item(0)->value(cursamp - inputdata[0]->t0_);
+	calc += inputdata[0]->item(0)->value( cursamp-inputdata[0]->t0_ );
     }
+
+    outp->setValue( 0, calc.sqSum()/sz );
 
     calc.lock();
 
     csample = t0 + samplegate.stop;
-    for ( int idx=0; idx<nrsamples; idx++ )
+    for ( int idx=1; idx<nrsamples; idx++ )
     {
-	outp->setValue(idx, calc.sqSum()/sz);
-	const int cursamp = csample + idx + 1;
-	calc += inputdata[0]->item(0)->value(cursamp - inputdata[0]->t0_);
+	const int cursamp = csample + idx;
+	calc += inputdata[0]->item(0)->value( cursamp-inputdata[0]->t0_ );
+	outp->setValue( idx, calc.sqSum()/sz );
     }
 
     return true;
 }
 			
-};
+} // namespace Attrib
