@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.4 2005-08-02 15:36:11 cvsnanne Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -31,27 +31,26 @@ void Convolve::initClass()
 
     EnumParam* kernel = new EnumParam(kernelStr());
     //Note: Ordering must be the same as numbering!
-    kernel->addEnum(kernelTypeStr(mKernelFunctionLowPass));
-    kernel->addEnum(kernelTypeStr(mKernelFunctionLaplacian));
-    kernel->addEnum(kernelTypeStr(mKernelFunctionPrewitt));
+    kernel->addEnum( kernelTypeStr(mKernelFunctionLowPass) );
+    kernel->addEnum( kernelTypeStr(mKernelFunctionLaplacian) );
+    kernel->addEnum( kernelTypeStr(mKernelFunctionPrewitt) );
     kernel->setRequired(false);
     kernel->setDefaultValue("0");
     desc->addParam(kernel);
 
-    EnumParam* shape = new EnumParam(shapeStr());
+    EnumParam* shape = new EnumParam( shapeStr() );
     //Note: Ordering must be the same as numbering!
-    shape->addEnum(shapeTypeStr(mShapeCube));
-    shape->addEnum(shapeTypeStr(mShapeSphere));
+    shape->addEnum( shapeTypeStr(mShapeCube) );
+    shape->addEnum( shapeTypeStr(mShapeSphere) );
     shape->setRequired(false);
     shape->setDefaultValue("1");
     desc->addParam(shape);
 
-    IntInpSpec* intspec = new IntInpSpec();
-    intspec->setLimits( Interval<int>(0,30) );
-    ValParam* size = new ValParam( sizeStr(), intspec );
-    size->setRequired(false);
-    size->setDefaultValue("3");
-    desc->addParam( size );
+    IntParam* sizepar = new IntParam( sizeStr() );
+    sizepar->setLimits( Interval<int>(0,30) );
+    sizepar->setRequired(false);
+    sizepar->setDefaultValue("3");
+    desc->addParam( sizepar );
 
     desc->addOutputDataType( Seis::UnknowData );
 

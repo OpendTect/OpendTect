@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.3 2005-08-01 12:17:00 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.4 2005-08-02 15:36:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,8 @@ void Scaling::initClass()
     scalingtype->addEnum(scalingTypeNamesStr(mScalingTypeWindow));
     desc->addParam(scalingtype);
 
-    FloatInpSpec* floatspec = new FloatInpSpec();
-    floatspec->setLimits( Interval<float>(0,mUndefValue) );
-    ValParam* powerval = new ValParam( powervalStr(), floatspec );
+    FloatParam* powerval = new FloatParam( powervalStr() );
+    powerval->setLimits( Interval<float>(0,mUndefValue) );
     powerval->setDefaultValue("1");
     powerval->setRequired(false);
     desc->addParam( powerval );
@@ -64,9 +63,8 @@ void Scaling::initClass()
 		= new ParamGroup<ZGateParam>( 0, gateStr(), gate );
     desc->addParam( gateset );
 
-    FloatInpSpec* floatinpspec = new FloatInpSpec();
-    floatinpspec->setLimits( Interval<float>(0,mUndefValue) );
-    ValParam factor( factorStr(), floatinpspec );
+    FloatParam factor( factorStr() );
+    factor.setLimits( Interval<float>(0,mUndefValue) );
     factor.setDefaultValue("1");
 
     ParamGroup<ValParam>* factorset

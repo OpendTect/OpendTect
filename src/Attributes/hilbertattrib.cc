@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.6 2005-08-02 07:57:35 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.7 2005-08-02 15:36:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,10 @@ void Hilbert::initClass()
     Desc* desc = new Desc( attribName() );
     desc->ref();
 
-    ValParam* halflen = new ValParam( halflenStr(), new IntInpSpec() );
+    IntParam* halflen = new IntParam( halflenStr() );
     halflen->setDefaultValue( "30" );
-    desc->addParam(halflen);
-    desc->setParamEnabled( halflenStr(),false );
+    desc->addParam( halflen );
+    desc->setParamEnabled( halflenStr(), false );
 
     InputSpec inputspec( "Input data", true );
     desc->addInput( inputspec );

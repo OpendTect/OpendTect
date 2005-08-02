@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.3 2005-08-02 15:36:11 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -30,9 +30,8 @@ void VolStats::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    IntInpSpec* intspec = new IntInpSpec();
-    intspec->setLimits( Interval<int>(1,INT_MAX) );
-    ValParam* nrvolumes = new ValParam( nrvolumesStr(), intspec );
+    IntParam* nrvolumes = new IntParam( nrvolumesStr() );
+    nrvolumes->setLimits( Interval<int>(1,INT_MAX) );
     nrvolumes->setDefaultValue("1");
     nrvolumes->setRequired(false);
     desc->addParam( nrvolumes );

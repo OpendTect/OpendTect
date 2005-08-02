@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.3 2005-08-02 15:36:11 cvsnanne Exp $";
 
 #include "hashattrib.h"
 #include "attribdataholder.h"
@@ -25,11 +25,11 @@ void Hash::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    BinIDParam* pos = new BinIDParam(posStr());
-    pos->setDefaultValue(BinID(0,0));
+    BinIDParam* pos = new BinIDParam( posStr() );
+    pos->setDefaultValue( BinID(0,0) );
     desc->addParam( pos );
 
-    desc->addParam( new ValParam( timeStr(), new FloatInpSpec() ) );
+    desc->addParam( new FloatParam( timeStr() ) );
 
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue("false");

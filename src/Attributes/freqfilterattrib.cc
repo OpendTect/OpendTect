@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.3 2005-08-02 15:36:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,19 +207,16 @@ void FreqFilter::initClass()
     filtertype->setRequired(false);
     desc->addParam(filtertype);
 
-    FloatInpSpec* floatspec = new FloatInpSpec();
-    floatspec->setLimits( Interval<float>(0,mUndefValue) );
-    ValParam* minfreq = new ValParam( minfreqStr(), floatspec );
+    FloatParam* minfreq = new FloatParam( minfreqStr() );
+    minfreq->setLimits( Interval<float>(0,mUndefValue) );
     desc->addParam( minfreq );
 
-    FloatInpSpec* fspec = new FloatInpSpec();
-    fspec->setLimits( Interval<float>(0,mUndefValue) );
-    ValParam* maxfreq = new ValParam( maxfreqStr(), fspec );
+    FloatParam* maxfreq = new FloatParam( maxfreqStr() );
+    maxfreq->setLimits( Interval<float>(0,mUndefValue) );
     desc->addParam( maxfreq );
 
-    IntInpSpec* intspec = new IntInpSpec();
-    intspec->setLimits( Interval<int>(2,20) );
-    ValParam* nrpoles = new ValParam( nrpolesStr(), intspec );
+    IntParam* nrpoles = new IntParam( nrpolesStr() );
+    nrpoles->setLimits( Interval<int>(2,20) );
     nrpoles->setDefaultValue("4");
     nrpoles->setRequired(false);
     desc->addParam( nrpoles );

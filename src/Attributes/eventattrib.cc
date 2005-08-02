@@ -29,7 +29,7 @@ void Event::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    desc->addParam( new ValParam(eventTypeStr(), new IntInpSpec()) );
+    desc->addParam( new IntParam(eventTypeStr()) );
     						//0 = Extr, 1 = Max, 2 = Min,
                                                  //3 = ZC, 4 = npZC, 5 = pnZC,
                                                  //6 = GateMax, 7 = GateMin

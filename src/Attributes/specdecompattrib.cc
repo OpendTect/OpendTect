@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.4 2005-08-02 15:36:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,8 +54,7 @@ void SpecDecomp::initClass()
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     desc->addParam( gate );
 
-    FloatInpSpec* floatspec = new FloatInpSpec();
-    ValParam* deltafreq = new ValParam( deltafreqStr(), floatspec );
+    FloatParam* deltafreq = new FloatParam( deltafreqStr() );
     deltafreq->setRequired( false );
     deltafreq->setDefaultValue("5");
     desc->addParam( deltafreq );
