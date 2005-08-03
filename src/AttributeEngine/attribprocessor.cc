@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.11 2005-08-01 08:54:34 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.12 2005-08-03 10:31:48 cvsnanne Exp $";
 
 #include "attribprocessor.h"
 
@@ -32,10 +32,10 @@ Processor::Processor( Desc& desc , const char* lk )
     provider->ref();
     desc_.ref();
 
-    is2d_ = strcmp( (const char*)lk_,"" );
+    is2d_ = lk_ != "";
     if ( is2d_ )
     {
-	provider->setCurLineKey( (const char*)lk_ );
+	provider->setCurLineKey( lk_ );
 	provider->adjust2DLineStoredVolume();
     }
 }
@@ -52,10 +52,11 @@ Processor::~Processor()
 bool Processor::isOK() const { return provider; }
 
 
-void Processor::addOutput( Output* o )
+void Processor::addOutput( Output* output )
 {
-    o->ref();
-    outputs += o;
+    if ( !output ) return;
+    output->ref();
+    outputs += output;
 }
 
 
@@ -67,7 +68,7 @@ int Processor::nextStep()
 	CubeSampling globalcs;
 	for ( int idx=0; idx<outputs.size(); idx++ )
 	{
-	    provider->setSelData(outputs[idx]->getSelData());
+	    provider->setSelData( outputs[idx]->getSelData() );
 
 	    CubeSampling cs;
 	    if ( !outputs[idx]->getDesiredVolume(cs) )
@@ -78,7 +79,8 @@ int Processor::nextStep()
 		continue;
 	    }
 
-	    if ( !idx ) globalcs = cs;
+	    if ( !idx )
+		globalcs = cs;
 	    else
 	    {
 		globalcs.hrg.include(cs.hrg.start);
@@ -102,10 +104,9 @@ int Processor::nextStep()
 
 	provider->setDesiredVolume( globalcs );
 	if ( !provider->getInputs().size() && !provider->getDesc().isStored() )
-	    provider->setPossibleVolume(globalcs);
+	    provider->setPossibleVolume( globalcs );
 	else
 	    provider->getPossibleVolume( -1, globalcs );
-
     }
 
     const int res = provider->moveToNextTrace();
@@ -115,7 +116,7 @@ int Processor::nextStep()
 	if ( is2d_ )
 	{
 	    curbid.inl = 0;
-	    curbid.crl = provider-> getCurrentTrcNr();
+	    curbid.crl = provider->getCurrentTrcNr();
 	}
 	
 	//TODO: Smarter way if output's intervals don't intersect
@@ -126,8 +127,10 @@ int Processor::nextStep()
 	    if ( !outputs[idx]->wantsOutput(curbid) ) 
 		continue;
 
-	    if ( isset )//just assume that intervals.size() will be != 0 only in 			//case of arbitrary shapes which will require only 
-			//one output.
+	    //just assume that intervals.size() will be != 0 only in
+	    //case of arbitrary shapes which will require only 
+	    //one output.
+	    if ( isset )
 		localintervals[0].include(
 				outputs[idx]->getLocalZRange(curbid)[0]);
 	    else
@@ -137,11 +140,13 @@ int Processor::nextStep()
 	    }
 	}
 
-	if ( isset ) provider->addLocalCompZIntervals(localintervals);
+	if ( isset ) 
+	    provider->addLocalCompZIntervals( localintervals );
+
 	for ( int idi=0; idi<localintervals.size(); idi++ )
 	{
 	    const DataHolder* data = isset ? 
-				    provider->getData(BinID(0,0), idi): 0;
+				    provider->getData(BinID(0,0),idi) : 0;
 	    if ( data )
 	    {
 		for ( int idx=0; idx<outputs.size(); idx++ )
@@ -155,7 +160,9 @@ int Processor::nextStep()
 		}
 	    }
 	}
-    if ( provider->getPossibleVolume()->hrg.includes(curbid) ) nrdone++;
+
+	if ( provider->getPossibleVolume()->hrg.includes(curbid) )
+	    nrdone++;
     }
 
     provider->resetMoved();
@@ -163,6 +170,7 @@ int Processor::nextStep()
     nriter++;
     return res;
 }
+
 
 int Processor::totalNr() const
 {
@@ -175,4 +183,4 @@ const char* Processor::getAttribName()
     return desc_.attribName();
 }
 
-}; //namespace
+}; // namespace Attrib
