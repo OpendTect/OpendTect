@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.11 2005-08-01 12:05:37 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.12 2005-08-03 10:58:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -819,7 +819,7 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
     createProcSet( pset, *procattrset, lineKey().buf(), outattribs );
     if ( !pset.size() )
     {
-	errmsg = "no processor created";
+	errmsg = "No processor created";
 	return false;
     }
 
@@ -828,12 +828,11 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
 
 
 ExecutorGroup* EngineMan::trcSelOutputCreator( BufferString& errmsg,
-					    const BinIDValueSet& bidvalset,
-					    SeisTrcBuf& output )
+					       const BinIDValueSet& bidvalset,
+					       SeisTrcBuf& output )
 {
-    if ( !getProcessors( procset, errmsg, !outattribs.size() ) 
-	    || !procset.size() );
-	{ deepErase( procset ); return 0; }
+    if ( !getProcessors(procset,errmsg,!outattribs.size()) )
+    { deepErase( procset ); return 0; }
 
     TrcSelectionOutput* attrout	= new TrcSelectionOutput( bidvalset );
     attrout->setOutput( &output );
@@ -844,11 +843,11 @@ ExecutorGroup* EngineMan::trcSelOutputCreator( BufferString& errmsg,
     {
 	procset[idx]->setName(nm);
 	procset[idx]->addOutput( attrout );
-	procgroup->add(procset[idx]);
+	procgroup->add( procset[idx] );
     }
 
     return procgroup;
 };
 
-}//namespace
+} // namespace Attrib
 
