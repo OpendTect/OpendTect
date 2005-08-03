@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.10 2005-08-02 15:20:17 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.11 2005-08-03 07:20:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "refcount.h"
 #include "seistype.h"
+#include "datainpspec.h"
 
 class DataInpSpec;
 class BinID;
@@ -176,12 +177,30 @@ template <class T>
 class NumParam : public ValParam
 {
 public:
-    				NumParam(const char* key);
-    NumParam<T>*		clone();
+    				NumParam(const char* key_)
+				    : ValParam(key_,new NumInpSpec<T>()) {}
+    NumParam<T>*		clone()
+				{ return new NumParam<T>(*this); }
 
-    void			setLimits(const Interval<T>&);
-    virtual bool		getCompositeValue(BufferString&) const;
+    inline void			setLimits(const Interval<T>&);
+    inline virtual bool		getCompositeValue(BufferString&) const;
 };
+
+
+template <class T>
+void NumParam<T>::setLimits( const Interval<T>& limit )
+{ reinterpret_cast<NumInpSpec<T>*>(spec)->setLimits( limit ); }
+
+
+template <class T>
+bool NumParam<T>::getCompositeValue( BufferString& res ) const
+{
+    if ( !spec ) return false;
+
+    res = spec->isUndef() ? sKey::FloatUdf : spec->text();
+    return true;
+}
+
 
 
 typedef NumParam<int>		IntParam;

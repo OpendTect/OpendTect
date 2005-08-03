@@ -4,12 +4,11 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.11 2005-08-02 15:20:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.12 2005-08-03 07:20:43 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
 
-#include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
@@ -356,34 +355,6 @@ bool StringParam::getCompositeValue( BufferString& res ) const
 
     return true;
 }
-
-
-template <class T>
-NumParam<T>::NumParam( const char* key_ )
-    : ValParam(key_,new NumInpSpec<T>)
-{}
-
-
-template <class T>
-NumParam<T>* NumParam<T>::clone()
-{ return new NumParam<T>(*this); }
-
-
-template <class T>
-bool NumParam<T>::getCompositeValue( BufferString& res ) const
-{
-    if ( !spec ) return false;
-
-    res = spec->isUndef() ? BufferString( Values::Undef<T>::val() )
-			  : BufferString( spec->text() );
-    return true;
-}
-
-
-template <class T>
-void NumParam<T>::setLimits( const Interval<T>& limit )
-{ reinterpret_cast<NumInpSpec<T>*>(spec)->setLimits( limit ); }
-
 
 
 SeisStorageRefParam::SeisStorageRefParam( const char* key_ )
