@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.9 2005-08-02 09:53:20 cvsnanne Exp $
+ RCS:           $Id: attriboutput.h,v 1.10 2005-08-03 10:33:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,7 +169,6 @@ public:
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
 protected:
-    TypeSet< Interval<int> >	sampleinterval;
     const BinIDValueSet&	bidvalset_;
     SeisTrcBuf*			outpbuf_;
     float			stdtrcsz_;

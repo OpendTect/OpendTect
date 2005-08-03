@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.15 2005-08-02 15:21:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.16 2005-08-03 10:33:19 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -473,7 +473,7 @@ void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
 	return;
 
     const int sz = (int)(stdtrcsz_/refstep);
-    const int startidx = (int)((data.t0_ - stdstarttime_) / refstep);
+    const int startidx = data.t0_ - mNINT(stdstarttime_/refstep);
     const int index = outpbuf_->find( bid );
     SeisTrc* trc;
 
@@ -490,7 +490,7 @@ void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
 	trc->info().coord = SI().transform( bid );
     }
     else
-	trc = outpbuf_->remove( index );
+	trc = outpbuf_->get( index );
 
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
@@ -503,8 +503,6 @@ void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
 
     if ( index == -1 )
 	outpbuf_->add( trc );
-    else
-	outpbuf_-> insert( trc, index );
 }
 
 
@@ -531,11 +529,12 @@ TypeSet< Interval<int> >
     const float dz = SI().zRange().step;
     TypeSet<float> values;
     bidvalset_.get( pos, binid, values );
+    TypeSet< Interval<int> > sampleinterval;
     for ( int idx=0; idx<values.size()/2; idx+=2 )
     {
 	Interval<int> interval( mNINT(values[idx]/dz), 
 				mNINT(values[idx+1]/dz) );
-	const_cast<TrcSelectionOutput*>(this)->sampleinterval += interval;
+	sampleinterval += interval;
     }
  
     return sampleinterval;
