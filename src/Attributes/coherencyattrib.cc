@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.3 2005-08-03 07:27:50 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.4 2005-08-03 07:35:58 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -185,7 +185,8 @@ bool Coherency::computeData(const DataHolder& output,
 			    const BinID& relpos,
 			    int t0, int nrsamples ) const
 {
-    BinID step = inputs[0]-> getStepoutStep();
+    bool yn;
+    BinID step = inputs[0]-> getStepoutStep(yn);
 	
     const_cast<Coherency*>(this)->distinl = fabs(inldist()*step.inl);
     const_cast<Coherency*>(this)->distcrl = fabs(crldist()*step.crl);
@@ -298,7 +299,8 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
-    const BinID bidstep = inputs[0]-> getStepoutStep();
+    bool yn;
+    const BinID bidstep = inputs[0]-> getStepoutStep(yn);
     if ( type==1 )
     {
 	while ( inputdata.size() < 3 )
