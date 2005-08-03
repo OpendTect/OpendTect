@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.49 2005-07-28 10:53:52 cvshelene Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.50 2005-08-03 10:36:37 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -326,13 +326,12 @@ void RandomTrackDisplay::setData( const SeisTrcBuf& trcbuf, int datatype )
 	    }
 
 	    const SeisTrc* trc = trcbuf.get( trcidx );
-	    float ctime = zrg.start;
 	    for ( int ids=0; ids<nrsamp; ids++ )
 	    {
+		const float ctime = zrg.start + ids*step;
 		val = trc && trc->dataPresent(ctime) ? trc->getValue(ctime,0)
 						     : mUndefValue;
 		arr->set( ids, bidnr, val );
-		ctime += step;
 	    }
 	}
 	
