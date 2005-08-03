@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.2 2005-06-30 11:30:37 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.3 2005-08-03 07:27:50 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -25,9 +25,8 @@ void Coherency::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    IntInpSpec* intspec = new IntInpSpec();
-    intspec->setLimits( Interval<int>(1,2) );
-    ValParam* type = new ValParam( typeStr(), intspec );
+    IntParam* type = new IntParam( typeStr() );
+    type->setLimits( Interval<int>(1,2) );
     type->setDefaultValue("2");
     desc->addParam( type );
 
@@ -36,15 +35,13 @@ void Coherency::initClass()
     gate->setDefaultValue( Interval<float>(-40,40) );
     desc->addParam( gate );
 
-    FloatInpSpec* floatspec = new FloatInpSpec();
-    floatspec->setLimits( Interval<float>(0,mUndefValue) );
-    ValParam* maxdip = new ValParam( maxdipStr(), floatspec );
+    FloatParam* maxdip = new FloatParam( maxdipStr() );
+    maxdip->setLimits( Interval<float>(0,mUndefValue) );
     maxdip->setDefaultValue("250");
     desc->addParam( maxdip );
 
-    FloatInpSpec* floatspec2 = new FloatInpSpec();
-    floatspec2->setLimits( Interval<float>(0,mUndefValue) );
-    ValParam* ddip = new ValParam( ddipStr(), floatspec2 );
+    FloatParam* ddip = new FloatParam( ddipStr() );
+    ddip->setLimits( Interval<float>(0,mUndefValue) );
     ddip->setDefaultValue("10");
     desc->addParam( ddip );
 
