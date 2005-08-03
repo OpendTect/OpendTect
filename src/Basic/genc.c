@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.67 2005-01-05 13:25:43 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.68 2005-08-03 11:18:50 cvsdgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -265,7 +265,7 @@ const char* SearchODFile( const char* fname )
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	sprintf( dbgbuf, "SearchODFile for '%s': '%s'",
-			 fname ? fname : "(null)", nm);
+			 fname ? fname : "(null)", nm ? nm : "<none>");
 	od_debug_message( dbgbuf );
     }
 
@@ -419,7 +419,7 @@ const char* GetPersonalDir(void)
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "GetPersonalDir: '%s'", ptr );
+	sprintf( dbgbuf, "GetPersonalDir: '%s'", ptr ? ptr : "<not found>" );
 	od_debug_message( dbgbuf );
     }
 
