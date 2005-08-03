@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.90 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.91 2005-08-03 12:55:15 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -42,8 +42,8 @@ ___________________________________________________________________
 #include "uicolor.h"
 
 #include "visrandomtrackdisplay.h"
-#include "vissurvwell.h"
-#include "vissurvpickset.h"
+#include "viswelldisplay.h"
+#include "vispicksetdisplay.h"
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
 #include "uiexecutor.h"

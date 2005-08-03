@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.266 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.267 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "viscolortab.h"
 #include "visobject.h"
-#include "vissurvobj.h"
 #include "visselman.h"
+#include "vissurvobj.h"
 #include "vissurvscene.h"
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
@@ -33,7 +33,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 #include "vismpe.h"
 #include "vistransform.h"
-#include "vissurvemobj.h"
+#include "visemobjdisplay.h"
 #include "visevent.h"
 #include "seisbuf.h"
 #include "attribsel.h"

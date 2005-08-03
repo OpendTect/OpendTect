@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.87 2005-08-02 09:54:48 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.88 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
-#include "vissurvpickset.h"
+#include "vispicksetdisplay.h"
 #include "vissurvsurf.h"
 #include "vissurvsurfeditor.h"
 #include "uiattrsurfout.h"

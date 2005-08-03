@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.17 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.18 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,19 +12,11 @@ ________________________________________________________________________
 #include "uivisemobj.h"
 
 #include "attribsel.h"
-//#include "callback.h"
 #include "emhistory.h"
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "emobject.h"
-//#include "emsurfaceedgeline.h"
-//#include "emsurfacegeometry.h"
-//#include "errh.h"
-//#include "ptrman.h"
 #include "survinfo.h"
-//#include "settings.h"
-//#include "emsurfaceedgelineimpl.h"
-//#include "attribsel.h"
 #include "uiexecutor.h"
 #include "uicursor.h"
 #include "uigeninputdlg.h"
@@ -34,9 +26,8 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uivispartserv.h"
 #include "visdataman.h"
-#include "vissurvemobj.h"
+#include "visemobjdisplay.h"
 #include "vismpeeditor.h"
-//#include "vishingeline.h"
 
 const char* uiVisEMObject::trackingmenutxt = "Tracking";
 

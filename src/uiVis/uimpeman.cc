@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.24 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:           $Id: uimpeman.cc,v 1.25 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 #include "vismarker.h"
 #include "emsurfacegeometry.h"
 #include "cubicbeziercurve.h"
-#include "vissurvpickset.h"
+#include "vispicksetdisplay.h"
 
 using namespace MPE;
 

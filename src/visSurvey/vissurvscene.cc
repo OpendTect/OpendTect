@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.68 2005-07-15 14:34:37 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.69 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visevent.h"
 #include "vislight.h"
-#include "vissurvpickset.h"
+#include "vispicksetdisplay.h"
 #include "vistransform.h"
 
 #include <limits.h>

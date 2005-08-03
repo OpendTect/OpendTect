@@ -4,9 +4,9 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.67 2005-07-15 14:32:40 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.68 2005-08-03 12:55:15 cvsnanne Exp $";
 
-#include "vissurvpickset.h"
+#include "vispicksetdisplay.h"
 
 #include "color.h"
 #include "iopar.h"

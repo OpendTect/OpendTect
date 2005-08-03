@@ -1,5 +1,5 @@
-#ifndef vissurvwell_h
-#define vissurvwell_h
+#ifndef viswelldisplay_h
+#define viswelldisplay_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.21 2004-11-16 09:30:23 kristofer Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.22 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 

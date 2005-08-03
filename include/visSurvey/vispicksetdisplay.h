@@ -1,5 +1,5 @@
-#ifndef vissurvpickset_h
-#define vissurvpickset_h
+#ifndef vispicksetdisplay_h
+#define vispicksetdisplay_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.41 2005-07-15 14:34:41 cvskris Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.42 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 

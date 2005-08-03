@@ -1,5 +1,5 @@
-#ifndef vissurvemobj_h
-#define vissurvemobj_h
+#ifndef visemobjdisplay_h
+#define visemobjdisplay_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.19 2005-07-31 08:40:20 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.20 2005-08-03 12:55:15 cvsnanne Exp $
 ________________________________________________________________________
 
 
