@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.12 2005-08-03 07:20:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.13 2005-08-04 10:01:49 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -18,42 +18,42 @@ static const char* rcsID = "$Id: attribparam.cc,v 1.12 2005-08-03 07:20:43 cvsna
 namespace Attrib
 {
 
-Param::Param( const char* key_ )
-    : key( key_ )
-    , enabled( true )
-    , required( true )
+Param::Param( const char* key )
+    : key_( key )
+    , enabled_( true )
+    , required_( true )
     , isgroup_( false )
 {}
 
 
 Param::Param( const Param& b )
-    : key( b.key )
-    , enabled( b.enabled )
-    , required( b.required )
+    : key_( b.key_ )
+    , enabled_( b.enabled_ )
+    , required_( b.required_ )
     , defaultval_( b.defaultval_ )
     , isgroup_( b.isgroup_ )
 {}
 
 
-ValParam::ValParam( const char* key_, DataInpSpec* spec_ )
-    : Param( key_ )
-    , spec( spec_ )
+ValParam::ValParam( const char* key, DataInpSpec* spec )
+    : Param( key )
+    , spec_( spec )
 {}
 
 
 ValParam::ValParam( const ValParam& b )
-    : Param( b.key )
-    , spec( b.spec->clone() )
+    : Param( b.key_ )
+    , spec_( b.spec_->clone() )
 {
-    enabled = b.enabled;
-    required = b.required;
+    enabled_ = b.enabled_;
+    required_ = b.required_;
     defaultval_ = b.defaultval_;
 }
 
 
 ValParam::~ValParam()
 {
-    delete spec;
+    delete spec_;
 }
 
 
@@ -67,13 +67,13 @@ bool ValParam::isEqual( const Param& b ) const
 {
     mDynamicCastGet(ValParam*,vp,&const_cast<Param&>(b))
 
-    if ( spec->nElems() != vp->spec->nElems() )
+    if ( spec_->nElems() != vp->spec_->nElems() )
 	return false;
 
-    for ( int idx=0; idx<spec->nElems(); idx++ )
+    for ( int idx=0; idx<spec_->nElems(); idx++ )
     {
-	BufferString buf1 = spec->text(idx);
-	BufferString buf2 = vp->spec->text(idx);
+	BufferString buf1 = spec_->text(idx);
+	BufferString buf2 = vp->spec_->text(idx);
 	if ( buf1 != buf2 )
 	    return false;
     }
@@ -84,12 +84,12 @@ bool ValParam::isEqual( const Param& b ) const
 
 bool ValParam::isOK() const
 {
-    if ( !enabled ) return true;
-    if ( spec->isUndef() ) return !required;
+    if ( !enabled_ ) return true;
+    if ( spec_->isUndef() ) return !required_;
 
-    for ( int idx=0; idx<spec->nElems(); idx++ )
+    for ( int idx=0; idx<spec_->nElems(); idx++ )
     {
-	if ( !spec->isInsideLimits(idx) )
+	if ( !spec_->isInsideLimits(idx) )
 	    return false;
     }
 
@@ -99,30 +99,30 @@ bool ValParam::isOK() const
 
 
 int ValParam::nrValues() const
-{ return spec->nElems(); }
+{ return spec_->nElems(); }
 
 
 #define mSetGet(type,getfunc) \
 type ValParam::getfunc( int idx ) const \
-{ return spec->getfunc(idx); } \
+{ return spec_->getfunc(idx); } \
 \
 void ValParam::setValue( type val, int idx ) \
-{ spec->setValue( val, idx ); }
+{ spec_->setValue( val, idx ); }
 
 mSetGet(int,getIntValue)
 mSetGet(float,getfValue)
 mSetGet(bool,getBoolValue)
 
 const char* ValParam::getStringValue( int idx ) const
-{ return spec->text(idx); }
+{ return spec_->text(idx); }
 
 void ValParam::setValue( const char* str, int idx )
-{ spec->setText( str, idx ); }
+{ spec_->setText( str, idx ); }
 
 
 bool ValParam::setCompositeValue( const char* nv )
 {
-    if ( !spec->setText(nv,0) )
+    if ( !spec_->setText(nv,0) )
 	return false;
 
     return isOK();
@@ -131,8 +131,8 @@ bool ValParam::setCompositeValue( const char* nv )
 
 bool ValParam::getCompositeValue( BufferString& res ) const
 {
-    if ( !spec ) return false;
-    res = spec->text();
+    if ( !spec_ ) return false;
+    res = spec_->text();
 
     return true;
 }
@@ -162,11 +162,11 @@ bool ZGateParam::setCompositeValue( const char* gatestrvar )
 	    ArrPtrMan<char> valuestr = new char[gatestrsz];
 	    strncpy( valuestr, &gatestrvar[1], idx - 1 );
 	    valuestr[idx-1] = 0;
-	    spec->setText( valuestr, 0 );
+	    spec_->setText( valuestr, 0 );
 
 	    strncpy( valuestr, &gatestrvar[idx+1], gatestrsz - idx - 2 );
 	    valuestr[gatestrsz - idx - 2] = 0;
-	    spec->setText( valuestr, 1 );
+	    spec_->setText( valuestr, 1 );
 
 	    res = true;
 	}
@@ -177,7 +177,7 @@ bool ZGateParam::setCompositeValue( const char* gatestrvar )
 
 
 void ZGateParam::setLimits( const Interval<float>& rg )
-{ reinterpret_cast<FloatInpIntervalSpec*>(spec)->setLimits(rg); }
+{ reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setLimits(rg); }
 
 
 void ZGateParam::setDefaultValue(const Interval<float>& defaultgate)
@@ -201,9 +201,9 @@ void ZGateParam::setValue(const Interval<float>& gate)
 bool ZGateParam::getCompositeValue( BufferString& res ) const
 {
     res = "[";
-    res += spec->text(0);
+    res += spec_->text(0);
     res += ",";
-    res += spec->text(1);
+    res += spec_->text(1);
     res += "]";
     return true;
 }
@@ -234,13 +234,13 @@ bool BinIDParam::setCompositeValue( const char* posstr )
     strncpy( valuestr, &posstr[0], idx  );
     valuestr[idx] = 0;
 
-    if ( !spec->setText(valuestr,0) )
+    if ( !spec_->setText(valuestr,0) )
 	return false;
 
     strncpy( valuestr, &posstr[idx+1], posstrsz - idx - 1 );
     valuestr[posstrsz - idx - 1] = 0;
 
-    if ( !spec->setText(valuestr,1) )
+    if ( !spec_->setText(valuestr,1) )
 	return false;
 
     return true;
@@ -257,9 +257,9 @@ void BinIDParam::setDefaultValue( const BinID& bid )
 
 bool BinIDParam::getCompositeValue( BufferString& res ) const
 {
-    res = spec->text(0);
+    res = spec_->text(0);
     res += ",";
-    res += spec->text(1);
+    res += spec_->text(1);
     return true;
 }
 
@@ -275,9 +275,9 @@ mParamClone( BoolParam );
 bool BoolParam::setCompositeValue( const char* str )
 {
     if ( !strcasecmp(str,"yes") || !strcasecmp(str,"true") )
-	spec->setValue( true );
+	spec_->setValue( true );
     else if ( !strcasecmp(str,"no") || !strcasecmp(str,"false") )
-	spec->setValue( false );
+	spec_->setValue( false );
     else
 	return false;
 
@@ -288,7 +288,7 @@ bool BoolParam::setCompositeValue( const char* str )
 void BoolParam::setDefaultValue( bool yn )
 {
     BufferString str = yn;
-    spec->setValue( yn );
+    spec_->setValue( yn );
     Param::setDefaultValue( str );
 }
 
@@ -300,7 +300,7 @@ EnumParam::EnumParam( const char* nm )
 mParamClone( EnumParam );
 
 void EnumParam::addEnum( const char* ne )
-{ reinterpret_cast<StringListInpSpec*>(spec)->addString(ne); }
+{ reinterpret_cast<StringListInpSpec*>(spec_)->addString(ne); }
 
 
 void EnumParam::addEnums( const char** nes )
@@ -315,8 +315,8 @@ void EnumParam::addEnums( const char** nes )
 
 
 
-StringParam::StringParam( const char* key_ )
-    : ValParam( key_, new StringInpSpec )
+StringParam::StringParam( const char* key )
+    : ValParam( key, new StringInpSpec )
 {}
 
 mParamClone( StringParam );
@@ -328,7 +328,7 @@ bool StringParam::setCompositeValue( const char* str_ )
     if ( str.size() )// && str[0]=='"' && str[str.size()-1]=='"' )
 		     // no, this is never verified...
     {
-	if ( !spec->setText( str, 0 ) )
+	if ( !spec_->setText( str, 0 ) )
 	    return false;
     }
 
@@ -338,7 +338,7 @@ bool StringParam::setCompositeValue( const char* str_ )
 
 bool StringParam::getCompositeValue( BufferString& res ) const
 {
-    const char* txt = spec->text(0);
+    const char* txt = spec_->text(0);
     if ( !txt ) return false;
     const int sz = strlen(txt);
     bool quote = false;
@@ -357,8 +357,8 @@ bool StringParam::getCompositeValue( BufferString& res ) const
 }
 
 
-SeisStorageRefParam::SeisStorageRefParam( const char* key_ )
-    : StringParam( key_ )
+SeisStorageRefParam::SeisStorageRefParam( const char* key )
+    : StringParam( key )
 {}
 
 
@@ -367,7 +367,7 @@ mParamClone( SeisStorageRefParam );
 
 bool SeisStorageRefParam::isOK() const
 {
-    const char* val = spec->text(0);
+    const char* val = spec_->text(0);
     const LineKey lk( val );
 
     const MultiID mid( lk.lineName() );

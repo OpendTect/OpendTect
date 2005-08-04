@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.11 2005-08-03 07:20:52 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.12 2005-08-04 10:01:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,13 +41,13 @@ public:
 
     virtual bool		isOK() const		= 0;
 
-    bool			isEnabled() const	  { return enabled; }
-    void			setEnabled(bool yn=true)  { enabled=yn; }
-    bool			isRequired() const	  { return required; }
-    void			setRequired(bool yn=true) { required=yn; }
+    bool			isEnabled() const	  { return enabled_; }
+    void			setEnabled(bool yn=true)  { enabled_=yn; }
+    bool			isRequired() const	  { return required_; }
+    void			setRequired(bool yn=true) { required_=yn; }
     bool			isGroup() const		  { return isgroup_; }
 
-    const char*			getKey() const		{ return key.buf(); }
+    const char*			getKey() const		{ return key_.buf(); }
 
 
     virtual bool		setCompositeValue( const char* ) 
@@ -59,20 +59,20 @@ public:
     void			setDefaultValue(BufferString val)
     				{ defaultval_ = val; }
     BufferString		getDefaultValue() { return defaultval_; }
-    void			setKey( char* newkey) { key = newkey; }
+    void			setKey( char* newkey ) { key_ = newkey; }
 
 protected:
 
-    BufferString		key;
+    BufferString		key_;
     bool			isgroup_;
 
-    bool			enabled;
-    bool			required;
+    bool			enabled_;
+    bool			required_;
     BufferString		defaultval_;
 
     bool			_isEqual( const Param& p ) const
 				{
-				    return p.key != key ? false : isEqual( p );
+				    return p.key_!=key_ ? false : isEqual( p );
 				}
     virtual bool		isEqual(const Param&) const	= 0;
 };
@@ -100,13 +100,13 @@ public:
     void			setValue(bool,int idx=0);
     void			setValue(const char*,int idx=0);
 
-    DataInpSpec*		getSpec() { return spec; }
+    DataInpSpec*		getSpec() { return spec_; }
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
     
 protected:
-    DataInpSpec*		spec;
+    DataInpSpec*		spec_;
 
     virtual bool		isEqual(const Param&) const;
 };
@@ -137,7 +137,7 @@ public:
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
 
-    void                        setDefaultValue( const BinID& );
+    void                        setDefaultValue(const BinID&);
 };
 
 
@@ -148,7 +148,7 @@ public:
     BoolParam*			clone() const;
 
     virtual bool		setCompositeValue(const char*);
-    void                        setDefaultValue( bool );
+    void                        setDefaultValue(bool);
 };
 
 
@@ -177,30 +177,40 @@ template <class T>
 class NumParam : public ValParam
 {
 public:
-    				NumParam(const char* key_)
-				    : ValParam(key_,new NumInpSpec<T>()) {}
-    NumParam<T>*		clone()
+    				NumParam(const char* key)
+				    : ValParam(key,new NumInpSpec<T>()) {}
+				NumParam(const NumParam<T>&);
+
+    virtual NumParam<T>*	clone() const
 				{ return new NumParam<T>(*this); }
 
-    inline void			setLimits(const Interval<T>&);
-    inline virtual bool		getCompositeValue(BufferString&) const;
+    void			setLimits(const Interval<T>&);
+    virtual bool		getCompositeValue(BufferString& res) const;
 };
 
 
 template <class T>
-void NumParam<T>::setLimits( const Interval<T>& limit )
-{ reinterpret_cast<NumInpSpec<T>*>(spec)->setLimits( limit ); }
+NumParam<T>::NumParam( const NumParam<T>& np )
+    : ValParam(np.key_,np.spec_->clone())
+{
+    enabled_ = np.enabled_;
+    required_ = np.required_;
+    defaultval_ = np.defaultval_;
+}
 
 
 template <class T>
 bool NumParam<T>::getCompositeValue( BufferString& res ) const
 {
-    if ( !spec ) return false;
-
-    res = spec->isUndef() ? sKey::FloatUdf : spec->text();
+    if ( !spec_ ) return false;
+    res = spec_->isUndef() ? sKey::FloatUdf : spec_->text();
     return true;
 }
 
+
+template <class T>
+void NumParam<T>::setLimits( const Interval<T>& limit )
+{ reinterpret_cast<NumInpSpec<T>*>(spec_)->setLimits( limit ); }
 
 
 typedef NumParam<int>		IntParam;
