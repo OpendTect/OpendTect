@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.3 2005-08-04 14:37:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,15 +72,23 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p )
     winfld->attach( alignedBelow, freqfld );
     winfld->display (false);
 
+    mainObject()->finaliseDone.notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
     setHAlignObj( inpfld );
+}
+
+
+void uiFreqFilterAttrib::finaliseCB( CallBacker* )
+{
+    typeSel(0);
+    isfftSel(0);
 }
 
 
 void uiFreqFilterAttrib::typeSel( CallBacker* )
 {
-    const int val = typefld->getIntValue();
-    const bool hasmin = val==1 || val==2;
-    const bool hasmax = !val || val==2;
+    const int type = typefld->getIntValue();
+    const bool hasmin = type==1 || type==2;
+    const bool hasmax = !type || type==2;
     freqfld->setSensitive( hasmin, 0, 0 );
     freqfld->setSensitive( hasmax, 0, 1 );
     if ( !hasmin ) freqfld->setText( "", 0 );
@@ -90,9 +98,9 @@ void uiFreqFilterAttrib::typeSel( CallBacker* )
 
 void uiFreqFilterAttrib::isfftSel( CallBacker* )
 {
-    bool val = isfftfld->getBoolValue();
-    winfld->display(val);
-    polesfld->display(!val);
+    const bool isfft = isfftfld->getBoolValue();
+    winfld->display( isfft );
+    polesfld->display( !isfft );
 }
 
 
