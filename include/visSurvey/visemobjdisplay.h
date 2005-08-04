@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.20 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.21 2005-08-04 15:51:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class Executor;
 
 namespace EM { class EMManager; }
 namespace Geometry { class Element; }
-namespace visBase { class VisColorTab; }
+namespace visBase { class VisColorTab; class DataObjectGroup; }
 
 namespace visSurvey
 {
@@ -47,6 +47,15 @@ public:
     bool			setEMObject(const MultiID&);
     bool			updateFromEM();
     void			updateFromMPE();
+
+    void			showPosAttrib( int attr, bool yn, const Color&);
+    				/*!<Turns position attributes (as defined in
+				    EM::EMObject) to be marked with a marker. */
+    bool			showsPosAttrib( int attr ) const;
+    				/*!<\returns wether a position attribute (as
+				     defined in EM::EMObject) to be marked
+				     with a marker. */
+
     const MultiID*		getMultiID() const { return &mid; }
 
     void			useTexture(bool yn);
@@ -103,44 +112,49 @@ public:
     int				usePar(const IOPar&);
 
 protected:
-    				~EMObjectDisplay();
-    static visBase::VisualObject* createSection(Geometry::Element*);
-    void			removeAttribCache();
-    bool			addSection(EM::SectionID);
-    void			emSectionChangeCB(CallBacker*);
-    void			clickCB(CallBacker*);
+    					~EMObjectDisplay();
+    static visBase::VisualObject*	createSection(Geometry::Element*);
+    void				removeAttribCache();
+    bool				addSection(EM::SectionID);
+    void				emSectionChangeCB(CallBacker*);
+    void				clickCB(CallBacker*);
+    void				updatePosAttrib(int attrib);
 
-    mVisTrans*			transformation;
-    mVisTrans*			translation;
-    visBase::EventCatcher*	eventcatcher;
-    visBase::VisColorTab*	coltab_;
+    mVisTrans*				transformation;
+    mVisTrans*				translation;
+    visBase::EventCatcher*		eventcatcher;
+    visBase::VisColorTab*		coltab_;
 
-    ObjectSet<visBase::VisualObject> sections;
-    TypeSet<EM::SectionID>	sectionids;
+    ObjectSet<visBase::VisualObject>	sections;
+    TypeSet<EM::SectionID>		sectionids;
 
-    EM::EMManager&		em;
-    MultiID			mid;
-    MPEEditor*			editor;
+    ObjectSet<visBase::DataObjectGroup>	posattribmarkers;
+    TypeSet<int>			posattribs;
 
-    Color			nontexturecol;
-    bool			usestexture;
-    bool			useswireframe;
-    int				curtextureidx;
 
-    Attrib::SelSpec&		as;
-    Attrib::ColorSelSpec&	colas;
-    ObjectSet<const float>	attribcache;
-    TypeSet<int>		attribcachesz;
+    EM::EMManager&			em;
+    MultiID				mid;
+    MPEEditor*				editor;
 
-    static visBase::FactoryEntry oldnameentry;
-    static const char*		earthmodelidstr;
-    static const char*		texturestr;
-    static const char*		colortabidstr;
-    static const char*		shiftstr;
-    static const char*		editingstr;
-    static const char*		wireframestr;
-    static const char*		resolutionstr;
-    static const char*		colorstr;
+    Color				nontexturecol;
+    bool				usestexture;
+    bool				useswireframe;
+    int					curtextureidx;
+
+    Attrib::SelSpec&			as;
+    Attrib::ColorSelSpec&		colas;
+    ObjectSet<const float>		attribcache;
+    TypeSet<int>			attribcachesz;
+
+    static visBase::FactoryEntry	oldnameentry;
+    static const char*			earthmodelidstr;
+    static const char*			texturestr;
+    static const char*			colortabidstr;
+    static const char*			shiftstr;
+    static const char*			editingstr;
+    static const char*			wireframestr;
+    static const char*			resolutionstr;
+    static const char*			colorstr;
 };
 
 

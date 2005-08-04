@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.32 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.33 2005-08-04 15:51:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "emeditor.h"
 #include "viscubicbeziersurface.h"
+#include "visdatagroup.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "visparametricsurface.h"
@@ -220,6 +221,10 @@ void EMObjectDisplay::removeAll()
 	sections[idx]->unRef();
     }
 
+    while ( posattribs.size() )
+	showPosAttrib( posattribs[0], false, Color(0,0,0) );
+
+
     sections.erase();
     sectionids.erase();
 
@@ -287,6 +292,41 @@ void EMObjectDisplay::updateFromMPE()
     if ( MPE::engine().getEditor(objid,hastracker) )
 	enableEditing(true);
 }
+
+
+void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
+{
+    int attribindex = posattribs.indexOf(attr);
+    if ( yn )
+    {
+	if ( attribindex==-1 )
+	{
+	    posattribs += attr;
+	    visBase::DataObjectGroup* group= visBase::DataObjectGroup::create();
+	    group->ref();
+	    addChild( group->getInventorNode() );
+	    posattribmarkers += group;
+
+	    group->addObject( visBase::Material::create() );
+	    attribindex = posattribs.size()-1;
+	}
+
+	mDynamicCastGet(visBase::Material*, material,
+	posattribmarkers[attribindex] );
+	material->setColor( color );
+    }
+    else if ( attribindex!=-1 && !yn )
+    {
+	posattribs -= attr;
+	removeChild(posattribmarkers[attribindex]->getInventorNode());
+	posattribmarkers[attribindex]->unRef();
+	posattribmarkers.remove(attribindex);
+    }
+}
+
+
+bool EMObjectDisplay::showsPosAttrib(int attr) const
+{ return posattribs.indexOf(attr)!=-1; }
 
 
 bool EMObjectDisplay::addSection( EM::SectionID sectionid )
