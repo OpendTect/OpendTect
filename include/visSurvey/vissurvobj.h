@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.39 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.40 2005-08-04 21:12:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,7 @@ public:
     virtual NotifierAccess*	getManipulationNotifier()	{ return 0; }
 
     virtual bool		allowMaterialEdit() const	{ return false;}
-    				/*!\note Mofication of color should be done
+    				/*!\note Modification of color should be done
 				  	 with setMaterial on
 					 visBase::VisualObject */
 
