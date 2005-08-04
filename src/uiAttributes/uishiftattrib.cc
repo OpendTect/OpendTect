@@ -4,13 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.3 2005-08-04 11:37:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uishiftattrib.h"
-#include "hashattrib.h"
+#include "shiftattrib.h"
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "uiattrsel.h"
@@ -63,12 +63,12 @@ void uiShiftAttrib::shiftSel( CallBacker* )
 
 bool uiShiftAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Hash::attribName()) )
+    if ( strcmp(desc.attribName(),Shift::attribName()) )
 	return false;
 
-    mIfGetBinID( Hash::posStr(), pos, stepoutfld->setBinID(pos) );
-    mIfGetFloat( Hash::timeStr(), time, timefld->setValue(time) );
-    mIfGetBool( Hash::steeringStr(), steering, typefld->setValue(!steering) );
+    mIfGetBinID( Shift::posStr(), pos, stepoutfld->setBinID(pos) );
+    mIfGetFloat( Shift::timeStr(), time, timefld->setValue(time) );
+    mIfGetBool( Shift::steeringStr(), steering, typefld->setValue(!steering) );
 
     shiftSel(0);
     return true;
@@ -85,13 +85,13 @@ bool uiShiftAttrib::setInput( const Desc& desc )
 
 bool uiShiftAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Hash::attribName()) )
+    if ( strcmp(desc.attribName(),Shift::attribName()) )
 	return false;
 
     const bool dotime = typefld->getBoolValue();
-    mSetFloat( Hash::timeStr(), dotime ? timefld->getfValue() : 0 );
-    mSetBool( Hash::steeringStr(), dotime ? false : steerfld->willSteer() );
-    mSetBinID( Hash::posStr(), stepoutfld->binID() );
+    mSetFloat( Shift::timeStr(), dotime ? timefld->getfValue() : 0 );
+    mSetBool( Shift::steeringStr(), dotime ? false : steerfld->willSteer() );
+    mSetBinID( Shift::posStr(), stepoutfld->binID() );
 
     return true;
 }

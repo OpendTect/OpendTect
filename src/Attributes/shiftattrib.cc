@@ -4,9 +4,9 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.4 2005-08-04 11:03:08 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.5 2005-08-04 11:38:50 cvsnanne Exp $";
 
-#include "hashattrib.h"
+#include "shiftattrib.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
@@ -14,13 +14,12 @@ static const char* rcsID = "$Id: shiftattrib.cc,v 1.4 2005-08-04 11:03:08 cvshel
 #include "attribsteering.h"
 #include "valseriesinterpol.h"
 #include "datainpspec.h"
-#include "stdio.h"
 
 
 namespace Attrib
 {
 
-void Hash::initClass()
+void Shift::initClass()
 {
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
@@ -53,9 +52,9 @@ void Hash::initClass()
 }
 
 
-Provider* Hash::createInstance( Desc& ds )
+Provider* Shift::createInstance( Desc& ds )
 {
-    Hash* res = new Hash( ds );
+    Shift* res = new Shift( ds );
     res->ref();
 
     if ( !res->isOK() )
@@ -69,14 +68,14 @@ Provider* Hash::createInstance( Desc& ds )
 }
 
     
-void Hash::updateDesc( Desc& desc )
+void Shift::updateDesc( Desc& desc )
 {
     bool issteer = ((ValParam*)desc.getParam(steeringStr()))->getBoolValue();
-        desc.inputSpec(1).enabled = issteer;
+    desc.inputSpec(1).enabled = issteer;
 }
 
 
-Hash::Hash( Desc& desc_ )
+Shift::Shift( Desc& desc_ )
     : Provider( desc_ )
 {
     mGetBinID( pos, posStr() );
@@ -88,7 +87,7 @@ Hash::Hash( Desc& desc_ )
 }
 
 
-bool Hash::getInputOutput( int input, TypeSet<int>& res ) const
+bool Shift::getInputOutput( int input, TypeSet<int>& res ) const
 {
     if ( !steering || !input ) return Provider::getInputOutput( input, res );
 
@@ -97,7 +96,7 @@ bool Hash::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Hash::getInputData(const BinID& relpos, int idx)
+bool Shift::getInputData( const BinID& relpos, int idx )
 {
     bool yn;
     const BinID bidstep = inputs[0]-> getStepoutStep(yn);
@@ -114,8 +113,8 @@ bool Hash::getInputData(const BinID& relpos, int idx)
 }
 
 
-bool Hash::computeData( const DataHolder& output, const BinID& relpos,
-			int t0, int nrsamples ) const
+bool Shift::computeData( const DataHolder& output, const BinID& relpos,
+			 int t0, int nrsamples ) const
 {
     int steeringpos = steering ? getSteeringIndex(pos) : 0;
     if ( !outputinterest[0] ) return false;
@@ -138,11 +137,11 @@ bool Hash::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-const BinID* Hash::reqStepout( int inp, int out ) const
+const BinID* Shift::reqStepout( int inp, int out ) const
 { return inp==1 ? 0 : &stepout; }
 
 
-const Interval<float>* Hash::desZMargin( int inp, int ) const
+const Interval<float>* Shift::desZMargin( int inp, int ) const
 { return inp==1 ? 0 : &interval; }
 
-};//namespace
+}; // namespace Attrib

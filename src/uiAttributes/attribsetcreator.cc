@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribsetcreator.cc,v 1.3 2005-08-04 11:37:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,6 +246,8 @@ static void addGate( BufferString& defstr, const char* gdidesc )
 Desc* AttributeSetCreator::getDesc( const char* gdidesc )
 {
     if ( ! gdidesc || !*gdidesc ) return 0;
+    return 0;
+
 /*
     Desc* ad = 0;
     BufferString defstr;
@@ -256,7 +258,7 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
     }
     else if ( matchStringCI( "Reference time", gdidesc ) )
     {
-	defstr = "RefTime";
+	defstr = "Reference output=2";
     }
     else if ( matchStringCI("Sample",gdidesc) )
     {
@@ -266,7 +268,7 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
 	offs = ptr;
 	ptr = strchr( offs.buf(), ' ' );
 	if ( ptr ) *ptr = '\0';
-	defstr = "Hash pos=0,0 steering=No time=";
+	defstr = "Shift pos=0,0 steering=No time=";
 	defstr += offs;
     }
     else if ( matchStringCI( "Similarity", gdidesc ) )

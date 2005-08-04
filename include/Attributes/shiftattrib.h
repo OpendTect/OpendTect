@@ -1,5 +1,5 @@
-#ifndef hash_h
-#define hash_h
+#ifndef shiftattrib_h
+#define shiftattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.1 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: shiftattrib.h,v 1.2 2005-08-04 11:38:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,11 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "position.h"
 
-#include <limits.h>
+/*!\brief Shift Attribute
 
-/*!\brief Hash Attribute
+  Shift pos= steering=Yes/No
 
-  Hash pos= steering=Yes/No
-
-  Hash takes the input at a specified position and outputs it at other
+  Shift takes the input at a specified position and outputs it at other
   relative positions.
 
 Input:
@@ -36,30 +34,30 @@ Output
 namespace Attrib
 {
 
-class Hash : public Provider
+class Shift : public Provider
 {
 public:
     static void		initClass();
-			Hash( Desc& );
+			Shift(Desc&);
 
-    static const char*	attribName()	{ return "Hash"; }
+    static const char*	attribName()	{ return "Shift"; }
     static const char*	posStr()	{ return "pos"; }
     static const char*	timeStr()	{ return "time"; }
     static const char*	steeringStr()	{ return "steering"; }
 
 protected:
-    static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
-    static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
+    static Provider*	internalCreate(Desc&,ObjectSet<Provider>& existing);
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int idx);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+	    			    int t0,int nrsamples) const;
 
-    const BinID*		reqStepout( int input, int output ) const;
-    const Interval<float>*      desZMargin(int input, int output) const;
+    const BinID*		reqStepout(int input,int output) const;
+    const Interval<float>*	desZMargin(int input,int output) const;
 
     BinID			pos;
     float 			time;
@@ -76,4 +74,3 @@ protected:
 
 
 #endif
-
