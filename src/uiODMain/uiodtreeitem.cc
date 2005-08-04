@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.91 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.92 2005-08-04 15:18:30 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -949,10 +949,10 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &editnodesmnuitem, true, false );
     mAddMenuItem( menu, &insertnodemnuitem, true, false );
+    insertnodemnuitem.removeItems();
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    	    visserv->getObject(displayid));
-
     for ( int idx=0; idx<=rtd->nrKnots(); idx++ )
     {
 	BufferString nodename;
