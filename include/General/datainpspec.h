@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.55 2005-05-02 09:08:48 cvskris Exp $
+ RCS:           $Id: datainpspec.h,v 1.56 2005-08-04 13:08:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,6 +159,10 @@ public:
 			    if ( Values::isUdf(value_) ) return mUdf(T);
 			    return value_;
 			}
+
+    virtual int		getIntValue(int idx=0) const	{ return value(); }
+    virtual double	getValue(int idx=0) const	{ return value(); }
+    virtual float	getfValue(int idx=0) const	{ return value(); }
 
     virtual const char*	text( int idx=0 ) const
 			{
