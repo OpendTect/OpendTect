@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.16 2005-08-03 10:33:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.17 2005-08-04 15:17:21 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -472,7 +472,7 @@ void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
 	return;
 
-    const int sz = (int)(stdtrcsz_/refstep);
+    const int sz = mNINT(stdtrcsz_/refstep);
     const int startidx = data.t0_ - mNINT(stdstarttime_/refstep);
     const int index = outpbuf_->find( bid );
     SeisTrc* trc;
@@ -494,10 +494,16 @@ void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
 
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
-	for ( int idx=0; idx<data.nrsamples_; idx++ )
+	for ( int idx=0; idx<sz; idx++ )
 	{
-	    float val = data.item(desoutputs[comp])->value(idx);
-	    trc->set( startidx+idx, val, comp );
+	    if ( idx < startidx || idx>=startidx+data.nrsamples_ )
+		trc->set( idx, mUdf(float), comp );
+	    else  
+	    {
+		const float val = 
+		    data.item(desoutputs[comp])->value(idx-startidx);
+		trc->set( idx, val, comp );
+	    }
 	}
     }
 
