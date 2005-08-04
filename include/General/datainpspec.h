@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.56 2005-08-04 13:08:37 cvsnanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.57 2005-08-04 13:15:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,7 @@ public:
 			    return value_;
 			}
 
-    virtual int		getIntValue(int idx=0) const	{ return value(); }
+    virtual int		getIntValue(int idx=0) const	{ return (int)value(); }
     virtual double	getValue(int idx=0) const	{ return value(); }
     virtual float	getfValue(int idx=0) const	{ return value(); }
 
