@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.7 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.8 2005-08-04 14:27:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ protected:
 
     bool		initSeisRequester(int req);
     bool		setSeisRequesterSelection(int req);
+    void		setBufferStepout(const BinID&);
 
     bool        	computeData( const DataHolder& output,
 	                	     const BinID& relpos,

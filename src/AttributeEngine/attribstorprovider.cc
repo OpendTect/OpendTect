@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.11 2005-08-02 13:52:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.12 2005-08-04 14:27:41 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -276,6 +276,18 @@ bool StorageProvider::initSeisRequester(int req)
 {
     rg[req]->setStepout( bufferstepout.inl, bufferstepout.crl );
     return rg[req]->prepareWork();
+}
+
+
+void StorageProvider::setBufferStepout( const BinID& ns )
+{
+    if ( ns.inl <= bufferstepout.inl && ns.crl <= bufferstepout.crl )
+	return;
+
+    if ( ns.inl > bufferstepout.inl ) bufferstepout.inl = ns.inl;
+    if ( ns.crl > bufferstepout.crl ) bufferstepout.crl = ns.crl;
+
+    updateStorageReqs();
 }
 
 

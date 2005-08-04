@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.4 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.5 2005-08-04 14:27:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,10 +73,33 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 }
 
 
-void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, 
-			    int inp )
+void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 {
     fld->fillDesc( desc, chtr );
+}
+
+
+void uiAttrDescEd::fillInp( uiSteerCubeSel* fld, Attrib::Desc& desc, int inp )
+{
+    fld->processInput();
+    const DescID inlid = fld->inlDipID();
+    const Attrib::Desc* inpdesc = desc.getInput( inp );
+    if ( inpdesc )
+	chtr.set( inpdesc->id(), inlid );
+    else
+	chtr.setChanged( true );
+
+    desc.setInput( inp, desc.descSet()->getDesc(inlid) );
+
+    const DescID crlid = fld->crlDipID();
+    inpdesc = desc.getInput( inp+1 );
+    if ( inpdesc )
+	chtr.set( inpdesc->id(), crlid );
+    else
+	chtr.setChanged( true );
+
+    desc.setInput( inp+1, desc.descSet()->getDesc(crlid) );
+   
 }
 
 

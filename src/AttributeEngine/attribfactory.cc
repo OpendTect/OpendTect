@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribfactory.cc,v 1.5 2005-03-14 12:14:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribfactory.cc,v 1.6 2005-08-04 14:27:41 cvshelene Exp $";
 
 #include "attribfactory.h"
 
@@ -33,11 +33,7 @@ void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
 {
     const int idx = indexOf(nps->attribName());
     if ( idx!=-1 )
-    {
-	UsrMsg( "Attribute name does already exist in factory and is thus not" 
-		" added", MsgClass::Error );
 	return;
-    }
 
     nps->ref();
     descs += nps;

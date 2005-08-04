@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.3 2005-08-02 15:36:11 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.4 2005-08-04 14:27:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,7 +222,7 @@ void FreqFilter::initClass()
     desc->addParam( nrpoles );
 
     BoolParam* isfftfilter = new BoolParam( isfftfilterStr() );
-    isfftfilter->setDefaultValue("false");
+    isfftfilter->setDefaultValue(false);
     isfftfilter->setRequired(false);
     desc->addParam( isfftfilter );
 

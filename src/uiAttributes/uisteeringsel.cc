@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.4 2005-08-04 14:27:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,10 +227,31 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
 	return DescID::undef();
 
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
+    
     LineKey linekey( ctio.ioobj->key() );
     if ( is2D() )
 	linekey.setAttrName( sKey::Steering );
 
+    BufferString bfstr = StorageProvider::attribName(); bfstr += " "; 
+    bfstr += StorageProvider::keyStr(); bfstr += "=";
+    bfstr += linekey.lineName();
+    desc->parseDefStr(bfstr);
+    desc->setHidden( true );
+    BufferString userref;
+    
+    if ( dipnr )
+    {
+	desc->updateParams();
+	desc->selectOutput(1);
+	userref = ctio.ioobj->name();	userref += "_crline_dip";
+    }
+    else
+    {
+	desc->selectOutput(0);
+	userref = ctio.ioobj->name();	userref += "_inline_dip";
+    }
+
+    desc->setUserRef( userref );
     ValParam* keypar = (ValParam*)desc->getParam( StorageProvider::keyStr() );
     keypar->setValue( linekey );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.16 2005-08-01 10:23:03 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.17 2005-08-04 14:27:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
     void			enableOutput(int output,bool yn=true);
     bool			isOutputEnabled(int output) const;
 
-    void			setBufferStepout(const BinID&);
+    virtual void		setBufferStepout(const BinID&);
     const BinID&		getBufferStepout() const;
     void			setDesiredVolume( const CubeSampling& );
     void                        setPossibleVolume( const CubeSampling& );

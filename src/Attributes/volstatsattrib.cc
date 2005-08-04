@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.3 2005-08-02 15:36:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.4 2005-08-04 14:27:41 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -53,12 +53,12 @@ void VolStats::initClass()
     desc->addParam( gate );
 
     BoolParam* absolutegate = new BoolParam( absolutegateStr() );
-    absolutegate->setDefaultValue("false");
+    absolutegate->setDefaultValue(false);
     absolutegate->setRequired(false);
     desc->addParam( absolutegate );
     
     BoolParam* steering = new BoolParam( steeringStr() );
-    steering->setDefaultValue("false");
+    steering->setDefaultValue(false);
     steering->setRequired(false);
     desc->addParam( steering );
 

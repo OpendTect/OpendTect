@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.2 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.3 2005-08-04 14:27:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ protected:
     void		fillOutput(Attrib::Desc&,int selout);
     void		fillInp(uiAttrSel*,Attrib::Desc&,int inpnr);
     void		fillInp(uiSteeringSel*,Attrib::Desc&,int inpnr);
+    void		fillInp(uiSteerCubeSel*,Attrib::Desc&,int inpnr);
     
     void		putInp(uiAttrSel*,const Attrib::Desc&,int inpnr);
     void		putInp(uiSteerCubeSel*,const Attrib::Desc&,int inpnr);
