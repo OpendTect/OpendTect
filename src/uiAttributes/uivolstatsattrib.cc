@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.3 2005-08-04 14:38:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ static const char* outpstrs[] =
 };
 
 
-uiVolStatsAttrib::uiVolStatsAttrib( uiParent* p )
+uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p )
     : uiAttrDescEd(p)
 {
     inpfld = getInpFld();
@@ -59,7 +59,7 @@ uiVolStatsAttrib::uiVolStatsAttrib( uiParent* p )
 }
 
 
-void uiVolStatsAttrib::set2D( bool yn )
+void uiVolumeStatisticsAttrib::set2D( bool yn )
 {
     inpfld->set2D( yn );
     stepoutfld->set2D( yn );
@@ -67,7 +67,7 @@ void uiVolStatsAttrib::set2D( bool yn )
 }
 
 
-bool uiVolStatsAttrib::setParameters( const Desc& desc )
+bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 {
     if ( strcmp(desc.attribName(),VolStats::attribName()) )
 	return false;
@@ -82,7 +82,7 @@ bool uiVolStatsAttrib::setParameters( const Desc& desc )
 }
 
 
-bool uiVolStatsAttrib::setInput( const Desc& desc )
+bool uiVolumeStatisticsAttrib::setInput( const Desc& desc )
 {
     putInp( inpfld, desc, 0 );
     putInp( steerfld, desc, 1 );
@@ -90,14 +90,14 @@ bool uiVolStatsAttrib::setInput( const Desc& desc )
 }
 
 
-bool uiVolStatsAttrib::setOutput( const Desc& desc )
+bool uiVolumeStatisticsAttrib::setOutput( const Desc& desc )
 {
     outpfld->setValue( desc.selectedOutput() );
     return true;
 }
 
 
-bool uiVolStatsAttrib::getParameters( Desc& desc )
+bool uiVolumeStatisticsAttrib::getParameters( Desc& desc )
 {
     if ( strcmp(desc.attribName(),VolStats::attribName()) )
 	return false;
@@ -111,7 +111,7 @@ bool uiVolStatsAttrib::getParameters( Desc& desc )
 }
 
 
-bool uiVolStatsAttrib::getInput( Desc& desc )
+bool uiVolumeStatisticsAttrib::getInput( Desc& desc )
 {
     inpfld->processInput();
     fillInp( inpfld, desc, 0 );
@@ -120,7 +120,7 @@ bool uiVolStatsAttrib::getInput( Desc& desc )
 }
 
 
-bool uiVolStatsAttrib::getOutput( Desc& desc )
+bool uiVolumeStatisticsAttrib::getOutput( Desc& desc )
 {
     fillOutput( desc, outpfld->getIntValue() );
     return true;
