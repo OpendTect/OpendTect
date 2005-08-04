@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.18 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.19 2005-08-04 16:05:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,6 +174,7 @@ void uiVisEMObject::setUpConnections()
     wireframemnuitem.text = "Wireframe";
     editmnuitem.text = "Edit";
     shiftmnuitem.text = "Shift ...";
+    showseedsmnuitem.text = "Show seeds";
     removesectionmnuitem.text ="Remove section";
     makepermnodemnuitem.text = "Make control permanent";
     removecontrolnodemnuitem.text = "Remove control";
@@ -300,19 +301,25 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid));
 
+    const MultiID* mid = visserv->getMultiID( displayid );
+    EM::EMObject* emobj = mid ?
+	EM::EMM().getObject(EM::EMM().multiID2ObjectID(*mid)) : 0;
+
     mAddMenuItem( menu, &singlecolmnuitem, true, !emod->usesTexture() );
     mAddMenuItem( menu, &shiftmnuitem,
 	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
 
     mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
     mAddMenuItem(&trackmenuitem,&wireframemnuitem,true, emod->usesWireframe());
+
+    const TypeSet<EM::PosID>* seeds = emobj
+	? emobj->getPosAttribList(EM::EMObject::sSeedNode) : 0;
+    mAddMenuItem(&trackmenuitem,&showseedsmnuitem, seeds && seeds->size(),
+		 emod->showsPosAttrib(EM::EMObject::sSeedNode));
+
     mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),false);
 
     mAddMenuItem( menu, &removesectionmnuitem, false, false );
-    const MultiID* mid = visserv->getMultiID( displayid );
-    if ( !mid ) return;
-    EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
-    mDynamicCastGet(EM::EMObject*,emobj,EM::EMM().getObject(emid));
     if ( emobj->nrSections()>1 && emod->getSectionID(menu->getPath())!=-1 )
 	removesectionmnuitem.enabled = true;
 }
@@ -338,6 +345,13 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	emod->useWireframe( !emod->usesWireframe() );
+    }
+    else if ( mnuid==showseedsmnuitem.id )
+    {
+	menu->setIsHandled(true);
+	emod->showPosAttrib( EM::EMObject::sSeedNode,
+			     !emod->showsPosAttrib(EM::EMObject::sSeedNode),
+			     Color( 200, 200, 200 ));
     }
     else if ( mnuid==editmnuitem.id )
     {
