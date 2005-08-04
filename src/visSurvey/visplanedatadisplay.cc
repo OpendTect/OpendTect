@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.83 2005-08-01 12:15:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.84 2005-08-04 19:25:27 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -41,6 +41,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , colcache(0)
     , as(*new Attrib::SelSpec)
     , colas(*new Attrib::ColorSelSpec)
+    , manipulating(this)
     , moving(this)
     , curicstep(SI().inlStep(),SI().crlStep())
     , curzstep(SI().zRange(true).step)
@@ -305,7 +306,7 @@ void PlaneDataDisplay::appVelChCB( CallBacker* )
 
 void PlaneDataDisplay::manipChanged( CallBacker* )
 {
-    moving.trigger();
+    manipulating.trigger();
 }
 
 
@@ -362,8 +363,9 @@ void PlaneDataDisplay::resetManipulation()
 
 void PlaneDataDisplay::acceptManipulation()
 {
-    setCubeSampling( getCubeSampling(true) );
+    CubeSampling newcs = getCubeSampling(true);
     resetManipulation();
+    setCubeSampling( newcs );
 }
 
 

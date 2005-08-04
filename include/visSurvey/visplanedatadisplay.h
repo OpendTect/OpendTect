@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.55 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.56 2005-08-04 19:25:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,8 +74,8 @@ public:
     void			resetManipulation();
     void			acceptManipulation();
     BufferString		getManipulationString() const;
-    NotifierAccess*		getManipulationNotifier()    { return &moving; }
-    NotifierAccess*		getMovementNotification()    { return &moving; }
+    NotifierAccess*		getManipulationNotifier(){return &manipulating;}
+    NotifierAccess*		getMovementNotification(){return &moving;}
     BufferString		getManipulationPos() const;
 
     bool			allowMaterialEdit() const	{ return true; }
@@ -147,6 +147,7 @@ protected:
     float			curzstep;
 
     static const char*		trectstr;
+    Notifier<PlaneDataDisplay>	manipulating;
     Notifier<PlaneDataDisplay>	moving;
 };
 
