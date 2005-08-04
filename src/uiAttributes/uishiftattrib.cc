@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.3 2005-08-04 11:37:44 cvsnanne Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.4 2005-08-04 14:38:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p )
     steerfld = new uiSteeringSel( this, 0 );
     steerfld->attach( alignedBelow, typefld );
 
+    shiftSel(0);
     setHAlignObj( inpfld );
 }
 

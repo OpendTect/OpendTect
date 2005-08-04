@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.2 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.3 2005-08-04 14:38:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,13 +142,12 @@ bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
 {
     const int selattr = desc.selectedOutput();
     outpstatsfld->setValue( selattr );
-/*
-    const char* ext = extstrs[pars.extension];
+
+    const char* ext = extfld->text();
     if ( selattr && (!strcmp(ext,extstrs[1]) || !strcmp(ext,extstrs[2])) )
 	outpstatsfld->setValue( selattr-2 );
     else
 	outpstatsfld->setValue( selattr );
-*/
 
     return true;
 }

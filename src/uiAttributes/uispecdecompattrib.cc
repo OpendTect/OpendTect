@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.3 2005-08-04 14:38:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
 
     mIfGetFloatInterval( SpecDecomp::gateStr(), gate, gatefld->setValue(gate) );
     mIfGetEnum( SpecDecomp::transformTypeStr(), transformtype,
-		typefld->setValue(transformtype) );
+		typefld->setValue(transformtype==0) );
     mIfGetEnum( SpecDecomp::cwtwaveletStr(), cwtwavelet,
 	        waveletfld->setValue(cwtwavelet) );
 
