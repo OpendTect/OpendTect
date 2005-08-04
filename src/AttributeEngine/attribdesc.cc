@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.22 2005-08-02 13:32:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.23 2005-08-04 07:58:04 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -72,7 +72,7 @@ Desc::Desc( const Desc& a )
     , attribname( a.attribname )
     , statusupdater( a.statusupdater )
     , descchecker( a.descchecker )
-    , hidden_( false )
+    , hidden_( a.hidden_ )
     , issteering( false )
     , seloutput( a.seloutput )
     , userref( a.userref )
