@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.21 2005-08-04 15:51:37 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.22 2005-08-05 18:19:36 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "draw.h"
 #include "emposid.h"
 #include "visobject.h"
 #include "vissurvobj.h"
@@ -23,7 +24,13 @@ class Executor;
 
 namespace EM { class EMManager; }
 namespace Geometry { class Element; }
-namespace visBase { class VisColorTab; class DataObjectGroup; }
+namespace visBase
+{
+    class DataObjectGroup;
+    class DrawStyle;
+    class IndexedPolyLine;
+    class VisColorTab;
+}
 
 namespace visSurvey
 {
@@ -61,6 +68,9 @@ public:
     void			useTexture(bool yn);
     bool			usesTexture() const;
 
+    void			setOnlyAtSectionsDisplay(bool yn);
+    bool			getOnlyAtSectionsDisplay() const;
+
     void			readAuxData();
     void			selectTexture(int);
     void			selectNextTexture(bool next);
@@ -73,6 +83,9 @@ public:
     void			setDepthAsAttrib();
 
     bool			allowMaterialEdit() const	{ return true; }
+    const LineStyle*		lineStyle() const;
+    void			setLineStyle(const LineStyle&);
+
     bool			hasColor() const;
     void			setColor(Color);
     Color			getColor() const;
@@ -111,14 +124,23 @@ public:
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
+    NotifierAccess*		getMovementNotification();
+    Notifier<EMObjectDisplay>	hasmoved;
+
 protected:
     					~EMObjectDisplay();
     static visBase::VisualObject*	createSection(Geometry::Element*);
     void				removeAttribCache();
     bool				addSection(EM::SectionID);
-    void				emSectionChangeCB(CallBacker*);
+    void				emChangeCB(CallBacker*);
     void				clickCB(CallBacker*);
     void				updatePosAttrib(int attrib);
+    void				updateIntersectionLines(
+					   const ObjectSet<const SurveyObject>&,
+					   int whichobj );
+    void				otherObjectsMoved(
+					   const ObjectSet<const SurveyObject>&,
+					   int whichobj );
 
     mVisTrans*				transformation;
     mVisTrans*				translation;
@@ -131,13 +153,17 @@ protected:
     ObjectSet<visBase::DataObjectGroup>	posattribmarkers;
     TypeSet<int>			posattribs;
 
+    ObjectSet<visBase::IndexedPolyLine>	intersectionlines;
+    TypeSet<int>			intersectionlineids;
 
     EM::EMManager&			em;
     MultiID				mid;
     MPEEditor*				editor;
 
     Color				nontexturecol;
+    visBase::DrawStyle*			drawstyle;
     bool				usestexture;
+    bool				displayonlyatsections;
     bool				useswireframe;
     int					curtextureidx;
 
@@ -155,6 +181,7 @@ protected:
     static const char*			wireframestr;
     static const char*			resolutionstr;
     static const char*			colorstr;
+    static const char*			onlyatsectionsstr;
 };
 
 
