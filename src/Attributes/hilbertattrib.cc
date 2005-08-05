@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.8 2005-08-04 14:27:41 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.9 2005-08-05 11:05:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ void Hilbert::initClass()
 
     IntParam* halflen = new IntParam( halflenStr() );
     halflen->setDefaultValue( "30" );
+    halflen->setValue( (int)30 );
     halflen->setRequired(false);
     desc->addParam( halflen );
 
