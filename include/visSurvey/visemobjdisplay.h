@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.22 2005-08-05 18:19:36 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.23 2005-08-05 22:34:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,8 @@ public:
 
     void			showPosAttrib( int attr, bool yn, const Color&);
     				/*!<Turns position attributes (as defined in
-				    EM::EMObject) to be marked with a marker. */
+				    EM::EMObject) to be marked with a marker.
+				*/
     bool			showsPosAttrib( int attr ) const;
     				/*!<\returns wether a position attribute (as
 				     defined in EM::EMObject) to be marked
@@ -82,7 +83,7 @@ public:
     void			setColorSelSpec(const Attrib::ColorSelSpec&);
     void			setDepthAsAttrib();
 
-    bool			allowMaterialEdit() const	{ return true; }
+    bool			allowMaterialEdit() const { return true; }
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
 
@@ -182,6 +183,7 @@ protected:
     static const char*			resolutionstr;
     static const char*			colorstr;
     static const char*			onlyatsectionsstr;
+    static const char*			linestylestr;
 };
 
 

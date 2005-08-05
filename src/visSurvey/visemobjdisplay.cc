@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.34 2005-08-05 18:19:46 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.35 2005-08-05 22:34:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ const char* EMObjectDisplay::wireframestr = "WireFrame on";
 const char* EMObjectDisplay::resolutionstr = "Resolution";
 const char* EMObjectDisplay::colorstr = "Color";
 const char* EMObjectDisplay::onlyatsectionsstr = "Display only on sections";
+const char* EMObjectDisplay::linestylestr = "Linestyle";
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
@@ -243,6 +244,13 @@ void EMObjectDisplay::removeAll()
 
     while ( posattribs.size() )
 	showPosAttrib( posattribs[0], false, Color(0,0,0) );
+
+    while ( intersectionlines.size() )
+    {
+	intersectionlines[0]->unRef();
+	intersectionlines.remove(0);
+	intersectionlineids.remove(0);
+    }
 
 
     sections.erase();
@@ -912,6 +920,10 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( saveids.indexOf(coltab_->id())==-1 )
 	saveids += coltab_->id();
 
+    BufferString linestyle;
+    lineStyle()->toString(linestyle);
+    par.set( linestylestr, linestyle );
+
     as.fillPar( par );
     colas.fillPar( par );
 
@@ -931,6 +943,14 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     as.usePar( par );
     colas.usePar( par );
+
+    BufferString linestyle;
+    if ( par.get( linestylestr, linestyle ) )
+    {
+	LineStyle ls;
+	ls.fromString(linestyle);
+	setLineStyle(ls);
+    }
 
     //Editing may not be moved further down, since the enableEditing call
     //will change the wireframe, resolution++
