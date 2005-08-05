@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.33 2005-08-04 15:51:37 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.34 2005-08-05 18:19:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,18 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "cubicbeziersurface.h"
 #include "emmanager.h"
-#include "emobject.h"
+#include "emhorizon.h"
 #include "mpeengine.h"
 #include "emeditor.h"
 #include "viscubicbeziersurface.h"
+#include "viscoord.h"
 #include "visdatagroup.h"
 #include "visdataman.h"
+#include "visdrawstyle.h"
 #include "visevent.h"
 #include "visparametricsurface.h"
+#include "visplanedatadisplay.h"
+#include "vispolyline.h"
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "vistransform.h"
@@ -53,6 +57,7 @@ const char* EMObjectDisplay::editingstr = "Edit";
 const char* EMObjectDisplay::wireframestr = "WireFrame on";
 const char* EMObjectDisplay::resolutionstr = "Resolution";
 const char* EMObjectDisplay::colorstr = "Color";
+const char* EMObjectDisplay::onlyatsectionsstr = "Display only on sections";
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
@@ -67,14 +72,23 @@ EMObjectDisplay::EMObjectDisplay()
     , eventcatcher(0)
     , transformation(0)
     , translation(0)
+    , displayonlyatsections( false )
     , coltab_(visBase::VisColorTab::create())
+    , hasmoved( this )
+    , drawstyle(visBase::DrawStyle::create())
 {
     coltab_->ref();
+    drawstyle->ref();
+    addChild( drawstyle->getInventorNode() );
 }
 
 
 EMObjectDisplay::~EMObjectDisplay()
 {
+    removeChild( drawstyle->getInventorNode() );
+    drawstyle->unRef();
+    drawstyle = 0;
+
     delete &as;
     delete &colas;
     if ( transformation ) transformation->unRef();
@@ -104,6 +118,12 @@ void EMObjectDisplay::setDisplayTransformation( mVisTrans* nt )
 
     for ( int idx=0; idx<sections.size(); idx++ )
 	sections[idx]->setDisplayTransformation(transformation);
+
+    for ( int idx=0; idx<intersectionlines.size(); idx++ )
+	intersectionlines[idx]->setDisplayTransformation(transformation);
+
+    for ( int idx=0; idx<posattribmarkers.size(); idx++ )
+	posattribmarkers[idx]->setDisplayTransformation(transformation);
 
     if ( editor ) editor->setDisplayTransformation(transformation);
 }
@@ -231,7 +251,7 @@ void EMObjectDisplay::removeAll()
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( emobject )
     {
-	emobject->notifier.remove( mCB(this,EMObjectDisplay,emSectionChangeCB));
+	emobject->notifier.remove( mCB(this,EMObjectDisplay,emChangeCB));
 	emobject->unRef();
     }
     if ( editor ) editor->unRef();
@@ -253,7 +273,7 @@ bool EMObjectDisplay::setEMObject( const MultiID& newmid )
 
     mid = newmid;
     emobject->ref();
-    emobject->notifier.notify( mCB(this,EMObjectDisplay,emSectionChangeCB) );
+    emobject->notifier.notify( mCB(this,EMObjectDisplay,emChangeCB) );
     return updateFromEM();
 }
 
@@ -343,6 +363,7 @@ bool EMObjectDisplay::addSection( EM::SectionID sectionid )
     vo->setMaterial( 0 );
     vo->setDisplayTransformation( transformation );
     addChild( vo->getInventorNode() );
+    vo->turnOn( !displayonlyatsections );
 
     sections += vo;
     sectionids += sectionid;
@@ -355,6 +376,7 @@ bool EMObjectDisplay::addSection( EM::SectionID sectionid )
     {
 	psurf->setColorTab( *coltab_ );
 	psurf->useWireframe(useswireframe);
+	psurf->setResolution( getResolution()-1 );
     }
 
     return true;
@@ -383,10 +405,37 @@ bool EMObjectDisplay::usesTexture() const
 { return usestexture; }
 
 
+const LineStyle* EMObjectDisplay::lineStyle() const
+{
+    return usesWireframe() || getOnlyAtSectionsDisplay()
+	? &drawstyle->lineStyle()
+	: 0;
+}
+
+
+void EMObjectDisplay::setLineStyle( const LineStyle& ls )
+{ drawstyle->setLineStyle(ls); }
+
+
 bool EMObjectDisplay::hasColor() const
 {
     return !usesTexture();
 }
+
+
+void EMObjectDisplay::setOnlyAtSectionsDisplay(bool yn)
+{
+    displayonlyatsections = yn;
+
+    for ( int idx=0; idx<sections.size(); idx++ )
+	sections[idx]->turnOn(!displayonlyatsections);
+
+    hasmoved.trigger();
+}
+
+
+bool EMObjectDisplay::getOnlyAtSectionsDisplay() const
+{ return displayonlyatsections; }
 
 
 void EMObjectDisplay::setColor( Color col )
@@ -726,32 +775,37 @@ visBase::VisualObject* EMObjectDisplay::createSection( Geometry::Element* ge )
 }
 
 
-void EMObjectDisplay::emSectionChangeCB( CallBacker* cb )
+void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event!=EM::EMObjectCallbackData::SectionChange )
-	return;
-
+    bool trigger = false;
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
-    mDynamicCastGet(EM::Surface*,emsurface,emobject)
-    if ( !emsurface ) return;
 
-    const EM::SectionID sectionid = cbdata.pid0.sectionID();
-    if ( emsurface->geometry.hasSection(sectionid) )
+    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
     {
-	addSection( sectionid );
-	useWireframe( usesWireframe() );
-	setResolution( getResolution() );
+	mDynamicCastGet(EM::Surface*,emsurface,emobject)
+	if ( !emsurface ) return;
+
+	const EM::SectionID sectionid = cbdata.pid0.sectionID();
+	if ( emsurface->geometry.hasSection(sectionid) )
+	    addSection( sectionid );
+	else
+	{
+	    const int idx = sectionids.indexOf( sectionid );
+	    if ( idx < 0 ) return;
+	    removeChild( sections[idx]->getInventorNode() );
+	    sections[idx]->unRef();
+	    sections.remove( idx );
+	    sectionids.remove(idx);
+	}
+
+	trigger = true;
     }
-    else
-    {
-	const int idx = sectionids.indexOf( sectionid );
-	if ( idx < 0 ) return;
-	removeChild( sections[idx]->getInventorNode() );
-	sections[idx]->unRef();
-	sections.remove( idx );
-	sectionids.remove(idx);
-    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+	trigger = true;
+
+    if ( trigger )
+	hasmoved.trigger();
 }
 
 
@@ -850,6 +904,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( texturestr, usesTexture() );
     par.setYN( wireframestr, usesWireframe() );
     par.setYN( editingstr, isEditingEnabled() );
+    par.setYN( onlyatsectionsstr, getOnlyAtSectionsDisplay() );
     par.set( resolutionstr, getResolution() );
     par.set( shiftstr, getTranslation().z );
     par.set( colorstr, (int)nontexturecol.rgb() );
@@ -898,6 +953,10 @@ int EMObjectDisplay::usePar( const IOPar& par )
     par.get( resolutionstr, resolution );
     setResolution( resolution );
 
+    bool filter = false;
+    par.getYN( onlyatsectionsstr, filter );
+    setOnlyAtSectionsDisplay(filter);
+
     visBase::VisColorTab* coltab;
     int coltabid = -1;
     par.get( colortabidstr, coltabid );
@@ -920,6 +979,176 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     return 1;
 }
+
+
+NotifierAccess* EMObjectDisplay::getMovementNotification() { return &hasmoved; }
+
+
+#define mEndLine \
+{ \
+    if ( cii<2 || ( cii>2 && line->getCoordIndex(cii-2)==-1 ) ) \
+    { \
+	while ( cii && line->getCoordIndex(cii-1)!=-1 ) \
+	    line->getCoordinates()->removePos(line->getCoordIndex(--cii)); \
+    } \
+    else \
+    { \
+	line->setCoordIndex(cii++,-1); \
+    } \
+}
+
+#define mTraverseLine( linetype, startbid, faststop, faststep, slowdim, fastdim ) \
+    const int target##linetype = cs.hrg.start.linetype; \
+    if ( !linetype##rg.includes(target##linetype) ) \
+    { \
+	mEndLine; \
+	continue; \
+    } \
+ \
+    const int rgindex = linetype##rg.getIndex(target##linetype); \
+    const int prev##linetype = linetype##rg.atIndex(rgindex); \
+    const int next##linetype = prev##linetype<target##linetype \
+	? linetype##rg.atIndex(rgindex+1) \
+	: prev##linetype; \
+ \
+    for ( BinID bid=startbid; bid[fastdim]<=faststop; bid[fastdim]+=faststep ) \
+    { \
+	if ( !cs.hrg.includes(bid) ) \
+	{ \
+	    mEndLine; \
+	    continue; \
+	} \
+ \
+	BinID prevbid( bid ); prevbid[slowdim] = prev##linetype; \
+	BinID nextbid( bid ); nextbid[slowdim] = next##linetype; \
+	const Coord3 prevpos(horizon->geometry.getPos(sid,prevbid)); \
+	Coord3 pos = prevpos; \
+	if ( nextbid!=prevbid && prevpos.isDefined() ) \
+	{ \
+	    const Coord3 nextpos = \
+		horizon->geometry.getPos(sid,nextbid); \
+	    if ( nextpos.isDefined() ) \
+	    { \
+		pos += nextpos; \
+		pos /= 2; \
+	    } \
+	} \
+ \
+	if ( !pos.isDefined() || !cs.zrg.includes(pos.z) ) \
+	{ \
+	    mEndLine; \
+	    continue; \
+	} \
+ \
+	line->setCoordIndex(cii++, line->getCoordinates()->addPos(pos)); \
+    }
+
+void EMObjectDisplay::updateIntersectionLines(
+	    const ObjectSet<const SurveyObject>& objs, int whichobj )
+{
+    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    mDynamicCastGet(const EM::Horizon*,horizon,emobject);
+    if ( !horizon ) return;
+
+    if ( whichobj==id() )
+	whichobj = -1;
+
+    TypeSet<int> linestoupdate;
+    BoolTypeSet lineshouldexist( intersectionlineids.size(), false );
+
+    if ( displayonlyatsections )
+    {
+	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
+	    if ( !plane ) continue;
+
+	    const int idy = intersectionlineids.indexOf(plane->id());
+	    if ( idy==-1 )
+	    {
+		linestoupdate += plane->id();
+		lineshouldexist += true;
+	    }
+	    else
+	    {
+		lineshouldexist[idy] = true;
+	    }
+	}
+
+	if ( whichobj!=-1 && linestoupdate.indexOf(whichobj)==-1 )
+	    linestoupdate += whichobj;
+    }
+
+    for ( int idx=0; idx<intersectionlineids.size(); idx++ )
+    {
+	if ( !lineshouldexist[idx] )
+	{
+	    removeChild( intersectionlines[idx]->getInventorNode() );
+	    intersectionlines[idx]->unRef();
+
+	    lineshouldexist.remove(idx);
+	    intersectionlines.remove(idx);
+	    intersectionlineids.remove(idx);
+	    idx--;
+	}
+    }
+
+    for ( int idx=0; idx<linestoupdate.size(); idx++ )
+    {
+	mDynamicCastGet( PlaneDataDisplay*, plane,
+			 visBase::DM().getObject(linestoupdate[idx]) );
+
+	const CubeSampling cs = plane->getCubeSampling();
+
+	int lineidx = intersectionlineids.indexOf(linestoupdate[idx]);
+	if ( lineidx==-1 )
+	{
+	    lineidx = intersectionlineids.size();
+	    intersectionlineids += plane->id();
+	    visBase::IndexedPolyLine* newline =
+		visBase::IndexedPolyLine::create();
+	    newline->ref();
+	    newline->setDisplayTransformation(transformation);
+	    intersectionlines += newline;
+	    addChild( newline->getInventorNode() );
+	}
+
+	visBase::IndexedPolyLine* line = intersectionlines[lineidx];
+	line->getCoordinates()->removeAfter(-1);
+	line->removeCoordIndexAfter(-1);
+	int cii = 0;
+
+	if ( plane->getType()==PlaneDataDisplay::Timeslice )
+	    continue;
+
+	for ( int sectionidx=0; sectionidx<horizon->nrSections(); sectionidx++ )
+	{
+	    const EM::SectionID sid = horizon->sectionID(sectionidx);
+	    const StepInterval<int> inlrg = horizon->geometry.rowRange(sid);
+	    const StepInterval<int> crlrg = horizon->geometry.colRange(sid);
+
+	    if ( plane->getType()==PlaneDataDisplay::Inline )
+	    {
+		mTraverseLine( inl, BinID(targetinl,crlrg.start),
+			       crlrg.stop, crlrg.step, 0, 1 );
+	    }
+	    else
+	    {
+		mTraverseLine( crl, BinID(inlrg.start,targetcrl),
+			       inlrg.stop, inlrg.step, 1, 0 );
+	    }
+
+	    mEndLine;
+	}
+    }
+}
+
+
+void EMObjectDisplay::otherObjectsMoved(
+	    const ObjectSet<const SurveyObject>& objs, int whichobj )
+{ updateIntersectionLines(objs,whichobj); }
+
+
 
 
 }; // namespace visSurvey
