@@ -1,5 +1,5 @@
-#ifndef coherency_h
-#define coherency_h
+#ifndef coherencyattrib_h
+#define coherencyattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]

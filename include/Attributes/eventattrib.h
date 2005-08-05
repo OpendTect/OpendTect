@@ -1,5 +1,5 @@
-#ifndef event_h
-#define event_h
+#ifndef eventattrib_h
+#define eventattrib_h
 
 /*+
   ______________________________________________________________________
@@ -11,7 +11,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: eventattrib.h,v 1.4 2005-07-28 10:53:49 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.h,v 1.5 2005-08-05 10:51:52 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"

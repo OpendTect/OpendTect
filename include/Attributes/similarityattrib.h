@@ -1,5 +1,5 @@
-#ifndef similarity_h
-#define similarity_h
+#ifndef similarityattrib_h
+#define similarityattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.4 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.5 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

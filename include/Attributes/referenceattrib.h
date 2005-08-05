@@ -1,5 +1,5 @@
-#ifndef reference_h
-#define reference_h
+#ifndef referenceattrib_h
+#define referenceattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.1 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: referenceattrib.h,v 1.2 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

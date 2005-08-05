@@ -1,5 +1,5 @@
-#ifndef convolve_h
-#define convolve_h
+#ifndef convolveattrib_h
+#define convolveattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.4 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
     

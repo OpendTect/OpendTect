@@ -1,5 +1,5 @@
-#ifndef freqfilter_h
-#define freqfilter_h
+#ifndef freqfilterattrib_h
+#define freqfilterattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

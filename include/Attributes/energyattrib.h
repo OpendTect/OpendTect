@@ -1,5 +1,5 @@
-#ifndef energy_h
-#define energy_h
+#ifndef energyattrib_h
+#define energyattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.3 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.4 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

@@ -1,5 +1,5 @@
-#ifndef scaling_h
-#define scaling_h
+#ifndef scalingattrib_h
+#define scalingattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.4 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

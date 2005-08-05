@@ -1,5 +1,5 @@
-#ifndef frequency_h
-#define frequency_h
+#ifndef frequencyattrib_h
+#define frequencyattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/

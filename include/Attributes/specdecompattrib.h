@@ -1,5 +1,5 @@
-#ifndef specdecomp_h
-#define specdecomp_h
+#ifndef specdecompattrib_h
+#define specdecompattrib_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.2 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 -*/
 

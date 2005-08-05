@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uidipfilterattrib.h,v 1.1 2005-05-31 12:35:24 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.h,v 1.2 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ protected:
     bool		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
 
-    virtual void	updateForm(bool);
     virtual void	set2D(bool);
 
     void		filtSel(CallBacker*);
@@ -55,9 +54,6 @@ protected:
     void		kernelSel(CallBacker*);
 };
 
-
-#define mIfHaveVal(pars,var) \
-if ( pars.var.isSet() || pars.var.getMode() == AttribParameter::Default )
 
 
 #endif

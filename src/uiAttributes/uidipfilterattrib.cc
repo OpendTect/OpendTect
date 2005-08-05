@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "dipfilterattrib.h"
 #include "convolveattrib.h"
 #include "attribdesc.h"
+#include "attribparam.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
@@ -216,9 +217,9 @@ bool ui3DFilterAttrib::getParameters( Desc& desc )
 {
     if ( !strcmp(desc.attribName(),Convolve::attribName()) )
     {
-	mSetEnum( kernelfld->getIntValue(), Convolve::kernelStr() );
-	mSetEnum( shapefld->getIntValue(), Convolve::shapeStr() );
-	mSetInt( szfld->box()->getValue(), Convolve::sizeStr() );
+	mSetEnum( Convolve::kernelStr(), kernelfld->getIntValue() );
+	mSetEnum( Convolve::shapeStr(), shapefld->getIntValue() );
+	mSetInt( Convolve::sizeStr(), szfld->box()->getValue() );
     }
     else if ( !strcmp(desc.attribName(),DipFilter::attribName()) )
     {

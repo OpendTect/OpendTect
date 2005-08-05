@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.1 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.2 2005-08-05 10:51:52 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -84,12 +84,12 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    output.item(5)->setValue(idx, t0 + idx);
 	if ( outputinterest[6] )
 	{
-	    int val = possiblevolume->hrg.start.inl - currentbid.inl;
+	    int val = currentbid.inl - possiblevolume->hrg.start.inl;
 	    output.item(6)->setValue(idx, val);
 	}
 	if ( outputinterest[7] )
 	{
-	    int val = possiblevolume->hrg.start.crl - currentbid.crl;
+	    int val = currentbid.crl - possiblevolume->hrg.start.crl;
 	    output.item(7)->setValue(idx, val);
 	}
 	if ( outputinterest[8] )
