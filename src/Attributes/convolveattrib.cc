@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.4 2005-08-02 15:36:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.5 2005-08-05 13:05:01 cvsnanne Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -34,7 +34,6 @@ void Convolve::initClass()
     kernel->addEnum( kernelTypeStr(mKernelFunctionLowPass) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionLaplacian) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionPrewitt) );
-    kernel->setRequired(false);
     kernel->setDefaultValue("0");
     desc->addParam(kernel);
 
@@ -42,22 +41,17 @@ void Convolve::initClass()
     //Note: Ordering must be the same as numbering!
     shape->addEnum( shapeTypeStr(mShapeCube) );
     shape->addEnum( shapeTypeStr(mShapeSphere) );
-    shape->setRequired(false);
     shape->setDefaultValue("1");
     desc->addParam(shape);
 
     IntParam* sizepar = new IntParam( sizeStr() );
     sizepar->setLimits( Interval<int>(0,30) );
-    sizepar->setRequired(false);
     sizepar->setDefaultValue("3");
     desc->addParam( sizepar );
 
     desc->addOutputDataType( Seis::UnknowData );
+    desc->addInput( InputSpec("Signal to be convolved",true) );
 
-    InputSpec inputspec( "Signal to be convolved", true );
-    desc->addInput( inputspec );
-    
-    desc->init();
     PF().addDesc( desc, createInstance );
     desc->unRef();
 }

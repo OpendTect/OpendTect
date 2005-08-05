@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.4 2005-08-04 14:27:41 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.5 2005-08-05 13:05:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,6 @@ void FreqFilter::initClass()
     filtertype->addEnum(filterTypeNamesStr(mFilterHighPass));
     filtertype->addEnum(filterTypeNamesStr(mFilterBandPass));
     filtertype->setDefaultValue("0");
-    filtertype->setRequired(false);
     desc->addParam(filtertype);
 
     FloatParam* minfreq = new FloatParam( minfreqStr() );
@@ -218,29 +217,21 @@ void FreqFilter::initClass()
     IntParam* nrpoles = new IntParam( nrpolesStr() );
     nrpoles->setLimits( Interval<int>(2,20) );
     nrpoles->setDefaultValue("4");
-    nrpoles->setRequired(false);
     desc->addParam( nrpoles );
 
     BoolParam* isfftfilter = new BoolParam( isfftfilterStr() );
     isfftfilter->setDefaultValue(false);
-    isfftfilter->setRequired(false);
     desc->addParam( isfftfilter );
 
     EnumParam* window = new EnumParam(windowStr());
     window->addEnums(ArrayNDWindow::WindowTypeNames);
-    window->setRequired(false);
     window->setDefaultValue("CosTaper5");
     desc->addParam(window);
 
     desc->addOutputDataType( Seis::UnknowData );
 
-    InputSpec realspec( "Real data", true );
-    desc->addInput( realspec );
-
-    InputSpec imagspec( "Imaginary data", false );
-    desc->addInput( imagspec );
-
-    desc->init();
+    desc->addInput( InputSpec("Real data",true) );
+    desc->addInput( InputSpec("Imag data",true) );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();

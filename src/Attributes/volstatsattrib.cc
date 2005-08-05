@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.4 2005-08-04 14:27:41 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.5 2005-08-05 13:05:02 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -33,6 +33,7 @@ void VolStats::initClass()
     IntParam* nrvolumes = new IntParam( nrvolumesStr() );
     nrvolumes->setLimits( Interval<int>(1,INT_MAX) );
     nrvolumes->setDefaultValue("1");
+    nrvolumes->setValue( (int)1 );
     nrvolumes->setRequired(false);
     desc->addParam( nrvolumes );
 
@@ -45,7 +46,6 @@ void VolStats::initClass()
     shape->addEnum(shapeTypeStr(mShapeRectangle));
     shape->addEnum(shapeTypeStr(mShapeEllipse));
     shape->setDefaultValue("0");
-    shape->setRequired(false);
     desc->addParam(shape);
 
     ZGateParam* gate = new ZGateParam(gateStr());
@@ -54,12 +54,10 @@ void VolStats::initClass()
 
     BoolParam* absolutegate = new BoolParam( absolutegateStr() );
     absolutegate->setDefaultValue(false);
-    absolutegate->setRequired(false);
     desc->addParam( absolutegate );
     
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue(false);
-    steering->setRequired(false);
     desc->addParam( steering );
 
     int res =0;
@@ -69,9 +67,6 @@ void VolStats::initClass()
     InputSpec inputspec( "Data on which the Volume Statistics should be done",
 	                             true );
     desc->addInput( inputspec );
-
-
-    desc->init();
 
     PF().addDesc( desc, createInstance );
     desc->unRef();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.4 2005-08-02 15:36:11 cvsnanne Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.5 2005-08-05 13:05:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ void SpecDecomp::initClass()
     ttype->addEnum(transTypeNamesStr(mTransformTypeFourier));
     ttype->addEnum(transTypeNamesStr(mTransformTypeDiscrete));
     ttype->addEnum(transTypeNamesStr(mTransformTypeContinuous));
-    ttype->setRequired(false);
     ttype->setDefaultValue("0");
     desc->addParam(ttype);
 
@@ -48,6 +47,7 @@ void SpecDecomp::initClass()
     window->addEnums(ArrayNDWindow::WindowTypeNames);
     window->setRequired(false);
     window->setDefaultValue("CosTaper5");
+    window->setValue( 0 );
     desc->addParam(window);
 
     ZGateParam* gate = new ZGateParam(gateStr());
@@ -55,33 +55,23 @@ void SpecDecomp::initClass()
     desc->addParam( gate );
 
     FloatParam* deltafreq = new FloatParam( deltafreqStr() );
-    deltafreq->setRequired( false );
     deltafreq->setDefaultValue("5");
     desc->addParam( deltafreq );
 
     EnumParam* dwtwavelet = new EnumParam(dwtwaveletStr());
     dwtwavelet->addEnums(WaveletTransform::WaveletTypeNames);
-    dwtwavelet->setRequired(false);
     dwtwavelet->setDefaultValue("Haar");
     desc->addParam(dwtwavelet);
 
     EnumParam* cwtwavelet = new EnumParam(cwtwaveletStr());
     cwtwavelet->addEnums(CWT::WaveletTypeNames);
-    cwtwavelet->setRequired(false);
     cwtwavelet->setDefaultValue("Morlet");
     desc->addParam(cwtwavelet);
 
     desc->addOutputDataType( Seis::UnknowData );
 
-    InputSpec reinputspec( 
-	 "Real data on which the Frequency spectrum should be measured", true );
-    desc->addInput( reinputspec );
-
-    InputSpec iminputspec( 
-	 "Imag data on which the Frequency spectrum should be measured", true );
-    desc->addInput( iminputspec );
-
-    desc->init();
+    desc->addInput( InputSpec("Real data",true) );
+    desc->addInput( InputSpec("Imag data",true) );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();

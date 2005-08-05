@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.4 2005-08-02 15:36:11 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.5 2005-08-05 13:05:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,6 @@ void Scaling::initClass()
     FloatParam* powerval = new FloatParam( powervalStr() );
     powerval->setLimits( Interval<float>(0,mUndefValue) );
     powerval->setDefaultValue("1");
-    powerval->setRequired(false);
     desc->addParam( powerval );
     
     ZGateParam gate( gateStr() );
@@ -82,8 +81,6 @@ void Scaling::initClass()
 
     InputSpec inputspec( "Data on which the Scaling should be applied", true );
     desc->addInput( inputspec );
-
-    desc->init();
 
     PF().addDesc( desc, createInstance );
     desc->unRef();

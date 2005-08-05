@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.2 2005-08-04 14:27:41 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.3 2005-08-05 13:05:02 cvsnanne Exp $";
 
 #include "frequencyattrib.h"
 #include "attribdataholder.h"
@@ -36,31 +36,23 @@ void Frequency::initClass()
 
     BoolParam* normalize = new BoolParam( normalizeStr() );
     normalize->setDefaultValue(false);
-    normalize->setRequired(false);
     desc->addParam( normalize );
 
     EnumParam* window = new EnumParam(windowStr());
     window->addEnums(ArrayNDWindow::WindowTypeNames);
-    window->setRequired(false);
     window->setDefaultValue("CosTaper5");
     desc->addParam(window);
 
     BoolParam* dumptofile = new BoolParam( dumptofileStr() );
-    dumptofile->setDefaultValue(false);
-    dumptofile->setRequired(false);
+    dumptofile->setDefaultValue( false );
+    dumptofile->setValue( false );
+    dumptofile->setRequired( false );
     desc->addParam( dumptofile );
 
     desc->setNrOutputs( Seis::UnknowData, 8 );
 
-    InputSpec reinpspec( "Real data on which the Frequency should be measured",
-	                             true );
-    desc->addInput( reinpspec );
-
-    InputSpec iminpspec( "Imag data on which the Frequency should be measured",
-	                             true );
-    desc->addInput( iminpspec );
-
-    desc->init();
+    desc->addInput( InputSpec("Real data",true) );
+    desc->addInput( InputSpec("Imag data",true) );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();
@@ -69,9 +61,8 @@ void Frequency::initClass()
 
 Provider* Frequency::createInstance( Desc& ds )
 {
-   Frequency* res = new Frequency( ds );
+    Frequency* res = new Frequency( ds );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();

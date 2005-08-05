@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.5 2005-08-04 11:38:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.6 2005-08-05 13:05:02 cvsnanne Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -32,7 +32,6 @@ void Shift::initClass()
 
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue(false);
-    steering->setRequired(false);
     desc->addParam( steering );
 
     desc->addOutputDataType( Seis::UnknowData );
@@ -44,8 +43,6 @@ void Shift::initClass()
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering = true;
     desc->addInput( steeringspec );
-
-    desc->init();
 
     PF().addDesc( desc, createInstance );
     desc->unRef();

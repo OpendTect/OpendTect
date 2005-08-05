@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.3 2005-08-05 13:05:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,37 +38,30 @@ void Position::initClass()
     stepout->setDefaultValue(BinID(0,0));
     desc->addParam( stepout );
 
-    ZGateParam* gate = new ZGateParam(gateStr());
+    ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate, mLargestZGate) );
     desc->addParam( gate );
 
-    EnumParam* oper = new EnumParam(operStr());
+    EnumParam* oper = new EnumParam( operStr() );
     //Note: Ordering must be the same as numbering!
-    oper->addEnum(operTypeStr(mPositionOperMin));
-    oper->addEnum(operTypeStr(mPositionOperMax));
-    oper->addEnum(operTypeStr(mPositionOperMedian));
+    oper->addEnum( operTypeStr(mPositionOperMin) );
+    oper->addEnum( operTypeStr(mPositionOperMax) );
+    oper->addEnum( operTypeStr(mPositionOperMedian) );
     oper->setDefaultValue("0");
-    oper->setRequired(false);
     desc->addParam(oper);
 
-    BoolParam* steering = new BoolParam(steeringStr());
+    BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue("false");
-    steering->setRequired(false);
     desc->addParam(steering);
 
     desc->addOutputDataType( Seis::UnknowData );
 
-    InputSpec inpspec( "Input attribute", true );
-    desc->addInput( inpspec );
-
-    InputSpec outspec( "Output attribute", true );
-    desc->addInput( outspec );
+    desc->addInput( InputSpec("Input attribute",true) );
+    desc->addInput( InputSpec("Output attribute",true) );
 
     InputSpec steerspec( "Steering data", false );
     steerspec.issteering = true;
     desc->addInput( steerspec );
-
-    desc->init();
 
     PF().addDesc( desc, createInstance );
     desc->unRef();
