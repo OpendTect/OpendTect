@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.19 2005-08-04 16:05:36 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.20 2005-08-05 18:24:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "vismpeeditor.h"
+#include "vissurvobj.h"
 
 const char* uiVisEMObject::trackingmenutxt = "Tracking";
 
@@ -178,6 +179,7 @@ void uiVisEMObject::setUpConnections()
     removesectionmnuitem.text ="Remove section";
     makepermnodemnuitem.text = "Make control permanent";
     removecontrolnodemnuitem.text = "Remove control";
+    showonlyatsectionsmnuitem.text = "Display only at sections";
 
     uiMenuHandler* menu = visserv->getMenu(displayid,true);
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
@@ -305,7 +307,10 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     EM::EMObject* emobj = mid ?
 	EM::EMM().getObject(EM::EMM().multiID2ObjectID(*mid)) : 0;
 
-    mAddMenuItem( menu, &singlecolmnuitem, true, !emod->usesTexture() );
+    mAddMenuItem( menu, &singlecolmnuitem, !emod->getOnlyAtSectionsDisplay(),
+	  	  !emod->usesTexture() );
+    mAddMenuItem( menu, &showonlyatsectionsmnuitem, true,
+	          emod->getOnlyAtSectionsDisplay() );
     mAddMenuItem( menu, &shiftmnuitem,
 	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
 
@@ -339,6 +344,22 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     if ( mnuid==singlecolmnuitem.id )
     {
 	emod->useTexture( !emod->usesTexture() );
+	menu->setIsHandled(true);
+    }
+    else if ( mnuid==showonlyatsectionsmnuitem.id )
+    {
+	const bool turnon = !emod->getOnlyAtSectionsDisplay();
+	if ( turnon )
+	{
+	    showedtexture = emod->usesTexture();
+	    if ( showedtexture ) emod->useTexture(false);
+	}
+	else 
+	{
+	    emod->useTexture(showedtexture);
+	}
+
+	emod->setOnlyAtSectionsDisplay( turnon );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==wireframemnuitem.id )
