@@ -11,7 +11,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: eventattrib.h,v 1.5 2005-08-05 10:51:52 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.h,v 1.6 2005-08-05 13:40:07 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"
@@ -63,6 +63,7 @@ protected:
 				     int t0, int nrsamples ) const;
 
     const Interval<float>*           reqZMargin(int input, int output) const;
+    const Interval<float>*           desZMargin(int input, int output) const;
 
     
     VSEvent::Type       	     findEventType() const; 

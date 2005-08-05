@@ -19,7 +19,7 @@
 #include "genericnumer.h"
 #include "valseriesinterpol.h"
 
-#define SGWIDTH 1000
+#define SGWIDTH 100
 
 namespace Attrib
 {
@@ -106,6 +106,17 @@ Event::Event( Desc& desc_ )
 	    gate.start = gate.start / zFactor(); 
 	    gate.stop = gate.stop / zFactor();
 	}
+	else
+	{
+	    gate.start = -SGWIDTH * SI().zRange().step;
+	    gate.stop = SGWIDTH * SI().zRange().step;
+	}
+	
+    }
+    else
+    {
+	gate.start = -SGWIDTH * SI().zRange().step;
+	gate.stop = SGWIDTH * SI().zRange().step;
     }
 }
 
@@ -178,7 +189,7 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 )
 {
     SamplingData<float> sd;
     ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(0)), 
-	    					nrsamples, sd );
+	    					inputdata->nrsamples_, sd );
     VSEvent::Type zc = VSEvent::ZC;
     VSEvent::Type extr = VSEvent::Extr;
     Interval<float> sg(t0, t0-SGWIDTH);
@@ -241,7 +252,7 @@ void Event::multipleEvents( TypeSet<float>& output , int nrsamples, int t0 )
 {
     SamplingData<float> sd;
     ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(0)), 
-	    					nrsamples, sd );
+	    					inputdata->nrsamples_, sd );
     VSEvent::Type evtype = findEventType();
     if ( evtype == VSEvent::GateMax || evtype == VSEvent::GateMin )
     {
@@ -366,6 +377,16 @@ const Interval<float>* Event::reqZMargin(int input, int output) const
 {
     VSEvent::Type evtype = findEventType();
     if ( evtype == VSEvent::GateMax || evtype == VSEvent::GateMin )
+	return &gate;
+    else
+	return 0;
+}
+
+
+const Interval<float>* Event::desZMargin(int input, int output) const
+{
+    VSEvent::Type evtype = findEventType();
+    if ( evtype != VSEvent::GateMax && evtype != VSEvent::GateMin )
 	return &gate;
     else
 	return 0;
