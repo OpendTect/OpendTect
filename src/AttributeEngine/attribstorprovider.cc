@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.12 2005-08-04 14:27:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.13 2005-08-05 13:03:13 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -41,10 +41,6 @@ void StorageProvider::initClass()
     desc->ref();
 
     desc->addParam( new SeisStorageRefParam(keyStr()) );
-
-    if ( !desc->init() )
-    { desc->unRef(); return; }
-
     desc->addOutputDataType( Seis::UnknowData );
 
     PF().addDesc( desc, createFunc );

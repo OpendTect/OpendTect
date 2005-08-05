@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.12 2005-08-03 10:58:51 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.13 2005-08-05 13:03:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,8 @@ void EngineMan::getPossibleVolume( const DescSet& attribset, CubeSampling& cs,
     TypeSet<DescID> desiredids;
     desiredids += outid;
     createProcSet( pset, attribset, linename, desiredids );
+    if ( !pset.size() ) return;
+
     pset[0]->getProvider()->setDesiredVolume( cs );
     pset[0]->getProvider()->getPossibleVolume( -1, cs );
     deepErase( pset );
@@ -135,6 +137,12 @@ void EngineMan::createProcSet( ObjectSet<Processor>& pset,
     targetdescset += targetdesc;
     
     Processor* processor = new Processor( *targetdesc, linename );
+    if ( !processor->isOK() )
+    {
+	delete processor;
+	return;
+    }
+
     processor->addOutputInterest( targetdesc->selectedOutput() );
     pset += processor;
 
