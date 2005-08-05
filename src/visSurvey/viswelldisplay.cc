@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.44 2005-08-03 12:55:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.45 2005-08-05 15:14:47 cvskris Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -142,9 +142,9 @@ bool WellDisplay::setWellId( const MultiID& multiid )
 }
 
 
-const LineStyle& WellDisplay::lineStyle() const
+const LineStyle* WellDisplay::lineStyle() const
 {
-    return well->lineStyle();
+    return &well->lineStyle();
 }
 
 

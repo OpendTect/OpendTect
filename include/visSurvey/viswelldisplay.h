@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.22 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.23 2005-08-05 15:14:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ public:
     bool			setWellId(const MultiID&);
     const MultiID&		wellId() const 		{ return wellid; }
 
-    const LineStyle&		lineStyle() const;
+    const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
 
     void			showWellName(bool);
