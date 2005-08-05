@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.4 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.5 2005-08-05 20:41:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,10 +142,10 @@ bool Math::getInputData( const BinID& relpos, int idi )
 bool Math::computeData( const DataHolder& output, const BinID& relpos, 
 			int t0, int nrsamples ) const
 {
-    if ( !inputdata_.size() ) return false;
-    if ( !expression_ || !inputtable_.size() ) return false;
-
+    //if ( !inputdata_.size() ) return false;
     const int nrvar = expression_->getNrVariables();
+    if ( !expression_ || inputtable_.size()!=nrvar ) return false;
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = t0 + idx;
