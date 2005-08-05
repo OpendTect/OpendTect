@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.6 2005-08-01 07:09:28 cvsnanne Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.7 2005-08-05 01:37:57 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,9 @@ const char* SectionAdjuster::stoptrackstr = "Stop tracking below threshold";
 
 SectionAdjuster::SectionAdjuster( const EM::SectionID& sid )
     : sectionid_(sid)
-    , stopbelowthrhold_(false)
+    , stopbelowthrhold_(true)
     , thresholdval_(0.5)
+    , refpos_(0)
 {}
 
 
@@ -36,9 +37,10 @@ EM::SectionID SectionAdjuster::sectionID() const { return sectionid_; }
 void SectionAdjuster::setPositions(const TypeSet<EM::SubID>& p,
        				   const TypeSet<EM::SubID>* src )
 {
-    pids = p;
-    if ( src ) pidsrc = *src;
-    else pidsrc.erase();
+    refpos_ = 0;
+    pids_ = p;
+    if ( src ) pidsrc_ = *src;
+    else pidsrc_.erase();
 }
 
 

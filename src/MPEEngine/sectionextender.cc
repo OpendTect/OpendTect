@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.2 2005-07-31 03:48:16 cvskris Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.3 2005-08-05 01:37:57 cvsduntao Exp $";
 
 #include "sectionextender.h"
 
@@ -18,6 +18,7 @@ namespace MPE
 
 SectionExtender::SectionExtender( const EM::SectionID& si)
     : sectionid( si )
+    , trkstattbl(0)
 {}
 
 
@@ -28,6 +29,7 @@ void SectionExtender::reset()
 {
     addedpos.erase();
     addedpossrc.erase();
+    trkstattbl = 0;
 }
 
 

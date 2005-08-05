@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.12 2005-07-31 06:14:01 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.13 2005-08-05 01:37:57 cvsduntao Exp $";
 
 #include "emeditor.h"
 
@@ -245,7 +245,7 @@ mMayFunction( maySetDirection );
 mGetFunction( getDirectionPlaneNormal );
 mGetFunction( getDirection );
 
-void ObjectEditor::restartInteractionLine(const EM::SectionID& sid)
+EM::EdgeLineSet* ObjectEditor::getInteractionLine(const EM::SectionID& sid)
 {
     mDynamicCastGet( EM::Surface*, emsurface, &emobject );
     if ( !emsurface )
@@ -261,19 +261,15 @@ void ObjectEditor::restartInteractionLine(const EM::SectionID& sid)
 	EM::EdgeLine* el = new EM::EdgeLine( *emsurface, sid );
 	interactionline = new EM::EdgeLineSet( *emsurface, sid );
 	interactionline->addLine( el );
-	el->setRemoveZeroSegments(false);
     }
     else if ( sid!=interactionline->getSection() )
     {
 	interactionline->setSection(sid);
-	if ( interactionline->getLine(0)->nrSegments() )
-	    interactionline->getLine(0)->getSegment(0)->removeAll();
+        interactionline->getLine(0)->getSegment(0)->removeAll();
     }
+
+    return interactionline;
 }
-
-
-EM::EdgeLineSet* ObjectEditor::getInteractionLine()
-{ return interactionline; }
 
 
 Geometry::ElementEditor* ObjectEditor::getEditor( const EM::SectionID& sid )

@@ -8,19 +8,24 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.12 2005-08-01 07:09:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.13 2005-08-05 01:37:57 cvsduntao Exp $";
 
 #include "emtracker.h"
 
+#include "binidvalset.h"
+#include "consistencychecker.h"
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emposid.h"
+#include "mpeengine.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
-#include "consistencychecker.h"
+#include "survinfo.h"
 #include "trackplane.h"
+#include "trackstattbl.h"
 #include "iopar.h"
 
 #include "ioman.h"
@@ -121,6 +126,114 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 
 bool EMTracker::trackIntersections( const TrackPlane& )
 { return true; }
+
+
+#define mExtendDirection(inl,crl,z) \
+extender->setDirection(BinIDValue(inl,crl,z)); \
+while ( (res=extender->nextStep())>0 )\
+		;\
+\
+if ( res==-1 ) break 
+
+bool EMTracker::trackInVolume()
+{
+    const TypeSet<EM::PosID>* seeds = emobject
+    	? emobject->getPosAttribList(EM::EMObject::sSeedNode)
+	: 0;
+	
+    if ( !seeds || !seeds->size() ) return false;
+    const CubeSampling activevolume = engine().activeVolume();
+    const BinID step(SI().inlRange(true).step, SI().crlRange(true).step);
+    const float zstep = SI().zRange(true).step;
+        
+    TrackingStatusTable trktbl(SI().inlRange(true), SI().crlRange(true));
+    for ( int idx=0; idx<seeds->size(); idx++ )
+	trktbl.setPosTracked((*seeds)[idx].subID());
+    
+    for ( int idx=0; idx<seeds->size(); idx++ )
+    {
+	const EM::SectionID sid = (*seeds)[idx].sectionID();
+
+	SectionTracker* tracker = getSectionTracker(sid, true );
+	TypeSet<EM::SubID> currentseeds(1,(*seeds)[idx].subID());
+	
+	SectionExtender* extender = tracker->extender();
+	EM::SubID refpos = (*seeds)[idx].subID();
+	
+	SectionAdjuster* adjuster = tracker->adjuster();
+	
+	int res;
+	while ( true )
+	{ 
+	    extender->setTrackStatTbl(&trktbl);
+	    
+	    for ( int idy=0; idy<currentseeds.size(); idy++ )
+	    {
+		const EM::PosID pid(EM::PosID(emobject->id(),sid,
+					      currentseeds[idy]));
+		const Coord3 pos = emobject->getPos(pid);
+		
+		bool removeseed = false;
+		if ( !pos.isDefined() )
+		    removeseed = true;
+		else
+		{
+		    const BinID bid = SI().transform(pos);
+		    if ( !activevolume.hrg.includes(bid) ||
+			 !activevolume.zrg.includes(pos.z))
+		        removeseed = true;
+		
+		    trktbl.setPosTracked(currentseeds[idy]);
+		    //Check for stopline
+		}
+		
+		if ( removeseed )
+		    currentseeds.remove(idy--);
+	    }
+		
+	    if ( !currentseeds.size() )
+	    {
+		res = 0;
+		break;
+	    }
+	    
+	    extender->setStartPositions(currentseeds);
+	    
+	    mExtendDirection(step.inl, 0, 0);
+	    mExtendDirection(-step.inl, 0, 0);
+	    mExtendDirection(0, step.crl, 0);
+	    mExtendDirection(0, -step.crl, 0);
+	    mExtendDirection(step.inl, step.crl,0);
+	    mExtendDirection(step.inl, -step.crl,0);
+	    mExtendDirection(-step.inl, step.crl,0);
+	    mExtendDirection(-step.inl, -step.crl,0);
+	    mExtendDirection(0,0,zstep);
+	    mExtendDirection(0,0,-zstep);
+	    
+	    TypeSet<EM::SubID> addedpos = extender->getAddedPositions();
+	    TypeSet<EM::SubID> addedpossrc = extender->getAddedPositionsSource();
+	    
+	    adjuster->setPositions(addedpos, &addedpossrc);
+	    adjuster->setReferencePosition(&refpos);
+	    	    
+	    while ( (res=adjuster->nextStep())>0 )
+		;
+	    
+	    if ( res==-1 )
+		break;
+	    
+	    currentseeds = addedpos;
+	    	    
+	    extender->reset();
+	}
+	
+	if ( res==-1 )
+	    continue;
+	    
+	    
+    }
+    return true;
+}
 
 
 bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids ) 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.10 2005-08-01 07:09:22 cvsnanne Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.11 2005-08-05 01:37:56 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,10 +33,12 @@ public:
 				SectionAdjuster( const EM::SectionID& sid=-1);
     EM::SectionID		sectionID() const;
 
-    virtual void		reset() {}
+    virtual void		reset() {};
 
     void			setPositions(const TypeSet<EM::SubID>& targets,
 	   				     const TypeSet<EM::SubID>* src=0 );
+    void			setReferencePosition( const EM::SubID* pos )
+    				    { refpos_ = pos; }
 
     int				nextStep();
     const char*			errMsg() const;
@@ -58,13 +60,15 @@ public:
     virtual bool		usePar(const IOPar&);
 
 protected:
-    TypeSet<EM::SubID>		pids;
-    TypeSet<EM::SubID>		pidsrc;
+    TypeSet<EM::SubID>		pids_;
+    TypeSet<EM::SubID>		pidsrc_;
     BufferString		errmsg_;
     EM::SectionID		sectionid_;
     float			thresholdval_;
     bool			stopbelowthrhold_;
 
+    const EM::SubID*		refpos_;
+    
     ObjectSet<PositionScoreComputer> computers_;
 
     static const char*		adjusterstr;
