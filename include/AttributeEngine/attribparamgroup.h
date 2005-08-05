@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.3 2005-08-05 16:00:22 cvshelene Exp $
 ________________________________________________________________________
 */
 
@@ -51,6 +51,7 @@ public:
     const char*		errMsg() const;
     bool                setValues(BufferStringSet&);
     bool                getCompositeValue(BufferString&) const;
+    void                fillDefStr(BufferString&) const;
 
     Param&		operator[]( int idx )		{ return *params[idx]; }
     const Param&	operator[]( int idx ) const	{ return *params[idx]; }
@@ -246,6 +247,22 @@ bool ParamGroup<PT>::getCompositeValue( BufferString& res ) const
 	res += tmpres; res +=" ";
     }
     return true;
+}
+
+
+template <class PT> inline
+void ParamGroup<PT>::fillDefStr( BufferString& res ) const
+{
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	res += params[idx]->getKey();
+	res += "=";
+	BufferString val;
+	if ( !params[idx]->isRequired() || !params[idx]->getCompositeValue(val))
+	    val = params[idx]->getDefaultValue();
+	res += val;
+	res += " ";
+    }
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.5 2005-08-05 13:05:02 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.6 2005-08-05 16:00:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ void Scaling::initClass()
     FloatParam* powerval = new FloatParam( powervalStr() );
     powerval->setLimits( Interval<float>(0,mUndefValue) );
     powerval->setDefaultValue("1");
+    desc->setParamEnabled( powervalStr(),false );
     desc->addParam( powerval );
     
     ZGateParam gate( gateStr() );
@@ -105,6 +106,13 @@ Provider* Scaling::createInstance( Desc& ds )
 
 void Scaling::updateDesc( Desc& desc )
 {
+    const ValParam* stype = (ValParam*)desc.getParam(scalingTypeStr());
+    if ( !strcmp(stype->getStringValue(0),
+		scalingTypeNamesStr(mScalingTypeTPower) ) )
+	desc.setParamEnabled(powervalStr(),true);
+    else
+	desc.setParamEnabled(powervalStr(),false);
+	
     bool isuserdef = ((ValParam*)desc.getParam(statsTypeStr()))->getBoolValue();
     desc.setParamEnabled(factorStr(),isuserdef);
 }

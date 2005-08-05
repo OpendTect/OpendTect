@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.14 2005-08-05 13:02:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.15 2005-08-05 16:00:22 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -135,6 +135,17 @@ bool ValParam::getCompositeValue( BufferString& res ) const
     res = spec_->text();
 
     return true;
+}
+
+
+void ValParam::fillDefStr( BufferString& res ) const
+{
+    res += getKey();
+    res += "=";
+    BufferString val;
+    if ( !isRequired() || !getCompositeValue(val) )
+	val = getDefaultValue();
+    res += val;
 }
 
 

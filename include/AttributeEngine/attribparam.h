@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.12 2005-08-04 10:01:58 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.13 2005-08-05 16:00:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,8 +58,10 @@ public:
     
     void			setDefaultValue(BufferString val)
     				{ defaultval_ = val; }
-    BufferString		getDefaultValue() { return defaultval_; }
+    BufferString		getDefaultValue() const { return defaultval_; } 
     void			setKey( char* newkey ) { key_ = newkey; }
+
+    virtual void		fillDefStr(BufferString&) const		=0;			
 
 protected:
 
@@ -104,6 +106,7 @@ public:
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
+    void    		        fillDefStr(BufferString&) const;
     
 protected:
     DataInpSpec*		spec_;
@@ -186,6 +189,7 @@ public:
 
     void			setLimits(const Interval<T>&);
     virtual bool		getCompositeValue(BufferString& res) const;
+    virtual bool                setCompositeValue(const char*);
 };
 
 
@@ -204,6 +208,14 @@ bool NumParam<T>::getCompositeValue( BufferString& res ) const
 {
     if ( !spec_ ) return false;
     res = spec_->isUndef() ? sKey::FloatUdf : spec_->text();
+    return true;
+}
+
+
+template <class T>
+bool NumParam<T>::setCompositeValue( const char* nv )
+{
+    spec_->setText(nv,0);
     return true;
 }
 
