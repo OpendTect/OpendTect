@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.40 2005-08-04 21:12:52 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.41 2005-08-05 16:14:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 
 class BinIDValueSet;
+class LineStyle;
 class MultiID;
 class SeisTrcBuf;
 
@@ -88,6 +89,14 @@ public:
     				/*!\note Modification of color should be done
 				  	 with setMaterial on
 					 visBase::VisualObject */
+
+    virtual const LineStyle*	lineStyle() const { return 0; }
+    				/*!<If the linestyle can be set, a non-zero
+				    pointer should be return. */
+    virtual void		setLineStyle(const LineStyle&) {}
+    virtual bool		hasSpecificLineColor() const { return false; }
+    				/*!<Specifies wether setLineStyle takes
+				    regard to the color of the linestyle. */
 
     virtual bool		hasColor() const		{ return false;}
     virtual void		setColor(Color)			{}
