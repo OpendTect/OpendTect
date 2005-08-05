@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.267 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.268 2005-08-05 19:17:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -871,8 +871,9 @@ bool uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( !hasMaterial(id) || !vo ) return false;
 
-    uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), true,
-		       true, false, false, false, true );
+    uiPropertiesDlg dlg( appserv().parent(),
+	    dynamic_cast<visSurvey::SurveyObject*>(vo) );
+
     dlg.go();
 
     return true;
@@ -1063,7 +1064,9 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 	    	      so->getColorSelSpec() );
     mAddMenuItemCond( menu, &resetmanipmnuitem, so->isManipulated(), false,
 		      so->canResetManipulation() );
-    mAddMenuItemCond( menu, &changecolormnuitem, true, false, so->hasColor() );
+    //mAddMenuItemCond( menu, &changecolormnuitem, true, false, so->hasColor() );
+    changecolormnuitem.id = -1;
+
     mAddMenuItemCond( menu, &changematerialmnuitem, true, false, 
 		      so->allowMaterialEdit() );
 
