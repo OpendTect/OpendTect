@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.34 2005-05-17 09:29:05 cvskris Exp $
+ RCS:           $Id: mathexpression.cc,v 1.35 2005-08-05 21:09:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -402,46 +402,46 @@ MathExpression* MathExpression::parse( const char* input )
 	}
     }
 
-
-    // * / ^
-    for ( int idx=0; idx<len; idx++ )
-    {
-	absolute( str, idx, inabs)
-	if ( inabs ) continue;
-
-	parens(str, idx, parenslevel, len);
-	if ( parenslevel ) continue;
-
-	if ( str[idx] == '*' || str[idx] == '/' || str[idx] == '^' )
-	{
-	    if ( !idx ) continue;
-
-	    ArrPtrMan<char> arg0 = new char[len+1];
-	    strcpy( arg0, str );
-	    arg0[idx] = 0;
-	    MathExpression* inp0 = parse( arg0 );
-	    if ( !inp0 ) return 0;
-
-	    ArrPtrMan<char> arg1 = new char[len+1];
-	    strcpy( arg1, &str[idx+1] );
-	    MathExpression* inp1 = parse( arg1 );
-	    if ( !inp1 )
-	    {
-		delete inp0;
-		return 0;
-	    }
-	
-	    MathExpression* res;
-	    if ( str[idx]=='*' ) res = new MathExpressionMultiply;
-	    if ( str[idx]=='/' ) res = new MathExpressionDivide;
-	    if ( str[idx]=='^' ) res = new MathExpressionPower;
-
-	    res->setInput( 0, inp0 );
-	    res->setInput( 1, inp1 );
-
-	    return res;
-	}
+#define mParseOperator( op, clss ) \
+    for ( int idx=0; idx<len; idx++ ) \
+    { \
+	absolute( str, idx, inabs) \
+	if ( inabs ) continue; \
+ \
+	parens(str, idx, parenslevel, len); \
+	if ( parenslevel ) continue; \
+ \
+	if ( str[idx] == op ) \
+	{ \
+	    if ( !idx ) continue; \
+ \
+	    ArrPtrMan<char> arg0 = new char[len+1]; \
+	    strcpy( arg0, str ); \
+	    arg0[idx] = 0; \
+	    MathExpression* inp0 = parse( arg0 ); \
+	    if ( !inp0 ) return 0; \
+ \
+	    ArrPtrMan<char> arg1 = new char[len+1]; \
+	    strcpy( arg1, &str[idx+1] ); \
+	    MathExpression* inp1 = parse( arg1 ); \
+	    if ( !inp1 ) \
+	    { \
+		delete inp0; \
+		return 0; \
+	    } \
+	 \
+	    MathExpression* res = new MathExpression##clss; \
+ \
+	    res->setInput( 0, inp0 ); \
+	    res->setInput( 1, inp1 ); \
+ \
+	    return res; \
+	} \
     }
+
+    mParseOperator( '*', Multiply );
+    mParseOperator( '/', Divide );
+    mParseOperator( '^', Power );
 
 
     char* endptr;
