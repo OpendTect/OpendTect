@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.23 2005-08-04 07:58:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.24 2005-08-05 13:00:39 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -102,20 +102,16 @@ Desc::~Desc()
 }
 
 
-const char* Desc::attribName() const { return attribname; }
+Desc* Desc::clone() const			{ return new Desc( *this ); }
 
+const char* Desc::attribName() const		{ return attribname; }
 
-Desc* Desc::clone() const { return new Desc( *this ); }
+void Desc::setDescSet( DescSet* nds )		{ ds = nds; }
 
+DescSet* Desc::descSet() const			{ return ds; }
 
-void Desc::setDescSet( DescSet* nds )
-{ ds = nds; }
-
-
-DescSet* Desc::descSet() const { return ds; }
-
-
-DescID Desc::id() const { return ds ? ds->getID(*this) : DescID(-1,true); }
+DescID Desc::id() const
+{ return ds ? ds->getID(*this) : DescID(-1,true); }
 
 
 bool Desc::getDefStr( BufferString& res ) const
@@ -128,7 +124,7 @@ bool Desc::getDefStr( BufferString& res ) const
 	res += params[idx]->getKey();
 	res += "=";
 	BufferString val;
-	if ( !params[idx]->getCompositeValue(val) )
+	if ( !params[idx]->isRequired() || !params[idx]->getCompositeValue(val))
 	    val = params[idx]->getDefaultValue();
 	res += val;
     }
@@ -231,12 +227,18 @@ int Desc::nrInputs() const			{ return inputs.size(); }
 
 Seis::DataType Desc::dataType() const
 {
-    if ( seloutput==-1 ) return Seis::UnknowData;
-    if ( outputtypelinks[seloutput]!=-1 )
-	return inputs[outputtypelinks[seloutput]]
-	    ? inputs[outputtypelinks[seloutput]]->dataType() : Seis::UnknowData;
+    if ( seloutput==-1 || !outputtypes.size() )
+	return Seis::UnknowData;
 
-    return outputtypes[seloutput];
+    int outidx = seloutput;
+    if ( outidx >= outputtypes.size() ) outidx = 0;
+
+    const int link = outputtypelinks[outidx];
+    if ( link == -1 )
+	return outputtypes[outidx];
+
+    return link < inputs.size() && inputs[link] ? inputs[link]->dataType()
+						: Seis::UnknowData;
 }
 
 
@@ -377,16 +379,6 @@ void Desc::updateParams()
 }
 
 
-/*
-const DataInpSpec* Desc::getParamSpec(const char* key)
-{
-    const Param* param = getParam(key);
-    if ( !param ) return 0;
-    return param->getSpec();
-}
-*/
-
-
 void Desc::addInput( const InputSpec& is )
 {
     inputspecs += is;
@@ -417,10 +409,6 @@ void Desc::removeOutputs()
 }
 
 
-void Desc::addOutputDataType( Seis::DataType dt )
-{ outputtypes+=dt; outputtypelinks+=-1; }
-
-
 void Desc::setNrOutputs( Seis::DataType dt, int nroutp )
 {
     for ( int idx=0; idx<nroutp; idx++ )
@@ -428,14 +416,21 @@ void Desc::setNrOutputs( Seis::DataType dt, int nroutp )
 }
 	
 
+void Desc::addOutputDataType( Seis::DataType dt )
+{ outputtypes+=dt; outputtypelinks+=-1; }
+
+
 void Desc::addOutputDataTypeSameAs( int input )
-{ outputtypes+= Seis::UnknowData; outputtypelinks+=input; }
+{
+    outputtypes += Seis::UnknowData;
+    outputtypelinks += input;
+}
 	
 
 bool Desc::getAttribName( const char* defstr_, BufferString& res )
 {
     char defstr[strlen(defstr_)+1];
-    strcpy(defstr, defstr_ );
+    strcpy( defstr, defstr_ );
 
     int start = 0;
     while ( start<strlen(defstr) && isspace(defstr[start]) ) start++;
@@ -521,7 +516,7 @@ Param* Desc::findParam( const char* key )
 {
     for ( int idx=0; idx<params.size(); idx++ )
     {
-	if ( !strcmp(params[idx]->getKey(), key ) )
+	if ( !strcmp(params[idx]->getKey(),key) )
 	    return params[idx];
     }
 
@@ -636,4 +631,4 @@ bool Desc::getDataLimits( CubeSampling& cs, const char* lk ) const
 }
 */
 
-}; //namespace
+}; // namespace Attrib
