@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.3 2005-08-08 15:08:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,31 +61,34 @@ protected:
 class uiSteeringSel : public uiGroup
 {
 public:
-			uiSteeringSel(uiParent*,const Attrib::DescSet*);
-			~uiSteeringSel();
+				uiSteeringSel(uiParent*,const Attrib::DescSet*);
+				~uiSteeringSel();
 
-    bool		willSteer() const;
-    void		useDesc(const Attrib::Desc&);
-    void		fillDesc(Attrib::Desc&,ChangeTracker&);
-    void		setType(int,bool fixed=false);
-    void		set2D(bool);
+    Attrib::DescID		descID();
 
-    static IOPar&	inpselhist;
+    bool			willSteer() const;
+    void			setDesc(const Attrib::Desc*);
+    void			setDescSet(const Attrib::DescSet*);
+    void			setType(int,bool fixed=false);
+    void			set2D(bool);
+
+    static IOPar&		inpselhist;
 
 protected:
 
-    CtxtIOObj&		ctio;
+    const Attrib::DescSet*	descset_;
+    CtxtIOObj&			ctio_;
 
-    uiLabel*		nosteerlbl;
-    uiGenInput*		typfld;
-    uiSteerCubeSel*	inpfld;
-    uiGenInput*		dirfld;
-    uiGenInput*		dipfld;
+    uiLabel*			nosteerlbl_;
+    uiGenInput*			typfld_;
+    uiSteerCubeSel*		inpfld_;
+    uiGenInput*			dirfld_;
+    uiGenInput*			dipfld_;
 
-    bool		is2d;
+    bool			is2d_;
 
-    void		doFinalise(CallBacker*);
-    void		typeSel(CallBacker*);
+    void			doFinalise(CallBacker*);
+    void			typeSel(CallBacker*);
 };
 
 #endif

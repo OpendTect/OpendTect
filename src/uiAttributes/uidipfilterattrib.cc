@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.4 2005-08-08 15:09:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,7 @@ ui3DFilterAttrib::ui3DFilterAttrib( uiParent* p )
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
     outpfld->attach( alignedBelow, kernelfld );
 
+    kernelSel(0);
     setHAlignObj( inpfld );
 }
 

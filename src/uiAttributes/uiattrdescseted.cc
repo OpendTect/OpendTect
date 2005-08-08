@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.4 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.5 2005-08-08 15:09:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -300,6 +300,9 @@ void uiAttribDescSetEd::addPush( CallBacker* )
     const char* attribname = uiAttribFactory::defNameForName( attrstr );
 
     Desc* newdesc = PF().createDescCopy( attribname );
+    if ( !newdesc )
+	mErrRet( "Cannot create attribdesc" )
+
     newdesc->setDescSet( attrset );
     newdesc->ref();
     const char* res = curde->commit( newdesc );
