@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.12 2005-05-02 09:08:49 cvskris Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.13 2005-08-08 15:10:21 cvsnanne Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -342,7 +342,8 @@ DataInpSpec* BinIDCoordInpSpec::clone() const
 { return new BinIDCoordInpSpec( *this ); }
 
 
-int BinIDCoordInpSpec::nElems()  const { return 2; }
+int BinIDCoordInpSpec::nElems() const
+{ return 2; }
 
 
 double BinIDCoordInpSpec::value( int idx ) const
@@ -359,8 +360,7 @@ bool BinIDCoordInpSpec::isUndef( int idx ) const
 
 const char* BinIDCoordInpSpec::text( int idx ) const
 {
-    if ( isUndef() )        return "";
-    else            return toString( value(idx) );
+    return isUndef(idx) ? "" : toString( value(idx) );
 }
 
 
@@ -372,7 +372,7 @@ const char* BinIDCoordInpSpec::otherTxt() const
 {
     if ( !withOtherBut_ ) return 0;
     if ( doCoord_ ) { return "Inline/Xline ..."; }
-    return isRelative_? "Distance ...":"Coords ...";
+    return isRelative_ ? "Distance ..." : "Coords ...";
 }
 
 
