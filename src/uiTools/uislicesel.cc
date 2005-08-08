@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.31 2005-08-02 15:38:45 cvsnanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.32 2005-08-08 16:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,8 +139,7 @@ class uiSliceScroll : public uiDialog
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
-		      .modal(false))
+	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2"))
 	, slcsel(ss)
 	, inauto(false)
 	, paused(false)
@@ -204,7 +203,7 @@ void typSel( CallBacker* )
 	if ( autoreq )
 	    startAuto();
 	else
-	    timer->stop();
+	    stopAuto( false );
     }
     ctrlbut->setText( autoreq ? "Pause" : "Advance" );
     inauto = autoreq;
@@ -217,7 +216,7 @@ void butPush( CallBacker* )
 	doAdvance();
     else
     {
-	paused = !paused;
+	/*new*/paused = *ctrlbut->text() == 'P';
 	ctrlbut->setText( paused ? "Go" : "Pause" );
     }
 }
@@ -231,6 +230,17 @@ void startAuto()
     setTimer();
 }
 
+void stopAuto( bool setmanual )
+{
+    timer->stop();
+    inauto = false;
+    if ( setmanual )
+    {
+	typfld->box()->setCurrentItem( 0 );
+	ctrlbut->setText( "Advance" );
+    }
+}
+
 
 void doAdvance()
 {
@@ -239,13 +249,37 @@ void doAdvance()
     int step = stepfld->box()->getValue();
     slcsel->readInput();
     if ( slcsel->isinl )
-	slcsel->inl0fld->box()->setValue( slcsel->cs.hrg.start.inl + step );
+    {
+	int newval = slcsel->cs.hrg.start.inl + step;
+	if ( !SI().sampling().hrg.inlOK(newval) )
+	    stopAuto( true );
+	else
+	    slcsel->inl0fld->box()->setValue( newval );
+    }
     else if ( slcsel->iscrl )
-	slcsel->crl0fld->box()->setValue( slcsel->cs.hrg.start.crl + step );
+    {
+	int newval = slcsel->cs.hrg.start.crl + step;
+	if ( !SI().sampling().hrg.crlOK(newval) )
+	    stopAuto( true );
+	else
+	    slcsel->crl0fld->box()->setValue( newval );
+    }
     else
     {
-	float zval = 1000 * slcsel->cs.zrg.start + step;
-	slcsel->z0fld->box()->setValue( mNINT(zval) );
+	float newval = slcsel->cs.zrg.start + step;
+	if ( !SI().sampling().zrg.includes(newval) )
+	    stopAuto( true );
+	else
+	{
+	    const float zfac = SI().zFactor();
+	    if ( zfac < 10 )
+		slcsel->z0fld->box()->setValue( newval );
+	    else
+	    {
+		newval *= zfac;
+		slcsel->z0fld->box()->setValue( mNINT(newval) );
+	    }
+	}
     }
 
     slcsel->applyPush(0);
@@ -267,8 +301,8 @@ void setTimer()
     if ( !timer ) return;
 
     float val = dtfld->getfValue();
-    if ( Values::isUdf(val) || val < 0.1 )
-	val = 100;
+    if ( Values::isUdf(val) || val < 0.2 )
+	val = 200;
     else
 	val *= 1000;
     timer->start( mNINT(val), true );
