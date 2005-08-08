@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.31 2005-07-26 16:15:28 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.32 2005-08-08 15:13:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ static void adaptCtxt( const IOObjContext& c, Pol2D p2d )
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
     ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( p2d );
     ctxt.deftransl = p2d == Only2D ? trglobexprs[0] : trglobexprs[2];
-    if ( p2d == No2D )
+    if ( p2d != No2D )
 	ctxt.parconstraints.clear(); // Selection is done differently
 }
 
