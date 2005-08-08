@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.5 2005-08-05 13:05:01 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.6 2005-08-08 15:14:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,14 +197,13 @@ void FreqFilter::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    EnumParam* filtertype = new EnumParam(filtertypeStr());
     //Note: Ordering must be the same as numbering!
-    
-    filtertype->addEnum(filterTypeNamesStr(mFilterLowPass));
-    filtertype->addEnum(filterTypeNamesStr(mFilterHighPass));
-    filtertype->addEnum(filterTypeNamesStr(mFilterBandPass));
+    EnumParam* filtertype = new EnumParam( filtertypeStr() );
+    filtertype->addEnum( filterTypeNamesStr(mFilterLowPass) );
+    filtertype->addEnum( filterTypeNamesStr(mFilterHighPass) );
+    filtertype->addEnum( filterTypeNamesStr(mFilterBandPass) );
     filtertype->setDefaultValue("0");
-    desc->addParam(filtertype);
+    desc->addParam( filtertype );
 
     FloatParam* minfreq = new FloatParam( minfreqStr() );
     minfreq->setLimits( Interval<float>(0,mUndefValue) );
@@ -223,10 +222,10 @@ void FreqFilter::initClass()
     isfftfilter->setDefaultValue(false);
     desc->addParam( isfftfilter );
 
-    EnumParam* window = new EnumParam(windowStr());
-    window->addEnums(ArrayNDWindow::WindowTypeNames);
-    window->setDefaultValue("CosTaper5");
-    desc->addParam(window);
+    EnumParam* window = new EnumParam( windowStr() );
+    window->addEnums( ArrayNDWindow::WindowTypeNames );
+    window->setDefaultValue( "CosTaper5" );
+    desc->addParam( window );
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -257,28 +256,20 @@ Provider* FreqFilter::createInstance( Desc& ds )
 void FreqFilter::updateDesc( Desc& desc )
 {
     const ValParam* ftype = (ValParam*)desc.getParam(filtertypeStr());
-    if ( !strcmp(ftype->getStringValue(0),filterTypeNamesStr(mFilterLowPass)))
-    {
-	desc.setParamEnabled(minfreqStr(),false);
-	desc.setParamEnabled(maxfreqStr(),true);
-    }
-    else if ( !strcmp( ftype->getStringValue(0),
-			filterTypeNamesStr(mFilterHighPass) ) )
-    {
-	desc.setParamEnabled(minfreqStr(),true);
-	desc.setParamEnabled(maxfreqStr(),false);
-    }
-    else
-    {
-	desc.setParamEnabled(minfreqStr(),true);
-	desc.setParamEnabled(maxfreqStr(),true);
-    }
+    const BufferString type = ftype->getStringValue();
+    desc.setParamEnabled( minfreqStr(),
+	    		  type != filterTypeNamesStr(mFilterLowPass) );
+    desc.setParamEnabled( maxfreqStr(),
+	    		  type != filterTypeNamesStr(mFilterHighPass) );
 
-    bool isfft = ((ValParam*)desc.getParam(isfftfilterStr()))->getBoolValue();
+    const bool isfft = 
+	((ValParam*)desc.getParam(isfftfilterStr()))->getBoolValue();
+    desc.setParamEnabled( nrpolesStr(), !isfft );
     desc.inputSpec(1).enabled = isfft;
 }
 
-const char* FreqFilter::filterTypeNamesStr(int type)
+
+const char* FreqFilter::filterTypeNamesStr( int type )
 {
     if ( type==mFilterLowPass ) return "LowPass";
     if ( type==mFilterHighPass ) return "HighPass";
