@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.36 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.37 2005-08-08 15:10:59 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -502,6 +502,8 @@ bool Engine::usePar( const IOPar& iopar )
 
     int nrtrackers = 0;
     iopar.get( nrtrackersStr(), nrtrackers );
+    if ( !nrtrackers ) return false;
+
     for ( int idx=0; idx<nrtrackers; idx++ )
     {
 	BufferString key( idx );
