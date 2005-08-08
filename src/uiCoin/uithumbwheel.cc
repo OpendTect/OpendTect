@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.cc,v 1.6 2005-07-07 20:03:21 cvskris Exp $
+ RCS:           $Id: uithumbwheel.cc,v 1.7 2005-08-08 09:58:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ uiThumbWheelBody::uiThumbWheelBody( uiThumbWheel& handle,uiParent* parnt,
     //setStretch( 0, 0 );
     setOrientation( hor ? SoQtThumbWheel::Horizontal 
 			: SoQtThumbWheel::Vertical );
+    setEnabled( true );
 
     if( hor ) 
     {
