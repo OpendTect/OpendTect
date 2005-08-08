@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.23 2005-08-05 22:34:08 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.24 2005-08-08 11:07:57 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -174,16 +174,16 @@ protected:
     TypeSet<int>			attribcachesz;
 
     static visBase::FactoryEntry	oldnameentry;
-    static const char*			earthmodelidstr;
-    static const char*			texturestr;
-    static const char*			colortabidstr;
-    static const char*			shiftstr;
-    static const char*			editingstr;
-    static const char*			wireframestr;
-    static const char*			resolutionstr;
-    static const char*			colorstr;
-    static const char*			onlyatsectionsstr;
-    static const char*			linestylestr;
+
+    static const char*			sKeyEarthModelID;
+    static const char*			sKeyTexture;
+    static const char*			sKeyColorTableID;
+    static const char*			sKeyShift;
+    static const char*			sKeyEdit;
+    static const char*			sKeyWireFrame;
+    static const char*			sKeyResolution;
+    static const char*			sKeyOnlyAtSections;
+    static const char*			sKeyLineStyle;
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.35 2005-08-05 22:34:14 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.36 2005-08-08 11:07:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "viscolortab.h"
 #include "survinfo.h"
+#include "keystrs.h"
 #include "iopar.h"
 
 #include "emsurface.h"
@@ -49,16 +50,15 @@ visBase::FactoryEntry visSurvey::EMObjectDisplay::oldnameentry(
 namespace visSurvey
 {
 
-const char* EMObjectDisplay::earthmodelidstr = "EarthModel ID";
-const char* EMObjectDisplay::texturestr = "Use texture";
-const char* EMObjectDisplay::colortabidstr = "ColorTable ID";
-const char* EMObjectDisplay::shiftstr = "Shift";
-const char* EMObjectDisplay::editingstr = "Edit";
-const char* EMObjectDisplay::wireframestr = "WireFrame on";
-const char* EMObjectDisplay::resolutionstr = "Resolution";
-const char* EMObjectDisplay::colorstr = "Color";
-const char* EMObjectDisplay::onlyatsectionsstr = "Display only on sections";
-const char* EMObjectDisplay::linestylestr = "Linestyle";
+const char* EMObjectDisplay::sKeyEarthModelID = "EarthModel ID";
+const char* EMObjectDisplay::sKeyTexture = "Use texture";
+const char* EMObjectDisplay::sKeyColorTableID = "ColorTable ID";
+const char* EMObjectDisplay::sKeyShift = "Shift";
+const char* EMObjectDisplay::sKeyEdit = "Edit";
+const char* EMObjectDisplay::sKeyWireFrame = "WireFrame on";
+const char* EMObjectDisplay::sKeyResolution = "Resolution";
+const char* EMObjectDisplay::sKeyOnlyAtSections = "Display only on sections";
+const char* EMObjectDisplay::sKeyLineStyle = "Linestyle";
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
@@ -908,21 +908,24 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( earthmodelidstr, mid );
-    par.setYN( texturestr, usesTexture() );
-    par.setYN( wireframestr, usesWireframe() );
-    par.setYN( editingstr, isEditingEnabled() );
-    par.setYN( onlyatsectionsstr, getOnlyAtSectionsDisplay() );
-    par.set( resolutionstr, getResolution() );
-    par.set( shiftstr, getTranslation().z );
-    par.set( colorstr, (int)nontexturecol.rgb() );
-    par.set( colortabidstr, coltab_->id() );
+    par.set( sKeyEarthModelID, mid );
+    par.setYN( sKeyTexture, usesTexture() );
+    par.setYN( sKeyWireFrame, usesWireframe() );
+    par.setYN( sKeyEdit, isEditingEnabled() );
+    par.setYN( sKeyOnlyAtSections, getOnlyAtSectionsDisplay() );
+    par.set( sKeyResolution, getResolution() );
+    par.set( sKeyShift, getTranslation().z );
+    par.set( sKey::Color, (int)nontexturecol.rgb() );
+    par.set( sKeyColorTableID, coltab_->id() );
     if ( saveids.indexOf(coltab_->id())==-1 )
 	saveids += coltab_->id();
 
-    BufferString linestyle;
-    lineStyle()->toString(linestyle);
-    par.set( linestylestr, linestyle );
+    if ( lineStyle() )
+    {
+	BufferString str;
+	lineStyle()->toString( str );
+	par.set( sKeyLineStyle, str );
+    }
 
     as.fillPar( par );
     colas.fillPar( par );
@@ -938,48 +941,48 @@ int EMObjectDisplay::usePar( const IOPar& par )
     setDisplayTransformation( SPM().getUTM2DisplayTransform() );
 
     MultiID surfid;
-    if ( !par.get(earthmodelidstr,surfid) )
+    if ( !par.get(sKeyEarthModelID,surfid) )
 	return -1;
 
     as.usePar( par );
     colas.usePar( par );
 
     BufferString linestyle;
-    if ( par.get( linestylestr, linestyle ) )
+    if ( par.get( sKeyLineStyle, linestyle ) )
     {
 	LineStyle ls;
 	ls.fromString(linestyle);
 	setLineStyle(ls);
     }
 
-    //Editing may not be moved further down, since the enableEditing call
-    //will change the wireframe, resolution++
+    // Editing may not be moved further down, since the enableEditing call
+    // will change the wireframe, resolution++
     bool enableedit = false;
-    par.getYN( editingstr, enableedit );
+    par.getYN( sKeyEdit, enableedit );
     enableEditing( enableedit );
 
-    if ( !par.get(colorstr,(int&)nontexturecol.rgb()) )
+    if ( !par.get(sKey::Color,(int&)nontexturecol.rgb()) )
 	nontexturecol = getMaterial()->getColor();
 
     bool usetext = true;
-    par.getYN( texturestr, usetext );
+    par.getYN( sKeyTexture, usetext );
     useTexture( usetext );
 
     bool usewireframe = false;
-    par.getYN( wireframestr, usewireframe );
+    par.getYN( sKeyWireFrame, usewireframe );
     useWireframe( usewireframe );
 
     int resolution = 0;
-    par.get( resolutionstr, resolution );
+    par.get( sKeyResolution, resolution );
     setResolution( resolution );
 
     bool filter = false;
-    par.getYN( onlyatsectionsstr, filter );
+    par.getYN( sKeyOnlyAtSections, filter );
     setOnlyAtSectionsDisplay(filter);
 
     visBase::VisColorTab* coltab;
     int coltabid = -1;
-    par.get( colortabidstr, coltabid );
+    par.get( sKeyColorTableID, coltabid );
     if ( coltabid > -1 )
     {
 	DataObject* dataobj = visBase::DM().getObject( coltabid );
@@ -992,7 +995,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
     }
 
     Coord3 shift( 0, 0, 0 );
-    par.get( shiftstr, shift.z );
+    par.get( sKeyShift, shift.z );
     setTranslation( shift );
 
     mid = surfid;
