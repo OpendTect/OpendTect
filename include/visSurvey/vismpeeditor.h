@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.6 2005-07-15 14:00:42 cvskris Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.7 2005-08-09 16:41:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 namespace Geometry { class ElementEditor; };
 namespace MPE { class ObjectEditor; };
+namespace EM { class EdgeLineSet; }
 
 namespace visBase
 {
@@ -32,6 +33,7 @@ class Dragger;
 
 namespace visSurvey
 {
+class EdgeLineSetDisplay;
 
 /*!\brief
 */
@@ -65,6 +67,16 @@ public:
     int				getRightClickNode() const;
     EM::PosID			getNodePosID(int idx) const;
 
+    Notifier<MPEEditor>		interactionlinerightclick;
+    int				interactionLineID() const;
+				/*!<\returns the visual id of the line, or -1
+				     if it does not exist. */
+
+    void			mouseClick( const EM::PosID&, bool shift,
+					    bool alt, bool ctrl );
+			
+
+
 protected:
     				~MPEEditor();
     void			changeNumNodes( CallBacker* );
@@ -75,6 +87,8 @@ protected:
     void			dragStop( CallBacker* );
     void			updateDraggers();
     void			updateNodePos(int, const Coord3& );
+
+    void			interactionLineRightClickCB( CallBacker* );
 
     EM::PosID			temporarynode;
     int				rightclicknode;
@@ -92,6 +106,10 @@ protected:
 
     visBase::EventCatcher*	eventcatcher;
     visBase::Transformation*	transformation;
+
+    EdgeLineSetDisplay*		interactionlinedisplay;
+    void			setupInteractionLineDisplay();
+    void			extendInteractionLine(const EM::PosID&);
 };
 
 };

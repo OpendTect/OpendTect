@@ -4,17 +4,21 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.14 2005-07-15 14:00:40 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.15 2005-08-09 16:41:06 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
 #include "errh.h"
 #include "geeditor.h"
 #include "emeditor.h"
-#include "emobject.h"
+#include "emsurface.h"
+#include "emsurfaceedgeline.h"
+#include "emsurfacegeometry.h"
 #include "vismarker.h"
 #include "visdragger.h"
 #include "visevent.h"
+#include "vishingeline.h"
+#include "vismaterial.h"
 #include "visshapescale.h"
 #include "vistransform.h"
 
@@ -35,11 +39,22 @@ MPEEditor::MPEEditor()
     , temporarynode( -1, -1, -1 )
     , issettingpos( 0 )
     , markersize( 3 )
+    , interactionlinedisplay( 0 )
+    , interactionlinerightclick( this )
 { }
 
 
 MPEEditor::~MPEEditor()
 {
+    if ( interactionlinedisplay )
+    {
+	if ( interactionlinedisplay->rightClicked() )
+	    interactionlinedisplay->rightClicked()->remove(
+		mCB( this,MPEEditor,interactionLineRightClickCB));
+	interactionlinedisplay->unRef();
+    }
+
+
     setEditor( (Geometry::ElementEditor*) 0 );
     setEditor( (MPE::ObjectEditor*) 0 );
     setSceneEventCatcher( 0 );
@@ -132,6 +147,8 @@ void MPEEditor::setSceneEventCatcher( visBase::EventCatcher* nev )
 
 void MPEEditor::moveTemporaryNode( const EM::PosID& np )
 {
+    if ( emeditor ) emeditor->restartInteractionLine(np.sectionID());
+
     if ( temporarynode==np )
 	return;
 
@@ -157,6 +174,7 @@ void MPEEditor::moveTemporaryNode( const EM::PosID& np )
 	pErrMsg("Not impl");
     	temporarynode = np;
     }
+
 }
     
 	
@@ -202,6 +220,19 @@ void MPEEditor::setMarkerSize(float nsz)
 
 EM::PosID MPEEditor::getNodePosID(int idx) const
 { return idx>=0&&idx<posids.size() ? posids[idx] : EM::PosID::udf(); }
+
+
+void MPEEditor::mouseClick( const EM::PosID& pid,
+			    bool shift, bool alt, bool ctrl )
+{
+    if ( !shift && !alt && !ctrl )
+	moveTemporaryNode(pid);
+    else if ( shift && !alt && !ctrl &&
+	temporarynode.objectID()!=-1 && temporarynode!=pid )
+    {
+	extendInteractionLine(pid);
+    }
+}
 
 
 void MPEEditor::changeNumNodes(CallBacker*)
@@ -308,6 +339,10 @@ void MPEEditor::updateNodePos( int idx, const Coord3& pos )
     }
 }
 
+
+void MPEEditor::interactionLineRightClickCB( CallBacker* )
+{ interactionlinerightclick.trigger(); }
+
 	
 
 void MPEEditor::clickCB( CallBacker* cb )
@@ -352,7 +387,16 @@ void MPEEditor::clickCB( CallBacker* cb )
     else if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
 	      nodeidx!=-1 && activenode!=posids[nodeidx] )
     {
-	activenode = posids[nodeidx];
+	if ( eventinfo.shift )
+	{
+	    extendInteractionLine(posids[nodeidx]);
+	    activenode = -1;
+	}
+	else if ( !eventinfo.ctrl && !eventinfo.shift && !eventinfo.alt )
+	{
+	    activenode = posids[nodeidx];
+	}
+
 	updateDraggers();
 	eventcatcher->eventIsHandled();
     }
@@ -495,6 +539,108 @@ void MPEEditor::updateDraggers()
     else if ( translationdragger && translationdragger->isOn() )
 	translationdragger->turnOn(false);
 }
+
+
+void MPEEditor::setupInteractionLineDisplay()
+{
+    EM::EdgeLineSet* edgelineset = emeditor
+	? emeditor->getInteractionLine() : 0;
+
+    if ( !edgelineset )
+	return;
+
+    if ( !interactionlinedisplay )
+    {
+	interactionlinedisplay = EdgeLineSetDisplay::create();
+	interactionlinedisplay->setDisplayTransformation( transformation );
+	interactionlinedisplay->ref();
+	interactionlinedisplay->setConnect(false);
+	interactionlinedisplay->setShowDefault(true);
+	interactionlinedisplay->getMaterial()->setColor(Color(255,255,0),0);
+
+	interactionlinedisplay->setEdgeLineSet(edgelineset);
+	addChild( interactionlinedisplay->getInventorNode() );
+	if ( interactionlinedisplay->rightClicked() )
+	    interactionlinedisplay->rightClicked()->notify(
+		mCB( this,MPEEditor,interactionLineRightClickCB));
+	// interactionlinedisplay->setRadius( );
+    }
+} 
+
+
+void MPEEditor::extendInteractionLine(const EM::PosID& pid)
+{
+    setupInteractionLineDisplay();
+    if ( !interactionlinedisplay )
+	return;
+
+    EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor->emObject());
+    mDynamicCastGet( EM::Surface&, emsurface, emobj );
+    const RowCol rc(pid.subID());
+
+    EM::EdgeLineSet* edgelineset = emeditor->getInteractionLine();
+    if ( ( !edgelineset->getLine(0)->nrSegments() ||
+	 !edgelineset->getLine(0)->getSegment(0)->size() ) &&
+	 emsurface.geometry.isAtEdge(activenode) )
+    {
+	//Start a new line
+	const RowCol activenoderc(activenode.subID());
+	EM::EdgeLine* edgeline = edgelineset->getLine(0);
+	if ( !edgeline->nrSegments() )
+	{
+	    EM::EdgeLineSegment* elsegment=
+	        new EM::EdgeLineSegment( emsurface, pid.sectionID() );
+	    elsegment->insert(0, activenoderc );
+	    edgeline->insertSegment(elsegment, 0, false);
+	}
+	else
+	{
+	    edgeline->getSegment(0)->insert( 0, activenoderc );
+	    const int sz = edgeline->getSegment(0)->size();
+	    if ( sz>1 )
+		edgeline->getSegment(0)->remove(1,sz-1);
+	}
+    }
+
+    EM::EdgeLineSegment& els =*edgelineset->getLine(0)->getSegment(0);
+    const RowCol lastrc = els.last();
+    TypeSet <RowCol> line;
+    RowCol::makeLine( lastrc, rc, line, emsurface.geometry.step());
+
+    bool nodefound = false;
+    for ( int idx=1; idx<line.size(); idx++ )
+    {
+        if ( els.indexOf(line[idx])!=-1 )
+        {
+            nodefound = true;
+            break;
+        }
+
+        //Check that new line is not crossing the old one in a
+        //diagonal
+        const RowCol dir = line[idx]-line[idx-1];
+        if ( !dir.row || !dir.col )
+            continue;
+
+        const RowCol rownode = line[idx]-RowCol(dir.row,0);
+        const RowCol colnode = line[idx]-RowCol(0, dir.col);
+        const int rowindex = els.indexOf(rownode);
+        const int colindex = els.indexOf(colnode);
+
+        if ( rowindex==colindex-1 || rowindex==colindex+1 )
+        {
+            nodefound = true;
+            break;
+        }
+    }
+
+    if ( !nodefound )
+    {
+        line.remove(0);
+        els.insert( els.size(), line );
+    }
+}
+    
 
 
 }; //namespce
