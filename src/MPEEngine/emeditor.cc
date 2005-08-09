@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.13 2005-08-05 01:37:57 cvsduntao Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.14 2005-08-09 16:00:27 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -262,10 +262,13 @@ EM::EdgeLineSet* ObjectEditor::getInteractionLine(const EM::SectionID& sid)
 	interactionline = new EM::EdgeLineSet( *emsurface, sid );
 	interactionline->addLine( el );
     }
-    else if ( sid!=interactionline->getSection() )
+    else
     {
-	interactionline->setSection(sid);
-        interactionline->getLine(0)->getSegment(0)->removeAll();
+	if ( sid!=interactionline->getSection() )
+	    interactionline->setSection(sid);
+
+	if ( interactionline->getLine(0)->nrSegments() )
+	    interactionline->getLine(0)->getSegment(0)->removeAll();
     }
 
     return interactionline;
