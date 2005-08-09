@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.37 2005-08-08 15:10:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.38 2005-08-09 15:59:49 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -312,24 +312,13 @@ void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 	EMTracker* tracker = trackers[trackeridx];
 	if ( !tracker ) continue;
 
-	EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
-	if ( !emobj ) continue;
-
-	for ( int sectidx=0; sectidx<emobj->nrSections(); sectidx++ )
+	ObjectSet<const Attrib::SelSpec> specs;
+	tracker->getNeededAttribs(specs);
+	for ( int idx=0; idx<specs.size(); idx++ )
 	{
-	    const EM::SectionID sectionid = emobj->sectionID( sectidx );
-	    SectionTracker* sectiontracker = 
-				tracker->getSectionTracker( sectionid );
-	    if ( !sectiontracker ) continue;
-
-	    ObjectSet<const Attrib::SelSpec> specs;
-	    sectiontracker->getNeededAttribs( specs );
-	    for ( int idx=0; idx<specs.size(); idx++ )
-	    {
-		const Attrib::SelSpec* as = specs[idx];
-		if ( indexOf(res,*as) < 0 )
-		    res += as;
-	    }
+	    const Attrib::SelSpec* as = specs[idx];
+	    if ( indexOf(res,*as) < 0 )
+		res += as;
 	}
     }
 }
