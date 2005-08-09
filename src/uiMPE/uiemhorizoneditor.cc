@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.5 2005-08-05 01:37:57 cvsduntao Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.6 2005-08-09 16:38:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
     uiEMObjectEditor::createInteractionLineMenus(cb);
 
     const EM::EdgeLineSegment& interactionline =
-	*editor->getInteractionLine(0)->getLine(0)->getSegment(0);
+	*editor->getInteractionLine()->getLine(0)->getSegment(0);
 
     const EM::SectionID sid = interactionline.getSection();
 
@@ -195,7 +195,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus(CallBacker* cb)
 	return;
 
     EM::EdgeLineSegment& interactionline =
-	*editor->getInteractionLine(0)->getLine(0)->getSegment(0);
+	*editor->getInteractionLine()->getLine(0)->getSegment(0);
 
     const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
