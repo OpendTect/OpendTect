@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.7 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: sectiontracker.h,v 1.8 2005-08-09 15:50:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "basictask.h"
+#include "cubesampling.h"
 #include "emposid.h"
 #include "geomelement.h"
 
@@ -66,7 +67,8 @@ public:
     void			setDisplaySpec(const Attrib::SelSpec&);
 
     void			getNeededAttribs(
-				    ObjectSet<const Attrib::SelSpec>&) const;
+	    			    ObjectSet<const Attrib::SelSpec>&) const;
+    virtual CubeSampling	getAttribCube( const Attrib::SelSpec& ) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

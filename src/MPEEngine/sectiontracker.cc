@@ -8,16 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.11 2005-08-05 01:37:57 cvsduntao Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.12 2005-08-09 15:50:26 cvskris Exp $";
 
 #include "sectiontracker.h"
 
+#include "iopar.h"
+#include "mpeengine.h"
+#include "ptrman.h"
+#include "positionscorecomputer.h"
+#include "sectionadjuster.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
-#include "sectionadjuster.h"
-#include "positionscorecomputer.h"
-#include "iopar.h"
-#include "ptrman.h"
 
 namespace MPE 
 {
@@ -157,20 +158,16 @@ const char* SectionTracker::errMsg() const
 { return errmsg_[0] ? (const char*) errmsg_ : 0; }
 
 
+CubeSampling SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
+{
+    return adjuster_ ? adjuster_->getAttribCube(spec) : engine().activeVolume();
+}
+
+
 void SectionTracker::getNeededAttribs( 
 				ObjectSet<const Attrib::SelSpec>& res ) const
 {
-    if ( !adjuster_ ) return;
-    for ( int idx=0; idx<adjuster_->nrComputers(); idx++ )
-    {
-	PositionScoreComputer* psc = adjuster_->getComputer( idx );
-	for ( int asidx=0; asidx<psc->nrAttribs(); asidx++ )
-	{
-	    const Attrib::SelSpec* as = psc->getSelSpec( asidx );
-	    if ( as && indexOf(res,*as) < 0 )
-		res += as;
-	}
-    }
+    if ( adjuster_ ) adjuster_->getNeededAttribs( res );
 }
 
 
