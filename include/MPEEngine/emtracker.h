@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.13 2005-08-09 15:43:32 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.14 2005-08-09 15:57:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 namespace Geometry { class Element; };
 namespace EM { class EMObject; };
-class AttribSelSpec;
+namespace Attrib { class SelSpec; }
 
 namespace MPE
 {
@@ -45,9 +45,9 @@ public:
     virtual bool		trackInVolume();
     virtual bool		snapPositions( const TypeSet<EM::PosID>& );
 
-    virtual CubeSampling	getAttribCube( const AttribSelSpec& ) const;
+    virtual CubeSampling	getAttribCube( const Attrib::SelSpec& ) const;
     void			getNeededAttribs(
-	    				ObjectSet<const AttribSelSpec>& );
+	    				ObjectSet<const Attrib::SelSpec>& );
 
     SectionTracker*		getSectionTracker(EM::SectionID,
 	    					  bool create=false);

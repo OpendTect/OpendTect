@@ -8,11 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.14 2005-08-09 15:44:03 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.15 2005-08-09 15:57:11 cvskris Exp $";
 
 #include "emtracker.h"
 
 #include "attribsel.h"
+#include "consistencychecker.h"
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emobject.h"
@@ -278,7 +279,7 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 }
 
 
-CubeSampling EMTracker::getAttribCube( const AttribSelSpec& spec ) const
+CubeSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     CubeSampling res( engine().activeVolume() );
 
@@ -293,16 +294,16 @@ CubeSampling EMTracker::getAttribCube( const AttribSelSpec& spec ) const
 }
 
 
-void EMTracker::getNeededAttribs( ObjectSet<const AttribSelSpec>& res )
+void EMTracker::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res )
 {
     for ( int sectidx=0; sectidx<sectiontrackers.size(); sectidx++ )
     {
-	ObjectSet<const AttribSelSpec> specs;
+	ObjectSet<const Attrib::SelSpec> specs;
 	sectiontrackers[sectidx]->getNeededAttribs( specs );
 
 	for ( int idx=0; idx<specs.size(); idx++ )
 	{
-	    const AttribSelSpec* as = specs[idx];
+	    const Attrib::SelSpec* as = specs[idx];
 	    if ( indexOf(res,*as) < 0 )
 		res += as;
 	}
