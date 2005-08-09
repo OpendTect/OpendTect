@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.11 2005-08-05 01:37:56 cvsduntao Exp $
+ RCS:           $Id: emeditor.h,v 1.12 2005-08-09 16:18:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,14 @@ public:
     				/*!<Won't trigger on position-changes,
 				    but when new edit positions are avaliable
 				    or editpositions has been removed */
+
+    void			restartInteractionLine(const EM::SectionID&);
+    				/*!<\note Object does only have one line. If
+					the provided sectionID differs from the
+				 	existing line's, the sectionID of the
+				 	existing line will be changed. */
 				    
-    virtual EM::EdgeLineSet*	getInteractionLine(const EM::SectionID&);
+    virtual EM::EdgeLineSet*	getInteractionLine();
 				/*!<\note Object does only have one line. If
 					the provided sectionID differs from the
 					existing line's, the sectionID of the
