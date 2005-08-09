@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.36 2005-08-08 11:07:57 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.37 2005-08-09 16:47:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,7 +219,8 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 
     if ( mousecb && editor )
     {
-	editor->moveTemporaryNode( closestnode );
+	editor->mouseClick( closestnode, eventinfo.shift, eventinfo.alt,
+			    eventinfo.ctrl );
 	eventcatcher->eventIsHandled();
     }
     else if ( keycb )
