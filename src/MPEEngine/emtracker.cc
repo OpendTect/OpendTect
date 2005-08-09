@@ -8,16 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.13 2005-08-05 01:37:57 cvsduntao Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.14 2005-08-09 15:44:03 cvskris Exp $";
 
 #include "emtracker.h"
 
-#include "binidvalset.h"
-#include "consistencychecker.h"
+#include "attribsel.h"
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "emposid.h"
 #include "mpeengine.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
@@ -279,6 +277,37 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
     return true;
 }
 
+
+CubeSampling EMTracker::getAttribCube( const AttribSelSpec& spec ) const
+{
+    CubeSampling res( engine().activeVolume() );
+
+    for ( int sectidx=0; sectidx<sectiontrackers.size(); sectidx++ )
+    {
+	CubeSampling cs = sectiontrackers[sectidx]->getAttribCube( spec );
+	res.include( cs );
+    }
+
+
+    return res;
+}
+
+
+void EMTracker::getNeededAttribs( ObjectSet<const AttribSelSpec>& res )
+{
+    for ( int sectidx=0; sectidx<sectiontrackers.size(); sectidx++ )
+    {
+	ObjectSet<const AttribSelSpec> specs;
+	sectiontrackers[sectidx]->getNeededAttribs( specs );
+
+	for ( int idx=0; idx<specs.size(); idx++ )
+	{
+	    const AttribSelSpec* as = specs[idx];
+	    if ( indexOf(res,*as) < 0 )
+		res += as;
+	}
+    }
+}
 
 const char* EMTracker::errMsg() const
 { return errmsg[0] ? (const char*) errmsg : 0; }

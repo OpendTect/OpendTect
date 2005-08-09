@@ -7,17 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.12 2005-08-05 01:37:56 cvsduntao Exp $
+ RCS:           $Id: emtracker.h,v 1.13 2005-08-09 15:43:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "emposid.h"
-
+#include "cubesampling.h"
 
 namespace Geometry { class Element; };
 namespace EM { class EMObject; };
+class AttribSelSpec;
 
 namespace MPE
 {
@@ -43,6 +44,10 @@ public:
     virtual bool		trackIntersections(const TrackPlane&);
     virtual bool		trackInVolume();
     virtual bool		snapPositions( const TypeSet<EM::PosID>& );
+
+    virtual CubeSampling	getAttribCube( const AttribSelSpec& ) const;
+    void			getNeededAttribs(
+	    				ObjectSet<const AttribSelSpec>& );
 
     SectionTracker*		getSectionTracker(EM::SectionID,
 	    					  bool create=false);
