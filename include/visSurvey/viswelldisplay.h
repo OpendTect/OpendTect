@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.23 2005-08-05 15:14:47 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.24 2005-08-09 18:09:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -101,16 +101,16 @@ protected:
     bool			log1logsc;
     bool			log2logsc;
 
-    static const char*		earthmodelidstr;
-    static const char*		wellidstr;
-    static const char*		log1nmstr;
-    static const char*		log1rgstr;
-    static const char*		log1logscstr;
-    static const char*		log2nmstr;
-    static const char*		log2rgstr;
-    static const char*		log2logscstr;
-    static const char*		log1colorstr;
-    static const char*		log2colorstr;
+    static const char*		sKeyEarthModelID;
+    static const char*		sKeyWellID;
+    static const char*		sKeyLog1Name;
+    static const char*		sKeyLog1Range;
+    static const char*		sKeyLog1Scale;
+    static const char*		sKeyLog1Color;
+    static const char*		sKeyLog2Name;
+    static const char*		sKeyLog2Range;
+    static const char*		sKeyLog2Scale;
+    static const char*		sKeyLog2Color;
 };
 
 };

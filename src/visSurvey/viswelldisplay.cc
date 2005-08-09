@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.45 2005-08-05 15:14:47 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.46 2005-08-09 18:09:31 cvskris Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -29,16 +29,16 @@ mCreateFactoryEntry( visSurvey::WellDisplay );
 namespace visSurvey
 {
 
-const char* WellDisplay::earthmodelidstr = "EarthModel ID";
-const char* WellDisplay::wellidstr	 = "Well ID";
-const char* WellDisplay::log1nmstr	 = "Logname 1";
-const char* WellDisplay::log2nmstr	 = "Logname 2";
-const char* WellDisplay::log1rgstr	 = "Logrange 1";
-const char* WellDisplay::log2rgstr	 = "Logrange 2";
-const char* WellDisplay::log1logscstr	 = "Loglogsc 1";
-const char* WellDisplay::log2logscstr	 = "Loglogsc 2";
-const char* WellDisplay::log1colorstr	 = "Logcolor 1";
-const char* WellDisplay::log2colorstr	 = "Logcolor 2";
+const char* WellDisplay::sKeyEarthModelID = "EarthModel ID";
+const char* WellDisplay::sKeyWellID	 = "Well ID";
+const char* WellDisplay::sKeyLog1Name	 = "Logname 1";
+const char* WellDisplay::sKeyLog2Name	 = "Logname 2";
+const char* WellDisplay::sKeyLog1Range	 = "Logrange 1";
+const char* WellDisplay::sKeyLog2Range	 = "Logrange 2";
+const char* WellDisplay::sKeyLog1Scale	 = "Loglogsc 1";
+const char* WellDisplay::sKeyLog2Scale	 = "Loglogsc 2";
+const char* WellDisplay::sKeyLog1Color	 = "Logcolor 1";
+const char* WellDisplay::sKeyLog2Color	 = "Logcolor 2";
 
 #define mMeter2Feet(val) \
    val /= 0.3048;
@@ -299,24 +299,23 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( earthmodelidstr, wellid );
+    par.set( sKeyEarthModelID, wellid );
 
     int viswellid = well->id();
-    par.set( wellidstr, viswellid );
+    par.set( sKeyWellID, viswellid );
     if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
-
-    par.set( log1nmstr, log1nm );
-    par.set( log1rgstr, log1rg.start, log1rg.stop );
-    par.setYN( log1logscstr, log1logsc );
+    
     BufferString colstr;
-    logColor(1).fill( colstr.buf() );
-    par.set( log1colorstr, colstr );
 
-    par.set( log2nmstr, log2nm );
-    par.set( log2rgstr, log2rg.start, log2rg.stop );
-    par.setYN( log2logscstr, log2logsc );
-    logColor(2).fill( colstr.buf() );
-    par.set( log2colorstr, colstr );
+#define mStoreLogPars( num ) \
+    par.set( sKeyLog##num##Name, log##num##nm ); \
+    par.set( sKeyLog##num##Range, log##num##rg.start, log##num##rg.stop ); \
+    par.setYN( sKeyLog##num##Scale, log##num##logsc ); \
+    logColor(num).fill( colstr.buf() ); \
+    par.set( sKeyLog##num##Color, colstr )
+
+    mStoreLogPars(1);
+    mStoreLogPars(2);
 }
 
 
@@ -326,7 +325,7 @@ int WellDisplay::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     int viswellid;
-    if ( par.get(wellidstr,viswellid) )
+    if ( par.get(sKeyWellID,viswellid) )
     {
 	DataObject* dataobj = visBase::DM().getObject( viswellid );
 	if ( !dataobj ) return 0;
@@ -343,7 +342,7 @@ int WellDisplay::usePar( const IOPar& par )
     setDisplayTransformation( SPM().getUTM2DisplayTransform() );
 
     MultiID newmid;
-    if ( !par.get(earthmodelidstr,newmid) )
+    if ( !par.get(sKeyEarthModelID,newmid) )
 	return -1;
 
     if ( !setWellId(newmid) )
@@ -351,26 +350,22 @@ int WellDisplay::usePar( const IOPar& par )
 	return 1;
     }
 
-    BufferString log1nm_;
-    par.get( log1nmstr, log1nm_ );
-    par.get( log1rgstr, log1rg.start, log1rg.stop );
-    par.getYN( log1logscstr, log1logsc );
-    if ( *log1nm_.buf() )
-	displayLog( log1nm_, log1logsc, log1rg, 1 );
-    BufferString colstr; Color col;
-    par.get( log1colorstr, colstr );
-    if ( col.use(colstr.buf()) )
-	setLogColor( col, 1 );
+    BufferString lognm_;
+    BufferString colstr;
+    Color col;
 
-    BufferString log2nm_;
-    par.get( log2nmstr, log2nm_ );
-    par.get( log2rgstr, log2rg.start, log2rg.stop );
-    par.getYN( log2logscstr, log2logsc );
-    if ( *log2nm_.buf() )
-	displayLog( log2nm_, log2logsc, log2rg, 2 );
-    par.get( log2colorstr, colstr );
-    if ( col.use(colstr.buf()) )
-	setLogColor( col, 2 );
+#define mRetrieveLogPars( num ) \
+    par.get( sKeyLog##num##Name, lognm_ ); \
+    par.get( sKeyLog##num##Range, log##num##rg.start, log##num##rg.stop ); \
+    par.getYN( sKeyLog##num##Scale, log##num##logsc ); \
+    if ( *lognm_.buf() ) \
+	displayLog( lognm_, log##num##logsc, log##num##rg, num ); \
+    par.get( sKeyLog##num##Color, colstr ); \
+    if ( col.use(colstr.buf()) ) \
+	setLogColor( col, num )
+
+    mRetrieveLogPars( 1 );
+    mRetrieveLogPars( 2 );
 
 // Support for old sessions
     BufferString linestyle;
