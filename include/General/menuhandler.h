@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.3 2005-07-13 21:52:02 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.4 2005-08-10 16:17:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ class MenuItemHolder : public CallBackClass
 public:
     				MenuItemHolder();
     virtual			~MenuItemHolder();
+    Notifier<MenuItemHolder>	removal;
+    				/*!< triggers when class is deleted */
 
     virtual void		addItem( MenuItem*, bool manage=false );
     				/*!<\param manage specified wether the class
@@ -53,12 +55,15 @@ public:
 
 protected:
     friend			class MenuHandler;
+    void			itemIsDeletedCB(CallBacker*);
     virtual void		assignItemID( MenuItem& );
     				/*!< Get a unique id for this item. */
 
+    MenuItemHolder*		parent;
+
+private:
     ObjectSet<MenuItem>		items;
     BoolTypeSet			manageitems;
-    MenuItemHolder*		parent;
 };
 
 /*!A generic representation of an item in a menu. */

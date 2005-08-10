@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.cc,v 1.1 2005-07-07 21:45:30 cvskris Exp $
+ RCS:           $Id: menuhandler.cc,v 1.2 2005-08-10 16:17:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,12 +13,20 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 #include "bufstringset.h"
+#include "errh.h"
 
 
-MenuItemHolder::MenuItemHolder() : parent( 0 ) {}
+MenuItemHolder::MenuItemHolder()
+    : parent( 0 )
+    , removal(this)
+{}
 
 
-MenuItemHolder::~MenuItemHolder() { removeItems(); }
+MenuItemHolder::~MenuItemHolder()
+{
+    removal.trigger();
+    removeItems();
+}
 
 
 void MenuItemHolder::addItem( MenuItem* item, bool manage )
@@ -26,6 +34,8 @@ void MenuItemHolder::addItem( MenuItem* item, bool manage )
     items += item;
     manageitems += manage;
     item->parent = this;
+
+    item->removal.notify(mCB(this,MenuItemHolder,itemIsDeletedCB));
 
     assignItemID(*item);
 }
@@ -35,11 +45,14 @@ void MenuItemHolder::removeItems()
 {
     for ( int idx=0; idx<items.size(); idx++ )
     {
+	items[idx]->removal.remove(mCB(this,MenuItemHolder,itemIsDeletedCB));
+
 	if ( manageitems[idx] ) delete items[idx];
 	else if ( items[idx]->parent==this ) items[idx]->parent = 0;
     }
 
     items.erase();
+    manageitems.erase();
 }
 
 
@@ -117,6 +130,19 @@ const MenuItem* MenuItemHolder::findItem( int searchid ) const
 
 const ObjectSet<MenuItem>& MenuItemHolder::getItems() const
 { return items; }
+
+
+void MenuItemHolder::itemIsDeletedCB(CallBacker* cb)
+{
+    const int idx = items.indexOf(reinterpret_cast<MenuItem*>(cb));
+    if ( idx==-1 )
+	pErrMsg( "Hugh?" );
+    else
+    {
+	items.remove(idx);
+	manageitems.remove(idx);
+    }
+}
 
 
 void MenuItemHolder::assignItemID(MenuItem& item)
