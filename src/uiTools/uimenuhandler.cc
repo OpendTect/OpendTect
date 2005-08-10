@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.2 2005-07-11 21:20:19 cvskris Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.3 2005-08-10 14:44:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,12 +34,12 @@ bool uiMenuHandler::executeMenu( int menutype_, const TypeSet<int>* path_ )
     menutype = menutype_;
     path = path_;
 
-    items.erase();
+    removeItems();
     uiCursor::setOverride( uiCursor::Wait );
     createnotifier.trigger();
     uiCursor::restoreOverride();
 
-    PtrMan<uiPopupMenu> menu = createMenu( items );
+    PtrMan<uiPopupMenu> menu = createMenu( getItems() );
     if ( !menu ) return true;
 
     const int selection = menu->exec();
