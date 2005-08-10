@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.19 2005-06-10 06:48:44 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.20 2005-08-10 21:59:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -754,9 +754,13 @@ SectionID SurfaceGeometry::addSection( Geometry::ParametricSurface* surf,
 
     if ( addtohistory )
     {
+	pErrMsg("History not implemented for add section");
+	EMM().history().setCurrentEventAsFirst();
+	/*
 	HistoryEvent* history =
 	    new SurfaceSectionHistoryEvent( true, surface.id(), sid, name );
 	EMM().history().addEvent( history, 0, 0 );
+	*/
     }
 
     EMObjectCallbackData cbdata;
@@ -798,10 +802,15 @@ void SurfaceGeometry::removeSection( SectionID sectionid, bool addtohistory )
 
     if ( addtohistory )
     {
+	pErrMsg("History not implemented for remove section");
+	EMM().history().setCurrentEventAsFirst();
+	/*
+
 	HistoryEvent* history =
 	    new SurfaceSectionHistoryEvent( false, surface.id(),
 					    sectionid, name );
 	EMM().history().addEvent( history, 0, 0 );
+	*/
     }
 
     EMObjectCallbackData cbdata;
