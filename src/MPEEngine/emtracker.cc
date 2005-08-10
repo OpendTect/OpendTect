@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.15 2005-08-09 15:57:11 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.16 2005-08-10 10:40:56 cvsduntao Exp $";
 
 #include "emtracker.h"
 
@@ -276,6 +276,15 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
     }
 
     return true;
+}
+
+
+bool EMTracker::snapSeedPos()
+{
+    const TypeSet<EM::PosID>* seeds = emobject
+    	? emobject->getPosAttribList(EM::EMObject::sSeedNode)
+	: 0;
+    return seeds && snapPositions(*seeds);
 }
 
 

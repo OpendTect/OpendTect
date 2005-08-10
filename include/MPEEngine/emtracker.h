@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.14 2005-08-09 15:57:08 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.15 2005-08-10 10:40:56 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     virtual bool		trackIntersections(const TrackPlane&);
     virtual bool		trackInVolume();
     virtual bool		snapPositions( const TypeSet<EM::PosID>& );
+    virtual bool		snapSeedPos();
 
     virtual CubeSampling	getAttribCube( const Attrib::SelSpec& ) const;
     void			getNeededAttribs(

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.1 2005-08-05 03:56:52 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.2 2005-08-10 10:40:56 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "sectionadjuster.h"
 #include "ranges.h"
 #include "trackplane.h"
+#include "valseriesevent.h"
 
 class IOPar;
 namespace EM { class Horizon; };
@@ -44,6 +45,10 @@ public:
     			    { trackbyvalue_ = yn; };
     bool		trackByValue()
     			    { return trackbyvalue_; };
+    void		setTrackEvent( VSEvent::Type ev )
+			    { trackevent_ = ev; }
+    VSEvent::Type	trackEvent()
+			    { return trackevent_; }
 
     void		setAmplitudeThreshold(float th)
     			    { ampthreshold_ = th; }
@@ -64,30 +69,36 @@ public:
 
 protected:
     EM::Horizon&	horizon_;
+    VSEvent::Type	trackevent_;
     Interval<float>	permzrange_;
     float		ampthreshold_;
     Interval<float>	similaritywin_;
     float		similaritythreshold_;
     bool		trackbyvalue_;
 
-    bool		trackTrace( const BinID& refbid, float refz,
+    bool		trackTrace( const BinID& refbid,
 				const BinID& targetbid, float& targetz,
 				float* refsamples = 0 );
-    bool		findMatchingSampleByValue( const BinID& bid,
+    int			matchingSampleByValue( const float* srctrc,
 				int startsample, int endsample, float refval,
-				int& matchpos, float& matchval, bool& eqstart );
-    bool                findMatchingSampleBySimilarity( float* srctrc,
-                                int startsample, int endsample, float* refval,
-                                int& matchpos, float &matchratio,
-                                bool& eqfromstart );
+				float& matchval, bool& eqstart );
+    int			matchingSampleBySimilarity( const float* srctrc,
+                                int startsample, int endsample,
+				const float* refval,
+				float &matchratio, bool& eqfromstart );
+    float		nearestExtreme( float *srctrc, int nrsamples,
+    				int startpos, VSEvent::Type );
+    float 		nearestZeroEvent( float *srctrc, int nrsamples,
+    				int startpos, VSEvent::Type );
+    float 		firstZeroEvent( const float *srctrc, int startsample,
+    				int endsample, VSEvent::Type );
 private:
     void		initTrackParam();
     int			matchwinsamples_;
     int			simlaritymatchpt_;
-//    float*		trcbuffer;
 
     void		setHorizonPick(const BinID& bid, float val);
-    bool		getCmpSamples( const PositionScoreComputerAttribData*,
+    bool		getCompSamples( const PositionScoreComputerAttribData*,
     				const BinID& bid, float z, float* buf);
     const AttribPositionScoreComputer*
     			getAttribComputer() const;
@@ -97,6 +108,7 @@ private:
     static const char*	similaritywinstr_;
     static const char*	similaritythresholdstr_;
     static const char*	trackbyvalstr_;
+    static const char*	trackeventstr_;
 };
 
 }; // namespace MPE

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.38 2005-08-09 15:59:49 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.39 2005-08-10 10:40:56 cvsduntao Exp $";
 
 #include "mpeengine.h"
 
@@ -301,7 +301,10 @@ void Engine::setNewSeeds()
 	    break;
     }
     if ( idx >= 0 )
+    {
 	trackers[idx]->setSeeds(interactionseeds, trackers[idx]->objectName());
+	trackers[idx]->snapSeedPos();
+    }
 }
 
 
