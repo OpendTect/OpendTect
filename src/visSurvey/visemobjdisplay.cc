@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.37 2005-08-09 16:47:11 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.38 2005-08-11 14:10:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -341,7 +341,7 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
 	}
 
 	mDynamicCastGet(visBase::Material*, material,
-	posattribmarkers[attribindex] );
+			posattribmarkers[attribindex]->getObject(0) );
 	material->setColor( color );
     }
     else if ( attribindex!=-1 && !yn )
