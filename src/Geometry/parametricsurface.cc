@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.15 2005-04-26 15:42:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.16 2005-08-11 16:36:52 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -335,6 +335,8 @@ bool ParametricSurface::hasSupport( const RCol& rc ) const
 
 	    prevdirdefined = true;
 	}
+	else
+	    prevdirdefined = false;
     }
 
     return false;
