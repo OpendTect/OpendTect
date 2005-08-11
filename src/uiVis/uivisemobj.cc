@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.20 2005-08-05 18:24:27 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.21 2005-08-11 16:50:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,8 @@ uiVisEMObject::~uiVisEMObject()
     {
 	emod->getEditor()->noderightclick.remove(
 		mCB(this,uiVisEMObject,nodeRightClick) );
+	emod->getEditor()->interactionlinerightclick.remove(
+		mCB(this,uiVisEMObject,interactionLineRightClick) );
     }
 
     nodemenu.createnotifier.remove( mCB(this,uiVisEMObject,createNodeMenuCB) );
@@ -172,6 +174,7 @@ void uiVisEMObject::setUpConnections()
 {
     singlecolmnuitem.text = "Use single color";
     trackmenuitem.text = uiVisEMObject::trackingmenutxt;
+    showseedsmnuitem.text = "Show seeds";
     wireframemnuitem.text = "Wireframe";
     editmnuitem.text = "Edit";
     shiftmnuitem.text = "Shift ...";
@@ -207,6 +210,9 @@ void uiVisEMObject::connectEditor()
     {
 	emod->getEditor()->noderightclick.notifyIfNotNotified(
 		mCB(this,uiVisEMObject,nodeRightClick) );
+
+	emod->getEditor()->interactionlinerightclick.notifyIfNotNotified(
+		mCB(this,uiVisEMObject,interactionLineRightClick) );
 
 	//interactionlinemenu.setID( emod->getEditor()->lineID() );
 	//edgelinemenu.setID( emod->getEditor()->lineID() );
@@ -316,10 +322,11 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
     mAddMenuItem(&trackmenuitem,&wireframemnuitem,true, emod->usesWireframe());
-
-    const TypeSet<EM::PosID>* seeds = emobj
-	? emobj->getPosAttribList(EM::EMObject::sSeedNode) : 0;
-    mAddMenuItem(&trackmenuitem,&showseedsmnuitem, seeds && seeds->size(),
+   
+    const TypeSet<EM::PosID>* seeds =
+			emobj->getPosAttribList(EM::EMObject::sSeedNode);
+    mAddMenuItem(&trackmenuitem,&showseedsmnuitem,
+	    	 seeds && seeds->size(),
 		 emod->showsPosAttrib(EM::EMObject::sSeedNode));
 
     mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),false);
@@ -426,9 +433,27 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
 void uiVisEMObject::interactionLineRightClick( CallBacker* cb )
 {
-    mCBCapsuleUnpack( int, nodedisplayid, cb );
-    interactionlinemenu.setMenuID(nodedisplayid);
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+	    	    visserv->getObject(displayid));
+
+    if ( !emod ) return;
+
+    PtrMan<MPE::uiEMEditor> uimpeeditor =
+	MPE::uiMPE().editorfact.create(uiparent,
+				       emod->getEditor()->getMPEEditor());
+    if ( !uimpeeditor ) return;
+
+    interactionlinemenu.createnotifier.notify(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,createInteractionLineMenus));
+    interactionlinemenu.handlenotifier.notify(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,handleInteractionLineMenus));
+
     interactionlinemenu.executeMenu(uiMenuHandler::fromScene);
+
+    interactionlinemenu.createnotifier.remove(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,createInteractionLineMenus));
+    interactionlinemenu.handlenotifier.remove(
+	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,handleInteractionLineMenus));
 }
 
 
@@ -551,182 +576,6 @@ void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
 }
 
 
-void uiVisEMObject::createInteractionLineMenuCB( CallBacker* cb )
-{
-    /*
-    mDynamicCastGet(uiMenuHandler*,menu,cb)
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
-    mDynamicCastGet( const visSurvey::EdgeLineSetDisplay*, linedisplay,
-	    	     visserv->getObject(emod->getEditor()->lineID()) );
-
-    const EM::EdgeLineSegment& interactionline =
-	*linedisplay->getEdgeLineSet()->getLine(0)->getSegment(0);
-
-    EM::EMManager& em = EM::EMM();
-    mDynamicCastGet( EM::EMObject*, emobj,
-	    em.getObject(interactionline.getSurface().id()));
-    EM::EdgeLineSet* lineset =
-	emobj->edgelinesets.getEdgeLineSet(interactionline.getSection(),true);
-    if ( !lineset )
-	return;
-
-    const int mainlineidx = lineset->getMainLine();
-    EM::EdgeLine* line = lineset->getLine(mainlineidx);
-    if ( !line )
-	return;
-
-    bool noneonedge = false;
-    bool canstop = false;
-    if ( line->getSegment( interactionline.first() )!=-1 &&
-	 line->getSegment( interactionline.last() )!=-1 )
-    {
-	noneonedge = true;
-
-	for ( int idx=1; idx<interactionline.size()-1; idx++ )
-	{
-	    const EM::PosID posid( interactionline.getSurface().id(),
-		       interactionline.getSection(),
-		       emobj->geometry.rowCol2SubID(interactionline[idx]));
-	    if ( emobj->geometry.isAtEdge(posid) )
-		noneonedge = false;
-	}
-
-	int dummy;
-	bool dummybool;
-	canstop = canMakeStopLine( *lineset, interactionline, dummy, dummybool);
-    }
-
-    uiMenuItem* smallitem = new uiMenuItem("Cut away small part");
-    smallitem->setEnabled(noneonedge);
-    cutsmalllinemnuitem = menu->addItem( smallitem );
-
-    uiMenuItem* largeitem = new uiMenuItem("Cut away large part");
-    largeitem->setEnabled(noneonedge);
-    cutlargelinemnuitem = menu->addItem( largeitem );
-
-    uiMenuItem* splititem = new uiMenuItem("Split");
-    splititem->setEnabled(noneonedge);
-    splitlinemnuitem = menu->addItem( splititem );
-
-    uiMenuItem* stopitem = new uiMenuItem("Disable tracking");
-    stopitem->setEnabled(canstop);
-    mkstoplinemnuitem = menu->addItem( stopitem );
-    */
-}
-
-
-void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
-{
-    /*
-    mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiMenuHandler*,menu,caller)
-    if ( mnuid==-1 || menu->isHandled() )
-	return;
-
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
-    mDynamicCastGet( const visSurvey::EdgeLineSetDisplay*, linedisplay,
-	    	     visserv->getObject(emod->getEditor()->lineID()) );
-
-    const EM::EdgeLineSegment& interactionline =
-	*linedisplay->getEdgeLineSet()->getLine(0)->getSegment(0);
-
-    EM::EMManager& em = EM::EMM();
-    mDynamicCastGet( EM::EMObject*, emobj,
-	    em.getObject(interactionline.getSurface().id()));
-    EM::EdgeLineSet* lineset =
-	emobj->edgelinesets.getEdgeLineSet(interactionline.getSection(),true);
-    if ( !lineset )
-	return;
-
-    const int mainlineidx = lineset->getMainLine();
-    EM::EdgeLine* line = lineset->getLine(mainlineidx);
-    if ( !line )
-	return;
-
-    if ( line->getSegment( interactionline.first() )==-1 ||
-	 line->getSegment( interactionline.last() )==-1 )
-	return;
-
-    if ( mnuid==cutsmalllinemnuitem || mnuid==cutlargelinemnuitem )
-    {
-	PtrMan<EM::EdgeLineSet> part1lineset = lineset->clone();
-	PtrMan<EM::EdgeLineSet> part2lineset = lineset->clone();
-	EM::EdgeLine* part1line = part1lineset->getLine(mainlineidx);
-	EM::EdgeLine* part2line = part2lineset->getLine(mainlineidx);
-
-	EM::EdgeLineSegment* part1cut = interactionline.clone();
-	EM::EdgeLineSegment* part2cut = new EM::EdgeLineSegment(
-		    part1cut->getSurface(), interactionline.getSection() );
-
-	for ( int idx=interactionline.size()-1; idx>=0; idx-- )
-	    (*part2cut) += interactionline[idx];
-
-	part1line->insertSegment( part1cut, -1, true );
-	part2line->insertSegment( part2cut, -1, true );
-
-	const int area1 = part1line->computeArea();
-	const int area2 = part2line->computeArea();
-	const bool keeppart1 = area1>area2==(mnuid==cutsmalllinemnuitem);
-
-	lineset->getLine(mainlineidx)->insertSegment(
-	    keeppart1 ? interactionline.clone() : part2cut->clone(), -1, true );
-
-	lineset->removeAllNodesOutsideLines();
-	menu->setIsHandled(true);
-	emod->getEditor()->clearInteractionLine();
-    }
-    else if ( mnuid==splitlinemnuitem )
-    {
-	const EM::SectionID newsection =
-	    emobj->geometry.cloneSection(interactionline.getSection());
-
-	EM::SurfaceConnectLine* part1cut =
-	    EM::SurfaceConnectLine::create( *emobj, 
-					    interactionline.getSection() );
-	part1cut->setConnectingSection( newsection );
-	for ( int idx=0; idx<interactionline.size(); idx++ )
-	    (*part1cut) += interactionline[idx];
-
-	EM::SurfaceConnectLine* part2cut =
-	    EM::SurfaceConnectLine::create( *emobj, newsection );
-	part2cut->setConnectingSection( interactionline.getSection() );
-	for ( int idx=interactionline.size()-1; idx>=0; idx-- )
-	    (*part2cut) += interactionline[idx];
-
-	EM::EdgeLineSet* lineset2 =
-	    emobj->edgelinesets.getEdgeLineSet(newsection,false);
-
-	const int mainlineidx = lineset2->getMainLine();
-	EM::EdgeLine* line2 = lineset2->getLine(mainlineidx);
-	if ( !line2 )
-	    return;
-
-	line->insertSegment(part1cut,-1,true);
-	lineset->removeAllNodesOutsideLines();
-	line2->insertSegment(part2cut,-1,true);
-	lineset2->removeAllNodesOutsideLines();
-	menu->setIsHandled(true);
-	emod->getEditor()->clearInteractionLine();
-    }
-    else if ( mnuid==mkstoplinemnuitem )
-    {
-	int linenr;
-	bool forward;
-	if ( !canMakeStopLine( *lineset, interactionline, linenr, forward) )
-	    return;
-
-	EM::EdgeLineSegment* terminationsegment =
-	    EM::TerminationEdgeLineSegment::create( *emobj, 
-		    interactionline.getSection() );
-	terminationsegment->copyNodesFrom(&interactionline, !forward );
-
-	lineset->getLine(linenr)->insertSegment( terminationsegment, -1, true );
-	menu->setIsHandled(true);
-	emod->getEditor()->clearInteractionLine();
-    }
-    */
-}
-
 
 void uiVisEMObject::createEdgeLineMenuCB( CallBacker* cb )
 {
@@ -798,66 +647,3 @@ void uiVisEMObject::handleEdgeLineMenuCB( CallBacker* cb )
     */
 }
 
-/*
-bool uiVisEMObject::canMakeStopLine( const EM::EdgeLineSet& lineset,
-			const EM::EdgeLineSegment& interactionline, int& linenr,
-			bool& forward )
-{
-    bool canstop = false;
-    for ( int idx=0; !canstop && idx<lineset.nrLines(); idx++ )
-    {
-	const EM::EdgeLine* curline = lineset.getLine(idx);
-
-	int firstsegpos;
-	const int firstsegment =
-	    curline->getSegment(interactionline[0],&firstsegpos);
-
-
-	if ( firstsegment==-1 )
-	    continue;
-
-	EM::EdgeLineIterator
-	    fwditer(*curline,true,firstsegment,firstsegpos);
-	if ( !fwditer.isOK() ) continue;
-	EM::EdgeLineIterator
-	    backiter(*curline,false,firstsegment,firstsegpos );
-	if ( !backiter.isOK() ) continue;
-
-	canstop = true;
-	for ( int idy=1; canstop && idy<interactionline.size(); idy++ )
-	{
-	    canstop = false;
-
-	    if ( idy==1 || forward )
-	    {
-		fwditer.next();
-		if ( fwditer.currentRowCol()==interactionline[idy] )
-		{
-		    if ( idy==1 ) forward = true;
-		    canstop = true;
-		    continue;
-		}
-	    }
-
-	    if ( idy==1 || !forward )
-	    {
-		backiter.next();
-		if ( backiter.currentRowCol()==interactionline[idy] )
-		{
-		    if ( idy==1 ) forward=false;
-		    canstop = true;
-		}
-	    }
-	}
-
-	if ( canstop )
-	{
-	    linenr = idx;
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-*/

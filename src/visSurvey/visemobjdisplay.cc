@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.39 2005-08-11 14:55:52 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.40 2005-08-11 16:46:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
+#include "vishingeline.h"
 #include "vismarker.h"
 #include "visparametricsurface.h"
 #include "visplanedatadisplay.h"
@@ -39,6 +40,7 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
+#include "emsurfaceedgeline.h"
 
 
 
@@ -60,6 +62,7 @@ const char* EMObjectDisplay::sKeyWireFrame = "WireFrame on";
 const char* EMObjectDisplay::sKeyResolution = "Resolution";
 const char* EMObjectDisplay::sKeyOnlyAtSections = "Display only on sections";
 const char* EMObjectDisplay::sKeyLineStyle = "Linestyle";
+const char* EMObjectDisplay::sKeyEdgeLineRadius = "Edgeline radius";
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
@@ -78,6 +81,7 @@ EMObjectDisplay::EMObjectDisplay()
     , coltab_(visBase::VisColorTab::create())
     , hasmoved( this )
     , drawstyle(visBase::DrawStyle::create())
+    , edgelineradius( 3.5 )
 {
     coltab_->ref();
     drawstyle->ref();
@@ -98,13 +102,14 @@ EMObjectDisplay::~EMObjectDisplay()
     setSceneEventCatcher( 0 );
     if ( coltab_ ) coltab_->unRef();
 
-    const EM::ObjectID objid = em.multiID2ObjectID( mid );
-    const int trackeridx = MPE::engine().getTrackerByObject( objid );
-    if ( trackeridx >= 0 )
-	MPE::engine().removeTracker( trackeridx );
-    MPE::engine().removeEditor( objid );
+    if ( translation )
+    {
+	removeChild( translation->getInventorNode() );
+	translation->unRef();
+	translation = 0;
+    }
 
-    removeAll();
+    removeEMStuff();
 }
 
 
@@ -236,7 +241,11 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 }
 
 
-void EMObjectDisplay::removeAll()
+void EMObjectDisplay::edgeLineRightClickCB(CallBacker*)
+{}
+
+
+void EMObjectDisplay::removeEMStuff()
 {
     for ( int idx=0; idx<sections.size(); idx++ )
     {
@@ -258,19 +267,25 @@ void EMObjectDisplay::removeAll()
     sections.erase();
     sectionids.erase();
 
+    if ( editor ) editor->unRef();
+
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( emobject )
     {
 	emobject->notifier.remove( mCB(this,EMObjectDisplay,emChangeCB));
 	emobject->unRef();
+	const int trackeridx = MPE::engine().getTrackerByObject(emobject->id());
+	if ( trackeridx >= 0 )
+	    MPE::engine().removeTracker( trackeridx );
+	MPE::engine().removeEditor(emobject->id());
+
+	mDynamicCastGet( EM::Surface*, emsurface,
+			 em.getObject( em.multiID2ObjectID(mid) ));
+	if ( emsurface )
+	    emsurface->edgelinesets.addremovenotify.remove(
+			    mCB(this,EMObjectDisplay,emEdgeLineChangeCB ));
     }
-    if ( editor ) editor->unRef();
-    if ( translation )
-    {
-	removeChild( translation->getInventorNode() );
-	translation->unRef();
-	translation = 0;
-    }
+
 }
 
 
@@ -279,18 +294,23 @@ bool EMObjectDisplay::setEMObject( const MultiID& newmid )
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(newmid) );
     if ( !emobject ) return false;
 
-    if ( sections.size() ) removeAll();
+    if ( sections.size() ) removeEMStuff();
 
     mid = newmid;
     emobject->ref();
     emobject->notifier.notify( mCB(this,EMObjectDisplay,emChangeCB) );
+    mDynamicCastGet( EM::Surface*, emsurface,
+		     em.getObject( em.multiID2ObjectID(mid) ));
+    if ( emsurface ) emsurface->edgelinesets.addremovenotify.notify(
+			mCB(this,EMObjectDisplay,emEdgeLineChangeCB ));
+
     return updateFromEM();
 }
 
 
 bool EMObjectDisplay::updateFromEM()
 { 
-    if ( sections.size() ) removeAll();
+    if ( sections.size() ) removeEMStuff();
 
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( !emobject ) return false;
@@ -361,11 +381,11 @@ bool EMObjectDisplay::showsPosAttrib(int attr) const
 { return posattribs.indexOf(attr)!=-1; }
 
 
-bool EMObjectDisplay::addSection( EM::SectionID sectionid )
+bool EMObjectDisplay::addSection( EM::SectionID sid )
 {
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     Geometry::Element* ge = const_cast<Geometry::Element*>(
-	const_cast<const EM::EMObject*>(emobject)->getElement(sectionid));
+	const_cast<const EM::EMObject*>(emobject)->getElement(sid));
     if ( !ge ) return false;
 
     visBase::VisualObject* vo = createSection( ge );
@@ -378,7 +398,7 @@ bool EMObjectDisplay::addSection( EM::SectionID sectionid )
     vo->turnOn( !displayonlyatsections );
 
     sections += vo;
-    sectionids += sectionid;
+    sectionids += sid;
 
     mDynamicCastGet(visBase::CubicBezierSurface*,cbs,vo);
     if ( cbs ) cbs->useWireframe( useswireframe );
@@ -389,6 +409,45 @@ bool EMObjectDisplay::addSection( EM::SectionID sectionid )
 	psurf->setColorTab( *coltab_ );
 	psurf->useWireframe(useswireframe);
 	psurf->setResolution( getResolution()-1 );
+    }
+
+    return addEdgeLineDisplay(sid);
+}
+
+
+bool EMObjectDisplay::addEdgeLineDisplay(EM::SectionID sid)
+{
+    mDynamicCastGet( EM::Surface*, emsurface,
+		     em.getObject( em.multiID2ObjectID(mid) ));
+    EM::EdgeLineSet* els = emsurface
+	? emsurface->edgelinesets.getEdgeLineSet(sid,false) : 0;
+
+    if ( els )
+    {
+	bool found = false;
+	for ( int idx=0; idx<edgelinedisplays.size(); idx++ )
+	{
+	    if ( edgelinedisplays[idx]->getEdgeLineSet()==els )
+	    {
+		found = true;
+		break;
+	    }
+	}
+	
+	if ( !found )
+	{
+	    visSurvey::EdgeLineSetDisplay* elsd =
+		visSurvey::EdgeLineSetDisplay::create();
+	    elsd->ref();
+	    elsd->setConnect(true);
+	    elsd->setEdgeLineSet(els);
+	    elsd->setRadius(edgelineradius);
+	    addChild( elsd->getInventorNode() );
+	    elsd->setDisplayTransformation(transformation);
+	    elsd->rightClicked()->notify(
+		    mCB(this,EMObjectDisplay,edgeLineRightClickCB));
+	    edgelinedisplays += elsd;
+	}
     }
 
     return true;
@@ -711,6 +770,19 @@ void EMObjectDisplay::useWireframe( bool yn )
 }
 
 
+void EMObjectDisplay::setEdgeLineRadius(float nr)
+{
+    edgelineradius = nr;
+    for ( int idx=0; idx<edgelinedisplays.size(); idx++ )
+	edgelinedisplays[idx]->setRadius(nr);
+}
+
+
+float EMObjectDisplay::getEdgeLineRadius() const
+{ return edgelineradius; }
+
+
+
 MPEEditor* EMObjectDisplay::getEditor() { return editor; }
 
 
@@ -824,6 +896,36 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     if ( triggermovement )
 	hasmoved.trigger();
 }
+
+
+void EMObjectDisplay::emEdgeLineChangeCB(CallBacker* cb)
+{
+    mCBCapsuleUnpack( EM::SectionID, section, cb );
+
+    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    mDynamicCastGet(const EM::Surface*,emsurface,emobject)
+    if ( !emsurface ) return;
+
+    if ( emsurface->edgelinesets.getEdgeLineSet( section, false ) )
+	 addEdgeLineDisplay(section);
+    else
+    {
+	for ( int idx=0; idx<edgelinedisplays.size(); idx++ )
+	{
+	    if (edgelinedisplays[idx]->getEdgeLineSet()->getSection()==section)
+  	    {
+		EdgeLineSetDisplay* elsd = edgelinedisplays[idx--];
+		edgelinedisplays -= elsd;
+		elsd->rightClicked()->remove(
+			 mCB( this, EMObjectDisplay, edgeLineRightClickCB ));
+		removeChild( elsd->getInventorNode() );
+		elsd->unRef();
+		break;
+	    }
+	}
+    }
+}
+
 
 
 void EMObjectDisplay::removeAttribCache()

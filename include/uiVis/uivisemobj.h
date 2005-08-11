@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.9 2005-08-05 18:24:21 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.10 2005-08-11 16:50:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,8 @@ protected:
     void		handleMenuCB(CallBacker*);
 
     void		interactionLineRightClick(CallBacker*);
-    void		createInteractionLineMenuCB(CallBacker*);
-    void		handleInteractionLineMenuCB(CallBacker*);
+    void		createInteractionLineMenuCB(CallBacker*) {}
+    void		handleInteractionLineMenuCB(CallBacker*) {}
 
     void		edgeLineRightClick(CallBacker*);
     void		createEdgeLineMenuCB(CallBacker*);

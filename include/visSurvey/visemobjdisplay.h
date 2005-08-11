@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.24 2005-08-08 11:07:57 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.25 2005-08-11 16:46:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,7 @@ namespace visSurvey
 {
 
 class MPEEditor;
+class EdgeLineSetDisplay;
 
 
 class EMObjectDisplay :  public  visBase::VisualObjectImpl,
@@ -48,8 +49,6 @@ public:
     mVisTrans*			getDisplayTransformation();
     void			setDisplayTransformation(mVisTrans*);
     void			setSceneEventCatcher( visBase::EventCatcher* );
-
-    void			removeAll();
 
     bool			setEMObject(const MultiID&);
     bool			updateFromEM();
@@ -115,6 +114,9 @@ public:
     bool			usesWireframe() const;
     void			useWireframe(bool);
 
+    void			setEdgeLineRadius(float);
+    float			getEdgeLineRadius() const;
+
     MPEEditor*			getEditor();
     void			enableEditing(bool yn);
     bool			isEditingEnabled() const;
@@ -130,11 +132,16 @@ public:
 
 protected:
     					~EMObjectDisplay();
+    void				removeEMStuff();
+
     static visBase::VisualObject*	createSection(Geometry::Element*);
     void				removeAttribCache();
     bool				addSection(EM::SectionID);
+    bool				addEdgeLineDisplay(EM::SectionID);
     void				emChangeCB(CallBacker*);
+    void				emEdgeLineChangeCB(CallBacker*);
     void				clickCB(CallBacker*);
+    void				edgeLineRightClickCB(CallBacker*);
     void				updatePosAttrib(int attrib);
     void				updateIntersectionLines(
 					   const ObjectSet<const SurveyObject>&,
@@ -150,6 +157,8 @@ protected:
 
     ObjectSet<visBase::VisualObject>	sections;
     TypeSet<EM::SectionID>		sectionids;
+
+    ObjectSet<EdgeLineSetDisplay>	edgelinedisplays;
 
     ObjectSet<visBase::DataObjectGroup>	posattribmarkers;
     TypeSet<int>			posattribs;
@@ -167,6 +176,7 @@ protected:
     bool				displayonlyatsections;
     bool				useswireframe;
     int					curtextureidx;
+    float				edgelineradius;
 
     Attrib::SelSpec&			as;
     Attrib::ColorSelSpec&		colas;
@@ -184,6 +194,7 @@ protected:
     static const char*			sKeyResolution;
     static const char*			sKeyOnlyAtSections;
     static const char*			sKeyLineStyle;
+    static const char*			sKeyEdgeLineRadius;
 };
 
 
