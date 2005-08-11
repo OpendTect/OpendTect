@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.38 2005-08-11 14:10:20 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.39 2005-08-11 14:55:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
+#include "vismarker.h"
 #include "visparametricsurface.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
@@ -343,6 +344,8 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
 	mDynamicCastGet(visBase::Material*, material,
 			posattribmarkers[attribindex]->getObject(0) );
 	material->setColor( color );
+
+	updatePosAttrib(attr);
     }
     else if ( attribindex!=-1 && !yn )
     {
@@ -786,7 +789,7 @@ visBase::VisualObject* EMObjectDisplay::createSection( Geometry::Element* ge )
 
 void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
-    bool trigger = false;
+    bool triggermovement = false;
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
 
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
@@ -808,12 +811,17 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	    sectionids.remove(idx);
 	}
 
-	trigger = true;
+	triggermovement = true;
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
-	trigger = true;
+	triggermovement = true;
+    else if ( cbdata.event==EM::EMObjectCallbackData::PosIDChange )
+    {
+	if ( posattribs.indexOf(cbdata.attrib)!=-1 )
+	    updatePosAttrib(cbdata.attrib);
+    }
 
-    if ( trigger )
+    if ( triggermovement )
 	hasmoved.trigger();
 }
 
@@ -1006,6 +1014,38 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
 
 NotifierAccess* EMObjectDisplay::getMovementNotification() { return &hasmoved; }
+
+
+void EMObjectDisplay::updatePosAttrib(int attrib)
+{
+    const int attribindex = posattribs.indexOf(attrib);
+    if ( attribindex==-1 ) return;
+
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    const TypeSet<EM::PosID>* pids = emobject->getPosAttribList(attrib);
+    if ( !pids )
+    {
+	showPosAttrib( attrib, false, Color(0,0,0) );
+	return;
+    }
+
+    //Remove everything but material
+    while ( posattribmarkers[attribindex]->size()>1 )
+	posattribmarkers[attribindex]->removeObject(1);
+
+    for ( int idx=0; idx<pids->size(); idx++ )
+    {
+	const Coord3 pos = emobject->getPos((*pids)[idx]);
+	if ( !pos.isDefined() ) continue;
+
+	visBase::Marker* marker = visBase::Marker::create();
+	posattribmarkers[attribindex]->addObject(marker);
+
+	marker->setMaterial(0);
+	marker->setDisplayTransformation(transformation);
+	marker->setCenterPos(pos);
+    }
+}
 
 
 #define mEndLine \
