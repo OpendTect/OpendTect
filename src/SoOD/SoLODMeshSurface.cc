@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.20 2005-08-11 18:29:14 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.21 2005-08-12 13:03:49 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -309,15 +309,15 @@ void MeshSurfacePartPart::computeBBox( SoState* state, SbBox3f& box,
     const int sidesize = sideSize();
     const int nrrows = meshsurface.nrRows();
     const int nrcols = meshsurface.nrColumns.getValue();
-    for ( int rowidx=0; rowidx<sidesize; rowidx++ )
+    for ( int rowidx=0; rowidx<=sidesize; rowidx++ )
     {
 	const int row = rowidx+rowstart;
 	if ( row>=nrrows )
 	    break;
 
-	int nrcolsonpart = sidesize;
-	if ( colstart+nrcolsonpart>=meshsurface.nrColumns.getValue() )
-	    nrcolsonpart = meshsurface.nrColumns.getValue()-colstart;
+	int nrcolsonpart = sidesize+1;
+	if ( colstart+nrcolsonpart>=nrcols )
+	    nrcolsonpart = nrcols-colstart;
 
 	const int colstartidx = row*nrcols+colstart;
 	if ( colstartidx+nrcolsonpart>=meshsurface.coordinates.getNum() )
@@ -519,7 +519,7 @@ bool MeshSurfacePartPart::isInside( int i, int j ) const
 {
     const int sidesize = sideSize();
     return i>=rowstart && j>=colstart &&
-	   (i-rowstart)<sidesize && (j-colstart)<sidesize;
+	   (i-rowstart)<=sidesize && (j-colstart)<=sidesize;
 }
 
 
