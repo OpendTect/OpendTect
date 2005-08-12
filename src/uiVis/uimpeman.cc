@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.25 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.26 2005-08-12 19:23:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -429,8 +429,8 @@ void uiMPEMan::seedModeCB( CallBacker* )
 	seededitor->turnOn( false );
 	seededitor->getSeeds( engine().interactionseeds );
 	showSeeds(true);
-	if ( picknewseeds )
-	    engine().setNewSeeds();
+	//if ( picknewseeds )
+	 //   engine().setNewSeeds();
 	return;
     }
 
@@ -514,7 +514,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     {
 	seededitor->turnOn( false );
 	seededitor->getSeeds( engine().interactionseeds );
-	engine().setNewSeeds();
+	//engine().setNewSeeds();
     }
     
     uiCursor::setOverride( uiCursor::Wait );
