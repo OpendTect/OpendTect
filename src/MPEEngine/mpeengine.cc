@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.39 2005-08-10 10:40:56 cvsduntao Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.40 2005-08-12 19:25:12 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -214,7 +214,7 @@ int Engine::addTracker( const char* objname, const char* trackername )
 	if ( !strcmp(trackername,trackerfactories[idx]->emObjectType()) )
 	{
 	    EMTracker* tracker = trackerfactories[idx]->create();
-	    if ( !tracker->setSeeds(interactionseeds,objname) )
+	    if ( !tracker->setSeeds(interactionseeds,objname,-1) )
 	    {
 		errmsg = tracker->errMsg();
 		delete tracker;
@@ -290,7 +290,7 @@ int Engine::getTrackerByObject( const char* objname ) const
     return -1;
 }
 
-
+/*
 void Engine::setNewSeeds()
 {
     int idx;
@@ -306,6 +306,8 @@ void Engine::setNewSeeds()
 	trackers[idx]->snapSeedPos();
     }
 }
+
+*/
 
 
 void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
