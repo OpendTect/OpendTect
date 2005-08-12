@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.2 2005-08-10 10:40:56 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.3 2005-08-12 09:57:22 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -369,6 +369,10 @@ float HorizonAdjuster::firstZeroEvent( const float *srctrc, int startsample,
 	    pos += ( -prev/(cur-prev) );
 	    return pos;
 	}
+
+	if ( ev==VSEvent::ZCNegPos && prev > cur 
+	     || ev==VSEvent::ZCPosNeg && prev < cur )
+	    break;
     }
     return mUndefValue;
 }
