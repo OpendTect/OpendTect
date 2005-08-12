@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.3 2005-08-05 01:37:57 cvsduntao Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.4 2005-08-12 09:52:10 cvsduntao Exp $";
 
 #include "sectionextender.h"
 
@@ -44,6 +44,29 @@ void SectionExtender::setStartPositions( const TypeSet<EM::SubID> ns )
 
 
 int SectionExtender::nextStep() { return 0; }
+
+
+#define mExtendDirection(inl,crl,z) \
+setDirection(BinIDValue(inl,crl,z)); \
+while ( (res=nextStep())>0 )\
+    ;\
+\
+if ( res==-1 ) return 
+
+void SectionExtender::extendInVolume(const BinID& bidstep, float zstep)
+{
+    int res;
+    mExtendDirection(bidstep.inl, 0, 0);
+    mExtendDirection(-bidstep.inl, 0, 0);
+    mExtendDirection(0, bidstep.crl, 0);
+    mExtendDirection(0, -bidstep.crl, 0);
+    mExtendDirection(bidstep.inl, bidstep.crl,0);
+    mExtendDirection(bidstep.inl, -bidstep.crl,0);
+    mExtendDirection(-bidstep.inl, bidstep.crl,0);
+    mExtendDirection(-bidstep.inl, -bidstep.crl,0);
+    mExtendDirection(0,0,zstep);
+    mExtendDirection(0,0,-zstep);
+}
 
 
 const char* SectionExtender::errMsg() const { return errmsg[0] ? errmsg : 0; }

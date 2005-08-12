@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.6 2005-08-05 01:37:56 cvsduntao Exp $
+ RCS:           $Id: sectionextender.h,v 1.7 2005-08-12 09:52:37 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,9 @@ public:
     				    { trkstattbl = t; }
 
     int				nextStep();
+    
+    void			extendInVolume(const BinID& bidstep,
+    					       float zstep);
 
     const TypeSet<EM::SubID>&	getAddedPositions() const;
     const TypeSet<EM::SubID>&	getAddedPositionsSource() const;
