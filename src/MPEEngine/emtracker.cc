@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.16 2005-08-10 10:40:56 cvsduntao Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.17 2005-08-12 10:03:06 cvsduntao Exp $";
 
 #include "emtracker.h"
 
@@ -134,42 +134,46 @@ while ( (res=extender->nextStep())>0 )\
 \
 if ( res==-1 ) break 
 
+
 bool EMTracker::trackInVolume()
 {
     const TypeSet<EM::PosID>* seeds = emobject
     	? emobject->getPosAttribList(EM::EMObject::sSeedNode)
 	: 0;
-	
     if ( !seeds || !seeds->size() ) return false;
+    snapSeedPos();
+    
     const CubeSampling activevolume = engine().activeVolume();
     const BinID step(SI().inlRange(true).step, SI().crlRange(true).step);
     const float zstep = SI().zRange(true).step;
-        
+    
+    TypeSet<EM::SubID>* seedset = new TypeSet<EM::SubID> [seeds->size()];
     TrackingStatusTable trktbl(SI().inlRange(true), SI().crlRange(true));
     for ( int idx=0; idx<seeds->size(); idx++ )
-	trktbl.setPosTracked((*seeds)[idx].subID());
-    
-    for ( int idx=0; idx<seeds->size(); idx++ )
     {
-	const EM::SectionID sid = (*seeds)[idx].sectionID();
-
-	SectionTracker* tracker = getSectionTracker(sid, true );
-	TypeSet<EM::SubID> currentseeds(1,(*seeds)[idx].subID());
-	
-	SectionExtender* extender = tracker->extender();
-	EM::SubID refpos = (*seeds)[idx].subID();
-	
-	SectionAdjuster* adjuster = tracker->adjuster();
-	
-	int res;
-	while ( true )
-	{ 
+	trktbl.setPosTracked((*seeds)[idx].subID());
+	seedset[idx] += (*seeds)[idx].subID();
+    }
+    
+    bool moreseeds = true;	int res;
+    while ( moreseeds ) 
+    {
+	for ( int idx=0; idx<seeds->size(); idx++ )
+	{
+	    const EM::SectionID sid = (*seeds)[idx].sectionID();
+	    TypeSet<EM::SubID>* currentseeds = &seedset[idx];
+	    EM::SubID refpos = (*seeds)[idx].subID();
+    
+	    SectionTracker* tracker = getSectionTracker(sid, true );
+	    SectionExtender* extender = tracker->extender();
+	    SectionAdjuster* adjuster = tracker->adjuster();
+	    
 	    extender->setTrackStatTbl(&trktbl);
 	    
-	    for ( int idy=0; idy<currentseeds.size(); idy++ )
+	    for ( int idy=0; idy<currentseeds->size(); idy++ )
 	    {
 		const EM::PosID pid(EM::PosID(emobject->id(),sid,
-					      currentseeds[idy]));
+					      (*currentseeds)[idy]));
 		const Coord3 pos = emobject->getPos(pid);
 		
 		bool removeseed = false;
@@ -180,24 +184,20 @@ bool EMTracker::trackInVolume()
 		    const BinID bid = SI().transform(pos);
 		    if ( !activevolume.hrg.includes(bid) ||
 			 !activevolume.zrg.includes(pos.z))
-		        removeseed = true;
+			removeseed = true;
 		
-		    trktbl.setPosTracked(currentseeds[idy]);
+		    trktbl.setPosTracked((*currentseeds)[idy]);
 		    //Check for stopline
 		}
 		
 		if ( removeseed )
-		    currentseeds.remove(idy--);
+		    currentseeds->remove(idy--);
 	    }
 		
-	    if ( !currentseeds.size() )
-	    {
-		res = 0;
-		break;
-	    }
+	    if ( !currentseeds->size() )	continue;
 	    
-	    extender->setStartPositions(currentseeds);
-	    
+	    extender->setStartPositions(*currentseeds);
+//	    extender->extendInVolume(step, zstep);
 	    mExtendDirection(step.inl, 0, 0);
 	    mExtendDirection(-step.inl, 0, 0);
 	    mExtendDirection(0, step.crl, 0);
@@ -208,29 +208,27 @@ bool EMTracker::trackInVolume()
 	    mExtendDirection(-step.inl, -step.crl,0);
 	    mExtendDirection(0,0,zstep);
 	    mExtendDirection(0,0,-zstep);
-	    
+
 	    TypeSet<EM::SubID> addedpos = extender->getAddedPositions();
 	    TypeSet<EM::SubID> addedpossrc = extender->getAddedPositionsSource();
 	    
 	    adjuster->setPositions(addedpos, &addedpossrc);
 	    adjuster->setReferencePosition(&refpos);
-	    	    
 	    while ( (res=adjuster->nextStep())>0 )
 		;
+	    if ( res==-1 )	{ currentseeds->erase();  break; }
 	    
-	    if ( res==-1 )
-		break;
-	    
-	    currentseeds = addedpos;
-	    	    
+	    *currentseeds = addedpos;
 	    extender->reset();
 	}
 	
-	if ( res==-1 )
-	    continue;
-	    
-	    
+	moreseeds = false;
+	for ( int idy=0; idy<seeds->size() && !moreseeds; idy++ )
+	    if ( seedset[idy].size() > 0 ) 
+		moreseeds = true;
     }
+    
+    delete[] seedset;
     return true;
 }
 
