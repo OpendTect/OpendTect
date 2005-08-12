@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.40 2005-08-11 16:46:38 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.41 2005-08-12 19:34:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -394,7 +394,8 @@ bool EMObjectDisplay::addSection( EM::SectionID sid )
     vo->ref();
     vo->setMaterial( 0 );
     vo->setDisplayTransformation( transformation );
-    addChild( vo->getInventorNode() );
+    const int index = childIndex(drawstyle->getInventorNode());
+    insertChild( index, vo->getInventorNode() );
     vo->turnOn( !displayonlyatsections );
 
     sections += vo;
