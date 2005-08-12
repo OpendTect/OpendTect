@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.13 2005-08-05 13:03:13 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.14 2005-08-12 12:03:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -636,7 +636,7 @@ ExecutorGroup* EngineMan::sliceSetOutputCreator( BufferString& errmsg,
 class AEMFeatureExtracter : public ExecutorGroup
 {
 public:
-AEMFeatureExtracter( EngineMan& em, const BufferStringSet& inputs,
+AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 		     const ObjectSet<BinIDValueSet>& bivsets,
 		     ObjectSet<FeatureSet>& f )
 	: ExecutorGroup("Attribute Extraction at locations")
@@ -644,7 +644,7 @@ AEMFeatureExtracter( EngineMan& em, const BufferStringSet& inputs,
 {
     BoolTypeSet issel;
     const int nrinps = inputs.size();
-    const DescSet* attrset = em.procattrset ? em.procattrset : em.inpattrset;
+    const DescSet* attrset = aem.procattrset ? aem.procattrset : aem.inpattrset;
     for ( int idx=0; idx<attrset->nrDescs(); idx++ )
     {
 	const DescID descid = attrset->getID( idx );
@@ -658,15 +658,10 @@ AEMFeatureExtracter( EngineMan& em, const BufferStringSet& inputs,
 		{ dosel = true; break; }
 	}
 	issel += dosel;
+	if ( dosel ) aem.outattribs += descid;
     }
 
-    for ( int idx=0; idx<issel.size(); idx++ )
-    {
-	if ( issel[idx] )
-	    outattribs += idx;
-    }
-
-    if ( !em.getProcessors( procset, errmsg, false, false ) 
+    if ( !aem.getProcessors( procset, errmsg, false, false ) 
 	    || !procset.size() ) 
 	return;
     
@@ -737,7 +732,6 @@ int nextStep()
 
     BufferString		errmsg;
     ObjectSet<Processor>	procset;
-    TypeSet<int>        	outattribs;
     ObjectSet<FeatureSet>&      fss;
 
 };
