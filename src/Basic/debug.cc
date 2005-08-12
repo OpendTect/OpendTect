@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.15 2005-01-07 13:26:15 dgb Exp $
+ RCS:           $Id: debug.cc,v 1.16 2005-08-12 11:22:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.15 2005-01-07 13:26:15 dgb Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.16 2005-08-12 11:22:04 cvsnanne Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -69,7 +69,7 @@ static int getMask()
 
 bool isOn( int flag )
 {
-    static int mask = getMask();
+    const int mask = getMask();
     return flag & mask;
 }
 
