@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.13 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.14 2005-08-12 21:52:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ const int uiMPEPartServer::evInitFromSession	= 5;
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     : uiApplPartServer(a)
     , attrset( ads )
-    , wizard(0)
+    , wizard( 0 )
 {
     MPE::initStandardClasses();
     csfromseeds.init( false );
@@ -90,8 +90,12 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
     if ( !emobj ) return -1;
 
     activetrackerid = MPE::engine().addTracker( emobj );
-    startWizard( emobj->getTypeStr(), 2 );
+
+    addTracker( emobj->getTypeStr() );
     wizard->setTrackerID( activetrackerid );
+    wizard->displayPage(MPE::Wizard::sSeedPage, false );
+    wizard->displayPage(MPE::Wizard::sFinalizePage, false );
+    wizard->go();
 
     csfromseeds.zrg.start = csfromseeds.zrg.stop = pickedpos.z;
     HorSampling& hrg = csfromseeds.hrg;
@@ -104,40 +108,35 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
 }
 
 
-int uiMPEPartServer::addTracker( const char* trackertype, const char* name )
+bool uiMPEPartServer::addNewSection( int trackerid )
 {
-    MPE::Engine& engine = MPE::engine();
-    if ( !engine.highestTrackerID() )
-	engine.setActiveVolume( engine.getDefaultActiveVolume() );
-
-    activetrackerid = engine.addTracker( name, trackertype );
-    if ( activetrackerid==-1 )
-	uiMSG().error( MPE::engine().errMsg() );
-    else
+    MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
+    if ( !tracker )
     {
-	const EM::ObjectID objid =
-			    engine.getTracker(activetrackerid)->objectID();
-	if ( !engine.getEditor(objid,false) )
-	    engine.getEditor(objid,true);
-
-	if ( !sendEvent( evAddTreeObject ) )
-	{
-	    pErrMsg("Could not add treeitem");
-	    engine.removeTracker( activetrackerid );
-	    activetrackerid = -1;
-	    //TODO? Remove new object?
-	    //TODO? Remove new editor?
-	}
-
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
-	if ( emobj && emobj->isChanged() )
-	{
-	    PtrMan<Executor> saver = emobj->saver();
-	    saver->execute();
-	}
+	pErrMsg("Internal error: Cannot find tracker");
+	return false;
     }
 
-    return activetrackerid;
+    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    addTracker( emobj->getTypeStr() );
+    wizard->setTrackerID( trackerid );
+    wizard->setSurfaceColor( emobj->preferredColor() );
+    wizard->go();
+
+    return true;
+}
+
+
+bool uiMPEPartServer::addTracker( const char* trackertype )
+{
+    csfromseeds.init( false );  
+
+    delete wizard;
+    wizard = new MPE::Wizard( appserv().parent(), this );
+    wizard->setTrackingType( trackertype );
+    wizard->go();
+
+    return true;
 }
 
 
@@ -200,19 +199,6 @@ int uiMPEPartServer::activeTrackerID() const
 const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 { return eventattrselspec; }
 
-
-
-bool uiMPEPartServer::startWizard( const char* typestr, int startidx )
-{
-    csfromseeds.init( false );
-
-    delete wizard;
-    wizard = new MPE::Wizard( appserv().parent(), this );
-    wizard->startAt( startidx );
-    wizard->setTrackingType( typestr );
-    wizard->go();
-    return true;
-}
 
 
 void uiMPEPartServer::showSetupDlg( const MultiID& mid, EM::SectionID sid )
@@ -295,6 +281,41 @@ void uiMPEPartServer::updateVolumeFromSeeds()
 	csfromseeds.include( elementcs );
 
     deepErase( MPE::engine().interactionseeds );
+}
+
+int uiMPEPartServer::addTracker( const char* trackertype, const char* name )
+{
+    MPE::Engine& engine = MPE::engine();
+    if ( !engine.highestTrackerID() )
+	engine.setActiveVolume( engine.getDefaultActiveVolume() );
+
+    activetrackerid = engine.addTracker( name, trackertype );
+    if ( activetrackerid==-1 )
+	uiMSG().error( MPE::engine().errMsg() );
+    else
+    {
+	const EM::ObjectID objid =
+			engine.getTracker(activetrackerid)->objectID();
+	if ( !engine.getEditor(objid,false) )
+	    engine.getEditor(objid,true);
+
+	if ( !sendEvent( evAddTreeObject ) )
+	{
+	    pErrMsg("Could not add treeitem");
+	    engine.removeTracker( activetrackerid );
+	    activetrackerid = -1;
+	    //TODO? Remove new object?
+	    //TODO? Remove new editor?
+	}
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	if ( emobj && emobj->isChanged() )
+	{
+	    PtrMan<Executor> saver = emobj->saver();
+	    saver->execute();
+	}
+    }
+
+    return activetrackerid;
 }
 
 

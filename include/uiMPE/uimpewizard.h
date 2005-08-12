@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.6 2005-04-15 15:34:55 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.h,v 1.7 2005-08-12 21:52:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiwizard.h"
+
+#include "emposid.h"
 
 class uiColorInput;
 class uiGenInput;
@@ -37,10 +39,16 @@ public:
 				Wizard(uiParent*,uiMPEPartServer*);
 				~Wizard();
 
+    void			reset();
+
     void			setTrackingType(const char* typestr);
     void			setTrackerID(int);
-    void			startAt(int);
     void			setSurfaceColor(const Color&);
+
+    static const int		sNamePage;
+    static const int		sSeedPage;
+    static const int		sSetupPage;
+    static const int		sFinalizePage;
 
 protected:
 
@@ -55,35 +63,39 @@ protected:
     uiGenInput*			anotherfld;
     uiGenInput*			typefld;
 
-    uiGroup*			createPage1();
-    uiGroup*			createPage2();
-    uiGroup*			createPage3();
-    uiGroup*			createPage4();
+    uiGroup*			createNamePage();
+    uiGroup*			createSeedPage();
+    uiGroup*			createSetupPage();
+    uiGroup*			createFinalizePage();
 
-    bool			processPage1();
-    bool			processPage2();
-    bool			processPage3();
-    bool			processPage4();
+    bool			leaveNamePage(bool);
+    bool			leaveSeedPage(bool);
+    bool			leaveSetupPage(bool);
+    bool			leaveFinalizePage(bool);
 
-    bool			addTracker(const char* objnm);
+    bool			prepareNamePage() { return true; }
+    bool			prepareSeedPage();
+    bool			prepareSetupPage();
+    bool			prepareFinalizePage() { return true; }
+
+    bool			preparePage(int);
+    bool			leavePage(int,bool);
+
     bool			newObjectPresent(const char* objnm) const;
     void			updateDialogTitle();
 
     void			stickSetChange(CallBacker*);
     void			anotherSel(CallBacker*);
     
-    void			nextPage(CallBacker*);
-    void			cancelWizard(CallBacker*);
-    void			finishWizard(CallBacker*);
-
     uiMPEPartServer*		mpeserv;
+    bool			dosave;
+    EM::SectionID		sid;
     static int			defcolnr;
     bool			pickmode;
-    bool			currentfinished;
     int				curtrackid;
     BufferString		trackertype;
 };
 
-}; // namespace Tracking
+}; // namespace MPE
 
 #endif

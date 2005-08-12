@@ -4,18 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.8 2005-07-05 10:38:33 cvsduntao Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.9 2005-08-12 21:52:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uimpewizard.h"
+
+#include "emmanager.h"
+#include "emobject.h"
+#include "emtracker.h"
+#include "executor.h"
 #include "mpesetup.h"
 #include "mpeengine.h"
 #include "uimpesetup.h"
 #include "uimpepartserv.h"
-#include "emmanager.h"
 
 #include "ctxtioobj.h"
 #include "ioman.h"
@@ -33,26 +37,29 @@ ________________________________________________________________________
 
 namespace MPE {
 
-int Wizard::defcolnr = 0;
+int Wizard::defcolnr		= 0;
+
+const int Wizard::sNamePage		= 0;
+const int Wizard::sSeedPage		= 1;
+const int Wizard::sSetupPage		= 2;
+const int Wizard::sFinalizePage		= 3;
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     : uiWizard(p,uiDialog::Setup("Tracking Wizard","XXXXXXX tracking","")
 				.modal(false))
     , mpeserv(mps)
-    , currentfinished(false)
     , curtrackid(-1)
     , pickmode(false)
+    , sid( -1 )
+    , dosave( false )
 {
     setHelpID( "108.0.0" );
 
-    cancel.notify( mCB(this,Wizard,cancelWizard) );
-    next.notify( mCB(this,Wizard,nextPage) );
-    finish.notify( mCB(this,Wizard,finishWizard) );
-    addPage( createPage1() );
-    addPage( createPage2() );
-    addPage( createPage3() );
-    addPage( createPage4() );
+    addPage( createNamePage() );
+    addPage( createSeedPage() );
+    addPage( createSetupPage() );
+    addPage( createFinalizePage() );
 }
 
 
@@ -61,7 +68,7 @@ Wizard::~Wizard()
 }
 
 
-uiGroup* Wizard::createPage1()
+uiGroup* Wizard::createNamePage()
 {
     uiGroup* grp = new uiGroup( this, "Page 1" );
     namefld = new uiGenInput( grp, "Name" );
@@ -71,8 +78,10 @@ uiGroup* Wizard::createPage1()
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
-bool Wizard::processPage1()
+bool Wizard::leaveNamePage(bool process)
 {
+    if ( !process ) return true;
+
     const char* newobjnm = namefld->text();
     if ( !*newobjnm )
 	mErrRet( "Please provide name" )
@@ -83,21 +92,20 @@ bool Wizard::processPage1()
 	    return false;
     }
 
+    dosave = true;
+
 /*     if ( engine().interactionseeds.size() )
     {
 	displayPage(1,false); // skip seedpicking step
 	return addTracker( newobjnm );
     }
  */
-    colorfld->setColor( Color::drawDef(defcolnr++) );
-    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
-    stickSetChange(0);
-    pickmode = true;
+    colorfld->setColor( Color::drawDef(defcolnr) );
     return true;
 }
 
 
-uiGroup* Wizard::createPage2()
+uiGroup* Wizard::createSeedPage()
 {
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
@@ -126,10 +134,23 @@ uiGroup* Wizard::createPage2()
 }
 
 
-bool Wizard::processPage2()
+bool Wizard::prepareSeedPage()
+{
+    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+    stickSetChange(0);
+    pickmode = true;
+
+    return true;
+}
+
+
+bool Wizard::leaveSeedPage(bool process)
 {
     mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
     pickmode = false;
+
+    if ( !process ) return true;
+
     if ( !engine().interactionseeds.size() )
     {
 	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
@@ -137,27 +158,73 @@ bool Wizard::processPage2()
 	mErrRet( "You did not create any seedpoints" );
     }
 
-    return addTracker( namefld->text() );
+    if ( curtrackid==-1 )
+    {
+	curtrackid = mpeserv->addTracker( trackertype, namefld->text() );
+	if ( curtrackid<0 )
+	{
+	    pErrMsg( "Could not create tracker" );
+	    return false;
+	}
+	defcolnr++;
+
+    }
+    else
+    {
+	EMTracker* tracker = MPE::engine().getTracker(curtrackid);
+	tracker->setSeeds( MPE::engine().interactionseeds,
+			   tracker->objectName(), sid );
+    }
+
+    if ( dosave )
+    {
+	EMTracker* tracker = MPE::engine().getTracker(curtrackid);
+	const EM::ObjectID objid = tracker->objectID();
+	EM::EMObject* emobj = EM::EMM().getObject(objid);
+	PtrMan<Executor> saver = emobj->saver();
+	if ( saver ) 
+	    saver->execute();
+    }
+
+    return true;
 }
 
 
-uiGroup* Wizard::createPage3()
+uiGroup* Wizard::createSetupPage()
 {
     setupgrp = new uiSetupSel( this, mpeserv->attrset );
     return setupgrp;
 }
 
 
-bool Wizard::processPage3()
+bool Wizard::prepareSetupPage()
 {
-    if ( !setupgrp->processInput() )
-	mErrRet( "Please select Tracking Setup" );
+    EMTracker* tracker = MPE::engine().getTracker(curtrackid);
+    const EM::ObjectID objid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject(objid);
+    if ( sid==-1 )
+        sid = emobj->sectionID(emobj->nrSections()-1);
+
+    displayPage(sNamePage, false );
+    setupgrp->setType( objid, sid );
 
     return true;
 }
 
 
-uiGroup* Wizard::createPage4()
+bool Wizard::leaveSetupPage(bool process)
+{
+    if ( !process ) return true;
+    if ( !setupgrp->processInput() )
+	mErrRet( "Please select Tracking Setup" );
+
+    mpeserv->updateVolumeFromSeeds();
+
+    return true;
+}
+
+
+uiGroup* Wizard::createFinalizePage()
 {
     uiGroup* grp = new uiGroup( this, "Page 4" );
     uiLabel* lbl = new uiLabel( grp, "Do you want to track another surface?" );
@@ -174,18 +241,20 @@ uiGroup* Wizard::createPage4()
 }
 
 
-bool Wizard::processPage4()
+bool Wizard::leaveFinalizePage(bool process)
 {
-    currentfinished = true;
+    if ( !process ) return true;
+
     if ( anotherfld->getBoolValue() )
     {
 	setTrackingType( typefld->text() );
-	displayPage(0,true);
-	displayPage(1,true);
-	displayPage(2,true);
+    }
+    else
+    {
+	mpeserv->createActiveVolume();
+	mpeserv->loadAttribData();
     }
 
-    mpeserv->updateVolumeFromSeeds();
     return true;
 }
 
@@ -207,42 +276,31 @@ void Wizard::stickSetChange( CallBacker* )
 }
 
 
-void Wizard::nextPage( CallBacker* )
+bool Wizard::preparePage( int page )
 {
-    const int pageidx = currentPageIdx();
-    bool res = true;
-    switch ( pageidx )
+    switch ( page )
     {
-	case 0: res = processPage1(); break;
-	case 1: res = processPage2(); break;
-	case 2: res = processPage3(); break;
-	case 3: res = processPage4(); break;
+	case 0: return prepareNamePage();
+	case 1: return prepareSeedPage();
+	case 2: return prepareSetupPage();
+	case 3: return prepareFinalizePage();
     }
 
-    approvePage( res );
+    return true;
 }
 
 
-void Wizard::cancelWizard( CallBacker* )
+bool Wizard::leavePage( int page, bool process )
 {
-    if ( pickmode )
-	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+    switch ( page )
+    {
+	case 0: return leaveNamePage(process);
+	case 1: return leaveSeedPage(process);
+	case 2: return leaveSetupPage(process);
+	case 3: return leaveFinalizePage(process);
+    }
 
-    if ( curtrackid < 0 ) return;
-
-    if ( !currentfinished )
-	engine().removeTracker( curtrackid );
-
-    mpeserv->createActiveVolume();
-    mpeserv->loadAttribData();
-}
-
-
-void Wizard::finishWizard( CallBacker* )
-{
-    nextPage(0);
-    mpeserv->createActiveVolume();
-    mpeserv->loadAttribData();
+    return true;
 }
 
 
@@ -254,21 +312,12 @@ bool Wizard::newObjectPresent( const char* objnm ) const
 }
 
 
-bool Wizard::addTracker( const char* objnm )
-{
-    curtrackid = mpeserv->addTracker( trackertype, objnm );
-    if ( curtrackid < 0 ) return false;
-    setTrackerID( curtrackid );
-    return true;
-}
-
-
 void Wizard::setTrackerID( int trackerid )
 {
-    const MultiID& mid = mpeserv->getTrackerMultiID( trackerid );
-    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
-    setupgrp->setType( objid, 0 );
-    currentfinished = false;
+    curtrackid = trackerid;
+    displayPage( sNamePage, false );
+    displayPage( sFinalizePage, false );
+    setRotateMode( false );
 }
 
 
@@ -278,10 +327,15 @@ void Wizard::setSurfaceColor( const Color& col )
 }
 
 
-void Wizard::startAt( int startidx )
+void Wizard::reset()
 {
+    dosave = false;
+    sid = -1;
+    defcolnr++;
+    curtrackid = -1;
+
     for ( int idx=0; idx<nrPages(); idx++ )
-	displayPage( idx, idx>=startidx );
+	displayPage( idx, true );
 }
 
 

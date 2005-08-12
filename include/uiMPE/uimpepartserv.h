@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.7 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.8 2005-08-12 21:52:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,10 +39,9 @@ public:
     int				getTrackerID(const MultiID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
-    int				addTracker(const char* trackertype,
-	    				   const char* name);
-				/*!<\note Eventual seeds become mine */
+    bool			addTracker(const char* trackertype); 
     int				addTracker(const MultiID&,const Coord3&);
+    bool			addNewSection( int trackerid );
 
     MultiID			getTrackerMultiID(int trackerid) const;
 
@@ -83,6 +82,8 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
+    int				addTracker(const char* trackertype, 
+	    				   const char* name ); 
     void			createActiveVolume();
     void			updateVolumeFromSeeds();
 
