@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.4 2004-05-25 10:36:07 bert Exp $
+ RCS:           $Id: uiwizard.cc,v 1.5 2005-08-12 21:55:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,17 +13,13 @@ ________________________________________________________________________
 #include "uiwizard.h"
 
 #include "uibutton.h"
+#include "uicursor.h"
 #include "uigroup.h"
 
 uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
     : uiDialog(p,s_)
     , pageidx(0)
-    , approved(true)
     , rotatemode(false)
-    , next(this)
-    , back(this)
-    , finish(this)
-    , cancel(this)
 {
     finaliseDone.notify( mCB(this,uiWizard,doFinalise) );
 }
@@ -48,24 +44,20 @@ int uiWizard::addPage( uiGroup* page, bool display )
 
 void uiWizard::displayPage( int idx, bool yn )
 {
-    if ( idx < dodisplay.size() )
+    if ( idx<dodisplay.size() )
 	dodisplay[idx] = yn;
 }
 
 
 bool uiWizard::acceptOK( CallBacker* )
 {
-    approved = true;
+    uiCursorChanger cursorchanger( uiCursor::Wait );
     bool firstpage = pageidx == firstPage();
-    if ( firstpage )
-    {
-	cancel.trigger();
-	return approved;
-    }
 
-    back.trigger();
-    if ( !approved )
+    if ( !leavePage(pageidx,false) )
 	return false;
+
+    if ( pageidx==firstPage() ) return true;
 
     pageidx--;
     while ( !dodisplay[pageidx] && !pageidx )
@@ -79,20 +71,18 @@ bool uiWizard::acceptOK( CallBacker* )
 
 bool uiWizard::rejectOK( CallBacker* )
 {
-    approved = true;
-    bool lastpage = pageidx == lastPage();
-    if ( lastpage && !rotatemode )
-    {
-	finish.trigger();
-	return approved;
-    }
-
-    next.trigger();
-    if ( !approved )
+    uiCursorChanger cursorchanger( uiCursor::Wait );
+    if ( !leavePage(pageidx,true) )
 	return false;
 
-    if ( lastpage && rotatemode ) 
+    if ( pageidx==lastPage() && !rotatemode )
+	return true;
+
+    if ( pageidx==lastPage() && rotatemode ) 
+    {
+	reset();
 	pageidx = 0;
+    }
     else
 	pageidx++;
 
@@ -107,6 +97,7 @@ bool uiWizard::rejectOK( CallBacker* )
 
 void uiWizard::displayCurrentPage()
 {
+    preparePage(pageidx);
     for ( int idx=0; idx<pages.size(); idx++ )
 	pages[idx]->display( idx==pageidx );
 }

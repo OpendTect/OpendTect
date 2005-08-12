@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.h,v 1.3 2004-08-17 11:20:58 nanne Exp $
+ RCS:           $Id: uiwizard.h,v 1.4 2005-08-12 21:55:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,18 +29,16 @@ public:
     void		setCurrentPage(int);
     int			currentPageIdx() const		{ return pageidx; }
 
-    void		approvePage(bool yn)		{ approved=yn; }
-
     int			firstPage() const;
     int			lastPage() const;
     int			nrPages() const			{ return pages.size(); }
 
-    Notifier<uiWizard>	next;
-    Notifier<uiWizard>	back;
-    Notifier<uiWizard>	finish;
-    Notifier<uiWizard>	cancel;
-
 protected:
+
+    virtual bool	preparePage(int) { return true; }
+    virtual bool	leavePage(int, bool next ) { return true; }
+    virtual void	reset() {}
+    			/*!<Is called when the wizartd starts again. */
 
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
@@ -51,7 +49,6 @@ private:
     BoolTypeSet		dodisplay;
 
     int			pageidx;
-    bool		approved;
     bool		rotatemode;
     
     void		displayCurrentPage();
