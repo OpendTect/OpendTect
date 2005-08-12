@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.4 2005-08-01 10:37:29 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.5 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,13 +87,20 @@ uiAttribPartServer::~uiAttribPartServer()
 }
 
 
-void uiAttribPartServer::replaceSet( const IOPar& iopar )
+bool uiAttribPartServer::replaceSet( const IOPar& iopar )
 {
+    Attrib::DescSet* ads = new Attrib::DescSet;
+    if ( !ads->usePar(iopar) )
+    {
+	delete ads;
+	return false;
+    }
+
     delete adsman;
-    adsman = new DescSetMan;
-    adsman->descSet()->usePar( iopar );
+    adsman = new DescSetMan( ads, true );
     adsman->attrsetid_ = "";
     sendEvent( evNewAttrSet );
+    return true;
 }
 
 

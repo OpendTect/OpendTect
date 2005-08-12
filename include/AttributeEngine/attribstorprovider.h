@@ -7,56 +7,56 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.8 2005-08-04 14:27:41 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.9 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
-#include "attribdataholder.h"
-
 #include "cubesampling.h"
 #include "seisreq.h"
 
 namespace Attrib
 {
 
+class DataHolder;
+
 class StorageProvider : public Provider
 {
 public:
     static void		initClass();
+    static const char*  attribName()		{ return "Storage"; }
+    static const char*  keyStr()		{ return "id"; }
 
     bool		init();
 
     int			moveToNextTrace();
     bool		getPossibleVolume(int outp,CubeSampling&);
-    static const char*  attribName() { return "Storage"; }
-    static const char*  keyStr() { return "id"; }
-    BinID		getStepoutStep(bool&);
+    BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
 
 
 protected:
     			~StorageProvider();
-    static Provider*	createFunc( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createFunc(Desc&);
+    static void		updateDesc(Desc&);
 
-    			StorageProvider( Desc& );
-    SeisRequester*	getSeisRequester();
+    			StorageProvider(Desc&);
+    SeisRequester*	getSeisRequester() const;
 
     bool		initSeisRequester(int req);
     bool		setSeisRequesterSelection(int req);
     void		setBufferStepout(const BinID&);
 
-    bool        	computeData( const DataHolder& output,
-	                	     const BinID& relpos,
-				     int t0, int nrsamples ) const;
+    bool        	computeData(const DataHolder& output,
+				    const BinID& relpos,
+				    int t0,int nrsamples) const;
 
-    void		fillDataHolderWithTrc( const SeisTrc*,
-	    					const DataHolder& ) const;
+    void		fillDataHolderWithTrc(const SeisTrc*,
+					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const
-			    {step = storedvolume.zrg.step; return true;}
+			{ step = storedvolume.zrg.step; return true; }
 
     SeisReqGroup	rg;
     int			currentreq;
@@ -64,11 +64,8 @@ protected:
     CubeSampling	storedvolume;
 
     enum Status        { Nada, StorageOpened, Ready } status;
-
 };
 
-
-}; //Namespace
-
+}; // namespace Attrib
 
 #endif

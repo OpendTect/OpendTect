@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.5 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.6 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
-#include "runstat.h"
 #include "valseries.h"
 #include "valseriesinterpol.h"
 #include "mathfunc.h"
@@ -30,8 +29,8 @@ If steering is enabled, it is up to the user to make sure that the steering
 goes to the same position as pos0 and pos1 respectively.
 
 Input:
-0       Data
-1-      Steerings
+0	Data
+1	Steering
 
 Extension:      0       90/180          Cube
 1               pos0    pos0
@@ -68,17 +67,18 @@ public:
     static const char*	extensionTypeStr(int);
 
 protected:
-    static Provider*	createInstance( Desc& );
-    static void		updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
+    static Provider*	internalCreate(Desc&,ObjectSet<Provider>& existing);
 
-    static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
+    bool		init();
 
     bool		getInputOutput( int input, TypeSet<int>& res ) const;
     bool		getInputData( const BinID&, int idx );
     bool		computeData( const DataHolder&, const BinID& relpos,
 	    			     int t0, int nrsamples ) const;
 
-    const BinID*		reqStepout( int input, int output ) const;
+    const BinID*		reqStepout(int input, int output ) const;
     const Interval<float>*	reqZMargin(int input, int output) const;
 
     BinID			pos0;
@@ -86,6 +86,7 @@ protected:
     BinID			stepout;
     Interval<float>		gate;
     int				extension;
+    TypeSet<BinID>		trcpos;
 
     bool			dosteer;
     TypeSet<int>		steeridx;

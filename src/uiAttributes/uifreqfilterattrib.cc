@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.3 2005-08-04 14:37:34 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
 
     mSetEnum( FreqFilter::filtertypeStr(), typefld->getIntValue() );
     mSetFloat( FreqFilter::minfreqStr(), freqfld->getfValue(0) );
-    mSetFloat( FreqFilter::minfreqStr(), freqfld->getfValue(1) );
+    mSetFloat( FreqFilter::maxfreqStr(), freqfld->getfValue(1) );
     mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
     mSetEnum( FreqFilter::windowStr(), winfld->getIntValue() );
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );

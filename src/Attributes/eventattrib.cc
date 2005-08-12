@@ -1,11 +1,11 @@
 /*+
-  ________________________________________________________________________
+________________________________________________________________________
 
-  CopyRight:     (C) dGB Beheer B.V.
-  Author:        Helene Payraudeau
-  Date:          February 2005
-
-  ________________________________________________________________________
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	Helene Payraudeau
+ Date:		February 2005
+ RCS:		$Id: eventattrib.cc,v 1.8 2005-08-12 11:12:17 cvsnanne Exp $
+________________________________________________________________________
 
 -*/
 
@@ -71,13 +71,12 @@ Provider* Event::createInstance( Desc& ds )
 
 void Event::updateDesc( Desc& desc )
 {
-    bool issingle = 
-	( (ValParam*)desc.getParam(issingleeventStr()) )-> getBoolValue();
+    const bool issingle = desc.getValParam(issingleeventStr())->getBoolValue();
     desc.setParamEnabled(eventTypeStr(),!issingle);
     int evtype = 0;
 
     if ( !issingle )
-	evtype = ((ValParam*)desc.getParam(eventTypeStr()) )->getIntValue();
+	evtype = desc.getValParam(eventTypeStr())->getIntValue();
     else
 	desc.setNrOutputs( Seis::UnknowData, 2 );
 
@@ -98,7 +97,7 @@ Event::Event( Desc& desc_ )
 
     if ( !issingleevent )
     {
-	eventtype = ((ValParam*)desc_.getParam(eventTypeStr()))->getIntValue(0);
+	eventtype = desc_.getValParam(eventTypeStr())->getIntValue(0);
 
 	if ( eventtype == 6 || eventtype == 7 )
 	{

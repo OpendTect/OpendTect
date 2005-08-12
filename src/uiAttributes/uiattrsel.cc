@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.5 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -365,10 +365,11 @@ void uiAttrSel::setNLAModel( const NLAModel* mdl )
 
 void uiAttrSel::setDesc( const Desc* ad )
 {
-    const char* inp = ad->userRef();
-    if ( inp[0] == '_' ) return;
-    if ( ad->isStored() && ad->dataType() == Seis::Dip ) return;
     attrdata.attrset = ad ? ad->descSet() : 0;
+    const char* inp = ad->userRef();
+    if ( inp[0] == '_' || (ad->isStored() && ad->dataType() == Seis::Dip) )
+	return;
+
     attrdata.attribid = !attrdata.attrset ? DescID::undef() : ad->id();
     updateInput();
     update2D();

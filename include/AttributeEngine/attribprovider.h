@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.17 2005-08-04 14:27:41 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.18 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,41 +87,43 @@ public:
     void			setSelData(const SeisSelData&);
     int				getCurrentTrcNr () { return trcnr_; }
     float                       getRefStep() const; 
-    virtual BinID		getStepoutStep(bool&);
+    virtual BinID		getStepoutStep() const;
     
     ObjectSet<Provider>		getInputs() { return inputs; }
 
 
 protected:
 
-			Provider( Desc& );
-    virtual bool	init();
+				Provider(Desc&);
+    virtual bool		init();
     				/*!< Should be run _after_ inputs are set */
 
-    virtual SeisRequester* getSeisRequester();
-    static Provider*	internalCreate( Desc&, ObjectSet<Provider>&, 
-	    				bool& issame);
+    virtual SeisRequester*	getSeisRequester() const;
+    static Provider*		internalCreate(Desc&,ObjectSet<Provider>&, 
+					       bool& issame);
 
-    virtual bool	getInputOutput( int input, TypeSet<int>& ) const;
-    virtual bool	getInputData( const BinID& relpos, int idx );
-    virtual bool	computeData( const DataHolder& output,
-	    			     const BinID& relpos,
-	    			     int t0, int nrsamples ) const
-    			{ return false; }
+    virtual bool		getInputOutput(int input,TypeSet<int>&) const;
+    virtual bool		getInputData(const BinID& relpos,int idx);
+    virtual bool		computeData(const DataHolder& output,
+					    const BinID& relpos,
+					    int t0,int nrsamples) const
+				{ return false; }
+    int				getDataIndex(int input) const;
 
-    virtual bool	allowParallelComputation() const { return true; }
+    virtual bool		allowParallelComputation() const
+    				{ return true; }
 
-    			//DataBuffer stuff
-    DataHolder*		getDataHolder( const BinID& relpos );
-    void		removeDataHolder( const BinID& relpos );
-    void		setInput( int input, Provider* );
-    void                addParent( Provider* parent) {parents += parent;}
-    bool		computeDesInputCube( int inp, int out,
-					     CubeSampling&, 
-					     bool usestepout=true ) const;
+    				//DataHolder stuff
+    DataHolder*			getDataHolder(const BinID& relpos);
+    void			removeDataHolder(const BinID& relpos);
+    void			setInput(int input,Provider*);
+    void			addParent( Provider* prov ) { parents += prov; }
 
-    void		setUsedMultTimes() { isusedmulttimes = true; }
-    bool		isUsedMultTimes() { return isusedmulttimes; }
+    bool			computeDesInputCube(int inp,int out,
+				    CubeSampling&,bool usestepout=true) const;
+
+    void			setUsedMultTimes() { isusedmulttimes = true; }
+    bool			isUsedMultTimes()  { return isusedmulttimes; }
 
     virtual const BinID*	desStepout(int input, int output) const;
     virtual const BinID*	reqStepout(int input, int output) const;
@@ -160,7 +162,6 @@ protected:
     int				trcnr_;
 
     bool			isusedmulttimes;
-
 };
 
 
@@ -168,8 +169,7 @@ int getSteeringIndex( const BinID& );
 //!< For every position there is a single steering index ...?
 
 
-}; //namespace
+}; // namespace Attrib
 
 
 #endif
-

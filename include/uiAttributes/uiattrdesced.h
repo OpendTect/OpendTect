@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.3 2005-08-04 14:27:41 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
     virtual float	getOutputValue(int idx) const	{ return (float)idx; }
     virtual void	setOutputStep(float step)	{}
 
-    virtual const char* getDisplayName() const 		{ return 0; }
+    virtual const char* getAttribName() const		{ return 0; }
     virtual bool	useIfZIsTime() const		{ return true; }
     virtual bool	useIfZIsDepth() const		{ return true; }
 

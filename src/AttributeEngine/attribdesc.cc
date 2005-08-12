@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.25 2005-08-05 16:00:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.26 2005-08-12 11:12:17 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -141,8 +141,8 @@ bool Desc::parseDefStr( const char* defstr )
     if ( !getAttribName(defstr,defstrnm) || defstrnm!=attribname )
 	return false;
 
-    BufferStringSet keys,vals;
-    createBStrSetFromDefstring(defstr,keys,vals);
+    BufferStringSet keys, vals;
+    getKeysVals( defstr, keys, vals );
 
     for ( int idx=0; idx<params.size(); idx++ )
     {
@@ -152,13 +152,14 @@ bool Desc::parseDefStr( const char* defstr )
 	    BufferString paramval;
 	    for ( int idy=0; idy<keys.size(); idy++ )
 	    {
-		if ( !strcmp(keys.get(idy).buf(), params[idx]->getKey() ) )
+		if ( keys.get(idy) == params[idx]->getKey() )
 		{
 		    paramval = vals.get(idy);
 		    found = true;
 		    break;
 		}
 	    }
+
 	    if ( !found )
 	    {
 		if ( params[idx]->isRequired() )
@@ -167,7 +168,7 @@ bool Desc::parseDefStr( const char* defstr )
 		    paramval = params[idx]->getDefaultValue();
 	    }
 
-	    if ( !params[idx]->setCompositeValue(paramval.buf()) )
+	    if ( !params[idx]->setCompositeValue(paramval) )
 		return false;
 	}
 	else
@@ -178,7 +179,7 @@ bool Desc::parseDefStr( const char* defstr )
 	    {
 		BufferString keystring = params[idx]->getKey();
 		keystring += valueidx;
-		if ( !strcmp(keys.get(idy).buf(), keystring ) )
+		if ( keys.get(idy) == keystring )
 		{
 		    paramvalset.add( vals.get(idy).buf() );
 		    found =true;
@@ -329,6 +330,20 @@ const Param* Desc::getParam( const char* key ) const
 Param* Desc::getParam( const char* key )
 {
     return findParam(key);
+}
+
+
+const ValParam* Desc::getValParam( const char* key ) const
+{
+    mDynamicCastGet(const ValParam*,valpar,getParam(key))
+    return valpar;
+}
+
+
+ValParam* Desc::getValParam( const char* key )
+{
+    mDynamicCastGet(ValParam*,valpar,getParam(key))
+    return valpar;
 }
 
 
@@ -549,11 +564,10 @@ bool Desc::isIdentifiedBy( const char* str ) const
 }
 
 
-void Desc::createBStrSetFromDefstring( const char* defstr, 
-				       BufferStringSet& keys,
-				       BufferStringSet& vals )
+void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
+			BufferStringSet& vals )
 {
-    int len = strlen(defstr);
+    const int len = strlen(defstr);
     int spacepos = 0;
     int equalpos = 0;
     for ( int idx=0; idx<len; idx++ )
@@ -598,7 +612,7 @@ void Desc::changeStoredID( const char* newid )
 {
     if ( !isStored() ) return;
 
-    ValParam* keypar = (ValParam*)getParam( StorageProvider::keyStr() );
+    ValParam* keypar = getValParam( StorageProvider::keyStr() );
     keypar->setValue( newid );
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.3 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     mSetFloatInterval( Frequency::gateStr(), gatefld->getFInterval() );
-    mSetBool( Frequency::normalizeStr(), normfld->getIntValue() );
+    mSetBool( Frequency::normalizeStr(), normfld->getBoolValue() );
     mSetEnum( Frequency::windowStr(), winfld->getIntValue() );
 
     return true;

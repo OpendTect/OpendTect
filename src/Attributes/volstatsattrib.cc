@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.5 2005-08-05 13:05:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -54,6 +54,8 @@ void VolStats::initClass()
 
     BoolParam* absolutegate = new BoolParam( absolutegateStr() );
     absolutegate->setDefaultValue(false);
+    absolutegate->setValue( false );
+    absolutegate->setRequired( false );
     desc->addParam( absolutegate );
     
     BoolParam* steering = new BoolParam( steeringStr() );
@@ -64,9 +66,7 @@ void VolStats::initClass()
     while ( outputtypes[res++] != -1 )
 	desc->addOutputDataType( Seis::UnknowData );
 
-    InputSpec inputspec( "Data on which the Volume Statistics should be done",
-	                             true );
-    desc->addInput( inputspec );
+    desc->addInput( InputSpec("Input data",true) );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();
@@ -91,15 +91,14 @@ Provider* VolStats::createInstance( Desc& ds )
 
 void VolStats::updateDesc( Desc& desc )
 {
-    int nrvolumes = ( (ValParam*)desc.getParam(nrvolumesStr()) )->getIntValue();
-
+    const int nrvolumes = desc.getValParam(nrvolumesStr())->getIntValue();
     for ( int idx=1; idx<nrvolumes; idx++ )
     {
 	BufferString str = "inputdata vol"; str += (idx+1);
 	desc.addInput( InputSpec( str.buf(),true ) );
     }
     
-    bool issteer = ( (ValParam*)desc.getParam(steeringStr()) )->getBoolValue();
+    const bool issteer = desc.getValParam(steeringStr())->getBoolValue();
     if ( issteer )
     {
 	InputSpec steeringspec( "Steering data", true );
@@ -197,8 +196,7 @@ bool VolStats::getInputData(const BinID& relpos, int idx)
 
     steeringdata = steering ? inputs[nrvolumes]->getData(relpos, idx) : 0;
 
-    bool yn;
-    BinID bidstep = inputs[0]-> getStepoutStep(yn);
+    BinID bidstep = inputs[0]->getStepoutStep();
     int nrpos = positions.size();
 
     int storpos = 0;

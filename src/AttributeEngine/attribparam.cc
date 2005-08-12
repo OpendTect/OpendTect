@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.15 2005-08-05 16:00:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.16 2005-08-12 11:12:17 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -191,22 +191,17 @@ void ZGateParam::setLimits( const Interval<float>& rg )
 { reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setLimits(rg); }
 
 
-void ZGateParam::setDefaultValue(const Interval<float>& defaultgate)
+void ZGateParam::setDefaultValue( const Interval<float>& defaultgate )
 {
-    BufferString defaultstring = "["; 
-    defaultstring += defaultgate.start; defaultstring += ",";
-    defaultstring += defaultgate.stop; defaultstring += "]";
-    Param::setDefaultValue( defaultstring );
+    BufferString str = "["; 
+    str += defaultgate.start; str += ",";
+    str += defaultgate.stop; str += "]";
+    Param::setDefaultValue( str );
 }
 
 
-void ZGateParam::setValue(const Interval<float>& gate)
-{
-    BufferString string = "["; 
-    string += gate.start; string += ",";
-    string += gate.stop; string += "]";
-    setCompositeValue( string );
-}
+void ZGateParam::setValue( const Interval<float>& gate )
+{ reinterpret_cast<FloatInpIntervalSpec*>(spec_)->setValue( gate ); }
 
 
 bool ZGateParam::getCompositeValue( BufferString& res ) const
@@ -272,6 +267,13 @@ bool BinIDParam::getCompositeValue( BufferString& res ) const
     res += ",";
     res += spec_->text(1);
     return true;
+}
+
+
+BinID BinIDParam::getValue() const
+{
+    BinIDCoordInpSpec* spec = reinterpret_cast<BinIDCoordInpSpec*>(spec_);
+    return BinID( mNINT(spec->value(0)), mNINT(spec->value(1)) );
 }
 
 

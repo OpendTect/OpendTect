@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.5 2005-08-05 20:41:25 cvskris Exp $
+ RCS:           $Id: mathattrib.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ static void getInputTable( const MathExpression* me, TypeSet<int>& inputtable )
 
 void Math::updateDesc( Desc& desc )
 {
-    ValParam* expr = (ValParam*)desc.getParam( expressionStr() );
+    ValParam* expr = desc.getValParam( expressionStr() );
     if ( !expr ) return;
 
     PtrMan<MathExpression> formula = 
@@ -105,7 +105,7 @@ Math::Math( Desc& desc )
 
     inputdata_.allowNull(true);
 
-    ValParam* expr = (ValParam*)desc.getParam( expressionStr() );
+    ValParam* expr = desc.getValParam( expressionStr() );
     if ( !expr ) return;
 
     expression_ = MathExpression::parse( expr->getStringValue() );
@@ -143,8 +143,9 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 			int t0, int nrsamples ) const
 {
     //if ( !inputdata_.size() ) return false;
+    if ( !expression_ ) return false;
     const int nrvar = expression_->getNrVariables();
-    if ( !expression_ || inputtable_.size()!=nrvar ) return false;
+    if ( inputtable_.size()!=nrvar ) return false;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {

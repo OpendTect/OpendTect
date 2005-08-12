@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.1 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.2 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,12 @@ static const char* outpstrs[] =
     "X",
     "Y",
     "Z",
-    "Inl",
-    "Crl",
-    "SampleNR",
-    "Index Inl",
-    "Index Crl",
-    "Index Z",
+    "Inline nr",
+    "Crossline nr",
+    "Sample nr",
+    "Inline index",
+    "Crossline index",
+    "Z index",
     0
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.4 2005-08-08 15:09:12 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.5 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,8 +117,14 @@ void ui3DFilterAttrib::set2D( bool yn )
 
     const int oldval = outpfld->getIntValue();
     BufferStringSet strs;
-    if ( yn ) strs.add( "Line gradient" );
-    strs.add( outpstrs[3] );
+    if ( yn )
+    {
+	strs.add( "Line gradient" );
+	strs.add( outpstrs[3] );
+    }
+    else
+	strs = outpstrs;
+
     outpfld->newSpec( StringListInpSpec(strs), 0 );
     outpfld->setValue( oldval );
 }
@@ -158,6 +164,13 @@ void ui3DFilterAttrib::kernelSel( CallBacker* )
     outpfld->display( kernelval == 2 );
 
     if ( dipf ) { aziSel(0); filtSel(0); } 
+}
+
+
+const char* ui3DFilterAttrib::getAttribName() const
+{
+    return kernelfld->getIntValue() == 3 ? DipFilter::attribName() 
+					 : Convolve::attribName();
 }
 
 

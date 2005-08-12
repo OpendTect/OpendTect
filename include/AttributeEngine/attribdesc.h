@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.19 2005-08-01 14:02:57 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.20 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ namespace Attrib
 class Desc;
 class DescSet;
 class Param;
+class ValParam;
 
 typedef void(*DescStatusUpdater)(Desc&);
 typedef bool(*DescChecker)(const Desc&);
@@ -53,31 +54,29 @@ class Desc
 { mRefCountImpl(Desc);
 public:
 
-			Desc( const Desc& );
-			Desc( DescSet* descset );
-			Desc( const char* basename,DescStatusUpdater updater=0,
-			      DescChecker=0);
+			Desc(const Desc&);
+			Desc(DescSet*);
+			Desc(const char* basename,DescStatusUpdater updater=0,
+			     DescChecker=0);
 //    void		erase() { deepErase( params );
 //	    			deepUnRef( inputs ); }
 
     const char*		attribName() const;
     void                setAttribName(const char* name) { attribname = name; }
     Desc*		clone() const;
+    bool		init()				{ return true; }
 
-    bool		init() { return true; }  ; //Needed?
-
-    void		setDescSet( DescSet* );
+    void		setDescSet(DescSet*);
     DescSet*		descSet() const;
 
     DescID		id() const;
 
     bool		getDefStr(BufferString&) const;
-    bool		parseDefStr( const char* );
-    void                createBStrSetFromDefstring( const char*,
-						    BufferStringSet&,
-						    BufferStringSet& );
+    bool		parseDefStr(const char*);
+    void		getKeysVals(const char*,BufferStringSet&,
+	    			    BufferStringSet&);
     const char*         userRef() const;
-    void                setUserRef( const char* );
+    void                setUserRef(const char*);
 
     int			nrOutputs() const;
     void	        selectOutput(int);
@@ -104,39 +103,38 @@ public:
 
     bool		isIdenticalTo(const Desc&,bool cmpoutput=true) const;
     bool		isIdentifiedBy(const char*) const;
-    DescID		inputId( int idx ) const;
+    DescID		inputId(int idx) const;
 
     			/* Interface to factory */
-    void		addParam( Param* );
-    const Param*	getParam( const char* key ) const;
-    Param*		getParam( const char* key );
-    void		setParamEnabled( const char* key, bool yn=true );
-    bool		isParamEnabled( const char* key ) const;
-    void		setParamRequired( const char* key, bool yn=true );
-    bool		isParamRequired( const char* key ) const;
+    void		addParam(Param*);
+    const Param*	getParam(const char* key) const;
+    Param*		getParam(const char* key);
+    const ValParam*	getValParam(const char* key) const;
+    ValParam*		getValParam(const char* key);
+    void		setParamEnabled(const char* key,bool yn=true);
+    bool		isParamEnabled(const char* key) const;
+    void		setParamRequired(const char* key,bool yn=true);
+    bool		isParamRequired(const char* key) const;
 
     void		updateParams();
-    bool		setParamVal( const char* key, const char* val );
-    //bool		getParamVal( const char* key, BufferString& ) const;
-    //const DataInpSpec*	getParamSpec( const char* key );
     void		changeStoredID(const char*);
 
-    void		addInput( const InputSpec& );
+    void		addInput(const InputSpec&);
     bool		removeInput(int idx);
     void		removeOutputs();
-    void		addOutputDataType( Seis::DataType );
-    void		setNrOutputs( Seis::DataType, int );
-    void		addOutputDataTypeSameAs( int );
+    void		addOutputDataType(Seis::DataType);
+    void		setNrOutputs(Seis::DataType,int);
+    void		addOutputDataTypeSameAs(int);
 
-    static bool		getAttribName( const char* defstr, BufferString& );
-    static bool		getParamString( const char* defstr, const char* key,
-					BufferString& );
+    static bool		getAttribName(const char* defstr,BufferString&);
+    static bool		getParamString(const char* defstr,const char* key,
+				       BufferString&);
     
     static const char*  steeringinldipcompname;
     static const char*  steeringcrldipcompname;
     
 protected:
-    Param*			findParam( const char* key );
+    Param*			findParam(const char* key);
     TypeSet<Seis::DataType>	outputtypes;
     TypeSet<int>		outputtypelinks;
     bool			issteering;
@@ -158,7 +156,7 @@ protected:
 //    IOObj*              	getDefCubeIOObj(bool,bool) const;
 };
 
-}; //Namespace
+}; // namespace Attrib
 
 #define mGetInt( var, varstring ) \
 var = ((ValParam*)desc.getParam(varstring))->getIntValue(0); \

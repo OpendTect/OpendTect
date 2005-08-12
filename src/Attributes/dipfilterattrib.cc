@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.1 2005-08-05 11:53:59 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.2 2005-08-12 11:12:17 cvsnanne Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -13,12 +13,7 @@ static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.1 2005-08-05 11:53:59 cv
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "datainpspec.h"
-#include "simpnumer.h"
-#include "ptrman.h"
-#include "fft.h"
-#include "transfact.h"
 
-#include <complex>
 #include <math.h>
 
 
@@ -87,8 +82,7 @@ void DipFilter::initClass()
 
     desc->addOutputDataType( Seis::UnknowData );
 
-    InputSpec inspec( "data on which the dipfilter should be applied", true );
-    desc->addInput( inspec );
+    desc->addInput( InputSpec("Input data",true) );
 
     desc->init();
 
@@ -97,9 +91,9 @@ void DipFilter::initClass()
 }
 
 
-Provider* DipFilter::createInstance( Desc& ds )
+Provider* DipFilter::createInstance( Desc& desc )
 {
-    DipFilter* res = new DipFilter( ds );
+    DipFilter* res = new DipFilter( desc );
     res->ref();
 
     if ( !res->isOK() )
@@ -115,12 +109,12 @@ Provider* DipFilter::createInstance( Desc& ds )
 
 void DipFilter::updateDesc( Desc& desc )
 {
-    bool filterazi = ((ValParam*)desc.getParam(filteraziStr()))->getBoolValue();
+    bool filterazi = desc.getValParam(filteraziStr())->getBoolValue();
 
     desc.setParamEnabled(minaziStr(),filterazi);
     desc.setParamEnabled(maxaziStr(),filterazi);
 
-    const ValParam* type = (ValParam*)desc.getParam(typeStr());
+    const ValParam* type = desc.getValParam( typeStr() );
     if ( !strcmp(type->getStringValue(0),
 		filterTypeNamesStr(mFilterTypeLowPass)) )
     {
@@ -186,7 +180,7 @@ DipFilter::DipFilter( Desc& desc_ )
     mGetFloat( taperlen, taperlenStr() );
     taperlen = taperlen/100;
 
-    kernel = Array3DImpl<float>( size*2+3, size*2+3, size*2+3);
+    kernel.setSize( size*2+3, size*2+3, size*2+3 );
     valrange = Interval<float>(minvel,maxvel);
     stepout = BinID( size+1, size+1 );
     
@@ -352,19 +346,18 @@ bool DipFilter::getInputData(const BinID& relpos, int index)
     
     int idx = 0;
 
-    bool yn;
-    const BinID bidstep = inputs[0]-> getStepoutStep(yn);
-    for (int inl=-stepout.inl; inl<=stepout.inl; inl++ )
+    const BinID bidstep = inputs[0]->getStepoutStep();
+    for ( int inl=-stepout.inl; inl<=stepout.inl; inl++ )
     {
-	for (int crl=-stepout.crl; crl<=stepout.crl; crl++ )
+	for ( int crl=-stepout.crl; crl<=stepout.crl; crl++ )
 	{
-	    const BinID truepos = BinID ( relpos.inl + inl*abs(bidstep.inl),
-		    		    	relpos.crl + crl*abs(bidstep.crl) );
+	    const BinID truepos( relpos.inl + inl*abs(bidstep.inl),
+				 relpos.crl + crl*abs(bidstep.crl) );
 	    const DataHolder* dh = inputs[0]->getData( truepos, index );
 	    if ( !dh )
 		return false;
 
-	    inputdata.replace(idx,dh);
+	    inputdata.replace( idx, dh );
 	}
     }
 	

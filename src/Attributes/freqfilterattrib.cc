@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.6 2005-08-08 15:14:35 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.7 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,15 +255,14 @@ Provider* FreqFilter::createInstance( Desc& ds )
 
 void FreqFilter::updateDesc( Desc& desc )
 {
-    const ValParam* ftype = (ValParam*)desc.getParam(filtertypeStr());
+    const ValParam* ftype = desc.getValParam( filtertypeStr() );
     const BufferString type = ftype->getStringValue();
     desc.setParamEnabled( minfreqStr(),
 	    		  type != filterTypeNamesStr(mFilterLowPass) );
     desc.setParamEnabled( maxfreqStr(),
 	    		  type != filterTypeNamesStr(mFilterHighPass) );
 
-    const bool isfft = 
-	((ValParam*)desc.getParam(isfftfilterStr()))->getBoolValue();
+    const bool isfft = desc.getValParam(isfftfilterStr())->getBoolValue();
     desc.setParamEnabled( nrpolesStr(), !isfft );
     desc.inputSpec(1).enabled = isfft;
 }

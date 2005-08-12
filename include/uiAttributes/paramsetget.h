@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: paramsetget.h,v 1.3 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: paramsetget.h,v 1.4 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,15 +16,14 @@ ________________________________________________________________________
 
 #define mSetFloatInterval( str, newval ) \
 { \
-    Attrib::ValParam* param = (ValParam*)desc.getParam( str ); \
+    mDynamicCastGet(ZGateParam*,param,desc.getParam(str)) \
     const Interval<float> oldval( param->getfValue(0), param->getfValue(1) ); \
-    if ( chtr.set(oldval,newval) ) \
-    { param->setValue( newval.start, 0 ); param->setValue( newval.stop, 1 ); } \
+    if ( chtr.set(oldval,newval) ) param->setValue( newval ); \
 }
 
 #define mSetFloat( str, newval ) \
 { \
-    Attrib::ValParam* param = (ValParam*)desc.getParam( str ); \
+    Attrib::ValParam* param = desc.getValParam( str ); \
     const float oldval = param->getfValue(); \
     if ( chtr.set(oldval,newval) ) \
         param->setValue( newval ); \
@@ -32,7 +31,7 @@ ________________________________________________________________________
 
 #define mSetInt( str, newval ) \
 { \
-    Attrib::ValParam* param = (ValParam*)desc.getParam( str ); \
+    Attrib::ValParam* param = desc.getValParam( str ); \
     const int oldval = param->getIntValue(); \
     if ( chtr.set(oldval,newval) ) \
         param->setValue( newval ); \
@@ -40,7 +39,7 @@ ________________________________________________________________________
 
 #define mSetBool( str, newval ) \
 { \
-    Attrib::ValParam* param = (ValParam*)desc.getParam( str ); \
+    Attrib::ValParam* param = desc.getValParam( str ); \
     const bool oldval = param->getBoolValue(); \
     if ( chtr.set(oldval,newval) ) \
 	param->setValue( newval ); \
@@ -48,7 +47,7 @@ ________________________________________________________________________
 
 #define mSetEnum( str, newval ) \
 { \
-    Attrib::ValParam* param = (ValParam*)desc.getParam( str ); \
+    Attrib::ValParam* param = desc.getValParam( str ); \
     const int oldval = param->getIntValue(); \
     if ( chtr.set(oldval,newval) ) \
 	param->setValue( newval ); \
@@ -56,8 +55,8 @@ ________________________________________________________________________
 
 #define mSetBinID( str, newval ) \
 { \
-    Attrib::ValParam* param = (ValParam*)desc.getParam( str ); \
-    const BinID oldval( param->getIntValue(0), param->getIntValue(1) ); \
+    mDynamicCastGet(Attrib::BinIDParam*,param,desc.getValParam(str)) \
+    const BinID oldval = param->getValue(); \
     if ( chtr.set(oldval,newval) ) \
     { param->setValue( newval.inl, 0 ); param->setValue( newval.crl, 1 ); } \
 }
@@ -65,7 +64,7 @@ ________________________________________________________________________
 
 #define mSetString( str, newval ) \
 { \
-    Attrib::ValParam* param = (ValParam*)desc.getParam( str ); \
+    Attrib::ValParam* param = desc.getValParam( str ); \
     BufferString oldval = param->getStringValue(); \
     if ( chtr.set(oldval,newval) ) \
         param->setValue( newval ); \
@@ -75,41 +74,41 @@ ________________________________________________________________________
 // Get macros
 
 #define mIfGetBool( str, var, setfunc ) \
-if ( desc.getParam(str) ) \
-{ const bool var = ((ValParam*)desc.getParam(str))->getBoolValue(0); setfunc; }
+if ( desc.getValParam(str) ) \
+{ const bool var = desc.getValParam(str)->getBoolValue(0); setfunc; }
 
 #define mIfGetFloat( str, var, setfunc ) \
-if ( desc.getParam(str) ) \
-{ const float var = ((ValParam*)desc.getParam(str))->getfValue(0); setfunc; }
+if ( desc.getValParam(str) ) \
+{ const float var = desc.getValParam(str)->getfValue(0); setfunc; }
 
 #define mIfGetInt( str, var, setfunc ) \
-if ( desc.getParam(str) ) \
-{ const int var =((ValParam*) desc.getParam(str))->getIntValue(0); setfunc; }
+if ( desc.getValParam(str) ) \
+{ const int var = desc.getValParam(str)->getIntValue(0); setfunc; }
 
 #define mIfGetEnum( str, var, setfunc ) \
-if ( desc.getParam(str) ) \
-{ const int var = ((ValParam*)desc.getParam(str))->getIntValue(0); setfunc; }
+if ( desc.getValParam(str) ) \
+{ const int var = desc.getValParam(str)->getIntValue(0); setfunc; }
 
 #define mIfGetString( str, var, setfunc ) \
-if ( desc.getParam(str) ) \
-{ const char* var = ((ValParam*)desc.getParam(str))->getStringValue(0); \
+if ( desc.getValParam(str) ) \
+{ const char* var = desc.getValParam(str)->getStringValue(0); \
     setfunc; }
 
 #define mIfGetBinID( str, var, setfunc ) \
-if ( desc.getParam(str) ) \
+if ( desc.getValParam(str) ) \
 { \
     BinID var; \
-    var.inl = ((ValParam*)desc.getParam(str))->getIntValue(0); \
-    var.crl = ((ValParam*)desc.getParam(str))->getIntValue(1); \
+    var.inl = desc.getValParam(str)->getIntValue(0); \
+    var.crl = desc.getValParam(str)->getIntValue(1); \
     setfunc; \
 }
 
 #define mIfGetFloatInterval( str, var, setfunc ) \
-if ( desc.getParam(str) ) \
+if ( desc.getValParam(str) ) \
 { \
     Interval<float> var; \
-    var.start = ((ValParam*)desc.getParam(str))->getfValue(0); \
-    var.stop = ((ValParam*)desc.getParam(str))->getfValue(1); \
+    var.start = desc.getValParam(str)->getfValue(0); \
+    var.stop = desc.getValParam(str)->getfValue(1); \
     setfunc; \
 }
 

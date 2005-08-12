@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.5 2005-08-08 15:09:12 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,9 +121,15 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 	dirfld_->setValue( azi );
 	dipfld_->setValue( dip );
     }
-    else
+    else if ( attribname == "CentralSteering" )
     {
-	type = attribname == "CentralSteering" ? 1 : 2;
+	type = 1;
+	inpfld_->setDesc( ad->getInput(0) );
+	inpfld_->updateHistory( inpselhist );
+    }
+    else if ( attribname == "FullSteering" )
+    {
+	type = 2;
 	inpfld_->setDesc( ad->getInput(0) );
 	inpfld_->updateHistory( inpselhist );
     }
@@ -150,22 +156,29 @@ DescID uiSteeringSel::descID()
 
     if ( type==3 )
     {
+	const char* attribnm = "ConstantSteering";
 	for ( int idx=0; idx<descset_->nrDescs(); idx++ )
 	{
 	    const DescID descid = descset_->getID( idx );
 	    const Desc& desc = *descset_->getDesc( descid );
-	    if ( strcmp("ConstantSteering",desc.attribName()) )
+	    if ( strcmp(attribnm,desc.attribName()) )
 		continue;
 
 	    float dip, azi;
 	    mGetFloat( dip, "dip" );
 	    mGetFloat( azi, "azi" );
-	    if ( mIsEqual(dip,dipfld_->getValue(),mDefEps) &&
-		 mIsEqual(dip,dipfld_->getValue(),mDefEps) )
+	    if ( mIsEqual(dip,dipfld_->getfValue(),mDefEps) &&
+		 mIsEqual(azi,dirfld_->getfValue(),mDefEps) )
 		return descid;
 	}
 
-	return DescID::undef();
+	Desc* desc = PF().createDescCopy( attribnm );
+	if ( !desc ) return DescID::undef();
+	desc->getValParam("dip")->setValue( dipfld_->getfValue() );
+	desc->getValParam("azi")->setValue( dirfld_->getfValue() );
+
+	DescSet* ads = const_cast<DescSet*>(descset_);
+	return ads->addDesc( desc );
     }
 
     inpfld_->processInput();
@@ -198,8 +211,8 @@ DescID uiSteeringSel::descID()
     desc->setHidden( true );
     desc->setSteering( true );
 
-    mDynamicCastGet(const ValParam*,param,
-	ads->getDesc(inldipid)->getParam(StorageProvider::keyStr()))
+    const ValParam* param = 
+	ads->getDesc(inldipid)->getValParam( StorageProvider::keyStr() );
     BufferString userref = attribnm; userref += " ";
     userref += param->getStringValue();
     desc->setUserRef( userref );
@@ -289,7 +302,7 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
     Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
     desc->setHidden( true );
     desc->selectOutput( dipnr );
-    mDynamicCastGet(ValParam*,keypar,desc->getParam(StorageProvider::keyStr()))
+    ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( linekey );
 
     BufferString userref = ctio.ioobj->name();
@@ -312,10 +325,9 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
 {
     if ( !desc || desc->selectedOutput() ) return;
 
-    if ( !desc->isStored() ) return;
+    if ( !desc->isStored() || desc->dataType() != Seis::Dip ) return;
 
-    const ValParam* keypar = 
-		(ValParam*)desc->getParam( StorageProvider::keyStr() );
+    const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     const MultiID mid( keypar->getStringValue() );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     ctio.setObj( ioobj ? ioobj->clone() : 0 );

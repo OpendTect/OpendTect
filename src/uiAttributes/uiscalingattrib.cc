@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.3 2005-07-28 09:47:28 cvshelene Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,7 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
 
     if ( desc.getParam(Scaling::gateStr()) )
     {
-	mDescGetConstParamGroup( ZGateParam,gateset,desc,Scaling::gateStr() );
+	mDescGetConstParamGroup(ZGateParam,gateset,desc,Scaling::gateStr());
 	for ( int idx=0; idx<gateset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*gateset)[idx];
@@ -172,13 +172,9 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),Scaling::attribName()) )
 	return false;
 
-    const char* stype = typefld->text();
-    const char* stats = statsfld->text();
-    BufferStringSet strs( scalingtypestr );
-    BufferStringSet str( statstypestr );
-    mSetEnum( Scaling::scalingTypeStr(), strs.indexOf(stype) );
+    mSetEnum( Scaling::scalingTypeStr(), typefld->getIntValue() );
     mSetFloat( Scaling::powervalStr(), nfld->getfValue() );
-    mSetEnum( Scaling::statsTypeStr(), str.indexOf(stats) );
+    mSetEnum( Scaling::statsTypeStr(), statsfld->getIntValue() );
 
     TypeSet<TimeGate> tgs;
     TypeSet<float> factors;
@@ -220,14 +216,5 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 bool uiScalingAttrib::getInput( Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
-    return true;
-}
-
-
-bool uiScalingAttrib::getOutput( Desc& desc )
-{
-    int typeval = typefld->getIntValue();
-    int val = typeval ? statsfld->getIntValue(): 0;
-    fillOutput( desc, val );
     return true;
 }

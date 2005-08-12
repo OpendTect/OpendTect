@@ -5,13 +5,15 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.13 2005-08-05 13:03:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.14 2005-08-12 11:12:17 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "attriblinebuffer.h"
+#include "attribdataholder.h"
 #include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -27,7 +29,6 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.13 2005-08-05 13:03:1
 #include "seistrcsel.h"
 #include "seistrctr.h"
 #include "survinfo.h"
-#include "attriblinebuffer.h"
 #include "threadwork.h"
 #include "basictask.h"
 
@@ -48,9 +49,9 @@ void StorageProvider::initClass()
 }
 
 
-Provider* StorageProvider::createFunc( Desc& ds )
+Provider* StorageProvider::createFunc( Desc& desc )
 {
-    StorageProvider* res = new StorageProvider( ds );
+    StorageProvider* res = new StorageProvider( desc );
     res->ref();
 
     if ( !res->isOK() ) { res->unRef(); return 0; }
@@ -60,11 +61,11 @@ Provider* StorageProvider::createFunc( Desc& ds )
 }
 
 
-void StorageProvider::updateDesc( Desc& ds )
+void StorageProvider::updateDesc( Desc& desc )
 {
-    ds.removeOutputs();
+    desc.removeOutputs();
 
-    const LineKey lk( ((ValParam*)ds.getParam(keyStr()))->getStringValue(0) );
+    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
 
     const MultiID key( lk.lineName() );
     const BufferString attrnm = lk.attrName();
@@ -84,21 +85,22 @@ void StorageProvider::updateDesc( Desc& ds )
 	const bool issteering = attrnm==sKey::Steering;
 	if ( issteering )
 	{
-	    ds.addOutputDataType( Seis::Dip );
-	    ds.addOutputDataType( Seis::Dip );
+	    desc.addOutputDataType( Seis::Dip );
+	    desc.addOutputDataType( Seis::Dip );
 	}
 	else
 	{
-	    ds.addOutputDataType( Seis::UnknowData );
+	    desc.addOutputDataType( Seis::UnknowData );
 	}
     }
     else
     {
 	const int nrattribs = transl->componentInfo().size();
-
 	for ( int idx=0; idx<nrattribs; idx++ )
-	    ds.addOutputDataType( (Seis::DataType)
-		    transl->componentInfo()[idx]->datatype );
+	{
+	    const int datatype = transl->componentInfo()[idx]->datatype;
+	    desc.addOutputDataType( (Seis::DataType)datatype );
+	}
     }
 }
 
@@ -121,7 +123,7 @@ bool StorageProvider::init()
 {
     if ( status!=Nada ) return false;
 
-    const LineKey lk( ((ValParam*)desc.getParam(keyStr()))->getStringValue(0) );
+    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
     const MultiID mid( lk.lineName() );
 
     IOPar iopar;
@@ -264,11 +266,11 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
 }
 
 
-SeisRequester* StorageProvider::getSeisRequester()
+SeisRequester* StorageProvider::getSeisRequester() const
 { return currentreq!=-1 && currentreq<rg.size() ? rg[currentreq] : 0; }
 
 
-bool StorageProvider::initSeisRequester(int req)
+bool StorageProvider::initSeisRequester( int req )
 {
     rg[req]->setStepout( bufferstepout.inl, bufferstepout.crl );
     return rg[req]->prepareWork();
@@ -294,15 +296,13 @@ void StorageProvider::updateStorageReqs(bool)
 }
 
 
-bool StorageProvider::setSeisRequesterSelection(int req)
+bool StorageProvider::setSeisRequesterSelection( int req )
 {
     SeisTrcReader* reader = rg[req]->reader();
     if ( !reader ) return false;
 
     if ( seldata_.type_ == Seis::Table )
-    {
-	reader->setSelData( new SeisSelData(seldata_) ); //Memleak!
-    }
+	reader->setSelData( new SeisSelData(seldata_) );
     else if ( seldata_.type_ == Seis::Range )
     {
 	if ( !desiredvolume ) return true;
@@ -391,53 +391,51 @@ bool StorageProvider::computeData( const DataHolder& output,
     else
     {
 	if (trcnr_ == -1)
-	    trc = rg[currentreq]->get(currentbid + relpos);
+	    trc = rg[currentreq]->get( currentbid+relpos );
 	else
 	{
 	    BinID bid(currentbid);
 	    bid.crl = trcnr_;
-	    trc = rg[currentreq]->get(bid + relpos);
+	    trc = rg[currentreq]->get( bid+relpos );
 	}
     }
     
-    if ( trc )
-    {
-	fillDataHolderWithTrc( trc, output );
-	return true;
-    }
-    else
+    if ( !trc )
 	return false;
+
+    fillDataHolderWithTrc( trc, output );
+    return true;
 }
 
 
 void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
-				    const DataHolder& trcsamplvalues ) const
+					     const DataHolder& data ) const
 {
-    int t0 = trcsamplvalues.t0_;
-    float starttime = storedvolume.zrg.start;
-    float trcstep = trc->info().sampling.step;
-    float reqstarttime = starttime<0 ? t0 * trcstep + starttime : t0 * trcstep;
-    for (int idx=0 ; idx<trcsamplvalues.nrsamples_ ; idx++)
+    const float step = trc->info().sampling.step;
+    const int t0 = data.t0_;
+    for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
-	for ( int idy=0; idy< outputinterest.size(); idy++ )
+	for ( int idy=0; idy<outputinterest.size(); idy++ )
+	{
 	    if ( outputinterest[idy] )
 	    {
-		float val = trc->getValue( reqstarttime + idx*trcstep, idy );
-		trcsamplvalues.item(idy)->setValue(idx,val);
+		const float curt = (t0+idx)*step;
+		float val = trc->getValue( curt, idy );
+		data.item(idy)->setValue(idx,val);
 	    }
+	}
     }
 }
 
 
-BinID StorageProvider::getStepoutStep(bool& found)
+BinID StorageProvider::getStepoutStep() const
 {
     SeisRequester* req = getSeisRequester();
-    if ( !req ) return (0,0);
-    SeisTrcTranslator* transl = req->reader()->translator();
-    BinID mystep( transl->packetInfo().inlrg.step,
-		  transl->packetInfo().crlrg.step );
-    found = true;
-    return mystep;
+    if ( !req || !req->reader() || !req->reader()->translator() )
+	return BinID(0,0);
+
+    SeisPacketInfo& info = req->reader()->translator()->packetInfo();
+    return BinID( info.inlrg.step, info.crlrg.step );
 }
 
 

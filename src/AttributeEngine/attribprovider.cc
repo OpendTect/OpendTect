@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.20 2005-08-05 13:03:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.21 2005-08-12 11:12:17 cvsnanne Exp $";
 
 #include "attribprovider.h"
 
@@ -422,8 +422,7 @@ int Provider::moveToNextTrace()
 	    else
 	    {
 		BinID prevbid = currentbid;
-		bool yn;
-		BinID step = getStepoutStep(yn);
+		BinID step = getStepoutStep();
 		if ( prevbid.crl +step.crl <= desiredvolume->hrg.stop.crl )
 		    currentbid.crl = prevbid.crl +step.crl;
 		else if ( prevbid.inl +step.inl <= desiredvolume->hrg.stop.inl )
@@ -523,8 +522,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
     
     if ( linebuffer )
     {
-	bool yn;
-	const BinID step = getStepoutStep(yn);
+	const BinID step = getStepoutStep();
 	BinID dir = BinID(1,1);
 	dir.inl *= step.inl/abs(step.inl); dir.crl *= step.crl/abs(step.crl);
 	const BinID lastbid = currentbid - dir*bufferstepout*step;
@@ -622,24 +620,21 @@ void Provider::resetZIntervals()
 }
     
 
-BinID Provider::getStepoutStep(bool& found)
+BinID Provider::getStepoutStep() const
 {
-    BinID bid;
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
-	bid = inputs[idx]->getStepoutStep(found);
-	if (found)
-	    return bid;
-    }
-    for ( int idx=0; idx<parents.size(); idx++ )
-    {
-	bid = parents[idx]->getStepoutStep(found);
-	if (found)
-	    return bid;
+	BinID bid = inputs[idx]->getStepoutStep();
+	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
     }
 
-    bid = BinID( SI().inlStep(), SI().crlStep() );
-    return bid;
+    for ( int idx=0; idx<parents.size(); idx++ )
+    {
+	BinID bid = parents[idx]->getStepoutStep();
+	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
+    }
+
+    return BinID( SI().inlStep(), SI().crlStep() );
 }
 
 
@@ -717,7 +712,7 @@ const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 }
 
 
-SeisRequester* Provider::getSeisRequester()
+SeisRequester* Provider::getSeisRequester() const
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
@@ -733,6 +728,12 @@ SeisRequester* Provider::getSeisRequester()
 bool Provider::init()
 {
     return true;
+}
+
+
+int Provider::getDataIndex( int input ) const
+{
+    return desc.getInput(0) ? desc.getInput(0)->selectedOutput() : -1;
 }
 
 

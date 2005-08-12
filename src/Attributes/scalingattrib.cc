@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.6 2005-08-05 16:00:22 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.7 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,11 @@ static inline float interpolator( float fact1, float fact2,
 {
     if ( !mIsZero((t2-t1+2),mDefEps) )
     {
-    const float increment = (fact2-fact1) / (t2-t1+2);
-    return fact1 + increment * (curt-t1+1);
+	const float increment = (fact2-fact1) / (t2-t1+2);
+	return fact1 + increment * (curt-t1+1);
     }
-    else
-	return fact1;
+
+    return fact1;
 }
 
 namespace Attrib
@@ -46,9 +46,9 @@ void Scaling::initClass()
     desc->ref();
 
     EnumParam* scalingtype = new EnumParam( scalingTypeStr() );
-    scalingtype->addEnum(scalingTypeNamesStr(mScalingTypeTPower));
-    scalingtype->addEnum(scalingTypeNamesStr(mScalingTypeWindow));
-    desc->addParam(scalingtype);
+    scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeTPower) );
+    scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeWindow) );
+    desc->addParam( scalingtype );
 
     FloatParam* powerval = new FloatParam( powervalStr() );
     powerval->setLimits( Interval<float>(0,mUndefValue) );
@@ -71,26 +71,24 @@ void Scaling::initClass()
 		= new ParamGroup<ValParam>( 0, factorStr(), factor );
     desc->addParam( factorset );
 
-    EnumParam* statstype = new EnumParam(statsTypeStr());
-    statstype->addEnum(statsTypeNamesStr(mStatsTypeRMS));
-    statstype->addEnum(statsTypeNamesStr(mStatsTypeMean));
-    statstype->addEnum(statsTypeNamesStr(mStatsTypeMax));
-    statstype->addEnum(statsTypeNamesStr(mStatsTypeUser));
+    EnumParam* statstype = new EnumParam( statsTypeStr() );
+    statstype->addEnum( statsTypeNamesStr(mStatsTypeRMS) );
+    statstype->addEnum( statsTypeNamesStr(mStatsTypeMean) );
+    statstype->addEnum( statsTypeNamesStr(mStatsTypeMax) );
+    statstype->addEnum( statsTypeNamesStr(mStatsTypeUser) );
     desc->addParam( statstype );
 
     desc->addOutputDataType( Seis::UnknowData );
-
-    InputSpec inputspec( "Data on which the Scaling should be applied", true );
-    desc->addInput( inputspec );
+    desc->addInput( InputSpec("Input data",true) );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();
 }
 
     
-Provider* Scaling::createInstance( Desc& ds )
+Provider* Scaling::createInstance( Desc& desc )
 {
-    Scaling* res = new Scaling( ds );
+    Scaling* res = new Scaling( desc );
     res->ref();
 
     if ( !res->isOK() )
@@ -106,19 +104,18 @@ Provider* Scaling::createInstance( Desc& ds )
 
 void Scaling::updateDesc( Desc& desc )
 {
-    const ValParam* stype = (ValParam*)desc.getParam(scalingTypeStr());
-    if ( !strcmp(stype->getStringValue(0),
-		scalingTypeNamesStr(mScalingTypeTPower) ) )
-	desc.setParamEnabled(powervalStr(),true);
-    else
-	desc.setParamEnabled(powervalStr(),false);
-	
-    bool isuserdef = ((ValParam*)desc.getParam(statsTypeStr()))->getBoolValue();
-    desc.setParamEnabled(factorStr(),isuserdef);
+    BufferString type = desc.getValParam( scalingTypeStr() )->getStringValue();
+    const bool ispow = type == scalingTypeNamesStr(mScalingTypeTPower);
+    desc.setParamEnabled( powervalStr(), ispow );
+    desc.setParamEnabled( statsTypeStr(), !ispow );
+    desc.setParamEnabled( gateStr(), !ispow );
+
+    const int statstype = desc.getValParam(statsTypeStr())->getIntValue();
+    desc.setParamEnabled( factorStr(), statstype==mStatsTypeUser );
 }
 
 
-const char* Scaling::statsTypeNamesStr(int type)
+const char* Scaling::statsTypeNamesStr( int type )
 {
     if ( type==mStatsTypeRMS ) return "RMS";
     if ( type==mStatsTypeMean ) return "Mean";
@@ -127,7 +124,7 @@ const char* Scaling::statsTypeNamesStr(int type)
 }
 
 
-const char* Scaling::scalingTypeNamesStr(int type)
+const char* Scaling::scalingTypeNamesStr( int type )
 {
     if ( type==mScalingTypeTPower ) return "T^n";
     return "Window";
@@ -135,7 +132,7 @@ const char* Scaling::scalingTypeNamesStr(int type)
 
 
 Scaling::Scaling( Desc& desc_ )
-    : Provider( desc_ )
+    : Provider(desc_)
 {
     if ( !isOK() ) return;
 
@@ -152,7 +149,6 @@ Scaling::Scaling( Desc& desc_ )
     }
     
     mGetEnum( statstype, statsTypeStr() );
-
     if ( statstype == mStatsTypeUser )
     {
 	mDescGetParamGroup(ValParam,factorset,desc,factorStr())
@@ -160,6 +156,7 @@ Scaling::Scaling( Desc& desc_ )
 	    factors += ((ValParam&)((*factorset)[idx])).getfValue( 0 );
     }
 }
+
 
 bool Scaling::getInputOutput( int input, TypeSet<int>& res ) const
 {
@@ -175,7 +172,7 @@ bool Scaling::getInputData( const BinID& relpos, int idx )
     
 
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
-			      int t0, int nrsamples ) const
+			   int t0, int nrsamples ) const
 {
     if ( scalingtype == mScalingTypeTPower )
     {
@@ -183,7 +180,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	return true;
     }
 
-    TypeSet<Interval<int> > samplegates;
+    TypeSet< Interval<int> > samplegates;
     checkTimeGates( gates, samplegates, t0, nrsamples );
 
     RunningStatistics<float> stats;
@@ -198,25 +195,27 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 		scalefactors += 1;
 		continue;
 	    }
-	    
+
 	    for ( int idx=sg.start; idx<=sg.stop; idx++ )
 		stats += fabs( inputdata->item(0)->value(idx-inputdata->t0_) );
 
+	    float val = 1;
 	    if ( statstype == mStatsTypeRMS )
-		scalefactors += stats.rms()? 1/stats.rms() : 1;
+		val = stats.rms();
 	    else if ( statstype == mStatsTypeMean )
-		scalefactors += stats.mean() ? 1/stats.mean() : 1;
+		val = stats.mean();
 	    else
-		scalefactors += stats.max() ? 1/stats.max() : 1;
+		val = stats.max();
+
+	    scalefactors += !mIsZero(val,mDefEps) ? 1/val : 1;
 	}
     }
     else
-	scalefactors = scalefactors;
-
+	scalefactors = factors;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float trcval = inputdata->item(0)->value(idx - inputdata->t0_);
+	const float trcval = inputdata->item(0)->value( idx-inputdata->t0_ );
 	float scalefactor = 1;
 	bool found = false;
 	int cursample = t0 + idx;
@@ -240,7 +239,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	output.item(0)->setValue(idx, trcval * scalefactor);
+	output.item(0)->setValue( idx, trcval*scalefactor );
     }
 
     return true;
@@ -249,27 +248,25 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 
 void Scaling::scaleTimeN(const DataHolder& output, int t0, int nrsamples) const
 {
-    float result;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float curt = t0*refstep + idx*refstep;
-	result = pow(curt,powerval) * 
-	    		inputdata->item(0)->value(idx - inputdata->t0_);
-	output.item(0)->setValue(idx, result);
+	const float result = pow(curt,powerval) * 
+	    		inputdata->item(0)->value( idx-inputdata->t0_ );
+	output.item(0)->setValue( idx, result );
     }
 }
 
 
 void Scaling::checkTimeGates( const TypeSet< Interval<float> >& oldtgs,
-				  TypeSet<Interval<int> >& newsampgates,
-				  int t0, int nrsamples ) const
+			      TypeSet<Interval<int> >& newsampgates,
+			      int t0, int nrsamples ) const
 {
     for( int idx=0; idx<oldtgs.size(); idx++ )
     {
-	Interval<int> sg;
-	sg.start = (int) (oldtgs[idx].start / refstep);
-	sg.stop = (int) (oldtgs[idx].stop / refstep);
-	if ( sg.start > nrsamples || sg.stop < t0 )
+	Interval<int> sg( mNINT(oldtgs[idx].start/refstep),
+			  mNINT(oldtgs[idx].stop/refstep) );
+	if ( sg.start>nrsamples || sg.stop<t0 )
 	{
 	    newsampgates += Interval<int>(0,0);
 	    continue;
@@ -281,4 +278,4 @@ void Scaling::checkTimeGates( const TypeSet< Interval<float> >& oldtgs,
     }
 }
 
-}//namespace
+} // namespace Attrib

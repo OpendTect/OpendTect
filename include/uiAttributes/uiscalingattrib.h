@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.2 2005-07-28 07:32:50 cvshelene Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.3 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ protected:
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
-    bool		getOutput(Attrib::Desc&);
 };
 
 #endif

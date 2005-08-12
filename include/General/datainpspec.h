@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.57 2005-08-04 13:15:06 cvsnanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.58 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,12 +237,12 @@ public:
 			    {}
 
 			~NumInpIntervalSpec()	
-			    { 
-				delete interval_; 
-				delete startlimits_;
-				delete stoplimits_;
-				delete steplimits_;
-			    }
+			{ 
+			    delete interval_; 
+			    delete startlimits_;
+			    delete stoplimits_;
+			    delete steplimits_;
+			}
 
     virtual NumInpIntervalSpec<T>* clone() const
 			    { return new NumInpIntervalSpec<T>( *this ); }
@@ -251,45 +251,49 @@ public:
     inline bool		hasStep() const	{ return stpi()    ? true : false; }
 
     virtual bool	isUndef( int idx=0 ) const
-			    {	
-				if ( !interval_ ) return true;
-				return Values::isUdf( value_(idx) ); 
-			    }
+			{	
+			    if ( !interval_ ) return true;
+			    return Values::isUdf( value_(idx) ); 
+			}
 
     virtual void	setValue( const Interval<T>& intval )
-			    {
-				if ( interval_ ) delete interval_;
-				interval_ = intval.clone();
-			    }
+			{
+			    if ( interval_ ) delete interval_;
+			    interval_ = intval.clone();
+			}
 
     virtual bool	setText( const char* s, int idx=0 )
-			    { 
-				if ( pt_value_(idx) ) 
-				    return getFromString( *pt_value_(idx), s ); 
-				return false;
-			    }
+			{ 
+			    if ( pt_value_(idx) ) 
+				return getFromString( *pt_value_(idx), s ); 
+			    return false;
+			}
 
     T			value( int idx=0 ) const
-			    {
-				if ( isUndef(idx) ) return mUdf(T);
-				return value_(idx);
-			    }
+			{
+			    if ( isUndef(idx) ) return mUdf(T);
+			    return value_(idx);
+			}
+
+    virtual int		getIntValue(int idx=0) const { return (int)value(idx); }
+    virtual double	getValue(int idx=0) const    { return value(idx); }
+    virtual float	getfValue(int idx=0) const   { return value(idx); }
 
     virtual const char*	text( int idx=0 ) const
-			    {
-				if ( isUndef(idx) )	return "";
-				return toString( value(idx) );
-			    }
+			{
+			    if ( isUndef(idx) ) return "";
+			    return toString( value(idx) );
+			}
 
     virtual bool	hasLimits() const	
-			    { return startlimits_||stoplimits_||steplimits_; }
+			{ return startlimits_||stoplimits_||steplimits_; }
     virtual bool	isInsideLimits(int idx=0) const
-			    {
-				if ( isUndef(idx) ) return false;
-				const Interval<T>* limits_ = limits(idx);
-				if ( !limits_ ) return true;
-				return limits_->includes( value(idx) );
-			    }
+			{
+			    if ( isUndef(idx) ) return false;
+			    const Interval<T>* limits_ = limits(idx);
+			    return limits_ ? limits_->includes( value(idx) ) 
+					   : true;
+			}
 
 
 			/*! \brief gets limits for interval components.
@@ -299,15 +303,15 @@ public:
 			    idx =  2: returns step limits
 			*/
     const Interval<T>*	limits( int idx=0 ) const
+			{
+			    switch( idx )
 			    {
-				switch( idx )
-				{
-				default:
-				case 0 : return startlimits_;
-				case 1 : return stoplimits_;
-				case 2 : return steplimits_;
-				}
+			    default:
+			    case 0 : return startlimits_;
+			    case 1 : return stoplimits_;
+			    case 2 : return steplimits_;
 			    }
+			}
 
 
 			/*! \brief sets limits for interval components.
@@ -320,38 +324,39 @@ public:
 			    idx = -2: sets start, stop and step limits
 			*/
     NumInpIntervalSpec&	setLimits( const Interval<T>& r, int idx=-1 )
+			{
+			    if ( idx < 0 )
 			    {
-				if ( idx < 0 )
+				delete startlimits_; startlimits_ = 
+						    new Interval<T>( r );
+				delete stoplimits_; stoplimits_ =
+						    new Interval<T>( r );
+				if ( idx == -2 )
 				{
-				    delete startlimits_; startlimits_ = 
-							new Interval<T>( r );
-				    delete stoplimits_; stoplimits_ =
-							new Interval<T>( r );
-				    if ( idx == -2 )
-				    {
-					delete steplimits_; steplimits_ =
-							new Interval<T>( r );
-				    }
-				    return *this;
+				    delete steplimits_; steplimits_ =
+						    new Interval<T>( r );
 				}
-				switch ( idx )
-				{
-				case 0 : 
-				    delete startlimits_; 
-				    startlimits_ = new Interval<T>(r);
-				break;
-				case 1 :
-				    delete stoplimits_; 
-				    stoplimits_ = new Interval<T>(r);
-				break;
-				case 2 :
-				    delete steplimits_; 
-				    steplimits_ = new Interval<T>(r);
-				break;
-				}
-
 				return *this;
 			    }
+
+			    switch ( idx )
+			    {
+			    case 0 : 
+				delete startlimits_; 
+				startlimits_ = new Interval<T>(r);
+			    break;
+			    case 1 :
+				delete stoplimits_; 
+				stoplimits_ = new Interval<T>(r);
+			    break;
+			    case 2 :
+				delete steplimits_; 
+				steplimits_ = new Interval<T>(r);
+			    break;
+			    }
+
+			    return *this;
+			}
 
 protected:
 

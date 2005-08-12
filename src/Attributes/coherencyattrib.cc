@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.4 2005-08-03 07:35:58 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.5 2005-08-12 11:12:17 cvsnanne Exp $";
 
 
 #include "coherencyattrib.h"
@@ -30,7 +30,7 @@ void Coherency::initClass()
     type->setDefaultValue("2");
     desc->addParam( type );
 
-    ZGateParam* gate = new ZGateParam(gateStr());
+    ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mUndefValue, mUndefValue) );
     gate->setDefaultValue( Interval<float>(-40,40) );
     desc->addParam( gate );
@@ -45,18 +45,15 @@ void Coherency::initClass()
     ddip->setDefaultValue("10");
     desc->addParam( ddip );
 
-    BinIDParam* stepout = new BinIDParam(stepoutStr());
-    stepout->setDefaultValue(BinID(1,1));
+    BinIDParam* stepout = new BinIDParam( stepoutStr() );
+    stepout->setDefaultValue( BinID(1,1) );
     stepout->setRequired(false);
     desc->addParam( stepout );
 
     desc->setNrOutputs( Seis::UnknowData, 3 );
 
-    InputSpec inpspec( "Data on which the Coherency should be measured", true );
-    desc->addInput( inpspec );
-
-    InputSpec imagspec( "Imag data for Coherency", false );
-    desc->addInput( imagspec );
+    desc->addInput( InputSpec("Real data for Coherency",true) );
+    desc->addInput( InputSpec("Imag data for Coherency",true) );
 
     desc->init();
 
@@ -65,9 +62,9 @@ void Coherency::initClass()
 }
 
 
-Provider* Coherency::createInstance( Desc& ds )
+Provider* Coherency::createInstance( Desc& desc )
 {
-    Coherency* res = new Coherency( ds );
+    Coherency* res = new Coherency( desc );
     res->ref();
 
     if ( !res->isOK() )
@@ -83,8 +80,8 @@ Provider* Coherency::createInstance( Desc& ds )
 
 void Coherency::updateDesc( Desc& desc )
 {
-    const ValParam* type = (ValParam*)desc.getParam(typeStr());
-    if (type-> getIntValue() == 2)
+    const ValParam* type = desc.getValParam( typeStr() );
+    if ( type->getIntValue() == 2 )
 	desc.inputSpec(1).enabled = true;
 }
 
@@ -181,12 +178,10 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 }
 
 
-bool Coherency::computeData(const DataHolder& output,
-			    const BinID& relpos,
-			    int t0, int nrsamples ) const
+bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
+			     int t0, int nrsamples ) const
 {
-    bool yn;
-    BinID step = inputs[0]-> getStepoutStep(yn);
+    BinID step = inputs[0]->getStepoutStep();
 	
     const_cast<Coherency*>(this)->distinl = fabs(inldist()*step.inl);
     const_cast<Coherency*>(this)->distcrl = fabs(crldist()*step.crl);
@@ -194,8 +189,9 @@ bool Coherency::computeData(const DataHolder& output,
 		     : computeData2(output, t0, nrsamples);
 }
 
-bool Coherency::computeData1( const DataHolder& output,
-				int t0, int nrsamples ) const
+
+bool Coherency::computeData1( const DataHolder& output, int t0, 
+			      int nrsamples ) const
 {
     Interval<int> samplegate( mNINT(gate.start/refstep),
 				mNINT(gate.stop/refstep) );
@@ -247,8 +243,8 @@ bool Coherency::computeData1( const DataHolder& output,
 }
 
 
-bool Coherency::computeData2( const DataHolder& output,
-			    int t0, int nrsamples ) const
+bool Coherency::computeData2( const DataHolder& output, int t0, 
+			      int nrsamples ) const
 {
     Interval<int> samplegate( mNINT(gate.start/refstep),
 				mNINT(gate.stop/refstep) );
@@ -299,8 +295,7 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
-    bool yn;
-    const BinID bidstep = inputs[0]-> getStepoutStep(yn);
+    const BinID bidstep = inputs[0]->getStepoutStep();
     if ( type==1 )
     {
 	while ( inputdata.size() < 3 )
@@ -359,4 +354,5 @@ const BinID* Coherency::reqStepout( int inp, int out ) const
 
 const Interval<float>* Coherency::reqZMargin( int inp, int ) const
 { return &gate; }
-}//namespace
+
+} // namespace Attrib

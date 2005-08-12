@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.3 2005-08-04 14:38:56 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,6 +130,8 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
     mIfGetFloat( SpecDecomp::deltafreqStr(), deltafreq,
 		 stepfld->box()->setValue(deltafreq*freqscale) );
 
+    stepChg(0);
+    typeSel(0);
     return true;
 }
 

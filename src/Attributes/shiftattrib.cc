@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.6 2005-08-05 13:05:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.7 2005-08-12 11:12:17 cvsnanne Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -36,9 +36,7 @@ void Shift::initClass()
 
     desc->addOutputDataType( Seis::UnknowData );
 
-    InputSpec inputspec( "Data on which the Reference shift should be done",
-	                             true );
-    desc->addInput( inputspec );
+    desc->addInput( InputSpec("Input data",true) );
 
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering = true;
@@ -49,9 +47,9 @@ void Shift::initClass()
 }
 
 
-Provider* Shift::createInstance( Desc& ds )
+Provider* Shift::createInstance( Desc& desc )
 {
-    Shift* res = new Shift( ds );
+    Shift* res = new Shift( desc );
     res->ref();
 
     if ( !res->isOK() )
@@ -67,8 +65,7 @@ Provider* Shift::createInstance( Desc& ds )
     
 void Shift::updateDesc( Desc& desc )
 {
-    bool issteer = ((ValParam*)desc.getParam(steeringStr()))->getBoolValue();
-    desc.inputSpec(1).enabled = issteer;
+    desc.inputSpec(1).enabled = desc.getValParam(steeringStr())->getBoolValue();
 }
 
 
@@ -95,8 +92,7 @@ bool Shift::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Shift::getInputData( const BinID& relpos, int idx )
 {
-    bool yn;
-    const BinID bidstep = inputs[0]-> getStepoutStep(yn);
+    const BinID bidstep = inputs[0]->getStepoutStep();
     const BinID posneeded = relpos + bidstep*pos;
     inputdata = inputs[0]->getData(posneeded, idx);
     if ( !inputdata )

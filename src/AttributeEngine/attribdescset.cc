@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.21 2005-08-05 13:01:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.22 2005-08-12 11:12:17 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -484,9 +484,7 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 	if ( !desc->isStored() || desc->selectedOutput()!=selout )
 	    continue;
 
-	const ValParam* keypar = 
-	    (ValParam*)desc->getParam( StorageProvider::keyStr() );
-	
+	const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
 	const char* curlk = keypar->getStringValue();
 	if ( !strcmp(lk,curlk) ) return desc->id();
     }
@@ -504,8 +502,7 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
     BufferString userref = LineKey( ioobj->name(), newlk.attrName() );
     newdesc->setUserRef( userref );
     newdesc->selectOutput( selout );
-    ValParam* keypar = 
-	(ValParam*)newdesc->getParam( StorageProvider::keyStr() );
+    ValParam* keypar = newdesc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( lk );
     return addDesc( newdesc );
 }
@@ -586,9 +583,9 @@ int DescSet::removeUnused( bool remstored )
 	    bool iscandidate = false;
 	    if ( ad->isStored() )
 	    {
-		const Param* keypar = ad->getParam( StorageProvider::keyStr() );
-		PtrMan<IOObj> ioobj = 
-		    IOM().get( ((ValParam*)keypar)->getStringValue() );
+		const ValParam* keypar = 
+		    	ad->getValParam( StorageProvider::keyStr() );
+		PtrMan<IOObj> ioobj = IOM().get( keypar->getStringValue() );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
 	    }
@@ -621,8 +618,7 @@ bool DescSet::getFirstStored( Pol2D p2d, MultiID& key ) const
 	if ( !ad->isStored() ) continue;
 	if ( (ad->is2D() && p2d != No2D) || (!ad->is2D() && p2d != Only2D) )
 	{
-	    mDynamicCastGet(const ValParam*,keypar,
-		    	    ad->getParam(StorageProvider::keyStr()))
+	    const ValParam* keypar = ad->getValParam(StorageProvider::keyStr());
 	    key = keypar->getStringValue();
 	    return true;
 	}

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.5 2005-08-08 15:09:12 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,8 +296,12 @@ void uiAttribDescSetEd::addPush( CallBacker* )
     if ( !(curde = curDescEd()) )
 	mErrRet( "Cannot add without a valid attribute type" )
 
-    const char* attrstr = attrtypefld->box()->text();
-    const char* attribname = uiAttribFactory::defNameForName( attrstr );
+    BufferString attribname = curde->getAttribName();
+    if ( !attribname.size() )
+    {
+	const char* attrstr = attrtypefld->box()->text();
+	attribname = uiAttribFactory::defNameForName( attrstr );
+    }
 
     Desc* newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
@@ -323,8 +327,9 @@ void uiAttribDescSetEd::rmPush( CallBacker* )
     Desc* curdesc = curDesc();
     if ( !curdesc ) return;
 
+    const int curidx = attrdescs.indexOf( curdesc );
     attrset->removeDesc( attrset->getID(*curdesc) );
-    newList(0);
+    newList( curidx-1 );
     removeNotUsedAttr();
     adsman->setSaved( false );
 }

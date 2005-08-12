@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.5 2005-08-05 13:05:02 cvsnanne Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,9 @@ ________________________________________________________________________
 #include "datainpspec.h"
 #include "genericnumer.h"
 #include "survinfo.h"
-#include "simpnumer.h"
 
 #include <math.h>
-#include <iostream>
+#include <complex>
 
 
 #define mTransformTypeFourier		0
@@ -96,37 +95,23 @@ Provider* SpecDecomp::createInstance( Desc& ds )
 
 void SpecDecomp::updateDesc( Desc& desc )
 {
-    const ValParam* transformtype=(ValParam*)desc.getParam(transformTypeStr());
-    if ( !strcmp(transformtype->getStringValue(0),
-		 transTypeNamesStr(mTransformTypeFourier)))
-    {
-	desc.setParamEnabled(gateStr(),true);
-	desc.setParamEnabled(windowStr(),true);
-    }
-    else
-    {
-	desc.setParamEnabled(gateStr(),false);
-	desc.setParamEnabled(windowStr(),false);
-    }
-    
-    if ( !strcmp(transformtype->getStringValue(0),
-		 transTypeNamesStr(mTransformTypeDiscrete)))
-	desc.setParamEnabled(dwtwaveletStr(),true);
-    else
-	desc.setParamEnabled(dwtwaveletStr(),false);
+    BufferString type = desc.getValParam(transformTypeStr())->getStringValue();
+    const bool isfft = type == transTypeNamesStr( mTransformTypeFourier );
+    desc.setParamEnabled( gateStr(), isfft );
+    desc.setParamEnabled( windowStr(), isfft );
 
-    if ( !strcmp(transformtype->getStringValue(0),
-		 transTypeNamesStr(mTransformTypeContinuous)))
-	desc.setParamEnabled(cwtwaveletStr(),true);
-    else
-	desc.setParamEnabled(cwtwaveletStr(),false);
+    const bool isdwt = type == transTypeNamesStr( mTransformTypeDiscrete );
+    desc.setParamEnabled( dwtwaveletStr(), isdwt );
+
+    const bool iscwt = type == transTypeNamesStr( mTransformTypeContinuous );
+    desc.setParamEnabled( cwtwaveletStr(), iscwt );
 
     //HERE see what to do when SI().zRange().step != refstep !!!
     float dfreq;
     mGetFloat( dfreq, deltafreqStr() );
-    float nyqfreq = 0.5 / SI().zRange().step;
-    int nrattribs = mNINT( nyqfreq / dfreq );
-    desc.setNrOutputs( Seis::UnknowData, nrattribs-1 );
+    const float nyqfreq = 0.5 / SI().zRange().step;
+    const int nrattribs = mNINT( nyqfreq / dfreq );
+    desc.setNrOutputs( Seis::UnknowData, nrattribs );
 }
 
 
@@ -215,9 +200,9 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	    const int minsz = mNINT( 2*fnyq/deltafreq );
 	    const_cast<SpecDecomp*>(this)->fftsz = sz > minsz ? sz : minsz;
 	    const_cast<SpecDecomp*>(this)->
-			fft.setInputInfo(Array1DInfoImpl(fftsz));
-	    const_cast<SpecDecomp*>(this)->fft.setDir(true);
-	    const_cast<SpecDecomp*>(this)->fft.init();
+			fft_.setInputInfo(Array1DInfoImpl(fftsz));
+	    const_cast<SpecDecomp*>(this)->fft_.setDir(true);
+	    const_cast<SpecDecomp*>(this)->fft_.init();
 	    const_cast<SpecDecomp*>(this)->df = FFT::getDf( refstep, fftsz );
 
 	    const_cast<SpecDecomp*>(this)->window = 
@@ -284,7 +269,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int t0, int nrsamples ) const
 	for ( int idy=0; idy<sz; idy++ )
 	    timedomain->set( diff+idy, signal->get(idy) );
 
-	fft.transform( *timedomain, *freqdomain );
+	fft_.transform( *timedomain, *freqdomain );
 
 	for ( int idf=0; idf<outputinterest.size(); idf++ )
 	{
@@ -358,23 +343,29 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int t0, int nrsamples ) const
     mGetNextPow2( nrsamp );
     if ( !redata->item(0) || !imdata->item(0) ) return false;
 
-    int off = (nrsamp-nrsamples)/2;
+    const int off = (nrsamp-nrsamples)/2;
     Array1DImpl<float_complex> inputdata( nrsamp );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	int cursample = t0 + idx - off;
-	float real = redata->item(0)->value( cursample - redata->t0_);
-	float imag = - imdata->item(0)->value( cursample - imdata->t0_);
+	const int cursample = t0 + idx - off;
+	const int reidx = cursample-redata->t0_;
+	const float real = reidx < 0 || reidx >= redata->nrsamples_
+		? 0 : redata->item(0)->value( cursample-redata->t0_ );
+
+	const int imidx = cursample-imdata->t0_;
+	const float imag = imidx < 0 || imidx >= imdata->nrsamples_
+		? 0 : -imdata->item(0)->value( cursample-imdata->t0_ );
         inputdata.set( idx, float_complex(real,imag) );
     }
-    
-    CWT& cwt = const_cast<CWT&>(cwt);
+
+    CWT& cwt = const_cast<CWT&>(cwt_);
     cwt.setInputInfo( Array1DInfoImpl(nrsamp) );
     cwt.setDir( true );
     cwt.setWavelet( cwtwavelet );
     cwt.setDeltaT( refstep );
 
-    float nrattribs = mNINT(0.5 * refstep / deltafreq);
+    const float nyqfreq = 0.5 / SI().zRange().step;
+    const int nrattribs = mNINT( nyqfreq / deltafreq );
     const float freqstop = deltafreq*nrattribs;
     cwt.setTransformRange( StepInterval<float>(deltafreq,freqstop,deltafreq) );
     cwt.init();
@@ -397,7 +388,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int t0, int nrsamples ) const
     {
 	if ( !outputinterest[idx] ) continue;
 	for ( int ids=0; ids<nrsamples; ids++ )
-	    output.item(0)->setValue( ids, outputdata.get( ids+off, idx ) );
+	    output.item(idx)->setValue( ids, outputdata.get(ids+off,idx) );
     }
 
     return true;

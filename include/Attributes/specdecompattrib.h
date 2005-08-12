@@ -7,21 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.4 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 -*/
 
 #include "attribprovider.h"
-#include "runstat.h"
-#include "valseries.h"
-#include "valseriesinterpol.h"
-#include "mathfunc.h"
 #include "arrayndutils.h"
-
 #include "wavelettrans.h"
 #include "fft.h"
 
-#include <complex>
 
 /*!\brief Spectral Decomposition Attribute
 
@@ -41,10 +35,13 @@ Output:
 N
 
 */
+
 class ArrayNDWindow;
 
 namespace Attrib
 {
+
+class DataHolder;
 
 class SpecDecomp : public Provider
 {
@@ -66,15 +63,15 @@ protected:
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
 
-    static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
+    static Provider*	internalCreate(Desc&,ObjectSet<Provider>& existing);
 
-    bool		getInputOutput( int input, TypeSet<int>& res ) const;
-    bool		getInputData( const BinID&, int idx );
-    bool		computeData( const DataHolder&, const BinID& relpos,
-	    			     int t0, int nrsamples ) const;
-    bool		calcDFT(const DataHolder&, int t0, int nrsamples) const;
-    bool		calcDWT(const DataHolder&, int t0, int nrsamples) const;
-    bool		calcCWT(const DataHolder&, int t0, int nrsamples) const;
+    bool		getInputOutput(int input,TypeSet<int>& res) const;
+    bool		getInputData(const BinID&,int idx);
+    bool		computeData(const DataHolder&,const BinID& relpos,
+	    			    int t0,int nrsamples) const;
+    bool		calcDFT(const DataHolder&,int t0,int nrsamples) const;
+    bool		calcDWT(const DataHolder&,int t0,int nrsamples) const;
+    bool		calcCWT(const DataHolder&,int t0,int nrsamples) const;
 
     const Interval<float>*	reqZMargin(int input, int output) const;
 
@@ -87,10 +84,9 @@ protected:
 
     Interval<int>               samplegate;
 
-    FFT                         fft;
     ArrayNDWindow*              window;
-
-    CWT                         cwt;
+    FFT                         fft_;
+    CWT                         cwt_;
     int                         scalelen;
 
     float                       df;
@@ -103,14 +99,11 @@ protected:
     Array1DImpl<float_complex>*     freqdomain;
     Array1DImpl<float_complex>*     signal;
 
-
     const DataHolder*		    redata;
     const DataHolder*               imdata;
-
 };
 
 }; // namespace Attrib
 
 
 #endif
-

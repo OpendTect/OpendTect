@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.13 2005-08-05 16:00:22 cvshelene Exp $
+ RCS:           $Id: attribparam.h,v 1.14 2005-08-12 11:12:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,7 @@ public:
     virtual bool		getCompositeValue(BufferString&) const;
 
     void                        setDefaultValue(const BinID&);
+    BinID			getValue() const;
 };
 
 
