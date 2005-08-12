@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.88 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.89 2005-08-12 21:53:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -692,7 +692,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if (  evid == uiVisPartServer::evRemoveTrackTools )
 	appl.removeDockWindow( visserv->getTrackTB() );
     else if (  evid == uiVisPartServer::evTrackNewObject )
-	return mpeserv->startWizard( visserv->getDesTrackerType(), 0 );
+	return mpeserv->addTracker( visserv->getDesTrackerType() );
     else
 	pErrMsg("Unknown event from visserv");
 

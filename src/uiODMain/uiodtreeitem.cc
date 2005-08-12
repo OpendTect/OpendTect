@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.92 2005-08-04 15:18:30 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.93 2005-08-12 21:53:16 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -433,7 +433,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , savesurfacedatamnuitem("Save attribute ...")
     , loadsurfacedatamnuitem("Surface data ...")
     , starttrackmnuitem("Start tracking ...")
-
 {}
 
 
@@ -553,8 +552,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 
 	    mResetMenuItem( &addsectionmnuitem );
 	    mResetMenuItem( &extendsectionmnuitem );
-	    mResetMenuItem( &addsectionmnuitem );
-	    mResetMenuItem( &extendsectionmnuitem );
 	    mResetMenuItem( &changesetupmnuitem );
 	    mResetMenuItem( &enabletrackingmnuitem );
 	    mResetMenuItem( &relationsmnuitem );
@@ -584,8 +581,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     else
     {
 	mResetMenuItem( &starttrackmnuitem );
-	mResetMenuItem( &addsectionmnuitem );
-	mResetMenuItem( &extendsectionmnuitem );
 	mResetMenuItem( &addsectionmnuitem );
 	mResetMenuItem( &extendsectionmnuitem );
 	mResetMenuItem( &changesetupmnuitem );
@@ -678,7 +673,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==addsectionmnuitem.id )
     {
 	menu->setIsHandled(true);
-	//applMgr()->mpeServer()->addNewSection( mid );
+	const int trackerid = applMgr()->mpeServer()->getTrackerID(mid);
+	applMgr()->mpeServer()->addNewSection(trackerid);
     }
     else if ( mnuid==extendsectionmnuitem.id )
     {
@@ -1064,7 +1060,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
-	mps->startWizard( EM::Fault::typeStr(), 0 );
+	mps->addTracker( EM::Fault::typeStr() );
 	return true;
     }
     else
@@ -1117,7 +1113,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
-	mps->startWizard( EM::Horizon::typeStr(), 0 );
+	mps->addTracker( EM::Horizon::typeStr() );
 	return true;
     }
     else
