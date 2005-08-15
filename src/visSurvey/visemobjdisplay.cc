@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.41 2005-08-12 19:34:48 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.42 2005-08-15 19:05:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -335,8 +335,9 @@ void EMObjectDisplay::updateFromMPE()
     if ( hastracker )
     {
 	useWireframe( true );
-	useTexture( true );
+	useTexture( false );
 	setResolution( nrResolutions()-1 );
+	showPosAttrib( EM::EMObject::sSeedNode, true, Color(255,255,255) );
     }
 
     if ( MPE::engine().getEditor(objid,hastracker) )
