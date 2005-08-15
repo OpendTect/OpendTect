@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.31 2005-05-10 11:25:50 cvsbert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.32 2005-08-15 16:17:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 			   "103.0.1"))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*mMkCtxtIOObj(SeisTrc))
+    	, modefld(0)
 {
     init( false );
     modeSel(0);
@@ -50,6 +51,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 			   "103.1.1"))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*mMkCtxtIOObj(SeisTrc))
+    	, modefld(0)
 {
     if ( ioobj ) inctio_.ioobj = ioobj->clone();
     init( true );
@@ -92,9 +94,10 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
     }
 
-    transffld = new uiSeisTransfer( this, true, true );
-    transffld->attach( alignedBelow, (constraintType*) modefld
-	    ? (uiGroup*) modefld : (uiGroup*) oinpfld );
+    transffld = new uiSeisTransfer( this, uiSeisTransfer::Setup()
+	    			    .withformat(true).withstep(true) );
+    transffld->attach( alignedBelow,
+	    		modefld ? (uiGroup*)modefld : (uiGroup*)oinpfld );
 
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";

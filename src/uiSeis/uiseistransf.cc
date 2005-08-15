@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.33 2005-06-02 14:11:53 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.34 2005-08-15 16:17:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,19 +30,21 @@ ________________________________________________________________________
 #include "errh.h"
 
 
-uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool fne, 
-				bool withstep, bool multi2dlines )
+uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& setup)
+	// bool with_format, bool fne, bool withstep, bool multi2dlines 
 	: uiGroup(p,"Seis transfer pars")
 	, is2d(false)
+	, isps(setup.prestack_)
 	, issteer(false)
 {
-    selfld = new uiSeisSubSel( this, fne, withstep, multi2dlines );
+    selfld = new uiSeisSubSel( this, setup.fornewentry_, setup.withstep_,
+	    				setup.multi2dlines_ );
 
-    scfmtfld = new uiSeisFmtScale( this, with_format );
+    scfmtfld = new uiSeisFmtScale( this, setup.withformat_, isps );
     scfmtfld->attach( alignedBelow, selfld );
 
     remnullfld = new uiGenInput( this, "Null traces",
-	    			BoolInpSpec("Discard","Pass") );
+				 BoolInpSpec("Discard","Pass") );
     remnullfld->attach( alignedBelow, scfmtfld );
 
     setHAlignObj( remnullfld );

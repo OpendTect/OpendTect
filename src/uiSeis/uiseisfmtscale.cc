@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.12 2004-09-07 16:24:01 bert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.13 2005-08-15 16:17:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,12 +20,13 @@ ________________________________________________________________________
 #include "uigeninput.h"
 
 
-uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt )
+uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt, bool ps )
 	: uiGroup(p,"Seis format and scale")
 	, imptypefld(0)
 	, optimfld(0)
 	, is2d(false)
 	, issteer(false)
+	, isps(ps)
 {
     if ( wfmt )
 	imptypefld = new uiGenInput( this, "Storage",
@@ -35,7 +36,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt )
     if ( imptypefld )
 	scalefld->attach( alignedBelow, imptypefld );
 
-    if ( wfmt )
+    if ( wfmt && !isps )
     {
 	optimfld = new uiGenInput( this, "Optimize horizontal slice access",
 				   BoolInpSpec() );

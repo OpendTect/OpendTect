@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.8 2004-08-26 10:47:45 bert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.9 2005-08-15 16:17:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,8 @@ class uiSeisFmtScale : public uiGroup
 {
 public:
 
-			uiSeisFmtScale(uiParent*,bool with_format=true);
+			uiSeisFmtScale(uiParent*,bool with_format=true,
+						 bool prestack=false);
     void		updateFrom(const IOObj&);
 
     Scaler*		getScaler() const;
@@ -35,6 +36,7 @@ public:
     void		set2D(bool);
     bool		isSteer() const		{ return issteer; }
     void		setSteering(bool);
+    bool		isPS() const		{ return isps; }
 
 protected:
 
@@ -44,6 +46,7 @@ protected:
 
     bool		is2d;
     bool		issteer;
+    bool		isps;
 
     void		updFldsForType(CallBacker*);
 

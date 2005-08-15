@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.19 2005-06-02 14:11:52 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.20 2005-08-15 16:17:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,25 @@ class uiSeisTransfer : public uiGroup
 {
 public:
 
-			uiSeisTransfer(uiParent*,bool with_format,
-				       bool for_new_entry,bool withstep=true,
-				       bool multi2dlines=false);
+    class Setup
+    {
+    public:
+			Setup()
+			    : withformat_(true)	//!< Can user select storage?
+			    , withstep_(true) //!< Can user specify steps?
+			    , multi2dlines_(false) //!< Allow 'all' lines (2D)
+			    , fornewentry_(true) //!< New line or existing (2D)
+			    , prestack_(false) //!< Pre-Stack seismics?
+			    			{}
 
+	mDefSetupMemb(bool,withformat)
+	mDefSetupMemb(bool,fornewentry)
+	mDefSetupMemb(bool,withstep)
+	mDefSetupMemb(bool,multi2dlines)
+	mDefSetupMemb(bool,prestack)
+    };
+
+			uiSeisTransfer(uiParent*,const Setup&);
     void		updateFrom(const IOObj&);
 
     Executor*		getTrcProc(const IOObj& from,const IOObj& to,
@@ -47,6 +62,7 @@ public:
     void		set2D(bool);
     bool		isSteer() const		{ return issteer; }
     void		setSteering(bool);
+    bool		isPS() const		{ return isps; }
     void		getSelData(SeisSelData&) const;
     SeisResampler*	getResampler() const; //!< may return null
 
@@ -58,6 +74,7 @@ public:
 protected:
 
     bool		is2d;
+    bool		isps;
     bool		issteer;
 
     void		updFldsForType(CallBacker*);
