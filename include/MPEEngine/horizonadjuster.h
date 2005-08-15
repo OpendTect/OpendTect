@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.2 2005-08-10 10:40:56 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.3 2005-08-15 07:32:24 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,11 +86,9 @@ protected:
                                 int startsample, int endsample,
 				const float* refval,
 				float &matchratio, bool& eqfromstart );
-    float		nearestExtreme( float *srctrc, int nrsamples,
+    float 		nearestZeroEvent( float* srctrc, int nrsamples,
     				int startpos, VSEvent::Type );
-    float 		nearestZeroEvent( float *srctrc, int nrsamples,
-    				int startpos, VSEvent::Type );
-    float 		firstZeroEvent( const float *srctrc, int startsample,
+    float 		firstZeroEvent( const float* srctrc, int startsample,
     				int endsample, VSEvent::Type );
 private:
     void		initTrackParam();
