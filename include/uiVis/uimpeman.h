@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.10 2005-07-21 13:42:56 cvsduntao Exp $
+ RCS:           $Id: uimpeman.h,v 1.11 2005-08-15 16:05:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,6 @@ protected:
     uiVisPartServer*		visserv;
 
     visSurvey::SeedEditor*	seededitor;
-    visSurvey::PickSetDisplay*	seeddisplayer;
 
     uiComboBox*			attribfld;
     uiSlider*			transfld;
@@ -99,7 +98,6 @@ protected:
     bool			init;
     
 private:
-    void			showSeeds(bool);
     bool			picknewseeds;
     				// indicator, whom seed picking is invoked by
 				// false - by program, true - by user
