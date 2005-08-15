@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.3 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.4 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     todofld = new uiAttrSel( uppgrp, "Quantity to output", attrdata );
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
-    transffld = new uiSeisTransfer( uppgrp, true, false, false, true );
+    transffld = new uiSeisTransfer( uppgrp, uiSeisTransfer::Setup()
+	    	.fornewentry(false).withstep(false).multi2dlines(true) );
     transffld->attach( alignedBelow, todofld );
     transffld->selfld->notifySing2DLineSel(
 	    		mCB(this,uiAttrVolOut,singLineSel) );

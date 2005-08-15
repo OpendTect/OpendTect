@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.5 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,9 +62,9 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p )
     statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
 
     table = new uiTable( this, uiTable::Setup().rowdesc("Gate")
-					       .rowcangrow()
-					       .defrowlbl()
-					       .fillcol()
+					       .rowgrow(true)
+					       .defrowlbl("")
+					       .fillcol(true)
 					       .maxrowhgt(1) );
 
     BufferString lblstart = "Start "; lblstart += SI().getZUnit();

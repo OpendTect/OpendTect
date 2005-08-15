@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.10 2004-03-02 13:29:34 nanne Exp $
+ RCS:           $Id: uislider.h,v 1.11 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,16 +88,11 @@ public:
 			    , nrdec_(0)
 			    , logscale_(false)
 			    {}
-				
-	#define mSetVar(var,val) var=val; return *this
-	Setup&		withedit(bool yn=true)	{ mSetVar(withedit_,yn); }
-	Setup&		nrdec(int dec)		{ mSetVar(nrdec_,dec); }
-	Setup&		logscale(bool yn=true)	{ mSetVar(logscale_,yn); }
 
-	const char*	lbl_;
-	bool		withedit_;
-	int		nrdec_;
-	bool		logscale_;
+	mDefSetupMemb(bool,withedit)
+	mDefSetupMemb(bool,logscale)
+	mDefSetupMemb(int,nrdec)
+	mDefSetupMemb(BufferString,lbl)
     };
 
                 	uiSliderExtra(uiParent*,const Setup&,

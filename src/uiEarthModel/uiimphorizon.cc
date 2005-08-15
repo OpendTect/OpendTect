@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.52 2005-04-28 09:01:18 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.53 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     , emobjid(-1)
 {
     infld = new uiFileInput( this, "Input Ascii file", 
-	    		     uiFileInput::Setup().withexamine() );
+	    		     uiFileInput::Setup().withexamine(true) );
     infld->setSelectMode( uiFileDialog::ExistingFiles );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
@@ -66,7 +66,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     grp->attach( alignedBelow, scanbut );
 
     subselfld = new uiBinIDSubSel( grp, uiBinIDSubSel::Setup()
-	    			   .withz(false).withstep(true).rangeonly() );
+			       .withz(false).withstep(true).rangeonly(true) );
     subselfld->attach( alignedBelow, xyfld );
 
     BufferString scalelbl( SI().zIsTime() ? "Z " : "Depth " );

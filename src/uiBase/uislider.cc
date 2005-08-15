@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.19 2004-05-07 16:41:45 nanne Exp $
+ RCS:           $Id: uislider.cc,v 1.20 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,7 +229,7 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
     slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_ );
     slider->setOrientation( uiSlider::Horizontal );
 
-    if ( setup.lbl_ )
+    if ( setup.lbl_ != "" )
 	lbl = new uiLabel( this, setup.lbl_, slider );
 
     if ( setup.withedit_ )

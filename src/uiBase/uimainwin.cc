@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.95 2005-07-18 15:55:30 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.96 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -601,7 +601,7 @@ public:
     void		enableSaveButton( const char* txt )
 			    { 
 				setup.savetext_ = txt; 
-				setup.savebutton_ = uiDialog::Setup::CheckBox; 
+				setup.savebutton_ = true;
 			    }
     void		setSaveButtonChecked( bool yn )
 			    { setup.savechecked_ = yn;
@@ -858,7 +858,7 @@ uiObject* uiDialogBody::createChildren()
 
     if ( setup.savebutton_ && setup.savetext_ != "" )
     {
-	if ( setup.savebutton_ == uiDialog::Setup::PushButton )
+	if ( setup.savebutispush_ )
 	    saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_);
 	else
 	{

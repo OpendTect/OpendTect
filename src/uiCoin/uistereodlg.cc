@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uistereodlg.cc,v 1.5 2004-03-02 13:31:04 nanne Exp $
+ RCS:           $Id: uistereodlg.cc,v 1.6 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<uiSoViewer>& vwrs_ )
 	, vwrs(vwrs_)
 {
     sliderfld = new uiSliderExtra( this, 
-	    		uiSliderExtra::Setup("Stereo offset").withedit() );
+	    		uiSliderExtra::Setup("Stereo offset").withedit(true) );
     sliderfld->sldr()->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
 
     finaliseStart.notify( mCB(this,uiStereoDlg,doFinalise) );

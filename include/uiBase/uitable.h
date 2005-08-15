@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.23 2005-03-16 07:34:04 cvsduntao Exp $
+ RCS:           $Id: uitable.h,v 1.24 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,12 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "color.h"
 
-class BufferStringSet;
 class uiLabel;
+class ioPixmap;
 class uiTableBody;
 class UserInputObj;
-class ioPixmap;
-class BufferString;
 class uiMouseEvent;
+class BufferStringSet;
 
 
 class uiTable : public uiObject
@@ -44,10 +43,10 @@ public:
     enum SelectionMode
     {
 	NoSelection,	//!< No cell can be selected by the user.
-	Single,		//!< The user may only select a single range of cells.
-	Multi,		//!< The user may select multiple ranges of cells.
-	SingleRow,	//!< The user may select one row at once.
-	MultiRow,	//!< The user may select multiple rows.
+	Single,		//!< a single range of cells.
+	Multi,		//!< multiple ranges of cells.
+	SingleRow,	//!< one row at once.
+	MultiRow,	//!< multiple rows.
     };
 
     class Setup
@@ -55,59 +54,44 @@ public:
     public:
 
 		    Setup()
-			: size_( -1, -1 )
-			, rowgrow_(false)
-			, colgrow_(false)
-			, rowdesc_("Row")
+			: size_(-1,-1)
+			, rowdesc_("Row")	
 			, coldesc_("Column")
-			, fillrow_(false)
-			, fillcol_(false)
-			, minrowhgt_( 1 )
-			, maxrowhgt_( 3 )
-			, mincolwdt_( uiObject::baseFldSize() )
-			, maxcolwdt_( 2.3 * uiObject::baseFldSize() )
+			, rowgrow_(false) //!< can extra rows be added by user?
+			, colgrow_(false) //!< can extra cols be added by user?
+			, fillrow_(false) //!< adjust cell height to avail space
+			, fillcol_(false) //!< adjust cell width to avail space
+			, minrowhgt_( 1 ) //!< units of font height
+			, maxrowhgt_( 3 ) //!< units of font height
+			, mincolwdt_(uiObject::baseFldSize())
+					  //!< units of font
+			, maxcolwdt_(2.3*uiObject::baseFldSize())
+					  //!< units of font
 			, selmode_( NoSelection )
 			, snglclkedit_( true )
 			, defcollbl_(false)
 			, defrowlbl_(false)
-			, manualresize_(false)		{}
+			, manualresize_(false)
+					//!< if not, adapt size of cells auto
+				{}
 
-#define mSetVar(var) { var=s; return *this; }
-	Setup& size(const Size& s)		mSetVar(size_)
-	Setup& rowdesc(const char* s)		mSetVar(rowdesc_)
-	Setup& coldesc(const char* s)		mSetVar(coldesc_)
-	Setup& rowcangrow(bool s=true)		mSetVar(rowgrow_)
-	Setup& colcangrow(bool s=true)		mSetVar(colgrow_)
-	Setup& fillrow(bool s=true)		mSetVar(fillrow_)
-	Setup& fillcol(bool s=true)		mSetVar(fillcol_)
-	Setup& maxrowhgt(float s)		mSetVar(maxrowhgt_)
-	Setup& minrowhgt(float s)		mSetVar(minrowhgt_)
-	Setup& maxcolwdt(float s)		mSetVar(maxcolwdt_)
-	Setup& mincolwdt(float s)		mSetVar(mincolwdt_)
-	Setup& selmode(SelectionMode s)		mSetVar(selmode_)
-	Setup& singleclickedit(bool s=true)	mSetVar(snglclkedit_)
-	Setup& defrowlbl(bool s=true)		mSetVar(defrowlbl_)
-	Setup& defcollbl(bool s=true)		mSetVar(defcollbl_)
-	Setup& manualResize(bool s=true)	mSetVar(manualresize_)
-#undef mSetVar
+	mDefSetupMemb(Size,size)
+	mDefSetupMemb(BufferString,rowdesc)
+	mDefSetupMemb(BufferString,coldesc)
+	mDefSetupMemb(bool,rowgrow)
+	mDefSetupMemb(bool,colgrow)
+	mDefSetupMemb(bool,fillrow)
+	mDefSetupMemb(bool,fillcol)
+	mDefSetupMemb(float,maxrowhgt)
+	mDefSetupMemb(float,minrowhgt)
+	mDefSetupMemb(float,maxcolwdt)
+	mDefSetupMemb(float,mincolwdt)
+	mDefSetupMemb(SelectionMode,selmode)
+	mDefSetupMemb(bool,snglclkedit)
+	mDefSetupMemb(bool,defrowlbl)
+	mDefSetupMemb(bool,defcollbl)
+	mDefSetupMemb(bool,manualresize)
 
-
-	Size		size_;
-	BufferString	rowdesc_;
-	BufferString	coldesc_;
-	bool		rowgrow_; //!< can extra rows be added by user?
-	bool		colgrow_; //!< can extra columns be added by user?
-	bool		fillrow_; //!< grow cell heights to fill up avail space
-	bool		fillcol_; //!< grow cell widths to fill up avail space
-	float		minrowhgt_; //!< expressed in multiples of font height
-	float		maxrowhgt_; //!< expressed in multiples of font height
-	float		mincolwdt_; //!< times average font width
-	float		maxcolwdt_; //!< times average font width
-	SelectionMode	selmode_;
-	bool		snglclkedit_;
-	bool		defrowlbl_;
-	bool		defcollbl_;
- 	bool		manualresize_; //!< adapt size of cells to avail space
     };
 
                         uiTable(uiParent*, const Setup&,const char* nm="Table");
@@ -119,7 +103,6 @@ public:
     void		clearCell(const RowCol&);
     void		clearTable();
     void		setCurrentCell( const RowCol& );
-
 
     int			nrRows() const;
     int			nrCols() const;
@@ -166,11 +149,9 @@ public:
     void		insertColumns( const RowCol& rc, int count = 1 )
 			    { insertColumns( rc.col, count ); }
     void		removeRow( int row );
-    void		removeRow( const RowCol& rc )
-			    { removeRow( rc.row ); }
+    void		removeRow( const RowCol& rc )	 { removeRow( rc.row ); }
     void		removeColumn( int col );
-    void		removeColumn( const RowCol& rc )
-			    { removeColumn( rc.col ); }
+    void		removeColumn( const RowCol& rc ) { removeColumn( rc.col ); }
 
     bool		isRowSelected(int row);
     bool		isColumnSelected(int col);

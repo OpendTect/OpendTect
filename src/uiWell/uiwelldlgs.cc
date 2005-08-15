@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.27 2004-12-28 16:17:15 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.28 2005-08-15 16:17:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     	, track(t)
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-	    				       .rowcangrow() 
-					       .defrowlbl() );
+	    				       .rowgrow(true) 
+					       .defrowlbl("") );
     table->setColumnLabels( mrkrcollbls );
     table->setColumnReadOnly( 2, true );
     table->setNrRows( initnrrows );
@@ -213,8 +213,8 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
     	, orgd2t(new Well::D2TModel(*d.d2TModel()))
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Control Pt")
-	    				       .rowcangrow() 
-					       .defrowlbl(), "Table" );
+	    				       .rowgrow(true) 
+					       .defrowlbl(""), "Table" );
     table->setColumnLabels( t2dcollbls );
     table->setNrRows( initnrrows );
 
@@ -301,7 +301,7 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
 {
     lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
 			      uiFileInput::Setup().filter(lasfilefilt)
-			      			  .withexamine() );
+			      			  .withexamine(true) );
     lasfld->setDefaultSelectionDir( GetDataDir() );
     lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
 

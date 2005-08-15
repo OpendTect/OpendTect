@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.7 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ using namespace Attrib;
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm )
     : uiDialog(p,uiDialog::Setup("Attribute Set","","101.0.0")
-	.savebutton().savetext("Save on OK  ")
+	.savebutton(true).savetext("Save on OK  ")
 	.menubar(true)
 	.modal(false))
     , inoutadsman(adsm)

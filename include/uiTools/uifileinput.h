@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.18 2005-05-26 15:43:09 cvsnanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.19 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,20 +39,14 @@ public:
 			    , filter_("")
 			    , forread_(true)
 			    , withexamine_(false)
-			    , dirs_(false)
+			    , directories_(false)
 			    {}
 	BufferString	fnm;
-	BufferString	filter_;
-	bool		forread_;
-	bool		withexamine_;
-	bool		dirs_;
+	mDefSetupMemb(BufferString,filter)
+	mDefSetupMemb(bool,forread)
+	mDefSetupMemb(bool,withexamine)
+	mDefSetupMemb(bool,directories)
 	
-	#define mSetVar(var,val) var=val; return *this
-	Setup&		filter(const char* s)	  { mSetVar(filter_,s); }
-	Setup&		forread(bool yn=true)	  { mSetVar(forread_,yn); }
-	Setup&		withexamine(bool yn=true) { mSetVar(withexamine_,yn); }
-	Setup&		directories(bool yn=true) { mSetVar(dirs_,yn); }
-        #undef mSetVar
     };
 
     			uiFileInput(uiParent*,const char* seltxt,

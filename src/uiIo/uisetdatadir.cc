@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.14 2005-04-15 14:23:15 cvsnanne Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.15 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     const char* basetxt = oldok ? "OpendTect Data Root Directory"
 				: "Location";
     basedirfld = new uiFileInput( this, basetxt,
-				  uiFileInput::Setup(basedirnm).directories() );
+			      uiFileInput::Setup(basedirnm).directories(true) );
     basedirfld->valuechanged.notify( mCB(this,uiSetDataDir,accept) );
 
     if ( !oldok )

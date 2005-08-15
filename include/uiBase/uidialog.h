@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.39 2005-07-18 15:55:30 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.40 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,18 +35,13 @@ class uiDialog : public uiMainWin
 public:
 
     /*!\brief description of properties of dialog.
-     
-	For convenience, the 'set' functions return a reference to the object.
-	This allows constructions like:
-	Setup P( "xx", "yy", "zz" ).oktext("").canceltext("Quit").modal(false);
-	This is _very_ helpful when a uiDialog base class is constructed.
+
+	see general.h for background on Setup classes.
      */
 
     class Setup
     {
     public:
-
-    enum                SaveButType { None, CheckBox, PushButton };
 
 			Setup( const char* window_title,
 			       const char* dialog_title =0,
@@ -56,33 +51,28 @@ public:
 			, helpid_(help_id), savetext_("Save defaults")
 			, oktext_("Ok"), canceltext_("Cancel")
 			, modal_(true) // if no parent given, always non-modal
-			, savebutton_(None), separator_(true)
-			, menubar_(false), nrstatusflds_(0)
+			, savebutton_(false), savebutispush_(false)
+			, separator_(true), menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
 			, fixedsize_(false)
 			{}
 
-	BufferString	wintitle_, dlgtitle_, helpid_;
-	BufferString	savetext_, oktext_, canceltext_;
-	bool		modal_, separator_, savechecked_;
-	bool		menubar_, mainwidgcentered_, fixedsize_;
-	SaveButType	savebutton_;
-	int		nrstatusflds_;
-
-	Setup&	savetext( const char* s )   { savetext_ = s;    return *this; }
-	Setup&	oktext( const char* s )     { oktext_ = s;      return *this; }
-	Setup&	canceltext( const char* s ) { canceltext_ = s;  return *this; }
-	Setup&	modal( bool yn=true )       { modal_ = yn;      return *this; }
-	Setup&	savebutton( SaveButType tp=CheckBox )
-					    { savebutton_ = tp; return *this; }
-	Setup&	separator( bool yn=true )   { separator_ = yn;  return *this; }
-	Setup&	menubar( bool yn=true )     { menubar_ = yn;    return *this; }
-	//! nrstatusflds == -1: Do make a statusbar, but don't add msg fields.
-	Setup&	nrstatusflds( int nr=1 )    { nrstatusflds_= nr; return *this; }
-	Setup&	savechecked( bool yn=true ) { savechecked_ = yn; return *this; }
-	Setup&	mainwidgcentered( bool yn=false ) 
-				    { mainwidgcentered_ = yn; return *this; }
-	Setup&	fixedsize( bool yn=true )  { fixedsize_ = yn; return *this; }
+	mDefSetupMemb(BufferString,wintitle)
+	mDefSetupMemb(BufferString,dlgtitle)
+	mDefSetupMemb(BufferString,helpid)
+	mDefSetupMemb(BufferString,savetext)
+	mDefSetupMemb(BufferString,oktext)
+	mDefSetupMemb(BufferString,canceltext)
+	mDefSetupMemb(bool,modal)
+	mDefSetupMemb(bool,savebutton)
+	mDefSetupMemb(bool,savebutispush)
+	mDefSetupMemb(bool,separator)
+	mDefSetupMemb(bool,savechecked)
+	mDefSetupMemb(bool,menubar)
+	mDefSetupMemb(bool,mainwidgcentered)
+	mDefSetupMemb(bool,fixedsize)
+	mDefSetupMemb(int,nrstatusflds)
+	    //! nrstatusflds == -1: Make a statusbar, but don't add msg fields.
 
     };
 

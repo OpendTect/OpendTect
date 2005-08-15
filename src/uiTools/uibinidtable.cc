@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.7 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.8 2005-08-15 16:17:29 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ void uiBinIDTable::init( int nrrows )
     colnms += new BufferString("Inline");
     colnms += new BufferString("Crossline");
 
-    table = new uiTable( this, uiTable::Setup().rowdesc("Node").rowcangrow(),
+    table = new uiTable( this, uiTable::Setup().rowdesc("Node").rowgrow(true),
 		         "Table" );
 
 

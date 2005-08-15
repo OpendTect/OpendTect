@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.9 2004-07-14 15:48:05 nanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.10 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,28 +170,22 @@ public:
 				Setup( const char* txt=0, 
 				       uiListViewItem::Type tp = 
 					    uiListViewItem::Standard  )
-				: type_(tp), after_(0)
+				: type_(tp)
+				, after_(0)
 				, pixmap_(0)
 				{ label( txt ); }
 
-	Setup&			type( uiListViewItem::Type tp )
-				    { type_ = tp;  return *this; }
-	Setup& 			after( uiListViewItem* aft ) 
-				    { after_ = aft; return *this; }
+	mDefSetupMemb(uiListViewItem::Type,type)
+	mDefSetupMemb(uiListViewItem*,after)
+	mDefSetupMemb(const ioPixmap*,pixmap)
+	BufferStringSet		labels_;
+
 	Setup& 			label( const char* txt ) 
 				{ 
 				    if( txt ) 
 					labels_ += new BufferString( txt ); 
 				    return *this; 
 				}
-	Setup& 			pixmap( const ioPixmap* pm )
-				    { pixmap_ = pm; return *this; }
-
-	uiListViewItem::Type	type_;
-	uiListViewItem*		after_;
-	BufferStringSet		labels_;
-	const ioPixmap*		pixmap_;
-
     };
 
 
@@ -200,9 +194,6 @@ public:
 
 			uiListViewItem( uiListViewItem* parent, const Setup& ); 
 			uiListViewItem( uiListView* parent, const Setup& );
-
-
-    //Type		type() const		{ return type_; }
 
     bool		isCheckable() const;
     void		setChecked( bool ); //!< does nothing if not checkable
@@ -232,7 +223,6 @@ public:
     virtual const char* key( int, bool ) const		{ return 0; }
     virtual int		compare( uiListViewItem* , int column, bool ) const
 			    { return mUndefIntVal; }
-    //virtual void sortChildItems( int, bool );
 
     int			childCount() const;
 
@@ -287,7 +277,6 @@ public:
 
 protected:
 
- //   Type			type_;
     mutable BufferString	rettxt;
 
     uiListViewItemBody*		itmbody()	{ return body_; }

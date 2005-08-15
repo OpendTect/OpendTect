@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.32 2005-07-26 07:44:05 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.33 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 
 void uiIOSurface::mkRangeFld()
 {
-    rgfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withstep() );
+    rgfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withstep(true) );
 }
 
 

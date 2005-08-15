@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.24 2004-12-28 16:17:15 nanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.25 2005-08-15 16:17:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     setOkText( "Go" );
 
     infld = new uiFileInput( this, "Well Track file", 
-	    		     uiFileInput::Setup().withexamine() );
+	    		     uiFileInput::Setup().withexamine(true) );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
@@ -45,7 +45,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     if ( zistime )
     {
 	d2tfld = new uiFileInput( this, "Depth to Time model file",
-				  uiFileInput::Setup().withexamine() );
+				  uiFileInput::Setup().withexamine(true) );
 	d2tfld->setDefaultSelectionDir(
 		IOObjContext::getDataDirName(IOObjContext::WllInf) );
 	d2tfld->attach( alignedBelow, infld );

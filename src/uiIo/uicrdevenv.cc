@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.17 2005-01-17 13:03:57 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.18 2005-08-15 16:17:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
     setTitleText( titltxt );
 
     basedirfld = new uiFileInput( this, "Parent Directory",
-				  uiFileInput::Setup(basedirnm).directories() );
+			  uiFileInput::Setup(basedirnm).directories(true) );
 
     workdirfld = new uiGenInput( this, "Directory name", workdirnm );
     workdirfld->attach( alignedBelow, basedirfld );
