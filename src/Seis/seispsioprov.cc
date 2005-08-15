@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.3 2005-01-07 16:35:51 bert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.4 2005-08-15 16:15:01 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "filegen.h"
@@ -74,7 +74,7 @@ const IOObjContext& SeisPSTranslatorGroup::ioContext()
 }
 
 
-bool ODSeisPSTranslator::implRemove( const IOObj* ioobj ) const
+bool CBVSSeisPSTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     BufferString fnm( ioobj->fullUserExpr(true) );
