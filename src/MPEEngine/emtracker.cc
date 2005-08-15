@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.17 2005-08-12 10:03:06 cvsduntao Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.18 2005-08-15 07:14:00 cvsduntao Exp $";
 
 #include "emtracker.h"
 
@@ -127,14 +127,6 @@ bool EMTracker::trackIntersections( const TrackPlane& )
 { return true; }
 
 
-#define mExtendDirection(inl,crl,z) \
-extender->setDirection(BinIDValue(inl,crl,z)); \
-while ( (res=extender->nextStep())>0 )\
-		;\
-\
-if ( res==-1 ) break 
-
-
 bool EMTracker::trackInVolume()
 {
     const TypeSet<EM::PosID>* seeds = emobject
@@ -197,17 +189,7 @@ bool EMTracker::trackInVolume()
 	    if ( !currentseeds->size() )	continue;
 	    
 	    extender->setStartPositions(*currentseeds);
-//	    extender->extendInVolume(step, zstep);
-	    mExtendDirection(step.inl, 0, 0);
-	    mExtendDirection(-step.inl, 0, 0);
-	    mExtendDirection(0, step.crl, 0);
-	    mExtendDirection(0, -step.crl, 0);
-	    mExtendDirection(step.inl, step.crl,0);
-	    mExtendDirection(step.inl, -step.crl,0);
-	    mExtendDirection(-step.inl, step.crl,0);
-	    mExtendDirection(-step.inl, -step.crl,0);
-	    mExtendDirection(0,0,zstep);
-	    mExtendDirection(0,0,-zstep);
+	    extender->extendInVolume(step, zstep);
 
 	    TypeSet<EM::SubID> addedpos = extender->getAddedPositions();
 	    TypeSet<EM::SubID> addedpossrc = extender->getAddedPositionsSource();
