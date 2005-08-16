@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.27 2005-08-16 10:34:27 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.28 2005-08-16 12:36:46 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -160,12 +160,8 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 				ObjectSet<IOPar>& iops )
 {
     worktrc_ = &intrc_;
-    if ( !wrr_ )
-    {
-	curmsg_ = "Cannot find write object";
-        return false;
-    }
-    wrrkey_ = wrr_->ioObj()->key();
+    if ( wrr_ )
+	wrrkey_ = wrr_->ioObj()->key();
     currentobj_ = 0;
 
     totnr_ = 0;
@@ -179,14 +175,14 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	    delete rdr_;
 	    return false;
 	}
-	if ( wrr_->ioObj()->key() == rdr_->ioObj()->key() )
+	const bool is3d = !rdr_->is2D();
+	if ( wrr_ && is3d && wrr_->ioObj()->key() == rdr_->ioObj()->key() )
 	{
 	    curmsg_ = "Input and output are the same.";
 	    delete rdr_;
 	    return false;
 	}
 
-	const bool is3d = !rdr_->is2D();
 	bool szdone = false;
 	if ( iops.size() > idx && iops[idx] )
 	{
@@ -197,7 +193,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 		szdone = true;
 	    }
 	}
-	if ( is3d && !szdone )
+	if ( is3d && !pswrr_ && !szdone )
 	{
 	    CubeSampling cs;
 	    if ( SeisTrcTranslator::getRanges(*ioobjs[idx],cs) )
@@ -224,7 +220,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 void SeisSingleTraceProc::nextObj()
 {
     rdrset_[currentobj_]->prepareWork();
-    if ( wrr_->is2D() )
+    if ( wrr_ && wrr_->is2D() )
 	wrr_->setLineKeyProvider(
 		    rdrset_[currentobj_]->lineKeyProvider(attrnm2d_.buf()) );
 }
