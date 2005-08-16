@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.27 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.28 2005-08-16 12:33:58 cvsdgb Exp $";
 
 
 #include "segyhdr.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.27 2005-05-18 09:20:45 cvsbert E
 #include "settings.h"
 #include "seisinfo.h"
 #include "cubesampling.h"
+#include "msgh.h"
 #include <string.h>
 #include <ctype.h>
 #include <iostream>
@@ -595,6 +596,33 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     double scale = getCoordScale( extcoordsc );
     ti.coord.x *= scale;
     ti.coord.y *= scale;
+
+    // Hack to enable shifts
+    static bool false_stuff_got = false;
+    static double false_easting = 0;
+    static double false_northing = 0;
+    if ( !false_stuff_got )
+    {
+	false_stuff_got = true;
+	const char* env = getenv( "OD_SEGY_FALSE_EASTING" );
+	if ( env )
+	{
+	    false_easting = atof( env );
+	    BufferString usrmsg( "This OD run SEG-Y a false easting of " );
+	    usrmsg += false_easting; usrmsg += " will be applied";
+	    UsrMsg( usrmsg );
+	}
+	env = getenv( "OD_SEGY_FALSE_NORTHING" );
+	if ( env )
+	{
+	    false_northing = atof( env );
+	    BufferString usrmsg( "This OD run SEG-Y a false northing of " );
+	    usrmsg += false_northing; usrmsg += " will be applied";
+	    UsrMsg( usrmsg );
+	}
+    }
+    ti.coord.x += false_easting;
+    ti.coord.y += false_northing;
 }
 
 
