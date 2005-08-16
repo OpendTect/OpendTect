@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.17 2005-08-04 15:17:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.18 2005-08-16 15:22:32 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -95,7 +95,7 @@ void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
 	sliceset->direction = desiredvolume.defaultDir();
 #define mGetDim(nr) \
         const int dim##nr = \
-	    desiredvolume.size( direction ( sliceset->direction, nr) )
+	    desiredvolume.size( direction(sliceset->direction,nr) )
 		
 	mGetDim(0); mGetDim(1); mGetDim(2);
 	for ( int idx=0; idx<dim0; idx++ )
@@ -105,6 +105,9 @@ void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
 	    for ( int idx=0; idx<desoutputs.size()-1; idx++ )
 		*sliceset += new Attrib::Slice( dim1, dim2, udfval );
     }
+
+    if ( !sliceset->sampling.hrg.includes(bid) )
+	return;
 
     int i0, i1, i2;
     int sampleoffset = mNINT(sliceset->sampling.zrg.start/refstep);
