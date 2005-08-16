@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.16 2005-07-21 11:30:52 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.17 2005-08-16 12:14:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "multiid.h"
-#include "position.h"
 #include "menuhandler.h"
 
 class BufferString;
@@ -49,9 +48,9 @@ public:
 	    				   BufferStringSet&) const;
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
-    MenuItem*		storedGathersSubMenu();
-    BufferStringSet 	getStoredGathersList ();
-    bool		handleGatherSubMenu (int mnuid, BinID bid);
+    MenuItem*		storedGathersSubMenu(bool createnew);
+    BufferStringSet 	getStoredGathersList() const;
+    bool		handleGatherSubMenu(int mnuid,const BinID&);
 
     void		manageSeismics();
 

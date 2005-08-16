@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.93 2005-08-12 21:53:16 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.94 2005-08-16 12:15:12 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1591,7 +1591,7 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     int type = menu->getMenuType();
     if ( type==uiMenuHandler::fromScene )
     {
-	MenuItem* displaygathermnu = seisserv->storedGathersSubMenu();
+	MenuItem* displaygathermnu = seisserv->storedGathersSubMenu( true );
 	if ( displaygathermnu )
 	{
 	    mAddMenuItem( menu, displaygathermnu, displaygathermnu->nrItems(),
@@ -1628,15 +1628,10 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else
     {
-	uiSeisPartServer* seisserv = applMgr()->seisServer();
-	MenuItem* gathermnuitem = seisserv->storedGathersSubMenu();
-	if ( gathermnuitem && gathermnuitem->itemIndex(mnuid)!=-1 )
-	{
-	    menu->setIsHandled(true);
-	    const Coord3 inlcrlpos = visserv->getMousePos(false);
-	    const BinID bid( (int)inlcrlpos.x, (int)inlcrlpos.y );
-	    seisserv->handleGatherSubMenu( mnuid,bid);
-	}
+	menu->setIsHandled(true);
+	const Coord3 inlcrlpos = visserv->getMousePos(false);
+	const BinID bid( (int)inlcrlpos.x, (int)inlcrlpos.y );
+	applMgr()->seisServer()->handleGatherSubMenu( mnuid, bid );
     }
 }
 

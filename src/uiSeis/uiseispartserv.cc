@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.34 2005-07-21 11:30:52 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.35 2005-08-16 12:15:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,17 +156,16 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 }
 
 
-BufferStringSet uiSeisPartServer::getStoredGathersList()
+BufferStringSet uiSeisPartServer::getStoredGathersList() const
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
-    BufferStringSet ioobjnms;
 
-    const char* psstring = "Pre-Stack Seismics";
+    BufferStringSet ioobjnms;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	if ( strcmp(ioobj.group(),psstring) ) continue;
+	if ( strcmp(ioobj.group(),sKey::PSSeis) ) continue;
 	ioobjnms.add( (const char*)ioobj.name() );
 	if ( ioobjnms.size() > 1 )
 	{
@@ -181,26 +180,20 @@ BufferStringSet uiSeisPartServer::getStoredGathersList()
     return ioobjnms;
 }
 
-#define mInsertItems(list,mnu,correcttype) \
-mnu->setEnabled( list.size() ); \
-    for ( int idx=start; idx<stop; idx++ ) \
-{ \
-    const BufferString& nm = list.get(idx); \
-    uiMenuItem* itm = new uiMenuItem( nm ); \
-    mnu->insertItem( itm, mnuid, idx ); \
-    mnuid++; \
-}
 
-
-MenuItem* uiSeisPartServer::storedGathersSubMenu()
+MenuItem* uiSeisPartServer::storedGathersSubMenu( bool createnew )
 {
-    storedgathermenuitem.removeItems();
-    storedgathermenuitem.createItems(getStoredGathersList());
+    if ( createnew )
+    {
+	storedgathermenuitem.removeItems();
+	storedgathermenuitem.createItems( getStoredGathersList() );
+    }
+
     return &storedgathermenuitem;
 }
 	    
 
-bool uiSeisPartServer::handleGatherSubMenu( int mnuid, BinID bid )
+bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 {
     const int mnuindex = storedgathermenuitem.itemIndex(mnuid);
     if ( mnuindex==-1 ) return true;
