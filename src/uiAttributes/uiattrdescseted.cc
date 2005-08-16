@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.7 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.8 2005-08-16 10:06:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "bufstringset.h"
 #include "uifileinput.h"
+#include "uiattribcrossplot.h"
 
 
 extern "C" const char* GetBaseDataDir();
@@ -117,6 +118,7 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "showattrnow.png", directShow, 
 	    	"Redisplay element with current attribute");
     mAddButton( "evalattr.png", evalAttribute, "Evaluate attribute" );
+    mAddButton( "xplot.png", crossPlot, "Cross-Plot attributes" );
     toolbar->display();
 }
 
@@ -800,6 +802,15 @@ void uiAttribDescSetEd::importFile( CallBacker* )
     uiFileInpDlg dlg( this );
     if ( dlg.go() )
 	importFromFile( dlg.fileName() );
+}
+
+
+void uiAttribDescSetEd::crossPlot( CallBacker* )
+{
+    if ( !adsman || !adsman->descSet() ) return;
+
+    uiAttribCrossPlot dlg( this, *adsman->descSet() );
+    dlg.go();
 }
 
 

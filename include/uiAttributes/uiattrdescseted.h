@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.1 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.2 2005-08-16 10:06:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ protected:
     void		defaultSet(CallBacker*);
     void		importSet(CallBacker*);
     void		importFile(CallBacker*);
+    void		crossPlot(CallBacker*);
     void		directShow(CallBacker*);
     void		evalAttribute(CallBacker*);
     void		importFromFile(const char*);
