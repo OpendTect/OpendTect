@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.11 2005-07-13 13:29:48 cvsdgb Exp $
+ RCS:		$Id: keystrs.h,v 1.12 2005-08-16 11:12:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ namespace sKey
     extern const char*	Name		mImpl("Name");
     extern const char*	No		mImpl("No");
     extern const char*	Pars		mImpl("Parameters");
+    extern const char*	PSSeis		mImpl("Pre-Stack Seismics");
     extern const char*	Range		mImpl("Range");
     extern const char*	Steering	mImpl("Steering");
     extern const char*	Table		mImpl("Table");
