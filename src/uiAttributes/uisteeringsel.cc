@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.7 2005-08-16 10:05:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,8 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 	inpfld_->setDesc( ad->getInput(0) );
 	inpfld_->updateHistory( inpselhist );
     }
+    else
+	return;
 
     typfld_->setValue( type );
 
