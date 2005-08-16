@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.37 2005-07-31 05:06:39 cvsduntao Exp $
+ RCS:		$Id: emobject.h,v 1.38 2005-08-16 18:09:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,16 @@ public:
 };
 
 
+class EMObjectIterator
+{
+public:
+    virtual		~EMObjectIterator() {}
+    virtual EM::PosID	getNext() 		= 0;
+    			/*!<posid.objectID()==-1 when there are no more pids*/
+};
+
+
+
 /*!\brief Earth Model Object */
 
 class EMObject : public CallBacker
@@ -90,6 +100,11 @@ public:
     				/*!< Gives positions on the object that are
 				     linked to the posid given
 				*/
+
+    virtual EMObjectIterator*	createIterator( const EM::SectionID& ) const
+				{ return 0; }
+    				/*!< creates an interator. If the sectionid is
+				     -1, all sections will be traversed. */
 
     virtual int			nrPosAttribs() const;
     virtual int			posAttrib(int idx) const;
