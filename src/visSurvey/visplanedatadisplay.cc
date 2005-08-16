@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.84 2005-08-04 19:25:27 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.85 2005-08-16 17:10:18 cvsbert Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -44,7 +44,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , manipulating(this)
     , moving(this)
     , curicstep(SI().inlStep(),SI().crlStep())
-    , curzstep(SI().zRange(true).step)
+    , curzstep(SI().zStep())
 {
     setTextureRect( visBase::TextureRect::create() );
 
@@ -111,8 +111,8 @@ void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
     BinID stopbid = SI().sampling(true).hrg.stop;
     StepInterval<float> vrgd = SI().zRange(true);
 
-    StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlStep(true) );
-    StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlStep(true) );
+    StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlStep() );
+    StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlStep() );
     StepInterval<float> vrg( vrgd.start, vrgd.stop, vrgd.step );
     if ( init_ )
 	trect->getRectangle().setOrigo( 
@@ -173,8 +173,8 @@ void PlaneDataDisplay::resetDraggerSizes( float appvel )
     BinID stopbid = SI().sampling(true).hrg.stop;
     StepInterval<float> vrgd = SI().zRange(true);
 
-    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlStep(true) );
-    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlStep(true) );
+    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlStep() );
+    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlStep() );
 
     float inlspacing = SI().transform(BinID(0,0)).distance(
 		       SI().transform( BinID(1,0)));
@@ -182,7 +182,7 @@ void PlaneDataDisplay::resetDraggerSizes( float appvel )
 		       SI().transform( BinID(0,1)));
 
     float baselength = ( crlrange.width() * crlspacing +
-			 SI().zRange().width()*happvel +
+			 SI().zRange(true).width()*happvel +
 			 inlrange.width() * inlspacing ) / 3;
 
     float draggerdiameter = 0.2 * baselength;
@@ -293,7 +293,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    float maxzdist = SI().zFactor()*SPM().getZScale()*SI().zRange().step / 2;
+    float maxzdist = SI().zFactor()*SPM().getZScale()*SI().zStep() / 2;
     return type == Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
 }
 

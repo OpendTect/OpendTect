@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.94 2005-08-16 12:15:12 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.95 2005-08-16 17:10:17 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -1616,9 +1616,9 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 			visserv->getObject(displayid))
 	delete positiondlg;
-	const CubeSampling& sics = SI().sampling();
+	const CubeSampling& sics = SI().sampling(true);
 	positiondlg = new uiSliceSel( getUiParent(), pdd->getCubeSampling(),
-				SI().sampling(),
+				SI().sampling(true),
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos), 
 				(uiSliceSel::Type)dim );
 	positiondlg->windowClosed.notify( 

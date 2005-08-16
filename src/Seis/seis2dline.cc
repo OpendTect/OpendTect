@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.46 2005-07-26 08:41:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.47 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -100,7 +100,7 @@ bool TwoDSeisTrcTranslator::initRead_()
 
 Line2DGeometry::Line2DGeometry()
 {
-    zrg = SI().sampling().zrg;
+    zrg = SI().sampling(false).zrg;
 }
 
 
@@ -607,7 +607,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
     cs.hrg.step.inl = cs.hrg.step.crl = 1;
     cs.hrg.start.inl = 0; cs.hrg.stop.inl = nrLines()-1;
     cs.hrg.start.crl = 0; cs.hrg.stop.crl = mUdf(int);
-    cs.zrg = SI().zRange();
+    cs.zrg = SI().zRange(false);
     const int nrlines = nrLines();
     if ( nrlines < 1 )
 	return "No lines in Line Set";

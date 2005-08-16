@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.46 2005-08-09 18:09:31 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.47 2005-08-16 17:10:18 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -94,7 +94,7 @@ void WellDisplay::fullRedraw( CallBacker* )
     TypeSet<Coord3> trackpos;
     Coord3 pt;
     StepInterval<double> sizrg;
-    assign( sizrg, SI().zRange() );
+    assign( sizrg, SI().zRange(false) );
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	pt = track.pos( idx );
@@ -217,7 +217,7 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
     Well::Track& track = wd->track();
     TypeSet<Coord3Value> crdvals;
     StepInterval<double> sizrg;
-    assign( sizrg, SI().zRange() );
+    assign( sizrg, SI().zRange(false) );
     for ( int idx=0; idx<logsz; idx++ )
     {
 	const float dah = log.dah(idx);

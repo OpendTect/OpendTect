@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.16 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.17 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -207,7 +207,7 @@ int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
 	return NO;
 
     const float scfac = 1000;
-    int iw = 0; float sr = scfac * SI().zRange().step;
+    int iw = 0; float sr = scfac * SI().zStep();
     while ( !atEndOfSection( astream.next() ) )
     {
         if ( astream.hasKeyword( sLength ) )

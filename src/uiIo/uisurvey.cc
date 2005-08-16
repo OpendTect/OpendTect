@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.61 2005-04-25 12:20:10 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.62 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -412,12 +412,12 @@ void uiSurvey::mkInfo()
 
     if ( si.sampling(false).hrg.totalNr() )
     {
-	inlinfo += si.sampling().hrg.start.inl;
-	inlinfo += " - "; inlinfo += si.sampling().hrg.stop.inl;
+	inlinfo += si.sampling(false).hrg.start.inl;
+	inlinfo += " - "; inlinfo += si.sampling(false).hrg.stop.inl;
 	inlinfo += "  step: "; inlinfo += si.inlStep();
 	
-	crlinfo += si.sampling().hrg.start.crl;
-	crlinfo += " - "; crlinfo += si.sampling().hrg.stop.crl;
+	crlinfo += si.sampling(false).hrg.start.crl;
+	crlinfo += " - "; crlinfo += si.sampling(false).hrg.stop.crl;
 	crlinfo += "  step: "; crlinfo += si.crlStep();
 
 	float inldist = si.transform( BinID(0,0) ).distance(
@@ -438,9 +438,9 @@ rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest; \
     zinfo += istime ? mNINT(1000*nr) : nr;
 
     const bool istime = si.zIsTime(); 
-    mkZString( si.zRange().start );
-    zinfo += " - "; mkZString( si.zRange().stop );
-    zinfo += "  step: "; mkZString( si.zRange().step );
+    mkZString( si.zRange(false).start );
+    zinfo += " - "; mkZString( si.zRange(false).stop );
+    zinfo += "  step: "; mkZString( si.zRange(false).step );
 
     inllbl->setText( inlinfo );
     crllbl->setText( crlinfo );

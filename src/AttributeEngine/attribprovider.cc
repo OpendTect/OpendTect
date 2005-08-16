@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.21 2005-08-12 11:12:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.22 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "attribprovider.h"
 
@@ -538,7 +538,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 {
     Interval<int> inputranges[inputs.size()][ni.size()];
 
-    float surveystep = SI().zRange().step;
+    float surveystep = SI().zStep();
     const float dz = (refstep==0) ? surveystep : refstep;
     int cssamplstart = (int)( possiblevolume->zrg.start / dz + 0.5);
     int cssamplstop = (int)( possiblevolume->zrg.stop / dz + 0.5);
@@ -984,7 +984,7 @@ void Provider::setPossibleVolume( const CubeSampling& cs)
 
 float Provider::getRefStep() const
 { 
-    return !mIsZero(refstep,mDefEps) ? refstep : SI().zRange().step; 
+    return !mIsZero(refstep,mDefEps) ? refstep : SI().zStep();
 }
 
 

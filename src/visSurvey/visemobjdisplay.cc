@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.42 2005-08-15 19:05:17 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.43 2005-08-16 17:10:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,7 +199,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	newpos = transformation->transformBack(newpos);
 
     const float tracedist = SI().transform(BinID(0,0)).distance(
-	    SI().transform(BinID(SI().inlStep(true),SI().crlStep(true))));
+	    SI().transform(BinID(SI().inlStep(),SI().crlStep())));
 
     const BinID pickedbid = SI().transform( newpos );
     TypeSet<EM::PosID> closestnodes;

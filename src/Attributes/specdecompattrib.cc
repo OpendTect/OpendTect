@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.7 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,10 +106,10 @@ void SpecDecomp::updateDesc( Desc& desc )
     const bool iscwt = type == transTypeNamesStr( mTransformTypeContinuous );
     desc.setParamEnabled( cwtwaveletStr(), iscwt );
 
-    //HERE see what to do when SI().zRange().step != refstep !!!
+    //HERE see what to do when SI().zStep() != refstep !!!
     float dfreq;
     mGetFloat( dfreq, deltafreqStr() );
-    const float nyqfreq = 0.5 / SI().zRange().step;
+    const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = mNINT( nyqfreq / dfreq );
     desc.setNrOutputs( Seis::UnknowData, nrattribs );
 }
@@ -364,7 +364,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int t0, int nrsamples ) const
     cwt.setWavelet( cwtwavelet );
     cwt.setDeltaT( refstep );
 
-    const float nyqfreq = 0.5 / SI().zRange().step;
+    const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = mNINT( nyqfreq / deltafreq );
     const float freqstop = deltafreq*nrattribs;
     cwt.setTransformRange( StepInterval<float>(deltafreq,freqstop,deltafreq) );

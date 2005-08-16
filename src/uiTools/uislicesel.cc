@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.32 2005-08-08 16:02:46 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.33 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -251,7 +251,7 @@ void doAdvance()
     if ( slcsel->isinl )
     {
 	int newval = slcsel->cs.hrg.start.inl + step;
-	if ( !SI().sampling().hrg.inlOK(newval) )
+	if ( !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel->inl0fld->box()->setValue( newval );
@@ -259,7 +259,7 @@ void doAdvance()
     else if ( slcsel->iscrl )
     {
 	int newval = slcsel->cs.hrg.start.crl + step;
-	if ( !SI().sampling().hrg.crlOK(newval) )
+	if ( !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
 	    slcsel->crl0fld->box()->setValue( newval );
@@ -267,7 +267,7 @@ void doAdvance()
     else
     {
 	float newval = slcsel->cs.zrg.start + step;
-	if ( !SI().sampling().zrg.includes(newval) )
+	if ( !SI().sampling(true).zrg.includes(newval) )
 	    stopAuto( true );
 	else
 	{
@@ -391,7 +391,7 @@ void uiSliceSel::readInput()
 	zrg.sort();
 	SI().snapZ( zrg.stop, 1 );
 	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
-	    zrg.stop += SI().zRange().step;
+	    zrg.stop += SI().zStep();
     }
 
     cs.hrg.set( inlrg, crlrg );

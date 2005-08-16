@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.3 2004-12-12 22:36:44 bert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.4 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ static const BufferStringSet emptylnms;
 
 
 uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup("Dump 2D line geometryto file",
+    : uiDialog(p,uiDialog::Setup("Dump 2D line geometry to file",
 				 "Specify parameters for 2D geometry dump",
 				 "103.1.4"))
     , ctio(*mMkCtxtIOObj(SeisTrc))
@@ -53,7 +53,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     incnrfld->attach( alignedBelow, lnmsfld );
 
     BufferString txt( "Add Z value" ); txt += SI().getZUnit(true);
-    const float zval = SI().zRange().start * SI().zFactor();
+    const float zval = SI().zRange(true).start * SI().zFactor();
     zfld = new uiGenInput( this, txt, FloatInpSpec(zval) );
     zfld->setWithCheck( true );
     zfld->attach( alignedBelow, incnrfld );

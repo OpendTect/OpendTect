@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.23 2005-07-29 13:05:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.24 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -165,7 +165,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
     	if ( mIsUndefined(dahrg.stop) ) return;
     if ( dahrg.start > dahrg.stop  ) return;
 
-    float dahincr = SI().zRange().step * .5;
+    float dahincr = SI().zStep() * .5;
     if ( SI().zIsTime() )
 	dahincr = 1000 * dahincr; // As dx = v * dt , Using v = 1000 m/s
 
@@ -240,7 +240,7 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
 	if ( mIsUndefined(pos.z) )
 	    return false;
     }
-    biv.value = SI().zRange().snap( pos.z );
+    biv.value = pos.z; SI().snapZ( biv.value );
     return true;
 }
 
@@ -336,7 +336,7 @@ int Well::LogDataExtracter::nextStep()
 }
 
 
-#define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*10 : SI().zRange().step
+#define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*10 : SI().zStep()
 
 
 void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
@@ -477,7 +477,7 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
 
     BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
     const float dtol = SI().transform(biv.binid).distance( SI().transform(b) );
-    const float ztol = SI().zRange().step * 5;
+    const float ztol = SI().zStep() * 5;
     const float startdah = track.dah(0);
     const float dahstep = wl.dahStep(true);
 

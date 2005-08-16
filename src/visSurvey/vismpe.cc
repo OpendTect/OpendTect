@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.17 2005-07-28 10:53:51 cvshelene Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.18 2005-08-16 17:10:18 cvsbert Exp $";
 
 #include "vismpe.h"
 
@@ -160,7 +160,7 @@ void MPEDisplay::updatePlaneColor()
 
 void MPEDisplay::setCubeSampling( CubeSampling cs )
 {
-    cs.snapToSurvey( true );
+    cs.snapToSurvey();
     const Coord3 newwidth( cs.hrg.stop.inl-cs.hrg.start.inl,
 			   cs.hrg.stop.crl-cs.hrg.start.crl,
 			   cs.zrg.stop-cs.zrg.start );
@@ -191,8 +191,8 @@ CubeSampling MPEDisplay::getBoxPosition() const
     cube.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
     cube.zrg.start = center.z - width.z / 2;
     cube.zrg.stop = center.z + width.z / 2;
-    cube.zrg.step = SI().zRange().step;
-    cube.snapToSurvey(true);
+    cube.zrg.step = SI().zStep();
+    cube.snapToSurvey();
     return cube;
 }
 
@@ -204,35 +204,35 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
     const int dim = dragger_->getDim();
     if ( !dim )
     {
-	planebox.hrg.start.inl = SI().inlRange().snap(center.x);
+	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x);
 	planebox.hrg.stop.inl = planebox.hrg.start.inl;
 
-	planebox.hrg.start.crl = SI().crlRange().snap(center.y-size.y/2);
-	planebox.hrg.stop.crl =  SI().crlRange().snap(center.y+size.y/2);
+	planebox.hrg.start.crl = SI().crlRange(true).snap(center.y-size.y/2);
+	planebox.hrg.stop.crl =  SI().crlRange(true).snap(center.y+size.y/2);
 
-	planebox.zrg.start = SI().zRange().snap(center.z-size.z/2);
-	planebox.zrg.stop = SI().zRange().snap(center.z+size.z/2);
+	planebox.zrg.start = SI().zRange(true).snap(center.z-size.z/2);
+	planebox.zrg.stop = SI().zRange(true).snap(center.z+size.z/2);
     }
     else if ( dim==1 )
     {
-	planebox.hrg.start.inl = SI().inlRange().snap(center.x-size.x/2);
-	planebox.hrg.stop.inl =  SI().inlRange().snap(center.x+size.x/2);
+	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x-size.x/2);
+	planebox.hrg.stop.inl =  SI().inlRange(true).snap(center.x+size.x/2);
 
-	planebox.hrg.stop.crl = SI().crlRange().snap(center.y);
+	planebox.hrg.stop.crl = SI().crlRange(true).snap(center.y);
 	planebox.hrg.start.crl = planebox.hrg.stop.crl;
 
-	planebox.zrg.start = SI().zRange().snap(center.z-size.z/2);
-	planebox.zrg.stop = SI().zRange().snap(center.z+size.z/2);
+	planebox.zrg.start = SI().zRange(true).snap(center.z-size.z/2);
+	planebox.zrg.stop = SI().zRange(true).snap(center.z+size.z/2);
     }
     else 
     {
-	planebox.hrg.start.inl = SI().inlRange().snap(center.x-size.x/2);
-	planebox.hrg.stop.inl =  SI().inlRange().snap(center.x+size.x/2);
+	planebox.hrg.start.inl = SI().inlRange(true).snap(center.x-size.x/2);
+	planebox.hrg.stop.inl =  SI().inlRange(true).snap(center.x+size.x/2);
 
-	planebox.hrg.start.crl = SI().crlRange().snap(center.y-size.y/2);
-	planebox.hrg.stop.crl =  SI().crlRange().snap(center.y+size.y/2);
+	planebox.hrg.start.crl = SI().crlRange(true).snap(center.y-size.y/2);
+	planebox.hrg.stop.crl =  SI().crlRange(true).snap(center.y+size.y/2);
 
-	planebox.zrg.stop = SI().zRange().snap(center.z);
+	planebox.zrg.stop = SI().zRange(true).snap(center.z);
 	planebox.zrg.start = planebox.zrg.stop;
     }
 
@@ -292,9 +292,9 @@ void MPEDisplay::moveMPEPlane( int nr )
 
     const int dim = dragger_->getDim();
     Coord3 center = dragger_->center();
-    center.x = SI().inlRange().snap( center.x );
-    center.y = SI().crlRange().snap( center.y );
-    center.z = SI().zRange().snap( center.z );
+    center.x = SI().inlRange(true).snap( center.x );
+    center.y = SI().crlRange(true).snap( center.y );
+    center.z = SI().zRange(true).snap( center.z );
 
     Interval<float> sx, sy, sz;
     dragger_->getSpaceLimits( sx, sy, sz );
@@ -309,7 +309,7 @@ void MPEDisplay::moveMPEPlane( int nr )
 	else if ( dim==1 )
 	    center.y += sign * SI().crlStep();
 	else
-	    center.z += sign * SI().zRange().step;
+	    center.z += sign * SI().zStep();
 
 	if ( !sx.includes(center.x) || !sy.includes(center.y) || 
 	     !sz.includes(center.z) )
@@ -422,7 +422,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 	const bool inc = planebox.hrg.start.inl>engineplane.hrg.start.inl;
 	int& start = planebox.hrg.start.inl;
 	int& stop =  planebox.hrg.stop.inl;
-	const int step = SI().inlRange().step;
+	const int step = SI().inlStep();
 	start = stop = engineplane.hrg.start.inl + ( inc ? step : -step );
 	newplane.setMotion( inc ? step : -step, 0, 0 );
     }
@@ -431,7 +431,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 	const bool inc = planebox.hrg.start.crl>engineplane.hrg.start.crl;
 	int& start = planebox.hrg.start.crl;
 	int& stop =  planebox.hrg.stop.crl;
-	const int step = SI().crlRange().step;
+	const int step = SI().crlStep();
 	start = stop = engineplane.hrg.start.crl + ( inc ? step : -step );
 	newplane.setMotion( 0, inc ? step : -step, 0 );
     }
@@ -440,7 +440,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 	const bool inc = planebox.zrg.start>engineplane.zrg.start;
 	float& start = planebox.zrg.start;
 	float& stop =  planebox.zrg.stop;
-	const double step = SI().zRange().step;
+	const double step = SI().zStep();
 //	start = stop = engineplane.zrg.start + ( inc ? step : -step );
 	newplane.setMotion( 0, 0, inc ? step : -step );
     }

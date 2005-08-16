@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.8 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:		$Id: eventattrib.cc,v 1.9 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,15 +107,15 @@ Event::Event( Desc& desc_ )
 	}
 	else
 	{
-	    gate.start = -SGWIDTH * SI().zRange().step;
-	    gate.stop = SGWIDTH * SI().zRange().step;
+	    gate.start = -SGWIDTH * SI().zStep();
+	    gate.stop = SGWIDTH * SI().zStep();
 	}
 	
     }
     else
     {
-	gate.start = -SGWIDTH * SI().zRange().step;
-	gate.stop = SGWIDTH * SI().zRange().step;
+	gate.start = -SGWIDTH * SI().zStep();
+	gate.stop = SGWIDTH * SI().zStep();
     }
 }
 

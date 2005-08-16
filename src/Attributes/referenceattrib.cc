@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.2 2005-08-05 10:51:52 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.3 2005-08-16 17:10:17 cvsbert Exp $";
 
 
 #include "referenceattrib.h"
@@ -60,7 +60,7 @@ Reference::Reference( Desc& desc_ )
 bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 			      int t0, int nrsamples ) const
 {
-    float step = refstep ? refstep : SI().zRange().step;
+    float step = refstep ? refstep : SI().zStep();
     Coord coord;
     if ( outputinterest[0] || outputinterest[1] ) 
 	coord = SI().transform( currentbid );

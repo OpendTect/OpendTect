@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.50 2005-08-03 10:36:37 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.51 2005-08-16 17:10:18 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -66,10 +66,10 @@ RandomTrackDisplay::RandomTrackDisplay()
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
 	    				SI().sampling(true).hrg.stop.inl,
-					SI().inlStep(true) );
+					SI().inlStep() );
     const StepInterval<float> crlrange( SI().sampling(true).hrg.start.crl,
 	    				SI().sampling(true).hrg.stop.crl,
-	    				SI().crlStep(true) );
+	    				SI().crlStep() );
 
     track->setDepthInterval( Interval<float>( survinterval.start,
 					      survinterval.stop ));
@@ -234,7 +234,7 @@ void RandomTrackDisplay::removeAllKnots()
 
 #define mGetBinIDs( x, y ) \
     bool reverse = stop.x - start.x < 0; \
-    int step = inlwise ? SI().inlStep(true) : SI().crlStep(true); \
+    int step = inlwise ? SI().inlStep() : SI().crlStep(); \
     if ( reverse ) step *= -1; \
     for ( int idi=0; idi<nrlines; idi++ ) \
     { \
@@ -262,8 +262,8 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 	const_cast<RandomTrackDisplay*>(this)->bidsset += bset;
 	BinID start = bidset[idx-1];
 	BinID stop = bidset[idx];
-	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep(true) + 1);
-	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep(true) + 1);
+	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlStep() + 1);
+	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlStep() + 1);
 	bool inlwise = nrinl > nrcrl;
 	int nrlines = inlwise ? nrinl : nrcrl;
 	if ( inlwise )
@@ -361,7 +361,7 @@ void RandomTrackDisplay::getMousePosInfo( const Coord3& pos, float& val,
     int trcidx = cache.find( reqbid );
     if ( trcidx < 0 )
     {
-	const BinID step( SI().inlStep(true), SI().crlStep(true) );
+	const BinID step( SI().inlStep(), SI().crlStep() );
 	BinID bid;
 	mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
 	if ( trcidx < 0 )
@@ -424,7 +424,7 @@ BinID RandomTrackDisplay::proposeNewPos(int knotnr ) const
     res.crl = mMIN( SI().crlRange(true).stop, res.crl );
     res.crl = mMAX( SI().crlRange(true).start, res.crl );
 
-    SI().snap(res, BinID(0,0), true );
+    SI().snap(res, BinID(0,0) );
 
     return res;
 }
@@ -518,7 +518,7 @@ bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 	return false;
 
     BinID snapped( binid );
-    SI().snap(snapped, BinID(0,0), true );
+    SI().snap( snapped, BinID(0,0) );
     if ( snapped != binid )
 	return false;
 
@@ -539,7 +539,7 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
     if ( binid.crl < hs.start.crl ) binid.crl = hs.start.crl;
     if ( binid.crl > hs.stop.crl ) binid.crl = hs.stop.crl;
 
-    SI().snap( binid, BinID(0,0), true );
+    SI().snap( binid, BinID(0,0) );
     return binid;
 }
 
@@ -703,10 +703,10 @@ int RandomTrackDisplay::usePar( const IOPar& par )
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
 	    				SI().sampling(true).hrg.stop.inl,
-					SI().inlStep(true) );
+					SI().inlStep() );
     const StepInterval<float> crlrange( SI().sampling(true).hrg.start.crl,
 	    				SI().sampling(true).hrg.stop.crl,
-	    				SI().crlStep(true) );
+	    				SI().crlStep() );
 
     track->setXrange( StepInterval<float>( inlrange.start,
 		    			   inlrange.stop,

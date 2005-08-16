@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.70 2005-05-02 09:08:49 cvskris Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.71 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -626,7 +626,7 @@ bool uiSurveyInfoEditor::setRanges()
 
     StepInterval<int> irg( inlfld->getIStepInterval() );
     StepInterval<int> crg( crlfld->getIStepInterval() );
-    CubeSampling cs( survinfo->sampling() );
+    CubeSampling cs( survinfo->sampling(false) );
     HorSampling& hs = cs.hrg;
     hs.start.inl = irg.start; hs.start.crl = crg.start;
     hs.stop.inl = irg.stop;   hs.stop.crl = crg.stop;

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.22 2005-07-27 09:23:35 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.23 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -45,7 +45,7 @@ bool PickLocation::fromString( const char* s, bool doxy )
     if ( !SI().isReasonable(pos) || !doxy )
     {
 	BinID bid( mNINT(pos.x), mNINT(pos.y) );
-	SI().snap( bid, BinID(0,0), false );
+	SI().snap( bid, BinID(0,0) );
 	Coord newpos = SI().transform( bid );
 	if ( SI().isReasonable(newpos) )
 	    pos = newpos;

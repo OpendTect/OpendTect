@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.3 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: instantattrib.cc,v 1.4 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ Instantaneous::Instantaneous( Desc& desc_ )
 
 //  mGetFloatInterval( gate, gateStr() );
 //  gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
-    gate.start = -SI().zRange().step; gate.stop = SI().zRange().step;
+    gate.start = -SI().zStep(); gate.stop = SI().zStep();
 }
 
 

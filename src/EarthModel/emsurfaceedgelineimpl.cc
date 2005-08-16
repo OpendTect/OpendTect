@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.16 2005-04-15 12:26:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.17 2005-08-16 17:10:17 cvsbert Exp $";
 
 
 
@@ -108,7 +108,7 @@ bool SurfaceCutLine::shouldSurfaceTrack(int idx, const RowCol& dir) const
 float SurfaceCutLine::getMeshDist()
 {
     const SurveyInfo& survinfo( SI() );
-    const BinID step( survinfo.inlStep(true), survinfo.crlStep(true));
+    const BinID step( survinfo.inlStep(), survinfo.crlStep() );
     return survinfo.transform(BinID(0,0)).distance(survinfo.transform(step));
 }
 
@@ -404,7 +404,7 @@ bool SurfaceCutLine::isAtCuttingEdge(int idx) const
 
     const Interval<float> xinterval( ntpos.x-10, ntpos.x+10 );
     const Interval<float> yinterval( ntpos.y-10, ntpos.y+10 );
-    const StepInterval<float>& zrange = SI().zRange();
+    const StepInterval<float>& zrange = SI().zRange(false);
     const Interval<float> zinterval( zrange.start, zrange.stop );
 
     TypeSet<PosID> cuttingnodes;
@@ -913,7 +913,7 @@ bool SurfaceCutLine::getCuttingPositions( const Coord& pos,
 {
     const Interval<float> xinterval( pos.x-10, pos.x+10 );
     const Interval<float> yinterval( pos.y-10, pos.y+10 );
-    const StepInterval<float>& zrange = SI().zRange();
+    const StepInterval<float>& zrange = SI().zRange(false);
     const Interval<float> zinterval( zrange.start, zrange.stop );
 
     cuttingsurface->geometry.findPos( xinterval,yinterval,zinterval,

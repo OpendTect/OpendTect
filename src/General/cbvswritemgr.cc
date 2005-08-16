@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.30 2005-03-18 12:21:45 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.31 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -92,7 +92,7 @@ void VBrickSpec::setStd( bool yn )
     }
     else
     {
-	const int nrsamps = SI().zRange().nrSteps() + 1;
+	const int nrsamps = SI().zRange(false).nrSteps() + 1;
 	nrsamplesperslab = nrsamps / maxnrslabs;
 	if ( nrsamps % maxnrslabs )
 	    nrsamplesperslab++;

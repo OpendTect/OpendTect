@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.26 2005-07-28 10:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.27 2005-08-16 17:10:18 cvsbert Exp $";
 
 #include "vissurvobj.h"
 
@@ -138,8 +138,8 @@ void SurveyParamManager::createTransforms()
     zscaletransform->ref();
     inlcrl2displaytransform->ref();
 
-    BinID startbid = SI().sampling().hrg.start;
-    BinID stopbid = SI().sampling().hrg.stop;
+    BinID startbid = SI().sampling(true).hrg.start;
+    BinID stopbid = SI().sampling(true).hrg.stop;
     BinID firstinlinestopbid( startbid.inl, stopbid.crl );
 
     Coord startpos = SI().transform( startbid );

@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.3 2005-07-26 08:41:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.4 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -78,7 +78,7 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
 	, maxbytespsamp(bps)
 {
     if ( expectednrsamps < 0 )
-	expectednrsamps = SI().zRange().nrSteps() + 1;
+	expectednrsamps = SI().zRange(false).nrSteps() + 1;
     if ( expectednrtrcs < 0 )
 	expectednrtrcs = SI().sampling(false).hrg.totalNr();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.47 2005-05-02 09:08:48 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.48 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,29 +42,30 @@ class SurveyInfo : public UserIDObject
 
 public:
 
-    virtual		~SurveyInfo();
+			~SurveyInfo();
     			SurveyInfo(const SurveyInfo&);
     SurveyInfo&		operator =(const SurveyInfo&);
 
-    const CubeSampling&	sampling( bool work=true ) const
+    const CubeSampling&	sampling( bool work ) const
     			{ return work ? wcs_ : cs_; }
-    StepInterval<int>	inlRange(bool work=true) const;
-    StepInterval<int>	crlRange(bool work=true) const;
-    const StepInterval<float>& zRange( bool work=true ) const;
-    int			inlStep(bool work=true) const;
-    int			crlStep(bool work=true) const;
-    virtual int		maxNrTraces(bool work=false) const;
+    StepInterval<int>	inlRange(bool work) const;
+    StepInterval<int>	crlRange(bool work) const;
+    const StepInterval<float>& zRange( bool work ) const;
+    int			inlStep() const;
+    int			crlStep() const;
+    float		zStep() const;
+    int			maxNrTraces(bool work) const;
 
     void		setWorkRange( const CubeSampling& cs )
 			{ setRange(cs,true); }
 
-    void		checkInlRange(Interval<int>&,bool work=true) const;
+    void		checkInlRange(Interval<int>&,bool work) const;
 			//!< Makes sure range is inside
-    void		checkCrlRange(Interval<int>&,bool work=true) const;
+    void		checkCrlRange(Interval<int>&,bool work) const;
 			//!< Makes sure range is inside
-    void		checkZRange(Interval<float>&,bool work=true) const;
+    void		checkZRange(Interval<float>&,bool work) const;
 			//!< Makes sure range is inside
-    bool		includes(const BinID&,const float,bool work=true) const;
+    bool		includes(const BinID&,const float,bool work) const;
 			//!< Returns true when pos is inside survey-range
 
     const UnitOfMeasure* zUnit() const;
@@ -76,23 +77,22 @@ public:
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
     			//!< Factor between real and displayed unit
 
-    void		snap(BinID&,BinID direction=BinID(0,0),
-	    		     bool work=true) const;
+    void		snap(BinID&,BinID direction=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
-    void		snapStep(BinID&,BinID direction=BinID(0,0),
-	    			 bool work=true) const;
+    void		snapStep(BinID&,BinID direction=BinID(0,0)) const;
     			//!< see snap() for direction
-    void		snapZ(float&,int direction=0,bool work=true) const;
-    virtual Coord	transform( const BinID& b ) const
+    void		snapZ(float&,int direction=0) const;
+    			//!< see snap() for direction
+    Coord		transform( const BinID& b ) const
 			{ return b2c_.transform(b); }
-    virtual BinID	transform(const Coord&) const;
+    BinID		transform(const Coord&) const;
     			/*!<\note The returned BinID will be snapped according
 			  	  to the work step. */
     const RCol2Coord&	binID2Coord() const		{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
 
-    virtual Coord	minCoord(bool work=true) const;
-    virtual Coord	maxCoord(bool work=true) const;
+    Coord		minCoord(bool work) const;
+    Coord		maxCoord(bool work) const;
     bool		isReasonable(const BinID&) const;
 			//!< Checks if in or near survey
     bool		isReasonable(const Coord&) const;

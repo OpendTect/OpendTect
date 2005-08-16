@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.16 2005-07-13 15:08:14 cvsdgb Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.17 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -326,11 +326,11 @@ MultiID SeisJobExecProv::tempStorID() const
 	    iostrm->fileNumbers() = todoinls_;
 	else
 	{
-	    StepInterval<int> fnrs;
 	    // That cannot be right.
-	    fnrs.start = SI().sampling().hrg.start.inl;
-	    fnrs.stop = SI().sampling().hrg.stop.inl;
-	    fnrs.step = SI().sampling().hrg.step.inl;
+	    StepInterval<int> fnrs;
+	    fnrs.start = SI().sampling(false).hrg.start.inl;
+	    fnrs.stop = SI().sampling(false).hrg.stop.inl;
+	    fnrs.step = SI().sampling(false).hrg.step.inl;
 	    iostrm->fileNumbers() = fnrs;
 	}
 	iostrm->setFileName( fp.fullPath() );

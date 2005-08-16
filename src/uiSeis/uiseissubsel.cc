@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.29 2005-07-26 13:28:22 cvsnanne Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.30 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,7 +278,7 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
 void uiSeis2DSubSel::clear()
 {
     trcrgfld->setValue(1,0); trcrgfld->setText("",1); trcrgfld->setValue(1,2);
-    setInput( SI().zRange() );
+    setInput( SI().zRange(false) );
     selfld->setValue( true );
     if ( lnmfld )
 	lnmfld->setText( "" );

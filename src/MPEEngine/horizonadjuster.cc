@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.4 2005-08-16 15:28:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.5 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "horizonadjuster.h"
 
@@ -37,9 +37,9 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
 {
     computers_ += new AttribPositionScoreComputer();
 
-    float dist = 8 * SI().zRange().step;
+    float dist = 8 * SI().zStep();
     permzrange_ = Interval<float>(-dist,dist);
-    dist = 4 * SI().zRange().step;
+    dist /= 2;
     similaritywin_ = Interval<float>(-dist, dist);
     
     ampthreshold_ = mUndefValue;

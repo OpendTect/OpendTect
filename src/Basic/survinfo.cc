@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.68 2005-05-02 09:08:48 cvskris Exp $
+ RCS:           $Id: survinfo.cc,v 1.69 2005-08-16 17:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -244,13 +244,19 @@ StepInterval<int> SurveyInfo::crlRange( bool work ) const
 
 
 const StepInterval<float>& SurveyInfo::zRange( bool work ) const
-{ return sampling(work).zrg; }
-int SurveyInfo::inlStep( bool work ) const
-{ return sampling(work).hrg.step.inl; }
-int SurveyInfo::crlStep( bool work ) const
-{ return sampling(work).hrg.step.crl; }
+{
+    return sampling(work).zrg;
+}
+
 int SurveyInfo::maxNrTraces( bool work ) const
-{ return sampling(work).hrg.nrInl() * sampling(work).hrg.nrCrl(); }
+{
+    return sampling(work).hrg.nrInl() * sampling(work).hrg.nrCrl();
+}
+
+
+int SurveyInfo::inlStep() const { return cs_.hrg.step.inl; }
+int SurveyInfo::crlStep() const { return cs_.hrg.step.crl; }
+float SurveyInfo::zStep() const { return cs_.zrg.step; }
 
 
 void SurveyInfo::setRange( const CubeSampling& cs, bool work )
@@ -259,7 +265,10 @@ void SurveyInfo::setRange( const CubeSampling& cs, bool work )
 	wcs_ = cs;
     else
 	cs_ = cs;
+
     wcs_.limitTo( cs_ );
+    wcs_.hrg.step = cs_.hrg.step;
+    wcs_.zrg.step = cs_.zrg.step;
 }
 
 
@@ -331,8 +340,8 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
     if ( intv.stop > cs.hrg.stop.inl )   intv.stop = cs.hrg.stop.inl;
     if ( intv.stop < cs.hrg.start.inl )  intv.stop = cs.hrg.start.inl;
     BinID bid( intv.start, 0 );
-    snap( bid, BinID(1,1), work ); intv.start = bid.inl;
-    bid.inl = intv.stop; snap( bid, BinID(-1,-1), work ); intv.stop = bid.inl;
+    snap( bid, BinID(1,1) ); intv.start = bid.inl;
+    bid.inl = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.inl;
 }
 
 void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
@@ -344,8 +353,8 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
     if ( intv.stop > cs.hrg.stop.crl )   intv.stop = cs.hrg.stop.crl;
     if ( intv.stop < cs.hrg.start.crl )  intv.stop = cs.hrg.start.crl;
     BinID bid( 0, intv.start );
-    snap( bid, BinID(1,1), work ); intv.start = bid.crl;
-    bid.crl = intv.stop; snap( bid, BinID(-1,-1), work ); intv.stop = bid.crl;
+    snap( bid, BinID(1,1) ); intv.start = bid.crl;
+    bid.crl = intv.stop; snap( bid, BinID(-1,-1) ); intv.stop = bid.crl;
 }
 
 
@@ -358,8 +367,8 @@ void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
     if ( intv.start > rg.stop )  intv.start = rg.stop;
     if ( intv.stop > rg.stop )   intv.stop = rg.stop;
     if ( intv.stop < rg.start )  intv.stop = rg.start;
-    snapZ( intv.start, 1, work );
-    snapZ( intv.stop, -1, work );
+    snapZ( intv.start, 1 );
+    snapZ( intv.stop, -1 );
 }
 
 
@@ -476,9 +485,9 @@ static void doSnap( int& idx, int start, int step, int dir )
 }
 
 
-void SurveyInfo::snap( BinID& binid, BinID rounding, bool work ) const
+void SurveyInfo::snap( BinID& binid, BinID rounding ) const
 {
-    const CubeSampling& cs = sampling(work);
+    const CubeSampling& cs = sampling( false );
     const BinID& stp = cs.hrg.step;
     if ( stp.inl == 1 && stp.crl == 1 ) return;
     doSnap( binid.inl, cs.hrg.start.inl, stp.inl, rounding.inl );
@@ -486,9 +495,9 @@ void SurveyInfo::snap( BinID& binid, BinID rounding, bool work ) const
 }
 
 
-void SurveyInfo::snapStep( BinID& s, BinID rounding, bool work ) const
+void SurveyInfo::snapStep( BinID& s, BinID rounding ) const
 {
-    const BinID& stp = sampling(work).hrg.step;
+    const BinID& stp = cs_.hrg.step;
     if ( s.inl < 0 ) s.inl = -s.inl;
     if ( s.crl < 0 ) s.crl = -s.crl;
     if ( s.inl < stp.inl ) s.inl = stp.inl;
@@ -517,9 +526,9 @@ void SurveyInfo::snapStep( BinID& s, BinID rounding, bool work ) const
 #endif
 
 
-void SurveyInfo::snapZ( float& z, int dir, bool work ) const
+void SurveyInfo::snapZ( float& z, int dir ) const
 {
-    const StepInterval<float>& zrg = sampling(work).zrg;
+    const StepInterval<float>& zrg = cs_.zrg;
 
     const float eps = 1e-8;
     if ( z < zrg.start+eps )

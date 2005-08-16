@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.23 2005-02-11 11:13:37 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.24 2005-08-16 17:10:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,8 +143,8 @@ void Well::setWellName( const char* nm, const Coord3& pos )
     welltxt->setDisplayTransformation( transformation );
     welltxt->setText( nm );
     Coord3 wp( pos );
-    if ( !SI().zRange().includes(pos.z) )
-	wp.z = SI().zRange().limitValue( pos.z );
+    if ( !SI().zRange(true).includes(pos.z) )
+	wp.z = SI().zRange(true).limitValue( pos.z );
     welltxt->setPosition( wp ); //TODO
     welltxt->setJustification( Text::Center );
 }

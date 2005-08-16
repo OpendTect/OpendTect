@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.18 2005-08-16 15:22:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.19 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -61,7 +61,7 @@ SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
     , sliceset(0)
     , udfval(mUdf(float))
 {
-    const float dz = SI().zRange().step;
+    const float dz = SI().zStep();
     Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
     sampleinterval += interval;
 }
@@ -151,7 +151,7 @@ CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey )
     , buf2d_(0)
     , errmsg(0)
 {
-    const float dz = SI().zRange().step;
+    const float dz = SI().zStep();
     Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
     sampleinterval += interval;
 
@@ -426,7 +426,7 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     const float* vals = bidvalset_.getVals(pos);
-    const float dz = SI().zRange().step;
+    const float dz = SI().zStep();
     Interval<int> interval( mNINT(vals[0]/dz), mNINT(vals[0]/dz) );
     TypeSet< Interval<int> > sampleinterval;
     sampleinterval += interval;
@@ -535,7 +535,7 @@ TypeSet< Interval<int> >
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     BinID binid;
-    const float dz = SI().zRange().step;
+    const float dz = SI().zStep();
     TypeSet<float> values;
     bidvalset_.get( pos, binid, values );
     TypeSet< Interval<int> > sampleinterval;

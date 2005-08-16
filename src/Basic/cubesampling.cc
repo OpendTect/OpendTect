@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.16 2005-05-11 10:50:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.17 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -254,10 +254,10 @@ bool HorSampling::getInterSection( const HorSampling& hs,
 }
 
 
-void HorSampling::snapToSurvey(bool work)
+void HorSampling::snapToSurvey()
 {
-    SI().snap( start, BinID(-1,-1), work );
-    SI().snap( stop, BinID(1,1), work );
+    SI().snap( start, BinID(-1,-1) );
+    SI().snap( stop, BinID(1,1) );
 }
 
 
@@ -265,7 +265,7 @@ static void normaliseZ( StepInterval<float>& zrg )
 {
     if ( zrg.start > zrg.stop )	Swap(zrg.start,zrg.stop);
     if ( zrg.step < 0 )		zrg.step = -zrg.step;
-    else if ( !zrg.step )	zrg.step = SI().zRange(false).step;
+    else if ( !zrg.step )	zrg.step = SI().zStep();
 }
 
 
@@ -324,11 +324,11 @@ void CubeSampling::limitTo( const CubeSampling& c )
 }
 
 
-void CubeSampling::snapToSurvey( bool work )
+void CubeSampling::snapToSurvey()
 {
-    hrg.snapToSurvey(work);
-    zrg.start = SI().zRange(work).snap( zrg.start );
-    zrg.stop = SI().zRange(work).snap( zrg.stop );
+    hrg.snapToSurvey();
+    SI().snapZ( zrg.start, -1 );
+    SI().snapZ( zrg.stop, 1 );
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.18 2005-08-15 07:14:00 cvsduntao Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.19 2005-08-16 17:10:17 cvsbert Exp $";
 
 #include "emtracker.h"
 
@@ -137,7 +137,7 @@ bool EMTracker::trackInVolume()
     
     const CubeSampling activevolume = engine().activeVolume();
     const BinID step(SI().inlRange(true).step, SI().crlRange(true).step);
-    const float zstep = SI().zRange(true).step;
+    const float zstep = SI().zStep();
     
     TypeSet<EM::SubID>* seedset = new TypeSet<EM::SubID> [seeds->size()];
     TrackingStatusTable trktbl(SI().inlRange(true), SI().crlRange(true));
