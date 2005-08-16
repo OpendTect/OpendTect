@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.16 2005-08-12 11:12:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.17 2005-08-16 12:40:31 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -326,6 +326,28 @@ void EnumParam::addEnums( const char** nes )
     }
 }
 
+
+void EnumParam::fillDefStr( BufferString& res ) const
+{
+    bool usequotes = false;
+    res += getKey();
+    res += "=";
+    BufferString val;
+    if ( !isRequired() || !getCompositeValue(val) )
+	val = getDefaultValue();
+
+    const char* ptr = val.buf();
+    while ( *ptr )
+    {
+	if ( isspace(*ptr) )
+	    { usequotes = true; break; }
+	ptr++;
+    }
+
+    if ( usequotes ) res += "\"";
+    res += val;
+    if ( usequotes ) res += "\"";
+}
 
 
 StringParam::StringParam( const char* key )

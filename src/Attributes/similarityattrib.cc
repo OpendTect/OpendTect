@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.8 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.9 2005-08-16 12:40:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,8 +104,8 @@ void Similarity::updateDesc( Desc& desc )
 const char* Similarity::extensionTypeStr( int type )
 {
     if ( type==mExtensionNone ) return "None";
-    if ( type==mExtensionRot90 ) return "rot90";
-    if ( type==mExtensionRot180 ) return "rot180";
+    if ( type==mExtensionRot90 ) return "90";
+    if ( type==mExtensionRot180 ) return "180";
     return "Cube";
 }
 

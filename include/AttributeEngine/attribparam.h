@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.14 2005-08-12 11:12:16 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.15 2005-08-16 12:40:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ public:
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
-    void    		        fillDefStr(BufferString&) const;
+    virtual void   	        fillDefStr(BufferString&) const;
     
 protected:
     DataInpSpec*		spec_;
@@ -163,6 +163,7 @@ public:
     EnumParam*			clone() const;
     void			addEnum(const char*);
     void			addEnums(const char**);
+    void                	fillDefStr(BufferString&) const;
 };
 
 

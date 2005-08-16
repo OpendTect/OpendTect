@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.27 2005-08-16 11:12:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.28 2005-08-16 12:40:31 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -591,12 +591,24 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
 	    keys.add(tmp);
 	    
 	    spacepos = idx+1;
-	    while ( spacepos<len && isspace(defstr[spacepos]) ) spacepos++;
-	    if ( spacepos >= len ) continue;
-	    lastpos = spacepos;
 
-	    while ( !isspace(defstr[spacepos]) && spacepos < len ) spacepos ++;
-	    spacepos--;
+	    if ( defstr[spacepos] == '"' )
+	    {
+		spacepos++;
+		lastpos = spacepos;
+		while ( spacepos<len && (defstr[spacepos] != '"') ) spacepos++;
+
+		spacepos--;
+	    }
+	    else
+	    {
+		while ( spacepos<len && isspace(defstr[spacepos]) ) spacepos++;
+		if ( spacepos >= len ) continue;
+		lastpos = spacepos;
+
+		while ( !isspace(defstr[spacepos]) && spacepos<len ) spacepos++;
+		spacepos--;
+	    }
 
 	    char tmpval[spacepos-lastpos+2];
 	    strncpy( tmpval, &defstr[lastpos], spacepos-lastpos+1 );
