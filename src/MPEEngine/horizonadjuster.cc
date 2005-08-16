@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.3 2005-08-12 09:57:22 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.4 2005-08-16 15:28:02 cvsnanne Exp $";
 
 #include "horizonadjuster.h"
 
@@ -72,8 +72,11 @@ int HorizonAdjuster::nextStep()
 	    setHorizonPick(bid, mUndefValue);
     }
     horizon_.geometry.checkSupport(true);
-    
-    BufferString bs="Tracked horizon picks: "; bs+=count;    ErrMsg(bs);
+
+#ifdef __debug__
+    BufferString msg( "Tracked horizon picks: " ); msg += count;
+    ErrMsg( msg );
+#endif
     return 0;
 }
 
