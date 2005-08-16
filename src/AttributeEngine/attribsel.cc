@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.4 2005-08-01 07:32:59 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.5 2005-08-16 12:16:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,8 +199,7 @@ void SelInfo::fillStored( const char* filter )
 	if ( (is2d && pol2d_==No2D) || (iscbvs && pol2d_==Only2D) ||
 	     (!is2d && !iscbvs) ) continue;
 
-	const char* psstring = "Pre-Stack Seismics";
-	if ( !strcmp(ioobj.group(),psstring) ) continue;
+	if ( !strcmp(ioobj.group(),sKey::PSSeis) ) continue;
 
 	const char* res = ioobj.pars().find( "Type" );
 	if ( res && !strcmp(res,sKey::Steering) ) continue;
