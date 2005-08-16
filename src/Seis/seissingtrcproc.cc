@@ -4,11 +4,13 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.26 2005-04-14 16:33:09 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.27 2005-08-16 10:34:27 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
 #include "seiswrite.h"
+#include "seispsioprov.h"
+#include "seispswrite.h"
 #include "seis2dline.h"
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -25,7 +27,8 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.26 2005-04-14 16:33:09 c
 
 #define mInitVars() \
 	: Executor(nm) \
-	, wrr_(out ? new SeisTrcWriter(out) : 0) \
+	, wrr_(0) \
+	, pswrr_(0) \
 	, msg_(msg) \
 	, nrskipped_(0) \
 	, intrc_(*new SeisTrc) \
@@ -36,14 +39,16 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.26 2005-04-14 16:33:09 c
     	, scaler_(0) \
     	, skipnull_(false) \
     	, resampler_(0) \
-    	, is3d_(true)
+    	, is3d_(true) \
+{ \
+    if ( !mkWriter(out) ) return
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelection& in,
 					  const IOObj* out, const char* nm,
 				       	  const char* msg )
-	mInitVars()
-{
+    mInitVars();
+
     PtrMan<IOObj> inioobj = IOM().get( in.key_ );
     IOPar iop; in.fillPar( iop );
 
@@ -56,8 +61,8 @@ SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelection& in,
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 				       	  const char* nm, const IOPar* iop,
 				       	  const char* msg )
-	mInitVars()
-{
+    mInitVars();
+
     setInput( in, out, nm, iop, msg );
 }
 
@@ -66,8 +71,8 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const IOObj* out, const char* nm, 
 					  ObjectSet<IOPar>* iopset, 
 					  const char* msg )
-	mInitVars()
-{
+    mInitVars();
+
     if ( !objset.size() )
     {
 	curmsg_ = "No input specified";
@@ -80,6 +85,41 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 	iopset->erase();
 
     init( objset, *iopset );
+}
+
+
+bool SeisSingleTraceProc::mkWriter( const IOObj* out )
+{
+    if ( !out ) return false;
+
+    if ( strcmp(out->group(),mTranslGroupName(SeisPS)) )
+    {
+	wrr_ = new SeisTrcWriter( out );
+	return true;
+    }
+
+    BufferString dstyp = "CBVS"; out->pars().get( "Data Store Type", dstyp );
+    const SeisPSIOProvider* siop = SPSIOPF().provider( dstyp );
+    if ( !siop )
+    {
+	curmsg_ = "Pre-Stack data store type '";
+	curmsg_ += dstyp;
+	curmsg_ += "' not found";
+	return false;
+    }
+
+    BufferString dsimpl( out->fullUserExpr(false) );
+    pswrr_ = siop->makeWriter( dsimpl );
+    if ( !pswrr_ )
+    {
+	curmsg_ = "Cannot make PreStack writer for '";
+	curmsg_ += dsimpl;
+	curmsg_ += "'";
+	return false;
+    }
+
+    pswrr_->usePar( out->pars() );
+    return true;
 }
 
 
@@ -107,6 +147,7 @@ void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
     delete wrr_;
+    delete pswrr_;
     delete &intrc_;
     delete &wrrkey_;
     delete scaler_;
@@ -243,7 +284,8 @@ static void scaleTrc( SeisTrc& trc, Scaler& sclr )
 
 int SeisSingleTraceProc::nextStep()
 {
-    if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_] || !wrr_ )
+    if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_]
+	|| (!wrr_ && !pswrr_) )
 	return -1;
 
     int retval = 1;
@@ -287,8 +329,10 @@ int SeisSingleTraceProc::nextStep()
 	if ( scaler_ )
 	    scaleTrc( *const_cast<SeisTrc*>(worktrc_), *scaler_ );
 
-	if ( !wrr_->put(*worktrc_) )
+	if ( wrr_ && !wrr_->put(*worktrc_) )
 	    { curmsg_ = wrr_->errMsg(); return -1; }
+	else if ( pswrr_ && !pswrr_->put(*worktrc_) )
+	    { curmsg_ = pswrr_->errMsg(); return -1; }
 
 	nrwr_++;
     }
@@ -298,6 +342,8 @@ int SeisSingleTraceProc::nextStep()
 
 void SeisSingleTraceProc::wrapUp()
 {
+    if ( !wrr_ ) return;
+
     IOPar* iopar = IOM().getAux( wrrkey_ );
     if ( iopar )
     {

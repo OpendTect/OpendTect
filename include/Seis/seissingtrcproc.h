@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.13 2004-09-21 11:12:46 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.14 2005-08-16 10:34:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class IOPar;
 class Scaler;
 class SeisTrc;
 class MultiID;
+class SeisPSWriter;
 class SeisSelection;
 class SeisTrcReader;
 class SeisTrcWriter;
@@ -85,6 +86,7 @@ protected:
 
     ObjectSet<SeisTrcReader> rdrset_;
     SeisTrcWriter*	wrr_;
+    SeisPSWriter*	pswrr_;
     SeisTrc&		intrc_;
     SeisTrc*		worktrc_;
     SeisResampler*	resampler_;
@@ -105,9 +107,10 @@ protected:
     bool		skipnull_;
     bool		is3d_;
 
-    virtual void	wrapUp();
+    bool		mkWriter(const IOObj*);
     void		nextObj();
     bool		init(ObjectSet<IOObj>&,ObjectSet<IOPar>&);
+    virtual void	wrapUp();
 };
 
 

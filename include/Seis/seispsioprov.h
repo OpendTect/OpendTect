@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.4 2005-08-15 16:15:01 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.5 2005-08-16 10:34:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,20 +25,23 @@ class IOObj;
   It is not mandatory to provide both reader and writer.
   Null returns must be expected.
 
-  The key provided to makeReader and makeReader is the key to the data store.
+  The key provided to makeReader and makeWriter is the key to the data store.
   It can be a file or directory, but also some kind of data store access code.
   This name is stored in IOObjs refering to PS data stores. The IOObj's
-  tranlator() is used for the type.
+  tranlator() is used for the type. OpendTect's simple CBVS PS data store
+  has type 'CBVS' (who'd have thought that!), and the data store key is a
+  directory name.
 
   If you pass an inline number to the makeReader, you will get a Reader that
-  may not be able to provide the full geometry of the data store. If the
+  should be able to read that inline, but be aware that this reader may not
+  be able to provide the full geometry of the entire data store. If the
   inline is present in the data store, at least the segments for that inline
-  should be filled.  Construction time can be much faster when you pass an
-  inline number.
+  should be filled (i.e. the geometry for that inline will be filled correctly).
+  Construction time can be much faster when you pass an inline number.
   Pass:
   * negative number for no scanning
   * positive number for single inline usage
-  * mUndefIntVal for scanning the entire datastore
+  * mUndefIntVal (=default) for scanning the entire datastore
 
  */
 
