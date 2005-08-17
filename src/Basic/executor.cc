@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.13 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.14 2005-08-17 20:44:28 cvskris Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -121,11 +121,12 @@ int Executor::doStep()
 }
 
 
-ExecutorGroup::ExecutorGroup( const char* nm )
+ExecutorGroup::ExecutorGroup( const char* nm, bool p )
 	: Executor( nm )
 	, executors( *new ObjectSet<Executor> )
 	, nrdone( 0 )
 	, currentexec( 0 )
+    	, paralell( p )
 {}
 
 
@@ -139,6 +140,7 @@ ExecutorGroup::~ExecutorGroup()
 void ExecutorGroup::add( Executor* n )
 {
     executors += n;
+    executorres += 1;
 }
 
 
@@ -147,18 +149,35 @@ int ExecutorGroup::nextStep()
     const int nrexecs = executors.size();
     if ( !nrexecs ) return Finished;
 
-    int res = executors[currentexec]->doStep();
-    if ( res == Finished )
+    int res = executorres[currentexec] = executors[currentexec]->doStep();
+    if ( res==ErrorOccurred )
+	return ErrorOccurred;
+    else if ( paralell || res==Finished )
+	res = goToNextExecutor() ? MoreToDo : Finished;
+    else if ( res==Finished )
     {
-	if ( currentexec < nrexecs-1 )
-	{
-	    currentexec++;
-	    res = MoreToDo;
-	}
     }
 
     nrdone++;
     return res;
+}
+
+bool ExecutorGroup::goToNextExecutor()
+{
+    const int nrexecs = executors.size();
+    if ( !nrexecs ) return false;
+
+    for ( int idx=0; idx<nrexecs; idx++ )
+    {
+	currentexec++;
+	if ( currentexec==nrexecs )
+	    currentexec = 0;
+
+	if ( executorres[currentexec]>Finished )
+	    return true;
+    }
+
+    return false;
 }
 
 
@@ -173,7 +192,8 @@ int ExecutorGroup::totalNr() const
 {
     const int nrexecs = executors.size();
     if ( !nrexecs ) return Executor::totalNr();
-    if ( ! *((const char*)nrdonetext) )
+
+    if ( !paralell && ! *((const char*)nrdonetext) )
 	return executors[currentexec]->totalNr();
 
     int totnr = 0;
@@ -184,14 +204,14 @@ int ExecutorGroup::totalNr() const
 
 	totnr += nr;
     }
-    return totnr;
 
+    return totnr;
 }
 
 
 int ExecutorGroup::nrDone() const
 {
-    if ( *((const char*)nrdonetext) )
+    if ( paralell || *((const char*)nrdonetext) )
 	return nrdone;
 
     return executors.size() ? executors[currentexec]->nrDone()
@@ -201,6 +221,8 @@ int ExecutorGroup::nrDone() const
 
 const char* ExecutorGroup::nrDoneText() const
 {
+    if ( paralell ) return Executor::nrDoneText();
+
     const char* txt = (const char*)nrdonetext;
     return *txt ? txt
 		: (executors.size() ? executors[currentexec]->nrDoneText()

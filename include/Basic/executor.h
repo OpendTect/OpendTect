@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.11 2004-04-27 15:51:14 bert Exp $
+ RCS:		$Id: executor.h,v 1.12 2005-08-17 20:44:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,8 +112,9 @@ protected:
 
 /*!\brief Executor consisting of other executors.
 
-Executors may be added on the fly while processing. The executors are
-executed in the order in which they were added.
+Executors may be added on the fly while processing. Depending on the
+paralell flag, the executors are executed in the order in which they were added
+or in paralell (but still single-threaded).
 
 */
 
@@ -121,7 +122,7 @@ executed in the order in which they were added.
 class ExecutorGroup : public Executor
 {
 public:
-    			ExecutorGroup( const char* nm );
+    			ExecutorGroup( const char* nm, bool paralell=false );
     virtual		~ExecutorGroup();
     virtual void	add( Executor* );
     			/*!< You will become mine!! */
@@ -138,10 +139,14 @@ public:
 protected:
 
     virtual int		nextStep();
+    bool		goToNextExecutor();
+
+    const bool		paralell;
     int			currentexec;
     int			nrdone;
     BufferString	nrdonetext;
     ObjectSet<Executor>& executors;
+    TypeSet<int>	executorres;
 
 };
 
