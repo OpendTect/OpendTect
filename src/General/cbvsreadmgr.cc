@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.47 2005-01-05 15:06:57 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.48 2005-08-17 10:04:48 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -772,12 +772,9 @@ static void putComps( std::ostream& strm,
     for ( int idx=0; idx<cinfo.size(); idx++ )
     {
 	const BasicComponentInfo& bci = *cinfo[idx];
-	strm << "\nComponent '" << (const char*)bci.name() << "':\n";
-	strm << "Data Characteristics: "
-	     << (bci.datachar.isInteger() ? "Integer" : "Floating point") <<' ';
-	if ( bci.datachar.isInteger() )
-	     strm << (bci.datachar.isSigned() ? "(Signed) " : "(Unsigned) ");
-	strm << (int)bci.datachar.nrBytes() << " bytes\n\n";
+	strm << "\nComponent '" << (const char*)bci.name() << "':";
+	DataCharacteristics::UserType ut = bci.datachar.userType();
+	strm << eString(DataCharacteristics::UserType,ut) << "\n\n";
     }
 }
 

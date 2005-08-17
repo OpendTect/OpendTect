@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.51 2005-07-22 14:36:18 cvsnanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.52 2005-08-17 10:04:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iostrm.h"
 #include "iopar.h"
-#include "cbvsio.h"
+#include "cbvsreadmgr.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
+#include "seiscbvs.h"
 #include "uiseisioobjinfo.h"
 #include "uibutton.h"
 #include "uilistbox.h"
@@ -108,17 +109,20 @@ void uiSeisFileMan::mkFileInfo()
     txt += SI().zIsTime() ? mNINT(1000*memb) : memb
 
     CubeSampling cs;
-    uiSeisIOObjInfo oinf( *ctio.ioobj, false );
-    if ( !is2d && oinf.getRanges(cs) )
+    if ( !is2d )
     {
-	txt = "";
-	if ( !mIsUndefInt(cs.hrg.stop.inl) )
-	    { txt += "Inline range: "; mRangeTxt(inl); }
-	if ( !mIsUndefInt(cs.hrg.stop.crl) )
-	    { txt += "\nCrossline range: "; mRangeTxt(crl); }
-	txt += "\nZ-range: "; 
-	mZRangeTxt(cs.zrg.start); txt += " - "; mZRangeTxt(cs.zrg.stop); 
-	txt += " ["; mZRangeTxt(cs.zrg.step); txt += "]";
+	SeisIOObjInfo oinf( *ctio.ioobj );
+	if ( oinf.getRanges(cs) )
+	{
+	    txt = "";
+	    if ( !mIsUndefInt(cs.hrg.stop.inl) )
+		{ txt += "Inline range: "; mRangeTxt(inl); }
+	    if ( !mIsUndefInt(cs.hrg.stop.crl) )
+		{ txt += "\nCrossline range: "; mRangeTxt(crl); }
+	    txt += "\nZ-range: "; 
+	    mZRangeTxt(cs.zrg.start); txt += " - "; mZRangeTxt(cs.zrg.stop); 
+	    txt += " ["; mZRangeTxt(cs.zrg.step); txt += "]";
+	}
     }
 
     if ( ctio.ioobj->pars().size() )
@@ -130,6 +134,20 @@ void uiSeisFileMan::mkFileInfo()
 	if ( ctio.ioobj->pars().hasKey(optstr) )
 	{ txt += "\nOptimized direction: ";
 	    txt += ctio.ioobj->pars().find(optstr); }
+    }
+
+    if ( !strcmp(ctio.ioobj->translator(),"CBVS") )
+    {
+	CBVSSeisTrcTranslator* tri = CBVSSeisTrcTranslator::getInstance();
+	if ( tri->initRead( new StreamConn(ctio.ioobj->fullUserExpr(true),
+				Conn::Read) ) )
+	{
+	    const BasicComponentInfo& bci = *tri->readMgr()->info().compinfo[0];
+	    const DataCharacteristics::UserType ut = bci.datachar.userType();
+	    BufferString etxt = eString(DataCharacteristics::UserType,ut);
+	    txt += "\nStorage: "; txt += etxt.buf() + 4;
+	}
+	delete tri;
     }
 
     txt += getFileInfo();

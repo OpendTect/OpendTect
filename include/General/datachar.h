@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.10 2004-12-17 13:31:02 nanne Exp $
+ RCS:		$Id: datachar.h,v 1.11 2005-08-17 10:04:48 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -90,6 +90,7 @@ public:
 			  F64, SI64 };
 			DeclareEnumUtils(UserType)
 			DataCharacteristics(UserType);
+    UserType		userType() const; //!< will return 'nearest'
 
 };
 

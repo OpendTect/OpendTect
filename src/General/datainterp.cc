@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.17 2005-07-26 08:01:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.18 2005-08-17 10:04:48 cvsbert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -119,6 +119,19 @@ void DataCharacteristics::toString( char* buf ) const
     fms += getYesNoString( littleendian );
 
     strcpy( buf, (const char*)fms );
+}
+
+
+DataCharacteristics::UserType DataCharacteristics::userType() const
+{
+    switch ( nrBytes() )
+    {
+    case N1: return isSigned() ? SI8 : UI8;
+    case N2: return isSigned() ? SI16 : UI16;
+    case N4: return isInteger() ? (isSigned() ? SI32 : UI32) : F32;
+    case N8: return isInteger() ? SI64 : F64;
+    }
+    return Auto;
 }
 
 
