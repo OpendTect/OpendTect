@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.44 2005-08-17 17:38:02 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.45 2005-08-17 18:06:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1265,6 +1265,8 @@ void EMObjectDisplay::updateIntersectionLines(
     {
 	mDynamicCastGet( PlaneDataDisplay*, plane,
 			 visBase::DM().getObject(linestoupdate[idx]) );
+	if ( !plane )
+	    continue;
 
 	const CubeSampling cs = plane->getCubeSampling();
 
