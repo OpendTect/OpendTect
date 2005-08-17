@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.5 2005-08-05 19:15:36 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.6 2005-08-17 17:37:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 class uiMaterialGrp : public uiPropertyGrp
 {
 public:
-			uiMaterialGrp(uiParent*,visBase::Material*,
+			uiMaterialGrp(uiParent*,visSurvey::SurveyObject*,
 				      bool ambience=true,
 				      bool diffusecolor=true,
 				      bool specularcolor=true,
@@ -48,7 +48,8 @@ public:
 
 protected:
 
-    visBase::Material*	material;
+    visBase::Material*		material;
+    visSurvey::SurveyObject*	survobj;
 
     uiColorInput*	colinp;
 

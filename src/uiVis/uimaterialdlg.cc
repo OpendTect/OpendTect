@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.7 2005-08-05 19:15:36 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.8 2005-08-17 17:37:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     if ( survobj->allowMaterialEdit() && visobj->getMaterial() )
     {
 	uiPropertyGrp* grp = new uiMaterialGrp(tabstack->tabGroup(),
-				visobj->getMaterial(),
+				survobj,
 				true, true, false, false, false, true,
 				survobj->hasColor() );
 	tabstack->addTab(grp);
@@ -105,11 +105,12 @@ bool uiPropertiesDlg::rejectOK(CallBacker* cb)
 }
 
 
-uiMaterialGrp::uiMaterialGrp( uiParent* p, visBase::Material* mat,
+uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
        bool ambience, bool diffusecolor, bool specularcolor,
        bool emmissivecolor, bool shininess, bool transparency, bool color )
     : uiPropertyGrp(p,"Material")
-    , material(mat)
+    , material( dynamic_cast<visBase::VisualObject*>(so)->getMaterial() )
+    , survobj( so )
     , ambslider( 0 )
     , diffslider( 0 )
     , specslider( 0 )
@@ -282,6 +283,6 @@ void uiMaterialGrp::transSliderMove( CallBacker* )
 
 void uiMaterialGrp::colorChangeCB(CallBacker*)
 {
-    if ( colinp ) material->setColor( colinp->color() );
+    if ( colinp ) survobj->setColor( colinp->color() );
 }
 
