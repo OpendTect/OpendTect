@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.43 2005-08-16 17:10:18 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.44 2005-08-17 17:38:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1159,7 +1159,7 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
 	while ( cii && line->getCoordIndex(cii-1)!=-1 ) \
 	    line->getCoordinates()->removePos(line->getCoordIndex(--cii)); \
     } \
-    else \
+    else if ( cii && line->getCoordIndex(cii-1)!=-1 )\
     { \
 	line->setCoordIndex(cii++,-1); \
     } \
