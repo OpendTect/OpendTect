@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.28 2005-08-16 12:40:31 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.29 2005-08-18 14:18:19 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -572,50 +572,51 @@ void Desc::getKeysVals( const char* defstr, BufferStringSet& keys,
     int equalpos = 0;
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( defstr[idx] == '=')
+	if ( defstr[idx] != '=')
+	    continue;
+
+	equalpos = idx;
+	spacepos = idx-1;
+	while ( spacepos>=0 && isspace(defstr[spacepos]) ) spacepos--;
+	if ( spacepos < 0 ) continue;
+	int lastpos = spacepos;
+
+	while ( !isspace(defstr[spacepos]) && spacepos >= 0 )
+	    spacepos --;
+
+	spacepos++;
+	char tmpkey[lastpos-spacepos+2];
+	strncpy( tmpkey, &defstr[spacepos], lastpos-spacepos+1 );
+	tmpkey[lastpos-spacepos+1] = 0;
+	const char* tmp = tmpkey;
+	keys.add(tmp);
+	
+	spacepos = idx+1;
+
+	if ( defstr[spacepos] == '"' )
 	{
-	    equalpos = idx;
-	    spacepos = idx-1;
-	    while ( spacepos>=0 && isspace(defstr[spacepos]) ) spacepos--;
-	    if ( spacepos < 0 ) continue;
-	    int lastpos = spacepos;
-
-	    while ( !isspace(defstr[spacepos]) && spacepos >= 0 )
-		spacepos --;
-
 	    spacepos++;
-	    char tmpkey[lastpos-spacepos+2];
-	    strncpy( tmpkey, &defstr[spacepos], lastpos-spacepos+1 );
-	    tmpkey[lastpos-spacepos+1] = 0;
-	    const char* tmp = tmpkey;
-	    keys.add(tmp);
-	    
-	    spacepos = idx+1;
+	    lastpos = spacepos;
+	    while ( spacepos<len && (defstr[spacepos] != '"') ) spacepos++;
 
-	    if ( defstr[spacepos] == '"' )
-	    {
-		spacepos++;
-		lastpos = spacepos;
-		while ( spacepos<len && (defstr[spacepos] != '"') ) spacepos++;
-
-		spacepos--;
-	    }
-	    else
-	    {
-		while ( spacepos<len && isspace(defstr[spacepos]) ) spacepos++;
-		if ( spacepos >= len ) continue;
-		lastpos = spacepos;
-
-		while ( !isspace(defstr[spacepos]) && spacepos<len ) spacepos++;
-		spacepos--;
-	    }
-
-	    char tmpval[spacepos-lastpos+2];
-	    strncpy( tmpval, &defstr[lastpos], spacepos-lastpos+1 );
-	    tmpval[spacepos-lastpos+1] = 0;
-	    tmp = tmpval;
-	    vals.add(tmp);
+	    spacepos--;
 	}
+	else
+	{
+	    while ( spacepos<len && isspace(defstr[spacepos]) ) spacepos++;
+	    if ( spacepos >= len ) continue;
+	    lastpos = spacepos;
+
+	    while ( !isspace(defstr[spacepos]) && spacepos<len ) spacepos++;
+	    spacepos--;
+	}
+
+	char tmpval[spacepos-lastpos+2];
+	strncpy( tmpval, &defstr[lastpos], spacepos-lastpos+1 );
+	tmpval[spacepos-lastpos+1] = 0;
+	tmp = tmpval;
+	vals.add(tmp);
+	idx = spacepos;
     }
 }
 
