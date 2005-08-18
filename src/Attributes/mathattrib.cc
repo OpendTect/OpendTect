@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.7 2005-08-16 12:40:31 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.8 2005-08-18 14:00:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,18 +118,18 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Math::getInputData( const BinID& relpos, int idi )
+bool Math::getInputData( const BinID& relpos, int idx )
 {
     const int nrvar = expression_->getNrVariables();
     while ( inputdata_.size() < nrvar )
 	inputdata_ += 0;
 
-    for ( int idx=0; idx<nrvar; idx++ )
+    for ( int varidx=0; varidx<nrvar; varidx++ )
     {
-	const DataHolder* data = inputs[idx]->getData( relpos, idi );
+	const DataHolder* data = inputs[varidx]->getData( relpos, idx );
 	if ( !data ) return false;
 	
-	inputdata_.replace( idx, data );
+	inputdata_.replace( varidx, data );
     }
 
     if ( !inputtable_.size() )
