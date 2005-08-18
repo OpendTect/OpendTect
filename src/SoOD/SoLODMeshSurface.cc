@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.23 2005-08-18 20:02:23 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.24 2005-08-18 21:51:06 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -439,7 +439,7 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 	int col00 = colstart;
 	int col10 = colstart;
 
-	for ( int colidx=1; colidx<nci; colidx++ )
+	for ( int colidx=0; colidx<nci; colidx++ )
 	{
 	    const SbVec3f c01 = *currowcoordptr++;
 	    const SbVec3f c11 = *nxtrowcoordptr++;
