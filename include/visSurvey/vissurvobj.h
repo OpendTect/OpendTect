@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.41 2005-08-05 16:14:36 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.42 2005-08-18 19:38:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class LineStyle;
 class MultiID;
 class SeisTrcBuf;
 
-namespace visBase { class Transformation; };
+namespace visBase { class Transformation; class EventInfo; };
 namespace Attrib  { class SelSpec; class SliceSet; class ColorSelSpec; }
 
 namespace visSurvey
@@ -127,8 +127,9 @@ public:
     virtual int			nrTextures() const		{ return 0; }
     virtual void		selectTexture(int)			{}
     virtual void		selectNextTexture(bool)			{}
-    virtual void		getMousePosInfo(const Coord3&,float& val,
-	    					BufferString& info) const
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
+					    const Coord3& xyzpos, float& val,
+					    BufferString& info) const
 				{ val = mUndefValue; info = ""; }
    
    				//Volume data 

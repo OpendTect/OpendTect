@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.56 2005-08-04 19:25:30 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.57 2005-08-18 19:38:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -110,7 +110,9 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			getMousePosInfo(const Coord3&,float& val,
+    void			getMousePosInfo(const visBase::EventInfo&,
+	    					const Coord3&,
+	    					float& val,
 	    					BufferString& info) const;
 
     SoNode*			getInventorNode();
