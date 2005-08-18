@@ -1,7 +1,7 @@
 @echo off
 ::
 :: OpenTect remote startup script for window<->windows using rcmd
-:: $Id: od_dormt.bat,v 1.9 2005-04-06 13:36:14 cvsarend Exp $
+:: $Id: od_dormt.bat,v 1.10 2005-08-18 11:50:26 cvsarend Exp $
 ::______________________________________________________________________________
 
 cd %DTECT_WINAPPL%
@@ -32,7 +32,14 @@ set PATH=%CYGWINDIR%;%PATH%
 
 :: Now do what we setup to do
 
-set string=%1
+set argfilenm=%1
+
+:: See if argfile already exists. If yes, data share is already accessible..
+set tmpvar=%argfilenm:#-#= %
+for /F "tokens=*" %%i in ('cygpath -wa "%tmpvar%"') do set ARGFILE=%%i
+if exist "%ARGFILE%" goto getargs
+
+:: else attempt to map datashare to datadrive
 
 set datahost=%2
 set datadrive=%3
@@ -44,8 +51,8 @@ for /F "tokens=*" %%i in ('.\bin\win\SearchODFile.exe od_prepare.bat') do set PR
 
 cmd /c "%PRESCRIPT%" %datahost% %datadrive% %datashare% %username% %userpass%
 
-:: Use cygpath only after prescipt has executed and the data dir is mounted.
-set tmpvar=%string:#-#= %
+:: Now check again for arguments file...
+set tmpvar=%argfilenm:#-#= %
 for /F "tokens=*" %%i in ('cygpath -wa "%tmpvar%"') do set ARGFILE=%%i
 
 if exist "%ARGFILE%" goto getargs

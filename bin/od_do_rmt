@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.23 2004-12-24 08:46:41 dgb Exp $
+# $Id: od_do_rmt,v 1.24 2005-08-18 11:50:26 cvsarend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -68,31 +68,47 @@ if ( -e "$DTECT_APPL/bin/init_dtect" ) then
 endif
 
 if ( "$HDIR" == "win" ) then
+    set attemptmount=yes
 
-    set usernm=""
-    if ( $?USERNAME ) then
-	set usernm="$USERNAME"
-    endif
-    if ( $?user ) then
-	set usernm="$user"
-    endif
+    if ( $?DTECT_DATA ) then
 
-    set prescript=""
-    set precmd=""
-    if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
-	set prescript=`"${DTECT_APPL}/bin/$HDIR/SearchODFile" od_prepare.bat \
-	     | sed -e 's% %\ %g' -e 's%\\%\\\\%g'`
+    if ( -d "$DTECT_DATA" ) then
+	set attemptmount=no
+	echo "DTECT_DATA directory $DTECT_DATA is accessible. Ok."
     endif
 
-    set prescrargs="$datahost $datadrive $datashare $usernm $remotepass"
-    set precmd="cmd /c $prescript $prescrargs"
+    if ( $attemptmount == yes ) then
 
-    if ( "$prescript" != "" ) then
-	cmd /c "$prescript" $prescrargs
+	set usernm=""
+	if ( $?USERNAME ) then
+	    set usernm="$USERNAME"
+	endif
+	if ( $?user ) then
+	    set usernm="$user"
+	endif
+
+	set prescript=""
+	set precmd=""
+	if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
+	  set prescript=`"${DTECT_APPL}/bin/$HDIR/SearchODFile" od_prepare.bat \
+		       | sed -e 's% %\ %g' -e 's%\\%\\\\%g'`
+	endif
+
+	set prescrargs="$datahost $datadrive $datashare $usernm $remotepass"
+	set precmd="cmd /c $prescript $prescrargs"
+
+	if ( "$prescript" != "" ) then
+	    cmd /c "$prescript" $prescrargs
+	endif
+
+	if ( -d "$DTECT_DATA" ) then
+	    echo "Succesfully mounted $datashare to ${datadrive}:"
+	else
+	    echo "Failed to mount $datashare to ${datadrive}:"
+	endif
+	
     endif
-    
 endif
-
 
 if ( $?DTECT_SCRIPT_DEBUG ) then
 
@@ -142,7 +158,6 @@ if ( $?DTECT_SCRIPT_DEBUG ) then
 
     echo "$0 : $DTECT_APPL/bin/od_exec $*" >> $logfile
     "$DTECT_APPL/bin/od_exec" $* >> $logfile
-
 
 else
 
