@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.22 2005-08-18 14:52:05 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.23 2005-08-18 20:02:23 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -141,6 +141,7 @@ public:
     int		computeResolution( SoState*, bool useownvalidatoin );
     bool	setResolution( int desiredres, bool useownvalidatoin);
     bool	hasResChangedSinceLastRender() const { return reshaschanged; }
+    void	resetChangeResFlag() { reshaschanged=false; }
 
     void	setNeighbor( int, MeshSurfacePart*, bool callback=false );
 
@@ -871,7 +872,6 @@ void MeshSurfacePart::rayPick( SoRayPickAction* action, bool useownvalidation )
 void MeshSurfacePart::GLRenderSurface(  SoGLRenderAction* action,
 					bool useownvalidation)
 {
-    reshaschanged = false;
     if ( resolution<0 ) return;
     resolutions[resolution]->GLRenderSurface( action, useownvalidation );
 }
@@ -880,7 +880,6 @@ void MeshSurfacePart::GLRenderSurface(  SoGLRenderAction* action,
 void MeshSurfacePart::GLRenderWireframe(SoGLRenderAction* action,
 					bool useownvalidation)
 {
-    reshaschanged = false;
     if ( resolution<0 ) return;
     resolutions[resolution]->GLRenderWireframe( action, useownvalidation );
 }
@@ -2395,6 +2394,9 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 	for ( int idx=0; idx<nrparts; idx++ )
 	    parts[idx]->GLRenderWireframe(action, useownvalidation);
     }
+
+    for ( int idx=0; idx<nrparts; idx++ )
+	parts[idx]->resetChangeResFlag();
 }
 
 
