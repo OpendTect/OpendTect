@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.21 2005-08-12 13:03:49 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.22 2005-08-18 14:52:05 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -790,7 +790,8 @@ void MeshSurfacePart::touch( int i0, int i1, bool undef )
     const int rel0 = i0-start0;
     const int rel1 = i1-start1;
 
-    if ( rel0<0 || rel1<0 || rel0>sidesize || rel1>sidesize )
+    if ( rel0<-hsidesize || rel1<-hsidesize ||
+	 rel0>sidesize+hsidesize || rel1>sidesize+hsidesize )
 	return;
 
     const int spacing = hsidesize;
@@ -1546,17 +1547,23 @@ MeshSurfacePartResolution::~MeshSurfacePartResolution()
 
 void MeshSurfacePartResolution::touch( int i0, int i1, bool undef )
 {
-   if ( !i0%spacing || !i1%spacing ) 
+   int reli0 = i0-start0;
+   int reli1 = i1-start1;
+   if ( !reli0%spacing || !reli1%spacing ) 
        return;
 
-   int reli0 = (i0-start0)/spacing;
-   int reli1 = (i1-start1)/spacing;
+   reli0/=spacing;
+   reli1/=spacing;
+
    if ( reli0<-1||reli0<-1||reli0>sidesize0||reli1>sidesize1 )
        return;
 
    if ( undef && reli0>=0 && reli0<sidesize0 && reli1>=0 && reli1<sidesize1 )
        cachestatus = 2;
-   else if ( cachestatus<1 ) cachestatus=1;
+   else if ( cachestatus<2 )
+   {
+       cachestatus = cache && !cache->normals.getLength() ? 2 : 1;
+   }
 }
 
 
@@ -2375,11 +2382,13 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 	}
     //}
 
+    
+    for ( int idx=0; idx<nrparts; idx++ )
+	parts[idx]->GLRenderSurface(action, useownvalidation);
+
     for ( int idx=0; idx<nrparts; idx++ )
 	parts[idx]->GLRenderGlue(action, useownvalidation);
 
-    for ( int idx=0; idx<nrparts; idx++ )
-	parts[idx]->GLRenderSurface(action, useownvalidation);
 
     if ( wireframe.getValue() )
     {
