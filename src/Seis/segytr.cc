@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.40 2005-07-26 08:41:39 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.41 2005-08-18 13:36:54 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -33,9 +33,6 @@ const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 const char* SEGYSeisTrcTranslator::sUseLiNo
 	= "Use tape header line number for inline";
 
-static const char* nth_to_dump_str = getenv("DTECT_NR_SEGY_HEADERS_TO_DUMP");
-static int nr_trc_headers_to_dump = nth_to_dump_str ? atoi(nth_to_dump_str) : 5;
-
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	: SegylikeSeisTrcTranslator(nm,unm)
@@ -52,6 +49,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, use_lino(false)
 	, do_string_dump(false)
 	, force_rev0(false)
+	, ntrheadstodump(5)
 {
 }
 
@@ -117,7 +115,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     binhead_dpos = pinfo->zrg.step;
     binhead_ns = binhead.hns;
 
-    if ( read_mode != Seis::Prod && itrc <= nr_trc_headers_to_dump )
+    if ( read_mode != Seis::Prod && itrc <= ntrheadstodump )
     {
 	dumpsd.close();
 	if ( do_string_dump )
@@ -184,13 +182,13 @@ int SEGYSeisTrcTranslator::nrSamplesRead() const
 void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
     itrc++;
-    if ( itrc <= nr_trc_headers_to_dump && dumpsd.usable() )
+    if ( itrc <= ntrheadstodump && dumpsd.usable() )
     {
 	if ( itrc == 1 )
 	    *dumpsd.ostrm << "\n\n\n\tField\tByte\tValue\n\n";
 	*dumpsd.ostrm << "\nTrace " << itrc << ":\n";
 	trhead.print( *dumpsd.ostrm );
-	if ( itrc != nr_trc_headers_to_dump )
+	if ( itrc != ntrheadstodump )
 	    *dumpsd.ostrm << std::endl;
 	else
 	{

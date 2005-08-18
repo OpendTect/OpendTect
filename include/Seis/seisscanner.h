@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.8 2004-10-05 15:26:19 bert Exp $
+ RCS:		$Id: seisscanner.h,v 1.9 2005-08-18 13:36:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class SeisScanner : public Executor
 {
 public:
 
-			SeisScanner(const IOObj&);
+			SeisScanner(const IOObj&,int maxnroftrcs=-1);
 			~SeisScanner();
 
     const char*		message() const;
@@ -63,6 +63,7 @@ protected:
     mutable int		totalnr;
     int			expectedcrls;
     int			nrcrlsthisline;
+    int			maxnrtrcs;
     SeisTrc&		trc;
     SeisTrcReader&	reader;
     PosGeomDetector&	geomdtector;

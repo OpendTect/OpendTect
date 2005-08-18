@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.23 2005-05-18 09:20:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.24 2005-08-18 13:36:54 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -27,14 +27,15 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.23 2005-05-18 09:20:45 cvsbe
 #endif
 
 
-SeisScanner::SeisScanner( const IOObj& ioobj )
+SeisScanner::SeisScanner( const IOObj& ioobj, int mtr )
     	: Executor( "Scan seismic volume file(s)" )
     	, reader(*new SeisTrcReader(&ioobj))
     	, geomdtector(*new PosGeomDetector(
 		    	!SeisTrcTranslator::is2D(ioobj,false)))
 	, trc(*new SeisTrc)
     	, chnksz(10)
-    	, totalnr(-2)
+    	, totalnr(mtr < 0 ? -2 : mtr)
+    	, maxnrtrcs(mtr)
 {
     is3d = geomdtector.is3D();
     init();
@@ -286,6 +287,9 @@ int SeisScanner::nextStep()
 	    else
 		handleTrc();
 	}
+
+	if ( maxnrtrcs > -1 && geomdtector.nrpositions >= maxnrtrcs )
+	    return Executor::Finished;
     }
 
     return Executor::MoreToDo;

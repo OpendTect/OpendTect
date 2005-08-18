@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.6 2005-07-26 08:41:39 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.7 2005-08-18 13:36:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "segytr.h"
 #include "iopar.h"
+#include "timer.h"
 
 #include "uidialog.h"
 #include "uitextedit.h"
@@ -33,36 +34,50 @@ class uiSeisSEGYExamine : public uiDialog
 {
 public:
 
-uiSeisSEGYExamine( uiParent* p, const char* fname, bool mult, int n, int f )
-	: uiDialog(p,uiDialog::Setup("Examine SEG-Y","",0).modal(false))
+uiSeisSEGYExamine( uiParent* p, const char* fnm, bool mult, int n, int f,
+		   int ntr )
+	: uiDialog(p,uiDialog::Setup("Examine SEG-Y","",0)
+				    .nrstatusflds(2).modal(false))
+	, fname(fnm)
+	, multi(mult)
 	, ns(n)
 	, fmt(f)
+	, nrtrcs(ntr)
+	, timr("startup timer")
 {
     setCtrlStyle( LeaveOnly );
     txtfld = new uiTextEdit( this, "", true );
-    updateInput( fname, mult );
+    finaliseDone.notify( mCB(this,uiSeisSEGYExamine,onStartUp) );
 }
 
 
-void updateInput( const char* fname, bool mult )
+void onStartUp( CallBacker* )
 {
-    updateInp( fname, mult );
+    timr.tick.notify(  mCB(this,uiSeisSEGYExamine,updateInput) );
+    timr.start( 100, true );
+}
+
+
+void updateInput( CallBacker* )
+{
+    display( true );
+    updateInp();
     txtfld->setText( info );
-    outInfo( "" );
+    outInfo( "Right-click to select text" );
     setName( fname );
 }
 
 
-void updateInp( const char* fn, bool mult )
+void updateInp()
 {
-    BufferString fname( fn );
-    if ( !mult )
+    if ( !multi )
     {
 	char* ptr = strchr( fname.buf(), '%' );
 	if ( ptr ) *ptr = '1';
 	ptr = strchr( fname.buf(), '*' );
 	if ( ptr ) *ptr = '1';
     }
+    toStatusBar( fname, 1 );
     outInfo( "Opening input data stream" );
     Conn* conn = new StreamConn( fname, Conn::Read );
     if ( conn->state() == Conn::Bad )
@@ -85,6 +100,7 @@ void updateInp( const char* fn, bool mult )
     }
 
     tr->dumpToString( true );
+    tr->ntrheadstodump = nrtrcs;
     if ( !tr->initRead( conn, Seis::PreScan ) )
     {
 	info = "No information:\n";
@@ -94,28 +110,29 @@ void updateInp( const char* fn, bool mult )
 	return;
     }
 
-    outInfo( "Reading first 4 traces" );
+    BufferString str( "Reading first " );
+    str += nrtrcs; str += " traces ...";
+    outInfo( str );
     SeisTrc trc;
-    int nrtrcs = 0;
-    BufferString add( "\n\nFirst 4 traces displayed." );
+    bool incompl = false;
+    int nrtr = 0;
     while ( !tr->dumpingDone() )
     {
 	if ( !tr->read(trc) )
 	{
-	    if ( !nrtrcs )
-		add = "\n\nNo traces found.";
-	    else
-	    {
-		add = "\n\n";
-		add += nrtrcs;
-		add += " found in file.";
-	    }
+	    incompl = true;
 	    break;
 	}
+	nrtr++;
     }
 
     info = tr->dumpStr();
-    info += add;
+    str = "\n";
+    str += nrtr ? (incompl ? "Total traces present in file: "
+			   : "Traces displayed: ")
+		: "No traces found";
+    if ( nrtr ) str += nrtr;
+    info += str;
     outInfo( "Closing input stream" );
 }
 
@@ -129,19 +146,25 @@ void outInfo( const char* txt )
 #ifdef __debug__
     if ( txt && *txt ) std::cerr << txt << std::endl;
 #endif
+    toStatusBar( txt, 0 );
 }
 
     BufferString	info;
-    uiTextEdit*		txtfld;
+    BufferString	fname;
+    Timer		timr;
     int			ns;
     int			fmt;
+    int			nrtrcs;
+    bool		multi;
+
+    uiTextEdit*		txtfld;
 };
 
 
 int main( int argc, char ** argv )
 {
     int argidx = 1;
-    bool multi = false; int ns = 0; int fmt = 0;
+    bool multi = false; int ns = 0; int fmt = 0; int nrtrcs = 5;
     while ( argc > argidx
 	 && *argv[argidx] == '-' && *(argv[argidx]+1) == '-' )
     {
@@ -151,6 +174,8 @@ int main( int argc, char ** argv )
 	    { argidx++; ns = atoi( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--fmt") )
 	    { argidx++; fmt = atoi( argv[argidx] ); }
+	else if ( !strcmp(argv[argidx],"--nrtrcs") )
+	    { argidx++; nrtrcs = atoi( argv[argidx] ); }
 	else
 	    { std::cerr << "Ignoring option: " << argv[argidx] << std::endl; }
 	argidx++;
@@ -159,8 +184,8 @@ int main( int argc, char ** argv )
     if ( argc <= argidx )
     {
 	std::cerr << "Usage: " << argv[0]
-	    	  << " [--multi] [--ns #samples] [--fmt segy_format_number]"
-		     " filename\n"
+	    	  << " [--multi] [--ns #samples] [--nrtrcs #traces]"
+		     " [--fmt segy_format_number] filename\n"
 	     << "Note: filename must be with FULL path." << std::endl;
 	exitProgram( 1 );
     }
@@ -189,7 +214,8 @@ int main( int argc, char ** argv )
 	fnm = const_cast<char*>(File_linkTarget(fnm));
 #endif
 
-    uiSeisSEGYExamine* sgyex = new uiSeisSEGYExamine( 0, fnm, multi, ns, fmt );
+    uiSeisSEGYExamine* sgyex = new uiSeisSEGYExamine( 0, fnm, multi, ns, fmt,
+						      nrtrcs );
     app.setTopLevel( sgyex );
     sgyex->show();
     exitProgram( app.exec() ); return 0;
