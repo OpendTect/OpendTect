@@ -11,7 +11,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: eventattrib.h,v 1.6 2005-08-05 13:40:07 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.h,v 1.7 2005-08-18 14:17:12 cvsnanne Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"
@@ -66,25 +66,23 @@ protected:
     const Interval<float>*           desZMargin(int input, int output) const;
 
     
-    VSEvent::Type       	     findEventType() const; 
+    static VSEvent::Type       	     getEventType(int type); 
     ValueSeriesEvent<float,float>    findNextEvent( 
 	    				ValueSeriesEvent<float,float> nextev, 
-					int dir, VSEvent::Type evtype, int );
+					int dir,VSEvent::Type,int) const;
 
-    void                singleEvent( TypeSet<float>&, int, int );
-    void                multipleEvents( TypeSet<float>&, int, int );
+    void		singleEvent(TypeSet<float>&,int,int) const;
+    void		multipleEvents(TypeSet<float>&,int,int) const;
 
-    const DataHolder*   inputdata;
+    const DataHolder*	inputdata;
 
-    bool          	issingleevent;
-    bool          	tonext;
-    int           	eventtype;
-    Interval<float>     gate;
+    bool		issingleevent;
+    bool		tonext;
+    VSEvent::Type	eventtype;
+    Interval<float>	gate;
 
 };
 
 }; // namespace Attrib
 
 #endif
-
-        
