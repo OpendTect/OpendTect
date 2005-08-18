@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.38 2005-08-16 18:09:23 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.39 2005-08-18 13:00:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ class EMObjectIterator
 {
 public:
     virtual		~EMObjectIterator() {}
-    virtual EM::PosID	getNext() 		= 0;
+    virtual EM::PosID	next() 		= 0;
     			/*!<posid.objectID()==-1 when there are no more pids*/
 };
 
