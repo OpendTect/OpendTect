@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.39 2005-07-31 05:06:39 cvsduntao Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.40 2005-08-18 19:32:40 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -97,6 +97,23 @@ BufferString EM::EMObject::name() const
     static BufferString objnm;
     objnm = ioobj ? ioobj->name() : "";
     return objnm;
+}
+
+
+int EM::EMObject::sectionIndex( const SectionID& sid ) const
+{
+    for ( int idx=0; idx<nrSections(); idx++ )
+	if ( sectionID(idx)==sid )
+	    return idx;
+
+    return -1;
+}
+
+
+BufferString EM::EMObject::sectionName( const SectionID& sid ) const
+{
+    BufferString res = sid;
+    return res;
 }
 
 

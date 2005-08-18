@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.71 2005-04-29 15:07:03 cvsnanne Exp $
+ RCS:           $Id: emsurface.cc,v 1.72 2005-08-18 19:32:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,106 @@ static const char* sSections = "Patches";
 
 namespace EM
 {
+
+
+class SurfaceIterator : public EMObjectIterator
+{
+public:
+    		SurfaceIterator( const Surface& surf,
+				 const SectionID& sectionid )
+		    : surface( surf )
+		    , sid( sectionid )
+		    , inited( false )
+		    , allsids( sectionid==-1 )
+		{
+		    if ( allsids )
+			sid = surface.sectionID(0);
+		}
+
+    PosID	next()
+		{
+		    if ( !inited && !initSection() )
+			return PosID(-1,-1,-1);
+		    else
+		    {
+			rc.col += colrg.step;
+			if ( !colrg.includes(rc.col) )
+			{
+			    rc.col = colrg.start;
+			    rc.row += rowrg.step;
+			    if ( !rowrg.includes(rc.row) )
+			    {
+				inited = false;
+				if ( !nextSection() )
+				    return PosID(-1,-1,-1);
+			    }
+			}
+		    }
+
+		    if ( !surface.geometry.isDefined(sid,rc) )
+			return next();
+
+
+		    return PosID(surface.id(),sid,rc.getSerialized());
+		}
+			
+
+    bool	initSection()
+		{
+		    while ( true )
+		    {
+			rowrg = surface.geometry.rowRange(sid);
+			colrg = surface.geometry.colRange(sid);
+
+			if ( rowrg.start==rowrg.stop &&
+			     colrg.start==colrg.stop )
+			    return nextSection();
+
+			rc.row = rowrg.start;
+			rc.col = colrg.start;
+			inited = true;
+			break;
+		    }
+
+		    return true;
+		}
+
+    bool	nextSection()
+		{
+		    if ( !allsids ) return false;
+
+		    inited = false;
+		    int idx=0;
+		    for ( ; idx<surface.nrSections(); idx++ )
+		    {
+			if ( surface.sectionID(idx)==sid )
+			    break;
+		    }
+
+		    if ( idx<surface.nrSections()-1 )
+		    {
+			sid = surface.sectionID(++idx);
+			return initSection();
+		    }
+
+		    return false;
+		}
+
+
+
+
+protected:
+    RowCol		rc;
+    SectionID		sid;
+    StepInterval<int>	rowrg;
+    StepInterval<int>	colrg;
+    bool		inited;
+
+    const bool		allsids;
+    const Surface&	surface;
+};
+
+
 
 void SurfaceIOData::clear()
 {
@@ -141,6 +241,13 @@ SectionID Surface::sectionID( int idx ) const
 { return geometry.sectionID(idx); }
 
 
+BufferString Surface::sectionName( const SectionID& sid ) const
+{
+    BufferString res = geometry.sectionName(sid);
+    return res;
+}
+
+
 bool Surface::removeSection( SectionID sid, bool hist )
 {
     geometry.removeSection( sid, hist );
@@ -210,5 +317,13 @@ void Surface::fillPar( IOPar& par ) const
     edgelinesets.fillPar(par);
     geometry.fillPar(par);
 }
+
+
+EMObjectIterator* Surface::createIterator( const SectionID& sid ) const
+{
+    return new SurfaceIterator( *this, sid );
+}
+
+
 
 }; //namespace

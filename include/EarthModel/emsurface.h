@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.49 2005-04-29 15:06:57 cvsnanne Exp $
+ RCS:		$Id: emsurface.h,v 1.50 2005-08-18 19:32:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ class Surface : public EMObject
 public:
     int			nrSections() const;
     EM::SectionID	sectionID(int) const;
+    BufferString	sectionName( const SectionID& ) const;
     bool		removeSection(SectionID,bool hist);
 
     bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);
@@ -88,7 +89,7 @@ public:
     virtual bool	usePar( const IOPar& );
     virtual void	fillPar( IOPar& ) const;
 
-
+    EMObjectIterator*	createIterator( const SectionID& ) const;
 
     SurfaceRelations&	relations;
     EdgeLineManager&	edgelinesets;
