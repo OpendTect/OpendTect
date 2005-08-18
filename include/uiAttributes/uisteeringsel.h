@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.3 2005-08-08 15:08:48 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.4 2005-08-18 08:49:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,10 +80,10 @@ protected:
     CtxtIOObj&			ctio_;
 
     uiLabel*			nosteerlbl_;
-    uiGenInput*			typfld_;
-    uiSteerCubeSel*		inpfld_;
-    uiGenInput*			dirfld_;
-    uiGenInput*			dipfld_;
+    uiGenInput*			typfld;
+    uiSteerCubeSel*		inpfld;
+    uiGenInput*			dirfld;
+    uiGenInput*			dipfld;
 
     bool			is2d_;
 
