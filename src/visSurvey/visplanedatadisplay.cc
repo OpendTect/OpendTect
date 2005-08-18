@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.85 2005-08-16 17:10:18 cvsbert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.86 2005-08-18 19:37:53 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -720,15 +720,17 @@ bool PlaneDataDisplay::isOn() const
 
 #define mIsValid(idx,sz) ( idx>=0 && idx<sz )
 
-void PlaneDataDisplay::getMousePosInfo( const Coord3& pos_, float& val, 
+void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
+					const Coord3& pos,
+					float& val, 
 					BufferString& info ) const
 {
     info = getManipulationString();
     if ( !cache ) { val = mUndefValue; return; }
-    const BinID bid = SI().transform(pos_);
+    const BinID bid = SI().transform(pos);
 
     int idx0, idx1, idx2;
-    cache->getIdxs( bid.inl, bid.crl, pos_.z, idx0, idx1, idx2 );
+    cache->getIdxs( bid.inl, bid.crl, pos.z, idx0, idx1, idx2 );
 
     const int sz0 = cache->size();
     if ( !mIsValid(idx0,sz0) ) { val = mUndefValue; return; }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.45 2005-08-17 18:06:14 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.46 2005-08-18 19:37:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -992,15 +992,26 @@ int EMObjectDisplay::getColTabID() const
 }
 
 
-void EMObjectDisplay::getMousePosInfo( const Coord3& pos, float& val,
-				       BufferString& info ) const
+void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
+				       const Coord3& pos,
+				       float& val, BufferString& info ) const
 {
     info = ""; val = pos.z;
     const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( !emobject ) return;
     
     info = emobject->getTypeStr(); info += ": "; info += name();
-    if ( !sections.size() || as.id() < -1 ) return;
+
+    if ( !sections.size() )
+	return;
+    
+    const EM::SectionID sid = getSectionID(&eventinfo.pickedobjids);
+    BufferString sectionname = emobject->sectionName(sid);
+    if ( !sectionname ) sectionname = sid;
+    info += ", "; info += sectionname;
+
+    if ( as.id()<-1 )
+	return;
 
     mDynamicCastGet(const EM::Surface*,emsurface,emobject)
     if ( !emsurface || !emsurface->auxdata.nrAuxData() )

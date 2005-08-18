@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.69 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.70 2005-08-18 19:37:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,11 +231,10 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
-
     const Coord3 displayspacepos =
-	SPM().getZScaleTransform()->transformBack(eventinfo.pickedpos);
+           SPM().getZScaleTransform()->transformBack(eventinfo.pickedpos);
     xytmousepos =
-	SPM().getUTM2DisplayTransform()->transformBack(displayspacepos);
+           SPM().getUTM2DisplayTransform()->transformBack(displayspacepos);
 
     mouseposval = mUndefValue;
     mouseposstr = "";
@@ -253,7 +252,8 @@ void Scene::mouseMoveCB( CallBacker* cb )
 	    {
 		float newmouseposval;
 		BufferString newstr;
-		so->getMousePosInfo( xytmousepos, newmouseposval, newstr );
+		so->getMousePosInfo( eventinfo, xytmousepos, newmouseposval,
+				     newstr );
 		if ( newstr != "" )
 		    mouseposstr = newstr;
 		if ( !mIsUndefined(newmouseposval) )
