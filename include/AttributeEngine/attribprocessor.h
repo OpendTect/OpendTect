@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.7 2005-08-01 08:55:17 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.8 2005-08-18 14:19:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,16 +34,16 @@ public:
     void		addOutput(Output*);
 
     int			nextStep();
-
+    int			totalNr() const;
     int 		nrDone() const 		{ return nrdone; }
 
-    void		addOutputInterest(int seloutp) {outpinterest+= seloutp;}
+    void		addOutputInterest(int sel)     { outpinterest_ += sel; }
+    void		setOutputIndex(int& index);
     
     Notifier<Attrib::Processor>      moveonly;
                      /*!< triggered after a position is reached that requires
                           no processing, e.g. during initial buffer fills. */
     
-    int			totalNr() const;
     const char*		getAttribName(); 	
     Provider*		getProvider() 		{ return provider; }
     ObjectSet<Output>   outputs;
@@ -56,8 +56,8 @@ protected:
     int			nriter;
     int			nrdone;
     bool 		is2d_;
-    TypeSet<int>	outpinterest;
-
+    TypeSet<int>	outpinterest_;
+    int			outputindex_;
 };
 
 

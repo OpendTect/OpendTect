@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.19 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.20 2005-08-18 14:19:21 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -84,7 +84,7 @@ TypeSet< Interval<int> > SliceSetOutput::getLocalZRange( const BinID& ) const
 
 
 void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
-				  float refstep, int )
+				  float refstep, int trcnr, int outidx )
 {
     if ( !sliceset )
     {
@@ -315,7 +315,7 @@ LineKey lineKey() const
 
 
 void CubeOutput::collectData( const BinID& bid, const DataHolder& data, 
-			      float refstep, int trcnr )
+			      float refstep, int trcnr, int outidx )
 {
     if ( !calcurpos_ ) return;
 
@@ -398,19 +398,28 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 
 
 void LocationOutput::collectData( const BinID& bid, const DataHolder& data,
-				  float refstep, int trcnr )
+				  float refstep, int trcnr, int outidx )
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     if ( !pos.valid() ) return;
 
-    if ( bidvalset_.nrVals()-1 != desoutputs.size() )
-	bidvalset_.setNrVals( desoutputs.size()+1 );
+    const int desnrvals = outidx+desoutputs.size()+1;
+    if ( bidvalset_.nrVals() < desnrvals )
+	bidvalset_.setNrVals( desnrvals );
 
-    float* vals = bidvalset_.getVals( pos );
-    for ( int comp=0; comp<desoutputs.size(); comp++ )
+    while ( true )
     {
-	float val = data.item(desoutputs[comp])->value(0);
-	vals[comp+1] = val;
+	float* vals = bidvalset_.getVals( pos );
+	const int zidx = mNINT(vals[0]/refstep);
+	if ( data.t0_ == zidx )
+	{
+	    for ( int comp=0; comp<desoutputs.size(); comp++ )
+		vals[outidx+comp+1] = data.item(desoutputs[comp])->value(0);
+	}
+
+	bidvalset_.next( pos );
+	if ( bid != bidvalset_.getBinID(pos) )
+	    break;
     }
 }
 
@@ -424,12 +433,20 @@ bool LocationOutput::wantsOutput( const BinID& bid ) const
 
 TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
 {
-    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
-    const float* vals = bidvalset_.getVals(pos);
     const float dz = SI().zStep();
-    Interval<int> interval( mNINT(vals[0]/dz), mNINT(vals[0]/dz) );
     TypeSet< Interval<int> > sampleinterval;
-    sampleinterval += interval;
+
+    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    while ( pos.valid() )
+    {
+	const float* vals = bidvalset_.getVals( pos );
+	Interval<int> interval( mNINT(vals[0]/dz), mNINT(vals[0]/dz) );
+	sampleinterval += interval;
+	bidvalset_.next( pos );
+	if ( bid != bidvalset_.getBinID(pos) )
+	    break;
+    }
+
     return sampleinterval;
 }
 
@@ -469,7 +486,7 @@ TrcSelectionOutput::~TrcSelectionOutput()
 
 
 void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
-				      float refstep, int trcnr )
+				      float refstep, int trcnr, int outidx )
 {
     int nrcomp = data.nrItems();
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )

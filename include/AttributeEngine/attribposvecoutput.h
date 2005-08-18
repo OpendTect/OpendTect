@@ -7,18 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.h,v 1.1 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: attribposvecoutput.h,v 1.2 2005-08-18 14:19:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
 #include "bufstringset.h"
+
 class NLAModel;
-class FeatureSet;
 class BinIDValueSet;
 class PosVecDataSet;
-class BufferStringSet;
 
 namespace Attrib
 {
@@ -31,10 +30,10 @@ class PosVecOutputGen : public Executor
 public:
 
 		PosVecOutputGen(const DescSet&,
-				  const BufferStringSet& attribdefkeys,
-				  const ObjectSet<BinIDValueSet>& positions,
-				  ObjectSet<PosVecDataSet>& output,
-				  const NLAModel* m=0);
+				const BufferStringSet& attribdefkeys,
+				const ObjectSet<BinIDValueSet>& positions,
+				ObjectSet<PosVecDataSet>& output,
+				const NLAModel* mdl=0);
 		~PosVecOutputGen()		{ cleanUp(); }
 
     const char*	message() const;
@@ -47,7 +46,6 @@ public:
 
 protected:
 
-    ObjectSet<FeatureSet>	workfss_;
     const BufferStringSet&	inps_;
     const DescSet&		ads_;
     const NLAModel*		nlamodel_;
@@ -65,9 +63,8 @@ protected:
     void			nextExec();
     void			addResults();
     int				nextStep();
-
 };
 
-};//namespace
+}; // namespace Attrib
 
 #endif

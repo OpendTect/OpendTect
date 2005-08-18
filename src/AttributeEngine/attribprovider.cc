@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.22 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.23 2005-08-18 14:19:21 cvsnanne Exp $";
 
 #include "attribprovider.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.22 2005-08-16 17:10:17 cv
 #include "seisreq.h"
 #include "survinfo.h"
 #include "threadwork.h"
+#include "arrayndimpl.h"
 
 
 namespace Attrib
@@ -534,37 +535,33 @@ bool Provider::setCurrentPosition( const BinID& bid )
 }
 
 
-void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
+void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
-    Interval<int> inputranges[inputs.size()][ni.size()];
+    const float surveystep = SI().zStep();
+    const float dz = mIsZero(refstep,mDefEps) ? surveystep : refstep;
+    const Interval<int> possintv( mNINT(possiblevolume->zrg.start/dz),
+	    			  mNINT(possiblevolume->zrg.stop/dz) );
 
-    float surveystep = SI().zStep();
-    const float dz = (refstep==0) ? surveystep : refstep;
-    int cssamplstart = (int)( possiblevolume->zrg.start / dz + 0.5);
-    int cssamplstop = (int)( possiblevolume->zrg.stop / dz + 0.5);
-    
-    for ( int idx=0; idx<ni.size(); idx++ )
+    Array2DImpl< Interval<int> > inputranges( inputs.size(), intvs.size() );
+    for ( int idx=0; idx<intvs.size(); idx++ )
     {
-	Interval<int> nigoodstep(ni[idx]);
-	if ( surveystep != refstep && refstep != 0 )
-	{
-	    nigoodstep.start *= (int)(surveystep / refstep + 0.5);
-	    nigoodstep.stop *= (int)(surveystep / refstep + 0.5);
-	}
-	
-	nigoodstep.start = ( cssamplstart < nigoodstep.start ) ? 
-			    nigoodstep.start : cssamplstart;
-	nigoodstep.stop = ( cssamplstop > nigoodstep.stop ) ? 
-			    nigoodstep.stop : cssamplstop;
+	Interval<int> reqintv = intvs[idx];
+	if ( !mIsEqual(dz,surveystep,mDefEps) )
+	    reqintv.scale( mNINT(surveystep/refstep) );
+
+	if ( possintv.start > reqintv.start )
+	    reqintv.start = possintv.start;
+	if ( possintv.stop < reqintv.stop )
+	    reqintv.stop = possintv.stop;
 
 	if ( !isUsedMultTimes() )
-	    localcomputezintervals += nigoodstep;
+	    localcomputezintervals += reqintv;
 	else
 	{
 	    if ( localcomputezintervals.size()<=idx )
-		localcomputezintervals += nigoodstep;
+		localcomputezintervals += reqintv;
 	    else
-		localcomputezintervals[idx].include(nigoodstep);
+		localcomputezintervals[idx].include(reqintv);
 	}
 
 	for ( int out=0; out<outputinterest.size(); out++ )
@@ -576,29 +573,30 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& ni )
 		if ( !inputs[inp] )
 		    continue;
 
-		Interval<int> inputrange( nigoodstep );
+		Interval<int> inputrange( reqintv );
 		Interval<float> zrg( 0, 0 );
 		const Interval<float>* req = reqZMargin( inp, out );
 		if ( req ) zrg = *req;
 		const Interval<float>* des = desZMargin( inp, out );
 		if ( des ) zrg.include( *des );
 
-		inputrange.start += (int)(zrg.start / dz - 0.5);
-		inputrange.stop += (int)(zrg.stop / dz + 0.5);
+		inputrange.start += mNINT(zrg.start/dz);
+		inputrange.stop += mNINT(zrg.stop/dz);
 
-		inputranges[inp][idx] = inputrange;
+		inputranges.set( inp, idx, inputrange );
 	    }
 	}
-	for ( int inp=0; inp<inputs.size(); inp++ )
-	{
-	    if ( !inputs[inp] )
-		continue;
+    }
 
-	    TypeSet<Interval<int> > inpranges;
-	    for ( int idinpr=0; idinpr<ni.size(); idinpr++ )
-		inpranges += inputranges[inp][idinpr];
-	    inputs[inp]->addLocalCompZIntervals( inpranges );
-	}
+    for ( int inp=0; inp<inputs.size(); inp++ )
+    {
+	if ( !inputs[inp] )
+	    continue;
+
+	TypeSet<Interval<int> > inpranges;
+	for ( int idx=0; idx<intvs.size(); idx++ )
+	    inpranges += inputranges.get( inp, idx );
+	inputs[inp]->addLocalCompZIntervals( inpranges );
     }
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.cc,v 1.1 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: attribposvecoutput.cc,v 1.2 2005-08-18 14:19:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "binidvalset.h"
 #include "posvecdataset.h"
-#include "featset.h"
+#include "datacoldef.h"
+#include "ioobj.h"
+#include "linekey.h"
 #include "ptrman.h"
 #include "multiid.h"
 
@@ -29,17 +31,17 @@ PosVecOutputGen::PosVecOutputGen( const DescSet& as,
 				  const ObjectSet<BinIDValueSet>& b,
 				  ObjectSet<PosVecDataSet>& v,
 				  const NLAModel* m )
-	: Executor("Extracting")
-	, ads_(as)
-	, inps_(in)
-	, bvss_(b)
-	, vdss_(v)
-	, nlamodel_(m)
-	, curlnr_(0)
-	, aem_(0)
-	, outex_(0)
-	, msg_("Scanning data")
-	, failed_(false)
+    : Executor("Extracting")
+    , ads_(as)
+    , inps_(in)
+    , bvss_(b)
+    , vdss_(v)
+    , nlamodel_(m)
+    , curlnr_(0)
+    , aem_(0)
+    , outex_(0)
+    , msg_("Scanning data")
+    , failed_(false)
 {
     if ( !ads_.is2D() )
 	linenames_.add( "" );
@@ -74,8 +76,9 @@ PosVecOutputGen::PosVecOutputGen( const DescSet& as,
 
 void PosVecOutputGen::cleanUp()
 {
-    delete aem_; delete outex_; deepErase( workfss_ );
+    delete aem_; delete outex_;
 }
+
 
 const char* PosVecOutputGen::message() const
 {
@@ -91,6 +94,7 @@ const char* PosVecOutputGen::message() const
 	    msg_ += linenames_.get(curlnr_);
 	}
     }
+
     return msg_.buf();
 }
 
@@ -103,7 +107,7 @@ void PosVecOutputGen::nextExec()
     aem_->setNLAModel( nlamodel_ );
     aem_->setUndefValue( mUndefValue );
     aem_->setLineKey( linenames_.get(curlnr_) );
-    outex_ = aem_->featureOutputCreator( inps_, bvss_, workfss_ );
+    outex_ = aem_->featureOutputCreator( inps_, bvss_ );
     setName( outex_->name() );
 }
 
@@ -112,45 +116,31 @@ void PosVecOutputGen::addResults()
 {
     if ( curlnr_ == 0 )
     {
-	// The problem is that some feature sets may be empty
-	// In that case the descs are also bad
-	// So we need to find a template featset which is filled
-	FeatureSet* tmplfs = 0;
-	for ( int idx=0; idx<workfss_.size(); idx++ )
+	for ( int idx=0; idx<bvss_.size(); idx++ )
 	{
-	    vdss_ += new PosVecDataSet;
-	    FeatureSet* fs = workfss_[idx];
-	    if ( !tmplfs && fs->descs().size() > 0 && fs->size() > 0 )
+	    PosVecDataSet* pvds = new PosVecDataSet;
+	    for ( int validx=0; validx<bvss_[idx]->nrVals()-1; validx++ )
 	    {
-		tmplfs = fs;
-		fs->fill( *vdss_[idx] );
-		fs->erase();
+		BufferString ref = inps_.get( validx );
+		BufferString nm = ref;
+		if ( IOObj::isKey(ref) )
+		    nm = LineKey::defKey2DispName( ref, 0, false );
+		pvds->add( new DataColDef(nm,ref) );
 	    }
-	}
-	if ( !tmplfs )
-	    return;
 
-	for ( int idx=0; idx<workfss_.size(); idx++ )
-	{
-	    FeatureSet* fs = workfss_[idx];
-	    PosVecDataSet* vds = vdss_[idx];
-	    if ( fs == tmplfs )
-		continue;
-	    else if ( fs->size() == 0 )
-		tmplfs->fill( *vds );
-	    else
-		fs->fill( *vds );
+	    pvds->data() = *bvss_[idx];
+	    vdss_ += pvds;
 	}
-	deepErase( workfss_ );
     }
     else
     {
-	for ( int ifs=0; ifs<workfss_.size(); ifs++ )
+	/*
+	for ( int idx=0; idx<workfss_.size(); idx++ )
 	{
-	    FeatureSet& genfs = *workfss_[ifs];
+	    FeatureSet& genfs = *workfss_[idx];
 	    const int nrcols = genfs.descs().size() + 1;
 	    float vals[nrcols];
-	    PosVecDataSet& vds = *vdss_[ifs];
+	    PosVecDataSet& vds = *vdss_[idx];
 	    while ( genfs.size() )
 	    {
 		FeatureVec* fv = genfs.releaseLast();
@@ -161,7 +151,7 @@ void PosVecOutputGen::addResults()
 		delete fv;
 	    }
 	}
-	deepErase( workfss_ );
+	*/
     }
 }
 

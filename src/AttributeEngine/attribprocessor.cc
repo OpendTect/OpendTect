@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.12 2005-08-03 10:31:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.13 2005-08-18 14:19:21 cvsnanne Exp $";
 
 #include "attribprocessor.h"
 
@@ -27,6 +27,7 @@ Processor::Processor( Desc& desc , const char* lk )
     , nrdone(0)
     , lk_(lk)
     , moveonly(this)
+    , outputindex_(0)
 {
     if ( !provider ) return;
     provider->ref();
@@ -61,14 +62,19 @@ void Processor::addOutput( Output* output )
 
 
 int Processor::nextStep()
-{    
+{
+    if ( !provider ) return ErrorOccurred;
+
     if ( !nriter )
     {
+	if ( !outputs.size() )
+	    return ErrorOccurred;
+
 	TypeSet<int> globaloutputinterest;
 	CubeSampling globalcs;
 	for ( int idx=0; idx<outputs.size(); idx++ )
 	{
-	    provider->setSelData( outputs[idx]->getSelData() );
+//	    provider->setSelData( outputs[idx]->getSelData() );
 
 	    CubeSampling cs;
 	    if ( !outputs[idx]->getDesiredVolume(cs) )
@@ -88,16 +94,26 @@ int Processor::nextStep()
 		globalcs.zrg.include(cs.zrg);
 	    }
 
-	    for ( int idy=0; idy<outpinterest.size(); idy++ )
+	    for ( int idy=0; idy<outpinterest_.size(); idy++ )
 	    {
-		if ( globaloutputinterest.indexOf(outpinterest[idy])==-1 )
-		    globaloutputinterest += outpinterest[idy];
+		if ( globaloutputinterest.indexOf(outpinterest_[idy])==-1 )
+		    globaloutputinterest += outpinterest_[idy];
 	    }
-	    outputs[idx]->setDesiredOutputs( outpinterest );
+	    outputs[idx]->setDesiredOutputs( outpinterest_ );
 	}
 
-	if ( !outputs.size() )
-	    return 0;
+	SeisSelData sd;
+	if ( outputs.size()>1 && outputs[0]->getSelData().type_==Seis::Table )
+	{
+	    for ( int idx=0; idx<outputs.size(); idx++ )
+	    {
+		if ( !idx ) sd = outputs[0]->getSelData();
+		else sd.include( outputs[idx]->getSelData() );
+	    }
+	}
+
+	if ( sd.type_ == Seis::Table )
+	    provider->setSelData( sd );
 
 	for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
 	    provider->enableOutput(globaloutputinterest[idx], true );
@@ -146,7 +162,7 @@ int Processor::nextStep()
 	for ( int idi=0; idi<localintervals.size(); idi++ )
 	{
 	    const DataHolder* data = isset ? 
-				    provider->getData(BinID(0,0),idi) : 0;
+				    provider->getData( BinID(0,0), idi ) : 0;
 	    if ( data )
 	    {
 		for ( int idx=0; idx<outputs.size(); idx++ )
@@ -156,7 +172,8 @@ int Processor::nextStep()
 			curbid = provider->getCurrentPosition();
 		    outputs[idx]->collectData( curbid, *data,
 						provider->getRefStep(),
-						provider->getCurrentTrcNr() );
+						provider->getCurrentTrcNr(),
+						outputindex_ );
 		}
 	    }
 	}
@@ -174,13 +191,20 @@ int Processor::nextStep()
 
 int Processor::totalNr() const
 {
-    return provider->getTotalNrPos(is2d_);
+    return provider ? provider->getTotalNrPos(is2d_) : 0;
 }
 
 
 const char* Processor::getAttribName()
 {
     return desc_.attribName();
+}
+
+
+void Processor::setOutputIndex( int& index )
+{
+    outputindex_ = index;
+    index += outpinterest_.size();
 }
 
 }; // namespace Attrib

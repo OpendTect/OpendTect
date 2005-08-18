@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.7 2005-08-01 07:33:05 cvsnanne Exp $
+ RCS:           $Id: attribengman.h,v 1.8 2005-08-18 14:19:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
 class ExecutorGroup;
-class FeatureSet;//to remove
 class IOPar;
 class LineKey;
 class NLAModel;
@@ -81,8 +80,7 @@ public:
     			//!< Mem transfer here
 
     ExecutorGroup* 	featureOutputCreator(const BufferStringSet& inputs,
-					const ObjectSet<BinIDValueSet>&,
-					ObjectSet<FeatureSet>&);
+					     const ObjectSet<BinIDValueSet>&);
 
     ExecutorGroup*	screenOutput2DCreator(BufferString& errmsg);
     ExecutorGroup*	locationOutputCreator(BufferString& errmsg,
@@ -109,10 +107,10 @@ protected:
     TypeSet<DescID>	outattribs;
     SelSpec&      	attrspec;
 
-    bool		getProcessors(ObjectSet<Processor>&, 
-				      BufferString& errmsg, bool, 
-	    			      bool addcurid=true);
-    BufferString	createExecutorName();
+    bool		getProcessors(ObjectSet<Processor>&,BufferString& err,
+	    			      bool need_selspecid);
+    BufferString	createExecutorName() const;
+    ExecutorGroup*	createExecutorGroup() const;
 
 private:
 
