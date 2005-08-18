@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.41 2005-08-18 13:36:54 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.42 2005-08-18 14:23:12 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -133,9 +133,10 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	}
 	if ( dumpsd.usable() )
 	{
-	    *dumpsd.ostrm << "SEG-Y text header:\n\n";
+	    *dumpsd.ostrm << "SEG-Y Text header:\n\n-------\n";
 	    txthead.print( *dumpsd.ostrm );
-	    *dumpsd.ostrm << "\n\nInfo present in SEG-Y binary header:\n\n";
+	    *dumpsd.ostrm << "-------\n\n\nSEG-Y Binary header:\n\n";
+	    *dumpsd.ostrm << "\tField\tByte\tValue\n\n";
 	    binhead.print( *dumpsd.ostrm );
 	}
     }
@@ -185,8 +186,8 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     if ( itrc <= ntrheadstodump && dumpsd.usable() )
     {
 	if ( itrc == 1 )
-	    *dumpsd.ostrm << "\n\n\n\tField\tByte\tValue\n\n";
-	*dumpsd.ostrm << "\nTrace " << itrc << ":\n";
+	    *dumpsd.ostrm << "\n\n\n";
+	*dumpsd.ostrm << "\nTrace header " << itrc << ":\n\n";
 	trhead.print( *dumpsd.ostrm );
 	if ( itrc != ntrheadstodump )
 	    *dumpsd.ostrm << std::endl;

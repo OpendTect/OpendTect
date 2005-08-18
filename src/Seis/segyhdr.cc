@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.28 2005-08-16 12:33:58 cvsdgb Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.29 2005-08-18 14:23:12 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -384,23 +384,28 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
     for ( i=0; i<len; i++ ) chbuf[i] = a2e[chbuf[i]];
 }
 
-#define prmem(mem) if (mem) { stream << #mem << "\t= " << mem << std::endl; }
 
-void SegyBinHeader::print( std::ostream& stream ) const
+#define mPrHead(mem,byt) \
+    if ( mem ) { strm << '\t' << #mem << '\t' << byt+1 << '\t' << mem << '\n'; }
+
+void SegyBinHeader::print( std::ostream& strm ) const
 {
-    prmem(jobid); prmem(lino); prmem(reno); prmem(ntrpr);
-    prmem(nart); prmem(hdt); prmem(dto); prmem(hns); prmem(nso);
-    prmem(format); prmem(fold); prmem(tsort); prmem(vscode); prmem(hsfs);
-    prmem(hsfe); prmem(hslen); prmem(hstyp); prmem(schn); prmem(hstas);
-    prmem(hstae); prmem(htatyp); prmem(hcorr); prmem(bgrcv); prmem(rcvm);
-    prmem(mfeet); prmem(polyt); prmem(vpol); prmem(isrev1); prmem(fixedtrcsz);
-    prmem(nrstanzas);
+    mPrHead(jobid,0); mPrHead(lino,4); mPrHead(reno,8); mPrHead(ntrpr,12);
+    mPrHead(nart,14); mPrHead(hdt,16); mPrHead(dto,18); mPrHead(hns,20);
+    mPrHead(nso,22); mPrHead(format,24); mPrHead(fold,26); mPrHead(tsort,28);
+    mPrHead(vscode,30); mPrHead(hsfs,32); mPrHead(hsfe,34); mPrHead(hslen,36);
+    mPrHead(hstyp,38); mPrHead(schn,40); mPrHead(hstas,42); mPrHead(hstae,44);
+    mPrHead(htatyp,46); mPrHead(hcorr,48); mPrHead(bgrcv,50); mPrHead(rcvm,52);
+    mPrHead(mfeet,54); mPrHead(polyt,56); mPrHead(vpol,58);
+    mPrHead(isrev1,300); mPrHead(fixedtrcsz,302); mPrHead(nrstanzas,304);
     for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
 	if ( hunass[i] != 0 && (i < 21 || i > 23) )
-	    stream << "hunass[" << i << "] = " << hunass[i] << std::endl;
+	    strm << "\tunass\t" << 60 + 2*i << '\t' << hunass[i] << '\n';
+    strm << std::endl;
 }
 
 
+#undef mPrHead
 #define mPrHead(mem,byt,fun) \
 strm << '\t' << #mem << '\t' << byt+1 \
      << '\t' << IbmFormat::as##fun( buf+byt ) << '\n'
