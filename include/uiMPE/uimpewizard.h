@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.7 2005-08-12 21:52:40 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.8 2005-08-18 14:44:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ protected:
     bool			leaveSetupPage(bool);
     bool			leaveFinalizePage(bool);
 
-    bool			prepareNamePage() { return true; }
+    bool			prepareNamePage();
     bool			prepareSeedPage();
     bool			prepareSetupPage();
     bool			prepareFinalizePage() { return true; }

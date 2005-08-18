@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.9 2005-08-12 21:52:42 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.10 2005-08-18 14:44:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,12 @@ uiGroup* Wizard::createNamePage()
     return grp;
 }
 
+
+bool Wizard::prepareNamePage()
+{
+    namefld->setFocus();
+    return true;
+}
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
