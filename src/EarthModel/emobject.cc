@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.40 2005-08-18 19:32:40 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.41 2005-08-19 14:56:32 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -20,33 +20,34 @@ static const char* rcsID = "$Id: emobject.cc,v 1.40 2005-08-18 19:32:40 cvskris 
 #include "iopar.h"
 #include "ptrman.h"
 
+using namespace EM;
 
 
-int EM::EMObject::sPermanentControlNode	= 0;
-int EM::EMObject::sTemporaryControlNode	= 1;
-int EM::EMObject::sEdgeControlNode	= 2;
-int EM::EMObject::sTerminationNode	= 3;
-int EM::EMObject::sSeedNode		= 4;
+
+int EMObject::sPermanentControlNode	= 0;
+int EMObject::sTemporaryControlNode	= 1;
+int EMObject::sEdgeControlNode		= 2;
+int EMObject::sTerminationNode		= 3;
+int EMObject::sSeedNode			= 4;
 
 
-const char* EM::EMObject::prefcolorstr = "Color";
-const char* EM::EMObject::posattrprefixstr = "Pos Attrib ";
-const char* EM::EMObject::posattrsectionstr = " Section";
-const char* EM::EMObject::posattrposidstr = " SubID";
-const char* EM::EMObject::nrposattrstr = "Nr Pos Attribs";
+const char* EMObject::prefcolorstr 	= "Color";
+const char* EMObject::posattrprefixstr 	= "Pos Attrib ";
+const char* EMObject::posattrsectionstr = " Section";
+const char* EMObject::posattrposidstr 	= " SubID";
+const char* EMObject::nrposattrstr 	= "Nr Pos Attribs";
 
 
-EM::ObjectFactory::ObjectFactory( EMObjectCreationFunc cf, 
-				  const IOObjContext& ctx,
-				  const char* tstr )
+ObjectFactory::ObjectFactory( EMObjectCreationFunc cf, 
+			      const IOObjContext& ctx,
+			      const char* tstr )
     : creationfunc( cf )
     , context( ctx )
     , typestr( tstr )
 {}
 
 
-EM::EMObject* EM::ObjectFactory::create( const char* name, bool tmpobj,
-					 EMManager& emm )
+EMObject* ObjectFactory::create( const char* name, bool tmpobj, EMManager& emm )
 {
     if ( tmpobj )
 	return creationfunc( -1, emm );
@@ -70,7 +71,7 @@ EM::EMObject* EM::ObjectFactory::create( const char* name, bool tmpobj,
 }
 
 
-EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
+EMObject::EMObject( EMManager& emm_, const ObjectID& id__ )
     : manager(emm_)
     , notifier(this)
     , id_(id__)
@@ -81,7 +82,7 @@ EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
 }
 
 
-EM::EMObject::~EMObject()
+EMObject::~EMObject()
 {
     manager.removeObject(this);
     deepErase( posattribs );
@@ -91,7 +92,7 @@ EM::EMObject::~EMObject()
 }
 
 
-BufferString EM::EMObject::name() const
+BufferString EMObject::name() const
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     static BufferString objnm;
@@ -100,7 +101,7 @@ BufferString EM::EMObject::name() const
 }
 
 
-int EM::EMObject::sectionIndex( const SectionID& sid ) const
+int EMObject::sectionIndex( const SectionID& sid ) const
 {
     for ( int idx=0; idx<nrSections(); idx++ )
 	if ( sectionID(idx)==sid )
@@ -110,18 +111,26 @@ int EM::EMObject::sectionIndex( const SectionID& sid ) const
 }
 
 
-BufferString EM::EMObject::sectionName( const SectionID& sid ) const
+BufferString EMObject::sectionName( const SectionID& sid ) const
 {
     BufferString res = sid;
     return res;
 }
 
 
-const Geometry::Element* EM::EMObject::getElement( SectionID sec ) const
+bool EMObject::canSetSectionName() const
+{ return false; }
+
+
+bool EMObject::setSectionName( const SectionID&, const char* )
+{ return false; }
+
+
+const Geometry::Element* EMObject::getElement( SectionID sec ) const
 { return 0; }
 
 
-Coord3 EM::EMObject::getPos( const EM::PosID& pid ) const
+Coord3 EMObject::getPos( const PosID& pid ) const
 {
     if ( pid.objectID()!=id() )
 	return  Coord3::udf();
@@ -132,8 +141,8 @@ Coord3 EM::EMObject::getPos( const EM::PosID& pid ) const
 
 #define mRetErr( msg ) { errmsg = msg; return false; }
 
-bool EM::EMObject::setPos( const EM::PosID& pid, const Coord3& newpos,
-			     bool addtohistory ) 
+bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
+			bool addtohistory ) 
 {
     if ( pid.objectID()!=id() )
 	mRetErr("");
@@ -149,17 +158,17 @@ bool EM::EMObject::setPos( const EM::PosID& pid, const Coord3& newpos,
      if ( !addtohistory ) return true;
 
      HistoryEvent* history = new SetPosHistoryEvent(oldpos,pid);
-     EM::EMM().history().addEvent( history, 0, 0 );
+     EMM().history().addEvent( history, 0, 0 );
 
      return true;
 }
 
 
-const Color& EM::EMObject::preferredColor() const
+const Color& EMObject::preferredColor() const
 { return preferredcolor; }
 
 
-void EM::EMObject::setPreferredColor(const Color& col)
+void EMObject::setPreferredColor(const Color& col)
 {
     if ( col==preferredcolor )
 	return;
@@ -171,14 +180,14 @@ void EM::EMObject::setPreferredColor(const Color& col)
 }
 
 
-bool EM::EMObject::unSetPos(const EM::PosID& pid, bool addtohistory )
+bool EMObject::unSetPos(const PosID& pid, bool addtohistory )
 {
     return setPos( pid, Coord3::udf(), addtohistory );
 }
 
 
-void EM::EMObject::changePosID( const EM::PosID& from, const EM::PosID& to,
-				bool addtohistory )
+void EMObject::changePosID( const PosID& from, const PosID& to,
+			    bool addtohistory )
 {
     if ( from.objectID()!=id() || to.objectID()!=id() )
 	return;
@@ -191,7 +200,7 @@ void EM::EMObject::changePosID( const EM::PosID& from, const EM::PosID& to,
     {
 	SurfacePosIDChangeEvent* event = new SurfacePosIDChangeEvent( from, to,
 						    tosprevpos );
-	EM::EMM().history().addEvent( event, 0, 0 );
+	EMM().history().addEvent( event, 0, 0 );
     }
 
     EMObjectCallbackData cbdata;
@@ -202,7 +211,7 @@ void EM::EMObject::changePosID( const EM::PosID& from, const EM::PosID& to,
 }
 
 
-bool EM::EMObject::isDefined( const EM::PosID& pid ) const
+bool EMObject::isDefined( const PosID& pid ) const
 { 
     if ( pid.objectID()!=id() )
 	return  false;
@@ -212,7 +221,7 @@ bool EM::EMObject::isDefined( const EM::PosID& pid ) const
 }
 
 
-MultiID EM::EMObject::multiID() const
+MultiID EMObject::multiID() const
 {
     MultiID res = getIOObjContext().stdSelKey();
     res.add(id());
@@ -220,7 +229,7 @@ MultiID EM::EMObject::multiID() const
 }
 
 
-void EM::EMObject:: removePosAttrib(int attr)
+void EMObject:: removePosAttrib(int attr)
 {
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
@@ -230,7 +239,7 @@ void EM::EMObject:: removePosAttrib(int attr)
 }
 
 
-void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
+void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn )
 {
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::AttribChange;
@@ -243,12 +252,12 @@ void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 	if ( yn )
 	{
 	    attribs += attr;
-	    posattribs += new TypeSet<EM::PosID>(1,pid);
+	    posattribs += new TypeSet<PosID>(1,pid);
 	}
     }
     else
     {
-	TypeSet<EM::PosID>& posids = *posattribs[idx];
+	TypeSet<PosID>& posids = *posattribs[idx];
 	const int idy=posids.indexOf(pid);
 
 	if ( idy==-1 )
@@ -265,13 +274,13 @@ void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 }
 
 
-bool EM::EMObject::isPosAttrib( const EM::PosID& pid, int attr ) const
+bool EMObject::isPosAttrib( const PosID& pid, int attr ) const
 {
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
 	return false;
 
-    TypeSet<EM::PosID>& posids = *posattribs[idx];
+    TypeSet<PosID>& posids = *posattribs[idx];
     const int idy=posids.indexOf(pid);
 
     if ( idy==-1 )
@@ -281,34 +290,34 @@ bool EM::EMObject::isPosAttrib( const EM::PosID& pid, int attr ) const
 }
 
 
-const char* EM::EMObject::posAttribName( int idx ) const
+const char* EMObject::posAttribName( int idx ) const
 {
     return 0;
 }
 
 
-int EM::EMObject::nrPosAttribs() const
+int EMObject::nrPosAttribs() const
 { return attribs.size(); }
 
 
-int EM::EMObject::posAttrib(int idx) const
+int EMObject::posAttrib(int idx) const
 { return attribs[idx]; }
 
 
-int EM::EMObject::addPosAttribName( const char* name )
+int EMObject::addPosAttribName( const char* name )
 {
     return -1;
 }
 
 
-const TypeSet<EM::PosID>* EM::EMObject::getPosAttribList(int attr) const
+const TypeSet<PosID>* EMObject::getPosAttribList(int attr) const
 {
     const int idx=attribs.indexOf(attr);
     return idx!=-1 ? posattribs[idx] : 0;
 }
 
 
-bool EM::EMObject::usePar( const IOPar& par )
+bool EMObject::usePar( const IOPar& par )
 {
     int col;
     if ( par.get( prefcolorstr, col ) )
@@ -353,7 +362,7 @@ bool EM::EMObject::usePar( const IOPar& par )
 }
 
 
-void EM::EMObject::fillPar( IOPar& par ) const
+void EMObject::fillPar( IOPar& par ) const
 {
     par.set( prefcolorstr, (int) preferredColor().rgb() );
 
@@ -389,9 +398,9 @@ void EM::EMObject::fillPar( IOPar& par ) const
 }
 
 
-void EM::EMObject::posIDChangeCB(CallBacker* cb)
+void EMObject::posIDChangeCB(CallBacker* cb)
 {
-    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    mCBCapsuleUnpack(const EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event!=EMObjectCallbackData::PosIDChange )
 	return;
 

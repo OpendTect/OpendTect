@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.40 2005-08-18 19:32:40 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.41 2005-08-19 14:56:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,8 @@ public:
     virtual int			nrSections() const 			= 0;
     virtual SectionID		sectionID( int ) const			= 0;
     virtual BufferString	sectionName( const SectionID& ) const;
+    virtual bool		canSetSectionName() const;
+    virtual bool		setSectionName( const SectionID&, const char* );
     virtual int			sectionIndex( const SectionID& ) const;
     virtual bool		removeSection( SectionID, bool hist )
     					{ return false; }
