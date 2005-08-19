@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.17 2005-08-16 12:40:31 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.18 2005-08-19 14:24:02 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -215,9 +215,16 @@ bool ZGateParam::getCompositeValue( BufferString& res ) const
 }
 
 
+Interval<float> ZGateParam::getValue() const
+{
+    FloatInpIntervalSpec* spec = reinterpret_cast<FloatInpIntervalSpec*>(spec_);
+    return Interval<float>( spec->value(0), spec->value(1) );
+}
+
+
 
 BinIDParam::BinIDParam( const char* nm )
-    : ValParam( nm, new BinIDCoordInpSpec(false,true,false) )
+    : ValParam( nm, new BinIDInpSpec() )
 {}
 
 
@@ -272,7 +279,7 @@ bool BinIDParam::getCompositeValue( BufferString& res ) const
 
 BinID BinIDParam::getValue() const
 {
-    BinIDCoordInpSpec* spec = reinterpret_cast<BinIDCoordInpSpec*>(spec_);
+    BinIDInpSpec* spec = reinterpret_cast<BinIDInpSpec*>(spec_);
     return BinID( mNINT(spec->value(0)), mNINT(spec->value(1)) );
 }
 
