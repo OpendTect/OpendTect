@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.27 2005-08-17 10:04:12 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.28 2005-08-19 13:03:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.27 2005-08-17 10:04:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.28 2005-08-19 13:03:45 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -178,7 +178,6 @@ void uiODMenuMgr::fillFileMenu()
     uiPopupMenu* expseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
     mInsertItem( expseissgy, "&3-D ...", mExpSeisSEGY3DMnuItm );
     mInsertItem( expseissgy, "&2-D ...", mExpSeisSEGY2DMnuItm );
-    mInsertItem( expseissgy, "&Pre-stack ...", mExpSeisSEGYPSMnuItm );
     expseis->insertItem( expseissgy );
     uiPopupMenu* exphor = new uiPopupMenu( &appl, "&Horizons" );
     expmnu->insertItem( expseis );
