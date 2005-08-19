@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.7 2005-03-24 08:20:57 cvsduntao Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.8 2005-08-19 13:48:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,15 +162,14 @@ public:
 					   transform(area.bottomRight()) );
 			}
 			// Since the compiler will be comfused if two functions
-			// only differ in return type, DataPoint2D<float> is set
-			// rather than be returned.
-    inline void		transform( const uiPoint& upt, DataPoint2D<float>& pt )
-    			{
-			   pt.x = toWorldX( upt.x() ); 
-			   pt.y = toWorldY( upt.y() );
-			}
-    inline void		transform( const DataPoint2D<float>& pt, uiPoint& upt )
-    			{  upt.setXY( toUiX( pt.x ), toUiY( pt.y ) ); };
+			// only differ in return type, Geom::Point2D<float> is
+			// set rather than be returned.
+    inline void		transform( const uiPoint& upt,
+	    			   Geom::Point2D<float>& pt ) const
+    			{ pt.setXY( toWorldX(upt.x()), toWorldY(upt.y()) ); }
+    inline void		transform( const Geom::Point2D<float>& pt,
+	    			   uiPoint& upt) const
+    			{  upt.setXY( toUiX( pt.x() ), toUiY( pt.y() ) ); };
     
     inline int		toUiX ( float wrdx ) const
     			{ return (int)((wrdx-p0.x())/fac.x()+uiorigin.x()+.5); }

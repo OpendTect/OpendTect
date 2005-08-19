@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: linear.h,v 1.2 2005-01-28 13:31:16 bert Exp $
+ RCS:		$Id: linear.h,v 1.3 2005-08-19 13:48:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "mathfunc.h"
+#include "geometry.h"
 
 
 /*!\brief steepness and intercept. */
@@ -59,7 +60,7 @@ public:
     float	corrcoeff;	// Correlation coefficient
 
     void	use(const float*,const float*,int nrpts);
-    void	use(const DataPoint2D<float>*,int nrpts);
+    void	use(const Geom::Point2D<float>*,int nrpts);
 };
 
 

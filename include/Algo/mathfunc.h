@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.14 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:		$Id: mathfunc.h,v 1.15 2005-08-19 13:48:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,49 +18,6 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include <math.h>
 class LinePars;
-
-
-/*!\brief 2D data point. */
-template <class T>
-class DataPoint2D
-{ 
-public:
-    T x, y;
-    DataPoint2D() {};
-    DataPoint2D(const T& x1, const T& y1)
-    {
-	x = x1; y = y1;
-    }
-    bool operator==(const DataPoint2D<T>& dt) const
-    {
-	return x == dt.x && y == dt.y;
-    }
-    bool operator!=(const DataPoint2D<T>& dt) const
-    {
-	return x != dt.x || y != dt.y;
-    }
-};
-
-/*!\brief 3D data point. */
-template <class T>
-class DataPoint3D
-{ 
-public:
-    T x, y, z;
-    DataPoint3D() {};
-    DataPoint3D(const T& x1, const T& y1, const T& z1)
-    {
-	x = x1; y = y1; z = z1;
-    }
-    bool operator==(const DataPoint3D<T>& dt) const
-    {
-	return x == dt.x && y == dt.y && z == dt.z;
-    }
-    bool operator!=(const DataPoint3D<T>& dt) const
-    {
-	return x != dt.x || y != dt.y || z != dt.z;
-    }
-};
 
 
 /*!\brief Multidimensional Mathematical function
