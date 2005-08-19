@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.13 2005-08-01 13:57:19 cvsnanne Exp $
+ RCS:           $Id: attribdescset.h,v 1.14 2005-08-19 07:17:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&,BufferStringSet* errmsgs=0);
     bool			createSteeringDesc(const IOPar&,BufferString,
-						   ObjectSet<Desc>&, 
+						   ObjectSet<Desc>&, int& id, 
 						   BufferStringSet* errmsgs=0);
 	    
 

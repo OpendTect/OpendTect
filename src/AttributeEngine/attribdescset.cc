@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.22 2005-08-12 11:12:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.23 2005-08-19 07:17:54 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -213,13 +213,15 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	    descpar->set(definitionStr(),newdef);
 	}
 
+	int steeringdescid = -1;
 	const IOPar* steeringpar = descpar->subselect("Steering");
 	if ( steeringpar )
 	{
 	    const char* defstring = descpar->find(definitionStr());
 	    if ( !defstring )
 		mHandleParseErr("No attribute definition string specified");
-	    if ( !createSteeringDesc(*steeringpar, defstring, newsteeringdescs))
+	    if ( !createSteeringDesc(*steeringpar, defstring, newsteeringdescs,
+					steeringdescid ) )
 	    {
 	        BufferString err = "Cannot create steering desc ";
 	        mHandleParseErr(err);
@@ -277,7 +279,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 		{
 		    BufferString newinput = id;
 		    newinput = IOPar::compKey( newinput, inputstr );
-		    copypar.set( newinput, maxid + newsteeringdescs.size() );
+		    copypar.set( newinput, maxid + steeringdescid +1 );
 		}
 	    }
 	}
@@ -286,9 +288,9 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
     }
 
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
-	addDesc( newsteeringdescs[idx] );
+	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, true ) );
 
-    for ( int idx=0; idx<ids.size(); idx++ )
+    for ( int idx=0; idx<ids.size()-newsteeringdescs.size(); idx++ )
     {
 	const BufferString idstr( ids[idx].asInt() );
 	PtrMan<IOPar> descpar = copypar.subselect(idstr);
@@ -331,7 +333,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 bool DescSet::createSteeringDesc( const IOPar& steeringpar, 
 				  BufferString defstring,
-				  ObjectSet<Desc>& newsteeringdescs,
+				  ObjectSet<Desc>& newsteeringdescs, int& id,
 				  BufferStringSet* errmsgs )
 {
     BufferString steeringtype = steeringpar.find("Type");
@@ -427,6 +429,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     usrrefstr += newsteeringdescs.size();
     stdesc->setUserRef( usrrefstr );
     stdesc->setSteering(true);
+    stdesc->setHidden(true);
     
     const char* inldipstr = steeringpar.find("InlDipID");
     if ( inldipstr )
@@ -443,8 +446,17 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     }	
 
 //TODO see what's going on for the phase input	
+    for ( int idx=0; idx<newsteeringdescs.size(); idx++ )
+    {
+	if ( stdesc->isIdenticalTo(*newsteeringdescs[idx]) )
+	{
+	    id = idx;
+	    return true;
+	}
+    }
     stdesc->ref();
     newsteeringdescs += stdesc;
+    id = newsteeringdescs.size()-1;
     
     return true;
 }

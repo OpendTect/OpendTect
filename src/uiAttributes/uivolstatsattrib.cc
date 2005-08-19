@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.3 2005-08-04 14:38:30 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.4 2005-08-19 07:17:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
     mIfGetBinID( VolStats::stepoutStr(), stepout,
 	         stepoutfld->setBinID(stepout) );
     mIfGetEnum( VolStats::shapeStr(), shape,
-	        shapefld->setValue(!shape) );
+	        shapefld->setValue(shape) );
     return true;
 }
 

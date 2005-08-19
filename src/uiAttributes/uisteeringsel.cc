@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.8 2005-08-18 08:49:42 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.9 2005-08-19 07:17:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "paramsetget.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
@@ -41,6 +42,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
     , dirfld(0)
     , dipfld(0)
     , is2d_(false)
+    , fixed_(false)
 {
     RefMan<Desc> desc = PF().createDescCopy( "FullSteering" );
     if ( !desc )
@@ -111,17 +113,14 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 
     setDescSet( ad->descSet() );
 
-    int type = typfld->getIntValue();
+    int type = 0;
     BufferString attribname = ad->attribName();
     if ( attribname == "ConstantSteering" )
     {
 	type = 3;
 	const Attrib::Desc& desc = *ad;
-	float dip, azi;
-	mGetFloat( dip, "dip" );
-	mGetFloat( azi, "azi" );
-	dirfld->setValue( azi );
-	dipfld->setValue( dip );
+	mIfGetFloat( "dip", dip, dipfld->setValue( dip ) );
+	mIfGetFloat( "azi", azi, dirfld->setValue( azi ) );
     }
     else if ( attribname == "CentralSteering" )
     {
@@ -136,7 +135,8 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 	inpfld->updateHistory( inpselhist );
     }
 
-    typfld->setValue( type );
+    if ( !fixed_ )
+	typfld->setValue( type );
     typeSel( 0 );
 }
 
@@ -145,6 +145,11 @@ void uiSteeringSel::setDescSet( const DescSet* ads )
 {
     descset_ = ads;
     inpfld->setDescSet( ads );
+    if ( !fixed_ )
+    {
+	typfld->setValue( 0 );
+	typeSel( 0 );
+    }
 }
 
 
@@ -227,6 +232,7 @@ void uiSteeringSel::setType( int nr, bool fixed )
     if ( !typfld ) return;
     typfld->setValue( nr );
     typfld->setSensitive( !fixed );
+    fixed_ = fixed;
     typeSel(0);
 }
 

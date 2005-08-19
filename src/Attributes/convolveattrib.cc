@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.7 2005-08-19 07:17:54 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -261,8 +261,8 @@ Convolve::Convolve( Desc& desc_ )
     : Provider( desc_ )
     , shape (-1)
     , size(0)
-    , kernel(-1,-1,0)
     , stepout(0,0)
+    , kernel(0)
 {
     if ( !isOK() ) return;
 
@@ -275,30 +275,31 @@ Convolve::Convolve( Desc& desc_ )
 	mGetInt( size, sizeStr() );
     }
 
-    kernel = *( new Kernel( kerneltype, shape , size ) );
-    stepout =  kernel.getStepout();
+    kernel = new Kernel( kerneltype, shape , size );
+    stepout = kernel->getStepout();
 }
 
-Convolve::~Convolve( )
+
+Convolve::~Convolve()
 {
-    delete &kernel;
+    delete kernel;
 }
 
 
 bool Convolve::getInputOutput( int input, TypeSet<int>& res ) const
 {
-        return Provider::getInputOutput( input, res );
+    return Provider::getInputOutput( input, res );
 }
 
 
 bool Convolve::getInputData( const BinID& relpos, int idx )
 {
-    BinID stepout = kernel.getStepout();
+    BinID stepout = kernel->getStepout();
     int sz = (1+stepout.inl*2) * (1+stepout.crl*2);
     
     while ( inputdata.size()< sz )
 	inputdata += 0;
-   
+
     const BinID bidstep = inputs[0]->getStepoutStep();
     BinID truepos;
     int index = 0;
@@ -314,7 +315,7 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
 	    inputdata.replace( index++, data );
 	}
     }
-	
+
     return true;
 }
 
@@ -322,10 +323,10 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
 bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 	                    int t0, int nrsamples ) const
 {
-    BinID stepout = kernel.getStepout();
-    const int nrofkernels = kernel.nrSubKernels();
-    const int subkernelsz = kernel.getSubKernelSize();
-    const float* kernelvals = kernel.getKernel();
+    BinID stepout = kernel->getStepout();
+    const int nrofkernels = kernel->nrSubKernels();
+    const int subkernelsz = kernel->getSubKernelSize();
+    const float* kernelvals = kernel->getKernel();
 
     int nrtraces = (1+stepout.inl*2) * (1+stepout.crl*2);
 
@@ -342,7 +343,7 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 	    calculate[idx] = true;
     }
 
-    const Interval<int> sg = kernel.getSG();
+    const Interval<int> sg = kernel->getSG();
     const int sgwidth = 1 + sg.width();
 
     for ( int idx=0; idx<nrsamples; idx++)
@@ -402,9 +403,10 @@ const BinID* Convolve::reqStepout( int inp, int out ) const
 
 
 const Interval<float>* Convolve::reqZMargin( int inp, int ) const
-{ 
-    const_cast<Convolve*>(this)->interval.start = kernel.getSG().start *refstep;
-    const_cast<Convolve*>(this)->interval.stop = kernel.getSG().stop * refstep;
+{
+    Interval<float> tg( kernel->getSG().start *refstep, 
+	    		kernel->getSG().stop * refstep );
+    const_cast<Convolve*>(this)->interval = tg;
     return &interval;
 }
 

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.14 2005-08-12 11:12:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.15 2005-08-19 07:17:54 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -305,7 +305,20 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 	reader->setSelData( new SeisSelData(seldata_) );
     else if ( seldata_.type_ == Seis::Range )
     {
-	if ( !desiredvolume ) return true;
+	if ( !desiredvolume && !reader->is2D() ) 
+	{
+	    for ( int idp=0; idp<parents.size(); idp++ )
+	    {
+		desiredvolume = parents[idp]?parents[idp]->getDesiredVolume():0;
+		if ( desiredvolume )
+		{
+		    if ( !checkDataOK() ) return false;
+		    break;
+		}
+	    }
+	    return true;
+	}
+	
 	if ( ! &storedvolume ) return false;
 	
 	if ( reader->is2D() )
@@ -321,6 +334,7 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 		int idx = lset->indexOf( curlinekey_ );
 		if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
 		{
+		    if ( !checkDataOK( trcrg,zrg ) ) return false;
 		    seldata_.crlrg_.start = 
 				desiredvolume->hrg.start.crl < trcrg.start?
 				trcrg.start : desiredvolume->hrg.start.crl;
@@ -339,6 +353,8 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 
 	    return true;
 	}
+
+	if ( !checkDataOK() ) return false;
 	
 	CubeSampling cs;
 	cs.hrg.start.inl = 
@@ -374,6 +390,41 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 	    if ( !outputinterest[idx] ) 
 		transl->componentInfo()[idx]->destidx = -1;
 	}
+    }
+
+    return true;
+}
+
+
+bool StorageProvider::checkDataOK()
+{
+    if ( desiredvolume->hrg.start.inl>storedvolume.hrg.stop.inl ||
+	 desiredvolume->hrg.start.crl>storedvolume.hrg.stop.crl ||
+	 desiredvolume->zrg.start>storedvolume.zrg.stop ||
+	 desiredvolume->hrg.stop.inl<storedvolume.hrg.start.inl ||
+	 desiredvolume->hrg.stop.crl<storedvolume.hrg.start.crl ||
+	 desiredvolume->zrg.stop<storedvolume.zrg.start )
+    {
+	errmsg = "'"; errmsg += desc.userRef(); errmsg += "'"; 
+	errmsg += " contains no data in selected area";
+	return false;
+    }
+
+    return true;
+}
+
+
+bool StorageProvider::checkDataOK( StepInterval<int> trcrg, 
+				   StepInterval<float>zrg )
+{
+    if ( desiredvolume->hrg.start.crl > trcrg.stop ||
+	 desiredvolume->hrg.stop.crl < trcrg.start ||
+	 desiredvolume->zrg.stop < zrg.start ||
+	 desiredvolume->zrg.start > zrg.stop )
+    {
+	errmsg = "'"; errmsg += desc.userRef(); errmsg += "'"; 
+	errmsg += " contains no data in selected area";
+	return false;
     }
 
     return true;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.6 2005-08-12 11:12:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.7 2005-08-19 07:17:54 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -91,19 +91,22 @@ Provider* VolStats::createInstance( Desc& ds )
 
 void VolStats::updateDesc( Desc& desc )
 {
-    const int nrvolumes = desc.getValParam(nrvolumesStr())->getIntValue();
-    for ( int idx=1; idx<nrvolumes; idx++ )
+    if ( desc.nrInputs() == 1 )
     {
-	BufferString str = "inputdata vol"; str += (idx+1);
-	desc.addInput( InputSpec( str.buf(),true ) );
-    }
-    
-    const bool issteer = desc.getValParam(steeringStr())->getBoolValue();
-    if ( issteer )
-    {
-	InputSpec steeringspec( "Steering data", true );
-	steeringspec.issteering = true;
-	desc.addInput( steeringspec );
+	const int nrvolumes = desc.getValParam(nrvolumesStr())->getIntValue();
+	for ( int idx=1; idx<nrvolumes; idx++ )
+	{
+	    BufferString str = "inputdata vol"; str += (idx+1);
+	    desc.addInput( InputSpec( str.buf(),true ) );
+	}
+	
+	const bool issteer = desc.getValParam(steeringStr())->getBoolValue();
+	if ( issteer )
+	{
+	    InputSpec steeringspec( "Steering data", true );
+	    steeringspec.issteering = true;
+	    desc.addInput( steeringspec );
+	}
     }
 }
 
@@ -195,6 +198,8 @@ bool VolStats::getInputData(const BinID& relpos, int idx)
 	inputdata += 0;
 
     steeringdata = steering ? inputs[nrvolumes]->getData(relpos, idx) : 0;
+    if ( steering && !steeringdata )
+	return false;
 
     BinID bidstep = inputs[0]->getStepoutStep();
     int nrpos = positions.size();
@@ -254,7 +259,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		    {
 			float place = (absolutegate ? 0 : csample) + s;
 			(*(*stats)[volidx]) +=
-			    interp.value( *(dh->item(0)), place );
+			    interp.value( *(dh->item(0)), place-dh->t0_ );
 			s ++;
 		    }
 		}	

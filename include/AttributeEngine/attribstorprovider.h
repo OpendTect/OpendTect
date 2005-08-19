@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.9 2005-08-12 11:12:16 cvsnanne Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.10 2005-08-19 07:17:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,10 @@ protected:
 					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const
 			{ step = storedvolume.zrg.step; return true; }
+    
+    bool 		checkDataOK( StepInterval<int> trcrg,
+	                             StepInterval<float>zrg );
+    bool 		checkDataOK();
 
     SeisReqGroup	rg;
     int			currentreq;

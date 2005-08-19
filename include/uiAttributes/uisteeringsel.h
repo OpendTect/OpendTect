@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.4 2005-08-18 08:49:22 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.5 2005-08-19 07:17:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ protected:
     uiGenInput*			dipfld;
 
     bool			is2d_;
+    bool			fixed_;
 
     void			doFinalise(CallBacker*);
     void			typeSel(CallBacker*);

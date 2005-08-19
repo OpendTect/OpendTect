@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.23 2005-08-18 14:19:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.24 2005-08-19 07:17:54 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -801,6 +801,17 @@ void Provider::updateStorageReqs(bool all)
 bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res, 
 					bool usestepout ) const
 {
+    if ( seldata_.type_ == Seis::Table )
+    {
+	Interval<float> zrg(0,0);
+	const Interval<float>* reqzrg = reqZMargin(inp,out);
+	if ( reqzrg ) zrg=*reqzrg;
+	const Interval<float>* deszrg = desZMargin(inp,out);
+	if ( deszrg ) zrg.include( *deszrg );
+	seldata_.extraz_ = zrg;
+	inputs[inp]->setSelData(seldata_);
+    }
+    
     if ( !desiredvolume )
 	return false;
 
@@ -1003,5 +1014,15 @@ float Provider::crldist() const
     return SI().transform(BinID(0,0)).distance(SI().transform(BinID(1,0)));
 }
 
+BufferString Provider::errMsg() const
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] && inputs[idx]->errMsg().size() )
+	    return inputs[idx]->errMsg();
+    }
+    
+    return errmsg;
+}
 
 }; //namespace

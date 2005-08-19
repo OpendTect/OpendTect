@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.8 2005-08-18 14:19:29 cvsnanne Exp $
+ RCS:           $Id: attribprocessor.h,v 1.9 2005-08-19 07:17:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,9 @@ public:
     int			nextStep();
     int			totalNr() const;
     int 		nrDone() const 		{ return nrdone; }
+    const char*         message() const
+			{ return *(const char*)errmsg ? (const char*)errmsg
+						      : "Processing"; }
 
     void		addOutputInterest(int sel)     { outpinterest_ += sel; }
     void		setOutputIndex(int& index);
@@ -57,6 +60,8 @@ protected:
     int			nrdone;
     bool 		is2d_;
     TypeSet<int>	outpinterest_;
+    BufferString	errmsg;
+
     int			outputindex_;
 };
 

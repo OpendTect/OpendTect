@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.4 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.5 2005-08-19 07:17:53 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -61,7 +61,8 @@ public:
     static const float  prewitt[];
 
 protected:
-			~Convolve();
+    			~Convolve();
+
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
 
@@ -83,10 +84,10 @@ protected:
 
     ObjectSet<const DataHolder>	inputdata;
 
-    class               Kernel
+    class Kernel
     {
     public:
-	const float*            getKernel( ) const;
+	const float*            getKernel() const;
 	int                     nrSubKernels() const;
 	const BinID&            getStepout() const;
 	const Interval<int>&    getSG() const;
@@ -106,7 +107,7 @@ protected:
 
     };
 
-    Kernel              kernel;
+    Kernel*		kernel;
 };
 
 }; // namespace Attrib

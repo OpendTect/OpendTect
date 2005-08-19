@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.18 2005-08-12 11:12:16 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.19 2005-08-19 07:17:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
     virtual void		setBufferStepout(const BinID&);
     const BinID&		getBufferStepout() const;
     void			setDesiredVolume( const CubeSampling& );
+    CubeSampling*		getDesiredVolume() const
+    						{ return desiredvolume; }
     void                        setPossibleVolume( const CubeSampling& );
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
     CubeSampling*		getPossibleVolume() const
@@ -85,11 +87,12 @@ public:
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all = false);
     void			setSelData(const SeisSelData&);
-    int				getCurrentTrcNr () { return trcnr_; }
+    int				getCurrentTrcNr () 	{ return trcnr_; }
     float                       getRefStep() const; 
     virtual BinID		getStepoutStep() const;
+    BufferString         	errMsg() const;	  
     
-    ObjectSet<Provider>		getInputs() { return inputs; }
+    ObjectSet<Provider>		getInputs() 		{ return inputs; }
 
 
 protected:
@@ -136,7 +139,7 @@ protected:
     void			propagateZRefStep( const ObjectSet<Provider>& );
 
     bool                        zIsTime() const;
-    float			zFactor() const { return zIsTime() ? 1000 : 1;}
+    float			zFactor() const   {return zIsTime() ? 1000 : 1;}
     float			dipFactor() const {return zIsTime() ? 1e6: 1e3;}
     float			inldist() const; 
     float			crldist() const;
@@ -162,6 +165,7 @@ protected:
     int				trcnr_;
 
     bool			isusedmulttimes;
+    BufferString 		errmsg;
 };
 
 
