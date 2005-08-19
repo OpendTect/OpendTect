@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.15 2005-08-09 16:41:06 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.16 2005-08-19 19:57:16 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -380,7 +380,7 @@ void MPEEditor::clickCB( CallBacker* cb )
     if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
 	 nodeidx==-1 && isDraggerShown() )
     {
-	activenode = -1;
+	activenode = EM::PosID::udf();
 	updateDraggers();
 	eventcatcher->eventIsHandled();
     }
@@ -390,7 +390,7 @@ void MPEEditor::clickCB( CallBacker* cb )
 	if ( eventinfo.shift )
 	{
 	    extendInteractionLine(posids[nodeidx]);
-	    activenode = -1;
+	    activenode = EM::PosID::udf();
 	}
 	else if ( !eventinfo.ctrl && !eventinfo.shift && !eventinfo.alt )
 	{
@@ -446,7 +446,7 @@ void MPEEditor::updateDraggers()
 	markers[idx]->turnOn(true);
     }
 
-    if ( activenode==-1 )
+    if ( activenode.subID()==-1 )
     {
 	if ( translationdragger )
 	    translationdragger->turnOn(false);
