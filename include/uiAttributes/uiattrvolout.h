@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattrvolout.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiattrvolout.h,v 1.3 2005-08-19 14:52:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,9 @@ public:
 
     const IOPar&	subSelPar() const		{ return subselpar; }
     const Attrib::CurrentSel& outputSelection() const	{ return sel; }
+
+    static const char*  sKeyMaxCrlRg;
+    static const char*  sKeyMaxInlRg;
 
 protected:
 

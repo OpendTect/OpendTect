@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.9 2005-08-19 07:17:54 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.10 2005-08-19 14:52:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,6 +184,9 @@ DescID uiSteeringSel::descID()
 	desc->getValParam("azi")->setValue( dirfld->getfValue() );
 
 	DescSet* ads = const_cast<DescSet*>(descset_);
+	BufferString userref = attribnm;
+	desc->setUserRef( userref );
+	desc->setHidden(true);
 	return ads->addDesc( desc );
     }
 

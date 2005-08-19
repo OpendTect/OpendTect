@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.24 2005-08-19 07:17:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.25 2005-08-19 14:52:20 cvshelene Exp $";
 
 #include "attribprovider.h"
 
@@ -622,12 +622,14 @@ BinID Provider::getStepoutStep() const
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
+	if ( !inputs[idx] ) continue;
 	BinID bid = inputs[idx]->getStepoutStep();
 	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
     }
 
     for ( int idx=0; idx<parents.size(); idx++ )
     {
+	if ( !parents[idx] ) continue;
 	BinID bid = parents[idx]->getStepoutStep();
 	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
     }
@@ -660,7 +662,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	
 	if ( outputinterest[idx]<=0 ) 
 	{
-	    if ( outdata->item(idx)->arr() )
+	    if ( outdata->item(idx) && outdata->item(idx)->arr() )
 	    {
 		delete outdata->item(idx);
 		outdata->replace( idx, 0 );

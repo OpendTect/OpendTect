@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.24 2005-08-19 10:33:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.25 2005-08-19 14:52:20 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -254,9 +254,12 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	if ( !desc->parseDefStr(defstring.buf()) )
 	{
-	    BufferString err = "Cannot parse: ";
-	    err += defstring;
-	    mHandleParseErr(err);
+	    if ( !desc->isStored() )
+	    {
+		BufferString err = "Cannot parse: ";
+		err += defstring;
+		mHandleParseErr(err);
+	    }
 	}
 
 	const char* userref = descpar->find( userRefStr() );

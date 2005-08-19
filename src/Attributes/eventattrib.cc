@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.10 2005-08-18 14:17:07 cvsnanne Exp $
+ RCS:		$Id: eventattrib.cc,v 1.11 2005-08-19 14:52:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,7 +157,7 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
     ValueSeriesEvent<float,float> ev = nextev;
     SamplingData<float> sd;
     ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(0)), 
-						 nrsamples, sd );
+						 inputdata->t0_+nrsamples, sd );
     Interval<float> sg;
     sg.start = ev.pos + dir;
     sg.stop = sg.start + dir*SGWIDTH;
@@ -219,7 +219,7 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 ) const
 		output[idx] = extrev.val/(nextev.pos-ev.pos);
 	    else if ( outputinterest[1] )
 	    {
-		ValueSeriesInterpolator<float> interp;
+		ValueSeriesInterpolator<float> interp(inputdata->nrsamples_-1);
 		float lastsampval = interp.value( *(inputdata->item(0)),
 							ev.pos-1 );
 		float nextsampval = interp.value( *(inputdata->item(0)),

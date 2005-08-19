@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.16 2005-08-19 10:33:39 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.17 2005-08-19 14:52:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "separstr.h"
 #include "nlamodel.h"
+#include "nladesign.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -377,44 +378,55 @@ void EngineMan::addOutputAttrib( const DescID& id )
 
 
 #define mErrRet() \
-	delete ads; desc->unRef(); return 0
+	delete &descset; desc->unRef(); return;
 
 DescSet* EngineMan::createNLAADS( DescID& outpid, BufferString& errmsg,
        				  const DescSet* addtoset )
 {
-    DescSet* ads = addtoset ? addtoset->clone() : new DescSet;
-    if ( !addtoset && !ads->usePar(const_cast<NLAModel*>(nlamodel)->pars()) )
+    DescSet* descset = addtoset ? addtoset->clone() : new DescSet;
+    if ( !addtoset && !descset->usePar(const_cast<NLAModel*>(nlamodel)->pars()))
     {
-	errmsg = ads->errMsg();
-	delete ads;
+	errmsg = descset->errMsg();
+	delete descset;
 	return 0;
     }
 
     BufferString s;
     nlamodel->dump(s);
-    Desc* desc = PF().createDescCopy( "NN" );
-    desc->setDescSet( ads );
     BufferString def( nlamodel->nlaType(true) );
     def += " specification=\""; def += s; def += "\"";
 
-    if ( !desc->parseDefStr(def.buf()) )
+    createNLADescSet( def, outpid, *descset, attrspec.id().asInt(), 
+	    	      nlamodel, errmsg );
+
+    return descset;
+}
+
+
+void EngineMan::createNLADescSet( const char* specstr, DescID& outpid,
+				  DescSet& descset, int desoutputid,
+				  const NLAModel* nlamdl, BufferString& errmsg )
+{
+    Desc* desc = PF().createDescCopy( "NN" );
+    desc->setDescSet( &descset );
+
+    if ( !desc->parseDefStr(specstr) )
     { 
-	errmsg = "cannot parse definition string"; errmsg += def;
+	errmsg = "cannot parse definition string"; errmsg += specstr;
 	mErrRet(); 
     }
 
     desc->setHidden( true );
-    desc->setUserRef( nlamodel->name() );
 
     const int nrinputs = desc->nrInputs();
 
     for ( int idx=0; idx<nrinputs; idx++ )
     {
 	const char* inpname = desc->inputSpec(idx).getDesc();
-	DescID descid = ads->getID( inpname, true );
+	DescID descid = descset.getID( inpname, true );
 	if ( descid < 0 && IOObj::isKey(inpname) )
 	{
-	    descid = ads->getID( inpname, false );
+	    descid = descset.getID( inpname, false );
 	    if ( descid < 0 )
 	    {
 		// It could be 'storage', but it's not yet in the set ...
@@ -423,12 +435,12 @@ DescSet* EngineMan::createNLAADS( DescID& outpid, BufferString& errmsg,
 		{
 		    Desc* stordesc = 
 			PF().createDescCopy( StorageProvider::attribName() );
-		    stordesc->setDescSet( ads );
+		    stordesc->setDescSet( &descset );
 		    ValParam* idpar = 
 			stordesc->getValParam( StorageProvider::keyStr() );
 		    idpar->setValue( inpname );
 		    stordesc->setUserRef( ioobj->name() );
-		    descid = ads->addDesc( stordesc );
+		    descid = descset.addDesc( stordesc );
 		    if ( descid < 0 )
 		    {
 			errmsg = "NLA input '";
@@ -440,26 +452,26 @@ DescSet* EngineMan::createNLAADS( DescID& outpid, BufferString& errmsg,
 	    }
 	}
 
-	desc->setInput( idx, ads->getDesc(descid) );
+	desc->setInput( idx, descset.getDesc(descid) );
     }
 
-    if ( attrspec.id() > desc->nrOutputs() )
+    if ( desoutputid > desc->nrOutputs() )
     {
-	errmsg = "Output "; errmsg += attrspec.id().asInt(); 
+	errmsg = "Output "; errmsg += desoutputid; 
 	errmsg += " not present.";
 	mErrRet();
     }
     
-    desc->selectOutput( attrspec.id().asInt() );
+    const NLADesign& nlades = nlamdl->design();
+    desc->setUserRef( *nlades.outputs[desoutputid] );
+    desc->selectOutput( desoutputid );
 
-    outpid = ads->addDesc( desc );
+    outpid = descset.addDesc( desc );
     if ( outpid == DescID::undef() )
     {
-	errmsg = ads->errMsg();
+	errmsg = descset.errMsg();
 	mErrRet();
     }
-
-    return ads;
 }
 
 
@@ -783,5 +795,11 @@ ExecutorGroup* EngineMan::trcSelOutputCreator( BufferString& errmsg,
 
     return createExecutorGroup();
 };
+
+
+int EngineMan::nrOutputsToBeProcessed() const
+{
+    return procset[0]? procset[0]->outputs.size() : 0;
+}
 
 } // namespace Attrib

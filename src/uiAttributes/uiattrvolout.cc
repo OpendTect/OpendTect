@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.4 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.5 2005-08-19 14:52:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uiattrvolout.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attriboutput.h"
+#include "attribengman.h"
 #include "uiattrsel.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
@@ -37,6 +39,9 @@ ________________________________________________________________________
 #include "cubesampling.h"
 
 using namespace Attrib;
+
+const char* uiAttrVolOut::sKeyMaxCrlRg = "Maximum Crossline Range";
+const char* uiAttrVolOut::sKeyMaxInlRg = "Maximum Inline Range";
 
 static void setTypeAttr( CtxtIOObj& ctio, bool yn )
 {
@@ -111,7 +116,6 @@ void uiAttrVolOut::singLineSel( CallBacker* )
 
 void uiAttrVolOut::attrSel( CallBacker* )
 {
-/*
     CubeSampling cs;
     const bool is2d = todofld->is2D();
     transffld->set2D( is2d );
@@ -135,7 +139,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
     }
 
     singLineSel(0);
-*/
 }
 
 
@@ -167,11 +170,9 @@ bool uiAttrVolOut::prepareProcessing()
 }
 
 
-bool uiAttrVolOut::fillPar( IOPar& iopar )
+bool uiAttrVolOut::fillPar( IOPar& iop )
 {
-    return false;
-/*
-    int nlamodelid = -1;
+    DescID nlamodelid(-1, true);
     if ( nlamodel && todofld->outputNr() >= 0 )
     {
 	if ( !nlaid || !(*nlaid) )
@@ -181,7 +182,7 @@ bool uiAttrVolOut::fillPar( IOPar& iopar )
 	}
 	addNLA( nlamodelid );
     }
-    const int targetid = nlamodelid < 0 ? todofld->attribID() : nlamodelid;
+    const DescID targetid = nlamodelid < 0 ? todofld->attribID() : nlamodelid;
 
     IOPar attrpar( "Attribute Descriptions" );
     ads.fillPar( attrpar );
@@ -190,120 +191,93 @@ bool uiAttrVolOut::fillPar( IOPar& iopar )
         const char* nm = attrpar.getKey(idx);
         BufferString name(CubeOutput::attribkey);
         name += "."; name += nm;
-        iopar.add( name, attrpar.getValue(idx) );
+        iop.add( name, attrpar.getValue(idx) );
     }
 
     BufferString key;
-    BufferString keybase = AttribParseTools::outputstr; keybase += ".1.";
-    key = keybase; key += AttribOutput::typekey;
-    iopar.set( key, "Cube" );
+    BufferString keybase = Output::outputstr; keybase += ".1.";
+    key = keybase; key += Output::typekey;
+    iop.set( key, "Cube" );
 
     key = keybase; key += CubeOutput::attribkey;
-    key += "."; key += AttribParseTools::maxkeystr;
-    iopar.set( key, 1 );
+    key += "."; key += DescSet::highestIDStr();
+    iop.set( key, 1 );
 
     key = keybase; key += CubeOutput::attribkey; key += ".0";
-    iopar.set( key, targetid );
+    iop.set( key, targetid.asInt() );
 
     key = keybase; key += CubeOutput::seisidkey;
-    iopar.set( key, ctio.ioobj->key() );
+    iop.set( key, ctio.ioobj->key() );
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
 
     transffld->selfld->fillPar( subselpar );
     CubeSampling cs; cs.usePar( subselpar );
     key = keybase; key += CubeOutput::inlrangekey;
     if ( !cs.hrg.isEmpty() )
-	iopar.set( key, cs.hrg.start.inl, cs.hrg.stop.inl );
+	iop.set( key, cs.hrg.start.inl, cs.hrg.stop.inl );
     else
     {
 	CubeSampling curcs;
 	todofld->getRanges( curcs );
-	iopar.set( key, curcs.hrg.start.inl, curcs.hrg.stop.inl );
+	iop.set( key, curcs.hrg.start.inl, curcs.hrg.stop.inl );
     }
 
     key = keybase; key += CubeOutput::crlrangekey;
     if ( !cs.hrg.isEmpty() )
-	iopar.set( key, cs.hrg.start.crl, cs.hrg.stop.crl );
+	iop.set( key, cs.hrg.start.crl, cs.hrg.stop.crl );
     else
     {
 	CubeSampling curcs;
 	todofld->getRanges( curcs );
-	iopar.set( key, curcs.hrg.start.crl, curcs.hrg.stop.crl );
+	iop.set( key, curcs.hrg.start.crl, curcs.hrg.stop.crl );
     }
 
     key = keybase; key += CubeOutput::depthrangekey;
-    iopar.set( key, cs.zrg.start*SI().zFactor(), cs.zrg.stop*SI().zFactor() );
+    iop.set( key, cs.zrg.start*SI().zFactor(), cs.zrg.stop*SI().zFactor() );
     CubeSampling::removeInfo( subselpar );
-    iopar.mergeComp( subselpar, keybase );
+    iop.mergeComp( subselpar, keybase );
 
     Scaler* sc = transffld->scfmtfld->getScaler();
     if ( sc )
     {
-	key = keybase; key += AttribOutput::scalekey;
-	iopar.set( key, sc->toString() );
+	key = keybase; key += Output::scalekey;
+	iop.set( key, sc->toString() );
     }
     delete sc;
 
-    ads.removeAttrib( ads.descNr(nlamodelid) );
-    iopar.set( "Target value", todofld->getAttrName() );
+    ads.removeDesc( nlamodelid );
+    iop.set( "Target value", todofld->getAttrName() );
+    BufferString linename;
     if ( ads.is2D() )
     {
 	MultiID ky;
 	if ( ads.getFirstStored(Only2D,ky) )
-	    iopar.set( "Input Line Set", ky );
+	{
+	    iop.set( "Input Line Set", ky );
+	    linename = ky;
+	}
     }
 
-    DescSet* rangeds = nlamodelid < 0 ? ads.optimizeClone(targetid)
-				      : ads.clone();
-    rangeds->setRanges( iopar, true );
-    delete rangeds;
+    CubeSampling csampling;
+    EngineMan::getPossibleVolume ( ads, cs, linename, targetid );
+    iop.set( sKeyMaxInlRg, cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
+    iop.set( sKeyMaxCrlRg, cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
+    
     return true;
-*/
 }
 
 
 void uiAttrVolOut::addNLA( DescID& id )
 {
-    /*
-    Desc* ad = new CalcAttribDesc( ads );
     BufferString defstr("NN specification=");
     defstr += nlaid;
-    ad->setDefStr( defstr, false );
-    ad->setHidden( true );
-    const NLADesign& nlades = nlamodel->design();
-    ad->setUserRef( *nlades.outputs[todofld->outputNr()] );
-    ad->selectAttrib( todofld->outputNr() );
 
-    const int nrinputs = nlades.inputs.size();
-    for ( int idx=0; idx<nrinputs; idx++ )
+    BufferString errmsg;
+    EngineMan::createNLADescSet( defstr, id, ads, todofld->outputNr(), 
+	    			 nlamodel, errmsg );
+
+    if ( errmsg.size() )
     {
-        const char* inpname = nlades.inputs[idx]->buf();
-        int dscnr = ads.descNr( inpname, true );
-        if ( dscnr < 0 && IOObj::isKey(inpname) )
-        {
-            dscnr = ads.descNr( inpname, false );
-            if ( dscnr < 0 )
-            {
-                // It could be 'storage', but it's not yet in the set ...
-                PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
-                if ( ioobj )
-                {
-                    Desc* newdesc = new StorageAttribDesc( ads );
-                    newdesc->setDefStr( inpname, false );
-                    newdesc->setUserRef( ioobj->name() );
-                    dscnr = ads.addAttrib( newdesc );
-                }
-            }
-	}
-
-        ad->setInput( idx, ads.id(dscnr) );
+        uiMSG().error( errmsg );
     }
-
-    id = ads.id( ads.addAttrib( ad ) );
-    if ( id == -1 )
-    {
-        uiMSG().error( ads.errMsg() );
-        delete ad; return;
-    }
-    */
 }
