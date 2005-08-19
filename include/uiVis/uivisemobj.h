@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.10 2005-08-11 16:50:44 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.11 2005-08-19 15:53:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,7 @@ protected:
     MenuItem		showseedsmnuitem;
 
     MenuItem		showonlyatsectionsmnuitem;
+    MenuItem		changesectionnamemnuitem;
     bool		showedtexture;
 //
     MenuItem		makepermnodemnuitem;

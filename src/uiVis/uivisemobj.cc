@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.23 2005-08-17 08:07:01 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.24 2005-08-19 15:53:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,6 +184,7 @@ void uiVisEMObject::setUpConnections()
     makepermnodemnuitem.text = "Make control permanent";
     removecontrolnodemnuitem.text = "Remove control";
     showonlyatsectionsmnuitem.text = "Display only at sections";
+    changesectionnamemnuitem.text = "Change section's name";
 
     uiMenuHandler* menu = visserv->getMenu(displayid,true);
     menu->createnotifier.notify( mCB(this,uiVisEMObject,createMenuCB) );
@@ -314,10 +315,14 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     EM::EMObject* emobj = mid ?
 	EM::EMM().getObject(EM::EMM().multiID2ObjectID(*mid)) : 0;
 
+    const EM::SectionID sid = emod->getSectionID(menu->getPath());
+
     mAddMenuItem( menu, &singlecolmnuitem, !emod->getOnlyAtSectionsDisplay(),
 	  	  !emod->usesTexture() );
     mAddMenuItem( menu, &showonlyatsectionsmnuitem, true,
 	          emod->getOnlyAtSectionsDisplay() );
+    mAddMenuItem( menu, &changesectionnamemnuitem, 
+	          emobj->canSetSectionName() && sid!=-1, false );
     mAddMenuItem( menu, &shiftmnuitem,
 	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
 
@@ -333,7 +338,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mAddMenuItem(menu,&trackmenuitem,trackmenuitem.nrItems(),false);
 
     mAddMenuItem( menu, &removesectionmnuitem, false, false );
-    if ( emobj->nrSections()>1 && emod->getSectionID(menu->getPath())!=-1 )
+    if ( emobj->nrSections()>1 && sid!=-1 )
 	removesectionmnuitem.enabled = true;
 }
 
@@ -348,6 +353,13 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
     if ( !emod ) return;
+
+
+    const MultiID* mid = visserv->getMultiID( displayid );
+    mDynamicCastGet(EM::EMObject*,emobj, mid 
+	    ? EM::EMM().getObject(EM::EMM().multiID2ObjectID(*mid))
+	    : 0 );
+    const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
     if ( mnuid==singlecolmnuitem.id )
     {
@@ -368,6 +380,23 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	}
 
 	emod->setOnlyAtSectionsDisplay( turnon );
+	menu->setIsHandled(true);
+    }
+    else if ( mnuid==changesectionnamemnuitem.id )
+    {
+	StringInpSpec* spec = new StringInpSpec( emobj->sectionName(sid) );
+	uiGenInputDlg dlg(uiparent,"Change section-name", "Name", spec);
+	while ( dlg.go() )
+	{
+	    if ( emobj->setSectionName(sid,dlg.text(), true ) )
+	    {
+		EM::History& history = EM::EMM().history();
+		const int currentevent = history.currentEventNr();
+		history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+		break;
+	    }
+	}
+
 	menu->setIsHandled(true);
     }
     else if ( mnuid==wireframemnuitem.id )
@@ -415,11 +444,10 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==removesectionmnuitem.id )
     {
-	const MultiID* mid = visserv->getMultiID( displayid );
-	if ( !mid ) return;
-	EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
-	mDynamicCastGet(EM::EMObject*,emobj,EM::EMM().getObject(emid))
-	emobj->removeSection(emod->getSectionID(menu->getPath()), true );
+	if ( !emobj )
+	    return;
+
+	emobj->removeSection(sid, true );
 
 	EM::History& history = EM::EMM().history();
 	const int currentevent = history.currentEventNr();
