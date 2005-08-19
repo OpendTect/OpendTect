@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.41 2005-08-19 14:56:32 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.42 2005-08-19 15:51:18 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -122,7 +122,7 @@ bool EMObject::canSetSectionName() const
 { return false; }
 
 
-bool EMObject::setSectionName( const SectionID&, const char* )
+bool EMObject::setSectionName( const SectionID&, const char*, bool )
 { return false; }
 
 
