@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.96 2005-08-18 11:02:32 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.97 2005-08-19 21:54:15 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -545,10 +545,10 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	const Coord3& pickedpos = menu->getPickedPos();
 	const bool hastracker = applMgr()->mpeServer()->getTrackerID(mid)>=0;
 
-	if (  pickedpos.isDefined() && !hastracker &&
-		applMgr()->EMServer()->isFullResolution(mid) )
+	if ( !hastracker && applMgr()->EMServer()->isFullResolution(mid) )
 	{
-	    mAddMenuItem( trackmnu, &starttrackmnuitem, true, false );
+	    mAddMenuItem( trackmnu, &starttrackmnuitem, pickedpos.isDefined(),
+		    	  false );
 
 	    mResetMenuItem( &addsectionmnuitem );
 	    mResetMenuItem( &extendsectionmnuitem );
@@ -560,13 +560,12 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	{
 	    mResetMenuItem( &starttrackmnuitem );
 
-#ifdef __debug__
 	    mAddMenuItemCond( trackmnu, &addsectionmnuitem, true, false,
 		    		mIsObject(EM::Horizon::typeStr()) );
+#ifdef __debug__
 	    mAddMenuItem( trackmnu, &extendsectionmnuitem, true, false );
 #else
 	    mResetMenuItem( &addsectionmnuitem );
-	    mResetMenuItem( &extendsectionmnuitem );
 #endif
 
 	    mAddMenuItem( trackmnu, &changesetupmnuitem, true, false );
