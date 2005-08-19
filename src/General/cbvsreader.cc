@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.56 2005-07-18 11:29:32 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.57 2005-08-19 13:03:18 cvsbert Exp $";
 
 /*!
 
@@ -321,6 +321,7 @@ bool CBVSReader::readTrailer()
     {
 	strm_.read( buf, integersize );
 	const int nrinl = iinterp.get( buf, 0 );
+	if ( nrinl < 0 ) mErrRet("File trailer corrupt")
 	if ( nrinl == 0 ) mErrRet("No traces in file")
 
 	for ( int iinl=0; iinl<nrinl; iinl++ )
@@ -357,7 +358,7 @@ bool CBVSReader::readTrailer()
 	curinlinfnr_ = cursegnr_ = 0;
 	curbinid_.inl = info_.geom.cubedata[curinlinfnr_]->inl;
 	curbinid_.crl = info_.geom.cubedata[curinlinfnr_]
-	    		->segments[cursegnr_].start;
+			->segments[cursegnr_].start;
     }
 
     return strm_.good();
