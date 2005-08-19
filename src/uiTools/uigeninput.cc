@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.67 2005-05-02 09:08:49 cvskris Exp $
+ RCS:           $Id: uigeninput.cc,v 1.68 2005-08-19 14:17:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -355,7 +355,7 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     , b2c(0)
     , valueChanged(this)
 {
-    mDynamicCastGet(const BinIDCoordInpSpec*,spc,&spec)
+    mDynamicCastGet(const PositionInpSpec*,spc,&spec)
     if ( !spc ){ pErrMsg("huh"); return; }
 
     binidGrp.setHAlignObj( &inl_x );
@@ -367,7 +367,8 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     inl_x.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
     crl_y.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
 
-    if ( spc->otherTxt() )
+    const bool transform = false;
+    if ( transform )
     {
 	ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt() );
 	ofrmBut->activated.notify( mCB(this,uiBinIDInpFld,otherFormSel) );
@@ -383,9 +384,10 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     crl_y.setReadOnly(false);
 }
 
+
 bool uiBinIDInpFld::update_( const DataInpSpec& spec )
 {
-    mDynamicCastGet(const BinIDCoordInpSpec*,spc,&spec)
+    mDynamicCastGet(const PositionInpSpec*,spc,&spec)
     if ( !spc ){ pErrMsg("huh"); return false; }
 
     inl_x.setText( spec.text(0) );

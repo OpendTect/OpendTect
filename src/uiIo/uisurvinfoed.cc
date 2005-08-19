@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.71 2005-08-16 17:10:17 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.72 2005-08-19 14:17:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,16 +259,16 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 
     crdgrp = new uiGroup( this, "Coordinate settings" );
     ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
-			     BinIDCoordInpSpec(false) ); 
+			     BinIDInpSpec() ); 
     ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
     ic1fld = new uiGenInput( crdgrp, "Another position on above in-line",
-			     BinIDCoordInpSpec(false)  );
+			     BinIDInpSpec(false)  );
     ic2fld = new uiGenInput( crdgrp,
 		    "Position not on above in-line",
-		     BinIDCoordInpSpec(false) );
-    xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
-    xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
-    xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
+		     BinIDInpSpec(false) );
+    xy0fld = new uiGenInput( crdgrp, "= (X,Y)", CoordInpSpec() );
+    xy1fld = new uiGenInput( crdgrp, "= (X,Y)", CoordInpSpec() );
+    xy2fld = new uiGenInput( crdgrp, "= (X,Y)", CoordInpSpec() );
     crdgrp->setHAlignObj( ic0fld );
     crdgrp->attach( alignedBelow, rangegrp );
     crdgrp->attach( ensureBelow, coordset );

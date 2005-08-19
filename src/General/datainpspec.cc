@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.13 2005-08-08 15:10:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.14 2005-08-19 14:17:23 cvsnanne Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -324,57 +324,53 @@ void StringListInpSpec::setValue( float f, int idx )
 }
 
 
-BinIDCoordInpSpec::BinIDCoordInpSpec( bool doCoord, bool isRelative,
-					bool withOtherBut, double inline_x,
-					double crossline_y,
-					const RCol2Coord* b2c )
+PositionInpSpec::PositionInpSpec( bool docrd, float x_inline, float y_crossline,
+				  bool isrelative, const RCol2Coord* b2c )
     : DataInpSpec( DataTypeImpl<int>(DataType::binID) )
-    , withOtherBut_( withOtherBut )
-    , inl_x( inline_x )
-    , crl_y( crossline_y )
-    , doCoord_( doCoord )
-    , isRelative_( isRelative )
+    , x_inl_(x_inline)
+    , y_crl_(y_crossline)
+    , docoord_(docrd)
+    , isrelative_(isrelative)
     , b2c_( b2c )
 {}
 
 
-DataInpSpec* BinIDCoordInpSpec::clone() const   
-{ return new BinIDCoordInpSpec( *this ); }
+DataInpSpec* PositionInpSpec::clone() const   
+{ return new PositionInpSpec( *this ); }
 
 
-int BinIDCoordInpSpec::nElems() const
+int PositionInpSpec::nElems() const
 { return 2; }
 
 
-double BinIDCoordInpSpec::value( int idx ) const
-{ return idx ? crl_y : inl_x; }
+float PositionInpSpec::value( int idx ) const
+{ return idx==0 ? x_inl_ : y_crl_; }
 
 
-bool BinIDCoordInpSpec::isUndef( int idx ) const
+bool PositionInpSpec::isUndef( int idx ) const
 {
     if ( idx<0 || idx>1 ) return true;
-    return idx ? Values::isUdf( crl_y )
-	       : Values::isUdf( inl_x );
+    return idx==0 ? Values::isUdf( x_inl_ )
+		  : Values::isUdf( y_crl_ );
 } 
 
 
-const char* BinIDCoordInpSpec::text( int idx ) const
+const char* PositionInpSpec::text( int idx ) const
 {
     return isUndef(idx) ? "" : toString( value(idx) );
 }
 
 
-bool BinIDCoordInpSpec::setText( const char* s, int idx ) 
-{ return getFromString( (idx ? crl_y : inl_x), s); }
+bool PositionInpSpec::setText( const char* s, int idx ) 
+{ return getFromString( idx==0 ? x_inl_ : y_crl_, s); }
 
 
-const char* BinIDCoordInpSpec::otherTxt() const
+const char* PositionInpSpec::otherTxt() const
 {
-    if ( !withOtherBut_ ) return 0;
-    if ( doCoord_ ) { return "Inline/Xline ..."; }
-    return isRelative_ ? "Distance ..." : "Coords ...";
+    if ( docoord_ ) { return "Inline/Xline ..."; }
+    return isrelative_ ? "Distance ..." : "Coords ...";
 }
 
 
-const RCol2Coord* BinIDCoordInpSpec::binID2Coord() const
+const RCol2Coord* PositionInpSpec::binID2Coord() const
 { return b2c_; }

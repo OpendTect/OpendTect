@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.6 2005-08-09 16:38:36 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.7 2005-08-19 14:17:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,7 @@ uiEMHorizonEditorSetting::uiEMHorizonEditorSetting( uiParent* p,
 				  editor->boxEditArea() ) );
 
     horsizefld = new uiGenInput( this, "Horizontal size",
-	    BinIDCoordInpSpec( false, true, false,
-			       editor->getEditArea().row,
-			       editor->getEditArea().col) );
+				 BinIDInpSpec(editor->getEditArea()) );
     horsizefld->attach( alignedBelow, horshapefld );
 
     if ( editor->getVertMovingStyleNames() )

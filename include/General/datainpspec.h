@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.58 2005-08-12 11:12:16 cvsnanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.59 2005-08-19 14:17:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "string2.h"
 #include "undefval.h"
 #include "bufstringset.h"
+#include "position.h"
 
 class RCol2Coord;
 class IOPar;
@@ -154,15 +155,11 @@ public:
     virtual bool	setText( const char* s, int idx=0 )
 			    { return getFromString( value_, s ); }
 
-    T			value() const	
+    T			value() const
 			{
 			    if ( Values::isUdf(value_) ) return mUdf(T);
 			    return value_;
 			}
-
-    virtual int		getIntValue(int idx=0) const	{ return (int)value(); }
-    virtual double	getValue(int idx=0) const	{ return value(); }
-    virtual float	getfValue(int idx=0) const	{ return value(); }
 
     virtual const char*	text( int idx=0 ) const
 			{
@@ -171,7 +168,7 @@ public:
 			}
 
     virtual bool	hasLimits() const		{ return limits_; }
-    virtual bool	isInsideLimits(int idx=0) const
+    virtual bool	isInsideLimits( int idx=0 ) const
 			{
 			    if ( isUndef(idx) ) return false;
 			    if ( !limits_ ) return true;
@@ -180,7 +177,7 @@ public:
 			}
 
     const Interval<T>*	limits() const			{ return limits_; }
-    NumInpSpec<T>&	setLimits( const Interval<T>& r)
+    NumInpSpec<T>&	setLimits( const Interval<T>& r )
 			{
 			    delete limits_;
 			    limits_ = new Interval<T>( r );
@@ -505,35 +502,58 @@ protected:
 
 /*! \brief Specifications for BinID/Coordinate inputs.
 */
-class BinIDCoordInpSpec : public DataInpSpec
+class PositionInpSpec : public DataInpSpec
 {
 public:
-			BinIDCoordInpSpec( bool doCoord,
-					   bool isRelative=false,
-					   bool withOtherBut=false,
-					   double inline_x = mUdf(double),
-					   double crossline_y = mUdf(double),
-					   const RCol2Coord* b2c=0 );
+			PositionInpSpec(bool docrd,
+					float x_inl=mUdf(float),
+					float y_crl=mUdf(float),
+					bool isrel=false,
+					const RCol2Coord* b2c=0);
+
     virtual DataInpSpec* clone() const;
     virtual int 	nElems()  const;
 
-    double		value( int idx=0 ) const;
-    virtual bool	isUndef( int idx=0 ) const;
-    virtual const char*	text( int idx=0 ) const;
-    virtual bool	setText( const char* s, int idx=0 );
+    float		value(int idx=0) const;
+    virtual bool	isUndef(int idx=0) const;
+    virtual const char*	text(int idx=0) const;
+    virtual bool	setText(const char* s,int idx=0);
 
     const char*		otherTxt() const;
     const RCol2Coord*	binID2Coord() const;
 
 protected:
 
-    double		inl_x;
-    double		crl_y;
+    double		x_inl_;
+    double		y_crl_;
 
-    bool		doCoord_;
-    bool		isRelative_;
-    bool		withOtherBut_;
+    bool		docoord_;
+    bool		isrelative_;
     const RCol2Coord*	b2c_;
+};
+
+
+class BinIDInpSpec : public PositionInpSpec
+{
+public:
+			BinIDInpSpec( const BinID& bid )
+			    : PositionInpSpec(false,bid.inl,bid.crl)	{}
+			BinIDInpSpec() : PositionInpSpec(false)		{}
+
+    BinID		getValue() const
+    			{ return BinID(mNINT(value(0)),mNINT(value(1))); }
+};
+
+
+class CoordInpSpec : public PositionInpSpec
+{
+public:
+			CoordInpSpec( const Coord& crd )
+			    : PositionInpSpec(true,crd.x,crd.y)		{}
+			CoordInpSpec() : PositionInpSpec(true)		{}
+
+    Coord		getValue() const
+    			{ return Coord(value(0),value(1)); }
 };
 
 #endif
