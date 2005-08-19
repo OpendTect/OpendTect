@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.15 2005-08-18 14:19:21 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.16 2005-08-19 10:33:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -640,20 +640,12 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 {
     const int nrinps = inputs.size();
     const DescSet* attrset = aem.procattrset ? aem.procattrset : aem.inpattrset;
-    for ( int idx=0; idx<attrset->nrDescs(); idx++ )
+    for ( int idx=0; idx<inputs.size(); idx++ )
     {
-	const DescID descid = attrset->getID( idx );
-	const Desc* ad = attrset->getDesc( descid );
-	if ( !ad ) continue;
-
-	bool dosel = false;
-	for ( int iinp=0; iinp<nrinps; iinp++ )
-	{
-	    if ( ad->isIdentifiedBy(inputs.get(iinp)) )
-		{ dosel = true; break; }
-	}
-
-	if ( dosel ) aem.outattribs += descid;
+	const DescID id = attrset->getID( inputs.get(idx), true );
+	if ( id == DescID::undef() )
+	    continue;
+	aem.outattribs += id;
     }
 
     ObjectSet<BinIDValueSet>& bvs = 

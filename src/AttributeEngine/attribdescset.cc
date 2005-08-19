@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.23 2005-08-19 07:17:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.24 2005-08-19 10:33:39 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -106,7 +106,7 @@ DescID DescSet::getID( const char* str, bool isusrref ) const
 
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	if ( isusrref && !strcmp(str,descs[idx]->userRef()) )
+	if ( isusrref && descs[idx]->isIdentifiedBy(str) )
 	    return ids[idx];
 	else if ( !isusrref )
 	{
