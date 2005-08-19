@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.72 2005-08-18 19:32:40 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.73 2005-08-19 15:53:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,9 +27,7 @@ static const char* sValnms = "Value Names";
 static const char* sSections = "Patches";
 
 
-namespace EM
-{
-
+using namespace EM;
 
 class SurfaceIterator : public EMObjectIterator
 {
@@ -248,6 +246,13 @@ BufferString Surface::sectionName( const SectionID& sid ) const
 }
 
 
+bool Surface::canSetSectionName() const { return true; }
+
+
+bool Surface::setSectionName( const SectionID& sid, const char* nm, bool hist )
+{ return geometry.setSectionName(sid,nm,hist); }
+
+
 bool Surface::removeSection( SectionID sid, bool hist )
 {
     geometry.removeSection( sid, hist );
@@ -323,7 +328,3 @@ EMObjectIterator* Surface::createIterator( const SectionID& sid ) const
 {
     return new SurfaceIterator( *this, sid );
 }
-
-
-
-}; //namespace

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.50 2005-08-18 19:32:40 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.51 2005-08-19 15:53:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,9 @@ public:
     int			nrSections() const;
     EM::SectionID	sectionID(int) const;
     BufferString	sectionName( const SectionID& ) const;
+    bool		canSetSectionName() const;
+    bool		setSectionName( const SectionID&, const char*,
+	    				bool addtohistory );
     bool		removeSection(SectionID,bool hist);
 
     bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);

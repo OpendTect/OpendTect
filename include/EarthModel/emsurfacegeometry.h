@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.13 2005-06-10 06:48:38 cvsnanne Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.14 2005-08-19 15:53:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,28 +53,31 @@ public:
     int			nrSections() const;
     SectionID		sectionID(int idx) const;
     SectionID		sectionID(const char*) const;
-    bool		hasSection(SectionID) const;
-    int			sectionNr(SectionID) const;
-    const char*		sectionName(SectionID) const;
+    bool		hasSection(const SectionID&) const;
+    int			sectionNr(const SectionID&) const;
+    const char*		sectionName(const SectionID&) const;
+    bool		setSectionName( const SectionID&, const char*,
+	    				bool addtohistory );
     SectionID		addSection(const char* nm,bool addtohistory);
-    SectionID		addSection(const char* nm,SectionID,bool addtohistory);
+    SectionID		addSection(const char* nm,const SectionID&,
+	    			   bool addtohistory);
     			/*!< Return false if the sectionid allready exists */
-    void		removeSection(SectionID,bool addtohistory);
-    SectionID		cloneSection(SectionID);
+    void		removeSection(const SectionID&,bool addtohistory);
+    SectionID		cloneSection(const SectionID&);
     void		checkSections();
 
-    bool		setPos(SectionID,const RowCol&,
+    bool		setPos(const SectionID&,const RowCol&,
 			       const Coord3&,bool addtoh);
     bool		setPos(const PosID&,const Coord3&,bool addtohist);
 
-    virtual bool	insertRow( SectionID, int newrow, bool hist );
-    virtual bool	insertCol( SectionID, int newcol, bool hist );
+    virtual bool	insertRow( const SectionID&, int newrow, bool hist );
+    virtual bool	insertCol( const SectionID&, int newcol, bool hist );
 
-    virtual bool	isDefined(SectionID,const RowCol&) const;
+    virtual bool	isDefined(const SectionID&,const RowCol&) const;
     virtual bool	isDefined(const PosID&) const;
 
     Coord3		getPos(const PosID&) const;
-    virtual Coord3	getPos(SectionID section, const RowCol&) const;
+    virtual Coord3	getPos(const SectionID& section, const RowCol&) const;
     void		getPos(const RowCol&,TypeSet<Coord3>&) const;
     			//!< Returns positions from all sections on RowCol
    
@@ -109,7 +112,7 @@ public:
     void                setShift(float sh_)		{ shift = sh_; }
     float               getShift() const		{ return shift; }
 
-    const Geometry::ParametricSurface* getSurface(SectionID) const;
+    const Geometry::ParametricSurface* getSurface(const SectionID&) const;
     RowCol		loadedStep() const;
     RowCol		step() const;
     void		setStep(const RowCol& step,const RowCol& loadedstep);
@@ -122,15 +125,15 @@ public:
     static RowCol	subID2RowCol(SubID);
     static SubID	rowCol2SubID(const RowCol&);
 
-    StepInterval<int>	rowRange(SectionID=-1) const;
+    StepInterval<int>	rowRange(const SectionID& =SectionID(-1)) const;
     			/*< If SectionID is -1, the overall range is returned */
-    StepInterval<int>	colRange(SectionID=-1) const;
+    StepInterval<int>	colRange(const SectionID& =SectionID(-1)) const;
     			/*< If SectionID is -1, the overall range is returned */
 
     Interval<float>	getZRange(const Interval<int>& rowrg,
 	    			  const Interval<int>& colrg) const;
 
-    virtual int		findPos(SectionID,const Interval<float>& x,
+    virtual int		findPos(const SectionID&,const Interval<float>& x,
 	    			const Interval<float>& y,
 				const Interval<float>& z,
 				TypeSet<PosID>* res) const;
@@ -142,7 +145,7 @@ public:
     bool		findClosestNodes(TopList<float,PosID>& res,
 					 const Coord3& pos,
 					 const FloatMathFunction* t2d=0) const;
-    bool		findClosestNodes(SectionID,
+    bool		findClosestNodes(const SectionID&,
 					 TopList<float,PosID>& res,
 					 const Coord3& pos,
 					 const FloatMathFunction* t2d=0) const;
@@ -227,14 +230,14 @@ public:
 protected:
 
     SectionID		addSection(Geometry::ParametricSurface*,
-				   const char* nm,SectionID,
+				   const char* nm,const SectionID&,
 				   bool addtohistory);
 
     virtual Geometry::ParametricSurface* createSectionSurface() const = 0;
 
-    SubID		getSurfSubID(const RowCol&,SectionID) const;
+    SubID		getSurfSubID(const RowCol&,const SectionID&) const;
     SubID		getSurfSubID(const Geometry::PosID&,
-				     SectionID) const;
+				     const SectionID&) const;
 
     void		getMeshCoords(const PosID&,
 				      Coord3& c00, Coord3& c10,
