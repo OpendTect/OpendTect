@@ -8,15 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.19 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.20 2005-08-20 18:58:56 cvskris Exp $";
 
 #include "emtracker.h"
 
 #include "attribsel.h"
+#include "autotracker.h"
 #include "consistencychecker.h"
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "executor.h"
 #include "mpeengine.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
@@ -127,8 +129,24 @@ bool EMTracker::trackIntersections( const TrackPlane& )
 { return true; }
 
 
-bool EMTracker::trackInVolume()
+Executor* EMTracker::trackInVolume()
 {
+    ExecutorGroup* res = 0;
+    for ( int idx=0; idx<emobject->nrSections(); idx++ )
+    {
+	const EM::SectionID sid = emobject->sectionID(idx);
+	if ( !res )
+	{
+	    res = new ExecutorGroup("Autotracker", true );
+	    res->setNrDoneText("seeds processed");
+	}
+
+	res->add( new AutoTracker( *this, sid ) );
+    }
+
+    return res;
+
+    /*
     const TypeSet<EM::PosID>* seeds = emobject
     	? emobject->getPosAttribList(EM::EMObject::sSeedNode)
 	: 0;
@@ -212,6 +230,7 @@ bool EMTracker::trackInVolume()
     
     delete[] seedset;
     return true;
+    */
 }
 
 
