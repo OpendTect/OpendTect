@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.1 2005-08-17 20:46:22 cvskris Exp $
+ RCS:           $Id: autotracker.h,v 1.2 2005-08-20 19:04:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,13 @@ class AutoTracker : public Executor
 public:
 				AutoTracker( EMTracker&, const EM::SectionID& );
     int				nextStep();
+    int				nrDone() const { return nrdone; }
+    int				totalNr() const { return totalnr; }
 
 protected:
+    int				nrdone;
+    int				totalnr;
+
     const EM::SectionID		sid;
     TypeSet<EM::SubID>		blacklist;
     TypeSet<int>		blacklistscore;
