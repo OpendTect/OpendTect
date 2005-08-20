@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.42 2005-08-19 15:51:18 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.43 2005-08-20 18:57:33 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -161,6 +161,13 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
      EMM().history().addEvent( history, 0, 0 );
 
      return true;
+}
+
+
+bool EMObject::isAtEdge( const PosID& ) const
+{
+    pErrMsg("Not implemented");
+    return false;
 }
 
 

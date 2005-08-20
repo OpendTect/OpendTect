@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.73 2005-08-19 15:53:19 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.74 2005-08-20 18:57:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,27 @@ public:
 
 		    return PosID(surface.id(),sid,rc.getSerialized());
 		}
+
+    int		maximumSize() const
+		{
+		    if ( allsids )
+		    {
+			int sum = 0;
+			for ( int idx=0; idx<surface.nrSections(); idx++ )
+			    sum += maximumSize(surface.sectionID(idx));
+			return sum;
+		    }
+
+		    return maximumSize(sid);
+		}
+
+    int		maximumSize( const SectionID& sid ) const
+		{
+		    return (surface.geometry.rowRange(sid).nrSteps()+1) *
+			   (surface.geometry.colRange(sid).nrSteps()+1);
+		}
+
+protected:
 			
 
     bool	initSection()
@@ -112,10 +133,6 @@ public:
 		    return false;
 		}
 
-
-
-
-protected:
     RowCol		rc;
     SectionID		sid;
     StepInterval<int>	rowrg;
@@ -269,6 +286,10 @@ bool Surface::setPos( const PosID& posid, const Coord3& newpos,
 	    		    geometry.subID2RowCol(posid.subID()),
 			    newpos, addtohistory );
 }
+
+
+bool Surface::isAtEdge( const PosID& posid ) const
+{ return geometry.isAtEdge(posid); }
 
 
 bool Surface::isDefined( const PosID& pos ) const

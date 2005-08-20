@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.42 2005-08-19 15:51:15 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.43 2005-08-20 18:57:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,8 @@ public:
     virtual		~EMObjectIterator() {}
     virtual EM::PosID	next() 		= 0;
     			/*!<posid.objectID()==-1 when there are no more pids*/
+    virtual int		aproximateSize() const { return -1; }
+    virtual int		maximumSize() const { return -1; }
 };
 
 
@@ -94,6 +96,7 @@ public:
 	    			       const Coord3&,
 				       bool addtohistory );
     virtual bool		unSetPos(const EM::PosID&, bool addtohistory );
+    virtual bool		isAtEdge( const EM::PosID& ) const;
 
     void			changePosID( const EM::PosID& from, 
 	    				     const EM::PosID& to,

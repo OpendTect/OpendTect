@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.51 2005-08-19 15:53:15 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.52 2005-08-20 18:57:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,7 @@ public:
 
     bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);
     bool		isDefined(const EM::PosID&) const;
+    bool		isAtEdge(const EM::PosID&) const;
     Coord3		getPos(const EM::PosID&) const;
     bool		isLoaded() const;
     Executor*		saver();
