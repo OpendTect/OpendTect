@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.17 2005-08-12 19:25:09 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.18 2005-08-20 19:02:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "trackplane.h"
 
 class BufferStringSet;
+class Executor;
 class CubeSampling;
 class MultiID;
 
@@ -63,7 +64,7 @@ public:
     Notifier<Engine>		seedpropertychange;
 
     bool			trackAtCurrentPlane();
-    bool			trackInVolume();
+    Executor*			trackInVolume();
     //void			setNewSeeds();
 
     void			getAvaliableTrackerTypes(BufferStringSet&)const;

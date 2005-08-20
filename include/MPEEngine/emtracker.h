@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.16 2005-08-12 19:25:09 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.17 2005-08-20 19:02:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "sets.h"
 #include "emposid.h"
 #include "cubesampling.h"
+
+class Executor;
 
 namespace Geometry { class Element; };
 namespace EM { class EMObject; };
@@ -42,7 +44,7 @@ public:
 					 const char* name, EM::SectionID ) = 0;
     virtual bool		trackSections(const TrackPlane&);
     virtual bool		trackIntersections(const TrackPlane&);
-    virtual bool		trackInVolume();
+    virtual Executor*		trackInVolume();
     virtual bool		snapPositions( const TypeSet<EM::PosID>& );
     virtual bool		snapSeedPos();
 
