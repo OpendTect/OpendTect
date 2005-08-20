@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.7 2005-08-12 09:52:37 cvsduntao Exp $
+ RCS:           $Id: sectionextender.h,v 1.8 2005-08-20 19:01:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ protected:
     TypeSet<EM::SubID>		startpos;
     const TrackingStatusTable*	trkstattbl;
 
-    const EM::SectionID		sectionid;
+    const EM::SectionID		sid;
     BufferString		errmsg;
 };
 
