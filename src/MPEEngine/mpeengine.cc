@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.40 2005-08-12 19:25:12 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.41 2005-08-20 19:02:47 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -16,13 +16,14 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.40 2005-08-12 19:25:12 cvskris
 #include "attribslice.h"
 #include "bufstringset.h"
 #include "emeditor.h"
-#include "sectiontracker.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emtracker.h"
+#include "executor.h"
 #include "geomelement.h"
-#include "survinfo.h"
 #include "iopar.h"
+#include "sectiontracker.h"
+#include "survinfo.h"
 
 
 #define mRetErr( msg, retval ) { errmsg = msg; return retval; }
@@ -147,16 +148,20 @@ bool Engine::trackAtCurrentPlane()
 }
 
 
-bool Engine::trackInVolume()
+Executor* Engine::trackInVolume()
 {
+    ExecutorGroup* res = 0;
     for ( int idx=0; idx<trackers.size(); idx++ )
     {
 	if ( !trackers[idx] || !trackers[idx]->isEnabled() )
 	    continue;
 
-	trackers[idx]->trackInVolume( );
+	if ( !res ) res = new ExecutorGroup("Autotrack", false );
+
+	res->add( trackers[idx]->trackInVolume() );
     }
-    return true;
+
+    return res;
 }
 
 void Engine::setTrackMode( TrackPlane::TrackMode tm )
