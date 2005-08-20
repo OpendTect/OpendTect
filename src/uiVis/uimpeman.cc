@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.27 2005-08-15 16:04:57 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.28 2005-08-20 19:17:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,9 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicursor.h"
+#include "uiexecutor.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uislider.h"
 #include "uispinbox.h"
 #include "vismaterial.h"
@@ -502,7 +504,16 @@ void uiMPEMan::trackInVolume( CallBacker* )
     }
     
     uiCursor::setOverride( uiCursor::Wait );
-    engine().trackInVolume();
+    PtrMan<Executor> exec = engine().trackInVolume();
+    if ( exec )
+    {
+	uiExecutor uiexec( this, *exec );
+	if ( !uiexec.go() )
+	{
+	    uiMSG().error(engine().errMsg());
+	}
+    }
+
     uiCursor::restoreOverride();
 }
 
