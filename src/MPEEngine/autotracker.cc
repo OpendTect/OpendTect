@@ -8,13 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.1 2005-08-17 20:46:22 cvskris Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.2 2005-08-20 19:16:24 cvskris Exp $";
 
 #include "autotracker.h"
 
 #include "emmanager.h"
-#include "emsurface.h"
-#include "emsurfacegeometry.h"
+#include "emobject.h"
 #include "emtracker.h"
 #include "mpeengine.h"
 #include "parametricsurface.h"
@@ -32,12 +31,14 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sectionid )
     , emobject( *EM::EMM().getObject(et.objectID()) )
     , sid( sectionid )
     , sectiontracker( et.getSectionTracker(sectionid,true) )
+    , nrdone( 0 )
+    , totalnr( 0 )
 {
     extender = sectiontracker->extender();
     adjuster = sectiontracker->adjuster();
 
-    mDynamicCastGet( EM::Surface&, surface, emobject );
-    PtrMan<EM::EMObjectIterator> iterator = surface.createIterator(sid);
+    PtrMan<EM::EMObjectIterator> iterator = emobject.createIterator(sid);
+    totalnr = iterator->maximumSize();
 
     while ( true )
     {
@@ -45,17 +46,18 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sectionid )
 	if ( pid.objectID()==-1 )
 	    break;
 
-	BinID bid;
-	if ( surface.geometry.isAtEdge(pid) )
+	if ( totalnr>0 ) totalnr--;
+
+	if ( emobject.isAtEdge(pid) )
 	    currentseeds += pid.subID();
     }
+
+    totalnr = currentseeds.size();
 }
 
 
 int AutoTracker::nextStep()
 {
-    mDynamicCastGet( EM::Surface&, surface, emobject );
-
     extender->reset();
     extender->setDirection( BinIDValue(BinID(0,0), mUdf(float)) );
     extender->setStartPositions(currentseeds);
@@ -73,7 +75,8 @@ int AutoTracker::nextStep()
 	if ( blacklistidx<0 ) continue;
 	if ( blacklistscore[blacklistidx]>7 )
 	{
-	    surface.geometry.setPos(sid,addedpos[idx],Coord3::udf(),false);
+	    const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
+	    emobject.unSetPos(pid,false);
 	    addedpos.remove(idx);
 	    addedpossrc.remove(idx);
 	    idx--;
@@ -88,7 +91,8 @@ int AutoTracker::nextStep()
     //Add positions that have failed to blacklist
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	if ( !surface.geometry.isDefined(sid,addedpos[idx]) )
+	const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
+	if ( !emobject.isDefined(pid) )
 	{
 	    const int blacklistidx = blacklist.indexOf(addedpos[idx]);
 	    if ( blacklistidx!=-1 ) blacklistscore[blacklistidx]++;
@@ -105,16 +109,18 @@ int AutoTracker::nextStep()
 
     //Some positions failed in the optimization, wich may lead to that
     //others are unsupported. Remove all unsupported nodes.
-    const Geometry::ParametricSurface* gesurf =surface.geometry.getSurface(sid);
+    mDynamicCastGet(const Geometry::ParametricSurface*, gesurf,
+	    	    const_cast<const EM::EMObject&>(emobject).getElement(sid) );
     bool change = true;
-    while ( change )
+    while ( gesurf && change )
     {
 	change = false;
 	for ( int idx=0; idx<addedpos.size(); idx++ )
 	{
 	    if ( !gesurf->hasSupport(RowCol(addedpos[idx])) )
 	    {
-		surface.geometry.setPos(sid,addedpos[idx],Coord3::udf(),false);
+		const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
+		emobject.unSetPos(pid,false);
 		addedpos.remove(idx);
 		addedpossrc.remove(idx);
 		idx--;
@@ -123,19 +129,22 @@ int AutoTracker::nextStep()
 	}
     }
 
+    nrdone += currentseeds.size();
 
     //Make all new nodes seeds, apart from them outside the activearea
     currentseeds.erase();
     const CubeSampling activevolume = engine().activeVolume();
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	const Coord3 pos = surface.geometry.getPos(sid,addedpos[idx]);
+	const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
+	const Coord3 pos = emobject.getPos(pid);
 	const BinID bid = SI().transform(pos);
 	if ( activevolume.hrg.includes(bid) &&
 	     activevolume.zrg.includes(pos.z))
 	    currentseeds += addedpos[idx];
     }
 
+    totalnr += currentseeds.size();
     return currentseeds.size() ? 1 : 0;
 }
 
