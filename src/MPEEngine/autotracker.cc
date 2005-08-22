@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.3 2005-08-22 03:15:45 cvskris Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.4 2005-08-22 22:19:50 cvskris Exp $";
 
 #include "autotracker.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: autotracker.cc,v 1.3 2005-08-22 03:15:45 cvskri
 #include "emobject.h"
 #include "emtracker.h"
 #include "mpeengine.h"
-#include "parametricsurface.h"
 #include "sectionextender.h"
 #include "sectionadjuster.h"
 #include "sectiontracker.h"
@@ -88,6 +87,9 @@ int AutoTracker::nextStep()
     while ( (res=adjuster->nextStep())>0 )
 	;
 
+    //Not needed anymore, so we avoid hazzles below if we simply empty it
+    addedpossrc.erase();
+
     //Add positions that have failed to blacklist
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
@@ -103,32 +105,13 @@ int AutoTracker::nextStep()
 	    }
 
 	    addedpos.remove(idx);
-	    addedpossrc.remove(idx);
 	    idx--;
 	}
     }
 
     //Some positions failed in the optimization, wich may lead to that
     //others are unsupported. Remove all unsupported nodes.
-    mDynamicCastGet(const Geometry::ParametricSurface*, gesurf,
-	    	    const_cast<const EM::EMObject&>(emobject).getElement(sid) );
-    bool change = true;
-    while ( gesurf && change )
-    {
-	change = false;
-	for ( int idx=0; idx<addedpos.size(); idx++ )
-	{
-	    if ( !gesurf->hasSupport(RowCol(addedpos[idx])) )
-	    {
-		const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
-		emobject.unSetPos(pid,false);
-		addedpos.remove(idx);
-		addedpossrc.remove(idx);
-		idx--;
-		change = true;
-	    }
-	}
-    }
+    sectiontracker->removeUnSupported( addedpos );
 
     nrdone += currentseeds.size();
 
