@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.97 2005-08-19 21:54:15 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.98 2005-08-22 10:09:28 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ int uiODTreeItem::sceneID() const
 void uiODTreeItem::addStandardItems( uiPopupMenu& mnu )
 {
 #ifdef __debug__
-    if ( !children.size() ) return;
+    if ( children.size() < 2 ) return;
 
     mnu.insertSeparator( 100 );
     mnu.insertItem( new uiMenuItem("Show all"), 101 );
