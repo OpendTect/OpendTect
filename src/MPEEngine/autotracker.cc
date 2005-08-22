@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.2 2005-08-20 19:16:24 cvskris Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.3 2005-08-22 03:15:45 cvskris Exp $";
 
 #include "autotracker.h"
 
@@ -104,6 +104,7 @@ int AutoTracker::nextStep()
 
 	    addedpos.remove(idx);
 	    addedpossrc.remove(idx);
+	    idx--;
 	}
     }
 
@@ -145,7 +146,7 @@ int AutoTracker::nextStep()
     }
 
     totalnr += currentseeds.size();
-    return currentseeds.size() ? 1 : 0;
+    return currentseeds.size() ? MoreToDo : Finished;
 }
 
 }; // namespace MPE
