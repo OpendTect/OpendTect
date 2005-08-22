@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2003
- RCS:           $Id: uispecdecompattrib.h,v 1.1 2005-05-31 12:35:24 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.h,v 1.2 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ public:
 
 			uiSpecDecompAttrib(uiParent*);
 
+    void		getEvalParams(TypeSet<EvalParam>&) const;
     int			getOutputIdx(float) const;
     float		getOutputValue(int) const;
 

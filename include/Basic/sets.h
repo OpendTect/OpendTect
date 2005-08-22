@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.31 2005-05-17 09:29:05 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.32 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,12 +89,21 @@ public:
 			    }
 			    return *this;
 			}
+
     virtual void	append( const TypeSet<T>& ts )
 			{
 			    const unsigned int sz = ts.size();
 			    for ( unsigned int idx=0; idx<sz; idx++ )
 				*this += ts[idx];
 			}
+
+    virtual bool	addIfNew( const T& typ )
+			{
+			    if ( indexOf(typ) < 0 )
+			    { *this += typ; return true; }
+			    return false;
+			}
+
     virtual void	fill( const T& t )		{ tvec.fill(t); }
 
     virtual void	erase()				{ tvec.erase(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisimilarityattrib.h,v 1.1 2005-05-31 12:35:24 cvsnanne Exp $
+ RCS:           $Id: uisimilarityattrib.h,v 1.2 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,9 @@ class uiSimilarityAttrib : public uiAttrDescEd
 public:
 
 			uiSimilarityAttrib(uiParent*);
+
     void		set2D(bool);
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 

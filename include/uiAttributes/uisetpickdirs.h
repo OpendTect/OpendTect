@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Dec 2003
- RCS:           $Id: uisetpickdirs.h,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.h,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,6 @@ class PickSet;
 class NLAModel;
 class CtxtIOObj;
 class uiAttrSel;
-class FeatureSet;
 class uiGenInput;
 class BinIDValueSet;
 class uiSteerCubeSel;
@@ -59,7 +58,7 @@ protected:
     bool			getNLAIds(TypeSet<Attrib::DescID>&);
     Attrib::DescID		getAttribID(uiAttrSel*,
 	    				    const TypeSet<Attrib::DescID>&);
-    FeatureSet* 		calcAttribs(const BinIDValueSet&,
+    void			calcAttribs(const BinIDValueSet&,
 	    				    const BoolTypeSet&);
 
     float			calcPhi(float,float);

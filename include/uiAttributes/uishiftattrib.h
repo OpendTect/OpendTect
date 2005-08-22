@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.h,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiShiftAttrib : public uiAttrDescEd
 public:
 
 			uiShiftAttrib(uiParent*);
+    void		getEvalParams(TypeSet<EvalParam>& params) const;
 
 protected:
 

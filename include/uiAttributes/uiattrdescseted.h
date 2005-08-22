@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.2 2005-08-16 10:06:30 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,12 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 
-namespace Attrib {
-class Desc;
-class DescSet;
-class DescSetMan;
+namespace Attrib
+{
+    class Desc;
+    class DescID;
+    class DescSet;
+    class DescSetMan;
 };
 
 class uiAttrDescEd;
@@ -50,6 +52,7 @@ public:
     			//!< Use during operation only!
     int			curDescNr() const;
     			//!< Use during operation only!
+    void		updateCurDescEd();
 
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
@@ -98,6 +101,7 @@ protected:
     bool		doSave(bool);
     void		replaceStoredAttr();
     void		removeNotUsedAttr();
+    bool		hasInput(const Attrib::Desc&,const Attrib::DescID&);
 
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);

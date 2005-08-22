@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.5 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,4 +156,16 @@ bool uiFreqFilterAttrib::getInput( Desc& desc )
     const bool needimag = isfftfld->getBoolValue();
     fillInp( needimag ? inpfld : (uiAttrSel*)inpfld, desc, 0 );
     return true;
+}
+
+
+void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    const int passtype = typefld->getIntValue();
+    if ( passtype != 0 )
+	params += EvalParam( "Min frequency", FreqFilter::minfreqStr() );
+    if ( passtype != 1 )
+	params += EvalParam( "Max frequency", FreqFilter::maxfreqStr() );
+    if ( !isfftfld->getBoolValue() )
+	params += EvalParam( "Nr poles", FreqFilter::nrpolesStr() );
 }

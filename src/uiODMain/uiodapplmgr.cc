@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.89 2005-08-12 21:53:16 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.90 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -379,7 +379,8 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 				visserv->getCachedData( visid, colordata );
 
 	    CubeSampling cs = visserv->getCubeSampling( visid );
-	    Attrib::SliceSet* slices = attrserv->createOutput(cs,prevset,myas);
+	    attrserv->setTargetSelSpec( myas );
+	    Attrib::SliceSet* slices = attrserv->createOutput( cs, prevset );
 
 	    if ( !slices ) return false;
 	    visserv->setCubeData( visid, colordata, slices );
@@ -398,7 +399,8 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    for ( int idx=0; idx<bids.size(); idx++ )
 		bidset.add( bids[idx], zrg.start, zrg.stop );
 	    SeisTrcBuf data( true );
-	    if ( !attrserv->createOutput( bidset, data, myas ) )
+	    attrserv->setTargetSelSpec( myas );
+	    if ( !attrserv->createOutput(bidset,data) )
 		return false;
 	    visserv->setTraceData( visid, colordata, data );
 	    return true;
@@ -425,7 +427,8 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 	    ObjectSet<BinIDValueSet> data;
 	    visserv->fetchSurfaceData( visid, data );
-	    if ( !attrserv->createOutput(data,myas) )
+	    attrserv->setTargetSelSpec( myas );
+	    if ( !attrserv->createOutput(data) )
 	    {
 		deepErase( data );
 		return false;
@@ -463,9 +466,7 @@ bool uiODApplMgr::evaluateAttribute( int visid )
     if ( format == 0 )
     {
 	const CubeSampling cs = visserv->getCubeSampling( visid );
-	Attrib::SliceSet* slices = new Attrib::SliceSet;
-	if ( !attrserv->createOutput( cs, slices ) )
-	{ slices->unRef(); slices = 0; }
+	Attrib::SliceSet* slices = attrserv->createOutput( cs );
 	visserv->setCubeData( visid, false, slices );
     }
     else if ( format == 2 )
@@ -579,10 +580,9 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const Attrib::SelSpec* as = mpeserv->getAttribSelSpec();
 	if ( !as ) return false;
 	const CubeSampling cs = mpeserv->getActiveVolume();
-// TODO: check cache handling
-//	const Attrib::SliceSet* cache = mpeserv->getAttribCache(*as);
-	const Attrib::SliceSet* cache = 0;
-	Attrib::SliceSet* newset = attrserv->createOutput( cs, cache, *as );
+	const Attrib::SliceSet* cache = mpeserv->getAttribCache(*as);
+	attrserv->setTargetSelSpec( *as );
+	Attrib::SliceSet* newset = attrserv->createOutput( cs, cache );
 	mpeserv->setAttribData(*as,newset );
     }
     else if ( evid == uiMPEPartServer::evShowToolbar )

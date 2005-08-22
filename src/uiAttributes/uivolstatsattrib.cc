@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.4 2005-08-19 07:17:54 cvshelene Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.5 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,4 +124,11 @@ bool uiVolumeStatisticsAttrib::getOutput( Desc& desc )
 {
     fillOutput( desc, outpfld->getIntValue() );
     return true;
+}
+
+
+void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr, VolStats::gateStr() );
+    params += EvalParam( stepoutstr, VolStats::stepoutStr() );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.2 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@ ________________________________________________________________________
 //#include "attribdescsetproc.h"
 //#include "attriboutputimpl.h"
 //#include "attribexecutor.h"
-#include "featset.h"
 #include "uiexecutor.h"
 #include "survinfo.h"
 #include "rcol2coord.h"
@@ -119,6 +118,9 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
 
 bool uiSetPickDirs::acceptOK( CallBacker* )
 {
+    pErrMsg( "Not implemented yet" );
+    return false;
+/*
     if ( !phifld ) return true;
 
     if ( usesteering && !*steerfld->getInput() )
@@ -205,6 +207,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
     }
 
     return true;
+    */
 }
 
 
@@ -312,10 +315,9 @@ DescID uiSetPickDirs::getAttribID( uiAttrSel* attrfld,
 }
 
 
-FeatureSet* uiSetPickDirs::calcAttribs( const BinIDValueSet& locations,
+void uiSetPickDirs::calcAttribs( const BinIDValueSet& locations,
        					const BoolTypeSet& issel )
 {
-    return 0;
     /*
     BufferString errmsg;
     const DescSet* curset = createdset ? createdset : ads;

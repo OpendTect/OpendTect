@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uidipfilterattrib.h,v 1.3 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.h,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
 			ui3DFilterAttrib(uiParent*);
 
     const char*		getAttribName() const;
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 

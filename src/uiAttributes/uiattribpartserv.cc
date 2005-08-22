@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.6 2005-08-19 14:52:20 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.7 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ ________________________________________________________________________
 #include "attribsetcreator.h"
 #include "uiseisioobjinfo.h"
 
-//#include "uievaluatedlg.h"
+#include "uievaluatedlg.h"
 #include "uiattrdesced.h"
 
 using namespace Attrib;
@@ -285,28 +285,48 @@ void uiAttribPartServer::outputVol( MultiID& nlaid )
 }
 
 
-Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
-						  const SliceSet* cache,
-						  const SelSpec& selspec,
-       						  const DescSet* ads )
+void uiAttribPartServer::setTargetSelSpec( const SelSpec& selspec )
+{
+    targetspecs.erase();
+    targetspecs += selspec;
+}
+
+
+EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs, 
+					     const char* linekey,
+					     const DescSet* ads )
 {
     if ( !adsman->descSet() )
-	{ pErrMsg("No attr set"); return 0; }
-    else if ( selspec.id() == SelSpec::noAttrib )
-	{ pErrMsg("selspec id == -2"); return 0; }
-    
-    EngineMan aem;
-    aem.setAttribSet( ads ? ads : adsman->descSet() );
-    aem.setNLAModel( getNLAModel() );
-    aem.setAttribSpec( selspec );
-    aem.setCubeSampling( cs );
+	{ pErrMsg("No attr set"); return false; }
+    else if ( !targetspecs.size() || targetspecs[0].id() == SelSpec::noAttrib )
+	{ pErrMsg("Nothing to do"); return false; }
+
+    EngineMan* aem = new EngineMan;
+    aem->setAttribSet( ads ? ads : adsman->descSet() );
+    aem->setNLAModel( getNLAModel() );
+    aem->setAttribSpecs( targetspecs );
+    if ( cs )
+	aem->setCubeSampling( *cs );
+    if ( linekey )
+	aem->setLineKey( linekey );
+
+    return aem;
+}
+
+
+Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
+						    const SliceSet* cache,
+       						    const DescSet* ads )
+{
+    PtrMan<EngineMan> aem = createEngMan( &cs, 0, ads );
+    if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<ExecutorGroup> outex = aem.sliceSetOutputCreator( errmsg, cache );
+    PtrMan<ExecutorGroup> outex = aem->sliceSetOutputCreator( errmsg, cache );
     if ( !outex )
 	{ uiMSG().error(errmsg); return 0; }
 
-    if ( aem.nrOutputsToBeProcessed() != 0 )
+    if ( aem->nrOutputsToBeProcessed() != 0 )
     {
 	uiExecutor dlg( appserv().parent(), *outex );
 	if ( !dlg.go() ) return 0;
@@ -314,27 +334,19 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
 
     // TODO: Look at where to ref sliceset. Perhaps this is not the best place.
     // For now it works
-    Attrib::SliceSet* slices = aem.getSliceSetOutput();
+    Attrib::SliceSet* slices = aem->getSliceSetOutput();
     if ( slices ) slices->ref();
     return slices;
 }
 
 
-bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values,
-					const SelSpec& selspec )
+bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
 {
-    if ( !adsman->descSet() )
-	{ pErrMsg("No attr set"); return false; }
-    else if ( selspec.id() == SelSpec::noAttrib) 
-	{ pErrMsg("selspec id == -2"); return false; }
-
-    EngineMan aem;
-    aem.setAttribSet( adsman->descSet() );
-    aem.setNLAModel( getNLAModel() );
-    aem.setAttribSpec( selspec );
+    PtrMan<EngineMan> aem = createEngMan();
+    if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem.locationOutputCreator( errmsg, values );
+    PtrMan<Executor> outex = aem->locationOutputCreator( errmsg, values );
     if ( !outex )
 	{ uiMSG().error(errmsg); return false; }
 
@@ -346,22 +358,14 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values,
 
 
 bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
-				       SeisTrcBuf& output,
-				       const SelSpec& selspec )
+				       SeisTrcBuf& output )
 {
-    if ( !adsman->descSet() )
-	{ pErrMsg("No attr set"); return 0; }
-    else if ( selspec.id() == SelSpec::noAttrib )
-	{ pErrMsg("selspec id == -2"); return 0; }
-
-    EngineMan aem;
-    aem.setAttribSet( adsman->descSet() );
-    aem.setNLAModel( getNLAModel() );
-    aem.setAttribSpec( selspec );
+    PtrMan<EngineMan> aem = createEngMan();
+    if ( !aem ) return 0;
 
     BufferString errmsg;
     PtrMan<Executor> outex =
-	aem.trcSelOutputCreator( errmsg, bidvalset, output );
+	aem->trcSelOutputCreator( errmsg, bidvalset, output );
     if ( !outex )
 	{ uiMSG().error(errmsg); return false; }
 
@@ -439,42 +443,30 @@ void uiAttribPartServer::usePar( const IOPar& iopar )
 
 
 SeisTrcBuf* uiAttribPartServer::create2DOutput( const CubeSampling& cs,
-					        const SelSpec& selspec,
 						const char* linekey )
 
 {
-    if ( !adsman->descSet() )
-	{ pErrMsg("No attr set"); return 0; }
-    else if ( selspec.id() == SelSpec::noAttrib )
-	{ pErrMsg("selspec id == -2"); return 0; }
-    
-    EngineMan aem;
-    aem.setAttribSet( adsman->descSet() );
-    aem.setNLAModel( getNLAModel() );
-    aem.setAttribSpec( selspec );
-    aem.setCubeSampling( cs );
-    aem.setLineKey( linekey );
+    PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
+    if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem.screenOutput2DCreator( errmsg );
+    PtrMan<Executor> outex = aem->screenOutput2DCreator( errmsg );
     if ( !outex )
 	{ uiMSG().error(errmsg); return 0; }
 
     uiExecutor dlg( appserv().parent(), *outex );
     if ( !dlg.go() ) return 0;
 
-    return aem.get2DLineOutput();
+    return aem->get2DLineOutput();
 }
 
 
-bool uiAttribPartServer::createAttributeSet(const BufferStringSet& inps,
-					    DescSet* attrset )
+bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
+					     DescSet* attrset )
 {
     AttributeSetCreator attrsetcr( appserv().parent(), inps, attrset );
     return attrsetcr.create();
 }
-
-
 
 
 bool uiAttribPartServer::setPickSetDirs( PickSet& ps, const NLAModel* nlamod )
@@ -648,7 +640,6 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 
 void uiAttribPartServer::showEvalDlg( CallBacker* )
 {
-    /*
     if ( !attrsetdlg ) return;
     const Desc* curdesc = attrsetdlg->curDesc();
     if ( !curdesc )
@@ -656,9 +647,6 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
 
     uiAttrDescEd* ade = attrsetdlg->curDescEd();
     if ( !ade ) return;
-    const DescSet* curattrset = attrsetdlg->getSet();
-    if ( !curattrset )
-	mErrRet( "Cannot evaluate this attribute" );
 
     sendEvent( evEvalAttrInit );
     if ( !alloweval ) mErrRet( "Evaluation of attributes only possible on\n"
@@ -666,19 +654,22 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
 
     attrsetdlg->setSensitive( false );
     uiEvaluateDlg* evaldlg = new uiEvaluateDlg( appserv().parent(), *ade, 
-	    					*curattrset, curdesc->id(), 
 						allowevalstor );
+    if ( !evaldlg->evaluationPossible() )
+    {
+	attrsetdlg->setSensitive( true );
+	mErrRet( "This attribute has no parameters to evaluate" )
+    }
+
     evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
     evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
     evaldlg->windowClosed.notify( mCB(this,uiAttribPartServer,evalDlgClosed) );
     evaldlg->go();
-    */
 }
 
 
 void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 {
-    /*
     mDynamicCastGet(uiEvaluateDlg*,evaldlg,cb);
     if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
 
@@ -691,24 +682,19 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 
     DescSet* curattrset = attrsetdlg->getSet();
     const Desc* evad = evaldlg->getAttribDesc();
-    Desc* ad = evad ? evad->clone( curattrset ) : 0;
-    if ( ad && ade ) 
-    {
-	ad->setUserRef( curusrref );
-	ade->setDesc( ad, adsman );
-	IOPar iopar;
-	ad->fillPar( iopar );
-	curdesc->usePar( iopar );
-    }
+    if ( !evad ) return;
 
-    */
+    BufferString defstr;
+    evad->getDefStr( defstr );
+    curdesc->parseDefStr( defstr );
+    attrsetdlg->updateCurDescEd();
+
     attrsetdlg->setSensitive( true );
 }
 
 
 void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
 {
-/*
     mDynamicCastGet(uiEvaluateDlg*,evaldlg,cb);
     if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
 
@@ -719,7 +705,6 @@ void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
     adsman = &tmpadsman;
     sendEvent( evEvalCalcAttr );
     adsman = kpman;
-*/
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.3 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,13 +20,13 @@ ________________________________________________________________________
 
 namespace Attrib
 {
-class ColorSelSpec;
-class Desc;
-class DescSet;
-class DescSetMan;
-class EngMan;
-class SelSpec;
-class SliceSet;
+    class ColorSelSpec;
+    class Desc;
+    class DescSet;
+    class DescSetMan;
+    class EngineMan;
+    class SelSpec;
+    class SliceSet;
 };
 
 class CubeSampling;
@@ -90,19 +90,18 @@ public:
     int			getSliceIdx() const		{ return sliceidx; }
     void		getPossibleOutputs(BufferStringSet&) const;
 
+    void		setTargetSelSpec(const Attrib::SelSpec&);
     Attrib::SliceSet*	createOutput(const CubeSampling&,
-				     const Attrib::SliceSet* prevslcs,
-				     const Attrib::SelSpec& = 0,
+				     const Attrib::SliceSet* prevslcs=0,
 				     const Attrib::DescSet* ads=0);
     			//!< Hands over mem to caller
-    bool		createOutput(ObjectSet<BinIDValueSet>&,
-	    			     const Attrib::SelSpec& = 0);
+    bool		createOutput(ObjectSet<BinIDValueSet>&);
     			//!< Hands over mem to caller
     bool		createOutput( const BinIDValueSet& bidvalset,
-	    			      SeisTrcBuf&,const Attrib::SelSpec& = 0);
+	    			      SeisTrcBuf&);
     			//!< Hands over mem to caller
+    
     SeisTrcBuf*		create2DOutput(const CubeSampling&,
-	    			       const Attrib::SelSpec&,
 				       const char* linekey);
 
     bool		extractData(const NLACreationDesc&,
@@ -138,6 +137,9 @@ protected:
     const Attrib::Desc*	dirshwattrdesc;
     uiAttribDescSetEd*	attrsetdlg;
     Timer		attrsetclosetim;
+
+    Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,const char* lk=0,
+				     const Attrib::DescSet* ads=0);
 
     void		directShowAttr(CallBacker*);
 

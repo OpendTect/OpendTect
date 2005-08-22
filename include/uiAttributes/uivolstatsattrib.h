@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.2 2005-08-04 14:38:43 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ class uiVolumeStatisticsAttrib : public uiAttrDescEd
 public:
 
 			uiVolumeStatisticsAttrib(uiParent*);
+
+    void		getEvalParams(TypeSet<EvalParam>& params) const;
 
 protected:
 

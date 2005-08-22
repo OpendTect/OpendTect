@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,12 +92,13 @@ uiAttrInpDlg::~uiAttrInpDlg()
 }
 
 
-const char* uiAttrInpDlg::getUserRef()
+const char* uiAttrInpDlg::getUserRef() const
 {
     return inpfld->getInput();
 }
 
-const char* uiAttrInpDlg::getDefStr()
+
+const char* uiAttrInpDlg::getKey() const
 {
     return inpfld->getKey();
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.2 2005-07-28 10:53:50 cvshelene Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,4 +108,11 @@ bool uiPositionAttrib::getInput( Desc& desc )
     fillInp( steerfld, desc, 2 );
 
     return true;
+}
+
+
+void uiPositionAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr, Position::gateStr() );
+    params += EvalParam( stepoutstr, Position::stepoutStr() );
 }

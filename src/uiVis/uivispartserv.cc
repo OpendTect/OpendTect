@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.268 2005-08-05 19:17:37 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.269 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -854,8 +854,7 @@ void uiVisPartServer::removeColorData( int id )
 bool uiVisPartServer::selectColorAttrib( int id )
 {
     eventmutex.lock();
-    bool selected = sendEvent( evSelectColorAttrib );
-    return true;
+    return sendEvent( evSelectColorAttrib );
 }
 
 

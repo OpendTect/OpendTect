@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.8 2005-08-16 10:06:21 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.9 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "attribdescsetman.h"
 #include "attribdescsettr.h"
 #include "attribparam.h"
+#include "attribstorprovider.h"
 #include "uiattrinpdlg.h"
 #include "attribsel.h"
 
@@ -524,6 +525,12 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 }
 
 
+void uiAttribDescSetEd::updateCurDescEd()
+{
+    curDescEd()->setDesc( curDesc(), adsman );
+}
+
+
 bool uiAttribDescSetEd::validName( const char* newnm ) const
 {
     if ( !isalnum(newnm[0]) )
@@ -853,76 +860,71 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
 }
 
 
+bool uiAttribDescSetEd::hasInput( const Desc& desc, const DescID& id )
+{
+    for ( int idx=0; idx<desc.nrInputs(); idx++ )
+    {
+	const Desc* inp = desc.getInput( idx );
+	if ( !inp ) return false;
+
+	if ( !inp->isHidden() ) continue;
+
+	if ( inp->id() == id ) return true;
+	if ( inp->nrInputs() )
+	    return hasInput( *inp, id );
+    }
+
+    return false;
+}
+
+
 void uiAttribDescSetEd::replaceStoredAttr()
 {
-    TypeSet<DescID> idset;
-    BufferStringSet defstrs;
-    TypeSet<DescID> attrids;
-    attrset->getIds( attrids );
-    for ( int idx=0; idx<attrids.size(); idx++ )
+    TypeSet<DescID> storedids;
+    TypeSet<LineKey> linekeys;
+    for ( int idx=0; idx<attrset->nrDescs(); idx++ )
     {
-        Desc* ad = attrset->getDesc( attrids[idx] );
-        if ( !ad ) continue;
-	BufferString defstr;
-	ad->getDefStr( defstr );
-        if ( ad->isStored() && defstrs.indexOf(defstr)<0 )
-        {
-            idset += attrids[idx];
-	    defstrs.add( defstr );
-        }
+	const DescID descid = attrset->getID( idx );
+        Desc* ad = attrset->getDesc( descid );
+        if ( !ad || !ad->isStored() ) continue;
+
+	const ValParam* keypar = ad->getValParam( StorageProvider::keyStr() );
+	LineKey lk( keypar->getStringValue() );
+	if ( !linekeys.addIfNew(lk) ) continue;
+
+	storedids += descid;
     }
 
     BufferStringSet usrrefs;
-    BufferStringSet notused;
     bool found2d = false;
-    for ( int idnr=0; idnr<idset.size(); idnr++ )
+    for ( int idnr=0; idnr<storedids.size(); idnr++ )
     {
 	usrrefs.erase();
-	DescID crldipid = DescID::undef();
-	TypeSet<DescID> attrids;
-	attrset->getIds( attrids );
-	for ( int idx=0; idx<attrids.size(); idx++ )
-        {
-            Desc* ad = attrset->getDesc( attrids[idx] );
+	const DescID storedid = storedids[idnr];
+
+	for ( int idx=0; idx<attrset->nrDescs(); idx++ )
+	{
+	    const DescID descid = attrset->getID( idx );
+	    Desc* ad = attrset->getDesc( descid );
             if ( !ad || ad->isStored() || ad->isHidden() ) continue;
-            for ( int inpnr=0; inpnr<ad->nrInputs(); inpnr++ )
-            {
-                if ( ad->inputId( inpnr ) == idset[idnr] )
-                {
-                    usrrefs += new BufferString(ad->userRef());
-                }
-            }
+
+	    if ( hasInput(*ad,storedid) )
+		usrrefs.addIfNew( ad->userRef() );
         }
 
-	Desc* ad = attrset->getDesc( idset[idnr] );
-	
 	if ( !usrrefs.size() )
-	{
-	    BufferString defstr;
-	    ad->getDefStr( defstr );
-	    notused.add( defstr );
 	    continue;
-	}
 
+	Desc* ad = attrset->getDesc( storedid );
 	const bool issteer = ad->dataType() == Seis::Dip;
         uiAttrInpDlg dlg( this, usrrefs, issteer );
 	dlg.set2DPol( !idnr ? Both2DAnd3D : (found2d ? Only2D : No2D) ); 
         if ( dlg.go() )
         {
-            ad->changeStoredID( dlg.getDefStr() );
+            ad->changeStoredID( dlg.getKey() );
             ad->setUserRef( dlg.getUserRef() );
 	    if ( !found2d && dlg.is2D() )
 		found2d = true;
-	}
-    }
-
-    for ( int idx=0; idx<notused.size(); idx++ )
-    {
-	while( true )
-	{
-	    const DescID descid = attrset->getID( notused[0]->buf(), false );
-	    if ( descid < 0 ) break;
-	    attrset->removeDesc( descid );
 	}
     }
 

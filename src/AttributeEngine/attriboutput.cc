@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.20 2005-08-18 14:19:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.21 2005-08-22 15:33:53 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "survinfo.h"
@@ -83,6 +83,9 @@ TypeSet< Interval<int> > SliceSetOutput::getLocalZRange( const BinID& ) const
 { return sampleinterval; }
 
 
+#define mGetDim(nr) \
+    const int dim##nr = desiredvolume.size( direction(sliceset->direction,nr) )
+
 void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
 				  float refstep, int trcnr, int outidx )
 {
@@ -93,18 +96,15 @@ void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
 	sliceset->sampling = desiredvolume;
 	sliceset->sampling.zrg.step = refstep; 
 	sliceset->direction = desiredvolume.defaultDir();
-#define mGetDim(nr) \
-        const int dim##nr = \
-	    desiredvolume.size( direction(sliceset->direction,nr) )
 		
 	mGetDim(0); mGetDim(1); mGetDim(2);
 	for ( int idx=0; idx<dim0; idx++ )
 	    *sliceset += new Attrib::Slice( dim1, dim2, udfval );
-
-	if ( dim0 == 1 && desoutputs.size() > 1 )
-	    for ( int idx=0; idx<desoutputs.size()-1; idx++ )
-		*sliceset += new Attrib::Slice( dim1, dim2, udfval );
     }
+
+    mGetDim(0); mGetDim(1); mGetDim(2);
+    while ( sliceset->size() <= outidx )
+	*sliceset += new Attrib::Slice( dim1, dim2, udfval );
 
     if ( !sliceset->sampling.hrg.includes(bid) )
 	return;
@@ -120,7 +120,7 @@ void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
 	    const float val = valididx ? 
 			data.item(desoutputs[idy])->value(idx-data.t0_): udfval;
 	    sliceset->getIdxs( bid.inl, bid.crl, idx*refstep, i0, i1, i2 );
-	    ((*sliceset)[i0+idy])->set( i1, i2, val );
+	    ((*sliceset)[i0+outidx+idy])->set( i1, i2, val );
 	}
     }
 }
@@ -548,7 +548,7 @@ void TrcSelectionOutput::setOutput( SeisTrcBuf* outp_ )
 
 
 TypeSet< Interval<int> > 
-		TrcSelectionOutput::getLocalZRange( const BinID& bid ) const
+	TrcSelectionOutput::getLocalZRange( const BinID& bid ) const
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
     BinID binid;

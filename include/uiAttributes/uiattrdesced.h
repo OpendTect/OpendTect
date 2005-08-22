@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.5 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "changetracker.h"
 #include "paramsetget.h"
+#include "bufstring.h"
 
 namespace Attrib { class Desc; class DescSet; class DescSetMan; };
 
@@ -24,6 +25,28 @@ class uiAttrSelData;
 class uiImagAttrSel;
 class uiSteeringSel;
 class uiSteerCubeSel;
+
+
+/*! \brief Description of attribute parameters to evaluate */
+
+class EvalParam
+{
+public:
+    			EvalParam( const char* lbl, const char* par1=0,
+				   const char* par2=0 )
+			    : label_(lbl), par1_(par1), par2_(par2)	{}
+
+    bool		operator==(const EvalParam& ep) const
+			{
+			    return label_==ep.label_ && par1_==ep.par1_ &&
+				   par2_==ep.par2_;
+			}
+
+    BufferString	label_;
+    BufferString	par1_;
+    BufferString	par2_;
+
+};
 
 
 /*! \brief Attribute description editor creater */
@@ -62,6 +85,8 @@ public:
     virtual int		getOutputIdx(float val) const	{ return (int)val; }
     virtual float	getOutputValue(int idx) const	{ return (float)idx; }
     virtual void	setOutputStep(float step)	{}
+
+    virtual void	getEvalParams(TypeSet<EvalParam>&) const {}
 
     virtual const char* getAttribName() const		{ return 0; }
     virtual bool	useIfZIsTime() const		{ return true; }

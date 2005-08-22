@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.9 2005-07-29 15:11:40 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.10 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,38 +220,28 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<IOPar> attribsiopar = output->subselect("Attributes");
     if ( !attribsiopar ) mErrRet( "No output specified" );
 
-    TypeSet<int> attribids;
+    TypeSet<Attrib::DescID> attribids;
     int nrattribs = 1;
     attribsiopar->get( "MaxNrKeys", nrattribs );
     for ( int idx=0; idx<nrattribs; idx++ )
     {
 	BufferString key = idx;
-	int id_;
-	if ( attribsiopar->get(key,id_) )
-	    attribids += id_;
+	int id;
+	if ( attribsiopar->get(key,id) )
+	    attribids += Attrib::DescID(id,true);
     }
 
     if ( !attribids.size() )
 	mErrRet( "No attributes selected" );
 
-    Attrib::EngineMan aem;
-    aem.setAttribSet( &attribset );
-
+    TypeSet<Attrib::SelSpec> selspecs;
     BufferStringSet attribrefs;
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	const int id_ = attribids[idx];
-	Attrib::DescID attribid( attribset.getID(id_) );
-	if ( !idx )
-	{
-	    Attrib::SelSpec selspec( 0, attribid  );
-	    aem.setAttribSpec( selspec );
-	}
-	else
-	    aem.addOutputAttrib( attribid );
-
-	Attrib::Desc* ad = attribset.getDesc( attribid );
-	attribrefs.add( ad->userRef() );
+	Attrib::SelSpec spec( 0, attribids[idx] );
+	spec.setRefFromID( attribset );
+	selspecs += spec;
+	attribrefs.add( spec.userRef() );
     }
 
     // TODO: make a targetvalue for each output
@@ -260,17 +250,19 @@ bool BatchProgram::go( std::ostream& strm )
     if ( newattrnm != "" )
 	attribrefs.get(0) = newattrnm;
 
+    Attrib::EngineMan aem;
+    aem.setAttribSet( &attribset );
+    aem.setAttribSpecs( selspecs );
+
     ObjectSet<BinIDValueSet> bivs;
     getPositions( strm, mid, bivs );
-
     execgr = aem.locationOutputCreator( errmsg, bivs );
-
-    ProgressMeter progressmeter(strm);
 
     bool cont = true;
     bool loading = true;
-
     int nriter = 0;
+
+    ProgressMeter progressmeter(strm);
     while ( 1 )
     {
 	int res = execgr->doStep();

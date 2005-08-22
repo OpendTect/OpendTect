@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: uipositionattrib.h,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ class uiPositionAttrib : public uiAttrDescEd
 {
 public:
 			uiPositionAttrib(uiParent*);
+
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 

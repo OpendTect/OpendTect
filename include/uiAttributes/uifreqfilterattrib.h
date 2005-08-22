@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.h,v 1.3 2005-08-04 14:37:29 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.h,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ class uiFreqFilterAttrib : public uiAttrDescEd
 public:
 
 			uiFreqFilterAttrib(uiParent*);
+
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 

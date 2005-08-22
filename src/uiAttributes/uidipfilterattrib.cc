@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.5 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.6 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,4 +271,11 @@ bool ui3DFilterAttrib::getOutput( Desc& desc )
     
     fillOutput( desc, selout );
     return true;
+}
+
+
+void ui3DFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    if ( kernelfld->getIntValue() != 2 )
+	params += EvalParam( filterszstr, DipFilter::sizeStr() );
 }

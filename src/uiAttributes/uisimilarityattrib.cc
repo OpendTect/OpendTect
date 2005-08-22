@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.3 2005-08-04 14:38:56 cvsnanne Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,4 +194,16 @@ bool uiSimilarityAttrib::getOutput( Attrib::Desc& desc )
     fillOutput( desc, selattr );
 
     return true;
+}
+
+
+void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr, Similarity::gateStr() );
+
+    if ( extfld->getIntValue() == 3 )
+	params += EvalParam( stepoutstr, Similarity::stepoutStr() );
+    else
+	params += EvalParam( "Trace positions", Similarity::pos0Str(),
+			     Similarity::pos1Str() );
 }

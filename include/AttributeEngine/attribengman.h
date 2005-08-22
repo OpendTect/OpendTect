@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.9 2005-08-19 14:52:20 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.10 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,6 @@ public:
 
     const DescSet* 	attribSet() const	{ return inpattrset; }
     const NLAModel*	nlaModel() const	{ return nlamodel; }
-    const SelSpec& 	attribSpec() const	{ return attrspec; }
     const CubeSampling&	cubeSampling() const	{ return cs_; }
     const BufferString&	lineKey() const		{ return linekey; }
     float		undefValue() const	{ return udfval; }
@@ -66,10 +65,10 @@ public:
     void		setAttribSet(const DescSet*);
     void		setNLAModel(const NLAModel*);
     void		setAttribSpec(const SelSpec&);
+    void		setAttribSpecs(const TypeSet<SelSpec>&);
     void		setCubeSampling(const CubeSampling&);
     void		setLineKey( const char* lk )	{ linekey = lk; }
     void		setUndefValue( float v )	{ udfval = v; }
-    void		addOutputAttrib(const DescID&);
     DescSet*		createNLAADS(DescID& outid,BufferString& errmsg,
 	    			     const DescSet* addtoset=0);
 
@@ -94,7 +93,7 @@ public:
 	    				    SeisTrcBuf&);
     int			nrOutputsToBeProcessed() const; 
 
-    const char*		curUserDesc() const;
+    const char*		curUserRef() const;
 
 protected:
 
@@ -107,12 +106,10 @@ protected:
 
     const DescSet* 	curattrset;
     DescSet*		procattrset;
-    DescID		curattrid;
-    TypeSet<DescID>	outattribs;
-    SelSpec&      	attrspec;
+    int			curattridx;
+    TypeSet<SelSpec>	attrspecs_;
 
-    bool		getProcessors(ObjectSet<Processor>&,BufferString& err,
-	    			      bool need_selspecid);
+    bool		getProcessors(ObjectSet<Processor>&,BufferString& err);
     BufferString	createExecutorName() const;
     ExecutorGroup*	createExecutorGroup() const;
 

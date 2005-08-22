@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.1 2005-05-31 12:33:55 cvsnanne Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.2 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,4 +60,10 @@ bool uiEnergyAttrib::getInput( Attrib::Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
     return true;
+}
+
+
+void uiEnergyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr, Energy::gateStr() );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.3 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,4 +121,10 @@ bool uiFrequencyAttrib::getOutput( Attrib::Desc& desc )
     mChgTrackGetSet( chtr, (&desc), selectedOutput,
 	    	selectOutput, outpfld->getIntValue() );
     return true;
+}
+
+
+void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr, Frequency::gateStr() );
 }
