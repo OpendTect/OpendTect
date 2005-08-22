@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.20 2005-08-20 18:58:56 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.21 2005-08-22 22:18:38 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -66,6 +66,7 @@ bool EMTracker::trackSections( const TrackPlane& plane )
     ConsistencyChecker* consistencychecker = getConsistencyChecker();
     if ( consistencychecker ) consistencychecker->reset();
 
+    bool success = true;
     for ( int idx=0; idx<emobject->nrSections(); idx++ )
     {
 	const EM::SectionID sectionid = emobject->sectionID(idx);
@@ -73,40 +74,13 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	if ( !sectiontracker )
 	    continue;
 
-	sectiontracker->reset();
-	sectiontracker->selector()->setTrackPlane( plane );
-
-	if ( plane.getTrackMode() == TrackPlane::Erase )
-	{
-	    erasePositions( sectionid,
-		    	    sectiontracker->selector()->selectedPositions() );
-	    continue;
-	}
-	
-	sectiontracker->extender()->setDirection( plane.motion() );
-	sectiontracker->select();
-	const bool hasextended = sectiontracker->extend();
-	bool hasadjusted = true;
-	if ( hasextended && sectiontracker->adjusterUsed() )
-	    hasadjusted = sectiontracker->adjust();
-
-	if ( !hasextended || !hasadjusted )
-	{
-	    while ( EM::EMM().history().canUnDo() &&
-		    EM::EMM().history().currentEventNr()!=initialhistnr )
-	    {
-		bool res = EM::EMM().history().unDo(1);
-		if ( !res ) break;
-	    }
-
-	    EM::EMM().history().setCurrentEventAsLast();
-
-	    errmsg = sectiontracker->errMsg();
-	    return false;;
-	}
-
 	EM::PosID posid( emobject->id(), sectionid );
-	if ( consistencychecker )
+	if ( !sectiontracker->trackWithPlane(plane) )
+	{
+	    errmsg = sectiontracker->errMsg();
+	    success = false;
+	}
+	else if ( consistencychecker )
 	{
 	    const TypeSet<EM::SubID>& addedpos = 
 		sectiontracker->extender()->getAddedPositions();
@@ -117,6 +91,9 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	    }
 	}
     }
+
+    if ( !success )
+	return false;
 
     if ( consistencychecker )
 	consistencychecker->nextStep();
@@ -145,92 +122,6 @@ Executor* EMTracker::trackInVolume()
     }
 
     return res;
-
-    /*
-    const TypeSet<EM::PosID>* seeds = emobject
-    	? emobject->getPosAttribList(EM::EMObject::sSeedNode)
-	: 0;
-    if ( !seeds || !seeds->size() ) return false;
-    snapSeedPos();
-    
-    const CubeSampling activevolume = engine().activeVolume();
-    const BinID step(SI().inlRange(true).step, SI().crlRange(true).step);
-    const float zstep = SI().zStep();
-    
-    TypeSet<EM::SubID>* seedset = new TypeSet<EM::SubID> [seeds->size()];
-    TrackingStatusTable trktbl(SI().inlRange(true), SI().crlRange(true));
-    for ( int idx=0; idx<seeds->size(); idx++ )
-    {
-	trktbl.setPosTracked((*seeds)[idx].subID());
-	seedset[idx] += (*seeds)[idx].subID();
-    }
-    
-    bool moreseeds = true;	int res;
-    while ( moreseeds ) 
-    {
-	for ( int idx=0; idx<seeds->size(); idx++ )
-	{
-	    const EM::SectionID sid = (*seeds)[idx].sectionID();
-	    TypeSet<EM::SubID>* currentseeds = &seedset[idx];
-	    EM::SubID refpos = (*seeds)[idx].subID();
-    
-	    SectionTracker* tracker = getSectionTracker(sid, true );
-	    SectionExtender* extender = tracker->extender();
-	    SectionAdjuster* adjuster = tracker->adjuster();
-	    
-	    extender->setTrackStatTbl(&trktbl);
-	    
-	    for ( int idy=0; idy<currentseeds->size(); idy++ )
-	    {
-		const EM::PosID pid(EM::PosID(emobject->id(),sid,
-					      (*currentseeds)[idy]));
-		const Coord3 pos = emobject->getPos(pid);
-		
-		bool removeseed = false;
-		if ( !pos.isDefined() )
-		    removeseed = true;
-		else
-		{
-		    const BinID bid = SI().transform(pos);
-		    if ( !activevolume.hrg.includes(bid) ||
-			 !activevolume.zrg.includes(pos.z))
-			removeseed = true;
-		
-		    trktbl.setPosTracked((*currentseeds)[idy]);
-		    //Check for stopline
-		}
-		
-		if ( removeseed )
-		    currentseeds->remove(idy--);
-	    }
-		
-	    if ( !currentseeds->size() )	continue;
-	    
-	    extender->setStartPositions(*currentseeds);
-	    extender->extendInVolume(step, zstep);
-
-	    TypeSet<EM::SubID> addedpos = extender->getAddedPositions();
-	    TypeSet<EM::SubID> addedpossrc = extender->getAddedPositionsSource();
-	    
-	    adjuster->setPositions(addedpos, &addedpossrc);
-	    adjuster->setReferencePosition(&refpos);
-	    while ( (res=adjuster->nextStep())>0 )
-		;
-	    if ( res==-1 )	{ currentseeds->erase();  break; }
-	    
-	    *currentseeds = addedpos;
-	    extender->reset();
-	}
-	
-	moreseeds = false;
-	for ( int idy=0; idy<seeds->size() && !moreseeds; idy++ )
-	    if ( seedset[idy].size() > 0 ) 
-		moreseeds = true;
-    }
-    
-    delete[] seedset;
-    return true;
-    */
 }
 
 
