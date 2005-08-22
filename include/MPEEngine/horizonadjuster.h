@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.3 2005-08-15 07:32:24 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.4 2005-08-22 09:57:25 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,17 +79,19 @@ protected:
     bool		trackTrace( const BinID& refbid,
 				const BinID& targetbid, float& targetz,
 				float* refsamples = 0 );
-    int			matchingSampleByValue( const float* srctrc,
+    int			adjoiningExtreme( const float* srctrc,
 				int startsample, int endsample, float refval,
 				float& matchval, bool& eqstart );
     int			matchingSampleBySimilarity( const float* srctrc,
                                 int startsample, int endsample,
 				const float* refval,
 				float &matchratio, bool& eqfromstart );
-    float 		nearestZeroEvent( float* srctrc, int nrsamples,
+    float 		adjoiningZeroEvent( float* srctrc, int nrsamples,
     				int startpos, VSEvent::Type );
     float 		firstZeroEvent( const float* srctrc, int startsample,
     				int endsample, VSEvent::Type );
+    float		fineTuneExtremePos(const float *smplbuf,
+    				int nrsamples, int pickpos);
 private:
     void		initTrackParam();
     int			matchwinsamples_;
