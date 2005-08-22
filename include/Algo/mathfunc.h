@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.15 2005-08-19 13:48:01 cvskris Exp $
+ RCS:		$Id: mathfunc.h,v 1.16 2005-08-22 22:21:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,6 +197,34 @@ public:
 			    return -b / (2*a);
 			}
 
+    int			getRoots( float& pos0, float& pos1 ) const
+			{
+			    pos0 = pos1 = mUdf(float);
+
+			    if ( mIsZero(a,mDefEps) )
+			    {
+				if ( mIsZero(b,mDefEps) )
+				    return 0;
+
+				pos0 = -c/b;
+				return 1;
+			    }
+
+			    const double halfp = b/a/2;
+			    const double q = c/a;
+
+			    const double squareterm = halfp*halfp-q;
+			    if ( squareterm<0 )
+				return 0;
+
+			    const double sq = sqrt(squareterm);
+
+
+			    pos0 = -halfp+sq;
+			    pos1 = -halfp-sq;
+			    return 2;
+			}
+
     LinePars*		createDerivative() const;
 
     float		a, b, c;
@@ -238,22 +266,19 @@ public:
     SecondOrderPoly*	createDerivative() const
 			{ return new SecondOrderPoly( a*3, b*2, c ); }
 
-    void		getExtremePos( float& pos0, float& pos1 ) const
+    int			getExtremePos( float& pos0, float& pos1 ) const
 			{
 			    pos0 = pos1 = mUdf(float);
 			    if ( mIsZero(a,mDefEps) && mIsZero(b,mDefEps) )
-				return;
+				return 0;
 			    else if ( mIsZero(a,mDefEps) )
 			    {
 				pos0 = -c / ( 2*b );
-				return;
+				return 1;
 			    }
 
-			    const float det = 4*b*b - 12*a*c;
-			    if ( det < 0 ) return;
-			    pos0 = ( -2*b + sqrt(det) ) / ( 6*a );
-			    if ( !mIsZero(det,mDefEps) )
-				pos1 = ( -2*b - sqrt(det) ) / ( 6*a );
+			    SecondOrderPoly derivate( a*3, b*2, c );
+			    return derivate.getRoots(pos0, pos1);
 			}
 
     float		a, b, c, d;
