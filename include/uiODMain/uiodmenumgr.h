@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.11 2005-04-13 15:30:15 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.12 2005-08-22 07:30:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,10 @@ class uiPopupMenu;
 
 class uiODMenuMgr : public CallBacker
 {
+
+    friend class	uiODMain;
+    friend class	uiODHelpMenuMgr;
+
 public:
 
     uiPopupMenu*	fileMnu()		{ return filemnu; }
@@ -68,6 +72,7 @@ protected:
 
     uiODMain&		appl;
     Timer&		timer;
+    uiODHelpMenuMgr*	helpmgr;
 
     uiPopupMenu*	filemnu;
     uiPopupMenu*	procmnu;
@@ -91,7 +96,6 @@ protected:
     void		fillWinMenu();
     void		fillViewMenu();
     void		fillUtilMenu();
-    void		fillHelpMenu();
     void		fillDtectTB();
     void		fillCoinTB();
     void		fillManTB();
@@ -111,8 +115,6 @@ protected:
 
     inline uiODApplMgr&	applMgr()	{ return appl.applMgr(); }
     inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
-
-    friend class	uiODMain;
 };
 
 

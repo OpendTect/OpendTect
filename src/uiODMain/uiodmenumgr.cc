@@ -4,33 +4,31 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.28 2005-08-19 13:03:45 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.29 2005-08-22 07:30:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.28 2005-08-19 13:03:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.29 2005-08-22 07:30:43 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uiodhelpmenumgr.h"
 #include "uiodstdmenu.h"
 #include "uicrdevenv.h"
 #include "uisettings.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
 #include "uisoviewer.h"
-#include "helpview.h"
-#include "dirlist.h"
 #include "pixmap.h"
-#include "filegen.h"
-#include "filepath.h"
 #include "timer.h"
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 	: appl(*a)
     	, timer(*new Timer("popup timer"))
+    	, helpmgr(0)
 {
     filemnu = new uiPopupMenu( &appl, "&File" );
     procmnu = new uiPopupMenu( &appl, "&Processing" );
@@ -53,6 +51,7 @@ uiODMenuMgr::~uiODMenuMgr()
     delete dtecttb;
     delete cointb;
     delete mantb;
+    delete helpmgr;
 }
 
 
@@ -64,7 +63,8 @@ void uiODMenuMgr::initSceneMgrDepObjs()
     fillWinMenu();	menu->insertItem( winmnu );
     fillViewMenu();	menu->insertItem( viewmnu );
     fillUtilMenu();	menu->insertItem( utilmnu );
-    fillHelpMenu();	menu->insertItem( helpmnu );
+    helpmgr = new uiODHelpMenuMgr( this );
+    menu->insertItem( helpmnu );
 
     fillDtectTB();
     fillCoinTB();
@@ -265,40 +265,6 @@ void uiODMenuMgr::fillUtilMenu()
 }
 
 
-void uiODMenuMgr::fillHelpMenu()
-{
-    DirList dl( GetDataFileName(0), DirList::DirsOnly, "*Doc" );
-    bool havedtectdoc = false;
-    for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
-    {
-	BufferString dirnm = dl.get( idx );
-	if ( dirnm == "dTectDoc" )
-	{
-	    havedtectdoc = true;
-	    mInsertItem( helpmnu, "&Index ...", mODIndexMnuItm );
-	}
-	else
-	{
-	    char* ptr = strstr( dirnm.buf(), "Doc" );
-	    if ( !ptr ) continue; // Huh?
-	    *ptr = '\0';
-	    if ( dirnm == "" ) continue;
-
-	    BufferString itmnm = "&"; // hope there's no duplication
-	    itmnm += dirnm; itmnm += "-"; itmnm += "Index ...";
-	    mInsertItem( helpmnu, itmnm, mStdHelpMnuBase + hidx + 1 );
-	    hidx++;
-	}
-    }
-    if ( havedtectdoc )
-    {
-	mInsertItem( helpmnu, "Ad&min ...", mAdminMnuItm );
-	mInsertItem( helpmnu, "&Programmer ...", mProgrammerMnuItm );
-    }
-    mInsertItem( helpmnu, "&About ...", mAboutMnuItm );
-}
-
-
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( ioPixmap( GetDataFileName(fnm) ), \
 	    	   mCB(&applMgr(),uiODApplMgr,fn), txt, togg )
@@ -358,18 +324,6 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 }
 
 
-static const char* getHelpF( const char* subdir, const char* infnm,
-			     const char* basedirnm = "dTectDoc" )
-{
-    FilePath fp( basedirnm );
-    if ( subdir && *subdir ) fp.add( subdir );
-    fp.add( infnm );
-    static BufferString fnm;
-    fnm = fp.fullPath();
-    return fnm.buf();
-}
-
-
 #define mDoOp(ot,at,op) \
 	applMgr().doOperation(uiODApplMgr::at,uiODApplMgr::ot,op)
 
@@ -417,12 +371,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mTileMnuItm: 		sceneMgr().tile(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm: 	applMgr().setZScale(); break;
-    case mAdminMnuItm: 		HelpViewer::doHelp(
-				    getHelpF("ApplMan","index.html"),
-				    "OpendTect System administrator"); break;
-    case mProgrammerMnuItm:	HelpViewer::doHelp(
-					getHelpF("Programmer","index.html"),
-					"d-Tect" ); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl); break;
@@ -442,35 +390,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	updateStereoMenu();
     } break;
 
-    case mAboutMnuItm:
-    {
-	const char* htmlfnm = "about.html";
-	const BufferString dddirnm = GetDataFileName( "dTectDoc" );
-	BufferString fnm = FilePath(dddirnm).add(htmlfnm).fullPath();
-	fnm = File_exists(fnm) ? getHelpF(0,htmlfnm) : htmlfnm;
-	HelpViewer::doHelp( fnm, "About OpendTect" );
-    } break;
-
     default:
     {
-	if ( id < mStdHelpMnuBase || id > mStdHelpMnuBase + 90 ) return;
-
-	BufferString itmnm = itm->name();
-	BufferString docnm = "dTect";
-	char* ptr = strchr( itmnm.buf(),'-' );
-	if ( ptr )
-	{
-	    *ptr = '\0';
-	    docnm = itmnm.buf() + 1; // add one to skip "&"
-	}
-
-	BufferString dirnm( docnm ); dirnm += "Doc";
-	itmnm = "OpendTect Documentation";
-	if ( ptr )
-	    { itmnm += " - "; itmnm += docnm; itmnm += " part"; }
-
-	HelpViewer::doHelp( getHelpF(0,"index.html",dirnm.buf()), itmnm );
-	break;
+	if ( id >= mStdHelpMnuBase || id <= mStdHelpMnuBase + 90 )
+	    helpmgr->handle( id, itm->name() );
 
     } break;
 
