@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselector.h,v 1.4 2005-07-18 16:58:44 cvskris Exp $
+ RCS:           $Id: sectionselector.h,v 1.5 2005-08-22 22:16:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,9 @@ public:
 
     int				nextStep();
     const char*			errMsg() const;
+
+    virtual void		fillPar( IOPar& ) const {}
+    virtual bool		usePar( const IOPar& ) { return true; }
 
     const TypeSet<EM::SubID>&	selectedPositions() const;
 
