@@ -8,13 +8,15 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.12 2005-08-09 15:50:26 cvskris Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.13 2005-08-22 22:15:18 cvskris Exp $";
 
 #include "sectiontracker.h"
 
+#include "emobject.h"
 #include "iopar.h"
 #include "mpeengine.h"
 #include "ptrman.h"
+#include "parametricsurface.h"
 #include "positionscorecomputer.h"
 #include "sectionadjuster.h"
 #include "sectionextender.h"
@@ -26,36 +28,36 @@ namespace MPE
 const char* SectionTracker::trackerstr = "Tracker";
 const char* SectionTracker::useadjusterstr = "Use adjuster";
 
-SectionTracker::SectionTracker( SectionSourceSelector* selector__,
+SectionTracker::SectionTracker( EM::EMObject& emobj,
+				const EM::SectionID& sectionid,
+				SectionSourceSelector* selector__,
 				SectionExtender* extender__,
 				SectionAdjuster* adjuster__ )
-    : selector_(selector__)
+    : emobject( emobj )
+    , sid( sectionid )
+    , selector_(selector__)
     , extender_(extender__)
     , adjuster_(adjuster__)
-    , useadjuster_(true)
-    , displayas_(*new Attrib::SelSpec)
+    , useadjuster(true)
+    , displayas(*new Attrib::SelSpec)
 {
+    emobject.ref();
     init();
 }
 
 
 SectionTracker::~SectionTracker()
 {
+    emobject.unRef();
     delete selector_;
     delete extender_;
     delete adjuster_;
-    delete &displayas_;
+    delete &displayas;
 }
 
 
 EM::SectionID SectionTracker::sectionID() const
-{
-    if ( selector_&&selector_->sectionID()!=-1 ) return selector_->sectionID();
-    if ( extender_&&extender_->sectionID()!=-1 ) return extender_->sectionID();
-    if ( adjuster_&&adjuster_->sectionID()!=-1 ) return adjuster_->sectionID();
-
-    return -1;
-}
+{ return sid; }
 
 
 bool SectionTracker::init() { return true; }
@@ -69,6 +71,96 @@ void SectionTracker::reset()
 }
 
 
+
+bool SectionTracker::trackWithPlane( const TrackPlane& plane )
+{
+    if ( !selector_ && !extender_ )
+    {
+	errmsg = "Internal: No selector or extender available.";
+	return false;
+    }
+
+    reset();
+
+    selector_->setTrackPlane( plane );
+    if ( !select() )
+	return false;
+
+    if ( plane.getTrackMode()==TrackPlane::Erase )
+    {
+	if ( !erasePositions(selector_->selectedPositions(),true) )
+	{
+	    errmsg = "Could not remove all nodes since that would "
+		     "divide the section in multiple parts.";
+	    return false;
+	}
+
+	return true;
+    }
+
+    extender_->setDirection(plane.motion());
+    if ( !extend() )
+	return false;
+
+    TypeSet<EM::SubID> addedpos = extender_->getAddedPositions();
+
+    if ( adjusterUsed() && !adjust() )
+	return false;
+
+    removeUnSupported( addedpos );
+    return true;
+}
+
+
+void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
+{
+    mDynamicCastGet(const Geometry::ParametricSurface*, gesurf,
+	const_cast<const EM::EMObject&>(emobject).getElement(sid) );
+    bool change = true;
+    while ( gesurf && change )
+    {
+	change = false;
+	for ( int idx=0; idx<subids.size(); idx++ )
+	{
+	    if ( !gesurf->hasSupport(RowCol(subids[idx])) )
+	    {
+		const EM::PosID pid( emobject.id(), sid, subids[idx] );
+		emobject.unSetPos(pid,false);
+		subids.remove(idx);
+		idx--;
+		change = true;
+	    }
+	}
+    }
+}
+
+
+
+bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
+				     bool addtohistory ) const
+{
+    TypeSet<EM::SubID> subids( origsubids );
+    EM::PosID pid(emobject.id(),sid,0 );
+
+    bool change = true;
+    while ( change )
+    {
+	change = false;
+	for ( int idx=0; idx<subids.size(); idx++ )
+	{
+	    pid.setSubID(subids[idx]);
+	    if ( emobject.unSetPos(pid,addtohistory) )
+	    {
+		subids.remove(idx--);
+		change = true;
+	    }
+	}
+    }
+
+    return subids.size() ? false : true;
+}
+
+
 #define mAction(function, actionobj ) \
 bool SectionTracker::function() \
 { \
@@ -78,7 +170,7 @@ bool SectionTracker::function() \
     { \
 	if ( res==-1 ) \
 	{ \
-	    errmsg_ = actionobj->errMsg(); \
+	    errmsg = actionobj->errMsg(); \
 	    return false; \
 	} \
     }  \
@@ -94,7 +186,7 @@ bool SectionTracker::select()
     {
 	if ( res==-1 )
 	{
-	    errmsg_ = selector_->errMsg();
+	    errmsg = selector_->errMsg();
 	    return false;
 	}
     }
@@ -114,7 +206,7 @@ bool SectionTracker::extend()
     {
 	if ( res==-1 )
 	{
-	    errmsg_ = extender_->errMsg();
+	    errmsg = extender_->errMsg();
 	    return false;
 	}
     }
@@ -135,7 +227,7 @@ bool SectionTracker::adjust()
     {
 	if ( res==-1 )
 	{
-	    errmsg_ = adjuster_->errMsg();
+	    errmsg = adjuster_->errMsg();
 	    return false;
 	}
     }
@@ -155,7 +247,7 @@ mGet( SectionExtender, extender, extender_ )
 mGet( SectionAdjuster, adjuster, adjuster_ )
 
 const char* SectionTracker::errMsg() const
-{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
+{ return errmsg[0] ? (const char*) errmsg : 0; }
 
 
 CubeSampling SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
@@ -171,18 +263,33 @@ void SectionTracker::getNeededAttribs(
 }
 
 
+void SectionTracker::useAdjuster(bool yn) { useadjuster=yn; }
+
+
+bool SectionTracker::adjusterUsed()  const { return useadjuster; }
+
+
+void SectionTracker::setSetupID( const MultiID& id ) { setupid=id; }
+
+
+const MultiID& SectionTracker::setupID() const { return setupid; }
+
+
 void SectionTracker::setDisplaySpec( const Attrib::SelSpec& as )
-{ displayas_ = as; }
+{ displayas = as; }
+
 
 const Attrib::SelSpec& SectionTracker::getDisplaySpec() const
-{ return displayas_; }
+{ return displayas; }
 
 
 void SectionTracker::fillPar( IOPar& par ) const
 {
     IOPar trackpar;
-    trackpar.setYN( useadjusterstr, useadjuster_ );
+    trackpar.setYN( useadjusterstr, adjusterUsed() );
     par.mergeComp( trackpar, trackerstr );
+    if ( selector_ ) selector_->fillPar( par );
+    if ( extender_ ) extender_->fillPar( par );
     if ( adjuster_ ) adjuster_->fillPar( par );
 }
 
@@ -190,11 +297,13 @@ void SectionTracker::fillPar( IOPar& par ) const
 bool SectionTracker::usePar( const IOPar& par )
 {
     PtrMan<IOPar> trackpar = par.subselect( trackerstr );
-    useadjuster_ = true;
-    if ( trackpar )
-	trackpar->getYN( useadjusterstr, useadjuster_ );
+    bool dummy = true;
+    if ( trackpar ) trackpar->getYN( useadjusterstr, dummy );
+    useAdjuster( dummy );
 	
-    if ( adjuster_ ) adjuster_->usePar( par );
+    if ( selector_ && !selector_->usePar(par) ) return false;
+    if ( extender_ && !extender_->usePar(par) ) return false;
+    if ( adjuster_ && !adjuster_->usePar(par) ) return false;
 
     return true;
 }

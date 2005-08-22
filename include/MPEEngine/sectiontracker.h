@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.8 2005-08-09 15:50:29 cvskris Exp $
+ RCS:           $Id: sectiontracker.h,v 1.9 2005-08-22 22:15:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class BinIDValue;
 
 namespace Attrib { class SelSpec; }
+namespace EM { class EMObject; }
 
 namespace MPE
 {
@@ -36,14 +37,18 @@ class SectionAdjuster;
 class SectionTracker
 {
 public:
-    				SectionTracker(SectionSourceSelector* = 0,
-					       SectionExtender* = 0,
-					       SectionAdjuster* = 0);
+    				SectionTracker( EM::EMObject&,
+						const EM::SectionID&,
+						SectionSourceSelector* = 0,
+					        SectionExtender* = 0,
+					        SectionAdjuster* = 0);
     virtual			~SectionTracker();
     EM::SectionID		sectionID() const;
     virtual bool		init();
 
     void			reset();
+
+    bool			trackWithPlane( const TrackPlane& plane );
 
     SectionSourceSelector*	selector();
     const SectionSourceSelector* selector() const;
@@ -57,11 +62,11 @@ public:
     virtual bool		adjust();
     const char*			errMsg() const;
 
-    void			useAdjuster(bool yn)	{ useadjuster_=yn; }
-    bool			adjusterUsed() const	{ return useadjuster_; }
+    void			useAdjuster(bool yn);
+    bool			adjusterUsed() const;
 
-    void			setSetupID(const MultiID& id)	{ setupid_=id; }
-    const MultiID&		setupID() const		{ return setupid_; }
+    void			setSetupID(const MultiID& id);
+    const MultiID&		setupID() const;
 
     const Attrib::SelSpec&	getDisplaySpec() const;
     void			setDisplaySpec(const Attrib::SelSpec&);
@@ -73,11 +78,19 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    void			removeUnSupported( TypeSet<EM::SubID>& ) const;
 protected:
-    BufferString		errmsg_;
-    bool			useadjuster_;
-    MultiID			setupid_;
-    Attrib::SelSpec&		displayas_;
+
+    bool			erasePositions( const TypeSet<EM::SubID>&,
+	    					bool addtohistory ) const;
+
+    EM::EMObject&		emobject;
+    EM::SectionID		sid;
+
+    BufferString		errmsg;
+    bool			useadjuster;
+    MultiID			setupid;
+    Attrib::SelSpec&		displayas;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;
