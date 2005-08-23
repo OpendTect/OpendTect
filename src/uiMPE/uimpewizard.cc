@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.10 2005-08-18 14:44:16 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.11 2005-08-23 15:24:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,12 +90,27 @@ bool Wizard::leaveNamePage(bool process)
 
     const char* newobjnm = namefld->text();
     if ( !*newobjnm )
-	mErrRet( "Please provide name" )
-    if ( newObjectPresent(newobjnm) )
+	mErrRet( "Please provide name" );
+
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
+
+    if ( ioobj )
     {
-	if ( !uiMSG().askGoOn("An object with that name does already exist."
-			      " Overwrite?",true) )
+	if ( mpeserv->getTrackerID(ioobj->key())!=-1 )
+	{
+	    uiMSG().error("An object with this name exist and is currently\n"
+		    	  "tracked. Please select another name or quit the\n"
+			  "wizard and remove the object with this name from\n"
+			  "the tree.");
 	    return false;
+	}
+	else
+	{
+	    if ( !uiMSG().askGoOn("An object with that name does already exist."
+				  " Overwrite?",true) )
+		return false;
+	}
     }
 
     dosave = true;
@@ -307,14 +322,6 @@ bool Wizard::leavePage( int page, bool process )
     }
 
     return true;
-}
-
-
-bool Wizard::newObjectPresent( const char* objnm ) const
-{
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = IOM().getLocal( objnm );
-    return ioobj;
 }
 
 
