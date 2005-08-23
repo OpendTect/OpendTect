@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoLODMeshSurface.h,v 1.3 2005-07-30 02:44:18 cvskris Exp $
+ RCS:		$Id: SoLODMeshSurface.h,v 1.4 2005-08-23 20:28:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "Inventor/fields/SoSFBool.h"
 #include "Inventor/fields/SoSFFloat.h"
 #include "Inventor/fields/SoMFShort.h"
+
+#include "Inventor/threads/SbRWMutex.h"
 #include "Inventor/lists/SbList.h"
 #include "Inventor/nodes/SoSubNode.h"
 
@@ -108,6 +110,10 @@ public:
     SoSFBool		wireframe;
     SoSFFloat		wireframeLift;
 
+    SbRWMutex		writemutex;
+    			/* Protects coordinates & nrColumns */
+
+
     void		insertColumns( bool beforeexisting, int nr );
     			/*!<Inserts nr columns before or after the current
 			    mesh. The function will fill the new space with
@@ -139,7 +145,6 @@ public:
 protected:
     bool		isMaterialNonDefault() const;
     bool		isMeshStyleNonDefault() const;
-    void		GLRenderBBox(SoGLRenderAction*);
     void		notify( SoNotList* );
 
     void		adjustNrOfParts();
