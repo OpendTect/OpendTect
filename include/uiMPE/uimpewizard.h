@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.8 2005-08-18 14:44:16 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.9 2005-08-23 15:24:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,6 @@ protected:
     bool			preparePage(int);
     bool			leavePage(int,bool);
 
-    bool			newObjectPresent(const char* objnm) const;
     void			updateDialogTitle();
 
     void			stickSetChange(CallBacker*);
