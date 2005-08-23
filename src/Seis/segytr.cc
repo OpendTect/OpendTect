@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.42 2005-08-18 14:23:12 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.43 2005-08-23 16:49:52 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -84,7 +84,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     if ( binhead.isrev1 )
     {
-	for ( int idx=0; idx<binhead.nrstanzas; idx++ )
+	for ( int idx=0; idx<binhead.nrstzs; idx++ )
 	{
 	    if ( !sConn().doIO(txthead.txt,SegyTxtHeaderLength) )
 		{ errmsg = "Cannot SEG-Y REV1 extended headers"; return false; }
@@ -135,7 +135,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	{
 	    *dumpsd.ostrm << "SEG-Y Text header:\n\n-------\n";
 	    txthead.print( *dumpsd.ostrm );
-	    *dumpsd.ostrm << "-------\n\n\nSEG-Y Binary header:\n\n";
+	    *dumpsd.ostrm << "-------\n\n\nSEG-Y Binary header "
+				"(non-zero values displayed only):\n\n";
 	    *dumpsd.ostrm << "\tField\tByte\tValue\n\n";
 	    binhead.print( *dumpsd.ostrm );
 	}
@@ -159,8 +160,13 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     innrsamples = ext_nr_samples;
     if ( innrsamples <= 0 )
     {
-	innrsamples = trhead.nrSamples();
-	if ( !innrsamples ) innrsamples = binhead_ns;
+	innrsamples = binhead_ns;
+	if ( innrsamples <= 0 );
+	{
+	    innrsamples = trhead.nrSamples();
+	    if ( innrsamples <= 0 );
+	    innrsamples = SI().zRange(false).nrSteps() + 1;
+	}
     }
 
     addComp( getDataChar(numbfmt)  );
@@ -245,10 +251,10 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     SegyBinHeader binhead( trhead.isrev1 );
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
     binhead.lino = pinfo->nr;
-    binhead.reno = 1;
+    static int jobid = 0;
+    binhead.jobid = ++jobid;
     binhead.hns = (short)outnrsamples;
     binhead.hdt = (short)(outsd.step * SI().zFactor() * 1e3 + .5);
-    binhead.fold = 1;
     unsigned char binheadbuf[400];
     binhead.putTo( binheadbuf );
     if ( !sConn().doIO( binheadbuf, SegyBinHeaderLength ) )

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.29 2005-08-18 14:23:12 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.30 2005-08-23 16:49:52 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -227,7 +227,9 @@ void SegyTxtHeader::print( std::ostream& stream ) const
 
 SegyBinHeader::SegyBinHeader( bool rev1 )
 	: needswap(false)
-    	, isrev1(rev1)
+    	, isrev1(rev1 ? 1 : 0)
+    	, nrstzs(0)
+    	, fixdsz(1)
 {
     memset( &jobid, 0, SegyBinHeaderLength );
     mfeet = format = 1;
@@ -281,8 +283,8 @@ void SegyBinHeader::getFrom( const void* buf )
 	mSBHGet(hunass[i],Short,2);
     }
     isrev1 = hunass[21];
-    fixedtrcsz = hunass[22];
-    nrstanzas = hunass[23];
+    fixdsz = hunass[22];
+    nrstzs = hunass[23];
 }
 
 
@@ -325,9 +327,7 @@ void SegyBinHeader::putTo( void* buf ) const
     mSBHPut(vpol,Short,2);
 
     short* v = const_cast<short*>( hunass );
-    v[21] = isrev1;
-    v[22] = 1; // fixed trace size
-    v[23] = 0; // no stanzas
+    v[21] = isrev1; v[22] = fixdsz; v[23] = nrstzs;
     for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
 	{ mSBHPut(hunass[i],Short,2); }
 }
@@ -385,22 +385,53 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
 }
 
 
-#define mPrHead(mem,byt) \
-    if ( mem ) { strm << '\t' << #mem << '\t' << byt+1 << '\t' << mem << '\n'; }
+// Comments added after request from Hamish McIntyre
+
+#define mPrHead(mem,byt,comm) \
+	if ( mem ) \
+	{ \
+	    strm << '\t' << #mem << '\t' << byt+1 << '\t' << mem \
+		 << "\t(" << comm << ')'; \
+	    strm << '\n'; \
+	}
 
 void SegyBinHeader::print( std::ostream& strm ) const
 {
-    mPrHead(jobid,0); mPrHead(lino,4); mPrHead(reno,8); mPrHead(ntrpr,12);
-    mPrHead(nart,14); mPrHead(hdt,16); mPrHead(dto,18); mPrHead(hns,20);
-    mPrHead(nso,22); mPrHead(format,24); mPrHead(fold,26); mPrHead(tsort,28);
-    mPrHead(vscode,30); mPrHead(hsfs,32); mPrHead(hsfe,34); mPrHead(hslen,36);
-    mPrHead(hstyp,38); mPrHead(schn,40); mPrHead(hstas,42); mPrHead(hstae,44);
-    mPrHead(htatyp,46); mPrHead(hcorr,48); mPrHead(bgrcv,50); mPrHead(rcvm,52);
-    mPrHead(mfeet,54); mPrHead(polyt,56); mPrHead(vpol,58);
-    mPrHead(isrev1,300); mPrHead(fixedtrcsz,302); mPrHead(nrstanzas,304);
+    mPrHead( jobid, 0, "job identification number" )
+    mPrHead( lino, 4, "line number (only one line per reel)" )
+    mPrHead( reno, 8, "reel number" )
+    mPrHead( ntrpr, 12, "number of data traces per record" )
+    mPrHead( nart, 14, "number of auxiliary traces per record" )
+    mPrHead( hdt, 14, "sample interval in micro secs for this reel" )
+    mPrHead( dto, 14, "same for original field recording" )
+    mPrHead( hns, 20, "number of samples per trace for this reel" )
+    mPrHead( nso, 22, "same for original field recording" )
+    mPrHead( format, 24, "sample format (1=float, 3=16 bit, 8=8-bit)" )
+    mPrHead( fold, 26, "CDP fold expected per CDP ensemble" )
+    mPrHead( tsort, 28, "trace sorting code" )
+    mPrHead( vscode, 30, "vertical sum code" )
+    mPrHead( hsfs, 32, "sweep frequency at start" )
+    mPrHead( hsfe, 34, "sweep frequency at end" )
+    mPrHead( hslen, 36, "sweep length (ms)" )
+    mPrHead( hstyp, 38, "sweep type code" )
+    mPrHead( schn, 40, "trace number of sweep channel" )
+    mPrHead( hstas, 42, "sweep trace taper length at start" )
+    mPrHead( hstae, 44, "sweep trace taper length at end" )
+    mPrHead( htatyp, 46, "sweep trace taper type code" )
+    mPrHead( hcorr, 48, "correlated data traces code" )
+    mPrHead( bgrcv, 50, "binary gain recovered code" )
+    mPrHead( rcvm, 52, "amplitude recovery method code" )
+    mPrHead( mfeet, 54, "measurement system code (1=m 2=ft)" )
+    mPrHead( polyt, 56, "impulse signal polarity code" )
+    mPrHead( vpol, 58, "vibratory polarity code" )
+
+    mPrHead( isrev1, 300, "[R1 only] SEG-Y revision code" )
+    mPrHead( fixdsz, 302, "[R1 only] Fixed trace size?" )
+    mPrHead( nrstzs, 304, "[R1 only] Number of extra headers" );
+
     for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
 	if ( hunass[i] != 0 && (i < 21 || i > 23) )
-	    strm << "\tunass\t" << 60 + 2*i << '\t' << hunass[i] << '\n';
+	    strm << "\tExtra\t" << 60 + 2*i << '\t' << hunass[i] << "(Non-standard - unassigned)\n";
     strm << std::endl;
 }
 
