@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.24 2005-08-18 21:51:06 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.25 2005-08-23 18:14:47 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -400,6 +400,9 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
     const int nrcols = meshsurface.nrColumns.getValue();
 
     const int sidesize = sideSize();
+    const SbVec3f* lastptr = meshsurface.coordinates.getValues(0)+
+				(meshsurface.coordinates.getNum()-1);
+	    			
     for ( int rowidx=0; rowidx<sidesize; rowidx++ )
     {
 	const int row = rowidx+rowstart;
@@ -441,6 +444,9 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 
 	for ( int colidx=0; colidx<nci; colidx++ )
 	{
+	    if ( nxtrowcoordptr>lastptr )
+		break;
+
 	    const SbVec3f c01 = *currowcoordptr++;
 	    const SbVec3f c11 = *nxtrowcoordptr++;
 
@@ -2182,6 +2188,7 @@ SoLODMeshSurface::SoLODMeshSurface()
     : sidesize( 64 )
     , useownvalidation( false )
     , nrcolparts( 0 )
+    , writemutex(SbRWMutex::READ_PRECEDENCE)
 {
     SO_NODE_CONSTRUCTOR(SoLODMeshSurface);
     SO_NODE_ADD_FIELD( coordinates, (1e30,1e30,1e30) );
@@ -2285,7 +2292,10 @@ void SoLODMeshSurface::touch( int row, int col, bool udf )
 void SoLODMeshSurface::computeBBox(SoAction* action, SbBox3f& bbox,
 				SbVec3f& center )
 {
+
     adjustNrOfParts();
+
+    writemutex.readLock();
     SoState* state = action->getState();
     center = SbVec3f(0,0,0);
     SbBox3f localbox;
@@ -2307,13 +2317,19 @@ void SoLODMeshSurface::computeBBox(SoAction* action, SbBox3f& bbox,
 
     if ( nrboxes )
 	center /= nrboxes;
+
+    writemutex.readUnlock();
 }
 
 
 void SoLODMeshSurface::rayPick(SoRayPickAction* action )
 {
+    writemutex.readLock();
+
     for ( int idx=0; idx<parts.getLength(); idx++ )
 	parts[idx]->rayPick(action,useownvalidation);
+
+    writemutex.readUnlock();
 }
 
 
@@ -2327,7 +2343,7 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 	return;
     }
 
-
+    writemutex.readLock();
 
     const int nrparts = parts.getLength();
     //if ( !(SoCameraInfoElement::get(state)&SoCameraInfo::STEREO) )
@@ -2397,48 +2413,8 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 
     for ( int idx=0; idx<nrparts; idx++ )
 	parts[idx]->resetChangeResFlag();
-}
 
-
-void SoLODMeshSurface::GLRenderBBox(SoGLRenderAction* action)
-{
-    SbBox3f box;
-    SbVec3f center;
-    computeBBox( action, box, center);
-    if ( box.isEmpty() )
-	return;
-
-    SoMaterialBundle mb(action);
-    mb.sendFirst();
-    glBegin( GL_LINE_STRIP );
-
-    const SbVec3f min = box.getMin();
-    const SbVec3f max = box.getMax();
-
-    glVertex3f(min[0], min[1], min[2]);
-    glVertex3f(min[0], min[1], max[2]);
-    glVertex3f(min[0], max[1], max[2]);
-    glVertex3f(min[0], max[1], min[2]);
-    glVertex3f(min[0], min[1], min[2]);
-   
-    glVertex3f(max[0], min[1], min[2]);
-    glVertex3f(max[0], min[1], max[2]);
-    glVertex3f(max[0], max[1], max[2]);
-    glVertex3f(max[0], max[1], min[2]);
-    glVertex3f(max[0], min[1], min[2]);
-
-    glEnd();
-    glBegin( GL_LINE_STRIP );
-
-    glVertex3f(min[0], min[1], max[2]);
-    glVertex3f(max[0], min[1], max[2]);
-    
-    glVertex3f(min[0], max[1], max[2]);
-    glVertex3f(max[0], max[1], max[2]);
-
-    glVertex3f(min[0], max[1], min[2]);
-    glVertex3f(max[0], max[1], min[2]);
-    glEnd();
+    writemutex.readUnlock();
 }
 
 
@@ -2484,6 +2460,7 @@ void SoLODMeshSurface::notify( SoNotList* nl )
 
 void SoLODMeshSurface::adjustNrOfParts()
 {
+    writemutex.writeLock();
     const int nrcols = nrColumns.getValue();
     bool changed = false;
 
@@ -2544,7 +2521,10 @@ void SoLODMeshSurface::adjustNrOfParts()
 
     if ( changed )
 	setPartRelations();
+
+    writemutex.writeUnlock();
 }
+
 
 void SoLODMeshSurface::setPartRelations()
 {
