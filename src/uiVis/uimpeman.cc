@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.30 2005-08-23 14:55:33 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.31 2005-08-23 20:10:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -514,11 +514,34 @@ void uiMPEMan::trackInVolume( CallBacker* )
     PtrMan<Executor> exec = engine().trackInVolume();
     if ( exec )
     {
+#ifdef __debug__
+	const char* msg = "Press \"Save\" for next step.\n"
+			  "Press \"Don't Save\" to continue automaticly\n"
+			  "Press \"Cancel\" to cancel ";
+	while ( int res=uiMSG().notSaved(msg)>=0 )
+	{
+	    int execres;
+	    while ( execres = exec->doStep()>0 )
+	    {
+		EM::History& history = EM::EMM().history();
+		const int currentevent = history.currentEventNr();
+		history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+
+		if ( res!=1 )
+		    break;
+	    }
+
+	    if ( execres<1 )
+		break;
+
+	}
+#else
 	uiExecutor uiexec( this, *exec );
 	if ( !uiexec.go() )
 	{
 	    uiMSG().error(engine().errMsg());
 	}
+#endif
     }
 
     uiCursor::restoreOverride();
