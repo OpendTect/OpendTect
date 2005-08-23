@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.15 2005-02-08 09:20:41 kristofer Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.16 2005-08-23 12:38:01 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
     virtual bool		select();
     				/*!<Selects this item */
     virtual void		setChecked(bool yn);
+    virtual bool		isChecked() const;
 				 
     virtual bool		addChild( uiTreeItem* child );
     				/*!<Adds a child. If the child does not fit
@@ -71,7 +72,6 @@ public:
     				/*!<Finds a child in the tree below
 				    this item.
 				*/
-
 
     template<class T> inline void setProperty(const char* key, const T&);
     				/*!<Sets a keyed value that has been retrieved
@@ -107,6 +107,9 @@ public:
 				    \retval false	the key was not found
 				    			and res is not set
 				*/
+    void			toggleSoloMode(int, bool savechecked = true);
+    void			toggleMultiMode();
+    
 
 protected:
     virtual int			uiListViewItemType() const;
@@ -142,6 +145,7 @@ protected:
 	    					bool dw=false );
     				/*!< Does only update the display */
     virtual void		updateColumnText(int col);
+    virtual void		updateChecked(int id=-1);
 
 
     IOPar			properties;
@@ -149,6 +153,8 @@ protected:
     uiTreeItem*			parent;
     BufferString		name_;
 
+    TypeSet<int>		checkedids;
+    bool			issolomode;
     uiListViewItem*		uilistviewitem;
     ObjectSet<uiTreeItem>	children;
     friend			class uiTreeTopItem;

@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.29 2005-08-22 07:30:43 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.30 2005-08-23 12:38:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.29 2005-08-22 07:30:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.30 2005-08-23 12:38:01 cvshelene Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -117,6 +117,12 @@ void uiODMenuMgr::updateViewMode( bool isview )
 void uiODMenuMgr::updateAxisMode( bool shwaxis )
 {
     cointb->turnOn( axisid, shwaxis );
+}
+
+
+bool uiODMenuMgr::isSoloModeOn() const
+{
+    return cointb->isOn(soloid);
 }
 
 
@@ -310,6 +316,8 @@ void uiODMenuMgr::fillCoinTB()
     mAddTB(cointb,"cube_z.png","view Z",false,viewZ);
     axisid = mAddTB(cointb,"axis.png","Display rotation axis",true,showRotAxis);
     mAddTB(cointb,"snapshot.png","Make snapshot",false,mkSnapshot);
+    soloid = mAddTB(cointb,"solo.png","Display current element only",
+		    true,soloMode);
 
     cointb->turnOn( actid, true );
 }

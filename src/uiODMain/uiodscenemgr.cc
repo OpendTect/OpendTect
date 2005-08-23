@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.39 2005-05-18 11:31:06 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.40 2005-08-23 12:38:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -401,6 +401,21 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 {
     if ( scenes.size() )
 	scenes[0]->sovwr->renderToFile();
+}
+
+
+void uiODSceneMgr::soloMode( CallBacker* )
+{
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	Scene& scene = *scenes[idx];
+	const int id = visServ().getSelObjectId();
+
+	if ( menuMgr().isSoloModeOn() )
+	    scene.itemmanager->toggleSoloMode(id);
+	else
+	    scene.itemmanager->toggleMultiMode();
+    }
 }
 
 
