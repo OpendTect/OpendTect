@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.4 2005-07-28 10:53:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attriblinebuffer.cc,v 1.5 2005-08-23 11:07:57 cvsbert Exp $";
 
 #include "attriblinebuffer.h"
 
@@ -49,14 +49,16 @@ DataHolder* DataHolderLineBuffer::createDataHolder( const BinID& bid,
 	return res;
     }
 
-    if ( (*inlinedata[lineidx])[traceidx]->nrsamples_!=nrsamples )
+    DataHolder* trcdata = (*inlinedata[lineidx])[traceidx];
+    if ( trcdata->nrsamples_ != nrsamples )
     {
-	delete (*inlinedata[lineidx])[traceidx];
-	(*inlinedata[lineidx])[traceidx]->nrsamples_ = nrsamples;
+	delete trcdata;
+	trcdata = new DataHolder( t0, nrsamples );
+	return trcdata;
     }
 
-    (*inlinedata[lineidx])[traceidx]->t0_ = t0;
-    return (*inlinedata[lineidx])[traceidx];
+    trcdata->t0_ = t0;
+    return trcdata;
 }
 
 
