@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.30 2005-08-23 12:38:01 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.31 2005-08-23 16:54:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.30 2005-08-23 12:38:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.31 2005-08-23 16:54:17 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -372,8 +372,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCreateVolMnuItm: 	applMgr().createVol(); break;
     case mCreateSurfMnuItm: 	applMgr().createSurfOutput(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
-    case mAddSceneMnuItm: 		
-				sceneMgr().tile(); // otherwise crash ...!
+    case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(); break;
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;
     case mTileMnuItm: 		sceneMgr().tile(); break;
@@ -400,7 +399,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     default:
     {
-	if ( id >= mStdHelpMnuBase || id <= mStdHelpMnuBase + 90 )
+	if ( id > mHelpMnu )
 	    helpmgr->handle( id, itm->name() );
 
     } break;

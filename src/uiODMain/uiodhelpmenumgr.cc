@@ -4,59 +4,144 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.1 2005-08-22 07:30:43 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.2 2005-08-23 16:54:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.1 2005-08-22 07:30:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.2 2005-08-23 16:54:17 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
 #include "uimenu.h"
-#include "helpview.h"
 #include "dirlist.h"
+#include "helpview.h"
+#include "ascstream.h"
+#include "strmprov.h"
 #include "filepath.h"
 #include "filegen.h"
+#include "errh.h"
 
-#define mInsertItem(txt,id) \
-    helpmnu->insertItem( \
-	new uiMenuItem(txt,mCB(mm,uiODMenuMgr,handleClick)), id )
+#define mInsertItem(mnu,txt,id) \
+    mnu->insertItem( \
+	new uiMenuItem(txt,mCB(mnumgr,uiODMenuMgr,handleClick)), id )
+
+class uiODHelpDocInfo
+{
+public:
+    			uiODHelpDocInfo() : id(-1)	{}
+
+    int			id;
+    BufferString	nm;
+    BufferString	iconfnm;
+    BufferString	starturl;
+
+    bool		getFrom(std::istream&,const char*);
+};
+
+
+bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
+{
+    ascistream astrm( strm );
+
+    starturl = "index.html"; nm = "";
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	if ( astrm.hasKeyword("Menu name") )
+	    nm = astrm.value();
+	else if (  astrm.hasKeyword("Icon file")
+		|| astrm.hasKeyword("Start URL") )
+	{
+	    FilePath fp( astrm.value() );
+	    if ( !fp.isAbsolute() )
+		fp.setPath( dirnm );
+	    (*astrm.keyWord() == 'S' ? starturl : iconfnm) = fp.fullPath();
+	}
+    }
+
+    return nm != "";
+}
 
 
 uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
+    	: havedtectdoc(false)
+	, helpmnu(mm->helpMnu())
+    	, mnumgr(mm)
 {
-    uiPopupMenu* helpmnu = mm->helpMnu();
-    DirList dl( GetDataFileName(0), DirList::DirsOnly, "*Doc" );
-    bool havedtectdoc = false;
+    const BufferString datadir( GetDataFileName(0) );
+    DirList dl( datadir, DirList::DirsOnly, "*Doc" );
+    int mnuidx = 1;
     for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
     {
-	BufferString dirnm = dl.get( idx );
+	const BufferString dirnm = dl.get( idx );
+	uiODHelpDocInfo* di = new uiODHelpDocInfo;
+	FilePath fp( dl.dirName() ); fp.add( dirnm );
+	const BufferString fulldirnm = fp.fullPath();
+	fp.add( ".mnuinfo" );
+	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+	if ( !sd.usable() || !di->getFrom(*sd.istrm,fulldirnm) )
+	{
+	    fp.setFileName( "index.html" );
+	    if ( !File_exists(fp.fullPath()) )
+		{ delete di; sd.close(); continue; }
+	    di->starturl = fp.fullPath();
+	    FilePath iconfp( datadir );
+	    di->iconfnm = iconfp.add( "defhelpicon.png" ).fullPath();
+	    di->nm = dirnm;
+	    *(strstr(di->nm.buf(),"Doc")) = '\0';
+	}
+	sd.close();
+
+	di->id = mHelpVarMnuBase + entries.size();
+	entries += di;
 	if ( dirnm == "dTectDoc" )
 	{
 	    havedtectdoc = true;
-	    mInsertItem( "&Index ...", mODIndexMnuItm );
-	}
-	else
-	{
-	    char* ptr = strstr( dirnm.buf(), "Doc" );
-	    if ( !ptr ) continue; // Huh?
-	    *ptr = '\0';
-	    if ( dirnm == "" ) continue;
-
-	    BufferString itmnm = "&"; // hope there's no duplication
-	    itmnm += dirnm; itmnm += "-"; itmnm += "Index ...";
-	    mInsertItem( itmnm, mStdHelpMnuBase + hidx + 1 );
-	    hidx++;
+	    if ( entries.size() > 1 )
+		entries.swap( 0, entries.size()-1 );
 	}
     }
+
+    mkVarMenu();
+
     if ( havedtectdoc )
     {
-	mInsertItem( "Ad&min ...", mAdminMnuItm );
-	mInsertItem( "&Programmer ...", mProgrammerMnuItm );
+	mInsertItem( helpmnu, "Ad&min ...", mAdminMnuItm );
+	mInsertItem( helpmnu, "&Programmer ...", mProgrammerMnuItm );
     }
-    mInsertItem( "&About ...", mAboutMnuItm );
+    mInsertItem( helpmnu, "&About ...", mAboutMnuItm );
+}
+
+
+void uiODHelpMenuMgr::insertVarItem( uiPopupMenu* mnu, int eidx, bool withicon )
+{
+    uiODHelpDocInfo& di = *entries[eidx];
+    BufferString txt( di.nm );
+    txt += " ...";
+    mInsertItem( mnu, txt, di.id );
+}
+
+
+void uiODHelpMenuMgr::mkVarMenu()
+{
+    if ( entries.size() == 0 )
+
+	ErrMsg( "No help documentation found" );
+
+    else if ( entries.size() == 1 )
+    {
+	if ( havedtectdoc )
+	    entries[0]->nm = "&Index";
+	insertVarItem( helpmnu, 0, false );
+    }
+    else
+    {
+	uiPopupMenu* submnu = new uiPopupMenu( &mnumgr->appl, "&Index" );
+	for ( int idx=0; idx<entries.size(); idx++ )
+	    insertVarItem( submnu, idx, true );
+	helpmnu->insertItem( submnu );
+    }
 }
 
 
@@ -72,19 +157,17 @@ static const char* getHelpF( const char* subdir, const char* infnm,
 }
 
 
-#define mDoOp(ot,at,op) \
-	applMgr().doOperation(uiODApplMgr::at,uiODApplMgr::ot,op)
-
 void uiODHelpMenuMgr::handle( int id, const char* itemname )
 {
     switch( id )
     {
-    case mAdminMnuItm: 		HelpViewer::doHelp(
-				    getHelpF("ApplMan","index.html"),
-				    "OpendTect System administrator"); break;
-    case mProgrammerMnuItm:	HelpViewer::doHelp(
-					getHelpF("Programmer","index.html"),
-					"d-Tect" ); break;
+    case mAdminMnuItm: 
+	HelpViewer::doHelp( getHelpF("ApplMan","index.html"),
+				     "OpendTect System administrator");
+    break;
+    case mProgrammerMnuItm:
+	HelpViewer::doHelp( getHelpF("Programmer","index.html"), "d-Tect" );
+    break;
     case mAboutMnuItm:
     {
 	const char* htmlfnm = "about.html";
@@ -96,25 +179,19 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
 
     default:
     {
-	if ( id < mStdHelpMnuBase || id > mStdHelpMnuBase + 90 ) return;
-
-	BufferString itmnm( itemname );
-	BufferString docnm = "dTect";
-	char* ptr = strchr( itmnm.buf(),'-' );
-	if ( ptr )
+	uiODHelpDocInfo* di = 0;
+	for ( int idx=0; idx<entries.size(); idx++ )
 	{
-	    *ptr = '\0';
-	    docnm = itmnm.buf() + 1; // add one to skip "&"
+	    if ( entries[idx]->id == id )
+		{ di = entries[idx]; break; }
 	}
-
-	BufferString dirnm( docnm ); dirnm += "Doc";
-	itmnm = "OpendTect Documentation";
-	if ( ptr )
-	    { itmnm += " - "; itmnm += docnm; itmnm += " part"; }
-
-	HelpViewer::doHelp( getHelpF(0,"index.html",dirnm.buf()), itmnm );
-	break;
-
+	if ( di )
+	    HelpViewer::use( di->starturl, di->nm );
+	else
+	{
+	    BufferString msg( "Invalid help menu ID: '" );
+	    msg += id; msg += "'"; pErrMsg( msg );
+	}
     } break;
 
     }

@@ -7,17 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.10 2005-07-21 11:30:51 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.11 2005-08-23 16:54:17 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-/* These are the menu IDs of standard menu items in OpendTect.
+/*
+   These are the menu IDs of standard menu items in OpendTect.
    Note that all 'nodes' (i.e. items that have sub-items) are also available
    through the interface of the uiODMenuMgr directly, e.g.:
    uiPopupMenu* viewmnu = ODMainWin()->menuMgr().viewMnu();
+
  */
 
 
@@ -26,7 +28,7 @@ ________________________________________________________________________
 #define mWinMnu			3000
 #define mViewMnu		4000
 #define mUtilMnu		5000
-#define mHelpMnu		6000
+#define mHelpMnu		1000000000
 
 /* 'File' menu */
 
@@ -101,11 +103,11 @@ ________________________________________________________________________
 
 /* 'Help' menu */
 
-#define mStdHelpMnuBase		(mHelpMnu + 90)
-#define mODIndexMnuItm		(mStdHelpMnuBase + 0)
-#define mAdminMnuItm		(mStdHelpMnuBase + 20)
-#define mProgrammerMnuItm	(mStdHelpMnuBase + 21)
-#define mAboutMnuItm		(mStdHelpMnuBase + 22)
+#define mHelpMnuBase		(mHelpMnu + 100)
+#define mAboutMnuItm		(mHelpMnuBase + 0)
+#define mAdminMnuItm		(mHelpMnuBase + 1)
+#define mProgrammerMnuItm	(mHelpMnuBase + 2)
+#define mHelpVarMnuBase		(mHelpMnuBase + 10)
 
 
 
