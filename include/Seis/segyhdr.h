@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.12 2005-05-10 11:27:16 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.13 2005-08-23 16:49:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,10 +103,10 @@ public:
     short	polyt, vpol;
     short	hunass[SegyBinHeaderUnassShorts];
 
-    bool	isrev1; //!< This must be considered final
+    short	isrev1; //!< This must be considered final
     		// Rev 1 only
-    bool	fixedtrcsz;	
-    short	nrstanzas;
+    short	fixdsz;	
+    short	nrstzs;
 };
 
 
