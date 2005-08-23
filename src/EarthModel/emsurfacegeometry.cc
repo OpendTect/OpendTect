@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.21 2005-08-19 15:53:19 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.22 2005-08-23 20:18:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -858,50 +858,16 @@ SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
 bool SurfaceGeometry::setPos( const SectionID& sid, const RowCol& rc,
 			      const Coord3& pos, bool addtohistory)
 {
-    int sectionindex = sectionids.indexOf(sid);
-    if ( sectionindex==-1 ) return false;
-
-    Geometry::ParametricSurface* meshsurf = meshsurfaces[sectionindex];
-    const Coord3 oldpos = meshsurf->getKnot( rc );
-
-    if ( addtohistory )
-    {
-	PosID pid( surface.id(), sid, rc.getSerialized() );
-	HistoryEvent* history = new SetPosHistoryEvent( oldpos, pid );
-	EMM().history().addEvent( history, 0, 0 );
-    }
-
-
-    if ( oldpos==pos ) return true;
-
-    changed = true;
-
-    TypeSet<PosID> nodeonothersections;
-    if ( !meshsurf->setKnot(rc,pos) )
-	return false;
-
-    //meshsurf->setFillType( geomrowcol, Geometry::MeshSurface::Filled );
-
-//    if ( !pos.isDefined() )
-//	meshsurf->shrink();
-
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PositionChange;
-    cbdata.pid0 = PosID(surface.id(),sid,rc.getSerialized());
-    surface.notifier.trigger( cbdata, &surface );
-
-    return true;
+    return surface.setPos( sid, rc.getSerialized(), pos, addtohistory );
 }
 
 
 bool SurfaceGeometry::setPos( const PosID& posid, const Coord3& newpos,
 			      bool addtohistory )
 {
-    if ( posid.objectID()!=surface.id() ) return false;
-
-    return setPos( posid.sectionID(), subID2RowCol(posid.subID()),
-	    	   newpos, addtohistory );
+    return surface.setPos( posid, newpos, addtohistory );
 }
+
 
 #define mInsertRowCol(funcname) \
 bool SurfaceGeometry::funcname( const SectionID& sid, int rc, bool hist ) \
