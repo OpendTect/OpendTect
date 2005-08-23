@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.28 2005-08-20 19:17:20 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.29 2005-08-23 14:51:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -502,6 +502,9 @@ void uiMPEMan::trackInVolume( CallBacker* )
 	seededitor->getSeeds( engine().interactionseeds );
 	//engine().setNewSeeds();
     }
+    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
+    engine().setTrackMode(TrackPlane::Extend);
+    setTrackButton();
     
     uiCursor::setOverride( uiCursor::Wait );
     PtrMan<Executor> exec = engine().trackInVolume();
@@ -515,12 +518,14 @@ void uiMPEMan::trackInVolume( CallBacker* )
     }
 
     uiCursor::restoreOverride();
+    engine().setTrackMode(tm);
+    setTrackButton();
 }
 
 
 void uiMPEMan::setTrackButton()
 {
-    TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
+    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     const bool extend = tm == TrackPlane::Extend;
     const bool retrack = tm == TrackPlane::ReTrack;
     const bool erase = tm == TrackPlane::Erase;
