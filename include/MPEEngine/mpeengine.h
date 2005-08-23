@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.18 2005-08-20 19:02:10 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.19 2005-08-23 22:00:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,9 @@ public:
     void			getNeededAttribs(
 				    ObjectSet<const Attrib::SelSpec>&) const;
     CubeSampling		getAttribCube(const Attrib::SelSpec&) const;
+    				/*!< Returns the cube that is needed for
+				     this attrib, given that the activearea
+				     should be tracked. */
     const Attrib::SliceSet*	getAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData(const Attrib::SelSpec&,
 						Attrib::SliceSet*);
