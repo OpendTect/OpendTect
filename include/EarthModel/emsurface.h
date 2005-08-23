@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.52 2005-08-20 18:57:30 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.53 2005-08-23 20:23:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,10 +74,7 @@ public:
 	    				bool addtohistory );
     bool		removeSection(SectionID,bool hist);
 
-    bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);
-    bool		isDefined(const EM::PosID&) const;
     bool		isAtEdge(const EM::PosID&) const;
-    Coord3		getPos(const EM::PosID&) const;
     bool		isLoaded() const;
     Executor*		saver();
     Executor*		loader();
@@ -87,8 +84,6 @@ public:
 
     bool		isChanged(int) const;
     void		resetChangedFlag();
-
-    const Geometry::Element*	getElement( SectionID ) const;
 
     virtual bool	usePar( const IOPar& );
     virtual void	fillPar( IOPar& ) const;
@@ -109,6 +104,8 @@ protected:
 					SurfaceGeometry&);
     				~Surface();
     void			cleanUp();
+    Geometry::Element*		getElementInternal( SectionID );
+
 
     BufferString		dbinfo;
 };

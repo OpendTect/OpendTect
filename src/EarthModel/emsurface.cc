@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.74 2005-08-20 18:57:33 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.75 2005-08-23 20:22:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,30 +277,8 @@ bool Surface::removeSection( SectionID sid, bool hist )
 }
 
 
-bool Surface::setPos( const PosID& posid, const Coord3& newpos,
-		      bool addtohistory )
-{
-    if ( posid.objectID()!=id() ) return false;
-
-    return geometry.setPos( posid.sectionID(),
-	    		    geometry.subID2RowCol(posid.subID()),
-			    newpos, addtohistory );
-}
-
-
 bool Surface::isAtEdge( const PosID& posid ) const
 { return geometry.isAtEdge(posid); }
-
-
-bool Surface::isDefined( const PosID& pos ) const
-{ return geometry.isDefined(pos); }
-
-
-Coord3 Surface::getPos( const PosID& posid ) const
-{
-    return geometry.getPos( posid.sectionID(),
-	    		    geometry.subID2RowCol(posid.subID()) );
-}
 
 
 bool Surface::isChanged(int idx) const
@@ -325,8 +303,12 @@ Executor* Surface::saver() { return geometry.saver(); }
 Executor* Surface::loader() { return geometry.loader(); }
 
 
-const Geometry::Element* Surface::getElement( SectionID sid ) const
-{ return reinterpret_cast<const Geometry::Element*>(geometry.getSurface(sid)); }
+Geometry::Element* Surface::getElementInternal( SectionID sid )
+{
+    const Geometry::Element* elem =
+	(const Geometry::Element*) geometry.getSurface(sid);
+    return const_cast<Geometry::Element*>(elem);
+}
 
 
 bool Surface::usePar( const IOPar& par )
