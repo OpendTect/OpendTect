@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.28 2005-08-15 16:17:30 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.29 2005-08-23 07:49:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,7 @@ uiReadMarkerFile::uiReadMarkerFile( uiParent* p )
 {
     fnmfld = new uiFileInput( this, "Input Ascii file",
 	    		uiFileInput::Setup().filter("*;;*.dat;;*.txt")
+					    .withexamine(true)
 					    .forread(true));
     fnmfld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
