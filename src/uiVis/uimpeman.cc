@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.29 2005-08-23 14:51:29 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.30 2005-08-23 14:55:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -454,14 +454,18 @@ void uiMPEMan::seedModeCB( CallBacker* )
 
 void uiMPEMan::undoPush( CallBacker* )
 {
-    EM::EMM().history().unDo( 1, mEMHistoryUserInteractionLevel );
+    if ( !EM::EMM().history().unDo( 1, mEMHistoryUserInteractionLevel ) )
+	uiMSG().error("Could not undo everything.");
+
     updateButtonSensitivity(0);
 }
 
 
 void uiMPEMan::redoPush( CallBacker* )
 {
-    EM::EMM().history().reDo( 1, mEMHistoryUserInteractionLevel );
+    if ( !EM::EMM().history().reDo( 1, mEMHistoryUserInteractionLevel) )
+	uiMSG().error("Could not redo everything.");
+
     updateButtonSensitivity(0);
 }
 
