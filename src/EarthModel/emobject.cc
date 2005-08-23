@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.43 2005-08-20 18:57:33 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.44 2005-08-23 20:17:00 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -127,7 +127,7 @@ bool EMObject::setSectionName( const SectionID&, const char*, bool )
 
 
 const Geometry::Element* EMObject::getElement( SectionID sec ) const
-{ return 0; }
+{ return const_cast<EMObject*>(this)->getElementInternal(sec); }
 
 
 Coord3 EMObject::getPos( const PosID& pid ) const
@@ -147,18 +147,32 @@ bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
     if ( pid.objectID()!=id() )
 	mRetErr("");
 
-    Geometry::Element* element = getElement( pid.sectionID() );
+    return setPos( pid.sectionID(), pid.subID(), newpos, addtohistory );
+}
+
+
+bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
+			const Coord3& newpos, bool addtohistory ) 
+{
+    Geometry::Element* element = getElementInternal( sid );
     if ( !element ) mRetErr( "" );
 
-    const Coord3 oldpos = element->getPosition(pid.subID());
+    const Coord3 oldpos = element->getPosition(subid);
 
-     if ( !element->setPosition(pid.subID(), newpos) )
+     if ( !element->setPosition(subid, newpos) )
 	 mRetErr(element->errMsg());
 
-     if ( !addtohistory ) return true;
+     if ( addtohistory )
+     {
+	 HistoryEvent* history = new SetPosHistoryEvent(oldpos,
+		 					PosID(id(),sid,subid));
+	 EMM().history().addEvent( history, 0, 0 );
+     }
 
-     HistoryEvent* history = new SetPosHistoryEvent(oldpos,pid);
-     EMM().history().addEvent( history, 0, 0 );
+     EMObjectCallbackData cbdata;
+     cbdata.event = EMObjectCallbackData::PositionChange;
+     cbdata.pid0 = PosID(id(),sid,subid);
+     notifier.trigger( cbdata );
 
      return true;
 }

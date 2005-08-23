@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.43 2005-08-20 18:57:30 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.44 2005-08-23 20:18:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,7 @@ public:
     virtual bool		removeSection( SectionID, bool hist )
     					{ return false; }
 
-    virtual const Geometry::Element*	getElement( SectionID ) const;
+    const Geometry::Element*	getElement( SectionID ) const;
 
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&);
@@ -94,7 +94,11 @@ public:
     virtual bool		isDefined( const EM::PosID& ) const;
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
-				       bool addtohistory );
+				       bool addtohistory);
+    virtual bool		setPos(const EM::SectionID&,
+	    			       const EM::SubID&,
+	    			       const Coord3&,
+				       bool addtohistory);
     virtual bool		unSetPos(const EM::PosID&, bool addtohistory );
     virtual bool		isAtEdge( const EM::PosID& ) const;
 
@@ -150,7 +154,7 @@ public:
     static int			sSeedNode;
 
 protected:
-    virtual Geometry::Element*	getElement( SectionID ) { return 0; }
+    virtual Geometry::Element*	getElementInternal( SectionID ) { return 0; }
 
     void			posIDChangeCB(CallBacker*);
     virtual const IOObjContext&	getIOObjContext() const = 0;
