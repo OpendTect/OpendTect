@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.6 2005-08-22 09:57:25 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.7 2005-08-23 09:58:29 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -187,10 +187,8 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 
     if ( matchpos != -1 )
     {
-	// matchpos += samplerg.start;
-	// if ( !trackbyvalue_ )	    matchpos += simlaritymatchpt_;
-	// targetz = zrg.atIndex(matchpos);
-	float dstpos = fineTuneExtremePos(trcbuffer, nrsamples, matchpos);
+	float dstpos = fineTuneExtremePos( trcbuffer, nrsamples, matchpos,
+					   trackevent_ );
 	if ( !trackbyvalue_ )	    dstpos += simlaritymatchpt_;
 	targetz = zrg.atIndex(samplerg.start);
 	targetz += (dstpos*zrg.step);
@@ -350,23 +348,23 @@ float HorizonAdjuster::firstZeroEvent( const float *srctrc, int startsample,
 	    prev = srctrc[smpl],	cur  = srctrc[smpl-step];
 	if ( prev==0 && cur==0 )	continue;
 	
-	bool zero = false;
+	bool zeroev = false;
 	if ( prev<=0 && cur>0 || prev==0 && cur>0 )
 	{
 	    if ( ev==VSEvent::ZCNegPos || ev==VSEvent::ZC )
-		zero =  true;
+		zeroev =  true;
 	    if ( ev == VSEvent::ZCPosNeg )
 		break;
 	}
 	if ( prev>=0 && cur<0 || prev==0 && cur<0 )
 	{
 	    if ( ev == VSEvent::ZCPosNeg || ev==VSEvent::ZC )
-		zero = true;
+		zeroev = true;
 	    if ( ev == VSEvent::ZCNegPos )
 		break;
 	}
 	
-	if ( zero )
+	if ( zeroev )
 	{
 	    float pos = step == 1 ? smpl-1 : smpl;
 	    pos += ( -prev/(cur-prev) );
@@ -382,25 +380,31 @@ float HorizonAdjuster::firstZeroEvent( const float *srctrc, int startsample,
 
 
 float HorizonAdjuster::fineTuneExtremePos(const float *smplbuf, int nrsamples,
-				     int pickpos)
+				     int pickpos, VSEvent::Type ev)
 {
-    if ( !smplbuf || nrsamples<=2 || pickpos<0 || pickpos>=nrsamples )
+    if ( nrsamples < 4 || pickpos<1 || pickpos>=nrsamples-2 )
+	return pickpos;
+    ThirdOrderPoly poly;
+    if ( ev == VSEvent::Min )
+	poly.setFromSamples( -smplbuf[pickpos-1], -smplbuf[pickpos],
+    		 -smplbuf[pickpos+1], -smplbuf[pickpos+2]);
+    else
+	poly.setFromSamples( smplbuf[pickpos-1], smplbuf[pickpos],
+    		 smplbuf[pickpos+1], smplbuf[pickpos+2]);
+    float extremepos, extremepos0, extremepos1;
+    poly.getExtremePos( extremepos0, extremepos1 );
+    PtrMan<SecondOrderPoly> firstder = poly.createDerivative();
+    PtrMan<FloatMathFunction> secder = firstder->createDerivative();
+
+    if ( secder->getValue(extremepos0)<0 )
+	extremepos = extremepos0;
+    else if ( secder->getValue(extremepos1)<0 )
+	extremepos = extremepos1;
+
+    if ( Values::isUdf(extremepos) || extremepos>=1 || extremepos<=-1 )
 	return pickpos;
     
-    float y2 = smplbuf[pickpos];
-    float y1 = pickpos ? smplbuf[pickpos-1] : smplbuf[0];
-    float y3 = pickpos<=nrsamples-2 ? smplbuf[pickpos+1] : smplbuf[nrsamples-1];
-
-    float a = ( y3 + y1 - 2 * y2 ) / 2;
-    float b = ( y3 - y1 ) / 2;
-    float newpos = pickpos;
-    if ( !mIsZero(a,mDefEps) )
-    {
-	float inc = - b / ( 2 * a );
-	if ( inc>-1 && inc < 1 )
-	    newpos += inc;
-    }
-    return newpos;
+    return pickpos+extremepos;
 }
 
 

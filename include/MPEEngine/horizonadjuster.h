@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.4 2005-08-22 09:57:25 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.5 2005-08-23 09:58:29 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ protected:
     float 		firstZeroEvent( const float* srctrc, int startsample,
     				int endsample, VSEvent::Type );
     float		fineTuneExtremePos(const float *smplbuf,
-    				int nrsamples, int pickpos);
+    				int nrsamples, int pickpos, VSEvent::Type );
 private:
     void		initTrackParam();
     int			matchwinsamples_;
