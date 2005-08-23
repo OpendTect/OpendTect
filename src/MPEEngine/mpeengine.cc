@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.41 2005-08-20 19:02:47 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.42 2005-08-23 21:59:27 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -336,8 +336,14 @@ void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 
 CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 {
-    const Attrib::SliceSet* sliceset = getAttribCache( as );
-    return sliceset ? sliceset->sampling : activeVolume();
+    CubeSampling res( engine().activeVolume() );
+    for ( int idx=0; idx<trackers.size(); idx++ )
+    {
+	const CubeSampling cs = trackers[idx]->getAttribCube( as );
+	res.include(cs);
+    }
+
+    return res;
 }
     
 
