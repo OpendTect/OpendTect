@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.cc,v 1.2 2005-08-18 14:19:21 cvsnanne Exp $
+ RCS:           $Id: attribposvecoutput.cc,v 1.3 2005-08-24 10:47:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,14 +119,17 @@ void PosVecOutputGen::addResults()
 	for ( int idx=0; idx<bvss_.size(); idx++ )
 	{
 	    PosVecDataSet* pvds = new PosVecDataSet;
-	    for ( int validx=0; validx<bvss_[idx]->nrVals()-1; validx++ )
+	    for ( int refidx=0; refidx<inps_.size(); refidx++ )
 	    {
-		BufferString ref = inps_.get( validx );
+		BufferString ref = inps_.get( refidx );
 		BufferString nm = ref;
 		if ( IOObj::isKey(ref) )
 		    nm = LineKey::defKey2DispName( ref, 0, false );
 		pvds->add( new DataColDef(nm,ref) );
 	    }
+
+	    if ( inps_.size() != bvss_[idx]->nrVals()-1 )
+		bvss_[idx]->setNrVals( inps_.size()+1 );
 
 	    pvds->data() = *bvss_[idx];
 	    vdss_ += pvds;
