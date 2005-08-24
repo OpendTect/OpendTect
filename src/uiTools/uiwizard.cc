@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.5 2005-08-12 21:55:39 cvskris Exp $
+ RCS:           $Id: uiwizard.cc,v 1.6 2005-08-24 20:24:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
 
 void uiWizard::doFinalise( CallBacker* )
 {
+    isStarting();
     setCurrentPage( firstPage() );
     handleButtonText();
 }
@@ -57,7 +58,8 @@ bool uiWizard::acceptOK( CallBacker* )
     if ( !leavePage(pageidx,false) )
 	return false;
 
-    if ( pageidx==firstPage() ) return true;
+    if ( pageidx==firstPage() )
+	return isClosing(true);
 
     pageidx--;
     while ( !dodisplay[pageidx] && !pageidx )
@@ -76,7 +78,7 @@ bool uiWizard::rejectOK( CallBacker* )
 	return false;
 
     if ( pageidx==lastPage() && !rotatemode )
-	return true;
+	return isClosing(false);
 
     if ( pageidx==lastPage() && rotatemode ) 
     {

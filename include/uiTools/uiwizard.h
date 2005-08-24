@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.h,v 1.4 2005-08-12 21:55:41 cvskris Exp $
+ RCS:           $Id: uiwizard.h,v 1.5 2005-08-24 20:23:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ protected:
 
     virtual bool	preparePage(int) { return true; }
     virtual bool	leavePage(int, bool next ) { return true; }
+    virtual void	isStarting() {}
+    virtual bool	isClosing(bool iscancel ) { return true; }
     virtual void	reset() {}
     			/*!<Is called when the wizartd starts again. */
 
