@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.29 2005-03-24 08:13:25 cvsduntao Exp $
+ RCS:           $Id: uitable.cc,v 1.30 2005-08-24 14:56:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -517,19 +517,19 @@ int uiTable::getIntValue( const RowCol& rc ) const
 
 double uiTable::getValue( const RowCol& rc ) const
 {
-    if ( usrInputObj(rc) )
-	return usrInputObj(rc)->getValue();
+    const char* s = text( rc );
+    if ( !s || !*s ) return mUdf(double);
 
-    return Conv::to<double>( text(rc) );
+    return usrInputObj(rc) ? usrInputObj(rc)->getValue() : Conv::to<double>(s);
 }
 
 
 float uiTable::getfValue( const RowCol& rc ) const
 {
-    if ( usrInputObj(rc) )
-	return usrInputObj(rc)->getfValue();
+    const char* s = text( rc );
+    if ( !s || !*s ) return mUdf(float);
 
-    return Conv::to<float>( text(rc) );
+    return usrInputObj(rc) ? usrInputObj(rc)->getValue() : Conv::to<float>(s);
 }
 
 
@@ -544,19 +544,35 @@ void uiTable::setValue( const RowCol& rc, int i )
 
 void uiTable::setValue( const RowCol& rc, float f )
 {
-    if ( usrInputObj(rc) )
-	usrInputObj(rc)->setValue(f);
-
-    setText( rc, Conv::to<const char*>(f) );
+    if ( Values::isUdf(f) ) 
+    {
+	if ( usrInputObj(rc) )
+	    usrInputObj(rc)->setText( "" );
+	setText( rc, "" );
+    }
+    else
+    {
+	if ( usrInputObj(rc) )
+	    usrInputObj(rc)->setValue(f);
+	setText( rc, Conv::to<const char*>(f) );
+    }
 }
 
 
 void uiTable::setValue( const RowCol& rc, double d )
 {
-    if ( usrInputObj(rc) )
-	usrInputObj(rc)->setValue(d);
-
-    setText( rc, Conv::to<const char*>(d) );
+    if ( Values::isUdf(d) ) 
+    {
+	if ( usrInputObj(rc) )
+	    usrInputObj(rc)->setText( "" );
+	setText( rc, "" );
+    }
+    else
+    {
+	if ( usrInputObj(rc) )
+	    usrInputObj(rc)->setValue(d);
+	setText( rc, Conv::to<const char*>(d) );
+    }
 }
 
 
