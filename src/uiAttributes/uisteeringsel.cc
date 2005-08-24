@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.10 2005-08-19 14:52:20 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.11 2005-08-24 10:01:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads )
     , dirfld(0)
     , dipfld(0)
     , is2d_(false)
-    , fixed_(false)
+    , notypechange_(false)
 {
     RefMan<Desc> desc = PF().createDescCopy( "FullSteering" );
     if ( !desc )
@@ -135,7 +135,7 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 	inpfld->updateHistory( inpselhist );
     }
 
-    if ( !fixed_ )
+    if ( !notypechange_ )
 	typfld->setValue( type );
     typeSel( 0 );
 }
@@ -145,7 +145,7 @@ void uiSteeringSel::setDescSet( const DescSet* ads )
 {
     descset_ = ads;
     inpfld->setDescSet( ads );
-    if ( !fixed_ )
+    if ( !notypechange_ )
     {
 	typfld->setValue( 0 );
 	typeSel( 0 );
@@ -230,12 +230,12 @@ DescID uiSteeringSel::descID()
 }
 
 
-void uiSteeringSel::setType( int nr, bool fixed )
+void uiSteeringSel::setType( int nr, bool nochg )
 {
     if ( !typfld ) return;
     typfld->setValue( nr );
-    typfld->setSensitive( !fixed );
-    fixed_ = fixed;
+    typfld->setSensitive( !nochg );
+    notypechange_ = nochg;
     typeSel(0);
 }
 
