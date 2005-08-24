@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.19 2005-08-24 09:57:38 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.20 2005-08-24 13:32:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -535,6 +535,7 @@ ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
     for ( int idx=0; idx<procset.size(); idx++ )
     {
 	LineKey lkey(linekey.buf(),procset[idx]->getAttribName());
+	cs_.hrg.start.inl = 0; cs_.hrg.stop.inl = 0;
 	CubeOutput* attrout = new CubeOutput( cs_, lkey );
 	attrout->set2D();
 	attrout->setGeometry( cs_ );

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.26 2005-08-22 15:33:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.27 2005-08-24 13:32:51 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -241,6 +241,16 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	    attribname = "Reference";
 	    defstring = attribname;
 	    descpar->set("Selected Attrib","2");
+	}
+
+	if ( attribname == "Hash" )
+	{
+	    attribname = "Shift";
+	    const char* ptr = defstring.buf();
+	    ptr += 4;
+	    BufferString bstr = attribname;
+	    bstr += ptr;
+	    defstring = bstr;
 	}
 	
 	RefMan<Desc> desc;
