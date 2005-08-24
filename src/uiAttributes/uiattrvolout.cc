@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.5 2005-08-19 14:52:20 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.6 2005-08-24 10:02:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,10 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     const DescID targetid = nlamodelid < 0 ? todofld->attribID() : nlamodelid;
 
     IOPar attrpar( "Attribute Descriptions" );
-    ads.fillPar( attrpar );
+    DescSet* clonedset = ads.optimizeClone( targetid );
+    clonedset->fillPar( attrpar );
+    delete clonedset;
+
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
