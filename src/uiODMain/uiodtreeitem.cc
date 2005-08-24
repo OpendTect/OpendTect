@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.98 2005-08-22 10:09:28 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.99 2005-08-24 14:05:00 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ___________________________________________________________________
 #include "ioman.h"
 #include "uimenu.h"
 #include "pickset.h"
+#include "pixmap.h"
 #include "survinfo.h"
 #include "uilistview.h"
 #include "uibinidtable.h"
@@ -256,6 +257,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , displayid(-1)
     , visserv(ODMainWin()->applMgr().visServer())
     , selattrmnuitem(attrselmnutxt,9999)
+    , lockmnuitem("Lock",1000)
     , duplicatemnuitem("Duplicate")
     , removemnuitem("Remove",-1000)
 {
@@ -350,6 +352,11 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 
 const char* uiODDisplayTreeItem::attrselmnutxt = "Select Attribute";
 
+const char* uiODDisplayTreeItem::getLockMenuText() 
+{ 
+    return visserv->isLocked(displayid)? "Unlock" : "Lock";
+}
+
 
 void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
@@ -372,13 +379,17 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	if ( subitem && subitem->nrItems() )
 	    mAddMenuItem( &selattrmnuitem, subitem, true, subitem->checked );
 
-	mAddMenuItem( menu, &selattrmnuitem, true, false );
+	mAddMenuItem( menu, &selattrmnuitem, 
+		      !visserv->isLocked(displayid), false );
     }
 
+    lockmnuitem.text = getLockMenuText(); 
+    mAddMenuItem( menu, &lockmnuitem, true, false );
+    
     mAddMenuItemCond( menu, &duplicatemnuitem, true, false,
 	    	      visserv->canDuplicate(displayid) );
 
-    mAddMenuItem( menu, &removemnuitem, true, false );
+    mAddMenuItem( menu, &removemnuitem, !visserv->isLocked(displayid), false );
 }
 
 
@@ -387,6 +398,19 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() ) return;
+    if ( mnuid==lockmnuitem.id )
+    {
+	menu->setIsHandled(true);
+	visserv->lockUnlockObject(displayid);
+
+	if ( visserv->isLocked(displayid) )
+	{
+	    ioPixmap pixmap( GetDataFileName("lock_small.png") );
+	    uilistviewitem->setPixmap( 0, pixmap );
+	}
+	else
+	    uilistviewitem->setPixmap( 0, ioPixmap() );
+    }
     if ( mnuid==duplicatemnuitem.id )
     {
 	menu->setIsHandled(true);
@@ -397,6 +421,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removemnuitem.id )
     {
 	menu->setIsHandled(true);
+	
 	prepareForShutdown();
 	visserv->removeObject( displayid, sceneID() );
 	parent->removeChild( this );
@@ -1584,7 +1609,7 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
-    mAddMenuItem( menu, &positionmnuitem, true, false );
+    mAddMenuItem(menu, &positionmnuitem, !visserv->isLocked(displayid), false);
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     int type = menu->getMenuType();

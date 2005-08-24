@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.269 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.270 2005-08-24 14:05:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,6 +208,19 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     //TODO: Handle saveinsessions
 
     setUpConnections( dobj->id() );
+}
+
+
+void uiVisPartServer::lockUnlockObject( int objectid )
+{
+    if ( !lockedobjects.addIfNew(objectid) )
+	lockedobjects.remove( lockedobjects.indexOf(objectid) );
+}
+
+
+bool uiVisPartServer::isLocked( int objectid ) const
+{
+    return lockedobjects.indexOf(objectid) != -1 ? true : false;
 }
 
 
@@ -748,6 +761,12 @@ void uiVisPartServer::setSelSpec( int id, const Attrib::SelSpec& myattribspec )
 
 bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 {
+    if ( isLocked(id) )
+    {
+	resetManipulation(id);
+	return true;
+    }
+
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return false;
 
@@ -1059,9 +1078,10 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(menu->menuID()));
     if ( !so ) return;
 
-    mAddMenuItemCond( menu, &selcolorattrmnuitem, true, false, 
-	    	      so->getColorSelSpec() );
-    mAddMenuItemCond( menu, &resetmanipmnuitem, so->isManipulated(), false,
+    mAddMenuItemCond( menu, &selcolorattrmnuitem, !isLocked(menu->menuID()), 
+	    	      false, so->getColorSelSpec() );
+    mAddMenuItemCond( menu, &resetmanipmnuitem, 
+	    	      so->isManipulated() && !isLocked(menu->menuID()), false,
 		      so->canResetManipulation() );
     //mAddMenuItemCond( menu, &changecolormnuitem, true, false, so->hasColor() );
     changecolormnuitem.id = -1;

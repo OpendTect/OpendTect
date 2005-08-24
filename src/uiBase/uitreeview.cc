@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.11 2004-07-14 15:48:11 nanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.12 2005-08-24 14:05:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 
 #include "i_qlistview.h"
 
-#include "qsize.h"
+#include <qsize.h>
+#include <qpixmap.h>
 
 #define mQitemFor(itm)		uiListViewItem::qitemFor(itm)
 #define mItemFor(itm)		uiListViewItem::itemFor(itm)
@@ -622,8 +623,7 @@ const char* uiListViewItem::text( int column ) const
 
 void uiListViewItem::setPixmap( int column, const ioPixmap& pm )
 {
-    if( !pm.Pixmap() ) return;
-    mQthing().setPixmap( column, *pm.Pixmap() );
+    mQthing().setPixmap( column, pm.Pixmap() ? *pm.Pixmap() : QPixmap() );
 }
 
 /*!

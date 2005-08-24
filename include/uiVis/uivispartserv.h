@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.143 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.144 2005-08-24 14:05:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,6 +190,9 @@ public:
     int				duplicateObject(int id,int sceneid);
     				/*!< \returns id of new object */
 
+    void			lockUnlockObject(int);
+    bool			isLocked(int) const;
+
     				// Tracking stuff
     static const int		evTrackNewObject;
     bool			sendTrackNewObjectEvent();
@@ -266,6 +269,8 @@ protected:
     MenuItem			changecolormnuitem;
     MenuItem			changematerialmnuitem;
     MenuItem			resmnuitem;
+
+    TypeSet<int>		lockedobjects;
 
     static const char*		workareastr;
     static const char*		appvelstr;
