@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.25 2005-08-19 14:52:20 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.26 2005-08-24 10:00:21 cvsnanne Exp $";
 
 #include "attribprovider.h"
 
@@ -549,6 +549,13 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	if ( !mIsEqual(dz,surveystep,mDefEps) )
 	    reqintv.scale( mNINT(surveystep/refstep) );
 
+	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
+	{
+	    for ( int inp=0; inp<inputs.size(); inp++ )
+		inputranges.set( inp, idx, Interval<int>(mUdf(int),mUdf(int)) );
+	    continue;
+	}
+
 	if ( possintv.start > reqintv.start )
 	    reqintv.start = possintv.start;
 	if ( possintv.stop < reqintv.stop )
@@ -595,7 +602,12 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 
 	TypeSet<Interval<int> > inpranges;
 	for ( int idx=0; idx<intvs.size(); idx++ )
-	    inpranges += inputranges.get( inp, idx );
+	{
+	    const Interval<int> rg = inputranges.get( inp, idx );
+	    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+		continue;
+	    inpranges += rg;
+	}
 	inputs[inp]->addLocalCompZIntervals( inpranges );
     }
 }
@@ -641,9 +653,12 @@ BinID Provider::getStepoutStep() const
 
 const DataHolder* Provider::getData( const BinID& relpos, int idi )
 {
+    if ( idi < 0 || idi >= localcomputezintervals.size() )
+	return 0;
+
     const DataHolder* constres = getDataDontCompute(relpos);
     if ( constres && constres->t0_ == localcomputezintervals[idi].start 
-	    && constres->nrsamples_ == localcomputezintervals[idi].width() )
+	    && constres->nrsamples_ == localcomputezintervals[idi].width()+1 )
 	return constres;
 
     if ( !linebuffer )
