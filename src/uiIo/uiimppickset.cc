@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.14 2004-07-30 11:40:13 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.15 2005-08-24 08:36:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
     label += "Ascii file";
     filefld = new uiFileInput( this, label, uiFileInput::Setup()
 					    .withexamine(import)
-					    .forread(!import) );
+					    .forread(import) );
     filefld->setDefaultSelectionDir( 
 			    IOObjContext::getDataDirName(IOObjContext::Loc) );
 
