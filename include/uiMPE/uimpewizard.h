@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.9 2005-08-23 15:24:39 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.10 2005-08-24 21:59:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiwizard.h"
 
+#include "cubesampling.h"
 #include "emposid.h"
 
 class uiColorInput;
@@ -36,63 +37,70 @@ class uiSetupSel;
 class Wizard : public uiWizard
 {
 public:
-				Wizard(uiParent*,uiMPEPartServer*);
-				~Wizard();
+			Wizard(uiParent*,uiMPEPartServer*);
+			~Wizard();
 
-    void			reset();
+    void		reset();
 
-    void			setTrackingType(const char* typestr);
-    void			setTrackerID(int);
-    void			setSurfaceColor(const Color&);
+    void		setObject( const MultiID&, const EM::SectionID& );
+    void		setTrackingType(const char* typestr);
 
-    static const int		sNamePage;
-    static const int		sSeedPage;
-    static const int		sSetupPage;
-    static const int		sFinalizePage;
+    static const int	sNamePage;
+    static const int	sSeedPage;
+    static const int	sSetupPage;
+    static const int	sFinalizePage;
 
 protected:
 
-    uiGenInput*			namefld;
+    uiGenInput*		namefld;
 
-    uiColorInput*		colorfld;
-    uiLabeledSpinBox*		markerszbox;
-    uiLabeledSpinBox*		linewidthbox;
+    uiColorInput*	colorfld;
+    uiLabeledSpinBox*	markerszbox;
+    uiLabeledSpinBox*	linewidthbox;
 
-    uiSetupSel*			setupgrp;
+    uiSetupSel*		setupgrp;
 
-    uiGenInput*			anotherfld;
-    uiGenInput*			typefld;
+    uiGenInput*		anotherfld;
+    uiGenInput*		typefld;
 
-    uiGroup*			createNamePage();
-    uiGroup*			createSeedPage();
-    uiGroup*			createSetupPage();
-    uiGroup*			createFinalizePage();
+    uiGroup*		createNamePage();
+    uiGroup*		createSeedPage();
+    uiGroup*		createSetupPage();
+    uiGroup*		createFinalizePage();
 
-    bool			leaveNamePage(bool);
-    bool			leaveSeedPage(bool);
-    bool			leaveSetupPage(bool);
-    bool			leaveFinalizePage(bool);
+    bool		leaveNamePage(bool);
+    bool		leaveSeedPage(bool);
+    bool		leaveSetupPage(bool);
+    bool		leaveFinalizePage(bool);
 
-    bool			prepareNamePage();
-    bool			prepareSeedPage();
-    bool			prepareSetupPage();
-    bool			prepareFinalizePage() { return true; }
+    bool		prepareNamePage();
+    bool		prepareSeedPage();
+    bool		prepareSetupPage();
+    bool		prepareFinalizePage();
 
-    bool			preparePage(int);
-    bool			leavePage(int,bool);
+    void		isStarting();
+    bool		isClosing(bool);
 
-    void			updateDialogTitle();
+    bool		preparePage(int);
+    bool		leavePage(int,bool);
 
-    void			stickSetChange(CallBacker*);
-    void			anotherSel(CallBacker*);
+    void		updateDialogTitle();
+    void		adjustSeedBox();
+
+    void		stickSetChange(CallBacker*);
+    void		anotherSel(CallBacker*);
+
+    CubeSampling	seedbox;
+
+    MultiID		currentobject;
+    EM::SectionID	sid;
+    bool		objectcreated;
+    bool		trackercreated;
+    bool		reloadattribdata;
     
-    uiMPEPartServer*		mpeserv;
-    bool			dosave;
-    EM::SectionID		sid;
-    static int			defcolnr;
-    bool			pickmode;
-    int				curtrackid;
-    BufferString		trackertype;
+    uiMPEPartServer*	mpeserv;
+    static int		defcolnr;
+    BufferString	trackertype;
 };
 
 }; // namespace MPE

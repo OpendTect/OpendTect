@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.8 2005-08-12 21:52:40 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.9 2005-08-24 21:59:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,10 +82,7 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    int				addTracker(const char* trackertype, 
-	    				   const char* name ); 
-    void			createActiveVolume();
-    void			updateVolumeFromSeeds();
+    void			expandActiveArea(const CubeSampling&);
 
     const Attrib::DescSet*	attrset;
     MPE::Wizard*		wizard;
@@ -93,8 +90,6 @@ protected:
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec;
     int				activetrackerid;
-
-    CubeSampling		csfromseeds;
 
     friend class		MPE::Wizard;
 };
