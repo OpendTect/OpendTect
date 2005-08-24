@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.18 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.19 2005-08-24 09:57:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -664,6 +664,8 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 	const_cast<ObjectSet<BinIDValueSet>&>(bivsets);
     exec = aem.locationOutputCreator( errmsg, bvs );
 }
+
+~AEMFeatureExtracter()		{ delete exec; }
 
 int totalNr() const		{ return exec ? exec->totalNr() : -1; }
 int nrDone() const		{ return exec ? exec->nrDone() : 0; }
