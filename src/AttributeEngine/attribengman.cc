@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.20 2005-08-24 13:32:51 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.21 2005-08-24 16:15:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,13 +236,26 @@ SliceSet* EngineMan::getSliceSetOutput()
 	SliceSet& slset = *new SliceSet;
 	slset.sampling = procset[0]->outputs[idx]->getSliceSet()->sampling;
 	slset.direction = slset.sampling.defaultDir();
-	for ( int idy=0; idy<procset.size(); idy++ )
+	if ( procset.size()>1 )
 	{
-	    if ( procset[idy]->outputs[idx]->getSliceSet()->size()>1 )
-		return procset[idy]->outputs[idx]->getSliceSet();
-	    else
+	    for ( int idy=0; idy<procset.size(); idy++ )
 	    {
-		Slice* slc = (*procset[idy]->outputs[idx]->getSliceSet())[0];
+		if ( procset[idy]->outputs[idx]->getSliceSet()->size()>1 )
+		    return procset[idy]->outputs[idx]->getSliceSet();
+		else
+		{
+		    Slice* slc = ( *procset[idy]->
+			    		outputs[idx]->getSliceSet() )[0];
+		    slset += slc;
+		}
+	    }
+	}
+	else
+	{
+	    for ( int idy=0; 
+		  idy<procset[0]->outputs[idx]->getSliceSet()->size(); idy++ )
+	    {
+		Slice* slc = ( *procset[0]->outputs[idx]->getSliceSet() )[idy];
 		slset += slc;
 	    }
 	}
