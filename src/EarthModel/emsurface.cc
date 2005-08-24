@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.75 2005-08-23 20:22:50 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.76 2005-08-24 21:10:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,13 +282,13 @@ bool Surface::isAtEdge( const PosID& posid ) const
 
 
 bool Surface::isChanged(int idx) const
-{ return geometry.isChanged(idx); }
+{ return EMObject::isChanged(idx); }
 //{ return auxdata.isChanged(idx) || geometry.isChanged(idx); }
 
 
-void Surface::resetChangedFlag()
+void Surface::resetChangedFlag(int idx)
 {
-    geometry.resetChangedFlag();
+    EMObject::resetChangedFlag(idx);
     auxdata.resetChangedFlag();
 }
 

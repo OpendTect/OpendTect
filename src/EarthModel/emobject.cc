@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.44 2005-08-23 20:17:00 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.45 2005-08-24 21:10:10 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -76,6 +76,7 @@ EMObject::EMObject( EMManager& emm_, const ObjectID& id__ )
     , notifier(this)
     , id_(id__)
     , preferredcolor( *new Color(255, 0, 0) )
+    , changed( false )
 { mRefCountConstructor;
     manager.addObject(this);
     notifier.notify( mCB( this, EMObject, posIDChangeCB ) );
@@ -174,6 +175,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
      cbdata.pid0 = PosID(id(),sid,subid);
      notifier.trigger( cbdata );
 
+     changed = true;
      return true;
 }
 
@@ -292,6 +294,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn )
     }
 
     notifier.trigger( cbdata );
+    changed = true;
 }
 
 

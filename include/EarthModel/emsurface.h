@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.53 2005-08-23 20:23:01 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.54 2005-08-24 21:10:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -82,8 +82,8 @@ public:
     const char*		dbInfo() const			{ return dbinfo; }
     void		setDBInfo( const char* s )	{ dbinfo = s; }
 
-    bool		isChanged(int) const;
-    void		resetChangedFlag();
+    bool		isChanged(int=-1) const;
+    void		resetChangedFlag(int=-1);
 
     virtual bool	usePar( const IOPar& );
     virtual void	fillPar( IOPar& ) const;

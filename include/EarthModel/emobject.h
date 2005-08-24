@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.44 2005-08-23 20:18:55 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.45 2005-08-24 21:10:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -133,11 +133,13 @@ public:
     virtual Executor*		loader() { return 0; }
     virtual bool		isLoaded() const {return false;}
     virtual Executor*		saver() { return 0; }
-    virtual bool		isChanged( int what=-1 ) const { return false; }
+    virtual bool		isChanged( int what=-1 ) const
+    				{ return changed; }
     				/*!<\param what	Says what the query is about.
 						-1 mean any change, all other
 						figures are dependent on impl.
 				*/
+    virtual void		resetChangedFlag(int what=-1) { changed=false; }
 
     const char*			errMsg() const
     				{ return errmsg[0]
@@ -166,6 +168,8 @@ protected:
 
     ObjectSet<TypeSet<PosID> >	posattribs;
     TypeSet<int>		attribs;
+
+    bool			changed;
 
     static const char*		prefcolorstr;
     static const char*		nrposattrstr;
