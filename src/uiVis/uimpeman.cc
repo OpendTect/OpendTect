@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.31 2005-08-23 20:10:31 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.32 2005-08-24 11:44:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -521,7 +521,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
 	while ( int res=uiMSG().notSaved(msg)>=0 )
 	{
 	    int execres;
-	    while ( execres = exec->doStep()>0 )
+	    while ( (execres=exec->doStep()) > 0 )
 	    {
 		EM::History& history = EM::EMM().history();
 		const int currentevent = history.currentEventNr();
