@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.14 2005-08-12 21:52:42 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.15 2005-08-24 21:24:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     , wizard( 0 )
 {
     MPE::initStandardClasses();
-    csfromseeds.init( false );
 }
 
 
@@ -89,14 +88,21 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     if ( !emobj ) return -1;
 
-    activetrackerid = MPE::engine().addTracker( emobj );
 
-    addTracker( emobj->getTypeStr() );
-    wizard->setTrackerID( activetrackerid );
+    if ( !wizard )
+	wizard = new MPE::Wizard( appserv().parent(), this );
+    else
+	wizard->reset();
+
+    wizard->setRotateMode(false);
+
+    wizard->setObject( mid, emobj->sectionID(0) );
+    wizard->displayPage(MPE::Wizard::sNamePage, false );
     wizard->displayPage(MPE::Wizard::sSeedPage, false );
     wizard->displayPage(MPE::Wizard::sFinalizePage, false );
     wizard->go();
 
+    CubeSampling csfromseeds;
     csfromseeds.zrg.start = csfromseeds.zrg.stop = pickedpos.z;
     HorSampling& hrg = csfromseeds.hrg;
     const BinID bid = SI().transform( pickedpos );
@@ -104,6 +110,9 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
     hrg.stop.inl = bid.inl + 10 * hrg.step.inl;
     hrg.start.crl = bid.crl - 10 * hrg.step.crl;
     hrg.stop.crl = bid.crl + 10 * hrg.step.crl;
+
+    expandActiveArea(csfromseeds);
+
     return activetrackerid;
 }
 
@@ -118,9 +127,16 @@ bool uiMPEPartServer::addNewSection( int trackerid )
     }
 
     EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
-    addTracker( emobj->getTypeStr() );
-    wizard->setTrackerID( trackerid );
-    wizard->setSurfaceColor( emobj->preferredColor() );
+
+    if ( !wizard )
+	wizard = new MPE::Wizard( appserv().parent(), this );
+    else
+	wizard->reset();
+
+    wizard->setObject( emobj->multiID(), -1 );
+    wizard->setRotateMode(false);
+    wizard->displayPage(MPE::Wizard::sNamePage, false );
+    wizard->displayPage(MPE::Wizard::sFinalizePage, false );
     wizard->go();
 
     return true;
@@ -129,11 +145,13 @@ bool uiMPEPartServer::addNewSection( int trackerid )
 
 bool uiMPEPartServer::addTracker( const char* trackertype )
 {
-    csfromseeds.init( false );  
+    if ( !wizard )
+	wizard = new MPE::Wizard( appserv().parent(), this );
+    else
+	wizard->reset();
 
-    delete wizard;
-    wizard = new MPE::Wizard( appserv().parent(), this );
     wizard->setTrackingType( trackertype );
+    wizard->setRotateMode(true);
     wizard->go();
 
     return true;
@@ -259,80 +277,18 @@ CubeSampling uiMPEPartServer::getActiveVolume() const
 { return MPE::engine().activeVolume(); }
 
 
-void uiMPEPartServer::updateVolumeFromSeeds()
+void uiMPEPartServer::expandActiveArea(const CubeSampling& seedcs)
 {
-    ObjectSet<Geometry::Element> seeds = MPE::engine().interactionseeds;
-    if ( !seeds.size() ) return;
+    const CubeSampling activecs = MPE::engine().activeVolume();
+    const bool isdefault = activecs==MPE::engine().getDefaultActiveVolume();
 
-    Geometry::Element* element = MPE::engine().interactionseeds[0];
-    IntervalND<float> intv = element->boundingBox(true);
-    Coord start( intv.getRange(0).start, intv.getRange(1).start );
-    Coord stop( intv.getRange(0).stop, intv.getRange(1).stop );
-
-    CubeSampling elementcs;
-    elementcs.hrg.start = SI().transform( start );
-    elementcs.hrg.stop = SI().transform( stop );
-    assign( elementcs.zrg, intv.getRange(2) );
-    elementcs.normalise();
-    
-    if ( csfromseeds.isEmpty() )
-	csfromseeds = elementcs;
-    else
-	csfromseeds.include( elementcs );
-
-    deepErase( MPE::engine().interactionseeds );
-}
-
-int uiMPEPartServer::addTracker( const char* trackertype, const char* name )
-{
-    MPE::Engine& engine = MPE::engine();
-    if ( !engine.highestTrackerID() )
-	engine.setActiveVolume( engine.getDefaultActiveVolume() );
-
-    activetrackerid = engine.addTracker( name, trackertype );
-    if ( activetrackerid==-1 )
-	uiMSG().error( MPE::engine().errMsg() );
-    else
-    {
-	const EM::ObjectID objid =
-			engine.getTracker(activetrackerid)->objectID();
-	if ( !engine.getEditor(objid,false) )
-	    engine.getEditor(objid,true);
-
-	if ( !sendEvent( evAddTreeObject ) )
-	{
-	    pErrMsg("Could not add treeitem");
-	    engine.removeTracker( activetrackerid );
-	    activetrackerid = -1;
-	    //TODO? Remove new object?
-	    //TODO? Remove new editor?
-	}
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
-	if ( emobj && emobj->isChanged() )
-	{
-	    PtrMan<Executor> saver = emobj->saver();
-	    saver->execute();
-	}
-    }
-
-    return activetrackerid;
-}
-
-
-void uiMPEPartServer::createActiveVolume()
-{
-    if ( !MPE::engine().highestTrackerID() ) return;
-
-    CubeSampling activecs = MPE::engine().activeVolume();
-    const bool isdefault = activecs == MPE::engine().getDefaultActiveVolume();
-
-    CubeSampling newcube = isdefault ? csfromseeds : activecs;
+    CubeSampling newcube = isdefault ? seedcs : activecs;
     if ( !isdefault )
     {
-	newcube.hrg.include( csfromseeds.hrg.start );
-	newcube.hrg.include( csfromseeds.hrg.stop );
-	newcube.zrg.include( csfromseeds.zrg.start );
-	newcube.zrg.include( csfromseeds.zrg.stop );
+	newcube.hrg.include( seedcs.hrg.start );
+	newcube.hrg.include( seedcs.hrg.stop );
+	newcube.zrg.include( seedcs.zrg.start );
+	newcube.zrg.include( seedcs.zrg.stop );
     }
 
     const int minnr = 20;
@@ -354,9 +310,8 @@ void uiMPEPartServer::createActiveVolume()
     newcube.snapToSurvey();
     newcube.limitTo( SI().sampling(true) );
     MPE::engine().setActiveVolume( newcube );
-    csfromseeds.init( false );
 
-    sendEvent( evShowToolbar );
+    //sendEvent( evShowToolbar );
 }
 
 

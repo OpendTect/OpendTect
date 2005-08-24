@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.11 2005-08-23 15:24:41 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.12 2005-08-24 21:24:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,10 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "emtracker.h"
 #include "executor.h"
+#include "geomelement.h"
 #include "mpesetup.h"
 #include "mpeengine.h"
+#include "survinfo.h"
 #include "uimpesetup.h"
 #include "uimpepartserv.h"
 
@@ -49,17 +51,19 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     : uiWizard(p,uiDialog::Setup("Tracking Wizard","XXXXXXX tracking","")
 				.modal(false))
     , mpeserv(mps)
-    , curtrackid(-1)
-    , pickmode(false)
     , sid( -1 )
-    , dosave( false )
+    , currentobject(-1)
+    , objectcreated(false)
+    , trackercreated(false)
+    , reloadattribdata(false)
 {
-    setHelpID( "108.0.0" );
-
     addPage( createNamePage() );
     addPage( createSeedPage() );
     addPage( createSetupPage() );
     addPage( createFinalizePage() );
+
+    seedbox.setEmpty();
+    setHelpID( "108.0.0" );
 }
 
 
@@ -73,56 +77,6 @@ uiGroup* Wizard::createNamePage()
     uiGroup* grp = new uiGroup( this, "Page 1" );
     namefld = new uiGenInput( grp, "Name" );
     return grp;
-}
-
-
-bool Wizard::prepareNamePage()
-{
-    namefld->setFocus();
-    return true;
-}
-
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
-
-bool Wizard::leaveNamePage(bool process)
-{
-    if ( !process ) return true;
-
-    const char* newobjnm = namefld->text();
-    if ( !*newobjnm )
-	mErrRet( "Please provide name" );
-
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
-
-    if ( ioobj )
-    {
-	if ( mpeserv->getTrackerID(ioobj->key())!=-1 )
-	{
-	    uiMSG().error("An object with this name exist and is currently\n"
-		    	  "tracked. Please select another name or quit the\n"
-			  "wizard and remove the object with this name from\n"
-			  "the tree.");
-	    return false;
-	}
-	else
-	{
-	    if ( !uiMSG().askGoOn("An object with that name does already exist."
-				  " Overwrite?",true) )
-		return false;
-	}
-    }
-
-    dosave = true;
-
-/*     if ( engine().interactionseeds.size() )
-    {
-	displayPage(1,false); // skip seedpicking step
-	return addTracker( newobjnm );
-    }
- */
-    colorfld->setColor( Color::drawDef(defcolnr) );
-    return true;
 }
 
 
@@ -155,93 +109,10 @@ uiGroup* Wizard::createSeedPage()
 }
 
 
-bool Wizard::prepareSeedPage()
-{
-    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
-    stickSetChange(0);
-    pickmode = true;
-
-    return true;
-}
-
-
-bool Wizard::leaveSeedPage(bool process)
-{
-    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
-    pickmode = false;
-
-    if ( !process ) return true;
-
-    if ( !engine().interactionseeds.size() )
-    {
-	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
-	pickmode = true;
-	mErrRet( "You did not create any seedpoints" );
-    }
-
-    if ( curtrackid==-1 )
-    {
-	curtrackid = mpeserv->addTracker( trackertype, namefld->text() );
-	if ( curtrackid<0 )
-	{
-	    pErrMsg( "Could not create tracker" );
-	    return false;
-	}
-	defcolnr++;
-
-    }
-    else
-    {
-	EMTracker* tracker = MPE::engine().getTracker(curtrackid);
-	tracker->setSeeds( MPE::engine().interactionseeds,
-			   tracker->objectName(), sid );
-    }
-
-    if ( dosave )
-    {
-	EMTracker* tracker = MPE::engine().getTracker(curtrackid);
-	const EM::ObjectID objid = tracker->objectID();
-	EM::EMObject* emobj = EM::EMM().getObject(objid);
-	PtrMan<Executor> saver = emobj->saver();
-	if ( saver ) 
-	    saver->execute();
-    }
-
-    return true;
-}
-
-
 uiGroup* Wizard::createSetupPage()
 {
     setupgrp = new uiSetupSel( this, mpeserv->attrset );
     return setupgrp;
-}
-
-
-bool Wizard::prepareSetupPage()
-{
-    EMTracker* tracker = MPE::engine().getTracker(curtrackid);
-    const EM::ObjectID objid = tracker->objectID();
-    EM::EMObject* emobj = EM::EMM().getObject(objid);
-    if ( sid==-1 )
-        sid = emobj->sectionID(emobj->nrSections()-1);
-
-    displayPage(sNamePage, false );
-    setupgrp->setType( objid, sid );
-
-    return true;
-}
-
-
-bool Wizard::leaveSetupPage(bool process)
-{
-    if ( !process ) return true;
-    if ( !setupgrp->processInput() )
-	mErrRet( "Please select Tracking Setup" );
-
-    mpeserv->updateVolumeFromSeeds();
-
-    return true;
 }
 
 
@@ -262,6 +133,188 @@ uiGroup* Wizard::createFinalizePage()
 }
 
 
+bool Wizard::prepareNamePage()
+{
+    namefld->setFocus();
+    return true;
+}
+
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
+
+bool Wizard::leaveNamePage(bool process)
+{
+    if ( !process ) return true;
+
+    const char* newobjnm = namefld->text();
+    if ( !*newobjnm )
+	mErrRet( "Please provide name" );
+
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
+
+    if ( ioobj )
+    {
+	EM::ObjectID objid = EM::EMM().multiID2ObjectID( ioobj->key() );
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	if ( emobj )
+	{
+	    uiMSG().error("An object with this name exist and is currently\n"
+		    	  "loaded. Please select another name or quit the\n"
+			  "wizard and remove the object with this name from\n"
+			  "the tree.");
+	    return false;
+	}
+	else
+	{
+	    if ( !uiMSG().askGoOn("An object with that name does already exist."
+				  " Overwrite?",true) )
+		return false;
+
+	    /*
+	    objid = EM::EMM().createObject(trackertype,newobjnm);
+	    emobj = EM::EMM().getObject( objid );
+	    currentobject = emobj->multiID();
+	    objectcreated = true;
+	    */
+	}
+    }
+    else
+	currentobject = -1;
+
+/*     if ( engine().interactionseeds.size() )
+    {
+	displayPage(1,false); // skip seedpicking step
+	return addTracker( newobjnm );
+    }
+ */
+    colorfld->setColor( Color::drawDef(defcolnr) );
+    return true;
+}
+
+
+bool Wizard::prepareSeedPage()
+{
+    if ( !(currentobject==-1) )
+    {
+	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	colorfld->setColor( emobj->preferredColor() );
+    }
+
+
+    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+    stickSetChange(0);
+
+    return true;
+}
+
+
+bool Wizard::leaveSeedPage(bool process)
+{
+    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+
+    if ( !process ) return true;
+
+    if ( !engine().interactionseeds.size() )
+    {
+	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	mErrRet( "You did not create any seedpoints" );
+    }
+
+    return true;
+}
+
+
+bool Wizard::prepareSetupPage()
+{
+    if ( currentobject==-1 )
+    {
+	const int id = engine().addTracker( namefld->text(), trackertype );
+	if ( id==-1 )
+	{
+	    pErrMsg( "Could not create tracker" );
+	    return false;
+	}
+
+	EMTracker* tracker = engine().getTracker(id);
+	const EM::ObjectID objid = tracker->objectID();
+	EM::EMObject* emobj = EM::EMM().getObject(objid);
+
+	if ( !engine().getEditor(objid,false) )
+	    engine().getEditor(objid,true);
+
+	if ( !mpeserv->sendEvent( ::uiMPEPartServer::evAddTreeObject ) )
+	{
+	    pErrMsg("Could not add treeitem");
+	    engine().removeTracker( id );
+	    emobj->ref(); emobj->unRef();
+	    return false;
+	}
+
+	currentobject = emobj->multiID();
+	objectcreated = true;
+	trackercreated = true;
+
+	PtrMan<Executor> saver = emobj->saver();
+	if ( saver ) saver->execute();
+    }
+    else if ( mpeserv->getTrackerID(currentobject)<0 )
+    {
+	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+
+	if ( MPE::engine().addTracker(emobj)<0 )
+	{
+	    pErrMsg( "Could not create tracker" );
+	    return false;
+	}
+
+	trackercreated = true;
+    }
+    else if ( MPE::engine().interactionseeds.size() )
+    {
+	const int trackerid = mpeserv->getTrackerID(currentobject);
+	EMTracker* tracker = MPE::engine().getTracker(trackerid);
+	tracker->setSeeds( MPE::engine().interactionseeds,
+			   tracker->objectName(), sid );
+    }
+
+    reloadattribdata = true;
+    const int trackerid = mpeserv->getTrackerID(currentobject);
+
+    EMTracker* tracker = MPE::engine().getTracker(trackerid);
+    const EM::ObjectID objid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject(objid);
+    if ( sid==-1 )
+        sid = emobj->sectionID(emobj->nrSections()-1);
+
+    displayPage(sNamePage, false );
+    setupgrp->setType( objid, sid );
+
+
+    return true;
+}
+
+
+bool Wizard::leaveSetupPage(bool process)
+{
+    if ( !process ) return true;
+    if ( !setupgrp->processInput() )
+	mErrRet( "Please select Tracking Setup" );
+
+    displayPage(sSeedPage, false );
+    adjustSeedBox();
+    return true;
+}
+
+
+bool Wizard::prepareFinalizePage()
+{
+    typefld->setText(trackertype);
+    return true;
+}
+
+
 bool Wizard::leaveFinalizePage(bool process)
 {
     if ( !process ) return true;
@@ -270,11 +323,40 @@ bool Wizard::leaveFinalizePage(bool process)
     {
 	setTrackingType( typefld->text() );
     }
-    else
+
+    return true;
+}
+
+
+void Wizard::isStarting()
+{
+    reloadattribdata = false;
+    seedbox.setEmpty();
+}
+
+
+
+bool Wizard::isClosing(bool iscancel)
+{
+    if ( iscancel )
     {
-	mpeserv->createActiveVolume();
-	mpeserv->loadAttribData();
+	if ( trackercreated )
+	{
+	    //remove tracker
+	}
+
+	if ( objectcreated )
+	{
+	    //remove object
+	}
     }
+
+    if ( !seedbox.isEmpty() )
+    {
+	mpeserv->expandActiveArea(seedbox);
+    }
+
+    if ( reloadattribdata ) mpeserv->loadAttribData();
 
     return true;
 }
@@ -325,27 +407,40 @@ bool Wizard::leavePage( int page, bool process )
 }
 
 
-void Wizard::setTrackerID( int trackerid )
+void Wizard::adjustSeedBox()
 {
-    curtrackid = trackerid;
-    displayPage( sNamePage, false );
-    displayPage( sFinalizePage, false );
-    setRotateMode( false );
-}
+    const ObjectSet<Geometry::Element>& seeds = MPE::engine().interactionseeds;
 
+    for ( int idx=0; idx<seeds.size(); idx++ )
+    {
+	const Geometry::Element* element =
+			    MPE::engine().interactionseeds[idx];
+	IntervalND<float> intv = element->boundingBox(true);
+	Coord start( intv.getRange(0).start, intv.getRange(1).start );
+	Coord stop( intv.getRange(0).stop, intv.getRange(1).stop );
 
-void Wizard::setSurfaceColor( const Color& col )
-{
-    colorfld->setColor( col );
+	CubeSampling elementbox;
+	elementbox.hrg.start = SI().transform( start );
+	elementbox.hrg.stop = SI().transform( stop );
+	assign( elementbox.zrg, intv.getRange(2) );
+
+	if ( seedbox.isEmpty() )
+	    seedbox = elementbox;
+	else
+	    seedbox.include(elementbox);
+    }
 }
 
 
 void Wizard::reset()
 {
-    dosave = false;
+    if ( objectcreated )
+	defcolnr++;
+
     sid = -1;
-    defcolnr++;
-    curtrackid = -1;
+    objectcreated = false;
+    trackercreated = false;
+    currentobject = -1;
 
     for ( int idx=0; idx<nrPages(); idx++ )
 	displayPage( idx, true );
@@ -356,6 +451,17 @@ void Wizard::setTrackingType( const char* tp )
 {
     trackertype = tp;
     updateDialogTitle();
+}
+
+
+void Wizard::setObject( const MultiID& mid, const EM::SectionID& sectionid )
+{
+    currentobject = mid;
+    sid = sectionid;
+    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
+    const EM::EMObject* emobj = EM::EMM().getObject( objid );
+    if ( emobj )
+	setTrackingType( emobj->getTypeStr() );
 }
 
 
