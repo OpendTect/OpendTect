@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.7 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.8 2005-08-25 10:27:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,22 +215,22 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float trcval = inputdata->item(0)->value( idx-inputdata->t0_ );
+	int csamp = t0 + idx;
+	const float trcval = inputdata->item(0)->value( csamp-inputdata->t0_ );
 	float scalefactor = 1;
 	bool found = false;
-	int cursample = t0 + idx;
 	for ( int sgidx=0; sgidx<samplegates.size(); sgidx++ )
 	{
-	    if ( !found && samplegates[sgidx].includes(cursample) )
+	    if ( !found && samplegates[sgidx].includes(csamp) )
 	    {
 		if ( sgidx+1 < samplegates.size() && 
-		     samplegates[sgidx+1].includes(cursample) )
+		     samplegates[sgidx+1].includes(csamp) )
 		{
 		    scalefactor = interpolator( scalefactors[sgidx], 
 			    			scalefactors[sgidx+1],
 						samplegates[sgidx+1].start,
 						samplegates[sgidx].stop,
-						cursample );
+						csamp );
 		}
 		else
 		    scalefactor = scalefactors[sgidx];
@@ -250,9 +250,10 @@ void Scaling::scaleTimeN(const DataHolder& output, int t0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
+	int cursample = idx+t0;
 	const float curt = t0*refstep + idx*refstep;
 	const float result = pow(curt,powerval) * 
-	    		inputdata->item(0)->value( idx-inputdata->t0_ );
+	    		inputdata->item(0)->value( cursample-inputdata->t0_ );
 	output.item(0)->setValue( idx, result );
     }
 }
@@ -273,7 +274,7 @@ void Scaling::checkTimeGates( const TypeSet< Interval<float> >& oldtgs,
 	}
 
 	if ( sg.start < t0 ) sg.start = t0;
-	if ( sg.stop > nrsamples ) sg.stop = nrsamples;
+	if ( sg.stop > t0 + nrsamples ) sg.stop = nrsamples;
 	newsampgates += sg;
     }
 }
