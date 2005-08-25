@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.6 2005-08-24 10:02:45 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.7 2005-08-25 14:54:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,7 +187,6 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     IOPar attrpar( "Attribute Descriptions" );
     DescSet* clonedset = ads.optimizeClone( targetid );
     clonedset->fillPar( attrpar );
-    delete clonedset;
 
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
@@ -248,13 +247,13 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
     delete sc;
 
-    ads.removeDesc( nlamodelid );
+    clonedset->removeDesc( nlamodelid );
     iop.set( "Target value", todofld->getAttrName() );
     BufferString linename;
-    if ( ads.is2D() )
+    if ( clonedset->is2D() )
     {
 	MultiID ky;
-	if ( ads.getFirstStored(Only2D,ky) )
+	if ( clonedset->getFirstStored(Only2D,ky) )
 	{
 	    iop.set( "Input Line Set", ky );
 	    linename = ky;
@@ -262,10 +261,11 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
 
     CubeSampling csampling;
-    EngineMan::getPossibleVolume ( ads, cs, linename, targetid );
+    EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
     iop.set( sKeyMaxInlRg, cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
     iop.set( sKeyMaxCrlRg, cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
-    
+    delete clonedset;
+
     return true;
 }
 
