@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.7 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.8 2005-08-25 14:53:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -652,19 +652,16 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
     if ( !alloweval ) mErrRet( "Evaluation of attributes only possible on\n"
 			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
-    attrsetdlg->setSensitive( false );
     uiEvaluateDlg* evaldlg = new uiEvaluateDlg( appserv().parent(), *ade, 
 						allowevalstor );
     if ( !evaldlg->evaluationPossible() )
-    {
-	attrsetdlg->setSensitive( true );
 	mErrRet( "This attribute has no parameters to evaluate" )
-    }
 
     evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
     evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
     evaldlg->windowClosed.notify( mCB(this,uiAttribPartServer,evalDlgClosed) );
     evaldlg->go();
+    attrsetdlg->setSensitive( false );
 }
 
 
@@ -682,12 +679,13 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 
     DescSet* curattrset = attrsetdlg->getSet();
     const Desc* evad = evaldlg->getAttribDesc();
-    if ( !evad ) return;
-
-    BufferString defstr;
-    evad->getDefStr( defstr );
-    curdesc->parseDefStr( defstr );
-    attrsetdlg->updateCurDescEd();
+    if ( evad )
+    {
+	BufferString defstr;
+	evad->getDefStr( defstr );
+	curdesc->parseDefStr( defstr );
+	attrsetdlg->updateCurDescEd();
+    }
 
     attrsetdlg->setSensitive( true );
 }
