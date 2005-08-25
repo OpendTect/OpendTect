@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.15 2005-08-19 07:17:54 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.16 2005-08-25 14:50:46 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -75,32 +75,31 @@ void StorageProvider::updateDesc( Desc& desc )
     if ( !rdr.ioObj() || !rdr.prepareWork() ) return;
 
     SeisTrcTranslator* transl = rdr.translator();
-    Seis2DLineSet* lset = rdr.lineSet();
-
+    const Seis2DLineSet* lset = rdr.lineSet();
     const bool is2d = rdr.is2D();
     if ( (is2d && !lset) || (!is2d && !transl) ) return;
 
     if ( is2d )
     {
 	const bool issteering = attrnm==sKey::Steering;
-	if ( issteering )
-	{
-	    desc.addOutputDataType( Seis::Dip );
-	    desc.addOutputDataType( Seis::Dip );
-	}
+	if ( !issteering )
+	    desc.addOutputDataType( Seis::UnknowData );
 	else
 	{
-	    desc.addOutputDataType( Seis::UnknowData );
+	    desc.addOutputDataType( Seis::Dip );
+	    desc.addOutputDataType( Seis::Dip );
 	}
     }
     else
     {
+	BufferString type;
+	ioobj->pars().get( sKey::Type, type );
+	Seis::DataType datatype = 
+	    type == sKey::Steering ? Seis::Dip : Seis::Ampl;
+	
 	const int nrattribs = transl->componentInfo().size();
 	for ( int idx=0; idx<nrattribs; idx++ )
-	{
-	    const int datatype = transl->componentInfo()[idx]->datatype;
-	    desc.addOutputDataType( (Seis::DataType)datatype );
-	}
+	    desc.addOutputDataType( datatype );
     }
 }
 
