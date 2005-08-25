@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.15 2005-08-24 21:24:05 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.16 2005-08-25 14:02:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     : uiApplPartServer(a)
     , attrset( ads )
     , wizard( 0 )
+    , activetrackerid(-1)
+    , eventattrselspec( 0 )
 {
     MPE::initStandardClasses();
 }

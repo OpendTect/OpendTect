@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.12 2005-08-24 21:24:05 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.13 2005-08-25 14:02:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,6 +243,7 @@ bool Wizard::prepareSetupPage()
 	if ( !engine().getEditor(objid,false) )
 	    engine().getEditor(objid,true);
 
+	mpeserv->activetrackerid = id;
 	if ( !mpeserv->sendEvent( ::uiMPEPartServer::evAddTreeObject ) )
 	{
 	    pErrMsg("Could not add treeitem");
