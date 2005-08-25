@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.7 2005-08-19 07:17:54 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.8 2005-08-25 14:57:13 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -315,6 +315,7 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
 	    inputdata.replace( index++, data );
 	}
     }
+    dataidx_ = getDataIndex( 0 );
 
     return true;
 }
@@ -362,7 +363,7 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
 	    ArrPtrMan<float> vals = new float[sgwidth];
 	    for ( int valindex=0; valindex<sgwidth; valindex++ )
-		vals[valindex] = inputdata[idy]->item(0)->
+		vals[valindex] = inputdata[idy]->item(dataidx_)->
 		   value( cursample-inputdata[idy]->t0_ + (sg.start+valindex) );
 
 	    for ( int kidx=0; kidx<nrofkernels; kidx++ )

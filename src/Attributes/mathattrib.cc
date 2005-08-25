@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.8 2005-08-18 14:00:50 cvsnanne Exp $
+ RCS:           $Id: mathattrib.cc,v 1.9 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,6 +130,7 @@ bool Math::getInputData( const BinID& relpos, int idx )
 	if ( !data ) return false;
 	
 	inputdata_.replace( varidx, data );
+	inputidxs_ += getDataIndex( varidx );
     }
 
     if ( !inputtable_.size() )
@@ -151,7 +152,7 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	const int cursample = t0 + idx;
 	for ( int varidx=0; varidx<nrvar; varidx++ )
 	{
-	    const float val = inputdata_[varidx]->item(0)->
+	    const float val = inputdata_[varidx]->item(inputidxs_[varidx])->
 				value( cursample - inputdata_[varidx]->t0_ );
 	    const int variable = inputtable_[varidx];
 	    expression_->setVariable( variable, val );

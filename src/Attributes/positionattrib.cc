@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.4 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: positionattrib.cc,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,6 +174,8 @@ bool Position::getInputData(const BinID& relpos, int idx)
 		      positions[idp].crl + stepout.crl, odata);
     }
     
+    inidx_ = getDataIndex( 0 );
+    outidx_ = getDataIndex( 1 );
     steerdata = steering ? inputs[2]->getData(relpos, idx) : 0;
 
     return true;
@@ -214,7 +216,7 @@ bool Position::computeData( const DataHolder& output,
 	    for ( int ids=0; ids< samplegate.width()+1; ids++ )
 	    {
 		float place = sample + ds - dh->t0_;
-		stats += interp.value( *(dh->item(0)), place );
+		stats += interp.value( *(dh->item(inidx_)), place );
 		bidv += BinIDValue( positions[idp], sample + ds );
 		ds ++;
 	    }
@@ -238,7 +240,7 @@ bool Position::computeData( const DataHolder& output,
 	if ( odata )
 	{
 	    ValueSeriesInterpolator<float> intp( odata->nrsamples_-1 );
-	    val = intp.value( *(odata->item(0)), sample - odata->t0_ );
+	    val = intp.value( *(odata->item(outidx_)), sample - odata->t0_ );
 	}
 
 	output.item(0)->setValue(idx, val);

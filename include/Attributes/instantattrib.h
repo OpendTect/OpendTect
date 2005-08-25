@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: instantattrib.h,v 1.3 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ protected:
     Interval<float>		gate;
     const DataHolder*		realdata;
     const DataHolder*		imagdata;
+    int				realidx_;
+    int				imagidx_;
 
 private:
     float			calcAmplitude(int) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.4 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,8 @@ protected:
 
     const DataHolder*		redata;
     const DataHolder*           imdata;
+    int				realidx_;
+    int				imagidx_;
 
     BufferStringSet		dumpset;
     bool			fftisinit;

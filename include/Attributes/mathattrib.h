@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.2 2005-06-02 10:37:53 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.3 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ protected:
 	    				    int t0,int nrsamples) const;
 
     ObjectSet<const DataHolder>	inputdata_;
+    TypeSet<int>		inputidxs_;
 
 private:
     TypeSet<int>		inputtable_;

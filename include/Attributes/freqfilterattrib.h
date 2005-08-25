@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.4 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,9 @@ protected:
     
     const DataHolder*		redata;
     const DataHolder*		imdata;
+
+    int				realidx_;
+    int				imagidx_;
 };
 
 }; // namespace Attrib

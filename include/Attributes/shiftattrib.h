@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.2 2005-08-04 11:38:56 cvsnanne Exp $
+ RCS:           $Id: shiftattrib.h,v 1.3 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ protected:
     
     BinID			stepout;
     Interval<float>		interval;
+    int				dataidx_;
 
     const DataHolder*		inputdata;
     const DataHolder*		steeringdata;

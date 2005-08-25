@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.4 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ protected:
     			   { return &gate; }
     
     Interval<float>	gate;
+    int			dataidx_;
     ObjectSet<const DataHolder>	inputdata;
 };
 

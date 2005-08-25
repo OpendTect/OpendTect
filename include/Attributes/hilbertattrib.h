@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.4 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ protected:
 //    const Interval<float>*	desZMargin(int input,int output) const;
 
     const DataHolder*		inputdata;
+    int				dataidx_;
 
     Interval<float>		gate;
     Interval<float>		timegate;

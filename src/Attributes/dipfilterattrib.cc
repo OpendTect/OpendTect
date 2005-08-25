@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.3 2005-08-19 14:52:20 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.4 2005-08-25 14:57:13 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -360,6 +360,8 @@ bool DipFilter::getInputData(const BinID& relpos, int index)
 	    inputdata.replace( idx, dh );
 	}
     }
+
+    dataidx_ = getDataIndex( 0 );
 	
     return true;
 }
@@ -402,7 +404,8 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 			    || mIsEqual(dhinterval.start,s*refstep,mDefEps) 
 			    || mIsEqual(dhinterval.start,s*refstep,mDefEps) )
 		    {
-			sum += dh->item(0)->value( s)*kernel.get(idi, idc, idt);
+			sum += dh->item(dataidx_)->
+			    		value(s)*kernel.get(idi, idc, idt);
 			nrvalues++;
 		    }
 		    

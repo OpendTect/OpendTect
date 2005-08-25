@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.6 2005-08-02 07:04:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.7 2005-08-25 14:57:13 cvshelene Exp $";
 
 
 #include "energyattrib.h"
@@ -82,6 +82,7 @@ bool Energy::getInputData( const BinID& relpos, int idx )
 
     const DataHolder* data = inputs[0]->getData( relpos, idx );
     inputdata.replace( 0, data );
+    dataidx_ = getDataIndex( 0 );
     return data;
 }
 
@@ -102,8 +103,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     int csample = t0 + samplegate.start;
     for ( int idx=0; idx<sz; idx++ )
     {
-	const int cursamp = csample + idx;
-	calc += inputdata[0]->item(0)->value( cursamp-inputdata[0]->t0_ );
+	const int csamp = csample + idx;
+	calc += inputdata[0]->item(dataidx_)->value( csamp-inputdata[0]->t0_ );
     }
 
     outp->setValue( 0, calc.sqSum()/sz );
@@ -113,8 +114,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     csample = t0 + samplegate.stop;
     for ( int idx=1; idx<nrsamples; idx++ )
     {
-	const int cursamp = csample + idx;
-	calc += inputdata[0]->item(0)->value( cursamp-inputdata[0]->t0_ );
+	const int csamp = csample + idx;
+	calc += inputdata[0]->item(dataidx_)->value( csamp-inputdata[0]->t0_ );
 	outp->setValue( idx, calc.sqSum()/sz );
     }
 

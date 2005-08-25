@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.7 2005-08-19 07:17:54 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.8 2005-08-25 14:57:14 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -218,6 +218,7 @@ bool VolStats::getInputData(const BinID& relpos, int idx)
 	    storpos++;
 	}
     }
+    dataidx_ = getDataIndex( 0 );
     return true;
 }
 
@@ -259,7 +260,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		    {
 			float place = (absolutegate ? 0 : csample) + s;
 			(*(*stats)[volidx]) +=
-			    interp.value( *(dh->item(0)), place-dh->t0_ );
+			    interp.value( *(dh->item(dataidx_)),place-dh->t0_ );
 			s ++;
 		    }
 		}	
@@ -291,7 +292,8 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 
 		    float place = newsample - dh->t0_;
-		    (*(*stats)[volidx]) += interp.value( *(dh->item(0)), place);
+		    (*(*stats)[volidx]) += 
+			interp.value( *(dh->item(dataidx_)), place);
 		}
 	    }
 	}

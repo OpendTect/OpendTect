@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.1 2005-07-06 15:02:07 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.2 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,9 @@ protected:
     bool			steering;
 
     TypeSet<BinID>              positions;
+
+    int				inidx_;
+    int				outidx_;
 
     ObjectSet<const DataHolder>		inputdata;
     Array2DImpl<const DataHolder*>*    	outdata;

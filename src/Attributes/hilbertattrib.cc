@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.9 2005-08-05 11:05:20 cvsnanne Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.10 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ bool Hilbert::getInputOutput( int input, TypeSet<int>& res ) const
 bool Hilbert::getInputData( const BinID& relpos, int idx )
 {
     inputdata = inputs[0]->getData( relpos, idx );
+    dataidx_ = getDataIndex( 0 );
     return inputdata;
 }
 
@@ -86,24 +87,26 @@ bool Hilbert::getInputData( const BinID& relpos, int idx )
 class Masker
 {
 public:
-Masker( const DataHolder* dh, int shift, float avg )
+Masker( const DataHolder* dh, int shift, float avg, int dataidx )
     : data_(dh )
     , avg_(avg)
-    , shift_(shift)	{}
+    , shift_(shift)
+    , dataidx_(dataidx) {}
 
 float operator[](int idx) const
 {
     const int pos = shift_ + idx;
     if ( pos < 0 )
-	return data_->item(0)->value(0) - avg_;
+	return data_->item(dataidx_)->value(0) - avg_;
     if ( pos >= data_->nrsamples_ )
-	return data_->item(0)->value(data_->nrsamples_-1) - avg_;
-    return data_->item(0)->value( pos ) - avg_;
+	return data_->item(dataidx_)->value(data_->nrsamples_-1) - avg_;
+    return data_->item(dataidx_)->value( pos ) - avg_;
 }
 
     const DataHolder*	data_;
     const int		shift_;
     float		avg_;
+    int			dataidx_;
 };
 
 
@@ -113,7 +116,7 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata ) return false;
 
     const int shift = t0 - inputdata->t0_;
-    Masker masker( inputdata, shift, 0 );
+    Masker masker( inputdata, shift, 0, dataidx_ );
     float avg=0;
     for ( int idx=0; idx<nrsamples; idx++ )
 	avg += masker[idx];

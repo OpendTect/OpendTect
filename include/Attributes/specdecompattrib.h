@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.4 2005-08-12 11:12:16 cvsnanne Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -94,6 +94,9 @@ protected:
     int                         sz;
 
     bool			fftisinit;
+
+    int				realidx_;
+    int				imagidx_;
 
     Array1DImpl<float_complex>*     timedomain;
     Array1DImpl<float_complex>*     freqdomain;

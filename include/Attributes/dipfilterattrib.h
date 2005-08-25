@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.1 2005-08-05 11:53:37 cvshelene Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.2 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,7 @@ protected:
     float               	aziaperture;
 
     BinID               	stepout;
+    int				dataidx_;
 
     ObjectSet<const DataHolder>	inputdata;
 };

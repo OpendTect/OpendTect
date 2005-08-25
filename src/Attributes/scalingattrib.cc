@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.8 2005-08-25 10:27:44 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.9 2005-08-25 14:57:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,6 +167,7 @@ bool Scaling::getInputOutput( int input, TypeSet<int>& res ) const
 bool Scaling::getInputData( const BinID& relpos, int idx )
 {
     inputdata = inputs[0]->getData( relpos, idx );
+    dataidx_ = getDataIndex( 0 );
     return inputdata ? true : false;
 }
     
@@ -197,7 +198,8 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 
 	    for ( int idx=sg.start; idx<=sg.stop; idx++ )
-		stats += fabs( inputdata->item(0)->value(idx-inputdata->t0_) );
+		stats += fabs( inputdata->item(dataidx_)->
+					value(idx-inputdata->t0_) );
 
 	    float val = 1;
 	    if ( statstype == mStatsTypeRMS )
@@ -216,7 +218,8 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int csamp = t0 + idx;
-	const float trcval = inputdata->item(0)->value( csamp-inputdata->t0_ );
+	const float trcval = inputdata->item(dataidx_)->
+	    				value( csamp-inputdata->t0_ );
 	float scalefactor = 1;
 	bool found = false;
 	for ( int sgidx=0; sgidx<samplegates.size(); sgidx++ )
@@ -253,7 +256,7 @@ void Scaling::scaleTimeN(const DataHolder& output, int t0, int nrsamples) const
 	int cursample = idx+t0;
 	const float curt = t0*refstep + idx*refstep;
 	const float result = pow(curt,powerval) * 
-	    		inputdata->item(0)->value( cursample-inputdata->t0_ );
+		inputdata->item(dataidx_)->value( cursample-inputdata->t0_ );
 	output.item(0)->setValue( idx, result );
     }
 }

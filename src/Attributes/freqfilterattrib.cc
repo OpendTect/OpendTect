@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.7 2005-08-12 11:12:17 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.8 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -335,8 +335,11 @@ bool FreqFilter::getInputData(const BinID& relpos, int idx)
 {
     redata = inputs[0]->getData(relpos, idx);
     if ( !redata ) return false;
+
+    realidx_ = getDataIndex( 0 );
     
     imdata = isfftfilter ? inputs[1]->getData(relpos, idx) : 0;
+    imagidx_ = isfftfilter ? getDataIndex( 1 ) : -1;
     if ( isfftfilter && !imdata ) return false;
 
     return true;
@@ -373,7 +376,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	data[idx] = redata->item(0)->value( idx - redata->t0_ );
+	data[idx] = redata->item(realidx_)->value( idx - redata->t0_ );
     }
 
     if ( filtertype == mFilterLowPass )
@@ -433,8 +436,8 @@ void FreqFilter::fftFilter( const DataHolder& output,
     const int sz = fftsz/2 - nrsamples/2;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-        const float real = redata->item(0)->value( idx - redata->t0_ );
-        const float imag = -imdata->item(0)->value( idx - imdata->t0_ );
+        const float real = redata->item(realidx_)->value( idx - redata->t0_ );
+        const float imag = -imdata->item(imagidx_)->value( idx - imdata->t0_ );
         signal.set( idx, float_complex( real, imag ));
     }
 

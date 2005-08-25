@@ -11,7 +11,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: eventattrib.h,v 1.7 2005-08-18 14:17:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: eventattrib.h,v 1.8 2005-08-25 14:57:13 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"
@@ -80,6 +80,7 @@ protected:
     bool		tonext;
     VSEvent::Type	eventtype;
     Interval<float>	gate;
+    int			dataidx_;
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.5 2005-08-12 11:12:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.6 2005-08-25 14:57:13 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -120,8 +120,8 @@ float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
     {
 	ValueSeriesInterpolator<float> interp1(dh1.nrsamples_-1);
 	ValueSeriesInterpolator<float> interp2(dh2.nrsamples_-1);
-	float val1 = interp1.value( *(dh1.item(0)), s1-dh1.t0_ + s );
-	float val2 = interp2.value( *(dh2.item(0)), s2-dh2.t0_ + s );
+	float val1 = interp1.value( *(dh1.item(realidx_)), s1-dh1.t0_ + s );
+	float val2 = interp2.value( *(dh2.item(realidx_)), s2-dh2.t0_ + s );
 	xsum += val1 * val2;
 	sum1 += val1 * val1;
 	sum2 += val2 * val2;
@@ -159,10 +159,10 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 		    	     (inlpos*inldip)/refstep + (crlpos*crldip)/refstep;
 		    
 		float real = 
-		    interp.value( *(re.get(idy,idz)->item(0)), place );
+		    interp.value( *(re.get(idy,idz)->item(realidx_)), place );
 
 		float imag =  
-		   - interp.value( *(im.get(idy,idz)->item(0)), place );
+		   - interp.value( *(im.get(idy,idz)->item(imagidx_)), place );
 		
 		realsum += real;
 		imagsum += imag;
@@ -308,7 +308,8 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 	   inputs[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
 	if ( !datac || !datai || !datax )
 	    return false;
-	
+
+	realidx_ = getDataIndex( 0 );
 	inputdata.replace( 0, datac );
 	inputdata.replace( 1, datai );
 	inputdata.replace( 2, datax );
@@ -343,6 +344,8 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 			const_cast<DataHolder*>(data) );
 	    }
 	}
+	realidx_ = getDataIndex( 0 );
+	imagidx_ = getDataIndex( 1 );
     } 
     return true;
 }

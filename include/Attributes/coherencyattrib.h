@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.3 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.4 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -82,7 +82,10 @@ protected:
 
     ObjectSet<const DataHolder>	inputdata;
     Array2DImpl<DataHolder*>*	redh;
-    Array2DImpl<DataHolder*>*    imdh;
+    Array2DImpl<DataHolder*>*   imdh;
+
+    int			realidx_;
+    int			imagidx_;
 
 };
 

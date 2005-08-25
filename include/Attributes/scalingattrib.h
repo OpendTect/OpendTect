@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.4 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ protected:
     TypeSet< Interval<float> >	gates;
     TypeSet<float>              factors;
     const DataHolder*		inputdata;
+    int				dataidx_;
 };
 
 }; // namespace Attrib

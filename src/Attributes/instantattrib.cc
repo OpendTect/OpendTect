@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.4 2005-08-16 17:10:17 cvsbert Exp $
+ RCS:           $Id: instantattrib.cc,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,12 +86,14 @@ bool Instantaneous::getInputData( const BinID& relpos, int idx )
 {
     realdata = inputs[0]->getData( relpos, idx );
     imagdata = inputs[1]->getData( relpos, idx );
+    realidx_ = getDataIndex( 0 );
+    imagidx_ = getDataIndex( 1 );
     return realdata && imagdata;
 }
 
 
-#define mGetRVal( sidx ) realdata->item(0)->value( sidx - realdata->t0_ )
-#define mGetIVal( sidx ) -imagdata->item(0)->value( sidx - imagdata->t0_ )
+#define mGetRVal( sidx ) realdata->item(realidx_)->value( sidx-realdata->t0_ )
+#define mGetIVal( sidx ) -imagdata->item(imagidx_)->value( sidx-imagdata->t0_ )
 
 
 bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos, 

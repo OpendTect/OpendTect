@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.11 2005-08-19 14:52:20 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.12 2005-08-25 14:57:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,7 @@ bool Event::getInputOutput( int input, TypeSet<int>& res ) const
 bool Event::getInputData( const BinID& relpos, int idx )
 {
     inputdata = inputs[0]->getData( relpos, idx );
+    dataidx_ = getDataIndex( 0 );
     return inputdata;
 }
 
@@ -156,7 +157,7 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 {
     ValueSeriesEvent<float,float> ev = nextev;
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(0)), 
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(dataidx_)), 
 						 inputdata->t0_+nrsamples, sd );
     Interval<float> sg;
     sg.start = ev.pos + dir;
@@ -177,7 +178,7 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 ) const
 {
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(0)), 
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(dataidx_)), 
 	    					inputdata->nrsamples_, sd );
     VSEvent::Type zc = VSEvent::ZC;
     Interval<float> sg(t0, t0-SGWIDTH);
@@ -220,9 +221,9 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 ) const
 	    else if ( outputinterest[1] )
 	    {
 		ValueSeriesInterpolator<float> interp(inputdata->nrsamples_-1);
-		float lastsampval = interp.value( *(inputdata->item(0)),
+		float lastsampval = interp.value( *(inputdata->item(dataidx_)),
 							ev.pos-1 );
-		float nextsampval = interp.value( *(inputdata->item(0)),
+		float nextsampval = interp.value( *(inputdata->item(dataidx_)),
 							ev.pos+1 );
 		output[idx] =
 		    fabs( (nextsampval - lastsampval) / 2 );
@@ -242,7 +243,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 			    int nrsamples, int t0 ) const
 {
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(0)), 
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(dataidx_)), 
 	    					inputdata->nrsamples_, sd );
     if ( eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin )
     {
