@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.27 2005-08-25 11:05:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.28 2005-08-25 13:41:12 cvsnanne Exp $";
 
 #include "attribprovider.h"
 
@@ -749,7 +749,7 @@ bool Provider::init()
 
 int Provider::getDataIndex( int input ) const
 {
-    return desc.getInput(0) ? desc.getInput(0)->selectedOutput() : -1;
+    return desc.getInput(input) ? desc.getInput(input)->selectedOutput() : -1;
 }
 
 
