@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.24 2005-08-18 11:50:26 cvsarend Exp $
+# $Id: od_do_rmt,v 1.25 2005-08-25 09:34:30 cvsnanne Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -69,8 +69,6 @@ endif
 
 if ( "$HDIR" == "win" ) then
     set attemptmount=yes
-
-    if ( $?DTECT_DATA ) then
 
     if ( -d "$DTECT_DATA" ) then
 	set attemptmount=no
