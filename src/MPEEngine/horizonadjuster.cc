@@ -8,16 +8,16 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.7 2005-08-23 09:58:29 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.8 2005-08-25 08:38:57 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
-#include "emhorizon.h"
 #include "attribpsc.h"
+#include "emhorizon.h"
 #include "genericnumer.h"
-#include "survinfo.h"
-#include "linear.h"
 #include "iopar.h"
+#include "linear.h"
+#include "survinfo.h"
 
 #include <math.h>
 
@@ -125,79 +125,104 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 				       samplerg.start, samplerg.stop) )
     	return false;
     const int nrsamples = samplerg.stop - samplerg.start + 1;
+    int refpos = zrg.nearestIndex(targetz)-samplerg.start;
     
-    if ( trackevent_==VSEvent::ZC || trackevent_==VSEvent::ZCNegPos
-	 || trackevent_==VSEvent::ZCPosNeg )
+    if ( trackbyvalue_ )
     {
-	float zeropos = adjoiningZeroEvent(trcbuffer, nrsamples,
-		zrg.nearestIndex(targetz)-samplerg.start, trackevent_);
-	if ( Values::isUdf(zeropos) )
+	float evpos = adjoiningEventPosByValue(trcbuffer, nrsamples,
+		refpos, *refsamples);
+	if ( Values::isUdf(evpos) )
 	    return false;
 	targetz = zrg.atIndex(samplerg.start);
-	targetz += (zeropos*zrg.step);
+	targetz += (evpos*zrg.step);
 	return true;
     }
+    else {
+	int upmatchpos, downmatchpos;  upmatchpos = downmatchpos = -1;
+	float upmatchv, downmatchv;    bool upeq, downeq;
     
-    int upmatchpos, downmatchpos;  upmatchpos = downmatchpos = -1;
-    float upmatchv, downmatchv;    bool upeq, downeq;
-    if ( trackbyvalue_ ) 
-    {
-	int midsample = zrg.nearestIndex(targetz)-samplerg.start;
-	upmatchpos = adjoiningExtreme( trcbuffer, midsample,
-			    0, *refsamples, upmatchv, upeq );
-	downmatchpos = adjoiningExtreme( trcbuffer, midsample+1,
-			    nrsamples-1, *refsamples, downmatchv, downeq );
-    }
-    else // track by similarity
-    {
 	Interval<double> matchrg( targetz+similaritywin_.start,
-				 targetz+similaritywin_.stop );
+				  targetz+similaritywin_.stop );
 	if ( !( permrange.includes(matchrg.start)
 	     && permrange.includes(matchrg.stop) ) )
 	    return false; 
 
 	int stsmpl = zrg.nearestIndex(matchrg.start)-samplerg.start;
-
  	upmatchpos = matchingSampleBySimilarity( trcbuffer, stsmpl,
 			    0, refsamples, upmatchv, upeq );
 	downmatchpos = matchingSampleBySimilarity( trcbuffer, stsmpl+1,
 			    nrsamples - matchwinsamples_,
 			    refsamples, downmatchv, downeq );
-    }
-    
-    int matchpos = -1;
-    if ( upmatchpos!=-1 &&  downmatchpos!=-1 )
-    {
-	if ( downmatchv == upmatchv && upeq && downeq )
-	    matchpos = ( upmatchpos + downmatchpos ) / 2;
-	else if ( trackbyvalue_ )
+
+	int matchpos = -1;
+	if ( upmatchpos!=-1 &&  downmatchpos!=-1 )
 	{
-	    if ( trackevent_ == VSEvent::Max )
+	    if ( downmatchv == upmatchv && upeq && downeq )
+		matchpos = ( upmatchpos + downmatchpos ) / 2;
+	    else 
+		matchpos = downmatchv>upmatchv ? downmatchpos : upmatchpos;
+	}
+	else if ( upmatchpos!=-1 )
+	    matchpos = upmatchpos;
+	else if ( downmatchpos!=-1 )
+	    matchpos = downmatchpos;
+
+	if ( matchpos == -1 )	    return false;
+	// snap to event
+	matchpos += simlaritymatchpt_;
+	float evpos = adjoiningEventPosByValue(trcbuffer, nrsamples,
+				    matchpos, trcbuffer[matchpos]);
+	if ( Values::isUdf(evpos) ) return false;
+	targetz = zrg.atIndex(samplerg.start);
+	targetz += (evpos*zrg.step);
+	return true;
+    }
+}
+
+
+float HorizonAdjuster::adjoiningEventPosByValue( const float* srctrc,
+                        int nrsamples, int refpos, float refval )
+{
+    if ( trackevent_==VSEvent::ZC || trackevent_==VSEvent::ZCNegPos
+	 || trackevent_==VSEvent::ZCPosNeg )
+	return adjoiningZeroEventPos(srctrc, nrsamples, refpos, trackevent_);
+    else if ( trackevent_ == VSEvent::Max || trackevent_ == VSEvent::Min )
+    {
+	int upmatchpos, downmatchpos;  upmatchpos = downmatchpos = -1;
+	float upmatchv, downmatchv;    bool upeq, downeq;
+
+	upmatchpos = adjoiningExtremePos( srctrc, refpos,
+				0, refval, upmatchv, upeq );
+	downmatchpos = adjoiningExtremePos( srctrc, refpos+1,
+				nrsamples-1, refval, downmatchv, downeq );
+	
+	int matchpos = -1;
+	if ( upmatchpos!=-1 &&  downmatchpos!=-1 )
+	{
+	    if ( downmatchv == upmatchv && upeq && downeq )
+		matchpos = ( upmatchpos + downmatchpos ) / 2;
+	    else if ( trackevent_ == VSEvent::Max )
 		matchpos = downmatchv>upmatchv ? downmatchpos : upmatchpos;
 	    else
 		matchpos = downmatchv<upmatchv ? downmatchpos : upmatchpos;
 	}
-	else 
-	    matchpos = downmatchv>upmatchv ? downmatchpos : upmatchpos;
+	else if ( upmatchpos!=-1 )
+	    matchpos = upmatchpos;
+	else if ( downmatchpos!=-1 )
+	    matchpos = downmatchpos;
+    
+	return matchpos == -1  ? mUndefValue
+	       : exactExtremePos(srctrc, nrsamples, matchpos, trackevent_);
     }
-    else if ( upmatchpos!=-1 )
-	matchpos = upmatchpos;
-    else if ( downmatchpos!=-1 )
-	matchpos = downmatchpos;
-
-    if ( matchpos != -1 )
+    else
     {
-	float dstpos = fineTuneExtremePos( trcbuffer, nrsamples, matchpos,
-					   trackevent_ );
-	if ( !trackbyvalue_ )	    dstpos += simlaritymatchpt_;
-	targetz = zrg.atIndex(samplerg.start);
-	targetz += (dstpos*zrg.step);
+	pErrMsg("Event not handled");
+	return mUndefValue;
     }
-    return matchpos != -1;
 }
 
 
-int HorizonAdjuster::adjoiningExtreme( const float* srctrc,
+int HorizonAdjuster::adjoiningExtremePos( const float* srctrc,
 			int startsample, int endsample, float refval,
 			float &matchval, bool& eqfromstart )
 {
@@ -304,21 +329,18 @@ int HorizonAdjuster::matchingSampleBySimilarity( const float* srctrc,
 	eqfromstart = (eqsamples == (matchpos - startsample + 1));
 	matchpos += ( eqsamples / 2 * step );
     }
-    if ( matchpos != -1
-	 && *(refval+simlaritymatchpt_)**(srctrc+matchpos+simlaritymatchpt_)<0 )
-	    matchpos = -1;
     return matchpos;
 }
 
 
-float HorizonAdjuster::adjoiningZeroEvent( float *srctrc, int nrsamples,
+float HorizonAdjuster::adjoiningZeroEventPos( const float *srctrc, int nrsamples,
 				int startpos, VSEvent::Type ev )
 {
     if ( !(ev==VSEvent::ZC || ev==VSEvent::ZCNegPos || ev==VSEvent::ZCPosNeg) )
 	return mUndefValue;
     
-    float dwpos = firstZeroEvent( srctrc, startpos, nrsamples - 1, ev );
-    float uppos = firstZeroEvent( srctrc, startpos, 0, ev );
+    float dwpos = firstZeroEventPos( srctrc, startpos, nrsamples - 1, ev );
+    float uppos = firstZeroEventPos( srctrc, startpos, 0, ev );
 
     float matchpos = mUndefValue;
     if ( !Values::isUdf(uppos) && !Values::isUdf(dwpos) )
@@ -332,7 +354,7 @@ float HorizonAdjuster::adjoiningZeroEvent( float *srctrc, int nrsamples,
 }
 
 
-float HorizonAdjuster::firstZeroEvent( const float *srctrc, int startsample,
+float HorizonAdjuster::firstZeroEventPos( const float *srctrc, int startsample,
 				    int endsample, VSEvent::Type ev )
 {
     int step = startsample>endsample ? -1 : 1;
@@ -379,7 +401,7 @@ float HorizonAdjuster::firstZeroEvent( const float *srctrc, int startsample,
 }
 
 
-float HorizonAdjuster::fineTuneExtremePos(const float *smplbuf, int nrsamples,
+float HorizonAdjuster::exactExtremePos(const float *smplbuf, int nrsamples,
 				     int pickpos, VSEvent::Type ev)
 {
     if ( nrsamples < 4 || pickpos<1 || pickpos>=nrsamples-2 )

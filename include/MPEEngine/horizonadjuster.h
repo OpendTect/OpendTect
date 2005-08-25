@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.5 2005-08-23 09:58:29 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.6 2005-08-25 08:38:57 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,18 +79,20 @@ protected:
     bool		trackTrace( const BinID& refbid,
 				const BinID& targetbid, float& targetz,
 				float* refsamples = 0 );
-    int			adjoiningExtreme( const float* srctrc,
+    int			adjoiningExtremePos( const float* srctrc,
 				int startsample, int endsample, float refval,
 				float& matchval, bool& eqstart );
+    float		adjoiningEventPosByValue( const float* srctrc,
+                                int nrsamples, int refpos, float refval);
     int			matchingSampleBySimilarity( const float* srctrc,
                                 int startsample, int endsample,
 				const float* refval,
 				float &matchratio, bool& eqfromstart );
-    float 		adjoiningZeroEvent( float* srctrc, int nrsamples,
-    				int startpos, VSEvent::Type );
-    float 		firstZeroEvent( const float* srctrc, int startsample,
+    float 		adjoiningZeroEventPos( const float* srctrc,
+    				int nrsamples, int startpos, VSEvent::Type );
+    float 		firstZeroEventPos( const float* srctrc, int startsample,
     				int endsample, VSEvent::Type );
-    float		fineTuneExtremePos(const float *smplbuf,
+    float		exactExtremePos(const float *smplbuf,
     				int nrsamples, int pickpos, VSEvent::Type );
 private:
     void		initTrackParam();
