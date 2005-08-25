@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.26 2005-08-24 10:00:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.27 2005-08-25 11:05:07 cvsnanne Exp $";
 
 #include "attribprovider.h"
 
@@ -71,15 +71,15 @@ Provider* Provider::create( Desc& desc )
 
 
 Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing, 
-					bool& issame )
+				    bool& issame )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
     {
 	if ( existing[idx]->getDesc().isIdenticalTo( desc, false ) )
 	{
-	    if ( existing[idx]->getDesc().selectedOutput() 
-		    				!= desc.selectedOutput() )
-		existing[idx]->enableOutput( desc.selectedOutput() );
+	    const int selout = desc.selectedOutput();
+	    if ( existing[idx]->getDesc().selectedOutput() != selout )
+		existing[idx]->enableOutput( selout );
 	    issame = true;
 	    existing[idx]->setUsedMultTimes();
 	    return existing[idx];
@@ -88,6 +88,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 
     if ( desc.nrInputs() && !desc.descSet() )
 	return 0;
+
     Provider* res = PF().create( desc );
     if ( !res ) return 0;
 
@@ -255,7 +256,9 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	desiredvolume = new CubeSampling(ndv);
     else
     {
-	if ( isUsedMultTimes() )
+	if ( !isUsedMultTimes() )
+	    *desiredvolume = ndv;
+	else
 	{
 	    desiredvolume->hrg.start.inl = 
 		desiredvolume->hrg.start.inl < ndv.hrg.start.inl ?
@@ -273,9 +276,7 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 		desiredvolume->zrg.start : ndv.zrg.start;
 	    desiredvolume->zrg.stop = desiredvolume->zrg.stop > ndv.zrg.stop ?
 		desiredvolume->zrg.stop : ndv.zrg.stop;
-    }
-	else
-	    *desiredvolume = ndv;
+	}
     }
 
     CubeSampling inputcs;
@@ -793,6 +794,7 @@ void Provider::setInput( int inp, Provider* np )
     {
 	for ( int idx=0; idx<inputoutputs.size(); idx++ )
 	    inputs[inp]->enableOutput( inputoutputs[idx], true );
+	inputs[inp]->updateInputReqs(-1);
     }
 
     updateInputReqs(inp);
@@ -805,12 +807,12 @@ void Provider::setInput( int inp, Provider* np )
 }
 
 
-void Provider::updateStorageReqs(bool all)
+void Provider::updateStorageReqs( bool all )
 {
-    if ( all )
+    if ( !all )
     {
 	for ( int idx=0; idx<inputs.size(); idx++ )
-	    if ( inputs[idx] ) inputs[idx]->updateStorageReqs(all);
+	    if ( inputs[idx] ) inputs[idx]->updateStorageReqs( all );
     }
 }
 
@@ -868,7 +870,7 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 }
 
 
-void Provider::updateInputReqs(int inp)
+void Provider::updateInputReqs( int inp )
 {
     if ( inp == -1 )
     {
@@ -882,18 +884,18 @@ void Provider::updateInputReqs(int inp)
     {
 	if ( !outputinterest[out] ) continue;
 
-	bool isstored = inputs[inp]? inputs[inp]->desc.isStored() : false;
+	bool isstored = inputs[inp] ? inputs[inp]->desc.isStored() : false;
 	if ( computeDesInputCube( inp, out, inputcs, !isstored ) )
-		inputs[inp]->setDesiredVolume( inputcs );
+	    inputs[inp]->setDesiredVolume( inputcs );
 
 	BinID stepout(0,0);
 	const BinID* req = reqStepout(inp,out);
-	if ( req ) stepout=*req;
+	if ( req ) stepout = *req;
 	const BinID* des = desStepout(inp,out);
 	if ( des )
 	{
-	    stepout.inl= mMAX(stepout.inl,des->inl);
-	    stepout.crl =  mMAX(stepout.crl,des->crl );
+	    stepout.inl = mMAX(stepout.inl,des->inl);
+	    stepout.crl = mMAX(stepout.crl,des->crl );
 	}
 
 	if ( inputs[inp] )
@@ -901,10 +903,12 @@ void Provider::updateInputReqs(int inp)
     }
 }
 
-const BinID* Provider::desStepout(int,int) const { return 0; }
-const BinID* Provider::reqStepout(int,int) const { return 0; }
-const Interval<float>* Provider::desZMargin(int,int) const { return 0; }
-const Interval<float>* Provider::reqZMargin(int,int) const { return 0; }
+
+const BinID* Provider::desStepout(int,int) const		{ return 0; }
+const BinID* Provider::reqStepout(int,int) const		{ return 0; }
+const Interval<float>* Provider::desZMargin(int,int) const	{ return 0; }
+const Interval<float>* Provider::reqZMargin(int,int) const	{ return 0; }
+
 
 int Provider::getTotalNrPos( bool is2d )
 {
@@ -1022,14 +1026,15 @@ bool Provider::zIsTime() const
 
 float Provider::inldist() const
 {
-    return SI().transform(BinID(0,0)).distance(SI().transform(BinID(1,0)));
+    return SI().transform( BinID(0,0) ).distance( SI().transform(BinID(1,0)) );
 }
 
 
 float Provider::crldist() const
 {
-    return SI().transform(BinID(0,0)).distance(SI().transform(BinID(1,0)));
+    return SI().transform( BinID(0,0) ).distance( SI().transform(BinID(0,1)) );
 }
+
 
 BufferString Provider::errMsg() const
 {
@@ -1042,4 +1047,4 @@ BufferString Provider::errMsg() const
     return errmsg;
 }
 
-}; //namespace
+}; // namespace Attrib
