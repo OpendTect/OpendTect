@@ -6,14 +6,14 @@ ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
- Date:		23-10-1996
- RCS:		$Id: math2.h,v 1.1 2005-08-26 18:19:27 cvsbert Exp $
+ Date:		Aug 2005
+ RCS:		$Id: math2.h,v 1.2 2005-08-26 18:25:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #ifndef gendefs_H
-#include <gendefs.h>
+#include "gendefs.h"
 #endif
 
 #ifdef __cpp__
