@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.3 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.4 2005-08-26 07:15:41 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -73,7 +73,15 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    output.item(1)->setValue(idx, coord.y);
 	if ( outputinterest[2] )
 	{
-	    float val = possiblevolume->zrg.start + idx * step;
+	    float val;
+	    if ( seldata_.type_ == Seis::Table )
+	    {
+		float offset = SI().zRange(0).start<0 ? SI().zRange(0).start :0;
+		val = ( t0 + idx ) * step + offset;
+	    }
+	    else
+		val = possiblevolume->zrg.start + idx * step;
+	    
 	    output.item(2)->setValue(idx, val);
 	}
 	if ( outputinterest[3] )
