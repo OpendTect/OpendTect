@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.16 2005-08-19 14:23:45 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.17 2005-08-26 12:47:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,8 +92,8 @@ public:
     virtual bool		isOK() const;
 
     int				nrValues() const;
-    int				getIntValue(int idx=0) const;
-    float			getfValue(int idx=0) const;
+    virtual int			getIntValue(int idx=0) const;
+    virtual float		getfValue(int idx=0) const;
     bool			getBoolValue(int idx=0) const;
     const char*			getStringValue(int idx=0) const;
 
@@ -193,6 +193,9 @@ public:
     void			setLimits(const Interval<T>&);
     virtual bool		getCompositeValue(BufferString& res) const;
     virtual bool                setCompositeValue(const char*);
+
+    virtual int			getIntValue(int idx=0) const;
+    virtual float		getfValue(int idx=0) const;
 };
 
 
@@ -212,6 +215,23 @@ bool NumParam<T>::getCompositeValue( BufferString& res ) const
     if ( !spec_ ) return false;
     res = spec_->isUndef() ? sKey::FloatUdf : spec_->text();
     return true;
+}
+
+
+template <class T>
+float NumParam<T>::getfValue( int idx ) const
+{
+    if ( !spec_ ) return mUdf(float);
+    float res = spec_->isUndef() ? mUdf(float) : ValParam::getfValue( idx );
+    return res;
+}
+
+template <class T>
+int NumParam<T>::getIntValue( int idx ) const
+{
+    if ( !spec_ ) return mUdf(int);
+    int res = spec_->isUndef() ? mUdf(int) : ValParam::getIntValue( idx );
+    return res;
 }
 
 
