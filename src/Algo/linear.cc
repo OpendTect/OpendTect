@@ -4,11 +4,12 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.6 2005-08-19 13:48:01 cvskris Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.7 2005-08-26 18:19:28 cvsbert Exp $";
 
 
 #include "linear.h"
 #include "undefval.h"
+#include "math2.h"
 #include <math.h>
 
 LinePars* SecondOrderPoly::createDerivative() const

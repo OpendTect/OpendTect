@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.32 2005-08-24 11:44:30 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.33 2005-08-26 18:19:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uimenuhandler.h"
 #include "pixmap.h"
+#include "oddirs.h"
 #include "uicursor.h"
 
 #include "vismarker.h"

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.69 2005-08-16 17:10:17 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.70 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,14 +12,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "ascstream.h"
 #include "filepath.h"
-#include "separstr.h"
-#include "errh.h"
-#include "iopar.h"
+#include "unitofmeasure.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "undefval.h"
-#include "unitofmeasure.h"
 #include "safefileio.h"
+#include "separstr.h"
+#include "oddirs.h"
+#include "iopar.h"
+#include "errh.h"
 
 #include <math.h>
 

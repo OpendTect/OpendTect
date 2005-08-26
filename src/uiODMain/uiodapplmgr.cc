@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.90 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.91 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "oddirs.h"
 #include "helpview.h"
 #include "filegen.h"
 #include "ptrman.h"

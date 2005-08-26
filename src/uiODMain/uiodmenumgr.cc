@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.31 2005-08-23 16:54:17 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.32 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.31 2005-08-23 16:54:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.32 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.31 2005-08-23 16:54:17 cvsbe
 #include "uitoolbar.h"
 #include "uisoviewer.h"
 #include "pixmap.h"
+#include "oddirs.h"
 #include "timer.h"
 
 

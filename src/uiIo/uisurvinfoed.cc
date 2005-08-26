@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.72 2005-08-19 14:17:23 cvsnanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.73 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
 #include "ioman.h"
+#include "oddirs.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "cubesampling.h"

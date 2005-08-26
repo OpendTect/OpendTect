@@ -5,14 +5,13 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.3 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.4 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
 #include "string2.h"
-#include "genc.h"
 #include "undefval.h"
-#include <stdio.h>
+#include "math2.h"
 #include <math.h>
 #include <limits.h>
 

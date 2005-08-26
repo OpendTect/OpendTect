@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.18 2005-07-26 07:42:51 cvsnanne Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.19 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "errh.h"
 
 uiManipButGrp::ButData::ButData( uiToolButton* b, const ioPixmap& p,

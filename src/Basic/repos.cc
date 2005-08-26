@@ -4,10 +4,11 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: repos.cc,v 1.2 2004-11-25 20:45:38 bert Exp $";
+static const char* rcsID = "$Id: repos.cc,v 1.3 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "repos.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include <ctype.h>
 
 

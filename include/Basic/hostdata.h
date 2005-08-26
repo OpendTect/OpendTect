@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.19 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: hostdata.h,v 1.20 2005-08-26 18:19:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
-#include "genc.h"
 #include "filepath.h"
 
 class HostDataList;

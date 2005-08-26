@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.20 2005-07-01 14:55:49 cvsdgb Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.21 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "oddirs.h"
 #include "errh.h"
 #include <iostream>
 

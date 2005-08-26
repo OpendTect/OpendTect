@@ -4,10 +4,11 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.15 2005-08-24 15:33:32 cvskris Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.16 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
+#include "oddirs.h"
 #include "errh.h"
 #include <iostream>
 

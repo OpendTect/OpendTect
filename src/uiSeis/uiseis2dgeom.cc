@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.4 2005-08-16 17:10:17 cvsbert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.5 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "survinfo.h"
 #include "strmprov.h"
+#include "oddirs.h"
 #include "ioobj.h"
 
 static const BufferStringSet emptylnms;

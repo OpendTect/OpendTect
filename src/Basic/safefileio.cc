@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.3 2005-04-25 07:57:11 cvsdgb Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.4 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "safefileio.h"
 #include "filegen.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: safefileio.cc,v 1.3 2005-04-25 07:57:11 cvsdgb 
 #include "dateinfo.h"
 #include "hostdata.h"
 #include "timefun.h"
+#include "oddirs.h"
 #include "errh.h"
 
 
@@ -210,7 +211,7 @@ void SafeFileIO::mkLock( bool forread )
 	*sd.ostrm << "Type: " << (forread ? "Read\n" : "Write\n");
 	*sd.ostrm << "Date: " << datestr << " (" << di.key() << ")\n";
 	*sd.ostrm << "Host: " << HostData::localHostName() << '\n';
-	*sd.ostrm << "Process: " << getPID() << '\n';
+	*sd.ostrm << "Process: " << GetPID() << '\n';
 	const char* ptr = GetPersonalDir();
 	*sd.ostrm << "User's HOME: " << (ptr ? ptr : "<none>") << '\n';
 	ptr = GetSoftwareUser();

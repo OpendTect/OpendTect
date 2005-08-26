@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.270 2005-08-24 14:05:01 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.271 2005-08-26 18:19:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uicursor.h"
 #include "iopar.h"
+#include "oddirs.h"
 #include "binidvalset.h"
 #include "uimenuhandler.h"
 #include "uicolor.h"

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.22 2005-05-26 15:42:51 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.23 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "uiparentbody.h"
 
 

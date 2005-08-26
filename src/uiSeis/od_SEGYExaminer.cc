@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.7 2005-08-18 13:36:54 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.8 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,7 +187,7 @@ int main( int argc, char ** argv )
 	    	  << " [--multi] [--ns #samples] [--nrtrcs #traces]"
 		     " [--fmt segy_format_number] filename\n"
 	     << "Note: filename must be with FULL path." << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
 
 #ifndef __win__
@@ -197,7 +197,7 @@ int main( int argc, char ** argv )
     case -1:
 	std::cerr << argv[0] << ": cannot fork: " << errno_message()
 	    	  << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     case 0:	break;
     default:	return 0;
     }
@@ -218,5 +218,5 @@ int main( int argc, char ** argv )
 						      nrtrcs );
     app.setTopLevel( sgyex );
     sgyex->show();
-    exitProgram( app.exec() ); return 0;
+    ExitProgram( app.exec() ); return 0;
 }

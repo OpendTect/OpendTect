@@ -5,13 +5,13 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.10 2005-01-31 10:44:22 arend Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.11 2005-08-26 18:19:28 cvsbert Exp $";
 
 
 #include "winutils.h"
 #include "bufstring.h"
 #include "filegen.h"
-#include "genc.h"
+#include "envvars.h"
 #include "debugmasks.h"
 
 #ifdef __win__
@@ -36,8 +36,7 @@ extern "C" {
 #endif
 
 static const char* drvstr="/cygdrive/";
-static bool __do_debug_cleanpath = getenv( "DTECT_DEBUG_WINPATH" )
-				 ? true : false;
+static bool __do_debug_cleanpath = GetEnvVarYN("DTECT_DEBUG_WINPATH");
 
 
 const char* getCleanUnxPath( const char* path )
@@ -115,8 +114,8 @@ const char* getCleanWinPath( const char* path )
 #endif
 	if ( !cygdir || !*cygdir )
 	{
-	    if ( getenv("CYGWIN_DIR") ) // anyone got a better idea?
-		cygdir = getenv("CYGWIN_DIR");
+	    if ( GetEnvVar("CYGWIN_DIR") ) // anyone got a better idea?
+		cygdir = GetEnvVar("CYGWIN_DIR");
 	    else
 		cygdir = "c:\\cygwin";
 	}

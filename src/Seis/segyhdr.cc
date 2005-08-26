@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.31 2005-08-26 13:25:20 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.32 2005-08-26 18:19:28 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.31 2005-08-26 13:25:20 cvsbert E
 #include "seisinfo.h"
 #include "cubesampling.h"
 #include "msgh.h"
+#include "math2.h"
 #include <string.h>
 #include <ctype.h>
 #include <iostream>
@@ -241,9 +242,9 @@ SegyBinHeader::SegyBinHeader( bool rev1 )
 
 
 #define mSBHGet(memb,typ,nb) \
-    if ( needswap ) swap_bytes( b, nb ); \
+    if ( needswap ) SwapBytes( b, nb ); \
     memb = IbmFormat::as##typ( b ); \
-    if ( needswap ) swap_bytes( b, nb ); \
+    if ( needswap ) SwapBytes( b, nb ); \
     b += nb;
 
 void SegyBinHeader::getFrom( const void* buf )
@@ -290,7 +291,7 @@ void SegyBinHeader::getFrom( const void* buf )
 
 #define mSBHPut(memb,typ,nb) \
     IbmFormat::put##typ( memb, b ); \
-    if ( needswap ) swap_bytes( b, nb ); \
+    if ( needswap ) SwapBytes( b, nb ); \
     b += nb;
 
 
@@ -475,9 +476,9 @@ void SegyTraceheader::print( std::ostream& strm ) const
 
 unsigned short SegyTraceheader::nrSamples() const
 {
-    if ( needswap ) swap_bytes( ((unsigned char*)buf)+114, 2 );
+    if ( needswap ) SwapBytes( ((unsigned char*)buf)+114, 2 );
     unsigned short rv = IbmFormat::asUnsignedShort( buf+114 );
-    if ( needswap ) swap_bytes( ((unsigned char*)buf)+114, 2 );
+    if ( needswap ) SwapBytes( ((unsigned char*)buf)+114, 2 );
     return rv;
 }
 

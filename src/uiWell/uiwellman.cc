@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.25 2004-11-19 08:08:16 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.26 2005-08-26 18:19:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "strmprov.h"
 #include "ptrman.h"
+#include "oddirs.h"
 #include "uimsg.h"
 #include "survinfo.h"
 

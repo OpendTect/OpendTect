@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.4 2005-08-25 14:57:13 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.5 2005-08-26 18:19:27 cvsbert Exp $";
 
 #include "frequencyattrib.h"
 #include "attribdataholder.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: frequencyattrib.cc,v 1.4 2005-08-25 14:57:13 cv
 #include "genericnumer.h"
 #include "strmprov.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "stats.h"
 #include <iostream>
 #include <stdio.h>

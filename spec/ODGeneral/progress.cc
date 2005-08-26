@@ -22,5 +22,5 @@ int main( int argc, char** argv )
 	else		++progressmeter;
     }
 
-    exitProgram( 0 ); return 0;
+    ExitProgram( 0 ); return 0;
 }

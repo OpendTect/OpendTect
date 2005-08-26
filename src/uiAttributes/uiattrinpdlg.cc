@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.3 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.4 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "keystrs.h"
+#include "oddirs.h"
 
 
 static const char* seislbl[] = { "Select Seismics", 0 };

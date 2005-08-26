@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.10 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.11 2005-08-26 18:19:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,7 +182,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 #define mErrRet(s) \
     { strm << '\n' << s << '\n' << std::endl; mDestroyWorkers ; return false; }
 
-#define mPIDMsg(s) { strm << "\n["<< getPID() <<"]: " << s << std::endl; }
+#define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
 
 bool BatchProgram::go( std::ostream& strm )
 {

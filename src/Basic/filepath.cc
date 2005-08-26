@@ -4,9 +4,10 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.10 2005-01-31 10:44:22 arend Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.11 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "filepath.h"
+#include "envvars.h"
 #include <iostream>
 
 #include "winutils.h"
@@ -230,10 +231,10 @@ BufferString FilePath::getTempName( const char* ext )
 
 #ifdef __win__
 
-    if ( getenv("TMP") )
-	fname = getenv( "TMP" );
-    else if ( getenv("TEMP") )
-	fname = getenv( "TEMP" );
+    if ( GetEnvVar("TMP") )
+	fname = GetEnvVar( "TMP" );
+    else if ( GetEnvVar("TEMP") )
+	fname = GetEnvVar( "TEMP" );
     else // make sure we have at least write access...
     {
 	fname = GetSpecialFolderLocation( CSIDL_PERSONAL );
@@ -257,7 +258,7 @@ BufferString FilePath::getTempName( const char* ext )
     static int counter = 0;
     int time_stamp = time( (time_t*)0 ) + counter++;
     char uniquestr[80];
-    sprintf( uniquestr, "%X%X", getPID(), (int)time_stamp );
+    sprintf( uniquestr, "%X%X", GetPID(), (int)time_stamp );
     fname += uniquestr;
 
     if ( ext && *ext )

@@ -4,13 +4,14 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.20 2004-11-29 10:56:17 bert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.21 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"
 #include "settings.h"
 #include "debugmasks.h"
 #include "debug.h"
+#include "envvars.h"
 #include "errno.h" // for EBUSY
 
 
@@ -186,7 +187,7 @@ int Threads::getNrProcessors()
     if ( nrproc > 0 ) return nrproc;
     nrproc = 1;
 
-    const char* envres = getenv( "DTECT_USE_MULTIPROC" );
+    const char* envres = GetEnvVar( "DTECT_USE_MULTIPROC" );
     bool douse = !__iswin__;
     if ( envres && (*envres == 'n' || *envres == 'N') )
 	douse = false;

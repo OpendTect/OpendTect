@@ -5,7 +5,7 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id: GenModDeps.cc,v 1.11 2004-04-28 21:30:58 bert Exp $";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.12 2005-08-26 18:19:27 cvsbert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -37,14 +37,14 @@ int main( int argc, char** argv )
     {
 	std::cerr << "Usage: " << argv[0]
 	     << " [--html] input_ModDeps_file output_file" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     StreamProvider spin( argv[arg1] );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.usable() )
     {
 	std::cerr << argv[0] << ": Cannot open input stream" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     else if ( sdin.istrm == &std::cin )
 	std::cout << "Using standard input." << std::endl;
@@ -53,14 +53,14 @@ int main( int argc, char** argv )
     if ( !instrm )
     {
 	std::cerr << "Bad ModDeps file" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     StreamProvider spout( argv[arg1+1] );
     StreamData sdout = spout.makeOStream();
     if ( !sdout.usable() )
     {
 	std::cerr << argv[0] << ": Cannot open output stream" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     std::ostream& outstrm = *sdout.ostrm;
 
@@ -95,7 +95,7 @@ int main( int argc, char** argv )
 
 	    if ( wordbuf[1] != '.' || (wordbuf[0] != 'S' && wordbuf[0] != 'D') )
 		{ std::cerr << "Cannot handle dep=" << wordbuf << std::endl;
-		    exitProgram(1); }
+		    ExitProgram(1); }
 
 	    filedeps.add( wordbuf );
 	}
@@ -115,7 +115,7 @@ int main( int argc, char** argv )
 	    Dep* depdep = find( deps, modnm );
 	    if ( !depdep )
 		{ std::cerr << "Cannot find dep=" << modnm << std::endl;
-		    		exitProgram(1); }
+		    		ExitProgram(1); }
 
 	    for ( int idep=depdep->mods.size()-1; idep>=0; idep-- )
 	    {
@@ -186,5 +186,5 @@ int main( int argc, char** argv )
 
 
     sdout.close();
-    exitProgram( 0 ); return 0;
+    ExitProgram( 0 ); return 0;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.26 2004-12-23 12:33:35 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.27 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,11 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "ascstream.h"
+#include "envvars.h"
 #include "errh.h"
+#include "genc.h"
 #include "msgh.h"
+#include "oddirs.h"
 #include "separstr.h"
 #include "filepath.h"
 #include <iostream>
@@ -27,7 +30,7 @@ ________________________________________________________________________
 
 const char* HostData::localHostName()
 {
-    return getHostName();
+    return GetHostName();
 }
 
 
@@ -98,14 +101,13 @@ HostDataList::HostDataList( bool readhostfile )
     	, defnicelvl_(19)
     	, portnr_(1963)
 {
-    const char* bhfnm = "BatchHosts";
-    if ( getenv("DTECT_BATCH_HOSTS_FILENAME") )
-	bhfnm = getenv("DTECT_BATCH_HOSTS_FILENAME");
+    BufferString bhfnm = "BatchHosts";
+    if ( GetEnvVar("DTECT_BATCH_HOSTS_FILENAME") )
+	bhfnm = GetEnvVar("DTECT_BATCH_HOSTS_FILENAME");
 
-    BufferString fname( SearchODFile(bhfnm) );
-
-    if ( getenv("DTECT_BATCH_HOSTS_FILEPATH") )
-	fname = getenv("DTECT_BATCH_HOSTS_FILEPATH");
+    BufferString fname( SearchODFile(bhfnm.buf()) );
+    if ( GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH") )
+	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 
     if ( readhostfile )
     {
@@ -230,7 +232,7 @@ bool HostDataList::readHostFile( const char* fname )
 	}
     }
 
-    static bool complain = getenv("OD_NO_DATAHOST_CHK") ? false : true;
+    static bool complain = !GetEnvVarYN( "OD_NO_DATAHOST_CHK" );
     if ( sharehost.size() && !sharedata_.host_ && complain )
     {
 	BufferString msg("No host ");

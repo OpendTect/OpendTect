@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.9 2005-01-19 11:17:11 nanne Exp $
+ RCS:           $Id: od_main.cc,v 1.10 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,5 +45,5 @@ int main( int argc, char** argv )
     od_putProgInfo( argc, argv );
 
     int ret = ODMain( argc, argv );
-    exitProgram( ret );
+    ExitProgram( ret );
 }

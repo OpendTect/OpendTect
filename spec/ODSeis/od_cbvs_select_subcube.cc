@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.24 2005-07-26 13:13:35 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.25 2005-08-26 18:19:27 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.24 2005-07-26 13:13:35 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.25 2005-08-26 18:19:27 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -116,5 +116,5 @@ static int doWork( int argc, char** argv )
 
 int main( int argc, char** argv )
 {
-    return exitProgram( doWork(argc,argv) );
+    return ExitProgram( doWork(argc,argv) );
 }

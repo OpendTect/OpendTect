@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.11 2004-12-15 16:45:45 bert Exp $
+ RCS:		$Id: prog.h,v 1.12 2005-08-26 18:19:27 cvsbert Exp $
 ________________________________________________________________________
 
  Include this file in any executable program you make. The file is actually
@@ -21,7 +21,10 @@ ________________________________________________________________________
 extern "C" {
 #endif
     void		od_putProgInfo(int,char**);
-    			//!< One line; other info is only put if DBG::isOn()
+    			/*!< One line; other info is only put if DBG::isOn() */
+
+    const char*		errno_message();
+    			/*!< Will not return meaningful string on Windows */
 #ifdef __cpp__
 }
 #endif

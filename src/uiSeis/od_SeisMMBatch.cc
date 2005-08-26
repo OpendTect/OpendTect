@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.16 2004-12-16 09:39:57 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.17 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ int main( int argc, char ** argv )
     if ( argc+bgadd < 3 )
     {
 	std::cerr << "Usage: " << argv[0] << " program parfile" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
 
     FilePath fp( argv[ 2 + bgadd ] );
@@ -45,13 +45,13 @@ int main( int argc, char ** argv )
     if ( !sdin.usable() )
     {
 	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     IOParList parlist( *sdin.istrm );
     if ( parlist.size() == 0 || parlist[0]->size() == 0 )
     {
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     sdin.close();
     parlist.setFileName( fp.fullPath() );
@@ -64,7 +64,7 @@ int main( int argc, char ** argv )
 	case -1:
 	    std::cerr << argv[0] << ": cannot fork: "
 		      << errno_message() << std::endl;
-	    exitProgram( 1 );
+	    ExitProgram( 1 );
 	case 0:		break;
 	default:	return 0;
 	}
@@ -77,5 +77,5 @@ int main( int argc, char ** argv )
     app.setTopLevel( smmp );
     smmp->show();
 
-    exitProgram( app.exec() ); return 0;
+    ExitProgram( app.exec() ); return 0;
 }

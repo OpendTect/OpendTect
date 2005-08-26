@@ -4,13 +4,15 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.36 2005-03-31 08:39:18 cvsarend Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.37 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
 #include "filegen.h"
 #include "dirlist.h"
 #include "strmprov.h"
+#include "envvars.h"
+#include "oddirs.h"
 
 #ifdef __win__
 #include <Windows.h>
@@ -38,8 +40,8 @@ static const char* getHDir()
 #ifdef __win__
     return "win";
 #else
-    const char* ret = getenv( "binsubdir" );
-    return ret ? ret : getenv( "HDIR" );
+    const char* ret = GetEnvVar( "binsubdir" );
+    return ret ? ret : GetEnvVar( "HDIR" );
 #endif
 }
 
@@ -154,7 +156,8 @@ static bool loadPlugin( const char* lnm, int argc, char** argv,
 
     PIM().addLoaded( libnm, piinf );
 
-    if ( getenv( "OD_SHOW_PLUGIN_LOAD" ) )
+    static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
+    if ( shw_load )
 	std::cerr << "Successfully loaded plugin " << libnm << std::endl;
 
     return true;
@@ -266,8 +269,8 @@ static const char* getDefDir( bool instdir )
     static BufferString dnm;
 
     bool fromenv = false;
-    dnm = instdir ? getenv( "OD_APPL_PLUGIN_DIR" )
-		  : getenv( "OD_USER_PLUGIN_DIR" );
+    dnm = instdir ? GetEnvVar( "OD_APPL_PLUGIN_DIR" )
+		  : GetEnvVar( "OD_USER_PLUGIN_DIR" );
     if ( dnm == "" )
 	dnm = instdir ? GetSoftwareDir() : GetSettingsDir();
     else

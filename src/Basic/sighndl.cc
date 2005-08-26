@@ -4,16 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.23 2005-04-14 14:14:37 cvsarend Exp $
+ RCS:           $Id: sighndl.cc,v 1.24 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.23 2005-04-14 14:14:37 cvsarend Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.24 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "envvars.h"
 #include "errh.h"
 
 #include <signal.h>
@@ -83,9 +84,9 @@ SignalHandling::SignalHandling()
 {
 #define mCatchSignal(nr) (void)signal( nr, &SignalHandling::handle )
 
-    if ( !getenv("DTECT_NO_OS_EVENT_HANDLING") )
+    if ( !GetEnvVarYN("DTECT_NO_OS_EVENT_HANDLING") )
     {
-	if ( getenv( "DTECT_HANDLE_FATAL") )
+	if ( GetEnvVarYN( "DTECT_HANDLE_FATAL") )
 	{
 	// Fatal stuff
 	mCatchSignal( SIGINT );	/* Interrupt */
@@ -135,7 +136,7 @@ SignalHandling::SignalHandling()
     mCatchSignal( SIGHUP );	/* Hangup */
 
 # ifndef sgi 
-    /* SGI seens to use SIGCLD when starting child processes, f.e. system() */
+    /* SGI seems to use SIGCLD when starting child processes, f.e. system() */
     mCatchSignal( SIGCLD );	/* Child status changed */
 # endif
 #endif
@@ -238,7 +239,7 @@ void SignalHandling::doKill( int signalnr )
 	ErrMsg( msg );
     }
     killcbs.doCall( this, 0 );
-    exitProgram( 1 );
+    ExitProgram( 1 );
 }
 
 
@@ -249,7 +250,7 @@ void SignalHandling::doStop( int signalnr )
 #ifdef __win__
     raise( signalnr );
 #else
-    kill( getPID(), signalnr );
+    kill( GetPID(), signalnr );
 #endif
 }
 

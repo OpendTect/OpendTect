@@ -5,7 +5,7 @@
  * FUNCTION : Create extra picks from locations file
 -*/
 
-static const char* rcsID = "$Id: extend_locs.cc,v 1.5 2004-04-28 21:30:58 bert Exp $";
+static const char* rcsID = "$Id: extend_locs.cc,v 1.6 2005-08-26 18:19:27 cvsbert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -21,14 +21,14 @@ int main( int argc, char** argv )
     {
 	std::cerr << "Usage: " << argv[0] << " input_locs output_locs"
 	    	  << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     StreamProvider spin( argv[1] );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.istrm )
     {
 	std::cerr << argv[0] << ": Cannot open input stream" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     else if ( sdin.istrm == &std::cin )
 	std::cout << "Using standard input." << std::endl;
@@ -39,14 +39,14 @@ int main( int argc, char** argv )
     if ( !instrm )
     {
 	std::cerr << "Bad locations file" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     StreamProvider spout( argv[2] );
     StreamData sdout = spout.makeOStream();
     if ( !sdout.ostrm )
     {
 	std::cerr << argv[0] << ": Cannot open output stream" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
     std::ostream& outstrm = *sdout.ostrm;
 
@@ -75,5 +75,5 @@ int main( int argc, char** argv )
     }
 
     sdin.close(); sdout.close();
-    exitProgram( 0 ); return 0;
+    ExitProgram( 0 ); return 0;
 }

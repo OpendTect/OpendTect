@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.5 2004-09-01 12:38:01 nanne Exp $
+ RCS:           $Id: keybindings.cc,v 1.6 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "ascstream.h"
 #include "strmprov.h"
+#include "oddirs.h"
 #include <iostream>
 
 #include <Inventor/events/SoKeyboardEvent.h>

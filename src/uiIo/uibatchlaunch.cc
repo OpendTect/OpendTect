@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.43 2005-07-18 15:55:30 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.44 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "hostdata.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "ptrman.h"
 
 static const char* sSingBaseNm = "batch_processing";

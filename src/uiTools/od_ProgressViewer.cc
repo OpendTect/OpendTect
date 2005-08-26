@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.10 2004-04-28 21:30:59 bert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.11 2005-08-26 18:19:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,7 @@ int main( int argc, char** argv )
 
     app.setTopLevel( pv );
     pv->show();
-    exitProgram( app.exec() ); return 0;
+    ExitProgram( app.exec() ); return 0;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.29 2005-08-15 16:17:30 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.30 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "strmprov.h"
 
 

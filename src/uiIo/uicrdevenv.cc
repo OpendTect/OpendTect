@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.18 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.19 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include "strmprov.h"
+#include "oddirs.h"
 #include "uimain.h"
 
 #ifdef __win__

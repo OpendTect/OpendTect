@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.76 2005-05-11 09:19:47 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.77 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -261,7 +261,7 @@ bool BatchProgram::infoMsg( const char* msg, bool cc_stdout)
 bool BatchProgram::initOutput()
 {
     stillok = false;
-    if ( comm && !comm->sendPID(getPID()) )
+    if ( comm && !comm->sendPID(GetPID()) )
     {
 	errorMsg( "Could not contact master. Exiting.", true );
 	exit( 0 );
@@ -283,7 +283,7 @@ bool BatchProgram::initOutput()
 #else
 	BufferString comm( "@view_progress " );
 #endif
-	comm += getPID();
+	comm += GetPID();
 	StreamProvider sp( comm );
 	sdout = sp.makeOStream();
 	if ( !sdout.usable() )

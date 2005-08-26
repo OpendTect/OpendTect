@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.13 2004-12-16 10:34:22 bert Exp $
+ RCS:           $Id: uicmain.cc,v 1.14 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "visinventorinit.h"
 #include "debug.h"
 #include "debugmasks.h"
-#include "genc.h"
+#include "envvars.h"
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/SoDB.h>
 
@@ -24,9 +24,9 @@ uicMain::uicMain(int argc,char** argv)
 void uicMain::init( QWidget* mw )
 {
     if ( !getenv("SOQT_BRIL_X11_SILENCER_HACK") )
-	setEnvVar( "SOQT_BRIL_X11_SILENCER_HACK", "1" );
+	SetEnvVar( "SOQT_BRIL_X11_SILENCER_HACK", "1" );
     if ( !getenv("COIN_FULL_INDIRECT_RENDERING") )
-	setEnvVar( "COIN_FULL_INDIRECT_RENDERING", "1" );
+	SetEnvVar( "COIN_FULL_INDIRECT_RENDERING", "1" );
 
 	if ( DBG::isOn(DBG_UI) )
 	    DBG::message( "SoQt::init() ..." );

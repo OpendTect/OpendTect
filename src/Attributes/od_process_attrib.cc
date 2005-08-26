@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.6 2005-08-02 07:57:35 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.7 2005-08-26 18:19:27 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.6 2005-08-02 07:57:35 
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
+#include "envvar.h"
 #include "progressmeter.h"
 #include "batchprog.h"
 #include "hostdata.h"
@@ -83,6 +84,8 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 	  
 bool BatchProgram::go( std::ostream& strm )
 {
+    const int process_id = GetPID();
+
     Attrib::initAttribClasses();
     if ( cmdLineOpts().size() )
     {
@@ -226,8 +229,7 @@ bool BatchProgram::go( std::ostream& strm )
 	if( !comm->sendState() ) mRetHostErr( comm->errMsg() )	    
     }
 
-    const double sleeptime = getenv("OD_BATCH_SLEEP_TIME") ?
-			     atof( getenv("OD_BATCH_SLEEP_TIME") ) : 1;
+    const double sleeptime = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     double startup_wait = 0;
     pars().get( "Startup delay time", startup_wait );
     Time_sleep( startup_wait );  
@@ -282,7 +284,7 @@ bool BatchProgram::go( std::ostream& strm )
 		    if ( loading )
 		    {
 			loading = false;
-			strm << "\n["<<getPID()<<"]: Processing started."
+			strm << "\n["<<process_id<<"]: Processing started."
 			     << std::endl;
 		    }
 
@@ -303,13 +305,13 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     deepErase( procset );
-    strm << "\n["<<getPID()<<"]: Processing done. Closing up." << std::endl;
+    strm << "\n["<<process_id<<"]: Processing done. Closing up." << std::endl;
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mDestroyWorkers
     progressmeter.finish();
 
-    strm << "\n["<<getPID()<<"]: Threads closed. Writing finish status"
+    strm << "\n["<<process_id<<"]: Threads closed. Writing finish status"
 	 << std::endl;
 
     if ( !comm ) return true;
@@ -318,10 +320,10 @@ bool BatchProgram::go( std::ostream& strm )
     bool ret = comm->sendState();
 
     if ( ret )
-	strm << "[" <<getPID()<< "]: Successfully wrote finish status."
+	strm << "[" <<process_id<< "]: Successfully wrote finish status."
 	     << std::endl;
     else
-    strm << "[" <<getPID()<< "]: Could not write finish status."
+    strm << "[" <<process_id<< "]: Could not write finish status."
 	 << std::endl;
 
     return ret;

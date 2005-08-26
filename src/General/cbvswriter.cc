@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.46 2005-07-28 11:54:17 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.47 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -103,7 +103,7 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
 {
     unsigned char ucbuf[headstartbytes]; memset( ucbuf, 0, headstartbytes );
     ucbuf[0] = 'd'; ucbuf[1] = 'G'; ucbuf[2] = 'B';
-    put_platform( ucbuf + 3 );
+    PutIsLittleEndian( ucbuf + 3 );
     ucbuf[4] = version;
     putAuxInfoSel( ucbuf + 5 );
     ucbuf[6] = (unsigned char)coordpol_;
@@ -471,7 +471,7 @@ bool CBVSWriter::writeTrailer()
     int bytediff = (int)(strm_.tellp() - trailerstart);
     strm_.write( (const char*)&bytediff, integersize );
     unsigned char buf[4];
-    put_platform( buf );
+    PutIsLittleEndian( buf );
     buf[1] = 'B';
     buf[2] = 'G';
     buf[3] = 'd';

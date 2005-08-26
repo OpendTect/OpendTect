@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.62 2005-08-16 17:10:17 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.63 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "cubesampling.h"

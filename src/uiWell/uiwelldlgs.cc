@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.29 2005-08-23 07:49:06 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.30 2005-08-26 18:19:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uiwellpartserv.h"
 #include "survinfo.h"
 #include "iopar.h"
+#include "oddirs.h"
 #include "ctxtioobj.h"
 #include "strmdata.h"
 #include "strmprov.h"

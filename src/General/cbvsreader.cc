@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.57 2005-08-19 13:03:18 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.58 2005-08-26 18:19:28 cvsbert Exp $";
 
 /*!
 
@@ -13,7 +13,7 @@ The CBVS header starts with the following bytes:
 0: 'd'
 1: 'G'
 2: 'B'
-3: platform indicator set by put_platform()
+3: 0 = big endian(Sun,SGI), 1 = little endian (Win,Lin,Mac)
 4: version of CBVS.
 5: info on "aux pos info"
 6: coordinate storage policy
@@ -29,6 +29,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "datainterp.h"
 #include "binidselimpl.h"
 #include "survinfo.h"
+#include "envvars.h"
 #include "errh.h"
 
 
@@ -275,8 +276,7 @@ bool CBVSReader::readGeom()
     if ( info_.geom.step.crl == 0 ) info_.geom.step.crl = 1;
 
     strm_.read( buf, 6*sizeof(double) );
-    const char* envs = getenv("DTECT_CBVS_USE_STORED_SURVINFO");
-    bool useinf = envs && (*envs == 'y' || *envs == 'Y');
+    const bool useinf = GetEnvVarYN( "DTECT_CBVS_USE_STORED_SURVINFO" );
     RCol2Coord::RCTransform xtr, ytr;
     xtr.a = dinterp.get( buf, 0 ); xtr.b = dinterp.get( buf, 1 );
     xtr.c = dinterp.get( buf, 2 ); ytr.a = dinterp.get( buf, 3 );

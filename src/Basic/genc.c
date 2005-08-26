@@ -5,9 +5,12 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.68 2005-08-03 11:18:50 cvsdgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.69 2005-08-26 18:19:28 cvsbert Exp $";
 
+#include "oddirs.h"
 #include "genc.h"
+#include "math2.h"
+#include "envvars.h"
 #include "filegen.h"
 #include "winutils.h"
 #include "timefun.h"
@@ -38,6 +41,7 @@ static int surveynamedirty = YES;
 static const char* dirsep = sDirSep;
 static char dbgbuf[256];
 
+/*-> oddirs.h */
 
 int SurveyNameDirty()
 {
@@ -85,16 +89,16 @@ const char* GetSoftwareDir()
 
 #ifndef __win__
 
-    dir = getenv( "DTECT_APPL" );
-    if ( !dir ) dir = getenv( "dGB_APPL" );
+    dir = GetEnvVar( "DTECT_APPL" );
+    if ( !dir ) dir = GetEnvVar( "dGB_APPL" );
 
 #else
 
-    dir = getenv( "DTECT_WINAPPL" );
-    if ( !dir ) dir = getenv( "dGB_WINAPPL" );
+    dir = GetEnvVar( "DTECT_WINAPPL" );
+    if ( !dir ) dir = GetEnvVar( "dGB_WINAPPL" );
 
-    if ( !dir ) dir = getCleanWinPath( getenv("DTECT_APPL") );
-    if ( !dir ) dir = getCleanWinPath( getenv("dGB_APPL") );
+    if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_APPL") );
+    if ( !dir ) dir = getCleanWinPath( GetEnvVar("dGB_APPL") );
 
 #if 0
     if ( !dir )
@@ -107,8 +111,8 @@ const char* GetSoftwareDir()
     }
 #endif
 
-    if ( dir && *dir && !getenv("DTECT_WINAPPL") )
-	setEnvVar( "DTECT_WINAPPL" , dir );
+    if ( dir && *dir && !GetEnvVar("DTECT_WINAPPL") )
+	SetEnvVar( "DTECT_WINAPPL" , dir );
 
 #endif
 
@@ -128,7 +132,7 @@ const char* GetSoftwareDir()
 	if ( *progname )
 	{
 	    dir = progname;
-	    setEnvVar( "DTECT_APPL" , dir );
+	    SetEnvVar( "DTECT_APPL" , dir );
 	}
     }
 #endif
@@ -139,10 +143,10 @@ const char* GetSoftwareDir()
 
     if ( !dir )
     {
-	if ( !getenv("DTECT_ARGV0") ) return 0;
+	if ( !GetEnvVar("DTECT_ARGV0") ) return 0;
 
 	static FileNameString progname;
-	strcpy( progname, getenv("DTECT_ARGV0") );
+	strcpy( progname, GetEnvVar("DTECT_ARGV0") );
 
 	if ( !*progname ) return 0;
 
@@ -253,10 +257,10 @@ static const char* checkFile( const char* path, const char* subdir,
 const char* SearchODFile( const char* fname )
 { // NOTE: recompile SearchODFile in spec/General when making changes here...
 
-    const char* nm = checkFile( getenv("OD_FILES"), "", fname );
+    const char* nm = checkFile( GetEnvVar("OD_FILES"), "", fname );
     if ( !nm ) nm = checkFile( GetPersonalDir(), ".od", fname );
     if ( !nm ) nm = checkFile( GetSettingsDir(), "", fname );
-    if ( !nm ) nm = checkFile( getenv("ALLUSERSPROFILE"), ".od", fname );
+    if ( !nm ) nm = checkFile( GetEnvVar("ALLUSERSPROFILE"), ".od", fname );
     if ( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
     if ( !nm ) nm = checkFile( GetSoftwareDir(), "bin", fname );
     if ( !nm ) nm = checkFile( GetSoftwareDir(), "", fname );
@@ -278,13 +282,13 @@ const char* GetSoftwareUser()
     const char* ptr = 0;
 #ifdef __win__
 
-    ptr = getenv( "DTECT_WINUSER" );
-    if ( !ptr ) ptr = getenv( "dGB_WINUSER" );
+    ptr = GetEnvVar( "DTECT_WINUSER" );
+    if ( !ptr ) ptr = GetEnvVar( "dGB_WINUSER" );
 
 #endif
 
-    if ( !ptr ) ptr = getenv( "DTECT_USER" );
-    if ( !ptr ) ptr = getenv( "dGB_USER" );
+    if ( !ptr ) ptr = GetEnvVar( "DTECT_USER" );
+    if ( !ptr ) ptr = GetEnvVar( "dGB_USER" );
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
@@ -299,19 +303,20 @@ const char* _GetHomeDir()
 {
 #ifndef __win__
 
-    const char* ptr = getenv( "DTECT_HOME" );
-    if ( !ptr ) ptr = getenv( "dGB_HOME" );
-    if ( !ptr ) ptr = getenv( "HOME" );
+    const char* ptr = GetEnvVar( "DTECT_HOME" );
+    if ( !ptr ) ptr = GetEnvVar( "dGB_HOME" );
+    if ( !ptr ) ptr = GetEnvVar( "HOME" );
     return ptr;
 
 #else
 
     static FileNameString home = "";
 
-    const char* ptr = getenv( "DTECT_WINHOME" );
-    if ( !ptr ) ptr = getenv( "dGB_WINHOME" );
+    const char* ptr = GetEnvVar( "DTECT_WINHOME" );
+    if ( !ptr ) ptr = GetEnvVar( "dGB_WINHOME" );
 
-    if ( !ptr ) ptr = getCleanWinPath( getenv("DTECT_HOME") ); // should be set
+    if ( !ptr ) ptr = getCleanWinPath( GetEnvVar("DTECT_HOME") );
+    				// should always at least be set
     if ( !ptr && od_debug_isOn(DBG_SETTINGS) )
     {
 	sprintf( dbgbuf, "\nWarning: No DTECT_HOME nor DTECT_WINHOME set. \n"
@@ -319,16 +324,16 @@ const char* _GetHomeDir()
 	od_debug_message( dbgbuf );
     }
     
-    if ( !ptr ) ptr = getCleanWinPath( getenv("dGB_HOME") );
-    if ( !ptr ) ptr = getCleanWinPath( getenv("HOME") );
+    if ( !ptr ) ptr = getCleanWinPath( GetEnvVar("dGB_HOME") );
+    if ( !ptr ) ptr = getCleanWinPath( GetEnvVar("HOME") );
 
-    if ( !ptr ) ptr = getenv( "USERPROFILE" ); // set by OS
-    if ( !ptr ) ptr = getenv( "APPDATA" );     // set by OS -- but is hidden 
+    if ( !ptr ) ptr = GetEnvVar( "USERPROFILE" ); // set by OS
+    if ( !ptr ) ptr = GetEnvVar( "APPDATA" );     // set by OS -- but is hidden 
 
     if ( !ptr )
-	ptr = getenv( "DTECT_USERPROFILE_DIR" ); // set by init script
+	ptr = GetEnvVar( "DTECT_USERPROFILE_DIR" ); // set by init script
 
-    if ( !ptr && (!getenv("HOMEDRIVE") || !getenv("HOMEPATH")) ) 
+    if ( !ptr && (!GetEnvVar("HOMEDRIVE") || !GetEnvVar("HOMEPATH")) ) 
     {
 	if ( !ptr ) // Last resort. Is known to cause problems when used 
 		    // during initialisation of statics. (0xc0000005)
@@ -338,15 +343,15 @@ const char* _GetHomeDir()
     if ( ptr && *ptr )
     {
 	strcpy( home, ptr );
-	if ( !getenv("DTECT_WINHOME") )
-	    setEnvVar( "DTECT_WINHOME" , home );
+	if ( !GetEnvVar("DTECT_WINHOME") )
+	    SetEnvVar( "DTECT_WINHOME" , home );
 	return home;
     }
 
-    if ( !getenv("HOMEDRIVE") || !getenv("HOMEPATH") ) return 0;
+    if ( !GetEnvVar("HOMEDRIVE") || !GetEnvVar("HOMEPATH") ) return 0;
 
-    strcpy( home, getenv("HOMEDRIVE") );
-    strcat( home, getenv("HOMEPATH") );
+    strcpy( home, GetEnvVar("HOMEDRIVE") );
+    strcat( home, GetEnvVar("HOMEPATH") );
 
     if ( strcmp( home, "" ) && strcmp( home, "c:\\" ) && strcmp( home, "C:\\" ) 
 	&& File_isDirectory( home ) ) // Apparantly, home has been set...
@@ -366,7 +371,7 @@ const char* GetSettingsDir(void)
     
 #ifndef __win__
 
-    const char* ptr = getenv( "DTECT_SETTINGS" );
+    const char* ptr = GetEnvVar( "DTECT_SETTINGS" );
 
     if ( ptr )
 	mkfullpth = NO;
@@ -375,8 +380,8 @@ const char* GetSettingsDir(void)
 
 #else    
 
-    const char* ptr = getenv( "DTECT_WINSETTINGS" );
-    if( !ptr) ptr = getCleanWinPath( getenv("DTECT_SETTINGS") );
+    const char* ptr = GetEnvVar( "DTECT_WINSETTINGS" );
+    if( !ptr) ptr = getCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
 
     if ( ptr )
 	mkfullpth = NO;
@@ -412,7 +417,7 @@ const char* GetSettingsDir(void)
 const char* GetPersonalDir(void)
 { // NOTE: recompile SearchODFile in spec/General when making changes here...
 
-    const char* ptr = getenv( "OD_PERSONAL_DIR" );
+    const char* ptr = GetEnvVar( "OD_PERSONAL_DIR" );
 
     if ( !ptr )
 	ptr = _GetHomeDir();
@@ -524,20 +529,20 @@ const char* GetBaseDataDir()
 
 #ifdef __win__
 
-    dir = getenv( "DTECT_WINDATA" );
-    if ( !dir ) dir = getenv( "dGB_WINDATA" );
+    dir = GetEnvVar( "DTECT_WINDATA" );
+    if ( !dir ) dir = GetEnvVar( "dGB_WINDATA" );
 
-    if ( !dir ) dir = getCleanWinPath( getenv("DTECT_DATA") );
-    if ( !dir ) dir = getCleanWinPath( getenv("dGB_DATA") );
+    if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
+    if ( !dir ) dir = getCleanWinPath( GetEnvVar("dGB_DATA") );
     if ( !dir ) dir = getCleanWinPath( GetSettingsDataDir() );
 
-    if ( dir && *dir && !getenv("DTECT_WINDATA") )
-	setEnvVar( "DTECT_WINDATA" , dir );
+    if ( dir && *dir && !GetEnvVar("DTECT_WINDATA") )
+	SetEnvVar( "DTECT_WINDATA" , dir );
 
 #else
 
-    if ( !dir ) dir = getenv( "DTECT_DATA" );
-    if ( !dir ) dir = getenv( "dGB_DATA" );
+    if ( !dir ) dir = GetEnvVar( "DTECT_DATA" );
+    if ( !dir ) dir = GetEnvVar( "dGB_DATA" );
 
     if ( !dir ) dir = GetSettingsDataDir();
 
@@ -569,7 +574,17 @@ const char* GetDataDir()
 }
 
 
-void swap_bytes( void* p, int n )
+/*-> genc.h */
+
+const char* GetHostName()
+{
+    static char ret[256];
+    gethostname( ret, 256 );
+    return ret;
+}
+
+
+void SwapBytes( void* p, int n )
 {
     int nl = 0;
     unsigned char* ptr = (unsigned char*)p;
@@ -585,12 +600,12 @@ void swap_bytes( void* p, int n )
 }
 
 
-void put_platform( unsigned char* ptr )
+void PutIsLittleEndian( unsigned char* ptr )
 {
-#if defined(lux) || defined(__win__)
-    *ptr = 1;
-#else
+#if defined(__sun__) || defined(__sgi__)
     *ptr = 0;
+#else
+    *ptr = 1;
 #endif
 }
 
@@ -598,47 +613,24 @@ void put_platform( unsigned char* ptr )
 #define getpid	_getpid
 #endif
 
-int getPID()
+int GetPID()
 {
     return getpid();
 }
 
 
-const char* getHostName()
-{
-    static char ret[256];
-    gethostname( ret, 256 );
-    return ret;
-}
-
-
-int setEnvVar( const char* env, const char* val )
-{
-    char* buf;
-    if ( !env || !*env ) return NO;
-    if ( !val ) val = "";
-
-    buf = mMALLOC( strlen(env)+strlen(val) + 2, char );
-    strcpy( buf, env );
-    if ( *val ) strcat( buf, "=" );
-    strcat( buf, val );
-
-    putenv( buf );
-    return YES;
-}
-
-int exitProgram( int ret )
+int ExitProgram( int ret )
 {
     if ( od_debug_isOn(DBG_PROGSTART) )
-	printf( "\nexitProgram (PID: %d) at %s\n",
-		getPID(), Time_getLocalString() );
+	printf( "\nExitProgram (PID: %d) at %s\n",
+		GetPID(), Time_getLocalString() );
 
 #ifdef __win__
 
 #define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
 
     // open process
-    HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, getPID() );
+    HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, GetPID() );
     if ( isBadHandle( hProcess ) )
 	printf( "OpenProcess() failed, err = %lu\n", GetLastError() );
     else
@@ -656,6 +648,73 @@ int exitProgram( int ret )
     return ret;
 }
 
+
+/*-> envvar.h */
+
+char* GetOSEnvVar( const char* env )
+{
+    return getenv( env );
+}
+
+
+const char* GetEnvVar( const char* env )
+{
+    /* Maybe get from some kind of setup file - nice for windows */
+    return GetOSEnvVar( env );
+}
+
+
+int GetEnvVarYN( const char* env )
+{
+    const char* s = GetEnvVar( env );
+    return !s || *s == '0' || *s == 'n' || *s == 'N' ? 0 : 1;
+}
+
+
+int GetEnvVarIVal( const char* env, int defltval )
+{
+    const char* s = GetEnvVar( env );
+    return s ? atoi(s) : defltval;
+}
+
+
+double GetEnvVarDVal( const char* env, double defltval )
+{
+    const char* s = GetEnvVar( env );
+    return s ? atof(s) : defltval;
+}
+
+
+int SetEnvVar( const char* env, const char* val )
+{
+    char* buf;
+    if ( !env || !*env ) return NO;
+    if ( !val ) val = "";
+
+    buf = mMALLOC( strlen(env)+strlen(val) + 2, char );
+    strcpy( buf, env );
+    if ( *val ) strcat( buf, "=" );
+    strcat( buf, val );
+
+    putenv( buf );
+    return YES;
+}
+
+
+/*-> math2.h */
+
+#ifdef sun5
+# include <ieeefp.h>
+#endif
+
+int IsNormalNumber( double x )
+{
+#ifdef __msvc__
+    return _finite( x );
+#else
+    return finite( x );
+#endif
+}
 
 double IntPowerOf( double x, int y )
 {
@@ -683,18 +742,4 @@ double PowerOf( double x, double y )
  
     ret = exp( y * log(x) );
     return isneg ? -ret : ret;
-}
-
-
-#ifdef sun5
-# include <ieeefp.h>
-#endif
-
-#ifdef __msvc__
-# define finite	_finite
-#endif
-
-int isFinite( double v )
-{
-    return finite(v);
 }

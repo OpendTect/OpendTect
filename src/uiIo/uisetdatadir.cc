@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.15 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.16 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "settings.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "envvars.h"
+#include "oddirs.h"
 #include <stdlib.h>
 
 #ifdef __win__
@@ -228,12 +230,12 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 #ifdef __win__
 	FilePath dtectdatafp( datadir.buf() );
 	
-	setEnvVar( "DTECT_WINDATA", dtectdatafp.fullPath(FilePath::Windows) );
+	SetEnvVar( "DTECT_WINDATA", dtectdatafp.fullPath(FilePath::Windows) );
 
 	if ( getenv( "DTECT_DATA" ) )
-	    setEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
+	    SetEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
 #else
-	setEnvVar( "DTECT_DATA", datadir.buf() );
+	SetEnvVar( "DTECT_DATA", datadir.buf() );
 #endif
     }
 

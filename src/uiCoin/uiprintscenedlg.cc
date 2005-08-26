@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.21 2005-07-18 15:55:30 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.22 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiobj.h"
 #include "ptrman.h"
+#include "oddirs.h"
 #include "uicursor.h"
 
 #include <Inventor/SoOffscreenRenderer.h>

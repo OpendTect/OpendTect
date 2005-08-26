@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.23 2005-05-02 13:15:28 cvskris Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.24 2005-08-26 18:19:27 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.23 2005-05-02 13:15:28 cvskris Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.24 2005-08-26 18:19:27 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -51,7 +51,7 @@ int main( int argc, char** argv )
     if ( argc < 2 )
     {
 	std::cerr << "Usage: " << argv[0] << " cbvs_file" << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
 
     FilePath fp( argv[1] );
@@ -59,7 +59,7 @@ int main( int argc, char** argv )
     if ( !File_exists(fp.fullPath()) )
     {
         std::cerr << fp.fullPath() << " does not exist" << std::endl;
-        exitProgram( 1 );
+        ExitProgram( 1 );
     }
     
     if ( !fp.isAbsolute() )
@@ -71,7 +71,7 @@ int main( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ std::cerr << tri->errMsg() << std::endl;  exitProgram( 1 ); }
+	{ std::cerr << tri->errMsg() << std::endl;  ExitProgram( 1 ); }
 
     std::cerr << "\n";
     const CBVSReadMgr& mgr = *tri->readMgr();
@@ -196,5 +196,5 @@ int main( int argc, char** argv )
 	}
     }
 
-    exitProgram( 0 ); return 0;
+    ExitProgram( 0 ); return 0;
 }

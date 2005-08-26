@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.6 2004-05-27 12:42:13 macman Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.7 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ int main( int argc, char ** argv )
     {
 	std::cerr << "Usage: " << argv[0] << " [--edit] filename\n"
 	     << "Note: filename must be with FULL path." << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     }
 
 #ifndef __win__
@@ -47,7 +47,7 @@ int main( int argc, char ** argv )
     case -1:
 	std::cerr << argv[0] << ": cannot fork: " << errno_message()
 	    	  << std::endl;
-	exitProgram( 1 );
+	ExitProgram( 1 );
     case 0:	break;
     default:	return 0;
     }
@@ -68,5 +68,5 @@ int main( int argc, char ** argv )
 	    		uiFileBrowser::Setup(fnm).readonly(!editable) );
     app.setTopLevel( fb );
     fb->show();
-    exitProgram( app.exec() ); return 0;
+    ExitProgram( app.exec() ); return 0;
 }

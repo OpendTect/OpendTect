@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.8 2005-08-25 14:57:14 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.9 2005-08-26 18:19:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "datainpspec.h"
 #include "genericnumer.h"
 #include "survinfo.h"
+#include "envvars.h"
 
 #include <math.h>
 #include <complex>
@@ -377,7 +378,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int t0, int nrsamples ) const
     cwt.transform( inputdata, outputdata );
 
     const int nrscales = outputdata.info().getSize(1);
-    if ( getenv("DTECT_PRINT_SPECDECOMP") )
+    if ( GetEnvVarYN("DTECT_PRINT_SPECDECOMP") )
     {
 	for ( int idx=0; idx<nrsamp; idx++ )
 	{

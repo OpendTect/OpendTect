@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.2 2005-08-23 16:54:17 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.3 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.2 2005-08-23 16:54:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.3 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.2 2005-08-23 16:54:17 cv
 #include "strmprov.h"
 #include "filepath.h"
 #include "filegen.h"
+#include "oddirs.h"
 #include "errh.h"
 
 #define mInsertItem(mnu,txt,id) \

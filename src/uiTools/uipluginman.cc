@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.10 2004-05-07 10:29:13 macman Exp $
+ RCS:           $Id: uipluginman.cc,v 1.11 2005-08-26 18:19:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uimsg.h"
 #include "plugins.h"
+#include "oddirs.h"
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "strmprov.h"
@@ -78,8 +80,8 @@ void uiPluginMan::selChg( CallBacker* )
 	    BufferString fnm = ".rel.";
 	    fnm += piinf.version+1;
 	    fnm += ".";
-	    const char* plfenv = getenv( "binsubdir" );
-	    if ( !plfenv ) plfenv = getenv( "HDIR" );
+	    const char* plfenv = GetEnvVar( "binsubdir" );
+	    if ( !plfenv ) plfenv = GetEnvVar( "HDIR" );
 	    fnm += plfenv;
 	    fp.add( fnm );
 	    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();

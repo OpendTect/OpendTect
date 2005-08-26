@@ -4,19 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.16 2005-08-12 11:22:04 cvsnanne Exp $
+ RCS:           $Id: debug.cc,v 1.17 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.16 2005-08-12 11:22:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.17 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
+#include "genc.h"
 #include "bufstring.h"
 #include "timefun.h"
 #include "filepath.h"
-#include "genc.h"
+#include "envvars.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,12 +35,12 @@ static int getMask()
     if ( maskgot ) return themask;
     maskgot = true;
 
-    BufferString envmask = getenv( "DTECT_DEBUG" );
+    BufferString envmask = GetEnvVar( "DTECT_DEBUG" );
     const char* buf = envmask.buf();
     themask = atoi( buf );
     if ( buf[0] == 'y' || buf[0] == 'Y' ) themask = 0xffff;
 
-    const char* dbglogfnm = getenv( "DTECT_DEBUG_LOGFILE" );
+    const char* dbglogfnm = GetEnvVar( "DTECT_DEBUG_LOGFILE" );
     if ( dbglogfnm && !themask )
 	themask = 0xffff;
 
@@ -99,7 +100,7 @@ void message( int flag, const char* msg )
 
 void putProgInfo( int argc, char** argv )
 {
-    if ( getenv("OD_NO_PROGINFO") ) return;
+    if ( GetEnvVarYN("OD_NO_PROGINFO") ) return;
 
     const bool ison = isOn( DBG_PROGSTART );
 
@@ -114,13 +115,13 @@ void putProgInfo( int argc, char** argv )
 	FilePath fp( argv[0] );
 	msg = fp.fileName();
     }
-    msg += " started on "; msg += getHostName();
+    msg += " started on "; msg += GetHostName();
     msg += " at "; msg += Time_getLocalString();
     if ( !ison ) msg += "\n";
     message( msg );
     if ( !ison ) return;
 
-    msg = "PID: "; msg += getPID();
+    msg = "PID: "; msg += GetPID();
     msg += "; Platform: ";
 #ifdef lux
     msg += "Linux";

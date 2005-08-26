@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.21 2005-07-13 13:29:36 cvsdgb Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.22 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,13 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "hostdata.h"
 #include "ioman.h"
+#include "oddirs.h"
 #include "jobinfo.h"
 #include "mmdefs.h"
 #include "queue.h"
 #include "socket.h"
 #include "errh.h"
+#include "envvars.h"
 #include "separstr.h"
 #include "timefun.h"
 #include "keystrs.h"
@@ -257,9 +259,7 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
 
 void JobIOHandler::doDispatch( CallBacker* )
 {
-    static int timeout = atoi( getenv("DTECT_MM_MSTR_TO")
-			     ? getenv("DTECT_MM_MSTR_TO") : "30" );
-
+    static int timeout = GetEnvVarIVal( "DTECT_MM_MSTR_TO", 30 );
     
     SocketProvider& sockprov = *new SocketProvider( firstport_ );
     sockprov_ = &sockprov;
@@ -310,7 +310,7 @@ void JobIOHandler::doDispatch( CallBacker* )
 		}
 
 	        // hardly ever needed and quite noisy.
-		static bool debug_resp = getenv("DTECT_MM_DEBUG_RESP");
+		static bool debug_resp = GetEnvVarYN("DTECT_MM_DEBUG_RESP");
 		if ( debug_resp && mDebugOn )
 		{
 		    BufferString msg("JobIOMgr::JobIOMgr: Response to host ");

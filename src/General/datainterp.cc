@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.18 2005-08-17 10:04:48 cvsbert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.19 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -251,7 +251,7 @@ template <> \
 rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 { \
     T##typ t = *(((T##typ*)buf) + nr); \
-    swap_bytes( &t, sizeof(T##typ) ); \
+    SwapBytes( &t, sizeof(T##typ) ); \
     return (rettyp)t; \
 }
 
@@ -286,7 +286,7 @@ template <> \
 rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 { \
     T##typ t = *(((T##typ*)buf) + nr); \
-    swap_bytes( &t, sizeof(T##typ) ); \
+    SwapBytes( &t, sizeof(T##typ) ); \
     return (rettyp)(t > 0 ? t+.5:t-.5); \
 }
 mDefDIGF2Iswp(int,F)
@@ -390,7 +390,7 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 		  : ( f < -cM##typ ? -cM##typ : (T##typ)(f + (f<0?-.5:.5)) ); \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 mDefDIPSswp(float,S2)
@@ -405,7 +405,7 @@ template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = (T##typ)f; \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 #define mDefDIPIScswp(inptyp,typ) \
@@ -414,7 +414,7 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 		  : ( f < -cM##typ ? -cM##typ : (T##typ)f ); \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 mDefDIPIScswp(int,S2)
@@ -431,7 +431,7 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 		  : (f < 0 ? 0 : (T##typ)(f + .5)); \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 mDefDIPUswp(float,U2)
@@ -444,7 +444,7 @@ template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f < 0 ? 0 : (T##typ)f; \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 #define mDefDIPUIcswp(inptyp,typ) \
@@ -452,7 +452,7 @@ template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ : (f < 0 ? 0 : (T##typ)f); \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 mDefDIPUIcswp(int,U2)
@@ -466,7 +466,7 @@ template <> \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = (T##typ)f; \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 mDefDIPFswp(float,F)
@@ -484,7 +484,7 @@ template <> \
 rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int nr) const \
 { \
      T##typ x = *( ((T##typ*)buf)+nr ); \
-     swap_bytes( &x, sizeof(T##typ) ); \
+     SwapBytes( &x, sizeof(T##typ) ); \
      return (rettyp)IbmFormat::as##fntyp( &x ); \
 }
 
@@ -512,7 +512,7 @@ template <> \
 rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int nr) const \
 { \
      T##typ x = *( ((T##typ*)buf)+nr ); \
-     swap_bytes( &x, sizeof(T##typ) ); \
+     SwapBytes( &x, sizeof(T##typ) ); \
      return (rettyp)IbmFormat::as##fntyp( &x ); \
 }
 
@@ -565,7 +565,7 @@ void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,int nr,inptyp f) \
 const { \
     IbmFormat::put##fntyp( f > cM##typ ? cM##typ : ( f < -cM##typ ? -cM##typ \
 		: (T##typ)(f + (f<0?-.5:.5)) ), ((T##typ*)buf)+nr ); \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 mDefDIPSIbmswp(float,S2,Short)
@@ -583,7 +583,7 @@ template <> \
 void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,int nr,inptyp f) \
 const { \
     IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); \
-    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+    SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
 }
 
 mDefDIPFIbmswp(float,F,Float)

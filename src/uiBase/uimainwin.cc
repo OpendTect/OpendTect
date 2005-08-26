@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.96 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.97 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "errh.h"
 #include "helpview.h"
+#include "oddirs.h"
 
 #include "pixmap.h"
 #include "uibody.h"

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.17 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.18 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.17 2005-08-16 17:10:17 c
 #include "iostrm.h"
 #include "iopar.h"
 #include "iodirentry.h"
+#include "oddirs.h"
 #include "hostdata.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -257,7 +258,7 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
     BufferString stordir = "Proc_";
     stordir += HostData::localHostName();
     stordir += "_";
-    stordir += getPID();
+    stordir += GetPID();
 
     fp.add( stordir );
     return fp.fullPath();

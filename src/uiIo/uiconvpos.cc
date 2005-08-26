@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.13 2005-07-18 15:55:31 cvsbert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.14 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiconvpos.h"
 #include "pixmap.h"
 #include "survinfo.h"
+#include "oddirs.h"
 #include "uibutton.h"
 #include "uidialog.h"
 #include "uigeninput.h"

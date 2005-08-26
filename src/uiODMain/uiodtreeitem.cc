@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.99 2005-08-24 14:05:00 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.100 2005-08-26 18:19:28 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ___________________________________________________________________
 #include "attribsel.h"
 #include "errh.h"
 #include "ptrman.h"
+#include "oddirs.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "uimenu.h"

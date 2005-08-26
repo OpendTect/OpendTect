@@ -5,14 +5,15 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.27 2005-04-22 11:37:00 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.28 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "ascstream.h"
-#include "errh.h"
 #include "safefileio.h"
+#include "oddirs.h"
+#include "errh.h"
 #include <filegen.h>
 
 static const char* sKeyDeflt = "Default settings";

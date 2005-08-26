@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.5 2005-07-15 15:29:17 cvskris Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.6 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "oddirs.h"
 #include "cubesampling.h"
 
 

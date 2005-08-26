@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.52 2005-08-17 10:04:48 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.53 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "pixmap.h"
 #include "survinfo.h"
+#include "oddirs.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "keystrs.h"

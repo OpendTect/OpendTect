@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.24 2005-08-18 13:36:54 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.25 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -15,12 +15,14 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.24 2005-08-18 13:36:54 cvsbe
 #include "posgeomdetector.h"
 #include "strmprov.h"
 #include "sorting.h"
+#include "oddirs.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "stats.h"
 #include "conn.h"
 #include "errh.h"
+#include "math2.h"
 
 #ifndef mac
 #include <values.h>
@@ -365,7 +367,7 @@ bool SeisScanner::doValueWork()
 	   nonnull_seen = true;
 	}
 
-	if ( !isFinite(val) || val > 1e30 || val < -1e30 )
+	if ( !IsNormalNumber(val) || val > 1e30 || val < -1e30 )
 	{
 	    if ( invalidsamplenr < 0 )
 	    {

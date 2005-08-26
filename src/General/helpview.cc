@@ -5,12 +5,14 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.25 2004-12-06 10:36:34 dgb Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.26 2005-08-26 18:19:28 cvsbert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
 #include "multiid.h"
 #include "errh.h"
+#include "oddirs.h"
+#include "envvars.h"
 #include "strmprov.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -345,7 +347,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
 	UsrMsg( msg );
 	ptr = sMainIndex;
     }
-    else if ( getenv("DTECT_SHOW_HELP") )
+    else if ( GetEnvVarYN("DTECT_SHOW_HELP") )
     {
 	BufferString msg = inpwinid; msg += " -> "; msg += ptr;
 	UsrMsg( msg );

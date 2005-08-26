@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.26 2005-05-11 09:19:47 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.27 2005-08-26 18:19:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,10 @@ ________________________________________________________________________
 #include "jobiomgr.h"
 #include "queue.h"
 #include "mmdefs.h"
+#include "envvars.h"
 #include "timefun.h"
 #include "debugmasks.h"
+#include "oddirs.h"
 #include "msgh.h"
 #include <iostream>
 
@@ -44,7 +46,7 @@ static int mkTmpFileNr()
 {
     tmpfnm_base = HostData::localHostName();
     tmpfnm_base += "_";
-    tmpfnm_base += getPID();
+    tmpfnm_base += GetPID();
     return 1;
 }
                                                                                 
@@ -59,22 +61,14 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, niceval_(19)
 	, firstport_(19636)
     	, prog_(cmd)
-	, starttimeout_( 1000 * atoi( getenv("DTECT_MM_START_TO")
-				    ? getenv("DTECT_MM_START_TO"): "45") )
-	, failtimeout_(  1000 * atoi( getenv("DTECT_MM_FAIL_TO")
-				    ? getenv("DTECT_MM_FAIL_TO"): "450") )
-	, wrapuptimeout_(1000 *	atoi( getenv("DTECT_MM_WRAPUP_TO")
-				    ? getenv("DTECT_MM_WRAPUP_TO"):"1800"))
-	, hosttimeout_(  1000 * atoi( getenv("DTECT_MM_HOST_TO")
-				    ? getenv("DTECT_MM_HOST_TO"): "600") )
-    	, maxhostfailures_(	atoi( getenv("DTECT_MM_MX_HSTFAIL")
-				    ? getenv("DTECT_MM_MX_HSTFAIL") : "5") )
-    	, maxjobfailures_(	atoi( getenv("DTECT_MM_MX_JOBFAIL")
-				    ? getenv("DTECT_MM_MX_JOBFAIL") : "2") )
-    	, maxjobhstfails_(	atoi( getenv("DTECT_MM_MX_JOBHSTF")
-				    ? getenv("DTECT_MM_MX_JOBHSTF") : "7") )
-	, startwaittime_ (	atoi( getenv("DTECT_MM_START_WAIT")
-				    ? getenv("DTECT_MM_START_WAIT") : "1000") )
+	, starttimeout_( 1000 * GetEnvVarIVal("DTECT_MM_START_TO",   45 ) )
+	, failtimeout_(  1000 * GetEnvVarIVal("DTECT_MM_FAIL_TO",    450 ) )
+	, wrapuptimeout_(1000 *	GetEnvVarIVal("DTECT_MM_WRAPUP_TO",  1800 ) )
+	, hosttimeout_(  1000 * GetEnvVarIVal("DTECT_MM_HOST_TO",    600 ) )
+    	, maxhostfailures_(	GetEnvVarIVal("DTECT_MM_MX_HSTFAIL", 5 ) )
+    	, maxjobfailures_(	GetEnvVarIVal("DTECT_MM_MX_JOBFAIL", 2 ) )
+    	, maxjobhstfails_(	GetEnvVarIVal("DTECT_MM_MX_JOBHSTF", 7 ) )
+	, startwaittime_ (	GetEnvVarIVal("DTECT_MM_START_WAIT", 1000 ) )
 	, preJobStart(this)
 	, postJobStart(this)
 	, jobFailed(this)
