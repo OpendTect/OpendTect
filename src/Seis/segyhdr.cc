@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.30 2005-08-23 16:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.31 2005-08-26 13:25:20 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -602,6 +602,17 @@ static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf )
 
 void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 {
+    if ( mIsZero(extcoordsc,1e-8) && !getenv("OD_ALLOW_ZERO_COORD_SCALING") )
+    {
+	static bool warningdone = false;
+	if ( !warningdone )
+	{
+	    ErrMsg( "Replacing requested zero scaling with 1" );
+	    warningdone = true;
+	}
+	extcoordsc = 1;
+    }
+
     if ( !isrev1 )
 	getRev1Flds( ti, buf );
 
