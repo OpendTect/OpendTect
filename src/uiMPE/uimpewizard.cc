@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.13 2005-08-25 14:02:14 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.14 2005-08-26 01:38:35 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,6 +320,7 @@ bool Wizard::leaveFinalizePage(bool process)
 {
     if ( !process ) return true;
 
+    anotherSel(0);
     if ( anotherfld->getBoolValue() )
     {
 	setTrackingType( typefld->text() );
