@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.17 2005-08-23 12:38:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.18 2005-08-26 11:35:49 cvshelene Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -147,6 +147,8 @@ void uiTreeItem::toggleMultiMode()
 	    else
 		children[idx]->setChecked(false);
 	}
+	if ( !checkedids.size() )
+	    children[idx]->setChecked(false);
     }
 }
 
