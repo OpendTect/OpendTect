@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.65 2005-07-26 08:41:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.66 2005-08-26 18:47:19 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.65 2005-07-26 08:41:39 cvsbert
 #include "ptrman.h"
 #include "survinfo.h"
 #include "cubesampling.h"
+#include "envvars.h"
 #include "errh.h"
 #include <math.h>
 
@@ -86,17 +87,13 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, trcblock_(*new SeisTrcBuf)
     	, lastinlwritten(SI().sampling(false).hrg.start.inl)
     	, read_mode(Seis::Prod)
-    	, enforce_regular_write(true)
-    	, enforce_survinfo_write(false)
     	, is_prestack(false)
     	, is_2d(false)
+    	, enforce_regular_write( // default true
+		!GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION"))
+    	, enforce_survinfo_write( // default false
+		GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE"))
 {
-    const char* envvar = getenv("DTECT_ENFORCE_REGULAR_SEISWRITE");
-    if ( envvar && *envvar )
-	enforce_regular_write = yesNoFromString(envvar);
-    envvar = getenv("DTECT_ENFORCE_SURVINFO_SEISWRITE");
-    if ( envvar && *envvar )
-	enforce_survinfo_write = yesNoFromString(envvar);
 }
 
 
@@ -285,7 +282,7 @@ void SeisTrcTranslator::enforceBounds()
 void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
 				      const Coord& sp )
 {
-    static bool warnfail = getenv( "DTECT_WARN_BINID_SRCOORDS" );
+    static bool warnfail = GetEnvVarYN( "DTECT_WARN_BINID_SRCOORDS" );
     ti.offset = gp.distance( sp );
     ti.azimuth = atan2( gp.y - sp.y, gp.x - sp.x );
     if ( warnfail )

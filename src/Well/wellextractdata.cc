@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.24 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.25 2005-08-26 18:47:19 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.24 2005-08-16 17:10:17 c
 #include "ptrman.h"
 #include "multiid.h"
 #include "sorting.h"
+#include "envvars.h"
 #include "errh.h"
 
 #include <iostream>
@@ -352,7 +353,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
 
-    if ( getenv("DTECT_DUMP_WELL_EXTRACTION_DATA") )
+    if ( GetEnvVarYN("DTECT_DUMP_WELL_EXTRACTION_DATA") )
     {
 	StreamProvider sp( FilePath::getTempName("trackdump.txt") );
 	StreamData sd = sp.makeOStream();
@@ -380,12 +381,9 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
     }
 
     bool usegenalgo = !track.alwaysDownward();
-    if ( getenv("DTECT_LOG_EXTR_ALGO") )
-    {
-	int opt = atoi( getenv("DTECT_LOG_EXTR_ALGO") );
-	if ( opt == 1 ) usegenalgo = false;
-	if ( opt == 2 ) usegenalgo = true;
-    }
+    int opt = GetEnvVarIVal("DTECT_LOG_EXTR_ALGO",0);
+    if ( opt == 1 ) usegenalgo = false;
+    if ( opt == 2 ) usegenalgo = true;
 
     if ( usegenalgo )
     {

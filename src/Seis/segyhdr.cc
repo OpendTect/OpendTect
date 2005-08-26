@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.32 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.33 2005-08-26 18:47:19 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.32 2005-08-26 18:19:28 cvsbert E
 #include "cubesampling.h"
 #include "msgh.h"
 #include "math2.h"
+#include "envvars.h"
 #include <string.h>
 #include <ctype.h>
 #include <iostream>
@@ -603,7 +604,8 @@ static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf )
 
 void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 {
-    if ( mIsZero(extcoordsc,1e-8) && !getenv("OD_ALLOW_ZERO_COORD_SCALING") )
+    if ( mIsZero(extcoordsc,1e-8)
+	    && !GetEnvVarYN("OD_ALLOW_ZERO_COORD_SCALING") )
     {
 	static bool warningdone = false;
 	if ( !warningdone )
@@ -646,26 +648,18 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.coord.y *= scale;
 
     // Hack to enable shifts
+    static double false_easting = 0; static double false_northing = 0;
     static bool false_stuff_got = false;
-    static double false_easting = 0;
-    static double false_northing = 0;
     if ( !false_stuff_got )
     {
 	false_stuff_got = true;
-	const char* env = getenv( "OD_SEGY_FALSE_EASTING" );
-	if ( env )
+	false_easting = GetEnvVarDVal( "OD_SEGY_FALSE_EASTING", 0 );
+	false_northing = GetEnvVarDVal( "OD_SEGY_FALSE_NORTHING", 0 );
+	if ( !mIsZero(false_easting,1e-5) || !mIsZero(false_northing,1e-5) )
 	{
-	    false_easting = atof( env );
-	    BufferString usrmsg( "This OD run SEG-Y a false easting of " );
-	    usrmsg += false_easting; usrmsg += " will be applied";
-	    UsrMsg( usrmsg );
-	}
-	env = getenv( "OD_SEGY_FALSE_NORTHING" );
-	if ( env )
-	{
-	    false_northing = atof( env );
-	    BufferString usrmsg( "This OD run SEG-Y a false northing of " );
-	    usrmsg += false_northing; usrmsg += " will be applied";
+	    BufferString usrmsg( "This OD run SEG-Y easting/northing " );
+	    usrmsg += false_easting; usrmsg += "/"; usrmsg += false_northing;
+	    usrmsg += " will be applied";
 	    UsrMsg( usrmsg );
 	}
     }
