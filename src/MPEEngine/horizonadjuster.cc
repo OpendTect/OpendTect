@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.8 2005-08-25 08:38:57 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.9 2005-08-26 07:35:47 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -299,6 +299,7 @@ int HorizonAdjuster::matchingSampleBySimilarity( const float* srctrc,
 			int startsample, int endsample, const float* refval,
 			float &matchratio, bool& eqfromstart )
 {
+    const int noiselevel = 1;	int noise = 0;
     int matchpos = -1;    eqfromstart = false;
 
     int eqsamples = 0;    float prevratio = 0;
@@ -310,10 +311,11 @@ int HorizonAdjuster::matchingSampleBySimilarity( const float* srctrc,
 	
 	float curratio = similarity<const float*, const float*>(refval, srctrc,
 				matchwinsamples_, false, 0, smpl );
-	if ( curratio<similaritythreshold_ )
-	    break;
 	if ( curratio<prevratio )
-	    continue;
+	{
+	    if ( noise < noiselevel ) { ++noise;    continue; }
+	    else			break;
+	}
 	
 	if ( smpl==startsample || prevratio != curratio )
 	{
@@ -323,13 +325,14 @@ int HorizonAdjuster::matchingSampleBySimilarity( const float* srctrc,
 	}
 	else if ( smpl!=startsample && prevratio == curratio )
 	    eqsamples++;
+	noise = 0;
     }
     if ( matchpos != -1 && eqsamples )
     {
 	eqfromstart = (eqsamples == (matchpos - startsample + 1));
 	matchpos += ( eqsamples / 2 * step );
     }
-    return matchpos;
+    return matchratio>=similaritythreshold_ ? matchpos : -1;
 }
 
 
