@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.70 2005-08-29 12:34:29 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.71 2005-08-29 12:41:57 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -691,6 +691,7 @@ const char* GetEnvVar( const char* env )
 		ptr = linebuf;
 		skipLeadingBlanks(ptr);
 		varptr = ptr;
+		if ( *varptr == '#' || !*varptr ) continue;
 
 		while ( *ptr && !isspace(*ptr) ) ptr++;
 		if ( !*ptr ) continue;
