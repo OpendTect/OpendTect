@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.69 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.70 2005-08-29 12:34:29 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: genc.c,v 1.69 2005-08-26 18:19:28 cvsbert Exp $
 #include "filegen.h"
 #include "winutils.h"
 #include "timefun.h"
+#include "string2.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -57,35 +58,38 @@ void SetSurveyNameDirty()
 
 static const char* mkFullPath( const char* path, const char* filename )
 {
-    static FileNameString pathbuf;
+    static FileNameString result;
     char* chptr;
-    int lastpos;
 
-    if ( path != pathbuf )
-	strcpy( pathbuf, path && *path ? path : "." );
+    /* Copy path to result buf */
+    if ( path != result )
+	strcpy( result, path && *path ? path : "." );
+    if ( !filename || !*filename ) return result;
 
-    if ( !filename || !*filename ) return pathbuf;
+    /* Remove trailing dirseps from result */
+    chptr = result;
+    while ( *chptr ) chptr++;	/* chptr on '\0' */
+    chptr--;			/* chptr on last char */
+    while ( *chptr == *dirsep && chptr != result-1 )
+	*chptr-- = '\0';
+    chptr++;			/* chptr on (first) '\0' */
 
-    /* Remove trailing dirseps from pathbuf */
-    chptr = pathbuf; while ( *chptr ) chptr++; chptr--;
-    while ( chptr != pathbuf-1 && *chptr == *dirsep ) *chptr-- = '\0';
+    /* Add dirsep */
+    *chptr++ = *dirsep; *chptr = '\0';	/* chptr on '\0' again */
 
-    chptr = (char*)pathbuf;
-    lastpos = strlen( chptr ) - 1;
-    if ( lastpos >= 0 && chptr[lastpos] != *dirsep )
-	strcat( chptr, dirsep );
-
-    strcat( chptr, filename );
-    return chptr;
+    /* Add filename */
+    strcpy( chptr, filename );
+    return result;
 }
 
 
 const char* GetSoftwareDir()
 {
+    char* chptr1; char* chptr2;
+    const char* dir = 0;
+
     static char* cachedDir = 0;
     if ( cachedDir ) return cachedDir;
-
-    const char* dir = 0;
 
 #ifndef __win__
 
@@ -147,9 +151,7 @@ const char* GetSoftwareDir()
 
 	static FileNameString progname;
 	strcpy( progname, GetEnvVar("DTECT_ARGV0") );
-
 	if ( !*progname ) return 0;
-
 
 	char* chptr1 = progname;
 	char* chptr2 = chptr1;
@@ -160,8 +162,9 @@ const char* GetSoftwareDir()
 
 	*chptr1-- = '\0';
 
-	/* Remove trailing dirseps from pathbuf */
-	while ( chptr1 != progname-1 && *chptr1 == *dirsep ) *chptr1-- = '\0';
+	/* Remove trailing dirseps */
+	while ( chptr1 != progname-1 && *chptr1 == *dirsep )
+	    *chptr1-- = '\0';
 
 	dir = progname;
     }
@@ -657,9 +660,60 @@ char* GetOSEnvVar( const char* env )
 }
 
 
+#define mMaxNrEnvEntries 1024
+typedef struct _GetEnvVarEntry
+{
+    char	varname[128];
+    char	value[1024];
+} GetEnvVarEntry;
+
 const char* GetEnvVar( const char* env )
 {
-    /* Maybe get from some kind of setup file - nice for windows */
+    static int fileread = 0;
+    static FILE* fp = 0;
+    static char linebuf[1024];
+    static char* ptr;
+    static const char* varptr;
+    static int nrentries = 0;
+    static GetEnvVarEntry* entries[mMaxNrEnvEntries];
+    int idx;
+
+    if ( !env || !*env ) return 0;
+
+    if ( !fileread )
+    {
+	fileread = 1;
+	fp = fopen( mkFullPath(GetSettingsDir(),"envvars"), "r" );
+	if ( fp )
+	{
+	    while ( fgets(linebuf,1024,fp) )
+	    {
+		ptr = linebuf;
+		skipLeadingBlanks(ptr);
+		varptr = ptr;
+
+		while ( *ptr && !isspace(*ptr) ) ptr++;
+		if ( !*ptr ) continue;
+		*ptr++ = '\0';
+		skipLeadingBlanks(ptr);
+		removeTrailingBlanks(ptr);
+		if ( !*ptr ) continue;
+
+		entries[nrentries] = mMALLOC(1,GetEnvVarEntry);
+		strcpy( entries[nrentries]->varname, varptr );
+		strcpy( entries[nrentries]->value, ptr );
+		nrentries++;
+	    }
+	    fclose( fp );
+	}
+    }
+
+    for ( idx=0; idx<nrentries; idx++ )
+    {
+	if ( !strcmp( entries[idx]->varname, env ) )
+	    return entries[idx]->value;
+    }
+
     return GetOSEnvVar( env );
 }
 
