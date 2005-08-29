@@ -1,9 +1,10 @@
 /*+
  ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
- Author:        H. Payraudeau
- Date:          February 2005
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	H. Payraudeau
+ Date:		February 2005
+ RCS:		$Id: uieventattrib.cc,v 1.3 2005-08-29 08:52:48 cvsdgb Exp $
  ________________________________________________________________________
 
 -*/
@@ -16,7 +17,6 @@
 #include "uiattrsel.h"
 #include "datainpspec.h"
 
-using namespace Attrib;
 
 static const char* evtypestrs[] =
 {
@@ -94,17 +94,19 @@ void uiEventAttrib::isGateSel( CallBacker* )
 }
 
 
-bool uiEventAttrib::setParameters( const Desc& desc )
+bool uiEventAttrib::setParameters( const Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Event::attribName()) )
+    if ( strcmp(desc.attribName(),Attrib::Event::attribName()) )
 	return false;
 
-    mIfGetBool( Event::issingleeventStr(), issingleevent, 
+    mIfGetBool( Attrib::Event::issingleeventStr(), issingleevent, 
 	        issinglefld->setValue(issingleevent) );
-    mIfGetBool( Event::tonextStr(), tonext, tonextfld->setValue(tonext) );
-    mIfGetEnum( Event::eventTypeStr(), eventtype, 
+    mIfGetBool( Attrib::Event::tonextStr(), tonext,
+		tonextfld->setValue(tonext) );
+    mIfGetEnum( Attrib::Event::eventTypeStr(), eventtype, 
 	        evtypefld->setValue(eventtype) );
-    mIfGetFloatInterval( Event::gateStr(), gate, gatefld->setValue(gate) );
+    mIfGetFloatInterval( Attrib::Event::gateStr(), gate,
+			 gatefld->setValue(gate) );
 
     isSingleSel(0);
     isGateSel(0);
@@ -113,35 +115,35 @@ bool uiEventAttrib::setParameters( const Desc& desc )
 }
 
 
-bool uiEventAttrib::setInput( const Desc& desc )
+bool uiEventAttrib::setInput( const Attrib::Desc& desc )
 {
     putInp( inpfld, desc, 0 );
     return true;
 }
 
 
-bool uiEventAttrib::setOutput( const Desc& desc )
+bool uiEventAttrib::setOutput( const Attrib::Desc& desc )
 {
     outpfld->setValue( desc.selectedOutput() );
     return true;
 }
 
 
-bool uiEventAttrib::getParameters( Desc& desc )
+bool uiEventAttrib::getParameters( Attrib::Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Event::attribName()) )
+    if ( strcmp(desc.attribName(),Attrib::Event::attribName()) )
 	return false;
 
-    mSetBool( Event::issingleeventStr(), issinglefld->getBoolValue() );
-    mSetBool( Event::tonextStr(), tonextfld->getBoolValue() );
-    mSetEnum( Event::eventTypeStr(), evtypefld->getIntValue() );
-    mSetFloatInterval( Event::gateStr(), gatefld->getFInterval() );
+    mSetBool( Attrib::Event::issingleeventStr(), issinglefld->getBoolValue() );
+    mSetBool( Attrib::Event::tonextStr(), tonextfld->getBoolValue() );
+    mSetEnum( Attrib::Event::eventTypeStr(), evtypefld->getIntValue() );
+    mSetFloatInterval( Attrib::Event::gateStr(), gatefld->getFInterval() );
 
     return true;
 }
 
 
-bool uiEventAttrib::getInput( Desc& desc )
+bool uiEventAttrib::getInput( Attrib::Desc& desc )
 {
     inpfld->processInput();
     fillInp( inpfld, desc, 0 );
@@ -149,7 +151,7 @@ bool uiEventAttrib::getInput( Desc& desc )
 }
 
 
-bool uiEventAttrib::getOutput( Desc& desc )
+bool uiEventAttrib::getOutput( Attrib::Desc& desc )
 {
     const int outp = issinglefld->getBoolValue() ? outpfld->getIntValue() : 0;
     fillOutput( desc, outp );
