@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.5 2005-08-29 07:35:55 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.6 2005-08-29 08:17:58 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -101,7 +101,12 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    output.item(7)->setValue(idx, val);
 	}
 	if ( outputinterest[8] )
-	    output.item(8)->setValue(idx, idx+1);
+	{
+	    int val = t0 - mNINT(SI().zRange(0).start/step) + idx + 1;
+	    output.item(8)->setValue(idx, val);
+	}
+	    
+//	    output.item(8)->setValue(idx, idx+1);
     }
 
     return true;
