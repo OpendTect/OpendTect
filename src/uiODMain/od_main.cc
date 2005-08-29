@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.10 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: od_main.cc,v 1.11 2005-08-29 09:30:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 // TODO : Is there a better way to force linking with attribute factory?
 #ifdef __mac__
-# include "attribfact.h"
+# include "attribfactory.h"
 #endif
 
 extern int ODMain(int,char**);
