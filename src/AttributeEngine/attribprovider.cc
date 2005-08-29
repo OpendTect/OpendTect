@@ -4,9 +4,10 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.28 2005-08-25 13:41:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.29 2005-08-29 12:39:04 cvsnanne Exp $";
 
 #include "attribprovider.h"
+#include "attribstorprovider.h"
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
@@ -479,9 +480,10 @@ int Provider::moveToNextTrace()
 	    }
 	}
     }
+
     currentbid = movinginputs[0]->getCurrentPosition();
     if ( strcmp(curlinekey_.lineName(),"") )
-	trcnr_ = movinginputs[0]-> getCurrentTrcNr();
+	trcnr_ = movinginputs[0]->getCurrentTrcNr();
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
@@ -489,7 +491,7 @@ int Provider::moveToNextTrace()
 	if ( !inputs[idx]->setCurrentPosition(currentbid) )
 	    return -1;
     }
-    setCurrentPosition(currentbid);
+    setCurrentPosition( currentbid );
 
     alreadymoved = true;
     return 1;
@@ -961,25 +963,22 @@ void Provider::propagateZRefStep( const ObjectSet<Provider>& existing )
 
 void Provider::setCurLineKey( const char* linename )
 {
-    curlinekey_.setLineName(linename);
     BufferString attrname;
-    if ( strcmp(desc.attribName(),"Storage") )
-	attrname = (BufferString)desc.attribName();
+    if ( !desc.isStored() )
+	attrname = desc.attribName();
     else
     {
-	const Param* idpar = desc.getParam( "id" );
-	BufferString bfstr;
-	if ( idpar ) 
-	    idpar->getCompositeValue( bfstr );
-	LineKey lk( bfstr );
+	const ValParam* idpar = desc.getValParam( StorageProvider::keyStr() );
+	LineKey lk( idpar->getStringValue() );
 	attrname = lk.attrName();
     }
-    
-    curlinekey_.setAttrName( (const char*)attrname);
+
+    curlinekey_.setLineName( linename );
+    curlinekey_.setAttrName( attrname );
     for ( int idx=0; idx<inputs.size(); idx++ )
     {   
 	if ( !inputs[idx] ) continue;
-	inputs[idx]->setCurLineKey(curlinekey_.lineName());
+	inputs[idx]->setCurLineKey( curlinekey_.lineName() );
     }
 }
 

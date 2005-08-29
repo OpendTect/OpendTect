@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.21 2005-08-24 16:15:54 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.22 2005-08-29 12:39:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -547,7 +547,11 @@ ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
     
     for ( int idx=0; idx<procset.size(); idx++ )
     {
-	LineKey lkey(linekey.buf(),procset[idx]->getAttribName());
+	LineKey lkey = linekey.buf();
+	const Provider* prov = procset[idx]->getProvider();
+	if ( prov && !prov->getDesc().isStored() )
+	    lkey.setAttrName( procset[idx]->getAttribName() );
+
 	cs_.hrg.start.inl = 0; cs_.hrg.stop.inl = 0;
 	CubeOutput* attrout = new CubeOutput( cs_, lkey );
 	attrout->set2D();

@@ -5,15 +5,16 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.30 2005-08-19 13:51:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.31 2005-08-29 12:39:04 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
 #include "attribdescset.h"
-#include "attribfactory.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
-#include "errh.h"
+#include "seistrctr.h"
+#include "ioman.h"
+#include "ioobj.h"
 
 namespace Attrib
 {
@@ -252,8 +253,12 @@ Desc* Desc::getInput( int input )
 
 bool Desc::is2D() const
 {
-    // TODO: implement
-    return false;
+    const ValParam* keypar = getValParam( StorageProvider::keyStr() );
+    if ( !keypar ) return false;
+
+    MultiID key = keypar->getStringValue();
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    return ioobj && SeisTrcTranslator::is2D( *ioobj );
 }
 
 
@@ -620,7 +625,7 @@ void Desc::changeStoredID( const char* newid )
 }
 
 /*
-IOObj* Desc::getDefCubeIOObj(bool issteering ,bool is2d) const;
+IOObj* Desc::getDefCubeIOObj( bool issteering, bool is2d ) const;
 {
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
     if ( issteering && !is2d )
