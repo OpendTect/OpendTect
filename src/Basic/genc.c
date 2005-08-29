@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.71 2005-08-29 12:41:57 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.72 2005-08-29 14:56:18 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -667,46 +667,56 @@ typedef struct _GetEnvVarEntry
     char	value[1024];
 } GetEnvVarEntry;
 
-const char* GetEnvVar( const char* env )
+
+static void loadEntries( const char* fnm, int* pnrentries,
+    			 GetEnvVarEntry* entries[] )
 {
-    static int fileread = 0;
-    static FILE* fp = 0;
+    static FILE* fp;
     static char linebuf[1024];
     static char* ptr;
     static const char* varptr;
+
+    fp = fopen( fnm, "r" );
+    if ( !fp ) return;
+
+    while ( fgets(linebuf,1024,fp) )
+    {
+	ptr = linebuf;
+	skipLeadingBlanks(ptr);
+	varptr = ptr;
+	if ( *varptr == '#' || !*varptr ) continue;
+
+	while ( *ptr && !isspace(*ptr) ) ptr++;
+	if ( !*ptr ) continue;
+	*ptr++ = '\0';
+	skipLeadingBlanks(ptr);
+	removeTrailingBlanks(ptr);
+	if ( !*ptr ) continue;
+
+	entries[*pnrentries] = mMALLOC(1,GetEnvVarEntry);
+	strcpy( entries[*pnrentries]->varname, varptr );
+	strcpy( entries[*pnrentries]->value, ptr );
+	(*pnrentries)++;
+    }
+    fclose( fp );
+}
+
+
+const char* GetEnvVar( const char* env )
+{
+    static int filesread = 0;
     static int nrentries = 0;
     static GetEnvVarEntry* entries[mMaxNrEnvEntries];
     int idx;
 
     if ( !env || !*env ) return 0;
 
-    if ( !fileread )
+    if ( !filesread )
     {
-	fileread = 1;
-	fp = fopen( mkFullPath(GetSettingsDir(),"envvars"), "r" );
-	if ( fp )
-	{
-	    while ( fgets(linebuf,1024,fp) )
-	    {
-		ptr = linebuf;
-		skipLeadingBlanks(ptr);
-		varptr = ptr;
-		if ( *varptr == '#' || !*varptr ) continue;
-
-		while ( *ptr && !isspace(*ptr) ) ptr++;
-		if ( !*ptr ) continue;
-		*ptr++ = '\0';
-		skipLeadingBlanks(ptr);
-		removeTrailingBlanks(ptr);
-		if ( !*ptr ) continue;
-
-		entries[nrentries] = mMALLOC(1,GetEnvVarEntry);
-		strcpy( entries[nrentries]->varname, varptr );
-		strcpy( entries[nrentries]->value, ptr );
-		nrentries++;
-	    }
-	    fclose( fp );
-	}
+	filesread = 1;
+	loadEntries( mkFullPath(GetSettingsDir(),"envvars"),
+		     &nrentries, entries );
+	loadEntries( GetDataFileName("EnvVars"), &nrentries, entries );
     }
 
     for ( idx=0; idx<nrentries; idx++ )

@@ -1,0 +1,15 @@
+# $Id: EnvVars,v 1.1 2005-08-29 14:56:18 cvsbert Exp $
+#
+# OpendTect gets its environment variables from:
+# * Home_directory/.od/envvars
+# * Here ($DTECT_APPL/data/EnvVars)
+# * The OS's envioronment
+#
+# Exception: the variables used to reach Home_directory or the user
+#		settings directory are always taken from the OS-env.
+#
+# Format of this file is simple:
+# Environment_variable	Value
+# Example:
+# DTECT_CBAR_POS	Hor
+#
