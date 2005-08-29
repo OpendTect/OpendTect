@@ -4,7 +4,7 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id: glue_seis.cc,v 1.4 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: glue_seis.cc,v 1.5 2005-08-29 11:10:09 cvsbert Exp $";
 #include "prog.h"
 #include "batchprog.h"
 #include "seisfact.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: glue_seis.cc,v 1.4 2005-03-09 12:22:17 cvsbert 
 #include "sorting.h"
 #include "survinfo.h"
 #include "errh.h"
+#include "debug.h"
 #include <math.h>
 
 
@@ -345,7 +346,7 @@ static void addBufs( ObjectSet<SeisTrcBuf>& bufs )
 bool BatchProgram::go( std::ostream& strm_ )
 {
     streamptr = &strm_;
-    if ( getenv("dGB_DEBUG") )
+    if ( DBG::isOn() )
 	dbgstrmptr = &std::cerr;
 
     xlinestep = SI().crlStep();

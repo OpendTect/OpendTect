@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture3.cc,v 1.24 2005-04-05 08:58:01 cvskris Exp $
+ RCS:           $Id: vistexture3.cc,v 1.25 2005-08-29 11:10:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "vistexture3.h"
 #include "arrayndimpl.h"
 #include "interpol.h"
+#include "envvars.h"
 
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTexture3.h>
@@ -78,8 +79,8 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
     int maxsize1 = mMaxTextSz;
     int maxsize2 = mMaxTextSz;
 
-    const char* envlimit = getenv("dTECT_3DTEXTURE_LIMIT");
-    if ( envlimit )
+    const char* envlimit = GetEnvVar("DTECT_3DTEXTURE_LIMIT");
+    if ( envlimit && *envlimit )
     {
 	int dummy;
 	const char* firstend = strchr(envlimit,'x');

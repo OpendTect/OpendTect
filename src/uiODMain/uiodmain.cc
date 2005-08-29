@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.34 2005-03-09 16:43:22 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.35 2005-08-29 11:10:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "settings.h"
 #include "plugins.h"
+#include "envvars.h"
 #include "odsessionfact.h"
 
 static const int cCTHeight = 200;
@@ -147,7 +148,7 @@ bool uiODMain::buildUI()
     menumgr = new uiODMenuMgr( this );
     menumgr->initSceneMgrDepObjs();
 
-    const char* s = getenv( "DTECT_CBAR_POS" );
+    const char* s = GetEnvVar( "DTECT_CBAR_POS" );
     if ( !s ) s = Settings::common().find( "dTect.ColorBar Position" );
     const bool isvert = !s || *s == 'v' || *s == 'V';
     const bool isontop = s && *s

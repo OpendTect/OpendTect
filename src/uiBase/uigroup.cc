@@ -4,20 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.50 2004-02-25 14:47:10 nanne Exp $
+ RCS:           $Id: uigroup.cc,v 1.51 2005-08-29 11:10:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uigroup.h>
-#include <uiobjbody.h>
-#include <i_layout.h>
-#include <i_layoutitem.h>
+#include "uigroup.h"
+#include "uiobjbody.h"
+#include "i_layout.h"
+#include "i_layoutitem.h"
+#include "envvars.h"
+#include "errh.h"
 #include <qwidget.h>
 #include <qframe.h>
-
 #include <iostream>
-#include "errh.h"
 
 
 class uiGroupObjBody;
@@ -400,7 +400,7 @@ int i_uiGroupLayoutItem::centre(layoutMode m, bool hor) const
 }
 
 
-static bool showgrps__ = getenv("DTECT_SHOW_GROUP_FRAMES");
+static bool showgrps__ = GetEnvVarYN("DTECT_SHOW_GROUP_FRAMES");
 
 uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     : uiParent( nm, 0 )

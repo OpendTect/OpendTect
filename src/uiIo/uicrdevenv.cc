@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.19 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.20 2005-08-29 11:10:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "strmprov.h"
 #include "oddirs.h"
+#include "envvars.h"
 #include "uimain.h"
 
 #ifdef __win__
@@ -90,7 +91,7 @@ bool uiCrDevEnv::isOK( const char* datadir )
 
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
-    FilePath oldworkdir(getenv("WORK"));
+    FilePath oldworkdir( GetEnvVar("WORK") );
     const bool oldok = isOK( oldworkdir.fullPath() );
 
     const char* cygwin = 0;
@@ -167,10 +168,10 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	if ( cygwin )
 	{
 	    FilePath fp( cygwin ); fp.add( "home" );
-	    if ( getenv("USERNAME") )
-		fp.add( getenv("USERNAME") );
-	    else if ( getenv("USER") )
-		fp.add( getenv("USER") );
+	    if ( GetEnvVar("USERNAME") )
+		fp.add( GetEnvVar("USERNAME") );
+	    else if ( GetEnvVar("USER") )
+		fp.add( GetEnvVar("USER") );
 
 	    BufferString basedirnm( fp.fullPath() );
 	    if ( !File_isDirectory(basedirnm) )

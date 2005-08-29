@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.16 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.17 2005-08-29 11:10:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,10 +201,10 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	}
     }
 
-    if ( trycpdemosurv && getenv( "DTECT_DEMO_SURVEY" ) )
+    if ( trycpdemosurv && GetEnvVar( "DTECT_DEMO_SURVEY" ) )
     {
 	FilePath demosurvnm( GetSoftwareDir() );
-	demosurvnm.add( getenv("DTECT_DEMO_SURVEY") );
+	demosurvnm.add( GetEnvVar("DTECT_DEMO_SURVEY") );
 
 	if ( File_isDirectory(demosurvnm.fullPath()) )
 	{
@@ -222,8 +222,8 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
     }
 
     // OK - we're (almost) certain that the directory exists and is valid
-    const bool haveenv = getenv("DTECT_DATA") || getenv( "dGB_DATA" )
-		      || getenv("DTECT_WINDATA") || getenv( "dGB_WINDATA" )
+    const bool haveenv = GetEnvVar("DTECT_DATA") || GetEnvVar("dGB_DATA")
+		      || GetEnvVar("DTECT_WINDATA") || GetEnvVar("dGB_WINDATA")
 	;
     if ( haveenv )
     {
@@ -232,7 +232,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	
 	SetEnvVar( "DTECT_WINDATA", dtectdatafp.fullPath(FilePath::Windows) );
 
-	if ( getenv( "DTECT_DATA" ) )
+	if ( GetOSEnvVar( "DTECT_DATA" ) )
 	    SetEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
 #else
 	SetEnvVar( "DTECT_DATA", datadir.buf() );

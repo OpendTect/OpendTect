@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.63 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.64 2005-08-29 11:10:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "iostrm.h"
 #include "strmprov.h"
+#include "envvars.h"
 #include "cubesampling.h"
 #include <iostream>
 #include <math.h>
@@ -536,8 +537,8 @@ void uiSurvey::updateViewsGlobal()
 #ifdef __win__
     fnm += ".win";
 #else
-    const char* ptr = getenv( "binsubdir" );
-    if ( !ptr ) ptr = getenv( "HDIR" );
+    const char* ptr = GetEnvVar( "binsubdir" );
+    if ( !ptr ) ptr = GetEnvVar( "HDIR" );
     if ( ptr ) { fnm += "."; fnm += ptr; }
 #endif
     if ( !File_exists(fnm) )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Mar 2002
- RCS:           $Id: od_main.cc,v 1.11 2005-08-29 09:30:48 cvsnanne Exp $
+ RCS:           $Id: od_main.cc,v 1.12 2005-08-29 11:10:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "prog.h"
 #include "genc.h"
+#include "envvars.h"
 #include <iostream>
 
 // TODO : Is there a better way to force linking with attribute factory?
@@ -24,8 +25,7 @@ extern int ODMain(int,char**);
 
 inline static bool isPromised( const char* claim )
 {
-    const char* answer = getenv( claim );
-    return answer && *answer && (*answer == 'y' || *answer == 'Y');
+    return GetEnvVarYN( claim );
 }
 
 

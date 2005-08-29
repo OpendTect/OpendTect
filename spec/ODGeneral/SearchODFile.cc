@@ -4,11 +4,12 @@
  * FUNCTION : get special folder location
 -*/
 
-static const char* rcsID = "$Id: SearchODFile.cc,v 1.4 2005-08-26 18:19:27 cvsbert Exp $";
+static const char* rcsID = "$Id: SearchODFile.cc,v 1.5 2005-08-29 11:10:09 cvsbert Exp $";
 
 
 #include "prog.h"
 #include "oddirs.h"
+#include "envvars.h"
 
 #include <iostream>
 
@@ -17,7 +18,7 @@ using namespace std;
 int main( int argc, char** argv )
 {
     char* debugenv = "DTECT_DEBUG=";
-    if ( !getenv("DTECT_NO_IGNORE_DEBUG") )
+    if ( !GetEnvVarYN("DTECT_IGNORE_DEBUG") )
 	putenv( debugenv );
 
     if ( argc < 2 )
