@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.65 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.66 2005-08-29 09:41:18 cvsdgb Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: filegen.c,v 1.65 2005-08-26 18:19:28 cvsbert Ex
 #ifdef __win__
 #include "winutils.h"
 #endif
-static struct stat statbuf;
 
 #ifdef __win__
 
@@ -62,6 +61,8 @@ static struct stat statbuf;
  static struct mStatFS fsstatbuf;
 
 #endif
+
+static struct stat statbuf;
 
 
 int File_exists( const char* fname )

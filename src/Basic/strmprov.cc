@@ -38,9 +38,10 @@
 #include "callback.h"
 #include "uidobj.h"
 #include "debugmasks.h"
+#include "oddirs.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.63 2005-04-11 12:38:56 cvsarend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.64 2005-08-29 09:41:18 cvsdgb Exp $";
 
 static FixedString<1024> oscommand;
 
