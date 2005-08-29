@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.11 2005-08-05 01:37:56 cvsduntao Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.12 2005-08-29 09:57:44 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,8 @@ public:
     float			getThresholdValue() const;
     void			doStopBelowThreshold(bool yn);
     bool			stopBelowThreshold() const;
+    bool			extrapolateOnFail() const;
+    void			doExtrapolateOnFail(bool yn);
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -66,6 +68,7 @@ protected:
     EM::SectionID		sectionid_;
     float			thresholdval_;
     bool			stopbelowthrhold_;
+    bool			extrapolateonfail_;
 
     const EM::SubID*		refpos_;
     
@@ -74,6 +77,7 @@ protected:
     static const char*		adjusterstr;
     static const char*		thresholdstr;
     static const char*		stoptrackstr;
+    static const char*		extronfailstr;
 };
 
 }; // namespace MPE

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.9 2005-08-26 07:35:47 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.10 2005-08-29 09:57:44 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -68,7 +68,7 @@ int HorizonAdjuster::nextStep()
 	float targetz;
  	if ( trackTrace(refbid, bid, targetz, 0) )
 	    ++count, setHorizonPick(bid, targetz);
-	else //if ( stopbelowthrhold_ )
+	else if ( !extrapolateonfail_ )
 	    setHorizonPick(bid, mUndefValue);
     }
     horizon_.geometry.checkSupport(true);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.7 2005-08-05 01:37:57 cvsduntao Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.8 2005-08-29 09:57:44 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,11 +22,13 @@ namespace MPE
 const char* SectionAdjuster::adjusterstr = "Adjuster";
 const char* SectionAdjuster::thresholdstr = "Threshold value";
 const char* SectionAdjuster::stoptrackstr = "Stop tracking below threshold";
+const char* SectionAdjuster::extronfailstr = "Extrapolate on tracking fail";
 
 SectionAdjuster::SectionAdjuster( const EM::SectionID& sid )
     : sectionid_(sid)
     , stopbelowthrhold_(true)
     , thresholdval_(0.5)
+    , extrapolateonfail_(false)
     , refpos_(0)
 {}
 
@@ -107,11 +109,18 @@ void SectionAdjuster::doStopBelowThreshold(bool yn) { stopbelowthrhold_ = yn; }
 bool SectionAdjuster::stopBelowThreshold() const { return stopbelowthrhold_; }
 
 
+void SectionAdjuster::doExtrapolateOnFail(bool yn) { extrapolateonfail_=yn; }
+
+
+bool SectionAdjuster::extrapolateOnFail() const { return extrapolateonfail_; }
+
+
 void SectionAdjuster::fillPar( IOPar& par ) const
 {
     IOPar adjpar;
     adjpar.set( thresholdstr, thresholdval_ );
     adjpar.setYN( stoptrackstr, stopbelowthrhold_ );
+    adjpar.setYN( extronfailstr, extrapolateonfail_ );
     par.mergeComp( adjpar, adjusterstr );
 
     for ( int idx=0; idx<nrComputers(); idx++ )
@@ -128,6 +137,7 @@ bool SectionAdjuster::usePar( const IOPar& par )
     {
 	adjpar->get( thresholdstr, thresholdval_ );
 	adjpar->getYN( stoptrackstr, stopbelowthrhold_ );
+	adjpar->getYN( extronfailstr, extrapolateonfail_ );
     }
     
     for ( int idx=0; idx<nrComputers(); idx++ )
