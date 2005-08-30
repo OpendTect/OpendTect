@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.30 2005-08-26 18:19:29 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.31 2005-08-30 12:14:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ static const char* mrkrcollbls[] = { "Name", "Depth (MD)", "Color", 0 };
 static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
 
 static const int maxrowsondisplay = 10;
-static const int initnrrows = 5;
+static const int nremptyrows = 5;
 #define mFromFeetFac 0.3048
 
 
@@ -54,7 +54,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 					       .defrowlbl("") );
     table->setColumnLabels( mrkrcollbls );
     table->setColumnReadOnly( 2, true );
-    table->setNrRows( initnrrows );
+    table->setNrRows( nremptyrows );
     table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
 
     BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
@@ -97,7 +97,7 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
 
     const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
     int startrow = add ? getNrRows() : 0;
-    const int nrrows = nrnew + initnrrows + startrow;
+    const int nrrows = nrnew + nremptyrows + startrow;
     table->setNrRows( nrrows );
 
     for ( int idx=0; idx<nrnew; idx++ )
@@ -209,7 +209,7 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
 				     "Edit velocity model",
-				     "107.1.4"))
+				     "107.1.5"))
 	, wd(d)
     	, d2t(*d.d2TModel())
     	, orgd2t(new Well::D2TModel(*d.d2TModel()))
@@ -218,22 +218,31 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
 	    				       .rowgrow(true) 
 					       .defrowlbl(""), "Table" );
     table->setColumnLabels( t2dcollbls );
-    table->setNrRows( initnrrows );
+    table->setNrRows( nremptyrows );
 
-    uiButton* updnowbut = new uiPushButton( this, "Update display",
+    uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
+    uiButton* updnowbut = new uiPushButton( actbutgrp, "Update display",
 	    				    mCB(this,uiD2TModelDlg,updNow) );
-    updnowbut->attach( centeredBelow, table );
+    uiButton* readbut = new uiPushButton( actbutgrp, "Read new ...",
+	    				    mCB(this,uiD2TModelDlg,readNew) );
+    readbut->attach( rightOf, updnowbut );
+    actbutgrp->attach( centeredBelow, table );
 
     BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( leftAlignedBelow, table );
-    unitfld->attach( ensureBelow, updnowbut );
+    unitfld->attach( ensureBelow, actbutgrp );
 
+    fillTable();
+}
+
+
+void uiD2TModelDlg::fillTable()
+{
     const int sz = d2t.size();
     if ( !sz ) return;
+    table->setNrRows( sz + nremptyrows );
 
-    int nrrows = sz + initnrrows;
-    table->setNrRows( nrrows );
     const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -246,6 +255,65 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
 uiD2TModelDlg::~uiD2TModelDlg()
 {
     delete orgd2t;
+}
+
+class uiD2TModelReadDlg : public uiDialog
+{
+public:
+
+uiD2TModelReadDlg( uiParent* p )
+    	: uiDialog(p,uiDialog::Setup("Read new Depth/Time model",
+		    		     "Specify new Depth/time model","107.1.6"))
+{
+    fnmfld = new uiFileInput( this, "File name",
+		    uiFileInput::Setup().forread(true).withexamine(true) );
+    fnmfld->setDefaultSelectionDir(
+		    IOObjContext::getDataDirName(IOObjContext::WllInf) );
+    tvdfld = new uiGenInput( this, "Depth is", BoolInpSpec("TVDSS","MD") );
+    tvdfld->setValue( false );
+    tvdfld->attach( alignedBelow, fnmfld );
+    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    metersfld = new uiGenInput( this, "in", mft );
+    metersfld->attach( alignedBelow, tvdfld );
+}
+
+bool acceptOK( CallBacker* )
+{
+    fnm = fnmfld->fileName();
+    if ( File_isEmpty( fnm.buf() ) )
+	{ uiMSG().error( "Invalid input file" ); return false; }
+    istvd = tvdfld->getBoolValue();
+    isft = !metersfld->getBoolValue();
+    return true;
+}
+
+    uiFileInput*	fnmfld;
+    BufferString	fnm;
+    uiGenInput*		tvdfld;
+    bool		istvd;
+    uiGenInput*		metersfld;
+    bool		isft;
+
+};
+
+
+void uiD2TModelDlg::readNew( CallBacker* )
+{
+    uiD2TModelReadDlg dlg( this );
+    if ( !dlg.go() ) return;
+
+    Well::AscImporter ascimp( wd );
+    BufferString errmsg = ascimp.getD2T( dlg.fnm, dlg.istvd, dlg.isft );
+    if ( errmsg != "" )
+    {
+	uiMSG().error( "Please select a valid file" );
+    }
+    else
+    {
+	table->clearTable();
+	fillTable();
+	wd.d2tchanged.trigger();
+    }
 }
 
 
