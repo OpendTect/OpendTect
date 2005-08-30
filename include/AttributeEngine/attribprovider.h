@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.19 2005-08-19 07:17:53 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.20 2005-08-30 15:19:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,13 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "linekey.h"
-#include "seistrcsel.h"
 
 class BasicTask;
 class CubeSampling;
 class SeisRequester;
+class SeisSelData;
+class SeisTrcInfo;
+
 namespace Threads { class ThreadWorkManager; };
 
 namespace Attrib
@@ -49,8 +51,8 @@ public:
 
     const Desc&			getDesc() const;
     Desc&			getDesc();
-    const DataHolder*		getData( const BinID& relpos=BinID(0,0), 
-	    				int idx=0 );
+    const DataHolder*		getData(const BinID& relpos=BinID(0,0), 
+	    				int idx=0);
     const DataHolder*		getDataDontCompute(const BinID& relpos) const;
 
     void			enableOutput(int output,bool yn=true);
@@ -58,13 +60,13 @@ public:
 
     virtual void		setBufferStepout(const BinID&);
     const BinID&		getBufferStepout() const;
-    void			setDesiredVolume( const CubeSampling& );
+    void			setDesiredVolume(const CubeSampling&);
     CubeSampling*		getDesiredVolume() const
-    						{ return desiredvolume; }
+				    { return desiredvolume; }
     void                        setPossibleVolume( const CubeSampling& );
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
     CubeSampling*		getPossibleVolume() const
-						{ return possiblevolume; }
+				    { return possiblevolume; }
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume();
@@ -76,24 +78,24 @@ public:
 				*/
     void			resetMoved();
     void                        resetZIntervals();
-				    
+
+    virtual const SeisTrcInfo*	getCurrentTrcInfo() const
+				{ return curtrcinfo_; }
     BinID			getCurrentPosition() const;
     virtual bool		setCurrentPosition(const BinID&);
+
     void			addLocalCompZIntervals(
-	    				const TypeSet<Interval<int> >&);
-    
+						const TypeSet<Interval<int> >&);
     const TypeSet< Interval<int> >&	localCompZIntervals() const;
 
     void               		updateInputReqs(int input=-1);
-    virtual void                updateStorageReqs(bool all = false);
+    virtual void                updateStorageReqs(bool all=false);
     void			setSelData(const SeisSelData&);
-    int				getCurrentTrcNr () 	{ return trcnr_; }
     float                       getRefStep() const; 
     virtual BinID		getStepoutStep() const;
-    BufferString         	errMsg() const;	  
-    
-    ObjectSet<Provider>		getInputs() 		{ return inputs; }
+    BufferString         	errMsg() const;
 
+    ObjectSet<Provider>		getInputs() 		{ return inputs; }
 
 protected:
 
@@ -123,7 +125,8 @@ protected:
     void			addParent( Provider* prov ) { parents += prov; }
 
     bool			computeDesInputCube(int inp,int out,
-				    CubeSampling&,bool usestepout=true) const;
+						    CubeSampling&,
+						    bool usestepout=true) const;
 
     void			setUsedMultTimes() { isusedmulttimes = true; }
     bool			isUsedMultTimes()  { return isusedmulttimes; }
@@ -159,10 +162,10 @@ protected:
     BinID			currentbid;
     LineKey			curlinekey_;
     SeisSelData&		seldata_;
+    const SeisTrcInfo*		curtrcinfo_;
 
     float                       refstep;
     bool 			alreadymoved;
-    int				trcnr_;
 
     bool			isusedmulttimes;
     BufferString 		errmsg;
@@ -174,6 +177,5 @@ int getSteeringIndex( const BinID& );
 
 
 }; // namespace Attrib
-
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.22 2005-08-29 12:39:04 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.23 2005-08-30 15:20:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ void EngineMan::usePar( const IOPar& iopar, const DescSet& attribset,
     cs_.zrg.start /= SI().zFactor();
     cs_.zrg.stop /= SI().zFactor();
 
-    LineKey lkey( linename, attribset.getDesc(ids[0])->attribName() );
+    LineKey lkey( linename, attribset.getDesc(ids[0])->userRef() );
     CubeOutput* cubeoutp = createOutput( iopar, lkey );
     for ( int idx=0; idx<pset.size(); idx++ )
 	pset[idx]->addOutput( cubeoutp );

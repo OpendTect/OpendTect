@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.15 2005-08-19 14:24:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.16 2005-08-30 15:20:18 cvsnanne Exp $";
 
 #include "attribprocessor.h"
 
@@ -14,6 +14,8 @@ static const char* rcsID = "$Id: attribprocessor.cc,v 1.15 2005-08-19 14:24:35 c
 #include "attribprovider.h"
 #include "cubesampling.h"
 #include "linekey.h"
+#include "seisinfo.h"
+#include "seistrcsel.h"
 
 
 namespace Attrib
@@ -124,9 +126,11 @@ int Processor::nextStep()
     if ( !nriter )
     {
 	errmsg = provider->errMsg().buf();
-	if ( errmsg.size() )
-	    return -1;
+	if ( errmsg.size() ) return ErrorOccurred;
     }
+
+    const SeisTrcInfo* curtrcinfo = provider->getCurrentTrcInfo();
+    if ( !curtrcinfo ) return ErrorOccurred;
 
     if ( res )
     {
@@ -134,7 +138,7 @@ int Processor::nextStep()
 	if ( is2d_ )
 	{
 	    curbid.inl = 0;
-	    curbid.crl = provider->getCurrentTrcNr();
+	    curbid.crl = curtrcinfo->nr;
 	}
 	
 	//TODO: Smarter way if output's intervals don't intersect
@@ -169,13 +173,9 @@ int Processor::nextStep()
 	    {
 		for ( int idx=0; idx<outputs.size(); idx++ )
 		{
-		    outputs[idx]->setReqs(curbid);
-		    if ( is2d_ )
-			curbid = provider->getCurrentPosition();
-		    outputs[idx]->collectData( curbid, *data,
-						provider->getRefStep(),
-						provider->getCurrentTrcNr(),
-						outputindex_ );
+		    outputs[idx]->setReqs( curbid );
+		    outputs[idx]->collectData( *data, provider->getRefStep(),
+			    		       *curtrcinfo, outputindex_ );
 		}
 	    }
 	}

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.16 2005-08-25 14:50:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.17 2005-08-30 15:20:18 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -216,7 +216,7 @@ int StorageProvider::moveToNextTrace()
 
     if ( status==StorageOpened )
     {
-	if ( !setSeisRequesterSelection( currentreq ) )
+	if ( !setSeisRequesterSelection(currentreq) )
 	    return -1;
 
 	status = Ready;
@@ -243,9 +243,7 @@ int StorageProvider::moveToNextTrace()
 	    if ( trc )
 	    {
 		currentbid = trc->info().binid;
-		if ( strcmp(curlinekey_.lineName(),"") )
-		    trcnr_ = trc->info().nr;
-		
+		curtrcinfo_ = &trc->info();
 		break;
 	    }
 	}
@@ -440,12 +438,12 @@ bool StorageProvider::computeData( const DataHolder& output,
 	trc = rg[currentreq]->get(0,0);
     else
     {
-	if (trcnr_ == -1)
+	const int trcnr = curtrcinfo_ ? curtrcinfo_->nr : -1;
+	if ( trcnr == -1 )
 	    trc = rg[currentreq]->get( currentbid+relpos );
 	else
 	{
-	    BinID bid(currentbid);
-	    bid.crl = trcnr_;
+	    BinID bid( 0, trcnr );
 	    trc = rg[currentreq]->get( bid+relpos );
 	}
     }

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.29 2005-08-29 12:39:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.30 2005-08-30 15:20:18 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.29 2005-08-29 12:39:04 cv
 #include "cubesampling.h"
 #include "errh.h"
 #include "seisreq.h"
+#include "seistrcsel.h"
 #include "survinfo.h"
 #include "threadwork.h"
 #include "arrayndimpl.h"
@@ -156,10 +157,10 @@ Provider::Provider( Desc& nd )
     , curlinekey_( 0, 0 )
     , linebuffer( 0 )
     , refstep( 0 )
-    , trcnr_( -1 )
     , alreadymoved(0)
     , isusedmulttimes(0)
     , seldata_(*new SeisSelData)
+    , curtrcinfo_(0)
 {
     mRefCountConstructor;
     desc.ref();
@@ -398,7 +399,6 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 
 int Provider::moveToNextTrace()
 {
-
     if ( alreadymoved )
 	return 1;
 
@@ -482,8 +482,7 @@ int Provider::moveToNextTrace()
     }
 
     currentbid = movinginputs[0]->getCurrentPosition();
-    if ( strcmp(curlinekey_.lineName(),"") )
-	trcnr_ = movinginputs[0]->getCurrentTrcNr();
+    curtrcinfo_ = movinginputs[0]->getCurrentTrcInfo();
 
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
@@ -965,7 +964,7 @@ void Provider::setCurLineKey( const char* linename )
 {
     BufferString attrname;
     if ( !desc.isStored() )
-	attrname = desc.attribName();
+	attrname = desc.userRef();
     else
     {
 	const ValParam* idpar = desc.getValParam( StorageProvider::keyStr() );

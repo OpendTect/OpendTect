@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.11 2005-08-18 14:19:29 cvsnanne Exp $
+ RCS:           $Id: attriboutput.h,v 1.12 2005-08-30 15:19:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,18 +15,19 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "ranges.h"
 #include "refcount.h"
-#include "attribdataholder.h"
-#include "seistrcsel.h"
 #include "linekey.h"
-#include "binidvalset.h"
 
 class BinID;
+class BinIDValueSet;
 class MultiID;
-class SeisTrcWriter;
+class SeisSelData;
+class SeisTrcInfo;
 class SeisTrcBuf;
+class SeisTrcWriter;
 
 namespace Attrib
 {
+class DataHolder;
 class SliceSet;
 
 class Output
@@ -41,8 +42,8 @@ public:
     void			setDesiredOutputs( TypeSet<int> outputs )
     				{ desoutputs = outputs;}
     virtual TypeSet< Interval<int> >  getLocalZRange( const BinID& ) const = 0;
-    virtual void		collectData(const BinID&,const DataHolder&, 
-					    float step,int trcnr,int outidx)= 0;
+    virtual void		collectData(const DataHolder&,float step,
+	    				    const SeisTrcInfo&,int outidx)= 0;
     virtual bool		setReqs(const BinID&) { return true; }
     const SeisSelData&		getSelData() { return seldata_; }
 
@@ -74,8 +75,8 @@ public:
     void                	setUndefValue( float v )	{ udfval = v; }
 
     bool			wantsOutput(const BinID&) const;
-    void			collectData(const BinID&,const DataHolder&,
-	    				    float step,int trcnr,int outidx);
+    virtual void		collectData(const DataHolder&,float step,
+	    				    const SeisTrcInfo&,int outidx);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
 protected:
@@ -103,8 +104,8 @@ public:
     bool			setReqs(const BinID&);
     SeisTrcBuf* 		getTrcBuf() const;
     LineKey			curLineKey()		{ return lkey_; }
-    void			collectData(const BinID&,const DataHolder&,
-	    				    float step,int trcnr,int outidx);
+    virtual void		collectData(const DataHolder&,float step,
+	    				    const SeisTrcInfo&,int outidx);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
 
     static const char*		seisidkey;
@@ -140,8 +141,8 @@ public:
     bool			getDesiredVolume(CubeSampling&) const
     				{ return true;}
     bool			wantsOutput(const BinID&) const;
-    void			collectData(const BinID&,const DataHolder&,
-	    				    float step,int trcnr,int outidx);
+    virtual void		collectData(const DataHolder&,float step,
+	    				    const SeisTrcInfo&,int outidx);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
     static const char*		filenamekey;
@@ -164,8 +165,8 @@ public:
 				{ return true;}
     bool			wantsOutput(const BinID&) const;
     void			setOutput(SeisTrcBuf*);
-    void			collectData(const BinID&,const DataHolder&,
-	    				    float step,int trcnr,int outidx);
+    virtual void		collectData(const DataHolder&,float step,
+	    				    const SeisTrcInfo&,int outidx);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
 protected:

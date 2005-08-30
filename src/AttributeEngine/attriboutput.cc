@@ -5,19 +5,21 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.21 2005-08-22 15:33:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.22 2005-08-30 15:20:18 cvsnanne Exp $";
 
 #include "attriboutput.h"
-#include "survinfo.h"
+#include "attribdataholder.h"
 #include "attribslice.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "seisbuf.h"
-#include "iopar.h"
 #include "seiswrite.h"
+#include "survinfo.h"
 #include "ioman.h"
-#include "ptrman.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "ptrman.h"
 #include "linekey.h"
 
 
@@ -43,16 +45,16 @@ const char* LocationOutput::attribkey = "Attribute";
 const char* LocationOutput::surfidkey = "Surface ID";
 
 
-Output::~Output()
-{
-    delete &seldata_;
-}
-
-
 Output::Output()
     : seldata_(*new SeisSelData)
 {
     mRefCountConstructor;
+}
+
+
+Output::~Output()
+{
+    delete &seldata_;
 }
 
 
@@ -86,8 +88,8 @@ TypeSet< Interval<int> > SliceSetOutput::getLocalZRange( const BinID& ) const
 #define mGetDim(nr) \
     const int dim##nr = desiredvolume.size( direction(sliceset->direction,nr) )
 
-void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
-				  float refstep, int trcnr, int outidx )
+void SliceSetOutput::collectData( const DataHolder& data, float refstep, 
+				  const SeisTrcInfo& info, int outidx )
 {
     if ( !sliceset )
     {
@@ -106,7 +108,7 @@ void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
     while ( sliceset->size() <= outidx )
 	*sliceset += new Attrib::Slice( dim1, dim2, udfval );
 
-    if ( !sliceset->sampling.hrg.includes(bid) )
+    if ( !sliceset->sampling.hrg.includes(info.binid) )
 	return;
 
     int i0, i1, i2;
@@ -119,7 +121,8 @@ void SliceSetOutput::collectData( const BinID& bid, const DataHolder& data,
 	    const bool valididx = idx>=data.t0_ && idx<data.t0_+data.nrsamples_;
 	    const float val = valididx ? 
 			data.item(desoutputs[idy])->value(idx-data.t0_): udfval;
-	    sliceset->getIdxs( bid.inl, bid.crl, idx*refstep, i0, i1, i2 );
+	    sliceset->getIdxs( info.binid.inl, info.binid.crl, idx*refstep, 
+		    	       i0, i1, i2 );
 	    ((*sliceset)[i0+outidx+idy])->set( i1, i2, val );
 	}
     }
@@ -224,7 +227,7 @@ bool CubeOutput::doUsePar( const IOPar& pars )
 
 bool CubeOutput::doInit()
 {
-    if ( *((const char*)storid_) )
+    if ( *storid_.buf() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )
@@ -241,7 +244,7 @@ bool CubeOutput::doInit()
 	    delete auxpars; auxpars = 0;
 	}
     }
-    
+
     desiredvolume.normalise();
     seldata_.linekey_.setAttrName( "" );
     if ( seldata_.type_ != Seis::Range )
@@ -314,8 +317,8 @@ LineKey lineKey() const
 };
 
 
-void CubeOutput::collectData( const BinID& bid, const DataHolder& data, 
-			      float refstep, int trcnr, int outidx )
+void CubeOutput::collectData( const DataHolder& data, float refstep,
+			      const SeisTrcInfo& info, int outidx )
 {
     if ( !calcurpos_ ) return;
 
@@ -329,23 +332,20 @@ void CubeOutput::collectData( const BinID& bid, const DataHolder& data,
     for ( int idx=trc->data().nrComponents(); idx<desoutputs.size(); idx++)
 	trc->data().addComponent( sz, dc, false );
 
-    trc->info().sampling.step = refstep;
+    trc->info() = info;
     trc->info().sampling.start = data.t0_*refstep;
-    trc->info().binid = bid;
-    trc->info().coord = SI().transform( bid );
-    if ( is2d_ )
-	trc->info().nr = trcnr;
+    trc->info().sampling.step = refstep;
 
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    float val = data.item(desoutputs[comp])->value(idx);
-	    trc->set(idx, val, comp);
+	    trc->set( idx, val, comp );
 	}
     }
 
-    const bool dostor = *((const char*)storid_);
+    const bool dostor = *storid_.buf();
     if ( dostor && !storinited_ )
     {
 	if ( writer_->is2D() )
@@ -397,10 +397,10 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 }
 
 
-void LocationOutput::collectData( const BinID& bid, const DataHolder& data,
-				  float refstep, int trcnr, int outidx )
+void LocationOutput::collectData( const DataHolder& data, float refstep,
+				  const SeisTrcInfo& info, int outidx )
 {
-    BinIDValueSet::Pos pos = bidvalset_.findFirst( bid );
+    BinIDValueSet::Pos pos = bidvalset_.findFirst( info.binid );
     if ( !pos.valid() ) return;
 
     const int desnrvals = outidx+desoutputs.size()+1;
@@ -418,7 +418,7 @@ void LocationOutput::collectData( const BinID& bid, const DataHolder& data,
 	}
 
 	bidvalset_.next( pos );
-	if ( bid != bidvalset_.getBinID(pos) )
+	if ( info.binid != bidvalset_.getBinID(pos) )
 	    break;
     }
 }
@@ -485,16 +485,16 @@ TrcSelectionOutput::~TrcSelectionOutput()
 {}
 
 
-void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
-				      float refstep, int trcnr, int outidx )
+void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
+				      const SeisTrcInfo& info, int outidx )
 {
-    int nrcomp = data.nrItems();
+    const int nrcomp = data.nrItems();
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
 	return;
 
     const int sz = mNINT(stdtrcsz_/refstep);
     const int startidx = data.t0_ - mNINT(stdstarttime_/refstep);
-    const int index = outpbuf_->find( bid );
+    const int index = outpbuf_->find( info.binid );
     SeisTrc* trc;
 
     if ( index == -1 )
@@ -504,10 +504,9 @@ void TrcSelectionOutput::collectData( const BinID& bid, const DataHolder& data,
 	for ( int idx=trc->data().nrComponents(); idx<desoutputs.size(); idx++ )
 	    trc->data().addComponent( sz, dc, false );
 
-	trc->info().sampling.step = refstep;
+	trc->info() = info;
 	trc->info().sampling.start = stdstarttime_;
-	trc->info().binid = bid;
-	trc->info().coord = SI().transform( bid );
+	trc->info().sampling.step = refstep;
     }
     else
 	trc = outpbuf_->get( index );
