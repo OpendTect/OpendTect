@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.24 2005-08-19 15:53:51 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.25 2005-08-30 09:16:27 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,6 +179,7 @@ void uiVisEMObject::setUpConnections()
     wireframemnuitem.text = "Wireframe";
     editmnuitem.text = "Edit";
     shiftmnuitem.text = "Shift ...";
+    fillholesitem.text = "Fill holes";
     showseedsmnuitem.text = "Show seeds";
     removesectionmnuitem.text ="Remove section";
     makepermnodemnuitem.text = "Make control permanent";
@@ -325,6 +326,8 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	          emobj->canSetSectionName() && sid!=-1, false );
     mAddMenuItem( menu, &shiftmnuitem,
 	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
+    mAddMenuItem( menu, &fillholesitem,
+	    !strcmp(getObjectType(displayid),EM::Horizon::typeStr()), false );
 
     mAddMenuItem(&trackmenuitem,&editmnuitem,true,emod->isEditingEnabled());
     mAddMenuItem(&trackmenuitem,&wireframemnuitem,true, emod->usesWireframe());
@@ -441,6 +444,23 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	    emod->setDepthAsAttrib();
 	}
 	visserv->triggerTreeUpdate();
+    }
+    else if ( mnuid==fillholesitem.id )
+    {
+	mDynamicCastGet(EM::Horizon*, emhzn, emobj);
+	if ( !emhzn )	return;
+
+	menu->setIsHandled(true);
+	BufferString lbl( "Apeerture: " );
+	DataInpSpec* inpspec = new IntInpSpec( 5 );
+	uiGenInputDlg dlg( uiparent,"Interpolation aperture size ", lbl, inpspec );
+	if ( !dlg.go() ) return;
+
+	int aperture = dlg.getIntValue();
+	if ( aperture<1 )
+	    uiMSG().error( "Aperture size too small" );
+	else
+	    emhzn->interpolateHoles(aperture);
     }
     else if ( mnuid==removesectionmnuitem.id )
     {

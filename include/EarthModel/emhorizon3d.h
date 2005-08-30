@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.39 2005-03-10 11:47:17 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.40 2005-08-30 09:16:27 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,8 @@ public:
     static const char*	typeStr();
     static EMObject*	create(const ObjectID&, EMManager& );
     static void		initClass(EMManager&);
+    
+    void		interpolateHoles(int aperture);
 
     const char*		getTypeStr() const { return typeStr(); }
     Executor*		importer(const ObjectSet<BinIDValueSet>&,

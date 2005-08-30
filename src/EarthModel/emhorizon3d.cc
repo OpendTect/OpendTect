@@ -4,23 +4,24 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.61 2005-04-29 15:04:50 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.62 2005-08-30 09:16:27 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emhorizon.h"
 
+#include "array2dinterpol.h"
 #include "binidsurface.h"
+#include "binidvalset.h"
 #include "emmanager.h"
-#include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
-#include "geomgridsurface.h"
+#include "emsurfacetr.h"
 #include "executor.h"
+#include "geomgridsurface.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "binidvalset.h"
 #include "trigonometry.h"
 
 #include <math.h>
@@ -41,6 +42,57 @@ void Horizon::initClass(EMManager& emm)
     emm.addFactory( new ObjectFactory( create,
 				       EMHorizonTranslatorGroup::ioContext(),
 				       typeStr()) );
+}
+
+
+void Horizon::interpolateHoles(int aperture)
+{
+    for ( int idx=0; idx<geometry.nrSections(); idx++ )
+    {
+	SectionID sectionid = geometry.sectionID( idx );
+	const StepInterval<int> rowrg = geometry.rowRange(sectionid);
+	const StepInterval<int> colrg = geometry.colRange(sectionid);
+	if ( rowrg.width(false)<1 || colrg.width(false)<1 )
+	    continue;
+
+	Array2DImpl<float>* arr =
+		new Array2DImpl<float>(rowrg.nrSteps()+1, colrg.nrSteps()+1);
+	if ( !arr )	return;
+
+	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+	{
+	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	    {
+		const Coord3 pos = geometry.getPos(sectionid, RowCol(row, col));
+		arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
+	    }
+	}
+	
+	Array2DInterpolator<float> interpolator( arr );
+	interpolator.setInverseDistance( true );
+	interpolator.setAperture( aperture );
+	while ( true )
+	{
+	    const int res = interpolator.nextStep();
+	    if ( !res ) break;
+	    else if ( res == -1 ) return;
+	}
+
+	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+	{
+	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	    {
+		const RowCol rc = RowCol(row, col);
+		Coord3 pos = geometry.getPos(sectionid, rc);
+		if ( ! pos.isDefined() )
+		{
+		    pos.z = arr->get(rowrg.getIndex(row), colrg.getIndex(col));
+		    geometry.setPos( sectionid, rc, pos, true );
+		}
+	    }
+	}
+	delete arr;
+    }
 }
 
 
