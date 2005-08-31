@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.22 2005-08-30 15:20:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.23 2005-08-31 11:03:12 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -492,17 +492,17 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
 	return;
 
-    const int sz = mNINT(stdtrcsz_/refstep);
+    const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
     const int startidx = data.t0_ - mNINT(stdstarttime_/refstep);
     const int index = outpbuf_->find( info.binid );
-    SeisTrc* trc;
 
+    SeisTrc* trc;
     if ( index == -1 )
     {
 	const DataCharacteristics dc;
-	trc = new SeisTrc( sz, dc );
+	trc = new SeisTrc( trcsz, dc );
 	for ( int idx=trc->data().nrComponents(); idx<desoutputs.size(); idx++ )
-	    trc->data().addComponent( sz, dc, false );
+	    trc->data().addComponent( trcsz, dc, false );
 
 	trc->info() = info;
 	trc->info().sampling.start = stdstarttime_;
@@ -513,7 +513,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
-	for ( int idx=0; idx<sz; idx++ )
+	for ( int idx=0; idx<trcsz; idx++ )
 	{
 	    if ( idx < startidx || idx>=startidx+data.nrsamples_ )
 		trc->set( idx, mUdf(float), comp );
