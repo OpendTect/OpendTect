@@ -35,18 +35,15 @@ if ( $1 == "--dgb" ) then
 endif
 
 if ( -e ./CVS/Repository ) then
-    set cvsrt2=`cat ./CVS/Root`
-    if ( $cvsrtt != $cvsrt2 ) then
-	if ( `echo $cvsrt2 | grep "$DGB_CVS_GDIRELREP"` != "" || \
-	     `echo $cvsrt2 | grep "$DGB_CVS_ODRELREP"` != ""  ) then
-	    echo "CVSROOT differs from repository in ./CVS/Root"
-	    echo " and you are working in a STABLE directory.."
-	    echo " CVSROOT : $CVSROOT"
-	    echo " CVS/Root: $cvsrt2"
-	    exit 1
-	endif
-	set cvsrtt=$cvsrt2
+    set curcvsrt=`cat ./CVS/Root`
+    if ( $curcvsrt != $OD_CVS_ROOT && $curcvsrt != $DGB_CVS_ROOT ) then
+	echo "The repository in ./CVS/Root differs from OD_ or DGB_CVSROOT"
+	echo "./CVS/ROOT   : $curcvsrt"
+	echo "OD_CVS_ROOT  : $OD_CVS_ROOT"
+	echo "DGB_CVS_ROOT : $DGB_CVS_ROOT"
+	exit 1
     endif
+    set cvsrtt=$curcvsrt
 endif
 
 set cvsremoteargs=""
