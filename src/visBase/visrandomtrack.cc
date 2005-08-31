@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: visrandomtrack.cc,v 1.32 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visrandomtrack.cc,v 1.33 2005-08-31 11:25:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ RandomTrack::RandomTrack()
     hints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
     hints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
     addChild( hints );
-
 
     addKnot( Coord( 0, 0 ) );
     addKnot( Coord( 1, 0 ) );
@@ -347,6 +346,7 @@ const TypeSet<float>& RandomTrack::getHistogram() const
 
 void RandomTrack::setMaterial( Material* mat )
 {
+    VisualObjectImpl::setMaterial( mat );
     const int nrsections = sections.size();
     for ( int idx=0; idx<nrsections; idx++ )
 	sections[idx]->setMaterial( mat );
