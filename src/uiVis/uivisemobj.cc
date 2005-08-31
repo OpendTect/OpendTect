@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.25 2005-08-30 09:16:27 cvsduntao Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.26 2005-08-31 09:45:51 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -458,7 +458,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
 	int aperture = dlg.getIntValue();
 	if ( aperture<1 )
-	    uiMSG().error( "Aperture size too small" );
+	    uiMSG().error( "Aperture size must be greater than 0" );
 	else
 	    emhzn->interpolateHoles(aperture);
     }
