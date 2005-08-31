@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.11 2004-05-27 10:07:10 bert Exp $
+ RCS:		$Id: welllog.h,v 1.12 2005-08-31 13:09:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,9 @@ public:
 
     float		getValue(float) const;
     void		addValue(float z,float val);
-    			//!< z must be > last dah. No checks.
+    			//!< addition must always ascend or descend
+    void		ensureAscZ();
+    			// Do this after adding values when Z may be reversed
 
     const Interval<float>& valueRange() const		{ return range_; }
     void		setSelValueRange(const Interval<float>&);

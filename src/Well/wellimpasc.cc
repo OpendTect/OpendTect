@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.29 2005-02-03 10:22:06 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.30 2005-08-31 13:09:47 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -384,21 +384,26 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
     bool havestop = !mIsUndefined(reqzrg.stop);
 
     TypeSet<float> vals;
-    while ( 1 )
+    while ( true )
     {
 	strm >> dpth;
 	if ( strm.fail() || strm.eof() ) break;
 	if ( mIsEqual(dpth,lfi.undefval,mDefEps) )
-	    dpth = mUndefValue;
+	    dpth = mUdf(float);
 	else if ( convs[0] )
 	    dpth = convs[0]->internalValue( dpth );
 
-	bool atstop = mIsEqual(reqzrg.stop,dpth,1e-5);
-	if ( havestop && !atstop && dpth > reqzrg.stop ) break;
+	bool douse = reqzrg.includes( dpth );
+	if ( Values::isUdf(dpth) )
+	    douse = false;
+	else
+	{
+	    bool atstop = mIsEqual(reqzrg.stop,dpth,1e-5);
+	    bool atstart = mIsEqual(reqzrg.start,dpth,1e-5);
+	    if ( atstop || atstart )
+		douse = true;
+	}
 
-	bool atstart = mIsEqual(reqzrg.start,dpth,1e-5);
-	bool douse = !mIsUndefined(dpth)
-	          && (!havestart || atstart || dpth >= reqzrg.start);
 	if ( mIsEqual(prevdpth,dpth,mDefEps) )
 	    douse = false;
 	else
