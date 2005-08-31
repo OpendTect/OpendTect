@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.6 2005-08-25 08:38:57 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.7 2005-08-31 03:08:20 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,21 +79,21 @@ protected:
     bool		trackTrace( const BinID& refbid,
 				const BinID& targetbid, float& targetz,
 				float* refsamples = 0 );
-    int			adjoiningExtremePos( const float* srctrc,
+    int			adjoiningExtremePos( VSEvent::Type, const float*,
 				int startsample, int endsample, float refval,
 				float& matchval, bool& eqstart );
-    float		adjoiningEventPosByValue( const float* srctrc,
+    float		adjoiningEventPosByValue( VSEvent::Type,  const float*,
                                 int nrsamples, int refpos, float refval);
-    int			matchingSampleBySimilarity( const float* srctrc,
+    float 		adjoiningZeroEventPos( VSEvent::Type, const float*,
+    				int nrsamples, int startpos );
+    float 		firstZeroEventPos( VSEvent::Type, const float*,
+    				int startsample, int endsample );
+    float		exactExtremePos( VSEvent::Type, const float*,
+    				int nrsamples, int pickpos );
+    int			matchingSampleBySimilarity( const float*,
                                 int startsample, int endsample,
-				const float* refval,
+				const float* refvals,
 				float &matchratio, bool& eqfromstart );
-    float 		adjoiningZeroEventPos( const float* srctrc,
-    				int nrsamples, int startpos, VSEvent::Type );
-    float 		firstZeroEventPos( const float* srctrc, int startsample,
-    				int endsample, VSEvent::Type );
-    float		exactExtremePos(const float *smplbuf,
-    				int nrsamples, int pickpos, VSEvent::Type );
 private:
     void		initTrackParam();
     int			matchwinsamples_;
