@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.52 2005-08-18 19:37:53 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.53 2005-08-31 11:25:58 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     setRandomTrack( visBase::RandomTrack::create() );
 
     texturematerial->ref();
+    texturematerial->setColor( Color::White );
     texturematerial->setAmbience( 0.8 );
     texturematerial->setDiffIntensity( 0.8 );
     track->setMaterial( texturematerial );
@@ -639,8 +640,7 @@ SoNode* RandomTrackDisplay::getInventorNode()
 { return track->getInventorNode(); }
 
 
-void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids )
-									   const
+void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObject::fillPar( par, saveids );
 
