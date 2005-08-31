@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.11 2005-08-26 18:19:27 cvsbert Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.12 2005-08-31 13:07:00 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "progressmeter.h"
 #include "hostdata.h"
+#include "binidvalset.h"
 #include "separstr.h"
 #include "timefun.h"
 #include "filegen.h"
