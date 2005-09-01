@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.5 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.6 2005-09-01 12:10:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ void uiVolumeStatisticsAttrib::set2D( bool yn )
     inpfld->set2D( yn );
     stepoutfld->set2D( yn );
     steerfld->set2D( yn );
+    shapefld->display( !yn );
 }
 
 
