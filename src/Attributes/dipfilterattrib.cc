@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.4 2005-08-25 14:57:13 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.5 2005-09-01 11:51:03 cvsnanne Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -61,7 +61,6 @@ void DipFilter::initClass()
     desc->addParam( maxvel );
 
     BoolParam* filterazi = new BoolParam( filteraziStr() );
-    filterazi->setRequired( false );
     filterazi->setDefaultValue(false);
     desc->addParam( filterazi );
 
@@ -83,7 +82,6 @@ void DipFilter::initClass()
     desc->addOutputDataType( Seis::UnknowData );
 
     desc->addInput( InputSpec("Input data",true) );
-
     desc->init();
 
     PF().addDesc( desc, createInstance );
