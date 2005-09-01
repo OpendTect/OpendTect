@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.33 2005-08-16 17:10:17 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.34 2005-09-01 12:27:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timer.h"
 #include "thread.h"
+
+static const char* sButTxtAdvance = "Advance >>";
+static const char* sButTxtPause = "Pause";
 
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
@@ -177,9 +180,12 @@ uiSliceScroll( uiSliceSel* ss )
     typfld->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
     typfld->attach( alignedBelow, stepfld );
 
-    ctrlbut = new uiPushButton( this, "Advance" );
+    ctrlbut = new uiPushButton( this, sButTxtAdvance );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     ctrlbut->attach( alignedBelow, typfld );
+    backbut = new uiPushButton( this, "<< Step back" );
+    backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
+    backbut->attach( leftOf, ctrlbut );
 
     dtfld = new uiGenInput( this, "Time between updates (s)", FloatInpSpec(1) );
     dtfld->attach( alignedBelow, ctrlbut );
@@ -205,19 +211,20 @@ void typSel( CallBacker* )
 	else
 	    stopAuto( false );
     }
-    ctrlbut->setText( autoreq ? "Pause" : "Advance" );
+    ctrlbut->setText( autoreq ? sButTxtPause : sButTxtAdvance );
+    backbut->display( !autoreq );
     inauto = autoreq;
 }
 
 
-void butPush( CallBacker* )
+void butPush( CallBacker* cb )
 {
     if ( !inauto )
-	doAdvance();
+	doAdvance( cb != ctrlbut );
     else
     {
 	/*new*/paused = *ctrlbut->text() == 'P';
-	ctrlbut->setText( paused ? "Go" : "Pause" );
+	ctrlbut->setText( paused ? "Go" : sButTxtPause );
     }
 }
 
@@ -225,8 +232,8 @@ void butPush( CallBacker* )
 void startAuto()
 {
     paused = false;
-    doAdvance();
-    ctrlbut->setText( "Pause" );
+    doAdvance( false );
+    ctrlbut->setText( sButTxtPause );
     setTimer();
 }
 
@@ -237,16 +244,17 @@ void stopAuto( bool setmanual )
     if ( setmanual )
     {
 	typfld->box()->setCurrentItem( 0 );
-	ctrlbut->setText( "Advance" );
+	ctrlbut->setText( sButTxtAdvance );
+	backbut->display( true );
     }
 }
 
 
-void doAdvance()
+void doAdvance( bool reversed )
 {
     if ( !timer ) return;
 
-    int step = stepfld->box()->getValue();
+    const int step = (reversed ? -1 : 1) * stepfld->box()->getValue();
     slcsel->readInput();
     if ( slcsel->isinl )
     {
@@ -266,12 +274,12 @@ void doAdvance()
     }
     else
     {
-	float newval = slcsel->cs.zrg.start + step;
+	const float zfac = SI().zFactor();
+	float newval = slcsel->cs.zrg.start + step / zfac;
 	if ( !SI().sampling(true).zrg.includes(newval) )
 	    stopAuto( true );
 	else
 	{
-	    const float zfac = SI().zFactor();
 	    if ( zfac < 10 )
 		slcsel->z0fld->box()->setValue( newval );
 	    else
@@ -291,7 +299,7 @@ void timerTick( CallBacker* )
     if ( !inauto )
 	return;
     if ( !paused )
-	doAdvance();
+	doAdvance( false );
     setTimer();
 }
 
@@ -335,6 +343,7 @@ const char* getTitle( uiSliceSel* ss )
     uiLabeledSpinBox*	stepfld;
     uiLabeledComboBox*	typfld;
     uiPushButton*	ctrlbut;
+    uiPushButton*	backbut;
     uiGenInput*		dtfld;
     const float		zfact;
 
