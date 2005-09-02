@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.12 2005-08-30 09:16:27 cvsduntao Exp $
+ RCS:		$Id: uivisemobj.h,v 1.13 2005-09-02 11:15:46 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,9 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "menuhandler.h"
 
-namespace EM { class EdgeLineSet; class EdgeLineSegment; };
+namespace EM { class EdgeLineSet; class EdgeLineSegment; }
+namespace visSurvey { class EMObjectDisplay; }
+
 class uiParent;
 class uiMenuHandler;
 class uiVisPartServer;
@@ -36,11 +38,11 @@ public:
     void		prepareForShutdown();
 
     static const char*	getObjectType(int displayid);
-    static bool		canHandle(int displayid);
     int			id() const { return displayid; }
 
     float		getShift() const;
     void		setDepthAsAttrib();
+    void		setOnlyAtSectionsDisplay(bool);
     uiMenuHandler&	getNodeMenu() { return nodemenu; }
 
     void		readAuxData();
@@ -70,6 +72,7 @@ protected:
 
     uiParent*		uiparent;
     uiVisPartServer*	visserv;
+    visSurvey::EMObjectDisplay*	emod;
 
     uiMenuHandler&	nodemenu;
     uiMenuHandler&	edgelinemenu;

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.100 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.101 2005-09-02 11:15:46 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1126,14 +1126,21 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New ..."), 1 );
+    mnu.insertSeparator();
+    if ( children.size() )
+    {
+	mnu.insertItem( new uiMenuItem("Display all only at sections"), 2 );
+	mnu.insertItem( new uiMenuItem("Show all in full"), 3 );
+    }
     addStandardItems( mnu );
-
-    MultiID mid;
-    bool addhor = false;
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
-	addhor = applMgr()->EMServer()->selectHorizon(mid);
+    {
+	MultiID mid;
+	const bool addhor = applMgr()->EMServer()->selectHorizon(mid);
+	if ( addhor ) addChild( new uiODHorizonTreeItem(mid) );
+    }
     else if ( mnuid == 1 )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
@@ -1141,11 +1148,18 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mps->addTracker( EM::Horizon::typeStr() );
 	return true;
     }
+    else if ( mnuid == 2 || mnuid == 3 )
+    {
+	const bool onlyatsection = mnuid == 2;
+	for ( int idx=0; idx<children.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children[idx])
+	    if ( itm )
+		itm->visEMObject()->setOnlyAtSectionsDisplay( onlyatsection );
+	}
+    }
     else
 	handleStandardItems( mnuid );
-
-    if ( addhor )
-	addChild( new uiODHorizonTreeItem(mid) );
 
     return true;
 }

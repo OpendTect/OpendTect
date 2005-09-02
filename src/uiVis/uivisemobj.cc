@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.26 2005-08-31 09:45:51 cvsduntao Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.27 2005-09-02 11:15:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,16 +40,20 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
     , nodemenu( *new uiMenuHandler(uip,-1) )
     , interactionlinemenu( *new uiMenuHandler(uip,-1) )
     , edgelinemenu( *new uiMenuHandler(uip,-1) )
+    , showedtexture(true)
+    , emod(0)
 {
     nodemenu.ref();
     interactionlinemenu.ref();
     edgelinemenu.ref();
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid))
+    emod = dynamic_cast<visSurvey::EMObjectDisplay*>(
+	    	visserv->getObject(displayid));
     if ( !emod ) return;
+
     const MultiID* mid = visserv->getMultiID( displayid );
     if ( !mid ) return;
+
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
     if ( !EM::EMM().getObject(emid) )
     {
@@ -76,19 +80,21 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
 #define mRefUnrefRet { emod->ref(); emod->unRef(); return; }
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
-			    uiVisPartServer* vps )
+			      uiVisPartServer* vps )
     : displayid(-1)
     , visserv( vps )
     , uiparent( uip )
     , nodemenu( *new uiMenuHandler(uip,-1) )
     , interactionlinemenu( *new uiMenuHandler(uip,-1) )
     , edgelinemenu( *new uiMenuHandler(uip,-1) )
+    , showedtexture(true)
+    , emod(0)
 {
     nodemenu.ref();
     interactionlinemenu.ref();
     edgelinemenu.ref();
 
-    visSurvey::EMObjectDisplay* emod = visSurvey::EMObjectDisplay::create();
+    emod = visSurvey::EMObjectDisplay::create();
     emod->setDisplayTransformation(visSurvey::SPM().getUTM2DisplayTransform());
 
     uiCursorChanger cursorchanger(uiCursor::Wait);
@@ -114,8 +120,6 @@ uiVisEMObject::~uiVisEMObject()
 	menu->handlenotifier.remove( mCB(this,uiVisEMObject,handleMenuCB) );
     }
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid))
     if ( emod && emod->getEditor() )
     {
 	emod->getEditor()->noderightclick.remove(
@@ -144,8 +148,6 @@ uiVisEMObject::~uiVisEMObject()
 
 bool uiVisEMObject::isOK() const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visBase::DM().getObject(displayid));
     return emod;
 }
 
@@ -207,8 +209,6 @@ void uiVisEMObject::setUpConnections()
 
 void uiVisEMObject::connectEditor()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid));
     if ( emod && emod->getEditor() )
     {
 	emod->getEditor()->noderightclick.notifyIfNotNotified(
@@ -224,25 +224,20 @@ void uiVisEMObject::connectEditor()
 
 const char* uiVisEMObject::getObjectType( int id )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-		    visBase::DM().getObject(id))
-    const MultiID* mid = emod ? emod->getMultiID() : 0;
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,obj,visBase::DM().getObject(id))
+    const MultiID* mid = obj ? obj->getMultiID() : 0;
     return mid ? EM::EMM().objectType( EM::EMM().multiID2ObjectID(*mid) ) : 0;
 }
 
 
 void uiVisEMObject::setDepthAsAttrib()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid))
     if ( emod ) emod->setDepthAsAttrib();
 }
 
 
 void uiVisEMObject::readAuxData()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid))
     if ( emod ) emod->readAuxData();
 }
 
@@ -267,17 +262,12 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 
 EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
 {
-    if ( !path ) return -1;
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid))
-    return emod ? emod->getSectionID( path ) : -1;
+    return path && emod ? emod->getSectionID( path ) : -1;
 }
 
 
 float uiVisEMObject::getShift() const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-		    visserv->getObject(displayid))
     return emod ? emod->getTranslation().z : 0;
 }
 
@@ -285,22 +275,20 @@ float uiVisEMObject::getShift() const
 /*
 NotifierAccess* uiVisEMObject::finishEditingNotifier()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
     return emod && emod->getEditor() ? &emod->getEditor()->finishedEditing : 0;
 }
 
 
 void uiVisEMObject::getMovedNodes(TypeSet<EM::PosID>& res) const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
     if ( emod && emod->getEditor() ) emod->getEditor()->getMovedNodes(res);
 }
 
 
 bool uiVisEMObject::snapAfterEdit() const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
-    return emod && emod->getEditor() ? emod->getEditor()->snapAfterEdit() : false;
+    return emod && emod->getEditor() ? emod->getEditor()->snapAfterEdit() 
+    				     : false;
 }
 
 
@@ -309,8 +297,6 @@ bool uiVisEMObject::snapAfterEdit() const
 void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb)
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid));
 
     const MultiID* mid = visserv->getMultiID( displayid );
     EM::EMObject* emobj = mid ?
@@ -350,13 +336,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller)
-    if ( mnuid==-1 || menu->isHandled() )
+    if ( !emod || mnuid==-1 || menu->isHandled() )
 	return;
-
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid))
-    if ( !emod ) return;
-
 
     const MultiID* mid = visserv->getMultiID( displayid );
     mDynamicCastGet(EM::EMObject*,emobj, mid 
@@ -372,17 +353,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==showonlyatsectionsmnuitem.id )
     {
 	const bool turnon = !emod->getOnlyAtSectionsDisplay();
-	if ( turnon )
-	{
-	    showedtexture = emod->usesTexture();
-	    if ( showedtexture ) emod->useTexture(false);
-	}
-	else 
-	{
-	    emod->useTexture(showedtexture);
-	}
-
-	emod->setOnlyAtSectionsDisplay( turnon );
+	setOnlyAtSectionsDisplay( turnon );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==changesectionnamemnuitem.id )
@@ -447,16 +418,17 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==fillholesitem.id )
     {
-	mDynamicCastGet(EM::Horizon*, emhzn, emobj);
-	if ( !emhzn )	return;
+	mDynamicCastGet(EM::Horizon*,emhzn,emobj);
+	if ( !emhzn ) return;
 
 	menu->setIsHandled(true);
-	BufferString lbl( "Apeerture: " );
+	BufferString lbl( "Aperture: " );
 	DataInpSpec* inpspec = new IntInpSpec( 5 );
-	uiGenInputDlg dlg( uiparent,"Interpolation aperture size ", lbl, inpspec );
+	uiGenInputDlg dlg( uiparent, "Interpolation aperture size ", 
+			   lbl, inpspec );
 	if ( !dlg.go() ) return;
 
-	int aperture = dlg.getIntValue();
+	const int aperture = dlg.getIntValue();
 	if ( aperture<1 )
 	    uiMSG().error( "Aperture size must be greater than 0" );
 	else
@@ -475,16 +447,26 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
 }
 
+
+void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
+{
+    bool usetexture = false;
+    if ( yn )
+	showedtexture = emod->usesTexture();
+    else 
+	usetexture = showedtexture;
+
+    emod->useTexture( usetexture );
+    emod->setOnlyAtSectionsDisplay( yn );
+}
+
 #define mMakePerm	0
 #define mRemoveCtrl	1
 #define mRemoveNode	2
 
 
-void uiVisEMObject::interactionLineRightClick( CallBacker* cb )
+void uiVisEMObject::interactionLineRightClick( CallBacker* )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid));
-
     if ( !emod ) return;
 
     PtrMan<MPE::uiEMEditor> uimpeeditor =
@@ -506,11 +488,8 @@ void uiVisEMObject::interactionLineRightClick( CallBacker* cb )
 }
 
 
-void uiVisEMObject::nodeRightClick( CallBacker* cb )
+void uiVisEMObject::nodeRightClick( CallBacker* )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-	    	    visserv->getObject(displayid));
-
     if ( !emod ) return;
 
     PtrMan<MPE::uiEMEditor> uimpeeditor =
@@ -553,8 +532,6 @@ void uiVisEMObject::edgeLineRightClick( CallBacker* cb )
 void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-		    visserv->getObject(displayid));
 
     const EM::PosID empid = emod->getEditor()->getNodePosID(
 				emod->getEditor()->getRightClickNode());
@@ -589,8 +566,6 @@ void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,caller)
     if ( mnuid==-1 || menu->isHandled() )
 	return;
-
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
 
     const EM::PosID empid = emod->getEditor()->getNodePosID(
 				emod->getEditor()->getRightClickNode());
