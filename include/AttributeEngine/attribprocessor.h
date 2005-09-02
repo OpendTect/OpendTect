@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.9 2005-08-19 07:17:53 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.10 2005-09-02 14:11:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 
 class CubeSampling;
+class BinID;
 template <class T> class Interval;
 
 namespace Attrib
@@ -34,6 +35,7 @@ public:
     void		addOutput(Output*);
 
     int			nextStep();
+    void		init();
     int			totalNr() const;
     int 		nrDone() const 		{ return nrdone; }
     const char*         message() const
@@ -42,6 +44,7 @@ public:
 
     void		addOutputInterest(int sel)     { outpinterest_ += sel; }
     void		setOutputIndex(int& index);
+    bool		setZIntervals(TypeSet< Interval<int> >&, BinID);
     
     Notifier<Attrib::Processor>      moveonly;
                      /*!< triggered after a position is reached that requires

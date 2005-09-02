@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.10 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: attribengman.h,v 1.11 2005-09-02 14:11:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,15 +23,17 @@ class IOPar;
 class LineKey;
 class NLAModel;
 class SeisTrcBuf;
+class SeisTrcInfo;
 
 namespace Attrib
 {
-class CubeOutput;
+class SeisTrcStorOutput;
 class Desc;
 class DescSet;
 class SelSpec;
 class SliceSet;
 class Processor;
+class DataHolder;
 
 /*!\brief The Attribute engine Manager. */
 
@@ -54,7 +56,7 @@ public:
     static void		createNLADescSet(const char* specstr, DescID& outpid,
 					 DescSet& descset, int desoutputid,
 					 const NLAModel*, BufferString&);
-    CubeOutput* 	createOutput(const IOPar&,const LineKey&);
+    SeisTrcStorOutput* 	createOutput(const IOPar&,const LineKey&);
 
     const DescSet* 	attribSet() const	{ return inpattrset; }
     const NLAModel*	nlaModel() const	{ return nlamodel; }
@@ -72,28 +74,28 @@ public:
     DescSet*		createNLAADS(DescID& outid,BufferString& errmsg,
 	    			     const DescSet* addtoset=0);
 
-    ExecutorGroup*	sliceSetOutputCreator(BufferString& errmsg,
+    ExecutorGroup*	createSliceSetOutput(BufferString& errmsg,
 	    			      const SliceSet* cached_data = 0);
     			//!< Give the previous calculated data in cached data
     			//!< and some parts may not be recalculated.
     SliceSet*		getSliceSetOutput();
     			//!< Mem transfer here
-    SeisTrcBuf*		get2DLineOutput();
-    			//!< Mem transfer here
 
-    ExecutorGroup* 	featureOutputCreator(const BufferStringSet& inputs,
-					     const ObjectSet<BinIDValueSet>&);
+    ExecutorGroup* 	createFeatureOutput(const BufferStringSet& inputs,
+					    const ObjectSet<BinIDValueSet>&);
 
-    ExecutorGroup*	screenOutput2DCreator(BufferString& errmsg);
-    ExecutorGroup*	locationOutputCreator(BufferString& errmsg,
-					      ObjectSet<BinIDValueSet>&);
+    ExecutorGroup*	createScreenOutput2D(BufferString& errmsg,
+	    				      ObjectSet<DataHolder>&,
+					      ObjectSet<SeisTrcInfo>&);
+    ExecutorGroup*	createLocationOutput(BufferString& errmsg,
+					     ObjectSet<BinIDValueSet>&);
 
-    ExecutorGroup*	trcSelOutputCreator(BufferString& errmsg,
-	    				    const BinIDValueSet& bidvalset,
-	    				    SeisTrcBuf&);
-    int			nrOutputsToBeProcessed() const; 
+    ExecutorGroup*	createTrcSelOutput(BufferString& errmsg,
+	    				   const BinIDValueSet& bidvalset,
+	    				   SeisTrcBuf&);
+    int			getNrOutputsToBeProcessed() const; 
 
-    const char*		curUserRef() const;
+    const char*		getCurUserRef() const;
 
 protected:
 
