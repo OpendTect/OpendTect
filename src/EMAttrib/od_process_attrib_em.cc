@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.13 2005-09-02 14:22:40 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.14 2005-09-02 14:29:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,8 +290,9 @@ bool BatchProgram::go( std::ostream& strm )
 		mErrRet( "Cannot reach next position" )
 	    break;
 	}
+
+	nriter++;
     }
-    nriter++;
 
     progressmeter.finish();
     mPIDMsg( "Processing done." );
