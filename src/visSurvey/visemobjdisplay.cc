@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.48 2005-08-29 13:39:59 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.49 2005-09-02 10:21:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,9 @@ EMObjectDisplay::EMObjectDisplay()
     coltab_->ref();
     drawstyle->ref();
     addChild( drawstyle->getInventorNode() );
+
+    LineStyle defls; defls.width = 3;
+    drawstyle->setLineStyle( defls );
 }
 
 
