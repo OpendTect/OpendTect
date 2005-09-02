@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.12 2005-08-31 13:07:00 cvsdgb Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.13 2005-09-02 14:22:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,7 +257,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     ObjectSet<BinIDValueSet> bivs;
     getPositions( strm, mid, bivs );
-    execgr = aem.locationOutputCreator( errmsg, bivs );
+    execgr = aem.createLocationOutput( errmsg, bivs );
 
     bool cont = true;
     bool loading = true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.9 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.10 2005-09-02 14:23:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,7 +166,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     BufferString errmsg;
     ObjectSet<BinIDValueSet> bivsset;
     bivsset += &bivs;
-    PtrMan<Executor> exec = aem.locationOutputCreator( errmsg, bivsset );
+    PtrMan<Executor> exec = aem.createLocationOutput( errmsg, bivsset );
     uiExecutor uiexec( this, *exec );
     bool ret = uiexec.go();
     if ( !ret ) return false;
