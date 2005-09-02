@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.5 2005-09-01 11:51:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.6 2005-09-02 14:21:35 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -366,7 +366,7 @@ bool DipFilter::getInputData(const BinID& relpos, int index)
 
 
 bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
-			     int t0, int nrsamples ) const
+			     int z0, int nrsamples ) const
 {
     if ( !outputinterest.size() ) return false;
 
@@ -379,7 +379,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++)
     {
-	const int cursample = t0 + idx;
+	const int cursample = z0 + idx;
 	int dhoff = 0;
 	int nrvalues = 0;
 
@@ -392,8 +392,8 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 		const DataHolder* dh = inputdata[dhoff];
 		if ( !dh ) continue;
 
-		Interval<float> dhinterval( dh->t0_*refstep,
-					    (dh->t0_+dh->nrsamples_) *refstep );
+		Interval<float> dhinterval( dh->z0_*refstep,
+					    (dh->z0_+dh->nrsamples_) *refstep );
 
 		int s = cursample - hsz;
 		for ( int idt=0; idt<size; idt++ )
@@ -402,7 +402,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 			    || mIsEqual(dhinterval.start,s*refstep,mDefEps) 
 			    || mIsEqual(dhinterval.start,s*refstep,mDefEps) )
 		    {
-			sum += dh->item(dataidx_)->
+			sum += dh->series(dataidx_)->
 			    		value(s)*kernel.get(idi, idc, idt);
 			nrvalues++;
 		    }
@@ -412,7 +412,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 		    
-	if ( outputinterest[0] ) output.item(0)->setValue(idx, sum/nrvalues);
+	if ( outputinterest[0] ) output.series(0)->setValue(idx, sum/nrvalues);
     }
 
     return true;

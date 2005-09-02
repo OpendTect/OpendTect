@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.6 2005-08-25 14:57:13 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.7 2005-09-02 14:20:47 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -120,8 +120,8 @@ float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
     {
 	ValueSeriesInterpolator<float> interp1(dh1.nrsamples_-1);
 	ValueSeriesInterpolator<float> interp2(dh2.nrsamples_-1);
-	float val1 = interp1.value( *(dh1.item(realidx_)), s1-dh1.t0_ + s );
-	float val2 = interp2.value( *(dh2.item(realidx_)), s2-dh2.t0_ + s );
+	float val1 = interp1.value( *(dh1.series(realidx_)), s1-dh1.z0_ + s );
+	float val2 = interp2.value( *(dh2.series(realidx_)), s2-dh2.z0_ + s );
 	xsum += val1 * val2;
 	sum1 += val1 * val1;
 	sum2 += val2 * val2;
@@ -155,14 +155,14 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 		ValueSeriesInterpolator<float> 
 		    	interp( re.get(idy,idz)->nrsamples_-1 );
 		float crlpos = (idz - (crlsz/2)) * distcrl;
-		float place = s - re.get(idy,idz)->t0_ + idx + 
+		float place = s - re.get(idy,idz)->z0_ + idx + 
 		    	     (inlpos*inldip)/refstep + (crlpos*crldip)/refstep;
 		    
 		float real = 
-		    interp.value( *(re.get(idy,idz)->item(realidx_)), place );
+		    interp.value( *(re.get(idy,idz)->series(realidx_)), place );
 
 		float imag =  
-		   - interp.value( *(im.get(idy,idz)->item(imagidx_)), place );
+		   -interp.value( *(im.get(idy,idz)->series(imagidx_)), place );
 		
 		realsum += real;
 		imagsum += imag;
@@ -179,25 +179,25 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 
 bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
-			     int t0, int nrsamples ) const
+			     int z0, int nrsamples ) const
 {
     BinID step = inputs[0]->getStepoutStep();
 	
     const_cast<Coherency*>(this)->distinl = fabs(inldist()*step.inl);
     const_cast<Coherency*>(this)->distcrl = fabs(crldist()*step.crl);
-    return type == 1 ? computeData1(output, t0, nrsamples) 
-		     : computeData2(output, t0, nrsamples);
+    return type == 1 ? computeData1(output, z0, nrsamples) 
+		     : computeData2(output, z0, nrsamples);
 }
 
 
-bool Coherency::computeData1( const DataHolder& output, int t0, 
+bool Coherency::computeData1( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
     Interval<int> samplegate( mNINT(gate.start/refstep),
 				mNINT(gate.stop/refstep) );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	float cursamp = t0 + idx;
+	float cursamp = z0 + idx;
 	float maxcoh = -1;
 	float dipatmax;
 
@@ -232,25 +232,25 @@ bool Coherency::computeData1( const DataHolder& output, int t0,
 	cohres /= 2;
 
 	if ( outputinterest[0] ) 
-	    output.item(0)->setValue( idx, cohres );
+	    output.series(0)->setValue( idx, cohres );
 	if ( outputinterest[1] )
-	    output.item(1)->setValue( idx, inldip * dipFactor() );
+	    output.series(1)->setValue( idx, inldip * dipFactor() );
 	if ( outputinterest[2] ) 
-	    output.item(2)->setValue( idx, dipatmax * dipFactor() );
+	    output.series(2)->setValue( idx, dipatmax * dipFactor() );
     }
 
     return true;
 }
 
 
-bool Coherency::computeData2( const DataHolder& output, int t0, 
+bool Coherency::computeData2( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
     Interval<int> samplegate( mNINT(gate.start/refstep),
 				mNINT(gate.stop/refstep) );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	float cursample = t0 + idx;
+	float cursample = z0 + idx;
 	float maxcoh = -1;
 	float inldipatmax;
 	float crldipatmax;
@@ -276,11 +276,11 @@ bool Coherency::computeData2( const DataHolder& output, int t0,
 	}
 	
 	if ( outputinterest[0] ) 
-	    output.item(0)->setValue( idx, maxcoh );
+	    output.series(0)->setValue( idx, maxcoh );
 	if ( outputinterest[1] )
-	    output.item(1)->setValue( idx, inldipatmax * dipFactor() );
+	    output.series(1)->setValue( idx, inldipatmax * dipFactor() );
 	if ( outputinterest[2] ) 
-	    output.item(2)->setValue( idx, crldipatmax * dipFactor() );
+	    output.series(2)->setValue( idx, crldipatmax * dipFactor() );
     }
 
     return true;

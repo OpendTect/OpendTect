@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.8 2005-08-25 14:57:14 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.9 2005-09-02 14:21:35 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -224,7 +224,7 @@ bool VolStats::getInputData(const BinID& relpos, int idx)
 
 
 bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
-				int t0, int nrsamples ) const
+				int z0, int nrsamples ) const
 {
     const int nrpos = positions.size();
     const int nrtraces = nrvolumes*nrpos;
@@ -235,7 +235,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++)
     {
-	int cursample = t0 + idx;
+	int cursample = z0 + idx;
 	if ( !idx )
 	{
 	    for ( int vol=0; vol<nrvolumes; vol++ )
@@ -246,8 +246,8 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		int steeridx = steering? getSteeringIndex(positions[posidx]) :0;
 
 		float csample = cursample;
-		if ( steering ) csample += steeringdata->item(steeridx)->
-		    			value( cursample - steeringdata->t0_); 
+		if ( steering ) csample += steeringdata->series(steeridx)->
+		    			value( cursample - steeringdata->z0_); 
 
 		for ( int volidx=0; volidx<nrvolumes; volidx++ )
 		{
@@ -259,8 +259,8 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		    for ( int idz=0; idz<sg; idz++ )
 		    {
 			float place = (absolutegate ? 0 : csample) + s;
-			(*(*stats)[volidx]) +=
-			    interp.value( *(dh->item(dataidx_)),place-dh->t0_ );
+			(*(*stats)[volidx]) += interp.value( 
+					*(dh->series(dataidx_)),place-dh->z0_ );
 			s ++;
 		    }
 		}	
@@ -279,8 +279,8 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		float csample = cursample;
 		int steeridx = steering? getSteeringIndex(positions[posidx]) :0;
 		
-		if ( steering ) csample += steeringdata->item(steeridx)->
-					value( cursample - steeringdata->t0_); 
+		if ( steering ) csample += steeringdata->series(steeridx)->
+					value( cursample - steeringdata->z0_); 
 
 		const float newsample = csample + samplegate.stop;
 
@@ -291,9 +291,9 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 					
 		    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 
-		    float place = newsample - dh->t0_;
+		    float place = newsample - dh->z0_;
 		    (*(*stats)[volidx]) += 
-			interp.value( *(dh->item(dataidx_)), place);
+			interp.value( *(dh->series(dataidx_)), place);
 		}
 	    }
 	}
@@ -310,7 +310,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    	outputtypes[outidx]);
 		}
 		
-		output.item(outidx)->setValue( idx, sum / nrvolumes );
+		output.series(outidx)->setValue( idx, sum / nrvolumes );
 	    }
 	}
     }

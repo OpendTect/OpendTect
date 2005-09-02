@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.5 2005-08-26 18:19:27 cvsbert Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.6 2005-09-02 14:21:35 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "attribdataholder.h"
@@ -134,7 +134,7 @@ const Interval<float>* Frequency::reqZMargin( int inp, int ) const
 
 
 bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
-				int t0, int nrsamples ) const
+				int z0, int nrsamples ) const
 {
     if ( !fftisinit )
     {
@@ -168,14 +168,14 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = t0 + idx;
+	int cursample = z0 + idx;
 	int tempsamp = cursample + samplegate.start;
 	for ( int idy=0; idy<sz; idy ++ )
 	{
-	    const float real = redata->item(realidx_)->
-					value(tempsamp-redata->t0_);
-	    const float imag = -imdata->item(imagidx_)->
-					value(tempsamp-imdata->t0_);
+	    const float real = redata->series(realidx_)->
+					value(tempsamp-redata->z0_);
+	    const float imag = -imdata->series(imagidx_)->
+					value(tempsamp-imdata->z0_);
 
 	    const_cast<Frequency*>(this)->
 		signal.set( idy, float_complex( real, imag ));
@@ -221,14 +221,14 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 
 	if ( mIsZero(sum,mDefEps) )
 	{
-	    if ( outputinterest[0] )	output.item(0)->setValue(idx,0);
-	    if ( outputinterest[1] )    output.item(1)->setValue(idx,0);
-	    if ( outputinterest[2] )    output.item(2)->setValue(idx,0);
-	    if ( outputinterest[3] )    output.item(3)->setValue(idx,0);
-	    if ( outputinterest[4] )    output.item(4)->setValue(idx,0);
-	    if ( outputinterest[5] )    output.item(5)->setValue(idx,0);
-	    if ( outputinterest[6] )    output.item(6)->setValue(idx,0);
-	    if ( outputinterest[7] )    output.item(7)->setValue(idx,0);
+	    if ( outputinterest[0] )	output.series(0)->setValue(idx,0);
+	    if ( outputinterest[1] )    output.series(1)->setValue(idx,0);
+	    if ( outputinterest[2] )    output.series(2)->setValue(idx,0);
+	    if ( outputinterest[3] )    output.series(3)->setValue(idx,0);
+	    if ( outputinterest[4] )    output.series(4)->setValue(idx,0);
+	    if ( outputinterest[5] )    output.series(5)->setValue(idx,0);
+	    if ( outputinterest[6] )    output.series(6)->setValue(idx,0);
+	    if ( outputinterest[7] )    output.series(7)->setValue(idx,0);
 
 	    continue;
 	}
@@ -270,21 +270,21 @@ bool Frequency::computeData(const DataHolder& output, const BinID& relpos,
 	    {
 		mfisset = true;
 		if ( outputinterest[2] ) 
-		    output.item(2)->setValue(idx, idy * df);
+		    output.series(2)->setValue(idx, idy * df);
 	    }
 
 	    wf += hf;
 	    wf2 += hf*freq;	    
 	}
 
-	if ( outputinterest[0] ) output.item(0)->setValue(idx, maxnr * df);
-	if ( outputinterest[1] ) output.item(1)->setValue(idx, wf / sum);
-	if ( outputinterest[3] ) output.item(3)->setValue(idx, wf2 / sum);
-	if ( outputinterest[4] ) output.item(4)->setValue(idx, maxval);
-	if ( outputinterest[5] ) output.item(5)->setValue(idx, sa);
+	if ( outputinterest[0] ) output.series(0)->setValue(idx, maxnr * df);
+	if ( outputinterest[1] ) output.series(1)->setValue(idx, wf / sum);
+	if ( outputinterest[3] ) output.series(3)->setValue(idx, wf2 / sum);
+	if ( outputinterest[4] ) output.series(4)->setValue(idx, maxval);
+	if ( outputinterest[5] ) output.series(5)->setValue(idx, sa);
 	if ( outputinterest[6] ) 
-	    output.item(6)->setValue(idx, 1+(maxval-sum)/(maxval+sum));
-	if ( outputinterest[7] ) output.item(7)->setValue(idx, aqf);
+	    output.series(6)->setValue(idx, 1+(maxval-sum)/(maxval+sum));
+	if ( outputinterest[7] ) output.series(7)->setValue(idx, aqf);
     }
 
     return true;

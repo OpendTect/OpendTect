@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.12 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.13 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,8 +157,8 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 {
     ValueSeriesEvent<float,float> ev = nextev;
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(dataidx_)), 
-						 inputdata->t0_+nrsamples, sd );
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)), 
+						 inputdata->z0_+nrsamples, sd );
     Interval<float> sg;
     sg.start = ev.pos + dir;
     sg.stop = sg.start + dir*SGWIDTH;
@@ -175,17 +175,17 @@ ValueSeriesEvent<float,float> Event::findNextEvent(
 }
 
 
-void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 ) const
+void Event::singleEvent( TypeSet<float>& output, int nrsamples, int z0 ) const
 {
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(dataidx_)), 
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)), 
 	    					inputdata->nrsamples_, sd );
     VSEvent::Type zc = VSEvent::ZC;
-    Interval<float> sg(t0, t0-SGWIDTH);
+    Interval<float> sg(z0, z0-SGWIDTH);
     ValueSeriesEvent<float,float> ev = vsevfinder.find( zc, sg, 1 );
     if ( mIsUdf(ev.pos) )
     {
-	sg.stop = t0 + SGWIDTH;
+	sg.stop = z0 + SGWIDTH;
 	ev = vsevfinder.find( zc, sg, 1 );
     }
 
@@ -199,7 +199,7 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 ) const
     ValueSeriesEvent<float,float> nextev = vsevfinder.find( zc, sg, 1 );
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const float cursample = t0 + idx;
+	const float cursample = z0 + idx;
 	if ( cursample < ev.pos )
 	    output[idx] = 0;
 	else if ( cursample > nextev.pos )
@@ -221,10 +221,10 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 ) const
 	    else if ( outputinterest[1] )
 	    {
 		ValueSeriesInterpolator<float> interp(inputdata->nrsamples_-1);
-		float lastsampval = interp.value( *(inputdata->item(dataidx_)),
-							ev.pos-1 );
-		float nextsampval = interp.value( *(inputdata->item(dataidx_)),
-							ev.pos+1 );
+		float lastsampval = 
+		    interp.value( *( inputdata->series(dataidx_) ), ev.pos-1 );
+		float nextsampval = 
+		    interp.value( *( inputdata->series(dataidx_) ), ev.pos+1 );
 		output[idx] =
 		    fabs( (nextsampval - lastsampval) / 2 );
 	    }
@@ -240,17 +240,17 @@ void Event::singleEvent( TypeSet<float>& output, int nrsamples, int t0 ) const
 
 
 void Event::multipleEvents( TypeSet<float>& output,
-			    int nrsamples, int t0 ) const
+			    int nrsamples, int z0 ) const
 {
     SamplingData<float> sd;
-    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->item(dataidx_)), 
+    ValueSeriesEvFinder<float,float> vsevfinder( *(inputdata->series(dataidx_)), 
 	    					inputdata->nrsamples_, sd );
     if ( eventtype == VSEvent::GateMax || eventtype == VSEvent::GateMin )
     {
 	Interval<int> samplegate( mNINT(gate.start/refstep),
 		                          mNINT(gate.stop/refstep) );
 	int samplegatewidth = samplegate.width();
-	int csample = t0 + samplegate.start;
+	int csample = z0 + samplegate.start;
 	Interval<float> sg(0,0);
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
@@ -260,9 +260,9 @@ void Event::multipleEvents( TypeSet<float>& output,
 	    ValueSeriesEvent<float,float> ev = 
 					vsevfinder.find( eventtype, sg, 1 );
 	    if ( mIsUdf(ev.pos) )
-		output[idx] = fabs( (t0 + idx) - ev.pos);
+		output[idx] = fabs( (z0 + idx) - ev.pos);
 	    else
-		output[idx] = fabs( (t0 + idx) - ev.pos) * refstep;
+		output[idx] = fabs( (z0 + idx) - ev.pos) * refstep;
 	}
 	return;
     }
@@ -270,23 +270,23 @@ void Event::multipleEvents( TypeSet<float>& output,
     Interval<float> sg(0,0);
     if ( nrsamples == 1 )
     {
-	sg.start = t0;
+	sg.start = z0;
 	sg.stop = tonext ? sg.start + SGWIDTH : sg.start - SGWIDTH;
 	ValueSeriesEvent<float,float> ev = vsevfinder.find( eventtype, sg, 1 );
 	if ( mIsUdf(ev.pos) )
-	    output[0] = fabs( t0 - ev.pos );
+	    output[0] = fabs( z0 - ev.pos );
 	else
-	    output[0] = fabs( t0 - ev.pos ) * refstep;
+	    output[0] = fabs( z0 - ev.pos ) * refstep;
     }
     else
     {
-	sg.start = tonext ? t0 : t0 + nrsamples;
+	sg.start = tonext ? z0 : z0 + nrsamples;
 	int direction = tonext ? 1 : -1;
 	sg.stop = sg.start -direction * SGWIDTH;
 	ValueSeriesEvent<float,float> ev = vsevfinder.find( eventtype, sg, 1 );
 	if ( mIsUdf(ev.pos) )
 	{
-	    sg.stop = t0 + direction * SGWIDTH;
+	    sg.stop = z0 + direction * SGWIDTH;
 	    ev = vsevfinder.find( eventtype, sg, 1 );
 	}
 	ValueSeriesEvent<float,float> nextev = 
@@ -296,7 +296,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 	{
 	    for ( int idx = 0; idx<nrsamples; idx++ )
 	    {
-		const int cursample = t0 + idx;
+		const int cursample = z0 + idx;
 		if ( cursample < ev.pos )
 		    output[idx] = 0;
 		else if ( cursample > nextev.pos )
@@ -317,7 +317,7 @@ void Event::multipleEvents( TypeSet<float>& output,
 	{
 	    for ( int idx=nrsamples-1; idx>=0; idx-- )
 	    {
-		const int cursample = t0 + idx;
+		const int cursample = z0 + idx;
 		if ( cursample > ev.pos )
 		    output[idx] = 0;
 		else if ( cursample < nextev.pos )
@@ -339,12 +339,12 @@ void Event::multipleEvents( TypeSet<float>& output,
 
     
 bool Event::computeData( const DataHolder& output, const BinID& relpos,
-			 int t0, int nrsamples ) const
+			 int z0, int nrsamples ) const
 {
     TypeSet<float> outp(nrsamples,0);
     if ( !inputdata ) return false;
 
-    int firstsample = t0 - inputdata->t0_;
+    int firstsample = z0 - inputdata->z0_;
 
     if ( issingleevent )
         singleEvent(outp, nrsamples, firstsample);
@@ -354,11 +354,11 @@ bool Event::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	if ( outputinterest[0] ) 
-	    output.item(0)->setValue(idx, outp[idx]);
+	    output.series(0)->setValue(idx, outp[idx]);
 	else if ( outputinterest[1] ) 
-	    output.item(1)->setValue(idx, outp[idx]);
+	    output.series(1)->setValue(idx, outp[idx]);
 	else if ( outputinterest[2] )
-	    output.item(2)->setValue(idx, outp[idx]);
+	    output.series(2)->setValue(idx, outp[idx]);
     }
 
     return true;

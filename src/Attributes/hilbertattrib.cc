@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.10 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.11 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,10 +97,10 @@ float operator[](int idx) const
 {
     const int pos = shift_ + idx;
     if ( pos < 0 )
-	return data_->item(dataidx_)->value(0) - avg_;
+	return data_->series(dataidx_)->value(0) - avg_;
     if ( pos >= data_->nrsamples_ )
-	return data_->item(dataidx_)->value(data_->nrsamples_-1) - avg_;
-    return data_->item(dataidx_)->value( pos ) - avg_;
+	return data_->series(dataidx_)->value(data_->nrsamples_-1) - avg_;
+    return data_->series(dataidx_)->value( pos ) - avg_;
 }
 
     const DataHolder*	data_;
@@ -111,18 +111,18 @@ float operator[](int idx) const
 
 
 bool Hilbert::computeData( const DataHolder& output, const BinID& relpos, 
-			   int t0, int nrsamples ) const
+			   int z0, int nrsamples ) const
 {
     if ( !inputdata ) return false;
 
-    const int shift = t0 - inputdata->t0_;
+    const int shift = z0 - inputdata->z0_;
     Masker masker( inputdata, shift, 0, dataidx_ );
     float avg=0;
     for ( int idx=0; idx<nrsamples; idx++ )
 	avg += masker[idx];
 
     masker.avg_ = avg / nrsamples;
-    float* outp = output.item(0)->arr();
+    float* outp = output.series(0)->arr();
     GenericConvolve( hilbfilterlen, -halflen, hilbfilter, nrsamples,
 		     0, masker, nrsamples, 0, outp );
 

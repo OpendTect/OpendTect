@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.10 2005-08-25 14:57:14 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.11 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,7 +205,7 @@ bool Similarity::getInputData( const BinID& relpos, int index )
 
 
 bool Similarity::computeData( const DataHolder& output, const BinID& relpos, 
-			      int t0, int nrsamples ) const
+			      int z0, int nrsamples ) const
 {
     if ( !inputdata.size() ) return false;
 
@@ -214,7 +214,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
     const int gatesz = samplegate.width();
     const int nrpairs = inputdata.size()/2;
-    int firstsample = inputdata[0] ? t0 -inputdata[0]->t0_ : t0;
+    int firstsample = inputdata[0] ? z0 -inputdata[0]->z0_ : z0;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -232,15 +232,17 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	     
 	     if ( dosteer )
 	     {
-		 ValueSeries<float>* item1 = steeringdata->item(steeridx[idx1]);
-	         if ( item1 ) s0 += item1->value( idx-steeringdata->t0_ );
+		 ValueSeries<float>* serie1 = 
+		     			steeringdata->series(steeridx[idx1]);
+	         if ( serie1 ) s0 += serie1->value( idx-steeringdata->z0_ );
 
-		 ValueSeries<float>* item2 = steeringdata->item(steeridx[idx2]);
-		 if ( item2 ) s1 += item2->value( idx-steeringdata->t0_ );
+		 ValueSeries<float>* serie2 = 
+		     			steeringdata->series(steeridx[idx2]);
+		 if ( serie2 ) s1 += serie2->value( idx-steeringdata->z0_ );
 	     }
 
-	     SimiFunc vals0( *(inputdata[idx1]->item(dataidx_)) );
-	     SimiFunc vals1( *(inputdata[idx2]->item(dataidx_)) );
+	     SimiFunc vals0( *(inputdata[idx1]->series(dataidx_)) );
+	     SimiFunc vals1( *(inputdata[idx2]->series(dataidx_)) );
 	     stats += similarity(vals0, vals1, s0, s1, 1, gatesz, donormalize);
 	}
 
@@ -249,23 +251,24 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    for (int id=0; id<outputinterest.size(); id++ )
 	    {
 		if ( outputinterest[id] ) 
-		    output.item(id)->setValue(idx,0);
+		    output.series(id)->setValue(idx,0);
 	    }
 	}
 	else
 	{
-	    if ( outputinterest[0] ) output.item(0)->setValue(idx,stats.mean());
+	    if ( outputinterest[0] ) 
+		output.series(0)->setValue(idx,stats.mean());
 
 	    if ( nrpairs>1 && outputinterest.size()>1 )
 	    {
 		if ( outputinterest[1] ) 
-		    output.item(1)->setValue(idx,stats.median());
+		    output.series(1)->setValue(idx,stats.median());
 		if ( outputinterest[2] ) 
-		    output.item(2)->setValue(idx,stats.variance());
+		    output.series(2)->setValue(idx,stats.variance());
 		if ( outputinterest[3] ) 
-		    output.item(3)->setValue(idx,stats.min());
+		    output.series(3)->setValue(idx,stats.min());
 		if ( outputinterest[4] ) 
-		    output.item(4)->setValue(idx,stats.max());
+		    output.series(4)->setValue(idx,stats.max());
 	    }
 	}
     }

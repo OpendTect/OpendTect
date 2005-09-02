@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: instantattrib.cc,v 1.6 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,44 +92,44 @@ bool Instantaneous::getInputData( const BinID& relpos, int idx )
 }
 
 
-#define mGetRVal( sidx ) realdata->item(realidx_)->value( sidx-realdata->t0_ )
-#define mGetIVal( sidx ) -imagdata->item(imagidx_)->value( sidx-imagdata->t0_ )
+#define mGetRVal( sidx ) realdata->series(realidx_)->value(sidx-realdata->z0_)
+#define mGetIVal( sidx ) -imagdata->series(imagidx_)->value(sidx-imagdata->z0_)
 
 
 bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos, 
-				 int t0, int nrsamples ) const
+				 int z0, int nrsamples ) const
 {
     if ( !realdata || !imagdata ) return false;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int cursample = t0 + idx;
+	const int cursample = z0 + idx;
 	if ( outputinterest[0] )
-	    output.item(0)->setValue( idx, calcAmplitude(cursample) );
+	    output.series(0)->setValue( idx, calcAmplitude(cursample) );
 	else if ( outputinterest[1] )
-	    output.item(1)->setValue( idx, calcPhase(cursample) );
+	    output.series(1)->setValue( idx, calcPhase(cursample) );
 	else if ( outputinterest[2] )
-	    output.item(2)->setValue( idx, calcFrequency(cursample) );
+	    output.series(2)->setValue( idx, calcFrequency(cursample) );
 	else if ( outputinterest[3] )
-	    output.item(3)->setValue( idx, mGetIVal(cursample) );
+	    output.series(3)->setValue( idx, mGetIVal(cursample) );
 	else if ( outputinterest[4] )
-	    output.item(4)->setValue( idx, calcAmplitude1Der(cursample) );
+	    output.series(4)->setValue( idx, calcAmplitude1Der(cursample) );
 	else if ( outputinterest[5] )
-	    output.item(5)->setValue( idx, calcAmplitude2Der(cursample) );
+	    output.series(5)->setValue( idx, calcAmplitude2Der(cursample) );
 	else if ( outputinterest[6] )
-	    output.item(6)->setValue( idx, cos(calcPhase(cursample)) );
+	    output.series(6)->setValue( idx, cos(calcPhase(cursample)) );
 	else if ( outputinterest[7] )
-	    output.item(7)->setValue( idx, calcEnvWPhase(cursample) );
+	    output.series(7)->setValue( idx, calcEnvWPhase(cursample) );
 	else if ( outputinterest[8] )
-	    output.item(8)->setValue( idx, calcEnvWFreq(cursample) );
+	    output.series(8)->setValue( idx, calcEnvWFreq(cursample) );
 	else if ( outputinterest[9] )
-	    output.item(9)->setValue( idx, calcPhaseAccel(cursample) );
+	    output.series(9)->setValue( idx, calcPhaseAccel(cursample) );
 	else if ( outputinterest[10] )
-	    output.item(10)->setValue( idx, calcThinBed(cursample) );
+	    output.series(10)->setValue( idx, calcThinBed(cursample) );
 	else if ( outputinterest[11] )
-	    output.item(11)->setValue( idx, calcBandWidth(cursample) );
+	    output.series(11)->setValue( idx, calcBandWidth(cursample) );
 	else if ( outputinterest[12] )
-	    output.item(12)->setValue( idx, calcQFactor(cursample) );
+	    output.series(12)->setValue( idx, calcQFactor(cursample) );
     }
 
     return true;

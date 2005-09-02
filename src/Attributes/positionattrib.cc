@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.6 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,7 @@ bool Position::getInputData(const BinID& relpos, int idx)
 
 bool Position::computeData( const DataHolder& output,
 				const BinID& relpos,
-				int t0, int nrsamples ) const
+				int z0, int nrsamples ) const
 {
     if ( !inputdata.size() || !outdata ) return false;
     
@@ -197,7 +197,7 @@ bool Position::computeData( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = t0 + idx;
+	int cursample = z0 + idx;
 	TypeSet<BinIDValue> bidv;
 	stats.clear();
 	for ( int idp=0; idp<nrpos; idp++ )
@@ -209,14 +209,14 @@ bool Position::computeData( const DataHolder& output,
 	    int steeridx = getSteeringIndex(positions[idp]);
 
 	    float sample = cursample;
-	    if ( steering && steerdata->item(steeridx) )
-		sample += steerdata->item(steeridx)->value( 
-						cursample - steerdata->t0_ );
+	    if ( steering && steerdata->series(steeridx) )
+		sample += steerdata->series(steeridx)->value( 
+						cursample - steerdata->z0_ );
 		
 	    for ( int ids=0; ids< samplegate.width()+1; ids++ )
 	    {
-		float place = sample + ds - dh->t0_;
-		stats += interp.value( *(dh->item(inidx_)), place );
+		float place = sample + ds - dh->z0_;
+		stats += interp.value( *(dh->series(inidx_)), place );
 		bidv += BinIDValue( positions[idp], sample + ds );
 		ds ++;
 	    }
@@ -240,10 +240,10 @@ bool Position::computeData( const DataHolder& output,
 	if ( odata )
 	{
 	    ValueSeriesInterpolator<float> intp( odata->nrsamples_-1 );
-	    val = intp.value( *(odata->item(outidx_)), sample - odata->t0_ );
+	    val = intp.value( *(odata->series(outidx_)), sample - odata->z0_ );
 	}
 
-	output.item(0)->setValue(idx, val);
+	output.series(0)->setValue(idx, val);
     }
 
     return true;

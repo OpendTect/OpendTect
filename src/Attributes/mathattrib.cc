@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.9 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.10 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ bool Math::getInputData( const BinID& relpos, int idx )
 
 
 bool Math::computeData( const DataHolder& output, const BinID& relpos, 
-			int t0, int nrsamples ) const
+			int z0, int nrsamples ) const
 {
     if ( !expression_ ) return false;
     const int nrvar = expression_->getNrVariables();
@@ -149,17 +149,17 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int cursample = t0 + idx;
+	const int cursample = z0 + idx;
 	for ( int varidx=0; varidx<nrvar; varidx++ )
 	{
-	    const float val = inputdata_[varidx]->item(inputidxs_[varidx])->
-				value( cursample - inputdata_[varidx]->t0_ );
+	    const float val = inputdata_[varidx]->series(inputidxs_[varidx])->
+				value( cursample - inputdata_[varidx]->z0_ );
 	    const int variable = inputtable_[varidx];
 	    expression_->setVariable( variable, val );
 	}
 
 	const float res = expression_->getValue();
-	output.item(0)->setValue( idx, mIsUdf(res) ? mUdf(float) : res );
+	output.series(0)->setValue( idx, mIsUdf(res) ? mUdf(float) : res );
     }
 
     return true;

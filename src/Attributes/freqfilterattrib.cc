@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.9 2005-09-02 11:16:50 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.10 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -347,28 +347,28 @@ bool FreqFilter::getInputData(const BinID& relpos, int idx)
 
 
 bool FreqFilter::computeData( const DataHolder& output, const BinID& relpos,
-				int t0, int nrsamples ) const
+				int z0, int nrsamples ) const
 {
     if ( isfftfilter )
-	const_cast<FreqFilter*>(this)->fftFilter( output, t0, nrsamples );
+	const_cast<FreqFilter*>(this)->fftFilter( output, z0, nrsamples );
     else
-	const_cast<FreqFilter*>(this)->butterWorthFilter(output,t0,nrsamples);
+	const_cast<FreqFilter*>(this)->butterWorthFilter(output,z0,nrsamples);
 
     return true;
 }
 
 
 void FreqFilter::butterWorthFilter( const DataHolder& output,
-				    int t0, int nrsamples )
+				    int z0, int nrsamples )
 {
     const int minnrsamples = 100;
 	
     int nrsamp = nrsamples;
-    float curt = t0;
+    float curt = z0;
     if ( nrsamples == 1 )
     {
 	nrsamp = minnrsamples;
-	curt = t0 - refstep*nrsamp/2;
+	curt = z0 - refstep*nrsamp/2;
     }
 
     ArrPtrMan<float> data = new float [nrsamp];
@@ -376,7 +376,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	data[idx] = redata->item(realidx_)->value( idx - redata->t0_ );
+	data[idx] = redata->series(realidx_)->value( idx - redata->z0_ );
     }
 
     if ( filtertype == mFilterLowPass )
@@ -399,17 +399,17 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     }
 
     if ( nrsamples == 1 )
-	output.item(0)->setValue( 0, outp[nrsamp/2 - 1] );
+	output.series(0)->setValue( 0, outp[nrsamp/2 - 1] );
     else
     {
-	float* out = output.item(0)->arr();
+	float* out = output.series(0)->arr();
 	memcpy(out,outp,nrsamp*sizeof(float));
     }
 }
 
 
 void FreqFilter::fftFilter( const DataHolder& output,
-			    int t0, int nrsamples )
+			    int z0, int nrsamples )
 {
     if ( !fft.isinit() || !fftinv.isinit() )
     {
@@ -436,8 +436,9 @@ void FreqFilter::fftFilter( const DataHolder& output,
     const int sz = fftsz/2 - nrsamples/2;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-        const float real = redata->item(realidx_)->value( idx );
-        const float imag = -imdata->item(imagidx_)->value( idx );
+	int csamp = idx + z0;
+        const float real = redata->series(realidx_)->value(csamp -redata->z0_);
+        const float imag = -imdata->series(imagidx_)->value(csamp -imdata->z0_);
         signal.set( idx, float_complex(real,imag) );
     }
 
@@ -457,7 +458,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
     fftinv.transform( tmpfreqdomain, timecplxoutp );
 
     for ( int idx=0; idx<nrsamples; idx++ )
-	output.item(0)->setValue( idx, timecplxoutp.get(sz+idx).real() );
+	output.series(0)->setValue( idx, timecplxoutp.get(sz+idx).real() );
 }
 
 

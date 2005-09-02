@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.9 2005-08-26 18:19:27 cvsbert Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.10 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,7 +190,7 @@ bool SpecDecomp::getInputData( const BinID& relpos, int idx )
 
 
 bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
-	                          int t0, int nrsamples ) const
+	                          int z0, int nrsamples ) const
 {
     if ( !fftisinit )
     {
@@ -235,11 +235,11 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
     
     bool res;
     if ( transformtype == mTransformTypeFourier )
-	res = calcDFT(output, t0, nrsamples);
+	res = calcDFT(output, z0, nrsamples);
     else if ( transformtype == mTransformTypeDiscrete )
-	res = calcDWT(output, t0, nrsamples);
+	res = calcDWT(output, z0, nrsamples);
     else if ( transformtype == mTransformTypeContinuous )
-	res = calcCWT(output, t0, nrsamples);
+	res = calcCWT(output, z0, nrsamples);
 
     
     delete signal;
@@ -249,21 +249,21 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-bool SpecDecomp::calcDFT(const DataHolder& output, int t0, int nrsamples ) const
+bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = t0 + idx;
-	int sample = cursample + samplegate.start;
+	int cursample = z0 + idx;
+	int samp = cursample + samplegate.start;
 	for ( int ids=0; ids<sz; ids++ )
 	{
-	    float real = redata->item(realidx_)? 
-			redata->item(realidx_)->value(sample-redata->t0_) : 0;
-	    float imag = imdata->item(imagidx_)? 
-			-imdata->item(imagidx_)->value(sample-imdata->t0_) : 0;
+	    float real = redata->series(realidx_)? 
+			redata->series(realidx_)->value(samp-redata->z0_) : 0;
+	    float imag = imdata->series(imagidx_)? 
+			-imdata->series(imagidx_)->value(samp-imdata->z0_) : 0;
 
 	    signal->set( ids, float_complex(real,imag) );
-	    sample++;
+	    samp++;
 	}
 
 	removeBias( signal );
@@ -282,7 +282,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int t0, int nrsamples ) const
 	    float_complex val = freqdomain->get( idf );
 	    float real = val.real();
 	    float imag = val.imag();
-	    output.item(idf)->setValue( idx, sqrt(real*real+imag*imag) );
+	    output.series(idf)->setValue( idx, sqrt(real*real+imag*imag) );
 	}
     }
 
@@ -290,19 +290,19 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int t0, int nrsamples ) const
 }
 
 
-bool SpecDecomp::calcDWT(const DataHolder& output, int t0, int nrsamples ) const
+bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
 {
     int len = nrsamples + scalelen;
     while ( !isPower( len, 2 ) ) len++;
 
     Array1DImpl<float> inputdata( len );
-    if ( !redata->item(realidx_) ) return false;
+    if ( !redata->series(realidx_) ) return false;
     
     int off = (len-nrsamples)/2;
     for ( int idx=0; idx<len; idx++ )
     {
-	int cursample = t0 - redata->t0_ + idx-off;
-        inputdata.set( idx, redata->item(realidx_)->value(cursample) );
+	int cursample = z0 - redata->z0_ + idx-off;
+        inputdata.set( idx, redata->series(realidx_)->value(cursample) );
     }
 
     Array1DImpl<float> transformed( len );
@@ -325,7 +325,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int t0, int nrsamples ) const
             spectrum[scale] = fabs(transformed.get(scalepos));
 
 	    if ( !outputinterest[scale] ) continue;
-	    output.item(scale)->setValue( idx, spectrum[scale] );
+	    output.series(scale)->setValue( idx, spectrum[scale] );
         }
     }
 
@@ -340,25 +340,25 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int t0, int nrsamples ) const
     inp = nr;
 
 
-bool SpecDecomp::calcCWT(const DataHolder& output, int t0, int nrsamples ) const
+bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 {
     int nrsamp = nrsamples;
     if ( nrsamples == 1 ) nrsamp = 256;
     mGetNextPow2( nrsamp );
-    if ( !redata->item(realidx_) || !imdata->item(imagidx_) ) return false;
+    if ( !redata->series(realidx_) || !imdata->series(imagidx_) ) return false;
 
     const int off = (nrsamp-nrsamples)/2;
     Array1DImpl<float_complex> inputdata( nrsamp );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	const int cursample = t0 + idx - off;
-	const int reidx = cursample-redata->t0_;
+	const int cursample = z0 + idx - off;
+	const int reidx = cursample-redata->z0_;
 	const float real = reidx < 0 || reidx >= redata->nrsamples_
-		? 0 : redata->item(realidx_)->value( cursample-redata->t0_ );
+		? 0 : redata->series(realidx_)->value( cursample-redata->z0_ );
 
-	const int imidx = cursample-imdata->t0_;
+	const int imidx = cursample-imdata->z0_;
 	const float imag = imidx < 0 || imidx >= imdata->nrsamples_
-		? 0 : -imdata->item(imagidx_)->value( cursample-imdata->t0_ );
+		? 0 : -imdata->series(imagidx_)->value( cursample-imdata->z0_ );
         inputdata.set( idx, float_complex(real,imag) );
     }
 
@@ -392,7 +392,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int t0, int nrsamples ) const
     {
 	if ( !outputinterest[idx] ) continue;
 	for ( int ids=0; ids<nrsamples; ids++ )
-	    output.item(idx)->setValue( ids, outputdata.get(ids+off,idx) );
+	    output.series(idx)->setValue( ids, outputdata.get(ids+off,idx) );
     }
 
     return true;

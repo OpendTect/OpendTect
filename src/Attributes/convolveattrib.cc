@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.8 2005-08-25 14:57:13 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.9 2005-09-02 14:21:35 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -322,7 +322,7 @@ bool Convolve::getInputData( const BinID& relpos, int idx )
 
 
 bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
-	                    int t0, int nrsamples ) const
+	                    int z0, int nrsamples ) const
 {
     BinID stepout = kernel->getStepout();
     const int nrofkernels = kernel->nrSubKernels();
@@ -349,7 +349,7 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++)
     {
-	int cursample = t0 + idx;
+	int cursample = z0 + idx;
 	ArrPtrMan<float> res = new float[nrofkernels];
 	for ( int idy=0; idy<nrofkernels; idy++ )
 	    res[idy] = 0;
@@ -363,8 +363,8 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 
 	    ArrPtrMan<float> vals = new float[sgwidth];
 	    for ( int valindex=0; valindex<sgwidth; valindex++ )
-		vals[valindex] = inputdata[idy]->item(dataidx_)->
-		   value( cursample-inputdata[idy]->t0_ + (sg.start+valindex) );
+		vals[valindex] = inputdata[idy]->series(dataidx_)->
+		   value( cursample-inputdata[idy]->z0_ + (sg.start+valindex) );
 
 	    for ( int kidx=0; kidx<nrofkernels; kidx++ )
 	    {
@@ -384,14 +384,14 @@ bool Convolve::computeData( const DataHolder& output, const BinID& relpos,
 	    for ( int idy=0; idy<nrofkernels; idy++)
 		ressum += res[idy];
 
-	    output.item(0)->setValue( idx, ressum / nrofkernels );
+	    output.series(0)->setValue( idx, ressum / nrofkernels );
 	}
 
 	if ( nrofkernels>1 )
 	{
 	    for ( int idy=0; idy<nrofkernels; idy++ )
 		if ( outputinterest[idy+1] ) 
-		    output.item(idy+1)->setValue( idx, res[idy] );
+		    output.series(idy+1)->setValue( idx, res[idy] );
 	}
     }
 

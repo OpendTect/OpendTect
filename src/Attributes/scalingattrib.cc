@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.9 2005-08-25 14:57:14 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.10 2005-09-02 14:21:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,16 +173,16 @@ bool Scaling::getInputData( const BinID& relpos, int idx )
     
 
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
-			   int t0, int nrsamples ) const
+			   int z0, int nrsamples ) const
 {
     if ( scalingtype == mScalingTypeTPower )
     {
-	scaleTimeN( output, t0, nrsamples );
+	scaleTimeN( output, z0, nrsamples );
 	return true;
     }
 
     TypeSet< Interval<int> > samplegates;
-    checkTimeGates( gates, samplegates, t0, nrsamples );
+    checkTimeGates( gates, samplegates, z0, nrsamples );
 
     RunningStatistics<float> stats;
     TypeSet<float> scalefactors;
@@ -198,8 +198,8 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 
 	    for ( int idx=sg.start; idx<=sg.stop; idx++ )
-		stats += fabs( inputdata->item(dataidx_)->
-					value(idx-inputdata->t0_) );
+		stats += fabs( inputdata->series(dataidx_)->
+					value(idx-inputdata->z0_) );
 
 	    float val = 1;
 	    if ( statstype == mStatsTypeRMS )
@@ -217,9 +217,9 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int csamp = t0 + idx;
-	const float trcval = inputdata->item(dataidx_)->
-	    				value( csamp-inputdata->t0_ );
+	int csamp = z0 + idx;
+	const float trcval = inputdata->series(dataidx_)->
+	    				value( csamp-inputdata->z0_ );
 	float scalefactor = 1;
 	bool found = false;
 	for ( int sgidx=0; sgidx<samplegates.size(); sgidx++ )
@@ -242,42 +242,42 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	output.item(0)->setValue( idx, trcval*scalefactor );
+	output.series(0)->setValue( idx, trcval*scalefactor );
     }
 
     return true;
 }
 
 
-void Scaling::scaleTimeN(const DataHolder& output, int t0, int nrsamples) const
+void Scaling::scaleTimeN(const DataHolder& output, int z0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = idx+t0;
-	const float curt = t0*refstep + idx*refstep;
+	int cursample = idx+z0;
+	const float curt = z0*refstep + idx*refstep;
 	const float result = pow(curt,powerval) * 
-		inputdata->item(dataidx_)->value( cursample-inputdata->t0_ );
-	output.item(0)->setValue( idx, result );
+		inputdata->series(dataidx_)->value( cursample-inputdata->z0_ );
+	output.series(0)->setValue( idx, result );
     }
 }
 
 
 void Scaling::checkTimeGates( const TypeSet< Interval<float> >& oldtgs,
 			      TypeSet<Interval<int> >& newsampgates,
-			      int t0, int nrsamples ) const
+			      int z0, int nrsamples ) const
 {
     for( int idx=0; idx<oldtgs.size(); idx++ )
     {
 	Interval<int> sg( mNINT(oldtgs[idx].start/refstep),
 			  mNINT(oldtgs[idx].stop/refstep) );
-	if ( sg.start>nrsamples || sg.stop<t0 )
+	if ( sg.start>nrsamples || sg.stop<z0 )
 	{
 	    newsampgates += Interval<int>(0,0);
 	    continue;
 	}
 
-	if ( sg.start < t0 ) sg.start = t0;
-	if ( sg.stop > t0 + nrsamples ) sg.stop = nrsamples;
+	if ( sg.start < z0 ) sg.start = z0;
+	if ( sg.stop > z0 + nrsamples ) sg.stop = nrsamples;
 	newsampgates += sg;
     }
 }
