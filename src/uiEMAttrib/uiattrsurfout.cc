@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.6 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.7 2005-09-02 14:25:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
-        BufferString name(Attrib::CubeOutput::attribkey);
+        BufferString name(Attrib::SeisTrcStorOutput::attribkey);
         name += "."; name += nm;
         iopar.add( name, attrpar.getValue(idx) );
     }
@@ -119,11 +119,11 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     key = keybase; key += Attrib::Output::typekey;
     iopar.set( key, Attrib::Output::surfkey );
 
-    key = keybase; key += Attrib::CubeOutput::attribkey;
+    key = keybase; key += Attrib::SeisTrcStorOutput::attribkey;
     key += "."; key += Attrib::DescSet::highestIDStr();
     iopar.set( key, 1 );
 
-    key = keybase; key += Attrib::CubeOutput::attribkey; key += ".0";
+    key = keybase; key += Attrib::SeisTrcStorOutput::attribkey; key += ".0";
     iopar.set( key, nladescid < 0 ? attrfld->attribID().asInt() 
 	    			  : nladescid.asInt() );
 
