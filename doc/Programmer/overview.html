@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Overview of programmer doc
-  - RCS:	$Id: overview.html,v 1.14 2005-01-18 16:33:12 dgb Exp $
+  - RCS:	$Id: overview.html,v 1.15 2005-09-02 12:22:50 bert Exp $
  -->
 
 <body background="../backg.png"><title>Overview [OpendTect Programmer's manual V2.1]</title>
@@ -50,6 +50,7 @@ As OpendTect was developed in a research-minded environment, flexibility is a hi
 </ul>
 The last two are, [cough] of our own making. <a name=dif>DIF</a> ensures that there are no large amounts of unused code lying around to be maintained, <a name=NBS>NBS</a> delivers a system that is as simple as possible given the constraints.
 </p>
+You may also want to look at the <a href="rules.html">design/coding rules</a>.
 <a name="isolation"><h3>Isolation of external services</h3></a>
 <p>
 When services from another package (Qt, COIN, FFTW, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
@@ -137,6 +138,7 @@ Along the way, you'll have to do some digging in the include directory or the cl
 <p>
 <center>
   <a href="index.html">Index</a>
+| <a href="rules.html">Rules</a>
 | <a href="plugins.html">Plugins</a>
 | <a href="pmake.html">Pmake</a>
 | <a href="unix.html">UNIX</a>
