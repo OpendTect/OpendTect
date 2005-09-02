@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.31 2005-08-29 12:39:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.32 2005-09-02 14:53:29 cvsnanne Exp $";
 
 #include "attribdesc.h"
 
@@ -417,6 +417,7 @@ void Desc::removeOutputs()
 
 void Desc::setNrOutputs( Seis::DataType dt, int nroutp )
 {
+    removeOutputs();
     for ( int idx=0; idx<nroutp; idx++ )
 	addOutputDataType( dt );
 }
