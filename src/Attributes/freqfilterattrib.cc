@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.8 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.9 2005-09-02 11:16:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -436,18 +436,16 @@ void FreqFilter::fftFilter( const DataHolder& output,
     const int sz = fftsz/2 - nrsamples/2;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-        const float real = redata->item(realidx_)->value( idx - redata->t0_ );
-        const float imag = -imdata->item(imagidx_)->value( idx - imdata->t0_ );
-        signal.set( idx, float_complex( real, imag ));
+        const float real = redata->item(realidx_)->value( idx );
+        const float imag = -imdata->item(imagidx_)->value( idx );
+        signal.set( idx, float_complex(real,imag) );
     }
 
     window->apply( &signal );
     removeBias( &signal );
     for ( int idy=0; idy<nrsamples; idy++ )
-    {
 	timedomain.set( sz+idy, signal.get(idy) );
-    }
-      
+
     fft.transform( timedomain, freqdomain );
     if ( filtertype == mFilterLowPass )
 	FFTLowPass( df, maxfreq, freqdomain, tmpfreqdomain );
@@ -458,7 +456,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
 
     fftinv.transform( tmpfreqdomain, timecplxoutp );
 
-    for ( int idx = 0; idx<nrsamples; idx++ )
+    for ( int idx=0; idx<nrsamples; idx++ )
 	output.item(0)->setValue( idx, timecplxoutp.get(sz+idx).real() );
 }
 
