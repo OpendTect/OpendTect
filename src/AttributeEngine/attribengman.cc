@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.23 2005-08-30 15:20:18 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.24 2005-09-02 14:13:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,9 +115,9 @@ void EngineMan::usePar( const IOPar& iopar, const DescSet& attribset,
     cs_.zrg.stop /= SI().zFactor();
 
     LineKey lkey( linename, attribset.getDesc(ids[0])->userRef() );
-    CubeOutput* cubeoutp = createOutput( iopar, lkey );
+    SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey );
     for ( int idx=0; idx<pset.size(); idx++ )
-	pset[idx]->addOutput( cubeoutp );
+	pset[idx]->addOutput( storeoutp );
 }
 
 
@@ -173,13 +173,14 @@ void EngineMan::createProcSet( ObjectSet<Processor>& pset,
 }
 
 
-CubeOutput* EngineMan::createOutput( const IOPar& pars, const LineKey& lkey )
+SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, 
+					    const LineKey& lkey )
 {
     const char* typestr = pars.find("Output.1.Type");
 
     if ( !strcmp(typestr,"Cube") )
     {
-	CubeOutput* outp = new CubeOutput( cs_, lkey );
+	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
 	outp->doUsePar( pars );
 	return outp;
     }
@@ -202,7 +203,7 @@ void EngineMan::setAttribSet( const DescSet* ads )
 }
 
 
-const char* EngineMan::curUserRef() const
+const char* EngineMan::getCurUserRef() const
 {
     const int idx = curattridx;
     if ( !attrspecs_.size() || attrspecs_[idx].id() < 0 ) return "";
@@ -359,17 +360,6 @@ SliceSet* EngineMan::getSliceSetOutput()
 }
 
 
-SeisTrcBuf* EngineMan::get2DLineOutput()
-{
-    if ( !procset.size() )
-	return 0;
-
-    if ( !procset[0]->outputs[0] ) return 0;
-
-    return procset[0]->outputs[0]->getTrcBuf();
-}
-
-
 void EngineMan::setAttribSpecs( const TypeSet<SelSpec>& specs )
 { attrspecs_ = specs; }
 
@@ -500,7 +490,7 @@ ExecutorGroup* EngineMan::createExecutorGroup() const
 
 BufferString EngineMan::createExecutorName() const
 {
-    BufferString usernm( curUserRef() );
+    BufferString usernm( getCurUserRef() );
     if ( usernm == "" || !inpattrset || !attrspecs_.size() ) return "";
     if ( IOObj::isKey(usernm) )
     {
@@ -540,7 +530,8 @@ BufferString EngineMan::createExecutorName() const
 #define mStepEps 1e-3
 
 
-ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
+ExecutorGroup* EngineMan::createScreenOutput2D( BufferString& errmsg,
+	 ObjectSet<DataHolder>& dataset, ObjectSet<SeisTrcInfo>& trcinfoset )
 {
     if ( !getProcessors(procset,errmsg) ) 
     { deepErase( procset ); return 0; }
@@ -551,11 +542,12 @@ ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
 	const Provider* prov = procset[idx]->getProvider();
 	if ( prov && !prov->getDesc().isStored() )
 	    lkey.setAttrName( procset[idx]->getAttribName() );
-
-	cs_.hrg.start.inl = 0; cs_.hrg.stop.inl = 0;
-	CubeOutput* attrout = new CubeOutput( cs_, lkey );
-	attrout->set2D();
-	attrout->setGeometry( cs_ );
+	
+	Interval<int> trcrg(cs_.hrg.start.crl, cs_.hrg.stop.crl);
+	Interval<float> zrg(cs_.zrg.start, cs_.zrg.stop);
+	TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, lkey );
+	attrout->setGeometry( trcrg, zrg );
+	attrout->setOutput( dataset, trcinfoset );
 	procset[idx]->addOutput( attrout ); 
     }
 
@@ -563,8 +555,8 @@ ExecutorGroup* EngineMan::screenOutput2DCreator( BufferString& errmsg )
 }
 
 
-ExecutorGroup* EngineMan::sliceSetOutputCreator( BufferString& errmsg,
-						 const SliceSet* prev )
+ExecutorGroup* EngineMan::createSliceSetOutput( BufferString& errmsg,
+				       	        const SliceSet* prev )
 {
     if ( cs_.isEmpty() )
 	prev = 0;
@@ -680,7 +672,7 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
     ObjectSet<BinIDValueSet>& bvs = 
 	const_cast<ObjectSet<BinIDValueSet>&>(bivsets);
-    exec = aem.locationOutputCreator( errmsg, bvs );
+    exec = aem.createLocationOutput( errmsg, bvs );
 }
 
 ~AEMFeatureExtracter()		{ delete exec; }
@@ -716,7 +708,7 @@ int nextStep()
 };
 
 
-ExecutorGroup* EngineMan::featureOutputCreator(
+ExecutorGroup* EngineMan::createFeatureOutput(
 			const BufferStringSet& inputs,
 			const ObjectSet<BinIDValueSet>& bivsets )
 {
@@ -724,8 +716,8 @@ ExecutorGroup* EngineMan::featureOutputCreator(
 }
 
 
-ExecutorGroup* EngineMan::locationOutputCreator( BufferString& errmsg,
-				ObjectSet<BinIDValueSet>& bidzvset )
+ExecutorGroup* EngineMan::createLocationOutput( BufferString& errmsg,
+					ObjectSet<BinIDValueSet>& bidzvset )
 {
     if ( bidzvset.size() == 0 ) mErrRet("No locations to extract data on")
 
@@ -801,9 +793,9 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
 }
 
 
-ExecutorGroup* EngineMan::trcSelOutputCreator( BufferString& errmsg,
-					       const BinIDValueSet& bidvalset,
-					       SeisTrcBuf& output )
+ExecutorGroup* EngineMan::createTrcSelOutput( BufferString& errmsg,
+					      const BinIDValueSet& bidvalset,
+					      SeisTrcBuf& output )
 {
     if ( !getProcessors(procset,errmsg) )
     { deepErase( procset ); return 0; }
@@ -818,7 +810,7 @@ ExecutorGroup* EngineMan::trcSelOutputCreator( BufferString& errmsg,
 };
 
 
-int EngineMan::nrOutputsToBeProcessed() const
+int EngineMan::getNrOutputsToBeProcessed() const
 {
     return procset[0]? procset[0]->outputs.size() : 0;
 }

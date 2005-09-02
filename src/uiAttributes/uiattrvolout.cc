@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.7 2005-08-25 14:54:16 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.8 2005-09-02 14:13:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,7 +191,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
-        BufferString name(CubeOutput::attribkey);
+        BufferString name(SeisTrcStorOutput::attribkey);
         name += "."; name += nm;
         iop.add( name, attrpar.getValue(idx) );
     }
@@ -201,20 +201,20 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     key = keybase; key += Output::typekey;
     iop.set( key, "Cube" );
 
-    key = keybase; key += CubeOutput::attribkey;
+    key = keybase; key += SeisTrcStorOutput::attribkey;
     key += "."; key += DescSet::highestIDStr();
     iop.set( key, 1 );
 
-    key = keybase; key += CubeOutput::attribkey; key += ".0";
+    key = keybase; key += SeisTrcStorOutput::attribkey; key += ".0";
     iop.set( key, targetid.asInt() );
 
-    key = keybase; key += CubeOutput::seisidkey;
+    key = keybase; key += SeisTrcStorOutput::seisidkey;
     iop.set( key, ctio.ioobj->key() );
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
 
     transffld->selfld->fillPar( subselpar );
     CubeSampling cs; cs.usePar( subselpar );
-    key = keybase; key += CubeOutput::inlrangekey;
+    key = keybase; key += SeisTrcStorOutput::inlrangekey;
     if ( !cs.hrg.isEmpty() )
 	iop.set( key, cs.hrg.start.inl, cs.hrg.stop.inl );
     else
@@ -224,7 +224,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	iop.set( key, curcs.hrg.start.inl, curcs.hrg.stop.inl );
     }
 
-    key = keybase; key += CubeOutput::crlrangekey;
+    key = keybase; key += SeisTrcStorOutput::crlrangekey;
     if ( !cs.hrg.isEmpty() )
 	iop.set( key, cs.hrg.start.crl, cs.hrg.stop.crl );
     else
@@ -234,7 +234,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	iop.set( key, curcs.hrg.start.crl, curcs.hrg.stop.crl );
     }
 
-    key = keybase; key += CubeOutput::depthrangekey;
+    key = keybase; key += SeisTrcStorOutput::depthrangekey;
     iop.set( key, cs.zrg.start*SI().zFactor(), cs.zrg.stop*SI().zFactor() );
     CubeSampling::removeInfo( subselpar );
     iop.mergeComp( subselpar, keybase );

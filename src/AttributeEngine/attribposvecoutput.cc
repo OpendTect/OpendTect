@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.cc,v 1.3 2005-08-24 10:47:47 cvsnanne Exp $
+ RCS:           $Id: attribposvecoutput.cc,v 1.4 2005-09-02 14:13:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ void PosVecOutputGen::nextExec()
     aem_->setNLAModel( nlamodel_ );
     aem_->setUndefValue( mUndefValue );
     aem_->setLineKey( linenames_.get(curlnr_) );
-    outex_ = aem_->featureOutputCreator( inps_, bvss_ );
+    outex_ = aem_->createFeatureOutput( inps_, bvss_ );
     setName( outex_->name() );
 }
 

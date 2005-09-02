@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.16 2005-08-30 15:20:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.17 2005-09-02 14:13:22 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -68,59 +68,7 @@ int Processor::nextStep()
     if ( !provider || !outputs.size() ) return ErrorOccurred;
 
     if ( !nriter )
-    {
-	TypeSet<int> globaloutputinterest;
-	CubeSampling globalcs;
-	for ( int idx=0; idx<outputs.size(); idx++ )
-	{
-	    CubeSampling cs;
-	    if ( !outputs[idx]->getDesiredVolume(cs) )
-	    {
-		outputs[idx]->unRef();
-		outputs.remove(idx);
-		idx--;
-		continue;
-	    }
-
-	    if ( !idx )
-		globalcs = cs;
-	    else
-	    {
-		globalcs.hrg.include(cs.hrg.start);
-		globalcs.hrg.include(cs.hrg.stop);
-		globalcs.zrg.include(cs.zrg);
-	    }
-
-	    for ( int idy=0; idy<outpinterest_.size(); idy++ )
-	    {
-		if ( globaloutputinterest.indexOf(outpinterest_[idy])==-1 )
-		    globaloutputinterest += outpinterest_[idy];
-	    }
-	    outputs[idx]->setDesiredOutputs( outpinterest_ );
-	}
-
-	SeisSelData sd;
-	if ( outputs[0]->getSelData().type_==Seis::Table )
-	{
-	    for ( int idx=0; idx<outputs.size(); idx++ )
-	    {
-		if ( !idx ) sd = outputs[0]->getSelData();
-		else sd.include( outputs[idx]->getSelData() );
-	    }
-	}
-
-	if ( sd.type_ == Seis::Table )
-	    provider->setSelData( sd );
-
-	for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
-	    provider->enableOutput(globaloutputinterest[idx], true );
-
-	provider->setDesiredVolume( globalcs );
-	if ( !provider->getInputs().size() && !provider->getDesc().isStored() )
-	    provider->setPossibleVolume( globalcs );
-	else
-	    provider->getPossibleVolume( -1, globalcs );
-    }
+	init();
 
     const int res = provider->moveToNextTrace();
     if ( !nriter )
@@ -141,29 +89,8 @@ int Processor::nextStep()
 	    curbid.crl = curtrcinfo->nr;
 	}
 	
-	//TODO: Smarter way if output's intervals don't intersect
 	TypeSet< Interval<int> > localintervals;
-	bool isset = false;
-	for ( int idx=0; idx<outputs.size(); idx++ )
-	{
-	    if ( !outputs[idx]->wantsOutput(curbid) ) 
-		continue;
-
-	    //just assume that intervals.size() will be != 0 only in
-	    //case of arbitrary shapes which will require only 
-	    //one output.
-	    if ( isset )
-		localintervals[0].include(
-				outputs[idx]->getLocalZRange(curbid)[0]);
-	    else
-	    {
-		localintervals = outputs[idx]->getLocalZRange(curbid);
-		isset = true;
-	    }
-	}
-
-	if ( isset ) 
-	    provider->addLocalCompZIntervals( localintervals );
+	bool isset = setZIntervals( localintervals, curbid );
 
 	for ( int idi=0; idi<localintervals.size(); idi++ )
 	{
@@ -188,6 +115,92 @@ int Processor::nextStep()
     provider->resetZIntervals();
     nriter++;
     return res;
+}
+
+
+void Processor::init()
+{
+    TypeSet<int> globaloutputinterest;
+    CubeSampling globalcs;
+    for ( int idx=0; idx<outputs.size(); idx++ )
+    {
+	CubeSampling cs;
+	if ( !outputs[idx]->getDesiredVolume(cs) )
+	{
+	    outputs[idx]->unRef();
+	    outputs.remove(idx);
+	    idx--;
+	    continue;
+	}
+
+	if ( !idx )
+	    globalcs = cs;
+	else
+	{
+	    globalcs.hrg.include(cs.hrg.start);
+	    globalcs.hrg.include(cs.hrg.stop);
+	    globalcs.zrg.include(cs.zrg);
+	}
+
+	for ( int idy=0; idy<outpinterest_.size(); idy++ )
+	{
+	    if ( globaloutputinterest.indexOf(outpinterest_[idy])==-1 )
+		globaloutputinterest += outpinterest_[idy];
+	}
+	outputs[idx]->setDesiredOutputs( outpinterest_ );
+    }
+
+    SeisSelData sd;
+    if ( outputs[0]->getSelData().type_==Seis::Table )
+    {
+	for ( int idx=0; idx<outputs.size(); idx++ )
+	{
+	    if ( !idx ) sd = outputs[0]->getSelData();
+	    else sd.include( outputs[idx]->getSelData() );
+	}
+    }
+
+    if ( sd.type_ == Seis::Table )
+	provider->setSelData( sd );
+
+    for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
+	provider->enableOutput(globaloutputinterest[idx], true );
+
+    provider->setDesiredVolume( globalcs );
+    if ( !provider->getInputs().size() && !provider->getDesc().isStored() )
+	provider->setPossibleVolume( globalcs );
+    else
+	provider->getPossibleVolume( -1, globalcs );
+}
+
+
+bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals, 
+			       BinID curbid )
+{
+    //TODO: Smarter way if output's intervals don't intersect
+    bool isset = false;
+    for ( int idx=0; idx<outputs.size(); idx++ )
+    {
+	if ( !outputs[idx]->wantsOutput(curbid) ) 
+	    continue;
+
+	//just assume that intervals.size() will be != 0 only in
+	//case of arbitrary shapes which will require only 
+	//one output.
+	if ( isset )
+	    localintervals[0].include(
+			    outputs[idx]->getLocalZRange(curbid)[0]);
+	else
+	{
+	    localintervals = outputs[idx]->getLocalZRange(curbid);
+	    isset = true;
+	}
+    }
+
+    if ( isset ) 
+	provider->addLocalCompZIntervals( localintervals );
+
+    return isset;
 }
 
 

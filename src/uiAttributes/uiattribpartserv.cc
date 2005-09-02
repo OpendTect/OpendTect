@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.8 2005-08-25 14:53:31 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.9 2005-09-02 14:13:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsettr.h"
+#include "attribdataholder.h"
 #include "attribdescsetman.h"
 #include "attribstorprovider.h"
 #include "attribposvecoutput.h"
@@ -33,6 +34,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "seisinfo.h"
 #include "posvecdataset.h"
 
 #include "uiattrsel.h"
@@ -322,11 +324,11 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
     if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<ExecutorGroup> outex = aem->sliceSetOutputCreator( errmsg, cache );
+    PtrMan<ExecutorGroup> outex = aem->createSliceSetOutput( errmsg, cache );
     if ( !outex )
 	{ uiMSG().error(errmsg); return 0; }
 
-    if ( aem->nrOutputsToBeProcessed() != 0 )
+    if ( aem->getNrOutputsToBeProcessed() != 0 )
     {
 	uiExecutor dlg( appserv().parent(), *outex );
 	if ( !dlg.go() ) return 0;
@@ -346,7 +348,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
     if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem->locationOutputCreator( errmsg, values );
+    PtrMan<Executor> outex = aem->createLocationOutput( errmsg, values );
     if ( !outex )
 	{ uiMSG().error(errmsg); return false; }
 
@@ -365,7 +367,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
 
     BufferString errmsg;
     PtrMan<Executor> outex =
-	aem->trcSelOutputCreator( errmsg, bidvalset, output );
+	aem->createTrcSelOutput( errmsg, bidvalset, output );
     if ( !outex )
 	{ uiMSG().error(errmsg); return false; }
 
@@ -377,8 +379,8 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
 
 
 bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
-					const ObjectSet<BinIDValueSet>& bivsets,
-					ObjectSet<PosVecDataSet>& outvds )
+				      const ObjectSet<BinIDValueSet>& bivsets,
+				      ObjectSet<PosVecDataSet>& outvds )
 {
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
 
@@ -442,22 +444,22 @@ void uiAttribPartServer::usePar( const IOPar& iopar )
 }
 
 
-SeisTrcBuf* uiAttribPartServer::create2DOutput( const CubeSampling& cs,
-						const char* linekey )
-
+bool uiAttribPartServer::create2DOutput( const CubeSampling& cs,
+					 const char* linekey,
+					 ObjectSet<DataHolder>& dataset,
+					 ObjectSet<SeisTrcInfo>& trcinfoset )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
-    if ( !aem ) return 0;
+    if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem->screenOutput2DCreator( errmsg );
+    PtrMan<Executor> outex = aem->createScreenOutput2D( errmsg, dataset,
+	    						trcinfoset );
     if ( !outex )
-	{ uiMSG().error(errmsg); return 0; }
+	{ uiMSG().error(errmsg); return false; }
 
     uiExecutor dlg( appserv().parent(), *outex );
-    if ( !dlg.go() ) return 0;
-
-    return aem->get2DLineOutput();
+    return dlg.go();
 }
 
 

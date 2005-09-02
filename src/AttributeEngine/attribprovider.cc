@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.30 2005-08-30 15:20:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.31 2005-09-02 14:13:22 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -33,19 +33,19 @@ public:
 
 ProviderBasicTask( const Provider& p ) : provider( p )	{}
 
-void setScope( const DataHolder* res_, const BinID& relpos_, int t0_,
+void setScope( const DataHolder* res_, const BinID& relpos_, int z0_,
 	       int nrsamples_ )
 {
     res = res_;
     relpos = relpos_;
-    t0 = t0_;
+    z0 = z0_;
     nrsamples = nrsamples_;
 }
 
 int nextStep()
 {
     if ( !res ) return 0;
-    return provider.computeData(*res,relpos,t0,nrsamples)?0:-1;
+    return provider.computeData(*res,relpos,z0,nrsamples)?0:-1;
 }
 
 protected:
@@ -53,7 +53,7 @@ protected:
     const Provider&		provider;
     const DataHolder*		res;
     BinID			relpos;
-    int				t0;
+    int				z0;
     int				nrsamples;
 
 };
@@ -659,7 +659,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	return 0;
 
     const DataHolder* constres = getDataDontCompute(relpos);
-    if ( constres && constres->t0_ == localcomputezintervals[idi].start 
+    if ( constres && constres->z0_ == localcomputezintervals[idi].start 
 	    && constres->nrsamples_ == localcomputezintervals[idi].width()+1 )
 	return constres;
 
@@ -674,33 +674,33 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
     
     for ( int idx=0; idx<outputinterest.size(); idx++ )
     {
-	while ( outdata->nrItems()<=idx )
+	while ( outdata->nrSeries()<=idx )
 	    outdata->add();
 	
 	if ( outputinterest[idx]<=0 ) 
 	{
-	    if ( outdata->item(idx) && outdata->item(idx)->arr() )
+	    if ( outdata->series(idx) && outdata->series(idx)->arr() )
 	    {
-		delete outdata->item(idx);
+		delete outdata->series(idx);
 		outdata->replace( idx, 0 );
 	    }
 
 	    continue;
 	}
 
-	if ( !outdata->item(idx)->arr() )
+	if ( !outdata->series(idx)->arr() )
 	{
 	    float* ptr = new float[outdata->nrsamples_];
 	    outdata->replace( idx, new ArrayValueSeries<float>(ptr) );
 	}
     }
 
-    const int t0 = outdata->t0_;
+    const int z0 = outdata->z0_;
     const int nrsamples = outdata->nrsamples_;
 
     bool success = false;
     if ( !threadmanager )
-	success = computeData( *outdata, relpos, t0, nrsamples );
+	success = computeData( *outdata, relpos, z0, nrsamples );
     else
     {
 	if ( !computetasks.size() )

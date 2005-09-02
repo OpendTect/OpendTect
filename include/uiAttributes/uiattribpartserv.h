@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.5 2005-09-02 14:14:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 namespace Attrib
 {
     class ColorSelSpec;
+    class DataHolder;
     class Desc;
     class DescSet;
     class DescSetMan;
@@ -40,6 +41,7 @@ class NLACreationDesc;
 class NLAModel;
 class PickSet;
 class SeisTrcBuf;
+class SeisTrcInfo;
 class uiAttribDescSetEd;
 class uiPopupMenu;
 template <class T> class Interval;
@@ -101,8 +103,9 @@ public:
 	    			      SeisTrcBuf&);
     			//!< Hands over mem to caller
     
-    SeisTrcBuf*		create2DOutput(const CubeSampling&,
-				       const char* linekey);
+    bool		create2DOutput(const CubeSampling&, const char* linekey,
+				       ObjectSet<Attrib::DataHolder>&, 
+				       ObjectSet<SeisTrcInfo>&);
 
     bool		extractData(const NLACreationDesc&,
 				    const ObjectSet<BinIDValueSet>&,

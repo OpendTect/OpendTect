@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.23 2005-08-31 11:03:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.24 2005-09-02 14:13:22 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -33,11 +33,11 @@ const char* Output::surfkey = "Surface";
 const char* Output::tskey = "Trace Selection";
 const char* Output::scalekey = "Scale";
 
-const char* CubeOutput::seisidkey = "Seismic ID";
-const char* CubeOutput::attribkey = "Attributes";
-const char* CubeOutput::inlrangekey = "In-line range";
-const char* CubeOutput::crlrangekey = "Cross-line range";
-const char* CubeOutput::depthrangekey = "Depth range";
+const char* SeisTrcStorOutput::seisidkey = "Seismic ID";
+const char* SeisTrcStorOutput::attribkey = "Attributes";
+const char* SeisTrcStorOutput::inlrangekey = "In-line range";
+const char* SeisTrcStorOutput::crlrangekey = "Cross-line range";
+const char* SeisTrcStorOutput::depthrangekey = "Depth range";
 
 const char* LocationOutput::filenamekey = "Output Filename";
 const char* LocationOutput::locationkey = "Locations";
@@ -89,7 +89,7 @@ TypeSet< Interval<int> > SliceSetOutput::getLocalZRange( const BinID& ) const
     const int dim##nr = desiredvolume.size( direction(sliceset->direction,nr) )
 
 void SliceSetOutput::collectData( const DataHolder& data, float refstep, 
-				  const SeisTrcInfo& info, int outidx )
+				  const SeisTrcInfo& info, int attridx )
 {
     if ( !sliceset )
     {
@@ -105,25 +105,31 @@ void SliceSetOutput::collectData( const DataHolder& data, float refstep,
     }
 
     mGetDim(0); mGetDim(1); mGetDim(2);
-    while ( sliceset->size() <= outidx )
+    while ( sliceset->size() <= attridx )
 	*sliceset += new Attrib::Slice( dim1, dim2, udfval );
 
     if ( !sliceset->sampling.hrg.includes(info.binid) )
 	return;
 
     int i0, i1, i2;
-    int sampleoffset = mNINT(sliceset->sampling.zrg.start/refstep);
-    for ( int idy=0; idy<desoutputs.size(); idy++ )
+    int firstslicesample = mNINT(sliceset->sampling.zrg.start/refstep);
+    const int nrz = sliceset->sampling.nrZ();
+    Interval<int> dataidxrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
+    for ( int idesout=0; idesout<desoutputs.size(); idesout++ )
     {
-	for ( int idx=sampleoffset; 
-		idx<sliceset->sampling.nrZ()+sampleoffset; idx++)
+	for ( int idx=0; idx<nrz; idx++)
 	{
-	    const bool valididx = idx>=data.t0_ && idx<data.t0_+data.nrsamples_;
-	    const float val = valididx ? 
-			data.item(desoutputs[idy])->value(idx-data.t0_): udfval;
-	    sliceset->getIdxs( info.binid.inl, info.binid.crl, idx*refstep, 
+	    const int dataidx = firstslicesample + idx;
+	    float val = udfval;
+	    if ( dataidxrg.includes(dataidx) )
+		val = data.series(desoutputs[idesout])->value(dataidx-data.z0_);
+
+	    sliceset->getIdxs( info.binid.inl, info.binid.crl, dataidx*refstep, 
 		    	       i0, i1, i2 );
-	    ((*sliceset)[i0+outidx+idy])->set( i1, i2, val );
+	    const int slsetidx = i0 + attridx + idesout;
+	    // This is correct because always at least two are zere in the
+	    // entire process
+	    ((*sliceset)[slsetidx])->set( i1, i2, val );
 	}
     }
 }
@@ -142,7 +148,7 @@ void SliceSetOutput::setGeometry( const CubeSampling& cs )
 }
 
 
-CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey )
+SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs , LineKey lkey )
     : desiredvolume(cs)
     , auxpars(0)
     , storid_(*new MultiID)
@@ -150,31 +156,30 @@ CubeOutput::CubeOutput( const CubeSampling& cs , LineKey lkey )
     , calcurpos_(0)
     , prevpos_(-1,-1)
     , storinited_(0)
-    , lkey_(lkey)
-    , buf2d_(0)
     , errmsg(0)
 {
+    seldata_.linekey_ = lkey;
+
     const float dz = SI().zStep();
     Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
     sampleinterval += interval;
-
-    seldata_.linekey_ = lkey;
 }
 
 
-bool CubeOutput::getDesiredVolume( CubeSampling& cs ) const
-{ cs=desiredvolume; return true; }
+bool SeisTrcStorOutput::getDesiredVolume( CubeSampling& cs ) const
+{
+    cs = desiredvolume;
+    return true;
+}
 
 
-bool CubeOutput::wantsOutput( const BinID& bid ) const
-{ return desiredvolume.hrg.includes(bid); }
+bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
+{
+    return desiredvolume.hrg.includes(bid);
+}
 
 
-TypeSet< Interval<int> > CubeOutput::getLocalZRange( const BinID& ) const
-{ return sampleinterval; }
-
-
-bool CubeOutput::setStorageID( const MultiID& storid )
+bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
 {
     if ( *((const char*)storid) )
     {
@@ -191,24 +196,22 @@ bool CubeOutput::setStorageID( const MultiID& storid )
 }
 
 
-void CubeOutput::setGeometry( const CubeSampling& cs )
+void SeisTrcStorOutput::setGeometry( const CubeSampling& cs )
 {
     if ( cs.isEmpty() ) return;
     seldata_.copyFrom(cs);
 }
 
 
-CubeOutput::~CubeOutput()
+SeisTrcStorOutput::~SeisTrcStorOutput()
 {
     delete writer_;
     delete &storid_;
     delete auxpars;
-    if ( buf2d_ )
-	buf2d_->erase();
 }
 
 
-bool CubeOutput::doUsePar( const IOPar& pars )
+bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
     errmsg = "";
     PtrMan<IOPar> outppar = pars.subselect("Output.1");
@@ -225,7 +228,7 @@ bool CubeOutput::doUsePar( const IOPar& pars )
 }//warning, only a small part of the old taken, see if some more is required
 
 
-bool CubeOutput::doInit()
+bool SeisTrcStorOutput::doInit()
 {
     if ( *storid_.buf() )
     {
@@ -270,7 +273,7 @@ bool CubeOutput::doInit()
 }
 
 
-bool CubeOutput::setReqs( const BinID& pos )
+bool SeisTrcStorOutput::setReqs( const BinID& pos )
 {
     calcurpos_ = true;
     if ( !is2d_ )
@@ -290,19 +293,11 @@ bool CubeOutput::setReqs( const BinID& pos )
 }
 
 
-SeisTrcBuf* CubeOutput::getTrcBuf() const 
-{
-    SeisTrcBuf* ret = buf2d_;
-    const_cast<CubeOutput*>(this)->buf2d_ = 0;
-    return ret;
-}
-
-
 class COLineKeyProvider : public LineKeyProvider
 {
 public:
 
-COLineKeyProvider( CubeOutput& c, const char* a, const char* lk )
+COLineKeyProvider( SeisTrcStorOutput& c, const char* a, const char* lk )
 	: co(c) , attrnm(a) , linename(lk) {}
 
 LineKey lineKey() const
@@ -310,43 +305,42 @@ LineKey lineKey() const
     LineKey lk(linename,attrnm);
     return lk;
 }
-    CubeOutput&   co;
+    SeisTrcStorOutput&   co;
     BufferString        attrnm;
     BufferString 	linename;
 
 };
 
 
-void CubeOutput::collectData( const DataHolder& data, float refstep,
-			      const SeisTrcInfo& info, int outidx )
+void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep, 
+				     const SeisTrcInfo& info, int outidx )
 {
     if ( !calcurpos_ ) return;
 
-    int nrcomp = data.nrItems();
+    int nrcomp = data.nrSeries();
     if ( !nrcomp || nrcomp < desoutputs.size())
 	return;
 
     const int sz = data.nrsamples_;
     DataCharacteristics dc;
-    SeisTrc* trc = new SeisTrc( sz, dc );
-    for ( int idx=trc->data().nrComponents(); idx<desoutputs.size(); idx++)
-	trc->data().addComponent( sz, dc, false );
+    SeisTrc trc( sz, dc );
+    for ( int idx=trc.data().nrComponents(); idx<desoutputs.size(); idx++)
+	trc.data().addComponent( sz, dc, false );
 
-    trc->info() = info;
-    trc->info().sampling.start = data.t0_*refstep;
-    trc->info().sampling.step = refstep;
+    trc.info() = info;
+    trc.info().sampling.step = refstep;
+    trc.info().sampling.start = data.z0_*refstep;
 
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    float val = data.item(desoutputs[comp])->value(idx);
-	    trc->set( idx, val, comp );
+	    float val = data.series(desoutputs[comp])->value(idx);
+	    trc.set(idx, val, comp);
 	}
     }
 
-    const bool dostor = *storid_.buf();
-    if ( dostor && !storinited_ )
+    if ( !storinited_ )
     {
 	if ( writer_->is2D() )
 	{
@@ -359,7 +353,7 @@ void CubeOutput::collectData( const DataHolder& data, float refstep,
 		new COLineKeyProvider( *this, nm, curLineKey().lineName()) );
 	}
 
-	if ( !writer_->prepareWork(*trc) )
+	if ( !writer_->prepareWork(trc) )
 	    { errmsg = writer_->errMsg(); return; }
 
 	if ( !writer_->is2D() )
@@ -373,18 +367,86 @@ void CubeOutput::collectData( const DataHolder& data, float refstep,
 	storinited_ = true;
     }
     
-    if ( dostor )
-    {
-        if ( !writer_->put(*trc) )
-            { errmsg = writer_->errMsg(); }
-    }
-    else if ( is2d_ )
-    {
-	if ( !buf2d_ ) buf2d_ = new SeisTrcBuf;
-	buf2d_->add( new SeisTrc(*trc) );
-    }
+    if ( !writer_->put(trc) )
+	{ errmsg = writer_->errMsg(); }
+}
 
-    // TODO later on : create function on writer to handle dataholder directly
+
+TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
+			LineKey lkey )
+    : errmsg(0)
+    , datahset_(0)
+    , trcinfoset_(0)
+{
+    seldata_.linekey_ = lkey;
+    setGeometry( trg, zrg );
+
+    const float dz = SI().zStep();
+    Interval<int> interval( mNINT(seldata_.zrg_.start/dz), 
+	    		    mNINT(seldata_.zrg_.stop/dz) );
+    sampleinterval_ += interval;
+}
+
+
+bool TwoDOutput::wantsOutput( const BinID& bid ) const
+{
+    return seldata_.crlrg_.includes(bid.crl);
+} 
+ 
+
+void TwoDOutput::setGeometry( const Interval<int>& trg,
+			      const Interval<float>& zrg )
+{
+    seldata_.zrg_ = zrg;
+    assign( seldata_.crlrg_, trg );
+    seldata_.type_ = Seis::Range;
+}
+
+
+bool TwoDOutput::getDesiredVolume( CubeSampling& cs ) const
+{
+    cs.hrg.start.crl = seldata_.crlrg_.start;
+    cs.hrg.stop.crl = seldata_.crlrg_.stop;
+    cs.zrg = StepInterval<float>( seldata_.zrg_.start, seldata_.zrg_.stop,
+	    			  SI().zStep() );
+    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
+    return true;
+}
+
+
+bool TwoDOutput::doInit()
+{
+    seldata_.linekey_.setAttrName( "" );
+    if ( seldata_.crlrg_.start <= 0 && Values::isUdf(seldata_.crlrg_.stop) )
+	seldata_.type_ = Seis::All;
+
+    return true;
+}
+
+
+void TwoDOutput::collectData( const DataHolder& data, float refstep,
+			      const SeisTrcInfo& info, int outidx )
+{
+    int nrcomp = data.nrSeries();
+    if ( !nrcomp || nrcomp < desoutputs.size() )
+	return;
+
+    if ( !datahset_ || !trcinfoset_ ) return;
+
+    (*datahset_) += new DataHolder( data );
+
+    SeisTrcInfo* trcinfo = new SeisTrcInfo(info);
+    trcinfo->sampling.step = refstep;
+    trcinfo->sampling.start = data.z0_*refstep;
+    (*trcinfoset_) += trcinfo;
+}
+
+
+void TwoDOutput::setOutput( ObjectSet<DataHolder>& dataset,
+			    ObjectSet<SeisTrcInfo>& trcinfoset )
+{
+    datahset_ = &dataset;
+    trcinfoset_ = &trcinfoset;
 }
 
 
@@ -411,10 +473,10 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     {
 	float* vals = bidvalset_.getVals( pos );
 	const int zidx = mNINT(vals[0]/refstep);
-	if ( data.t0_ == zidx )
+	if ( data.z0_ == zidx )
 	{
 	    for ( int comp=0; comp<desoutputs.size(); comp++ )
-		vals[outidx+comp+1] = data.item(desoutputs[comp])->value(0);
+		vals[outidx+comp+1] = data.series(desoutputs[comp])->value(0);
 	}
 
 	bidvalset_.next( pos );
@@ -488,12 +550,12 @@ TrcSelectionOutput::~TrcSelectionOutput()
 void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 				      const SeisTrcInfo& info, int outidx )
 {
-    const int nrcomp = data.nrItems();
+    const int nrcomp = data.nrSeries();
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
 	return;
 
     const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
-    const int startidx = data.t0_ - mNINT(stdstarttime_/refstep);
+    const int startidx = data.z0_ - mNINT(stdstarttime_/refstep);
     const int index = outpbuf_->find( info.binid );
 
     SeisTrc* trc;
@@ -520,7 +582,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	    else  
 	    {
 		const float val = 
-		    data.item(desoutputs[comp])->value(idx-startidx);
+		    data.series(desoutputs[comp])->value(idx-startidx);
 		trc->set( idx, val, comp );
 	    }
 	}
