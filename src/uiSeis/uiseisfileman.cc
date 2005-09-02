@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.53 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.54 2005-09-02 09:52:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,6 +151,7 @@ void uiSeisFileMan::mkFileInfo()
 	delete tri;
     }
 
+    txt += "\n";
     txt += getFileInfo();
 
     infofld->setText( txt );

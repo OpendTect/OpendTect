@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.26 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.27 2005-09-02 09:52:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,7 @@ void uiSurfaceMan::mkFileInfo()
 
 #define mRangeTxt(line) \
     txt += sd.rg.start.line; txt += " - "; txt += sd.rg.stop.line; \
-    txt += " - "; txt += sd.rg.step.line; \
+    txt += " - "; txt += sd.rg.step.line; txt += "\n" \
 
     BufferString txt;
     BinIDSampler bs;
@@ -142,17 +142,17 @@ void uiSurfaceMan::mkFileInfo()
     EM::EMM().getSurfaceData( ctio.ioobj->key(), sd );
     fillAttribList( sd.valnames );
     txt = "Inline range: "; mRangeTxt(inl);
-    txt += "\nCrossline range: "; mRangeTxt(crl);
+    txt += "Crossline range: "; mRangeTxt(crl);
 
     txt += getFileInfo();
 
     if ( sd.sections.size() > 1 )
     {
-	txt += "\nNr of sections: "; txt += sd.sections.size();
+	txt += "Nr of sections: "; txt += sd.sections.size(); txt += "\n";
 	for ( int idx=0; idx<sd.sections.size(); idx++ )
 	{
-	    txt += "\n\tPatch "; txt += idx+1; txt += ": "; 
-	    txt += sd.sections[idx]->buf();
+	    txt += "\tPatch "; txt += idx+1; txt += ": "; 
+	    txt += sd.sections[idx]->buf(); txt += "\n";
 	}
     }
 

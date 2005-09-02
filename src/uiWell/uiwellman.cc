@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.26 2005-08-26 18:19:29 cvsbert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.27 2005-09-02 09:52:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ uiWellMan::uiWellMan( uiParent* p )
     uiPushButton* markerbut = new uiPushButton( topgrp, "Edit markers ..." );
     markerbut->activated.notify( mCB(this,uiWellMan,edMarkers) );
     markerbut->attach( alignedBelow, listfld );
+    markerbut->attach( ensureBelow, manipgrp );
 
     uiPushButton* d2tbut = 0;
     if ( SI().zIsTime() )
@@ -327,7 +328,7 @@ void uiWellMan::mkFileInfo()
 
 #define mAddWellInfo(key,str) \
     if ( str.size() ) \
-    {	txt += "\n"; txt += key; txt += ": "; txt += str; }
+    { txt += key; txt += ": "; txt += str; txt += "\n"; }
 
     Well::Info& info = welldata->info();
     BufferString crdstr; info.surfacecoord.fill( crdstr.buf() );

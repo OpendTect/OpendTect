@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.5 2005-07-18 15:55:31 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.6 2005-09-02 09:52:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,12 +62,13 @@ void uiObjFileMan::createDefaultUI( const char* ext )
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, ext );
     manipgrp->preRelocation.notify( mCB(this,uiObjFileMan,relocMsg) );
     manipgrp->postRelocation.notify( mCB(this,uiObjFileMan,postReloc) );
-    listfld->attach( heightSameAs, manipgrp );
+//  listfld->attach( heightSameAs, manipgrp );
 
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( centeredBelow, topgrp );
     infofld->setPrefHeightInChar( cPrefHeight );
     infofld->setPrefWidthInChar( cPrefWidth );
+    infofld->setStretch( 2, 0 );
     topgrp->setPrefWidthInChar( cPrefWidth );
 }
 
@@ -160,9 +161,10 @@ BufferString uiObjFileMan::getFileInfo()
     BufferString txt;
     BufferString fname( conn->fileName() );
     FilePath fp( fname );
-    txt += "\nLocation: "; txt += fp.pathOnly();
+    txt += "Location: "; txt += fp.pathOnly();
     txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; txt += getFileSizeString( getFileSize(fname) );
+    txt += "\n";
     conn->close();
     delete conn;
     return txt;
