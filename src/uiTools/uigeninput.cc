@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.68 2005-08-19 14:17:23 cvsnanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.69 2005-09-05 15:13:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,110 +67,110 @@ public:
 			{
 			    UserInputObj* elem = element(idx);
 			    if ( !elem ) return 0;
-
-			    uiObject* ob = dynamic_cast<uiObject*>(elem);
-			    if ( ob ) return ob;
-
-			    uiGroup* grp = dynamic_cast<uiGroup*>(elem);
-			    if ( grp ) return grp->mainObject(); 
-
-			    return 0;
+			    mDynamicCastGet(uiGroup*,grp,elem)
+			    if ( grp ) return grp->mainObject();
+			    mDynamicCastGet(uiObject*,ob,elem)
+			    return ob;
 			}
 
-    virtual bool	isUndef(int idx) const
+    virtual bool	isUndef( int idx ) const
 			{ return Values::isUdf(text(idx)); } 
 
     const char*		text( int idx ) const
 			{ 
-			    const char* ret = element(idx)
-					    ? element(idx)->text() : 0;
-
+			    const UserInputObj* obj = element( idx );
+			    const char* ret = obj ? obj->text() : 0;
 			    return ret ? ret : mUdf(const char*);
 			}
-    int			getIntValue( int idx )	const
-			{ 
-			    return element(idx) ? element(idx)->getIntValue() 
-						: mUdf(int);
+#define mImplGetFn(typ,fn) \
+    typ			fn( int idx ) const \
+			{  \
+			    const UserInputObj* obj = element( idx ); \
+			    return obj ? obj->fn() : mUdf(typ); \
 			}
-    double		getValue( int idx )
-			{ 
-			    return element(idx) ? element(idx)->getValue() 
-						: mUdf(double);
-			}
-    float		getfValue( int idx )	const
-			{ 
-			    return element(idx) ? element(idx)->getfValue() 
-						: mUdf(float);
-			}
-    bool		getBoolValue( int idx )	const
-			{ 
-			    return element(idx) ? element(idx)->getBoolValue() 
-						: mUdf(bool);
-			}
+    			mImplGetFn(int,getIntValue)
+    			mImplGetFn(float,getfValue)
+    			mImplGetFn(double,getValue)
+    			mImplGetFn(bool,getBoolValue)
 
+    template <class T>
+    void		setValue( T t, int idx )
+			{
+			    UserInputObj* obj = element( idx );
+			    if ( !obj ) return;
+			    if ( Values::isUdf(t) )
+				obj->clear();
+			    else
+				obj->setValue(t);
+			}
     virtual void	setText( const char* s, int idx )
-			    { if ( element(idx) ) element(idx)->setText(s); }
-    void		setValue( int i, int idx )
-			    { if ( element(idx) ) element(idx)->setValue(i); }
-    void		setValue( double d, int idx )
-			    { if ( element(idx) ) element(idx)->setValue(d); }
-    void		setValue( float f, int idx )
-			    { if ( element(idx) ) element(idx)->setValue(f); }
+			    { setValue( s, idx ); }
     void		setValue( bool b, int idx )
 			    { if ( element(idx) ) element(idx)->setValue(b); }
 
+#define mDoAllElems(fn) \
+			for( int idx=0; idx<nElems(); idx++ ) \
+			{ \
+			    UserInputObj* obj = element( idx ); \
+			    if ( obj ) obj->fn; \
+			    else pErrMsg("Found null field"); \
+			}
+#define mDoAllElemObjs(fn) \
+			for( int idx=0; idx<nElems(); idx++ ) \
+			{ \
+			    uiObject* obj = elemObj( idx ); \
+			    if ( obj ) obj->fn; \
+			    else pErrMsg("Found null elemObj"); \
+			}
+
 			//! stores current value as clear state.
     void		initClearValue()
-			{ 
-			    for(int idx=0;idx<nElems()&&element(idx);idx++)
-				element(idx)->initClearValue();
-			}
+			{ mDoAllElems(initClearValue()) }
     void		clear()
-			{ 
-			    for(int idx=0;idx<nElems()&&element(idx);idx++)
-				element(idx)->clear();
-			}
+			{ mDoAllElems(clear()) }
 
-    void		display( bool yn, int idx=-1 )
+    void		display( bool yn, int idx )
 			{
-			    if ( idx >= 0 && elemObj(idx) )
+			    if ( idx < 0 )
+				{ mDoAllElemObjs(display(yn)) }
+			    else
 			    {
-				elemObj(idx)->display( yn );
-				return;
+				uiObject* obj = elemObj( idx );
+				if ( obj )
+				    obj->display( yn );
 			    }
-
-			    for ( int el=0; el<nElems()&&elemObj(el); el++ )
-				elemObj(el)->display( yn );
 			} 
 
-    virtual void	setReadOnly( bool yn = true, int idx=0 )
-			    { if (element(idx)) element(idx)->setReadOnly(yn);}
 
     bool		isReadOnly( int idx=0 ) const
 			{ 
-			    return element(idx) ? element(idx)->isReadOnly()
-						: mUdf(bool);
+			    const UserInputObj* obj = element( idx );
+			    return obj && obj->isReadOnly();
+			}
+    virtual void	setReadOnly( bool yn=true, int idx=0 )
+			{
+			    UserInputObj* obj = element( idx );
+			    if ( obj ) obj->setReadOnly( yn );
 			}
 
     void		setSensitive(bool yn, int idx=-1)		
 			{ 
-			    if ( idx >= 0 && elemObj(idx) )
+			    if ( idx < 0 )
+				{ mDoAllElemObjs(setSensitive(yn)) }
+			    else
 			    {
-				elemObj(idx)->setSensitive( yn );
-				return;
+				uiObject* obj = elemObj( idx );
+				if ( obj )
+				    obj->setSensitive( yn );
 			    }
-
-			    for ( int el=0; el<nElems()&&elemObj(el); el++ )
-				elemObj(el)->setSensitive( yn ); 
 			}
 
     DataInpSpec&	spec()				{ return spec_; }
 
     bool                update( const DataInpSpec& nw )
 			{
-			    if ( spec_.type() != nw.type() ) return false;
-
-			    if ( update_(nw) )
+			    if ( spec_.type() != nw.type()
+			      && update_(nw) )
 			    {
 				spec_ = nw;
 				return true;
@@ -181,7 +181,7 @@ public:
 
     virtual void	updateSpec()
 			{ 
-			    for(int idx=0;idx<nElems()&&element(idx);idx++)
+			    for( int idx=0; idx<nElems()&&element(idx); idx++ )
 				spec_.setText( element(idx)->text(), idx );
 			}
 
@@ -195,8 +195,8 @@ protected:
 
     virtual bool        update_( const DataInpSpec& nw )
 			    { 
-				return nElems() == 1 && element()
-						    ? element()->update(nw)
+				return nElems() == 1 && element( 0 )
+						    ? element( 0 )->update(nw)
 						    : false; 
 			    } 
 
@@ -231,11 +231,7 @@ protected:
 				    }
 				}
 
-				for( int idx=0; idx<nElems() && elemObj(idx)
-								      ; idx++)
-				{
-				    elemObj(idx)->setHSzPol( hpol );
-				}
+				mDoAllElemObjs(setHSzPol(hpol))
 			    }
 };
 
@@ -263,7 +259,7 @@ public:
     virtual		~uiSimpleInputFld()	{ delete &usrinpobj; }
 
     virtual UserInputObj* element( int idx=0 )
-			    { return idx==0 ? &usrinpobj : 0; }
+			    { return idx == 0 ? &usrinpobj : 0; }
 
     virtual uiObject*	mainObj()
 			    { return dynamic_cast<uiObject*>(&usrinpobj); }
