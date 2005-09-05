@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.18 2005-09-02 14:13:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.19 2005-09-05 10:21:35 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -438,14 +438,8 @@ bool StorageProvider::computeData( const DataHolder& output,
 	trc = rg[currentreq]->get(0,0);
     else
     {
-	const int trcnr = curtrcinfo_ ? curtrcinfo_->nr : -1;
-	if ( trcnr == -1 )
-	    trc = rg[currentreq]->get( currentbid+relpos );
-	else
-	{
-	    BinID bid( 0, trcnr );
-	    trc = rg[currentreq]->get( bid+relpos );
-	}
+	const BinID bid = desc.is2D() ? BinID(0, curtrcinfo_->nr) : currentbid;
+	trc = rg[currentreq]->get( bid+relpos );
     }
     
     if ( !trc )

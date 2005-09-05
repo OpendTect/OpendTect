@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.31 2005-09-02 14:13:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.32 2005-09-05 10:21:35 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -680,10 +680,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 	if ( outputinterest[idx]<=0 ) 
 	{
 	    if ( outdata->series(idx) && outdata->series(idx)->arr() )
-	    {
-		delete outdata->series(idx);
 		outdata->replace( idx, 0 );
-	    }
 
 	    continue;
 	}
