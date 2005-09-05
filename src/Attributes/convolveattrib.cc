@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.9 2005-09-02 14:21:35 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.10 2005-09-05 10:22:24 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -125,7 +125,7 @@ void Convolve::updateDesc( Desc& desc )
     {
 	desc.setParamEnabled(sizeStr(),false);
 	desc.setParamEnabled(shapeStr(),false);
-	desc.setNrOutputs( Seis::UnknowData, 3 );
+	desc.setNrOutputs( Seis::UnknowData, 4 );
     }
     else
     {

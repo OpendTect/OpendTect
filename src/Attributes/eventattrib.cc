@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.13 2005-09-02 14:21:35 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.14 2005-09-05 10:22:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ void Event::updateDesc( Desc& desc )
 	evtype = Event::getEventType( type );
     }
     else
-	desc.setNrOutputs( Seis::UnknowData, 2 );
+	desc.setNrOutputs( Seis::UnknowData, 3 );
 
     const bool enabgate =  !issingle && (evtype==VSEvent::GateMax ||
 	    				 evtype==VSEvent::GateMin);
