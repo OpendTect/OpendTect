@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.9 2005-09-02 14:11:33 cvshelene Exp $
+ RCS:           $Id: attribdataholder.h,v 1.10 2005-09-05 10:20:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,10 @@ public:
     int				nrSeries() const	{ return data_.size(); }
     ValueSeries<float>*		series( int idx ) const	{ return data_[idx]; }
     void			replace(int idx,ValueSeries<float>* valseries)
-				{ delete data_.replace( idx, valseries ); }
+				{ ValueSeries<float>* ptr = 
+				    data_.replace( idx, valseries ); 
+				  if ( ptr ) delete ptr;
+				}
     inline bool                 dataPresent(int samplenr) const;
 
     int				z0_;	//!< See class comments
