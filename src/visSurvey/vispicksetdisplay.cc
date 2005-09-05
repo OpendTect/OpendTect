@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.68 2005-08-03 12:55:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.69 2005-09-05 12:18:10 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -48,6 +48,16 @@ PickSetDisplay::PickSetDisplay()
 
     fillMarkerSet();
 }
+    
+
+PickSetDisplay::~PickSetDisplay()
+{
+    setSceneEventCatcher( 0 );
+    removeChild( group->getInventorNode() );
+    group->unRef();
+
+    if ( transformation ) transformation->unRef();
+}
 
 
 void PickSetDisplay::copyFromPickSet( const PickSet& pickset )
@@ -76,17 +86,6 @@ void PickSetDisplay::copyToPickSet( PickSet& pickset ) const
     pickset.color.setTransparency( 0 );
     for ( int idx=0; idx<nrPicks(); idx++ )
 	pickset+= PickLocation( getPick(idx), getDirection(idx) );
-}
-    
-
-
-PickSetDisplay::~PickSetDisplay()
-{
-    setSceneEventCatcher( 0 );
-    removeChild( group->getInventorNode() );
-    group->unRef();
-
-    if ( transformation ) transformation->unRef();
 }
 
 
@@ -258,7 +257,6 @@ int PickSetDisplay::getType() const
 
 void PickSetDisplay::fillMarkerSet()
 {
-    int idx = 0;
     const char** names = MarkerStyle3D::TypeNames;
     while ( *names )
 	markertypes.add( *names++ );
@@ -269,10 +267,9 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 {
     if ( !isSelected() ) return;
 
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
-
-    if ( eventinfo.type != visBase::MouseClick ) return;
-    if ( eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    if ( eventinfo.type != visBase::MouseClick ||
+	 eventinfo.mousebutton != visBase::EventInfo::leftMouseButton() )
 	return;
 
     int eventid = -1;
@@ -280,7 +277,6 @@ void PickSetDisplay::pickCB( CallBacker* cb )
     {
 	visBase::DataObject* dataobj =
 	    		visBase::DM().getObject(eventinfo.pickedobjids[idx]);
-
 	if ( dataobj->selectable() )
 	{
 	    eventid = eventinfo.pickedobjids[idx];
@@ -442,7 +438,6 @@ visBase::Transformation* PickSetDisplay::getDisplayTransformation()
 {
     return transformation;
 }
-
 
 
 void PickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
