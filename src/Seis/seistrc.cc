@@ -5,11 +5,10 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.29 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.30 2005-09-06 16:08:35 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
-#include "interpol1d.h"
 #include "socket.h"
 #include "iopar.h"
 #include "errh.h"
