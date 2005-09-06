@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nladesign.h,v 1.4 2004-05-04 15:51:29 bert Exp $
+ RCS:		$Id: nladesign.h,v 1.5 2005-09-06 16:09:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,8 @@ ________________________________________________________________________
 Note: Currently NN only.
 If hiddensz == 0, it will be set to nrinputs / 3, with a minimum of 3.
 If nr of outputs == 0, unsupervised network will be assumed. That means the
-actual nr of output nodes is 2 (segment and match).
+actual nr of output nodes is 2 (segment and match). If classification is true,
+two extra output nodes will be added ('Classification' and 'Confidence').
 
 */
 
@@ -38,7 +39,7 @@ public:
 				deepCopy( inputs, sd.inputs );
 				deepCopy( outputs, sd.outputs );
 				hiddensz = sd.hiddensz;
-				doclass = sd.doclass;
+				classification = sd.classification;
 			    }
 			    return *this;
 			}
@@ -46,7 +47,7 @@ public:
     inline void		clear()
 			{
 			    deepErase(inputs); deepErase(outputs);
-			    hiddensz = 0; doclass = false;
+			    hiddensz = 0; classification = false;
 			}
     inline bool		isSupervised() const
 			{ return outputs.size(); }
@@ -54,7 +55,7 @@ public:
     BufferStringSet	inputs;
     BufferStringSet	outputs;
     int			hiddensz;
-    bool		doclass;
+    bool		classification;
 
 };
 
