@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.5 2005-08-16 12:16:14 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.6 2005-09-06 16:07:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ void SelSpec::set( const NLAModel& nlamod, int nr )
 
 void SelSpec::setDiscr( const NLAModel& nlamod )
 {
-    if ( !nlamod.design().doclass ) 
+    if ( nlamod.design().isSupervised() )
 	discrspec_ = StepInterval<int>(0,0,0);
     else
     {
