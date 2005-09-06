@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.14 2004-09-17 07:41:59 nanne Exp $
+ RCS:           $Id: uicolor.cc,v 1.15 2005-09-06 08:41:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibody.h"
 #include "uilabel.h"
+#include "pixmap.h"
 #include "uiparentbody.h"
 
 #ifdef __mac__
@@ -80,44 +81,48 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 	rgb = newcol.rgb(); 
     }
 
-    if ( ok )	{ col.setRgb( rgb ); }
+    if ( ok ) col.setRgb( rgb );
 
     return ok;
 }
 
 
-uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* txt,
-			    const char* lbltxt, const char* st, bool alpha )
+uiColorInput::uiColorInput( uiParent* p, const Color& col,
+			    const char* lbltxt, const char* dlgtxt )
 	: uiGroup(p,"Color input")
-	, color_(c)
-	, seltxt_(st)
-    	, collbl(0)
+	, dlgtxt_(dlgtxt)
 	, colorchanged(this)
-	, withalpha(alpha)
+	, withalpha_(false)
 {
-    uiPushButton* but = new uiPushButton( this, txt );
-    but->activated.notify( mCB(this,uiColorInput,selCol) );
-    collbl = new uiLabel( this, "   ", but );
-    collbl->setBackgroundColor( color_ );
+    colbut_ = new uiPushButton( this, "" );
+    colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
+    
     if ( lbltxt && *lbltxt )
-	new uiLabel( this, lbltxt, collbl );
+	new uiLabel( this, lbltxt, colbut_ );
 
-    setHAlignObj( collbl );
+    setColor( col ); 
+    setHAlignObj( colbut_ );
 }
 
 
 void uiColorInput::selCol( CallBacker* )
 {
+    Color newcol = color_;
     const Color oldcol = color_;
-    selectColor( color_, this, seltxt_, withalpha );
-    collbl->setBackgroundColor( color_ );
-    if ( oldcol != color_ )
+    selectColor( newcol, this, dlgtxt_, withalpha_ );
+    if ( oldcol != newcol )
+    {
+	setColor( newcol );
 	colorchanged.trigger();
+    }
 }
 
 
 void uiColorInput::setColor( const Color& col )
 {
     color_ = col;
-    collbl->setBackgroundColor( color_ );
+
+    ioPixmap pm( colbut_->prefHNrPics()-10, colbut_->prefVNrPics()-10 );
+    pm.fill( color_ );
+    colbut_->setPixmap( pm );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.14 2005-08-26 01:38:35 cvsduntao Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.15 2005-09-06 08:41:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ uiGroup* Wizard::createSeedPage()
     uiLabel* lbl = new uiLabel( grp, str );
 
     colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++),
-	    			 "Select ...", "Line color" );
+	    			 "Line color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,stickSetChange) );
     colorfld->attach( alignedBelow, lbl );
     

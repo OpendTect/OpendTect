@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.8 2005-08-17 17:37:04 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.9 2005-09-06 08:41:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,11 +121,13 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
 {
     uiGroup* prevslider = 0;
 
-    colinp = new uiColorInput(this,Color(0,0,0),"Change ...","Base color");
-    colinp->colorchanged.notify( mCB(this,uiMaterialGrp,colorChangeCB));
-    colinp->setSensitive(color);
-    if ( prevslider ) colinp->attach( alignedBelow, prevslider );
-    prevslider = colinp;
+    if ( so->hasColor() )
+    {
+	colinp = new uiColorInput(this,Color(0,0,0),"Base color");
+	colinp->colorchanged.notify( mCB(this,uiMaterialGrp,colorChangeCB) );
+	colinp->setSensitive( color );
+	prevslider = colinp;
+    }
 
     if ( ambience )
     {

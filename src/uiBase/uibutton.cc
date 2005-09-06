@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.24 2004-10-18 15:12:30 nanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.25 2005-09-06 08:41:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,12 +164,16 @@ uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
 		    uiObjectBody& b  )
     : uiObject( parnt, nm, b )
     , activated( this )
-    { if ( cb ) activated.notify(*cb); }
+{
+    if ( cb ) activated.notify(*cb);
+}
+
 
 void uiButton::setText( const char* txt )
 { 
     mqbut()->setText( QString( txt ) ); 
 }
+
 
 const char* uiButton::text()
     { return mqbut()->text(); }
@@ -177,34 +181,59 @@ const char* uiButton::text()
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
+    , pixmap_(0)
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm, const CallBack& cb)
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
+    , pixmap_(0)
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm )
     : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
+    , pixmap_(new ioPixmap(pm))
 {}
+
+
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, const CallBack& cb )
     : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
+    , pixmap_(new ioPixmap(pm))
 {}
+
+
+uiPushButton::~uiPushButton()
+{
+    delete pixmap_;
+}
+
 
 uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 					const char* txt)
 {
-    if( pm )	body_= new uiPushButtonBody(*this,*pm,parnt,txt); 
-    else	body_= new uiPushButtonBody(*this,parnt,txt); 
+    if ( pm )	body_ = new uiPushButtonBody(*this,*pm,parnt,txt); 
+    else	body_ = new uiPushButtonBody(*this,parnt,txt); 
 
     return *body_; 
 }
 
+
 void uiPushButton::setDefault( bool yn )
-    { body_->setDefault( yn ); setFocus(); }
+{
+    body_->setDefault( yn );
+    setFocus();
+}
+
+
+void uiPushButton::setPixmap( const ioPixmap& pm )
+{
+    delete pixmap_;
+    pixmap_ = new ioPixmap( pm );
+    body_->setPixmap( *pm.Pixmap() );
+}
 
 
 
@@ -219,17 +248,16 @@ uiRadioButton::uiRadioButton( uiParent* p, const char* nm,
 {}
 
 
-uiRadioButtonBody& uiRadioButton::mkbody(uiParent* parnt, const char* txt)
+uiRadioButtonBody& uiRadioButton::mkbody( uiParent* parnt, const char* txt )
 { 
     body_= new uiRadioButtonBody(*this,parnt,txt);
     return *body_; 
 }
 
-bool uiRadioButton::isChecked() const 
-    { return body_->isChecked (); }
 
-void uiRadioButton::setChecked( bool check ) 
-    { body_->setChecked( check );}
+bool uiRadioButton::isChecked() const		{ return body_->isChecked (); }
+
+void uiRadioButton::setChecked( bool check )	{ body_->setChecked( check ); }
 
 
 
@@ -255,37 +283,39 @@ uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
     return *body_; 
 }
 
-bool uiCheckBox::isChecked () const 
-    { return body_->isChecked(); }
+bool uiCheckBox::isChecked () const		{ return body_->isChecked(); }
 
-void uiCheckBox::setChecked ( bool check ) 
-    { body_->setChecked( check ); }
+void uiCheckBox::setChecked ( bool check )	{ body_->setChecked( check ); }
+
 
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
 {}
 
+
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
 {}
+
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm )
     : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
 {}
 
+
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, const CallBack& cb )
     : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
 {}
 
+
 uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 					const char* txt)
 {
     body_ = new uiToolButtonBody(*this,parnt,txt); 
-
-    if( pm )
+    if ( pm )
         body_->setIconSet( QIconSet(*pm->Pixmap()) );
 
     return *body_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.15 2004-10-18 15:12:36 nanne Exp $
+ RCS:           $Id: uibutton.h,v 1.16 2005-09-06 08:41:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,14 +49,20 @@ public:
 					     const ioPixmap&);
 				uiPushButton(uiParent*,const char* nm,
 					     const ioPixmap&,const CallBack&);
+				~uiPushButton();
 
     void			setDefault(bool yn=true);
+    void			setPixmap(const ioPixmap&);
+    ioPixmap*			getPixmap()
+    				{ return const_cast<ioPixmap*>(pixmap_); }
+    const ioPixmap*		getPixmap() const	{ return pixmap_; }
 
 private:
 
     uiPushButtonBody*		body_;
     uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,const char*);
 
+    const ioPixmap*		pixmap_;
 };
 
 

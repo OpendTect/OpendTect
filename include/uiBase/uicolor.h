@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.11 2004-09-17 07:41:59 nanne Exp $
+ RCS:           $Id: uicolor.h,v 1.12 2005-09-06 08:41:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "color.h"
 #include "uigroup.h"
+
 class uiLabel;
+class uiPushButton;
 
 
 /*! \brief pops a selector box to select a new color 
@@ -36,29 +38,27 @@ class uiColorInput : public uiGroup
 public:
 
 				uiColorInput(uiParent*,const Color&,
-					     const char* buttxt="Color ...",
 					     const char* lbltxt=0,
-					     const char* seltxt="Select color",
-					     bool withalpha=false);
-				//!< seltxt is the window caption for the
+					     const char* dlgtxt="Select color");
+				//!< dlgtxt is the window caption for the
 				//!< Qt color selection dialog.
 
     const Color&		color() const	{ return color_; }
-
     void			setColor(const Color&);
+
+    void			enableAlphaSetting( bool yn )
+				{ withalpha_ = yn; }
 
     Notifier<uiColorInput> 	colorchanged;
 
 protected:
 
+    uiPushButton*		colbut_;
     Color			color_;
-    BufferString		seltxt_;
-    bool			withalpha;
-
-    uiLabel*			collbl;
+    BufferString		dlgtxt_;
+    bool			withalpha_;
 
     void			selCol(CallBacker*);
 };
-
 
 #endif
