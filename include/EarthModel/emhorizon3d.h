@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.40 2005-08-30 09:16:27 cvsduntao Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.41 2005-09-06 09:35:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,7 @@ In addition, they are also linked together.
 */
 
 class BinIDValueSet;
+class BufferStringSet;
 
 namespace Geometry { class MeshSurface; };
 
@@ -66,11 +67,13 @@ public:
 
     const char*		getTypeStr() const { return typeStr(); }
     Executor*		importer(const ObjectSet<BinIDValueSet>&,
-	    			 const RowCol& step,bool fixholes);
+	    			 const RowCol& step);
     				/*!< Removes all data and creates 
 				  a section for every BinIDValueSet
 				*/
-    Executor*		auxDataImporter(const ObjectSet<BinIDValueSet>&);
+    Executor*		auxDataImporter(const ObjectSet<BinIDValueSet>&,
+	    				const BufferStringSet& attribnms,
+					const BoolTypeSet& attribsel);
 
 protected:
 	    		Horizon(EMManager&,const ObjectID&);

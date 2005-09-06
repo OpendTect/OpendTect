@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.62 2005-08-30 09:16:27 cvsduntao Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.63 2005-09-06 09:35:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,87 +28,17 @@ ________________________________________________________________________
 
 namespace EM {
 
-Horizon::Horizon( EMManager& man, const ObjectID& id_ )
-    : Surface(man,id_,*new HorizonGeometry(*this))
-{
-    geometry.addSection( "", false );
-}
-
-
-const char* Horizon::typeStr() { return EMHorizonTranslatorGroup::keyword; }
-
-void Horizon::initClass(EMManager& emm)
-{
-    emm.addFactory( new ObjectFactory( create,
-				       EMHorizonTranslatorGroup::ioContext(),
-				       typeStr()) );
-}
-
-
-void Horizon::interpolateHoles(int aperture)
-{
-    for ( int idx=0; idx<geometry.nrSections(); idx++ )
-    {
-	SectionID sectionid = geometry.sectionID( idx );
-	const StepInterval<int> rowrg = geometry.rowRange(sectionid);
-	const StepInterval<int> colrg = geometry.colRange(sectionid);
-	if ( rowrg.width(false)<1 || colrg.width(false)<1 )
-	    continue;
-
-	Array2DImpl<float>* arr =
-		new Array2DImpl<float>(rowrg.nrSteps()+1, colrg.nrSteps()+1);
-	if ( !arr )	return;
-
-	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
-	{
-	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	    {
-		const Coord3 pos = geometry.getPos(sectionid, RowCol(row, col));
-		arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
-	    }
-	}
-	
-	Array2DInterpolator<float> interpolator( arr );
-	interpolator.setInverseDistance( true );
-	interpolator.setAperture( aperture );
-	while ( true )
-	{
-	    const int res = interpolator.nextStep();
-	    if ( !res ) break;
-	    else if ( res == -1 ) return;
-	}
-
-	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
-	{
-	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
-	    {
-		const RowCol rc = RowCol(row, col);
-		Coord3 pos = geometry.getPos(sectionid, rc);
-		if ( ! pos.isDefined() )
-		{
-		    pos.z = arr->get(rowrg.getIndex(row), colrg.getIndex(col));
-		    geometry.setPos( sectionid, rc, pos, true );
-		}
-	    }
-	}
-	delete arr;
-    }
-}
-
-
-EMObject* Horizon::create( const ObjectID& id, EMManager& emm )
-{ return new Horizon( emm, id ); }
-
-
-
 class AuxDataImporter : public Executor
 {
 public:
 
-AuxDataImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects_ )
+AuxDataImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
+		 const BufferStringSet& attribnames,
+		 const BoolTypeSet& attrsel )
     : Executor("Data Import")
     , horizon(hor)
-    , sections(sects_)
+    , sections(sects)
+    , attribsel(attrsel)
     , totalnr(0)
     , nrdone(0)
 {
@@ -118,10 +48,14 @@ AuxDataImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects_ )
 	totalnr += bvs.nrInls();
     }
 
-    const int nrvals = sections[0]->nrVals();
-    for ( int validx=1; validx<nrvals; validx++ )
+    const int nrattribs = sections[0]->nrVals()-1;
+    for ( int attribidx=0; attribidx<nrattribs; attribidx++ )
     {
-	BufferString nm( "Imported attribute " ); nm += validx;
+	if ( !attribsel[attribidx] ) continue;
+
+	BufferString nm = attribnames.get( attribidx );
+	if ( !nm.size() )
+	    { nm = "Imported attribute "; nm += attribidx; }
 	horizon.auxdata.addAuxData( nm );
     }
 
@@ -145,7 +79,7 @@ int nextStep()
 
     PosID posid( horizon.id(), horizon.geometry.sectionID(sectionidx) );
     const BinIDValueSet& bvs = *sections[sectionidx];
-    const int nrvals = bvs.nrVals();
+    const int nrattribs = bvs.nrVals()-1;
     for ( int crl=crlrange.start; crl<=crlrange.stop; crl+=crlrange.step )
     {
 	const BinID bid(inl,crl);
@@ -154,8 +88,12 @@ int nextStep()
 	if ( !vals ) continue;
 	RowCol rc( HorizonGeometry::getRowCol(bid) );
 	posid.setSubID( HorizonGeometry::rowCol2SubID(rc) );
-	for ( int validx=1; validx<nrvals; validx++ )
-	    horizon.auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
+	int index = 0;
+	for ( int attridx=0; attridx<nrattribs; attridx++ )
+	{
+	    if ( !attribsel[attridx] ) continue;
+	    horizon.auxdata.setAuxDataVal( index++, posid, vals[attridx+1] );
+	}
     }
 
     inl += inlrange.step;
@@ -171,6 +109,7 @@ const char*	nrDoneText() const	{ return "Nr inlines imported"; }
 
 protected:
 
+    const BoolTypeSet&		attribsel;
     const ObjectSet<BinIDValueSet>&	sections;
     Horizon&			horizon;
     StepInterval<int>		inlrange;
@@ -189,11 +128,10 @@ class HorizonImporter : public Executor
 public:
 
 HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects, 
-		 const RowCol& step, bool fh )
+		 const RowCol& step )
     : Executor("Horizon Import")
     , horizon_(hor)
     , sections_(sects)
-    , fixholes_(fh)
     , totalnr_(0)
     , nrdone_(0)
 {
@@ -213,12 +151,12 @@ HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
 const char*	message() const		{ return "Transforming grid data"; }
 int		totalNr() const		{ return totalnr_; }
 int		nrDone() const		{ return nrdone_; }
-const char*	nrDoneText() const	{ return "Nr inlines imported"; }
+const char*	nrDoneText() const	{ return "Nr positions imported"; }
 
 int nextStep()
 {
     BinIDValueSet& bvs = *sections_[sectionidx_];
-    bool haspos = bvs.next( pos );
+    bool haspos = bvs.next( pos_ );
     if ( !haspos )
     {
 	if ( bvs.isEmpty() )
@@ -227,122 +165,135 @@ int nextStep()
 	if ( sectionidx_ >= sections_.size() )
 	{
 	    horizon_.geometry.checkSupport( true );
-	    return fixholes_ ? fillHoles() : Finished;
+	    return Finished;
 	}
 
-	pos.i = pos.j = -1;
+	pos_.i = pos_.j = -1;
 	return MoreToDo;
     }
 
     const int nrvals = bvs.nrVals();
     TypeSet<float> vals( nrvals, mUndefValue );
     BinID bid;
-    bvs.get( pos, bid, vals.arr() );
+    bvs.get( pos_, bid, vals.arr() );
 
     PosID posid( horizon_.id(), horizon_.geometry.sectionID(sectionidx_),
 		 bid.getSerialized() );
     bool res = horizon_.geometry.setPos( posid, Coord3(0,0,vals[0]), false );
     if ( res )
     {
-	bvs.remove( pos );
-	pos.i = pos.j = -1;
+	bvs.remove( pos_ );
+	pos_.i = pos_.j = -1;
 	nrdone_++;
     }
 
     return MoreToDo;
 }
 
-
-int fillHoles()
-{
-    bool changed = false;
-    for ( int idx=0; idx<horizon_.geometry.nrSections(); idx++ )
-    {
-	SectionID sectionid = horizon_.geometry.sectionID( idx );
-	const StepInterval<int> rowrange = 
-	    			horizon_.geometry.rowRange(sectionid);
-	if ( rowrange.width(false)>=0 )
-	{
-	    const StepInterval<int> colrange =
-		horizon_.geometry.colRange(sectionid);
-	    PosID pid( horizon_.id(), sectionid );
-
-	    for ( int currow=rowrange.start; rowrange.includes(currow);
-		  currow+=rowrange.step )
-	    {
-		for ( int curcol=colrange.start; colrange.includes(curcol);
-		      curcol+=colrange.step )
-		{
-		    const RowCol rc( currow, curcol );
-		    if ( horizon_.geometry.isDefined(sectionid,rc) )
-			continue;
-
-		    pid.setSubID( horizon_.geometry.rowCol2SubID(rc) );
-		    TypeSet<PosID> neighbors;
-		    horizon_.geometry.getNeighbors( pid, &neighbors );
-		    if ( neighbors.size()<6 )
-			continue;
-
-		    TypeSet<Coord3> neighborcoords;
-		    for ( int nidx=0; nidx<neighbors.size(); nidx++ )
-			neighborcoords += horizon_.getPos(neighbors[nidx]);
-
-		    Plane3 plane;
-		    if ( !plane.set(neighborcoords) )
-			continue;
-
-		    const BinID bid = HorizonGeometry::getBinID(rc);
-		    const Coord coord = SI().transform(bid);
-		    const Line3 line( Coord3(coord,0), Vector3(0,0,1));
-
-		    Coord3 interpolcoord;
-		    if ( !plane.intersectWith(line,interpolcoord) )
-			continue;
-
-		    horizon_.setPos(pid,interpolcoord,false);
-		    changed = true;
-		}
-	    }
-
-	    if ( changed )
-		return MoreToDo;
-	}
-    }
-
-    return Finished;
-}
-
-
 protected:
 
     const ObjectSet<BinIDValueSet>&	sections_;
     Horizon&		horizon_;
-    BinIDValueSet::Pos	pos;
+    BinIDValueSet::Pos	pos_;
 
-    bool		fixholes_;
     int			sectionidx_;
-
     int			totalnr_;
     int			nrdone_;
 };
 
 
-Executor* Horizon::importer( const ObjectSet<BinIDValueSet>& sections, 
-			     const RowCol& step, bool fh )
+Horizon::Horizon( EMManager& man, const ObjectID& id_ )
+    : Surface(man,id_,*new HorizonGeometry(*this))
 {
-    cleanUp();
-    return new HorizonImporter( *this, sections, step, fh );
+    geometry.addSection( "", false );
 }
 
 
-Executor* Horizon::auxDataImporter( const ObjectSet<BinIDValueSet>& sections )
+const char* Horizon::typeStr() { return EMHorizonTranslatorGroup::keyword; }
+
+void Horizon::initClass(EMManager& emm)
 {
-    return new AuxDataImporter( *this, sections );
+    emm.addFactory( new ObjectFactory( create,
+				       EMHorizonTranslatorGroup::ioContext(),
+				       typeStr()) );
 }
+
+
+void Horizon::interpolateHoles( int aperture )
+{
+    for ( int idx=0; idx<geometry.nrSections(); idx++ )
+    {
+	SectionID sectionid = geometry.sectionID( idx );
+	const StepInterval<int> rowrg = geometry.rowRange(sectionid);
+	const StepInterval<int> colrg = geometry.colRange(sectionid);
+	if ( rowrg.width(false)<1 || colrg.width(false)<1 )
+	    continue;
+
+	Array2DImpl<float>* arr =
+		new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
+	if ( !arr ) return;
+
+	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+	{
+	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	    {
+		const Coord3 pos = geometry.getPos( sectionid, RowCol(row,col));
+		arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
+	    }
+	}
+
+	Array2DInterpolator<float> interpolator( arr );
+	interpolator.setInverseDistance( true );
+	interpolator.setAperture( aperture );
+	while ( true )
+	{
+	    const int res = interpolator.nextStep();
+	    if ( !res ) break;
+	    else if ( res == -1 ) return;
+	}
+
+	for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+	{
+	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	    {
+		const RowCol rc( row, col );
+		Coord3 pos = geometry.getPos( sectionid, rc );
+		if ( !pos.isDefined() )
+		{
+		    pos.z = arr->get( rowrg.getIndex(row), colrg.getIndex(col));
+		    geometry.setPos( sectionid, rc, pos, true );
+		}
+	    }
+	}
+
+	delete arr;
+    }
+}
+
+
+EMObject* Horizon::create( const ObjectID& id, EMManager& emm )
+{ return new Horizon( emm, id ); }
 
 
 const IOObjContext& Horizon::getIOObjContext() const
 { return EMHorizonTranslatorGroup::ioContext(); }
+
+
+Executor* Horizon::importer( const ObjectSet<BinIDValueSet>& sections, 
+			     const RowCol& step )
+{
+    cleanUp();
+    return new HorizonImporter( *this, sections, step );
+}
+
+
+Executor* Horizon::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
+				    const BufferStringSet& attribnms,
+				    const BoolTypeSet& attribsel )
+{
+    return new AuxDataImporter( *this, sections, attribnms, attribsel );
+}
+
 
 
 HorizonGeometry::HorizonGeometry( Surface& surf )

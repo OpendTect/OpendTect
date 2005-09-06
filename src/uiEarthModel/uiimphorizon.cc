@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.53 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.54 2005-09-06 09:35:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,39 +14,44 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emhorizon.h"
+
+#include "array2dinterpol.h"
+#include "binidselimpl.h"
+#include "binidvalset.h"
 #include "ctxtioobj.h"
+#include "cubesampling.h"
+#include "filegen.h"
+#include "horizonscanner.h"
 #include "ioobj.h"
-#include "uiioobjsel.h"
+#include "scaler.h"
+#include "streamconn.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "survinfo.h"
+#include "userinputobj.h"
+
 #include "uiexecutor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "filegen.h"
-#include "uimsg.h"
-#include "uiscaler.h"
 #include "uibutton.h"
 #include "uibinidsubsel.h"
-#include "scaler.h"
-#include "survinfo.h"
-#include "cubesampling.h"
-#include "binidselimpl.h"
-#include "horizonscanner.h"
-#include "array2dinterpol.h"
-
-#include "streamconn.h"
-#include "binidvalset.h"
+#include "uicolor.h"
 #include "uicursor.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "uiscaler.h"
+#include "uiseparator.h"
+#include "uitable.h"
 
 
 static int sDefStepout = 3;
 
-
 uiImportHorizon::uiImportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
 				 "Specify horizon parameters","104.0.0"))
-    , ctio(*mMkCtxtIOObj(EMHorizon))
-    , emobjid(-1)
+    , ctio_(*mMkCtxtIOObj(EMHorizon))
+    , emobjid_(-1)
+    , attribnames_(*new BufferStringSet)
 {
     infld = new uiFileInput( this, "Input Ascii file", 
 	    		     uiFileInput::Setup().withexamine(true) );
@@ -59,42 +64,61 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 					mCB(this,uiImportHorizon,scanFile) );
     scanbut->attach( alignedBelow, infld );
 
-    grp = new uiGroup( this, "Group" );
-    xyfld = new uiGenInput( grp, "Positions in:",
-                            BoolInpSpec("X/Y","Inl/Crl") );
-    grp->setHAlignObj( xyfld );
-    grp->attach( alignedBelow, scanbut );
+    uiSeparator* sep = new uiSeparator( this, "Separator1" );
+    sep->attach( stretchedBelow, scanbut );
 
-    subselfld = new uiBinIDSubSel( grp, uiBinIDSubSel::Setup()
+    midgrp = new uiGroup( this, "Middle Group" );
+    midgrp->setSensitive( false );
+    midgrp->attach( alignedBelow, scanbut );
+    midgrp->attach( ensureBelow, sep );
+
+    xyfld = new uiGenInput( midgrp, "Positions in:",
+                            BoolInpSpec("X/Y","Inl/Crl") );
+    midgrp->setHAlignObj( xyfld );
+
+    subselfld = new uiBinIDSubSel( midgrp, uiBinIDSubSel::Setup()
 			       .withz(false).withstep(true).rangeonly(true) );
     subselfld->attach( alignedBelow, xyfld );
 
     BufferString scalelbl( SI().zIsTime() ? "Z " : "Depth " );
     scalelbl += "scaling";
-    scalefld = new uiScaler( grp, scalelbl, true );
+    scalefld = new uiScaler( midgrp, scalelbl, true );
     scalefld->attach( alignedBelow, subselfld );
 
-    udffld = new uiGenInput( grp, "Undefined value",
+    udffld = new uiGenInput( midgrp, "Undefined value",
 	    		     StringInpSpec(sUndefValue) );
     udffld->attach( alignedBelow, scalefld );
 
-    interpolfld = new uiGenInput( grp, "Interpolate to make regular grid",
+    interpolfld = new uiGenInput( midgrp, "Interpolate to make regular grid",
 				  BoolInpSpec() );
     interpolfld->valuechanged.notify( mCB(this,uiImportHorizon,interpolSel) );
     interpolfld->setValue(false);
     interpolfld->attach( alignedBelow, udffld );
 
-    stepoutfld = new uiGenInput( grp, "Used stepout", IntInpSpec() );
+    stepoutfld = new uiGenInput( midgrp, "Stepout", IntInpSpec() );
     stepoutfld->setValue( sDefStepout );
     stepoutfld->setElemSzPol( uiObject::small );
-    stepoutfld->attach( alignedBelow, interpolfld );
+    stepoutfld->attach( rightTo, interpolfld );
 
-    ctio.ctxt.forread = false;
-    outfld = new uiIOObjSel( grp, ctio, "Output Horizon" );
-    outfld->attach( alignedBelow, stepoutfld );
+    attribbut = new uiPushButton( midgrp, "Attribute info ...",
+	    			  mCB(this,uiImportHorizon,attribSel) );
+    attribbut->attach( alignedBelow, interpolfld );
 
-    displayfld = new uiCheckBox( grp, "Display after import" );
-    displayfld->attach( alignedBelow, outfld );
+    uiSeparator* sep2 = new uiSeparator( this, "Separator2" );
+    sep2->attach( stretchedBelow, midgrp );
+
+    uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
+    ctio_.ctxt.forread = false;
+    outfld = new uiIOObjSel( botgrp, ctio_, "Output Horizon" );
+
+    colbut = new uiColorInput( botgrp, Color::White, "Base color" );
+    colbut->attach( alignedBelow, outfld );
+
+    displayfld = new uiCheckBox( botgrp, "Display after import" );
+    displayfld->attach( alignedBelow, colbut );
+    botgrp->setHAlignObj( outfld );
+    botgrp->attach( alignedBelow, midgrp );
+    botgrp->attach( ensureBelow, sep2 );
 
     interpolSel(0);
 }
@@ -102,13 +126,15 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 
 uiImportHorizon::~uiImportHorizon()
 {
-    delete ctio.ioobj; delete &ctio;
+    delete ctio_.ioobj; delete &ctio_;
+    delete &attribnames_;
 }
 
 
 void uiImportHorizon::inputCB( CallBacker* )
 {
-    grp->setSensitive( false );
+    midgrp->setSensitive( false );
+    button( OK )->setSensitive( false );
 }
 
 
@@ -126,10 +152,10 @@ bool uiImportHorizon::doDisplay() const
 
 MultiID uiImportHorizon::getSelID() const
 {
-    if ( emobjid<0 ) return -1;
+    if ( emobjid_<0 ) return -1;
 
-    MultiID mid = IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id;
-    mid.add(emobjid);
+    MultiID mid = IOObjContext::getStdDirData(ctio_.ctxt.stdseltype)->id;
+    mid.add( emobjid_ );
     return mid;
 }
 
@@ -141,9 +167,8 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
-#define mErrRetUnRef(s) \
-{ horizon->unRef(); mErrRet(s) }
+#define mErrRet(s)	{ uiMSG().error(s); return false; }
+#define mErrRetUnRef(s)	{ horizon->unRef(); mErrRet(s) }
 
 
 bool uiImportHorizon::checkInpFlds()
@@ -184,11 +209,12 @@ bool uiImportHorizon::doWork()
 {
     const char* horizonnm = outfld->getInput();
     EM::EMManager& em = EM::EMM();
-    emobjid = em.createObject( EM::Horizon::typeStr(), horizonnm );
-    mDynamicCastGet(EM::Horizon*,horizon,em.getObject(emobjid));
+    emobjid_ = em.createObject( EM::Horizon::typeStr(), horizonnm );
+    mDynamicCastGet(EM::Horizon*,horizon,em.getObject(emobjid_));
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 
+    horizon->setPreferredColor( colbut->color() );
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
 
@@ -216,18 +242,18 @@ bool uiImportHorizon::doWork()
 
     const RowCol step( hs.step.inl, hs.step.crl );
     horizon->ref();
-    ExecutorGroup exgrp( "Horizon importer" );
-    exgrp.setNrDoneText( "Nr inlines imported" );
-    exgrp.add( horizon->importer(sections,step,false) );
+    ExecutorGroup importer( "Horizon importer" );
+    importer.setNrDoneText( "Nr inlines imported" );
+    importer.add( horizon->importer(sections,step) );
 
-    ObjectSet<BinIDValueSet> attribs;
-    if ( !dointerpolate && scanner.nrAttribValues()>=1 )
+    ObjectSet<BinIDValueSet> attribvals;
+    if ( !dointerpolate && scanner.nrAttribValues()>0 )
     {
 	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{
 	    BinIDValueSet* set = new BinIDValueSet( sections[sidx]->nrVals(),
 						    false );
-	    attribs += set;
+	    attribvals += set;
 	    BinID bid;
 	    TypeSet<float> vals;
 	    BinIDValueSet::Pos pos;
@@ -236,14 +262,15 @@ bool uiImportHorizon::doWork()
 		sections[sidx]->get( pos, bid, vals );
 		set->add( bid, vals );
 	    }
-	}	
-	exgrp.add( horizon->auxDataImporter(attribs) );
+	}
+	importer.add( 
+		horizon->auxDataImporter(attribvals,attribnames_,attribsel_) );
     }
 
-    uiExecutor impdlg( this, exgrp );
+    uiExecutor impdlg( this, importer );
     const bool success = impdlg.go();
     deepErase( sections );
-    deepErase( attribs );
+    deepErase( attribvals );
     if ( !success )
 	mErrRetUnRef("Cannot import horizon")
 
@@ -303,7 +330,18 @@ void uiImportHorizon::scanFile( CallBacker* )
     subselfld->setInput( hs );
     interpolfld->setValue(scanner.gapsFound(true) || scanner.gapsFound(false));
     interpolSel(0);
-    grp->setSensitive( true );
+    midgrp->setSensitive( true );
+    button( OK )->setSensitive( true );
+
+    const int nrattrvals = scanner.nrAttribValues();
+    attribbut->setSensitive( nrattrvals > 0 );
+    attribnames_.erase();
+    for ( int idx=0; idx<nrattrvals; idx++ )
+    {
+	BufferString nm( "Imported attribute " );
+	nm += idx+1;
+	attribnames_.add( nm );
+    }
 }
 
 
@@ -413,7 +451,56 @@ bool uiImportHorizon::interpolateGrid( ObjectSet<BinIDValueSet>& sections )
 		data.add( bid, arr->get(inl,crl) );
 	    }
 	}
+
+	delete arr;
     }
 
     return true;
+}
+
+
+static const char* sYesNo[] = { sKey::Yes, sKey::No, 0 };
+
+class AttribNameEditor : public uiDialog
+{
+public:
+AttribNameEditor( uiParent* p, const BufferStringSet& names )
+    : uiDialog(p,Setup("Attribute import","Specify attribute names",""))
+{
+    table_ = new uiTable( this, uiTable::Setup().rowdesc("Attribute") );
+    table_->setNrCols( 2 );
+    table_->setColumnLabel( 0, "Attribute Name" );
+    table_->setColumnLabel( 1, "Import" );
+    table_->setNrRows( names.size() );
+    table_->setDefaultRowLabels();
+
+    for ( int idx=0; idx<names.size(); idx++ )
+    {
+	table_->setText( uiTable::RowCol(idx,0), names.get(idx) );
+	UserInputObj* uiobj = table_->mkUsrInputObj( uiTable::RowCol(idx,1) );
+	uiobj->addItems( sYesNo );
+    }
+}
+
+void AttribNameEditor::getAttribNames( BufferStringSet& names,
+				       BoolTypeSet& doimp ) const
+{
+    names.erase();
+    doimp.erase();
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    {
+	names.add( table_->text(uiTable::RowCol(idx,0)) );
+	doimp += !strcmp(table_->text(uiTable::RowCol(idx,1)),sKey::Yes);
+    }
+}
+
+    uiTable*	table_;
+};
+
+
+void uiImportHorizon::attribSel( CallBacker* )
+{
+    AttribNameEditor dlg( this, attribnames_ );
+    if ( !dlg.go() ) return;
+    dlg.getAttribNames( attribnames_, attribsel_ );
 }

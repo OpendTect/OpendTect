@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.12 2005-04-12 11:08:50 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.13 2005-09-06 09:35:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,11 +22,12 @@ class CtxtIOObj;
 class HorSampling;
 class uiBinIDSubSel;
 class uiCheckBox;
+class uiColorInput;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiPushButton;
 class uiScaler;
-
 
 
 /*! \brief Dialog for horizon selection */
@@ -42,7 +43,7 @@ public:
 
 protected:
 
-    uiGroup*		grp;
+    uiGroup*		midgrp;
     uiFileInput*	infld;
     uiGenInput*		xyfld;
     uiScaler*		scalefld;
@@ -52,6 +53,8 @@ protected:
     uiGenInput*		stepoutfld;
     uiIOObjSel*		outfld;
     uiCheckBox*		displayfld;
+    uiPushButton*	attribbut;
+    uiColorInput*	colbut;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();
@@ -65,9 +68,12 @@ protected:
     void		inputCB(CallBacker*);
     void		interpolSel(CallBacker*);
     void		scanFile(CallBacker*);
+    void		attribSel(CallBacker*);
 
-    CtxtIOObj&		ctio;
-    EM::ObjectID	emobjid;
+    CtxtIOObj&		ctio_;
+    EM::ObjectID	emobjid_;
+    BufferStringSet&	attribnames_;
+    BoolTypeSet		attribsel_;
 };
 
 
