@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.10 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: userinputobj.h,v 1.11 2005-09-06 16:05:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,11 +35,12 @@ public:
     virtual float       getfValue()    const		= 0;
     virtual bool        getBoolValue() const		= 0;
 
-    virtual void        setText( const char* )		= 0;
-    virtual void        setValue( int i )		= 0;
-    virtual void        setValue( double d )		= 0;
-    virtual void        setValue( float f )		= 0;
-    virtual void        setValue( bool b )		= 0;
+    virtual void        setText(const char*)		= 0;
+    virtual void        setValue( const char* s )	{ setText(s); }
+    virtual void        setValue(int)			= 0;
+    virtual void        setValue(double)		= 0;
+    virtual void        setValue(float )		= 0;
+    virtual void        setValue(bool)			= 0;
 
     virtual void	setReadOnly( bool = true )	= 0;
     virtual bool	isReadOnly() const		= 0;
