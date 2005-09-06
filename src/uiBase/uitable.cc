@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.30 2005-08-24 14:56:03 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.31 2005-09-06 08:56:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,27 +101,23 @@ public:
 
     void		setRowLabels( const QStringList &labels )
 			{
-
 			    QHeader* leftHeader = verticalHeader();
 
 			    int i = 0;
 			    for( QStringList::ConstIterator it = labels.begin();
-				  it != labels.end() && i < numRows(); ++i,++it
-			       )
+				 it != labels.end() && i < numRows();
+				 ++i,++it )
 				leftHeader->setLabel( i, *it );
 			}
 
-
     UserInputObj*	mkUsrInputObj( const uiTable::RowCol& rc )
 			{
-
 			    uiComboBox* cbb = new uiComboBox(0);
 			    QWidget* widg = cbb->body()->qwidget();
 
 			    setCellWidget( rc.row, rc.col, widg );
 
 			    inputs += new Input( cbb, widg );
-
 			    return cbb;
 			}
 
@@ -197,14 +193,15 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 }
 
 
-uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc)
+uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc )
 {
-    body_ = new uiTableBody(*this,p,nm,nr,nc);
+    body_ = new uiTableBody( *this, p, nm, nr, nc );
     return *body_;
 }
 
 
-uiTable::~uiTable() {}
+uiTable::~uiTable()
+{}
 
 
 void uiTable::setDefaultRowLabels()
@@ -247,34 +244,34 @@ void uiTable::update( bool row, int rc )
     int c = row ? 0 : rc;
 
     setCurrentCell( RowCol(r,c) );
-
 }
 
 
-int  uiTable::columnWidth( int c ) const
+int uiTable::columnWidth( int col ) const
 {
-    if ( c == -1 ) return body_->topMargin();
-    return body_->columnWidth(c);
+    return col == -1 ? body_->topMargin() : body_->columnWidth(col);
 }
 
 
-int  uiTable::rowHeight( int r ) const	
+int uiTable::rowHeight( int row ) const	
 {
-    if ( r == -1 ) return body_->leftMargin();
-    return body_->rowHeight(r);
+    return row == -1 ? body_->leftMargin() : body_->rowHeight( row );
 }
 
-void uiTable::setColumnWidth(int col, int w)	
+
+void uiTable::setColumnWidth( int col, int w )	
 {
-    if ( col == -1 ) return body_->setLeftMargin(w);
-    body_->setColumnWidth(col,w);
+    if ( col == -1 ) return body_->setLeftMargin( w );
+    body_->setColumnWidth( col, w );
 }
 
-void uiTable::setColumnWidthInChar(int col, float w)	
+
+void uiTable::setColumnWidthInChar( int col, float w )
 {
-    float wdt = w * body_->fontWdt();
+    const float wdt = w * body_->fontWdt();
     setColumnWidth( col, mNINT(wdt) );
 }
+
 
 void uiTable::setRowHeight( int row, int h )
 {
@@ -282,19 +279,20 @@ void uiTable::setRowHeight( int row, int h )
     body_->setRowHeight(row,h);
 }
 
-void uiTable::setRowHeightInChar(int row, float h)	
+
+void uiTable::setRowHeightInChar( int row, float h )
 {
     float hgt = h * body_->fontHgt();
     setColumnWidth( row, mNINT(hgt) );
 }
 
-void uiTable::insertRows(int r, int cnt)	
-{ body_->insertRows( r, cnt ); updateRow(r); }
+void uiTable::insertRows( int row, int cnt )
+{ body_->insertRows( row, cnt ); updateRow(row); }
 
-void uiTable::insertColumns(int c,int cnt)	
-{ body_->insertColumns(c,cnt); updateCol(c); }
+void uiTable::insertColumns( int col, int cnt )
+{ body_->insertColumns(col,cnt); updateCol(col); }
 
-void uiTable::removeRow( int row )		
+void uiTable::removeRow( int row )
 { body_->removeRow( row ); updateRow(row); }
 
 void uiTable::removeColumn( int col )
@@ -306,20 +304,17 @@ void uiTable::setNrRows( int nr )
 void uiTable::setNrCols( int nr )
 { body_->setNumCols( nr );  updateCol(0); }
 
-int  uiTable::nrRows() const			{ return body_->numRows(); }
-int  uiTable::nrCols() const			{ return body_->numCols(); }
+int uiTable::nrRows() const			{ return body_->numRows(); }
+int uiTable::nrCols() const			{ return body_->numCols(); }
 
 void uiTable::setText( const RowCol& rc, const char* txt )
-    { body_->setText( rc.row, rc.col, txt ); }
-
+{ body_->setText( rc.row, rc.col, txt ); }
 
 void uiTable::clearCell( const RowCol& rc )
-    { body_->clearCell( rc.row, rc.col ); }
-
+{ body_->clearCell( rc.row, rc.col ); }
 
 void uiTable::setCurrentCell( const RowCol& rc )
-    { body_->setCurrentCell( rc.row, rc.col ); }
-
+{ body_->setCurrentCell( rc.row, rc.col ); }
 
 const char* uiTable::text( const RowCol& rc ) const
 {
@@ -330,6 +325,7 @@ const char* uiTable::text( const RowCol& rc ) const
 	body_->endEdit( rc.row, rc.col, true, false );
 	rettxt_ = body_->text( rc.row, rc.col );
     }
+
     return rettxt_;
 }
 
@@ -350,17 +346,17 @@ mIsFunc( isRowReadOnly )
 
 void uiTable::hideColumn( int col, bool yn )
 {
-    if ( yn ) body_->hideColumn( col ); 
+    if ( yn ) body_->hideColumn( col );
     else body_->showColumn( col );
 }
 
 void uiTable::hideRow( int col, bool yn )
 {
-    if ( yn ) body_->hideRow( col ); 
+    if ( yn ) body_->hideRow( col );
     else body_->showRow( col );
 }
 
-bool uiTable::isColumnHidden(int col) const
+bool uiTable::isColumnHidden( int col ) const
 {
 #if QT_VERSION < 0x030300
     pErrMsg("Function is not supported by QT");
@@ -371,7 +367,7 @@ bool uiTable::isColumnHidden(int col) const
 }
 
 
-bool uiTable::isRowHidden(int row) const
+bool uiTable::isRowHidden( int row ) const
 {
 #if QT_VERSION < 0x030300
     pErrMsg("Function is not supported by QT");
@@ -389,21 +385,17 @@ mIsFunc( isRowStretchable )
 
 
 UserInputObj* uiTable::mkUsrInputObj( const RowCol& rc )
-    { return body_->mkUsrInputObj(rc); }
-
+{ return body_->mkUsrInputObj(rc); }
 
 void uiTable::delUsrInputObj( const RowCol& rc )
-    { body_->delUsrInputObj(rc); }
-
+{ body_->delUsrInputObj(rc); }
 
 UserInputObj* uiTable::usrInputObj( const RowCol& rc )
-    { return body_->usrInputObj(rc); }
+{ return body_->usrInputObj(rc); }
 
 
 void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
-{
-    body_->setPixmap( rc.row, rc.col, *pm.Pixmap() );
-}
+{ body_->setPixmap( rc.row, rc.col, *pm.Pixmap() ); }
 
 
 void uiTable::setColor( const RowCol& rc, const Color& col )
@@ -613,7 +605,7 @@ void uiTable::editCell( const RowCol& rc, bool replace )
 
 void uiTable::rightClk()
 {
-    if ( !setup_.rowgrow_  && !setup_.colgrow_  )
+    if ( !setup_.rowgrow_ && !setup_.colgrow_ )
 	return;
 
     uiPopupMenu* mnu = new uiPopupMenu( parent(), "Action" );
