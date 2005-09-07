@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.24 2005-09-02 14:13:22 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.25 2005-09-07 07:33:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -780,10 +780,7 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
 
     createProcSet( pset, *procattrset, lineKey().buf(), outattribs );
     if ( !pset.size() )
-    {
-	errmsg = "No processor created";
-	return false;
-    }
+	mErrRet( "Invalid input data,\nNo processor created" )
 
     int index = 0;
     for ( int idy=0; idy<pset.size(); idy++ )

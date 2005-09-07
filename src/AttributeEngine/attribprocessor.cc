@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.17 2005-09-02 14:13:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.18 2005-09-07 07:33:17 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -46,8 +46,7 @@ Processor::Processor( Desc& desc , const char* lk )
 
 Processor::~Processor()
 {
-    desc_.unRef();
-    if ( provider ) provider->unRef();
+    if ( provider )  { provider->unRef(); desc_.unRef(); }
     deepUnRef( outputs );
 }
 
