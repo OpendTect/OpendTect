@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.11 2005-08-31 03:08:20 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.12 2005-09-07 02:33:57 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -25,6 +25,8 @@ namespace MPE {
 
 const char* HorizonAdjuster::permzrgstr_ = "Permitted Z range";
 const char* HorizonAdjuster::ampthresholdstr_ = "Value threshhold";
+const char* HorizonAdjuster::allowedvarstr_ = "Allowed variance";
+const char* HorizonAdjuster::useabsthresholdstr_ = "Use abs threshhold";
 const char* HorizonAdjuster::similaritywinstr_ = "Similarity window";
 const char* HorizonAdjuster::similaritythresholdstr_ = "Similarity threshhold";
 const char* HorizonAdjuster::trackbyvalstr_ = "Track by value";
@@ -37,15 +39,17 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
 {
     computers_ += new AttribPositionScoreComputer();
 
-    float dist = 8 * SI().zStep();
+    float dist = 5 * SI().zStep();
     permzrange_ = Interval<float>(-dist,dist);
-    dist /= 2;
+    dist = 10 * SI().zStep();
     similaritywin_ = Interval<float>(-dist, dist);
     
     ampthreshold_ = mUndefValue;
-    similaritythreshold_ = 0.75;
+    allowedvar_ = 0.20;
+    similaritythreshold_ = 0.80;
     trackbyvalue_ = true;
     trackevent_ = VSEvent::Max;
+    useabsthreshold_ = false;
 }
 
 
@@ -111,6 +115,11 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 
     Interval<double> permrange( targetz+permzrange_.start,
 	    			targetz+permzrange_.stop );
+    if ( !trackbyvalue_ )
+    {
+	permrange.start += similaritywin_.start;
+	permrange.stop += similaritywin_.stop;
+    }
 
     if ( permrange.start<zrg.start )	permrange.start = zrg.start;
     if ( permrange.stop>zrg.stop )	permrange.stop = zrg.stop;
@@ -137,7 +146,8 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 	targetz += (evpos*zrg.step);
 	return true;
     }
-    else {
+    else
+    {
 	int upmatchpos, downmatchpos;  upmatchpos = downmatchpos = -1;
 	float upmatchv, downmatchv;    bool upeq, downeq;
     
@@ -235,7 +245,7 @@ int HorizonAdjuster::adjoiningExtremePos( VSEvent::Type ev, const float* srctrc,
     if ( numsamples<0 )	numsamples = -numsamples;
     numsamples++;
     
-    const float alloweddev = fabs( refval * 0.20 );
+    const float alloweddev = fabs( refval * allowedvar_ );
     float prevdev = alloweddev;
     float prevval = srctrc[startsample];
     
@@ -249,23 +259,23 @@ int HorizonAdjuster::adjoiningExtremePos( VSEvent::Type ev, const float* srctrc,
 	bool matchfail = false;
 	if ( ev == VSEvent::Min )
 	{
-	    if ( !Values::isUdf(ampthreshold_) && sampleval>ampthreshold_ )
-		matchfail = true;;
-	    if ( Values::isUdf(ampthreshold_) && sampleval>refval
+	    if ( useAbsThreshold() && sampleval>ampthreshold_ )
+		matchfail = true;
+	    else if ( !useAbsThreshold() && sampleval>refval
 		&& sampleval - refval>alloweddev )
-		matchfail = true;;
-	    if ( sampleval>prevval )
-		matchfail = true;;
+		matchfail = true;
+	    else if ( sampleval>prevval )
+		matchfail = true;
 	}
 	else
 	{
-	    if ( !Values::isUdf(ampthreshold_) && sampleval<ampthreshold_ )
-		matchfail = true;;
-	    if ( Values::isUdf(ampthreshold_) && sampleval<refval
+	    if ( useAbsThreshold() && sampleval<ampthreshold_ )
+		matchfail = true;
+	    else if ( !useAbsThreshold() && sampleval<refval
 		&& refval - sampleval>alloweddev )
-		matchfail = true;;
-	    if ( sampleval<prevval )
-		matchfail = true;;
+		matchfail = true;
+	    else if ( sampleval<prevval )
+		matchfail = true;
 	}
 	if (matchfail) 
 	{
@@ -501,6 +511,9 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
     iopar.set( trackeventstr_, event );
     iopar.set( permzrgstr_, permzrange_.start, permzrange_.stop );
     iopar.set( ampthresholdstr_, ampthreshold_ );
+    iopar.set( allowedvarstr_, allowedvar_);
+    int useabs = useabsthreshold_;
+    iopar.set( useabsthresholdstr_, useabs);
     iopar.set( similaritywinstr_, similaritywin_.start, similaritywin_.stop );
     iopar.set( similaritythresholdstr_, similaritythreshold_ );
     int byval = trackbyvalue_;
@@ -516,6 +529,10 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
     trackevent_ = (VSEvent::Type)event;
     iopar.get( permzrgstr_, permzrange_.start, permzrange_.stop );
     iopar.get( ampthresholdstr_, ampthreshold_ );
+    iopar.get( allowedvarstr_, allowedvar_);
+    int useabs;
+    iopar.get( useabsthresholdstr_, useabs);
+    useabsthreshold_ = useabs;
     iopar.get( similaritywinstr_, similaritywin_.start, similaritywin_.stop );
     iopar.get( similaritythresholdstr_, similaritythreshold_ );
     int byval;

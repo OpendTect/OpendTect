@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.7 2005-08-31 03:08:20 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.8 2005-09-07 02:33:57 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,14 @@ public:
     			    { ampthreshold_ = th; }
     float		amplitudeTreshold() const
 			    { return ampthreshold_; }
+    void 		setAllowedVariance(float v)
+    			    { allowedvar_ = v; }
+    float 		allowedVariance()
+    			    { return allowedvar_; }
+    void		setUseAbsThreshold(bool abs)
+			    { useabsthreshold_ = abs; }
+    bool		useAbsThreshold()
+			    { return useabsthreshold_; }
                                                           
     void		setSimilarityWindow(const Interval<float>& rg)
     			    { similaritywin_ = rg; }
@@ -72,6 +80,8 @@ protected:
     VSEvent::Type	trackevent_;
     Interval<float>	permzrange_;
     float		ampthreshold_;
+    float		allowedvar_;
+    bool		useabsthreshold_;
     Interval<float>	similaritywin_;
     float		similaritythreshold_;
     bool		trackbyvalue_;
@@ -107,6 +117,8 @@ private:
 
     static const char*	permzrgstr_;
     static const char*	ampthresholdstr_;
+    static const char*	allowedvarstr_;
+    static const char*	useabsthresholdstr_;
     static const char*	similaritywinstr_;
     static const char*	similaritythresholdstr_;
     static const char*	trackbyvalstr_;
