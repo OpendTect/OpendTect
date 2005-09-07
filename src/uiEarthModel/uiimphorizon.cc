@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.54 2005-09-06 09:35:19 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.55 2005-09-07 07:07:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     ctio_.ctxt.forread = false;
     outfld = new uiIOObjSel( botgrp, ctio_, "Output Horizon" );
 
-    colbut = new uiColorInput( botgrp, Color::White, "Base color" );
+    colbut = new uiColorInput( botgrp, Color::randDrawColor(), "Base color" );
     colbut->attach( alignedBelow, outfld );
 
     displayfld = new uiCheckBox( botgrp, "Display after import" );
