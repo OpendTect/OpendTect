@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.24 2005-09-02 14:13:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.25 2005-09-08 10:28:42 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -98,14 +98,11 @@ void SliceSetOutput::collectData( const DataHolder& data, float refstep,
 	sliceset->sampling = desiredvolume;
 	sliceset->sampling.zrg.step = refstep; 
 	sliceset->direction = desiredvolume.defaultDir();
-		
-	mGetDim(0); mGetDim(1); mGetDim(2);
-	for ( int idx=0; idx<dim0; idx++ )
-	    *sliceset += new Attrib::Slice( dim1, dim2, udfval );
     }
-
+		
     mGetDim(0); mGetDim(1); mGetDim(2);
-    while ( sliceset->size() <= attridx )
+    const int totalnrslices = (desoutputs.size()+attridx) * dim0;
+    while ( sliceset->size() < totalnrslices )
 	*sliceset += new Attrib::Slice( dim1, dim2, udfval );
 
     if ( !sliceset->sampling.hrg.includes(info.binid) )
@@ -115,20 +112,18 @@ void SliceSetOutput::collectData( const DataHolder& data, float refstep,
     int firstslicesample = mNINT(sliceset->sampling.zrg.start/refstep);
     const int nrz = sliceset->sampling.nrZ();
     Interval<int> dataidxrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    for ( int idesout=0; idesout<desoutputs.size(); idesout++ )
+    for ( int desout=0; desout<desoutputs.size(); desout++ )
     {
 	for ( int idx=0; idx<nrz; idx++)
 	{
 	    const int dataidx = firstslicesample + idx;
 	    float val = udfval;
 	    if ( dataidxrg.includes(dataidx) )
-		val = data.series(desoutputs[idesout])->value(dataidx-data.z0_);
+		val = data.series(desoutputs[desout])->value(dataidx-data.z0_);
 
 	    sliceset->getIdxs( info.binid.inl, info.binid.crl, dataidx*refstep, 
 		    	       i0, i1, i2 );
-	    const int slsetidx = i0 + attridx + idesout;
-	    // This is correct because always at least two are zere in the
-	    // entire process
+	    const int slsetidx = (attridx+desout)*dim0 + i0;
 	    ((*sliceset)[slsetidx])->set( i1, i2, val );
 	}
     }
