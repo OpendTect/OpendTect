@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.5 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.6 2005-09-08 10:26:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ class EvalParam
 public:
     			EvalParam( const char* lbl, const char* par1=0,
 				   const char* par2=0 )
-			    : label_(lbl), par1_(par1), par2_(par2)	{}
+			    : label_(lbl), par1_(par1), par2_(par2)
+			    , evaloutput_(false)	{}
 
     bool		operator==(const EvalParam& ep) const
 			{
@@ -45,6 +46,7 @@ public:
     BufferString	label_;
     BufferString	par1_;
     BufferString	par2_;
+    bool		evaloutput_;
 
 };
 
@@ -71,6 +73,7 @@ public:
 
     void		setDesc(Attrib::Desc*,Attrib::DescSetMan*);
     Attrib::Desc*	desc()			{ return attrdesc; }
+    const Attrib::Desc*	desc() const		{ return attrdesc; }
     virtual const char*	commit(Attrib::Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.5 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.6 2005-09-08 10:26:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,7 +186,8 @@ bool uiSpecDecompAttrib::getOutput( Desc& desc )
 
 void uiSpecDecompAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( "Frequency" );
+    EvalParam ep( "Frequency" ); ep.evaloutput_ = true;
+    params += ep;
     if ( typefld->getBoolValue() )
 	params += EvalParam( timegatestr, SpecDecomp::gateStr() );
 }

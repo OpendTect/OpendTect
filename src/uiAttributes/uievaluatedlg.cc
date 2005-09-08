@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.1 2005-08-22 15:31:59 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.2 2005-09-08 10:26:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,36 +28,50 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-static const char* sInitKey = "Initial value";
-static const char* sIncrKey = "Increment";
+static const char* sKeyInit = "Initial value";
+static const char* sKeyIncr = "Increment";
 
-AttribParamGroup::AttribParamGroup( uiParent* p, const Attrib::Desc* desc,
+
+AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 				    const EvalParam& evalparam )
     : uiGroup(p,"")
+    , incrfld(0)
     , parstr1_(evalparam.par1_)
     , parstr2_(evalparam.par2_)
     , parlbl_(evalparam.label_)
+    , evaloutput_(evalparam.evaloutput_)
+    , desced_(ade)
 {
-    const ValParam* valpar1 = desc->getValParam( parstr1_ );
-    const ValParam* valpar2 = desc->getValParam( parstr2_ );
+    if ( evaloutput_ )
+    {
+	const float val = ade.getOutputValue( ade.desc()->selectedOutput() );
+	initfld = new uiGenInput( this, sKeyInit, FloatInpSpec(val) );
+	setHAlignObj( initfld );
+	return;
+    }
+
+    const ValParam* valpar1 = ade.desc()->getValParam( parstr1_ );
+    const ValParam* valpar2 = ade.desc()->getValParam( parstr2_ );
 
     DataInpSpec* initspec1 = 0; DataInpSpec* initspec2 = 0;
     DataInpSpec* incrspec1 = 0; DataInpSpec* incrspec2 = 0;
-    createInputSpecs( valpar1, initspec1, incrspec1 );
+    if ( valpar1 )
+	createInputSpecs( valpar1, initspec1, incrspec1 );
     if ( valpar2 )
 	createInputSpecs( valpar2, initspec2, incrspec2 );
 
     if ( initspec1 && initspec2 )
-	initfld = new uiGenInput( this, sInitKey, *initspec1, *initspec2 );
+	initfld = new uiGenInput( this, sKeyInit, *initspec1, *initspec2 );
     else
-	initfld = new uiGenInput( this, sInitKey, *initspec1 );
+	initfld = new uiGenInput( this, sKeyInit, *initspec1 );
 
     if ( incrspec1 && incrspec2 )
-	incrfld = new uiGenInput( this, sIncrKey, *incrspec1, *incrspec2 );
+	incrfld = new uiGenInput( this, sKeyIncr, *incrspec1, *incrspec2 );
     else if ( incrspec1 )
-	incrfld = new uiGenInput( this, sIncrKey, *incrspec1 );
-   
-    incrfld->attach( alignedBelow, initfld );
+	incrfld = new uiGenInput( this, sKeyIncr, *incrspec1 );
+
+    if ( incrfld )
+	incrfld->attach( alignedBelow, initfld );
     setHAlignObj( initfld );
 
     delete initspec1, incrspec1;
@@ -96,7 +110,6 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
 	initspec = new IntInpSpec( ipar->getIntValue() );
 	incrspec = new IntInpSpec( 1 );
     }
-
 }
 
 
@@ -165,44 +178,17 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 
 void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 {
-    /*
-    if ( spec.isoutput )
-    {
-	int selattrib;
-	if ( spec.scaleval )
-	{
-	    float step = ade.getOutputValue( 1 );
-	    float val = initfld->getValue() + idx*step;
-	    selattrib = ade.getOutputIdx( val );
-	    mCreateLabel1( val );
-	}
-	else
-	{
-	    selattrib = initfld->getIntValue() + idx - 1;
-	    mCreateLabel1(selattrib);
-	}
-	
-	ad->selectAttrib( selattrib );
+    if ( !evaloutput_ ) return;
 
-	if ( !spec.scaleval )
-	{
-	    float userval = ade.getOutputValue( selattrib );
-	    if ( !mIsEqual(userval,selattrib,mDefEps) )
-	    {
-		BufferString nr( userval );
-		char* ptr = strchr( nr.buf(), '.' );
-		if ( ptr && *ptr ) { ptr+=3; *ptr = '\0'; }
-		label_ += " -> "; label_ += nr; label_ += " Hz";
-	    }
-	}
-    }
-    */
+    const float step = desced_.getOutputValue( 1 );
+    const float val = initfld->getValue() + idx*step;
+    desc.selectOutput( desced_.getOutputIdx(val) );
+    mCreateLabel1( val );
 }
 
 
 
 static const StepInterval<int> cSliceIntv(2,30,1);
-const char* uiEvaluateDlg::evaluserref = "_eval_";
 
 uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     : uiDialog(p,uiDialog::Setup("Evaluate attribute","Set parameters")
@@ -238,11 +224,8 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     pargrp->setStretch( 1, 1 );
     pargrp->attach( alignedBelow, evalfld );
     for ( int idx=0; idx<params.size(); idx++ )
-    {
-	Attrib::ValParam* par1 = ade.desc()->getValParam( params[idx].par1_ );
-	Attrib::ValParam* par2 = ade.desc()->getValParam( params[idx].par2_ );
-	grps_ += new AttribParamGroup( pargrp, ade.desc(), params[idx] );
-    }
+	grps_ += new AttribParamGroup( pargrp, ade, params[idx] );
+
     pargrp->setHAlignObj( grps_[0] );
 
     nrstepsfld = new uiLabeledSpinBox( this, "Nr of slices" );

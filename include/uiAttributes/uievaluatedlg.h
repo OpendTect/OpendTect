@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.h,v 1.1 2005-08-22 15:31:53 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.h,v 1.2 2005-09-08 10:26:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,24 +41,26 @@ class IOPar;
 class AttribParamGroup : public uiGroup
 {
 public:
-                        AttribParamGroup(uiParent*,const Attrib::Desc*,
-					 const EvalParam&);
-    void                updatePars(Attrib::Desc&,int);
-    void                updateDesc(Attrib::Desc&,int);
-    const char*         getLabel()                      { return evallbl_; }
+				AttribParamGroup(uiParent*,const uiAttrDescEd&,
+						 const EvalParam&);
+    void			updatePars(Attrib::Desc&,int);
+    void			updateDesc(Attrib::Desc&,int);
+    const char*			getLabel()		{ return evallbl_; }
 
 protected:
 
-    void		createInputSpecs(const Attrib::ValParam*,
-	    				 DataInpSpec*&,DataInpSpec*&);
+    void			createInputSpecs(const Attrib::ValParam*,
+						 DataInpSpec*&,DataInpSpec*&);
 
-    uiGenInput*         initfld;
-    uiGenInput*         incrfld;
-    BufferString	parlbl_;
-    BufferString        evallbl_;
+    uiGenInput*			initfld;
+    uiGenInput*			incrfld;
+    BufferString		parlbl_;
+    BufferString		evallbl_;
 
-    BufferString	parstr1_;
-    BufferString	parstr2_;
+    BufferString		parstr1_;
+    BufferString		parstr2_;
+    bool			evaloutput_;
+    const uiAttrDescEd&		desced_;
 };
 
 
@@ -77,7 +79,6 @@ public:
 
     Notifier<uiEvaluateDlg>	calccb;
     CNotifier<uiEvaluateDlg,int> showslicecb;
-    static const char*		evaluserref;
 
 protected:
 
