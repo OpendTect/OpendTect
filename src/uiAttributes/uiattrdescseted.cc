@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.11 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.12 2005-09-08 10:43:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -420,6 +420,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 
     Desc* dummydesc = new Desc( "Dummy" ); dummydesc->ref();
     dummydesc->setDescSet( attrset );
+    const bool is2d = attrset->is2D();
     for ( int idx=0; idx<desceds.size(); idx++ )
     {
 	uiAttrDescEd* de = desceds[idx];
@@ -427,8 +428,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 
 	de->setDesc( desc ? desc : dummydesc, adsman );
 	bool dodisp = de == curde;
-	if ( dodisp )
-	    de->set2D( attrset->is2D() );
+	if ( dodisp ) de->set2D( is2d );
 	de->display( dodisp );
     }
     dummydesc->unRef();
