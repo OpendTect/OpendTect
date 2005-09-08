@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.22 2005-08-23 20:18:50 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.23 2005-09-08 10:47:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1259,7 +1259,7 @@ Interval<float> SurfaceGeometry::getZRange( const Interval<int>& rowrg,
 	    if ( rowrg.includes(rc.r()) && colrg.includes(rc.c()) )
 	    {
 		const Coord3& crd = getPos( sid, rc );
-		if ( crd.isDefined() ) zrg.include( crd.z );
+		if ( crd.isDefined() ) zrg.include( crd.z, false );
 	    }
 	}
     }
