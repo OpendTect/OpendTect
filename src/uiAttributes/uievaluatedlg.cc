@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.2 2005-09-08 10:26:06 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.3 2005-09-08 11:59:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,8 +296,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	pargrp->updatePars( *newad, idx );
 	pargrp->updateDesc( *newad, idx );
 
-	BufferString defstr; newad->getDefStr( defstr );
-	std::cout << defstr.buf() << std::endl;
+	BufferString defstr; newad->getDefStr( defstr ); //Only for debugging
 
 	const char* lbl = pargrp->getLabel();
 	BufferString usrref = newad->attribName();
