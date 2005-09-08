@@ -6,6 +6,7 @@ if ( $HDIR == lux || $HDIR == sun5 ) then
 endif
 set shallow=no
 set dodeps=yes
+set docpdeps=yes
 set dodoc=no
 set doupd=yes
 
@@ -20,6 +21,9 @@ else if ( "$1" == "--gdi" ) then
     set mods=.mods.gdi
 else if ( "$1" == "--nodep" ) then
     set dodeps=no
+else if ( "$1" == "--mkdep" ) then
+    set dodeps=yes
+    set docpdeps=no
 else if ( "$1" == "--noupd" ) then
     set doupd=no
 else if ( "$1" == "--doc" ) then
@@ -63,12 +67,10 @@ endif
 
 if ( $dodeps == yes ) then
 
-    set docpdeps=0
+    if ( `hostname` == $MAIN_DGB_HOST ) set docpdeps=no
+    if ( $HDIR == win ) set docpdeps=no
 
-    if ( `hostname` == $MAIN_DGB_HOST ) set docpdeps=1
-    if ( $HDIR == win ) set docpdeps=1
-
-    if( $docpdeps == 1 ) then
+    if( $docpdeps == no ) then
 	make dep MODS=$mods
 	cd plugins ; make dep
 	cd ../spec ; make dep
