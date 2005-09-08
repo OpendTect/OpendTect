@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.19 2005-09-05 10:21:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.20 2005-09-08 09:50:43 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -72,7 +72,7 @@ void StorageProvider::updateDesc( Desc& desc )
     
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
-    if ( !rdr.ioObj() || !rdr.prepareWork() ) return;
+    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) ) return;
 
     SeisTrcTranslator* transl = rdr.translator();
     const Seis2DLineSet* lset = rdr.lineSet();
