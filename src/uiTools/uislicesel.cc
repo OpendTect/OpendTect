@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.34 2005-09-01 12:27:05 cvsbert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.35 2005-09-08 10:45:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
     , inl0fld(0)
     , updatemutex(*new Threads::Mutex)
     , appcb(*new CallBack(acb))
+    , scrolldlg(0)
 {
     isinl = type == Inl;
     iscrl = type == Crl;
@@ -119,30 +120,13 @@ void uiSliceSel::createZFld()
 }
 
 
-uiSliceSel::~uiSliceSel()
-{
-    delete &cs;
-    delete &appcb;
-    delete &updatemutex;
-}
-
-
-void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv, 
-			       int curval )
-{
-    box->setMinValue( intv.start );
-    box->setMaxValue( intv.stop );
-    box->setStep( intv.step, true );
-    box->setValue( curval );
-}
-
-
 class uiSliceScroll : public uiDialog
 {
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2"))
+	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),"0.4.2")
+				      .modal(false))
 	, slcsel(ss)
 	, inauto(false)
 	, paused(false)
@@ -354,10 +338,30 @@ const char* getTitle( uiSliceSel* ss )
 };
 
 
+uiSliceSel::~uiSliceSel()
+{
+    delete &cs;
+    delete &appcb;
+    delete &updatemutex;
+    delete scrolldlg;
+}
+
+
+void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv, 
+			       int curval )
+{
+    box->setMinValue( intv.start );
+    box->setMaxValue( intv.stop );
+    box->setStep( intv.step, true );
+    box->setValue( curval );
+}
+
+
 void uiSliceSel::scrollPush( CallBacker* )
 {
-    uiSliceScroll dlg( this );
-    dlg.go();
+    if ( !scrolldlg )
+	scrolldlg = new uiSliceScroll( this );
+    scrolldlg->show();
 }
 
 

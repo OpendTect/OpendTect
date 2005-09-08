@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.10 2005-04-12 16:26:50 cvsbert Exp $
+ RCS:           $Id: uislicesel.h,v 1.11 2005-09-08 10:45:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "ranges.h"
 
+class uiCheckBox;
 class uiLabeledSpinBox;
+class uiPushButton;
+class uiScrollDialog;
 class uiSpinBox;
 class CubeSampling;
-class uiPushButton;
-class uiCheckBox;
 
 namespace Threads { class Mutex; };
 
@@ -54,6 +55,8 @@ protected:
     uiSpinBox*			inl1fld;
     uiSpinBox*			crl1fld;
     uiSpinBox*			z1fld;
+
+    uiSliceScroll*		scrolldlg;
 
     const CubeSampling&		curcs;
     const CubeSampling&		maxcs;
