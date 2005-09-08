@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.64 2005-06-10 06:46:45 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.65 2005-09-08 10:25:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -371,8 +371,14 @@ bool uiEMPartServer::storeAuxData( const MultiID& id, bool storeas )
 	fileidx = dlg.getDataFileIdx();
     }
 
-    PtrMan<Executor> exgrp = surface->auxdata.auxDataSaver( dataidx, fileidx );
-    uiExecutor exdlg( appserv().parent(), *exgrp );
+    PtrMan<Executor> saver = surface->auxdata.auxDataSaver( dataidx, fileidx );
+    if ( !saver )
+    {
+	uiMSG().error( "Cannot save attribute" );
+	return false;
+    }
+
+    uiExecutor exdlg( appserv().parent(), *saver );
     return exdlg.go();
 }
 
