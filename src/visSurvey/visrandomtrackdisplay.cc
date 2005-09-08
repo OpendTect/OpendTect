@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.53 2005-08-31 11:25:58 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.54 2005-09-08 10:42:44 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -402,8 +402,9 @@ void RandomTrackDisplay::addKnot( int knotnr )
 
     const BinID newpos = proposeNewPos(knotnr);
     if ( knotnr==nrKnots() )
-	addKnot(newpos);
-    else insertKnot(knotnr, newpos );
+	addKnot( newpos );
+    else
+	insertKnot( knotnr, newpos );
 }
     
 
@@ -700,6 +701,8 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    setKnotPos( idx, pos );
 	else
 	    addKnot( pos );
+
+	setManipKnotPos( idx, getKnotPos(idx) );
     }
 
     const StepInterval<float>& survinterval = SI().zRange(true);
