@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.h,v 1.3 2005-01-13 13:42:35 arend Exp $
+ RCS:           $Id: uitabstack.h,v 1.4 2005-09-09 10:45:30 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,8 @@ public:
     int			currentPageId() const;
 
     int			size() const;
+
+    uiTabBar*		tabBar()   { return tabbar_; }
 
 protected:
 
