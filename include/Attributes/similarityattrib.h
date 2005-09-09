@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.7 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.8 2005-09-09 12:48:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,17 +99,20 @@ protected:
     class SimiFunc : public FloatMathFunction
     {
     public:
-				SimiFunc(const ValueSeries<float>& func)
-					:func_( func ){}
+				SimiFunc(const ValueSeries<float>& func, int sz)
+					: func_( func )
+					, sz_(sz)
+					{}
 	
 	float           	getValue( float x ) const
 				{ 
-				    ValueSeriesInterpolator<float> interp;
+				    ValueSeriesInterpolator<float> interp(sz_);
 				    return interp.value(func_,x);
 				}
 
     protected:
 	const ValueSeries<float>& func_;
+	int sz_;
     };
 };
 

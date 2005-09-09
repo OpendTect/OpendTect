@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.11 2005-09-02 14:21:35 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.12 2005-09-09 12:48:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,8 +241,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		 if ( serie2 ) s1 += serie2->value( idx-steeringdata->z0_ );
 	     }
 
-	     SimiFunc vals0( *(inputdata[idx1]->series(dataidx_)) );
-	     SimiFunc vals1( *(inputdata[idx2]->series(dataidx_)) );
+	     SimiFunc vals0( *(inputdata[idx1]->series(dataidx_)), 
+		     		inputdata[idx1]->nrsamples_-1 );
+	     SimiFunc vals1( *(inputdata[idx2]->series(dataidx_)), 
+		     		inputdata[idx2]->nrsamples_-1 );
 	     stats += similarity(vals0, vals1, s0, s1, 1, gatesz, donormalize);
 	}
 
