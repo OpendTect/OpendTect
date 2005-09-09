@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.20 2005-09-08 09:50:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.21 2005-09-09 13:12:43 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -222,30 +222,36 @@ int StorageProvider::moveToNextTrace()
 	status = Ready;
     }
 
-    while ( true ) 
+    bool cont = true;
+    while ( cont ) 
     {
-	const int res = rg[currentreq]->next();
-	if ( res==-1 ) return -1;
-	if ( !res )
+	switch( rg[currentreq]->next() )
 	{
-	    currentreq++;
-	    if ( currentreq>=rg.size() )
-		return 0;
-
-	    if ( !setSeisRequesterSelection(currentreq) )
-		return -1;
-
-	    continue;
-	}
-	if ( res<3 )
-	{
-	    SeisTrc* trc = rg[currentreq]->get(0,0);
-	    if ( trc )
+	    case -1: return -1;
+	    case 0:
 	    {
-		currentbid = trc->info().binid;
-		curtrcinfo_ = &trc->info();
-		break;
+		currentreq++;
+		if ( currentreq>=rg.size() )
+		    return 0;
+
+		if ( !setSeisRequesterSelection(currentreq) )
+		    return -1;
+
+		continue;
 	    }
+	    case 1:
+	    {
+		SeisTrc* trc = rg[currentreq]->get(0,0);
+		if ( trc )
+		{
+		    currentbid = trc->info().binid;
+		    curtrcinfo_ = &trc->info();
+		    cont = false;
+		}
+
+		continue;
+	    }
+	    case 2: case 3: continue;
 	}
     }
 
