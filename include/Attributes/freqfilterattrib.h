@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.4 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.5 2005-09-09 13:44:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,8 @@ protected:
     void		fftFilter(const DataHolder&, int, int);
 
     void 		setSz( int sz );
-
+    
+    const Interval<float>*      desZMargin(int input, int output) const;
 
     int				filtertype;
     float 			minfreq;
@@ -79,6 +80,8 @@ protected:
     FFT                         fft;
     FFT                         fftinv;
     int                         fftsz;
+
+    Interval<float>		zmargin;
 
     Array1DImpl<float_complex>  signal;
     Array1DImpl<float_complex>  timedomain;

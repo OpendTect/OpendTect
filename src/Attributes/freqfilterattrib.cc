@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.10 2005-09-02 14:21:35 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.11 2005-09-09 13:44:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "timeser.h"
 #include "ptrman.h"
 #include "arrayndinfo.h"
+#include "survinfo.h"
 
 #include <math.h>
 
@@ -27,6 +28,8 @@ ________________________________________________________________________
 #define mFilterHighPass         1
 #define mFilterBandPass         2
 
+
+#define mMINNRSAMPLES 		100
 
 inline void smoothingArray( TypeSet<float>& shutdownarray )
 {
@@ -287,6 +290,7 @@ FreqFilter::FreqFilter( Desc& desc_ )
     , tmpfreqdomain(0)
     , timecplxoutp(0)
     , window(0)
+    , zmargin(0,0)
 {
     if ( !isOK() ) return;
 
@@ -316,6 +320,9 @@ FreqFilter::FreqFilter( Desc& desc_ )
     if ( isfftfilter )
 	window = new ArrayNDWindow( Array1DInfoImpl(100),
 		 false, (ArrayNDWindow::WindowType) windowtype );
+    else
+	zmargin = Interval<float>( -mNINT(mMINNRSAMPLES/2) * SI().zStep(),
+				    mNINT(mMINNRSAMPLES/2) * SI().zStep() );
 }
 
 
@@ -361,23 +368,19 @@ bool FreqFilter::computeData( const DataHolder& output, const BinID& relpos,
 void FreqFilter::butterWorthFilter( const DataHolder& output,
 				    int z0, int nrsamples )
 {
-    const int minnrsamples = 100;
-	
     int nrsamp = nrsamples;
-    float curt = z0;
+    int csamp = z0;
     if ( nrsamples == 1 )
     {
-	nrsamp = minnrsamples;
-	curt = z0 - refstep*nrsamp/2;
+	nrsamp = mMINNRSAMPLES;
+	csamp = z0 - mNINT(refstep*nrsamp/2);
     }
 
     ArrPtrMan<float> data = new float [nrsamp];
     ArrPtrMan<float> outp = new float [nrsamp];
 
     for ( int idx=0; idx<nrsamp; idx++ )
-    {
-	data[idx] = redata->series(realidx_)->value( idx - redata->z0_ );
-    }
+	data[idx] = redata->series(realidx_)->value( idx+ csamp - redata->z0_ );
 
     if ( filtertype == mFilterLowPass )
     {
@@ -470,6 +473,14 @@ void FreqFilter::setSz( int sz )
     freqdomain.setInfo( Array1DInfoImpl( fftsz ) );
     tmpfreqdomain.setInfo( Array1DInfoImpl( fftsz ) );
     timecplxoutp.setInfo( Array1DInfoImpl( fftsz ) );
+}
+
+const Interval<float>* FreqFilter::desZMargin(int input, int output) const
+{
+    if( !isfftfilter )
+	return &zmargin;
+
+    return 0;
 }
 
 };//namespace
