@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2005
- RCS:           $Id: subtract_hors.cc,v 1.1 2005-09-09 15:27:12 cvsnanne Exp $
+ RCS:           $Id: subtract_hors.cc,v 1.2 2005-09-09 15:44:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,13 +22,15 @@ ________________________________________________________________________
 #include "position.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "ctxtioobj.h"
 #include "survinfo.h"
 #include "executor.h"
 
 
 static int prUsage( const char* msg = 0 )
 {
-    std::cerr << "Usage: Top_Horizon_ID Bot_Horizon_ID add_diff_to[T/B]";
+    std::cerr << "Usage: Top_Horizon_ID Bot_Horizon_ID add_res_to[T/B] "
+		 "name[Thickness]";
     if ( msg ) std::cerr << '\n' << msg;
     std::cerr << std::endl;
     return 1;
@@ -44,6 +46,7 @@ static int prError( const char* msg )
 
 static EM::Horizon* loadHorizon( const char* id, BufferString& err )
 {
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) { err = "Horizon "; err += id; err += " not OK"; return 0; }
 
@@ -70,7 +73,8 @@ static int doWork( int argc, char** argv )
 
     EM::Horizon& addtohor = !strcasecmp(argv[3],"T") ? *horizon1 : *horizon2;
 
-    const int dataidx = addtohor.auxdata.addAuxData( "Depth Difference" );
+    BufferString attribname = argv[4] ? argv[4] : "Thickness";
+    const int dataidx = addtohor.auxdata.addAuxData( attribname );
     if ( dataidx < 0 ) return prError( "Cannot add datavalues" );
 
     StepInterval<int> inlrg = addtohor.geometry.rowRange();
