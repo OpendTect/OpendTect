@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.22 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.23 2005-09-12 13:46:04 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,6 @@ ________________________________________________________________________
 #include <unistd.h>
 #endif
 
-#define sLogFil		"Log file"
-#define sSurvey		"Survey"
 
 #define mDebugOn	(DBG::isOn(DBG_MM))
 
@@ -442,7 +440,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
     FilePath remotelogfnm( machine.convPath( HostData::Data, logfnm ));
 
-    newiop->set( sLogFil, remotelogfnm.fullPath(machine.pathStyle()) );
+    newiop->set( sKey::LogFile, remotelogfnm.fullPath(machine.pathStyle()) );
 
     if ( newiop->find( sKey::TmpStor ) )
     {
@@ -453,7 +451,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 				remotetmpdir.fullPath( machine.pathStyle() ) );
     }
 
-    newiop->set( sSurvey, IOM().surveyName() );
+    newiop->set( sKey::Survey, IOM().surveyName() );
 
 
     if ( File_exists(iopfp.fullPath()) )
