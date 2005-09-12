@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.9 2005-09-02 14:21:35 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.10 2005-09-12 07:14:48 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -77,6 +77,8 @@ Shift::Shift( Desc& desc_ )
     mGetBool( steering, steeringStr() );
 
     stepout = BinID( abs(pos.inl), abs(pos.crl) );
+
+    if ( steering ) time = 100;
     interval = Interval<float>(-time/zFactor(), time/zFactor());
 }
 
@@ -118,8 +120,8 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int cursample = z0 - inputdata->z0_ + idx;
-	const float steer = steering ? 
-	    		steeringdata->series(steeringpos)->value(idx) : 0;
+	const float steer = steering ? steeringdata->series(steeringpos)
+				    ->value(idx + z0 - steeringdata->z0_) : 0;
 	const float val = steering 
 	     ? interp.value( *(inputdata->series(dataidx_)), cursample + steer )
 	     : interp.value( *(inputdata->series(dataidx_)), 
