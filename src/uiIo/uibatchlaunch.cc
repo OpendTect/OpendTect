@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.44 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.45 2005-09-12 13:43:26 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "oddirs.h"
 #include "ptrman.h"
+#include "keystrs.h"
+#include "ioman.h"
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
@@ -156,11 +158,14 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     if ( fname == "" ) fname = "/dev/null";
     IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
     if ( iop )
-	iop->set( "Log file", fname );
+    {
+	iop->set( sKey::LogFile, fname );
+	iop->set( sKey::Survey, IOM().surveyName() );
+    }
 
     if ( selected() == 3 )
     {
-	if ( iop ) iop->set( "Log file", "stdout" );
+	if ( iop ) iop->set( sKey::LogFile, "stdout" );
         StreamData sd = StreamProvider( fname ).makeOStream();
 	if ( !sd.usable() )
         {
