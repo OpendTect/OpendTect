@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.10 2005-09-02 14:21:35 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.11 2005-09-13 14:32:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,14 +270,14 @@ void Scaling::checkTimeGates( const TypeSet< Interval<float> >& oldtgs,
     {
 	Interval<int> sg( mNINT(oldtgs[idx].start/refstep),
 			  mNINT(oldtgs[idx].stop/refstep) );
-	if ( sg.start>nrsamples || sg.stop<z0 )
+	if ( sg.start>nrsamples+z0 || sg.stop<z0 )
 	{
 	    newsampgates += Interval<int>(0,0);
 	    continue;
 	}
 
 	if ( sg.start < z0 ) sg.start = z0;
-	if ( sg.stop > z0 + nrsamples ) sg.stop = nrsamples;
+	if ( sg.stop > z0 + nrsamples ) sg.stop = z0 + nrsamples;
 	newsampgates += sg;
     }
 }
