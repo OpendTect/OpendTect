@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.25 2005-09-08 10:28:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.26 2005-09-13 15:46:04 cvsdgb Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -86,7 +86,7 @@ TypeSet< Interval<int> > SliceSetOutput::getLocalZRange( const BinID& ) const
 
 
 #define mGetDim(nr) \
-    const int dim##nr = desiredvolume.size( direction(sliceset->direction,nr) )
+    const int dim##nr = sliceset->sampling.size( direction(sliceset->direction,nr) )
 
 void SliceSetOutput::collectData( const DataHolder& data, float refstep, 
 				  const SeisTrcInfo& info, int attridx )
