@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.49 2005-09-02 10:21:16 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.50 2005-09-13 10:58:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -892,7 +892,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	triggermovement = true;
-    else if ( cbdata.event==EM::EMObjectCallbackData::PosIDChange )
+    else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
 	if ( posattribs.indexOf(cbdata.attrib)!=-1 )
 	    updatePosAttrib(cbdata.attrib);
