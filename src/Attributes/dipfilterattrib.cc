@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.6 2005-09-02 14:21:35 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.7 2005-09-13 13:25:40 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -403,7 +403,7 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 			    || mIsEqual(dhinterval.start,s*refstep,mDefEps) )
 		    {
 			sum += dh->series(dataidx_)->
-			    		value(s)*kernel.get(idi, idc, idt);
+				    value(s-dh->z0_)*kernel.get(idi, idc, idt);
 			nrvalues++;
 		    }
 		    
