@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.35 2005-09-14 08:54:18 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.36 2005-09-14 08:57:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 
 #include "attribsel.h"
+#include "attribslice.h"
 #include "draw.h"
 #include "emmanager.h"
 #include "emhorizon.h"
