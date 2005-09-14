@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.19 2005-08-23 22:00:41 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.20 2005-09-14 08:19:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,8 +87,8 @@ public:
 				     this attrib, given that the activearea
 				     should be tracked. */
     const Attrib::SliceSet*	getAttribCache(const Attrib::SelSpec&) const;
-    bool			setAttribData(const Attrib::SelSpec&,
-						Attrib::SliceSet*);
+    bool			setAttribData( const Attrib::SelSpec&,
+					       const Attrib::SliceSet*);
 
     				/*Editors */
     ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
@@ -113,8 +113,8 @@ protected:
     ObjectSet<EMTracker>	trackers;
     ObjectSet<ObjectEditor>	editors;
 
-    ObjectSet<Attrib::SliceSet>	attribcache;
-    ObjectSet<Attrib::SelSpec>	attribcachespecs;
+    ObjectSet<const Attrib::SliceSet>	attribcache;
+    ObjectSet<Attrib::SelSpec>		attribcachespecs;
 
     ObjectSet<TrackerFactory>	trackerfactories;
     ObjectSet<EditorFactory>	editorfactories;
