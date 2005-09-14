@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.2 2005-08-05 10:51:52 cvshelene Exp $
+ RCS:           $Id: referenceattrib.h,v 1.3 2005-09-14 14:52:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 Provides the reference indication at every position :
 
-Outputs:
+Outputs 3D:
 0		X position
 1		Y position
 2		Z (time/depth) position
@@ -29,6 +29,16 @@ Outputs:
 6		inline index 		( taken from the first inline / 
 7		crossline index		crossline / 
 8		z index			z sample of the desired volume chosen )
+
+
+Outputs 2D:
+0		X position
+1		Y position
+2		Z (time/depth) position
+3		Trace position
+4		absolute sample number
+5		Trace index 		( taken from the first trace / 
+6		z index			z sample of the desired volume chosen )
 */
     
 
@@ -42,13 +52,18 @@ public:
 			Reference(Desc&);
 
     static const char*  attribName()		{ return "Reference"; }
+    static const char*  is2DStr()       	{ return "is2D"; }
 
 protected:
     static Provider*    createInstance(Desc&);
+    static void         updateDesc( Desc& );
+    
     static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
 
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples) const;
+
+    bool		is2d_;
 };
 
 }; // namespace Attrib
