@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.50 2005-09-13 10:58:06 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.51 2005-09-14 08:23:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1141,15 +1141,13 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
 
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     const TypeSet<EM::PosID>* pids = emobject->getPosAttribList(attrib);
-    if ( !pids )
-    {
-	showPosAttrib( attrib, false, Color(0,0,0) );
-	return;
-    }
 
     //Remove everything but material
     while ( posattribmarkers[attribindex]->size()>1 )
 	posattribmarkers[attribindex]->removeObject(1);
+
+    if ( !pids )
+	return;
 
     for ( int idx=0; idx<pids->size(); idx++ )
     {
