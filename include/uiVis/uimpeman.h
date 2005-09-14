@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.11 2005-08-15 16:05:00 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.12 2005-09-14 08:26:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 namespace EM { class EMManager; };
-namespace visSurvey { class MPEDisplay; class SeedEditor;}
+namespace visSurvey { class MPEDisplay; class MPEClickCatcher;}
 namespace Geometry  { class Element; };
 namespace visSurvey { class PickSetDisplay; }
 
@@ -49,14 +49,11 @@ public:
 protected:
     visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
 
-    void			seedPropertyChangeCB(CallBacker*);
-    void			createSeedMenuCB(CallBacker*);
-    void			handleSeedMenuCB(CallBacker*);
     MenuItem			seedmnuitem;
     MenuItem			createmnuitem;
     uiVisPartServer*		visserv;
 
-    visSurvey::SeedEditor*	seededitor;
+    visSurvey::MPEClickCatcher*	clickcatcher;
 
     uiComboBox*			attribfld;
     uiSlider*			transfld;
@@ -84,6 +81,9 @@ protected:
     void			mouseEraseModeCB(CallBacker*);
     void			setTrackButton();
     void			showTracker(bool);
+
+    void			seedClick(CallBacker*);
+    int				seedclickobject;
 
     int				seedidx;
     int				extendidx, retrackidx, eraseidx;

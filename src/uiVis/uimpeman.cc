@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.33 2005-08-26 18:19:29 cvsbert Exp $
+ RCS:           $Id: uimpeman.cc,v 1.34 2005-09-14 08:26:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,13 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "draw.h"
 #include "emmanager.h"
+#include "emhorizon.h"
 #include "emhistory.h"
 #include "mpeengine.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uicursor.h"
+#include "vistransform.h"
 #include "uiexecutor.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -30,11 +32,17 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 #include "visseedstickeditor.h"
 #include "vismpe.h"
+#include "vismpeseedcatcher.h"
+#include "visplanedatadisplay.h"
+#include "visevent.h"
+#include "visdataman.h"
+#include "emtracker.h"
 #include "uivispartserv.h"
 #include "uimenuhandler.h"
 #include "pixmap.h"
 #include "oddirs.h"
 #include "uicursor.h"
+#include "survinfo.h"
 
 #include "vismarker.h"
 #include "emsurfacegeometry.h"
@@ -50,7 +58,7 @@ using namespace MPE;
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : uiToolBar(p,"Tracking controls")
-    , seededitor(0)
+    , clickcatcher(0)
     , visserv(ps)
     , init(false)
     , createmnuitem("Create")
@@ -113,8 +121,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
     EM::EMM().history().changenotifier.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
-    engine().seedpropertychange.notify(
-	    		mCB(this,uiMPEMan,seedPropertyChangeCB) );
+    //engine().seedpropertychange.notify(
+	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
 }
 
 
@@ -123,8 +131,8 @@ uiMPEMan::~uiMPEMan()
     EM::EMM().history().changenotifier.remove(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
-    engine().seedpropertychange.remove(
-	    		mCB(this,uiMPEMan,seedPropertyChangeCB) );
+    //engine().seedpropertychange.remove(
+	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
 }
 
 
@@ -143,21 +151,87 @@ void uiMPEMan::deleteVisObjects()
 	}
     }
 
-    if ( seededitor )
+    if ( clickcatcher )
     {
-	uiMenuHandler* menu = visserv->getMenu( seededitor->id(), false );
-	if ( menu )
-	{
-	    menu->createnotifier.remove( mCB(this,uiMPEMan,createSeedMenuCB) );
-	    menu->handlenotifier.remove( mCB(this,uiMPEMan,handleSeedMenuCB) );
-	}
-
 	if ( scenes.size() )
-	    visserv->removeObject( seededitor->id(), scenes[0] );
+	    visserv->removeObject( clickcatcher->id(), scenes[0] );
 
-	seededitor->unRef();
-	seededitor = 0;
+	clickcatcher->click.remove(mCB(this,uiMPEMan,seedClick));
+	clickcatcher->unRef();
+	clickcatcher = 0;
     }
+}
+
+
+void uiMPEMan::seedClick(CallBacker*)
+{
+    const visBase::EventInfo* eventinfo = clickcatcher->getEvent();
+    if ( !eventinfo ) return;
+
+    int clickedobject = -1;
+    for ( int idx=0; idx<eventinfo->pickedobjids.size(); idx++ )
+    {
+	mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane,
+			 visBase::DM().getObject(eventinfo->pickedobjids[idx]));
+	if ( plane )
+	{
+	    clickedobject = eventinfo->pickedobjids[idx];
+	    break;
+	}
+    }
+
+    if ( clickedobject==-1 )
+	return;
+
+    MPE::Engine& engine = MPE::engine();
+    MPE::EMTracker* tracker = engine.getTracker(engine.highestTrackerID());
+    if ( !tracker )
+	return;
+
+    EM::EMObject* emobject = EM::EMM().getObject(tracker->objectID());
+    mDynamicCastGet( EM::Horizon*, horizon, emobject );
+    if ( !horizon )
+	return;
+
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane,
+		     visBase::DM().getObject(clickedobject) );
+
+    if ( seedclickobject==-1 )
+    {
+	seedclickobject = clickedobject;
+	engine.setActiveVolume(plane->getCubeSampling());
+	const Attrib::SliceSet* cached = plane->getCacheVolume(false);
+	if ( cached )
+	    engine.setAttribData( *plane->getSelSpec(), cached );
+    }
+    else if ( clickedobject!=seedclickobject )
+	return;
+
+    const Coord3 displayspacepos =
+	visSurvey::SPM().getZScaleTransform()->
+		transformBack(eventinfo->pickedpos);
+    const Coord3 pos = visSurvey::SPM().getUTM2DisplayTransform()->
+		transformBack(displayspacepos);
+
+    const BinID bid = SI().transform(pos);
+    const bool didchecksupport = horizon->geometry.checkSupport(false);
+    const EM::PosID pid( horizon->id(),
+	    		 horizon->sectionID(0),
+			 bid.getSerialized() );
+    horizon->setPos(pid, pos, true );
+    horizon->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+
+    const TrackPlane::TrackMode tm = engine.trackPlane().getTrackMode();
+    engine.setTrackMode( TrackPlane::Extend );
+    
+    uiCursor::setOverride( uiCursor::Wait );
+    PtrMan<Executor> exec = engine.trackInVolume();
+    if ( exec )
+	exec->execute();
+
+    horizon->geometry.checkSupport(didchecksupport);
+    uiCursor::restoreOverride();
+    engine.setTrackMode(tm);
 }
 
 
@@ -202,67 +276,6 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 	displays += getDisplay( scenes[idx], create );
 
 
-void uiMPEMan::seedPropertyChangeCB( CallBacker* )
-{
-    if ( !seededitor )
-	return;
-
-    seededitor->getMaterial()->setColor( engine().seedcolor );
-    seededitor->setSeedSize( engine().seedsize );
-    LineStyle ls( LineStyle::Solid, engine().seedlinewidth );
-    seededitor->setLineStyle( ls );
-}
-
-
-void uiMPEMan::createSeedMenuCB( CallBacker* cb )
-{
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-
-    const int seedidx = seededitor->getSeedIdx( *menu->getPath() );
-    bool isconnected = seededitor->isClosed( seedidx );
-
-    seedmnuitem.text = isconnected ? "Split" : "Connect";
-    mAddMenuItem( menu, &seedmnuitem, seedidx!=-1, false );
-
-    BufferStringSet trackernames;
-    engine().getAvaliableTrackerTypes( trackernames );
-    createmnuitem.createItems( trackernames );
-    mAddMenuItem( menu, &createmnuitem, trackernames.size(), false );
-}
-
-
-void uiMPEMan::handleSeedMenuCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiMenuHandler*,menu,caller);
-    if ( mnuid==-1 || menu->isHandled() )
-	return;
-
-    if ( mnuid==seedmnuitem.id )
-    {
-	const int seedidx = seededitor->getSeedIdx( *menu->getPath() );
-	bool isconnected = seededitor->isClosed( seedidx );
-
-	seededitor->closeSeed( seedidx, !isconnected );
-	menu->setIsHandled( true );
-	return;
-    }
-
-    BufferStringSet trackernames;
-    engine().getAvaliableTrackerTypes( trackernames );
-    const int idx = mnuid-createmnuitem.id-1;
-    if ( idx<0 || idx>=trackernames.size() )
-	return;
-
-    destrackertype = *trackernames[idx];
-    seededitor->getSeeds( engine().interactionseeds );
-    if ( visserv->sendTrackNewObjectEvent() )
-	turnSeedPickingOn( false );
-
-    menu->setIsHandled( true );
-}
-
-
 void uiMPEMan::updateAttribNames()
 {
     BufferString oldsel = attribfld->text();
@@ -297,6 +310,7 @@ void uiMPEMan::updateAttribNames()
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
+    seedclickobject = -1;
     turnOn( seedidx, yn );
     picknewseeds = false;
     seedModeCB(0);
@@ -420,10 +434,9 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 void uiMPEMan::seedModeCB( CallBacker* )
 {
     const bool ison = isOn( seedidx );
-    if ( !ison && seededitor )
+    if ( !ison && clickcatcher )
     {
-	seededitor->turnOn( false );
-	seededitor->getSeeds( engine().interactionseeds );
+	clickcatcher->turnOn( false );
 	//if ( picknewseeds )
 	 //   engine().setNewSeeds();
 	return;
@@ -431,24 +444,19 @@ void uiMPEMan::seedModeCB( CallBacker* )
 
     if ( ison )
     {
-	if ( seededitor )
-	    seededitor->reset();
-	else
+	if ( !clickcatcher )
 	{
-	    seededitor = visSurvey::SeedEditor::create();
-	    seededitor->ref();
+	    clickcatcher = visSurvey::MPEClickCatcher::create();
+	    clickcatcher->ref();
 
 	    TypeSet<int> scenes;
 	    visserv->getChildIds( -1, scenes );
-	    visserv->addObject( seededitor, scenes[0], false );
-	    
-	    uiMenuHandler* menu = visserv->getMenu( seededitor->id(), true );
-	    menu->createnotifier.notify( mCB(this,uiMPEMan,createSeedMenuCB) );
-	    menu->handlenotifier.notify( mCB(this,uiMPEMan,handleSeedMenuCB) );
+	    visserv->addObject( clickcatcher, scenes[0], false );
+	    clickcatcher->click.notify(mCB(this,uiMPEMan,seedClick));
 	}
 
-	seededitor->turnOn(true);
-	seededitor->select();
+	clickcatcher->turnOn(true);
+	clickcatcher->select();
     }
 }
 
@@ -501,12 +509,6 @@ void uiMPEMan::trackBackward( CallBacker* )
 void uiMPEMan::trackInVolume( CallBacker* )
 {
     const bool ison = isOn( seedidx );
-    if ( ison && seededitor )
-    {
-	seededitor->turnOn( false );
-	seededitor->getSeeds( engine().interactionseeds );
-	//engine().setNewSeeds();
-    }
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode(TrackPlane::Extend);
     setTrackButton();
