@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.34 2005-09-14 08:26:47 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.35 2005-09-14 08:54:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,7 +202,10 @@ void uiMPEMan::seedClick(CallBacker*)
 	engine.setActiveVolume(plane->getCubeSampling());
 	const Attrib::SliceSet* cached = plane->getCacheVolume(false);
 	if ( cached )
+	{
+	    cached->ref();
 	    engine.setAttribData( *plane->getSelSpec(), cached );
+	}
     }
     else if ( clickedobject!=seedclickobject )
 	return;
