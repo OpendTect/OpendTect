@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.16 2005-08-25 14:02:13 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.17 2005-09-14 08:21:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ void uiMPEPartServer::setCurrentAttribDescSet( const Attrib::DescSet* ads )
 
 int uiMPEPartServer::getTrackerID( const MultiID& mid ) const
 {
-    for ( int idx=0; idx<MPE::engine().highestTrackerID(); idx++ )
+    for ( int idx=0; idx<=MPE::engine().highestTrackerID(); idx++ )
     {
 	if ( MPE::engine().getTracker(idx) )
 	{
@@ -100,7 +100,7 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
 
     wizard->setObject( mid, emobj->sectionID(0) );
     wizard->displayPage(MPE::Wizard::sNamePage, false );
-    wizard->displayPage(MPE::Wizard::sSeedPage, false );
+    wizard->displayPage(MPE::Wizard::sSeedSetupPage, false );
     wizard->displayPage(MPE::Wizard::sFinalizePage, false );
     wizard->go();
 

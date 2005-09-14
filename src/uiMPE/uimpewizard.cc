@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.15 2005-09-06 08:41:44 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.16 2005-09-14 08:21:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,12 @@ ________________________________________________________________________
 #include "geomelement.h"
 #include "mpesetup.h"
 #include "mpeengine.h"
+#include "trackplane.h"
 #include "survinfo.h"
 #include "uimpesetup.h"
 #include "uimpepartserv.h"
+#include "uicursor.h"
+#include "uiseparator.h"
 
 #include "ctxtioobj.h"
 #include "ioman.h"
@@ -39,12 +42,11 @@ ________________________________________________________________________
 
 namespace MPE {
 
-int Wizard::defcolnr		= 0;
+int Wizard::defcolnr = 0;
 
 const int Wizard::sNamePage		= 0;
-const int Wizard::sSeedPage		= 1;
-const int Wizard::sSetupPage		= 2;
-const int Wizard::sFinalizePage		= 3;
+const int Wizard::sSeedSetupPage	= 1;
+const int Wizard::sFinalizePage	= 2;
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
@@ -58,8 +60,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , reloadattribdata(false)
 {
     addPage( createNamePage() );
-    addPage( createSeedPage() );
-    addPage( createSetupPage() );
+    addPage( createSeedSetupPage() );
     addPage( createFinalizePage() );
 
     seedbox.setEmpty();
@@ -80,19 +81,28 @@ uiGroup* Wizard::createNamePage()
 }
 
 
-uiGroup* Wizard::createSeedPage()
+uiGroup* Wizard::createSeedSetupPage()
 {
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
     BufferString str( "In this step you'll have to create your seedpoints.\n"
-		      "Create a seedpoint by clicking on a slice.\n"
+		      "First select tracking setup, then\n"
+		      "create a seedpoint by clicking on a slice.\n"
 		      "You can remove a seedpoint by ctrl-click." );
     uiLabel* lbl = new uiLabel( grp, str );
+    
+    uiSeparator* sep = new uiSeparator( this, "Separator1" );
+    sep->attach( stretchedBelow, lbl );
+
+    setupgrp = new uiSetupSel( grp, mpeserv->attrset );
+    setupgrp->attach( alignedBelow, lbl );
+    setupgrp->attach( ensureBelow, sep );
+//  setupgrp->setupchg.notify( mCB(this,Wizard,setupChange) );
 
     colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++),
 	    			 "Line color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,stickSetChange) );
-    colorfld->attach( alignedBelow, lbl );
+    colorfld->attach( alignedBelow, setupgrp );
     
     markerszbox = new uiLabeledSpinBox( grp, "Size" );
     markerszbox->attach( rightTo, colorfld );
@@ -103,16 +113,9 @@ uiGroup* Wizard::createSeedPage()
     linewidthbox->attach( rightTo, markerszbox );
     linewidthbox->box()->setInterval(1,10,1);
     linewidthbox->box()->setValue( MPE::engine().seedlinewidth );
-    linewidthbox->box()->valueChanged.notify( mCB(this,Wizard,stickSetChange) );
-
+    linewidthbox->box()->valueChanged.notify( 
+	    				mCB(this,Wizard,stickSetChange) );
     return grp;
-}
-
-
-uiGroup* Wizard::createSetupPage()
-{
-    setupgrp = new uiSetupSel( this, mpeserv->attrset );
-    return setupgrp;
 }
 
 
@@ -141,7 +144,7 @@ bool Wizard::prepareNamePage()
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
-bool Wizard::leaveNamePage(bool process)
+bool Wizard::leaveNamePage( bool process )
 {
     if ( !process ) return true;
 
@@ -151,7 +154,6 @@ bool Wizard::leaveNamePage(bool process)
 
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
-
     if ( ioobj )
     {
 	EM::ObjectID objid = EM::EMM().multiID2ObjectID( ioobj->key() );
@@ -181,19 +183,23 @@ bool Wizard::leaveNamePage(bool process)
     else
 	currentobject = -1;
 
-/*     if ( engine().interactionseeds.size() )
-    {
-	displayPage(1,false); // skip seedpicking step
-	return addTracker( newobjnm );
-    }
- */
     colorfld->setColor( Color::drawDef(defcolnr) );
     return true;
 }
 
 
-bool Wizard::prepareSeedPage()
+bool Wizard::prepareSeedSetupPage()
 {
+    /*
+    if ( MPE::engine().interactionseeds.size() )
+    {
+	const int trackerid = mpeserv->getTrackerID(currentobject);
+	EMTracker* tracker = MPE::engine().getTracker(trackerid);
+	tracker->setSeeds( MPE::engine().interactionseeds,
+			   tracker->objectName(), sid );
+    }
+    */
+
     if ( !(currentobject==-1) )
     {
 	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
@@ -201,6 +207,20 @@ bool Wizard::prepareSeedPage()
 	colorfld->setColor( emobj->preferredColor() );
     }
 
+    if ( !createTracker() )
+	return false;
+
+    reloadattribdata = true;
+    const int trackerid = mpeserv->getTrackerID( currentobject );
+
+    const EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    const EM::ObjectID objid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject(objid);
+    if ( sid==-1 )
+        sid = emobj->sectionID( emobj->nrSections()-1 );
+
+    displayPage( sNamePage, false );
+    setupgrp->setType( objid, sid );
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
     stickSetChange(0);
@@ -209,102 +229,31 @@ bool Wizard::prepareSeedPage()
 }
 
 
-bool Wizard::leaveSeedPage(bool process)
+bool Wizard::leaveSeedSetupPage( bool process )
 {
     mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
 
     if ( !process ) return true;
 
-    if ( !engine().interactionseeds.size() )
+    const int trackerid = mpeserv->getTrackerID( currentobject );
+    const EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    const EM::ObjectID objid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject(objid);
+    const TypeSet<EM::PosID>* pids =
+	emobj->getPosAttribList( EM::EMObject::sSeedNode );
+
+    if ( !pids || !pids->size() )
     {
 	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
 	mErrRet( "You did not create any seedpoints" );
     }
 
-    return true;
-}
-
-
-bool Wizard::prepareSetupPage()
-{
-    if ( currentobject==-1 )
-    {
-	const int id = engine().addTracker( namefld->text(), trackertype );
-	if ( id==-1 )
-	{
-	    pErrMsg( "Could not create tracker" );
-	    return false;
-	}
-
-	EMTracker* tracker = engine().getTracker(id);
-	const EM::ObjectID objid = tracker->objectID();
-	EM::EMObject* emobj = EM::EMM().getObject(objid);
-
-	if ( !engine().getEditor(objid,false) )
-	    engine().getEditor(objid,true);
-
-	mpeserv->activetrackerid = id;
-	if ( !mpeserv->sendEvent( ::uiMPEPartServer::evAddTreeObject ) )
-	{
-	    pErrMsg("Could not add treeitem");
-	    engine().removeTracker( id );
-	    emobj->ref(); emobj->unRef();
-	    return false;
-	}
-
-	currentobject = emobj->multiID();
-	objectcreated = true;
-	trackercreated = true;
-
-	PtrMan<Executor> saver = emobj->saver();
-	if ( saver ) saver->execute();
-    }
-    else if ( mpeserv->getTrackerID(currentobject)<0 )
-    {
-	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
-
-	if ( MPE::engine().addTracker(emobj)<0 )
-	{
-	    pErrMsg( "Could not create tracker" );
-	    return false;
-	}
-
-	trackercreated = true;
-    }
-    else if ( MPE::engine().interactionseeds.size() )
-    {
-	const int trackerid = mpeserv->getTrackerID(currentobject);
-	EMTracker* tracker = MPE::engine().getTracker(trackerid);
-	tracker->setSeeds( MPE::engine().interactionseeds,
-			   tracker->objectName(), sid );
-    }
-
-    reloadattribdata = true;
-    const int trackerid = mpeserv->getTrackerID(currentobject);
-
-    EMTracker* tracker = MPE::engine().getTracker(trackerid);
-    const EM::ObjectID objid = tracker->objectID();
-    EM::EMObject* emobj = EM::EMM().getObject(objid);
-    if ( sid==-1 )
-        sid = emobj->sectionID(emobj->nrSections()-1);
-
-    displayPage(sNamePage, false );
-    setupgrp->setType( objid, sid );
-
-
-    return true;
-}
-
-
-bool Wizard::leaveSetupPage(bool process)
-{
-    if ( !process ) return true;
     if ( !setupgrp->processInput() )
 	mErrRet( "Please select Tracking Setup" );
 
-    displayPage(sSeedPage, false );
+    displayPage( sSeedSetupPage, false );
     adjustSeedBox();
+
     return true;
 }
 
@@ -386,8 +335,7 @@ bool Wizard::preparePage( int page )
     switch ( page )
     {
 	case 0: return prepareNamePage();
-	case 1: return prepareSeedPage();
-	case 2: return prepareSetupPage();
+	case 1: return prepareSeedSetupPage();
 	case 3: return prepareFinalizePage();
     }
 
@@ -400,8 +348,7 @@ bool Wizard::leavePage( int page, bool process )
     switch ( page )
     {
 	case 0: return leaveNamePage(process);
-	case 1: return leaveSeedPage(process);
-	case 2: return leaveSetupPage(process);
+	case 1: return leaveSeedSetupPage(process);
 	case 3: return leaveFinalizePage(process);
     }
 
@@ -411,25 +358,35 @@ bool Wizard::leavePage( int page, bool process )
 
 void Wizard::adjustSeedBox()
 {
-    const ObjectSet<Geometry::Element>& seeds = MPE::engine().interactionseeds;
+    const int trackerid = mpeserv->getTrackerID( currentobject );
 
-    for ( int idx=0; idx<seeds.size(); idx++ )
+    const EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    const EM::ObjectID objid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject(objid);
+
+    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator(sid);
+
+    while ( true )
     {
-	const Geometry::Element* element =
-			    MPE::engine().interactionseeds[idx];
-	IntervalND<float> intv = element->boundingBox(true);
-	Coord start( intv.getRange(0).start, intv.getRange(1).start );
-	Coord stop( intv.getRange(0).stop, intv.getRange(1).stop );
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
 
-	CubeSampling elementbox;
-	elementbox.hrg.start = SI().transform( start );
-	elementbox.hrg.stop = SI().transform( stop );
-	assign( elementbox.zrg, intv.getRange(2) );
+	const Coord3 pos = emobj->getPos(pid);
+	if ( !pos.isDefined() )
+	    continue;
 
+	const BinID bid = SI().transform(pos);
 	if ( seedbox.isEmpty() )
-	    seedbox = elementbox;
+	{
+	    seedbox.hrg.start = seedbox.hrg.stop = bid;
+	    seedbox.zrg.start = seedbox.zrg.stop = pos.z;
+	}
 	else
-	    seedbox.include(elementbox);
+	{
+	    seedbox.hrg.include(bid);
+	    seedbox.zrg.include(pos.z);
+	}
     }
 }
 
@@ -471,6 +428,74 @@ void Wizard::updateDialogTitle()
 {
     BufferString str( trackertype ); str += " Tracking";
     setTitleText( str );
+}
+
+
+bool Wizard::createTracker()
+{
+    if ( currentobject==-1 )
+    {
+	EM::ObjectID objid = EM::EMM().createObject(trackertype,namefld->text());
+	EM::EMObject* emobj = EM::EMM().getObject(objid);
+	const int id = engine().addTracker( emobj );
+	if ( id==-1 )
+	{
+	    pErrMsg( "Could not create tracker" );
+	    return false;
+	}
+
+	EMTracker* tracker = engine().getTracker(id);
+
+	if ( !engine().getEditor(objid,false) )
+	    engine().getEditor(objid,true);
+
+	mpeserv->activetrackerid = id;
+	if ( !mpeserv->sendEvent( ::uiMPEPartServer::evAddTreeObject ) )
+	{
+	    pErrMsg("Could not add treeitem");
+	    engine().removeTracker( id );
+	    emobj->ref(); emobj->unRef();
+	    return false;
+	}
+
+	currentobject = emobj->multiID();
+	objectcreated = true;
+	trackercreated = true;
+
+	//PtrMan<Executor> saver = emobj->saver();
+	//if ( saver ) saver->execute();
+    }
+    else if ( mpeserv->getTrackerID(currentobject)<0 )
+    {
+	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+
+	if ( MPE::engine().addTracker(emobj)<0 )
+	{
+	    pErrMsg( "Could not create tracker" );
+	    return false;
+	}
+
+	trackercreated = true;
+    }
+
+    return trackercreated;
+}
+
+
+void Wizard::setupChange( CallBacker* )
+{
+    MPE::Engine& engine = MPE::engine();
+    const TrackPlane::TrackMode tm = engine.trackPlane().getTrackMode();
+    engine.setTrackMode(TrackPlane::ReTrack);
+
+    uiCursor::setOverride( uiCursor::Wait );
+    PtrMan<Executor> exec = engine.trackInVolume();
+    if ( exec )
+	exec->execute();
+
+    uiCursor::restoreOverride();
+    engine.setTrackMode(tm);
 }
 
 }; // namespace MPE
