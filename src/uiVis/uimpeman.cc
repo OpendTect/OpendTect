@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.36 2005-09-14 08:57:04 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.37 2005-09-14 09:03:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -521,7 +521,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     PtrMan<Executor> exec = engine().trackInVolume();
     if ( exec )
     {
-#ifdef __debug__
+	/*
 	const char* msg = "Press \"Save\" for next step.\n"
 			  "Press \"Don't Save\" to continue automaticly\n"
 			  "Press \"Cancel\" to cancel ";
@@ -542,13 +542,12 @@ void uiMPEMan::trackInVolume( CallBacker* )
 		break;
 
 	}
-#else
+	*/
 	uiExecutor uiexec( this, *exec );
 	if ( !uiexec.go() )
 	{
 	    uiMSG().error(engine().errMsg());
 	}
-#endif
     }
 
     uiCursor::restoreOverride();
