@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.9 2005-09-02 14:21:35 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.10 2005-09-14 14:38:31 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -153,8 +153,8 @@ VolStats::VolStats( Desc& desc_ )
     {
 	for ( pos.crl=-stepout.crl; pos.crl<=stepout.crl; pos.crl++ )
 	{
-	    float relinldist = ((float)pos.inl)/stepout.inl;
-	    float relcrldist = ((float)pos.crl)/stepout.crl;
+	    float relinldist = stepout.inl ? ((float)pos.inl)/stepout.inl : 0;
+	    float relcrldist = stepout.crl ? ((float)pos.crl)/stepout.crl : 0;
 
 	    float dist2 = relinldist*relinldist+relcrldist*relcrldist;
 
@@ -303,14 +303,19 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    if ( outputinterest[outidx] )
 	    {
+		bool validsum = false;
 		float sum = 0;
 		for ( int vol=0; vol<nrvolumes; vol++ )
 		{
-		    sum += (*stats)[vol]->getValue((RunStats::StatType)
-			    	outputtypes[outidx]);
+		    RunningStatistics<double>* curstat = (*stats)[vol];
+		    if ( !curstat || !curstat->size() ) continue;
+		    sum += (*stats)[vol]->getValue(
+			    (RunStats::StatType)outputtypes[outidx]);
+		    validsum = true;
 		}
 		
-		output.series(outidx)->setValue( idx, sum / nrvolumes );
+		output.series(outidx)->
+		    setValue( idx, validsum ? sum / nrvolumes : mUdf(float) );
 	    }
 	}
     }
