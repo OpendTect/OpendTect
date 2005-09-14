@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.76 2005-08-24 21:10:11 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.77 2005-09-14 08:15:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,11 @@ public:
 
     PosID	next()
 		{
-		    if ( !inited && !initSection() )
-			return PosID(-1,-1,-1);
+		    if ( !inited )
+		    {
+			if ( !initSection() )
+			    return PosID(-1,-1,-1);
+		    }
 		    else
 		    {
 			rc.col += colrg.step;
@@ -99,9 +102,14 @@ protected:
 			rowrg = surface.geometry.rowRange(sid);
 			colrg = surface.geometry.colRange(sid);
 
+
+/*
+ * 			TODO: Don't know if this is neccessary. The check was
+ * 			commented out since single node surfaces does not work.
 			if ( rowrg.start==rowrg.stop &&
 			     colrg.start==colrg.stop )
 			    return nextSection();
+			    */
 
 			rc.row = rowrg.start;
 			rc.col = colrg.start;
