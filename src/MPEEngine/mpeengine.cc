@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.42 2005-08-23 21:59:27 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.43 2005-09-14 08:18:33 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -253,7 +253,7 @@ void Engine::removeTracker( int idx )
 
 
 int Engine::highestTrackerID() const
-{ return trackers.size(); }
+{ return trackers.size()-1; }
 
 
 const EMTracker* Engine::getTracker( int idx ) const
@@ -360,7 +360,7 @@ const Attrib::SliceSet* Engine::getAttribCache(const Attrib::SelSpec& as) const
 
 
 bool Engine::setAttribData( const Attrib::SelSpec& as, 
-			    Attrib::SliceSet* newdata )
+			    const Attrib::SliceSet* newdata )
 {
     bool found = false;
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
