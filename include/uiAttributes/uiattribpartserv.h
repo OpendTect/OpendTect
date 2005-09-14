@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.5 2005-09-02 14:14:09 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.6 2005-09-14 08:28:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,12 +96,10 @@ public:
     Attrib::SliceSet*	createOutput(const CubeSampling&,
 				     const Attrib::SliceSet* prevslcs=0,
 				     const Attrib::DescSet* ads=0);
-    			//!< Hands over mem to caller
+    			//!<\note Output is referenced
     bool		createOutput(ObjectSet<BinIDValueSet>&);
-    			//!< Hands over mem to caller
     bool		createOutput( const BinIDValueSet& bidvalset,
 	    			      SeisTrcBuf&);
-    			//!< Hands over mem to caller
     
     bool		create2DOutput(const CubeSampling&, const char* linekey,
 				       ObjectSet<Attrib::DataHolder>&, 
