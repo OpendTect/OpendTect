@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.33 2005-09-09 12:49:55 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.34 2005-09-14 11:37:31 cvsarend Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -376,7 +376,8 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 //		    continue;
 //		}
 
-#		define mAdjustIf(v1,op,v2) if ( v1 op v2 ) v1 = v2;
+#		define mAdjustIf(v1,op,v2) \
+				    if ( mIsUdf(v1) || v1 op v2 ) v1 = v2;
 		mAdjustIf(res.hrg.start.inl,<,inputcs.hrg.start.inl);
 		mAdjustIf(res.hrg.start.crl,<,inputcs.hrg.start.crl);
 		mAdjustIf(res.zrg.start,<,inputcs.zrg.start);
