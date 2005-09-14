@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.17 2005-09-14 10:05:45 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.18 2005-09-14 11:33:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,6 +219,8 @@ bool Wizard::prepareSeedSetupPage()
     EM::EMObject* emobj = EM::EMM().getObject(objid);
     if ( sid==-1 )
         sid = emobj->sectionID( emobj->nrSections()-1 );
+
+    emobj->setPreferredColor( colorfld->color() );
 
     displayPage( sNamePage, false );
     setupgrp->setType( objid, sid );
