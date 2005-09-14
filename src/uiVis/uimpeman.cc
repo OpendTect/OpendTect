@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.37 2005-09-14 09:03:39 cvsbert Exp $
+ RCS:           $Id: uimpeman.cc,v 1.38 2005-09-14 10:06:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,6 +224,22 @@ void uiMPEMan::seedClick(CallBacker*)
 			 bid.getSerialized() );
     horizon->setPos(pid, pos, true );
     horizon->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+
+    PtrMan<EM::EMObjectIterator> iterator = horizon->createIterator(-1);
+    const TypeSet<EM::PosID>* pids =
+			horizon->getPosAttribList(EM::EMObject::sSeedNode);
+
+    while ( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	if ( pids->indexOf(pid)!=-1 )
+	    continue;
+
+	horizon->unSetPos(pid, true);
+    }
 
     const TrackPlane::TrackMode tm = engine.trackPlane().getTrackMode();
     engine.setTrackMode( TrackPlane::Extend );
