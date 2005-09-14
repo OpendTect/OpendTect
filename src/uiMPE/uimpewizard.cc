@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.16 2005-09-14 08:21:54 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.17 2005-09-14 10:05:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,8 @@ ________________________________________________________________________
 #include "uimpewizard.h"
 
 #include "emmanager.h"
-#include "emobject.h"
+#include "emsurface.h"
+#include "emsurfacegeometry.h"
 #include "emtracker.h"
 #include "executor.h"
 #include "geomelement.h"
@@ -485,9 +486,39 @@ bool Wizard::createTracker()
 
 void Wizard::setupChange( CallBacker* )
 {
+    const int trackerid = mpeserv->getTrackerID( currentobject );
+    const EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    const EM::ObjectID objid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject(objid);
+
+    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator(sid);
+    const TypeSet<EM::PosID>* pids =
+			emobj->getPosAttribList(EM::EMObject::sSeedNode);
+
+    mDynamicCastGet( EM::Surface*, surface, emobj );
+
+    if ( !surface || !pids || !pids->size() )
+	return;
+
+    const bool didchecksupport = surface->geometry.checkSupport(false);
+
+    while ( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	if ( pids->indexOf(pid)!=-1 )
+	    continue;
+
+	emobj->unSetPos(pid, true);
+    }
+
+    surface->geometry.checkSupport(didchecksupport);
+
     MPE::Engine& engine = MPE::engine();
     const TrackPlane::TrackMode tm = engine.trackPlane().getTrackMode();
-    engine.setTrackMode(TrackPlane::ReTrack);
+    engine.setTrackMode(TrackPlane::Extend);
 
     uiCursor::setOverride( uiCursor::Wait );
     PtrMan<Executor> exec = engine.trackInVolume();
