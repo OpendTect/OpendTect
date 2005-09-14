@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.8 2005-09-02 14:21:35 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.9 2005-09-14 14:39:09 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -24,11 +24,14 @@ namespace Attrib
 
 void Reference::initClass()
 {
-    Desc* desc = new Desc( attribName() );
+    Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    desc->setNrOutputs( Seis::UnknowData, 9 );
-    
+    BoolParam* is2d_ = new BoolParam( is2DStr() );
+    is2d_->setDefaultValue(false);
+    is2d_->setRequired(false);
+    desc->addParam( is2d_ );
+
     desc->init();
 
     PF().addDesc( desc, createInstance );
@@ -52,9 +55,20 @@ Provider* Reference::createInstance( Desc& ds )
 }
 
 
+void Reference::updateDesc( Desc& desc )
+{
+    bool is2Dsurvey = ( (ValParam*)desc.getParam(is2DStr()) )->getBoolValue();
+    if ( !is2Dsurvey )
+	desc.setNrOutputs( Seis::UnknowData, 9 );
+    else
+	desc.setNrOutputs( Seis::UnknowData, 7 );
+}
+
+
 Reference::Reference( Desc& desc_ )
         : Provider( desc_ )
 {
+    mGetBool( is2d_, is2DStr() );
 }
 
 
@@ -85,26 +99,47 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    
 	    output.series(2)->setValue(idx, val);
 	}
-	if ( outputinterest[3] )
-	    output.series(3)->setValue(idx, currentbid.inl);
-	if ( outputinterest[4] )
-	    output.series(4)->setValue(idx, currentbid.crl);
-	if ( outputinterest[5] )
-	    output.series(5)->setValue(idx, z0 + idx + 1);
-	if ( outputinterest[6] )
+
+	if ( !is2d_ )
 	{
-	    int val = currentbid.inl - SI().inlRange(0).start + 1;
-	    output.series(6)->setValue(idx, val);
-	}
-	if ( outputinterest[7] )
-	{
+	    if ( outputinterest[3] )
+		output.series(3)->setValue(idx, currentbid.inl);
+	    if ( outputinterest[4] )
+		output.series(4)->setValue(idx, currentbid.crl);
+	    if ( outputinterest[5] )
+		output.series(5)->setValue(idx, z0 + idx + 1);
+	    if ( outputinterest[6] )
+	    {
+		int val = currentbid.inl - SI().inlRange(0).start + 1;
+		output.series(6)->setValue(idx, val);
+	    }
+	    if ( outputinterest[7] )
+	    {
 	    int val = currentbid.crl - SI().crlRange(0).start + 1;
 	    output.series(7)->setValue(idx, val);
+	    }
+	    if ( outputinterest[8] )
+	    {
+		int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
+		output.series(8)->setValue(idx, val);
+	    }
 	}
-	if ( outputinterest[8] )
+	else
 	{
-	    int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
-	    output.series(8)->setValue(idx, val);
+	    if ( outputinterest[3] )
+		output.series(3)->setValue(idx, currentbid.crl);
+	    if ( outputinterest[4] )
+		output.series(4)->setValue(idx, z0 + idx + 1);
+	    if ( outputinterest[5] )
+	    {
+		int val = currentbid.crl - desiredvolume->hrg.start.crl + 1;
+		output.series(5)->setValue(idx, val);
+	    }
+	    if ( outputinterest[6] )
+	    {
+		int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
+		output.series(6)->setValue(idx, val);
+	    }
 	}
     }
 
