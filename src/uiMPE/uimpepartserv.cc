@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.17 2005-09-14 08:21:54 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.18 2005-09-14 11:36:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,9 +282,11 @@ CubeSampling uiMPEPartServer::getActiveVolume() const
 void uiMPEPartServer::expandActiveArea(const CubeSampling& seedcs)
 {
     const CubeSampling activecs = MPE::engine().activeVolume();
-    const bool isdefault = activecs==MPE::engine().getDefaultActiveVolume();
+    bool isdefault = activecs==MPE::engine().getDefaultActiveVolume();
 
+    isdefault = true; //HACK!! TODO
     CubeSampling newcube = isdefault ? seedcs : activecs;
+    newcube.zrg.step = SI().zStep();
     if ( !isdefault )
     {
 	newcube.hrg.include( seedcs.hrg.start );

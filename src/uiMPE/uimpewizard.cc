@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.18 2005-09-14 11:33:35 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.19 2005-09-14 11:36:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,18 +92,22 @@ uiGroup* Wizard::createSeedSetupPage()
 		      "You can remove a seedpoint by ctrl-click." );
     uiLabel* lbl = new uiLabel( grp, str );
     
-    uiSeparator* sep = new uiSeparator( this, "Separator1" );
-    sep->attach( stretchedBelow, lbl );
+    uiSeparator* sep1 = new uiSeparator( grp, "Separator 1" );
+    sep1->attach( stretchedBelow, lbl );
 
     setupgrp = new uiSetupSel( grp, mpeserv->attrset );
     setupgrp->attach( alignedBelow, lbl );
-    setupgrp->attach( ensureBelow, sep );
-//  setupgrp->setupchg.notify( mCB(this,Wizard,setupChange) );
+    setupgrp->attach( ensureBelow, sep1 );
+    setupgrp->setupchg.notify( mCB(this,Wizard,setupChange) );
+
+    uiSeparator* sep2 = new uiSeparator( grp, "Separator 2" );
+    sep2->attach( stretchedBelow, setupgrp );
 
     colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++),
 	    			 "Line color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,stickSetChange) );
     colorfld->attach( alignedBelow, setupgrp );
+    colorfld->attach( ensureBelow, sep2 );
     
     markerszbox = new uiLabeledSpinBox( grp, "Size" );
     markerszbox->attach( rightTo, colorfld );
@@ -516,7 +520,6 @@ void Wizard::setupChange( CallBacker* )
 	emobj->unSetPos(pid, true);
     }
 
-    surface->geometry.checkSupport(didchecksupport);
 
     MPE::Engine& engine = MPE::engine();
     const TrackPlane::TrackMode tm = engine.trackPlane().getTrackMode();
@@ -527,6 +530,7 @@ void Wizard::setupChange( CallBacker* )
     if ( exec )
 	exec->execute();
 
+    surface->geometry.checkSupport(didchecksupport);
     uiCursor::restoreOverride();
     engine.setTrackMode(tm);
 }
