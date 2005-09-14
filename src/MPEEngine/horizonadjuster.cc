@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.12 2005-09-07 02:33:57 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.13 2005-09-14 08:22:29 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -56,7 +56,7 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
 int HorizonAdjuster::nextStep()
 {
     initTrackParam();
-    horizon_.geometry.checkSupport(false);
+    const bool didchecksupport = horizon_.geometry.checkSupport(false);
     int count = 0;
     for ( int idx=0; idx<pids_.size(); idx++ )
     {
@@ -75,7 +75,7 @@ int HorizonAdjuster::nextStep()
 	else if ( !extrapolateonfail_ )
 	    setHorizonPick(bid, mUndefValue);
     }
-    horizon_.geometry.checkSupport(true);
+    horizon_.geometry.checkSupport(didchecksupport);
 
 #ifdef __debug__
     BufferString msg( "Tracked horizon picks: " ); msg += count;
