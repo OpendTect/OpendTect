@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.10 2005-08-24 21:59:11 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.11 2005-09-14 08:19:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,7 @@ public:
     void		setTrackingType(const char* typestr);
 
     static const int	sNamePage;
-    static const int	sSeedPage;
-    static const int	sSetupPage;
+    static const int	sSeedSetupPage;
     static const int	sFinalizePage;
 
 protected:
@@ -64,18 +63,15 @@ protected:
     uiGenInput*		typefld;
 
     uiGroup*		createNamePage();
-    uiGroup*		createSeedPage();
-    uiGroup*		createSetupPage();
+    uiGroup*		createSeedSetupPage();
     uiGroup*		createFinalizePage();
 
     bool		leaveNamePage(bool);
-    bool		leaveSeedPage(bool);
-    bool		leaveSetupPage(bool);
+    bool		leaveSeedSetupPage(bool);
     bool		leaveFinalizePage(bool);
 
     bool		prepareNamePage();
-    bool		prepareSeedPage();
-    bool		prepareSetupPage();
+    bool		prepareSeedSetupPage();
     bool		prepareFinalizePage();
 
     void		isStarting();
@@ -84,11 +80,13 @@ protected:
     bool		preparePage(int);
     bool		leavePage(int,bool);
 
+    bool		createTracker();
     void		updateDialogTitle();
     void		adjustSeedBox();
 
     void		stickSetChange(CallBacker*);
     void		anotherSel(CallBacker*);
+    void		setupChange(CallBacker*);
 
     CubeSampling	seedbox;
 
