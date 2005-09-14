@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.9 2004-07-28 06:55:51 kristofer Exp $
+ RCS:		$Id: vismaterial.h,v 1.10 2005-09-14 11:45:20 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,7 @@ public:
     float		getTransparency(int matnr=0) const;
 
     SoNode*		getInventorNode();
+    void		setDisplayTransformation( Transformation* ) {}
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
