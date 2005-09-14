@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.4 2005-08-22 22:19:50 cvskris Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.5 2005-09-14 15:33:12 cvskris Exp $";
 
 #include "autotracker.h"
 
@@ -39,6 +39,8 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sectionid )
     PtrMan<EM::EMObjectIterator> iterator = emobject.createIterator(sid);
     totalnr = iterator->maximumSize();
 
+    const CubeSampling activevolume = engine().activeVolume();
+
     while ( true )
     {
 	const EM::PosID pid = iterator->next();
@@ -47,8 +49,19 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sectionid )
 
 	if ( totalnr>0 ) totalnr--;
 
-	if ( emobject.isAtEdge(pid) )
-	    currentseeds += pid.subID();
+	if ( !emobject.isAtEdge(pid) )
+	    continue;
+
+	const Coord3& pos = emobject.getPos(pid);
+
+	if ( !activevolume.zrg.includes(pos.z) )
+	    continue;
+	
+	const BinID bid = SI().transform(pos);
+	if ( !activevolume.hrg.includes(bid) )
+	    continue;
+
+	currentseeds += pid.subID();
     }
 
     totalnr = currentseeds.size();
