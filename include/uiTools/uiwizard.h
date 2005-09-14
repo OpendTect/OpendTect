@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.h,v 1.5 2005-08-24 20:23:38 cvskris Exp $
+ RCS:           $Id: uiwizard.h,v 1.6 2005-09-14 08:28:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ private:
     int			pageidx;
     bool		rotatemode;
     
-    void		displayCurrentPage();
+    bool		displayCurrentPage();
     void		handleButtonText();
     void		doFinalise(CallBacker*);
 };

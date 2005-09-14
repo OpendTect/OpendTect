@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.6 2005-08-24 20:24:08 cvskris Exp $
+ RCS:           $Id: uiwizard.cc,v 1.7 2005-09-14 08:28:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ void uiWizard::displayPage( int idx, bool yn )
 
 bool uiWizard::acceptOK( CallBacker* )
 {
+    const int prevpage = pageidx;
     uiCursorChanger cursorchanger( uiCursor::Wait );
     bool firstpage = pageidx == firstPage();
 
@@ -65,8 +66,11 @@ bool uiWizard::acceptOK( CallBacker* )
     while ( !dodisplay[pageidx] && !pageidx )
 	pageidx--;
 
-    handleButtonText();
-    displayCurrentPage();
+    if ( displayCurrentPage() )
+	handleButtonText();
+    else
+	pageidx = prevpage;
+
     return false;
 }
 
@@ -97,11 +101,15 @@ bool uiWizard::rejectOK( CallBacker* )
 }
 
 
-void uiWizard::displayCurrentPage()
+bool uiWizard::displayCurrentPage()
 {
-    preparePage(pageidx);
+    if ( !preparePage(pageidx) )
+	return false;
+
     for ( int idx=0; idx<pages.size(); idx++ )
 	pages[idx]->display( idx==pageidx );
+
+    return true;
 }
 
 
