@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.33 2005-08-26 18:47:19 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.34 2005-09-15 07:48:19 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -587,7 +587,16 @@ float SegyTraceheader::postScale( int numbfmt ) const
 {
     if ( numbfmt != 2 && numbfmt != 3 && numbfmt != 5 ) return 1.;
 
-    short trwf = IbmFormat::asShort( buf+168 );
+    // There seems to be software (Paradigm?) putting this on byte 189
+    static bool postscale_byte_established = false;
+    static int postscale_byte;
+    if ( !postscale_byte_established )
+    {
+	postscale_byte_established = true;
+	postscale_byte = GetEnvVarIVal( "OD_SEGY_TRCSCALE_BYTE", 169 );
+    }
+
+    short trwf = IbmFormat::asShort( buf + postscale_byte - 1 );
     return trwf > 0 && trwf < 100 ? (float)(1. / IntPowerOf(2,trwf)) : 1.;
 }
 
