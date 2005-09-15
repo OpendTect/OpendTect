@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.4 2005-04-11 15:40:06 cvsnanne Exp $
+ RCS:		$Id: trackplane.h,v 1.5 2005-09-15 08:18:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ public:
 
     void		computePlane(Plane3&) const;
 
-    enum TrackMode	{ None, Extend, ReTrack, Erase };
+    enum TrackMode	{ None, Extend, ReTrack, Erase, Move };
     void		setTrackMode(TrackMode tm)	{ trackmode = tm; }
     TrackMode		getTrackMode() const		{ return trackmode; }
 
