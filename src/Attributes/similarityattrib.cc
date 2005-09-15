@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.12 2005-09-09 12:48:19 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.13 2005-09-15 07:44:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,10 +135,11 @@ Similarity::Similarity( Desc& desc_ )
 	stepout = BinID(mMAX(abs(pos0.inl),abs(pos1.inl)),
 			mMAX(abs(pos0.crl),abs(pos1.crl)) );
     }
+    getTrcPos();
 }
 
 
-bool Similarity::init()
+bool Similarity::getTrcPos()
 {
     trcpos.erase();
     if ( extension==mExtensionCube )

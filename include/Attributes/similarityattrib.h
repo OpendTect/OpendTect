@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.8 2005-09-09 12:48:01 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.9 2005-09-15 07:45:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ protected:
     static void		updateDesc(Desc&);
     static Provider*	internalCreate(Desc&,ObjectSet<Provider>& existing);
 
-    bool		init();
+    bool		getTrcPos();
 
     bool		getInputOutput( int input, TypeSet<int>& res ) const;
     bool		getInputData( const BinID&, int idx );
