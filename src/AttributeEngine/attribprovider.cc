@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.35 2005-09-15 07:34:37 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.36 2005-09-15 09:06:17 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -66,6 +66,7 @@ Provider* Provider::create( Desc& desc )
     Provider* prov = internalCreate( desc, existing, issame );
     if ( !prov ) return 0;
 
+    prov->allexistingprov = existing;
     prov->computeRefZStep( existing );
     prov->propagateZRefStep( existing );
     return prov;
@@ -175,6 +176,8 @@ Provider::~Provider()
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] ) inputs[idx]->unRef();
     inputs.erase();
+
+    allexistingprov.erase();
 
     desc.unRef();
 

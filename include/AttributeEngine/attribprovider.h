@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.20 2005-08-30 15:19:24 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.21 2005-09-15 09:06:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,9 +92,12 @@ public:
     virtual void                updateStorageReqs(bool all=false);
     void			setSelData(const SeisSelData&);
     float                       getRefStep() const; 
+    void			computeRefZStep(const ObjectSet<Provider>&);
+    void			propagateZRefStep( const ObjectSet<Provider>& );
     virtual BinID		getStepoutStep() const;
     BufferString         	errMsg() const;
 
+    ObjectSet<Provider>		allexistingprov;
     ObjectSet<Provider>		getInputs() 		{ return inputs; }
 
 protected:
@@ -137,9 +140,6 @@ protected:
     virtual const Interval<float>* reqZMargin(int input, int output) const;
     virtual bool		getZStepStoredData(float& step) const
 				{return false;}
-
-    void			computeRefZStep(const ObjectSet<Provider>&);
-    void			propagateZRefStep( const ObjectSet<Provider>& );
 
     bool                        zIsTime() const;
     float			zFactor() const   {return zIsTime() ? 1000 : 1;}

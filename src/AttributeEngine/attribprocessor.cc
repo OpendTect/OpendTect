@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.18 2005-09-07 07:33:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.19 2005-09-15 09:06:17 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -40,6 +40,9 @@ Processor::Processor( Desc& desc , const char* lk )
     {
 	provider->setCurLineKey( lk_ );
 	provider->adjust2DLineStoredVolume();
+	provider->computeRefZStep( provider->allexistingprov );
+	provider->propagateZRefStep( provider->allexistingprov );
+	
     }
 }
 
@@ -77,17 +80,40 @@ int Processor::nextStep()
     }
 
     const SeisTrcInfo* curtrcinfo = provider->getCurrentTrcInfo();
-    if ( !curtrcinfo ) return ErrorOccurred;
+    const bool needsinput = !provider->getDesc().isStored() && 
+			    provider->getDesc().nrInputs();
+    if ( !curtrcinfo && needsinput && !res )
+    {
+	if ( !res )
+	{
+	    errmsg = "no position to process\n";
+	    errmsg += "you may not be in the possible volume\n";
+	    errmsg += "mind the stepout...";
+	}
+	else
+	    errmsg = "no Trace info available";
+
+	return ErrorOccurred;
+    }
 
     if ( res )
     {
 	BinID curbid = provider->getCurrentPosition();
-	if ( is2d_ )
+	if ( is2d_ && curtrcinfo )
 	{
 	    curbid.inl = 0;
 	    curbid.crl = curtrcinfo->nr;
 	}
 	
+	if ( !curtrcinfo )
+	{
+	    SeisTrcInfo trcinfo;
+	    trcinfo.binid = curbid;
+	    if ( is2d_ ) trcinfo.nr = curbid.crl;
+
+	    curtrcinfo = &trcinfo;
+	}
+
 	TypeSet< Interval<int> > localintervals;
 	bool isset = setZIntervals( localintervals, curbid );
 

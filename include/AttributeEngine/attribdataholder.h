@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.10 2005-09-05 10:20:16 cvshelene Exp $
+ RCS:           $Id: attribdataholder.h,v 1.11 2005-09-15 09:06:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,19 +37,9 @@ public:
 			    : z0_(z0), nrsamples_(nrsamples)
 			    { data_.allowNull(true); }
 
-			    DataHolder::DataHolder( const DataHolder& dh )
-				: z0_(dh.z0_), nrsamples_(dh.nrsamples_)
-			    { for ( int idx=0; idx<dh.nrSeries(); idx++ )
-				{
-				  add();
-				  memcpy( data_[idx]->arr(),
-					  dh.data_[idx]->arr(),
-					  nrsamples_*sizeof(float) );
-				}
-			    }
-			    
 			    ~DataHolder()		{ deepErase(data_); }
 
+    inline DataHolder*	        clone() const;
     inline ValueSeries<float>*	add(bool addnull=false);
     				//!< Adds an ArrayValueSeries if !addnull
 
@@ -61,6 +51,7 @@ public:
 				  if ( ptr ) delete ptr;
 				}
     inline bool                 dataPresent(int samplenr) const;
+    inline TypeSet<int>		validSeriesIdx() const;
 
     int				z0_;	//!< See class comments
     int				nrsamples_;
@@ -90,6 +81,37 @@ inline bool DataHolder::dataPresent( int samplenr ) const
 }
 
 
+inline DataHolder* DataHolder::clone() const
+{
+    DataHolder* dh = new DataHolder( z0_, nrsamples_ );
+    dh->data_.allowNull(true);
+
+    for ( int idx=0; idx<nrSeries(); idx++ )
+    {
+      if ( !data_[idx] ) dh->add( true );
+      else
+      {
+	  dh->add();
+	  memcpy( dh->data_[idx]->arr(), data_[idx]->arr(),
+		  nrsamples_*sizeof(float) );
+      }
+    }
+
+    return dh;
+}
+
+
+inline TypeSet<int> DataHolder::validSeriesIdx() const
+{
+    TypeSet<int> seriesidset;
+    for( int idx=0; idx<nrSeries(); idx++ )
+    {
+	if ( data_[idx] )
+	    seriesidset += idx;
+    }
+
+    return seriesidset;
+}
 }; //Namespace
 
 

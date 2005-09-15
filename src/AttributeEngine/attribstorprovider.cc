@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.21 2005-09-09 13:12:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.22 2005-09-15 09:06:17 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -189,6 +189,7 @@ bool StorageProvider::init()
 		    storedvolume.hrg.stop.crl = trcrg.stop;
 		    storedvolume.zrg.start = zrg.start;
 		    storedvolume.zrg.stop = zrg.stop;
+		    storedvolume.zrg.step = zrg.step;
 		}
 	    }
 	}
@@ -262,9 +263,12 @@ int StorageProvider::moveToNextTrace()
 
 bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
 {
-    res = storedvolume;
-    if ( !possiblevolume ) possiblevolume = new CubeSampling;
+    if ( !possiblevolume ) 
+	possiblevolume = new CubeSampling;
+    
     *possiblevolume = storedvolume;
+    
+    res = *possiblevolume;
     return true;
 }
 
@@ -502,6 +506,7 @@ void StorageProvider::adjust2DLineStoredVolume()
 	    storedvolume.hrg.stop.crl = trcrg.stop;
 	    storedvolume.zrg.start = zrg.start;
 	    storedvolume.zrg.stop = zrg.stop;
+	    storedvolume.zrg.step = zrg.step;
 	}
     }
 }
