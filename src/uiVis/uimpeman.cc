@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.38 2005-09-14 10:06:57 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.39 2005-09-15 08:28:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,9 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
+    
+    moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
+			       "Move track plane", true );
     extendidx = mAddButton( "trackplane.png", extendModeCB,
 	    		    "Extend mode", true );
     retrackidx = mAddButton( "retrackplane.png", retrackModeCB, 
@@ -575,18 +578,22 @@ void uiMPEMan::trackInVolume( CallBacker* )
 void uiMPEMan::setTrackButton()
 {
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    const bool extend = tm == TrackPlane::Extend;
-    const bool retrack = tm == TrackPlane::ReTrack;
-    const bool erase = tm == TrackPlane::Erase;
+    const bool extend = tm==TrackPlane::Extend;
+    const bool retrack = tm==TrackPlane::ReTrack;
+    const bool erase = tm==TrackPlane::Erase;
+    const bool move = tm==TrackPlane::Move;
     turnOn( extendidx, extend );
     turnOn( retrackidx, retrack );
     turnOn( eraseidx, erase );
+    turnOn( moveplaneidx, move );
 }
 
 
 void uiMPEMan::showTracker( bool yn )
 {
-    setSensitive( trackinvolidx );
+    setSensitive( trackinvolidx,
+	    engine().trackPlane().getTrackMode()==TrackPlane::Extend );
+
     setSensitive( trackforwardidx, yn );
     setSensitive( trackbackwardidx, yn );
     attribfld->setSensitive( yn );
@@ -600,6 +607,14 @@ void uiMPEMan::showTracker( bool yn )
 	displays[idx]->showDragger( yn );
 	if ( yn ) displays[idx]->updatePlaneColor();
     }
+}
+
+
+void uiMPEMan::movePlaneCB( CallBacker* )
+{
+    const bool ison = isOn( moveplaneidx );
+    engine().setTrackMode( ison ? TrackPlane::Move : TrackPlane::None );
+    showTracker( ison );
 }
 
 
