@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.2 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.3 2005-09-15 07:33:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ protected:
     bool		getInputData( const BinID&, int idx );
     bool		computeData( const DataHolder&, const BinID& relpos,
 	    			     int t0, int nrsamples ) const;
-    bool		init();
+    bool		initKernel();
     float		taper(float) const;
 
     const BinID*		reqStepout( int input, int output ) const;

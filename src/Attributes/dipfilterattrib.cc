@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.7 2005-09-13 13:25:40 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.8 2005-09-15 07:33:42 cvsnanne Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -181,8 +181,8 @@ DipFilter::DipFilter( Desc& desc_ )
     kernel.setSize( size*2+3, size*2+3, size*2+3 );
     valrange = Interval<float>(minvel,maxvel);
     stepout = BinID( size+1, size+1 );
-    
     size = size*2+3;
+    initKernel()'
 }
 
 
@@ -192,7 +192,7 @@ bool DipFilter::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool DipFilter::init()
+bool DipFilter::initKernel()
 {
     const int hsz = size/2;
 
