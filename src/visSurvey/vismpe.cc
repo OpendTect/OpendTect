@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.19 2005-08-23 21:21:53 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.20 2005-09-15 08:19:49 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -34,6 +34,11 @@ namespace visSurvey {
 
 const char* MPEDisplay::draggerstr_ = "Dragger ID";
 const char* MPEDisplay::transstr_   = "Transparency";
+
+const Color MPEDisplay::movingColor = Color(130,130,255);
+const Color MPEDisplay::extendColor = Color::White;
+const Color MPEDisplay::reTrackColor = Color(130,255,130);
+const Color MPEDisplay::eraseColor = Color(255,130,130);
 
 MPEDisplay::MPEDisplay()
     : VisualObjectImpl(true )
@@ -148,13 +153,15 @@ void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )
 
 void MPEDisplay::updatePlaneColor()
 {
-    MPE::TrackPlane::TrackMode tm = engine_.trackPlane().getTrackMode();
-    if ( tm == MPE::TrackPlane::ReTrack )
-	rectangle_->getMaterial()->setColor( Color(0,255,0) );
-    else if ( tm == MPE::TrackPlane::Erase )
-	rectangle_->getMaterial()->setColor( Color(255,0,0) );
+    const MPE::TrackPlane::TrackMode tm = engine_.trackPlane().getTrackMode();
+    if ( tm==MPE::TrackPlane::ReTrack )
+	rectangle_->getMaterial()->setColor( reTrackColor );
+    else if ( tm==MPE::TrackPlane::Erase )
+	rectangle_->getMaterial()->setColor( eraseColor );
+    else if ( tm==MPE::TrackPlane::Move )
+	rectangle_->getMaterial()->setColor( movingColor );
     else
-	rectangle_->getMaterial()->setColor( Color::White );
+	rectangle_->getMaterial()->setColor( extendColor );
 }
 
 
@@ -399,7 +406,9 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
     if ( isSelected() ) return;
 
     MPE::TrackPlane newplane;
-    newplane.setTrackMode( engine_.trackPlane().getTrackMode() );
+    const MPE::TrackPlane::TrackMode trkmode = 
+			engine_.trackPlane().getTrackMode();
+    newplane.setTrackMode( trkmode );
 
     CubeSampling& planebox = newplane.boundingBox();
     getPlanePosition( planebox );
@@ -446,7 +455,9 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 	newplane.setMotion( 0, 0, inc ? step : -step );
     }
 
-    engine_.setTrackPlane( newplane, true );
+    engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
+	    			  || trkmode==MPE::TrackPlane::ReTrack
+				  || trkmode==MPE::TrackPlane::Erase );
 }
 
 
