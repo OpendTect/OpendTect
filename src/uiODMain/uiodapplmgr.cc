@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.91 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.92 2005-09-15 07:49:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -758,7 +758,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 
 	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return false; }
 	ObjectSet<BinIDValueSet> bivss;
-	if ( nlaserv->willDoExtraction() )
+	const bool dataextraction = nlaserv->willDoExtraction();
+	if ( dataextraction )
 	{
 	    nlaserv->getBinIDValueSets( bivss );
 	    if ( !bivss.size() )
@@ -770,10 +771,13 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	deepErase( bivss );
 	if ( extrres )
 	{
-	    attrserv->curDescSet()->fillPar( nlaserv->storePars() );
+	    if ( dataextraction )
+		attrserv->curDescSet()->fillPar( nlaserv->storePars() );
 	    const char* res = nlaserv->prepareInputData( vdss );
 	    if ( res && *res && strcmp(res,"User cancel") )
 		uiMSG().warning( res );
+	    if ( !dataextraction ) // i.e. if we have just read a PosVecDataSet
+		attrserv->replaceSet( vdss[0]->pars() );
 	}
 	deepErase(vdss);
     }
