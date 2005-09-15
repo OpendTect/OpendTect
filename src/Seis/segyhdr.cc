@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.34 2005-09-15 07:48:19 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.35 2005-09-15 13:54:44 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -597,7 +597,14 @@ float SegyTraceheader::postScale( int numbfmt ) const
     }
 
     short trwf = IbmFormat::asShort( buf + postscale_byte - 1 );
-    return trwf > 0 && trwf < 100 ? (float)(1. / IntPowerOf(2,trwf)) : 1.;
+    if ( trwf == 0 || trwf > 60 || trwf < -60 ) return 1;
+
+    // According to the standard, trwf cannot be negative ...
+    // But I'll support it anyway because some files are like this
+    const bool isneg = trwf < 0;
+    if ( isneg ) trwf = -trwf;
+    float ret = IntPowerOf( 2, trwf );
+    return isneg ? ret : 1. / ret;
 }
 
 
