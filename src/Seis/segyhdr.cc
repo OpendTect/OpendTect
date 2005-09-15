@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.35 2005-09-15 13:54:44 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.36 2005-09-15 14:56:36 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -588,21 +588,29 @@ float SegyTraceheader::postScale( int numbfmt ) const
     if ( numbfmt != 2 && numbfmt != 3 && numbfmt != 5 ) return 1.;
 
     // There seems to be software (Paradigm?) putting this on byte 189
+    // Then indeed, we'd expect this to be 4 byte. Duh.
     static bool postscale_byte_established = false;
     static int postscale_byte;
+    static bool postscale_isint;
     if ( !postscale_byte_established )
     {
 	postscale_byte_established = true;
 	postscale_byte = GetEnvVarIVal( "OD_SEGY_TRCSCALE_BYTE", 169 );
+	postscale_isint = GetEnvVarYN( "OD_SEGY_TRCSCALE_4BYTE" );
     }
 
-    short trwf = IbmFormat::asShort( buf + postscale_byte - 1 );
+    unsigned char* ptr = buf + postscale_byte - 1 ;
+    short trwf = postscale_isint ? IbmFormat::asInt(ptr)
+				 : IbmFormat::asShort( ptr );
     if ( trwf == 0 || trwf > 60 || trwf < -60 ) return 1;
 
     // According to the standard, trwf cannot be negative ...
     // But I'll support it anyway because some files are like this
     const bool isneg = trwf < 0;
-    if ( isneg ) trwf = -trwf;
+    if ( isneg )
+	trwf = -trwf;
+    else
+	trwf = trwf;
     float ret = IntPowerOf( 2, trwf );
     return isneg ? ret : 1. / ret;
 }
