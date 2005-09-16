@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.18 2005-08-26 11:35:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.19 2005-09-16 11:59:59 cvshelene Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -21,7 +21,6 @@ uiTreeItem::uiTreeItem( const char* name__ )
     : parent( 0 )
     , name_( name__ )
     , uilistviewitem( 0 )
-    , issolomode( false )
 {
 }
 
@@ -61,12 +60,7 @@ bool uiTreeItem::rightClick( uiListViewItem* item )
 bool uiTreeItem::anyButtonClick( uiListViewItem* item )
 {
     if ( item==uilistviewitem )
-    {
-	if ( issolomode )
-	    updateChecked();
-	
 	return select();
-    }
 
     for ( int idx=0; idx<children.size(); idx++ )
     {
@@ -89,9 +83,7 @@ void uiTreeItem::updateSelection( int selid, bool downward )
 	    children[idx]->updateSelection(selid,downward);
     }
     else if ( parent )
-    {
 	parent->updateSelection( selid, false );
-    }
 }
 
 
@@ -107,62 +99,6 @@ bool uiTreeItem::select()
 }
 
 
-void uiTreeItem::toggleSoloMode( int id, bool savechecked )
-{
-    issolomode = true;
-    for ( int idx=0; idx<children.size(); idx++ )
-    {
-	int selkey = children[idx]->selectionKey();
-	if ( children[idx]->isChecked() && savechecked )
-	    checkedids += selkey;
-
-	if ( selkey != id )
-	    children[idx]->setChecked(false);
-	else
-	{
-	    children[idx]->setChecked(true);
-	    setChecked(true);
-	}
-	
-	children[idx]->toggleSoloMode( id, savechecked );
-    }
-}
-
-
-void uiTreeItem::toggleMultiMode()
-{
-    issolomode = false;
-    for ( int idx=0; idx<children.size(); idx++ )
-    {
-	children[idx]->toggleMultiMode();
-
-	int selkey = children[idx]->selectionKey();
-	for ( int idy=0; idy<checkedids.size(); idy++ )
-	{
-	    if ( selkey == checkedids[idy] )
-	    {
-		children[idx]->setChecked(true);
-		break;
-	    }
-	    else
-		children[idx]->setChecked(false);
-	}
-	if ( !checkedids.size() )
-	    children[idx]->setChecked(false);
-    }
-}
-
-
-void uiTreeItem::updateChecked(int id)
-{
-    int selkey = id != -1 ? id : selectionKey();
-    if ( parent )
-	parent->updateChecked(selkey);
-
-    toggleSoloMode(selkey, false);
-}
-
-
 void uiTreeItem::prepareForShutdown()
 {
     for ( int idx=0; idx<children.size(); idx++ )
@@ -174,15 +110,6 @@ void uiTreeItem::setChecked( bool yn )
 {
     if ( uilistviewitem )
 	uilistviewitem->setChecked( yn );
-}
-
-
-bool uiTreeItem::isChecked() const
-{
-    if ( uilistviewitem )
-	return uilistviewitem->isChecked();
-
-    return false;
 }
 
 
@@ -242,8 +169,6 @@ uiTreeItem* uiTreeItem::findChild( int selkey )
 
     return 0;
 }
-	
-
 	
 
 int uiTreeItem::uiListViewItemType() const
