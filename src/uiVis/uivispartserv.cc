@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.271 2005-08-26 18:19:29 cvsbert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.272 2005-09-16 12:01:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ const char* uiVisPartServer::workareastr = "Work Area";
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , viewmode(false)
+    , issolomode(false)
     , eventobjid(-1)
     , eventmutex(*new Threads::Mutex)
     , mouseposval(mUndefValue)
@@ -78,6 +79,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 	mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifer.notify( 
 	mCB(this,uiVisPartServer,deselectObjCB) );
+
+    vismgr = new uiVisModeMgr(this);
 }
 
 
@@ -95,6 +98,7 @@ uiVisPartServer::~uiVisPartServer()
     eventmutex.lock();
     sendEvent( evRemoveTrackTools );
     deleteAllObjects();
+    delete vismgr;
 
     delete &eventmutex;
 }
@@ -488,6 +492,42 @@ void uiVisPartServer::setViewMode(bool yn)
 bool uiVisPartServer::isViewMode() const { return viewmode; }
 
 
+bool uiVisPartServer::isSoloMode() const { return issolomode; }
+
+
+void uiVisPartServer::setSoloMode( bool yn, TypeSet<int> dispids, int selid )
+{
+    issolomode = yn;
+    displayids_ = dispids;
+    issolomode ? updateDisplay( true, selid ) : updateDisplay( false, selid );
+}
+
+
+void uiVisPartServer::updateDisplay( bool doclean, int selid )
+{
+    if ( doclean )
+    {
+	for ( int idx=0; idx<displayids_.size(); idx++ )
+	    if ( isOn( displayids_[idx] ) && displayids_[idx] != selid )
+		turnOn(displayids_[idx], false);
+
+	if ( !isOn(selid) && selid >= 0 ) turnOn( selid, true);
+    }
+    else
+    {
+	bool isselchecked = false;
+	for ( int idx=0; idx<displayids_.size(); idx++ )
+	{
+	    turnOn(displayids_[idx], true);
+	    if ( displayids_[idx] == selid )
+		isselchecked = true;
+	}
+
+	if ( !isselchecked ) turnOn(selid, false);
+    }
+}
+
+
 void uiVisPartServer::toggleDraggers()
 {
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
@@ -642,8 +682,11 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 }
 
 
-void uiVisPartServer::turnOn( int id, bool yn )
+void uiVisPartServer::turnOn( int id, bool yn, bool doclean )
 {
+    if ( !yn || !vismgr->allowTurnOn(id,doclean) )
+	yn = false;
+
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visBase::VisualObject*,vo,dobj)
     if ( vo ) vo->turnOn( yn );
@@ -1171,4 +1214,29 @@ void uiVisPartServer::initMPEStuff()
     }
     
     mpetools->initFromDisplay();
+}
+
+
+uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
+    :visserv(*p)
+{
+}
+
+
+bool uiVisModeMgr::allowTurnOn( int id, bool doclean )
+{
+    if ( !visserv.issolomode && !doclean ) return true;
+    if ( !visserv.issolomode ) return false;
+    const TypeSet<int>& selected = visBase::DM().selMan().selected();
+    for ( int idx=0; idx<selected.size(); idx++ )
+    {
+	if ( selected[idx] == id )
+	{
+	    if ( doclean ) visserv.updateDisplay(doclean, -1);
+	    return true;
+	}
+    }
+
+    return false;
+
 }

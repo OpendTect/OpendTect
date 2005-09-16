@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.32 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.33 2005-09-16 11:57:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.32 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.33 2005-09-16 11:57:18 cvshelene Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -218,7 +218,15 @@ void uiODMenuMgr::fillProcMenu()
     mInsertItem( procmnu, "&Attributes ...", mManAttribsMnuItm );
     procmnu->insertSeparator();
     mInsertItem( procmnu, "&Create Seismic output ...", mCreateVolMnuItm );
-    mInsertItem( procmnu, "Create &Surface output ...", mCreateSurfMnuItm );
+    
+    //mInsertItem( procmnu, "Create &Surface output ...", mCreateSurfMnuItm );
+    uiPopupMenu* horitm = 
+		new uiPopupMenu( &appl, "Create output using &Horizon ...");
+    mInsertItem( horitm, "&On horizon ...", mCreateSurfMnuItm );
+    mInsertItem( horitm, "&Between horizons ...", mCompBetweenHorMnuItm );
+    mInsertItem( horitm, "&Along horizon ...", mCompAlongHorMnuItm );
+    procmnu->insertItem( horitm );
+    
     mInsertItem( procmnu, "&Re-Start ...", mReStartMnuItm );
 }
 
@@ -372,6 +380,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManAttribsMnuItm: 	applMgr().manageAttributes(); break;
     case mCreateVolMnuItm: 	applMgr().createVol(); break;
     case mCreateSurfMnuItm: 	applMgr().createSurfOutput(); break;
+    case mCompBetweenHorMnuItm:	applMgr().create2HorCubeOutput(); break;
+    case mCompAlongHorMnuItm: 	applMgr().createHorCubeOutput(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(); break;

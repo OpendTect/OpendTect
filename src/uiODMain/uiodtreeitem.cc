@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.102 2005-09-08 10:46:03 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.103 2005-09-16 11:57:18 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -103,6 +103,39 @@ uiODApplMgr* uiODTreeTop::applMgr()
 }
 
 
+void uiODTreeTop::getDisplayIds( TypeSet<int>& dispids, int& selectedid,
+				 bool usechecked )
+{
+    dispids.erase();
+    loopOverChildrenIds( dispids, selectedid, usechecked, children );
+}
+
+
+void uiODTreeTop::loopOverChildrenIds( TypeSet<int>& dispids, int& selectedid,
+				       bool usechecked,
+				    const ObjectSet<uiTreeItem>& childrenlist )
+{
+    for ( int idx=0; idx<childrenlist.size(); idx++ )
+	loopOverChildrenIds( dispids, selectedid,
+			     usechecked, childrenlist[idx]->children );
+
+    for ( int idy=0; idy<childrenlist.size(); idy++ )
+    {
+	mDynamicCastGet(uiODDisplayTreeItem*,disptreeitem,childrenlist[idy]);
+	if ( disptreeitem )
+	{
+	    if ( usechecked && childrenlist[idy]->uilistviewitem->isChecked() )
+		dispids += disptreeitem->displayID();
+	    else if ( !usechecked )
+		dispids += disptreeitem->displayID();
+
+	    if ( childrenlist[idy]->uilistviewitem->isSelected() )
+		selectedid = disptreeitem->displayID();
+	}
+    }
+}
+
+
 // ***** uiODTreeItem
 
 uiODTreeItem::uiODTreeItem( const char* name__ )
@@ -195,6 +228,7 @@ void uiODTreeTop::removeFactoryCB(CallBacker* cb)
 
     removeChild( const_cast<uiTreeItem*>(child) );
 }
+
 
 
 #define mDisplayInit( inherited, creationfunc, checkfunc ) \

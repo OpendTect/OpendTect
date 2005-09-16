@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.144 2005-08-24 14:05:00 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.145 2005-09-16 12:00:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ namespace Tracking  { class TrackManager; };
 class uiVisPartServer : public uiApplPartServer
 {
     friend class 	uiMenuHandler;
+    friend class        uiVisModeMgr;
 
 public:
 			uiVisPartServer(uiApplService&);
@@ -182,8 +183,10 @@ public:
     void			setZScale();
     bool			setWorkingArea();
     void			setViewMode(bool yn);
+    void			setSoloMode(bool yn, TypeSet<int>, int);
+    bool                        isSoloMode() const;
     bool			isViewMode() const;
-    void			turnOn(int,bool);
+    void			turnOn(int,bool,bool doclean=false);
     bool			isOn(int) const;
 
     bool			canDuplicate(int) const;
@@ -238,6 +241,7 @@ protected:
     void			removeConnections(int id);
 
     void			toggleDraggers();
+    void			updateDisplay(bool, int);
 
     ObjectSet<visSurvey::Scene>	scenes;
 
@@ -252,6 +256,7 @@ protected:
     BufferString		mouseposstr;
 
     bool			viewmode;
+    bool			issolomode;
     Threads::Mutex&		eventmutex;
     int				eventobjid;
 
@@ -271,9 +276,12 @@ protected:
     MenuItem			resmnuitem;
 
     TypeSet<int>		lockedobjects;
+    TypeSet<int>		displayids_;
 
     static const char*		workareastr;
     static const char*		appvelstr;
+
+    uiVisModeMgr*		vismgr;
 };
 
 
@@ -291,5 +299,19 @@ protected:
   menus, please refer to the uiMenuHandler documentation.
 
   */
+
+
+class uiVisModeMgr 
+{
+public:
+				uiVisModeMgr(uiVisPartServer*);
+				~uiVisModeMgr() {};
+
+	bool			allowTurnOn(int,bool);
+
+protected:
+
+	uiVisPartServer&	visserv;	
+};
 
 #endif

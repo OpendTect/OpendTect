@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.92 2005-09-15 07:49:20 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.93 2005-09-16 11:57:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "vissurvsurf.h"
 #include "vissurvsurfeditor.h"
 #include "uiattrsurfout.h"
+#include "uiattrcubeout.h"
 
 #include "attribdescset.h"
 #include "attribslice.h"
@@ -230,6 +231,28 @@ void uiODApplMgr::createVol()
     if ( nlaserv )
 	nlaid = nlaserv->modelId();
     attrserv->outputVol( nlaid );
+}
+
+
+void uiODApplMgr::createHorCubeOutput()
+{
+    MultiID nlaid;
+    if ( nlaserv )
+	nlaid = nlaserv->modelId();
+    uiAttrCubeOut dlg( &appl, *attrserv->curDescSet(), 
+		       nlaserv ? &nlaserv->getModel() : 0, nlaid, true );
+    dlg.go();
+}
+
+
+void uiODApplMgr::create2HorCubeOutput()
+{
+    MultiID nlaid;
+    if ( nlaserv )
+	nlaid = nlaserv->modelId();
+    uiAttrCubeOut dlg( &appl, *attrserv->curDescSet(), 
+		       nlaserv ? &nlaserv->getModel() : 0, nlaid, false );
+    dlg.go();
 }
 
 
