@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.35 2004-11-19 14:03:21 nanne Exp $
+ RCS:           $Id: uicombobox.cc,v 1.36 2005-09-16 12:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uiobjbody.h"
+#include "pixmap.h"
 #include "datainpspec.h"
 
 #include "i_qcombobox.h"
@@ -87,6 +88,14 @@ uiComboBoxBody& uiComboBox::mkbody(uiParent* parnt, const char* nm, bool ed)
 int uiComboBox::currentItem() const
 {
     return body_->currentItem();
+}
+
+
+void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
+{
+    const char* txt = textOfItem( index );
+    if ( index >= 0 && index < body_->count() )
+	body_->changeItem( *pixmap.Pixmap(), QString(txt), index );
 }
 
 
