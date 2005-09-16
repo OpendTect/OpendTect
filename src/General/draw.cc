@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.42 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.43 2005-09-16 11:59:11 cvshelene Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -386,6 +386,18 @@ void ColorTable::initTabs()
     if ( tabpars.size() )
 	tabparsinited = true;
     sd.close();
+}
+
+
+void ColorTable::getAllTabPars( ObjectSet<IOPar>& coltabpars )
+{
+   PtrMan<IOPar> iopar = Settings::common().subselect( "Color table" );
+   if ( iopar && iopar->size() )
+       add( *iopar, 0, &coltabpars );
+
+   if ( !tabparsinited ) initTabs();
+
+   coltabpars.append(tabpars);
 }
 
 
