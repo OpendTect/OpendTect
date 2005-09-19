@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.103 2005-09-16 11:57:18 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.104 2005-09-19 07:31:41 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -1520,13 +1520,25 @@ bool uiODPickSetTreeItem::init()
 
 void uiODPickSetTreeItem::updateColumnText( int col )
 {
-    if ( col==1 )
+    if ( col==1 || col==2 )
     {
 	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 			visserv->getObject(displayid));
-	BufferString text = psd->nrPicks();
-	uilistviewitem->setText( text, col );
-	return;
+
+	if ( col==1 )
+	{
+	    BufferString text = psd->nrPicks();
+	    uilistviewitem->setText( text, col );
+	    return;
+	}
+	else
+	{
+	    Color color = psd->getColor();
+	    ioPixmap pixmap(10,6);
+	    pixmap.fill(color);
+	    uilistviewitem->setPixmap( 2, pixmap );
+	}
+
     }
 
     return uiODDisplayTreeItem::updateColumnText(col);
@@ -1601,6 +1613,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
     updateColumnText(0);
     updateColumnText(1);
+    updateColumnText(2);
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.41 2005-09-16 11:57:18 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.42 2005-09-19 07:31:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -498,10 +498,12 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.lv = new uiListView( dw, "d-Tect Tree" );
     scn.lv->addColumn( "Elements" );
     scn.lv->addColumn( "Position" );
+    scn.lv->addColumn( "Color" );
     scn.lv->setColumnWidthMode( 0, uiListView::Manual );
     scn.lv->setColumnWidth( 0, 90 );
     scn.lv->setColumnWidthMode( 1, uiListView::Manual );
-    scn.lv->setColumnWidthMode( 1, uiListView::Manual);
+    scn.lv->setColumnWidthMode( 2, uiListView::Manual );
+    scn.lv->setColumnWidth( 2, 38 );
     scn.lv->setPrefWidth( 150 );
     scn.lv->setStretch( 2, 2 );
 
@@ -568,6 +570,7 @@ void uiODSceneMgr::rebuildTrees()
 void uiODSceneMgr::setItemInfo( int id )
 {
     mDoAllScenes(itemmanager,updateColumnText,1);
+    mDoAllScenes(itemmanager,updateColumnText,2);
     appl.statusBar()->message( "", 0 );
     appl.statusBar()->message( "", 1 );
     appl.statusBar()->message( visServ().getInteractionMsg(id), 2 );
