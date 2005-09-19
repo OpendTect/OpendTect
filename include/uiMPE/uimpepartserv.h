@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.9 2005-08-24 21:59:11 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.10 2005-09-19 21:57:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,6 @@ public:
     bool			startWizard(const char* tracktype,int startpg);
     bool			canAddSeed(int trackerid) const;
     void			addSeed(int trackerid);
-				/*!<\note Eventual seeds become mine */
 
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;

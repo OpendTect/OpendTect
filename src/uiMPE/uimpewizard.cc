@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.19 2005-09-14 11:36:24 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.20 2005-09-19 21:57:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,32 +12,24 @@ ________________________________________________________________________
 
 #include "uimpewizard.h"
 
-#include "emmanager.h"
-#include "emsurface.h"
-#include "emsurfacegeometry.h"
-#include "emtracker.h"
-#include "executor.h"
-#include "geomelement.h"
-#include "mpesetup.h"
-#include "mpeengine.h"
-#include "trackplane.h"
-#include "survinfo.h"
-#include "uimpesetup.h"
-#include "uimpepartserv.h"
-#include "uicursor.h"
-#include "uiseparator.h"
-
 #include "ctxtioobj.h"
+#include "emmanager.h"
+#include "emobject.h"
+#include "emseedpicker.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "draw.h"
-#include "uibutton.h"
+#include "mpeengine.h"
+#include "ptrman.h"
+#include "survinfo.h"
 #include "uicolor.h"
+#include "uicursor.h"
 #include "uigeninput.h"
 #include "uigroup.h"
-#include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uimpepartserv.h"
+#include "uimpesetup.h"
+#include "uiseparator.h"
 #include "uispinbox.h"
 
 
@@ -493,46 +485,14 @@ bool Wizard::createTracker()
 void Wizard::setupChange( CallBacker* )
 {
     const int trackerid = mpeserv->getTrackerID( currentobject );
-    const EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    const EM::ObjectID objid = tracker->objectID();
-    EM::EMObject* emobj = EM::EMM().getObject(objid);
-
-    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator(sid);
-    const TypeSet<EM::PosID>* pids =
-			emobj->getPosAttribList(EM::EMObject::sSeedNode);
-
-    mDynamicCastGet( EM::Surface*, surface, emobj );
-
-    if ( !surface || !pids || !pids->size() )
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
+    if ( !seedpicker )
 	return;
 
-    const bool didchecksupport = surface->geometry.checkSupport(false);
-
-    while ( true )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-
-	if ( pids->indexOf(pid)!=-1 )
-	    continue;
-
-	emobj->unSetPos(pid, true);
-    }
-
-
-    MPE::Engine& engine = MPE::engine();
-    const TrackPlane::TrackMode tm = engine.trackPlane().getTrackMode();
-    engine.setTrackMode(TrackPlane::Extend);
-
     uiCursor::setOverride( uiCursor::Wait );
-    PtrMan<Executor> exec = engine.trackInVolume();
-    if ( exec )
-	exec->execute();
-
-    surface->geometry.checkSupport(didchecksupport);
+    seedpicker->reTrack();
     uiCursor::restoreOverride();
-    engine.setTrackMode(tm);
 }
 
 }; // namespace MPE
