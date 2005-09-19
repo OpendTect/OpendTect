@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.69 2005-09-05 15:13:33 cvsbert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.70 2005-09-19 12:06:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,8 +169,7 @@ public:
 
     bool                update( const DataInpSpec& nw )
 			{
-			    if ( spec_.type() != nw.type()
-			      && update_(nw) )
+			    if ( spec_.type() == nw.type() && update_(nw) )
 			    {
 				spec_ = nw;
 				return true;
