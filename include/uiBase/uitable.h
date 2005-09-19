@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.24 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.25 2005-09-19 15:22:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,9 +149,13 @@ public:
     void		insertColumns( const RowCol& rc, int count = 1 )
 			    { insertColumns( rc.col, count ); }
     void		removeRow( int row );
-    void		removeRow( const RowCol& rc )	 { removeRow( rc.row ); }
+    void		removeRow( const RowCol& rc )
+    				{ removeRow( rc.row ); }
+    void		removeRows(const TypeSet<int>&);
     void		removeColumn( int col );
-    void		removeColumn( const RowCol& rc ) { removeColumn( rc.col ); }
+    void		removeColumn( const RowCol& rc )
+    				{ removeColumn( rc.col ); }
+    void		removeColumns(const TypeSet<int>&);
 
     bool		isRowSelected(int row);
     bool		isColumnSelected(int col);
@@ -234,6 +238,7 @@ protected:
     void		updateCellSizes(uiSize* sz=0);
 
     void		update( bool row, int rc );
+    void		removeRCs(const TypeSet<int>&,bool);
 
 private:
 

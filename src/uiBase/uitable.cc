@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.31 2005-09-06 08:56:21 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.32 2005-09-19 15:22:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,6 +286,34 @@ void uiTable::setRowHeightInChar( int row, float h )
     setColumnWidth( row, mNINT(hgt) );
 }
 
+
+void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
+{
+    if ( idxs.size() < 1 ) return;
+    const int first = idxs[0];
+    if ( idxs.size() == 1 )
+    {
+	col ? removeColumn( first ) : removeRow( first );
+	return;
+    }
+
+    QMemArray<int> qidxs( idxs.size() );
+    for ( int idx=0; idx<idxs.size(); idx++ )
+	qidxs.at(idx) = idxs[idx];
+
+    if ( col )
+    {
+	body_->removeColumns( qidxs );
+	updateCol( first );
+    }
+    else
+    {
+	body_->removeRows( qidxs );
+	updateRow( first );
+    }
+}
+
+
 void uiTable::insertRows( int row, int cnt )
 { body_->insertRows( row, cnt ); updateRow(row); }
 
@@ -297,6 +325,12 @@ void uiTable::removeRow( int row )
 
 void uiTable::removeColumn( int col )
 { body_->removeColumn( col );  updateCol(col); }
+
+void uiTable::removeRows( const TypeSet<int>& idxs )
+{ removeRCs( idxs, false ); }
+
+void uiTable::removeColumns( const TypeSet<int>& idxs )
+{ removeRCs( idxs, true ); }
 
 void uiTable::setNrRows( int nr )
 { body_->setLines( nr + 1 ); updateRow(0); }
