@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.9 2005-08-15 11:27:50 cvsbert Exp $
+ RCS:		$Id: general.h,v 1.10 2005-09-19 15:49:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,10 @@ inline const char* className( const T& t )
 
 //! Defines policy for selection of 2D vs 3D seismics
 enum Pol2D	{ No2D=-1, Both2DAnd3D=0, Only2D=1 };
+
+//! Catches bad_alloc and sets ptr to null as normal.
+#define mTryAlloc(var,stmt) \
+	try { var = new stmt; } catch ( std::bad_alloc ) { var = 0; }
 
 //! Define members in setup classes (see e.g. uidialog.h)
 /* Usage typically like:
