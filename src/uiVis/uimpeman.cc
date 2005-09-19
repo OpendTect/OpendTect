@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.39 2005-09-15 08:28:07 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.40 2005-09-19 21:58:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribslice.h"
 #include "draw.h"
 #include "emmanager.h"
+#include "emseedpicker.h"
 #include "emhorizon.h"
 #include "emhistory.h"
 #include "mpeengine.h"
@@ -63,7 +64,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv(ps)
     , init(false)
     , createmnuitem("Create")
-    , picknewseeds(true)
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -169,21 +169,7 @@ void uiMPEMan::deleteVisObjects()
 
 void uiMPEMan::seedClick(CallBacker*)
 {
-    const visBase::EventInfo* eventinfo = clickcatcher->getEvent();
-    if ( !eventinfo ) return;
-
-    int clickedobject = -1;
-    for ( int idx=0; idx<eventinfo->pickedobjids.size(); idx++ )
-    {
-	mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane,
-			 visBase::DM().getObject(eventinfo->pickedobjids[idx]));
-	if ( plane )
-	{
-	    clickedobject = eventinfo->pickedobjids[idx];
-	    break;
-	}
-    }
-
+    const int clickedobject = clickcatcher->clickedObjectID();
     if ( clickedobject==-1 )
 	return;
 
@@ -202,8 +188,10 @@ void uiMPEMan::seedClick(CallBacker*)
 
     if ( seedclickobject==-1 )
     {
+	oldactivevol = engine.activeVolume();
 	seedclickobject = clickedobject;
 	engine.setActiveVolume(plane->getCubeSampling());
+
 	const Attrib::SliceSet* cached = plane->getCacheVolume(false);
 	if ( cached )
 	{
@@ -214,47 +202,19 @@ void uiMPEMan::seedClick(CallBacker*)
     else if ( clickedobject!=seedclickobject )
 	return;
 
-    const Coord3 displayspacepos =
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
+    if ( !seedpicker )
+	return;
+
+    const Coord3 disppos =
 	visSurvey::SPM().getZScaleTransform()->
-		transformBack(eventinfo->pickedpos);
-    const Coord3 pos = visSurvey::SPM().getUTM2DisplayTransform()->
-		transformBack(displayspacepos);
+		transformBack(clickcatcher->clickedPos());
+    const Coord3 pos =
+	visSurvey::SPM().getUTM2DisplayTransform()->transformBack(disppos);
 
-    const BinID bid = SI().transform(pos);
-    const bool didchecksupport = horizon->geometry.checkSupport(false);
-    const EM::PosID pid( horizon->id(),
-	    		 horizon->sectionID(0),
-			 bid.getSerialized() );
-    horizon->setPos(pid, pos, true );
-    horizon->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
-
-    PtrMan<EM::EMObjectIterator> iterator = horizon->createIterator(-1);
-    const TypeSet<EM::PosID>* pids =
-			horizon->getPosAttribList(EM::EMObject::sSeedNode);
-
-    while ( true )
-    {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-
-	if ( pids->indexOf(pid)!=-1 )
-	    continue;
-
-	horizon->unSetPos(pid, true);
-    }
-
-    const TrackPlane::TrackMode tm = engine.trackPlane().getTrackMode();
-    engine.setTrackMode( TrackPlane::Extend );
-    
     uiCursor::setOverride( uiCursor::Wait );
-    PtrMan<Executor> exec = engine.trackInVolume();
-    if ( exec )
-	exec->execute();
-
-    horizon->geometry.checkSupport(didchecksupport);
+    seedpicker->addSeed( pos );
     uiCursor::restoreOverride();
-    engine.setTrackMode(tm);
 }
 
 
@@ -333,11 +293,30 @@ void uiMPEMan::updateAttribNames()
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
-    seedclickobject = -1;
     turnOn( seedidx, yn );
-    picknewseeds = false;
-    seedModeCB(0);
-    picknewseeds = true;
+    if ( yn )
+    {
+	seedclickobject = -1;
+	if ( !clickcatcher )
+	{
+	    clickcatcher = visSurvey::MPEClickCatcher::create();
+	    clickcatcher->ref();
+
+	    TypeSet<int> scenes;
+	    visserv->getChildIds( -1, scenes );
+	    visserv->addObject( clickcatcher, scenes[0], false );
+	    clickcatcher->click.notify(mCB(this,uiMPEMan,seedClick));
+	}
+
+	clickcatcher->turnOn(true);
+	clickcatcher->select();
+    }
+    else
+    {
+	if ( clickcatcher ) clickcatcher->turnOn(false);
+	MPE::engine().setActiveVolume(oldactivevol);
+	clickcatcher->deSelect();
+    }
 }
 
 #define mSelCBImpl( sel ) \
@@ -456,31 +435,8 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 
 void uiMPEMan::seedModeCB( CallBacker* )
 {
-    const bool ison = isOn( seedidx );
-    if ( !ison && clickcatcher )
-    {
-	clickcatcher->turnOn( false );
-	//if ( picknewseeds )
-	 //   engine().setNewSeeds();
-	return;
-    }
-
-    if ( ison )
-    {
-	if ( !clickcatcher )
-	{
-	    clickcatcher = visSurvey::MPEClickCatcher::create();
-	    clickcatcher->ref();
-
-	    TypeSet<int> scenes;
-	    visserv->getChildIds( -1, scenes );
-	    visserv->addObject( clickcatcher, scenes[0], false );
-	    clickcatcher->click.notify(mCB(this,uiMPEMan,seedClick));
-	}
-
-	clickcatcher->turnOn(true);
-	clickcatcher->select();
-    }
+    if ( isOn( seedidx ) )
+	visserv->sendAddSeedEvent();
 }
 
 

@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.13 2005-09-15 08:28:07 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.14 2005-09-19 21:58:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "cubesampling.h"
 #include "uitoolbar.h"
 #include "menuhandler.h"
 
@@ -52,6 +53,7 @@ protected:
     MenuItem			seedmnuitem;
     MenuItem			createmnuitem;
     uiVisPartServer*		visserv;
+    CubeSampling		oldactivevol;
 
     visSurvey::MPEClickCatcher*	clickcatcher;
 
