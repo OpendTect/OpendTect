@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.93 2005-09-16 11:57:18 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.94 2005-09-19 22:04:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,10 @@ uiODApplMgr::~uiODApplMgr()
     delete nlaserv;
     delete attrserv;
     delete seisserv;
+
+    appl.removeDockWindow( visserv->getTrackTB() );
     delete visserv;
+
     delete emserv;
     delete wellserv;
     delete wellattrserv;
@@ -713,10 +716,16 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().viewAll(0);
     else if ( evid == uiVisPartServer::evToHomePos )
 	sceneMgr().toHomePos(0);
-    else if (  evid == uiVisPartServer::evRemoveTrackTools )
-	appl.removeDockWindow( visserv->getTrackTB() );
-    else if (  evid == uiVisPartServer::evTrackNewObject )
-	return mpeserv->addTracker( visserv->getDesTrackerType() );
+    else if (  evid == uiVisPartServer::evAddSeedToCurrentObject )
+    {
+	const int selobjvisid = visserv->getSelObjectId();
+	const MultiID* selobjmid = visserv->getMultiID(selobjvisid);
+	const int trackerid = selobjmid
+	    ? mpeserv->getTrackerID(*selobjmid) : -1;
+
+	if ( trackerid!=-1 )
+	    mpeserv->addSeed(trackerid);
+    }
     else
 	pErrMsg("Unknown event from visserv");
 
