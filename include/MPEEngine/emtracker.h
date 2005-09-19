@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.17 2005-08-20 19:02:10 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.18 2005-09-19 21:55:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ namespace MPE
 class ConsistencyChecker;
 class SectionTracker;
 class TrackPlane;
+class EMSeedPicker;
 
 class EMTracker
 {
@@ -54,6 +55,8 @@ public:
 
     SectionTracker*		getSectionTracker(EM::SectionID,
 	    					  bool create=false);
+    virtual EMSeedPicker*	getSeedPicker(bool createifnotpresent=true)
+				{ return 0; }
 
     const char*			errMsg() const;
 
