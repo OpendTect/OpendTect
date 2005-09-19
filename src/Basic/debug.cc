@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.17 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.18 2005-09-19 14:43:00 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.17 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.18 2005-09-19 14:43:00 cvsarend Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -83,13 +83,7 @@ void message( const char* msg )
     if ( dbglogstrm )
 	*dbglogstrm << msg << std::endl;
     else
-    {
-#ifdef __mac__
 	printf( "%s\n", msg ); fflush( stdout );
-#else
-	std::cerr << msg << std::endl;
-#endif
-    }
 }
 
 
