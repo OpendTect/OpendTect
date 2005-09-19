@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.1 2005-09-14 08:25:22 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.2 2005-09-19 21:50:34 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -63,6 +63,10 @@ void MPEClickCatcher::setDisplayTransformation( visBase::Transformation* nt )
 }
 
 
+const Coord3& MPEClickCatcher::clickedPos() const
+{ return eventinfo_ ? eventinfo_->pickedpos : Coord3::udf(); }
+
+
 void MPEClickCatcher::clickCB( CallBacker* cb )
 {
     if ( eventcatcher->isEventHandled() || !isOn() )
@@ -86,8 +90,10 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( plane )
 	{
 	    eventinfo_ = &eventinfo;
+	    clickedobjid = eventinfo.pickedobjids[idx];
 	    click.trigger();
 	    eventinfo_ = 0;
+	    clickedobjid = -1;
 	    eventcatcher->eventIsHandled();
 	}
     }

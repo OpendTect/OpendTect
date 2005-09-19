@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.1 2005-09-14 08:25:19 cvskris Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.2 2005-09-19 21:50:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,13 +49,15 @@ public:
     mVisTrans*		getDisplayTransformation() {return transformation;}
 
     Notifier<MPEClickCatcher>	click;
-    const visBase::EventInfo*	getEvent() const { return eventinfo_; }
+    const Coord3&		clickedPos() const;
+    int				clickedObjectID() const { return clickedobjid; }
 
 protected:
     				~MPEClickCatcher();
     void			clickCB( CallBacker* );
 
     const visBase::EventInfo*	eventinfo_;
+    int				clickedobjid;
 
     visBase::EventCatcher*	eventcatcher;
     visBase::Transformation*	transformation;
