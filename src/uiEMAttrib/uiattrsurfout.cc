@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.7 2005-09-02 14:25:26 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.8 2005-09-19 07:39:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
+#include "attribengman.h"
 #include "attriboutput.h"
 #include "attribfactory.h"
 #include "emsurfacetr.h"
@@ -146,74 +147,12 @@ bool uiAttrSurfaceOut::addNLA( Attrib::DescID& id )
 {
     BufferString defstr("NN specification=");
     defstr += nlaid;
-    BufferString attribname;
-    if ( !Attrib::Desc::getAttribName(defstr,attribname) )
-	mErrRet("Cannot find attribute name");
-    RefMan<Attrib::Desc> ad = Attrib::PF().createDescCopy( attribname );
-    if ( !ad )
-    {
-	BufferString err = "Cannot find factory-entry for "; err += attribname;
-	mErrRet(err);
-    }
 
-    if ( !ad->parseDefStr(defstr) )
-    {
-	BufferString err = "Cannot parse: "; err += defstr;
-	mErrRet(err);
-    }
-
-    ad->setHidden( true );
-    const NLADesign& nlades = nlamodel->design();
-    ad->setUserRef( *nlades.outputs[attrfld->outputNr()] );
-    ad->selectOutput( attrfld->outputNr() );
-
-    const int nrinputs = nlades.inputs.size();
-    for ( int idx=0; idx<nrinputs; idx++ )
-    {
-        const char* inpname = nlades.inputs[idx]->buf();
-	Attrib::DescID descid = ads.getID( inpname, true );
-        if ( descid < 0 && IOObj::isKey(inpname) )
-        {
-            descid = ads.getID( inpname, false );
-            if ( descid < 0 )
-            {
-                // It could be 'storage', but it's not yet in the old set ...
-                PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
-                if ( ioobj )
-                {
-		    BufferString defstr("Storage id="); defstr += inpname;
-		    BufferString attribname;
-		    if ( !Attrib::Desc::getAttribName( defstr, attribname ) )
-			mErrRet("Cannot find attribute name")
-		    RefMan<Attrib::Desc> newdesc = 
-					Attrib::PF().createDescCopy(attribname);
-		    if ( !newdesc )
-		    {
-			BufferString err = "Cannot find factory-entry for "; 
-			err += attribname;
-			mErrRet(err);
-		    }
-
-		    if ( !newdesc->parseDefStr(defstr) )
-		    {
-			BufferString err = "Cannot parse: "; err += defstr;
-			mErrRet(err);
-		    }
-                    newdesc->setUserRef( ioobj->name() );
-                    descid = ads.addDesc( newdesc );
-                }
-            }
-	}
-
-        ad->setInput( idx, ads.getDesc(descid) );
-    }
-
-    id = ads.addDesc( ad );
-    if ( id < 0 )
-    {
-        uiMSG().error( ads.errMsg() );
-        return false;
-    }
+    const int outputnr = attrfld->outputNr();
+    BufferString errmsg;
+    Attrib::EngineMan::addNLADesc( defstr, id, ads, outputnr, nlamodel, errmsg);
+    if ( errmsg.size() )
+	mErrRet( errmsg );
 
     return true;
 }

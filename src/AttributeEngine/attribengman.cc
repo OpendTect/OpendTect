@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.25 2005-09-07 07:33:17 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.26 2005-09-19 07:37:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -381,7 +381,7 @@ void EngineMan::setCubeSampling( const CubeSampling& newcs )
 #define mErrRet() \
 	delete &descset; desc->unRef(); return;
 
-DescSet* EngineMan::createNLAADS( DescID& outpid, BufferString& errmsg,
+DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
        				  const DescSet* addtoset )
 {
     if ( !attrspecs_.size() ) return 0;
@@ -395,19 +395,19 @@ DescSet* EngineMan::createNLAADS( DescID& outpid, BufferString& errmsg,
 
     BufferString s;
     nlamodel->dump(s);
-    BufferString def( nlamodel->nlaType(true) );
-    def += " specification=\""; def += s; def += "\"";
+    BufferString defstr( nlamodel->nlaType(true) );
+    defstr += " specification=\""; defstr += s; defstr += "\"";
 
-    createNLADescSet( def, outpid, *descset, attrspecs_[0].id().asInt(), 
-	    	      nlamodel, errmsg );
+    addNLADesc( defstr, nladescid, *descset, attrspecs_[0].id().asInt(), 
+		nlamodel, errmsg );
 
     return descset;
 }
 
 
-void EngineMan::createNLADescSet( const char* specstr, DescID& outpid,
-				  DescSet& descset, int desoutputid,
-				  const NLAModel* nlamdl, BufferString& errmsg )
+void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
+			    DescSet& descset, int outputnr,
+			    const NLAModel* nlamdl, BufferString& errmsg )
 {
     Desc* desc = PF().createDescCopy( "NN" );
     desc->setDescSet( &descset );
@@ -456,19 +456,19 @@ void EngineMan::createNLADescSet( const char* specstr, DescID& outpid,
 	desc->setInput( idx, descset.getDesc(descid) );
     }
 
-    if ( desoutputid > desc->nrOutputs() )
+    if ( outputnr > desc->nrOutputs() )
     {
-	errmsg = "Output "; errmsg += desoutputid; 
+	errmsg = "Output "; errmsg += outputnr; 
 	errmsg += " not present.";
 	mErrRet();
     }
     
     const NLADesign& nlades = nlamdl->design();
-    desc->setUserRef( *nlades.outputs[desoutputid] );
-    desc->selectOutput( desoutputid );
+    desc->setUserRef( *nlades.outputs[outputnr] );
+    desc->selectOutput( outputnr );
 
-    outpid = descset.addDesc( desc );
-    if ( outpid == DescID::undef() )
+    nladescid = descset.addDesc( desc );
+    if ( nladescid == DescID::undef() )
     {
 	errmsg = descset.errMsg();
 	mErrRet();

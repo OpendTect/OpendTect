@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.8 2005-09-02 14:13:58 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.9 2005-09-19 07:38:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,11 +276,9 @@ void uiAttrVolOut::addNLA( DescID& id )
     defstr += nlaid;
 
     BufferString errmsg;
-    EngineMan::createNLADescSet( defstr, id, ads, todofld->outputNr(), 
-	    			 nlamodel, errmsg );
+    EngineMan::addNLADesc( defstr, id, ads, todofld->outputNr(), 
+			   nlamodel, errmsg );
 
     if ( errmsg.size() )
-    {
         uiMSG().error( errmsg );
-    }
 }

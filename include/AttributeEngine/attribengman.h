@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.11 2005-09-02 14:11:33 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.12 2005-09-19 07:37:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,9 +53,10 @@ public:
 				      const TypeSet<DescID>&);
     static void		getPossibleVolume(const DescSet&,CubeSampling&,
 	    				  const char* linename,const DescID&);
-    static void		createNLADescSet(const char* specstr, DescID& outpid,
-					 DescSet& descset, int desoutputid,
-					 const NLAModel*, BufferString&);
+    static void		addNLADesc(const char* defstr,DescID& nladescid,
+				   DescSet&,int outputnr,const NLAModel*,
+				   BufferString& errmsg);
+
     SeisTrcStorOutput* 	createOutput(const IOPar&,const LineKey&);
 
     const DescSet* 	attribSet() const	{ return inpattrset; }
