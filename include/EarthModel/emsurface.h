@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.54 2005-08-24 21:10:13 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.55 2005-09-19 07:06:27 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -66,34 +66,36 @@ class SurfaceGeometry;
 class Surface : public EMObject
 {
 public:
-    int			nrSections() const;
-    EM::SectionID	sectionID(int) const;
-    BufferString	sectionName( const SectionID& ) const;
-    bool		canSetSectionName() const;
-    bool		setSectionName( const SectionID&, const char*,
-	    				bool addtohistory );
-    bool		removeSection(SectionID,bool hist);
+    int				nrSections() const;
+    EM::SectionID		sectionID(int) const;
+    BufferString		sectionName(const SectionID&) const;
+    bool			canSetSectionName() const;
+    bool			setSectionName(const SectionID&,const char*,
+					       bool addtohistory);
+    bool			removeSection(SectionID,bool hist);
 
-    bool		isAtEdge(const EM::PosID&) const;
-    bool		isLoaded() const;
-    Executor*		saver();
-    Executor*		loader();
+    void			cleanUp();
 
-    const char*		dbInfo() const			{ return dbinfo; }
-    void		setDBInfo( const char* s )	{ dbinfo = s; }
+    bool			isAtEdge(const EM::PosID&) const;
+    bool			isLoaded() const;
+    Executor*			saver();
+    Executor*			loader();
 
-    bool		isChanged(int=-1) const;
-    void		resetChangedFlag(int=-1);
+    const char*			dbInfo() const		 { return dbinfo; }
+    void			setDBInfo(const char* s) { dbinfo = s; }
 
-    virtual bool	usePar( const IOPar& );
-    virtual void	fillPar( IOPar& ) const;
+    bool			isChanged(int=-1) const;
+    void			resetChangedFlag(int=-1);
 
-    EMObjectIterator*	createIterator( const SectionID& ) const;
+    virtual bool		usePar( const IOPar& );
+    virtual void		fillPar( IOPar& ) const;
 
-    SurfaceRelations&	relations;
-    EdgeLineManager&	edgelinesets;
-    SurfaceGeometry&	geometry;
-    SurfaceAuxData&	auxdata;
+    EMObjectIterator*		createIterator( const SectionID& ) const;
+
+    SurfaceRelations&		relations;
+    EdgeLineManager&		edgelinesets;
+    SurfaceGeometry&		geometry;
+    SurfaceAuxData&		auxdata;
 
 protected:
     friend class		SurfaceGeometry;
@@ -103,9 +105,7 @@ protected:
     				Surface(EMManager&,const EM::ObjectID&,
 					SurfaceGeometry&);
     				~Surface();
-    void			cleanUp();
     Geometry::Element*		getElementInternal( SectionID );
-
 
     BufferString		dbinfo;
 };
