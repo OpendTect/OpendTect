@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.145 2005-09-16 12:00:47 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.146 2005-09-19 22:02:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,15 +197,12 @@ public:
     bool			isLocked(int) const;
 
     				// Tracking stuff
-    static const int		evTrackNewObject;
-    bool			sendTrackNewObjectEvent();
-    const char*			getDesTrackerType() const;
+    static const int		evAddSeedToCurrentObject;
+    bool			sendAddSeedEvent();
     void			turnSeedPickingOn(bool yn);
 
     void			showMPEToolbar();
-    static const int		evRemoveTrackTools;
-    uiToolBar*			getTrackTB() const	
-    				{ return (uiToolBar*)mpetools; }
+    uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
 
     bool			dumpOI(int id) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.272 2005-09-16 12:01:07 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.273 2005-09-19 22:02:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,19 +40,18 @@ ________________________________________________________________________
 #include "attribsel.h"
 
 
-const int uiVisPartServer::evUpdateTree =	0;
-const int uiVisPartServer::evSelection =	1;
-const int uiVisPartServer::evDeSelection =	2;
-const int uiVisPartServer::evGetNewData =	3;
-const int uiVisPartServer::evMouseMove =	4;
-const int uiVisPartServer::evInteraction =	5;
-const int uiVisPartServer::evSelectAttrib =	6;
-const int uiVisPartServer::evSelectColorAttrib=	7;
-const int uiVisPartServer::evGetColorData =	8;
-const int uiVisPartServer::evViewAll =		9;
-const int uiVisPartServer::evToHomePos =	10;
-const int uiVisPartServer::evRemoveTrackTools = 11;
-const int uiVisPartServer::evTrackNewObject =	12;
+const int uiVisPartServer::evUpdateTree			= 0;
+const int uiVisPartServer::evSelection			= 1;
+const int uiVisPartServer::evDeSelection		= 2;
+const int uiVisPartServer::evGetNewData			= 3;
+const int uiVisPartServer::evMouseMove			= 4;
+const int uiVisPartServer::evInteraction		= 5;
+const int uiVisPartServer::evSelectAttrib		= 6;
+const int uiVisPartServer::evSelectColorAttrib		= 7;
+const int uiVisPartServer::evGetColorData		= 8;
+const int uiVisPartServer::evViewAll			= 9;
+const int uiVisPartServer::evToHomePos			= 10;
+const int uiVisPartServer::evAddSeedToCurrentObject	= 11;
 
 const char* uiVisPartServer::appvelstr = "AppVel";
 const char* uiVisPartServer::workareastr = "Work Area";
@@ -95,8 +94,6 @@ uiVisPartServer::~uiVisPartServer()
     visBase::DM().selMan().deselnotifer.remove(
 	    mCB(this,uiVisPartServer,deselectObjCB) );
 
-    eventmutex.lock();
-    sendEvent( evRemoveTrackTools );
     deleteAllObjects();
     delete vismgr;
 
@@ -731,21 +728,15 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 }
 
 
-bool uiVisPartServer::sendTrackNewObjectEvent()
+bool uiVisPartServer::sendAddSeedEvent()
 {
-    return sendEvent( evTrackNewObject );
+    return sendEvent( evAddSeedToCurrentObject );
 }
 
 
 void uiVisPartServer::turnSeedPickingOn( bool yn )
 {
     mpetools->turnSeedPickingOn( yn );
-}
-
-
-const char* uiVisPartServer::getDesTrackerType() const
-{
-    return mpetools ? mpetools->getDesTrackerType() : 0;
 }
 
 
@@ -1200,6 +1191,10 @@ void uiVisPartServer::showMPEToolbar()
 	mpetools->undock();
     }
 }
+
+
+uiToolBar* uiVisPartServer::getTrackTB() const
+{ return (uiToolBar*)mpetools; }
 
 
 void uiVisPartServer::initMPEStuff()
