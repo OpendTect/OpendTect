@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.42 2005-09-19 07:31:41 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.43 2005-09-19 07:36:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -504,7 +504,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.lv->setColumnWidthMode( 1, uiListView::Manual );
     scn.lv->setColumnWidthMode( 2, uiListView::Manual );
     scn.lv->setColumnWidth( 2, 38 );
-    scn.lv->setPrefWidth( 150 );
+    scn.lv->setPrefWidth( 190 );
     scn.lv->setStretch( 2, 2 );
 
     scn.itemmanager = new uiODTreeTop( scn.sovwr, scn.lv, &applMgr(), tifs );
