@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.7 2005-09-14 08:28:05 cvskris Exp $
+ RCS:           $Id: uiwizard.cc,v 1.8 2005-09-20 21:45:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,13 +81,17 @@ bool uiWizard::rejectOK( CallBacker* )
     if ( !leavePage(pageidx,true) )
 	return false;
 
-    if ( pageidx==lastPage() && !rotatemode )
-	return isClosing(false);
-
-    if ( pageidx==lastPage() && rotatemode ) 
+    if ( lastPage()==-1 || pageidx==lastPage() )
     {
-	reset();
-	pageidx = 0;
+	if ( rotatemode )
+	{
+	    reset();
+	    pageidx = 0;
+	}
+	else
+	{
+	    return isClosing(false);
+	}
     }
     else
 	pageidx++;
