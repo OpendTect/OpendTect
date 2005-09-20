@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.15 2005-02-04 14:31:34 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.16 2005-09-20 20:46:18 cvskris Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -15,8 +15,8 @@ namespace visBase
 {
 
 SelectionManager::SelectionManager()
-    : selnotifer( this )
-    , deselnotifer( this )
+    : selnotifier( this )
+    , deselnotifier( this )
     , allowmultiple( false )
     , mutex( *new Threads::Mutex )
 {}
@@ -50,7 +50,7 @@ void SelectionManager::select( int newid, bool keepoldsel, bool lock )
 	{
 	    selectedids += newid;
 	    dataobj->triggerSel();
-	    selnotifer.trigger(newid);
+	    selnotifier.trigger(newid);
 	}
     }
 
@@ -71,7 +71,7 @@ void SelectionManager::deSelect( int id, bool lock )
 	if ( dataobj )
 	{
 	    dataobj->triggerDeSel();
-	    deselnotifer.trigger(id);
+	    deselnotifier.trigger(id);
 	}
 
     }

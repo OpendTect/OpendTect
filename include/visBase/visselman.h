@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.14 2004-05-13 09:19:47 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.15 2005-09-20 20:46:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,8 +56,8 @@ public:
 
     const TypeSet<int>&		selected() const { return selectedids; }
 
-    CNotifier<SelectionManager,int>	selnotifer;
-    CNotifier<SelectionManager,int>	deselnotifer;
+    CNotifier<SelectionManager,int>	selnotifier;
+    CNotifier<SelectionManager,int>	deselnotifier;
 
     void			fillPar( IOPar&, TypeSet<int>& ) const {};
     void			usePar( const IOPar& ) {};
