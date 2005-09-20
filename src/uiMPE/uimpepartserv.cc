@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.18 2005-09-14 11:36:23 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.19 2005-09-20 21:49:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,10 +91,8 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
     if ( !emobj ) return -1;
 
 
-    if ( !wizard )
-	wizard = new MPE::Wizard( appserv().parent(), this );
-    else
-	wizard->reset();
+    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
+    else wizard->reset();
 
     wizard->setRotateMode(false);
 
@@ -130,10 +128,8 @@ bool uiMPEPartServer::addNewSection( int trackerid )
 
     EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
 
-    if ( !wizard )
-	wizard = new MPE::Wizard( appserv().parent(), this );
-    else
-	wizard->reset();
+    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
+    else wizard->reset();
 
     wizard->setObject( emobj->multiID(), -1 );
     wizard->setRotateMode(false);
@@ -147,10 +143,8 @@ bool uiMPEPartServer::addNewSection( int trackerid )
 
 bool uiMPEPartServer::addTracker( const char* trackertype )
 {
-    if ( !wizard )
-	wizard = new MPE::Wizard( appserv().parent(), this );
-    else
-	wizard->reset();
+    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
+    else wizard->reset();
 
     wizard->setTrackingType( trackertype );
     wizard->setRotateMode(true);
@@ -182,25 +176,22 @@ bool uiMPEPartServer::canAddSeed( int trackerid ) const
 
 void uiMPEPartServer::addSeed( int trackerid )
 {
-    /*
-    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
-    mDynamicCastGet(EM::Surface*,surface,EM::EMM().getObject(objid))
-    if ( !surface ) return false;
+    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
+    else wizard->reset();
 
-    curemid = mid;
-    cursectionid = surface->geometry.addSection( "", true );
-    setObjectType( mid );
-    startWizard( 1 );
-    wizard->setSurfaceColor( surface->preferredColor() );
+    const MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
+    if ( !tracker ) return;
 
-    int trackidx = getTrackerID( curemid );
-    if ( trackidx < 0 )
-	trackidx = trackman.addTracker( curemid );
+    EM::EMObject* object = EM::EMM().getObject( tracker->objectID() );
+    if ( !object ) return;
 
-    wizard->setTracker( trackman.getTracker(trackidx) );
+    //TODO Find a mechanism to get this work on multi-section objects
+    wizard->setObject( object->multiID(), object->sectionID(0) );
 
-    return true;
-    */
+    wizard->displayPage(MPE::Wizard::sNamePage, false );
+    wizard->displayPage(MPE::Wizard::sFinalizePage, false );
+    
+    wizard->go();
 }
 
 
