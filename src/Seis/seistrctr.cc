@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.66 2005-08-26 18:47:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.67 2005-09-20 16:27:18 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -324,7 +324,7 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
     if ( wrblk && !writeBlock() )
 	return false;
 
-    SeisTrc* newtrc = new SeisTrc(trc);
+    SeisTrc* newtrc; mTryAlloc( newtrc, SeisTrc(trc) );
     if ( !newtrc )
 	{ errmsg = "Out of memory"; return false; }
     trcblock_.add( newtrc );

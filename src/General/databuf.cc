@@ -33,8 +33,8 @@ DataBuffer::DataBuffer( int n, int byts, bool doinit )
 {
     if ( n > 0 )
     {
-	nelem_ = n;
-	data_ = new unsigned char [ nelem_ * bytes_ ];
+	mTryAlloc( data_, unsigned char [ n * bytes_ ] );
+	nelem_ = data_ ? n : 0;
     }
     if ( doinit ) zero();
 }
@@ -74,17 +74,22 @@ void DataBuffer::reSize( int n, bool copy )
     if ( n == nelem_ )
 	return;
 
-    if ( !n || !copy || nelem_ < 0 )
+    if ( n == 0 || !copy || nelem_ < 0 )
     {
-	delete [] data_;
-	data_ = n ? new unsigned char [ n * bytes_ ] : 0;
+	delete [] data_; data_ = 0;
+	if ( n )
+	    { mTryAlloc( data_, unsigned char [ n * bytes_ ] ); }
     }
     else
     {
 	unsigned char* olddata = data_;
-	data_ = new unsigned char [ n * bytes_ ];
+	mTryAlloc( data_, unsigned char [ n * bytes_ ] );
 	if ( data_ )
-	    memcpy( data_, olddata, n > nelem_ ? nelem_ : n );
+	{
+	    memcpy( data_, olddata, bytes_ * (n > nelem_ ? nelem_ : n) );
+	    if ( nelem_ < n )
+		memset( data_, 0, bytes_ * (n - nelem_) );
+	}
 	delete [] olddata;
     }
     nelem_ = data_ ? n : 0;
