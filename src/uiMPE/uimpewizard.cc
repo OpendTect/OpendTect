@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.20 2005-09-19 21:57:18 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.21 2005-09-20 21:56:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,16 +187,6 @@ bool Wizard::leaveNamePage( bool process )
 
 bool Wizard::prepareSeedSetupPage()
 {
-    /*
-    if ( MPE::engine().interactionseeds.size() )
-    {
-	const int trackerid = mpeserv->getTrackerID(currentobject);
-	EMTracker* tracker = MPE::engine().getTracker(trackerid);
-	tracker->setSeeds( MPE::engine().interactionseeds,
-			   tracker->objectName(), sid );
-    }
-    */
-
     if ( !(currentobject==-1) )
     {
 	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
@@ -478,7 +468,7 @@ bool Wizard::createTracker()
 	trackercreated = true;
     }
 
-    return trackercreated;
+    return true;
 }
 
 
