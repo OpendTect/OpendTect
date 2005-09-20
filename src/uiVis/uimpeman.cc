@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.40 2005-09-19 21:58:51 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.41 2005-09-20 21:52:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uispinbox.h"
 #include "vismaterial.h"
 #include "visselman.h"
+#include "visdataman.h"
 #include "vistexture3.h"
 #include "vissurvscene.h"
 #include "visseedstickeditor.h"
@@ -64,6 +65,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , visserv(ps)
     , init(false)
     , createmnuitem("Create")
+    , seedpicker( 0 )
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -127,6 +129,9 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     //engine().seedpropertychange.notify(
 	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
+			//
+    visBase::DM().selMan().selnotifier.notify( mCB(this,uiMPEMan,selChangeCB) );
+    visBase::DM().selMan().deselnotifier.notify(mCB(this,uiMPEMan,selChangeCB));
 }
 
 
@@ -137,6 +142,8 @@ uiMPEMan::~uiMPEMan()
     deleteVisObjects();
     //engine().seedpropertychange.remove(
 	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
+    visBase::DM().selMan().selnotifier.remove( mCB(this,uiMPEMan,selChangeCB) );
+    visBase::DM().selMan().deselnotifier.remove(mCB(this,uiMPEMan,selChangeCB));
 }
 
 
@@ -188,21 +195,42 @@ void uiMPEMan::seedClick(CallBacker*)
 
     if ( seedclickobject==-1 )
     {
-	oldactivevol = engine.activeVolume();
-	seedclickobject = clickedobject;
-	engine.setActiveVolume(plane->getCubeSampling());
-
-	const Attrib::SliceSet* cached = plane->getCacheVolume(false);
-	if ( cached )
+	seedpicker = tracker->getSeedPicker(true);
+	if ( !seedpicker || !seedpicker->canSetSectionID() ||
+	     !seedpicker->setSectionID(horizon->sectionID(0)) ||
+	     !seedpicker->startSeedPick() )
 	{
-	    cached->ref();
-	    engine.setAttribData( *plane->getSelSpec(), cached );
+	    seedpicker = 0;
+	    return;
+	}
+
+	const bool haddefaultvol =
+	    engine.activeVolume()==engine.getDefaultActiveVolume();
+
+	CubeSampling newvolume = plane->getCubeSampling();
+	if ( !haddefaultvol )
+	    newvolume.limitTo(engine.activeVolume());
+
+	if ( newvolume.isEmpty() )
+	    return;
+
+	oldactivevol = engine.activeVolume();
+	engine.setActiveVolume(newvolume);
+	seedclickobject = clickedobject;
+
+	if ( haddefaultvol )
+	{
+	    const Attrib::SliceSet* cached = plane->getCacheVolume(false);
+	    if ( cached )
+	    {
+		cached->ref();
+		engine.setAttribData( *plane->getSelSpec(), cached );
+	    }
 	}
     }
     else if ( clickedobject!=seedclickobject )
 	return;
 
-    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
     if ( !seedpicker )
 	return;
 
@@ -293,6 +321,12 @@ void uiMPEMan::updateAttribNames()
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
+    if ( seedpicker )
+    {
+	seedpicker->stopSeedPick();
+	seedpicker = 0;
+    }
+
     turnOn( seedidx, yn );
     if ( yn )
     {
@@ -310,6 +344,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	clickcatcher->turnOn(true);
 	clickcatcher->select();
+
     }
     else
     {
@@ -318,6 +353,27 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	clickcatcher->deSelect();
     }
 }
+
+
+void uiMPEMan::selChangeCB(CallBacker*)
+{
+    bool hastracker = false;
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size()==1 )
+    {
+	const MultiID* mid = visserv->getMultiID(selectedids[0]);
+	if ( mid )
+	{
+	    const EM::ObjectID oid = EM::EMManager::multiID2ObjectID(*mid);
+	    const int trackerid = MPE::engine().getTrackerByObject(oid);
+	    if ( trackerid!=-1 ) hastracker = true;
+	}
+    }
+
+    
+    setSensitive( seedidx, hastracker );
+}
+
 
 #define mSelCBImpl( sel ) \
     mGetDisplays(false) \
