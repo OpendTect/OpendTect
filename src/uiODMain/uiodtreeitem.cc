@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.104 2005-09-19 07:31:41 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.105 2005-09-20 07:18:05 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -1534,7 +1534,7 @@ void uiODPickSetTreeItem::updateColumnText( int col )
 	else
 	{
 	    Color color = psd->getColor();
-	    ioPixmap pixmap(10,6);
+	    ioPixmap pixmap(16,10);
 	    pixmap.fill(color);
 	    uilistviewitem->setPixmap( 2, pixmap );
 	}
