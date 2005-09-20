@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.13 2005-09-15 07:44:54 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.14 2005-09-20 15:10:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,6 +167,19 @@ bool Similarity::getTrcPos()
     }
 
     return true;
+}
+
+
+void Similarity::initSteering()
+{
+    for( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( !inputs[idx] )
+	    continue;
+
+	if ( inputs[idx]->getDesc().isSteering() )
+	    inputs[idx]->initSteering(stepout);
+    }
 }
 
 

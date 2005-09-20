@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.28 2005-09-08 09:47:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.29 2005-09-20 15:10:04 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -352,7 +352,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 {
     BufferString steeringtype = steeringpar.find("Type");
     BufferString steeringdef = steeringtype;
-    steeringdef += " stepout=";
+/*    steeringdef += " stepout=";
     const char* stepoutstr = steeringpar.find( "Stepout" );
     if ( stepoutstr )
 	steeringdef += stepoutstr;
@@ -396,7 +396,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	else
 	    steeringdef += "5,5";
     }
-
+*/
     if ( steeringtype == "ConstantSteering" )
     {
 	steeringdef += " ";

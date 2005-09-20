@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.6 2005-09-02 14:21:35 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.7 2005-09-20 15:10:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,19 @@ Position::Position( Desc& desc_ )
 Position::~Position()
 {
     delete outdata;
+}
+
+
+void Position::initSteering()
+{
+    for( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( !inputs[idx] )
+	    continue;
+
+	if ( inputs[idx]->getDesc().isSteering() )
+	    inputs[idx]->initSteering(stepout);
+    }
 }
 
 

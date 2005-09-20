@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.36 2005-09-15 09:06:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.37 2005-09-20 15:10:04 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -749,6 +749,12 @@ bool Provider::init()
 }
 
 
+void Provider::setOutputInterestSize()
+{
+    outputinterest = TypeSet<int>(desc.nrOutputs(),0);
+}
+
+
 int Provider::getDataIndex( int input ) const
 {
     return desc.getInput(input) ? desc.getInput(input)->selectedOutput() : -1;
@@ -777,6 +783,9 @@ void Provider::setInput( int inp, Provider* np )
 {
     if ( inputs[inp] )
     {
+	if ( inputs[inp]->desc.isSteering() )
+	    initSteering();
+
 	TypeSet<int> inputoutputs;
 	if ( getInputOutput( inp, inputoutputs ) )
 	{
@@ -791,6 +800,9 @@ void Provider::setInput( int inp, Provider* np )
 	return;
 
     inputs[inp]->ref();
+    if ( inputs[inp]->desc.isSteering() )
+	initSteering();
+    
     TypeSet<int> inputoutputs;
     if ( getInputOutput( inp, inputoutputs ) )
     {

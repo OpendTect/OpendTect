@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.10 2005-09-14 14:38:31 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.11 2005-09-20 15:10:32 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -175,6 +175,19 @@ VolStats::~VolStats()
 {
     deepErase( *stats );
     delete stats;
+}
+
+
+void VolStats::initSteering()
+{
+    for( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( !inputs[idx] )
+	    continue;
+
+	if ( inputs[idx]->getDesc().isSteering() )
+	    inputs[idx]->initSteering(stepout);
+    }
 }
 
 
