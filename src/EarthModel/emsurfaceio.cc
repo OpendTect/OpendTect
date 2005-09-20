@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.47 2005-05-17 09:29:05 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.48 2005-09-20 15:59:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -333,7 +333,7 @@ int EM::dgbSurfaceReader::nextStep()
 
     if ( !nrdone )
     {
-	surface->geometry.removeAll();
+	surface->cleanUp();
 	surface->setDBInfo( dbinfo );
 	for ( int idx=0; idx<auxdatasel.size(); idx++ )
 	{
