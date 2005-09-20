@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.24 2004-10-21 12:35:25 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.25 2005-09-20 16:28:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
 
     BinID		nextBinID() const;
 
-    bool		goTo(const BinID&);
+    bool		goTo(const BinID&,bool nearest_is_ok=false);
     bool		toStart();
     bool		toNext()	{ return skip(false); }
     bool		skip(bool force_next_position=false);
@@ -70,7 +70,6 @@ public:
 			//!< returns an error message, or null if OK.
 
     int			trcNrAtPosition() const		{ return posidx; }
-    const BinIDRange&	binIDRange() const		{ return bidrg; }
 
     const TypeSet<Coord>& trailerCoords() const	 { return trailercoords_; }
 
@@ -85,11 +84,12 @@ protected:
     bool		readTrailer();
     void		getText(int,BufferString&);
     void		toOffs(std::streampos);
-    bool		getNextBinID(BinID&,int&,int&);
-    int			getPosNr(const BinID&,int&,int&) const;
-    Coord		getTrailerCoord( const BinID& bid ) const;
-    bool		goTo(int posnr,const BinID&,int,int);
+    bool		getNextBinID(BinID&,int&,int&) const;
+    int			getPosNr(const BinID&,bool,bool) const;
+    Coord		getTrailerCoord(const BinID&) const;
     void		mkPosNrs();
+    bool		goToPosNrOffs(int posnr);
+    void		setPos(int,const BinID&,int,int);
 
 private:
 
@@ -97,8 +97,6 @@ private:
     int			bytespertrace;
     BinID		firstbinid;
     BinID		lastbinid;
-    int			curinlinfnr_;
-    int			cursegnr_;
     int			posidx;
     int			auxnrbytes;
     bool		needaux;
@@ -116,8 +114,8 @@ private:
     std::streampos	datastartfo;
 
     friend class	CBVSReadMgr;
-    void		setCurBinID( const BinID& b )
-			{ curbinid_ = b; }
+    mutable int		curinlinfnr_;
+    mutable int		cursegnr_;
     CoordPol		coordPol() const	{ return coordpol_; }
 
 };

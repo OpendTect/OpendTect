@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.11 2004-10-20 14:45:42 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.12 2005-09-20 16:28:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,12 +51,13 @@ protected:
 
     const char*		errmsg_;
     int*		cnrbytes_;
-    BinID		curbinid_;
     int			nrcomps_;
     bool		strmclosed_;
     int			nrxlines_;
     CoordPol		coordpol_;
     TypeSet<Coord>	trailercoords_;
+
+    mutable BinID	curbinid_;
 
 };
 

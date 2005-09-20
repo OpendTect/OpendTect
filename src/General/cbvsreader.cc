@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.58 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.59 2005-09-20 16:28:08 cvsbert Exp $";
 
 /*!
 
@@ -390,18 +390,27 @@ void CBVSReader::toOffs( std::streampos sp )
 }
 
 
-bool CBVSReader::goTo( const BinID& bid )
+bool CBVSReader::goTo( const BinID& bid, bool nearestok )
 {
-    int ci = curinlinfnr_, cc = cursegnr_;
-    int posnr = getPosNr( bid, ci, cc );
-    if ( posnr < 0 ) return false;
+    if ( strmclosed_ ) return false;
 
-    return goTo( posnr, bid, ci, cc );
+    const int posnr = getPosNr( bid, nearestok, true );
+    return goToPosNrOffs( posnr );
 }
 
 
-bool CBVSReader::goTo( int posnr, const BinID& bid, int ci, int cs )
+void CBVSReader::setPos( int posnr, const BinID& bid, int iinlinf, int iseg )
 {
+    curbinid_ = bid;
+    curinlinfnr_ = iinlinf; cursegnr_ = iseg;
+    goToPosNrOffs( posnr );
+}
+
+
+bool CBVSReader::goToPosNrOffs( int posnr )
+{
+    if ( posnr < 0 ) return false;
+
     // Be careful: offsets can be larger than what fits in an int!
     std::streamoff so = posnr * (info_.nrtrcsperposn < 2
 	    	      ? 1 : info_.nrtrcsperposn);
@@ -409,79 +418,82 @@ bool CBVSReader::goTo( int posnr, const BinID& bid, int ci, int cs )
 
     toOffs( datastartfo + std::streampos(so) );
     hinfofetched = false;
-    curbinid_ = bid;
-    curinlinfnr_ = ci; cursegnr_ = cs;
     return true;
 }
 
 
-int CBVSReader::getPosNr( const BinID& bid,
-			  int& curinlinfnr, int& cursegnr ) const
+int CBVSReader::getPosNr( const BinID& bid, bool nearestok,
+			  bool setcurrent ) const
 {
-    if ( strmclosed_ ) return -1;
+    int posnr = -1;
+    BinID nearestbinid( curbinid_ );
+    int inlinfnr = curinlinfnr_;
+    int segnr = cursegnr_;
 
-    int posnr = 0;
-    BinID curbinid;
     if ( info_.geom.fullyrectandreg )
     {
 	if ( !bidrg.includes(bid) )
 	    return -1;
 	
 	if ( info_.geom.step.inl == 1 )
-	    curbinid.inl = bid.inl;
+	    nearestbinid.inl = bid.inl;
 	else
 	{
 	    StepInterval<int> inls( firstbinid.inl, lastbinid.inl,
 				    info_.geom.step.inl );
-	    curbinid.inl = inls.atIndex( inls.nearestIndex( bid.inl ) );
+	    nearestbinid.inl = inls.atIndex( inls.nearestIndex( bid.inl ) );
 	}
 	if ( info_.geom.step.crl == 1 )
-	    curbinid.crl = bid.crl;
+	    nearestbinid.crl = bid.crl;
 	else
 	{
 	    StepInterval<int> crls( firstbinid.crl, lastbinid.crl,
 				    info_.geom.step.crl );
-	    curbinid.crl = crls.atIndex( crls.nearestIndex( bid.crl ) );
+	    nearestbinid.crl = crls.atIndex( crls.nearestIndex( bid.crl ) );
 	}
-	posnr =
-	    ((bid.inl-firstbinid.inl) / info_.geom.step.inl) * nrxlines_
-	  + ((bid.crl-firstbinid.crl) / info_.geom.step.crl);
+	posnr = ((nearestbinid.inl-firstbinid.inl) / info_.geom.step.inl)
+	    		* nrxlines_
+	      + ((nearestbinid.crl-firstbinid.crl) / info_.geom.step.crl);
     }
     else
     {
-	const PosInfo::InlData* curiinf = info_.geom.cubedata[curinlinfnr];
-	const PosInfo::InlData::Segment* curseg =
-		&curiinf->segments[cursegnr];
-	posnr = posnrs[curinlinfnr];
+	const PosInfo::InlData* iinf = info_.geom.cubedata[inlinfnr];
+	const PosInfo::InlData::Segment* seg = &iinf->segments[segnr];
+	posnr = posnrs[inlinfnr];
 
-	if ( bid.inl != curiinf->inl || !curseg->includes(bid.crl) )
+	// Optimisation: Still in right segment?
+	if ( bid.inl != iinf->inl || !seg->includes(bid.crl) )
 	{
-	    if ( bid.inl != curiinf->inl )
+	    // Nope. Maybe another segment on this inline?
+	    if ( bid.inl != iinf->inl )
 	    {
+		// Nope. We need to search.
 		const int sz = info_.geom.cubedata.size();
 		for ( int iinl=0; iinl<sz; iinl++ )
 		{
-		    curiinf = info_.geom.cubedata[iinl];
-		    if ( curiinf->inl == bid.inl )
+		    iinf = info_.geom.cubedata[iinl];
+		    if ( iinf->inl == bid.inl )
 		    {
-			curinlinfnr = iinl;
+			inlinfnr = iinl;
 			posnr = posnrs[iinl];
 			break;
 		    }
 		}
-		if ( curiinf->inl != bid.inl )
+		if ( iinf->inl != bid.inl )
 		    return -1;
 	    }
 
+	    // Now we know we have the right inline, find segment:
 	    bool foundseg = false;
-	    for ( int iseg=0; iseg<curiinf->segments.size(); iseg++ )
+	    segnr = 0;
+	    for ( int iseg=0; iseg<iinf->segments.size(); iseg++ )
 	    {
-		curseg = &curiinf->segments[iseg];
-		if ( !curseg->includes(bid.crl) )
-		    posnr += curseg->nrSteps() + 1;
+		seg = &iinf->segments[iseg];
+		if ( !seg->includes(bid.crl) )
+		    posnr += seg->nrSteps() + 1;
 		else
 		{
-		    cursegnr = iseg;
+		    segnr = iseg;
 		    foundseg = true;
 		    break;
 		}
@@ -489,13 +501,19 @@ int CBVSReader::getPosNr( const BinID& bid,
 	    if ( !foundseg ) return -1;
 	}
 
-	int segposn = curseg->nearestIndex( bid.crl );
+	int segposn = seg->nearestIndex( bid.crl );
 	posnr += segposn;
-	curbinid.inl = curiinf->inl;
-	curbinid.crl = curseg->atIndex( segposn );
+	nearestbinid.inl = iinf->inl;
+	nearestbinid.crl = seg->atIndex( segposn );
     }
 
-    return posnr;
+    const int ret = nearestok || bid == nearestbinid ? posnr : -1;
+    if ( ret >= 0 && setcurrent )
+    {
+	curbinid_ = nearestbinid;
+	curinlinfnr_ = inlinfnr; cursegnr_ = segnr;
+    }
+    return ret;
 }
 
 
@@ -507,10 +525,10 @@ void CBVSReader::mkPosNrs()
     int posnr = 0;
     for ( int iinl=0; iinl<sz; iinl++ )
     {
-	const PosInfo::InlData& curiinf = *info_.geom.cubedata[iinl];
+	const PosInfo::InlData& iinf = *info_.geom.cubedata[iinl];
 
-	for ( int iseg=0; iseg<curiinf.segments.size(); iseg++ )
-	    posnr += curiinf.segments[iseg].nrSteps() + 1;
+	for ( int iseg=0; iseg<iinf.segments.size(); iseg++ )
+	    posnr += iinf.segments[iseg].nrSteps() + 1;
 
 	posnrs += posnr;
     }
@@ -563,19 +581,19 @@ bool CBVSReader::skip( bool tonextpos )
 
 BinID CBVSReader::nextBinID() const
 {
-    BinID bid; int ci = curinlinfnr_; int cc = cursegnr_;
-    const_cast<CBVSReader*>(this)->getNextBinID( bid, ci, cc );
+    BinID bid( curbinid_ ); int ci = curinlinfnr_, cc = cursegnr_;
+    getNextBinID( bid, ci, cc );
     return bid;
 }
 
 
-bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
+bool CBVSReader::getNextBinID( BinID& bid, int& inlinfnr, int& segnr ) const
 {
-    if ( curbinid_ == lastbinid )
-	{ bid = BinID(0,0); return false; }
+#define mRetNoMore \
+    { bid = firstbinid; inlinfnr = 0; segnr = 0; return false; }
 
-    if ( &bid != &curbinid_ )
-	bid = curbinid_;
+    if ( bid == lastbinid )
+	mRetNoMore
 
     if ( info_.geom.fullyrectandreg )
     {
@@ -590,9 +608,9 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
     }
     else
     {
-	const PosInfo::InlData* inlinf = info_.geom.cubedata[curinlinfnr];
+	const PosInfo::InlData* inlinf = info_.geom.cubedata[inlinfnr];
 	const PosInfo::InlData::Segment* curseg =
-		&inlinf->segments[cursegnr];
+		&inlinf->segments[segnr];
 	bid.crl += curseg->step;
 	if ( !curseg->includes(bid.crl) )
 	{
@@ -602,17 +620,17 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
 		bid.crl = curseg->stop;
 	    else
 	    {
-		cursegnr++;
-		if ( cursegnr < inlinf->segments.size() )
-		    bid.crl = inlinf->segments[cursegnr].start;
+		segnr++;
+		if ( segnr < inlinf->segments.size() )
+		    bid.crl = inlinf->segments[segnr].start;
 		else
 		{
-		    cursegnr = 0;
-		    curinlinfnr++;
-		    if ( curinlinfnr >= info_.geom.cubedata.size() )
-			{ pErrMsg("Huh"); bid = BinID(0,0); return false; }
-		    inlinf = info_.geom.cubedata[curinlinfnr];
-		    curseg = &inlinf->segments[cursegnr];
+		    segnr = 0;
+		    inlinfnr++;
+		    if ( inlinfnr >= info_.geom.cubedata.size() )
+			{ pErrMsg("Huh"); mRetNoMore }
+		    inlinf = info_.geom.cubedata[inlinfnr];
+		    curseg = &inlinf->segments[segnr];
 		    bid.inl = inlinf->inl;
 		    bid.crl = curseg->start;
 		}
