@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.2 2005-08-20 19:04:04 cvskris Exp $
+ RCS:           $Id: autotracker.h,v 1.3 2005-09-20 09:46:15 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,15 +31,17 @@ class AutoTracker : public Executor
 {
 public:
 				AutoTracker( EMTracker&, const EM::SectionID& );
+    void			setNewSeeds( const TypeSet<EM::PosID>& );
     int				nextStep();
     int				nrDone() const { return nrdone; }
     int				totalNr() const { return totalnr; }
 
 protected:
+    bool			addSeed( const EM::PosID& );
     int				nrdone;
     int				totalnr;
 
-    const EM::SectionID		sid;
+    const EM::SectionID		sectionid;
     TypeSet<EM::SubID>		blacklist;
     TypeSet<int>		blacklistscore;
     TypeSet<EM::SubID>		currentseeds;

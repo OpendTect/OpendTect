@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.5 2005-09-14 15:33:12 cvskris Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.6 2005-09-20 09:46:15 cvsduntao Exp $";
 
 #include "autotracker.h"
 
@@ -24,19 +24,19 @@ static const char* rcsID = "$Id: autotracker.cc,v 1.5 2005-09-14 15:33:12 cvskri
 namespace MPE 
 {
 
-AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sectionid )
+AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
     : Executor("Autotracker")
     , emtracker( et )
     , emobject( *EM::EMM().getObject(et.objectID()) )
-    , sid( sectionid )
-    , sectiontracker( et.getSectionTracker(sectionid,true) )
+    , sectionid( sid )
+    , sectiontracker( et.getSectionTracker(sid,true) )
     , nrdone( 0 )
     , totalnr( 0 )
 {
     extender = sectiontracker->extender();
     adjuster = sectiontracker->adjuster();
 
-    PtrMan<EM::EMObjectIterator> iterator = emobject.createIterator(sid);
+    PtrMan<EM::EMObjectIterator> iterator = emobject.createIterator(sectionid);
     totalnr = iterator->maximumSize();
 
     const CubeSampling activevolume = engine().activeVolume();
@@ -48,21 +48,20 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sectionid )
 	    break;
 
 	if ( totalnr>0 ) totalnr--;
-
-	if ( !emobject.isAtEdge(pid) )
-	    continue;
-
-	const Coord3& pos = emobject.getPos(pid);
-
-	if ( !activevolume.zrg.includes(pos.z) )
-	    continue;
 	
-	const BinID bid = SI().transform(pos);
-	if ( !activevolume.hrg.includes(bid) )
-	    continue;
-
-	currentseeds += pid.subID();
+	addSeed(pid);
     }
+
+    totalnr = currentseeds.size();
+}
+
+
+void AutoTracker::setNewSeeds( const TypeSet<EM::PosID>& seeds )
+{
+    currentseeds.erase();
+
+    for( int idx=0; idx<seeds.size(); ++idx )
+	addSeed(seeds[idx]);
 
     totalnr = currentseeds.size();
 }
@@ -87,7 +86,7 @@ int AutoTracker::nextStep()
 	if ( blacklistidx<0 ) continue;
 	if ( blacklistscore[blacklistidx]>7 )
 	{
-	    const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
+	    const EM::PosID pid( emobject.id(), sectionid, addedpos[idx] );
 	    emobject.unSetPos(pid,false);
 	    addedpos.remove(idx);
 	    addedpossrc.remove(idx);
@@ -106,7 +105,7 @@ int AutoTracker::nextStep()
     //Add positions that have failed to blacklist
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
+	const EM::PosID pid( emobject.id(), sectionid, addedpos[idx] );
 	if ( !emobject.isDefined(pid) )
 	{
 	    const int blacklistidx = blacklist.indexOf(addedpos[idx]);
@@ -128,12 +127,12 @@ int AutoTracker::nextStep()
 
     nrdone += currentseeds.size();
 
-    //Make all new nodes seeds, apart from them outside the activearea
+    //Make all new nodes seeds, apart from them outsectionide the activearea
     currentseeds.erase();
     const CubeSampling activevolume = engine().activeVolume();
     for ( int idx=0; idx<addedpos.size(); idx++ )
     {
-	const EM::PosID pid( emobject.id(), sid, addedpos[idx] );
+	const EM::PosID pid( emobject.id(), sectionid, addedpos[idx] );
 	const Coord3 pos = emobject.getPos(pid);
 	const BinID bid = SI().transform(pos);
 	if ( activevolume.hrg.includes(bid) &&
@@ -144,5 +143,21 @@ int AutoTracker::nextStep()
     totalnr += currentseeds.size();
     return currentseeds.size() ? MoreToDo : Finished;
 }
+
+
+bool AutoTracker::addSeed( const EM::PosID& pid )
+{
+    if ( pid.sectionID()!=sectionid )	return false;
+    if ( !emobject.isAtEdge(pid) )	return false;
+
+    const Coord3& pos = emobject.getPos(pid);
+    if ( !engine().activeVolume().zrg.includes(pos.z) )	return false;
+    const BinID bid = SI().transform(pos);
+    if ( !engine().activeVolume().hrg.includes(bid) )	return false;
+
+    currentseeds += pid.subID();
+    return true;
+}
+
 
 }; // namespace MPE
