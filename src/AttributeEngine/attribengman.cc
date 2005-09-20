@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.26 2005-09-19 07:37:36 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.27 2005-09-20 07:19:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,6 +181,7 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
     if ( !strcmp(typestr,"Cube") )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
+	outp->setGeometry(cs_);
 	outp->doUsePar( pars );
 	return outp;
     }
