@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.51 2005-09-14 08:23:56 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.52 2005-09-20 21:55:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -867,6 +867,7 @@ visBase::VisualObject* EMObjectDisplay::createSection( Geometry::Element* ge )
 void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
     bool triggermovement = false;
+
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
 
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
@@ -885,13 +886,26 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	    removeChild( sections[idx]->getInventorNode() );
 	    sections[idx]->unRef();
 	    sections.remove( idx );
-	    sectionids.remove(idx);
+	    sectionids.remove( idx );
 	}
 
 	triggermovement = true;
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    {
+	for ( int idx=0; idx<posattribs.size(); idx++ )
+	{
+	    const TypeSet<EM::PosID>* pids =
+		emobject->getPosAttribList(posattribs[idx]);
+
+	    if ( !pids || pids->indexOf(cbdata.pid0)==-1 )
+		continue;
+
+	    updatePosAttrib(posattribs[idx]);
+	}
+
 	triggermovement = true;
+    }
     else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
 	if ( posattribs.indexOf(cbdata.attrib)!=-1 )
