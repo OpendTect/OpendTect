@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.13 2005-09-20 07:29:33 cvsduntao Exp $
+ RCS:		$Id: executor.h,v 1.14 2005-09-20 08:54:05 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,8 @@ public:
     virtual int		nrDone() const;
     virtual const char*	nrDoneText() const;
     
+    int			nrExecutors()
+    			    { return executors.size(); }
     Executor*		getExecutor(int idx)
     			    { return executors[idx]; }
 
