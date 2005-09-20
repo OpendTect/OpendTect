@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.12 2005-08-17 20:44:30 cvskris Exp $
+ RCS:		$Id: executor.h,v 1.13 2005-09-20 07:29:33 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,9 +131,12 @@ public:
     virtual int		totalNr() const;
     virtual int		nrDone() const;
     virtual const char*	nrDoneText() const;
+    
+    Executor*		getExecutor(int idx)
+    			    { return executors[idx]; }
 
     void		setNrDoneText( const char* txt )
-			{ nrdonetext = txt; }
+			    { nrdonetext = txt; }
     			//!< If set, will use this and the counted nrdone
 
 protected:
