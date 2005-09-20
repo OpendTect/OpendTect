@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.23 2005-09-08 10:47:24 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.24 2005-09-20 16:00:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -922,6 +922,8 @@ bool SurfaceGeometry::isDefined( const PosID& posid ) const
 bool SurfaceGeometry::isDefined( const SectionID& sid, const RowCol& rc ) const
 {
     const int surfidx = sectionids.indexOf( sid );
+    if ( surfidx < 0 || surfidx >= meshsurfaces.size() ) return false;
+
     return meshsurfaces[surfidx]->isKnotDefined( rc );
 }
 
