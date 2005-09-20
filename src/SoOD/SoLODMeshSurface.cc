@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.25 2005-08-23 18:14:47 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.26 2005-09-20 13:58:44 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.25 2005-08-23 18:14:47 
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoCullElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/elements/SoShapeStyleElement.h>
 #include <Inventor/lists/SbList.h>
 #include <Inventor/threads/SbRWMutex.h>
 #include <Inventor/system/gl.h>
@@ -2335,13 +2336,10 @@ void SoLODMeshSurface::rayPick(SoRayPickAction* action )
 
 void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 {
-    SoState* state = action->getState();
-    if ( SoComplexityTypeElement::get(state)==
-			SoComplexityTypeElement::BOUNDING_BOX )
-    {
-	GLRenderBoundingBox(action);
+    if ( !shouldGLRender(action) )
 	return;
-    }
+
+    SoState* state = action->getState();
 
     writemutex.readLock();
 
@@ -2628,6 +2626,35 @@ bool SoLODMeshSurface::completeRowEnd(int rowstart)
 
     return changed;
 }
+
+
+SbBool SoLODMeshSurface::shouldGLRender( SoGLRenderAction* action )
+{
+    SoState* state = action->getState();
+
+    const SoShapeStyleElement* shapestyle = SoShapeStyleElement::get(state);
+    unsigned int shapestyleflags = shapestyle->getFlags();
+
+    if (shapestyleflags & SoShapeStyleElement::INVISIBLE)
+	return false;
+
+    const SbBool transparent = (shapestyleflags &
+	    (SoShapeStyleElement::TRANSP_TEXTURE |
+	     SoShapeStyleElement::TRANSP_MATERIAL));
+
+    if ( action->handleTransparency(transparent) )
+	return false;
+
+    if ( SoComplexityTypeElement::get(state)==
+			SoComplexityTypeElement::BOUNDING_BOX )
+    {
+	GLRenderBoundingBox(action);
+	return false;
+    }
+
+    return true;
+}
+
 
 #define mNonDefaultCheckImpl( type, field ) \
     const type* vals = field.getValues(0); \

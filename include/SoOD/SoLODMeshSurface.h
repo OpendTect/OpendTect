@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoLODMeshSurface.h,v 1.4 2005-08-23 20:28:35 cvskris Exp $
+ RCS:		$Id: SoLODMeshSurface.h,v 1.5 2005-09-20 13:58:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -143,6 +143,7 @@ public:
     int			nrRows() const;
 
 protected:
+    SbBool		shouldGLRender(SoGLRenderAction*);
     bool		isMaterialNonDefault() const;
     bool		isMeshStyleNonDefault() const;
     void		notify( SoNotList* );
