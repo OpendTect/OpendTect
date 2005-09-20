@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.16 2005-08-19 19:57:16 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.17 2005-09-20 16:03:17 cvsnanne Exp $";
 
 #include "vismpeeditor.h"
 
@@ -226,12 +226,9 @@ void MPEEditor::mouseClick( const EM::PosID& pid,
 			    bool shift, bool alt, bool ctrl )
 {
     if ( !shift && !alt && !ctrl )
-	moveTemporaryNode(pid);
-    else if ( shift && !alt && !ctrl &&
-	temporarynode.objectID()!=-1 && temporarynode!=pid )
-    {
-	extendInteractionLine(pid);
-    }
+	moveTemporaryNode( pid );
+    else if ( shift && !alt && !ctrl && temporarynode.objectID()!=-1 )
+	extendInteractionLine( pid );
 }
 
 
@@ -389,7 +386,7 @@ void MPEEditor::clickCB( CallBacker* cb )
     {
 	if ( eventinfo.shift )
 	{
-	    extendInteractionLine(posids[nodeidx]);
+	    extendInteractionLine( posids[nodeidx] );
 	    activenode = EM::PosID::udf();
 	}
 	else if ( !eventinfo.ctrl && !eventinfo.shift && !eventinfo.alt )
@@ -568,29 +565,28 @@ void MPEEditor::setupInteractionLineDisplay()
 } 
 
 
-void MPEEditor::extendInteractionLine(const EM::PosID& pid)
+void MPEEditor::extendInteractionLine( const EM::PosID& pid )
 {
     setupInteractionLineDisplay();
-    if ( !interactionlinedisplay )
+    if ( !interactionlinedisplay || activenode == EM::PosID::udf() )
 	return;
 
     EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor->emObject());
-    mDynamicCastGet( EM::Surface&, emsurface, emobj );
-    const RowCol rc(pid.subID());
+    mDynamicCastGet(EM::Surface&,emsurface,emobj);
+    const RowCol rc( pid.subID() );
 
     EM::EdgeLineSet* edgelineset = emeditor->getInteractionLine();
-    if ( ( !edgelineset->getLine(0)->nrSegments() ||
-	 !edgelineset->getLine(0)->getSegment(0)->size() ) &&
-	 emsurface.geometry.isAtEdge(activenode) )
+    if ( !edgelineset->getLine(0)->nrSegments() ||
+	 !edgelineset->getLine(0)->getSegment(0)->size() )
     {
 	//Start a new line
-	const RowCol activenoderc(activenode.subID());
+	const RowCol activenoderc( activenode.subID() );
 	EM::EdgeLine* edgeline = edgelineset->getLine(0);
 	if ( !edgeline->nrSegments() )
 	{
 	    EM::EdgeLineSegment* elsegment=
 	        new EM::EdgeLineSegment( emsurface, pid.sectionID() );
-	    elsegment->insert(0, activenoderc );
+	    elsegment->insert( 0, activenoderc );
 	    edgeline->insertSegment(elsegment, 0, false);
 	}
 	else
@@ -605,7 +601,7 @@ void MPEEditor::extendInteractionLine(const EM::PosID& pid)
     EM::EdgeLineSegment& els =*edgelineset->getLine(0)->getSegment(0);
     const RowCol lastrc = els.last();
     TypeSet <RowCol> line;
-    RowCol::makeLine( lastrc, rc, line, emsurface.geometry.step());
+    RowCol::makeLine( lastrc, rc, line, emsurface.geometry.step() );
 
     bool nodefound = false;
     for ( int idx=1; idx<line.size(); idx++ )
@@ -641,6 +637,4 @@ void MPEEditor::extendInteractionLine(const EM::PosID& pid)
     }
 }
     
-
-
 }; //namespce

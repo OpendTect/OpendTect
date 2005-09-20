@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.7 2005-08-19 14:17:23 cvsnanne Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.8 2005-09-20 16:02:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ uiEMHorizonEditor::uiEMHorizonEditor( uiParent* p, MPE::HorizonEditor* he )
     , editsettingsmnuitem( "Editor settings" )
     , splitsectionmnuitem( "Split" )
     , makestoplinemnuitem( "Disable Tracking" )
+    , removenodesmnuitem( "Remove nodes inside" )
 {}
 
 
@@ -170,7 +171,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 	for ( int idx=1; idx<interactionline.size()-1; idx++ )
 	{
 	    const EM::PosID posid( interactionline.getSurface().id(), sid,
-				   interactionline[idx].getSerialized());
+				   interactionline[idx].getSerialized() );
 	    if ( surface.geometry.isAtEdge(posid) )
 		noneonedge = false;
 	}
@@ -180,49 +181,48 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 	canstop = canMakeStopLine( *lineset, interactionline, dummy, dummybool);
     }
 
-    mAddMenuItem( menu, &splitsectionmnuitem, noneonedge, false );
-    mAddMenuItem( menu, &makestoplinemnuitem, canstop, false );
+//  mAddMenuItem( menu, &splitsectionmnuitem, noneonedge, false );
+//  mAddMenuItem( menu, &makestoplinemnuitem, canstop, false );
+    mAddMenuItem( menu, &removenodesmnuitem,
+	    	  interactionline.isClosed(), false );
 }
 
 
-void uiEMHorizonEditor::handleInteractionLineMenus(CallBacker* cb)
+void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet( MenuHandler*, menu, caller );
+    mDynamicCastGet(MenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    EM::EdgeLineSegment& interactionline =
-	*editor->getInteractionLine()->getLine(0)->getSegment(0);
+    EM::EdgeLine& interactionline = *editor->getInteractionLine()->getLine(0);
+    EM::EdgeLineSegment& interactionlineseg = *interactionline.getSegment(0);
 
     const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
-    mDynamicCastGet( EM::Surface&, surface, emobj );
-    EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet(sid,true);
-
+    mDynamicCastGet(EM::Surface&,surface,emobj)
+    EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet( sid, true );
     if ( !lineset )
         return;
 
-
     const int mainlineidx = lineset->getMainLine();
-    EM::EdgeLine* mainline = lineset->getLine(mainlineidx);
+    EM::EdgeLine* mainline = lineset->getLine( mainlineidx );
     if ( !mainline ) return;
 
     bool handled = false;
-    if ( mnuid==splitsectionmnuitem.id )
+    if ( mnuid == splitsectionmnuitem.id )
     {
-	const EM::SectionID sid = interactionline.getSection();
 	const EM::SectionID newsection = surface.geometry.cloneSection(sid);
 
 	EM::SurfaceConnectLine* part1cut =
 	    EM::SurfaceConnectLine::create( surface, sid );
 	part1cut->setConnectingSection( newsection );
-	part1cut->copyNodesFrom(&interactionline, true );
+	part1cut->copyNodesFrom( &interactionlineseg, true );
 
 	EM::SurfaceConnectLine* part2cut =
 	    EM::SurfaceConnectLine::create( surface, newsection );
 	part2cut->setConnectingSection( sid );
-	part2cut->copyNodesFrom(&interactionline, false );
+	part2cut->copyNodesFrom( &interactionlineseg, false );
 
 	EM::EdgeLineSet* lineset2 =
 	    surface.edgelinesets.getEdgeLineSet(newsection,false); 
@@ -237,27 +237,46 @@ void uiEMHorizonEditor::handleInteractionLineMenus(CallBacker* cb)
 	lineset2->removeAllNodesOutsideLines();
 	handled = true;
     }
-    else if ( mnuid==makestoplinemnuitem.id )
+    else if ( mnuid == makestoplinemnuitem.id )
     {
 	int linenr;
 	bool forward;
-	if ( !canMakeStopLine( *lineset, interactionline, linenr, forward) )
+	if ( !canMakeStopLine(*lineset,interactionlineseg,linenr,forward) )
 	    return;
 
-	const EM::SectionID sid = interactionline.getSection();
-
 	EM::EdgeLineSegment* terminationsegment =
-	    EM::TerminationEdgeLineSegment::create( surface, sid );
-	terminationsegment->copyNodesFrom(&interactionline, !forward );
+		EM::TerminationEdgeLineSegment::create( surface, sid );
+	terminationsegment->copyNodesFrom( &interactionlineseg, !forward );
 
 	lineset->getLine(linenr)->insertSegment( terminationsegment, -1, true );
 	handled =true;
+    }
+    else if ( mnuid == removenodesmnuitem.id )
+    {
+	const RowCol step = surface.geometry.step();
+	const bool rightturn = interactionline.isHole();
+	EM::PosID pid( surface.id() );
+	RowCol start, stop;
+	interactionline.getBoundingBox( start, stop );
+	RowCol rc;
+	for ( rc.row=start.row; rc.row<=stop.row; rc.row+=step.row )
+	{
+	    for ( rc.col=start.col; rc.col<=stop.col; rc.col+=step.col )
+	    {
+		pid.setSubID( surface.geometry.rowCol2SubID(rc) );
+		const bool isinside = interactionline.isInside( pid, false );
+		if ( rightturn != isinside )
+		    surface.setPos( pid, Coord3(0,0,mUdf(float)), true );
+	    }
+	}
+
+	handled = true;
     }
 
     if ( handled )
     {
 	menu->setIsHandled(true);
-	interactionline.removeAll();
+	interactionlineseg.removeAll();
     }
 }
 
@@ -321,9 +340,4 @@ bool uiEMHorizonEditor::canMakeStopLine( const EM::EdgeLineSet& lineset,
     return false;
 }
 
-
-
-
-
-
-};
+} // namespace MPE

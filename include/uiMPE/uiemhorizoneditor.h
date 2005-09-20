@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uiemhorizoneditor.h,v 1.3 2005-07-31 06:17:44 cvskris Exp $
+ RCS:		$Id: uiemhorizoneditor.h,v 1.4 2005-09-20 16:02:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ protected:
 
     MenuItem		splitsectionmnuitem;
     MenuItem		makestoplinemnuitem;
+    MenuItem		removenodesmnuitem;
 };
 
 };

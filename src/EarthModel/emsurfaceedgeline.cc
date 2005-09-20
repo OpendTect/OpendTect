@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.25 2005-05-17 09:29:05 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.26 2005-09-20 16:01:43 cvsnanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -46,8 +46,7 @@ const char* EdgeLineManager::sectionkey = "Sectionlines ";
 mEdgeLineSegmentFactoryEntry(EdgeLineSegment);
 
 
-EdgeLineSegment::EdgeLineSegment( Surface& surf,
-				      const SectionID& sect )
+EdgeLineSegment::EdgeLineSegment( Surface& surf, const SectionID& sect )
     : surface( surf )
     , section( sect )
     , notifier( 0 )
@@ -172,16 +171,16 @@ void EdgeLineSegment::copyNodesFrom( const TypeSet<RowCol>& templ, bool reverse)
 
 void EdgeLineSegment::copyNodesFrom( const EdgeLineSegment* templ, bool reverse)
 {
-    if ( templ ) copyNodesFrom(templ->getNodes(), reverse );
+    if ( templ ) copyNodesFrom( templ->getNodes(), reverse );
 }
 
 
-const RowCol& EdgeLineSegment::operator[](int idx) const
+const RowCol& EdgeLineSegment::operator[]( int idx ) const
 { return nodes[idx]; }
 
 
 const EdgeLineSegment&
-EdgeLineSegment::operator+=(const RowCol& rc)
+EdgeLineSegment::operator+=( const RowCol& rc )
 {
     nodes += rc;
     if ( notifier ) notifier->trigger();
@@ -193,7 +192,7 @@ bool EdgeLineSegment::isClosed() const
 { return size()>3 && isContinuedBy(this); }
 
 
-bool EdgeLineSegment::isContinuedBy(  const EdgeLineSegment* seg ) const
+bool EdgeLineSegment::isContinuedBy( const EdgeLineSegment* seg ) const
 {
     if ( !seg ) return false;
     const int sz = size();
@@ -213,8 +212,8 @@ bool EdgeLineSegment::isAtEdge( const RowCol& rc ) const
 }
 
 
-bool EdgeLineSegment::isByPassed(int idx, const EdgeLineSegment* prev,
-					 const EdgeLineSegment* next) const
+bool EdgeLineSegment::isByPassed( int idx, const EdgeLineSegment* prev,
+				  const EdgeLineSegment* next ) const
 {
     if ( (!idx && (!prev || !prev->isContinuedBy(this) )) ||
 	   idx==size()-1 && (!next || !isContinuedBy(next) ) )
@@ -238,21 +237,22 @@ bool EdgeLineSegment::isConnToNext(int idx) const
     if ( idx==size()-1 )
 	return true;
 
-    return nodes[idx].isNeighborTo(nodes[idx+1], surface.geometry.step(), true );
+    return nodes[idx].isNeighborTo( nodes[idx+1], surface.geometry.step(),
+	    			    true );
 }
 
 
 bool EdgeLineSegment::isConnToPrev(int idx) const
 {
-    if ( !idx )
-	return true;
+    if ( !idx ) return true;
 
     return nodes[idx].isNeighborTo(nodes[idx-1],surface.geometry.step(),true );
 }
 
 
-bool EdgeLineSegment::areAllNodesOutsideBad(int idx,
-	const EdgeLineSegment* prev, const EdgeLineSegment* next) const
+bool EdgeLineSegment::areAllNodesOutsideBad( int idx,
+					     const EdgeLineSegment* prev,
+					     const EdgeLineSegment* next) const
 {
     if ( (!idx&&!prev) || (idx==size()-1&&!next) )
 	return true;
@@ -829,7 +829,7 @@ bool EdgeLine::isInside( const RowCol& rc, bool undefval ) const
 	const int distsquare = diff.row*diff.row+diff.col*diff.col;
 	if ( first || distsquare<shortestdistsquare )
 	{
-	    if ( !distsquare ) return true;
+	    if ( !distsquare ) return undefval;
 	    shortestdistsquare = distsquare;
 	    first = false;
 	    nodeidx = iter.currentNodeIdx();
@@ -883,8 +883,7 @@ bool EdgeLine::isHole() const
 	for ( int idx=0; idx<segments[segment]->size(); idx++ )
 	{
 	    const RowCol rc = (*segments[segment])[idx];
-	    if ( (!idx && !segment) ||
-		    rcs[rcs.size()-1].isNeighborTo(prevrc,step,true ) )
+	    if ( (!idx && !segment) || rc.isNeighborTo(prevrc,step,true) )
 	    {
 		prevrc = rc;
 		rcs += rc;
@@ -900,8 +899,7 @@ bool EdgeLine::isHole() const
 	for ( int idx=0; nrextra && idx<segments[segment]->size(); idx++ )
 	{
 	    const RowCol rc = (*segments[segment])[idx];
-	    if ( (!idx && !segment) ||
-		    rcs[rcs.size()-1].isNeighborTo(prevrc,step,true ) )
+	    if ( (!idx && !segment) || rc.isNeighborTo(prevrc,step,true) )
 	    {
 		prevrc = rc;
 		rcs += rc;
@@ -1227,8 +1225,8 @@ bool EdgeLine::repairLine()
 	}
 
 	const int startidx = forward ? 0 : prevseg->size()-1;
-	EM::EdgeLineIterator iterator( *this, forward,
-					forward ? idz : previdx, startidx );
+	EdgeLineIterator iterator( *this, forward,
+				   forward ? idz : previdx, startidx );
 	RowCol stop = iterator.currentRowCol();
 
 	TypeSet<int> segmentstoremove;
@@ -1511,6 +1509,26 @@ void EdgeLine::reduceSegments()
 }
 
 
+#define mSetRC( rc, oper, rowcol ) \
+    if ( currc.rowcol oper rc.rowcol ) rc.rowcol = currc.rowcol;
+
+void EdgeLine::getBoundingBox( RowCol& start, RowCol& stop ) const
+{
+    EdgeLineIterator iterator( *this );
+    start = stop = iterator.currentRowCol();
+    while ( iterator.next() )
+    {
+	const RowCol& currc = iterator.currentRowCol();
+	if ( currc.row < start.row ) start.row = currc.row;
+	if ( currc.col < start.col ) start.col = currc.col;
+	if ( currc.row > stop.row ) stop.row = currc.row;
+	if ( currc.col > stop.col ) stop.col = currc.col;
+    }
+}
+
+
+// EdgeLineIterator
+
 bool EdgeLineIterator::isOK() const
 {
     if ( segment<0 || segment>=el.nrSegments() )
@@ -1551,7 +1569,7 @@ bool EdgeLineIterator::next()
 }
 
 
-PosID EM::EdgeLineIterator::current() const
+PosID EdgeLineIterator::current() const
 {
     const Surface& surface = el.getSurface();
     return PosID( surface.id(), el.getSection(),
@@ -1942,6 +1960,7 @@ void EdgeLineManager::removeAll()
     for ( int idx=0; idx<pids.size(); idx++ )
 	addremovenotify.trigger( pids[idx] );
 }
+
 
 void EdgeLineManager::fillPar( IOPar& par ) const
 {

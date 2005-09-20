@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.16 2005-01-28 13:31:16 bert Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.17 2005-09-20 16:01:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -214,6 +214,8 @@ public:
 
     const EM::Surface&	getSurface() const { return surface; }
     EM::SectionID	getSection() const { return section; }
+
+    void		getBoundingBox(RowCol& start,RowCol& stop) const;
 
     int			cutLineBy( const RowCol& start, const RowCol& stop,
 	   			   const EdgeLineSegment* dontremove = 0 );
