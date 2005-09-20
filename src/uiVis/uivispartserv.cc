@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.273 2005-09-19 22:02:28 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.274 2005-09-20 20:46:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,9 +74,9 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     mpetools = new uiMPEMan( appserv().parent(), this );
     mpetools->display( false );
 
-    visBase::DM().selMan().selnotifer.notify( 
+    visBase::DM().selMan().selnotifier.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifer.notify( 
+    visBase::DM().selMan().deselnotifier.notify( 
 	mCB(this,uiVisPartServer,deselectObjCB) );
 
     vismgr = new uiVisModeMgr(this);
@@ -89,9 +89,9 @@ void uiVisPartServer::unlockEvent()
 
 uiVisPartServer::~uiVisPartServer()
 {
-    visBase::DM().selMan().selnotifer.remove(
+    visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifer.remove(
+    visBase::DM().selMan().deselnotifier.remove(
 	    mCB(this,uiVisPartServer,deselectObjCB) );
 
     deleteAllObjects();
