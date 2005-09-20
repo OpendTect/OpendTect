@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.1 2005-09-19 06:58:43 cvskris Exp $
+ RCS:           $Id: emseedpicker.h,v 1.2 2005-09-20 21:48:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,10 +31,10 @@ class EMSeedPicker
 public:
     virtual		~EMSeedPicker() {}
 
-    bool		canSetSectionID() const { return false; }
-    bool		setSectionID( const EM::SectionID& ) { return false; }
+    virtual bool	canSetSectionID() const { return false; }
+    virtual bool	setSectionID( const EM::SectionID& ) { return false; }
 				
-    EM::SectionID	getSectionID() const { return -1; }
+    virtual EM::SectionID getSectionID() const { return -1; }
 
     virtual bool	startSeedPick() { return false; }
     			/*!<Should be set when seedpicking is about 
@@ -68,9 +68,14 @@ public:
     bool			stopSeedPick();
 
 protected:
+    bool			removeEverythingButSeeds();
+
     TypeSet<EM::PosID>		seedlist;
-    EM::SectionID		sectionid;
+    TypeSet<Coord3>		seedpos;
     int				firsthistorynr;
+    bool			didchecksupport;
+
+    EM::SectionID		sectionid;
     MPE::EMTracker&		tracker;
 };
 
