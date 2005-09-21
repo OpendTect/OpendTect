@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.14 2005-09-19 21:58:51 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.15 2005-09-21 02:29:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 
 namespace EM { class EMManager; };
+namespace MPE { class EMSeedPicker; };
 namespace visSurvey { class MPEDisplay; class MPEClickCatcher;}
 namespace Geometry  { class Element; };
 namespace visSurvey { class PickSetDisplay; }
@@ -54,6 +55,7 @@ protected:
     MenuItem			createmnuitem;
     uiVisPartServer*		visserv;
     CubeSampling		oldactivevol;
+    MPE::EMSeedPicker*		seedpicker;
 
     visSurvey::MPEClickCatcher*	clickcatcher;
 
@@ -62,6 +64,7 @@ protected:
 
     uiSpinBox*			nrstepsbox;
 
+    void			selChangeCB(CallBacker*);
     void			cubeDeselCB(CallBacker*);
     void			cubeSelectCB(CallBacker*);
     void			showCubeCB(CallBacker*);
