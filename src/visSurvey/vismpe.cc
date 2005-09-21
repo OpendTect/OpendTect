@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.20 2005-09-15 08:19:49 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.21 2005-09-21 13:11:50 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -379,6 +379,10 @@ void MPEDisplay::showManipulator( bool yn )
 {
     boxdragger_->turnOn( yn );
 }
+
+
+bool MPEDisplay::isManipulatorShown() const
+{ return boxdragger_->isOn(); }
 
 
 void MPEDisplay::setDraggerTransparency( float transparency )
