@@ -71,7 +71,7 @@ if ( $#argv > 0 ) then
 	    if ( $text == "no" ) then
 		if( $addsilent == "no" ) then
 		    echo $fil "seems to be a binary file"
-		    echo "Use dvs add --addsilent to automatigally add binaries"
+		    echo "Use dvs add --addsilent to automatically add binaries"
 		    echo "Do you want to add it as a binary file? (Y/n)"
 
 		    eval $get_answer
