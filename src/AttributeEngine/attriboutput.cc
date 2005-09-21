@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.27 2005-09-15 09:06:17 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.28 2005-09-21 13:00:28 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -148,7 +148,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs , LineKey lkey )
     , auxpars(0)
     , storid_(*new MultiID)
     , writer_(0)
-    , calcurpos_(0)
+    , trc_(0)
     , prevpos_(-1,-1)
     , storinited_(0)
     , errmsg(0)
@@ -268,26 +268,6 @@ bool SeisTrcStorOutput::doInit()
 }
 
 
-bool SeisTrcStorOutput::setReqs( const BinID& pos )
-{
-    calcurpos_ = true;
-    if ( !is2d_ )
-    {
-	if ( pos == prevpos_ )
-	{
-	    calcurpos_ = false;
-	    return false;
-	}
-	prevpos_ = pos;
-
-	calcurpos_ = desiredvolume.hrg.includes( pos );
-	if ( !calcurpos_ ) return false;
-    }
-
-    return true;
-}
-
-
 class COLineKeyProvider : public LineKeyProvider
 {
 public:
@@ -310,31 +290,48 @@ LineKey lineKey() const
 void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep, 
 				     const SeisTrcInfo& info, int outidx )
 {
-    if ( !calcurpos_ ) return;
-
     int nrcomp = data.nrSeries();
     if ( !nrcomp || nrcomp < desoutputs.size())
 	return;
 
     const int sz = data.nrsamples_;
     DataCharacteristics dc;
-    SeisTrc trc( sz, dc );
-    for ( int idx=trc.data().nrComponents(); idx<desoutputs.size(); idx++)
-	trc.data().addComponent( sz, dc, false );
 
-    trc.info() = info;
-    trc.info().sampling.step = refstep;
-    trc.info().sampling.start = data.z0_*refstep;
+    if ( !trc_ )
+    {
+	trc_ = new SeisTrc( sz, dc );
+	trc_->info() = info;
+	trc_->info().sampling.step = refstep;
+	trc_->info().sampling.start = data.z0_*refstep;
+	for ( int idx=1; idx<desoutputs.size(); idx++)
+	    trc_->data().addComponent( sz, dc, false );
+    }
+    else if ( trc_->info().binid != info.binid )
+    {
+	errmsg = "merge components of two different traces!";
+	return;	    
+    }
+    else
+    {
+	for ( int idx=0; idx<desoutputs.size(); idx++)
+	    trc_->data().addComponent( sz, dc, false );
+    }
 
     for ( int comp=0; comp<desoutputs.size(); comp++ )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    float val = data.series(desoutputs[comp])->value(idx);
-	    trc.set(idx, val, comp);
+	    trc_->set(idx, val, outidx+comp);
 	}
     }
+}
 
+
+void SeisTrcStorOutput::writeTrc()
+{
+    if ( !trc_ ) return;
+    
     if ( !storinited_ )
     {
 	if ( writer_->is2D() )
@@ -348,7 +345,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 		new COLineKeyProvider( *this, nm, curLineKey().lineName()) );
 	}
 
-	if ( !writer_->prepareWork(trc) )
+	if ( !writer_->prepareWork(*trc_) )
 	    { errmsg = writer_->errMsg(); return; }
 
 	if ( !writer_->is2D() )
@@ -362,8 +359,11 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	storinited_ = true;
     }
     
-    if ( !writer_->put(trc) )
+    if ( !writer_->put(*trc_) )
 	{ errmsg = writer_->errMsg(); }
+
+    delete trc_;
+    trc_ = 0;
 }
 
 

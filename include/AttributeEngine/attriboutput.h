@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.13 2005-09-02 14:11:33 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.14 2005-09-21 13:00:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class BinID;
 class BinIDValueSet;
 class MultiID;
 class SeisSelData;
+class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;
 class SeisTrcWriter;
@@ -45,7 +46,7 @@ public:
     virtual TypeSet< Interval<int> >  getLocalZRange( const BinID& ) const = 0;
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&,int outidx)= 0;
-    virtual bool		setReqs(const BinID&) { return true; }
+    virtual void		writeTrc(){};
     const SeisSelData&		getSelData() { return seldata_; }
 
     TypeSet<int>		desoutputs;
@@ -102,10 +103,10 @@ public:
     void			setGeometry(const CubeSampling&);
 
     bool			doUsePar(const IOPar&);
-    bool			setReqs(const BinID&);
     LineKey			curLineKey()	{ return seldata_.linekey_; }
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&,int outidx);
+    void			writeTrc();
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const
 				{ return sampleinterval; }
 
@@ -124,8 +125,8 @@ protected:
     bool			is2d_;
     BufferString 		errmsg;
 
+    SeisTrc*			trc_;
     SeisTrcWriter*		writer_;
-    bool 			calcurpos_;
     BinID 			prevpos_;
     bool			storinited_;
 };

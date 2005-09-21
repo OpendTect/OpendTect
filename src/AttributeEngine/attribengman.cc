@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.27 2005-09-20 07:19:15 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.28 2005-09-21 13:00:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,8 +116,13 @@ void EngineMan::usePar( const IOPar& iopar, const DescSet& attribset,
 
     LineKey lkey( linename, attribset.getDesc(ids[0])->userRef() );
     SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey );
+    
+    int index = 0;
     for ( int idx=0; idx<pset.size(); idx++ )
+    {
 	pset[idx]->addOutput( storeoutp );
+	pset[idx]->setOutputIndex( index );
+    }
 }
 
 
@@ -741,10 +746,6 @@ ExecutorGroup* EngineMan::createLocationOutput( BufferString& errmsg,
 	for ( int idy=0; idy<procset.size(); idy++ )
 	    procset[idy]->addOutput( outputs[idx] );
     }
-
-    int index = 0;
-    for ( int idy=0; idy<procset.size(); idy++ )
-	procset[idy]->setOutputIndex( index );
 
     return createExecutorGroup();
 }

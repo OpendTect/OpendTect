@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.32 2005-09-02 14:53:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.33 2005-09-21 13:00:28 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -300,7 +300,7 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
     {
 	if ( inputs[idx]==desc.inputs[idx] ) continue;
 
-	if ( !inputs[idx]->isIdenticalTo(*desc.inputs[idx],cmpoutput) )
+	if ( !inputs[idx]->isIdenticalTo(*desc.inputs[idx], true) )
 	    return false;
     }
 
