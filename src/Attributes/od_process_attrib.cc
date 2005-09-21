@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.8 2005-08-29 07:34:04 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.9 2005-09-21 13:02:49 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -81,7 +81,16 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     if ( comm ) comm->setState( MMSockCommunic::JobError ); \
     mRetError(s) \
 }
-	  
+
+bool checkContinue( const TypeSet<int>& idxset )
+{
+    for( int idx=0; idx<idxset.size(); idx++ )
+	if ( idxset[idx] == 1)
+	    return true;
+
+    return false;
+}
+
 bool BatchProgram::go( std::ostream& strm )
 {
     const int process_id = GetPID();
@@ -235,10 +244,14 @@ bool BatchProgram::go( std::ostream& strm )
     Time_sleep( startup_wait );  
 
     int nriter = 0;
-    for ( int idx=0; idx<procset.size(); idx++ )
+    TypeSet<int> idxset(procset.size(),1);
+
+    while ( true )
     {
-	while ( true )
+	for ( int idx=0; idx<procset.size(); idx++ )
 	{
+	    if ( idxset[idx] == 0 ) continue;
+	    
 	    bool paused = false;
 
 	    if ( pauseRequested() )
@@ -266,7 +279,7 @@ bool BatchProgram::go( std::ostream& strm )
 		}
 		int res = procset[idx]->nextStep();
 
-		if ( nriter==0 )
+		if ( nriter==procset.size()-1 )
 		{
 		    int totalnr = 0;
 		    for ( int idy=0; idy<procset.size(); idy++ )
@@ -297,11 +310,14 @@ bool BatchProgram::go( std::ostream& strm )
 		{
 		    if ( res == -1 )
 			mRetJobErr( "Cannot reach next position" )
-		    break;
+		    idxset[idx] = 0;
 		}
 	    }
 	    nriter++;
 	}
+	procset[0]->outputs[0]->writeTrc();
+	if ( !checkContinue(idxset) )
+	    break;
     }
 
     deepErase( procset );
