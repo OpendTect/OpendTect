@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.33 2005-09-16 11:57:18 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.34 2005-09-21 08:46:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.33 2005-09-16 11:57:18 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.34 2005-09-21 08:46:49 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.33 2005-09-16 11:57:18 cvshe
 #include "pixmap.h"
 #include "oddirs.h"
 #include "timer.h"
+#include "envvars.h"
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -170,7 +171,8 @@ void uiODMenuMgr::fillFileMenu()
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl, "&SEG-Y" );
     mInsertItem( impseissgy, "&3-D ...", mImpSeisSEGY3DMnuItm );
     mInsertItem( impseissgy, "&2-D ...", mImpSeisSEGY2DMnuItm );
-    mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
+    if ( GetEnvVarYN("OD_SHOW_PRESTACK_SEGY_IMP") )
+	mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
     impseis->insertItem( impseissgy );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
     mInsertItem( imphor, "&Ascii ...", mImpHorAsciiMnuItm );
