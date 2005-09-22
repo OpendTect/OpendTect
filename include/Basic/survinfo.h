@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.48 2005-08-16 17:10:17 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.49 2005-09-22 14:04:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,6 +169,7 @@ protected:
 
     friend class	uiSurvey;
     friend class	uiSurveyInfoEditor;
+    friend class	IOMan;
 
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
 
