@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.94 2005-09-19 22:04:03 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.95 2005-09-22 12:13:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "vissurvsurf.h"
 #include "vissurvsurfeditor.h"
 #include "uiattrsurfout.h"
-#include "uiattrcubeout.h"
+#include "uiattrtrcselout.h"
 
 #include "attribdescset.h"
 #include "attribslice.h"
@@ -242,8 +242,8 @@ void uiODApplMgr::createHorCubeOutput()
     MultiID nlaid;
     if ( nlaserv )
 	nlaid = nlaserv->modelId();
-    uiAttrCubeOut dlg( &appl, *attrserv->curDescSet(), 
-		       nlaserv ? &nlaserv->getModel() : 0, nlaid, true );
+    uiAttrTrcSelOut dlg( &appl, *attrserv->curDescSet(), 
+		         nlaserv ? &nlaserv->getModel() : 0, nlaid, true );
     dlg.go();
 }
 
@@ -253,8 +253,8 @@ void uiODApplMgr::create2HorCubeOutput()
     MultiID nlaid;
     if ( nlaserv )
 	nlaid = nlaserv->modelId();
-    uiAttrCubeOut dlg( &appl, *attrserv->curDescSet(), 
-		       nlaserv ? &nlaserv->getModel() : 0, nlaid, false );
+    uiAttrTrcSelOut dlg( &appl, *attrserv->curDescSet(), 
+		         nlaserv ? &nlaserv->getModel() : 0, nlaid, false );
     dlg.go();
 }
 
