@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.14 2005-08-19 14:17:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.15 2005-09-22 10:53:16 cvsnanne Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -237,12 +237,12 @@ StringListInpSpec::StringListInpSpec( const BufferStringSet& bss )
 
 
 StringListInpSpec::StringListInpSpec( const char** sl )
-    : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
+    : DataInpSpec( DataTypeImpl<const char*>(DataType::list) )
     , cur_(0)
 {
     if ( !sl ) return;
-    while( *sl )
-	strings_.add( *sl++ );
+    for ( int idx=0; sl[idx]; idx++ )
+	strings_.add( sl[idx] );
 }
 
 
