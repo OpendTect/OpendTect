@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.28 2005-09-21 13:00:28 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.29 2005-09-22 08:44:22 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -70,7 +70,7 @@ SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
 
 
 SliceSetOutput::~SliceSetOutput()
-{ if ( sliceset ) sliceset->unRef(); }
+{ if ( sliceset ) sliceset->unRefNoDelete(); }
 
 
 bool SliceSetOutput::getDesiredVolume( CubeSampling& cs ) const
@@ -103,7 +103,11 @@ void SliceSetOutput::collectData( const DataHolder& data, float refstep,
     mGetDim(0); mGetDim(1); mGetDim(2);
     const int totalnrslices = (desoutputs.size()+attridx) * dim0;
     while ( sliceset->size() < totalnrslices )
-	*sliceset += new Attrib::Slice( dim1, dim2, udfval );
+    {
+	Slice* slice = new Attrib::Slice( dim1, dim2, udfval );
+	slice->ref();
+	*sliceset += slice;
+    }
 
     if ( !sliceset->sampling.hrg.includes(info.binid) )
 	return;
