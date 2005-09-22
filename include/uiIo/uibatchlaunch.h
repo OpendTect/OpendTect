@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.11 2004-09-27 08:19:17 dgb Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.12 2005-09-22 08:27:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiGenInput;
 class uiFileInput;
 class uiPushButton;
 class uiLabeledComboBox;
+class uiLabeledSpinBox;
 
 #ifdef HAVE_OUTPUT_OPTIONS
 class uiBatchLaunch : public uiDialog
@@ -49,6 +50,7 @@ protected:
     uiLabeledComboBox*	optfld;
     uiGenInput*		remfld;
     uiGenInput*		remhostfld;;
+    uiLabeledSpinBox*	nicefld;
 
     bool		acceptOK(CallBacker*);
     bool		execRemote() const;

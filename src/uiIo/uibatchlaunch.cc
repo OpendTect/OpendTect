@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.45 2005-09-12 13:43:26 cvsarend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.46 2005-09-22 08:27:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uibatchlaunch.h"
 #include "uidistriblaunch.h"
 #include "uicombobox.h"
+#include "uispinbox.h"
 #include "uifileinput.h"
 #include "uiseparator.h"
 #include "uibutton.h"
@@ -109,7 +110,13 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     filefld = new uiFileInput( this, "Log file",
 	   		       uiFileInput::Setup(fname).forread(false) );
     filefld->attach( alignedBelow, optfld );
+
+    nicefld = new uiLabeledSpinBox( this, "Nice level" );
+    nicefld->attach( alignedBelow, filefld );
+    nicefld->box()->setInterval( 0, 19 );
+    nicefld->box()->setValue( nicelvl );
 }
+
 
 bool uiBatchLaunch::execRemote() const
 {
@@ -209,6 +216,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 #else
 
+    nicelvl = nicefld->box()->getValue();
     if ( nicelvl != 0 )
 	{ comm += " --nice "; comm += nicelvl; }
     comm += " "; comm += progname;
