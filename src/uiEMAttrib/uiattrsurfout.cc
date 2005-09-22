@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.8 2005-09-19 07:39:34 cvsnanne Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.9 2005-09-22 12:09:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 
     BufferString key;
     BufferString keybase = Attrib::Output::outputstr; keybase += ".1.";
-    key = keybase; key += Attrib::Output::typekey;
+    key = keybase; key += sKey::Type;
     iopar.set( key, Attrib::Output::surfkey );
 
     key = keybase; key += Attrib::SeisTrcStorOutput::attribkey;
