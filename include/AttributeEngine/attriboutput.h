@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.14 2005-09-21 13:00:10 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.15 2005-09-22 12:12:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ public:
     TypeSet<int>		desoutputs;
 
     static const char*		outputstr;
-    static const char*          typekey;
     static const char*          cubekey;
     static const char*          tskey;
     static const char*          surfkey;

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.29 2005-09-22 08:44:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.30 2005-09-22 12:11:45 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -27,7 +27,6 @@ namespace Attrib
 {
 
 const char* Output::outputstr = "Output";
-const char* Output::typekey = "Type";
 const char* Output::cubekey = "Cube";
 const char* Output::surfkey = "Surface";
 const char* Output::tskey = "Trace Selection";

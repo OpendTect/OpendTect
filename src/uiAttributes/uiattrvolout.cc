@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.9 2005-09-19 07:38:30 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.10 2005-09-22 12:12:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     BufferString key;
     BufferString keybase = Output::outputstr; keybase += ".1.";
-    key = keybase; key += Output::typekey;
+    key = keybase; key += sKey::Type;
     iop.set( key, "Cube" );
 
     key = keybase; key += SeisTrcStorOutput::attribkey;
