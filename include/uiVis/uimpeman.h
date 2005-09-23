@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.15 2005-09-21 02:29:40 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.16 2005-09-23 09:52:09 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ protected:
     void			trackInVolume(CallBacker*);
 
     void			seedModeCB(CallBacker*);
+    void			setColorbarCB(CallBacker*);
     void			movePlaneCB(CallBacker*);
     void			extendModeCB(CallBacker*);
     void			retrackModeCB(CallBacker*);
@@ -92,6 +93,7 @@ protected:
     int				seedclickobject;
 
     int				seedidx;
+    int				clrtabidx;
     int				moveplaneidx, extendidx, retrackidx, eraseidx;
     int				showcubeidx, displayidx;
     int				mouseeraseridx;

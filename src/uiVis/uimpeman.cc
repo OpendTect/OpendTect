@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.41 2005-09-20 21:52:05 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.42 2005-09-23 09:52:09 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
     
+    clrtabidx = mAddButton( "moveplane.png", setColorbarCB,
+			    "Set track plane colorbar", true );
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
 			       "Move track plane", true );
     extendidx = mAddButton( "trackplane.png", extendModeCB,
@@ -619,6 +621,11 @@ void uiMPEMan::showTracker( bool yn )
 	displays[idx]->showDragger( yn );
 	if ( yn ) displays[idx]->updatePlaneColor();
     }
+}
+
+
+void uiMPEMan::setColorbarCB(CallBacker*)
+{
 }
 
 

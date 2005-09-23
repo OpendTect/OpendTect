@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.13 2005-09-21 13:11:50 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.14 2005-09-23 09:52:09 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,7 @@ namespace visBase
     class FaceSet;
     class Texture3;
     class Transformation;
+    class VisColorTab;
 };
 
 namespace MPE { class Engine; };
@@ -59,6 +60,9 @@ public:
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
     void			updatePlaneColor();
+    
+    void			setColTab(visBase::VisColorTab& ct);
+    const visBase::VisColorTab&	getColTab();
 
     int				getAttributeFormat() const { return 3; }
     CubeSampling		getCubeSampling() const;
