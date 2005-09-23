@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.59 2005-09-20 16:28:08 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.60 2005-09-23 08:40:37 cvsbert Exp $";
 
 /*!
 
@@ -582,7 +582,8 @@ bool CBVSReader::skip( bool tonextpos )
 BinID CBVSReader::nextBinID() const
 {
     BinID bid( curbinid_ ); int ci = curinlinfnr_, cc = cursegnr_;
-    getNextBinID( bid, ci, cc );
+    if ( !getNextBinID( bid, ci, cc ) )
+	bid.inl = bid.crl = 0;
     return bid;
 }
 
