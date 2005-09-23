@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.17 2005-09-16 12:00:20 cvshelene Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.18 2005-09-23 12:03:59 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -125,7 +125,7 @@ protected:
     virtual const char*		parentType() const = 0;
     				/*!<\returns typeid(parentclass).name() */
     virtual bool		init() { return true; }
-				
+
     virtual bool		rightClick(uiListViewItem* item);
     virtual bool		anyButtonClick(uiListViewItem* item);
     virtual void		setListViewItem( uiListViewItem* );
@@ -171,8 +171,11 @@ public:
 protected:
     virtual bool	addChild( uiTreeItem*, bool downwards);
     uiListView*		listview;
+
+    void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);
     void		anyButtonClickCB(CallBacker*);
+
     virtual const char*	parentType() const { return 0; } 
     virtual uiParent*	getUiParent();
 

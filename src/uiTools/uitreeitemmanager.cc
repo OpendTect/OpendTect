@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.19 2005-09-16 11:59:59 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.20 2005-09-23 12:03:45 cvshelene Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -267,6 +267,9 @@ uiTreeTopItem::uiTreeTopItem( uiListView* listview_ )
 	    		mCB(this,uiTreeTopItem,rightClickCB) );
     listview->mouseButtonClicked.notify(
 	    		mCB(this,uiTreeTopItem,anyButtonClickCB) );
+    listview->selectionChanged.notify(
+	    		mCB(this,uiTreeTopItem,selectionChanged) );
+	
 }
 
 
@@ -276,6 +279,8 @@ uiTreeTopItem::~uiTreeTopItem()
 	    		mCB(this,uiTreeTopItem,rightClickCB) );
     listview->mouseButtonClicked.remove(
 	    		mCB(this,uiTreeTopItem,anyButtonClickCB) );
+    listview->selectionChanged.remove(
+	    		mCB(this,uiTreeTopItem,selectionChanged) );
 }
 
 
@@ -285,11 +290,17 @@ bool uiTreeTopItem::addChild( uiTreeItem* newitem )
 }
 
 
-
 bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool downwards )
 {
     downwards = true;		//We are at the top, so we should go downwards
     mAddChildImpl( listview );
+}
+
+
+void uiTreeTopItem::selectionChanged( CallBacker* )
+{
+    if ( disabanyclick ) return;
+    anyButtonClick( listview->itemNotified() );
 }
 
 
@@ -300,7 +311,7 @@ void uiTreeTopItem::rightClickCB( CallBacker* )
 }
 
 
-void uiTreeTopItem::anyButtonClickCB( CallBacker* cb )
+void uiTreeTopItem::anyButtonClickCB( CallBacker* )
 {
     if ( disabanyclick ) return;
     anyButtonClick( listview->itemNotified() );
