@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.16 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.17 2005-09-23 12:36:34 cvsbert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -128,13 +128,28 @@ ExecutorGroup::ExecutorGroup( const char* nm, bool p )
 	, nrdone( 0 )
 	, currentexec( 0 )
     	, paralell( p )
-{}
+{
+}
 
 
 ExecutorGroup::~ExecutorGroup()
 {
     deepErase( executors );
     delete &executors;
+}
+
+
+bool ExecutorGroup::similarLeft() const
+{
+    for ( int idx=currentexec+1; idx<executors.size(); idx++ )
+    {
+	if ( strcmp(executors[idx]->nrDoneText(),
+		    executors[idx-1]->nrDoneText())
+	  || strcmp(executors[idx]->message(),
+		    executors[idx-1]->message()) )
+	    return false;
+    }
+    return true;
 }
 
 
@@ -151,13 +166,10 @@ int ExecutorGroup::nextStep()
     if ( !nrexecs ) return Finished;
 
     int res = executorres[currentexec] = executors[currentexec]->doStep();
-    if ( res==ErrorOccurred )
+    if ( res == ErrorOccurred )
 	return ErrorOccurred;
     else if ( paralell || res==Finished )
 	res = goToNextExecutor() ? MoreToDo : Finished;
-    else if ( res==Finished )
-    {
-    }
 
     nrdone++;
     return res;
@@ -192,9 +204,9 @@ const char* ExecutorGroup::message() const
 int ExecutorGroup::totalNr() const
 {
     const int nrexecs = executors.size();
-    if ( !nrexecs ) return Executor::totalNr();
+    if ( !nrexecs ) return -1;
 
-    if ( !paralell && ! *((const char*)nrdonetext) )
+    if ( !paralell && !similarLeft() )
 	return executors[currentexec]->totalNr();
 
     int totnr = 0;
@@ -212,11 +224,12 @@ int ExecutorGroup::totalNr() const
 
 int ExecutorGroup::nrDone() const
 {
-    if ( !paralell && *((const char*)nrdonetext) )
+    if ( executors.size() < 1 )
+	return -1;
+    else if ( paralell || similarLeft() )
 	return nrdone;
 
-    return executors.size() ? executors[currentexec]->nrDone()
-			    : Executor::nrDone();
+    return executors[currentexec]->nrDone();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.14 2005-09-20 08:54:05 cvsduntao Exp $
+ RCS:		$Id: executor.h,v 1.15 2005-09-23 12:36:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,6 +145,7 @@ protected:
 
     virtual int		nextStep();
     bool		goToNextExecutor();
+    bool		similarLeft() const;
 
     const bool		paralell;
     int			currentexec;
