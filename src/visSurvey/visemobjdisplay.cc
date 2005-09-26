@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.52 2005-09-20 21:55:42 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.53 2005-09-26 21:44:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -910,6 +910,12 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     {
 	if ( posattribs.indexOf(cbdata.attrib)!=-1 )
 	    updatePosAttrib(cbdata.attrib);
+    }
+    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    {
+	nontexturecol = emobject->preferredColor();
+	if ( !usestexture )
+	    getMaterial()->setColor( nontexturecol );
     }
 
     if ( triggermovement )
