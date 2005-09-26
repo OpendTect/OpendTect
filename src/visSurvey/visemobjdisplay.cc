@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.53 2005-09-26 21:44:06 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.54 2005-09-26 22:07:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -516,15 +516,11 @@ bool EMObjectDisplay::getOnlyAtSectionsDisplay() const
 
 void EMObjectDisplay::setColor( Color col )
 {
-    nontexturecol = col;
-    getMaterial()->setColor( col );
 
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( emobject )
     {
-	const bool wasenabled = emobject->notifier.disable();
-	emobject->setPreferredColor( nontexturecol );
-	emobject->notifier.enable( wasenabled );
+	emobject->setPreferredColor( col );
     }
 }
 
