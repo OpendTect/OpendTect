@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.67 2005-09-20 16:27:18 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.68 2005-09-26 12:52:04 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -267,14 +267,15 @@ void SeisTrcTranslator::enforceBounds()
 
     // Snap to samples
     float sampdist = (outsd.start - insd.start) / insd.step;
-    int startsamp = mNINT(sampdist);
+    int startsamp = (int)(sampdist + 0.0001);
     if ( startsamp < 0 ) startsamp = 0;
     if ( startsamp > innrsamples-1 ) startsamp = innrsamples-1;
-    outsd.start = insd.start + startsamp * insd.step;
     sampdist = (outstop - insd.start) / insd.step;
-    int endsamp = mNINT(sampdist);
+    int endsamp = (int)(sampdist + 0.9999);
     if ( endsamp < startsamp ) endsamp = startsamp;
     if ( endsamp > innrsamples-1 ) endsamp = innrsamples-1;
+
+    outsd.start = insd.start + startsamp * insd.step;
     outnrsamples = endsamp - startsamp + 1;
 }
 
@@ -326,7 +327,7 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     SeisTrc* newtrc; mTryAlloc( newtrc, SeisTrc(trc) );
     if ( !newtrc )
-	{ errmsg = "Out of memory"; return false; }
+	{ errmsg = "Out of memory"; trcblock_.deepErase(); return false; }
     trcblock_.add( newtrc );
 
     return true;
