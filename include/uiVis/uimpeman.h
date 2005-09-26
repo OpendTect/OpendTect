@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.16 2005-09-23 09:52:09 cvsduntao Exp $
+ RCS:           $Id: uimpeman.h,v 1.17 2005-09-26 08:34:03 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ namespace visSurvey { class PickSetDisplay; }
 
 
 class BufferStringSet;
+class uiColorBarDialog;
 class uiComboBox;
 class uiSpinBox;
 class uiPushButton;
@@ -50,6 +51,8 @@ public:
 
 protected:
     visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
+    
+    uiColorBarDialog*		colbardlg;
 
     MenuItem			seedmnuitem;
     MenuItem			createmnuitem;
@@ -81,6 +84,7 @@ protected:
 
     void			seedModeCB(CallBacker*);
     void			setColorbarCB(CallBacker*);
+    void                        onColTabClosing(CallBacker*);
     void			movePlaneCB(CallBacker*);
     void			extendModeCB(CallBacker*);
     void			retrackModeCB(CallBacker*);

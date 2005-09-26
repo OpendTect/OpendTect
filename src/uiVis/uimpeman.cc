@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.43 2005-09-26 03:44:53 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.44 2005-09-26 08:34:03 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "survinfo.h"
 #include "uibutton.h"
-//#include "uicolorbardlg.h"
 #include "uicombobox.h"
 #include "uicursor.h"
 #include "uiexecutor.h"
@@ -61,12 +60,20 @@ class uiColorBarDialog :  public uiDialog
 {
 public:
     uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid)
-    	: uiDialog(p,uiDialog::Setup("Set colorbar",0).modal(false)
+    	: uiDialog(p,uiDialog::Setup("Track plane colorbar",0).modal(false)
 				.oktext("Exit").dlgtitle("").canceltext(""))
+	, winClosing(this)
     {
 	uiVisColTabEd* coltabed = new uiVisColTabEd(this, true);
 	coltabed->setColTab(coltabid);
 	coltabed->setPrefHeight(320);
+    }
+    Notifier<uiColorBarDialog> winClosing;
+protected:
+    bool closeOK( )
+    {
+	winClosing.trigger( this );
+	return true;
     }
 };
 
@@ -82,6 +89,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , init(false)
     , createmnuitem("Create")
     , seedpicker( 0 )
+    , colbardlg( 0 )
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -643,11 +651,19 @@ void uiMPEMan::showTracker( bool yn )
 
 void uiMPEMan::setColorbarCB(CallBacker*)
 {
+    if ( colbardlg )	return;
     mGetDisplays(false)
-    if ( displays.size() < 1 ) return;
-    uiColorBarDialog *dlg = new uiColorBarDialog( this, 
-    				displays[0]->getTexture()->getColorTab().id() );
-    dlg->go();
+    if ( displays.size() < 1 )	return;
+    colbardlg = new uiColorBarDialog( this, 
+    			displays[0]->getTexture()->getColorTab().id() );
+    colbardlg->winClosing.notify( mCB( this,uiMPEMan,onColTabClosing ) );
+    colbardlg->go();
+}
+
+
+void uiMPEMan::onColTabClosing( CallBacker* )
+{
+    colbardlg = 0;
 }
 
 
