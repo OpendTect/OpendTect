@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.3 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.4 2005-09-26 12:57:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.3 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.4 2005-09-26 12:57:33 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -186,12 +186,16 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
 	    if ( entries[idx]->id == id )
 		{ di = entries[idx]; break; }
 	}
-	if ( di )
-	    HelpViewer::use( di->starturl, di->nm );
-	else
+	if ( !di )
 	{
 	    BufferString msg( "Invalid help menu ID: '" );
 	    msg += id; msg += "'"; pErrMsg( msg );
+	}
+	else
+	{
+	    BufferString titl( "Documentation for " );
+	    titl += di->nm;
+	    HelpViewer::use( di->starturl, titl );
 	}
     } break;
 

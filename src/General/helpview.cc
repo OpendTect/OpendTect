@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.26 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.27 2005-09-26 12:57:32 cvsbert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -211,10 +211,12 @@ void HelpViewer::use( const char* url, const char* wintitl )
 
     cmd += " HtmlViewer \"";
     cmd += url; cmd += "\" ";
-    if ( wintitl )
-	cmd += wintitl;
-    else
-	{ cmd += applnm; cmd += "_Documentation"; }
+    BufferString title( wintitl );
+    if ( title == "" )
+	title = "Documentation for OpendTect";
+    cleanupString( title.buf(), NO, YES, YES );
+    cmd += title;
+
     StreamProvider strmprov( cmd );
     if ( !strmprov.executeCommand(false) )
     {
