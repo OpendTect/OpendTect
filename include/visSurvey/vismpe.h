@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.14 2005-09-23 09:52:09 cvsduntao Exp $
+ RCS:		$Id: vismpe.h,v 1.15 2005-09-26 03:44:53 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -60,9 +60,7 @@ public:
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
     void			updatePlaneColor();
-    
-    void			setColTab(visBase::VisColorTab& ct);
-    const visBase::VisColorTab&	getColTab();
+    visBase::Texture3*		getTexture() { return texture_; }
 
     int				getAttributeFormat() const { return 3; }
     CubeSampling		getCubeSampling() const;

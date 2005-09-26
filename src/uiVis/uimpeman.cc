@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.42 2005-09-23 09:52:09 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.43 2005-09-26 03:44:53 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,38 +14,40 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "attribslice.h"
 #include "draw.h"
+#include "emhistory.h"
+#include "emhorizon.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
-#include "emhorizon.h"
-#include "emhistory.h"
+#include "emtracker.h"
 #include "mpeengine.h"
+#include "oddirs.h"
+#include "pixmap.h"
+#include "survinfo.h"
 #include "uibutton.h"
+//#include "uicolorbardlg.h"
 #include "uicombobox.h"
 #include "uicursor.h"
-#include "vistransform.h"
 #include "uiexecutor.h"
 #include "uimenu.h"
+#include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uislider.h"
 #include "uispinbox.h"
-#include "vismaterial.h"
-#include "visselman.h"
+#include "uiviscoltabed.h"
+#include "uivispartserv.h"
+#include "viscolortab.h"
 #include "visdataman.h"
-#include "vistexture3.h"
-#include "vissurvscene.h"
-#include "visseedstickeditor.h"
+#include "visdataman.h"
+#include "visevent.h"
+#include "vismaterial.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visplanedatadisplay.h"
-#include "visevent.h"
-#include "visdataman.h"
-#include "emtracker.h"
-#include "uivispartserv.h"
-#include "uimenuhandler.h"
-#include "pixmap.h"
-#include "oddirs.h"
-#include "uicursor.h"
-#include "survinfo.h"
+#include "visseedstickeditor.h"
+#include "visselman.h"
+#include "vissurvscene.h"
+#include "vistexture3.h"
+#include "vistransform.h"
 
 #include "vismarker.h"
 #include "emsurfacegeometry.h"
@@ -53,6 +55,20 @@ ________________________________________________________________________
 #include "vispicksetdisplay.h"
 
 using namespace MPE;
+
+
+class uiColorBarDialog :  public uiDialog
+{
+public:
+    uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid)
+    	: uiDialog(p,uiDialog::Setup("Set colorbar",0).modal(false)
+				.oktext("Exit").dlgtitle("").canceltext(""))
+    {
+	uiVisColTabEd* coltabed = new uiVisColTabEd(this, true);
+	coltabed->setColTab(coltabid);
+	coltabed->setPrefHeight(320);
+    }
+};
 
 
 #define mAddButton(pm,func,tip,toggle) \
@@ -70,7 +86,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
     
-    clrtabidx = mAddButton( "moveplane.png", setColorbarCB,
+    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
 			    "Set track plane colorbar", true );
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
 			       "Move track plane", true );
@@ -616,6 +632,7 @@ void uiMPEMan::showTracker( bool yn )
     setTrackButton();
 
     mGetDisplays(true)
+    setSensitive( clrtabidx, displays.size() > 0 );
     for ( int idx=0; idx<displays.size(); idx++ )
     {
 	displays[idx]->showDragger( yn );
@@ -626,6 +643,11 @@ void uiMPEMan::showTracker( bool yn )
 
 void uiMPEMan::setColorbarCB(CallBacker*)
 {
+    mGetDisplays(false)
+    if ( displays.size() < 1 ) return;
+    uiColorBarDialog *dlg = new uiColorBarDialog( this, 
+    				displays[0]->getTexture()->getColorTab().id() );
+    dlg->go();
 }
 
 

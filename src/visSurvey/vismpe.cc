@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.22 2005-09-23 09:52:09 cvsduntao Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.23 2005-09-26 03:44:53 cvsduntao Exp $";
 
 #include "vismpe.h"
 
@@ -162,18 +162,6 @@ void MPEDisplay::updatePlaneColor()
 	rectangle_->getMaterial()->setColor( movingColor );
     else
 	rectangle_->getMaterial()->setColor( extendColor );
-}
-
-
-void MPEDisplay::setColTab(visBase::VisColorTab& ct)
-{
-    texture_->setColorTab(ct);
-}
-
-
-const visBase::VisColorTab& MPEDisplay::getColTab()
-{
-    return texture_->getColorTab();
 }
 
 
