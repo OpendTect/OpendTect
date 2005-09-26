@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.3 2005-09-14 14:54:53 cvshelene Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.4 2005-09-26 14:02:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,8 @@ static const char* outpstrs2d[] =
 
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p )
-	: uiAttrDescEd(p)
+    : uiAttrDescEd(p)
+    , is2d_(false)
 {
     outpfld3d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs3d) );
