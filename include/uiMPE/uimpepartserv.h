@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.10 2005-09-19 21:57:18 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.11 2005-09-27 15:22:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,6 @@ public:
 
     static const int		evStartSeedPick;
     static const int		evEndSeedPick;
-    void			setSeed(ObjectSet<Geometry::Element>&);
-    				/*!<\note Seeds become mine */
 
     static const int		evAddTreeObject;
     				/*!<Get trackerid via activeTrackerID */

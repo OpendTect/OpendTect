@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.19 2005-09-20 21:49:47 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.20 2005-09-27 15:22:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,14 +307,6 @@ void uiMPEPartServer::expandActiveArea(const CubeSampling& seedcs)
     MPE::engine().setActiveVolume( newcube );
 
     //sendEvent( evShowToolbar );
-}
-
-
-void uiMPEPartServer::setSeed( ObjectSet<Geometry::Element>& newseeds )
-{
-    deepErase( MPE::engine().interactionseeds );
-    MPE::engine().interactionseeds = newseeds;
-    newseeds.erase();
 }
 
 
