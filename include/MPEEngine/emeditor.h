@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.12 2005-08-09 16:18:07 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.13 2005-09-27 19:25:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "position.h"
+#include "callback.h"
 #include "emposid.h"
+#include "position.h"
 
 class BufferStringSet;
 template <class T> class TypeSet;
