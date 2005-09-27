@@ -7,15 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.19 2005-08-19 19:50:39 cvskris Exp $
+ RCS:		$Id: emposid.h,v 1.20 2005-09-27 19:20:19 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "multiid.h"
-#include "geomposidholder.h"
 #include "rowcol.h"
+
+class IOPar;
 
 
 namespace EM
