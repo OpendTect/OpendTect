@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.10 2005-09-20 15:10:49 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.11 2005-09-27 09:18:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,21 +81,24 @@ protected:
 
     const BinID*		reqStepout(int input, int output ) const;
     const Interval<float>*	reqZMargin(int input, int output) const;
+    const Interval<float>*      desZMargin(int input, int output) const;
 
-    BinID			pos0;
-    BinID			pos1;
-    BinID			stepout;
-    Interval<float>		gate;
-    int				extension;
-    TypeSet<BinID>		trcpos;
+    BinID			pos0_;
+    BinID			pos1_;
+    BinID			stepout_;
+    Interval<float>		gate_;
+    int				extension_;
+    TypeSet<BinID>		trcpos_;
 
-    bool			dosteer;
-    TypeSet<int>		steeridx;
-    bool			donormalize;
+    Interval<float>             desgate_;
+
+    bool			dosteer_;
+    TypeSet<int>		steeridx_;
+    bool			donormalize_;
     int				dataidx_;
 
-    ObjectSet<const DataHolder>	inputdata;
-    const DataHolder*		steeringdata;
+    ObjectSet<const DataHolder>	inputdata_;
+    const DataHolder*		steeringdata_;
 
     class SimiFunc : public FloatMathFunction
     {

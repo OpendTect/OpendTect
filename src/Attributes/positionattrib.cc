@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.7 2005-09-20 15:10:32 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.8 2005-09-27 09:18:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,9 @@ Position::Position( Desc& desc_ )
 
     outdata = new Array2DImpl< const DataHolder*>( stepout.inl *2 +1 , 
 						    stepout.crl *2 +1 );
+    
+    float extraz = mMAX(stepout.inl*inldist(), stepout.crl*crldist()) * mMAXDIP;
+    desgate = Interval<float>( gate.start - extraz, gate.stop + extraz );
 }
 
 
@@ -269,5 +272,8 @@ const BinID* Position::reqStepout( int inp, int out ) const
 
 const Interval<float>* Position::reqZMargin( int inp, int ) const
 { return inp==1 ? 0 : &gate; }
+
+const Interval<float>* Position::desZMargin( int inp, int ) const
+{ return inp==1 ? 0 : &desgate; }
 
 }//namespace

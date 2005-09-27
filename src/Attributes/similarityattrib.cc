@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.14 2005-09-20 15:10:32 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.15 2005-09-27 09:18:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,54 +115,58 @@ Similarity::Similarity( Desc& desc_ )
 {
     if ( !isOK() ) return;
 
-    inputdata.allowNull(true);
+    inputdata_.allowNull(true);
 
-    mGetFloatInterval( gate, gateStr() );
-    gate.start /= zFactor();
-    gate.stop /= zFactor();
+    mGetFloatInterval( gate_, gateStr() );
+    gate_.start /= zFactor(); gate_.stop /= zFactor(); 
 
-    mGetBool( dosteer, steeringStr() );
-    mGetBool( donormalize, normalizeStr() );
+    mGetBool( dosteer_, steeringStr() );
+    mGetBool( donormalize_, normalizeStr() );
 
-    mGetEnum( extension, extensionStr() );
-    if ( extension==mExtensionCube )
-	mGetBinID( stepout, stepoutStr() )
+    mGetEnum( extension_, extensionStr() );
+    if ( extension_==mExtensionCube )
+	mGetBinID( stepout_, stepoutStr() )
     else
     {
-	mGetBinID( pos0, pos0Str() )
-	mGetBinID( pos1, pos1Str() )
+	mGetBinID( pos0_, pos0Str() )
+	mGetBinID( pos1_, pos1Str() )
 
-	stepout = BinID(mMAX(abs(pos0.inl),abs(pos1.inl)),
-			mMAX(abs(pos0.crl),abs(pos1.crl)) );
+	stepout_ = BinID(mMAX(abs(pos0_.inl),abs(pos1_.inl)),
+			 mMAX(abs(pos0_.crl),abs(pos1_.crl)) );
     }
     getTrcPos();
+
+    float extraz = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) 
+		   * mMAXDIP;
+    desgate_ = Interval<float>( gate_.start - extraz, gate_.stop + extraz );
+    
 }
 
 
 bool Similarity::getTrcPos()
 {
-    trcpos.erase();
-    if ( extension==mExtensionCube )
+    trcpos_.erase();
+    if ( extension_==mExtensionCube )
     {
 	BinID bid;
-	for ( bid.inl=-stepout.inl; bid.inl<=stepout.inl; bid.inl++ )
-	    for ( bid.crl=-stepout.crl; bid.crl<=stepout.crl; bid.crl++ )
-		trcpos += bid;
+	for ( bid.inl=-stepout_.inl; bid.inl<=stepout_.inl; bid.inl++ )
+	    for ( bid.crl=-stepout_.crl; bid.crl<=stepout_.crl; bid.crl++ )
+		trcpos_ += bid;
     }
     else
     {
-	trcpos += pos0;
-	trcpos += pos1;
+	trcpos_ += pos0_;
+	trcpos_ += pos1_;
 
-	if ( extension==mExtensionRot90 )
+	if ( extension_==mExtensionRot90 )
 	{
-	    trcpos += BinID(pos0.crl,-pos0.inl);
-	    trcpos += BinID(pos1.crl,-pos1.inl);
+	    trcpos_ += BinID(pos0_.crl,-pos0_.inl);
+	    trcpos_ += BinID(pos1_.crl,-pos1_.inl);
 	}
-	else if ( extension==mExtensionRot180 )
+	else if ( extension_==mExtensionRot180 )
 	{
-	    trcpos += BinID(-pos0.inl,-pos0.crl);
-	    trcpos += BinID(-pos1.inl,-pos1.crl);
+	    trcpos_ += BinID(-pos0_.inl,-pos0_.crl);
+	    trcpos_ += BinID(-pos1_.inl,-pos1_.crl);
 	}
     }
 
@@ -178,17 +182,17 @@ void Similarity::initSteering()
 	    continue;
 
 	if ( inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering(stepout);
+	    inputs[idx]->initSteering(stepout_);
     }
 }
 
 
 bool Similarity::getInputOutput( int input, TypeSet<int>& res ) const
 {
-    if ( !dosteer || !input ) return Provider::getInputOutput( input, res );
+    if ( !dosteer_ || !input ) return Provider::getInputOutput( input, res );
 
-    for ( int idx=0; idx<trcpos.size(); idx++ )
-	res += getSteeringIndex( trcpos[idx] );
+    for ( int idx=0; idx<trcpos_.size(); idx++ )
+	res += getSteeringIndex( trcpos_[idx] );
 
     return true;
 }
@@ -196,23 +200,23 @@ bool Similarity::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Similarity::getInputData( const BinID& relpos, int index )
 {
-    while ( inputdata.size() < trcpos.size() )
-	inputdata += 0;
+    while ( inputdata_.size() < trcpos_.size() )
+	inputdata_ += 0;
 
     const BinID bidstep = inputs[0]->getStepoutStep();
-    for ( int idx=0; idx<trcpos.size(); idx++ )
+    for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
 	const DataHolder* data = 
-		    inputs[0]->getData( relpos+trcpos[idx]*bidstep, index );
+		    inputs[0]->getData( relpos+trcpos_[idx]*bidstep, index );
 	if ( !data ) return false;
-	inputdata.replace( idx, data );
-	if ( dosteer )
-	    steeridx += getSteeringIndex( trcpos[idx] );
+	inputdata_.replace( idx, data );
+	if ( dosteer_ )
+	    steeridx_ += getSteeringIndex( trcpos_[idx] );
     }
     
     dataidx_ = getDataIndex( 0 );
 
-    steeringdata = dosteer ? inputs[1]->getData(relpos,index) : 0;
+    steeringdata_ = dosteer_ ? inputs[1]->getData(relpos,index) : 0;
 
     return true;
 }
@@ -221,45 +225,45 @@ bool Similarity::getInputData( const BinID& relpos, int index )
 bool Similarity::computeData( const DataHolder& output, const BinID& relpos, 
 			      int z0, int nrsamples ) const
 {
-    if ( !inputdata.size() ) return false;
+    if ( !inputdata_.size() ) return false;
 
-    Interval<int> samplegate( mNINT(gate.start/refstep),
-	                      mNINT(gate.stop/refstep) );
+    Interval<int> samplegate( mNINT(gate_.start/refstep),
+	    		      mNINT(gate_.stop/refstep) );
 
     const int gatesz = samplegate.width();
-    const int nrpairs = inputdata.size()/2;
-    int firstsample = inputdata[0] ? z0 -inputdata[0]->z0_ : z0;
+    const int nrpairs = inputdata_.size()/2;
+    int firstsample = inputdata_[0] ? z0 -inputdata_[0]->z0_ : z0;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	RunningStatistics<float> stats;
 	for ( int pair=0; pair<nrpairs; pair++ )
 	{
-	    int idx1 = extension==mExtensionCube ? pair : pair*2;
-	    int idx2 = extension==mExtensionCube ? 
-				inputdata.size() - (pair+1) : pair*2 +1;
+	    int idx1 = extension_==mExtensionCube ? pair : pair*2;
+	    int idx2 = extension_==mExtensionCube ? 
+				   inputdata_.size() - (pair+1) : pair*2 +1;
 	    float s0 = firstsample + idx + samplegate.start;
 	    float s1 = s0;
 
-	     if ( !inputdata[idx1] || ! inputdata[idx2])
+	     if ( !inputdata_[idx1] || ! inputdata_[idx2])
 		 continue;
 	     
-	     if ( dosteer )
+	     if ( dosteer_ )
 	     {
 		 ValueSeries<float>* serie1 = 
-		     			steeringdata->series(steeridx[idx1]);
-	         if ( serie1 ) s0 += serie1->value( idx-steeringdata->z0_ );
+		     			steeringdata_->series(steeridx_[idx1]);
+	         if ( serie1 ) s0 += serie1->value( z0+idx-steeringdata_->z0_ );
 
 		 ValueSeries<float>* serie2 = 
-		     			steeringdata->series(steeridx[idx2]);
-		 if ( serie2 ) s1 += serie2->value( idx-steeringdata->z0_ );
+		     			steeringdata_->series(steeridx_[idx2]);
+		 if ( serie2 ) s1 += serie2->value( z0+idx-steeringdata_->z0_ );
 	     }
 
-	     SimiFunc vals0( *(inputdata[idx1]->series(dataidx_)), 
-		     		inputdata[idx1]->nrsamples_-1 );
-	     SimiFunc vals1( *(inputdata[idx2]->series(dataidx_)), 
-		     		inputdata[idx2]->nrsamples_-1 );
-	     stats += similarity(vals0, vals1, s0, s1, 1, gatesz, donormalize);
+	     SimiFunc vals0( *(inputdata_[idx1]->series(dataidx_)), 
+		     		inputdata_[idx1]->nrsamples_-1 );
+	     SimiFunc vals1( *(inputdata_[idx2]->series(dataidx_)), 
+		     		inputdata_[idx2]->nrsamples_-1 );
+	     stats += similarity(vals0, vals1, s0, s1, 1, gatesz, donormalize_);
 	}
 
 	if ( !stats.size() )
@@ -294,12 +298,14 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
 
 const BinID* Similarity::reqStepout( int inp, int out ) const
-{ return inp ? 0 : &stepout; }
+{ return inp ? 0 : &stepout_; }
 
 
 const Interval<float>* Similarity::reqZMargin( int inp, int ) const
-{ return inp ? 0 : &gate; }
+{ return inp ? 0 : &gate_; }
 
+const Interval<float>* Similarity::desZMargin( int inp, int ) const
+{ return inp ? 0 : &desgate_; }
 
 
 

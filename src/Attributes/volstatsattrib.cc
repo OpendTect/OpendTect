@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.11 2005-09-20 15:10:32 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.12 2005-09-27 09:18:06 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 #include "attribdataholder.h"
@@ -143,8 +143,11 @@ VolStats::VolStats( Desc& desc_ )
     mGetBinID( stepout, stepoutStr() );
     mGetEnum( shape, shapeStr() );
     mGetFloatInterval( gate, gateStr() );
-    gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
+    gate.start /= zFactor(); gate.stop /= zFactor();
 
+    float extraz = mMAX(stepout.inl*inldist(), stepout.crl*crldist()) * mMAXDIP;
+    desgate = Interval<float>( gate.start - extraz, gate.stop + extraz );
+    
     mGetBool( absolutegate, absolutegateStr() );
     mGetBool( steering, steeringStr() );
     
@@ -353,7 +356,7 @@ const Interval<float>* VolStats::desZMargin( int inp, int ) const
 	Interval<float> absgate( -maxlen*refstep, maxlen*refstep );
 	const_cast<VolStats*>(this)->absdepthgate = absgate;
     }
-    return  absolutegate ? &absdepthgate : 0; }
+    return  absolutegate ? &absdepthgate : (inp<nrvolumes ? &desgate : 0); }
 
 
 }; //namespace

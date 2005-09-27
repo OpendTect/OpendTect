@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.4 2005-09-20 15:10:49 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.5 2005-09-27 09:18:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,8 @@ protected:
     Interval<float>		gate;
     bool			absolutegate;
     bool			steering;
+
+    Interval<float>             desgate;
 
     TypeSet<BinID>      	positions;
     Interval<float>		absdepthgate;
