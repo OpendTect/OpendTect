@@ -4,20 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.77 2005-09-14 08:15:38 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.78 2005-09-27 09:17:51 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurface.h"
-#include "emsurfaceiodata.h"
-#include "emsurfacerelations.h"
-#include "emsurfacegeometry.h"
-#include "emsurfaceauxdata.h"
 
 #include "cubesampling.h"
-#include "emsurfaceedgeline.h"
+#include "emhistoryimpl.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfaceedgeline.h"
+#include "emsurfacegeometry.h"
+#include "emsurfaceiodata.h"
+#include "emsurfacerelations.h"
 #include "iopar.h"
 
 
@@ -316,6 +317,14 @@ Geometry::Element* Surface::getElementInternal( SectionID sid )
     const Geometry::Element* elem =
 	(const Geometry::Element*) geometry.getSurface(sid);
     return const_cast<Geometry::Element*>(elem);
+}
+
+
+void Surface::addToHistoryEvent( const PosID& oldpid, const PosID& newpid,
+			        const Coord3& origpos )
+{
+    HistoryEvent* history = new SurfacePosIDChangeEvent(oldpid,newpid,origpos);
+    EMM().history().addEvent( history, 0, 0 );
 }
 
 

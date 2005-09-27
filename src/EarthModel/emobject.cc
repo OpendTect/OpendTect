@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.45 2005-08-24 21:10:10 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.46 2005-09-27 09:17:51 cvsduntao Exp $";
 
 #include "emobject.h"
 
@@ -164,11 +164,7 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 	 mRetErr(element->errMsg());
 
      if ( addtohistory )
-     {
-	 HistoryEvent* history = new SetPosHistoryEvent(oldpos,
-		 					PosID(id(),sid,subid));
-	 EMM().history().addEvent( history, 0, 0 );
-     }
+	 addToHistoryEvent(PosID(id(),sid,subid), PosID(id(),sid,subid), oldpos);
 
      EMObjectCallbackData cbdata;
      cbdata.event = EMObjectCallbackData::PositionChange;
@@ -177,6 +173,14 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 
      changed = true;
      return true;
+}
+
+
+void EMObject::addToHistoryEvent( const PosID& oldpid, const PosID& newpid,
+			        const Coord3& origpos )
+{
+    HistoryEvent* history = new SetPosHistoryEvent(origpos, newpid);
+    EMM().history().addEvent( history, 0, 0 );
 }
 
 
@@ -440,6 +444,8 @@ void EMObject::posIDChangeCB(CallBacker* cb)
 		break;
 
 	    nodes[idy] = cbdata.pid1;
+	    if ( idy == 0 )
+		break;
 	}
     }
 }

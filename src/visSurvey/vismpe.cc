@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.23 2005-09-26 03:44:53 cvsduntao Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.24 2005-09-27 09:17:51 cvsduntao Exp $";
 
 #include "vismpe.h"
 
@@ -466,7 +466,11 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 
 
 void MPEDisplay::rectangleStartCB( CallBacker* )
-{}
+{
+    EM::History& history = EM::EMM().history();
+    const int currentevent = history.currentEventNr();
+    history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+}
 
 
 void MPEDisplay::rectangleStopCB( CallBacker* )

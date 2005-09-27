@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.44 2005-09-26 08:34:03 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.45 2005-09-27 09:17:51 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -552,6 +552,7 @@ void uiMPEMan::trackForward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
+    setHistoryLevel();
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( nrsteps );
 }
@@ -562,7 +563,8 @@ void uiMPEMan::trackBackward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
-    for ( int idx=0; idx<displays.size(); idx++ )
+    setHistoryLevel();
+   for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( -nrsteps );
 }
 
@@ -600,6 +602,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
 
 	}
 	*/
+	setHistoryLevel();
 	uiExecutor uiexec( this, *exec );
 	if ( !uiexec.go() )
 	{
@@ -713,4 +716,12 @@ void uiMPEMan::initFromDisplay()
 	    turnOn( extendidx, displays[idx]->isDraggerShown() );
 	}
     }
+}
+
+
+void uiMPEMan::setHistoryLevel()
+{
+    EM::History& history = EM::EMM().history();
+    const int currentevent = history.currentEventNr();
+    history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
 }
