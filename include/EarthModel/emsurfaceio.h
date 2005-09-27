@@ -7,17 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.14 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.15 2005-09-27 19:20:54 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "bufstringset.h"
 #include "emposid.h"
 #include "executor.h"
+#include "position.h"
 #include "ranges.h"
 #include "rowcol.h"
-#include "bufstringset.h"
 
 class StreamConn;
 class IOObj;
