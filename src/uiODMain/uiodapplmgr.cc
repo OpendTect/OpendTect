@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.95 2005-09-22 12:13:51 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.96 2005-09-27 22:04:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -365,12 +365,6 @@ bool uiODApplMgr::setPickSetDirs( int id )
 bool uiODApplMgr::getNewData( int visid, bool colordata )
 {
     if ( visid<0 ) return false;
-
-    if ( visserv->getAttributeFormat(visid) == 3 )
-    {
-	mpeserv->loadAttribData();
-	return true;
-    }
 
     const Attrib::SelSpec* as = colordata ? &visserv->getColorSelSpec(visid)->as
 					: visserv->getSelSpec(visid);
