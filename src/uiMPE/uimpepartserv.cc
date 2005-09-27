@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.20 2005-09-27 15:22:40 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.21 2005-09-27 22:03:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,15 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     , eventattrselspec( 0 )
 {
     MPE::initStandardClasses();
+    MPE::engine().activevolumechange.notify(
+	    mCB(this, uiMPEPartServer, activeVolumeChange) );
 }
 
 
 uiMPEPartServer::~uiMPEPartServer()
 {
+    MPE::engine().activevolumechange.remove(
+	    mCB(this, uiMPEPartServer, activeVolumeChange) );
     delete wizard;
 }
 
@@ -246,6 +250,10 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 }
 
 
+void uiMPEPartServer::activeVolumeChange(CallBacker*)
+{ loadAttribData(); }
+
+
 void uiMPEPartServer::loadAttribData()
 {
     uiCursorChanger changer( uiCursor::Wait );
@@ -257,6 +265,7 @@ void uiMPEPartServer::loadAttribData()
 	eventattrselspec = attribselspecs[idx];
 	sendEvent( evGetAttribData );
     }
+
     sendEvent( evShowToolbar );
 }
 
