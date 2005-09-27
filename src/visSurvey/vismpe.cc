@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.24 2005-09-27 09:17:51 cvsduntao Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.25 2005-09-27 21:57:40 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -251,8 +251,8 @@ void MPEDisplay::setSelSpec( const Attrib::SelSpec& as )
 { as_ = as; }
 
 
-const Attrib::SelSpec* MPEDisplay::getSelSpec() const
-{ return &as_; }
+const char* MPEDisplay::getSelSpecUserRef() const
+{ return as_.userRef(); }
 
 
 void MPEDisplay::updateTexture()
@@ -327,20 +327,6 @@ void MPEDisplay::moveMPEPlane( int nr )
 }
 
 
-/*
-int MPEDisplay::getDim() const
-{
-    return dragger ? dragger_->getDim() : 0;
-}
-
-
-void MPEDisplay::setDim( int dim )
-{
-    if ( dragger )
-	dragger_->setDim( dim );
-}
-*/
-
 void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
     if ( sceneeventcatcher_ )
@@ -367,16 +353,23 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
     if ( newcube!=engine_.activeVolume() )
     {
 	setTexture(0);
-	engine_.setActiveVolume( newcube );
 	manipulated_ = true;
     }
-
-    setDraggerCenter( true );
 }
 
 
 void MPEDisplay::showManipulator( bool yn )
 {
+    if ( yn==boxdragger_->isOn() )
+	return;
+
+    if ( !yn && manipulated_ )
+    {
+	const CubeSampling newcube = getBoxPosition();
+	engine_.setActiveVolume( newcube );
+	acceptManipulation();
+    }
+
     boxdragger_->turnOn( yn );
 }
 
@@ -409,11 +402,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 {
     if ( isSelected() ) return;
 
-    MPE::TrackPlane newplane;
-    const MPE::TrackPlane::TrackMode trkmode = 
-			engine_.trackPlane().getTrackMode();
-    newplane.setTrackMode( trkmode );
-
+    MPE::TrackPlane newplane = engine_.trackPlane();
     CubeSampling& planebox = newplane.boundingBox();
     getPlanePosition( planebox );
 
@@ -459,6 +448,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 	newplane.setMotion( 0, 0, inc ? step : -step );
     }
 
+    const MPE::TrackPlane::TrackMode trkmode = newplane.getTrackMode();
     engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
 	    			  || trkmode==MPE::TrackPlane::ReTrack
 				  || trkmode==MPE::TrackPlane::Erase );
@@ -503,8 +493,8 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 		dim = 0;
 
 	    dragger_->setDim( dim );
-	    MPE::TrackPlane ntp;
-	    getPlanePosition(ntp.boundingBox());
+	    MPE::TrackPlane ntp = engine_.trackPlane();
+	    getPlanePosition( ntp.boundingBox() );
 	    engine_.setTrackPlane( ntp, false );
 	    updateTextureCoords();
 	}
@@ -517,6 +507,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 void MPEDisplay::updateBoxPosition( CallBacker* )
 {
     NotifyStopper stop( dragger_->changed );
+
     const CubeSampling cube = engine_.activeVolume();
     const Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
 			   cube.hrg.stop.crl-cube.hrg.start.crl,
@@ -534,6 +525,8 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	    Interval<float>(cube.hrg.start.inl,cube.hrg.stop.inl),
 	    Interval<float>(cube.hrg.start.crl,cube.hrg.stop.crl),
 	    Interval<float>(cube.zrg.start,cube.zrg.stop) );
+
+    setDraggerCenter( true );
 }
 
 
