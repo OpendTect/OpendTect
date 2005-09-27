@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.22 2005-09-27 15:24:18 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.23 2005-09-27 22:03:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , currentobject(-1)
     , objectcreated(false)
     , trackercreated(false)
-    , reloadattribdata(false)
+    , ispicking(false)
 {
     addPage( createNamePage() );
     addPage( createSeedSetupPage() );
@@ -182,7 +182,6 @@ bool Wizard::prepareSeedSetupPage()
     if ( !createTracker() )
 	return false;
 
-    reloadattribdata = true;
     const int trackerid = mpeserv->getTrackerID( currentobject );
 
     const EMTracker* tracker = MPE::engine().getTracker( trackerid );
@@ -194,8 +193,9 @@ bool Wizard::prepareSeedSetupPage()
     displayPage( sNamePage, false );
     setupgrp->setType( objid, sid );
 
-    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
     colorChangeCB(0);
+    allowpicking = true;
+    updatePickingStatus();
 
     return true;
 }
@@ -203,7 +203,8 @@ bool Wizard::prepareSeedSetupPage()
 
 bool Wizard::leaveSeedSetupPage( bool process )
 {
-    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+    allowpicking = false;
+    updatePickingStatus();
 
     if ( !process ) return true;
 
@@ -216,11 +217,12 @@ bool Wizard::leaveSeedSetupPage( bool process )
 
     if ( !pids || !pids->size() )
     {
-	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	allowpicking = true;
+	updatePickingStatus();
 	mErrRet( "You did not create any seedpoints" );
     }
 
-    if ( !setupgrp->processInput() )
+    if ( !setupgrp->isSetToValidSetup() )
 	mErrRet( "Please select Tracking Setup" );
 
     displayPage( sSeedSetupPage, false );
@@ -253,10 +255,8 @@ bool Wizard::leaveFinalizePage(bool process)
 
 void Wizard::isStarting()
 {
-    reloadattribdata = false;
     seedbox.setEmpty();
 }
-
 
 
 bool Wizard::isClosing(bool iscancel)
@@ -278,8 +278,6 @@ bool Wizard::isClosing(bool iscancel)
     {
 	mpeserv->expandActiveArea(seedbox);
     }
-
-    if ( reloadattribdata ) mpeserv->loadAttribData();
 
     return true;
 }
@@ -454,8 +452,30 @@ bool Wizard::createTracker()
 }
 
 
+void Wizard::updatePickingStatus()
+{
+    const bool shouldbeon = allowpicking && setupgrp->isSetToValidSetup();
+    if ( shouldbeon==ispicking )
+	return;
+
+    if ( shouldbeon )
+    {
+	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	ispicking = true;
+    }
+    else
+    {
+	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+	ispicking = false;
+    }
+}
+	
+
+
 void Wizard::setupChange( CallBacker* )
 {
+    updatePickingStatus();
+
     const int trackerid = mpeserv->getTrackerID( currentobject );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.12 2005-09-27 15:24:15 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.13 2005-09-27 22:02:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,13 +86,16 @@ protected:
     void		anotherSel(CallBacker*);
     void		setupChange(CallBacker*);
 
+    bool		allowpicking;
+    bool		ispicking;
+    void		updatePickingStatus();
+
     CubeSampling	seedbox;
 
     MultiID		currentobject;
     EM::SectionID	sid;
     bool		objectcreated;
     bool		trackercreated;
-    bool		reloadattribdata;
     
     uiMPEPartServer*	mpeserv;
     static int		defcolnr;

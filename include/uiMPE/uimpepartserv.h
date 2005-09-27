@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.11 2005-09-27 15:22:42 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.12 2005-09-27 22:02:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,6 @@ public:
     				/*!< returns the trackerid of the last event */
 
     static const int		evGetAttribData;
-    void			loadAttribData();
     CubeSampling		getActiveVolume() const;
     const Attrib::SelSpec*	getAttribSelSpec() const;
     const Attrib::SliceSet*	getAttribCache(const Attrib::SelSpec&) const;
@@ -80,6 +79,8 @@ public:
 
 protected:
     void			expandActiveArea(const CubeSampling&);
+    void			activeVolumeChange(CallBacker*);
+    void			loadAttribData();
 
     const Attrib::DescSet*	attrset;
     MPE::Wizard*		wizard;
