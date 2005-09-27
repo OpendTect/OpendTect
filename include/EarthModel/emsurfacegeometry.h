@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.14 2005-08-19 15:53:15 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.15 2005-09-27 19:21:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -236,8 +236,6 @@ protected:
     virtual Geometry::ParametricSurface* createSectionSurface() const = 0;
 
     SubID		getSurfSubID(const RowCol&,const SectionID&) const;
-    SubID		getSurfSubID(const Geometry::PosID&,
-				     const SectionID&) const;
 
     void		getMeshCoords(const PosID&,
 				      Coord3& c00, Coord3& c10,
