@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.11 2005-09-14 08:19:01 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.12 2005-09-27 15:24:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,8 +54,6 @@ protected:
     uiGenInput*		namefld;
 
     uiColorInput*	colorfld;
-    uiLabeledSpinBox*	markerszbox;
-    uiLabeledSpinBox*	linewidthbox;
 
     uiSetupSel*		setupgrp;
 
@@ -84,7 +82,7 @@ protected:
     void		updateDialogTitle();
     void		adjustSeedBox();
 
-    void		stickSetChange(CallBacker*);
+    void		colorChangeCB(CallBacker*);
     void		anotherSel(CallBacker*);
     void		setupChange(CallBacker*);
 

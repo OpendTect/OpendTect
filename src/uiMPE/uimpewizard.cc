@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.21 2005-09-20 21:56:26 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.22 2005-09-27 15:24:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,22 +96,11 @@ uiGroup* Wizard::createSeedSetupPage()
     sep2->attach( stretchedBelow, setupgrp );
 
     colorfld = new uiColorInput( grp, Color::drawDef(defcolnr++),
-	    			 "Line color" );
-    colorfld->colorchanged.notify( mCB(this,Wizard,stickSetChange) );
+	    			 "Object color" );
+    colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
     colorfld->attach( alignedBelow, setupgrp );
     colorfld->attach( ensureBelow, sep2 );
     
-    markerszbox = new uiLabeledSpinBox( grp, "Size" );
-    markerszbox->attach( rightTo, colorfld );
-    markerszbox->box()->setValue( MPE::engine().seedsize );
-    markerszbox->box()->valueChanged.notify( mCB(this,Wizard,stickSetChange) );
-
-    linewidthbox = new uiLabeledSpinBox( grp, "Line width" );
-    linewidthbox->attach( rightTo, markerszbox );
-    linewidthbox->box()->setInterval(1,10,1);
-    linewidthbox->box()->setValue( MPE::engine().seedlinewidth );
-    linewidthbox->box()->valueChanged.notify( 
-	    				mCB(this,Wizard,stickSetChange) );
     return grp;
 }
 
@@ -168,19 +157,11 @@ bool Wizard::leaveNamePage( bool process )
 	    if ( !uiMSG().askGoOn("An object with that name does already exist."
 				  " Overwrite?",true) )
 		return false;
-
-	    /*
-	    objid = EM::EMM().createObject(trackertype,newobjnm);
-	    emobj = EM::EMM().getObject( objid );
-	    currentobject = emobj->multiID();
-	    objectcreated = true;
-	    */
 	}
     }
     else
 	currentobject = -1;
 
-    colorfld->setColor( Color::drawDef(defcolnr) );
     return true;
 }
 
@@ -192,6 +173,10 @@ bool Wizard::prepareSeedSetupPage()
 	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
 	EM::EMObject* emobj = EM::EMM().getObject( objid );
 	colorfld->setColor( emobj->preferredColor() );
+    }
+    else
+    {
+	colorfld->setColor( Color::drawDef(defcolnr) );
     }
 
     if ( !createTracker() )
@@ -206,13 +191,11 @@ bool Wizard::prepareSeedSetupPage()
     if ( sid==-1 )
         sid = emobj->sectionID( emobj->nrSections()-1 );
 
-    emobj->setPreferredColor( colorfld->color() );
-
     displayPage( sNamePage, false );
     setupgrp->setType( objid, sid );
 
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
-    stickSetChange(0);
+    colorChangeCB(0);
 
     return true;
 }
@@ -310,12 +293,14 @@ void Wizard::anotherSel( CallBacker* )
 }
 
 
-void Wizard::stickSetChange( CallBacker* )
+void Wizard::colorChangeCB( CallBacker* )
 {
-    engine().seedcolor = colorfld->color();
-    engine().seedsize = markerszbox->box()->getValue();
-    engine().seedlinewidth = linewidthbox->box()->getValue();
-    engine().seedpropertychange.trigger();
+    if ( !(currentobject==-1) )
+    {
+	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	emobj->setPreferredColor( colorfld->color() );
+    }
 }
 
 
@@ -450,9 +435,6 @@ bool Wizard::createTracker()
 	currentobject = emobj->multiID();
 	objectcreated = true;
 	trackercreated = true;
-
-	//PtrMan<Executor> saver = emobj->saver();
-	//if ( saver ) saver->execute();
     }
     else if ( mpeserv->getTrackerID(currentobject)<0 )
     {
