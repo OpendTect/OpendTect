@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.43 2005-09-14 08:18:33 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.44 2005-09-27 15:21:05 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -42,12 +42,8 @@ namespace MPE
 {
 
 Engine::Engine()
-    : seedpropertychange( this )
-    , trackplanechange( this )
+    : trackplanechange( this )
     , activevolumechange( this )
-    , seedsize( 4 )
-    , seedlinewidth( 3 )
-    , seedcolor( Color::White )
 {
     setActiveVolume( getDefaultActiveVolume() );
     trackers.allowNull(true);
@@ -56,7 +52,6 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-    deepErase( interactionseeds );
     deepErase( trackers );
     deepErase( editors );
     deepUnRef( attribcache );
@@ -205,43 +200,6 @@ int Engine::addTracker( EM::EMObject* obj )
 }
 
 
-int Engine::addTracker( const char* objname, const char* trackername )
-{
-    if ( !interactionseeds.size() || !objname || !trackername )
-	mRetErr( "No seeds or no name specified", -1 );
-
-    if ( getTrackerByObject(objname)!=-1 )
-	mRetErr( "Object with this name does already exist", -1 );
-
-    bool added = false;
-    for ( int idx=0; idx<trackerfactories.size(); idx++ )
-    {
-	if ( !strcmp(trackername,trackerfactories[idx]->emObjectType()) )
-	{
-	    EMTracker* tracker = trackerfactories[idx]->create();
-	    if ( !tracker->setSeeds(interactionseeds,objname,-1) )
-	    {
-		errmsg = tracker->errMsg();
-		delete tracker;
-		interactionseeds.erase();
-		return -1;
-	    }
-
-	    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
-	    emobj->setPreferredColor( seedcolor );
-	    trackers += tracker;
-	    added = true;
-	    break;
-	}
-    }
-
-    if ( !added )
-	mRetErr( "Cannot find this trackertype", -1 );
-
-    return trackers.size()-1;
-}
-
-
 void Engine::removeTracker( int idx )
 {
     if ( idx>=trackers.size() )
@@ -294,25 +252,6 @@ int Engine::getTrackerByObject( const char* objname ) const
 
     return -1;
 }
-
-/*
-void Engine::setNewSeeds()
-{
-    int idx;
-    for ( idx = trackers.size() - 1; idx >= 0; --idx )
-    {
-	if ( !trackers[idx] )	continue;
-	if ( trackers[idx]->isEnabled() )
-	    break;
-    }
-    if ( idx >= 0 )
-    {
-	trackers[idx]->setSeeds(interactionseeds, trackers[idx]->objectName());
-	trackers[idx]->snapSeedPos();
-    }
-}
-
-*/
 
 
 void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
@@ -499,7 +438,6 @@ void Engine::fillPar( IOPar& iopar ) const
 
 bool Engine::usePar( const IOPar& iopar )
 {
-    deepErase( interactionseeds );
     deepErase( trackers );
     deepErase( editors );
     deepUnRef( attribcache );
