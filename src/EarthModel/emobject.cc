@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.46 2005-09-27 09:17:51 cvsduntao Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.47 2005-09-27 22:05:35 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -216,6 +216,12 @@ bool EMObject::unSetPos(const PosID& pid, bool addtohistory )
 void EMObject::changePosID( const PosID& from, const PosID& to,
 			    bool addtohistory )
 {
+    if ( from==to )
+    {
+	pErrMsg("From and to are identical");
+	return;
+    }
+
     if ( from.objectID()!=id() || to.objectID()!=id() )
 	return;
 
