@@ -8,9 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionextender.cc,v 1.5 2005-08-20 19:00:57 cvskris Exp $";
+static const char* rcsID = "$Id: sectionextender.cc,v 1.6 2005-09-27 19:26:03 cvskris Exp $";
 
 #include "sectionextender.h"
+
+#include "position.h"
 
 namespace MPE 
 {
