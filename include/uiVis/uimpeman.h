@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.17 2005-09-26 08:34:03 cvsduntao Exp $
+ RCS:           $Id: uimpeman.h,v 1.18 2005-09-27 09:16:00 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,8 @@ protected:
     void			mouseEraseModeCB(CallBacker*);
     void			setTrackButton();
     void			showTracker(bool);
+    
+    void			setHistoryLevel();
 
     void			seedClick(CallBacker*);
     int				seedclickobject;
