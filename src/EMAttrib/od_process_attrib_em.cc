@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.14 2005-09-02 14:29:09 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.15 2005-09-27 09:34:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,17 +32,19 @@ ________________________________________________________________________
 
 #include "emmanager.h"
 #include "emsurface.h"
-#include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
-#include "parametricsurface.h"
+#include "emhorizonutils.h"
 #include "executor.h"
-#include "survinfo.h"
+#include "seisbuf.h"
+#include "seiswrite.h"
 
 #include "attribsel.h"
 #include "attribfactory.h"
 #include "attrfact.h"
 
+using namespace Attrib;
+using namespace EM;
 
 #define mDestroyWorkers \
 	{ delete execgr; execgr = 0; }
@@ -58,7 +60,7 @@ ________________________________________________________________________
 static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 			    bool stepout )
 {
-    Attrib::DescSet initialset;
+    DescSet initialset;
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
     if ( !initialset.usePar( *attribs ) )
 	mErrRet( initialset.errMsg() )
@@ -66,7 +68,7 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     const char* res = iopar.find( "Output.1.Attributes.0" );
     if ( !res )
 	mErrRet( "No target attribute found" )
-    Attrib::DescID outid( atoi( res ), true ); 
+    DescID outid( atoi( res ), true ); 
     if ( initialset.getDesc(outid) < 0 )
 	mErrRet( "Target attribute not present in attribute set" )
 
@@ -74,96 +76,21 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 }
 
 
-static void getPositions( std::ostream& strm, const MultiID& id,
-			  ObjectSet<BinIDValueSet>& data )
-{
-    EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.multiID2ObjectID(id);
-    EM::EMObject* obj = em.getObject( objid );
-    mDynamicCastGet(EM::Surface*,surface,obj)
-    if ( !surface ) return;
-
-    strm << "\nFetching surface positions ...\n" ;
-    ProgressMeter pm( strm );
-    deepErase( data );
-    const int nrsect = surface->geometry.nrSections();
-    for ( int sectionidx=0; sectionidx<nrsect; sectionidx++ )
-    {
-	const EM::SectionID sectionid = 
-	    			surface->geometry.sectionID( sectionidx );
-	const Geometry::ParametricSurface* psurf = 
-	    			surface->geometry.getSurface(sectionid);
-
-	BinIDValueSet& res = *new BinIDValueSet( 1, false );
-	data += &res;
-
-	const int nrnodes = psurf->nrKnots();
-	for ( int idy=0; idy<nrnodes; idy++ )
-	{
-	    const Coord3 crd = psurf->getKnot( psurf->getKnotRowCol(idy) );
-	    const BinID bid = SI().transform(crd);
-	    res.add( bid, crd.z );
-	    ++pm;
-	}
-    }
-
-    pm.finish();
-    strm << "Done!" << std::endl;
-}
-
-
-static void addSurfaceData( const MultiID& id, const BufferStringSet& attrnms,
-			    const ObjectSet<BinIDValueSet>& data )
-{
-    EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.multiID2ObjectID(id);
-    EM::EMObject* obj = em.getObject( objid );
-    mDynamicCastGet(EM::Surface*,surface,obj)
-    if ( !surface ) return;
-
-    surface->auxdata.removeAll();
-    for ( int idx=0; idx<attrnms.size(); idx++ )
-	surface->auxdata.addAuxData( attrnms.get(idx) );
-
-    for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
-    {
-	const EM::SectionID sectionid = 
-	    			surface->geometry.sectionID( sectionidx );
-	BinIDValueSet& bivs = *data[sectionidx];
-
-	EM::PosID posid( objid, sectionid );
-	BinIDValueSet::Pos pos;
-	BinID bid; TypeSet<float> vals;
-	while ( bivs.next(pos) )
-	{
-	    bivs.get( pos, bid, vals );
-	    const EM::SubID subid = 
-		surface->geometry.rowCol2SubID( RowCol(bid.inl,bid.crl) );
-	    posid.setSubID( subid );
-	    for ( int validx=1; validx<vals.size(); validx++ )
-		surface->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
-	}
-    }
-}
-
-
 static void showHostName( std::ostream& strm )
 { strm << "Processing on " << HostData::localHostName() << '.' << std::endl; }
 
 
-static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
-		     MultiID& mid, BufferString& errmsg )
+static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
+			 BufferString& errmsg, BufferString& objidstr )
 {
-    strm << "Preparing processing\n"; strm.flush();
-    BufferString outstr( "Output.1." ); outstr += idstr;
-    const char* objid = iopar.find( outstr );
-    if ( !objid )
+    const char* objid = iopar.find( str );
+    if ( !objid && claimmissing )
     {
-	errmsg = "No "; errmsg += outstr; 
+	errmsg = "No "; errmsg += str; 
 	errmsg += " defined in parameter file";
 	return false;
     }
-    else
+    else if ( objid )
     {
 	PtrMan<IOObj> ioobj = IOM().get( objid );
 	if ( !ioobj )
@@ -172,9 +99,53 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 	    errmsg += "' ...";
 	    return false;
 	}
-    }
 
-    mid = objid;
+	objidstr = objid;
+    }
+    else
+	objidstr = "";
+    
+    return true;
+}
+
+    
+static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
+		     ObjectSet<MultiID>& midset, BufferString& errmsg, 
+		     bool iscubeoutp, MultiID& outpid  )
+{
+    strm << "Preparing processing\n"; strm.flush();
+    BufferString outstr( "Output.1." ); outstr += idstr;
+
+    BufferString objidstr;
+    if( !getObjectID( iopar, outstr, true, errmsg, objidstr ) ) return false;
+
+    if ( !iscubeoutp )
+    {
+	MultiID* mid = new MultiID(objidstr.buf());
+	midset += mid;
+    }
+    else
+    {
+	outpid = objidstr.buf();
+	BufferString basehorstr = sKey::Geometry; basehorstr += "."; 
+	basehorstr += LocationOutput::surfidkey; 
+	BufferString hor1str = basehorstr; hor1str += ".0";
+	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) ) 
+	    return false;
+
+	MultiID* mid = new MultiID(objidstr.buf());
+	midset += mid;
+
+	BufferString hor2str = basehorstr; hor2str += ".1";
+	if( !getObjectID( iopar, hor2str, false, errmsg, objidstr ) )
+	    return false;
+
+	if ( objidstr.size() )
+	{
+	    MultiID* mid2 = new MultiID(objidstr.buf());
+	    midset += mid2;
+	}
+    }
     return true;
 }
 
@@ -185,80 +156,8 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
 
-bool BatchProgram::go( std::ostream& strm )
+static bool process( std::ostream& strm, ExecutorGroup* execgr )
 {
-    Attrib::initAttribClasses();
-    if ( cmdLineOpts().size() )
-    {
-	BufferString opt = *cmdLineOpts()[0];
-	bool ismaxstepout = opt == "maxstepout";
-	if ( ismaxstepout || opt == "validate" )
-	    return attribSetQuery( strm, pars(), ismaxstepout );
-    }
-
-    showHostName( strm );
-
-    ExecutorGroup* execgr = 0;
-
-    BufferString errmsg;
-    MultiID mid;
-    if ( !prepare( strm, pars(), "Surface ID", mid, errmsg ) )
-	mErrRet( errmsg );
-
-    strm << "Loading: " << mid.buf() << "\n\n";
-    PtrMan<Executor> loader = EM::EMM().objectLoader( mid, 0 );
-    if ( !loader || !loader->execute(&strm) ) mErrRet( "Cannot load surface" );
-
-    Attrib::StorageProvider::initClass();
-    Attrib::DescSet attribset;
-    PtrMan<IOPar> attribs = pars().subselect( "Attributes" );
-    if ( !attribset.usePar(*attribs) )
-	mErrRet( attribset.errMsg() )
-
-    PtrMan<IOPar> output = pars().subselect( "Output.1" );
-    if ( !output ) mErrRet( "No output specified" );
-    
-    PtrMan<IOPar> attribsiopar = output->subselect("Attributes");
-    if ( !attribsiopar ) mErrRet( "No output specified" );
-
-    TypeSet<Attrib::DescID> attribids;
-    int nrattribs = 1;
-    attribsiopar->get( "MaxNrKeys", nrattribs );
-    for ( int idx=0; idx<nrattribs; idx++ )
-    {
-	BufferString key = idx;
-	int id;
-	if ( attribsiopar->get(key,id) )
-	    attribids += Attrib::DescID(id,true);
-    }
-
-    if ( !attribids.size() )
-	mErrRet( "No attributes selected" );
-
-    TypeSet<Attrib::SelSpec> selspecs;
-    BufferStringSet attribrefs;
-    for ( int idx=0; idx<attribids.size(); idx++ )
-    {
-	Attrib::SelSpec spec( 0, attribids[idx] );
-	spec.setRefFromID( attribset );
-	selspecs += spec;
-	attribrefs.add( spec.userRef() );
-    }
-
-    // TODO: make a targetvalue for each output
-    BufferString newattrnm;
-    pars().get( "Target value", newattrnm );
-    if ( newattrnm != "" )
-	attribrefs.get(0) = newattrnm;
-
-    Attrib::EngineMan aem;
-    aem.setAttribSet( &attribset );
-    aem.setAttribSpecs( selspecs );
-
-    ObjectSet<BinIDValueSet> bivs;
-    getPositions( strm, mid, bivs );
-    execgr = aem.createLocationOutput( errmsg, bivs );
-
     bool cont = true;
     bool loading = true;
     int nriter = 0;
@@ -299,19 +198,147 @@ bool BatchProgram::go( std::ostream& strm )
 
     // It is VERY important workers are destroyed BEFORE the last writeStatus!!!
     mDestroyWorkers
+    return true;
+}
 
-    addSurfaceData( mid, attribrefs, bivs );
-    EM::EMObject* obj = EM::EMM().getObject( EM::EMM().multiID2ObjectID(mid) );
-    mDynamicCastGet(EM::Surface*,surface,obj)
-    if ( !surface ) mErrRet( "Huh" );
 
-    EM::SurfaceIOData sd; sd.use( *surface );
-    EM::SurfaceIODataSelection sels( sd );
-    PtrMan<Executor> saver = surface->auxdata.auxDataSaver( -1, -1 );
-    if ( !saver || !saver->execute(&strm) )
-	mErrRet( "Cannot save data" );
+bool BatchProgram::go( std::ostream& strm )
+{
+    initAttribClasses();
+    if ( cmdLineOpts().size() )
+    {
+	BufferString opt = *cmdLineOpts()[0];
+	bool ismaxstepout = opt == "maxstepout";
+	if ( ismaxstepout || opt == "validate" )
+	    return attribSetQuery( strm, pars(), ismaxstepout );
+    }
+
+    showHostName( strm );
+
+    BufferString type;
+    pars().get( "Output.1.Type",type );
+   
+    bool iscubeoutp = !strcmp( type, Output::tskey );
+
+    ExecutorGroup* execgr = 0;
+
+    BufferString errmsg;
+    MultiID outpid;
+    ObjectSet<MultiID> midset;
+    if ( !prepare( strm, pars(), 
+		   iscubeoutp ? SeisTrcStorOutput::seisidkey 
+		   	      : LocationOutput::surfidkey,
+		   midset, errmsg, iscubeoutp, outpid ) )
+	mErrRet( errmsg );
+
+    for ( int idx=0; idx<midset.size(); idx++ )
+    {
+	MultiID* mid = midset[idx];
+	strm << "Loading: " << mid->buf() << "\n\n";
+	PtrMan<Executor> loader = EMM().objectLoader( *mid, 0 );
+	if ( !loader || !loader->execute(&strm) ) 
+	{
+	    BufferString errstr = "Cannot load surface:";
+	    errstr += mid->buf();
+	    mErrRet( errstr.buf() );
+	}
+    }
+
+    StorageProvider::initClass();
+    DescSet attribset;
+    PtrMan<IOPar> attribs = pars().subselect( "Attributes" );
+    if ( !attribset.usePar(*attribs) )
+	mErrRet( attribset.errMsg() )
+
+    PtrMan<IOPar> output = pars().subselect( "Output.1" );
+    if ( !output ) mErrRet( "No output specified" );
+    
+    PtrMan<IOPar> attribsiopar = output->subselect("Attributes");
+    if ( !attribsiopar ) mErrRet( "No output specified" );
+
+    TypeSet<DescID> attribids;
+    int nrattribs = 1;
+    attribsiopar->get( "MaxNrKeys", nrattribs );
+    for ( int idx=0; idx<nrattribs; idx++ )
+    {
+	BufferString key = idx;
+	int id;
+	if ( attribsiopar->get(key,id) )
+	    attribids += DescID(id,true);
+    }
+
+    if ( !attribids.size() )
+	mErrRet( "No attributes selected" );
+
+    TypeSet<SelSpec> selspecs;
+    BufferStringSet attribrefs;
+    for ( int idx=0; idx<attribids.size(); idx++ )
+    {
+	SelSpec spec( 0, attribids[idx] );
+	spec.setRefFromID( attribset );
+	selspecs += spec;
+	attribrefs.add( spec.userRef() );
+    }
+
+    // TODO: make a targetvalue for each output
+    BufferString newattrnm;
+    pars().get( "Target value", newattrnm );
+    if ( newattrnm != "" )
+	attribrefs.get(0) = newattrnm;
+
+    EngineMan aem;
+    aem.setAttribSet( &attribset );
+    aem.setAttribSpecs( selspecs );
+
+    if ( !iscubeoutp )
+    {
+	ObjectSet<BinIDValueSet> bivs;
+	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
+	execgr = aem.createLocationOutput( errmsg, bivs );
+	if ( !process( strm, execgr) ) return false;
+        HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
+	EMObject* obj = EMM().getObject( EMM().multiID2ObjectID(*midset[0]) );
+	mDynamicCastGet(Surface*,surface,obj)
+	if ( !surface ) mErrRet( "Huh" );
+
+	SurfaceIOData sd; sd.use( *surface );
+	SurfaceIODataSelection sels( sd );
+	PtrMan<Executor> saver = surface->auxdata.auxDataSaver( -1, -1 );
+	if ( !saver || !saver->execute(&strm) )
+	    mErrRet( "Cannot save data" );
+    }
+    else
+    {
+	BinIDValueSet bivs(2,false);
+	SeisTrcBuf seisoutp;
+	PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
+	float outval;
+	iopar->get( "Outside Value", outval );
+	HorSampling horsamp;
+	geompar->get( "In-line range", horsamp.start.inl, horsamp.stop.inl );
+	geompar->get( "Cross-line range", horsamp.start.crl, horsamp.stop.crl);
+
+	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp );
+	execgr = aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval );
+	if ( !process( strm, execgr) ) return false;
+	PtrMan<IOObj> ioseisout = IOM().get( outpid );
+	SeisTrcWriter writer( ioseisout );
+	for ( int idx=0; idx<seisoutp.size(); idx++ )
+	{
+	    if ( !idx )
+	    {
+		if ( !writer.prepareWork(*(seisoutp.get(idx))) )
+		    { errmsg = writer.errMsg(); return false; }
+	    }
+
+	    if ( !writer.put(*(seisoutp.get(idx))) )
+		{ errmsg = writer.errMsg(); }
+	}
+    }
 
     strm << "Successfully saved data." << std::endl;
+
+    deepErase(midset);
 
     return true;
 }

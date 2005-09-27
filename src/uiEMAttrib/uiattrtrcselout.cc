@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.1 2005-09-22 12:09:03 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.2 2005-09-27 09:34:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,9 +90,14 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 					   withstep(true) );
     subselfld->attach( alignedBelow, gatefld );
 
+    const char* outsidevallabel = "value outside computed area";
+    outsidevalfld = new uiGenInput( uppgrp, outsidevallabel, FloatInpSpec() );
+    outsidevalfld->attach( alignedBelow, subselfld );
+    outsidevalfld->setValue(0);
+	    
     ctioout.ctxt.forread = false;
     outpfld = new uiSeisSel( uppgrp, ctioout, SeisSelSetup() );
-    outpfld->attach( alignedBelow, subselfld );
+    outpfld->attach( alignedBelow, outsidevalfld );
 
     uppgrp->setHAlignObj( attrfld );
     addStdFields();
@@ -225,6 +230,9 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     
     key = keybase; key += "ExtraZInterval";
     iopar.set( key, gatestr );
+
+    key = keybase; key += "Outside Value";
+    iopar.set( key, outsidevalfld->getfValue() );
 	
     ads.removeDesc( nladescid );
 
