@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.46 2005-09-27 09:16:00 cvsduntao Exp $
+ RCS:		$Id: emobject.h,v 1.47 2005-09-27 19:19:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "emposid.h"
 #include "multiid.h"
+#include "position.h"
 #include "refcount.h"
 
 class IOObj;
