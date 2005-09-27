@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.30 2005-09-22 12:11:45 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.31 2005-09-27 09:15:49 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -511,9 +511,11 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
 }
 
 
-TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset )
+TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
+					float outval )
     : bidvalset_(bidvalset)
     , outpbuf_(0)
+    , outval_(outval)
 {
     seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( bidvalset.totalSize()<2 );
@@ -576,7 +578,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	for ( int idx=0; idx<trcsz; idx++ )
 	{
 	    if ( idx < startidx || idx>=startidx+data.nrsamples_ )
-		trc->set( idx, mUdf(float), comp );
+		trc->set( idx, outval_, comp );
 	    else  
 	    {
 		const float val = 
