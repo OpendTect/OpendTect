@@ -15,6 +15,7 @@ static const char* rcsID = "$Id";
 #include "uifileinput.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "oddirs.h"
 #include "plugins.h"
 
 extern "C" int GetCmdDriverPluginType()
@@ -58,7 +59,7 @@ class uiCmdDriverInps : public uiDialog
 {
 public:
 
-uiCmdDriverInps( uiParent* p, CmdDriver d )
+uiCmdDriverInps( uiParent* p, CmdDriver& d )
         : uiDialog(p,Setup("Command execution","Specify the file with commands"
 			    " to execute"))
 	, drv(d)
@@ -67,10 +68,13 @@ uiCmdDriverInps( uiParent* p, CmdDriver d )
 				.filter("*.cmd;;*")
 				.forread(true)
 				.withexamine(true) );
+    FilePath fp( GetDataDir() ); fp.add( "Proc" );
+    fnmfld->setDefaultSelectionDir( fp.fullPath() );
     outdirfld = new uiFileInput( this, "Output directory", uiFileInput::Setup()
 				.forread(false)
 				.directories(true) );
     outdirfld->attach( alignedBelow, fnmfld );
+    outdirfld->setDefaultSelectionDir( fp.fullPath() );
 }
 
 bool acceptOK( CallBacker* )
