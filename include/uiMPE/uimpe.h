@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.2 2005-07-31 06:15:39 cvskris Exp $
+ RCS:		$Id: uimpe.h,v 1.3 2005-09-27 19:16:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emposid.h"
+#include "callback.h"
 
 class uiParent;
 
