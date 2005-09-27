@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.18 2005-09-27 09:16:00 cvsduntao Exp $
+ RCS:           $Id: uimpeman.h,v 1.19 2005-09-27 21:59:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,9 +46,6 @@ public:
 
     void			turnSeedPickingOn(bool);
 
-    const char*			getDesTrackerType() const
-    				{ return destrackertype; }
-
 protected:
     visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
     
@@ -73,6 +70,8 @@ protected:
     void			showCubeCB(CallBacker*);
 
     void			attribSel(CallBacker*);
+    bool			blockattribsel;
+
     void			transpChg(CallBacker*);
 
     void			undoPush(CallBacker*);
@@ -108,7 +107,6 @@ protected:
     int				trackinvolidx;
     bool			trackerwasonbeforemouseerase;
 
-    BufferString		destrackertype;
     bool			init;
     
 private:
