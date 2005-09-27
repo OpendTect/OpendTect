@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.22 2005-09-20 15:09:44 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.23 2005-09-27 09:15:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ class SeisSelData;
 class SeisTrcInfo;
 
 namespace Threads { class ThreadWorkManager; };
+
+#define mMAXDIP 300 * 1e-6
 
 namespace Attrib
 {
