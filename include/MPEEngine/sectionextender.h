@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.9 2005-08-22 22:16:06 cvskris Exp $
+ RCS:           $Id: sectionextender.h,v 1.10 2005-09-27 19:24:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,10 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "sets.h"
 #include "trackstattbl.h"
+
+
+class BinID;
+class BinIDValue;
 
 namespace EM
 {
