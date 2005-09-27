@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.45 2005-09-27 09:17:51 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.46 2005-09-27 15:41:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     addSeparator();
     
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
-			    "Set track plane colorbar", true );
+			    "Set track plane colorbar", false );
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
 			       "Move track plane", true );
     extendidx = mAddButton( "trackplane.png", extendModeCB,
@@ -155,7 +155,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     //engine().seedpropertychange.notify(
 	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
-			//
     visBase::DM().selMan().selnotifier.notify( mCB(this,uiMPEMan,selChangeCB) );
     visBase::DM().selMan().deselnotifier.notify(mCB(this,uiMPEMan,selChangeCB));
 }
@@ -200,7 +199,7 @@ void uiMPEMan::deleteVisObjects()
 }
 
 
-void uiMPEMan::seedClick(CallBacker*)
+void uiMPEMan::seedClick( CallBacker* )
 {
     const int clickedobject = clickcatcher->clickedObjectID();
     if ( clickedobject==-1 )
@@ -564,7 +563,7 @@ void uiMPEMan::trackBackward( CallBacker* )
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
     setHistoryLevel();
-   for ( int idx=0; idx<displays.size(); idx++ )
+    for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( -nrsteps );
 }
 
