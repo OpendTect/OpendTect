@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.63 2005-09-06 09:35:19 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.64 2005-09-27 19:23:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
-#include "geomgridsurface.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"

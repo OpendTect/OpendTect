@@ -4,11 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.14 2005-08-19 19:50:39 cvskris Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.15 2005-09-27 19:23:13 cvskris Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
-#include "geomgridsurface.h"
 
 using namespace EM;
 
