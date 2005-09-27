@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.46 2005-09-27 15:41:56 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.47 2005-09-27 22:01:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , createmnuitem("Create")
     , seedpicker( 0 )
     , colbardlg( 0 )
+    , seedclickobject( -1 )
+    , blockattribsel( false )
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -215,9 +217,6 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !horizon )
 	return;
 
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane,
-		     visBase::DM().getObject(clickedobject) );
-
     if ( seedclickobject==-1 )
     {
 	seedpicker = tracker->getSeedPicker(true);
@@ -232,7 +231,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	const bool haddefaultvol =
 	    engine.activeVolume()==engine.getDefaultActiveVolume();
 
-	CubeSampling newvolume = plane->getCubeSampling();
+	CubeSampling newvolume = clickcatcher->clickedObjectCS();
 	if ( !haddefaultvol )
 	    newvolume.limitTo(engine.activeVolume());
 
@@ -240,21 +239,29 @@ void uiMPEMan::seedClick( CallBacker* )
 	    return;
 
 	oldactivevol = engine.activeVolume();
+	NotifyStopper notifystopper( engine.activevolumechange );
 	engine.setActiveVolume(newvolume);
 	seedclickobject = clickedobject;
 
 	if ( haddefaultvol )
 	{
-	    const Attrib::SliceSet* cached = plane->getCacheVolume(false);
+	    const Attrib::SliceSet* cached =
+		clickcatcher->clickedObjectData();
+
 	    if ( cached )
 	    {
 		cached->ref();
-		engine.setAttribData( *plane->getSelSpec(), cached );
+		engine.setAttribData( *clickcatcher->clicedObjectDataSelSpec(),
+				      cached );
 	    }
 	}
+
+	notifystopper.restore();
+	engine.activevolumechange.trigger();
     }
     else if ( clickedobject!=seedclickobject )
 	return;
+
 
     if ( !seedpicker )
 	return;
@@ -328,7 +335,7 @@ void uiMPEMan::updateAttribNames()
 
     mGetDisplays(false)
     for ( int idx=0; idx<displays.size(); idx++ )
-        attribfld->setCurrentItem( displays[idx]->getSelSpec()->userRef() );
+        attribfld->setCurrentItem( displays[idx]->getSelSpecUserRef() );
 
     if ( !init && attribfld->size()>1 && attribspecs.size() &&
 	 engine().getAttribCache(*attribspecs[0]) )
@@ -346,6 +353,8 @@ void uiMPEMan::updateAttribNames()
 
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
+    blockattribsel = yn;
+
     if ( seedpicker )
     {
 	seedpicker->stopSeedPick();
@@ -374,6 +383,7 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     else
     {
 	if ( clickcatcher ) clickcatcher->turnOn(false);
+	NotifyStopper notifystopper( MPE::engine().activevolumechange );
 	MPE::engine().setActiveVolume(oldactivevol);
 	clickcatcher->deSelect();
     }
@@ -429,6 +439,9 @@ void uiMPEMan::showCubeCB( CallBacker* )
 
 void uiMPEMan::attribSel( CallBacker* )
 {
+    if ( blockattribsel )
+	return;
+
     uiCursorChanger cursorchanger( uiCursor::Wait );
 
     mGetDisplays(false)
