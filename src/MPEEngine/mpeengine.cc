@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.44 2005-09-27 15:21:05 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.45 2005-09-27 22:05:04 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -68,7 +68,6 @@ const CubeSampling& Engine::activeVolume() const
 void Engine::setActiveVolume( const CubeSampling& nav )
 {
     activevolume = nav;
-    activevolumechange.trigger();
 
     int dim = 0;
     if ( trackplane.boundingBox().hrg.start.crl==
@@ -92,6 +91,7 @@ void Engine::setActiveVolume( const CubeSampling& nav )
 
     ntp.setTrackMode( trackPlane().getTrackMode() );
     setTrackPlane( ntp, false );
+    activevolumechange.trigger();
 }
 
 
