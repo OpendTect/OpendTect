@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.10 2004-10-06 12:03:26 dgb Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.11 2005-09-27 08:38:52 cvsbert Exp $";
 
 #include "timefun.h"
 #include <time.h>
@@ -81,7 +81,7 @@ int Time_getMilliSeconds( void )
 }
 
 
-const char* Time_getLocalString( void )
+const char* Time_getFullDateString( void )
 {
     char *chp ;
     int lastch ;
@@ -93,6 +93,22 @@ const char* Time_getLocalString( void )
     if ( chp[lastch] == '\n' ) chp[lastch] = '\0' ;
 
     return chp;
+}
+
+
+const char* Time_getTimeString( void )
+{
+    static char buf[32];
+    char* ptrbuf = buf;
+    const char* ptrfull;
+
+    ptrfull = strchr( Time_getFullDateString(), ':' );
+    while ( !isspace(*(ptrfull-1)) )
+	ptrfull--;
+    while ( !isspace(*ptrfull) )
+	*ptrbuf++ = *ptrfull++;
+
+    return buf;
 }
 
 

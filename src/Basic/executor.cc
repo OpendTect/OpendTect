@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.17 2005-09-23 12:36:34 cvsbert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.18 2005-09-27 08:38:52 cvsbert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -44,7 +44,7 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 	stream << GetProjectVersionName() << "\n\n";
 
     stream << "Process: '" << name() << "'\n";
-    stream << "Started: " << Time_getLocalString() << "\n\n";
+    stream << "Started: " << Time_getFullDateString() << "\n\n";
 
     BufferString curmsg, prevmsg;
     prevmsg = message();
@@ -70,7 +70,7 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 	    stream << "Error: " << curmsg << std::endl;
 	break;
 	case Finished:
-	    stream << "\nFinished: " << Time_getLocalString() << std::endl;
+	    stream << "\nFinished: " << Time_getFullDateString() << std::endl;
 	break;
 	default:
 	    go_on = true;

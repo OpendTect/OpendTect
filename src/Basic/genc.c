@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.72 2005-08-29 14:56:18 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.73 2005-09-27 08:38:52 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -626,7 +626,7 @@ int ExitProgram( int ret )
 {
     if ( od_debug_isOn(DBG_PROGSTART) )
 	printf( "\nExitProgram (PID: %d) at %s\n",
-		GetPID(), Time_getLocalString() );
+		GetPID(), Time_getFullDateString() );
 
 #ifdef __win__
 

@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.15 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.16 2005-09-27 08:38:52 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -116,7 +116,8 @@ bool ascostream::put( const char* keyword, double value )
 bool ascostream::putHeader( const char* fltyp, const char* pspec )
 {
     if ( !pspec ) pspec = GetProjectVersionName();
-    stream() << pspec << '\n' << fltyp << '\n' << Time_getLocalString() << '\n';
+    stream() << pspec << '\n' << fltyp << '\n'
+	     << Time_getFullDateString() << '\n';
     newParagraph();
     return stream().good();
 }
