@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.25 2005-08-26 18:47:19 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.26 2005-09-28 15:08:48 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -337,7 +337,7 @@ int Well::LogDataExtracter::nextStep()
 }
 
 
-#define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*10 : SI().zStep()
+#define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*20 : SI().zStep()
 
 
 void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
