@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.105 2005-09-20 07:18:05 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.106 2005-09-28 12:05:10 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1734,6 +1734,7 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 	pdd->resetManipulation();
 	visserv->calculateAttrib( displayid, false );
 	visserv->calculateColorAttrib( displayid, false );
+	updateColumnText(0);
 	updateColumnText(1);
     }
 
@@ -1753,6 +1754,7 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
     pdd->resetManipulation();
     visserv->calculateAttrib( displayid, false );
     visserv->calculateColorAttrib( displayid, false );
+    updateColumnText(0);
     updateColumnText(1);
 }
 
