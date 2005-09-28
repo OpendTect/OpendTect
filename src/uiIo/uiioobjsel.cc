@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.75 2005-09-28 21:17:37 cvskris Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.76 2005-09-28 21:24:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ void uiIOObjSelGrp::selectionChange( CallBacker* cb )
     }
     else if ( !issel )
     {
-	if ( nmfld ) nmfld->setText("");
+	if ( cb && nmfld ) nmfld->setText("");
 	toStatusBar( "" );
     }
 
