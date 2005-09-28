@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.14 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:		$Id: string2.h,v 1.15 2005-09-28 15:09:03 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -49,8 +49,10 @@ int		getEqTokenValue(const char*,const char*,float*);
 int		countCharacter(const char*,char);
 /*!> replaces all occurrences of a char with another */
 void		replaceCharacter(char*,char,char);
+/*!> removes all occurrences of a char */
+void		removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores. */
-void		cleanupString(char*,int ,int,int);
+void		cleanupString(char*,int,int,int);
 
 /*!> returns the string for an int in a static buffer. You'll have to pass a
      C-style ('printf') format. */
