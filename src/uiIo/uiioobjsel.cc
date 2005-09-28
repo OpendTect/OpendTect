@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.74 2005-09-28 16:30:12 cvskris Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.75 2005-09-28 21:17:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ static void getIOObjNames( IODirEntryList& entrylist, BufferStringSet& nms )
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const char* seltxt, bool multisel )
     : uiGroup(p)
-    , ctio(c)
+    , ctio(*new CtxtIOObj(c))
     , nmfld(0)
     , ioobj(0)
     , ismultisel(multisel && ctio.ctxt.forread)
@@ -57,7 +57,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
     topgrp = new uiGroup( this, "Top group" );
     filtfld = new uiGenInput( topgrp, "Filter", "*" );
-    filtfld->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    filtfld->valuechanged.notify( mCB(this,uiIOObjSelGrp,rebuildList) );
     listfld = new uiLabeledListBox( topgrp, seltxt );
     if ( ismultisel )
 	listfld->box()->setMultiSelect( true );
@@ -89,22 +89,25 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
+    listfld->box()->selectionChanged.notify(
+	    mCB(this,uiIOObjSelGrp,selectionChange) );
     listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
     if ( !ismultisel && ctio.ctxt.maydooper )
     {
 	manipgrp = new uiIOObjManipGroup( listfld->box(), *entrylist,
 					  ctio.ctxt.trgroup->defExtension() );
 	manipgrp->preRelocation.notify( mCB(this,uiIOObjSelGrp,preReloc) );
-	manipgrp->postRelocation.notify( mCB(this,uiIOObjSelGrp,selChg) );
+	manipgrp->postRelocation.notify(
+		mCB(this,uiIOObjSelGrp,selectionChange) );
     }
 
-    selChg( this );
+    selectionChange( this );
 }
 
 
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
+    delete &ctio;
     delete entrylist;
 }
 
@@ -144,14 +147,19 @@ const IOObj* uiIOObjSelGrp::selected( int objnr ) const
 }
 
 
-void uiIOObjSelGrp::filtChg( CallBacker* cb )
+void uiIOObjSelGrp::rebuildList( CallBacker* cb )
 {
-    entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
+    IOM().to( ctio.ctxt.stdSelKey() );
+    //entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
     BufferString nmflt = filtfld->text();
+    entrylist->ctxt = ctio.ctxt;
+
     if ( nmflt != "" && nmflt != "*" )
 	entrylist->fill( IOM().dirPtr(), nmflt );
+    else 
+	entrylist->fill( IOM().dirPtr() );
     fillList();
-    selChg(cb);
+    selectionChange(cb);
 }
 
 
@@ -172,7 +180,7 @@ void uiIOObjSelGrp::toStatusBar( const char* txt )
 }
 
 
-void uiIOObjSelGrp::selChg( CallBacker* cb )
+void uiIOObjSelGrp::selectionChange( CallBacker* cb )
 {
     if ( ismultisel ) return;
     const int curitm = listfld->box()->currentItem();
@@ -194,9 +202,21 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 	}
 	toStatusBar( nm );
     }
+    else if ( !issel )
+    {
+	if ( nmfld ) nmfld->setText("");
+	toStatusBar( "" );
+    }
 
     if ( manipgrp )
 	manipgrp->selChg( cb );
+}
+
+
+void uiIOObjSelGrp::setContext( const CtxtIOObj& c )
+{
+    ctio = c;
+    rebuildList();
 }
 
 
@@ -224,7 +244,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iopar )
 	{
 	    entrylist->setSelected( MultiID(res) );
 	    listfld->box()->setCurrentItem( entrylist->selected()->name() );
-	    const_cast<uiIOObjSelGrp*>( this )->selChg(0);
+	    const_cast<uiIOObjSelGrp*>( this )->selectionChange(0);
 	}
     }
 }
@@ -232,7 +252,7 @@ void uiIOObjSelGrp::usePar( const IOPar& iopar )
 
 bool uiIOObjSelGrp::processInput()
 {
-    selChg( 0 );
+    selectionChange( 0 );
     if ( !nmfld )
     {
 	if ( ismultisel )
@@ -318,7 +338,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( ismultisel ) nm += "(s)";
     setTitleText( nm );
     setOkText( "Select" );
-    finaliseDone.notify( mCB(selgrp,uiIOObjSelGrp,selChg) );
+    finaliseDone.notify( mCB(selgrp,uiIOObjSelGrp,selectionChange) );
 }
 
 

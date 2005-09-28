@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.40 2005-09-28 16:30:12 cvskris Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.41 2005-09-28 21:17:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,30 +45,43 @@ public:
 class uiIOObjSelGrp : public uiGroup
 {
 public:
-			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,
-				      const char* seltxt=0,bool multisel=false);
-			~uiIOObjSelGrp();
-
-    int			nrSel() const;
-    const IOObj*	selected(int idx=0) const;
-
-
-    Notifier<uiIOObjSelGrp>	newstatusmessage;
-    const char*			statusmessage;
-
-    virtual bool		fillPar(IOPar&) const;
-    virtual void		usePar(const IOPar&);
+				uiIOObjSelGrp( uiParent*, const CtxtIOObj& ctio,
+					       const char* seltxt=0,
+					       bool multisel=false );
+				~uiIOObjSelGrp();
 
     bool			processInput();
-    void			selChg(CallBacker*);
+    				/*!< Processes the current selection so
+				     selected() can be queried. It also creates
+				     an entry in IOM if the selected object is
+				     new.  */
 
+    int				nrSel() const;
+    const IOObj*		selected(int idx=0) const;
+    				/*!<\note that processInput should be called
+				          after selection, but before any call
+					  to this.  */
+    Notifier<uiIOObjSelGrp>	newstatusmessage;
+    				/*!< Triggers when there is a new message for
+				     statusbars and similar */
+    const char*			statusmessage;
+
+    void			selectionChange(CallBacker* = 0);
+    				/*!< Updates the object when the selection has
+				     been changed.  */
+
+    void			setContext( const CtxtIOObj& );
     const CtxtIOObj&		getContext() const	{ return ctio; }
     uiGroup*			getTopGroup()		{ return topgrp; }
     uiGenInput*			getNameField()		{ return nmfld; }
     uiLabeledListBox*		getListField()		{ return listfld; }
 
+    virtual bool		fillPar(IOPar&) const;
+    virtual void		usePar(const IOPar&);
+
+
 protected:
-    const CtxtIOObj&	ctio;
+    CtxtIOObj&		ctio;
     IODirEntryList*	entrylist;
     IOObj*		ioobj;
     bool		ismultisel;
@@ -79,11 +92,11 @@ protected:
     uiGenInput*		filtfld;
     uiGroup*		topgrp;
 
-    void		filtChg(CallBacker*);
-    void		preReloc(CallBacker*);
+    void		preReloc( CallBacker* );
 
-    bool		createEntry(const char*);
+    bool		createEntry( const char* );
     void		fillList();
+    void		rebuildList(CallBacker* = 0 );
     void		toStatusBar( const char* );
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.33 2005-09-28 16:30:12 cvskris Exp $
+ RCS:		$Id: uiseissel.cc,v 1.34 2005-09-28 21:17:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
-    selgrp->selChg(0); entrySel(0);
+    selgrp->selectionChange(0); entrySel(0);
 }
 
 
