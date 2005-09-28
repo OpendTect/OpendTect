@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.39 2005-04-15 12:32:37 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.40 2005-09-28 16:30:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,28 +39,35 @@ public:
 };
 
 
-/*! \brief Dialog for selection of IOObjs
+/*! \brief Basic group for letting the user select an object. It 
+	   can be used standalone in a dialog, or as a part of dialogs. */
 
-This class may be subclassed to make selection more specific.
-
-*/
-
-class uiIOObjSelDlg : public uiIOObjRetDlg
+class uiIOObjSelGrp : public uiGroup
 {
 public:
-			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
+			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,
 				      const char* seltxt=0,bool multisel=false);
-			~uiIOObjSelDlg();
+			~uiIOObjSelGrp();
 
     int			nrSel() const;
     const IOObj*	selected(int idx=0) const;
-    const IOObj*	ioObj() const			{ return selected(0); }
 
-    virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+
+    Notifier<uiIOObjSelGrp>	newstatusmessage;
+    const char*			statusmessage;
+
+    virtual bool		fillPar(IOPar&) const;
+    virtual void		usePar(const IOPar&);
+
+    bool			processInput();
+    void			selChg(CallBacker*);
+
+    const CtxtIOObj&		getContext() const	{ return ctio; }
+    uiGroup*			getTopGroup()		{ return topgrp; }
+    uiGenInput*			getNameField()		{ return nmfld; }
+    uiLabeledListBox*		getListField()		{ return listfld; }
 
 protected:
-
     const CtxtIOObj&	ctio;
     IODirEntryList*	entrylist;
     IOObj*		ioobj;
@@ -72,16 +79,40 @@ protected:
     uiGenInput*		filtfld;
     uiGroup*		topgrp;
 
-    bool		acceptOK(CallBacker*);
     void		filtChg(CallBacker*);
-    void		selChg(CallBacker*);
     void		preReloc(CallBacker*);
 
-    void		replaceFinaliseCB(const CallBack&);
     bool		createEntry(const char*);
     void		fillList();
-
+    void		toStatusBar( const char* );
 };
+
+/*! \brief Dialog for selection of IOObjs
+
+This class may be subclassed to make selection more specific.
+
+*/
+
+class uiIOObjSelDlg : public uiIOObjRetDlg
+{
+public:
+			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
+				      const char* seltxt=0,bool multisel=false);
+
+    int			nrSel() const		{ return selgrp->nrSel(); }
+    const IOObj*	selected(int i) const	{ return selgrp->selected(i); }
+    const IOObj*	ioObj() const		{ return selgrp->selected(0); }
+
+    virtual void	fillPar(IOPar& p) const	{ selgrp->fillPar(p); }
+    virtual void	usePar(const IOPar& p)	{ selgrp->usePar(p); }
+
+protected:
+    bool		acceptOK(CallBacker*)	{return selgrp->processInput();}
+    void		statusMsgCB(CallBacker*);
+
+    uiIOObjSelGrp*	selgrp;
+};
+
 
 
 /*! \brief UI element for selection of IOObjs

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.32 2005-08-08 15:13:51 cvsnanne Exp $
+ RCS:		$Id: uiseissel.cc,v 1.33 2005-09-28 16:30:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,35 +40,40 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 {
     const char* ttxt = p2d == No2D ? "Select Cube" : "Select Line Set";
     if ( p2d == Both2DAnd3D )
-	ttxt = ctio.ctxt.forread ? "Select Input seismics"
-	    			 : "Select Output Seismics";
+	ttxt = selgrp->getContext().ctxt.forread
+	    ? "Select Input seismics"
+	    : "Select Output Seismics";
+
     setTitleText( ttxt );
+
+    uiGroup* topgrp = selgrp->getTopGroup();
+    uiLabeledListBox* listfld = selgrp->getListField();
 
     if ( setup.subsel_ )
     {
 	topgrp->setHAlignObj( listfld );
-	subsel = new uiSeisSubSel( this );
+	subsel = new uiSeisSubSel( selgrp );
 	subsel->attach( alignedBelow, topgrp );
-	if ( ctio.iopar )
-	    subsel->usePar( *ctio.iopar );
+	if ( selgrp->getContext().iopar )
+	    subsel->usePar( *selgrp->getContext().iopar );
     }
 
     if ( setup.selattr_ && p2d != No2D )
     {
-	if ( ctio.ctxt.forread )
-	    attrfld = new uiGenInput( this, "Attribute", StringListInpSpec() );
+	if ( selgrp->getContext().ctxt.forread )
+	    attrfld = new uiGenInput( selgrp,"Attribute", StringListInpSpec() );
 	else
-	    attrfld = new uiGenInput( this, "Attribute (if any)" );
+	    attrfld = new uiGenInput( selgrp, "Attribute (if any)" );
 	if ( subsel )
 	    attrfld->attach( alignedBelow, subsel );
-	else if ( nmfld )
-	    attrfld->attach( alignedBelow, nmfld );
+	else if ( selgrp->getNameField() )
+	    attrfld->attach( alignedBelow, selgrp->getNameField() );
 	else
 	    attrfld->attach( ensureBelow, topgrp );
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
-    selChg(0); entrySel(0);
+    selgrp->selChg(0); entrySel(0);
 }
 
 
@@ -107,6 +112,7 @@ uiSeisSelDlg::~uiSeisSelDlg()
 void uiSeisSelDlg::entrySel( CallBacker* )
 {
     // ioobj should already be filled by base class
+    const IOObj* ioobj = ioObj();
     if ( !ioobj )
 	return;
 
@@ -121,7 +127,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
     const bool is2d = oinf.is2D();
     attrfld->display( is2d );
-    if ( !is2d || !ctio.ctxt.forread ) return;
+    if ( !is2d || !selgrp->getContext().ctxt.forread ) return;
 
     BufferStringSet nms;
     oinf.getAttribNames( nms );
