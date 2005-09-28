@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.23 2004-09-09 12:49:50 nanne Exp $
+ RCS:           $Id: uimenu.h,v 1.24 2005-09-28 12:10:34 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,23 +20,28 @@ class uiMenuItem;
 class uiPopupMenu;
 class uiPopupItem;
 
-class uiMenuDataBody;
+class uiMenuItemContainerBody;
 class i_MenuMessenger;
 
 
 class QMenuBar;
 class QPopupMenu;
 
+template<class T> class ObjectSet;
 
-class uiMenuData : public uiObjHandle
+
+class uiMenuItemContainer : public uiObjHandle
 {
-friend class			uiMenuDataBody;
+friend class			uiMenuItemContainerBody;
 protected:
-				uiMenuData( const char* nm, uiMenuDataBody* b );
+				uiMenuItemContainer( const char* nm,
+						uiMenuItemContainerBody* b );
 public:
-				~uiMenuData();
+				~uiMenuItemContainer();
 
     int				nrItems() const;
+    const ObjectSet<uiMenuItem>& items() const;
+	
     int				insertItem(uiMenuItem*,int id=-1,int idx=-1);
     				/*!<\param id The id that is returned if the
 				  	      item is selected
@@ -69,8 +74,8 @@ public:
 
 protected:
 
-    void			setMenuBody(uiMenuDataBody* b);
-    uiMenuDataBody*		body_;
+    void			setMenuBody(uiMenuItemContainerBody* b);
+    uiMenuItemContainerBody*	body_;
 
 };
 
@@ -82,7 +87,7 @@ protected:
 */
 class uiMenuItem : public UserIDObject
 {
-friend class			uiMenuDataBody;
+friend class			uiMenuItemContainerBody;
 
 public:
 				uiMenuItem( const char* nm );
@@ -105,10 +110,10 @@ public:
 protected:
 
     void 			setId(int i)			{ id_ = i; }
-    void			setMenu(uiMenuDataBody* m)	{ menu_ = m; }
+    void			setMenu(uiMenuItemContainerBody* m){ menu_ = m;}
 
     i_MenuMessenger*		messenger()		{ return &messenger_; }
-    uiMenuDataBody*             menu_;
+    uiMenuItemContainerBody*	menu_;
 
 private:
 
@@ -125,17 +130,25 @@ class uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
-                                uiPopupItem( uiPopupMenu& menu, const char* nm);
+                                uiPopupItem( uiPopupMenu& , const char* nm);
 public:
 
     bool                        isCheckable() const;
     void                        setCheckable(bool);
+
+    uiPopupMenu&		menu()		{ return *popmenu_; }
+    const uiPopupMenu&		menu() const	{ return *popmenu_; }
+    
+protected:
+
+    uiPopupMenu*		popmenu_;
+
 };
 
 
 class QPixmap;
 
-class uiMenuBar : public uiMenuData
+class uiMenuBar : public uiMenuItemContainer
 {
 
     friend class		uiMainWinBody;
@@ -156,7 +169,7 @@ protected:
 
 };
 
-class uiPopupMenu : public uiMenuData
+class uiPopupMenu : public uiMenuItemContainer
 {
 
 public:                        

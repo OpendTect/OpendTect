@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.22 2004-09-09 12:49:44 nanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.23 2005-09-28 12:11:03 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,29 +23,30 @@ ________________________________________________________________________
 
 
 
-class uiMenuDataBody : public uiBodyImpl<uiMenuData,QMenuData>
+class uiMenuItemContainerBody : public uiBodyImpl<uiMenuItemContainer,QMenuData>
 {
 public:
 
-			uiMenuDataBody(uiMenuData& handle, 
+			uiMenuItemContainerBody(uiMenuItemContainer& handle, 
 				       uiParent* parnt,
 				       QMenuBar& qThing )
-			    : uiBodyImpl<uiMenuData,QMenuData>
+			    : uiBodyImpl<uiMenuItemContainer,QMenuData>
 				( handle, parnt, qThing )
 			    , bar_( &qThing )
 			    , popup_( 0 )	{}
 
-			uiMenuDataBody(uiMenuData& handle, 
+			uiMenuItemContainerBody(uiMenuItemContainer& handle, 
 				       uiParent* parnt,
 				       QPopupMenu& qThing )
-			    : uiBodyImpl<uiMenuData,QMenuData>
+			    : uiBodyImpl<uiMenuItemContainer,QMenuData>
 				( handle, parnt, qThing )	
 			    , popup_( &qThing )
 			    , bar_( 0 )	{}
 
-			~uiMenuDataBody()		{ deepErase( itms ); }
+			~uiMenuItemContainerBody()	{ deepErase( itms ); }
 
     int			nrItems() const 		{ return itms.size(); }
+    const ObjectSet<uiMenuItem>& items() const		{ return itms; }
 
     int			insertItem( uiMenuItem* it, int id, int idx )
 			{
@@ -206,19 +207,24 @@ int uiMenuItem::index() const
 
 
 
-uiMenuData::uiMenuData( const char* nm, uiMenuDataBody* b )
+uiMenuItemContainer::uiMenuItemContainer( const char* nm,
+					  uiMenuItemContainerBody* b )
     : uiObjHandle( nm, b )
     , body_( b )				{}
 
 
-uiMenuData::~uiMenuData()			{ delete body_; }
+uiMenuItemContainer::~uiMenuItemContainer()	{ delete body_; }
 
 
-int uiMenuData::nrItems() const
+int uiMenuItemContainer::nrItems() const
     { return body_->nrItems(); }
 
 
-int uiMenuData::insertItem( uiMenuItem* it, int id, int idx )
+const ObjectSet<uiMenuItem>& uiMenuItemContainer::items() const
+    { return body_->items(); }
+
+
+int uiMenuItemContainer::insertItem( uiMenuItem* it, int id, int idx )
     { return body_->insertItem( it, id, idx ); }
 
 /*!
@@ -229,44 +235,44 @@ int uiMenuData::insertItem( uiMenuItem* it, int id, int idx )
     add callbacks at any time to the uiMenuItem.
 
 */
-int uiMenuData::insertItem( const char* text, const CallBack& cb, int id, 
-			    int idx )
+int uiMenuItemContainer::insertItem( const char* text, const CallBack& cb,
+				     int id, int idx )
     { return body_->insertItem( text, cb, id, idx ); }
 
-int uiMenuData::insertItem( uiPopupMenu* it, int id, int idx )
+int uiMenuItemContainer::insertItem( uiPopupMenu* it, int id, int idx )
     { return body_->insertItem( it, id, idx ); }
 
-void uiMenuData::insertSeparator( int idx ) 
+void uiMenuItemContainer::insertSeparator( int idx ) 
     { body_->qthing()->insertSeparator( idx ); }
 
 
-void uiMenuData::setMenuBody(uiMenuDataBody* b)  
+void uiMenuItemContainer::setMenuBody(uiMenuItemContainerBody* b)  
 { 
     body_=b;
     setBody( b );
 }
 
-int uiMenuData::idAt( int idx ) const
+int uiMenuItemContainer::idAt( int idx ) const
     { return body_->qthing()->idAt(idx); }
 
-int uiMenuData::indexOf( int id ) const
+int uiMenuItemContainer::indexOf( int id ) const
     { return body_->qthing()->indexOf(id); }
 
 // ------------------------------------------------------------------------
 
 
 uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
-    : uiMenuData( nm, 0 )
+    : uiMenuItemContainer( nm, 0 )
 { 
-    setMenuBody( new uiMenuDataBody( *this, parnt,
+    setMenuBody( new uiMenuItemContainerBody( *this, parnt,
 			*new QMenuBar(parnt->body()->qwidget(),nm ) ));
 }
 
 
 uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm, QMenuBar& qThing )
-    : uiMenuData( nm, 0 )
+    : uiMenuItemContainer( nm, 0 )
 { 
-    setMenuBody( new uiMenuDataBody( *this, parnt, qThing ) ); 
+    setMenuBody( new uiMenuItemContainerBody( *this, parnt, qThing ) ); 
 }
 
 
@@ -291,8 +297,9 @@ void uiMenuBar::setSensitive( bool yn )
 
 // -----------------------------------------------------------------------
 
-uiPopupItem::uiPopupItem( uiPopupMenu& menu, const char* nm )
+uiPopupItem::uiPopupItem( uiPopupMenu& popmen, const char* nm )
     : uiMenuItem( nm )
+    , popmenu_( &popmen )
 {}
 
 
@@ -313,20 +320,20 @@ void uiPopupItem::setCheckable( bool yn )
 // -----------------------------------------------------------------------
 
 uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
-    : uiMenuData( nm, 0 )
+    : uiMenuItemContainer( nm, 0 )
     , item_( *new uiPopupItem( *this, nm ) )
 {
-    setMenuBody ( new uiMenuDataBody( *this, parnt, 
+    setMenuBody ( new uiMenuItemContainerBody( *this, parnt, 
                               *new QPopupMenu(parnt->body()->qwidget(),nm ) ));
     item_.setMenu( body_ );
 }
 
 
 uiPopupMenu::uiPopupMenu( uiParent* parnt, QPopupMenu* qmnu, const char* nm )
-    : uiMenuData(nm,0)
+    : uiMenuItemContainer(nm,0)
     , item_(*new uiPopupItem(*this,nm))
 {
-    setMenuBody( new uiMenuDataBody(*this,parnt,*qmnu) );
+    setMenuBody( new uiMenuItemContainerBody(*this,parnt,*qmnu) );
     item_.setMenu( body_ );
 }
 
