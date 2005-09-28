@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.59 2004-11-09 13:13:58 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.60 2005-09-28 21:13:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 	, fieldWdt(preferredFieldWidth)
 	, prefnrlines(preferredNrLines)
 {
-    if( isMultiSelect ) setSelectionMode( QListBox::Extended );
+    if ( isMultiSelect ) setSelectionMode( QListBox::Extended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
 
@@ -154,7 +154,7 @@ void uiListBox::setSelected( int idx, bool yn )
 
 void uiListBox::selectAll( bool yn )
 {
-    if ( body_->selectionMode() != QListBox::Extended ) return;
+    if ( yn && body_->selectionMode() != QListBox::Extended ) return;
 
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
