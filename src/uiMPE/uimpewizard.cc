@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.23 2005-09-27 22:03:02 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.24 2005-09-28 21:25:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,9 @@ ________________________________________________________________________
 #include "uicursor.h"
 #include "uigeninput.h"
 #include "uigroup.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uimpepartserv.h"
 #include "uimpesetup.h"
@@ -52,7 +54,8 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , trackercreated(false)
     , ispicking(false)
 {
-    addPage( createNamePage() );
+    objselgrp = createNamePage();
+    addPage( objselgrp );
     addPage( createSeedSetupPage() );
     addPage( createFinalizePage() );
 
@@ -66,11 +69,19 @@ Wizard::~Wizard()
 }
 
 
-uiGroup* Wizard::createNamePage()
+uiIOObjSelGrp* Wizard::createNamePage()
 {
-    uiGroup* grp = new uiGroup( this, "Page 1" );
-    namefld = new uiGenInput( grp, "Name" );
-    return grp;
+    const IOObjContext* ctxttemplate = EM::EMM().getContext(trackertype);
+    if ( !ctxttemplate )
+    {
+	ctxttemplate = EM::EMM().getContext("Fault");
+    }
+
+    PtrMan<IOObjContext> ctxt = new IOObjContext(*ctxttemplate);
+    ctxt->forread = false;
+
+    const CtxtIOObj ctio( *ctxt );
+    return new uiIOObjSelGrp( this, ctio );
 }
 
 
@@ -124,7 +135,24 @@ uiGroup* Wizard::createFinalizePage()
 
 bool Wizard::prepareNamePage()
 {
-    namefld->setFocus();
+    const IOObjContext* ctxttemplate = EM::EMM().getContext(trackertype);
+    if ( !ctxttemplate )
+    {
+	pErrMsg("Cannot find context");
+	return false;
+    }
+
+    PtrMan<IOObjContext> ctxt = new IOObjContext(*ctxttemplate);
+    ctxt->forread = false;
+
+    const CtxtIOObj ctio( *ctxt );
+    objselgrp->setContext( ctio );
+
+    if ( objselgrp->getListField()->box()->size() )
+	objselgrp->getListField()->box()->selectAll(false);
+
+    objselgrp->getNameField()->setFocus();
+
     return true;
 }
 
@@ -134,12 +162,22 @@ bool Wizard::leaveNamePage( bool process )
 {
     if ( !process ) return true;
 
-    const char* newobjnm = namefld->text();
-    if ( !*newobjnm )
-	mErrRet( "Please provide name" );
+    bool warnoverwrite = true;
+    const char* newobjnm = objselgrp->getNameField()->text(); 
+    if ( *newobjnm )
+    {
+	PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
+	if ( !ioobj ) warnoverwrite = false;
+	
+    }
 
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
+    if ( !objselgrp->processInput() )
+    {
+	pErrMsg("Could not process input");
+	return false;
+    }
+
+    const IOObj* ioobj = objselgrp->selected(0);
     if ( ioobj )
     {
 	EM::ObjectID objid = EM::EMM().multiID2ObjectID( ioobj->key() );
@@ -152,12 +190,14 @@ bool Wizard::leaveNamePage( bool process )
 			  "the tree.");
 	    return false;
 	}
-	else
+	else if ( warnoverwrite )
 	{
 	    if ( !uiMSG().askGoOn("An object with that name does already exist."
 				  " Overwrite?",true) )
 		return false;
 	}
+	else
+	    currentobject = -1;
     }
     else
 	currentobject = -1;
@@ -407,7 +447,8 @@ bool Wizard::createTracker()
 {
     if ( currentobject==-1 )
     {
-	EM::ObjectID objid = EM::EMM().createObject(trackertype,namefld->text());
+	EM::ObjectID objid = EM::EMM().createObject(trackertype,
+		objselgrp->getNameField()->text());
 	EM::EMObject* emobj = EM::EMM().getObject(objid);
 	const int id = engine().addTracker( emobj );
 	if ( id==-1 )

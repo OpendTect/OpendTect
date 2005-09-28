@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.13 2005-09-27 22:02:58 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.14 2005-09-28 21:25:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,17 +18,18 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "emposid.h"
 
+class Color;
+class CtxtIOObj;
+class IOObj;
 class uiColorInput;
 class uiGenInput;
 class uiGroup;
 class uiIOObjSel;
+class uiIOObjSelGrp;
 class uiLabeledSpinBox;
 class uiPushButton;
 class uiSelLineStyle;
 class uiMPEPartServer;
-class Color;
-class CtxtIOObj;
-class IOObj;
 
 namespace MPE {
 
@@ -51,7 +52,7 @@ public:
 
 protected:
 
-    uiGenInput*		namefld;
+    uiIOObjSelGrp*	objselgrp;
 
     uiColorInput*	colorfld;
 
@@ -60,7 +61,7 @@ protected:
     uiGenInput*		anotherfld;
     uiGenInput*		typefld;
 
-    uiGroup*		createNamePage();
+    uiIOObjSelGrp*	createNamePage();
     uiGroup*		createSeedSetupPage();
     uiGroup*		createFinalizePage();
 
