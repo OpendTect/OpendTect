@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.47 2005-09-27 22:05:35 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.48 2005-09-29 16:35:05 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -231,8 +231,7 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
 
     if ( addtohistory )
     {
-	SurfacePosIDChangeEvent* event = new SurfacePosIDChangeEvent( from, to,
-						    tosprevpos );
+	PosIDChangeEvent* event = new PosIDChangeEvent( from, to, tosprevpos );
 	EMM().history().addEvent( event, 0, 0 );
     }
 

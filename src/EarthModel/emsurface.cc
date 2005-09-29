@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.78 2005-09-27 09:17:51 cvsduntao Exp $
+ RCS:           $Id: emsurface.cc,v 1.79 2005-09-29 16:35:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -323,7 +323,7 @@ Geometry::Element* Surface::getElementInternal( SectionID sid )
 void Surface::addToHistoryEvent( const PosID& oldpid, const PosID& newpid,
 			        const Coord3& origpos )
 {
-    HistoryEvent* history = new SurfacePosIDChangeEvent(oldpid,newpid,origpos);
+    HistoryEvent* history = new PosIDChangeEvent(oldpid,newpid,origpos);
     EMM().history().addEvent( history, 0, 0 );
 }
 
