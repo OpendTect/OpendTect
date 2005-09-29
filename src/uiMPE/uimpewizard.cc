@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.24 2005-09-28 21:25:37 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.25 2005-09-29 21:13:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , objectcreated(false)
     , trackercreated(false)
     , ispicking(false)
+    , typefld( 0 )
 {
     objselgrp = createNamePage();
     addPage( objselgrp );
@@ -119,15 +120,25 @@ uiGroup* Wizard::createSeedSetupPage()
 uiGroup* Wizard::createFinalizePage()
 {
     uiGroup* grp = new uiGroup( this, "Page 4" );
-    uiLabel* lbl = new uiLabel( grp, "Do you want to track another surface?" );
+    BufferStringSet trackernames;
+    engine().getAvaliableTrackerTypes( trackernames );
+
+    BufferString str("Do you want to track another ");
+    str += trackernames.size()>1 ? "surface" : (const char*) trackernames[0];
+    str += "?";
+    uiLabel* lbl = new uiLabel( grp, str );
+
     anotherfld = new uiGenInput( grp, "", BoolInpSpec() );
     anotherfld->attach( alignedBelow, lbl );
     anotherfld->valuechanged.notify( mCB(this,Wizard,anotherSel) );
 
-    BufferStringSet trackernames;
-    engine().getAvaliableTrackerTypes( trackernames );
-    typefld = new uiGenInput( grp, "Type", StringListInpSpec(trackernames) );
-    typefld->attach( alignedBelow, anotherfld );
+    if ( trackernames.size()>1 )
+    {
+	typefld = new uiGenInput( grp, "Type",
+				  StringListInpSpec(trackernames) );
+	typefld->attach( alignedBelow, anotherfld );
+    }
+
     anotherSel(0);
     return grp;
 }
@@ -274,7 +285,7 @@ bool Wizard::leaveSeedSetupPage( bool process )
 
 bool Wizard::prepareFinalizePage()
 {
-    typefld->setText(trackertype);
+    if ( typefld ) typefld->setText(trackertype);
     return true;
 }
 
@@ -285,9 +296,7 @@ bool Wizard::leaveFinalizePage(bool process)
 
     anotherSel(0);
     if ( anotherfld->getBoolValue() )
-    {
-	setTrackingType( typefld->text() );
-    }
+	setTrackingType( typefld ? typefld->text() : (const char*)trackertype );
 
     return true;
 }
