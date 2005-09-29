@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.60 2005-09-23 08:40:37 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.61 2005-09-29 08:28:15 cvsbert Exp $";
 
 /*!
 
@@ -458,48 +458,42 @@ int CBVSReader::getPosNr( const BinID& bid, bool nearestok,
     else
     {
 	const PosInfo::InlData* iinf = info_.geom.cubedata[inlinfnr];
-	const PosInfo::InlData::Segment* seg = &iinf->segments[segnr];
 	posnr = posnrs[inlinfnr];
 
-	// Optimisation: Still in right segment?
-	if ( bid.inl != iinf->inl || !seg->includes(bid.crl) )
+	// Optimisation: Still on right inline?
+	if ( bid.inl != iinf->inl )
 	{
-	    // Nope. Maybe another segment on this inline?
-	    if ( bid.inl != iinf->inl )
+	    // Nope. We need to search.
+	    const int sz = info_.geom.cubedata.size();
+	    for ( int iinl=0; iinl<sz; iinl++ )
 	    {
-		// Nope. We need to search.
-		const int sz = info_.geom.cubedata.size();
-		for ( int iinl=0; iinl<sz; iinl++ )
+		iinf = info_.geom.cubedata[iinl];
+		if ( iinf->inl == bid.inl )
 		{
-		    iinf = info_.geom.cubedata[iinl];
-		    if ( iinf->inl == bid.inl )
-		    {
-			inlinfnr = iinl;
-			posnr = posnrs[iinl];
-			break;
-		    }
-		}
-		if ( iinf->inl != bid.inl )
-		    return -1;
-	    }
-
-	    // Now we know we have the right inline, find segment:
-	    bool foundseg = false;
-	    segnr = 0;
-	    for ( int iseg=0; iseg<iinf->segments.size(); iseg++ )
-	    {
-		seg = &iinf->segments[iseg];
-		if ( !seg->includes(bid.crl) )
-		    posnr += seg->nrSteps() + 1;
-		else
-		{
-		    segnr = iseg;
-		    foundseg = true;
+		    inlinfnr = iinl;
+		    posnr = posnrs[iinl];
 		    break;
 		}
 	    }
-	    if ( !foundseg ) return -1;
+	    if ( iinf->inl != bid.inl )
+		return -1;
 	}
+
+	// Now we know we have the right inline, find segment:
+	const PosInfo::InlData::Segment* seg = 0;
+	for ( int iseg=0; iseg<iinf->segments.size(); iseg++ )
+	{
+	    const PosInfo::InlData::Segment& curseg = iinf->segments[iseg];
+	    if ( !curseg.includes(bid.crl) )
+		posnr += seg->nrSteps() + 1;
+	    else
+	    {
+		segnr = iseg;
+		seg = &curseg;
+		break;
+	    }
+	}
+	if ( !seg ) return -1;
 
 	int segposn = seg->nearestIndex( bid.crl );
 	posnr += segposn;
