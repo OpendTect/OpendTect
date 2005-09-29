@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.13 2005-09-08 09:43:17 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.14 2005-09-29 10:17:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,6 +144,8 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 
 void uiSteeringSel::setDescSet( const DescSet* ads )
 {
+    if ( !inpfld ) return;
+
     descset_ = ads;
     inpfld->setDescSet( ads );
     if ( !notypechange_ )
