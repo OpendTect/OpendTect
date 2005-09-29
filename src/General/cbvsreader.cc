@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.61 2005-09-29 08:28:15 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.62 2005-09-29 08:45:00 cvsnanne Exp $";
 
 /*!
 
@@ -485,7 +485,7 @@ int CBVSReader::getPosNr( const BinID& bid, bool nearestok,
 	{
 	    const PosInfo::InlData::Segment& curseg = iinf->segments[iseg];
 	    if ( !curseg.includes(bid.crl) )
-		posnr += seg->nrSteps() + 1;
+		posnr += curseg.nrSteps() + 1;
 	    else
 	    {
 		segnr = iseg;
