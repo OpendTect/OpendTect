@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.1 2005-09-27 09:34:55 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.2 2005-09-29 11:29:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,34 +87,32 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
 void HorizonUtils::getWantedPositions( std::ostream& strm, 
 				       ObjectSet<MultiID>& midset,
 				       BinIDValueSet& wantedposbivs, 
-				       const HorSampling& hs )
+				       const HorSampling& hs,
+				       const Interval<float>& extraz )
 {
     ObjectSet<BinIDValueSet> bivs;
     getPositions( strm, *(midset[0]), bivs );
+    ObjectSet<BinIDValueSet> bivs2;
+    
     if ( midset.size() == 2 )
-    {
-	ObjectSet<BinIDValueSet> bivs2;
 	getPositions( strm, *(midset[1]), bivs2 );
-	for( int idy=hs.start.inl; idy<=hs.stop.inl; idy+=SI().inlStep() )
-	{
-	    for( int idz=hs.start.crl; idz<=hs.stop.crl; idz+=SI().crlStep() )
-	    {
-		float topz = getZ( BinID(idy,idz), bivs );
-		float botz = getZ( BinID(idy,idz), bivs2 );
-		if ( topz == -mUdf(float) || botz == -mUdf(float) )
-		    continue;
-
-		BinIDValues bidval( BinID(idy,idz) );
-		bidval.value(0) = topz<botz ? topz : botz;
-		bidval.value(1) = topz>botz ? topz : botz;
-		//TODO add zinterval
-		wantedposbivs.add(bidval);
-	    }
-	}
-    }
-    else
+    
+    for ( int idy=hs.start.inl; idy<=hs.stop.inl; idy+=SI().inlStep() )
     {
-	//TODO inplement for a single horizon
+	for ( int idz=hs.start.crl; idz<=hs.stop.crl; idz+=SI().crlStep() )
+	{
+	    float topz = getZ( BinID(idy,idz), bivs );
+	    float botz = bivs2.size() ? getZ( BinID(idy,idz), bivs2 ) : 0;
+	    if ( topz == -mUdf(float) || botz == -mUdf(float) )
+		continue;
+
+	    BinIDValues bidval( BinID(idy,idz) );
+	    bidval.value(0) = ( bivs2.size() && botz<topz ? botz : topz ) 
+			      + extraz.start;
+	    bidval.value(1) = ( bivs2.size() && botz>topz ? botz : topz ) 
+			      + extraz.stop;
+	    wantedposbivs.add(bidval);
+	}
     }
 }
 

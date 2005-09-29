@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.2 2005-09-27 09:34:55 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.3 2005-09-29 11:29:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,8 +225,8 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     Interval<float> zinterval = gatefld->getFInterval();
     if ( Values::isUdf(zinterval.start) )
 	zinterval = Interval<float>(0,0);
-    BufferString gatestr = "["; gatestr += zinterval.start; gatestr += ",";
-    gatestr += zinterval.stop; gatestr += "]";
+    BufferString gatestr = zinterval.start; gatestr += "`";
+    gatestr += zinterval.stop;
     
     key = keybase; key += "ExtraZInterval";
     iopar.set( key, gatestr );
@@ -280,7 +280,7 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
 
 void uiAttrTrcSelOut::extraZSel( CallBacker* cb )
 {
-    gatefld->display( extrazfld ? extrazfld->getBoolValue() : false );
+    gatefld->display( extrazfld ? extrazfld->getBoolValue() : true );
 }
 
 

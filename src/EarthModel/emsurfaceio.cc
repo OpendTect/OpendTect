@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.48 2005-09-20 15:59:49 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.49 2005-09-29 11:29:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , surfposcalc( 0 )
     , rcconv( 0 )
     , readfilltype( false )
+    , isinited( false )
 {
     setNrDoneText( "Nr done" );
     auxdataexecs.allowNull(true);
@@ -316,8 +317,51 @@ int EM::dgbSurfaceReader::totalNr() const
     if ( !ownres ) ownres = nrrows;
 
     return ownres + (executors.size() ? ExecutorGroup::totalNr() : 0);
+}
 
 
+void EM::dgbSurfaceReader::setGeometry()
+{
+    surface->cleanUp();
+    surface->setDBInfo( dbinfo );
+    for ( int idx=0; idx<auxdatasel.size(); idx++ )
+    {
+	if ( auxdatasel[idx]>=auxdataexecs.size() )
+	    continue;
+
+	auxdataexecs[auxdatasel[idx]]->setSurface( *surface );
+
+	add( auxdataexecs[auxdatasel[idx]] );
+	auxdataexecs.replace( auxdatasel[idx], 0 );
+    }
+
+    for ( int idx=0; idx<sectionsel.size(); idx++ )
+    {
+	const int index = sectionids.indexOf(sectionsel[idx]);
+	if ( index<0 )
+	{
+	    sectionsel.remove(idx--);
+	    continue;
+	}
+    }
+
+    if ( readrowrange )
+    {
+	const RowCol filestep = rcconv 
+		    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
+		    : RowCol(rowrange.step, colrange.step);
+
+	if ( readrowrange->step < abs(filestep.row) )
+	    readrowrange->step = filestep.row;
+	if ( readcolrange->step < abs(filestep.col) )
+	    readcolrange->step = filestep.col;
+
+	if ( readrowrange->step / filestep.row < 0 )
+	    readrowrange->step *= -1;
+	if ( readcolrange->step / filestep.col < 0 )
+	    readcolrange->step *= -1;
+    }
+    isinited = true;
 }
 
 
@@ -331,48 +375,8 @@ int EM::dgbSurfaceReader::nextStep()
 	return ErrorOccurred;
     }
 
-    if ( !nrdone )
-    {
-	surface->cleanUp();
-	surface->setDBInfo( dbinfo );
-	for ( int idx=0; idx<auxdatasel.size(); idx++ )
-	{
-	    if ( auxdatasel[idx]>=auxdataexecs.size() )
-		continue;
-
-	    auxdataexecs[auxdatasel[idx]]->setSurface( *surface );
-
-	    add( auxdataexecs[auxdatasel[idx]] );
-	    auxdataexecs.replace( auxdatasel[idx], 0 );
-	}
-
-	for ( int idx=0; idx<sectionsel.size(); idx++ )
-	{
-	    const int index = sectionids.indexOf(sectionsel[idx]);
-	    if ( index<0 )
-	    {
-		sectionsel.remove(idx--);
-		continue;
-	    }
-	}
-
-	if ( readrowrange )
-	{
-	    const RowCol filestep = rcconv 
-	    		? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
-			: RowCol(rowrange.step, colrange.step);
-
-	    if ( readrowrange->step < abs(filestep.row) )
-		readrowrange->step = filestep.row;
-	    if ( readcolrange->step < abs(filestep.col) )
-		readcolrange->step = filestep.col;
-
-	    if ( readrowrange->step / filestep.row < 0 )
-		readrowrange->step *= -1;
-	    if ( readcolrange->step / filestep.col < 0 )
-		readcolrange->step *= -1;
-	}
-    }
+    if ( !isinited )
+	setGeometry();
 
     if ( sectionindex>=sectionids.size() )
     {
@@ -425,6 +429,7 @@ int EM::dgbSurfaceReader::nextStep()
 	return ErrorOccurred;
     }
     const int firstcol = nrcols ? readInt(strm) : 0;
+    bool isrowused = false;
 
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
@@ -483,14 +488,16 @@ int EM::dgbSurfaceReader::nextStep()
 	}
 
 	surface->geometry.setPos( sectionid, rowcol, pos, false );
+
+	isrowused = true;
     }
 
+    if ( isrowused )
+	nrdone++;
     surface->geometry.checkSupport(false);
     rowindex++;
     if ( rowindex>=nrrows )
 	sectionindex++;
-
-    nrdone++;
 
     return MoreToDo;
 }

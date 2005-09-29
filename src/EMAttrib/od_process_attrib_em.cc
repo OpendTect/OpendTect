@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.15 2005-09-27 09:34:55 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.16 2005-09-29 11:29:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,9 +42,12 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "attribfactory.h"
 #include "attrfact.h"
+#include "survinfo.h"
 
 using namespace Attrib;
 using namespace EM;
+
+#define cMinExtraZ 10;
 
 #define mDestroyWorkers \
 	{ delete execgr; execgr = 0; }
@@ -156,11 +159,13 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
 
-static bool process( std::ostream& strm, ExecutorGroup* execgr )
+static bool process( std::ostream& strm, ExecutorGroup* execgr, 
+		     const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     bool cont = true;
     bool loading = true;
     int nriter = 0;
+    SeisTrcWriter* writer;
 
     ProgressMeter progressmeter(strm);
     while ( 1 )
@@ -172,6 +177,18 @@ static bool process( std::ostream& strm, ExecutorGroup* execgr )
 	    strm << "Estimated number of positions to be processed"
 		 <<"(regular survey): " << execgr->totalNr() << std::endl;
 	    strm << "Loading cube data ..." << std::endl;
+	   
+	    if ( tbuf )
+	    {
+		PtrMan<IOObj> ioseisout = IOM().get( outid );
+		writer = new SeisTrcWriter( ioseisout );
+		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
+		{ 
+		    BufferString err = strlen( writer->errMsg() ) ? 
+				       writer->errMsg() : 
+				       "ERROR: no trace computed";
+		    mErrRet( err ); }
+	    }
 	}
 
 	if ( res > 0 )
@@ -190,9 +207,18 @@ static bool process( std::ostream& strm, ExecutorGroup* execgr )
 	    break;
 	}
 
+	if ( tbuf )
+	{
+	    if ( !writer->put(*(tbuf->get(0))) )
+		{ mErrRet( writer->errMsg() ); }
+
+	    tbuf->remove(0);
+	}
+
 	nriter++;
     }
 
+    delete writer;
     progressmeter.finish();
     mPIDMsg( "Processing done." );
 
@@ -231,11 +257,28 @@ bool BatchProgram::go( std::ostream& strm )
 		   midset, errmsg, iscubeoutp, outpid ) )
 	mErrRet( errmsg );
 
+    PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
+    HorSampling horsamp;
+    if ( iscubeoutp )
+    {
+	geompar->get( "In-line range", horsamp.start.inl, horsamp.stop.inl );
+	geompar->get( "Cross-line range", horsamp.start.crl, horsamp.stop.crl);
+    }
+
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	MultiID* mid = midset[idx];
 	strm << "Loading: " << mid->buf() << "\n\n";
-	PtrMan<Executor> loader = EMM().objectLoader( *mid, 0 );
+
+	SurfaceIOData sd;
+	EM::EMM().getSurfaceData( *mid, sd );
+	SurfaceIODataSelection sels( sd );
+	sels.selvalues.erase();
+	for ( int idx=0; idx<sd.sections.size(); idx++ )
+	    sels.selsections += idx;
+	sels.rg = horsamp;
+	PtrMan<Executor> loader = 
+			EMM().objectLoader( *mid, ( iscubeoutp ? &sels : 0 ) );
 	if ( !loader || !loader->execute(&strm) ) 
 	{
 	    BufferString errstr = "Cannot load surface:";
@@ -295,7 +338,7 @@ bool BatchProgram::go( std::ostream& strm )
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
 	execgr = aem.createLocationOutput( errmsg, bivs );
-	if ( !process( strm, execgr) ) return false;
+	if ( !process( strm, execgr ) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().multiID2ObjectID(*midset[0]) );
 	mDynamicCastGet(Surface*,surface,obj)
@@ -311,29 +354,18 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	BinIDValueSet bivs(2,false);
 	SeisTrcBuf seisoutp;
-	PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
 	float outval;
-	iopar->get( "Outside Value", outval );
-	HorSampling horsamp;
-	geompar->get( "In-line range", horsamp.start.inl, horsamp.stop.inl );
-	geompar->get( "Cross-line range", horsamp.start.crl, horsamp.stop.crl);
+	Interval<float> extraz;
+	geompar->get( "Outside Value", outval );
+	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
+	if ( extraz.start == 0 ) extraz.start = -cMinExtraZ;
+	if ( extraz.stop == 0 ) extraz.stop = cMinExtraZ;
+	extraz.scale(1/SI().zFactor());
 
-	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp );
-	execgr = aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval );
-	if ( !process( strm, execgr) ) return false;
-	PtrMan<IOObj> ioseisout = IOM().get( outpid );
-	SeisTrcWriter writer( ioseisout );
-	for ( int idx=0; idx<seisoutp.size(); idx++ )
-	{
-	    if ( !idx )
-	    {
-		if ( !writer.prepareWork(*(seisoutp.get(idx))) )
-		    { errmsg = writer.errMsg(); return false; }
-	    }
-
-	    if ( !writer.put(*(seisoutp.get(idx))) )
-		{ errmsg = writer.errMsg(); }
-	}
+	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz );
+	execgr = aem.createTrcSelOutput( errmsg, bivs, seisoutp, 
+					 outval, &extraz );
+	if ( !process( strm, execgr, outpid, &seisoutp ) ) return false;
     }
 
     strm << "Successfully saved data." << std::endl;

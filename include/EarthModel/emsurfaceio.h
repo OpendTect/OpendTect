@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.15 2005-09-27 19:20:54 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.16 2005-09-29 11:29:41 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,7 @@ public:
 
     void		setSurface( EM::Surface* s )	{ surface = s; }
     bool		isOK() const;
+    void		setGeometry();
 
     int			nrSections() const;
     EM::SectionID	sectionID( int ) const;
@@ -156,6 +157,8 @@ protected:
     BufferString		msg;
     bool			error;
     int				nrdone;
+
+    bool			isinited;
 
     int				sectionindex;
     int				oldsectionindex;

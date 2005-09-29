@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.1 2005-09-27 09:34:54 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.2 2005-09-29 11:29:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "ranges.h"
 
 class BinID;
 class MultiID;
@@ -41,7 +42,8 @@ public:
     static void 	getPositions(std::ostream&, const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
     static void 	getWantedPositions(std::ostream&, ObjectSet<MultiID>&,
-					   BinIDValueSet&, const HorSampling&);
+					   BinIDValueSet&, const HorSampling&,
+					   const Interval<float>&);
     static void 	addSurfaceData(const MultiID&, const BufferStringSet&,
 				       const ObjectSet<BinIDValueSet>&);
 

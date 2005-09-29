@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.13 2005-09-27 09:15:26 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.14 2005-09-29 11:29:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "ranges.h"
 #include "bufstring.h"
 #include "attribdescid.h"
 
@@ -93,7 +94,8 @@ public:
 
     ExecutorGroup*	createTrcSelOutput(BufferString& errmsg,
 	    				   const BinIDValueSet& bidvalset,
-	    				   SeisTrcBuf&, float outval=0);
+	    				   SeisTrcBuf&, float outval=0,
+					   Interval<float>* extraz=0);
     int			getNrOutputsToBeProcessed() const; 
 
     const char*		getCurUserRef() const;

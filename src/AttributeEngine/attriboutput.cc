@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.31 2005-09-27 09:15:49 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.32 2005-09-29 11:29:41 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -512,10 +512,11 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
 
 
 TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
-					float outval )
+					float outval, Interval<float>* extraz )
     : bidvalset_(bidvalset)
     , outpbuf_(0)
     , outval_(outval)
+    , extraz_(extraz)
 {
     seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( bidvalset.totalSize()<2 );
@@ -554,8 +555,11 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
 	return;
 
-    const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
-    const int startidx = data.z0_ - mNINT(stdstarttime_/refstep);
+    const int trcsz = mNINT(stdtrcsz_/refstep) + 1 + 
+		  (extraz_ ? mNINT((extraz_->stop-extraz_->start)/refstep) : 0);
+    const float globalsttime = stdstarttime_ + (extraz_ ? extraz_->start : 0);
+    const float trcstarttime = ( (int)(globalsttime/refstep) +1 ) * refstep;
+    const int startidx = data.z0_ - mNINT(trcstarttime/refstep);
     const int index = outpbuf_->find( info.binid );
 
     SeisTrc* trc;
@@ -567,7 +571,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	    trc->data().addComponent( trcsz, dc, false );
 
 	trc->info() = info;
-	trc->info().sampling.start = stdstarttime_;
+	trc->info().sampling.start = trcstarttime;
 	trc->info().sampling.step = refstep;
     }
     else
