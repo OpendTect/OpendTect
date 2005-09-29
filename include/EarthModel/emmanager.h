@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.24 2005-04-15 12:26:49 cvsnanne Exp $
+ RCS:		$Id: emmanager.h,v 1.25 2005-09-29 14:43:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -80,10 +80,11 @@ public:
     			/*Interface from EMObject to report themselves */
     void		addObject(EMObject*);
     void		removeObject(EMObject*);
+
+    const IOObjContext*	getContext( const char* type ) const;
 protected:
     ObjectSet<ObjectFactory>	objectfactories;
 
-    const IOObjContext*	getContext( const char* type ) const;
     History&		history_;
 
     ObjectSet<EMObject>	objects;
