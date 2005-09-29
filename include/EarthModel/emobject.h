@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.47 2005-09-27 19:19:40 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.48 2005-09-29 16:34:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -108,6 +108,10 @@ public:
     void			changePosID( const EM::PosID& from, 
 	    				     const EM::PosID& to,
 					     bool addtohistory );
+    				/*!<Tells the object that the node former known
+				    as from is now called to. Function will also
+				    exchange set the positiono of to to the 
+				    posion of from. */
 
     virtual void		getLinkedPos( const EM::PosID& posid,
 					  TypeSet<EM::PosID>& ) const
