@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.107 2005-09-30 21:50:53 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.108 2005-09-30 21:56:03 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -1172,9 +1172,9 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("New ..."), 1 );
-    mnu.insertSeparator();
     if ( children.size() )
     {
+	mnu.insertSeparator();
 	mnu.insertItem( new uiMenuItem("Display all only at sections"), 2 );
 	mnu.insertItem( new uiMenuItem("Show all in full"), 3 );
     }
