@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.8 2005-09-20 21:45:32 cvskris Exp $
+ RCS:           $Id: uiwizard.cc,v 1.9 2005-09-30 14:12:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ void uiWizard::doFinalise( CallBacker* )
 {
     isStarting();
     setCurrentPage( firstPage() );
-    handleButtonText();
+    updateButtonText();
 }
 
 
@@ -45,8 +45,11 @@ int uiWizard::addPage( uiGroup* page, bool display )
 
 void uiWizard::displayPage( int idx, bool yn )
 {
-    if ( idx<dodisplay.size() )
+    if ( idx>=0 && idx<dodisplay.size() )
+    {
 	dodisplay[idx] = yn;
+	updateButtonText();
+    }
 }
 
 
@@ -67,7 +70,7 @@ bool uiWizard::acceptOK( CallBacker* )
 	pageidx--;
 
     if ( displayCurrentPage() )
-	handleButtonText();
+	updateButtonText();
     else
 	pageidx = prevpage;
 
@@ -99,7 +102,7 @@ bool uiWizard::rejectOK( CallBacker* )
     while ( !dodisplay[pageidx] && pageidx<pages.size() )
 	pageidx++;
 
-    handleButtonText();
+    updateButtonText();
     displayCurrentPage();
     return false;
 }
@@ -124,7 +127,7 @@ void uiWizard::setCurrentPage( int idx )
 }
 
 
-void uiWizard::handleButtonText()
+void uiWizard::updateButtonText()
 {
     bool firstpage = pageidx == firstPage();
     bool lastpage = pageidx == lastPage();
@@ -139,7 +142,7 @@ void uiWizard::handleButtonText()
 void uiWizard::setRotateMode( bool yn )
 {
     rotatemode=yn;
-    handleButtonText();
+    updateButtonText();
 }
 
 
