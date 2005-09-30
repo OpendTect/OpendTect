@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.48 2005-09-30 03:15:58 cvsduntao Exp $
+ RCS:           $Id: uimpeman.cc,v 1.49 2005-09-30 18:31:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -383,7 +383,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
     else
     {
 	if ( clickcatcher ) clickcatcher->turnOn(false);
-	NotifyStopper notifystopper( MPE::engine().activevolumechange );
 	MPE::engine().setActiveVolume(oldactivevol);
 	clickcatcher->deSelect();
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.13 2005-09-30 14:47:23 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.14 2005-09-30 18:31:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,9 @@ protected:
 
     const Attrib::DescSet*	attrset;
     MPE::Wizard*		wizard;
+    bool			blockdataloading;
+    				/*!<Is checked when cb is issued from the
+				    MPE::Engine about changed active volume */
 
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.22 2005-09-30 14:47:09 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.23 2005-09-30 18:31:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     , wizard( 0 )
     , activetrackerid(-1)
     , eventattrselspec( 0 )
+    , blockdataloading( false )
 {
     MPE::initStandardClasses();
     MPE::engine().activevolumechange.notify(
@@ -252,7 +253,12 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 
 
 void uiMPEPartServer::activeVolumeChange(CallBacker*)
-{ loadAttribData(); }
+{
+    if ( blockdataloading )
+	return;
+
+    loadAttribData();
+}
 
 
 void uiMPEPartServer::loadAttribData()
