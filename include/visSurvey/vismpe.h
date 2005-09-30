@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.17 2005-09-30 03:15:58 cvsduntao Exp $
+ RCS:		$Id: vismpe.h,v 1.18 2005-09-30 03:20:37 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -113,6 +113,8 @@ protected:
 
     Attrib::SelSpec&		as_;
     bool			manipulated_;
+    
+    int				lasteventnr_;
 
     static const char*		draggerstr_;
     static const char*		transstr_;
@@ -121,8 +123,6 @@ protected:
     static const Color		eraseColor;
     static const Color		movingColor;
     static const Color		extendColor;
-    
-    int				lastEvnetNr;
 };
 
 };
