@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.76 2005-09-28 21:24:43 cvskris Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.77 2005-09-30 15:54:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
     listfld->box()->selectionChanged.notify(
 	    mCB(this,uiIOObjSelGrp,selectionChange) );
-    listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
     if ( !ismultisel && ctio.ctxt.maydooper )
     {
 	manipgrp = new uiIOObjManipGroup( listfld->box(), *entrylist,
@@ -339,6 +338,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     setTitleText( nm );
     setOkText( "Select" );
     finaliseDone.notify( mCB(selgrp,uiIOObjSelGrp,selectionChange) );
+    selgrp->getListField()->box()->doubleClicked.notify(
+	    mCB(this,uiDialog,accept) );
 }
 
 
