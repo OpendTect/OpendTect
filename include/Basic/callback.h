@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.34 2005-07-15 14:20:25 cvskris Exp $
+ RCS:		$Id: callback.h,v 1.35 2005-09-30 09:30:20 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,7 @@ typedef void (CallBacker::*CallBackFunction)(CallBacker*);
 /*!> Macro casting a to CallBacker::function */
 #define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
 /*!> Macro to simply define a callback from an instance pointer and a method */
-#define mCB(obj,clss,fn) CallBack(obj,mCBFn(clss,fn))
-
+#define mCB(obj,clss,fn) CallBack( static_cast<clss*>(obj), mCBFn(clss,fn))
 
 /*!\brief CallBacks object-oriented.
 
