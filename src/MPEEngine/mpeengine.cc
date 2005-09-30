@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.45 2005-09-27 22:05:04 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.46 2005-09-30 17:54:37 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -202,7 +202,7 @@ int Engine::addTracker( EM::EMObject* obj )
 
 void Engine::removeTracker( int idx )
 {
-    if ( idx>=trackers.size() )
+    if ( idx<0 || idx>=trackers.size() )
 	return;
 
     delete trackers[idx];
@@ -219,7 +219,7 @@ const EMTracker* Engine::getTracker( int idx ) const
 
 
 EMTracker* Engine::getTracker( int idx ) 
-{ return idx<trackers.size() ? trackers[idx] : 0; }
+{ return idx<0 || idx<trackers.size() ? trackers[idx] : 0; }
 
 
 int Engine::getTrackerByObject( const EM::ObjectID& oid ) const
