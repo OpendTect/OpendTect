@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.96 2005-09-27 22:04:00 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.97 2005-09-30 17:58:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -563,6 +563,28 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const int sdid = sceneMgr().addEMItem( mid, sceneids[0] );
 	if ( sdid==-1 )
 	    return false;
+
+	sceneMgr().updateTrees();
+	return true;
+    }
+    else if ( evid == uiMPEPartServer::evRemoveTreeObject )
+    {
+	const int trackerid = mpeserv->activeTrackerID();
+	const MultiID mid = mpeserv->getTrackerMultiID(trackerid);
+
+	TypeSet<int> sceneids;
+	visserv->getChildIds( -1, sceneids );
+
+	TypeSet<int> ids;
+	visserv->findObject( mid, ids );
+
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    for ( int idy=0; idy<sceneids.size(); idy++ )
+		visserv->removeObject( ids[idx], sceneids[idy] );
+	    sceneMgr().removeTreeItem(ids[idx] );
+	}
+
 
 	sceneMgr().updateTrees();
 	return true;
