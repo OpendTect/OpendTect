@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.1 2005-08-05 12:20:05 cvshelene Exp $";
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.2 2005-09-30 15:45:13 cvshelene Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"
@@ -31,6 +31,7 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
     is1fld->valuechanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
 
     tgfld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    tgfld->setValues( -28, 28 );
     tgfld->attach( alignedBelow, is1fld );
 
     maxdipfld = new uiGenInput( this, "Maximum dip", FloatInpSpec() );
@@ -40,6 +41,7 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p )
     deltadipfld->attach( alignedBelow, maxdipfld );
 
     stepoutfld = new uiStepOutSel( this );
+    stepoutfld->setVal( true, 1 ); stepoutfld->setVal( false, 1 );
     stepoutfld->attach( alignedBelow, deltadipfld );
 
     setHAlignObj( tgfld );

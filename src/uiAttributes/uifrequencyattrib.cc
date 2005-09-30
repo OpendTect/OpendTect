@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.4 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.5 2005-09-30 15:45:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p )
     inpfld = getImagInpFld();
 
     gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld->setValues( -28, 28 );
     gatefld->attach( alignedBelow, inpfld );
 
     normfld = new uiGenInput( this, "Normalize", BoolInpSpec("Yes","No") );
