@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.21 2005-08-22 22:18:38 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.22 2005-09-30 17:55:57 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -39,13 +39,16 @@ namespace MPE
 
 EMTracker::EMTracker( EM::EMObject* emo )
     : isenabled (true)
-    , emobject(emo)
-{}
+    , emobject(0)
+{
+    setEMObject(emo);
+}
 
 
 EMTracker::~EMTracker()
 {
     deepErase( sectiontrackers );
+    setEMObject(0);
 }
 
 
@@ -298,6 +301,14 @@ bool EMTracker::usePar( const IOPar& iopar )
     }
 
     return true;
+}
+
+
+void EMTracker::setEMObject( EM::EMObject* no ) 
+{
+    if ( emobject ) emobject->unRef();
+    emobject = no;
+    if ( emobject ) emobject->ref();
 }
 
 

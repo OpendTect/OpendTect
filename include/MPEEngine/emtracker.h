@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.18 2005-09-19 21:55:30 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.19 2005-09-30 17:55:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,10 +72,14 @@ protected:
     bool			isenabled;
     ObjectSet<SectionTracker>	sectiontrackers;
     BufferString		errmsg;
-    EM::EMObject*		emobject;
+    EM::EMObject*		emObject()      { return emobject; }
+    void			setEMObject(EM::EMObject*);
 
     static const char*		setupidStr()	{ return "SetupID"; }
     static const char*		sectionidStr()	{ return "SectionID"; }
+
+private:
+    EM::EMObject*		emobject;
 };
 
 
