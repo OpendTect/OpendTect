@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.15 2005-09-27 09:18:06 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.16 2005-09-30 15:33:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ void Similarity::initClass()
     extension->addEnum( extensionTypeStr(mExtensionRot90) );
     extension->addEnum( extensionTypeStr(mExtensionRot180) );
     extension->addEnum( extensionTypeStr(mExtensionCube) );
-    extension->setDefaultValue( extensionTypeStr(mExtensionNone) );
+    extension->setDefaultValue( extensionTypeStr(mExtensionRot90) );
     desc->addParam( extension );
 
     BoolParam* steering = new BoolParam( steeringStr() );
@@ -131,8 +131,17 @@ Similarity::Similarity( Desc& desc_ )
 	mGetBinID( pos0_, pos0Str() )
 	mGetBinID( pos1_, pos1Str() )
 
-	stepout_ = BinID(mMAX(abs(pos0_.inl),abs(pos1_.inl)),
-			 mMAX(abs(pos0_.crl),abs(pos1_.crl)) );
+	if ( extension_==mExtensionRot90 )
+	{
+	    int maxstepout = mMAX( mMAX( abs(pos0_.inl), abs(pos1_.inl) ), 
+		    		   mMAX( abs(pos0_.crl), abs(pos1_.crl) ) );
+	    stepout_ = BinID( maxstepout, maxstepout );
+	}
+	else
+	    stepout_ = BinID(mMAX(abs(pos0_.inl),abs(pos1_.inl)),
+			     mMAX(abs(pos0_.crl),abs(pos1_.crl)) );
+
+	    
     }
     getTrcPos();
 
