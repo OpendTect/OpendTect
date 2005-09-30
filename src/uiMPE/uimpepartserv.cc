@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.21 2005-09-27 22:03:19 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.22 2005-09-30 14:47:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ const int uiMPEPartServer::evEndSeedPick	= 2;
 const int uiMPEPartServer::evAddTreeObject	= 3;
 const int uiMPEPartServer::evShowToolbar	= 4;
 const int uiMPEPartServer::evInitFromSession	= 5;
+const int uiMPEPartServer::evRemoveTreeObject	= 6;
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
