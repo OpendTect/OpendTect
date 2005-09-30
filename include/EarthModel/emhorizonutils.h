@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.2 2005-09-29 11:29:41 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.3 2005-09-30 09:19:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ public:
 			~HorizonUtils(){};
 				
     static float 	getZ(const BinID&, const ObjectSet<BinIDValueSet>&);
+    static float 	getMissingZ(const BinID&, 
+	    			    const ObjectSet<BinIDValueSet>&);
     static Surface* 	getSurface(const MultiID&);
     static void 	getPositions(std::ostream&, const MultiID&,
 				     ObjectSet<BinIDValueSet>&);

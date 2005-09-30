@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.2 2005-09-29 11:29:42 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.3 2005-09-30 09:19:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,10 +32,74 @@ float HorizonUtils::getZ( const BinID& bid,
     for( int idx=0; idx<bidvalset.size(); idx++ )
     {
 	BinIDValueSet::Pos pos = bidvalset[idx]->findFirst(bid);
-	float valz = bidvalset[idx]->getVals(pos)[0];
-	bottomz = valz>bottomz? valz : bottomz;
+	float valz = bidvalset[idx]->valid(bid) ?
+		     bidvalset[idx]->getVals(pos)[0] : mUdf(float);
+	bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
     }
     return bottomz;
+}
+
+
+float HorizonUtils::getMissingZ( const BinID& bid,
+				 const ObjectSet<BinIDValueSet>& bidvalset)
+{
+    int dist = 1;
+    int distfirstinlz = 0;
+    int distsecondinlz = 0;
+    int distfirstcrlz = 0;
+    int distsecondcrlz = 0;
+    float neededz = -mUdf(float);
+    float firstinlz = -mUdf(float);
+    float secondinlz = -mUdf(float);
+    float firstcrlz = -mUdf(float);
+    float secondcrlz = -mUdf(float);
+    
+    while ( dist<150 )
+    {
+	if ( firstinlz == -mUdf(float) )
+	{
+	    BinID binid = BinID( bid.inl-dist, bid.crl );
+	    firstinlz = getZ( binid, bidvalset );
+	    if ( firstinlz > -mUdf(float) ) distfirstinlz = dist;
+	}
+	if ( secondinlz == -mUdf(float) )
+	{
+	    BinID binid = BinID( bid.inl+dist, bid.crl );
+	    secondinlz = getZ( binid, bidvalset );
+	    if ( secondinlz > -mUdf(float) ) distsecondinlz = dist;
+	}
+	if ( firstcrlz == -mUdf(float) )
+	{
+	    BinID binid = BinID( bid.inl, bid.crl-dist );
+	    firstcrlz = getZ( binid, bidvalset );
+	    if ( firstcrlz > -mUdf(float) ) distfirstcrlz = dist;
+	}
+	if ( secondcrlz == -mUdf(float) )
+	{
+	    BinID binid = BinID( bid.inl, bid.crl+dist );
+	    secondcrlz = getZ( binid, bidvalset );
+	    if ( secondcrlz > -mUdf(float) ) distsecondcrlz = dist;
+	}
+
+	if ( (distfirstcrlz && distsecondcrlz) || 
+	     (distfirstinlz && distsecondinlz) )
+	    break;
+	else
+	    dist++;
+    }
+
+    if ( distfirstcrlz && distsecondcrlz )
+    {
+	neededz = firstcrlz + ( ( secondcrlz - firstcrlz) * distfirstcrlz / 
+				( distfirstcrlz + distsecondcrlz ) );
+    }
+    else if ( distfirstinlz && distsecondinlz )
+    {
+	neededz = firstinlz + ( ( secondinlz - firstinlz) * distfirstinlz / 
+				( distfirstinlz + distsecondinlz ) );
+    }
+
+    return neededz;
 }
 
 
@@ -103,6 +167,11 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
 	{
 	    float topz = getZ( BinID(idy,idz), bivs );
 	    float botz = bivs2.size() ? getZ( BinID(idy,idz), bivs2 ) : 0;
+	    if ( topz == -mUdf(float) )
+		topz = getMissingZ( BinID(idy,idz), bivs );
+	    if ( botz == -mUdf(float) )
+		botz = getMissingZ( BinID(idy,idz), bivs2 );
+
 	    if ( topz == -mUdf(float) || botz == -mUdf(float) )
 		continue;
 
