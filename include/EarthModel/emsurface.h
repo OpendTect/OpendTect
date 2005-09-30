@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.56 2005-09-27 09:16:00 cvsduntao Exp $
+ RCS:		$Id: emsurface.h,v 1.57 2005-09-30 03:15:58 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -86,9 +86,6 @@ public:
 
     bool			isChanged(int=-1) const;
     void			resetChangedFlag(int=-1);
-
-    void			addToHistoryEvent( const PosID&, const PosID&,
-			        		 const Coord3& );
 
     virtual bool		usePar( const IOPar& );
     virtual void		fillPar( IOPar& ) const;

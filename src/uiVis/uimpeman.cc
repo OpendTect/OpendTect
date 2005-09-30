@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.47 2005-09-27 22:01:03 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.48 2005-09-30 03:15:58 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -564,9 +564,10 @@ void uiMPEMan::trackForward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
-    setHistoryLevel();
+    const int currentevent = EM::EMM().history().currentEventNr();
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( nrsteps );
+    setHistoryLevel(currentevent);
 }
 
 
@@ -575,9 +576,10 @@ void uiMPEMan::trackBackward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
-    setHistoryLevel();
+    const int currentevent = EM::EMM().history().currentEventNr();
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( -nrsteps );
+    setHistoryLevel(currentevent);
 }
 
 
@@ -614,12 +616,13 @@ void uiMPEMan::trackInVolume( CallBacker* )
 
 	}
 	*/
-	setHistoryLevel();
+	const int currentevent = EM::EMM().history().currentEventNr();
 	uiExecutor uiexec( this, *exec );
 	if ( !uiexec.go() )
 	{
 	    uiMSG().error(engine().errMsg());
 	}
+	setHistoryLevel(currentevent);
     }
 
     uiCursor::restoreOverride();
@@ -731,9 +734,10 @@ void uiMPEMan::initFromDisplay()
 }
 
 
-void uiMPEMan::setHistoryLevel()
+void uiMPEMan::setHistoryLevel(int preveventnr)
 {
     EM::History& history = EM::EMM().history();
     const int currentevent = history.currentEventNr();
-    history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+    if ( currentevent != preveventnr )
+	history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
 }

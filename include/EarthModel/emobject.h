@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.48 2005-09-29 16:34:07 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.49 2005-09-30 03:15:58 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -100,8 +100,6 @@ public:
 	    			       const EM::SubID&,
 	    			       const Coord3&,
 				       bool addtohistory);
-    virtual void		addToHistoryEvent(const PosID&, const PosID&,
-    					const Coord3&);
     virtual bool		unSetPos(const EM::PosID&, bool addtohistory );
     virtual bool		isAtEdge( const EM::PosID& ) const;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.16 2005-09-27 21:57:37 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.17 2005-09-30 03:15:58 cvsduntao Exp $
 ________________________________________________________________________
 
 
@@ -121,6 +121,8 @@ protected:
     static const Color		eraseColor;
     static const Color		movingColor;
     static const Color		extendColor;
+    
+    int				lastEvnetNr;
 };
 
 };
