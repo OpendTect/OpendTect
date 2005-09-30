@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.25 2005-09-29 21:13:14 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.26 2005-09-30 19:43:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "emseedpicker.h"
+#include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "mpeengine.h"
@@ -52,6 +53,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , currentobject(-1)
     , objectcreated(false)
     , trackercreated(false)
+    , ioparentrycreated(false)
     , ispicking(false)
     , typefld( 0 )
 {
@@ -173,12 +175,12 @@ bool Wizard::leaveNamePage( bool process )
 {
     if ( !process ) return true;
 
-    bool warnoverwrite = true;
+    bool didexist = true;
     const char* newobjnm = objselgrp->getNameField()->text(); 
     if ( *newobjnm )
     {
 	PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
-	if ( !ioobj ) warnoverwrite = false;
+	if ( !ioobj ) didexist = false;
 	
     }
 
@@ -188,27 +190,39 @@ bool Wizard::leaveNamePage( bool process )
 	return false;
     }
 
+    ioparentrycreated = !didexist;
+
     const IOObj* ioobj = objselgrp->selected(0);
-    if ( ioobj )
+    if ( !ioobj )
     {
-	EM::ObjectID objid = EM::EMM().multiID2ObjectID( ioobj->key() );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
-	if ( emobj )
-	{
-	    uiMSG().error("An object with this name exist and is currently\n"
-		    	  "loaded. Please select another name or quit the\n"
-			  "wizard and remove the object with this name from\n"
-			  "the tree.");
+	pErrMsg( "Could not get ioobj");
+	return false;
+    }
+
+    const bool isimpl = ioobj->implExists(false);
+    const bool isreadonly = isimpl && ioobj->implReadOnly();
+
+    EM::ObjectID objid = EM::EMM().multiID2ObjectID( ioobj->key() );
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    if ( emobj )
+    {
+	uiMSG().error("An object with this name exist and is currently\n"
+		      "loaded. Please select another name or quit the\n"
+		      "wizard and remove the object with this name from\n"
+		      "the tree.");
+	return false;
+    }
+    else if ( isreadonly )
+    {
+	uiMSG().error("This object is marked as read-only. Please select\n"
+		      "another object or make it writable." );
+	return false;
+    }
+    else if ( didexist )
+    {
+	if ( !uiMSG().askGoOn("An object with that name does already exist."
+			      " Overwrite?",true) )
 	    return false;
-	}
-	else if ( warnoverwrite )
-	{
-	    if ( !uiMSG().askGoOn("An object with that name does already exist."
-				  " Overwrite?",true) )
-		return false;
-	}
-	else
-	    currentobject = -1;
     }
     else
 	currentobject = -1;
@@ -242,6 +256,7 @@ bool Wizard::prepareSeedSetupPage()
         sid = emobj->sectionID( emobj->nrSections()-1 );
 
     displayPage( sNamePage, false );
+    
     setupgrp->setType( objid, sid );
 
     colorChangeCB(0);
@@ -277,7 +292,6 @@ bool Wizard::leaveSeedSetupPage( bool process )
 	mErrRet( "Please select Tracking Setup" );
 
     displayPage( sSeedSetupPage, false );
-    adjustSeedBox();
 
     return true;
 }
@@ -298,6 +312,13 @@ bool Wizard::leaveFinalizePage(bool process)
     if ( anotherfld->getBoolValue() )
 	setTrackingType( typefld ? typefld->text() : (const char*)trackertype );
 
+    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    PtrMan<Executor> saver = emobj->saver();
+
+    if ( saver ) saver->execute();
+    adjustSeedBox();
+
     return true;
 }
 
@@ -308,18 +329,37 @@ void Wizard::isStarting()
 }
 
 
-bool Wizard::isClosing(bool iscancel)
+bool Wizard::isClosing( bool iscancel )
 {
     if ( iscancel )
     {
-	if ( trackercreated )
-	{
-	    //remove tracker
-	}
-
+	//This must come before tracker is removed since
+	//applman needs tracker to know what to remove.
 	if ( objectcreated )
 	{
-	    //remove object
+	    mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject );
+	    objectcreated = false; //Avoids increment of defcol when reseting
+	}
+
+	if ( ioparentrycreated )
+	{
+	    const IOObj* ioobj = objselgrp->selected(0);
+	    if ( !ioobj )
+	    {
+		pErrMsg("Could not get ioobj" );
+	    }
+	    else if ( !fullImplRemove(*ioobj) ||
+		      !IOM().permRemove(ioobj->key()) )
+	    {
+		pErrMsg( "Could not remove object" );
+	    }
+	}
+
+
+	if ( trackercreated )
+	{
+	    const int trackerid = mpeserv->getTrackerID( currentobject );
+	    MPE::engine().removeTracker( trackerid );
 	}
     }
 
@@ -327,6 +367,7 @@ bool Wizard::isClosing(bool iscancel)
     {
 	mpeserv->expandActiveArea(seedbox);
     }
+
 
     return true;
 }
@@ -419,6 +460,7 @@ void Wizard::reset()
 
     sid = -1;
     objectcreated = false;
+    ioparentrycreated = false;
     trackercreated = false;
     currentobject = -1;
 
@@ -515,7 +557,9 @@ void Wizard::updatePickingStatus()
     }
     else
     {
+	mpeserv->blockdataloading = true;
 	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+	mpeserv->blockdataloading = false;
 	ispicking = false;
     }
 }

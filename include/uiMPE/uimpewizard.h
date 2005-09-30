@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.14 2005-09-28 21:25:37 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.15 2005-09-30 19:43:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ protected:
 
     MultiID		currentobject;
     EM::SectionID	sid;
+    bool		ioparentrycreated;
     bool		objectcreated;
     bool		trackercreated;
     
