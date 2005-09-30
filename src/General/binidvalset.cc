@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.10 2005-07-07 13:41:48 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.11 2005-09-30 09:17:12 cvshelene Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -347,10 +347,11 @@ bool BinIDValueSet::prev( BinIDValueSet::Pos& pos, bool skip_dup ) const
 }
 
 
-bool BinIDValueSet::valid( const Pos& pos ) const
+bool BinIDValueSet::valid( const BinID& bid ) const
 {
+    Pos pos = findFirst( bid );
     return pos.valid()
-	&& inls.indexOf(pos.i) >= 0
+	&& inls.indexOf(bid.inl) >= 0
 	&& mCrlSet(pos).size() > pos.j;
 }
 

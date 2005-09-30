@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.8 2005-05-12 14:08:26 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.9 2005-09-30 09:16:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ public:
     			//!< Then, next(pos) will return the first on that inl.
     bool		next(Pos&,bool skip_duplcate_bids=false) const;
     bool		prev(Pos&,bool skip_duplcate_bids=false) const;
-    bool		valid(const Pos&) const;
+    bool		valid(const BinID&) const;
 
     void		get(const Pos&,BinID&,float* v=0) const;
     BinID		getBinID(const Pos&) const;
