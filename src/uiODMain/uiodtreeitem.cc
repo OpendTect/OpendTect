@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.108 2005-09-30 21:56:03 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.109 2005-09-30 22:00:42 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -487,8 +487,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , saveasmenuitem("Save copy ...")
     , enabletrackingmnuitem("Enable tracking")
     , changesetupmnuitem("Change setup ...")
-    , addsectionmnuitem("Add section ...")
-    , extendsectionmnuitem("Extend section ...")
     , reloadmenuitem("Reload")
     , relationsmnuitem("Relations ...")
     , savesurfacedatamnuitem("Save attribute ...")
@@ -611,8 +609,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    mAddMenuItem( trackmnu, &starttrackmnuitem, pickedpos.isDefined(),
 		    	  false );
 
-	    mResetMenuItem( &addsectionmnuitem );
-	    mResetMenuItem( &extendsectionmnuitem );
 	    mResetMenuItem( &changesetupmnuitem );
 	    mResetMenuItem( &enabletrackingmnuitem );
 	    mResetMenuItem( &relationsmnuitem );
@@ -620,14 +616,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	else if ( hastracker && section != -1 )
 	{
 	    mResetMenuItem( &starttrackmnuitem );
-
-	    mAddMenuItemCond( trackmnu, &addsectionmnuitem, true, false,
-		    		mIsObject(EM::Horizon::typeStr()) );
-#ifdef __debug__
-	    mAddMenuItem( trackmnu, &extendsectionmnuitem, true, false );
-#else
-	    mResetMenuItem( &addsectionmnuitem );
-#endif
 
 	    mAddMenuItem( trackmnu, &changesetupmnuitem, true, false );
 	    mAddMenuItem( trackmnu, &enabletrackingmnuitem, true,
@@ -641,8 +629,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     else
     {
 	mResetMenuItem( &starttrackmnuitem );
-	mResetMenuItem( &addsectionmnuitem );
-	mResetMenuItem( &extendsectionmnuitem );
 	mResetMenuItem( &changesetupmnuitem );
 	mResetMenuItem( &enabletrackingmnuitem );
 	mResetMenuItem( &relationsmnuitem );
@@ -740,17 +726,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	const int trackerid = applMgr()->mpeServer()->getTrackerID(mid);
 	applMgr()->mpeServer()->enableTracking(trackerid,
 		!applMgr()->mpeServer()->isTrackingEnabled(trackerid));
-    }
-    else if ( mnuid==addsectionmnuitem.id )
-    {
-	menu->setIsHandled(true);
-	const int trackerid = applMgr()->mpeServer()->getTrackerID(mid);
-	applMgr()->mpeServer()->addNewSection(trackerid);
-    }
-    else if ( mnuid==extendsectionmnuitem.id )
-    {
-	menu->setIsHandled(true);
-	//applMgr()->mpeServer()->extendSection( mid, sectionid );
     }
     else if ( mnuid==loadsurfacedatamnuitem.id )
     {
