@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.106 2005-09-28 12:05:10 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.107 2005-09-30 21:50:53 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -484,6 +484,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , uivisemobj(0)
     , depthattribmnuitem("Depth")
     , savemenuitem("Save")
+    , saveasmenuitem("Save copy ...")
     , enabletrackingmnuitem("Enable tracking")
     , changesetupmnuitem("Change setup ...")
     , addsectionmnuitem("Add section ...")
@@ -650,6 +651,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &savemenuitem,
 		  applMgr()->EMServer()->isChanged(mid), false );
 
+    mAddMenuItem( menu, &saveasmenuitem, true, false );
+
     mAddMenuItem( menu, &savesurfacedatamnuitem,
 		  as && as->id() >= 0, false );
 
@@ -684,6 +687,15 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	applMgr()->EMServer()->storeObject( mid, false );
+    }
+    else if ( mnuid==saveasmenuitem.id )
+    {
+	menu->setIsHandled(true);
+	applMgr()->EMServer()->storeObject( mid, true );
+	applMgr()->visServer()->setObjectName( displayid,
+		(const char*) applMgr()->EMServer()->getName(mid) );
+
+	updateColumnText( 0 );
     }
     else if ( mnuid==starttrackmnuitem.id )
     {
