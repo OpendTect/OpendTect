@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.14 2005-02-04 14:31:34 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.15 2005-09-30 14:58:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ public:
 			     (i.e. scene ) */
 
     void		getIds( const std::type_info&, TypeSet<int>& ) const;
+    int			highestID() const;
 
     DataObject*		getObject( int id );
     const DataObject*	getObject( int id ) const;

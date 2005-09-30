@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.27 2005-02-04 14:31:34 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.28 2005-09-30 14:58:43 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -181,6 +181,21 @@ bool DataManager::removeAll(int nriterations)
     }
 
     return removeAll( nriterations-1 );
+}
+
+
+int DataManager::highestID() const
+{
+    int max = 0;
+
+    const int nrobjects = objects.size();
+    for ( int idx=0; idx<nrobjects; idx++ )
+    {
+	if ( objects[idx]->id()>max )
+	    max = objects[idx]->id();
+    }
+
+    return max;
 }
 
 
