@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.274 2005-09-20 20:46:58 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.275 2005-09-30 14:54:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,6 +192,27 @@ void uiVisPartServer::triggerTreeUpdate()
 void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 {
     visBase::DM().getIds( ti, res );
+}
+
+
+void uiVisPartServer::findObject( const MultiID& mid, TypeSet<int>& res )
+{
+    res.erase();
+    const int highestid = highestID();
+    for ( int idx=0; idx<=highestid; idx++ )
+    {
+	const MultiID* vismid = getMultiID(idx);
+	if ( !vismid ) continue;
+
+	if ( *vismid==mid )
+	    res += idx;
+    }
+}
+
+
+int uiVisPartServer::highestID() const
+{
+    return visBase::DM().highestID();
 }
 
 
@@ -1054,17 +1075,6 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
     if ( so )
     {    
-	if ( so->getAttributeFormat() == 3 )
-	{
-	    if ( !so->isManipulated() ) return;
-	    eventmutex.lock();
-	    eventobjid = oldsel;
-	    sendEvent( evGetNewData );
-	    so->acceptManipulation();
-	    showMPEToolbar();
-	    return;
-	}
-
 	if ( so->isManipulated() )
 	{
 	    calculateAttrib( oldsel, false );
