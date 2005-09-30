@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.26 2005-09-30 19:43:08 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.27 2005-09-30 19:55:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,13 +343,11 @@ bool Wizard::isClosing( bool iscancel )
 
 	if ( ioparentrycreated )
 	{
-	    const IOObj* ioobj = objselgrp->selected(0);
-	    if ( !ioobj )
-	    {
-		pErrMsg("Could not get ioobj" );
-	    }
-	    else if ( !fullImplRemove(*ioobj) ||
-		      !IOM().permRemove(ioobj->key()) )
+	    IOM().to( currentobject );
+	    PtrMan<IOObj> ioobj = IOM().get(currentobject);
+
+	    if ( !ioobj || !fullImplRemove(*ioobj) ||
+	         !IOM().permRemove(currentobject) )
 	    {
 		pErrMsg( "Could not remove object" );
 	    }
