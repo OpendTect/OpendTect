@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.27 2005-09-02 11:15:46 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.28 2005-10-02 20:20:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -254,8 +254,8 @@ int uiVisEMObject::nrSections() const
 EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 {
     const MultiID* mid = visserv->getMultiID( displayid );
-    EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
-    mDynamicCastGet(const EM::EMObject*,emobj,EM::EMM().getObject(emid))
+    const EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
+    const EM::EMObject* emobj = EM::EMM().getObject(emid);
     return emobj ? emobj->sectionID( idx ) : -1;
 }
 
@@ -266,33 +266,18 @@ EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
 }
 
 
+void uiVisEMObject::checkTrackingStatus()
+{
+    if ( !emod ) return;
+    emod->updateFromMPE();
+}
+
+
 float uiVisEMObject::getShift() const
 {
     return emod ? emod->getTranslation().z : 0;
 }
 
-
-/*
-NotifierAccess* uiVisEMObject::finishEditingNotifier()
-{
-    return emod && emod->getEditor() ? &emod->getEditor()->finishedEditing : 0;
-}
-
-
-void uiVisEMObject::getMovedNodes(TypeSet<EM::PosID>& res) const
-{
-    if ( emod && emod->getEditor() ) emod->getEditor()->getMovedNodes(res);
-}
-
-
-bool uiVisEMObject::snapAfterEdit() const
-{
-    return emod && emod->getEditor() ? emod->getEditor()->snapAfterEdit() 
-    				     : false;
-}
-
-
-*/
 
 void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
@@ -587,87 +572,16 @@ void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
 	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode,false);
 	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode,false);
     }
-    //else if ( mnuid==removenodenodemnuitem )
-    //{
-//	menu->setIsHandled(true);
-//	emobj->setPos(*empid,Coord3(mUndefValue,mUndefValue,mUndefValue),true);
- //   }
-//    else if ( mnuid==tooglesnappingnodemnuitem )
- //   {
-//	menu->setIsHandled(true);
- //       emod->getEditor()->setSnapAfterEdit(!emod->getEditor()->snapAfterEdit());
-  //  }
 }
 
 
 
 void uiVisEMObject::createEdgeLineMenuCB( CallBacker* cb )
 {
-    /*
-    mDynamicCastGet(uiMenuHandler*,menu,cb);
-    mDynamicCastGet(visSurvey::EdgeLineSetDisplay*,edgelinedisplay,
-	            visserv->getObject(menu->id()));
-
-    const EM::EdgeLineSet* edgelineset = edgelinedisplay->getEdgeLineSet();
-    const EM::EdgeLine* edgeline =
-	    edgelineset->getLine(edgelinedisplay->getRightClickedLine());
-    const EM::EdgeLineSegment* segment =
-	edgeline->getSegment(edgelinedisplay->getRightClickedSegment());
-
-    mDynamicCastGet( const EM::SurfaceConnectLine*, connectline,segment);
-    mDynamicCastGet( const EM::TerminationEdgeLineSegment*,
-		     terminationline, segment );
-
-    removetermedgelinemnuitem = -1;
-    removeconnedgelinemnuitem = -1;
-    joinedgelinemnuitem = -1;
-    if ( terminationline )
-    {
-	removetermedgelinemnuitem =
-	    menu->addItem( new uiMenuItem("Remove termination") );
-    }
-    else if ( connectline )
-    {
-	removeconnedgelinemnuitem =
-	    menu->addItem( new uiMenuItem("Remove connection") );
-	joinedgelinemnuitem =
-	    menu->addItem( new uiMenuItem("Join sections") );
-    }
-    */
 }
 
 
 void uiVisEMObject::handleEdgeLineMenuCB( CallBacker* cb )
 {
-    /*
-    mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
-    mDynamicCastGet(uiMenuHandler*,menu,caller)
-    if ( mnuid==-1 || menu->isHandled() )
-	return;
-
-    mDynamicCastGet(visSurvey::EdgeLineSetDisplay*,edgelinedisplay,
-	            visserv->getObject(menu->id()));
-
-    EM::EdgeLineSet* edgelineset =
-	const_cast<EM::EdgeLineSet*>(edgelinedisplay->getEdgeLineSet());
-    EM::EdgeLine* edgeline =
-	    edgelineset->getLine(edgelinedisplay->getRightClickedLine());
-    EM::EdgeLineSegment* segment =
-	edgeline->getSegment(edgelinedisplay->getRightClickedSegment());
-
-    if ( mnuid==removetermedgelinemnuitem )
-    {
-	EM::EdgeLineSegment* replacement =
-	   new EM::EdgeLineSegment(segment->getSurface(),segment->getSection());
-	replacement->copyNodesFrom(segment,false);
-	edgeline->insertSegment( replacement, -1, true );
-	menu->setIsHandled(true);
-    }
-    else
-    {
-	pErrMsg("Not implemented");
-	menu->setIsHandled(true);
-    }
-    */
 }
 

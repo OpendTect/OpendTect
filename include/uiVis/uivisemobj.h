@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.13 2005-09-02 11:15:46 cvsnanne Exp $
+ RCS:		$Id: uivisemobj.h,v 1.14 2005-10-02 20:20:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,11 @@ public:
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;
     EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;
+
+    void		checkTrackingStatus();
+    			/*!< Checks if there is a tracker for this object and
+			     turns on wireframe, singlecolor and full res if
+			     a tracker if found. */
 
     static const char*	trackingmenutxt;
 
