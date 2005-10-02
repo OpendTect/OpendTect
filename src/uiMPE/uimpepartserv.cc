@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.23 2005-09-30 18:31:37 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.24 2005-10-02 20:23:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,30 +96,28 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     if ( !emobj ) return -1;
 
+    const int res = MPE::engine().addTracker( emobj );
+    if ( res==-1 )
+    {
+	uiMSG().error("Could not create tracker for this object");
+	return -1;
+    }
 
-    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
-    else wizard->reset();
+    //TODO: Fix for multi-section case
+    const EM::SectionID sid =  emobj->sectionID(0);
+    if ( !showSetupDlg( mid, sid, true ) )
+    {
+	MPE::engine().removeTracker(res);
+	return -1;
+    }
 
-    wizard->setRotateMode(false);
+    CubeSampling poscs(false);
+    const BinID bid = SI().transform(pickedpos);
+    poscs.hrg.start = poscs.hrg.stop = bid;
+    poscs.zrg.start = poscs.zrg.stop = pickedpos.z;
+    expandActiveVolume( poscs );
 
-    wizard->setObject( mid, emobj->sectionID(0) );
-    wizard->displayPage(MPE::Wizard::sNamePage, false );
-    wizard->displayPage(MPE::Wizard::sSeedSetupPage, false );
-    wizard->displayPage(MPE::Wizard::sFinalizePage, false );
-    wizard->go();
-
-    CubeSampling csfromseeds;
-    csfromseeds.zrg.start = csfromseeds.zrg.stop = pickedpos.z;
-    HorSampling& hrg = csfromseeds.hrg;
-    const BinID bid = SI().transform( pickedpos );
-    hrg.start.inl = bid.inl - 10 * hrg.step.inl;
-    hrg.stop.inl = bid.inl + 10 * hrg.step.inl;
-    hrg.start.crl = bid.crl - 10 * hrg.step.crl;
-    hrg.stop.crl = bid.crl + 10 * hrg.step.crl;
-
-    expandActiveArea(csfromseeds);
-
-    return activetrackerid;
+    return res;
 }
 
 
@@ -218,11 +216,15 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 
 
 
-void uiMPEPartServer::showSetupDlg( const MultiID& mid, EM::SectionID sid )
+bool uiMPEPartServer::showSetupDlg( const MultiID& mid,
+				    const EM::SectionID& sid,
+				    bool showcancelbutton )
 {
     EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
     uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
-    dlg.setCtrlStyle( uiDialog::LeaveOnly );
+    if ( !showcancelbutton ) 
+	dlg.setCtrlStyle( uiDialog::LeaveOnly );
+
     dlg.setHelpID( "108.0.1" );
     MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset );
     grp->setType( objid, sid );
@@ -230,7 +232,10 @@ void uiMPEPartServer::showSetupDlg( const MultiID& mid, EM::SectionID sid )
     {
 	loadAttribData();
 	sendEvent( evShowToolbar );
+	return true;
     }
+
+    return false;
 }
 
 
@@ -286,12 +291,18 @@ CubeSampling uiMPEPartServer::getActiveVolume() const
 { return MPE::engine().activeVolume(); }
 
 
-void uiMPEPartServer::expandActiveArea(const CubeSampling& seedcs)
+bool uiMPEPartServer::activeVolumeIsDefault() const
 {
     const CubeSampling activecs = MPE::engine().activeVolume();
-    bool isdefault = activecs==MPE::engine().getDefaultActiveVolume();
+    return activecs==MPE::engine().getDefaultActiveVolume();
+}
 
-    isdefault = true; //HACK!! TODO
+
+void uiMPEPartServer::expandActiveVolume(const CubeSampling& seedcs)
+{
+    const CubeSampling activecs = MPE::engine().activeVolume();
+    const bool isdefault = activeVolumeIsDefault();
+
     CubeSampling newcube = isdefault ? seedcs : activecs;
     newcube.zrg.step = SI().zStep();
     if ( !isdefault )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.27 2005-09-30 19:55:18 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.28 2005-10-02 20:23:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -363,7 +363,7 @@ bool Wizard::isClosing( bool iscancel )
 
     if ( !seedbox.isEmpty() )
     {
-	mpeserv->expandActiveArea(seedbox);
+	mpeserv->expandActiveVolume(seedbox);
     }
 
 

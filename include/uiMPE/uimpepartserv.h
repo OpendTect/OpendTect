@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.14 2005-09-30 18:31:37 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.15 2005-10-02 20:23:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,16 @@ public:
     int				getTrackerID(const MultiID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
-    bool			addTracker(const char* trackertype); 
-    int				addTracker(const MultiID&,const Coord3&);
+    bool			addTracker( const char* trackertype); 
+    int				addTracker( const MultiID&,const Coord3& pos );
+    				/*!<Creates a new tracker for the object and
+				    returns the trackerid of it or -1 if it
+				    failed.
+				    \param pos should contain the clicked
+				           position. If the activevolume is not
+					   set before, it will be centered
+					   pos, otherwise, it will be expanded
+					   to include pos. */
     bool			addNewSection( int trackerid );
 
     MultiID			getTrackerMultiID(int trackerid) const;
@@ -52,7 +60,11 @@ public:
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
 
-    void			showSetupDlg(const MultiID&,EM::SectionID);
+    bool			showSetupDlg( const MultiID&,
+	    				      const EM::SectionID&,
+					      bool showcancelbutton=false );
+    				/*!<\returns false if cancel was pressed. */
+
     void			showRelationsDlg(const MultiID&,EM::SectionID);
 
     int				activeTrackerID() const;
@@ -80,7 +92,8 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    void			expandActiveArea(const CubeSampling&);
+    bool			activeVolumeIsDefault() const;
+    void			expandActiveVolume(const CubeSampling&);
     void			activeVolumeChange(CallBacker*);
     void			loadAttribData();
 
