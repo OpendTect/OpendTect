@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.30 2005-09-29 11:29:41 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.31 2005-10-03 08:07:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,6 +240,10 @@ SliceSet* EngineMan::getSliceSetOutput()
     ObjectSet<SliceSet> slsets;
     for ( int idx=0; idx<procset[0]->outputs.size(); idx++ )
     {
+	if ( !procset[0]->outputs[idx] || 
+	     !procset[0]->outputs[idx]->getSliceSet() )
+	    continue;
+
 	SliceSet& slset = *new SliceSet;
 	slset.sampling = procset[0]->outputs[idx]->getSliceSet()->sampling;
 	slset.direction = slset.sampling.defaultDir();
