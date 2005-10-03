@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.33 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.34 2005-10-03 08:08:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "uimsg.h"
+#include "survinfo.h"
 
 
 const int cListHeight = 5;
@@ -154,12 +155,19 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 {
     if ( rgfld && rgfld->isRg() )
     {
-	CubeSampling cs; rgfld->getSampling( cs );
-	sels.rg = cs.hrg;
+	HorSampling hs; rgfld->getHorSampling( hs );
+	sels.rg = hs;
     }
     else
 	sels.rg.init( false );
 
+    if ( SI().sampling(true) != SI().sampling(false) )
+    {
+	if ( sels.rg.isEmpty() )
+	    sels.rg.init( true );
+	sels.rg.limitTo( SI().sampling(true).hrg );
+    }
+	
     sels.selsections.erase();
     int nrsections = sectionfld ? sectionfld->box()->size() : 1;
     for ( int idx=0; idx<nrsections; idx++ )
