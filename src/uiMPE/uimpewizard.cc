@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.28 2005-10-02 20:23:51 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.29 2005-10-03 02:12:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -390,13 +390,18 @@ void Wizard::colorChangeCB( CallBacker* )
 }
 
 
+#define mNamePage	0
+#define mSeedPage	1
+#define mFinalizePage	2
+
+
 bool Wizard::preparePage( int page )
 {
     switch ( page )
     {
-	case 0: return prepareNamePage();
-	case 1: return prepareSeedSetupPage();
-	case 3: return prepareFinalizePage();
+	case mNamePage:		return prepareNamePage();
+	case mSeedPage:		return prepareSeedSetupPage();
+	case mFinalizePage:	return prepareFinalizePage();
     }
 
     return true;
@@ -407,9 +412,9 @@ bool Wizard::leavePage( int page, bool process )
 {
     switch ( page )
     {
-	case 0: return leaveNamePage(process);
-	case 1: return leaveSeedSetupPage(process);
-	case 3: return leaveFinalizePage(process);
+	case mNamePage:		return leaveNamePage(process);
+	case mSeedPage:		return leaveSeedSetupPage(process);
+	case mFinalizePage:	return leaveFinalizePage(process);
     }
 
     return true;
