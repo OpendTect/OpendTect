@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.20 2005-09-30 03:15:58 cvsduntao Exp $
+ RCS:           $Id: uimpeman.h,v 1.21 2005-10-04 14:39:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ protected:
     MenuItem			createmnuitem;
     uiVisPartServer*		visserv;
     CubeSampling		oldactivevol;
+    bool			didtriggervolchange;
     MPE::EMSeedPicker*		seedpicker;
 
     visSurvey::MPEClickCatcher*	clickcatcher;
@@ -108,11 +109,6 @@ protected:
     bool			trackerwasonbeforemouseerase;
 
     bool			init;
-    
-private:
-    bool			picknewseeds;
-    				// indicator, whom seed picking is invoked by
-				// false - by program, true - by user
 };
 
 #endif
