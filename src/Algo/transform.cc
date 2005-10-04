@@ -4,7 +4,7 @@
  * DATE     : Jan 2001
 -*/
 
-static const char* rcsID = "$Id: transform.cc,v 1.3 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: transform.cc,v 1.4 2005-10-04 14:05:48 cvskris Exp $";
 
 #include <transform.h>
 #include <arraynd.h>
@@ -65,13 +65,13 @@ bool GenericTransformND::init()
 
 	if ( found ) continue;
 
-	Transform1D* transform = createTransform();
-	transform->setSize( sz );
-	transform->setDir(forward);
-	transform->init();
+	Transform1D* trans = createTransform();
+	trans->setSize( sz );
+	trans->setDir(forward);
+	trans->init();
 
-	owntransforms += transform;
-	transforms += transform;
+	owntransforms += trans;
+	transforms += trans;
     }
 
     return true;
@@ -157,16 +157,14 @@ bool GenericTransformND::transform( const ArrayND<float>& in,
 {
     if ( !isReal() ) return false;
 
-    const ArrayNDInfo& info = getInputInfo();
-
-    if ( out.info() != in.info() || out.info() != info ) return false;
+    if ( out.info() != in.info() || out.info() != *info ) return false;
 
     const float* ind = in.getData();
     float* outd = out.getData();
 
     if ( !ind || !outd ) return false;
 
-    const int ndim = info.getNDim();
+    const int ndim = info->getNDim();
     if ( ndim==1 )
     {
 	transforms[0]->transform1D( ind, outd, 1 );
@@ -185,17 +183,14 @@ bool GenericTransformND::transform( const ArrayND<float_complex>& in,
 
 {
     if ( !isReal() ) return false;
-
-    const ArrayNDInfo& info = getInputInfo();
-
-    if ( out.info() != in.info() || out.info() != info ) return false;
+    if ( out.info() != in.info() || out.info() != *info ) return false;
 
     const float_complex* ind = in.getData();
     float_complex* outd = out.getData();
 
     if ( !ind || !outd ) return false;
 
-    const int ndim = info.getNDim();
+    const int ndim = info->getNDim();
     if ( ndim==1 )
     {
 	transforms[0]->transform1D( ind, outd, 1 );

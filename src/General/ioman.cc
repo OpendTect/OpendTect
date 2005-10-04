@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.54 2005-09-22 14:05:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.55 2005-10-04 14:05:48 cvskris Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -271,19 +271,20 @@ bool IOMan::to( const IOLink* link )
 
 bool IOMan::to( const MultiID& ky )
 {
-    MultiID key;
+    MultiID currentkey;
     IOObj* refioobj = IODir::getObj( ky );
     if ( !refioobj )
     {
-	key = ky.upLevel();
-	refioobj = IODir::getObj( key );
-	if ( !refioobj )		key = "";
+	currentkey = ky.upLevel();
+	refioobj = IODir::getObj( currentkey );
+	if ( !refioobj )		currentkey = "";
     }
-    else if ( !refioobj->isLink() )	key = ky.upLevel();
-    else				key = ky;
+    else if ( !refioobj->isLink() )	currentkey = ky.upLevel();
+    else				currentkey = ky;
     delete refioobj;
 
-    IODir* newdir = key == "" ? new IODir( rootdir ) : new IODir( key );
+    IODir* newdir = currentkey == ""
+	? new IODir( rootdir ) : new IODir( currentkey );
     if ( !newdir || newdir->bad() ) return false;
 
     bool needtrigger = dirptr;
@@ -571,7 +572,6 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 
 const char* IOMan::generateFileName( Translator* tr, const char* fname )
 {
-    int subnr = 0;
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
     cleanupString( ptr, NO, *ptr == *FilePath::sDirSep, YES );
@@ -589,9 +589,9 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 }
 
 
-bool IOMan::setFileName( MultiID key, const char* fname )
+bool IOMan::setFileName( MultiID newkey, const char* fname )
 {
-    IOObj* ioobj = get( key );
+    IOObj* ioobj = get( newkey );
     if ( !ioobj ) return false;
     const FileNameString fulloldname = ioobj->fullUserExpr( true );
     ioobj->setName( fname );

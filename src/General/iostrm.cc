@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.20 2004-09-27 08:13:23 dgb Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.21 2005-10-04 14:05:48 cvskris Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -137,12 +137,12 @@ bool IOStream::implDo( bool dorem, bool yn ) const
 {
     if ( type_ != StreamConn::File ) return NO;
 
-    int nrfiles = isMulti() ? fnrs.nrSteps() + 1 : 1;
+    int curnrfiles = isMulti() ? fnrs.nrSteps() + 1 : 1;
     int kpcurfnr = curfnr;
     int& fnr = const_cast<int&>( curfnr );
 
     bool ret = true;
-    for ( int idx=0; idx<nrfiles; idx++ )
+    for ( int idx=0; idx<curnrfiles; idx++ )
     {
 	fnr = fnrs.start + idx*fnrs.step;
 	StreamProvider* sp = streamProvider( true );

@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.20 2005-05-17 09:29:05 cvskris Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.21 2005-10-04 14:05:48 cvskris Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -332,9 +332,9 @@ bool IODir::wrOmf( std::ostream& strm ) const
     FileMultiString fms( key_ == "" ? "0" : (const char*)key_ );
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
-	MultiID key = objs_[idx]->key();
-	if ( key.leafID() > curid_ )
-	    curid_ = key.leafID();
+	const MultiID currentkey = objs_[idx]->key();
+	if ( currentkey.leafID() > curid_ )
+	    curid_ = currentkey.leafID();
     }
     fms += curid_;
     astream.put( "ID", fms );
