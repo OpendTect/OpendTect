@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.18 2005-09-30 03:20:37 cvsduntao Exp $
+ RCS:		$Id: vismpe.h,v 1.19 2005-10-04 14:53:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,8 @@ public:
     void			setSelSpec(const Attrib::SelSpec&);
     const char*			getSelSpecUserRef() const;
     void			updateTexture();
+
+    NotifierAccess*		getMovementNotification() { return  &movement; }
     
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar( const IOPar&);
@@ -110,6 +112,8 @@ protected:
     visBase::Texture3*		texture_;
 
     visBase::EventCatcher*	sceneeventcatcher_;
+
+    Notifier<MPEDisplay>	movement;
 
     Attrib::SelSpec&		as_;
     bool			manipulated_;
