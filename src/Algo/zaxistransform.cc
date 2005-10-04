@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.1 2005-10-04 14:03:48 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.2 2005-10-04 17:37:28 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -31,16 +31,8 @@ float ZAxisTransform::transformBack( const Coord3& pos ) const
 { return transformBack( BinIDValue( SI().transform(pos), pos.z ) ); }
 
 
-ZAxisTransformFactory::ZAxisTransformFactory()
-{ mRefCountConstructor; }
-
-
-ZAxisTransformFactory::~ZAxisTransformFactory()
-{}
-
-
 ZAxisTransformFactorySet::~ZAxisTransformFactorySet()
-{ deepUnRef( factories ); }
+{}
 
 
 ZAxisTransform* ZAxisTransformFactorySet::create(
@@ -48,9 +40,9 @@ ZAxisTransform* ZAxisTransformFactorySet::create(
 {
     for ( int idx=0; idx<factories.size(); idx++ )
     {
-	ZAxisTransform* res = factories[idx]->create( t0, t1 );
+	ZAxisTransform* res = factories[idx]( t0, t1 );
 	if ( res ) return res;
-	res = factories[idx]->create( t1, t0 );
+	res = factories[idx]( t1, t0 );
 	if ( res ) return res;
     }
 
@@ -59,9 +51,8 @@ ZAxisTransform* ZAxisTransformFactorySet::create(
 
 
 void ZAxisTransformFactorySet::addFactory(
-	const ZAxisTransformFactory* factory )
+	ZAxisTransformFactory factory )
 {
-    factory->ref();
     factories += factory;
 }
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.1 2005-10-04 14:04:20 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.2 2005-10-04 17:37:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,13 +40,8 @@ public:
 };
 
 
-class ZAxisTransformFactory
-{ mRefCountImpl(ZAxisTransformFactory);
-public:
-    				ZAxisTransformFactory();
-    virtual ZAxisTransform*	create( const ZAxisTransform::ZType& from,
-	    				const ZAxisTransform::ZType& to ) const;
-};
+typedef ZAxisTransform* (*ZAxisTransformFactory)
+    	( const ZAxisTransform::ZType& from, const ZAxisTransform::ZType& to);
 
 
 class ZAxisTransformFactorySet
@@ -59,10 +54,10 @@ public:
     				/*!<\note that returned transform can be in 
 					  any direction. */
 
-    void			addFactory( const ZAxisTransformFactory* );
+    void			addFactory( ZAxisTransformFactory );
 
 private:
-    ObjectSet<const ZAxisTransformFactory>	factories;
+    TypeSet<ZAxisTransformFactory>	factories;
 };
 
 
