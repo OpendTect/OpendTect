@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.2 2005-09-20 21:48:36 cvskris Exp $
+ RCS:           $Id: emseedpicker.h,v 1.3 2005-10-04 14:23:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ public:
 
     virtual bool	canAddSeed() const { return false; }
     virtual bool	addSeed( const Coord3& ) { return false; }
-    			/*!< */
+    virtual bool	canRemoveSeed() const { return false; }
+    virtual bool	removeSeed( const EM::PosID& ) { return false; }
     virtual bool	reTrack() { return false; }
 
     virtual bool	stopSeedPick() { return true; }
@@ -55,14 +56,14 @@ public:
     				HorizonSeedPicker( MPE::EMTracker& );
 
     bool			canSetSectionID() const { return true; }
-    bool			setSectionID( const EM::SectionID& sid )
-				    { sectionid = sid; return true; }
-    EM::SectionID		getSectionID() const
-				    { return sectionid; }
+    bool			setSectionID( const EM::SectionID& sid );
+    EM::SectionID		getSectionID() const { return sectionid; }
 
     bool			startSeedPick();
     bool			addSeed( const Coord3& );
     bool			canAddSeed() const { return true; }
+    bool			removeSeed( const EM::PosID& );
+    bool			canRemoveSeed() const { return true; }
     bool			reTrack();
 
     bool			stopSeedPick();
