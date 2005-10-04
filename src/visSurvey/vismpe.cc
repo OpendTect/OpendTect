@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.27 2005-09-30 03:20:37 cvsduntao Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.28 2005-10-04 14:53:05 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -51,6 +51,7 @@ MPEDisplay::MPEDisplay()
     , as_(*new Attrib::SelSpec())
     , texture_(0)
     , manipulated_(false)
+    , movement( this )
 {
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->ref();
@@ -178,6 +179,7 @@ void MPEDisplay::setCubeSampling( CubeSampling cs )
     			    cs.zrg.center() );
     boxdragger_->setCenter( newcenter );
     setDraggerCenter( true );
+    movement.trigger();
 }
 
 
@@ -452,13 +454,14 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
     engine_.setTrackPlane( newplane, trkmode==MPE::TrackPlane::Extend
 	    			  || trkmode==MPE::TrackPlane::ReTrack
 				  || trkmode==MPE::TrackPlane::Erase );
+    movement.trigger();
 }
 
 
 void MPEDisplay::rectangleStartCB( CallBacker* )
 {
     EM::History& history = EM::EMM().history();
-    const int lasteventnr_ = history.currentEventNr();
+    lasteventnr_ = history.currentEventNr();
 }
 
 
@@ -496,6 +499,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    getPlanePosition( ntp.boundingBox() );
 	    engine_.setTrackPlane( ntp, false );
 	    updateTextureCoords();
+	    movement.trigger();
 	}
 
 	sceneeventcatcher_->eventIsHandled();
@@ -526,6 +530,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	    Interval<float>(cube.zrg.start,cube.zrg.stop) );
 
     setDraggerCenter( true );
+    movement.trigger();
 }
 
 
