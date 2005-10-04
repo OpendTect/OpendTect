@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.9 2005-01-25 13:30:26 nanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.10 2005-10-04 14:35:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,13 +36,13 @@ public:
     int			getValue() const;
     float		getFValue() const;
 
-    void		setInterval(int start,int stop,int step=1)
-			{ setInterval(StepInterval<int>(start,stop,step)); }
+    void		setInterval(int start,int stop,int thestep=1)
+			{ setInterval(StepInterval<int>(start,stop,thestep)); }
     void		setInterval(const StepInterval<int>&);
     StepInterval<int>	getInterval() const;
 
-    void		setInterval(float start,float stop,float step=1)
-			{ setInterval(StepInterval<float>(start,stop,step)); }
+    void		setInterval(float start,float stop,float thestep=1)
+			{ setInterval(StepInterval<float>(start,stop,thestep)); }
     void		setInterval(const StepInterval<float>&);
     StepInterval<float> getFInterval() const;
 
