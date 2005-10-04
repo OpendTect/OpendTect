@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.8 2005-09-20 16:02:18 cvsnanne Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.9 2005-10-04 15:08:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,8 +226,8 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 
 	EM::EdgeLineSet* lineset2 =
 	    surface.edgelinesets.getEdgeLineSet(newsection,false); 
-										        const int mainlineidx = lineset2->getMainLine();
-	EM::EdgeLine* mainline2 = lineset2->getLine(mainlineidx);
+										        const int mainlineidx2 = lineset2->getMainLine();
+	EM::EdgeLine* mainline2 = lineset2->getLine(mainlineidx2);
 	if ( !mainline2 )
 	    return;
 

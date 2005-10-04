@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.24 2005-10-02 20:23:51 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.25 2005-10-04 15:08:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,9 +80,9 @@ int uiMPEPartServer::getTrackerID( const MultiID& mid ) const
 
 
 
-int uiMPEPartServer::getTrackerID( const char* name ) const
+int uiMPEPartServer::getTrackerID( const char* trackername ) const
 {
-    return MPE::engine().getTrackerByObject(name);
+    return MPE::engine().getTrackerByObject(trackername);
 }
 
 
@@ -294,7 +294,10 @@ CubeSampling uiMPEPartServer::getActiveVolume() const
 bool uiMPEPartServer::activeVolumeIsDefault() const
 {
     const CubeSampling activecs = MPE::engine().activeVolume();
-    return activecs==MPE::engine().getDefaultActiveVolume();
+    if ( activecs==MPE::engine().getDefaultActiveVolume() )
+	return true;
+
+    return false;
 }
 
 

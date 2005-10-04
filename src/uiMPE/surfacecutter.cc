@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.5 2005-05-02 13:15:26 cvsnanne Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.6 2005-10-04 15:08:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,9 +229,9 @@ bool SurfaceCutter::reTrack()
 
 	checker.nextStep();
 
-	CubeSampling& cs = plane.boundingBox();
-	cs.hrg.start += step;
-	cs.hrg.stop += step;
+	CubeSampling& planecs = plane.boundingBox();
+	planecs.hrg.start += step;
+	planecs.hrg.stop += step;
     }
 
     return true;
