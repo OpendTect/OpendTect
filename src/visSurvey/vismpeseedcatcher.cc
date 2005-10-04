@@ -4,11 +4,13 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.3 2005-09-27 21:56:18 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.4 2005-10-04 14:58:07 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
+#include "emobject.h"
 #include "visdataman.h"
+#include "visemobjdisplay.h"
 #include "visevent.h"
 #include "vismpe.h"
 #include "vistransform.h"
@@ -24,6 +26,7 @@ MPEClickCatcher::MPEClickCatcher()
     : click( this )
     , eventcatcher( 0 )
     , transformation( 0 )
+    , ctrlclicknode(-1,-1,-1)
 { }
 
 
@@ -76,34 +79,56 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
 	return;
 
-    if ( eventinfo.shift || eventinfo.alt || eventinfo.ctrl )
-	return;
-
     if ( eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
 	return;
 
-    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
     {
-	const int visid = eventinfo.pickedobjids[idx];
-	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
-	if ( plane )
+	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
 	{
-	    sendClickEvent( eventinfo.pickedpos, visid,
-		    	    plane->getCubeSampling(),
-		   	    plane->getCacheVolume(false),
-		   	    plane->getSelSpec() );
-	    eventcatcher->eventIsHandled();
-	    break;
-	}
+	    const int visid = eventinfo.pickedobjids[idx];
+	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	    mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
+	    if ( plane )
+	    {
+		sendClickEvent( eventinfo.pickedpos, visid,
+				plane->getCubeSampling(),
+				plane->getCacheVolume(false),
+				plane->getSelSpec() );
+		eventcatcher->eventIsHandled();
+		break;
+	    }
 
-	mDynamicCastGet( MPEDisplay*, mpedisplay, dataobj );
-	if ( mpedisplay && mpedisplay->isDraggerShown() &&
-	     !mpedisplay->isManipulatorShown() &&
-	     mpedisplay->getPlanePosition(clickedcs) ) 
+	    mDynamicCastGet( MPEDisplay*, mpedisplay, dataobj );
+	    if ( mpedisplay && mpedisplay->isDraggerShown() &&
+		 !mpedisplay->isManipulatorShown() &&
+		 mpedisplay->getPlanePosition(clickedcs) ) 
+	    {
+		sendClickEvent( eventinfo.pickedpos, visid, clickedcs, 0, 0 );
+		eventcatcher->eventIsHandled();
+		break;
+	    }
+	}
+    }
+    else if ( !eventinfo.shift && !eventinfo.alt && eventinfo.ctrl )
+    {
+	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
 	{
-	    sendClickEvent( eventinfo.pickedpos, visid, clickedcs, 0, 0 );
-	    eventcatcher->eventIsHandled();
+	    const int visid = eventinfo.pickedobjids[idx];
+	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	    mDynamicCastGet( visSurvey::EMObjectDisplay*, emod, dataobj );
+	    if ( !emod ) continue;
+
+	    ctrlclicknode =
+		emod->getPosAttribPosID( EM::EMObject::sSeedNode,
+					 eventinfo.pickedobjids );
+
+	    if ( ctrlclicknode.objectID()!=-1 )
+	    {
+		click.trigger();
+		eventcatcher->eventIsHandled();
+	    }
+
 	    break;
 	}
     }
@@ -115,6 +140,7 @@ void MPEClickCatcher::sendClickEvent( const Coord3& coord, int visid,
        				      const Attrib::SliceSet* ss,
 				      const Attrib::SelSpec* selspec )
 {
+    ctrlclicknode = EM::PosID(-1,-1,-1);
     clickedcs = cs;
     clickedobjid = visid;
     clickedpos = coord;
