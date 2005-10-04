@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.86 2005-08-18 19:37:53 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.87 2005-10-04 14:59:02 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -327,8 +327,8 @@ SurveyObject* PlaneDataDisplay::duplicate() const
     pdd->setCubeSampling( getCubeSampling() );
     pdd->setResolution( getResolution() );
 
-    int id = pdd->getColTabID();
-    visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
+    int ctid = pdd->getColTabID();
+    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject( ctid ) : 0;
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
     if ( nct )
     {

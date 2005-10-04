@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.54 2005-09-08 10:42:44 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.55 2005-10-04 14:59:02 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -624,8 +624,8 @@ SurveyObject* RandomTrackDisplay::duplicate() const
 	rtd->setManipKnotPos( idx, getKnotPos(idx) );
     }
 
-    const int id = rtd->getColTabID();
-    visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
+    const int ctid = rtd->getColTabID();
+    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject( ctid ) : 0;
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
     if ( nct )
     {
