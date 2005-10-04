@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.26 2005-09-20 16:01:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.27 2005-10-04 14:34:41 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -154,9 +154,9 @@ void EdgeLineSegment::set( int p1, const RowCol& rc )
 }
 
 
-void EdgeLineSegment::copyNodesFrom( const TypeSet<RowCol>& templ, bool reverse)
+void EdgeLineSegment::copyNodesFrom( const TypeSet<RowCol>& templ, bool dorev )
 {
-    if ( !reverse )
+    if ( !dorev )
 	nodes = templ;
     else
     {
@@ -169,9 +169,9 @@ void EdgeLineSegment::copyNodesFrom( const TypeSet<RowCol>& templ, bool reverse)
 }
 
 
-void EdgeLineSegment::copyNodesFrom( const EdgeLineSegment* templ, bool reverse)
+void EdgeLineSegment::copyNodesFrom( const EdgeLineSegment* templ, bool dorev)
 {
-    if ( templ ) copyNodesFrom( templ->getNodes(), reverse );
+    if ( templ ) copyNodesFrom( templ->getNodes(), dorev );
 }
 
 

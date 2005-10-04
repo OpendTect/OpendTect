@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.80 2005-09-30 03:15:58 cvsduntao Exp $
+ RCS:           $Id: emsurface.cc,v 1.81 2005-10-04 14:34:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,10 +87,10 @@ public:
 		    return maximumSize(sid);
 		}
 
-    int		maximumSize( const SectionID& sid ) const
+    int		maximumSize( const SectionID& cursid ) const
 		{
-		    return (surface.geometry.rowRange(sid).nrSteps()+1) *
-			   (surface.geometry.colRange(sid).nrSteps()+1);
+		    return (surface.geometry.rowRange(cursid).nrSteps()+1) *
+			   (surface.geometry.colRange(cursid).nrSteps()+1);
 		}
 
 protected:
@@ -227,9 +227,9 @@ void SurfaceIODataSelection::setDefault()
 }
 
 
-Surface::Surface( EMManager& man, const ObjectID& id_,
+Surface::Surface( EMManager& man, const ObjectID& newid,
 		      SurfaceGeometry& geom)
-    : EMObject( man, id_ )
+    : EMObject( man, newid )
     , relations( *new SurfaceRelations(*this ) )
     , edgelinesets( *new EdgeLineManager(*this) )
     , geometry( geom )
