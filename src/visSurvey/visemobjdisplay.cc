@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.54 2005-09-26 22:07:21 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.55 2005-10-04 14:55:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "visevent.h"
 #include "vishingeline.h"
 #include "vismarker.h"
+#include "vismpe.h"
 #include "visparametricsurface.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
@@ -365,9 +366,9 @@ void EMObjectDisplay::showPosAttrib( int attr, bool yn, const Color& color )
 	    attribindex = posattribs.size()-1;
 	}
 
-	mDynamicCastGet(visBase::Material*, material,
+	mDynamicCastGet(visBase::Material*, posattrmat,
 			posattribmarkers[attribindex]->getObject(0) );
-	material->setColor( color );
+	posattrmat->setColor( color );
 
 	updatePosAttrib(attr);
     }
@@ -724,8 +725,8 @@ void EMObjectDisplay::stuffData( bool forcolordata,
 
 bool EMObjectDisplay::hasStoredAttrib() const
 {
-    const char* ref = as.userRef();
-    return as.id() == Attrib::SelSpec::otherAttrib && ref && *ref;
+    const char* userref = as.userRef();
+    return as.id() == Attrib::SelSpec::otherAttrib && userref && *userref;
 }
 
 
@@ -1180,6 +1181,35 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
 }
 
 
+EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
+					      const TypeSet<int>& path ) const
+{
+    EM::PosID res(-1,-1,-1);
+    const int attribidx = posattribs.indexOf(attrib);
+    if ( attribidx<0 )
+	return res;
+
+    visBase::DataObjectGroup* group = posattribmarkers[attribidx];
+    TypeSet<int> visids;
+    for ( int idx=1; idx<group->size(); idx++ )
+	visids += group->getObject( idx )->id();
+
+    for ( int idx=0; idx<path.size(); idx++ )
+    {
+	const int index = visids.indexOf( path[idx] );
+	if ( index==-1 )
+	    continue;
+
+	EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+	const TypeSet<EM::PosID>* pids = emobject->getPosAttribList(attrib);
+	res = (*pids)[index];
+	break;
+    }
+
+    return res;
+}
+    
+
 #define mEndLine \
 { \
     if ( cii<2 || ( cii>2 && line->getCoordIndex(cii-2)==-1 ) ) \
@@ -1256,13 +1286,30 @@ void EMObjectDisplay::updateIntersectionLines(
     {
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
+	    int objectid = -1;
 	    mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
-	    if ( !plane ) continue;
+	    if ( plane && plane->getType()!=PlaneDataDisplay::Timeslice )
+		objectid = plane->id();
+	    else
+	    {
+		mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
+		if ( mped && mped->isDraggerShown() )
+		{
+		    CubeSampling cs;
+		    if ( mped->getPlanePosition(cs) &&
+			  ( cs.hrg.start.inl==cs.hrg.stop.inl ||
+			    cs.hrg.start.crl==cs.hrg.stop.crl ))
+			objectid = mped->id();
+		}
+	    }
 
-	    const int idy = intersectionlineids.indexOf(plane->id());
+	    if ( objectid==-1 )
+		continue;
+
+	    const int idy = intersectionlineids.indexOf(objectid);
 	    if ( idy==-1 )
 	    {
-		linestoupdate += plane->id();
+		linestoupdate += objectid;
 		lineshouldexist += true;
 	    }
 	    else
@@ -1291,18 +1338,23 @@ void EMObjectDisplay::updateIntersectionLines(
 
     for ( int idx=0; idx<linestoupdate.size(); idx++ )
     {
+	CubeSampling cs(false);
 	mDynamicCastGet( PlaneDataDisplay*, plane,
 			 visBase::DM().getObject(linestoupdate[idx]) );
-	if ( !plane )
-	    continue;
-
-	const CubeSampling cs = plane->getCubeSampling();
+	if ( plane )
+	    cs = plane->getCubeSampling();
+	else
+	{
+	    mDynamicCastGet( const MPEDisplay*, mped,
+		    	     visBase::DM().getObject(linestoupdate[idx]));
+	    mped->getPlanePosition(cs);
+	}
 
 	int lineidx = intersectionlineids.indexOf(linestoupdate[idx]);
 	if ( lineidx==-1 )
 	{
 	    lineidx = intersectionlineids.size();
-	    intersectionlineids += plane->id();
+	    intersectionlineids += linestoupdate[idx];
 	    visBase::IndexedPolyLine* newline =
 		visBase::IndexedPolyLine::create();
 	    newline->ref();
@@ -1316,16 +1368,13 @@ void EMObjectDisplay::updateIntersectionLines(
 	line->removeCoordIndexAfter(-1);
 	int cii = 0;
 
-	if ( plane->getType()==PlaneDataDisplay::Timeslice )
-	    continue;
-
 	for ( int sectionidx=0; sectionidx<horizon->nrSections(); sectionidx++ )
 	{
 	    const EM::SectionID sid = horizon->sectionID(sectionidx);
 	    const StepInterval<int> inlrg = horizon->geometry.rowRange(sid);
 	    const StepInterval<int> crlrg = horizon->geometry.colRange(sid);
 
-	    if ( plane->getType()==PlaneDataDisplay::Inline )
+	    if ( cs.hrg.start.inl==cs.hrg.stop.inl )
 	    {
 		mTraverseLine( inl, BinID(targetinl,crlrg.start),
 			       crlrg.stop, crlrg.step, 0, 1 );

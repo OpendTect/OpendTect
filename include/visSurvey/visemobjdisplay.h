@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.26 2005-08-18 19:38:04 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.27 2005-10-04 14:55:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -125,6 +125,9 @@ public:
 
     EM::SectionID		getSectionID(int visid) const;
     EM::SectionID		getSectionID(const TypeSet<int>* path) const;
+
+    EM::PosID			getPosAttribPosID( int attrib,
+					   const TypeSet<int>& path ) const;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
