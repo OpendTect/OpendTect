@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.49 2005-09-30 18:31:37 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.50 2005-10-04 14:40:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,11 +13,13 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "attribslice.h"
+#include "cubicbeziercurve.h"
 #include "draw.h"
 #include "emhistory.h"
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
+#include "emsurfacegeometry.h"
 #include "emtracker.h"
 #include "mpeengine.h"
 #include "oddirs.h"
@@ -38,9 +40,11 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "visdataman.h"
 #include "visevent.h"
+#include "vismarker.h"
 #include "vismaterial.h"
 #include "vismpe.h"
 #include "vismpeseedcatcher.h"
+#include "vispicksetdisplay.h"
 #include "visplanedatadisplay.h"
 #include "visseedstickeditor.h"
 #include "visselman.h"
@@ -48,34 +52,7 @@ ________________________________________________________________________
 #include "vistexture3.h"
 #include "vistransform.h"
 
-#include "vismarker.h"
-#include "emsurfacegeometry.h"
-#include "cubicbeziercurve.h"
-#include "vispicksetdisplay.h"
-
 using namespace MPE;
-
-
-class uiColorBarDialog :  public uiDialog
-{
-public:
-    uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid)
-    	: uiDialog(p,uiDialog::Setup("Track plane colorbar",0).modal(false)
-				.oktext("Exit").dlgtitle("").canceltext(""))
-	, winClosing(this)
-    {
-	uiVisColTabEd* coltabed = new uiVisColTabEd(this, true);
-	coltabed->setColTab(coltabid);
-	coltabed->setPrefHeight(320);
-    }
-    Notifier<uiColorBarDialog> winClosing;
-protected:
-    bool closeOK( )
-    {
-	winClosing.trigger( this );
-	return true;
-    }
-};
 
 
 #define mAddButton(pm,func,tip,toggle) \
@@ -97,7 +74,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     addSeparator();
     
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
-			    "Set track plane colorbar", false );
+			    "Set track plane colorbar", true );
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
 			       "Move track plane", true );
     extendidx = mAddButton( "trackplane.png", extendModeCB,
@@ -203,10 +180,6 @@ void uiMPEMan::deleteVisObjects()
 
 void uiMPEMan::seedClick( CallBacker* )
 {
-    const int clickedobject = clickcatcher->clickedObjectID();
-    if ( clickedobject==-1 )
-	return;
-
     MPE::Engine& engine = MPE::engine();
     MPE::EMTracker* tracker = engine.getTracker(engine.highestTrackerID());
     if ( !tracker )
@@ -217,8 +190,25 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !horizon )
 	return;
 
+    if ( clickcatcher->ctrlClickedNode().objectID()!=-1 )
+    {
+	const EM::PosID pid = clickcatcher->ctrlClickedNode();
+	if ( !seedpicker || !seedpicker->canRemoveSeed() ||
+	     pid.objectID()!=horizon->id() )
+	    return;
+
+	seedpicker->removeSeed(pid);
+	return;
+    }
+
+    const int clickedobject = clickcatcher->clickedObjectID();
+    if ( clickedobject==-1 )
+	return;
+
+
     if ( seedclickobject==-1 )
     {
+	didtriggervolchange = false;
 	seedpicker = tracker->getSeedPicker(true);
 	if ( !seedpicker || !seedpicker->canSetSectionID() ||
 	     !seedpicker->setSectionID(horizon->sectionID(0)) ||
@@ -241,6 +231,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	oldactivevol = engine.activeVolume();
 	NotifyStopper notifystopper( engine.activevolumechange );
 	engine.setActiveVolume(newvolume);
+	notifystopper.restore();
 	seedclickobject = clickedobject;
 
 	if ( haddefaultvol )
@@ -254,10 +245,10 @@ void uiMPEMan::seedClick( CallBacker* )
 		engine.setAttribData( *clickcatcher->clicedObjectDataSelSpec(),
 				      cached );
 	    }
-	}
 
-	notifystopper.restore();
-	engine.activevolumechange.trigger();
+	    didtriggervolchange = true;
+	    engine.activevolumechange.trigger();
+	}
     }
     else if ( clickedobject!=seedclickobject )
 	return;
@@ -378,12 +369,23 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	clickcatcher->turnOn(true);
 	clickcatcher->select();
+	oldactivevol.setEmpty();
 
     }
     else
     {
 	if ( clickcatcher ) clickcatcher->turnOn(false);
-	MPE::engine().setActiveVolume(oldactivevol);
+	if ( !oldactivevol.isEmpty() )
+	{
+	    //Restore old volume if it has been changed.
+	    NotifyStopper notifystopper( MPE::engine().activevolumechange );
+	    MPE::engine().setActiveVolume(oldactivevol);
+	    notifystopper.restore();
+
+	    if ( didtriggervolchange )
+		MPE::engine().activevolumechange.trigger();
+	}
+
 	clickcatcher->deSelect();
     }
 }
@@ -463,12 +465,21 @@ void uiMPEMan::attribSel( CallBacker* )
 	if ( strcmp(spec->userRef(),attribfld->text()) )
 	    continue;
 
-	for ( int idx=0; idx<displays.size(); idx++ )
+	for ( int idy=0; idy<displays.size(); idy++ )
 	{
-	    displays[idx]->setSelSpec( *spec );
-	    displays[idx]->updateTexture();
+	    displays[idy]->setSelSpec( *spec );
+	    displays[idy]->updateTexture();
 	}
 	break;
+    }	
+
+    if ( colbardlg && displays.size() )
+    {
+	const int coltabid = displays[0]->getTexture()
+	    ?  displays[0]->getTexture()->getColorTab().id()
+	    : -1;
+
+	colbardlg->setColTab( coltabid );
     }
 }
 
@@ -668,11 +679,19 @@ void uiMPEMan::showTracker( bool yn )
 
 void uiMPEMan::setColorbarCB(CallBacker*)
 {
-    if ( colbardlg )	return;
-    mGetDisplays(false)
+    if ( colbardlg || !isOn(clrtabidx) )
+	return;
+
+    setSensitive( clrtabidx, false );
+    mGetDisplays(false);
+
     if ( displays.size() < 1 )	return;
-    colbardlg = new uiColorBarDialog( this, 
-    			displays[0]->getTexture()->getColorTab().id() );
+
+    const int coltabid = displays[0]->getTexture()
+	?  displays[0]->getTexture()->getColorTab().id()
+	: -1;
+
+    colbardlg = new uiColorBarDialog( this, coltabid, "Track plane colorbar" );
     colbardlg->winClosing.notify( mCB( this,uiMPEMan,onColTabClosing ) );
     colbardlg->go();
 }
@@ -680,6 +699,8 @@ void uiMPEMan::setColorbarCB(CallBacker*)
 
 void uiMPEMan::onColTabClosing( CallBacker* )
 {
+    setSensitive( clrtabidx, true );
+    turnOn( clrtabidx, false );
     colbardlg = 0;
 }
 
