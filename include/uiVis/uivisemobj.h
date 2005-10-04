@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.14 2005-10-02 20:20:05 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.15 2005-10-04 14:42:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,9 +75,13 @@ protected:
     void		createNodeMenuCB(CallBacker*);
     void		handleNodeMenuCB(CallBacker*);
 
+    visSurvey::EMObjectDisplay*		getDisplay();
+    const visSurvey::EMObjectDisplay*	getDisplay() const;
+
+
+
     uiParent*		uiparent;
     uiVisPartServer*	visserv;
-    visSurvey::EMObjectDisplay*	emod;
 
     uiMenuHandler&	nodemenu;
     uiMenuHandler&	edgelinemenu;
