@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.14 2005-09-29 10:17:13 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.15 2005-10-04 13:31:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -342,6 +342,8 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
     if ( !desc || desc->selectedOutput() ) return;
 
     if ( !desc->isStored() || desc->dataType() != Seis::Dip ) return;
+
+    setDescSet( desc->descSet() );
 
     const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     const MultiID mid( keypar->getStringValue() );

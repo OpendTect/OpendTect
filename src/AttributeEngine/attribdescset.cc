@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.29 2005-09-20 15:10:04 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.30 2005-10-04 13:31:16 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -173,6 +173,45 @@ void DescSet::fillPar( IOPar& par ) const
 }
 
 
+void DescSet::handleStorageOldFormat( IOPar& descpar )
+{
+    const char* typestr = descpar.find("Type");
+    if ( typestr && !strcmp(typestr,"Stored" ) )
+    {
+	const char* olddef = descpar.find(definitionStr());
+	if ( !olddef ) return;
+	BufferString newdef = StorageProvider::attribName();
+	newdef += " ";
+	newdef += Attrib::StorageProvider::keyStr();
+	newdef += "=";
+	newdef +=olddef;
+	descpar.set(definitionStr(),newdef);
+    }
+}
+
+
+void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
+	                           BufferString& defstring )
+{
+    if ( attribname == "RefTime" )
+    {
+	attribname = "Reference";
+	defstring = attribname;
+	descpar.set("Selected Attrib","2");
+    }
+
+    if ( attribname == "Hash" )
+    {
+	attribname = "Shift";
+	const char* ptr = defstring.buf();
+	ptr += 4;
+	BufferString bstr = attribname;
+	bstr += ptr;
+	defstring = bstr;
+    }
+}
+
+
 #define mHandleParseErr( str ) \
 { \
     errmsg = str; \
@@ -182,6 +221,90 @@ void DescSet::fillPar( IOPar& par ) const
     (*errmsgs) += new BufferString(errmsg); \
     continue; \
 }
+
+
+#define mHandleDescErr( str ) \
+{ \
+    errmsg = str; \
+    if ( !errmsgs ) \
+	return 0; \
+\
+    (*errmsgs) += new BufferString(errmsg); \
+    return 0;\
+}
+
+
+Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar, 
+			   const BufferString& defstring, 
+			   BufferStringSet* errmsgs )
+{
+    Desc* desc = PF().createDescCopy( attrname );
+    if ( !desc )
+    {
+	BufferString err = "Cannot find factory-entry for ";
+	err += attrname;
+	mHandleDescErr(err);
+    }
+
+    if ( !desc->parseDefStr(defstring.buf()) )
+    {
+	if ( !desc->isStored() )
+	{
+	    BufferString err = "Cannot parse: ";
+	    err += defstring;
+	    mHandleDescErr(err);
+	}
+    }
+
+    const char* userref = descpar.find( userRefStr() );
+    if ( userref ) desc->setUserRef( userref );
+
+    bool ishidden = false;
+    descpar.getYN( hiddenStr(), ishidden );
+    desc->setHidden( ishidden );
+
+    int selout = 0;
+    if ( descpar.get("Selected Attrib",selout) )
+	desc->selectOutput(selout);
+
+    return desc;
+}
+
+
+bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar, 
+				BufferStringSet* errmsgs )
+{
+    for ( int idx=0; idx<nrdescsnosteer; idx++ )
+    {
+	const BufferString idstr( ids[idx].asInt() );
+	PtrMan<IOPar> descpar = copypar.subselect(idstr);
+	if ( !descpar )
+	    { pErrMsg("Huh?"); continue; }
+
+	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
+	{
+	    const char* key = IOPar::compKey( inputPrefixStr(), input );
+
+	    int inpid;
+	    if ( !descpar->get(key,inpid) ) continue;
+
+	    Desc* inpdesc = getDesc( DescID(inpid,true) );
+	    if ( !inpdesc ) continue;
+
+	    descs[idx]->setInput( input, inpdesc );
+	}
+
+	if ( descs[idx]->isSatisfied() == Desc::Error )
+	{
+	    BufferString err = "inputs or parameters are not satisfied for ";
+	    err += descs[idx]->attribName();
+	    mHandleParseErr(err);
+	}
+    }
+
+    return true;
+}
+
 
 bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 {
@@ -199,89 +322,31 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	PtrMan<IOPar> descpar = par.subselect(idstr);
 	if ( !descpar ) continue;
 
-	//Look for type (old format)
-	const char* typestr = descpar->find("Type");
-	if ( typestr && !strcmp(typestr,"Stored" ) )
-	{
-	    const char* olddef = descpar->find(definitionStr());
-	    if ( !olddef ) continue;
-	    BufferString newdef = StorageProvider::attribName();
-	    newdef += " ";
-	    newdef += Attrib::StorageProvider::keyStr();
-	    newdef += "=";
-	    newdef +=olddef;
-	    descpar->set(definitionStr(),newdef);
-	}
-
+	handleStorageOldFormat( *descpar );
 	int steeringdescid = -1;
-	const IOPar* steeringpar = descpar->subselect("Steering");
+	const IOPar* steeringpar = descpar->subselect( "Steering" );
 	if ( steeringpar )
 	{
-	    const char* defstring = descpar->find(definitionStr());
+	    const char* defstring = descpar->find( definitionStr() );
 	    if ( !defstring )
-		mHandleParseErr("No attribute definition string specified");
-	    if ( !createSteeringDesc(*steeringpar, defstring, newsteeringdescs,
-					steeringdescid ) )
-	    {
-	        BufferString err = "Cannot create steering desc ";
-	        mHandleParseErr(err);
-	    }
+		mHandleParseErr( "No attribute definition string specified" );
+	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
+				     steeringdescid) )
+	        mHandleParseErr( "Cannot create steering desc" );
 	}
 
-	BufferString defstring = descpar->find(definitionStr());
+	BufferString defstring = descpar->find( definitionStr() );
 	if ( !defstring.size() )
-	    mHandleParseErr("No attribute definition string specified");
+	    mHandleParseErr( "No attribute definition string specified" );
 
 	BufferString attribname;
 	if ( !Desc::getAttribName( defstring.buf(), attribname ) )
-	    mHandleParseErr("Cannot find attribute name");
+	    mHandleParseErr( "Cannot find attribute name" );
 
-	if ( attribname == "RefTime" )
-	{
-	    attribname = "Reference";
-	    defstring = attribname;
-	    descpar->set("Selected Attrib","2");
-	}
-
-	if ( attribname == "Hash" )
-	{
-	    attribname = "Shift";
-	    const char* ptr = defstring.buf();
-	    ptr += 4;
-	    BufferString bstr = attribname;
-	    bstr += ptr;
-	    defstring = bstr;
-	}
+	handleOldAttributes( attribname, *descpar, defstring );
 	
 	RefMan<Desc> desc;
-	desc = PF().createDescCopy( attribname );
-	if ( !desc )
-	{
-	    BufferString err = "Cannot find factory-entry for ";
-	    err += attribname;
-	    mHandleParseErr(err);
-	}
-
-	if ( !desc->parseDefStr(defstring.buf()) )
-	{
-	    if ( !desc->isStored() )
-	    {
-		BufferString err = "Cannot parse: ";
-		err += defstring;
-		mHandleParseErr(err);
-	    }
-	}
-
-	const char* userref = descpar->find( userRefStr() );
-	if ( userref ) desc->setUserRef( userref );
-
-	bool ishidden = false;
-	descpar->getYN( hiddenStr(), ishidden );
-	desc->setHidden( ishidden );
-
-	int selout = 0;
-	if ( descpar->get("Selected Attrib",selout) )
-	    desc->selectOutput(selout);
+	desc = createDesc( attribname, *descpar, defstring, errmsgs );
 
 	if ( steeringpar )
 	{
@@ -304,32 +369,9 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
 	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, true ) );
 
-    for ( int idx=0; idx<ids.size()-newsteeringdescs.size(); idx++ )
-    {
-	const BufferString idstr( ids[idx].asInt() );
-	PtrMan<IOPar> descpar = copypar.subselect(idstr);
-	if ( !descpar )
-	    { pErrMsg("Huh?"); continue; }
-
-	for ( int input=0; input<descs[idx]->nrInputs(); input++ )
-	{
-	    const char* key = IOPar::compKey( inputPrefixStr(), input );
-
-	    int inpid;
-	    if ( !descpar->get(key,inpid) ) continue;
-
-	    Desc* inpdesc = getDesc( DescID(inpid,true) );
-	    if ( !inpdesc ) continue;
-
-	    descs[idx]->setInput( input, inpdesc );
-	}
-	if ( descs[idx]->isSatisfied() == Desc::Error )
-	{
-	    BufferString err = "inputs or parameters are not satisfied for ";
-	    err += descs[idx]->attribName();
-	    mHandleParseErr(err);
-	}
-    }
+    int nrdescsnosteer = ids.size()-newsteeringdescs.size();
+    if ( !setAllInputDescs( nrdescsnosteer, copypar, errmsgs ) )
+	return false;
 
     return true;
 }

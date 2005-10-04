@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.31 2005-10-03 08:07:14 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.32 2005-10-04 13:31:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -492,7 +492,10 @@ ExecutorGroup* EngineMan::createExecutorGroup() const
     ExecutorGroup* procgroup = new ExecutorGroup( nm );
     procgroup->setNrDoneText( "Nr done" );
     for ( int idx=0; idx<procset.size(); idx++ )
+    {
+	procset[idx]->init();
 	procgroup->add( procset[idx] );
+    }
 
     return procgroup;
 }

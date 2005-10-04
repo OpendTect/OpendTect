@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.14 2005-08-19 07:17:53 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.15 2005-10-04 13:31:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,13 @@ public:
     bool			createSteeringDesc(const IOPar&,BufferString,
 						   ObjectSet<Desc>&, int& id, 
 						   BufferStringSet* errmsgs=0);
-	    
+    Desc* 			createDesc(const BufferString&, const IOPar&,
+	    				  const BufferString&,BufferStringSet*);
+    bool 			setAllInputDescs(int, const IOPar&,
+						 BufferStringSet*);
+    void 			handleStorageOldFormat(IOPar&);
+    void 			handleOldAttributes(BufferString&, IOPar&,
+						    BufferString&);
 
     bool			is2D() const;
     const char*			errMsg() const;

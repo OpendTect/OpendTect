@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.3 2005-09-08 11:59:17 cvsnanne Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.4 2005-10-04 13:31:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,7 +288,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
     AttribParamGroup* pargrp = grps_[sel];
 
     Desc& srcad = *attrset_->getDesc( srcid_ );
-    int nrsteps = nrstepsfld->box()->getValue();
+    const int nrsteps = nrstepsfld->box()->getValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	Desc* newad = idx ? srcad.clone() : &srcad;
@@ -302,12 +302,23 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	BufferString usrref = newad->attribName();
 	usrref += " - "; usrref += lbl;
 	newad->setUserRef( usrref );
+	if ( newad->selectedOutput()>=newad->nrOutputs() )
+	{
+	    newad->ref(); newad->unRef();
+	    continue;
+	}
+
 	if ( idx ) 
 	    attrset_->addDesc( newad );
 
 	lbls_ += new BufferString( lbl );
 	SelSpec as; as.set( *newad );
 	specs_ += as;
+    }
+
+    if ( !specs_.size() )
+    {
+	return;
     }
     
     calccb.trigger();
@@ -323,6 +334,9 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 void uiEvaluateDlg::sliderMove( CallBacker* )
 {
     const int sliceidx = sliderfld->sldr()->getIntValue();
+    if ( sliceidx >= lbls_.size() )
+	return;
+
     displaylbl->setText( lbls_[sliceidx]->buf() );
     showslicecb.trigger( sliceidx );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.12 2005-09-08 10:43:50 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.13 2005-10-04 13:31:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -659,7 +659,10 @@ void uiAttribDescSetEd::openSet( CallBacker* )
 		if ( !ad ) continue;
 		if ( ad->isStored() && ad->isSatisfied()==2 )
 		{
-		    BufferString msg = "This attribute will be removed";
+		    BufferString msg = "The attribute: '";
+		    msg += ad->userRef();
+		    msg += "' will be removed\n";
+		    msg += "Storage ID is not valid";
 		    uiMSG().message( msg );
 		    attrset->removeDesc( ad->id() );
 		    idx--;

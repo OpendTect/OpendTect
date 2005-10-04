@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.33 2005-09-21 13:00:28 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.34 2005-10-04 13:31:16 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -264,7 +264,7 @@ bool Desc::is2D() const
 
 Desc::SatisfyLevel Desc::isSatisfied() const
 {
-    if ( seloutput==-1 ) return Error;
+    if ( seloutput==-1 || seloutput>nrOutputs()  ) return Error;
 
     for ( int idx=0; idx<params.size(); idx++ )
     {
@@ -300,7 +300,10 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
     {
 	if ( inputs[idx]==desc.inputs[idx] ) continue;
 
-	if ( !inputs[idx]->isIdenticalTo(*desc.inputs[idx], true) )
+	if ( !inputs[idx] && !desc.inputs[idx] ) continue;
+
+	if ( !desc.inputs[idx] || 
+	     !inputs[idx]->isIdenticalTo(*desc.inputs[idx], true) )
 	    return false;
     }
 

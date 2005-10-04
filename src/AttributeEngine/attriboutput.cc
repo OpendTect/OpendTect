@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.32 2005-09-29 11:29:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.33 2005-10-04 13:31:16 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -121,7 +121,7 @@ void SliceSetOutput::collectData( const DataHolder& data, float refstep,
 	{
 	    const int dataidx = firstslicesample + idx;
 	    float val = udfval;
-	    if ( dataidxrg.includes(dataidx) )
+	    if ( dataidxrg.includes(dataidx) && data.series(desoutputs[desout]))
 		val = data.series(desoutputs[desout])->value(dataidx-data.z0_);
 
 	    sliceset->getIdxs( info.binid.inl, info.binid.crl, dataidx*refstep, 
