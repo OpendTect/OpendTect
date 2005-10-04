@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.11 2005-09-30 09:17:12 cvshelene Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.12 2005-10-04 16:33:07 cvskris Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -161,8 +161,8 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	strm >> bid.inl >> bid.crl;
 	if ( bid.inl == 0 && bid.crl == 0 )
 	    return true;
-	for ( int idx=0; idx<vals.size(); idx++ )
-	    strm >> vals[idx];
+	for ( int idy=0; idy<vals.size(); idy++ )
+	    strm >> vals[idy];
 	add( bid, vals.arr() );
     }
     return true;
@@ -580,16 +580,16 @@ void BinIDValueSet::remove( const TypeSet<BinIDValueSet::Pos>& poss )
 void BinIDValueSet::removeDuplicateBids()
 {
     Pos pos; next(pos,false);
-    BinID prev; get( pos, prev );
+    BinID prevbid; get( pos, prevbid );
     bool donext = true;
     BinID cur;
     while ( !donext || next(pos,false) )
     {
 	get( pos, cur );
-	if ( prev == cur )
+	if ( prevbid == cur )
 	    { remove(pos); donext = false; }
 	else
-	    prev = cur;
+	    prevbid = cur;
     }
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.27 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: hostdata.cc,v 1.28 2005-10-04 16:33:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -332,8 +332,8 @@ void HostDataList::handleLocal()
 	{
 	    *this -= hd;
 	    lochd.addAlias( hd->name() );
-	    for ( int idx=0; idx<hd->aliases_.size(); idx++ )
-		lochd.addAlias( *hd->aliases_[idx] );
+	    for ( int idy=0; idy<hd->aliases_.size(); idy++ )
+		lochd.addAlias( *hd->aliases_[idy] );
 	    delete hd;
 	}
     }
