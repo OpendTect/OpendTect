@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.9 2005-09-22 12:09:03 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.10 2005-10-04 13:30:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const Attrib::DescSet& ad,
     , nlamodel(n)
     , nlaid(mid)
 {
-    setHelpID( "101.2.5" );
+    setHelpID( "104.4.0" );
     setTitleText( "" );
 
     attrfld = new uiAttrSel( uppgrp, &ads, "Quantity to output" );
