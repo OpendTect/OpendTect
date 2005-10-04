@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.9 2005-04-15 12:23:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.10 2005-10-04 14:38:45 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -61,10 +61,9 @@ void uiVisColTabEd::setColTab( int id )
     }
 
     coltab = nct;
-    coltabed->setSensitive( coltab );
-
     if ( coltab )
     {
+	coltabed->setSensitive( coltab );
 	coltab->ref();
 	enableCallBacks();
 	updateEditor();
@@ -183,4 +182,29 @@ void uiVisColTabEd::disableCallBacks()
     coltab->autoscalechange.remove(coltabcb);
 }
 
+
+
+uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid,
+				    const char* title)
+    	: uiDialog(p, uiDialog::Setup(title,0).modal(false)
+		   .oktext("Exit").dlgtitle("").canceltext(""))
+	, winClosing( this )
+	, coltabed( new uiVisColTabEd(this, true) )
+{
+    coltabed->setColTab( coltabid );
+    coltabed->setPrefHeight( 320 );
+}
+
+
+void uiColorBarDialog::uiColorBarDialog::setColTab( int id )
+{
+    coltabed->setColTab(id);
+}
+
+
+bool uiColorBarDialog::closeOK( )
+{
+    winClosing.trigger( this );
+    return true;
+}
 

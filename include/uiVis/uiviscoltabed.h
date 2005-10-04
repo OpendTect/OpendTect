@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.5 2004-11-30 17:35:48 bert Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.6 2005-10-04 14:38:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "colortab.h"
 #include "uigroup.h"
+#include "uidialog.h"
 
 namespace visBase { class VisColorTab; }
 class ColorTableEditor;
@@ -51,6 +52,21 @@ protected:
     Interval<float>		coltabinterval;
     bool			coltabautoscale;
     float			coltabcliprate;
+};
+
+
+class uiColorBarDialog :  public uiDialog
+{
+public:
+    				uiColorBarDialog( uiParent* , int coltabid,
+						  const char* title);
+
+    void			setColTab( int id );
+    Notifier<uiColorBarDialog>	winClosing;
+
+protected:
+    bool			closeOK();
+    uiVisColTabEd*		coltabed;
 };
 
 
