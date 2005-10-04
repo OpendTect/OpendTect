@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.26 2005-09-20 13:58:44 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.27 2005-10-04 15:18:15 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -1604,10 +1604,16 @@ bool MeshSurfacePartResolution::getNormal( int relrow,
     }
 #endif
 
-    if ( cache && useownvalidation && cachestatus!=2 )
+    if ( cache && useownvalidation && cachestatus!=2 &&
+	 normalindex<cache->normals.getLength() )
     {
-	res = cache->normals[normalindex];
-	return true;
+	if ( normalindex<cache->normals.getLength() )
+	{
+	    res = cache->normals[normalindex];
+	    return true;
+	}
+
+	return false;
     }
 
     return computeNormal( relrow, relcol, &res );
@@ -2046,57 +2052,6 @@ int MeshSurfacePartResolution::nrCols() const
     const int localnrcols = (totalnrcols-start1)/spacing;
     return localnrcols<sidesize1?localnrcols:sidesize1;
 }
-
-
-/*void SoMeshSurfaceBrick::invalidateNormal( int index )
-{
-    if ( invalidNormals.find(index)!=-1 )
-	invalidNormals.push(index);
-}
-
-
-SbBool SoMeshSurfaceBrick::getNormal( int index, SbVec3f& res )
-{
-    buildmutex->lock();
-    if ( (validstate!=2 && invalidNormals.find(index)==-1 &&
-	   		           normals[index]!=SbVec3f(0,0,0)) ||
-         computeNormal(index) )
-    {
-	res = normals[index];
-        buildmutex->unlock();
-	return true;
-    }
-
-    buildmutex->unlock();
-    return false;
-}
-
-void SoMeshSurfaceBrick::GLRender(SoGLRenderAction* action)
-{
-    buildmutex->lock();
-    if ( validstate==2 )
-	build(false);
-    else if ( !validstate )
-    {
-	if ( invalidNormals.getLength() )
-	{
-	    for ( int idx=invalidNormals.getLength()-1; idx>=0; idx-- )
-	    {
-		if ( computeNormal( invalidNormals[idx] ) )
-		    invalidNormals.remove(idx);
-	    }
-	}
-    }
-
-    SoState* state = action->getState();
-    SoNormalElement::set(action->getState(),
-	    		 this, normals.getNum(), normals.getValues(0));
-
-    inherited::GLRender(action);
-    buildmutex->unlock();
-}
-
-*/
 
 
 bool MeshSurfacePartResolution::computeNormal(
