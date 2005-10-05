@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.5 2005-09-30 15:45:13 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.6 2005-10-05 13:10:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,7 @@ void uiSimilarityAttrib::set2D( bool yn )
     strs.add( extstrs[2] ); strs.add( extstrs[3] );
     extfld->newSpec( StringListInpSpec(strs), 0 );
     extfld->setValue( oldval );
+    extSel(0);
 }
 
 
