@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.6 2005-09-08 10:26:06 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.7 2005-10-05 13:08:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class uiImagAttrSel;
 class uiSteeringSel;
 class uiSteerCubeSel;
 
+using namespace Attrib;
 
 /*! \brief Description of attribute parameters to evaluate */
 
@@ -71,10 +72,10 @@ public:
 
     virtual		~uiAttrDescEd();
 
-    void		setDesc(Attrib::Desc*,Attrib::DescSetMan*);
-    Attrib::Desc*	desc()			{ return attrdesc; }
-    const Attrib::Desc*	desc() const		{ return attrdesc; }
-    virtual const char*	commit(Attrib::Desc* desc=0);
+    void		setDesc(Desc*,DescSetMan*);
+    Desc*	desc()			{ return attrdesc; }
+    const Desc*	desc() const		{ return attrdesc; }
+    virtual const char*	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be
     			//!< filled. If not, the internal desc will be filled.
@@ -104,21 +105,21 @@ protected:
 
 			uiAttrDescEd(uiParent*);
 
-    virtual bool	setParameters(const Attrib::Desc&)	{ return true; }
-    virtual bool	getParameters(Attrib::Desc&)		{ return true; }
-    virtual bool	setInput(const Attrib::Desc&)		{ return true; }
-    virtual bool	getInput(Attrib::Desc&)			{ return true; }
-    virtual bool	setOutput(const Attrib::Desc&)		{ return true; }
-    virtual bool	getOutput(Attrib::Desc&);
+    virtual bool	setParameters(const Desc&)	{ return true; }
+    virtual bool	getParameters(Desc&)		{ return true; }
+    virtual bool	setInput(const Desc&)		{ return true; }
+    virtual bool	getInput(Desc&)			{ return true; }
+    virtual bool	setOutput(const Desc&)		{ return true; }
+    virtual bool	getOutput(Desc&);
 
-    void		fillOutput(Attrib::Desc&,int selout);
-    void		fillInp(uiAttrSel*,Attrib::Desc&,int inpnr);
-    void		fillInp(uiSteeringSel*,Attrib::Desc&,int inpnr);
-    void		fillInp(uiSteerCubeSel*,Attrib::Desc&,int inpnr);
+    void		fillOutput(Desc&,int selout);
+    void		fillInp(uiAttrSel*,Desc&,int);
+    void		fillInp(uiSteeringSel*,Desc&,int);
+    void		fillInp(uiSteerCubeSel*,Desc&,int);
     
-    void		putInp(uiAttrSel*,const Attrib::Desc&,int inpnr);
-    void		putInp(uiSteerCubeSel*,const Attrib::Desc&,int inpnr);
-    void		putInp(uiSteeringSel*,const Attrib::Desc&,int inpnr);
+    void		putInp(uiAttrSel*,const Desc&,int inpnr);
+    void		putInp(uiSteerCubeSel*,const Desc&,int inpnr);
+    void		putInp(uiSteeringSel*,const Desc&,int inpnr);
 
     BufferString	gateLabel() const;
     BufferString	shiftLabel() const;
@@ -129,10 +130,12 @@ protected:
     uiImagAttrSel*	getImagInpFld();
     void		attrInpSel(CallBacker*);
 
+    BufferString	errmsg;
+
 private:
 
-    Attrib::Desc*	attrdesc;
-    Attrib::DescSetMan*	adsman;
+    Desc*	attrdesc;
+    DescSetMan*	adsman;
 
 };
 
