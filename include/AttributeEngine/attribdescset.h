@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.15 2005-10-04 13:31:16 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.16 2005-10-05 15:02:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,9 @@ class Desc;
 class DescSet
 {
 public:
+    				DescSet()
+				: firsttime(true) {};
+				
     				~DescSet() { removeAll(); }
     DescSet*			clone() const;
     DescSet*			optimizeClone(const DescID& targetid) const;
@@ -89,6 +92,7 @@ protected:
     ObjectSet<Desc>		descs;
     TypeSet<DescID>		ids;
     BufferString		errmsg;
+    bool			firsttime;
 };
 
 } // namespace Attrib
