@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.13 2005-10-04 13:31:16 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.14 2005-10-05 15:02:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,6 +221,7 @@ uiAttribDescSetEd::~uiAttribDescSetEd()
     delete &userattrnames;
     delete &setctio;
     delete toolbar;
+    delete adsman;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.9 2005-09-02 14:13:58 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.10 2005-10-05 15:02:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,7 @@ void uiAttribPartServer::attrsetDlgCloseTimTick( CallBacker* )
 {
     if ( attrsetdlg->uiResult() )
     {
-	adsman->setDescSet( attrsetdlg->getSet() );
+	adsman->setDescSet( attrsetdlg->getSet()->clone() );
 	adsman->attrsetid_ = attrsetdlg->curSetID();
 	sendEvent( evNewAttrSet );
     }
