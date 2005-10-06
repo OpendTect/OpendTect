@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.10 2005-10-05 15:02:55 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.11 2005-10-06 20:31:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ const DescSet* uiAttribPartServer::curDescSet() const
 void uiAttribPartServer::getDirectShowAttrSpec( SelSpec& as ) const
 {
    if ( !dirshwattrdesc )
-       as.set( 0, SelSpec::noAttrib, false, 0 );
+       as.set( 0, SelSpec::cNoAttrib(), false, 0 );
    else
        as.set( *dirshwattrdesc );
 }
@@ -174,7 +174,7 @@ const NLAModel* uiAttribPartServer::getNLAModel() const
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec )
 {
     uiAttrSelData attrdata( adsman->descSet() );
-    attrdata.attribid = selspec.isNLA() ? SelSpec::noAttrib : selspec.id();
+    attrdata.attribid = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
     attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel();
     uiAttrSelDlg dlg( appserv().parent(), "View Data", attrdata, No2D );
@@ -222,7 +222,7 @@ void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
 	    ss.setObjectRef( nlaname );
 	}
 	else
-	    ss.set( ss.userRef(), SelSpec::noAttrib, true, 0 );
+	    ss.set( ss.userRef(), SelSpec::cNoAttrib(), true, 0 );
     }
     else
     {
@@ -300,7 +300,7 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 {
     if ( !adsman->descSet() )
 	{ pErrMsg("No attr set"); return false; }
-    else if ( !targetspecs.size() || targetspecs[0].id() == SelSpec::noAttrib )
+    else if ( !targetspecs.size() || targetspecs[0].id()==SelSpec::cNoAttrib() )
 	{ pErrMsg("Nothing to do"); return false; }
 
     EngineMan* aem = new EngineMan;
@@ -481,7 +481,7 @@ bool uiAttribPartServer::setPickSetDirs( PickSet& ps, const NLAModel* nlamod )
 bool uiAttribPartServer::selectColorAttrib( ColorSelSpec& selspec )
 {
     uiAttrSelData attrdata( adsman->descSet() );
-    attrdata.attribid = selspec.as.isNLA() ? SelSpec::noAttrib 
+    attrdata.attribid = selspec.as.isNLA() ? SelSpec::cNoAttrib() 
 					   : selspec.as.id();
     attrdata.outputnr = selspec.as.isNLA() ? selspec.as.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel();
@@ -600,7 +600,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     attrdata.nlamodel = getNLAModel();
     SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, No2D );
 
-    DescID attribid = SelSpec::attribNotSel;
+    DescID attribid = SelSpec::cAttribNotSel();
     int outputnr = -1;
     bool isnla = false;
 

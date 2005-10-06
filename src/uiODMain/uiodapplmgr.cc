@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.98 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.99 2005-10-06 20:31:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -423,7 +423,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    if ( myas.id()<-1 && colordata )
 	    { visserv->stuffSurfaceData(visid,true,0); return true; }
 
-	    if ( myas.id() == Attrib::SelSpec::otherAttrib )
+	    if ( myas.id() == Attrib::SelSpec::cOtherAttrib() )
 	    {
 		const MultiID surfmid = *visserv->getMultiID(visid);
 		const EM::ObjectID emid = emserv->getObjectID(surfmid);
@@ -912,7 +912,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvalCalcAttr )
     {
 	const int visid = visserv->getEventObjId();
-	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::otherAttrib );
+	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
 	visserv->setSelSpec( visid, as );
 	if ( !evaluateAttribute(visid) )
 	    return false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.3 2005-08-01 07:33:05 cvsnanne Exp $
+ RCS:           $Id: attribsel.h,v 1.4 2005-10-06 20:31:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ class DescSet;
 class SelSpec
 {
 public:
-			SelSpec( const char* r=0, DescID i=attribNotSel,
+			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
 				 bool n=false, const char* objr=0 )
 			: ref_(r), id_(i), isnla_(n)
 			, objref_(objr)			{}
@@ -72,9 +72,9 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    static const DescID	noAttrib;
-    static const DescID	attribNotSel;
-    static const DescID	otherAttrib;
+    static const DescID& cNoAttrib();
+    static const DescID& cAttribNotSel();
+    static const DescID& cOtherAttrib();
 
 protected:
 
@@ -84,10 +84,10 @@ protected:
     bool		isnla_;
     StepInterval<int>	discrspec_;
 
-    static const char*	refstr;
-    static const char*	objrefstr;
-    static const char*	idstr;
-    static const char*	isnlastr;
+    static const char*	sKeyRef();
+    static const char*	sKeyObjRef();
+    static const char*	sKeyID();
+    static const char*	sKeyIsNLA();
 
     void		setDiscr(const DescSet&);
     void		setDiscr(const NLAModel&);
@@ -101,7 +101,7 @@ class ColorSelSpec
 {
 public:
 			ColorSelSpec( const char* r=0,
-				      const DescID& i=SelSpec::noAttrib,
+				      const DescID& i=SelSpec::cNoAttrib(),
 				      bool n=false, const char* objr=0)
 			: as(r,i,n,objr) 
 			, datatype(0)
@@ -124,10 +124,10 @@ public:
     bool		usePar(const IOPar&);
 
 protected:
-    static const char*	refstr;
-    static const char*	idstr;
-    static const char*	isnlastr;
-    static const char*	datatypestr;
+    static const char*	sKeyRef();
+    static const char*	sKeyID();
+    static const char*	sKeyIsNLA();
+    static const char*	sKeyDataType();
 };
 
 

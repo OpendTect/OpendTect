@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.32 2005-10-04 13:31:16 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.33 2005-10-06 20:31:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -779,7 +779,7 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
     else
     {
 	inpattrset->fillPar( const_cast<NLAModel*>(nlamodel)->pars() );
-	DescID nlaid( SelSpec::noAttrib );
+	DescID nlaid( SelSpec::cNoAttrib() );
 	procattrset = createNLAADS( nlaid, errmsg );
 	if ( *(const char*)errmsg )
 	    mErrRet(errmsg)

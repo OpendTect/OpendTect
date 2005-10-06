@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.20 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.21 2005-10-06 20:31:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,9 @@ public:
 
     void			setSelSpec(const Attrib::SelSpec&);
     const char*			getSelSpecUserRef() const;
+    				/*!<\returns the userRef, "None" if
+				     selspec.id==NoAttrib, or ""
+				     if selspec.id==notsel */ 
     void			updateTexture();
 
     NotifierAccess*		getMovementNotification() { return  &movement; }

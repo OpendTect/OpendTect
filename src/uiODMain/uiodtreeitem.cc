@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.111 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.112 2005-10-06 20:31:04 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -374,11 +374,11 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 	dispname += " ("; dispname += nodenm; dispname += ")";
     }
 
-    if ( as && as->id()==Attrib::SelSpec::attribNotSel )
+    if ( as && as->id()==Attrib::SelSpec::cAttribNotSel() )
 	dispname = "<right-click>";
     else if ( !as )
 	dispname = cvisserv->getObjectName(displayid);
-    else if ( as->id() == Attrib::SelSpec::noAttrib )
+    else if ( as->id() == Attrib::SelSpec::cNoAttrib() )
 	dispname="";
 
     return dispname;
@@ -588,7 +588,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( &selattrmnuitem, &loadsurfacedatamnuitem, true, false );
     mAddMenuItem( &selattrmnuitem, &depthattribmnuitem, true,
-	    	  as->id()==Attrib::SelSpec::noAttrib );
+	    	  as->id()==Attrib::SelSpec::cNoAttrib() );
 
     MenuItem* trackmnu = menu->findItem(uiVisEMObject::trackingmenutxt);
     if ( uilistviewitem->isChecked() && trackmnu )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.56 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.57 2005-10-06 20:31:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -592,11 +592,11 @@ void EMObjectDisplay::selectTexture( int textureidx )
     if ( !emsurf ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
-	setSelSpec( Attrib::SelSpec(0,Attrib::SelSpec::attribNotSel) );
+	setSelSpec( Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
     else
     {
 	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
-	setSelSpec( Attrib::SelSpec(attrnm,Attrib::SelSpec::otherAttrib) );
+	setSelSpec( Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
     }
 }
 
@@ -650,7 +650,7 @@ void EMObjectDisplay::setColorSelSpec( const Attrib::ColorSelSpec& as_ )
 
 void EMObjectDisplay::setDepthAsAttrib()
 {
-    as.set( "", Attrib::SelSpec::noAttrib, false, "" );
+    as.set( "", Attrib::SelSpec::cNoAttrib(), false, "" );
 
     ObjectSet<BinIDValueSet> positions;
     fetchData(positions);
@@ -735,7 +735,7 @@ void EMObjectDisplay::stuffData( bool forcolordata,
 bool EMObjectDisplay::hasStoredAttrib() const
 {
     const char* userref = as.userRef();
-    return as.id() == Attrib::SelSpec::otherAttrib && userref && *userref;
+    return as.id() == Attrib::SelSpec::cOtherAttrib() && userref && *userref;
 }
 
 

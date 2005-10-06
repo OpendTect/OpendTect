@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.6 2005-09-06 16:07:45 cvsbert Exp $
+ RCS:           $Id: attribsel.cc,v 1.7 2005-10-06 20:31:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,15 +29,17 @@ ________________________________________________________________________
 
 namespace Attrib
 {
+#define mDescIDRet(val) static DescID res(val,true); return res
 
-const DescID SelSpec::otherAttrib = DescID(-1,true);
-const DescID SelSpec::noAttrib = DescID(-2,true);
-const DescID SelSpec::attribNotSel = DescID(-3,true);
 
-const char* SelSpec::refstr = "Attrib Reference";
-const char* SelSpec::idstr = "Attrib ID";
-const char* SelSpec::isnlastr = "Is attrib NLA Model";
-const char* SelSpec::objrefstr = "Object Reference";
+const DescID& SelSpec::cOtherAttrib()	{ mDescIDRet(-1); }
+const DescID& SelSpec::cNoAttrib()	{ mDescIDRet(-2); }
+const DescID& SelSpec::cAttribNotSel()	{ mDescIDRet(-3); }
+
+const char* SelSpec::sKeyRef()		{ return "Attrib Reference"; }
+const char* SelSpec::sKeyID()		{ return "Attrib ID"; }
+const char* SelSpec::sKeyIsNLA()	{ return "Is attrib NLA Model"; }
+const char* SelSpec::sKeyObjRef()	{ return "Object Reference"; }
 static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
 bool SelSpec::operator==( const SelSpec& ss ) const
@@ -92,7 +94,7 @@ void SelSpec::setIDFromRef( const NLAModel& nlamod )
 {
     isnla_ = true;
     const int nrout = nlamod.design().outputs.size();
-    id_ = noAttrib;
+    id_ = cNoAttrib();
     for ( int idx=0; idx<nrout; idx++ )
     {
 	if ( ref_ == *nlamod.design().outputs[idx] )
@@ -127,20 +129,20 @@ void SelSpec::setRefFromID( const DescSet& ds )
 
 void SelSpec::fillPar( IOPar& par ) const
 {
-    par.set( refstr, ref_ );
-    par.set( idstr, id_.asInt() );
-    par.setYN( isnlastr, isnla_ );
-    par.set( objrefstr, objref_ );
+    par.set( sKeyRef(), ref_ );
+    par.set( sKeyID(), id_.asInt() );
+    par.setYN( sKeyIsNLA(), isnla_ );
+    par.set( sKeyObjRef(), objref_ );
 }
 
 
 bool SelSpec::usePar( const IOPar& par )
 {
-    ref_ = ""; 		par.get( refstr, ref_ );
-    id_ = noAttrib;	par.get( idstr, id_.asInt() );
-    isnla_ = false; 	par.getYN( isnlastr, isnla_ );
+    ref_ = ""; 		par.get( sKeyRef(), ref_ );
+    id_ = cNoAttrib();	par.get( sKeyID(), id_.asInt() );
+    isnla_ = false; 	par.getYN( sKeyIsNLA(), isnla_ );
     			par.getYN( isnnstr, isnla_ );
-    objref_ = "";	par.get( objrefstr, objref_ );
+    objref_ = "";	par.get( sKeyObjRef(), objref_ );
     		
     return true;
 }
@@ -269,29 +271,29 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms )
 }
 
 
-const char* ColorSelSpec::refstr = "Color-Attrib Reference";
-const char* ColorSelSpec::idstr = "Color-Attrib ID";
-const char* ColorSelSpec::isnlastr = "Is color-Attrib NLA Model";
-const char* ColorSelSpec::datatypestr = "Color-Attrib datatype";
+const char* ColorSelSpec::sKeyRef()	{ return "Color-Attrib Reference"; }
+const char* ColorSelSpec::sKeyID()	{ return "Color-Attrib ID"; }
+const char* ColorSelSpec::sKeyIsNLA()	{ return "Is color-Attrib NLA Model"; }
+const char* ColorSelSpec::sKeyDataType(){ return "Color-Attrib datatype"; }
 
 void ColorSelSpec::fillPar( IOPar& par ) const
 {
-    par.set( refstr, as.userRef() );
-    par.set( idstr, as.id().asInt() );
-    par.setYN( isnlastr, as.isNLA() );
-    par.set( datatypestr, datatype );
+    par.set( sKeyRef(), as.userRef() );
+    par.set( sKeyID(), as.id().asInt() );
+    par.setYN( sKeyIsNLA(), as.isNLA() );
+    par.set( sKeyDataType(), datatype );
 }
 
 
 bool ColorSelSpec::usePar( const IOPar& par )
 {
     BufferString ref; DescID id(-1,true); bool isnla;
-    if ( !par.get(refstr,ref) ) return false;
-    if ( !par.get(idstr,id.asInt()) ) return false;
-    if ( !par.getYN(isnlastr,isnla) ) return false;
+    if ( !par.get(sKeyRef(),ref) ) return false;
+    if ( !par.get(sKeyID(),id.asInt()) ) return false;
+    if ( !par.getYN(sKeyIsNLA(),isnla) ) return false;
     as.set( ref.buf(), id, isnla, "" );
     datatype = 0;
-    par.get( datatypestr, datatype );
+    par.get( sKeyDataType(), datatype );
 
     return true;
 }
