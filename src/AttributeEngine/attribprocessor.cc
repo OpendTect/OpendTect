@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.21 2005-10-04 13:31:16 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.22 2005-10-06 07:27:33 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -169,7 +169,7 @@ void Processor::init()
     }
 
     SeisSelData sd;
-    if ( outputs[0]->getSelData().type_==Seis::Table )
+    if ( outputs.size() && outputs[0]->getSelData().type_==Seis::Table )
     {
 	for ( int idx=0; idx<outputs.size(); idx++ )
 	{
