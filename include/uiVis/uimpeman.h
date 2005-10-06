@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.21 2005-10-04 14:39:55 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.22 2005-10-06 21:39:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ protected:
     uiVisPartServer*		visserv;
     CubeSampling		oldactivevol;
     bool			didtriggervolchange;
+    TypeSet<int>		selectedobjs;
     MPE::EMSeedPicker*		seedpicker;
 
     visSurvey::MPEClickCatcher*	clickcatcher;

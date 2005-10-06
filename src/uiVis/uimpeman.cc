@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.52 2005-10-06 20:22:49 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.53 2005-10-06 21:39:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -314,7 +314,8 @@ void uiMPEMan::updateAttribNames()
 {
     BufferString oldsel = attribfld->text();
     attribfld->empty();
-    attribfld->addItem( "No attribute" );
+    const char* noattribstr = "No attribute";
+    attribfld->addItem( noattribstr );
 
     ObjectSet<const Attrib::SelSpec> attribspecs;
     engine().getNeededAttribs( attribspecs );
@@ -325,8 +326,23 @@ void uiMPEMan::updateAttribNames()
     }
 
     mGetDisplays(false)
-    for ( int idx=0; idx<displays.size(); idx++ )
-        attribfld->setCurrentItem( displays[idx]->getSelSpecUserRef() );
+
+    if ( displays.size() )
+    {
+	const char* userref = displays[0]->getSelSpecUserRef();
+	if ( !userref && attribspecs.size() )
+	{
+	    for ( int idx=0; idx<displays.size(); idx++ )
+		displays[idx]->setSelSpec(*attribspecs[0] );
+
+	    userref = displays[0]->getSelSpecUserRef();
+	}
+	else if ( userref==sKey::None )
+	    userref = noattribstr;
+	
+	if ( userref ) 	
+	    attribfld->setCurrentItem( userref );
+    }
 
     if ( !init && attribfld->size()>1 && attribspecs.size() &&
 	 engine().getAttribCache(*attribspecs[0]) )
@@ -368,9 +384,9 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	}
 
 	clickcatcher->turnOn(true);
+	selectedobjs = visBase::DM().selMan().selected();
 	clickcatcher->select();
 	oldactivevol.setEmpty();
-
     }
     else
     {
@@ -386,7 +402,13 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 		MPE::engine().activevolumechange.trigger();
 	}
 
-	clickcatcher->deSelect();
+	if ( !selectedobjs.size() )
+	    clickcatcher->deSelect();
+	else
+	{
+	    for ( int idx=0; idx<selectedobjs.size(); idx++ )
+		visBase::DM().selMan().select( selectedobjs[idx], idx );
+	}
     }
 }
 
@@ -450,7 +472,8 @@ void uiMPEMan::attribSel( CallBacker* )
     {
 	for ( int idx=0; idx<displays.size(); idx++ )
 	{
-	    displays[idx]->setSelSpec( Attrib::SelSpec() );
+	    Attrib::SelSpec spec( 0, Attrib::SelSpec::cNoAttrib() );
+	    displays[idx]->setSelSpec( spec );
 	    displays[idx]->updateTexture();
 	}
 
