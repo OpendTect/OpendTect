@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.51 2005-10-06 19:13:37 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.52 2005-10-06 21:18:56 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -103,6 +103,7 @@ EMObject::~EMObject()
     delete &preferredcolor;
 
     notifier.remove( mCB( this, EMObject, posIDChangeCB ) );
+    id_ = -2;	//To check easier if it has been deleted
 }
 
 
