@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.99 2005-10-06 20:31:04 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.100 2005-10-06 21:11:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -735,8 +735,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
     {
 	const int selobjvisid = visserv->getSelObjectId();
 	const MultiID selobjmid = visserv->getMultiID(selobjvisid);
-	const int trackerid = selobjmid==-1
-	    ? -1 : mpeserv->getTrackerID(selobjmid);
+	const EM::ObjectID& emid = emserv->getObjectID(selobjmid);
+	const int trackerid = mpeserv->getTrackerID(emid);
 
 	if ( trackerid!=-1 )
 	    mpeserv->addSeed(trackerid);
