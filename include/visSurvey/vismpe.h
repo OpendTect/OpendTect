@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.21 2005-10-06 20:31:04 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.22 2005-10-06 20:40:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,7 +68,7 @@ public:
     void			setSelSpec(const Attrib::SelSpec&);
     const char*			getSelSpecUserRef() const;
     				/*!<\returns the userRef, "None" if
-				     selspec.id==NoAttrib, or ""
+				     selspec.id==NoAttrib, or a zeropointer 
 				     if selspec.id==notsel */ 
     void			updateTexture();
 

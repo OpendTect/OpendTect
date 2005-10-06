@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.28 2005-10-04 14:53:05 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.29 2005-10-06 20:40:16 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -254,7 +254,14 @@ void MPEDisplay::setSelSpec( const Attrib::SelSpec& as )
 
 
 const char* MPEDisplay::getSelSpecUserRef() const
-{ return as_.userRef(); }
+{
+    if ( as_.id()==Attrib::SelSpec::cNoAttrib() )
+	return sKey::None;
+    else if ( as_.id()==Attrib::SelSpec::cAttribNotSel() )
+	return 0;
+
+    return as_.userRef();
+}
 
 
 void MPEDisplay::updateTexture()
