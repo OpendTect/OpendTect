@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.51 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.52 2005-10-06 20:22:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -398,7 +398,7 @@ void uiMPEMan::selChangeCB(CallBacker*)
     if ( selectedids.size()==1 )
     {
 	const MultiID mid = visserv->getMultiID(selectedids[0]);
-	if ( (mid==-1) )
+	if ( !(mid==-1) )
 	{
 	    const EM::ObjectID oid = EM::EMM().getObjectID(mid);
 	    const int trackerid = MPE::engine().getTrackerByObject(oid);
