@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.23 2005-09-27 09:15:26 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.24 2005-10-06 10:06:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ protected:
 						    CubeSampling&,
 						    bool usestepout=true) const;
 
-    void			setUsedMultTimes() { isusedmulttimes = true; }
+    void			setUsedMultTimes();
     bool			isUsedMultTimes()  { return isusedmulttimes; }
 
     virtual const BinID*	desStepout(int input, int output) const;
