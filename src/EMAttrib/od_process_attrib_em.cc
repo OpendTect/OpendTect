@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.16 2005-09-29 11:29:41 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.17 2005-10-06 19:25:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,7 +340,7 @@ bool BatchProgram::go( std::ostream& strm )
 	execgr = aem.createLocationOutput( errmsg, bivs );
 	if ( !process( strm, execgr ) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
-	EMObject* obj = EMM().getObject( EMM().multiID2ObjectID(*midset[0]) );
+	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Surface*,surface,obj)
 	if ( !surface ) mErrRet( "Huh" );
 

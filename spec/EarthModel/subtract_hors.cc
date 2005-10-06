@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2005
- RCS:           $Id: subtract_hors.cc,v 1.2 2005-09-09 15:44:55 cvsnanne Exp $
+ RCS:           $Id: subtract_hors.cc,v 1.3 2005-10-06 19:25:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ static EM::Horizon* loadHorizon( const char* id, BufferString& err )
     EM::EMManager& em = EM::EMM();
     PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
     exec->execute( &std::cerr );
-    EM::EMObject* emobj = em.getObject( em.multiID2ObjectID(ioobj->key()) );
+    EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
     mDynamicCastGet(EM::Horizon*,horizon,emobj)
     if ( !horizon ) { err = "ID "; err += id; err += " is not horizon"; }
     return horizon;
