@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.41 2005-09-06 09:35:19 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.42 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ class Horizon : public Surface
 {
 public:
     static const char*	typeStr();
-    static EMObject*	create(const ObjectID&, EMManager& );
+    static EMObject*	create( EMManager& );
     static void		initClass(EMManager&);
     
     void		interpolateHoles(int aperture);
@@ -76,7 +76,7 @@ public:
 					const BoolTypeSet& attribsel);
 
 protected:
-	    		Horizon(EMManager&,const ObjectID&);
+	    		Horizon(EMManager&);
     const IOObjContext&	getIOObjContext() const;
 
     friend class	EMManager;

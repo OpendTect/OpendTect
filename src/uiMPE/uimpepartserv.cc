@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.25 2005-10-04 15:08:19 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.26 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,18 +59,14 @@ void uiMPEPartServer::setCurrentAttribDescSet( const Attrib::DescSet* ads )
 { attrset = ads; }
 
 
-int uiMPEPartServer::getTrackerID( const MultiID& mid ) const
+int uiMPEPartServer::getTrackerID( const EM::ObjectID& emid ) const
 {
     for ( int idx=0; idx<=MPE::engine().highestTrackerID(); idx++ )
     {
 	if ( MPE::engine().getTracker(idx) )
 	{
 	    EM::ObjectID objid = MPE::engine().getTracker(idx)->objectID();
-	    if ( objid==-1 )
-		continue;
-
-	    EM::EMObject* emobj = EM::EMM().getObject(objid);
-	    if ( emobj && emobj->multiID()==mid )
+	    if ( objid==emid )
 		return idx;
 	}
     }
@@ -90,10 +86,10 @@ void uiMPEPartServer::getTrackerTypes( BufferStringSet& res ) const
 { MPE::engine().getAvaliableTrackerTypes(res); }
 
 
-int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
+int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
+				 const Coord3& pickedpos )
 {
-    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    EM::EMObject* emobj = EM::EMM().getObject( emid );
     if ( !emobj ) return -1;
 
     const int res = MPE::engine().addTracker( emobj );
@@ -105,7 +101,7 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
 
     //TODO: Fix for multi-section case
     const EM::SectionID sid =  emobj->sectionID(0);
-    if ( !showSetupDlg( mid, sid, true ) )
+    if ( !showSetupDlg( emid, sid, true ) )
     {
 	MPE::engine().removeTracker(res);
 	return -1;
@@ -118,30 +114,6 @@ int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
     expandActiveVolume( poscs );
 
     return res;
-}
-
-
-bool uiMPEPartServer::addNewSection( int trackerid )
-{
-    MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
-    if ( !tracker )
-    {
-	pErrMsg("Internal error: Cannot find tracker");
-	return false;
-    }
-
-    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
-
-    if ( !wizard ) wizard = new MPE::Wizard( appserv().parent(), this );
-    else wizard->reset();
-
-    wizard->setObject( emobj->multiID(), -1 );
-    wizard->setRotateMode(false);
-    wizard->displayPage(MPE::Wizard::sNamePage, false );
-    wizard->displayPage(MPE::Wizard::sFinalizePage, false );
-    wizard->go();
-
-    return true;
 }
 
 
@@ -158,16 +130,10 @@ bool uiMPEPartServer::addTracker( const char* trackertype )
 }
 
 
-MultiID uiMPEPartServer::getTrackerMultiID( int trackerid ) const
+EM::ObjectID uiMPEPartServer::getEMObjectID( int trackerid ) const
 {
     const MPE::EMTracker* emt = MPE::engine().getTracker(trackerid);
-    if ( emt )
-    {
-	const EM::EMObject* emo = EM::EMM().getObject(emt->objectID());
-	if ( emo ) return emo->multiID();
-    }
-
-   return MultiID(-1);
+    return emt ? emt->objectID() : -1;
 }
 
 
@@ -190,7 +156,7 @@ void uiMPEPartServer::addSeed( int trackerid )
     if ( !object ) return;
 
     //TODO Find a mechanism to get this work on multi-section objects
-    wizard->setObject( object->multiID(), object->sectionID(0) );
+    wizard->setObject( object->id(), object->sectionID(0) );
 
     wizard->displayPage(MPE::Wizard::sNamePage, false );
     wizard->displayPage(MPE::Wizard::sFinalizePage, false );
@@ -216,18 +182,17 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 
 
 
-bool uiMPEPartServer::showSetupDlg( const MultiID& mid,
+bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 				    const EM::SectionID& sid,
 				    bool showcancelbutton )
 {
-    EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
     uiDialog dlg( appserv().parent(), uiDialog::Setup("Tracking Setup") );
     if ( !showcancelbutton ) 
 	dlg.setCtrlStyle( uiDialog::LeaveOnly );
 
     dlg.setHelpID( "108.0.1" );
     MPE::uiSetupSel* grp = new MPE::uiSetupSel( &dlg, attrset );
-    grp->setType( objid, sid );
+    grp->setType( emid, sid );
     if ( dlg.go() )
     {
 	loadAttribData();
@@ -239,9 +204,9 @@ bool uiMPEPartServer::showSetupDlg( const MultiID& mid,
 }
 
 
-void uiMPEPartServer::showRelationsDlg( const MultiID& mid, EM::SectionID sid )
+void uiMPEPartServer::showRelationsDlg( const EM::ObjectID& objid,
+					EM::SectionID sid )
 {
-    EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
     bool allowhorsel = false;
     bool allowfltsel = true;
     uiSurfaceRelationDlg dlg( appserv().parent(), objid,

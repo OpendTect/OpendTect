@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.147 2005-09-30 14:54:15 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.148 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ public:
 
     uiMenuHandler*	getMenu(int id, bool create_if_does_not_exist=true);
 
-    const MultiID*	getMultiID(int) const;
+    MultiID		getMultiID(int) const;
 	
     int			getSelObjectId() const;
     void		setSelObjectId(int);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.25 2005-09-29 14:43:00 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.26 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "emposid.h"
 
+class IOObj;
 class IOObjContext;
 class Executor;
 
@@ -52,18 +53,17 @@ public:
 	    			     const SurfaceIODataSelection* =0);
     EM::ObjectID	createObject(const char* type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
-			     mem
+			     mem.
 			     \note If an object already exist with that name,
 			     it will be removed!! Check in advance with
-			     searchForObject()
+			     findObject().
 			*/
+    MultiID		findObject( const char* type, const char* name ) const;
     void		sendRemovalSignal(const ObjectID&);
-    BufferString	objectName(const ObjectID&) const;
+    BufferString	objectName(const MultiID&) const;
     			/*!<\returns the name of the object */
-    const char*		objectType(const ObjectID&) const;
+    const char*		objectType(const MultiID&) const;
     			/*!<\returns the type of the object */
-    EM::ObjectID	findObject(const char* type, const char* name) const;
-    			/*!<\returns the objectid if found, -1 otherwise */
 
     EMObject*		getObject(const ObjectID&);
     const EMObject*	getObject(const ObjectID&) const;
@@ -73,22 +73,31 @@ public:
     const char*		getSurfaceData(const MultiID&, SurfaceIOData&);
     			// returns err msg or null if OK
 
-    static EM::ObjectID	multiID2ObjectID( const MultiID& );
-
     void		addFactory( ObjectFactory* fact );
 
     			/*Interface from EMObject to report themselves */
-    void		addObject(EMObject*);
+    ObjectID		addObject(EMObject*);
     void		removeObject(EMObject*);
 
     const IOObjContext*	getContext( const char* type ) const;
+    ObjectID		getObjectID( const MultiID& ) const;
+    			/*!<\note that the relationship between storage id 
+			     (MultiID) and EarthModel id (ObjectID) may change
+			     due to "Save as" operations and similar. */
+    MultiID		getMultiID( const ObjectID& ) const;
+    			/*!<\note that the relationship between storage id 
+			     (MultiID) and EarthModel id (ObjectID) may change
+			     due to "Save as" operations and similar. */
+
 protected:
+    const ObjectFactory*	getFactory( const char* type ) const;
     ObjectSet<ObjectFactory>	objectfactories;
 
-    History&		history_;
+    History&			history_;
+    int				freeid;
 
-    ObjectSet<EMObject>	objects;
-    BufferString	errmsg;
+    ObjectSet<EMObject>		objects;
+    BufferString		errmsg;
 };
 
 

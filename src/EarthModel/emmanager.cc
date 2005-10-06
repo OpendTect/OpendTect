@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.41 2005-04-15 12:26:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.42 2005-10-06 19:13:37 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.41 2005-04-15 12:26:49 cvsnann
 #include "errh.h"
 #include "executor.h"
 #include "iodir.h"
+#include "iopar.h"
 #include "ioman.h"
 #include "ptrman.h"
 
@@ -32,6 +33,7 @@ EM::EMManager& EM::EMM()
 
 EM::EMManager::EMManager()
     : history_( *new EM::History(*this) )
+    , freeid( 0 )
 {
     init();
 }
@@ -68,11 +70,10 @@ EM::History& EM::EMManager::history()
 { return history_; }
 
 
-BufferString EM::EMManager::objectName(const EM::ObjectID& oid) const
+BufferString EM::EMManager::objectName(const MultiID& mid) const
 {
-    if ( getObject(oid) ) return getObject(oid)->name();
-    MultiID mid = IOObjContext::getStdDirData(IOObjContext::Surf)->id;
-    mid.add(oid);
+    if ( getObject(getObjectID(mid)) )
+	return getObject(getObjectID(mid))->name();
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     BufferString res;
@@ -81,36 +82,17 @@ BufferString EM::EMManager::objectName(const EM::ObjectID& oid) const
 }
 
 
-EM::ObjectID EM::EMManager::findObject( const char* type,
-					const char* name ) const
+const char* EM::EMManager::objectType( const MultiID& mid ) const
 {
-    const IOObjContext* context = getContext(type);
-    if ( IOM().to(IOObjContext::getStdDirData(context->stdseltype)->id) )
-    {
-	PtrMan<IOObj> ioobj = IOM().getLocal( name );
-	IOM().back();
-	if ( ioobj ) return multiID2ObjectID(ioobj->key());
-    }
-
-    return -1;
-}
-
-
-const char* EM::EMManager::objectType(const EM::ObjectID& oid) const
-{
-    if ( getObject(oid) )
-	return getObject(oid)->getTypeStr();
-
-    MultiID mid = IOObjContext::getStdDirData(IOObjContext::Surf)->id;
-    mid.add(oid);
+    if ( getObject(getObjectID(mid)) )
+	return getObject(getObjectID(mid))->getTypeStr();
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) 
 	return 0;
 
-    static BufferString objtype;
-    objtype = ioobj->group();
-    return objtype.buf();
+    const ObjectFactory* fact = getFactory( ioobj->group() );
+    return fact->typeStr();
 }
 
 
@@ -125,15 +107,8 @@ void EM::EMManager::init()
 
 EM::ObjectID EM::EMManager::createObject( const char* type, const char* name )
 {
-    EM::EMObject* object = 0;
-    for ( int idx=0; idx<objectfactories.size(); idx++ )
-    {
-	if ( !strcmp(type,objectfactories[idx]->typeStr()) )
-	{
-	    object = objectfactories[idx]->create( name, false, *this );
-	    break;
-	}
-    }
+    const ObjectFactory* fact = getFactory( type );
+    EM::EMObject* object = fact ? fact->createObject( name, false ) : 0;
 
     if ( !object )
 	return -1;
@@ -142,12 +117,27 @@ EM::ObjectID EM::EMManager::createObject( const char* type, const char* name )
 } 
 
 
+MultiID EM::EMManager::findObject( const char* type,
+					const char* name ) const
+{
+    const IOObjContext* context = getContext(type);
+    if ( IOM().to(IOObjContext::getStdDirData(context->stdseltype)->id) )
+    {
+	PtrMan<IOObj> ioobj = IOM().getLocal( name );
+	IOM().back();
+	if ( ioobj ) return ioobj->key();
+    }
+
+    return -1;
+}
+
+
+
 EM::EMObject* EM::EMManager::getObject( const EM::ObjectID& id )
 {
-    const EM::ObjectID objid = multiID2ObjectID(id);
     for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( objects[idx]->id()==objid )
+	if ( objects[idx]->id()==id )
 	    return objects[idx];
     }
 
@@ -159,14 +149,35 @@ const EM::EMObject* EM::EMManager::getObject( const EM::ObjectID& id ) const
 { return const_cast<EM::EMManager*>(this)->getObject(id); }
 
 
-EM::ObjectID EM::EMManager::multiID2ObjectID( const MultiID& id )
-{ return id.leafID(); }
-
-
-void EM::EMManager::addObject( EM::EMObject* obj )
+EM::ObjectID EM::EMManager::getObjectID( const MultiID& mid ) const
 {
-    if ( !obj ) return;
+    for ( int idx=0; idx<objects.size(); idx++ )
+    {
+	if ( objects[idx]->multiID()==mid )
+	    return objects[idx]->id();
+    }
+
+    return -1;
+}
+
+
+MultiID EM::EMManager::getMultiID( const EM::ObjectID& oid ) const
+{
+    const EMObject* emobj = getObject(oid);
+    return emobj ? emobj->multiID() : MultiID(-1);
+}
+
+
+EM::ObjectID EM::EMManager::addObject( EM::EMObject* obj )
+{
+    if ( !obj )
+    {
+	pErrMsg("No object provided!");
+	return -1;
+    }
+
     objects += obj;
+    return freeid++;
 }
 
 
@@ -178,13 +189,10 @@ void EM::EMManager::removeObject( EM::EMObject* obj )
 
 EM::EMObject* EM::EMManager::createTempObject( const char* type )
 {
-    for ( int idx=0; idx<objectfactories.size(); idx++ )
-    {
-	if ( !strcmp(type,objectfactories[idx]->typeStr()) )
-	    return objectfactories[idx]->create( 0, true, *this );
-    }
+    const ObjectFactory* fact = getFactory( type );
+    if ( !fact ) return 0;
 
-    return 0;
+    return fact->createObject( 0, true );
 }
 
 
@@ -195,7 +203,7 @@ EM::ObjectID EM::EMManager::objectID(int idx) const
 Executor* EM::EMManager::objectLoader( const MultiID& mid,
 				       const SurfaceIODataSelection* iosel )
 {
-    EM::ObjectID id = multiID2ObjectID(mid);
+    ObjectID id = getObjectID(mid);
     EMObject* obj = getObject( id );
    
     if ( !obj )
@@ -203,9 +211,8 @@ Executor* EM::EMManager::objectLoader( const MultiID& mid,
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) return 0;
 
-	obj = createTempObject( ioobj->group() );
-	if ( obj )
-	{ obj->setID(id); }
+	const ObjectFactory* fact = getFactory( ioobj->group() );
+	obj = fact ? fact->loadObject( mid ) : 0;
     }
 
     mDynamicCastGet(EM::Surface*,surface,obj)
@@ -258,13 +265,11 @@ const char* EM::EMManager::getSurfaceData( const MultiID& id,
 
 void EM::EMManager::addFactory( ObjectFactory* fact )
 {
-    for ( int idx=0; idx<objectfactories.size(); idx++ )
+    const ObjectFactory* existingfact = getFactory( fact->typeStr() );
+    if ( existingfact )
     {
-	if ( !strcmp(fact->typeStr(),objectfactories[idx]->typeStr()) )
-	{
-	    delete fact;
-	    return;
-	}
+	delete fact;
+	return;
     }
 
     objectfactories += fact;
@@ -273,12 +278,20 @@ void EM::EMManager::addFactory( ObjectFactory* fact )
 
 const IOObjContext* EM::EMManager::getContext( const char* type ) const
 {
+    const ObjectFactory* fact = getFactory( type );
+    return fact ? &fact->ioContext() : 0;
+}
+
+
+const EM::ObjectFactory* EM::EMManager::getFactory( const char* type ) const
+{
     for ( int idx=0; idx<objectfactories.size(); idx++ )
     {
 	if ( !strcmp(type,objectfactories[idx]->typeStr()) )
-	    return &objectfactories[idx]->ioContext();
+	{
+	    return objectfactories[idx];
+	}
     }
 
     return 0;
 }
-

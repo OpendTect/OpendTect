@@ -7,12 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.33 2005-04-06 10:54:24 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.34 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "emposid.h"
+#include "multiid.h"
 #include "uiapplserv.h"
+
+
 class BinID;
 class BinIDRange;
 class BinIDValueSet;
@@ -39,53 +43,49 @@ public:
     bool		importHorizon();
     bool		exportHorizon();
 
-    BufferString	getName(const MultiID&) const;
-    const char*		getType(const MultiID&) const;
-    bool		isChanged(const MultiID&) const;
-    bool		isFullResolution(const MultiID&) const;
+    MultiID		getStorageID( const EM::ObjectID& ) const;
+    EM::ObjectID	getObjectID( const MultiID& ) const;
 
-    bool		selectHorizon(MultiID& id);
-    bool		createHorizon(MultiID& id, const char* nm="");
-    bool		selectFault(MultiID& id);
-    bool		createFault(MultiID&, const char* nm="");
-    bool		loadAuxData(const MultiID&);
-    bool		loadAuxData(const MultiID&,int);
-    bool		loadAuxData(const MultiID&,const char*);
+    BufferString	getName(const EM::ObjectID&) const;
+    const char*		getType(const EM::ObjectID&) const;
+
+    bool		isChanged(const EM::ObjectID&) const;
+    bool		isFullResolution(const EM::ObjectID&) const;
+
+    bool		selectHorizon(EM::ObjectID& id);
+    bool		selectFault(EM::ObjectID& id);
+    bool		showLoadAuxDataDlg(const EM::ObjectID&);
+    bool		loadAuxData(const EM::ObjectID&,const char*);
+    			/*!<Loads the specified data into mem. */
 
     bool		importLMKFault();
-
-    bool		selectStickSet(MultiID&);
-    bool		createStickSet(MultiID&);
 
     void		manageSurfaces(bool hor=true);
     bool		loadSurface(const MultiID&,
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
-    void		getSurfaceDef(const ObjectSet<MultiID>&,
+    void		getSurfaceDef(const TypeSet<EM::ObjectID>&,
 	    			      BinIDValueSet&,
 				      const BinIDRange* br=0) const;
 
-    bool		storeObject(const MultiID&,bool storeas=false);
-    bool		storeAuxData(const MultiID&,bool storeas=false);
-    void		setAuxData(const MultiID&,
+    bool		storeObject(const EM::ObjectID&,bool storeas=false);
+    bool		storeAuxData(const EM::ObjectID&,bool storeas=false);
+    void		setAuxData(const EM::ObjectID&,
 	    			   ObjectSet<BinIDValueSet>&,const char*);
-    void		setAuxData(const MultiID&,
+    void		setAuxData(const EM::ObjectID&,
 	    			   ObjectSet<BinIDValueSet>&,
 				   const BufferStringSet&);
-    bool		getDataVal(const MultiID&,
-	    			   ObjectSet<BinIDValueSet>&,
-				   BufferString&,float&);
 
     static const int	evDisplayHorizon;
 
 			// Interaction stuff
-    const MultiID&	selEMID() const			{ return selemid_; }
+    const EM::ObjectID&	selEMID() const			{ return selemid_; }
 
 protected:
-    bool		selectSurface(MultiID&,bool);
-    bool		createSurface(MultiID&,bool,const char* =0);
+    bool		selectSurface(EM::ObjectID&,bool);
+    bool		loadAuxData(const EM::ObjectID&, const TypeSet<int>& );
 
-    MultiID&		selemid_;
+    EM::ObjectID	selemid_;
 
     bool		ioHorizon(bool);
     

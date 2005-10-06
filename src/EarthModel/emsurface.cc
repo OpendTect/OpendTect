@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.81 2005-10-04 14:34:41 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.82 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,9 +227,8 @@ void SurfaceIODataSelection::setDefault()
 }
 
 
-Surface::Surface( EMManager& man, const ObjectID& newid,
-		      SurfaceGeometry& geom)
-    : EMObject( man, newid )
+Surface::Surface( EMManager& man, SurfaceGeometry& geom)
+    : EMObject( man )
     , relations( *new SurfaceRelations(*this ) )
     , edgelinesets( *new EdgeLineManager(*this) )
     , geometry( geom )

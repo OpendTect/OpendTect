@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.97 2005-09-30 17:58:45 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.98 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,6 @@ ________________________________________________________________________
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vispicksetdisplay.h"
-#include "vissurvsurf.h"
-#include "vissurvsurfeditor.h"
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 
@@ -336,12 +334,6 @@ bool uiODApplMgr::selectColorAttrib( int id )
 
 void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv->selectWells( wellids ); }
-void uiODApplMgr::selectHorizon( MultiID& emhorid )
-{ if ( !emserv->selectHorizon(emhorid) ) emhorid = MultiID(""); }
-void uiODApplMgr::selectFault( MultiID& emfaultid )
-{ if ( !emserv->selectFault(emfaultid) ) emfaultid = MultiID(""); }
-void uiODApplMgr::selectStickSet( MultiID& stickid )
-{ if ( !emserv->selectStickSet(stickid) ) stickid = MultiID(""); }
 
 
 const Color& uiODApplMgr::getPickColor() { return pickserv->getPickColor(); }
@@ -433,8 +425,9 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 	    if ( myas.id() == Attrib::SelSpec::otherAttrib )
 	    {
-		bool selok = emserv->loadAuxData( 
-				*visserv->getMultiID(visid), myas.userRef() );
+		const MultiID surfmid = *visserv->getMultiID(visid);
+		const EM::ObjectID emid = emserv->getObjectID(surfmid);
+		bool selok = emserv->loadAuxData( emid, myas.userRef() );
 		if ( !selok )
 		    uiMSG().error( "Cannot find stored data" );
 		else
@@ -555,12 +548,12 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     if ( evid == uiMPEPartServer::evAddTreeObject )
     {
 	const int trackerid = mpeserv->activeTrackerID();
-	const MultiID mid = mpeserv->getTrackerMultiID(trackerid);
+	const EM::ObjectID emid = mpeserv->getEMObjectID(trackerid);
 	TypeSet<int> sceneids;
 	visserv->getChildIds( -1, sceneids );
 	if ( !sceneids.size() ) return false;
 
-	const int sdid = sceneMgr().addEMItem( mid, sceneids[0] );
+	const int sdid = sceneMgr().addEMItem( emid, sceneids[0] );
 	if ( sdid==-1 )
 	    return false;
 
@@ -570,7 +563,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     else if ( evid == uiMPEPartServer::evRemoveTreeObject )
     {
 	const int trackerid = mpeserv->activeTrackerID();
-	const MultiID mid = mpeserv->getTrackerMultiID(trackerid);
+	const EM::ObjectID emid = mpeserv->getEMObjectID(trackerid);
+	const MultiID mid = emserv->getStorageID(emid);
 
 	TypeSet<int> sceneids;
 	visserv->getChildIds( -1, sceneids );
@@ -653,7 +647,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	visserv->getChildIds( -1, sceneids );
 	if ( !sceneids.size() ) return false;
 
-	const MultiID& emid = emserv->selEMID();
+	const EM::ObjectID emid = emserv->selEMID();
 	sceneMgr().addEMItem( emid, sceneids[0] );
 	sceneMgr().updateTrees();
 	return true;
@@ -695,7 +689,12 @@ bool uiODApplMgr::handlePickServEv( int evid )
     }
     else if ( evid == uiPickPartServer::evGetHorDef )
     {
-	emserv->getSurfaceDef( pickserv->selHorIDs(), pickserv->genDef(),
+	TypeSet<EM::ObjectID> horids;
+	const ObjectSet<MultiID>& storids = pickserv->selHorIDs();
+	for ( int idx=0; idx<storids.size(); idx++ )
+	    horids += emserv->getObjectID(*storids[idx]);
+	
+	emserv->getSurfaceDef( horids, pickserv->genDef(),
 			       pickserv->selBinIDRange() );
     }
     else
@@ -735,9 +734,9 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if (  evid == uiVisPartServer::evAddSeedToCurrentObject )
     {
 	const int selobjvisid = visserv->getSelObjectId();
-	const MultiID* selobjmid = visserv->getMultiID(selobjvisid);
-	const int trackerid = selobjmid
-	    ? mpeserv->getTrackerID(*selobjmid) : -1;
+	const MultiID selobjmid = visserv->getMultiID(selobjvisid);
+	const int trackerid = selobjmid==-1
+	    ? -1 : mpeserv->getTrackerID(selobjmid);
 
 	if ( trackerid!=-1 )
 	    mpeserv->addSeed(trackerid);

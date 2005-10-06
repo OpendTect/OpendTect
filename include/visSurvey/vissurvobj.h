@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.42 2005-08-18 19:38:04 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.43 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "gendefs.h"
 #include "callback.h"
+#include "gendefs.h"
+#include "multiid.h"
 #include "position.h"
 #include "ranges.h"
 #include "color.h"
@@ -71,10 +72,10 @@ public:
 
     virtual void		getChildren( TypeSet<int>& ) const	{}
 
-    virtual bool		canDuplicate() const		{ return false;}
-    virtual SurveyObject*	duplicate() const		{ return 0; }
+    virtual bool		canDuplicate() const	{ return false;}
+    virtual SurveyObject*	duplicate() const	{ return 0; }
 
-    virtual const MultiID*	getMultiID() const		{ return 0; }
+    virtual MultiID		getMultiID() const	{ return MultiID(-1); }
 
     virtual void		showManipulator(bool yn)	{}
     virtual bool		isManipulatorShown() const	{ return false;}

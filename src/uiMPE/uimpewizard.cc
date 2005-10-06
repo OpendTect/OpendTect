@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.29 2005-10-03 02:12:09 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.30 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,7 +202,7 @@ bool Wizard::leaveNamePage( bool process )
     const bool isimpl = ioobj->implExists(false);
     const bool isreadonly = isimpl && ioobj->implReadOnly();
 
-    EM::ObjectID objid = EM::EMM().multiID2ObjectID( ioobj->key() );
+    EM::ObjectID objid = EM::EMM().getObjectID( ioobj->key() );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     if ( emobj )
     {
@@ -233,10 +233,9 @@ bool Wizard::leaveNamePage( bool process )
 
 bool Wizard::prepareSeedSetupPage()
 {
-    if ( !(currentobject==-1) )
+    if ( currentobject!=-1 )
     {
-	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	colorfld->setColor( emobj->preferredColor() );
     }
     else
@@ -312,8 +311,7 @@ bool Wizard::leaveFinalizePage(bool process)
     if ( anotherfld->getBoolValue() )
 	setTrackingType( typefld ? typefld->text() : (const char*)trackertype );
 
-    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
     PtrMan<Executor> saver = emobj->saver();
 
     if ( saver ) saver->execute();
@@ -343,16 +341,15 @@ bool Wizard::isClosing( bool iscancel )
 
 	if ( ioparentrycreated )
 	{
-	    IOM().to( currentobject );
-	    PtrMan<IOObj> ioobj = IOM().get(currentobject);
+	    const MultiID mid = EM::EMM().getMultiID(currentobject);
+	    PtrMan<IOObj> ioobj = IOM().get(mid);
 
 	    if ( !ioobj || !fullImplRemove(*ioobj) ||
-	         !IOM().permRemove(currentobject) )
+	         !IOM().permRemove(mid) )
 	    {
 		pErrMsg( "Could not remove object" );
 	    }
 	}
-
 
 	if ( trackercreated )
 	{
@@ -381,10 +378,9 @@ void Wizard::anotherSel( CallBacker* )
 
 void Wizard::colorChangeCB( CallBacker* )
 {
-    if ( !(currentobject==-1) )
+    if ( currentobject!=-1 )
     {
-	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	emobj->setPreferredColor( colorfld->color() );
     }
 }
@@ -479,14 +475,12 @@ void Wizard::setTrackingType( const char* tp )
 }
 
 
-void Wizard::setObject( const MultiID& mid, const EM::SectionID& sectionid )
+void Wizard::setObject( const EM::ObjectID& id, const EM::SectionID& sectionid )
 {
-    currentobject = mid;
+    currentobject = id;
     sid = sectionid;
-    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
-    const EM::EMObject* emobj = EM::EMM().getObject( objid );
-    if ( emobj )
-	setTrackingType( emobj->getTypeStr() );
+    const EM::EMObject* emobj = EM::EMM().getObject( id );
+    if ( emobj ) setTrackingType( emobj->getTypeStr() );
 }
 
 
@@ -501,9 +495,9 @@ bool Wizard::createTracker()
 {
     if ( currentobject==-1 )
     {
-	EM::ObjectID objid = EM::EMM().createObject(trackertype,
-		objselgrp->getNameField()->text());
-	EM::EMObject* emobj = EM::EMM().getObject(objid);
+	const char* nm = objselgrp->getNameField()->text();
+	EM::ObjectID objid = EM::EMM().createObject( trackertype, nm );
+	EM::EMObject* emobj = EM::EMM().getObject( objid );
 	const int id = engine().addTracker( emobj );
 	if ( id==-1 )
 	{
@@ -525,14 +519,13 @@ bool Wizard::createTracker()
 	    return false;
 	}
 
-	currentobject = emobj->multiID();
+	currentobject = objid;
 	objectcreated = true;
 	trackercreated = true;
     }
     else if ( mpeserv->getTrackerID(currentobject)<0 )
     {
-	const EM::ObjectID objid = EM::EMM().multiID2ObjectID( currentobject );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
+	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 
 	if ( MPE::engine().addTracker(emobj)<0 )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.15 2005-10-02 20:23:51 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.16 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,11 +36,12 @@ public:
 
     const char*			name() const		{ return "MPE";}
 
-    int				getTrackerID(const MultiID&) const;
+    int				getTrackerID(const EM::ObjectID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
     bool			addTracker( const char* trackertype); 
-    int				addTracker( const MultiID&,const Coord3& pos );
+    int				addTracker( const EM::ObjectID&,
+	    				    const Coord3& pos );
     				/*!<Creates a new tracker for the object and
 				    returns the trackerid of it or -1 if it
 				    failed.
@@ -49,9 +50,7 @@ public:
 					   set before, it will be centered
 					   pos, otherwise, it will be expanded
 					   to include pos. */
-    bool			addNewSection( int trackerid );
-
-    MultiID			getTrackerMultiID(int trackerid) const;
+    EM::ObjectID		getEMObjectID(int trackerid) const;
 
     bool			startWizard(const char* tracktype,int startpg);
     bool			canAddSeed(int trackerid) const;
@@ -60,12 +59,13 @@ public:
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
 
-    bool			showSetupDlg( const MultiID&,
+    bool			showSetupDlg( const EM::ObjectID&,
 	    				      const EM::SectionID&,
 					      bool showcancelbutton=false );
     				/*!<\returns false if cancel was pressed. */
 
-    void			showRelationsDlg(const MultiID&,EM::SectionID);
+    void			showRelationsDlg(const EM::ObjectID&,
+	    					 EM::SectionID);
 
     int				activeTrackerID() const;
     				/*!< returns the trackerid of the last event */

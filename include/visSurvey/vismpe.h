@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.19 2005-10-04 14:53:18 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.20 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,6 @@ namespace visBase
     class FaceSet;
     class Texture3;
     class Transformation;
-    class VisColorTab;
 };
 
 namespace MPE { class Engine; };

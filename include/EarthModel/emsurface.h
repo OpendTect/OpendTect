@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.57 2005-09-30 03:15:58 cvsduntao Exp $
+ RCS:		$Id: emsurface.h,v 1.58 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -102,8 +102,7 @@ protected:
     friend class		SurfaceAuxData;
     friend class		EMObject;
 
-    				Surface(EMManager&,const EM::ObjectID&,
-					SurfaceGeometry&);
+    				Surface(EMManager&, SurfaceGeometry&);
     				~Surface();
     Geometry::Element*		getElementInternal( SectionID );
 

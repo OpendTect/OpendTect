@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.3 2005-09-30 09:19:18 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.4 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ float HorizonUtils::getMissingZ( const BinID& bid,
 Surface* HorizonUtils::getSurface( const MultiID& id )
 {
     EMManager& em = EMM();
-    ObjectID objid = em.multiID2ObjectID(id);
+    const ObjectID objid = em.getObjectID(id);
     EMObject* obj = em.getObject( objid );
     mDynamicCastGet(Surface*,surface,obj)
     return surface;
@@ -191,7 +191,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 				   const ObjectSet<BinIDValueSet>& data )
 {
     EMManager& em = EMM();
-    ObjectID objid = em.multiID2ObjectID(id);
+    const ObjectID objid = em.getObjectID(id);
     EMObject* obj = em.getObject( objid );
     mDynamicCastGet(Surface*,surface,obj)
     if ( !surface ) return;

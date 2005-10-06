@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.15 2005-10-04 14:42:45 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.16 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ class uiVisEMObject : public CallBackClass
 public:
     			uiVisEMObject(uiParent*,int displayid,
 				      uiVisPartServer* );
-    			uiVisEMObject(uiParent*,const MultiID&,int sceneid,
+    			uiVisEMObject(uiParent*,const EM::ObjectID&,int sceneid,
 				      uiVisPartServer*);
 			~uiVisEMObject();
     bool		isOK() const;
@@ -39,6 +39,7 @@ public:
 
     static const char*	getObjectType(int displayid);
     int			id() const { return displayid; }
+    EM::ObjectID	getObjectID() const;
 
     float		getShift() const;
     void		setDepthAsAttrib();

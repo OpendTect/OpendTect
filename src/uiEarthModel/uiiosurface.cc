@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.34 2005-10-03 08:08:08 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.35 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ void uiIOSurface::fillFields( const MultiID& id )
     }
     else
     {
-	const EM::ObjectID emid = EM::EMM().multiID2ObjectID( id );
+	const EM::ObjectID emid = EM::EMM().getObjectID( id );
 	mDynamicCastGet(EM::Surface*,emsurf,EM::EMM().getObject(emid));
 	if ( emsurf )
 	    sd.use(*emsurf);

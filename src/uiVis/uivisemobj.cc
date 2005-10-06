@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.29 2005-10-04 14:42:42 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.30 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,22 +49,23 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
 
-    const MultiID* mid = visserv->getMultiID( displayid );
-    if ( !mid ) return;
+    uiCursorChanger cursorchanger(uiCursor::Wait);
 
-    EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
+
+    EM::ObjectID emid = emod->getObjectID();
     if ( !EM::EMM().getObject(emid) )
     {
-	PtrMan<Executor> exec = EM::EMM().objectLoader( *mid );
+	const MultiID& mid = emod->getMultiID();
+	PtrMan<Executor> exec = EM::EMM().objectLoader( mid );
 	if ( exec )
 	{
 	    uiExecutor dlg( uiparent, *exec );
-	    dlg.go();
+	    if ( dlg.go() )
+		emid = EM::EMM().getObjectID(mid);
 	}
     }
 
-    uiCursorChanger cursorchanger(uiCursor::Wait);
-    if ( !emod->setEMObject(*mid) ) { emod->unRef(); return; }
+    if ( !emod->setEMObject(emid) ) { emod->unRef(); return; }
 
     if ( emod->usesTexture() &&
 	    emod->getSelSpec()->id()==Attrib::SelSpec::noAttrib )
@@ -76,8 +77,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
 #define mRefUnrefRet { emod->ref(); emod->unRef(); return; }
 
-uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
-			      uiVisPartServer* vps )
+uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
+			      int scene, uiVisPartServer* vps )
     : displayid(-1)
     , visserv( vps )
     , uiparent( uip )
@@ -95,10 +96,10 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
     emod->setDisplayTransformation(visSurvey::SPM().getUTM2DisplayTransform());
 
     uiCursorChanger cursorchanger(uiCursor::Wait);
-    if ( !emod->setEMObject(mid) ) mRefUnrefRet
+    if ( !emod->setEMObject(emid) ) mRefUnrefRet
 
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::EMObject*,emobj,em.getObject(em.multiID2ObjectID(mid)));
+    const EM::EMObject* emobj = EM::EMM().getObject(emid);
 
     visserv->addObject( emod, scene, true );
     displayid = emod->id();
@@ -152,10 +153,11 @@ bool uiVisEMObject::isOK() const
 
 void uiVisEMObject::prepareForShutdown()
 {
-    const MultiID* mid = visserv->getMultiID( displayid );
-    if ( !mid ) return;
-    EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
-    mDynamicCastGet(EM::EMObject*,emobj,EM::EMM().getObject(emid))
+    const MultiID mid = visserv->getMultiID( displayid );
+    if ( mid==-1 ) return;
+
+    const EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    EM::EMObject* emobj = EM::EMM().getObject(emid);
     if ( !emobj || !emobj->isChanged(-1) )
 	return;
 
@@ -224,8 +226,7 @@ void uiVisEMObject::connectEditor()
 const char* uiVisEMObject::getObjectType( int id )
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,obj,visBase::DM().getObject(id))
-    const MultiID* mid = obj ? obj->getMultiID() : 0;
-    return mid ? EM::EMM().objectType( EM::EMM().multiID2ObjectID(*mid) ) : 0;
+    return obj ? EM::EMM().objectType( obj->getMultiID() ) : 0;
 }
 
 
@@ -245,17 +246,21 @@ void uiVisEMObject::readAuxData()
 
 int uiVisEMObject::nrSections() const
 {
-    const MultiID* mid = visserv->getMultiID( displayid );
-    EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
-    mDynamicCastGet(const EM::EMObject*,emobj,EM::EMM().getObject(emid))
+    const visSurvey::EMObjectDisplay* emod = getDisplay();
+    if ( !emod ) return 0;
+
+    EM::ObjectID emid = emod->getObjectID();
+    const EM::EMObject* emobj = EM::EMM().getObject(emid);
     return emobj ? emobj->nrSections() : 0;
 }
 
 
 EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 {
-    const MultiID* mid = visserv->getMultiID( displayid );
-    const EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
+    const visSurvey::EMObjectDisplay* emod = getDisplay();
+    if ( !emod ) return -1;
+
+    EM::ObjectID emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
     return emobj ? emobj->sectionID( idx ) : -1;
 }
@@ -287,11 +292,10 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb)
 
-    const MultiID* mid = visserv->getMultiID( displayid );
-    EM::EMObject* emobj = mid ?
-	EM::EMM().getObject(EM::EMM().multiID2ObjectID(*mid)) : 0;
-
     visSurvey::EMObjectDisplay* emod = getDisplay();
+
+    const EM::ObjectID emid = emod->getObjectID();
+    const EM::EMObject* emobj = EM::EMM().getObject(emid);
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
     mAddMenuItem( menu, &singlecolmnuitem, !emod->getOnlyAtSectionsDisplay(),
@@ -330,10 +334,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     if ( !emod || mnuid==-1 || menu->isHandled() )
 	return;
 
-    const MultiID* mid = visserv->getMultiID( displayid );
-    mDynamicCastGet(EM::EMObject*,emobj, mid 
-	    ? EM::EMM().getObject(EM::EMM().multiID2ObjectID(*mid))
-	    : 0 );
+    const EM::ObjectID emid = emod->getObjectID();
+    EM::EMObject* emobj = EM::EMM().getObject(emid);
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
     if ( mnuid==singlecolmnuitem.id )
@@ -553,6 +555,16 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
     snapitem->setChecked(emod->getEditor()->snapAfterEdit());
 */
 }
+
+
+EM::ObjectID uiVisEMObject::getObjectID() const
+{
+    const visSurvey::EMObjectDisplay* emod = getDisplay();
+    if ( !emod ) return -1;
+
+    return emod->getObjectID();
+}
+
 
 
 void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )

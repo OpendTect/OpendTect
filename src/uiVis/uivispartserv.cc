@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.275 2005-09-30 14:54:13 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.276 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,10 +201,11 @@ void uiVisPartServer::findObject( const MultiID& mid, TypeSet<int>& res )
     const int highestid = highestID();
     for ( int idx=0; idx<=highestid; idx++ )
     {
-	const MultiID* vismid = getMultiID(idx);
-	if ( !vismid ) continue;
+	const MultiID vismid = getMultiID(idx);
+	if ( vismid==-1 )
+	    continue;
 
-	if ( *vismid==mid )
+	if ( vismid==mid )
 	    res += idx;
     }
 }
@@ -259,12 +260,12 @@ NotifierAccess& uiVisPartServer::removeAllNotifier()
 }
 
 
-const MultiID* uiVisPartServer::getMultiID( int id ) const
+MultiID uiVisPartServer::getMultiID( int id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) return so->getMultiID();
 
-    return 0;
+    return MultiID(-1);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.27 2005-10-04 14:55:44 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.28 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,7 +50,8 @@ public:
     void			setDisplayTransformation(mVisTrans*);
     void			setSceneEventCatcher( visBase::EventCatcher* );
 
-    bool			setEMObject(const MultiID&);
+    bool			setEMObject(const EM::ObjectID&);
+    EM::ObjectID		getObjectID() const { return oid; }
     bool			updateFromEM();
     void			updateFromMPE();
 
@@ -63,7 +64,7 @@ public:
 				     defined in EM::EMObject) to be marked
 				     with a marker. */
 
-    const MultiID*		getMultiID() const { return &mid; }
+    MultiID			getMultiID() const;
 
     void			useTexture(bool yn);
     bool			usesTexture() const;
@@ -172,7 +173,8 @@ protected:
     TypeSet<int>			intersectionlineids;
 
     EM::EMManager&			em;
-    MultiID				mid;
+    EM::ObjectID			oid;
+    MultiID				parmid;
     MPEEditor*				editor;
 
     Color				nontexturecol;

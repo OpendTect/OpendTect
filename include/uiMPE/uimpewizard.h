@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.15 2005-09-30 19:43:05 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.16 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
 
     void		reset();
 
-    void		setObject( const MultiID&, const EM::SectionID& );
+    void		setObject( const EM::ObjectID&, const EM::SectionID& );
     void		setTrackingType(const char* typestr);
 
     static const int	sNamePage;
@@ -93,7 +93,7 @@ protected:
 
     CubeSampling	seedbox;
 
-    MultiID		currentobject;
+    EM::ObjectID	currentobject;
     EM::SectionID	sid;
     bool		ioparentrycreated;
     bool		objectcreated;

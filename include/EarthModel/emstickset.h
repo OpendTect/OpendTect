@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emstickset.h,v 1.5 2005-01-06 09:38:14 kristofer Exp $
+ RCS:		$Id: emstickset.h,v 1.6 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ class StickSet : public EMObject
 {
 public:
     static const char*	typeStr();
-    static EMObject*	create(const ObjectID&, EMManager& );
+    static EMObject*	create( EMManager& );
     static void		initClass(EMManager&);
 
     const char*		getTypeStr() const { return typeStr(); }
@@ -73,7 +73,7 @@ protected:
     friend class		EMManager;
     friend class		EMObject;
 
-    				StickSet(EMManager&,const EM::ObjectID&);
+    				StickSet(EMManager&);
     				~StickSet();
     void				cleanUp();
     virtual const IOObjContext&		getIOObjContext() const;

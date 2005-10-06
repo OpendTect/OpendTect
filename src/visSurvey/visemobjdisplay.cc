@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.55 2005-10-04 14:55:39 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.56 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,8 @@ const char* EMObjectDisplay::sKeyEdgeLineRadius = "Edgeline radius";
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
     , em(EM::EMM())
-    , mid(-1)
+    , oid(-1)
+    , parmid(-1)
     , as(*new Attrib::SelSpec)
     , colas(*new Attrib::ColorSelSpec)
     , curtextureidx(0)
@@ -193,7 +194,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 
     if ( !keycb && !mousecb ) return;
 
-    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    const EM::EMObject* emobject = em.getObject( oid );
     mDynamicCastGet(const EM::Surface*,emsurface,emobject)
     if ( !emsurface ) return;
 
@@ -273,7 +274,7 @@ void EMObjectDisplay::removeEMStuff()
 
     if ( editor ) editor->unRef();
 
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    EM::EMObject* emobject = em.getObject( oid );
     if ( emobject )
     {
 	emobject->notifier.remove( mCB(this,EMObjectDisplay,emChangeCB));
@@ -283,8 +284,7 @@ void EMObjectDisplay::removeEMStuff()
 	    MPE::engine().removeTracker( trackeridx );
 	MPE::engine().removeEditor(emobject->id());
 
-	mDynamicCastGet( EM::Surface*, emsurface,
-			 em.getObject( em.multiID2ObjectID(mid) ));
+	mDynamicCastGet( EM::Surface*, emsurface, emobject );
 	if ( emsurface )
 	    emsurface->edgelinesets.addremovenotify.remove(
 			    mCB(this,EMObjectDisplay,emEdgeLineChangeCB ));
@@ -293,18 +293,17 @@ void EMObjectDisplay::removeEMStuff()
 }
 
 
-bool EMObjectDisplay::setEMObject( const MultiID& newmid )
+bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
 {
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(newmid) );
+    EM::EMObject* emobject = em.getObject( newid );
     if ( !emobject ) return false;
 
     if ( sections.size() ) removeEMStuff();
 
-    mid = newmid;
+    oid = newid;
     emobject->ref();
     emobject->notifier.notify( mCB(this,EMObjectDisplay,emChangeCB) );
-    mDynamicCastGet( EM::Surface*, emsurface,
-		     em.getObject( em.multiID2ObjectID(mid) ));
+    mDynamicCastGet( EM::Surface*, emsurface, emobject );
     if ( emsurface ) emsurface->edgelinesets.addremovenotify.notify(
 			mCB(this,EMObjectDisplay,emEdgeLineChangeCB ));
 
@@ -312,11 +311,23 @@ bool EMObjectDisplay::setEMObject( const MultiID& newmid )
 }
 
 
+MultiID EMObjectDisplay::getMultiID() const
+{
+    EM::EMObject* emobject = em.getObject( oid );
+    if ( !emobject ) return parmid;
+
+    return emobject->multiID();
+}
+
+
+
+
+
 bool EMObjectDisplay::updateFromEM()
 { 
     if ( sections.size() ) removeEMStuff();
 
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    EM::EMObject* emobject = em.getObject( oid );
     if ( !emobject ) return false;
 
     setName( emobject->name() );
@@ -334,8 +345,7 @@ bool EMObjectDisplay::updateFromEM()
 
 void EMObjectDisplay::updateFromMPE()
 {
-    const EM::ObjectID objid = em.multiID2ObjectID(mid);
-    const bool hastracker = MPE::engine().getTrackerByObject(objid) >= 0;
+    const bool hastracker = MPE::engine().getTrackerByObject(oid) >= 0;
     if ( hastracker )
     {
 	useWireframe( true );
@@ -344,7 +354,7 @@ void EMObjectDisplay::updateFromMPE()
 	showPosAttrib( EM::EMObject::sSeedNode, true, Color(255,255,255) );
     }
 
-    if ( MPE::engine().getEditor(objid,hastracker) )
+    if ( MPE::engine().getEditor(oid,hastracker) )
 	enableEditing(true);
 }
 
@@ -388,7 +398,7 @@ bool EMObjectDisplay::showsPosAttrib(int attr) const
 
 bool EMObjectDisplay::addSection( EM::SectionID sid )
 {
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    EM::EMObject* emobject = em.getObject( oid );
     Geometry::Element* ge = const_cast<Geometry::Element*>(
 	const_cast<const EM::EMObject*>(emobject)->getElement(sid));
     if ( !ge ) return false;
@@ -423,8 +433,7 @@ bool EMObjectDisplay::addSection( EM::SectionID sid )
 
 bool EMObjectDisplay::addEdgeLineDisplay(EM::SectionID sid)
 {
-    mDynamicCastGet( EM::Surface*, emsurface,
-		     em.getObject( em.multiID2ObjectID(mid) ));
+    mDynamicCastGet( EM::Surface*, emsurface, em.getObject( oid) );
     EM::EdgeLineSet* els = emsurface
 	? emsurface->edgelinesets.getEdgeLineSet(sid,false) : 0;
 
@@ -518,7 +527,7 @@ bool EMObjectDisplay::getOnlyAtSectionsDisplay() const
 void EMObjectDisplay::setColor( Color col )
 {
 
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    EM::EMObject* emobject = em.getObject( oid );
     if ( emobject )
     {
 	emobject->setPreferredColor( col );
@@ -534,7 +543,7 @@ Color EMObjectDisplay::getColor() const
 
 void EMObjectDisplay::readAuxData()
 {
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    EM::EMObject* emobject = em.getObject( oid );
     mDynamicCastGet(EM::Surface*,emsurface,emobject)
     if ( !emsurface ) return;
 
@@ -579,7 +588,7 @@ void EMObjectDisplay::selectTexture( int textureidx )
 	    psurf->selectActiveTexture( textureidx );
     }
 
-    mDynamicCastGet(EM::Surface*,emsurf,em.getObject(em.multiID2ObjectID(mid)))
+    mDynamicCastGet(EM::Surface*,emsurf,em.getObject(oid))
     if ( !emsurf ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
@@ -792,8 +801,7 @@ void EMObjectDisplay::enableEditing( bool yn )
 {
     if ( yn && !editor )
     {
-	const EM::ObjectID objid = em.multiID2ObjectID(mid);
-	MPE::ObjectEditor* mpeeditor = MPE::engine().getEditor(objid,true);
+	MPE::ObjectEditor* mpeeditor = MPE::engine().getEditor(oid,true);
 
 	if ( !mpeeditor ) return;
 
@@ -865,7 +873,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 {
     bool triggermovement = false;
 
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    EM::EMObject* emobject = em.getObject( oid );
 
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
     if ( cbdata.event==EM::EMObjectCallbackData::SectionChange )
@@ -924,7 +932,7 @@ void EMObjectDisplay::emEdgeLineChangeCB(CallBacker* cb)
 {
     mCBCapsuleUnpack( EM::SectionID, section, cb );
 
-    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    const EM::EMObject* emobject = em.getObject( oid );
     mDynamicCastGet(const EM::Surface*,emsurface,emobject)
     if ( !emsurface ) return;
 
@@ -1017,7 +1025,7 @@ void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       float& val, BufferString& info ) const
 {
     info = ""; val = pos.z;
-    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    const EM::EMObject* emobject = em.getObject( oid );
     if ( !emobject ) return;
     
     info = emobject->getTypeStr(); info += ": "; info += name();
@@ -1052,7 +1060,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( sKeyEarthModelID, mid );
+    par.set( sKeyEarthModelID, *getMultiID() );
     par.setYN( sKeyTexture, usesTexture() );
     par.setYN( sKeyWireFrame, usesWireframe() );
     par.setYN( sKeyEdit, isEditingEnabled() );
@@ -1084,8 +1092,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     setDisplayTransformation( SPM().getUTM2DisplayTransform() );
 
-    MultiID surfid;
-    if ( !par.get(sKeyEarthModelID,surfid) )
+    if ( !par.get(sKeyEarthModelID,parmid) )
 	return -1;
 
     as.usePar( par );
@@ -1142,8 +1149,6 @@ int EMObjectDisplay::usePar( const IOPar& par )
     par.get( sKeyShift, shift.z );
     setTranslation( shift );
 
-    mid = surfid;
-
     return 1;
 }
 
@@ -1156,7 +1161,7 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
     const int attribindex = posattribs.indexOf(attrib);
     if ( attribindex==-1 ) return;
 
-    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    EM::EMObject* emobject = em.getObject( oid );
     const TypeSet<EM::PosID>* pids = emobject->getPosAttribList(attrib);
 
     //Remove everything but material
@@ -1200,7 +1205,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 	if ( index==-1 )
 	    continue;
 
-	EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+	EM::EMObject* emobject = em.getObject( oid );
 	const TypeSet<EM::PosID>* pids = emobject->getPosAttribList(attrib);
 	res = (*pids)[index];
 	break;
@@ -1272,7 +1277,7 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
 void EMObjectDisplay::updateIntersectionLines(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
-    const EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    const EM::EMObject* emobject = em.getObject( oid );
     mDynamicCastGet(const EM::Horizon*,horizon,emobject);
     if ( !horizon ) return;
 

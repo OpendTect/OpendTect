@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.14 2005-07-26 07:44:05 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.15 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
     if ( !emobj ) mErrRet("Cannot create object")
-    emobj->setID( EM::EMM().multiID2ObjectID(ioobj->key()) );
+    emobj->setMultiID( ioobj->key() );
 
     mDynamicCastGet(EM::Surface*,surface,emobj.ptr())
     PtrMan<Executor> loader = surface->geometry.loader( &sdsel );
@@ -185,8 +185,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
     if ( !loaddlg.go() ) return false;
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;
-    emobj->setID( EM::EMM().multiID2ObjectID(newioobj->key()) );
     const MultiID& mid = newioobj->key();
+    emobj->setMultiID( mid );
     PtrMan<Executor> saver = surface->geometry.saver( 0, &mid );
     if ( !saver ) mErrRet("Cannot save surface")
 

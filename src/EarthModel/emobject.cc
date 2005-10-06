@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.50 2005-10-04 14:34:41 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.51 2005-10-06 19:13:37 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -47,38 +47,51 @@ ObjectFactory::ObjectFactory( EMObjectCreationFunc cf,
 {}
 
 
-EMObject* ObjectFactory::create( const char* name, bool tmpobj, EMManager& emm )
+EMObject* ObjectFactory::loadObject( const MultiID& mid ) const
 {
-    if ( tmpobj )
-	return creationfunc( -1, emm );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
 
-    if ( !IOM().to(IOObjContext::getStdDirData(context.stdseltype)->id) )
+    if ( !ioobj || strcmp(ioobj->group(),typeStr()) )
 	return 0;
 
-    PtrMan<IOObj> ioobj = IOM().getLocal( name );
-    IOM().back();
-    if ( ioobj )
-	return creationfunc( emm.multiID2ObjectID(ioobj->key()), emm );
+    EMObject* emobj = creationfunc( EMM() );
+    if ( !emobj ) return 0;
 
-     CtxtIOObj ctio(context);
-     ctio.ctxt.forread = false;
-     ctio.ioobj = 0;
-     ctio.setName( name );
-     ctio.fillObj();
-     if ( !ctio.ioobj ) return 0;
-
-     return creationfunc( emm.multiID2ObjectID(ctio.ioobj->key()), emm );
+    emobj->setMultiID( ioobj->key() );
+    return emobj;
 }
 
 
-EMObject::EMObject( EMManager& emm_, const ObjectID& id__ )
-    : manager(emm_)
-    , notifier(this)
-    , id_(id__)
+EMObject* ObjectFactory::createObject( const char* name, bool tmpobj ) const
+{
+    if ( tmpobj )
+	return creationfunc( EM::EMM() );
+
+    CtxtIOObj ctio(context);
+    ctio.ctxt.forread = false;
+    ctio.ioobj = 0;
+    ctio.setName( name );
+    ctio.fillObj();
+    if ( !ctio.ioobj ) return 0;
+
+    EMObject* emobj = creationfunc( EMM() );
+    if ( !emobj ) return 0;
+
+    emobj->setMultiID( ctio.ioobj->key() );
+    return emobj;
+}
+
+
+EMObject::EMObject( EMManager& emm )
+    : manager( emm )
+    , notifier( this )
+    , id_( -1 )
     , preferredcolor( *new Color(255, 0, 0) )
     , changed( false )
-{ mRefCountConstructor;
-    manager.addObject(this);
+    , storageid( -1 )
+{
+    mRefCountConstructor;
+    id_ = manager.addObject( this );
     notifier.notify( mCB( this, EMObject, posIDChangeCB ) );
 }
 
@@ -100,6 +113,10 @@ BufferString EMObject::name() const
     objnm = ioobj ? ioobj->name() : "";
     return objnm;
 }
+
+
+void EMObject::setMultiID( const MultiID& mid )
+{ storageid = mid; }
 
 
 int EMObject::sectionIndex( const SectionID& sid ) const
@@ -246,14 +263,6 @@ bool EMObject::isDefined( const PosID& pid ) const
 
     const Geometry::Element* element = getElement( pid.sectionID() );
     return element && element->isDefined( pid.subID() );
-}
-
-
-MultiID EMObject::multiID() const
-{
-    MultiID res = getIOObjContext().stdSelKey();
-    res.add(id());
-    return res;
 }
 
 

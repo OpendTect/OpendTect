@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.43 2005-09-19 07:36:29 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.44 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -659,19 +659,19 @@ int uiODSceneMgr::addPickSetItem( const PickSet& ps, int sceneid )
 }
 
 
-int uiODSceneMgr::addEMItem( const MultiID& mid, int sceneid )
+int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 {
-    const char* type = applMgr().EMServer()->getType(mid);
+    const char* type = applMgr().EMServer()->getType(emid);
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
 	uiODDisplayTreeItem* itm;
-	if ( !strcmp( type, "Horizon" ) ) itm = new uiODHorizonTreeItem(mid);
-	else if ( !strcmp(type,"Fault" ) ) itm = new uiODFaultTreeItem(mid);
+	if ( !strcmp( type, "Horizon" ) ) itm = new uiODHorizonTreeItem(emid);
+	else if ( !strcmp(type,"Fault" ) ) itm = new uiODFaultTreeItem(emid);
 	else if ( !strcmp(type,"Horizontal Tube") )
-	    itm = new uiODBodyTreeItem(mid);
+	    itm = new uiODBodyTreeItem(emid);
 
 	scene.itemmanager->addChild( itm );
 	return itm->displayID();

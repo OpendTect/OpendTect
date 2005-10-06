@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.50 2005-10-04 14:13:05 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.51 2005-10-06 19:13:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,11 +68,11 @@ public:
 class EMObject : public CallBacker
 { mRefCountImpl( EMObject );    
 public:
-    				EMObject( EMManager&, const EM::ObjectID&);
+    				EMObject( EMManager& );
     const ObjectID&		id() const { return id_; }
-    void			setID( const EM::ObjectID& nid ) { id_ = nid; }
     virtual const char*		getTypeStr() const			= 0;
-    MultiID			multiID() const;
+    const MultiID&		multiID() const { return storageid; }
+    void			setMultiID( const MultiID& mid );
 
     BufferString		name() const;
 
@@ -167,6 +167,7 @@ protected:
     void			posIDChangeCB(CallBacker*);
     virtual const IOObjContext&	getIOObjContext() const = 0;
     ObjectID			id_;
+    MultiID			storageid;
     class EMManager&		manager;
     BufferString		errmsg;
 
@@ -185,7 +186,7 @@ protected:
 };
 
 
-typedef EMObject*(*EMObjectCreationFunc)(const ObjectID&, EMManager&);
+typedef EMObject*(*EMObjectCreationFunc)(EMManager&);
 
 class ObjectFactory
 {
@@ -193,8 +194,12 @@ public:
     				ObjectFactory( EMObjectCreationFunc,
 				       	       const IOObjContext&,
 				       	       const char* );
-    EMObject*			create( const char* name, bool tmpobj,
-	    				EMManager& );
+    EMObject*			loadObject( const MultiID& mid ) const;
+    EMObject*			createObject( const char* name,
+	    				      bool tmpobj ) const;
+    				/*!<\Creates a new object. If tmobj is false,
+				     a IOObj entry will be created for this
+				     object.*/
     const char*			typeStr() const { return typestr; }
     const IOObjContext&		ioContext() const { return context; }
 protected:
