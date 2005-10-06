@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.57 2005-10-06 20:31:04 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.58 2005-10-06 21:29:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,7 +278,6 @@ void EMObjectDisplay::removeEMStuff()
     if ( emobject )
     {
 	emobject->notifier.remove( mCB(this,EMObjectDisplay,emChangeCB));
-	emobject->unRef();
 	const int trackeridx = MPE::engine().getTrackerByObject(emobject->id());
 	if ( trackeridx >= 0 )
 	    MPE::engine().removeTracker( trackeridx );
@@ -288,6 +287,7 @@ void EMObjectDisplay::removeEMStuff()
 	if ( emsurface )
 	    emsurface->edgelinesets.addremovenotify.remove(
 			    mCB(this,EMObjectDisplay,emEdgeLineChangeCB ));
+	emobject->unRef();
     }
 
 }
