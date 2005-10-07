@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.100 2005-10-06 21:11:28 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.101 2005-10-07 13:31:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -425,7 +425,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 	    if ( myas.id() == Attrib::SelSpec::cOtherAttrib() )
 	    {
-		const MultiID surfmid = *visserv->getMultiID(visid);
+		const MultiID surfmid = visserv->getMultiID(visid);
 		const EM::ObjectID emid = emserv->getObjectID(surfmid);
 		bool selok = emserv->loadAuxData( emid, myas.userRef() );
 		if ( !selok )
@@ -452,8 +452,9 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 		visserv->stuffSurfaceData( visid, colordata, &data );
 	    else
 	    {
-		emserv->setAuxData( *visserv->getMultiID(visid), data,
-				    myas.userRef() );
+		const MultiID mid = visserv->getMultiID(visid);
+		const EM::ObjectID emid = emserv->getObjectID(mid);
+		emserv->setAuxData( emid, data, myas.userRef() );
 		visserv->readAuxData( visid );
 	    }
 
@@ -491,7 +492,9 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 	attrserv->createOutput( data );
 	BufferStringSet attribnms;
 	attrserv->getTargetAttribNames( attribnms );
-	emserv->setAuxData( *visserv->getMultiID(visid), data, attribnms );
+	const MultiID mid = visserv->getMultiID(visid);
+	const EM::ObjectID emid = emserv->getObjectID(mid);
+	emserv->setAuxData( emid, data, attribnms );
 	deepErase( data );
 	visserv->readAuxData( visid );
     }
@@ -931,7 +934,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int visid = visserv->getEventObjId();
 	const int format = visserv->getAttributeFormat( visid );
 	if ( format != 2 ) return false;
-	emserv->storeAuxData( *visserv->getMultiID(visid) );
+	const MultiID mid = visserv->getMultiID(visid);
+	const EM::ObjectID emid = emserv->getObjectID(mid);
+	emserv->storeAuxData( emid );
     }
     else
 	pErrMsg("Unknown event from attrserv");
