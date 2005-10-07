@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.46 2005-09-30 17:54:37 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.47 2005-10-07 21:49:52 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -45,8 +45,8 @@ Engine::Engine()
     : trackplanechange( this )
     , activevolumechange( this )
 {
-    setActiveVolume( getDefaultActiveVolume() );
     trackers.allowNull(true);
+    init();
 }
 
 
@@ -207,6 +207,15 @@ void Engine::removeTracker( int idx )
 
     delete trackers[idx];
     trackers.replace( idx, 0 );
+
+   
+    for ( int idy=0; idy<trackers.size(); idx++ )
+    {
+	if ( trackers[idx] )
+	    return;
+    }
+
+    setActiveVolume( getDefaultActiveVolume() );
 }
 
 
@@ -422,8 +431,8 @@ void Engine::fillPar( IOPar& iopar ) const
 	if ( !tracker ) continue;
 	
 	IOPar localpar;
-	localpar.set( objectidStr(), tracker->objectID() );
-	localpar.setYN( enabledStr(), tracker->isEnabled() );
+	localpar.set( sKeyObjectID(), tracker->objectID() );
+	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
 	tracker->fillPar( localpar );
 
@@ -432,20 +441,32 @@ void Engine::fillPar( IOPar& iopar ) const
 	trackeridx++;
     }
 
-    iopar.set( nrtrackersStr(), trackeridx );
+    iopar.set( sKeyNrTrackers(), trackeridx );
+    activevolume.fillPar( iopar );
+
+    IOPar tppar;
+    trackplane.fillPar( tppar );
+    iopar.mergeComp( tppar, sKeyTrackPlane() );
 }
 
 
 bool Engine::usePar( const IOPar& iopar )
 {
-    deepErase( trackers );
-    deepErase( editors );
-    deepUnRef( attribcache );
-    deepErase( attribcachespecs );
+    init();
+
+    CubeSampling newvolume;
+    if ( newvolume.usePar(iopar) )
+    {
+	setActiveVolume( newvolume );
+	PtrMan<IOPar> tppar = iopar.subselect( sKeyTrackPlane() );
+	if ( tppar ) trackplane.usePar( *tppar );
+    }
+
+    /* The setting of the active volume must be above the initiation of the
+       trackers to avoid a trigger of dataloading. */
 
     int nrtrackers = 0;
-    iopar.get( nrtrackersStr(), nrtrackers );
-    if ( !nrtrackers ) return false;
+    iopar.get( sKeyNrTrackers(), nrtrackers );
 
     for ( int idx=0; idx<nrtrackers; idx++ )
     {
@@ -454,7 +475,7 @@ bool Engine::usePar( const IOPar& iopar )
 	if ( !localpar ) continue;
 	
 	EM::ObjectID objid;
-	if ( !localpar->get(objectidStr(),objid) ) continue;
+	if ( !localpar->get(sKeyObjectID(),objid) ) continue;
 	EM::EMObject* emobj = EM::EMM().getObject( objid );
 	if ( !emobj ) continue;
 	const int trackeridx = addTracker( emobj );
@@ -462,14 +483,25 @@ bool Engine::usePar( const IOPar& iopar )
 	EMTracker* tracker = trackers[trackeridx];
 	
 	bool doenable = true;
-	localpar->getYN( enabledStr(), doenable );
+	localpar->getYN( sKeyEnabled(), doenable );
 	tracker->enable( doenable );
 
-	bool res = tracker->usePar( *localpar );
+	tracker->usePar( *localpar );
     }
 
     return true;
 }
+
+
+void Engine::init()
+{
+    deepErase( trackers );
+    deepErase( editors );
+    deepUnRef( attribcache );
+    deepErase( attribcachespecs );
+    setActiveVolume( getDefaultActiveVolume() );
+}
+
 
 
 }; // namespace MPE
