@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.30 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.31 2005-10-07 21:58:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,10 +92,9 @@ uiGroup* Wizard::createSeedSetupPage()
 {
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
-    BufferString str( "In this step you'll have to create your seedpoints.\n"
-		      "First select tracking setup, then\n"
+    BufferString str( "Select tracking setup, then\n"
 		      "create a seedpoint by clicking on a slice.\n"
-		      "You can remove a seedpoint by ctrl-click." );
+		      "Remove seedpoints by ctrl-click on them." );
     uiLabel* lbl = new uiLabel( grp, str );
     
     uiSeparator* sep1 = new uiSeparator( grp, "Separator 1" );
@@ -254,14 +253,14 @@ bool Wizard::prepareSeedSetupPage()
     if ( sid==-1 )
         sid = emobj->sectionID( emobj->nrSections()-1 );
 
-    displayPage( sNamePage, false );
-    
     setupgrp->setType( objid, sid );
 
     colorChangeCB(0);
     allowpicking = true;
     updatePickingStatus();
 
+    emobj->notifier.notify( mCB(this,Wizard,emObjectChange) );
+    emObjectChange(0);
     return true;
 }
 
@@ -271,26 +270,16 @@ bool Wizard::leaveSeedSetupPage( bool process )
     allowpicking = false;
     updatePickingStatus();
 
-    if ( !process ) return true;
-
-    const int trackerid = mpeserv->getTrackerID( currentobject );
-    const EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    const EM::ObjectID objid = tracker->objectID();
-    EM::EMObject* emobj = EM::EMM().getObject(objid);
-    const TypeSet<EM::PosID>* pids =
-	emobj->getPosAttribList( EM::EMObject::sSeedNode );
-
-    if ( !pids || !pids->size() )
+    EM::EMObject* emobj = EM::EMM().getObject(currentobject);
+    emobj->notifier.remove( mCB(this,Wizard,emObjectChange) );
+    if ( !process )
     {
-	allowpicking = true;
-	updatePickingStatus();
-	mErrRet( "You did not create any seedpoints" );
+	restoreObject();
+	return true;
     }
 
     if ( !setupgrp->isSetToValidSetup() )
 	mErrRet( "Please select Tracking Setup" );
-
-    displayPage( sSeedSetupPage, false );
 
     return true;
 }
@@ -326,43 +315,49 @@ void Wizard::isStarting()
     seedbox.setEmpty();
 }
 
+void Wizard::restoreObject()
+{
+    //This must come before tracker is removed since
+    //applman needs tracker to know what to remove.
+    if ( objectcreated )
+    {
+	mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject );
+    }
+
+    if ( ioparentrycreated )
+    {
+	const MultiID mid = EM::EMM().getMultiID(currentobject);
+	PtrMan<IOObj> ioobj = IOM().get(mid);
+
+	if ( !ioobj || !fullImplRemove(*ioobj) ||
+	     !IOM().permRemove(mid) )
+	{
+	    pErrMsg( "Could not remove object" );
+	}
+
+    }
+
+    if ( trackercreated )
+    {
+	const int trackerid = mpeserv->getTrackerID( currentobject );
+	MPE::engine().removeTracker( trackerid );
+    }
+
+    ioparentrycreated = false;
+    trackercreated = false;
+    objectcreated = false;
+    currentobject = -1;
+    sid = -1;
+}
+
 
 bool Wizard::isClosing( bool iscancel )
 {
     if ( iscancel )
-    {
-	//This must come before tracker is removed since
-	//applman needs tracker to know what to remove.
-	if ( objectcreated )
-	{
-	    mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject );
-	    objectcreated = false; //Avoids increment of defcol when reseting
-	}
-
-	if ( ioparentrycreated )
-	{
-	    const MultiID mid = EM::EMM().getMultiID(currentobject);
-	    PtrMan<IOObj> ioobj = IOM().get(mid);
-
-	    if ( !ioobj || !fullImplRemove(*ioobj) ||
-	         !IOM().permRemove(mid) )
-	    {
-		pErrMsg( "Could not remove object" );
-	    }
-	}
-
-	if ( trackercreated )
-	{
-	    const int trackerid = mpeserv->getTrackerID( currentobject );
-	    MPE::engine().removeTracker( trackerid );
-	}
-    }
+	restoreObject();
 
     if ( !seedbox.isEmpty() )
-    {
 	mpeserv->expandActiveVolume(seedbox);
-    }
-
 
     return true;
 }
@@ -543,6 +538,8 @@ bool Wizard::createTracker()
 void Wizard::updatePickingStatus()
 {
     const bool shouldbeon = allowpicking && setupgrp->isSetToValidSetup();
+    colorfld->setSensitive(shouldbeon);
+
     if ( shouldbeon==ispicking )
 	return;
 
@@ -576,5 +573,16 @@ void Wizard::setupChange( CallBacker* )
     seedpicker->reTrack();
     uiCursor::restoreOverride();
 }
+
+
+void MPE::Wizard::emObjectChange( CallBacker* )
+{
+    const int trackerid = mpeserv->getTrackerID( currentobject );
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
+
+    setButtonSensitive( uiDialog::CANCEL, seedpicker && seedpicker->nrSeeds() );
+}
+
 
 }; // namespace MPE
