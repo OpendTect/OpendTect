@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.10 2005-09-02 14:11:33 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.11 2005-10-07 12:13:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ protected:
     bool 		is2d_;
     TypeSet<int>	outpinterest_;
     BufferString	errmsg;
+    bool		isinited;
 
     int			outputindex_;
 };

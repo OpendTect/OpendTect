@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.22 2005-10-06 07:27:33 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.23 2005-10-07 12:12:48 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -28,6 +28,7 @@ Processor::Processor( Desc& desc , const char* lk )
     , nriter(0)
     , nrdone(0)
     , lk_(lk)
+    , isinited(false)
     , moveonly(this)
     , outputindex_(0)
 {
@@ -67,6 +68,9 @@ void Processor::addOutput( Output* output )
 int Processor::nextStep()
 {
     if ( !provider || !outputs.size() ) return ErrorOccurred;
+
+    if ( !isinited )
+	init();
 
     const int res = provider->moveToNextTrace();
     if ( !nriter )
@@ -189,6 +193,8 @@ void Processor::init()
 	provider->setPossibleVolume( globalcs );
     else
 	provider->getPossibleVolume( -1, globalcs );
+
+    isinited = true;
 }
 
 
