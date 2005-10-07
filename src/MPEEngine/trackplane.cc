@@ -8,10 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.4 2005-04-15 12:31:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.5 2005-10-07 21:48:45 cvskris Exp $";
    
 
 #include "trackplane.h"
+
+#include "iopar.h"
 #include "mathfunc.h"
 #include "survinfo.h"
 #include "trigonometry.h"
@@ -19,6 +21,9 @@ static const char* rcsID = "$Id: trackplane.cc,v 1.4 2005-04-15 12:31:30 cvsnann
 
 namespace MPE
 {
+
+DefineEnumNames( TrackPlane, TrackMode, 0, "Tracking modes" )
+{ sKey::None, "Extend", "Retrack", "Erase", "Move", 0 };
 
 
 TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )
@@ -103,5 +108,28 @@ void TrackPlane::computePlane(Plane3& plane) const
 
     plane.set( p0, p1, p2 );
 }
+
+
+void TrackPlane::fillPar( IOPar& par ) const
+{
+    cubesampling.fillPar( par );
+    par.set( sKeyTrackMode(), TrackModeRef(trackmode) );
+}
+    
+
+bool TrackPlane::usePar( const IOPar& par )
+{
+    if ( !cubesampling.usePar(par) )
+	return false;
+
+    EnumRef tmref = TrackModeRef(trackmode);
+    if ( !par.get( sKeyTrackMode(), tmref ) )
+	return false;
+
+    return true;
+}
+    
+
+    
 
 };  //namespace
