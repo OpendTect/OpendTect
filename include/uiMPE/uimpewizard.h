@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.16 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.17 2005-10-07 21:59:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     static const int	sFinalizePage;
 
 protected:
+    void		restoreObject();
 
     uiIOObjSelGrp*	objselgrp;
 
@@ -86,6 +87,8 @@ protected:
     void		colorChangeCB(CallBacker*);
     void		anotherSel(CallBacker*);
     void		setupChange(CallBacker*);
+
+    void		emObjectChange(CallBacker*);
 
     bool		allowpicking;
     bool		ispicking;
