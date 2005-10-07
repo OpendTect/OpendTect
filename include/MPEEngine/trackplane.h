@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.5 2005-09-15 08:18:33 cvskris Exp $
+ RCS:		$Id: trackplane.h,v 1.6 2005-10-07 21:48:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,9 @@ namespace MPE
 class TrackPlane
 {
 public:
+    enum TrackMode	{ None, Extend, ReTrack, Erase, Move };
+    			DeclareEnumUtils(TrackMode);
+
     			TrackPlane( const BinID& start,
 			       const BinID& stop,
 			       float time );
@@ -37,7 +40,7 @@ public:
 			       const BinID& stop,
 			       float starttime,
 			       float stoptime );
-			TrackPlane() {}
+			TrackPlane() : trackmode(Extend) {}
 
     bool		isVertical() const;
     const CubeSampling&	boundingBox() const { return cubesampling; }
@@ -52,11 +55,15 @@ public:
 
     void		computePlane(Plane3&) const;
 
-    enum TrackMode	{ None, Extend, ReTrack, Erase, Move };
     void		setTrackMode(TrackMode tm)	{ trackmode = tm; }
     TrackMode		getTrackMode() const		{ return trackmode; }
 
+    void		fillPar(IOPar&) const;
+    bool		usePar( const IOPar& );
+
 protected:
+
+    static const char*	sKeyTrackMode()	{ return "Track Mode"; }
 
     CubeSampling	cubesampling;
     BinIDValue		motion_;
