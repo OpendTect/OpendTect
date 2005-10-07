@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.113 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.114 2005-10-07 14:09:08 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -709,6 +709,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !applMgr()->EMServer()->loadSurface(mid) )
 	    return;
+
+	emid = applMgr()->EMServer()->getObjectID(mid);
 
 	uivisemobj = new uiVisEMObject( getUiParent(), emid, sceneID(),visserv);
 	displayid = uivisemobj->id();
