@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.55 2005-10-07 15:32:13 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.56 2005-10-07 18:27:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -476,31 +476,32 @@ void uiMPEMan::attribSel( CallBacker* )
 	    displays[idx]->setSelSpec( spec );
 	    displays[idx]->updateTexture();
 	}
-
-	return;
     }
-
-    ObjectSet<const Attrib::SelSpec> attribspecs;
-    engine().getNeededAttribs( attribspecs );
-    for ( int idx=0; idx<attribspecs.size(); idx++ )
+    else
     {
-	const Attrib::SelSpec* spec = attribspecs[idx];
-	if ( strcmp(spec->userRef(),attribfld->text()) )
-	    continue;
-
-	for ( int idy=0; idy<displays.size(); idy++ )
+	ObjectSet<const Attrib::SelSpec> attribspecs;
+	engine().getNeededAttribs( attribspecs );
+	for ( int idx=0; idx<attribspecs.size(); idx++ )
 	{
-	    displays[idy]->setSelSpec( *spec );
-	    displays[idy]->updateTexture();
-	}
-	break;
-    }	
+	    const Attrib::SelSpec* spec = attribspecs[idx];
+	    if ( strcmp(spec->userRef(),attribfld->text()) )
+		continue;
+
+	    for ( int idy=0; idy<displays.size(); idy++ )
+	    {
+		displays[idy]->setSelSpec( *spec );
+		displays[idy]->updateTexture();
+	    }
+	    break;
+	}	
+    }
 
     if ( colbardlg && displays.size() )
     {
-	const int coltabid = displays[0]->getTexture()
-	    ?  displays[0]->getTexture()->getColorTab().id()
-	    : -1;
+	const int coltabid =
+	    displays[0]->getTexture() && displays[0]->getTexture()->isOn()
+		?  displays[0]->getTexture()->getColorTab().id()
+		: -1;
 
 	colbardlg->setColTab( coltabid );
     }
