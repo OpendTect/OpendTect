@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.3 2005-10-04 14:23:11 cvskris Exp $
+ RCS:           $Id: emseedpicker.h,v 1.4 2005-10-07 19:17:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     virtual bool	canRemoveSeed() const { return false; }
     virtual bool	removeSeed( const EM::PosID& ) { return false; }
     virtual bool	reTrack() { return false; }
+    virtual int		nrSeeds() const { return 0; }
 
     virtual bool	stopSeedPick() { return true; }
 };
@@ -53,35 +54,34 @@ public:
 class HorizonSeedPicker : public EMSeedPicker
 {
 public:
-    				HorizonSeedPicker( MPE::EMTracker& );
+    			HorizonSeedPicker( MPE::EMTracker& );
 
-    bool			canSetSectionID() const { return true; }
-    bool			setSectionID( const EM::SectionID& sid );
-    EM::SectionID		getSectionID() const { return sectionid; }
+    bool		canSetSectionID() const		{ return true; }
+    bool		setSectionID( const EM::SectionID& sid );
+    EM::SectionID	getSectionID() const		{ return sectionid; }
 
-    bool			startSeedPick();
-    bool			addSeed( const Coord3& );
-    bool			canAddSeed() const { return true; }
-    bool			removeSeed( const EM::PosID& );
-    bool			canRemoveSeed() const { return true; }
-    bool			reTrack();
+    bool		startSeedPick();
+    bool		addSeed( const Coord3& );
+    bool		canAddSeed() const		{ return true; }
+    bool		removeSeed( const EM::PosID& );
+    bool		canRemoveSeed() const		{ return true; }
+    bool		reTrack();
+    int			nrSeeds() const			{return seedpos.size();}
 
-    bool			stopSeedPick();
+    bool		stopSeedPick();
 
 protected:
-    bool			removeEverythingButSeeds();
+    bool		removeEverythingButSeeds();
 
-    TypeSet<EM::PosID>		seedlist;
-    TypeSet<Coord3>		seedpos;
-    int				firsthistorynr;
-    bool			didchecksupport;
+    TypeSet<EM::PosID>	seedlist;
+    TypeSet<Coord3>	seedpos;
+    int			firsthistorynr;
+    bool		didchecksupport;
 
-    EM::SectionID		sectionid;
-    MPE::EMTracker&		tracker;
+    EM::SectionID	sectionid;
+    MPE::EMTracker&	tracker;
 };
-
 
 };
 
 #endif
-
