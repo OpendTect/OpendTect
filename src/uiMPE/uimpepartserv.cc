@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.26 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.27 2005-10-07 21:59:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -313,6 +313,7 @@ void uiMPEPartServer::fillPar( IOPar& par ) const
 
 bool uiMPEPartServer::usePar( const IOPar& par )
 {
+    delete wizard; wizard = 0;
     bool res = MPE::engine().usePar( par );
     if ( res )
     {
