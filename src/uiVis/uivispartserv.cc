@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.277 2005-10-06 20:31:04 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.278 2005-10-07 15:32:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 #include "vismpe.h"
 #include "vistransform.h"
+#include "vistransmgr.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
 #include "seisbuf.h"
@@ -119,7 +120,7 @@ const char* uiVisPartServer::getObjectName( int id ) const
 }
 
 
-int uiVisPartServer::addScene(visSurvey::Scene* newscene)
+int uiVisPartServer::addScene( visSurvey::Scene* newscene )
 {
     if ( !newscene ) newscene = visSurvey::Scene::create();
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
@@ -597,18 +598,8 @@ bool uiVisPartServer::setWorkingArea()
 	int sceneid = sceneids[ids];
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
-	if ( scene ) scene->updateRange();
+	if ( scene ) scene->setAnnotationCube( SI().sampling(true) );
 
-	/*
-	TypeSet<int> objids;
-	getChildIds( sceneid, objids );
-	for ( int ido=0; ido<objids.size(); ido++ )
-	{
-	    visBase::DataObject* dobj = visBase::DM().getObject( objids[ido] );
-	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
-	    if ( pdd ) pdd->setGeometry( true );
-	}
-	*/
     }
 
     return true;
@@ -642,6 +633,10 @@ bool uiVisPartServer::usePar( const IOPar& par )
 		(visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
 	addScene( newscene );
 
+	float appvel;
+	if ( par.get(appvelstr,appvel) )
+	    newscene->setZScale( appvel/1000 );
+
 	TypeSet<int> children;
 	getChildIds( newscene->id(), children );
 
@@ -656,11 +651,6 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	    turnOn( childid, isOn(childid) );
 	}
     }
-
-
-    float appvel;
-    if ( par.get( appvelstr, appvel ) )
-	visSurvey::SPM().setZScale( appvel/1000 );
 
     return true;
 }
@@ -689,7 +679,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     for ( int idx=0; idx<scenes.size(); idx++ )
 	storids += scenes[idx]->id();
 
-    par.set( appvelstr, visSurvey::SPM().getZScale()*1000 );
+    par.set( appvelstr, scenes.size() ? scenes[0]->getZScale()*1000 : 2000 );
 
     const CubeSampling& cs = SI().sampling( true );
     FileMultiString fms;
@@ -1035,7 +1025,7 @@ void uiVisPartServer::removeConnections( int id )
 
 void uiVisPartServer::rightClickCB( CallBacker* cb )
 {
-    mDynamicCastGet( visBase::DataObject*,dataobj,cb );
+    mDynamicCastGet(visBase::DataObject*,dataobj,cb);
     const int id = dataobj ? dataobj->id() : getSelObjectId();
     if ( id==-1 )
 	return;
@@ -1045,9 +1035,9 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
     if ( vo && vo->rightClickedEventInfo() && vo->getDisplayTransformation() )
     {
 	pickedpos = vo->getDisplayTransformation()->transformBack(
-					vo->rightClickedEventInfo()->pickedpos);
-	pickedpos = 
-	    visSurvey::SPM().getZScaleTransform()->transformBack( pickedpos );
+			vo->rightClickedEventInfo()->pickedpos);
+	pickedpos = visSurvey::STM().currentScene()->
+			getZScaleTransform()->transformBack( pickedpos );
     }
 
     showMenu( id, uiMenuHandler::fromScene, 

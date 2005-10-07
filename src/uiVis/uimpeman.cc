@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.54 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.55 2005-10-07 15:32:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 #include "vistexture3.h"
 #include "vistransform.h"
+#include "vistransmgr.h"
 
 using namespace MPE;
 
@@ -257,11 +258,10 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !seedpicker )
 	return;
 
-    const Coord3 disppos =
-	visSurvey::SPM().getZScaleTransform()->
+    visSurvey::Scene* scene = visSurvey::STM().currentScene();
+    const Coord3 disppos = scene->getZScaleTransform()->
 		transformBack(clickcatcher->clickedPos());
-    const Coord3 pos =
-	visSurvey::SPM().getUTM2DisplayTransform()->transformBack(disppos);
+    const Coord3 pos = scene->getUTM2DisplayTransform()->transformBack(disppos);
 
     uiCursor::setOverride( uiCursor::Wait );
     seedpicker->addSeed( pos );

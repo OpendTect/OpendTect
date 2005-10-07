@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.58 2005-10-06 21:29:21 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.59 2005-10-07 15:31:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,10 +198,10 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     mDynamicCastGet(const EM::Surface*,emsurface,emobject)
     if ( !emsurface ) return;
 
-    Coord3 newpos =
-      visSurvey::SPM().getZScaleTransform()->transformBack(eventinfo.pickedpos);
+    const mVisTrans* ztrans = scene_->getZScaleTransform();
+    Coord3 newpos = ztrans->transformBack( eventinfo.pickedpos );
     if ( transformation )
-	newpos = transformation->transformBack(newpos);
+	newpos = transformation->transformBack( newpos );
 
     const float tracedist = SI().transform(BinID(0,0)).distance(
 	    SI().transform(BinID(SI().inlStep(),SI().crlStep())));
@@ -216,9 +216,8 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     for ( int idx=0; idx<closestnodes.size(); idx++ )
     {
 	const Coord3 coord = emsurface->getPos( closestnodes[idx] );
-	const Coord3 displaypos =
-	    visSurvey::SPM().getZScaleTransform()->transform(transformation
-		    ? transformation->transform(coord) : coord );
+	const Coord3 displaypos = ztrans->transform(
+		transformation ? transformation->transform(coord) : coord );
 
 	const float dist = displaypos.distance( eventinfo.pickedpos );
 	if ( !idx || dist<mindist )
@@ -240,13 +239,15 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	    emsurface->geometry.subID2RowCol( closestnode.subID() );
 	BufferString str = "Section: "; str += closestnode.sectionID();
 	str += " ("; str += closestrc.row;
-	str += ","; str += closestrc.col; str+=")";
+	str += ","; str += closestrc.col; str += ",";
+	str += emsurface->geometry.getPos(closestnode.sectionID(),closestrc).z;
+	str+=")";
 	pErrMsg(str);
     }
 }
 
 
-void EMObjectDisplay::edgeLineRightClickCB(CallBacker*)
+void EMObjectDisplay::edgeLineRightClickCB( CallBacker* )
 {}
 
 
@@ -337,6 +338,7 @@ bool EMObjectDisplay::updateFromEM()
 
     nontexturecol = emobject->preferredColor();
     getMaterial()->setColor( nontexturecol );
+    if ( usestexture ) useTexture( true );
     updateFromMPE();
 
     return true;
@@ -1090,7 +1092,8 @@ int EMObjectDisplay::usePar( const IOPar& par )
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    setDisplayTransformation( SPM().getUTM2DisplayTransform() );
+    if ( scene_ )
+	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
     if ( !par.get(sKeyEarthModelID,parmid) )
 	return -1;

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.55 2005-10-04 14:59:02 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.56 2005-10-07 15:31:53 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -584,7 +584,7 @@ void RandomTrackDisplay::removeNearestKnot( int sectionidx,
 
 float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 {
-    const visBase::Transformation* utm2display= SPM().getUTM2DisplayTransform();
+    const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos = utm2display->transformBack( pos );
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
     if ( cache.find(binid) < 0 ) return mUndefValue;

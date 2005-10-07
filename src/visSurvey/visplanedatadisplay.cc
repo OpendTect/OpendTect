@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.87 2005-10-04 14:59:02 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.88 2005-10-07 15:31:53 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.87 2005-10-04 14:59:
 #include "viscolorseq.h"
 #include "sorting.h"
 #include "vistransform.h"
+#include "vistransmgr.h"
 #include "iopar.h"
 #include "colortab.h"
 #include <math.h>
@@ -60,14 +61,11 @@ PlaneDataDisplay::PlaneDataDisplay()
 //TODO: Fix! For some reason this is needed to let Texture2 work properly
     showManipulator(true);
     showManipulator(false);
-
-    SPM().zscalechange.notify( mCB(this,PlaneDataDisplay,appVelChCB) );
 }
 
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
-    SPM().zscalechange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
     trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
     trect->getColorTab().sequencechange.remove(
 				mCB(this,PlaneDataDisplay,coltabChanged) );
@@ -77,6 +75,16 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
     if ( cache ) cache->unRef();
     if ( colcache ) colcache->unRef();
+
+    if ( scene_ )
+	scene_->zscalechange.remove( mCB(this,PlaneDataDisplay,zScaleChanged) );
+}
+
+
+void PlaneDataDisplay::setUpConnections()
+{
+    if ( scene_ )
+	scene_->zscalechange.notify( mCB(this,PlaneDataDisplay,zScaleChanged) );
 }
 
 
@@ -119,7 +127,7 @@ void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
 				Coord3(inlrg.start,crlrg.start,vrg.start) );
     setRanges( inlrg, crlrg, vrg, manip );
 
-    resetDraggerSizes( SPM().getZScale() );
+    resetDraggerSizes( scene_ ? scene_->getZScale() : STM().defZScale() );
 }
 
 
@@ -224,7 +232,7 @@ void PlaneDataDisplay::resetDraggerSizes( float appvel )
 
 float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 {
-    const visBase::Transformation* utm2display= SPM().getUTM2DisplayTransform();
+    const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos = utm2display->transformBack( pos );
     Coord3 planeorigo = trect->getRectangle().origo();
     float width0 = trect->getRectangle().width( 0 );
@@ -277,7 +285,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	else if ( binid.crl>planeorigo.y+width1 )
 	    inlcrldist.crl = mNINT( binid.crl-planeorigo.y-width1);
 
-	zdiff = (planeorigo.z - xytpos.z) * SI().zFactor() * SPM().getZScale();
+	zdiff = (planeorigo.z-xytpos.z) * SI().zFactor() * scene_->getZScale();
     }
 
     const float inldist =
@@ -293,14 +301,14 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    float maxzdist = SI().zFactor()*SPM().getZScale()*SI().zStep() / 2;
+    float maxzdist = SI().zFactor() * scene_->getZScale() * SI().zStep() / 2;
     return type == Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
 }
 
 
-void PlaneDataDisplay::appVelChCB( CallBacker* )
+void PlaneDataDisplay::zScaleChanged( CallBacker* )
 {
-    resetDraggerSizes( SPM().getZScale() );
+    resetDraggerSizes( scene_->getZScale() );
 }
 
 
@@ -545,6 +553,7 @@ bool PlaneDataDisplay::setDataVolume( bool colordata,
 
     if ( cache ) cache->unRef();
     cache = sliceset;
+    cache->ref();
     return true;
 }
 

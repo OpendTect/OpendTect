@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.31 2005-10-06 20:31:04 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.32 2005-10-07 15:32:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 #define mRefUnrefRet { emod->ref(); emod->unRef(); return; }
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
-			      int scene, uiVisPartServer* vps )
+			      int sceneid, uiVisPartServer* vps )
     : displayid(-1)
     , visserv( vps )
     , uiparent( uip )
@@ -93,7 +93,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
     visSurvey::EMObjectDisplay* emod = visSurvey::EMObjectDisplay::create();
 
-    emod->setDisplayTransformation(visSurvey::SPM().getUTM2DisplayTransform());
+    mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
+    emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
 
     uiCursorChanger cursorchanger(uiCursor::Wait);
     if ( !emod->setEMObject(emid) ) mRefUnrefRet
@@ -101,7 +102,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     EM::EMManager& em = EM::EMM();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
 
-    visserv->addObject( emod, scene, true );
+    visserv->addObject( emod, sceneid, true );
     displayid = emod->id();
     setDepthAsAttrib();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.57 2005-08-18 19:38:04 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.58 2005-10-07 15:32:00 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -127,10 +127,11 @@ public:
 protected:
 				~PlaneDataDisplay();
 
+    void			setUpConnections();
     void			setTextureRect(visBase::TextureRect*);
     void			setData(const Attrib::SliceSet*,int datatype=0);
     Array2D<float>*		createArray(const Attrib::SliceSet*,int) const;
-    void			appVelChCB(CallBacker*);
+    void			zScaleChanged(CallBacker*);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     CubeSampling		getCubeSampling(bool manippos) const;

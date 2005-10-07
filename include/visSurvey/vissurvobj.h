@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.43 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.44 2005-10-07 15:32:00 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "color.h"
 #include "cubesampling.h"
+#include "vissurvscene.h"
 
 class BinIDValueSet;
 class LineStyle;
@@ -35,7 +36,7 @@ namespace visSurvey
 /*!\brief Base class for all 'Display' objects
 */
 
-class SurveyObject 
+class SurveyObject
 {
 public:
     virtual float		calcDist(const Coord3&) const
@@ -160,10 +161,17 @@ public:
     				/*!< Every patch should have a BinIDValueSet */
     virtual void		readAuxData()	{}
 
+    void			setScene(Scene*);
+
     static float		sDefMaxDist;
 
 protected:
+    				SurveyObject() : scene_(0)	{}
+
     BufferString		errmsg;
+    Scene*			scene_;
+
+    virtual void		setUpConnections()		{}
 };
 
 
@@ -179,6 +187,7 @@ protected:
   
 */
 
+/*
 class SurveyParamManager : public CallBackClass
 {
 public:
@@ -207,6 +216,8 @@ protected:
 };
 
 SurveyParamManager& SPM();
+*/
+
 
 }; // Namespace visSurvey
 

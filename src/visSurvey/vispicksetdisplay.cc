@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.69 2005-09-05 12:18:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.70 2005-10-07 15:31:53 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.69 2005-09-05 12:18:10
 #include "vismaterial.h"
 #include "visdatagroup.h"
 #include "vistransform.h"
+#include "vistransmgr.h"
 #include "separstr.h"
 #include "trigonometry.h"
 
@@ -329,8 +330,8 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 
 		if ( validpicksurface )
 		{
-		    Coord3 newpos = SPM().getZScaleTransform()->
-					    transformBack(eventinfo.pickedpos);
+		    Coord3 newpos = scene_->getZScaleTransform()->
+			transformBack( eventinfo.pickedpos );
 		    if ( transformation )
 			newpos = transformation->transformBack(newpos);
 		    mDynamicCastGet(SurveyObject*,so,

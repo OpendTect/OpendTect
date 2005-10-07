@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.33 2005-07-05 16:45:05 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.34 2005-10-07 15:32:00 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,9 @@ ________________________________________________________________________
 
 #include "visscene.h"
 #include "position.h"
+
+class HorSampling;
+class CubeSampling;
 
 namespace visBase
 {
@@ -62,6 +65,7 @@ public:
     static Scene*		create()
 				mCreateDataObj(Scene);
 
+    virtual void		removeAll();
     virtual void		addObject(visBase::DataObject*);
     				/*!< If the object is a visSurvey::SurveyObject
 				     it will ask if it's an inlcrl-object or
@@ -73,6 +77,7 @@ public:
     void			addInlCrlTObject(visBase::DataObject*);
     virtual void		removeObject(int idx);
 
+    void			setAnnotationCube(const CubeSampling&);
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
@@ -87,26 +92,38 @@ public:
     BufferString		getMousePosString() const { return mouseposstr;}
 
     void			objectMoved(CallBacker*);
-    void			updateRange();
+
+    Notifier<Scene>		zscalechange;
+    void			setZScale(float);
+    float			getZScale() const	{ return curzscale; }
+
+    mVisTrans*			getZScaleTransform() const
+				{ return zscaletransform; }
+    mVisTrans*			getInlCrl2DisplayTransform() const
+    				{ return inlcrl2disptransform; }
+    mVisTrans*			getUTM2DisplayTransform() const
+				{ return utm2disptransform; }
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
 
 protected:
     				~Scene();
-    void			setCube();
-    void			setup();
 
+    void			init();
+    void			createTransforms(const HorSampling&);
     void			mouseMoveCB(CallBacker*);
     
-    const visBase::Transformation* zscaletransform;
-    const visBase::Transformation* inlcrl2displtransform;
+    visBase::Transformation*	zscaletransform;
+    visBase::Transformation*	inlcrl2disptransform;
+    visBase::Transformation*	utm2disptransform;
 
     visBase::Annotation*	annot;
 
     Coord3			xytmousepos;
     float			mouseposval;
     BufferString		mouseposstr;
+    float			curzscale;
 
     static const char*		annottxtstr;
     static const char*		annotscalestr;

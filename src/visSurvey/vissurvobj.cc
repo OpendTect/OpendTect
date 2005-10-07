@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.27 2005-08-16 17:10:18 cvsbert Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.28 2005-10-07 15:31:53 cvsnanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -20,10 +20,6 @@ static const char* rcsID = "$Id: vissurvobj.cc,v 1.27 2005-08-16 17:10:18 cvsber
 namespace visSurvey {
 
 float SurveyObject::sDefMaxDist = 10;
-
-const char* SurveyParamManager::zscalestr = "Z Scale";
-float SurveyParamManager::defzscale = 2;
-
 
 bool SurveyObject::setDataVolume( bool color, Attrib::SliceSet* slc )
 {
@@ -45,6 +41,17 @@ BufferString SurveyObject::getResolutionName( int res ) const
     else return "Default";
 }
 
+
+void SurveyObject::setScene( Scene* scn )
+{
+    scene_ = scn;
+    setUpConnections();
+}
+
+
+/*
+const char* SurveyParamManager::zscalestr = "Z Scale";
+float SurveyParamManager::defzscale = 2;
 
 
 SurveyParamManager& SPM()
@@ -217,5 +224,7 @@ void SurveyParamManager::removeTransforms(CallBacker*)
 
     zscale = 1;
 }
+
+*/
 
 }; // namespace visSurvey
