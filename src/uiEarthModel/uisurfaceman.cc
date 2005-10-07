@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.27 2005-09-02 09:52:48 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.28 2005-10-07 14:14:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
 {
     createDefaultUI( hor ? "hor" : "flt" );
 
-    manipgrp->addButton( ioPixmap(GetDataFileName("copyobj.png")),
+    manipgrp->addButton( ioPixmap(GetIconFileName("copyobj.png")),
 	    		 mCB(this,uiSurfaceMan,copyCB), 
 			 hor ? "Copy horizon" : "Copy fault" );
 
