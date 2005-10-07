@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.29 2005-10-06 20:40:16 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.30 2005-10-07 22:03:10 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -269,19 +269,19 @@ void MPEDisplay::updateTexture()
     const Attrib::SliceSet* sliceset = engine_.getAttribCache( as_ );
     if ( !sliceset )
     {
-	setTexture( 0 );
+	if ( texture_ ) texture_->turnOn(false);
 	return;
     }
 
     if ( !texture_ )
 	setTexture( visBase::Texture3::create() );
 
-    const Array3D<float>* td = 0;
     if ( getCubeSampling() != sliceset->sampling )
 	setCubeSampling( sliceset->sampling );
-    td = sliceset->createArray( 0, 1, 2 );
+
+    PtrMan<const Array3D<float> > td = sliceset->createArray( 0, 1, 2 );
     texture_->setData( td );
-    delete td;
+    texture_->turnOn(true);
 }
 
 
@@ -361,7 +361,7 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
     const CubeSampling newcube = getBoxPosition();
     if ( newcube!=engine_.activeVolume() )
     {
-	setTexture(0);
+	if ( texture_ ) texture_->turnOn(false);
 	manipulated_ = true;
     }
 }
