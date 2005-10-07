@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.56 2005-10-07 18:27:54 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.57 2005-10-07 22:01:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,8 @@ ________________________________________________________________________
 
 using namespace MPE;
 
+#define mUpdateColTabButton( cond ) \
+    setSensitive( clrtabidx, cond && !colbardlg && attribfld->size()>1 )
 
 #define mAddButton(pm,func,tip,toggle) \
     addButton( ioPixmap( GetIconFileName(pm) ), \
@@ -74,8 +76,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
     
-    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
-			    "Set track plane colorbar", true );
     moveplaneidx = mAddButton( "moveplane.png", movePlaneCB,
 			       "Move track plane", true );
     extendidx = mAddButton( "trackplane.png", extendModeCB,
@@ -104,6 +104,9 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     attribfld->setToolTip( "QC Attribute" );
     attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
     setStretchableWidget( attribfld );
+
+    clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
+			    "Set track plane colorbar", true );
 
     addSeparator();
     transfld = new uiSlider( this, "Slider", 2 );
@@ -176,6 +179,8 @@ void uiMPEMan::deleteVisObjects()
 	clickcatcher->unRef();
 	clickcatcher = 0;
     }
+
+    init = false;
 }
 
 
@@ -325,7 +330,7 @@ void uiMPEMan::updateAttribNames()
 	attribfld->addItem( spec->userRef() );
     }
 
-    mGetDisplays(false)
+    mGetDisplays(false);
 
     if ( displays.size() )
     {
@@ -355,6 +360,7 @@ void uiMPEMan::updateAttribNames()
     }
 
     attribSel(0);
+    mUpdateColTabButton( true );
 }
 
 
@@ -667,11 +673,15 @@ void uiMPEMan::trackInVolume( CallBacker* )
 
 void uiMPEMan::setTrackButton()
 {
+    mGetDisplays(false);
+    const bool hasvisplane = displays.size();
+
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    const bool extend = tm==TrackPlane::Extend;
-    const bool retrack = tm==TrackPlane::ReTrack;
-    const bool erase = tm==TrackPlane::Erase;
-    const bool move = tm==TrackPlane::Move;
+    const bool extend = hasvisplane && tm==TrackPlane::Extend;
+    const bool retrack = hasvisplane && tm==TrackPlane::ReTrack;
+    const bool erase = hasvisplane && tm==TrackPlane::Erase;
+    const bool move = hasvisplane && tm==TrackPlane::Move;
+
     turnOn( extendidx, extend );
     turnOn( retrackidx, retrack );
     turnOn( eraseidx, erase );
@@ -692,7 +702,8 @@ void uiMPEMan::showTracker( bool yn )
     setTrackButton();
 
     mGetDisplays(true)
-    setSensitive( clrtabidx, displays.size() > 0 );
+    mUpdateColTabButton(yn);
+
     for ( int idx=0; idx<displays.size(); idx++ )
     {
 	displays[idx]->showDragger( yn );
@@ -706,10 +717,10 @@ void uiMPEMan::setColorbarCB(CallBacker*)
     if ( colbardlg || !isOn(clrtabidx) )
 	return;
 
-    setSensitive( clrtabidx, false );
     mGetDisplays(false);
 
-    if ( displays.size() < 1 )	return;
+    if ( displays.size()<1 )
+	return;
 
     const int coltabid = displays[0]->getTexture()
 	?  displays[0]->getTexture()->getColorTab().id()
@@ -718,14 +729,17 @@ void uiMPEMan::setColorbarCB(CallBacker*)
     colbardlg = new uiColorBarDialog( this, coltabid, "Track plane colorbar" );
     colbardlg->winClosing.notify( mCB( this,uiMPEMan,onColTabClosing ) );
     colbardlg->go();
+
+    mUpdateColTabButton( true );
 }
 
 
 void uiMPEMan::onColTabClosing( CallBacker* )
 {
-    setSensitive( clrtabidx, true );
     turnOn( clrtabidx, false );
     colbardlg = 0;
+
+    mUpdateColTabButton( true );
 }
 
 
