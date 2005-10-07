@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994; 20-10-1995
  Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.7 2003-12-23 15:57:01 arend Exp $
+ RCS:		$Id: enums.h,v 1.8 2005-10-07 20:25:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,6 +202,7 @@ private:
 #define DeclareEnumUtils(enm) \
 public: \
     static EnumRef enm##Ref(enm&); \
+    static const EnumRef enm##Ref(const enm&); \
     static const EnumDef& enm##Def(); \
     static const char* enm##Names[];\
     static const char** enm##NamesGet();\
@@ -222,6 +223,8 @@ public:
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
 EnumRef clss::enm##Ref( enm& _e_ ) \
+    { return EnumRef( (int&)_e_, enm##Def_ ); } \
+const EnumRef clss::enm##Ref( const enm& _e_ ) \
     { return EnumRef( (int&)_e_, enm##Def_ ); } \
 const EnumDef& clss::enm##Def() \
     { return enm##Def_; } \
