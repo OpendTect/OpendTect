@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.34 2005-09-21 08:46:49 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.35 2005-10-07 10:06:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.34 2005-09-21 08:46:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.35 2005-10-07 10:06:36 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -283,7 +283,7 @@ void uiODMenuMgr::fillUtilMenu()
 
 
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( ioPixmap( GetDataFileName(fnm) ), \
+    tb->addButton( ioPixmap( GetIconFileName(fnm) ), \
 	    	   mCB(&applMgr(),uiODApplMgr,fn), txt, togg )
 
 void uiODMenuMgr::fillDtectTB()
@@ -295,7 +295,7 @@ void uiODMenuMgr::fillDtectTB()
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( ioPixmap( GetDataFileName(fnm) ), \
+    tb->addButton( ioPixmap( GetIconFileName(fnm) ), \
 	    	   mCB(this,uiODMenuMgr,fn), txt, togg )
 
 
@@ -310,7 +310,7 @@ void uiODMenuMgr::fillManTB()
 
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
-    tb->addButton( ioPixmap( GetDataFileName(fnm) ), \
+    tb->addButton( ioPixmap( GetIconFileName(fnm) ), \
 	    	   mCB(&sceneMgr(),uiODSceneMgr,fn), txt, togg )
 
 void uiODMenuMgr::fillCoinTB()
@@ -339,7 +339,7 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
     cointb->setToolTip( cameraid, perspective ? "Switch to orthographic camera"
 					      : "Switch to perspective camera");
     BufferString fnm( perspective ? "perspective.png" : "orthographic.png" );
-    cointb->setPixmap( cameraid, ioPixmap(GetDataFileName(fnm)) );
+    cointb->setPixmap( cameraid, ioPixmap(GetIconFileName(fnm)) );
 }
 
 

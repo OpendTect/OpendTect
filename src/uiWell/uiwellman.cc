@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.27 2005-09-02 09:52:48 cvsnanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.28 2005-10-07 10:06:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ uiWellMan::uiWellMan( uiParent* p )
 	    	       "Rename selected log" );
     butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiWellMan,removeLogPush),
 	    	       "Remove selected log" );
-    butgrp->addButton( ioPixmap(GetDataFileName("export.png")),
+    butgrp->addButton( ioPixmap(GetIconFileName("export.png")),
 	    	       mCB(this,uiWellMan,exportLogs), "Export log" );
     butgrp->attach( rightTo, logsfld );
     

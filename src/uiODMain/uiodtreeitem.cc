@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.112 2005-10-06 20:31:04 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.113 2005-10-07 10:06:36 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -440,7 +440,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( visserv->isLocked(displayid) )
 	{
-	    ioPixmap pixmap( GetDataFileName("lock_small.png") );
+	    ioPixmap pixmap( GetIconFileName("lock_small.png") );
 	    uilistviewitem->setPixmap( 0, pixmap );
 	}
 	else

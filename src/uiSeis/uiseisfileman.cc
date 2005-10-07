@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.54 2005-09-02 09:52:48 cvsnanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.55 2005-10-07 10:06:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,17 +50,18 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     ctio.ctxt.trglobexpr = "CBVS`2D";
     createDefaultUI( "cbvs" );
 
-    cpym2dbut = manipgrp->addButton( ioPixmap(GetDataFileName("copyobj.png")),
-	    			   mCB(this,uiSeisFileMan,copyMan2DPush),
-	    			   "Copy cube" );
-    manipgrp->setAlternative( cpym2dbut, ioPixmap(GetDataFileName("man2d.png")),
+    cpym2dbut = manipgrp->addButton( ioPixmap(GetIconFileName("copyobj.png")),
+	    			     mCB(this,uiSeisFileMan,copyMan2DPush),
+	    			     "Copy cube" );
+    manipgrp->setAlternative( cpym2dbut,
+	    		      ioPixmap(GetIconFileName("man2d.png")),
 			      "Manage lines" );
 
-    mrgdmpbut = manipgrp->addButton( ioPixmap(GetDataFileName("mergeseis.png")),
-	    			    mCB(this,uiSeisFileMan,mergeDump2DPush),
-	    			    "Merge blocks of inlines into cube" );
+    mrgdmpbut = manipgrp->addButton( ioPixmap(GetIconFileName("mergeseis.png")),
+	    			     mCB(this,uiSeisFileMan,mergeDump2DPush),
+	    			     "Merge blocks of inlines into cube" );
     manipgrp->setAlternative( mrgdmpbut,
-			      ioPixmap(GetDataFileName("dumpgeom.png")),
+			      ioPixmap(GetIconFileName("dumpgeom.png")),
 			      "Dump geometry" );
 
     topgrp->setPrefWidthInChar( cPrefWidth );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.14 2005-10-05 15:02:55 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.15 2005-10-07 10:06:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm )
     , attrset(0)
     , dirshowcb(this)
     , evalattrcb(this)
+    , adsman(0)
 {
     createMenuBar();
     createToolBar();
@@ -104,7 +105,7 @@ void uiAttribDescSetEd::createMenuBar()
 
 
 #define mAddButton(pm,func,tip) \
-    toolbar->addButton( ioPixmap( GetDataFileName(pm) ), \
+    toolbar->addButton( ioPixmap( GetIconFileName(pm) ), \
 	    		mCB(this,uiAttribDescSetEd,func), tip )
 
 void uiAttribDescSetEd::createToolBar()
@@ -332,9 +333,16 @@ void uiAttribDescSetEd::rmPush( CallBacker* )
     Desc* curdesc = curDesc();
     if ( !curdesc ) return;
 
+    if ( attrset->isAttribUsed( curdesc->id() ) )
+    {
+	uiMSG().error( "Cannot remove this attribute. It is used\n"
+		       "as input for another attribute" );
+	return;
+    }
+
     const int curidx = attrdescs.indexOf( curdesc );
     attrset->removeDesc( attrset->getID(*curdesc) );
-    newList( curidx-1 );
+    newList( curidx );
     removeNotUsedAttr();
     adsman->setSaved( false );
 }

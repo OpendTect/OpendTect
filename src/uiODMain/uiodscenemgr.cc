@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.44 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.45 2005-10-07 10:06:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,6 +110,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 uiODSceneMgr::~uiODSceneMgr()
 {
     cleanUp( false );
+    delete tifs;
 }
 
 

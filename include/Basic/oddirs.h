@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.1 2005-08-26 18:19:27 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.2 2005-10-07 10:06:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,6 +162,9 @@ const char*	GetPersonalDir(void);
 
 const char*	GetDataFileName(const char*);
 		/*!< Application data file in $dGB|DTECT_APPL/data */
+
+const char*	GetIconFileName(const char*);
+		/*!< Icon file in $dGB|DTECT_APPL/data/icons */
 
 const char*	SearchODFile(const char*);
 		/*!< Search for a <configuration> file in:

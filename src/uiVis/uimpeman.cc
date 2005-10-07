@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.53 2005-10-06 21:39:57 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.54 2005-10-07 10:06:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ using namespace MPE;
 
 
 #define mAddButton(pm,func,tip,toggle) \
-    addButton( ioPixmap( GetDataFileName(pm) ), \
+    addButton( ioPixmap( GetIconFileName(pm) ), \
 	    	    mCB(this,uiMPEMan,func), tip, toggle )
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
@@ -531,8 +531,8 @@ void uiMPEMan::mouseEraseModeCB( CallBacker* )
 
 	showTracker( false, (int)mped->getTrackMode() );
 
-	ioBitmap bitmap(GetDataFileName("eraserbitmap.png"));
-	ioBitmap bitmapmask(GetDataFileName("eraserbitmapmask.png"));
+	ioBitmap bitmap(GetIconFileName("eraserbitmap.png"));
+	ioBitmap bitmapmask(GetIconFileName("eraserbitmapmask.png"));
 	uiCursor::setOverride(&bitmap,&bitmapmask,2,25);
     }
     else

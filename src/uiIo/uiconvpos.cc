@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.14 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.15 2005-10-07 10:06:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     yfld->attach( rightTo, crlfld );
 
     uiGroup* butgrp = new uiGroup( this );
-    const ioPixmap right( GetDataFileName("forward.xpm") );
-    const ioPixmap left( GetDataFileName("back.xpm") );
+    const ioPixmap right( GetIconFileName("forward.xpm") );
+    const ioPixmap left( GetIconFileName("back.xpm") );
     docoordbut = new uiToolButton( butgrp, "", right );
     docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
     dobinidbut = new uiToolButton( butgrp, "", left );
