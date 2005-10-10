@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.57 2005-10-07 22:01:14 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.58 2005-10-10 21:56:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     setCloseMode( 2 );
     setResizeEnabled();
     setVerticallyStretchable(false);
-    //setSensitive( false );
     updateAttribNames();
 
     EM::EMM().history().changenotifier.notify(
@@ -302,7 +301,7 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     mpedisplay->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
     mpedisplay->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
 
-    setSensitive( true );
+    setSensitive( !clickcatcher || !clickcatcher->isOn() );
     return mpedisplay;
 }
 
@@ -390,8 +389,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	}
 
 	clickcatcher->turnOn(true);
-	selectedobjs = visBase::DM().selMan().selected();
-	clickcatcher->select();
 	oldactivevol.setEmpty();
     }
     else
@@ -406,14 +403,6 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 
 	    if ( didtriggervolchange )
 		MPE::engine().activevolumechange.trigger();
-	}
-
-	if ( !selectedobjs.size() )
-	    clickcatcher->deSelect();
-	else
-	{
-	    for ( int idx=0; idx<selectedobjs.size(); idx++ )
-		visBase::DM().selMan().select( selectedobjs[idx], idx );
 	}
     }
 }
