@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.27 2005-07-18 10:04:38 cvsnanne Exp $
+ RCS:           $Id: visscene.cc,v 1.28 2005-10-10 21:55:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ Scene::Scene()
     , polygonoffset( new SoPolygonOffset )
     , events( *EventCatcher::create() )
     , mousedownid( -1 )
+    , blockmousesel( false )
 {
     selroot->ref();
 
@@ -84,6 +85,14 @@ float Scene::ambientLight() const
 }
 
 
+bool Scene::blockMouseSelection( bool yn )
+{
+    const bool res = blockmousesel;
+    blockmousesel = yn;
+    return res;
+}
+
+
 SoNode* Scene::getInventorNode()
 {
     return selroot;
@@ -92,6 +101,9 @@ SoNode* Scene::getInventorNode()
 
 void Scene::mousePickCB( CallBacker* cb )
 {
+    if ( blockmousesel )
+	return;
+
     mCBCapsuleUnpack(const EventInfo&,eventinfo,cb);
     if ( events.isEventHandled() ) return;
 
