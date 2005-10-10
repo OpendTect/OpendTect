@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.66 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.67 2005-10-10 15:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "binidselimpl.h"
 #include "emmanager.h"
+#include "emhistory.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "emposid.h"
@@ -355,6 +356,13 @@ void uiEMPartServer::setAuxData( const EM::ObjectID& id,
 	}
     }
 }
+
+
+void  uiEMPartServer::removeHistory()
+{
+    EM::EMM().history().empty();
+}
+
 
 
 bool uiEMPartServer::loadSurface( const MultiID& mid,
