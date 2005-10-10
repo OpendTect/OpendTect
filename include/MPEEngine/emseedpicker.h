@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.4 2005-10-07 19:17:29 cvskris Exp $
+ RCS:           $Id: emseedpicker.h,v 1.5 2005-10-10 09:32:33 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
     virtual bool	reTrack() { return false; }
     virtual int		nrSeeds() const { return 0; }
 
-    virtual bool	stopSeedPick() { return true; }
+    virtual bool	stopSeedPick(bool iscancel=false) { return true; }
 };
 
 
@@ -68,7 +68,7 @@ public:
     bool		reTrack();
     int			nrSeeds() const			{return seedpos.size();}
 
-    bool		stopSeedPick();
+    bool		stopSeedPick(bool iscancel=false);
 
 protected:
     bool		removeEverythingButSeeds();
