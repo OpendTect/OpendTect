@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.31 2005-10-07 21:58:41 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.32 2005-10-10 21:57:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "emmanager.h"
+#include "emhistory.h"
 #include "emobject.h"
 #include "emseedpicker.h"
 #include "executor.h"
@@ -261,6 +262,7 @@ bool Wizard::prepareSeedSetupPage()
 
     emobj->notifier.notify( mCB(this,Wizard,emObjectChange) );
     emObjectChange(0);
+    initialhistorynr = EM::EMM().history().currentEventNr();
     return true;
 }
 
@@ -304,6 +306,9 @@ bool Wizard::leaveFinalizePage(bool process)
     PtrMan<Executor> saver = emobj->saver();
 
     if ( saver ) saver->execute();
+
+    if ( objectcreated )
+	EM::EMM().history().setCurrentEventAsFirst();
     adjustSeedBox();
 
     return true;
@@ -315,8 +320,16 @@ void Wizard::isStarting()
     seedbox.setEmpty();
 }
 
+
 void Wizard::restoreObject()
 {
+    if  ( !mIsUdf(initialhistorynr) )
+    {
+	EM::EMM().history().unDo(
+	                EM::EMM().history().currentEventNr()-initialhistorynr);
+	EM::EMM().history().setCurrentEventAsLast();
+    }
+
     //This must come before tracker is removed since
     //applman needs tracker to know what to remove.
     if ( objectcreated )
@@ -347,6 +360,7 @@ void Wizard::restoreObject()
     trackercreated = false;
     objectcreated = false;
     currentobject = -1;
+    initialhistorynr = mUdf(int);
     sid = -1;
 }
 
@@ -359,6 +373,7 @@ bool Wizard::isClosing( bool iscancel )
     if ( !seedbox.isEmpty() )
 	mpeserv->expandActiveVolume(seedbox);
 
+    mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
     return true;
 }
 
@@ -457,6 +472,7 @@ void Wizard::reset()
     ioparentrycreated = false;
     trackercreated = false;
     currentobject = -1;
+    initialhistorynr = mUdf(int);
 
     for ( int idx=0; idx<nrPages(); idx++ )
 	displayPage( idx, true );

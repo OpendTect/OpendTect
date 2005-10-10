@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.17 2005-10-07 21:59:13 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.18 2005-10-10 21:57:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ protected:
     bool		ioparentrycreated;
     bool		objectcreated;
     bool		trackercreated;
+    int			initialhistorynr;
     
     uiMPEPartServer*	mpeserv;
     static int		defcolnr;
