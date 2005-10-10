@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.11 2005-10-07 18:26:05 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.12 2005-10-10 08:49:34 cvsduntao Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -66,9 +66,8 @@ void uiVisColTabEd::setColTab( int id )
 	coltab->ref();
 	enableCallBacks();
 	updateEditor();
+        coltabed->setSensitive( coltab );
     }
-
-    coltabed->setSensitive( coltab );
 }
 
 
