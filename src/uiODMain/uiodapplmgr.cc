@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.102 2005-10-10 15:01:45 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.103 2005-10-10 21:59:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,20 +209,36 @@ void uiODApplMgr::impexpPickSet( bool imp ) { pickserv->impexpPickSet(imp); }
 void uiODApplMgr::importLMKFault() { emserv->importLMKFault(); }
 
 
-void uiODApplMgr::enableSceneMenu( bool yn )
+void uiODApplMgr::enableMenusAndToolbars( bool yn )
 {
     sceneMgr().disabRightClick( !yn );
-    if ( !yn ) sceneMgr().setToViewMode();
+    visServer()->disabMenus( !yn );
+    visServer()->disabToolbars( !yn );
     menuMgr().dtectTB()->setSensitive( yn );
     menuMgr().manTB()->setSensitive( yn );
-    menuMgr().enableActButton( yn );
     menuMgr().enableMenuBar( yn );
+}
+
+
+void uiODApplMgr::enableTree( bool yn )
+{
+    sceneMgr().disabTrees( !yn );
+    visServer()->blockMouseSelection( !yn );
+}
+
+
+void uiODApplMgr::enableSceneManipulation( bool yn )
+{
+    if ( !yn ) sceneMgr().setToViewMode();
+    menuMgr().enableActButton( yn );
 }
 
 
 void uiODApplMgr::manageAttributes()
 {
-    enableSceneMenu( false );
+    enableMenusAndToolbars( false );
+    enableSceneManipulation( false );
+
     attrserv->editSet(); 
 }
 
@@ -591,30 +607,16 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	//Turn off everything
 
-	TypeSet<int> scenes;
-	visserv->getChildIds( -1, scenes );
-	for ( int idx=0; idx<scenes.size(); idx++ )
-	    sceneMgr().disabTree( scenes[idx] , true );
-
-	menuMgr().enableMenuBar( false );
-	menuMgr().dtectTB()->setSensitive( false );
-	menuMgr().manTB()->setSensitive( false );
-	sceneMgr().setToViewMode( false );
-
-	visserv->turnSeedPickingOn(true);
+	visserv->turnSeedPickingOn( true );
     }
     else if ( evid == uiMPEPartServer::evEndSeedPick )
     {
-	//Turn on everything again
-	TypeSet<int> scenes;
-	visserv->getChildIds( -1, scenes );
-	for ( int idx=0; idx<scenes.size(); idx++ )
-	    sceneMgr().disabTree( scenes[idx] , false );
-
-	menuMgr().enableMenuBar( true );
-	menuMgr().dtectTB()->setSensitive( true );
-	menuMgr().manTB()->setSensitive( true );
 	visserv->turnSeedPickingOn( false );
+    }
+    else if ( evid==uiMPEPartServer::evWizardClosed )
+    {
+	enableMenusAndToolbars( true );
+	enableTree( true );
     }
     else if ( evid == uiMPEPartServer::evGetAttribData )
     {
@@ -743,7 +745,13 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	const int trackerid = mpeserv->getTrackerID(emid);
 
 	if ( trackerid!=-1 )
+	{
+	    //Will be restored by event (evWizardClosed) from mpeserv
+	    enableMenusAndToolbars( false );
+	    enableTree( false );
+
 	    mpeserv->addSeed(trackerid);
+	}
     }
     else
 	pErrMsg("Unknown event from visserv");
@@ -903,7 +911,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
-	enableSceneMenu( true );
+	enableMenusAndToolbars( true );
+	enableSceneManipulation( true );
     }
     else if ( evid==uiAttribPartServer::evEvalAttrInit )
     {

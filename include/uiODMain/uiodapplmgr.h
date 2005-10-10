@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.22 2005-09-16 11:57:39 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.23 2005-10-10 21:59:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,11 @@ public:
     void			manAttrCB(CallBacker*)	{ manageAttributes(); }
     void			outVolCB(CallBacker*)	{ createVol(); }
 
-    void			enableSceneMenu(bool);
+    void			enableMenusAndToolbars(bool);
+    void			enableTree(bool);
+    void			enableSceneManipulation(bool);
+    				/*!Turns on/off viewMode and enables/disables
+				   the possibility to go to actMode. */
 
     CNotifier<uiODApplMgr,int>	getnewdata;
 

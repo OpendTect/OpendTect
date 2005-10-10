@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.45 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.46 2005-10-10 21:59:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -633,14 +633,10 @@ void uiODSceneMgr::disabRightClick( bool yn )
 }
 
 
-void uiODSceneMgr::disabTree( int sceneid, bool yn )
+void uiODSceneMgr::disabTrees( bool yn )
 {
     for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	Scene& scene = *scenes[idx];
-	if ( scene.sovwr->sceneId() == sceneid )
-	    scene.itemmanager->disabAnyClick( yn );
-    }
+	scenes[idx]->lv->setSensitive( !yn );
 }
 
 

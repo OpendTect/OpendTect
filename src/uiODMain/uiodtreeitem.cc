@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.114 2005-10-07 14:09:08 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.115 2005-10-10 21:59:02 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -689,8 +689,14 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	if ( sectionid < 0 ) return;
 
+	applMgr()->enableMenusAndToolbars(false);
+	applMgr()->enableTree(false);
+
 	if ( applMgr()->mpeServer()->addTracker(emid,menu->getPickedPos())!=-1 )
 	    uivisemobj->checkTrackingStatus();
+
+	applMgr()->enableMenusAndToolbars(true);
+	applMgr()->enableTree(true);
     }
     else if ( mnuid==changesetupmnuitem.id )
     {
@@ -1056,9 +1062,15 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	addflt = applMgr()->EMServer()->selectFault(emid);
     else if ( mnuid == 1 )
     {
+	applMgr()->enableMenusAndToolbars(false);
+	applMgr()->enableTree(false);
+
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
 	mps->addTracker( EM::Fault::typeStr() );
+
+	applMgr()->enableMenusAndToolbars(true);
+	applMgr()->enableTree(true);
 	return true;
     }
     else
@@ -1116,6 +1128,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     }
     else if ( mnuid == 1 )
     {
+	//Will be restored by event (evWizardClosed) from mpeserv
+	applMgr()->enableMenusAndToolbars(false);
+	applMgr()->enableTree(false);
+
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
 	mps->addTracker( EM::Horizon::typeStr() );
@@ -1635,7 +1651,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    if ( mnuid == positionmnuitem.id )
+    if ( mnuid==positionmnuitem.id )
     {
 	menu->setIsHandled(true);
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
@@ -1649,7 +1665,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	positiondlg->windowClosed.notify( 
 		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
 	positiondlg->go();
-	applMgr()->enableSceneMenu( false );
+	applMgr()->enableMenusAndToolbars( false );
+	applMgr()->enableSceneManipulation( false );
     }
     else
     {
@@ -1677,7 +1694,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 	updateColumnText(1);
     }
 
-    applMgr()->enableSceneMenu( true );
+    applMgr()->enableMenusAndToolbars( false );
+    applMgr()->enableSceneManipulation( false );
 }
 
 
