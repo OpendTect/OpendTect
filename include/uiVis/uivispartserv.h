@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.148 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.149 2005-10-10 21:42:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,14 @@ public:
     void		stuffSurfaceData(int,bool forcolordata,
 					 const ObjectSet<BinIDValueSet>*);
     void		readAuxData(int);
+
+    bool		blockMouseSelection( bool yn );
+			/*!<\returns Previous status. */
+
+    bool		disabMenus( bool yn );
+			/*!<\returns The previous status. */
+    bool		disabToolbars( bool yn );
+			/*!<\returns The previous status. */
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,
 	    			 const Coord3& = Coord3::udf());
@@ -281,6 +289,7 @@ protected:
     static const char*		appvelstr;
 
     uiVisModeMgr*		vismgr;
+    bool			blockmenus;
 };
 
 

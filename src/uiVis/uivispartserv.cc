@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.278 2005-10-07 15:32:13 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.279 2005-10-10 21:42:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , changecolormnuitem( "Color...", 7000 )
     , changematerialmnuitem( "Properties ...", 6000 )
     , resmnuitem( "Resolution", 5000 )
+    , blockmenus( false )
 {
     mpetools = new uiMPEMan( appserv().parent(), this );
     mpetools->display( false );
@@ -143,9 +144,40 @@ void uiVisPartServer::removeScene( int sceneid )
 }
 
 
+bool uiVisPartServer::disabMenus( bool yn )
+{
+    const bool res = blockmenus;
+    blockmenus = yn;
+    return res;
+}
+
+
+bool uiVisPartServer::disabToolbars( bool yn )
+{
+    const bool res = !mpetools->sensitive();
+    mpetools->setSensitive( !yn );
+    return res;
+}
+
+
+bool uiVisPartServer::blockMouseSelection( bool yn )
+{
+    if ( !scenes.size() ) return false;
+
+    const bool res = scenes[0]->blockMouseSelection( yn );
+    for ( int idx=1; idx<scenes.size(); idx++ )
+	scenes[idx]->blockMouseSelection( yn );
+
+    return res;
+}
+
+
 bool uiVisPartServer::showMenu( int id, int menutype, const TypeSet<int>* path,
 				const Coord3& pickedpos )
 {
+    if ( blockmenus )
+	return true;
+
     uiMenuHandler* menu = getMenu( id, false );
     menu->setPickedPos(pickedpos);
     return menu ? menu->executeMenu(menutype,path) : true;
