@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.18 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.19 2005-10-10 19:03:05 cvsnanne Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -89,10 +89,11 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
     iopar_.set( sKeyProcIs2D, "Yes" );
 
     BufferStringSet nms;
-    const char* lskey = iopar_.find( "LineSet Key" );
-    if ( !lskey ) lskey = "Input Seismics.ID";
-    lskey = iopar_.find( lskey );
-    if ( !lskey ) lskey = iopar_.find( "Attributes.0.Definition" );
+    const char* lskey = iopar_.find( "Input Line Set" );
+    if ( !lskey )
+	lskey = iopar_.find( "Input Seismics.ID" );
+    if ( !lskey )
+	lskey = iopar_.find( "Attributes.0.Definition" );
     IOObj* ioobj = IOM().get( lskey );
     if ( ioobj && SeisTrcTranslator::is2D(*ioobj) )
     {
