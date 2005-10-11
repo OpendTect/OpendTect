@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.47 2005-10-07 21:49:52 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.48 2005-10-11 19:57:05 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -44,6 +44,7 @@ namespace MPE
 Engine::Engine()
     : trackplanechange( this )
     , activevolumechange( this )
+    , loadEMObject( this )
 {
     trackers.allowNull(true);
     init();
@@ -431,7 +432,7 @@ void Engine::fillPar( IOPar& iopar ) const
 	if ( !tracker ) continue;
 	
 	IOPar localpar;
-	localpar.set( sKeyObjectID(), tracker->objectID() );
+	localpar.set( sKeyObjectID(),EM::EMM().getMultiID(tracker->objectID()));
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
 	tracker->fillPar( localpar );
@@ -474,10 +475,29 @@ bool Engine::usePar( const IOPar& iopar )
 	PtrMan<IOPar> localpar = iopar.subselect( key );
 	if ( !localpar ) continue;
 	
-	EM::ObjectID objid;
-	if ( !localpar->get(sKeyObjectID(),objid) ) continue;
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
-	if ( !emobj ) continue;
+	if ( !localpar->get(sKeyObjectID(),midtoload) ) continue;
+	EM::ObjectID oid = EM::EMM().getObjectID( midtoload );
+	EM::EMObject* emobj = EM::EMM().getObject( oid );
+	if ( !emobj )
+	{
+	    loadEMObject.trigger();
+	    oid = EM::EMM().getObjectID( midtoload );
+	    emobj = EM::EMM().getObject( oid );
+	}
+
+	if ( !emobj )
+	{
+	    PtrMan<Executor> exec =
+		EM::EMM().objectLoader( MPE::engine().midtoload );
+	    if ( exec ) exec->execute();
+
+	    oid = EM::EMM().getObjectID( midtoload );
+	    emobj = EM::EMM().getObject( oid );
+	}
+
+	if ( !emobj )
+	    continue;
+	    
 	const int trackeridx = addTracker( emobj );
 	if ( trackeridx < 0 ) continue;
 	EMTracker* tracker = trackers[trackeridx];
