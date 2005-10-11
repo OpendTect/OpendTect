@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.53 2005-10-11 14:33:01 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.54 2005-10-11 19:36:34 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -181,20 +181,34 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
      if ( !element->setPosition(subid, newpos) )
 	 mRetErr(element->errMsg());
 
-     if ( addtohistory )
-     {
-	 HistoryEvent* history = new SetPosHistoryEvent(oldpos,
-							PosID(id(),sid,subid));
-	 EMM().history().addEvent( history, 0, 0 );
-     }
+    const PosID pid (id(),sid,subid);
 
-     EMObjectCallbackData cbdata;
-     cbdata.event = EMObjectCallbackData::PositionChange;
-     cbdata.pid0 = PosID(id(),sid,subid);
-     notifier.trigger( cbdata );
+    if ( !newpos.isDefined() )
+    {
+	for ( int idx=0; idx<posattribs.size(); idx++ )
+	{
+	    TypeSet<PosID>& nodes = *posattribs[idx];
+	    if ( !&nodes ) continue;
 
-     changed = true;
-     return true;
+	    const int idy = nodes.indexOf(pid);
+	    if ( idy!=-1 )
+		setPosAttrib( pid, attribs[idx], false, addtohistory );
+	}
+    }
+
+    if ( addtohistory )
+    {
+	HistoryEvent* history = new SetPosHistoryEvent( oldpos, pid );
+	EMM().history().addEvent( history, 0, 0 );
+    }
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PositionChange;
+    cbdata.pid0 = pid;
+    notifier.trigger( cbdata );
+
+    changed = true;
+    return true;
 }
 
 
