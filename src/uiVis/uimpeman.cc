@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.60 2005-10-11 15:24:24 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.61 2005-10-11 20:03:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,8 +318,7 @@ void uiMPEMan::updateAttribNames()
 {
     BufferString oldsel = attribfld->text();
     attribfld->empty();
-    const char* noattribstr = "No attribute";
-    attribfld->addItem( noattribstr );
+    attribfld->addItem( sKeyNoAttrib() );
 
     ObjectSet<const Attrib::SelSpec> attribspecs;
     engine().getNeededAttribs( attribspecs );
@@ -329,24 +328,7 @@ void uiMPEMan::updateAttribNames()
 	attribfld->addItem( spec->userRef() );
     }
 
-    mGetDisplays(false);
-
-    if ( displays.size() )
-    {
-	const char* userref = displays[0]->getSelSpecUserRef();
-	if ( !userref && attribspecs.size() )
-	{
-	    for ( int idx=0; idx<displays.size(); idx++ )
-		displays[idx]->setSelSpec(*attribspecs[0] );
-
-	    userref = displays[0]->getSelSpecUserRef();
-	}
-	else if ( userref==sKey::None )
-	    userref = noattribstr;
-	
-	if ( userref ) 	
-	    attribfld->setCurrentItem( userref );
-    }
+    updateSelectedAttrib();
 
     if ( !init && attribfld->size()>1 && attribspecs.size() &&
 	 engine().getAttribCache(*attribspecs[0]) )
@@ -360,6 +342,32 @@ void uiMPEMan::updateAttribNames()
 
     attribSel(0);
     mUpdateColTabButton( true );
+}
+
+
+void uiMPEMan::updateSelectedAttrib()
+{
+    mGetDisplays(false);
+
+    if ( !displays.size() )
+	return;
+
+    ObjectSet<const Attrib::SelSpec> attribspecs;
+    engine().getNeededAttribs( attribspecs );
+
+    const char* userref = displays[0]->getSelSpecUserRef();
+    if ( !userref && attribspecs.size() )
+    {
+	for ( int idx=0; idx<displays.size(); idx++ )
+	    displays[idx]->setSelSpec(*attribspecs[0] );
+
+	userref = displays[0]->getSelSpecUserRef();
+    }
+    else if ( userref==sKey::None )
+	userref = sKeyNoAttrib();
+    
+    if ( userref ) 	
+	attribfld->setCurrentItem( userref );
 }
 
 
@@ -771,6 +779,8 @@ void uiMPEMan::initFromDisplay()
 	    turnOn( extendidx, displays[idx]->isDraggerShown() );
 	}
     }
+
+    updateSelectedAttrib();
 }
 
 

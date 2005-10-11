@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.23 2005-10-10 21:56:11 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.24 2005-10-11 20:03:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ protected:
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
+    void			updateSelectedAttrib();
     void			trackBackward(CallBacker*);
     void			trackForward(CallBacker*);
     void			trackInVolume(CallBacker*);
@@ -109,6 +110,8 @@ protected:
     bool			trackerwasonbeforemouseerase;
 
     bool			init;
+
+    static const char*		sKeyNoAttrib() { return "No attribute"; }
 };
 
 #endif
