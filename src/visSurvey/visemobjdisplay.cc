@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.59 2005-10-07 15:31:53 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.60 2005-10-11 18:41:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1062,7 +1062,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( sKeyEarthModelID, *getMultiID() );
+    par.set( sKeyEarthModelID, getMultiID() );
     par.setYN( sKeyTexture, usesTexture() );
     par.setYN( sKeyWireFrame, usesWireframe() );
     par.setYN( sKeyEdit, isEditingEnabled() );
