@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.17 2005-10-10 21:23:49 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.18 2005-10-11 19:58:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ protected:
     void			expandActiveVolume(const CubeSampling&);
     void			activeVolumeChange(CallBacker*);
     void			loadAttribData();
+    void			loadEMObjectCB(CallBacker*);
 
     const Attrib::DescSet*	attrset;
     MPE::Wizard*		wizard;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.28 2005-10-10 21:23:47 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.29 2005-10-11 19:58:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "executor.h"
+#include "uiexecutor.h"
 
 const int uiMPEPartServer::evGetAttribData	= 0;
 const int uiMPEPartServer::evStartSeedPick	= 1;
@@ -45,6 +46,8 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a, const Attrib::DescSet* ads )
     MPE::initStandardClasses();
     MPE::engine().activevolumechange.notify(
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );
+    MPE::engine().loadEMObject.notify(
+	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
 }
 
 
@@ -52,6 +55,8 @@ uiMPEPartServer::~uiMPEPartServer()
 {
     MPE::engine().activevolumechange.remove(
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );
+    MPE::engine().loadEMObject.remove(
+	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
     delete wizard;
 }
 
@@ -303,6 +308,16 @@ void uiMPEPartServer::expandActiveVolume(const CubeSampling& seedcs)
     MPE::engine().setActiveVolume( newcube );
 
     //sendEvent( evShowToolbar );
+}
+
+
+void uiMPEPartServer::loadEMObjectCB(CallBacker*)
+{
+    PtrMan<Executor> exec = EM::EMM().objectLoader( MPE::engine().midtoload );
+    if ( !exec ) return;
+
+    uiExecutor uiexec( appserv().parent(), *exec );
+    uiexec.go();
 }
 
 
