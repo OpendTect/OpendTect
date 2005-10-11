@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.22 2005-10-07 21:48:48 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.23 2005-10-11 19:57:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,9 @@ public:
     TrackPlane::TrackMode	getTrackMode()
     				{ return trackplane.getTrackMode(); }
     Notifier<Engine>		trackplanechange;
+
+    Notifier<Engine>		loadEMObject;
+    MultiID			midtoload;
 
     bool			trackAtCurrentPlane();
     Executor*			trackInVolume();
