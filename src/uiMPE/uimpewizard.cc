@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.32 2005-10-10 21:57:07 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.33 2005-10-11 17:26:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,8 +307,11 @@ bool Wizard::leaveFinalizePage(bool process)
 
     if ( saver ) saver->execute();
 
-    if ( objectcreated )
-	EM::EMM().history().setCurrentEventAsFirst();
+    EM::History& history = EM::EMM().history();
+    const int cureventnr = history.currentEventNr();
+    if ( cureventnr>=history.firstEventNr() )
+	history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
+
     adjustSeedBox();
 
     return true;
