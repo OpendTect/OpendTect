@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.59 2005-10-11 14:40:35 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.60 2005-10-11 15:24:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -434,8 +434,26 @@ void uiMPEMan::selChangeCB(CallBacker*)
 	displays[idx]->showManipulator( sel ); \
     turnOn( showcubeidx, sel )
 
-void uiMPEMan::cubeSelectCB( CallBacker* )	{ mSelCBImpl( true ); }
-void uiMPEMan::cubeDeselCB( CallBacker* )	{ mSelCBImpl( false ); }
+void uiMPEMan::cubeSelectCB( CallBacker* )
+{
+    turnOn( showcubeidx, true );
+}
+
+
+void uiMPEMan::cubeDeselCB( CallBacker* cb )
+{
+    mGetDisplays(false);
+    for ( int idx=0; idx<displays.size(); idx++ )
+    {
+	if ( cb==displays[idx] )
+	    displays[idx]->updateMPEActiveVolume();
+
+	if ( displays[idx]->isManipulated() )
+	    displays[idx]->acceptManipulation();
+    }
+
+    turnOn( showcubeidx, false );
+}
 
 
 void uiMPEMan::showCubeCB( CallBacker* )

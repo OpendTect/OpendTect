@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.22 2005-10-06 20:40:16 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.23 2005-10-11 15:24:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,7 @@ public:
 
     bool			isManipulated() const	{ return manipulated_; }
     void			acceptManipulation()	{ manipulated_=false; }
+    void			updateMPEActiveVolume();
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
     void			setDraggerTransparency(float);
