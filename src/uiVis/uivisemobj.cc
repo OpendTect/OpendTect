@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.32 2005-10-07 15:32:13 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.33 2005-10-11 19:32:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,11 +51,10 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     uiCursorChanger cursorchanger(uiCursor::Wait);
 
-
-    EM::ObjectID emid = emod->getObjectID();
+    const MultiID mid = emod->getMultiID();
+    EM::ObjectID emid = EM::EMM().getObjectID(mid);
     if ( !EM::EMM().getObject(emid) )
     {
-	const MultiID& mid = emod->getMultiID();
 	PtrMan<Executor> exec = EM::EMM().objectLoader( mid );
 	if ( exec )
 	{
