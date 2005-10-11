@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.117 2005-10-11 15:54:56 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.118 2005-10-11 22:22:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -484,7 +484,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , uivisemobj(0)
     , depthattribmnuitem("Depth")
     , savemenuitem("Save")
-    , saveasmenuitem("Save copy ...")
+    , saveasmenuitem("Save as ...")
     , enabletrackingmnuitem("Enable tracking")
     , changesetupmnuitem("Change setup ...")
     , reloadmenuitem("Reload")
