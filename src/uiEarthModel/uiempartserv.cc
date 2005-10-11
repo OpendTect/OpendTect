@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.67 2005-10-10 15:00:55 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.68 2005-10-11 10:32:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,7 +199,8 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id, const char* attrnm )
     if ( !surface ) return false;
     
     EM::SurfaceIOData sd;
-    em.getSurfaceData( id, sd );
+    const MultiID mid = em.getMultiID( id );
+    em.getSurfaceData( mid, sd );
     const int nritems = sd.valnames.size();
     int selidx = -1;
     for ( int idx=0; idx<nritems; idx++ )
@@ -221,7 +222,8 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     if ( !surface ) return false;
 
     EM::SurfaceIOData sd;
-    em.getSurfaceData( id, sd );
+    const MultiID mid = em.getMultiID( id );
+    em.getSurfaceData( mid, sd );
     uiListBoxDlg dlg( appserv().parent(), sd.valnames, "Surface data" );
     dlg.box()->setMultiSelect();
     if ( !dlg.go() ) return false;
