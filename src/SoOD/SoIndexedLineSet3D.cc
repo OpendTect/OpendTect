@@ -218,7 +218,8 @@ void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
 	curindex += nrjoints+1;
     }
 
-    center = box.getCenter();
+    if ( boxinited )
+	center = box.getCenter();
 }
 
 
