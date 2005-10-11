@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.116 2005-10-11 15:49:44 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.117 2005-10-11 15:54:56 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -622,8 +622,10 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    mAddMenuItem( trackmnu, &enabletrackingmnuitem, true,
 		   applMgr()->mpeServer()->isTrackingEnabled(
 		      applMgr()->mpeServer()->getTrackerID(emid)) );
-	    mAddMenuItem( trackmnu, &relationsmnuitem,
-		    mIsObject(EM::Horizon::typeStr()), false );
+
+	    mResetMenuItem( &relationsmnuitem );
+	    //mAddMenuItem( trackmnu, &relationsmnuitem,
+	//	    mIsObject(EM::Horizon::typeStr()), false );
 	}
 
     }
