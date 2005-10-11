@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.58 2005-10-10 21:56:11 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.59 2005-10-11 14:40:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -623,28 +623,6 @@ void uiMPEMan::trackInVolume( CallBacker* )
     PtrMan<Executor> exec = engine().trackInVolume();
     if ( exec )
     {
-	/*
-	const char* msg = "Press \"Save\" for next step.\n"
-			  "Press \"Don't Save\" to continue automaticly\n"
-			  "Press \"Cancel\" to cancel ";
-	while ( int res=uiMSG().notSaved(msg)>=0 )
-	{
-	    int execres;
-	    while ( (execres=exec->doStep()) > 0 )
-	    {
-		EM::History& history = EM::EMM().history();
-		const int currentevent = history.currentEventNr();
-		history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
-
-		if ( res!=1 )
-		    break;
-	    }
-
-	    if ( execres<1 )
-		break;
-
-	}
-	*/
 	const int currentevent = EM::EMM().history().currentEventNr();
 	uiExecutor uiexec( this, *exec );
 	if ( !uiexec.go() )
@@ -680,9 +658,6 @@ void uiMPEMan::setTrackButton()
 
 void uiMPEMan::showTracker( bool yn )
 {
-    setSensitive( trackinvolidx,
-	    engine().trackPlane().getTrackMode()==TrackPlane::Extend );
-
     setSensitive( trackforwardidx, yn );
     setSensitive( trackbackwardidx, yn );
     attribfld->setSensitive( yn );
