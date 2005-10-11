@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.9 2005-10-04 15:08:19 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.10 2005-10-11 22:15:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 
 #include "datainpspec.h"
 #include "emhorizoneditor.h"
+#include "emhistory.h"
+#include "emmanager.h"
 #include "emsurfaceedgelineimpl.h"
 #include "emsurfacegeometry.h"
 #include "emsurface.h"
@@ -147,14 +149,15 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 
     const EM::EdgeLineSegment& interactionline =
 	*editor->getInteractionLine()->getLine(0)->getSegment(0);
-
     const EM::SectionID sid = interactionline.getSection();
 
+    mAddMenuItem( menu, &removenodesmnuitem,
+	    	  interactionline.isClosed(), false );
+    return;
+
+    /*
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
     mDynamicCastGet( EM::Surface&, surface, emobj );
-    EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet(sid,true);
-    if ( !lineset )
-        return;
 
     const int mainlineidx = lineset->getMainLine();
     EM::EdgeLine* mainline = lineset->getLine(mainlineidx);
@@ -183,8 +186,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 
 //  mAddMenuItem( menu, &splitsectionmnuitem, noneonedge, false );
 //  mAddMenuItem( menu, &makestoplinemnuitem, canstop, false );
-    mAddMenuItem( menu, &removenodesmnuitem,
-	    	  interactionline.isClosed(), false );
+    */
 }
 
 
@@ -197,10 +199,11 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 
     EM::EdgeLine& interactionline = *editor->getInteractionLine()->getLine(0);
     EM::EdgeLineSegment& interactionlineseg = *interactionline.getSegment(0);
-
     const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
     mDynamicCastGet(EM::Surface&,surface,emobj)
+    bool handled = false;
+/*
     EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet( sid, true );
     if ( !lineset )
         return;
@@ -209,7 +212,6 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     EM::EdgeLine* mainline = lineset->getLine( mainlineidx );
     if ( !mainline ) return;
 
-    bool handled = false;
     if ( mnuid == splitsectionmnuitem.id )
     {
 	const EM::SectionID newsection = surface.geometry.cloneSection(sid);
@@ -251,7 +253,8 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	lineset->getLine(linenr)->insertSegment( terminationsegment, -1, true );
 	handled =true;
     }
-    else if ( mnuid == removenodesmnuitem.id )
+    */
+    if ( mnuid==removenodesmnuitem.id )
     {
 	const RowCol step = surface.geometry.step();
 	const bool rightturn = interactionline.isHole();
@@ -264,11 +267,20 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	    for ( rc.col=start.col; rc.col<=stop.col; rc.col+=step.col )
 	    {
 		pid.setSubID( surface.geometry.rowCol2SubID(rc) );
+		if ( interactionlineseg.indexOf(rc)!=-1 )
+		    continue;
+
 		const bool isinside = interactionline.isInside( pid, false );
 		if ( rightturn != isinside )
 		    surface.setPos( pid, Coord3(0,0,mUdf(float)), true );
 	    }
 	}
+
+	 EM::History& history = EM::EMM().history();
+	 const int cureventnr = history.currentEventNr();
+	 if ( cureventnr>=history.firstEventNr() )
+	     history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
+
 
 	handled = true;
     }
