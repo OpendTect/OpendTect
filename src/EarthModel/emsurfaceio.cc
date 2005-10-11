@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.49 2005-09-29 11:29:42 cvshelene Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.50 2005-10-11 19:35:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -388,7 +388,11 @@ int EM::dgbSurfaceReader::nextStep()
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res )
+	{
 	    surface->resetChangedFlag();
+	    surface->geometry.checkSupport(true);
+	}
+
 	return res;
     }
 
