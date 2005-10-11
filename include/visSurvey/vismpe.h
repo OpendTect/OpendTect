@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.24 2005-10-11 18:42:36 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.25 2005-10-11 22:16:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -124,8 +124,8 @@ protected:
     
     int				lasteventnr_;
 
-    static const char*		draggerstr_;
-    static const char*		transstr_;
+    static const char*		sKeyTransperancy() { return "Transparency"; }
+    static const char*		sKeyTexture()      { return "Texture"; }
 
     static const Color		reTrackColor;
     static const Color		eraseColor;

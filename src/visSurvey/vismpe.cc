@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.32 2005-10-11 18:42:39 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.33 2005-10-11 22:16:22 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.32 2005-10-11 18:42:39 cvskris Ex
 #include "survinfo.h"
 #include "visboxdragger.h"
 #include "viscoord.h"
+#include "visdataman.h"
 #include "visdatagroup.h"
 #include "visdepthtabplanedragger.h"
 #include "visevent.h"
@@ -31,9 +32,6 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.32 2005-10-11 18:42:39 cvskris Ex
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
 namespace visSurvey {
-
-const char* MPEDisplay::draggerstr_ = "Dragger ID";
-const char* MPEDisplay::transstr_   = "Transparency";
 
 const Color MPEDisplay::movingColor = Color(130,130,255);
 const Color MPEDisplay::extendColor = Color::White;
@@ -110,6 +108,7 @@ MPEDisplay::MPEDisplay()
 //				mCB(this,MPEDisplay,updateDraggerPosition) );
     setDraggerCenter( true );
     updateBoxPosition(0);
+    updatePlaneColor();
 }
 
 
@@ -645,19 +644,15 @@ void MPEDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    as_.fillPar( par );
-    
-    CubeSampling cs = getCubeSampling();
-    cs.fillPar( par );
-
-    if ( dragger_ )
+    if ( texture_ )
     {
-	const int draggerid = dragger_->id();
-	par.set( draggerstr_, draggerid );
-	if ( saveids.indexOf(draggerid) == -1 ) saveids += draggerid;
+	par.set( sKeyTexture(), texture_->id() );
+	if ( saveids.indexOf(texture_->id())==-1 )
+	    saveids += texture_->id();
     }
 
-    par.set( transstr_, getDraggerTransparency() );
+    as_.fillPar( par );
+    par.set( sKeyTransperancy(), getDraggerTransparency() );
 }
 
 
@@ -666,27 +661,21 @@ int MPEDisplay::usePar( const IOPar& par )
     const int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    CubeSampling cs;
-    if ( !cs.usePar(par) )
-	return -1;
-    engine_.setActiveVolume( cs );
-
-    int draggerid;
-    if ( par.get(draggerstr_,draggerid) )
+    int textureid;
+    if ( par.get( sKeyTexture(), textureid ) )
     {
-	visBase::DataObject* dataobj = visBase::DM().getObject( draggerid );
-	if ( !dataobj ) return 0;
-	mDynamicCastGet(visBase::DepthTabPlaneDragger*,dr,dataobj)
-	setDragger( dr );
+	mDynamicCastGet( visBase::Texture3*, texture,
+		         visBase::DM().getObject(textureid) );
+	if ( texture ) setTexture( texture );
+	else return 0;
     }
-    else
-	setDragger( visBase::DepthTabPlaneDragger::create() );
 
     float transparency = 0.5;
-    par.get( transstr_, transparency );
+    par.get( sKeyTransperancy(), transparency );
     setDraggerTransparency( transparency );
 
-    as_.usePar( par );
+    if ( as_.usePar( par ) )
+	updateTexture();
 
     return 1;
 }
