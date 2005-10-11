@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: visevent.cc,v 1.21 2005-07-14 20:03:42 cvskris Exp $
+ RCS:           $Id: visevent.cc,v 1.22 2005-10-11 22:14:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,8 +257,7 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     }
 
     eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
-    if ( !eventcatcher->isEventHandled() )
-	eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
+    eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
 }
 
 }; // namespace visBase
