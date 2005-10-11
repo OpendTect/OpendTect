@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.13 2005-09-14 08:22:29 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.14 2005-10-11 20:00:15 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -23,14 +23,6 @@ static const char* rcsID = "$Id: horizonadjuster.cc,v 1.13 2005-09-14 08:22:29 c
 
 namespace MPE {
 
-const char* HorizonAdjuster::permzrgstr_ = "Permitted Z range";
-const char* HorizonAdjuster::ampthresholdstr_ = "Value threshhold";
-const char* HorizonAdjuster::allowedvarstr_ = "Allowed variance";
-const char* HorizonAdjuster::useabsthresholdstr_ = "Use abs threshhold";
-const char* HorizonAdjuster::similaritywinstr_ = "Similarity window";
-const char* HorizonAdjuster::similaritythresholdstr_ = "Similarity threshhold";
-const char* HorizonAdjuster::trackbyvalstr_ = "Track by value";
-const char* HorizonAdjuster::trackeventstr_ = "Track event";
 
 HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
 	const EM::SectionID& sid )
@@ -507,38 +499,31 @@ bool HorizonAdjuster::getCompSamples(
 void HorizonAdjuster::fillPar( IOPar& iopar ) const
 {
     SectionAdjuster::fillPar( iopar );
-    int event = trackevent_;
-    iopar.set( trackeventstr_, event );
-    iopar.set( permzrgstr_, permzrange_.start, permzrange_.stop );
-    iopar.set( ampthresholdstr_, ampthreshold_ );
-    iopar.set( allowedvarstr_, allowedvar_);
-    int useabs = useabsthreshold_;
-    iopar.set( useabsthresholdstr_, useabs);
-    iopar.set( similaritywinstr_, similaritywin_.start, similaritywin_.stop );
-    iopar.set( similaritythresholdstr_, similaritythreshold_ );
-    int byval = trackbyvalue_;
-    iopar.set( trackbyvalstr_, byval );
+    iopar.set( sKeyTrackEvent(), VSEvent::TypeRef(trackevent_) );
+    iopar.set( sKeyPermittedZRange(), permzrange_.start, permzrange_.stop );
+    iopar.set( sKeyValueThreshold(), ampthreshold_ );
+    iopar.set( sKeyAllowedVariance(), allowedvar_);
+    iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
+    iopar.set( sKeySimWindow(), similaritywin_.start, similaritywin_.stop );
+    iopar.set( sKeySimThreshold(), similaritythreshold_ );
+    iopar.setYN( sKeyTrackByValue(), trackbyvalue_ );
 }
 
 
 bool HorizonAdjuster::usePar( const IOPar& iopar )
 {
-    SectionAdjuster::usePar( iopar );
-    int event;
-    iopar.get( trackeventstr_,  event);
-    trackevent_ = (VSEvent::Type)event;
-    iopar.get( permzrgstr_, permzrange_.start, permzrange_.stop );
-    iopar.get( ampthresholdstr_, ampthreshold_ );
-    iopar.get( allowedvarstr_, allowedvar_);
-    int useabs;
-    iopar.get( useabsthresholdstr_, useabs);
-    useabsthreshold_ = useabs;
-    iopar.get( similaritywinstr_, similaritywin_.start, similaritywin_.stop );
-    iopar.get( similaritythresholdstr_, similaritythreshold_ );
-    int byval;
-    iopar.get( trackbyvalstr_,  byval);
-    trackbyvalue_ = byval;
-    return true;
+    EnumRef tmpref = VSEvent::TypeRef(trackevent_);
+
+    return
+	SectionAdjuster::usePar( iopar ) &&
+	iopar.get( sKeyTrackEvent(),  tmpref ) &&
+	iopar.get( sKeyPermittedZRange(),permzrange_.start,permzrange_.stop ) &&
+	iopar.get( sKeyValueThreshold(), ampthreshold_ ) &&
+	iopar.get( sKeyAllowedVariance(), allowedvar_) &&
+	iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ ) &&
+	iopar.get( sKeySimWindow(),similaritywin_.start,similaritywin_.stop ) &&
+	iopar.get( sKeySimThreshold(), similaritythreshold_ ) &&
+	iopar.getYN( sKeyTrackByValue(), trackbyvalue_ );
 }
 
 

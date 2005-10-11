@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.8 2005-09-07 02:33:57 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.9 2005-10-11 20:00:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,14 +115,14 @@ private:
     const AttribPositionScoreComputer*
     			getAttribComputer() const;
 
-    static const char*	permzrgstr_;
-    static const char*	ampthresholdstr_;
-    static const char*	allowedvarstr_;
-    static const char*	useabsthresholdstr_;
-    static const char*	similaritywinstr_;
-    static const char*	similaritythresholdstr_;
-    static const char*	trackbyvalstr_;
-    static const char*	trackeventstr_;
+    static const char*	sKeyPermittedZRange()	{ return "Permitted Z range"; }
+    static const char*	sKeyValueThreshold()	{ return "Value threshhold"; }
+    static const char*	sKeyAllowedVariance()	{ return "Allowed variance"; }
+    static const char*	sKeyUseAbsThreshold()	{ return "Use abs threshhold"; }
+    static const char*	sKeySimWindow()		{ return "Similarity window"; }
+    static const char*	sKeySimThreshold() { return "Similarity threshhold"; }
+    static const char*	sKeyTrackByValue()	{ return "Track by value"; }
+    static const char*	sKeyTrackEvent()	{ return "Track event"; }
 };
 
 }; // namespace MPE
