@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.31 2005-10-11 15:24:26 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.32 2005-10-11 18:42:39 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -386,6 +386,13 @@ void MPEDisplay::updateMPEActiveVolume()
 }
 
 
+bool MPEDisplay::isOn() const
+{
+    return visBase::VisualObjectImpl::isOn() &&
+	( isManipulatorShown() || isDraggerShown() );
+}
+
+
 bool MPEDisplay::isManipulatorShown() const
 { return boxdragger_->isOn(); }
 
@@ -403,7 +410,13 @@ float MPEDisplay::getDraggerTransparency() const
 
 
 void MPEDisplay::showDragger( bool yn )
-{ dragger_->turnOn( yn ); }
+{
+    if ( yn==isDraggerShown() )
+	return;
+
+    dragger_->turnOn( yn );
+    movement.trigger();
+}
 
 
 bool MPEDisplay::isDraggerShown() const

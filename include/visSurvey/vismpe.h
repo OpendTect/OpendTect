@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.23 2005-10-11 15:24:24 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.24 2005-10-11 18:42:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ public:
 				mCreateDataObj(MPEDisplay);
     bool			isInlCrl() const	{ return true; }
 
+    bool			isOn() const;
     bool			isManipulated() const	{ return manipulated_; }
     void			acceptManipulation()	{ manipulated_=false; }
     void			updateMPEActiveVolume();
