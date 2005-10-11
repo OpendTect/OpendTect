@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.115 2005-10-10 21:59:02 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.116 2005-10-11 15:49:44 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -1694,8 +1694,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 	updateColumnText(1);
     }
 
-    applMgr()->enableMenusAndToolbars( false );
-    applMgr()->enableSceneManipulation( false );
+    applMgr()->enableMenusAndToolbars( true );
+    applMgr()->enableSceneManipulation( true );
 }
 
 
