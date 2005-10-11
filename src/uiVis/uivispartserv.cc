@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.279 2005-10-10 21:42:38 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.280 2005-10-11 20:04:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -683,6 +683,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	    turnOn( childid, isOn(childid) );
 	}
     }
+
+    mpetools->initFromDisplay();
 
     return true;
 }
