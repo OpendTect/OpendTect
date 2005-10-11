@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.52 2005-10-06 21:18:56 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.53 2005-10-11 14:33:01 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -267,17 +267,21 @@ bool EMObject::isDefined( const PosID& pid ) const
 }
 
 
-void EMObject:: removePosAttrib(int attr)
+void EMObject:: removePosAttrib( int attr, bool addtohistory )
 {
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
 	return;
 
-    posattribs[idx]->erase();
+    const TypeSet<PosID>& attrlist = *posattribs[idx];
+
+    while ( attrlist.size() ) 
+	setPosAttrib( attrlist[0], attr, false, addtohistory );
 }
 
 
-void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn )
+void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
+			     bool addtohistory )
 {
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::AttribChange;
@@ -307,6 +311,13 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn )
 	    posids.removeFast(idy);
 	}
     }
+
+    if ( addtohistory )
+    {
+	HistoryEvent* event = new SetPosAttribHistoryEvent( pid, attr, yn );
+	EMM().history().addEvent( event, 0, 0 );
+    }
+
 
     notifier.trigger( cbdata );
     changed = true;

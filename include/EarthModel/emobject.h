@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.51 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.52 2005-10-11 14:32:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -125,9 +125,10 @@ public:
 
     virtual int			nrPosAttribs() const;
     virtual int			posAttrib(int idx) const;
-    virtual void		removePosAttrib(int attr);
+    virtual void		removePosAttrib( int attr,
+	    					 bool addtohistory=true );
     virtual void		setPosAttrib( const EM::PosID&,
-	    					int attr, bool yn );
+				    int attr, bool yn, bool addtohistory=true );
     				//!<Sets/unsets the posattrib depending on yn.
     virtual bool		isPosAttrib(const EM::PosID&, int attr) const;
     virtual const char*		posAttribName(int) const;
