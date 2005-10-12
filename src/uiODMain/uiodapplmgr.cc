@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.103 2005-10-10 21:59:02 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.104 2005-10-12 12:38:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -351,6 +351,8 @@ bool uiODApplMgr::selectColorAttrib( int id )
 
 void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv->selectWells( wellids ); }
+void uiODApplMgr::selectWellCoordsForRdmLine()
+{ wellserv->selectWellCoordsForRdmLine(); }
 
 
 const Color& uiODApplMgr::getPickColor() { return pickserv->getPickColor(); }

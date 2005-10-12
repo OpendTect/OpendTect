@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.15 2004-05-24 14:28:36 bert Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.16 2005-10-12 12:38:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "uiwellrdmlinedlg.h"
 #include "multiid.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
@@ -92,5 +93,12 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( appserv().parent() );
+    dlg.go();
+}
+
+
+void uiWellPartServer::selectWellCoordsForRdmLine()
+{
+    uiWell2RandomLineDlg dlg( appserv().parent() );
     dlg.go();
 }

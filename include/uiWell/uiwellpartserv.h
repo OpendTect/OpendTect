@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.13 2004-05-24 14:28:36 bert Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.14 2005-10-12 12:38:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
 
     void			selectLogs(const MultiID&,int&,int&);
     bool			hasLogs(const MultiID&) const;
+
+    void			selectWellCoordsForRdmLine();
 
 protected:
 

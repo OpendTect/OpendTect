@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.23 2005-10-10 21:59:02 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.24 2005-10-12 12:38:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,7 @@ public:
     // Tree menu services
     // Selections
     void			selectWells(ObjectSet<MultiID>&);
+    void			selectWellCoordsForRdmLine();
     void			selectHorizon(MultiID&);
     void			selectFault(MultiID&);
     void			selectStickSet(MultiID&);
