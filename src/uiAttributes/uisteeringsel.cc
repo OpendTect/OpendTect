@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.15 2005-10-04 13:31:16 cvshelene Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.16 2005-10-12 12:23:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,10 @@ bool uiSteeringSel::willSteer() const
 
 void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 {
-    if ( !typfld || !ad )
+    if ( !typfld )
+	return;
+    
+    if ( !ad )
     {
 	typfld->setValue( 0 );
 	return;
