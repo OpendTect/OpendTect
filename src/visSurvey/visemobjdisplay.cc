@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.61 2005-10-12 20:35:34 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.62 2005-10-12 21:51:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1321,12 +1321,12 @@ void EMObjectDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
+		if ( whichobj==objectid && linestoupdate.indexOf(whichobj)==-1 )
+		    linestoupdate += whichobj;
+
 		lineshouldexist[idy] = true;
 	    }
 	}
-
-	if ( whichobj!=-1 && linestoupdate.indexOf(whichobj)==-1 )
-	    linestoupdate += whichobj;
     }
 
     for ( int idx=0; idx<intersectionlineids.size(); idx++ )
