@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.280 2005-10-11 20:04:20 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.281 2005-10-12 12:33:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -770,6 +770,9 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 
     mDynamicCastGet(visBase::DataObject*,doobj,newso)
     addObject( doobj, sceneid, true );
+    if ( isSoloMode() )
+	displayids_ += doobj->id();
+
     return doobj->id();
 }
 
