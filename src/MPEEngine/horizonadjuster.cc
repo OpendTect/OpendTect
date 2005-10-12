@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.15 2005-10-12 09:19:20 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.16 2005-10-12 09:30:31 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -435,7 +435,7 @@ float HorizonAdjuster::exactExtremePos( VSEvent::Type ev, const float *smplbuf,
     
     return pickpos+extremepos;
 }
-==27251==    at 0x1BE4A47F: 
+
 
 void HorizonAdjuster::initTrackParam()
 {
