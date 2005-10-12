@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.11 2005-10-12 18:16:09 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.12 2005-10-12 20:33:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,9 +290,15 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 		if ( dontremovelist.indexOf(rc)!=-1 )
 		    continue;
 
-		const bool isinside = interactionline.isInside( pid, false );
-		if ( rightturn != isinside )
-		    surface.setPos( pid, Coord3(0,0,mUdf(float)), true );
+		if ( interactionlineseg.indexOf(rc)==-1 )
+		{
+		    const bool isinside =
+			interactionline.isInside( pid, false );
+		    if ( rightturn==isinside )
+			continue;
+		}
+
+		surface.setPos( pid, Coord3(0,0,mUdf(float)), true );
 	    }
 	}
 
