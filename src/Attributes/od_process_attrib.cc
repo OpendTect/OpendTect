@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.9 2005-09-21 13:02:49 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.10 2005-10-12 12:34:28 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -221,7 +221,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    else
 	        break;
 	}
-	linename = output->find("Line key");
+	linename = output->find(sKey::LineKey);
 	indexoutp++;
     }    
     ObjectSet<Attrib::Processor> procset;
