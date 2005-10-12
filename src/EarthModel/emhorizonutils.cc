@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.4 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.5 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,8 +212,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 	while ( bivs.next(pos) )
 	{
 	    bivs.get( pos, bid, vals );
-	    const SubID subid = 
-		surface->geometry.rowCol2SubID( RowCol(bid.inl,bid.crl) );
+	    const SubID subid = RowCol(bid.inl,bid.crl).getSerialized();
 	    posid.setSubID( subid );
 	    for ( int validx=1; validx<vals.size(); validx++ )
 		surface->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );

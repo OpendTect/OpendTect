@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.50 2005-10-11 19:35:12 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.51 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -842,7 +842,7 @@ int EM::dgbSurfaceWriter::nextStep()
 	    				colrange.atIndex(colindex);
 
 	const EM::PosID posid(  surface.id(), sectionid,
-				surface.geometry.rowCol2SubID(RowCol(row,col)));
+				RowCol(row,col).getSerialized() );
 	const Coord3 pos = surface.getPos(posid);
 
 	if ( !colcoords.size() && !pos.isDefined() )

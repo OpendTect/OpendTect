@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.24 2005-09-20 16:00:46 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.25 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 
 		double dist = pos.distance( origpos );
 		toplist.addValue( dist,
-			      PosID(surface.id(),sid,rowCol2SubID(rc)) );
+			      PosID(surface.id(),sid,rc.getSerialized()) );
 	    
 	    }
 	}
@@ -375,7 +375,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 		for ( ; colrange.includes( idx.col ); idx.col+=colrange.step )
 		{
 		    if ( isDefined(sid,idx) )
-			nodes += PosID(surface.id(),sid,rowCol2SubID(idx));
+			nodes += PosID(surface.id(),sid,idx.getSerialized());
 		}
 	    }
 	}
@@ -641,7 +641,7 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
 { \
     const PosID& nodealias = nodealiases[idy]; \
     const SectionID sid = nodealias.sectionID(); \
-    const RowCol noderc = subID2RowCol(nodealias.subID()); \
+    const RowCol noderc(nodealias.subID()); \
     const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
     coordname = getPos(sid, neighborrc); \
     defname = coordname.isDefined(); \
@@ -890,7 +890,7 @@ mInsertRowCol( insertCol );
 
 Coord3 SurfaceGeometry::getPos( const PosID& posid ) const
 {
-    return getPos( posid.sectionID(), subID2RowCol(posid.subID()) );
+    return getPos( posid.sectionID(), RowCol(posid.subID()) );
 }
 
 
@@ -915,7 +915,7 @@ void SurfaceGeometry::getPos( const RowCol& rc, TypeSet<Coord3>& crdset ) const
 
 bool SurfaceGeometry::isDefined( const PosID& posid ) const
 {
-    return isDefined( posid.sectionID(), subID2RowCol(posid.subID()) );
+    return isDefined( posid.sectionID(), RowCol(posid.subID()) );
 }
 
 
@@ -938,7 +938,7 @@ int SurfaceGeometry::findPos( const RowCol& rowcol, TypeSet<PosID>& res ) const
 	    continue;
 
 	Coord3 pos = meshsurf->getKnot( rowcol );
-	SubID subid = rowCol2SubID( rowcol );
+	SubID subid = rowcol.getSerialized();
 
 	res += PosID( surface.id(), sectionID(idx), subid );
     }
@@ -1061,17 +1061,17 @@ PosID SurfaceGeometry::getNeighbor( const PosID& posid,
     const int nraliases = aliases.size();
     for ( int idx=0; idx<nraliases; idx++ )
     {
-	const RowCol ownrc = subID2RowCol(aliases[idx].subID());
+	const RowCol ownrc(aliases[idx].subID());
 	const RowCol neigborrc = ownrc+diff;
 	if ( isDefined(aliases[idx].sectionID(),neigborrc) )
 	    return PosID( surface.id(), aliases[idx].sectionID(),
-		    	      rowCol2SubID(neigborrc));
+		    	  neigborrc.getSerialized() );
     }
 
-    const RowCol ownrc = subID2RowCol(posid.subID());
+    const RowCol ownrc(posid.subID());
     const RowCol neigborrc = ownrc+diff;
 
-    return PosID( surface.id(), posid.sectionID(), rowCol2SubID(neigborrc));
+    return PosID( surface.id(), posid.sectionID(), neigborrc.getSerialized());
 }
 
 
@@ -1079,7 +1079,7 @@ int SurfaceGeometry::getNeighbors( const PosID& posid_, TypeSet<PosID>* res,
 			       int maxradius, bool circle ) const
 {
     ObjectSet< TypeSet<PosID> > neigbors;
-    const RowCol start = subID2RowCol(posid_.subID());
+    const RowCol start(posid_.subID());
     neigbors += new TypeSet<PosID>( 1, posid_ );
 
     for ( int idx=0; idx<neigbors.size(); idx++ )
@@ -1087,7 +1087,7 @@ int SurfaceGeometry::getNeighbors( const PosID& posid_, TypeSet<PosID>* res,
 	for ( int idz=0; idz<neigbors[idx]->size(); idz++ )
 	{
 	    PosID currentposid = (*neigbors[idx])[idz];
-	    const RowCol rowcol = subID2RowCol(currentposid.subID());
+	    const RowCol rowcol(currentposid.subID());
 
 	    for ( int row=-step_.row; row<=step_.row; row+=step_.row )
 	    {
@@ -1111,7 +1111,7 @@ int SurfaceGeometry::getNeighbors( const PosID& posid_, TypeSet<PosID>* res,
 		    const PosID
 			    neighborposid(currentposid.objectID(),
 			    currentposid.sectionID(),
-			    rowCol2SubID(neighborrowcol) );
+			    neighborrowcol.getSerialized() );
 
 		    bool found = false;
 		    for ( int idy=0; idy<neigbors.size(); idy++ )
@@ -1162,7 +1162,7 @@ void SurfaceGeometry::getLinkedPos( const PosID& posid,
         return; //TODO: Implement handling for this case
 
     const SubID subid = posid.subID();
-    const RowCol rowcol = subID2RowCol(subid);
+    const RowCol rowcol(subid);
     const Geometry::ParametricSurface* ownmeshsurf =
 				getSurface( posid.sectionID() );
     if ( !ownmeshsurf ) return;
@@ -1192,14 +1192,6 @@ void SurfaceGeometry::setStep( const RowCol& step, const RowCol& loadedstep )
     step_ = step;
     loadedstep_ = loadedstep;
 }
-
-
-RowCol SurfaceGeometry::subID2RowCol( SubID subid )
-{ return RowCol(subid); }
-
-
-SubID SurfaceGeometry::rowCol2SubID( const RowCol& rc )
-{ return rc.getSerialized(); }
 
 
 bool SurfaceGeometry::isFullResolution() const

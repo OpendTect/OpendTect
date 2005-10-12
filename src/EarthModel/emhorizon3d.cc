@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.66 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.67 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ int nextStep()
 	const float* vals = bvs.getVals( pos );
 	if ( !vals ) continue;
 	RowCol rc( HorizonGeometry::getRowCol(bid) );
-	posid.setSubID( HorizonGeometry::rowCol2SubID(rc) );
+	posid.setSubID( rc.getSerialized() );
 	int index = 0;
 	for ( int attridx=0; attridx<nrattribs; attridx++ )
 	{
@@ -349,7 +349,7 @@ bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
 		    (distbefore+distafter)/(velocity/2));
 
 	    const PosID posid( surface.id(), sectionid,
-				   rowCol2SubID(rowcol) );
+				   rowcol.getSerialized() );
 	    setPos( posid, newpos, true );
 	    if ( rowcol == startrc )
 		surface.setPosAttrib( posid, EMObject::sPermanentControlNode,
@@ -382,7 +382,7 @@ bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
 	if ( idx==stick.size()-2 )
 	{
 	    const PosID posid( surface.id(), sectionid,
-				    rowCol2SubID(rowcol));
+				    rowcol.getSerialized() );
 	    setPos( posid, Coord3( stoppos, stoppos.z/(velocity/2)), true);
 
 	    surface.setPosAttrib( posid, EMObject::sPermanentControlNode, true);
@@ -396,7 +396,7 @@ bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
 
 BinID HorizonGeometry::getBinID( const SubID& subid )
 {
-    return getBinID( SurfaceGeometry::subID2RowCol(subid) );
+    return getBinID( RowCol(subid) );
 }
 
 
@@ -414,7 +414,7 @@ RowCol HorizonGeometry::getRowCol( const BinID& bid )
 
 SubID HorizonGeometry::getSubID( const BinID& bid )
 {
-    return rowCol2SubID(getRowCol(bid));
+    return bid.getSerialized();
 }
 
 
@@ -436,9 +436,9 @@ void HorizonGeometry::setTransform( const SectionID& sectionid ) const
     const RowCol rc10( 1, 0 );
     const RowCol rc11( 1, 1 );
 
-    const RowCol surfrc00 = subID2RowCol( getSurfSubID(rc00,sectionid) );
-    const RowCol surfrc10 = subID2RowCol( getSurfSubID(rc10,sectionid) );
-    const RowCol surfrc11 = subID2RowCol( getSurfSubID(rc11,sectionid) );
+    const RowCol surfrc00( getSurfSubID(rc00,sectionid) );
+    const RowCol surfrc10( getSurfSubID(rc10,sectionid) );
+    const RowCol surfrc11( getSurfSubID(rc11,sectionid) );
 
     const Coord pos00 = SI().transform(BinID(surfrc00.row,surfrc00.col));
     const Coord pos10 = SI().transform(BinID(surfrc10.row,surfrc10.col));

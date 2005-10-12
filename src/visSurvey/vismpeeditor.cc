@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.17 2005-09-20 16:03:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.18 2005-10-12 20:35:34 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -551,7 +551,7 @@ void MPEEditor::setupInteractionLineDisplay()
 	interactionlinedisplay = EdgeLineSetDisplay::create();
 	interactionlinedisplay->setDisplayTransformation( transformation );
 	interactionlinedisplay->ref();
-	interactionlinedisplay->setConnect(false);
+	interactionlinedisplay->setConnect(true);
 	interactionlinedisplay->setShowDefault(true);
 	interactionlinedisplay->getMaterial()->setColor(Color(255,255,0),0);
 

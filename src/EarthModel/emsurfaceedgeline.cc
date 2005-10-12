@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.27 2005-10-04 14:34:41 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.28 2005-10-12 20:35:33 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -207,7 +207,7 @@ bool EdgeLineSegment::isDefined( const RowCol& rc ) const
 
 bool EdgeLineSegment::isAtEdge( const RowCol& rc ) const
 { 
-    const PosID pid( surface.id(), section, surface.geometry.rowCol2SubID(rc));
+    const PosID pid( surface.id(), section, rc.getSerialized() );
     return surface.geometry.isAtEdge(pid);
 }
 
@@ -688,7 +688,7 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
 
      if ( cbdata.pid0.sectionID()!=section ) return;
      
-     const RowCol rc = surface.geometry.subID2RowCol(cbdata.pid0.subID());
+     const RowCol rc(cbdata.pid0.subID());
      const int nodeidx = indexOf(rc);
      if ( nodeidx==-1 ) return;
 
@@ -743,7 +743,7 @@ int EdgeLine::getSegment( const EM::PosID& pos, int* seq ) const
     if ( pos.objectID()!=surface.id() || pos.sectionID()!=section )
 	return -1;
 
-    return getSegment( surface.geometry.subID2RowCol(pos.subID()), seq );
+    return getSegment( RowCol(pos.subID()), seq );
 }
 
 
@@ -808,7 +808,7 @@ bool EdgeLine::isInside( const EM::PosID& pid, bool undefval ) const
     if ( pid.objectID()!=surface.id() || pid.sectionID()!=section )
 	return undefval;
 
-    return isInside( surface.geometry.subID2RowCol(pid.subID()), undefval );
+    return isInside( RowCol(pid.subID()), undefval );
 }
 
 
@@ -1572,8 +1572,7 @@ bool EdgeLineIterator::next()
 PosID EdgeLineIterator::current() const
 {
     const Surface& surface = el.getSurface();
-    return PosID( surface.id(), el.getSection(),
-			surface.geometry.rowCol2SubID(currentRowCol()));
+    return PosID(surface.id(),el.getSection(),currentRowCol().getSerialized() );
 }
 
 
@@ -1691,7 +1690,7 @@ bool EdgeLineSet::removeAllNodesOutsideLines()
 	    if ( !surface.geometry.isDefined(section,rc) )
 		continue;
 
-	    const PosID pid(surface.id(),section,surface.geometry.rowCol2SubID(rc));
+	    const PosID pid(surface.id(),section,rc.getSerialized());
 
 	    bool foundinnonhole = false;
 	    for ( int idx=0; idx<nonholes.size(); idx++ )
@@ -1744,7 +1743,7 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 	for ( int col=colrange.start; col<=colrange.stop;col+=colrange.step)
 	{
 	    const RowCol rc( row, col );
-	    const PosID pid(surface.id(),section,surface.geometry.rowCol2SubID(rc));
+	    const PosID pid(surface.id(),rc.getSerialized() );
 
 	    TypeSet<PosID> linkedpos;
 	    surface.geometry.getLinkedPos( pid, linkedpos );

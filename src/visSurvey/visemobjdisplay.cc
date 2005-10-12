@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.60 2005-10-11 18:41:30 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.61 2005-10-12 20:35:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,8 +235,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     }
     else if ( keycb )
     {
-	const RowCol closestrc =
-	    emsurface->geometry.subID2RowCol( closestnode.subID() );
+	const RowCol closestrc( closestnode.subID() );
 	BufferString str = "Section: "; str += closestnode.sectionID();
 	str += " ("; str += closestrc.row;
 	str += ","; str += closestrc.col; str += ",";

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.15 2005-09-27 19:21:40 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.16 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -122,9 +122,6 @@ public:
 			    \param loadedstep	The step that is loaded
 			*/
 						
-    static RowCol	subID2RowCol(SubID);
-    static SubID	rowCol2SubID(const RowCol&);
-
     StepInterval<int>	rowRange(const SectionID& =SectionID(-1)) const;
     			/*< If SectionID is -1, the overall range is returned */
     StepInterval<int>	colRange(const SectionID& =SectionID(-1)) const;

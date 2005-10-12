@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.69 2005-10-11 22:21:51 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.70 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -351,7 +351,7 @@ void uiEMPartServer::setAuxData( const EM::ObjectID& id,
 	{
 	    bivs.get( pos, bid, vals );
 	    RowCol rc( bid.inl, bid.crl );
-	    EM::SubID subid = surface->geometry.rowCol2SubID( rc );
+	    EM::SubID subid = rc.getSerialized();
 	    posid.setSubID( subid );
 	    for ( int idv=0; idv<nrvals; idv++ )
 		surface->auxdata.setAuxDataVal( dataidxs[idv], posid, 

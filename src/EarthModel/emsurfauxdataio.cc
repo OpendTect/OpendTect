@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.24 2005-03-10 11:48:21 cvskris Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.25 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ int EM::dgbSurfDataWriter::nextStep()
 		    continue;
 
 		const RowCol emrc( bid.inl, bid.crl );
-		const EM::SubID subid = surf.geometry.rowCol2SubID( emrc );
+		const EM::SubID subid = emrc.getSerialized();
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );
 		const float auxval = surf.auxdata.getAuxDataVal(dataidx,posid);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.32 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.33 2005-10-12 20:35:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ bool FaultGeometry::isHidden( const PosID& pid ) const
 bool FaultGeometry::isHidden( SectionID sectionid,
 			      const RowCol& rc ) const
 {
-    return isHidden( PosID( surface.id(), sectionid, rowCol2SubID(rc)) );
+    return isHidden( PosID( surface.id(), sectionid, rc.getSerialized() ) );
 }
 
 
@@ -90,7 +90,7 @@ void FaultGeometry::setHidden( SectionID sectionid,
 			       const RowCol& rc, bool yn,
 			       bool addtohistory )
 {
-    setHidden( PosID( surface.id(), sectionid, rowCol2SubID(rc)),
+    setHidden( PosID( surface.id(), sectionid, rc.getSerialized()),
 	       yn, addtohistory );
 }
 
@@ -116,9 +116,9 @@ bool FaultGeometry::insertHiddenColumn( SectionID sectionid, int col)
 	{
 	    surface.changePosID(
 		 PosID( surface.id(),sectionid,
-			rowCol2SubID(RowCol(rowidx,colidx))),
+		     RowCol(rowidx,colidx).getSerialized() ),
 		 PosID( surface.id(),sectionid,
-			rowCol2SubID(RowCol(RowCol(rowidx,colidx+colrg.step)))),
+			RowCol(rowidx,colidx+colrg.step).getSerialized() ),
 		 	true );
 	}
     }
@@ -200,7 +200,7 @@ PosID FaultGeometry::getNeighbor( const PosID& posid,
     const StepInterval<int> rowrg = rowRange();
     const StepInterval<int> colrg = colRange();
 
-    RowCol currc =  subID2RowCol( posid.subID() );
+    RowCol currc( posid.subID() );
     while ( true )
     {
 	currc += step_*dir;
@@ -211,7 +211,7 @@ PosID FaultGeometry::getNeighbor( const PosID& posid,
 	    break;
     }
 
-    return PosID( surface.id(), sectionid, rowCol2SubID( currc ) );
+    return PosID( surface.id(), sectionid, currc.getSerialized() );
 }
 
 

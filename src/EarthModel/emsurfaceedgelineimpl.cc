@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.18 2005-10-06 19:13:37 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.19 2005-10-12 20:35:33 cvskris Exp $";
 
 
 
@@ -855,10 +855,8 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
 
 	if ( closestaboveidx!=-1 && closestbelowidx!=-1 )
 	{
-	    const RowCol closestaboverc = SurfaceGeometry::subID2RowCol(
-		    cuttingnodes[closestaboveidx].subID());
-	    const RowCol closestbelowrc = SurfaceGeometry::subID2RowCol(
-		    cuttingnodes[closestbelowidx].subID());
+	    const RowCol closestaboverc( cuttingnodes[closestaboveidx].subID());
+	    const RowCol closestbelowrc( cuttingnodes[closestbelowidx].subID());
 	    if ( !closestaboverc.isNeighborTo(closestbelowrc,
 					      cuttingsurface->geometry.step()) )
 	    {
