@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.29 2005-10-11 19:58:45 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.30 2005-10-12 20:33:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,6 +166,7 @@ void uiMPEPartServer::addSeed( int trackerid )
 
     wizard->displayPage(MPE::Wizard::sNamePage, false );
     wizard->displayPage(MPE::Wizard::sFinalizePage, false );
+    wizard->setRotateMode( false );
     
     wizard->go();
 }
