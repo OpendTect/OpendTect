@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.79 2005-09-12 13:44:25 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.80 2005-10-12 12:42:11 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -181,16 +181,26 @@ BatchProgram::~BatchProgram()
 	    comm->setState( stillok ? MMSockCommunic::AllDone
 				    : MMSockCommunic::HostError );
 
-       	comm->sendState( true );
+       	bool ok = comm->sendState( true );
+
+	if ( ok )	infoMsg( "Successfully wrote final status" );
+	else		infoMsg( "Could not write final status" );
     }
 
     killNotify( false );
 
     sdout.close();
     delete &sdout;
-    deepErase( opts );
+
+    // Do an explicit exitProgram() here, so we are sure the program
+    // is indeed ended and we won't get stuck while cleaning up things
+    // that we don't care about.
+    exitProgram( stillok );
+
+    // These will never be reached...
     delete iopar;
     delete comm; 
+    deepErase( opts );
 }
 
 
