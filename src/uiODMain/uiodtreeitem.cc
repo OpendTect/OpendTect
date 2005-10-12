@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.118 2005-10-11 22:22:38 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.119 2005-10-12 12:31:29 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -349,7 +349,8 @@ bool uiODDisplayTreeItem::showSubMenu()
 
 void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
-    applMgr()->visServer()->turnOn( displayid, uilistviewitem->isChecked() );
+    if ( !applMgr()->visServer()->isSoloMode() )
+	applMgr()->visServer()->turnOn(displayid, uilistviewitem->isChecked());
 }
 
 
@@ -561,25 +562,25 @@ void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv =
-       const_cast<uiODEarthModelSurfaceTreeItem*>(this)->applMgr()->visServer();
-    const Attrib::SelSpec* as = cvisserv->getSelSpec( displayid );
-    bool hasattr = as && as->id() > -2;
-    BufferString dispname;
-    if ( hasattr )
-    {
-	dispname = uiODDisplayTreeItem::createDisplayName();
-	dispname += " (";
+	   const_cast<uiODEarthModelSurfaceTreeItem*>(this)->applMgr()->visServer();
+	const Attrib::SelSpec* as = cvisserv->getSelSpec( displayid );
+	bool hasattr = as && as->id() > -2;
+	BufferString dispname;
+	if ( hasattr )
+	{
+	    dispname = uiODDisplayTreeItem::createDisplayName();
+	    dispname += " (";
+	}
+	dispname += cvisserv->getObjectName( displayid );
+	if ( hasattr ) dispname += ")";
+	return dispname;
     }
-    dispname += cvisserv->getObjectName( displayid );
-    if ( hasattr ) dispname += ")";
-    return dispname;
-}
 
 
 #define mIsObject(typestr) \
-    !strcmp(uivisemobj->getObjectType(displayid),typestr)
+	!strcmp(uivisemobj->getObjectType(displayid),typestr)
 
-void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
+    void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
@@ -921,6 +922,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     : editnodesmnuitem("Edit nodes ...")
     , insertnodemnuitem("Insert node")
+    , usewellsmnuitem("Create from wells")
 { displayid = id; } 
 
 
@@ -972,6 +974,8 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	mAddManagedMenuItem(&insertnodemnuitem,new MenuItem(nodename), 
 			     rtd->canAddKnot(idx), false );
     }
+    
+    mAddMenuItem( menu, &usewellsmnuitem, true, false );
 }
 
 
@@ -996,6 +1000,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	rtd->addKnot(insertnodemnuitem.itemIndex(mnuid));
     }
+    else if ( mnuid==usewellsmnuitem.id )
+    {
+	menu->setIsHandled(true);
+	applMgr()->selectWellCoordsForRdmLine();
+    }
+
 }
 
 
