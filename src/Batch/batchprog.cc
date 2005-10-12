@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.80 2005-10-12 12:42:11 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.81 2005-10-12 15:00:30 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -195,7 +195,7 @@ BatchProgram::~BatchProgram()
     // Do an explicit exitProgram() here, so we are sure the program
     // is indeed ended and we won't get stuck while cleaning up things
     // that we don't care about.
-    exitProgram( stillok );
+    ExitProgram( stillok );
 
     // These will never be reached...
     delete iopar;
