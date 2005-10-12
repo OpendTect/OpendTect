@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.10 2005-10-11 22:15:13 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.11 2005-10-12 18:16:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,13 +261,33 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	EM::PosID pid( surface.id() );
 	RowCol start, stop;
 	interactionline.getBoundingBox( start, stop );
+
+	BoolTypeSet wasatedge( interactionlineseg.size(), false );
+	for ( int idx=0; idx<interactionlineseg.size(); idx++ )
+	{
+	    const RowCol& rc = interactionlineseg[idx];
+	    pid.setSubID( rc.getSerialized() );
+
+	    wasatedge[idx] = surface.geometry.isAtEdge(pid);
+	}
+
+	TypeSet<RowCol> dontremovelist;
+	for ( int idx=0; idx<interactionlineseg.size(); idx++ )
+	{
+	    const int prev = idx ? idx-1 : interactionlineseg.size()-1;
+	    const int next = idx!=interactionlineseg.size()-1 ? idx+1 : 0;
+
+	    if ( !wasatedge[prev] || !wasatedge[next] || !wasatedge[idx] )
+		dontremovelist += interactionlineseg[idx];
+	}
+
 	RowCol rc;
 	for ( rc.row=start.row; rc.row<=stop.row; rc.row+=step.row )
 	{
 	    for ( rc.col=start.col; rc.col<=stop.col; rc.col+=step.col )
 	    {
-		pid.setSubID( surface.geometry.rowCol2SubID(rc) );
-		if ( interactionlineseg.indexOf(rc)!=-1 )
+		pid.setSubID( rc.getSerialized() );
+		if ( dontremovelist.indexOf(rc)!=-1 )
 		    continue;
 
 		const bool isinside = interactionline.isInside( pid, false );
