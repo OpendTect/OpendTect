@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.28 2005-10-12 20:35:33 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.29 2005-10-12 21:25:57 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -816,6 +816,12 @@ bool EdgeLine::isInside( const RowCol& rc, bool undefval ) const
 {
     if ( !isClosed() )
 	return undefval;
+
+    for ( int idx=0; idx<segments.size(); idx++ )
+    {
+	if ( segments[idx]->indexOf(rc)!=-1 )
+	    return false;
+    }
 
     EdgeLineIterator iter( *this );
     if ( !iter.isOK() ) return undefval;
