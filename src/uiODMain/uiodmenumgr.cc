@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.35 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.36 2005-10-12 12:22:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.35 2005-10-07 10:06:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.36 2005-10-12 12:22:06 cvshelene Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -224,9 +224,9 @@ void uiODMenuMgr::fillProcMenu()
     //mInsertItem( procmnu, "Create &Surface output ...", mCreateSurfMnuItm );
     uiPopupMenu* horitm = 
 		new uiPopupMenu( &appl, "Create output using &Horizon ...");
-    mInsertItem( horitm, "&On horizon ...", mCreateSurfMnuItm );
+    mInsertItem( horitm, "&Horizon grid...", mCreateSurfMnuItm );
     mInsertItem( horitm, "&Between horizons ...", mCompBetweenHorMnuItm );
-    mInsertItem( horitm, "&Along horizon ...", mCompAlongHorMnuItm );
+    mInsertItem( horitm, "&Horizon slice...", mCompAlongHorMnuItm );
     procmnu->insertItem( horitm );
     
     mInsertItem( procmnu, "&Re-Start ...", mReStartMnuItm );
