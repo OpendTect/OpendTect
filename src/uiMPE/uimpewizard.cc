@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.33 2005-10-11 17:26:59 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.34 2005-10-13 21:25:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,6 +274,7 @@ bool Wizard::leaveSeedSetupPage( bool process )
 
     EM::EMObject* emobj = EM::EMM().getObject(currentobject);
     emobj->notifier.remove( mCB(this,Wizard,emObjectChange) );
+    setButtonSensitive( uiDialog::CANCEL, true );
     if ( !process )
     {
 	restoreObject();
