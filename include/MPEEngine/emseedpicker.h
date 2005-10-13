@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.5 2005-10-10 09:32:33 cvsduntao Exp $
+ RCS:           $Id: emseedpicker.h,v 1.6 2005-10-13 21:18:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ class EMSeedPicker
 public:
     virtual		~EMSeedPicker() {}
 
+
     virtual bool	canSetSectionID() const { return false; }
     virtual bool	setSectionID( const EM::SectionID& ) { return false; }
 				
@@ -40,14 +41,18 @@ public:
     			/*!<Should be set when seedpicking is about 
 			    to start. */
 
-    virtual bool	canAddSeed() const { return false; }
-    virtual bool	addSeed( const Coord3& ) { return false; }
-    virtual bool	canRemoveSeed() const { return false; }
-    virtual bool	removeSeed( const EM::PosID& ) { return false; }
-    virtual bool	reTrack() { return false; }
-    virtual int		nrSeeds() const { return 0; }
+    virtual bool	canAddSeed() const			{ return false;}
+    virtual bool	addSeed( const Coord3& )		{ return false;}
+    virtual bool	canRemoveSeed() const			{ return false;}
+    virtual bool	removeSeed( const EM::PosID& )		{ return false;}
+    virtual bool	reTrack()				{ return false;}
+    virtual int		nrSeeds() const				{ return 0; }
 
-    virtual bool	stopSeedPick(bool iscancel=false) { return true; }
+    virtual int		isMinimumNrOfSeeds() const		{ return 1; }
+    			/*<!\returns the number of seeds that
+				the user has to add before we
+				can use the results. */
+    virtual bool	stopSeedPick(bool iscancel=false)	{ return true; }
 };
 
 
