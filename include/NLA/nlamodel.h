@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlamodel.h,v 1.4 2004-02-19 14:14:31 bert Exp $
+ RCS:		$Id: nlamodel.h,v 1.5 2005-10-13 15:56:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,13 @@ public:
     virtual const char*			name() const			= 0;
     virtual const NLADesign&		design() const			= 0;
     virtual NLAModel*			clone()	const			= 0;
+
     virtual IOPar&			pars()				= 0;
+    const IOPar&			pars() const
+					{ return const_cast<NLAModel*>
+						 (this)->pars(); }
     					//!< Attrib set in/out
+
     virtual void			dump(BufferString&) const	= 0;
     					//!< 'serialise' - without the pars()
 
