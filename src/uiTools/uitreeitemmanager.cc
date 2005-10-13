@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.20 2005-09-23 12:03:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.21 2005-10-13 21:23:16 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -209,7 +209,6 @@ if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
  \
     if ( uilistviewitem ) uilistviewitem->setOpen( true ); \
     updateColumnText(0); updateColumnText(1); \
-    updateSelection(selectionKey(),false);  \
     return true; \
 } \
  \
