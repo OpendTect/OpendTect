@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.12 2005-10-12 20:33:43 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.13 2005-10-13 21:26:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,36 +271,36 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	    wasatedge[idx] = surface.geometry.isAtEdge(pid);
 	}
 
-	TypeSet<RowCol> dontremovelist;
-	for ( int idx=0; idx<interactionlineseg.size(); idx++ )
-	{
-	    const int prev = idx ? idx-1 : interactionlineseg.size()-1;
-	    const int next = idx!=interactionlineseg.size()-1 ? idx+1 : 0;
-
-	    if ( !wasatedge[prev] || !wasatedge[next] || !wasatedge[idx] )
-		dontremovelist += interactionlineseg[idx];
-	}
-
-	RowCol rc;
-	for ( rc.row=start.row; rc.row<=stop.row; rc.row+=step.row )
+	TypeSet<EM::PosID> nodestoremove;
+	for ( RowCol rc(start.row,0); rc.row<=stop.row; rc.row+=step.row )
 	{
 	    for ( rc.col=start.col; rc.col<=stop.col; rc.col+=step.col )
 	    {
 		pid.setSubID( rc.getSerialized() );
-		if ( dontremovelist.indexOf(rc)!=-1 )
-		    continue;
-
-		if ( interactionlineseg.indexOf(rc)==-1 )
+		const int idx = interactionlineseg.indexOf(rc);
+		if ( idx!=-1 )
 		{
-		    const bool isinside =
-			interactionline.isInside( pid, false );
+		    const int prev = idx ? idx-1 : interactionlineseg.size()-1;
+		    const int next = idx!=interactionlineseg.size()-1
+			? idx+1 : 0;
+
+		    if ( !wasatedge[prev] || !wasatedge[next] ||
+			 !wasatedge[idx] )
+			continue;
+		}
+		else
+		{
+		    const bool isinside = interactionline.isInside(pid,false);
 		    if ( rightturn==isinside )
 			continue;
 		}
 
-		surface.setPos( pid, Coord3(0,0,mUdf(float)), true );
+		nodestoremove += pid;
 	    }
 	}
+
+	for ( int idx=0; idx<nodestoremove.size(); idx++ )
+	    surface.unSetPos( nodestoremove[idx], true );
 
 	 EM::History& history = EM::EMM().history();
 	 const int cureventnr = history.currentEventNr();
