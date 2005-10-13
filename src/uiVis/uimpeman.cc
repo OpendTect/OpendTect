@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.61 2005-10-11 20:03:51 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.62 2005-10-13 21:22:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,9 +55,6 @@ ________________________________________________________________________
 
 using namespace MPE;
 
-#define mUpdateColTabButton( cond ) \
-    setSensitive( clrtabidx, cond && !colbardlg && attribfld->size()>1 )
-
 #define mAddButton(pm,func,tip,toggle) \
     addButton( ioPixmap( GetIconFileName(pm) ), \
 	    	    mCB(this,uiMPEMan,func), tip, toggle )
@@ -93,7 +90,6 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     addSeparator();
     undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
     redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
-    updateButtonSensitivity();
 
     addSeparator();
     showcubeidx = mAddButton( "trackcube.png", showCubeCB,
@@ -137,8 +133,12 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     //engine().seedpropertychange.notify(
 	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
-    visBase::DM().selMan().selnotifier.notify( mCB(this,uiMPEMan,selChangeCB) );
-    visBase::DM().selMan().deselnotifier.notify(mCB(this,uiMPEMan,selChangeCB));
+    visBase::DM().selMan().selnotifier.notify(
+	    mCB(this,uiMPEMan,updateButtonSensitivity) );
+    visBase::DM().selMan().deselnotifier.notify(
+	    mCB(this,uiMPEMan,updateButtonSensitivity));
+
+    updateButtonSensitivity();
 }
 
 
@@ -149,8 +149,10 @@ uiMPEMan::~uiMPEMan()
     deleteVisObjects();
     //engine().seedpropertychange.remove(
 	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
-    visBase::DM().selMan().selnotifier.remove( mCB(this,uiMPEMan,selChangeCB) );
-    visBase::DM().selMan().deselnotifier.remove(mCB(this,uiMPEMan,selChangeCB));
+    visBase::DM().selMan().selnotifier.remove(
+	    mCB(this,uiMPEMan,updateButtonSensitivity) );
+    visBase::DM().selMan().deselnotifier.remove(
+	    mCB(this,uiMPEMan,updateButtonSensitivity));
 }
 
 
@@ -301,7 +303,6 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     mpedisplay->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
     mpedisplay->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
 
-    setSensitive( !clickcatcher || !clickcatcher->isOn() );
     return mpedisplay;
 }
 
@@ -327,6 +328,7 @@ void uiMPEMan::updateAttribNames()
 	const Attrib::SelSpec* spec = attribspecs[idx];
 	attribfld->addItem( spec->userRef() );
     }
+    attribfld->setCurrentItem( oldsel );
 
     updateSelectedAttrib();
 
@@ -334,14 +336,13 @@ void uiMPEMan::updateAttribNames()
 	 engine().getAttribCache(*attribspecs[0]) )
     {
 	init = true;
-	turnOn( extendidx, true );
 	engine().setTrackMode( TrackPlane::Extend );
 	showTracker( true );
 	attribfld->setCurrentItem( (int)1 );
     }
 
     attribSel(0);
-    mUpdateColTabButton( true );
+    updateButtonSensitivity(0);
 }
 
 
@@ -416,31 +417,16 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 }
 
 
-void uiMPEMan::selChangeCB(CallBacker*)
+void uiMPEMan::setSensitive( bool yn )
 {
-    bool hastracker = false;
-    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
-    if ( selectedids.size()==1 )
+    const bool wassensitive = isSensitive();
+    uiToolBar::setSensitive( yn );
+    if ( !wassensitive && yn )
     {
-	const MultiID mid = visserv->getMultiID(selectedids[0]);
-	if ( !(mid==-1) )
-	{
-	    const EM::ObjectID oid = EM::EMM().getObjectID(mid);
-	    const int trackerid = MPE::engine().getTrackerByObject(oid);
-	    if ( trackerid!=-1 ) hastracker = true;
-	}
+	updateButtonSensitivity( 0 );
     }
-
-    
-    setSensitive( seedidx, hastracker );
 }
 
-
-#define mSelCBImpl( sel ) \
-    mGetDisplays(false) \
-    for ( int idx=0; idx<displays.size(); idx++ ) \
-	displays[idx]->showManipulator( sel ); \
-    turnOn( showcubeidx, sel )
 
 void uiMPEMan::cubeSelectCB( CallBacker* )
 {
@@ -526,6 +512,8 @@ void uiMPEMan::attribSel( CallBacker* )
 
 	colbardlg->setColTab( coltabid );
     }
+
+    updateButtonSensitivity();
 }
 
 
@@ -609,8 +597,47 @@ void uiMPEMan::redoPush( CallBacker* )
 
 void uiMPEMan::updateButtonSensitivity( CallBacker* ) 
 {
-    setSensitive( undoidx, EM::EMM().history().canUnDo() );
-    setSensitive( redoidx, EM::EMM().history().canReDo() );
+    //Undo/Redo
+    uiToolBar::setSensitive( undoidx, EM::EMM().history().canUnDo() );
+    uiToolBar::setSensitive( redoidx, EM::EMM().history().canReDo() );
+
+    //Seed button
+    bool hastracker = false;
+    const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
+    if ( selectedids.size()==1 )
+    {
+	const MultiID mid = visserv->getMultiID(selectedids[0]);
+	if ( !(mid==-1) )
+	{
+	    const EM::ObjectID oid = EM::EMM().getObjectID(mid);
+	    const int trackerid = MPE::engine().getTrackerByObject(oid);
+	    if ( trackerid!=-1 ) hastracker = true;
+	}
+    }
+
+    uiToolBar::setSensitive( seedidx, hastracker );
+
+    //Track forward, backward, attrib, trans, nrstep
+    mGetDisplays(false);
+    const bool trackerisshown = displays.size() &&
+				displays[0]->isDraggerShown();
+    uiToolBar::setSensitive( trackforwardidx, trackerisshown );
+    uiToolBar::setSensitive( trackbackwardidx, trackerisshown );
+    attribfld->setSensitive( trackerisshown );
+    transfld->setSensitive( trackerisshown );
+    nrstepsbox->setSensitive( trackerisshown );
+
+    //coltab
+    uiToolBar::setSensitive( clrtabidx, trackerisshown && !colbardlg &&
+			     attribfld->currentItem()>0 );
+
+
+    //trackmode buttons
+    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
+    turnOn( extendidx, trackerisshown && tm==TrackPlane::Extend );
+    turnOn( retrackidx, trackerisshown && tm==TrackPlane::ReTrack );
+    turnOn( eraseidx, trackerisshown && tm==TrackPlane::Erase );
+    turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
 }
 
 
@@ -667,33 +694,12 @@ void uiMPEMan::trackInVolume( CallBacker* )
 void uiMPEMan::setTrackButton()
 {
     mGetDisplays(false);
-    const bool hasvisplane = displays.size();
-
-    const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    const bool extend = hasvisplane && tm==TrackPlane::Extend;
-    const bool retrack = hasvisplane && tm==TrackPlane::ReTrack;
-    const bool erase = hasvisplane && tm==TrackPlane::Erase;
-    const bool move = hasvisplane && tm==TrackPlane::Move;
-
-    turnOn( extendidx, extend );
-    turnOn( retrackidx, retrack );
-    turnOn( eraseidx, erase );
-    turnOn( moveplaneidx, move );
 }
 
 
 void uiMPEMan::showTracker( bool yn )
 {
-    setSensitive( trackforwardidx, yn );
-    setSensitive( trackbackwardidx, yn );
-    attribfld->setSensitive( yn );
-    transfld->setSensitive( yn );
-    nrstepsbox->setSensitive( yn );
-    setTrackButton();
-
     mGetDisplays(true)
-    mUpdateColTabButton(yn);
-
     for ( int idx=0; idx<displays.size(); idx++ )
     {
 	displays[idx]->showDragger( yn );
@@ -720,7 +726,7 @@ void uiMPEMan::setColorbarCB(CallBacker*)
     colbardlg->winClosing.notify( mCB( this,uiMPEMan,onColTabClosing ) );
     colbardlg->go();
 
-    mUpdateColTabButton( true );
+    updateButtonSensitivity();
 }
 
 
@@ -729,7 +735,7 @@ void uiMPEMan::onColTabClosing( CallBacker* )
     turnOn( clrtabidx, false );
     colbardlg = 0;
 
-    mUpdateColTabButton( true );
+    updateButtonSensitivity();
 }
 
 
@@ -776,11 +782,11 @@ void uiMPEMan::initFromDisplay()
 	if ( idx==0 )
 	{
 	    transfld->setValue( displays[idx]->getDraggerTransparency() );
-	    turnOn( extendidx, displays[idx]->isDraggerShown() );
 	}
     }
 
     updateSelectedAttrib();
+    updateButtonSensitivity(0);
 }
 
 
