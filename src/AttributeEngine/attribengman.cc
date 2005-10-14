@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.33 2005-10-06 20:31:04 cvskris Exp $
+ RCS:           $Id: attribengman.cc,v 1.34 2005-10-14 06:19:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,13 +108,29 @@ void EngineMan::usePar( const IOPar& iopar, const DescSet& attribset,
 
     createProcSet( pset, attribset, linename, ids );
 
-    iopar.get( "Output.1.In-line range", cs_.hrg.start.inl, cs_.hrg.stop.inl );
-    iopar.get( "Output.1.Cross-line range",cs_.hrg.start.crl, cs_.hrg.stop.crl);
-    iopar.get( "Output.1.Depth range", cs_.zrg.start, cs_.zrg.stop );
-    cs_.zrg.start /= SI().zFactor();
-    cs_.zrg.stop /= SI().zFactor();
+    PtrMan<IOPar> outpar = iopar.subselect( IOPar::compKey("Output",1) );
+    const char* bsres = outpar ? outpar->find( sKey::BinIDSel ) : 0;
+    if ( !bsres || *bsres != 'N' )
+    {
+	outpar->get( "In-line range", cs_.hrg.start.inl, cs_.hrg.stop.inl );
+	outpar->get( "Cross-line range",cs_.hrg.start.crl, cs_.hrg.stop.crl);
+	outpar->get( "Depth range", cs_.zrg.start, cs_.zrg.stop );
+	cs_.zrg.start /= SI().zFactor();
+	cs_.zrg.stop /= SI().zFactor();
+    }
+    else
+    {
+	cs_.init();
+	if ( attribset.is2D() )
+	{
+	    cs_.hrg.start.inl = 0; cs_.hrg.stop.inl = mUdf(int);
+	    cs_.hrg.start.crl = 1; cs_.hrg.stop.crl = mUdf(int);
+	}
+    }
 
-    LineKey lkey( linename, attribset.getDesc(ids[0])->userRef() );
+    const Attrib::Desc* curdesc = attribset.getDesc( ids[0] );
+    BufferString attribname = curdesc->isStored() ? "" : curdesc->userRef();
+    LineKey lkey( linename, attribname );
     SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey );
     
     int index = 0;
@@ -396,7 +412,7 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
 {
     if ( !attrspecs_.size() ) return 0;
     DescSet* descset = addtoset ? addtoset->clone() : new DescSet;
-    if ( !addtoset && !descset->usePar(const_cast<NLAModel*>(nlamodel)->pars()))
+    if ( !addtoset && !descset->usePar(nlamodel->pars()) )
     {
 	errmsg = descset->errMsg();
 	delete descset;
@@ -778,7 +794,8 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
 	procattrset = inpattrset->optimizeClone( outattribs );
     else
     {
-	inpattrset->fillPar( const_cast<NLAModel*>(nlamodel)->pars() );
+// TODO: Is it necessary to fill model pars here?
+//	inpattrset->fillPar( const_cast<NLAModel*>(nlamodel)->pars() );
 	DescID nlaid( SelSpec::cNoAttrib() );
 	procattrset = createNLAADS( nlaid, errmsg );
 	if ( *(const char*)errmsg )
