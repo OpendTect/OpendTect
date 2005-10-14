@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.23 2005-10-13 13:21:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.24 2005-10-14 09:36:37 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -63,8 +63,6 @@ Provider* StorageProvider::createFunc( Desc& desc )
 
 void StorageProvider::updateDesc( Desc& desc )
 {
-    desc.removeOutputs();
-
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
 
     const MultiID key( lk.lineName() );
@@ -83,12 +81,9 @@ void StorageProvider::updateDesc( Desc& desc )
     {
 	const bool issteering = attrnm==sKey::Steering;
 	if ( !issteering )
-	    desc.addOutputDataType( Seis::UnknowData );
+	    desc.setNrOutputs( Seis::UnknowData, 1 );
 	else
-	{
-	    desc.addOutputDataType( Seis::Dip );
-	    desc.addOutputDataType( Seis::Dip );
-	}
+	    desc.setNrOutputs( Seis::Dip, 2 );
     }
     else
     {
@@ -98,8 +93,7 @@ void StorageProvider::updateDesc( Desc& desc )
 	    type == sKey::Steering ? Seis::Dip : Seis::Ampl;
 	
 	const int nrattribs = transl->componentInfo().size();
-	for ( int idx=0; idx<nrattribs; idx++ )
-	    desc.addOutputDataType( datatype );
+	desc.setNrOutputs( datatype, nrattribs );
     }
 }
 

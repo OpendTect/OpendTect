@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.34 2005-10-04 13:31:16 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.35 2005-10-14 09:36:37 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -227,6 +227,15 @@ Seis::DataType Desc::dataType() const
 
     return link < inputs.size() && inputs[link] ? inputs[link]->dataType()
 						: Seis::UnknowData;
+}
+
+
+void Desc::setStoredDataType( Seis::DataType dt )
+{
+    if ( dt != Seis::Dip )
+	return;
+
+    setNrOutputs( dt, 1 );
 }
 
 

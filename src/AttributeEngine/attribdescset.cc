@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.32 2005-10-14 06:15:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.33 2005-10-14 09:36:37 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -262,6 +262,13 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
     bool ishidden = false;
     descpar.getYN( hiddenStr(), ishidden );
     desc->setHidden( ishidden );
+
+    if ( desc-> isStored() )
+    {
+	const char* type = descpar.find( "Datatype" ); 
+	if ( type && !strcmp( type, "Dip" ) )
+	    desc->setStoredDataType(Seis::Dip);
+    }
 
     int selout = 0;
     if ( descpar.get("Selected Attrib",selout) )
