@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.17 2005-09-29 11:29:41 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.18 2005-10-14 06:12:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,7 @@ protected:
     SeisTrcWriter*		writer_;
     BinID 			prevpos_;
     bool			storinited_;
+    BufferString		attribname;
 };
 
 

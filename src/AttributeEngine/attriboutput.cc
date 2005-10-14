@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.33 2005-10-04 13:31:16 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.34 2005-10-14 06:11:55 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -157,6 +157,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs , LineKey lkey )
     , errmsg(0)
 {
     seldata_.linekey_ = lkey;
+    attribname = lkey.attrName();
 
     const float dz = SI().zStep();
     Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
@@ -339,13 +340,14 @@ void SeisTrcStorOutput::writeTrc()
     {
 	if ( writer_->is2D() )
 	{
-	    BufferString nm = curLineKey().attrName();
-	    if ( nm == "inl_dip" || nm == "crl_dip" )
-		nm = sKey::Steering;
-	    else if ( IOObj::isKey(nm) )
-		nm = IOM().nameOf(nm);
+	    if ( attribname == "inl_dip" || attribname == "crl_dip" )
+		attribname = sKey::Steering;
+	    else if ( IOObj::isKey(attribname) )
+		attribname = IOM().nameOf(attribname);
+
 	    writer_->setLineKeyProvider( 
-		new COLineKeyProvider( *this, nm, curLineKey().lineName()) );
+		new COLineKeyProvider( *this, attribname, 
+		    		       curLineKey().lineName()) );
 	}
 
 	if ( !writer_->prepareWork(*trc_) )
