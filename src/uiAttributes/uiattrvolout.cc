@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.10 2005-09-22 12:12:35 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.11 2005-10-14 06:02:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,23 +214,20 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     transffld->selfld->fillPar( subselpar );
     CubeSampling cs; cs.usePar( subselpar );
-    key = keybase; key += SeisTrcStorOutput::inlrangekey;
     if ( !cs.hrg.isEmpty() )
+    {
+	key = keybase; key += SeisTrcStorOutput::inlrangekey;
 	iop.set( key, cs.hrg.start.inl, cs.hrg.stop.inl );
-    else
-    {
-	CubeSampling curcs;
-	todofld->getRanges( curcs );
-	iop.set( key, curcs.hrg.start.inl, curcs.hrg.stop.inl );
-    }
-
-    key = keybase; key += SeisTrcStorOutput::crlrangekey;
-    if ( !cs.hrg.isEmpty() )
+	key = keybase; key += SeisTrcStorOutput::crlrangekey;
 	iop.set( key, cs.hrg.start.crl, cs.hrg.stop.crl );
+    }
     else
     {
 	CubeSampling curcs;
 	todofld->getRanges( curcs );
+	key = keybase; key += SeisTrcStorOutput::inlrangekey;
+	iop.set( key, curcs.hrg.start.inl, curcs.hrg.stop.inl );
+	key = keybase; key += SeisTrcStorOutput::crlrangekey;
 	iop.set( key, curcs.hrg.start.crl, curcs.hrg.stop.crl );
     }
 
