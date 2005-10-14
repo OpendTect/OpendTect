@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.31 2005-10-05 15:02:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.32 2005-10-14 06:15:22 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -175,18 +175,18 @@ void DescSet::fillPar( IOPar& par ) const
 
 void DescSet::handleStorageOldFormat( IOPar& descpar )
 {
-    const char* typestr = descpar.find("Type");
-    if ( typestr && !strcmp(typestr,"Stored" ) )
-    {
-	const char* olddef = descpar.find(definitionStr());
-	if ( !olddef ) return;
-	BufferString newdef = StorageProvider::attribName();
-	newdef += " ";
-	newdef += Attrib::StorageProvider::keyStr();
-	newdef += "=";
-	newdef +=olddef;
-	descpar.set(definitionStr(),newdef);
-    }
+    const char* typestr = descpar.find( "Type" );
+    if ( !typestr || strcmp(typestr,"Stored") )
+	return;
+
+    const char* olddef = descpar.find( definitionStr() );
+    if ( !olddef ) return;
+    BufferString newdef = StorageProvider::attribName();
+    newdef += " ";
+    newdef += Attrib::StorageProvider::keyStr();
+    newdef += "=";
+    newdef += olddef;
+    descpar.set( definitionStr(), newdef );
 }
 
 
@@ -197,7 +197,7 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
     {
 	attribname = "Reference";
 	defstring = attribname;
-	descpar.set("Selected Attrib","2");
+	descpar.set( "Selected Attrib", "2" );
     }
 
     if ( attribname == "Hash" )
