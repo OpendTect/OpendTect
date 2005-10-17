@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.11 2005-10-07 12:13:05 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.12 2005-10-17 15:09:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
+#include "position.h"
 
 class CubeSampling;
-class BinID;
 template <class T> class Interval;
 
 namespace Attrib
@@ -67,6 +67,7 @@ protected:
     bool		isinited;
 
     int			outputindex_;
+    BinID		prevbid_;
 };
 
 
