@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.13 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visdragger.cc,v 1.14 2005-10-17 21:10:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ Dragger::Dragger()
 {
     onoff->ref();
     onoff->addChild( separator );
+    onoff->whichChild = 0;
 
     positiontransform->ref();
     separator->addChild( positiontransform->getInventorNode() );
