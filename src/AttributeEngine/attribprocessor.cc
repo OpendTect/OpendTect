@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.23 2005-10-07 12:12:48 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.24 2005-10-17 15:10:29 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -31,6 +31,7 @@ Processor::Processor( Desc& desc , const char* lk )
     , isinited(false)
     , moveonly(this)
     , outputindex_(0)
+    , prevbid_(BinID(-1,-1))
 {
     if ( !provider ) return;
     provider->ref();
@@ -101,8 +102,14 @@ int Processor::nextStep()
 	BinID curbid = provider->getCurrentPosition();
 	if ( is2d_ && curtrcinfo )
 	{
-	    curbid.inl = 0;
-	    curbid.crl = curtrcinfo->nr;
+	    mDynamicCastGet( LocationOutput*, locoutp, outputs[0] );
+	    if ( locoutp ) 
+		curbid = curtrcinfo->binid;
+	    else
+	    {
+		curbid.inl = 0;
+		curbid.crl = curtrcinfo->nr;
+	    }
 	}
 	
 	if ( !curtrcinfo )
@@ -115,6 +122,7 @@ int Processor::nextStep()
 	}
 
 	TypeSet< Interval<int> > localintervals;
+
 	bool isset = setZIntervals( localintervals, curbid );
 
 	for ( int idi=0; idi<localintervals.size(); idi++ )
@@ -129,8 +137,10 @@ int Processor::nextStep()
 	    }
 	}
 
-	if ( provider->getPossibleVolume()->hrg.includes(curbid) )
+	if ( provider->getPossibleVolume()->hrg.includes(curbid) && isset )
 	    nrdone++;
+
+	prevbid_ = curbid;
     }
 
     provider->resetMoved();
@@ -205,11 +215,11 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
     bool isset = false;
     for ( int idx=0; idx<outputs.size(); idx++ )
     {
-	if ( !outputs[idx]->wantsOutput(curbid) ) 
+	if ( !outputs[idx]->wantsOutput(curbid) || curbid == prevbid_ ) 
 	    continue;
 
 	//just assume that intervals.size() will be != 0 only in
-	//case of arbitrary shapes which will require only 
+	//case of arbitrary shapes or picks which will require only 
 	//one output.
 	if ( isset )
 	    localintervals[0].include(
