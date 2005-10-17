@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.47 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.48 2005-10-17 13:39:13 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -67,25 +67,11 @@ bool TwoDSeisTrcTranslator::initRead_()
     lset.getTxtInfo( 0, pinfo->usrinfo, pinfo->stdinfo );
     addComp( DataCharacteristics(), pinfo->stdinfo, Seis::UnknowData );
 
-    const char* linekey = seldata ? seldata->linekey_.buf() : 0;
-    const bool isall = !linekey || !*linekey;
-    int linenr = isall ? 0 : lset.indexOf( linekey );
-    if ( linenr < 0 )
+    LineKey lk( seldata ? seldata->linekey_.buf() : "" );
+    if ( lk.lineName() != "" && lset.indexOf(lk) < 0 )
 	{ errmsg = "Cannot find line key in line set"; return false; }
-
     CubeSampling cs( true );
-    if ( isall )
-    {
-	cs.hrg.start.inl = cs.hrg.start.crl = 1;
-	cs.hrg.stop.inl = cs.hrg.stop.crl = mUdf(int);
-	cs.hrg.step.inl = cs.hrg.step.crl = 1;
-    }
-    else
-    {
-	errmsg = lset.getCubeSampling( cs, linenr );
-	if ( errmsg && *errmsg )
-	    return false;
-    }
+    errmsg = lset.getCubeSampling( cs, lk );
 
     insd.start = cs.zrg.start; insd.step = cs.zrg.step;
     innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
@@ -599,6 +585,51 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms ) const
     const int sz = nrLines();
     for ( int idx=0; idx<sz; idx++ )
 	nms.addIfNew( attribute(idx) );
+}
+
+
+const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
+       					    const LineKey& lk ) const
+{
+    const BufferString lnm( lk.lineName() );
+    const BufferString anm( lk.attrName() );
+    if ( anm == LineKey::sKeyDefAttrib )
+	const_cast<BufferString&>( anm ) = "";
+
+    const bool haveln = lnm != "";
+    const bool haveattr = anm != "";
+    const int nrlines = nrLines();
+    const char* errmsg = "No matches found for line selection";
+    for ( int iln=0; iln<nrlines; iln++ )
+    {
+	if ( haveln && lnm != lineName(iln) )
+	    continue;
+	if ( haveattr )
+	{
+	    BufferString curanm( attribute(iln) );
+	    if ( curanm == LineKey::sKeyDefAttrib ) curanm = "";
+	    if ( anm != curanm )
+		continue;
+	}
+
+	if ( errmsg )
+	    errmsg = getCubeSampling( cs, iln );
+	else
+	{
+	    StepInterval<int> trg; StepInterval<float> zrg;
+	    if ( getRanges(iln,trg,zrg) )
+	    {
+		if ( cs.hrg.start.crl > trg.start ) cs.hrg.start.crl =trg.start;
+		if ( cs.hrg.stop.crl < trg.stop ) cs.hrg.stop.crl = trg.stop;
+		if ( cs.hrg.step.crl > trg.step ) cs.hrg.step.crl = trg.step;
+		if ( cs.zrg.start > zrg.start ) cs.zrg.start = zrg.start;
+		if ( cs.zrg.stop < zrg.stop ) cs.zrg.stop = zrg.stop;
+		if ( cs.zrg.step > zrg.step ) cs.zrg.step = zrg.step;
+	    }
+	}
+    }
+
+    return errmsg;
 }
 
 

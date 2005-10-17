@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.32 2005-07-26 08:41:38 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.33 2005-10-17 13:39:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,8 @@ public:
     bool		getRanges(int,StepInterval<int>& trcrg,
 	    			  StepInterval<float>& zrg) const;
     const char*		getCubeSampling(CubeSampling&,int linenr=-1) const;
+    			//!< returns err msg, or null when OK
+    const char*		getCubeSampling(CubeSampling&,const LineKey&) const;
     			//!< returns err msg, or null when OK
     bool		haveMatch(int,const BinIDValueSet&) const;
     			//!< Uses getGeometry
