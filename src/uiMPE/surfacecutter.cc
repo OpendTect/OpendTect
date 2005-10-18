@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.6 2005-10-04 15:08:19 cvskris Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.7 2005-10-18 19:13:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,11 +65,11 @@ void SurfaceCutter::setCuttedObj( EM::ObjectID objid, EM::SectionID sid )
 bool SurfaceCutter::doTerminate( bool positiveside )
 {
     mDynamicCastGet(EM::Surface*,cuttedsurf,EM::EMM().getObject(cuttedobjid_))
-    if ( !cuttedsurf || !cuttedsurf->geometry.hasSection(cuttedsectionid_) )
+    if ( !cuttedsurf || cuttedsurf->sectionIndex(cuttedsectionid_)!=-1 )
 	return false;
 
     mDynamicCastGet(EM::Surface*,cuttingsurf,EM::EMM().getObject(cuttingobjid_))
-    if ( !cuttingsurf || !cuttingsurf->geometry.hasSection(cuttingsectionid_) )
+    if ( !cuttingsurf || cuttingsurf->sectionIndex(cuttingsectionid_)!=-1 )
 	return false;
 
     const int relation = cuttedsurf->relations.setRelation(
@@ -91,7 +91,7 @@ bool SurfaceCutter::doTerminate( bool positiveside )
 	const RowCol rc = psurf->getKnotRowCol( idy );
 	if ( cs.hrg.includes(rc) )
 	{
-	    cuttedsurf->geometry.setPos( cuttedsectionid_, rc, 
+	    cuttedsurf->setPos( cuttedsectionid_, rc.getSerialized(), 
 		    			 Coord3(0,0,mUndefValue), true );
 	    continue;
 	}
@@ -168,13 +168,13 @@ bool SurfaceCutter::reTrack()
 	BinID start3(cs.hrg.stop.inl-cs.hrg.step.inl,cs.hrg.start.crl);
 	stop = cs.hrg.stop;
 	step = cs.hrg.step; step.inl = 0;
-	if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start0) )
+	if ( cuttedsurf->isDefined(cuttedsectionid_,start0.getSerialized()) )
 	{ start = start0; stop.inl = start0.inl; step *= -1; }
-	else if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start1) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start1.getSerialized()) )
 	{ start = start1; stop.inl = start1.inl; }
-	else if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start2) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start2.getSerialized()) )
 	{ start = start2; stop.inl = start2.inl; step *= -1; }
-	else if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start3) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start3.getSerialized()) )
 	{ start = start3; stop.inl = start3.inl; }
     }
     else
@@ -185,13 +185,13 @@ bool SurfaceCutter::reTrack()
 	BinID start3(cs.hrg.start.inl,cs.hrg.stop.crl-cs.hrg.step.crl);
 	stop = cs.hrg.stop;
 	step = cs.hrg.step; step.inl = 0;
-	if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start0) )
+	if ( cuttedsurf->isDefined(cuttedsectionid_,start0.getSerialized()) )
 	{ start = start0; stop.crl = start0.crl; step *= -1; }
-	else if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start1) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start1.getSerialized()) )
 	{ start = start1; stop.crl = start1.crl; }
-	else if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start2) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start2.getSerialized()) )
 	{ start = start2; stop.crl = start2.crl; step *= -1; }
-	else if ( cuttedsurf->geometry.isDefined(cuttedsectionid_,start3) )
+	else if ( cuttedsurf->isDefined(cuttedsectionid_,start3.getSerialized()) )
 	{ start = start3; stop.crl = start3.crl; }
     }
 
