@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.19 2005-10-12 20:35:33 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.20 2005-10-18 19:26:14 cvskris Exp $";
 
 
 
@@ -120,7 +120,7 @@ bool SurfaceCutLine::isNodeOK(const RowCol& testrc) const
     float disttosurface = mUndefValue;
     if ( cacheidx==-1 )
     {
-	const Coord3 ntpos = surface.geometry.getPos( section, testrc );
+	const Coord3 ntpos = surface.getPos( section, testrc.getSerialized() );
 	if ( ntpos.isDefined() )
 	{
 	    disttosurface = cuttingsurface->geometry.normalDistance(ntpos,t2d);
@@ -189,7 +189,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
     float backnodedistance;
     if ( backnodecacheidx==-1 )
     {
-	const Coord3 pos = surface.geometry.getPos( section, backnode );
+	const Coord3 pos = surface.getPos( section, backnode.getSerialized() );
 	poscache += pos;
 	if (  pos.isDefined() )
 	{
@@ -225,7 +225,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 	float distance;
 	if ( cacheidx==-1 )
 	{
-	    const Coord3 pos = surface.geometry.getPos( section, currc );
+	    const Coord3 pos = surface.getPos( section, currc.getSerialized() );
 	    poscache += pos;
 	    if ( pos.isDefined() )
 	    {
@@ -400,7 +400,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward,
 
 bool SurfaceCutLine::isAtCuttingEdge(int idx) const
 {
-    const Coord3 ntpos = surface.geometry.getPos(section,(*this)[idx]);
+    const Coord3 ntpos = surface.getPos(section,(*this)[idx].getSerialized());
 
     const Interval<float> xinterval( ntpos.x-10, ntpos.x+10 );
     const Interval<float> yinterval( ntpos.y-10, ntpos.y+10 );
@@ -459,8 +459,8 @@ void SurfaceCutLine::commitChanges()
     {
 	if ( ischanged[idx] )
 	{
-	    surface.geometry.setPos( section, cacherc[idx],
-		    		     poscache[idx], true );
+	    surface.setPos( section, cacherc[idx].getSerialized(),
+		  	    poscache[idx], true );
 	    ischanged[idx] = false;
 	}
     }
@@ -725,7 +725,7 @@ void SurfaceCutLine::computeDistancesAlongLine( const EdgeLine& line,
 	const RowCol& rc = iterator.currentRowCol();
 	if ( !usecaching || !nodestonextcalc )
 	{
-	    const Coord3 coord = surface.geometry.getPos(section,rc );
+	    const Coord3 coord = surface.getPos(section,rc.getSerialized() );
 	    dist = cuttingsurface.geometry.normalDistance( coord, t2d );
 	    if ( negate ) dist = -dist;
 	}
@@ -776,7 +776,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
     Coord3 pos;
     if ( cacheidx==-1 )
     {
-	poscache += pos = surface.geometry.getPos( section, targetrc );
+	poscache += pos = surface.getPos( section, targetrc.getSerialized() );
 	if (  pos.isDefined() )
 	{
 	    distance = cuttingsurface->geometry.normalDistance(pos,t2d);
@@ -813,7 +813,7 @@ float SurfaceCutLine::computeScore( const RowCol& targetrc,
 	if ( !sourcerc )
 	    return mUndefValue;
 
-	const Coord backpos = surface.geometry.getPos( section, *sourcerc );
+	const Coord backpos = surface.getPos(section,sourcerc->getSerialized());
 	const Coord diff( pos.x-backpos.x, pos.y-backpos.y);
 	const Coord targetpos(pos.x+diff.x,pos.y+diff.y);
 

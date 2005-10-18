@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.51 2005-10-12 20:35:33 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.52 2005-10-18 19:26:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -491,7 +491,7 @@ int EM::dgbSurfaceReader::nextStep()
 	    surface->geometry.checkSupport(false);
 	}
 
-	surface->geometry.setPos( sectionid, rowcol, pos, false );
+	surface->setPos( sectionid, rowcol.getSerialized(), pos, false );
 
 	isrowused = true;
     }

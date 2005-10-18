@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.67 2005-10-12 20:35:33 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.68 2005-10-18 19:26:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ int nextStep()
 
     PosID posid( horizon_.id(), horizon_.geometry.sectionID(sectionidx_),
 		 bid.getSerialized() );
-    bool res = horizon_.geometry.setPos( posid, Coord3(0,0,vals[0]), false );
+    bool res = horizon_.setPos( posid, Coord3(0,0,vals[0]), false );
     if ( res )
     {
 	bvs.remove( pos_ );
@@ -236,7 +236,8 @@ void Horizon::interpolateHoles( int aperture )
 	{
 	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	    {
-		const Coord3 pos = geometry.getPos( sectionid, RowCol(row,col));
+		const Coord3 pos =
+		    getPos( sectionid, RowCol(row,col).getSerialized() );
 		arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
 	    }
 	}
@@ -256,11 +257,11 @@ void Horizon::interpolateHoles( int aperture )
 	    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	    {
 		const RowCol rc( row, col );
-		Coord3 pos = geometry.getPos( sectionid, rc );
+		Coord3 pos = getPos( sectionid, rc.getSerialized() );
 		if ( !pos.isDefined() )
 		{
 		    pos.z = arr->get( rowrg.getIndex(row), colrg.getIndex(col));
-		    geometry.setPos( sectionid, rc, pos, true );
+		    setPos( sectionid, rc.getSerialized(), pos, true );
 		}
 	    }
 	}
