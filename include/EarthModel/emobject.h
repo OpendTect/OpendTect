@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.52 2005-10-11 14:32:59 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.53 2005-10-18 18:42:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -92,6 +92,8 @@ public:
     void			setPreferredColor(const Color&);
 
     virtual Coord3		getPos(const EM::PosID&) const;
+    virtual Coord3		getPos(const EM::SectionID&,
+	    			       const EM::SubID& ) const;
     virtual bool		isDefined( const EM::PosID& ) const;
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.54 2005-10-11 19:36:34 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.55 2005-10-18 18:42:19 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -154,8 +154,15 @@ Coord3 EMObject::getPos( const PosID& pid ) const
     if ( pid.objectID()!=id() )
 	return  Coord3::udf();
 
-    const Geometry::Element* element = getElement( pid.sectionID() );
-    return element ? element->getPosition( pid.subID() ) : Coord3::udf();
+    return getPos( pid.sectionID(), pid.subID() );
+}
+
+
+Coord3 EMObject::getPos( const EM::SectionID& sid,
+			 const EM::SubID& subid ) const
+{
+    const Geometry::Element* element = getElement( sid );
+    return element ? element->getPosition( subid ) : Coord3::udf();
 }
 
 #define mRetErr( msg ) { errmsg = msg; return false; }
