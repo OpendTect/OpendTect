@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.17 2005-10-18 17:10:17 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.18 2005-10-18 19:24:44 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -81,7 +81,7 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 				 const BinID& targetbid, float& targetz, 
 				 float* refsamples )
 {
-    const Coord3 pos = horizon_.geometry.getPos(sectionid_,targetbid);
+    const Coord3 pos = horizon_.getPos(sectionid_,targetbid.getSerialized());
     if ( !pos.isDefined() )	return false;
     targetz = pos.z;
 
@@ -100,7 +100,7 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 	if ( !hrg.includes(srcbid) || !hrg.includes(srcbid) )
 	    return false;
 	if ( ! getCompSamples(attrdata, srcbid,
-	    	horizon_.geometry.getPos(sectionid_,srcbid).z, smplbuf ) )
+	    	horizon_.getPos(sectionid_,srcbid.getSerialized()).z, smplbuf) )
 	    return false;
 	refsamples = smplbuf;
     }
@@ -472,7 +472,7 @@ const AttribPositionScoreComputer*
 
 void HorizonAdjuster::setHorizonPick(const BinID&  bid, float val )
 {
-    horizon_.geometry.setPos( sectionid_, bid, Coord3(0,0,val), true );
+    horizon_.setPos( sectionid_, bid.getSerialized(), Coord3(0,0,val), true );
 }
 
 
