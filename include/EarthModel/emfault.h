@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.24 2005-10-18 18:34:34 cvskris Exp $
+ RCS:		$Id: emfault.h,v 1.25 2005-10-18 20:16:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -54,9 +54,6 @@ public:
 
 protected:
     Geometry::ParametricSurface*	createSectionSurface() const;
-
-    static int			hiddenAttrib() { return 3; }
-    				//TODO: Make better implementation
 };
 
 

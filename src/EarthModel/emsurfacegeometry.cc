@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.25 2005-10-12 20:35:33 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.26 2005-10-18 20:16:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,7 +224,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sid,
 	{
 	    if ( isDefined(sid,rc) )
 	    {
-		Coord3 pos = getPos( sid, rc );
+		Coord3 pos = surface.getPos( sid, rc.getSerialized() );
 		if ( t2dfunc )
 		    pos.z = t2dfunc->getValue( pos.z );
 
@@ -389,7 +389,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 if ( !fetched[nodeindex] ) \
 { \
     fetched[nodeindex]=true; \
-    const Coord3 tpos = getPos(getNeighbor(node,dirs[nodeindex])); \
+    const Coord3 tpos = surface.getPos(getNeighbor(node,dirs[nodeindex])); \
     if ( tpos.isDefined() )  \
     { \
 	while ( coords.size()<=nodeindex ) \
@@ -402,7 +402,7 @@ if ( !fetched[nodeindex] ) \
 bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 		     const FloatMathFunction* t2d, bool normalize ) const
 {
-    const Coord3 nodetpos = getPos(node);
+    const Coord3 nodetpos = surface.getPos(node);
     const bool defnode = nodetpos.isDefined();
     const Coord3 nodecoord( nodetpos,
 	     		 t2d&&defnode ? t2d->getValue(nodetpos.z) : nodetpos.z);
@@ -643,7 +643,7 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
     const SectionID sid = nodealias.sectionID(); \
     const RowCol noderc(nodealias.subID()); \
     const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
-    coordname = getPos(sid, neighborrc); \
+    coordname = surface.getPos(sid, neighborrc.getSerialized()); \
     defname = coordname.isDefined(); \
     if ( defname ) \
     { \
@@ -667,7 +667,7 @@ void SurfaceGeometry::getMeshCoords( const PosID& pid,
     nodealiases += pid;
     const int nrnodealiases = nodealiases.size();
 
-    c00 = getPos(pid);
+    c00 = surface.getPos(pid);
     c00def = c00.isDefined();
     if ( c00def && t2dfunc ) c00.z = t2dfunc->getValue(c00.z);
 
@@ -855,20 +855,6 @@ SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
 }
 
 
-bool SurfaceGeometry::setPos( const SectionID& sid, const RowCol& rc,
-			      const Coord3& pos, bool addtohistory)
-{
-    return surface.setPos( sid, rc.getSerialized(), pos, addtohistory );
-}
-
-
-bool SurfaceGeometry::setPos( const PosID& posid, const Coord3& newpos,
-			      bool addtohistory )
-{
-    return surface.setPos( posid, newpos, addtohistory );
-}
-
-
 #define mInsertRowCol(funcname) \
 bool SurfaceGeometry::funcname( const SectionID& sid, int rc, bool hist ) \
 { \
@@ -888,25 +874,12 @@ mInsertRowCol( insertRow );
 mInsertRowCol( insertCol );
 
 
-Coord3 SurfaceGeometry::getPos( const PosID& posid ) const
-{
-    return getPos( posid.sectionID(), RowCol(posid.subID()) );
-}
-
-
-Coord3 SurfaceGeometry::getPos( const SectionID& sid, const RowCol& rc) const
-{
-    const int surfidx = sectionids.indexOf( sid );
-    return meshsurfaces[surfidx]->getKnot( rc );
-}
-
-
 void SurfaceGeometry::getPos( const RowCol& rc, TypeSet<Coord3>& crdset ) const
 {
     const int nrsubsurf = nrSections();
     for ( int surfidx=0; surfidx<nrsubsurf; surfidx++ )
     {
-	Coord3 crd = getPos( sectionID(surfidx), rc );
+	Coord3 crd = surface.getPos( sectionID(surfidx), rc.getSerialized() );
 	if ( crd.isDefined() )
 	    crdset += crd;
     }
@@ -1029,7 +1002,7 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
     for ( int idx=0; idx<posids.size(); idx++ )
     {
 	const PosID& posid = posids[idx];
-	const BinID nodebid = SI().transform(getPos(posid));
+	const BinID nodebid = SI().transform(surface.getPos(posid));
 
 	if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
 	     nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
@@ -1252,7 +1225,7 @@ Interval<float> SurfaceGeometry::getZRange( const Interval<int>& rowrg,
 	    RowCol rc = psurf->getKnotRowCol( nidx );
 	    if ( rowrg.includes(rc.r()) && colrg.includes(rc.c()) )
 	    {
-		const Coord3& crd = getPos( sid, rc );
+		const Coord3& crd = surface.getPos( sid, rc.getSerialized() );
 		if ( crd.isDefined() ) zrg.include( crd.z, false );
 	    }
 	}

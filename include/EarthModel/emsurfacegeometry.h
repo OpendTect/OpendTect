@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.16 2005-10-12 20:35:33 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.17 2005-10-18 20:16:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,18 +66,12 @@ public:
     SectionID		cloneSection(const SectionID&);
     void		checkSections();
 
-    bool		setPos(const SectionID&,const RowCol&,
-			       const Coord3&,bool addtoh);
-    bool		setPos(const PosID&,const Coord3&,bool addtohist);
-
     virtual bool	insertRow( const SectionID&, int newrow, bool hist );
     virtual bool	insertCol( const SectionID&, int newcol, bool hist );
 
     virtual bool	isDefined(const SectionID&,const RowCol&) const;
     virtual bool	isDefined(const PosID&) const;
 
-    Coord3		getPos(const PosID&) const;
-    virtual Coord3	getPos(const SectionID& section, const RowCol&) const;
     void		getPos(const RowCol&,TypeSet<Coord3>&) const;
     			//!< Returns positions from all sections on RowCol
    
