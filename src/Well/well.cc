@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.31 2005-08-31 13:09:47 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.32 2005-10-18 15:48:19 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -52,6 +52,13 @@ float Well::DahObj::dahStep( bool ismin ) const
 
     if ( !ismin ) res /= nrvals; // average
     return mIsZero(res,mDefEps) ? mUndefValue : res;
+}
+
+
+void Well::DahObj::addToDahFrom( int fromidx, float extradah )
+{
+    for ( int idx=fromidx; idx<dah_.size(); idx++ )
+	dah_[idx] += extradah;
 }
 
 
@@ -223,6 +230,131 @@ Well::Track& Well::Track::operator =( const Track& t )
 	pos_ = t.pos_;
     }
     return *this;
+}
+
+
+void Well::Track::addPoint( const Coord& c, float z, float dah )
+{
+    pos_ += Coord3(c,z);
+    if ( Values::isUdf(dah) )
+    {
+	const int previdx = dah_.size() - 1;
+	dah = previdx < 0 ? 0
+	    : dah_[previdx] + pos_[previdx].distance( pos_[previdx+1] );
+    }
+    dah_ += dah;
+}
+
+
+void Well::Track::insertAfterIdx( int aftidx, const Coord3& c )
+{
+    const int oldsz = pos_.size();
+    if ( aftidx > oldsz-2 )
+	{ addPoint( c, c.z ); return; }
+
+    float extradah, owndah = 0;
+    if ( aftidx == -1 )
+	extradah = c.distance( pos_[0] );
+    else
+    {
+	float dist0 = c.distance( pos_[aftidx] );
+	float dist1 = c.distance( pos_[aftidx+1] );
+	owndah = dah_[aftidx] + dist0;
+	extradah = dist0 + dist1 - pos_[aftidx].distance( pos_[aftidx+1] );
+    }
+
+    pos_.insert( aftidx+1, c );
+    dah_.insert( aftidx+1, owndah );
+    addToDahFrom( aftidx+2, extradah );
+}
+
+
+void Well::Track::insertPoint( const Coord& c, float z )
+{
+    const int oldsz = pos_.size();
+    if ( oldsz < 1 )
+	{ addPoint( c, z ); return; }
+
+    Coord3 cnew( c.x, c.y, z );
+    if ( oldsz < 2 )
+    {
+	Coord3 oth( pos_[0] );
+	if ( oth.z < cnew.z )
+	    addPoint( c, z );
+	else
+	{
+	    pos_.erase(); dah_.erase();
+	    pos_ += cnew; pos_ += oth;
+	    dah_ += 0;
+	    dah_ += oth.distance( cnew );
+	}
+	return;
+    }
+
+    // Need to find 'best' position. This is when the angle of the triangle
+    // at the new point is maximal
+    // This boils down to min(sum of sq distances / product of distances)
+
+    float minval = 1e30; int minidx = -1;
+    for ( int idx=1; idx<oldsz; idx++ )
+    {
+	const Coord3& c0 = pos_[idx-1];
+	const Coord3& c1 = pos_[idx];
+	const float d0 = c0.distance( cnew );
+	const float d1 = c1.distance( cnew );
+	if ( mIsZero(d0,1e-4) || mIsZero(d1,1e-4) )
+	    return; // point already present
+	float val = (d0 * d0 + d1 * d1) / (d0 * d1);
+	if ( val < minval )
+	    { minidx = idx-1; minval = val; }
+    }
+
+    if ( minidx == oldsz-2 )
+    {
+	// The point may be before the first
+	const Coord3& c0 = pos_[0];
+	const Coord3& c1 = pos_[1];
+	const float d01sq = c0.sqDistance( c1 );
+	const float d0nsq = c0.sqDistance( cnew );
+	const float d1nsq = c1.sqDistance( cnew );
+	if ( d01sq + d0nsq < d1nsq )
+	    minidx == -1;
+    }
+    if ( minidx == oldsz-2 )
+    {
+	// Hmmm. The point may be beyond the last
+	const Coord3& c0 = pos_[oldsz-2];
+	const Coord3& c1 = pos_[oldsz-1];
+	const float d01sq = c0.sqDistance( c1 );
+	const float d0nsq = c0.sqDistance( cnew );
+	const float d1nsq = c1.sqDistance( cnew );
+	if ( d01sq + d1nsq > d0nsq )
+	    minidx == oldsz-1;
+    }
+
+    insertAfterIdx( minidx, cnew );
+}
+
+
+void Well::Track::setPoint( int idx, const Coord& c, float z )
+{
+    const int nrpts = pos_.size();
+    if ( idx<0 || idx>=nrpts ) return;
+
+    Coord3 oldpt( pos_[idx] );
+    Coord3 newpt( c.x, c.y, z );
+    float olddist0 = idx > 0 ? oldpt.distance(pos_[idx-1]) : 0;
+    float newdist0 = idx > 0 ? newpt.distance(pos_[idx-1]) : 0;
+    float olddist1 = 0, newdist1 = 0;
+    if ( idx < nrpts-1 )
+    {
+	olddist1 = oldpt.distance(pos_[idx+1]);
+	newdist1 = newpt.distance(pos_[idx+1]);
+    }
+
+    pos_[idx] = newpt;
+    dah_[idx] += newdist0 - olddist0;
+    addToDahFrom( idx+1, newdist0 - olddist0 + newdist1 - olddist1 );
 }
 
 
