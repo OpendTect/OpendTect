@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.62 2005-10-12 21:51:00 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.63 2005-10-18 19:16:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,7 +239,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	BufferString str = "Section: "; str += closestnode.sectionID();
 	str += " ("; str += closestrc.row;
 	str += ","; str += closestrc.col; str += ",";
-	str += emsurface->geometry.getPos(closestnode.sectionID(),closestrc).z;
+	str += emsurface->getPos(closestnode.sectionID(),closestnode.subID()).z;
 	str+=")";
 	pErrMsg(str);
     }
@@ -1254,12 +1254,12 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
  \
 	BinID prevbid( bid ); prevbid[slowdim] = prev##linetype; \
 	BinID nextbid( bid ); nextbid[slowdim] = next##linetype; \
-	const Coord3 prevpos(horizon->geometry.getPos(sid,prevbid)); \
+	const Coord3 prevpos(horizon->getPos(sid,prevbid.getSerialized())); \
 	Coord3 pos = prevpos; \
 	if ( nextbid!=prevbid && prevpos.isDefined() ) \
 	{ \
 	    const Coord3 nextpos = \
-		horizon->geometry.getPos(sid,nextbid); \
+		horizon->getPos(sid,nextbid.getSerialized()); \
 	    if ( nextpos.isDefined() ) \
 	    { \
 		pos += nextpos; \

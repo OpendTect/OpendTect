@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.10 2004-11-16 09:26:44 kristofer Exp $
+ RCS:           $Id: vishingeline.cc,v 1.11 2005-10-18 19:17:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 		    continue;
 		}
 
-		const Coord3 pos = surface.geometry.getPos(section,rc);
+		const Coord3 pos = surface.getPos(section,rc.getSerialized());
 		if ( !pos.isDefined() )
 		{
 		    polyline->setCoordIndex( coordindexindex, -1 );
