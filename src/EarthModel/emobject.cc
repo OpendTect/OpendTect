@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.55 2005-10-18 18:42:19 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.56 2005-10-18 19:07:33 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -279,12 +279,20 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
 
 
 bool EMObject::isDefined( const PosID& pid ) const
-{ 
+{
     if ( pid.objectID()!=id() )
 	return  false;
 
-    const Geometry::Element* element = getElement( pid.sectionID() );
-    return element && element->isDefined( pid.subID() );
+    return isDefined( pid.sectionID(), pid.subID() );
+}
+
+
+
+bool EMObject::isDefined( const EM::SectionID& sid,
+			  const EM::SubID& subid ) const
+{ 
+    const Geometry::Element* element = getElement( sid );
+    return element && element->isDefined( subid );
 }
 
 

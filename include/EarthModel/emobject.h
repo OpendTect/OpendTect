@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.53 2005-10-18 18:42:19 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.54 2005-10-18 19:07:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,8 @@ public:
     virtual Coord3		getPos(const EM::SectionID&,
 	    			       const EM::SubID& ) const;
     virtual bool		isDefined( const EM::PosID& ) const;
+    virtual bool		isDefined( const EM::SectionID&,
+					   const EM::SubID& ) const;
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
 				       bool addtohistory);
