@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.24 2005-10-14 09:36:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.25 2005-10-18 13:08:42 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -341,7 +341,7 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 				desiredvolume->hrg.start.crl < trcrg.start?
 				trcrg.start : desiredvolume->hrg.start.crl;
 		    seldata_.crlrg_.stop = 
-				desiredvolume->hrg.stop.crl > trcrg.start ?
+				desiredvolume->hrg.stop.crl > trcrg.stop ?
 				trcrg.stop : desiredvolume->hrg.stop.crl;
 		    seldata_.zrg_.start = 
 				desiredvolume->zrg.start < zrg.start ?

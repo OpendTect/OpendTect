@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.24 2005-10-17 15:10:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.25 2005-10-18 13:08:42 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -137,7 +137,7 @@ int Processor::nextStep()
 	    }
 	}
 
-	if ( provider->getPossibleVolume()->hrg.includes(curbid) && isset )
+	if ( isset )
 	    nrdone++;
 
 	prevbid_ = curbid;
