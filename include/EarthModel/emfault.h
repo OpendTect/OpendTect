@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.23 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: emfault.h,v 1.24 2005-10-18 18:34:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,22 +51,6 @@ class FaultGeometry : public SurfaceGeometry
 public:
     			FaultGeometry( Fault& );
 			~FaultGeometry();
-
-    virtual PosID	getNeighbor( const PosID& posid,
-				     const RowCol& dir ) const;
-    int			findPos(SectionID,const Interval<float>& x,
-				const Interval<float>& y,
-				const Interval<float>& z,
-				TypeSet<PosID>* res) const;
-    bool		isHidden( const PosID& ) const;
-    bool		isHidden( SectionID, const RowCol&) const;
-    void		setHidden( const PosID&, bool yn,bool addtohistory);
-    void		setHidden( SectionID, const RowCol&,
-	    			   bool yn,bool addtohistory);
-    bool		insertHiddenColumn( SectionID, int col );
-    Coord3		getPos(SectionID section, const RowCol&) const;
-
-    void		updateHiddenPos();
 
 protected:
     Geometry::ParametricSurface*	createSectionSurface() const;
