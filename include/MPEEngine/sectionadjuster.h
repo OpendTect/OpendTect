@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.12 2005-08-29 09:57:44 cvsduntao Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.13 2005-10-18 17:10:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,10 +53,13 @@ public:
 
     void			setThresholdValue(float val);
     float			getThresholdValue() const;
-    void			doStopBelowThreshold(bool yn);
-    bool			stopBelowThreshold() const;
-    bool			extrapolateOnFail() const;
-    void			doExtrapolateOnFail(bool yn);
+    bool			removeOnFailure(bool yn);
+    				/*!<If true, tracked nodes that does not
+				    meet certain constraits, e.g. thresholds,
+				    are removed. If not, the initial value
+				    is kept.
+				    \returns the previous status. */
+    bool			removesOnFailure() const;
 
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
@@ -67,17 +70,15 @@ protected:
     BufferString		errmsg_;
     EM::SectionID		sectionid_;
     float			thresholdval_;
-    bool			stopbelowthrhold_;
-    bool			extrapolateonfail_;
+    bool			removeonfailure_;
 
     const EM::SubID*		refpos_;
     
     ObjectSet<PositionScoreComputer> computers_;
 
-    static const char*		adjusterstr;
-    static const char*		thresholdstr;
-    static const char*		stoptrackstr;
-    static const char*		extronfailstr;
+    static const char*		sKeyAdjuster();
+    static const char*		sKeyThreshold();
+    static const char*		sKeyRemoveOnFailure();
 };
 
 }; // namespace MPE

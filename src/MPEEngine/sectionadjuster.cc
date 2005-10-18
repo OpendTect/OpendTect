@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.8 2005-08-29 09:57:44 cvsduntao Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.9 2005-10-18 17:10:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,16 +19,14 @@ ________________________________________________________________________
 namespace MPE
 {
 
-const char* SectionAdjuster::adjusterstr = "Adjuster";
-const char* SectionAdjuster::thresholdstr = "Threshold value";
-const char* SectionAdjuster::stoptrackstr = "Stop tracking below threshold";
-const char* SectionAdjuster::extronfailstr = "Extrapolate on tracking fail";
+const char* SectionAdjuster::sKeyAdjuster() { return "Adjuster"; }
+const char* SectionAdjuster::sKeyThreshold() { return "Threshold value"; }
+const char* SectionAdjuster::sKeyRemoveOnFailure(){ return "Remove on Failure";}
 
 SectionAdjuster::SectionAdjuster( const EM::SectionID& sid )
     : sectionid_(sid)
-    , stopbelowthrhold_(true)
+    , removeonfailure_(true)
     , thresholdval_(0.5)
-    , extrapolateonfail_(false)
     , refpos_(0)
 {}
 
@@ -103,25 +101,23 @@ void SectionAdjuster::setThresholdValue(float val) { thresholdval_ = val; }
 float SectionAdjuster::getThresholdValue() const { return thresholdval_; }
 
 
-void SectionAdjuster::doStopBelowThreshold(bool yn) { stopbelowthrhold_ = yn; }
+bool SectionAdjuster::removeOnFailure(bool yn)
+{
+    const bool res = removeonfailure_;
+    removeonfailure_ = yn;
+    return res;
+}
 
 
-bool SectionAdjuster::stopBelowThreshold() const { return stopbelowthrhold_; }
-
-
-void SectionAdjuster::doExtrapolateOnFail(bool yn) { extrapolateonfail_=yn; }
-
-
-bool SectionAdjuster::extrapolateOnFail() const { return extrapolateonfail_; }
+bool SectionAdjuster::removesOnFailure() const { return removeonfailure_; }
 
 
 void SectionAdjuster::fillPar( IOPar& par ) const
 {
     IOPar adjpar;
-    adjpar.set( thresholdstr, thresholdval_ );
-    adjpar.setYN( stoptrackstr, stopbelowthrhold_ );
-    adjpar.setYN( extronfailstr, extrapolateonfail_ );
-    par.mergeComp( adjpar, adjusterstr );
+    adjpar.set( sKeyThreshold(), thresholdval_ );
+    adjpar.setYN( sKeyRemoveOnFailure(), removeonfailure_ );
+    par.mergeComp( adjpar, sKeyAdjuster() );
 
     for ( int idx=0; idx<nrComputers(); idx++ )
 	getComputer(idx)->fillPar( par );
@@ -130,14 +126,11 @@ void SectionAdjuster::fillPar( IOPar& par ) const
 
 bool SectionAdjuster::usePar( const IOPar& par )
 {
-    stopbelowthrhold_ = false;
-    thresholdval_ = 0.5;
-    PtrMan<IOPar> adjpar = par.subselect( adjusterstr );
+    PtrMan<IOPar> adjpar = par.subselect( sKeyAdjuster() );
     if ( adjpar )
     {
-	adjpar->get( thresholdstr, thresholdval_ );
-	adjpar->getYN( stoptrackstr, stopbelowthrhold_ );
-	adjpar->getYN( extronfailstr, extrapolateonfail_ );
+	adjpar->get( sKeyThreshold(), thresholdval_ );
+	adjpar->getYN( sKeyRemoveOnFailure(), removeonfailure_ );
     }
     
     for ( int idx=0; idx<nrComputers(); idx++ )
