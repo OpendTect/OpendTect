@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.34 2005-10-07 15:32:00 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.35 2005-10-19 22:07:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class HorSampling;
 class CubeSampling;
+class ZAxisTransform;
 
 namespace visBase
 {
@@ -103,6 +104,8 @@ public:
     				{ return inlcrl2disptransform; }
     mVisTrans*			getUTM2DisplayTransform() const
 				{ return utm2disptransform; }
+    void			setDataTransform( ZAxisTransform* );
+    ZAxisTransform*		getDataTransform();
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
@@ -117,6 +120,7 @@ protected:
     visBase::Transformation*	zscaletransform;
     visBase::Transformation*	inlcrl2disptransform;
     visBase::Transformation*	utm2disptransform;
+    ZAxisTransform*		datatransform;
 
     visBase::Annotation*	annot;
 

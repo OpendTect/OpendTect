@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.71 2005-10-07 15:31:53 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.72 2005-10-19 22:07:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
+#include "zaxistransform.h"
 
 
 mCreateFactoryEntry( visSurvey::Scene );
@@ -41,6 +42,7 @@ Scene::Scene()
     , mouseposstr("")
     , zscalechange(this)
     , curzscale(STM().defZScale())
+    , datatransform( 0 )
 {
     events.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -80,6 +82,7 @@ Scene::~Scene()
     if ( objidx >= 0 ) removeObject( objidx );
 
     if ( utm2disptransform ) utm2disptransform->unRef();
+    if ( datatransform ) datatransform->unRef();
 }
 
 
@@ -274,6 +277,22 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
     if ( validpicksurface )
 	mouseposchange.trigger();
+}
+
+
+void Scene::setDataTransform( ZAxisTransform* zat )
+{
+    if ( datatransform ) datatransform->unRef();
+    datatransform = zat;
+    if ( datatransform ) datatransform->ref();
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(SurveyObject*,so,getObject(idx))
+	if ( !so ) continue;
+
+	so->setDataTransform( zat );
+    }
 }
 
 
