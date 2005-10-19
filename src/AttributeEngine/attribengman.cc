@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.34 2005-10-14 06:19:44 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.35 2005-10-19 11:28:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -502,6 +502,42 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 }
 
 
+DescID EngineMan::createEvaluateADS( DescSet& descset, 
+				     const TypeSet<DescID>& outids,
+				     BufferString& errmsg )
+{
+    if ( !outids.size() ) return DescID::undef();
+
+    Desc* desc = PF().createDescCopy( "Evaluate" );
+    desc->setDescSet( &descset );
+    desc->setNrOutputs( Seis::UnknowData, outids.size() );
+
+    desc->setHidden( true );
+
+    const int nrinputs = outids.size();
+    for ( int idx=0; idx<nrinputs; idx++ )
+    {
+	desc->addInput( InputSpec("Data",true) );
+	Desc* inpdesc = descset.getDesc( outids[idx] );
+	if ( !inpdesc ) continue;
+	
+	desc->setInput( idx, inpdesc );
+    }
+
+    desc->setUserRef( "evaluate attributes" );
+    desc->selectOutput(0);
+
+    DescID evaldescid = descset.addDesc( desc );
+    if ( evaldescid == DescID::undef() )
+    {
+	errmsg = descset.errMsg();
+	desc->unRef();
+    }
+
+    return evaldescid;
+}
+
+
 ExecutorGroup* EngineMan::createExecutorGroup() const
 {
     BufferString nm = createExecutorName();
@@ -779,7 +815,6 @@ ExecutorGroup* EngineMan::createLocationOutput( BufferString& errmsg,
 bool EngineMan::getProcessors( ObjectSet<Processor>& pset, 
 			       BufferString& errmsg )
 {
-    errmsg = "";
     if ( procattrset )
 	{ delete procattrset; procattrset = 0; }
 
@@ -790,8 +825,21 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
     for ( int idx=0; idx<attrspecs_.size(); idx++ )
 	outattribs += attrspecs_[idx].id();
 
+    errmsg = "";
+    bool doeval = false;
     if ( !attrspecs_[0].isNLA() )
+    {
 	procattrset = inpattrset->optimizeClone( outattribs );
+	if ( !procattrset ) return false;
+
+	if ( outattribs.size() > 1 )
+	{
+	    doeval = true;
+	    DescID newid = createEvaluateADS( *procattrset, outattribs, errmsg);
+	    outattribs.erase();
+	    outattribs += newid;
+	}
+    }
     else
     {
 // TODO: Is it necessary to fill model pars here?
@@ -805,6 +853,12 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
     }
 
     createProcSet( pset, *procattrset, lineKey().buf(), outattribs );
+    if ( doeval )
+    {
+	for ( int idx=0; idx<attrspecs_.size(); idx++ )
+	    pset[0]->getProvider()->enableOutput(idx);
+    }
+    
     if ( !pset.size() )
 	mErrRet( "Invalid input data,\nNo processor created" )
 

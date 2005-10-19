@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.14 2005-09-29 11:29:41 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.15 2005-10-19 11:28:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,8 @@ public:
     void		setUndefValue( float v )	{ udfval = v; }
     DescSet*		createNLAADS(DescID& outid,BufferString& errmsg,
 	    			     const DescSet* addtoset=0);
+    static DescID	createEvaluateADS(DescSet&, const TypeSet<DescID>&,
+	    				  BufferString&);
 
     ExecutorGroup*	createSliceSetOutput(BufferString& errmsg,
 	    			      const SliceSet* cached_data = 0);
