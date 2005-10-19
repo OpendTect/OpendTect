@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.44 2005-10-07 15:32:00 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.45 2005-10-19 22:03:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ class BinIDValueSet;
 class LineStyle;
 class MultiID;
 class SeisTrcBuf;
+class ZAxisTransform;
 
 namespace visBase { class Transformation; class EventInfo; };
 namespace Attrib  { class SelSpec; class SliceSet; class ColorSelSpec; }
@@ -123,7 +124,7 @@ public:
     virtual int			getColTabID() const		{ return -1; }
 
     virtual void		setSelSpec(const Attrib::SelSpec&)	{}
-    virtual void		setColorSelSpec(const Attrib::ColorSelSpec&)	{}
+    virtual void		setColorSelSpec(const Attrib::ColorSelSpec&) {}
 
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures() const		{ return 0; }
@@ -162,6 +163,8 @@ public:
     virtual void		readAuxData()	{}
 
     void			setScene(Scene*);
+
+    virtual bool		setDataTransform( ZAxisTransform* );
 
     static float		sDefMaxDist;
 
