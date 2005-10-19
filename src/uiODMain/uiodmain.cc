@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.36 2005-10-10 21:59:02 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.37 2005-10-19 12:08:08 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,9 @@ bool uiODMain::ensureGoodSurveySetup()
     return true;
 }
 
+#define mCBarKey	"dTect.ColorBar"
+#define mHVKey		"show vertical"
+#define mTopKey		"show on top"
 
 bool uiODMain::buildUI()
 {
@@ -149,10 +152,27 @@ bool uiODMain::buildUI()
     menumgr->initSceneMgrDepObjs();
 
     const char* s = GetEnvVar( "DTECT_CBAR_POS" );
-    if ( !s ) s = Settings::common().find( "dTect.ColorBar Position" );
-    const bool isvert = !s || *s == 'v' || *s == 'V';
-    const bool isontop = s && *s
+    bool isvert = !s || *s == 'v' || *s == 'V';
+    bool isontop = s && *s
 		&& (*s == 't' || *s == 'T' || *(s+1) == 't' || *(s+1) == 'T');
+    if ( !s )
+    {
+	IOPar* iopar = Settings::common().subselect( mCBarKey );
+	if ( !iopar ) iopar = new IOPar;
+
+	bool insettings = false;
+	insettings |= iopar->getYN( mHVKey, isvert );
+	insettings |= iopar->getYN( mTopKey, isontop );
+
+	if ( !insettings )
+	{
+	    iopar->setYN( mHVKey, isvert );
+	    iopar->setYN( mTopKey, isontop );
+
+	    Settings::common().mergeComp( *iopar, mCBarKey );
+	    Settings::common().write();
+	}
+    }
 
     ctabwin = new uiDockWin( this, "Color Table" );
     if ( isvert )
