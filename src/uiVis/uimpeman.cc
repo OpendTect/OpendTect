@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.62 2005-10-13 21:22:38 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.63 2005-10-19 19:24:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -414,6 +414,10 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 		MPE::engine().activevolumechange.trigger();
 	}
     }
+
+    mGetDisplays( false );
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->turnOn( !yn );
 }
 
 
@@ -699,6 +703,9 @@ void uiMPEMan::setTrackButton()
 
 void uiMPEMan::showTracker( bool yn )
 {
+    if ( clickcatcher && clickcatcher->isOn() )
+	yn = false;
+
     mGetDisplays(true)
     for ( int idx=0; idx<displays.size(); idx++ )
     {
