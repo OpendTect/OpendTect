@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: evaluateattrib.cc,v 1.2 2005-10-19 12:06:10 cvshelene Exp $";
+static const char* rcsID = "$Id: evaluateattrib.cc,v 1.3 2005-10-19 13:01:14 cvshelene Exp $";
 
 
 #include "evaluateattrib.h"
@@ -84,10 +84,17 @@ bool Evaluate::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !inputdata.size() || !output.nrSeries() ) return false;
 
-    for ( int idx=0; idx<output.nrSeries(); idx++ )
+    
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
-	float* outp = output.series(idx)->arr();
-	outp = inputdata[idx]->series(dataidx_[idx])->arr();
+	int cursample = z0 + idx;
+	for ( int idy=0; idy<output.nrSeries(); idy++ )
+	{
+	    if ( outputinterest[idy] )
+		output.series(idy)->setValue( idx,
+			inputdata[idy]->series(dataidx_[idy])->
+			value(cursample - inputdata[idy]->z0_) );
+	}
     }
 
     return true;
