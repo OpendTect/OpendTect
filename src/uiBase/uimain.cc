@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.24 2004-12-20 12:16:45 dgb Exp $
+ RCS:           $Id: uimain.cc,v 1.25 2005-10-19 12:08:31 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 
 #include "qstyle.h"
 #include "qcdestyle.h"
+
+#include "qiconset.h"
 
 
 #ifdef __mac__
@@ -103,6 +105,24 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     }
     else
 	themain = this;
+
+    IOPar* iopar = Settings::common().subselect( "Icons" );
+    if ( !iopar ) iopar = new IOPar;
+
+    bool insettings = false;
+    int iconsz = 24; insettings |= iopar->get( "size", iconsz );
+
+    if ( !insettings )
+    {
+	iopar->set( "size", iconsz );
+
+	Settings::common().mergeComp( *iopar, "Icons" );
+	Settings::common().write();
+    }
+
+    QIconSet::setIconSize ( QIconSet::Small, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize ( QIconSet::Automatic, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize ( QIconSet::Large, QSize(iconsz,iconsz) );
 
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setDesktopSettingsAware( FALSE );
