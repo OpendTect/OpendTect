@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.18 2005-10-12 20:35:34 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.19 2005-10-19 15:48:15 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vismpeeditor.cc,v 1.18 2005-10-12 20:35:34 cvsk
 #include "emsurfaceedgeline.h"
 #include "emsurfacegeometry.h"
 #include "vismarker.h"
+#include "visdatagroup.h"
 #include "visdragger.h"
 #include "visevent.h"
 #include "vishingeline.h"
@@ -32,16 +33,24 @@ MPEEditor::MPEEditor()
     : geeditor( 0 )
     , noderightclick( this )
     , emeditor( 0 )
-    , translationdragger( 0 )
     , eventcatcher( 0 )
     , transformation( 0 )
-    , activenode( -1, -1, -1 )
-    , temporarynode( -1, -1, -1 )
-    , issettingpos( 0 )
     , markersize( 3 )
     , interactionlinedisplay( 0 )
     , interactionlinerightclick( this )
-{ }
+    , activedragger( EM::PosID::udf() )
+    , activenodematerial( 0 )
+    , nodematerial( 0 )
+    , isdragging( false )
+{
+    nodematerial = visBase::Material::create();
+    nodematerial->ref();
+    nodematerial->setColor( Color(255,255,0) );
+
+    activenodematerial = visBase::Material::create();
+    activenodematerial->ref();
+    activenodematerial->setColor( Color(255,0,0) );
+}
 
 
 MPEEditor::~MPEEditor()
@@ -60,21 +69,11 @@ MPEEditor::~MPEEditor()
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
 
-    if ( translationdragger )
-    {
-	translationdragger->started.remove(mCB(this,MPEEditor,dragStart));
-	translationdragger->motion.remove(mCB(this,MPEEditor,dragMotion));
-	translationdragger->finished.remove(mCB(this,MPEEditor,dragStop));
-	translationdragger->unRef();
-	translationdragger = 0;
-    }
+    while ( draggers.size() )
+	removeDragger( 0 );
 
-    while ( markers.size() )
-    {
-	removeChild( markers[0]->getInventorNode() );
-	markers[0]->unRef();
-	markers.remove(0);
-    }
+    if ( activenodematerial ) activenodematerial->unRef();
+    if ( nodematerial ) nodematerial->unRef();
 }
 
 
@@ -130,58 +129,12 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 void MPEEditor::setSceneEventCatcher( visBase::EventCatcher* nev )
 {
     if ( eventcatcher )
-    {
-	eventcatcher->eventhappened.remove( mCB( this, MPEEditor, clickCB ) );
 	eventcatcher->unRef();
-    }
 
     eventcatcher = nev;
 
     if ( eventcatcher )
-    {
-	eventcatcher->eventhappened.notify( mCB( this, MPEEditor, clickCB ) );
 	eventcatcher->ref();
-    }
-}
-
-
-void MPEEditor::moveTemporaryNode( const EM::PosID& np )
-{
-    if ( emeditor ) emeditor->restartInteractionLine(np.sectionID());
-
-    if ( temporarynode==np )
-	return;
-
-    if ( emeditor )
-    {
-	TypeSet<EM::PosID> editnodes;
-	emeditor->getEditIDs( editnodes );
-	editnodes -= temporarynode;
-
-	temporarynode = np;
-	if ( temporarynode.objectID()!=-1 ) editnodes += temporarynode;
-
-	emeditor->setEditIDs(editnodes); 
-
-	if ( temporarynode.objectID()!=-1 )
-	{
-	    activenode = temporarynode;
-	    updateDraggers();
-	}
-    }
-    else
-    {
-	pErrMsg("Not impl");
-    	temporarynode = np;
-    }
-
-}
-    
-	
-EM::PosID  MPEEditor::markerId(const visBase::Marker* marker) const
-{
-    const int idx=markers.indexOf(marker);
-    return idx==-1 ? EM::PosID(-1,-1,-1) : posids[idx];
 }
 
 
@@ -194,27 +147,17 @@ void MPEEditor::setDisplayTransformation( visBase::Transformation* nt )
     if ( transformation )
 	transformation->ref();
 
-    for ( int idx=0; idx<markers.size(); idx++ )
-    {
-	markers[idx]->setDisplayTransformation( transformation );
-    }
-
-    if ( translationdragger )
-	translationdragger->setDisplayTransformation( transformation );
-}
-
-
-bool MPEEditor::isDraggerShown() const
-{
-    return translationdragger && translationdragger->isOn();
+    for ( int idx=0; idx<draggers.size(); idx++ )
+	draggers[idx]->setDisplayTransformation( transformation );
 }
 
 
 void MPEEditor::setMarkerSize(float nsz)
 {
+    for ( int idx=0; idx<draggers.size(); idx++ )
+	draggermarkers[idx]->setScreenSize( nsz );
+
     markersize = nsz;
-    for ( int idx=0; idx<markers.size(); idx++ )
-	markers[idx]->setScreenSize(markersize);
 }
 
 
@@ -225,63 +168,161 @@ EM::PosID MPEEditor::getNodePosID(int idx) const
 void MPEEditor::mouseClick( const EM::PosID& pid,
 			    bool shift, bool alt, bool ctrl )
 {
-    if ( !shift && !alt && !ctrl )
-	moveTemporaryNode( pid );
-    else if ( shift && !alt && !ctrl && temporarynode.objectID()!=-1 )
+    if ( !shift && !alt && !ctrl && emeditor )
+    {
+	TypeSet<EM::PosID> pids;
+	emeditor->getEditIDs(pids);
+	for ( int idx=0; idx<pids.size(); idx++ )
+	    emeditor->removeEditID(pids[idx]);
+
+	if ( emeditor->addEditID(pid) )
+	    setActiveDragger( pid );
+    }
+    else if ( shift && !alt && !ctrl && activedragger.objectID()!=-1 )
 	extendInteractionLine( pid );
 }
 
 
-void MPEEditor::changeNumNodes(CallBacker*)
+void MPEEditor::changeNumNodes( CallBacker* )
 {
+    TypeSet<EM::PosID> editnodes;
     if ( emeditor )
-	emeditor->getEditIDs( posids );
+	emeditor->getEditIDs( editnodes );
     else if ( geeditor )
     {
 	posids.erase();
 	TypeSet<GeomPosID> gpids;
 	geeditor->getEditIDs( gpids );
 	for ( int idy=0; idy<gpids.size(); idy++ )
-	    posids += EM::PosID( -1, -1, gpids[idy] );
+	    editnodes += EM::PosID( -1, -1, gpids[idy] );
     }
     else
     {
 	posids.erase();
     }
 
-    while ( posids.size()>markers.size() )
-    {
-	visBase::Marker* node = visBase::Marker::create();
-	node->setSelectable(false);
-	node->ref();
-	addChild( node->getInventorNode() );
-	node->setDisplayTransformation( transformation );
-	node->setMaterial( 0 );
-	node->setScreenSize( markersize );
-	markers += node;
-    }
-	
-    while ( posids.size()<markers.size() )
-    {
-	int lastmarker = posids.size()-1;
-	if ( lastmarker<0 && markers.size() )
-	    lastmarker = 0;
-	removeChild(markers[lastmarker]->getInventorNode() );
-	markers[lastmarker]->unRef();
-	markers.remove(lastmarker);
-    }
+    TypeSet<EM::PosID> nodestoremove( posids );
+    nodestoremove.createDifference( editnodes );
 
-    if ( !emeditor && !geeditor )
+    if ( nodestoremove.indexOf(activedragger)!=-1 )
+	setActiveDragger( EM::PosID::udf() );
+
+    for ( int idx=0; idx<nodestoremove.size(); idx++ )
+	removeDragger( posids.indexOf(nodestoremove[idx]) );
+
+    TypeSet<EM::PosID> nodestoadd( editnodes );
+    nodestoadd.createDifference( posids );
+
+    for ( int idx=0; idx<nodestoadd.size(); idx++ )
+	addDragger( nodestoadd[idx] );
+}
+
+
+void MPEEditor::removeDragger( int idx )
+{
+    draggers[idx]->started.remove(mCB(this,MPEEditor,dragStart));
+    draggers[idx]->motion.remove(mCB(this,MPEEditor,dragMotion));
+    draggers[idx]->finished.remove(mCB(this,MPEEditor,dragStop));
+    removeChild( draggers[idx]->getInventorNode() );
+    draggers[idx]->unRef();
+    draggersshapesep[idx]->unRef();
+    draggers.removeFast(idx);
+    posids.removeFast(idx);
+    draggersshapesep.removeFast(idx);
+    draggermarkers.removeFast(idx);
+}
+
+
+void MPEEditor::addDragger( const EM::PosID& pid )
+{
+    bool translate1D = false, translate2D = false, translate3D = false;
+    if ( emeditor )
+    {
+	translate1D = emeditor->mayTranslate1D(pid);
+	translate2D = emeditor->mayTranslate2D(pid);
+	translate3D = emeditor->mayTranslate3D(pid);
+    }
+    else if ( geeditor )
+    {
+	translate1D = geeditor->mayTranslate1D(pid.subID());
+	translate2D = geeditor->mayTranslate2D(pid.subID());
+	translate3D = geeditor->mayTranslate3D(pid.subID());
+    }
+    else
 	return;
 
-    for ( int idx=0; idx<posids.size(); idx++ )
+    if ( !translate1D && !translate2D && !translate3D )
+	return;
+	         
+    visBase::Dragger* dragger = visBase::Dragger::create();
+    dragger->ref();
+    dragger->setDisplayTransformation( transformation );
+
+    dragger->started.notify(mCB(this,MPEEditor,dragStart));
+    dragger->motion.notify(mCB(this,MPEEditor,dragMotion));
+    dragger->finished.notify(mCB(this,MPEEditor,dragStop));
+
+    if ( translate3D )
     {
-        updateNodePos( idx, emeditor
-	    ? emeditor->getPosition( posids[idx] )
-	    : geeditor->getPosition( posids[idx].subID()) );
+	dragger->setDraggerType( visBase::Dragger::Translate3D );
+	dragger->setDefaultRotation();
+    }
+    else if ( translate2D )
+    {
+	dragger->setDraggerType( visBase::Dragger::Translate2D );
+	const Coord3 defnormal( 0, 0, 1 );
+	const Coord3 desnormal = emeditor 
+	    ? emeditor->translation2DNormal( pid ).normalize()
+	    : geeditor->translation2DNormal( pid.subID() )
+							    .normalize();
+	const float angle = acos( defnormal.dot(desnormal) );
+	const Coord3 axis = defnormal.cross(desnormal);
+	dragger->setRotation( axis, angle );
+    }
+    else 
+    {
+	dragger->setDraggerType( visBase::Dragger::Translate1D );
+	const Coord3 defori( 1, 0, 0 );
+	const Coord3 desori = emeditor 
+	    ? emeditor->translation1DDirection( pid ).normalize()
+	    : geeditor->translation1DDirection( pid.subID() )
+								.normalize();
+	const float angle = acos( defori.dot(desori) );
+	const Coord3 axis = defori.cross(desori);
+	dragger->setRotation( axis, angle );
     }
 
+    visBase::Marker* marker = visBase::Marker::create();
+    marker->setMaterial( nodematerial );
+    marker->setScreenSize( markersize );
+    visBase::DataObjectGroup* separator = visBase::DataObjectGroup::create();
+    separator->setSeparate( true );
+    separator->addObject( marker );
+    separator->ref();
+    dragger->setOwnShape( separator, "translator" );
+
+    visBase::ShapeScale* shapescale = visBase::ShapeScale::create();
+    shapescale->ref();
+    shapescale->restoreProportions(true);
+    shapescale->setScreenSize(20);
+    shapescale->setMinScale( 10 );
+    shapescale->setMaxScale( 150 );
+    shapescale->setShape( dragger->getShape("translatorActive"));
+    dragger->setOwnShape( shapescale, "translatorActive" );
+    shapescale->unRef();
+
+    dragger->setPos( emeditor
+	    ? emeditor->getPosition(pid)
+	    : geeditor->getPosition(pid.subID()) );
+
+    addChild( dragger->getInventorNode() );
+
+    draggers += dragger;
+    draggermarkers += marker;
+    draggersshapesep += separator;
+    posids += pid;
 }
+
 
 
 void MPEEditor::nodeMovement(CallBacker* cb)
@@ -319,21 +360,10 @@ void MPEEditor::nodeMovement(CallBacker* cb)
 
 void MPEEditor::updateNodePos( int idx, const Coord3& pos )
 {
-    visBase::Marker* node = markers[idx];
-    node->setCenterPos( pos );
+    if ( isdragging && posids[idx]==activedragger )
+	return;
 
-    if ( posids[idx] == activenode )
-    {
-	if ( !issettingpos )
-	{
-	    translationdragger->setPos( pos );
-	    node->turnOn(false);
-	}
-    }
-    else
-    {
-	node->turnOn(true);
-    }
+    draggers[idx]->setPos( pos );
 }
 
 
@@ -342,68 +372,49 @@ void MPEEditor::interactionLineRightClickCB( CallBacker* )
 
 	
 
-void MPEEditor::clickCB( CallBacker* cb )
+bool MPEEditor::clickCB( CallBacker* cb )
 {
     if ( eventcatcher->isEventHandled() || !isOn() )
-	return;
+	return true;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
-	return;
-
-    if ( translationdragger &&
-	 eventinfo.pickedobjids.indexOf(translationdragger->id())!=-1 )
-    {
-	if ( eventinfo.mousebutton!=visBase::EventInfo::rightMouseButton() )
-	    return;
-
-	rightclicknode = posids.indexOf(activenode);
-	noderightclick.trigger();
-	eventcatcher->eventIsHandled();
-	return;
-    }
+	return true;
 
     int nodeidx = -1;
-    for ( int idx=0; idx<markers.size(); idx++ )
+    for ( int idx=0; idx<draggers.size(); idx++ )
     {
-	if ( eventinfo.pickedobjids.indexOf(markers[idx]->id()) != -1 )
+	if ( eventinfo.pickedobjids.indexOf(draggers[idx]->id()) != -1 )
 	{
 	    nodeidx = idx;
 	    break;
 	}
     }
 
-    if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
-	 nodeidx==-1 && isDraggerShown() )
-    {
-	activenode = EM::PosID::udf();
-	updateDraggers();
-	eventcatcher->eventIsHandled();
-    }
-    else if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
-	      nodeidx!=-1 && activenode!=posids[nodeidx] )
-    {
-	if ( eventinfo.shift )
-	{
-	    extendInteractionLine( posids[nodeidx] );
-	    activenode = EM::PosID::udf();
-	}
-	else if ( !eventinfo.ctrl && !eventinfo.shift && !eventinfo.alt )
-	{
-	    activenode = posids[nodeidx];
-	}
+    if ( nodeidx==-1 )
+	return true;
 
-	updateDraggers();
-	eventcatcher->eventIsHandled();
-    }
-    else if ( eventinfo.mousebutton==visBase::EventInfo::rightMouseButton() &&
-	      nodeidx!=-1 )
+    if ( eventinfo.mousebutton==visBase::EventInfo::rightMouseButton() )
     {
 	rightclicknode = nodeidx;
 	noderightclick.trigger();
 	eventcatcher->eventIsHandled();
+	return false;
     }
+
+    if ( eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
+	return true;
+
+    if ( activedragger!=-1 && eventinfo.shift && !eventinfo.ctrl &&
+	 !eventinfo.alt )
+    {
+	extendInteractionLine( posids[nodeidx] );
+	eventcatcher->eventIsHandled();
+	return false;
+    }
+
+    return false;
 }
 
 
@@ -412,20 +423,20 @@ int MPEEditor::getRightClickNode() const { return rightclicknode; }
 
 void MPEEditor::dragStart( CallBacker* cb )
 {
-    if ( emeditor ) emeditor->startEdit(activenode);
+    const int idx = draggers.indexOf((visBase::Dragger*) cb );
+    setActiveDragger( posids[idx] );
+    if ( emeditor ) emeditor->startEdit(activedragger);
 }
 
 
 void MPEEditor::dragMotion( CallBacker* cb )
 {
-    if ( translationdragger && translationdragger==cb )
-    {
-	issettingpos++;
-	const Coord3 np = translationdragger->getPos();
-	if ( emeditor ) emeditor->setPosition( np );
-	if ( geeditor ) geeditor->setPosition( activenode.subID(), np );
-	issettingpos--;
-    }
+    const int idx = draggers.indexOf((visBase::Dragger*) cb );
+    const Coord3 np = draggers[idx]->getPos();
+    isdragging = true;
+    if ( emeditor ) emeditor->setPosition( np );
+    if ( geeditor ) geeditor->setPosition( posids[idx].subID(), np );
+    isdragging = false;
 }
 
 
@@ -435,112 +446,31 @@ void MPEEditor::dragStop( CallBacker* cb )
 }
 
 
-void MPEEditor::updateDraggers()
+void MPEEditor::setActiveDragger( const EM::PosID& pid )
 {
-    for ( int idx=0; idx<markers.size(); idx++ )
-    {
-	if ( !markers[idx] ) continue;
-	markers[idx]->turnOn(true);
-    }
+    if ( emeditor ) emeditor->restartInteractionLine(pid);
 
-    if ( activenode.subID()==-1 )
-    {
-	if ( translationdragger )
-	    translationdragger->turnOn(false);
-
+    if ( activedragger==pid )
 	return;
-    }
 
-    const int nodeidx = posids.indexOf(activenode);
-    markers[nodeidx]->turnOn(false);
+/*
+    int idx = posids.indexOf(activedragger);
+    if ( idx!=-1 )
+	draggermarkers[idx]->setMaterial( nodematerial );
+	*/
 
-
-    if ( (emeditor && ( emeditor->mayTranslate3D(activenode) ||
-			emeditor->mayTranslate2D(activenode) ||
-			emeditor->mayTranslate1D(activenode)) ) ||
-	 (geeditor && ( geeditor->mayTranslate3D(activenode.subID()) ||
-			geeditor->mayTranslate2D(activenode.subID()) ||
-			geeditor->mayTranslate1D(activenode.subID())) ) )
-    {
-	if ( !translationdragger )
-	{
-	    translationdragger = visBase::Dragger::create();
-	    translationdragger->ref();
-	    translationdragger->setDisplayTransformation( transformation );
-	    addChild( translationdragger->getInventorNode() );
-
-	    translationdragger->started.notify(mCB(this,MPEEditor,dragStart));
-	    translationdragger->motion.notify(mCB(this,MPEEditor,dragMotion));
-	    translationdragger->finished.notify(mCB(this,MPEEditor,dragStop));
-
-	}
-
-	translationdragger->turnOn(true);
-	translationdragger->setPos( emeditor
-		? emeditor->getPosition(activenode)
-		: geeditor->getPosition(activenode.subID()) );
-
-	if ( emeditor ? emeditor->mayTranslate3D(activenode)
-		      : geeditor->mayTranslate3D(activenode.subID()))
-	{
-	    translationdragger->setDraggerType( visBase::Dragger::Translate3D );
-	    translationdragger->setDefaultRotation();
-	}
-	else if ( emeditor ? emeditor->mayTranslate2D(activenode)
-			   : geeditor->mayTranslate2D(activenode.subID()))
-	{
-	    translationdragger->setDraggerType( visBase::Dragger::Translate2D );
-	    const Coord3 defnormal( 0, 0, 1 );
-	    const Coord3 desnormal = emeditor 
-		? emeditor->translation2DNormal( activenode ).normalize()
-		: geeditor->translation2DNormal( activenode.subID() )
-								.normalize();
-	    const float angle = acos( defnormal.dot(desnormal) );
-	    const Coord3 axis = defnormal.cross(desnormal);
-	    translationdragger->setRotation( axis, angle );
-	}
-	else if ( emeditor ? emeditor->mayTranslate1D(activenode)
-			   : geeditor->mayTranslate1D(activenode.subID()))
-	{
-	    translationdragger->setDraggerType( visBase::Dragger::Translate1D );
-	    const Coord3 defori( 1, 0, 0 );
-	    const Coord3 desori = emeditor 
-		? emeditor->translation1DDirection( activenode ).normalize()
-		: geeditor->translation1DDirection( activenode.subID() )
-								.normalize();
-	    const float angle = acos( defori.dot(desori) );
-	    const Coord3 axis = defori.cross(desori);
-	    translationdragger->setRotation( axis, angle );
-	}
-
-	visBase::ShapeScale* shapescale = visBase::ShapeScale::create();
-	shapescale->ref();
-	shapescale->restoreProportions(true);
-	shapescale->setScreenSize(20);
-	shapescale->setMinScale( 10 );
-	shapescale->setMaxScale( 150 );
-	shapescale->setShape( translationdragger->getShape("translator") );
-	translationdragger->setOwnShape( shapescale, "translator" );
-	shapescale->unRef();
-
-	shapescale = visBase::ShapeScale::create();
-	shapescale->ref();
-	shapescale->restoreProportions(true);
-	shapescale->setScreenSize(20);
-	shapescale->setMinScale( 10 );
-	shapescale->setMaxScale( 150 );
-	shapescale->setShape( translationdragger->getShape("translatorActive"));
-	translationdragger->setOwnShape( shapescale, "translatorActive" );
-	shapescale->unRef();
-    }
-    else if ( translationdragger && translationdragger->isOn() )
-	translationdragger->turnOn(false);
+    activedragger = pid;
+/*
+    idx = posids.indexOf(activedragger);
+    if ( idx!=-1 )
+	draggermarkers[idx]->setMaterial( activenodematerial );
+	*/
 }
 
 
 void MPEEditor::setupInteractionLineDisplay()
 {
-    EM::EdgeLineSet* edgelineset = emeditor
+    const EM::EdgeLineSet* edgelineset = emeditor
 	? emeditor->getInteractionLine() : 0;
 
     if ( !edgelineset )
@@ -555,86 +485,23 @@ void MPEEditor::setupInteractionLineDisplay()
 	interactionlinedisplay->setShowDefault(true);
 	interactionlinedisplay->getMaterial()->setColor(Color(255,255,0),0);
 
-	interactionlinedisplay->setEdgeLineSet(edgelineset);
 	addChild( interactionlinedisplay->getInventorNode() );
 	if ( interactionlinedisplay->rightClicked() )
 	    interactionlinedisplay->rightClicked()->notify(
 		mCB( this,MPEEditor,interactionLineRightClickCB));
-	// interactionlinedisplay->setRadius( );
     }
+
+    interactionlinedisplay->setEdgeLineSet(edgelineset);
 } 
 
 
 void MPEEditor::extendInteractionLine( const EM::PosID& pid )
 {
     setupInteractionLineDisplay();
-    if ( !interactionlinedisplay || activenode == EM::PosID::udf() )
+    if ( !interactionlinedisplay || activedragger.subID()==-1 )
 	return;
 
-    EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor->emObject());
-    mDynamicCastGet(EM::Surface&,emsurface,emobj);
-    const RowCol rc( pid.subID() );
-
-    EM::EdgeLineSet* edgelineset = emeditor->getInteractionLine();
-    if ( !edgelineset->getLine(0)->nrSegments() ||
-	 !edgelineset->getLine(0)->getSegment(0)->size() )
-    {
-	//Start a new line
-	const RowCol activenoderc( activenode.subID() );
-	EM::EdgeLine* edgeline = edgelineset->getLine(0);
-	if ( !edgeline->nrSegments() )
-	{
-	    EM::EdgeLineSegment* elsegment=
-	        new EM::EdgeLineSegment( emsurface, pid.sectionID() );
-	    elsegment->insert( 0, activenoderc );
-	    edgeline->insertSegment(elsegment, 0, false);
-	}
-	else
-	{
-	    edgeline->getSegment(0)->insert( 0, activenoderc );
-	    const int sz = edgeline->getSegment(0)->size();
-	    if ( sz>1 )
-		edgeline->getSegment(0)->remove(1,sz-1);
-	}
-    }
-
-    EM::EdgeLineSegment& els =*edgelineset->getLine(0)->getSegment(0);
-    const RowCol lastrc = els.last();
-    TypeSet <RowCol> line;
-    RowCol::makeLine( lastrc, rc, line, emsurface.geometry.step() );
-
-    bool nodefound = false;
-    for ( int idx=1; idx<line.size(); idx++ )
-    {
-        if ( els.indexOf(line[idx])!=-1 )
-        {
-            nodefound = true;
-            break;
-        }
-
-        //Check that new line is not crossing the old one in a
-        //diagonal
-        const RowCol dir = line[idx]-line[idx-1];
-        if ( !dir.row || !dir.col )
-            continue;
-
-        const RowCol rownode = line[idx]-RowCol(dir.row,0);
-        const RowCol colnode = line[idx]-RowCol(0, dir.col);
-        const int rowindex = els.indexOf(rownode);
-        const int colindex = els.indexOf(colnode);
-
-        if ( rowindex==colindex-1 || rowindex==colindex+1 )
-        {
-            nodefound = true;
-            break;
-        }
-    }
-
-    if ( !nodefound )
-    {
-        line.remove(0);
-        els.insert( els.size(), line );
-    }
+    emeditor->interactionLineInteraction(pid);
 }
     
 }; //namespce

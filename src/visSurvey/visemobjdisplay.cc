@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.63 2005-10-18 19:16:04 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.64 2005-10-19 15:48:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,6 +168,9 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     if ( !isOn() || eventcatcher->isEventHandled() || !isSelected() )
 	return;
 
+    if ( editor && !editor->clickCB( cb ) )
+	return;
+
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
     bool onobject = false;
@@ -179,6 +182,9 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	    break;
 	}
     }
+
+    if ( !onobject && editor )
+	onobject = eventinfo.pickedobjids.indexOf( editor->id() )!=-1;
 
     if  ( !onobject )
 	return;
