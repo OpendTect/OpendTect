@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.9 2005-09-30 14:12:58 cvskris Exp $
+ RCS:           $Id: uiwizard.cc,v 1.10 2005-10-19 16:37:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,15 @@ bool uiWizard::acceptOK( CallBacker* )
 }
 
 
-bool uiWizard::rejectOK( CallBacker* )
+bool uiWizard::rejectOK( CallBacker* cb )
 {
+    if ( cb!=button(uiDialog::CANCEL) ) 
+    {
+	leavePage(pageidx,false);
+	isClosing(true);
+	return true;
+    }
+
     uiCursorChanger cursorchanger( uiCursor::Wait );
     if ( !leavePage(pageidx,true) )
 	return false;
