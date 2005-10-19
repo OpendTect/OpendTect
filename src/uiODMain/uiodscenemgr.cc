@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.46 2005-10-10 21:59:02 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.47 2005-10-19 21:48:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,7 +143,7 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 }
 
 
-void uiODSceneMgr::addScene()
+int uiODSceneMgr::addScene()
 {
     Scene& scn = mkNewScene();
     int sceneid = visServ().addScene();
@@ -168,6 +168,8 @@ void uiODSceneMgr::addScene()
 	scn.sovwr->setStereoOffset(
 		scenes[0]->sovwr->getStereoOffset() );
     }
+
+    return sceneid;
 }
 
 
