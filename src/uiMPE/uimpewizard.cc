@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.34 2005-10-13 21:25:07 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.35 2005-10-19 13:35:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -601,7 +601,8 @@ void MPE::Wizard::emObjectChange( CallBacker* )
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
 
-    setButtonSensitive( uiDialog::CANCEL, seedpicker && seedpicker->nrSeeds() );
+    setButtonSensitive( uiDialog::CANCEL, seedpicker &&
+	    seedpicker->nrSeeds()>=seedpicker->isMinimumNrOfSeeds() );
 }
 
 
