@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.32 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:		$Id: sets.h,v 1.33 2005-10-19 15:51:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,13 @@ public:
 				*this += ts[idx];
 			}
 
+    virtual inline void	createUnion( const TypeSet<T>& ts );
+    			//!<Adds all items in ts if they are not there allready.
+    virtual inline void	createIntersection( const TypeSet<T>& ts );
+    			//!<Removes all items that are not present in ts.
+    virtual inline void	createDifference( const TypeSet<T>& ts );
+    			//!<Removes all items that are present in ts.
+
     virtual bool	addIfNew( const T& typ )
 			{
 			    if ( indexOf(typ) < 0 )
@@ -183,6 +190,44 @@ inline void sort( TypeSet<T>& ts )
 	    for ( int j=i-d; j>=0 && ts[j]>ts[j+d]; j-=d )
 		{ tmp = ts[j]; ts[j] = ts[j+d]; ts[j+d] = tmp; }
 }
+
+
+template <class T>
+inline void TypeSet<T>::createUnion( const TypeSet<T>& ts )
+{
+    const unsigned int sz = ts.size();
+    for ( unsigned int idx=0; idx<sz; idx++ )
+	addIfNew(ts[idx]);
+}
+
+
+template <class T>
+inline void TypeSet<T>::createIntersection( const TypeSet<T>& ts )
+{
+    for ( unsigned int idx=0; idx<size(); idx++ )
+    {
+	if ( ts.indexOf((*this)[idx])!=-1 )
+	    continue;
+	removeFast( idx-- );
+    }
+}
+
+
+template <class T>
+inline void TypeSet<T>::createDifference( const TypeSet<T>& ts )
+{
+    const unsigned int sz = ts.size();
+    for ( unsigned int idx=0; idx<sz; idx++ )
+    {
+	const T& typ = ts[idx];
+	for ( int idy=0; idy<size(); idy++ )
+	{
+	    if ( tvec[idy]==typ )
+		removeFast(idy--);
+	}
+    }
+}
+
 
 template <class T>
 inline void TypeSet<T>::removeFast(int idx)
