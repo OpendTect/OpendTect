@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.22 2005-09-30 17:55:57 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.23 2005-10-19 14:02:11 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -158,26 +158,22 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 	adjuster->reset();
 	adjuster->setPositions( subids );
 
+	const bool didremoveonfailure = adjuster->removeOnFailure(false);
+
 	while ( int res=adjuster->nextStep() )
 	{
 	    if ( res==-1 )
 	    {
 		errmsg = adjuster->errMsg();
+		adjuster->removeOnFailure(didremoveonfailure);
 		return false;
 	    }
 	}
+
+	adjuster->removeOnFailure(didremoveonfailure);
     }
 
     return true;
-}
-
-
-bool EMTracker::snapSeedPos()
-{
-    const TypeSet<EM::PosID>* seeds = emobject
-    	? emobject->getPosAttribList(EM::EMObject::sSeedNode)
-	: 0;
-    return seeds && snapPositions(*seeds);
 }
 
 
