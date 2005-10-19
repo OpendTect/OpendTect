@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.35 2005-10-19 11:28:34 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.36 2005-10-19 13:00:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -855,8 +855,8 @@ bool EngineMan::getProcessors( ObjectSet<Processor>& pset,
     createProcSet( pset, *procattrset, lineKey().buf(), outattribs );
     if ( doeval )
     {
-	for ( int idx=0; idx<attrspecs_.size(); idx++ )
-	    pset[0]->getProvider()->enableOutput(idx);
+	for ( int idx=1; idx<attrspecs_.size(); idx++ )
+	    pset[0]->addOutputInterest(idx);
     }
     
     if ( !pset.size() )
