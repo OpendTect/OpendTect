@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.13 2005-09-27 19:25:19 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.14 2005-10-19 13:59:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,14 +26,30 @@ namespace Geometry { class ElementEditor; };
 namespace MPE
 {
 
+/*!Abstractation of EM Object editing. It gives lists of which nodes that
+   may be moved, and in what manner.
+
+   Editing has three easy steps:
+   \code
+   startEdit( pid );
+   setPosition( newpos )
+   finishEdit();
+   \endcode
+
+   When moving an editing node, several other nodes may be moved along
+   with it. If this is possible, this can be done in different styles
+   which are listed by getAlongMovingStyleNames().
+*/
+
 class ObjectEditor : public CallBackClass
 {
 public:
     			ObjectEditor( EM::EMObject& );
-    			~ObjectEditor();
+    virtual		~ObjectEditor();
 
     const EM::EMObject&	emObject() const	{ return emobject; }
-    virtual void	startEdit(const EM::PosID& );
+
+    virtual void	startEdit( const EM::PosID& );
     virtual bool	setPosition(const Coord3&);
     virtual void	finishEdit();
 
@@ -41,15 +57,29 @@ public:
     bool		getSnapAfterEdit() const;
     void		setSnapAfterEdit(bool yn);
 
-    virtual const BufferStringSet*	getVertMovingStyleNames() const;
-    virtual int		getVertMovingStyle() const { return -1; }
-    virtual void	setVertMovingStyle(int) {}
+    virtual const
+    BufferStringSet*	getAlongMovingStyleNames() const { return 0; }
+    			/*!<\returns a list with names of the different
+			     styles in which nodes can follow along the moved
+			     node. */
 
-    virtual void	setEditIDs(const TypeSet<EM::PosID>&);
+    virtual int		getAlongMovingStyle() const { return -1; }
+    			/*!<\returns the index of the style in the
+			     list returned by getAlongMovingStyleNames(). */
+    virtual void	setAlongMovingStyle(int index ) {}
+    			/*!<\param index refers to the
+			     list returned by getAlongMovingStyleNames(). */
+
     virtual void	getEditIDs(TypeSet<EM::PosID>&) const;
-    virtual Coord3	getPosition(const EM::PosID&) const;
-    virtual bool	setPosition(const EM::PosID&,const Coord3&);
+    			/*!<Gives all nodes that can be moved. */
+    virtual bool	addEditID( const EM::PosID& );
+    			/*!<Add node for editing. Note that this may not be
+			    possible, and false may be returned.  */
+    virtual bool	removeEditID( const EM::PosID& );
+    			/*!<Remove editing node. Note that this may not be
+			    possible, and false may be returned.  */
 
+    virtual Coord3	getPosition(const EM::PosID&) const;
     virtual bool	mayTranslate1D(const EM::PosID&) const;
     virtual Coord3	translation1DDirection(const EM::PosID&) const;
 
@@ -70,20 +100,32 @@ public:
 				    but when new edit positions are avaliable
 				    or editpositions has been removed */
 
-    void			restartInteractionLine(const EM::SectionID&);
+    void			restartInteractionLine( const EM::PosID& );
     				/*!<\note Object does only have one line. If
 					the provided sectionID differs from the
 				 	existing line's, the sectionID of the
 				 	existing line will be changed. */
+
+    bool			closeInteractionLine( bool doit = true );
+    				/*!<If doit is false, no change will be done
+				    and the return status indicates wether it
+				    can be done. */
+    bool			interactionLineInteraction( const EM::PosID&,
+	    						    bool doit = true );
+    				/*!<If pos is on the line, but not on the first
+				    node, it will be cut off at that location.
+				    If it is not on the line, or on the first
+				    node, the line will be extended to pos.
+				    If doit is false, no change will be done
+				    and the return status indicates wether it
+				    can be done. */
 				    
-    virtual EM::EdgeLineSet*	getInteractionLine();
-				/*!<\note Object does only have one line. If
-					the provided sectionID differs from the
-					existing line's, the sectionID of the
-					existing line will be changed. */
+    const EM::EdgeLineSet*	getInteractionLine() const;
 
 protected:
 
+    virtual bool			setPosition(const EM::PosID&,
+	    					    const Coord3&);
     Geometry::ElementEditor*		getEditor( const EM::SectionID& );
     const Geometry::ElementEditor*	getEditor( const EM::SectionID& ) const;
     virtual Geometry::ElementEditor*	createEditor( const EM::SectionID& )=0;
@@ -94,14 +136,15 @@ protected:
     virtual void			getAlongMovingNodes( const EM::PosID&,
 	    				    TypeSet<EM::PosID>&,
 					    TypeSet<float>* ) const;
+    					/*!<Gets the positions that are moved
+					    along and their corresponding
+					    factors. */
 
     EM::EMObject&			emobject;
     EM::PosID				movingnode;
     EM::EdgeLineSet*			interactionline;
     Coord3				startpos;
     TypeSet<EM::PosID>			changedpids;
-
-    TypeSet<EM::PosID>			editids;
 
 private:
     ObjectSet<Geometry::ElementEditor>	geeditors;
