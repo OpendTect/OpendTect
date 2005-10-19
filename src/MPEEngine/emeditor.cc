@@ -8,14 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.15 2005-08-09 16:18:09 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.16 2005-10-19 14:00:45 cvskris Exp $";
 
 #include "emeditor.h"
 
 #include "emhistory.h"
 #include "emmanager.h"
-#include "emobject.h"
 #include "emsurface.h"
+#include "emsurfacegeometry.h"
 #include "emsurfaceedgeline.h"
 #include "emtracker.h"
 #include "geeditor.h"
@@ -122,13 +122,7 @@ void ObjectEditor::finishEdit()
 	tracker->snapPositions(alongmovingnodes);
     }
 
-     EM::History& history = EM::EMM().history();
-     const int currentevent = history.currentEventNr();
-     if ( currentevent==-1 ||
-	     history.getLevel(currentevent)>=mEMHistoryUserInteractionLevel )
-	 return;
-
-     history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+    EM::EMM().history().setCurEventAsUserInteraction();
 }
 
 
@@ -163,17 +157,6 @@ bool ObjectEditor::getSnapAfterEdit() const { return snapafteredit; }
 void ObjectEditor::setSnapAfterEdit(bool yn) { snapafteredit=yn; }
 
 
-const BufferStringSet* ObjectEditor::getVertMovingStyleNames() const
-{ return 0; }
-
-
-void ObjectEditor::setEditIDs( const TypeSet<EM::PosID>& ids )
-{
-    editids = ids;
-    editpositionchange.trigger();
-}
-
-
 void ObjectEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 {
     ids.erase();
@@ -190,6 +173,12 @@ void ObjectEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 	    ids += EM::PosID( emobject.id(), sectionid, gepids[idy] );
     }
 }
+
+
+bool ObjectEditor::addEditID( const EM::PosID& ) { return false; }
+
+
+bool ObjectEditor::removeEditID( const EM::PosID& ) { return false; }
 
 
 Coord3 ObjectEditor::getPosition( const EM::PosID& pid ) const
@@ -246,9 +235,10 @@ mGetFunction( getDirectionPlaneNormal );
 mGetFunction( getDirection );
 
 
-void ObjectEditor::restartInteractionLine(const EM::SectionID& sid)
+void ObjectEditor::restartInteractionLine(const EM::PosID& pid)
 {
     mDynamicCastGet( EM::Surface*, emsurface, &emobject );
+    const EM::SectionID sid = pid.sectionID();
     if ( !emsurface )
     {
 	if ( interactionline )
@@ -266,15 +256,126 @@ void ObjectEditor::restartInteractionLine(const EM::SectionID& sid)
     }
     else
     {
-	if ( sid!=interactionline->getSection() )
-	    interactionline->setSection(sid);
-
 	if ( interactionline->getLine(0)->nrSegments() )
 	    interactionline->getLine(0)->getSegment(0)->removeAll();
+
+	if ( sid!=interactionline->getSection() )
+	    interactionline->setSection(sid);
+    }
+
+    if ( interactionline )
+    {
+	if ( !interactionline->getLine(0)->nrSegments() ||
+	     !interactionline->getLine(0)->getSegment(0)->size() )
+	{
+	    //Start a new line
+	    const RowCol activenoderc( pid.subID() );
+	    EM::EdgeLine* edgeline = interactionline->getLine(0);
+	    if ( !edgeline->nrSegments() )
+	    {
+		EM::EdgeLineSegment* elsegment=
+		    new EM::EdgeLineSegment( *emsurface, sid );
+		elsegment->insert( 0, activenoderc );
+		edgeline->insertSegment(elsegment, 0, false);
+	    }
+	    else
+	    {
+		edgeline->getSegment(0)->insert( 0, activenoderc );
+		const int sz = edgeline->getSegment(0)->size();
+		if ( sz>1 )
+		    edgeline->getSegment(0)->remove(1,sz-1);
+	    }
+	}
     }
 }
 
-EM::EdgeLineSet* ObjectEditor::getInteractionLine()
+
+bool ObjectEditor::closeInteractionLine( bool doit )
+{
+    if ( !interactionline || 
+	 !interactionline->nrLines() ||
+	 !interactionline->getLine(0)->nrSegments() ||
+	 !interactionline->getLine(0)->getSegment(0)->size())
+	return false;
+
+    const RowCol rc(  (*interactionline->getLine(0)->getSegment(0))[0] );
+
+    const EM::PosID pid( interactionline->getSurface().id(),
+	    		 interactionline->getSection(),
+			 rc.getSerialized() );
+
+    return interactionLineInteraction( pid, doit );
+}
+
+
+bool ObjectEditor::interactionLineInteraction( const EM::PosID& pid,
+       					       bool doit )
+{
+    if ( !interactionline || interactionline->getSection()!=pid.sectionID() ||
+	 !interactionline->nrLines() ||
+	 !interactionline->getLine(0)->nrSegments() ||
+	 !interactionline->getLine(0)->getSegment(0)->size())
+	return false;
+
+    EM::Surface& emsurface = interactionline->getSurface();
+    const EM::SectionID sid = interactionline->getSection();
+    const RowCol rc( pid.subID() );
+
+    EM::EdgeLineSegment& els = *interactionline->getLine(0)->getSegment(0);
+
+    if ( els.indexOf(rc)!=-1 )
+    {
+	const int idx = els.indexOf(rc);
+	if ( idx && idx<els.size()-1 )
+	{
+	    if ( doit )
+		els.remove( idx+1, els.size()-1 );
+	    return true;
+	}
+    }
+
+    const RowCol lastrc = els.last();
+    TypeSet <RowCol> line;
+    RowCol::makeLine( lastrc, rc, line, emsurface.geometry.step() );
+    if ( rc==els[0] )
+	line.remove(line.size()-1);
+
+    for ( int idx=0; idx<line.size(); idx++ )
+    {
+	if ( !emsurface.isDefined(sid,line[idx].getSerialized()) )
+	    return false;
+    }
+
+    for ( int idx=1; idx<line.size(); idx++ )
+    {
+	if ( els.indexOf(line[idx])!=-1 )
+	    return false;
+
+	//Check that new line is not crossing the old one in a
+	//diagonal
+
+	const RowCol dir = line[idx]-line[idx-1];
+	if ( !dir.row || !dir.col )
+	    continue;
+
+	const RowCol rownode = line[idx]-RowCol(dir.row,0);
+	const RowCol colnode = line[idx]-RowCol(0, dir.col);
+	const int rowindex = els.indexOf(rownode);
+	const int colindex = els.indexOf(colnode);
+
+	if ( rowindex==colindex-1 || rowindex==colindex+1 )
+	    return false;
+    }
+
+    line.remove(0);
+    if ( doit )
+	els.insert( els.size(), line );
+    return true;
+}
+
+
+
+	const EM::EdgeLineSet* ObjectEditor::getInteractionLine() const
 { return interactionline; }
 
 
