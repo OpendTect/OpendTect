@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.13 2005-10-13 21:26:37 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.14 2005-10-19 14:03:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,10 +55,10 @@ uiEMHorizonEditorSetting::uiEMHorizonEditorSetting( uiParent* p,
 				 BinIDInpSpec(editor->getEditArea()) );
     horsizefld->attach( alignedBelow, horshapefld );
 
-    if ( editor->getVertMovingStyleNames() )
+    if ( editor->getAlongMovingStyleNames() )
     {
-	StringListInpSpec spec( *editor->getVertMovingStyleNames() );
-	spec.setValue( editor->getVertMovingStyle() );
+	StringListInpSpec spec( *editor->getAlongMovingStyleNames() );
+	spec.setValue( editor->getAlongMovingStyle() );
 	vertshapefld =  new uiGenInput( this, "Vertical shape", spec );
 	vertshapefld->attach( alignedBelow, horsizefld );
     }
@@ -81,7 +81,7 @@ bool uiEMHorizonEditorSetting::acceptOK(CallBacker*)
     }
 
     editor->setEditArea(rc);
-    if ( vertshapefld ) editor->setVertMovingStyle(vertshapefld->getIntValue());
+    if ( vertshapefld ) editor->setAlongMovingStyle(vertshapefld->getIntValue());
     editor->setBoxEditArea(horshapefld->getBoolValue());
 
     return true;
@@ -152,7 +152,8 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
     const EM::SectionID sid = interactionline.getSection();
 
     mAddMenuItem( menu, &removenodesmnuitem,
-	    	  interactionline.isClosed(), false );
+	    	  interactionline.isClosed() ||
+		  editor->closeInteractionLine(false), false );
     return;
 
     /*
@@ -197,8 +198,8 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    EM::EdgeLine& interactionline = *editor->getInteractionLine()->getLine(0);
-    EM::EdgeLineSegment& interactionlineseg = *interactionline.getSegment(0);
+    const EM::EdgeLine& interactionline = *editor->getInteractionLine()->getLine(0);
+    const EM::EdgeLineSegment& interactionlineseg = *interactionline.getSegment(0);
     const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
     mDynamicCastGet(EM::Surface&,surface,emobj)
@@ -255,7 +256,15 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     }
     */
     if ( mnuid==removenodesmnuitem.id )
-    {
+    { 
+	handled = true;
+
+	if ( !interactionline.isClosed() )
+	    editor->closeInteractionLine(true);
+
+	if ( !interactionline.isClosed() )
+	    return;
+		
 	const RowCol step = surface.geometry.step();
 	const bool rightturn = interactionline.isHole();
 	EM::PosID pid( surface.id() );
@@ -307,14 +316,15 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	 if ( cureventnr>=history.firstEventNr() )
 	     history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
 
-
-	handled = true;
     }
 
     if ( handled )
     {
 	menu->setIsHandled(true);
-	interactionlineseg.removeAll();
+	const EM::PosID pid( interactionlineseg.getSurface().id(),
+			     interactionlineseg.getSection(),
+			     interactionlineseg[0].getSerialized() );
+	editor->restartInteractionLine( pid );
     }
 }
 
