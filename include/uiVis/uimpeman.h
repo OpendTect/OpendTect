@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.25 2005-10-13 21:22:38 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.26 2005-10-19 21:09:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,6 @@ public:
     void			initFromDisplay();
 
     void			turnSeedPickingOn(bool);
-    void			setSensitive(bool);
 
 protected:
     visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
@@ -91,7 +90,6 @@ protected:
     void			retrackModeCB(CallBacker*);
     void			eraseModeCB(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
-    void			setTrackButton();
     void			showTracker(bool);
     
     void			setHistoryLevel(int);

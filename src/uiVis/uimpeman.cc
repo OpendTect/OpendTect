@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.63 2005-10-19 19:24:48 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.64 2005-10-19 21:09:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,15 @@ using namespace MPE;
     addButton( ioPixmap( GetIconFileName(pm) ), \
 	    	    mCB(this,uiMPEMan,func), tip, toggle )
 
+#define mGetDisplays(create) \
+    ObjectSet<visSurvey::MPEDisplay> displays; \
+    TypeSet<int> scenes; \
+    visserv->getChildIds( -1, scenes ); \
+    for ( int idx=0; idx<scenes.size(); idx++ ) \
+	displays += getDisplay( scenes[idx], create );
+
+
+
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : uiToolBar(p,"Tracking controls")
     , clickcatcher(0)
@@ -69,6 +78,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , colbardlg( 0 )
     , seedclickobject( -1 )
     , blockattribsel( false )
+    , didtriggervolchange( false )
 {
     seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
@@ -254,6 +264,11 @@ void uiMPEMan::seedClick( CallBacker* )
 	    }
 
 	    didtriggervolchange = true;
+
+	    mGetDisplays( false );
+	    for ( int idx=0; idx<displays.size(); idx++ )
+		displays[idx]->turnOn( false );
+
 	    engine.activevolumechange.trigger();
 	}
     }
@@ -305,14 +320,6 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
     return mpedisplay;
 }
-
-
-#define mGetDisplays(create) \
-    ObjectSet<visSurvey::MPEDisplay> displays; \
-    TypeSet<int> scenes; \
-    visserv->getChildIds( -1, scenes ); \
-    for ( int idx=0; idx<scenes.size(); idx++ ) \
-	displays += getDisplay( scenes[idx], create );
 
 
 void uiMPEMan::updateAttribNames()
@@ -411,23 +418,16 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	    notifystopper.restore();
 
 	    if ( didtriggervolchange )
+	    {
+		mGetDisplays( false );
+		for ( int idx=0; idx<displays.size(); idx++ )
+		    displays[idx]->turnOn( true );
+
 		MPE::engine().activevolumechange.trigger();
+	    }
+
+	    didtriggervolchange = false;
 	}
-    }
-
-    mGetDisplays( false );
-    for ( int idx=0; idx<displays.size(); idx++ )
-	displays[idx]->turnOn( !yn );
-}
-
-
-void uiMPEMan::setSensitive( bool yn )
-{
-    const bool wassensitive = isSensitive();
-    uiToolBar::setSensitive( yn );
-    if ( !wassensitive && yn )
-    {
-	updateButtonSensitivity( 0 );
     }
 }
 
@@ -674,7 +674,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     const bool ison = isOn( seedidx );
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode(TrackPlane::Extend);
-    setTrackButton();
+    updateButtonSensitivity();
     
     uiCursor::setOverride( uiCursor::Wait );
     PtrMan<Executor> exec = engine().trackInVolume();
@@ -691,19 +691,13 @@ void uiMPEMan::trackInVolume( CallBacker* )
 
     uiCursor::restoreOverride();
     engine().setTrackMode(tm);
-    setTrackButton();
-}
-
-
-void uiMPEMan::setTrackButton()
-{
-    mGetDisplays(false);
+    updateButtonSensitivity();
 }
 
 
 void uiMPEMan::showTracker( bool yn )
 {
-    if ( clickcatcher && clickcatcher->isOn() )
+    if ( didtriggervolchange )
 	yn = false;
 
     mGetDisplays(true)
@@ -751,6 +745,7 @@ void uiMPEMan::movePlaneCB( CallBacker* )
     const bool ison = isOn( moveplaneidx );
     engine().setTrackMode( ison ? TrackPlane::Move : TrackPlane::None );
     showTracker( ison );
+    updateButtonSensitivity();
 }
 
 
@@ -759,6 +754,7 @@ void uiMPEMan::extendModeCB( CallBacker* )
     const bool ison = isOn( extendidx );
     engine().setTrackMode( ison ? TrackPlane::Extend : TrackPlane::None );
     showTracker( ison );
+    updateButtonSensitivity();
 }
 
 
@@ -767,6 +763,7 @@ void uiMPEMan::retrackModeCB( CallBacker* )
     const bool ison = isOn( retrackidx );
     engine().setTrackMode( ison ? TrackPlane::ReTrack : TrackPlane::None );
     showTracker( ison );
+    updateButtonSensitivity();
 }
 
 
@@ -775,6 +772,7 @@ void uiMPEMan::eraseModeCB( CallBacker* )
     const bool ison = isOn( eraseidx );
     engine().setTrackMode( ison ? TrackPlane::Erase : TrackPlane::None );
     showTracker( ison );
+    updateButtonSensitivity();
 }
 
 
