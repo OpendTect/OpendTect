@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.18 2005-10-18 19:24:44 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.19 2005-10-20 03:29:50 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -17,7 +17,9 @@ static const char* rcsID = "$Id: horizonadjuster.cc,v 1.18 2005-10-18 19:24:44 c
 #include "genericnumer.h"
 #include "iopar.h"
 #include "linear.h"
+#include "samplingdata.h"
 #include "survinfo.h"
+#include "valseriesevent.h"
 
 #include <math.h>
 
@@ -127,18 +129,9 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
     	return false;
     const int nrsamples = samplerg.stop - samplerg.start + 1;
     int refpos = zrg.nearestIndex(targetz)-samplerg.start;
+    float refval;
     
-    if ( trackbyvalue_ )
-    {
-	float evpos = adjoiningEventPosByValue(trackevent_, trcbuffer,
-		nrsamples, refpos, *refsamples);
-	if ( Values::isUdf(evpos) )
-	    return false;
-	targetz = zrg.atIndex(samplerg.start);
-	targetz += (evpos*zrg.step);
-	return true;
-    }
-    else
+    if ( ! trackbyvalue_ )
     {
 	int upmatchpos, downmatchpos;  upmatchpos = downmatchpos = -1;
 	float upmatchv, downmatchv;    bool upeq, downeq;
@@ -171,129 +164,27 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 
 	if ( matchpos == -1 )	    return false;
 	// snap to event
-	matchpos += simlaritymatchpt_;
-	float evpos = adjoiningEventPosByValue(trackevent_, trcbuffer,
-		nrsamples, matchpos, trcbuffer[matchpos]);
-	if ( Values::isUdf(evpos) ) return false;
-	targetz = zrg.atIndex(samplerg.start);
-	targetz += (evpos*zrg.step);
-	return true;
-    }
-}
-
-
-float HorizonAdjuster::adjoiningEventPosByValue( VSEvent::Type ev, 
-		const float* srctrc, int nrsamples, int refpos, float refval )
-{
-    if ( ev==VSEvent::ZC || ev==VSEvent::ZCNegPos
-	 || ev==VSEvent::ZCPosNeg )
-	return adjoiningZeroEventPos(ev, srctrc, nrsamples, refpos);
-    else if ( ev == VSEvent::Max || ev == VSEvent::Min )
-    {
-	int upmatchpos, downmatchpos;  upmatchpos = downmatchpos = -1;
-	float upmatchv, downmatchv;    bool upeq, downeq;
-
-	upmatchpos = adjoiningExtremePos( ev, srctrc, refpos,
-				0, refval, upmatchv, upeq );
-	downmatchpos = adjoiningExtremePos( ev, srctrc, refpos+1,
-				nrsamples-1, refval, downmatchv, downeq );
-	
-	int matchpos = -1;
-	if ( upmatchpos!=-1 &&  downmatchpos!=-1 )
-	{
-	    if ( downmatchv == upmatchv && upeq && downeq )
-		matchpos = ( upmatchpos + downmatchpos ) / 2;
-	    else if ( ev == VSEvent::Max )
-		matchpos = downmatchv>upmatchv ? downmatchpos : upmatchpos;
-	    else
-		matchpos = downmatchv<upmatchv ? downmatchpos : upmatchpos;
-	}
-	else if ( upmatchpos!=-1 )
-	    matchpos = upmatchpos;
-	else if ( downmatchpos!=-1 )
-	    matchpos = downmatchpos;
-    
-	return matchpos == -1  ? mUndefValue
-	       : exactExtremePos(ev, srctrc, nrsamples, matchpos);
+	refpos = matchpos + simlaritymatchpt_;
+	refval = refsamples[simlaritymatchpt_];
     }
     else
-    {
-	pErrMsg("Event not handled");
-	return mUndefValue;
-    }
-}
+	refval = useAbsThreshold() ? ampthreshold_ : *refsamples;
 
-
-int HorizonAdjuster::adjoiningExtremePos( VSEvent::Type ev, const float* srctrc,
-			int startsample, int endsample, float refval,
-			float &matchval, bool& eqfromstart )
-{
-    const int tolerancesamples = 1;
-    int matchpos = -1;
-    eqfromstart = false;
-    int step = startsample>endsample ? -1 : 1;
-    
-    int numsamples = endsample - startsample;
-    if ( numsamples<0 )	numsamples = -numsamples;
-    numsamples++;
-    
-    const float alloweddev = fabs( refval * allowedvar_ );
-    float prevdev = alloweddev;
-    float prevval = srctrc[startsample];
-    
-    int smpl = startsample;
-    int eqsamples = 0;
-    for ( int idx=0; idx<numsamples; idx++, smpl += step )
+    ArrayValueSeries<float> valarr( trcbuffer );
+    SamplingData<float> sd(0, 1);
+    ValueSeriesEvFinder<float, float> evfinder( valarr, nrsamples-1, sd);
+    if ( !useAbsThreshold() )
     {
-	float sampleval = srctrc[smpl];
-	if ( Values::isUdf(sampleval) )	    break;
-	float dev =  fabs( sampleval - refval );
-	bool matchfail = false;
-	if ( ev == VSEvent::Min )
-	{
-	    if ( useAbsThreshold() && sampleval>ampthreshold_ )
-		matchfail = true;
-	    else if ( !useAbsThreshold() && sampleval>refval
-		&& sampleval - refval>alloweddev )
-		matchfail = true;
-	    else if ( sampleval>prevval )
-		matchfail = true;
-	}
-	else
-	{
-	    if ( useAbsThreshold() && sampleval<ampthreshold_ )
-		matchfail = true;
-	    else if ( !useAbsThreshold() && sampleval<refval
-		&& refval - sampleval>alloweddev )
-		matchfail = true;
-	    else if ( sampleval<prevval )
-		matchfail = true;
-	}
-	if (matchfail) 
-	{
-	    if ( matchpos == -1 && idx<tolerancesamples )
-		continue;
-	    else
-		break;
-	}
-	
-	if ( idx == 0 || prevval != sampleval )
-	{
-	    prevval = sampleval;
-	    prevdev = dev;
-	    matchpos = smpl;
-	    matchval = sampleval;
-	    eqsamples = 0;
-	}
-	else if ( idx && prevval == sampleval )
-	    eqsamples++;
+       const float alloweddev = fabs( *refsamples * allowedvar_ );
+       refval += (trackevent_==VSEvent::Min ? alloweddev : -alloweddev);
     }
-    if ( matchpos != -1 && eqsamples )
-    {
-	eqfromstart = (eqsamples == (matchpos - startsample + 1));
-	matchpos += ( eqsamples / 2 * step );
-    }
-    return matchpos;
+    ValueSeriesEvent<float, float> ev = evfinder.findAdjoining(trackevent_,
+					    refpos, refval);
+    if ( Values::isUdf(ev.pos) )
+	return false;
+    targetz = zrg.atIndex(samplerg.start);
+    targetz += (ev.pos*zrg.step);
+    return true;
 }
 
 
@@ -335,105 +226,6 @@ int HorizonAdjuster::matchingSampleBySimilarity( const float* srctrc,
 	matchpos += ( eqsamples / 2 * step );
     }
     return matchratio>=similaritythreshold_ ? matchpos : -1;
-}
-
-
-float HorizonAdjuster::adjoiningZeroEventPos( VSEvent::Type ev,
-		const float *srctrc, int nrsamples, int startpos )
-{
-    if ( !(ev==VSEvent::ZC || ev==VSEvent::ZCNegPos || ev==VSEvent::ZCPosNeg) )
-	return mUndefValue;
-    
-    float dwpos = firstZeroEventPos( ev, srctrc, startpos, nrsamples - 1 );
-    float uppos = firstZeroEventPos( ev, srctrc, startpos, 0 );
-
-    float matchpos = mUndefValue;
-    if ( !Values::isUdf(uppos) && !Values::isUdf(dwpos) )
-	matchpos = (dwpos-startpos<startpos-uppos) ? dwpos : uppos;
-    else if ( !Values::isUdf(uppos) && Values::isUdf(dwpos) )
-	matchpos = uppos;
-    else if ( Values::isUdf(uppos) && !Values::isUdf(dwpos) )
-	matchpos = dwpos;
-    
-    return matchpos;
-}
-
-
-float HorizonAdjuster::firstZeroEventPos( VSEvent::Type ev, const float *srctrc,
-					  int startsample, int endsample )
-{
-    int step = startsample>endsample ? -1 : 1;
-    for ( int smpl=startsample+step;  ; smpl += step )
-    {
-	if ( step==1 && smpl>endsample || step==-1 && smpl<endsample )
-	    break;
-	
-	float prev, cur;
-	if ( step > 0 )
-	    prev = srctrc[smpl-step],	cur  = srctrc[smpl];
-	else
-	    prev = srctrc[smpl],	cur  = srctrc[smpl-step];
-	if ( prev==0 && cur==0 )	continue;
-	
-	bool zeroev = false;
-	if ( prev<=0 && cur>0 || prev==0 && cur>0 )
-	{
-	    if ( ev==VSEvent::ZCNegPos || ev==VSEvent::ZC )
-		zeroev =  true;
-	    if ( ev == VSEvent::ZCPosNeg )
-		break;
-	}
-	if ( prev>=0 && cur<0 || prev==0 && cur<0 )
-	{
-	    if ( ev == VSEvent::ZCPosNeg || ev==VSEvent::ZC )
-		zeroev = true;
-	    if ( ev == VSEvent::ZCNegPos )
-		break;
-	}
-	
-	if ( zeroev )
-	{
-	    float pos = step == 1 ? smpl-1 : smpl;
-	    pos += ( -prev/(cur-prev) );
-	    return pos;
-	}
-
-	if ( ev==VSEvent::ZCNegPos && prev > cur 
-	     || ev==VSEvent::ZCPosNeg && prev < cur )
-	    break;
-    }
-    return mUndefValue;
-}
-
-
-float HorizonAdjuster::exactExtremePos( VSEvent::Type ev, const float *smplbuf,
-				        int nrsamples, int pickpos )
-{
-    if ( nrsamples < 4 || pickpos<1 || pickpos>=nrsamples-2 )
-	return pickpos;
-    ThirdOrderPoly poly;
-    if ( ev == VSEvent::Min )
-	poly.setFromSamples( -smplbuf[pickpos-1], -smplbuf[pickpos],
-    		 -smplbuf[pickpos+1], -smplbuf[pickpos+2]);
-    else
-	poly.setFromSamples( smplbuf[pickpos-1], smplbuf[pickpos],
-    		 smplbuf[pickpos+1], smplbuf[pickpos+2]);
-    float extremepos, extremepos0, extremepos1;
-    poly.getExtremePos( extremepos0, extremepos1 );
-    PtrMan<SecondOrderPoly> firstder = poly.createDerivative();
-    PtrMan<FloatMathFunction> secder = firstder->createDerivative();
-
-    if ( secder->getValue(extremepos0)<0 )
-	extremepos = extremepos0;
-    else if ( secder->getValue(extremepos1)<0 )
-	extremepos = extremepos1;
-    else
-	return pickpos;
-
-    if ( Values::isUdf(extremepos) || extremepos>=1 || extremepos<=-1 )
-	return pickpos;
-    
-    return pickpos+extremepos;
 }
 
 
