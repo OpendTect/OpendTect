@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.20 2005-10-20 07:15:23 cvsarend Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.21 2005-10-20 11:21:31 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -88,13 +88,14 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
     const bool isrestart = restkey && *restkey == 'Y';
     iopar_.set( sKeyProcIs2D, "Yes" );
 
+    // Allow alternative keying via input key
+    const char* inpkeyword = iopar_.find( "Input Key" );
+    if ( !inpkeyword ) inpkeyword = "Input Line Set";
+    const char* ioobjkey = iopar_.find( inpkeyword );
+    if ( !ioobjkey ) ioobjkey = iopar_.find( "Input Seismics.ID" );
+
     BufferStringSet nms;
-    const char* lskey = iopar_.find( "Input Line Set" );
-    if ( !lskey )
-	lskey = iopar_.find( "Input Seismics.ID" );
-    if ( !lskey )
-	lskey = iopar_.find( "Attributes.0.Definition" );
-    IOObj* ioobj = IOM().get( lskey );
+    IOObj* ioobj = IOM().get( ioobjkey );
     if ( ioobj && SeisTrcTranslator::is2D(*ioobj) )
     {
 	Seis2DLineSet* inpls = new Seis2DLineSet( ioobj->fullUserExpr(true) );
@@ -131,11 +132,13 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	// Because we may be going drastically concurrent, we'd better
 	// ensure we have the line set ready.
 	// This is crucial in the war against NFS attribute caching
-	lskey = iopar_.find( "Output.1.Seismic ID" );
+	const char* outkeyword = iopar_.find( "Output Key" );
+	if ( !outkeyword ) outkeyword = "Output.1.Seismic ID";
+	ioobjkey = iopar_.find( outkeyword );
 	delete outls_; outls_ = inpls;
-	if ( lskey )
+	if ( ioobjkey )
 	{
-	    IOObj* outioobj = IOM().get( lskey );
+	    IOObj* outioobj = IOM().get( ioobjkey );
 	    if ( outioobj && outioobj->key() != ioobj->key() )
 	    {
 		outls_ = new Seis2DLineSet( outioobj->fullUserExpr(true) );
