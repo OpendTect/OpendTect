@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.3 2005-10-20 12:54:04 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.4 2005-10-20 21:38:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
+#include "ranges.h"
 #include "refcount.h"
 
 class BinIDValue;
@@ -42,6 +43,10 @@ public:
     float			transform( const Coord3& ) const;
     virtual float		transformBack( const BinIDValue& ) const= 0;
     float			transformBack( const Coord3& ) const;
+
+    virtual Interval<float>	getZInterval( bool from ) const;
+    				/*!<\returns the z interval in either to
+				     or from domain. */
 
     NotifierAccess*		changeNotifier() { return 0; }
 };
