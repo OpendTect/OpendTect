@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.13 2005-08-23 12:38:01 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.14 2005-10-20 11:46:30 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ class Timer;
 class uiToolBar;
 class uiMenuItem;
 class uiPopupMenu;
+class uiODHelpMenuMgr;
 
 
 /*!\brief The OpendTect menu manager
