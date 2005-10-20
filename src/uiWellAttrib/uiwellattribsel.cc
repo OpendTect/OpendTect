@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.10 2005-09-02 14:23:12 cvshelene Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.11 2005-10-20 14:00:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "executor.h"
 #include "attribengman.h"
+#include "attribprocessor.h"
 #include "attribdescset.h"
 #include "attribsel.h"
 #include "survinfo.h"
@@ -166,8 +167,8 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     BufferString errmsg;
     ObjectSet<BinIDValueSet> bivsset;
     bivsset += &bivs;
-    PtrMan<Executor> exec = aem.createLocationOutput( errmsg, bivsset );
-    uiExecutor uiexec( this, *exec );
+    Attrib::Processor* process = aem.createLocationOutput( errmsg, bivsset );
+    uiExecutor uiexec( this, *process );
     bool ret = uiexec.go();
     if ( !ret ) return false;
 

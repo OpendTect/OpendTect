@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.12 2005-10-07 15:34:04 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.13 2005-10-20 14:00:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribdescsettr.h"
 #include "attribdataholder.h"
 #include "attribdescsetman.h"
+#include "attribprocessor.h"
 #include "attribstorprovider.h"
 #include "attribposvecoutput.h"
 #include "attribengman.h"
@@ -324,13 +325,13 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
     if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<ExecutorGroup> outex = aem->createSliceSetOutput( errmsg, cache );
-    if ( !outex )
+    Processor* process = aem->createSliceSetOutput( errmsg, cache );
+    if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
 
     if ( aem->getNrOutputsToBeProcessed() != 0 )
     {
-	uiExecutor dlg( appserv().parent(), *outex );
+	uiExecutor dlg( appserv().parent(), *process );
 	if ( !dlg.go() ) return 0;
     }
 
@@ -344,11 +345,11 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
     if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem->createLocationOutput( errmsg, values );
-    if ( !outex )
+    Processor* process = aem->createLocationOutput( errmsg, values );
+    if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiExecutor dlg( appserv().parent(), *outex );
+    uiExecutor dlg( appserv().parent(), *process );
     if ( !dlg.go() ) return false;
 
     return true;
@@ -362,12 +363,11 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
     if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<Executor> outex =
-	aem->createTrcSelOutput( errmsg, bidvalset, output );
-    if ( !outex )
+    Processor* process = aem->createTrcSelOutput( errmsg, bidvalset, output );
+    if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiExecutor dlg( appserv().parent(), *outex );
+    uiExecutor dlg( appserv().parent(), *process );
     if ( !dlg.go() ) return false;
 
     return true;
@@ -449,12 +449,12 @@ bool uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Executor> outex = aem->createScreenOutput2D( errmsg, dataset,
+    Processor* process = aem->createScreenOutput2D( errmsg, dataset,
 	    						trcinfoset );
-    if ( !outex )
+    if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiExecutor dlg( appserv().parent(), *outex );
+    uiExecutor dlg( appserv().parent(), *process );
     return dlg.go();
 }
 
