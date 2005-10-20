@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.64 2005-10-19 21:09:04 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.65 2005-10-20 20:19:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,8 +141,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
     EM::EMM().history().changenotifier.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
-    //engine().seedpropertychange.notify(
-	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
+    engine().trackplanechange.notify(
+	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().selnotifier.notify(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().deselnotifier.notify(
@@ -157,8 +157,8 @@ uiMPEMan::~uiMPEMan()
     EM::EMM().history().changenotifier.remove(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
-    //engine().seedpropertychange.remove(
-	    		//mCB(this,uiMPEMan,seedPropertyChangeCB) );
+    engine().trackplanechange.remove(
+	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().selnotifier.remove(
 	    mCB(this,uiMPEMan,updateButtonSensitivity) );
     visBase::DM().selMan().deselnotifier.remove(
@@ -671,11 +671,19 @@ void uiMPEMan::trackBackward( CallBacker* )
 
 void uiMPEMan::trackInVolume( CallBacker* )
 {
+    mGetDisplays(false);
+    for ( int idx=0; idx<displays.size(); idx++ )
+    {
+	if ( displays[idx]->isSelected() )
+	    displays[idx]->deSelect();
+    }
+
     const bool ison = isOn( seedidx );
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
     engine().setTrackMode(TrackPlane::Extend);
     updateButtonSensitivity();
-    
+   
+    NotifyStopper selstopper( EM::EMM().history().changenotifier );
     uiCursor::setOverride( uiCursor::Wait );
     PtrMan<Executor> exec = engine().trackInVolume();
     if ( exec )
@@ -745,7 +753,6 @@ void uiMPEMan::movePlaneCB( CallBacker* )
     const bool ison = isOn( moveplaneidx );
     engine().setTrackMode( ison ? TrackPlane::Move : TrackPlane::None );
     showTracker( ison );
-    updateButtonSensitivity();
 }
 
 
@@ -754,7 +761,6 @@ void uiMPEMan::extendModeCB( CallBacker* )
     const bool ison = isOn( extendidx );
     engine().setTrackMode( ison ? TrackPlane::Extend : TrackPlane::None );
     showTracker( ison );
-    updateButtonSensitivity();
 }
 
 
@@ -763,7 +769,6 @@ void uiMPEMan::retrackModeCB( CallBacker* )
     const bool ison = isOn( retrackidx );
     engine().setTrackMode( ison ? TrackPlane::ReTrack : TrackPlane::None );
     showTracker( ison );
-    updateButtonSensitivity();
 }
 
 
@@ -772,7 +777,6 @@ void uiMPEMan::eraseModeCB( CallBacker* )
     const bool ison = isOn( eraseidx );
     engine().setTrackMode( ison ? TrackPlane::Erase : TrackPlane::None );
     showTracker( ison );
-    updateButtonSensitivity();
 }
 
 
