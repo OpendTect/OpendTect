@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.149 2005-10-10 21:42:40 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.150 2005-10-20 10:27:35 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ class uiMPEMan;
 class uiPopupMenu;
 class uiToolBar;
 class uiMenuHandler;
+class uiVisModeMgr;
 
 namespace Attrib    { class ColorSelSpec; class SelSpec; class SliceSet; }
 namespace visBase   { class DataObject; };

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.6 2005-08-17 17:37:04 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.7 2005-10-20 10:27:35 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiColorInput;
 class uiSlider;
 class uiSelLineStyle;
+class uiTabStack;
 
 namespace visBase { class Material; class VisualObject; };
 namespace visSurvey { class SurveyObject; };
