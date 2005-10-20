@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.4 2005-02-28 10:31:48 cvsbert Exp $
+ RCS:		$Id: jobdescprov.h,v 1.5 2005-10-20 07:15:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,8 +93,7 @@ public:
 						const char* single_key=0);
 			~InlineSplitJobDescProv();
 
-    virtual int		nrJobs() const
-			{ return inls_ ? inls_->size() : inlrg_.nrSteps() + 1; }
+    virtual int		nrJobs() const;
     virtual void	getJob(int,IOPar&) const;
     virtual const char*	objType() const		{ return "inline"; }
     virtual const char*	objName(int) const;
@@ -110,7 +109,11 @@ protected:
     StepInterval<int>	inlrg_;
     TypeSet<int>*	inls_;
 
-    int			inlNr(int) const;
+    int			ninlperjob_;
+    TypeSet<int>	jobs_;
+
+    int			firstInlNr(int) const;
+    int			lastInlNr(int) const;
 
 };
 

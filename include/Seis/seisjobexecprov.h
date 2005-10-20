@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.8 2005-07-13 13:29:49 cvsdgb Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.9 2005-10-20 07:15:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
     const char*		errMsg() const		{ return errmsg_.buf(); }
     const IOPar&	pars() const		{ return iopar_; }
 
-    JobRunner*		getRunner();
+    JobRunner*		getRunner( int nrinlperjob );
     Executor*		getPostProcessor();
     bool		removeTempSeis();
 
@@ -90,7 +90,7 @@ protected:
 
 
     JobDescProv*	mk2DJobProv();
-    JobDescProv*	mk3DJobProv();
+    JobDescProv*	mk3DJobProv(int ninlperjob);
     void		getMissingLines(TypeSet<int>&,const char*) const;
     MultiID		tempStorID() const;
 

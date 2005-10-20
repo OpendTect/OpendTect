@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.5 2005-02-28 10:31:48 cvsbert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.6 2005-10-20 07:15:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "survinfo.h"
 #include "cubesampling.h"
+#include "undefval.h"
 #include <iostream>
 
 const char* InlineSplitJobDescProv::sKeyMaxInlRg = "Maximum Inline Range";
@@ -74,9 +75,11 @@ InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
     	: JobDescProv(iop)
     	, singlekey_(sk)
     	, inls_(0)
+	, ninlperjob_( 1 )
 {
     mSetInlRgDef();
     getRange( inlrg_ );
+    iop.get( "Nr of Inlines per Job", ninlperjob_ );
 }
 
 
@@ -85,6 +88,7 @@ InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
     	: JobDescProv(iop)
     	, singlekey_(sk)
     	, inls_(new TypeSet<int>(in))
+	, ninlperjob_( 1 )
 {
     mSetInlRgDef();
 }
@@ -115,34 +119,69 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 
     Interval<int> maxrg; assign( maxrg, rg );
     inpiopar_.get( sKeyMaxInlRg, maxrg.start, maxrg.stop );
-    if ( rg.start < maxrg.start ) rg.start = maxrg.start;
-    if ( rg.stop > maxrg.stop ) rg.stop = maxrg.stop;
+    if ( !Values::isUdf(maxrg.start) && rg.start < maxrg.start )
+	rg.start = maxrg.start;
+    if ( !Values::isUdf(maxrg.stop) && rg.stop > maxrg.stop )
+	rg.stop = maxrg.stop;
 }
 
 
-int InlineSplitJobDescProv::inlNr( int jid ) const
+int InlineSplitJobDescProv::nrJobs() const
 {
-    return inls_ ? (*inls_)[jid] : inlrg_.atIndex(jid);
+    if ( inls_ ) return inls_->size();
+
+    int nrinl = inlrg_.nrSteps() + 1;
+
+    int ret = nrinl / ninlperjob_; 
+    if ( nrinl % ninlperjob_ ) ret += 1;
+    
+    return ret;
+}
+
+
+int InlineSplitJobDescProv::firstInlNr( int jid ) const
+{
+    if ( inls_ ) return (*inls_)[jid];
+
+    int inlnr = jid * ninlperjob_;
+
+    return inlrg_.atIndex(inlnr);
+}
+
+
+int InlineSplitJobDescProv::lastInlNr( int jid ) const
+{
+    if ( inls_ ) return (*inls_)[jid];
+
+    int inlnr = (( jid + 1 ) * ninlperjob_) - 1;
+    inlnr = mMIN( inlnr, inlrg_.nrSteps() );
+
+    return inlrg_.atIndex(inlnr);
 }
 
 
 void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 {
     iop = inpiopar_;
-    const int inl = inlNr( jid );
+    const int frstinl = firstInlNr( jid );
+    const int lastinl = lastInlNr( jid );
+
     if ( *(const char*)singlekey_ )
-	iop.set( singlekey_, inl, inl, inlrg_.step );
+	iop.set( singlekey_, frstinl, lastinl, inlrg_.step );
     else
     {
-	iop.set( sKey::FirstInl, inl );
-	iop.set( sKey::LastInl, inl );
+	iop.set( sKey::FirstInl, frstinl );
+	iop.set( sKey::LastInl, lastinl );
     }
 }
 
 
 const char* InlineSplitJobDescProv::objName( int jid ) const
 {
-    objnm_ = ""; objnm_ += inlNr( jid );
+    objnm_ = ""; objnm_ += firstInlNr( jid );
+    if ( lastInlNr(jid) >  firstInlNr( jid ) )
+	{ objnm_ += "-"; objnm_ += lastInlNr(jid); }
+
     return objnm_.buf();
 }
 

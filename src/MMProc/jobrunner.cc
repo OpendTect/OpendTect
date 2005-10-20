@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.27 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.28 2005-10-20 07:15:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,10 @@ ________________________________________________________________________
     if ( ji.hostdata_ ) \
 	{ msg += "\n Execut[ed/ing] on host: "; msg += ji.hostdata_->name(); } \
     msg += "\n Status: "; msg += ji.statusmsg_; \
-    msg += "\n Info: "; msg += ji.infomsg_;
-
+    msg += "\n Info: "; msg += ji.infomsg_; \
+    msg += "\n Last received update: "; \
+    msg += Time_passedSince(ji.recvtime_)/1000; \
+    msg += " seconds ago.";
 
 static BufferString tmpfnm_base;
 
@@ -310,7 +312,7 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	{
 	    msg += "\n Host failed "; msg += hfi->nrfailures_; msg += " times ";
 	    msg += "\n Host started ";
-	    msg += (Time_getMilliSeconds() - hfi->starttime_)/1000;
+	    msg += Time_passedSince(hfi->starttime_)/1000;
 	    msg += " seconds ago.";
 	}
 	mAddDebugMsg( ji )
@@ -579,13 +581,13 @@ void JobRunner::updateJobInfo()
 
 	if ( isAssigned(ji)  )
 	{
-	    int now = Time_getMilliSeconds();
-	    if ( !ji.starttime_ ) { pErrMsg("huh?"); ji.starttime_ = now; }
+	    if ( !ji.starttime_ ) { pErrMsg("huh?"); Time_getMilliSeconds(); }
 
-	    int since_lst_chk = now - ji.starttime_; 
+	    int since_lst_chk = Time_passedSince( ji.starttime_ ); 
 	    if ( since_lst_chk > starttimeout_ )
 	    {
-		int since_lst_recv = ji.recvtime_ ? now - ji.recvtime_ : -1;
+		int since_lst_recv = ji.recvtime_ ?
+					Time_passedSince(ji.recvtime_) : -1;
 		int to = ji.state_ == JobInfo::WrappingUp ? wrapuptimeout_
 							  : failtimeout_;
 

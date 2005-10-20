@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.19 2005-10-10 19:03:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.20 2005-10-20 07:15:23 cvsarend Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -187,15 +187,16 @@ bool SeisJobExecProv::isRestart() const
 }
 
 
-JobDescProv* SeisJobExecProv::mk3DJobProv()
+JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 {
-    const char* res = iopar_.find( sKey::TmpStor );
-    if ( !res )
+    const char* tmpstordir = iopar_.find( sKey::TmpStor );
+    if ( !tmpstordir )
     {
 	iopar_.set( sKey::TmpStor, getDefTempStorDir() );
-	res = iopar_.find( sKey::TmpStor );
+	tmpstordir = iopar_.find( sKey::TmpStor );
     }
-    const bool havetempdir = File_isDirectory(res);
+    iopar_.set( "Nr of Inlines per Job", nrinlperjob );
+    const bool havetempdir = File_isDirectory(tmpstordir);
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
@@ -209,7 +210,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv()
 	getMissingLines( inlnrs, rgkey );
 	ptrnrs = &inlnrs;
     }
-    else if ( !File_createDir(res,0) )
+    else if ( !File_createDir(tmpstordir,0) )
     {
 	errmsg_ = "Cannot create data directory in Temporary storage dir";
 	return 0;
@@ -228,11 +229,12 @@ JobDescProv* SeisJobExecProv::mk3DJobProv()
 }
 
 
-JobRunner* SeisJobExecProv::getRunner()
+JobRunner* SeisJobExecProv::getRunner( int nrinlperjob )
 {
     if ( is2d_ && nrrunners_ > 0 ) return 0;
 
-    JobDescProv* jdp = is2d_ ? mk2DJobProv() : mk3DJobProv();
+    JobDescProv* jdp = is2d_ ? mk2DJobProv() : mk3DJobProv( nrinlperjob );
+
     if ( jdp && jdp->nrJobs() == 0 )
     {
 	delete jdp; jdp = 0;
