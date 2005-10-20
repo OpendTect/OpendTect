@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.19 2005-05-10 11:22:41 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.20 2005-10-20 09:42:51 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class CallBack;
 class ascistream;
 class ascostream;
 class Translator;
+class IOLink;
 
 
 /*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */

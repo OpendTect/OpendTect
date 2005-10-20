@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.23 2004-12-24 10:35:57 bert Exp $
+ RCS:		$Id: ioman.h,v 1.24 2005-10-20 09:42:51 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ class IOPar;
 class CtxtIOObj;
 class IOObjContext;
 class Translator;
+class IODir;
+class IOObj;
 
 
 /*!\brief manages the Meta-data store for the IOObj's. This info
