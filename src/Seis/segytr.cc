@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.43 2005-08-23 16:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.44 2005-10-20 11:20:48 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -112,8 +112,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     txthead.getText( pinfo->usrinfo );
     pinfo->nr = binhead.lino;
     pinfo->zrg.step = binhead.hdt * (0.001 / SI().zFactor());
-    binhead_dpos = pinfo->zrg.step;
-    binhead_ns = binhead.hns;
+    insd.step = binhead_dpos = pinfo->zrg.step;
+    innrsamples = binhead_ns = binhead.hns;
 
     if ( read_mode != Seis::Prod && itrc <= ntrheadstodump )
     {
@@ -161,11 +161,11 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     if ( innrsamples <= 0 )
     {
 	innrsamples = binhead_ns;
-	if ( innrsamples <= 0 );
+	if ( innrsamples <= 0 )
 	{
 	    innrsamples = trhead.nrSamples();
-	    if ( innrsamples <= 0 );
-	    innrsamples = SI().zRange(false).nrSteps() + 1;
+	    if ( innrsamples <= 0 )
+		innrsamples = SI().zRange(false).nrSteps() + 1;
 	}
     }
 
