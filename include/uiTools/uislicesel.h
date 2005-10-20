@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.11 2005-09-08 10:45:10 cvsnanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.12 2005-10-20 10:30:26 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiPushButton;
 class uiScrollDialog;
 class uiSpinBox;
 class CubeSampling;
+class uiSliceScroll;
 
 namespace Threads { class Mutex; };
 
