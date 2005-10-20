@@ -5,11 +5,12 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.25 2005-10-18 13:08:42 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.26 2005-10-20 13:58:25 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
 #include "cubesampling.h"
@@ -27,20 +28,18 @@ Processor::Processor( Desc& desc , const char* lk )
     , provider(Provider::create(desc))
     , nriter(0)
     , nrdone(0)
-    , lk_(lk)
     , isinited(false)
     , moveonly(this)
-    , outputindex_(0)
     , prevbid_(BinID(-1,-1))
 {
     if ( !provider ) return;
     provider->ref();
     desc_.ref();
 
-    is2d_ = lk_ != "";
+    is2d_ = desc_.descSet()->is2D();
     if ( is2d_ )
     {
-	provider->setCurLineKey( lk_ );
+	provider->setCurLineKey( lk );
 	provider->adjust2DLineStoredVolume();
 	provider->computeRefZStep( provider->allexistingprov );
 	provider->propagateZRefStep( provider->allexistingprov );
@@ -74,18 +73,21 @@ int Processor::nextStep()
 	init();
 
     const int res = provider->moveToNextTrace();
-    if ( !nriter )
+    if ( res < 0 || !nriter )
     {
 	errmsg = provider->errMsg().buf();
-	if ( errmsg.size() ) return ErrorOccurred;
+	if ( errmsg.size() )
+	    return ErrorOccurred;
+	else if ( res < 0 )
+	    { errmsg = "Error during data read"; return ErrorOccurred; }
     }
 
     const SeisTrcInfo* curtrcinfo = provider->getCurrentTrcInfo();
     const bool needsinput = !provider->getDesc().isStored() && 
 			    provider->getDesc().nrInputs();
-    if ( !curtrcinfo && needsinput && !res )
+    if ( !curtrcinfo && needsinput && res == 0 )
     {
-	if ( !res )
+	if ( res == 0 )
 	{
 	    errmsg = "no position to process\n";
 	    errmsg += "you may not be in the possible volume\n";
@@ -97,7 +99,7 @@ int Processor::nextStep()
 	return ErrorOccurred;
     }
 
-    if ( res )
+    if ( res != 0 )
     {
 	BinID curbid = provider->getCurrentPosition();
 	if ( is2d_ && curtrcinfo )
@@ -133,7 +135,7 @@ int Processor::nextStep()
 	    {
 		for ( int idx=0; idx<outputs.size(); idx++ )
 		    outputs[idx]->collectData( *data, provider->getRefStep(),
-			    		       *curtrcinfo, outputindex_ );
+			    		       *curtrcinfo );
 	    }
 	}
 
@@ -249,11 +251,5 @@ const char* Processor::getAttribName()
     return desc_.attribName();
 }
 
-
-void Processor::setOutputIndex( int& index )
-{
-    outputindex_ = index;
-    index += outpinterest_.size();
-}
 
 }; // namespace Attrib

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.10 2005-10-12 12:34:28 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.11 2005-10-20 13:59:41 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -82,14 +82,6 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     mRetError(s) \
 }
 
-bool checkContinue( const TypeSet<int>& idxset )
-{
-    for( int idx=0; idx<idxset.size(); idx++ )
-	if ( idxset[idx] == 1)
-	    return true;
-
-    return false;
-}
 
 bool BatchProgram::go( std::ostream& strm )
 {
@@ -224,8 +216,7 @@ bool BatchProgram::go( std::ostream& strm )
 	linename = output->find(sKey::LineKey);
 	indexoutp++;
     }    
-    ObjectSet<Attrib::Processor> procset;
-    attrengman->usePar( pars(), attribset, linename, procset );
+    proc = attrengman->usePar( pars(), attribset, linename );
     
     ProgressMeter progressmeter(strm);
 
@@ -244,83 +235,71 @@ bool BatchProgram::go( std::ostream& strm )
     Time_sleep( startup_wait );  
 
     int nriter = 0;
-    TypeSet<int> idxset(procset.size(),1);
 
     while ( true )
     {
-	for ( int idx=0; idx<procset.size(); idx++ )
+	bool paused = false;
+
+	if ( pauseRequested() )
+	{ 
+	    paused = true;
+
+	    if ( comm )
+	    {
+		comm->setState( MMSockCommunic::Paused );
+		if ( !comm->updateState() ) mRetHostErr( comm->errMsg() )
+	    }
+
+	    Time_sleep( sleeptime );  
+	}
+	else
 	{
-	    if ( idxset[idx] == 0 ) continue;
-	    
-	    bool paused = false;
-
-	    if ( pauseRequested() )
-	    { 
-		paused = true;
-
+	    if ( paused )
+	    {
+		paused = false;
 		if ( comm )
 		{
-		    comm->setState( MMSockCommunic::Paused );
-		    if ( !comm->updateState() ) mRetHostErr( comm->errMsg() )
+		    comm->setState( MMSockCommunic::Working );
+		    if ( !comm->updateState() ) mRetHostErr( comm->errMsg())
+		}
+	    }
+	    int res = proc->nextStep();
+
+	    if ( nriter==0 )
+	    {
+		int totalnr = 0;
+		totalnr += proc->totalNr();
+		strm << std::endl;
+		strm << "Estimated number of positions to be processed"
+		     <<"(regular survey): "<< totalnr << std::endl;
+		strm << "Loading cube data ..." << std::endl;
+	    }
+
+	    if ( res > 0 )
+	    {
+		if ( loading )
+		{
+		    loading = false;
+		    strm << "\n["<<process_id<<"]: Processing started."
+			 << std::endl;
 		}
 
-		Time_sleep( sleeptime );  
+		if ( comm && !comm->updateProgress( nriter + 1 ) )
+		    mRetHostErr( comm->errMsg() )
+
+		++progressmeter;
 	    }
 	    else
 	    {
-		if ( paused )
-		{
-		    paused = false;
-		    if ( comm )
-		    {
-			comm->setState( MMSockCommunic::Working );
-			if ( !comm->updateState() ) mRetHostErr( comm->errMsg())
-		    }
-		}
-		int res = procset[idx]->nextStep();
-
-		if ( nriter==procset.size()-1 )
-		{
-		    int totalnr = 0;
-		    for ( int idy=0; idy<procset.size(); idy++ )
-		    {
-			totalnr += procset[idy]->totalNr();
-		    }
-		    strm << std::endl;
-		    strm << "Estimated number of positions to be processed"
-			 <<"(regular survey): "<< totalnr << std::endl;
-		    strm << "Loading cube data ..." << std::endl;
-		}
-
-		if ( res > 0 )
-		{
-		    if ( loading )
-		    {
-			loading = false;
-			strm << "\n["<<process_id<<"]: Processing started."
-			     << std::endl;
-		    }
-
-		    if ( comm && !comm->updateProgress( nriter + 1 ) )
-			mRetHostErr( comm->errMsg() )
-
-		    ++progressmeter;
-		}
-		else
-		{
-		    if ( res == -1 )
-			mRetJobErr( "Cannot reach next position" )
-		    idxset[idx] = 0;
-		}
+		if ( res == -1 )
+		    mRetJobErr( "Cannot reach next position" )
+		break;
 	    }
-	    nriter++;
 	}
-	procset[0]->outputs[0]->writeTrc();
-	if ( !checkContinue(idxset) )
-	    break;
+	nriter++;
+	proc->outputs[0]->writeTrc();
     }
 
-    deepErase( procset );
     strm << "\n["<<process_id<<"]: Processing done. Closing up." << std::endl;
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!

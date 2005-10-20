@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.h,v 1.2 2005-08-18 14:19:29 cvsnanne Exp $
+ RCS:           $Id: attribposvecoutput.h,v 1.3 2005-10-20 13:58:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 				const ObjectSet<BinIDValueSet>& positions,
 				ObjectSet<PosVecDataSet>& output,
 				const NLAModel* mdl=0);
-		~PosVecOutputGen()		{ cleanUp(); }
+		~PosVecOutputGen();
 
     const char*	message() const;
     const char*	nrDoneText() const
@@ -48,20 +48,12 @@ protected:
 
     const BufferStringSet&	inps_;
     const DescSet&		ads_;
-    const NLAModel*		nlamodel_;
     const ObjectSet<BinIDValueSet>& bvss_;
     ObjectSet<PosVecDataSet>&	vdss_;
-
-    bool			failed_;
-    BufferStringSet		linenames_;
-    int				curlnr_;
     EngineMan*			aem_;
     Executor*			outex_;
     mutable BufferString	msg_;
 
-    void			cleanUp();
-    void			nextExec();
-    void			addResults();
     int				nextStep();
 };
 

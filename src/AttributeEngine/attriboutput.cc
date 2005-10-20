@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.34 2005-10-14 06:11:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.35 2005-10-20 13:58:25 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -88,7 +88,7 @@ TypeSet< Interval<int> > SliceSetOutput::getLocalZRange( const BinID& ) const
     const int dim##nr = sliceset->sampling.size( direction(sliceset->direction,nr) )
 
 void SliceSetOutput::collectData( const DataHolder& data, float refstep, 
-				  const SeisTrcInfo& info, int attridx )
+				  const SeisTrcInfo& info )
 {
     if ( !sliceset )
     {
@@ -100,7 +100,7 @@ void SliceSetOutput::collectData( const DataHolder& data, float refstep,
     }
 		
     mGetDim(0); mGetDim(1); mGetDim(2);
-    const int totalnrslices = (desoutputs.size()+attridx) * dim0;
+    const int totalnrslices = desoutputs.size() * dim0;
     while ( sliceset->size() < totalnrslices )
     {
 	Slice* slice = new Attrib::Slice( dim1, dim2, udfval );
@@ -126,7 +126,7 @@ void SliceSetOutput::collectData( const DataHolder& data, float refstep,
 
 	    sliceset->getIdxs( info.binid.inl, info.binid.crl, dataidx*refstep, 
 		    	       i0, i1, i2 );
-	    const int slsetidx = (attridx+desout)*dim0 + i0;
+	    const int slsetidx = desout*dim0 + i0;
 	    ((*sliceset)[slsetidx])->set( i1, i2, val );
 	}
     }
@@ -292,7 +292,7 @@ LineKey lineKey() const
 
 
 void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep, 
-				     const SeisTrcInfo& info, int outidx )
+				     const SeisTrcInfo& info )
 {
     int nrcomp = data.nrSeries();
     if ( !nrcomp || nrcomp < desoutputs.size())
@@ -326,7 +326,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    float val = data.series(desoutputs[comp])->value(idx);
-	    trc_->set(idx, val, outidx+comp);
+	    trc_->set(idx, val, comp);
 	}
     }
 }
@@ -425,7 +425,7 @@ bool TwoDOutput::doInit()
 
 
 void TwoDOutput::collectData( const DataHolder& data, float refstep,
-			      const SeisTrcInfo& info, int outidx )
+			      const SeisTrcInfo& info )
 {
     int nrcomp = data.nrSeries();
     if ( !nrcomp || nrcomp < desoutputs.size() )
@@ -460,12 +460,12 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
 
 
 void LocationOutput::collectData( const DataHolder& data, float refstep,
-				  const SeisTrcInfo& info, int outidx )
+				  const SeisTrcInfo& info )
 {
     BinIDValueSet::Pos pos = bidvalset_.findFirst( info.binid );
     if ( !pos.valid() ) return;
 
-    const int desnrvals = outidx+desoutputs.size()+1;
+    const int desnrvals = desoutputs.size()+1;
     if ( bidvalset_.nrVals() < desnrvals )
 	bidvalset_.setNrVals( desnrvals );
 
@@ -476,7 +476,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	if ( data.z0_ == zidx )
 	{
 	    for ( int comp=0; comp<desoutputs.size(); comp++ )
-		vals[outidx+comp+1] = data.series(desoutputs[comp])->value(0);
+		vals[comp+1] = data.series(desoutputs[comp])->value(0);
 	}
 
 	bidvalset_.next( pos );
@@ -551,7 +551,7 @@ TrcSelectionOutput::~TrcSelectionOutput()
 
 
 void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
-				      const SeisTrcInfo& info, int outidx )
+				      const SeisTrcInfo& info )
 {
     const int nrcomp = data.nrSeries();
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )

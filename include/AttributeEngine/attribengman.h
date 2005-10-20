@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.15 2005-10-19 11:28:43 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.16 2005-10-20 13:58:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
-class ExecutorGroup;
+class Executor;
 class IOPar;
 class LineKey;
 class NLAModel;
@@ -44,15 +44,12 @@ public:
 			EngineMan();
     virtual		~EngineMan();
 
-    void		usePar(const IOPar&,const DescSet&,
-	    		       const char* linename,
-			       ObjectSet<Processor>&); 
+    Processor*		usePar(const IOPar&,DescSet&,
+	    		       const char* linename); 
 
-    static void		createProcSet(ObjectSet<Processor>& procset,
-				      const DescSet& attribset,
-				      const char* linename,
-				      const TypeSet<DescID>&);
-    static void		getPossibleVolume(const DescSet&,CubeSampling&,
+    static Processor*	createProcessor(const DescSet& attribset,
+				        const char* linename,const DescID&);
+    static void		getPossibleVolume(DescSet&,CubeSampling&,
 	    				  const char* linename,const DescID&);
     static void		addNLADesc(const char* defstr,DescID& nladescid,
 				   DescSet&,int outputnr,const NLAModel*,
@@ -78,23 +75,23 @@ public:
     static DescID	createEvaluateADS(DescSet&, const TypeSet<DescID>&,
 	    				  BufferString&);
 
-    ExecutorGroup*	createSliceSetOutput(BufferString& errmsg,
+    Processor*		createSliceSetOutput(BufferString& errmsg,
 	    			      const SliceSet* cached_data = 0);
     			//!< Give the previous calculated data in cached data
     			//!< and some parts may not be recalculated.
     SliceSet*		getSliceSetOutput();
     			//!< Mem transfer here
 
-    ExecutorGroup* 	createFeatureOutput(const BufferStringSet& inputs,
+    Executor* 		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
 
-    ExecutorGroup*	createScreenOutput2D(BufferString& errmsg,
+    Processor*		createScreenOutput2D(BufferString& errmsg,
 	    				      ObjectSet<DataHolder>&,
 					      ObjectSet<SeisTrcInfo>&);
-    ExecutorGroup*	createLocationOutput(BufferString& errmsg,
+    Processor*		createLocationOutput(BufferString& errmsg,
 					     ObjectSet<BinIDValueSet>&);
 
-    ExecutorGroup*	createTrcSelOutput(BufferString& errmsg,
+    Processor*		createTrcSelOutput(BufferString& errmsg,
 	    				   const BinIDValueSet& bidvalset,
 	    				   SeisTrcBuf&, float outval=0,
 					   Interval<float>* extraz=0);
@@ -116,15 +113,13 @@ protected:
     int			curattridx;
     TypeSet<SelSpec>	attrspecs_;
 
-    bool		getProcessors(ObjectSet<Processor>&,BufferString& err);
-    BufferString	createExecutorName() const;
-    ExecutorGroup*	createExecutorGroup() const;
+    Processor*		getProcessor(BufferString& err);
 
 private:
 
     friend class		AEMFeatureExtracter;
 
-    ObjectSet<Processor> 	procset;
+    Processor* 			proc_;
     void			clearZPtrs();
 
 };
