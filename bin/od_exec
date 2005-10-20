@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.47 2005-07-14 10:36:31 cvsbert Exp $
+# $Id: od_exec,v 1.48 2005-10-20 15:18:11 cvsarend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -50,7 +50,7 @@ else if ( "$1" == "--nice" ) then
     set niceness=$2
     set nicecmd=/usr/bin/nice
     if ( -x /bin/nice ) set nicecmd=/bin/nice
-    if ( ! -x $nicecmd ) then
+    if ( ! -x $nicecmd || $?COMSPEC ) then
 	set nicecmd=""
     else
 	set nicecmd="$nicecmd -$2"
@@ -224,6 +224,8 @@ if ( $indosbox == yes ) then
 
 endif
 
+set main_arg="$1"
+
 more_args:
 
 if ( "$1" != "" ) then
@@ -250,7 +252,15 @@ if ( $issys == yes ) then
 	$xtermcmd $nicecmd $allargs 
     endif
 else
-    if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
+    if ( $?DTECT_SCRIPT_DEBUG ) then
+	if ( $?COMSPEC ) then
+	    echo "$0 : analyse dll deps"
+	    cygcheck `cygpath -w "${bindir}/${main_arg}.exe"` 
+	endif
+
+	echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
+    endif
+
     if ( $?DTECT_PRELOAD ) then
     	setenv LD_PRELOAD $DTECT_PRELOAD
     endif
