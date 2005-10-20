@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.2 2005-10-04 17:37:28 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.3 2005-10-20 12:54:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class BinIDValue;
 class Coord3;
+class CubeSampling;
 
 /*! Baseclass for z stretching in different ways. The z-stretch may be dependent
 on the location (binid). The various transforms can be retrieved from factory
@@ -29,6 +30,10 @@ public:
     				DeclareEnumUtils( ZType );
 
     				ZAxisTransform();
+
+    virtual int			addVolumeOfInterest( const CubeSampling& );
+    virtual void		setVolumeOfInterest( int, const CubeSampling& );
+    virtual void		removeVolumeOfInterest( int );
     				
     virtual ZType		getFromZType() const 			= 0;
     virtual ZType		getToZType() const 			= 0;
@@ -37,6 +42,8 @@ public:
     float			transform( const Coord3& ) const;
     virtual float		transformBack( const BinIDValue& ) const= 0;
     float			transformBack( const Coord3& ) const;
+
+    NotifierAccess*		changeNotifier() { return 0; }
 };
 
 
