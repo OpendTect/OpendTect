@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.14 2005-08-16 10:34:27 cvsbert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.15 2005-10-21 10:56:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <executor.h>
+#include "executor.h"
 class IOObj;
 class IOPar;
 class Scaler;
@@ -94,7 +94,6 @@ protected:
     CallBack		proccb_;
     BufferString	msg_;
     BufferString	curmsg_;
-    BufferString	attrnm2d_;
     bool		skipcurtrc_;
     int			nrwr_;
     int			nrskipped_;

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.54 2005-10-17 13:38:44 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.55 2005-10-21 10:56:50 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -56,7 +56,7 @@ void SeisTrcReader::init()
     if ( tbuf ) tbuf->deepErase();
     mDelOuter; outer = mUndefPtr(BinIDRange);
     delete fetcher; fetcher = 0;
-    curlineidx = -1;
+    nrfetchers = 0; curlineidx = -1;
 }
 
 
@@ -318,8 +318,8 @@ LineKey SeisTrcReader::lineKey() const
 {
     if ( lset )
     {
-	if ( curlinenr >= 0 && lset->nrLines() > curlinenr )
-	    return lset->lineKey( curlinenr );
+	if ( curlineidx >= 0 && lset->nrLines() > curlineidx )
+	    return lset->lineKey( curlineidx );
     }
     else if ( seldata )
 	return seldata->linekey_;
@@ -333,76 +333,80 @@ LineKey SeisTrcReader::lineKey() const
 class SeisTrcReaderLKProv : public LineKeyProvider
 {
 public:
-
-SeisTrcReaderLKProv( const SeisTrcReader& r, const char* a )
-	: rdr(r), attr(a)
-{
-}
-
-LineKey lineKey() const
-{
-    LineKey lk = rdr.lineKey();
-    lk.setAttrName( attr );
-    return lk;
-}
-
+    SeisTrcReaderLKProv( const SeisTrcReader& r )
+				: rdr(r) {}
+    LineKey lineKey() const	{ return rdr.lineKey(); }
     const SeisTrcReader&	rdr;
-    BufferString		attr;
 };
 
 
-LineKeyProvider* SeisTrcReader::lineKeyProvider( const char* attr ) const
+LineKeyProvider* SeisTrcReader::lineKeyProvider() const
 {
-    return new SeisTrcReaderLKProv( *this, attr );
+    return new SeisTrcReaderLKProv( *this );
+}
+
+
+bool SeisTrcReader::ensureCurLineAttribOK( const BufferString& attrnm )
+{
+    const int nrlines = lset->nrLines();
+    while ( curlineidx < nrlines )
+    {
+	if ( lset->lineKey(curlineidx).attrName() == attrnm )
+	    break;
+	curlineidx++;
+    }
+
+    bool ret = curlineidx < nrlines;
+    if ( !ret && nrfetchers < 1 )
+	errmsg = "No line found matching selection";
+    return ret;
 }
 
 
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf->deepErase();
-    const bool islinesel = seldata && seldata->linekey_ != "";
+    LineKey lk( seldata ? seldata->linekey_ : "" );
+    const BufferString attrnm = lk.attrName();
+    const bool islinesel = lk.lineName() != "";
+    const bool istable = seldata && seldata->type_ == Seis::Table;
     const int nrlines = lset->nrLines();
-    const int maxline = islinesel ? 1 : nrlines - 1;
 
     if ( !islinesel )
     {
-	if ( seldata && seldata->type_ == Seis::Table )
+	if ( !ensureCurLineAttribOK(attrnm) )
+	    return false;
+
+	if ( istable )
 	{
 	    // Chances are we do not need to go through this line at all
 	    while ( !lset->haveMatch(curlineidx,seldata->table_) )
 	    {
 	    	curlineidx++;
-		if ( curlineidx >= maxline )
+		if ( !ensureCurLineAttribOK(attrnm) )
 		    return false;
 	    }
 	}
-	curlinenr = curlineidx;
     }
-    else if ( curlineidx < maxline )
+    else
     {
 	bool found = false;
-	for ( int idx=0; idx<nrlines; idx++ )
+	for ( ; curlineidx<nrlines; curlineidx++ )
 	{
-	    if ( lset->lineKey(idx) == seldata->linekey_ )
-		{ curlinenr = idx; found = true; break; }
+	    if ( lk == lset->lineKey(curlineidx) )
+		{ found = true; break; }
 	}
 	if ( !found )
 	{
-	    BufferString msg( "Line not found in line set: " );
-	    msg += seldata->linekey_;
-	    if ( islinesel )
-		{ errmsg = msg; return false; }
-	    else
-		ErrMsg( msg );
-	    curlineidx++;
+	    errmsg = "Line key not found in line set: ";
+	    errmsg += seldata->linekey_;
+	    return false;
 	}
     }
 
-    if ( curlineidx >= maxline )
-	return false;
-
     prev_inl = mUdf(int);
-    fetcher = lset->lineFetcher( curlinenr, *tbuf, 1, seldata );
+    fetcher = lset->lineFetcher( curlineidx, *tbuf, 1, seldata );
+    nrfetchers++;
     return fetcher;
 }
 

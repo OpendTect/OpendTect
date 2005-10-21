@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.28 2005-08-16 12:36:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.29 2005-10-21 10:56:50 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -52,8 +52,6 @@ SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelection& in,
     PtrMan<IOObj> inioobj = IOM().get( in.key_ );
     IOPar iop; in.fillPar( iop );
 
-    if ( in.seldata_.linekey_ != "" )
-	attrnm2d_ = in.seldata_.linekey_.attrName();
     setInput( inioobj, out, nm, &iop, msg );
 }
 
@@ -221,8 +219,7 @@ void SeisSingleTraceProc::nextObj()
 {
     rdrset_[currentobj_]->prepareWork();
     if ( wrr_ && wrr_->is2D() )
-	wrr_->setLineKeyProvider(
-		    rdrset_[currentobj_]->lineKeyProvider(attrnm2d_.buf()) );
+	wrr_->setLineKeyProvider( rdrset_[currentobj_]->lineKeyProvider() );
 }
 
 

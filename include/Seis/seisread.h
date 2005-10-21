@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.21 2005-07-26 08:41:38 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.22 2005-10-21 10:56:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,9 +65,9 @@ public:
     			//!< use after prepareWork()
 
     			// 2D only
-    int			curLineNumber() const		{ return curlinenr; }
+    int			curLineIdx() const		{ return curlineidx; }
     LineKey		lineKey() const;
-    LineKeyProvider*	lineKeyProvider(const char* attrnm=0) const;
+    LineKeyProvider*	lineKeyProvider() const;
 
 protected:
 
@@ -78,7 +78,7 @@ protected:
     bool		inforead;
     int			prev_inl;
     int			curlineidx;
-    int			curlinenr;
+    int			nrfetchers;
     BinIDRange*		outer;
     SeisTrcBuf*		tbuf;
     Executor*		fetcher;
@@ -91,6 +91,7 @@ protected:
     void		trySkipConns();
     int			nextConn(SeisTrcInfo&);
     bool		doStart();
+    bool		ensureCurLineAttribOK(const BufferString&);
 
     bool		binidInConn(int) const;
     bool		isMultiConn() const;
