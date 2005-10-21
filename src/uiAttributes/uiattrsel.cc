@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.7 2005-10-14 05:57:37 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.8 2005-10-21 10:55:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -518,8 +518,8 @@ const char* uiAttrSel::getAttrName() const
     ret = getInput();
     if ( is2d )
     {
-	const Desc& ad = *attrdata.attrset->getDesc( attrdata.attribid );
-	if ( ad.isStored() || strchr(ret.buf(),'|') )
+	const Desc* ad = attrdata.attrset->getDesc( attrdata.attribid );
+	if ( (ad && ad->isStored()) || strchr(ret.buf(),'|') )
 	    ret = LineKey( ret ).attrName();
     }
 
