@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.4 2005-10-20 21:38:03 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.5 2005-10-21 07:53:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
     virtual float		transformBack( const BinIDValue& ) const= 0;
     float			transformBack( const Coord3& ) const;
 
-    virtual Interval<float>	getZInterval( bool from ) const;
+    virtual Interval<float>	getZInterval( bool from ) const		= 0;
     				/*!<\returns the z interval in either to
 				     or from domain. */
 
