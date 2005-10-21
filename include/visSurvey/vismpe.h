@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.25 2005-10-11 22:16:25 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.26 2005-10-21 21:49:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,6 @@ public:
     void			showDragger(bool);
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
-    void			updatePlaneColor();
     visBase::Texture3*		getTexture() { return texture_; }
 
     CubeSampling		getCubeSampling() const;
@@ -89,6 +88,7 @@ protected:
     void			updateTextureCoords();
     void			setDraggerCenter(bool alldims);
     void			setDragger(visBase::DepthTabPlaneDragger*);
+    void			updatePlaneColor( CallBacker* );
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
