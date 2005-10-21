@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.4 2005-10-04 13:30:49 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.5 2005-10-21 14:17:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "ctxtioobj.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
