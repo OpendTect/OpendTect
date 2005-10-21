@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.18 2005-10-14 06:21:32 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.19 2005-10-21 08:19:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ using namespace EM;
 #define cMinExtraZ 10;
 
 #define mDestroyWorkers \
-	{ delete execgr; execgr = 0; }
+	{ delete proc; proc = 0; }
 
 
 #define mErrRet(s) \
@@ -159,7 +159,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
 
-static bool process( std::ostream& strm, ExecutorGroup* execgr, 
+static bool process( std::ostream& strm, Processor* proc, 
 		     const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     bool cont = true;
@@ -170,12 +170,12 @@ static bool process( std::ostream& strm, ExecutorGroup* execgr,
     ProgressMeter progressmeter(strm);
     while ( 1 )
     {
-	int res = execgr->doStep();
+	int res = proc->doStep();
 
 	if ( nriter==0 )
 	{
 	    strm << "Estimated number of positions to be processed"
-		 <<"(regular survey): " << execgr->totalNr() << std::endl;
+		 <<"(regular survey): " << proc->totalNr() << std::endl;
 	    strm << "Loading cube data ..." << std::endl;
 	   
 	    if ( tbuf )
@@ -246,7 +246,7 @@ bool BatchProgram::go( std::ostream& strm )
    
     bool iscubeoutp = !strcmp( type, Output::tskey );
 
-    ExecutorGroup* execgr = 0;
+    Processor* proc = 0;
 
     BufferString errmsg;
     MultiID outpid;
@@ -337,8 +337,8 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
-	execgr = aem.createLocationOutput( errmsg, bivs );
-	if ( !process( strm, execgr ) ) return false;
+	proc = aem.createLocationOutput( errmsg, bivs );
+	if ( !process( strm, proc ) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Surface*,surface,obj)
@@ -363,9 +363,9 @@ bool BatchProgram::go( std::ostream& strm )
 	extraz.scale(1/SI().zFactor());
 
 	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz );
-	execgr = aem.createTrcSelOutput( errmsg, bivs, seisoutp, 
+	proc = aem.createTrcSelOutput( errmsg, bivs, seisoutp, 
 					 outval, &extraz );
-	if ( !process( strm, execgr, outpid, &seisoutp ) ) return false;
+	if ( !process( strm, proc, outpid, &seisoutp ) ) return false;
     }
 
     strm << "Successfully saved data." << std::endl;
