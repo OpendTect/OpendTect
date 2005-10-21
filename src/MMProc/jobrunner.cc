@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.28 2005-10-20 07:15:23 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.29 2005-10-21 09:58:38 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,7 +181,8 @@ JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 	    if ( isfailed )
 	    {
 		if ( !tryfailed ) continue;
-		if ( ji.hostdata_ && ji.hostdata_ == &hfi.hostdata_ ) continue;
+		if ( (ji.hostdata_ && ji.hostdata_ == &hfi.hostdata_)
+		     && hostinfo_.size() > 1 ) continue;
 	    }
 	    else if ( !isnew )
 		continue;
