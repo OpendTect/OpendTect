@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.31 2005-10-21 13:00:52 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.32 2005-10-21 19:34:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,11 +108,13 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
     //TODO: Fix for multi-section case
     const EM::SectionID sid =  emobj->sectionID(0);
+    blockdataloading = true;
     if ( !showSetupDlg( emid, sid, true ) )
     {
 	MPE::engine().removeTracker(res);
 	return -1;
     }
+    blockdataloading = false;
 
     CubeSampling poscs(false);
     const BinID bid = SI().transform(pickedpos);
@@ -231,16 +233,14 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 
 
 void uiMPEPartServer::activeVolumeChange(CallBacker*)
-{
-    if ( blockdataloading )
-	return;
-
-    loadAttribData();
-}
+{ loadAttribData(); }
 
 
 void uiMPEPartServer::loadAttribData()
 {
+    if ( blockdataloading )
+	return;
+
     uiCursorChanger changer( uiCursor::Wait );
 
     ObjectSet<const Attrib::SelSpec> attribselspecs;
