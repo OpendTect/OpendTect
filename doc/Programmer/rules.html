@@ -4,16 +4,16 @@
   - Author:	A.H. Bril
   - Date:	Sep 2005
   - Contents:	Development rules & standards
-  - RCS:	$Id: rules.html,v 1.1 2005-09-02 12:22:50 bert Exp $
+  - RCS:	$Id: rules.html,v 1.2 2005-10-21 10:58:23 bert Exp $
  -->
 
 <body background="../backg.png"><title>Rules [OpendTect Programmer's manual V2.3]</title>
 <center>
 <h1>OpendTect Software development rules</h1>
   <a href=#intro>Intro</a>
-| <a href=#concept>Requirements</a>
-| <a href=#mnudlg>Explicit rules</a>
-| <a href=#mnudlg>Where to go from here</a>
+| <a href=#reqs>Requirements</a>
+| <a href=#explrules>Explicit rules</a>
+| <a href=#fromhere>Where to go from here</a>
 </center>
 <br>
 <img src="../hr.png" border=0>
@@ -55,7 +55,7 @@ crucified by your team members when they have to do anything with your code.
 </p>
 
 <br>
-<a name=concept><h2>Requirements</h2>
+<a name=reqs><h2>Requirements</h2>
 <h3>Nice and neat</h3>
 <p>
 Good code should look good. You have to find joy in making the things you
@@ -121,7 +121,7 @@ That leads to an important principle:
 Waiting for a clean-up stage is a serious mistake. Already during creation of
 the software, from the very start, the effects of sloppy code will hit you
 where it hurts. Even if you have to re-type sections 10 times, it is better to
-have the code real neat at all times. Only then you can see that the
+have the code really neat at all times. Only then you can see that the
 re-working is necessary. The earlier you detect that constructions are not
 intuitive, logical, and easy to understand the earlier you detect that your
 code is actually <b>bad</b>.
@@ -164,7 +164,7 @@ involved, an excellent solution always looks simple, compact and easy to use.
 </p>
 
 <br>
-<a name=concept><h2>Explicit rules</h2>
+<a name=explrules><h2>Explicit rules</h2>
 
 <p>
 The way we do things in OpendTect is not a 100% fixed body of rules. Moreover,
@@ -213,13 +213,14 @@ to you at the time but they are not. A mildly ironic comment once a year should 
 
 <p>
 <ul>
-<li>We do not use exceptions. Exceptions are the horror story of C++, try looking
-at C++ report, November-December 1994, Tom Cargill: "Exception handling: A
-false sense of security". There are more reasons, for example that you have to
-use a certain paradigm throughout: RAII (Not a bad principle but not always
-easy to do and never enforcable). If you want to I can explain a lot of those
-reasons by e-mail. The bottom line is: don't use exceptions. External software
-using exceptions must be isolated with <code>try { } catch (...) {}</code>.
+<li>We do not use exceptions. Exceptions are the horror story of C++, try
+looking at C++ report, November-December 1994, Tom Cargill: "Exception
+handling: A false sense of security". There are more reasons, for example that
+you have to use a certain paradigm throughout: RAII (Not a bad principle but
+not always easy to do and never enforcable). If you want to I can explain a
+lot of those reasons by e-mail. The bottom line is: don't use exceptions.
+External software using exceptions must be isolated with
+<code>try { } catch (...) {}</code>.
 </li>
 <li>We are not using the STL stuff and the std::string class. This is not
 because we don't like it, but more because we don't see the need. Using this
@@ -239,11 +240,11 @@ smoothly work together with classes that are const-correct.
 classes with absolutely trivial usage. In any doubt, don't use it. It does
 more harm (sometimes a lot more) than it returns benefit. Even the ubiquitous
 examples like matrix calcutations are almost surely better made with good
-old-fashioned method calls().
+old-fashioned method calls.
 </li>
 <li>In cases that you don't know whether a language feature can be used,
 do <b>not</b> give the feature the benefit of the doubt. You can always ask your
-team members first.
+team members first. A C++ language feature should only be used if you can prove that it is useful, clear, fitting in our style and not easily possible with other means.
 </li>
 <li>We increasingly try to use name spaces. In many places namespaces should
 have been used and this is a legacy problem which we want to gradually get
@@ -253,6 +254,16 @@ rid of.
 absolutely unavoidable design a strategy to minimise the impact of these
 horrible things.
 </li>
+<li>Consider implementing in a header file only if unavoidable (templates), or:
+ <ul>
+ <li>Is the implementation stable? If not, dependencies will trigger each time the implementation is changed.
+ </li>
+ <li>The implementation must be completely trivial or useful for a reader. In the latter case, it replaces comments with something that is fundamentally up-to-date.
+ </li>
+ <li>The space taken may not be huge - then implement in the .cc file anyway.
+ </li>
+ </ul>
+</li>
 </ul>
 </p>
 
@@ -260,7 +271,7 @@ horrible things.
 <p>
 First of all: the naming of classes, variables, namespaces, etc. is
 <b>extremely</b> important. You want to optimise understandability and
-compactness, in doubt alwys go for understandability. Naming should be as
+compactness, in doubt always go for understandability. Naming should be as
 intuitive as possible. If you cannot find an intuitive name, consider the
 possibility that your design is not right. Well designed classes and methods
 hardly ever have non-intuitive names. If you are really convinced you're right
@@ -291,9 +302,10 @@ one verb.
 </li>
 <li>Variables are in lowercase. Class members should get an underscore at the
 end, further variables should generally be free of underscores. Special cases
-are Keys and 'hard' constants. There is a namespace 'sKey' and there are
-variables 'sKeyXxx' for key strings. Examples are 'sKey::Yes' and
-'sKeyTraceLength'. Hard constants are like 'cMaxNrPatches'.
+are Keys, 'hard' constants and Notifier names. There is a namespace 'sKey' and
+there are variables 'sKeyXxx' for key strings. Examples are 'sKey::Yes' and
+'sKeyTraceLength'. Hard constants are like 'cMaxNrPatches'. Notifiers are
+defined in Basic/callback.h.
 </li>
 <li>Macros are like constants but with prefix 'm': 'mErrRet(msg)'. As usual,
 inline funtions, constants and templates are preferred but macros are still
@@ -372,11 +384,18 @@ those properties, but they rarely are.
 	</pre></code>
 </li>
 <li><b>Equality-type operators:<br></b>
-	Pad with spaces.
+	Pad with spaces, unless it really help see grouping.
 	<code><pre>
 		if ( a == b )
-		if ( c < d && e > f )
 		x = 15;
+	</pre></code>
+	If more clear, use:
+	<code><pre>
+		if ( c<d && e>f )
+	</pre></code>
+	rather than:
+	<code><pre>
+		if ( c < d && e > f )
 	</pre></code>
 </li>
 <li><b>Semicolons:<br></b>
@@ -448,7 +467,7 @@ Put variable names only if it adds to the understanding.
 </p>
 
 <br>
-<a name=intro><h2>Where to go from here</h2>
+<a name=fromhere><h2>Where to go from here</h2>
 <p>
 From now on, new code will be as described above. What to do if the code
 you're changing is not good according to these standards? That depends on the
