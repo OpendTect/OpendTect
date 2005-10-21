@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.32 2005-03-30 11:19:22 cvsarend Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.33 2005-10-21 09:55:35 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ protected:
 
     const char* 	curUsedMachName();
     void		pauseJobs();
+    void		mkJobRunner(int);
 };
 
 #endif
