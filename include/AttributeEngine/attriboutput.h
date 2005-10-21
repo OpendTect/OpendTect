@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.19 2005-10-20 13:58:50 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.20 2005-10-21 14:15:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,10 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "ranges.h"
 #include "refcount.h"
-#include "seistrcsel.h"
-#include "linekey.h"
 
 class BinID;
 class BinIDValueSet;
+class LineKey;
 class MultiID;
 class SeisSelData;
 class SeisTrc;
@@ -35,21 +34,24 @@ class SliceSet;
 class Output
 { mRefCountImpl(Output);
 public:
-    				Output(); 
+    				Output();
+
     virtual bool		getDesiredVolume(CubeSampling&) const
     				{ return true; }
-    virtual bool		wantsOutput( const BinID& ) const	= 0;
+    virtual bool		wantsOutput(const BinID&) const	= 0;
     virtual SliceSet*		getSliceSet() const { return 0; }
-    virtual void		getDesiredOutputs( TypeSet<int>& outputs) 					const { outputs = desoutputs;}
-    void			setDesiredOutputs( TypeSet<int> outputs )
-    				{ desoutputs = outputs;}
-    virtual TypeSet< Interval<int> >  getLocalZRange( const BinID& ) const = 0;
+
+    virtual void		getDesiredOutputs( TypeSet<int>& outputs ) const
+				{ outputs = desoutputs; }
+    void			setDesiredOutputs( const TypeSet<int>& outputs )
+    				{ desoutputs = outputs; }
+
+    virtual TypeSet< Interval<int> >  getLocalZRange(const BinID&) const = 0;
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&)		= 0;
-    virtual void		writeTrc(){};
-    const SeisSelData&		getSelData() { return seldata_; }
-
-    TypeSet<int>		desoutputs;
+    virtual void		writeTrc()		{};
+    const SeisSelData&		getSelData()		{ return seldata_; }
+    const LineKey&		curLineKey() const;
 
     static const char*		outputstr;
     static const char*          cubekey;
@@ -59,7 +61,7 @@ public:
 
 protected:
     SeisSelData&		seldata_;
-
+    TypeSet<int>		desoutputs;
 };
 
 
@@ -91,18 +93,18 @@ protected:
 class SeisTrcStorOutput : public Output
 {
 public:
-				SeisTrcStorOutput(const CubeSampling&,LineKey);
+				SeisTrcStorOutput(const CubeSampling&,
+						  const LineKey&);
 				~SeisTrcStorOutput();
     
     bool			doInit();
-    void			set2D()			{ is2d_=true; }
+    void			set2D( bool yn = true )		{ is2d_ = yn; }
     bool			getDesiredVolume(CubeSampling&) const;
     bool			wantsOutput(const BinID&) const;
     bool			setStorageID(const MultiID&);
     void			setGeometry(const CubeSampling&);
 
     bool			doUsePar(const IOPar&);
-    LineKey			curLineKey()	{ return seldata_.linekey_; }
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
@@ -136,7 +138,8 @@ class TwoDOutput : public Output
 {
 public:
 				TwoDOutput(const Interval<int>&, 
-					   const Interval<float>&,LineKey);
+					   const Interval<float>&,
+					   const LineKey&);
 				~TwoDOutput() {};
     
     bool			doInit();
@@ -147,7 +150,6 @@ public:
     void			setOutput(ObjectSet<DataHolder>&,
 	    				  ObjectSet<SeisTrcInfo>&);
 
-    LineKey			curLineKey()	{ return seldata_.linekey_; }
     void			collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const

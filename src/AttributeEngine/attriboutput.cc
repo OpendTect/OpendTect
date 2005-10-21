@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.35 2005-10-20 13:58:25 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.36 2005-10-21 14:15:18 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -54,6 +54,12 @@ Output::Output()
 Output::~Output()
 {
     delete &seldata_;
+}
+
+
+const LineKey& Output::curLineKey() const
+{
+    return seldata_.linekey_;
 }
 
 
@@ -146,7 +152,8 @@ void SliceSetOutput::setGeometry( const CubeSampling& cs )
 }
 
 
-SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs , LineKey lkey )
+SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
+				      const LineKey& lk )
     : desiredvolume(cs)
     , auxpars(0)
     , storid_(*new MultiID)
@@ -156,8 +163,8 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs , LineKey lkey )
     , storinited_(0)
     , errmsg(0)
 {
-    seldata_.linekey_ = lkey;
-    attribname = lkey.attrName();
+    seldata_.linekey_ = lk;
+    attribname = lk.attrName();
 
     const float dz = SI().zStep();
     Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
@@ -373,12 +380,12 @@ void SeisTrcStorOutput::writeTrc()
 
 
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
-			LineKey lkey )
+			const LineKey& lk )
     : errmsg(0)
     , datahset_(0)
     , trcinfoset_(0)
 {
-    seldata_.linekey_ = lkey;
+    seldata_.linekey_ = lk;
     setGeometry( trg, zrg );
 
     const float dz = SI().zStep();

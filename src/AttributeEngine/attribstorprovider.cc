@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.25 2005-10-18 13:08:42 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.26 2005-10-21 14:15:18 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -218,7 +218,7 @@ int StorageProvider::moveToNextTrace()
     }
 
     bool cont = true;
-    while ( cont ) 
+    while ( cont )
     {
 	switch( rg[currentreq]->next() )
 	{
@@ -304,7 +304,14 @@ bool StorageProvider::setSeisRequesterSelection( int req )
     if ( !reader ) return false;
 
     if ( seldata_.type_ == Seis::Table )
+    {
+	if ( reader->is2D() )
+	{
+	    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
+	    seldata_.linekey_.setAttrName( lk.attrName() );
+	}
 	reader->setSelData( new SeisSelData(seldata_) );
+    }
     else if ( seldata_.type_ == Seis::Range )
     {
 	if ( !desiredvolume && !reader->is2D() ) 
@@ -489,21 +496,20 @@ BinID StorageProvider::getStepoutStep() const
 void StorageProvider::adjust2DLineStoredVolume()
 {
     const SeisTrcReader* reader = rg[currentreq]->reader();
-    if ( reader->is2D() )
+    if ( !reader->is2D() ) return;
+
+    const Seis2DLineSet* lset = reader->lineSet();
+    const int idx = lset->indexOf( curlinekey_ );
+    StepInterval<int> trcrg;
+    StepInterval<float> zrg;
+    if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
     {
-        const Seis2DLineSet* lset = reader->lineSet();
-	int idx = lset->indexOf( curlinekey_ );
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
-	{
-	    storedvolume.hrg.start.crl = trcrg.start;
-	    storedvolume.hrg.stop.crl = trcrg.stop;
-	    storedvolume.zrg.start = zrg.start;
-	    storedvolume.zrg.stop = zrg.stop;
-	    storedvolume.zrg.step = zrg.step;
-	}
+	storedvolume.hrg.start.crl = trcrg.start;
+	storedvolume.hrg.stop.crl = trcrg.stop;
+	storedvolume.zrg.start = zrg.start;
+	storedvolume.zrg.stop = zrg.stop;
+	storedvolume.zrg.step = zrg.step;
     }
 }
 
-}; //namespace
+}; // namespace Attrib
