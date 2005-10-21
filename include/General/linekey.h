@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: linekey.h,v 1.3 2005-06-06 10:43:57 cvsbert Exp $
+ RCS:           $Id: linekey.h,v 1.4 2005-10-21 10:56:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,12 @@ class LineKey : public BufferString
 {
 public:
 
-				LineKey( const char* lk=0 )
-				    : BufferString(lk)	{}
-				LineKey(const char*,const char* attrnm);
-				LineKey( const IOPar& iop, bool liin )
-				    			{ usePar(iop,liin); }
+			LineKey( const char* lk=0 )
+				: BufferString(lk)	{}
+			LineKey(const char*,const char* attrnm);
+			LineKey( const IOPar& iop, bool liin )
+				{ usePar(iop,liin); }
+    bool		operator ==(const LineKey&) const;
 
     BufferString	lineName() const;
     BufferString	attrName() const;
