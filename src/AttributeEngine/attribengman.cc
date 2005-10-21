@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.37 2005-10-20 13:58:25 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.38 2005-10-21 13:56:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -491,9 +491,10 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
 
 
 Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
-	 ObjectSet<DataHolder>& dataset, ObjectSet<SeisTrcInfo>& trcinfoset )
+	 				    ObjectSet<DataHolder>& dataset,
+					    ObjectSet<SeisTrcInfo>& trcinfoset )
 {
-    proc_ = getProcessor(errmsg);
+    proc_ = getProcessor( errmsg );
     if ( !proc_ ) 
 	return 0; 
     
@@ -502,8 +503,8 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
     if ( prov && !prov->getDesc().isStored() )
 	lkey.setAttrName( proc_->getAttribName() );
     
-    Interval<int> trcrg(cs_.hrg.start.crl, cs_.hrg.stop.crl);
-    Interval<float> zrg(cs_.zrg.start, cs_.zrg.stop);
+    Interval<int> trcrg( cs_.hrg.start.crl, cs_.hrg.stop.crl );
+    Interval<float> zrg( cs_.zrg.start, cs_.zrg.stop );
     TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, lkey );
     attrout->setGeometry( trcrg, zrg );
     attrout->setOutput( dataset, trcinfoset );
@@ -775,7 +776,7 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 
 int EngineMan::getNrOutputsToBeProcessed() const
 {
-    return proc_? proc_->outputs.size() : 0;
+    return proc_ ? proc_->outputs.size() : 0;
 }
 
 } // namespace Attrib
