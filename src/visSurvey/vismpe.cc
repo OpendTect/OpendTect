@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.33 2005-10-11 22:16:22 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.34 2005-10-21 21:46:04 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -104,19 +104,17 @@ MPEDisplay::MPEDisplay()
     setDragger( visBase::DepthTabPlaneDragger::create() );
 
     engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
-//  engine_.trackplanechange.notify( 
-//				mCB(this,MPEDisplay,updateDraggerPosition) );
+    engine_.trackplanechange.notify( mCB(this,MPEDisplay,updatePlaneColor) );
     setDraggerCenter( true );
     updateBoxPosition(0);
-    updatePlaneColor();
+    updatePlaneColor(0);
 }
 
 
 MPEDisplay::~MPEDisplay()
 {
     engine_.activevolumechange.remove( mCB(this,MPEDisplay,updateBoxPosition) );
-//  engine_.trackplanechange.remove( 
-//				mCB(this,MPEDisplay,updateDraggerPosition) );
+    engine_.trackplanechange.remove( mCB(this,MPEDisplay,updatePlaneColor) );
 
     setSceneEventCatcher( 0 );
     setDragger(0);
@@ -151,7 +149,7 @@ void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )
 }
 
 
-void MPEDisplay::updatePlaneColor()
+void MPEDisplay::updatePlaneColor( CallBacker* )
 {
     const MPE::TrackPlane::TrackMode tm = engine_.trackPlane().getTrackMode();
     if ( tm==MPE::TrackPlane::ReTrack )
