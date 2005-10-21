@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.5 2005-02-04 09:29:43 kristofer Exp $
+ RCS:		$Id: refcount.h,v 1.6 2005-10-21 17:02:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,26 +77,23 @@ __refcount = 0
 public: \
     void	ref() const \
 		{ \
-		    ClassName* obj = const_cast<ClassName*>(this); \
-		    obj->__refcount++; \
+		    __refcount++; \
 		} \
     void	unRef() const \
 		{ \
 		    if ( !this ) \
 			return; \
-		    ClassName* obj = const_cast<ClassName*>(this); \
-		    if ( !--obj->__refcount ) \
-			delete obj; \
+		    if ( !--__refcount ) \
+			delete this; \
 		} \
  \
     void	unRefNoDelete() const \
 		{ \
-		    ClassName* obj = const_cast<ClassName*>(this); \
-		    obj->__refcount--; \
+		    __refcount--; \
 		} \
     int		nrRefs() const { return this ? __refcount : 0 ; } \
 private: \
-    int		__refcount;	\
+    mutable int	__refcount;	\
 protected: \
     		DestructorImpl; \
 private:
