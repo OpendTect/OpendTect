@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.39 2005-10-06 10:05:51 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.40 2005-10-24 08:11:22 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1066,6 +1066,21 @@ void Provider::setUsedMultTimes()
     {
 	if ( inputs[idx] )
 	    inputs[idx]->setUsedMultTimes();
+    }
+}
+
+
+void Provider::resetDesiredVolume()
+{
+    if ( desiredvolume )
+    {
+	delete desiredvolume; 
+	desiredvolume = 0;
+    }
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] )
+	    inputs[idx]->resetDesiredVolume();
     }
 }
 
