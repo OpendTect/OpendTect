@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.31 2005-08-30 12:14:34 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.32 2005-10-24 15:17:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,13 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
+#include "uiioobjsel.h"
+#include "ctxtioobj.h"
 #include "wellimpasc.h"
 #include "welldata.h"
 #include "wellmarker.h"
 #include "welllog.h"
+#include "welltransl.h"
 #include "welllogset.h"
 #include "welltrack.h"
 #include "welld2tmodel.h"
@@ -742,4 +745,27 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 
 	*sdo.ostrm << '\n';
     }
+}
+
+
+//============================================================================
+
+uiWellNameDlg::uiWellNameDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("New Well Dialog","") )
+{
+    CtxtIOObj ctio(*mMkCtxtIOObj(Well));
+    ctio.ctxt.forread = false;
+    nmfld = new uiIOObjSel( this, ctio, "Output Well" );
+}
+
+
+bool uiWellNameDlg::acceptOK( CallBacker* )
+{
+    wellname = nmfld->getInput();
+    char* ptr = ((BufferString)wellname).buf();
+    skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
+    if ( ! *ptr ) { uiMSG().error( "Please enter a name" ); return false; }
+    nmfld->commitInput(true);
+    
+    return true;
 }

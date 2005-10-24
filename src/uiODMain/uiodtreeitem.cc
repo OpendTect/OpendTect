@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.119 2005-10-12 12:31:29 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.120 2005-10-24 15:17:25 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -974,8 +974,9 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	mAddManagedMenuItem(&insertnodemnuitem,new MenuItem(nodename), 
 			     rtd->canAddKnot(idx), false );
     }
-    
+#ifdef __debug__ 
     mAddMenuItem( menu, &usewellsmnuitem, true, false );
+#endif
 }
 
 
@@ -1204,11 +1205,17 @@ uiODWellParentTreeItem::uiODWellParentTreeItem()
 
 bool uiODWellParentTreeItem::showSubMenu()
 {
+    const char* string = "Add";
+#ifdef __debug__
+    string = "Load ...";
+#endif
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Add"), 0 );
-
+    mnu.insertItem( new uiMenuItem(string), 0 );
+#ifdef __debug__
+    mnu.insertItem( new uiMenuItem("New ..."), 1 );
+#endif
     if ( children.size() )
-	mnu.insertItem( new uiMenuItem("Properties ..."), 1 );
+	mnu.insertItem( new uiMenuItem("Properties ..."), 2 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -1226,6 +1233,14 @@ bool uiODWellParentTreeItem::showSubMenu()
 	deepErase( emwellids );
     }
     else if ( mnuid == 1 )
+    {
+	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
+	wd->setupPicking();
+	visserv->addObject( wd, sceneID(), true );
+	addChild( new uiODWellTreeItem(wd->id()) );
+    }
+    else if ( mnuid == 2 )
     {
 	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	TypeSet<int> wdids;
@@ -1266,6 +1281,7 @@ uiODWellTreeItem::uiODWellTreeItem( int did )
     , markernamemnuitem("Marker names")
     , showlogmnuitem( "Logs" )
     , showmnuitem( "Show" )
+    , storemnuitem( "Store ...")
 { displayid=did; }
 
 
@@ -1278,6 +1294,7 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid_ )
     , markernamemnuitem("Marker names")
     , showlogmnuitem( "Logs" )
     , showmnuitem( "Show" )
+    , storemnuitem( "Store ...")
 {
     mid = mid_;
 }
@@ -1318,6 +1335,9 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 	          applMgr()->wellServer()->hasLogs(wd->wellId()), false );
     mAddMenuItem( menu, &selattrmnuitem, true, false );
     mAddMenuItem( menu, &propertiesmnuitem, true, false );
+#ifdef __debug__
+    mAddMenuItem( menu, &storemnuitem, true, false );
+#endif
     mAddMenuItem( menu, &showmnuitem, true, false );
     mAddMenuItem( &showmnuitem, &namemnuitem, true,  wd->wellNameShown() );
     mAddMenuItem( &showmnuitem, &markermnuitem, wd->canShowMarkers(),
@@ -1381,6 +1401,14 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == showlogmnuitem.id )
     {
 	wd->showLogs( !wd->logsShown() );
+    }
+    else if ( mnuid == storemnuitem.id )
+    {
+	BufferString errmsg;
+	menu->setIsHandled(true);
+	const char* wellname = applMgr()->wellServer()->askWellName();
+	if ( wd->isHomeMadeWell() )
+	    applMgr()->wellServer()->storeWell( wd->getWellCoords(), errmsg );
     }
 }
 

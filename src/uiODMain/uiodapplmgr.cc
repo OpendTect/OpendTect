@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.104 2005-10-12 12:38:00 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.105 2005-10-24 15:17:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -643,6 +643,11 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 
 bool uiODApplMgr::handleWellServEv( int evid )
 {
+//    if ( evid == uiWellPartServer::evPreviewRdmLine )
+//    {
+//	TypeSet<Coord> coords;
+//	wellserv->getRdmLineCoordinates( coords );
+//    }
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.14 2005-10-12 12:38:00 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.15 2005-10-24 15:17:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 
 class MultiID;
+class Coord3;
 template <class T> class Interval;
 
 /*! \brief Part Server for Wells */
@@ -38,6 +39,13 @@ public:
     bool			hasLogs(const MultiID&) const;
 
     void			selectWellCoordsForRdmLine();
+    
+    void			createWellFromPicks();
+    const char*			askWellName();
+
+    bool			storeWell(const TypeSet<Coord3>&, const char*);
+
+    static const int            evPreviewRdmLine;
 
 protected:
 

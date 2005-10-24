@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.16 2005-08-30 12:14:33 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.17 2005-10-24 15:17:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiButtonGroup;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
+class uiIOObjSel;
 class uiLabel;
 class uiLabeledListBox;
 class StreamData;
@@ -160,4 +161,18 @@ protected:
     void			writeLogs(StreamData&);
 };
 
+
+class uiWellNameDlg : public uiDialog
+{
+public:
+    				uiWellNameDlg(uiParent*);
+				
+    const char*			wellname;
+
+protected:
+    uiIOObjSel*         	nmfld;
+
+    virtual bool        	acceptOK(CallBacker*);
+
+}; 
 #endif

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.48 2005-10-07 15:31:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.49 2005-10-24 15:17:25 cvshelene Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -22,6 +22,9 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.48 2005-10-07 15:31:53 cv
 #include "survinfo.h"
 #include "draw.h"
 #include "visdataman.h"
+
+#define		mPickSz 	5
+#define         mPickType	3 
 
 
 mCreateFactoryEntry( visSurvey::WellDisplay );
@@ -44,10 +47,15 @@ const char* WellDisplay::sKeyLog2Color	 = "Logcolor 2";
    val /= 0.3048;
 
 WellDisplay::WellDisplay()
-    : well(0)
-    , wellid(-1)
-    , zistime(SI().zIsTime())
-    , zinfeet(SI().zInFeet())
+    : VisualObjectImpl(true)
+    , well_(0)
+    , wellid_(-1)
+    , zistime_(SI().zIsTime())
+    , zinfeet_(SI().zInFeet())
+    , eventcatcher_(0)
+    , changed_(this)
+    , transformation_(0)
+    , picksallowed_(false)
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -56,40 +64,42 @@ WellDisplay::WellDisplay()
 
 WellDisplay::~WellDisplay()
 {
-    removeChild( well->getInventorNode() );
-    well->unRef();
+    removeChild( well_->getInventorNode() );
+    well_->unRef();
+    setSceneEventCatcher(0);
+    if ( transformation_ ) transformation_->unRef();
 }
 
 
-void WellDisplay::setWell( visBase::Well* well_ )
+void WellDisplay::setWell( visBase::Well* well )
 {
-    if ( well )
+    if ( well_ )
     {
-	removeChild( well->getInventorNode() );
-	well->unRef();
+	removeChild( well_->getInventorNode() );
+	well_->unRef();
     }
 
-    well = well_;    
-    well->ref();
-    addChild( well->getInventorNode() );
+    well_ = well;    
+    well_->ref();
+    addChild( well_->getInventorNode() );
 }
 
 
 void WellDisplay::fullRedraw( CallBacker* )
 {
-    Well::Data* wd = Well::MGR().get( wellid, false );
+    Well::Data* wd = Well::MGR().get( wellid_, false );
     
     const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
 
     if ( wd->track().size() < 1 ) return;
     PtrMan<Well::Track> ttrack = 0;
-    if ( zistime )
+    if ( zistime_ )
     {
 	ttrack = new Well::Track( wd->track() );
 	ttrack->toTime( *d2t );
     }
-    Well::Track& track = zistime ? *ttrack : wd->track();
+    Well::Track& track = zistime_ ? *ttrack : wd->track();
 
     TypeSet<Coord3> trackpos;
     Coord3 pt;
@@ -98,7 +108,7 @@ void WellDisplay::fullRedraw( CallBacker* )
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	pt = track.pos( idx );
-	if ( zinfeet )
+	if ( zinfeet_ )
 	    mMeter2Feet(pt.z);
 
 	if ( !mIsUndefined(pt.z) && sizrg.includes(pt.z) )
@@ -107,15 +117,15 @@ void WellDisplay::fullRedraw( CallBacker* )
     if ( !trackpos.size() )
 	return;
 
-    well->setTrack( trackpos );
-    well->setWellName( wd->name(), trackpos[0] );
+    well_->setTrack( trackpos );
+    well_->setWellName( wd->name(), trackpos[0] );
     updateMarkers(0);
 
-    if ( log1nm.size() )
-	displayLog( log1nm, log1logsc, log1rg, 1 );
+    if ( log1nm_.size() )
+	displayLog( log1nm_, log1logsc_, log1rg_, 1 );
 
-    if ( log2nm.size())
-	displayLog( log2nm, log2logsc, log2rg, 2 );
+    if ( log2nm_.size())
+	displayLog( log2nm_, log2logsc_, log2rg_, 2 );
 }
 
 
@@ -127,14 +137,14 @@ bool WellDisplay::setWellId( const MultiID& multiid )
     if ( !wd ) return false;
     
     const Well::D2TModel* d2t = wd->d2TModel();
-    if ( zistime )
+    if ( zistime_ )
     {
 	if ( !d2t )
 	    mErrRet( "No depth to time model defined" )
 	wd->d2tchanged.notify( mCB(this,WellDisplay,fullRedraw) );
     }
 
-    wellid = multiid;
+    wellid_ = multiid;
     fullRedraw(0);
     wd->markerschanged.notify( mCB(this,WellDisplay,updateMarkers) );
 
@@ -144,58 +154,58 @@ bool WellDisplay::setWellId( const MultiID& multiid )
 
 const LineStyle* WellDisplay::lineStyle() const
 {
-    return &well->lineStyle();
+    return &well_->lineStyle();
 }
 
 
 void WellDisplay::setLineStyle( const LineStyle& lst )
 {
-    well->setLineStyle( lst );
+    well_->setLineStyle( lst );
 }
 
 
 void WellDisplay::updateMarkers( CallBacker* )
 {
-    Well::Data* wd = Well::MGR().get( wellid );
+    Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd ) return;
 
-    well->removeAllMarkers();
+    well_->removeAllMarkers();
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
 	Coord3 pos = wd->track().getPos( wellmarker->dah );
 	if ( !pos.x && !pos.y && !pos.z ) continue;
 
-	if ( zistime )
+	if ( zistime_ )
 	    pos.z = wd->d2TModel()->getTime( wellmarker->dah );
-	else if ( zinfeet )
+	else if ( zinfeet_ )
 	    mMeter2Feet(pos.z)
 
-	well->addMarker( pos, wellmarker->color, wellmarker->name() );
+	well_->addMarker( pos, wellmarker->color, wellmarker->name() );
     }
 }
 
 
 void WellDisplay::setMarkerScreenSize( int sz )
-{ well->setMarkerScreenSize( sz ); }
+{ well_->setMarkerScreenSize( sz ); }
 
 int WellDisplay::markerScreenSize() const
-{ return well->markerScreenSize(); }
+{ return well_->markerScreenSize(); }
 
 
 #define mShowFunction( showObj, objShown ) \
 void WellDisplay::showObj( bool yn ) \
 { \
-    well->showObj( yn ); \
+    well_->showObj( yn ); \
 } \
 \
 bool WellDisplay::objShown() const \
 { \
-    return well->objShown(); \
+    return well_->objShown(); \
 }
 
 bool WellDisplay::canShowMarkers() const
-{ return well->canShowMarkers(); }
+{ return well_->canShowMarkers(); }
 
 mShowFunction( showWellName, wellNameShown )
 mShowFunction( showMarkers, markersShown )
@@ -207,7 +217,7 @@ mShowFunction( showLogName, logNameShown )
 void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
 			      const Interval<float>* range )
 {
-    Well::Data* wd = Well::MGR().get( wellid );
+    Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || !wd->logs().size() ) return;
 
     Well::Log& log = wd->logs().getLog(logidx);
@@ -224,9 +234,9 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
 	Coord3 pos = track.getPos( dah );
 	if ( !pos.x && !pos.y && !pos.z ) continue;
 
-	if ( zistime )
+	if ( zistime_ )
 	    pos.z = wd->d2TModel()->getTime( dah );
-	else if ( zinfeet )
+	else if ( zinfeet_ )
 	    mMeter2Feet(pos.z)
 
 	if ( !sizrg.includes(pos.z) )
@@ -243,19 +253,19 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
     assign( selrange, range ? *range : log.selValueRange() );
     if ( !range )
 	logrthm = log.dispLogarithmic();
-    well->setLogData( crdvals, log.name(), selrange, logrthm, lognr );
+    well_->setLogData( crdvals, log.name(), selrange, logrthm, lognr );
 
     if ( lognr == 1 )
-	{ log1nm = log.name(); assign(log1rg,selrange); log1logsc = logrthm; }
+	{log1nm_ = log.name(); assign(log1rg_,selrange); log1logsc_ = logrthm;}
     else
-	{ log2nm = log.name(); assign(log2rg,selrange); log2logsc = logrthm; }
+	{log2nm_ = log.name(); assign(log2rg_,selrange); log2logsc_ = logrthm;}
 }
 
 
 void WellDisplay::displayLog( const char* lognm, bool logarthm,
 			      const Interval<float>& range, int lognr )
 {
-    Well::Data* wd = Well::MGR().get( wellid );
+    Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || !wd->logs().size() ) return;
 
     int logidx = -1;
@@ -272,45 +282,45 @@ void WellDisplay::displayLog( const char* lognm, bool logarthm,
 
 
 void WellDisplay::setLogColor( const Color& col, int lognr )
-{ well->setLogColor( col, lognr ); }
+{ well_->setLogColor( col, lognr ); }
 
 
 const Color& WellDisplay::logColor( int lognr ) const
-{ return well->logColor( lognr ); }
+{ return well_->logColor( lognr ); }
 
 
 void WellDisplay::setLogLineWidth( float width, int lognr )
-{ well->setLogLineWidth( width, lognr ); }
+{ well_->setLogLineWidth( width, lognr ); }
 
 
 float WellDisplay::logLineWidth( int lognr ) const
-{ return well->logLineWidth( lognr ); }
+{ return well_->logLineWidth( lognr ); }
 
 
 void WellDisplay::setLogWidth( int width )
-{ well->setLogWidth( width ); }
+{ well_->setLogWidth( width ); }
 
 
 int WellDisplay::logWidth() const
-{ return well->logWidth(); }
+{ return well_->logWidth(); }
 
 
 void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( sKeyEarthModelID, wellid );
+    par.set( sKeyEarthModelID, wellid_ );
 
-    int viswellid = well->id();
+    int viswellid = well_->id();
     par.set( sKeyWellID, viswellid );
     if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
     
     BufferString colstr;
 
 #define mStoreLogPars( num ) \
-    par.set( sKeyLog##num##Name, log##num##nm ); \
-    par.set( sKeyLog##num##Range, log##num##rg.start, log##num##rg.stop ); \
-    par.setYN( sKeyLog##num##Scale, log##num##logsc ); \
+    par.set( sKeyLog##num##Name, log##num##nm_ ); \
+    par.set( sKeyLog##num##Range, log##num##rg_.start, log##num##rg_.stop ); \
+    par.setYN( sKeyLog##num##Scale, log##num##logsc_ ); \
     logColor(num).fill( colstr.buf() ); \
     par.set( sKeyLog##num##Color, colstr )
 
@@ -329,14 +339,14 @@ int WellDisplay::usePar( const IOPar& par )
     {
 	DataObject* dataobj = visBase::DM().getObject( viswellid );
 	if ( !dataobj ) return 0;
-	mDynamicCastGet(visBase::Well*,well_,dataobj)
-	if ( !well_ ) return -1;
-	setWell( well_ );
+	mDynamicCastGet(visBase::Well*,well,dataobj)
+	if ( !well ) return -1;
+	setWell( well );
     }
     else
     {
 	setWell( visBase::Well::create() );
-	viswellid = well->id();
+	viswellid = well_->id();
     }
     
     setDisplayTransformation( scene_->getUTM2DisplayTransform() );
@@ -350,16 +360,16 @@ int WellDisplay::usePar( const IOPar& par )
 	return 1;
     }
 
-    BufferString lognm_;
+    BufferString logname;
     BufferString colstr;
     Color col;
 
 #define mRetrieveLogPars( num ) \
-    par.get( sKeyLog##num##Name, lognm_ ); \
-    par.get( sKeyLog##num##Range, log##num##rg.start, log##num##rg.stop ); \
-    par.getYN( sKeyLog##num##Scale, log##num##logsc ); \
-    if ( *lognm_.buf() ) \
-	displayLog( lognm_, log##num##logsc, log##num##rg, num ); \
+    par.get( sKeyLog##num##Name, logname ); \
+    par.get( sKeyLog##num##Range, log##num##rg_.start, log##num##rg_.stop ); \
+    par.getYN( sKeyLog##num##Scale, log##num##logsc_ ); \
+    if ( *logname.buf() ) \
+	displayLog( logname, log##num##logsc_, log##num##rg_, num ); \
     par.get( sKeyLog##num##Color, colstr ); \
     if ( col.use(colstr.buf()) ) \
 	setLogColor( col, num )
@@ -386,11 +396,171 @@ int WellDisplay::usePar( const IOPar& par )
 
 void WellDisplay::setDisplayTransformation( visBase::Transformation* nt )
 {
-    well->setDisplayTransformation( nt );
+    well_->setDisplayTransformation( nt );
+    if ( picksallowed_) setDisplayTransformForPicks( nt );
 }
 
 
 visBase::Transformation* WellDisplay::getDisplayTransformation()
-{ return well->getDisplayTransformation(); }
+{ return well_->getDisplayTransformation(); }
+
+
+void WellDisplay::pickCB( CallBacker* cb )
+{
+    if ( !isSelected() || !picksallowed_ ) return;
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    if ( eventinfo.type != visBase::MouseClick ||
+	 eventinfo.mousebutton != visBase::EventInfo::leftMouseButton() )
+	return;
+
+    int eventid = -1;
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	visBase::DataObject* dataobj =
+	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	if ( dataobj->selectable() )
+	{
+	    eventid = eventinfo.pickedobjids[idx];
+	    break;
+	}
+    }
+
+    if ( eventinfo.pressed )
+    {
+	mousepressid_ = eventid;
+	mousepressposition_ = eventid==-1 ? Coord3::udf() : eventinfo.pickedpos;
+	eventcatcher_->eventIsHandled();
+    }
+    else
+    {
+	if ( eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
+	{
+	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
+	    {
+		int removeidx = group_->getFirstIdx(mousepressid_);
+		if ( removeidx != -1 )
+		{
+		    group_->removeObject( removeidx );
+		    wellcoords_.remove( removeidx );
+		    changed_.trigger();
+		}
+	    }
+
+	    eventcatcher_->eventIsHandled();
+	}
+	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
+	{
+	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
+	    {
+		const int sz = eventinfo.pickedobjids.size();
+		bool validpicksurface = false;
+
+		for ( int idx=0; idx<sz; idx++ )
+		{
+		    const DataObject* pickedobj =
+			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+		    mDynamicCastGet(const SurveyObject*,so,pickedobj)
+		    if ( so && so->allowPicks() )
+		    {
+			validpicksurface = true;
+			break;
+		    }
+		}
+
+		if ( validpicksurface )
+		{
+		    Coord3 newpos = scene_->getZScaleTransform()->
+			transformBack( eventinfo.pickedpos );
+		    if ( transformation_ )
+			newpos = transformation_->transformBack(newpos);
+		    mDynamicCastGet(SurveyObject*,so,
+				    visBase::DM().getObject(eventid))
+		    if ( so ) so->snapToTracePos( newpos );
+		    addPick( newpos );
+		}
+	    }
+
+	    eventcatcher_->eventIsHandled();
+	}
+    }
+}
+
+
+void WellDisplay::addPick( const Coord3& pos )
+{
+    addPick( pos, Sphere(0,0,0) );
+}
+
+
+void WellDisplay::addPick( const Coord3& pos, const Sphere& dir )
+{
+    visBase::Marker* marker = visBase::Marker::create();
+    group_->addObject( marker );
+
+    marker->setDisplayTransformation( transformation_ );
+    marker->setCenterPos( pos );
+    marker->setDirection( dir );
+    marker->setScreenSize( mPickSz );
+    marker->setType( (MarkerStyle3D::Type)mPickType );
+    marker->setMaterial( 0 );
+    wellcoords_ += pos;
+    connectPicks();
+
+    changed_.trigger();
+}
+
+
+void WellDisplay::connectPicks()
+{
+}
+
+
+void WellDisplay::setDisplayTransformForPicks( visBase::Transformation* newtr )
+{
+    if ( transformation_==newtr )
+	return;
+
+    if ( transformation_ )
+	transformation_->unRef();
+
+    transformation_ = newtr;
+
+    if ( transformation_ )
+	transformation_->ref();
+
+    if ( !group_ ) return;
+    for ( int idx=0; idx<group_->size(); idx++ )
+    {
+	mDynamicCastGet( visBase::Marker*, marker, group_->getObject(idx));
+	marker->setDisplayTransformation( transformation_ );
+    }
+}
+
+
+void WellDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
+{
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.remove(mCB(this,WellDisplay,pickCB));
+	eventcatcher_->unRef();
+    }
+
+    eventcatcher_ = nevc;
+
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.notify(mCB(this,WellDisplay,pickCB));
+	eventcatcher_->ref();
+    }
+
+}
+
+
+void WellDisplay::setupPicking()
+{
+    picksallowed_ = true;
+    group_  = visBase::DataObjectGroup::create();
+}
 
 }; // namespace visSurvey

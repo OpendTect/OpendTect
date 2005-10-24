@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.24 2005-08-09 18:09:34 cvskris Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.25 2005-10-24 15:17:25 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,11 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "visdatagroup.h"
+#include "vistransform.h"
+#include "vismarker.h"
+#include "vismaterial.h"
+#include "visevent.h"
 #include "multiid.h"
 #include "ranges.h"
 
@@ -23,6 +28,7 @@ template <class T> class Interval;
 
 namespace visBase { class Well; class Transformation; };
 
+using namespace visBase;
 
 namespace visSurvey
 {
@@ -41,7 +47,7 @@ public:
 				mCreateDataObj(WellDisplay);
 
     bool			setWellId(const MultiID&);
-    const MultiID&		wellId() const 		{ return wellid; }
+    const MultiID&		wellId() const 		{ return wellid_; }
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
@@ -77,29 +83,53 @@ public:
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
-    void			setDisplayTransformation(
-	    					visBase::Transformation*);
+    void			setDisplayTransformation(Transformation*);
     visBase::Transformation*	getDisplayTransformation();
+    void 			setDisplayTransformForPicks(Transformation*);
+
+    void                        setSceneEventCatcher(visBase::EventCatcher*);
+    void 			addPick(const Coord3&);
+    void 			addPick(const Coord3&,const Sphere&);
+    void			connectPicks();//TODO
+    void			setupPicking();
+    NotifierAccess*             getManipulationNotifier() { return &changed_; }
+    bool			isHomeMadeWell() const { return picksallowed_; }
+    TypeSet<Coord3>             getWellCoords()	const	{ return wellcoords_; }
+    				//only used for user-made wells
 
 protected:
 
     virtual			~WellDisplay();
-    void			setWell(visBase::Well*);
+    void			setWell(Well*);
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);
 
-    visBase::Well*		well;
+    void                        pickCB(CallBacker* cb=0);
 
-    MultiID			wellid;
-    const bool			zistime;
-    const bool			zinfeet;
+    visBase::Well*		well_;
 
-    BufferString		log1nm;
-    BufferString		log2nm;
-    Interval<float>		log1rg;
-    Interval<float>		log2rg;
-    bool			log1logsc;
-    bool			log2logsc;
+    MultiID			wellid_;
+    const bool			zistime_;
+    const bool			zinfeet_;
+
+    BufferString		log1nm_;
+    BufferString		log2nm_;
+    Interval<float>		log1rg_;
+    Interval<float>		log2rg_;
+    bool			log1logsc_;
+    bool			log2logsc_;
+
+    DataObjectGroup*   		group_;
+    EventCatcher*      		eventcatcher_;
+    Transformation*    		transformation_;
+    Notifier<WellDisplay>	changed_;
+
+    int                         mousepressid_;
+    Coord3                      mousepressposition_;
+
+    TypeSet<Coord3>		wellcoords_;
+
+    bool			picksallowed_;
 
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;

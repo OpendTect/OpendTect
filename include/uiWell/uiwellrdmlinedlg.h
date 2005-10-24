@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.1 2005-10-12 12:38:00 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.2 2005-10-24 15:17:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiGenInput;
 class uiListBox;
 class uiToolButton;
 class uiPushButton;
+class uiWellPartServer;
 
 /*! \brief: setup a dialog where the user can select throught which wells (s)he
   wants to make a random line path.
@@ -34,7 +35,7 @@ class uiPushButton;
 class uiWell2RandomLineDlg : public uiDialog
 {
 public:
-    			uiWell2RandomLineDlg(uiParent*);
+    			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);
 
 protected:
     void		fillListBox();
@@ -66,6 +67,8 @@ protected:
     uiToolButton*	movedownward_;
     
     uiPushButton*	previewbutton_;
+
+    uiWellPartServer*	wellserv_;
 };
 
 #endif
