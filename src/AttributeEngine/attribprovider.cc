@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.40 2005-10-24 08:11:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.41 2005-10-24 15:14:03 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -401,23 +401,42 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 }
 
 
-int Provider::moveToNextTrace()
+int Provider::moveToNextTrace( BinID startpos )
 {
     if ( alreadymoved )
 	return 1;
 
-    ObjectSet<Provider> movinginputs;
-    for ( int idx=0; idx<inputs.size(); idx++ )
-    {
-	if ( !inputs[idx] ) continue;
-	const int res = inputs[idx]->moveToNextTrace();
-	if ( res!=1 ) return res;
+    bool docheck = startpos == BinID(-1,-1);
 
-	if ( !inputs[idx]->getSeisRequester() ) continue;
-	movinginputs += inputs[idx];
+    bool needmove;
+    bool docontinue = true;
+    ObjectSet<Provider> movinginputs;
+    while ( docontinue )
+    {
+	needmove = false;
+	for ( int idx=0; idx<inputs.size(); idx++ )
+	{
+	    if ( !inputs[idx] ) continue;
+	    
+	    currentbid = inputs[idx]->getCurrentPosition();
+	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
+	    if ( !docheck && currentbid == startpos ) continue;
+	    
+	    needmove = true;
+	    const int res = inputs[idx]->moveToNextTrace(startpos);
+	    if ( res!=1 ) return res;
+
+	    if ( !inputs[idx]->getSeisRequester() ) continue;
+	    if ( movinginputs.indexOf( inputs[idx] ) < 0 )
+		movinginputs += inputs[idx];
+	}
+	if ( !needmove || docheck ) 
+	    docontinue = false;
+	else
+	    resetMoved();
     }
 
-    if ( !movinginputs.size() )
+    if ( !movinginputs.size() && needmove )
     {
 	if ( !inputs.size() && !desc.isStored() )
 	{
@@ -441,7 +460,7 @@ int Provider::moveToNextTrace()
 		    return 0;
 	    }
 	}
-	else
+	else if ( needmove )
 	{
 	    currentbid = BinID(-1,-1);
 	}
@@ -450,51 +469,60 @@ int Provider::moveToNextTrace()
 	return 1;
     }
 
-    for ( int idx=0; idx<movinginputs.size()-1; idx++ )
+    if ( docheck )
     {
-	for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
+	for ( int idx=0; idx<movinginputs.size()-1; idx++ )
 	{
-	    bool idxmoved = false;
-
-	    while ( true )
+	    for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
 	    {
-		int compres = movinginputs[idx]->getSeisRequester()->comparePos(
-				    *movinginputs[idy]->getSeisRequester() );
-		if ( compres == -1 )
+		bool idxmoved = false;
+
+		while ( true )
 		{
-		    idxmoved = true;
-		    movinginputs[idx]->resetMoved();
-		    const int res = movinginputs[idx]->moveToNextTrace();
-		    if ( res != 1 ) return res;
-		}
-		else if ( compres == 1 )
-		{
-		    movinginputs[idy]->resetMoved();
+		    int compres = movinginputs[idx]->getSeisRequester()->
+			   comparePos( *movinginputs[idy]->getSeisRequester() );
+		    if ( compres == -1 )
+		    {
+			idxmoved = true;
+			movinginputs[idx]->resetMoved();
+			const int res = movinginputs[idx]->moveToNextTrace();
+			if ( res != 1 ) return res;
+		    }
+		    else if ( compres == 1 )
+		    {
+			movinginputs[idy]->resetMoved();
 		    const int res = movinginputs[idy]->moveToNextTrace();
 		    if ( res != 1 ) return res;
+		    }
+		    else 
+			break;
 		}
-		else 
-		    break;
-	    }
 
-	    if ( idxmoved )
-	    {
-		idx = -1;
-		break;
+		if ( idxmoved )
+		{
+		    idx = -1;
+		    break;
+		}
 	    }
 	}
     }
 
-    currentbid = movinginputs[0]->getCurrentPosition();
-    curtrcinfo_ = movinginputs[0]->getCurrentTrcInfo();
-
-    for ( int idx=0; idx<inputs.size(); idx++ )
+    if ( movinginputs.size() > 0 )
     {
-	if ( !inputs[idx] ) continue;
-	if ( !inputs[idx]->setCurrentPosition(currentbid) )
-	    return -1;
+	currentbid = movinginputs[0]->getCurrentPosition();
+	curtrcinfo_ = movinginputs[0]->getCurrentTrcInfo();
     }
-    setCurrentPosition( currentbid );
+
+    if ( docheck )
+    {
+	for ( int idx=0; idx<inputs.size(); idx++ )
+	{
+	    if ( !inputs[idx] ) continue;
+	    if ( !inputs[idx]->setCurrentPosition(currentbid) )
+		return -1;
+	}
+	setCurrentPosition( currentbid );
+    }
 
     alreadymoved = true;
     return 1;
@@ -1083,5 +1111,6 @@ void Provider::resetDesiredVolume()
 	    inputs[idx]->resetDesiredVolume();
     }
 }
+
 
 }; // namespace Attrib

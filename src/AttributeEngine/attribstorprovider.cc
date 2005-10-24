@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.26 2005-10-21 14:15:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.27 2005-10-24 15:14:03 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -201,7 +201,7 @@ bool StorageProvider::init()
 }
 
 
-int StorageProvider::moveToNextTrace()
+int StorageProvider::moveToNextTrace( BinID startpos )
 {
     if ( alreadymoved )
 	return 1;
@@ -262,8 +262,15 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
 	possiblevolume = new CubeSampling;
     
     *possiblevolume = storedvolume;
-    
-    res = *possiblevolume;
+# define mAdjustIf(v1,op,v2) \
+  if ( mIsUdf(v1) || v1 op v2 ) v1 = v2;
+  
+    mAdjustIf(res.hrg.start.inl,<,possiblevolume->hrg.start.inl);
+    mAdjustIf(res.hrg.start.crl,<,possiblevolume->hrg.start.crl);
+    mAdjustIf(res.zrg.start,<,possiblevolume->zrg.start);
+    mAdjustIf(res.hrg.stop.inl,>,possiblevolume->hrg.stop.inl);
+    mAdjustIf(res.hrg.stop.crl,>,possiblevolume->hrg.stop.crl);
+    mAdjustIf(res.zrg.stop,>,possiblevolume->zrg.stop);
     return true;
 }
 
