@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.19 2005-10-20 03:29:50 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.20 2005-10-24 09:34:28 cvsduntao Exp $";
 
 #include "horizonadjuster.h"
 
@@ -165,7 +165,8 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
 	if ( matchpos == -1 )	    return false;
 	// snap to event
 	refpos = matchpos + simlaritymatchpt_;
-	refval = refsamples[simlaritymatchpt_];
+	refval = useAbsThreshold() 
+		 ? ampthreshold_ : refsamples[simlaritymatchpt_];
     }
     else
 	refval = useAbsThreshold() ? ampthreshold_ : *refsamples;
