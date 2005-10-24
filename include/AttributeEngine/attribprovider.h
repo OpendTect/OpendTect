@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.25 2005-10-24 08:10:26 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.26 2005-10-24 15:15:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ public:
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume();
     
-    virtual int			moveToNextTrace();
+    virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1));
     				/*!<\retval -1	something went wrong
 				    \retval  0  finished, no more positions
 				    \retval  1	arrived at new position
