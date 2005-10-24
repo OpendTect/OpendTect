@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.1 2005-10-20 19:07:49 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.2 2005-10-24 22:12:54 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -40,6 +40,20 @@ void DataCubes::removeCube( int idx )
     delete cubes[idx];
     cubes.remove(idx);
 }
+
+
+void DataCubes::setSizeAndPos( const CubeSampling& cs )
+{
+    inlsampling.start = cs.hrg.start.inl;
+    crlsampling.start = cs.hrg.start.crl;
+    inlsampling.step = cs.hrg.step.inl;
+    crlsampling.step = cs.hrg.step.crl;
+    z0 = mNINT(cs.zrg.start/cs.zrg.step);
+    zstep = cs.zrg.step;
+
+    setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
+}
+
 
 
 void  DataCubes::setSize( int nrinl, int nrcrl, int nrz )
