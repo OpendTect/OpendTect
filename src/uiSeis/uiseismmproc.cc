@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.95 2005-10-25 12:38:13 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.96 2005-10-25 12:39:05 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -607,7 +607,7 @@ void uiSeisMMProc::pauseJobs()
     bool pause = *txt == 'P';
     if ( *txt == 'G' )
     {
-	const int t = getSecs( Time_getLocalString() );
+	const int t = getSecs( Time_getFullDateString() );
 	const int t0 = getSecs( jrpstartfld->text() );
 	const int t1 = getSecs( jrpstopfld->text() );
 
