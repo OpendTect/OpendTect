@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.92 2005-07-13 14:49:46 cvsdgb Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.93 2005-10-25 12:34:06 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -686,8 +686,7 @@ bool uiSeisMMProc::wrapUp( bool force )
     }
 
     progrfld->append( "Processing completed" );
-    setOkText( "Dismiss" );
-    setCancelText( "Dismiss" );
+    setCtrlStyle( LeaveOnly );
     rmTmpSeis( jobprov );
     delete jobrunner; jobrunner = 0;
     return true;
