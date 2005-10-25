@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.28 2005-10-07 14:14:02 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.29 2005-10-25 07:25:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,13 @@ uiSurfaceMan::~uiSurfaceMan()
 void uiSurfaceMan::removeCB( CallBacker* )
 {
     if ( !ctio.ioobj ) return;
+
+    if ( ctio.ioobj->implReadOnly() )
+    {
+	uiMSG().error( "Could not remove attributes. Surface is read-only" );
+	return;
+    }
+
     BufferStringSet attribnms;
     attribfld->getSelectedItems( attribnms );
     if ( !attribnms.size() || 
