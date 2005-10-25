@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.94 2005-10-25 12:36:55 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.95 2005-10-25 12:38:13 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ptrman.h"
 #include "strmprov.h"
+#include "envvars.h"
 #include "seissingtrcproc.h"
 #include <stdlib.h>
 #include <iostream>
@@ -215,14 +216,12 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     jrpworklbl = new uiLabel( jrppolgrp, "Processes" );
     jrpworklbl->attach( rightOf, jrppolselfld );
 
-    BufferString tm = getenv("DTECT_STOP_OFFICEHOURS")
-		    ? getenv("DTECT_STOP_OFFICEHOURS") : "18:00";
-    jrpstartfld = new uiGenInput( jrppolgrp, "", tm );
+    const char* envstr = GetEnvVar( "DTECT_STOP_OFFICEHOURS" );
+    jrpstartfld = new uiGenInput( jrppolgrp, "", envstr ? envstr : "18:00" );
     jrpstartfld->attach( rightOf, jrppolselfld );
 
-    tm  = getenv("DTECT_START_OFFICEHOURS")
-	? getenv("DTECT_START_OFFICEHOURS"): "7:30";
-    jrpstopfld = new uiGenInput( jrppolgrp, "and", tm );
+    envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
+    jrpstopfld = new uiGenInput( jrppolgrp, "and", envstr ? envstr : "7:30" );
     jrpstopfld->attach( rightOf, jrpstartfld );
 
     jrppolgrp->setHAlignObj( nicefld );
