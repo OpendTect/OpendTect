@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.16 2005-04-28 14:23:57 cvsnanne Exp $
+ RCS:		$Id: viscamera.h,v 1.17 2005-10-25 21:49:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoCamera;
+class SoGroup;
 class UTMCamera;
 
 namespace visBase
@@ -48,9 +49,6 @@ public:
     void		setAspectRatio( float );
     float		aspectRatio() const;
 
-    void		setHeightAngle( float );
-    float		heightAngle() const;
-
     void		setNearDistance( float );
     float		nearDistance() const;
 
@@ -67,7 +65,6 @@ public:
     float		getBalanceAdjustment() const;
 
     Coord3 		centerFrustrum();
-    float		frustrumRadius();
 
     SoNode*		getInventorNode();
     int			usePar( const IOPar& );
@@ -77,16 +74,19 @@ protected:
 
     virtual		~Camera();
 
+    SoGroup*		group;
+    			/*!<\note that we cannot store the camera itself,
+			 	  since SoQtViewer::setCameraType may remove
+				  it and make pointer obsolete. */
+    SoCamera*		getCamera();
+    const SoCamera*	getCamera() const;
 
-    UTMCamera*		camera;
-
-    static const char*	posstr;
-    static const char*	orientationstr;
-    static const char*	aspectratiostr;
-    static const char*	heightanglestr;
-    static const char*	neardistancestr;
-    static const char*	fardistancestr;
-    static const char*	focaldistancestr;
+    static const char*	sKeyPosition();
+    static const char*	sKeyOrientation();
+    static const char*	sKeyAspectRatio();
+    static const char*	sKeyNearDistance();
+    static const char*	sKeyFarDistance();
+    static const char*	sKeyFocalDistance();
 };
 
 
