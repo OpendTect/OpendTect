@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.99 2005-10-25 12:44:35 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.100 2005-10-25 12:47:12 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,9 +280,7 @@ void uiSeisMMProc::setNiceNess()
 }
 
 
-
 #define mErrRet(s) { uiMSG().error(s); return; }
-
 
 void uiSeisMMProc::startWork( CallBacker* )
 {
@@ -533,6 +531,7 @@ void uiSeisMMProc::addPush( CallBacker* )
     }
 }
 
+
 const char* uiSeisMMProc::curUsedMachName()
 {
    static BufferString mach;
@@ -543,6 +542,7 @@ const char* uiSeisMMProc::curUsedMachName()
 
    return mach;
 }
+
 
 void uiSeisMMProc::stopPush( CallBacker* )
 {
@@ -656,6 +656,7 @@ void uiSeisMMProc::jrpSel( CallBacker* )
     jrpstopfld->display( isgo );
     jrpworklbl->display( !isgo );
 }
+
 
 void uiSeisMMProc::pauseJobs()
 {
