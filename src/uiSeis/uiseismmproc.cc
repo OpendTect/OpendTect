@@ -4,10 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.96 2005-10-25 12:39:05 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.97 2005-10-25 12:41:56 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
+
+/* Dummy edit --> original revision 1.97 was lost */
+
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
