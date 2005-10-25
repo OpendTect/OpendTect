@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.47 2005-10-19 21:48:00 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.48 2005-10-25 21:51:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,9 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs->addFactory( new uiODBodyTreeItemFactory, 5500 );
 #endif
     tifs->addFactory( new uiODHorizonTreeItemFactory, 6000);
+#ifdef __debug__
     tifs->addFactory( new uiODFaultTreeItemFactory, 7000 );
+#endif
     tifs->addFactory( new uiODWellTreeItemFactory, 8000 );
 
     wsp->setPrefWidth( cWSWidth );
