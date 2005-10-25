@@ -4,13 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.97 2005-10-25 12:41:56 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.98 2005-10-25 12:43:10 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
-
-/* Dummy edit --> original revision 1.97 was lost */
-
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -48,6 +45,8 @@ ________________________________________________________________________
 #include "seissingtrcproc.h"
 #include <stdlib.h>
 #include <iostream>
+
+#include "settings.h"
 
 static const char* outlsfilename = "outls.2ds";
 static const char* outlskey = "Output Line Set";
@@ -206,6 +205,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     nicefld->setValue( hdl.defNiceLevel() );
     uiLabel* nicelbl = new uiLabel( jrppolgrp, "'Nice' level (0-19)" );
     nicelbl->attach( rightOf, nicefld );
+
     if ( avmachfld ) nicefld->setPrefWidthInChar( hostnmwdth );
 
     jrppolselfld = new uiComboBox( jrppolgrp );
@@ -280,6 +280,9 @@ void uiSeisMMProc::setNiceNess()
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
+#define mMMKey		"MultiMachine"
+#define mNrInlPerJobKey	"Nr inline per job"
+
 void uiSeisMMProc::startWork( CallBacker* )
 {
     IOPar& inpiopar = *iopl[0];
@@ -296,7 +299,44 @@ void uiSeisMMProc::startWork( CallBacker* )
     if ( jobprov->errMsg() && *jobprov->errMsg() )
 	mErrRet(jobprov->errMsg())
 
-    jobrunner = jobprov->getRunner();
+    static int nr_inl_job = -1;
+
+    if ( nr_inl_job < 0 )
+    {
+	IOPar* iopar = Settings::common().subselect( mMMKey );
+	if ( !iopar ) iopar = new IOPar;
+	bool insettings = iopar->get( mNrInlPerJobKey, nr_inl_job );
+
+	if ( !insettings )
+	{
+	    nr_inl_job = 3;
+	    iopar->set( mNrInlPerJobKey, nr_inl_job );
+
+	    Settings::common().mergeComp( *iopar, mMMKey );
+	    Settings::common().write();
+	} 
+    } 
+    mkJobRunner( nr_inl_job );
+
+    iopl.deepErase();
+    iopl += new IOPar( jobprov->pars() );
+    iopl.write();
+
+    setOkText( "Finish Now" );
+    setCancelText( "Abort" );
+
+
+    timer = new Timer("uiSeisMMProc timer");
+    timer->tick.notify( mCB(this,uiSeisMMProc,doCycle) );
+    timer->start( 100, true );
+}
+
+
+void uiSeisMMProc::mkJobRunner( int nr_inl_job )
+{
+    if ( jobrunner ) delete jobrunner;
+
+    jobrunner = jobprov->getRunner( nr_inl_job );
     if ( jobprov->errMsg() && *jobprov->errMsg() )
     {
 	delete jobrunner; jobrunner = 0;
@@ -307,21 +347,10 @@ void uiSeisMMProc::startWork( CallBacker* )
     jobrunner->setRshComm( hdl.rshComm() );
     jobrunner->setNiceNess( hdl.defNiceLevel() );
 
-    iopl.deepErase();
-    iopl += new IOPar( jobprov->pars() );
-    iopl.write();
-
-    setOkText( "Finish Now" );
-    setCancelText( "Abort" );
-
     jobrunner->preJobStart.notify( mCB(this,uiSeisMMProc,jobPrepare) );
     jobrunner->postJobStart.notify( mCB(this,uiSeisMMProc,jobStarted) );
     jobrunner->jobFailed.notify( mCB(this,uiSeisMMProc,jobFailed) );
     jobrunner->msgAvail.notify( mCB(this,uiSeisMMProc,infoMsgAvail) );
-
-    timer = new Timer("uiSeisMMProc timer");
-    timer->tick.notify( mCB(this,uiSeisMMProc,doCycle) );
-    timer->start( 100, true );
 }
 
 
@@ -365,8 +394,9 @@ void uiSeisMMProc::doCycle( CallBacker* )
     {
 	if ( wrapUp(false) )
 	    return;
-	delete jobrunner;
-	jobrunner = jobprov->getRunner();
+
+	mkJobRunner(1);
+
 	if ( !jobrunner )
 	    return;
     }
