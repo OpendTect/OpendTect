@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.8 2005-10-21 10:55:33 cvsbert Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.9 2005-10-25 09:15:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -439,7 +439,8 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
     const ValParam* keypar = 
 		(ValParam*)desc->getParam( StorageProvider::keyStr() );
     const MultiID mid( keypar->getStringValue() );
-    return SeisTrcTranslator::getRanges( mid, cs );
+    return SeisTrcTranslator::getRanges( mid, cs,
+					 desc->is2D() ? getInput() : 0 );
 }
 
 
