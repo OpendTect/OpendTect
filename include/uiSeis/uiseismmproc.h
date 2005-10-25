@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.33 2005-10-21 09:55:35 cvsarend Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.34 2005-10-25 11:46:59 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ protected:
     uiLabeledListBox*	usedmachfld;
     uiComboBox*		jrppolselfld;
     uiIOFileSelect*	tmpstordirfld;
+    uiGenInput*		inlperjobfld;
     uiTextEdit*		progrfld;
     uiFileBrowser*	logvwer;
     uiGenInput*		jrpstartfld;
@@ -93,6 +94,7 @@ protected:
 
     const char* 	curUsedMachName();
     void		pauseJobs();
+    int			defltNrInlPerJob(const IOPar&);
     void		mkJobRunner(int);
 };
 
