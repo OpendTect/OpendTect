@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.35 2005-10-19 13:35:51 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.36 2005-10-25 02:39:07 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -598,6 +598,8 @@ void Wizard::setupChange( CallBacker* )
 void MPE::Wizard::emObjectChange( CallBacker* )
 {
     const int trackerid = mpeserv->getTrackerID( currentobject );
+    if ( trackerid == -1 )
+	return;
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(false);
 
