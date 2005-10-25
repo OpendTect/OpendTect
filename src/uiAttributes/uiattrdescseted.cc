@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.15 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.16 2005-10-25 09:16:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -435,8 +435,9 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	uiAttrDescEd* de = desceds[idx];
 	if ( !de ) continue;
 
-	de->setDesc( desc ? desc : dummydesc, adsman );
-	bool dodisp = de == curde;
+	if ( curde == de )
+	    de->setDesc( desc ? desc : dummydesc, adsman );
+	const bool dodisp = de == curde;
 	if ( dodisp ) de->set2D( is2d );
 	de->display( dodisp );
     }
