@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.34 2005-10-25 08:37:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.35 2005-10-25 12:20:46 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -320,7 +320,6 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
-    ObjectSet<Desc> newsteeringdescs;
     IOPar copypar(par);
 
     for ( int id=0; id<=maxid; id++ )
@@ -330,17 +329,6 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	if ( !descpar ) continue;
 
 	handleStorageOldFormat( *descpar );
-	int steeringdescid = -1;
-	const IOPar* steeringpar = descpar->subselect( "Steering" );
-	if ( steeringpar )
-	{
-	    const char* defstring = descpar->find( definitionStr() );
-	    if ( !defstring )
-		mHandleParseErr( "No attribute definition string specified" );
-	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
-				     steeringdescid) )
-	        mHandleParseErr( "Cannot create steering desc" );
-	}
 
 	BufferString defstring = descpar->find( definitionStr() );
 	if ( !defstring.size() )
@@ -355,23 +343,12 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 	RefMan<Desc> desc;
 	desc = createDesc( attribname, *descpar, defstring, errmsgs );
 
-	if ( steeringpar )
-	{
-	    for ( int idx=0; idx<desc->nrInputs(); idx++ )
-	    {
-		BufferString inputstr = IOPar::compKey( "Input", idx );
-		if ( !strcmp(descpar->find(inputstr),"-1") )
-		{
-		    BufferString newinput = id;
-		    newinput = IOPar::compKey( newinput, inputstr );
-		    copypar.set( newinput, maxid + steeringdescid +1 );
-		}
-	    }
-	}
-
 	desc->updateParams();
 	addDesc( desc, DescID(id,true) );
     }
+    
+    ObjectSet<Desc> newsteeringdescs;
+    useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
 
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
 	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, true ) );
@@ -380,6 +357,45 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
     if ( !setAllInputDescs( nrdescsnosteer, copypar, errmsgs ) )
 	return false;
 
+    return true;
+}
+
+
+bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
+				 BufferStringSet* errmsgs )
+{
+    int maxid = 1024;
+    par.get( highestIDStr(), maxid );
+    for ( int id=0; id<=maxid; id++ )
+    {
+	const BufferString idstr( id );
+	PtrMan<IOPar> descpar = par.subselect(idstr);
+	if ( !descpar ) continue;
+					
+	int steeringdescid = -1;
+	const IOPar* steeringpar = descpar->subselect( "Steering" );
+	if ( steeringpar )
+	{
+	    const char* defstring = descpar->find( definitionStr() );
+	    if ( !defstring )
+		mHandleParseErr( "No attribute definition string specified" );
+	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
+				     steeringdescid) )
+	        mHandleParseErr( "Cannot create steering desc" );
+	    
+	    Desc* desc = getDesc( DescID(id,true) );
+	    for ( int idx=0; idx<desc->nrInputs(); idx++ )
+	    {
+		BufferString inputstr = IOPar::compKey( "Input", idx );
+		if ( !strcmp(descpar->find(inputstr),"-1") )
+		{
+		    BufferString newinput = id;
+		    newinput = IOPar::compKey( newinput, inputstr );
+		    par.set( newinput, maxid + steeringdescid +1 );
+		}
+	    }
+	}
+    }
     return true;
 }
 
