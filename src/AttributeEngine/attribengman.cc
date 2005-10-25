@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.38 2005-10-21 13:56:05 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.39 2005-10-25 07:36:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,9 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     DescID evalid = createEvaluateADS( attribset, ids, errmsg );
     proc_ = createProcessor( attribset, linename, evalid );
 
+    for ( int idx=1; idx<ids.size(); idx++ )
+	proc_->addOutputInterest(idx);
+    
     PtrMan<IOPar> outpar = iopar.subselect( IOPar::compKey("Output",1) );
     const char* bsres = outpar ? outpar->find( sKey::BinIDSel ) : 0;
     if ( !bsres || *bsres != 'N' )
