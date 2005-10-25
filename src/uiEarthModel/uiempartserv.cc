@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.70 2005-10-12 20:35:33 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.71 2005-10-25 09:23:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -412,7 +412,7 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
     for ( int idx=0; idx<em.nrLoadedObjects(); idx++ )
     {
 	mDynamicCastGet(EM::Horizon*,hor,em.getObject(em.objectID(idx)));
-	if ( hor ) hinfos += new SurfaceInfo( hor->name(), hor->id() );
+	if ( hor ) hinfos += new SurfaceInfo( hor->name(), hor->multiID() );
     }
 }
 
