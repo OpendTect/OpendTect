@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.33 2005-10-14 09:36:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.34 2005-10-25 08:37:50 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -401,51 +401,6 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 {
     BufferString steeringtype = steeringpar.find("Type");
     BufferString steeringdef = steeringtype;
-/*    steeringdef += " stepout=";
-    const char* stepoutstr = steeringpar.find( "Stepout" );
-    if ( stepoutstr )
-	steeringdef += stepoutstr;
-    else
-    {
-	BufferString pos0val;
-	BufferString stepoutval;
-	if ( Desc::getParamString(defstring,"stepout",stepoutval) )
-	{
-	    BinIDParam param("stepout");
-	    if ( stepoutval.size() == 1 )
-	    {
-		BufferString saveval = stepoutval;
-		stepoutval += ","; stepoutval += saveval;
-	    }
-
-	    param.setCompositeValue( stepoutval );
-	    BinID bid( param.getIntValue(0), param.getIntValue(1) );
-	    steeringdef += abs(bid.inl); steeringdef += ",";
-	    steeringdef += abs(bid.crl);
-	}
-	else if ( Desc::getParamString(defstring,"pos0",pos0val) )
-	{
-	    BufferString pos1val;
-	    Desc::getParamString( defstring, "pos1", pos1val );
-	    BinIDParam pos0("pos0");
-	    BinIDParam pos1("pos1");
-	    pos0.setCompositeValue(pos0val);
-	    pos1.setCompositeValue(pos1val);
-	    BinID pos0bid, pos1bid;
-	    pos0bid.inl = pos0.getIntValue(0);
-	    pos0bid.crl = pos0.getIntValue(1);
-	    pos1bid.inl = pos1.getIntValue(0);
-	    pos1bid.crl = pos1.getIntValue(1);
-	    
-	    int outputinl = mMAX( abs(pos0bid.inl), abs(pos1bid.inl) );
-	    int outputcrl = mMAX( abs(pos0bid.crl), abs(pos1bid.crl) );
-	    steeringdef += outputinl; steeringdef += ","; 
-	    steeringdef += outputcrl;
-	}
-	else
-	    steeringdef += "5,5";
-    }
-*/
     if ( steeringtype == "ConstantSteering" )
     {
 	steeringdef += " ";
