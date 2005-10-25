@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.98 2005-10-25 12:43:10 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.99 2005-10-25 12:44:35 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     	, iopl(*new IOParList(pl))
 	, avmachfld(0), usedmachfld(0)
 	, jrppolselfld(0), nicefld(0)
-	, tmpstordirfld(0), logvwer(0)
+	, tmpstordirfld(0), inlperjobfld(0), logvwer(0)
 	, progrfld(0) , progbar(0)
 	, jrpstartfld(0), jrpstopfld(0)
     	, jobprov(0), jobrunner(0)
@@ -101,7 +101,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 
     uiSeparator* sep = 0;
     uiObject* sepattach = 0;
-    bool attaligned = true;
+    uiObject* inlperjobattach = 0;
     if ( !is2d )
     {
 	BufferString tmpstordir = iopar.find( sKey::TmpStor );
@@ -116,9 +116,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	if ( isrestart )
 	{
 	    BufferString msg( sKey::TmpStor ); msg += ": ";
-	    msg += tmpstordir;
-	    sepattach = new uiLabel( this, msg );
-	    attaligned = false;
+	    uiLabel* tmpstorloc = new uiLabel( this, msg );
+
+	    inlperjobattach = new uiLabel( this, tmpstordir );
+	    inlperjobattach->attach( rightOf, tmpstorloc );
 	}
 	else
 	{
@@ -129,8 +130,15 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 		tmpstordirfld->setInput( tmpstordir );
 	    tmpstordirfld->selectDirectory( true );
 	    tmpstordirfld->stretchHor( true );
-	    sepattach = tmpstordirfld->mainObject();
+	    inlperjobattach = tmpstordirfld->mainObject();
 	}
+
+	inlperjobfld = new uiGenInput( this, "Nr inlines per job",
+				       IntInpSpec( defltNrInlPerJob(iopar) ) );
+
+	sepattach = inlperjobfld->mainObject();
+
+	inlperjobfld->attach( alignedBelow, inlperjobattach );
     }
 
     if ( sepattach )
@@ -140,9 +148,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     }
 
     uiGroup* machgrp = new uiGroup( this, "Machine handling" );
-    if ( !multihost )
-	attaligned = false;
-    else
+    if ( multihost )
     {
 	avmachfld = new uiLabeledListBox( machgrp, "Available hosts", true,
 					  uiLabeledListBox::AboveMid );
@@ -178,7 +184,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     {
 	stopbut->attach( alignedBelow, usedmachfld );
 	addbut = new uiPushButton( machgrp, ">> Add >>" );
-	if ( avmachfld ) addbut->attach( centeredRightOf, avmachfld );
+	if ( avmachfld )  addbut->attach( centeredRightOf, avmachfld );
 	usedmachgrp->attach( ensureRightOf, addbut );
 	machgrp->setHAlignObj( avmachfld );
     }
@@ -192,11 +198,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
 
     if ( sep )
-    {
-	if ( false && attaligned )
-	    machgrp->attach( alignedBelow, sepattach );
 	machgrp->attach( ensureBelow, sep );
-    }
 
     uiGroup* jrppolgrp = new uiGroup( this, "Job run policy group" );
 
@@ -278,10 +280,9 @@ void uiSeisMMProc::setNiceNess()
 }
 
 
+
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-#define mMMKey		"MultiMachine"
-#define mNrInlPerJobKey	"Nr inline per job"
 
 void uiSeisMMProc::startWork( CallBacker* )
 {
@@ -293,29 +294,23 @@ void uiSeisMMProc::startWork( CallBacker* )
 	    mErrRet("The temporary storage directory is not writable")
 	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
 	inpiopar.set( sKey::TmpStor, tmpstordir );
+	tmpstordirfld->setSensitive( false );
     }
 
     jobprov = new SeisJobExecProv( progname, inpiopar );
     if ( jobprov->errMsg() && *jobprov->errMsg() )
 	mErrRet(jobprov->errMsg())
 
-    static int nr_inl_job = -1;
-
-    if ( nr_inl_job < 0 )
+    int nr_inl_job = 1;
+    if ( inlperjobfld )
     {
-	IOPar* iopar = Settings::common().subselect( mMMKey );
-	if ( !iopar ) iopar = new IOPar;
-	bool insettings = iopar->get( mNrInlPerJobKey, nr_inl_job );
+	nr_inl_job = inlperjobfld->getIntValue();
+	if ( nr_inl_job < 1 ) nr_inl_job = 1;
+	if ( nr_inl_job > 100 ) nr_inl_job = 100;
+	inlperjobfld->setValue( nr_inl_job );
+	inlperjobfld->setSensitive( false );
+    }
 
-	if ( !insettings )
-	{
-	    nr_inl_job = 3;
-	    iopar->set( mNrInlPerJobKey, nr_inl_job );
-
-	    Settings::common().mergeComp( *iopar, mMMKey );
-	    Settings::common().write();
-	} 
-    } 
     mkJobRunner( nr_inl_job );
 
     iopl.deepErase();
@@ -329,6 +324,36 @@ void uiSeisMMProc::startWork( CallBacker* )
     timer = new Timer("uiSeisMMProc timer");
     timer->tick.notify( mCB(this,uiSeisMMProc,doCycle) );
     timer->start( 100, true );
+}
+
+#define mMMKey			"MultiMachine"
+#define mNrInlPerJobSettKey	"Nr inline per job"
+#define mNrInlPerJobProcKey	"Nr of Inlines per Job"
+
+int uiSeisMMProc::defltNrInlPerJob( const IOPar& inputpar )
+{
+    static int nr_inl_job = -1;
+
+    inputpar.get( mNrInlPerJobProcKey, nr_inl_job );
+
+    if ( nr_inl_job <= 0 )
+    {
+	IOPar* iopar = Settings::common().subselect( mMMKey );
+	if ( !iopar ) iopar = new IOPar;
+
+	bool insettings = iopar->get( mNrInlPerJobSettKey, nr_inl_job );
+
+	if ( !insettings )
+	{
+	    nr_inl_job = 3;
+	    iopar->set( mNrInlPerJobSettKey, nr_inl_job );
+
+	    Settings::common().mergeComp( *iopar, mMMKey );
+	    Settings::common().write();
+	} 
+    } 
+
+    return nr_inl_job;
 }
 
 
