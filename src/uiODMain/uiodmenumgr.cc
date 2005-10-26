@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.36 2005-10-12 12:22:06 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.37 2005-10-26 14:40:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.36 2005-10-12 12:22:06 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.37 2005-10-26 14:40:34 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -199,7 +199,9 @@ void uiODMenuMgr::fillFileMenu()
     manmnu = new uiPopupMenu( &appl, "&Manage");
     mInsertItem( manmnu, "&Seismics ...", mManSeisMnuItm );
     mInsertItem( manmnu, "&Horizons ...", mManHorMnuItm );
+#ifdef __debug__
     mInsertItem( manmnu, "&Faults ...", mManFaultMnuItm );
+#endif
 
     mInsertItem( manmnu, "&Wells ...", mManWellMnuItm );
     filemnu->insertItem( manmnu );
@@ -303,7 +305,9 @@ void uiODMenuMgr::fillManTB()
 {
     mAddTB(mantb,"man_seis.png","Manage seismic data",false,manSeis);
     mAddTB(mantb,"man_hor.png","Manage horizons",false,manHor);
+#ifdef __debug__
     mAddTB(mantb,"man_flt.png","Manage faults",false,manFlt);
+#endif
     mAddTB(mantb,"man_wll.png","Manage well data",false,manWll);
 }
 
