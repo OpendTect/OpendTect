@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.36 2005-10-25 02:39:07 cvsduntao Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.37 2005-10-26 21:58:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ int Wizard::defcolnr = 0;
 
 const int Wizard::sNamePage		= 0;
 const int Wizard::sSeedSetupPage	= 1;
-const int Wizard::sFinalizePage	= 2;
+const int Wizard::sFinalizePage		= 2;
 
 
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
@@ -57,11 +57,14 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , ioparentrycreated(false)
     , ispicking(false)
     , typefld( 0 )
+    , anotherfld( 0 )
 {
     objselgrp = createNamePage();
     addPage( objselgrp );
     addPage( createSeedSetupPage() );
-    addPage( createFinalizePage() );
+#ifdef __debug__
+    //addPage( createFinalizePage() );
+#endif
 
     seedbox.setEmpty();
     setHelpID( "108.0.0" );
@@ -260,6 +263,9 @@ bool Wizard::prepareSeedSetupPage()
     allowpicking = true;
     updatePickingStatus();
 
+    if ( currentPageIdx()==lastPage() )
+	setRotateMode(false);
+
     emobj->notifier.notify( mCB(this,Wizard,emObjectChange) );
     emObjectChange(0);
     initialhistorynr = EM::EMM().history().currentEventNr();
@@ -284,6 +290,9 @@ bool Wizard::leaveSeedSetupPage( bool process )
     if ( !setupgrp->isSetToValidSetup() )
 	mErrRet( "Please select Tracking Setup" );
 
+    if ( currentPageIdx()==lastPage() )
+	return finalizeCycle();
+
     return true;
 }
 
@@ -303,17 +312,25 @@ bool Wizard::leaveFinalizePage(bool process)
     if ( anotherfld->getBoolValue() )
 	setTrackingType( typefld ? typefld->text() : (const char*)trackertype );
 
-    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
-    PtrMan<Executor> saver = emobj->saver();
+    return finalizeCycle();
+}
 
-    if ( saver ) saver->execute();
+
+bool Wizard::finalizeCycle()
+{
+    if ( objectcreated )
+    {
+	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
+	PtrMan<Executor> saver = emobj->saver();
+
+	if ( saver ) saver->execute();
+	adjustSeedBox();
+    }
 
     EM::History& history = EM::EMM().history();
     const int cureventnr = history.currentEventNr();
     if ( cureventnr>=history.firstEventNr() )
 	history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
-
-    adjustSeedBox();
 
     return true;
 }
