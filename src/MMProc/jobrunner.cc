@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.30 2005-10-26 14:16:06 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.31 2005-10-26 14:38:36 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,8 +161,7 @@ JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
     
     static int timestamp = -1;
 
-    int elapsed = timestamp > 0 ? Time_getMilliSeconds() - timestamp : -1;
-    if ( elapsed < 0 && timestamp > 0 ) elapsed += 86486400;
+    int elapsed = Time_passedSince( timestamp );
     if ( elapsed < 0 ) timestamp = Time_getMilliSeconds();
 
     if ( elapsed < startwaittime_ ) return NotReady; 
@@ -457,7 +456,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
     if ( totltim <= 0 && !hfi->nrsucces_ )
     {
 	BufferString msg( "Time since start (" );
-	msg += totltim; msg += ") < 0 for ";
+	msg += totltim; msg += ") <= 0 for ";
 
 	msg += hfi->hostdata_.name();
 	msg += "\n nrfail: "; msg += hfi->nrfailures_;
@@ -469,9 +468,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	return HostFailed; 
     }
 
-    int lastsuctim = hfi->lastsuccess_ ?
-			    Time_getMilliSeconds() - hfi->lastsuccess_ : -1; 
-    if ( lastsuctim < 0 && hfi->lastsuccess_ ) lastsuctim += 86486400;
+    int lastsuctim = Time_passedSince( hfi->lastsuccess_ );
 
     if ( lastsuctim < 0 )  return HostFailed;
     
