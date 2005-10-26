@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.52 2005-10-18 19:26:14 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.53 2005-10-26 13:45:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , readfilltype( false )
     , isinited( false )
 {
+    BufferString exnm = "Reading surface '"; exnm += ioobj.name(); exnm += "'";
+    setName( exnm );
     setNrDoneText( "Nr done" );
     auxdataexecs.allowNull(true);
     if ( !conn || !conn->forRead()  )
