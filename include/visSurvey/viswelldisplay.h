@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.25 2005-10-24 15:17:25 cvshelene Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.26 2005-10-26 08:02:59 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -27,8 +27,6 @@ class LineStyle;
 template <class T> class Interval;
 
 namespace visBase { class Well; class Transformation; };
-
-using namespace visBase;
 
 namespace visSurvey
 {
@@ -83,9 +81,9 @@ public:
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
-    void			setDisplayTransformation(Transformation*);
-    visBase::Transformation*	getDisplayTransformation();
-    void 			setDisplayTransformForPicks(Transformation*);
+    void			setDisplayTransformation(mVisTrans*);
+    mVisTrans*			getDisplayTransformation();
+    void 			setDisplayTransformForPicks(mVisTrans*);
 
     void                        setSceneEventCatcher(visBase::EventCatcher*);
     void 			addPick(const Coord3&);
@@ -100,7 +98,7 @@ public:
 protected:
 
     virtual			~WellDisplay();
-    void			setWell(Well*);
+    void			setWell(visBase::Well*);
     void			updateMarkers(CallBacker*);
     void			fullRedraw(CallBacker*);
 
@@ -119,9 +117,9 @@ protected:
     bool			log1logsc_;
     bool			log2logsc_;
 
-    DataObjectGroup*   		group_;
-    EventCatcher*      		eventcatcher_;
-    Transformation*    		transformation_;
+    visBase::DataObjectGroup*	group_;
+    visBase::EventCatcher*	eventcatcher_;
+    mVisTrans*			transformation_;
     Notifier<WellDisplay>	changed_;
 
     int                         mousepressid_;
