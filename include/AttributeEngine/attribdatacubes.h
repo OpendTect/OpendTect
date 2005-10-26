@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.2 2005-10-24 22:12:57 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.3 2005-10-26 07:46:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ public:
 				    float val = getCube(idx).get(inlidx,crlidx,
 				    				  zidx);
 				    \endcode */
+    int				getInlSz() 		{ return inlsz; }
+    int				getCrlSz() 		{ return crlsz; }
+    int				getZSz() 		{ return zsz; }
 
     SamplingData<int>		inlsampling;
     SamplingData<int>		crlsampling;
