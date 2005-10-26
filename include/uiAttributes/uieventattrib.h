@@ -7,14 +7,15 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2005
- RCS:           $Id: uieventattrib.h,v 1.1 2005-05-31 12:35:24 cvsnanne Exp $
+ RCS:           $Id: uieventattrib.h,v 1.2 2005-10-26 08:00:12 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
 
 #include "uiattrdesced.h"
 
-namespace Attrib { class Attrib; };
+namespace Attrib { class Desc; }
+
 class uiAttrSel;
 class uiGenInput;
 
