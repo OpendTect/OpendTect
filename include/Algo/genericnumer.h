@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.15 2005-08-25 08:38:57 cvsduntao Exp $
+ RCS:           $Id: genericnumer.h,v 1.16 2005-10-26 22:07:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -147,5 +147,19 @@ mUndefValue is returned;
 
 float findExtreme( const FloatMathFunction&, bool minima, float x1, float x2,
 		   float tol = 1e-5);
+
+
+template <class A, class B> inline
+void reSample( const FloatMathFunction& input, const A& samplevals,
+	       B& output, int nrsamples )
+{
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	const float sampleval = samplevals[idx];
+	output[idx] = Values::isUdf(sampleval) ? mUdf(float) :
+	    	      input.getValue(sampleval);
+    }
+}
+
 
 #endif

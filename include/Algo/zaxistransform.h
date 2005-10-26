@@ -6,16 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.5 2005-10-21 07:53:21 cvsnanne Exp $
+ RCS:           $Id: zaxistransform.h,v 1.6 2005-10-26 22:07:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
+#include "position.h"
 #include "ranges.h"
 #include "refcount.h"
+#include "samplingdata.h"
 
-class BinIDValue;
 class Coord3;
 class CubeSampling;
 
@@ -49,6 +50,25 @@ public:
 				     or from domain. */
 
     NotifierAccess*		changeNotifier() { return 0; }
+};
+
+
+class ZAxisTransformSampler
+{
+public:
+    				ZAxisTransformSampler( const ZAxisTransform&,
+				   bool back, const BinID& bid,
+				   const SamplingData<double>& );
+    virtual			~ZAxisTransformSampler();
+    void			setBinID( const BinID& nbid ) { bid=nbid; }
+
+    float			operator[](int idx) const;
+
+protected:
+    const ZAxisTransform&	transform;
+    bool			back;
+    BinID			bid;
+    const SamplingData<double>	sd;
 };
 
 
