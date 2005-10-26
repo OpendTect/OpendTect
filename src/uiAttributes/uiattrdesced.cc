@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.8 2005-10-05 13:09:42 cvshelene Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.9 2005-10-26 11:00:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,9 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 
 void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 {
+    if ( inp >= desc.nrInputs() )
+	return;
+
     fld->processInput();
     const DescID attribid = fld->attribID();
 
@@ -80,6 +83,9 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 
 void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 {
+    if ( inp >= desc.nrInputs() )
+	return;
+
     const DescID descid = fld->descID();
     const Attrib::Desc* inpdesc = desc.getInput( inp );
     if ( inpdesc )
@@ -97,6 +103,9 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 
 void uiAttrDescEd::fillInp( uiSteerCubeSel* fld, Attrib::Desc& desc, int inp )
 {
+    if ( inp >= desc.nrInputs() )
+	return;
+
     fld->processInput();
     const DescID inlid = fld->inlDipID();
     const Attrib::Desc* inpdesc = desc.getInput( inp );
