@@ -4,17 +4,20 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.88 2005-10-07 15:31:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.89 2005-10-26 22:04:43 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
 #include "attribsel.h"
 #include "cubesampling.h"
 #include "attribslice.h"
+#include "attribdatacubes.h"
+#include "arrayndslice.h"
 #include "vistexturerect.h"
 #include "arrayndimpl.h"
 #include "position.h"
 #include "survinfo.h"
+#include "samplfunc.h"
 #include "visselman.h"
 #include "visdataman.h"
 #include "visrectangle.h"
@@ -26,6 +29,8 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.88 2005-10-07 15:31:
 #include "vistransmgr.h"
 #include "iopar.h"
 #include "colortab.h"
+#include "zaxistransform.h"
+#include "genericnumer.h"
 #include <math.h>
 
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
@@ -46,6 +51,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , moving(this)
     , curicstep(SI().inlStep(),SI().crlStep())
     , curzstep(SI().zStep())
+    , datatransform( 0 )
 {
     setTextureRect( visBase::TextureRect::create() );
 
@@ -558,6 +564,32 @@ bool PlaneDataDisplay::setDataVolume( bool colordata,
 }
 
 
+bool PlaneDataDisplay::setDataVolume( bool colordata, 
+				      const Attrib::DataCubes* datacubes )
+{
+    if ( colordata )
+    {
+	Interval<float> cliprate( colas.cliprate0, colas.cliprate1 );
+	trect->setColorPars( colas.reverse, colas.useclip, 
+			     colas.useclip ? cliprate : colas.range );
+    }
+
+    setData( datacubes, colordata ? colas.datatype : 0 );
+    if ( colordata )
+    {
+	if ( colcache ) colcache->unRef();
+	//colcache = datacubes;
+	colcache->ref();
+	return true;
+    }
+
+    if ( cache ) cache->unRef();
+    //cache = datacubes;
+    cache->ref();
+    return true;
+}
+
+
 void PlaneDataDisplay::setData( const Attrib::SliceSet* sliceset, int datatype )
 {
     trect->removeAllTextures( true );
@@ -578,6 +610,90 @@ void PlaneDataDisplay::setData( const Attrib::SliceSet* sliceset, int datatype )
 	PtrMan< Array2D<float> > datacube = createArray( sliceset, slcidx );
 	trect->setData( datacube, slcidx, datatype );
     }
+
+    trect->finishTextures();
+    trect->showTexture( 0 );
+    trect->useTexture( true );
+}
+
+
+void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
+				int datatype )
+{
+    trect->removeAllTextures( true );
+    if ( !datacubes )
+    {
+	trect->setData( 0, 0, 0 );
+	trect->useTexture( false );
+	return;
+    }
+
+    int unuseddim;
+    if ( type==Inline )
+	unuseddim = Attrib::DataCubes::cInlDim();
+    else if ( type==Crossline )
+	unuseddim = Attrib::DataCubes::cCrlDim();
+    else
+	unuseddim = Attrib::DataCubes::cZDim();
+
+    const int nrcubes = datacubes->nrCubes();
+    for ( int idx=0; idx<nrcubes; idx++ )
+    {
+	PtrMan<Array3D<float> > tmparray = 0;
+	const Array3D<float>* usedarray = 0;
+	if ( !datatransform )
+	    usedarray = &datacubes->getCube(idx);
+	else
+	{
+	    const CubeSampling cs = getCubeSampling();
+
+	    ZAxisTransformSampler outpsampler( *datatransform, true, BinID(0,0),
+		    	SamplingData<double>(cs.zrg.start, cs.zrg.stop));
+	    const Array3D<float>& srcarray = datacubes->getCube( idx );
+	    const Array3DInfo& info = srcarray.info();
+	    const int inlsz = info.getSize( Attrib::DataCubes::cInlDim() );
+	    const int crlsz = info.getSize( Attrib::DataCubes::cCrlDim() );
+	    const int zsz = cs.zrg.nrSteps()+1;
+	    tmparray = new Array3DImpl<float>( inlsz, crlsz, zsz );
+	    usedarray = tmparray;
+
+	    for ( int inlidx=0; inlidx<inlsz; inlidx++ )
+	    {
+		for ( int crlidx=0; crlidx<crlsz; crlidx++ )
+		{
+		    const BinID bid( datacubes->inlsampling.atIndex(inlidx),
+			   	     datacubes->crlsampling.atIndex(crlidx) );
+		    outpsampler.setBinID( bid );
+
+		    const float* inputptr = srcarray.getData() +
+					    info.getMemPos(inlidx,crlidx,0);
+		    float* outputptr = tmparray->getData() +
+				    tmparray->info().getMemPos(inlidx,crlidx,0);
+
+		    const SampledFunctionImpl<float,const float*> inputfunc( inputptr,
+			    info.getSize(Attrib::DataCubes::cZDim()),
+			    datacubes->z0*datacubes->zstep,
+			    datacubes->zstep );
+
+		    reSample( inputfunc, outpsampler, outputptr, zsz );
+		}
+	    }
+	}
+
+	if ( idx ) trect->addTexture();
+
+	Array2DSlice<float> slice(*usedarray);
+	slice.setPos( unuseddim, 0 );
+	if ( !slice.init() )
+	{
+	    trect->removeAllTextures( true );
+	    return;
+	} 
+
+	trect->setData( &slice, idx, datatype );
+    }
+
+    checkCubeSampling( datacubes->cubeSampling() );
 
     trect->finishTextures();
     trect->showTexture( 0 );

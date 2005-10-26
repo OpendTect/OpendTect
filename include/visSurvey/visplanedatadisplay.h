@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.58 2005-10-07 15:32:00 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.59 2005-10-26 22:04:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class CubeSampling;
 template <class T> class Array2D;
 
 namespace visBase { class TextureRect; class VisColorTab; };
-namespace Attrib { class SelSpec; class SliceSet; class ColorSelSpec; }
+namespace Attrib { class SelSpec; class SliceSet; class ColorSelSpec; class DataCubes; }
 
 namespace visSurvey
 {
@@ -100,7 +100,8 @@ public:
     CubeSampling		getCubeSampling() const;
     void			setCubeSampling(CubeSampling);
     bool			setDataVolume(bool color,Attrib::SliceSet*);
-    				/*!< Becomes mine */
+    bool			setDataVolume( bool color,
+	    				       const Attrib::DataCubes* );
     const Attrib::SliceSet*	getCacheVolume(bool color) const;
    
     bool			canHaveMultipleTextures() const { return true; }
@@ -130,6 +131,7 @@ protected:
     void			setUpConnections();
     void			setTextureRect(visBase::TextureRect*);
     void			setData(const Attrib::SliceSet*,int datatype=0);
+    void			setData(const Attrib::DataCubes*, int datatype);
     Array2D<float>*		createArray(const Attrib::SliceSet*,int) const;
     void			zScaleChanged(CallBacker*);
     void			manipChanged(CallBacker*);
@@ -148,6 +150,7 @@ protected:
 
     BinID			curicstep;
     float			curzstep;
+    ZAxisTransform*		datatransform;
 
     static const char*		trectstr;
     Notifier<PlaneDataDisplay>	manipulating;

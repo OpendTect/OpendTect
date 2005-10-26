@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.26 2005-10-19 21:09:02 cvskris Exp $
+ RCS:           $Id: uimpeman.h,v 1.27 2005-10-26 22:04:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,7 @@ protected:
 
     uiSpinBox*			nrstepsbox;
 
-    void			cubeDeselCB(CallBacker*);
-    void			cubeSelectCB(CallBacker*);
+    void			boxDraggerStatusChangeCB(CallBacker*);
     void			showCubeCB(CallBacker*);
 
     void			attribSel(CallBacker*);

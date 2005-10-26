@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.26 2005-10-21 21:49:37 cvskris Exp $
+ RCS:		$Id: vismpe.h,v 1.27 2005-10-26 22:04:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,11 +50,9 @@ public:
     bool			isInlCrl() const	{ return true; }
 
     bool			isOn() const;
-    bool			isManipulated() const	{ return manipulated_; }
-    void			acceptManipulation()	{ manipulated_=false; }
     void			updateMPEActiveVolume();
-    void			showManipulator(bool);
-    bool			isManipulatorShown() const;
+    void			showBoxDragger(bool);
+    bool			isBoxDraggerShown() const;
     void			setDraggerTransparency(float);
     float			getDraggerTransparency() const;
     void			showDragger(bool);
@@ -74,6 +72,7 @@ public:
     void			updateTexture();
 
     NotifierAccess*		getMovementNotification() { return  &movement; }
+    Notifier<MPEDisplay>	boxDraggerStatusChange;
     
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar( const IOPar&);

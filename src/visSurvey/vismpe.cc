@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.34 2005-10-21 21:46:04 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.35 2005-10-26 22:04:43 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -50,6 +50,7 @@ MPEDisplay::MPEDisplay()
     , texture_(0)
     , manipulated_(false)
     , movement( this )
+    , boxDraggerStatusChange( this )
 {
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->ref();
@@ -364,12 +365,13 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 }
 
 
-void MPEDisplay::showManipulator( bool yn )
+void MPEDisplay::showBoxDragger( bool yn )
 {
     if ( yn==boxdragger_->isOn() )
 	return;
 
     boxdragger_->turnOn( yn );
+    boxDraggerStatusChange.trigger();
 }
 
 
@@ -379,6 +381,7 @@ void MPEDisplay::updateMPEActiveVolume()
     {
 	const CubeSampling newcube = getBoxPosition();
 	engine_.setActiveVolume( newcube );
+	manipulated_ = false;
     }
 }
 
@@ -386,11 +389,11 @@ void MPEDisplay::updateMPEActiveVolume()
 bool MPEDisplay::isOn() const
 {
     return visBase::VisualObjectImpl::isOn() &&
-	( isManipulatorShown() || isDraggerShown() );
+	( isBoxDraggerShown() || isDraggerShown() );
 }
 
 
-bool MPEDisplay::isManipulatorShown() const
+bool MPEDisplay::isBoxDraggerShown() const
 { return boxdragger_->isOn(); }
 
 
@@ -502,11 +505,9 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
     if ( eventinfo.type != visBase::MouseClick )
 	return;
 
-    if ( eventinfo.pickedobjids.indexOf(id())==-1 )
-	return;
-
     if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
-	    eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt )
+	 eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
+	 eventinfo.pickedobjids.indexOf(id())!=-1 )
     {
 	if ( eventinfo.pressed )
 	{
@@ -522,6 +523,14 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    movement.trigger();
 	}
 
+	sceneeventcatcher_->eventIsHandled();
+    }
+    else if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() &&
+	     !eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
+	     isBoxDraggerShown() &&
+	     eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
+    {
+	showBoxDragger( false );
 	sceneeventcatcher_->eventIsHandled();
     }
 }

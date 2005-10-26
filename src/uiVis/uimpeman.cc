@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.66 2005-10-21 21:50:38 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.67 2005-10-26 22:04:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,8 +175,8 @@ void uiMPEMan::deleteVisObjects()
 	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx]);
 	if ( mped )
 	{
-	    mped->deSelection()->remove( mCB(this,uiMPEMan,cubeDeselCB) );
-	    mped->selection()->remove( mCB(this,uiMPEMan,cubeSelectCB) );
+	    mped->boxDraggerStatusChange.remove(
+		mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
 	    visserv->removeObject(mped->id(),scenes[idx]);
 	}
     }
@@ -315,8 +315,8 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
     mpedisplay->setDraggerTransparency( transfld->getValue() );
     mpedisplay->showDragger( isOn(extendidx) );
 
-    mpedisplay->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
-    mpedisplay->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
+    mpedisplay->boxDraggerStatusChange.notify(
+	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
 
     return mpedisplay;
 }
@@ -432,25 +432,21 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 }
 
 
-void uiMPEMan::cubeSelectCB( CallBacker* )
-{
-    turnOn( showcubeidx, true );
-}
-
-
-void uiMPEMan::cubeDeselCB( CallBacker* cb )
+void uiMPEMan::boxDraggerStatusChangeCB( CallBacker* cb )
 {
     mGetDisplays(false);
+    bool ison = false;
     for ( int idx=0; idx<displays.size(); idx++ )
     {
-	if ( cb==displays[idx] )
-	    displays[idx]->updateMPEActiveVolume();
+	if ( cb!=displays[idx] )
+	    continue;
 
-	if ( displays[idx]->isManipulated() )
-	    displays[idx]->acceptManipulation();
+	ison = displays[idx]->isBoxDraggerShown();
+	if ( !ison )
+	    displays[idx]->updateMPEActiveVolume();
     }
 
-    turnOn( showcubeidx, false );
+    turnOn( showcubeidx, ison );
 }
 
 
@@ -459,12 +455,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
     const bool isshown = isOn( showcubeidx );
     mGetDisplays(isshown)
     for ( int idx=0; idx<displays.size(); idx++ )
-    {
-	if ( isshown )
-	    displays[idx]->select();
-	else
-	    displays[idx]->deSelect();
-    }
+	displays[idx]->showBoxDragger( isshown );
 
     setToolTip( showcubeidx, isshown ? "Show trackingarea"
 	    			     : "Hide trackingarea" );
@@ -673,10 +664,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
 {
     mGetDisplays(false);
     for ( int idx=0; idx<displays.size(); idx++ )
-    {
-	if ( displays[idx]->isSelected() )
-	    displays[idx]->deSelect();
-    }
+	displays[idx]->updateMPEActiveVolume();
 
     const bool ison = isOn( seedidx );
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
@@ -782,8 +770,8 @@ void uiMPEMan::initFromDisplay()
     mGetDisplays(false)
     for ( int idx=0; idx<displays.size(); idx++ )
     {
-	displays[idx]->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
-	displays[idx]->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
+	displays[idx]->boxDraggerStatusChange.notify(
+		mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
 
 	if ( idx==0 )
 	{
