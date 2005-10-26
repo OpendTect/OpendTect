@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.13 2005-10-12 13:00:14 cvsarend Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.14 2005-10-26 14:16:06 cvsarend Exp $";
 
 #include "timefun.h"
 #include <time.h>
@@ -84,7 +84,8 @@ int Time_getMilliSeconds( void )
 int Time_passedSince( int timestamp )
 {
     int elapsed = timestamp > 0 ? Time_getMilliSeconds() - timestamp : -1;
-    if ( elapsed < 0 && timestamp > 0 ) elapsed += 86486400;
+    if ( elapsed < 0 && timestamp > 0 && (elapsed + 86486400 < 86400000) )
+	elapsed += 86486400;
 
     return elapsed;
 } 

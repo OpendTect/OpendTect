@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.29 2005-10-21 09:58:38 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.30 2005-10-26 14:16:06 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -449,8 +449,7 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 
     if ( hfi->nrfailures_ <= maxhostfailures_ ) return SomeFailed;
 
-    int totltim = hfi->starttime_ ? Time_getMilliSeconds()-hfi->starttime_ : -1;
-    if ( totltim < 0 && hfi->starttime_ ) totltim += 86486400;
+    int totltim = Time_passedSince( hfi->starttime_ );
 	    
     if ( totltim > 0 && totltim <= hosttimeout_ ) // default: 10 mins.
 	return SomeFailed;
