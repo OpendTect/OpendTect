@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.11 2005-09-02 14:21:35 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.12 2005-10-27 14:16:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,10 +118,20 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     const int shift = z0 - inputdata->z0_;
     Masker masker( inputdata, shift, 0, dataidx_ );
     float avg=0;
+    int nrsampleused = nrsamples;
     for ( int idx=0; idx<nrsamples; idx++ )
-	avg += masker[idx];
+    {
+	float val  = masker[idx];
+	if ( mIsUdf(val) )
+	{
+	    avg += 0;
+	    nrsampleused--;
+	}
+	else
+	    avg += val;
+    }
 
-    masker.avg_ = avg / nrsamples;
+    masker.avg_ = avg / nrsampleused;
     float* outp = output.series(0)->arr();
     GenericConvolve( hilbfilterlen, -halflen, hilbfilter, nrsamples,
 		     0, masker, nrsamples, 0, outp );
