@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.23 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.24 2005-10-27 15:04:44 cvsnanne Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -26,6 +26,24 @@ static double getNextVal( char*& str )
 bool PickLocation::fromString( const char* s, bool doxy )
 {
     if ( !s || !*s ) return false;
+
+    if ( *s == '"' )
+    {
+	s++;
+	text = new BufferString( s );
+	char* start = text->buf();
+	char* stop = strchr( start, '"' );
+	if ( !stop )
+	{
+	    delete text;
+	    text = 0;
+	}
+	else
+	{
+	    *stop = '\0';
+	    s += stop - start + 1;
+	}
+    }
 
     BufferString bufstr( s );
     char* str = bufstr.buf();
@@ -67,7 +85,15 @@ bool PickLocation::fromString( const char* s, bool doxy )
 
 void PickLocation::toString( char* str )
 {
-			 strcpy( str, getStringFromDouble(0,pos.x) );
+    if ( text )
+    {
+	strcpy( str, text->buf() );
+	strcat( str, "\t" );
+	strcat( str, getStringFromDouble(0,pos.x) );
+    }
+    else
+	strcpy( str, getStringFromDouble(0,pos.x) );
+
     strcat( str, "\t" ); strcat( str, getStringFromDouble(0,pos.y) );
     strcat( str, "\t" ); strcat( str, getStringFromFloat(0,z) );
 
@@ -77,6 +103,23 @@ void PickLocation::toString( char* str )
 	strcat( str, "\t" ); strcat( str, getStringFromDouble(0,dir.theta) );
 	strcat( str, "\t" ); strcat( str, getStringFromDouble(0,dir.phi) );
     }
+}
+
+
+void PickLocation::getKey( const char* idkey, BufferString& val ) const
+{
+    if ( !text )
+    {
+	val = "";
+	return;
+    }
+
+    val = text->buf();
+    char* start = strchr( val.buf(), idkey[0] );
+    start++;
+ 
+    char* stop = strchr( start, '\'' );
+    *stop = '\0';
 }
 
 

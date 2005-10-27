@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.11 2005-07-27 09:23:35 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.12 2005-10-27 15:04:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,34 +24,37 @@ ________________________________________________________________________
 class PickLocation
 {
 public:
-		PickLocation( double x=0, double y=0, float f=0 )
-		: pos(x,y), z(f)			{}
-		PickLocation( const Coord& c, float f=0 )
-		: pos(c), z(f)				{}
-		PickLocation( const Coord3& c )
-		: pos(c.x,c.y), z(c.z)			{}
-		PickLocation( const Coord3& c, const Coord3& d )
-		: pos(c.x,c.y), z(c.z), dir(d)		{}
-		PickLocation( const Coord3& c, const Sphere& d )
-		: pos(c.x,c.y), z(c.z), dir(d)		{}
+			PickLocation( double x=0, double y=0, float f=0 )
+			: pos(x,y), z(f), text(0)			{}
+			PickLocation( const Coord& c, float f=0 )
+			: pos(c), z(f), text(0)				{}
+			PickLocation( const Coord3& c )
+			: pos(c.x,c.y), z(c.z), text(0)			{}
+			PickLocation( const Coord3& c, const Coord3& d )
+			: pos(c.x,c.y), z(c.z), dir(d), text(0)		{}
+			PickLocation( const Coord3& c, const Sphere& d )
+			: pos(c.x,c.y), z(c.z), dir(d), text(0)		{}
 
-    inline bool	operator ==( const PickLocation& pl ) const
-		{ return pos == pl.pos && mIsEqual(z,pl.z,mDefEps); }
-    inline bool	operator !=( const PickLocation& pl ) const
-		{ return !(*this == pl); }
+    inline bool		operator ==( const PickLocation& pl ) const
+			{ return pos == pl.pos && mIsEqual(z,pl.z,mDefEps); }
+    inline bool		operator !=( const PickLocation& pl ) const
+			{ return !(*this == pl); }
 
-    bool	fromString(const char*,bool doxy=true);
-    void	toString(char*);
+    bool		fromString(const char*,bool doxy=true);
+    void		toString(char*);
 
-    Coord	pos;
-    float	z;
+    Coord		pos;
+    float		z;
 
-    Sphere	dir; //!< Optional direction at location
+    Sphere		dir; //!< Optional direction at location
+    BufferString*	text; //!<Optional text at location
 
-    inline bool	hasDir() const
-    		{ return !mIsZero(dir.radius,mDefEps)
-		      || !mIsZero(dir.theta,mDefEps)
-		      || !mIsZero(dir.phi,mDefEps); }
+    inline bool		hasDir() const
+    			{ return !mIsZero(dir.radius,mDefEps)
+			      || !mIsZero(dir.theta,mDefEps)
+			      || !mIsZero(dir.phi,mDefEps); }
+	
+    void		getKey(const char* key,BufferString&) const;
 };
 
 
