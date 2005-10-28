@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.13 2005-10-20 13:58:50 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.14 2005-10-28 15:09:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 
 class CubeSampling;
+class SeisSelData;
 template <class T> class Interval;
 
 namespace Attrib
@@ -65,6 +66,7 @@ protected:
     bool		isinited;
 
     BinID		prevbid_;
+    SeisSelData*	sd_;
 };
 
 

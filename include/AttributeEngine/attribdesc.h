@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.22 2005-10-14 09:35:24 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.23 2005-10-28 15:09:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ public:
     Desc*		getInput(int);
     const Desc*		getInput(int) const;
     bool		is2D() const;
+    void		set2d(bool);
 
     enum SatisfyLevel	{ AllOk, Warning, Error };
     SatisfyLevel	isSatisfied() const;
@@ -128,6 +129,8 @@ public:
     static bool		getAttribName(const char* defstr,BufferString&);
     static bool		getParamString(const char* defstr,const char* key,
 				       BufferString&);
+
+    Desc*		getStoredInput() const;
     
     static const char*  steeringinldipcompname;
     static const char*  steeringcrldipcompname;
@@ -138,6 +141,8 @@ protected:
     TypeSet<int>		outputtypelinks;
     bool			issteering;
     bool			hidden_;
+    bool 			is2d;
+    bool 			is2dset;
 
     TypeSet<InputSpec>		inputspecs;
     ObjectSet<Desc>		inputs;

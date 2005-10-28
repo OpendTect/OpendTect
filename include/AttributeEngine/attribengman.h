@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.16 2005-10-20 13:58:50 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.17 2005-10-28 15:09:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     int			getNrOutputsToBeProcessed() const; 
 
     const char*		getCurUserRef() const;
+    void		computeIntersect2D(ObjectSet<BinIDValueSet>&) const;
 
 protected:
 

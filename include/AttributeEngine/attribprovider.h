@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.26 2005-10-24 15:15:14 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.27 2005-10-28 15:09:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ public:
     void			setCurLineKey( const char* linename ); 
     virtual void		adjust2DLineStoredVolume();
     
-    virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1));
+    virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
+	    					bool firstcheck = false);
     				/*!<\retval -1	something went wrong
 				    \retval  0  finished, no more positions
 				    \retval  1	arrived at new position
@@ -93,7 +94,8 @@ public:
 
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all=false);
-    void			setSelData(const SeisSelData&);
+    void			setSelData(const SeisSelData*);
+    void                        setExtraZ(const Interval<float>&);
     float                       getRefStep() const; 
     void			computeRefZStep(const ObjectSet<Provider>&);
     void			propagateZRefStep( const ObjectSet<Provider>& );
@@ -167,7 +169,8 @@ protected:
     DataHolderLineBuffer*	linebuffer;
     BinID			currentbid;
     LineKey			curlinekey_;
-    SeisSelData&		seldata_;
+    const SeisSelData*		seldata_;
+    Interval<float>     	extraz_;
     const SeisTrcInfo*		curtrcinfo_;
 
     float                       refstep;
