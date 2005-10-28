@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.39 2005-10-25 07:36:54 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.40 2005-10-28 15:08:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
+#include "seis2dline.h"
+#include "binidvalset.h"
 
 
 
@@ -634,6 +636,8 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
     ObjectSet<BinIDValueSet>& bvs = 
 	const_cast<ObjectSet<BinIDValueSet>&>(bivsets);
+
+    aem.computeIntersect2D(bvs);
     proc = aem.createLocationOutput( errmsg, bvs );
 }
 
@@ -674,6 +678,81 @@ Executor* EngineMan::createFeatureOutput( const BufferStringSet& inputs,
 				    const ObjectSet<BinIDValueSet>& bivsets )
 {
     return new AEMFeatureExtracter( *this, inputs, bivsets );
+}
+
+
+void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
+{
+    if ( !inpattrset || !attrspecs_.size() )
+	return;
+
+    if ( !inpattrset->is2D() )
+	return;
+
+    Desc* storeddesc;
+    for ( int idx=0; idx<attrspecs_.size(); idx++ )
+    {
+	const Desc* desc = inpattrset->getDesc( attrspecs_[idx].id() );
+	if ( !desc ) continue;
+	if ( desc->isStored() )
+	{
+	    storeddesc = const_cast<Desc*>(desc);
+	    break;
+	}
+	else
+	{
+	    Desc* candidate = desc->getStoredInput();
+	    if ( candidate )
+	    {
+		storeddesc = candidate;
+		break;
+	    }
+	}
+    }
+
+    const LineKey lk( storeddesc->getValParam(
+			StorageProvider::keyStr())->getStringValue(0) );
+
+    const MultiID key( lk.lineName() );
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    if ( !ioobj ) return;
+    const Seis2DLineSet lset(ioobj->fullUserExpr(true));
+
+    ObjectSet<BinIDValueSet> newbivsets;
+    for ( int idx=0; idx<bivsets.size(); idx++ )
+	newbivsets += new BinIDValueSet(bivsets[idx]->nrVals(), true);
+    
+    for ( int idx=0; idx<lset.nrLines(); idx++ )
+    {
+	if ( strcmp( lset.attribute(idx), "Seis" ) ) continue;
+	Line2DGeometry linegeom;
+	if ( !lset.getGeometry( idx,linegeom ) ) return;
+	BinID prevbid(-1,-1);
+	for ( int idy=0; idy<linegeom.posns.size(); idy++ )
+	{
+	    BinID bid = SI().transform( linegeom.posns[idy].coord );
+	    if ( bid == prevbid ) continue;
+	    prevbid = bid;
+	    for ( int idz=0; idz<bivsets.size(); idz++ )
+	    {
+		if ( bivsets[idz]->includes(bid) )
+		{
+		    BinIDValueSet::Pos pos = bivsets[idz]->findFirst(bid);
+
+		    while ( true )
+		    {
+			BinIDValues bidvalues;
+			bivsets[idz]->get(pos,bidvalues);
+			newbivsets[idz]->add(bidvalues);
+			bivsets[idz]->next( pos );
+			if ( bid != bivsets[idz]->getBinID(pos) )
+			    break;
+		    }
+		}
+	    }
+	}
+    }
+    bivsets = newbivsets;
 }
 
 

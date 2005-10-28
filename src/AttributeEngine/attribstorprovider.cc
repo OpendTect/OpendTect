@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.27 2005-10-24 15:14:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.28 2005-10-28 15:08:21 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -132,6 +132,7 @@ bool StorageProvider::init()
 	const SeisTrcReader* reader = rg[req]->reader();
 	if ( !reader ) { deepErase(rg); return false; }
 
+	desc.set2d(reader->is2D());
 	if ( reader->is2D() )
 	{
 	    const Seis2DLineSet* lset = reader->lineSet();
@@ -201,7 +202,7 @@ bool StorageProvider::init()
 }
 
 
-int StorageProvider::moveToNextTrace( BinID startpos )
+int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 {
     if ( alreadymoved )
 	return 1;
@@ -216,6 +217,10 @@ int StorageProvider::moveToNextTrace( BinID startpos )
 
 	status = Ready;
     }
+
+    bool validstartpos = startpos != BinID(-1,-1);
+    if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )
+	return 1;
 
     bool cont = true;
     while ( cont )
@@ -242,7 +247,12 @@ int StorageProvider::moveToNextTrace( BinID startpos )
 		    currentbid = desc.is2D()? BinID( 0, trc->info().nr ) 
 					    : trc->info().binid;
 		    curtrcinfo_ = &trc->info();
-		    cont = false;
+		    if ( !validstartpos || 
+			 ( validstartpos && ( currentbid == startpos || 
+			 ( seldata_ &&  seldata_->type_ == Seis::Table && 
+			 ( curtrcinfo_->binid == startpos || firstcheck ) ) ) ))
+
+			cont = false;
 		}
 
 		continue;
@@ -310,16 +320,18 @@ bool StorageProvider::setSeisRequesterSelection( int req )
     SeisTrcReader* reader = rg[req]->reader();
     if ( !reader ) return false;
 
-    if ( seldata_.type_ == Seis::Table )
+    if ( seldata_ && seldata_->type_ == Seis::Table )
     {
+	SeisSelData* seldata = new SeisSelData(*seldata_);
+	seldata->extraz_ = extraz_;
 	if ( reader->is2D() )
 	{
 	    const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
-	    seldata_.linekey_.setAttrName( lk.attrName() );
+	    seldata->linekey_.setAttrName( lk.attrName() );
 	}
-	reader->setSelData( new SeisSelData(seldata_) );
+	reader->setSelData( seldata );
     }
-    else if ( seldata_.type_ == Seis::Range )
+    else if ( !seldata_ || (seldata_ && seldata_->type_ == Seis::Range) )
     {
 	if ( !desiredvolume && !reader->is2D() ) 
 	{
@@ -339,32 +351,38 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 	
 	if ( reader->is2D() )
 	{
+	    SeisSelData* seldata;
+	    if ( seldata_ )
+		seldata = new SeisSelData(*seldata_);
+	    else
+		seldata = new SeisSelData(true);
 	    Seis2DLineSet* lset = reader->lineSet();
 	    if ( !lset ) return false;
-	    seldata_.linekey_.setAttrName( curlinekey_.attrName() );
+	    seldata->linekey_.setAttrName( curlinekey_.attrName() );
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
 	    if ( (const char*)curlinekey_.lineName() != "" )
 	    {
-		seldata_.linekey_.setLineName( curlinekey_.lineName() );
+		seldata->linekey_.setLineName( curlinekey_.lineName() );
 		int idx = lset->indexOf( curlinekey_ );
 		if ( idx >= 0 && lset->getRanges(idx,trcrg,zrg) )
 		{
 		    if ( !checkDataOK( trcrg,zrg ) ) return false;
-		    seldata_.crlrg_.start = 
+		    seldata->crlrg_.start = 
 				desiredvolume->hrg.start.crl < trcrg.start?
 				trcrg.start : desiredvolume->hrg.start.crl;
-		    seldata_.crlrg_.stop = 
+		    seldata->crlrg_.stop = 
 				desiredvolume->hrg.stop.crl > trcrg.stop ?
 				trcrg.stop : desiredvolume->hrg.stop.crl;
-		    seldata_.zrg_.start = 
+		    seldata->zrg_.start = 
 				desiredvolume->zrg.start < zrg.start ?
 				zrg.start : desiredvolume->zrg.start;
-		    seldata_.zrg_.stop = 
+		    seldata->zrg_.stop = 
 				desiredvolume->zrg.stop > zrg.stop ?
 				zrg.stop : desiredvolume->zrg.stop;
+		    seldata->inlrg_.stop = seldata->inlrg_.start = 0;
 		}
-		reader->setSelData( new SeisSelData(seldata_) );
+		reader->setSelData( seldata );
 	    }
 
 	    return true;
@@ -390,14 +408,20 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 	cs.zrg.stop = desiredvolume->zrg.stop > storedvolume.zrg.stop ?
 			 storedvolume.zrg.stop : desiredvolume->zrg.stop;
 
-	seldata_.inlrg_.start = cs.hrg.start.inl;
-	seldata_.inlrg_.stop = cs.hrg.stop.inl;
-	seldata_.crlrg_.start = cs.hrg.start.crl;
-	seldata_.crlrg_.stop = cs.hrg.stop.crl;
-	seldata_.zrg_.start = cs.zrg.start;
-	seldata_.zrg_.stop = cs.zrg.stop;
+	SeisSelData* seldata;
+	if ( seldata_ )
+	    seldata = new SeisSelData(*seldata_);
+	else
+	    seldata = new SeisSelData(true);
+	
+	seldata->inlrg_.start = cs.hrg.start.inl;
+	seldata->inlrg_.stop = cs.hrg.stop.inl;
+	seldata->crlrg_.start = cs.hrg.start.crl;
+	seldata->crlrg_.stop = cs.hrg.stop.crl;
+	seldata->zrg_.start = cs.zrg.start;
+	seldata->zrg_.stop = cs.zrg.stop;
 
-	reader->setSelData( new SeisSelData(seldata_) );
+	reader->setSelData( seldata );
 
 	SeisTrcTranslator* transl = reader->translator();
 

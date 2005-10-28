@@ -4,13 +4,14 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.41 2005-10-24 15:14:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.42 2005-10-28 15:08:21 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
 #include "attribparam.h"
@@ -18,6 +19,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.41 2005-10-24 15:14:03 cv
 #include "cubesampling.h"
 #include "errh.h"
 #include "seisreq.h"
+#include "seisinfo.h"
 #include "seistrcsel.h"
 #include "survinfo.h"
 #include "threadwork.h"
@@ -160,8 +162,9 @@ Provider::Provider( Desc& nd )
     , refstep( 0 )
     , alreadymoved(0)
     , isusedmulttimes(0)
-    , seldata_(*new SeisSelData)
+    , seldata_(0)
     , curtrcinfo_(0)
+    , extraz_(0,0)
 {
     mRefCountConstructor;
     desc.ref();
@@ -187,7 +190,6 @@ Provider::~Provider()
     delete linebuffer;
     delete possiblevolume;
     delete desiredvolume;
-    delete &seldata_;
 }
 
 
@@ -401,7 +403,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 }
 
 
-int Provider::moveToNextTrace( BinID startpos )
+int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 {
     if ( alreadymoved )
 	return 1;
@@ -421,9 +423,20 @@ int Provider::moveToNextTrace( BinID startpos )
 	    currentbid = inputs[idx]->getCurrentPosition();
 	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
 	    if ( !docheck && currentbid == startpos ) continue;
+	    if ( !docheck && seldata_ && seldata_->type_ == Seis::Table 
+		 && curtrcinfo_)
+	    {
+		if ( curtrcinfo_->binid == startpos )
+		    continue;
+		if ( curtrcinfo_->binid != startpos && firstcheck )
+		{
+		    startpos = curtrcinfo_->binid;
+		    firstcheck = false;
+		}
+	    }
 	    
 	    needmove = true;
-	    const int res = inputs[idx]->moveToNextTrace(startpos);
+	    const int res = inputs[idx]->moveToNextTrace(startpos, firstcheck);
 	    if ( res!=1 ) return res;
 
 	    if ( !inputs[idx]->getSeisRequester() ) continue;
@@ -862,15 +875,17 @@ void Provider::updateStorageReqs( bool all )
 bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res, 
 					bool usestepout ) const
 {
-    if ( seldata_.type_ == Seis::Table )
+    if ( seldata_ && seldata_->type_ == Seis::Table )
     {
 	Interval<float> zrg(0,0);
 	const Interval<float>* reqzrg = reqZMargin(inp,out);
 	if ( reqzrg ) zrg=*reqzrg;
 	const Interval<float>* deszrg = desZMargin(inp,out);
 	if ( deszrg ) zrg.include( *deszrg );
-	seldata_.extraz_ = zrg;
+	Interval<float> extraz(extraz_);
+	extraz.include(zrg);
 	inputs[inp]->setSelData(seldata_);
+	inputs[inp]->setExtraZ(extraz);
     }
     
     if ( !desiredvolume )
@@ -954,9 +969,9 @@ const Interval<float>* Provider::reqZMargin(int,int) const	{ return 0; }
 
 int Provider::getTotalNrPos( bool is2d )
 {
-    if ( seldata_.type_ == Seis::Table )
+    if ( seldata_ && seldata_->type_ == Seis::Table )
     {
-	return seldata_.table_.totalSize();
+	return seldata_->table_.totalSize();
     }
     if ( !possiblevolume )
 	return false;
@@ -1031,7 +1046,7 @@ void Provider::adjust2DLineStoredVolume()
 }
 
 
-void Provider::setSelData( const SeisSelData& seldata )
+void Provider::setSelData( const SeisSelData* seldata )
 {
     seldata_ = seldata;
     for ( int idx=0; idx<inputs.size(); idx++ )
@@ -1042,7 +1057,18 @@ void Provider::setSelData( const SeisSelData& seldata )
 }
 
 
-void Provider::setPossibleVolume( const CubeSampling& cs)
+void Provider::setExtraZ( const Interval<float>& extraz )
+{
+    extraz_ = extraz;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] )
+	    inputs[idx]->setExtraZ(extraz_);
+    }
+}
+
+
+void Provider::setPossibleVolume( const CubeSampling& cs )
 {
     if ( possiblevolume )
 	delete possiblevolume;

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.28 2005-10-24 15:14:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.29 2005-10-28 15:08:21 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -31,6 +31,7 @@ Processor::Processor( Desc& desc , const char* lk )
     , isinited(false)
     , moveonly(this)
     , prevbid_(BinID(-1,-1))
+    , sd_(0)
 {
     if ( !provider ) return;
     provider->ref();
@@ -51,6 +52,8 @@ Processor::~Processor()
 {
     if ( provider )  { provider->unRef(); desc_.unRef(); }
     deepUnRef( outputs );
+
+    if (sd_) delete sd_;
 }
 
 
@@ -76,14 +79,22 @@ int Processor::nextStep()
     if ( nriter==0 )
     {
 	BinID firstpos;
-	const BinID step = provider->getStepoutStep();
-	firstpos.inl = step.inl/abs(step.inl)>0 ? 
-		       provider->getDesiredVolume()->hrg.start.inl : 
-		       provider->getDesiredVolume()->hrg.stop.inl;
-	firstpos.crl = step.crl/abs(step.crl)>0 ?
-		       provider->getDesiredVolume()->hrg.start.crl :
-		       provider->getDesiredVolume()->hrg.stop.crl;
-	res = provider->moveToNextTrace(firstpos);
+
+	if ( sd_ && sd_->type_ == Seis::Table )
+	{
+	    firstpos = sd_->table_.firstPos();
+	}
+	else
+	{
+	    const BinID step = provider->getStepoutStep();
+	    firstpos.inl = step.inl/abs(step.inl)>0 ? 
+			   provider->getDesiredVolume()->hrg.start.inl : 
+			   provider->getDesiredVolume()->hrg.stop.inl;
+	    firstpos.crl = step.crl/abs(step.crl)>0 ?
+			   provider->getDesiredVolume()->hrg.start.crl :
+			   provider->getDesiredVolume()->hrg.stop.crl;
+	}
+	res = provider->moveToNextTrace( firstpos, true );
     }
     else
 	res = provider->moveToNextTrace();
@@ -199,18 +210,17 @@ void Processor::init()
 	outputs[idx]->setDesiredOutputs( outpinterest_ );
     }
 
-    SeisSelData sd;
     if ( outputs.size() && outputs[0]->getSelData().type_==Seis::Table )
     {
 	for ( int idx=0; idx<outputs.size(); idx++ )
 	{
-	    if ( !idx ) sd = outputs[0]->getSelData();
-	    else sd.include( outputs[idx]->getSelData() );
+	    if ( !idx ) sd_ = new SeisSelData(outputs[0]->getSelData());
+	    else sd_->include( outputs[idx]->getSelData() );
 	}
     }
 
-    if ( sd.type_ == Seis::Table )
-	provider->setSelData( sd );
+    if ( sd_ && sd_->type_ == Seis::Table )
+	provider->setSelData( sd_ );
 
     for ( int idx=0; idx<globaloutputinterest.size(); idx++ )
 	provider->enableOutput(globaloutputinterest[idx], true );

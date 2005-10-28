@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.35 2005-10-14 09:36:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.36 2005-10-28 15:08:21 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -52,6 +52,8 @@ Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
     , issteering(false)
     , seloutput(0)
     , hidden_(false)
+    , is2d(false)
+    , is2dset(false)
 {
     mRefCountConstructor;
     inputs.allowNull(true);
@@ -67,6 +69,8 @@ Desc::Desc( const Desc& a )
     , issteering( a.issteering )
     , seloutput( a.seloutput )
     , userref( a.userref )
+    , is2d(false)
+    , is2dset(false)
 {
     mRefCountConstructor;
     inputs.allowNull(true);
@@ -262,6 +266,9 @@ Desc* Desc::getInput( int input )
 
 bool Desc::is2D() const
 {
+    if ( is2dset )
+	return is2d;
+    
     const ValParam* keypar = getValParam( StorageProvider::keyStr() );
     if ( !keypar ) return false;
 
@@ -636,6 +643,31 @@ void Desc::changeStoredID( const char* newid )
     ValParam* keypar = getValParam( StorageProvider::keyStr() );
     keypar->setValue( newid );
 }
+
+
+void Desc::set2d( bool is2dstudy )
+{
+    is2dset = true;
+    is2d = is2dstudy;
+}
+
+
+Desc* Desc::getStoredInput() const
+{
+    Desc* desc = 0;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( !inputs[idx] ) continue;
+
+	if ( inputs[idx]->isStored() )
+	    return inputs[idx];
+	else
+	    desc = inputs[idx]->getStoredInput();
+    }
+
+    return desc;
+}
+
 
 /*
 IOObj* Desc::getDefCubeIOObj( bool issteering, bool is2d ) const;
