@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.24 2005-10-27 15:04:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.25 2005-10-28 09:56:25 cvsnanne Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -20,6 +20,34 @@ static double getNextVal( char*& str )
     double v = atof( str );
     str = endptr; skipLeadingBlanks(str);
     return v;
+}
+
+
+PickLocation::~PickLocation()
+{
+    if ( text ) delete text;
+}
+
+
+void PickLocation::operator=( const PickLocation& pl )
+{
+    pos = pl.pos;
+    z = pl.z;
+    dir = pl.dir;
+    if ( pl.text )
+    {
+	if ( !text )
+	    text = new BufferString( *pl.text );
+	else
+	    *text = *pl.text;
+    }
+}
+
+
+void PickLocation::setText( const char* key, const char* txt )
+{
+    if ( !text ) text = new BufferString;
+    *text += key; *text += "'"; *text += txt; *text += "'";
 }
 
 
@@ -87,7 +115,9 @@ void PickLocation::toString( char* str )
 {
     if ( text )
     {
-	strcpy( str, text->buf() );
+	strcpy( str, "\"" );
+	strcat( str, text->buf() );
+	strcat( str, "\"" );
 	strcat( str, "\t" );
 	strcat( str, getStringFromDouble(0,pos.x) );
     }

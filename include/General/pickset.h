@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.12 2005-10-27 15:04:19 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.13 2005-10-28 09:56:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,10 +35,13 @@ public:
 			PickLocation( const Coord3& c, const Sphere& d )
 			: pos(c.x,c.y), z(c.z), dir(d), text(0)		{}
 
+			~PickLocation();
+
     inline bool		operator ==( const PickLocation& pl ) const
 			{ return pos == pl.pos && mIsEqual(z,pl.z,mDefEps); }
     inline bool		operator !=( const PickLocation& pl ) const
 			{ return !(*this == pl); }
+    void		operator =(const PickLocation&);
 
     bool		fromString(const char*,bool doxy=true);
     void		toString(char*);
@@ -48,6 +51,7 @@ public:
 
     Sphere		dir; //!< Optional direction at location
     BufferString*	text; //!<Optional text at location
+    void		setText(const char* key,const char* txt);
 
     inline bool		hasDir() const
     			{ return !mIsZero(dir.radius,mDefEps)
