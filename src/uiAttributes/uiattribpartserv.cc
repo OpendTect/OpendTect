@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.13 2005-10-20 14:00:14 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.14 2005-10-28 15:12:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -345,6 +345,7 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
     if ( !aem ) return false;
 
     BufferString errmsg;
+    aem->computeIntersect2D(values);
     Processor* process = aem->createLocationOutput( errmsg, values );
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
