@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.15 2005-08-18 13:36:54 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.16 2005-10-28 12:33:38 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -77,6 +77,7 @@ protected:
     void		fillHeaderBuf(const SeisTrc&);
     void		toPreSelected(DataCharacteristics&) const;
     const LinScaler*	getTraceScaler() const		{ return curtrcscale; }
+    virtual void	toPreferred(DataCharacteristics&) const;
 
     DataCharacteristics	getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;

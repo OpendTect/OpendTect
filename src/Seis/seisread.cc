@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.56 2005-10-21 14:16:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.57 2005-10-28 12:33:38 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -405,6 +405,17 @@ bool SeisTrcReader::mkNextFetcher()
 	    errmsg += seldata->linekey_;
 	    return false;
 	}
+    }
+
+    StepInterval<float> zrg;
+    lset->getRanges( curlineidx, curtrcnrrg, zrg );
+    if ( seldata && seldata->type_ == Seis::Range
+	&& seldata->crlrg_.start != SI().inlRange(false).start )
+    {
+	if ( seldata->crlrg_.start > curtrcnrrg.start )
+	    curtrcnrrg.start = seldata->crlrg_.start;
+	if ( seldata->crlrg_.stop < curtrcnrrg.stop )
+	    curtrcnrrg.stop = seldata->crlrg_.stop;
     }
 
     prev_inl = mUdf(int);

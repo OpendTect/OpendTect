@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.48 2005-10-17 13:39:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.49 2005-10-28 12:33:38 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -64,20 +64,21 @@ bool TwoDSeisTrcTranslator::initRead_()
     Seis2DLineSet lset( fnm );
     if ( lset.nrLines() < 1 )
 	{ errmsg = "Line set is empty"; return false; }
-    lset.getTxtInfo( 0, pinfo->usrinfo, pinfo->stdinfo );
-    addComp( DataCharacteristics(), pinfo->stdinfo, Seis::UnknowData );
+    lset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
+    addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
 
-    LineKey lk( seldata ? seldata->linekey_.buf() : "" );
-    if ( lk.lineName() != "" && lset.indexOf(lk) < 0 )
+    if ( seldata )
+	curlinekey = seldata->linekey_;
+    if ( curlinekey.lineName() != "" && lset.indexOf(curlinekey) < 0 )
 	{ errmsg = "Cannot find line key in line set"; return false; }
     CubeSampling cs( true );
-    errmsg = lset.getCubeSampling( cs, lk );
+    errmsg = lset.getCubeSampling( cs, curlinekey );
 
     insd.start = cs.zrg.start; insd.step = cs.zrg.step;
     innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo->inlrg.start = cs.hrg.start.inl; pinfo->inlrg.stop = cs.hrg.stop.inl;
-    pinfo->inlrg.step = cs.hrg.step.inl; pinfo->crlrg.step = cs.hrg.step.crl;
-    pinfo->crlrg.start = cs.hrg.start.crl; pinfo->crlrg.stop = cs.hrg.stop.crl;
+    pinfo.inlrg.start = cs.hrg.start.inl; pinfo.inlrg.stop = cs.hrg.stop.inl;
+    pinfo.inlrg.step = cs.hrg.step.inl; pinfo.crlrg.step = cs.hrg.step.crl;
+    pinfo.crlrg.start = cs.hrg.start.crl; pinfo.crlrg.stop = cs.hrg.stop.crl;
     return true;
 }
 

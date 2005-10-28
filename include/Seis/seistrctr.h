@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.44 2005-07-26 08:41:38 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.45 2005-10-28 12:33:38 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -18,7 +18,9 @@ Translators for seismic traces.
 #include "ctxtioobj.h"
 #include "samplingdata.h"
 #include "basiccompinfo.h"
+#include "seisinfo.h"
 #include "seistype.h"
+#include "linekey.h"
 
 class BinID;
 class Coord;
@@ -152,7 +154,7 @@ public:
 			     Some STT's *require* a valid IOObj in Conn */
     Conn*		curConn()			{ return conn; }
 
-    SeisPacketInfo&		packetInfo();
+    SeisPacketInfo&		packetInfo()		{ return pinfo; }
     const SeisSelData*		selData() const		{ return seldata; }
     ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds; }
     const SamplingData<float>&	inpSD() const		{ return insd; }
@@ -217,11 +219,16 @@ public:
     void		enforceSurvinfoWrite( bool yn )
     			{ enforce_survinfo_write = yn; }
 
+    const LineKey&	curLineKey() const
+			{ return curlinekey; }
+    void		setCurLineKey( const LineKey& lk )
+    			{ curlinekey = lk; }
+
 protected:
 
     Conn*		conn;
     const char*		errmsg;
-    SeisPacketInfo*	pinfo;
+    SeisPacketInfo	pinfo;
 
     Seis::ReadMode	read_mode;
     bool		is_2d;
@@ -237,6 +244,7 @@ protected:
     SamplingData<float>			outsd;
     int					outnrsamples;
     Interval<int>			samps;
+    LineKey				curlinekey;
 
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);

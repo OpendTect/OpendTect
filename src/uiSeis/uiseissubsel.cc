@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.31 2005-10-10 13:31:09 cvshelene Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.32 2005-10-28 12:33:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ void uiSeisSubSel::setInput( const IOObj& ioobj )
 	    clear();
 	else
 	    setInput( cs );
+	clear();
     }
 }
 
@@ -324,15 +325,10 @@ void uiSeis2DSubSel::setInput( const HorSampling& hs )
 
 void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 {
-    uiSeisIOObjInfo oinf(ioobj,false); CubeSampling cs;
-    if ( !oinf.getRanges(cs) )
-	{ clear(); return; }
-
-    setInput( cs.hrg );
-    setInput( cs.zrg );
-
+    clear();
     if ( !lnmsfld ) return;
 
+    uiSeisIOObjInfo oinf(ioobj,false);
     const BufferString prevlnm( selectedLine() );
     curlnms.erase();
 

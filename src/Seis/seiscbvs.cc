@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.65 2005-07-26 08:41:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.66 2005-10-28 12:33:38 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -167,16 +167,16 @@ bool CBVSSeisTrcTranslator::initRead_()
 	BasicComponentInfo& cinf = *info.compinfo[idx];
 	addComp( cinf.datachar, cinf.name(), cinf.datatype );
     }
-    pinfo->usrinfo = info.usertext;
-    pinfo->stdinfo = info.stdtext;
-    pinfo->nr = info.seqnr;
-    pinfo->inlrg.start = info.geom.start.inl;
-    pinfo->inlrg.stop = info.geom.stop.inl;
-    pinfo->inlrg.step = info.geom.step.inl;
-    pinfo->crlrg.start = info.geom.start.crl;
-    pinfo->crlrg.stop = info.geom.stop.crl;
-    pinfo->crlrg.step = info.geom.step.crl;
-    rdmgr->getIsRev( pinfo->inlrev, pinfo->crlrev );
+    pinfo.usrinfo = info.usertext;
+    pinfo.stdinfo = info.stdtext;
+    pinfo.nr = info.seqnr;
+    pinfo.inlrg.start = info.geom.start.inl;
+    pinfo.inlrg.stop = info.geom.stop.inl;
+    pinfo.inlrg.step = info.geom.step.inl;
+    pinfo.crlrg.start = info.geom.start.crl;
+    pinfo.crlrg.stop = info.geom.stop.crl;
+    pinfo.crlrg.step = info.geom.step.crl;
+    rdmgr->getIsRev( pinfo.inlrev, pinfo.crlrev );
     return true;
 }
 
@@ -425,8 +425,8 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.auxinfosel.setAll( !minimalhdrs );
     info.geom.fullyrectandreg = false;
     info.geom.b2c = SI().binID2Coord();
-    info.stdtext = pinfo->stdinfo;
-    info.usertext = pinfo->usrinfo;
+    info.stdtext = pinfo.stdinfo;
+    info.usertext = pinfo.usrinfo;
     for ( int idx=0; idx<nrSelComps(); idx++ )
 	info.compinfo += new BasicComponentInfo(*outcds[idx]);
     info.sd = insd;

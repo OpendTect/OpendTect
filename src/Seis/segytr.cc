@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.44 2005-10-20 11:20:48 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.45 2005-10-28 12:33:38 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.44 2005-10-20 11:20:48 cvsbert Ex
 #include "timefun.h"
 #include "scaler.h"
 #include "survinfo.h"
+#include "seistrcsel.h"
 #include <math.h>
 #include <ctype.h>
 # include <sstream>
@@ -109,10 +110,10 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	}
     }
 
-    txthead.getText( pinfo->usrinfo );
-    pinfo->nr = binhead.lino;
-    pinfo->zrg.step = binhead.hdt * (0.001 / SI().zFactor());
-    insd.step = binhead_dpos = pinfo->zrg.step;
+    txthead.getText( pinfo.usrinfo );
+    pinfo.nr = binhead.lino;
+    pinfo.zrg.step = binhead.hdt * (0.001 / SI().zFactor());
+    insd.step = binhead_dpos = pinfo.zrg.step;
     innrsamples = binhead_ns = binhead.hns;
 
     if ( read_mode != Seis::Prod && itrc <= ntrheadstodump )
@@ -216,7 +217,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	fillOffsAzim( ti, c1, c2 );
 	ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
     }
-    if ( use_lino ) ti.binid.inl = pinfo->nr;
+    if ( use_lino ) ti.binid.inl = pinfo.nr;
     float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )
 	curtrcscale = 0;
@@ -236,13 +237,16 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 
 bool SEGYSeisTrcTranslator::writeTapeHeader()
 {
-    if ( !numbfmt )
+    if ( numbfmt == 0 )
+	// Auto-detect
 	numbfmt = nrFormatFor( storinterp->dataChar() );
 
     trhead.isrev1 = !force_rev0;
 
     SegyTxtHeader txthead( trhead.isrev1 );
-    txthead.setUserInfo( pinfo->usrinfo );
+    txthead.setUserInfo( pinfo.usrinfo );
+    hdef.linename = curlinekey.buf();
+    hdef.pinfo = &pinfo;
     txthead.setPosInfo( hdef );
     txthead.setStartPos( outsd.start );
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
@@ -250,7 +254,8 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
     SegyBinHeader binhead( trhead.isrev1 );
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
-    binhead.lino = pinfo->nr;
+    numbfmt = binhead.format;
+    binhead.lino = pinfo.nr;
     static int jobid = 0;
     binhead.jobid = ++jobid;
     binhead.hns = (short)outnrsamples;
@@ -291,9 +296,15 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
 }
 
 
+void SEGYSeisTrcTranslator::toPreferred( DataCharacteristics& dc ) const
+{
+    dc = getDataChar( nrFormatFor(dc) );
+}
+
+
 void SEGYSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 {
-    if ( !dc.isIeee() )
+    if ( dc.isInteger() || !dc.isIeee() )
 	dc = getDataChar( nrFormatFor(dc) );
 }
 
@@ -317,7 +328,8 @@ int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
     else if ( nrbytes == 2 )
 	nf = 3;
     else
-	nf = dc.isIeee() ? 5 : (dc.isInteger() ? 2 : 1);
+	nf = dc.isInteger() ? 2 : 1;
+
     return nf;
 }
 

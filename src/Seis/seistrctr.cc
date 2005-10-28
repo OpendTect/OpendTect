@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.68 2005-09-26 12:52:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.69 2005-10-28 12:33:38 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -81,7 +81,6 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	, nrout_(0)
 	, inpcds(0)
 	, outcds(0)
-	, pinfo(0)
 	, seldata(0)
     	, prevnr_(mUdf(int))
     	, trcblock_(*new SeisTrcBuf)
@@ -100,7 +99,6 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
-    delete pinfo;
     delete &trcblock_;
 }
 
@@ -126,7 +124,6 @@ void SeisTrcTranslator::cleanUp()
     delete [] outcds; outcds = 0;
     nrout_ = 0;
     errmsg = 0;
-    delete pinfo; pinfo = 0;
 }
 
 
@@ -140,18 +137,10 @@ bool SeisTrcTranslator::close()
 }
 
 
-SeisPacketInfo& SeisTrcTranslator::packetInfo()
-{
-    if ( !pinfo ) pinfo = new SeisPacketInfo;
-    return *pinfo;
-}
-
-
 bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 {
     cleanUp();
     read_mode = rm;
-    pinfo = new SeisPacketInfo;
     if ( !initConn(c,true)
       || !initRead_() )
     {
@@ -159,9 +148,9 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 	return false;
     }
 
-    pinfo->zrg.start = insd.start;
-    pinfo->zrg.step = insd.step;
-    pinfo->zrg.stop = insd.start + insd.step * (innrsamples-1);
+    pinfo.zrg.start = insd.start;
+    pinfo.zrg.step = insd.step;
+    pinfo.zrg.stop = insd.start + insd.step * (innrsamples-1);
     return true;
 }
 
@@ -169,7 +158,6 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 {
     cleanUp();
-    pinfo = new SeisPacketInfo;
     innrsamples = outnrsamples = trc.size();
     insd = outsd = trc.info().sampling;
 
@@ -241,8 +229,6 @@ bool SeisTrcTranslator::commitSelections()
     }
 
     errmsg = 0;
-    if ( !pinfo ) pinfo = new SeisPacketInfo;
-
     enforceBounds();
 
     float fsampnr = (outsd.start - insd.start) / insd.step;

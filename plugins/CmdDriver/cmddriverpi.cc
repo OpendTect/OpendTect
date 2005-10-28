@@ -40,6 +40,7 @@ public:
     			uiCmdDriverMgr(uiODMain&);
 
     uiODMain&		appl;
+    CmdDriver*		drv;
     void		doIt(CallBacker*);
 
 };
@@ -47,6 +48,7 @@ public:
 
 uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
     	: appl(a)
+    	, drv(0)
 {
     uiODMenuMgr& mnumgr = appl.menuMgr();
     uiMenuItem* newitem = new uiMenuItem( "Command &Driver ...",
@@ -62,7 +64,7 @@ public:
 uiCmdDriverInps( uiParent* p, CmdDriver& d )
         : uiDialog(p,Setup("Command execution","Specify the file with commands"
 			    " to execute"))
-	, drv(d)
+	, drv_(d)
 {
     fnmfld = new uiFileInput( this, "Command file", uiFileInput::Setup()
 				.filter("*.cmd;;*")
@@ -82,7 +84,7 @@ bool acceptOK( CallBacker* )
     FilePath fp( outdirfld->fileName() );
     if ( !File_exists(fp.pathOnly()) )
     {
-	uiMSG().error( drv.errMsg() );
+	uiMSG().error( drv_.errMsg() );
 	return false;
     }
 
@@ -92,9 +94,9 @@ bool acceptOK( CallBacker* )
 	uiMSG().error( "Invalid command file selected" );
 	return false;
     }
-    if ( !drv.getActionsFromFile(fnm) )
+    if ( !drv_.getActionsFromFile(fnm) )
     {
-	uiMSG().error( drv.errMsg() );
+	uiMSG().error( drv_.errMsg() );
 	return false;
     }
 
@@ -106,27 +108,29 @@ bool acceptOK( CallBacker* )
 	File_createDir( fnm, 0 );
     }
 
-    drv.setOutputDir( fnm );
+    drv_.setOutputDir( fnm );
     return true;
 }
 
     uiFileInput*	fnmfld;
     uiFileInput*	outdirfld;
     BufferString	fnm;
-    CmdDriver&		drv;
+    CmdDriver&		drv_;
 
 };
 
 
 void uiCmdDriverMgr::doIt( CallBacker* )
 {
-    CmdDriver drv;
-    uiCmdDriverInps* dlg = new uiCmdDriverInps( &appl, drv );
+    if ( drv ) delete drv;
+    drv = new CmdDriver;
+    uiCmdDriverInps* dlg = new uiCmdDriverInps( &appl, *drv );
     bool ret = dlg->go();
     delete dlg;
-    if ( !ret ) return;
+    if ( !ret )
+    	{ delete drv; drv = 0; return; }
 
-    drv.execute();
+    drv->execute();
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.36 2005-09-15 14:56:36 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.37 2005-10-28 12:33:38 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.36 2005-09-15 14:56:36 cvsbert E
 #include "msgh.h"
 #include "math2.h"
 #include "envvars.h"
+#include "timefun.h"
+#include "linekey.h"
 #include <string.h>
 #include <ctype.h>
 #include <iostream>
@@ -56,7 +58,8 @@ SegyTxtHeader::SegyTxtHeader( bool rev1 )
 
     FileNameString buf;
     buf = "Created by: ";
-    buf += Settings::common()[ "Company" ];
+    buf += Settings::common()[ "Company" ]; buf += " (";
+    buf += Time_getFullDateString(); buf += ")";
     putAt( 1, 6, 75, buf );
     putAt( 2, 6, 75, SI().name() );
     BinID bid = SI().sampling(false).hrg.start;
@@ -142,7 +145,23 @@ void SegyTxtHeader::setPosInfo( const SegyTraceheaderDef& thd )
     if ( info2d )
     {
 	mPutBytePosSize( 8, "Trace number: ", trnr );
-	buf = "2-D seismics";
+	if ( thd.linename != "" )
+	{
+	    LineKey lk( thd.linename );
+	    putAt( 3, 6, 20, "Line name:" );
+	    putAt( 3, 20, 75, lk.lineName() );
+	    putAt( 3, 45, 75, lk.attrName() );
+	}
+	if ( thd.pinfo )
+	{
+	    putAt( 4, 6, 20, "CDP range: " );
+	    BufferString posstr;
+	    posstr = thd.pinfo->crlrg.start;
+	    putAt( 4, 20, 30, posstr );
+	    posstr = thd.pinfo->crlrg.stop;
+	    putAt( 4, 30, 75, posstr );
+	}
+	buf = "2-D line";
     }
     else
     {

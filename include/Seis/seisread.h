@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.22 2005-10-21 10:56:50 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.23 2005-10-28 12:33:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
 
     			// 2D only
     int			curLineIdx() const		{ return curlineidx; }
+    StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
     LineKey		lineKey() const;
     LineKeyProvider*	lineKeyProvider() const;
 
@@ -84,6 +85,7 @@ protected:
     Executor*		fetcher;
     Seis::ReadMode	readmode;
     bool		entryis2d;
+    StepInterval<int>	curtrcnrrg;
 
     void		init();
     Conn*		openFirst();

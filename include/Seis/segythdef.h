@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.3 2004-09-06 16:14:07 bert Exp $
+ RCS:		$Id: segythdef.h,v 1.4 2005-10-28 12:33:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <gendefs.h>
+#include "bufstring.h"
 class IOPar;
+class SeisPacketInfo;
 
 
 /*!\brief class stores offset info in trace header.
@@ -36,7 +37,8 @@ public:
 				unsigned char cbs=4,
 				unsigned char tbs=4)
 			: inl(i), crl(c), xcoord(x), ycoord(y), trnr(t), pick(p)
-			, inlbytesz(ibs), crlbytesz(cbs), trnrbytesz(tbs) {}
+			, inlbytesz(ibs), crlbytesz(cbs), trnrbytesz(tbs)
+			, pinfo(0)		{}
 
     unsigned char	inl, inlbytesz;
     unsigned char	crl, crlbytesz;
@@ -71,6 +73,8 @@ public:
     static const char*	sTrNrByteSz;
     static const char*	sPickByte;
 
+    BufferString	linename;
+    SeisPacketInfo*	pinfo;
 };
 
 

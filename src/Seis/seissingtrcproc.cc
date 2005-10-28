@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.29 2005-10-21 10:56:50 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.30 2005-10-28 12:33:38 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -217,9 +217,10 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 
 void SeisSingleTraceProc::nextObj()
 {
-    rdrset_[currentobj_]->prepareWork();
-    if ( wrr_ && wrr_->is2D() )
-	wrr_->setLineKeyProvider( rdrset_[currentobj_]->lineKeyProvider() );
+    SeisTrcReader* currdr = rdrset_[currentobj_];
+    currdr->prepareWork();
+    if ( wrr_ )
+	wrr_->setLineKeyProvider( currdr->lineKeyProvider() );
 }
 
 
@@ -284,6 +285,7 @@ int SeisSingleTraceProc::nextStep()
     int retval = 1;
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
+	SeisTrcReader* currdr = rdrset_[currentobj_];
 	int rv = rdrset_[currentobj_]->get( intrc_.info() );
 	if ( !rv )
 	{ 
@@ -294,7 +296,7 @@ int SeisSingleTraceProc::nextStep()
 	    return 1;
 	}
 	else if ( rv < 0 )
-	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
+	    { curmsg_ = currdr->errMsg(); return -1; }
 	else if ( rv == 2 )
 	    continue;
 
@@ -303,8 +305,8 @@ int SeisSingleTraceProc::nextStep()
 	selcb_.doCall( this );
 	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
-	if ( !rdrset_[currentobj_]->get(intrc_) )
-	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
+	if ( !currdr->get(intrc_) )
+	    { curmsg_ = currdr->errMsg(); return -1; }
 
 	if ( resampler_ )
 	{
@@ -321,6 +323,13 @@ int SeisSingleTraceProc::nextStep()
 
 	if ( scaler_ )
 	    scaleTrc( *const_cast<SeisTrc*>(worktrc_), *scaler_ );
+
+	if ( nrwr_ < 1 && wrr_ && wrr_->translator() )
+	{
+	    wrr_->translator()->setCurLineKey( currdr->lineKey() );
+	    if ( currdr->is2D() )
+		wrr_->translator()->packetInfo().crlrg =currdr->curTrcNrRange();
+	}
 
 	if ( wrr_ && !wrr_->put(*worktrc_) )
 	    { curmsg_ = wrr_->errMsg(); return -1; }
