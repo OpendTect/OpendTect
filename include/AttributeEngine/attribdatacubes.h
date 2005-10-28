@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.3 2005-10-26 07:46:23 cvshelene Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.4 2005-10-28 21:17:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,11 @@ public:
     				/*!<\note that all data will be lost. */
     void			setValue( int array, int inlidx, int crlidx,
 	    				  int zidx, float val );
+    bool			getValue( int array, const BinIDValue&,
+	    				  float* res ) const;
+    bool			includes( const BinIDValue& ) const;
+    bool			includes( const BinID& ) const;
+
 
     const Array3D<float>&	getCube(int idx) const;
     				/*!<The attrib data. The data is always

@@ -5,10 +5,11 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.2 2005-10-24 22:12:54 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.3 2005-10-28 21:17:01 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
+#include "interpol.h"
 
 namespace Attrib
 {
@@ -72,6 +73,49 @@ void DataCubes::setValue( int array, int inlidx, int crlidx, int zidx,
 {
     cubes[array]->set( inlidx, crlidx, zidx, val );
 }
+
+
+bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res ) const
+{
+    const int inlidx = inlsampling.nearestIndex( bidv.binid.inl );
+    if ( inlidx<0 || inlidx>=inlsz ) return false;
+    const int crlidx = crlsampling.nearestIndex( bidv.binid.crl );
+    if ( crlidx<0 || crlidx>=crlsz ) return false;
+
+    const float* data = cubes[array]->getData();
+    data += cubes[array]->info().getMemPos( inlidx, crlidx, 0 );
+
+    const float zpos = bidv.value/zstep-z0;
+
+    float dummy;
+    if ( !interpolateSampled( data, zsz, zpos, dummy, false ) )
+	return false;
+
+    *res = dummy;
+    return true;
+}
+
+
+bool DataCubes::includes( const BinIDValue& bidv ) const
+{
+    if ( !includes( bidv.binid ) )
+	return false;
+
+    const float zpos = bidv.value/zstep-z0;
+    return zpos<0 || zpos>zsz-1;
+}
+
+
+bool DataCubes::includes( const BinID& binid ) const
+{
+    const int inlidx = inlsampling.nearestIndex( binid.inl );
+    if ( inlidx<0 || inlidx>=inlsz ) return false;
+    const int crlidx = crlsampling.nearestIndex( binid.crl );
+    if ( crlidx<0 || crlidx>=crlsz ) return false;
+    return true;
+}
+
+
 
 
 const Array3D<float>& DataCubes::getCube( int idx ) const
