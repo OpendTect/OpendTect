@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.13 2005-10-28 09:56:30 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.14 2005-10-28 13:17:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,9 @@ public:
 			: pos(c.x,c.y), z(c.z), dir(d), text(0)		{}
 			PickLocation( const Coord3& c, const Sphere& d )
 			: pos(c.x,c.y), z(c.z), dir(d), text(0)		{}
+			PickLocation( const PickLocation& pl )
+			: text(0)
+			{ *this = pl; }
 
 			~PickLocation();
 
