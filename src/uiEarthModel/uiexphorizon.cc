@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.38 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.39 2005-10-28 10:10:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,29 +133,35 @@ bool uiExportHorizon::writeAscii()
 
     BufferString basename = outfld->fileName();
 
-    RefMan<EM::EMObject> obj =
-			EM::EMM().createTempObject( EM::Horizon::typeStr() );
-    mDynamicCastGet(EM::Horizon*,hor,obj.ptr())
-    if ( !hor ) return false;
+    const IOObj* ioobj = infld->selIOObj();
+    if ( !ioobj ) return false;
 
-    IOObj* ioobj = infld->selIOObj();
-    PtrMan<EMSurfaceTranslator> tr =
-			(EMSurfaceTranslator*)ioobj->getTranslator();
-    if ( !tr || !tr->startRead(*ioobj) )
-	mErrRet( tr ? tr->errMsg() : "Cannot find translator" );
+    EM::EMManager& em = EM::EMM();
+    EM::SurfaceIOData sd;
+    em.getSurfaceData( ioobj->key(), sd );
+    EM::SurfaceIODataSelection sels( sd );
+    infld->getSelection( sels );
+    sels.selvalues.erase();
+    PtrMan<Executor> loader = em.objectLoader( ioobj->key(), &sels );
+    uiExecutor dlg( this, *loader );
+    if ( !dlg.go() ) return false;
 
-    EM::SurfaceIODataSelection& sels = tr->selections();
     infld->getSelection( sels );
     if ( dogf && sels.selvalues.size() > 1 &&
 	    !uiMSG().askGoOn("Only the first selected attribute will be used\n"
 			     "Do you wish to continue?") )
 	return false;
 
-    PtrMan<Executor> exec = tr->reader( *hor );
-    if ( !exec ) mErrRet( "Cannot read selected horizon" );
+    EM::EMObject* obj = em.getObject( em.getObjectID(ioobj->key()) );
+    mDynamicCastGet(EM::Horizon*,hor,obj);
+    if ( !hor ) return false;
 
-    uiExecutor dlg( this, *exec );
-    if ( !dlg.go() ) return false;
+    ExecutorGroup exgrp( "Reading aux data" );
+    for ( int idx=0; idx<sels.selvalues.size(); idx++ )
+	exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
+
+    uiExecutor datadlg( this, exgrp );
+    if ( !datadlg.go() ) return false;
 
     uiCursorChanger cursorlock( uiCursor::Wait );
 
