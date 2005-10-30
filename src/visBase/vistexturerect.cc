@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: vistexturerect.cc,v 1.44 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vistexturerect.cc,v 1.45 2005-10-30 23:40:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,12 @@ void TextureRect::addTexture()
 void TextureRect::showTexture( int idx )
 {
     textureset->setActiveTexture( idx );
+}
+
+
+int TextureRect::shownTexture() const
+{
+    return textureset->activeTextureNr();
 }
 
 

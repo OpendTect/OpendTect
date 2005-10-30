@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.30 2004-02-02 15:36:04 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.31 2005-10-30 23:40:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
     void			useTexture(bool);
     bool			usesTexture() const;
     void			showTexture(int);
+    int				shownTexture() const;
     void			removeAllTextures(bool);
 
     void			setRectangle(Rectangle*);
