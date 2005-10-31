@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.17 2005-10-24 15:17:25 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.18 2005-10-31 14:56:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiLabel;
 class uiLabeledListBox;
 class StreamData;
 class uiTable;
+class CtxtIOObj;
 
 namespace Well
 { class Data; class LogSet; class Marker; class D2TModel; class Track; };
@@ -171,6 +172,7 @@ public:
 
 protected:
     uiIOObjSel*         	nmfld;
+    CtxtIOObj*			ctio;
 
     virtual bool        	acceptOK(CallBacker*);
 

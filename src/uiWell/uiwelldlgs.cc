@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.32 2005-10-24 15:17:25 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.33 2005-10-31 14:55:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -752,10 +752,10 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 
 uiWellNameDlg::uiWellNameDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("New Well Dialog","") )
+    , ctio(mMkCtxtIOObj(Well))
 {
-    CtxtIOObj ctio(*mMkCtxtIOObj(Well));
-    ctio.ctxt.forread = false;
-    nmfld = new uiIOObjSel( this, ctio, "Output Well" );
+    ctio->ctxt.forread = false;
+    nmfld = new uiIOObjSel( this, *ctio, "Output Well" );
 }
 
 
