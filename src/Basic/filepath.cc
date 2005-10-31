@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.11 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.12 2005-10-31 15:14:55 cvsbert Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -170,12 +170,22 @@ void FilePath::setExtension( const char* ext, bool replace )
     }
 
     BufferString& fname = *lvls_[lvls_.size()-1];
-    // TODO: What if path contains a '.', like $HOME/.od ??
     char* ptr = strrchr( fname.buf(), '.' );
     if ( ptr && replace )
 	strcpy( *ext ? ptr+1 : ptr, ext );
     else if ( *ext )
 	{ fname += "."; fname += ext; }
+}
+
+
+const char* FilePath::extension() const
+{
+    if ( !lvls_.size() )
+	return 0;
+
+    const char* ret = strrchr( fileName().buf(), '.' );
+    if ( ret ) ret++;
+    return ret;
 }
 
 

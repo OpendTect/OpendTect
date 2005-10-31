@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.3 2004-11-09 12:57:11 arend Exp $
+ RCS:		$Id: filepath.h,v 1.4 2005-10-31 15:14:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
 			    { return mkCleanPath(dirUpTo(-1),f); }
     inline const char*	prefix() const		{ return prefix_.buf(); }
     inline int		nrLevels() const	{ return lvls_.size(); }
+    const char*		extension() const;	//!< may return null
 
     inline const BufferString& fileName() const
 				{ return dir(-1); }
