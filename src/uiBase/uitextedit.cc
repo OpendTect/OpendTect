@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.26 2004-04-14 09:56:52 kristofer Exp $
+ RCS:           $Id: uitextedit.cc,v 1.27 2005-10-31 16:31:02 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,14 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "strmdata.h"
 #include "ascstream.h"
-
-#include <qtextedit.h> 
 #include <iostream>
+
+#ifdef USEQT4
+# include <q3textedit.h> 
+#else
+# include <qtextedit.h> 
+#endif
+
 
 int uiTextEditBase::defaultWidth_	= 640;
 int uiTextEditBase::defaultHeight_	= 480;
@@ -109,7 +114,7 @@ bool uiTextEditBase::saveToFile( const char* src )
 
 
 
-class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
+class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,mQTextEditClss>
 {
 public:
 
@@ -123,7 +128,7 @@ public:
 
 uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p, 
 				const char* nm, bool ro )
-    : uiObjBodyImpl<uiTextEdit,QTextEdit>( handle, p, nm )
+    : uiObjBodyImpl<uiTextEdit,mQTextEditClss>( handle, p, nm )
 {
     setTextFormat(Qt::PlainText); 
     setReadOnly( ro );
@@ -136,7 +141,7 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p,
 
 void uiTextEditBody::append( const char* txt)
 { 
-    QTextEdit::append( txt );
+    mQTextEditClss::append( txt );
     repaint();
     setCursorPosition( lines(), 0 );
 } 
@@ -157,14 +162,14 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 
 void uiTextEdit::append( const char* txt)	{ body_->append(txt); }
 
-QTextEdit& uiTextEdit::qte()			{ return *body_; }
+mQTextEditClss& uiTextEdit::qte()			{ return *body_; }
 
 
 
 //-------------------------------------------------------
 
 
-class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,QTextBrowser>
+class uiTextBrowserBody : public uiObjBodyImpl<uiTextBrowser,mQTextBrowserClss>
 {
 public:
 
@@ -180,7 +185,7 @@ protected:
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p, 
 				const char* nm, bool plaintxt )
-    : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
+    : uiObjBodyImpl<uiTextBrowser,mQTextBrowserClss>( handle, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &handle))
 {
     if( plaintxt ) setTextFormat(Qt::PlainText); 
@@ -223,7 +228,7 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
     return *body_; 
 }
 
-QTextEdit& uiTextBrowser::qte()				{ return *body_; }
+mQTextEditClss& uiTextBrowser::qte()	{ return *body_; }
 
 
 const char* uiTextBrowser::source() const

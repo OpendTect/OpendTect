@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/03/2002
- RCS:           $Id: i_qtxtbrowser.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: i_qtxtbrowser.h,v 1.3 2005-10-31 16:31:02 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,15 @@ ________________________________________________________________________
 
 #include <qobject.h>
 #include <qwidget.h>
-#include <qtextbrowser.h> 
+
+#ifdef USEQT4
+# include <q3textbrowser.h> 
+# define mQTextBrowserClss Q3TextBrowser
+#else
+# include <qtextbrowser.h> 
+# define mQTextBrowserClss QTextBrowser
+#endif
+
 
 class QString;
 
@@ -30,7 +38,7 @@ class i_BrowserMessenger : public QObject
     friend class	uiTextBrowserBody;
 
 protected:
-			i_BrowserMessenger( QTextBrowser*  sender,
+			i_BrowserMessenger( mQTextBrowserClss*  sender,
 					    uiTextBrowser* receiver )
 			: _sender( sender )
 			, _receiver( receiver )
@@ -50,7 +58,7 @@ protected:
 private:
 
     uiTextBrowser* 	_receiver;
-    QTextBrowser*  	_sender;
+    mQTextBrowserClss* 	_sender;
 
 private slots:
 

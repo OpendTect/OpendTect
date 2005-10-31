@@ -7,17 +7,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uitextedit.h,v 1.13 2005-10-31 16:31:02 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
 
+#ifdef USEQT4
+# define mQTextEditClss	Q3TextEdit
+#else
+# define mQTextEditClss	QTextEdit
+#endif
+
 
 class uiTextEditBody;
 class uiTextBrowserBody;
-class QTextEdit;
+class mQTextEditClss;
 
 class uiTextEditBase : public uiObject
 {
@@ -41,8 +47,8 @@ public:
 
 protected:
 
-    virtual QTextEdit&	qte()			    = 0;
-    const QTextEdit&	qte() const 
+    virtual mQTextEditClss&	qte()			    = 0;
+    const mQTextEditClss&	qte() const 
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
     static int          defaultWidth_;
@@ -63,7 +69,7 @@ public:
 
 protected:
 
-    virtual QTextEdit&	qte();
+    virtual mQTextEditClss& qte();
 
 private:
 
@@ -110,7 +116,7 @@ protected:
     bool		forceplaintxt_;
 
 
-    virtual QTextEdit&	qte();
+    virtual mQTextEditClss& qte();
 
 private:
 
