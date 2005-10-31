@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.38 2005-07-26 15:44:39 cvsnanne Exp $
+ RCS:           $Id: uiiosel.cc,v 1.39 2005-10-31 15:17:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -234,7 +234,14 @@ void uiIOSelect::setInputText( const char* txt )
 int uiIOSelect::getCurrentItem() const
 {
     checkState();
-    return inp_->box()->size() ? inp_->box()->currentItem() : -1;
+    if ( inp_->box()->size() == 0 )
+	return -1;
+
+    const char* curtxt = inp_->box()->text();
+    if ( !inp_->box()->isPresent(curtxt) )
+	return -1;
+
+    return inp_->box()->currentItem();
 }
 
 
