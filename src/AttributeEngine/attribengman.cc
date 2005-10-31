@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.40 2005-10-28 15:08:21 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.41 2005-10-31 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "attribparam.h"
 #include "survinfo.h"
+#include "segposinfo.h"
 #include "ptrman.h"
 #include "cubesampling.h"
 #include "separstr.h"
@@ -718,7 +719,24 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     if ( !ioobj ) return;
     const Seis2DLineSet lset(ioobj->fullUserExpr(true));
 
+    PosInfo::LineSet2DData linesetgeom;
+    if ( !lset.getGeometry( linesetgeom ) ) return;
+
     ObjectSet<BinIDValueSet> newbivsets;
+    for ( int idx=0; idx<bivsets.size(); idx++ )
+    {
+	BinIDValueSet* newset = new BinIDValueSet(bivsets[idx]->nrVals(), true);
+	ObjectSet<PosInfo::LineSet2DData::IR> resultset;
+	linesetgeom.intersect( *bivsets[idx], resultset );
+
+	for ( int idy=0; idy<resultset.size(); idy++)
+	    newset->append(*resultset[idy]->posns_);
+	
+	newbivsets += newset;
+    }
+    bivsets = newbivsets;
+    
+/*    ObjectSet<BinIDValueSet> newbivsets;
     for ( int idx=0; idx<bivsets.size(); idx++ )
 	newbivsets += new BinIDValueSet(bivsets[idx]->nrVals(), true);
     
@@ -752,7 +770,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 	    }
 	}
     }
-    bivsets = newbivsets;
+    bivsets = newbivsets;*/
 }
 
 

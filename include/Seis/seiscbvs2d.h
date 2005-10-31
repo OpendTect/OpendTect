@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seiscbvs2d.h,v 1.7 2004-11-19 13:24:27 bert Exp $
+ RCS:		$Id: seiscbvs2d.h,v 1.8 2005-10-31 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seis2dline.h"
 class SeisTrc;
+
+namespace PosInfo { class Line2DData; }
 
 
 class SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
@@ -25,7 +27,7 @@ public:
     bool		isUsable(const IOPar&) const;
     bool		isEmpty(const IOPar&) const;
 
-    bool		getGeometry(const IOPar&,Line2DGeometry&) const;
+    bool		getGeometry(const IOPar&,PosInfo::Line2DData&) const;
     Executor*		getFetcher(const IOPar&,SeisTrcBuf&,int,
 	    			   const SeisSelData* sd=0);
     Seis2DLinePutter*	getReplacer(const IOPar&);

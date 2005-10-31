@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.31 2005-07-27 15:14:37 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.32 2005-10-31 14:59:22 cvshelene Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.31 2005-07-27 15:14:37 cvsber
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "seisbuf.h"
+#include "segposinfo.h"
 #include "cbvsio.h"
 #include "executor.h"
 #include "survinfo.h"
@@ -235,7 +236,7 @@ int			totalNr() const		{ return totnr; }
 
 
 bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
-					    Line2DGeometry& geom ) const
+					    PosInfo::Line2DData& geom ) const
 {
     geom.posns.erase();
     BufferString fnm = getFileName(iop);
@@ -259,7 +260,7 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     geom.zrg.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
     for ( int idx=0; idx<coords.size(); idx++ )
     {
-	Line2DPos p( binids[idx].crl );
+	PosInfo::Line2DPos p( binids[idx].crl );
 	p.coord = coords[idx];
 	geom.posns += p;
     }

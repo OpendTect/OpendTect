@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.35 2005-08-16 12:15:05 cvsnanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.36 2005-10-31 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seispsread.h"
 #include "seissectview.h"
+#include "segposinfo.h"
 
 
 
@@ -115,7 +116,7 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
 
 bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 					  const char* linenm,
-					  Line2DGeometry& geom ) const
+					  PosInfo::Line2DData& geom ) const
 {
     mGet2DLineSet(false)
     int lineidx = lineset.indexOf( linenm );

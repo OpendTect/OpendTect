@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.33 2005-10-17 13:39:13 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.34 2005-10-31 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,12 @@ class BinIDValueSet;
 class BufferStringSet;
 class Seis2DLineIOProvider;
 
+namespace PosInfo
+{ 
+class LineSet2DData;
+class Line2DData;
+}
+
 
 /*!\brief interface for object that writes 2D seismic data */
 
@@ -43,39 +49,6 @@ public:
     //!< Only when put or close returns false
     virtual int	nrWritten() const		= 0;
     
-};
-
-
-/*!\brief Coordinate and number for a seismic trace */
-
-class Line2DPos
-{
-public:
-
-    		Line2DPos( int n=0 ) : nr(n)		{}
-    bool	operator ==( const Line2DPos& p ) const	{ return nr == p.nr; }
-    bool	operator !=( const Line2DPos& p ) const	{ return nr != p.nr; }
-    bool	operator >( const Line2DPos& p ) const	{ return nr > p.nr; }
-
-    int		nr;
-    Coord	coord;
-
-};
-
-
-/*!\brief Full geometry of a 2D line */
-
-class Line2DGeometry
-{
-public:
-
-    			Line2DGeometry();
-
-    StepInterval<float>	zrg;
-    TypeSet<Line2DPos>	posns;
-
-    void		dump(std::ostream&,bool pretty=true) const;
-
 };
 
 
@@ -103,7 +76,8 @@ public:
     int			indexOf(const char* linekey) const;
     void		getAvailableAttributes(BufferStringSet&) const;
 
-    bool		getGeometry(int,Line2DGeometry&) const;
+    bool		getGeometry(PosInfo::LineSet2DData&) const;
+    bool		getGeometry(int,PosInfo::Line2DData&) const;
     Executor*		geometryDumper(std::ostream&,bool inc_nr,
 	    				float z_val=mUdf(float),
 	    				const char* linekey=0) const;
@@ -179,7 +153,7 @@ public:
 
     virtual bool	isEmpty(const IOPar&) const		= 0;
     virtual bool	getGeometry(const IOPar&,
-	    			    Line2DGeometry&) const	= 0;
+				    PosInfo::Line2DData&) const	= 0;
     virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,int,
 	    			   const SeisSelData* sd=0)	= 0;
     virtual Seis2DLinePutter* getReplacer(const IOPar&)	= 0;

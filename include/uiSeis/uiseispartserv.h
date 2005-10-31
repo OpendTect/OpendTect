@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.17 2005-08-16 12:14:58 cvsnanne Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.18 2005-10-31 14:59:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,11 @@ ________________________________________________________________________
 class BufferString;
 class BufferStringSet;
 class CubeSampling;
-class Line2DGeometry;
 class MultiID;
 class SeisTrcBuf;
 class uiPopupMenu;
 
+namespace PosInfo { class Line2DData; }
 
 /*! \brief Seismic User Interface Part Server */
 
@@ -42,7 +42,7 @@ public:
     bool		select2DSeis(MultiID&,bool with_attr=false);
     bool		select2DLines(const MultiID&,BufferStringSet&);
     bool		get2DLineGeometry(const MultiID& mid,const char* linenm,
-					  Line2DGeometry&) const;
+	    				  PosInfo::Line2DData&) const;
     void		get2DLineSetName(const MultiID&,BufferString&) const;
     void		get2DStoredAttribs(const MultiID&,const char* linenm,
 	    				   BufferStringSet&) const;

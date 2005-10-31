@@ -4,12 +4,13 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.49 2005-10-28 12:33:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.50 2005-10-31 14:59:22 cvshelene Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
 #include "seisbuf.h"
+#include "segposinfo.h"
 #include "survinfo.h"
 #include "safefileio.h"
 #include "ascstream.h"
@@ -82,37 +83,6 @@ bool TwoDSeisTrcTranslator::initRead_()
     return true;
 }
 
-
-//------
-
-Line2DGeometry::Line2DGeometry()
-{
-    zrg = SI().sampling(false).zrg;
-}
-
-
-void Line2DGeometry::dump( std::ostream& strm, bool pretty ) const
-{
-    if ( !pretty )
-	strm << zrg.start << '\t' << zrg.stop << '\t' << zrg.step << std::endl;
-    else
-    {
-	const float fac = SI().zFactor();
-	strm << "Z range " << SI().getZUnit() << ":\t" << fac*zrg.start
-	     << '\t' << fac*zrg.stop << "\t" << fac*zrg.step;
-	strm << "\n\nTrace number\tX-coord\tY-coord" << std::endl;
-    }
-
-    for ( int idx=0; idx<posns.size(); idx++ )
-    {
-	const Line2DPos& pos = posns[idx];
-	strm << pos.nr << '\t' << pos.coord.x << '\t' << pos.coord.y << '\n';
-    }
-    strm.flush();
-}
-
-
-//------
 
 static BufferStringSet& preSetFiles()
 {
@@ -323,7 +293,7 @@ void Seis2DLineSet::removeLock() const
 }
 
 
-bool Seis2DLineSet::getGeometry( int ipar, Line2DGeometry& geom ) const
+bool Seis2DLineSet::getGeometry( int ipar, PosInfo::Line2DData& geom ) const
 {
     if ( !liop_ )
     {
@@ -338,6 +308,27 @@ bool Seis2DLineSet::getGeometry( int ipar, Line2DGeometry& geom ) const
     }
 
     return liop_->getGeometry( *pars_[ipar], geom );
+}
+
+
+bool Seis2DLineSet::getGeometry( PosInfo::LineSet2DData& lsgeom ) const
+{
+    for ( int idx=0; idx<pars_.size(); idx++ )
+    {
+	const char* lnm = pars_[idx]->name();
+	if ( lsgeom.getLineData(lnm) )
+	    continue;
+
+	PosInfo::Line2DData& ld = lsgeom.addLine( lnm );
+	getGeometry( idx, ld );
+	if ( ld.posns.size() < 1 )
+	{
+	    lsgeom.removeLine( lnm );
+	    return false;
+	}
+    }
+    
+    return true;
 }
 
 
@@ -686,7 +677,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
 
 bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
 {
-    Line2DGeometry geom;
+    PosInfo::Line2DData geom;
     if ( getGeometry(ipar,geom) )
     {
 	for ( int idx=0; idx<geom.posns.size(); idx++ )
@@ -803,7 +794,7 @@ int nextStep()
 	return Finished;
     }
 
-    Line2DGeometry geom;
+    PosInfo::Line2DData geom;
     if ( !ls.getGeometry(curidx,geom) )
     {
 	curmsg = "Couldn't get geometry for '";
@@ -817,7 +808,7 @@ int nextStep()
     const float zfac = SI().zFactor();
     for ( int idx=0; idx<geom.posns.size(); idx++ )
     {
-	const Line2DPos& pos = geom.posns[idx];
+	const PosInfo::Line2DPos& pos = geom.posns[idx];
 	outstr = "";
 	if ( incnr )
 	    { outstr += pos.nr; outstr += "\t"; }
