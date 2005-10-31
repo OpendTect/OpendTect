@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.49 2005-10-24 15:17:25 cvshelene Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.50 2005-10-31 08:36:48 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -349,8 +349,6 @@ int WellDisplay::usePar( const IOPar& par )
 	viswellid = well_->id();
     }
     
-    setDisplayTransformation( scene_->getUTM2DisplayTransform() );
-
     MultiID newmid;
     if ( !par.get(sKeyEarthModelID,newmid) )
 	return -1;
