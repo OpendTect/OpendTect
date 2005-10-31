@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.4 2005-10-31 16:46:13 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.5 2005-10-31 17:35:28 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -130,10 +130,12 @@ CubeSampling DataCubes::cubeSampling() const
     {
 	res.hrg.start = BinID( inlsampling.start, crlsampling.start );
 	res.hrg.stop = BinID( inlsampling.atIndex(inlsz-1),
-	crlsampling.atIndex(crlsz-1) );
+			      crlsampling.atIndex(crlsz-1) );
+	res.hrg.step = BinID( inlsampling.step, crlsampling.step );
 
 	res.zrg.start = z0 * zstep;
 	res.zrg.stop = (z0+zsz-1) * zstep;
+	res.zrg.step = zstep;
     }
 
     return res;
