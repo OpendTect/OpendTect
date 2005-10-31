@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.50 2005-10-31 08:36:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.51 2005-10-31 16:42:24 cvskris Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -396,6 +396,7 @@ void WellDisplay::setDisplayTransformation( visBase::Transformation* nt )
 {
     well_->setDisplayTransformation( nt );
     if ( picksallowed_) setDisplayTransformForPicks( nt );
+    fullRedraw(0);
 }
 
 
