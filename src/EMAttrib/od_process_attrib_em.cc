@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.19 2005-10-21 08:19:19 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.20 2005-10-31 07:48:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -338,7 +338,9 @@ bool BatchProgram::go( std::ostream& strm )
 	ObjectSet<BinIDValueSet> bivs;
 	HorizonUtils::getPositions( strm, *(midset[0]), bivs );
 	proc = aem.createLocationOutput( errmsg, bivs );
-	if ( !process( strm, proc ) ) return false;
+	if ( !proc ) mErrRet( "Could create processor" );
+
+	if ( !process(strm,proc) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Surface*,surface,obj)
