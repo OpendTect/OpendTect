@@ -7,17 +7,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.19 2005-04-13 15:31:59 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.20 2005-10-31 16:13:58 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
 
+#ifdef USEQT4
+# define mQToolBarClss Q3ToolBar
+#else
+# define mQToolBarClss QToolBar
+#endif
+
 class ioPixmap;
 class uiToolBarBody;
 class QMainWindow;
-class QToolBar;
+class mQToolBarClss;
 
 class uiToolBar : public uiParent
 {
@@ -87,9 +93,9 @@ public:
 
 protected:
 
-    QToolBar*		qtoolbar;
+    mQToolBarClss*	qtoolbar;
     uiToolBarBody*	body_;
-    uiToolBarBody&	mkbody(const char*,QToolBar&);
+    uiToolBarBody&	mkbody(const char*,mQToolBarClss&);
 
 };
 

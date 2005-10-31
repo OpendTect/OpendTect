@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.25 2005-04-13 15:32:01 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.26 2005-10-31 16:14:07 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,14 +17,24 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "uiparentbody.h"
 
-#include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qapplication.h>
-#include <qmainwindow.h>
+
+#ifdef USEQT4
+# include <q3toolbar.h>
+# include <q3mainwindow.h>
+# include <q3dockarea.h>
+# define mQMainWinClss	Q3MainWindow
+# define mDockNmSpc	Qt
+#else
+# include <qtoolbar.h>
+# include <qmainwindow.h>
+# define mQMainWinClss	QMainWindow
+# define mDockNmSpc	QMainWindow
+#endif
 
 #include "qobject.h"
 #include "i_qtoolbut.h"
-
 
 
 //class uiToolBarBody : public uiBodyImpl<uiToolBar,QToolBar>
@@ -32,8 +42,7 @@ class uiToolBarBody : public uiParentBody
 {
 public:
 
-			uiToolBarBody( uiToolBar& handle, QToolBar& bar )
-//			    : uiBodyImpl<uiToolBar,QToolBar>( handle, 0, bar )
+			uiToolBarBody( uiToolBar& handle, mQToolBarClss& bar )
 			    : uiParentBody("ToolBar")
 			    , qbar(&bar)
 			    {}
@@ -48,22 +57,22 @@ public:
     bool		isOn(int idx ) const;
     void		setSensitive(int idx, bool yn );
     void		setSensitive(bool yn);
+    bool		isSensitive() const;
     void		setToolTip(int,const char*);
     void		setPixmap(int,const ioPixmap&);
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
 
-//    void		addChild( uiObjHandle* child, uiBody*, bool manage=true );
 
-    static QMainWindow::ToolBarDock
+    static mDockNmSpc::ToolBarDock
 			qdock(uiToolBar::ToolBarDock);
 
 protected:
-//  virtual const QWidget*      managewidg_() const	{ return qwidget(); }
+
     virtual const QWidget*      managewidg_() const	{ return qbar; }
     virtual const QWidget*	qwidget_() const	{ return qbar; }
-    QToolBar*			qbar;
+    mQToolBarClss*	qbar;
     virtual void        attachChild ( constraintType tp,
                                       uiObject* child,
                                       uiObject* other, int margin,
@@ -83,12 +92,6 @@ private:
 int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
 			      const char* nm, bool toggle )
 {
-#if 0 
-
-    uiToolButton* but = new uiToolButton( this, nm, pm, &cb );
-
-#else
-
     i_QToolButReceiver* br= new i_QToolButReceiver;
     QToolButton* but= new QToolButton( *pm.Pixmap(), QString(nm), QString::null,
                            br,  SLOT(buttonPressed()),qbar, nm );
@@ -100,7 +103,6 @@ int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
 
     br->pressed.notify( cb );
     return buttons.size()-1;
-#endif
 }
 
 
@@ -140,17 +142,23 @@ void uiToolBarBody::setSensitive( bool yn )
 }
 
 
-QMainWindow::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
+bool uiToolBarBody::isSensitive() const
+{
+    return qwidget() ? qwidget()->isEnabled() : false;
+}
+
+
+mDockNmSpc::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
 {
     switch( d )
     {
-	case uiToolBar::Top:		return QMainWindow::Top;
-	case uiToolBar::Bottom:		return QMainWindow::Bottom;
-	case uiToolBar::Right:		return QMainWindow::Right;
-	case uiToolBar::Left:		return QMainWindow::Left;
-	case uiToolBar::Minimized:	return QMainWindow::Minimized;
+	case uiToolBar::Top:		return mDockNmSpc::Top;
+	case uiToolBar::Bottom:		return mDockNmSpc::Bottom;
+	case uiToolBar::Right:		return mDockNmSpc::Right;
+	case uiToolBar::Left:		return mDockNmSpc::Left;
+	case uiToolBar::Minimized:	return mDockNmSpc::Minimized;
     }
-    return (QMainWindow::ToolBarDock) 0;
+    return (mDockNmSpc::ToolBarDock) 0;
 }
 
 
@@ -158,9 +166,9 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
 		      bool newline )
     : uiParent(nm,0)
 {
-    QMainWindow::ToolBarDock tbdock = uiToolBarBody::qdock(d);
+    Qt::ToolBarDock tbdock = uiToolBarBody::qdock(d);
     QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
-    qtoolbar = new QToolBar( QString(nm), (QMainWindow*)qwidget, 
+    qtoolbar = new mQToolBarClss( QString(nm), (mQMainWinClss*)qwidget, 
 	    		     tbdock, newline );
     setBody( &mkbody(nm,*qtoolbar) );
 }
@@ -172,7 +180,7 @@ uiToolBar::~uiToolBar()
 }
 
 
-uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
+uiToolBarBody& uiToolBar::mkbody( const char* nm, mQToolBarClss& qtb )
 { 
     body_ = new uiToolBarBody( *this, qtb );
     return *body_; 
