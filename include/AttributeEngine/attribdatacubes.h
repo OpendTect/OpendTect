@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.5 2005-10-30 22:03:24 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.6 2005-10-31 21:27:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
 
     int				nrCubes() const { return cubes.size(); }
     void			addCube();
+    void			addCube(float);
+    				//!<Adds the cube and inits it to the given val.
     void			removeCube(int);
 
     void			setSizeAndPos( const CubeSampling& );

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.5 2005-10-31 17:35:28 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.6 2005-10-31 21:27:20 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -34,6 +34,17 @@ void DataCubes::addCube()
     Array3DImpl<float>* arr = new Array3DImpl<float>( inlsz, crlsz, zsz, false);
     cubes += arr;
 }
+
+
+void DataCubes::addCube( float val )
+{
+    addCube();
+    float* vals = cubes[cubes.size()-1]->getData();
+    const float* stopptr = vals + cubes[cubes.size()-1]->info().getTotalSz();
+    while ( vals<stopptr )
+    	(*vals++) = val;
+}
+    
 
 
 void DataCubes::removeCube( int idx )
