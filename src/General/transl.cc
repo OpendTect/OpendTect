@@ -14,7 +14,7 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.16 2003-11-26 10:22:55 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.17 2005-10-31 13:44:27 cvsnanne Exp $";
 
 
 int defaultSelector( const char* mytyp, const char* typ )
@@ -68,27 +68,39 @@ public:
 
 };
 
-#define mRetEG { if ( !eg ) eg = new EmptyTrGroup; return *eg; }
 
-TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
+static TranslatorGroup* findGroup( const ObjectSet<TranslatorGroup>& grps,
+				   const char* nm, bool user, bool iserr )
 {
-    const ObjectSet<TranslatorGroup>& grps = groups();
-    static EmptyTrGroup* eg = 0;
-
     if ( !nm || !*nm )
-	{ pFreeFnErrMsg("nm empty","getGroup"); mRetEG; }
+	{ pFreeFnErrMsg("nm empty","findGroup"); return 0; }
 
     for ( int idx=0; idx<grps.size(); idx++ )
     {
-	if ( (user  && grps[idx]->userName() == nm)
+	if ( ( user && grps[idx]->userName() == nm)
 	  || (!user && grps[idx]->clssName() == nm) )
-	    return *grps[idx];
+	    return grps[idx];
     }
 
-    if ( strcmp(nm,"Appl dir") )
-	{ pFreeFnErrMsg( "Requested trgroup doesn't exist", "getGroup" ); }
+    if ( iserr )
+    {
+	BufferString errmsg( "Cannot find '" );
+	errmsg += nm;
+	errmsg += "' TranslatorGroup";
+	pFreeFnErrMsg(errmsg,"findGroup");
+    }
+    return 0;
+}
 
-    mRetEG;
+static EmptyTrGroup* emptytrgroup = 0;
+#define mRetEG \
+{ if ( !emptytrgroup ) emptytrgroup = new EmptyTrGroup; return *emptytrgroup; }
+
+TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
+{
+    TranslatorGroup* ret = findGroup( groups(), nm, user, true );
+    if ( !ret ) mRetEG
+    return *ret;
 }
 
 
@@ -108,8 +120,22 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 	DBG::message( msg );
     }
 
-    getGroups() += newgrp;
+    if ( !newgrp ) mRetEG
 
+    TranslatorGroup* grp = findGroup( getGroups(), newgrp->userName(),
+	    				true, false );
+    if ( grp )
+    {
+	if ( DBG::isOn(DBG_IO) )
+	{
+	    BufferString msg( "Not adding '" ); msg += newgrp->userName();
+	    msg += "' again";
+	    DBG::message( msg );
+	}
+	return *grp;
+    }
+
+    getGroups() += newgrp;
     return *newgrp;
 }
 
