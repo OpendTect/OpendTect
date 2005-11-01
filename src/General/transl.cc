@@ -14,7 +14,7 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.18 2005-11-01 03:14:43 cvskris Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.19 2005-11-01 09:21:09 cvsbert Exp $";
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
@@ -58,6 +58,22 @@ ObjectSet<TranslatorGroup>& TranslatorGroup::getGroups()
 int TranslatorGroup::add( Translator* tr )
 {
     if ( !tr ) return -1;
+
+    for ( int idx=0; idx<templs_.size(); idx++ )
+    {
+	const Translator* oldtr = templs_[idx];
+	if ( oldtr->userName() == tr->userName() )
+	{
+	    if ( DBG::isOn(DBG_IO) )
+	    {
+		BufferString msg( "Translator already in list: '" );
+		msg += tr->userName();
+		msg += "' - replacing old.";
+		DBG::message( msg );
+	    }
+	    templs_ -= oldtr; break;
+	}
+    }
 
     tr->setGroup( this );
     templs_ += tr;
