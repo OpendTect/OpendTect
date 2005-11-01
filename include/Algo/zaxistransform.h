@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.6 2005-10-26 22:07:16 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.7 2005-11-01 23:34:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     virtual int			addVolumeOfInterest( const CubeSampling& );
     virtual void		setVolumeOfInterest( int, const CubeSampling& );
     virtual void		removeVolumeOfInterest( int );
+    virtual bool		loadDataIfMissing( int ) { return false; }
     				
     virtual ZType		getFromZType() const 			= 0;
     virtual ZType		getToZType() const 			= 0;
