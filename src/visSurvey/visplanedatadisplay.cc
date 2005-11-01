@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.89 2005-10-26 22:04:43 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.90 2005-11-01 13:08:02 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -91,6 +91,8 @@ void PlaneDataDisplay::setUpConnections()
 {
     if ( scene_ )
 	scene_->zscalechange.notify( mCB(this,PlaneDataDisplay,zScaleChanged) );
+
+    setGeometry( false, true );
 }
 
 
@@ -123,8 +125,16 @@ void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
 {
     BinID startbid = SI().sampling(true).hrg.start;
     BinID stopbid = SI().sampling(true).hrg.stop;
-    StepInterval<float> vrgd = SI().zRange(true);
 
+    StepInterval<float> vrgd = SI().zRange(true);
+    datatransform = scene_ ? scene_->getDataTransform() : 0;
+    if ( datatransform )
+    {
+	Interval<float> zrg = datatransform->getZInterval( false );
+	vrgd.start = zrg.start;
+	vrgd.stop = zrg.stop;
+    }
+	
     StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlStep() );
     StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlStep() );
     StepInterval<float> vrg( vrgd.start, vrgd.stop, vrgd.step );
