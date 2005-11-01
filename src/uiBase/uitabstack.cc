@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.10 2005-01-13 13:42:35 arend Exp $
+ RCS:           $Id: uitabstack.cc,v 1.11 2005-11-01 10:12:06 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,11 @@ void uiTabStack::tabSel( CallBacker* cb )
 
     for ( int idx=0; idx<tabs.size(); idx++ )
     {
+#ifdef USEQT4
+	bool disp = tabs[idx]->group() == selgrp;
+#else
 	bool disp = tabs[idx]->id() == id;
+#endif
 	tabs[idx]->group().display( disp );
     }
 }
@@ -61,7 +65,12 @@ void uiTabStack::addTab( uiGroup* grp, const char* txt )
 	setHAlignObj( grp );
 }
 
-
+#ifdef USEQT4
+void uiTabStack::removeTab( uiGroup* grp )
+{
+    tabbar_->removeTab( grp );
+}
+#else
 void uiTabStack::insertTab( uiGroup* grp, const char* txt, int index )
 {
     if ( !grp ) return;
@@ -78,7 +87,7 @@ void uiTabStack::removeTab( int index )
 {
     tabbar_->removeTab( index );
 }
-
+#endif
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
 {
