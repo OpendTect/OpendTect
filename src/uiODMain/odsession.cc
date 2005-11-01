@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.7 2005-03-09 16:43:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.8 2005-11-01 12:05:33 cvsnanne Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -153,7 +153,7 @@ bool ODSessionTranslator::store( const ODSession& session,
     PtrMan<ODSessionTranslator> tr
 	 = dynamic_cast<ODSessionTranslator*>(ioobj->getTranslator());
     if ( !tr )
-	{ err = "Selected object is not an Attribute Set"; return false; }
+	{ err = "Selected object is not an OpendTect Session"; return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     { err = "Cannot open "; err += ioobj->fullUserExpr(false); return false; }
