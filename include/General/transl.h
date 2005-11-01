@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.21 2005-06-07 16:22:54 cvsbert Exp $
+ RCS:		$Id: transl.h,v 1.22 2005-11-01 03:14:43 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -18,7 +18,7 @@ description of IOObj context.
 
 */
 
-
+#include "refcount.h"
 #include "sets.h"
 #include "selector.h"
 #include "callback.h"
@@ -52,15 +52,11 @@ int defaultSelector(const char*,const char*);
  */
 
 class TranslatorGroup
-{
+{ mRefCountImpl(TranslatorGroup);
 public:
 
 				TranslatorGroup( const char* clssnm,
-						 const char* usrnm )
-				: clssname_(clssnm)
-				, usrname_(usrnm)
-				, selhist_(0)		{}
-    virtual			~TranslatorGroup();
+						 const char* usrnm );
 
     const BufferString&		clssName() const	{ return clssname_; }
     const BufferString&		userName() const	{ return usrname_; }
@@ -157,13 +153,13 @@ protected:
   // In the class definition:
 #define isTranslatorGroup(clss) \
 public: \
-    static TranslatorGroup& theInst() { return theinst_; } \
+    static TranslatorGroup& theInst() { return *theinst_; } \
     static int selector(const char*); \
     static const IOObjContext& ioContext(); \
     virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
 private: \
-    static TranslatorGroup& theinst_;
+    static RefMan<TranslatorGroup> theinst_;
 
 
 #define isTranslator(spec,clss) \
@@ -181,8 +177,8 @@ private: \
 
   // In a source file:
 #define defineTranslatorGroup(clss,usrnm) \
-TranslatorGroup& clss##TranslatorGroup::theinst_ \
-    = TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );
+RefMan<TranslatorGroup> clss##TranslatorGroup::theinst_ \
+    = &TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );
 
 
 #define defineTranslator(spec,clss,usrnm) \

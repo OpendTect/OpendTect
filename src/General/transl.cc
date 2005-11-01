@@ -14,7 +14,14 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.17 2005-10-31 13:44:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.18 2005-11-01 03:14:43 cvskris Exp $";
+
+
+TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
+    : clssname_(clssnm)
+    , usrname_(usrnm)
+    , selhist_(0)
+{ mRefCountConstructor;}
 
 
 int defaultSelector( const char* mytyp, const char* typ )
@@ -33,6 +40,9 @@ TranslatorGroup::~TranslatorGroup()
     delete selhist_;
     for ( int idx=0; idx<templs_.size(); idx++ )
 	delete const_cast<Translator*>( templs_[idx] );
+
+    while ( getGroups().indexOf(this)!=-1 )
+	getGroups() -= this;
 }
 
 
@@ -132,6 +142,9 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 	    msg += "' again";
 	    DBG::message( msg );
 	}
+
+	newgrp->ref(); newgrp->unRef();
+
 	return *grp;
     }
 
