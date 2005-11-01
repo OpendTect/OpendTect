@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.90 2005-11-01 13:08:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.91 2005-11-01 16:13:17 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -92,7 +92,7 @@ void PlaneDataDisplay::setUpConnections()
     if ( scene_ )
 	scene_->zscalechange.notify( mCB(this,PlaneDataDisplay,zScaleChanged) );
 
-    setGeometry( false, true );
+    setGeometry( false, false );
 }
 
 
@@ -138,9 +138,10 @@ void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
     StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlStep() );
     StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlStep() );
     StepInterval<float> vrg( vrgd.start, vrgd.stop, vrgd.step );
-    if ( init_ )
+    if ( init_ || datatransform )
 	trect->getRectangle().setOrigo( 
 				Coord3(inlrg.start,crlrg.start,vrg.start) );
+
     setRanges( inlrg, crlrg, vrg, manip );
 
     resetDraggerSizes( scene_ ? scene_->getZScale() : STM().defZScale() );
