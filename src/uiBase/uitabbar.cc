@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.9 2005-11-02 16:25:42 cvsarend Exp $
+ RCS:           $Id: uitabbar.cc,v 1.10 2005-11-02 16:43:10 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "sets.h"
 
 #include "i_qtabbar.h"
-#include "qicon.h"
 #include "qiconset.h"
 
 #ifdef USEQT4
+# include "qicon.h"
 # define muiObjBodyImpl    uiObjBodyImplNoQtNm
 #else
 # define muiObjBodyImpl    uiObjBodyImpl
@@ -95,6 +95,16 @@ int uiTabBar::addTab( uiTab* tab )
     return body_->insertTab( &tab->body_ ); 
 #endif
 }
+
+#ifndef USEQT4
+int uiTabBar::insertTab( uiTab* tab, int index )
+{
+    if ( !tab ) return -1;
+    tabs_ += tab;
+    tab->group().display( true );
+    return body_->insertTab( &tab->body_, index ); 
+}
+#endif
 
 void uiTabBar::removeTab( mRemoveTabArg )
 {
