@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.11 2004-12-23 17:16:38 bert Exp $
+ RCS:           $Id: uisettings.cc,v 1.12 2005-11-02 16:46:58 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,90 @@ bool uiSettings::acceptOK( CallBacker* )
     setts.set( ky, valfld->text() );
 
     if ( !setts.write() )
+    {
+	uiMSG().error( "Cannot write settings" );
+	return false;
+    }
+
+    return true;
+}
+
+
+#define mCBarKey        "dTect.ColorBar"
+#define mHVKey          "show vertical"
+#define mTopKey         "show on top"
+
+
+uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
+	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings",""))
+	, setts(Settings::common())
+	, iconsz( 24 )
+	, isvert( true )
+	, isontop( false )
+{
+
+    IOPar* iopar = setts.subselect( "Icons" );
+    if ( iopar ) iopar->get( "size", iconsz );
+
+    iconszfld = new uiGenInput( this, "Icon Size", IntInpSpec(iconsz) );
+
+
+    iopar = setts.subselect( mCBarKey );
+    if ( iopar )
+    {
+	iopar->getYN( mHVKey, isvert );
+	iopar->getYN( mTopKey, isontop );
+    }
+   
+    colbarhvfld = new uiGenInput( this, "Color bar orientation",
+			      BoolInpSpec("Vertical", "Horizontal", isvert) );
+
+    colbarontopfld = new uiGenInput( this, "Color bar starts on top",
+			      BoolInpSpec(0, 0, isontop) );
+    
+    colbarhvfld->attach( alignedBelow, iconszfld );
+    colbarontopfld->attach( alignedBelow, colbarhvfld );
+}
+
+uiLooknFeelSettings::~uiLooknFeelSettings()
+{
+}
+
+bool uiLooknFeelSettings::acceptOK( CallBacker* )
+{
+    bool changed = false;
+    int nwiconsz = iconszfld->getIntValue();
+    if ( nwiconsz > 1 && nwiconsz < 100 && nwiconsz != iconsz )
+    {
+	iconsz = nwiconsz;
+	IOPar* iopar = setts.subselect( "Icons" );
+	if ( !iopar ) iopar = new IOPar;
+
+	iopar->set( "size", iconsz );
+
+	setts.mergeComp( *iopar, "Icons" );
+	changed = true;
+    }
+
+    bool nwisvert = colbarhvfld->getBoolValue();
+    bool nwisontop = colbarontopfld->getBoolValue();
+
+    if ( isvert != nwisvert || isontop != nwisontop )
+    {
+	isvert = nwisvert;
+	isontop = nwisontop;
+
+	IOPar* iopar = setts.subselect( mCBarKey );
+	if ( !iopar ) iopar = new IOPar;
+
+	iopar->setYN( mHVKey, isvert );
+	iopar->setYN( mTopKey, isontop );
+
+	setts.mergeComp( *iopar, mCBarKey );
+	changed = true;
+    }
+
+    if ( changed && !setts.write() )
     {
 	uiMSG().error( "Cannot write settings" );
 	return false;
