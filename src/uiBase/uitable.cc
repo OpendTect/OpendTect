@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.32 2005-09-19 15:22:50 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.33 2005-11-02 14:20:26 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,16 @@ ________________________________________________________________________
 #include "convert.h"
 #include "bufstringset.h"
 #include "i_layoutitem.h"
+
+#ifdef USEQT4
+# define mQTable Q3Table
+# define mQHeader Q3Header
+# define mQMemArray Q3MemArray
+#else
+# define mQTable QTable
+# define mQHeader QHeader
+# define mQMemArray QMemArray
+#endif
 
 // leftMargin() / topMargin() are protected. 
 // TODO : hack. Should be fixed by the Trolls.....
@@ -65,13 +75,13 @@ public:
 }; 
 
 
-class uiTableBody : public uiObjBodyImpl<uiTable,QTable>
+class uiTableBody : public uiObjBodyImpl<uiTable,mQTable>
 {
 public:
 
                         uiTableBody( uiTable& handle, uiParent* parnt, 
 				     const char* nm, int nrows, int ncols )
-			    : uiObjBodyImpl<uiTable,QTable>( handle, parnt, nm )
+			    : uiObjBodyImpl<uiTable,mQTable>( handle, parnt, nm )
 			    , messenger_ (*new i_tableMessenger(this, &handle ))
 			{
 			    if ( nrows >= 0 ) setLines( nrows + 1 );
@@ -101,7 +111,7 @@ public:
 
     void		setRowLabels( const QStringList &labels )
 			{
-			    QHeader* leftHeader = verticalHeader();
+			    mQHeader* leftHeader = verticalHeader();
 
 			    int i = 0;
 			    for( QStringList::ConstIterator it = labels.begin();
@@ -297,7 +307,7 @@ void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
 	return;
     }
 
-    QMemArray<int> qidxs( idxs.size() );
+    mQMemArray<int> qidxs( idxs.size() );
     for ( int idx=0; idx<idxs.size(); idx++ )
 	qidxs.at(idx) = idxs[idx];
 
@@ -357,7 +367,7 @@ const char* uiTable::text( const RowCol& rc ) const
     else
     {
 	body_->endEdit( rc.row, rc.col, true, false );
-	rettxt_ = body_->text( rc.row, rc.col );
+	rettxt_ = (const char*) body_->text( rc.row, rc.col );
     }
 
     return rettxt_;
@@ -457,15 +467,15 @@ const Color uiTable::getColor( const RowCol& rc ) const
 const char* uiTable::rowLabel( int nr ) const
 {
     static BufferString ret;
-    QHeader* topHeader = body_->verticalHeader();
-    ret = topHeader->label( nr );
+    mQHeader* topHeader = body_->verticalHeader();
+    ret = (const char*) topHeader->label( nr );
     return ret;
 }
 
 
 void uiTable::setRowLabel( int row, const char* label )
 {
-    QHeader* topHeader = body_->verticalHeader();
+    mQHeader* topHeader = body_->verticalHeader();
     topHeader->setLabel( row, label );
 
     //setRowStretchable( row, true );
@@ -496,15 +506,15 @@ void uiTable::setRowLabels( const BufferStringSet& labels )
 const char* uiTable::columnLabel( int nr ) const
 {
     static BufferString ret;
-    QHeader* topHeader = body_->horizontalHeader();
-    ret = topHeader->label( nr );
+    mQHeader* topHeader = body_->horizontalHeader();
+    ret = (const char*) topHeader->label( nr );
     return ret;
 }
 
 
 void uiTable::setColumnLabel( int col, const char* label )
 {
-    QHeader* topHeader = body_->horizontalHeader();
+    mQHeader* topHeader = body_->horizontalHeader();
     topHeader->setLabel( col, label );
 
     //setColumnStretchable( col, true );
@@ -606,11 +616,11 @@ void uiTable::setSelectionMode( SelectionMode m )
 {
     switch ( m ) 
     {
-	case Single : body_->setSelectionMode( QTable::Single ); break;
-	case Multi : body_->setSelectionMode( QTable::Multi ); break;
-	case SingleRow : body_->setSelectionMode( QTable::SingleRow ); break;
-	case MultiRow : body_->setSelectionMode( QTable::MultiRow ); break;
-	default :  body_->setSelectionMode( QTable::NoSelection ); break;
+	case Single : body_->setSelectionMode( mQTable::Single ); break;
+	case Multi : body_->setSelectionMode( mQTable::Multi ); break;
+	case SingleRow : body_->setSelectionMode( mQTable::SingleRow ); break;
+	case MultiRow : body_->setSelectionMode( mQTable::MultiRow ); break;
+	default :  body_->setSelectionMode( mQTable::NoSelection ); break;
     }
 
 }
