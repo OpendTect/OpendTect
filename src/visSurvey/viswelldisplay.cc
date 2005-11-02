@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.51 2005-10-31 16:42:24 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.52 2005-11-02 13:06:22 cvskris Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -88,6 +88,7 @@ void WellDisplay::setWell( visBase::Well* well )
 void WellDisplay::fullRedraw( CallBacker* )
 {
     Well::Data* wd = Well::MGR().get( wellid_, false );
+    if ( !wd ) return;
     
     const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
