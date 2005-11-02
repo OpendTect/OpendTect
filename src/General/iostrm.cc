@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.21 2005-10-04 14:05:48 cvskris Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.22 2005-11-02 17:35:26 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -422,21 +422,9 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
 		strcat( numbstr, "0" );
 	}
 	strcat( numbstr, numb );
-	
-	FileNameString inp = nm;
-	char* ptr = inp.buf();
-	nm = "";
-	char wc = directNumberMultiConn() ? '*' : '%';
-	while ( 1 )
-	{
-	    char* wcptr = strchr( ptr, wc );
-	    if ( !wcptr ) break;
-	    *wcptr = '\0';
-	    nm += ptr;
-	    nm += numbstr;
-	    ptr = wcptr + 1;
-	}
-	nm += ptr;
+
+	const char* tok = directNumberMultiConn() ? "*" : "%";
+	replaceString( nm.buf(), tok, numbstr );
     }
 
     StreamProvider* sp = new StreamProvider( hostname, nm, type_ );
