@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.37 2005-10-26 14:40:34 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.38 2005-11-02 16:49:08 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.37 2005-10-26 14:40:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.38 2005-11-02 16:49:08 cvsarend Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.37 2005-10-26 14:40:34 cvsna
 #include "uicrdevenv.h"
 #include "uisettings.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uitoolbar.h"
 #include "uisoviewer.h"
 #include "pixmap.h"
@@ -276,6 +277,7 @@ void uiODMenuMgr::fillUtilMenu()
     utilmnu->insertItem( settmnu );
     mInsertItem( settmnu, "&Fonts ...", mSettFontsMnuItm );
     mInsertItem( settmnu, "&Mouse controls ...", mSettMouseMnuItm );
+    mInsertItem( settmnu, "&Look and feel ...", mSettLkNFlMnuItm );
     mInsertItem( settmnu, "&General ...", mSettGeneral );
 
     mInsertItem( utilmnu, "&Batch programs ...", mBatchProgMnuItm );
@@ -400,6 +402,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
     case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
+    case mSettLkNFlMnuItm: {
+	uiLooknFeelSettings dlg( &appl, "Set Look and Feel Settings" );
+	dlg.go();
+	uiMSG().message("Settings will become active the next time\n" 
+			"OpendTect is started.");
+    } break;
+
     case mSettGeneral: {
 	uiSettings dlg( &appl, "Set a specific User Setting" );
 	dlg.go();
