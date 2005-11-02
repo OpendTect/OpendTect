@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.35 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiobjbody.h,v 1.36 2005-11-02 16:25:10 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,10 @@ public:
     virtual			~uiObjectBody();
 
     void			setToolTip(const char*);
+#ifndef USEQT4
     static void			enableToolTips(bool yn=true);
     static bool			toolTipsEnabled();
+#endif
 
     void 			display(bool yn=true,bool shrink=false,
 					 bool maximised=false);
@@ -236,6 +238,22 @@ public:
 
 };
 
+template <class C, class T>
+class uiObjBodyImplNoQtNm : public uiObjectBody, public T
+{
+public:
+
+                        uiObjBodyImplNoQtNm( C& handle, uiParent* parnt, 
+				       const char* nm )
+			    : uiObjectBody( parnt, nm )
+			    , T( parnt && parnt->pbody() ? 
+				     parnt->pbody()->managewidg() : 0 )
+			    , handle_( handle )
+			    {}
+
+#include		"i_uiobjqtbody.h"
+
+};
 
 
 template <class C, class T>

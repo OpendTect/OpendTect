@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.7 2005-01-13 13:42:35 arend Exp $
+ RCS:           $Id: uitabbar.h,v 1.8 2005-11-02 16:25:42 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,13 @@ class uiGroup;
 class uiTabBody;
 class uiTab;
 
+#ifdef USEQT4
+# define mRemoveTabArg uiTab* tab
+#else
+# define mRemoveTabArg int index
+#endif
+
+
 //! TabBar widget only. Normally you'd want to use the uiTabStack class.
 class uiTabBar : public uiObject
 {
@@ -30,8 +37,7 @@ public:
 				 const CallBack* cb=0);
 
     int			addTab(uiTab*);
-    int			insertTab(uiTab*,int index=-1);
-    void		removeTab(int index);
+    void		removeTab(mRemoveTabArg);
     void		removeTab(uiGroup*);
 
     void		setTabEnabled(int id,bool);
@@ -39,13 +45,15 @@ public:
 
     void		setCurrentTab(int id);
     int			currentTabId() const;
-    int			keyboardFocusTabId() const;
     
     int			size() const;
 
     Notifier<uiTabBar>  selected;
 
     int			idOf(uiGroup* grp) const;
+#ifdef USEQT4
+    int			idOf(uiTab* tab) const;
+#endif
     uiGroup*		page(int id) const;
 
 protected:
@@ -62,15 +70,17 @@ class uiTab : public UserIDObject
 friend class		uiTabBar;
 public:
 			uiTab(uiGroup&);
+#ifndef USEQT4
+    int			id();
+#endif
 
-    int 		id();
-
-    const uiTabBody&	body() const	{ return body_; }
     uiGroup&		group()		{ return grp_; }
 
 protected:
 
+#ifndef USEQT4
     uiTabBody&		body_;
+#endif
     uiGroup&		grp_;
 };
 
