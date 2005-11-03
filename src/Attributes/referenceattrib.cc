@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.10 2005-10-28 15:09:50 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.11 2005-11-03 12:11:44 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -31,6 +31,9 @@ void Reference::initClass()
     is2d_->setDefaultValue(false);
     is2d_->setRequired(false);
     desc->addParam( is2d_ );
+
+    InputSpec inputspec( "Data on which the Reference should be measured",true);
+    desc->addInput( inputspec );
 
     desc->init();
 
@@ -68,7 +71,28 @@ void Reference::updateDesc( Desc& desc )
 Reference::Reference( Desc& desc_ )
         : Provider( desc_ )
 {
+    if ( !isOK() ) return;
+    
     mGetBool( is2d_, is2DStr() );
+
+    inputdata.allowNull( true );
+}
+
+
+bool Reference::getInputOutput( int input, TypeSet<int>& res ) const
+{
+    return Provider::getInputOutput( input, res );
+}
+
+
+bool Reference::getInputData( const BinID& relpos, int idx )
+{
+    if ( !inputdata.size() )
+	inputdata += 0;
+
+    const DataHolder* data = inputs[0]->getData( relpos, idx );
+    inputdata.replace( 0, data );
+    return data;
 }
 
 
@@ -89,7 +113,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	if ( outputinterest[2] )
 	{
 	    float val;
-	    if ( seldata_->type_ == Seis::Table )
+	    if ( seldata_ && seldata_->type_ == Seis::Table )
 	    {
 		float offset = SI().zRange(0).start<0 ? SI().zRange(0).start :0;
 		val = ( z0 + idx ) * step + offset;

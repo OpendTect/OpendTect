@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.36 2005-10-28 15:08:21 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.37 2005-11-03 12:11:44 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -278,6 +278,18 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 }
 
 
+void DescSet::handleReferenceInput( Desc* desc )
+{
+    if ( desc->isSatisfied() == Desc::Error )
+    {
+	Desc* inpdesc = getFirstStored( is2D() ? Only2D : No2D, false );
+	if ( !inpdesc ) return;
+
+	desc->setInput( 0, inpdesc );
+    }
+}
+
+
 bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar, 
 				BufferStringSet* errmsgs )
 {
@@ -301,6 +313,9 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    descs[idx]->setInput( input, inpdesc );
 	}
 
+	if ( !strcmp( descs[idx]->attribName(), "Reference" ) )
+	    handleReferenceInput( descs[idx] );
+	
 	if ( descs[idx]->isSatisfied() == Desc::Error )
 	{
 	    BufferString err = "inputs or parameters are not satisfied for ";
@@ -669,34 +684,25 @@ int DescSet::removeUnused( bool remstored )
 }
 
 
-bool DescSet::getFirstStored( Pol2D p2d, MultiID& key ) const
-{
-    for ( int idx=0; idx<nrDescs(); idx++ )
-    {
-	const Desc* ad = descs[idx];
-	if ( !ad->isStored() ) continue;
-	if ( (ad->is2D() && p2d != No2D) || (!ad->is2D() && p2d != Only2D) )
-	{
-	    const ValParam* keypar = ad->getValParam(StorageProvider::keyStr());
-	    key = keypar->getStringValue();
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-
-Desc* DescSet::getFirstStored( Pol2D p2d )
+Desc* DescSet::getFirstStored( Pol2D p2d, bool usesteering ) const
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
 	Desc* ad = descs[idx];
 	if ( !ad->isStored() ) continue;
 
+	MultiID mid;
+	if ( !ad->getMultiID(mid) ) continue;
+
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
+	const bool issteer = res && *res == 'S';
+	if ( !usesteering && issteer ) continue;
+
 	if ( (ad->is2D() && p2d != No2D) || (!ad->is2D() && p2d != Only2D) )
 	    return ad;
     }
+
     return 0;
 }
 

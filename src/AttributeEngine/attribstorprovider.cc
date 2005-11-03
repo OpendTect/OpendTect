@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.28 2005-10-28 15:08:21 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.29 2005-11-03 12:11:44 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -142,34 +142,16 @@ bool StorageProvider::init()
 	    if ( lineidx==-1 )
 	    {
 		storedvolume.hrg.start.inl = 0;
-		storedvolume.hrg.stop.inl = lset->nrLines()-1;
+		storedvolume.hrg.stop.inl = 1;
 		storedvolume.hrg.step.inl = 1;
 
-		for ( int idx=0; idx<lset->nrLines(); idx++ )
-		{
-		    StepInterval<int> trcrg;
-		    StepInterval<float> zrg;
-		    if ( !lset->getRanges( idx, trcrg, zrg ) )
-			continue;
+		storedvolume.hrg.start.crl = 0;
+		storedvolume.hrg.stop.crl = SI().maxNrTraces(true);
+		storedvolume.hrg.step.crl = 1;
 
-		    if ( !isset )
-		    {
-			isset = true;
-			storedvolume.hrg.start.crl = trcrg.start;
-			storedvolume.hrg.stop.crl = trcrg.stop;
-			storedvolume.zrg.start = zrg.start;
-			storedvolume.zrg.stop = zrg.stop;
-		    }
-		    else
-		    {
-			storedvolume.hrg.start.crl =
-			    mMIN(trcrg.start, storedvolume.hrg.start.crl );
-			storedvolume.hrg.stop.crl =
-			    mMAX(trcrg.stop, storedvolume.hrg.stop.crl );
+		storedvolume.zrg = SI().sampling(true).zrg;
 
-			storedvolume.zrg.include( zrg );
-		    }
-		}
+		isset = true;
 	    }
 	    else
 	    {
@@ -246,7 +228,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		{
 		    currentbid = desc.is2D()? BinID( 0, trc->info().nr ) 
 					    : trc->info().binid;
-		    curtrcinfo_ = &trc->info();
+		    curtrcinfo_ = new SeisTrcInfo(trc->info());
 		    if ( !validstartpos || 
 			 ( validstartpos && ( currentbid == startpos || 
 			 ( seldata_ &&  seldata_->type_ == Seis::Table && 

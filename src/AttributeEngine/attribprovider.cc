@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.42 2005-10-28 15:08:21 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.43 2005-11-03 12:11:44 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -190,6 +190,8 @@ Provider::~Provider()
     delete linebuffer;
     delete possiblevolume;
     delete desiredvolume;
+    if (curtrcinfo_)
+	{ delete curtrcinfo_; curtrcinfo_=0; }
 }
 
 
@@ -408,14 +410,18 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     if ( alreadymoved )
 	return 1;
 
+    if ( inputs.size() < 1 )
+	startpos = BinID(-1,-1);
+    
     bool docheck = startpos == BinID(-1,-1);
 
     bool needmove;
+    bool hasmoved = false;
     bool docontinue = true;
     ObjectSet<Provider> movinginputs;
     while ( docontinue )
     {
-	needmove = false;
+	needmove = docheck;
 	for ( int idx=0; idx<inputs.size(); idx++ )
 	{
 	    if ( !inputs[idx] ) continue;
@@ -428,7 +434,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    {
 		if ( curtrcinfo_->binid == startpos )
 		    continue;
-		if ( curtrcinfo_->binid != startpos && firstcheck )
+		if ( curtrcinfo_->binid != startpos && firstcheck && hasmoved )
 		{
 		    startpos = curtrcinfo_->binid;
 		    firstcheck = false;
@@ -439,6 +445,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    const int res = inputs[idx]->moveToNextTrace(startpos, firstcheck);
 	    if ( res!=1 ) return res;
 
+	    hasmoved = true;
 	    if ( !inputs[idx]->getSeisRequester() ) continue;
 	    if ( movinginputs.indexOf( inputs[idx] ) < 0 )
 		movinginputs += inputs[idx];

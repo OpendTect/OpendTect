@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:           $Id: uireferenceattrib.h,v 1.2 2005-09-14 14:54:35 cvshelene Exp $
+ RCS:           $Id: uireferenceattrib.h,v 1.3 2005-11-03 12:11:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ public:
 
 protected:
 
+    uiAttrSel*          inpfld;
     uiGenInput*		outpfld3d;
     uiGenInput*		outpfld2d;
 
@@ -38,9 +39,11 @@ protected:
     bool                is2d_;
 
     bool		setParameters(const Attrib::Desc&);
+    bool                setInput(const Attrib::Desc&);
     bool		setOutput(const Attrib::Desc&);
 
     bool		getOutput(Attrib::Desc&);
+    bool                getInput(Attrib::Desc&);
     bool                getParameters(Attrib::Desc&);
 
     virtual void        set2D(bool);

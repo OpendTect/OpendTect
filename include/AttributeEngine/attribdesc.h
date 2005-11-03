@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.23 2005-10-28 15:09:11 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.24 2005-11-03 12:11:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "attribdescid.h"
 
 class DataInpSpec;
+class MultiID;
 
 namespace Attrib
 {
@@ -86,6 +87,7 @@ public:
     void		setHidden(bool yn)		{ hidden_ = yn; }
     bool		isHidden() const		{ return hidden_; }
     bool		isStored() const;
+    bool		getMultiID(MultiID&) const;
 
     int			nrInputs() const;
     int                 nrSpecs() const         { return inputspecs.size(); }

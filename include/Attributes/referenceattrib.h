@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.3 2005-09-14 14:52:57 cvshelene Exp $
+ RCS:           $Id: referenceattrib.h,v 1.4 2005-11-03 12:11:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,10 +60,14 @@ protected:
     
     static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
 
+    bool                getInputOutput(int input,TypeSet<int>& res) const;
+    bool                getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples) const;
 
     bool		is2d_;
+    
+    ObjectSet<const DataHolder> inputdata;
 };
 
 }; // namespace Attrib

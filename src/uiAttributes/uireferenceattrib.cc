@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.4 2005-09-26 14:02:51 cvsnanne Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.5 2005-11-03 12:11:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,11 +51,15 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p )
     : uiAttrDescEd(p)
     , is2d_(false)
 {
+    inpfld = getInpFld();
+    
     outpfld3d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs3d) );
+    outpfld3d->attach( alignedBelow, inpfld );
 
     outpfld2d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs2d) );
+    outpfld2d->attach( alignedBelow, inpfld );
     outpfld2d->display(false);
 
     setHAlignObj( outpfld3d );
@@ -75,6 +79,13 @@ bool uiReferenceAttrib::setParameters( const Attrib::Desc& desc )
     if ( strcmp(desc.attribName(),Reference::attribName()) )
 	return false;
 
+    return true;
+}
+
+
+bool uiReferenceAttrib::setInput( const Attrib::Desc& desc )
+{
+    putInp( inpfld, desc, 0 );
     return true;
 }
 
@@ -99,5 +110,12 @@ bool uiReferenceAttrib::getOutput( Desc& desc )
 bool uiReferenceAttrib::getParameters( Attrib::Desc& desc )
 {
     mSetBool( Reference::is2DStr(), is2d_ );
+    return true;
+}
+
+
+bool uiReferenceAttrib::getInput( Attrib::Desc& desc )
+{
+    fillInp( inpfld, desc, 0 );
     return true;
 }

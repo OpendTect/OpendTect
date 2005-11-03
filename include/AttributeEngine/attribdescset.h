@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.17 2005-10-25 12:20:57 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.18 2005-11-03 12:11:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,8 @@ public:
     void			getIds(TypeSet<DescID>&) const;
     DescID			getStoredID(const char* lk,int selout=0,
 	    				    bool create=true);
-    bool 			getFirstStored(Pol2D p2d, MultiID& key) const;
-    Desc* 			getFirstStored(Pol2D p2d);
+    Desc* 			getFirstStored(Pol2D p2d,bool usesteering=true)
+					       const;
 
     void			removeDesc(const DescID&);
     void			removeAll();
@@ -78,6 +78,7 @@ public:
     void 			handleStorageOldFormat(IOPar&);
     void 			handleOldAttributes(BufferString&, IOPar&,
 						    BufferString&);
+    void                        handleReferenceInput(Desc*);
 
     bool			is2D() const;
     const char*			errMsg() const;

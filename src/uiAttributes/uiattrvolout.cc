@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.11 2005-10-14 06:02:37 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.12 2005-11-03 12:11:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
     if ( is2d )
     {
 	MultiID key;
-	if ( ads.getFirstStored(p2d,key) )
+	const Desc* desc = ads.getFirstStored( p2d );
+	if ( desc && desc->getMultiID(key) )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( key );
 	    if ( ioobj )
@@ -250,7 +251,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     if ( clonedset->is2D() )
     {
 	MultiID ky;
-	if ( clonedset->getFirstStored(Only2D,ky) )
+	const Desc* desc = clonedset->getFirstStored( Only2D );
+	if ( desc && desc->getMultiID(ky) )
 	{
 	    iop.set( "Input Line Set", ky );
 	    linename = ky;
