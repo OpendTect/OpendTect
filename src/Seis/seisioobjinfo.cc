@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.4 2005-08-16 17:10:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.5 2005-11-03 10:11:32 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -177,6 +177,8 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
     lset->getAvailableAttributes( attrnms );
     for ( int idx=0; idx<attrnms.size(); idx++ )
 	bss.add( LineKey(key.buf(),attrnms[idx]->buf()) );
+
+    bss.sort();
 }
 
 
@@ -214,6 +216,8 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 
 	bss.add( nm );
     }
+
+    bss.sort();
 }
 
 
@@ -235,6 +239,7 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 	if ( target == requested )
 	    bss.addIfNew( listadd );
     }
+    bss.sort();
 }
 
 
