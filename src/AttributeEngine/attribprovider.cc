@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.43 2005-11-03 12:11:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.44 2005-11-03 13:14:41 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -190,8 +190,6 @@ Provider::~Provider()
     delete linebuffer;
     delete possiblevolume;
     delete desiredvolume;
-    if (curtrcinfo_)
-	{ delete curtrcinfo_; curtrcinfo_=0; }
 }
 
 

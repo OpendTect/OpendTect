@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.29 2005-11-03 12:11:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.30 2005-11-03 13:14:41 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -109,6 +109,8 @@ StorageProvider::StorageProvider( Desc& desc_ )
 StorageProvider::~StorageProvider()
 {
     deepErase( rg );
+    if (curtrcinfo_)
+	{ delete curtrcinfo_; curtrcinfo_=0; }
 }
 
 
