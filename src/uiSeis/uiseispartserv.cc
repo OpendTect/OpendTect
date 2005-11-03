@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.36 2005-10-31 14:59:22 cvshelene Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.37 2005-11-03 10:12:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,6 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
     BufferStringSet linenames;
     uiSeisIOObjInfo objinfo( mid );
     objinfo.getLineNames( linenames );
-    linenames.sort();
 
     uiListBoxDlg dlg( appserv().parent(), linenames, "Lines" );
     dlg.box()->setMultiSelect();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.55 2005-10-07 10:06:36 cvsnanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.56 2005-11-03 10:12:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,7 +256,6 @@ void fillLineBox()
     const int curitm = lb->size() ? lb->currentItem() : 0;
     BufferStringSet linenames;
     objinfo->getLineNames( linenames );
-    linenames.sort();
     lb->empty();
     lb->addItems( linenames );
     lb->setSelected( curitm );
