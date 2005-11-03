@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.23 2005-10-19 14:02:11 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.24 2005-11-03 23:27:26 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -63,7 +63,10 @@ EM::ObjectID EMTracker::objectID() const
 
 bool EMTracker::trackSections( const TrackPlane& plane )
 {
-    if ( !emobject || !isenabled ) return true;
+    if ( !emobject || !isenabled || plane.getTrackMode()==TrackPlane::Move ||
+	    plane.getTrackMode()==TrackPlane::None )
+	return true;
+
 
     const int initialhistnr = EM::EMM().history().currentEventNr();
     ConsistencyChecker* consistencychecker = getConsistencyChecker();

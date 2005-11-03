@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.51 2005-10-27 15:55:27 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.52 2005-11-03 23:27:26 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -104,6 +104,10 @@ bool Engine::setTrackPlane( const TrackPlane& ntp, bool dotrack )
 {
     trackplane = ntp;
     trackplanechange.trigger();
+    if ( ntp.getTrackMode()==TrackPlane::Move ||
+	    ntp.getTrackMode()==TrackPlane::None )
+	dotrack = false;
+
     return dotrack ? trackAtCurrentPlane() : true;
 }
 
