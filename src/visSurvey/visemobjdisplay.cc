@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.64 2005-10-19 15:48:15 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.65 2005-11-03 23:33:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ EMObjectDisplay::EMObjectDisplay()
     , hasmoved( this )
     , drawstyle(visBase::DrawStyle::create())
     , edgelineradius( 3.5 )
+    , validtexture( false )
 {
     coltab_->ref();
     drawstyle->ref();
@@ -478,7 +479,18 @@ bool EMObjectDisplay::addEdgeLineDisplay(EM::SectionID sid)
 
 void EMObjectDisplay::useTexture( bool yn )
 {
+    if ( yn && !validtexture )
+    {
+	if ( as.id()==Attrib::SelSpec::cNoAttrib() )
+	{
+	    usestexture = yn;
+	    setDepthAsAttrib();
+	    return;
+	}
+    }
+
     usestexture = yn;
+
 //  if ( yn ) nontexturecol = getMaterial()->getColor();
     getMaterial()->setColor( yn ? Color::White : nontexturecol );
 
@@ -707,6 +719,8 @@ void EMObjectDisplay::stuffData( bool forcolordata,
     if ( forcolordata )
 	return;
 
+    validtexture = true;
+
     if ( !data || !data->size() )
     {
 	for ( int idx=0; idx<sections.size(); idx++ )
@@ -915,6 +929,9 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 
 	    updatePosAttrib(posattribs[idx]);
 	}
+	
+	validtexture = false;
+	if ( usesTexture() ) useTexture(false);
 
 	triggermovement = true;
     }

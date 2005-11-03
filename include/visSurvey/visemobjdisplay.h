@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.28 2005-10-06 19:13:37 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.29 2005-11-03 23:33:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -186,6 +186,7 @@ protected:
     float				edgelineradius;
 
     Attrib::SelSpec&			as;
+    bool				validtexture;
     Attrib::ColorSelSpec&		colas;
     ObjectSet<const float>		attribcache;
     TypeSet<int>			attribcachesz;
