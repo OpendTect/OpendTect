@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.57 2005-10-28 12:33:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.58 2005-11-04 10:54:42 cvshelene Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -467,7 +467,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
     bool isincl = true;
     if ( seldata )
     {
-	if ( seldata->type_ == Seis::Table )
+	if ( seldata->type_ == Seis::Table && !seldata->all_ )
 	    // Not handled by fetcher
 	    isincl = seldata->table_.includes(trcti.binid);
     }
