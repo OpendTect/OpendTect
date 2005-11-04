@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.16 2005-03-31 15:25:53 cvsarend Exp $
+ RCS:		$Id: seiswrite.h,v 1.17 2005-11-04 15:38:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 
 Before first usage, the prepareWork() will be called if you don't
 do that separately. If you want to do some component and range selections
-using the SeisTrcTranslator (3D only), you must first do prepareWork.
+using the SeisTrcTranslator (3D only), you must do that before prepareWork
+is done.
 
 */
 
@@ -33,6 +34,10 @@ public:
 
 			SeisTrcWriter(const IOObj*,
 				      const LineKeyProvider* r=0);
+				//!< Write to real user entries from '.omf' file
+				//!< Can be anything: SEGY - CBVS - database
+			SeisTrcWriter(const char*);
+				//!< Write 'loose' CBVS files only.
 			~SeisTrcWriter();
     virtual bool	close();
 
@@ -47,10 +52,10 @@ public:
     const LineKeyProvider* lineKeyProvider() const { return lkp; }
     void		setLineKeyProvider( const LineKeyProvider* l )
 							 { lkp = l; }
-    			//!< If no lineKeyProvider set,
-    			//!< seldata's linekey will be used
+				//!< If no lineKeyProvider set,
+				//!< seldata's linekey will be used
     void		setAttrib( const char* a )	 { attrib = a; }
-    			//!< if set, overrules attrib in linekey
+				//!< if set, overrules attrib in linekey
     IOPar&		lineAuxPars()			{ return lineauxiopar; }
 
 protected:
@@ -60,6 +65,7 @@ protected:
     int			nrtrcs;
     int			nrwritten;
 
+    void		init();
     void		startWork();
 
     // 3D only

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.23 2005-10-28 12:33:38 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.24 2005-11-04 15:38:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ SeisTrcTranslator facilities (SeisSelData and ComponentData) after calling
 prepareWork(). If you don't call prepareWork(), the reader will do that but
 you cannot use SeisTrcTranslator facilities then.
 
-Then, the routine is: get(trc.info()) possibly followed by get(trc). Not keeping
-this sequence is at your own risk.
+Then, the routine is: get(trc.info()) possibly followed by get(trc).
+Not keeping this sequence is at your own risk.
 
 */
 
@@ -37,12 +37,17 @@ class SeisTrcReader : public SeisStoreAccess
 public:
 
 			SeisTrcReader(const IOObj* =0);
+				//!< Open 'real user entries from '.omf' file
+				//!< Can be anything: SEGY - CBVS - database
+			SeisTrcReader(const char* fnm);
+				//!< Open 'loose' CBVS files only.
 			~SeisTrcReader();
 
     void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
     			//!< Only effective if called before prepareWork()
     bool		prepareWork(Seis::ReadMode rm=Seis::Prod);
     			//!< After this, you can set stuff on the translator
+    			//!< If not called, will be done automatically
 
     int			get(SeisTrcInfo&);
 			/*!< -1 = Error. errMsg() will return a message.
@@ -54,9 +59,11 @@ public:
 			      if necessary. */
 			
     bool		get(SeisTrc&);
-			/*!< You should call this function only if
-			     get(trc.info()) returned 1. If you don't,
-			     the trace selections may be ignored. */
+			/*!< It is possible to directly call this without
+			     checking the get(SeisTrcInfo&) result. Beware that
+			     the trace selections in the SeisSelData may be
+			     ignored then - depending on the Translator's
+			     capabilities. */
 
     void		fillPar(IOPar&) const;
 

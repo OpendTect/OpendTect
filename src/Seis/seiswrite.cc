@@ -19,13 +19,28 @@
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
 	, binids(*new BinIDRange)
-    	, nrtrcs(0)
-    	, nrwritten(0)
-    	, prepared(false)
-    	, lkp(l)
-    	, putter(0)
     	, lineauxiopar(*new IOPar)
+	, lkp(l)
 {
+    init();
+}
+
+
+SeisTrcWriter::SeisTrcWriter( const char* fnm )
+	: SeisStoreAccess(fnm)
+	, binids(*new BinIDRange)
+    	, lineauxiopar(*new IOPar)
+	, lkp(0)
+{
+    init();
+}
+
+
+void SeisTrcWriter::init()
+{
+    putter = 0;
+    nrtrcs = nrwritten = 0;
+    prepared = false;
     binids.start.inl = mUdf(int);
 }
 

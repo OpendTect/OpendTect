@@ -5,17 +5,18 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.17 2005-03-31 15:25:53 cvsarend Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.18 2005-11-04 15:38:50 cvsbert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
 #include "seis2dline.h"
 #include "seisbuf.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "iodir.h"
+#include "strmprov.h"
 #include "keystrs.h"
 
 const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
@@ -30,6 +31,22 @@ SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
 	, is2d(false)
 {
     setIOObj( ioob );
+}
+
+
+SeisStoreAccess::SeisStoreAccess( const char* fnm )
+	: ioobj(0)
+	, trl(0)
+	, lset(0)
+	, seldata(0)
+	, selcomp(-1)
+	, is2d(false)
+{
+    IOStream iostrm( "_tmp_SeisStoreAccess", getStringFromInt(0,IOObj::tmpID) );
+    iostrm.setGroup( mTranslGroupName(SeisTrc) );
+    iostrm.setTranslator( "CBVS" );
+    iostrm.setFileName( fnm && *fnm ? fnm : StreamProvider::sStdIO );
+    setIOObj( &iostrm );
 }
 
 
