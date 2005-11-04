@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.21 2005-10-04 14:05:48 cvskris Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.22 2005-11-04 12:22:00 cvsbert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -114,6 +114,8 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
     {
 	dirptr->key_ = dirky;
 	dirptr->curid_ = atoi(fms[1]);
+	if ( dirptr->curid_ == IOObj::tmpID )
+	    dirptr->curid_ = 1;
     }
     astream.next();
 
@@ -131,7 +133,7 @@ IOObj* IODir::readOmf( std::istream& strm, const char* dirnm,
 	    retobj = obj;
 	    if ( id == 1 ) dirptr->setLinked( obj );
 	    dirptr->addObj( obj, false );
-	    if ( id < 100000 && id > dirptr->curid_ )
+	    if ( id < 99999 && id > dirptr->curid_ )
 		dirptr->curid_ = id;
 	}
 	else
@@ -333,8 +335,9 @@ bool IODir::wrOmf( std::ostream& strm ) const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const MultiID currentkey = objs_[idx]->key();
-	if ( currentkey.leafID() > curid_ )
-	    curid_ = currentkey.leafID();
+	int curleafid = currentkey.leafID();
+	if ( curleafid !+ IOObj::tmpId && curleafid > curid_ )
+	    curid_ = curleafid;
     }
     fms += curid_;
     astream.put( "ID", fms );
