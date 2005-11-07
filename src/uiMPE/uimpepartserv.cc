@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.33 2005-11-07 11:26:07 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.34 2005-11-07 11:38:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,7 +206,6 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( dlg.go() )
     {
 	loadAttribData();
-	sendEvent( evShowToolbar );
 	return true;
     }
 
@@ -310,8 +309,6 @@ void uiMPEPartServer::expandActiveVolume(const CubeSampling& seedcs)
     newcube.snapToSurvey();
     newcube.limitTo( SI().sampling(true) );
     MPE::engine().setActiveVolume( newcube );
-
-    //sendEvent( evShowToolbar );
 }
 
 
@@ -341,7 +338,6 @@ bool uiMPEPartServer::usePar( const IOPar& par )
 	    return false;
 
 	loadAttribData();
-	sendEvent( evShowToolbar );
     }
     return res;
 }
