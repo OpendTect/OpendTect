@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.7 2005-09-30 15:45:13 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.8 2005-11-07 15:19:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
 
     CubeSampling cs;
     if ( !inpfld->getRanges(cs) )
-	return;
+	cs.init(true);
 
     ds = cs.zrg.step;
     int ns = (int)((cs.zrg.stop-cs.zrg.start)/ds + .5) + 1;
