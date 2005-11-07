@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.5 2005-10-21 14:17:17 cvsnanne Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.6 2005-11-07 14:39:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , nlamodel(n)
     , nlaid(mid)
     , usesinglehor_(usesinglehor)
+    , extrazfld(0)
 {
     setHelpID( "104.4.1" );
     setTitleText( "" );
@@ -84,7 +85,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     gatefld = new uiGenInput( uppgrp, gatelabel, FloatInpIntervalSpec() );
     gatefld->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld : 
 	    					   (uiGroup*)extrazfld );
-    gatefld->display(usesinglehor_);
+    gatefld->display( usesinglehor_ );
     
     subselfld = new uiBinIDSubSel( uppgrp, uiBinIDSubSel::Setup().
 	    				   withtable(false).withz(false).
