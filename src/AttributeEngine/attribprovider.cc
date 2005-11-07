@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.44 2005-11-03 13:14:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.45 2005-11-07 12:39:56 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -444,6 +444,15 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    if ( res!=1 ) return res;
 
 	    hasmoved = true;
+	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
+	    if ( !docheck && seldata_ && seldata_->type_ == Seis::Table
+		 && curtrcinfo_ && curtrcinfo_->binid != startpos && firstcheck)
+	    {
+		startpos = curtrcinfo_->binid;
+		firstcheck = false;
+		break;
+	    }
+	    
 	    if ( !inputs[idx]->getSeisRequester() ) continue;
 	    if ( movinginputs.indexOf( inputs[idx] ) < 0 )
 		movinginputs += inputs[idx];

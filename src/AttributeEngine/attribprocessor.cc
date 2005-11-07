@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.30 2005-11-03 13:14:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.31 2005-11-07 12:39:56 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -76,28 +76,7 @@ int Processor::nextStep()
 	init();
 
     int res;
-    if ( nriter==0 )
-    {
-	BinID firstpos;
-
-	if ( sd_ && sd_->type_ == Seis::Table )
-	{
-	    firstpos = sd_->table_.firstPos();
-	}
-	else
-	{
-	    const BinID step = provider->getStepoutStep();
-	    firstpos.inl = step.inl/abs(step.inl)>0 ? 
-			   provider->getDesiredVolume()->hrg.start.inl : 
-			   provider->getDesiredVolume()->hrg.stop.inl;
-	    firstpos.crl = step.crl/abs(step.crl)>0 ?
-			   provider->getDesiredVolume()->hrg.start.crl :
-			   provider->getDesiredVolume()->hrg.stop.crl;
-	}
-	res = provider->moveToNextTrace( firstpos, true );
-    }
-    else
-	res = provider->moveToNextTrace();
+    res = provider->moveToNextTrace();
     
     if ( res < 0 || !nriter )
     {
@@ -105,7 +84,32 @@ int Processor::nextStep()
 	if ( errmsg.size() )
 	    return ErrorOccurred;
 	else if ( res < 0 )
-	    { errmsg = "Error during data read"; return ErrorOccurred; }
+	{
+	    BinID firstpos;
+
+	    if ( sd_ && sd_->type_ == Seis::Table )
+	    {
+		firstpos = sd_->table_.firstPos();
+	    }
+	    else
+	    {
+		const BinID step = provider->getStepoutStep();
+		firstpos.inl = step.inl/abs(step.inl)>0 ? 
+			       provider->getDesiredVolume()->hrg.start.inl : 
+			       provider->getDesiredVolume()->hrg.stop.inl;
+		firstpos.crl = step.crl/abs(step.crl)>0 ?
+			       provider->getDesiredVolume()->hrg.start.crl :
+			       provider->getDesiredVolume()->hrg.stop.crl;
+	    }
+	    provider->resetMoved();
+	    res = provider->moveToNextTrace( firstpos, true );
+	    
+	    if ( res < 0 )
+	    {
+		errmsg = "Error during data read";
+		return ErrorOccurred;
+	    }
+	}
     }
 
     const SeisTrcInfo* curtrcinfo = provider->getCurrentTrcInfo();
