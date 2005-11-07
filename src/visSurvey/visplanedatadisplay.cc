@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.92 2005-11-03 14:35:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.93 2005-11-07 11:48:36 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -90,7 +90,10 @@ PlaneDataDisplay::~PlaneDataDisplay()
 void PlaneDataDisplay::setUpConnections()
 {
     if ( scene_ )
+    {
 	scene_->zscalechange.notify( mCB(this,PlaneDataDisplay,zScaleChanged) );
+	zScaleChanged(0);
+    }
 
     if ( datatransform )
 	setGeometry( false, false );
@@ -326,6 +329,7 @@ float PlaneDataDisplay::maxDist() const
 
 void PlaneDataDisplay::zScaleChanged( CallBacker* )
 {
+    if ( !scene_ ) return;
     resetDraggerSizes( scene_->getZScale() );
 }
 

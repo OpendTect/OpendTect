@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.73 2005-10-26 21:59:03 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.74 2005-11-07 11:48:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,8 +181,12 @@ void Scene::removeObject( int idx )
 void Scene::setZScale( float zscale )
 {
     if ( !zscaletransform ) return;
+
+    if ( mIsEqual(zscale,curzscale,mDefEps) ) return;
+
     STM().setZScale( zscaletransform, zscale );
     curzscale = zscale;
+    zscalechange.trigger();
 }
 
 
