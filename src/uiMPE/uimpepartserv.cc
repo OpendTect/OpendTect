@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.32 2005-10-21 19:34:13 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.33 2005-11-07 11:26:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,6 +245,8 @@ void uiMPEPartServer::loadAttribData()
 
     ObjectSet<const Attrib::SelSpec> attribselspecs;
     MPE::engine().getNeededAttribs(attribselspecs);
+    if ( attribselspecs.size() == 0 ) return;
+
     for ( int idx=0; idx<attribselspecs.size(); idx++ )
     {
 	eventattrselspec = attribselspecs[idx];
