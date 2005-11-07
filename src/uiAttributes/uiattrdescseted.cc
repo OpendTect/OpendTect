@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.16 2005-10-25 09:16:10 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.17 2005-11-07 12:29:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -940,6 +940,18 @@ void uiAttribDescSetEd::replaceStoredAttr()
         {
             ad->changeStoredID( dlg.getKey() );
             ad->setUserRef( dlg.getUserRef() );
+	    if ( issteer )
+	    {
+		Desc* adcrld = 
+		    	attrset->getDesc( DescID(storedid.asInt()+1, true) );
+		if ( ad && ad->isStored() )
+		{
+		    adcrld->changeStoredID( dlg.getKey() );
+		    BufferString bfstr = dlg.getUserRef();
+		    bfstr += "_crline_dip";
+		    adcrld->setUserRef( bfstr.buf() );
+		}
+	    }
 	    if ( !found2d && dlg.is2D() )
 		found2d = true;
 	}
