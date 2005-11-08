@@ -10,17 +10,24 @@ ________________________________________________________________________
 
 
 #include <uiprogressbar.h>
-#include <qprogressbar.h> 
 #include <uiobjbody.h> 
 
+#ifdef USEQT4
+# include	<q3progressbar.h> 
+# define	mQProgressBar	Q3ProgressBar
+#else
+# include	<qprogressbar.h> 
+# define	mQProgressBar	QProgressBar
+#endif
 
-class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
+
+class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,mQProgressBar>
 {
 public:
 
                         uiProgressBarBody( uiProgressBar& handle, 
 					   uiParent* parnt, const char* nm )
-			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
+			    : uiObjBodyImpl<uiProgressBar,mQProgressBar>
 				( handle, parnt,nm)
 			    { 
 				setStretch( 1, 0 );
