@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.4 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.5 2005-11-08 15:39:10 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
 #else
 {}
 #endif
+
 
 uiObjectBody::~uiObjectBody() 
 {
@@ -477,10 +478,14 @@ uiSize uiObjectBody::actualsize( bool include_border ) const
 
 void uiObjectBody::setToolTip( const char* txt )
 {
+#ifdef USEQT4
+    qwidget()->setToolTip( txt );
+#else
     QToolTip::add( qwidget(), txt );
+#endif
 }
 
-
+#ifndef USEQT4
 void uiObjectBody::enableToolTips( bool yn )
 {
     QToolTip::setEnabled( yn );
@@ -489,7 +494,7 @@ void uiObjectBody::enableToolTips( bool yn )
 
 bool uiObjectBody::toolTipsEnabled()
     { return QToolTip::enabled(); }
-
+#endif
 
 void uiObjectBody::uisetCaption( const char* str )
     { qwidget()->setCaption( QString( str ) ); }
