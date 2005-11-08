@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.55 2005-09-07 07:07:49 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.56 2005-11-08 13:37:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
 				 "Specify horizon parameters","104.0.0"))
     , ctio_(*mMkCtxtIOObj(EMHorizon))
-    , emobjid_(-1)
     , attribnames_(*new BufferStringSet)
+    , emobjid_(-1)
 {
     infld = new uiFileInput( this, "Input Ascii file", 
 	    		     uiFileInput::Setup().withexamine(true) );
@@ -152,10 +152,7 @@ bool uiImportHorizon::doDisplay() const
 
 MultiID uiImportHorizon::getSelID() const
 {
-    if ( emobjid_<0 ) return -1;
-
-    MultiID mid = IOObjContext::getStdDirData(ctio_.ctxt.stdseltype)->id;
-    mid.add( emobjid_ );
+    MultiID mid = ctio_.ioobj ? ctio_.ioobj->key() : -1;
     return mid;
 }
 
@@ -336,11 +333,13 @@ void uiImportHorizon::scanFile( CallBacker* )
     const int nrattrvals = scanner.nrAttribValues();
     attribbut->setSensitive( nrattrvals > 0 );
     attribnames_.erase();
+    attribsel_.erase();
     for ( int idx=0; idx<nrattrvals; idx++ )
     {
 	BufferString nm( "Imported attribute " );
 	nm += idx+1;
 	attribnames_.add( nm );
+	attribsel_ += true;
     }
 }
 
