@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.20 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uislider.cc,v 1.21 2005-11-08 13:30:33 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 #include <qstring.h> 
 #include <math.h>
+
 
 
 //------------------------------------------------------------------------------
@@ -42,6 +43,13 @@ private:
 
 };
 
+#ifdef USEQT4
+# define mFocus		Qt
+# define mOrientation	Qt
+#else
+# define mFocus		QWidget
+# define mOrientation	QSlider
+#endif
 
 uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiSlider,QSlider>(handle,p,nm)
@@ -49,9 +57,8 @@ uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
 {
     setStretch( 1, 0 );
     setHSzPol( uiObject::medium );
-    setFocusPolicy( QWidget::WheelFocus );
+    setFocusPolicy( mFocus::WheelFocus );
 }
-
 
 //------------------------------------------------------------------------------
 
@@ -61,7 +68,8 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool log_ )
     , sliderMoved(this)
     , logscale(log_)
 {
-    body_->setOrientation( QSlider::Horizontal );
+    body_->setOrientation( mOrientation::Vertical );
+
     if ( dec < 0 ) dec = 0;
     factor = (int)pow(10,(float)dec);
 }
@@ -121,21 +129,22 @@ float uiSlider::getValue() const
 { return userValue( body_->value() ); }
 
 
-void uiSlider::setTickMarks( TickSetting ticks )
+void uiSlider::setTickMarks( TickPosition ticks )
 {
-    body_->setTickmarks( QSlider::TickSetting( (int)ticks ) );
+    body_->setTickmarks( QSlider::TickPosition( (int)ticks ) );
 }
 
 
-uiSlider::TickSetting uiSlider::tickMarks() const
+uiSlider::TickPosition uiSlider::tickMarks() const
 {
-    return (uiSlider::TickSetting)( (int)body_->tickmarks() );
+    return (uiSlider::TickPosition)( (int)body_->tickmarks() );
 }
 
 
 void uiSlider::setOrientation( Orientation or_ )
 {
-    body_->setOrientation( (QSlider::Orientation)( (int)or_ ) );
+    body_->setOrientation( or_ == Vertical ?  
+	  mOrientation::Vertical : mOrientation::Horizontal );
 }
 
 

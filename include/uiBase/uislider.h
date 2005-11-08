@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.11 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uislider.h,v 1.12 2005-11-08 13:30:22 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
                         uiSlider(uiParent*,const char* nm="Slider",
 				 int nrdec=0,bool log=false);
 
-    enum 		TickSetting { NoMarks=0, Above=1, Left=Above, Below=2, 
+    enum 		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2, 
 				      Right=Below, Both=3 };
     enum		Orientation { Horizontal, Vertical };
 
@@ -47,8 +47,8 @@ public:
     void		setInterval(const StepInterval<float>&);
     void		getInterval(StepInterval<float>&) const;
 
-    void		setTickMarks(TickSetting);
-    TickSetting		tickMarks() const;
+    void		setTickMarks(TickPosition);
+    TickPosition	tickMarks() const;
     void		setTickStep(int);
     int			tickStep() const;
     void		setOrientation(Orientation);
