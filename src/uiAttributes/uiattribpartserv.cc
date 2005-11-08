@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.14 2005-10-28 15:12:35 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.15 2005-11-08 14:05:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -325,13 +325,13 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
     if ( !aem ) return 0;
 
     BufferString errmsg;
-    Processor* process = aem->createSliceSetOutput( errmsg, cache );
-    if ( !process )
+    PtrMan<Processor> processor = aem->createSliceSetOutput( errmsg, cache );
+    if ( !processor )
 	{ uiMSG().error(errmsg); return 0; }
 
     if ( aem->getNrOutputsToBeProcessed() != 0 )
     {
-	uiExecutor dlg( appserv().parent(), *process );
+	uiExecutor dlg( appserv().parent(), *processor );
 	if ( !dlg.go() ) return 0;
     }
 

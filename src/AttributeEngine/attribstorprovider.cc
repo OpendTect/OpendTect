@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.30 2005-11-03 13:14:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.31 2005-11-08 14:05:47 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -109,8 +109,6 @@ StorageProvider::StorageProvider( Desc& desc_ )
 StorageProvider::~StorageProvider()
 {
     deepErase( rg );
-    if (curtrcinfo_)
-	{ delete curtrcinfo_; curtrcinfo_=0; }
 }
 
 
@@ -230,7 +228,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		{
 		    currentbid = desc.is2D()? BinID( 0, trc->info().nr ) 
 					    : trc->info().binid;
-		    curtrcinfo_ = new SeisTrcInfo(trc->info());
+		    curtrcinfo_ = &trc->info();
 		    if ( !validstartpos || 
 			 ( validstartpos && ( currentbid == startpos || 
 			 ( seldata_ &&  seldata_->type_ == Seis::Table && 

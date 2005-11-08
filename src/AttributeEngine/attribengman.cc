@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.41 2005-10-31 14:59:22 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.42 2005-11-08 14:05:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,7 +250,7 @@ SliceSet* EngineMan::getSliceSetOutput()
 	slsets.remove(0);
 	prevismine = true;
     }
-    
+
     SliceSet* outslcs = new SliceSet;
     CubeSampling csamp(cs_);
     outslcs->sampling = csamp;
@@ -293,7 +293,11 @@ SliceSet* EngineMan::getSliceSetOutput()
 	undfval = mUndefValue;
 
     for ( int idx=0; idx<dim0; idx++ )
-	*outslcs += new Slice( dim1, dim2, udfval );
+    {
+	Slice* slice = new Slice( dim1, dim2, udfval );
+	slice->ref();
+	*outslcs += slice;
+    }
 
     int i0, i1, i2;
     for ( int iset=-1; iset<slsets.size(); iset++ )

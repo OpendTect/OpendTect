@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.93 2005-11-07 11:48:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.94 2005-11-08 14:05:47 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -570,6 +570,7 @@ bool PlaneDataDisplay::setDataVolume( bool colordata,
     {
 	if ( colcache ) colcache->unRef();
 	colcache = sliceset;
+	colcache->ref();
 	return true;
     }
 
