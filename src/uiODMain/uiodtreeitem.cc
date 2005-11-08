@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.121 2005-11-03 13:33:12 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.122 2005-11-08 10:00:32 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -103,11 +103,11 @@ uiODApplMgr* uiODTreeTop::applMgr()
 }
 
 
-void uiODTreeTop::getDisplayIds( TypeSet<int>& dispids, int& selectedid,
-				 bool usechecked )
+TypeSet<int> uiODTreeTop::getDisplayIds( int& selectedid, bool usechecked )
 {
-    dispids.erase();
+    TypeSet<int> dispids;
     loopOverChildrenIds( dispids, selectedid, usechecked, children );
+    return dispids;
 }
 
 

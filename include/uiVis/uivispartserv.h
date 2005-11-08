@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.150 2005-10-20 10:27:35 cvsarend Exp $
+ RCS:           $Id: uivispartserv.h,v 1.151 2005-11-08 10:00:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,11 +194,12 @@ public:
     void			setZScale();
     bool			setWorkingArea();
     void			setViewMode(bool yn);
-    void			setSoloMode(bool yn, TypeSet<int>, int);
+    void			setSoloMode(bool, TypeSet< TypeSet<int> >, int);
     bool                        isSoloMode() const;
     bool			isViewMode() const;
     void			turnOn(int,bool,bool doclean=false);
     bool			isOn(int) const;
+    void			updateDisplay(bool, int, int refid =-1);
 
     bool			canDuplicate(int) const;
     int				duplicateObject(int id,int sceneid);
@@ -249,7 +250,7 @@ protected:
     void			removeConnections(int id);
 
     void			toggleDraggers();
-    void			updateDisplay(bool, int);
+    int				getTypeSetIdx(int);
 
     ObjectSet<visSurvey::Scene>	scenes;
 
@@ -284,7 +285,7 @@ protected:
     MenuItem			resmnuitem;
 
     TypeSet<int>		lockedobjects;
-    TypeSet<int>		displayids_;
+    TypeSet< TypeSet<int> >	displayids_;
 
     static const char*		workareastr;
     static const char*		appvelstr;

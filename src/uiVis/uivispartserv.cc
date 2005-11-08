@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.281 2005-10-12 12:33:18 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.282 2005-11-08 10:00:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,6 +265,11 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     //TODO: Handle saveinsessions
 
     setUpConnections( dobj->id() );
+    if ( isSoloMode() )
+    {
+	int typesetidx = scenes.indexOf(scene);
+	displayids_[typesetidx] += dobj->id();
+    }
 }
 
 
@@ -547,7 +552,8 @@ bool uiVisPartServer::isViewMode() const { return viewmode; }
 bool uiVisPartServer::isSoloMode() const { return issolomode; }
 
 
-void uiVisPartServer::setSoloMode( bool yn, TypeSet<int> dispids, int selid )
+void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<int> > dispids,
+				   int selid )
 {
     issolomode = yn;
     displayids_ = dispids;
@@ -555,24 +561,54 @@ void uiVisPartServer::setSoloMode( bool yn, TypeSet<int> dispids, int selid )
 }
 
 
-void uiVisPartServer::updateDisplay( bool doclean, int selid )
+int uiVisPartServer::getTypeSetIdx( int selid )
 {
+    int typesetidx;
+    bool found = false;
+    for ( int idx=0; idx<displayids_.size(); idx++ )
+    {
+	for ( int idy=0; idy<displayids_[idx].size(); idy++ )
+	{
+	    if ( displayids_[idx][idy] == selid )
+	    {
+		typesetidx = idx;
+		found = true;
+		break;
+	    }
+	}
+	if ( found )
+	    break;
+    }
+
+    return typesetidx;
+}
+
+
+void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
+{
+    int typesetidx;
+    typesetidx = getTypeSetIdx( selid != -1 ? selid : refid );
+    
     if ( doclean )
     {
-	for ( int idx=0; idx<displayids_.size(); idx++ )
-	    if ( isOn( displayids_[idx] ) && displayids_[idx] != selid )
-		turnOn(displayids_[idx], false);
+	for ( int idx=0; idx<displayids_[typesetidx].size(); idx++ )
+	    if ( isOn( displayids_[typesetidx][idx] ) 
+		 && displayids_[typesetidx][idx] != selid )
+		turnOn(displayids_[typesetidx][idx], false);
 
 	if ( !isOn(selid) && selid >= 0 ) turnOn( selid, true);
     }
     else
     {
 	bool isselchecked = false;
-	for ( int idx=0; idx<displayids_.size(); idx++ )
+	for ( int ids=0; ids<displayids_.size(); ids++ )
 	{
-	    turnOn(displayids_[idx], true);
-	    if ( displayids_[idx] == selid )
-		isselchecked = true;
+	    for ( int idx=0; idx<displayids_[ids].size(); idx++ )
+	    {
+		turnOn(displayids_[ids][idx], true);
+		if ( displayids_[ids][idx] == selid )
+		    isselchecked = true;
+	    }
 	}
 
 	if ( !isselchecked ) turnOn(selid, false);
@@ -770,8 +806,6 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 
     mDynamicCastGet(visBase::DataObject*,doobj,newso)
     addObject( doobj, sceneid, true );
-    if ( isSoloMode() )
-	displayids_ += doobj->id();
 
     return doobj->id();
 }
@@ -1265,7 +1299,7 @@ bool uiVisModeMgr::allowTurnOn( int id, bool doclean )
     {
 	if ( selected[idx] == id )
 	{
-	    if ( doclean ) visserv.updateDisplay(doclean, -1);
+	    if ( doclean ) visserv.updateDisplay(doclean, -1, id);
 	    return true;
 	}
     }

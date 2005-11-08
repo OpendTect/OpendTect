@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.10 2005-09-16 11:57:39 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.11 2005-11-08 10:00:32 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ public:
 
     int			sceneID() const;
     bool		select(int selkey);
-    void		getDisplayIds(TypeSet<int>&, int&, bool);
+    TypeSet<int>	getDisplayIds(int&, bool);
     void		loopOverChildrenIds( TypeSet<int>&, int&, bool, 
 	    				     const ObjectSet<uiTreeItem>& );
 

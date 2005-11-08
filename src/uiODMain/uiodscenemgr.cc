@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.48 2005-10-25 21:51:45 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.49 2005-11-08 10:00:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -411,10 +411,10 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 
 void uiODSceneMgr::soloMode( CallBacker* )
 {
-    TypeSet<int> dispids;
+    TypeSet< TypeSet<int> > dispids;
     int selectedid;
     for ( int idx=0; idx<scenes.size(); idx++ )
-	scenes[idx]->itemmanager->getDisplayIds( dispids, selectedid,  
+	dispids += scenes[idx]->itemmanager->getDisplayIds( selectedid,  
 						 !menuMgr().isSoloModeOn() );
     
     visServ().setSoloMode( menuMgr().isSoloModeOn(), dispids, selectedid );
@@ -591,6 +591,8 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	setItemInfo( id );
 	applMgr().modifyColorTable( id );
 	if ( !visServ().isOn(id) ) visServ().turnOn(id, true, true);
+	else if ( scenes.size() != 1 && visServ().isSoloMode() )
+	    visServ().updateDisplay( true, id );
     }
 
     bool found = applMgr().attrServer()->attrSetEditorActive();
