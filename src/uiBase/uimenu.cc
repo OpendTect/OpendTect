@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.25 2005-11-08 16:45:50 cvsdgb Exp $
+ RCS:           $Id: uimenu.cc,v 1.26 2005-11-08 16:48:28 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -328,12 +328,14 @@ int uiMenuItem::index() const
 #ifdef USEQT4
 uiMenuItemContainer::uiMenuItemContainer( const char* nm, uiBody* b,
 					  uiMenuItemContainerBody* db )
+    : uiObjHandle( nm, b )
+    , body_( db )				{}
 #else
 uiMenuItemContainer::uiMenuItemContainer( const char* nm,
-					  uiMenuItemContainerBody* db )
+					  uiMenuItemContainerBody* b )
+    : uiObjHandle( nm, b )
+    , body_( b )				{}
 #endif
-    : uiObjHandle( nm, db )
-    , body_( db )				{}
 
 
 uiMenuItemContainer::~uiMenuItemContainer()	{ delete body_; }
