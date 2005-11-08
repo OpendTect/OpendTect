@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.24 2005-09-28 12:10:34 cvsarend Exp $
+ RCS:           $Id: uimenu.h,v 1.25 2005-11-08 16:43:50 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,19 +23,33 @@ class uiPopupItem;
 class uiMenuItemContainerBody;
 class i_MenuMessenger;
 
+#ifdef USEQT4
+template<class> class uiMenuItemContainerBodyImpl;
+# define mQPopupMenu Q3PopupMenu
+#else
+# define mQPopupMenu QPopupMenu
+#endif
 
 class QMenuBar;
-class QPopupMenu;
+class mQPopupMenu;
 
 template<class T> class ObjectSet;
 
 
 class uiMenuItemContainer : public uiObjHandle
 {
+#ifdef USEQT4
+template<class> friend class	uiMenuItemContainerBodyImpl;
+protected:
+				uiMenuItemContainer( const char*, uiBody*,
+					    uiMenuItemContainerBody*);
+#else
 friend class			uiMenuItemContainerBody;
 protected:
 				uiMenuItemContainer( const char* nm,
-						uiMenuItemContainerBody* b );
+					    uiMenuItemContainerBody* b );
+#endif
+
 public:
 				~uiMenuItemContainer();
 
@@ -73,8 +87,9 @@ public:
     int				indexOf(int id) const;
 
 protected:
-
+#ifndef USEQT4
     void			setMenuBody(uiMenuItemContainerBody* b);
+#endif
     uiMenuItemContainerBody*	body_;
 
 };
@@ -87,7 +102,11 @@ protected:
 */
 class uiMenuItem : public UserIDObject
 {
+#ifdef USEQT4
+template<class> friend class	uiMenuItemContainerBodyImpl;
+#else
 friend class			uiMenuItemContainerBody;
+#endif
 
 public:
 				uiMenuItem( const char* nm );
@@ -176,7 +195,7 @@ public:
 				uiPopupMenu(uiParent* parnt,
 					    const char* nm="uiPopupMenu");
 				uiPopupMenu(uiParent* parnt,
-					    QPopupMenu* qmnu,
+					    mQPopupMenu* qmnu,
 					    const char* nm="uiPopupMenu");
 
 				~uiPopupMenu();
