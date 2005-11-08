@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.6 2005-09-14 08:28:58 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.7 2005-11-08 12:03:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,6 @@ class PickSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class uiAttribDescSetEd;
-class uiPopupMenu;
 template <class T> class Interval;
 
 
