@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.36 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uiobj.h,v 1.37 2005-11-08 15:29:06 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,8 +66,10 @@ public:
     SzPolicy		szPol( bool hor=true) const;
 
     void		setToolTip(const char*);
+#ifndef USEQT4
     static void		enableToolTips(bool yn=true);
     static bool		toolTipsEnabled();
+#endif
 
     void		display( bool yn = true, bool shrink=false,
 				 bool maximised=false );

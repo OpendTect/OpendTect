@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.57 2003-11-21 13:33:47 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.58 2005-11-08 15:29:21 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,13 +207,13 @@ uiObject::SzPolicy uiObject::szPol(bool hor) const
 void uiObject::setToolTip(const char* t)
     { mBody()->setToolTip(t); }
 
-
+#ifndef USEQT4
 void uiObject::enableToolTips(bool yn)	{ uiObjectBody::enableToolTips(yn); }
 
 
 bool uiObject::toolTipsEnabled() 
     { return uiObjectBody::toolTipsEnabled(); }
-
+#endif
 
 void uiObject::display( bool yn, bool shrink, bool maximise )	
 { 
