@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.24 2005-11-08 16:44:00 cvsarend Exp $
+ RCS:           $Id: uimenu.cc,v 1.25 2005-11-08 16:45:50 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "uibody.h"
 
-#include <qmenu.h>
 #include <qmenudata.h>
 #include <qmenubar.h>
 #include <qcursor.h>
 #ifdef USEQT4
+# include <qmenu.h>
 # include <q3popupmenu.h>
 # define mQThing	qmenu_
 #else
@@ -332,7 +332,7 @@ uiMenuItemContainer::uiMenuItemContainer( const char* nm, uiBody* b,
 uiMenuItemContainer::uiMenuItemContainer( const char* nm,
 					  uiMenuItemContainerBody* db )
 #endif
-    : uiObjHandle( nm, b )
+    : uiObjHandle( nm, db )
     , body_( db )				{}
 
 
