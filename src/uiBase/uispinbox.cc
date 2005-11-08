@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.17 2005-01-25 13:30:31 nanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.18 2005-11-08 12:44:40 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,13 @@ ________________________________________________________________________
 #include <qvalidator.h>
 #include <math.h>
 
+#ifdef USEQT4
+# define mGetStep	singleStep
+# define mSetStep	setSingleStep
+#else
+# define mGetStep	lineStep
+# define mSetStep	setLineStep
+#endif
 
 class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QSpinBox>
 {
@@ -29,6 +36,12 @@ public:
 
     virtual int 	nrTxtLines() const	{ return 1; }
     void		setNrDecimals(int);
+
+#ifdef USEQT4
+    QValidator::State	validate ( QString & input, int & pos ) const  
+			{ return dval ? dval->validate( input, pos )
+				      : QSpinBox::validate( input, pos ); }
+#endif
 
 protected:
 
@@ -50,7 +63,9 @@ uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
     , dval(new QDoubleValidator(this,"Validator"))
 {
     setHSzPol( uiObject::small );
+#ifndef USEQT4
     setValidator( dval );
+#endif
 }
 
 
@@ -118,7 +133,7 @@ void uiSpinBox::snapToStep( CallBacker* )
 {
     if ( !dosnap ) return;
     const int diff = body_->value() - body_->minValue();
-    const int step_ = body_->lineStep() ? body_->lineStep() : 1;
+    const int step_ = body_->mGetStep() ? body_->mGetStep() : 1;
     if ( diff%step_ )
     {
 	const float ratio = (float)diff / step_;
@@ -196,10 +211,10 @@ float uiSpinBox::maxFValue() const
 
 
 int uiSpinBox::step() const
-{ return body_->lineStep() / factor; }
+{ return body_->mGetStep() / factor; }
 
 float uiSpinBox::fstep() const
-{ return (float)body_->lineStep() / factor; }
+{ return (float)body_->mGetStep() / factor; }
 
 void uiSpinBox::setStep( int step_, bool dosnap_ )		
 { setStep( (float)step_, dosnap_ ); }
@@ -208,7 +223,7 @@ void uiSpinBox::setStep( int step_, bool dosnap_ )
 void uiSpinBox::setStep( float step_, bool dosnap_ )
 {
     if ( !step_ ) step_ = 1;
-    body_->setLineStep( mNINT(step_*factor) );
+    body_->mSetStep( mNINT(step_*factor) );
     dosnap = dosnap_;
     snapToStep(0);
 }
@@ -223,7 +238,7 @@ void uiSpinBox::setSuffix( const char* suffix )
 const char* uiSpinBox::suffix() const
 {
     static BufferString res;
-    res = body_->suffix();
+    res = (const char*) body_->suffix();
     return res;
 }
 
