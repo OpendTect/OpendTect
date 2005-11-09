@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.5 2005-10-12 20:35:33 cvskris Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.6 2005-11-09 16:43:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,23 +25,21 @@ ________________________________________________________________________
 namespace EM
 {
     
-float HorizonUtils::getZ( const BinID& bid, 
-			  const ObjectSet<BinIDValueSet>& bidvalset)
+float HorizonUtils::getZ( const RowCol& rc, const Surface* surface )
 {
     float bottomz=-mUdf(float);
-    for( int idx=0; idx<bidvalset.size(); idx++ )
+    TypeSet<Coord3> coords;
+    surface->geometry.getPos( rc, coords );
+    for( int idx=0; idx<coords.size(); idx++ )
     {
-	BinIDValueSet::Pos pos = bidvalset[idx]->findFirst(bid);
-	float valz = bidvalset[idx]->valid(bid) ?
-		     bidvalset[idx]->getVals(pos)[0] : mUdf(float);
+	float valz = coords[idx].z;
 	bottomz = ( !mIsUdf(valz) && valz>bottomz ) ? valz : bottomz;
     }
     return bottomz;
 }
 
 
-float HorizonUtils::getMissingZ( const BinID& bid,
-				 const ObjectSet<BinIDValueSet>& bidvalset)
+float HorizonUtils::getMissingZ( const RowCol& rc, const Surface* surface )
 {
     int dist = 1;
     int distfirstinlz = 0;
@@ -58,26 +56,26 @@ float HorizonUtils::getMissingZ( const BinID& bid,
     {
 	if ( firstinlz == -mUdf(float) )
 	{
-	    BinID binid = BinID( bid.inl-dist, bid.crl );
-	    firstinlz = getZ( binid, bidvalset );
+	    RowCol rowcol(rc.row-dist, rc.col );
+	    firstinlz = getZ( rowcol, surface );
 	    if ( firstinlz > -mUdf(float) ) distfirstinlz = dist;
 	}
 	if ( secondinlz == -mUdf(float) )
 	{
-	    BinID binid = BinID( bid.inl+dist, bid.crl );
-	    secondinlz = getZ( binid, bidvalset );
+	    RowCol rowcol( rc.row+dist, rc.col );
+	    secondinlz = getZ( rowcol, surface );
 	    if ( secondinlz > -mUdf(float) ) distsecondinlz = dist;
 	}
 	if ( firstcrlz == -mUdf(float) )
 	{
-	    BinID binid = BinID( bid.inl, bid.crl-dist );
-	    firstcrlz = getZ( binid, bidvalset );
+	    RowCol rowcol( rc.row, rc.col-dist );
+	    firstcrlz = getZ( rowcol, surface );
 	    if ( firstcrlz > -mUdf(float) ) distfirstcrlz = dist;
 	}
 	if ( secondcrlz == -mUdf(float) )
 	{
-	    BinID binid = BinID( bid.inl, bid.crl+dist );
-	    secondcrlz = getZ( binid, bidvalset );
+	    RowCol rowcol( rc.row, rc.col+dist );
+	    secondcrlz = getZ( rowcol, surface );
 	    if ( secondcrlz > -mUdf(float) ) distsecondcrlz = dist;
 	}
 
@@ -154,33 +152,40 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
 				       const HorSampling& hs,
 				       const Interval<float>& extraz )
 {
-    ObjectSet<BinIDValueSet> bivs;
-    getPositions( strm, *(midset[0]), bivs );
-    ObjectSet<BinIDValueSet> bivs2;
-    
+    Surface* surface1 = getSurface(*(midset[0]));
+    if ( !surface1 ) return;
+
+    Surface* surface2 = 0;
     if ( midset.size() == 2 )
-	getPositions( strm, *(midset[1]), bivs2 );
+    {
+	surface2 = getSurface(*(midset[1]));
+	if ( !surface2 ) return;
+    }
+    
+    strm << "\nFetching surface positions ...\n" ;
+    ProgressMeter pm( strm );
     
     for ( int idy=hs.start.inl; idy<=hs.stop.inl; idy+=SI().inlStep() )
     {
 	for ( int idz=hs.start.crl; idz<=hs.stop.crl; idz+=SI().crlStep() )
 	{
-	    float topz = getZ( BinID(idy,idz), bivs );
-	    float botz = bivs2.size() ? getZ( BinID(idy,idz), bivs2 ) : 0;
+	    float topz = getZ( RowCol(idy,idz), surface1 );
+	    float botz = surface2 ? getZ( RowCol(idy,idz), surface2 ) : 0;
 	    if ( topz == -mUdf(float) )
-		topz = getMissingZ( BinID(idy,idz), bivs );
+		topz = getMissingZ( RowCol(idy,idz), surface1 );
 	    if ( botz == -mUdf(float) )
-		botz = getMissingZ( BinID(idy,idz), bivs2 );
+		botz = getMissingZ( RowCol(idy,idz), surface2 );
 
 	    if ( topz == -mUdf(float) || botz == -mUdf(float) )
 		continue;
 
 	    BinIDValues bidval( BinID(idy,idz) );
-	    bidval.value(0) = ( bivs2.size() && botz<topz ? botz : topz ) 
+	    bidval.value(0) = ( surface2 && botz<topz ? botz : topz ) 
 			      + extraz.start;
-	    bidval.value(1) = ( bivs2.size() && botz>topz ? botz : topz ) 
+	    bidval.value(1) = ( surface2 && botz>topz ? botz : topz ) 
 			      + extraz.stop;
 	    wantedposbivs.add(bidval);
+	    ++pm;
 	}
     }
 }

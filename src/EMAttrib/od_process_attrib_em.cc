@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.21 2005-10-31 12:08:26 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.22 2005-11-09 16:42:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,8 +366,7 @@ bool BatchProgram::go( std::ostream& strm )
 	extraz.scale(1/SI().zFactor());
 
 	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz );
-	proc = aem.createTrcSelOutput( errmsg, bivs, seisoutp, 
-					 outval, &extraz );
+	proc = aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval );
 	if ( !process( strm, proc, outpid, &seisoutp ) ) return false;
     }
 

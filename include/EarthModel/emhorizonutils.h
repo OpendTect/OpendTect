@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.3 2005-09-30 09:19:18 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.4 2005-11-09 16:43:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "ranges.h"
 
-class BinID;
+class RowCol;
 class MultiID;
 class BinIDValueSet;
 class HorSampling;
@@ -37,9 +37,8 @@ public:
 			HorizonUtils(){};
 			~HorizonUtils(){};
 				
-    static float 	getZ(const BinID&, const ObjectSet<BinIDValueSet>&);
-    static float 	getMissingZ(const BinID&, 
-	    			    const ObjectSet<BinIDValueSet>&);
+    static float 	getZ(const RowCol&, const Surface*);
+    static float 	getMissingZ(const RowCol&, const Surface*);
     static Surface* 	getSurface(const MultiID&);
     static void 	getPositions(std::ostream&, const MultiID&,
 				     ObjectSet<BinIDValueSet>&);

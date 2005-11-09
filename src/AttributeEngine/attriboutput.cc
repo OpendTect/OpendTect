@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.36 2005-10-21 14:15:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.37 2005-11-09 16:44:52 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -521,11 +521,10 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRange(const BinID& bid) const
 
 
 TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
-					float outval, Interval<float>* extraz )
+					float outval )
     : bidvalset_(bidvalset)
     , outpbuf_(0)
     , outval_(outval)
-    , extraz_(extraz)
 {
     seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( bidvalset.totalSize()<2 );
@@ -564,9 +563,8 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
 	return;
 
-    const int trcsz = mNINT(stdtrcsz_/refstep) + 1 + 
-		  (extraz_ ? mNINT((extraz_->stop-extraz_->start)/refstep) : 0);
-    const float globalsttime = stdstarttime_ + (extraz_ ? extraz_->start : 0);
+    const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
+    const float globalsttime = stdstarttime_;
     const float trcstarttime = ( (int)(globalsttime/refstep) +1 ) * refstep;
     const int startidx = data.z0_ - mNINT(trcstarttime/refstep);
     const int index = outpbuf_->find( info.binid );

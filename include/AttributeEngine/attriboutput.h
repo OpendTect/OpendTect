@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.20 2005-10-21 14:15:23 cvsnanne Exp $
+ RCS:           $Id: attriboutput.h,v 1.21 2005-11-09 16:45:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,8 +192,7 @@ class TrcSelectionOutput : public Output
 {
 public:
     				TrcSelectionOutput(const BinIDValueSet&, 
-						   float outval =0,
-						   Interval<float>* extraz =0);
+						   float outval =0);
 				~TrcSelectionOutput() ;
 
     bool			getDesiredVolume(CubeSampling&) const
@@ -210,7 +209,6 @@ protected:
     float			outval_;
     float			stdtrcsz_;
     float			stdstarttime_;
-    Interval<float>*		extraz_;
 };
 
 } // namespace Attrib
