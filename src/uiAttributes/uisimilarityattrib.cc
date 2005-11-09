@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.6 2005-10-05 13:10:41 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.7 2005-11-09 13:55:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,10 @@ void uiSimilarityAttrib::extSel( CallBacker* )
     stepoutfld->display( !strcmp(ext,extstrs[3]) );
     outpstatsfld->display( strcmp(ext,extstrs[0]) );
 
+    BufferString cursel = outpstatsfld->text();
     StringListInpSpec spec( !strcmp(ext,extstrs[3]) ? outpstrsext : outpstrs );
     outpstatsfld->newSpec( spec, 0 );
+    outpstatsfld->setText( cursel );
 }
 
 
@@ -147,10 +149,9 @@ bool uiSimilarityAttrib::setInput( const Attrib::Desc& desc )
 bool uiSimilarityAttrib::setOutput( const Attrib::Desc& desc )
 {
     const int selattr = desc.selectedOutput();
-    outpstatsfld->setValue( selattr );
-
     const char* ext = extfld->text();
-    if ( selattr && (!strcmp(ext,extstrs[1]) || !strcmp(ext,extstrs[2])) )
+    const bool mirrorext = !strcmp(ext,extstrs[1]) || !strcmp(ext,extstrs[2]);
+    if ( selattr>0 && mirrorext )
 	outpstatsfld->setValue( selattr-2 );
     else
 	outpstatsfld->setValue( selattr );
