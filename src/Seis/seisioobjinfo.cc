@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.5 2005-11-03 10:11:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.6 2005-11-09 13:54:28 cvsnanne Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrcsel.h"
@@ -164,7 +164,7 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 
     BufferString key( ioobj_->key().buf() );
     if ( !is2D() )
-	{ bss.add( key.buf() ); return; }
+	{ bss.add( key.buf() ); bss.sort(); return; }
     else if ( isPS() )
 	{ pErrMsg("2D PS not supported getting def keys"); return; }
 
