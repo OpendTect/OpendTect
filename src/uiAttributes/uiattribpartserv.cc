@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.16 2005-11-08 14:39:39 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.17 2005-11-09 13:55:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -242,13 +242,18 @@ void uiAttribPartServer::getPossibleOutputs( BufferStringSet& nms ) const
     SelInfo attrinf( curDescSet() );
     for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
 	nms.add( attrinf.attrnms.get(idx) );
+
+    BufferStringSet storedoutputs;
     for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
     {
 	const char* ioobjid = attrinf.ioobjids.get( idx );
 	uiSeisIOObjInfo* sii = new uiSeisIOObjInfo( MultiID(ioobjid), false );
-	sii->getDefKeys( nms, true );
+	sii->getDefKeys( storedoutputs, true );
 	delete sii;
     }
+
+    for ( int idx=0; idx<storedoutputs.size(); idx++ )
+	nms.add( storedoutputs.get(idx) );
 }
 
 
