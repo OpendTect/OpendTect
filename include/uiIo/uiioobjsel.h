@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.41 2005-09-28 21:17:37 cvskris Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.42 2005-11-10 16:31:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class IOObj;
 class IOStream;
 class CtxtIOObj;
 class uiGenInput;
+class uiIOObjSelGrp;
 class IODirEntryList;
 class uiLabeledListBox;
 class uiIOObjManipGroup;
@@ -34,8 +35,9 @@ public:
 			uiIOObjRetDlg(uiParent* p,const Setup& s)
 			: uiDialog(p,s) {}
 
-    virtual const IOObj* ioObj() const		= 0;
+    virtual const IOObj*	ioObj() const		= 0;
  
+    virtual uiIOObjSelGrp*	selGrp()		{ return 0; }
 };
 
 
@@ -119,9 +121,13 @@ public:
     virtual void	fillPar(IOPar& p) const	{ selgrp->fillPar(p); }
     virtual void	usePar(const IOPar& p)	{ selgrp->usePar(p); }
 
+    uiIOObjSelGrp*	selGrp()		{ return selgrp; }
+
 protected:
+
     bool		acceptOK(CallBacker*)	{return selgrp->processInput();}
     void		statusMsgCB(CallBacker*);
+    void		setInitial(CallBacker*);
 
     uiIOObjSelGrp*	selgrp;
 };

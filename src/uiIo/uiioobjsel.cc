@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.78 2005-10-31 15:16:39 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.79 2005-11-10 16:31:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,6 +182,7 @@ void uiIOObjSelGrp::toStatusBar( const char* txt )
 void uiIOObjSelGrp::selectionChange( CallBacker* cb )
 {
     if ( ismultisel ) return;
+
     const int curitm = listfld->box()->currentItem();
     bool issel = listfld->box()->isSelected( curitm );
     ioobj = 0;
@@ -337,13 +338,28 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( ismultisel ) nm += "(s)";
     setTitleText( nm );
     setOkText( "Select" );
-    finaliseDone.notify( mCB(selgrp,uiIOObjSelGrp,selectionChange) );
+    finaliseDone.notify( mCB(this,uiIOObjSelDlg,setInitial) );
     selgrp->getListField()->box()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );
 }
 
 
-void uiIOObjSelDlg::statusMsgCB(CallBacker* cb)
+void uiIOObjSelDlg::setInitial( CallBacker* )
+{
+    const char* presetnm = selgrp->getNameField()
+			 ? selgrp->getNameField()->text() : "";
+    if ( *presetnm )
+    {
+	if ( !selgrp->getListField()->box()->isPresent( presetnm ) )
+	    return;
+	else
+	    selgrp->getListField()->box()->setCurrentItem( presetnm );
+    }
+    selgrp->selectionChange( 0 );
+}
+
+
+void uiIOObjSelDlg::statusMsgCB( CallBacker* )
 {
     toStatusBar( selgrp->statusmessage );
 }
@@ -470,6 +486,9 @@ void uiIOObjSel::doObjSel( CallBacker* )
 {
     ctio.ctxt.forread = forread;
     uiIOObjRetDlg* dlg = mkDlg();
+    if ( dlg->selGrp() && dlg->selGrp()->getNameField() )
+	dlg->selGrp()->getNameField()->setText( getInput() );
+
     if ( dlg && dlg->go() && dlg->ioObj() )
     {
 	ctio.setObj( dlg->ioObj()->clone() );
@@ -477,6 +496,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	newSelection( dlg );
 	selok_ = true;
     }
+
     delete dlg;
 }
 
