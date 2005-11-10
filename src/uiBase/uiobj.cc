@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.58 2005-11-08 15:29:21 cvsarend Exp $
+ RCS:           $Id: uiobj.cc,v 1.59 2005-11-10 14:31:05 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -339,7 +339,10 @@ void uiObject::setCaption( const char* c )
 
 
 void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout, uiRect& geom )
-    { if ( mylayout == mBody()->layoutItem() ) setGeometry.trigger(geom); }   
+{
+    if ( mBody() && mylayout == mBody()->layoutItem() )
+	setGeometry.trigger(geom);
+}   
 
 
 void uiObject::reDraw( bool deep )
