@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.31 2005-11-08 14:05:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.32 2005-11-10 08:32:53 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -478,7 +478,6 @@ bool StorageProvider::computeData( const DataHolder& output,
 void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc, 
 					     const DataHolder& data ) const
 {
-    const float step = trc->info().sampling.step;
     const int z0 = data.z0_;
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
@@ -486,7 +485,7 @@ void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	{
 	    if ( outputinterest[idy] )
 	    {
-		const float curt = (z0+idx)*step;
+		const float curt = (z0+idx)*refstep;
 		float val = trc->getValue( curt, idy );
 		data.series(idy)->setValue(idx,val);
 	    }
