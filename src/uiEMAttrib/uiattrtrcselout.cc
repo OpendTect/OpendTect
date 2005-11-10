@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.6 2005-11-07 14:39:28 cvsnanne Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.7 2005-11-10 15:22:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,11 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , usesinglehor_(usesinglehor)
     , extrazfld(0)
 {
-    setHelpID( "104.4.1" );
+    if ( usesinglehor_)
+	setHelpID( "104.4.2" );
+    else	
+	setHelpID( "104.4.1" );
+
     setTitleText( "" );
 
     attrfld = new uiAttrSel( uppgrp, &ads, "Quantity to output" );
