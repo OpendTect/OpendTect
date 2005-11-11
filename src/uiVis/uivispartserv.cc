@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.283 2005-11-11 11:05:00 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.284 2005-11-11 12:30:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -269,6 +269,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     {
 	int typesetidx = scenes.indexOf(scene);
 	displayids_[typesetidx] += dobj->id();
+	turnOn( dobj->id(), true, true );
     }
 }
 
