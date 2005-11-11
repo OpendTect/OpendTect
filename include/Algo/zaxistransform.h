@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.7 2005-11-01 23:34:49 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.8 2005-11-11 22:30:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,9 +41,15 @@ public:
     virtual ZType		getFromZType() const 			= 0;
     virtual ZType		getToZType() const 			= 0;
 
-    virtual float		transform( const BinIDValue& ) const	= 0;
+    virtual void		transform( const BinID&, 
+	    				   const SamplingData<float>&,
+					   int sz, float* res ) const	= 0;
+    virtual float		transform( const BinIDValue& ) const;
     float			transform( const Coord3& ) const;
-    virtual float		transformBack( const BinIDValue& ) const= 0;
+    virtual void		transformBack( const BinID&,
+	    				   const SamplingData<float>&,
+					   int sz, float* res ) const	= 0;
+    virtual float		transformBack( const BinIDValue& ) const;
     float			transformBack( const Coord3& ) const;
 
     virtual Interval<float>	getZInterval( bool from ) const		= 0;
