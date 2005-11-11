@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.7 2005-11-08 12:03:39 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.8 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace Attrib
     class DescSetMan;
     class EngineMan;
     class SelSpec;
-    class SliceSet;
+    class DataCubes;
 };
 
 class CubeSampling;
@@ -92,10 +92,9 @@ public:
     void		getPossibleOutputs(BufferStringSet&) const;
 
     void		setTargetSelSpec(const Attrib::SelSpec&);
-    Attrib::SliceSet*	createOutput(const CubeSampling&,
-				     const Attrib::SliceSet* prevslcs=0,
-				     const Attrib::DescSet* ads=0);
-    			//!<\note Output is referenced
+    const Attrib::DataCubes* createOutput(const CubeSampling&,
+				           const Attrib::DataCubes* prevslcs=0,
+				           const Attrib::DescSet* ads=0);
     bool		createOutput(ObjectSet<BinIDValueSet>&);
     bool		createOutput( const BinIDValueSet& bidvalset,
 	    			      SeisTrcBuf&);

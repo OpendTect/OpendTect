@@ -8,15 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.20 2005-10-24 09:34:28 cvsduntao Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.21 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
-#include "attribpsc.h"
+#include "attribdatacubes.h"
+#include "attribsel.h"
 #include "emhorizon.h"
 #include "genericnumer.h"
 #include "iopar.h"
 #include "linear.h"
+#include "mpeengine.h"
 #include "samplingdata.h"
 #include "survinfo.h"
 #include "valseriesevent.h"
@@ -30,9 +32,8 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
 	const EM::SectionID& sid )
     : SectionAdjuster( sid )
     , horizon_( hor )
+    , attribsel( *new Attrib::SelSpec )
 {
-    computers_ += new AttribPositionScoreComputer();
-
     float dist = 5 * SI().zStep();
     permzrange_ = Interval<float>(-dist,dist);
     dist = 10 * SI().zStep();
@@ -45,6 +46,10 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
     trackevent_ = VSEvent::Max;
     useabsthreshold_ = false;
 }
+
+
+HorizonAdjuster::~HorizonAdjuster()
+{ delete &attribsel; }
 
 
 int HorizonAdjuster::nextStep()
@@ -79,6 +84,20 @@ int HorizonAdjuster::nextStep()
 }
 
 
+void HorizonAdjuster::getNeededAttribs(
+	ObjectSet<const Attrib::SelSpec>& specs ) const
+{
+    for ( int idx=specs.size()-1; idx>=0; idx-- )
+    {
+	if ( *specs[idx]==attribsel )
+	    return;
+    }
+
+    specs += &attribsel;
+}
+
+
+
 bool HorizonAdjuster::trackTrace( const BinID& refbid,
 				 const BinID& targetbid, float& targetz, 
 				 float* refsamples )
@@ -87,23 +106,26 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
     if ( !pos.isDefined() )	return false;
     targetz = pos.z;
 
-    const AttribPositionScoreComputer* acomp = getAttribComputer();
-    const PositionScoreComputerAttribData* attrdata = acomp->getAttribData();
-    const HorSampling hrg = attrdata->getCubeSampling(0).hrg;
-    const StepInterval<float> zrg = attrdata->getCubeSampling(0).zrg;
+    RefMan<const Attrib::DataCubes> attrdata =
+					engine().getAttribCache( attribsel );
+    const CubeSampling attribcs = attrdata->cubeSampling();
+    const HorSampling& hrg = attribcs.hrg;
+    const StepInterval<float>& zrg = attribcs.zrg;
     if ( !zrg.includes(targetz) )
 	return false;
 
     float smplbuf[matchwinsamples_+2];
-    if ( ! refsamples ) {
+    if ( !refsamples )
+    {
 	BinID srcbid(refbid.inl, refbid.crl);
 	if ( srcbid.inl == -1 && srcbid.crl == -1 )
 	    srcbid = targetbid;
 	if ( !hrg.includes(srcbid) || !hrg.includes(srcbid) )
 	    return false;
-	if ( ! getCompSamples(attrdata, srcbid,
-	    	horizon_.getPos(sectionid_,srcbid.getSerialized()).z, smplbuf) )
+	const Coord3 src = horizon_.getPos(sectionid_,srcbid.getSerialized());
+	if ( !getCompSamples( srcbid, src.z, smplbuf) )
 	    return false;
+
 	refsamples = smplbuf;
     }
 
@@ -120,18 +142,20 @@ bool HorizonAdjuster::trackTrace( const BinID& refbid,
     if ( permrange.start>permrange.stop || !permrange.includes(targetz) )
 	return false;
     
-    const int nrcubesamples = zrg.nrSteps();
+    const int nrcubesamples = attrdata->getZSz();
     float trcbuffer[zrg.nrSteps() + 2 ];
-    const Interval<int> samplerg( mMAX(zrg.nearestIndex(permrange.start),0),
-			mMIN(zrg.nearestIndex(permrange.stop),nrcubesamples-1));
-    if ( ! attrdata->getValueBySample( 0, targetbid, trcbuffer,
-				       samplerg.start, samplerg.stop) )
+    const Interval<int> samplerg(
+	    mMAX(mNINT(permrange.start/zrg.step),attrdata->z0),
+	    mMIN(mNINT(permrange.stop/zrg.step),attrdata->z0+nrcubesamples-1));
+
+    if ( !getSampleData( targetbid, samplerg, trcbuffer ) )
     	return false;
+
     const int nrsamples = samplerg.stop - samplerg.start + 1;
     int refpos = zrg.nearestIndex(targetz)-samplerg.start;
     float refval;
     
-    if ( ! trackbyvalue_ )
+    if ( !trackbyvalue_ )
     {
 	int upmatchpos, downmatchpos;  upmatchpos = downmatchpos = -1;
 	float upmatchv, downmatchv;    bool upeq, downeq;
@@ -232,34 +256,22 @@ int HorizonAdjuster::matchingSampleBySimilarity( const float* srctrc,
 
 void HorizonAdjuster::initTrackParam()
 {
-    const AttribPositionScoreComputer* acomp = getAttribComputer();
-    
-    if (trackbyvalue_)
+    if ( trackbyvalue_ )
     {
 	matchwinsamples_ = 1;
 	simlaritymatchpt_ = 0;
     }
-    else {
-	const PositionScoreComputerAttribData* attrdata = acomp->getAttribData();
-	const StepInterval<float> zrg = attrdata->getCubeSampling(0).zrg;
+    else
+    {
+	RefMan<const Attrib::DataCubes> attrdata =
+					engine().getAttribCache( attribsel );
+	const float zstep = attrdata->zstep;
+	const StepInterval<float> zrg( attrdata->z0*zstep,
+			   (attrdata->z0+attrdata->getZSz()-1)*zstep, zstep  );
 	matchwinsamples_ = (int)( (similaritywin_.stop - similaritywin_.start)
     				  / zrg.step ) + 1;
 	simlaritymatchpt_ = (int)(-similaritywin_.start / zrg.step);
     }
-}
-
-
-const AttribPositionScoreComputer* 
-    HorizonAdjuster::getAttribComputer() const
-{
-    for ( int idx=0; idx<nrComputers(); idx++ )
-    {
-	mDynamicCastGet(const AttribPositionScoreComputer*,attr,
-			getComputer(idx));
-	if ( attr ) return attr;
-    }
-
-    return 0;
 }
 
 
@@ -269,31 +281,72 @@ void HorizonAdjuster::setHorizonPick(const BinID&  bid, float val )
 }
 
 
-bool HorizonAdjuster::getCompSamples(
-	const PositionScoreComputerAttribData*	attrdata,
-	const BinID& bid, float z, float* buf )
+bool HorizonAdjuster::getCompSamples( const BinID& bid, float z, float* buf )
 {
-    float *smplbuf = buf;
+    RefMan<const Attrib::DataCubes> attrdata =
+					engine().getAttribCache( attribsel );
     if ( trackbyvalue_ )
     {
-	const StepInterval<float> zrg = attrdata->getCubeSampling(0).zrg;
-	int stsmpl = zrg.nearestIndex(z);
-	*smplbuf = attrdata->getValueBySample( 0, bid, stsmpl );
-	return ! Values::isUdf(*smplbuf);
+	const int nearestsample = mNINT(z/attrdata->zstep);
+	return getSampleData( bid,
+			      Interval<int>(nearestsample,nearestsample ), buf);
     }
-    else
+
+    const float zstep = attrdata->zstep;
+    const int startsample = mNINT((z+similaritywin_.start)/zstep);
+    const int lastsample = startsample + matchwinsamples_ - 1;
+    return getSampleData( bid, Interval<int>( startsample, lastsample), buf );
+}
+
+
+void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
+{ if ( !idx ) attribsel = as; }
+
+
+bool HorizonAdjuster::getSampleData( const BinID& bid,
+				     const Interval<int>& desrange,
+				     float* res )
+{
+    RefMan<const Attrib::DataCubes> attrdata =
+					engine().getAttribCache( attribsel );
+
+    const int inlidx = attrdata->inlsampling.nearestIndex( bid.inl );
+    if ( inlidx<0 || inlidx>=attrdata->getInlSz() )
+	return false;
+
+    const int crlidx = attrdata->crlsampling.nearestIndex( bid.crl );
+    if ( crlidx<0 || crlidx>=attrdata->getCrlSz() )
+	return false;
+
+    const int startsample = desrange.start-attrdata->z0;
+    if ( startsample<0 || startsample>=attrdata->getZSz() )
+	return false;
+
+    const int lastsample = desrange.stop-attrdata->z0;
+    if ( lastsample<0 || lastsample>=attrdata->getZSz() )
+	return false;
+
+    const int nrsamples = lastsample-startsample+1;
+
+    const Array3D<float>& cube = attrdata->getCube(0);
+    const float* arr = cube.getData() +
+		       cube.info().getMemPos( inlidx, crlidx, startsample );
+
+    memcpy( res, arr, nrsamples*sizeof(float) );
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const StepInterval<float> zrg = attrdata->getCubeSampling(0).zrg;
-	int stsmpl = zrg.nearestIndex(z+similaritywin_.start);
-	return attrdata->getValueBySample(0, bid, smplbuf, stsmpl,
-					  stsmpl + matchwinsamples_ - 1);
+	if ( Values::isUdf(res[idx]) )
+	    return false;
     }
+
+    return true;
 }
 
 
 void HorizonAdjuster::fillPar( IOPar& iopar ) const
 {
     SectionAdjuster::fillPar( iopar );
+    attribsel.fillPar( iopar );
     iopar.set( sKeyTrackEvent(), VSEvent::TypeRef(trackevent_) );
     iopar.set( sKeyPermittedZRange(), permzrange_.start, permzrange_.stop );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
@@ -308,6 +361,14 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
 bool HorizonAdjuster::usePar( const IOPar& iopar )
 {
     EnumRef tmpref = VSEvent::TypeRef(trackevent_);
+
+    if ( !attribsel.usePar( iopar ) )
+    {
+	PtrMan<IOPar> oldpar = iopar.subselect("attrval.Attrib 0");
+	if ( !oldpar || !attribsel.usePar(*oldpar ) )
+	    return false;
+    }
+
 
     return
 	SectionAdjuster::usePar( iopar ) &&

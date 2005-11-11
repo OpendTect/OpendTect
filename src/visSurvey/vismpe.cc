@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.35 2005-10-26 22:04:43 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.36 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.35 2005-10-26 22:04:43 cvskris Ex
 #include "vistexture3.h"
 #include "vistexturecoords.h"
 #include "attribsel.h"
-#include "attribslice.h"
+#include "attribdatacubes.h"
 #include "iopar.h"
 #include "visdataman.h"
 
@@ -264,22 +264,21 @@ const char* MPEDisplay::getSelSpecUserRef() const
 
 void MPEDisplay::updateTexture()
 {
-    const Attrib::SliceSet* sliceset = engine_.getAttribCache( as_ );
-    if ( !sliceset )
+    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
+    if ( !attrdata )
     {
-	if ( texture_ ) texture_->turnOn(false);
+	if ( texture_ ) texture_->turnOn( false );
 	return;
     }
 
     if ( !texture_ )
 	setTexture( visBase::Texture3::create() );
 
-    if ( getCubeSampling() != sliceset->sampling )
-	setCubeSampling( sliceset->sampling );
+    if ( getCubeSampling()!=attrdata->cubeSampling() )
+	setCubeSampling( attrdata->cubeSampling() );
 
-    PtrMan<const Array3D<float> > td = sliceset->createArray( 0, 1, 2 );
-    texture_->setData( td );
-    texture_->turnOn(true);
+    texture_->setData( &attrdata->getCube(0) );
+    texture_->turnOn( true );
 }
 
 

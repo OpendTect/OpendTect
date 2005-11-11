@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.151 2005-11-08 10:00:32 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.152 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class uiToolBar;
 class uiMenuHandler;
 class uiVisModeMgr;
 
-namespace Attrib    { class ColorSelSpec; class SelSpec; class SliceSet; }
+namespace Attrib    { class ColorSelSpec; class SelSpec; class DataCubes; }
 namespace visBase   { class DataObject; };
 namespace visSurvey { class Scene; };
 namespace Threads   { class Mutex; };
@@ -96,8 +96,9 @@ public:
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id) const;
-    const Attrib::SliceSet* getCachedData(int id,bool color) const;
-    bool		setCubeData(int id, bool color,Attrib::SliceSet*);
+    const Attrib::DataCubes* getCachedData(int id,bool color) const;
+    bool		setCubeData(int id, bool color,
+	    			    const Attrib::DataCubes*);
     			/*!< data becomes mine */
 
     			//Trace data

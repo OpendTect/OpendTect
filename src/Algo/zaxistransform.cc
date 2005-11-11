@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.4 2005-10-26 22:07:16 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.5 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -35,9 +35,24 @@ float ZAxisTransform::transform( const Coord3& pos ) const
 { return transform( BinIDValue( SI().transform(pos), pos.z ) ); }
 
 
+float ZAxisTransform::transform( const BinIDValue& pos ) const
+{
+    float res = mUdf(float);
+    transform( pos.binid, SamplingData<float>(pos.value,1), 1, &res );
+    return res;
+}
+
 
 float ZAxisTransform::transformBack( const Coord3& pos ) const
 { return transformBack( BinIDValue( SI().transform(pos), pos.z ) ); }
+
+
+float ZAxisTransform::transformBack( const BinIDValue& pos ) const
+{
+    float res = mUdf(float);
+    transformBack( pos.binid, SamplingData<float>(pos.value,1), 1, &res );
+    return res;
+}
 
 
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,

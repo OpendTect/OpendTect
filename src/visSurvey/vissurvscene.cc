@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.74 2005-11-07 11:48:36 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.75 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,6 +164,9 @@ void Scene::addObject( visBase::DataObject* obj )
 	addInlCrlTObject( obj );
     else if ( vo )
 	addUTMObject( vo );
+
+    if ( so && datatransform )
+	so->setDataTransform( datatransform );
 }
 
 

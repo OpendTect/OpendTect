@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.23 2005-10-11 19:57:07 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.24 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class Executor;
 class CubeSampling;
 class MultiID;
 
-namespace Attrib { class SelSpec; class SliceSet; }
+namespace Attrib { class SelSpec; class DataCubes; }
 namespace EM { class EMObject; };
 namespace Geometry { class Element; };
 
@@ -80,9 +80,9 @@ public:
     				/*!< Returns the cube that is needed for
 				     this attrib, given that the activearea
 				     should be tracked. */
-    const Attrib::SliceSet*	getAttribCache(const Attrib::SelSpec&) const;
+    const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData( const Attrib::SelSpec&,
-					       const Attrib::SliceSet*);
+					       const Attrib::DataCubes*);
 
     				/*Editors */
     ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
@@ -108,7 +108,7 @@ protected:
     ObjectSet<EMTracker>	trackers;
     ObjectSet<ObjectEditor>	editors;
 
-    ObjectSet<const Attrib::SliceSet>	attribcache;
+    ObjectSet<const Attrib::DataCubes>	attribcache;
     ObjectSet<Attrib::SelSpec>		attribcachespecs;
 
     ObjectSet<TrackerFactory>	trackerfactories;

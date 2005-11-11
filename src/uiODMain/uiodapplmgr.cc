@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.105 2005-10-24 15:17:25 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.106 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "uiattrtrcselout.h"
 
 #include "attribdescset.h"
-#include "attribslice.h"
+#include "attribdatacubes.h"
 #include "attribsel.h"
 #include "seisbuf.h"
 #include "posvecdataset.h"
@@ -407,15 +407,16 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    if ( myas.id()<-1 && colordata )
 	    { visserv->setCubeData(visid, true, 0 ); return true; }
 
-	    const Attrib::SliceSet* prevset =
+	    const Attrib::DataCubes* cache =
 				visserv->getCachedData( visid, colordata );
 
 	    CubeSampling cs = visserv->getCubeSampling( visid );
 	    attrserv->setTargetSelSpec( myas );
-	    Attrib::SliceSet* slices = attrserv->createOutput( cs, prevset );
+	    RefMan<const Attrib::DataCubes> newdata =
+		attrserv->createOutput( cs, cache );
 
-	    if ( !slices ) return false;
-	    visserv->setCubeData( visid, colordata, slices );
+	    if ( !newdata ) return false;
+	    visserv->setCubeData( visid, colordata, newdata );
 	    res = true;
 	    break;
 	}
@@ -500,8 +501,8 @@ bool uiODApplMgr::evaluateAttribute( int visid )
     if ( format == 0 )
     {
 	const CubeSampling cs = visserv->getCubeSampling( visid );
-	Attrib::SliceSet* slices = attrserv->createOutput( cs );
-	visserv->setCubeData( visid, false, slices );
+	RefMan<const Attrib::DataCubes> newdata = attrserv->createOutput( cs );
+	visserv->setCubeData( visid, false, newdata );
     }
     else if ( format == 2 )
     {
@@ -625,10 +626,11 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const Attrib::SelSpec* as = mpeserv->getAttribSelSpec();
 	if ( !as ) return false;
 	const CubeSampling cs = mpeserv->getActiveVolume();
-	const Attrib::SliceSet* cache = mpeserv->getAttribCache(*as);
+	const Attrib::DataCubes* cache = mpeserv->getAttribCache(*as);
 	attrserv->setTargetSelSpec( *as );
-	Attrib::SliceSet* newset = attrserv->createOutput( cs, cache );
-	mpeserv->setAttribData(*as,newset );
+	RefMan<const Attrib::DataCubes> newdata =
+	    				attrserv->createOutput( cs, cache );
+	mpeserv->setAttribData(*as, newdata );
     }
     else if ( evid == uiMPEPartServer::evShowToolbar )
 	visserv->showMPEToolbar();

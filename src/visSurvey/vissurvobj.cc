@@ -4,12 +4,12 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.29 2005-10-19 22:03:40 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.30 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "vissurvobj.h"
 
 #include "arrayndimpl.h"
-#include "attribslice.h"
+#include "attribdatacubes.h"
 #include "iopar.h"
 #include "linsolv.h"
 #include "seisbuf.h"
@@ -21,11 +21,8 @@ namespace visSurvey {
 
 float SurveyObject::sDefMaxDist = 10;
 
-bool SurveyObject::setDataVolume( bool color, Attrib::SliceSet* slc )
-{
-    slc->unRef();
-    return true;
-}
+bool SurveyObject::setDataVolume( bool color, const Attrib::DataCubes* )
+{ return true; }
 
 
 void SurveyObject::setTraceData( bool color, SeisTrcBuf& trcs )

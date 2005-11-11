@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.18 2005-10-11 19:58:43 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.19 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class BufferStringSet;
 
 namespace Geometry { class Element; }
 namespace MPE { class Wizard; }
-namespace Attrib { class DescSet; class SelSpec; class SliceSet; }
+namespace Attrib { class DescSet; class SelSpec; class DataCubes; }
 
 
 /*! \brief Implementation of Tracking part server interface */
@@ -73,10 +73,9 @@ public:
     static const int		evGetAttribData;
     CubeSampling		getActiveVolume() const;
     const Attrib::SelSpec*	getAttribSelSpec() const;
-    const Attrib::SliceSet*	getAttribCache(const Attrib::SelSpec&) const;
-    void			setAttribData(const Attrib::SelSpec&,
-						    Attrib::SliceSet*);
-    				/*!<\note Slices become mine */
+    const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
+    void			setAttribData( const Attrib::SelSpec&,
+					       const Attrib::DataCubes*);
 
     static const int		evStartSeedPick;
     static const int		evEndSeedPick;

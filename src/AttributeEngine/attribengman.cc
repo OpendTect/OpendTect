@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.43 2005-11-09 16:45:08 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.44 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
-#include "attribslice.h"
+#include "attribdatacubes.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "attribparam.h"
@@ -216,129 +216,89 @@ const char* EngineMan::getCurUserRef() const
 }
 
 
-SliceSet* EngineMan::getSliceSetOutput()
+const DataCubes* EngineMan::getDataCubesOutput()
 {
     if ( !proc_ )
 	return 0;
 
     if ( proc_->outputs.size()==1 && !cache )
-	return proc_->outputs[0]->getSliceSet();
+	return proc_->outputs[0]->getDataCubes();
 
-    ObjectSet<SliceSet> slsets;
+    ObjectSet<const DataCubes> cubeset;
     for ( int idx=0; idx<proc_->outputs.size(); idx++ )
     {
-	if ( !proc_->outputs[idx] || !proc_->outputs[idx]->getSliceSet() )
+	if ( !proc_->outputs[idx] || !proc_->outputs[idx]->getDataCubes() )
 	    continue;
 
-	SliceSet& slset = *new SliceSet;
-	slset.sampling = proc_->outputs[idx]->getSliceSet()->sampling;
-	slset.direction = slset.sampling.defaultDir();
-	for ( int idy=0; idy<proc_->outputs[idx]->getSliceSet()->size(); idy++ )
+	const DataCubes* dc = proc_->outputs[idx]->getDataCubes();
+	dc->ref();
+	if ( cubeset.size() && cubeset[0]->nrCubes()!=dc->nrCubes() )
 	{
-	    Slice* slc = ( *proc_->outputs[idx]->getSliceSet() )[idy];
-	    slset += slc;
+	    dc->unRef();
+	    continue;
 	}
 
-	slset.ref();
-	slsets += &slset;
+	cubeset += dc;
     }
 
-    bool prevismine = false;
-    if ( !cache )
+    if ( cache )
     {
-	cache = slsets[0];
-	slsets.remove(0);
-	prevismine = true;
+	cubeset += cache;
+	cache->ref();
     }
 
-    SliceSet* outslcs = new SliceSet;
-    CubeSampling csamp(cs_);
-    outslcs->sampling = csamp;
-    outslcs->direction = csamp.defaultDir();
-#define mGetDim(nr) \
-    const int dim##nr = csamp.size( direction(outslcs->direction,nr) )
+    if ( !cubeset.size() )
+	return 0;
 
-    mGetDim(0); mGetDim(1); mGetDim(2);
-    float undfval;
-    bool udefvalfound = false;
-    for ( int idx=0; idx<cache->size(); idx++ )
+    DataCubes* output = new DataCubes;
+    output->ref();
+    output->setSizeAndPos(cs_);
+    for ( int idx=0; idx<cubeset[0]->nrCubes(); idx++ )
+	output->addCube(mUdf(float));
+
+    for ( int iset=0; iset<cubeset.size(); iset++ )
     {
-	if ( (*cache)[idx] )
+	const DataCubes& cubedata = *cubeset[iset];
+	for ( int sidx=cubedata.getInlSz()-1; sidx>=0; sidx-- )
 	{
-	    udefvalfound = true;
-	    undfval= (*cache)[idx]->undefValue();
-	    break;
-	}
-    }
-    if ( !udefvalfound )
-    {
-	for ( int idy=0; idy<slsets.size(); idy++ )
-	{
-	    if ( !slsets[idy] ) continue;
-	    for ( int idx=0; idx<slsets[idy]->size(); idx++ )
+	    const int inl = cubedata.inlsampling.atIndex(sidx);
+	    const int tidx = output->inlsampling.nearestIndex(inl);
+	    if ( tidx<0 || tidx>=output->getInlSz() )
+		continue;
+
+	    for ( int scdx=cubedata.getCrlSz()-1; scdx>=0; scdx-- )
 	    {
-		if ( (*slsets[idy])[idx] )
+		const int crl = cubedata.crlsampling.atIndex(scdx);
+		const int tcdx = output->crlsampling.nearestIndex(crl);
+		if ( tcdx<0 || tcdx>=output->getCrlSz() )
+		    continue;
+
+		for ( int szdx=cubedata.getZSz()-1; szdx>=0; szdx-- )
 		{
-		    udefvalfound = true;
-		    undfval= (*slsets[idy])[idx]->undefValue();
-		    break;
-		}
-	    }
+		    const int z = cubedata.z0+szdx;
+		    const int tzdx = z-output->z0;
 
-	    if ( udefvalfound ) break;
-	}
-    }
+		    if ( tzdx<0 || tzdx>=output->getZSz() )
+			continue;
 
-    if ( !udefvalfound )
-	undfval = mUndefValue;
+		    for ( int cubeidx=output->nrCubes()-1;cubeidx>=0;cubeidx--)
+		    {
+			const float val =
+			    cubedata.getCube(cubeidx).get( sidx, scdx, szdx );
 
-    for ( int idx=0; idx<dim0; idx++ )
-    {
-	Slice* slice = new Slice( dim1, dim2, udfval );
-	slice->ref();
-	*outslcs += slice;
-    }
+			if ( Values::isUdf( val ) )
+			    continue;
 
-    int i0, i1, i2;
-    for ( int iset=-1; iset<slsets.size(); iset++ )
-    {
-	const SliceSet& slset = *(iset < 0 ? cache : slsets[iset]);
-
-	CubeSampling datacs( slset.sampling );
-#define mCheckRg(memb,op) \
-	if ( datacs.memb op outslcs->sampling.memb ) \
-	    datacs.memb = outslcs->sampling.memb
-	mCheckRg(hrg.start.inl,<); mCheckRg(hrg.stop.inl,>);
-	mCheckRg(hrg.start.crl,<); mCheckRg(hrg.stop.crl,>);
-	mCheckRg(zrg.start,<); mCheckRg(zrg.stop,>);
-
-	BinID bid;
-	const float hzstep = outslcs->sampling.zrg.step * .5;
-	for ( int inl =  datacs.hrg.start.inl;
-		  inl <= datacs.hrg.stop.inl;
-		    inl += datacs.hrg.step.inl )
-	{
-	    for ( int   crl =  datacs.hrg.start.crl;
-			crl <= datacs.hrg.stop.crl;
-			crl += datacs.hrg.step.crl )
-	    {
-		for ( float z =  datacs.zrg.start;
-			    z <  datacs.zrg.stop + hzstep;
-			    z += datacs.zrg.step )
-		{
-		    slset.getIdxs( inl, crl, z, i0, i1, i2 );
-		    float val = slset[i0] ? slset[i0]->get( i1, i2 ) : udfval;
-		    outslcs->getIdxs( inl, crl, z, i0, i1, i2 );
-		    ((*outslcs)[i0])->set( i1, i2, val );
+			output->setValue( cubeidx, tidx, tcdx, tzdx, val );
+		    }
 		}
 	    }
 	}
     }
 
-    for ( int idx=0; idx<slsets.size(); idx++ )
-	slsets[idx]->unRef();
-
-    return outslcs;
+    deepUnRef( cubeset );
+    output->unRefNoDelete();
+    return output;
 }
 
 
@@ -523,17 +483,25 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
     return proc_;
 }
 
+#define mRg(dir) (cachecs.dir##rg)
 
-Processor* EngineMan::createSliceSetOutput( BufferString& errmsg,
-					    const SliceSet* prev )
+Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
+					    const DataCubes* prev )
 {
+    if ( cache )
+    {
+	cache->unRef();
+	cache = 0;
+    }
+
+
     if ( cs_.isEmpty() )
 	prev = 0;
-#define mRg(dir) (prev->sampling.dir##rg)
     else if ( prev )
     {
-	cache = const_cast<SliceSet*>(prev);
+	cache = prev;
 	cache->ref();
+	const CubeSampling cachecs = cache->cubeSampling();
 	if ( !mRg(z).isCompatible( cs_.zrg, mStepEps )
 	  || mRg(h).step != cs_.hrg.step
 	  || (mRg(h).start.inl - cs_.hrg.start.inl) % cs_.hrg.step.inl
@@ -550,7 +518,7 @@ Processor* EngineMan::createSliceSetOutput( BufferString& errmsg,
 
 #define mAddAttrOut(todocs) \
 { \
-    SliceSetOutput* attrout = new SliceSetOutput(todocs); \
+    DataCubesOutput* attrout = new DataCubesOutput(todocs); \
     attrout->setGeometry( todocs ); \
     attrout->setUndefValue( udfval ); \
     proc_->addOutput( attrout ); \
@@ -560,10 +528,11 @@ Processor* EngineMan::createSliceSetOutput( BufferString& errmsg,
     if ( !proc_ ) 
 	return 0; 
 
-    if ( !prev )
+    if ( !cache )
 	mAddAttrOut( cs_ )
     else
     {
+	const CubeSampling cachecs = cache->cubeSampling();
 	CubeSampling todocs( cs_ );
 	if ( mRg(h).start.inl > cs_.hrg.start.inl )
 	{

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.67 2005-10-26 22:04:43 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.68 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -253,7 +253,7 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	if ( haddefaultvol )
 	{
-	    const Attrib::SliceSet* cached =
+	    RefMan<const Attrib::DataCubes> cached =
 		clickcatcher->clickedObjectData();
 
 	    if ( cached )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.45 2005-10-19 22:03:43 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.46 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class SeisTrcBuf;
 class ZAxisTransform;
 
 namespace visBase { class Transformation; class EventInfo; };
-namespace Attrib  { class SelSpec; class SliceSet; class ColorSelSpec; }
+namespace Attrib  { class SelSpec; class DataCubes; class ColorSelSpec; }
 
 namespace visSurvey
 {
@@ -139,9 +139,9 @@ public:
     virtual CubeSampling	getCubeSampling() const
 				{ CubeSampling cs; return cs; }
     virtual void		setCubeSampling(CubeSampling)		{}
-    virtual bool		setDataVolume(bool color,Attrib::SliceSet* slc);
-				/*!<\note slc becomes mine */
-    virtual const Attrib::SliceSet* getCacheVolume( bool color ) const
+    virtual bool		setDataVolume( bool color,
+	    				       const Attrib::DataCubes* slc );
+    virtual const Attrib::DataCubes* getCacheVolume( bool color ) const
 				{ return 0; }
 
     				//Trace-data

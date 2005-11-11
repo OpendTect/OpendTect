@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.17 2005-11-09 13:55:17 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.18 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attrfact.h"
 #include "attribsel.h"
-#include "attribslice.h"
+#include "attribdatacubes.h"
 #include "executor.h"
 #include "ctxtioobj.h"
 #include "binidselimpl.h"
@@ -322,15 +322,16 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 }
 
 
-Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
-						    const SliceSet* cache,
-       						    const DescSet* ads )
+const Attrib::DataCubes*
+uiAttribPartServer::createOutput( const CubeSampling& cs,
+				  const DataCubes* cache,
+       				  const DescSet* ads )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, 0, ads );
     if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<Processor> process = aem->createSliceSetOutput( errmsg, cache );
+    PtrMan<Processor> process = aem->createDataCubesOutput( errmsg, cache );
     if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
 
@@ -340,7 +341,14 @@ Attrib::SliceSet* uiAttribPartServer::createOutput( const CubeSampling& cs,
 	if ( !dlg.go() ) return 0;
     }
 
-    return aem->getSliceSetOutput();
+    const Attrib::DataCubes* output = aem->getDataCubesOutput();
+    output->ref();
+
+    aem = 0;
+
+    output->unRefNoDelete();
+
+    return output;
 }
 
 

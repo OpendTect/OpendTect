@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.13 2005-10-18 17:10:17 cvskris Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.14 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ namespace Attrib { class SelSpec; }
 namespace MPE
 {
 
-class PositionScoreComputer;
 class SectionExtender;
 
 class SectionAdjuster : public BasicTask
@@ -44,12 +43,15 @@ public:
     const char*			errMsg() const;
 
     virtual CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
+    				/*!<\returns the cube in which I need the
+				     given attrib to track in activevolum. */
     virtual void		getNeededAttribs(
 	    			    ObjectSet<const Attrib::SelSpec>&) const;
 
-    const PositionScoreComputer* getComputer(int idx) const;
-    PositionScoreComputer*	getComputer(int idx);
-    int				nrComputers() const;
+    virtual int			getNrAttributes() const		{ return 0; }
+    virtual const Attrib::SelSpec* getAttributeSel( int idx ) const { return 0;}
+    virtual void		setAttributeSel( int idx,
+	    					 const Attrib::SelSpec& ) {}
 
     void			setThresholdValue(float val);
     float			getThresholdValue() const;
@@ -74,8 +76,6 @@ protected:
 
     const EM::SubID*		refpos_;
     
-    ObjectSet<PositionScoreComputer> computers_;
-
     static const char*		sKeyAdjuster();
     static const char*		sKeyThreshold();
     static const char*		sKeyRemoveOnFailure();

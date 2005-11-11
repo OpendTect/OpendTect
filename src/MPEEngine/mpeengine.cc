@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.52 2005-11-03 23:27:26 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.53 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "mpeengine.h"
 
 #include "attribsel.h"
-#include "attribslice.h"
+#include "attribdatacubes.h"
 #include "bufstringset.h"
 #include "emeditor.h"
 #include "emmanager.h"
@@ -301,7 +301,7 @@ CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 }
     
 
-const Attrib::SliceSet* Engine::getAttribCache(const Attrib::SelSpec& as) const
+const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as) const
 {
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
     {
@@ -314,7 +314,7 @@ const Attrib::SliceSet* Engine::getAttribCache(const Attrib::SelSpec& as) const
 
 
 bool Engine::setAttribData( const Attrib::SelSpec& as, 
-			    const Attrib::SliceSet* newdata )
+			    const Attrib::DataCubes* newdata )
 {
     bool found = false;
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
@@ -323,6 +323,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 	{
 	    attribcache[idx]->unRef();
 	    attribcache.replace(idx, newdata);
+	    newdata->ref();
 	    found = true;
 	    break;
 	}
@@ -332,9 +333,9 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     {
 	attribcachespecs += new Attrib::SelSpec(as);
 	attribcache += newdata;
+	newdata->ref();
     }
 
-    //Todo - give to trackers
     return true;
 }
 

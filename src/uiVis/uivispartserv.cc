@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.284 2005-11-11 12:30:06 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.285 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,7 +366,7 @@ CubeSampling uiVisPartServer::getCubeSampling( int id ) const
 }
 
 
-const Attrib::SliceSet* uiVisPartServer::getCachedData( int id,
+const Attrib::DataCubes* uiVisPartServer::getCachedData( int id,
 						      bool color ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
@@ -374,19 +374,17 @@ const Attrib::SliceSet* uiVisPartServer::getCachedData( int id,
 }
 
 
-bool uiVisPartServer::setCubeData( int id, bool color, Attrib::SliceSet* sliceset)
+bool uiVisPartServer::setCubeData( int id, bool color,
+				   const Attrib::DataCubes* attribdata )
 {
-    if ( !sliceset ) return false;
+    if ( !attribdata  ) return false;
 
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so )
-    {
-	sliceset->unRef();
 	return false;
-    }
 
     uiCursorChanger cursorlock( uiCursor::Wait );
-    return so->setDataVolume( color, sliceset );
+    return so->setDataVolume( color, attribdata );
 }
 
 

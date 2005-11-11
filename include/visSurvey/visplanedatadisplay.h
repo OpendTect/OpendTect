@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.59 2005-10-26 22:04:43 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.60 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class CubeSampling;
 template <class T> class Array2D;
 
 namespace visBase { class TextureRect; class VisColorTab; };
-namespace Attrib { class SelSpec; class SliceSet; class ColorSelSpec; class DataCubes; }
+namespace Attrib { class SelSpec; class ColorSelSpec; class DataCubes; }
 
 namespace visSurvey
 {
@@ -99,10 +99,9 @@ public:
 
     CubeSampling		getCubeSampling() const;
     void			setCubeSampling(CubeSampling);
-    bool			setDataVolume(bool color,Attrib::SliceSet*);
     bool			setDataVolume( bool color,
 	    				       const Attrib::DataCubes* );
-    const Attrib::SliceSet*	getCacheVolume(bool color) const;
+    const Attrib::DataCubes*	getCacheVolume(bool color) const;
    
     bool			canHaveMultipleTextures() const { return true; }
     int				nrTextures() const;
@@ -125,14 +124,14 @@ public:
     virtual float		maxDist() const;
     virtual bool		allowPicks() const		{ return true; }
 
+    bool			setDataTransform( ZAxisTransform* );
+
 protected:
 				~PlaneDataDisplay();
 
     void			setUpConnections();
     void			setTextureRect(visBase::TextureRect*);
-    void			setData(const Attrib::SliceSet*,int datatype=0);
     void			setData(const Attrib::DataCubes*, int datatype);
-    Array2D<float>*		createArray(const Attrib::SliceSet*,int) const;
     void			zScaleChanged(CallBacker*);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
@@ -145,12 +144,13 @@ protected:
     Attrib::SelSpec&		as;
     Attrib::ColorSelSpec&	colas;
 
-    Attrib::SliceSet*           cache;
-    Attrib::SliceSet*           colcache;
+    const Attrib::DataCubes*	cache;
+    const Attrib::DataCubes*	colcache;
 
     BinID			curicstep;
     float			curzstep;
     ZAxisTransform*		datatransform;
+    int				datatransformvoihandle;
 
     static const char*		trectstr;
     Notifier<PlaneDataDisplay>	manipulating;

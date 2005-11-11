@@ -12,73 +12,88 @@
 
 
 bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
-		   float targetval, float tol)
+		float targetval, float tol)
 { 
-    int iter;
-    float a=x1,b=x2,c,d,e,min1,min2;
-    float fa=targetval - func.getValue(a);
-    float fb=targetval - func.getValue(b);
-    float fc,p,q,r,s,tol1,xm;
-    void nrerror();
+    float f1 = targetval - func.getValue(x1);
+    float f2 = targetval - func.getValue(x2);
 
-    if (fb*fa > 0.0) return false;
-    fc=fb;
-    for (iter=1;iter<=ITMAX;iter++) {
-	    if (fb*fc > 0.0) {
-		    c=a;
-		    fc=fa;
-		    e=d=b-a;
-	    }
-	    if (fabs(fc) < fabs(fb)) {
-		    a=b;
-		    b=c;
-		    c=a;
-		    fa=fb;
-		    fb=fc;
-		    fc=fa;
-	    }
-	    tol1=2.0*EPS*fabs(b)+0.5*tol;
-	    xm=0.5*(c-b);
-	    if (fabs(xm) <= tol1 || fb == 0.0) 
+    if ( f2*f1>0.0 ) return false;
+
+    float f3 = f2;
+    for ( int idx=1; idx<=ITMAX; idx++ )
+    {
+	float x3, e, d;
+	if ( f2*f3 > 0.0 )
+	{
+	    x3 = x1;
+	    f3 = f1;
+	    e = d = x2-x1;
+	}
+
+	if ( fabs(f3)<fabs(f2) )
+	{
+	    x1 = x2; f1 = f2;
+	    x2 = x3; f2 = f3;
+	    x3 = x1; f3 = f1;
+	}
+
+	const float tol1 = 2.0 * EPS * fabs(x2)+0.5*tol;
+	const float xm = 0.5 * (x3-x2);
+
+	if ( fabs(xm)<=tol1 || f2==0.0 ) 
+	{
+	    res = x2;
+	    return true;
+	}
+
+	if ( fabs(e)>=tol1 && fabs(f1)>fabs(f2) )
+	{
+	    const float s = f2/f1;
+	    float p, q;
+	    if ( x1==x3 )
 	    {
-		res = b;
-		return true;
+		p = 2.0*xm*s;
+		q = 1.0-s;
+	    }
+	    else
+	    {
+		q = f1/f3;
+		const float r = f2/f3;
+		p = s*(2.0*xm*q*(q-r)-(x2-x1)*(r-1.0));
+		q = (q-1.0)*(r-1.0)*(s-1.0);
 	    }
 
-	    if (fabs(e) >= tol1 && fabs(fa) > fabs(fb)) {
-		    s=fb/fa;
-		    if (a == c) {
-			    p=2.0*xm*s;
-			    q=1.0-s;
-		    } else {
-			    q=fa/fc;
-			    r=fb/fc;
-			    p=s*(2.0*xm*q*(q-r)-(b-a)*(r-1.0));
-			    q=(q-1.0)*(r-1.0)*(s-1.0);
-		    }
-		    if (p > 0.0)  q = -q;
-		    p=fabs(p);
-		    min1=3.0*xm*q-fabs(tol1*q);
-		    min2=fabs(e*q);
-		    if (2.0*p < (min1 < min2 ? min1 : min2)) {
-			    e=d;
-			    d=p/q;
-		    } else {
-			    d=xm;
-			    e=d;
-		    }
-	    } else {
-		    d=xm;
-		    e=d;
+	    if  ( p>0.0 ) q = -q;
+	    p = fabs(p);
+	    const float min1 = 3.0 * xm * q - fabs( tol1 * q );
+	    const float min2 = fabs( e*q );
+	    if ( 2.0 * p< ( min1<min2 ? min1 : min2 ) )
+	    {
+		e = d;
+		d = p/q;
 	    }
-	    a=b;
-	    fa=fb;
-	    if (fabs(d) > tol1)
-		    b += d;
 	    else
-		    b += (xm > 0.0 ? fabs(tol1) : -fabs(tol1));
-	    fb=targetval - func.getValue(b);
+	    {
+		d = xm;
+		e = d;
+	    }
+	}
+	else
+	{
+	    d = xm;
+	    e = d;
+	}
+
+	x1 = x2; f1 = f2;
+
+	if ( fabs(d)>tol1 )
+	    x2 += d;
+	else
+	    x2 += ( xm>0.0 ? fabs(tol1) : -fabs(tol1) );
+
+	f2 = targetval - func.getValue(x2);
     }
+
     return false;
 }
 

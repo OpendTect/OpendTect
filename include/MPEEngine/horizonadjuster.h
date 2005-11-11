@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.10 2005-10-20 03:27:17 cvsduntao Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.11 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,23 +19,25 @@ ________________________________________________________________________
 
 class IOPar;
 namespace EM { class Horizon; };
+namespace Attrib { class DataCubes; };
 
 
 namespace MPE
 {
 
-class AttribPositionScoreComputer;
-class PositionScoreComputerAttribData;
 class SectionExtender;
 
 class HorizonAdjuster : public SectionAdjuster
 {
 public:
-			HorizonAdjuster(EM::Horizon&,
-						const EM::SectionID&);
+			HorizonAdjuster(EM::Horizon&, const EM::SectionID&);
+			~HorizonAdjuster();
 
     virtual void	reset() {};
     int			nextStep();
+
+    void		getNeededAttribs(
+	    			ObjectSet<const Attrib::SelSpec>&) const;
 
     void		setPermittedZRange(const Interval<float>& rg) 
     			    { permzrange_ = rg; }
@@ -72,10 +74,17 @@ public:
     float		similarityThreshold()
     			    { return similaritythreshold_; }
 
+    int				getNrAttributes() const		{ return 1; }
+    const Attrib::SelSpec*	getAttributeSel( int idx ) const
+					{ return !idx ? &attribsel : 0; }
+    void			setAttributeSel( int, const Attrib::SelSpec& );
+
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
+
+    Attrib::SelSpec&	attribsel;
     EM::Horizon&	horizon_;
     VSEvent::Type	trackevent_;
     Interval<float>	permzrange_;
@@ -99,10 +108,10 @@ private:
     int			simlaritymatchpt_;
 
     void		setHorizonPick(const BinID& bid, float val);
-    bool		getCompSamples( const PositionScoreComputerAttribData*,
-    				const BinID& bid, float z, float* buf);
-    const AttribPositionScoreComputer*
-    			getAttribComputer() const;
+    bool		getCompSamples( const BinID& bid, float z, float* buf);
+    bool		getSampleData(  const BinID& bid,
+					const Interval<int>& desrange,
+					float* res );
 
     static const char*	sKeyPermittedZRange()	{ return "Permitted Z range"; }
     static const char*	sKeyValueThreshold()	{ return "Value threshhold"; }
@@ -112,6 +121,7 @@ private:
     static const char*	sKeySimThreshold() { return "Similarity threshhold"; }
     static const char*	sKeyTrackByValue()	{ return "Track by value"; }
     static const char*	sKeyTrackEvent()	{ return "Track event"; }
+    static const char*	sKeyAttribID()		{ return "Track event"; }
 };
 
 }; // namespace MPE

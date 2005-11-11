@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.4 2005-10-04 14:58:07 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.5 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -137,7 +137,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
 void MPEClickCatcher::sendClickEvent( const Coord3& coord, int visid, 
 				      const CubeSampling& cs,
-       				      const Attrib::SliceSet* ss,
+       				      const Attrib::DataCubes* ss,
 				      const Attrib::SelSpec* selspec )
 {
     ctrlclicknode = EM::PosID(-1,-1,-1);
@@ -145,13 +145,13 @@ void MPEClickCatcher::sendClickEvent( const Coord3& coord, int visid,
     clickedobjid = visid;
     clickedpos = coord;
     as = selspec;
-    sliceset = ss;
+    attrdata = ss;
 
     click.trigger();
 
     clickedobjid = -1;
     as = 0;
-    sliceset = 0;
+    attrdata = 0;
     clickedcs.init(false);
     clickedpos = Coord3::udf();
 }

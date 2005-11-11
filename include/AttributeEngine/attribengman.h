@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.18 2005-11-09 16:45:19 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.19 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class SeisTrcStorOutput;
 class Desc;
 class DescSet;
 class SelSpec;
-class SliceSet;
+class DataCubes;
 class Processor;
 class DataHolder;
 
@@ -75,12 +75,11 @@ public:
     static DescID	createEvaluateADS(DescSet&, const TypeSet<DescID>&,
 	    				  BufferString&);
 
-    Processor*		createSliceSetOutput(BufferString& errmsg,
-	    			      const SliceSet* cached_data = 0);
+    Processor*		createDataCubesOutput(BufferString& errmsg,
+	    			      	      const DataCubes* cached_data = 0);
     			//!< Give the previous calculated data in cached data
     			//!< and some parts may not be recalculated.
-    SliceSet*		getSliceSetOutput();
-    			//!< Mem transfer here
+    const DataCubes*	getDataCubesOutput();
 
     Executor* 		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
@@ -104,7 +103,7 @@ protected:
     const DescSet* 	inpattrset;
     const NLAModel*	nlamodel;
     CubeSampling&	cs_;
-    SliceSet*		cache;
+    const DataCubes*	cache;
     float		udfval;
     BufferString	linekey;
 

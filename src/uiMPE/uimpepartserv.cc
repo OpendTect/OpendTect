@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.34 2005-11-07 11:38:50 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.35 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,7 +225,7 @@ void uiMPEPartServer::showRelationsDlg( const EM::ObjectID& objid,
 
 
 void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
-					Attrib::SliceSet* slcset )
+				     const Attrib::DataCubes* slcset )
 {
     MPE::engine().setAttribData( spec, slcset );
 }
@@ -256,7 +256,7 @@ void uiMPEPartServer::loadAttribData()
 }
 
 
-const Attrib::SliceSet*
+const Attrib::DataCubes*
     uiMPEPartServer::getAttribCache( const Attrib::SelSpec& spec ) const
 { return MPE::engine().getAttribCache( spec ); }
 

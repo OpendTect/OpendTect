@@ -5,11 +5,11 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.37 2005-11-09 16:44:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.38 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
-#include "attribslice.h"
+#include "attribdatacubes.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
@@ -63,9 +63,9 @@ const LineKey& Output::curLineKey() const
 }
 
 
-SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
+DataCubesOutput::DataCubesOutput( const CubeSampling& cs )
     : desiredvolume(cs)
-    , sliceset(0)
+    , datacubes(0)
     , udfval(mUdf(float))
 {
     const float dz = SI().zStep();
@@ -74,78 +74,86 @@ SliceSetOutput::SliceSetOutput( const CubeSampling& cs )
 }
 
 
-SliceSetOutput::~SliceSetOutput()
-{ if ( sliceset ) sliceset->unRefNoDelete(); }
+DataCubesOutput::~DataCubesOutput()
+{ if ( datacubes ) datacubes->unRef(); }
 
 
-bool SliceSetOutput::getDesiredVolume( CubeSampling& cs ) const
+bool DataCubesOutput::getDesiredVolume( CubeSampling& cs ) const
 { cs=desiredvolume; return true; }
 
 
-bool SliceSetOutput::wantsOutput( const BinID& bid ) const
+bool DataCubesOutput::wantsOutput( const BinID& bid ) const
 { return desiredvolume.hrg.includes(bid); }
 
 
-TypeSet< Interval<int> > SliceSetOutput::getLocalZRange( const BinID& ) const
+TypeSet< Interval<int> > DataCubesOutput::getLocalZRange( const BinID& ) const
 { return sampleinterval; }
 
 
-#define mGetDim(nr) \
-    const int dim##nr = sliceset->sampling.size( direction(sliceset->direction,nr) )
+#define mGetSz(dir)\
+	dir##sz = (desiredvolume.hrg.stop.dir - desiredvolume.hrg.start.dir)\
+		  /desiredvolume.hrg.step.dir + 1;\
 
-void SliceSetOutput::collectData( const DataHolder& data, float refstep, 
+#define mGetZSz()\
+	zsz = mNINT((desiredvolume.zrg.stop-desiredvolume.zrg.start)/refstep+1);
+
+void DataCubesOutput::collectData( const DataHolder& data, float refstep, 
 				  const SeisTrcInfo& info )
 {
-    if ( !sliceset )
+    if ( !datacubes )
     {
-	sliceset = new Attrib::SliceSet;
-	sliceset->ref();
-	sliceset->sampling = desiredvolume;
-	sliceset->sampling.zrg.step = refstep; 
-	sliceset->direction = desiredvolume.defaultDir();
+	datacubes = new Attrib::DataCubes;
+	datacubes->ref();
+	datacubes->inlsampling = StepInterval<int>(desiredvolume.hrg.start.inl,
+						   desiredvolume.hrg.stop.inl,
+						   desiredvolume.hrg.step.inl);
+	datacubes->crlsampling = StepInterval<int>(desiredvolume.hrg.start.crl,
+						   desiredvolume.hrg.stop.crl,
+						   desiredvolume.hrg.step.crl);
+	datacubes->z0 = mNINT(desiredvolume.zrg.start/refstep);
+	datacubes->zstep = refstep;
+	int inlsz, crlsz, zsz;
+	mGetSz(inl); mGetSz(crl); mGetZSz();
+	datacubes->setSize( inlsz, crlsz, zsz );
     }
 		
-    mGetDim(0); mGetDim(1); mGetDim(2);
-    const int totalnrslices = desoutputs.size() * dim0;
-    while ( sliceset->size() < totalnrslices )
-    {
-	Slice* slice = new Attrib::Slice( dim1, dim2, udfval );
-	slice->ref();
-	*sliceset += slice;
-    }
+    const int totalnrcubes = desoutputs.size();
+    while ( datacubes->nrCubes() < totalnrcubes )
+	datacubes->addCube(mUdf(float));
 
-    if ( !sliceset->sampling.hrg.includes(info.binid) )
+    if ( !datacubes->includes(info.binid) )
 	return;
-
-    int i0, i1, i2;
-    int firstslicesample = mNINT(sliceset->sampling.zrg.start/refstep);
-    const int nrz = sliceset->sampling.nrZ();
+    
+    int zsz; 
+    mGetZSz();
     Interval<int> dataidxrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
     for ( int desout=0; desout<desoutputs.size(); desout++ )
     {
-	for ( int idx=0; idx<nrz; idx++)
+	for ( int idx=0; idx<zsz; idx++)
 	{
-	    const int dataidx = firstslicesample + idx;
+	    const int dataidx = datacubes->z0 + idx;
 	    float val = udfval;
 	    if ( dataidxrg.includes(dataidx) && data.series(desoutputs[desout]))
 		val = data.series(desoutputs[desout])->value(dataidx-data.z0_);
 
-	    sliceset->getIdxs( info.binid.inl, info.binid.crl, dataidx*refstep, 
-		    	       i0, i1, i2 );
-	    const int slsetidx = desout*dim0 + i0;
-	    ((*sliceset)[slsetidx])->set( i1, i2, val );
+	    const int inlidx =
+		datacubes->inlsampling.nearestIndex(info.binid.inl);
+	    const int crlidx =
+		datacubes->crlsampling.nearestIndex(info.binid.crl);
+
+	    datacubes->setValue( desout, inlidx, crlidx, idx, val);
 	}
     }
 }
 
 
-SliceSet* SliceSetOutput::getSliceSet() const
+const DataCubes* DataCubesOutput::getDataCubes() const
 {
-    return sliceset;
+    return datacubes;
 }
 
 
-void SliceSetOutput::setGeometry( const CubeSampling& cs )
+void DataCubesOutput::setGeometry( const CubeSampling& cs )
 {
     if ( cs.isEmpty() ) return;
     seldata_.copyFrom(cs);

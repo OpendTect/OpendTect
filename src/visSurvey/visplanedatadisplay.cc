@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.94 2005-11-08 14:05:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.95 2005-11-11 22:36:08 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -52,6 +52,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , curicstep(SI().inlStep(),SI().crlStep())
     , curzstep(SI().zStep())
     , datatransform( 0 )
+    , datatransformvoihandle( -1 )
 {
     setTextureRect( visBase::TextureRect::create() );
 
@@ -84,6 +85,8 @@ PlaneDataDisplay::~PlaneDataDisplay()
 
     if ( scene_ )
 	scene_->zscalechange.remove( mCB(this,PlaneDataDisplay,zScaleChanged) );
+
+    setDataTransform( 0 );
 }
 
 
@@ -327,6 +330,26 @@ float PlaneDataDisplay::maxDist() const
 }
 
 
+bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
+{
+    if ( datatransform )
+    {
+	if ( datatransformvoihandle!=-1 )
+	    datatransform->removeVolumeOfInterest(datatransformvoihandle);
+	datatransform->unRef();
+	datatransform = 0;
+    }
+
+    datatransform = zat;
+    datatransformvoihandle = -1;
+
+    if ( datatransform )
+	datatransform->ref();
+
+    return true;
+}
+
+
 void PlaneDataDisplay::zScaleChanged( CallBacker* )
 {
     if ( !scene_ ) return;
@@ -455,7 +478,7 @@ int PlaneDataDisplay::getResolution() const
 void PlaneDataDisplay::setResolution( int res )
 {
     trect->setResolution( res );
-    if ( cache ) setData( cache );
+    if ( cache ) setData( cache, 0 );
     if ( colcache ) setData( colcache, colas.datatype );
 }
 
@@ -517,6 +540,12 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs_ )
     curzstep = cs_.zrg.step;
 
     moving.trigger();
+
+    if ( !datatransform )
+	return;
+
+    if ( datatransformvoihandle!=-1 )
+	datatransform->setVolumeOfInterest( datatransformvoihandle, cs_ );
 }
 
 
@@ -556,32 +585,6 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos ) const
 
 
 bool PlaneDataDisplay::setDataVolume( bool colordata, 
-				      Attrib::SliceSet* sliceset )
-{
-    if ( colordata )
-    {
-	Interval<float> cliprate( colas.cliprate0, colas.cliprate1 );
-	trect->setColorPars( colas.reverse, colas.useclip, 
-			     colas.useclip ? cliprate : colas.range );
-    }
-
-    setData( sliceset, colordata ? colas.datatype : 0 );
-    if ( colordata )
-    {
-	if ( colcache ) colcache->unRef();
-	colcache = sliceset;
-	colcache->ref();
-	return true;
-    }
-
-    if ( cache ) cache->unRef();
-    cache = sliceset;
-    cache->ref();
-    return true;
-}
-
-
-bool PlaneDataDisplay::setDataVolume( bool colordata, 
 				      const Attrib::DataCubes* datacubes )
 {
     if ( colordata )
@@ -595,42 +598,15 @@ bool PlaneDataDisplay::setDataVolume( bool colordata,
     if ( colordata )
     {
 	if ( colcache ) colcache->unRef();
-	//colcache = datacubes;
+	colcache = datacubes;
 	colcache->ref();
 	return true;
     }
 
     if ( cache ) cache->unRef();
-    //cache = datacubes;
+    cache = datacubes;
     cache->ref();
     return true;
-}
-
-
-void PlaneDataDisplay::setData( const Attrib::SliceSet* sliceset, int datatype )
-{
-    trect->removeAllTextures( true );
-    if ( !sliceset )
-    {
-	trect->setData( 0, 0, 0 );
-	trect->useTexture( false );
-	return;
-    }
-
-    const int nrslices = sliceset->size();
-    for ( int slcidx=0; slcidx<nrslices; slcidx++ )
-    {
-	if ( slcidx )
-	    trect->addTexture();
-
-	checkCubeSampling( sliceset->sampling );
-	PtrMan< Array2D<float> > datacube = createArray( sliceset, slcidx );
-	trect->setData( datacube, slcidx, datatype );
-    }
-
-    trect->finishTextures();
-    trect->showTexture( 0 );
-    trect->useTexture( true );
 }
 
 
@@ -645,13 +621,27 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 	return;
     }
 
-    int unuseddim;
+    checkCubeSampling( datacubes->cubeSampling() );
+
+    int unuseddim, dim0, dim1;
     if ( type==Inline )
+    {
 	unuseddim = Attrib::DataCubes::cInlDim();
+	dim0 = Attrib::DataCubes::cZDim();
+	dim1 = Attrib::DataCubes::cCrlDim();
+    }
     else if ( type==Crossline )
+    {
 	unuseddim = Attrib::DataCubes::cCrlDim();
+	dim0 = Attrib::DataCubes::cInlDim();
+	dim1 = Attrib::DataCubes::cZDim();
+    }
     else
+    {
 	unuseddim = Attrib::DataCubes::cZDim();
+	dim0 = Attrib::DataCubes::cInlDim();
+	dim1 = Attrib::DataCubes::cCrlDim();
+    }
 
     const int nrcubes = datacubes->nrCubes();
     for ( int idx=0; idx<nrcubes; idx++ )
@@ -664,8 +654,15 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 	{
 	    const CubeSampling cs = getCubeSampling();
 
+	    if ( datatransformvoihandle==-1 )
+		datatransformvoihandle = datatransform->addVolumeOfInterest(cs);
+	    else
+		datatransform->setVolumeOfInterest(datatransformvoihandle,cs);
+
+	    datatransform->loadDataIfMissing( datatransformvoihandle );
+
 	    ZAxisTransformSampler outpsampler( *datatransform, true, BinID(0,0),
-		    	SamplingData<double>(cs.zrg.start, cs.zrg.stop));
+		    	SamplingData<double>(cs.zrg.start, cs.zrg.step));
 	    const Array3D<float>& srcarray = datacubes->getCube( idx );
 	    const Array3DInfo& info = srcarray.info();
 	    const int inlsz = info.getSize( Attrib::DataCubes::cInlDim() );
@@ -687,7 +684,8 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 		    float* outputptr = tmparray->getData() +
 				    tmparray->info().getMemPos(inlidx,crlidx,0);
 
-		    const SampledFunctionImpl<float,const float*> inputfunc( inputptr,
+		    const SampledFunctionImpl<float,const float*>
+			inputfunc( inputptr,
 			    info.getSize(Attrib::DataCubes::cZDim()),
 			    datacubes->z0*datacubes->zstep,
 			    datacubes->zstep );
@@ -701,16 +699,17 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 
 	Array2DSlice<float> slice(*usedarray);
 	slice.setPos( unuseddim, 0 );
-	if ( !slice.init() )
+	slice.setDimMap( 0, dim0 );
+	slice.setDimMap( 1, dim1 );
+
+	if ( slice.init() )
+	    trect->setData( &slice, idx, datatype );
+	else
 	{
 	    trect->removeAllTextures( true );
-	    return;
-	} 
-
-	trect->setData( &slice, idx, datatype );
+	    pErrMsg("Could not init slice." );
+	}
     }
-
-    checkCubeSampling( datacubes->cubeSampling() );
 
     trect->finishTextures();
     trect->showTexture( 0 );
@@ -739,110 +738,14 @@ void PlaneDataDisplay::checkCubeSampling( const CubeSampling& datacs )
 }
 
 
-#define mInlIdx ((curinl-datacs.hrg.start.inl) / datacs.hrg.step.inl)
-#define mCrlIdx ((curcrl-datacs.hrg.start.crl) / datacs.hrg.step.crl)
-#define mZIdx (datacs.zrg.nearestIndex(curz))
-
-#define mInZrg() (curz>=datacs.zrg.start-1e-4 && curz<=datacs.zrg.stop+1e-4)
-
-Array2D<float>* PlaneDataDisplay::createArray( const Attrib::SliceSet* sliceset,
-					       int slcidx ) const
-{
-    CubeSampling cs = getCubeSampling( true );
-    CubeSampling datacs = sliceset->sampling;
-
-    const int nrinl = cs.nrInl();
-    const int nrcrl = cs.nrCrl();
-    const int nrz = cs.nrZ();
-
-    Array2DImpl<float>* datacube = new Array2DImpl<float>(0,0);
-    if ( sliceset->direction == CubeSampling::Z )
-    {
-	datacube->setSize( nrinl, nrcrl );
-	int curinl, curcrl;
-	float val;
-	for ( int inlidx=0; inlidx<nrinl; inlidx++ )
-	{
-	    curinl = cs.hrg.start.inl + inlidx*cs.hrg.step.inl;
-	    for ( int crlidx=0; crlidx<nrcrl; crlidx++ )
-	    {
-		curcrl = cs.hrg.start.crl + crlidx*cs.hrg.step.crl;
-		if ( !datacs.hrg.includes(BinID(curinl,curcrl)) )
-		    val = mUndefValue;
-		else
-		{
-		    int datainlidx = mInlIdx;
-		    int datacrlidx = mCrlIdx;
-		    val = (*sliceset)[slcidx]->get(datainlidx,datacrlidx);
-		}
-
-		datacube->set( inlidx, crlidx, val );
-	    }
-	}
-    }
-    else if ( sliceset->direction == CubeSampling::Crl )
-    {
-	datacube->setSize( nrinl, nrz );
-	int curinl;
-	float curz;
-	float val;
-	for ( int inlidx=0; inlidx<nrinl; inlidx++ )
-	{
-	    curinl = cs.hrg.start.inl + inlidx*cs.hrg.step.inl;
-	    for ( int zidx=0; zidx<nrz; zidx++ )
-	    {
-		curz = cs.zrg.atIndex( zidx );
-		if ( !datacs.hrg.inlOK(curinl) || !mInZrg() )
-		    val = mUndefValue;
-		else
-		{
-		    int datainlidx = mInlIdx;
-		    int datazidx = mZIdx;
-		    val = (*sliceset)[slcidx]->get(datainlidx,datazidx);
-		}
-
-		datacube->set( inlidx, zidx, val );
-	    }
-	}
-    }
-    else if ( sliceset->direction == CubeSampling::Inl )
-    {
-	datacube->setSize( nrz, nrcrl );
-	int curcrl;
-	float curz;
-	float val;
-	for ( int crlidx=0; crlidx<nrcrl; crlidx++ )
-	{
-	    curcrl = cs.hrg.start.crl + crlidx*cs.hrg.step.crl;
-	    for ( int zidx=0; zidx<nrz; zidx++ )
-	    {
-		curz = cs.zrg.atIndex( zidx );
-		if ( !datacs.hrg.crlOK(curcrl) || !mInZrg() )
-		    val = mUndefValue;
-		else
-		{
-		    int datacrlidx = mCrlIdx;
-		    int datazidx = mZIdx;
-		    val = (*sliceset)[slcidx]->get(datacrlidx,datazidx);
-		}
-
-		datacube->set( zidx, crlidx, val );
-	    }
-	}
-    }
-
-    return datacube;
-}
-
-
-const Attrib::SliceSet* PlaneDataDisplay::getCacheVolume( bool colordata ) const
+const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume(bool colordata) const
 {
     return colordata ? colcache : cache;
 }
 
 
 int PlaneDataDisplay::nrTextures() const
-{ return cache ? cache->size() : 0; }
+{ return cache ? cache->nrCubes() : 0; }
 
 
 void PlaneDataDisplay::selectTexture( int idx )
@@ -868,21 +771,12 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					BufferString& info ) const
 {
     info = getManipulationString();
-    if ( !cache ) { val = mUndefValue; return; }
-    const BinID bid = SI().transform(pos);
+    if ( !cache ) { val = mUdf(float); return; }
+    const BinIDValue bidv( SI().transform(pos), pos.z );
+    if ( !cache->getValue( trect->shownTexture(), bidv, &val ) )
+    { val = mUdf(float); return; }
 
-    int idx0, idx1, idx2;
-    cache->getIdxs( bid.inl, bid.crl, pos.z, idx0, idx1, idx2 );
-
-    const int sz0 = cache->size();
-    if ( !mIsValid(idx0,sz0) ) { val = mUndefValue; return; }
-    
-    const int sz1 = (*cache)[idx0]->info().getSize(0);
-    const int sz2 = (*cache)[idx0]->info().getSize(1);
-    if ( !mIsValid(idx1,sz1) || !mIsValid(idx2,sz2) )
-    { val = mUndefValue; return; }
-    
-    val = (*cache)[idx0]->get( idx1, idx2 );
+    return;
 }
 
 

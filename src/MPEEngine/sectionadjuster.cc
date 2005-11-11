@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.9 2005-10-18 17:10:17 cvskris Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.10 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,48 +51,12 @@ const char* SectionAdjuster::errMsg() const { return errmsg_[0] ? errmsg_ : 0; }
 
 
 CubeSampling SectionAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const
-{
-    const CubeSampling activearea( engine().activeVolume() );
-    CubeSampling res( activearea );
-    for ( int idx=0; idx<computers_.size(); idx++ )
-	res.include( computers_[idx]->getAttribCube(activearea) );
-
-    return res;
-}
+{ return engine().activeVolume(); }
 
 
 void SectionAdjuster::getNeededAttribs(
 	ObjectSet<const Attrib::SelSpec>& res ) const
-{
-    for ( int idx=0; idx<computers_.size(); idx++ )
-    {
-	PositionScoreComputer* psc = computers_[idx];
-	for ( int asidx=0; asidx<psc->nrAttribs(); asidx++ )
-	{
-	    const Attrib::SelSpec* as = psc->getSelSpec( asidx );
-	    if ( as && indexOf(res,*as) < 0 )
-		res += as;
-	}
-    }
-}
-
-
-PositionScoreComputer* SectionAdjuster::getComputer( int idx )
-{
-    return computers_[idx];
-}
-
-
-const PositionScoreComputer* SectionAdjuster::getComputer( int idx ) const
-{
-    return const_cast<SectionAdjuster*>(this)->getComputer(idx);
-}
-
-
-int SectionAdjuster::nrComputers() const
-{
-    return computers_.size();
-}
+{ }
 
 
 void SectionAdjuster::setThresholdValue(float val) { thresholdval_ = val; }
@@ -118,9 +82,6 @@ void SectionAdjuster::fillPar( IOPar& par ) const
     adjpar.set( sKeyThreshold(), thresholdval_ );
     adjpar.setYN( sKeyRemoveOnFailure(), removeonfailure_ );
     par.mergeComp( adjpar, sKeyAdjuster() );
-
-    for ( int idx=0; idx<nrComputers(); idx++ )
-	getComputer(idx)->fillPar( par );
 }
 
 
@@ -133,12 +94,6 @@ bool SectionAdjuster::usePar( const IOPar& par )
 	adjpar->getYN( sKeyRemoveOnFailure(), removeonfailure_ );
     }
     
-    for ( int idx=0; idx<nrComputers(); idx++ )
-    {
-	if ( !getComputer(idx)->usePar(par) )
-	    return false;
-    }
-
     return true;
 }
 

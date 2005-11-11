@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.21 2005-11-09 16:45:29 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.22 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class SeisTrcWriter;
 namespace Attrib
 {
 class DataHolder;
-class SliceSet;
+class DataCubes;
 
 class Output
 { mRefCountImpl(Output);
@@ -39,7 +39,7 @@ public:
     virtual bool		getDesiredVolume(CubeSampling&) const
     				{ return true; }
     virtual bool		wantsOutput(const BinID&) const	= 0;
-    virtual SliceSet*		getSliceSet() const { return 0; }
+    virtual const DataCubes*	getDataCubes() const { return 0; }
 
     virtual void		getDesiredOutputs( TypeSet<int>& outputs ) const
 				{ outputs = desoutputs; }
@@ -65,13 +65,13 @@ protected:
 };
 
 
-class SliceSetOutput : public Output
+class DataCubesOutput : public Output
 {
 public:
-				SliceSetOutput(const CubeSampling&);
-				~SliceSetOutput();
+				DataCubesOutput(const CubeSampling&);
+				~DataCubesOutput();
 
-    SliceSet*			getSliceSet() const;
+    const DataCubes*		getDataCubes() const;
 
     bool			getDesiredVolume(CubeSampling&) const;
     void			setGeometry(const CubeSampling&);
@@ -85,7 +85,7 @@ public:
 protected:
     CubeSampling		desiredvolume;
     TypeSet< Interval<int> >	sampleinterval;
-    SliceSet*			sliceset;
+    DataCubes*			datacubes;
     float			udfval;
 };
 

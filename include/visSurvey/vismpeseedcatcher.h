@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.4 2005-10-04 14:58:04 cvskris Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.5 2005-11-11 22:36:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 
+#include "attribdatacubes.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "geomelement.h"
@@ -23,7 +24,7 @@ ________________________________________________________________________
 namespace Geometry { class ElementEditor; };
 namespace MPE { class ObjectEditor; };
 namespace EM { class EdgeLineSet; }
-namespace Attrib { class SelSpec; class SliceSet; }
+namespace Attrib { class SelSpec; class DataCubes; }
 
 namespace visBase
 {
@@ -57,7 +58,7 @@ public:
     const Coord3&		clickedPos() const;
     int				clickedObjectID() const { return clickedobjid; }
     const CubeSampling&		clickedObjectCS() const { return clickedcs; }
-    const Attrib::SliceSet*	clickedObjectData() const { return sliceset; }
+    const Attrib::DataCubes*	clickedObjectData() const { return attrdata; }
     const Attrib::SelSpec*	clicedObjectDataSelSpec() const { return as; }
 
 protected:
@@ -66,18 +67,18 @@ protected:
 
     void			sendClickEvent( const Coord3&, int objid,
 						const CubeSampling& cs,
-	   					const Attrib::SliceSet* =0,
+	   					const Attrib::DataCubes* =0,
 	   					const Attrib::SelSpec* =0 );
 
-    Coord3			clickedpos;
-    int				clickedobjid;
-    CubeSampling		clickedcs;
-    const Attrib::SliceSet*	sliceset;
-    const Attrib::SelSpec*	as;
-    EM::PosID			ctrlclicknode;
+    Coord3				clickedpos;
+    int					clickedobjid;
+    CubeSampling			clickedcs;
+    RefMan<const Attrib::DataCubes>	attrdata;
+    const Attrib::SelSpec*		as;
+    EM::PosID				ctrlclicknode;
 
-    visBase::EventCatcher*	eventcatcher;
-    visBase::Transformation*	transformation;
+    visBase::EventCatcher*		eventcatcher;
+    visBase::Transformation*		transformation;
 };
 
 };
