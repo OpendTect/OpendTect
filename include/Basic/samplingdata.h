@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.6 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: samplingdata.h,v 1.7 2005-11-11 22:29:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ public:
 		{ return (val-start) / step; }
     int		nearestIndex( T x ) const
 		{ float fidx = getIndex(x); return mNINT(fidx); }
-    T		atIndex( int idx ) const
+    template <class IT>
+    T		atIndex( IT idx ) const
 		{ return start + step * idx; }
 
     T		start;
