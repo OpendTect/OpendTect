@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.282 2005-11-08 10:00:32 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.283 2005-11-11 11:05:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -563,7 +563,7 @@ void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<int> > dispids,
 
 int uiVisPartServer::getTypeSetIdx( int selid )
 {
-    int typesetidx;
+    int typesetidx=0;
     bool found = false;
     for ( int idx=0; idx<displayids_.size(); idx++ )
     {
@@ -589,7 +589,7 @@ void uiVisPartServer::updateDisplay( bool doclean, int selid, int refid )
     int typesetidx;
     typesetidx = getTypeSetIdx( selid != -1 ? selid : refid );
     
-    if ( doclean )
+    if ( doclean && displayids_.size()>typesetidx )
     {
 	for ( int idx=0; idx<displayids_[typesetidx].size(); idx++ )
 	    if ( isOn( displayids_[typesetidx][idx] ) 
