@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.10 2005-10-07 21:45:49 cvskris Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.11 2005-11-14 17:15:31 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -43,10 +43,22 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
     while ( true )
     {
 	const BinID prevbid = currentbid-plane.motion().binid;
-	if ( plane.getTrackMode() == TrackPlane::Erase ||	
-	     (!surface.geometry.isDefined(sectionid,currentbid) &&
-	      surface.geometry.isDefined(sectionid,prevbid)) )
-	    selpos += prevbid.getSerialized();
+	const EM::SubID curnode = currentbid.getSerialized();
+	const EM::SubID prevnode = prevbid.getSerialized();
+	const bool curnodedef = surface.isDefined( sectionid, curnode );
+	const bool prevnodedef = surface.isDefined( sectionid, prevnode );
+
+	if ( plane.getTrackMode() == TrackPlane::Erase ||
+	     plane.getTrackMode() == TrackPlane::ReTrack )
+	{
+	    if ( prevnodedef )
+		selpos += prevnode;
+	}
+	else if ( plane.getTrackMode()==TrackPlane::Extend )
+	{
+	    if ( prevnodedef && !curnodedef )
+		selpos += prevnode;
+	}
 
 	if ( startbid.inl==stopbid.inl )
 	{
