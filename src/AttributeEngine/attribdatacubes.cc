@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.6 2005-10-31 21:27:20 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.7 2005-11-14 11:06:47 cvshelene Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -93,6 +93,7 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res ) const
     const int crlidx = crlsampling.nearestIndex( bidv.binid.crl );
     if ( crlidx<0 || crlidx>=crlsz ) return false;
 
+    if ( cubes.size() <= array ) return false;
     const float* data = cubes[array]->getData();
     data += cubes[array]->info().getMemPos( inlidx, crlidx, 0 );
 
