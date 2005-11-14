@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.27 2005-10-28 15:09:11 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.28 2005-11-14 11:17:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,8 @@ public:
 				    \retval  0  finished, no more positions
 				    \retval  1	arrived at new position
 				*/
+    void			computeNewStartPos(BinID&);
+    int				checkInputsPos(ObjectSet<Provider>&);
     void			resetMoved();
     void                        resetZIntervals();
 
@@ -108,6 +110,9 @@ public:
     virtual void		initSteering(){};
     virtual void		initSteering( const BinID& ){};
     void			setOutputInterestSize();
+    
+    BinID			getTrcInfoBid() const	{ return trcinfobid; }
+    
 protected:
 
 				Provider(Desc&);
@@ -172,6 +177,7 @@ protected:
     const SeisSelData*		seldata_;
     Interval<float>     	extraz_;
     const SeisTrcInfo*		curtrcinfo_;
+    BinID                       trcinfobid;
 
     float                       refstep;
     bool 			alreadymoved;

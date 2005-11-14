@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.45 2005-11-07 12:39:56 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.46 2005-11-14 11:17:26 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -165,6 +165,7 @@ Provider::Provider( Desc& nd )
     , seldata_(0)
     , curtrcinfo_(0)
     , extraz_(0,0)
+    , trcinfobid( -1, -1 )
 {
     mRefCountConstructor;
     desc.ref();
@@ -374,13 +375,6 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 		    inputcs.zrg.stop -= zrg->stop;
 		}
 
-//		if ( !isset )
-//		{
-//		    res = inputcs;
-//		    isset = true;
-//		    continue;
-//		}
-
 #		define mAdjustIf(v1,op,v2) \
 				    if ( mIsUdf(v1) || v1 op v2 ) v1 = v2;
 		mAdjustIf(res.hrg.start.inl,<,inputcs.hrg.start.inl);
@@ -414,7 +408,6 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
     bool docheck = startpos == BinID(-1,-1);
 
     bool needmove;
-    bool hasmoved = false;
     bool docontinue = true;
     ObjectSet<Provider> movinginputs;
     while ( docontinue )
@@ -425,34 +418,16 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    if ( !inputs[idx] ) continue;
 	    
 	    currentbid = inputs[idx]->getCurrentPosition();
-	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
+	    trcinfobid = inputs[idx]->getTrcInfoBid();
 	    if ( !docheck && currentbid == startpos ) continue;
 	    if ( !docheck && seldata_ && seldata_->type_ == Seis::Table 
-		 && curtrcinfo_)
-	    {
-		if ( curtrcinfo_->binid == startpos )
-		    continue;
-		if ( curtrcinfo_->binid != startpos && firstcheck && hasmoved )
-		{
-		    startpos = curtrcinfo_->binid;
-		    firstcheck = false;
-		}
-	    }
+		 && trcinfobid != BinID(-1,-1) && trcinfobid == startpos )
+		continue;
 	    
 	    needmove = true;
 	    const int res = inputs[idx]->moveToNextTrace(startpos, firstcheck);
 	    if ( res!=1 ) return res;
 
-	    hasmoved = true;
-	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
-	    if ( !docheck && seldata_ && seldata_->type_ == Seis::Table
-		 && curtrcinfo_ && curtrcinfo_->binid != startpos && firstcheck)
-	    {
-		startpos = curtrcinfo_->binid;
-		firstcheck = false;
-		break;
-	    }
-	    
 	    if ( !inputs[idx]->getSeisRequester() ) continue;
 	    if ( movinginputs.indexOf( inputs[idx] ) < 0 )
 		movinginputs += inputs[idx];
@@ -461,6 +436,30 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    docontinue = false;
 	else
 	    resetMoved();
+	
+	if ( !docheck && seldata_ && seldata_->type_ == Seis::Table 
+	     && firstcheck )
+	{
+	    bool allok = true;
+	    for ( int idi=0; idi<inputs.size(); idi++)
+	    {
+		if ( inputs[idi] && inputs[idi]->getTrcInfoBid() != BinID(-1,-1)
+		     && inputs[idi]->getTrcInfoBid() != startpos )
+		{
+		    allok = false;
+		    break;
+		}
+	    }
+	    
+	    if ( !allok )
+	    {
+		BinID newstart( BinID(-1,-1) );
+		computeNewStartPos( newstart );
+	
+		startpos = newstart;
+		firstcheck = false;
+	    }
+	}
     }
 
     if ( !movinginputs.size() && needmove )
@@ -498,46 +497,16 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     if ( docheck )
     {
-	for ( int idx=0; idx<movinginputs.size()-1; idx++ )
-	{
-	    for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
-	    {
-		bool idxmoved = false;
-
-		while ( true )
-		{
-		    int compres = movinginputs[idx]->getSeisRequester()->
-			   comparePos( *movinginputs[idy]->getSeisRequester() );
-		    if ( compres == -1 )
-		    {
-			idxmoved = true;
-			movinginputs[idx]->resetMoved();
-			const int res = movinginputs[idx]->moveToNextTrace();
-			if ( res != 1 ) return res;
-		    }
-		    else if ( compres == 1 )
-		    {
-			movinginputs[idy]->resetMoved();
-		    const int res = movinginputs[idy]->moveToNextTrace();
-		    if ( res != 1 ) return res;
-		    }
-		    else 
-			break;
-		}
-
-		if ( idxmoved )
-		{
-		    idx = -1;
-		    break;
-		}
-	    }
-	}
+	const int res = checkInputsPos( movinginputs );
+	if ( res != 1 )
+	    return res;
     }
 
     if ( movinginputs.size() > 0 )
     {
 	currentbid = movinginputs[0]->getCurrentPosition();
 	curtrcinfo_ = movinginputs[0]->getCurrentTrcInfo();
+	trcinfobid = movinginputs[0]->getTrcInfoBid();
     }
 
     if ( docheck )
@@ -545,7 +514,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	for ( int idx=0; idx<inputs.size(); idx++ )
 	{
 	    if ( !inputs[idx] ) continue;
-	    if ( !inputs[idx]->setCurrentPosition(currentbid) )
+	    if ( !inputs[idx]->setCurrentPosition( currentbid ) )
 		return -1;
 	}
 	setCurrentPosition( currentbid );
@@ -563,6 +532,77 @@ void Provider::resetMoved()
 	    inputs[idx]->resetMoved();
 
     alreadymoved = false;
+}
+
+
+void Provider::computeNewStartPos( BinID& newstart )
+{
+    const BinID step = getStepoutStep();
+    for ( int idi=0; idi<inputs.size(); idi++ )
+    {
+	BinID inputbid(BinID(-1,-1));
+	if ( inputs[idi] && inputs[idi]->getTrcInfoBid() != BinID(-1,-1) )
+	    inputbid = inputs[idi]->getCurrentPosition();
+	
+	if ( inputbid == BinID(-1,-1) ) continue;
+	if ( newstart == BinID(-1,-1) )
+	{
+	    newstart = inputbid;
+	}
+	else
+	{
+	    if ( desc.descSet()->is2D() )
+		newstart = newstart.crl<inputbid.crl ? inputbid : newstart; 
+	    else
+	    {
+		newstart.inl = step.inl<0 ? 
+			       mMIN(newstart.inl,inputbid.inl):
+			       mMAX(newstart.inl,inputbid.inl);
+		newstart.crl = step.crl<0 ? 
+			       mMIN(newstart.crl,inputbid.crl):
+			       mMAX(newstart.crl,inputbid.crl);
+	    }
+	}
+    }
+}
+
+int Provider::checkInputsPos( ObjectSet<Provider>& movinginputs )
+{
+    for ( int idx=0; idx<movinginputs.size()-1; idx++ )
+    {
+	for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
+	{
+	    bool idxmoved = false;
+
+	    while ( true )
+	    {
+		int compres = movinginputs[idx]->getSeisRequester()->
+		       comparePos( *movinginputs[idy]->getSeisRequester() );
+		if ( compres == -1 )
+		{
+		    idxmoved = true;
+		    movinginputs[idx]->resetMoved();
+		    const int res = movinginputs[idx]->moveToNextTrace();
+		    if ( res != 1 ) return res;
+		}
+		else if ( compres == 1 )
+		{
+		    movinginputs[idy]->resetMoved();
+		    const int res = movinginputs[idy]->moveToNextTrace();
+		    if ( res != 1 ) return res;
+		}
+		else 
+		    break;
+	    }
+
+	    if ( idxmoved )
+	    {
+		idx = -1;
+		break;
+	    }
+	}
+    }
+    return 1;
 }
 
 
