@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.45 2005-11-14 14:04:31 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.46 2005-11-14 20:52:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -513,7 +513,10 @@ Processor* EngineMan::createDataCubesOutput( BufferString& errmsg,
 	  || mRg(z).start > cs_.zrg.stop + mStepEps*cs_.zrg.step
 	  || mRg(z).stop < cs_.zrg.start - mStepEps*cs_.zrg.step )
 	    // No overlap, gotta crunch all the numbers ...
+	{
+	    cache->unRef();
 	    cache = 0;
+	}
     }
 
 #define mAddAttrOut(todocs) \

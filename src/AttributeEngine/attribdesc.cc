@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.39 2005-11-14 16:10:23 cvskris Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.40 2005-11-14 20:52:51 cvskris Exp $";
 
 #include "attribdesc.h"
 
@@ -41,7 +41,7 @@ bool InputSpec::operator==(const InputSpec& b) const
 
 
 const char* Desc::sKeyInlDipComp() { return "inl_dip"; }
-const char* Desc::sKeyInlDipComp() { return "crl_dip"; }
+const char* Desc::sKeyCrlDipComp() { return "crl_dip"; }
 
 
 Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
