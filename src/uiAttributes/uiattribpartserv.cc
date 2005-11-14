@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.18 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.19 2005-11-14 14:06:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -331,7 +331,7 @@ uiAttribPartServer::createOutput( const CubeSampling& cs,
     if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<Processor> process = aem->createDataCubesOutput( errmsg, cache );
+    Processor* process = aem->createDataCubesOutput( errmsg, cache );
     if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
 
@@ -343,9 +343,7 @@ uiAttribPartServer::createOutput( const CubeSampling& cs,
 
     const Attrib::DataCubes* output = aem->getDataCubesOutput();
     output->ref();
-
-    aem = 0;
-
+    delete process;
     output->unRefNoDelete();
 
     return output;
