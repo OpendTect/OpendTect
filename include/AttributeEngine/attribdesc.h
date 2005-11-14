@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.24 2005-11-03 12:11:44 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.25 2005-11-14 16:10:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,8 +134,8 @@ public:
 
     Desc*		getStoredInput() const;
     
-    static const char*  steeringinldipcompname;
-    static const char*  steeringcrldipcompname;
+    static const char*  sKeyInlDipComp();
+    static const char*  sKeyCrlDipComp();
     
 protected:
     Param*			findParam(const char* key);
