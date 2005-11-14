@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.122 2005-11-08 10:00:32 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.123 2005-11-14 11:19:12 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ ___________________________________________________________________
 #include "visrandomtrackdisplay.h"
 #include "viswelldisplay.h"
 #include "vispicksetdisplay.h"
+#include "visemobjdisplay.h"
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
 #include "uiexecutor.h"
@@ -307,6 +308,9 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	menu->createnotifier.remove(mCB(this,uiODDisplayTreeItem,createMenuCB));
 	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
     }
+
+    if ( uilistviewitem->pixmap(0) )
+	delete uilistviewitem->pixmap(0);
 }
 
 
@@ -441,11 +445,17 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( visserv->isLocked(displayid_) )
 	{
+	    if ( uilistviewitem->pixmap(0) )
+		delete uilistviewitem->pixmap(0);
 	    ioPixmap pixmap( GetIconFileName("lock_small.png") );
 	    uilistviewitem->setPixmap( 0, pixmap );
 	}
 	else
+	{
+	    if ( uilistviewitem->pixmap(0) )
+		delete uilistviewitem->pixmap(0);
 	    uilistviewitem->setPixmap( 0, ioPixmap() );
+	}
     }
     if ( mnuid==duplicatemnuitem.id )
     {
@@ -579,7 +589,7 @@ BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 #define mIsObject(typestr) \
 	!strcmp(uivisemobj->getObjectType(displayid_),typestr)
 
-    void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
+void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
@@ -658,6 +668,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
+
+    if ( menu->isHandled() && ( mnuid == 11 || mnuid == 1 ) )
+	updateColumnText(2);
+    
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -1156,7 +1170,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	{
 	    mDynamicCastGet(uiODEarthModelSurfaceTreeItem*,itm,children[idx])
 	    if ( itm )
+	    {
 		itm->visEMObject()->setOnlyAtSectionsDisplay( onlyatsection );
+		itm->updateColumnText(2);
+	    }
+	    
 	}
     }
     else
@@ -1184,6 +1202,13 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int id, bool )
 { displayid_=id; }
 
 
+uiODHorizonTreeItem::~uiODHorizonTreeItem()
+{
+    if ( uilistviewitem->pixmap(2) )
+	delete uilistviewitem->pixmap(2);
+}
+
+
 void uiODHorizonTreeItem::updateColumnText( int col )
 {
     if ( col==1 )
@@ -1191,6 +1216,30 @@ void uiODHorizonTreeItem::updateColumnText( int col )
 	BufferString shift = uivisemobj->getShift();
 	uilistviewitem->setText( shift, col );
 	return;
+    }
+    if ( col==2 )
+    {
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,emd,
+		       visserv->getObject(displayid_));
+
+	if ( emd->getOnlyAtSectionsDisplay() )
+	{
+	    if ( uilistviewitem->pixmap(2) )
+		delete uilistviewitem->pixmap(2);
+
+	    Color color = emd->getColor();
+	    ioPixmap pixmap(16,10);
+	    pixmap.fill(color);
+	    uilistviewitem->setPixmap( 2, pixmap );
+	}
+	else
+	{
+	    if ( uilistviewitem->pixmap(2) )
+	    {
+		delete uilistviewitem->pixmap(2);
+		uilistviewitem->setPixmap( 2, ioPixmap() );
+	    }
+	}
     }
 
     return uiODDisplayTreeItem::updateColumnText( col );
@@ -1254,6 +1303,13 @@ bool uiODWellParentTreeItem::showSubMenu()
 	{
 	    uiWellPropDlg dlg( getUiParent(), wds );
 	    dlg.go();
+
+	    for ( int idx=0; idx<children.size(); idx++ )
+	    {
+		mDynamicCastGet(uiODWellTreeItem*,itm,children[idx])
+		if ( itm )
+		    itm->updateColumnText(2);
+	    }
 	}
 	else if ( mnuid == 3 )
 	{
@@ -1285,6 +1341,13 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid_ )
 {
     mid = mid_;
     initMenuItems();
+}
+
+
+uiODWellTreeItem::~uiODWellTreeItem()
+{
+    if ( uilistviewitem->pixmap(2) )
+	delete uilistviewitem->pixmap(2);
 }
 
 
@@ -1388,6 +1451,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	uiWellPropDlg dlg( getUiParent(), wd );
 	dlg.go();
+	updateColumnText(2);
     }
     else if ( mnuid == namemnuitem.id )
     {
@@ -1420,6 +1484,23 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+void uiODWellTreeItem::updateColumnText( int col )
+{
+    if ( col==2 )
+    {
+	mDynamicCastGet(visSurvey::WellDisplay*,wd,
+			visserv->getObject(displayid_));
+
+	Color color = wd->lineStyle()->color;
+	ioPixmap pixmap(16,10);
+	pixmap.fill(color);
+	uilistviewitem->setPixmap( 2, pixmap );
+    }
+
+    return uiODDisplayTreeItem::updateColumnText(col);
+}
+
+    
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( "PickSet" )
 {}
@@ -1496,7 +1577,11 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int id )
 
 
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
-{ delete ps_; }
+{ 
+    delete ps_; 
+    if ( uilistviewitem->pixmap(2) )
+	delete uilistviewitem->pixmap(2);
+}
 
 
 bool uiODPickSetTreeItem::init()
@@ -1540,7 +1625,6 @@ void uiODPickSetTreeItem::updateColumnText( int col )
 	    pixmap.fill(color);
 	    uilistviewitem->setPixmap( 2, pixmap );
 	}
-
     }
 
     return uiODDisplayTreeItem::updateColumnText(col);
