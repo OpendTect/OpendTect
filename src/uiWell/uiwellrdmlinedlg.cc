@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.2 2005-10-24 15:17:25 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.3 2005-11-15 16:16:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,8 @@ ________________________________________________________________________
 
 
 uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
-    : uiDialog(p,uiDialog::Setup("Random line - Wells relations","","109.0.0"))
+    : uiDialog(p,uiDialog::Setup("Random line - Wells relations","",
+				 "109.0.0").modal(false))
     , wellsbox_(0), selectedwellsbox_(0), wellserv_(ws)
 {
     BufferString title( "Select wells to set up the random line path" );
@@ -204,10 +205,7 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
 {
     setSelectedWells();
-//    wellserv_->sendEvent( wellserv_->evPreviewRdmLine );
-    TypeSet<Coord> coords;
-    
-    getCoordinates( coords );
+    wellserv_->sendPreviewEvent();
 }
 
 

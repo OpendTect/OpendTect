@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.152 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.153 2005-11-15 16:16:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class uiVisModeMgr;
 
 namespace Attrib    { class ColorSelSpec; class SelSpec; class DataCubes; }
 namespace visBase   { class DataObject; };
-namespace visSurvey { class Scene; };
+namespace visSurvey { class Scene; class PolyLineDisplay; };
 namespace Threads   { class Mutex; };
 namespace Tracking  { class TrackManager; };
 
@@ -223,6 +223,9 @@ public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
+    void			setupRdmLinePreview( TypeSet<Coord> );
+    void			cleanPreview();
+
 protected:
 
     void			createMenuCB(CallBacker*);
@@ -293,6 +296,8 @@ protected:
 
     uiVisModeMgr*		vismgr;
     bool			blockmenus;
+
+    visSurvey::PolyLineDisplay* pldisplay_;
 };
 
 

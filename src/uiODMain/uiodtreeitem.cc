@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.123 2005-11-14 11:19:12 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.124 2005-11-15 16:16:56 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -935,7 +935,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     : editnodesmnuitem("Edit nodes ...")
     , insertnodemnuitem("Insert node")
-    , usewellsmnuitem("Create from wells")
+    , usewellsmnuitem("Create from wells...")
 { displayid_ = id; } 
 
 
@@ -1017,9 +1017,8 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==usewellsmnuitem.id )
     {
 	menu->setIsHandled(true);
-	applMgr()->selectWellCoordsForRdmLine();
+	applMgr()->wellServer()->selectWellCoordsForRdmLine();
     }
-
 }
 
 
@@ -1033,39 +1032,16 @@ void uiODRandomLineTreeItem::editNodes()
     uiBinIDTableDlg dlg( getUiParent(), "Specify nodes", bidset );
     if ( dlg.go() )
     {
-	bool viewmodeswap = false;
-	if ( visserv->isViewMode() )
-	{
-	    visserv->setViewMode( false );
-	    viewmodeswap = true;
-	}
-
 	TypeSet<BinID> newbids;
 	dlg.getBinIDs( newbids );
-	if ( newbids.size() < 2 ) return;
-	while ( rtd->nrKnots()>newbids.size() )
-	    rtd->removeKnot( rtd->nrKnots()-1 );
-
-	for ( int idx=0; idx<newbids.size(); idx++ )
-	{
-	    const BinID bid = newbids[idx];
-	    if ( idx<rtd->nrKnots() )
-	    {
-		rtd->setKnotPos( idx, bid );
-		rtd->setManipKnotPos( idx, bid );
-	    }
-	    else
-		rtd->addKnot( bid );
-	}
+	rtd->setKnotPositions( newbids );
 
 	visserv->setSelObjectId( rtd->id() );
 	visserv->calculateAttrib( rtd->id(), false );
 	visserv->calculateColorAttrib( rtd->id(), false );
 	ODMainWin()->sceneMgr().updateTrees();
-	if ( viewmodeswap ) visserv->setViewMode( true );
     }
 }
-
 
 
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
@@ -1406,7 +1382,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &selattrmnuitem, true, false );
     mAddMenuItem( menu, &propertiesmnuitem, true, false );
 #ifdef __debug__
-    mAddMenuItem( menu, &storemnuitem, true, false );
+//    mAddMenuItem( menu, &storemnuitem, true, false );
 #endif
     mAddMenuItem( menu, &showmnuitem, true, false );
     mAddMenuItem( &showmnuitem, &namemnuitem, true,  wd->wellNameShown() );

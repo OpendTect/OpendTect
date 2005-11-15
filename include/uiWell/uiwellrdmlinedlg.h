@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.2 2005-10-24 15:17:25 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.3 2005-11-15 16:16:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,12 +37,13 @@ class uiWell2RandomLineDlg : public uiDialog
 public:
     			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);
 
+    void 		getCoordinates(TypeSet<Coord>&);
+
 protected:
     void		fillListBox();
     void		setSelectedWells();
     
     const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
-    void 		getCoordinates(TypeSet<Coord>&);
 
     void		createSelectButtons(uiGroup*);
     void                createMoveButtons(uiGroup*);

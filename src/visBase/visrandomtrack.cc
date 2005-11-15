@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: visrandomtrack.cc,v 1.33 2005-08-31 11:25:09 cvsnanne Exp $
+ RCS:           $Id: visrandomtrack.cc,v 1.34 2005-11-15 16:16:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,22 +158,30 @@ void RandomTrack::setTrack( const TypeSet<Coord>& posset )
 
 void RandomTrack::addKnot( const Coord& pos )
 {
+/*
+    Always rebuild dragger. If draggers not shown, show and hide them again.
+    TODO: make separate function for rebuilding dragger
+    	  (separate from showDragger)
+*/
+    const bool draggershown = isDraggerShown();
     knots += pos;
     rebuild();
-    if ( isDraggerShown() )
-	showDragger( true );		//Rebuild the dragger
+    showDragger( true );		//Rebuild the dragger
     knotnrchange.trigger();
+    if ( !draggershown )
+	showDragger( false );
 }
 
 
 void RandomTrack::insertKnot( int idx, const Coord& pos )
 {
+    const bool draggershown = isDraggerShown();
     knots.insert( idx, pos );
     rebuild();
-    if ( isDraggerShown() )
-	showDragger( true );		//Rebuild the dragger
-
+    showDragger( true );		//Rebuild the dragger
     knotnrchange.trigger();
+    if ( !draggershown )
+	showDragger( false );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.52 2005-11-02 13:06:22 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.53 2005-11-15 16:16:57 cvshelene Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.52 2005-11-02 13:06:22 cv
 #include "draw.h"
 #include "visdataman.h"
 
-#define		mPickSz 	5
+#define		mPickSz 	3
 #define         mPickType	3 
 
 
@@ -56,6 +56,7 @@ WellDisplay::WellDisplay()
     , changed_(this)
     , transformation_(0)
     , picksallowed_(false)
+    , group_(0)
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -68,6 +69,8 @@ WellDisplay::~WellDisplay()
     well_->unRef();
     setSceneEventCatcher(0);
     if ( transformation_ ) transformation_->unRef();
+    if ( group_ )
+	removeChild( group_->getInventorNode() );
 }
 
 
@@ -407,7 +410,7 @@ visBase::Transformation* WellDisplay::getDisplayTransformation()
 
 void WellDisplay::pickCB( CallBacker* cb )
 {
-    if ( !isSelected() || !picksallowed_ ) return;
+    if ( !isSelected() || !picksallowed_ || !group_ ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick ||
@@ -489,18 +492,11 @@ void WellDisplay::pickCB( CallBacker* cb )
 
 void WellDisplay::addPick( const Coord3& pos )
 {
-    addPick( pos, Sphere(0,0,0) );
-}
-
-
-void WellDisplay::addPick( const Coord3& pos, const Sphere& dir )
-{
     visBase::Marker* marker = visBase::Marker::create();
     group_->addObject( marker );
 
     marker->setDisplayTransformation( transformation_ );
     marker->setCenterPos( pos );
-    marker->setDirection( dir );
     marker->setScreenSize( mPickSz );
     marker->setType( (MarkerStyle3D::Type)mPickType );
     marker->setMaterial( 0 );
@@ -560,7 +556,8 @@ void WellDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 void WellDisplay::setupPicking()
 {
     picksallowed_ = true;
-    group_  = visBase::DataObjectGroup::create();
+    group_ = visBase::DataObjectGroup::create();
+    addChild( group_->getInventorNode() );
 }
 
 }; // namespace visSurvey

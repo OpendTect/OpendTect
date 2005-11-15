@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.56 2005-10-07 15:31:53 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.57 2005-11-15 16:16:57 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -218,6 +218,26 @@ void RandomTrackDisplay::setManipKnotPos( int knotidx, const BinID& bid_ )
 {
     const BinID bid = snapPosition(bid_);
     track->setDraggerKnotPos( knotidx, Coord(bid.inl,bid.crl) );
+}
+
+
+void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
+{
+    if ( newbids.size() < 2 ) return;
+    while ( nrKnots()>newbids.size() )
+	removeKnot( nrKnots()-1 );
+
+    for ( int idx=0; idx<newbids.size(); idx++ )
+    {
+	const BinID bid = newbids[idx];
+	if ( idx<nrKnots() )
+	{
+	    setKnotPos( idx, bid );
+	    setManipKnotPos( idx, bid );
+	}
+	else
+	    addKnot( bid );
+    }
 }
 
 

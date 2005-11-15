@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.106 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.107 2005-11-15 16:16:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vispicksetdisplay.h"
+#include "visrandomtrackdisplay.h"
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 
@@ -351,8 +352,6 @@ bool uiODApplMgr::selectColorAttrib( int id )
 
 void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv->selectWells( wellids ); }
-void uiODApplMgr::selectWellCoordsForRdmLine()
-{ wellserv->selectWellCoordsForRdmLine(); }
 
 
 const Color& uiODApplMgr::getPickColor() { return pickserv->getPickColor(); }
@@ -645,11 +644,36 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 
 bool uiODApplMgr::handleWellServEv( int evid )
 {
-//    if ( evid == uiWellPartServer::evPreviewRdmLine )
-//    {
-//	TypeSet<Coord> coords;
-//	wellserv->getRdmLineCoordinates( coords );
-//    }
+    if ( evid == uiWellPartServer::evPreviewRdmLine )
+    {
+	TypeSet<Coord> coords;
+	wellserv->getRdmLineCoordinates( coords );
+	visserv->setupRdmLinePreview( coords );
+	enableTree(false);
+	enableMenusAndToolbars(false);
+    }
+    if ( evid == uiWellPartServer::evCreateRdmLine )
+    {
+	TypeSet<Coord> coords;
+	wellserv->getRdmLineCoordinates( coords );
+	visserv->cleanPreview();
+
+	TypeSet<BinID> bidset;
+	for ( int idx=0; idx<coords.size(); idx++ )
+	{
+	    BinID bid = SI().transform( coords[idx] );
+	    if ( bidset.indexOf(bid) < 0 )
+		bidset += bid;
+	}
+
+	const int rdmlineid = visserv->getSelObjectId();
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+			visserv->getObject(rdmlineid));
+	rtd->setKnotPositions( bidset );
+	enableTree( true );
+	enableMenusAndToolbars( true );
+    }
+    
     return true;
 }
 

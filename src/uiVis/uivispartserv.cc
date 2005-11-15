@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.285 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.286 2005-11-15 16:16:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "visemobjdisplay.h"
+#include "vispolylinedisplay.h"
 #include "visevent.h"
 #include "seisbuf.h"
 #include "attribsel.h"
@@ -72,6 +73,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , changematerialmnuitem( "Properties ...", 6000 )
     , resmnuitem( "Resolution", 5000 )
     , blockmenus( false )
+    , pldisplay_(0)
 {
     mpetools = new uiMPEMan( appserv().parent(), this );
     mpetools->display( false );
@@ -1280,6 +1282,30 @@ void uiVisPartServer::initMPEStuff()
     }
     
     mpetools->initFromDisplay();
+}
+
+
+void uiVisPartServer::setupRdmLinePreview( TypeSet<Coord> coords )
+{
+    if ( pldisplay_ )
+	cleanPreview();
+
+    pldisplay_ = visSurvey::PolyLineDisplay::create();
+    pldisplay_->fillPolyLine( coords );
+    mDynamicCastGet(visBase::DataObject*,doobj,pldisplay_);
+    for ( int idx=0; idx<scenes.size(); idx++ )
+	scenes[idx]->addObject( doobj );
+}
+
+
+void uiVisPartServer::cleanPreview()
+{
+    mDynamicCastGet(visBase::DataObject*,doobj,pldisplay_);
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	int objidx = scenes[idx]->getFirstIdx( doobj );
+	scenes[idx]->removeObject( objidx );
+    }
 }
 
 

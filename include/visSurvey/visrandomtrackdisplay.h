@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.37 2005-08-18 19:38:04 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.38 2005-11-15 16:16:56 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -102,6 +102,7 @@ public:
     void			getAllKnotPos(TypeSet<BinID>&) const;
     void			removeKnot(int);
     void			removeAllKnots();
+    void			setKnotPositions(const TypeSet<BinID>&);
 
     void			setDepthInterval(const Interval<float>&);
 
