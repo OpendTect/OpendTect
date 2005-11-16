@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.12 2005-10-31 15:14:55 cvsbert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.13 2005-11-16 14:58:09 cvsarend Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -13,24 +13,24 @@ static const char* rcsID = "$Id: filepath.cc,v 1.12 2005-10-31 15:14:55 cvsbert 
 #include "winutils.h"
 
 const char* FilePath::sPrefSep = ":";
-#ifdef __win__
-const char* FilePath::sDirSep = "\\";
-#else
-const char* FilePath::sDirSep = "/";
-#endif
 
+const char* FilePath::dirSep( Style stl )
+{
+    static const char* wds = "\\";
+    static const char* uds = "/";
+
+    if ( stl == Local )
+	stl = __iswin__ ? Windows : Unix;
+
+    return stl == Windows ? wds : uds;
+} 
 
 FilePath& FilePath::set( const char* _fnm )
 {
     lvls_.deepErase(); prefix_ = ""; isabs_ = false;
     if ( !_fnm ) return *this;
 
-    BufferString __fnm
-#ifdef __win__
-		       ( getCleanWinPath(_fnm) );
-#else
-		       ( _fnm );
-#endif
+    BufferString __fnm ( _fnm );
 
     const char* fnm = __fnm.buf();
 
@@ -40,7 +40,7 @@ FilePath& FilePath::set( const char* _fnm )
     char* ptr = strchr( fnm, *sPrefSep );
     if ( ptr )
     {
-	const char* dsptr = strchr( fnm, *sDirSep );
+	const char* dsptr = strchr( fnm, *dirSep(Windows) );
 	if ( dsptr > ptr )
 	{
 	    prefix_ = fnm;
@@ -72,11 +72,12 @@ void FilePath::addPart( const char* fnm )
     {
 	char cur = *fnm;
 
-	if ( cur != *sDirSep )
+	if ( cur != *dirSep(Local) )
 	    remdblsep = true;
 	else
 	{
-	    if ( prev != *sDirSep || !remdblsep )
+	    if ( (prev != *dirSep(Windows) && prev != *dirSep(Windows))
+		    || !remdblsep )
 	    {
 		*bufptr = '\0';
 		if ( buf[0] ) lvls_.add( buf );
@@ -213,13 +214,13 @@ BufferString FilePath::dirUpTo( int lvl ) const
 	return ret;
 
     if ( isabs_ )
-	ret += sDirSep;
+	ret += dirSep(Local);
     if ( lvls_.size() )
 	ret += lvls_.get( 0 );
 
     for ( int idx=1; idx<=lvl; idx++ )
     {
-	ret += sDirSep;
+	ret += dirSep(Local);
 	ret += lvls_.get( idx );
     }
 
@@ -257,7 +258,7 @@ BufferString FilePath::getTempName( const char* ext )
 	}
     }
 
-    fname += sDirSep; fname += "od";
+    fname += dirSep(Local); fname += "od";
 
 #else
 

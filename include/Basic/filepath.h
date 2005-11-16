@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.4 2005-10-31 15:14:55 cvsbert Exp $
+ RCS:		$Id: filepath.h,v 1.5 2005-11-16 14:57:55 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,9 @@ public:
 
     static BufferString	getTempName(const char* ext=0);
     static BufferString	mkCleanPath(const char* path, Style fmt);
+
+    static const char*	dirSep( Style stl );
     static const char*	sPrefSep;
-    static const char*	sDirSep;
 
 protected:
 
