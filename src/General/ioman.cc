@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.55 2005-10-04 14:05:48 cvskris Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.56 2005-11-16 15:33:08 cvsarend Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -574,7 +574,7 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 {
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
-    cleanupString( ptr, NO, *ptr == *FilePath::sDirSep, YES );
+    cleanupString( ptr, NO, *ptr == *FilePath::dirSep(FilePath::Local), YES );
     static BufferString fnm;
     for ( int subnr=0; ; subnr++ )
     {
@@ -629,7 +629,7 @@ int IOMan::levelOf( const char* dirnm ) const
     while ( ptr )
     {
 	ptr++; lvl++;
-	ptr = strchr( ptr, *FilePath::sDirSep );
+	ptr = strchr( ptr, *FilePath::dirSep(FilePath::Local) );
     }
     return lvl;
 }
