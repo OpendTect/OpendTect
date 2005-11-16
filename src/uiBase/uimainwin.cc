@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.99 2005-10-07 13:12:35 cvskris Exp $
+ RCS:           $Id: uimainwin.cc,v 1.100 2005-11-16 13:59:31 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,38 +33,49 @@ ________________________________________________________________________
 
 #include "timer.h"
 
-
 #include <iostream>
 
-#include <qmainwindow.h>
+#ifdef USEQT4
+# define mQMainWindow	Q3MainWindow
+# define mQDockWindow	Q3DockWindow
+# define mQDockArea	Q3DockArea
+# define mQPopupMenu	Q3PopupMenu
+# define mFlagType	Qt::WFlags
+# define mDockType	Qt::ToolBarDock
+# include <q3mainwindow.h>
+# include <q3dockwindow.h>
+# include <QTextStream>
+# include <QCloseEvent>
+#else
+# define mQMainWindow	QMainWindow
+# define mQDockArea	QDockArea
+# define mQDockWindow	QDockWindow
+# define mQPopupMenu	QPopupMenu
+# define mFlagType	int
+# define mDockType	Qt::Dock
+# include <qmainwindow.h>
+# include <qdockwindow.h>
+#endif
 #include <qwidget.h>
 #include <qstatusbar.h>
 #include <qapplication.h>
-#include <qdockwindow.h>
 #include <qpixmap.h>
+#include <qlayout.h>
 
 #ifdef SUPPORT_PERSISTENCE
 // for positions of dock area's
-#include <qdockarea.h>
+# ifdef USEQT4
+#  include <q3dockarea.h>
+# else
+#  include <qdockarea.h>
+# endif
 #include <qfile.h>
 #endif
 
-#ifdef __msvc__
-#include <qpopupmenu.h>
-#endif
-
-
-#ifdef __debug__
-#include <qmenubar.h>
-#endif
-
-#include <qlayout.h>
-
 #include "dtect.xpm"
 
-
 class uiMainWinBody : public uiParentBody
-		    , public QMainWindow
+		    , public mQMainWindow
 {
 friend class		uiMainWin;
 public:
@@ -76,8 +87,8 @@ public:
     virtual		~uiMainWinBody();
 
 #define mHANDLE_OBJ     uiMainWin
-#define mQWIDGET_BASE   QMainWindow
-#define mQWIDGET_BODY   QMainWindow
+#define mQWIDGET_BASE   mQMainWindow
+#define mQWIDGET_BODY   mQMainWindow
 #define UIBASEBODY_ONLY
 #define UIPARENT_BODY_CENTR_WIDGET
 #include                "i_uiobjqtbody.h"
@@ -90,7 +101,7 @@ public:
 
     virtual void        polish()
                         {
-                            QMainWindow::polish();
+                            mQMainWindow::polish();
                         }
 
     void		reDraw( bool deep )
@@ -107,7 +118,7 @@ public:
 
     virtual void	show() 
 			{
-			    QMainWindow::show();
+			    mQMainWindow::show();
 
 			    if( poptimer.isActive() )
 				poptimer.stop();
@@ -137,7 +148,7 @@ public:
 			    return true;
 			}
 
-    static Qt::Dock	qdock(uiMainWin::Dock);
+    static mDockType	qdock(uiMainWin::Dock);
 
     void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
 
@@ -160,7 +171,7 @@ private:
 
     bool		modal_;
     int			looplevel__;
-    int			getFlags(bool hasparent,bool modal) const;
+    mFlagType		getFlags(bool hasparent,bool modal) const;
 
     void 		popTimTick(CallBacker*);
     Timer		poptimer;
@@ -177,8 +188,7 @@ private:
 uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p, 
 			      const char* nm, bool modal )
 	: uiParentBody(nm)
-//	, UserIDObject( nm )
-	, QMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
+	, mQMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
 		      nm,getFlags(p,modal) )
 	, handle_(handle__)
 	, initing( true )
@@ -197,10 +207,16 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
 }
 
 
-int uiMainWinBody::getFlags( bool hasparent, bool modal ) const
+mFlagType uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 {
+#ifdef USEQT4
+    return  Qt::WFlags( hasparent && modal ? 
+			( Qt::Window | Qt::WA_ShowModal |  Qt::WA_GroupLeader )
+		      : Qt::Window );
+#else
     return hasparent && modal ? WType_TopLevel | WShowModal| WGroupLeader
-			      : WType_TopLevel;
+				  : WType_TopLevel;
+#endif
 }
 
 
@@ -244,16 +260,13 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 
 
 uiMainWinBody::~uiMainWinBody( )
-{
-//    delete centralWidget_;
-}
+{}
 
 void uiMainWinBody::popTimTick(CallBacker*)
 {
     if ( popped_up ) { pErrMsg( "huh?" ); }
 	popped_up = true;
     moveDockWindows();
-//    restorePositions();
 }
 
 #define mMwHandle static_cast<uiMainWin&>(handle_)
@@ -294,7 +307,7 @@ void uiMainWinBody::close()
     if ( modal_ )
 	qApp->exit_loop();
 
-    QMainWindow::hide();
+    mQMainWindow::hide();
 
     if ( exitapponclose_ )
 	qApp->quit();
@@ -347,15 +360,23 @@ void uiMainWinBody::storePositions()
 {
 #ifdef USE_FILE
     QFile outfil( "/tmp/qpositions.txt");
+# ifdef USEQT4
+    outfil.open( QIODevice::WriteOnly );
+# else
     outfil.open( IO_WriteOnly );
+# endif
     QTextStream ts( &outfil );
 #else
     static QString str;
     str="";
+# ifdef USEQT4
+    QTextStream ts( &str, QIODevice::WriteOnly  );
+# else
     QTextStream ts( &str, IO_WriteOnly  );
+# endif
 #endif
 
-    QDockArea* dck = leftDock();
+    mQDockArea* dck = leftDock();
     if ( dck ) { ts << *dck; }
 
     dck = rightDock();
@@ -379,10 +400,10 @@ void uiMainWinBody::restorePositions()
 storePositions();
 
     QFile infil( "/tmp/qpositions.txt");
-    infil.open( IO_ReadOnly );
+    infil.open( QIODevice::ReadOnly );
     QTextStream ts( &infil );
 
-    QDockArea* dck = leftDock();
+    mQDockArea* dck = leftDock();
     if ( dck ) { ts >> *dck; }
 
     dck = rightDock();
@@ -399,7 +420,7 @@ storePositions();
 }
 #endif
 
-Qt::Dock uiMainWinBody::qdock( uiMainWin::Dock d )
+mDockType uiMainWinBody::qdock( uiMainWin::Dock d )
 {
     switch( d )
     {
@@ -411,7 +432,7 @@ Qt::Dock uiMainWinBody::qdock( uiMainWin::Dock d )
         case uiMainWin::TornOff:  	return Qt::DockTornOff;
         case uiMainWin::Unmanaged:      return Qt::DockUnmanaged;
     }
-    return (Qt::Dock) 0;
+    return (mDockType) 0;
 }
 
 
@@ -468,7 +489,7 @@ void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
 void uiMainWin::removeDockWindow( uiParent* parnt )
 {
     if ( !parnt || !parnt->pbody() ) return;
-    body_->removeDockWindow( (QDockWindow*)parnt->pbody()->managewidg() );
+    body_->removeDockWindow( (mQDockWindow*)parnt->pbody()->managewidg() );
 }
 
 
@@ -509,10 +530,14 @@ uiMainWin* uiMainWin::activeWindow()
 
 void uiMainWin::setSensitive( bool yn )
 {
+#ifdef USEQT4
+    QList<mQDockWindow*> dws = body_->dockWindows();
+#else
     QPtrList<QDockWindow> dws = body_->dockWindows();
+#endif
     for ( int idx=0; idx<dws.count(); idx++ )
     {
-	QDockWindow* qdwin = dws.at( idx );
+	mQDockWindow* qdwin = dws.at( idx );
 	if ( qdwin ) qdwin->setEnabled( yn );
     }
     menuBar()->setSensitive( yn );
@@ -546,7 +571,7 @@ void uiMainWin::setIcon( const char* img[], const char* icntxt )
 
 uiPopupMenu& uiMainWin::createDockWindowMenu()
 {
-    QPopupMenu* qmnu = body_->createDockWindowMenu();
+    mQPopupMenu* qmnu = body_->createDockWindowMenu();
     return *new uiPopupMenu(this,qmnu,"Toolbars");
 }
 
