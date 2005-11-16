@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.25 2005-10-19 12:08:31 cvsarend Exp $
+ RCS:           $Id: uimain.cc,v 1.26 2005-11-16 15:44:07 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,10 @@ ________________________________________________________________________
 
 #include "qiconset.h"
 
+#ifdef USEQT4
+# include <QDesktopWidget>
+# include <QWindowsStyle>
+#endif
 
 #ifdef __mac__
 # define __machack__
@@ -120,9 +124,13 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
 	Settings::common().write();
     }
 
+
+    //FIXME: implement for QT4
+#ifndef USEQT4
     QIconSet::setIconSize ( QIconSet::Small, QSize(iconsz,iconsz) );
     QIconSet::setIconSize ( QIconSet::Automatic, QSize(iconsz,iconsz) );
     QIconSet::setIconSize ( QIconSet::Large, QSize(iconsz,iconsz) );
+#endif
 
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setDesktopSettingsAware( FALSE );
@@ -140,11 +148,16 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
 
     qInstallMsgHandler( myMessageOutput );
 
+#ifdef USEQT4
+    QApplication::setStyle( new QCDEStyle );
+#else
     app->setStyle( new QCDEStyle() );
+#endif
 
     font_ = 0;
     setFont( *font() , true );
 
+#ifndef USEQT4
     bool enab = true;
     if ( !Settings::common().getYN("Ui.ToolTips.enable",enab) )
     {
@@ -154,10 +167,10 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
     }
     if ( !enab )
 	uiObject::enableToolTips( false );
+#endif
 
     CallBack msghcb = mCB(&uiMSG(),uiMsg,handleMsg);
     MsgClass::theCB( &msghcb );
-
 }
 
 uiMain::~uiMain()
@@ -170,7 +183,7 @@ uiMain::~uiMain()
 int uiMain::exec()          			
 {
     if( !app )  { pErrMsg("Huh?") ; return -1; }
-    return app->exec(); 
+    return app->exec();
 }
 
 
@@ -184,7 +197,7 @@ void uiMain::setTopLevel( uiMainWin* obj )
 
     mainobj = obj;
     init( obj->body()->qwidget() ); // inits SoQt if uicMain
-    app->setMainWidget( obj->body()->qwidget() ); 
+    app->setMainWidget( obj->body()->qwidget() );
 }
 
 
@@ -192,14 +205,14 @@ void uiMain::setFont( const uiFont& font, bool PassToChildren )
 {   
     font_ = &font;
     if( !app )  { pErrMsg("Huh?") ; return; }
-    app->setFont( font_->qFont(), PassToChildren ); 
+    app->setFont( font_->qFont(), PassToChildren );
 }
 
 
 void uiMain::exit ( int retcode ) 
 { 
     if( !app )  { pErrMsg("Huh?") ; return; }
-    app->exit( retcode ); 
+    app->exit( retcode );
 }
 /*!<
     \brief Tells the application to exit with a return code. 
@@ -222,15 +235,15 @@ const uiFont* uiMain::font()
     if( !font_ )
     { font_ = &uiFontList::get( className(*this) );  }
 
-    return font_; 
+    return font_;
 }
 
 uiMain& uiMain::theMain()
 { 
-    if( themain ) return *themain; 
+    if( themain ) return *themain;
     if ( !qApp ) 
     { 
-	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()"); 
+	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()");
 	QApplication::exit( -1 );
     }
 
@@ -241,8 +254,8 @@ uiMain& uiMain::theMain()
 
 void uiMain::flushX()        
 { 
-    if( !app )	return; 
-    app->flushX(); 
+    if( !app )	return;
+    app->flushX();
 }
 
 void uiMain::setTopLevelCaption( const char* txt )
@@ -257,15 +270,23 @@ void uiMain::setTopLevelCaption( const char* txt )
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
 { 
-    if( !app )	return; 
-    app->processEvents( msec ); 
+    if( !app )	return;
+#ifdef USEQT4
+    app->processEvents( QEventLoop::AllEvents, msec );
+#else
+    app->processEvents( msec );
+#endif
 }
 
 
 uiSize uiMain::desktopSize()
 {
+#ifdef USEQT4
+    QDesktopWidget* d = QApplication::desktop();
+#else
     QWidget *d = QApplication::desktop();
-    return uiSize ( d->width(), d->height(), true ); 
+#endif
+    return uiSize ( d->width(), d->height(), true );
 }
 
 
