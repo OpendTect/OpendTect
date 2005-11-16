@@ -4,32 +4,31 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.39 2005-10-28 10:10:29 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.40 2005-11-16 14:04:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiexphorizon.h"
 
+#include "ctxtioobj.h"
+#include "emhorizon.h"
+#include "emmanager.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfaceiodata.h"
+#include "executor.h"
+#include "filegen.h"
+#include "ioobj.h"
+#include "ptrman.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "survinfo.h"
+#include "uicursor.h"
+#include "uiexecutor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "filegen.h"
-#include "uimsg.h"
 #include "uiiosurface.h"
-#include "survinfo.h"
-#include "ioobj.h"
-#include "ctxtioobj.h"
-#include "emmanager.h"
-#include "emsurfaceiodata.h"
-#include "emsurfaceauxdata.h"
-#include "emsurfacetr.h"
-#include "executor.h"
-#include "uiexecutor.h"
-#include "ptrman.h"
-#include "parametricsurface.h"
-#include "uicursor.h"
+#include "uimsg.h"
 
 #include <stdio.h>
 
@@ -82,7 +81,6 @@ uiExportHorizon::~uiExportHorizon()
 }
 
 
-#define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
 #define mHdr1GFLineLen 102
 #define mDataGFLineLen 148
@@ -112,9 +110,9 @@ static void writeGF( std::ostream& strm, const BinID& bid, float z, float val,
 {
     static char buf[mDataGFLineLen+2];
     const float crl = bid.crl;
-    const float gfval = mIsUndefined(val) ? mGFUndefValue : val;
+    const float gfval = mIsUdf(val) ? mGFUndefValue : val;
     const float zfac = SI().zIsTime() ? 1000 : 1;
-    const float depth = mIsUndefined(z) ? mGFUndefValue : z * zfac;
+    const float depth = mIsUdf(z) ? mGFUndefValue : z * zfac;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl, gfval, bid.inl,
 	     "" );
@@ -134,7 +132,7 @@ bool uiExportHorizon::writeAscii()
     BufferString basename = outfld->fileName();
 
     const IOObj* ioobj = infld->selIOObj();
-    if ( !ioobj ) return false;
+    if ( !ioobj ) mErrRet("Cannot find horizon object");
 
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
@@ -142,7 +140,14 @@ bool uiExportHorizon::writeAscii()
     EM::SurfaceIODataSelection sels( sd );
     infld->getSelection( sels );
     sels.selvalues.erase();
-    PtrMan<Executor> loader = em.objectLoader( ioobj->key(), &sels );
+
+    RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
+    if ( !emobj ) mErrRet("Cannot create horizon")
+
+    emobj->setMultiID( ioobj->key() );
+    mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
+    PtrMan<Executor> loader = hor->geometry.loader( &sels );
+    if ( !loader ) mErrRet("Cannot read horizon")
     uiExecutor dlg( this, *loader );
     if ( !dlg.go() ) return false;
 
@@ -152,16 +157,15 @@ bool uiExportHorizon::writeAscii()
 			     "Do you wish to continue?") )
 	return false;
 
-    EM::EMObject* obj = em.getObject( em.getObjectID(ioobj->key()) );
-    mDynamicCastGet(EM::Horizon*,hor,obj);
-    if ( !hor ) return false;
+    if ( sels.selvalues.size() > 0 )
+    {
+	ExecutorGroup exgrp( "Reading aux data" );
+	for ( int idx=0; idx<sels.selvalues.size(); idx++ )
+	    exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
 
-    ExecutorGroup exgrp( "Reading aux data" );
-    for ( int idx=0; idx<sels.selvalues.size(); idx++ )
-	exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
-
-    uiExecutor datadlg( this, exgrp );
-    if ( !datadlg.go() ) return false;
+	uiExecutor datadlg( this, exgrp );
+	if ( !datadlg.go() ) return false;
+    }
 
     uiCursorChanger cursorlock( uiCursor::Wait );
 
@@ -187,32 +191,30 @@ bool uiExportHorizon::writeAscii()
 		    gfcommfld->text() );
 
 	const EM::SectionID sectionid = hor->geometry.sectionID( sectionidx );
-	const Geometry::ParametricSurface* meshsurf =
-	    				hor->geometry.getSurface( sectionid );
-	EM::PosID posid( EM::EMM().getObjectID(infld->selIOObj()->key()),
-			 sectionid );
-	const int nrnodes = meshsurf->nrKnots();
+	PtrMan<EM::EMObjectIterator> it = hor->createIterator( sectionid );
 	BufferString str;
-	for ( int idy=0; idy<nrnodes; idy++ )
+	while ( true )
 	{
-	    const RowCol rc = meshsurf->getKnotRowCol(idy);
-	    const Coord3 crd = meshsurf->getKnot( rc );
-	    const BinID bid = SI().transform(crd);
-	    float auxvalue = mUndefValue;
-	    if ( nrattribs )
-	    {
-		posid.setSubID( rc.getSerialized() );
-		auxvalue = hor->auxdata.getAuxDataVal(0,posid);
-	    }
-	    
+	    const EM::PosID posid = it->next();
+	    if ( posid.objectID()==-1 )
+		break;
+
+	    const Coord3 crd = hor->getPos( posid );
+
 	    if ( dogf )
 	    {
+		const BinID bid = SI().transform( crd );
+		const float auxvalue = nrattribs > 0
+		    ? hor->auxdata.getAuxDataVal(0,posid) : mUdf(float);
 		writeGF( *sdo.ostrm, bid, crd.z, auxvalue, crd, idx );
 		continue;
 	    }
 
 	    if ( !doxy )
+	    {
+		const BinID bid = SI().transform( crd );
 		*sdo.ostrm << bid.inl << '\t' << bid.crl;
+	    }
 	    else
 	    {
 		// ostreams print doubles awfully
@@ -223,7 +225,7 @@ bool uiExportHorizon::writeAscii()
 
 	    if ( addzpos )
 	    {
-		if ( mIsUndefined(crd.z) ) 
+		if ( mIsUdf(crd.z) ) 
 		    *sdo.ostrm << '\t' << udfstr;
 		else
 		    *sdo.ostrm << '\t' << zfac * crd.z;
@@ -231,8 +233,8 @@ bool uiExportHorizon::writeAscii()
 
 	    for ( int idx=0; idx<nrattribs; idx++ )
 	    {
-		auxvalue = hor->auxdata.getAuxDataVal(idx,posid);
-		if ( mIsUndefined(auxvalue) )
+		const float auxvalue = hor->auxdata.getAuxDataVal( idx, posid );
+		if ( mIsUdf(auxvalue) )
 		    *sdo.ostrm << '\t' << udfstr;
 		else
 		    *sdo.ostrm << '\t' << auxvalue;
@@ -255,7 +257,7 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 	mErrRet( "Please select output file" );
 
     if ( File_exists(outfld->fileName()) && 
-			!uiMSG().askGoOn( "File exists. Continue?" ) )
+			!uiMSG().askGoOn( "Output file exists. Continue?" ) )
 	return false;
 
     return writeAscii();
