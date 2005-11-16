@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uimain.h,v 1.9 2005-11-16 15:24:24 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiFont;
 class QWidget;
 
 
-class uiMain 
+class uiMain
 {
 public:
 			uiMain(int argc,char** argv);
@@ -45,6 +45,11 @@ public:
     static void		setTopLevelCaption( const char* );
 
     static void		flushX();
+
+    /*!  Processes pending events for maxtime milliseconds
+     *   or until there are no more events to process, whichever is shorter.
+     *   Only works after themain has been constructed.
+     */
     static void		processEvents(int msec=3000);
 
     static uiSize	desktopSize();
