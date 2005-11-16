@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debugmasks.h,v 1.5 2004-12-16 10:34:22 bert Exp $
+ RCS:		$Id: debugmasks.h,v 1.6 2005-11-16 14:59:50 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,5 +32,6 @@ ________________________________________________________________________
 #define	DBG_MM		0x0020	// Multi-machine batch processing
 #define	DBG_SETTINGS	0x0040	// User settings
 #define	DBG_PROGSTART	0x0080	// Program start and stop
+#define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
 
 #endif

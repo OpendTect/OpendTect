@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.14 2005-10-06 20:36:49 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.15 2005-11-16 14:59:50 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ namespace sKey
     extern const char*	StepCrl		mImpl("Step Cross-line");
     extern const char*	StepOutCrl	mImpl("Stepout Cross-line");
     extern const char*	ZRange		mImpl("Z range");
+
     extern const char*	TmpStor		mImpl("Temporary storage location");
     extern const char*	LogFile		mImpl("Log file");
     extern const char*	Survey		mImpl("Survey");
