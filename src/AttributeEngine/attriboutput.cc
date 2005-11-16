@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.38 2005-11-11 22:36:08 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.39 2005-11-16 09:34:03 cvshelene Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.38 2005-11-11 22:36:08 cvsk
 #include "iopar.h"
 #include "ptrman.h"
 #include "linekey.h"
+#include "scaler.h"
 
 
 namespace Attrib
@@ -64,84 +65,85 @@ const LineKey& Output::curLineKey() const
 
 
 DataCubesOutput::DataCubesOutput( const CubeSampling& cs )
-    : desiredvolume(cs)
-    , datacubes(0)
-    , udfval(mUdf(float))
+    : desiredvolume_(cs)
+    , datacubes_(0)
+    , udfval_(mUdf(float))
 {
     const float dz = SI().zStep();
     Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
-    sampleinterval += interval;
+    sampleinterval_ += interval;
 }
 
 
 DataCubesOutput::~DataCubesOutput()
-{ if ( datacubes ) datacubes->unRef(); }
+{ if ( datacubes_ ) datacubes_->unRef(); }
 
 
 bool DataCubesOutput::getDesiredVolume( CubeSampling& cs ) const
-{ cs=desiredvolume; return true; }
+{ cs=desiredvolume_; return true; }
 
 
 bool DataCubesOutput::wantsOutput( const BinID& bid ) const
-{ return desiredvolume.hrg.includes(bid); }
+{ return desiredvolume_.hrg.includes(bid); }
 
 
 TypeSet< Interval<int> > DataCubesOutput::getLocalZRange( const BinID& ) const
-{ return sampleinterval; }
+{ return sampleinterval_; }
 
 
 #define mGetSz(dir)\
-	dir##sz = (desiredvolume.hrg.stop.dir - desiredvolume.hrg.start.dir)\
-		  /desiredvolume.hrg.step.dir + 1;\
+	dir##sz = (desiredvolume_.hrg.stop.dir - desiredvolume_.hrg.start.dir)\
+		  /desiredvolume_.hrg.step.dir + 1;\
 
 #define mGetZSz()\
-	zsz = mNINT((desiredvolume.zrg.stop-desiredvolume.zrg.start)/refstep+1);
+	zsz = mNINT( ( desiredvolume_.zrg.stop - desiredvolume_.zrg.start )\
+	      /refstep + 1 );
 
 void DataCubesOutput::collectData( const DataHolder& data, float refstep, 
 				  const SeisTrcInfo& info )
 {
-    if ( !datacubes )
+    if ( !datacubes_ )
     {
-	datacubes = new Attrib::DataCubes;
-	datacubes->ref();
-	datacubes->inlsampling = StepInterval<int>(desiredvolume.hrg.start.inl,
-						   desiredvolume.hrg.stop.inl,
-						   desiredvolume.hrg.step.inl);
-	datacubes->crlsampling = StepInterval<int>(desiredvolume.hrg.start.crl,
-						   desiredvolume.hrg.stop.crl,
-						   desiredvolume.hrg.step.crl);
-	datacubes->z0 = mNINT(desiredvolume.zrg.start/refstep);
-	datacubes->zstep = refstep;
+	datacubes_ = new Attrib::DataCubes;
+	datacubes_->ref();
+	datacubes_->inlsampling= StepInterval<int>(desiredvolume_.hrg.start.inl,
+						   desiredvolume_.hrg.stop.inl,
+						   desiredvolume_.hrg.step.inl);
+	datacubes_->crlsampling= StepInterval<int>(desiredvolume_.hrg.start.crl,
+						   desiredvolume_.hrg.stop.crl,
+						   desiredvolume_.hrg.step.crl);
+	datacubes_->z0 = mNINT(desiredvolume_.zrg.start/refstep);
+	datacubes_->zstep = refstep;
 	int inlsz, crlsz, zsz;
 	mGetSz(inl); mGetSz(crl); mGetZSz();
-	datacubes->setSize( inlsz, crlsz, zsz );
+	datacubes_->setSize( inlsz, crlsz, zsz );
     }
 		
-    const int totalnrcubes = desoutputs.size();
-    while ( datacubes->nrCubes() < totalnrcubes )
-	datacubes->addCube(mUdf(float));
+    const int totalnrcubes = desoutputs_.size();
+    while ( datacubes_->nrCubes() < totalnrcubes )
+	datacubes_->addCube(mUdf(float));
 
-    if ( !datacubes->includes(info.binid) )
+    if ( !datacubes_->includes(info.binid) )
 	return;
     
     int zsz; 
     mGetZSz();
     Interval<int> dataidxrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    for ( int desout=0; desout<desoutputs.size(); desout++ )
+    for ( int desout=0; desout<desoutputs_.size(); desout++ )
     {
 	for ( int idx=0; idx<zsz; idx++)
 	{
-	    const int dataidx = datacubes->z0 + idx;
-	    float val = udfval;
-	    if ( dataidxrg.includes(dataidx) && data.series(desoutputs[desout]))
-		val = data.series(desoutputs[desout])->value(dataidx-data.z0_);
+	    const int dataidx = datacubes_->z0 + idx;
+	    float val = udfval_;
+	    if (dataidxrg.includes(dataidx) && data.series(desoutputs_[desout]))
+		val = data.series(desoutputs_[desout])->value(dataidx-data.z0_);
 
 	    const int inlidx =
-		datacubes->inlsampling.nearestIndex(info.binid.inl);
+		datacubes_->inlsampling.nearestIndex(info.binid.inl);
 	    const int crlidx =
-		datacubes->crlsampling.nearestIndex(info.binid.crl);
+		datacubes_->crlsampling.nearestIndex(info.binid.crl);
 
-	    datacubes->setValue( desout, inlidx, crlidx, idx, val);
+	    datacubes_->setValue( desout, inlidx, crlidx, idx, val);
 	}
     }
 }
@@ -149,7 +151,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 
 const DataCubes* DataCubesOutput::getDataCubes() const
 {
-    return datacubes;
+    return datacubes_;
 }
 
 
@@ -162,34 +164,35 @@ void DataCubesOutput::setGeometry( const CubeSampling& cs )
 
 SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
 				      const LineKey& lk )
-    : desiredvolume(cs)
-    , auxpars(0)
+    : desiredvolume_(cs)
+    , auxpars_(0)
     , storid_(*new MultiID)
     , writer_(0)
     , trc_(0)
     , prevpos_(-1,-1)
     , storinited_(0)
-    , errmsg(0)
+    , errmsg_(0)
+    , scaler_(0)
 {
     seldata_.linekey_ = lk;
-    attribname = lk.attrName();
+    attribname_ = lk.attrName();
 
     const float dz = SI().zStep();
     Interval<int> interval( mNINT(cs.zrg.start/dz), mNINT(cs.zrg.stop/dz) );
-    sampleinterval += interval;
+    sampleinterval_ += interval;
 }
 
 
 bool SeisTrcStorOutput::getDesiredVolume( CubeSampling& cs ) const
 {
-    cs = desiredvolume;
+    cs = desiredvolume_;
     return true;
 }
 
 
 bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 {
-    return desiredvolume.hrg.includes(bid);
+    return desiredvolume_.hrg.includes(bid);
 }
 
 
@@ -200,7 +203,7 @@ bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
 	PtrMan<IOObj> ioseisout = IOM().get( storid );
 	if ( !ioseisout )
 	{
-	    errmsg = "Cannot find seismic data with ID: "; errmsg += storid;
+	    errmsg_ = "Cannot find seismic data with ID: "; errmsg_ += storid;
 	    return false;
 	}
     }
@@ -221,22 +224,32 @@ SeisTrcStorOutput::~SeisTrcStorOutput()
 {
     delete writer_;
     delete &storid_;
-    delete auxpars;
+    delete auxpars_;
+    delete scaler_;
 }
 
 
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
-    errmsg = "";
+    errmsg_ = "";
     PtrMan<IOPar> outppar = pars.subselect("Output.1");
     const char* storid = outppar->find("Seismic ID");
     if ( !setStorageID( storid ) )
     {
-        errmsg = "Could not find output ID: "; errmsg += storid;
+        errmsg_ = "Could not find output ID: "; errmsg_ += storid;
         return false;
     }
 
-    auxpars = pars.subselect("Aux");
+    const char* res = outppar->find( scalekey );
+    if ( res )
+    {
+	scaler_ = new LinScaler;
+	scaler_->fromString( res );
+	if ( scaler_->isEmpty() )
+	    { delete scaler_; scaler_ = 0; }
+    }
+    
+    auxpars_ = pars.subselect("Aux");
     doInit();
     return true;
 }//warning, only a small part of the old taken, see if some more is required
@@ -249,38 +262,38 @@ bool SeisTrcStorOutput::doInit()
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
 	if ( !ioseisout )
 	{
-	    errmsg = "Cannot find seismic data with ID: "; errmsg += storid_;
+	    errmsg_ = "Cannot find seismic data with ID: "; errmsg_ += storid_;
 	    return false;
 	}
 
 	writer_ = new SeisTrcWriter( ioseisout );
 	is2d_ = writer_->is2D();
-	if ( auxpars )
+	if ( auxpars_ )
 	{
-	    writer_->lineAuxPars().merge( *auxpars );
-	    delete auxpars; auxpars = 0;
+	    writer_->lineAuxPars().merge( *auxpars_ );
+	    delete auxpars_; auxpars_ = 0;
 	}
     }
 
-    desiredvolume.normalise();
+    desiredvolume_.normalise();
     seldata_.linekey_.setAttrName( "" );
     if ( seldata_.type_ != Seis::Range )
 	seldata_.type_ = Seis::Range;
 
     if ( !is2d_ )
     {
-	if ( seldata_.inlrg_.start > desiredvolume.hrg.start.inl )
-	    desiredvolume.hrg.start.inl = seldata_.inlrg_.start;
-	if ( seldata_.inlrg_.stop < desiredvolume.hrg.stop.inl )
-	    desiredvolume.hrg.stop.inl = seldata_.inlrg_.stop;
-	if ( seldata_.crlrg_.start > desiredvolume.hrg.start.crl )
-	    desiredvolume.hrg.start.crl = seldata_.crlrg_.start;
-	if ( seldata_.crlrg_.stop < desiredvolume.hrg.stop.crl )
-	    desiredvolume.hrg.stop.crl = seldata_.crlrg_.stop;
-	if ( seldata_.zrg_.start > desiredvolume.zrg.start )
-	    desiredvolume.zrg.start = seldata_.zrg_.start;
-	if ( seldata_.zrg_.stop < desiredvolume.zrg.stop )
-	    desiredvolume.zrg.stop = seldata_.zrg_.stop;
+	if ( seldata_.inlrg_.start > desiredvolume_.hrg.start.inl )
+	    desiredvolume_.hrg.start.inl = seldata_.inlrg_.start;
+	if ( seldata_.inlrg_.stop < desiredvolume_.hrg.stop.inl )
+	    desiredvolume_.hrg.stop.inl = seldata_.inlrg_.stop;
+	if ( seldata_.crlrg_.start > desiredvolume_.hrg.start.crl )
+	    desiredvolume_.hrg.start.crl = seldata_.crlrg_.start;
+	if ( seldata_.crlrg_.stop < desiredvolume_.hrg.stop.crl )
+	    desiredvolume_.hrg.stop.crl = seldata_.crlrg_.stop;
+	if ( seldata_.zrg_.start > desiredvolume_.zrg.start )
+	    desiredvolume_.zrg.start = seldata_.zrg_.start;
+	if ( seldata_.zrg_.stop < desiredvolume_.zrg.stop )
+	    desiredvolume_.zrg.stop = seldata_.zrg_.stop;
     }
 
     return true;
@@ -292,16 +305,16 @@ class COLineKeyProvider : public LineKeyProvider
 public:
 
 COLineKeyProvider( SeisTrcStorOutput& c, const char* a, const char* lk )
-	: co(c) , attrnm(a) , linename(lk) {}
+	: co_(c) , attrnm_(a) , linename_(lk) {}
 
 LineKey lineKey() const
 {
-    LineKey lk(linename,attrnm);
+    LineKey lk(linename_,attrnm_);
     return lk;
 }
-    SeisTrcStorOutput&   co;
-    BufferString        attrnm;
-    BufferString 	linename;
+    SeisTrcStorOutput&   co_;
+    BufferString        attrnm_;
+    BufferString 	linename_;
 
 };
 
@@ -310,7 +323,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 				     const SeisTrcInfo& info )
 {
     int nrcomp = data.nrSeries();
-    if ( !nrcomp || nrcomp < desoutputs.size())
+    if ( !nrcomp || nrcomp < desoutputs_.size())
 	return;
 
     const int sz = data.nrsamples_;
@@ -322,26 +335,39 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	trc_->info() = info;
 	trc_->info().sampling.step = refstep;
 	trc_->info().sampling.start = data.z0_*refstep;
-	for ( int idx=1; idx<desoutputs.size(); idx++)
+	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( sz, dc, false );
     }
     else if ( trc_->info().binid != info.binid )
     {
-	errmsg = "merge components of two different traces!";
+	errmsg_ = "merge components of two different traces!";
 	return;	    
     }
     else
     {
-	for ( int idx=0; idx<desoutputs.size(); idx++)
+	for ( int idx=0; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( sz, dc, false );
     }
 
-    for ( int comp=0; comp<desoutputs.size(); comp++ )
+    for ( int comp=0; comp<desoutputs_.size(); comp++ )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    float val = data.series(desoutputs[comp])->value(idx);
+	    float val = data.series(desoutputs_[comp])->value(idx);
 	    trc_->set(idx, val, comp);
+	}
+    }
+    
+    if ( scaler_ )
+    {
+	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
+	{
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		float val = trc_->get( idx, icomp );
+		val = scaler_->scale( val );
+		trc_->set( idx, val, icomp );
+	    }
 	}
     }
 }
@@ -355,18 +381,18 @@ void SeisTrcStorOutput::writeTrc()
     {
 	if ( writer_->is2D() )
 	{
-	    if ( attribname == "inl_dip" || attribname == "crl_dip" )
-		attribname = sKey::Steering;
-	    else if ( IOObj::isKey(attribname) )
-		attribname = IOM().nameOf(attribname);
+	    if ( attribname_ == "inl_dip" || attribname_ == "crl_dip" )
+		attribname_ = sKey::Steering;
+	    else if ( IOObj::isKey(attribname_) )
+		attribname_ = IOM().nameOf(attribname_);
 
 	    writer_->setLineKeyProvider( 
-		new COLineKeyProvider( *this, attribname, 
+		new COLineKeyProvider( *this, attribname_, 
 		    		       curLineKey().lineName()) );
 	}
 
 	if ( !writer_->prepareWork(*trc_) )
-	    { errmsg = writer_->errMsg(); return; }
+	    { errmsg_ = writer_->errMsg(); return; }
 
 	if ( !writer_->is2D() )
 	{
@@ -380,7 +406,7 @@ void SeisTrcStorOutput::writeTrc()
     }
     
     if ( !writer_->put(*trc_) )
-	{ errmsg = writer_->errMsg(); }
+	{ errmsg_ = writer_->errMsg(); }
 
     delete trc_;
     trc_ = 0;
@@ -389,7 +415,7 @@ void SeisTrcStorOutput::writeTrc()
 
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			const LineKey& lk )
-    : errmsg(0)
+    : errmsg_(0)
     , datahset_(0)
     , trcinfoset_(0)
 {
@@ -443,7 +469,7 @@ void TwoDOutput::collectData( const DataHolder& data, float refstep,
 			      const SeisTrcInfo& info )
 {
     int nrcomp = data.nrSeries();
-    if ( !nrcomp || nrcomp < desoutputs.size() )
+    if ( !nrcomp || nrcomp < desoutputs_.size() )
 	return;
 
     if ( !datahset_ || !trcinfoset_ ) return;
@@ -480,7 +506,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     BinIDValueSet::Pos pos = bidvalset_.findFirst( info.binid );
     if ( !pos.valid() ) return;
 
-    const int desnrvals = desoutputs.size()+1;
+    const int desnrvals = desoutputs_.size()+1;
     if ( bidvalset_.nrVals() < desnrvals )
 	bidvalset_.setNrVals( desnrvals );
 
@@ -490,8 +516,8 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	const int zidx = mNINT(vals[0]/refstep);
 	if ( data.z0_ == zidx )
 	{
-	    for ( int comp=0; comp<desoutputs.size(); comp++ )
-		vals[comp+1] = data.series(desoutputs[comp])->value(0);
+	    for ( int comp=0; comp<desoutputs_.size(); comp++ )
+		vals[comp+1] = data.series(desoutputs_[comp])->value(0);
 	}
 
 	bidvalset_.next( pos );
@@ -568,7 +594,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 				      const SeisTrcInfo& info )
 {
     const int nrcomp = data.nrSeries();
-    if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs.size() )
+    if ( !outpbuf_ || !nrcomp || nrcomp < desoutputs_.size() )
 	return;
 
     const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
@@ -582,7 +608,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     {
 	const DataCharacteristics dc;
 	trc = new SeisTrc( trcsz, dc );
-	for ( int idx=trc->data().nrComponents(); idx<desoutputs.size(); idx++ )
+	for ( int idx=trc->data().nrComponents(); idx<desoutputs_.size(); idx++)
 	    trc->data().addComponent( trcsz, dc, false );
 
 	trc->info() = info;
@@ -592,7 +618,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
     else
 	trc = outpbuf_->get( index );
 
-    for ( int comp=0; comp<desoutputs.size(); comp++ )
+    for ( int comp=0; comp<desoutputs_.size(); comp++ )
     {
 	for ( int idx=0; idx<trcsz; idx++ )
 	{
@@ -601,7 +627,7 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	    else  
 	    {
 		const float val = 
-		    data.series(desoutputs[comp])->value(idx-startidx);
+		    data.series(desoutputs_[comp])->value(idx-startidx);
 		trc->set( idx, val, comp );
 	    }
 	}

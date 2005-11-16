@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.22 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: attriboutput.h,v 1.23 2005-11-16 09:34:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;
 class SeisTrcWriter;
+class Scaler;
 
 namespace Attrib
 {
@@ -38,17 +39,17 @@ public:
 
     virtual bool		getDesiredVolume(CubeSampling&) const
     				{ return true; }
-    virtual bool		wantsOutput(const BinID&) const	= 0;
+    virtual bool		wantsOutput(const BinID&) const		 = 0;
     virtual const DataCubes*	getDataCubes() const { return 0; }
 
     virtual void		getDesiredOutputs( TypeSet<int>& outputs ) const
-				{ outputs = desoutputs; }
+				{ outputs = desoutputs_; }
     void			setDesiredOutputs( const TypeSet<int>& outputs )
-    				{ desoutputs = outputs; }
+    				{ desoutputs_ = outputs; }
 
     virtual TypeSet< Interval<int> >  getLocalZRange(const BinID&) const = 0;
     virtual void		collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&)		= 0;
+	    				    const SeisTrcInfo&)		 = 0;
     virtual void		writeTrc()		{};
     const SeisSelData&		getSelData()		{ return seldata_; }
     const LineKey&		curLineKey() const;
@@ -61,7 +62,7 @@ public:
 
 protected:
     SeisSelData&		seldata_;
-    TypeSet<int>		desoutputs;
+    TypeSet<int>		desoutputs_;
 };
 
 
@@ -75,7 +76,7 @@ public:
 
     bool			getDesiredVolume(CubeSampling&) const;
     void			setGeometry(const CubeSampling&);
-    void                	setUndefValue( float v )	{ udfval = v; }
+    void                	setUndefValue( float v )	{ udfval_ = v; }
 
     bool			wantsOutput(const BinID&) const;
     virtual void		collectData(const DataHolder&,float step,
@@ -83,10 +84,10 @@ public:
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const;
     
 protected:
-    CubeSampling		desiredvolume;
-    TypeSet< Interval<int> >	sampleinterval;
-    DataCubes*			datacubes;
-    float			udfval;
+    CubeSampling		desiredvolume_;
+    TypeSet< Interval<int> >	sampleinterval_;
+    DataCubes*			datacubes_;
+    float			udfval_;
 };
 
 
@@ -109,7 +110,7 @@ public:
 	    				    const SeisTrcInfo&);
     void			writeTrc();
     TypeSet< Interval<int> >	getLocalZRange(const BinID&) const
-				{ return sampleinterval; }
+				{ return sampleinterval_; }
 
     static const char*		seisidkey;
     static const char*		attribkey;
@@ -120,17 +121,18 @@ public:
 protected:
 
     MultiID&			storid_;
-    CubeSampling		desiredvolume;
-    TypeSet< Interval<int> >	sampleinterval;
-    IOPar*			auxpars;
+    CubeSampling		desiredvolume_;
+    TypeSet< Interval<int> >	sampleinterval_;
+    IOPar*			auxpars_;
     bool			is2d_;
-    BufferString 		errmsg;
+    BufferString 		errmsg_;
 
     SeisTrc*			trc_;
     SeisTrcWriter*		writer_;
     BinID 			prevpos_;
     bool			storinited_;
-    BufferString		attribname;
+    BufferString		attribname_;
+    Scaler*                     scaler_;
 };
 
 
@@ -158,7 +160,7 @@ public:
 protected:
 
     TypeSet< Interval<int> >	sampleinterval_;
-    BufferString 		errmsg;
+    BufferString 		errmsg_;
 
     ObjectSet<DataHolder>*	datahset_;
     ObjectSet<SeisTrcInfo>*	trcinfoset_;
