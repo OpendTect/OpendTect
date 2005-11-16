@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.15 2005-08-24 08:36:52 cvsbert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.16 2005-11-16 10:21:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,8 @@ ________________________________________________________________________
 
 uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
     : uiDialog(p,uiDialog::Setup(imp ? "Import Pickset" : "Export PickSet",
-				 "Specify pickset parameters","105.0.1"))
+				 "Specify pickset parameters",
+				 imp ? "105.0.1" : "105.0.2"))
     , ctio(*mMkCtxtIOObj(PickSetGroup))
     , import(imp)
     , xyfld(0)
@@ -63,7 +64,6 @@ uiImpExpPickSet::~uiImpExpPickSet()
     delete ctio.ioobj; delete &ctio;
 }
 
-#define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
@@ -166,12 +166,15 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
 
 bool uiImpExpPickSet::checkInpFlds()
 {
-    if ( !File_exists(filefld->fileName()) )
-	mWarnRet( "Please select ascii file,\nor file does not exist" );
+    BufferString filenm = filefld->fileName();
+    if ( import && !File_exists(filenm) )
+	mErrRet( "Please select input file" );
+
+    if ( !import && filenm == "" )
+	mErrRet( "Please select output file" );
 
     if ( !objfld->commitInput( true ) )
-	mWarnRet( "Please select PickSet" );
+	mErrRet( "Please select PickSet" );
 
     return true;
 }
-
