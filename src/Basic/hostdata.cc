@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.28 2005-10-04 16:33:07 cvskris Exp $
+ RCS:           $Id: hostdata.cc,v 1.29 2005-11-16 14:54:31 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "separstr.h"
 #include "filepath.h"
+#include "debugmasks.h"
 #include <iostream>
 # include <unistd.h>
 #ifdef __win__
@@ -27,6 +28,8 @@ ________________________________________________________________________
 #else
 # include <netdb.h>
 #endif
+
+#define mDebugOn        (DBG::isOn(DBG_FILEPATH))
 
 const char* HostData::localHostName()
 {
@@ -53,6 +56,28 @@ void HostData::addAlias( const char* nm )
 }
 
 
+void HostData::init( const char* nm )
+{
+    name_ = nm;
+
+    const char* ptr = name_.buf();
+    bool is_ip_adrr = true;
+
+    while ( ptr++ && *ptr )
+    {
+	skipLeadingBlanks(ptr)
+	if ( !isdigit(*ptr) && * ptr != '.' )
+	    is_ip_adrr = false;
+    }	
+
+    if ( !is_ip_adrr )
+    {	
+	char* dot = strstr( name_.buf(), "." );
+	if ( dot ) { *dot ='\0'; addAlias(nm); }
+    }
+}
+
+
 #define mTolower(bs) \
     { \
 	char* ptr=bs.buf(); \
@@ -71,6 +96,8 @@ static FilePath getReplacePrefix( const FilePath& dir_,
     BufferString fromprefix = fromprefix_.fullPath( FilePath::Unix );
     BufferString toprefix = toprefix_.fullPath( FilePath::Unix );
 
+
+
     const char* tail = strstr( dir, fromprefix );
     if ( !tail )
     {
@@ -84,6 +111,21 @@ static FilePath getReplacePrefix( const FilePath& dir_,
 
     BufferString ret = toprefix;
     ret += tail;
+
+    if ( mDebugOn )
+    {
+	BufferString msg("getReplacePrefix:\n in: '");
+	msg += dir;
+	msg += "' \n replace '";
+	msg += fromprefix;
+	msg += "' with '";
+	msg += toprefix;
+	msg += "'\n to: '";
+	msg += ret;
+	msg += "'";
+
+	DBG::message(msg);
+    }
 
     return FilePath(ret);
 }
@@ -296,11 +338,7 @@ void HostDataList::handleLocal()
     if ( hnm == "" ) return;
     if ( !localhd )
     {
-#ifdef __win__
-	localhd = new HostData( hnm, true ); // true: bool isWin()
-#else
-	localhd = new HostData( hnm, false );
-#endif
+	localhd = new HostData( hnm, __iswin__ );
 	localhd->addAlias( localhoststd );
 	insertAt( localhd, 0 );
     }
