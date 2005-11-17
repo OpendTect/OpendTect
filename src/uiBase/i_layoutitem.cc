@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/02/2003
- RCS:           $Id: i_layoutitem.cc,v 1.5 2005-11-17 14:43:59 cvsarend Exp $
+ RCS:           $Id: i_layoutitem.cc,v 1.6 2005-11-17 15:04:09 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -788,9 +788,18 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 #ifdef __debug__
 bool i_LayoutItem::isAligned() const
 {
+#ifdef USEQT4
     for ( int idx=0; idx < constrList.size(); idx++ )
-    {
+#else
+    for ( constraintIterator it(constrList); 
+				uiConstraint* constr = it.current(); ++it )
+#endif
+    { 
+#ifdef USEQT4
 	constraintType tp = constrList[idx].type;
+#else
+	constraintType tp = constr->type;
+#endif
 	if ( tp >= alignedWith && tp <= centeredAbove )
 	    return true; 
     }
