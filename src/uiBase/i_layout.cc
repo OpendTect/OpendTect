@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.70 2005-11-17 14:43:59 cvsarend Exp $
+ RCS:           $Id: i_layout.cc,v 1.71 2005-11-17 14:55:51 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -375,7 +375,7 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 	    if ( (vs>1) || (vs==1 && !isPrefSz) )	add = true;
 	    else					vs=0;
 
-	    if ( add ) resizeList += new resizeItem( childrenList[idx], hs, vs);
+	    if ( add ) resizeList += new resizeItem( mCurChild, hs, vs);
         }
     } 
 }
@@ -847,7 +847,7 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
     for ( int idx=0; idx < childrenList.size(); idx++ )
 #else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
-		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+			i_LayoutItem* loop = childIter.current(); ++childIter )
 #endif
     {
 #ifdef USEQT4
@@ -865,8 +865,13 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 	return true;
     }
 
+#ifdef USEQT4
     const char* curnm =  current.objectName().toAscii().constData(); 
     const char* othnm =  other ? other->objectName().toAscii().constData() : "";
+#else
+    const char* curnm =  current.name();
+    const char* othnm =  other ? other->name() : "";
+#endif
     
     BufferString msg( "Cannot attach " );
     msg += curnm;

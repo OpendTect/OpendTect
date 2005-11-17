@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.35 2005-11-17 14:44:18 cvsarend Exp $
+ RCS:           $Id: i_layout.h,v 1.36 2005-11-17 14:55:58 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,7 @@ public:
     virtual QLayoutItem* takeAt(int idx);
     virtual int		 count() const;
 #else
+    virtual QLayoutIterator iterator();
     virtual QSizePolicy::ExpandData expanding() const;
 #endif
 
@@ -189,7 +190,7 @@ private:
 #ifdef USEQT4
     ObjectSet<i_LayoutItem> childrenList;
 #else
-    PtrList<i_LayoutItem> childrenList;
+    QPtrList<i_LayoutItem> childrenList;
 #endif
 
     uiRect		layoutpos[ nLayoutMode ];
