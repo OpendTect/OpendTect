@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.95 2005-11-11 22:36:08 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.96 2005-11-17 11:08:43 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -613,7 +613,12 @@ bool PlaneDataDisplay::setDataVolume( bool colordata,
 void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 				int datatype )
 {
+    visBase::VisColorTab& coltab = trect->getColorTab();
+    coltab.ref();
     trect->removeAllTextures( true );
+    trect->setColorTab( coltab );
+    coltab.unRef();
+
     if ( !datacubes )
     {
 	trect->setData( 0, 0, 0 );
