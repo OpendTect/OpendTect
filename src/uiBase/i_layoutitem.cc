@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/02/2003
- RCS:           $Id: i_layoutitem.cc,v 1.4 2004-04-28 21:30:59 bert Exp $
+ RCS:           $Id: i_layoutitem.cc,v 1.5 2005-11-17 14:43:59 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,14 +16,7 @@ ________________________________________________________________________
 #include "i_layoutitem.h"
 #include "uiobjbody.h"
 #include "uimainwin.h"
-/*
-#include <qptrlist.h>
-#include <qmenubar.h>
 
-#include <stdio.h>
-#include <iostream>
-#include <limits.h>
-*/
 #ifdef __debug__
 #define MAX_ITER	2000
 #else
@@ -34,17 +27,18 @@ ________________________________________________________________________
 //------------------------------------------------------------------------------
 
 i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm ) 
-    : mngr_( m ), mQLayoutItem_( itm ) 
+    : mngr_( m ), qlayoutitm( &itm ) 
     , preferred_pos_inited( false ), minimum_pos_inited( false )
     , prefSzDone( false ), hsameas( false ), vsameas( false )
 {
-    constrList.setAutoDelete(true); 
+#ifndef USEQT4
+     constrList.setAutoDelete(true); 
+#endif
 }
 
 i_LayoutItem::~i_LayoutItem()
 {
-
-    delete &mQLayoutItem_;
+    delete qlayoutitm;
 }
 
 
@@ -55,7 +49,7 @@ i_uiLayoutItem::~i_uiLayoutItem()
 
 void i_LayoutItem::invalidate() 
 { 
-    mQLayoutItem_.invalidate();
+    qlayoutitm->invalidate();
     preferred_pos_inited = false;
 }
 
@@ -97,7 +91,7 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
     }
 #endif
 
-    mQLayoutItem_.setGeometry ( QRect ( mPos.left(), mPos.top(), 
+    qlayoutitm->setGeometry ( QRect ( mPos.left(), mPos.top(), 
                                         mPos.hNrPics(), mPos.vNrPics() )); 
 }
 
@@ -276,9 +270,16 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
     bool updated = false;
     uiRect& mPos = curpos(lom);
 
+#ifdef USEQT4
+    for ( int idx=0; idx < constrList.size(); idx++ )
+#else
     for ( constraintIterator it(constrList);
 				uiConstraint* constr = it.current(); ++it )
+#endif
     {
+#ifdef USEQT4
+	uiConstraint* constr = &constrList[idx];
+#endif
 	const uiRect& otherPos 
 		= constr->other ? constr->other->curpos(lom) : curpos(lom);
 
@@ -653,86 +654,88 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
     return updated;
 }
 
+#ifdef USEQT4
+# define mAdd(constr) += constr
+#else
+# define mAdd(constr) .append(new constr)
+#endif
 
 void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other, 
 			    int margn, bool reciprocal )
 {
     if ( type != ensureLeftOf)
-	constrList.append( new uiConstraint( type, other, margn ) );
+	constrList mAdd( uiConstraint( type, other, margn ) );
 
     if( reciprocal && other )
     {
 	switch ( type )
 	{
 	case leftOf:
-	    other-> constrList.append(new uiConstraint( rightOf, this, margn ));
+	    other->constrList mAdd( uiConstraint( rightOf, this, margn ) );
 	break;
 
 	case rightOf:
-	    other-> constrList.append(new uiConstraint( leftOf, this, margn ));
+	    other->constrList mAdd( uiConstraint( leftOf, this, margn ) );
 	break;
 
 	case leftTo:
-	    other-> constrList.append(new uiConstraint( rightTo, this, margn));
+	    other->constrList mAdd( uiConstraint( rightTo, this, margn) );
 	break;
 
 	case rightTo:
-	    other-> constrList.append(new uiConstraint( leftTo, this, margn ));
+	    other->constrList mAdd( uiConstraint( leftTo, this, margn ) );
 	break;
 
 	case leftAlignedBelow:
-	    other-> constrList.append( 
-			    new uiConstraint( leftAlignedAbove, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( leftAlignedAbove, this, margn ) );
 	break;
 
 	case leftAlignedAbove:
-	    other-> constrList.append( 
-			    new uiConstraint( leftAlignedBelow, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( leftAlignedBelow, this, margn ) );
 	break;
 
 	case rightAlignedBelow:
-	    other-> constrList.append( 
-			    new uiConstraint( rightAlignedAbove, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( rightAlignedAbove, this, margn ) );
 	break;
 
 	case rightAlignedAbove:
-	    other-> constrList.append( 
-			    new uiConstraint( rightAlignedBelow, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( rightAlignedBelow, this, margn ) );
 	break;
 
 	case alignedWith:
-	    other-> constrList.append( 
-			    new uiConstraint( alignedWith, this, margn ));
+	    other->constrList mAdd( uiConstraint( alignedWith, this, margn ) );
 	break;
 
 	case alignedBelow:
-	    other-> constrList.append( 
-			    new uiConstraint( alignedAbove, this, margn ));
+	    other->constrList mAdd( uiConstraint( alignedAbove, this, margn ) );
 	break;
 
 	case alignedAbove:
-	    other-> constrList.append( 
-			    new uiConstraint( alignedBelow, this, margn ));
+	    other->constrList mAdd( uiConstraint( alignedBelow, this, margn ) );
 	break;
 
 	case centeredBelow:
-	    other-> constrList.append( 
-			    new uiConstraint( centeredAbove, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( centeredAbove, this, margn ) );
 	break;
 
 	case centeredAbove:
-	    other-> constrList.append( 
-			    new uiConstraint( centeredBelow, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( centeredBelow, this, margn ) );
 	break;
 
 	case centeredLeftOf:
-	    other-> constrList.append( 
-			    new uiConstraint( centeredRightOf, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( centeredRightOf, this, margn ) );
 	break;
 
 	case centeredRightOf:
-	    other-> constrList.append( 
-			    new uiConstraint( centeredLeftOf, this, margn ));
+	    other-> constrList mAdd(
+		    uiConstraint( centeredLeftOf, this, margn ) );
 	break;
 
 	case heightSameAs:
@@ -744,26 +747,25 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	break;
 
 	case ensureLeftOf:
-	    other-> constrList.append( 
-			    new uiConstraint( ensureRightOf, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( ensureRightOf, this, margn ) );
 	break;
 
 	case stretchedBelow:
 	break;
 
 	case stretchedAbove:
-	    other-> constrList.append( 
-			    new uiConstraint( ensureBelow, this, margn ));
+	    other->constrList mAdd( uiConstraint( ensureBelow, this, margn ) );
 	break;
 
 	case stretchedLeftTo:
-	    other-> constrList.append( 
-			    new uiConstraint( stretchedRightTo, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( stretchedRightTo, this, margn ) );
 	break;
 
 	case stretchedRightTo:
-	    other-> constrList.append( 
-			    new uiConstraint( stretchedLeftTo, this, margn ));
+	    other->constrList mAdd(
+		    uiConstraint( stretchedLeftTo, this, margn ) );
 	break;
 
 	case leftBorder:
@@ -786,10 +788,10 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 #ifdef __debug__
 bool i_LayoutItem::isAligned() const
 {
-    for ( constraintIterator it(constrList); 
-				uiConstraint* constr = it.current(); ++it )
+    for ( int idx=0; idx < constrList.size(); idx++ )
     {
-	if ( constr->type >= alignedWith && constr->type <= centeredAbove )
+	constraintType tp = constrList[idx].type;
+	if ( tp >= alignedWith && tp <= centeredAbove )
 	    return true; 
     }
 

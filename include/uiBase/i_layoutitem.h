@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.24 2003-11-07 12:21:53 bert Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.25 2005-11-17 14:44:18 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "uihandle.h"
 #include <qsize.h>
+#include <qwidget.h>
 
 class QLayoutItem;
 
@@ -61,7 +62,7 @@ public:
 					i_LayoutItem* self =
 					    const_cast<i_LayoutItem*>(this);
 					self->prefSzDone = true;
-					QSize ps( mQLayoutItem().sizeHint() );
+					QSize ps( qlayoutItm().sizeHint() );
 					self->prefSz = 
 					    uiSize(ps.width(),ps.height(),true);
 				    }
@@ -119,13 +120,22 @@ protected:
 							(this)->bodyLayouted(); 
 				}
 
-    inline QLayoutItem&		mQLayoutItem()		{ return mQLayoutItem_;}
-    inline const QLayoutItem&	mQLayoutItem() const 	{ return mQLayoutItem_;}
+    inline QLayoutItem&		qlayoutItm()	    { return *qlayoutitm; }
+    inline const QLayoutItem&	qlayoutItm() const  { return *qlayoutitm; }
+
+				// Immediately delete me if you take my
+				// qlayoutitm !!
+    inline QLayoutItem*		takeQlayoutItm()
+				{
+				    QLayoutItem* ret = qlayoutitm;
+				    qlayoutitm = 0;
+				    return ret;
+				}
 
     virtual const QWidget*	qwidget_() const 
-				    { return mQLayoutItem_.widget(); }
+				    { return qlayoutitm->widget(); }
     virtual const QWidget*	managewidg_() const 
-				    { return mQLayoutItem_.widget(); }
+				    { return qlayoutitm->widget(); }
 
     inline i_LayoutMngr& 	mngr()			{ return mngr_; } 
 
@@ -135,7 +145,7 @@ protected:
 
 private:
 
-    QLayoutItem&		mQLayoutItem_;
+    QLayoutItem*		qlayoutitm;
     i_LayoutMngr&		mngr_;
 
     constraintList		constrList;

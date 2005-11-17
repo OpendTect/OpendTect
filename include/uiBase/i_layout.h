@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.34 2003-11-07 12:21:53 bert Exp $
+ RCS:           $Id: i_layout.h,v 1.35 2005-11-17 14:44:18 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,13 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 #include <qlayout.h>
-#include <qptrlist.h>
 #include <qrect.h>
+
+#ifdef USEQT4
+# include "sets.h"
+#else
+# include <qptrlist.h>
+#endif
 
 class resizeItem;
 class Timer;
@@ -42,6 +47,16 @@ public:
 			    )
 				{ pErrMsg("No attachment defined!!"); }
 			}
+#ifdef USEQT4
+    inline bool		operator ==( const uiConstraint& oth ) const
+			{ return type == oth.type
+				&& other == oth.other
+				&& margin == oth.margin
+				&& enabled_ == oth.enabled_;
+			}
+    inline bool		operator !=( const uiConstraint& oth ) const
+			{ return !(*this == oth); }
+#endif
 
     bool		enabled()		{ return enabled_ ; }
     void		disable(bool yn=true)	{ enabled_ = !yn; }
@@ -53,8 +68,12 @@ protected:
     bool		enabled_;
 };
 
+#ifdef USEQT4
+typedef TypeSet<uiConstraint> constraintList;
+#else
 mTemplTypeDef(QPtrList,uiConstraint,constraintList)
 mTemplTypeDef(QPtrListIterator,uiConstraint,constraintIterator)
+#endif
 
 class i_LayoutItem;
 
@@ -98,7 +117,6 @@ class i_LayoutMngr : public QLayout, public UserIDObject
 {
     friend class	i_LayoutItem;
     friend class	uiGroupParentBody;
- //   friend class	i_uiGroupLayoutItem;
 
 public:
 
@@ -113,13 +131,18 @@ public:
     virtual QSize 	sizeHint() const;
     virtual QSize 	minimumSize() const;
 
-    virtual QLayoutIterator iterator();
+#ifdef USEQT4
+    virtual QLayoutItem* itemAt( int idx ) const;
+    virtual QLayoutItem* takeAt(int idx);
+    virtual int		 count() const;
+#else
     virtual QSizePolicy::ExpandData expanding() const;
+#endif
 
     virtual void       	invalidate();
     virtual void       	updatedAlignment(layoutMode);
     virtual void       	initChildLayout(layoutMode);
-	
+
     bool 		attach ( constraintType, QWidget&, QWidget*, int,
 				 bool reciprocal=true );
 
@@ -163,7 +186,11 @@ private:
 
     uiRect 		childrenRect( layoutMode m );
 
-    QPtrList<i_LayoutItem> childrenList;
+#ifdef USEQT4
+    ObjectSet<i_LayoutItem> childrenList;
+#else
+    PtrList<i_LayoutItem> childrenList;
+#endif
 
     uiRect		layoutpos[ nLayoutMode ];
     QRect		prefGeometry;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.69 2004-04-28 21:30:59 bert Exp $
+ RCS:           $Id: i_layout.cc,v 1.70 2005-11-17 14:43:59 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,11 +12,15 @@ ________________________________________________________________________
 #include "uilayout.h"
 #include "errh.h"
 
-#include "i_layoutiter.h"
 #include "i_layout.h"
+#include "i_layoutitem.h"
 #include "uiobjbody.h"
 #include "uimainwin.h"
 #include "timer.h"
+
+#ifndef USEQT4
+#include "i_layoutiter.h"
+#endif
 
 #include <stdio.h>
 
@@ -37,7 +41,12 @@ bool arend_debug=false;
 
 i_LayoutMngr::i_LayoutMngr( QWidget* parnt, 
 			    const char *name, uiObjectBody& mngbdy )
-    : QLayout(parnt,0,0,name), UserIDObject(name)
+#ifdef USEQT4
+    : QLayout(parnt)
+#else
+    : QLayout(parnt,0,0,name)
+#endif
+    , UserIDObject(name)
     , minimumDone(false), preferredDone(false), ismain(false)
     , prefposStored( false )
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
@@ -59,7 +68,11 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
 
     itm->deleteNotify( mCB(this,i_LayoutMngr,itemDel) );
 
+#ifdef USEQT4
+    childrenList += itm;
+#else
     childrenList.append( itm );
+#endif
 }
 
 
@@ -81,9 +94,14 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
     if ( !cb ) return;
 
     i_LayoutItem* itm = static_cast<i_LayoutItem*>( cb );
+    if ( !itm) { pErrMsg("huh?"); return; }
 
+#ifdef USEQT4
+    childrenList -= itm;
+#else
     if ( !childrenList.removeRef( itm ) )
 	pErrMsg("Removal of layoutitem failed.");
+#endif
 }
 
 
@@ -181,12 +199,12 @@ QSize i_LayoutMngr::sizeHint() const
     return QSize( mPos.hNrPics(), mPos.vNrPics() );
 }
 
-
+#ifndef USEQT4
 QSizePolicy::ExpandData i_LayoutMngr::expanding() const
 {
     return QSizePolicy::BothDirections;
 }
-
+#endif
 
 const uiRect& i_LayoutMngr::curpos(layoutMode lom) const 
 { 
@@ -224,12 +242,12 @@ uiRect i_LayoutMngr::winpos( layoutMode lom ) const
     return managedItem->mngr().winpos(lom);
 }
 
-
+#ifndef USEQT4
 QLayoutIterator i_LayoutMngr::iterator()
 {
     return QLayoutIterator( new i_LayoutIterator( &childrenList ) ) ;
 }
-
+#endif
 
 //! \internal class used when resizing a window
 class resizeItem
@@ -252,13 +270,23 @@ public:
 
 };
 
+#ifdef USEQT4
+# define mCurChild childrenList[idx]
+#else
+# define mCurChild curChld
+#endif
+
 
 void i_LayoutMngr::childrenClear( uiObject* cb )
 {
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	uiObject* cl = curChld->objLayouted();
+	uiObject* cl = mCurChild->objLayouted();
 	if ( cl && cl != cb ) cl->clear();
     }
 }
@@ -266,10 +294,14 @@ void i_LayoutMngr::childrenClear( uiObject* cb )
 
 bool i_LayoutMngr::isChild( uiObject* obj )
 {
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	uiObject* cl = curChld->objLayouted();
+	uiObject* cl = mCurChild->objLayouted();
 	if ( cl && cl == obj ) return true;
     }
     return false;
@@ -277,22 +309,26 @@ bool i_LayoutMngr::isChild( uiObject* obj )
 
 int i_LayoutMngr::childStretch( bool hor ) const
 {
+    int max=0;
 
-    int sum=0;
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	uiObjectBody* ccbl = curChld->bodyLayouted();
+	const uiObjectBody* ccbl = mCurChild->bodyLayouted();
 
 	if ( ccbl )
 	{
 	    int cs = ccbl->stretch( hor );
 	    if ( cs < 0 || cs > 2 ) { cs = 0; }
-	    sum = mMAX( sum, cs );
+	    max = mMAX( max, cs );
 	}
     }
 
-    return sum;
+    return max;
 }
 
 int i_LayoutMngr::horSpacing() const
@@ -303,10 +339,14 @@ int i_LayoutMngr::horSpacing() const
 
 void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 {
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	uiObjectBody* cl = curChld->bodyLayouted();
+	uiObjectBody* cl = mCurChild->bodyLayouted();
 	if ( cl && cl != cb ) cl->reDraw( deep );
     }
 
@@ -315,11 +355,15 @@ void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList, 
 				   bool isPrefSz )
 {
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	int hs = curChld->stretch(true);
-	int vs = curChld->stretch(false);
+	int hs = mCurChild->stretch(true);
+	int vs = mCurChild->stretch(false);
 
 	if ( hs || vs )
         {
@@ -331,7 +375,7 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 	    if ( (vs>1) || (vs==1 && !isPrefSz) )	add = true;
 	    else					vs=0;
 
-	    if ( add ) resizeList += new resizeItem( curChld, hs, vs );
+	    if ( add ) resizeList += new resizeItem( childrenList[idx], hs, vs);
         }
     } 
 }
@@ -339,10 +383,14 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 
 void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, layoutMode lom )
 {
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	uiRect& chldGeomtry = curChld->curpos(lom);
+	uiRect& chldGeomtry = mCurChild->curpos(lom);
 	chldGeomtry.topTo ( rTop );
 	chldGeomtry.leftTo ( rLeft );
     }
@@ -610,10 +658,14 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
 void i_LayoutMngr::childrenCommitGeometrySet( bool store2prefpos )
 {
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	curChld->commitGeometrySet( store2prefpos );
+	 mCurChild->commitGeometrySet( store2prefpos );
     }
 }
 
@@ -632,10 +684,14 @@ void i_LayoutMngr::doLayout( layoutMode lom, const QRect &externalRect )
     int mngrLeft = geomSetExt ? externalRect.left() + borderSpace()
 			      : borderSpace();
 
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
-    { 
-	curChld->initLayout( lom, mngrTop, mngrLeft ); 
+#endif
+    {
+	 mCurChild->initLayout( lom, mngrTop, mngrLeft ); 
     }
 
     layoutChildren(lom);
@@ -657,10 +713,14 @@ void i_LayoutMngr::layoutChildren( layoutMode lom, bool finalLoop )
     {
         bool child_updated = false;
 
-	for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
+    for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
-	{ 
-	    child_updated |= curChld->layout( lom, iternr, finalLoop ); 
+#endif
+	{
+	   child_updated |= mCurChild->layout( lom, iternr, finalLoop );
 	}
 
 	if ( !child_updated )		break;
@@ -676,11 +736,14 @@ uiRect i_LayoutMngr::childrenRect( layoutMode lom )
 {
     uiRect chldRect(-1,-1,-1,-1);
 
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
-	const uiRect* childPos = &curChld->curpos(lom);
-
+	const uiRect* childPos = &mCurChild->curpos(lom);
 
 	if ( (childPos->top() ) < chldRect.top() || chldRect.top() < 0 ) 
 			chldRect.setTop( childPos->top() );
@@ -711,32 +774,65 @@ uiRect i_LayoutMngr::childrenRect( layoutMode lom )
 
 void i_LayoutMngr::invalidate() 
 { 
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
-    { 
-	curChld->invalidate(); 
+#endif
+    {
+	 mCurChild->invalidate(); 
     }
 }
 
 void i_LayoutMngr::updatedAlignment(layoutMode lom)
 { 
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
-    { 
-	curChld->updatedAlignment(lom);
+#endif
+    {
+	 mCurChild->updatedAlignment(lom);
     }
 }
 
 void i_LayoutMngr::initChildLayout(layoutMode lom)
 { 
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
-    { 
-	curChld->initLayout( lom, -1, -1 );
+#endif
+    {
+	 mCurChild->initLayout( lom, -1, -1 );
     }
 }
 
+#ifdef USEQT4
+QLayoutItem* i_LayoutMngr::itemAt ( int idx ) const
+{
+    if ( idx >= 0 && idx < childrenList.size() && childrenList[idx] )
+	return &childrenList[idx]->qlayoutItm();
+    return 0; 
+}
 
+QLayoutItem* i_LayoutMngr::takeAt(int idx)
+{
+    i_LayoutItem* itm = childrenList[idx];
+    childrenList -= itm;
+
+    QLayoutItem* ret = itm->takeQlayoutItm(); delete itm;
+
+    return ret;
+}
+    
+int i_LayoutMngr::count () const
+    { return childrenList.size(); }
+
+#endif
 
 //! return true if successful
 bool i_LayoutMngr::attach ( constraintType type, QWidget& current, 
@@ -746,9 +842,18 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 	{ pErrMsg("Cannot attach an object to itself"); return false; }
     
     i_LayoutItem *cur=0, *oth=0;
+
+#ifdef USEQT4
+    for ( int idx=0; idx < childrenList.size(); idx++ )
+#else
     for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
-			i_LayoutItem* loop = childIter.current(); ++childIter )
+		    i_LayoutItem* curChld = childIter.current(); ++childIter )
+#endif
     {
+#ifdef USEQT4
+	i_LayoutItem* loop =  childrenList[idx];
+#endif
+
 	if ( loop->qwidget() == &current)	cur = loop;
         if ( loop->qwidget() == other)		oth = loop;
 	if ( cur && oth ) break;
@@ -760,8 +865,8 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 	return true;
     }
 
-    const char* curnm =  current.name();
-    const char* othnm =  other ? other->name() : "";
+    const char* curnm =  current.objectName().toAscii().constData(); 
+    const char* othnm =  other ? other->objectName().toAscii().constData() : "";
     
     BufferString msg( "Cannot attach " );
     msg += curnm;
