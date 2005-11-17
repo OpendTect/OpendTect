@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.75 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.76 2005-11-17 15:36:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ Scene::Scene()
     , mouseposval(0)
     , mouseposstr("")
     , zscalechange(this)
-    , curzscale(STM().defZScale())
+    , curzscale(-1)
     , datatransform( 0 )
 {
     events.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
@@ -62,7 +62,7 @@ void Scene::init()
     float zsc = STM().defZScale();
     SI().pars().get( STM().zScaleStr(), zsc );
     setZScale( zsc );
-    
+
     setAnnotationCube( cs );
     addInlCrlTObject( annot );
 }
@@ -345,6 +345,7 @@ void Scene::removeAll()
 {
     visBase::DataObjectGroup::removeAll();
     zscaletransform = 0; inlcrl2disptransform = 0; annot = 0;
+    curzscale = -1;
 }
 
 
