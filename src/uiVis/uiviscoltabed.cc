@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.12 2005-10-10 08:49:34 cvsduntao Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.13 2005-11-17 14:52:42 cvsbert Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -32,7 +32,12 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     ColorTable ct( ctname );
     ct.scaleTo( Interval<float>(0,1) );
 
-    coltabed = new ColorTableEditor( this, &ct, false, setkey, true, vert );
+    coltabed = new ColorTableEditor( this, ColorTableEditor::Setup()
+	    			     .editable(true)
+	    			     .withclip(true)
+	    			     .key(setkey)
+	    			     .vertical(vert),
+	    			     &ct );
     coltabed->tablechanged.notify(mCB(this, uiVisColTabEd, colTabEdChangedCB));
     visBase::DM().removeallnotify.notify(mCB(this,uiVisColTabEd,delColTabCB));
 }
