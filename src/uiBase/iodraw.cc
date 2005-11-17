@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.14 2005-11-17 13:01:30 cvsarend Exp $
+ RCS:           $Id: iodraw.cc,v 1.15 2005-11-17 13:17:09 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,11 @@ void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, int pt0, int nr )
     if ( !active() && !beginDraw() ) return;
 
     int nrpoints = nr > 0 ? nr : pts.size();
+#ifdef USEQT4
     QPolygon qarray(nrpoints);
+#else
+    QPointArray qarray(nrpoints);
+#endif
 
     for ( int idx=0; idx<nrpoints; idx++ )
 	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x(), pts[idx+pt0].y());
@@ -83,7 +87,11 @@ void ioDrawTool::drawPolygon( const TypeSet<uiPoint>& pts, int pt0, int nr )
     if ( !active() && !beginDraw() ) return;
 
     int nrpoints = nr > 0 ? nr : pts.size();
+#ifdef USEQT4
     QPolygon qarray(nrpoints);
+#else
+    QPointArray qarray(nrpoints);
+#endif
 
     for ( int idx=0; idx<nrpoints; idx++ )
 	qarray.setPoint( (unsigned int)idx, pts[idx+pt0].x(), pts[idx+pt0].y());
@@ -176,7 +184,11 @@ void ioDrawTool::drawRect ( int x, int y, int w, int h )
 Color ioDrawTool::backgroundColor() const
 {
     if ( !active() ) return Color::Black;
+#ifdef USEQT4
     return Color( qpainter->background().color().rgb() );
+#else
+    return Color( qpainter->backgroundColor().rgb() );
+#endif
 }
 
 
