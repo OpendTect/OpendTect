@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.37 2005-10-28 12:33:38 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.38 2005-11-17 11:08:22 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -534,7 +534,6 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     IbmFormat::putInt( seqnr++, buf );
     IbmFormat::putShort( 1, buf+88 );   // counit
     IbmFormat::putInt( ti.binid.inl, buf+4 );
-    IbmFormat::putInt( ti.binid.crl, buf+20 );
     if ( !hdef.isClashing(180) )
 	IbmFormat::putInt( mNINT(ti.coord.x * 10), buf+180 );
     if ( !hdef.isClashing(184) )
@@ -545,7 +544,9 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	IbmFormat::putInt( ti.binid.crl, buf+192 );
 
     // Now the more general standards
-    IbmFormat::putInt( ti.nr, buf+16 ); // put number at 'ep'
+    const bool is2d = SegyTxtHeader::info2d;
+    IbmFormat::putInt( is2d ? ti.nr : ti.binid.crl, buf+16 ); // ep
+    IbmFormat::putInt( is2d ? ti.binid.crl : ti.nr, buf+20 ); // cdp
     IbmFormat::putShort( 1, buf+28 );
     IbmFormat::putInt( mNINT(ti.offset), buf+36 );
     IbmFormat::putInt( mNINT(ti.azimuth*1e6), buf+40 );
