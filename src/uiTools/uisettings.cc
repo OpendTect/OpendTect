@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.13 2005-11-17 14:55:46 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.14 2005-11-17 15:25:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ struct LooknFeelSettings
 
 
 uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
-	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings",""))
+	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings","0.2.3"))
 	, setts(Settings::common())
     	, lfsetts(*new LooknFeelSettings)
 	, changed(false)
