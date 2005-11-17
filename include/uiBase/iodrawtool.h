@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.10 2005-01-26 13:26:01 duntao Exp $
+ RCS:           $Id: iodrawtool.h,v 1.11 2005-11-17 13:02:00 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "color.h"
 
 class QPaintDevice; 
-class QPaintDeviceMetrics; 
 class QPainter;
 class QPen;
 
@@ -29,6 +28,10 @@ class Alignment;
 class LineStyle;
 class MarkerStyle2D;
 
+#ifndef USEQT4
+class QPaintDeviceMetrics; 
+#endif
+
 
 //! Tool to draw on ioDrawArea's. Each ioDrawArea can give you a drawtool.
 class ioDrawTool
@@ -36,7 +39,6 @@ class ioDrawTool
 
     friend class	ioDrawAreaImpl;
     friend class	uiScrollViewBody;
-//    mTFriend		(T,i_drwblQObj);
 
 mProtected:
 			ioDrawTool( QPaintDevice* handle, int x_0=0, int y_0=0);
@@ -60,10 +62,10 @@ public:
     			    at idx1*/
 
     void		drawText( int x, int y, const char *, const Alignment&, 
-				  bool over=true, bool erase=false, int len=-1);
+				  bool over=true, bool erase=false);
     inline void		drawText(uiPoint p,const char * txt,const Alignment& al,
-				 bool over=true,bool erase=false,int len=-1)
-                        { drawText( p.x(), p.y(), txt, al, over, erase, len ); }
+				 bool over=true,bool erase=false)
+                        { drawText( p.x(), p.y(), txt, al, over, erase ); }
 
     void 		drawRect( int x, int y, int w, int h ); 
     inline void		drawRect( uiPoint topLeft, uiSize sz )
@@ -114,21 +116,21 @@ public:
     bool	        beginDraw(); 
     bool		endDraw();
 
-
     void		setRasterXor();
     void		setRasterNorm();
-
 
 protected:
 
     bool		setActivePainter( QPainter* );
 
 private:
-    QPainter*		mQPainter;
-    QPen&		mQPen;
-    bool		freeMQPainter;
-    QPaintDevice*	mQPaintDev;
-    QPaintDeviceMetrics* mQPaintDevMetrics;
+    QPainter*		qpainter;
+    QPen&		qpen;
+    bool		freeqpainter;
+    QPaintDevice*	qpaintdev;
+#ifndef USEQT4
+    QPaintDeviceMetrics* qpaintdevmetr;
+#endif
     bool		active_;
     int			x0;
     int			y0;
