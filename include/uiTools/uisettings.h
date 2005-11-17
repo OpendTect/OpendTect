@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.7 2005-11-02 16:47:06 cvsarend Exp $
+ RCS:		$Id: uisettings.h,v 1.8 2005-11-17 14:55:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 class Settings;
 class uiGenInput;
+class LooknFeelSettings;
 
 
 class uiSettings : public uiDialog
@@ -44,12 +45,13 @@ public:
 			uiLooknFeelSettings(uiParent*,const char* titl);
     virtual		~uiLooknFeelSettings();
 
+    bool		isChanged() const	{ return changed; }
+
 protected:
 
     Settings&		setts;
-    int			iconsz;
-    bool		isvert;
-    bool		isontop;
+    LooknFeelSettings&	lfsetts;
+    bool		changed;
 
     uiGenInput*		iconszfld;
     uiGenInput*		colbarhvfld;

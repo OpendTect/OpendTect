@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.12 2005-11-02 16:46:58 cvsarend Exp $
+ RCS:           $Id: uisettings.cc,v 1.13 2005-11-17 14:55:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,78 +76,93 @@ bool uiSettings::acceptOK( CallBacker* )
 #define mHVKey          "show vertical"
 #define mTopKey         "show on top"
 
+struct LooknFeelSettings
+{
+    		LooknFeelSettings()
+		    : iconsz( 24 )
+		    , isvert( true )
+		    , isontop( false )		{}
+
+    int		iconsz;
+    bool	isvert;
+    bool	isontop;
+};
+
 
 uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings",""))
 	, setts(Settings::common())
-	, iconsz( 24 )
-	, isvert( true )
-	, isontop( false )
+    	, lfsetts(*new LooknFeelSettings)
+	, changed(false)
 {
-
     IOPar* iopar = setts.subselect( "Icons" );
-    if ( iopar ) iopar->get( "size", iconsz );
-
-    iconszfld = new uiGenInput( this, "Icon Size", IntInpSpec(iconsz) );
-
-
-    iopar = setts.subselect( mCBarKey );
+    if ( iopar )
+	iopar->get( "size", lfsetts.iconsz );
+    delete iopar; iopar = setts.subselect( mCBarKey );
     if ( iopar )
     {
-	iopar->getYN( mHVKey, isvert );
-	iopar->getYN( mTopKey, isontop );
+	iopar->getYN( mHVKey, lfsetts.isvert );
+	iopar->getYN( mTopKey, lfsetts.isontop );
+	delete iopar;
     }
    
+    iconszfld = new uiGenInput( this, "Icon Size", IntInpSpec(lfsetts.iconsz) );
     colbarhvfld = new uiGenInput( this, "Color bar orientation",
-			      BoolInpSpec("Vertical", "Horizontal", isvert) );
+			  BoolInpSpec("Vertical","Horizontal",lfsetts.isvert) );
+    colbarhvfld->attach( alignedBelow, iconszfld );
 
     colbarontopfld = new uiGenInput( this, "Color bar starts on top",
-			      BoolInpSpec(0, 0, isontop) );
-    
-    colbarhvfld->attach( alignedBelow, iconszfld );
+			      BoolInpSpec(0, 0, lfsetts.isontop) );
     colbarontopfld->attach( alignedBelow, colbarhvfld );
 }
 
 uiLooknFeelSettings::~uiLooknFeelSettings()
 {
+    delete &lfsetts;
 }
+
 
 bool uiLooknFeelSettings::acceptOK( CallBacker* )
 {
-    bool changed = false;
-    int nwiconsz = iconszfld->getIntValue();
-    if ( nwiconsz > 1 && nwiconsz < 100 && nwiconsz != iconsz )
+    LooknFeelSettings newsetts;
+    newsetts.iconsz = iconszfld->getIntValue();
+    newsetts.isvert = colbarhvfld->getBoolValue();
+    newsetts.isontop = colbarontopfld->getBoolValue();
+
+    if ( newsetts.iconsz < 10 || newsetts.iconsz > 64 )
     {
-	iconsz = nwiconsz;
-	IOPar* iopar = setts.subselect( "Icons" );
-	if ( !iopar ) iopar = new IOPar;
-
-	iopar->set( "size", iconsz );
-
-	setts.mergeComp( *iopar, "Icons" );
-	changed = true;
+	uiMSG().error( "Please spcify a size in the range 10-64" );
+	return false;
     }
 
-    bool nwisvert = colbarhvfld->getBoolValue();
-    bool nwisontop = colbarontopfld->getBoolValue();
-
-    if ( isvert != nwisvert || isontop != nwisontop )
+    if ( newsetts.iconsz != lfsetts.iconsz )
     {
-	isvert = nwisvert;
-	isontop = nwisontop;
+	IOPar* iopar = setts.subselect( "Icons" );
+	if ( !iopar ) iopar = new IOPar;
+	iopar->set( "size", newsetts.iconsz );
+	setts.mergeComp( *iopar, "Icons" );
+	changed = true;
+	delete iopar;
+    }
 
+
+    if ( newsetts.isvert != lfsetts.isvert
+      || newsetts.isontop != lfsetts.isontop )
+    {
 	IOPar* iopar = setts.subselect( mCBarKey );
 	if ( !iopar ) iopar = new IOPar;
 
-	iopar->setYN( mHVKey, isvert );
-	iopar->setYN( mTopKey, isontop );
+	iopar->setYN( mHVKey, newsetts.isvert );
+	iopar->setYN( mTopKey, newsetts.isontop );
 
 	setts.mergeComp( *iopar, mCBarKey );
 	changed = true;
+	delete iopar;
     }
 
     if ( changed && !setts.write() )
     {
+	changed = false;
 	uiMSG().error( "Cannot write settings" );
 	return false;
     }

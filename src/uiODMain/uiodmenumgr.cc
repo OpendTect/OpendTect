@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.38 2005-11-02 16:49:08 cvsarend Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.39 2005-11-17 14:55:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.38 2005-11-02 16:49:08 cvsarend Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.39 2005-11-17 14:55:46 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -404,9 +404,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
     case mSettLkNFlMnuItm: {
 	uiLooknFeelSettings dlg( &appl, "Set Look and Feel Settings" );
-	dlg.go();
-	uiMSG().message("Settings will become active the next time\n" 
-			"OpendTect is started.");
+	if ( dlg.go() && dlg.isChanged() )
+	    uiMSG().message("Your new settings will become active\nthe next "
+		    	    "time OpendTect is started.");
     } break;
 
     case mSettGeneral: {
