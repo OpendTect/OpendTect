@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.8 2004-12-06 17:13:00 bert Exp $
+ RCS:           $Id: pixmap.h,v 1.9 2005-11-18 15:16:36 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ public:
 			ioPixmap() : qpixmap( 0 ) {}
 			ioPixmap(const ArrayRGB&);
 			ioPixmap(const char * xpm[]);
-			ioPixmap(int w, int h, int depth = -1);
+			ioPixmap(int w, int h );
 			ioPixmap(const QPixmap&);
 
 			/*! \brief Constructs a pixmap from the file fileName. 
@@ -47,7 +47,7 @@ public:
 			ioPixmap(const ioPixmap&);
     virtual		~ioPixmap();
 
-    bool		convertFromArrayRGB(const ArrayRGB&);
+    void		convertFromArrayRGB(const ArrayRGB&);
 
     QPixmap* 		Pixmap()		{ return qpixmap; }
     const QPixmap*  	Pixmap() const		{ return qpixmap; }

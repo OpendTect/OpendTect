@@ -7,14 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.8 2003-11-07 12:21:53 bert Exp $
+ RCS:           $Id: i_qbutton.h,v 1.9 2005-11-18 15:23:37 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <qobject.h>
-#include <qbutton.h>
 #include <uibutton.h>
+
+#ifdef USEQT4
+# define mButton QAbstractButton
+# include <qabstractbutton.h>
+#else
+# define mButton QButton
+# include <qbutton.h>
+#endif
 
 //! Help class, because templates can not use signals/slots
 /*!
@@ -25,7 +32,7 @@ class i_ButMessenger : public QObject
     Q_OBJECT
     friend class                uiButton;
 public:
-				i_ButMessenger( QButton*  sender,
+				i_ButMessenger( mButton*  sender,
                                        	  	uiButtonBody* receiver )
                                 : _receiver( receiver )
                                 , _sender( sender )
@@ -45,7 +52,7 @@ public:
 private:
 
     uiButtonBody*		_receiver;
-    QButton*			_sender;
+    mButton*			_sender;
 
 public slots:
 

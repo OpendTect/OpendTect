@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.8 2005-11-18 15:10:07 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,10 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include <qwidget.h>
 #include <iodrawimpl.h>
+
+#ifdef USEQT4
+# include <QPaintEvent>
+#endif
 
 
 /*! \brief template implementation for drawable objects

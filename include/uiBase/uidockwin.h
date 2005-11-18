@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uidockwin.h,v 1.9 2005-11-18 15:11:34 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,16 @@ ________________________________________________________________________
 #include <uiparent.h>
 #include <uihandle.h>
 
+#ifdef USEQT4
+# define mQDockWindow Q3DockWindow
+#else
+# define mQDockWindow QDockWindow
+#endif
+
 class uiDockWinBody;
 class uiObject;
 class uiGroup;
-class QDockWindow;
+class mQDockWindow;
 
 class uiDockWin : public uiParent
 {
@@ -41,7 +47,7 @@ public:
     void		setResizeEnabled(bool);
     bool		isResizeEnabled() const;
 
-    QDockWindow*	qwidget();
+    mQDockWindow*	qwidget();
 
 protected:
 
