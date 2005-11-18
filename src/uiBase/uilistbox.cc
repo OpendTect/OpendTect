@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.61 2005-11-18 13:21:08 cvsarend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.62 2005-11-18 14:04:32 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -283,7 +283,11 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
+#ifdef USEQT4
 	BufferString itmtxt( body_->text(idx).toAscii().constData() );
+#else
+	BufferString itmtxt( body_->text(idx) );
+#endif
 	char* ptr = itmtxt.buf();
 	skipLeadingBlanks( ptr );
 	if ( !strcmp(txt,ptr) ) return true;
