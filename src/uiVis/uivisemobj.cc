@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.33 2005-10-11 19:32:10 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.34 2005-11-18 12:50:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
 
-    uiCursorChanger cursorchanger(uiCursor::Wait);
+    uiCursorChanger cursorchanger( uiCursor::Wait );
 
     const MultiID mid = emod->getMultiID();
     EM::ObjectID emid = EM::EMM().getObjectID(mid);
@@ -232,6 +232,7 @@ const char* uiVisEMObject::getObjectType( int id )
 
 void uiVisEMObject::setDepthAsAttrib()
 {
+    uiCursorChanger cursorchanger( uiCursor::Wait );
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( emod ) emod->setDepthAsAttrib();
 }
