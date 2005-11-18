@@ -4,15 +4,29 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.10 2004-09-27 10:26:14 nanne Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.11 2005-11-18 16:21:30 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibuttongroup.h"
 #include "uiobjbody.h"
-#include <qbuttongroup.h>
-#include <qbutton.h>
+
+#ifdef USEQT4
+# define mQButtonGroup	Q3ButtonGroup
+# define mButton	QAbstractButton
+# define mHorizontal	Qt::Horizontal
+# define mVertical	Qt::Vertical
+# include <q3buttongroup.h>
+# include <qabstractbutton.h>
+#else
+# define mQButtonGroup	QButtonGroup
+# define mButton	QButton
+# define mHorizontal	Horizontal
+# define mVertical	Vertical
+# include <qbuttongroup.h>
+# include <qbutton.h>
+#endif
 
 #include "errh.h"
 
@@ -20,19 +34,19 @@ class uiButtonGroupObjBody;
 class uiButtonGroupParentBody;
 
 
-class uiButtonGroupObjBody : public uiObjectBody  , public QButtonGroup
+class uiButtonGroupObjBody : public uiObjectBody  , public mQButtonGroup
 {
 public:
 			uiButtonGroupObjBody(uiButtonGroupObj& handle, 
 					uiParent* parnt, const char* txt, 
                                         bool vertical, int strips )
 			: uiObjectBody( parnt, txt )
-			, QButtonGroup( strips, 
+			, mQButtonGroup( strips, 
 
-//					vertical ? Vertical : Horizontal, txt,
 // Qt seems to have a different notion of "Horizontal" then I have....
+					vertical ? mHorizontal: mVertical,
 
-					vertical ? Horizontal : Vertical, txt,
+					txt,
 					parnt && parnt->pbody() ?
 					parnt->pbody()->managewidg() : 0, txt )
 			, handle_( handle )	{}
@@ -41,7 +55,7 @@ public:
 
 #define mHANDLE_OBJ	uiButtonGroupObj
 #define mQWIDGET_BASE	QWidget
-#define mQWIDGET_BODY	QButtonGroup
+#define mQWIDGET_BODY	mQButtonGroup
 #include		"i_uiobjqtbody.h"
 
 public:
@@ -131,7 +145,7 @@ void uiButtonGroup::selectButton( int id )
 
 int uiButtonGroup::selectedId() const
 {
-    QButton* selbut = grpobj_->body_->selected();
+    mButton* selbut = grpobj_->body_->selected();
     return grpobj_->body_->id( selbut );
 }
 
@@ -144,7 +158,7 @@ int uiButtonGroup::nrButtons() const
 
 void uiButtonGroup::setSensitive( int id, bool yn )
 {
-    QButton* but = grpobj_->body_->find( id );
+    mButton* but = grpobj_->body_->find( id );
     if ( but ) but->setEnabled( yn );
 }
 
