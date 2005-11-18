@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.19 2005-03-01 13:59:58 cvsarend Exp $
+# $Id: od_cr_dev_env,v 1.20 2005-11-18 11:30:01 cvsbert Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -37,9 +37,12 @@ if ( "$HDIR" == "lux" ) then
     set cpcmd="cp -a"
 endif
 
-if ( ! -d "$inpdir"  ||  ! -e "$inpdir/.rel.od.doc" ) then
-    echo "$0 : $inpdir does not have the doc package installed"
+if ( ! -d "$inpdir" ) then
+    echo "$0 : $inpdir does not exist"
     exit 1
+endif
+if ( ! -e "$inpdir/.rel.od.doc" ) then
+    echo "$0 : warning : $inpdir does not have the doc package installed"
 endif
 
 if ( ! -w "$outdir"  ) then
@@ -88,7 +91,7 @@ mkdir so
 cd so
 
 
-$cpcmd "$inpdir/bin/$HDIR/so"/*.$soext .
+${cpcmd} "${inpdir}/bin/${HDIR}/so"/*.${soext}* .
 if ( "$HDIR" == "win" ) then
     $cpcmd "$inpdir/bin/$HDIR/so"/*.a .
 endif
@@ -103,7 +106,7 @@ foreach fil ( init.bash init.csh )
         "$inpdir/.$fil" > $fil
 end
 
-cp "$inpdir/.rel.od.doc" .
+if ( -e "$inpdir/.rel.od.doc" ) cp "$inpdir/.rel.od.doc" .
 
 if ( $instcyg == 1 ) then
     cd "${inpdir}\\bin\\win"
