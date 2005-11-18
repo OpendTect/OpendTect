@@ -1,7 +1,7 @@
 #!/bin/csh
 #__Pmake________________________________________________________________________
 #
-# $Id: get_full_libnames,v 1.3 2005-11-18 09:47:45 cvsbert Exp $
+# $Id: get_full_libnames,v 1.4 2005-11-18 15:29:17 cvsbert Exp $
 # This script returns the full libname for a given link directive
 #_______________________________________________________________________________
 
@@ -17,26 +17,26 @@ if( $HDIR == "win" ) then
     set libprfx=""
 endif
 
+# set verbose=yes
+# set echo=on
+
 foreach inp ( $* )
 
-    set lib=$inp
-    if ( -e $lib ) then
-	echo $lib
-    else
+    set libnm=$inp
 
-	if ( `echo $inp|awk '{print substr($1,1,2)=="-l"?1:0;}'` == 1 ) then
-	    set lib=`echo $inp|awk '{print substr($1,3,length($1))}'`
-	    set lib=${libprfx}${lib}.${archext}
-	else
-	    set lib=$lib:t
+    if ( -e $libnm || -d $libnm:h ) then
+
+	echo $libnm
+
+    else if ( `echo $inp|awk '{print substr($1,1,2)=="-l"?1:0;}'` == 1 ) then
+
+	set libnm=`echo $inp|awk '{print substr($1,3,length($1))}'`
+	set libnm=${libprfx}${libnm}.${archext}
+	if ( ! -e $WORK/lib/$libsubd/$libnm ) then
+	    set libnm=$libnm:r
+	    set libnm=${libnm}.${dynext}
 	endif
-
-	if ( ! -e $WORK/lib/$libsubd/$lib ) then
-	    set lib=$lib:r
-	    set lib=${libprfx}${lib}.${dynext}
-	endif
-
-	echo "$WORK/lib/$libsubd/$lib"
+	echo "$WORK/lib/$libsubd/$libnm"
 
     endif
 
