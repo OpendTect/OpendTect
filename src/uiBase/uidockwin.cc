@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.17 2004-07-13 08:49:30 dgb Exp $
+ RCS:           $Id: uidockwin.cc,v 1.18 2005-11-18 15:45:36 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,13 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiparentbody.h"
 
-#include <qdockwindow.h>
+#ifdef USEQT4
+# include <q3dockwindow.h>
+# define mQDockWindow Q3DockWindow
+#else
+# include <qdockwindow.h>
+# define mQDockWindow QDockWindow
+#endif
 
 #if defined( __mac__ ) || defined( __win__ )
 # define _redraw_hack_
@@ -22,7 +28,7 @@ ________________________________________________________________________
 
 
 class uiDockWinBody : public uiParentBody
-		    , public QDockWindow
+		    , public mQDockWindow
 {
 public:
 			uiDockWinBody( uiDockWin& handle, uiParent* parnt,
@@ -32,8 +38,8 @@ public:
     void		construct();
 
 #define mHANDLE_OBJ     uiDockWin
-#define mQWIDGET_BASE   QDockWindow
-#define mQWIDGET_BODY   QDockWindow
+#define mQWIDGET_BASE   mQDockWindow
+#define mQWIDGET_BODY   mQDockWindow
 #define UIBASEBODY_ONLY
 #define UIPARENT_BODY_CENTR_WIDGET
 #include                "i_uiobjqtbody.h"
@@ -48,7 +54,7 @@ protected:
 
     virtual void        resizeEvent( QResizeEvent* ev )
     {
-	QDockWindow::resizeEvent(ev);
+	mQDockWindow::resizeEvent(ev);
 
 	if ( redrtimer.isActive() ) redrtimer.stop();
 	redrtimer.start( 300, true );
@@ -57,7 +63,7 @@ protected:
 // not at moves...
     virtual void        moveEvent( QMoveEvent* ev )
     {
-	QDockWindow::moveEvent(ev);
+	mQDockWindow::moveEvent(ev);
 
 	if ( redrtimer.isActive() ) redrtimer.stop();
 	redrtimer.start( 300, true );
@@ -86,7 +92,7 @@ Timer uiDockWinBody::redrtimer;
 uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt, 
 			      const char* nm )
 	: uiParentBody( nm )
-	, QDockWindow( InDock, parnt && parnt->pbody() ?  
+	, mQDockWindow( InDock, parnt && parnt->pbody() ?  
 					parnt->pbody()->qwidget() : 0, nm ) 
 	, handle_( handle__ )
 	, initing( true )
@@ -187,5 +193,5 @@ bool uiDockWin::isResizeEnabled() const
     return body_->isResizeEnabled();
 }
 
-QDockWindow* uiDockWin::qwidget()
+mQDockWindow* uiDockWin::qwidget()
     { return body_; }
