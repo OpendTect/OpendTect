@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.13 2005-11-18 13:16:58 cvsarend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.14 2005-11-18 13:19:52 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 #ifdef USEQT4
 # define mQListView		Q3ListView
-# define mQCheckListItem        mQCheckListItem
+# define mQCheckListItem        Q3CheckListItem
 #else
 # define mQListView		QListView
 # define mQCheckListItem        QCheckListItem
