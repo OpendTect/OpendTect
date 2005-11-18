@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.26 2005-11-18 16:55:36 cvsarend Exp $
+ RCS:           $Id: uibutton.cc,v 1.27 2005-11-18 17:08:51 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,8 +22,10 @@ ________________________________________________________________________
 
 #ifdef USEQT4
 # define mTxt 
+# define mQIcon QIcon
 #else
 # define mTxt  ,txt
+# define mQIcon QIconSet
 #endif 
 
 //! Wrapper around QButtons. 
@@ -52,7 +54,7 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
 				     const ioPixmap& pm,
 				     uiParent* parnt, const char* txt)
 			    : uiObjectBody( parnt, txt )
-			    , T( QIcon(*pm.Pixmap()),txt, 
+			    , T( mQIcon(*pm.Pixmap()),txt, 
 					parnt && parnt->pbody() ?
 					parnt->pbody()->managewidg() : 0 mTxt )
                             , handle_( handle )
