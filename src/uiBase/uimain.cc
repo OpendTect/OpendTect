@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.26 2005-11-16 15:44:07 cvsarend Exp $
+ RCS:           $Id: uimain.cc,v 1.27 2005-11-18 10:38:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,12 +124,13 @@ void uiMain::init( QApplication* qap, int argc, char **argv )
 	Settings::common().write();
     }
 
+    delete iopar;
 
     //FIXME: implement for QT4
 #ifndef USEQT4
-    QIconSet::setIconSize ( QIconSet::Small, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize ( QIconSet::Automatic, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize ( QIconSet::Large, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize( QIconSet::Small, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize( QIconSet::Automatic, QSize(iconsz,iconsz) );
+    QIconSet::setIconSize( QIconSet::Large, QSize(iconsz,iconsz) );
 #endif
 
     QApplication::setColorSpec( QApplication::ManyColor );
