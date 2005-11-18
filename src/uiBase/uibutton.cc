@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.25 2005-09-06 08:41:44 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.26 2005-11-18 16:55:36 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,22 +20,26 @@ ________________________________________________________________________
 #include <qcheckbox.h>
 #include <qtoolbutton.h>
 
+#ifdef USEQT4
+# define mTxt 
+#else
+# define mTxt  ,txt
+#endif 
+
 //! Wrapper around QButtons. 
 /*!
-    Extends each Qbutton class <T> with a i_ButMessenger, which connects itself 
-    to the signals transmitted from Qt buttons.
-    Each signal is relayed to the notifyHandler of a uiButton handle object.
+    Extends each QButton class <T> with a i_ButMessenger, which connects
+    itself to the signals transmitted from Qt buttons.  Each signal is
+    relayed to the notifyHandler of a uiButton handle object.
 */
-template< class T >
-class uiButtonTemplBody : public uiButtonBody, public uiObjectBody, public T
-{
-public:
+template< class T > class uiButtonTemplBody : public uiButtonBody,
+    public uiObjectBody, public T { public:
 
 			uiButtonTemplBody( uiButton& handle, uiParent* parnt,
 					   const char* txt )
 			    : uiObjectBody( parnt, txt )
                             , T( parnt && parnt->pbody() ?
-				  parnt->pbody()->managewidg() : 0 , txt )
+				      parnt->pbody()->managewidg() : 0 mTxt )
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
@@ -48,9 +52,9 @@ public:
 				     const ioPixmap& pm,
 				     uiParent* parnt, const char* txt)
 			    : uiObjectBody( parnt, txt )
-			    , T( QIconSet(*pm.Pixmap()),txt, 
-				parnt && parnt->pbody() ?
-				  parnt->pbody()->managewidg() : 0, txt )
+			    , T( QIcon(*pm.Pixmap()),txt, 
+					parnt && parnt->pbody() ?
+					parnt->pbody()->managewidg() : 0 mTxt )
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
@@ -66,8 +70,8 @@ public:
 
     virtual		~uiButtonTemplBody()		{ delete &messenger_; }
 
-    virtual QButton&    qButton() = 0;
-    inline const QButton& qButton() const
+    virtual mButton&    qButton() = 0;
+    inline const mButton& qButton() const
                         { return ((uiButtonTemplBody*)this)->qButton(); }
 
     virtual int 	nrTxtLines() const		{ return 1; }
@@ -96,7 +100,7 @@ public:
 			    : uiButtonTemplBody<QPushButton>
 					(handle,pm,parnt,txt)		{}
 
-    virtual QButton&    qButton()		{ return *this; }
+    virtual mButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -113,7 +117,7 @@ public:
 			    : uiButtonTemplBody<QRadioButton>(handle,parnt,txt)
 			    {}
 
-    virtual QButton&    qButton()		{ return *this; }
+    virtual mButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -131,7 +135,7 @@ public:
 			    : uiButtonTemplBody<QCheckBox>(handle,parnt,txt)
 			    {}
 
-    virtual QButton&    qButton()		{ return *this; }
+    virtual mButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -148,7 +152,7 @@ public:
 			    : uiButtonTemplBody<QToolButton>(handle,parnt,txt)
 			    {}
 
-    virtual QButton&    qButton()		{ return *this; }
+    virtual mButton&    qButton()		{ return *this; }
 
 
 protected:
@@ -158,7 +162,7 @@ protected:
 };
 
 
-#define mqbut()         dynamic_cast<QButton*>( body() )
+#define mqbut()         dynamic_cast<mButton*>( body() )
 
 uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
 		    uiObjectBody& b  )
@@ -176,7 +180,11 @@ void uiButton::setText( const char* txt )
 
 
 const char* uiButton::text()
+#ifdef USEQT4
+    { return mqbut()->text().toAscii().constData(); }
+#else
     { return mqbut()->text(); }
+#endif
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm )
@@ -321,15 +329,31 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
     return *body_;
 }
 
+#ifdef USEQT4
+# define mIsOn			isChecked
+# define mSetOn			setChecked
+# define mIsToggleButton	isCheckable
+# define mSetToggleButton	setChecked
+#else
+# define mIsOn			isOn
+# define mSetOn			setOn
+# define mIsToggleButton	isToggleButton
+# define mSetToggleButton	setToggleButton
+#endif
 
-bool uiToolButton::isOn()		{ return body_->isOn(); }
-void uiToolButton::setOn( bool yn)	{ body_->setOn(yn); }
 
-bool uiToolButton::isToggleButton()	     { return body_->isToggleButton(); }
-void uiToolButton::setToggleButton( bool yn) { body_->setToggleButton(yn); }
+bool uiToolButton::isOn()		{ return body_->mIsOn(); }
+void uiToolButton::setOn( bool yn)	{ body_->mSetOn(yn); }
+
+bool uiToolButton::isToggleButton()     { return body_->mIsToggleButton(); }
+void uiToolButton::setToggleButton( bool yn) { body_->mSetToggleButton(yn); }
 
 
 void uiToolButton::setPixmap( const ioPixmap& pm )
 {
+#ifdef USEQT4
+    body_->setIcon( QIcon(*pm.Pixmap()) );
+#else
     body_->setIconSet( QIconSet(*pm.Pixmap()) );
+#endif
 }
