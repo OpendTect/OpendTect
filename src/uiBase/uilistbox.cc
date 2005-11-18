@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.60 2005-09-28 21:13:24 cvskris Exp $
+ RCS:           $Id: uilistbox.cc,v 1.61 2005-11-18 13:21:08 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,14 @@ ________________________________________________________________________
 
 #include "i_qlistbox.h"
 
+#ifdef USEQT4
+# define mQListBox	Q3ListBox
+#else
+# define mQListBox	QListBox
+#endif
 
 
-class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListBox>
+class uiListBoxBody : public uiObjBodyImpl<uiListBox,mQListBox>
 {
 
 public:
@@ -64,12 +69,12 @@ private:
 uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt, 
 			const char* nm, bool isMultiSelect,
 			int preferredNrLines, int preferredFieldWidth )
-	: uiObjBodyImpl<uiListBox,QListBox>( handle, parnt, nm )
+	: uiObjBodyImpl<uiListBox,mQListBox>( handle, parnt, nm )
 	, messenger_ (*new i_listMessenger(this, &handle))
 	, fieldWdt(preferredFieldWidth)
 	, prefnrlines(preferredNrLines)
 {
-    if ( isMultiSelect ) setSelectionMode( QListBox::Extended );
+    if( isMultiSelect ) setSelectionMode( mQListBox::Extended );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
 
@@ -115,13 +120,13 @@ void uiListBox::setLines( int prefNrLines, bool adaptVStretch )
 
 void uiListBox::setNotSelectable()
 {
-    body_->setSelectionMode( QListBox::NoSelection );
+    body_->setSelectionMode( mQListBox::NoSelection );
 }
 
 
 void uiListBox::setMultiSelect( bool yn )
 {
-    body_->setSelectionMode( yn ? QListBox::Extended : QListBox::Single );
+    body_->setSelectionMode( yn ? mQListBox::Extended : mQListBox::Single );
 }
 
 
@@ -154,7 +159,7 @@ void uiListBox::setSelected( int idx, bool yn )
 
 void uiListBox::selectAll( bool yn )
 {
-    if ( yn && body_->selectionMode() != QListBox::Extended ) return;
+    if ( body_->selectionMode() != mQListBox::Extended ) return;
 
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
@@ -251,7 +256,7 @@ ioPixmap* uiListBox::pixmap( int index )
 
 void uiListBox::empty()
 {
-    body_->QListBox::clear();
+    body_->mQListBox::clear();
 }
 
 
@@ -278,7 +283,7 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	BufferString itmtxt( body_->text(idx) );
+	BufferString itmtxt( body_->text(idx).toAscii().constData() );
 	char* ptr = itmtxt.buf();
 	skipLeadingBlanks( ptr );
 	if ( !strcmp(txt,ptr) ) return true;
@@ -337,7 +342,7 @@ void uiListBox::setCurrentItem( int idx )
     if ( idx >= 0 && idx < body_->count() )
     {
 	body_->setCurrentItem( idx );
-	if ( body_->selectionMode() != QListBox::Extended )
+	if ( body_->selectionMode() != mQListBox::Extended )
 	    setSelected( idx );
     }
 }

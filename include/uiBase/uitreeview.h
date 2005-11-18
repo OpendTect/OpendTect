@@ -7,16 +7,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.10 2005-08-15 16:17:29 cvsbert Exp $
+ RCS:           $Id: uitreeview.h,v 1.11 2005-11-18 13:17:00 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
 #include "bufstringset.h"
+
+#ifdef USEQT4
+# define mQListViewItem	Q3ListViewItem
+#else
+# define mQListViewItem	QListViewItem
+#endif
+
 class uiListViewBody;
 class uiListViewItem;
-class QListViewItem;
+class mQListViewItem;
 class ioPixmap;
 
 
@@ -139,7 +146,7 @@ protected:
     mutable BufferString rettxt;
     uiListViewItem*	lastitemnotified;
 
-    void		setNotifiedItem( QListViewItem* );
+    void		setNotifiedItem( mQListViewItem* );
 
     uiListViewBody*	lvbody()	{ return body_; }
 
@@ -269,11 +276,11 @@ public:
 
     Notifier<uiListViewItem> stateChanged; //!< only works for CheckBox type
 
-    static QListViewItem*	 qitemFor( uiListViewItem* );
-    static const QListViewItem*  qitemFor( const uiListViewItem* );
+    static mQListViewItem*	 qitemFor( uiListViewItem* );
+    static const mQListViewItem*  qitemFor( const uiListViewItem* );
 
-    static uiListViewItem* 	 itemFor( QListViewItem* );
-    static const uiListViewItem* itemFor( const QListViewItem* );
+    static uiListViewItem* 	 itemFor( mQListViewItem* );
+    static const uiListViewItem* itemFor( const mQListViewItem* );
 
 protected:
 
