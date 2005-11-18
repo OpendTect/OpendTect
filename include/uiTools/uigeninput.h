@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.30 2005-02-23 14:47:04 cvsarend Exp $
+ RCS:           $Id: uigeninput.h,v 1.31 2005-11-18 16:56:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ For example, limits might have been set/changed.
 \sa  bool newSpec(DataInpSpec* nw, int nr)
  
 */
-    const DataInpSpec*	spec( int nr ) const;
+    const DataInpSpec*	dataInpSpec(int nr=0) const;
 
 /*! \brief makes it possible to change the actual spec for an input field.
 
@@ -95,7 +95,7 @@ Returns true, if changes are accepted.
 */
     bool		newSpec(const DataInpSpec& nw, int nr);
 
-    //! update spec() from current values on screen.
+    //! update dataInpSpec() from current values on screen.
     void		updateSpecs();
 
     bool		isUndef( int nr=0 ) const;
@@ -251,7 +251,7 @@ protected:
     inline DataInpSpec*	spec( int nr )
 			{
 			    return const_cast<DataInpSpec*>
-				( ((const uiGenInput*)this)->spec(nr) );
+				( ((const uiGenInput*)this)->dataInpSpec(nr) );
 			}
 
 private:

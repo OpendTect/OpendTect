@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.70 2005-09-19 12:06:47 cvsnanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.71 2005-11-18 16:56:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -708,7 +708,7 @@ void uiGenInput::addInput( const DataInpSpec& inp )
 }
 
 
-const DataInpSpec* uiGenInput::spec( int nr ) const
+const DataInpSpec* uiGenInput::dataInpSpec( int nr ) const
 { 
     if ( finalised ) 
 	return( nr >= 0 && nr<flds.size() && flds[nr] ) ? &flds[nr]->spec(): 0;
