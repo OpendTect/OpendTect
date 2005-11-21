@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: i_qtabbar.h,v 1.5 2005-11-18 15:21:25 cvsarend Exp $
+ RCS:           $Id: i_qtabbar.h,v 1.6 2005-11-21 08:51:58 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,6 @@ ________________________________________________________________________
 #include <qobject.h>
 #include <qtabbar.h>
 
-#ifdef USEQT4
-# define mSelected currentChanged
-#else
-# define mSelected selected
-#endif
 
 //! Helper class for uitabbar to relay Qt's 'currentChanged' messages to uiMenuItem.
 /*!
@@ -38,8 +33,13 @@ protected:
 			: _sender( sender )
 			, _receiver( receiver )
 			{ 
-			    connect( sender, SIGNAL( mSelected(int) ),
+#ifdef USEQT4
+			    connect( sender, SIGNAL( currentChanged(int) ),
 				     this,   SLOT( selected(int)) );
+#else
+			    connect( sender, SIGNAL( selected(int) ),
+				     this,   SLOT( selected(int)) );
+#endif
 			}
 
     virtual		~i_tabbarMessenger() {}
