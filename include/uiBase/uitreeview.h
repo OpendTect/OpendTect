@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.11 2005-11-18 13:17:00 cvsarend Exp $
+ RCS:           $Id: uitreeview.h,v 1.12 2005-11-21 10:04:00 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,16 +16,16 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 #ifdef USEQT4
-# define mQListViewItem	Q3ListViewItem
+  class Q3ListViewItem;
+  typedef Q3ListViewItem mQListViewItem;
 #else
-# define mQListViewItem	QListViewItem
+  class QListViewItem;
+  typedef QListViewItem mQListViewItem;
 #endif
 
 class uiListViewBody;
 class uiListViewItem;
-class mQListViewItem;
 class ioPixmap;
-
 
 class uiListView : public uiObject
 {
