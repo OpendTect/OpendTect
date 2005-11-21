@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.12 2005-11-21 10:04:00 cvsarend Exp $
+ RCS:           $Id: uitreeview.h,v 1.13 2005-11-21 11:19:57 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,12 @@ ________________________________________________________________________
 
 #ifdef USEQT4
   class Q3ListViewItem;
-  typedef Q3ListViewItem mQListViewItem;
+# define mQListViewItem Q3ListViewItem
+# define mQListView	Q3ListView
 #else
   class QListViewItem;
-  typedef QListViewItem mQListViewItem;
+# define mQListViewItem QListViewItem
+# define mQListView	QListView
 #endif
 
 class uiListViewBody;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.14 2005-11-18 13:19:52 cvsarend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.15 2005-11-21 11:20:39 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "pixmap.h"
 
-#include "i_qlistview.h"
 
 #include <qsize.h>
 #include <qpixmap.h>
@@ -23,9 +22,11 @@ ________________________________________________________________________
 #ifdef USEQT4
 # define mQListView		Q3ListView
 # define mQCheckListItem        Q3CheckListItem
+#include "i_q4listview.h"
 #else
 # define mQListView		QListView
 # define mQCheckListItem        QCheckListItem
+#include "i_qlistview.h"
 #endif
 
 
