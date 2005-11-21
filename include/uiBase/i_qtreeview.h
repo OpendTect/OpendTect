@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.1 2005-11-21 11:19:57 cvsarend Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.2 2005-11-21 12:35:19 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class i_listVwMessenger : public QObject
     friend class	uiListViewBody;
 
 protected:
-			i_listVwMessenger( mQListView&  sender, 
+			i_listVwMessenger( Q3ListView&  sender, 
 					   uiListView& receiver )
 			    : _sender( sender ) , _receiver( receiver )
     { 
@@ -104,7 +104,7 @@ protected:
 private:
 
     uiListView&		_receiver;
-    mQListView& 	_sender;
+    Q3ListView& 	_sender;
 
 private slots:
 
@@ -186,6 +186,25 @@ private slots:
 		    _receiver.onItem.trigger(_receiver);
 		}
 
+    void	expanded( QListViewItem* item )
+		{
+		    setNotifiedItem( item );
+		    _receiver.expanded.trigger(_receiver);
+		}
+
+    void	collapsed( QListViewItem* item )
+		{
+		    setNotifiedItem( item );
+		    _receiver.collapsed.trigger(_receiver);
+		}
+/*
+    void dropped( QDropEvent *e );
+*/
+    void	itemRenamed( QListViewItem* item, int col  )
+		{
+		    setNotifiedItem( item );
+		    _receiver.itemRenamed.trigger(_receiver);
+		}
 };
 
 #endif
