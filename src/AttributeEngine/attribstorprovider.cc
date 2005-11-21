@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.33 2005-11-14 11:17:27 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.34 2005-11-21 12:33:52 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -199,6 +199,9 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 
 	status = Ready;
     }
+
+    if ( getDesc().is2D() )
+	prevtrcnr = currentbid.crl;
 
     bool validstartpos = startpos != BinID(-1,-1);
     if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )

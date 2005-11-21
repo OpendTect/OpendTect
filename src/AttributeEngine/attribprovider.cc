@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.46 2005-11-14 11:17:26 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.47 2005-11-21 12:33:52 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -166,6 +166,7 @@ Provider::Provider( Desc& nd )
     , curtrcinfo_(0)
     , extraz_(0,0)
     , trcinfobid( -1, -1 )
+    , prevtrcnr( 0 )
 {
     mRefCountConstructor;
     desc.ref();
@@ -406,6 +407,9 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	startpos = BinID(-1,-1);
     
     bool docheck = startpos == BinID(-1,-1);
+    
+    if ( getDesc().descSet()->is2D() )
+	prevtrcnr = currentbid.crl;
 
     bool needmove;
     bool docontinue = true;
@@ -434,8 +438,6 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	}
 	if ( !needmove || docheck ) 
 	    docontinue = false;
-	else
-	    resetMoved();
 	
 	if ( !docheck && seldata_ && seldata_->type_ == Seis::Table 
 	     && firstcheck )
@@ -458,6 +460,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	
 		startpos = newstart;
 		firstcheck = false;
+		resetMoved();
 	    }
 	}
     }
@@ -487,9 +490,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    }
 	}
 	else if ( needmove )
-	{
 	    currentbid = BinID(-1,-1);
-	}
 
 	setCurrentPosition(currentbid);
 	return 1;
@@ -568,31 +569,42 @@ void Provider::computeNewStartPos( BinID& newstart )
 
 int Provider::checkInputsPos( ObjectSet<Provider>& movinginputs )
 {
+    bool idxnewline = false;
+    bool idynewline = false;
+    bool is2d = getDesc().descSet()->is2D();
+    
     for ( int idx=0; idx<movinginputs.size()-1; idx++ )
     {
+	if ( is2d )
+	    idxnewline = movinginputs[idx]->isNew2DLine();
+	
 	for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
 	{
 	    bool idxmoved = false;
+	    if ( is2d )
+		idynewline = movinginputs[idy]->isNew2DLine();
 
 	    while ( true )
 	    {
 		int compres = movinginputs[idx]->getSeisRequester()->
 		       comparePos( *movinginputs[idy]->getSeisRequester() );
-		if ( compres == -1 )
+	
+		if ( compres == 0 )
+		    break;
+		
+		if ( ( compres == -1 && !idxnewline ) || idynewline )
 		{
 		    idxmoved = true;
 		    movinginputs[idx]->resetMoved();
 		    const int res = movinginputs[idx]->moveToNextTrace();
 		    if ( res != 1 ) return res;
 		}
-		else if ( compres == 1 )
+		else if ( compres == 1 || idxnewline )
 		{
 		    movinginputs[idy]->resetMoved();
 		    const int res = movinginputs[idy]->moveToNextTrace();
 		    if ( res != 1 ) return res;
 		}
-		else 
-		    break;
 	    }
 
 	    if ( idxmoved )
@@ -617,10 +629,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
     if ( currentbid == BinID(-1,-1) )
 	currentbid = bid;
     else if ( bid != currentbid )
-    {
-	pErrMsg( "Huh? (should never happen)");
 	return false;
-    }
     
     if ( linebuffer )
     {
