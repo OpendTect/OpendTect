@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.62 2005-11-18 14:04:32 cvsdgb Exp $
+ RCS:           $Id: uilistbox.cc,v 1.63 2005-11-21 12:43:59 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,12 @@ ________________________________________________________________________
 #include "color.h"
 #include "pixmap.h"
 
-#include "i_qlistbox.h"
 
 #ifdef USEQT4
+# include "i_q4listbox.h"
 # define mQListBox	Q3ListBox
 #else
+# include "i_qlistbox.h"
 # define mQListBox	QListBox
 #endif
 

@@ -1,5 +1,5 @@
-#ifndef i_qlistview_H
-#define i_qlistview_H
+#ifndef i_q4listview_H
+#define i_q4listview_H
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.2 2005-11-21 12:35:19 cvsarend Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.3 2005-11-21 12:44:20 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
