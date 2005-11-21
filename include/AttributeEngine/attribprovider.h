@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.28 2005-11-14 11:17:34 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.29 2005-11-21 12:30:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,6 +146,8 @@ protected:
 
     void			setUsedMultTimes();
     bool			isUsedMultTimes()  { return isusedmulttimes; }
+    bool			isNew2DLine() const
+    				{ return prevtrcnr > currentbid.crl; }
 
     virtual const BinID*	desStepout(int input, int output) const;
     virtual const BinID*	reqStepout(int input, int output) const;
@@ -173,6 +175,7 @@ protected:
     ObjectSet<BasicTask>	computetasks;
     DataHolderLineBuffer*	linebuffer;
     BinID			currentbid;
+    int				prevtrcnr;
     LineKey			curlinekey_;
     const SeisSelData*		seldata_;
     Interval<float>     	extraz_;
