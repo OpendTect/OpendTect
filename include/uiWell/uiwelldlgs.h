@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.18 2005-10-31 14:56:02 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.19 2005-11-22 08:04:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,19 +162,56 @@ protected:
     void			writeLogs(StreamData&);
 };
 
+/*! \brief dialog for storing edited or home-made wells*/
 
-class uiWellNameDlg : public uiDialog
+class Coord3;
+class uiStoreWellDlg : public uiDialog
 {
 public:
-    				uiWellNameDlg(uiParent*);
+    				uiStoreWellDlg(uiParent*);
+				~uiStoreWellDlg();
+    void			setWellCoords(const TypeSet<Coord3>& newcoords)
+				{ wellcoords_ = newcoords; }
 				
-    const char*			wellname;
-
 protected:
-    uiIOObjSel*         	nmfld;
-    CtxtIOObj*			ctio;
+				
+    uiFileInput*        d2tfld;
+    uiGenInput*         tvdfld;
+    uiGenInput*		unitfld;
+    uiIOObjSel*         outfld;
+    uiGenInput*		usemodelfld;
+    uiGenInput*		constvelfld;
+
+    virtual bool       	acceptOK(CallBacker*);
+    bool                checkInpFlds();
+    void		modelSel(CallBacker*);
+    bool		storeWell();
+    bool		setWellTrack(Well::Data*);
+
+    CtxtIOObj&		ctio_;
+    TypeSet<Coord3>	wellcoords_;
+
+};
+
+
+/*! \brief dialog for user made wells */
+
+class uiColorInput;
+class uiNewWellDlg : public uiDialog
+{
+public:
+    				uiNewWellDlg(uiParent*);
+    const Color&		getWellColor();
+    const char* 		getName() const;
+				
+protected:
+    uiGenInput*         	nmfld;
+    uiColorInput*		colsel;
 
     virtual bool        	acceptOK(CallBacker*);
+
+private:
+    static int          	defcolnr;
 
 }; 
 #endif

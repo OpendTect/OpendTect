@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.16 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.17 2005-11-22 08:04:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class MultiID;
 class Coord3;
 class Coord;
+class Color;
 template <class T> class Interval;
 class uiWell2RandomLineDlg;
 
@@ -48,12 +49,14 @@ public:
     
     void			createWellFromPicks();
     const char*			askWellName();
+    void			setupNewWell(BufferString&, Color&);
 
     bool			storeWell(const TypeSet<Coord3>&, const char*);
 
     static const int            evPreviewRdmLine;
     static const int            evCreateRdmLine;
-
+    static const int		evCleanPreview;
+    
 protected:
 
     uiWell2RandomLineDlg*	rdmlinedlg;

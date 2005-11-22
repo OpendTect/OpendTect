@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.107 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.108 2005-11-22 08:04:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -670,6 +670,12 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 			visserv->getObject(rdmlineid));
 	rtd->setKnotPositions( bidset );
+	enableTree( true );
+	enableMenusAndToolbars( true );
+    }
+    if ( evid == uiWellPartServer::evCleanPreview )
+    {
+	visserv->cleanPreview();
 	enableTree( true );
 	enableMenusAndToolbars( true );
     }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.18 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.19 2005-11-22 08:04:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,12 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiwelldlgs.h"
 #include "ptrman.h"
+#include "color.h"
 
 
 const int uiWellPartServer::evPreviewRdmLine			=0;
 const int uiWellPartServer::evCreateRdmLine			=1;
+const int uiWellPartServer::evCleanPreview			=2;
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )
@@ -120,9 +122,10 @@ void uiWellPartServer::selectWellCoordsForRdmLine()
 
 void uiWellPartServer::rdmlnDlgClosed( CallBacker* )
 {
-    if ( rdmlinedlg->uiResult() == 0 ) return;
-
-    sendEvent( evCreateRdmLine );
+    if ( rdmlinedlg->uiResult() == 0 )
+	sendEvent( evCleanPreview );
+    else
+	sendEvent( evCreateRdmLine );
 }
 
 
@@ -138,38 +141,21 @@ void uiWellPartServer::getRdmLineCoordinates( TypeSet<Coord>& coords )
 }
 
 
-const char* uiWellPartServer::askWellName()
+void uiWellPartServer::setupNewWell( BufferString& name, Color& color )
 {
-    uiWellNameDlg dlg( appserv().parent() );
+    uiNewWellDlg dlg( appserv().parent() );
     dlg.go();
-    return dlg.wellname;
+    name = dlg.getName();
+    color = dlg.getWellColor();
 }
 
 
-#define mErrRet(s) { errmsg = s; return false; }
-
-
 bool uiWellPartServer::storeWell( const TypeSet<Coord3>& newcoords, 
-				  const char* errmsg )// TODO:name
+				  const char* errmsg )
 {
-    Well::Track welltrack("helenewell");
-    for ( int idx=0; idx<newcoords.size(); idx++ )
-    {
-	welltrack.addPoint( Coord(newcoords[idx].x,newcoords[idx].y), 
-			    newcoords[idx].z, 0 );
-    }
-    Well::Data welldata("helenewell");
-    welldata.track() = welltrack;
-    CtxtIOObj ctio(*mMkCtxtIOObj(Well));
-    PtrMan<Translator> t = ctio.ioobj->getTranslator();
-    mDynamicCastGet(WellTranslator*,wtr,t.ptr())
-    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
-			 "Another type object with this name already exists." );
-
-    if ( !wtr->write(welldata,*ctio.ioobj) ) mErrRet( "Cannot write well" );
+    uiStoreWellDlg dlg( appserv().parent() );
+    dlg.setWellCoords( newcoords );
+    dlg.go();
 
     return true;
-
-    //TODO
-
 }

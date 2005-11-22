@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.53 2005-11-15 16:16:57 cvshelene Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.54 2005-11-22 08:04:32 cvshelene Exp $";
 
 #include "viswelldisplay.h"
 #include "viswell.h"
@@ -446,6 +446,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 		{
 		    group_->removeObject( removeidx );
 		    wellcoords_.remove( removeidx );
+		    well_->setTrack( wellcoords_ );
 		    changed_.trigger();
 		}
 	    }
@@ -499,16 +500,11 @@ void WellDisplay::addPick( const Coord3& pos )
     marker->setCenterPos( pos );
     marker->setScreenSize( mPickSz );
     marker->setType( (MarkerStyle3D::Type)mPickType );
-    marker->setMaterial( 0 );
+    marker->getMaterial()->setColor( lineStyle()->color );
     wellcoords_ += pos;
-    connectPicks();
+    well_->setTrack(wellcoords_);
 
     changed_.trigger();
-}
-
-
-void WellDisplay::connectPicks()
-{
 }
 
 
@@ -549,7 +545,6 @@ void WellDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 	eventcatcher_->eventhappened.notify(mCB(this,WellDisplay,pickCB));
 	eventcatcher_->ref();
     }
-
 }
 
 

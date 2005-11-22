@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.33 2005-10-31 14:55:51 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.34 2005-11-22 08:04:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uiioobjsel.h"
 #include "ctxtioobj.h"
+#include "ioobj.h"
 #include "wellimpasc.h"
 #include "welldata.h"
 #include "wellmarker.h"
@@ -750,22 +751,156 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 
 //============================================================================
 
-uiWellNameDlg::uiWellNameDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("New Well Dialog","") )
-    , ctio(mMkCtxtIOObj(Well))
+uiStoreWellDlg::uiStoreWellDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Store Well Dialog",
+				 "Specify well parameters", "107.0.1"))
+    , ctio_(*mMkCtxtIOObj(Well))
 {
-    ctio->ctxt.forread = false;
-    nmfld = new uiIOObjSel( this, *ctio, "Output Well" );
+    uiGroup* topgrp = 0;
+    
+    if ( SI().zIsTime() )
+    {
+	topgrp = new uiGroup( this, "time survey group" );
+	usemodelfld = new uiGenInput( topgrp, "provide depth to time model", 
+				      BoolInpSpec() );
+	usemodelfld->valuechanged.notify( mCB(this,uiStoreWellDlg,modelSel) );
+
+	d2tfld = new uiFileInput( topgrp, "Depth to Time model file",
+				  uiFileInput::Setup().withexamine(true) );
+	d2tfld->setDefaultSelectionDir(
+		IOObjContext::getDataDirName(IOObjContext::WllInf) );
+	d2tfld->attach( alignedBelow, usemodelfld );
+
+	tvdfld = new uiGenInput( topgrp, "Models are", 
+				 BoolInpSpec("TVDSS","MD") );
+	tvdfld->setValue( false );
+	tvdfld->attach( alignedBelow, d2tfld );
+
+	BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+	unitfld = new uiGenInput( this, "Depth unit", mft );
+	unitfld->attach( alignedBelow, d2tfld );
+
+	constvelfld = 
+	    new uiGenInput( this, "constant velocity(m/s)", FloatInpSpec() );
+	constvelfld->attach( alignedBelow, usemodelfld );
+    }
+    
+    ctio_.ctxt.forread = false;
+    outfld = new uiIOObjSel( this, ctio_, "Output Well" );
+    if ( topgrp )
+	outfld->attach( alignedBelow, topgrp );
+
+    modelSel(0);
 }
 
 
-bool uiWellNameDlg::acceptOK( CallBacker* )
+uiStoreWellDlg::~uiStoreWellDlg()
 {
-    wellname = nmfld->getInput();
-    char* ptr = ((BufferString)wellname).buf();
+    delete ctio_.ioobj; delete &ctio_;
+}
+
+
+bool uiStoreWellDlg::acceptOK( CallBacker* )
+{
+    bool ret = checkInpFlds() && storeWell();
+
+    SI().savePars();
+    return ret;
+}
+
+
+bool uiStoreWellDlg::checkInpFlds()
+{
+    if ( SI().zIsTime() && usemodelfld->getBoolValue() && ! *d2tfld->fileName())
+	mErrRet( "Please select 'Depth to Time model' file" )
+
+    if ( !outfld->commitInput(true) )
+	mErrRet( "Please select output" )
+
+    return true;
+}
+
+
+void uiStoreWellDlg::modelSel( CallBacker* )
+{
+    bool usemodel = usemodelfld->getBoolValue();
+    d2tfld->display( usemodel );
+    tvdfld->display( usemodel );
+    unitfld->display( usemodel );
+    constvelfld->display( !usemodel );
+}
+
+
+bool uiStoreWellDlg::storeWell()
+{
+    PtrMan<Translator> t = ctio_.ioobj->getTranslator();
+    mDynamicCastGet(WellTranslator*,wtr,t.ptr())
+    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
+			 "Another type object with this name already exists." );
+
+    const char* wellname = outfld->getInput();
+    PtrMan<Well::Data> well = new Well::Data( wellname );
+    setWellTrack(well);
+    if ( !wtr->write( *well,*ctio_.ioobj ) ) mErrRet( "Cannot write well" );
+
+    return true;
+}
+
+
+bool uiStoreWellDlg::setWellTrack( Well::Data* well )
+{
+    if ( SI().zIsTime() && usemodelfld->getBoolValue() )
+    {
+	Well::AscImporter ascimp( *well );
+	const char* fname = d2tfld->fileName();
+	const char* errmsg = ascimp.getD2T( fname, tvdfld->getBoolValue(), 
+					    !unitfld->getBoolValue() );
+	if ( errmsg ) mErrRet( errmsg );
+    }
+    else if ( SI().zIsTime() )
+    {
+	
+    }
+    
+    for ( int idx=0; idx<wellcoords_.size(); idx++ )
+    {
+	well->track().insertPoint( Coord(wellcoords_[idx].x,wellcoords_[idx].y),
+					 wellcoords_[idx].z);
+    }
+
+    return true;
+}
+
+
+//============================================================================
+int uiNewWellDlg::defcolnr = 0;
+
+uiNewWellDlg::uiNewWellDlg( uiParent* p )
+        : uiDialog(p,uiDialog::Setup("New Well Dialog","") )
+{
+    nmfld = new uiGenInput( this, "Name for new Well" );
+    colsel = new uiColorInput( this, Color::drawDef(defcolnr++), "Color" );
+    colsel->attach( alignedBelow, nmfld );
+}
+
+
+bool uiNewWellDlg::acceptOK( CallBacker* )
+{
+    char* ptr = ((BufferString)nmfld->text()).buf();
     skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
     if ( ! *ptr ) { uiMSG().error( "Please enter a name" ); return false; }
-    nmfld->commitInput(true);
-    
+
     return true;
+}
+
+
+const Color& uiNewWellDlg::getWellColor()
+{
+    return colsel->color();
+}
+
+
+const char* uiNewWellDlg::getName() const
+{
+    return nmfld->text();
 }

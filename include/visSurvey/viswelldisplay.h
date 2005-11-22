@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.27 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.28 2005-11-22 08:04:32 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -87,7 +87,6 @@ public:
 
     void                        setSceneEventCatcher(visBase::EventCatcher*);
     void 			addPick(const Coord3&);
-    void			connectPicks();//TODO
     void			setupPicking();
     NotifierAccess*             getManipulationNotifier() { return &changed_; }
     bool			isHomeMadeWell() const { return picksallowed_; }
