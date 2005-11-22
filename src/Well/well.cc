@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.32 2005-10-18 15:48:19 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.33 2005-11-22 07:58:21 cvshelene Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -59,6 +59,13 @@ void Well::DahObj::addToDahFrom( int fromidx, float extradah )
 {
     for ( int idx=fromidx; idx<dah_.size(); idx++ )
 	dah_[idx] += extradah;
+}
+
+
+void Well::DahObj::removeFromDahFrom( int fromidx, float extradah )
+{
+    for ( int idx=fromidx; idx<dah_.size(); idx++ )
+	dah_[idx] -= extradah;
 }
 
 
@@ -355,6 +362,16 @@ void Well::Track::setPoint( int idx, const Coord& c, float z )
     pos_[idx] = newpt;
     dah_[idx] += newdist0 - olddist0;
     addToDahFrom( idx+1, newdist0 - olddist0 + newdist1 - olddist1 );
+}
+
+
+void Well::Track::removePoint( int idx )
+{
+    float olddist = dah_[idx+1] - dah_[idx-1];
+    float newdist = pos_[idx+1].distance( pos_[idx-1] );
+    float extradah = olddist - newdist;
+    removeFromDahFrom( idx+1, extradah );
+    remove( idx );
 }
 
 

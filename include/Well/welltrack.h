@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.10 2005-10-18 15:48:10 cvsbert Exp $
+ RCS:		$Id: welltrack.h,v 1.11 2005-11-22 07:57:59 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,8 @@ public:
     			//!< Will correct all dahs below point
     void		insertAfterIdx(int,const Coord3&);
     			//!< Know what you're doing - not used normally
+    void		removePoint(int);
+    			//!< Will correct all dahs below point
 
     Coord3		getPos(float d_ah) const;
     float		getDahForTVD(float,float prevdah=mUndefValue) const;

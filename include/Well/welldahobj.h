@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.2 2005-10-18 15:48:10 cvsbert Exp $
+ RCS:		$Id: welldahobj.h,v 1.3 2005-11-22 07:57:59 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,7 @@ public:
     float		dahStep(bool min_else_average) const;
 
     void		addToDahFrom(int fromidx,float extradah);
+    void		removeFromDahFrom(int fromidx,float extradah);
 
 protected:
 
