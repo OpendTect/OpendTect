@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.6 2005-09-30 15:45:13 cvshelene Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.7 2005-11-22 15:35:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,6 @@ void uiFreqFilterAttrib::typeSel( CallBacker* )
     const bool hasmax = !type || type==2;
     freqfld->setSensitive( hasmin, 0, 0 );
     freqfld->setSensitive( hasmax, 0, 1 );
-    freqfld->setValues( 15, 50 );
     if ( !hasmin ) freqfld->setText( "", 0 );
     if ( !hasmax ) freqfld->setText( "", 1 );
 }
