@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.46 2005-11-14 20:52:51 cvskris Exp $
+ RCS:           $Id: attribengman.cc,v 1.47 2005-11-22 16:24:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -597,7 +597,7 @@ class AEMFeatureExtracter : public Executor
 public:
 AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 		     const ObjectSet<BinIDValueSet>& bivsets )
-    : Executor("Feature Extracter")
+    : Executor("Extracting attributes")
 {
     const int nrinps = inputs.size();
     const DescSet* attrset = aem.procattrset ? aem.procattrset : aem.inpattrset;
