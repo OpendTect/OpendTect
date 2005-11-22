@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.3 2005-11-21 12:44:20 cvsarend Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.4 2005-11-22 08:35:48 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,13 +186,13 @@ private slots:
 		    _receiver.onItem.trigger(_receiver);
 		}
 
-    void	expanded( QListViewItem* item )
+    void	expanded( Q3ListViewItem* item )
 		{
 		    setNotifiedItem( item );
 		    _receiver.expanded.trigger(_receiver);
 		}
 
-    void	collapsed( QListViewItem* item )
+    void	collapsed( Q3ListViewItem* item )
 		{
 		    setNotifiedItem( item );
 		    _receiver.collapsed.trigger(_receiver);
@@ -200,7 +200,7 @@ private slots:
 /*
     void dropped( QDropEvent *e );
 */
-    void	itemRenamed( QListViewItem* item, int col  )
+    void	itemRenamed( Q3ListViewItem* item, int col  )
 		{
 		    setNotifiedItem( item );
 		    _receiver.itemRenamed.trigger(_receiver);
