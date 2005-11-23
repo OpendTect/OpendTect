@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.39 2005-11-16 09:34:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.40 2005-11-23 10:39:43 cvsnanne Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -494,6 +494,7 @@ void TwoDOutput::setOutput( ObjectSet<DataHolder>& dataset,
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
 {
+    seldata_.all_ = false;
     seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( true );
     seldata_.table_ = bidvalset;
@@ -560,6 +561,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     , outpbuf_(0)
     , outval_(outval)
 {
+    seldata_.all_ = false;
     seldata_.type_ = Seis::Table;
     seldata_.table_.allowDuplicateBids( bidvalset.totalSize()<2 );
     seldata_.table_.setNrVals( 1 );
