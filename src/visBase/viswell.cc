@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.24 2005-08-16 17:10:18 cvsbert Exp $
+ RCS:           $Id: viswell.cc,v 1.25 2005-11-23 15:37:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ Well::Well()
     track->setMaterial( Material::create() );
     sep->addChild( track->getInventorNode() );
     welltxt->ref();
+    welltxt->setMaterial( track->getMaterial() );
     sep->addChild( welltxt->getInventorNode() );
 
     markergroup = DataObjectGroup::create();
