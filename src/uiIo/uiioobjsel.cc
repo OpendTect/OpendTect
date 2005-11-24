@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.79 2005-11-10 16:31:48 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.80 2005-11-24 12:28:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -486,8 +486,9 @@ void uiIOObjSel::doObjSel( CallBacker* )
 {
     ctio.ctxt.forread = forread;
     uiIOObjRetDlg* dlg = mkDlg();
-    if ( dlg->selGrp() && dlg->selGrp()->getNameField() )
-	dlg->selGrp()->getNameField()->setText( getInput() );
+    const char* curinp = getInput();
+    if ( curinp && *curinp && dlg->selGrp() && dlg->selGrp()->getNameField() )
+	dlg->selGrp()->getNameField()->setText( curinp );
 
     if ( dlg && dlg->go() && dlg->ioObj() )
     {
