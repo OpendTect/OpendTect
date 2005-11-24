@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisresampler.cc,v 1.7 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: seisresampler.cc,v 1.8 2005-11-24 12:27:50 cvsbert Exp $";
 
 #include "seisresampler.h"
 #include "cubesampling.h"
@@ -19,6 +19,7 @@ SeisResampler::SeisResampler( const CubeSampling& c, bool is2d,
     	, valrg(v? new Interval<float>(*v) : 0)
     	, cs(*new CubeSampling(c))
 	, is3d(!is2d)
+	, dozsubsel(false)
 {
     cs.normalise();
     if ( valrg )
