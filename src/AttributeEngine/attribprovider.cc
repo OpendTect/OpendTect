@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.47 2005-11-21 12:33:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.48 2005-11-25 09:19:52 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -572,12 +572,14 @@ int Provider::checkInputsPos( ObjectSet<Provider>& movinginputs )
     bool idxnewline = false;
     bool idynewline = false;
     bool is2d = getDesc().descSet()->is2D();
+    int dir = is2d ? 0 : getStepoutStep().inl;
+    updateCurrentInfo();
     
     for ( int idx=0; idx<movinginputs.size()-1; idx++ )
     {
 	if ( is2d )
 	    idxnewline = movinginputs[idx]->isNew2DLine();
-	
+
 	for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
 	{
 	    bool idxmoved = false;
@@ -592,8 +594,8 @@ int Provider::checkInputsPos( ObjectSet<Provider>& movinginputs )
 		if ( compres == 0 )
 		    break;
 		
-		if ( ( compres == -1 && !idxnewline ) || idynewline )
-		{
+		if ( ( compres==-1 && !idxnewline ) || idynewline )
+	        {
 		    idxmoved = true;
 		    movinginputs[idx]->resetMoved();
 		    const int res = movinginputs[idx]->moveToNextTrace();
@@ -621,6 +623,22 @@ int Provider::checkInputsPos( ObjectSet<Provider>& movinginputs )
 BinID Provider::getCurrentPosition() const
 {
     return currentbid;
+}
+
+
+void Provider::updateCurrentInfo()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( !inputs[idx] ) continue;
+	inputs[idx]->updateCurrentInfo();
+	if ( currentbid != inputs[idx]->getCurrentPosition() )
+	    currentbid = inputs[idx]->getCurrentPosition();
+	if ( curtrcinfo_ != inputs[idx]->getCurrentTrcInfo() )
+	    curtrcinfo_ = inputs[idx]->getCurrentTrcInfo();
+	if ( trcinfobid != inputs[idx]->getTrcInfoBid() )
+	    trcinfobid = inputs[idx]->getTrcInfoBid();
+    }
 }
 
 

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.34 2005-11-21 12:33:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.35 2005-11-25 09:19:52 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -205,12 +205,16 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     bool validstartpos = startpos != BinID(-1,-1);
     if ( validstartpos && curtrcinfo_ && curtrcinfo_->binid == startpos )
+    {
+	alreadymoved = true;
 	return 1;
+    }
 
     bool cont = true;
     while ( cont )
     {
-	switch( rg[currentreq]->next() )
+	int res = rg[currentreq]->next();
+	switch ( res )
 	{
 	    case -1: return -1;
 	    case 0:
@@ -229,9 +233,9 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 		SeisTrc* trc = rg[currentreq]->get(0,0);
 		if ( trc )
 		{
-		    currentbid = desc.is2D()? BinID( 0, trc->info().nr ) 
-					    : trc->info().binid;
 		    curtrcinfo_ = &trc->info();
+		    currentbid = desc.is2D()? BinID( 0, curtrcinfo_->nr ) 
+					    : curtrcinfo_->binid;
 		    trcinfobid = curtrcinfo_->binid;
 		    if ( !validstartpos || 
 			 ( validstartpos && ( currentbid == startpos || 
@@ -239,6 +243,8 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 			 ( curtrcinfo_->binid == startpos || firstcheck ) ) ) ))
 
 			cont = false;
+		    else
+			curtrcinfo_ = 0;
 		}
 
 		continue;
