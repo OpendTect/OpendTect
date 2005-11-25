@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.28 2005-01-18 16:33:12 dgb Exp $
+  - RCS:	$Id: plugins.html,v 1.29 2005-11-25 16:19:04 helene Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V2.1]</title>
@@ -349,13 +349,11 @@ and <code>uiCoh</code> plugin code. </p>
 <a name=cohrw><h4>The <code>Coh</code> plugin</h4>
 
 <p> The <code>Coh</code> plugin handles the 'Real Work' part. If we
-start with the plugin 'main' file, <code>uicohpi.cc</code>, we see
+start with the plugin 'main' file, <code>cohpi.cc</code>, we see
 that it's not that much more complex than the <code>hellopi.cc</code>
-from the <code>Hello</code> plugin. There are three includes:
-<code>#include "coh.h"</code> gets the Coherency attribute object
-classes; <code>#include "attribfact.h"</code> gets the attribute
-factory to which the Coherency attributes must be added;
-<code>#include "plugins.h"</code> is needed for the PluginInfo
+from the <code>Hello</code> plugin. There are tow includes:
+<code>#include "coherencyattrib.h"</code> gets the Coherency attribute object
+classes; <code>#include "plugins.h"</code> is needed for the PluginInfo
 structure and the PI_AUTO_INIT_EARLY define: </p>
 
 <pre><code>extern "C" int GetCohPluginType()
@@ -384,7 +382,7 @@ extern "C" PluginInfo* GetCohPluginInfo()
     static PluginInfo retpii = {
         "Coherency",
         "dGB - Kristofer Tingdahl and Bert Bril",
-        "1.1.1",
+        "=od",
         "Coherency attribute plugin.\n\n"
         "Usage of Coherency may be subject to patent laws!" };
     return &retpii;
@@ -401,151 +399,130 @@ plugin available to the world. </p>
 <pre><code>
 extern "C" const char* InitCohPlugin( int, char** )
 {
-    AF().add( new CoherencyAttrib::Parameters, false );
+    Attrib::Coherency::initClass();
     return 0; // All OK - no error messages
 }
 </code></pre>
 
-<p> This function gets passed argc and argv from the main function. It
-should return null on success, and an error message if the
-initialisation failed. In this case, the Coherency attribute is added
-to AF() (the <a
-href="Generated/AttribEng/classAttribFactory.html">AttribFactory</a>
-singleton access function) using the macro defined in attribfact.h .
-</p>
+<p> This function initializes the attribute, the initClass() function will be 
+explained in more details in the following part</p>
 
 <a name=cohrw><h4>Making attributes</h4>
 
 <p> Although cohpi.cc looks pretty simple, underneath the simple
-<code>AF().add</code> there is of course some real programming of the
-attribute. For that, we need to switch to coh.h . We see an attribute
-<code>CoherencyAttrib</code> inheriting the <a
-href="Generated/AttribEng/classAttribCalc.html">AttribCalc</a> class.
-Then immediately an enormous macro (in OpendTect macros can often be
-recognised by the leading 'm') <code>mAttrib5Param</code> which
-defines the parameters of the attribute. Compare this to what you see
-in Opendtect in the attribute definition window after loading the
-uiCoh plugin. </p>
+<code>PF().addDesc()</code> there is of course some real programming of the
+attribute. For that, we need to switch to coherencyattrib.h . 
+We see an attribute <code>CoherencyAttrib</code> inheriting the <a
+href="Generated/AttribEng/classAttrib::Provider.html">Attrib::Provider</a> 
+class. Every attribute is a provider, each can thus be used as input for 
+another attribute.
 
-<p> If you look at the parts of the definition carefully, you'll see
-that each parameter is built up with: </p>
+<p>Here are listed some fundamental functions:</p>
+<a name=cohrw><h5>initClass()</h5>
+<p> This static function initializes the attribute: sets up the parameters and 
+the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiCoh 
+plugin.</p>
 
-<ul>
-<li>xxxxAttribParameter - the type of the parameter
-<li>the name of the parameter
-<li>Required, Default (or Disabled)
-<li>The default value
-<li>The allowed values
-</ul>
-
-<p> Most of the rest of the methods are there to comply with the
-<code>AttribCalc</code> interface - see the <a
-href="Generated/AttribEng/classAttribCalc.html">AttribCalc
-documentation</a>. The basic idea is that for each sample of each
-trace one or more attribute values can be calculated. The number of
-attribute values (or outputs) is defined by the
-<code>nrAttribs()</code> function. The name of each out is set in
-<code>attribName(int)</code>. If your input requires additional
-samples (timegate) or neighbouring traces (stepout), you will have to
-define <code>reqInterval</code> and <code>reqStepout</code>
-respectively. </p>
-
-<p> On the implementation side of all that, we have some overhead and
-the actual attribute calculation. If you feel that the overhead is
-enormous, bear in mind that the Attribute engine will let the
-attribute work on any part of any input cube or on the output of
-another attribute, and that things are cut in pieces when multiple
-processors are available. And there's more but the idea is that all
-that requires some extra work when making the attributes. </p>
-
-<p> When we want to look at the actual work, the place to be is the
-<code>nextStep()</code> method of the
-<code>CoherencyAttrib::Task</code> class. This class inherits the
-<code>MultiThreadBasicTask</code> class - see <a
-href="Generated/Basic/classMultiThreadBasicTask.html">MultiThreadBasicTask
-documentation</a> for more information. The reason for this task setup
-is that there may be many tasks for each attribute calculation, and in
-this way they can be run simultaneously. </p>
-
-<p> But before the work can be done, some input has to be given. The
-<code>CoherencyAttrib::Task::Input</code> class is designed for that.
-The <code>set</code> function is the keyfunction in this class, and is
-called for each trace to be calculated. It should select the necessary
-data from the input attributes, present in the set of
-<code>AttribProvider</code>s. For the Coherency this is the seismic
-data and the imaginairy data calculated by the <code>Hilbert</code>
-attribute. But it can also be Steering Data or any other
-attribute.</p> See example from <code>CoherencyAttrib</code>: </p>
-
+<p> If you look at the parts of the implementation carefully, 
+( coherencyattrib.cc ) you'll see that each parameter is built up following 
+that example: </p>
 
 <pre><code>
-xxxxAttrib::Task::Input::set( const BinID& pos,
-                     const ObjectSet<AttribProvider>& inputproviders,
-                     const TypeSet<int>& inputattribs,
-                     const TypeSet<float*>&)
-{
-    const BinID& stepout = calculator.stepout;
+ZGateParam* gate = new ZGateParam( gateStr() );
+gate->setLimits( Interval&lt;float&gt;(-mUndefValue, mUndefValue) );
+gate->setDefaultValue( Interval&lt;float&gt;(-40,40) );
+gate->setRequired(false);
+desc->addParam( gate );
+</code></pre>
 
-    for ( int idx=-stepout.inl; idx<=stepout.inl; idx++ )
+<p>where xxxParam is the type of the parameter;
+<p>of course the default values and the limits are optional.
+<p>If "setRequired(false)" is not specified every parameter is required by 
+default.</p></p></p>
+
+<p>initClass() also adds the attribute to the attribute factory.
+In this case, as every attribute is a provider, the Coherency attribute is 
+added to PF() (the <a href="Generated/AttributeEngine/classProviderFactory.html"
+>ProviderFactory</a> singleton access function).</p>
+
+
+<a name=cohrw><h5>createInstance()</h5>
+<p>this function is a standart for every attribute, 
+here is the constructor called.</p>
+
+
+<a name=cohrw><h5>updateDesc()</h5>
+<p>will be used not only to update the parameters but also the number and type 
+of the outputs and to add or disable some inputs.If you look at the 
+implementation for the coherency, this function just allows to enable or disable
+the second input ( hidden hilbert transform ) according to the type chosen
+by the user</p>
+
+
+<a name=cohrw><h5>getInputOutput()</h5>
+<p>here you can specify what are the outputs you need for calculation among all those provided by your input data;</p>
+
+
+<a name=cohrw><h5>getInputData();</h5>
+<p>Before the work can be done, some input has to be given.This function is the
+place where you specify how to get your input data.
+For the Coherency this is the seismic data and the imaginairy data calculated 
+by the <code>Hilbert</code> attribute. But it can also be Steering Data or any 
+other attribute. let's have a look at the abstract of code below:</p>
+
+<pre><code>
+const BinID bidstep = inputs[0]->getStepoutStep();
+    if ( type==1 )
     {
-        for ( int idy=-stepout.crl; idy<=stepout.crl; idy++ )
-        {
-            SeisTrc* trc = inputproviders[0]->getTrc(   pos.inl + idx,
-                                                        pos.crl + idy);
-            if ( !trc ) return false;
-            retrcs->set(idx+stepout.inl,idy+stepout.crl, trc);
+	while ( inputdata.size() &lt; 3 )
+	    inputdata += 0;
 
-            trc = inputproviders[1]->getTrc(    pos.inl + idx,
-                                                pos.crl + idy);
-            if ( !trc ) return false;
-            imtrcs->set(idx+stepout.inl,idy+stepout.crl, trc);
-        }
+	const DataHolder* datac = inputs[0]->getData( relpos, idx );
+	const DataHolder* datai =
+	   inputs[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx );
+	const DataHolder* datax =
+           inputs[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
+	if ( !datac || !datai || !datax )
+	  return false;
+
+      realidx_ = getDataIndex( 0 );
+      inputdata.replace( 0, datac );
+      inputdata.replace( 1, datai );
+      inputdata.replace( 2, datax );
     }
-
-    attribute = inputproviders[0]->attrib2component( inputattribs[0] );
-    imattribute = inputproviders[1]->attrib2component( inputattribs[1] );
-
-    return true;
-}
 </code></pre>
 
-<p> The <code>CoherencyAttrib::Task</code> class also has a
-<code>set</code> function. This function is used to transfer some
-specific information about the trace to be processed, like the
-starttime, the number of samples you wish to calculate, the timestep,
-a pointer to the input and a pointer to the output. The output is a
-set containing pointers to all ouputs defined in
-<code>CoherencyAttrib</code>.</p> 
+<p> You will notice from here that the calculation of the attributes is not done
+on traces but using a different object, the DataHolder. The dataholder contains
+an set of <a href="Generated/Basic/classValueSeries.html">ValueSeries</a>which 
+holds the value of every sample of the Seistrc.
+Advantage : in case of an attribute which has other attributes as inputs, data 
+is available in the corresponding dataholders, it thus saves a lot of time 
+( easier and much faster to read some floats in a ValueSeries than to get values
+from a SeisTrc ). Stored data are read from cubes of seismic traces and written
+the same way.</p>
+<p>The DataHolder is also carrying some specific information about the trace to
+be processed, like the start sample number and the number of samples you wish 
+to calculate.</p>
+<p>Another important remark: calculation is made using sample numbers, 
+not time</p>
 
-<p> Example: </p>
+<p> Most of the rest of the methods are there to comply with the
+<code>Attrib::Provider</code> interface - see the <a
+href="Generated/AttributeEngine/classAttrib::Provider.html">Attrib::Provider
+documentation</a>. The basic idea is that for each sample of each
+trace one or more attribute values can be calculated. The number of
+attribute values (or outputs) is defined in the <code>initClass()</code> 
+function. If your input requires additional samples (timegate) or neighbouring 
+traces (stepout), you will have to define <code>reqZMargin</code> and 
+<code>reqStepout</code> respectively. </p>
 
-<pre><code>  
-xxxxAttrib::Task::set( float start, int nrsamples, float step_, 
-     		       const AttribCalc::Task::Input* input_, 
-		       const TypeSet<float*>& output )
-{
-    t1 = start;
-    nrtimes = nrsamples;
-    step = step_;
-    input = input_;
-    cohptr = output[0];
-    inldipptr = output[1];
-    crldipptr = output[2];
-}
-</code></pre>
 
-<p>  When your machine has multiple processors, the
-<code>getFastestSz()</code> function can be of importance. E.g. on a
-two processor machine, there will be two tasks, one for the lower part
-of the trace and one for the higher part of the trace. The more
-porcessors you have the smaller the number of samples per part will
-be. A minimum number of samples per part can be specified by
-<code>getFastestSz()</code>, the default value is 25 samples.</p>
+<p> When we want to look at the actual work, the place to be is the
+<code><b>computeData()</b></code> method.This is the place where you define the
+mathematics for calculating the attribute. This function is called for each 
+trace of your output cube. </p>
 
-<p> Now it's time for the <code>nextStep()</code> function to do it's
-work. This is the place where you define the mathematics for
-calculating the attribute. This function is called for each trace of
-your output cube. </p>
 
 <a name=cohui><h4>The <code>uiCoh</code> plugin</h4>
 
@@ -559,7 +536,7 @@ interfaces. This is because they: </p>
 <li>need to be able to do the right things at the right moment
 </ul>
 
-<p>In uicoh.h you can see that <code>uiCoherencyAttrDescEd</code>
+<p>In uicoherencyattrib.h you can see that <code>uiCoherencyAttrib</code>
 inherits from <code>uiAttrDescEd</code> - the base class for all
 attribute parameter UI groups.</p>
 
@@ -567,15 +544,18 @@ attribute parameter UI groups.</p>
 children, but it also sets a couple of requirements:</p>
 
 <ul>
-<li>fillParsFromScreen (can be omitted but rarely)
-<li>fillDescFromScreen (required)
-<li>putStuffToScreen (required)
+<li>setParameters (required)
+<li>setInput (required)
+<li>getParameters(required)
+<li>getInput (required)
+<li>setOutput (required if you have more than one possible output)
+<li>getOutput (required if you have more than one possible output)
 </ul>
 
 <p> These methods must be defined by subclasses. To implement these
 methods there are services like fillInp and putInp. </p>
 
-<p> In the uicoh.cc file we see that although
+<p> In the uicoherencyattrib.cc file we see that although
 <code>uiAttrDescEd</code> is not a <code>uiDialog</code> like the the
 uiHello example, it still is a valid parent (being a
 <code>uiGroup</code>) for the various UI elements. A nice feature of
@@ -588,33 +568,26 @@ behavior attached will be usable transparently by any other GUI class.
 </p>
 
 <p> Further on the specific uiAttrdescEd methods, we take the example
-of <code>uiCoherencyAttrDescEd::putStuffToScreen</code>. Using the
-<code>mGetMyForm</code> macro, we get access to the
-<code>AttribParameterForm</code> that is currently being edited. In
-this case, the attribute set editor wants us to take the values from
-the form and put them on the screen. Thus, we have to check whether
-there is something in the first place (macro
-<code>mIfHaveValFor</code>), and if so, put the value into the
-corresponding UI element. For inputs to this attribute (input cubes or
-other attributes), there is a special 'putInp' method. A special
-feature is the attrparset - if something is added to this set, the set
-editor knows that attribute evaluations can be done with this
+of <code>uiCoherencyAttrib::setParameters</code>. Here we get access to the 
+<code>desc</code> that is currently being edited. 
+In this case, the attribute set editor wants us to take the values from the 
+desc and put them on the screen. 
+Thus, we have to check whether there is something in the first place (macro
+<code>mIfGetxxx</code>, where xxx stands for the type of the parameter), and if
+so, put the value into the corresponding UI element. For inputs to this 
+attribute (input cubes or other attributes), there is a special 'setInput' 
+method.A special feature is the attrparset - if something is added to this set,
+the set editor knows that attribute evaluations can be done with this
 parameter. In this case, the user can evaluate the effect of time gate
 differences by using the special button. </p>
 
-<p> The <code>fillParsFromScreen</code> method's implementation
+<p> The <code>getParameters</code> method's implementation
 follows similar patterns. Noteworthy is the use of the change tracker
 to update the pars - this allows the set editor to figure out whether
 the attribute set was changed (and subsequently warn the user when no
-save has beeen done). Note that for getting the data from the screen,
-there are two methods: <code>fillParsFromScreen</code> and
-<code>fillDescFromScreen</code>. Where <code>fillParsFromScreen</code>
-only retrieves the data for the <code>AttribParameterForm</code>,
-<code>fillDescFromScreen</code> fills the rest of the
-<code>AttribDesc</code>, which are the input and output selections.
-</p>
+save has beeen done). </p>
 
-<p> The funny thing is that uicoh.cc stops without 'doing' anything.
+<p> The funny thing is that uicoherencyattrib.cc stops without 'doing' anything.
 That's because the attribute set editor object is 'doing' everything.
 Some people will want to call this an example of the <i>Hollywood
 principle</i> - 'Don't call us - we'll call you'. </p>
@@ -622,9 +595,7 @@ principle</i> - 'Don't call us - we'll call you'. </p>
 <p> Anyway, lastly, the uicohpi.cc is dead simple. It's a LATE plugin
 because you'd want the rest of the UI already in place. The only
 interesting part is the part where the new <code>AttrDescEd</code> is
-added to the <code>uiAttribFactory</code>. Of course first a new
-helper class (<code>uiCoherencyAttrDescEdCreater</code>) must be
-created using the <code>mDeclAttrDescEd</code> macro. </p>
+added to the <code>uiAttribFactory</code>. 
 
 
 <br>
