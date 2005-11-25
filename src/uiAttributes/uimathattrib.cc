@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.2 2005-06-09 13:11:45 cvsnanne Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.3 2005-11-25 09:12:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,24 @@ void uiMathAttrib::parsePush( CallBacker* )
 	uiMSG().warning( "Max. nr of variables you can use is 6" );
 	nrvariables = 0;
 	return;
+    }
+
+    for ( int idx=0; idx<nrvariables; idx++ )
+    {
+	bool found = false;
+	BufferString xstr = "x"; xstr += idx;
+	for ( int idy=0; idy<nrvariables; idy++ )
+	{
+	    if ( !strcmp( expr->getVariableStr(idy), xstr.buf() ) )
+		found = true;
+	} 
+
+	if ( !found )
+	{
+	    uiMSG().warning( "you must use x0, x1, x2 ..." );
+	    nrvariables = 0;
+	    return;
+	}
     }
 
     for ( int idx=0; idx<cNrVars; idx++ )
