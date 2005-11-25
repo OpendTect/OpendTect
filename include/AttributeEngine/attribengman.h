@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.19 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: attribengman.h,v 1.20 2005-11-25 13:27:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ public:
 	    			      	      const DataCubes* cached_data = 0);
     			//!< Give the previous calculated data in cached data
     			//!< and some parts may not be recalculated.
-    const DataCubes*	getDataCubesOutput();
+    const DataCubes*	getDataCubesOutput(const Processor&);
 
     Executor* 		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
@@ -93,7 +93,7 @@ public:
     Processor*		createTrcSelOutput(BufferString& errmsg,
 	    				   const BinIDValueSet& bidvalset,
 	    				   SeisTrcBuf&, float outval=0);
-    int			getNrOutputsToBeProcessed() const; 
+    int			getNrOutputsToBeProcessed(const Processor&) const;
 
     const char*		getCurUserRef() const;
     void		computeIntersect2D(ObjectSet<BinIDValueSet>&) const;
@@ -113,12 +113,12 @@ protected:
     TypeSet<SelSpec>	attrspecs_;
 
     Processor*		getProcessor(BufferString& err);
+    void		setExecutorName(Executor*);
 
 private:
 
     friend class		AEMFeatureExtracter;
 
-    Processor* 			proc_;
     void			clearZPtrs();
 
 };
