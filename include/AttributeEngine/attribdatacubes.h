@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.6 2005-10-31 21:27:15 cvskris Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.7 2005-11-28 13:28:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,16 +34,16 @@ public:
     				//!<Adds the cube and inits it to the given val.
     void			removeCube(int);
 
-    void			setSizeAndPos( const CubeSampling& );
+    void			setSizeAndPos(const CubeSampling&);
     				/*!<\note that all data will be lost. */
-    void			setSize( int nrinl, int nrcrl, int nrz );
+    void			setSize(int nrinl,int nrcrl,int nrz);
     				/*!<\note that all data will be lost. */
-    void			setValue( int array, int inlidx, int crlidx,
-	    				  int zidx, float val );
-    bool			getValue( int array, const BinIDValue&,
-	    				  float* res ) const;
-    bool			includes( const BinIDValue& ) const;
-    bool			includes( const BinID& ) const;
+    void			setValue(int array,int inlidx,int crlidx,
+	    				 int zidx,float val);
+    bool			getValue(int array,const BinIDValue&,
+	    				 float* res,bool interpolate) const;
+    bool			includes(const BinIDValue&) const;
+    bool			includes(const BinID&) const;
 
 
     const Array3D<float>&	getCube(int idx) const;

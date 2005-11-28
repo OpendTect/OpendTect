@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.7 2005-11-14 11:06:47 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.8 2005-11-28 13:28:47 cvsnanne Exp $";
 
 #include "attribdatacubes.h"
 #include "survinfo.h"
@@ -86,7 +86,8 @@ void DataCubes::setValue( int array, int inlidx, int crlidx, int zidx,
 }
 
 
-bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res ) const
+bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res,
+			  bool interpolate ) const
 {
     const int inlidx = inlsampling.nearestIndex( bidv.binid.inl );
     if ( inlidx<0 || inlidx>=inlsz ) return false;
@@ -98,6 +99,13 @@ bool DataCubes::getValue( int array, const BinIDValue& bidv, float* res ) const
     data += cubes[array]->info().getMemPos( inlidx, crlidx, 0 );
 
     const float zpos = bidv.value/zstep-z0;
+    if ( !interpolate )
+    {
+	const int zidx = mNINT( zpos );
+	if ( zidx < 0 || zidx >= zsz ) return false;
+	*res = data[zidx];
+	return true;
+    }
 
     float dummy;
     if ( !interpolateSampled( data, zsz, zpos, dummy, false ) )
