@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.28 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.29 2005-11-28 11:59:41 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,18 +15,19 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "vissurvobj.h"
-#include "visdatagroup.h"
-#include "vistransform.h"
-#include "vismarker.h"
-#include "vismaterial.h"
-#include "visevent.h"
 #include "multiid.h"
 #include "ranges.h"
 
 class LineStyle;
-template <class T> class Interval;
 
-namespace visBase { class Well; class Transformation; };
+namespace visBase
+{
+    class DataGroup;
+    class EventCatcher;
+    class EventInfo;
+    class Transformation;
+    class Well;
+};
 
 namespace visSurvey
 {
@@ -77,6 +78,10 @@ public:
     bool			logsShown() const;
     void			showLogName(bool);
     bool			logNameShown() const;
+
+    void			getMousePosInfo(const visBase::EventInfo& pos,
+	    					const Coord3&,float& val,
+						BufferString& info) const;
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);

@@ -4,10 +4,22 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.54 2005-11-22 08:04:32 cvshelene Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.55 2005-11-28 11:59:41 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
+
+#include "draw.h"
+#include "iopar.h"
+#include "executor.h"
+#include "ptrman.h"
+#include "survinfo.h"
+#include "visdataman.h"
+#include "visevent.h"
+#include "vismarker.h"
+#include "vismaterial.h"
+#include "vistransform.h"
 #include "viswell.h"
+
 #include "wellman.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -16,12 +28,6 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.54 2005-11-22 08:04:32 cv
 #include "welltrack.h"
 #include "wellmarker.h"
 #include "welld2tmodel.h"
-#include "iopar.h"
-#include "executor.h"
-#include "ptrman.h"
-#include "survinfo.h"
-#include "draw.h"
-#include "visdataman.h"
 
 #define		mPickSz 	3
 #define         mPickType	3 
@@ -107,15 +113,13 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     TypeSet<Coord3> trackpos;
     Coord3 pt;
-    StepInterval<double> sizrg;
-    assign( sizrg, SI().zRange(false) );
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	pt = track.pos( idx );
 	if ( zinfeet_ )
 	    mMeter2Feet(pt.z);
 
-	if ( !mIsUndefined(pt.z) && sizrg.includes(pt.z) )
+	if ( !mIsUndefined(pt.z) )
 	    trackpos += pt;
     }
     if ( !trackpos.size() )
@@ -230,8 +234,6 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
 
     Well::Track& track = wd->track();
     TypeSet<Coord3Value> crdvals;
-    StepInterval<double> sizrg;
-    assign( sizrg, SI().zRange(false) );
     for ( int idx=0; idx<logsz; idx++ )
     {
 	const float dah = log.dah(idx);
@@ -242,12 +244,6 @@ void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
 	    pos.z = wd->d2TModel()->getTime( dah );
 	else if ( zinfeet_ )
 	    mMeter2Feet(pos.z)
-
-	if ( !sizrg.includes(pos.z) )
-	{
-	    if ( pos.z > sizrg.stop ) break;
-	    continue;
-	}
 
 	Coord3Value cv( pos, log.value(idx) );
 	crdvals += cv;
@@ -309,13 +305,40 @@ int WellDisplay::logWidth() const
 { return well_->logWidth(); }
 
 
+void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
+				   const Coord3& pos,
+				   float& val,
+				   BufferString& info ) const
+{
+    val = -mUdf(float);
+    Well::Data* wd = Well::MGR().get( wellid_ );
+    if ( !wd ) { info = ""; return; }
+
+    const float mousez = pos.z * SI().zFactor();
+    const float zstep2 = SI().zFactor() * SI().zStep()/2;
+
+    info = "Well: "; info += wd->name();
+    for ( int idx=0; idx<wd->markers().size(); idx++ )
+    {
+	Well::Marker* wellmarker = wd->markers()[idx];
+	Coord3 markerpos = wd->track().getPos( wellmarker->dah );
+	if ( !mIsEqual(markerpos.z,mousez,zstep2) )
+	    continue;
+
+	info += ", Marker: ";
+	info += wellmarker->name();
+	break;
+    }
+}
+
+
 void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     par.set( sKeyEarthModelID, wellid_ );
 
-    int viswellid = well_->id();
+    const int viswellid = well_->id();
     par.set( sKeyWellID, viswellid );
     if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
     
