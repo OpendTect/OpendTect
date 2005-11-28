@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.96 2005-11-17 11:08:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.97 2005-11-28 13:32:04 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -97,9 +97,6 @@ void PlaneDataDisplay::setUpConnections()
 	scene_->zscalechange.notify( mCB(this,PlaneDataDisplay,zScaleChanged) );
 	zScaleChanged(0);
     }
-
-    if ( datatransform )
-	setGeometry( false, false );
 }
 
 
@@ -134,7 +131,6 @@ void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
     BinID stopbid = SI().sampling(true).hrg.stop;
 
     StepInterval<float> vrgd = SI().zRange(true);
-    datatransform = scene_ ? scene_->getDataTransform() : 0;
     if ( datatransform )
     {
 	Interval<float> zrg = datatransform->getZInterval( false );
@@ -262,7 +258,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     float width0 = trect->getRectangle().width( 0 );
     float width1 = trect->getRectangle().width( 1 );
 
-    BinID binid = SI().transform( Coord( xytpos.x, xytpos.y ));
+    BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
     
     BinID inlcrldist( 0, 0 );
     float zdiff = 0;
@@ -344,7 +340,10 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     datatransformvoihandle = -1;
 
     if ( datatransform )
+    {
 	datatransform->ref();
+	setGeometry( false, false );
+    }
 
     return true;
 }
@@ -533,8 +532,7 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs_ )
 		  cs_.hrg.stop.crl - cs_.hrg.start.crl, 
 		  cs_.zrg.stop - cs_.zrg.start );
     setWidth( width );
-    Coord3 origo(cs_.hrg.start.inl,cs_.hrg.start.crl,cs_.zrg.start);
-    setOrigo( origo );
+    setOrigo( Coord3(cs_.hrg.start.inl,cs_.hrg.start.crl,cs_.zrg.start) );
 
     curicstep = cs_.hrg.step;
     curzstep = cs_.zrg.step;
@@ -579,6 +577,9 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos ) const
 	cubesampl.hrg.stop.crl += mNINT(rect.width(1,manippos));
 	cubesampl.zrg.stop += rect.width(0,manippos);
     }
+
+    if ( datatransform )
+	assign( cubesampl.zrg, SI().zRange(true) );
 
     return cubesampl;
 }
@@ -691,16 +692,16 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 
 		    const SampledFunctionImpl<float,const float*>
 			inputfunc( inputptr,
-			    info.getSize(Attrib::DataCubes::cZDim()),
-			    datacubes->z0*datacubes->zstep,
-			    datacubes->zstep );
+				   info.getSize(Attrib::DataCubes::cZDim()),
+				   datacubes->z0*datacubes->zstep,
+				   datacubes->zstep );
 
 		    reSample( inputfunc, outpsampler, outputptr, zsz );
 		}
 	    }
 	}
 
-	if ( idx ) trect->addTexture();
+	if ( idx>0 ) trect->addTexture();
 
 	Array2DSlice<float> slice(*usedarray);
 	slice.setPos( unuseddim, 0 );
@@ -712,7 +713,7 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
 	else
 	{
 	    trect->removeAllTextures( true );
-	    pErrMsg("Could not init slice." );
+	    pErrMsg( "Could not init slice." );
 	}
     }
 
@@ -720,6 +721,7 @@ void PlaneDataDisplay::setData( const Attrib::DataCubes* datacubes,
     trect->showTexture( 0 );
     trect->useTexture( true );
 }
+
 
 #define mSetRg( var, ic ) cs.hrg.var.ic = datacs.hrg.var.ic
 void PlaneDataDisplay::checkCubeSampling( const CubeSampling& datacs )
@@ -778,8 +780,8 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
     info = getManipulationString();
     if ( !cache ) { val = mUdf(float); return; }
     const BinIDValue bidv( SI().transform(pos), pos.z );
-    if ( !cache->getValue( trect->shownTexture(), bidv, &val ) )
-    { val = mUdf(float); return; }
+    if ( !cache->getValue(trect->shownTexture(),bidv,&val,false) )
+	{ val = mUdf(float); return; }
 
     return;
 }
