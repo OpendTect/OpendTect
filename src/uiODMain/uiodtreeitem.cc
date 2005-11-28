@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.125 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.126 2005-11-28 11:41:17 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -441,23 +441,16 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==lockmnuitem.id )
     {
 	menu->setIsHandled(true);
-	visserv->lockUnlockObject(displayid_);
+	visserv->lockUnlockObject( displayid_ );
 
+	PtrMan<ioPixmap> pixmap = 0;
 	if ( visserv->isLocked(displayid_) )
-	{
-	    if ( uilistviewitem->pixmap(0) )
-		delete uilistviewitem->pixmap(0);
-	    ioPixmap pixmap( GetIconFileName("lock_small.png") );
-	    uilistviewitem->setPixmap( 0, pixmap );
-	}
+	    pixmap = new ioPixmap( GetIconFileName("lock_small.png") );
 	else
-	{
-	    if ( uilistviewitem->pixmap(0) )
-		delete uilistviewitem->pixmap(0);
-	    uilistviewitem->setPixmap( 0, ioPixmap() );
-	}
+	    pixmap = new ioPixmap();
+	uilistviewitem->setPixmap( 0, *pixmap );
     }
-    if ( mnuid==duplicatemnuitem.id )
+    else if ( mnuid==duplicatemnuitem.id )
     {
 	menu->setIsHandled(true);
 	int newid =visserv->duplicateObject(displayid_,sceneID());
@@ -669,9 +662,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
 
-    if ( menu->isHandled() && ( mnuid == 11 || mnuid == 1 ) )
-	updateColumnText(2);
-    
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -1150,7 +1140,6 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 		itm->visEMObject()->setOnlyAtSectionsDisplay( onlyatsection );
 		itm->updateColumnText(2);
 	    }
-	    
 	}
     }
     else
@@ -1180,8 +1169,6 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int id, bool )
 
 uiODHorizonTreeItem::~uiODHorizonTreeItem()
 {
-    if ( uilistviewitem->pixmap(2) )
-	delete uilistviewitem->pixmap(2);
 }
 
 
@@ -1193,29 +1180,20 @@ void uiODHorizonTreeItem::updateColumnText( int col )
 	uilistviewitem->setText( shift, col );
 	return;
     }
-    if ( col==2 )
+    else if ( col==2 )
     {
 	mDynamicCastGet(visSurvey::EMObjectDisplay*,emd,
-		       visserv->getObject(displayid_));
+			visserv->getObject(displayid_));
 
-	if ( emd->getOnlyAtSectionsDisplay() )
-	{
-	    if ( uilistviewitem->pixmap(2) )
-		delete uilistviewitem->pixmap(2);
-
-	    Color color = emd->getColor();
-	    ioPixmap pixmap(16,10);
-	    pixmap.fill(color);
-	    uilistviewitem->setPixmap( 2, pixmap );
-	}
+	PtrMan<ioPixmap> pixmap = 0;
+	if ( !emd->hasColor() )
+	    pixmap = new ioPixmap();
 	else
 	{
-	    if ( uilistviewitem->pixmap(2) )
-	    {
-		delete uilistviewitem->pixmap(2);
-		uilistviewitem->setPixmap( 2, ioPixmap() );
-	    }
+	    pixmap = new ioPixmap( 16, 10 );
+	    pixmap->fill( emd->getColor() );
 	}
+	uilistviewitem->setPixmap( 2, *pixmap );
     }
 
     return uiODDisplayTreeItem::updateColumnText( col );
@@ -1328,14 +1306,12 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid_ )
 
 uiODWellTreeItem::~uiODWellTreeItem()
 {
-    if ( uilistviewitem->pixmap(2) )
-	delete uilistviewitem->pixmap(2);
 }
 
 
 void uiODWellTreeItem::initMenuItems()
 {
-    selattrmnuitem.text = "Select Attribute ...";
+    attrmnuitem.text = "Create attribute log...";
     sellogmnuitem.text = "Select logs ...";
     propertiesmnuitem.text = "Properties ...";
     namemnuitem.text = "Well name";
@@ -1385,7 +1361,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &sellogmnuitem,
 	          applMgr()->wellServer()->hasLogs(wd->wellId()), false );
-    mAddMenuItem( menu, &selattrmnuitem, true, false );
+    mAddMenuItem( menu, &attrmnuitem, true, false );
     mAddMenuItem( menu, &propertiesmnuitem, true, false );
 #ifdef __debug__
     mAddMenuItem( menu, &storemnuitem, true, false );
@@ -1412,12 +1388,12 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_))
     const MultiID& wellid = wd->wellId();
-    if ( mnuid == selattrmnuitem.id )
+    if ( mnuid == attrmnuitem.id )
     {
 	menu->setIsHandled( true );
 	applMgr()->wellAttribServer()->setAttribSet( 
 				*applMgr()->attrServer()->curDescSet() );
-	applMgr()->wellAttribServer()->selectAttribute( wellid );
+	applMgr()->wellAttribServer()->createAttribLog( wellid );
     }
     else if ( mnuid==sellogmnuitem.id )
     {
@@ -1559,8 +1535,6 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int id )
 uiODPickSetTreeItem::~uiODPickSetTreeItem()
 { 
     delete ps_; 
-    if ( uilistviewitem->pixmap(2) )
-	delete uilistviewitem->pixmap(2);
 }
 
 
@@ -1587,24 +1561,19 @@ bool uiODPickSetTreeItem::init()
 
 void uiODPickSetTreeItem::updateColumnText( int col )
 {
-    if ( col==1 || col==2 )
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	    	    visserv->getObject(displayid_))
+    if ( col==1 )
     {
-	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-			visserv->getObject(displayid_));
-
-	if ( col==1 )
-	{
-	    BufferString text = psd->nrPicks();
-	    uilistviewitem->setText( text, col );
-	    return;
-	}
-	else
-	{
-	    Color color = psd->getColor();
-	    ioPixmap pixmap(16,10);
-	    pixmap.fill(color);
-	    uilistviewitem->setPixmap( 2, pixmap );
-	}
+	BufferString text = psd->nrPicks();
+	uilistviewitem->setText( text, col );
+    }
+    else if ( col==2 )
+    {
+	Color color = psd->getColor();
+	ioPixmap pixmap(16,10);
+	pixmap.fill(color);
+	uilistviewitem->setPixmap( 2, pixmap );
     }
 
     return uiODDisplayTreeItem::updateColumnText(col);
