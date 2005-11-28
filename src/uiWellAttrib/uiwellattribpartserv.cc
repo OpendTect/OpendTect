@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.cc,v 1.4 2005-07-28 10:53:51 cvshelene Exp $
+ RCS:           $Id: uiwellattribpartserv.cc,v 1.5 2005-11-28 11:38:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ void uiWellAttribPartServer::setNLAModel( const NLAModel* mdl )
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
-bool uiWellAttribPartServer::selectAttribute( const MultiID& wellid )
+bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
 {
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) mErrRet("Cannot read well data")
@@ -78,7 +78,7 @@ bool uiWellAttribPartServer::selectAttribute( const MultiID& wellid )
     BufferString fname( sp.fileName() );
     Well::Writer wtr( fname, *wd );
    
-    int lognr = dlg.newLogIdx() + 1;
+    const int lognr = dlg.selectedLogIdx() + 1;
     BufferString logfnm = wtr.getFileName( Well::IO::sExtLog, lognr );
     StreamProvider splog( logfnm );
     StreamData sdo = splog.makeOStream();

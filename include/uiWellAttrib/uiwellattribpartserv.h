@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.2 2005-07-28 10:53:49 cvshelene Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.3 2005-11-28 11:38:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
     const char*			name() const		{ return "Wells"; }
 
     				// Services
-    bool			selectAttribute(const MultiID&);
+    bool			createAttribLog(const MultiID&);
 
 protected:
 
@@ -42,9 +42,9 @@ protected:
 
 };
 
-/*!\mainpage AttribWell User Interface
+/*!\mainpage WellAttrib User Interface
 
-  Here you will find all attributehandling regarding wells.
+  Here you will find all attribute handling regarding wells.
   The uiAttribWellPartServer delivers the services needed.
 
 */
