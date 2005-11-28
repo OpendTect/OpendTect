@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.287 2005-11-18 12:50:32 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.288 2005-11-28 14:17:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -481,8 +481,12 @@ Coord3 uiVisPartServer::getMousePos(bool xyt) const
 
 BufferString uiVisPartServer::getMousePosVal() const
 {
-    return mIsUndefined(mouseposval) ? BufferString("undef")
-				     : BufferString(mouseposval);
+    if ( mIsUdf(mouseposval) )
+	return "undef";
+    else if ( mIsUdf(-mouseposval) )
+	return "";
+    else
+	return BufferString(mouseposval);
 }
 
 

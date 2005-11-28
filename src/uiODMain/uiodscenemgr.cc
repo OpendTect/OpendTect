@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.49 2005-11-08 10:00:32 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.50 2005-11-28 14:19:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -309,8 +309,11 @@ void uiODSceneMgr::setMousePos()
     }
 
     appl.statusBar()->message( msg, 0 );
-    msg = "Value = "; msg += visServ().getMousePosVal();
+
+    BufferString valstr = visServ().getMousePosVal();
+    msg = valstr == "" ? "" : "Value = "; msg += valstr;
     appl.statusBar()->message( msg, 1 );
+
     msg = visServ().getMousePosString();
     appl.statusBar()->message( msg, 2 );
 }
@@ -552,6 +555,7 @@ void uiODSceneMgr::updateTrees()
 	Scene& scene = *scenes[idx];
 	scene.itemmanager->updateColumnText(0);
 	scene.itemmanager->updateColumnText(1);
+	scene.itemmanager->updateColumnText(2);
     }
 }
 
