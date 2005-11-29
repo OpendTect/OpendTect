@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.68 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.69 2005-11-29 21:33:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -348,7 +348,6 @@ void uiMPEMan::updateAttribNames()
 	attribfld->setCurrentItem( (int)1 );
     }
 
-    attribSel(0);
     updateButtonSensitivity(0);
 }
 

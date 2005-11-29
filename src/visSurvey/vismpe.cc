@@ -4,10 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.36 2005-11-11 22:36:08 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.37 2005-11-29 21:33:53 cvskris Exp $";
 
 #include "vismpe.h"
 
+#include "arrayndsubsel.h"
 #include "emhistory.h"
 #include "emmanager.h"
 #include "mpeengine.h"
@@ -164,23 +165,6 @@ void MPEDisplay::updatePlaneColor( CallBacker* )
 }
 
 
-void MPEDisplay::setCubeSampling( CubeSampling cs )
-{
-    cs.snapToSurvey();
-    const Coord3 newwidth( cs.hrg.stop.inl-cs.hrg.start.inl,
-			   cs.hrg.stop.crl-cs.hrg.start.crl,
-			   cs.zrg.stop-cs.zrg.start );
-    boxdragger_->setWidth( newwidth );
-    
-    const Coord3 newcenter( (cs.hrg.stop.inl+cs.hrg.start.inl)/2,
-    			    (cs.hrg.stop.crl+cs.hrg.start.crl)/2,
-    			    cs.zrg.center() );
-    boxdragger_->setCenter( newcenter );
-    setDraggerCenter( true );
-    movement.trigger();
-}
-
-
 CubeSampling MPEDisplay::getCubeSampling() const
 { return getBoxPosition(); }
 
@@ -274,10 +258,47 @@ void MPEDisplay::updateTexture()
     if ( !texture_ )
 	setTexture( visBase::Texture3::create() );
 
-    if ( getCubeSampling()!=attrdata->cubeSampling() )
-	setCubeSampling( attrdata->cubeSampling() );
+    const Array3D<float>& data( attrdata->getCube(0) );
 
-    texture_->setData( &attrdata->getCube(0) );
+    if ( getCubeSampling()!=attrdata->cubeSampling() )
+    {
+	const CubeSampling displaycs = getCubeSampling();
+	const CubeSampling attrcs = attrdata->cubeSampling();
+	if ( !attrcs.includes( displaycs ) )
+	{
+	    texture_->turnOn( false );
+	    return;
+	}
+
+	const StepInterval<int> inlrg( attrcs.hrg.inlRange() );
+	const StepInterval<int> crlrg( attrcs.hrg.crlRange() );
+	const Interval<int> dispinlrg( inlrg.getIndex(attrcs.hrg.start.inl),
+				       inlrg.getIndex(attrcs.hrg.stop.inl) );
+	const Interval<int> dispcrlrg( crlrg.getIndex(attrcs.hrg.start.crl),
+				       crlrg.getIndex(attrcs.hrg.stop.crl) );
+
+	const StepInterval<float>& zrg( displaycs.zrg );
+
+	const Interval<int> dispzrg( attrcs.zrg.nearestIndex( zrg.start ),
+				     attrcs.zrg.nearestIndex( zrg.stop ) );
+
+	const Array3DSubSelection<float> array( dispinlrg.start,dispcrlrg.start,
+			  dispzrg.start, dispinlrg.width()+1,
+			  dispcrlrg.width()+1,
+			  dispzrg.width()+1,
+			  const_cast< Array3D<float>& >(data) );
+
+	if ( !array.isOK() )
+	{
+	    texture_->turnOn( false );
+	    return;
+	}
+
+	texture_->setData( &array );
+    }
+    else
+	texture_->setData( &data );
+
     texture_->turnOn( true );
 }
 
@@ -558,6 +579,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	    Interval<float>(cube.zrg.start,cube.zrg.stop) );
 
     setDraggerCenter( true );
+    updateTexture();
     movement.trigger();
 }
 
