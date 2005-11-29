@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.11 2005-10-20 13:59:41 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.12 2005-11-29 08:04:59 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -29,8 +29,7 @@ static const char* rcsID = "$Id: od_process_attrib.cc,v 1.11 2005-10-20 13:59:41
 #include "filepath.h"
 #include "mmsockcommunic.h"
 
-#include "attribfactory.h"
-#include "attrfact.h"
+#include "attribinit.h"
 
 #define mDestroyWorkers \
 	{ delete proc; proc = 0; }

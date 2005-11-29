@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.20 2005-11-25 13:28:56 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.21 2005-11-29 08:05:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "attribposvecoutput.h"
 #include "attribengman.h"
 #include "attribfactory.h"
-#include "attrfact.h"
+#include "attribinit.h"
 #include "attribsel.h"
 #include "attribdatacubes.h"
 #include "executor.h"

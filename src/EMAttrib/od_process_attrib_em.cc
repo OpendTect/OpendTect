@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.22 2005-11-09 16:42:54 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.23 2005-11-29 08:06:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,7 @@ ________________________________________________________________________
 #include "seiswrite.h"
 
 #include "attribsel.h"
-#include "attribfactory.h"
-#include "attrfact.h"
+#include "attribinit.h"
 #include "survinfo.h"
 
 using namespace Attrib;
