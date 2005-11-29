@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.10 2005-09-02 14:21:35 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.11 2005-11-29 19:35:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "attribsteering.h"
-#include "datainpspec.h"
 #include "mathexpression.h"
-#include "undefval.h"
-
 
 namespace Attrib
 {
@@ -91,10 +87,8 @@ void Math::updateDesc( Desc& desc )
 	desc.removeInput(0);
 
     for ( int idx=0; idx<formula->getNrVariables(); idx++ )
-    {
 	desc.addInput( 
 		InputSpec(formula->getVariableStr(inputtable[idx]),true) );
-    }
 }
 
 
@@ -118,7 +112,7 @@ bool Math::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Math::getInputData( const BinID& relpos, int idx )
+bool Math::getInputData( const BinID& relpos, int intv )
 {
     const int nrvar = expression_->getNrVariables();
     while ( inputdata_.size() < nrvar )
@@ -126,7 +120,7 @@ bool Math::getInputData( const BinID& relpos, int idx )
 
     for ( int varidx=0; varidx<nrvar; varidx++ )
     {
-	const DataHolder* data = inputs[varidx]->getData( relpos, idx );
+	const DataHolder* data = inputs[varidx]->getData( relpos, intv );
 	if ( !data ) return false;
 	
 	inputdata_.replace( varidx, data );
@@ -145,21 +139,25 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !expression_ ) return false;
     const int nrvar = expression_->getNrVariables();
-    if ( inputtable_.size()!=nrvar ) return false;
+    if ( inputtable_.size() != nrvar ) return false;
 
+    const int offset = output.z0_ - z0;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
 	for ( int varidx=0; varidx<nrvar; varidx++ )
 	{
-	    const float val = inputdata_[varidx]->series(inputidxs_[varidx])->
-				value( cursample - inputdata_[varidx]->z0_ );
+	    ValueSeries<float>* serie = 
+		inputdata_[varidx]->series( inputidxs_[varidx] );
+	    const float val = 
+		serie->value( cursample - inputdata_[varidx]->z0_ );
 	    const int variable = inputtable_[varidx];
 	    expression_->setVariable( variable, val );
 	}
 
 	const float res = expression_->getValue();
-	output.series(0)->setValue( idx, mIsUdf(res) ? mUdf(float) : res );
+	output.series(0)->setValue( offset+idx, 
+				    mIsUdf(res) ? mUdf(float) : res );
     }
 
     return true;

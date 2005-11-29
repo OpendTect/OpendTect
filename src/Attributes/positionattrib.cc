@@ -4,21 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.8 2005-09-27 09:18:06 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.9 2005-11-29 19:35:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "positionattrib.h"
+
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
 #include "attribsteering.h"
-#include "valseriesinterpol.h"
 #include "runstat.h"
+#include "valseriesinterpol.h"
 
 
 #define mPositionOperMin           0
@@ -86,12 +86,12 @@ Provider* Position::createInstance( Desc& ds )
 
 void Position::updateDesc( Desc& desc )
 {
-    bool issteer = ( (ValParam*)desc.getParam(steeringStr()) )->getBoolValue();
-    desc.inputSpec(2).enabled = issteer;
+    desc.inputSpec(2).enabled =
+		desc.getValParam( steeringStr() )->getBoolValue();
 }
 
 
-const char* Position::operTypeStr(int type)
+const char* Position::operTypeStr( int type )
 {
     if ( type==mPositionOperMin ) return "Min";
     if ( type==mPositionOperMax ) return "Max";
@@ -101,7 +101,6 @@ const char* Position::operTypeStr(int type)
     
 Position::Position( Desc& desc_ )
     : Provider( desc_ )
-    , positions(0,BinID(0,0))
 {
     if ( !isOK() ) return;
 
@@ -109,25 +108,22 @@ Position::Position( Desc& desc_ )
 
     mGetBinID( stepout, stepoutStr() );
     mGetFloatInterval( gate, gateStr() );
-    gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
+    gate.scale( 1/zFactor() );
 
     mGetEnum( oper, operStr() );
     mGetBool( steering, steeringStr() );
 
     BinID pos;
     for ( pos.inl=-stepout.inl; pos.inl<=stepout.inl; pos.inl++ )
-    {
 	for ( pos.crl=-stepout.crl; pos.crl<=stepout.crl; pos.crl++ )
-	{
 	    positions += pos;
-	}
-    }
 
-    outdata = new Array2DImpl< const DataHolder*>( stepout.inl *2 +1 , 
-						    stepout.crl *2 +1 );
-    
-    float extraz = mMAX(stepout.inl*inldist(), stepout.crl*crldist()) * mMAXDIP;
-    desgate = Interval<float>( gate.start - extraz, gate.stop + extraz );
+    outdata = new Array2DImpl<const DataHolder*>( stepout.inl*2+1,
+	    					  stepout.crl*2+1 );
+
+    const float maxso = mMAX( stepout.inl*inldist(), stepout.crl*crldist() );
+    const float extraz = maxso * mMAXDIP;
+    desgate = Interval<float>( gate.start-extraz, gate.stop+extraz );
 }
 
 
@@ -141,10 +137,7 @@ void Position::initSteering()
 {
     for( int idx=0; idx<inputs.size(); idx++ )
     {
-	if ( !inputs[idx] )
-	    continue;
-
-	if ( inputs[idx]->getDesc().isSteering() )
+	if ( inputs[idx] && inputs[idx]->getDesc().isSteering() )
 	    inputs[idx]->initSteering(stepout);
     }
 }
@@ -165,7 +158,7 @@ bool Position::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Position::getInputData(const BinID& relpos, int idx)
+bool Position::getInputData( const BinID& relpos, int idx )
 {
     const int nrpos = positions.size();
     const int inlsz = stepout.inl * 2 + 1;
@@ -185,56 +178,68 @@ bool Position::getInputData(const BinID& relpos, int idx)
 	if ( !indata || !odata ) return false;
 
 	inputdata.replace( idp, indata );
-	
 	outdata->set( positions[idp].inl + stepout.inl,
-		      positions[idp].crl + stepout.crl, odata);
+		      positions[idp].crl + stepout.crl, odata );
     }
     
     inidx_ = getDataIndex( 0 );
     outidx_ = getDataIndex( 1 );
-    steerdata = steering ? inputs[2]->getData(relpos, idx) : 0;
+    steerdata = steering ? inputs[2]->getData(relpos,idx) : 0;
 
     return true;
 }
 
-bool Position::computeData( const DataHolder& output,
-				const BinID& relpos,
-				int z0, int nrsamples ) const
+
+const BinID* Position::reqStepout( int inp, int out ) const
+{ return &stepout; }
+
+
+const Interval<float>* Position::reqZMargin( int inp, int ) const
+{ return inp==1 ? 0 : &gate; }
+
+
+const Interval<float>* Position::desZMargin( int inp, int ) const
+{ return inp==1 ? 0 : &desgate; }
+
+
+bool Position::computeData( const DataHolder& output, const BinID& relpos,
+			    int z0, int nrsamples ) const
 {
     if ( !inputdata.size() || !outdata ) return false;
     
     const int nrpos = positions.size();
     const int cposnr = (int)(nrpos/2);
 
-    Interval<int> samplegate( mNINT(gate.start/refstep),
-			    mNINT(gate.stop/refstep) );
+    const Interval<int> samplegate( mNINT(gate.start/refstep),
+				    mNINT(gate.stop/refstep) );
     
     RunningStatistics<float> stats;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int cursample = z0 + idx;
+	const int cursample = z0 + idx;
 	TypeSet<BinIDValue> bidv;
 	stats.clear();
 	for ( int idp=0; idp<nrpos; idp++ )
 	{
 	    const DataHolder* dh = inputdata[idp];
 	    if ( !dh ) continue;
+
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 	    int ds = samplegate.start;
-	    int steeridx = getSteeringIndex(positions[idp]);
+	    const int steeridx = getSteeringIndex( positions[idp] );
 
 	    float sample = cursample;
 	    if ( steering && steerdata->series(steeridx) )
 		sample += steerdata->series(steeridx)->value( 
-						cursample - steerdata->z0_ );
+						cursample-steerdata->z0_ );
 		
-	    for ( int ids=0; ids< samplegate.width()+1; ids++ )
+	    for ( int ids=0; ids<samplegate.width()+1; ids++ )
 	    {
 		float place = sample + ds - dh->z0_;
 		stats += interp.value( *(dh->series(inidx_)), place );
 		bidv += BinIDValue( positions[idp], sample + ds );
-		ds ++;
+		ds++;
 	    }
 	}
 
@@ -249,31 +254,21 @@ bool Position::computeData( const DataHolder& output,
 
 	BinID bid = bidv[posidx].binid;
 	float sample = bidv[posidx].value;
-	const DataHolder* odata = outdata->get( bid.inl + stepout.inl, 
-						bid.crl + stepout.crl );
-	
+	const DataHolder* odata = outdata->get( bid.inl+stepout.inl, 
+						bid.crl+stepout.crl );
+
 	float val = 0;
 	if ( odata )
 	{
 	    ValueSeriesInterpolator<float> intp( odata->nrsamples_-1 );
-	    val = intp.value( *(odata->series(outidx_)), sample - odata->z0_ );
+	    val = intp.value( *(odata->series(outidx_)), sample-odata->z0_ );
 	}
 
-	output.series(0)->setValue(idx, val);
+	output.series(0)->setValue( output.z0_-z0+idx, val );
     }
 
     return true;
 }
 
 
-const BinID* Position::reqStepout( int inp, int out ) const
-{ return &stepout; }
-
-
-const Interval<float>* Position::reqZMargin( int inp, int ) const
-{ return inp==1 ? 0 : &gate; }
-
-const Interval<float>* Position::desZMargin( int inp, int ) const
-{ return inp==1 ? 0 : &desgate; }
-
-}//namespace
+} // namespace Attrib

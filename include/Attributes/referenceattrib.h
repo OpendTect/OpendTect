@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.4 2005-11-03 12:11:44 cvshelene Exp $
+ RCS:           $Id: referenceattrib.h,v 1.5 2005-11-29 19:35:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ protected:
 
     bool		is2d_;
     
-    ObjectSet<const DataHolder> inputdata;
+    const DataHolder*	inputdata_;
 };
 
 }; // namespace Attrib

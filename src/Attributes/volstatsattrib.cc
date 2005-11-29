@@ -4,20 +4,17 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.12 2005-09-27 09:18:06 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.13 2005-11-29 19:35:42 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
+
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
-#include "datainpspec.h"
-#include "survinfo.h"
-#include "valseriesinterpol.h"
 #include "cubesampling.h"
-
-#include <iostrm.h>
+#include "valseriesinterpol.h"
 
 #define mShapeRectangle	 0
 #define mShapeEllipse	 1
@@ -97,7 +94,7 @@ void VolStats::updateDesc( Desc& desc )
 	for ( int idx=1; idx<nrvolumes; idx++ )
 	{
 	    BufferString str = "inputdata vol"; str += (idx+1);
-	    desc.addInput( InputSpec( str.buf(),true ) );
+	    desc.addInput( InputSpec(str.buf(),true) );
 	}
 	
 	const bool issteer = desc.getValParam(steeringStr())->getBoolValue();
@@ -134,6 +131,7 @@ int VolStats::outputtypes[] =
 VolStats::VolStats( Desc& desc_ )
     : Provider( desc_ )
     , positions(0,BinID(0,0))
+    , stats(0)
 {
     if ( !isOK() ) return;
 
@@ -168,7 +166,7 @@ VolStats::VolStats( Desc& desc_ )
 	}
     }
 
-    stats = new ObjectSet<RunningStatistics<double> >;
+    stats = new ObjectSet< RunningStatistics<double> >;
     for ( int idx=0; idx<nrvolumes; idx++ )
 	(*stats) += new RunningStatistics<double>;
 }
@@ -189,7 +187,7 @@ void VolStats::initSteering()
 	    continue;
 
 	if ( inputs[idx]->getDesc().isSteering() )
-	    inputs[idx]->initSteering(stepout);
+	    inputs[idx]->initSteering( stepout );
     }
 }
 
@@ -208,39 +206,60 @@ bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool VolStats::getInputData(const BinID& relpos, int idx)
+bool VolStats::getInputData( const BinID& relpos, int idx )
 {
-    while ( inputdata.size()<positions.size()*nrvolumes )
+    while ( inputdata.size() < positions.size()*nrvolumes )
 	inputdata += 0;
 
-    steeringdata = steering ? inputs[nrvolumes]->getData(relpos, idx) : 0;
+    steeringdata = steering ? inputs[nrvolumes]->getData(relpos,idx) : 0;
     if ( steering && !steeringdata )
 	return false;
 
-    BinID bidstep = inputs[0]->getStepoutStep();
-    int nrpos = positions.size();
+    const BinID bidstep = inputs[0]->getStepoutStep();
+    const int nrpos = positions.size();
 
     int storpos = 0;
     for ( int idy=0; idy<nrvolumes; idy++ )
     {
 	for ( int idz=0; idz<nrpos; idz++ )
 	{
-	    BinID truepos = relpos + positions[idz] * bidstep;
+	    const BinID truepos = relpos + positions[idz] * bidstep;
 	    const DataHolder* indata = inputs[idy]->getData( truepos, idx );
-
 	    if ( !indata ) return false;
 
 	    inputdata.replace( storpos, indata );
 	    storpos++;
 	}
     }
+
     dataidx_ = getDataIndex( 0 );
     return true;
 }
 
 
+const BinID* VolStats::reqStepout( int inp, int out ) const
+{ return inp<nrvolumes ? &stepout : 0; }
+
+
+const Interval<float>* VolStats::reqZMargin( int inp, int ) const
+{ return !absolutegate && inp<nrvolumes ? &gate : 0; }
+
+
+const Interval<float>* VolStats::desZMargin( int inp, int ) const
+{ 
+    if ( absolutegate )
+    {
+	const int maxlen = mNINT(possiblevolume->zrg.width()/refstep) + 1;
+	const Interval<float> absgate( -maxlen*refstep, maxlen*refstep );
+	const_cast<VolStats*>(this)->absdepthgate = absgate;
+    }
+
+    return  absolutegate ? &absdepthgate : (inp<nrvolumes ? &desgate : 0);
+}
+
+
 bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
-				int z0, int nrsamples ) const
+			    int z0, int nrsamples ) const
 {
     const int nrpos = positions.size();
     const int nrtraces = nrvolumes*nrpos;
@@ -277,7 +296,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			float place = (absolutegate ? 0 : csample) + s;
 			(*(*stats)[volidx]) += interp.value( 
 					*(dh->series(dataidx_)),place-dh->z0_ );
-			s ++;
+			s++;
 		    }
 		}	
 	    }
@@ -296,7 +315,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		int steeridx = steering? getSteeringIndex(positions[posidx]) :0;
 		
 		if ( steering ) csample += steeringdata->series(steeridx)->
-					value( cursample - steeringdata->z0_); 
+					value( cursample-steeringdata->z0_ ); 
 
 		const float newsample = csample + samplegate.stop;
 
@@ -317,46 +336,29 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
         const int nroutp = outputinterest.size();
 	for ( int outidx=0; outidx<nroutp; outidx++ )
 	{
-	    if ( outputinterest[outidx] )
+	    if ( outputinterest[outidx] == 0 )
+		continue;
+
+	    bool validsum = false;
+	    float sum = 0;
+	    for ( int vol=0; vol<nrvolumes; vol++ )
 	    {
-		bool validsum = false;
-		float sum = 0;
-		for ( int vol=0; vol<nrvolumes; vol++ )
-		{
-		    RunningStatistics<double>* curstat = (*stats)[vol];
-		    if ( !curstat || !curstat->size() ) continue;
-		    sum += (*stats)[vol]->getValue(
-			    (RunStats::StatType)outputtypes[outidx]);
-		    validsum = true;
-		}
-		
-		output.series(outidx)->
-		    setValue( idx, validsum ? sum / nrvolumes : mUdf(float) );
+		RunningStatistics<double>* curstat = (*stats)[vol];
+		if ( !curstat || !curstat->size() ) continue;
+		sum += (*stats)[vol]->getValue(
+			(RunStats::StatType)outputtypes[outidx] );
+		validsum = true;
 	    }
+
+	    const int sampleidx = output.z0_-z0+idx;
+	    const float outval = validsum ? sum / nrvolumes : mUdf(float);
+	    output.series(outidx)->setValue( sampleidx, outval );
 	}
     }
     
     return true;
 }
 
-
-const BinID* VolStats::reqStepout( int inp, int out ) const
-{ return inp<nrvolumes ? &stepout : 0; }
-
-
-const Interval<float>* VolStats::reqZMargin( int inp, int ) const
-{ return !absolutegate && inp<nrvolumes ? &gate : 0; }
-
-
-const Interval<float>* VolStats::desZMargin( int inp, int ) const
-{ 
-    if ( absolutegate )
-    {
-	int maxlen = mNINT(possiblevolume->zrg.width()/refstep) + 1;
-	Interval<float> absgate( -maxlen*refstep, maxlen*refstep );
-	const_cast<VolStats*>(this)->absdepthgate = absgate;
-    }
-    return  absolutegate ? &absdepthgate : (inp<nrvolumes ? &desgate : 0); }
 
 
 }; //namespace

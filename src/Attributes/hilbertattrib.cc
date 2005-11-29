@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.12 2005-10-27 14:16:45 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.13 2005-11-29 19:35:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
 #include "genericnumer.h"
 
 namespace Attrib
@@ -63,10 +62,10 @@ Hilbert::Hilbert( Desc& desc_ )
 {
     if ( !isOK() ) return;
 
-    mGetInt( halflen, halflenStr() );
-    hilbfilterlen = halflen * 2 + 1;
-    hilbfilter = makeHilbFilt( halflen );
-    gate = Interval<float>( -halflen-3, halflen+3 );
+    mGetInt( halflen_, halflenStr() );
+    hilbfilterlen_ = halflen_ * 2 + 1;
+    hilbfilter_ = makeHilbFilt( halflen_ );
+    gate_ = Interval<float>( -halflen_-3, halflen_+3 );
 }
 
 
@@ -76,67 +75,11 @@ bool Hilbert::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Hilbert::getInputData( const BinID& relpos, int idx )
+bool Hilbert::getInputData( const BinID& relpos, int intv )
 {
-    inputdata = inputs[0]->getData( relpos, idx );
+    inputdata_ = inputs[0]->getData( relpos, intv );
     dataidx_ = getDataIndex( 0 );
-    return inputdata;
-}
-
-
-class Masker
-{
-public:
-Masker( const DataHolder* dh, int shift, float avg, int dataidx )
-    : data_(dh )
-    , avg_(avg)
-    , shift_(shift)
-    , dataidx_(dataidx) {}
-
-float operator[](int idx) const
-{
-    const int pos = shift_ + idx;
-    if ( pos < 0 )
-	return data_->series(dataidx_)->value(0) - avg_;
-    if ( pos >= data_->nrsamples_ )
-	return data_->series(dataidx_)->value(data_->nrsamples_-1) - avg_;
-    return data_->series(dataidx_)->value( pos ) - avg_;
-}
-
-    const DataHolder*	data_;
-    const int		shift_;
-    float		avg_;
-    int			dataidx_;
-};
-
-
-bool Hilbert::computeData( const DataHolder& output, const BinID& relpos, 
-			   int z0, int nrsamples ) const
-{
-    if ( !inputdata ) return false;
-
-    const int shift = z0 - inputdata->z0_;
-    Masker masker( inputdata, shift, 0, dataidx_ );
-    float avg=0;
-    int nrsampleused = nrsamples;
-    for ( int idx=0; idx<nrsamples; idx++ )
-    {
-	float val  = masker[idx];
-	if ( mIsUdf(val) )
-	{
-	    avg += 0;
-	    nrsampleused--;
-	}
-	else
-	    avg += val;
-    }
-
-    masker.avg_ = avg / nrsampleused;
-    float* outp = output.series(0)->arr();
-    GenericConvolve( hilbfilterlen, -halflen, hilbfilter, nrsamples,
-		     0, masker, nrsamples, 0, outp );
-
-    return true;
+    return inputdata_;
 }
 
 /*
@@ -163,6 +106,59 @@ float* Hilbert::makeHilbFilt( int hlen )
 }
 
 
+class Masker
+{
+public:
+Masker( const DataHolder* dh, int shift, float avg, int dataidx )
+    : data_(dh )
+    , avg_(avg)
+    , shift_(shift)
+    , dataidx_(dataidx) {}
+
+float operator[]( int idx ) const
+{
+    const int pos = shift_ + idx;
+    if ( pos < 0 )
+	return data_->series(dataidx_)->value(0) - avg_;
+    if ( pos >= data_->nrsamples_ )
+	return data_->series(dataidx_)->value(data_->nrsamples_-1) - avg_;
+    return data_->series(dataidx_)->value( pos ) - avg_;
+}
+
+    const DataHolder*	data_;
+    const int		shift_;
+    float		avg_;
+    int			dataidx_;
+};
+
+
+bool Hilbert::computeData( const DataHolder& output, const BinID& relpos, 
+			   int z0, int nrsamples ) const
+{
+    if ( !inputdata_ ) return false;
+
+    const int shift = z0 - inputdata_->z0_;
+    Masker masker( inputdata_, shift, 0, dataidx_ );
+    float avg = 0;
+    int nrsampleused = nrsamples;
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	float val = masker[idx];
+	if ( mIsUdf(val) )
+	{
+	    avg += 0;
+	    nrsampleused--;
+	}
+	else
+	    avg += val;
+    }
+
+    masker.avg_ = avg / nrsampleused;
+    float* outp = output.series(0)->arr();
+    GenericConvolve( hilbfilterlen_, -halflen_, hilbfilter_, nrsamples,
+		     0, masker, nrsamples, 0, outp );
+
+    return true;
+}
+
 }; // namespace Attrib
-
-

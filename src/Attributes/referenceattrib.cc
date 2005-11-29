@@ -1,22 +1,21 @@
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : Helene PAYRAUDEAU
+ * AUTHOR   : Helene Payraudeau
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.11 2005-11-03 12:11:44 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.12 2005-11-29 19:35:42 cvsnanne Exp $";
 
 
 #include "referenceattrib.h"
+
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
-#include "survinfo.h"
-#include "position.h"
-#include "cubesampling.h"
-#include "datainpspec.h"
 #include "attribparam.h"
+#include "cubesampling.h"
 #include "seistrcsel.h"
+#include "survinfo.h"
 
 
 namespace Attrib
@@ -60,7 +59,7 @@ Provider* Reference::createInstance( Desc& ds )
 
 void Reference::updateDesc( Desc& desc )
 {
-    bool is2Dsurvey = ( (ValParam*)desc.getParam(is2DStr()) )->getBoolValue();
+    const bool is2Dsurvey = desc.getValParam( is2DStr() )->getBoolValue();
     if ( !is2Dsurvey )
 	desc.setNrOutputs( Seis::UnknowData, 9 );
     else
@@ -74,8 +73,6 @@ Reference::Reference( Desc& desc_ )
     if ( !isOK() ) return;
     
     mGetBool( is2d_, is2DStr() );
-
-    inputdata.allowNull( true );
 }
 
 
@@ -85,19 +82,15 @@ bool Reference::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool Reference::getInputData( const BinID& relpos, int idx )
+bool Reference::getInputData( const BinID& relpos, int intv )
 {
-    if ( !inputdata.size() )
-	inputdata += 0;
-
-    const DataHolder* data = inputs[0]->getData( relpos, idx );
-    inputdata.replace( 0, data );
-    return data;
+    inputdata_ = inputs[0]->getData( relpos, intv );
+    return inputdata_;
 }
 
 
 bool Reference::computeData( const DataHolder& output, const BinID& relpos,
-			      int z0, int nrsamples ) const
+			     int z0, int nrsamples ) const
 {
     float step = refstep ? refstep : SI().zStep();
     Coord coord;
@@ -139,8 +132,8 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	    if ( outputinterest[7] )
 	    {
-	    int val = currentbid.crl - SI().crlRange(0).start + 1;
-	    output.series(7)->setValue(idx, val);
+		int val = currentbid.crl - SI().crlRange(0).start + 1;
+		output.series(7)->setValue(idx, val);
 	    }
 	    if ( outputinterest[8] )
 	    {
@@ -151,18 +144,18 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	else
 	{
 	    if ( outputinterest[3] )
-		output.series(3)->setValue(idx, currentbid.crl);
+		output.series(3)->setValue( idx, currentbid.crl );
 	    if ( outputinterest[4] )
-		output.series(4)->setValue(idx, z0 + idx + 1);
+		output.series(4)->setValue( idx, z0+idx+1 );
 	    if ( outputinterest[5] )
 	    {
 		int val = currentbid.crl - desiredvolume->hrg.start.crl + 1;
-		output.series(5)->setValue(idx, val);
+		output.series(5)->setValue( idx, val );
 	    }
 	    if ( outputinterest[6] )
 	    {
 		int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
-		output.series(6)->setValue(idx, val);
+		output.series(6)->setValue( idx, val );
 	    }
 	}
     }

@@ -7,16 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.6 2005-11-29 19:35:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "attribprovider.h"
-#include "runstat.h"
-#include "valseries.h"
-#include "valseriesinterpol.h"
-#include "mathfunc.h"
 
 namespace Attrib
 {
@@ -39,21 +35,23 @@ protected:
     bool			computeData(const DataHolder&,const BinID& pos,
 					    int t0,int nrsamples) const;
 
+    bool			allowParallelComputation() const
+    				{ return false; }
+
 //    const Interval<float>*	desZMargin(int input,int output) const;
 
-    const DataHolder*		inputdata;
+    const DataHolder*		inputdata_;
     int				dataidx_;
 
-    Interval<float>		gate;
-    Interval<float>		timegate;
-    int				halflen;
-    int				hilbfilterlen;
-    const float*		hilbfilter;
+    Interval<float>		gate_;
+    Interval<float>		timegate_;
+    int				halflen_;
+    int				hilbfilterlen_;
+    const float*		hilbfilter_;
+
     static float*		makeHilbFilt(int);
 };
 
 }; // namespace Attrib
 
-
 #endif
-
