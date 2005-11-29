@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Nov 2005
- RCS:		$Id: arrayndsubsel.h,v 1.2 2005-11-29 16:05:35 cvskris Exp $
+ RCS:		$Id: arrayndsubsel.h,v 1.3 2005-11-29 21:35:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ T Array3DSubSelection<T>::get( int s0, int s1, int s2 ) const
 template <class T>
 bool Array3DSubSelection<T>::isOK() const
 {
-    for ( int dim=info_.getNDim(); dim>=0; dim-- )
+    for ( int dim=info_.getNDim()-1; dim>=0; dim-- )
     {
 	if ( start[dim]<0 || start[dim]>=src.info().getSize(dim) ||
 	     info_.getSize(dim)<=0 )
