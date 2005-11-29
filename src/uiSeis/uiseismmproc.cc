@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.100 2005-10-25 12:47:12 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.101 2005-11-29 16:39:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     MultiID outid = iopar.find( SeisJobExecProv::outputKey(iopar) );
     outioobjinfo = new uiSeisIOObjInfo( outid );
     if ( !outioobjinfo->isOK() )
-	{ setOkText( "Quit" ); setCancelText( "" ); return; }
+	{ setOkText( "Output cube not found in Object Management" );
+	    setCancelText( "" ); return; }
 
     const int nrhosts = hdl.size();
     const bool multihost = nrhosts > 1;
