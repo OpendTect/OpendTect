@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.35 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.36 2005-11-29 16:11:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,8 +261,8 @@ const Attrib::DataCubes*
 { return MPE::engine().getAttribCache( spec ); }
 
 
-CubeSampling uiMPEPartServer::getActiveVolume() const
-{ return MPE::engine().activeVolume(); }
+CubeSampling uiMPEPartServer::getAttribVolume( const Attrib::SelSpec& as ) const
+{ return MPE::engine().getAttribCube(as); }
 
 
 bool uiMPEPartServer::activeVolumeIsDefault() const

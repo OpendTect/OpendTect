@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.19 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.20 2005-11-29 16:11:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,10 @@ public:
     				/*!< returns the trackerid of the last event */
 
     static const int		evGetAttribData;
-    CubeSampling		getActiveVolume() const;
+    CubeSampling		getAttribVolume(const Attrib::SelSpec&) const;
+    				/*!<\returns the volume needed of an
+				 	     attrib if tracking should
+					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
     const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
     void			setAttribData( const Attrib::SelSpec&,

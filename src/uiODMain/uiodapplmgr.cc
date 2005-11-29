@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.108 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.109 2005-11-29 16:11:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -624,7 +624,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	const Attrib::SelSpec* as = mpeserv->getAttribSelSpec();
 	if ( !as ) return false;
-	const CubeSampling cs = mpeserv->getActiveVolume();
+	const CubeSampling cs = mpeserv->getAttribVolume(*as);
 	const Attrib::DataCubes* cache = mpeserv->getAttribCache(*as);
 	attrserv->setTargetSelSpec( *as );
 	RefMan<const Attrib::DataCubes> newdata =
