@@ -1,5 +1,5 @@
 #ifndef arrayndsubsel_h
-#define selector_Harrayndsubsel_h
+#define arrayndsubsel_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Nov 2005
- RCS:		$Id: arrayndsubsel.h,v 1.1 2005-11-23 18:36:05 cvskris Exp $
+ RCS:		$Id: arrayndsubsel.h,v 1.2 2005-11-29 16:05:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
