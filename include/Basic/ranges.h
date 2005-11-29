@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.36 2005-07-26 08:00:07 cvsnanne Exp $
+ RCS:		$Id: ranges.h,v 1.37 2005-11-29 16:08:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 
     inline int		operator==( const Interval<T>& i ) const;
     inline int		operator!=( const Interval<T>& i ) const;
+    inline Interval<T>	operator+( const Interval<T>& i ) const;
 
     inline T		width( bool allowrev=true ) const;
     inline T		center() const;
@@ -370,6 +371,11 @@ int Interval<T>::operator==( const Interval<T>& i ) const
 template <class T> inline
 int Interval<T>::operator!=( const Interval<T>& i ) const
 { return ! (i == *this); }
+
+
+template <class T> inline
+Interval<T> Interval<T>::operator+( const Interval<T>& i ) const
+{ return Interval<T>(start+i.start, stop+i.stop); }
 
 
 template <class T> inline
