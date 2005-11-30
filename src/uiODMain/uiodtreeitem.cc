@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.126 2005-11-28 11:41:17 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.127 2005-11-30 22:13:52 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -558,7 +558,7 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 
 void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 {
-    uivisemobj->prepareForShutdown();
+    applMgr()->EMServer()->askUserToSave(emid);
 }
 
 
@@ -641,7 +641,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     }
 
     mAddMenuItem( menu, &savemenuitem,
-		  applMgr()->EMServer()->isChanged(emid), false );
+		  applMgr()->EMServer()->isChanged(emid) && 
+		  applMgr()->EMServer()->isFullyLoaded(emid), false );
 
     mAddMenuItem( menu, &saveasmenuitem, true, false );
 
