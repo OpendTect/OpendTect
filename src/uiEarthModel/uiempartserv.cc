@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.71 2005-10-25 09:23:01 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.72 2005-11-30 22:09:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,8 +143,33 @@ bool uiEMPartServer::isChanged(const EM::ObjectID& emid) const
 bool uiEMPartServer::isFullResolution(const EM::ObjectID& emid) const
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Surface*,emsurf,em.getObject(emid));
+    mDynamicCastGet(const EM::Surface*,emsurf,em.getObject(emid));
     return emsurf && emsurf->geometry.isFullResolution();
+}
+
+
+bool uiEMPartServer::isFullyLoaded(const EM::ObjectID& emid) const
+{
+    EM::EMManager& em = EM::EMM();
+    const EM::EMObject* emobj = em.getObject(emid);
+    return emobj && emobj->isFullyLoaded();
+}
+
+
+bool uiEMPartServer::askUserToSave(const EM::ObjectID& emid) const
+{
+    if ( !isChanged(emid) )
+	return true;
+
+    EM::EMManager& em = EM::EMM();
+    const EM::EMObject* emobj = em.getObject(emid);
+    BufferString msg( emobj->getTypeStr() );
+    msg += " '";
+    msg += emobj->name(); msg += "' has changed.\nDo you want to save it?";
+    if ( uiMSG().notSaved( msg,0,false) )
+	return storeObject(emid,!isFullyLoaded(emid) );
+
+    return true;
 }
 
 
@@ -243,7 +268,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 }
 
 
-bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas )
+bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 {
     mDynamicCastAll(id);
     if ( !object ) return false;
@@ -274,7 +299,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas )
 }
 
 
-bool uiEMPartServer::storeAuxData( const EM::ObjectID& id, bool storeas )
+bool uiEMPartServer::storeAuxData( const EM::ObjectID& id, bool storeas ) const
 {
     mDynamicCastAll(id);
     if ( !surface ) return false;

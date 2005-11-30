@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.35 2005-10-10 15:00:55 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.36 2005-11-30 22:09:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,11 @@ public:
 
     bool		isChanged(const EM::ObjectID&) const;
     bool		isFullResolution(const EM::ObjectID&) const;
+    bool		isFullyLoaded(const EM::ObjectID&) const;
+    bool		askUserToSave(const EM::ObjectID&) const;
+    			/*!<If object has changed, user is asked wether
+			    he wants to save it or not. If user want to
+			    save it, that is performed. */
 
     bool		selectHorizon(EM::ObjectID& id);
     bool		selectFault(EM::ObjectID& id);
@@ -68,8 +73,10 @@ public:
 	    			      BinIDValueSet&,
 				      const BinIDRange* br=0) const;
 
-    bool		storeObject(const EM::ObjectID&,bool storeas=false);
-    bool		storeAuxData(const EM::ObjectID&,bool storeas=false);
+    bool		storeObject(const EM::ObjectID&,
+	    			    bool storeas=false) const;
+    bool		storeAuxData(const EM::ObjectID&,
+	    			     bool storeas=false) const;
     void		setAuxData(const EM::ObjectID&,
 	    			   ObjectSet<BinIDValueSet>&,const char*);
     void		setAuxData(const EM::ObjectID&,
