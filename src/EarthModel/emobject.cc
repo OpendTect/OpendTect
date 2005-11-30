@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.56 2005-10-18 19:07:33 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.57 2005-11-30 21:52:22 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -89,6 +89,7 @@ EMObject::EMObject( EMManager& emm )
     , preferredcolor( *new Color(255, 0, 0) )
     , changed( false )
     , storageid( -1 )
+    , fullyloaded( false )
 {
     mRefCountConstructor;
     id_ = manager.addObject( this );
@@ -434,7 +435,12 @@ bool EMObject::usePar( const IOPar& par )
 	const int minsz = mMIN(sections.size(), subids.size() );
 
 	for ( int idy=0; idy<minsz; idy++ )
+	{
+	    if ( !isDefined(subids[idy]) )
+		continue;
+
 	    setPosAttrib( PosID(id(),sections[idy],subids[idy]), attrib, true );
+	}
     }
 
     return true;
