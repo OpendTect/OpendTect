@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.16 2005-09-29 11:29:41 cvshelene Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.17 2005-11-30 22:01:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -147,6 +147,7 @@ protected:
     BufferStringSet		sectionnames;
     TypeSet<EM::SectionID>	sectionids;
     TypeSet<EM::SectionID>	sectionsel;
+    bool			fullyread;
 
     BufferStringSet		auxdatanames;
     ObjectSet<EM::dgbSurfDataReader> auxdataexecs;
