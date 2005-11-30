@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.54 2005-10-18 19:07:33 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.55 2005-11-30 21:56:54 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -151,6 +151,8 @@ public:
 						figures are dependent on impl.
 				*/
     virtual void		resetChangedFlag(int what=-1) { changed=false; }
+    bool			isFullyLoaded() const { return fullyloaded; }
+    void			setFullyLoaded( bool yn ) { fullyloaded=yn; }
 
     const char*			errMsg() const
     				{ return errmsg[0]
@@ -176,12 +178,14 @@ protected:
     class EMManager&		manager;
     BufferString		errmsg;
 
+
     Color&			preferredcolor;
 
     ObjectSet<TypeSet<PosID> >	posattribs;
     TypeSet<int>		attribs;
 
     bool			changed;
+    bool			fullyloaded;
 
     static const char*		prefcolorstr;
     static const char*		nrposattrstr;
