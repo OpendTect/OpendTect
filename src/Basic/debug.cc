@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.19 2005-09-27 08:38:52 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.20 2005-11-30 13:32:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.19 2005-09-27 08:38:52 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.20 2005-11-30 13:32:44 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -58,10 +58,6 @@ static int getMask()
 		message( msg );
 	    }
 	}
-
-	msg = "Debugging on, with mask: ";
-	msg += themask;
-	message( msg );
     }
 
     return themask;
