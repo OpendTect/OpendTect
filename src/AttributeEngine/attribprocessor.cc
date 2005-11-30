@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.32 2005-11-21 12:33:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.33 2005-11-30 11:05:45 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -41,9 +41,7 @@ Processor::Processor( Desc& desc , const char* lk )
     if ( is2d_ )
     {
 	provider->setCurLineKey( lk );
-	provider->adjust2DLineStoredVolume();
-	provider->computeRefZStep( provider->allexistingprov );
-	provider->propagateZRefStep( provider->allexistingprov );
+	provider->adjust2DLineStoredVolume( true );
     }
 }
 

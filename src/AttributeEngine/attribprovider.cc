@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.48 2005-11-25 09:19:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.49 2005-11-30 11:05:45 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -377,7 +377,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 		}
 
 #		define mAdjustIf(v1,op,v2) \
-				    if ( mIsUdf(v1) || v1 op v2 ) v1 = v2;
+		    if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
 		mAdjustIf(res.hrg.start.inl,<,inputcs.hrg.start.inl);
 		mAdjustIf(res.hrg.start.crl,<,inputcs.hrg.start.crl);
 		mAdjustIf(res.zrg.start,<,inputcs.zrg.start);
@@ -1119,11 +1119,17 @@ void Provider::setCurLineKey( const char* linename )
 }
 
 
-void Provider::adjust2DLineStoredVolume()
+void Provider::adjust2DLineStoredVolume( bool adjuststep )
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] )
 	    inputs[idx]->adjust2DLineStoredVolume();
+
+    if ( adjuststep )
+    {
+	computeRefZStep( allexistingprov );
+	propagateZRefStep( allexistingprov );
+    }
 }
 
 

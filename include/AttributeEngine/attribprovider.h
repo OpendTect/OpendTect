@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.30 2005-11-25 09:20:17 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.31 2005-11-30 11:05:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,11 +68,9 @@ public:
     void			resetDesiredVolume(); 
     void                        setPossibleVolume( const CubeSampling& );
     virtual bool		getPossibleVolume(int outp,CubeSampling&);
-    CubeSampling*		getPossibleVolume() const
-				    { return possiblevolume; }
     int				getTotalNrPos(bool);
     void			setCurLineKey( const char* linename ); 
-    virtual void		adjust2DLineStoredVolume();
+    virtual void		adjust2DLineStoredVolume(bool adjuststep=false);
     
     virtual int			moveToNextTrace(BinID startpos = BinID(-1,-1),
 	    					bool firstcheck = false);
@@ -85,8 +83,7 @@ public:
     void			resetMoved();
     void                        resetZIntervals();
 
-    virtual const SeisTrcInfo*	getCurrentTrcInfo() const
-				{ return curtrcinfo_; }
+    virtual const SeisTrcInfo*	getCurrentTrcInfo() const {return curtrcinfo_;}
     BinID			getCurrentPosition() const;
     virtual bool		setCurrentPosition(const BinID&);
     void			updateCurrentInfo();
@@ -100,12 +97,9 @@ public:
     void			setSelData(const SeisSelData*);
     void                        setExtraZ(const Interval<float>&);
     float                       getRefStep() const; 
-    void			computeRefZStep(const ObjectSet<Provider>&);
-    void			propagateZRefStep( const ObjectSet<Provider>& );
     virtual BinID		getStepoutStep() const;
     BufferString         	errMsg() const;
 
-    ObjectSet<Provider>		allexistingprov;
     ObjectSet<Provider>		getInputs() 		{ return inputs; }
 
     virtual void		initSteering(){};
@@ -150,6 +144,8 @@ protected:
     bool			isNew2DLine() const
     				{ return prevtrcnr > currentbid.crl; }
 
+    void			computeRefZStep(const ObjectSet<Provider>&);
+    void			propagateZRefStep( const ObjectSet<Provider>& );
     virtual const BinID*	desStepout(int input, int output) const;
     virtual const BinID*	reqStepout(int input, int output) const;
     virtual const Interval<float>* desZMargin(int input, int output) const;
@@ -171,6 +167,7 @@ protected:
     CubeSampling*		desiredvolume;
     CubeSampling*               possiblevolume;
     TypeSet< Interval<int> >	localcomputezintervals;
+    ObjectSet<Provider>		allexistingprov;
 
     Threads::ThreadWorkManager*	threadmanager;
     ObjectSet<BasicTask>	computetasks;

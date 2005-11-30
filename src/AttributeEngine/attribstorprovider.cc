@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.35 2005-11-25 09:19:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.36 2005-11-30 11:05:45 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -265,7 +265,7 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
     
     *possiblevolume = storedvolume;
 # define mAdjustIf(v1,op,v2) \
-  if ( mIsUdf(v1) || v1 op v2 ) v1 = v2;
+  if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
   
     mAdjustIf(res.hrg.start.inl,<,possiblevolume->hrg.start.inl);
     mAdjustIf(res.hrg.start.crl,<,possiblevolume->hrg.start.crl);
@@ -515,7 +515,7 @@ BinID StorageProvider::getStepoutStep() const
 }
 
 
-void StorageProvider::adjust2DLineStoredVolume()
+void StorageProvider::adjust2DLineStoredVolume( bool adjuststep )
 {
     const SeisTrcReader* reader = rg[currentreq]->reader();
     if ( !reader->is2D() ) return;
@@ -532,6 +532,9 @@ void StorageProvider::adjust2DLineStoredVolume()
 	storedvolume.zrg.stop = zrg.stop;
 	storedvolume.zrg.step = zrg.step;
     }
+
+    if ( adjuststep )
+	getZStepStoredData(refstep);
 }
 
 }; // namespace Attrib
