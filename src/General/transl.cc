@@ -14,7 +14,7 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.19 2005-11-01 09:21:09 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.20 2005-11-30 14:51:12 cvsbert Exp $";
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
@@ -148,8 +148,8 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 
     if ( !newgrp ) mRetEG
 
-    TranslatorGroup* grp = findGroup( getGroups(), newgrp->userName(),
-	    				true, false );
+    TranslatorGroup* grp = findGroup( getGroups(), newgrp->clssName(),
+	    				false, false );
     if ( grp )
     {
 	if ( DBG::isOn(DBG_IO) )
