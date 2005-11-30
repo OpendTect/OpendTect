@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.34 2005-11-18 12:50:32 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.35 2005-11-30 22:34:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emhorizon.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emsurfaceiodata.h"
 #include "survinfo.h"
 #include "uiexecutor.h"
 #include "uicursor.h"
@@ -55,7 +56,43 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     EM::ObjectID emid = EM::EMM().getObjectID(mid);
     if ( !EM::EMM().getObject(emid) )
     {
-	PtrMan<Executor> exec = EM::EMM().objectLoader( mid );
+	PtrMan<Executor> exec = 0;
+	EM::SurfaceIOData sd;
+	if ( !EM::EMM().getSurfaceData( mid, sd ) )
+	{
+	    EM::SurfaceIODataSelection sel( sd );
+	    sel.setDefault();
+
+	    const BufferStringSet sections = emod->displayedSections();
+
+	    TypeSet<int> sectionidx;
+	    for ( int idx=sections.size()-1; idx>=0; idx-- )
+	    {
+		const int idy = sel.sd.sections.indexOf( *sections[idx] );
+		if ( idy!=-1 )
+		    sectionidx += idy;
+	    }
+
+	    if ( sectionidx.size() )
+		sel.selsections = sectionidx;
+
+	    const StepInterval<int> rowrg = emod->displayedRowRange();
+	    const StepInterval<int> colrg = emod->displayedColRange();
+	    if ( rowrg.step!=-1 && colrg.step!=-1 )
+	    {
+		sel.rg.start.inl = rowrg.start;
+		sel.rg.start.crl = colrg.start;
+		sel.rg.stop.inl = rowrg.stop;
+		sel.rg.step.crl = colrg.step;
+		sel.rg.step.inl = rowrg.step;
+		sel.rg.stop.crl = colrg.stop;
+	    }
+
+	    exec = EM::EMM().objectLoader( mid, &sel );
+	}
+	else
+	    exec = EM::EMM().objectLoader( mid );
+
 	if ( exec )
 	{
 	    uiExecutor dlg( uiparent, *exec );
