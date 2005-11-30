@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.65 2005-11-03 23:33:36 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.66 2005-11-30 22:29:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,12 +64,18 @@ const char* EMObjectDisplay::sKeyResolution = "Resolution";
 const char* EMObjectDisplay::sKeyOnlyAtSections = "Display only on sections";
 const char* EMObjectDisplay::sKeyLineStyle = "Linestyle";
 const char* EMObjectDisplay::sKeyEdgeLineRadius = "Edgeline radius";
+const char* EMObjectDisplay::sKeyRowRange = "Row range";
+const char* EMObjectDisplay::sKeyColRange = "Col range";
+const char* EMObjectDisplay::sKeySections = "Displayed Sections";
+
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
     , em(EM::EMM())
     , oid(-1)
     , parmid(-1)
+    , parrowrg( -1, -1, -1 )
+    , parcolrg( -1, -1, -1 )
     , as(*new Attrib::SelSpec)
     , colas(*new Attrib::ColorSelSpec)
     , curtextureidx(0)
@@ -320,14 +326,43 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
 
 MultiID EMObjectDisplay::getMultiID() const
 {
-    EM::EMObject* emobject = em.getObject( oid );
+    const EM::EMObject* emobject = em.getObject( oid );
     if ( !emobject ) return parmid;
 
     return emobject->multiID();
 }
 
 
+BufferStringSet EMObjectDisplay::displayedSections() const
+{
+    const EM::EMObject* emobject = em.getObject( oid );
+    if ( !emobject )
+	return parsections;
+   
+    BufferStringSet res; 
+    for ( int idx=emobject->nrSections()-1; idx>=0; idx-- )
+	res +=new BufferString(emobject->sectionName(emobject->sectionID(idx)));
 
+    return res;
+}
+
+
+StepInterval<int> EMObjectDisplay::displayedRowRange() const
+{
+    mDynamicCastGet(const EM::Surface*, surface, em.getObject( oid ) );
+    if ( !surface ) return parrowrg;
+    
+    return surface->geometry.rowRange();
+}
+
+
+StepInterval<int> EMObjectDisplay::displayedColRange() const
+{
+    mDynamicCastGet(const EM::Surface*, surface, em.getObject( oid ) );
+    if ( !surface ) return parcolrg;
+    
+    return surface->geometry.colRange();
+}
 
 
 bool EMObjectDisplay::updateFromEM()
@@ -1084,6 +1119,18 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
+    const EM::EMObject* emobj = em.getObject(oid);
+    if ( emobj && !emobj->isFullyLoaded() )
+    {
+	par.set( sKeySections, displayedSections() );
+	par.set( sKeyRowRange, displayedRowRange().start,
+		 displayedRowRange().stop,
+		 displayedRowRange().step );
+	par.set( sKeyColRange, displayedColRange().start,
+		  displayedColRange().stop,
+		  displayedColRange().step );
+    }
+
     par.set( sKeyEarthModelID, getMultiID() );
     par.setYN( sKeyTexture, usesTexture() );
     par.setYN( sKeyWireFrame, usesWireframe() );
@@ -1120,6 +1167,10 @@ int EMObjectDisplay::usePar( const IOPar& par )
     if ( !par.get(sKeyEarthModelID,parmid) )
 	return -1;
 
+    par.get( sKeySections, parsections );
+    par.get( sKeyRowRange, parrowrg.start, parrowrg.stop, parrowrg.step );
+    par.get( sKeyColRange, parcolrg.start, parcolrg.stop, parcolrg.step );
+
     as.usePar( par );
     colas.usePar( par );
 
@@ -1140,9 +1191,8 @@ int EMObjectDisplay::usePar( const IOPar& par )
     if ( !par.get(sKey::Color,(int&)nontexturecol.rgb()) )
 	nontexturecol = getMaterial()->getColor();
 
-    bool usetext = true;
-    par.getYN( sKeyTexture, usetext );
-    useTexture( usetext );
+    if ( !par.getYN( sKeyTexture, usestexture ) )
+	usestexture = true;
 
     bool usewireframe = false;
     par.getYN( sKeyWireFrame, usewireframe );

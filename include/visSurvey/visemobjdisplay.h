@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.29 2005-11-03 23:33:36 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.30 2005-11-30 22:29:56 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "bufstringset.h"
 #include "draw.h"
 #include "emposid.h"
 #include "visobject.h"
@@ -65,6 +66,9 @@ public:
 				     with a marker. */
 
     MultiID			getMultiID() const;
+    BufferStringSet		displayedSections() const;
+    StepInterval<int>		displayedRowRange() const;
+    StepInterval<int>		displayedColRange() const;
 
     void			useTexture(bool yn);
     bool			usesTexture() const;
@@ -175,6 +179,11 @@ protected:
     EM::EMManager&			em;
     EM::ObjectID			oid;
     MultiID				parmid;
+    BufferStringSet			parsections;
+    StepInterval<int>			parrowrg;
+    StepInterval<int>			parcolrg;
+
+
     MPEEditor*				editor;
 
     Color				nontexturecol;
@@ -203,6 +212,9 @@ protected:
     static const char*			sKeyOnlyAtSections;
     static const char*			sKeyLineStyle;
     static const char*			sKeyEdgeLineRadius;
+    static const char*			sKeyRowRange;
+    static const char*			sKeyColRange;
+    static const char*			sKeySections;
 };
 
 
