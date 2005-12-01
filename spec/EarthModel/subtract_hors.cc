@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2005
- RCS:           $Id: subtract_hors.cc,v 1.3 2005-10-06 19:25:49 cvskris Exp $
+ RCS:           $Id: subtract_hors.cc,v 1.4 2005-12-01 09:08:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,8 +85,12 @@ static int doWork( int argc, char** argv )
     {
 	for ( rc.col=crlrg.start; rc.col<=crlrg.stop; rc.col+=crlrg.step )
 	{
-	    Coord3 pos1 = horizon1->geometry.getPos( EM::SectionID(0), rc );
-	    Coord3 pos2 = horizon2->geometry.getPos( EM::SectionID(0), rc );
+	    TypeSet<Coord3> positions1;
+	    horizon1->geometry.getPos( rc, positions1 );
+	    TypeSet<Coord3> positions2;
+	    horizon1->geometry.getPos( rc, positions2 );
+	    Coord3 pos1 = positions1.size() ? positions1[0] : Coord3::udf();
+	    Coord3 pos2 = positions2.size() ? positions2[0] : Coord3::udf();
 
 	    float val = mUdf(float);
 	    if ( pos1.isDefined() && pos2.isDefined() )
@@ -95,7 +99,7 @@ static int doWork( int argc, char** argv )
 		if ( SI().zIsTime() ) val *= 1000;
 	    }
 
-	    posid.setSubID( addtohor.geometry.rowCol2SubID(rc) );
+	    posid.setSubID( rc.getSerialized() );
 	    addtohor.auxdata.setAuxDataVal( dataidx, posid, val );
 	}
     }
