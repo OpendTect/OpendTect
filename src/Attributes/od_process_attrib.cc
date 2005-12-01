@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.12 2005-11-29 08:04:59 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.13 2005-12-01 15:03:40 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -263,6 +263,7 @@ bool BatchProgram::go( std::ostream& strm )
 		}
 	    }
 	    int res = proc->nextStep();
+	    int nrdone = 0;
 
 	    if ( nriter==0 )
 	    {
@@ -286,7 +287,11 @@ bool BatchProgram::go( std::ostream& strm )
 		if ( comm && !comm->updateProgress( nriter + 1 ) )
 		    mRetHostErr( comm->errMsg() )
 
-		++progressmeter;
+		if ( proc->nrDone()>nrdone )
+		{
+		    nrdone++;
+		    ++progressmeter;
+		}
 	    }
 	    else
 	    {

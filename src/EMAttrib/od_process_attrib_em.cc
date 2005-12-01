@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.23 2005-11-29 08:06:10 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.24 2005-12-01 15:03:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,6 +164,7 @@ static bool process( std::ostream& strm, Processor* proc,
     bool cont = true;
     bool loading = true;
     int nriter = 0;
+    int nrdone = 0;
     SeisTrcWriter* writer( 0 );
 
     ProgressMeter progressmeter(strm);
@@ -197,7 +198,12 @@ static bool process( std::ostream& strm, Processor* proc,
 		loading = false;
 		mPIDMsg( "Processing started." );
 	    }
-	    ++progressmeter;
+
+	    if ( proc->nrDone()>nrdone )
+	    {
+		nrdone++;
+		++progressmeter;
+	    }
 	}
 	else
 	{
