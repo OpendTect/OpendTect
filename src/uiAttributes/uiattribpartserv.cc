@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.21 2005-11-29 08:05:43 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.22 2005-12-02 14:37:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -330,6 +330,14 @@ uiAttribPartServer::createOutput( const CubeSampling& cs,
     PtrMan<EngineMan> aem = createEngMan( &cs, 0, ads );
     if ( !aem ) return 0;
 
+    BufferString defstr;
+    const Attrib::DescSet* attrds = ads ? ads : adsman->descSet();
+    if ( attrds && attrds->nrDescs() )
+    {
+	attrds->getDesc(targetspecs[0].id())->getDefStr(defstr);
+	if ( strcmp (defstr, targetspecs[0].defString()) )
+	    cache = 0;
+    }
     BufferString errmsg;
     Processor* process = aem->createDataCubesOutput( errmsg, cache );
     if ( !process )
@@ -637,6 +645,12 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
     as.set( 0, isnla ? DescID(outputnr,true) : attribid, isnla,
     isnla ? (const char*)nlaname : (const char*)attrsetnm );
+    BufferString bfs;
+    if ( attribid != SelSpec::cAttribNotSel() )
+    {
+	adsman->descSet()->getDesc(attribid)->getDefStr(bfs);
+	as.setDefString(bfs.buf());
+    }
 
     if ( isnla )
 	as.setRefFromID( *attrdata.nlamodel );
