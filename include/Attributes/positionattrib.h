@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.4 2005-09-27 09:18:20 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.5 2005-12-02 15:53:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,9 +63,12 @@ protected:
     bool		computeData( const DataHolder&, const BinID& relpos,
 	    			     int t0, int nrsamples ) const;
 
-    const BinID*		reqStepout( int input, int output ) const;
-    const Interval<float>*	reqZMargin( int input, int output ) const;
-    const Interval<float>*	desZMargin( int input, int output ) const;
+    const BinID*		reqStepout( int input, int output ) const
+    				{ return &stepout; }
+    const Interval<float>*	reqZMargin( int input, int output ) const
+				{ return &gate; }
+    const Interval<float>*	desZMargin( int input, int output ) const
+				{ return &desgate; }
 
     BinID			stepout;
     Interval<float>		gate;

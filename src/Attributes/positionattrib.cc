@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.9 2005-11-29 19:35:42 cvsnanne Exp $
+ RCS:           $Id: positionattrib.cc,v 1.10 2005-12-02 15:53:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,18 +188,6 @@ bool Position::getInputData( const BinID& relpos, int idx )
 
     return true;
 }
-
-
-const BinID* Position::reqStepout( int inp, int out ) const
-{ return &stepout; }
-
-
-const Interval<float>* Position::reqZMargin( int inp, int ) const
-{ return inp==1 ? 0 : &gate; }
-
-
-const Interval<float>* Position::desZMargin( int inp, int ) const
-{ return inp==1 ? 0 : &desgate; }
 
 
 bool Position::computeData( const DataHolder& output, const BinID& relpos,
