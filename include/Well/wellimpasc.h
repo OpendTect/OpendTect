@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.14 2004-07-08 09:59:04 dgb Exp $
+ RCS:		$Id: wellimpasc.h,v 1.15 2005-12-02 16:53:15 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,7 @@ public:
     const char*		getD2T(const char*,bool istvd,bool depthinfeet=false);
     const char*		getMarkers(const char*,bool istvd,
 	    			   bool depthinfeet=false);
+    Data&		getWellData() 				{ return wd; }
 
     class LasFileInfo
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.11 2004-09-10 07:54:54 nanne Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.12 2005-12-02 16:53:15 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ public:
     D2TModel&		operator =(const D2TModel&);
 
     float		getTime(float d_ah) const;
+    float		getDepth(float) const;
     float		getVelocity(float d_ah) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }

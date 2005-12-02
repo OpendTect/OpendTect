@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.33 2005-11-22 07:58:21 cvshelene Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.34 2005-12-02 16:53:39 cvshelene Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -307,16 +307,22 @@ void Well::Track::insertPoint( const Coord& c, float z )
     {
 	const Coord3& c0 = pos_[idx-1];
 	const Coord3& c1 = pos_[idx];
+	const float d = c0.distance( c1 );
 	const float d0 = c0.distance( cnew );
 	const float d1 = c1.distance( cnew );
 	if ( mIsZero(d0,1e-4) || mIsZero(d1,1e-4) )
 	    return; // point already present
-	float val = (d0 * d0 + d1 * d1) / (d0 * d1);
+	float val = ( d0 * d0 + d1 * d1 - ( d * d ) ) / (2 * d0 * d1);
 	if ( val < minval )
 	    { minidx = idx-1; minval = val; }
+	if ( idx == oldsz-1 && minval > 0.90 )
+	{
+	    addPoint( c, z );
+	    return;
+	}
     }
 
-    if ( minidx == oldsz-2 )
+    if ( minidx == 0 )
     {
 	// The point may be before the first
 	const Coord3& c0 = pos_[0];
@@ -325,7 +331,7 @@ void Well::Track::insertPoint( const Coord& c, float z )
 	const float d0nsq = c0.sqDistance( cnew );
 	const float d1nsq = c1.sqDistance( cnew );
 	if ( d01sq + d0nsq < d1nsq )
-	    minidx == -1;
+	    minidx = -1;
     }
     if ( minidx == oldsz-2 )
     {
@@ -335,8 +341,8 @@ void Well::Track::insertPoint( const Coord& c, float z )
 	const float d01sq = c0.sqDistance( c1 );
 	const float d0nsq = c0.sqDistance( cnew );
 	const float d1nsq = c1.sqDistance( cnew );
-	if ( d01sq + d1nsq > d0nsq )
-	    minidx == oldsz-1;
+	if ( d01sq + d1nsq < d0nsq )
+	    minidx = oldsz-1;
     }
 
     insertAfterIdx( minidx, cnew );
@@ -529,6 +535,29 @@ float Well::D2TModel::getTime( float dh ) const
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
     return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
+}
+
+
+float Well::D2TModel::getDepth( float time ) const
+{
+    int idx1;
+    if ( findFPPos(t_,t_.size(),time,-1,idx1) )
+	return dah_[idx1];
+    else if ( t_.size() < 2 )
+	return mUndefValue;
+    else if ( idx1 < 0 || idx1 == t_.size()-1 )
+    {
+	// Extrapolate. Is this correct?
+	int idx0 = idx1 < 0 ? 1 : idx1;
+	const float v = (dah_[idx0] - dah_[idx0-1]) / (t_[idx0] - t_[idx0-1]);
+	idx0 = idx1 < 0 ? 0 : idx1;
+	return dah_[idx0] + ( time - t_[idx0] ) * v;
+    }
+
+    const int idx2 = idx1 + 1;
+    const float t1 = time - t_[idx1];
+    const float t2 = t_[idx2] - time;
+    return (t1 * dah_[idx2] + t2 * dah_[idx1]) / (t1 + t2);
 }
 
 
