@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.20 2005-11-30 13:32:44 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.21 2005-12-02 07:53:47 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.20 2005-11-30 13:32:44 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.21 2005-12-02 07:53:47 cvsdgb Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -71,15 +71,24 @@ bool isOn( int flag )
 }
 
 
-
 void message( const char* msg )
 {
     if ( !isOn() ) return;
 
+    BufferString msg_;
+    static bool wantpid = GetEnvVarYN("DTECT_ADD_DBG_PID");
+    if ( wantpid )
+    {
+	msg_ = "[";
+	msg_ += GetPID();
+	msg_ += "] ";
+    }
+    msg_ += msg;
+
     if ( dbglogstrm )
-	*dbglogstrm << msg << std::endl;
+	*dbglogstrm << msg_ << std::endl;
     else
-	printf( "%s\n", msg ); fflush( stdout );
+	std::cerr << msg_ << std::endl;
 }
 
 
