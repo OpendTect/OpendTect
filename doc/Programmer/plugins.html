@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.29 2005-11-25 16:19:04 helene Exp $
+  - RCS:	$Id: plugins.html,v 1.30 2005-12-02 08:37:43 nanne Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V2.1]</title>
@@ -405,19 +405,19 @@ extern "C" const char* InitCohPlugin( int, char** )
 </code></pre>
 
 <p> This function initializes the attribute, the initClass() function will be 
-explained in more details in the following part</p>
+explained in more detail in the following part</p>
 
 <a name=cohrw><h4>Making attributes</h4>
 
 <p> Although cohpi.cc looks pretty simple, underneath the simple
-<code>PF().addDesc()</code> there is of course some real programming of the
+<code>initClass()</code> there is of course some real programming of the
 attribute. For that, we need to switch to coherencyattrib.h . 
 We see an attribute <code>CoherencyAttrib</code> inheriting the <a
-href="Generated/AttribEng/classAttrib::Provider.html">Attrib::Provider</a> 
+href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider</a> 
 class. Every attribute is a provider, each can thus be used as input for 
 another attribute.
 
-<p>Here are listed some fundamental functions:</p>
+<p>Some fundamental functions are listed here:</p>
 <a name=cohrw><h5>initClass()</h5>
 <p> This static function initializes the attribute: sets up the parameters and 
 the number and type of the inputs and outputs. You can compare this to what you see in Opendtect in the attribute definition window after loading the uiCoh 
@@ -435,36 +435,35 @@ gate->setRequired(false);
 desc->addParam( gate );
 </code></pre>
 
-<p>where xxxParam is the type of the parameter;
-<p>of course the default values and the limits are optional.
-<p>If "setRequired(false)" is not specified every parameter is required by 
-default.</p></p></p>
+<p>where xxxParam is the type of the parameter.</p>
+<p>of course the default values and the limits are optional.</p>
+<p>Every parameter is required by default, to overrule this use <code>setRequired(false)"</p>
 
 <p>initClass() also adds the attribute to the attribute factory.
 In this case, as every attribute is a provider, the Coherency attribute is 
-added to PF() (the <a href="Generated/AttributeEngine/classProviderFactory.html"
->ProviderFactory</a> singleton access function).</p>
+added to PF() (the <a href="Generated/AttributeEngine/classAttrib_1_1ProviderFactory.html"
+>Attrib::ProviderFactory</a> singleton access function).</p>
 
 
 <a name=cohrw><h5>createInstance()</h5>
-<p>this function is a standart for every attribute, 
-here is the constructor called.</p>
+<p>This function is standard for every attribute, 
+here is the attribute constructor called.</p>
 
 
 <a name=cohrw><h5>updateDesc()</h5>
-<p>will be used not only to update the parameters but also the number and type 
-of the outputs and to add or disable some inputs.If you look at the 
+<p>Will be used not only to update the parameters but also the number and type 
+of the outputs and to add or disable some inputs. If you look at the 
 implementation for the coherency, this function just allows to enable or disable
 the second input ( hidden hilbert transform ) according to the type chosen
 by the user</p>
 
 
 <a name=cohrw><h5>getInputOutput()</h5>
-<p>here you can specify what are the outputs you need for calculation among all those provided by your input data;</p>
+<p>Here you can specify the outputs you need for calculation among all those provided by your input data;</p>
 
 
 <a name=cohrw><h5>getInputData();</h5>
-<p>Before the work can be done, some input has to be given.This function is the
+<p>Before the work can be done, some input has to be given. This function is the
 place where you specify how to get your input data.
 For the Coherency this is the seismic data and the imaginairy data calculated 
 by the <code>Hilbert</code> attribute. But it can also be Steering Data or any 
@@ -479,9 +478,9 @@ const BinID bidstep = inputs[0]->getStepoutStep();
 
 	const DataHolder* datac = inputs[0]->getData( relpos, idx );
 	const DataHolder* datai =
-	   inputs[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx );
+	   inputs[0]->getData( BinID(relpos.inl+bidstep.inl,relpos.crl), idx );
 	const DataHolder* datax =
-           inputs[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
+           inputs[0]->getData( BinID(relpos.inl,relpos.crl+bidstep.crl), idx );
 	if ( !datac || !datai || !datax )
 	  return false;
 
@@ -494,9 +493,9 @@ const BinID bidstep = inputs[0]->getStepoutStep();
 
 <p> You will notice from here that the calculation of the attributes is not done
 on traces but using a different object, the DataHolder. The dataholder contains
-an set of <a href="Generated/Basic/classValueSeries.html">ValueSeries</a>which 
-holds the value of every sample of the Seistrc.
-Advantage : in case of an attribute which has other attributes as inputs, data 
+a set of <a href="Generated/Basic/classValueSeries.html">ValueSeries</a> which 
+holds the value of every sample of the SeisTrc.
+Advantage: in case of an attribute which has other attributes as inputs, data 
 is available in the corresponding dataholders, it thus saves a lot of time 
 ( easier and much faster to read some floats in a ValueSeries than to get values
 from a SeisTrc ). Stored data are read from cubes of seismic traces and written
@@ -505,23 +504,23 @@ the same way.</p>
 be processed, like the start sample number and the number of samples you wish 
 to calculate.</p>
 <p>Another important remark: calculation is made using sample numbers, 
-not time</p>
+not time or depth</p>
 
 <p> Most of the rest of the methods are there to comply with the
 <code>Attrib::Provider</code> interface - see the <a
-href="Generated/AttributeEngine/classAttrib::Provider.html">Attrib::Provider
+href="Generated/AttributeEngine/classAttrib_1_1Provider.html">Attrib::Provider
 documentation</a>. The basic idea is that for each sample of each
 trace one or more attribute values can be calculated. The number of
 attribute values (or outputs) is defined in the <code>initClass()</code> 
 function. If your input requires additional samples (timegate) or neighbouring 
-traces (stepout), you will have to define <code>reqZMargin</code> and 
-<code>reqStepout</code> respectively. </p>
+traces (stepout), you will have to define <code>reqZMargin()</code> and 
+<code>reqStepout()</code> respectively. </p>
 
 
 <p> When we want to look at the actual work, the place to be is the
-<code><b>computeData()</b></code> method.This is the place where you define the
+<code><b>computeData()</b></code> method. This is the place where you define the
 mathematics for calculating the attribute. This function is called for each 
-trace of your output cube. </p>
+trace of your output cube.</p>
 
 
 <a name=cohui><h4>The <code>uiCoh</code> plugin</h4>
@@ -550,6 +549,7 @@ children, but it also sets a couple of requirements:</p>
 <li>getInput (required)
 <li>setOutput (required if you have more than one possible output)
 <li>getOutput (required if you have more than one possible output)
+<li>getEvalParams (optional)
 </ul>
 
 <p> These methods must be defined by subclasses. To implement these
@@ -575,17 +575,16 @@ desc and put them on the screen.
 Thus, we have to check whether there is something in the first place (macro
 <code>mIfGetxxx</code>, where xxx stands for the type of the parameter), and if
 so, put the value into the corresponding UI element. For inputs to this 
-attribute (input cubes or other attributes), there is a special 'setInput' 
-method.A special feature is the attrparset - if something is added to this set,
-the set editor knows that attribute evaluations can be done with this
-parameter. In this case, the user can evaluate the effect of time gate
-differences by using the special button. </p>
+attribute (input cubes or other attributes), there is a special <code>setInput()</code> method.</p>
 
 <p> The <code>getParameters</code> method's implementation
-follows similar patterns. Noteworthy is the use of the change tracker
+follows similar patterns. Here we read the values from the screen and put them into the desc. Underneath we make use of the change tracker
 to update the pars - this allows the set editor to figure out whether
 the attribute set was changed (and subsequently warn the user when no
-save has beeen done). </p>
+save has beeen done). In the same way the input and output are handled by <code>getInput()</code> and <code>getOutput()</code> respectively.</p>
+
+<p>A special function is <code>getEvalParams</code>. In this function, the user can add parameters to the given set of <code>EvalParam</code>'s.
+When added, the set editor knows that attribute evaluations can be done with this parameter. In this case, the user can evaluate the effect of time gate differences by using the special button. </p>
 
 <p> The funny thing is that uicoherencyattrib.cc stops without 'doing' anything.
 That's because the attribute set editor object is 'doing' everything.
