@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.30 2005-12-02 08:37:43 nanne Exp $
+  - RCS:	$Id: plugins.html,v 1.31 2005-12-02 09:02:04 helene Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V2.1]</title>
@@ -459,7 +459,24 @@ by the user</p>
 
 
 <a name=cohrw><h5>getInputOutput()</h5>
-<p>Here you can specify the outputs you need for calculation among all those provided by your input data;</p>
+<p>Here you can specify the outputs you need for calculation among all those 
+provided by your input data; this function is very usefull when you have 
+steering as input data:</p>
+
+<pre><code>
+bool Similarity::getInputOutput( int input, TypeSet &lt; int &gt; &res ) const
+{
+    if ( !dosteer_ || !input ) return Provider::getInputOutput( input, res );
+
+    for ( int idx=0; idx &lt; ttrcpos_.size(); idx++ )
+	res += getSteeringIndex( trcpos_[idx] );
+
+    return true;
+}
+</code></pre>
+
+<p>in this abstract ( taken from the code of similarityattrib.cc ) we just get 
+the indexes of the steering output which are needed as input to compute the similarity at given positions around the central trace. </p>
 
 
 <a name=cohrw><h5>getInputData();</h5>
