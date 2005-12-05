@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.127 2005-11-30 22:13:52 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.128 2005-12-05 18:47:52 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -871,7 +871,7 @@ void uiODBodyTreeItem::checkCB( CallBacker* cb )
 
 void uiODBodyTreeItem::prepareForShutdown()
 {
-    uivisemobj->prepareForShutdown();
+    applMgr()->EMServer()->askUserToSave(emid);
 }
 
 
