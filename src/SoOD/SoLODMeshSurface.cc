@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.27 2005-10-04 15:18:15 cvskris Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.28 2005-12-05 18:37:30 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -668,6 +668,10 @@ void MeshSurfaceTesselationCache::GLRenderLines(SoGLRenderAction* action)
     float texturecoord[2];
     const int nrrows = meshsurface.nrRows();
     const int nrcols = meshsurface.nrColumns.getValue();
+
+    glPushAttrib(GL_LIGHTING_BIT);
+    glDisable(GL_LIGHTING);
+
     for ( int idx=0; idx<nrci; idx++ )
     {
 	const int index = lineci[idx];
@@ -689,8 +693,6 @@ void MeshSurfaceTesselationCache::GLRenderLines(SoGLRenderAction* action)
 	}
 
 	mb.send(miptr?(index<nmi?miptr[index]:miptr[nmi-1]):0,true);
-	if ( lineni[idx] < normals.getLength() )
-	    glNormal3fv( normals[lineni[idx]].getValue() );
 #if __debug__
 	if ( index>=nc )
 	    SoDebugError::postWarning("MeshSurfaceTesselationCache::GLRender",
@@ -706,6 +708,8 @@ void MeshSurfaceTesselationCache::GLRenderLines(SoGLRenderAction* action)
     
     if ( isopen )
 	glEnd();
+
+    glPopAttrib();
 
     buildmutex->readUnlock();
 }
