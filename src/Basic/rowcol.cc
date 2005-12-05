@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.10 2004-09-21 15:58:49 kristofer Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.11 2005-12-05 19:40:03 cvskris Exp $";
 
 #include "rowcol.h"
 
@@ -29,7 +29,7 @@ bool RCol::isNeighborTo( const RCol& rc, const RCol& step,
 float RCol::clockwiseAngleTo(const RCol& rc_) const
 {
     const RowCol rc(rc_);
-    const TypeSet<RowCol> clockwisedirs = RowCol::clockWiseSequence();
+    const TypeSet<RowCol>& clockwisedirs = RowCol::clockWiseSequence();
     const int selfidx = clockwisedirs.indexOf(*this);
     const float selfangle = selfidx!=-1 ? selfidx * M_PI_4 : atan2( c(), -r() );
     const int rcidx =  clockwisedirs.indexOf(rc);
