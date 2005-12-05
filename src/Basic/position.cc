@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.46 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.47 2005-12-05 11:41:37 cvsbert Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -36,6 +36,43 @@ double Coord::sqDistance( const Coord& coord ) const
     const double diffx = coord.x - x;
     const double diffy = coord.y - y;
     return diffx*diffx + diffy*diffy;
+}
+
+
+double Coord::cosAngle( const Coord& from, const Coord& to ) const
+{
+    double rsq = sqDistance( from );
+    double lsq = sqDistance( to );
+    if ( !rsq || !lsq ) return 1;
+
+    double osq = from.sqDistance( to );
+    return (rsq +  lsq - osq) / (2 * sqrt(rsq) * sqrt(lsq));
+}
+
+
+#include <iostream>
+
+double Coord::angle( const Coord& from, const Coord& to ) const
+{
+    static const double twopi = 2 * M_PI;
+
+    double cosang = cosAngle( from, to );
+    if ( cosang == 1 ) return 0;
+
+    const double ang = acos( cosang );
+
+    Coord d1( x - from.x, y - from.y );
+    if ( !d1.x ) return to.x > x ? ang : twopi - ang;
+    if ( !d1.y ) return to.y > y ? ang : twopi - ang;
+
+    double a1 = d1.y / d1.x;
+    double a0 = y - a1 * x;
+
+    //TODO this doesn't work properly for all cases. Don;t know why. Ideas?
+    const Coord d2( to.x - from.x, to.y - from.y );
+    const double lineval = a0 + a1 * d2.x;
+    const bool iscompl = lineval-d2.y > 0 != d1.x > 0;
+    return iscompl ? twopi - ang : ang;
 }
 
 

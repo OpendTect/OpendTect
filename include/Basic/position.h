@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.38 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:		$Id: position.h,v 1.39 2005-12-05 11:41:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,13 @@ public:
 		      && mIsEqual(y,crd.y,mDefEps); }
     bool	operator!=( const Coord& crd ) const
 		{ return ! (crd == *this); }
+
     double	distance(const Coord&) const;
     double	sqDistance(const Coord&) const;
+    double	angle(const Coord& from,const Coord& to) const;
+    double	cosAngle(const Coord& from,const Coord& to) const;
+    		//!< saves the expensive acos() call
+
     void	fill(char*) const;
     bool	use(const char*);
 
