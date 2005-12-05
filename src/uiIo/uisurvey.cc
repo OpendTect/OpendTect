@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.64 2005-08-29 11:10:09 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.65 2005-12-05 11:40:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uisurvmap.h"
 #include "uisetdatadir.h"
 #include "uitextedit.h"
+#include "uifileinput.h"
 #include "uicursor.h"
 #include "uimain.h"
 #include "uifont.h"
@@ -42,9 +43,44 @@ ________________________________________________________________________
 
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
-extern "C" const char* GetBaseDataDir();
 extern "C" void SetSurveyName(const char*);
 
+
+
+static bool copySurv( const char* from, const char* todirnm, int mb )
+{
+    FilePath fp( GetBaseDataDir() ); fp.add( todirnm );
+    const BufferString todir( fp.fullPath() );
+    if ( File_exists(todir) )
+    {
+	BufferString msg( "A survey '" );
+	msg += todirnm;
+	msg += "' already exists.\nYou will have to remove it first";
+        uiMSG().error( msg );
+        return false;
+    }
+
+    BufferString msg;
+    if ( mb > 0 )
+	{ msg += mb; msg += " MB of data"; }
+    else
+	msg += "An unknown amount";
+    msg += " of data needs to be copied.\nDuring the copy, OpendTect will "
+	    "freeze.\nDepending on the data transfer rate, this can take "
+	    "a long time!\n\nDo you wish to continue?";
+    if ( !uiMSG().askGoOn( msg ) )
+	return false;
+
+    uiCursorChanger cc( uiCursor::Wait );
+    if ( !File_copy( from, todir, YES ) )
+    {
+        uiMSG().error( "Cannot copy the survey data" );
+        return false;
+    }
+
+    File_makeWritable( todir, YES, YES );
+    return true;
+}
 
 
 class TutHandling
@@ -53,31 +89,15 @@ public:
 
 static bool copy()
 {
-    BufferString from = GetDataFileName( "Tutorial" );
+    static const char* dirnm = "Tutorial";
+    BufferString from = GetDataFileName( dirnm );
     if ( !File_exists(from) )
     {
         uiMSG().error( "Tutorial not installed" );
         return false;
     }
 
-    BufferString to = FilePath(GetBaseDataDir()).add("Tutorial").fullPath();
-    if ( File_exists(to) )
-    {
-        uiMSG().error( "A survey 'Tutorial' already exists.\n"
-                        "Please rename or remove.");
-        return false;
-    }
-
-    uiCursorChanger cc( uiCursor::Wait );
-    if ( !File_copy( from, to, YES ) )
-    {
-        uiMSG().error( "Cannot create new survey directory for Tutorial" );
-        return false;
-    }
-
-    File_makeWritable( to, YES, YES );
-
-    return true;
+    return copySurv( from, dirnm, 4 );
 }
 
 
@@ -153,6 +173,10 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	    			mCB(this,uiSurvey,editButPushed) );
     editbut->attach( alignedBelow, rmbut );
     editbut->setPrefWidthInChar( 12 );
+    copybut = new uiPushButton( leftgrp, "Copy ...",
+	    			mCB(this,uiSurvey,copyButPushed) );
+    copybut->attach( alignedBelow, editbut );
+    copybut->setPrefWidthInChar( 12 );
 
     convbut = new uiPushButton( rightgrp, "X/Y <-> I/C ...",
 	    			mCB(this,uiSurvey,convButPushed) );
@@ -262,6 +286,84 @@ void uiSurvey::editButPushed( CallBacker* )
 {
     if ( !survInfoDialog() )
 	updateInfo(0);
+}
+
+
+class uiSurveyGetCopyDir : public uiDialog
+{
+public:
+
+uiSurveyGetCopyDir( uiParent* p, const char* cursurv )
+	: uiDialog(p,uiDialog::Setup("Import survey from location",
+		   "Copy surveys from any data root","0.3.1"))
+{
+    BufferString curfnm;
+    if ( cursurv && *cursurv )
+    {
+	FilePath fp( GetBaseDataDir() ); fp.add( cursurv );
+	curfnm = fp.fullPath();
+    }
+    inpfld = new uiFileInput( this,
+	    	"Opendtect survey directory to copy",
+		uiFileInput::Setup(curfnm).directories(true));
+    inpfld->setDefaultSelectionDir( GetBaseDataDir() );
+    inpfld->valuechanged.notify( mCB(this,uiSurveyGetCopyDir,inpSel) );
+
+    newdirnmfld = new uiGenInput( this, "New survey directory name", "" );
+    newdirnmfld->attach( alignedBelow, inpfld );
+}
+
+
+void inpSel( CallBacker* )
+{
+    fname = inpfld->fileName();
+    FilePath fp( fname );
+    newdirnmfld->setText( fp.fileName() );
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+bool acceptOK( CallBacker* )
+{
+    fname = inpfld->fileName();
+    if ( !File_exists(fname) )
+	mErrRet( "Selected directory does not exist" );
+    if ( !File_isDirectory(fname) )
+	mErrRet( "Please select a valid directory" );
+    FilePath fp( fname );
+    fp.add( ".survey" );
+    if ( !File_exists( fp.fullPath() ) )
+	mErrRet( "This is not an OpendTect survey directory" );
+
+    newdirnm = newdirnmfld->text();
+    if ( newdirnm == "" )
+	{ inpSel(0); newdirnm = newdirnmfld->text(); }
+    cleanupString( newdirnm.buf(), NO, NO, YES );
+
+    return true;
+}
+
+    BufferString	fname;
+    BufferString	newdirnm;
+    uiFileInput*	inpfld;
+    uiGenInput*		newdirnmfld;
+
+};
+
+
+void uiSurvey::copyButPushed( CallBacker* )
+{
+    uiSurveyGetCopyDir dlg( this, listbox->getText() );
+    if ( !dlg.go() )
+	return;
+
+    if ( !copySurv( dlg.fname, dlg.newdirnm, -1 ) )
+	return;
+
+    updateSvyList();
+    listbox->setCurrentItem( dlg.newdirnm );
+    updateSvyFile();
 }
 
 

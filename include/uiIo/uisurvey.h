@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.18 2005-04-25 12:20:17 cvsnanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.19 2005-12-05 11:40:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ protected:
     uiPushButton*	rmbut;
     uiPushButton*	datarootbut;
     uiPushButton*	convbut;
+    uiPushButton*	copybut;
     uiLabel*		inllbl;
     uiLabel*		crllbl; 
     uiLabel*		zlbl;
@@ -60,6 +61,7 @@ protected:
     bool		rejectOK(CallBacker*);  
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
+    void		copyButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
     void		convButPushed(CallBacker*);
