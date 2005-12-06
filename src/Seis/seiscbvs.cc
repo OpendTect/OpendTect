@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.66 2005-10-28 12:33:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.67 2005-12-06 10:21:32 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -64,7 +64,7 @@ CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
 	{ if ( msg ) *msg = "Empty file name"; return 0; }
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
-    tr->setSingleFile( is2d ); tr->set2D( is2d );
+    tr->set2D( is2d );
     if ( msg ) *msg = "";
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read),
 			infoonly ? Seis::PreScan : Seis::Prod) )
@@ -116,6 +116,17 @@ void CBVSSeisTrcTranslator::setCoordPol( bool dowrite, bool intrailer )
 	coordpol = (int)CBVSIO::InTrailer;
     else
 	coordpol = (int)CBVSIO::InAux;
+}
+
+
+void CBVSSeisTrcTranslator::set2D( bool yn )
+{
+    is2d = yn;
+    if ( is2d )
+    {
+	single_file = true;
+	coordpol = (int)CBVSIO::InTrailer;
+    }
 }
 
 
