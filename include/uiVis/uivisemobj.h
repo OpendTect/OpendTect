@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.16 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.17 2005-12-06 16:51:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,6 @@ public:
 				      uiVisPartServer*);
 			~uiVisEMObject();
     bool		isOK() const;
-    void		prepareForShutdown();
 
     static const char*	getObjectType(int displayid);
     int			id() const { return displayid; }

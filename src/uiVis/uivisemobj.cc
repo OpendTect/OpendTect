@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.35 2005-11-30 22:34:05 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.36 2005-12-06 16:51:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,28 +185,6 @@ uiVisEMObject::~uiVisEMObject()
 bool uiVisEMObject::isOK() const
 {
     return getDisplay();
-}
-
-
-void uiVisEMObject::prepareForShutdown()
-{
-    const MultiID mid = visserv->getMultiID( displayid );
-    if ( mid==-1 ) return;
-
-    const EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    EM::EMObject* emobj = EM::EMM().getObject(emid);
-    if ( !emobj || !emobj->isChanged(-1) )
-	return;
-
-    BufferString msg( emobj->getTypeStr() );
-    msg += " '";
-    msg += emobj->name(); msg += "' has changed.\nDo you want to save it?";
-    if ( uiMSG().notSaved( msg,0,false) )
-    {
-	PtrMan<Executor> saver = emobj->saver();
-	uiCursorChanger uicursor( uiCursor::Wait );
-	if ( saver ) saver->execute();
-    }
 }
 
 
