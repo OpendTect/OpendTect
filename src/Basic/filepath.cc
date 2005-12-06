@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.13 2005-11-16 14:58:09 cvsarend Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.14 2005-12-06 15:33:09 cvskris Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -14,16 +14,44 @@ static const char* rcsID = "$Id: filepath.cc,v 1.13 2005-11-16 14:58:09 cvsarend
 
 const char* FilePath::sPrefSep = ":";
 
-const char* FilePath::dirSep( Style stl )
+FilePath::FilePath( const char* fnm )
+{ set( fnm ); }
+
+
+FilePath::FilePath( const FilePath& fp )
+{ *this = fp; }
+
+
+FilePath& FilePath::operator =( const FilePath& fp )
 {
-    static const char* wds = "\\";
-    static const char* uds = "/";
+    lvls_ = fp.lvls_;
+    prefix_ = fp.prefix_;
+    isabs_ = fp.isabs_;
+    return *this;
+}
 
-    if ( stl == Local )
-	stl = __iswin__ ? Windows : Unix;
 
-    return stl == Windows ? wds : uds;
-} 
+FilePath& FilePath::operator =( const char* fnm )
+{ return (*this = FilePath(fnm)); }
+
+
+bool FilePath::operator ==( const FilePath& fp ) const
+{
+    return   lvls_ == fp.lvls_ && prefix_ == fp.prefix_ && isabs_ == fp.isabs_; 
+}
+
+
+bool FilePath::operator ==( const char* fnm ) const
+{ return *this == FilePath(fnm); }
+
+
+bool FilePath::operator !=( const FilePath& fp ) const
+{ return !(*this == fp); }
+
+
+bool FilePath::operator != ( const char* fnm ) const
+{ return !(*this == FilePath(fnm)); }
+
 
 FilePath& FilePath::set( const char* _fnm )
 {
@@ -58,62 +86,13 @@ FilePath& FilePath::set( const char* _fnm )
 }
 
 
-void FilePath::addPart( const char* fnm )
+FilePath& FilePath::add( const char* fnm )
 {
-    if ( !fnm ) return;
-
-    skipLeadingBlanks( fnm );
-    char prev = ' ';
-    char buf[PATH_LENGTH];
-    char* bufptr = buf;
-    bool remdblsep = false;
-
-    while ( *fnm )
-    {
-	char cur = *fnm;
-
-	if ( cur != *dirSep(Local) )
-	    remdblsep = true;
-	else
-	{
-	    if ( (prev != *dirSep(Windows) && prev != *dirSep(Windows))
-		    || !remdblsep )
-	    {
-		*bufptr = '\0';
-		if ( buf[0] ) lvls_.add( buf );
-		bufptr = buf;
-		*bufptr = '\0';
-	    }
-	    fnm++;
-	    continue;
-	}
-
-	*bufptr++ = cur;
-	fnm++;
-	prev = cur;
-    }
-    *bufptr = '\0';
-    if ( buf[0] ) lvls_.add( buf );
-}
-
-
-void FilePath::compress( int startlvl )
-{
-    for ( int idx=startlvl; idx<lvls_.size(); idx++ )
-    {
-	const BufferString& bs = *lvls_[idx];
-	int remoffs = 99999;
-	if ( bs == "." )
-	    remoffs = 0;
-	else if ( bs == ".." && idx > 0 && *lvls_[idx-1] != ".." )
-	    remoffs = 1;
-
-	if ( idx-remoffs >= 0 )
-	{
-	    lvls_.remove( idx-remoffs, idx );
-	    idx -= remoffs + 1;
-	}
-    }
+    if ( !fnm ) return *this;
+    int sl = lvls_.size();
+    addPart( fnm );
+    compress( sl );
+    return *this;
 }
 
 
@@ -125,16 +104,6 @@ FilePath& FilePath::insert( const char* fnm )
     lvls_.ObjectSet<BufferString>::erase();
     set( fnm );
     lvls_.ObjectSet<BufferString>::append( oldlvls );
-    return *this;
-}
-
-
-FilePath& FilePath::add( const char* fnm )
-{
-    if ( !fnm ) return *this;
-    int sl = lvls_.size();
-    addPart( fnm );
-    compress( sl );
     return *this;
 }
 
@@ -153,6 +122,15 @@ void FilePath::setFileName( const char* fnm )
 	*lvls_[lvls_.size()-1] = fnm;
 	compress( lvls_.size()-1 );
     }
+}
+
+
+void FilePath::setPath( const char* pth )
+{
+    BufferString fnm( lvls_.size() ? lvls_.get(lvls_.size()-1) : 0 );
+    set( pth );
+    if ( fnm != "" )
+	add( fnm );
 }
 
 
@@ -179,6 +157,25 @@ void FilePath::setExtension( const char* ext, bool replace )
 }
 
 
+bool FilePath::isAbsolute() const
+{ return isabs_; }
+
+
+BufferString FilePath::fullPath( Style f, bool cleanup ) const
+{
+    const BufferString res = dirUpTo(-1);
+    return cleanup ? mkCleanPath(res,f) : res;
+}
+
+
+const char* FilePath::prefix() const
+{ return prefix_.buf(); }
+
+
+int FilePath::nrLevels() const
+{ return lvls_.size(); }
+
+
 const char* FilePath::extension() const
 {
     if ( !lvls_.size() )
@@ -190,12 +187,19 @@ const char* FilePath::extension() const
 }
 
 
-void FilePath::setPath( const char* pth )
+const BufferString& FilePath::fileName() const
+{ return dir(-1); }
+
+
+BufferString FilePath::pathOnly() const
+{ return dirUpTo(lvls_.size()-2); }
+
+
+const BufferString& FilePath::dir( int nr ) const
 {
-    BufferString fnm( lvls_.size() ? lvls_.get(lvls_.size()-1) : 0 );
-    set( pth );
-    if ( fnm != "" )
-	add( fnm );
+    if ( nr < 0 || nr >= lvls_.size() )
+	nr = lvls_.size()-1;
+    return nr < 0 ? BufferString::empty() : *lvls_[nr];
 }
 
 
@@ -225,14 +229,6 @@ BufferString FilePath::dirUpTo( int lvl ) const
     }
 
     return ret;
-}
-
-
-const BufferString& FilePath::dir( int nr ) const
-{
-    if ( nr < 0 || nr >= lvls_.size() )
-	nr = lvls_.size()-1;
-    return nr < 0 ? BufferString::empty() : *lvls_[nr];
 }
 
 
@@ -291,4 +287,75 @@ BufferString FilePath::mkCleanPath(const char* path, Style stl)
     else			ret = getCleanUnxPath( path ) ;
 
     return ret;
+}
+
+
+const char* FilePath::dirSep( Style stl )
+{
+    static const char* wds = "\\";
+    static const char* uds = "/";
+
+    if ( stl == Local )
+	stl = __iswin__ ? Windows : Unix;
+
+    return stl == Windows ? wds : uds;
+} 
+
+
+void FilePath::addPart( const char* fnm )
+{
+    if ( !fnm ) return;
+
+    skipLeadingBlanks( fnm );
+    char prev = ' ';
+    char buf[PATH_LENGTH];
+    char* bufptr = buf;
+    bool remdblsep = false;
+
+    while ( *fnm )
+    {
+	char cur = *fnm;
+
+	if ( cur != *dirSep(Local) )
+	    remdblsep = true;
+	else
+	{
+	    if ( (prev != *dirSep(Windows) && prev != *dirSep(Windows))
+		    || !remdblsep )
+	    {
+		*bufptr = '\0';
+		if ( buf[0] ) lvls_.add( buf );
+		bufptr = buf;
+		*bufptr = '\0';
+	    }
+	    fnm++;
+	    continue;
+	}
+
+	*bufptr++ = cur;
+	fnm++;
+	prev = cur;
+    }
+    *bufptr = '\0';
+    if ( buf[0] ) lvls_.add( buf );
+}
+
+
+void FilePath::compress( int startlvl )
+{
+    for ( int idx=startlvl; idx<lvls_.size(); idx++ )
+    {
+	const BufferString& bs = *lvls_[idx];
+	int remoffs = 99999;
+	if ( bs == "." )
+	    remoffs = 0;
+	else if ( bs == ".." && idx > 0 && *lvls_[idx-1] != ".." )
+	    remoffs = 1;
+
+	if ( idx-remoffs >= 0 )
+	{
+	    lvls_.remove( idx-remoffs, idx );
+	    idx -= remoffs + 1;
+	}
+    }
 }
