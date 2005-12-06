@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.30 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.31 2005-12-06 16:40:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,8 +123,12 @@ const char* uiFileInput::fileName()
     if ( !fp.isAbsolute() && fname != "" && defseldir != "" )
     {
 	fp.insert( defseldir );
-	fname = fp.fullPath();
+	fname = fp.fullPath(); //fname is cleaned here.
     }
+    else
+	fname = FilePath::mkCleanPath( fname, FilePath::Local );
+
+
     return fname;
 }
 
