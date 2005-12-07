@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.22 2005-12-02 14:37:09 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.23 2005-12-07 11:28:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -332,7 +332,7 @@ uiAttribPartServer::createOutput( const CubeSampling& cs,
 
     BufferString defstr;
     const Attrib::DescSet* attrds = ads ? ads : adsman->descSet();
-    if ( attrds && attrds->nrDescs() )
+    if ( attrds && attrds->nrDescs() && attrds->getDesc(targetspecs[0].id()) )
     {
 	attrds->getDesc(targetspecs[0].id())->getDefStr(defstr);
 	if ( strcmp (defstr, targetspecs[0].defString()) )
