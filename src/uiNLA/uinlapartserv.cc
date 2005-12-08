@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.28 2005-07-21 11:30:52 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.29 2005-12-08 12:02:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -295,11 +295,17 @@ const char* uiNLAPartServer::prepareInputData(
 	    if ( allok )
 	    {
 		const int targetcol = trainvds.data().nrVals() - 1;
-		NLADataPreparer dp( trainvds.data(), targetcol );
-		dp.removeUndefs();
-		dp.limitRange( pddlg.rg_ );
+		NLADataPreparer dptrain( trainvds.data(), targetcol );
+		dptrain.removeUndefs(); dptrain.limitRange( pddlg.rg_ );
 		if ( pddlg.dobal_ )
-		    dp.balance( pddlg.bsetup );
+		    dptrain.balance( pddlg.bsetup );
+		if ( !testvds.data().isEmpty() )
+		{
+		    NLADataPreparer dptest( testvds.data(), targetcol );
+		    dptest.removeUndefs(); dptest.limitRange( pddlg.rg_ );
+		    if ( pddlg.dobal_ )
+			dptest.balance( pddlg.bsetup );
+		}
 	    }
 	}
 
