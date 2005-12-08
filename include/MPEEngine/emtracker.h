@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.21 2005-12-08 10:09:55 cvsnanne Exp $
+ RCS:           $Id: emtracker.h,v 1.22 2005-12-08 14:33:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,7 @@ public:
 
     virtual bool		isEnabled() const	{ return isenabled; }
     virtual void		enable(bool yn)		{ isenabled=yn; }
-//  virtual bool		setSeeds(const ObjectSet<Geometry::Element>&,
-//					 const char* name, EM::SectionID ) = 0;
+
     virtual bool		trackSections(const TrackPlane&);
     virtual bool		trackIntersections(const TrackPlane&);
     virtual Executor*		trackInVolume();
