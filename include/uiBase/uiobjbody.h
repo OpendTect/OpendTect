@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.36 2005-11-02 16:25:10 cvsarend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.37 2005-12-08 20:00:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,27 +248,6 @@ public:
 			    : uiObjectBody( parnt, nm )
 			    , T( parnt && parnt->pbody() ? 
 				     parnt->pbody()->managewidg() : 0 )
-			    , handle_( handle )
-			    {}
-
-#include		"i_uiobjqtbody.h"
-
-};
-
-
-template <class C, class T>
-class uiParentObjectTemplateBody : public uiObjectBody, 
-				   public uiParentBody, 
-				   public T
-{
-public:
-
-                        uiParentObjectTemplateBody( C& handle, uiParent* parnt, 
-						    const char* nm )
-			    : uiObjectBody( parnt, nm )
-			    , uiParentBody()
-			    , T( parnt && parnt->body() ? 
-				     parnt->body()->managewidg() : 0 , nm )
 			    , handle_( handle )
 			    {}
 

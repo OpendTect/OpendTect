@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.8 2004-07-22 09:28:14 nanne Exp $
+ RCS:           $Id: uibody.h,v 1.9 2005-12-08 20:00:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,27 +101,5 @@ protected:
 
 
 #endif
-
-
-/*! \brief is-a-Qwidget implementation of uiBody.
-
-Useful when no managing is needed.
-
-*/
-template <class C, class T>
-class uiBodyIsaQthingImpl : public uiBody, public T
-{
-public:
-                        uiBodyIsaQthingImpl( C& handle, uiParent* p ) 
-			    : uiBody()
-			    , T( p && p->pbody() ? p->pbody()->qwidget() : 0, 
-				 handle.name() )
-			    , handle_( handle )
-			    {}
-
-#define  UIBASEBODY_ONLY
-#include "i_uiobjqtbody.h"
-
-};
 
 #endif
