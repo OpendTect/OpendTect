@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.35 2005-12-02 16:53:54 cvshelene Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.36 2005-12-09 09:06:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -769,26 +769,27 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p )
 				  uiFileInput::Setup().withexamine(true) );
 	d2tfld->setDefaultSelectionDir(
 		IOObjContext::getDataDirName(IOObjContext::WllInf) );
-	d2tfld->attach( leftAlignedBelow, usemodelfld );
+	d2tfld->attach( alignedBelow, usemodelfld );
 
 	tvdfld = new uiGenInput( topgrp, "Models are", 
 				 BoolInpSpec("TVDSS","MD") );
 	tvdfld->setValue( false );
-	tvdfld->attach( leftAlignedBelow, d2tfld );
+	tvdfld->attach( alignedBelow, d2tfld );
 
 	BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
 	unitfld = new uiGenInput( topgrp, "Depth unit", mft );
-	unitfld->attach( leftAlignedBelow, tvdfld );
+	unitfld->attach( alignedBelow, tvdfld );
 
 	constvelfld = 
 	    new uiGenInput( topgrp, "constant velocity(m/s)", FloatInpSpec() );
-	constvelfld->attach( leftAlignedBelow, usemodelfld );
+	constvelfld->attach( alignedBelow, usemodelfld );
+	topgrp->setHAlignObj( usemodelfld );
     }
     
     ctio_.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio_, "Output Well" );
     if ( topgrp )
-	outfld->attach( leftAlignedBelow, topgrp );
+	outfld->attach( alignedBelow, topgrp );
 
     modelSel(0);
 }
