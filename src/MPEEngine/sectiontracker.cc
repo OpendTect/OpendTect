@@ -8,16 +8,16 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.13 2005-08-22 22:15:18 cvskris Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.14 2005-12-09 16:52:37 cvskris Exp $";
 
 #include "sectiontracker.h"
 
+#include "attribsel.h"
 #include "emobject.h"
 #include "iopar.h"
 #include "mpeengine.h"
 #include "ptrman.h"
 #include "parametricsurface.h"
-#include "positionscorecomputer.h"
 #include "sectionadjuster.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
