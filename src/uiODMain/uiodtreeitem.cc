@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.128 2005-12-05 18:47:52 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.129 2005-12-09 20:14:27 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -1055,15 +1055,13 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	addflt = applMgr()->EMServer()->selectFault(emid);
     else if ( mnuid == 1 )
     {
+	//Will be restored by event (evWizardClosed) from mpeserv
 	applMgr()->enableMenusAndToolbars(false);
 	applMgr()->enableTree(false);
 
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
 	mps->addTracker( EM::Fault::typeStr() );
-
-	applMgr()->enableMenusAndToolbars(true);
-	applMgr()->enableTree(true);
 	return true;
     }
     else
