@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.10 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: sectionadjuster.cc,v 1.11 2005-12-09 16:53:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,9 +12,9 @@ ________________________________________________________________________
 
 #include "sectionadjuster.h"
 
-#include "mpeengine.h"
 #include "iopar.h"
-#include "positionscorecomputer.h"
+#include "mpeengine.h"
+#include "ptrman.h"
 
 namespace MPE
 {
