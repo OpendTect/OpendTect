@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.15 2004-09-20 09:40:21 nanne Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.16 2005-12-09 09:25:52 cvsnanne Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -211,6 +211,9 @@ Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
     , isidle( this )
 {
     callbacks.allowNull(true);
+
+    if ( nrthreads == -1 )
+	nrthreads = Threads::getNrProcessors();
 
     for ( int idx=0; idx<nrthreads; idx++ )
     {

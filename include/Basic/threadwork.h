@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.12 2005-01-27 16:03:25 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.13 2005-12-09 09:25:52 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -35,14 +35,14 @@ class ThreadWorkManager : public CallBacker
 {
 public:
 				//Interface from outside world
-    				ThreadWorkManager( int nrthreads );
+    				ThreadWorkManager(int nrthreads=-1);
 				~ThreadWorkManager();
 
-    void			addWork( BasicTask*, CallBack* finished );
+    void			addWork(BasicTask*,CallBack* finished);
     				/*!< Managed by caller */
 
-    bool			addWork( ObjectSet<BasicTask>& );
-    void			removeWork( const BasicTask* );	
+    bool			addWork(ObjectSet<BasicTask>&);
+    void			removeWork(const BasicTask*);	
     				/*!< Removes the task from queue
 				     and stop it if allready running
 				*/
