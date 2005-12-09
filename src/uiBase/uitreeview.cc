@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.15 2005-11-21 11:20:39 cvsarend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.16 2005-12-09 16:36:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,9 @@ protected:
 
     int 		prefnrlines;
 
+    void		keyPressEvent(QKeyEvent*);
+    bool		moveItem(QKeyEvent*);
+
 private:
 
     i_listVwMessenger&	messenger_;
@@ -81,6 +84,53 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     setSorting( -1 );
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
+}
+
+
+void uiListViewBody::keyPressEvent( QKeyEvent* event )
+{
+    bool eventhandled = moveItem( event );
+    if ( !eventhandled )
+	QListView::keyPressEvent( event );
+}
+
+
+bool uiListViewBody::moveItem( QKeyEvent* event )
+{
+    if ( event->state() != Qt::ShiftButton )
+	return false;
+
+    QListViewItem* currentitem = currentItem();
+    if ( !currentitem ) return false;
+
+    QListViewItem* parent = currentitem->parent();
+    if ( !parent ) return false;
+
+    QListViewItem* moveafteritem = 0;
+    if ( event->key() == Qt::Key_Up )
+    {
+	QListViewItem* itmabove = currentitem->itemAbove();
+	moveafteritem = itmabove ? itmabove->itemAbove() : 0;
+    }
+    else if ( event->key() == Qt::Key_Down )
+	moveafteritem = currentitem->itemBelow();
+
+    if ( !moveafteritem )
+	return false;
+
+    bool res = true;
+    if ( moveafteritem->parent() == parent )
+	currentitem->moveItem( moveafteritem );
+    else if ( moveafteritem == parent )
+    {
+	parent->takeItem( currentitem );
+	parent->insertItem( currentitem );
+	setCurrentItem( currentitem );
+    }
+    else
+	res = false;
+
+    return res;
 }
 
 
