@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.69 2005-11-29 21:33:53 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.70 2005-12-09 19:07:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "cubicbeziercurve.h"
 #include "draw.h"
 #include "emhistory.h"
-#include "emhorizon.h"
+#include "emobject.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emsurfacegeometry.h"
@@ -202,16 +202,15 @@ void uiMPEMan::seedClick( CallBacker* )
     if ( !tracker )
 	return;
 
-    EM::EMObject* emobject = EM::EMM().getObject(tracker->objectID());
-    mDynamicCastGet( EM::Horizon*, horizon, emobject );
-    if ( !horizon )
+    const EM::EMObject* emobject = EM::EMM().getObject(tracker->objectID());
+    if ( !emobject )
 	return;
 
     if ( clickcatcher->ctrlClickedNode().objectID()!=-1 )
     {
 	const EM::PosID pid = clickcatcher->ctrlClickedNode();
 	if ( !seedpicker || !seedpicker->canRemoveSeed() ||
-	     pid.objectID()!=horizon->id() )
+	     pid.objectID()!=emobject->id() )
 	    return;
 
 	seedpicker->removeSeed(pid);
@@ -228,7 +227,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	didtriggervolchange = false;
 	seedpicker = tracker->getSeedPicker(true);
 	if ( !seedpicker || !seedpicker->canSetSectionID() ||
-	     !seedpicker->setSectionID(horizon->sectionID(0)) ||
+	     !seedpicker->setSectionID(emobject->sectionID(0)) ||
 	     !seedpicker->startSeedPick() )
 	{
 	    seedpicker = 0;
