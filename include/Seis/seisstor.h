@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.15 2005-12-12 15:50:32 cvsbert Exp $
+ RCS:		$Id: seisstor.h,v 1.16 2005-12-12 18:11:13 cvsbert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -18,6 +18,7 @@ Trace storage objects handle seismic data storage.
 #include "seisinfo.h"
 class Conn;
 class IOObj;
+class Translator;
 class SeisTrcBuf;
 class SeisSelData;
 class Seis2DLineSet;
@@ -59,19 +60,30 @@ public:
 
     static const char*	sNrTrcs;
 
+    // Note that the Translator is always created, but only actually used for 3D
+    Translator*		translator()
+			{ return trl; }
+    Translator*		translator() const
+			{ return trl; }
 
     // 3D only
-    Conn*		curConn();
-    const Conn*		curConn() const;
-    SeisTrcTranslator*	translator()
-			{ return trl; }
-    const SeisTrcTranslator* translator() const
-			{ return trl; }
+    Conn*		curConn3D();
+    const Conn*		curConn3D() const;
+
+    // 3D and 2D
+    SeisTrcTranslator*	seisTranslator()
+			{ return strl(); }
+    const SeisTrcTranslator* seisTranslator() const
+			{ return strl(); }
     // 2D only
     Seis2DLineSet*	lineSet()
 			{ return lset; }
     const Seis2DLineSet* lineSet() const
 			{ return lset; }
+
+    // Pre-Stack only
+    const SeisPSIOProvider* psIOProv() const
+			{ return psioprov; }
 
 protected:
 
@@ -84,11 +96,13 @@ protected:
     bool		is2d;
     int			nrtrcs;
     int			selcomp;
-    SeisTrcTranslator*	trl;
+    Translator*		trl;
     Seis2DLineSet*	lset;
     SeisSelData*	seldata;
     const SeisPSIOProvider* psioprov;
     BufferString	errmsg;
+
+    SeisTrcTranslator*	strl() const;
 
 };
 

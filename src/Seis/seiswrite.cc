@@ -28,8 +28,8 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 }
 
 
-SeisTrcWriter::SeisTrcWriter( const char* fnm )
-	: SeisStoreAccess(fnm)
+SeisTrcWriter::SeisTrcWriter( const char* fnm, bool isps )
+	: SeisStoreAccess(fnm,isps)
 	, binids(*new BinIDRange)
     	, lineauxiopar(*new IOPar)
 	, lkp(0)
@@ -139,7 +139,7 @@ Conn* SeisTrcWriter::crConn( int inl, bool first )
 
 bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 {
-    trl->cleanUp();
+    strl()->cleanUp();
     if ( !conn || conn->bad() )
     {
 	errmsg = "Cannot write to ";
@@ -148,9 +148,9 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 	return false;
     }
 
-    if ( !trl->initWrite(conn,trc) )
+    if ( !strl()->initWrite(conn,trc) )
     {
-	errmsg = trl->errMsg();
+	errmsg = strl()->errMsg();
 	delete conn;
 	return false;
     }
@@ -161,7 +161,7 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 
 bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 {
-    bool neednewconn = !trl->curConn();
+    bool neednewconn = !curConn3D();
 
     if ( !neednewconn && isMultiConn() )
     {
@@ -273,10 +273,10 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     {
 	if ( !ensureRightConn(trc,false) )
 	    return false;
-	else if ( !trl->write(trc) )
+	else if ( !strl()->write(trc) )
 	{
-	    errmsg = trl->errMsg();
-	    trl->close(); delete trl; trl = 0;
+	    errmsg = strl()->errMsg();
+	    strl()->close(); delete trl; trl = 0;
 	    return false;
 	}
     }
@@ -300,7 +300,7 @@ bool SeisTrcWriter::isMultiConn() const
 
 void SeisTrcWriter::fillAuxPar( IOPar& iopar ) const
 {
-    if ( !trl || nrwritten < 1 )
+    if ( !strl() || nrwritten < 1 )
 	return;
 
     FileMultiString fms;
@@ -309,7 +309,7 @@ void SeisTrcWriter::fillAuxPar( IOPar& iopar ) const
     iopar.set( SeisPacketInfo::sBinIDs, fms );
 
     iopar.set( SeisStoreAccess::sNrTrcs, nrwritten );
-    iopar.set( SeisTrcInfo::sSamplingInfo, trl->outSD().start,
-	    				   trl->outSD().step );
-    iopar.set( SeisTrcInfo::sNrSamples, trl->outNrSamples() );
+    iopar.set( SeisTrcInfo::sSamplingInfo, strl()->outSD().start,
+	    				   strl()->outSD().step );
+    iopar.set( SeisTrcInfo::sNrSamples, strl()->outNrSamples() );
 }

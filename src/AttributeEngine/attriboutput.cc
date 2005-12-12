@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.40 2005-11-23 10:39:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.41 2005-12-12 18:11:13 cvsbert Exp $";
 
 #include "attriboutput.h"
 #include "attribdataholder.h"
@@ -394,12 +394,13 @@ void SeisTrcStorOutput::writeTrc()
 	if ( !writer_->prepareWork(*trc_) )
 	    { errmsg_ = writer_->errMsg(); return; }
 
-	if ( !writer_->is2D() )
+	SeisTrcTranslator* transl = writer_->seisTranslator();
+	if ( transl && !writer_->is2D() )
 	{
-	    SeisTrcTranslator* transl = writer_->translator();
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& cis
 		             = transl->componentInfo();
-	    cis[0]->datatype = Seis::UnknowData;
+	    for ( int idx=0; idx<cis.size(); idx++ )
+		cis[idx]->datatype = Seis::UnknowData;
 	}
 
 	storinited_ = true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.18 2005-12-12 15:50:32 cvsbert Exp $
+ RCS:		$Id: seiswrite.h,v 1.19 2005-12-12 18:11:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,9 @@ public:
 				      const LineKeyProvider* r=0);
 				//!< Write to real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database
-			SeisTrcWriter(const char*);
-				//!< Write 'loose' CBVS files only.
+			SeisTrcWriter(const char*,bool pre_stack=false);
+				//!< Write 'loose' CBVS files
+				//!< (or pre-stack: directories) only.
 			~SeisTrcWriter();
     virtual bool	close();
 

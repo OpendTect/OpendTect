@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.19 2005-12-12 15:50:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.20 2005-12-12 18:11:13 cvsbert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -60,6 +60,14 @@ SeisStoreAccess::~SeisStoreAccess()
 }
 
 
+SeisTrcTranslator* SeisStoreAccess::strl() const
+{
+    Translator* nctrl = const_cast<Translator*>( trl );
+    mDynamicCastGet(SeisTrcTranslator*,ret,nctrl)
+    return ret;
+}
+
+
 void SeisStoreAccess::setIOObj( const IOObj* ioob )
 {
     close();
@@ -67,7 +75,7 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     ioobj = ioob->clone();
     is2d = SeisTrcTranslator::is2D( *ioobj, true );
 
-    trl = (SeisTrcTranslator*)ioobj->getTranslator();
+    trl = ioobj->getTranslator();
     if ( is2d )
     {
 	lset = new Seis2DLineSet( ioobj->fullUserExpr(true) );
@@ -81,28 +89,29 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
 	if ( !trl )
 	    { delete ioobj; ioobj = 0; }
 	else
-	    trl->setSelData( seldata );
+	    strl()->setSelData( seldata );
     }
 }
 
 
-const Conn* SeisStoreAccess::curConn() const
-{ return !is2d && trl ? trl->curConn() : 0; }
-Conn* SeisStoreAccess::curConn()
-{ return !is2d && trl ? trl->curConn() : 0; }
+const Conn* SeisStoreAccess::curConn3D() const
+{ return !is2d && strl() ? strl()->curConn() : 0; }
+Conn* SeisStoreAccess::curConn3D()
+{ return !is2d && strl() ? strl()->curConn() : 0; }
 
 
 void SeisStoreAccess::setSelData( SeisSelData* tsel )
 {
     delete seldata; seldata = tsel;
-    if ( trl ) trl->setSelData( seldata );
+    if ( strl() ) strl()->setSelData( seldata );
 }
 
 
 bool SeisStoreAccess::cleanUp( bool alsoioobj )
 {
     bool ret;
-    if ( trl ) { ret = trl->close(); if ( !ret ) errmsg = trl->errMsg(); }
+    if ( strl() )
+	{ ret = strl()->close(); if ( !ret ) errmsg = strl()->errMsg(); }
     delete trl; trl = 0;
     delete lset; lset = 0;
     psioprov = 0;
@@ -164,10 +173,10 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
     if ( !seldata->usePar(iopar) )
 	{ delete seldata; seldata = 0; }
 
-    if ( trl )
+    if ( strl() )
     {
-	trl->setSelData( seldata );
-	trl->usePar( iopar );
+	strl()->setSelData( seldata );
+	strl()->usePar( iopar );
     }
 
     iopar.get( "Selected component", selcomp );

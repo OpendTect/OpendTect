@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.61 2005-12-12 15:50:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.62 2005-12-12 18:11:13 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -81,7 +81,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     }
     else if ( psioprov )
     {
-	pErrMsg( "Cannot access Pre-Stack data through SeisTrcReader" );
+	pErrMsg( "Cannot access Pre-Stack data through SeisTrcReader (yet)" );
 	errmsg = "'"; errmsg += ioobj->name();
 	errmsg += "' is a Pre-Stack data store";
 	return false;
@@ -119,7 +119,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 
 void SeisTrcReader::startWork()
 {
-    if ( psioprov ) return;
+    if ( psioprov || !trl ) return;
 
     outer = 0;
     if ( is2d )
@@ -128,14 +128,16 @@ void SeisTrcReader::startWork()
 	return;
     }
 
+
+    SeisTrcTranslator& sttrl = *strl();
     if ( forcefloats )
     {
-	for ( int idx=0; idx<trl->componentInfo().size(); idx++ )
-	    trl->componentInfo()[idx]->datachar = DataCharacteristics();
+	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
+	    sttrl.componentInfo()[idx]->datachar = DataCharacteristics();
     }
 
-    trl->setSelData( seldata );
-    if ( trl->inlCrlSorted() && seldata )
+    sttrl.setSelData( seldata );
+    if ( sttrl.inlCrlSorted() && seldata )
     {
 	outer = new BinIDRange;
 	if ( !seldata->fill(*outer) )
@@ -183,13 +185,14 @@ bool SeisTrcReader::initRead( Conn* conn )
 {
     if ( psioprov || is2d ) return true;
 
-    if ( !trl->initRead(conn,readmode) )
+    SeisTrcTranslator& sttrl = *strl();
+    if ( !sttrl.initRead(conn,readmode) )
     {
-	errmsg = trl->errMsg();
+	errmsg = sttrl.errMsg();
 	cleanUp();
 	return false;
     }
-    const int nrcomp = trl->componentInfo().size();
+    const int nrcomp = sttrl.componentInfo().size();
     if ( nrcomp < 1 )
     {
 	// Why didn't the translator return false?
@@ -203,7 +206,7 @@ bool SeisTrcReader::initRead( Conn* conn )
     bool foundone = false;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
-	if ( trl->componentInfo()[idx]->destidx >= 0 )
+	if ( sttrl.componentInfo()[idx]->destidx >= 0 )
 	    { foundone = true; break; }
     }
     if ( !foundone )
@@ -211,14 +214,14 @@ bool SeisTrcReader::initRead( Conn* conn )
 	for ( int idx=0; idx<nrcomp; idx++ )
 	{
 	    if ( selcomp == -1 )
-		trl->componentInfo()[idx]->destidx = idx;
+		sttrl.componentInfo()[idx]->destidx = idx;
 	    else
-		trl->componentInfo()[idx]->destidx = selcomp == idx ? 0 : 1;
-	    if ( trl->componentInfo()[idx]->destidx >= 0 )
+		sttrl.componentInfo()[idx]->destidx = selcomp == idx ? 0 : 1;
+	    if ( sttrl.componentInfo()[idx]->destidx >= 0 )
 		foundone = true;
 	}
 	if ( !foundone )
-	    trl->componentInfo()[0]->destidx = 0;
+	    sttrl.componentInfo()[0]->destidx = 0;
     }
 
     needskip = false;
@@ -236,11 +239,12 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     if ( is2d )
 	return get2D(ti);
 
+    SeisTrcTranslator& sttrl = *strl();
     bool needsk = needskip; needskip = false;
-    if ( needsk && !trl->skip() )
+    if ( needsk && !sttrl.skip() )
 	return nextConn( ti );
 
-    if ( !trl->readInfo(ti) )
+    if ( !sttrl.readInfo(ti) )
 	return nextConn( ti );
 
     ti.stack_count = 1;
@@ -275,7 +279,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 
     if ( selres )
     {
-	if ( !entryis2d && trl->inlCrlSorted() )
+	if ( !entryis2d && sttrl.inlCrlSorted() )
 	{
 	    int outerres = outer ? outer->excludes(ti.binid) : 0;
 	    if ( foundvalidinl && outerres % 256 == 2 )
@@ -291,7 +295,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	    }
 	}
 
-	return trl->skip() ? 2 : nextConn( ti );
+	return sttrl.skip() ? 2 : nextConn( ti );
     }
 
     nrtrcs++;
@@ -301,7 +305,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	if ( selres > 1 )
 	    return 0;
 	if ( selres == 1 )
-	    return trl->skip() ? 2 : nextConn( ti );
+	    return sttrl.skip() ? 2 : nextConn( ti );
     }
 
     // Hey, the trace is (believe it or not) actually selected!
@@ -325,10 +329,10 @@ bool SeisTrcReader::get( SeisTrc& trc )
     if ( is2d )
 	return get2D(trc);
 
-    if ( !trl->read(trc) )
+    if ( !strl()->read(trc) )
     {
-	errmsg = trl->errMsg();
-	trl->skip();
+	errmsg = strl()->errMsg();
+	strl()->skip();
 	return false;
     }
     return true;
@@ -517,7 +521,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     new_packet = false;
     if ( !isMultiConn() ) return 0;
 
-    trl->cleanUp();
+    strl()->cleanUp();
     IOStream* iostrm = (IOStream*)ioobj;
     if ( !iostrm->toNextConnNr() )
 	return 0;
@@ -534,9 +538,9 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	conn = iostrm->getConn( Conn::Read );
     }
 
-    if ( !trl->initRead(conn) )
+    if ( !strl()->initRead(conn) )
     {
-	errmsg = trl->errMsg();
+	errmsg = strl()->errMsg();
 	return -1;
     }
     int rv = get(ti);
@@ -584,7 +588,7 @@ void SeisTrcReader::trySkipConns()
 
 bool SeisTrcReader::binidInConn( int r ) const
 {
-    return r == 0 || !trl->inlCrlSorted() || r%256 != 2;
+    return r == 0 || !strl()->inlCrlSorted() || r%256 != 2;
 }
 
 
@@ -599,7 +603,7 @@ void SeisTrcReader::fillPar( IOPar& iopar ) const
 void SeisTrcReader::getIsRev( bool& inl, bool& crl ) const
 {
     inl = crl = false;
-    if ( !trl || is2d ) return;
-    inl = trl->packetInfo().inlrev;
-    crl = trl->packetInfo().crlrev;
+    if ( !trl || is2d || psioprov ) return;
+    inl = strl()->packetInfo().inlrev;
+    crl = strl()->packetInfo().crlrev;
 }

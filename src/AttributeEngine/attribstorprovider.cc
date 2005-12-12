@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.36 2005-11-30 11:05:45 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.37 2005-12-12 18:11:13 cvsbert Exp $";
 
 #include "attribstorprovider.h"
 
@@ -70,16 +70,13 @@ void StorageProvider::updateDesc( Desc& desc )
     
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
-    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan) ) return;
+    if ( !rdr.ioObj() || !rdr.prepareWork(Seis::PreScan)
+      || rdr.psIOProv() ) return;
 
-    SeisTrcTranslator* transl = rdr.translator();
-    const Seis2DLineSet* lset = rdr.lineSet();
-    const bool is2d = rdr.is2D();
-    if ( (is2d && !lset) || (!is2d && !transl) ) return;
-
-    if ( is2d )
+    if ( rdr.is2D() )
     {
-	const bool issteering = attrnm==sKey::Steering;
+	if ( !rdr.lineSet() ) return;
+	const bool issteering = attrnm == sKey::Steering;
 	if ( !issteering )
 	    desc.setNrOutputs( Seis::UnknowData, 1 );
 	else
@@ -87,6 +84,9 @@ void StorageProvider::updateDesc( Desc& desc )
     }
     else
     {
+	SeisTrcTranslator* transl = rdr.seisTranslator();
+	if ( !transl ) return;
+
 	BufferString type;
 	ioobj->pars().get( sKey::Type, type );
 	Seis::DataType datatype = 
@@ -310,7 +310,7 @@ void StorageProvider::updateStorageReqs(bool)
 bool StorageProvider::setSeisRequesterSelection( int req )
 {
     SeisTrcReader* reader = rg[req]->reader();
-    if ( !reader ) return false;
+    if ( !reader || reader->psIOProv() ) return false;
 
     if ( seldata_ && seldata_->type_ == Seis::Table )
     {
@@ -415,8 +415,7 @@ bool StorageProvider::setSeisRequesterSelection( int req )
 
 	reader->setSelData( seldata );
 
-	SeisTrcTranslator* transl = reader->translator();
-
+	SeisTrcTranslator* transl = reader->seisTranslator();
 	for ( int idx=0; idx<outputinterest.size(); idx++ )
 	{
 	    if ( !outputinterest[idx] ) 
@@ -507,10 +506,10 @@ void StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 BinID StorageProvider::getStepoutStep() const
 {
     SeisRequester* req = getSeisRequester();
-    if ( !req || !req->reader() || !req->reader()->translator() )
+    if ( !req || !req->reader() || !req->reader()->seisTranslator() )
 	return BinID(0,0);
 
-    SeisPacketInfo& info = req->reader()->translator()->packetInfo();
+    SeisPacketInfo& info = req->reader()->seisTranslator()->packetInfo();
     return BinID( info.inlrg.step, info.crlrg.step );
 }
 
