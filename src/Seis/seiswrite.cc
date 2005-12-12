@@ -10,6 +10,8 @@
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "seis2dline.h"
+#include "seispsioprov.h"
+#include "seispswrite.h"
 #include "executor.h"
 #include "iostrm.h"
 #include "separstr.h"
@@ -38,7 +40,7 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm )
 
 void SeisTrcWriter::init()
 {
-    putter = 0;
+    putter = 0; psioprov = 0; pswriter = 0;
     nrtrcs = nrwritten = 0;
     prepared = false;
     binids.start.inl = mUdf(int);
@@ -59,7 +61,9 @@ bool SeisTrcWriter::close()
     if ( putter )
 	{ ret = putter->close(); if ( !ret ) errmsg = putter->errMsg(); }
 
-    delete putter; putter= 0;
+    delete putter; putter = 0;
+    delete pswriter; pswriter = 0;
+    psioprov = 0;
     ret &= SeisStoreAccess::close();
 
     return ret;
@@ -73,7 +77,8 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg = "Info for output seismic data not found in Object Manager";
 	return false;
     }
-    if ( (is2d && !lset) || (!is2d && !trl) )
+
+    if ( !psioprov && ((is2d && !lset) || (!is2d && !trl)) )
     {
 	errmsg = "No data storer available for '";
 	errmsg += ioobj->name(); errmsg += "'";
@@ -89,6 +94,16 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     {
 	if ( !next2DLine() )
 	    return false;
+    }
+    else if ( psioprov )
+    {
+	pswriter = psioprov->makeWriter( ioobj->fullUserExpr(Conn::Write) );
+	if ( !pswriter )
+	{
+	    errmsg = "Cannot open Pre-Stack data store for write";
+	    return false;
+	}
+	pswriter->usePar( ioobj->pars() );
     }
     else
     {
@@ -243,6 +258,16 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     {
 	if ( !put2D(trc) )
 	    return false;
+    }
+    else if ( psioprov )
+    {
+	if ( !pswriter )
+	    return false;
+	if ( !pswriter->put(trc) )
+	{
+	    errmsg = pswriter->errMsg();
+	    return false;
+	}
     }
     else
     {

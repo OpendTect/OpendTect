@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.60 2005-11-09 15:35:55 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.61 2005-12-12 15:50:32 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -79,6 +79,13 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	errmsg = "Info for input seismic data not found in Object Manager";
 	return false;
     }
+    else if ( psioprov )
+    {
+	pErrMsg( "Cannot access Pre-Stack data through SeisTrcReader" );
+	errmsg = "'"; errmsg += ioobj->name();
+	errmsg += "' is a Pre-Stack data store";
+	return false;
+    }
     if ( (is2d && !lset) || (!is2d && !trl) )
     {
 	errmsg = "No data interpreter available for '";
@@ -112,6 +119,8 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 
 void SeisTrcReader::startWork()
 {
+    if ( psioprov ) return;
+
     outer = 0;
     if ( is2d )
     {
@@ -137,7 +146,7 @@ void SeisTrcReader::startWork()
 
 bool SeisTrcReader::isMultiConn() const
 {
-    return !is2d && !entryis2d
+    return !psioprov && !is2d && !entryis2d
 	&& ioobj && ioobj->hasConnType(StreamConn::sType)
 	&& ((IOStream*)ioobj)->multiConn();
 }
@@ -172,7 +181,7 @@ Conn* SeisTrcReader::openFirst()
 
 bool SeisTrcReader::initRead( Conn* conn )
 {
-    if ( is2d ) return true;
+    if ( psioprov || is2d ) return true;
 
     if ( !trl->initRead(conn,readmode) )
     {

@@ -5,12 +5,13 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.18 2005-11-04 15:38:50 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.19 2005-12-12 15:50:32 cvsbert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
 #include "seis2dline.h"
+#include "seispsioprov.h"
 #include "seisbuf.h"
 #include "iostrm.h"
 #include "iopar.h"
@@ -29,21 +30,24 @@ SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
 	, seldata(0)
 	, selcomp(-1)
 	, is2d(false)
+	, psioprov(0)
 {
     setIOObj( ioob );
 }
 
 
-SeisStoreAccess::SeisStoreAccess( const char* fnm )
+SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps )
 	: ioobj(0)
 	, trl(0)
 	, lset(0)
 	, seldata(0)
 	, selcomp(-1)
 	, is2d(false)
+	, psioprov(0)
 {
     IOStream iostrm( "_tmp_SeisStoreAccess", getStringFromInt(0,IOObj::tmpID) );
-    iostrm.setGroup( mTranslGroupName(SeisTrc) );
+    iostrm.setGroup( isps ? mTranslGroupName(SeisTrc)
+	    		  : mTranslGroupName(SeisPS) );
     iostrm.setTranslator( "CBVS" );
     iostrm.setFileName( fnm && *fnm ? fnm : StreamProvider::sStdIO );
     setIOObj( &iostrm );
@@ -70,6 +74,8 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
 	if ( ioobj->name() != "" )
 	    lset->setName( ioobj->name() );
     }
+    else if ( !strcmp(ioobj->group(),mTranslGroupName(SeisPS)) )
+	psioprov = SPSIOPF().provider( ioobj->translator() );
     else
     {
 	if ( !trl )
@@ -99,6 +105,7 @@ bool SeisStoreAccess::cleanUp( bool alsoioobj )
     if ( trl ) { ret = trl->close(); if ( !ret ) errmsg = trl->errMsg(); }
     delete trl; trl = 0;
     delete lset; lset = 0;
+    psioprov = 0;
     nrtrcs = 0;
 
     if ( alsoioobj )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.14 2005-11-04 15:38:50 cvsbert Exp $
+ RCS:		$Id: seisstor.h,v 1.15 2005-12-12 15:50:32 cvsbert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -21,6 +21,7 @@ class IOObj;
 class SeisTrcBuf;
 class SeisSelData;
 class Seis2DLineSet;
+class SeisPSIOProvider;
 class SeisTrcTranslator;
 
 
@@ -75,7 +76,7 @@ public:
 protected:
 
 			SeisStoreAccess(const IOObj*);
-			SeisStoreAccess(const char*);
+			SeisStoreAccess(const char*,bool isps=false);
     virtual void	init()			{}
     bool		cleanUp(bool alsoioobj=true);
 
@@ -86,6 +87,7 @@ protected:
     SeisTrcTranslator*	trl;
     Seis2DLineSet*	lset;
     SeisSelData*	seldata;
+    const SeisPSIOProvider* psioprov;
     BufferString	errmsg;
 
 };

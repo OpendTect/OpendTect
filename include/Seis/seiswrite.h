@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.17 2005-11-04 15:38:50 cvsbert Exp $
+ RCS:		$Id: seiswrite.h,v 1.18 2005-12-12 15:50:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ is done.
 #include "seisstor.h"
 #include "linekey.h"
 class BinIDRange;
+class SeisPSWriter;
 class Seis2DLinePutter;
 
 
@@ -76,6 +77,7 @@ protected:
     // 2D only
     BufferString	attrib;
     Seis2DLinePutter*	putter;
+    SeisPSWriter*	pswriter;
     IOPar&		lineauxiopar;
     LineKey		prevlk;
     const LineKeyProvider* lkp;
