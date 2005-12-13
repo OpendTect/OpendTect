@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.27 2005-12-13 16:43:12 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.28 2005-12-13 19:52:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1217,9 +1217,9 @@ RowCol SurfaceGeometry::step() const
 }
 
 
-void SurfaceGeometry::setStep( const RowCol& step, const RowCol& loadedstep )
+void SurfaceGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
 {
-    step_ = step;
+    step_ = ns;
     loadedstep_ = loadedstep;
 }
 
