@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.17 2005-04-27 07:08:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.18 2005-12-13 16:06:06 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -635,6 +635,9 @@ ParametricCurve* CubicBezierSurface::createColCurve( float col,
 
 bool CubicBezierSurface::checkSelfIntersection( const RCol& ownrc ) const
 {
+    if ( !checkselfintersection )
+	return false;
+
     const StepInterval<int> rowrange = rowRange();
     const StepInterval<int> colrange = colRange();
 

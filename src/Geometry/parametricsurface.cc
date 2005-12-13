@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.16 2005-08-11 16:36:52 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.17 2005-12-13 16:06:06 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -21,6 +21,7 @@ ParametricSurface::ParametricSurface( const RCol& origo_, const RCol& step_ )
     : origo( origo_ )
     , step( step_ )
     , checksupport( true )
+    , checkselfintersection( true )
 { }
 
 
@@ -311,6 +312,18 @@ bool ParametricSurface::checkSupport(bool yn)
 
 
 bool ParametricSurface::checksSupport() const { return checksupport; }
+
+
+bool ParametricSurface::checkSelfIntersection( bool yn )
+{
+    const bool oldstatus = checkselfintersection;
+    checkselfintersection = yn;
+    return oldstatus;
+}
+
+
+bool ParametricSurface::checksSelfIntersection() const
+{ return checkselfintersection; }
 
 
 bool ParametricSurface::checkSelfIntersection(const RCol& ) const
