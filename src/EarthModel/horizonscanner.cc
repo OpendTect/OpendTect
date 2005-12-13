@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.6 2005-08-26 18:19:28 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.7 2005-12-13 19:50:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,7 +189,6 @@ bool HorizonScanner::analyzeData()
     int count, nrxy, nrbid, nrscale, nrnoscale;
     count = nrxy = nrbid = nrscale = nrnoscale = 0;
     Coord crd;
-    BinID bid;
     float val;
     char buf[1024]; char valbuf[80];
     while ( *sd.istrm )
