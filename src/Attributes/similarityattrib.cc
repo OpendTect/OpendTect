@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.16 2005-09-30 15:33:11 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.17 2005-12-13 10:15:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,6 +226,8 @@ bool Similarity::getInputData( const BinID& relpos, int index )
     dataidx_ = getDataIndex( 0 );
 
     steeringdata_ = dosteer_ ? inputs[1]->getData(relpos,index) : 0;
+    if ( dosteer_ && !steeringdata_ )
+	return false;
 
     return true;
 }
