@@ -37,6 +37,11 @@ process_attrib
 	Comment: Use the OpendTect Attribute Engine.
 	Comment: Is used by OpendTect for batch output, so it is unlikely that you will need to use the program from this place.
 !
+seis_cut_poly
+	Arg: M`FileRead`Parameter file
+	Comment: Cut out part of a seismic cube - inside a polygon
+	ExampleInput: seis_cut_poly_example.par
+!
 rect_seis
 	Arg: M`FileRead`Parameter file
 	Comment: Fills gaps in an irregular cube by inserting null traces.
