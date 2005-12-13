@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.57 2005-11-30 21:52:22 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.58 2005-12-13 16:54:21 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -263,7 +263,6 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
 
     const Coord3 tosprevpos = getPos( to );
     setPos( to, getPos( from ), false );
-    unSetPos( from, false );
 
     if ( addtohistory )
     {
@@ -276,6 +275,12 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
     cbdata.pid0 = from;
     cbdata.pid1 = to;
     notifier.trigger(cbdata);
+
+    /*The unset must be after the trigger, becaues otherwise the old pos
+	cannot be retrieved for the cb. In addition, the posattrib status of 
+	the node is needed during the cbs, and that is removed when unsetting
+	the pos.  */
+    unSetPos( from, false );
 }
 
 
