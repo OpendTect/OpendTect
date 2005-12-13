@@ -1,0 +1,75 @@
+dTect V2.2
+Parameters
+Wed Nov 25 11:10:30 1998
+!
+Copy only part of a cube
+
+-- You can mix 'Name' and 'ID' at will
+Input Seismics.ID: 100010.3
+Output Seismics.Name: Very Irregular SubCube
+
+-- Define a polygon, which will be closed by connecting first and last point.
+-- Traces inside the polygon will be copied to output
+Edge.1: 1400`1500
+Edge.2: 1550`1600
+Edge.3: 1550`1650
+Edge.4: 1750`1650
+Edge.5: 1750`1600
+Edge.6: 1800`1600
+Edge.7: 1800`1650
+Edge.8: 1850`1650
+Edge.9: 1850`1700
+Edge.10: 1800`1700
+Edge.11: 1800`1750
+Edge.12: 1750`1750
+Edge.13: 1750`1700
+Edge.14: 1550`1700
+Edge.15: 1550`1800
+Edge.16: 1450`1700
+Edge.17: 1450`1600
+
+-- Define points that, whilst inside polygon. will not be in output cube
+-- This is optional; you don't need to specify any points here
+Exclude.1: 1850`1674
+Exclude.2: 1850`1676
+Exclude.3: 1772`1660
+Exclude.4: 1774`1660
+Exclude.5: 1776`1660
+Exclude.6: 1778`1660
+Exclude.7: 1772`1662
+Exclude.8: 1774`1662
+Exclude.9: 1776`1662
+Exclude.10: 1778`1662
+Exclude.11: 1772`1664
+Exclude.12: 1774`1664
+Exclude.13: 1776`1664
+Exclude.14: 1778`1664
+Exclude.15: 1772`1666
+Exclude.16: 1774`1666
+Exclude.17: 1776`1666
+Exclude.18: 1778`1666
+Exclude.19: 1772`1668
+Exclude.20: 1774`1668
+Exclude.21: 1776`1668
+Exclude.22: 1778`1668
+Exclude.23: 1772`1672
+Exclude.24: 1774`1672
+Exclude.25: 1776`1672
+Exclude.26: 1778`1672
+Exclude.27: 1772`1674
+Exclude.28: 1774`1674
+Exclude.29: 1776`1674
+Exclude.30: 1778`1674
+Exclude.31: 1772`1676
+Exclude.32: 1774`1676
+Exclude.33: 1776`1676
+Exclude.34: 1778`1676
+Exclude.35: 1772`1678
+Exclude.36: 1774`1678
+Exclude.37: 1776`1678
+Exclude.38: 1778`1678
+Exclude.39: 1772`1680
+Exclude.40: 1774`1680
+Exclude.41: 1776`1680
+Exclude.42: 1778`1680
+!
