@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          19-10-2005
- RCS:           $Id: evaluateattrib.h,v 1.1 2005-10-19 10:41:35 cvshelene Exp $
+ RCS:           $Id: evaluateattrib.h,v 1.2 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,6 @@ public:
 
 protected:
     static Provider*    createInstance(Desc&);
-    static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.5 2005-12-02 15:53:23 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,6 @@ protected:
     			~Position();
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
-
-    static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
 
     bool		getInputOutput( int input, TypeSet<int>& res ) const;
     bool		getInputData( const BinID&, int idx );

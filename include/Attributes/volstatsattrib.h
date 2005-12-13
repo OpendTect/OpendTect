@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.5 2005-09-27 09:18:20 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,8 +67,6 @@ protected:
     			~VolStats();
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
-
-    static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
 
     bool		getInputOutput( int input, TypeSet<int>& res ) const;
     bool		getInputData( const BinID&, int idx );

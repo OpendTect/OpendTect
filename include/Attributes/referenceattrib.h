@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.5 2005-11-29 19:35:42 cvsnanne Exp $
+ RCS:           $Id: referenceattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,8 +58,6 @@ protected:
     static Provider*    createInstance(Desc&);
     static void         updateDesc( Desc& );
     
-    static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
-
     bool                getInputOutput(int input,TypeSet<int>& res) const;
     bool                getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,

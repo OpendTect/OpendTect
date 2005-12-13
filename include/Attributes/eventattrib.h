@@ -11,7 +11,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: eventattrib.h,v 1.8 2005-08-25 14:57:13 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.h,v 1.9 2005-12-13 10:03:41 cvshelene Exp $";
 
 #include "arrayndimpl.h"
 #include "limits.h"
@@ -54,8 +54,6 @@ public:
 protected:
     static Provider*    createInstance( Desc& );
     static void         updateDesc( Desc& );
-
-    static Provider*    internalCreate( Desc&, ObjectSet<Provider>& existing );
 
     bool                getInputOutput( int input, TypeSet<int>& res ) const;
     bool                getInputData( const BinID&, int idx );

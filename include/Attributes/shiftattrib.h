@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.4 2005-09-20 15:10:49 cvshelene Exp $
+ RCS:           $Id: shiftattrib.h,v 1.5 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,6 @@ public:
 protected:
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
-
-    static Provider*	internalCreate(Desc&,ObjectSet<Provider>& existing);
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int idx);

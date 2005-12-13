@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.5 2005-09-09 13:44:14 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,6 @@ protected:
     			~FreqFilter();
     static Provider*    createInstance(Desc&);
     static void         updateDesc( Desc& );
-    static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);

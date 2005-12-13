@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.11 2005-09-27 09:18:20 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.12 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,6 @@ public:
 protected:
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
-    static Provider*	internalCreate(Desc&,ObjectSet<Provider>& existing);
 
     bool		getTrcPos();
 

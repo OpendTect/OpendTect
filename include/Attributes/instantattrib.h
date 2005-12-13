@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.3 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: instantattrib.h,v 1.4 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,6 @@ public:
 protected:
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
-    static Provider*		internalCreate(Desc&,ObjectSet<Provider>& exis);
 
     bool			getInputOutput(int in,TypeSet<int>& res) const;
     bool			getInputData(const BinID&, int);

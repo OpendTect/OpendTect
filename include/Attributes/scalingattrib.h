@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,6 @@ public:
 protected:
 
     static Provider*    createInstance(Desc&);
-    static Provider*    internalCreate(Desc&,ObjectSet<Provider>& existing);
     static void         updateDesc( Desc& );
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;

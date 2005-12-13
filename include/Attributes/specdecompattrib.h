@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.5 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.6 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -62,8 +62,6 @@ protected:
     			~SpecDecomp();
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
-
-    static Provider*	internalCreate(Desc&,ObjectSet<Provider>& existing);
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int idx);

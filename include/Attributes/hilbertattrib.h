@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.6 2005-11-29 19:35:42 cvsnanne Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.7 2005-12-13 10:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ public:
 
 protected:
     static Provider*		createInstance(Desc&);
-    static Provider*		internalCreate(Desc&,ObjectSet<Provider>& exis);
 
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
     bool			getInputData(const BinID&, int);
