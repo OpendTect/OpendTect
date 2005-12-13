@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.10 2005-12-02 15:53:07 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.11 2005-12-13 10:25:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,8 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	for ( int idp=0; idp<nrpos; idp++ )
 	{
 	    const DataHolder* dh = inputdata[idp];
-	    if ( !dh ) continue;
+	    if ( !dh || !dh->nrSeries() || !dh->series(inidx_) ) 
+		continue;
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 	    int ds = samplegate.start;
@@ -231,6 +232,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
+	if ( !stats.size() ) return false;
 	int posidx;
 	float outval;
 	switch ( oper )
@@ -246,7 +248,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 						bid.crl+stepout.crl );
 
 	float val = 0;
-	if ( odata )
+	if ( odata && odata->nrSeries() && odata->series(outidx_) )
 	{
 	    ValueSeriesInterpolator<float> intp( odata->nrsamples_-1 );
 	    val = intp.value( *(odata->series(outidx_)), sample-odata->z0_ );
