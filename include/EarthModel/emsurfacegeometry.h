@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.17 2005-10-18 20:16:43 cvskris Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.18 2005-12-13 16:43:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -209,6 +209,9 @@ public:
     bool		checkSupport(bool yn);
     			/*!<\returns previous status */
     bool		checksSupport() const;
+    bool		checkSelfIntersection(bool yn);
+    			/*!<\returns previous status */
+    bool		checksSelfIntersection() const;
 
     bool		isAtEdge(const PosID&) const;
 
@@ -234,6 +237,9 @@ protected:
 				      bool& c00def, bool& c10def,
 				      bool& c01def, bool& c11def,
 				      const FloatMathFunction* t2d=0) const;
+    bool		insertRowOrCol( const SectionID&, int rc, bool row,
+	    				bool hist );
+    			/*!<Implementation of insertRow and insertCol. */
 
     Surface&			surface;
     ObjectSet<Geometry::ParametricSurface>	meshsurfaces;

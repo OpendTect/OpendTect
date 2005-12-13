@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.26 2005-10-18 20:16:43 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.27 2005-12-13 16:43:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -622,6 +622,24 @@ bool SurfaceGeometry::checksSupport() const
 { return meshsurfaces.size() ? meshsurfaces[0]->checksSupport() : true; }
 
 
+bool SurfaceGeometry::checkSelfIntersection( bool yn )
+{
+    const bool res = checksSelfIntersection();
+    for ( int idx=0; idx<meshsurfaces.size(); idx++ )
+    	meshsurfaces[idx]->checkSelfIntersection(yn);
+
+    return res;
+}
+
+
+bool SurfaceGeometry::checksSelfIntersection() const
+{
+    return meshsurfaces.size()
+	? meshsurfaces[0]->checksSelfIntersection()
+	: true;
+}
+
+
 char SurfaceGeometry::whichSide( const Coord3& timepos,
 			     const FloatMathFunction* t2dfunc,
 			     float fuzzy ) const
@@ -854,24 +872,63 @@ SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
     return res;
 }
 
+bool SurfaceGeometry::insertRowOrCol( const SectionID& sid, int rc, bool row,
+				      bool hist )
+{
+    const bool didcheck = checkSelfIntersection(false);
+    const int dim = row ? 0 : 1;
 
-#define mInsertRowCol(funcname) \
-bool SurfaceGeometry::funcname( const SectionID& sid, int rc, bool hist ) \
-{ \
-    int sectionindex = sectionids.indexOf(sid); \
-    if ( sectionindex==-1 ) return false; \
- \
-    if ( !meshsurfaces[sectionindex]->funcname(rc) ) \
-	return false; \
- \
-    if ( hist ) \
-	pErrMsg("History not implemented" ); \
- \
-    return true; \
+    TypeSet<RowCol> movedrc;
+    TypeSet<RowCol> queue;
+
+    PtrMan<EMObjectIterator> iterator = surface.createIterator(sid);
+    while ( iterator )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	const RowCol fromrc( pid.subID() );
+	if ( fromrc[dim]<rc )
+	    continue;
+
+	queue += fromrc;
+    }
+
+    while ( queue.size() )
+    {
+	for ( int idx=queue.size()-1; idx>=0; idx-- )
+	{
+	    const RowCol& fromrc = queue[idx];
+	    RowCol torc( fromrc );
+	    torc[dim] = fromrc[dim]+step_[dim];
+
+	    if ( isDefined(sid,torc) && movedrc.indexOf(torc)==-1 )
+		continue;
+
+	    const EM::PosID frompid( surface.id(), sid, fromrc.getSerialized());
+	    const EM::PosID topid( surface.id(), sid, torc.getSerialized());
+	    surface.changePosID( frompid, topid, hist );
+	    queue.removeFast(idx);
+	    movedrc += fromrc;
+	}
+    }
+
+    checkSelfIntersection(didcheck);
+    return true;
 }
 
-mInsertRowCol( insertRow );
-mInsertRowCol( insertCol );
+
+bool SurfaceGeometry::insertRow( const SectionID& sid, int rc, bool hist )
+{
+    return insertRowOrCol( sid, rc, true, hist );
+}
+
+
+bool SurfaceGeometry::insertCol( const SectionID& sid, int rc, bool hist )
+{
+    return insertRowOrCol( sid, rc, false, hist );
+}
 
 
 void SurfaceGeometry::getPos( const RowCol& rc, TypeSet<Coord3>& crdset ) const
