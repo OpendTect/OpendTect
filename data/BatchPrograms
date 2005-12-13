@@ -39,7 +39,8 @@ process_attrib
 !
 seis_cut_poly
 	Arg: M`FileRead`Parameter file
-	Comment: Cut out part of a seismic cube - inside a polygon
+	Comment: Select part of a seismic cube - inside a polygon
+	Comment: Optionally, leave out locations inside the polygon
 	ExampleInput: seis_cut_poly_example.par
 !
 rect_seis
