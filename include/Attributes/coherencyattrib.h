@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.4 2005-08-25 14:57:13 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.5 2005-12-13 09:57:38 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -49,8 +49,6 @@ public:
 protected:
     static Provider*	createInstance( Desc& );
     static void		updateDesc( Desc& );
-
-    static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
 
     bool		getInputOutput( int input, TypeSet<int>& res ) const;
     bool		getInputData( const BinID&, int idx );
