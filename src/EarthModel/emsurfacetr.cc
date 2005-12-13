@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.4 2004-12-15 15:56:02 nanne Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.5 2005-12-13 19:46:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,8 +148,8 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj )
 
 #define mImplLoopStart \
     if ( gap > 100 ) return true; \
-    StreamProvider sp( EM::dgbSurfDataWriter::createHovName(basenm,nr) ); \
-    sp.addPathIfNecessary( pathnm );
+    StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName(basenm,nr) ); \
+    loopsp.addPathIfNecessary( pathnm );
 
 
 bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
@@ -160,8 +160,8 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
     for ( int nr=0; ; nr++ )
     {
 	mImplLoopStart;
-	if ( sp.exists(true) )
-	    sp.remove(false);
+	if ( loopsp.exists(true) )
+	    loopsp.remove(false);
 	else
 	    gap++;
     }
@@ -181,8 +181,8 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	mImplLoopStart;
 	StreamProvider spnew( EM::dgbSurfDataWriter::createHovName(newnm,nr) );
 	spnew.addPathIfNecessary( pathnm );
-	if ( sp.exists(true) )
-	    sp.rename( spnew.fileName(), cb );
+	if ( loopsp.exists(true) )
+	    loopsp.rename( spnew.fileName(), cb );
 	else
 	    gap++;
     }
@@ -349,11 +349,11 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 
 Executor* dgbEMSurfaceTranslator::getWriter()
 {
-    bool binary = true;
-    mSettUse(getYN,"dTect.Surface","Binary format",binary);
+    bool isbinary = true;
+    mSettUse(getYN,"dTect.Surface","Binary format",isbinary);
     BufferString unm = group() ? group()->userName() : 0;
     EM::dgbSurfaceWriter* res = new EM::dgbSurfaceWriter(ioobj_,unm,
-							 *surface,binary);
+							 *surface,isbinary);
     res->setWriteOnlyZ( writeOnlyZ() );
     res->pars()->set( EM::dgbSurfaceReader::versionstr, 2 );
 
