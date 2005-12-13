@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.23 2005-12-07 11:28:37 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.24 2005-12-13 10:32:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -350,6 +350,11 @@ uiAttribPartServer::createOutput( const CubeSampling& cs,
     }
 
     const Attrib::DataCubes* output = aem->getDataCubesOutput( *process );
+    if ( !output )
+    {
+	delete process;
+	return 0;
+    }
     output->ref();
     delete process;
     output->unRefNoDelete();
