@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.55 2005-11-30 21:56:54 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.56 2005-12-13 16:50:26 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,11 @@ public:
     EM::PosID	pid1;	//Only used in PosIDChange
     int		attrib; //Used only with AttribChange
 };
+
+
+/*! Iterator that iterates a number of positions (normally all) on an EMObject.
+The object is created by EMObject::createIterator, and the next() function is
+called until no more positions can be found. */
 
 
 class EMObjectIterator
@@ -112,7 +117,7 @@ public:
 					     bool addtohistory );
     				/*!<Tells the object that the node former known
 				    as from is now called to. Function will also
-				    exchange set the positiono of to to the 
+				    exchange set the position of to to the 
 				    posion of from. */
 
     virtual void		getLinkedPos( const EM::PosID& posid,
