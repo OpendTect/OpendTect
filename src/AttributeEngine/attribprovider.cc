@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.49 2005-11-30 11:05:45 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.50 2005-12-13 10:12:15 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -424,8 +424,8 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    currentbid = inputs[idx]->getCurrentPosition();
 	    trcinfobid = inputs[idx]->getTrcInfoBid();
 	    if ( !docheck && currentbid == startpos ) continue;
-	    if ( !docheck && seldata_ && seldata_->type_ == Seis::Table 
-		 && trcinfobid != BinID(-1,-1) && trcinfobid == startpos )
+	    if ( !docheck && trcinfobid != BinID(-1,-1) 
+		 && trcinfobid == startpos )
 		continue;
 	    
 	    needmove = true;
@@ -439,8 +439,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	if ( !needmove || docheck ) 
 	    docontinue = false;
 	
-	if ( !docheck && seldata_ && seldata_->type_ == Seis::Table 
-	     && firstcheck )
+	if ( !docheck && firstcheck )
 	{
 	    bool allok = true;
 	    for ( int idi=0; idi<inputs.size(); idi++)
@@ -796,7 +795,10 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 				      localcomputezintervals[idi].start,
 				      localcomputezintervals[idi].width()+1 );
     if ( !outdata || !getInputData(relpos, idi) )
+    {
+	linebuffer->removeDataHolder( currentbid+relpos );
 	return 0;
+    }
     
     for ( int idx=0; idx<outputinterest.size(); idx++ )
     {
