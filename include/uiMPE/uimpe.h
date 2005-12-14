@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.4 2005-12-14 18:52:11 cvskris Exp $
+ RCS:		$Id: uimpe.h,v 1.5 2005-12-14 19:02:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ class uiEMEditorFactory
 {
 public:
     void		addFactory( uiEMEditorCreationFunc f );
-    uiEMEditor*		create( uiParent*, MPE::ObjectEditor* e ) const
+    uiEMEditor*		create( uiParent*, MPE::ObjectEditor* e ) const;
 			/*!<Iterates through all added factory functions
 			    until one of the returns a non-zero pointer. */
 
