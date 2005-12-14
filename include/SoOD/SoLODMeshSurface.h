@@ -1,5 +1,5 @@
-#ifndef SoKrisSurface_h
-#define SoKrisSurface_h
+#ifndef SoLODMeshSurface_h
+#define SoLODMeshSurface_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoLODMeshSurface.h,v 1.5 2005-09-20 13:58:59 cvskris Exp $
+ RCS:		$Id: SoLODMeshSurface.h,v 1.6 2005-12-14 20:15:18 cvskris Exp $
 ________________________________________________________________________
 
 
