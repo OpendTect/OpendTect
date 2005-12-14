@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.28 2005-12-13 19:52:25 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.29 2005-12-14 16:47:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -895,6 +895,21 @@ bool SurfaceGeometry::insertRowOrCol( const SectionID& sid, int rc, bool row,
 	queue += fromrc;
     }
 
+    mDynamicCastGet( Geometry::ParametricSurface*, paramsurf,
+	    	     surface.getElementInternal(sid) );
+    const StepInterval<int> perprg = row ? colRange(sid) : rowRange(sid);
+    TypeSet<RowCol> replacercs;
+    TypeSet<Coord3> replacepos;
+    for ( int idx=perprg.start; idx<=perprg.stop; idx+= perprg.step )
+    {
+	const RowCol replacerc( row ? rc : idx, row ? idx : rc );
+	Coord param( replacerc.row, replacerc.col );
+	param[dim] -= (float) step()[dim]/2;
+	
+	replacercs += RowCol( row ? rc : idx, row ? idx : rc );
+	replacepos += paramsurf->computePosition(param);
+    }
+
     while ( queue.size() )
     {
 	for ( int idx=queue.size()-1; idx>=0; idx-- )
@@ -913,6 +928,9 @@ bool SurfaceGeometry::insertRowOrCol( const SectionID& sid, int rc, bool row,
 	    movedrc += fromrc;
 	}
     }
+
+    for ( int idx=replacercs.size()-1; idx>=0; idx-- )
+	paramsurf->setKnot(replacercs[idx],replacepos[idx]);
 
     checkSelfIntersection(didcheck);
     return true;
