@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.70 2005-12-09 19:07:15 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.71 2005-12-14 15:12:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,6 +116,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
     addSeparator();
     transfld = new uiSlider( this, "Slider", 2 );
+    transfld->setOrientation( uiSlider::Horizontal );
     transfld->setMaxValue( 1 );
     transfld->setToolTip( "Transparency" );
     transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
