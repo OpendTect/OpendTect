@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.54 2005-12-12 22:33:50 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.55 2005-12-14 16:49:32 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -536,10 +536,10 @@ void Engine::init()
 
 #include "emhortubeeditor.h"
 #include "emhortubetracker.h"
-#include "emfaulteditor.h"
-#include "emfaulttracker.h"
-#include "emhorizoneditor.h"
-#include "emhorizontracker.h"
+#include "faulteditor.h"
+#include "faulttracker.h"
+#include "horizoneditor.h"
+#include "horizontracker.h"
 
 
 void MPE::initStandardClasses()
