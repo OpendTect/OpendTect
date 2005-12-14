@@ -1,5 +1,5 @@
-#ifndef uiemeditor_h
-#define uiemeditor_h
+#ifndef uimpe_h
+#define uimpe_h
 
 /*+
 ________________________________________________________________________
@@ -7,21 +7,45 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.3 2005-09-27 19:16:22 cvskris Exp $
+ RCS:		$Id: uimpe.h,v 1.4 2005-12-14 18:52:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+/*!\mainpage
+uiMPE contains user interface for the MPE-engines trackers and editors. The
+class uiMPEPartServer provides tracking services for higher hierarchies 
+(i.e. the application manager).
+
+There are two factories avaliable for Trackning and Editing UI from
+the MPE::uiMPEEngine object, which is available through the static function
+MPE::uiMPE(). */
+
+
 #include "emposid.h"
 #include "callback.h"
+#include "uidialog.h"
 
 class uiParent;
+
+namespace Attrib { class DescSet; };
 
 
 namespace MPE
 {
 
 class ObjectEditor;
+class SectionTracker;
+
+/*! Interface for the ui interaction with MPE::ObjectEditor. Object is
+    implemented in separate classes inheriting uiEMEditor that can be created
+    by:
+
+\code
+    PtrMan<uiEMEditor> uieditor =
+    	MPE::uiMPE().editorfact.create( uiparent, editor );
+\endcode
+*/
 
 class uiEMEditor : public CallBackClass
 {
@@ -40,14 +64,24 @@ protected:
 };
 
 
+/*! Factory function that can produce a MPE::uiEMEditor* given a 
+    uiParent* and a MPE::ObjectEditor*. \note that the function should
+    return a zero pointer if the MPE::ObjectEditor* is of the wrong kind. */
+
+
 typedef uiEMEditor*(*uiEMEditorCreationFunc)(uiParent*,MPE::ObjectEditor*);
 
+/*! Factory that is able to create MPE::uiEMEditor objects given a uiParent*
+    and a MPE::ObjectEditor*. Each class that wants to be able to procuce
+    instances of itself must register itself with the addFactory startup. */
 
 class uiEMEditorFactory
 {
 public:
     void		addFactory( uiEMEditorCreationFunc f );
-    uiEMEditor*		create( uiParent*, MPE::ObjectEditor* e ) const;
+    uiEMEditor*		create( uiParent*, MPE::ObjectEditor* e ) const
+			/*!<Iterates through all added factory functions
+			    until one of the returns a non-zero pointer. */
 
 protected:
     TypeSet<uiEMEditorCreationFunc>	funcs;
@@ -55,13 +89,63 @@ protected:
 };
 
 
+/*! Interface to track-setup dialogs. Implementations can be retrieved through
+    MPE::uiSetupDialogFactory. */
+
+
+class uiSetupDialog : public uiDialog
+{
+public:
+				uiSetupDialog( uiParent*, const char* helpref );
+    virtual void		enableApplyButton( bool yn ) {}
+    virtual NotifierAccess*	applyButtonPressed() { return 0; }
+    virtual bool		commitToTracker() const { return true; }
+};
+    
+
+/*! Factory function that can produce a MPE::uiSetupDialog* given a 
+    uiParent*, a MPE::SectionTracker* and an Attrib::DescSet*. \note that the
+    function should return a zero pointer if the MPE::SectionTracker* is of the
+    wrong kind. */
+
+typedef uiSetupDialog*(*uiSetupDlgCreationFunc)( uiParent*, SectionTracker*,
+					         const Attrib::DescSet* );
+
+/*! Factory that is able to create MPE::uiSetupDialog* given a uiParent*,
+    a MPE::SectionTracker* and an Attrib::DescSet*. Each class that wants to
+    be able to procuce instances of itself must register itself with the
+    addFactory startup. */
+
+class uiSetupDialogFactory
+{
+public:
+    void		addFactory( uiSetupDlgCreationFunc f );
+    uiSetupDialog*	create( uiParent*,  SectionTracker*,
+	    			const Attrib::DescSet* );
+			/*!<Iterates through all added factory functions
+			    until one of the returns a non-zero pointer. */
+
+protected:
+    TypeSet<uiSetupDlgCreationFunc>	funcs;
+
+};
+
+
+/*! Holder class for MPE ui-factories. Is normally only retrieved by
+    MPE::uiMPE(). */
+
+
 class uiMPEEngine 
 {
 public:
     uiEMEditorFactory		editorfact;
+    uiSetupDialogFactory	setupdlgfact;
 };
 
 
+
+/*! Access function for an instance (and normally the only instance) of
+  MPE::uiMPEEngine. */
 uiMPEEngine& uiMPE();
 
 };
