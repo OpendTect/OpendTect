@@ -7,10 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.24 2005-11-11 22:36:08 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.25 2005-12-14 19:34:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+
+/*!\mainpage
+MPE stands for Model, Predict, Edit and is where all tracking and editing
+functions are located. The functionality is managed by the MPEEngine, and
+a static inistanciation of that can be retrieved by MPE::engine().
+
+*/
 
 #include "bufstring.h"
 #include "callback.h"
