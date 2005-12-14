@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.26 2005-07-25 21:10:33 cvskris Exp $
+ RCS:           $Id: uimsg.cc,v 1.27 2005-12-14 15:18:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,4 +186,18 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg,
     return QMessageBox::warning( popParnt(), QString(caption), QString(text),
 				  QString("Yes"), QString("No"),
 				  QString(cnclmsg), 0, 2 );
+}
+
+
+bool uiMsg::showMsgNextTime( const char* text, const char* caption,
+			     const char* ntmsg )
+{
+    uiCursorChanger uicursor( uiCursor::Arrow );
+    if ( !ntmsg || !*ntmsg ) ntmsg = "Don't show this message again";
+    if ( !caption || !*caption ) caption = "Information";
+    return !QMessageBox::warning( popParnt(),
+				  QString(caption), QString(text),
+				  QString("Ok"),
+				  QString(ntmsg),
+				  QString::null,0,1);
 }
