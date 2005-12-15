@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.14 2005-10-19 14:03:58 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.15 2005-12-15 08:51:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiemhorizoneditor.h"
 
 #include "datainpspec.h"
-#include "emhorizoneditor.h"
+#include "horizoneditor.h"
 #include "emhistory.h"
 #include "emmanager.h"
 #include "emsurfaceedgelineimpl.h"
