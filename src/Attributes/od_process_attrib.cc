@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.13 2005-12-01 15:03:40 cvshelene Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.14 2005-12-16 15:59:40 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 #include "attribdescset.h"
@@ -234,6 +234,7 @@ bool BatchProgram::go( std::ostream& strm )
     Time_sleep( startup_wait );  
 
     int nriter = 0;
+    int nrdone = 0;
 
     while ( true )
     {
@@ -263,7 +264,6 @@ bool BatchProgram::go( std::ostream& strm )
 		}
 	    }
 	    int res = proc->nextStep();
-	    int nrdone = 0;
 
 	    if ( nriter==0 )
 	    {
