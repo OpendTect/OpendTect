@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.1 2004-12-08 10:16:04 kristofer Exp $
+ RCS:		$Id: SoOD.h,v 1.2 2005-12-16 18:51:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,5 +20,10 @@ class SoOD
 public:
     static void		init();
 };
+
+/*!\mainpage
+SoOD cointains extensions to OpenInventor that are used to visualize 3D
+objects.
+*/
 
 #endif
