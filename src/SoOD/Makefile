@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.10 2005-05-30 14:57:32 cvsdgb Exp $
+#	RCS :		$Id: Makefile,v 1.11 2005-12-16 17:57:43 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -13,6 +13,8 @@ SRC.cc	:=	SoCameraInfo.cc \
 		SoIndexedTriangleFanSet.cc \
 		SoLODMeshSurface.cc \
 		SoManLevelOfDetail.cc \
+		SoMFImage.cc \
+		SoMultiTexture2.cc \
 		SoPerspectiveSel.cc \
 		SoPlaneWellLog.cc \
 		SoShapeScale.cc \

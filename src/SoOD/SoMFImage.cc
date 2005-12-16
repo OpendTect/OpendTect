@@ -1,0 +1,145 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Dec 2005
+ RCS:           $Id: SoMFImage.cc,v 1.1 2005-12-16 17:57:43 cvskris Exp $
+________________________________________________________________________
+
+-*/
+
+
+#include "SoMFImage.h"
+
+#include <Inventor/errors/SoReadError.h>
+
+SO_MFIELD_SOURCE( SoMFImage, SbImage, const SbImage& );
+
+void SoMFImage::initClass()
+{
+    SO_MFIELD_INIT_CLASS( SoMFImage, SoMField );
+}
+
+
+#define mErrRet { SoReadError::post(in, prematuremsg ); return false; }
+
+
+SbBool SoMFImage::read1Value( SoInput* in, int index )
+{
+    SbVec2s size;
+    int nc;
+
+    static const char* prematuremsg = "Premature end of file";
+
+    if ( !in->read(size[0]) || !in->read(size[1]) || !in->read(nc))
+	mErrRet;
+
+    if ( size[0]<0 || size[1]<0 || nc<0 || nc>4 )
+    {
+	SoReadError::post( in, "Invalid image specification %dx%dx%d",
+			   size[0], size[1], nc);
+	return false;
+    }
+
+    const int buffersize = size[1] * size[1] * nc;
+
+    if ( !buffersize && (size[0] || size[1] || nc) )
+    {
+	SoReadError::post( in, "Invalid image specification %dx%dx%d",
+			   size[0], size[1], nc);
+	return false;
+    }
+
+
+    if ( !buffersize ) 
+    {
+	values[index].setValue( SbVec2s(0,0), 0, NULL );
+	return true;
+    }
+
+    values[index].setValue(size, nc, 0 );
+    unsigned char* pixblock = values[index].getValue(size, nc);
+
+    if ( in->isBinary() && in->getIVVersion() >= 2.1f)
+    {
+	if ( !in->readBinaryArray(pixblock,buffersize) )
+	    mErrRet;
+    }
+    else
+    {
+	int byte = 0;
+	const int numpixels = size[0] * size[1];
+	for ( int i=0; i<numpixels; i++ )
+	{
+	    unsigned int l;
+	    if ( !in->read(l) )
+		mErrRet;
+
+	    for ( int j=0; j<nc; j++ )
+		pixblock[byte++] =
+		    (unsigned char) ((l >> (8 * (nc-j-1))) & 0xFF);
+	}
+    }
+
+    return true;
+}
+
+
+#define mWriteSpace if ( !binary ) out->write(' ')
+
+void SoMFImage::write1Value( SoOutput* out, int index ) const
+{
+    int nc;
+    SbVec2s size;
+    unsigned char * pixblock = values[index].getValue(size, nc);
+
+    const bool binary = out->isBinary();
+
+    out->write( size[0] ); mWriteSpace;
+    out->write( size[1] ); mWriteSpace;
+    out->write( nc );
+
+
+    if ( out->isBinary() )
+    {
+	int buffersize = size[0] * size[1] * nc;
+	if ( buffersize )
+	{
+	    out->writeBinaryArray( pixblock, buffersize );
+	    int padsize = ((buffersize + 3) / 4) * 4 - buffersize;
+	    if ( padsize )
+	    {
+		unsigned char pads[3] = {'\0','\0','\0'};
+		out->writeBinaryArray( pads, padsize );
+	    }
+	}
+    }
+    else
+    {
+	out->write('\n');
+	out->indent();
+
+	int numpixels = size[0] * size[1];
+	for ( int i=0; i<numpixels; i++ )
+	{
+	    unsigned int data = 0;
+	    for ( int j=0; j<nc; j++ )
+	    {
+		if (j) data <<= 8;
+		data |= (uint32_t)(pixblock[i * nc + j]);
+	    }
+
+	    out->write( data );
+	    if ( ((i+1)%8 == 0) && (i+1 != numpixels))
+	    {
+		out->write('\n');
+		out->indent();
+	    }
+	    else
+	    {
+		out->write(' ');
+	    }
+	}
+    }
+}
