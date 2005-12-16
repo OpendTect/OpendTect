@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.62 2005-09-29 08:45:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.63 2005-12-16 11:15:21 cvsbert Exp $";
 
 /*!
 
@@ -47,7 +47,7 @@ CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
     	, needaux(true)
 {
     if ( readInfo(!glob_info_only) )
-	toOffs( datastartfo );
+	toStart();
 }
 
 
@@ -104,36 +104,42 @@ bool CBVSReader::readInfo( bool wanttrailer )
 
     datastartfo = strm_.tellg();
 
+    CBVSInfo::SurvGeom& geom = info_.geom;
     if ( !wanttrailer )
-	info_.geom.fullyrectandreg = true;
-    bool needtrailer = !info_.geom.fullyrectandreg || coordpol_ == InTrailer;
+	geom.fullyrectandreg = true;
+    bool needtrailer = !geom.fullyrectandreg || coordpol_ == InTrailer;
     if ( wanttrailer && needtrailer && !readTrailer() )
 	return false;
 
-    firstbinid.inl = info_.geom.step.inl > 0
-		   ? info_.geom.start.inl : info_.geom.stop.inl;
-    firstbinid.crl = info_.geom.step.crl > 0
-		   ? info_.geom.start.crl : info_.geom.stop.crl;
-    lastbinid.inl  = info_.geom.step.inl > 0
-		   ? info_.geom.stop.inl : info_.geom.start.inl;
-    lastbinid.crl  = info_.geom.step.crl > 0
-		   ? info_.geom.stop.crl : info_.geom.start.crl;
-    if ( info_.geom.fullyrectandreg || !wanttrailer )
-	nrxlines_ = (lastbinid.crl - firstbinid.crl) / info_.geom.step.crl + 1;
+    firstbinid = geom.start; lastbinid = geom.stop;
+    if ( geom.fullyrectandreg || !wanttrailer )
+	nrxlines_ = (lastbinid.crl - firstbinid.crl) / geom.step.crl + 1;
     else
     {
-	PosInfo::InlData* iinf =
-		info_.geom.cubedata[ info_.geom.cubedata.size()-1 ];
-	lastbinid.inl = iinf->inl;
-	lastbinid.crl = iinf->segments[ iinf->segments.size()-1 ].stop;
-	iinf = info_.geom.cubedata[0];
-	firstbinid.inl = iinf->inl;
-	firstbinid.crl = iinf->segments[0].start;
+	firstbinid.inl = firstbinid.crl = mUdf(int);
+	lastbinid.inl = lastbinid.crl = -mUdf(int);
+	for ( int idx=0; idx<geom.cubedata.size(); idx++ )
+	{
+	    PosInfo::InlData* iinf = geom.cubedata[idx];
+	    if ( iinf->inl > lastbinid.inl )
+	    {
+		lastbinid.inl = iinf->inl;
+		lastbinid.crl = iinf->segments[iinf->segments.size()-1].stop;
+	    }
+	    if ( iinf->inl < firstbinid.inl )
+	    {
+		firstbinid.inl = iinf->inl;
+		firstbinid.crl = iinf->segments[0].start;
+	    }
+	}
+	curinlinfnr_ = geom.findNextInfIdx( -1 );
+	cursegnr_ = 0;
     }
 
     curbinid_ = firstbinid;
     if ( wanttrailer )
 	mkPosNrs();
+
     return true;
 }
 
@@ -369,16 +375,7 @@ bool CBVSReader::toStart()
 {
     if ( strmclosed_ ) return false;
 
-    curbinid_ = firstbinid;
-    if ( !info_.geom.fullyrectandreg )
-    {
-	curinlinfnr_ = cursegnr_ = 0;
-	curbinid_.inl = info_.geom.cubedata[0]->inl;
-	curbinid_.crl = info_.geom.cubedata[0]->segments[0].start;
-    }
-    posidx = 0;
-    toOffs( datastartfo );
-    hinfofetched = false;
+    goTo( firstbinid );
     return true;
 }
 
@@ -418,6 +415,7 @@ bool CBVSReader::goToPosNrOffs( int posnr )
 
     toOffs( datastartfo + std::streampos(so) );
     hinfofetched = false;
+    posidx = 0;
     return true;
 }
 
@@ -529,45 +527,31 @@ void CBVSReader::mkPosNrs()
 }
 
 
-bool CBVSReader::nextPosIdx()
+int CBVSReader::nextPosIdx()
 {
     posidx++;
     if ( posidx >= info_.nrtrcsperposn )
 	posidx = 0;
 
-    if ( !posidx )
+    if ( posidx == 0 )
 	return getNextBinID( curbinid_, curinlinfnr_, cursegnr_ );
 
-    return true;
+    return 1; // info_.nrtrcsperposn > 1 and we're returning 2nd or more
 }
 
 
-bool CBVSReader::skip( bool tonextpos )
+bool CBVSReader::toNext()
 {
-    if ( hinfofetched ) 
-	hinfofetched = false;
-
-    if ( info_.nrtrcsperposn < 1 )
-    {
-	// BinID will be set later, just go one trace further
-	posidx = 0;
-	curbinid_.inl = curbinid_.crl = 0;
-    }
-    else if ( !nextPosIdx() )
+    hinfofetched = false;
+    int res = nextPosIdx();
+    if ( res == 0 )
 	return false;
+    else if ( res == 2 )
+	return goTo( curbinid_ );
 
-    std::streampos onetrcoffs = auxnrbytes + bytespertrace;
+    // OK - just need to go to the next trace
+    const std::streampos onetrcoffs = auxnrbytes + bytespertrace;
     std::streampos posadd = onetrcoffs;
-
-    if ( posidx && tonextpos )
-    {
-	while ( posidx )
-	{
-	    posadd += onetrcoffs;
-	    if ( !nextPosIdx() ) return false;
-	}
-    }
-
     toOffs( lastposfo + posadd );
     return true;
 }
@@ -576,64 +560,69 @@ bool CBVSReader::skip( bool tonextpos )
 BinID CBVSReader::nextBinID() const
 {
     BinID bid( curbinid_ ); int ci = curinlinfnr_, cc = cursegnr_;
-    if ( !getNextBinID( bid, ci, cc ) )
+    if ( getNextBinID(bid,ci,cc) == 0 )
 	bid.inl = bid.crl = 0;
     return bid;
 }
 
 
-bool CBVSReader::getNextBinID( BinID& bid, int& inlinfnr, int& segnr ) const
-{
 #define mRetNoMore \
-    { bid = firstbinid; inlinfnr = 0; segnr = 0; return false; }
+{ \
+    bid = firstbinid; segnr = 0; \
+    inlinfnr = info_.geom.findNextInfIdx(-1); \
+    return 0; \
+}
 
+
+int CBVSReader::getNextBinID( BinID& bid, int& inlinfnr, int& segnr ) const
+{
     if ( bid == lastbinid )
 	mRetNoMore
 
     if ( info_.geom.fullyrectandreg )
     {
 	bid.crl += info_.geom.step.crl;
+	if ( bidrg.includes(bid) )
+	    return 1;
+
+	bid.crl = firstbinid.crl;
+	bid.inl += abs(info_.geom.step.inl);
 	if ( !bidrg.includes(bid) )
-	{
-	    bid.crl = firstbinid.crl;
-	    bid.inl += info_.geom.step.inl;
-	    if ( !bidrg.includes(bid) )
-		{ bid.inl = bidrg.start.inl; return false; }
-	}
-    }
-    else
-    {
-	const PosInfo::InlData* inlinf = info_.geom.cubedata[inlinfnr];
-	const PosInfo::InlData::Segment* curseg =
-		&inlinf->segments[segnr];
-	bid.crl += curseg->step;
-	if ( !curseg->includes(bid.crl) )
-	{
-	    if ( curseg->step > 0 && bid.crl < curseg->start )
-		bid.crl = curseg->start;
-	    else if ( curseg->step < 0 && bid.crl > curseg->start )
-		bid.crl = curseg->stop;
-	    else
-	    {
-		segnr++;
-		if ( segnr < inlinf->segments.size() )
-		    bid.crl = inlinf->segments[segnr].start;
-		else
-		{
-		    segnr = 0;
-		    inlinfnr++;
-		    if ( inlinfnr >= info_.geom.cubedata.size() )
-			{ pErrMsg("Huh"); mRetNoMore }
-		    inlinf = info_.geom.cubedata[inlinfnr];
-		    curseg = &inlinf->segments[segnr];
-		    bid.inl = inlinf->inl;
-		    bid.crl = curseg->start;
-		}
-	    }
-	}
+	    { bid.inl = bidrg.start.inl; return 0; }
+	return info_.geom.step.inl < 0 ? 2 : 1;
     }
 
-    return true;
+    const PosInfo::InlData* inlinf = info_.geom.cubedata[inlinfnr];
+    const PosInfo::InlData::Segment* curseg = &inlinf->segments[segnr];
+    bid.crl += curseg->step;
+    if ( curseg->includes(bid.crl) )
+	return 1;
+
+    if ( curseg->step > 0 && bid.crl < curseg->start )
+	bid.crl = curseg->start; // So the crl wasn't in the seg before ...
+    else if ( curseg->step < 0 && bid.crl > curseg->start )
+	bid.crl = curseg->stop; // ... not likely, defensive programming
+    else
+    {
+	if ( segnr < inlinf->segments.size()-1 )
+	{
+	    segnr++;
+	    bid.crl = inlinf->segments[segnr].start;
+	    return 2;
+	}
+
+	segnr = 0;
+	inlinfnr = info_.geom.findNextInfIdx( inlinfnr );
+	if ( inlinfnr < 0 )
+	    mRetNoMore
+
+	inlinf = info_.geom.cubedata[inlinfnr];
+	curseg = &inlinf->segments[segnr];
+	bid.inl = inlinf->inl;
+	bid.crl = curseg->start;
+    }
+
+    return 2;
 }
 
 

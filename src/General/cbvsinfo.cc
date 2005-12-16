@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.17 2005-01-05 15:06:57 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.18 2005-12-16 11:15:21 cvsbert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -85,26 +85,53 @@ int CBVSInfo::SurvGeom::excludes( const BinID& bid ) const
 }
 
 
+int CBVSInfo::SurvGeom::findNextInfIdx( int curinlinfnr ) const
+{
+    const bool inlrev = step.inl < 0;
+    if ( curinlinfnr < 0 || curinlinfnr >= cubedata.size() )
+	return inlrev ? cubedata.size()-1 : 0;
+
+    const int curinl = cubedata[curinlinfnr]->inl;
+    int inlinfnr = curinlinfnr + (inlrev ? -1 : 1);
+    // if ( inlinfnr >= 0 && inlinfnr < cubedata.size() )
+    if ( false ) // TODO replace by above, need to test below anyway
+    {
+	int inldiff = cubedata[inlinfnr]->inl - curinl;
+	if ( inldiff > 0 && inldiff <= abs(step.inl) )
+	    return inlinfnr;
+    }
+
+    // Just search the next inline
+    inlinfnr = -1; int mindiff = mUdf(int);
+    for ( int idx=0; idx<cubedata.size(); idx++ )
+    {
+	int inldiff = cubedata[idx]->inl - curinl;
+	if ( inldiff > 0 && inldiff < mindiff )
+	    { mindiff = inldiff; inlinfnr = idx; }
+    }
+
+    return inlinfnr;
+
+}
+
+
 bool CBVSInfo::SurvGeom::toNextInline( BinID& bid ) const
 {
     int infidx = -1;
     int res = getInfIdx( bid, infidx );
     if ( infidx >= 0 )
     {
-	while ( cubedata[infidx]->inl == bid.inl )
-	{
-	    infidx++;
-	    if ( infidx >= cubedata.size() ) return false;
-	}
-
+	infidx = findNextInfIdx( infidx );
+	if ( infidx < 0 )
+	    return false;
 	bid.inl = cubedata[infidx]->inl;
 	bid.crl = cubedata[infidx]->segments[0].start;
 	return true;
     }
     else if ( fullyrectandreg )
     {
-	bid.crl = step.crl > 0 ? start.crl : stop.crl;
-	bid.inl += step.inl;
+	bid.inl += step.inl < 0 ? -step.inl : step.inl;
+	bid.crl = step.crl < 0 ? stop.crl : start.crl;
 	return !outOfRange( bid );
     }
 
@@ -147,14 +174,16 @@ bool CBVSInfo::SurvGeom::toNextBinID( BinID& bid ) const
 
 void CBVSInfo::SurvGeom::merge( const CBVSInfo::SurvGeom& geom )
 {
-    if ( !geom.fullyrectandreg || !fullyrectandreg )
+    if ( !geom.fullyrectandreg || !fullyrectandreg
+      || start.crl != geom.start.crl || stop.crl != geom.stop.crl
+      || step.crl != geom.step.crl || step.inl != geom.step.inl )
         { mergeIrreg( geom ); return; }
 
-    int expected_inline = stop.inl + step.inl;
+    int expected_inline = stop.inl + abs(step.inl);
     bool isafter = true;
     if ( geom.start.inl != expected_inline )
     {
-        expected_inline = start.inl - step.inl;
+        expected_inline = start.inl - abs(step.inl);
         if ( geom.stop.inl == expected_inline )
             isafter = false;
         else
@@ -163,12 +192,6 @@ void CBVSInfo::SurvGeom::merge( const CBVSInfo::SurvGeom& geom )
 
     if ( isafter ) stop.inl = geom.stop.inl;
     else           start.inl = geom.start.inl;
-
-    StepInterval<int> crls( start.crl, stop.crl, step.crl );
-    crls.include( geom.start.crl );
-    crls.include( geom.stop.crl );
-    start.crl = crls.start;
-    stop.crl = crls.stop;
 }
 
 

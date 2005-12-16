@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.25 2005-09-20 16:28:08 cvsbert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.26 2005-12-16 11:15:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,9 @@ If you construct with glob_info_only == true, you cannot use the reader. After
 construction, the info() is then usable but no precise positioning is available.
 In other words, the trailer is not read.
 
+From OpendTect v2.2.1, The toNext() interface will always return ascending
+inlines, no matter whether the data is stored with descending inlines.
+
 */
 
 class CBVSReader : public CBVSIO
@@ -46,10 +49,7 @@ public:
 
     bool		goTo(const BinID&,bool nearest_is_ok=false);
     bool		toStart();
-    bool		toNext()	{ return skip(false); }
-    bool		skip(bool force_next_position=false);
-			//!< if force_next_position, will skip all traces
-			//!< at current position.
+    bool		toNext();
 
     bool		hasAuxInfo() const		{ return auxnrbytes; }
     void		fetchAuxInfo( bool yn=true )	{ needaux = yn; }
@@ -84,7 +84,8 @@ protected:
     bool		readTrailer();
     void		getText(int,BufferString&);
     void		toOffs(std::streampos);
-    bool		getNextBinID(BinID&,int&,int&) const;
+    int			getNextBinID(BinID&,int&,int&) const;
+    			//!< see nextPosIdx() for ret value
     int			getPosNr(const BinID&,bool,bool) const;
     Coord		getTrailerCoord(const BinID&) const;
     void		mkPosNrs();
@@ -108,7 +109,10 @@ private:
     TypeSet<int>	posnrs;
 
     bool		readInfo(bool);
-    bool		nextPosIdx();
+    int			nextPosIdx();
+    			//!< 0 = no more traces
+    			//!< 1 = next trace adjacent to current
+    			//!< 2 = next trace needs a jump
 
     std::streampos	lastposfo;
     std::streampos	datastartfo;

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.49 2005-09-20 16:28:08 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.50 2005-12-16 11:15:21 cvsbert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -463,29 +463,6 @@ bool CBVSReadMgr::toStart()
 
     curnr_ = 0;
     return readers_[curnr_]->toStart();
-}
-
-
-bool CBVSReadMgr::skip( bool fnp )
-{
-    if ( vertical_ )
-    {
-	for ( int idx=0; idx<readers_.size(); idx++ )
-	{
-	    if ( !readers_[idx]->skip(fnp) )
-		return false;
-	}
-	return true;
-    }
-
-    if ( !readers_[curnr_]->skip(fnp) )
-    {
-	if ( curnr_ == readers_.size()-1 ) return false;
-	curnr_++;
-	return readers_[curnr_]->toStart();
-    }
-
-    return true;
 }
 
 

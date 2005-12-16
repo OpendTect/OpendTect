@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.20 2005-05-02 10:09:06 cvsnanne Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.21 2005-12-16 11:15:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,8 @@ public:
 	bool			toNextBinID(BinID&) const;
 	void			clean()
 	    			{ fullyrectandreg = false; deepErase(cubedata);}
+
+	int			findNextInfIdx(int) const;
 
     protected:
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.19 2004-10-21 12:35:25 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.20 2005-12-16 11:15:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,6 @@ public:
     bool		goTo(const BinID&);
     bool		toNext();
     bool		toStart();
-    bool		skip(bool force_next_position=false);
-			//!< See CBVSReader::skip comments
 
     bool		getAuxInfo(PosAuxInfo&);
     bool		fetch(void**,const bool* comps=0,
