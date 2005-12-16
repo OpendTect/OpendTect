@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.19 2005-10-18 13:08:41 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.20 2005-12-16 15:43:14 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -340,7 +340,7 @@ void EnumParam::fillDefStr( BufferString& res ) const
     res += getKey();
     res += "=";
     BufferString val;
-    if ( !isRequired() || !getCompositeValue(val) )
+    if ( !getCompositeValue(val) && !isRequired() )
 	val = getDefaultValue();
 
     const char* ptr = val.buf();
