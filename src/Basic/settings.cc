@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.28 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.29 2005-12-19 11:40:46 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -32,7 +32,7 @@ static void getFnm( const char* key, BufferString& fname )
     FilePath fp( GetSettingsDir() ); fp.add( "settings" );
     fname = fp.fullPath();
     if ( key )
-	{ fname += "."; fname += key; }
+	{ fname += "_"; fname += key; }
 
     const char* ptr = GetSoftwareUser();
     if ( ptr )
@@ -43,48 +43,52 @@ static void getFnm( const char* key, BufferString& fname )
 }
 
 
+static const char* sKeyCommon = "Common";
+
 Settings& Settings::fetch( const char* key )
 {
-    BufferString settnm( key && *key ? key : "Common" );
+    BufferString settnm( key && *key ? key : sKeyCommon );
 
     ObjectSet<Settings>& settlist = getSetts();
     for ( int idx=0; idx<settlist.size(); idx++ )
 	if ( settlist[idx]->name() == settnm )
 	    return *settlist[idx];
 
-    const bool iscommon = settnm == "Common";
-    if ( iscommon ) key = 0;
+    const bool iscommon = settnm == sKeyCommon;
     BufferString fname;
-    getFnm( key, fname );
+    getFnm( iscommon ? 0 : settnm.buf(), fname );
     Settings* newsett = new Settings( fname );
-    if ( !newsett->doReRead(iscommon) )
-    {
-	if ( iscommon )
-	    ErrMsg( "Cannot find valid .od/settings file" );
-    }
-
     newsett->setName( settnm );
+    if ( !newsett->reRead() && iscommon )
+	ErrMsg( "Cannot find valid .od/settings file" );
+
     settlist += newsett;
     return *newsett;
 }
 
 
-bool Settings::doReRead( bool cpodsetts )
+bool Settings::reRead()
 {
     SafeFileIO sfio( fname, false );
 
-    bool do_write = File_isEmpty(fname);
+    const bool do_write = File_isEmpty(fname);
+    const bool iscommon = name() == sKeyCommon;
     if ( !sfio.open(true) )
     {
-	if ( !cpodsetts )
+	BufferString tmplfname( iscommon ? "od" : name().buf() );
+	tmplfname += "Settings";
+	tmplfname = GetDataFileName(tmplfname);
+	bool okaftercopy = false;
+	if ( File_exists(tmplfname) )
 	{
-	    ErrMsg( sfio.errMsg() );
-	    return false;
+	    File_copy( tmplfname, fname, NO );
+	    if ( sfio.open(true) )
+		okaftercopy = true;
 	}
-	File_copy( GetDataFileName("odSettings"), fname, NO );
-	if ( !sfio.open(true) )
+	if ( !okaftercopy )
 	{
-	    ErrMsg( sfio.errMsg() );
+	    if ( iscommon )
+		ErrMsg( sfio.errMsg() );
 	    return false;
 	}
     }
