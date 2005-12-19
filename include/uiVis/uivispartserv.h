@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.153 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.154 2005-12-19 08:17:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -281,6 +281,7 @@ protected:
     //void			updatePlanePos(CallBacker*);
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
+    void			colTabChangeCB(CallBacker*);
 
     MenuItem			selcolorattrmnuitem;
     MenuItem			resetmanipmnuitem;
