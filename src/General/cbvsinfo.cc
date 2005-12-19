@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.18 2005-12-16 11:15:21 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.19 2005-12-19 11:39:52 cvsbert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -93,15 +93,15 @@ int CBVSInfo::SurvGeom::findNextInfIdx( int curinlinfnr ) const
 
     const int curinl = cubedata[curinlinfnr]->inl;
     int inlinfnr = curinlinfnr + (inlrev ? -1 : 1);
-    // if ( inlinfnr >= 0 && inlinfnr < cubedata.size() )
-    if ( false ) // TODO replace by above, need to test below anyway
+    // Try the next one first - most probably that's the one we need
+    if ( inlinfnr >= 0 && inlinfnr < cubedata.size() )
     {
 	int inldiff = cubedata[inlinfnr]->inl - curinl;
 	if ( inldiff > 0 && inldiff <= abs(step.inl) )
 	    return inlinfnr;
     }
 
-    // Just search the next inline
+    // Nope. We need to find the nearest higher inline number
     inlinfnr = -1; int mindiff = mUdf(int);
     for ( int idx=0; idx<cubedata.size(); idx++ )
     {
@@ -234,7 +234,8 @@ void CBVSInfo::SurvGeom::mergeIrreg( const CBVSInfo::SurvGeom& g )
 	    cubedata.add( new PosInfo::InlData( *gii ) );
 	else
 	{
-	    //TODO make correct merging of segments in case of overlap
+	    // not correct in case of overlap
+	    // but that is asking a bit much, really
 	    for ( int iseg=0; iseg<gii->segments.size(); iseg++ )
 		ii->segments += gii->segments[idx];
 	}
