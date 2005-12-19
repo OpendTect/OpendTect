@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.63 2005-12-16 11:15:21 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.64 2005-12-19 13:37:19 cvsbert Exp $";
 
 /*!
 
@@ -432,16 +432,15 @@ int CBVSReader::getPosNr( const BinID& bid, bool nearestok,
     {
 	if ( !bidrg.includes(bid) )
 	    return -1;
-	
-	if ( info_.geom.step.inl == 1 )
+	const int inlstep = abs(info_.geom.step.inl);
+	if ( inlstep == 1 )
 	    nearestbinid.inl = bid.inl;
 	else
 	{
-	    StepInterval<int> inls( firstbinid.inl, lastbinid.inl,
-				    info_.geom.step.inl );
+	    StepInterval<int> inls( firstbinid.inl, lastbinid.inl, inlstep );
 	    nearestbinid.inl = inls.atIndex( inls.nearestIndex( bid.inl ) );
 	}
-	if ( info_.geom.step.crl == 1 )
+	if ( info_.geom.step.crl == 1 ) // nowadays, always crossline-sorted
 	    nearestbinid.crl = bid.crl;
 	else
 	{
@@ -449,8 +448,9 @@ int CBVSReader::getPosNr( const BinID& bid, bool nearestok,
 				    info_.geom.step.crl );
 	    nearestbinid.crl = crls.atIndex( crls.nearestIndex( bid.crl ) );
 	}
-	posnr = ((nearestbinid.inl-firstbinid.inl) / info_.geom.step.inl)
-	    		* nrxlines_
+	int inldiff = info_.geom.step.inl < 0 ? lastbinid.inl-nearestbinid.inl
+	    				      : nearestbinid.inl-firstbinid.inl;
+	posnr = (inldiff / inlstep) * nrxlines_
 	      + ((nearestbinid.crl-firstbinid.crl) / info_.geom.step.crl);
     }
     else
