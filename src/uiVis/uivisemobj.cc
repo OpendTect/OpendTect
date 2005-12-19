@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.36 2005-12-06 16:51:33 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.37 2005-12-19 08:16:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -356,7 +356,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==singlecolmnuitem.id )
     {
-	emod->useTexture( !emod->usesTexture() );
+	emod->setUseTexture( !emod->usesTexture() );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==showonlyatsectionsmnuitem.id )

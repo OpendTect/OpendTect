@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.38 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.39 2005-12-19 08:13:39 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -115,6 +115,7 @@ public:
     bool			isOn() const;
 
     int				getColTabID() const;
+    Color                       getColTabColor(int,int) const;
     const TypeSet<float>*	getHistogram() const;
 
     void                        setMaterial( visBase::Material* );

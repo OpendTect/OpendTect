@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.66 2005-11-30 22:29:55 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.67 2005-12-19 08:13:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ EMObjectDisplay::EMObjectDisplay()
     , displayonlyatsections( false )
     , coltab_(visBase::VisColorTab::create())
     , hasmoved( this )
+    , changedisplay( this )
     , drawstyle(visBase::DrawStyle::create())
     , edgelineradius( 3.5 )
     , validtexture( false )
@@ -541,6 +542,13 @@ void EMObjectDisplay::useTexture( bool yn )
 }
 
 
+void EMObjectDisplay::setUseTexture( bool yn )
+{
+    useTexture(yn);
+    changedisplay.trigger();
+}
+
+
 bool EMObjectDisplay::usesTexture() const
 { return usestexture; }
 
@@ -571,6 +579,7 @@ void EMObjectDisplay::setOnlyAtSectionsDisplay(bool yn)
 	sections[idx]->turnOn(!displayonlyatsections);
 
     hasmoved.trigger();
+    changedisplay.trigger();
 }
 
 
@@ -586,6 +595,7 @@ void EMObjectDisplay::setColor( Color col )
     {
 	emobject->setPreferredColor( col );
     }
+    changedisplay.trigger();
 }
 
 
@@ -1076,6 +1086,16 @@ void EMObjectDisplay::setResolution( int res )
 int EMObjectDisplay::getColTabID() const
 {
     return usesTexture() ? coltab_->id() : -1;
+}
+
+
+Color EMObjectDisplay::getColTabColor( int idx, int max ) const
+{
+    if ( !usesTexture() ) return Color::White;
+    int nrcolors = coltab_->nrSteps()-1;
+    int index = (int)(idx*nrcolors/max);
+
+    return coltab_->tableColor(index);
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.288 2005-11-28 14:17:22 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.289 2005-12-19 08:16:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1078,6 +1078,10 @@ void uiVisPartServer::setUpConnections( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( vo && vo->rightClicked() )
 	vo->rightClicked()->notify(mCB(this,uiVisPartServer,rightClickCB));
+
+    mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(getColTabId(id)));
+    if ( coltab )
+	coltab->sequencechange.notify(mCB(this,uiVisPartServer,colTabChangeCB));
 }
 
 
@@ -1098,6 +1102,11 @@ void uiVisPartServer::removeConnections( int id )
     if ( vo && vo->rightClicked() )
 	vo->rightClicked()->remove(mCB(this,uiVisPartServer,rightClickCB));
     menu->unRef();
+
+    mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(getColTabId(id)));
+    if ( coltab )
+	coltab->sequencechange.remove(mCB(this,uiVisPartServer,colTabChangeCB));
+	
 }
 
 
@@ -1258,6 +1267,12 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 	so->setResolution(resmnuitem.itemIndex(mnuid));
 	menu->setIsHandled(true);
     }
+}
+
+
+void uiVisPartServer::colTabChangeCB( CallBacker* )
+{
+    triggerTreeUpdate();
 }
 
 

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.57 2005-11-15 16:16:57 cvshelene Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.58 2005-12-19 08:13:13 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -507,6 +507,15 @@ bool RandomTrackDisplay::isOn() const
 
 int RandomTrackDisplay::getColTabID() const
 { return track->getColorTab().id(); }
+
+
+Color RandomTrackDisplay::getColTabColor( int idx, int max ) const
+{
+    int nrcolors = track->getColorTab().nrSteps()-1;
+    int index = (int)(idx*nrcolors/max);
+
+    return track->getColorTab().tableColor(index);
+}
 
 
 const TypeSet<float>* RandomTrackDisplay::getHistogram() const

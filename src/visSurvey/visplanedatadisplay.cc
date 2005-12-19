@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.97 2005-11-28 13:32:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.98 2005-12-19 08:13:13 cvshelene Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -517,6 +517,15 @@ const TypeSet<float>* PlaneDataDisplay::getHistogram() const
 int PlaneDataDisplay::getColTabID() const
 {
     return trect->getColorTab().id();
+}
+
+
+Color PlaneDataDisplay::getColTabColor( int idx, int max ) const
+{
+    int nrcolors = trect->getColorTab().nrSteps()-1;
+    int index = (int)(idx*nrcolors/max);
+    
+    return trect->getColorTab().tableColor(index);
 }
 
 

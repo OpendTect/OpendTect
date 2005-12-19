@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.30 2005-11-30 22:29:56 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.31 2005-12-19 08:13:39 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
     StepInterval<int>		displayedColRange() const;
 
     void			useTexture(bool yn);
+    void			setUseTexture(bool yn);
     bool			usesTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
@@ -114,6 +115,7 @@ public:
 						BufferString& info) const;
 
     int				getColTabID() const;
+    Color                       getColTabColor(int,int) const;
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
@@ -139,6 +141,7 @@ public:
 
     NotifierAccess*		getMovementNotification();
     Notifier<EMObjectDisplay>	hasmoved;
+    Notifier<EMObjectDisplay>	changedisplay;
 
 protected:
     					~EMObjectDisplay();
