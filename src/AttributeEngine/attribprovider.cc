@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.50 2005-12-13 10:12:15 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.51 2005-12-20 10:30:10 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -497,7 +497,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     if ( docheck )
     {
-	const int res = checkInputsPos( movinginputs );
+	const int res = alignInputs( movinginputs );
 	if ( res != 1 )
 	    return res;
     }
@@ -566,55 +566,70 @@ void Provider::computeNewStartPos( BinID& newstart )
     }
 }
 
-int Provider::checkInputsPos( ObjectSet<Provider>& movinginputs )
+
+int Provider::alignInputs( ObjectSet<Provider>& movinginputs )
 {
-    bool idxnewline = false;
-    bool idynewline = false;
-    bool is2d = getDesc().descSet()->is2D();
-    int dir = is2d ? 0 : getStepoutStep().inl;
     updateCurrentInfo();
-    
-    for ( int idx=0; idx<movinginputs.size()-1; idx++ )
+
+    bool inp1_is_on_newline = false;
+    bool inp2_is_on_newline = false;
+    const bool is2d = getDesc().descSet()->is2D();
+    for ( int inp1=0; inp1<movinginputs.size()-1; inp1++ )
     {
-	if ( is2d )
-	    idxnewline = movinginputs[idx]->isNew2DLine();
+	if ( is2d ) inp1_is_on_newline = movinginputs[inp1]->isNew2DLine();
 
-	for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
+	for ( int inp2=inp1+1; inp2<movinginputs.size(); inp2++ )
 	{
-	    bool idxmoved = false;
-	    if ( is2d )
-		idynewline = movinginputs[idy]->isNew2DLine();
+	    bool inp1moved = false;
+	    if ( is2d ) inp2_is_on_newline = movinginputs[inp2]->isNew2DLine();
 
-	    while ( true )
-	    {
-		int compres = movinginputs[idx]->getSeisRequester()->
-		       comparePos( *movinginputs[idy]->getSeisRequester() );
-	
-		if ( compres == 0 )
-		    break;
-		
-		if ( ( compres==-1 && !idxnewline ) || idynewline )
-	        {
-		    idxmoved = true;
-		    movinginputs[idx]->resetMoved();
-		    const int res = movinginputs[idx]->moveToNextTrace();
-		    if ( res != 1 ) return res;
-		}
-		else if ( compres == 1 || idxnewline )
-		{
-		    movinginputs[idy]->resetMoved();
-		    const int res = movinginputs[idy]->moveToNextTrace();
-		    if ( res != 1 ) return res;
-		}
-	    }
+	    int res = comparePosAndAlign(movinginputs[inp1], inp1_is_on_newline,
+		      	    		 movinginputs[inp2], inp2_is_on_newline,
+					 inp1moved );
+	    if ( res != 1 ) return res;
 
-	    if ( idxmoved )
+	    if ( inp1moved )
 	    {
-		idx = -1;
+		inp1 = -1;
 		break;
 	    }
 	}
     }
+    
+    return 1;
+}
+
+//TODO: compare line name in 2d
+int Provider::comparePosAndAlign( Provider* input1, bool inp1_is_on_newline,
+	                          Provider* input2, bool inp2_is_on_newline,
+	                          bool inp1moved )
+{
+    while ( true )
+    {
+	int compres = input1->getSeisRequester()->
+	    			comparePos( *input2->getSeisRequester() );
+
+	if ( compres == 0 )
+	    break;
+
+	bool bothnew = inp1_is_on_newline && inp2_is_on_newline;
+	if ( ( compres==-1 && !inp1_is_on_newline ) ||
+	     ( compres==-1 && bothnew ) || 
+	     ( !bothnew && inp2_is_on_newline ) )
+	{
+	    inp1moved = true;
+	    input1->resetMoved();
+	    const int res = input1->moveToNextTrace();
+	    if ( res != 1 ) return res;
+	}
+	else if ( compres == 1 || inp1_is_on_newline )
+	{
+	    input2->resetMoved();
+	    const int res = input2->moveToNextTrace();
+	    if ( res != 1 ) return res;
+	}
+    }
+
     return 1;
 }
 
@@ -796,7 +811,7 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 				      localcomputezintervals[idi].width()+1 );
     if ( !outdata || !getInputData(relpos, idi) )
     {
-	linebuffer->removeDataHolder( currentbid+relpos );
+	if ( outdata ) linebuffer->removeDataHolder( currentbid+relpos );
 	return 0;
     }
     

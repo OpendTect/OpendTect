@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.31 2005-11-30 11:05:57 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.32 2005-12-20 10:29:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,9 @@ public:
 				    \retval  1	arrived at new position
 				*/
     void			computeNewStartPos(BinID&);
-    int				checkInputsPos(ObjectSet<Provider>&);
+    int				alignInputs(ObjectSet<Provider>&);
+    int 			comparePosAndAlign(Provider*, bool, Provider*, 
+	    					   bool, bool);
     void			resetMoved();
     void                        resetZIntervals();
 
