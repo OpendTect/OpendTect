@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.42 2005-08-03 12:55:15 cvsnanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.43 2005-12-21 12:13:25 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ public:
 
     void			setColor(Color);
     Color			getColor() const;
+    bool			hasColor() const	{ return true; }
 
     void			setType(int);
     int				getType() const;

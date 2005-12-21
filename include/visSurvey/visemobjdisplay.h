@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.31 2005-12-19 08:13:39 cvshelene Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.32 2005-12-21 12:13:25 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -115,7 +115,6 @@ public:
 						BufferString& info) const;
 
     int				getColTabID() const;
-    Color                       getColTabColor(int,int) const;
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);

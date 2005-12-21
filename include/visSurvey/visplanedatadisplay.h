@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.61 2005-12-19 08:13:39 cvshelene Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.62 2005-12-21 12:13:25 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -96,7 +96,6 @@ public:
     const Attrib::ColorSelSpec*	getColorSelSpec() const;
     const TypeSet<float>*	getHistogram() const;
     int				getColTabID() const;
-    Color			getColTabColor(int,int) const;
 
     CubeSampling		getCubeSampling() const;
     void			setCubeSampling(CubeSampling);
