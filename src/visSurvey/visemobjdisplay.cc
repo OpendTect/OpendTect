@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.67 2005-12-19 08:13:13 cvshelene Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.68 2005-12-21 12:12:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1086,16 +1086,6 @@ void EMObjectDisplay::setResolution( int res )
 int EMObjectDisplay::getColTabID() const
 {
     return usesTexture() ? coltab_->id() : -1;
-}
-
-
-Color EMObjectDisplay::getColTabColor( int idx, int max ) const
-{
-    if ( !usesTexture() ) return Color::White;
-    int nrcolors = coltab_->nrSteps()-1;
-    int index = (int)(idx*nrcolors/max);
-
-    return coltab_->tableColor(index);
 }
 
 
