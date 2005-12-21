@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.4 2005-10-04 13:31:16 cvshelene Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.5 2005-12-21 10:54:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,14 +44,14 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 {
     if ( evaloutput_ )
     {
-	const float val = ade.getOutputValue( ade.desc()->selectedOutput() );
+	const float val = ade.getOutputValue( ade.curDesc()->selectedOutput() );
 	initfld = new uiGenInput( this, sKeyInit, FloatInpSpec(val) );
 	setHAlignObj( initfld );
 	return;
     }
 
-    const ValParam* valpar1 = ade.desc()->getValParam( parstr1_ );
-    const ValParam* valpar2 = ade.desc()->getValParam( parstr2_ );
+    const ValParam* valpar1 = ade.curDesc()->getValParam( parstr1_ );
+    const ValParam* valpar2 = ade.curDesc()->getValParam( parstr2_ );
 
     DataInpSpec* initspec1 = 0; DataInpSpec* initspec2 = 0;
     DataInpSpec* incrspec1 = 0; DataInpSpec* incrspec2 = 0;
@@ -204,8 +204,8 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     , srcid_(-1,true)
     , haspars_(false)
 {
-    srcid_ = ade.desc()->id();
-    attrset_ = ade.desc()->descSet()->optimizeClone( srcid_ );
+    srcid_ = ade.curDesc()->id();
+    attrset_ = ade.curDesc()->descSet()->optimizeClone( srcid_ );
     attrset_->fillPar( initpar_ );
 
     TypeSet<EvalParam> params;
