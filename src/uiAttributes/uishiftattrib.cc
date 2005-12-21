@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.5 2005-08-22 15:33:53 cvsnanne Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.6 2005-12-21 10:53:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,5 +111,5 @@ void uiShiftAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     BufferString str = zIsTime() ? "Time" : "Depth"; str += " shift";
     if ( typefld->getBoolValue() )
 	params += EvalParam( str, Shift::timeStr() );
+    params += EvalParam( stepoutstr, Shift::posStr() );
 }
-
