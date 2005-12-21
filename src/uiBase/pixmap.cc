@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.11 2005-11-18 15:16:33 cvsarend Exp $
+ RCS:           $Id: pixmap.cc,v 1.12 2005-12-21 12:18:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndimpl.h"
 #include "arrayrgb.h"
+#include "colortab.h"
 
 #include <qpixmap.h>
 #include <qbitmap.h>
@@ -49,6 +50,26 @@ ioPixmap::ioPixmap( const QPixmap& pm )
 
 ioPixmap::ioPixmap( const char* fileName, const char * format )
     { qpixmap = new QPixmap( fileName, format ); }
+
+    
+ioPixmap::ioPixmap( const char* tablename, int width, int height )
+{
+    ArrayRGB rgb( height, width );
+    ColorTable ctab;
+    ColorTable::get( tablename, ctab );
+    ctab.calcList(width);
+    
+    Color color;
+    for ( int idx1=0; idx1<rgb.info().getSize(1); idx1++ )
+    {
+	color = ctab.tableColor(idx1);
+	
+	for ( int idx2=0; idx2<rgb.info().getSize(0); idx2++ )
+	    rgb.set( idx2, idx1, color );
+    }
+    qpixmap = new QPixmap;
+    convertFromArrayRGB( rgb );
+}
 
 
 ioPixmap::~ioPixmap()

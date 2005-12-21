@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.9 2005-11-18 15:16:36 cvsarend Exp $
+ RCS:           $Id: pixmap.h,v 1.10 2005-12-21 12:17:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
 			*/
 			ioPixmap(const char* fileName,const char* format=0);
 			ioPixmap(const ioPixmap&);
+			ioPixmap(const char* tablename, int width, int height);
     virtual		~ioPixmap();
 
     void		convertFromArrayRGB(const ArrayRGB&);
