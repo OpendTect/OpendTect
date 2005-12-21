@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.1 2005-12-12 17:26:39 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.2 2005-12-21 22:15:03 cvskris Exp $";
 
 #include "horizonextender.h"
 
@@ -95,12 +95,29 @@ int HorizonExtender::nextStep()
 		if ( neighbor.sectionID()!=sid )
 		    continue;
 
+		//If this is a better route to a node that is allready
+		//added, replace the route with this one
+
+		const int previndex = addedpos.indexOf( neighbor.subID() );
+		if ( previndex!=-1 )
+		{
+		    const RowCol step( surface.geometry.step() );
+		    const RowCol oldsrc( RowCol(addedpossrc[previndex])/step );
+		    const RowCol dst( RowCol(addedpos[previndex])/step );
+		    const RowCol cursrc( srcbid/step );
+
+		    const int olddist = oldsrc.distanceSq(dst);
+		    if ( cursrc.distanceSq( dst )<olddist )
+			addedpossrc[previndex] = srcbid.getSerialized();
+
+		    continue;
+		}
+
+		//This test must be below the one above since the result
+		//of this test will ruin the one above.
 		if ( extend && surface.isDefined(neighbor) )
 		    continue;
 
-		const bool addedbefore = addedpos.indexOf(neighbor.subID())!=-1;
-		if ( addedbefore )
-		    continue;
 
 		if ( surface.setPos(neighbor,Coord3(0,0,depth),true) )
 		{
