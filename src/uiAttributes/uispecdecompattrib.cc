@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.8 2005-11-07 15:19:45 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.9 2005-12-21 10:53:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,6 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
 	        waveletfld->setValue(cwtwavelet) );
 
     const float freqscale = zIsTime() ? 1 : 1000;
-    float deltafreq;
     mIfGetFloat( SpecDecomp::deltafreqStr(), deltafreq,
 		 stepfld->box()->setValue(deltafreq*freqscale) );
 
