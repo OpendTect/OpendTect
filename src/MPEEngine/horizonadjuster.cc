@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.22 2005-11-29 21:37:26 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.23 2005-12-21 21:34:06 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -207,7 +207,9 @@ bool HorizonAdjuster::findMaxSimilarity( const float* fixedarr,
     }
 
     flatstart = nreqsamples && !res;
-    res += ((float)nreqsamples)*step/2;
+    res += ((float)nreqsamples)/2;
+
+    res *= step;
 
     return maxsim>=similaritythreshold_;
 }
@@ -299,12 +301,14 @@ bool HorizonAdjuster::snap( const BinID& bid,
     else if ( evtype==VSEvent::Max || evtype==VSEvent::Min )
     {
 	float upampl;
+	bool uploopskip;
 	ValueSeriesEvent<float,float> upevent =
-	    findExtreme(evfinder,uprg,threshold,upampl);
+	    findExtreme(evfinder,uprg,threshold,upampl,uploopskip);
 
 	float dnampl;
+	bool dnloopskip;
 	ValueSeriesEvent<float,float> dnevent =
-	    findExtreme(evfinder,dnrg,threshold,dnampl);
+	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip);
 
 	const bool upfound = !Values::isUdf(upevent.pos);
 	const bool dnfound = !Values::isUdf(dnevent.pos);
@@ -313,13 +317,18 @@ bool HorizonAdjuster::snap( const BinID& bid,
 	    return false;
 	else if ( upfound && dnfound )
 	{
-	    if ( evtype==VSEvent::Min )
+	    if ( uploopskip!=dnloopskip )
+		targetz = uploopskip ? dnevent.pos : upevent.pos;
+	    else
 	    {
-		upampl *= -1;
-		dnampl *= -1;
-	    }
+		if ( evtype==VSEvent::Min )
+		{
+		    upampl *= -1;
+		    dnampl *= -1;
+		}
 
-	    targetz = upampl>dnampl ?  upevent.pos : dnevent.pos;
+		targetz = upampl>dnampl ?  upevent.pos : dnevent.pos;
+	    }
 	}
 	else 
 	    targetz = upfound ? upevent.pos : dnevent.pos;
@@ -337,7 +346,8 @@ bool HorizonAdjuster::snap( const BinID& bid,
 ValueSeriesEvent<float, float>
 HorizonAdjuster::findExtreme(
 	const ValueSeriesEvFinder<float, float>& eventfinder,
-        const Interval<float>& rg, float threshold, float& avgampl ) const
+        const Interval<float>& rg, float threshold, float& avgampl,
+	bool& hasloopskips ) const
 {
     const SamplingData<float>& sd = eventfinder.samplingData();
     const ValueSeries<float>& valser = eventfinder.valueSeries();
@@ -348,7 +358,7 @@ HorizonAdjuster::findExtreme(
     {
 	ev = eventfinder.find( evtype, rg, occ );
 	if ( Values::isUdf(ev.pos) )
-	    break;
+	    return ev;
 
 	if ( !Values::isUdf(threshold) &&
 	     ( (evtype==VSEvent::Min && ev.val>threshold) ||
@@ -358,19 +368,28 @@ HorizonAdjuster::findExtreme(
 	    continue;
 	}
 
-	Interval<int> amplsumrg( sd.nearestIndex(rg.start),
-				 sd.nearestIndex(ev.pos) );
-	amplsumrg.sort(true);
-
-
-	avgampl = 0;
-	for ( int idx=amplsumrg.start; idx<=amplsumrg.stop; idx++ )
-	    avgampl += valser.value(idx);
-
-	avgampl /= amplsumrg.width()+1;
 	break;
     }
 
+    Interval<int> amplsumrg( sd.nearestIndex(rg.start),
+			     sd.nearestIndex(ev.pos) );
+    const int inc = amplsumrg.start>amplsumrg.stop ? -1 : 1;
+    avgampl = 0;
+    hasloopskips = false;
+    float prev = valser.value(amplsumrg.start);
+    for ( int idx=amplsumrg.start;
+	  inc>0?idx<=amplsumrg.stop:idx>=amplsumrg.stop; idx+=inc )
+    {
+	const float val = valser.value(idx);
+	if ( !hasloopskips &&
+		(evtype==VSEvent::Min && val>prev ) ||
+		(evtype==VSEvent::Max && val<prev ) )
+	    hasloopskips = true;
+
+	avgampl += val;
+    }
+
+    avgampl /= amplsumrg.width()+1;
     return ev;
 }
 
