@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.7 2005-10-05 13:08:40 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.8 2005-12-21 10:55:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,8 @@ public:
     virtual		~uiAttrDescEd();
 
     void		setDesc(Desc*,DescSetMan*);
-    Desc*	desc()			{ return attrdesc; }
-    const Desc*	desc() const		{ return attrdesc; }
+    Desc*		curDesc()			{ return attrdesc; }
+    const Desc*		curDesc() const			{ return attrdesc; }
     virtual const char*	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be
