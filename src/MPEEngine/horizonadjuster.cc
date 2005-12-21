@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.23 2005-12-21 21:34:06 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.24 2005-12-21 22:14:19 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -479,7 +479,7 @@ bool HorizonAdjuster::trackBySimilarity( const BinID& trefbid,
 		bestmatch = fabs(dnsample)<fabs(upsample) ? dnsample : upsample;
 	}
 	else
-	    bestmatch = dnsim<upsim ? upsim : dnsim;
+	    bestmatch = dnsim<upsim ? upsample : dnsample;
     }
     else if ( findup )
 	bestmatch = upsample;
