@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.12 2005-11-03 12:11:44 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.13 2005-12-21 10:52:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,9 +192,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
-        BufferString name(SeisTrcStorOutput::attribkey);
-        name += "."; name += nm;
-        iop.add( name, attrpar.getValue(idx) );
+        BufferString key(SeisTrcStorOutput::attribkey);
+        key += "."; key += nm;
+        iop.add( key, attrpar.getValue(idx) );
     }
 
     BufferString key;
