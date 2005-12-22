@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.17 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.18 2005-12-22 15:56:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
     
     void			createWellFromPicks();
     const char*			askWellName();
-    void			setupNewWell(BufferString&, Color&);
+    bool			setupNewWell(BufferString&, Color&);
 
     bool			storeWell(const TypeSet<Coord3>&, const char*);
 
