@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.55 2005-11-28 11:59:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.56 2005-12-22 15:55:50 cvshelene Exp $";
 
 #include "viswelldisplay.h"
 
@@ -98,30 +98,8 @@ void WellDisplay::fullRedraw( CallBacker* )
 {
     Well::Data* wd = Well::MGR().get( wellid_, false );
     if ( !wd ) return;
-    
-    const Well::D2TModel* d2t = wd->d2TModel();
-    setName( wd->name() );
-
-    if ( wd->track().size() < 1 ) return;
-    PtrMan<Well::Track> ttrack = 0;
-    if ( zistime_ )
-    {
-	ttrack = new Well::Track( wd->track() );
-	ttrack->toTime( *d2t );
-    }
-    Well::Track& track = zistime_ ? *ttrack : wd->track();
-
-    TypeSet<Coord3> trackpos;
-    Coord3 pt;
-    for ( int idx=0; idx<track.size(); idx++ )
-    {
-	pt = track.pos( idx );
-	if ( zinfeet_ )
-	    mMeter2Feet(pt.z);
-
-	if ( !mIsUndefined(pt.z) )
-	    trackpos += pt;
-    }
+   
+    TypeSet<Coord3> trackpos = getTrackPos( wd );
     if ( !trackpos.size() )
 	return;
 
@@ -134,6 +112,36 @@ void WellDisplay::fullRedraw( CallBacker* )
 
     if ( log2nm_.size())
 	displayLog( log2nm_, log2logsc_, log2rg_, 2 );
+}
+
+
+TypeSet<Coord3> WellDisplay::getTrackPos( Well::Data* wd )
+{
+    TypeSet<Coord3> trackpos;
+    const Well::D2TModel* d2t = wd->d2TModel();
+    setName( wd->name() );
+
+    if ( wd->track().size() < 1 ) return trackpos;
+    PtrMan<Well::Track> ttrack = 0;
+    if ( zistime_ )
+    {
+	ttrack = new Well::Track( wd->track() );
+	ttrack->toTime( *d2t );
+    }
+    Well::Track& track = zistime_ ? *ttrack : wd->track();
+
+    Coord3 pt;
+    for ( int idx=0; idx<track.size(); idx++ )
+    {
+	pt = track.pos( idx );
+	if ( zinfeet_ )
+	    mMeter2Feet(pt.z);
+
+	if ( !mIsUndefined(pt.z) )
+	    trackpos += pt;
+    }
+
+    return trackpos;
 }
 
 
@@ -576,6 +584,30 @@ void WellDisplay::setupPicking()
     picksallowed_ = true;
     group_ = visBase::DataObjectGroup::create();
     addChild( group_->getInventorNode() );
+}
+
+
+void WellDisplay::showKnownPositions()
+{
+    Well::Data* wd = Well::MGR().get( wellid_, false );
+    if ( !wd ) return;
+   
+    TypeSet<Coord3> trackpos = getTrackPos( wd );
+    if ( !trackpos.size() )
+	return;
+
+    for ( int idx=0; idx<trackpos.size(); idx++ )
+    {
+	Coord3 newpos = scene_->getZScaleTransform()->
+	    transformBack( trackpos[idx] );
+	if ( transformation_ )
+	    newpos = transformation_->transformBack(newpos);
+/*	BinID bid = SI().transform( Coord( trackpos[idx].x, trackpos[idx].y ) );
+	trackpos[idx].x = bid.inl; trackpos[idx].y = bid.crl; 
+	trackpos[idx].z *= -SI().zFactor();*/
+	newpos.z *= 2;
+	addPick( newpos );
+    }
 }
 
 }; // namespace visSurvey
