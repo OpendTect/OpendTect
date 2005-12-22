@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.39 2005-11-17 14:55:46 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.40 2005-12-22 15:57:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.39 2005-11-17 14:55:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.40 2005-12-22 15:57:48 cvshelene Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -279,6 +279,7 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( settmnu, "&Mouse controls ...", mSettMouseMnuItm );
     mInsertItem( settmnu, "&Look and feel ...", mSettLkNFlMnuItm );
     mInsertItem( settmnu, "&General ...", mSettGeneral );
+    mInsertItem( settmnu, "&Shortcuts ...", mSettShortcutsMnuItm );
 
     mInsertItem( utilmnu, "&Batch programs ...", mBatchProgMnuItm );
     mInsertItem( utilmnu, "&Plugins ...", mPluginsMnuItm );
@@ -402,6 +403,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
     case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
+
     case mSettLkNFlMnuItm: {
 	uiLooknFeelSettings dlg( &appl, "Set Look and Feel Settings" );
 	if ( dlg.go() && dlg.isChanged() )
@@ -413,6 +415,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	uiSettings dlg( &appl, "Set a specific User Setting" );
 	dlg.go();
     } break;
+
+    case mSettShortcutsMnuItm:	applMgr().manageShortcuts(); break;
 
     case mStereoOffsetMnuItm: 	applMgr().setStereoOffset(); break;
     case mStereoOffMnuItm: 

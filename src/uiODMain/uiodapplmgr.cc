@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.109 2005-11-29 16:11:13 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.110 2005-12-22 15:57:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uisurvey.h"
 #include "uistereodlg.h"
+#include "uishortcuts.h"
 
 static BufferString retstr;
 
@@ -289,6 +290,7 @@ void uiODApplMgr::createSurfOutput()
 void uiODApplMgr::reStartProc() { uiRestartBatchDialog dlg( &appl ); dlg.go(); }
 void uiODApplMgr::batchProgs() { uiBatchProgLaunch dlg( &appl ); dlg.go(); }
 void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl ); dlg.go(); }
+void uiODApplMgr::manageShortcuts() { uiShortcutsDlg dlg( &appl ); dlg.go(); }
 
 
 void uiODApplMgr::setFonts()

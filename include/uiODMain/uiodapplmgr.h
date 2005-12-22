@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.25 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.26 2005-12-22 15:57:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ public:
     void			pluginMan();
     void			crDevEnv();
     void			setFonts();
+    void			manageShortcuts();
 
     // Tree menu services
     // Selections

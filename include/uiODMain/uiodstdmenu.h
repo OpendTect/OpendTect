@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.13 2005-11-02 16:47:38 cvsarend Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.14 2005-12-22 15:57:48 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -104,6 +104,7 @@ ________________________________________________________________________
 #define mSettMouseMnuItm	(mUtilSettingMnu + 20)
 #define mSettLkNFlMnuItm	(mUtilSettingMnu + 30)
 #define mSettGeneral		(mUtilSettingMnu + 40)
+#define mSettShortcutsMnuItm	(mUtilSettingMnu + 50)
 
 
 /* 'Help' menu */
