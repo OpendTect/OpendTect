@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.17 2005-11-07 12:29:22 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.18 2005-12-22 08:19:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -466,17 +466,34 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     const char* newattr = uiAttribFactory::defNameForName( attrstr );
     BufferString type = usedesc->attribName();
     const char* oldattr = getAttrTypeName( type );
-    if ( strcmp(newattr,oldattr) && 
-	 !uiMSG().askGoOn("This action will change the attribute type.\n"
-			  "Do you want to continue?") )
-	return false;
+    if ( strcmp(newattr,oldattr) )
+    {
+	if ( !uiMSG().askGoOn("This action will change the attribute type.\n"
+			      "Do you want to continue?") )
+	    return false;
+	else
+	{
+	    Desc* newdesc = PF().createDescCopy( newattr );
+	    if ( !newdesc ) return false;
+
+	    newdesc->setUserRef( usedesc->userRef() );
+	    attrset->removeDesc(attrset->getID(*usedesc));
+	    attrset->addDesc( newdesc );
+	    updateUserRefs();
+	    curDescEd()->commit( newdesc );
+	    updateCurDescEd();
+	    
+	    newdesc->setDescSet( attrset );
+	    usedesc = newdesc;
+	}
+    }
 
     if ( !setUserRef(usedesc) ) return false;
 
     uiAttrDescEd* curdesced = curDescEd();
     if ( !curdesced ) return false;
 
-    const char* res = curdesced->commit();
+    const char* res = curdesced->commit( 0 );
     if ( res )
 	mErrRetFalse( res )
 
@@ -527,10 +544,8 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 	uiAttrDescEd* de = desceds[idx];
 	if ( !de ) continue;
 
-	if ( de->shouldEdit(attrnm) )
+	if ( de->name() == attrnm )
 	    return de;
-	if ( !ret && de->canEdit(attrnm) )
-	    ret = de;
     }
     return ret;
 }
