@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.8 2005-12-21 10:55:00 cvsnanne Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.9 2005-12-22 08:14:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,10 +80,6 @@ public:
     			//!< If attribdesc is non-zero, that desc will be
     			//!< filled. If not, the internal desc will be filled.
 
-    virtual bool	shouldEdit( const char* s ) const
-			{ return name() == s; }
-    virtual bool	canEdit( const char* ad ) const
-			{ return shouldEdit(ad); }
     virtual void	set2D( bool yn )		{}
 
     virtual int		getOutputIdx(float val) const	{ return (int)val; }
