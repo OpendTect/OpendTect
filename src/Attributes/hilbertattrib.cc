@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.13 2005-11-29 19:35:42 cvsnanne Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.14 2005-12-22 14:55:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,13 +26,12 @@ void Hilbert::initClass()
     desc->ref();
 
     IntParam* halflen = new IntParam( halflenStr() );
-    halflen->setDefaultValue( "30" );
-    halflen->setValue( (int)30 );
-    halflen->setRequired(false);
+    halflen->setDefaultValue( 30 );
+    halflen->setValue( 30 );
+    halflen->setRequired( false );
     desc->addParam( halflen );
 
-    InputSpec inputspec( "Input data", true );
-    desc->addInput( inputspec );
+    desc->addInput( InputSpec("Input data",true) );
     desc->addOutputDataType( Seis::UnknowData );
     desc->init();
 
@@ -57,8 +56,8 @@ Provider* Hilbert::createInstance( Desc& desc )
 }
 
 
-Hilbert::Hilbert( Desc& desc_ )
-    : Provider( desc_ )
+Hilbert::Hilbert( Desc& ds )
+    : Provider( ds )
 {
     if ( !isOK() ) return;
 

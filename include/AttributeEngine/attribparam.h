@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.17 2005-08-26 12:47:05 cvshelene Exp $
+ RCS:           $Id: attribparam.h,v 1.18 2005-12-22 14:55:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
 				{ return false; }
     virtual bool		getCompositeValue(BufferString&) const	=0;
     
-    void			setDefaultValue(BufferString val)
+    void			setDefaultValue(const char* val)
     				{ defaultval_ = val; }
     BufferString		getDefaultValue() const { return defaultval_; } 
     void			setKey( char* newkey ) { key_ = newkey; }
@@ -137,6 +137,8 @@ class BinIDParam : public ValParam
 public:
     				BinIDParam(const char*);
     BinIDParam*			clone() const;
+    void			setLimits(const Interval<int>& inlrg,
+	    				  const Interval<int>& crlrg);
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
@@ -162,8 +164,11 @@ class EnumParam : public ValParam
 public:
     				EnumParam(const char*);
     EnumParam*			clone() const;
+    void			setDefaultValue(int);
+
     void			addEnum(const char*);
     void			addEnums(const char**);
+
     void                	fillDefStr(BufferString&) const;
 };
 
@@ -194,6 +199,7 @@ public:
     virtual bool		getCompositeValue(BufferString& res) const;
     virtual bool                setCompositeValue(const char*);
 
+    virtual void		setDefaultValue(T val);
     virtual int			getIntValue(int idx=0) const;
     virtual float		getfValue(int idx=0) const;
 };
@@ -215,6 +221,14 @@ bool NumParam<T>::getCompositeValue( BufferString& res ) const
     if ( !spec_ ) return false;
     res = spec_->isUndef() ? sKey::FloatUdf : spec_->text();
     return true;
+}
+
+
+template <class T>
+void NumParam<T>::setDefaultValue( T val )
+{
+    BufferString str( val );
+    Param::setDefaultValue( str );
 }
 
 

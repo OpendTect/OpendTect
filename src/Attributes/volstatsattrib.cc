@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.13 2005-11-29 19:35:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.14 2005-12-22 14:55:56 cvsnanne Exp $";
 
 #include "volstatsattrib.h"
 
@@ -29,41 +29,40 @@ void VolStats::initClass()
 
     IntParam* nrvolumes = new IntParam( nrvolumesStr() );
     nrvolumes->setLimits( Interval<int>(1,INT_MAX) );
-    nrvolumes->setDefaultValue("1");
-    nrvolumes->setValue( (int)1 );
-    nrvolumes->setRequired(false);
+    nrvolumes->setDefaultValue( 1 );
+    nrvolumes->setValue( 1 );
+    nrvolumes->setRequired( false );
     desc->addParam( nrvolumes );
 
-    BinIDParam* stepout = new BinIDParam(stepoutStr());
-    stepout->setDefaultValue(BinID(1,1));
+    BinIDParam* stepout = new BinIDParam( stepoutStr() );
+    stepout->setDefaultValue( BinID(1,1) );
     desc->addParam( stepout );
 
-    EnumParam* shape = new EnumParam(shapeStr());
+    EnumParam* shape = new EnumParam( shapeStr() );
     //Note: Ordering must be the same as numbering!
-    shape->addEnum(shapeTypeStr(mShapeRectangle));
-    shape->addEnum(shapeTypeStr(mShapeEllipse));
-    shape->setDefaultValue("0");
-    desc->addParam(shape);
+    shape->addEnum( shapeTypeStr(mShapeRectangle) );
+    shape->addEnum( shapeTypeStr(mShapeEllipse) );
+    shape->setDefaultValue( mShapeRectangle );
+    desc->addParam( shape );
 
-    ZGateParam* gate = new ZGateParam(gateStr());
+    ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     desc->addParam( gate );
 
     BoolParam* absolutegate = new BoolParam( absolutegateStr() );
-    absolutegate->setDefaultValue(false);
+    absolutegate->setDefaultValue( false );
     absolutegate->setValue( false );
     absolutegate->setRequired( false );
     desc->addParam( absolutegate );
     
     BoolParam* steering = new BoolParam( steeringStr() );
-    steering->setDefaultValue(false);
+    steering->setDefaultValue( false );
     desc->addParam( steering );
 
+    desc->addInput( InputSpec("Input data",true) );
     int res =0;
     while ( outputtypes[res++] != -1 )
 	desc->addOutputDataType( Seis::UnknowData );
-
-    desc->addInput( InputSpec("Input data",true) );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();
@@ -74,7 +73,6 @@ Provider* VolStats::createInstance( Desc& ds )
 {
     VolStats* res = new VolStats( ds );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();
@@ -108,10 +106,9 @@ void VolStats::updateDesc( Desc& desc )
 }
 
 
-const char* VolStats::shapeTypeStr(int type)
+const char* VolStats::shapeTypeStr( int type )
 {
-    if ( type==mShapeRectangle ) return "Rectangle";
-    return "Ellipse";
+    return type==mShapeRectangle ? "Rectangle" : "Ellipse";
 }
 
 
@@ -128,8 +125,8 @@ int VolStats::outputtypes[] =
 };
 
     
-VolStats::VolStats( Desc& desc_ )
-    : Provider( desc_ )
+VolStats::VolStats( Desc& ds )
+    : Provider( ds )
     , positions(0,BinID(0,0))
     , stats(0)
 {
@@ -358,7 +355,5 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
     
     return true;
 }
-
-
 
 }; //namespace

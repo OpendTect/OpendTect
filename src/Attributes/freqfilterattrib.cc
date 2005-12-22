@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.11 2005-09-09 13:44:52 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
 #include "timeser.h"
 #include "ptrman.h"
 #include "arrayndinfo.h"
@@ -205,7 +204,7 @@ void FreqFilter::initClass()
     filtertype->addEnum( filterTypeNamesStr(mFilterLowPass) );
     filtertype->addEnum( filterTypeNamesStr(mFilterHighPass) );
     filtertype->addEnum( filterTypeNamesStr(mFilterBandPass) );
-    filtertype->setDefaultValue("0");
+    filtertype->setDefaultValue( mFilterLowPass );
     desc->addParam( filtertype );
 
     FloatParam* minfreq = new FloatParam( minfreqStr() );
@@ -218,16 +217,16 @@ void FreqFilter::initClass()
 
     IntParam* nrpoles = new IntParam( nrpolesStr() );
     nrpoles->setLimits( Interval<int>(2,20) );
-    nrpoles->setDefaultValue("4");
+    nrpoles->setDefaultValue( 4 );
     desc->addParam( nrpoles );
 
     BoolParam* isfftfilter = new BoolParam( isfftfilterStr() );
-    isfftfilter->setDefaultValue(false);
+    isfftfilter->setDefaultValue( false );
     desc->addParam( isfftfilter );
 
     EnumParam* window = new EnumParam( windowStr() );
     window->addEnums( ArrayNDWindow::WindowTypeNames );
-    window->setDefaultValue( "CosTaper5" );
+    window->setDefaultValue( ArrayNDWindow::CosTaper5 );
     desc->addParam( window );
 
     desc->addOutputDataType( Seis::UnknowData );
@@ -244,7 +243,6 @@ Provider* FreqFilter::createInstance( Desc& ds )
 {
     FreqFilter* res = new FreqFilter( ds );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();
@@ -279,8 +277,8 @@ const char* FreqFilter::filterTypeNamesStr( int type )
 }
 
 
-FreqFilter::FreqFilter( Desc& desc_ )
-    : Provider( desc_ )
+FreqFilter::FreqFilter( Desc& ds )
+    : Provider( ds )
     , fftsz(-1)
     , fft(false)
     , fftinv(false)
@@ -338,7 +336,7 @@ bool FreqFilter::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool FreqFilter::getInputData(const BinID& relpos, int idx)
+bool FreqFilter::getInputData( const BinID& relpos, int idx )
 {
     redata = inputs[0]->getData(relpos, idx);
     if ( !redata ) return false;

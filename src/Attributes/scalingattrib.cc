@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.11 2005-09-13 14:32:21 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
-#include "datainpspec.h"
 
 #define mStatsTypeRMS	0
 #define mStatsTypeMean	1
@@ -52,8 +51,8 @@ void Scaling::initClass()
 
     FloatParam* powerval = new FloatParam( powervalStr() );
     powerval->setLimits( Interval<float>(0,mUndefValue) );
-    powerval->setDefaultValue("1");
-    desc->setParamEnabled( powervalStr(),false );
+    powerval->setDefaultValue( 1 );
+    desc->setParamEnabled( powervalStr(), false );
     desc->addParam( powerval );
     
     ZGateParam gate( gateStr() );
@@ -65,7 +64,7 @@ void Scaling::initClass()
 
     FloatParam factor( factorStr() );
     factor.setLimits( Interval<float>(0,mUndefValue) );
-    factor.setDefaultValue("1");
+    factor.setDefaultValue( 1 );
 
     ParamGroup<ValParam>* factorset
 		= new ParamGroup<ValParam>( 0, factorStr(), factor );
@@ -76,6 +75,7 @@ void Scaling::initClass()
     statstype->addEnum( statsTypeNamesStr(mStatsTypeMean) );
     statstype->addEnum( statsTypeNamesStr(mStatsTypeMax) );
     statstype->addEnum( statsTypeNamesStr(mStatsTypeUser) );
+    statstype->setDefaultValue( mStatsTypeRMS );
     desc->addParam( statstype );
 
     desc->addOutputDataType( Seis::UnknowData );
@@ -90,7 +90,6 @@ Provider* Scaling::createInstance( Desc& desc )
 {
     Scaling* res = new Scaling( desc );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();

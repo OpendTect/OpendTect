@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.11 2005-12-07 11:26:05 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "datainpspec.h"
 #include "genericnumer.h"
 #include "survinfo.h"
 #include "envvars.h"
@@ -35,44 +34,43 @@ void SpecDecomp::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    EnumParam* ttype = new EnumParam(transformTypeStr());
+    EnumParam* ttype = new EnumParam( transformTypeStr() );
     //Note: Ordering must be the same as numbering!
-    ttype->addEnum(transTypeNamesStr(mTransformTypeFourier));
-    ttype->addEnum(transTypeNamesStr(mTransformTypeDiscrete));
-    ttype->addEnum(transTypeNamesStr(mTransformTypeContinuous));
-    ttype->setDefaultValue("0");
-    desc->addParam(ttype);
+    ttype->addEnum( transTypeNamesStr(mTransformTypeFourier) );
+    ttype->addEnum( transTypeNamesStr(mTransformTypeDiscrete) );
+    ttype->addEnum( transTypeNamesStr(mTransformTypeContinuous) );
+    ttype->setDefaultValue( mTransformTypeFourier );
+    desc->addParam( ttype );
 
-    EnumParam* window = new EnumParam(windowStr());
-    window->addEnums(ArrayNDWindow::WindowTypeNames);
-    window->setRequired(false);
-    window->setDefaultValue("CosTaper5");
+    EnumParam* window = new EnumParam( windowStr() );
+    window->addEnums( ArrayNDWindow::WindowTypeNames );
+    window->setRequired( false );
+    window->setDefaultValue( ArrayNDWindow::CosTaper5 );
     window->setValue( 0 );
-    desc->addParam(window);
+    desc->addParam( window );
 
-    ZGateParam* gate = new ZGateParam(gateStr());
+    ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     desc->addParam( gate );
 
     FloatParam* deltafreq = new FloatParam( deltafreqStr() );
-    deltafreq->setRequired(false);
-    deltafreq->setDefaultValue("5");
+    deltafreq->setRequired( false );
+    deltafreq->setDefaultValue( 5 );
     desc->addParam( deltafreq );
 
-    EnumParam* dwtwavelet = new EnumParam(dwtwaveletStr());
-    dwtwavelet->addEnums(WaveletTransform::WaveletTypeNames);
-    dwtwavelet->setDefaultValue("Haar");
-    desc->addParam(dwtwavelet);
+    EnumParam* dwtwavelet = new EnumParam( dwtwaveletStr() );
+    dwtwavelet->addEnums( WaveletTransform::WaveletTypeNames );
+    dwtwavelet->setDefaultValue( WaveletTransform::Haar );
+    desc->addParam( dwtwavelet );
 
-    EnumParam* cwtwavelet = new EnumParam(cwtwaveletStr());
-    cwtwavelet->addEnums(CWT::WaveletTypeNames);
-    cwtwavelet->setDefaultValue("Morlet");
-    desc->addParam(cwtwavelet);
-
-    desc->addOutputDataType( Seis::UnknowData );
+    EnumParam* cwtwavelet = new EnumParam( cwtwaveletStr() );
+    cwtwavelet->addEnums( CWT::WaveletTypeNames );
+    cwtwavelet->setDefaultValue( CWT::Morlet );
+    desc->addParam( cwtwavelet );
 
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
+    desc->addOutputDataType( Seis::UnknowData );
 
     PF().addDesc( desc, createInstance );
     desc->unRef();
@@ -83,7 +81,6 @@ Provider* SpecDecomp::createInstance( Desc& ds )
 {
     SpecDecomp* res = new SpecDecomp( ds );
     res->ref();
-
     if ( !res->isOK() )
     {
 	res->unRef();

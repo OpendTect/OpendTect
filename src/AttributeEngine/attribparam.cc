@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.20 2005-12-16 15:43:14 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.21 2005-12-22 14:55:56 cvsnanne Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -231,6 +231,16 @@ BinIDParam::BinIDParam( const char* nm )
 mParamClone( BinIDParam );
 
 
+void BinIDParam::setLimits( const Interval<int>& inlrg,
+			    const Interval<int>& crlrg )
+{
+    /*
+    TODO: implement setLimits in BinIDInpSpec
+    reinterpret_cast<BinIDInpSpec*>(spec_)->setLimits( inlrg, crlrg );
+    */
+}
+
+
 bool BinIDParam::setCompositeValue( const char* posstr )
 {
     int posstrsz = strlen( posstr );
@@ -321,6 +331,17 @@ mParamClone( EnumParam );
 
 void EnumParam::addEnum( const char* ne )
 { reinterpret_cast<StringListInpSpec*>(spec_)->addString(ne); }
+
+
+void EnumParam::setDefaultValue( int val )
+{
+    const BufferStringSet& strings = 
+	reinterpret_cast<StringListInpSpec*>(spec_)->strings();
+    if ( val < 0 || val >= strings.size() )
+	val = 0;
+
+    Param::setDefaultValue( strings.get(val) );
+}
 
 
 void EnumParam::addEnums( const char** nes )

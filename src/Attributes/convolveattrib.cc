@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.10 2005-09-05 10:22:24 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.11 2005-12-22 14:55:56 cvsnanne Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -34,19 +34,19 @@ void Convolve::initClass()
     kernel->addEnum( kernelTypeStr(mKernelFunctionLowPass) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionLaplacian) );
     kernel->addEnum( kernelTypeStr(mKernelFunctionPrewitt) );
-    kernel->setDefaultValue("0");
+    kernel->setDefaultValue( mKernelFunctionLowPass );
     desc->addParam(kernel);
 
     EnumParam* shape = new EnumParam( shapeStr() );
     //Note: Ordering must be the same as numbering!
     shape->addEnum( shapeTypeStr(mShapeCube) );
     shape->addEnum( shapeTypeStr(mShapeSphere) );
-    shape->setDefaultValue("1");
+    shape->setDefaultValue( mShapeSphere );
     desc->addParam(shape);
 
     IntParam* sizepar = new IntParam( sizeStr() );
     sizepar->setLimits( Interval<int>(0,30) );
-    sizepar->setDefaultValue("3");
+    sizepar->setDefaultValue( 3 );
     desc->addParam( sizepar );
 
     desc->addOutputDataType( Seis::UnknowData );

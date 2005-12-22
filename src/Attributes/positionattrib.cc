@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.11 2005-12-13 10:25:52 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.12 2005-12-22 14:55:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,12 +34,12 @@ void Position::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    BinIDParam* stepout = new BinIDParam(stepoutStr());
-    stepout->setDefaultValue(BinID(0,0));
+    BinIDParam* stepout = new BinIDParam( stepoutStr() );
+    stepout->setDefaultValue( BinID(0,0) );
     desc->addParam( stepout );
 
     ZGateParam* gate = new ZGateParam( gateStr() );
-    gate->setLimits( Interval<float>(-mLargestZGate, mLargestZGate) );
+    gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     desc->addParam( gate );
 
     EnumParam* oper = new EnumParam( operStr() );
@@ -47,17 +47,16 @@ void Position::initClass()
     oper->addEnum( operTypeStr(mPositionOperMin) );
     oper->addEnum( operTypeStr(mPositionOperMax) );
     oper->addEnum( operTypeStr(mPositionOperMedian) );
-    oper->setDefaultValue("0");
-    desc->addParam(oper);
+    oper->setDefaultValue( mPositionOperMin );
+    desc->addParam( oper );
 
     BoolParam* steering = new BoolParam( steeringStr() );
-    steering->setDefaultValue("false");
-    desc->addParam(steering);
-
-    desc->addOutputDataType( Seis::UnknowData );
+    steering->setDefaultValue( false );
+    desc->addParam( steering );
 
     desc->addInput( InputSpec("Input attribute",true) );
     desc->addInput( InputSpec("Output attribute",true) );
+    desc->addOutputDataType( Seis::UnknowData );
 
     InputSpec steerspec( "Steering data", false );
     steerspec.issteering = true;

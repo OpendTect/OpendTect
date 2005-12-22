@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.6 2005-09-02 14:21:35 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.7 2005-12-22 14:55:56 cvsnanne Exp $";
 
 #include "frequencyattrib.h"
 #include "attribdataholder.h"
@@ -31,17 +31,17 @@ void Frequency::initClass()
     Desc* desc = new Desc( attribName() );
     desc->ref();
 
-    ZGateParam* gate = new ZGateParam(gateStr());
+    ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
     desc->addParam( gate );
 
     BoolParam* normalize = new BoolParam( normalizeStr() );
-    normalize->setDefaultValue(false);
+    normalize->setDefaultValue( false );
     desc->addParam( normalize );
 
-    EnumParam* window = new EnumParam(windowStr());
-    window->addEnums(ArrayNDWindow::WindowTypeNames);
-    window->setDefaultValue("CosTaper5");
+    EnumParam* window = new EnumParam( windowStr() );
+    window->addEnums( ArrayNDWindow::WindowTypeNames );
+    window->setDefaultValue( ArrayNDWindow::CosTaper5 );
     desc->addParam(window);
 
     BoolParam* dumptofile = new BoolParam( dumptofileStr() );
@@ -75,20 +75,20 @@ Provider* Frequency::createInstance( Desc& ds )
 }
 
 
-Frequency::Frequency( Desc& desc_ )
-    : Provider( desc_ )
-    , fftisinit( false )
-    , fftsz( -1 )
-    , fft( false )
-    , window( 0 )
-    , signal( 0 )
+Frequency::Frequency( Desc& ds )
+    : Provider( ds )
+    , fftisinit(false)
+    , fftsz(-1)
+    , fft(false)
+    , window(0)
+    , signal(0)
     , timedomain(0)
     , freqdomain(0)
 {
     if ( !isOK() ) return;
 
     mGetFloatInterval( gate, gateStr() );
-    gate.start = gate.start / zFactor(); gate.stop = gate.stop / zFactor();
+    gate.scale( 1/zFactor() );
 
     mGetBool( normalize, normalizeStr() );
     

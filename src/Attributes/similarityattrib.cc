@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.17 2005-12-13 10:15:08 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.18 2005-12-22 14:55:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"
-#include "datainpspec.h"
 #include "genericnumer.h"
 #include "survinfo.h"
 #include "runstat.h"
@@ -34,7 +33,7 @@ void Similarity::initClass()
     Desc* desc = new Desc( attribName(), updateDesc );
     desc->ref();
 
-    ZGateParam* gate = new ZGateParam(gateStr());
+    ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
     desc->addParam( gate );
 
@@ -51,20 +50,19 @@ void Similarity::initClass()
     extension->addEnum( extensionTypeStr(mExtensionRot90) );
     extension->addEnum( extensionTypeStr(mExtensionRot180) );
     extension->addEnum( extensionTypeStr(mExtensionCube) );
-    extension->setDefaultValue( extensionTypeStr(mExtensionRot90) );
+    extension->setDefaultValue( mExtensionRot90 );
     desc->addParam( extension );
 
     BoolParam* steering = new BoolParam( steeringStr() );
-    steering->setDefaultValue(true);
+    steering->setDefaultValue( true );
     desc->addParam( steering );
 
     BoolParam* normalize = new BoolParam( normalizeStr() );
-    normalize->setDefaultValue(false);
+    normalize->setDefaultValue( false );
     desc->addParam( normalize );
 
-    desc->setNrOutputs( Seis::UnknowData, 5 );
-
     desc->addInput( InputSpec("Input data",true) );
+    desc->setNrOutputs( Seis::UnknowData, 5 );
 
     InputSpec steeringspec( "Steering data", false );
     steeringspec.issteering = true;
