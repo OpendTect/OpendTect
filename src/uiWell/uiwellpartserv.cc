@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.19 2005-11-22 08:04:32 cvshelene Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.20 2005-12-22 15:56:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,12 +141,13 @@ void uiWellPartServer::getRdmLineCoordinates( TypeSet<Coord>& coords )
 }
 
 
-void uiWellPartServer::setupNewWell( BufferString& name, Color& color )
+bool uiWellPartServer::setupNewWell( BufferString& name, Color& color )
 {
     uiNewWellDlg dlg( appserv().parent() );
     dlg.go();
     name = dlg.getName();
     color = dlg.getWellColor();
+    return ( dlg.uiResult() == 1 );
 }
 
 
