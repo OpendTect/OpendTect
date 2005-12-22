@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.131 2005-12-21 12:15:29 cvshelene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.132 2005-12-22 15:55:04 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -1262,10 +1262,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-    uiPopupMenu* welltrackmnu = new uiPopupMenu( getUiParent(), "WellTrack" );
-    welltrackmnu->insertItem( new uiMenuItem("New ..."), 1 );
-    welltrackmnu->insertItem( new uiMenuItem("Edit"), 20 );//link with action
-    mnu.insertItem( welltrackmnu , 1 );
+    mnu.insertItem( new uiMenuItem("New WellTrack ..."), 1 );
     if ( children.size() )
 	mnu.insertItem( new uiMenuItem("Properties ..."), 2 );
     addStandardItems( mnu );
@@ -1291,7 +1288,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 	wd->setupPicking();
 	BufferString name;
 	Color color;
-	applMgr()->wellServer()->setupNewWell( name, color );
+	if ( !applMgr()->wellServer()->setupNewWell( name, color ) ) 
+	    return false;
 	LineStyle linestyle( (LineStyle::Type)1, 1, color );
 	wd->setLineStyle( linestyle );
 	visserv->addObject( wd, sceneID(), true );
@@ -1373,6 +1371,7 @@ void uiODWellTreeItem::initMenuItems()
     markernamemnuitem.text = "Marker names";
     showlogmnuitem.text = "Logs" ;
     showmnuitem.text = "Show" ;
+    editmnuitem.text = "Edit Welltrack" ;
     storemnuitem.text = "Store ...";
 }
 
@@ -1417,9 +1416,8 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 		  applMgr()->wellServer()->hasLogs(wd->wellId()), false );
     mAddMenuItem( menu, &attrmnuitem, true, false );
     mAddMenuItem( menu, &propertiesmnuitem, true, false );
-#ifdef __debug__
+    mAddMenuItem( menu, &editmnuitem, true, false );
     mAddMenuItem( menu, &storemnuitem, true, false );
-#endif
     mAddMenuItem( menu, &showmnuitem, true, false );
     mAddMenuItem( &showmnuitem, &namemnuitem, true,  wd->wellNameShown() );
     mAddMenuItem( &showmnuitem, &markermnuitem, wd->canShowMarkers(),
@@ -1490,6 +1488,13 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	if ( wd->isHomeMadeWell() )
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(), errmsg );
+    }
+    else if ( mnuid == editmnuitem.id )
+    {
+	//TODO implement
+	menu->setIsHandled( true );
+	wd->setupPicking();
+	wd->showKnownPositions();
     }
 }
 
